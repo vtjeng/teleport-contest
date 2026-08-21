@@ -1,0 +1,182 @@
+{
+  "mode": "implementation",
+  "reason": "Startup boulder parsing, escape decoding, clash diagnostics, dual symbol overrides, and final first-map application are missing; the source comment and executable NUL branch also require fresh-C resolution.",
+  "commitChecked": "bc2d48c023da77f468c0600fc79b95ac1a40a7ca",
+  "boundary": {
+    "goalId": "options-config-parser",
+    "startingCommit": "bc2d48c023da77f468c0600fc79b95ac1a40a7ca",
+    "startingEvent": "Startup parses an OPTIONS=boulder statement, optionally alongside primary/Rogue symbol-set selections and S_boulder overrides.",
+    "endingEvent": "Configuration errors are dismissed and startup continues through the first tutorial map, or the accepted boulder value is shown in #optionsfull and on that map.",
+    "validInputs": "Missing and empty values; literal, control, decimal, octal, hexadecimal, C-style, caret, meta, and multi-byte spellings; printable nonclashing bytes; default monster-class and warning-symbol clashes; repetitions and source-permitted orderings with symset, roguesymset, SYMBOLS, and ROGUESYMBOLS.",
+    "observables": "Exact configuration-error text and raw wait, primary and Rogue override bytes, active showsyms and menu value, first tutorial-map glyph, complete screens and attributes, cursors, persisted startup state, and unchanged PRNG order.",
+    "exclusions": "Runtime optfn_boulder(do_set) redraw on an already-created level, interactive symbol-set handlers, Rogue-level entry after startup, non-BACKWARD_COMPAT builds, and map behavior after the first tutorial rendering/#optionsfull boundary."
+  },
+  "candidateListMethod": {
+    "upstreamEntryPoints": "cfgfiles.c cnf_line_OPTIONS(), options.c parseoptions()/optfn_boulder()/string_for_opt()/escapes()/initoptions_finish(), drawing.c def_char_to_monclass(), and symbols.c get_othersym()/switch_symbols().",
+    "dispatchTablesAndCatalogs": "The generated optlist.h boulder row fixes parser eligibility; defsym.h/drawing.c define the exhaustive default monster, warning, object, and S_boulder symbols; the generated symbol-set catalog fixes selectable primary/Rogue sets.",
+    "reachableHelpers": "Traced every optfn_boulder request arm and do_set branch, first-byte escape families, first-match monster lookup, warning range, override writes, initial-vs-runtime split, end-of-configuration get_othersym application, menu serialization, and boulder display consumption.",
+    "javascriptCrossCheck": "Searched js/options.js generic compound fallback and menu guard, js/symbols.js escape/operation/override tables, js/jsmain.js startup ordering, js/fruit.js partial initoptions_finish(), js/display.js boulder redirect, generated symbol data, focused parser/menu/display tests, and the compound diagnostic census.",
+    "remainingLimits": "The pinned build defines BACKWARD_COMPAT and uses TTY startup. High-bit signed-char behavior and the source comment claiming NUL reset must be pinned against the patched C executable; runtime redraw and later Rogue-level consumption remain excluded."
+  },
+  "entries": [
+    {
+      "candidate": "boulder parser dispatch, negation, duplicate, and mandatory-value handling",
+      "reachability": "The generated CompOpt row accepts boulder during startup; missing/empty values and negated spellings reach parseoptions()/string_for_opt() before any symbol write.",
+      "owner": "js/options.js applyOption()/new optfn_boulder startup arm",
+      "effects": "Reports source parser errors, preserves duplicate bookkeeping, and avoids writes for rejected statements.",
+      "evidence": "include/optlist.h boulder row; options.c parseoptions() and optfn_boulder(do_set); scripts/config-error.test.mjs currently records three owed diagnostics.",
+      "status": "missing",
+      "remaining": "Port the handler dispatch and pin missing, empty, negated, and duplicate forms."
+    },
+    {
+      "candidate": "escapes() first-byte decoding families",
+      "reachability": "Every nonempty boulder value is expanded in place before validation; only the first decoded byte is subsequently read.",
+      "owner": "js/options.js with the byte helpers shared or source-mapped from js/symbols.js",
+      "effects": "Selects the byte that validation and both override writes observe, without randomness or output by itself.",
+      "evidence": "options.c escapes() and optfn_boulder(); js/symbols.js already ports escapedFirstByte()/sym_val() for S_* assignments but boulder does not call them.",
+      "status": "missing",
+      "remaining": "Connect a byte-exact expansion covering literal, caret, decimal, octal, hex, C-style, meta, trailing-prefix, and multi-character inputs."
+    },
+    {
+      "candidate": "decoded NUL and control-byte outcomes",
+      "reachability": "Caret or numeric escape syntax can make the first decoded byte lower than space, including NUL.",
+      "owner": "js/options.js optfn_boulder startup arm",
+      "effects": "Either reports the control-character diagnostic or, per the contradictory source comment, treats NUL as an override reset; no symbol write should precede that decision.",
+      "evidence": "options.c optfn_boulder comment says ^@/\\0 resets, while the immediately following opts[0] < ' ' branch appears to reject NUL; a fresh patched-C case is in progress.",
+      "status": "undecided",
+      "remaining": "Resolve the source/comment contradiction from executable C evidence, then implement and test the actual branch."
+    },
+    {
+      "candidate": "default monster-class symbol clashes",
+      "reachability": "A decoded byte matching any def_monsyms entry from index 1 through MAXMCLASSES-1 reaches the first-match clash arm.",
+      "owner": "js/options.js optfn_boulder startup arm with a generated/default symbol lookup",
+      "effects": "Adds Badoption with visctrl(byte) and the monster label, leaving both override tables unchanged.",
+      "evidence": "drawing.c def_monsyms[]/def_char_to_monclass(); options.c optfn_boulder(); defsym.h generated monster-symbol universe.",
+      "status": "missing",
+      "remaining": "Use source-generated default monster bytes and pin a collision, including lookup precedence."
+    },
+    {
+      "candidate": "warning-level symbol clashes",
+      "reachability": "A decoded byte from '1' through WARNCOUNT-1+'0' that did not match a monster class reaches the warning arm; warning level zero is intentionally outside the range.",
+      "owner": "js/options.js optfn_boulder startup arm",
+      "effects": "Adds Badoption with visctrl(byte) and the warning label, leaving both override tables unchanged.",
+      "evidence": "options.c optfn_boulder(); drawing.c def_warnsyms[]; include/sym.h WARNCOUNT 6.",
+      "status": "missing",
+      "remaining": "Pin warning rejection and accepted '0' boundary behavior."
+    },
+    {
+      "candidate": "printable nonclashing boulder byte",
+      "reachability": "A decoded byte at least space which matches neither a default monster symbol nor warning levels 1 through 5 reaches the success arm.",
+      "owner": "js/options.js parse result plus js/symbols.js ordered startup operations",
+      "effects": "Writes the same byte to go.ov_primary_syms and go.ov_rogue_syms at S_boulder and emits no diagnostic.",
+      "evidence": "options.c optfn_boulder success arm; js/options.js currently stores only flags.boulder and leaves the C-owned slots untouched.",
+      "status": "missing",
+      "remaining": "Store one ordered operation that writes both override owners and removes the raw fallback."
+    },
+    {
+      "candidate": "high-bit decoded byte under the pinned C build",
+      "reachability": "Meta syntax or a UTF-8/config byte can produce a first byte at least 0x80 before opts[0] comparisons.",
+      "owner": "js/options.js optfn_boulder startup arm",
+      "effects": "Pinned char signedness determines validation and any eventual override byte.",
+      "evidence": "options.c escapes() stores through char and optfn_boulder compares opts[0] with space; JS byte helpers retain unsigned bytes.",
+      "status": "undecided",
+      "remaining": "Read build flags and pin one fresh C meta/high-bit case before claiming parity."
+    },
+    {
+      "candidate": "right-to-left OPTIONS ordering and repeated boulder values",
+      "reachability": "Multiple comma-separated options and repeated configuration statements can select boulder alongside symset and S_boulder assignments.",
+      "owner": "js/options.js symbolOperations and js/symbols.js initialize_symbols_from_options()",
+      "effects": "Replays accepted override writes in source parse order; rejected values leave the prior accepted byte intact.",
+      "evidence": "options.c parseoptions() recursion/order, optfn_boulder writes, and the existing ordered symbolOperations seam.",
+      "status": "missing",
+      "remaining": "Add boulder operations and fresh valid-before/after-invalid and S_boulder ordering cases."
+    },
+    {
+      "candidate": "primary/Rogue symset selection around the dual boulder override",
+      "reachability": "Valid symset/roguesymset selection can precede or follow boulder configuration during initial option processing.",
+      "owner": "js/symbols.js initialize_symbols_from_options()/slotArrays()",
+      "effects": "Set selection changes base tables and metadata without erasing explicit boulder overrides; the primary and Rogue slots retain the same configured byte.",
+      "evidence": "options.c optfn_boulder; symbols.c init/select/switch behavior; completed ordered symbolOperations implementation.",
+      "status": "missing",
+      "remaining": "Preserve both override tables across selection operations and pin both set owners."
+    },
+    {
+      "candidate": "initoptions_finish() get_othersym application",
+      "reachability": "Every normal startup calls initoptions_finish() after all configuration and symbol-set processing while go.opt_initial is true.",
+      "owner": "js/symbols.js or the startup-owned portion called from js/jsmain.js",
+      "effects": "Copies the final nonzero primary boulder override into gs.showsyms after all ordered symbol operations and before map rendering.",
+      "evidence": "options.c initoptions_finish(); symbols.c get_othersym(); js/jsmain.js startup order; js/fruit.js currently ports only the fruit-owned part.",
+      "status": "missing",
+      "remaining": "Add the symbol-owned finish step at the source ordering point."
+    },
+    {
+      "candidate": "#optionsfull boulder value",
+      "reachability": "The O/m options menu calls optfn_boulder(get_val) after startup configuration.",
+      "owner": "js/options.js OPTION_VALUE_HANDLERS.boulder and UNPARSED_COMPOUND_OPTIONS",
+      "effects": "Shows the explicit primary override, or the active rock-class fallback when none exists, without refusing the menu.",
+      "evidence": "options.c optfn_boulder(get_val); existing value handler is correct but guarded because parsing leaves a raw flags.boulder mirror.",
+      "status": "missing",
+      "remaining": "Remove boulder from the unparsed guard after source storage is installed and pin configured/fallback values."
+    },
+    {
+      "candidate": "first tutorial-map boulder rendering",
+      "reachability": "OPTIONS=tutorial loads dat/tut-1.lua, whose fixed boulder at (25,12) is visible near the starting hero before any gameplay command.",
+      "owner": "js/display.js object glyph redirect consuming gs.showsyms[S_boulder]",
+      "effects": "Renders the configured accepted byte in the first complete map with unchanged screens, cursors, and PRNG sequence otherwise.",
+      "evidence": "dat/tut-1.lua fixed boulder; display.c/object glyph path; js/display.js already redirects BOULDER to misc_symbol(SYM_BOULDER).",
+      "status": "missing",
+      "remaining": "Freshly compare configured tutorial startup through the first map and #optionsfull."
+    },
+    {
+      "candidate": "runtime optfn_boulder redraw arm",
+      "reachability": "Requires do_set after go.opt_initial has cleared, through an interactive in-game option change.",
+      "owner": "None",
+      "effects": "First effect is an immediate active-set get_othersym write and go.opt_need_redraw after this startup boundary.",
+      "evidence": "options.c optfn_boulder !go.opt_initial branch; selected boundary starts only from configuration parsing.",
+      "status": "later",
+      "remaining": "Separate interactive option-application slice."
+    },
+    {
+      "candidate": "non-BACKWARD_COMPAT rejection",
+      "reachability": "Requires compiling without BACKWARD_COMPAT, but the patched reference and supported port build define it.",
+      "owner": "None",
+      "effects": "No reachable effect in the pinned build.",
+      "evidence": "options.c defines BACKWARD_COMPAT locally before the optfn_boulder preprocessor split; optlist.h does the same for the generated row.",
+      "status": "cannot-occur",
+      "remaining": ""
+    }
+  ],
+  "missingWorkByOwner": [
+    {
+      "group": "options.c startup parser and escape validation",
+      "candidates": [
+        "boulder parser dispatch, negation, duplicate, and mandatory-value handling",
+        "escapes() first-byte decoding families",
+        "decoded NUL and control-byte outcomes",
+        "default monster-class symbol clashes",
+        "warning-level symbol clashes",
+        "printable nonclashing boulder byte",
+        "high-bit decoded byte under the pinned C build"
+      ],
+      "next": "Resolve byte semantics from source/fresh C and port optfn_boulder(do_set) without the generic flags.boulder fallback."
+    },
+    {
+      "group": "symbols.c startup ownership and ordering",
+      "candidates": [
+        "right-to-left OPTIONS ordering and repeated boulder values",
+        "primary/Rogue symset selection around the dual boulder override",
+        "initoptions_finish() get_othersym application"
+      ],
+      "next": "Replay accepted boulder writes beside existing symbol operations, then apply the final active primary byte at initoptions_finish ordering."
+    },
+    {
+      "group": "menu and tutorial-map consumers",
+      "candidates": [
+        "#optionsfull boulder value",
+        "first tutorial-map boulder rendering"
+      ],
+      "next": "Remove the stale menu refusal and prove the final byte through #optionsfull and the fixed tutorial boulder."
+    }
+  ],
+  "sourceReview": "Read-only survey traced the complete BACKWARD_COMPAT startup do_set path from config dispatch through escape decoding, clash classification, dual override ownership, ordered symbol operations, initoptions_finish(), menu serialization, and the tutorial display consumer. Fourteen candidate families were classified: one later runtime arm and one impossible build arm are bounded; every startup family is missing or awaits fresh-C byte evidence. No randomness occurs in the selected source path."
+}
