@@ -107,6 +107,7 @@ import {
     NO_COLOR,
 } from './terminal.js';
 import {
+    cnf_line_BOULDER,
     config_error_add,
     config_error_init,
     config_error_nextline,
@@ -367,6 +368,7 @@ function applyBooleanOptionDefaults(result) {
 }
 
 function defaultResult() {
+    const startupEvents = [];
     const result = {
         name: '',
         role: ROLE_NONE,
@@ -470,10 +472,11 @@ function defaultResult() {
         pl_fruit: DEFAULT_FRUIT,
         gameplayBindings: [],
         commandOperations: [],
-        // optfn_boolean() can call pline() before tty_init_nhwindows().  The
-        // game installer replays these through tty_raw_print() in source
-        // order after it has attached the recorder-facing display.
-        startupRawPrints: [],
+        // Raw output produced while the rc file is being parsed, in source
+        // order. optfn_boolean() and config_error_add() emit print-only
+        // events. A wait marks cfgfiles.c get_uchars()'s immediate
+        // wait_synch(); config_error_done() supplies the final wait separately.
+        startupEvents,
         // options.c's file static starts true; unsupported idlecheckpoint is
         // its only configuration-time writer.
         give_opt_msg: true,
@@ -488,7 +491,7 @@ function defaultResult() {
         // around the configuration read.  parseNethackrc() feeds it one line
         // at a time; js/jsmain.js closes it with config_error_done() and
         // prints what it holds.
-        configErrorFrame: config_error_init(),
+        configErrorFrame: config_error_init(startupEvents),
     };
     applyBooleanOptionDefaults(result);
     // allopt_array_init() invokes this compound handler's do_init arm after
@@ -2753,9 +2756,11 @@ function applyBooleanOption(result, name, row, statement, value, negated) {
         // IDLECHECKPOINT is not compiled into the recorder build. pline()
         // therefore uses raw_print() this early, then the handler clears the
         // value it just wrote and suppresses later toggle messages.
-        result.startupRawPrints.push(
-            "There is no underlying support for 'idlecheckpoint' compiled in.",
-        );
+        {
+            const text = "There is no underlying support for"
+                + " 'idlecheckpoint' compiled in.";
+            result.startupEvents.push({ kind: 'print', text });
+        }
         result.iflags.idlecheckpoint = false;
         result.give_opt_msg = false;
         break;
@@ -3917,6 +3922,7 @@ const CONFIG_STATEMENT_HANDLERS = Object.freeze({
     character: Object.freeze({ kind: 'direct', directName: 'role' }),
     dogname: Object.freeze({ kind: 'direct', directName: 'dogname' }),
     catname: Object.freeze({ kind: 'direct', directName: 'catname' }),
+    boulder: Object.freeze({ kind: 'legacy-boulder' }),
 });
 
 function configDelimiter(line) {
@@ -4132,6 +4138,10 @@ export function parseNethackrc(rc, random = rn2) {
             // semantics; unlike that option handler, an empty direct value is
             // accepted and enables the default duration.
             parse_status_hl1(result, normalizedValue);
+            continue;
+        }
+        if (statement.kind === 'legacy-boulder') {
+            cnf_line_BOULDER(result, normalizedValue);
             continue;
         }
 

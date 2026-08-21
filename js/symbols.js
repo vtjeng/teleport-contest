@@ -362,6 +362,10 @@ function applyBoulderOverride(operation, state) {
     state.go.ov_rogue_syms[index] = operation.byte;
 }
 
+function applyLegacyBoulderOverride(operation, state) {
+    state.go.ov_primary_syms[SYM_OFF_X + SYM_BOULDER] = operation.byte;
+}
+
 function selectSymbolSet(operation, state) {
     const set = operation.set === 'rogue' ? ROGUESET : PRIMARYSET;
     if (operation.legacyIBM) {
@@ -456,6 +460,11 @@ export function initialize_symbols_from_options(options, state = game) {
             // options.c optfn_boulder() defers the active showsyms write
             // during initial parsing, but owns both override tables now.
             applyBoulderOverride(operation, state);
+        }
+        else if (operation.kind === 'legacy-boulder') {
+            // cfgfiles.c cnf_line_BOULDER() predates the compound option and
+            // changes only the primary override table.
+            applyLegacyBoulderOverride(operation, state);
         }
     }
 }

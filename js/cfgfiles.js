@@ -4,6 +4,7 @@
 // config_error_done(); pline.c config_error_add().
 
 import { game } from './gstate.js';
+import { encodeUtf8ByteString } from './hacklib.js';
 
 // C ref: cfgfiles.c default_configfile (126-139), the UNIX arm.
 export const DEFAULT_CONFIGFILE = '.nethackrc';
@@ -30,20 +31,25 @@ export function get_configfile(state = game) {
 // (js/jsmain.js runSegment()), so every frame is the default ~/.nethackrc one,
 // with a null source and secure clear.
 //
-// C prints each error the moment config_error_add() receives it.  pline() is
+// C prints each error the moment config_error_add() receives it. pline() is
 // raw_print() this early because iflags.window_inited is still false
-// (pline.c:239), and no input boundary separates the first error from the
-// wait_synch() that config_error_done() ends on, so the strings C hands
-// pline() are queued here in order and js/jsmain.js emits them at that
-// boundary instead.
-export function config_error_init() {
+// (pline.c:239). startupEvents preserves that source order when another rc
+// handler waits before config_error_done(); output remains the complete error
+// report used by parser callers and focused tests.
+export function config_error_init(startupEvents = []) {
     return {
         line_num: 0,
         num_errors: 0,
         origline_shown: false,
         origline: '',
         output: [],
+        startupEvents,
     };
+}
+
+function appendConfigOutput(frame, text) {
+    frame.output.push(text);
+    frame.startupEvents?.push({ kind: 'print', text });
 }
 
 // C ref: cfgfiles.c config_error_nextline(), called from parse_conf_buf() once
@@ -71,13 +77,13 @@ export function config_error_add(frame, str) {
 
     frame.num_errors += 1;
     if (!frame.origline_shown) {
-        frame.output.push(`\n${frame.origline}`);
+        appendConfigOutput(frame, `\n${frame.origline}`);
         frame.origline_shown = true;
     }
     // The line number is absent until config_error_nextline() has accepted a
     // line, which "Line too long, skipping" on the first line beats.
     const lineno = frame.line_num > 0 ? `Line ${frame.line_num}: ` : '';
-    frame.output.push(` * ${lineno}${buf}${punct}`);
+    appendConfigOutput(frame, ` * ${lineno}${buf}${punct}`);
 }
 
 // C ref: cfgfiles.c config_error_done().  Returns the error count; a caller
@@ -90,9 +96,67 @@ export function config_error_done(frame, state = game) {
     const n = frame.num_errors;
     if (n) {
         // hacklib.h plur(x): "" for one, "s" otherwise.
-        frame.output.push(
+        appendConfigOutput(
+            frame,
             `\n${n} error${n === 1 ? '' : 's'} in ${get_configfile(state)}.\n`,
         );
     }
     return n;
+}
+
+// C ref: cfgfiles.c get_uchars(), the modlist=TRUE, size=1 path called only by
+// cnf_line_BOULDER() in this slice. The caller supplies a byte array because
+// the source writes through an `uchar *`. Decimal accumulation uses unsigned
+// int arithmetic, then assignment narrows to one byte. A literal zero leaves
+// the slot unchanged, while any other accumulated value writes even when
+// narrowing produces zero.
+export function get_uchars(bufp, list, name, syntaxError) {
+    const bytes = encodeUtf8ByteString(String(bufp ?? ''));
+    let num = 0;
+    let count = 0;
+    let havenum = false;
+    let index = 0;
+
+    while (true) {
+        const byte = index < bytes.length ? bytes[index] : 0;
+        // parse_config_line() has already run mungspaces(), so tabs became
+        // spaces and a physical newline became this buffer's terminating NUL.
+        if (byte === 0x00) {
+            if (!havenum) return count;
+            if (num !== 0) list[count] = num & 0xFF;
+            return count + 1;
+        }
+        if (byte === 0x20) {
+            if (havenum) {
+                if (num !== 0) list[count] = num & 0xFF;
+                return count + 1;
+            }
+            index++;
+            continue;
+        }
+        if (byte >= 0x30 && byte <= 0x39) {
+            havenum = true;
+            num = (num * 10 + byte - 0x30) >>> 0;
+            index++;
+            continue;
+        }
+        syntaxError(`Syntax error in ${name}`);
+        return count;
+    }
+}
+
+// C ref: cfgfiles.c cnf_line_BOULDER(). This obsolete statement modifies
+// only go.ov_primary_syms; OPTIONS=boulder writes the rogue override too.
+export function cnf_line_BOULDER(result, bufp) {
+    const parsed = [undefined];
+    get_uchars(bufp, parsed, 'BOULDER', (text) => {
+        result.startupEvents.push({ kind: 'print', text, wait: true });
+    });
+    if (parsed[0] !== undefined) {
+        result.symbolOperations.push({
+            kind: 'legacy-boulder',
+            byte: parsed[0],
+        });
+    }
+    return true;
 }

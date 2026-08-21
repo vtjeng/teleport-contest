@@ -333,23 +333,18 @@ export class NethackGame {
         g.unportedConfigStatements = [...opts.unportedConfigStatements];
         if (opts.tutorial_set) g.tutorial_set_in_config = true;
 
-        // optfn_boolean()'s unsupported idlecheckpoint arm calls pline()
-        // before tty_init_nhwindows(), so pline() routes it to raw_print().
-        // Unlike config_error_done() below, this output does not wait here.
-        for (const line of opts.startupRawPrints)
-            tty_raw_print(g, line);
-
         // C ref: cfgfiles.c rcfile():1945, the config_error_done() that closes
-        // the configuration read.  Each queued string is one pline() C already
-        // made during the read; nothing observes the terminal in between, so
-        // emitting them here leaves the same shadow screen behind.  A nonzero
-        // count then blocks for a key, which is a session's first input
-        // boundary whenever a configuration file has an error in it.
-        if (config_error_done(opts.configErrorFrame, g)) {
-            for (const line of opts.configErrorFrame.output)
-                tty_raw_print(g, line);
-            await tty_wait_synch(g);
+        // configuration read. config_error_done() appends its summary before
+        // startup events are replayed. Most configuration output has no input
+        // boundary until the final wait, but cfgfiles.c get_uchars() writes a
+        // raw syntax error and waits immediately, so each event carries its
+        // own boundary when the source has one.
+        const configErrors = config_error_done(opts.configErrorFrame, g);
+        for (const event of opts.startupEvents) {
+            tty_raw_print(g, event.text);
+            if (event.wait) await tty_wait_synch(g);
         }
+        if (configErrors) await tty_wait_synch(g);
 
         // The rc parser owns roleplay options until u_init_misc() preserves
         // them across its source memset boundary.

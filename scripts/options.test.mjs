@@ -211,9 +211,10 @@ test('startup boolean post-write effects preserve their source order', () => {
     const idle = parseNethackrc('OPTIONS=idlecheckpoint\n');
     assert.equal(idle.iflags.idlecheckpoint, false);
     assert.equal(idle.give_opt_msg, false);
-    assert.deepEqual(idle.startupRawPrints, [
-        "There is no underlying support for 'idlecheckpoint' compiled in.",
-    ]);
+    assert.deepEqual(idle.startupEvents, [{
+        kind: 'print',
+        text: "There is no underlying support for 'idlecheckpoint' compiled in.",
+    }]);
 });
 
 test('pile_limit startup parsing follows optfn_pile_limit and C atoi', () => {
@@ -4157,7 +4158,7 @@ test('msg_window keeps one letter and answers its value-less spellings', () => {
     ]);
 });
 
-// C ref: cfgfiles.c config_line_stmt[]. Ten handlers above are ported. Every
+// C ref: cfgfiles.c config_line_stmt[]. Eleven handlers above are ported. Every
 // other player row is recognized and recorded so a later consumer can refuse
 // the missing cnf_line_<NAME>() state rather than silently use a default.
 test('the parser records the config statements it cannot interpret', () => {
@@ -4166,7 +4167,7 @@ test('the parser records the config statements it cannot interpret', () => {
         'autopickup_exception', 'autocomplete', 'msgtype',
         'hackdir', 'leveldir', 'levels', 'savedir', 'bonesdir', 'datadir',
         'scoredir', 'lockdir', 'configdir', 'troubledir',
-        'boulder', 'menucolor', 'warnings', 'wizkit',
+        'menucolor', 'warnings', 'wizkit',
         'qt_tilewidth', 'qt_tileheight', 'qt_fontsize', 'qt_compact',
     ];
     assert.deepEqual(
