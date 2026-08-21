@@ -224,8 +224,6 @@ test('a boolean with no storage keeps its row out of the menu', async () => {
 
 // C ref: options.c doset_simple_menu()'s
 // `if (iflags.wc_tiled_map && allopt[i].idx == opt_color) continue;`.
-// parseNethackrc() has no 'tiled_map' arm, so no configuration file can raise
-// iflags.wc_tiled_map and this test writes the flag itself.
 test('a tiled map hides the color row', async () => {
     const state = await startSimpleGame(STOCK);
     assert.equal(
@@ -233,6 +231,9 @@ test('a tiled map hides the color row', async () => {
             .some((item) => item.text.startsWith('color ')),
         true,
     );
+    // initoptions_finish() falls back to ASCII for tty, so no startup option
+    // leaves this state behind.  Write it directly to cover the menu's own
+    // window-port branch.
     state.iflags.wc_tiled_map = true;
     const items = dosetSimpleMenuItems(state, menuHelpers());
     assert.equal(items.some((item) => item.text.startsWith('color ')), false);

@@ -28,7 +28,10 @@ import {
     moveloop_core,
     UnsupportedTurnBoundaryError,
 } from './allmain.js';
-import { parseNethackrc } from './options.js';
+import {
+    finishStartupBooleanOptions,
+    parseNethackrc,
+} from './options.js';
 import { config_error_done } from './cfgfiles.js';
 import {
     nomux_get_cursor,
@@ -306,6 +309,8 @@ export class NethackGame {
         // this wait on.
         g.iflags.cbreak = false;
         g.a11y = { ...opts.a11y };
+        if (opts.go) g.go = { ...opts.go };
+        g.give_opt_msg = opts.give_opt_msg;
         g.roleFilter = {
             roles: [...(opts.roleFilter?.roles ?? [])],
             mask: opts.roleFilter?.mask ?? 0,
@@ -324,6 +329,12 @@ export class NethackGame {
         }));
         g.unportedConfigStatements = [...opts.unportedConfigStatements];
         if (opts.tutorial_set) g.tutorial_set_in_config = true;
+
+        // optfn_boolean()'s unsupported idlecheckpoint arm calls pline()
+        // before tty_init_nhwindows(), so pline() routes it to raw_print().
+        // Unlike config_error_done() below, this output does not wait here.
+        for (const line of opts.startupRawPrints)
+            tty_raw_print(g, line);
 
         // C ref: cfgfiles.c rcfile():1945, the config_error_done() that closes
         // the configuration read.  Each queued string is one pline() C already
@@ -372,6 +383,7 @@ export class NethackGame {
 
         // C ref: options.c:initoptions_finish() runs after the complete
         // configuration has been parsed and before player selection.
+        finishStartupBooleanOptions(g);
         initoptions_finish(opts, g);
 
         // options.c:initoptions_finish():7347. This is where gs.showsyms gains

@@ -467,6 +467,13 @@ function defaultResult() {
         pl_fruit: DEFAULT_FRUIT,
         gameplayBindings: [],
         commandOperations: [],
+        // optfn_boolean() can call pline() before tty_init_nhwindows().  The
+        // game installer replays these through tty_raw_print() in source
+        // order after it has attached the recorder-facing display.
+        startupRawPrints: [],
+        // options.c's file static starts true; unsupported idlecheckpoint is
+        // its only configuration-time writer.
+        give_opt_msg: true,
         symbolOperations: [],
         rogueSymbols: {},
         // The configuration statements this parser recognizes but does not
@@ -1086,13 +1093,6 @@ function setFruit(result, statement) {
         op,
         result.iflags.wc_eight_bit_input,
     );
-}
-
-function setRoleplay(result, field, row, statement, value, negated) {
-    const enabled = booleanValue(result, row, statement, value, negated);
-    if (enabled === null) return;
-    result.uroleplay[field] = enabled;
-    if (field === 'pauper') result.uroleplay.nudist = enabled;
 }
 
 const MENU_HEADING_COLORS = Object.freeze({
@@ -2604,11 +2604,14 @@ function applyMenuBindings(result, bindings) {
 
 function applyBooleanOption(result, name, row, statement, value, negated) {
     const enabled = booleanValue(result, row, statement, value, negated);
-    // Every arm below writes at least one field, and six of them -- female,
-    // color, hilite_pet, tutorial, rest_on_space and mention_decor -- write
-    // more than one, so C's "leave the option alone" has to stop ahead of the
-    // whole dispatch rather than inside the arm that owns the flag.
+    // The female arm and five post-write arms below can change more than the
+    // option's own value, so C's "leave the option alone" has to stop ahead
+    // of the whole dispatch rather than inside one of those arms.
     if (enabled === null) return;
+    // A valid parameter rewrites optfn_boolean()'s local `negated`.  The map
+    // post-write arms below read that effective value, not just the spelling's
+    // leading ! or "no" prefix.
+    const effectiveNegated = !enabled;
     if (name === 'female' || name === 'male') {
         // C ref: options.c optfn_boolean() (5244-5266), `case opt_female:`.
         // Both guards read `opts`, the whole statement, rather than the name
@@ -2627,97 +2630,69 @@ function applyBooleanOption(result, name, row, statement, value, negated) {
         if (equal_ncasechars(statement, 'female', width)) {
             result.flags.female = enabled;
             result.flags.initgend = result.gender = enabled ? 1 : 0;
+            return;
         } else if (equal_ncasechars(statement, 'male', width)) {
             result.flags.female = !enabled;
             result.flags.initgend = result.gender = enabled ? 0 : 1;
-        } else {
-            result.flags.female = enabled;
+            return;
         }
-    } else if (name === 'autopickup') result.flags.pickup = enabled;
-    else if (name === 'color') {
-        result.flags.color = enabled;
-        result.iflags.wc_color = enabled;
-    } else if (name === 'use_inverse') {
-        result.iflags.wc_inverse = enabled;
-    } else if (name === 'use_darkgray') {
-        // Preserve optlist.h's source option state. At the recorder-facing
-        // grid boundary, both the remapped black wire value and the terminal
-        // default sentinel intentionally canonicalize to NO_COLOR.
-        result.iflags.wc2_darkgray = enabled;
-    } else if (name === 'hilite_pet') {
-        result.iflags.wc_hilite_pet = enabled;
+    }
+
+    // options.c:5285 stores every ordinary BoolOpt through the address in its
+    // allopt[] row.  The generated table keeps that lvalue, including names
+    // such as fixinv -> flags.invlet_constant and accessiblemsg ->
+    // a11y.accessiblemsg; no flags.<option-name> mirror exists in C.
+    const { resultKey, field } = booleanOptionStorage(row.addr);
+    result[resultKey][field] = enabled;
+
+    switch (row.name.toLowerCase()) {
+    case 'pauper':
+        // options.c:5288-5291. Pauper implies nudist immediately, so the
+        // right-to-left order of two options on one line remains observable.
+        result.uroleplay.nudist = result.uroleplay.pauper;
+        break;
+    case 'ascii_map':
+        result.iflags.wc_tiled_map = effectiveNegated;
+        break;
+    case 'tiled_map':
+        result.iflags.wc_ascii_map = effectiveNegated;
+        break;
+    case 'hilite_pet':
         if (enabled && result.iflags.wc2_petattr === ATR_NONE) {
             result.iflags.wc2_petattr = ATR_INVERSE;
         }
-    } else if (name === 'hilite_pile') {
-        result.iflags.hilite_pile = enabled;
-    } else if (name === 'wizmgender') {
-        // optlist.h:890-891 binds this to &iflags.wizmgender, which two
-        // ported readers ask: js/display.js print_glyph_attr() for
-        // win/tty/wintty.c tty_print_glyph() (3930), and js/objnam.js
-        // wizmgenderSuffix() for objnam.c doname_base() (1550). It needs an
-        // arm of its own because a debug game can set it from the
-        // configuration file, where optfn_boolean() returns at options.c:5325
-        // before any menu code runs: without one the value lands under
-        // flags.wizmgender, neither reader sees it, every female monster
-        // draws plain, and every statue, corpse and figurine loses its
-        // gender suffix.
-        result.iflags.wizmgender = enabled;
-    } else if (name === 'hitpointbar') {
-        result.iflags.wc2_hitpointbar = enabled;
-    } else if (name === 'legacy') result.flags.legacy = enabled;
-    else if (name === 'tutorial') {
-        result.flags.tutorial = enabled;
+        result.go ??= {};
+        result.go.opt_need_redraw = true;
+        break;
+    case 'idlecheckpoint':
+        // IDLECHECKPOINT is not compiled into the recorder build. pline()
+        // therefore uses raw_print() this early, then the handler clears the
+        // value it just wrote and suppresses later toggle messages.
+        result.startupRawPrints.push(
+            "There is no underlying support for 'idlecheckpoint' compiled in.",
+        );
+        result.iflags.idlecheckpoint = false;
+        result.give_opt_msg = false;
+        break;
+    default:
+        break;
+    }
+
+    // opt_set_in_config[opt_tutorial] is the second value this startup parser
+    // exposes: ask_do_tutorial() distinguishes an explicit true setting from
+    // the same compiled-in default.
+    if (row.name === 'tutorial') {
         result.tutorial_set = true;
-    } else if (name === 'splash_screen') {
-        result.iflags.wc_splash_screen = enabled;
-    } else if (name === 'status_updates') {
-        result.iflags.status_updates = enabled;
-    } else if (name === 'accessiblemsg') {
-        result.a11y.accessiblemsg = enabled;
-    } else if (name === 'mention_map') {
-        result.a11y.glyph_updates = enabled;
-    } else if (name === 'mon_movement') {
-        result.a11y.mon_movement = enabled;
-    } else if (name === 'spot_monsters') {
-        result.a11y.mon_notices = enabled;
-    } else if (name === 'menu_overlay') {
-        result.iflags.menu_overlay = enabled;
-    } else if (name === 'eight_bit_tty') {
-        result.iflags.wc_eight_bit_input = enabled;
-    } else if (name === 'altmeta') {
-        result.iflags.altmeta = enabled;
-    } else if (name === 'cmdassist') {
-        result.iflags.cmdassist = enabled;
-    } else if (name === 'extmenu') {
-        // C ref: options.c. tty_get_ext_cmd() reads this as its first test, so
-        // it has to reach iflags rather than being accepted and dropped;
-        // extcmd_via_menu() is unported and the guard there stops on it.
-        result.iflags.extmenu = enabled;
-    } else if (name === 'customcolors' || name === 'customsymbols') {
-        result.iflags[name] = enabled;
-    } else if (name === 'safe_pet') result.flags.safe_dog = enabled;
-    else if (name === 'safe_wait') result.flags.safe_wait = enabled;
-    else if (name === 'pushweapon') result.flags.pushweapon = enabled;
-    else if (name === 'rest_on_space') {
-        result.flags.rest_on_space = enabled;
+    } else if (row.name === 'rest_on_space') {
         result.commandOperations.push({
             type: 'rest_on_space',
             enabled,
         });
-    } else if (name === 'mention_decor') {
-        result.flags.mention_decor = enabled;
+    } else if (row.name === 'mention_decor') {
         // C ref: options.c opt_mention_decor. A toggle forgets the terrain
         // described under the previous setting.
         result.iflags.prev_decor = STONE;
-    } else if (name === 'showdamage') {
-        // optlist.h:654-655 stores showdamage in iflags, not flags, and
-        // defaults it Off. hack.c showdamage() is its only reader.
-        result.iflags.showdamage = enabled;
-    } else if (name === 'showexp') result.flags.showexp = enabled;
-    else if (name === 'time') result.flags.time = enabled;
-    else if (name === 'verbose') result.flags.verbose = enabled;
-    else result.flags[name] = enabled;
+    }
 }
 
 // C ref: options.c optfn_whatis_coord() (4702-4749), its do_set arm.  The
@@ -3603,9 +3578,6 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     } else if (name === 'catname' || name === 'dogname'
                || name === 'horsename') {
         setPetName(result, name, value);
-    } else if (name === 'blind' || name === 'deaf' || name === 'nudist'
-               || name === 'pauper' || name === 'reroll') {
-        setRoleplay(result, name, matchedRow, statement, value, negated);
     } else if (name === 'decgraphics') {
         result.flags.decgraphics = !negated;
         if (!negated) {
@@ -3797,7 +3769,11 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
             result.flags[name] = value;
         }
     } else {
-        applyBooleanOption(result, name, matchedRow, statement, value, negated);
+        // Preserve the pre-existing fail-closed marker for a value-less
+        // compound option whose do_set request is not ported yet.  A BoolOpt
+        // never reaches this arm: both of its statement shapes dispatch by
+        // the generated row type above.
+        result.flags[name] = !negated;
     }
 }
 
@@ -4180,6 +4156,19 @@ function unsupportedWindowOption(name) {
         || (is_wc2_option(name) && !wc2_supported(name));
 }
 
+// C ref: options.c initoptions_finish() (7366-7374).  The configuration file
+// can request either map mode before the selected window port is known.  This
+// port's only interface is TTY, which does not advertise WC_TILED_MAP, so the
+// first source arm always changes a requested tiled map back to ASCII.  The
+// other source arm needs an interface that supports tiles and is outside this
+// runtime boundary.
+export function finishStartupBooleanOptions(state) {
+    if (state.iflags.wc_tiled_map) {
+        state.iflags.wc_tiled_map = false;
+        state.iflags.wc_ascii_map = true;
+    }
+}
+
 // C ref: options.c longest_option_name().  The two passes differ only in
 // which options the first one skips, and both feed the same maximum.
 export function longest_option_name(startpass, endpass) {
@@ -4226,21 +4215,6 @@ function booleanOptionValue(state, option) {
     if (typeof value !== 'boolean') {
         throw new UnsupportedOptionMenuError(
             `a live value for boolean option '${option.name}' (${option.addr})`,
-        );
-    }
-    // options.c optfn_boolean()'s do_set arm writes *allopt[optidx].addr, the
-    // field read just above.  This port's parse writes that field only for the
-    // options applyBooleanOption() has an arm for; everything else lands under
-    // the option's own lowercased name, leaving addr holding the compiled-in
-    // default applyBooleanOptionDefaults() seeded.  When the two fields
-    // disagree the port does not hold the value doset() has to print, so stop
-    // rather than show the default as though it were the session's setting.
-    // The two are the same field whenever addr is `flags.<name>`, which is
-    // why an option the parse does handle never reaches this.
-    const parsed = state.flags?.[option.name.toLowerCase()];
-    if (parsed !== undefined && parsed !== value) {
-        throw new UnsupportedOptionMenuError(
-            `parseoptions() to store '${option.name}' in ${option.addr}`,
         );
     }
     return value;
@@ -5055,15 +5029,9 @@ function preference_update(state, pref) {
 // (5285).  booleanOptionValue() above reads the address this writes, and this
 // is its only writer.
 //
-// C stores a boolean option once, at allopt[].addr.  This port stores it twice
-// whenever applyBooleanOption()'s final arm handled the configuration file's
-// copy: that arm writes flags.<name>, which is a second field for the 43
-// options whose address is something else.  booleanOptionValue() refuses when
-// the two disagree, because before this writer existed the only way they could
-// was a configuration file the parse had misplaced.  Now that the menu writes
-// the address itself, the parse's copy is a stale duplicate rather than an
-// answer, so drop it and leave the address as the value's only owner --
-// otherwise the next menu build refuses a value the port does hold.
+// C stores a boolean option once, at allopt[].addr.  Startup parsing and this
+// interactive writer now share that address.  Delete any legacy flags.<name>
+// copy supplied by a hand-built test state so one C value retains one owner.
 function setBooleanOptionValue(state, option, value) {
     const path = option.addr.split('.');
     let owner = state;

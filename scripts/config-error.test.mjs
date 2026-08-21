@@ -764,10 +764,9 @@ test('an unreadable boolean value reports for every row that rejects one',
 
         // menucolors keeps `negated` as it was and reaches the assignment, so
         // the value C cannot read still turns the option on.
-        assert.equal(
-            parseNethackrc('OPTIONS=menucolors:zebra\n').flags.menucolors,
-            true,
-        );
+        const menucolors = parseNethackrc('OPTIONS=menucolors:zebra\n');
+        assert.equal(menucolors.iflags.use_menu_color, true);
+        assert.equal(menucolors.flags.menucolors, undefined);
     });
 
 // C ref: options.c optfn_boolean() (5203-5208), the two do_set exits taken

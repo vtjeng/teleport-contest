@@ -605,29 +605,22 @@ test('every shown compound option guards its unparsed raw text', async () => {
 });
 
 // C ref: options.c optfn_boolean()'s do_set arm, which writes
-// *allopt[optidx].addr. This port's parse writes that field only for the
-// options applyBooleanOption() has an arm for.
-test('the menu refuses a boolean the parse stored somewhere else',
+// *allopt[optidx].addr.  The configuration parser and this menu share that
+// generated address, so the menu prints the configured value directly.
+test('the menu reads configured booleans from their generated addresses',
     async () => {
         // optlist.h binds fixinv to &flags.invlet_constant, mail to
-        // &flags.biff and travel to &flags.travelcmd, none of which this
-        // parse writes; each negation lands under the option's own name and
-        // leaves the seeded compiled-in TRUE where the menu reads.
+        // &flags.biff and travel to &flags.travelcmd.  None leaves a second
+        // copy under the spelling from the configuration file.
         const state = await startGameWithConfig('OPTIONS=!fixinv,!mail,!travel');
-        assert.equal(state.flags.fixinv, false);
-        assert.equal(state.flags.invlet_constant, true);
-        assert.throws(
-            () => dosetMenuItems(state, menuHelpers(), false),
-            (error) => error instanceof UnsupportedOptionMenuError
-                && error.what
-                    === "parseoptions() to store 'fixinv' in flags.invlet_constant",
-        );
-        // Setting one of them to the value it already holds leaves the two
-        // fields agreeing, and the menu prints that value rather than
-        // stopping: what the port cannot show is a value it does not hold.
-        const same = await startGameWithConfig('OPTIONS=fixinv');
-        const items = dosetMenuItems(same, menuHelpers(), false);
-        assert.equal(valueOf(items, 'fixinv'), 'true');
+        assert.equal(state.flags.invlet_constant, false);
+        assert.equal(state.flags.biff, false);
+        assert.equal(state.flags.travelcmd, false);
+        for (const name of ['fixinv', 'mail', 'travel'])
+            assert.equal(state.flags[name], undefined, name);
+        const items = dosetMenuItems(state, menuHelpers(), false);
+        for (const name of ['fixinv', 'mail', 'travel'])
+            assert.equal(valueOf(items, name), 'false', name);
     });
 
 // C ref: options.c doset()'s fmtstr_doset choice. menu_tab_sep's set_wizonly
@@ -636,14 +629,14 @@ test('the menu refuses a boolean the parse stored somewhere else',
 test('the menu refuses the tab-separated layout menu_tab_sep asks for',
     async () => {
         const configured = await startGameWithConfig('OPTIONS=menu_tab_sep');
-        // The parse leaves the option under its own name, so the format
-        // helper's read of iflags.menu_tab_sep stops on the same disagreement
-        // every other unstored boolean does -- before any row is formatted.
+        // The parse writes iflags.menu_tab_sep, so the format helper reaches
+        // the tab-separated layout branch itself.  That layout remains
+        // outside this slice.
         assert.throws(
             () => dosetMenuItems(configured, menuHelpers(), false),
             (error) => error instanceof UnsupportedOptionMenuError
                 && error.what
-                    === "parseoptions() to store 'menu_tab_sep' in iflags.menu_tab_sep",
+                    === 'doset() with menu_tab_sep',
         );
         // With the flag itself on, C drops the four-space indent and formats
         // every line "%s%s\t[%s]". That branch is not ported.

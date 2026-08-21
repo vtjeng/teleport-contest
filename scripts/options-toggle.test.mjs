@@ -510,7 +510,7 @@ test('hilite_pet supplies a pet attribute only while switching on',
 test('idlecheckpoint reports the missing build support and goes quiet',
     async () => {
         const state = await startStockGame();
-        assert.equal(state.give_opt_msg, undefined);
+        assert.equal(state.give_opt_msg, true);
         assert.equal(
             await parseoptions(state, 'idlecheckpoint', false, false), true,
         );
@@ -931,16 +931,14 @@ test('doset() repairs the map under either glyph-repair option', async () => {
 
 // C ref: options.c optfn_boolean()'s `*(allopt[optidx].addr) = !negated`
 // (5285) and doset_add_menu()'s `*allopt[opt_indx].addr ? "!" : ""` (8858),
-// which read the byte the pick loop just wrote. This port's configuration
-// parse keeps a second copy under flags.<name> for an option whose address is
-// something else, and dosetMenuItems() refuses when the two disagree, so the
-// interactive write has to leave that copy behind.
+// which read the byte the pick loop just wrote.  Startup and interactive
+// writes share the generated address, with no flags.<name> copy to reconcile.
 test('the menu shows a toggled option stored outside flags', async () => {
     // 'autodescribe' is bound to &iflags.autodescribe and its initval is
-    // true, so this line changes nothing and leaves the two fields agreeing.
+    // true, so this line changes nothing at its one source-owned field.
     const state = await startGameWithConfig('OPTIONS=autodescribe');
     assert.equal(state.iflags.autodescribe, true);
-    assert.equal(state.flags.autodescribe, true);
+    assert.equal(state.flags.autodescribe, undefined);
     assert.equal(
         itemText(dosetMenuItems(state, menuHelpers(), false), 'autodescribe'),
         'autodescribe            [true]',

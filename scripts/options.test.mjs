@@ -6,7 +6,11 @@ import { config_error_done } from '../js/cfgfiles.js';
 import { configLineStatements } from '../js/config_statement_data.js';
 import { encodeUtf8ByteString } from '../js/hacklib.js';
 import { FOOD_CLASS, WEAPON_CLASS } from '../js/objects.js';
-import { optionAliasTarget, parseNethackrc } from '../js/options.js';
+import {
+    finishStartupBooleanOptions,
+    optionAliasTarget,
+    parseNethackrc,
+} from '../js/options.js';
 import { allopt, optionParserMetadata } from '../js/optlist_data.js';
 import {
     EXT_ENCUMBER,
@@ -140,6 +144,76 @@ test('startup option defaults use source role indices and zero roleplay', () => 
         numbones: 0,
         numrerolls: 0,
     });
+});
+
+// C ref: options.c optfn_boolean() (5285), the common write through
+// `allopt[optidx].addr`.  The generator turns each lvalue into one of the four
+// paths this test reads; aliases and abbreviations still settle on that row
+// before the handler runs.
+test('every startup boolean writes its generated C address only', () => {
+    const valueAtAddress = (parsed, addr) => {
+        const path = addr === 'u.uroleplay'
+            ? ['uroleplay']
+            : addr.replace(/^u\.uroleplay\./u, 'uroleplay.').split('.');
+        return path.reduce((owner, field) => owner[field], parsed);
+    };
+    const rows = allopt.filter((row) => row.opttyp === 'BoolOpt'
+        && row.addr && row.setwhere !== 6 && row.name !== 'idlecheckpoint');
+    let noncanonical = 0;
+    for (const row of rows) {
+        // Every addressed row that starts On accepts negation in this build,
+        // so each statement changes the compiled-in value and proves that a
+        // write occurred rather than merely observing its default.
+        const expected = !row.initval;
+        const statement = row.initval ? `!${row.name}` : row.name;
+        const parsed = parseNethackrc(`OPTIONS=${statement}\n`);
+        assert.equal(valueAtAddress(parsed, row.addr), expected, row.name);
+
+        const canonicalFlagsAddress = `flags.${row.name.toLowerCase()}`;
+        if (row.addr !== canonicalFlagsAddress) {
+            ++noncanonical;
+            assert.equal(
+                Object.hasOwn(parsed.flags, row.name.toLowerCase()), false,
+                row.name,
+            );
+        }
+    }
+    assert.equal(rows.length, 103);
+    assert.equal(noncanonical, 65);
+});
+
+test('startup boolean post-write effects preserve their source order', () => {
+    const pauper = parseNethackrc('OPTIONS=pauper');
+    assert.equal(pauper.uroleplay.pauper, true);
+    assert.equal(pauper.uroleplay.nudist, true);
+
+    const tiled = parseNethackrc('OPTIONS=tiled_map');
+    assert.equal(tiled.iflags.wc_tiled_map, true);
+    assert.equal(tiled.iflags.wc_ascii_map, false);
+    finishStartupBooleanOptions(tiled);
+    assert.equal(tiled.iflags.wc_tiled_map, false);
+    assert.equal(tiled.iflags.wc_ascii_map, true);
+
+    // optfn_boolean() turns this value into its local `negated` before the
+    // post-write.  A false ASCII request selects tiled mode until the tty
+    // fallback above runs.
+    const explicitAscii = parseNethackrc('OPTIONS=ascii_map:false');
+    assert.equal(explicitAscii.iflags.wc_ascii_map, false);
+    assert.equal(explicitAscii.iflags.wc_tiled_map, true);
+
+    const hilite = parseNethackrc(
+        'OPTIONS=petattr:none\nOPTIONS=hilite_pet\n',
+    );
+    assert.equal(hilite.iflags.wc_hilite_pet, true);
+    assert.equal(hilite.iflags.wc2_petattr, ATR_INVERSE);
+    assert.equal(hilite.go.opt_need_redraw, true);
+
+    const idle = parseNethackrc('OPTIONS=idlecheckpoint\n');
+    assert.equal(idle.iflags.idlecheckpoint, false);
+    assert.equal(idle.give_opt_msg, false);
+    assert.deepEqual(idle.startupRawPrints, [
+        "There is no underlying support for 'idlecheckpoint' compiled in.",
+    ]);
 });
 
 test('pile_limit startup parsing follows optfn_pile_limit and C atoi', () => {
@@ -2162,7 +2236,7 @@ test('valid unported startup option mappings remain available', () => {
         + 'suppress_alert:3.7,soundlib:example,S_vwall:|',
     );
     assert.equal(parsed.flags.pickup, false);
-    assert.equal(parsed.flags.color, true);
+    assert.equal(parsed.flags.color, undefined);
     assert.equal(parsed.iflags.wc_color, true);
     assert.equal(parseNethackrc('OPTIONS=!colour').iflags.wc_color, false);
     assert.equal(parsed.flags.legacy, false);
