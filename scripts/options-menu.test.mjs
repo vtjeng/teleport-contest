@@ -316,6 +316,15 @@ test('each compound and other option reports its live value', async () => {
     ), true);
 });
 
+test('the options menu reads the configured boulder override', async () => {
+    const state = await startGameWithConfig('OPTIONS=boulder:0');
+    assert.equal(state.flags.boulder, undefined);
+    assert.equal(
+        valueOf(dosetMenuItems(state, menuHelpers(), false), 'boulder'),
+        '0',
+    );
+});
+
 test('a configured session reaches the menu\'s value column', async () => {
     const items = await menuItemsFor(CONFIGURED);
     // !cmdassist drops doset()'s five-line help block.

@@ -1125,6 +1125,11 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'pettype:'."],
         ["Unrecognized pet type 'zqxj'."],
     ]],
+    ['boulder', [
+        ["Missing parameter for 'boulder'."],
+        ["Missing parameter for 'boulder:'."],
+        ["Badoption - boulder symbol 'z' would conflict with a monster symbol."],
+    ]],
     ['pickup_burden', [
         ["Missing parameter for 'pickup_burden'."],
         ["Missing parameter for 'pickup_burden:'."],
@@ -1229,7 +1234,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['align_message', [1, 1, 1]],
     ['align_status', [1, 1, 1]],
     ['autounlock', [0, 0, 1]],
-    ['boulder', [1, 1, 1]],
     ['crash_email', [1, 1, 0]],
     ['crash_name', [1, 1, 0]],
     ['crash_urlmax', [1, 1, 1]],
@@ -1269,9 +1273,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 51);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 52);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 27);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 26);
 
     let owed = 0;
     for (const row of rows) {
@@ -1305,10 +1309,53 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 65 messages over 27 rows: what porting those handlers is worth to a
+    // 62 messages over 26 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 65);
+    assert.equal(owed, 62);
 });
+
+test('startup boulder parsing rejects source clashes and signed controls',
+    () => {
+        const cases = [
+            ['^@', 'boulder symbol cannot be a control character.'],
+            [String.raw`\0`, 'boulder symbol cannot be a control character.'],
+            [String.raw`\n`, 'boulder symbol cannot be a control character.'],
+            [String.raw`\M0`, 'boulder symbol cannot be a control character.'],
+            [String.raw`\M^@`, 'boulder symbol cannot be a control character.'],
+            ['é', 'boulder symbol cannot be a control character.'],
+            ['a', "Badoption - boulder symbol 'a' would conflict with a monster symbol."],
+            [']', "Badoption - boulder symbol ']' would conflict with a monster symbol."],
+            [String.raw`\032`, "Badoption - boulder symbol ' ' would conflict with a monster symbol."],
+            ['1', "Badoption - boulder symbol '1' would conflict with a warning symbol."],
+            ['5', "Badoption - boulder symbol '5' would conflict with a warning symbol."],
+        ];
+        for (const [value, message] of cases) {
+            const statement = `OPTIONS=boulder:${value}`;
+            const parsed = parseNethackrc(`${statement}\n`);
+            assert.deepEqual(parsed.symbolOperations, [], value);
+            assert.deepEqual(parsed.configErrorFrame.output, [
+                `\n${statement}`,
+                ` * Line 1: ${message}`,
+            ], value);
+        }
+
+        for (const [value, byte] of [
+            ['0', 0x30],
+            ['6', 0x36],
+            ['?', 0x3F],
+            ['?ignored', 0x3F],
+            [String.raw`\063`, 0x3F],
+            [String.raw`\o77`, 0x3F],
+            [String.raw`\x3f`, 0x3F],
+        ]) {
+            const parsed = parseNethackrc(`OPTIONS=boulder:${value}\n`);
+            assert.deepEqual(parsed.configErrorFrame.output, [], value);
+            assert.deepEqual(parsed.symbolOperations, [
+                { kind: 'boulder', byte },
+            ], value);
+            assert.equal(parsed.flags.boulder, undefined, value);
+        }
+    });
 
 // C ref: options.c paranoia[] and optfn_paranoid_confirmation()'s do_set
 // request.  Each accepted spelling writes only flags.paranoia_bits; the raw

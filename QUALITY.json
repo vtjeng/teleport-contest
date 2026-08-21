@@ -4164,6 +4164,7 @@
         "js/jsmain.js",
         "js/legacy_startup.js",
         "js/options.js",
+        "js/options_escapes.js",
         "js/optlist_data.js",
         "js/player_selection.js",
         "js/player_selection_tty.js",

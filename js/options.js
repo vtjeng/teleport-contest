@@ -180,7 +180,12 @@ import {
     WEAPON_CLASS,
 } from './objects.js';
 import { rn2 } from './rng.js';
-import { def_char_to_objclass } from './drawing.js';
+import {
+    def_char_to_monclass,
+    def_char_to_objclass,
+} from './drawing.js';
+import { escapes } from './options_escapes.js';
+import { MAXMCLASSES } from './symbols.js';
 import { choose_classes_menu } from './windows.js';
 
 const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
@@ -1094,6 +1099,36 @@ function setFruit(result, statement) {
         op,
         result.iflags.wc_eight_bit_input,
     );
+}
+
+// C ref: options.c optfn_boulder() (1171-1244), its startup do_set arm.
+// The reference build's plain `char` is signed.  Fresh patched-C recordings
+// pin bytes 0x80 and above to the same control-character diagnostic as NUL;
+// they also settle the adjacent source comment about NUL reset as stale.
+function optfn_boulder(result, statement) {
+    const op = string_for_opt(statement, false, result);
+    if (op === '') return;
+    const byte = escapes(op)[0] ?? 0;
+    const monsterClass = def_char_to_monclass(byte);
+    const clash = monsterClass !== MAXMCLASSES && byte !== 0
+        ? 'monster'
+        : byte >= 0x31 && byte < 0x30 + 6 ? 'warning' : null;
+    const signedByte = byte >= 0x80 ? byte - 0x100 : byte;
+    if (signedByte < 0x20) {
+        configErrorAdd(
+            result, 'boulder symbol cannot be a control character',
+        );
+        return;
+    }
+    if (clash) {
+        configErrorAdd(
+            result,
+            `Badoption - boulder symbol '${visctrl(byte)}' would conflict`
+                + ` with a ${clash} symbol`,
+        );
+        return;
+    }
+    result.symbolOperations.push({ kind: 'boulder', byte });
 }
 
 const MENU_HEADING_COLORS = Object.freeze({
@@ -3576,6 +3611,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setPettype(result, statement, negated);
     } else if (name === 'fruit') {
         setFruit(result, statement);
+    } else if (name === 'boulder') {
+        optfn_boulder(result, statement);
     } else if (name === 'catname' || name === 'dogname'
                || name === 'horsename') {
         setPetName(result, name, value);
@@ -4719,7 +4756,7 @@ function symsetValue(state, set, withHandling) {
 // scripts/options-menu.test.mjs derives the whole rule from parseNethackrc(),
 // so the set cannot drift from OPTION_VALUE_HANDLERS unnoticed.
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
-    'boulder', 'crash_email', 'crash_name', 'crash_urlmax',
+    'crash_email', 'crash_name', 'crash_urlmax',
     'glyph', 'menu_objsyms', 'menuinvertmode',
     'scores', 'sortvanquished',
     'soundlib', 'whatis_filter', 'windowtype',

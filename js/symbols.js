@@ -11,9 +11,11 @@ import {
     PRIMARYSET,
     ROGUESET,
     TRAPNUM,
+    SYM_BOULDER,
 } from './const.js';
 import { game } from './gstate.js';
 import { encodeUtf8ByteString } from './hacklib.js';
+import { escapes } from './options_escapes.js';
 import {
     DEFAULT_PRIMARY_SYMBOLS,
     DEFAULT_ROGUE_SYMBOLS,
@@ -292,69 +294,6 @@ function isCWhitespace(byte) {
         || byte === 0x0C || byte === 0x0D || byte === 0x20;
 }
 
-function digitValue(byte, radix) {
-    if (byte >= 0x30 && byte <= 0x39) {
-        const value = byte - 0x30;
-        return value < radix ? value : -1;
-    }
-    if (radix === 16 && byte >= 0x41 && byte <= 0x46) return byte - 0x37;
-    if (radix === 16 && byte >= 0x61 && byte <= 0x66) return byte - 0x57;
-    return -1;
-}
-
-function escapedFirstByte(bytes, allowMeta = true) {
-    if (!bytes.length) return 0;
-    if (bytes[0] === 0x5E) {
-        return bytes.length > 1 ? bytes[1] & 0x1F : 0x5E;
-    }
-    if (bytes[0] !== 0x5C) return bytes[0];
-    if (bytes.length === 1) return 0x5C;
-
-    const escape = bytes[1];
-    if (allowMeta && (escape === 0x6D || escape === 0x4D)
-        && bytes.length > 2) {
-        // hacklib.c:escapes() recognizes meta once for this output byte; the
-        // following escape is parsed without recursively treating another
-        // \m as a second meta prefix.
-        return escapedFirstByte(bytes.slice(2), false) | 0x80;
-    }
-
-    let radix = 0;
-    let start = 0;
-    let limit = 0;
-    if (escape === 0x78 || escape === 0x58) {
-        radix = 16;
-        start = 2;
-        limit = 2;
-    } else if (escape === 0x6F || escape === 0x4F) {
-        radix = 8;
-        start = 2;
-        limit = 3;
-    } else if (escape >= 0x30 && escape <= 0x39) {
-        radix = 10;
-        start = 1;
-        limit = 3;
-    }
-    if (radix) {
-        let value = 0;
-        let digits = 0;
-        while (digits < limit && start + digits < bytes.length) {
-            const digit = digitValue(bytes[start + digits], radix);
-            if (digit < 0) break;
-            value = value * radix + digit;
-            ++digits;
-        }
-        if (digits) return value & 0xFF;
-    }
-
-    return {
-        0x6E: 0x0A,
-        0x74: 0x09,
-        0x62: 0x08,
-        0x72: 0x0D,
-    }[escape] ?? escape;
-}
-
 // C ref: options.c:sym_val(). Configuration arrives at C as UTF-8 bytes;
 // parsing code units would choose the wrong byte for every non-ASCII value.
 export function sym_val(value) {
@@ -373,7 +312,7 @@ export function sym_val(value) {
         if (closingQuote <= 0) return 0;
         bytes = bytes.slice(1, closingQuote);
     }
-    return escapedFirstByte(bytes) & 0xFF;
+    return escapes(bytes)[0] ?? 0;
 }
 
 function symbolIndex(name) {
@@ -415,6 +354,12 @@ function applySymbolAssignments(operation, state) {
             arrays.overrides[index] = sym_val(assignment.rawValue);
         }
     }
+}
+
+function applyBoulderOverride(operation, state) {
+    const index = SYM_OFF_X + SYM_BOULDER;
+    state.go.ov_primary_syms[index] = operation.byte;
+    state.go.ov_rogue_syms[index] = operation.byte;
 }
 
 function selectSymbolSet(operation, state) {
@@ -507,7 +452,34 @@ export function initialize_symbols_from_options(options, state = game) {
             // Both SYMBOLS and ROGUESYMBOLS call switch_symbols(TRUE).
             switch_symbols(state, true);
         }
+        else if (operation.kind === 'boulder') {
+            // options.c optfn_boulder() defers the active showsyms write
+            // during initial parsing, but owns both override tables now.
+            applyBoulderOverride(operation, state);
+        }
     }
+}
+
+// C ref: symbols.c get_othersym().  DEFAULT_* already contains the four
+// fallback symbols that the source switch supplies when an override and the
+// selected set both have zero; the other two miscellaneous slots remain zero.
+export function get_othersym(index, set = PRIMARYSET, state = game) {
+    if (!Number.isInteger(index) || index < 0 || index >= MAXOTHER)
+        throw new RangeError(`other symbol ${index} is outside MAXOTHER`);
+    const absolute = SYM_OFF_X + index;
+    const arrays = slotArrays(set === ROGUESET ? ROGUESET : PRIMARYSET, state);
+    return arrays.overrides[absolute]
+        || arrays.base[absolute]
+        || DEFAULT_PRIMARY_SYMBOLS[absolute]
+        || 0;
+}
+
+// This is the symbol-owned portion of options.c initoptions_finish().  It
+// runs after every symset and S_* operation, so the final primary override is
+// the byte the first ordinary or tutorial map displays.
+export function finish_boulder_symbol(state = game) {
+    const symbol = get_othersym(SYM_BOULDER, PRIMARYSET, state);
+    if (symbol) state.gs.showsyms[SYM_OFF_X + SYM_BOULDER] = symbol;
 }
 
 function rawSymbol(index, state) {

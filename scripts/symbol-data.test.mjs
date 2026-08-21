@@ -16,11 +16,15 @@ import {
     SYM_OFF_W,
     SYM_OFF_X,
 } from '../js/symbol_data.js';
-import { def_char_to_objclass } from '../js/drawing.js';
+import {
+    def_char_to_monclass,
+    def_char_to_objclass,
+} from '../js/drawing.js';
 import {
     COIN_CLASS, MAXOCLASSES, VENOM_CLASS, WEAPON_CLASS,
 } from '../js/objects.js';
 import {
+    MAXMCLASSES,
     MAXPCHARS,
     S_bars,
     S_brupstair,
@@ -125,6 +129,16 @@ test('def_char_to_objclass() maps a class symbol back to its index', () => {
     // Index 0's symbol byte is 0, so the placeholder never matches and the
     // scan cannot answer 0.
     assert.equal(def_char_to_objclass('\0'), MAXOCLASSES);
+});
+
+// C ref: drawing.c def_char_to_monclass() (108-116).
+test('def_char_to_monclass() maps compiled-in bytes and skips the dummy', () => {
+    assert.equal(def_char_to_monclass('a'), 1);
+    assert.equal(def_char_to_monclass('@'), 53);
+    assert.equal(def_char_to_monclass(']'), 60);
+    assert.equal(def_char_to_monclass('0'), MAXMCLASSES);
+    assert.equal(def_char_to_monclass('\0'), MAXMCLASSES);
+    assert.equal(def_char_to_monclass(0xB0), MAXMCLASSES);
 });
 
 test('generated symbol sets match the pinned source projection', () => {

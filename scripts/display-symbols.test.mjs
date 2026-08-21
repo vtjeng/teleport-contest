@@ -62,6 +62,7 @@ import {
     OBJ_FLOOR,
     PIT,
     POOL,
+    PRIMARYSET,
     PROT_FROM_SHAPE_CHANGERS,
     ROGUESET,
     ROOM,
@@ -82,6 +83,7 @@ import {
     STUNNED,
     SVALL,
     SYM_NOTHING,
+    SYM_BOULDER,
     TDWALL,
     TIMER_OBJECT,
     TLCORNER,
@@ -298,8 +300,11 @@ import {
 import {
     cmap_symbol,
     defsym_to_trap,
+    finish_boulder_symbol,
+    get_othersym,
     glyph_customization,
     initialize_symbols_from_options,
+    MAXOTHER,
     MAXPCHARS,
     misc_symbol,
     monster_class_symbol,
@@ -342,6 +347,7 @@ import {
     sym_val,
     trap_to_defsym,
 } from '../js/symbols.js';
+import { escapes } from '../js/options_escapes.js';
 import {
     _startupA11yInternals,
     describeMonster,
@@ -990,6 +996,58 @@ test('symbol selection and overrides replay in source execution order', () => {
     assert.deepEqual(revealed.symbol, { ch: '!', dec: false });
     assert.equal(revealed.state.go.ov_rogue_syms[S_vwall], '?'.charCodeAt(0));
 });
+
+test('startup boulder operations own both sets and finish in source order',
+    () => {
+        const configured = (rc) => {
+            const state = {};
+            initialize_symbols_from_options(parseNethackrc(rc), state);
+            finish_boulder_symbol(state);
+            return state;
+        };
+        const absolute = SYM_OFF_X + SYM_BOULDER;
+
+        // parseoptions() applies a comma suffix first. The left-hand boulder
+        // therefore overwrites the primary S_boulder assignment and both
+        // tables end at '0'.
+        const boulderLast = configured(
+            'OPTIONS=boulder:0,S_boulder:?\n'
+                + 'OPTIONS=symset:DECgraphics,roguesymset:RogueIBM',
+        );
+        assert.equal(boulderLast.go.ov_primary_syms[absolute], 0x30);
+        assert.equal(boulderLast.go.ov_rogue_syms[absolute], 0x30);
+        assert.equal(get_othersym(SYM_BOULDER, 0, boulderLast), 0x30);
+        assert.equal(get_othersym(SYM_BOULDER, ROGUESET, boulderLast), 0x30);
+        assert.equal(misc_symbol(SYM_BOULDER, boulderLast).ch, '0');
+
+        // Reversing the text lets S_boulder overwrite only the primary slot;
+        // the older boulder option remains the Rogue override.
+        const symbolLast = configured(
+            'OPTIONS=S_boulder:?,boulder:0\n'
+                + 'ROGUESYMBOLS=S_boulder:!',
+        );
+        assert.equal(symbolLast.go.ov_primary_syms[absolute], 0x3F);
+        assert.equal(symbolLast.go.ov_rogue_syms[absolute], 0x21);
+        assert.equal(misc_symbol(SYM_BOULDER, symbolLast).ch, '?');
+
+        const fallback = configured('');
+        assert.equal(get_othersym(SYM_BOULDER, 0, fallback), 0x60);
+        assert.equal(misc_symbol(SYM_BOULDER, fallback).ch, '`');
+
+        assert.equal(get_othersym(0, PRIMARYSET, fallback), 0x20);
+        assert.throws(() => get_othersym(-1, PRIMARYSET, fallback), RangeError);
+        assert.throws(() => get_othersym(0.5, PRIMARYSET, fallback), RangeError);
+        assert.throws(
+            () => get_othersym(MAXOTHER, PRIMARYSET, fallback),
+            RangeError,
+        );
+
+        // Exercise the compiled-in fallback after both mutable symbol tables
+        // are zero, rather than reaching the same byte through their defaults.
+        fallback.go.ov_primary_syms[absolute] = 0;
+        fallback.gp.primary_syms[absolute] = 0;
+        assert.equal(get_othersym(SYM_BOULDER, PRIMARYSET, fallback), 0x60);
+    });
 
 test('failed primary selections clear metadata without undoing earlier bytes',
     () => {
@@ -6686,6 +6744,32 @@ test('sym_val consumes the first configured UTF-8 byte and source escapes', () =
     assert.equal(sym_val(String.raw`\xZ`), 0x78);
     assert.equal(sym_val(String.raw`\o8`), 0x6F);
 });
+
+test('escapes expands every source byte family and retains the full result',
+    () => {
+        assert.deepEqual(escapes('AZ'), [0x41, 0x5A]);
+        assert.deepEqual(escapes('^A^?^'), [0x01, 0x1F, 0x5E]);
+        assert.deepEqual(
+            escapes(String.raw`\n\t\b\r\\`),
+            [0x0A, 0x09, 0x08, 0x0D, 0x5C],
+        );
+        assert.deepEqual(escapes(String.raw`\065\o101\x41`), [65, 65, 65]);
+        assert.deepEqual(escapes(String.raw`\9`), [9]);
+        assert.deepEqual(escapes(String.raw`\o0\x0`), [0, 0]);
+        assert.deepEqual(escapes(String.raw`\xAF\xaf`), [0xAF, 0xAF]);
+        assert.deepEqual(
+            escapes(String.raw`\1234\o1017\x414`),
+            [123, 52, 65, 55, 65, 52],
+        );
+        assert.deepEqual(
+            escapes("\\xZ\\o8\\"),
+            [0x78, 0x5A, 0x6F, 0x38, 0x5C],
+        );
+        assert.deepEqual(escapes(String.raw`\M0\M^@`), [0xB0, 0x80]);
+        assert.deepEqual(escapes(String.raw`\M`), [0x4D]);
+        assert.deepEqual(escapes([0x41, 0, 0x42]), [0x41]);
+        assert.deepEqual(escapes(String.raw`\0A`), [0, 0x41]);
+    });
 
 test('weapon and armor status descriptions follow botl source categories', () => {
     const state = resetGame();

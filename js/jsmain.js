@@ -58,7 +58,10 @@ import {
     runMoveloopPreambleAtStartupBoundary,
     UnsupportedStartupBoundaryError,
 } from './moveloop_preamble.js';
-import { initialize_symbols_from_options } from './symbols.js';
+import {
+    finish_boulder_symbol,
+    initialize_symbols_from_options,
+} from './symbols.js';
 import { ttyPline } from './tty_message.js';
 import { tty_create_nhwindow } from './wintty.js';
 import { NHW_MESSAGE } from './const.js';
@@ -385,6 +388,7 @@ export class NethackGame {
         // configuration has been parsed and before player selection.
         finishStartupBooleanOptions(g);
         initoptions_finish(opts, g);
+        finish_boulder_symbol(g);
 
         // options.c:initoptions_finish():7347. This is where gs.showsyms gains
         // its entry for S_darkroom: defsym.h gives that cmap its own default
