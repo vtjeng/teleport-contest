@@ -236,18 +236,19 @@ test('parseoptions() rejects an empty or over-long statement', async () => {
     assert.equal(state.flags.lit_corridor, false);
 });
 
-test('parseoptions() matches a prefix option without regard to case',
+test('parseoptions() matches and updates a prefix option without regard to case',
     async () => {
         const state = await startStockGame();
         // 'cond_' is one of the two NHOPTP entries, and str_start_is() is
         // handed caseblind TRUE, so an upper-case statement still reaches
         // pfxfn_cond_(). match_optname() could not: it compares the whole
-        // statement against the shorter prefix name.
-        await assert.rejects(
-            parseoptions(state, 'COND_hp:red', false, false),
-            (error) => error instanceof UnsupportedOptionMenuError
-                && error.what === "pfxfn_cond_()'s do_set request",
-        );
+        // statement against the shorter prefix name. botl.c parse_cond_option()
+        // accepts the four-character condition abbreviation and condopt()
+        // writes the sole condition owner before pfxfn_cond_() requests redraw.
+        assert.equal(state.iflags.status_conditions.blind, true);
+        assert.equal(await parseoptions(state, '!COND_blin', false, false), true);
+        assert.equal(state.iflags.status_conditions.blind, false);
+        assert.equal(state.go.opt_need_redraw, true);
     });
 
 test('parseoptions() refuses a negation the option does not allow',

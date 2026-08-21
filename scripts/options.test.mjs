@@ -2220,8 +2220,8 @@ test('status highlight options preserve source rules and condition defaults', ()
     assert.equal(parsed.iflags.wc2_hitpointbar, true);
     assert.equal(parsed.iflags.status_conditions.blind, false);
     assert.equal(parsed.iflags.status_conditions.barehanded, true);
-    assert.equal(parsed.flags.cond_blind, false);
-    assert.equal(parsed.flags.cond_barehanded, true);
+    assert.equal(Object.hasOwn(parsed.flags, 'cond_blind'), false);
+    assert.equal(Object.hasOwn(parsed.flags, 'cond_barehanded'), false);
 
     const [lowHp, fullHp, ...remaining] = parsed.iflags.status_hilites;
     assert.deepEqual(lowHp, {
@@ -3237,33 +3237,73 @@ test('showvers and versinfo preserve the release-build status selection', () => 
 test('prefix options validate their source suffixes', () => {
     const enabled = parseNethackrc('OPTIONS=cond_blin');
     const disabled = parseNethackrc('OPTIONS=!cond_blin');
-    assert.equal(enabled.flags.cond_blind, true);
-    assert.equal(disabled.flags.cond_blind, false);
+    assert.equal(enabled.iflags.status_conditions.blind, true);
+    assert.equal(disabled.iflags.status_conditions.blind, false);
+    assert.equal(Object.hasOwn(enabled.flags, 'cond_blind'), false);
+
+    // botl.c uses the whole three-byte name as minmatch when the condition
+    // name is shorter than four bytes; longer names still require four.
+    const shortNames = parseNethackrc('OPTIONS=!cond_fly,cond_ice');
+    assert.equal(shortNames.iflags.status_conditions.fly, false);
+    assert.equal(shortNames.iflags.status_conditions.ice, true);
+    assert.deepEqual(shortNames.configErrorFrame.output, []);
 
     // Each of these reaches a pfx row, either through str_start_is() or,
     // for the bare prefix name, through match_optname() on the prefix itself.
-    // C then hands it to pfxfn_cond_() or pfxfn_font() and adds "bad option
-    // suffix variation" on top of whatever that reported; neither is ported,
-    // so the parser stops rather than calling it an unknown option.
-    for (const invalid of [
-        'cond',
-        'cond_',
-        'cond_bli',
-        'cond_bogus',
-        'cond_blind:on',
-        'font',
-        'fontbogus:value',
+    // pfxfn_cond_() names the original statement, while parseoptions() only
+    // adds its second diagnostic after str_start_is() reached the row.
+    for (const [invalid, messages] of [
+        ['cond', [
+            'Unknown condition option cond (2).',
+        ]],
+        ['cond_', [
+            'Unknown condition option cond_ (2).',
+            "bad option suffix variation 'cond_'.",
+        ]],
+        ['cond_bli', [
+            'Unknown condition option cond_bli (1).',
+            "bad option suffix variation 'cond_bli'.",
+        ]],
+        ['cond_fl', [
+            'Unknown condition option cond_fl (1).',
+            "bad option suffix variation 'cond_fl'.",
+        ]],
+        ['cond_bogus', [
+            'Unknown condition option cond_bogus (1).',
+            "bad option suffix variation 'cond_bogus'.",
+        ]],
+        ['cond_bogus:value', [
+            'Unknown condition option cond_bogus:value (1).',
+            "bad option suffix variation 'cond_bogus'.",
+        ]],
+        ['cond_blind:on', [
+            'Unknown condition option cond_blind:on (1).',
+            "bad option suffix variation 'cond_blind'.",
+        ]],
+        ['font', null],
+        ['fontbogus:value', null],
         // str_start_is() is called case-blind, and only that call can match
         // these two: their lowercased names are longer than the prefix, so
         // the minmatch arm cannot reach them.
-        'COND_BOGUS',
-        'FONTBOGUS:x',
+        ['COND_BOGUS', [
+            'Unknown condition option COND_BOGUS (1).',
+            "bad option suffix variation 'COND_BOGUS'.",
+        ]],
+        ['FONTBOGUS:x', null],
     ]) {
-        assert.throws(
-            () => parseNethackrc(`OPTIONS=${invalid}`),
-            /unported prefix option/u,
-            invalid,
-        );
+        if (messages === null) {
+            assert.throws(
+                () => parseNethackrc(`OPTIONS=${invalid}`),
+                /unported prefix option/u,
+                invalid,
+            );
+            continue;
+        }
+        const parsed = parseNethackrc(`OPTIONS=${invalid}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\nOPTIONS=${invalid}`,
+            ...messages.map((message) => ` * Line 1: ${message}`),
+        ], invalid);
     }
 });
 

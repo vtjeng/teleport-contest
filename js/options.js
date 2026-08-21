@@ -2930,24 +2930,18 @@ function sourceOptionMatch(parsedName) {
 
 // C ref: options.c:556-580, the two ways parseoptions()'s match loop reaches a
 // pfx row.  str_start_is() accepts any suffix, and match_optname() accepts a
-// leading substring of the prefix itself down to minmatch, so "cond", "cond_",
-// "cond_bogus" and "fontbogus:value" all land on one.  The row's handler --
-// pfxfn_cond_() or pfxfn_font() -- then decides the suffix, and options.c
-// :675-682 adds "bad option suffix variation" on top of whatever it reported.
-// None of that is ported, so a statement that reaches a pfx row without
-// sourceConditionMatch() recognizing it stops rather than being reported as an
-// unknown option.  The two rows are the last in allopt[], so no ordinary row
-// can match after them.
+// leading substring of the prefix itself down to minmatch. The two rows are
+// last in allopt[], so no ordinary row can match after them.
 const PREFIX_OPTION_MATCHES = Object.freeze(SOURCE_OPTION_MATCHES.filter(
     ([canonical]) => SOURCE_PREFIX_OPTION_NAMES.includes(canonical),
 ));
 
-function matchesPrefixOptionRow(statement, parsedName) {
-    return PREFIX_OPTION_MATCHES.some(([canonical, minLength]) => (
+function matchedPrefixOptionRow(statement, parsedName) {
+    return PREFIX_OPTION_MATCHES.find(([canonical, minLength]) => (
         str_start_is(statement, canonical, true)
             || (parsedName.length >= minLength
                 && canonical.startsWith(parsedName))
-    ));
+    ))?.[0] ?? null;
 }
 
 // C ref: options.c parseoptions()'s allopt[matchidx], the row its two match
@@ -3116,14 +3110,49 @@ function bad_negation(result, optname) {
     );
 }
 
-function sourceConditionMatch(parsedName, value) {
-    if (value != null || !parsedName.startsWith('cond_')) return null;
-    const suffix = parsedName.slice('cond_'.length);
+// C ref: botl.c condopt(), its setting branch. status_conditions is the sole
+// owner of condtests[].enabled: no raw cond_* fields are retained in flags.
+// Its initialization branch is initoptions_init()'s existing default table.
+function condopt(target, canonical, negated) {
+    target.iflags.status_conditions[canonical] = !negated;
+}
+
+// C ref: botl.c parse_cond_option(). `opts` is deliberately the whole
+// post-negation statement, including a colon value, because
+// match_optname(..., FALSE) rejects that suffix.
+function parse_cond_option(target, negated, opts) {
+    if (!opts || opts.length <= 'cond_'.length) return 2;
+    const suffix = opts.slice('cond_'.length).toLowerCase();
     const canonical = SOURCE_CONDITION_NAMES.find((candidate) => (
         suffix.length >= Math.min(candidate.length, 4)
             && candidate.startsWith(suffix)
     ));
-    return canonical ? `cond_${canonical}` : null;
+    if (!canonical) return 1;
+    condopt(target, canonical, negated);
+    return 0;
+}
+
+// C ref: options.c pfxfn_cond_(). A configuration read accumulates the
+// handler's diagnostic and parseoptions() appends its pfx-only diagnostic.
+// The interactive caller has no config-error frame, but shares condopt() and
+// requests the redraw C records after a successful change.
+function pfxfn_cond_(target, negated, opts, result = null) {
+    const reslt = parse_cond_option(target, negated, opts);
+    if (reslt !== 0) {
+        if (result) {
+            configErrorAdd(
+                result, `Unknown condition option ${opts} (${reslt})`,
+            );
+        }
+        return optn_err;
+    }
+    if (target.go) target.go.opt_need_redraw = true;
+    return optn_ok;
+}
+
+function prefixSuffixText(opts) {
+    const colon = opts.indexOf(':');
+    return colon < 0 ? opts : opts.slice(0, colon);
 }
 
 function isSourceSymbolAssignment(sourceName, value) {
@@ -3324,7 +3353,6 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     const sourceMatch = sourceOptionMatch(parsedName);
     const aliasTarget = optionAliasTarget(parsedName);
     const hasAlias = aliasTarget !== null;
-    const conditionMatch = sourceConditionMatch(parsedName, value);
     // options.c strips negation, then checks this prefix case-sensitively.
     const isSymbolAssignment = isSourceSymbolAssignment(rawName, value);
     let name = sourceMatch?.[0] ?? aliasTarget;
@@ -3332,13 +3360,27 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     // failed, and raises using_alias there and nowhere else, so a name match
     // leaves the flag as the element to the right of this one left it.
     if (!sourceMatch && hasAlias) aliasState.usingAlias = true;
-    if (!name && conditionMatch) name = conditionMatch;
     // options.c:618-629 reads allopt[matchidx], the row its two match loops
     // settled on; a symbol assignment reaches parsesymbols() (663) only with
     // got_match still false, so it has no row and gets no negation check.
     const matchedRow = name ? matchedOptionRow(name) : null;
     if (!name && isSymbolAssignment) name = parsedName;
-    if (!name && matchesPrefixOptionRow(statement, parsedName)) {
+    const prefixRow = !name
+        ? matchedPrefixOptionRow(statement, parsedName) : null;
+    if (prefixRow === 'cond_') {
+        const optresult = pfxfn_cond_(result, negated, statement, result);
+        // options.c:675-682 adds this after the handler only when the pfx
+        // str_start_is() path reached the row. A shorter "cond" reaches the
+        // same handler through match_optname(), without this second report.
+        if (optresult === optn_err && str_start_is(statement, prefixRow, true)) {
+            configErrorAdd(
+                result,
+                `bad option suffix variation '${prefixSuffixText(statement)}'`,
+            );
+        }
+        return;
+    }
+    if (!name && prefixRow) {
         optionError(lineNumber, `unported prefix option '${statement}'`);
     }
     if (!name) {
@@ -3400,10 +3442,6 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setStatusHiliteOption(result, value, negated);
     } else if (name === 'statushilites') {
         setStatusHiliteDuration(result, value, negated);
-    } else if (name.startsWith('cond_')) {
-        const enabled = !negated;
-        result.flags[name] = enabled;
-        result.iflags.status_conditions[name.slice('cond_'.length)] = enabled;
     } else if (menuCommand && parsedName === name) {
         setMenuCommandOption(result, menuCommand, statement);
     } else if (menuCommand || isMenuCommandPrefix(parsedName)) {
@@ -5166,6 +5204,9 @@ async function optfn_pickup_types(state, optidx, negated, opts, helpers) {
 // name, as OPTION_VALUE_HANDLERS' keys are.
 const OPTION_SET_HANDLERS = Object.freeze({
     boolean: optfn_boolean,
+    cond_: (state, _optidx, negated, opts) => pfxfn_cond_(
+        state, negated, opts,
+    ),
     pickup_types: optfn_pickup_types,
 });
 
