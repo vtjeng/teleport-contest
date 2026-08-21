@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "The complete startup boundary is implemented and source/fresh validated; the implementation commit identity is pending the final readiness follow-up.",
-  "commitChecked": "bc2d48c023da77f468c0600fc79b95ac1a40a7ca",
+  "mode": "ready-for-audit",
+  "reason": "All reachable startup candidates are implemented, source/fresh validated, and mutation checked at the implementation commit; only the explicitly excluded runtime and impossible-build arms remain bounded.",
+  "commitChecked": "22c98427ef904606006215ee706cc34c6f4dec83",
   "boundary": {
     "goalId": "options-config-parser",
     "startingCommit": "bc2d48c023da77f468c0600fc79b95ac1a40a7ca",
