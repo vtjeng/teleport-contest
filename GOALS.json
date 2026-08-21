@@ -2600,8 +2600,8 @@
         },
         {
           "name": "startup-menu-object-symbols-to-inventory",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "5838ed7158753e0f2356d6decf255d7014fddca3"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
