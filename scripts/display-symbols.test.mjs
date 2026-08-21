@@ -991,6 +991,49 @@ test('symbol selection and overrides replay in source execution order', () => {
     assert.equal(revealed.state.go.ov_rogue_syms[S_vwall], '?'.charCodeAt(0));
 });
 
+test('failed primary selections clear metadata without undoing earlier bytes',
+    () => {
+        const selected = (rc) => {
+            const state = {};
+            initialize_symbols_from_options(parseNethackrc(rc), state);
+            return { state, symbol: cmap_symbol(S_vwall, state) };
+        };
+
+        const invalidOnly = selected('OPTIONS=symset:NoSuchSymbols');
+        assert.deepEqual(invalidOnly.symbol, { ch: '|', dec: false });
+        assert.equal(invalidOnly.state.gs.symset[0].name, null);
+
+        // parseoptions() evaluates comma-separated OPTIONS from right to left.
+        // The failed right-hand selection is therefore followed by DEC here.
+        const invalidBeforeValid = selected(
+            'OPTIONS=symset:DECgraphics,symset:NoSuchSymbols',
+        );
+        assert.deepEqual(invalidBeforeValid.symbol, { ch: 'x', dec: true });
+        assert.equal(invalidBeforeValid.state.gs.symset[0].name, 'DECgraphics');
+
+        // Reversing the text loads DEC first.  read_sym_file() then misses and
+        // clear_symsetentry() removes its metadata without calling
+        // init_primary_symbols() or switch_symbols(FALSE), so DEC bytes remain.
+        const invalidAfterValid = selected(
+            'OPTIONS=symset:NoSuchSymbols,symset:DECgraphics',
+        );
+        assert.deepEqual(invalidAfterValid.symbol, { ch: 'x', dec: true });
+        assert.equal(invalidAfterValid.state.gs.symset[0].name, null);
+        assert.equal(invalidAfterValid.state.gs.symset[0].handling, H_UNK);
+        assert.equal(invalidAfterValid.state.gs.symset[0].nocolor, 0);
+        assert.equal(invalidAfterValid.state.gs.symset[0].primary, 0);
+        assert.equal(invalidAfterValid.state.gs.symset[0].rogue, 0);
+
+        for (const rc of [
+            'SYMBOLS=S_vwall:!\nOPTIONS=symset:NoSuchSymbols',
+            'OPTIONS=symset:NoSuchSymbols\nSYMBOLS=S_vwall:!',
+        ]) {
+            const overridden = selected(rc);
+            assert.deepEqual(overridden.symbol, { ch: '!', dec: false }, rc);
+            assert.equal(overridden.state.gs.symset[0].name, null, rc);
+        }
+    });
+
 test('named symbol sets load source-derived byte and Unicode maps', () => {
     const configured = (name) => {
         const state = {};

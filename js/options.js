@@ -124,6 +124,7 @@ import {
     truncateByteString,
     visctrl,
 } from './hacklib.js';
+import { read_sym_file } from './files.js';
 // js/display.js, js/invent.js and js/vision.js do not import this file, so
 // these three are plain one-way dependencies; js/tty_message.js reaches
 // js/display.js from the other side, and both use the other's exports only
@@ -3750,6 +3751,21 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         if (name === 'symset') {
             if (emptyValue) return;
             result.symset = value;
+            // optfn_symset(do_set) asks files.c read_sym_file() immediately.
+            // A miss clears the attempted name but deliberately leaves earlier
+            // symbol bytes and overrides in place, so retain an ordered cleanup
+            // operation for symbols.c to replay during startup initialization.
+            if (!read_sym_file(value)) {
+                result.symset = undefined;
+                result.symbolOperations.push({
+                    kind: 'clear', set: 'primary', nameToo: true,
+                });
+                configErrorAdd(
+                    result,
+                    `Unable to load symbol set "${value}" from "symbols"`,
+                );
+                return;
+            }
             appendSymbolSelection(result, 'primary', value);
         } else if (name === 'roguesymset') {
             if (emptyValue) return;

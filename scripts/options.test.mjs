@@ -1841,7 +1841,7 @@ test('config and source option names accept valid abbreviations', () => {
         'OPTI=nam:Alice,rol:Healer,rac:elf,gen:female,alignm:chaotic',
         'OPTI=playm:debug,!col,showe,!verb,menu_h:bold',
         'OPTI=!menu_ov,eig,pett:cat,fru:pear,hor:Shadowfax',
-        'OPTI=bli,dea,nud,pau,rer,sym:UTF8,sup:3.7,msg_:r,pus',
+        'OPTI=bli,dea,nud,pau,rer,sym:Enhanced1,sup:3.7,msg_:r,pus',
         'CHAR=Wizard',
         'DOG=Fido',
         'CAT=Mog',
@@ -1867,7 +1867,7 @@ test('config and source option names accept valid abbreviations', () => {
     assert.equal(parsed.uroleplay.nudist, true);
     assert.equal(parsed.uroleplay.pauper, true);
     assert.equal(parsed.uroleplay.reroll, true);
-    assert.equal(parsed.symset, 'UTF8');
+    assert.equal(parsed.symset, 'Enhanced1');
     assert.equal(parsed.flags.suppress_alert, '3.7');
     assert.equal(parsed.iflags.prevmsg_window, 'r');
     assert.equal(parsed.flags.pushweapon, true);
@@ -2232,7 +2232,7 @@ test('direct legacy name, role, and pet-name statements are accepted', () => {
 test('valid unported startup option mappings remain available', () => {
     const parsed = parseNethackrc(
         'OPTIONS=!autopickup,color,!legacy,!tutorial,!splash_screen,'
-        + 'pushweapon,showexp,time,!verbose,symset:UTF8,msg_window:r,'
+        + 'pushweapon,showexp,time,!verbose,symset:Enhanced1,msg_window:r,'
         + 'suppress_alert:3.7,soundlib:example,S_vwall:|',
     );
     assert.equal(parsed.flags.pickup, false);
@@ -2258,7 +2258,7 @@ test('valid unported startup option mappings remain available', () => {
     assert.equal(parsed.flags.showexp, true);
     assert.equal(parsed.flags.time, true);
     assert.equal(parsed.flags.verbose, false);
-    assert.equal(parsed.symset, 'UTF8');
+    assert.equal(parsed.symset, 'Enhanced1');
     assert.equal(parsed.iflags.prevmsg_window, 'r');
     assert.equal(parsed.iflags.wc2_statuslines, 2);
     assert.equal(parsed.flags.suppress_alert, '3.7');
@@ -2423,6 +2423,18 @@ test('a symbol set or alert version ending on its separator selects nothing',
             '3.6.1',
         );
     });
+
+test('an unknown primary symset reports and queues source cleanup', () => {
+    const parsed = parseNethackrc('OPTIONS=symset:NoSuchSymbols\n');
+    assert.equal(parsed.symset, undefined);
+    assert.deepEqual(parsed.symbolOperations, [{
+        kind: 'clear', set: 'primary', nameToo: true,
+    }]);
+    assert.deepEqual(parsed.configErrorFrame.output, [
+        '\nOPTIONS=symset:NoSuchSymbols',
+        ' * Line 1: Unable to load symbol set "NoSuchSymbols" from "symbols".',
+    ]);
+});
 
 test('status highlight options preserve source rules and condition defaults', () => {
     const defaults = parseNethackrc('');

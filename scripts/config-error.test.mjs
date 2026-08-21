@@ -1160,6 +1160,11 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'sortdiscoveries:'."],
         ["Unknown sortdiscoveries parameter 'zqxj'."],
     ]],
+    ['symset', [
+        [],
+        [],
+        ['Unable to load symbol set "zqxj" from "symbols".'],
+    ]],
     ['statuslines', [
         [
             "Missing parameter for 'statuslines'.",
@@ -1238,7 +1243,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['scroll_margin', [1, 1, 0]],
     ['sortvanquished', [1, 1, 0]],
     ['soundlib', [1, 1, 0]],
-    ['symset', [0, 0, 1]],
     ['term_cols', [1, 1, 1]],
     ['term_rows', [1, 1, 1]],
     ['tile_height', [1, 1, 0]],
@@ -1265,9 +1269,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 50);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 51);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 28);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 27);
 
     let owed = 0;
     for (const row of rows) {
@@ -1301,9 +1305,9 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 66 messages over 28 rows: what porting those handlers is worth to a
+    // 65 messages over 27 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 66);
+    assert.equal(owed, 65);
 });
 
 // C ref: options.c paranoia[] and optfn_paranoid_confirmation()'s do_set

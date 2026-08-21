@@ -58,11 +58,11 @@
     {
       "candidate": "unknown primary symbol-set name",
       "reachability": "Any nonempty name absent from all 14 bundled Start records reaches read_sym_file() failure.",
-      "owner": "js/options.js startup symset handler and js/symbols.js selection validation",
-      "effects": "Must add the source configuration error, clear failed selection metadata, preserve later option order, wait at config_error_done(), and continue with default map symbols.",
-      "evidence": "options.c optfn_symset(); files.c read_sym_file(); focused unknown-name reproduction shows JavaScript currently throws after config_error_done().",
-      "status": "missing",
-      "remaining": "Move validation into startup parsing, connect source error/cleanup semantics, and prove invalid-before/after-valid ordering plus continued map startup with a fresh differential."
+      "owner": "js/options.js optfn_symset startup arm, js/files.js read_sym_file(), and js/symbols.js clear_symsetentry() replay",
+      "effects": "Adds the source configuration error, clears failed selection metadata without undoing earlier symbol bytes or overrides, preserves later option order, waits at config_error_done(), and continues through the first map.",
+      "evidence": "options.c optfn_symset(); files.c read_sym_file(); symbols.c clear_symsetentry(); focused parser and display-symbol tests; scripts/run-startup-symset.mjs strictly matched seven fresh C segments through the raw wait, first map, and #optionsfull (17,262 PRNG calls, 89 screens and cursors).",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "missing symbols file",
@@ -96,16 +96,16 @@
       "reachability": "Repeated OPTIONS and SYMBOLS statements can occur in either source-permitted order.",
       "owner": "js/options.js symbolOperations and js/symbols.js initialize_symbols_from_options()",
       "effects": "Later operations reset or layer symbol tables in source order before map rendering.",
-      "evidence": "options.c right-to-left option parsing; symbols.c selection/override behavior; display-symbols ordering tests.",
+      "evidence": "options.c right-to-left option parsing; symbols.c selection/override behavior; focused display-symbols ordering tests; fresh startup matrix cases cover invalid before and after valid DEC selection and SYMBOLS overrides on both sides of invalid selection.",
       "status": "done",
-      "remaining": "Add invalid-name ordering cases while closing the missing branch."
+      "remaining": ""
     },
     {
       "candidate": "selected primary set reaches startup map and #optionsfull",
       "reachability": "Every normal startup initializes symbols before the first level display; #optionsfull reads gs.symset.",
       "owner": "js/jsmain.js startup; js/symbols.js switch_symbols(); js/options.js symsetValue()",
       "effects": "Renders the selected map bytes/UTF-8 glyphs and reports the selected name and handling.",
-      "evidence": "Existing display-symbols and options-menu tests plus valid symset development sessions.",
+      "evidence": "Existing display-symbols and options-menu tests plus valid symset development sessions; fresh bundled DEC and Default-symbols cases strictly matched the first rendered map and #optionsfull value.",
       "status": "done",
       "remaining": ""
     },
@@ -128,14 +128,6 @@
       "remaining": "Separate rogue symset slice."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "startup primary symset validation and error continuation",
-      "candidates": [
-        "unknown primary symbol-set name"
-      ],
-      "next": "Validate against generated symbol definitions during startup parsing, add source-owned diagnostics and cleanup, preserve operation order, and prove continued default-map startup."
-    }
-  ],
-  "sourceReview": "The survey traced every optfn_symset request arm and every read_sym_file outcome reachable with the pinned symbols data through selection cleanup, switch_symbols(), ordered overrides, first map rendering, and #optionsfull. It identified the delayed unknown-name exception as the only reachable unsupported branch inside this boundary; rogue and interactive paths are explicitly later."
+  "missingWorkByOwner": [],
+  "sourceReview": "The completed slice covers every optfn_symset do_set and read_sym_file outcome reachable with pinned symbols data through clear_symsetentry(), switch_symbols(), ordered overrides, the configuration-error wait, first map rendering, and #optionsfull. Seven fresh C/JavaScript cases pinned invalid-only startup, invalid-before/after-valid ordering, both SYMBOLS override orders, one bundled set, and a default alias. Rogue and interactive paths remain explicitly later."
 }

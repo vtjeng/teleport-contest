@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import { ENGRAVE, SLP_GAS_TRAP, SQKY_BOARD } from '../js/const.js';
-import { nh_basename } from '../js/files.js';
+import { nh_basename, read_sym_file } from '../js/files.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import { PM_HEALER, PM_KNIGHT, PM_MONK } from '../js/monsters.js';
@@ -14,6 +14,7 @@ import {
     WAN_SECRET_DOOR_DETECTION,
 } from '../js/objects.js';
 import { splev_chr2typ } from '../js/mklev.js';
+import { SYMBOL_SET_DEFINITIONS } from '../js/symbol_data.js';
 import {
     ask_do_tutorial,
     buildTutorialMenuSpec,
@@ -278,6 +279,23 @@ test('nh_basename cuts at the last slash and obeys keepSuffix', () => {
     assert.equal(nh_basename(`${'n'.repeat(80)}.rc`, false),
         `${'n'.repeat(80)}.rc`);
     assert.equal(nh_basename(`${'n'.repeat(79)}.rc`, false), 'n'.repeat(79));
+});
+
+// C ref: files.c read_sym_file().  dat/symbols has fourteen Start records;
+// exact names ignore case, and the no-match fallback recognizes these default
+// spellings after fuzzymatch() removes spaces, hyphens, and underscores.
+test('read_sym_file recognizes every bundled set and the default aliases', () => {
+    assert.equal(SYMBOL_SET_DEFINITIONS.length, 14);
+    for (const { name } of SYMBOL_SET_DEFINITIONS) {
+        assert.equal(read_sym_file(name), true, name);
+        assert.equal(read_sym_file(name.toUpperCase()), true, name);
+    }
+    for (const name of [
+        'default', 'Default symbols', 'default-symbols', 'default_symbols',
+    ]) {
+        assert.equal(read_sym_file(name), true, name);
+    }
+    assert.equal(read_sym_file('NoSuchSymbols'), false);
 });
 
 test('tutorial menu uses the source config-file fallback text', () => {

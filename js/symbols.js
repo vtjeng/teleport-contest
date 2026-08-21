@@ -201,6 +201,22 @@ function resetSymbolSlot(set, state) {
     };
 }
 
+// C ref: symbols.c clear_symsetentry().  In particular, this does not restore
+// primary_syms[] or showsyms[]: a failed selection after a successful one
+// clears the selected name and handling while leaving the earlier byte table
+// displayed.  init_primary_symbols() is the separate operation that resets it.
+export function clear_symsetentry(set, nameToo, state = game) {
+    graphicsState(state);
+    const entry = state.gs.symset[set];
+    entry.desc = null;
+    entry.handling = H_UNK;
+    entry.nocolor = 0;
+    entry.primary = 0;
+    entry.rogue = 0;
+    entry.glyphs = Object.freeze({});
+    if (nameToo) entry.name = null;
+}
+
 function isDefaultSymset(name) {
     const folded = String(name ?? '').toLowerCase().replace(/[ _-]/gu, '');
     return folded === 'default' || folded === 'defaultsymbols';
@@ -482,6 +498,10 @@ export function initialize_symbols_from_options(options, state = game) {
         ? options.symbolOperations : fallbackOperations(options);
     for (const operation of operations) {
         if (operation.kind === 'select') selectSymbolSet(operation, state);
+        else if (operation.kind === 'clear') {
+            const set = operation.set === 'rogue' ? ROGUESET : PRIMARYSET;
+            clear_symsetentry(set, operation.nameToo, state);
+        }
         else if (operation.kind === 'override') {
             applySymbolAssignments(operation, state);
             // Both SYMBOLS and ROGUESYMBOLS call switch_symbols(TRUE).
