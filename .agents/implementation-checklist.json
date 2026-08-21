@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "Unknown primary symset names still escape after configuration error aggregation instead of reporting, clearing the failed selection, and continuing with default map symbols.",
-  "commitChecked": "d273810cbd94e229e43a08865081499289edb048",
+  "mode": "ready-for-audit",
+  "reason": "Every reachable startup primary symset outcome through configuration-error dismissal, the first map, and #optionsfull is source-reviewed and freshly matched; rogue and interactive selection remain explicitly excluded.",
+  "commitChecked": "8a68ebe2b55aecf0aa99326a83490e03c77b118b",
   "boundary": {
     "goalId": "options-config-parser",
     "startingCommit": "d273810cbd94e229e43a08865081499289edb048",
