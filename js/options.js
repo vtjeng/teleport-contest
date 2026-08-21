@@ -3150,6 +3150,127 @@ function pfxfn_cond_(target, negated, opts, result = null) {
     return optn_ok;
 }
 
+// C ref: options.c enum window_option_types.  Keep the source values because
+// wc_set_font_name() and pfxfn_font() exchange one of these rather than a
+// field name.
+const MESSAGE_OPTION = 1;
+const STATUS_OPTION = 2;
+const MAP_OPTION = 3;
+const MENU_OPTION = 4;
+const TEXT_OPTION = 5;
+
+// C ref: options.c wc_set_font_name().  JavaScript strings already own their
+// contents, so assigning the value supplies dupstr()'s independent lifetime.
+function wc_set_font_name(result, opttype, fontname) {
+    if (fontname == null) return;
+    let field;
+    switch (opttype) {
+    case MAP_OPTION:
+        field = 'wc_font_map';
+        break;
+    case MESSAGE_OPTION:
+        field = 'wc_font_message';
+        break;
+    case TEXT_OPTION:
+        field = 'wc_font_text';
+        break;
+    case MENU_OPTION:
+        field = 'wc_font_menu';
+        break;
+    case STATUS_OPTION:
+        field = 'wc_font_status';
+        break;
+    default:
+        return;
+    }
+    result.iflags[field] = fontname;
+}
+
+const FONT_NAME_OPTION_TYPES = Object.freeze({
+    font_map: MAP_OPTION,
+    font_message: MESSAGE_OPTION,
+    font_text: TEXT_OPTION,
+    font_menu: MENU_OPTION,
+    font_status: STATUS_OPTION,
+});
+
+const FONT_SIZE_OPTION_FIELDS = Object.freeze({
+    font_size_map: Object.freeze([MAP_OPTION, 'wc_fontsiz_map']),
+    font_size_message: Object.freeze([
+        MESSAGE_OPTION, 'wc_fontsiz_message',
+    ]),
+    font_size_text: Object.freeze([TEXT_OPTION, 'wc_fontsiz_text']),
+    font_size_menu: Object.freeze([MENU_OPTION, 'wc_fontsiz_menu']),
+    font_size_status: Object.freeze([STATUS_OPTION, 'wc_fontsiz_status']),
+});
+
+// C ref: options.c pfxfn_font().  Font names and sizes deliberately disagree
+// about negation.  A font name carrying a value is stored even when negated;
+// a size carrying a negation is ignored without reading or reporting its
+// value.  Size rows also report duplicates here despite allopt[].dupeok.
+function pfxfn_font(
+    result, row, negated, opts, duplicate, usingAlias,
+) {
+    const name = row.name;
+    const opttype = FONT_NAME_OPTION_TYPES[name];
+    const size = FONT_SIZE_OPTION_FIELDS[name];
+
+    if (size) {
+        if (duplicate) {
+            complain_about_duplicate(
+                result, row, optionParserMetadata[name] ?? {}, usingAlias,
+            );
+        }
+        if (!negated) {
+            const op = string_for_opt(opts, false, result);
+            if (op !== '') result.iflags[size[1]] = atoi(op);
+        }
+        return optn_ok;
+    }
+    if (!opttype) {
+        configErrorAdd(result, `Unknown font parameter '${opts}'`);
+        return optn_err;
+    }
+
+    const op = string_for_opt(opts, false, result);
+    if (op !== '') {
+        wc_set_font_name(result, opttype, op);
+        return optn_ok;
+    }
+    if (negated) {
+        bad_negation(result, name);
+        return optn_err;
+    }
+    return optn_ok;
+}
+
+// C refs: options.c optfn_font_map(), optfn_font_menu(),
+// optfn_font_message(), the five optfn_font_size_*() wrappers,
+// optfn_font_status(), and optfn_font_text().
+function optfn_font_map(...args) { return pfxfn_font(...args); }
+function optfn_font_menu(...args) { return pfxfn_font(...args); }
+function optfn_font_message(...args) { return pfxfn_font(...args); }
+function optfn_font_size_map(...args) { return pfxfn_font(...args); }
+function optfn_font_size_menu(...args) { return pfxfn_font(...args); }
+function optfn_font_size_message(...args) { return pfxfn_font(...args); }
+function optfn_font_size_status(...args) { return pfxfn_font(...args); }
+function optfn_font_size_text(...args) { return pfxfn_font(...args); }
+function optfn_font_status(...args) { return pfxfn_font(...args); }
+function optfn_font_text(...args) { return pfxfn_font(...args); }
+
+const FONT_OPTION_SET_HANDLERS = Object.freeze({
+    font_map: optfn_font_map,
+    font_menu: optfn_font_menu,
+    font_message: optfn_font_message,
+    font_size_map: optfn_font_size_map,
+    font_size_menu: optfn_font_size_menu,
+    font_size_message: optfn_font_size_message,
+    font_size_status: optfn_font_size_status,
+    font_size_text: optfn_font_size_text,
+    font_status: optfn_font_status,
+    font_text: optfn_font_text,
+});
+
 function prefixSuffixText(opts) {
     const colon = opts.indexOf(':');
     return colon < 0 ? opts : opts.slice(0, colon);
@@ -3380,6 +3501,21 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         }
         return;
     }
+    if (prefixRow === 'font') {
+        const optresult = pfxfn_font(
+            result, matchedOptionRow(prefixRow), negated, statement,
+        );
+        // Unlike cond_, font's minmatch is its complete four-byte name, so
+        // every statement which reaches this prefix arm also satisfies C's
+        // str_start_is() guard.
+        if (optresult === optn_err) {
+            configErrorAdd(
+                result,
+                `bad option suffix variation '${prefixSuffixText(statement)}'`,
+            );
+        }
+        return;
+    }
     if (!name && prefixRow) {
         optionError(lineNumber, `unported prefix option '${statement}'`);
     }
@@ -3408,6 +3544,14 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     }
     if (negated && matchedRow && !matchedRow.negateok) {
         bad_negation(result, matchedRow.name);
+        return;
+    }
+    const fontHandler = FONT_OPTION_SET_HANDLERS[name];
+    if (fontHandler) {
+        fontHandler(
+            result, matchedRow, negated, statement, duplicate,
+            aliasState.usingAlias,
+        );
         return;
     }
     if (matchedRow?.opttyp === 'BoolOpt'

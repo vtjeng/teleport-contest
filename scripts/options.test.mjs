@@ -50,6 +50,7 @@ import {
     MENU_SPELLINGS, loadPickupBurdenRecipe,
 } from './run-pickup-burden.mjs';
 import { loadOptionsDuplicateRecipe } from './run-options-duplicates.mjs';
+import { loadStartupFontOptionsRecipe } from './run-startup-font-options.mjs';
 import { loadStartupPickupTypesRecipe } from './run-startup-pickup-types.mjs';
 import {
     STARTUP_MENUSTYLE_CASES,
@@ -201,6 +202,156 @@ test('pile_limit startup parsing follows optfn_pile_limit and C atoi', () => {
     ]);
     assert.equal(negatedValue.flags.pile_limit, 5);
 });
+
+// C refs: optlist.h's ten font rows; options.c optfn_font_*(),
+// pfxfn_font(), and wc_set_font_name(); flag.h instance_flags.
+test('startup font options store names and atoi sizes at their C addresses',
+    () => {
+        const names = [
+            'font_map', 'font_menu', 'font_message', 'font_size_map',
+            'font_size_menu', 'font_size_message', 'font_size_status',
+            'font_size_text', 'font_status', 'font_text',
+        ];
+        const rows = allopt.filter((row) => names.includes(row.name));
+        assert.deepEqual(rows.map((row) => row.name), names);
+        for (const row of rows) {
+            assert.equal(row.opttyp, 'CompOpt', row.name);
+            assert.equal(row.setwhere, 3, row.name); // set_gameview
+            assert.equal(row.negateok, true, row.name);
+            assert.equal(row.valok, true, row.name);
+            assert.equal(row.pfx, false, row.name);
+            assert.equal(row.addr, null, row.name);
+            assert.equal(row.optfn, row.name, row.name);
+            assert.deepEqual(
+                optionParserMetadata[row.name], { dupeok: true }, row.name,
+            );
+        }
+        const prefix = allopt.find((row) => row.name === 'font');
+        assert.equal(prefix.pfx, true);
+        assert.equal(prefix.optfn, 'font');
+        assert.deepEqual(optionParserMetadata.font, { dupeok: true });
+
+        const defaults = parseNethackrc('').iflags;
+        assert.deepEqual({
+            wc_font_map: defaults.wc_font_map ?? null,
+            wc_font_menu: defaults.wc_font_menu ?? null,
+            wc_font_message: defaults.wc_font_message ?? null,
+            wc_font_status: defaults.wc_font_status ?? null,
+            wc_font_text: defaults.wc_font_text ?? null,
+            wc_fontsiz_map: defaults.wc_fontsiz_map ?? 0,
+            wc_fontsiz_menu: defaults.wc_fontsiz_menu ?? 0,
+            wc_fontsiz_message: defaults.wc_fontsiz_message ?? 0,
+            wc_fontsiz_status: defaults.wc_fontsiz_status ?? 0,
+            wc_fontsiz_text: defaults.wc_fontsiz_text ?? 0,
+        }, {
+            wc_font_map: null,
+            wc_font_menu: null,
+            wc_font_message: null,
+            wc_font_status: null,
+            wc_font_text: null,
+            wc_fontsiz_map: 0,
+            wc_fontsiz_menu: 0,
+            wc_fontsiz_message: 0,
+            wc_fontsiz_status: 0,
+            wc_fontsiz_text: 0,
+        });
+
+        const parsed = parseNethackrc([
+            'OPTIONS=font_map:Map Face,font_menu:Menu Face,'
+                + 'font_message:Message Face,font_status:Status Face,'
+                + 'font_text:Text Face',
+            'OPTIONS=font_size_map: +17tail,font_size_menu:nonnumeric,'
+                + 'font_size_message:2147483648,'
+                + 'font_size_status:4294967298,'
+                + 'font_size_text:9223372036854775808',
+            '',
+        ].join('\n'));
+        assert.deepEqual(parsed.configErrorFrame.output, []);
+        assert.deepEqual({
+            wc_font_map: parsed.iflags.wc_font_map,
+            wc_font_menu: parsed.iflags.wc_font_menu,
+            wc_font_message: parsed.iflags.wc_font_message,
+            wc_font_status: parsed.iflags.wc_font_status,
+            wc_font_text: parsed.iflags.wc_font_text,
+            wc_fontsiz_map: parsed.iflags.wc_fontsiz_map,
+            wc_fontsiz_menu: parsed.iflags.wc_fontsiz_menu,
+            wc_fontsiz_message: parsed.iflags.wc_fontsiz_message,
+            wc_fontsiz_status: parsed.iflags.wc_fontsiz_status,
+            wc_fontsiz_text: parsed.iflags.wc_fontsiz_text,
+        }, {
+            wc_font_map: 'Map Face',
+            wc_font_menu: 'Menu Face',
+            wc_font_message: 'Message Face',
+            wc_font_status: 'Status Face',
+            wc_font_text: 'Text Face',
+            wc_fontsiz_map: 17,
+            wc_fontsiz_menu: 0,
+            wc_fontsiz_message: -2147483648,
+            wc_fontsiz_status: 2,
+            wc_fontsiz_text: -1,
+        });
+    });
+
+test('font negation and duplicate handling follow pfxfn_font ordering', () => {
+    const negatedValues = parseNethackrc([
+        'OPTIONS=font_map:before,font_size_map:17',
+        'OPTIONS=!font_map:after,!font_size_map:99',
+        '',
+    ].join('\n'));
+    // pfxfn_font() stores a nonempty name before considering negation, but
+    // its size arm tests !negated before it even calls string_for_opt().
+    assert.equal(negatedValues.iflags.wc_font_map, 'after');
+    assert.equal(negatedValues.iflags.wc_fontsiz_map, 17);
+    assert.deepEqual(negatedValues.configErrorFrame.output, [
+        '\nOPTIONS=!font_map:after,!font_size_map:99',
+        ' * Line 2: compound option specified multiple times: font_size_map.',
+    ]);
+
+    for (const statement of ['!font_map', '!font_map:']) {
+        const parsed = parseNethackrc(`OPTIONS=${statement}\n`);
+        assert.equal(parsed.iflags.wc_font_map ?? null, null, statement);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\nOPTIONS=${statement}`,
+            ` * Line 1: Missing parameter for '${statement.slice(1)}'.`,
+            ' * Line 1: The font_map option may not both have a value and be'
+                + ' negated.',
+        ], statement);
+    }
+    for (const statement of ['!font_size_map', '!font_size_map:']) {
+        const parsed = parseNethackrc(`OPTIONS=${statement}\n`);
+        assert.equal(parsed.iflags.wc_fontsiz_map ?? 0, 0, statement);
+        assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+    }
+
+    const duplicateName = parseNethackrc(
+        'OPTIONS=font_map:left,font_map:right\n',
+    );
+    assert.equal(duplicateName.iflags.wc_font_map, 'left');
+    assert.deepEqual(duplicateName.configErrorFrame.output, []);
+
+    const duplicateSize = parseNethackrc(
+        'OPTIONS=font_size_map:11,font_size_map:22\n',
+    );
+    assert.equal(duplicateSize.iflags.wc_fontsiz_map, 11);
+    assert.deepEqual(duplicateSize.configErrorFrame.output, [
+        '\nOPTIONS=font_size_map:11,font_size_map:22',
+        ' * Line 1: compound option specified multiple times: font_size_map.',
+    ]);
+});
+
+test('the startup font recipe uses the selected witness and parser fields',
+    () => {
+        const recipe = loadStartupFontOptionsRecipe();
+        assert.equal(recipe.segments.length, 4);
+        for (const segment of recipe.segments) {
+            assert.equal(segment.seed, 7331201);
+            assert.equal(segment.datetime, '20040229141500');
+        }
+        assert.match(
+            recipe.segments.at(-1).nethackrc,
+            /^OPTIONS=fontbogus:value$/mu,
+        );
+    });
 
 // C ref: options.c optfn_pickup_burden() (3266-3291). Every expected level is
 // the constant that arm assigns for the letter, read from include/hack.h
@@ -3280,8 +3431,14 @@ test('prefix options validate their source suffixes', () => {
             'Unknown condition option cond_blind:on (1).',
             "bad option suffix variation 'cond_blind'.",
         ]],
-        ['font', null],
-        ['fontbogus:value', null],
+        ['font', [
+            "Unknown font parameter 'font'.",
+            "bad option suffix variation 'font'.",
+        ]],
+        ['fontbogus:value', [
+            "Unknown font parameter 'fontbogus:value'.",
+            "bad option suffix variation 'fontbogus'.",
+        ]],
         // str_start_is() is called case-blind, and only that call can match
         // these two: their lowercased names are longer than the prefix, so
         // the minmatch arm cannot reach them.
@@ -3289,16 +3446,11 @@ test('prefix options validate their source suffixes', () => {
             'Unknown condition option COND_BOGUS (1).',
             "bad option suffix variation 'COND_BOGUS'.",
         ]],
-        ['FONTBOGUS:x', null],
+        ['FONTBOGUS:x', [
+            "Unknown font parameter 'FONTBOGUS:x'.",
+            "bad option suffix variation 'FONTBOGUS'.",
+        ]],
     ]) {
-        if (messages === null) {
-            assert.throws(
-                () => parseNethackrc(`OPTIONS=${invalid}`),
-                /unported prefix option/u,
-                invalid,
-            );
-            continue;
-        }
         const parsed = parseNethackrc(`OPTIONS=${invalid}\n`);
         assert.deepEqual(parsed.configErrorFrame.output, [
             `\nOPTIONS=${invalid}`,
@@ -3843,16 +3995,17 @@ test('every option that refuses negation is answered from allopt[]', () => {
     const rows = allopt.filter(
         (row) => !row.pfx && !row.name.includes(' '),
     );
-    // Five negateok Yes rows reach a handler this port has not finished, all
-    // for reasons that predate the negation check: negated role, race, gender
-    // and alignment build the role filter options.c optfn_role() keeps in
-    // gr.rfilter, and negated hilite_status clears the rule list.
-    const unported = new Set([
+    // Ten negateok Yes rows cannot use the generic assertion. Negated role,
+    // race, gender and alignment build gr.rfilter; negated hilite_status
+    // clears the rule list; and the five font-name handlers issue their own
+    // identical bad_negation() message after reporting a missing value.
+    const exceptions = new Set([
         'role', 'race', 'gender', 'alignment', 'hilite_status',
+        'font_map', 'font_menu', 'font_message', 'font_status', 'font_text',
     ]);
     let refused = 0;
     for (const row of rows) {
-        if (unported.has(row.name)) continue;
+        if (exceptions.has(row.name)) continue;
         const parsed = parseNethackrc(`OPTIONS=!${row.name}\n`);
         const reported = parsed.configErrorFrame.output.at(-1) ?? '';
         const badNegation = ' * Line 1: The '
@@ -3867,8 +4020,8 @@ test('every option that refuses negation is answered from allopt[]', () => {
     // A guard that answered nothing would satisfy the loop above for every
     // negateok Yes row, so pin how many rows the table actually refuses.  The
     // 58 is a literal count of js/optlist_data.js: of its 217 allopt[] rows,
-    // 209 survive the pfx and spaced-name filter above, 5 of those are listed
-    // as unported, and 58 of the remaining 204 carry negateok false.  A rerun
+    // 209 survive the pfx and spaced-name filter above, 10 of those are listed
+    // as exceptions, and 58 of the remaining 199 carry negateok false. A rerun
     // of that count is the only thing that may change this number.
     assert.equal(refused, 58, `${refused} rows refused negation`);
 });

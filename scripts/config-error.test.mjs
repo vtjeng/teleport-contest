@@ -899,6 +899,24 @@ test('a gender statement too long to match its own name falls through', () => {
 // grammar accepts.
 const COMPOUND_SWEEP_SUFFIXES = Object.freeze(['', ':', ':zqxj']);
 
+// C ref: options.c pfxfn_font()'s unknown-optidx arm followed by
+// parseoptions()'s pfx_match diagnostic.  The first case is the selected fresh
+// witness; the other two pin the delimiter stripping in the second message.
+test('malformed font prefixes report both source diagnostics', () => {
+    for (const [option, suffix] of [
+        ['fontbogus:value', 'fontbogus'],
+        ['font', 'font'],
+        ['font_size_bogus=', 'font_size_bogus='],
+    ]) {
+        const parsed = parseNethackrc(`OPTIONS=${option}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\nOPTIONS=${option}`,
+            ` * Line 1: Unknown font parameter '${option}'.`,
+            ` * Line 1: bad option suffix variation '${suffix}'.`,
+        ], option);
+    }
+});
+
 // Every message this parser writes for those three spellings, in that order,
 // without config_erradd()'s " * Line 1: " prefix.  A C recording of all 285
 // spellings confirms each one, message for message.
@@ -941,6 +959,56 @@ const COMPOUND_SWEEP_REPORTS = new Map([
     ['fruit', [
         ["Missing parameter for 'fruit'."],
         ["Missing parameter for 'fruit:'."],
+        [],
+    ]],
+    ['font_map', [
+        ["Missing parameter for 'font_map'."],
+        ["Missing parameter for 'font_map:'."],
+        [],
+    ]],
+    ['font_menu', [
+        ["Missing parameter for 'font_menu'."],
+        ["Missing parameter for 'font_menu:'."],
+        [],
+    ]],
+    ['font_message', [
+        ["Missing parameter for 'font_message'."],
+        ["Missing parameter for 'font_message:'."],
+        [],
+    ]],
+    ['font_size_map', [
+        ["Missing parameter for 'font_size_map'."],
+        ["Missing parameter for 'font_size_map:'."],
+        [],
+    ]],
+    ['font_size_menu', [
+        ["Missing parameter for 'font_size_menu'."],
+        ["Missing parameter for 'font_size_menu:'."],
+        [],
+    ]],
+    ['font_size_message', [
+        ["Missing parameter for 'font_size_message'."],
+        ["Missing parameter for 'font_size_message:'."],
+        [],
+    ]],
+    ['font_size_status', [
+        ["Missing parameter for 'font_size_status'."],
+        ["Missing parameter for 'font_size_status:'."],
+        [],
+    ]],
+    ['font_size_text', [
+        ["Missing parameter for 'font_size_text'."],
+        ["Missing parameter for 'font_size_text:'."],
+        [],
+    ]],
+    ['font_status', [
+        ["Missing parameter for 'font_status'."],
+        ["Missing parameter for 'font_status:'."],
+        [],
+    ]],
+    ['font_text', [
+        ["Missing parameter for 'font_text'."],
+        ["Missing parameter for 'font_text:'."],
         [],
     ]],
     ['hilite_status', [
@@ -1161,16 +1229,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['crash_email', [1, 1, 0]],
     ['crash_name', [1, 1, 0]],
     ['crash_urlmax', [1, 1, 1]],
-    ['font_map', [1, 1, 0]],
-    ['font_menu', [1, 1, 0]],
-    ['font_message', [1, 1, 0]],
-    ['font_size_map', [1, 1, 0]],
-    ['font_size_menu', [1, 1, 0]],
-    ['font_size_message', [1, 1, 0]],
-    ['font_size_status', [1, 1, 0]],
-    ['font_size_text', [1, 1, 0]],
-    ['font_status', [1, 1, 0]],
-    ['font_text', [1, 1, 0]],
     ['map_mode', [1, 1, 1]],
     ['mouse_support', [0, 1, 1]],
     ['perminv_mode', [1, 1, 1]],
@@ -1208,9 +1266,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 40);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 50);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 38);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 28);
 
     let owed = 0;
     for (const row of rows) {
@@ -1244,9 +1302,9 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 86 messages over 38 rows: what porting those handlers is worth to a
+    // 66 messages over 28 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 86);
+    assert.equal(owed, 66);
 });
 
 // C ref: options.c paranoia[] and optfn_paranoid_confirmation()'s do_set
