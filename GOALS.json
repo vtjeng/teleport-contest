@@ -2597,6 +2597,11 @@
           "name": "startup-boulder-symbol-to-tutorial-map",
           "status": "closed",
           "closedBy": "a2594cfdf30c471fdcf43f0014895d0733635a52"
+        },
+        {
+          "name": "startup-menu-object-symbols-to-inventory",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
