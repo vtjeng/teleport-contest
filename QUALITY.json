@@ -16842,6 +16842,136 @@
         ]
       },
       "recordedAt": "2026-08-20T16:44:32.894Z"
+    },
+    {
+      "kind": "review",
+      "head": "e7798c1855cfe7bf3ce3fe6494b7f259d8596986",
+      "auditedRange": "f8edc45feec89ef35b4183a5ad5da6a53e08402f..e7798c1855cfe7bf3ce3fe6494b7f259d8596986",
+      "checklist": {
+        "covers": false,
+        "path": null,
+        "commitChecked": null,
+        "reason": "Eight independently planned source-bounded slices accumulated into this cadence window; qualifying cross-system slices used committed per-slice checklists removed at slice closure, and the remaining slices stayed below the checklist threshold."
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "objects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 17 raw, 14 deduplicated, 13 confirmed, 13 applied, 0 deferred, 1 rejected, 0 unverified; mutation: 11 survivors of 120 mutants. Source tracing and fresh patched-C differentials exposed recorder-byte, startup-order, persistent-verifier, and maintenance defects; all confirmed findings were fixed, and the unchanged development score attributes no movement to this review.",
+      "auditMetrics": {
+        "wallTimeSeconds": 9989,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 14,
+          "confirmed": 13,
+          "applied": 13,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 5,
+          "tests": 4,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/tty_menu.js renderTtyMenu() must substitute the raw glyphInfo.ttychar byte instead of the normalized map character",
+            "foundBy": [
+              "behavior",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js optfn_boulder() get-value output must preserve a high-bit C byte as one recorder cell",
+            "foundBy": [
+              "behavior"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js optfn_disclose() must inspect UTF-8 bytes in the same order as the C char loop",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/tty_rawprint.js nomux_raw_write() must preserve a leading UTF-8 BOM like the recorder payload decoder",
+            "foundBy": [
+              "followup-correctness",
+              "followup-variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/tty_menu.js renderTtyMenu() must drop control ttychar bytes to a blank default cell while preserving byte 32 as a colored glyph",
+            "foundBy": [
+              "followup-variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "f8edc45feec89ef35b4183a5ad5da6a53e08402f..b1348bbdeb4838674c3f53408c680d233ec3373f",
+            "b1348bbdeb4838674c3f53408c680d233ec3373f..f1f13b235445c70d6e541f7c89292f701dc37c19",
+            "f1f13b235445c70d6e541f7c89292f701dc37c19..f6f00845088dffe46879c655a000a4fbb8bb5494",
+            "f6f00845088dffe46879c655a000a4fbb8bb5494..56d85ebfa7c15d09e80a937da7fa58194b331159",
+            "56d85ebfa7c15d09e80a937da7fa58194b331159..e7798c1855cfe7bf3ce3fe6494b7f259d8596986"
+          ],
+          "mutants": 120,
+          "survivors": 11,
+          "byKind": {
+            "boolean": {
+              "ran": 27,
+              "killed": 27
+            },
+            "logical": {
+              "ran": 50,
+              "killed": 45
+            },
+            "relational": {
+              "ran": 43,
+              "killed": 37
+            }
+          },
+          "finderConclusion": "The test-quality finders found and closed the high-byte, BOM, control-byte, colored-space, mixed-wait, and persistent-verifier gaps. The 11 remaining whole-suite survivors are source-equivalent invariants: four in the original window and seven nonnegative/one-past raw-capture bounds in the first fix delta."
+        },
+        "readiness": {
+          "boundary": "The reviewed paths begin when startup reads an rc option or direct statement and end at the matching config-error wait, #optionsfull value, first tutorial map, or ordinary TTY inventory screen; fresh reference runs execute every selected path.",
+          "sourceReview": "Every reachable branch and helper in the eight selected slices was traced against options.c, cfgfiles.c, botl.c, files.c, symbols.c, drawing.c, invent.c, and wintty.c plus recorder patch 006, including state, byte, wait, and PRNG order; interactive and alternate-window exclusions remain named at their source boundaries.",
+          "completeness": "No known unsupported behavior remains inside the selected startup-to-observable boundaries. Declared branches outside those boundaries either remain separate queued ownership clusters or stop before changing selected state, consuming randomness, or producing selected output."
+        },
+        "validation": {
+          "freshDifferentials": "The final patched-C/JavaScript matrices passed 29 segments, 83,816 RNG calls, 361 screens, and 361 cursors across menu object symbols, legacy BOULDER, disclose/BOM, and startup font options.",
+          "checkpoint": "4,544/4,545 tests passed; the sole failure was the known absent-user-D-Bus mutator smoke. All generated-data and static checks passed.",
+          "developmentScore": "Unchanged at 11/33 sessions, 133,574/610,816 RNG calls, 1,988/7,765 screens, and 2,007/7,765 cursors.",
+          "followup": "The final light correctness, test-quality, and variable-flow reviewers returned zero findings."
+        },
+        "rejections": [
+          {
+            "summary": "Zero-identifier reroll rows can reach TTY inventory glyph substitution and need an additional guard",
+            "counterEvidence": "js/invent.js itemLine() returns item: null for every row without value, so renderTtyMenu() cannot obtain glyphInfo from those rows. Do not reopen without a source-reachable row that has a zero identifier, a non-null item value, and a diff-causal line in the reviewed range."
+          }
+        ],
+        "deferrals": [],
+        "warnings": [
+          "The host has no /run/user/1000 directory or user-systemd bus. The standard mutation smoke was the sole full-suite failure and the normal mutation lock was unavailable, so the frozen range and fix deltas used the authenticated serial timeout-bounded fallback; every wave reported zero timeout and zero resource limit. The final manifest therefore records the exact range and checklist disposition without a machine-readiness section.",
+          "The packaged Workflow runner was unavailable. Equivalent independent correctness, readability-risk, test-quality, variable-flow, and adjudication roles ran through collaboration tasks; all required full and light perspectives completed with no unverified batch.",
+          "The 11 composed mutation survivors are source-equivalent under traced caller and raw-capture invariants; every non-equivalent survivor exposed during follow-up was killed by a focused assertion.",
+          "Optional performance and concurrency finders were not triggered because the reviewed startup parser and terminal-rendering delta adds no loop-growth, allocation, shared-state scheduling, or concurrent ownership risk."
+        ]
+      },
+      "recordedAt": "2026-08-22T10:22:06.218Z"
     }
   ]
 }
