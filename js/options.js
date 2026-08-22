@@ -473,6 +473,9 @@ function defaultResult() {
             // leave their zeroed instance-flags fields alone during do_init.
             wc_tile_height: 0,
             wc_tile_width: 0,
+            // options.c optfn_vary_msgcount() also leaves its zeroed
+            // instance-flags field alone during do_init.
+            wc_vary_msgcount: 0,
             // initoptions_init()'s TTY_GRAPHICS arm; this build is tty.
             prevmsg_window: 's',
             menuinvertmode: 1,
@@ -2832,6 +2835,19 @@ function optfn_tile_width(result, statement, negated) {
     );
 }
 
+// C ref: options.c optfn_vary_msgcount() (4440-4467), its do_set arm.
+// optlist.h rejects negation before this handler, so the live startup path
+// requires a value and stores its unrestricted atoi() result.  Keep the
+// source's unreachable negation arms here with the function they belong to.
+function optfn_vary_msgcount(result, statement, negated) {
+    const op = string_for_opt(statement, negated, result);
+    if ((negated && op === '') || (!negated && op !== '')) {
+        result.iflags.wc_vary_msgcount = negated ? 0 : atoi(op);
+    } else if (negated) {
+        bad_negation(result, 'vary_msgcount');
+    }
+}
+
 // C ref: options.c optfn_pickup_burden() (3266-3291), the switch its do_set
 // arm runs. It reads one byte -- lowc(*op) -- so the value's remaining
 // characters are never examined and "burdened" and "banana" both select
@@ -3946,6 +3962,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_tile_height(result, statement, negated);
     } else if (name === 'tile_width') {
         optfn_tile_width(result, statement, negated);
+    } else if (name === 'vary_msgcount') {
+        optfn_vary_msgcount(result, statement, negated);
     } else if (name === 'pickup_burden') {
         setPickupBurden(result, statement);
     } else if (name === 'menustyle') {
@@ -4992,6 +5010,8 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         ? `${state.iflags.wc_tile_height}` : 'default'),
     tile_width: (state) => (state.iflags.wc_tile_width
         ? `${state.iflags.wc_tile_width}` : 'default'),
+    vary_msgcount: (state) => (state.iflags.wc_vary_msgcount
+        ? `${state.iflags.wc_vary_msgcount}` : 'default'),
     // o_init.c get_sortdisco() with cnf FALSE.
     sortdiscoveries: (state) => {
         const index = disco_order_let.indexOf(state.flags.discosort);
