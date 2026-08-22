@@ -2126,6 +2126,24 @@ function optfn_menu_objsyms(result, statement, value, negated) {
     set_menuobjsyms_flags(result, osyms);
 }
 
+// C ref: options.c optfn_menuinvertmode() (2290-2317), its startup do_set
+// arm.  The do_init request is a no-op; initoptions_init() has already stored
+// the default 1 in defaultResult().  string_for_opt(opts, TRUE) makes a bare
+// statement and an empty value the same empty_optstr, so both leave that value
+// unchanged.  optlist.h gives this row negateok No, which means parseoptions()
+// rejects negation before this function runs.
+function optfn_menuinvertmode(result, value) {
+    if (value == null || value === '') return;
+    const mode = atoi(value);
+    if (mode < 0 || mode > 2) {
+        configErrorAdd(
+            result, `Illegal menuinvertmode parameter '${value}'`,
+        );
+        return;
+    }
+    result.iflags.menuinvertmode = mode;
+}
+
 // C ref: options.c optfn_petattr() (3137-3175), its do_set arm.  The tty port
 // accepts one text attribute and keeps the chosen style when hilite_pet is
 // later disabled.  optlist.h:568-569 gives petattr negateok No, so
@@ -3659,6 +3677,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setPlaymode(result, value, duplicate);
     } else if (name === 'menu_objsyms') {
         optfn_menu_objsyms(result, statement, value, negated);
+    } else if (name === 'menuinvertmode') {
+        optfn_menuinvertmode(result, value);
     } else if (name === 'menu_headings') {
         setMenuHeadings(result, value, negated);
     } else if (name === 'petattr') {
@@ -4849,7 +4869,7 @@ function symsetValue(state, set, withHandling) {
 // so the set cannot drift from OPTION_VALUE_HANDLERS unnoticed.
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'crash_email', 'crash_name', 'crash_urlmax',
-    'glyph', 'menuinvertmode',
+    'glyph',
     'scores', 'sortvanquished',
     'soundlib', 'whatis_filter', 'windowtype',
 ]));

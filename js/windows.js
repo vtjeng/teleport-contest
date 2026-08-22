@@ -179,11 +179,9 @@ export async function choose_classes_menu(
 // through `is_selected` alone, so js/tty_menu.js names its mode in a comment
 // at each call site rather than passing it.
 //
-// options.c initoptions_init() (7279) sets iflags.menuinvertmode to 1, and the
-// 'menuinvertmode' option that would change it is unported, so 1 is what a
-// running game answers with: a bulk operation never selects a SKIPINVERT entry
-// on, but one that is already selected is still deselected and still inverted
-// off.
+// options.c initoptions_init() (7279) sets iflags.menuinvertmode to 1, and
+// optfn_menuinvertmode() can replace it with 0, 1, or 2 while the configuration
+// file is read.  js/jsmain.js installs that iflags value before any menu opens.
 export function menuitem_invert_test(skipinvert, is_selected, state) {
     if (!skipinvert) /* if not flagged SKIPINVERT, always pass test */
         return true;

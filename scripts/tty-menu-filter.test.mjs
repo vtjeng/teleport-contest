@@ -26,9 +26,8 @@ function menuState(keys = '', filter = null) {
         initgend: 1,
         initalign: 0,
     };
-    // options.c initoptions_init() (7279) sets menuinvertmode to 1, and the
-    // option that would change it is unported, so this is the mode
-    // windows.c menuitem_invert_test() answers with in every running game.
+    // options.c initoptions_init() (7279) sets menuinvertmode to 1. Tests that
+    // need another configured mode replace this field below.
     game.iflags = { menuinvertmode: 1 };
     if (filter) game.roleFilter = structuredClone(filter);
     for (const character of keys)
@@ -314,8 +313,7 @@ test('unselecting a PICK_ONE menu clears its markers', async () => {
 });
 
 // C ref: windows.c menuitem_invert_test() (1560-1589) read directly, which is
-// the only way to reach the two menuinvertmode values options.c:7279 does not
-// leave behind: the option that would set them is unported.
+// the direct truth table for the three values optfn_menuinvertmode() stores.
 test('menuitem_invert_test answers for each menuinvertmode', () => {
     const modeState = (menuinvertmode) => ({ iflags: { menuinvertmode } });
     for (const mode of [0, 1, 2]) {
