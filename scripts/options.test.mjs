@@ -14,6 +14,9 @@ import {
 import { allopt, optionParserMetadata } from '../js/optlist_data.js';
 import {
     EXT_ENCUMBER,
+    GFILTER_AREA,
+    GFILTER_NONE,
+    GFILTER_VIEW,
     GPCOORDS_COMPASS,
     GPCOORDS_COMFULL,
     GPCOORDS_MAP,
@@ -1359,6 +1362,77 @@ test('whatis_coord selects each source coordinate presentation', () => {
         ], statement);
         assert.equal(parsed.iflags.getpos_coords, GPCOORDS_NONE, statement);
     }
+});
+
+test('whatis_filter selects each source location filter by its first byte',
+    () => {
+        assert.equal(parseNethackrc('').iflags.getloc_filter, GFILTER_NONE);
+        for (const [value, expected] of [
+            ['nonsense', GFILTER_NONE],
+            ['Verbose', GFILTER_VIEW],
+            ['aardvark', GFILTER_AREA],
+        ]) {
+            const parsed = parseNethackrc(`OPTIONS=whatis_filter:${value}`);
+            assert.equal(parsed.iflags.getloc_filter, expected, value);
+            assert.equal(parsed.flags.whatis_filter, undefined, value);
+            assert.deepEqual(parsed.configErrorFrame.output, [], value);
+        }
+    });
+
+test('whatis_filter negation returns before parsing an attached value', () => {
+    const line = 'OPTIONS=!whatis_filter:bogus,whatis_filter:view';
+    const parsed = parseNethackrc(`${line}\n`);
+    assert.equal(parsed.iflags.getloc_filter, GFILTER_NONE);
+    assert.equal(parsed.flags.whatis_filter, undefined);
+    assert.deepEqual(parsed.configErrorFrame.output, [
+        `\n${line}`,
+        ' * Line 1: compound option specified multiple times:'
+            + ' whatis_filter.',
+    ]);
+});
+
+test('invalid and missing whatis_filter values preserve preceding state',
+    () => {
+        for (const [suffix, message] of [
+            ['', "Missing parameter for 'whatis_filter'."],
+            [':', "Missing parameter for 'whatis_filter:'."],
+            ['=', "Missing parameter for 'whatis_filter='."],
+            [':bogus', "Unknown whatis_filter parameter 'bogus'."],
+        ]) {
+            const line = `OPTIONS=whatis_filter${suffix},whatis_filter:area`;
+            const parsed = parseNethackrc(`${line}\n`);
+            assert.equal(parsed.iflags.getloc_filter, GFILTER_AREA, suffix);
+            assert.equal(parsed.flags.whatis_filter, undefined, suffix);
+            assert.deepEqual(parsed.configErrorFrame.output, [
+                `\n${line}`,
+                ' * Line 1: compound option specified multiple times:'
+                    + ' whatis_filter.',
+                ` * Line 1: ${message}`,
+            ], suffix);
+        }
+    });
+
+test('whatis_filter duplicates follow source application precedence', () => {
+    const comma = parseNethackrc(
+        'OPTIONS=whatis_filter:area,whatis_filter:view\n',
+    );
+    assert.equal(comma.iflags.getloc_filter, GFILTER_AREA);
+    assert.deepEqual(comma.configErrorFrame.output, [
+        '\nOPTIONS=whatis_filter:area,whatis_filter:view',
+        ' * Line 1: compound option specified multiple times:'
+            + ' whatis_filter.',
+    ]);
+
+    const lines = parseNethackrc([
+        'OPTIONS=whatis_filter:area',
+        'OPTIONS=whatis_filter:view',
+    ].join('\n'));
+    assert.equal(lines.iflags.getloc_filter, GFILTER_VIEW);
+    assert.deepEqual(lines.configErrorFrame.output, [
+        '\nOPTIONS=whatis_filter:view',
+        ' * Line 2: compound option specified multiple times:'
+            + ' whatis_filter.',
+    ]);
 });
 
 test('hilite_pile owns the tty pile interface flag', () => {

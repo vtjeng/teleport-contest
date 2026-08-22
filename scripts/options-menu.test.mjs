@@ -325,6 +325,16 @@ test('the options menu reads the configured boulder override', async () => {
     );
 });
 
+test('the options menu reads the configured whatis filter', async () => {
+    const state = await startGameWithConfig('OPTIONS=whatis_filter:view');
+    assert.equal(state.flags.whatis_filter, undefined);
+    assert.equal(
+        valueOf(dosetMenuItems(state, menuHelpers(), false), 'whatis_filter'),
+        'view',
+    );
+    assert.equal(UNPARSED_COMPOUND_OPTIONS.has('whatis_filter'), false);
+});
+
 test('a configured session reaches the menu\'s value column', async () => {
     const items = await menuItemsFor(CONFIGURED);
     // !cmdassist drops doset()'s five-line help block.

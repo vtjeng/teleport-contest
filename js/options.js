@@ -3044,6 +3044,33 @@ function setWhatisCoord(result, statement, negated) {
     result.iflags.getpos_coords = mode;
 }
 
+// C ref: options.c optfn_whatis_filter() (4748-4795), its do_set arm. The
+// negation returns before string_for_env_opt(), so a parameter on a negated
+// statement is ignored and clears the filter without a diagnostic. Positive
+// statements require a value and select from its first byte alone.
+function optfn_whatis_filter(result, statement, negated) {
+    if (negated) {
+        result.iflags.getloc_filter = GFILTER_NONE;
+        return;
+    }
+    const op = string_for_env_opt(statement, false, result);
+    if (op === '') return;
+    switch (lowc(op[0])) {
+    case 'n':
+        result.iflags.getloc_filter = GFILTER_NONE;
+        break;
+    case 'v':
+        result.iflags.getloc_filter = GFILTER_VIEW;
+        break;
+    case 'a':
+        result.iflags.getloc_filter = GFILTER_AREA;
+        break;
+    default:
+        configErrorAdd(result, `Unknown whatis_filter parameter '${op}'`);
+        break;
+    }
+}
+
 // C ref: options.c:71.
 const PILE_LIMIT_DFLT = 5;
 
@@ -3948,6 +3975,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setNumberPadOption(result, statement);
     } else if (name === 'whatis_coord') {
         setWhatisCoord(result, statement, negated);
+    } else if (name === 'whatis_filter') {
+        optfn_whatis_filter(result, statement, negated);
     } else if (name === 'runmode') {
         setRunmode(result, value, negated);
     } else if (name === 'scores') {
@@ -5109,7 +5138,7 @@ function symsetValue(state, set, withHandling) {
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'glyph',
     'sortvanquished',
-    'whatis_filter', 'windowtype',
+    'windowtype',
 ]));
 
 // C ref: options.c doset_add_menu()'s optfn call, plus the "unknown" default
