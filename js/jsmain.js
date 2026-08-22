@@ -20,7 +20,10 @@ import {
 import { UnsupportedEarthSenseError } from './dungeon.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { UnsupportedSpecialRoomError } from './mkroom.js';
-import { UnsupportedAmbientSoundError } from './sounds.js';
+import {
+    activate_chosen_soundlib,
+    UnsupportedAmbientSoundError,
+} from './sounds.js';
 import { initRng, enableRngLog, getRngLog } from './rng.js';
 import {
     newgame,
@@ -300,6 +303,7 @@ export class NethackGame {
         g.flags = { ...opts.flags };
         g.iflags = { ...opts.iflags };
         g.gc = { ...opts.gc };
+        g.ga = { ...opts.ga };
         // C ref: sys/share/unixtty.c setftty() (251-259).  iflags is a static
         // struct and no option writes cbreak, so it is false until
         // tty_init_nhwindows() raises it -- which js/tty_startup.js
@@ -414,8 +418,11 @@ export class NethackGame {
 
         // C ref: unixmain.c nethack_main() calls
         // init_sound_disp_gamewindows() after plnamesuffix() and before
-        // player_selection(); its first window is NHW_MESSAGE.  This port
-        // models only tty_create_nhwindow()'s live message-history clamp.
+        // player_selection().  Its first step activates the interface chosen
+        // while reading options; its first window is NHW_MESSAGE.  This port
+        // models the built-in nosound interface and tty_create_nhwindow()'s
+        // live message-history clamp.
+        activate_chosen_soundlib(g);
         tty_create_nhwindow(NHW_MESSAGE, g);
         if (!await ttyPlayerSelection(g)) {
             g.program_state.gameover = true;

@@ -2237,7 +2237,7 @@ test('direct legacy name, role, and pet-name statements are accepted', () => {
     }
 });
 
-test('valid unported startup option mappings remain available', () => {
+test('valid startup option mappings remain available', () => {
     const parsed = parseNethackrc(
         'OPTIONS=!autopickup,color,!legacy,!tutorial,!splash_screen,'
         + 'pushweapon,showexp,time,!verbose,symset:Enhanced1,msg_window:r,'
@@ -2270,7 +2270,8 @@ test('valid unported startup option mappings remain available', () => {
     assert.equal(parsed.iflags.prevmsg_window, 'r');
     assert.equal(parsed.iflags.wc2_statuslines, 2);
     assert.equal(parsed.flags.suppress_alert, '3.7');
-    assert.equal(parsed.flags.soundlib, 'example');
+    assert.equal(parsed.flags.soundlib, undefined);
+    assert.equal(parsed.gc.chosen_soundlib, 0);
     assert.equal(parsed.flags.s_vwall, '|');
 
     // 'constructor' is a prototype key rather than an option name, and 'mal'

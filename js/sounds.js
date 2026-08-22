@@ -16,6 +16,7 @@ import {
     STONE,
     STRANGLED,
     VAULT,
+    WINTYPELEN,
     isok,
 } from './const.js';
 import { getdir } from './cmd.js';
@@ -380,4 +381,56 @@ async function dochat(state) {
 // C ref: sounds.c dotalk() (1247-1254), the #chat command.
 export async function dotalk(state = game) {
     return dochat(state);
+}
+
+// C refs: sounds.c soundlib_choices[], activate_chosen_soundlib(),
+// assign_soundlib(), get_soundlib_name(), and soundlib_id_from_opt()
+// (1744-1895).  The recorder build defines none of the optional SND_LIB_*
+// macros, so its table contains only the built-in nosound entry.
+export const soundlib_nosound = 0;
+
+const soundlib_choices = Object.freeze([
+    Object.freeze({ soundname: 'nosound', soundlib_id: soundlib_nosound }),
+]);
+
+function soundlibChoice(index, caller) {
+    if (!Number.isInteger(index) || index < 0
+        || index >= soundlib_choices.length) {
+        throw new RangeError(`${caller}: invalid soundlib (${index})`);
+    }
+    return soundlib_choices[index];
+}
+
+export function activate_chosen_soundlib(state = game) {
+    const choice = soundlibChoice(
+        state.gc?.chosen_soundlib, 'activate_chosen_soundlib',
+    );
+    state.ga ??= {};
+    state.ga.active_soundlib = choice.soundlib_id;
+    state.gc.chosen_soundlib = state.ga.active_soundlib;
+}
+
+export function assign_soundlib(state, index) {
+    state.gc ??= {};
+    state.gc.chosen_soundlib = soundlibChoice(
+        index, 'assign_soundlib',
+    ).soundlib_id;
+}
+
+export function get_soundlib_name(state = game, maxlen = WINTYPELEN) {
+    const source = soundlibChoice(
+        state.ga?.active_soundlib, 'get_soundlib_name',
+    ).soundname;
+    const comma = source.indexOf(',');
+    return source.slice(0, Math.min(
+        comma < 0 ? source.length : comma,
+        Math.max(0, maxlen - 1),
+    ));
+}
+
+export function soundlib_id_from_opt(option) {
+    const choice = soundlib_choices.find(
+        ({ soundname }) => soundname === option,
+    );
+    return (choice ?? soundlib_choices[0]).soundlib_id;
 }

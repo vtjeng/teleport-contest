@@ -127,6 +127,12 @@ import {
     visctrl,
 } from './hacklib.js';
 import { read_sym_file } from './files.js';
+import {
+    assign_soundlib,
+    get_soundlib_name,
+    soundlib_id_from_opt,
+    soundlib_nosound,
+} from './sounds.js';
 // js/display.js, js/invent.js and js/vision.js do not import this file, so
 // these three are plain one-way dependencies; js/tty_message.js reaches
 // js/display.js from the other side, and both use the other's exports only
@@ -483,6 +489,13 @@ function defaultResult() {
             crash_email: null,
             crash_name: null,
             crash_urlmax: -1,
+            // sounds.c assign_soundlib() writes the requested interface here;
+            // allmain.c activates it after configuration and name parsing.
+            chosen_soundlib: soundlib_nosound,
+        },
+        ga: {
+            // decl.c instance_globals_a starts on the built-in interface.
+            active_soundlib: soundlib_nosound,
         },
         roleFilter: defaultRoleFilter(),
         uroleplay: defaultRoleplay(),
@@ -2781,6 +2794,18 @@ function optfn_scroll_margin(result, statement, negated) {
     );
 }
 
+// C ref: options.c optfn_soundlib() (3824-3860), its startup do_set arm.
+// string_for_env_opt() requires a value.  Every nonempty spelling reaches
+// sounds.c soundlib_id_from_opt(), whose exact match silently falls back to
+// nosound in this build's one-entry soundlib_choices[] table.
+function optfn_soundlib(result, statement) {
+    const op = string_for_env_opt(statement, false, result);
+    if (op === '') return;
+    const optionId = soundlib_id_from_opt(op);
+    result.gc.chosen_soundlib = optionId;
+    assign_soundlib(result, result.gc.chosen_soundlib);
+}
+
 // C ref: options.c optfn_tile_height() and optfn_tile_width() (4354-4415),
 // their do_set arms.  A non-negated value stores unrestricted atoi() output,
 // while a bare negation resets the dimension to zero.  Missing positive
@@ -3915,6 +3940,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_scroll_amount(result, statement, negated);
     } else if (name === 'scroll_margin') {
         optfn_scroll_margin(result, statement, negated);
+    } else if (name === 'soundlib') {
+        optfn_soundlib(result, statement);
     } else if (name === 'tile_height') {
         optfn_tile_height(result, statement, negated);
     } else if (name === 'tile_width') {
@@ -4862,10 +4889,7 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
                 : preferred === 'h' ? 'horse'
                     : preferred === 'n' ? 'none' : 'random';
     },
-    // sounds.c get_soundlib_name() over ga.active_soundlib.  SND_LIB_INTEGRATED
-    // is undefined for this build, so soundlib_choices[] holds only
-    // nosound_procs and no configuration can select another.
-    soundlib: () => 'nosound',
+    soundlib: (state) => get_soundlib_name(state),
     autounlock: (state, option) => {
         const bits = requireParsedNumber(state, option);
         if (!bits) return 'none';
@@ -5065,7 +5089,7 @@ function symsetValue(state, set, withHandling) {
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'glyph',
     'sortvanquished',
-    'soundlib', 'whatis_filter', 'windowtype',
+    'whatis_filter', 'windowtype',
 ]));
 
 // C ref: options.c doset_add_menu()'s optfn call, plus the "unknown" default
