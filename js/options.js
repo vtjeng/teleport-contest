@@ -467,13 +467,14 @@ function defaultResult() {
         a11y: {
             mon_notices_blocked: 0,
         },
-        // decl.c instance_globals_c initializes both report identities to
-        // NULL.  optfn_crash_email() and optfn_crash_name() below are their
-        // only configuration-time writers, and #optionsfull reads the same
-        // fields through OPTION_VALUE_HANDLERS.
+        // decl.c instance_globals_c initializes the two report identities to
+        // NULL and the URL limit to -1.  The three CRASHREPORT handlers below
+        // are their configuration-time writers, and #optionsfull reads the
+        // same fields through OPTION_VALUE_HANDLERS.
         gc: {
             crash_email: null,
             crash_name: null,
+            crash_urlmax: -1,
         },
         roleFilter: defaultRoleFilter(),
         uroleplay: defaultRoleplay(),
@@ -1167,6 +1168,24 @@ function optfn_crash_name(result, statement) {
     const op = string_for_opt(statement, false, result);
     if (op === '') return;
     result.gc.crash_name = op;
+}
+
+// C ref: options.c optfn_crash_urlmax() (1311-1339), its startup do_set arm.
+// The value is mandatory, then the recorder platform's atoi() conversion is
+// checked against the sole lower bound.  A rejected value leaves the decl.c
+// default or the value installed by an earlier handler call untouched.
+function optfn_crash_urlmax(result, statement) {
+    const op = string_for_opt(statement, false, result);
+    if (op === '') return;
+    const limit = atoi(op);
+    if (limit < 75) {
+        configErrorAdd(
+            result,
+            `Invalid value ${limit} for crash_urlmax.  Minimum value is 75.`,
+        );
+        return;
+    }
+    result.gc.crash_urlmax = limit;
 }
 
 const MENU_HEADING_COLORS = Object.freeze({
@@ -3795,6 +3814,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_crash_email(result, statement);
     } else if (name === 'crash_name') {
         optfn_crash_name(result, statement);
+    } else if (name === 'crash_urlmax') {
+        optfn_crash_urlmax(result, statement);
     } else if (name === 'catname' || name === 'dogname'
                || name === 'horsename') {
         setPetName(result, name, value);
@@ -4788,7 +4809,8 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         || state.gs.showsyms[SYM_OFF_O + ROCK_CLASS],
     ]),
     // gc.crash_email and gc.crash_name are null until a configuration file
-    // sets them, and C then leaves the buffer empty.
+    // sets them, and C then leaves the buffer empty.  decl.c initializes
+    // crash_urlmax to -1 and its handler always prints the signed decimal.
     crash_email: (state) => state.gc?.crash_email ?? '',
     crash_name: (state) => state.gc?.crash_name ?? '',
     crash_urlmax: (state) => `${state.gc?.crash_urlmax ?? -1}`,
@@ -4962,7 +4984,6 @@ function symsetValue(state, set, withHandling) {
 // scripts/options-menu.test.mjs derives the whole rule from parseNethackrc(),
 // so the set cannot drift from OPTION_VALUE_HANDLERS unnoticed.
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
-    'crash_urlmax',
     'glyph',
     'sortvanquished',
     'soundlib', 'whatis_filter', 'windowtype',
