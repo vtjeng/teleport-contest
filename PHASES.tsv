@@ -817,3 +817,5 @@ utc	event	phase	goal	detail
 2026-08-22T14:20:30.635Z	end	select	options-config-parser	Selected startup-scroll-amount-margin-to-config-diagnostics; paired scalar handlers through startup config diagnostics, development ceiling 0
 2026-08-22T14:20:48.998Z	start	implement	options-config-parser	Port startup-scroll-amount-margin-to-config-diagnostics from options.c optfn_scroll_amount and optfn_scroll_margin through iflags state and config raw waits
 2026-08-22T14:45:09.152Z	end	implement	options-config-parser	startup-scroll-amount-margin-to-config-diagnostics landed at b9da760; independent checkpoint 4595/4596 with sole known no-user-D-Bus mutator smoke, generated/static/dev score pass at 11/33 and 1988 screens; fresh 3 segments exact; mutation 3/3 killed
+2026-08-22T14:50:09.707Z	start	select	options-config-parser	Survey remaining options/config parser boundary after scroll amount and margin closure
+2026-08-22T14:58:20.182Z	end	select	options-config-parser	Selected startup-tile-height-width-to-config-diagnostics; paired iflags dimensions through startup diagnostics, development ceiling 0
