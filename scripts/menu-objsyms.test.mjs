@@ -175,6 +175,27 @@ test('TTY entry glyphs preserve each high-bit tty byte boundary', () => {
     }
 });
 
+test('TTY entry glyphs drop control tty bytes to a blank default cell', () => {
+    for (const ttychar of [0x00, 0x0A, 0x0E, 0x1B, 0x1F]) {
+        const state = renderState(2);
+        const rendered = renderTtyMenu(state, {
+            title: null,
+            items: [{
+                selector: 'a',
+                label: 'a scalpel',
+                value: 'a',
+                glyphInfo: { ch: '?', ttychar, color: 6 },
+            }],
+        });
+        const marker = state.nhDisplay.grid[0][
+            rendered.layout.startColumn + 2
+        ];
+        assert.deepEqual(marker, {
+            ch: ' ', color: NO_COLOR, attr: 0,
+        }, ttychar);
+    }
+});
+
 test('conditional glyph scan includes headers on later pages', () => {
     const state = renderState(4);
     const items = Array.from({ length: 23 }, (_, index) => ({

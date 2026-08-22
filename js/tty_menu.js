@@ -623,11 +623,13 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0,
             // byte reaches the session screen through its UTF-8 decoder as
             // U+FFFD; the raw byte itself remains on glyphInfo.ttychar.
             const ttychar = glyphInfo.ttychar & 0xFF;
+            const printable = ttychar >= 32;
             display.setCell(
                 layout.startColumn + 2,
                 row,
-                ttychar < 0x80 ? String.fromCharCode(ttychar) : '\uFFFD',
-                glyphInfo.color ?? NO_COLOR,
+                !printable ? ' '
+                    : ttychar < 0x80 ? String.fromCharCode(ttychar) : '\uFFFD',
+                printable ? glyphInfo.color ?? NO_COLOR : NO_COLOR,
                 0,
             );
         }

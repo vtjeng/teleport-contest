@@ -9,7 +9,10 @@ import { encodeUtf8ByteString } from './hacklib.js';
 import { NO_COLOR } from './terminal.js';
 import { xwaitforspace } from './tty_message.js';
 
-const utf8Decoder = new TextDecoder();
+// Buffer.toString('utf8') in record-session.mjs preserves a leading U+FEFF
+// from the capture payload. TextDecoder's counterintuitive ignoreBOM option
+// disables BOM stripping and therefore matches that recorder boundary.
+const utf8Decoder = new TextDecoder('utf-8', { ignoreBOM: true });
 
 // C ref: recorder patch 006 nomux_raw_putch()/nomux_capture_screen(). Bytes
 // below space are dropped except newline, and a byte past the last row or

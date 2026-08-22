@@ -84,10 +84,12 @@ test('raw capture decodes complete and isolated high-byte sequences', () => {
     const state = displayState();
     tty_raw_print(state, 'é');
     tty_raw_print(state, decodeUtf8ByteString([0xC3]));
+    tty_raw_print(state, '\uFEFFOPTIONS=x');
 
     assert.equal(rowText(state.nhDisplay, 0), 'é');
     assert.equal(rowText(state.nhDisplay, 1), '\uFFFD');
-    assert.deepEqual(nomux_get_cursor(state.nhDisplay), [0, 2]);
+    assert.equal(rowText(state.nhDisplay, 2), '\uFEFFOPTIONS=x');
+    assert.deepEqual(nomux_get_cursor(state.nhDisplay), [0, 3]);
 });
 
 // C ref: patch 006 nomux_raw_putch(), which drops bytes below space other

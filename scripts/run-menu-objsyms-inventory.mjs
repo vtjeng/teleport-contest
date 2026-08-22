@@ -121,6 +121,19 @@ export const MENU_OBJSYMS_CASES = Object.freeze([
         marker: '\uFFFD',
         markerColor: 6,
     }),
+    Object.freeze({
+        label: 'control primary weapon symbol is dropped by recorder',
+        optionLines: Object.freeze([
+            'OPTIONS=menu_objsyms:entries',
+            String.raw`SYMBOLS=S_weapon:\x1F`,
+        ]),
+        mode: 2,
+        menu: 'entries',
+        errors: 0,
+        markerSelector: 'a',
+        marker: ' ',
+        markerColor: 8,
+    }),
 ]);
 
 function nethackrc(entry) {

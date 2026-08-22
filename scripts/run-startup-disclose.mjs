@@ -41,6 +41,7 @@ export const STARTUP_DISCLOSE_NONASCII_SEGMENT = Object.freeze({
             + 'align:lawful',
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         'OPTIONS=pettype:none,!acoustics,!autopickup',
+        '\uFEFFZORKMID=x',
         ...Array(8).fill('OPTIONS=disclose:é'),
         '',
     ].join('\n'),
@@ -58,12 +59,12 @@ export const STARTUP_DISCLOSE_CASES = Object.freeze([
         menu: 'yi ya yv yg yc yo',
     }),
     Object.freeze({
-        label: 'non-ASCII input reports its first source byte',
+        label: 'BOM echo and non-ASCII input preserve recorder bytes',
         segment: STARTUP_DISCLOSE_NONASCII_SEGMENT,
         expected: 'nnnnnn',
         // The first line reports the invalid byte; each repeated CompOpt also
         // reports its duplicate before reaching the same invalid byte.
-        errors: 15,
+        errors: 16,
         invalidByte: decodeUtf8ByteString([0xC3]),
     }),
 ]);
@@ -120,9 +121,15 @@ export async function verifyStartupDiscloseSegment(segment) {
             );
             const echoed = 'OPTIONS=disclose:é';
             const invalid = '\uFFFD';
-            const expectedRows = ['', echoed,
-                ` * Line 4: Unknown disclose parameter '${invalid}'.`];
-            for (let line = 5; line <= 9; ++line) {
+            const expectedRows = [
+                '',
+                '\uFEFFZORKMID=x',
+                ' * Line 4: Unknown config statement.',
+                '',
+                echoed,
+                ` * Line 5: Unknown disclose parameter '${invalid}'.`,
+            ];
+            for (let line = 6; line <= 9; ++line) {
                 expectedRows.push(
                     '',
                     echoed,
@@ -131,11 +138,11 @@ export async function verifyStartupDiscloseSegment(segment) {
                     ` * Line ${line}: Unknown disclose parameter '${invalid}'.`,
                 );
             }
-            expectedRows.push('');
+            expectedRows.push('', echoed);
             if (JSON.stringify(rows) !== JSON.stringify(expectedRows)) {
                 throw new Error(`${entry.label} rendered the wrong error frame`);
             }
-            if (JSON.stringify(replay.getCursors()[0]) !== '[0,34,1]') {
+            if (JSON.stringify(replay.getCursors()[0]) !== '[0,37,1]') {
                 throw new Error(`${entry.label} waited at the wrong raw cursor`);
             }
         }

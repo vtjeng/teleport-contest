@@ -10,6 +10,7 @@ import {
     STARTUP_DISCLOSE_SEGMENT,
     verifyStartupDiscloseSegment,
 } from './run-startup-disclose.mjs';
+import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 function endDisclose(statement) {
     return parseNethackrc(`OPTIONS=${statement}\n`);
@@ -100,6 +101,8 @@ test('the startup disclose recipe reaches the seventh optionsfull page',
         assert.equal(Object.hasOwn(STARTUP_DISCLOSE_SEGMENT, 'steps'), false);
         assert.equal(STARTUP_DISCLOSE_SEGMENT.moves, ' mO      ');
         assert.equal(STARTUP_DISCLOSE_NONASCII_SEGMENT.moves, '\n ');
-        for (const segment of recipe.segments)
-            await verifyStartupDiscloseSegment(segment);
+        await withSerializedGrids(async () => {
+            for (const segment of recipe.segments)
+                await verifyStartupDiscloseSegment(segment);
+        });
     });
