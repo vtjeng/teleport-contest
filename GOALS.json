@@ -2615,8 +2615,8 @@
         },
         {
           "name": "startup-menuinvertmode-to-bulk-menu-selection",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "55c9f08db67c3e2b285aa3bddeac4cef44105ff8"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
