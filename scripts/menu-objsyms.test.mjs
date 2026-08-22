@@ -196,6 +196,21 @@ test('TTY entry glyphs drop control tty bytes to a blank default cell', () => {
     }
 });
 
+test('TTY entry glyphs preserve a space byte as a colored glyph cell', () => {
+    const state = renderState(2);
+    const rendered = renderTtyMenu(state, {
+        title: null,
+        items: [{
+            selector: 'a',
+            label: 'a scalpel',
+            value: 'a',
+            glyphInfo: { ch: '?', ttychar: 0x20, color: 6 },
+        }],
+    });
+    const marker = state.nhDisplay.grid[0][rendered.layout.startColumn + 2];
+    assert.deepEqual(marker, { ch: ' ', color: 6, attr: 0 });
+});
+
 test('conditional glyph scan includes headers on later pages', () => {
     const state = renderState(4);
     const items = Array.from({ length: 23 }, (_, index) => ({
