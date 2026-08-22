@@ -154,21 +154,25 @@ test('TTY entry glyphs obey all six modes and selected-marker precedence', () =>
     assert.equal(marker.color, NO_COLOR);
 });
 
-test('TTY entry glyphs preserve the raw high-bit tty byte', () => {
-    const state = renderState(2);
-    const rendered = renderTtyMenu(state, {
-        title: null,
-        items: [{
-            selector: 'a',
-            label: 'a scalpel',
-            value: 'a',
-            glyphInfo: { ch: 'x', ttychar: 0xF8, color: 6 },
-        }],
-    });
-    const marker = state.nhDisplay.grid[0][rendered.layout.startColumn + 2];
-    assert.equal(marker.ch, '\uFFFD');
-    assert.equal(marker.color, 6);
-    assert.equal(marker.attr, 0);
+test('TTY entry glyphs preserve each high-bit tty byte boundary', () => {
+    for (const ttychar of [0x80, 0xF8]) {
+        const state = renderState(2);
+        const rendered = renderTtyMenu(state, {
+            title: null,
+            items: [{
+                selector: 'a',
+                label: 'a scalpel',
+                value: 'a',
+                glyphInfo: { ch: 'x', ttychar, color: 6 },
+            }],
+        });
+        const marker = state.nhDisplay.grid[0][
+            rendered.layout.startColumn + 2
+        ];
+        assert.equal(marker.ch, '\uFFFD', ttychar);
+        assert.equal(marker.color, 6, ttychar);
+        assert.equal(marker.attr, 0, ttychar);
+    }
 });
 
 test('conditional glyph scan includes headers on later pages', () => {
