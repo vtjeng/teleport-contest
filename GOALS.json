@@ -2667,6 +2667,11 @@
           "name": "startup-windowborders-to-config-diagnostics",
           "status": "closed",
           "closedBy": "9fdf645e815434dbf269cba8663a19ccacd40a5e"
+        },
+        {
+          "name": "startup-warning-symbols-to-config-diagnostics",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
