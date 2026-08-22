@@ -1145,6 +1145,16 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'boulder:'."],
         ["Badoption - boulder symbol 'z' would conflict with a monster symbol."],
     ]],
+    ['crash_email', [
+        ["Missing parameter for 'crash_email'."],
+        ["Missing parameter for 'crash_email:'."],
+        [],
+    ]],
+    ['crash_name', [
+        ["Missing parameter for 'crash_name'."],
+        ["Missing parameter for 'crash_name:'."],
+        [],
+    ]],
     ['pickup_burden', [
         ["Missing parameter for 'pickup_burden'."],
         ["Missing parameter for 'pickup_burden:'."],
@@ -1254,8 +1264,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['align_message', [1, 1, 1]],
     ['align_status', [1, 1, 1]],
     ['autounlock', [0, 0, 1]],
-    ['crash_email', [1, 1, 0]],
-    ['crash_name', [1, 1, 0]],
     ['crash_urlmax', [1, 1, 1]],
     ['map_mode', [1, 1, 1]],
     ['mouse_support', [0, 1, 1]],
@@ -1292,9 +1300,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 53);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 55);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 25);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 23);
 
     let owed = 0;
     for (const row of rows) {
@@ -1328,9 +1336,9 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 59 messages over 25 rows: what porting those handlers is worth to a
+    // 55 messages over 23 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 59);
+    assert.equal(owed, 55);
 });
 
 test('startup boulder parsing rejects source clashes and signed controls',

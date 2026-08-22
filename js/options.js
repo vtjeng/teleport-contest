@@ -467,6 +467,14 @@ function defaultResult() {
         a11y: {
             mon_notices_blocked: 0,
         },
+        // decl.c instance_globals_c initializes both report identities to
+        // NULL.  optfn_crash_email() and optfn_crash_name() below are their
+        // only configuration-time writers, and #optionsfull reads the same
+        // fields through OPTION_VALUE_HANDLERS.
+        gc: {
+            crash_email: null,
+            crash_name: null,
+        },
         roleFilter: defaultRoleFilter(),
         uroleplay: defaultRoleplay(),
         playmode: 'normal',
@@ -1140,6 +1148,25 @@ function optfn_boulder(result, statement) {
         return;
     }
     result.symbolOperations.push({ kind: 'boulder', byte });
+}
+
+// C ref: options.c optfn_crash_email() (1259-1282), its startup do_set arm.
+// The value is mandatory.  Unlike the PL_NSIZ-sized option-menu input buffer,
+// configuration parsing hands the handler a pointer into parseoptions()'s
+// complete element, and dupstr() stores every remaining byte.
+function optfn_crash_email(result, statement) {
+    const op = string_for_opt(statement, false, result);
+    if (op === '') return;
+    result.gc.crash_email = op;
+}
+
+// C ref: options.c optfn_crash_name() (1285-1308), its startup do_set arm.
+// Its allopt row owns a duplicate counter separate from crash_email's, while
+// the handler otherwise applies the same mandatory-value rule.
+function optfn_crash_name(result, statement) {
+    const op = string_for_opt(statement, false, result);
+    if (op === '') return;
+    result.gc.crash_name = op;
 }
 
 const MENU_HEADING_COLORS = Object.freeze({
@@ -3764,6 +3791,10 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setFruit(result, statement);
     } else if (name === 'boulder') {
         optfn_boulder(result, statement);
+    } else if (name === 'crash_email') {
+        optfn_crash_email(result, statement);
+    } else if (name === 'crash_name') {
+        optfn_crash_name(result, statement);
     } else if (name === 'catname' || name === 'dogname'
                || name === 'horsename') {
         setPetName(result, name, value);
@@ -4931,7 +4962,7 @@ function symsetValue(state, set, withHandling) {
 // scripts/options-menu.test.mjs derives the whole rule from parseNethackrc(),
 // so the set cannot drift from OPTION_VALUE_HANDLERS unnoticed.
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
-    'crash_email', 'crash_name', 'crash_urlmax',
+    'crash_urlmax',
     'glyph',
     'sortvanquished',
     'soundlib', 'whatis_filter', 'windowtype',
