@@ -186,6 +186,7 @@ test('the fresh recipe covers count, completion, filters, waits, and reverts',
                 'wizard and internal rows change but stay filtered',
                 'case-sensitive invalid name',
                 'invalid empty negation precedes valid earlier element',
+                'two invalid elements wait in recursive source order',
             ],
         );
         for (const [index, segment] of recipe.segments.entries()) {

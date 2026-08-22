@@ -52,6 +52,20 @@ export const STARTUP_CRASH_URLMAX_CASES = Object.freeze([
         errors: 16,
         optionsfull: false,
     }),
+    Object.freeze({
+        label: 'overflowed URL limits narrow before rejection',
+        seed: 7331101,
+        datetime: '20360422120700',
+        nethackrc: startupRc(
+            'Crashurloverflow',
+            'crash_urlmax:84',
+            ...Array(8).fill('crash_urlmax:2147483648'),
+        ),
+        moves: '\n',
+        expected: 84,
+        errors: 16,
+        optionsfull: false,
+    }),
 ]);
 
 function segmentFor(entry) {

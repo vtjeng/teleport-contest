@@ -121,6 +121,7 @@ import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
     encodeUtf8Text,
+    letter,
     lowc,
     str_start_is,
     truncateByteString,
@@ -2762,7 +2763,7 @@ function optfn_scores(result, statement) {
             return;
         }
 
-        while (/^[A-Za-z]$/u.test(op[index] ?? '')) ++index;
+        while (letter(op[index] ?? '')) ++index;
         while (op[index] === ' ') ++index;
         if (op[index] === '/') ++index;
     }

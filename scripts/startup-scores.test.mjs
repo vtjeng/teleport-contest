@@ -43,16 +43,30 @@ test('bare and empty scores values report and preserve prior state', () => {
     }
 });
 
-test('scores accepts counts, spaces, one slash, and alphabetic suffixes', () => {
+test('scores accepts counts, spaces, one slash, and source letter suffixes',
+    () => {
+        for (const [value, expected] of [
+            ['7 top/4 around/own', [7, 4, true]],
+            ['2troll 5abracadabra ocelot', [2, 5, true]],
+            // hacklib.c letter() deliberately classifies '@' as a letter.
+            ['2top@/own', [2, 0, true]],
+            ['top/around/own', [1, 1, true]],
+            ['0top/0around/0own', [0, 0, false]],
+        ]) {
+            const parsed = parse(`scores:${value}`);
+            assert.deepEqual(scoreState(parsed), expected, value);
+            assert.equal(parsed.flags.scores, undefined, value);
+            assert.deepEqual(parsed.configErrorFrame.output, [], value);
+        }
+    });
+
+test('scores narrows atoi counts to the recorder platform signed int', () => {
     for (const [value, expected] of [
-        ['7 top/4 around/own', [7, 4, true]],
-        ['2troll 5abracadabra ocelot', [2, 5, true]],
-        ['top/around/own', [1, 1, true]],
-        ['0top/0around/0own', [0, 0, false]],
+        ['2147483648top', [-2147483648, 0, false]],
+        ['4294967298top/2147483648around', [2, -2147483648, false]],
     ]) {
         const parsed = parse(`scores:${value}`);
         assert.deepEqual(scoreState(parsed), expected, value);
-        assert.equal(parsed.flags.scores, undefined, value);
         assert.deepEqual(parsed.configErrorFrame.output, [], value);
     }
 });

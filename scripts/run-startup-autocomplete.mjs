@@ -103,6 +103,19 @@ export const STARTUP_AUTOCOMPLETE_CASES = Object.freeze([
         waits: 1,
         error: "Bad autocomplete: invalid extended command ''.",
     }),
+    Object.freeze({
+        label: 'two invalid elements wait in recursive source order',
+        optionLines: Object.freeze(['AUTOCOMPLETE=Apply,app']),
+        count: 0,
+        prefix: 'ap',
+        prompt: '# ap',
+        flags: Object.freeze({ apply: 0 }),
+        waits: 2,
+        errors: Object.freeze([
+            "Bad autocomplete: invalid extended command 'app'.",
+            "Bad autocomplete: invalid extended command 'Apply'.",
+        ]),
+    }),
 ]);
 
 function nethackrc(entry) {
@@ -182,8 +195,10 @@ export async function verifyStartupAutocompleteSegment(segment) {
     if (waits.length !== entry.waits) {
         throw new Error(`${entry.label} queued ${waits.length} raw waits`);
     }
-    if (entry.error && waits[0]?.text !== entry.error) {
-        throw new Error(`${entry.label} queued the wrong raw error`);
+    const expectedErrors = entry.errors ?? (entry.error ? [entry.error] : []);
+    if (JSON.stringify(waits.map(({ text }) => text))
+        !== JSON.stringify(expectedErrors)) {
+        throw new Error(`${entry.label} queued the wrong raw errors`);
     }
 
     let boundary = null;
@@ -216,8 +231,8 @@ export async function verifyStartupAutocompleteSegment(segment) {
     if (menuValue !== `(${entry.count} currently set)`) {
         throw new Error(`${entry.label} reported ${menuValue}`);
     }
-    if (entry.error && replay.getScreens()[0]
-        && firstRawLine(replay) !== entry.error) {
+    if (expectedErrors.length && replay.getScreens()[0]
+        && firstRawLine(replay) !== expectedErrors[0]) {
         throw new Error(`${entry.label} raw-printed the wrong first line`);
     }
     if (replay.getScreens()[0] && !replayHasPrompt(replay, entry.prompt)) {

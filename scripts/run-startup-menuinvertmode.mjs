@@ -37,6 +37,26 @@ export const STARTUP_MENUINVERTMODE_CASES = Object.freeze([
             + 'align:neutral',
         allClasses: false,
     }),
+    Object.freeze({
+        label: 'wrapped mode 0 inverts the skip entry off',
+        seed: 7331053,
+        datetime: '20360422112100',
+        mode: 0,
+        optionValue: '4294967296',
+        character: 'name:Modewrapzero,role:Priest,race:human,gender:female,'
+            + 'align:neutral',
+        allClasses: true,
+    }),
+    Object.freeze({
+        label: 'wrapped mode 2 leaves the skip entry selected',
+        seed: 7331055,
+        datetime: '20360422112300',
+        mode: 2,
+        optionValue: '4294967298',
+        character: 'name:Modewraptwo,role:Ranger,race:human,gender:male,'
+            + 'align:neutral',
+        allClasses: false,
+    }),
 ]);
 
 function nethackrc(entry) {
@@ -44,7 +64,7 @@ function nethackrc(entry) {
         `OPTIONS=${entry.character}`,
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         'OPTIONS=pettype:none,!acoustics,!autopickup,menu_headings:bold',
-        `OPTIONS=menuinvertmode:${entry.mode}`,
+        `OPTIONS=menuinvertmode:${entry.optionValue ?? entry.mode}`,
         '',
     ].join('\n');
 }

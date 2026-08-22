@@ -30,6 +30,7 @@ test('menuinvertmode keeps its default for bare and empty values', () => {
 test('menuinvertmode applies C atoi before its range check', () => {
     for (const [value, expected] of [
         ['0', 0], ['1', 1], ['2', 2], ['garbage', 0], ['2junk', 2],
+        ['4294967296', 0], ['4294967298', 2],
     ]) {
         const parsed = parse(`menuinvertmode:${value}`);
         assert.equal(parsed.iflags.menuinvertmode, expected, value);
@@ -88,11 +89,13 @@ test('the fresh recipe pins both non-default bulk-selection modes', () => {
         [
             [7331049, '20360422111700'],
             [7331051, '20360422111900'],
+            [7331053, '20360422112100'],
+            [7331055, '20360422112300'],
         ],
     );
     assert.deepEqual(
         STARTUP_MENUINVERTMODE_CASES.map(({ mode }) => mode),
-        [0, 2],
+        [0, 2, 0, 2],
     );
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);

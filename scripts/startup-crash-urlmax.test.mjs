@@ -29,6 +29,8 @@ test('crash_urlmax applies recorder-platform atoi before its lower bound', () =>
         ['84suffix', 84],
         [' \t+96tail', 96],
         ['2147483647', 2147483647],
+        // The recorder's int narrows after atoi() has parsed signed long.
+        ['4294967371', 75],
     ]) {
         const parsed = parse(`crash_urlmax:${value}`);
         assert.equal(parsed.gc.crash_urlmax, expected, value);
@@ -44,6 +46,8 @@ test('missing and below-minimum crash_urlmax values preserve prior state', () =>
         [':74', 'Invalid value 74 for crash_urlmax.  Minimum value is 75.'],
         [':-1', 'Invalid value -1 for crash_urlmax.  Minimum value is 75.'],
         [':text', 'Invalid value 0 for crash_urlmax.  Minimum value is 75.'],
+        [':2147483648', 'Invalid value -2147483648 for crash_urlmax.'
+            + '  Minimum value is 75.'],
     ]) {
         const line = `OPTIONS=crash_urlmax${suffix},crash_urlmax:84`;
         const parsed = parseNethackrc(`${line}\n`);
