@@ -2637,6 +2637,67 @@ function setRunmode(result, value, negated) {
     result.flags.runmode = match[1];
 }
 
+// C ref: options.c optfn_scores() (3669-3760), its complete do_set arm.
+// string_for_opt(opts, FALSE) makes the value mandatory and leaves all three
+// fields alone when it is absent. Every entered handler resets the fields,
+// then walks its tokens left to right. A token accepts one optional inner
+// negation, a decimal count that defaults to 1, and any alphabetic suffix
+// after the significant t, a, o, or n initial.
+function optfn_scores(result, statement) {
+    const op = string_for_opt(statement, false, result);
+    if (op === '') return;
+
+    result.flags.end_top = 0;
+    result.flags.end_around = 0;
+    result.flags.end_own = false;
+
+    let index = 0;
+    while (index < op.length) {
+        let inum = 1;
+        const negated = op[index] === '!'
+            || equal_ncasechars(op.slice(index), 'no', 2);
+        if (negated) {
+            index += op[index] === '!'
+                ? 1 : (op[index + 2] !== '-' ? 2 : 3);
+        }
+
+        if (/^[0-9]$/u.test(op[index] ?? '')) {
+            inum = atoi(op.slice(index));
+            while (/^[0-9]$/u.test(op[index] ?? '')) ++index;
+        }
+        while (op[index] === ' ') ++index;
+
+        const initial = lowc(op[index] ?? '');
+        if (initial === 't') {
+            result.flags.end_top = negated ? 0 : inum;
+        } else if (initial === 'a') {
+            result.flags.end_around = negated ? 0 : inum;
+        } else if (initial === 'o') {
+            result.flags.end_own = !(negated || inum === 0);
+        } else if (initial === 'n') {
+            result.flags.end_top = 0;
+            result.flags.end_around = 0;
+            result.flags.end_own = false;
+        } else if (initial === '-'
+                   && /^[0-9]$/u.test(op[index + 1] ?? '')) {
+            configErrorAdd(
+                result,
+                'Values for scores:top and scores:around must not be negative',
+            );
+            return;
+        } else {
+            configErrorAdd(
+                result, `Unknown scores parameter '${op.slice(index)}'`,
+            );
+            return;
+        }
+
+        while (/^[A-Za-z]$/u.test(op[index] ?? '')) ++index;
+        while (op[index] === ' ') ++index;
+        if (op[index] === '/') ++index;
+    }
+}
+
 // C ref: options.c optfn_pickup_burden() (3266-3291), the switch its do_set
 // arm runs. It reads one byte -- lowc(*op) -- so the value's remaining
 // characters are never examined and "burdened" and "banana" both select
@@ -3733,6 +3794,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setWhatisCoord(result, statement, negated);
     } else if (name === 'runmode') {
         setRunmode(result, value, negated);
+    } else if (name === 'scores') {
+        optfn_scores(result, statement);
     } else if (name === 'pickup_burden') {
         setPickupBurden(result, statement);
     } else if (name === 'menustyle') {
@@ -4870,7 +4933,7 @@ function symsetValue(state, set, withHandling) {
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'crash_email', 'crash_name', 'crash_urlmax',
     'glyph',
-    'scores', 'sortvanquished',
+    'sortvanquished',
     'soundlib', 'whatis_filter', 'windowtype',
 ]));
 

@@ -808,8 +808,8 @@ test('the scores line spells only the parts that are switched on',
         const state = await startConfiguredGame(STOCK);
         // options.c optfn_scores()'s get_val arm builds its value from three
         // independent fields. initoptions_init() starts them at 3, 2 and
-        // FALSE, and the "scores" option that changes them is unported, so
-        // each case is written straight onto the fields it reads.
+        // FALSE; each case writes those source-owned fields directly to pin
+        // the getter independently from startup parsing.
         const cases = [
             [3, 2, false, '3 top/2 around'],
             [3, 0, false, '3 top'],
