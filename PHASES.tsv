@@ -807,3 +807,5 @@ utc	event	phase	goal	detail
 2026-08-22T12:39:16.912Z	end	implement	options-config-parser	startup-scores-to-optionsfull landed at 8b6cfb5; independent checkpoint 4571/4572 with sole known no-user-D-Bus mutator smoke, generated/static/dev score pass at 11/33 and 1988 screens; fresh 5 segments exact; mutation 33/33 killed
 2026-08-22T12:44:25.380Z	start	select	options-config-parser	Survey remaining options/config parser boundary after startup scores closure
 2026-08-22T12:54:10.297Z	end	select	options-config-parser	Selected startup-crash-report-identity-to-optionsfull; two source-identical CRASHREPORT string handlers through #optionsfull, development ceiling 0
+2026-08-22T12:54:30.906Z	start	implement	options-config-parser	Port startup-crash-report-identity-to-optionsfull from options.c optfn_crash_email/name through gc state and #optionsfull
+2026-08-22T13:14:57.260Z	end	implement	options-config-parser	startup-crash-report-identity-to-optionsfull landed at 3af6815; independent checkpoint 4578/4579 with sole known no-user-D-Bus mutator smoke, generated/static/dev score pass at 11/33 and 1988 screens; fresh 2 segments exact; mutation 2/2 killed
