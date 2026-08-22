@@ -145,12 +145,16 @@ import { sourceGlyphName } from './glyph_ids.js';
 import { allopt, optionParserMetadata } from './optlist_data.js';
 import { configLineStatements } from './config_statement_data.js';
 import {
-    AUTOCOMP_ADJ,
     CMD_PARAM,
     INTERNALCMD,
     MOUSECMD,
     extcmdlist,
 } from './extcmdlist_data.js';
+import {
+    count_autocompletions,
+    initialExtcmdFlags,
+    parseautocomplete,
+} from './cmd_autocomplete.js';
 import {
     DEFAULT_PRIMARY_SYMBOLS,
     SYM_OFF_O,
@@ -473,6 +477,9 @@ function defaultResult() {
         pl_fruit: DEFAULT_FRUIT,
         gameplayBindings: [],
         commandOperations: [],
+        // cmd.c extcmdlist[] is mutable in C. Keep its flags per game so one
+        // runSegment() cannot carry configuration into the next one.
+        extcmdFlags: initialExtcmdFlags(),
         // Raw output produced while the rc file is being parsed, in source
         // order. optfn_boolean() and config_error_add() emit print-only
         // events. A wait marks cfgfiles.c get_uchars()'s immediate
@@ -3921,6 +3928,7 @@ function applyDirectOption(result, key, value) {
 const CONFIG_STATEMENT_HANDLERS = Object.freeze({
     options: Object.freeze({ kind: 'options' }),
     bindings: Object.freeze({ kind: 'bindings' }),
+    autocomplete: Object.freeze({ kind: 'autocomplete' }),
     roguesymbols: Object.freeze({ kind: 'symbols', set: 'rogue' }),
     symbols: Object.freeze({ kind: 'symbols', set: 'primary' }),
     hilite_status: Object.freeze({ kind: 'status-hilite' }),
@@ -4149,6 +4157,15 @@ export function parseNethackrc(rc, random = rn2) {
         }
         if (statement.kind === 'legacy-boulder') {
             cnf_line_BOULDER(result, normalizedValue);
+            continue;
+        }
+        if (statement.kind === 'autocomplete') {
+            parseautocomplete(
+                normalizedValue,
+                true,
+                result,
+                (text) => result.startupEvents.push({ text, wait: true }),
+            );
             continue;
         }
 
@@ -4586,15 +4603,6 @@ function count_menucolors(state) {
 function msgtype_count(state) {
     refuseUnportedConfigStatement(state, 'msgtype');
     return 0;
-}
-
-// C ref: cmd.c count_autocompletions(), over the AUTOCOMP_ADJ flag that
-// cmd.c's AUTOCOMPLETE handler sets on an extcmdlist[] row.  The generated
-// table carries the compiled-in flags, which is the whole answer once the one
-// statement that changes them stops above.
-function count_autocompletions(state) {
-    refuseUnportedConfigStatement(state, 'autocomplete');
-    return extcmdlist.filter((entry) => entry.flags & AUTOCOMP_ADJ).length;
 }
 
 // parseNethackrc() gives source semantics to the options its own arms parse

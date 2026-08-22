@@ -660,10 +660,10 @@ test('the menu refuses the tab-separated layout menu_tab_sep asks for',
         assert.equal(dosetMenuItems(state, menuHelpers(), false).length, 150);
     });
 
-// C ref: coloratt.c count_menucolors(), options.c msgtype_count(),
-// count_apes() and cmd.c count_autocompletions(). Each walks a list that a
-// configuration statement this port drops is what fills.
-test('each Other settings count refuses a statement the parse dropped',
+// C ref: coloratt.c count_menucolors(), options.c msgtype_count(), and
+// count_apes(). Each walks a list that a configuration statement this port
+// drops is what fills.
+test('each unported Other settings count refuses a dropped statement',
     async () => {
         const dropped = [
             // cfgfiles.c cnf_line_MENUCOLOR() appends one gm.menu_colorings
@@ -671,9 +671,6 @@ test('each Other settings count refuses a statement the parse dropped',
             ['MENUCOLOR="blessed"=green', 'menu colors', 'MENUCOLOR'],
             // cnf_line_MSGTYPE() appends one gp.plinemsg_types node.
             ['MSGTYPE=hide "You swap places*"', 'message types', 'MSGTYPE'],
-            // cnf_line_AUTOCOMPLETE() sets AUTOCOMP_ADJ on an extcmdlist[]
-            // row, which count_autocompletions() counts.
-            ['AUTOCOMPLETE=!terrain', 'autocompletions', 'AUTOCOMPLETE'],
             // cnf_line_AUTOPICKUP_EXCEPTION() (cfgfiles.c:612) appends one
             // ga.apelist node, which count_apes() counts. The table row that
             // dispatches it is CNFL_N(AUTOPICKUP_EXCEPTION, 5) at
@@ -690,7 +687,7 @@ test('each Other settings count refuses a statement the parse dropped',
                 row,
             );
         }
-        // Each count stops only on its own statement, so the other three rows
+        // Each count stops only on its own statement, so the other rows
         // still report the empty list the port really holds.
         const state = await startGameWithConfig('MENUCOLOR="blessed"=green');
         state.unportedConfigStatements = [];
@@ -698,6 +695,28 @@ test('each Other settings count refuses a statement the parse dropped',
         for (const row of ['menu colors', 'message types', 'autocompletions',
             'autopickup exceptions'])
             assert.equal(valueOf(items, row), '(0 currently set)', row);
+    });
+
+test('the autocompletions row counts AUTOCOMP_ADJ command flags',
+    async () => {
+        const changed = await startGameWithConfig('AUTOCOMPLETE=!terrain');
+        assert.equal(
+            valueOf(dosetMenuItems(changed, menuHelpers(), false),
+                'autocompletions'),
+            '(1 currently set)',
+        );
+
+        // Changing the row back to its compiled-in setting clears AUTOCOMP_ADJ
+        // rather than recording two configuration statements.
+        const reverted = await startGameWithConfig(
+            'AUTOCOMPLETE=!terrain',
+            'AUTOCOMPLETE=terrain',
+        );
+        assert.equal(
+            valueOf(dosetMenuItems(reverted, menuHelpers(), false),
+                'autocompletions'),
+            '(0 currently set)',
+        );
     });
 
 test('the m prefix routes doset_simple() to doset() exactly once',

@@ -75,26 +75,22 @@ import {
 } from './eat.js';
 import { can_reach_floor, read_engr_at } from './engrave.js';
 import {
-    AUTOCOMPLETE,
     CMD_M_PREFIX,
     CMD_gGF_PREFIX,
-    CMD_NOT_AVAILABLE,
-    ECM_EXACTMATCH,
-    ECM_IGNOREAC,
-    ECM_NO1CHARCMD,
     IFBURIED,
-    INTERNALCMD,
     PREFIXCMD,
     WIZMODECMD,
     extcmdlist,
 } from './extcmdlist_data.js';
+import { extcmds_match } from './cmd_autocomplete.js';
+export { extcmds_match } from './cmd_autocomplete.js';
 import {
     UnsupportedGetlinBoundaryError,
     tty_get_ext_cmd,
     tty_yn_function,
 } from './getline.js';
 import { game } from './gstate.js';
-import { lcase, visctrl } from './hacklib.js';
+import { visctrl } from './hacklib.js';
 import {
     ddoinv,
     dolook,
@@ -301,35 +297,6 @@ export function set_occupation(fn, txt, xtime, state = game) {
 // keyForCommand() ports.
 export function extcmd_initiator(state = game) {
     return keyForCommand(commandBindings(state), '#');
-}
-
-// C ref: cmd.c extcmds_match(). Returns the matching extcmdlist[] indexes;
-// findstr === null asks for every currently available entry. strncmpi() and
-// strcmpi() fold case with lowc(), which lcase() ports.
-export function extcmds_match(findstr, ecmflags, state = game) {
-    const ignoreac = (ecmflags & ECM_IGNOREAC) !== 0;
-    const exactmatch = (ecmflags & ECM_EXACTMATCH) !== 0;
-    const no1charcmd = (ecmflags & ECM_NO1CHARCMD) !== 0;
-    const needle = findstr === null ? null : lcase(findstr);
-    const matchlist = [];
-    for (let i = 0; i < extcmdlist.length; ++i) {
-        const entry = extcmdlist[i];
-        if (entry.flags & (CMD_NOT_AVAILABLE | INTERNALCMD)) continue;
-        // Debug mode is what makes '#levelchange' and its siblings matchable,
-        // and what keeps 'l' ambiguous there while it expands to 'loot' in an
-        // ordinary game.
-        if (!state.wizard && (entry.flags & WIZMODECMD)) continue;
-        if (!ignoreac && !(entry.flags & AUTOCOMPLETE)) continue;
-        if (no1charcmd && entry.ef_txt.length === 1) continue;
-        if (needle === null) {
-            matchlist.push(i);
-        } else {
-            const name = lcase(entry.ef_txt);
-            if (exactmatch ? name === needle : name.startsWith(needle))
-                matchlist.push(i);
-        }
-    }
-    return matchlist;
 }
 
 // C ref: cmd.c accept_menu_prefix().

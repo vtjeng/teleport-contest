@@ -327,6 +327,7 @@ export class NethackGame {
         g.commandOperations = opts.commandOperations.map((operation) => ({
             ...operation,
         }));
+        g.extcmdFlags = [...opts.extcmdFlags];
         g.unportedConfigStatements = [...opts.unportedConfigStatements];
         if (opts.tutorial_set) g.tutorial_set_in_config = true;
 

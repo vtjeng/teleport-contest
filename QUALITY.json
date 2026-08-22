@@ -4369,6 +4369,7 @@
       "paths": [
         "js/apply.js",
         "js/cmd.js",
+        "js/cmd_autocomplete.js",
         "js/command_bindings.js",
         "js/do.js",
         "js/dokick.js",

@@ -4165,13 +4165,13 @@ test('msg_window keeps one letter and answers its value-less spellings', () => {
     ]);
 });
 
-// C ref: cfgfiles.c config_line_stmt[]. Eleven handlers above are ported. Every
+// C ref: cfgfiles.c config_line_stmt[]. Twelve handlers above are ported. Every
 // other player row is recognized and recorded so a later consumer can refuse
 // the missing cnf_line_<NAME>() state rather than silently use a default.
 test('the parser records the config statements it cannot interpret', () => {
     assert.deepEqual(parseNethackrc('').unportedConfigStatements, []);
     const unported = [
-        'autopickup_exception', 'autocomplete', 'msgtype',
+        'autopickup_exception', 'msgtype',
         'hackdir', 'leveldir', 'levels', 'savedir', 'bonesdir', 'datadir',
         'scoredir', 'lockdir', 'configdir', 'troubledir',
         'menucolor', 'warnings', 'wizkit',
@@ -4186,7 +4186,7 @@ test('the parser records the config statements it cannot interpret', () => {
     assert.deepEqual(
         parseNethackrc('AUTOC=x\nMSGTYPE=x\nMENUCOLOR=x\n')
             .unportedConfigStatements,
-        ['autocomplete', 'msgtype', 'menucolor'],
+        ['msgtype', 'menucolor'],
     );
     assert.deepEqual(
         parseNethackrc('AUTO=x\nMSGTYP=x\nMENUCOLO=x\n')
