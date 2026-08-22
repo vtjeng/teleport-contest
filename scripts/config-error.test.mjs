@@ -1230,6 +1230,11 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'sortdiscoveries:'."],
         ["Unknown sortdiscoveries parameter 'zqxj'."],
     ]],
+    ['sortvanquished', [
+        ["Missing parameter for 'sortvanquished'."],
+        ["Missing parameter for 'sortvanquished:'."],
+        [],
+    ]],
     ['symset', [
         [],
         [],
@@ -1309,7 +1314,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['perminv_mode', [1, 1, 1]],
     ['player_selection', [1, 1, 1]],
     ['roguesymset', [0, 0, 1]],
-    ['sortvanquished', [1, 1, 0]],
     ['term_cols', [1, 1, 1]],
     ['term_rows', [1, 1, 1]],
     ['warnings', [1, 1, 0]],
@@ -1332,9 +1336,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 63);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 64);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 15);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 14);
 
     let owed = 0;
     for (const row of rows) {
@@ -1368,9 +1372,9 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 37 messages over 15 rows: what porting those handlers is worth to a
+    // 35 messages over 14 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 37);
+    assert.equal(owed, 35);
 });
 
 test('startup boulder parsing rejects source clashes and signed controls',

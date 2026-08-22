@@ -3424,6 +3424,30 @@ function optfn_sortdiscoveries(result, statement, negated) {
     }
 }
 
+// C ref: options.c optfn_sortvanquished() (3958-4009), its startup do_set
+// arm.  The mandatory-value helper runs before negation is considered, so a
+// negated spelling without a value reports and then restores traditional
+// order.  Positive values select from the first byte alone; the two uppercase
+// letters deliberately name modes distinct from their lowercase partners.
+function optfn_sortvanquished(result, statement, negated) {
+    const op = string_for_env_opt(statement, false, result);
+    if (negated) {
+        result.flags.vanq_sortmode = 0;
+    } else if (op !== '') {
+        const mode = 'tdaACcnz'.indexOf(op[0]);
+        const numeric = '01234567'.indexOf(op[0]);
+        if (mode >= 0) {
+            result.flags.vanq_sortmode = mode;
+        } else if (numeric >= 0) {
+            result.flags.vanq_sortmode = numeric;
+        } else {
+            configErrorAdd(
+                result, `Unknown sortvanquished parameter '${op}'`,
+            );
+        }
+    }
+}
+
 // C ref: options.c bad_negation() (6692-6697).  Three of its callers are
 // reachable here -- parseoptions() (627), optfn_menu_headings() (2201) and
 // optfn_pile_limit() (3421) -- and all three pass with_parameter TRUE, whether
@@ -4079,6 +4103,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         result.flags.sortloot = c;
     } else if (name === 'sortdiscoveries') {
         optfn_sortdiscoveries(result, statement, negated);
+    } else if (name === 'sortvanquished') {
+        optfn_sortvanquished(result, statement, negated);
     } else if (name === 'versinfo') {
         // C ref: options.c optfn_versinfo()'s do_set arm.  optlist.h:816 gives
         // it negateok No, so parseoptions() has already answered a negation
@@ -5138,7 +5164,6 @@ function symsetValue(state, set, withHandling) {
 // so the set cannot drift from OPTION_VALUE_HANDLERS unnoticed.
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'glyph',
-    'sortvanquished',
     'windowtype',
 ]));
 
