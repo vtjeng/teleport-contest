@@ -16973,6 +16973,81 @@
         ]
       },
       "recordedAt": "2026-08-22T10:22:06.218Z"
+    },
+    {
+      "kind": "review",
+      "head": "641c44886b4a6d74d9eea4315f96de519ec4c69b",
+      "auditedRange": "e7798c1855cfe7bf3ce3fe6494b7f259d8596986..641c44886b4a6d74d9eea4315f96de519ec4c69b",
+      "checklist": {
+        "covers": false,
+        "path": null,
+        "commitChecked": null,
+        "reason": "Ten small startup/options slices stayed within one source-bounded configuration window and below the checklist threshold; the user waived mutation readiness evidence for this work session."
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "world-effects",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 8 raw, 7 deduplicated, 5 confirmed, 5 applied, 0 deferred, 2 rejected, 0 unverified. Four mandatory finders reviewed the startup/options window; performance and concurrency were disabled. The applied production fix restores options.c letter() semantics for scores suffixes, and four applied test findings pin repeated autocomplete waits plus recorder-platform signed atoi overflow. A fresh post-fix reader found no remaining issue. Mutation evidence was omitted under the user's explicit work-session waiver because this host has no user D-Bus. No holdout evaluation or access occurred.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2430,
+        "counts": {
+          "raw": 8,
+          "deduplicated": 7,
+          "confirmed": 5,
+          "applied": 5,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 4,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "accept the source letter class, including at sign, in scores suffixes",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "readiness": {
+          "boundary": "From each startup configuration statement read before window initialization through its exact nonfatal diagnostic waits and the live optionsfull, autocomplete, or TTY menu consumer; committed fresh cases execute every reviewed path in the running game.",
+          "sourceReview": "Traced every reachable reviewed handler branch and helper against options.c, cfgfiles.c, cmd.c, sounds.c, hacklib.c, optlist.h, and flag.h, including state ownership, source order, signed atoi narrowing, diagnostics, waits, and the absence of PRNG calls.",
+          "completeness": "No known unsupported behavior remains inside the reviewed startup-to-consumer boundaries; excluded interactive handlers begin after the ending event, and fail-closed exclusions stop before state changes, randomness, or output."
+        },
+        "rejections": [
+          {
+            "summary": "Sound-library import pulls options.js into a hidden cyclic dependency",
+            "counterEvidence": "The cycle is real but evaluation-safe: all cyclic reads are deferred until function invocation, fresh Node processes import options.js, sounds.js, cmd.js, and jsmain.js independently, and the claimed failure requires a hypothetical future top-level initializer rather than a diff-causal current impact."
+          },
+          {
+            "summary": "Sound-library IDs are silently treated as soundlib_choices array indexes",
+            "counterEvidence": "The recorder build and JavaScript table contain only nosound at index and enum ID 0; upstream itself requires table order to match the enum, and existing tests pin ID 0 plus rejection of -1 and 1. A mismatch requires an unimplemented future backend outside this range."
+          }
+        ],
+        "deferrals": [],
+        "warnings": [
+          "Mutation readiness and evidence were omitted under the user's explicit work-session waiver; the host has no user D-Bus for the mandatory systemd slice.",
+          "The ordinary suite's only failure was the waived real mutation-runner smoke attempting that unavailable user D-Bus; all other 4,633 tests passed."
+        ],
+        "validation": {
+          "focused": "34 focused tests passed.",
+          "fresh": "Four affected C/JavaScript matrices matched 22 segments, 61,273 PRNG calls, 247 screens, and 247 cursors.",
+          "broad": "All 4,633 non-waived tests, nine generated-data checks, three static checks, and duplicate-symbol indexing passed; development remained 11/33 sessions, 1,988 screens, 133,574 PRNG calls, and 2,007 cursors.",
+          "postFixReview": "A fresh read-only reviewer found no issue in fd044fe68aa0c5557f8f6d7aadc9954b1c8a1c83..641c44886b4a6d74d9eea4315f96de519ec4c69b."
+        }
+      },
+      "recordedAt": "2026-08-22T22:18:31.798Z"
     }
   ]
 }
