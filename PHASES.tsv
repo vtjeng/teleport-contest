@@ -813,3 +813,5 @@ utc	event	phase	goal	detail
 2026-08-22T13:28:22.857Z	end	select	options-config-parser	Selected startup-crash-urlmax-to-optionsfull; one numeric CRASHREPORT handler through gc state and #optionsfull, development ceiling 0
 2026-08-22T13:28:46.172Z	start	implement	options-config-parser	Port startup-crash-urlmax-to-optionsfull from options.c optfn_crash_urlmax through gc state, diagnostics, and #optionsfull
 2026-08-22T13:45:08.033Z	end	implement	options-config-parser	startup-crash-urlmax-to-optionsfull landed at b150b19; independent checkpoint 4585/4586 with sole known no-user-D-Bus mutator smoke, generated/static/dev score pass at 11/33 and 1988 screens; fresh 2 segments exact; mutation 6/6 killed
+2026-08-22T13:50:14.784Z	start	select	options-config-parser	Survey remaining options/config parser boundary after crash URL limit closure
+2026-08-22T14:20:30.635Z	end	select	options-config-parser	Selected startup-scroll-amount-margin-to-config-diagnostics; paired scalar handlers through startup config diagnostics, development ceiling 0
