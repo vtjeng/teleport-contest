@@ -459,6 +459,10 @@ function defaultResult() {
                 color: NO_COLOR,
             },
             msg_history: 20,
+            // options.c optfn_scroll_amount() and optfn_scroll_margin()
+            // leave the zeroed instance-flags fields alone during do_init.
+            wc_scroll_amount: 0,
+            wc_scroll_margin: 0,
             // initoptions_init()'s TTY_GRAPHICS arm; this build is tty.
             prevmsg_window: 's',
             menuinvertmode: 1,
@@ -2744,6 +2748,35 @@ function optfn_scores(result, statement) {
     }
 }
 
+// C ref: options.c optfn_scroll_amount() and optfn_scroll_margin()
+// (3763-3821), their do_set arms.  Both accept any atoi() result without a
+// range check.  A bare negation supplies the source's nonzero fallback; a
+// negation carrying a value reports and preserves the previous field.
+function setScrollOption(
+    result, statement, negated, name, field, negatedDefault,
+) {
+    const op = string_for_opt(statement, negated, result);
+    if ((negated && op === '') || (!negated && op !== '')) {
+        result.iflags[field] = negated ? negatedDefault : atoi(op);
+    } else if (negated) {
+        bad_negation(result, name);
+    }
+}
+
+function optfn_scroll_amount(result, statement, negated) {
+    setScrollOption(
+        result, statement, negated,
+        'scroll_amount', 'wc_scroll_amount', 1,
+    );
+}
+
+function optfn_scroll_margin(result, statement, negated) {
+    setScrollOption(
+        result, statement, negated,
+        'scroll_margin', 'wc_scroll_margin', 5,
+    );
+}
+
 // C ref: options.c optfn_pickup_burden() (3266-3291), the switch its do_set
 // arm runs. It reads one byte -- lowc(*op) -- so the value's remaining
 // characters are never examined and "burdened" and "banana" both select
@@ -3848,6 +3881,10 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setRunmode(result, value, negated);
     } else if (name === 'scores') {
         optfn_scores(result, statement);
+    } else if (name === 'scroll_amount') {
+        optfn_scroll_amount(result, statement, negated);
+    } else if (name === 'scroll_margin') {
+        optfn_scroll_margin(result, statement, negated);
     } else if (name === 'pickup_burden') {
         setPickupBurden(result, statement);
     } else if (name === 'menustyle') {
@@ -4889,6 +4926,10 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         }
         return opts || 'none';
     },
+    scroll_amount: (state) => (state.iflags.wc_scroll_amount
+        ? `${state.iflags.wc_scroll_amount}` : 'default'),
+    scroll_margin: (state) => (state.iflags.wc_scroll_margin
+        ? `${state.iflags.wc_scroll_margin}` : 'default'),
     // o_init.c get_sortdisco() with cnf FALSE.
     sortdiscoveries: (state) => {
         const index = disco_order_let.indexOf(state.flags.discosort);
@@ -4991,7 +5032,7 @@ export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
 
 // C ref: options.c doset_add_menu()'s optfn call, plus the "unknown" default
 // it keeps when the handler writes nothing.
-function optionValue(state, option, helpers) {
+export function optionValue(state, option, helpers) {
     if (UNPARSED_COMPOUND_OPTIONS.has(option.name)
         && state.flags?.[option.name] !== undefined) {
         throw new UnsupportedOptionMenuError(
