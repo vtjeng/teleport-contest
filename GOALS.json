@@ -2640,8 +2640,8 @@
         },
         {
           "name": "startup-tile-height-width-to-config-diagnostics",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0286db954925d95abe5d49d66ed7526e7cdb4b37"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
