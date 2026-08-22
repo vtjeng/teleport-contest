@@ -451,6 +451,9 @@ function defaultResult() {
             prev_decor: STONE,
             wc2_statuslines: 2,
             wc2_petattr: ATR_INVERSE,
+            // options.c initoptions_init() sets the curses-only window-border
+            // mode after the instance-flags struct starts zeroed.
+            wc2_windowborders: 2,
             hilite_delta: 0,
             status_hilites: [],
             status_conditions: { ...DEFAULT_STATUS_CONDITIONS },
@@ -3072,6 +3075,30 @@ function optfn_whatis_filter(result, statement, negated) {
     }
 }
 
+// C ref: options.c optfn_windowborders() (4797-4854), its startup do_set
+// arm.  string_for_opt() treats a missing or empty positive value as absent:
+// it reports the missing parameter, then this handler still installs mode 1.
+// A bare or empty-valued negation installs mode 0; only a negation carrying a
+// nonempty value is rejected.  Values use C atoi() before the 0..4 range
+// check, and an invalid value leaves the previous mode unchanged.
+function optfn_windowborders(result, statement, negated) {
+    const op = string_for_opt(statement, negated, result);
+    if (negated && op !== '') {
+        bad_negation(result, 'windowborders');
+        return;
+    }
+
+    const mode = negated ? 0 : (op === '' ? 1 : atoi(op));
+    if (mode < 0 || mode > 4) {
+        configErrorAdd(
+            result,
+            `Invalid windowborders (should be within 0 to 4): ${statement}`,
+        );
+        return;
+    }
+    result.iflags.wc2_windowborders = mode;
+}
+
 // C ref: options.c:71.
 const PILE_LIMIT_DFLT = 5;
 
@@ -4105,6 +4132,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_sortdiscoveries(result, statement, negated);
     } else if (name === 'sortvanquished') {
         optfn_sortvanquished(result, statement, negated);
+    } else if (name === 'windowborders') {
+        optfn_windowborders(result, statement, negated);
     } else if (name === 'versinfo') {
         // C ref: options.c optfn_versinfo()'s do_set arm.  optlist.h:816 gives
         // it negateok No, so parseoptions() has already answered a negation

@@ -1235,6 +1235,11 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'sortvanquished:'."],
         [],
     ]],
+    ['windowborders', [
+        ["Missing parameter for 'windowborders'."],
+        ["Missing parameter for 'windowborders:'."],
+        [],
+    ]],
     ['symset', [
         [],
         [],
@@ -1317,7 +1322,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['term_cols', [1, 1, 1]],
     ['term_rows', [1, 1, 1]],
     ['warnings', [1, 1, 0]],
-    ['windowborders', [1, 1, 0]],
     ['windowcolors', [1, 1, 1]],
 ]);
 
@@ -1336,9 +1340,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 64);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 65);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 14);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 13);
 
     let owed = 0;
     for (const row of rows) {
@@ -1372,9 +1376,9 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 35 messages over 14 rows: what porting those handlers is worth to a
+    // 33 messages over 13 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 35);
+    assert.equal(owed, 33);
 });
 
 test('startup boulder parsing rejects source clashes and signed controls',
