@@ -2650,8 +2650,8 @@
         },
         {
           "name": "startup-vary-msgcount-to-config-diagnostics",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "f31681623ea913ff5f30a73c04b4dcd68489ea1b"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
