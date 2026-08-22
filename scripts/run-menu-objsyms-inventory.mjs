@@ -108,6 +108,19 @@ export const MENU_OBJSYMS_CASES = Object.freeze([
         // Each invalid line reports a duplicate and its illegal parameter.
         errors: ERROR_REPEAT_COUNT * 2,
     }),
+    Object.freeze({
+        label: 'high-bit primary weapon symbol reaches inventory ttychar',
+        optionLines: Object.freeze([
+            'OPTIONS=menu_objsyms:entries',
+            String.raw`SYMBOLS=S_weapon:\xF8`,
+        ]),
+        mode: 2,
+        menu: 'entries',
+        errors: 0,
+        markerSelector: 'a',
+        marker: '\uFFFD',
+        markerColor: 6,
+    }),
 ]);
 
 function nethackrc(entry) {
@@ -149,12 +162,15 @@ function optionMenuValue(items, name) {
     return item.text.slice(item.text.indexOf('[') + 1, -1);
 }
 
-function firstInventoryEntryCell() {
+function inventoryEntryCell(selector = null) {
     for (const row of game.nhDisplay.grid) {
         const first = row.findIndex(({ ch }) => ch !== ' ');
         if (first < 0) continue;
         const text = row.slice(first).map(({ ch }) => ch).join('');
-        if (/^[A-Za-z$#] . /u.test(text)) return row[first + 2];
+        if (/^[A-Za-z$#] . /u.test(text)
+            && (selector === null || text[0] === selector)) {
+            return row[first + 2];
+        }
     }
     return null;
 }
@@ -205,14 +221,18 @@ export async function verifyMenuObjsymsSegment(segment) {
     if (headingSymbol !== ((entry.mode & 1) !== 0)) {
         throw new Error(`${entry.label} rendered the wrong weapon heading`);
     }
-    const marker = firstInventoryEntryCell();
+    const marker = inventoryEntryCell(entry.markerSelector ?? null);
     if (!marker) throw new Error(`${entry.label} rendered no inventory entry`);
     // Sorted ordinary inventory always has headers. Modes 4 and 5 therefore
     // suppress entry glyphs even though use_menu_glyphs is true.
     const entryGlyph = entry.mode === 2 || entry.mode === 3;
-    if ((marker.ch !== '-') !== entryGlyph) {
+    const expectedMarker = entry.marker ?? (entryGlyph ? '$' : '-');
+    const expectedColor = entry.markerColor ?? (entryGlyph ? 11 : 8);
+    if (marker.ch !== expectedMarker
+        || marker.color !== expectedColor || marker.attr !== 0) {
         throw new Error(
-            `${entry.label} rendered entry marker '${marker.ch}'`,
+            `${entry.label} rendered entry marker `
+                + JSON.stringify(marker),
         );
     }
 

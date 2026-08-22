@@ -14,7 +14,7 @@ import {
     monster_glyph_info,
     object_glyph_info,
 } from '../js/display.js';
-import { initoptions_finish } from '../js/fruit.js';
+import { finish_fruit_option } from '../js/fruit.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { NethackGame } from '../js/jsmain.js';
@@ -738,7 +738,7 @@ test('every valid role and race builds a source-shaped reroll inventory',
             game.u = { uroleplay: { reroll: true } };
             O.objects_globals_init(game);
             monst_globals_init(game);
-            initoptions_finish({}, game);
+            finish_fruit_option({}, game);
             reset_mvitals(game);
             init_objects(game);
             role_init(game);

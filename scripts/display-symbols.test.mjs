@@ -405,6 +405,15 @@ function displaySymbol(loc, state) {
     return { ch, dec };
 }
 
+test('symbol operation dispatch rejects unknown stream records', () => {
+    assert.throws(
+        () => initialize_symbols_from_options({
+            symbolOperations: [{ kind: 'typo' }],
+        }, {}),
+        /unknown symbol operation 'typo'/u,
+    );
+});
+
 function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
     const state = resetGame();
     state.context = { ident: 2 };

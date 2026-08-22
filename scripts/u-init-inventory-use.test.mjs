@@ -20,7 +20,7 @@ import {
     init_artifacts,
 } from '../js/artifacts.js';
 import { init_dungeons } from '../js/dungeon.js';
-import { initoptions_finish } from '../js/fruit.js';
+import { finish_fruit_option } from '../js/fruit.js';
 import { game, resetGame } from '../js/gstate.js';
 import { reset_mvitals, monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
@@ -67,7 +67,7 @@ async function startup(roleName, raceName = 'human', seed = 731_337) {
     game.u = { uroleplay: {} };
     O.objects_globals_init(game);
     monst_globals_init(game);
-    initoptions_finish({}, game);
+    finish_fruit_option({}, game);
     reset_mvitals(game);
     init_objects(game);
     role_init(game);

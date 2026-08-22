@@ -123,7 +123,7 @@ test('let_to_name appends the compiled-in class symbol at source padding', () =>
 });
 
 test('TTY entry glyphs obey all six modes and selected-marker precedence', () => {
-    const glyphInfo = { ch: ')', color: 6 };
+    const glyphInfo = { ch: ')', ttychar: ')'.charCodeAt(0), color: 6 };
     for (const [name, mode] of MODES) {
         const state = renderState(mode);
         const rendered = renderTtyMenu(state, {
@@ -154,13 +154,30 @@ test('TTY entry glyphs obey all six modes and selected-marker precedence', () =>
     assert.equal(marker.color, NO_COLOR);
 });
 
+test('TTY entry glyphs preserve the raw high-bit tty byte', () => {
+    const state = renderState(2);
+    const rendered = renderTtyMenu(state, {
+        title: null,
+        items: [{
+            selector: 'a',
+            label: 'a scalpel',
+            value: 'a',
+            glyphInfo: { ch: 'x', ttychar: 0xF8, color: 6 },
+        }],
+    });
+    const marker = state.nhDisplay.grid[0][rendered.layout.startColumn + 2];
+    assert.equal(marker.ch, '\uFFFD');
+    assert.equal(marker.color, 6);
+    assert.equal(marker.attr, 0);
+});
+
 test('conditional glyph scan includes headers on later pages', () => {
     const state = renderState(4);
     const items = Array.from({ length: 23 }, (_, index) => ({
         selector: String.fromCharCode(65 + (index % 26)),
         label: `item ${index}`,
         value: index,
-        glyphInfo: { ch: ')', color: 6 },
+        glyphInfo: { ch: ')', ttychar: ')'.charCodeAt(0), color: 6 },
     }));
     // The first page has 23 selectable entries; this header begins page two.
     items.push({ text: 'Weapons', heading: true });

@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { SYM_BOULDER } from '../js/const.js';
 import { object_glyph_info } from '../js/display.js';
 import { game } from '../js/gstate.js';
+import { decodeUtf8ByteString } from '../js/hacklib.js';
 import { runSegment } from '../js/jsmain.js';
 import { sobj_at } from '../js/obj.js';
 import { BOULDER } from '../js/objects.js';
@@ -113,6 +114,30 @@ export const LEGACY_BOULDER_CASES = Object.freeze([
         menu: '?',
         waits: 1,
     }),
+    Object.freeze({
+        label: 'high byte remains one optionsfull column',
+        optionLines: Object.freeze(['BOULDER=233']),
+        primary: 0xE9,
+        rogue: 0,
+        active: 'i',
+        menu: decodeUtf8ByteString([0xE9]),
+        waits: 0,
+    }),
+    Object.freeze({
+        label: 'ordinary errors surround the immediate raw wait',
+        optionLines: Object.freeze([
+            'OPTIONS=zqxj',
+            'BOULDER=?',
+            ...Array(8).fill('OPTIONS=quux'),
+        ]),
+        primary: 0,
+        rogue: 0,
+        active: '`',
+        menu: '`',
+        waits: 1,
+        configErrors: 9,
+        mixedWaits: true,
+    }),
 ]);
 
 function nethackrc(entry) {
@@ -126,7 +151,7 @@ function segmentFor(entry) {
         nethackrc: nethackrc(entry),
         // Each get_uchars() syntax error waits before rcfile() resumes. Four
         // spaces then advance the tutorial text to its map before #optionsfull.
-        moves: '\n'.repeat(entry.waits) + '    '
+        moves: '\n'.repeat(entry.waits + (entry.configErrors ? 1 : 0)) + '    '
             + OPEN_AND_DISMISS_FULL_OPTIONS,
     };
 }
@@ -160,6 +185,62 @@ function firstRawLine(replay) {
     return JSON.parse(first)[0].map(({ ch }) => ch).join('').trimEnd();
 }
 
+function rawRows(screen) {
+    return JSON.parse(screen).map(
+        (row) => row.map(({ ch }) => ch).join('').trimEnd(),
+    );
+}
+
+function verifyMixedWaitFrames(replay, entry) {
+    if (!replay.getScreens()[0]) return;
+    const expectedFirst = [
+        '',
+        'OPTIONS=zqxj',
+        " * Line 4: Unknown option 'zqxj'.",
+        'Syntax error in BOULDER',
+        ...Array(20).fill(''),
+    ];
+    const expectedSecond = [
+        '',
+        'OPTIONS=zqxj',
+        " * Line 4: Unknown option 'zqxj'.",
+        'Syntax error in BOULDER',
+        '',
+        'OPTIONS=quux',
+        " * Line 6: Unknown option 'quux'.",
+        '',
+        'OPTIONS=quux',
+        " * Line 7: Unknown option 'quux'.",
+        '',
+        'OPTIONS=quux',
+        " * Line 8: Unknown option 'quux'.",
+        '',
+        'OPTIONS=quux',
+        " * Line 9: Unknown option 'quux'.",
+        '',
+        'OPTIONS=quux',
+        " * Line 10: Unknown option 'quux'.",
+        '',
+        'OPTIONS=quux',
+        " * Line 11: Unknown option 'quux'.",
+        '',
+        'OPTIONS=quux',
+    ];
+    const actual = replay.getScreens().slice(0, 2).map(rawRows);
+    if (JSON.stringify(actual)
+        !== JSON.stringify([expectedFirst, expectedSecond])) {
+        throw new Error(`${entry.label} rendered the wrong two wait frames`);
+    }
+    const cursors = replay.getCursors().slice(0, 2);
+    if (JSON.stringify(cursors) !== JSON.stringify([
+        [0, 4, 1], [0, 31, 1],
+    ])) {
+        throw new Error(
+            `${entry.label} recorded wait cursors ${JSON.stringify(cursors)}`,
+        );
+    }
+}
+
 export async function verifyLegacyBoulderSegment(segment) {
     const entry = caseFor(segment);
     if (!entry) throw new Error('no legacy boulder case owns segment');
@@ -170,8 +251,12 @@ export async function verifyLegacyBoulderSegment(segment) {
     if (boundary) throw boundary;
 
     const parsed = parseNethackrc(segment.nethackrc);
-    if (parsed.configErrorFrame.num_errors !== 0) {
-        throw new Error(`${entry.label} produced a configuration error`);
+    const expectedErrors = entry.configErrors ?? 0;
+    if (parsed.configErrorFrame.num_errors !== expectedErrors) {
+        throw new Error(
+            `${entry.label} produced ${parsed.configErrorFrame.num_errors}`
+                + ` configuration errors, not ${expectedErrors}`,
+        );
     }
     const waits = parsed.startupEvents.filter(({ wait }) => wait).length;
     if (waits !== entry.waits) {
@@ -181,7 +266,7 @@ export async function verifyLegacyBoulderSegment(segment) {
     // focused tests install the serializer and the differential workspace has
     // the judge implementation. In either environment with frames, pin the
     // raw output and immediate-wait cursor here.
-    if (entry.waits && replay.getScreens()[0]) {
+    if (entry.waits && !entry.mixedWaits && replay.getScreens()[0]) {
         if (firstRawLine(replay) !== 'Syntax error in BOULDER') {
             throw new Error(`${entry.label} did not raw-print its syntax error`);
         }
@@ -189,6 +274,7 @@ export async function verifyLegacyBoulderSegment(segment) {
             throw new Error(`${entry.label} waited at the wrong raw cursor`);
         }
     }
+    if (entry.mixedWaits) verifyMixedWaitFrames(replay, entry);
 
     const absolute = SYM_OFF_X + SYM_BOULDER;
     const actual = {

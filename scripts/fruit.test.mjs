@@ -8,7 +8,7 @@ import {
     fruit_from_indx,
     fruit_from_name,
     fruitadd,
-    initoptions_finish,
+    finish_fruit_option,
     makeplural,
     matching_artifact_fruit,
     makesingular,
@@ -16,7 +16,7 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { init_objects } from '../js/o_init.js';
-import { parseNethackrc } from '../js/options.js';
+import { initoptions_finish, parseNethackrc } from '../js/options.js';
 import {
     SLIME_MOLD,
     objects_globals_init,
@@ -25,6 +25,12 @@ import {
     NON_PM,
     monst_globals_init,
 } from '../js/monsters.js';
+import { SYM_BOULDER } from '../js/const.js';
+import {
+    S_darkroom,
+    initialize_symbols_from_options,
+    SYM_OFF_X,
+} from '../js/symbols.js';
 
 function objectState(initialized = false) {
     const state = { context: {}, flags: {} };
@@ -260,9 +266,9 @@ test('artifact fruit matching returns only its article classification', () => {
     assert.equal(matching_artifact_fruit('the ordinary fruit', state), null);
 });
 
-test('initoptions_finish installs the default source-shaped fruit state', () => {
+test('finish_fruit_option installs the default source-shaped fruit state', () => {
     const state = objectState();
-    const fid = initoptions_finish(parseNethackrc(''), state);
+    const fid = finish_fruit_option(parseNethackrc(''), state);
 
     assert.equal(fid, 1);
     assert.equal(state.svp.pl_fruit, DEFAULT_FRUIT);
@@ -277,9 +283,50 @@ test('initoptions_finish installs the default source-shaped fruit state', () => 
     assert.equal(state.obj_descr[SLIME_MOLD].oc_name, 'fruit');
 });
 
-test('initoptions_finish singularizes the selected name before insertion', () => {
+test('initoptions_finish delegates its ported source steps in C order', () => {
+    const parsed = parseNethackrc([
+        'OPTIONS=fruit:blueberries,tiled_map',
+        'OPTIONS=boulder:0',
+        '',
+    ].join('\n'));
     const state = objectState();
-    initoptions_finish(parseNethackrc('OPTIONS=fruit:blueberries'), state);
+    state.iflags = { ...parsed.iflags };
+    initialize_symbols_from_options(parsed, state);
+
+    const trace = [];
+    state.svp = new Proxy({}, {
+        set(target, property, value) {
+            if (property === 'pl_fruit' && !trace.includes('fruit'))
+                trace.push('fruit');
+            target[property] = value;
+            return true;
+        },
+    });
+    state.gs.showsyms = new Proxy(state.gs.showsyms, {
+        set(target, property, value) {
+            const index = Number(property);
+            if (index === SYM_OFF_X + SYM_BOULDER) trace.push('boulder');
+            if (index === S_darkroom) trace.push('darkroom');
+            target[property] = value;
+            return true;
+        },
+    });
+    state.iflags = new Proxy(state.iflags, {
+        set(target, property, value) {
+            if (property === 'wc_tiled_map' && value === false)
+                trace.push('map-mode');
+            target[property] = value;
+            return true;
+        },
+    });
+
+    initoptions_finish(parsed, state);
+    assert.deepEqual(trace, ['fruit', 'boulder', 'darkroom', 'map-mode']);
+});
+
+test('finish_fruit_option singularizes the selected name before insertion', () => {
+    const state = objectState();
+    finish_fruit_option(parseNethackrc('OPTIONS=fruit:blueberries'), state);
 
     assert.equal(state.svp.pl_fruit, 'blueberry');
     assert.equal(state.gf.ffruit.fname, 'blueberry');
@@ -288,19 +335,23 @@ test('initoptions_finish singularizes the selected name before insertion', () =>
 
 test('fruitadd protects names that collide with object syntax', () => {
     const food = objectState(true);
-    initoptions_finish(parseNethackrc('OPTIONS=fruit:apples'), food);
+    finish_fruit_option(parseNethackrc('OPTIONS=fruit:apples'), food);
     assert.equal(food.svp.pl_fruit, 'candied apple');
 
     const numeric = objectState();
-    initoptions_finish(parseNethackrc('OPTIONS=fruit:123 apples'), numeric);
+    finish_fruit_option(parseNethackrc('OPTIONS=fruit:123 apples'), numeric);
     assert.equal(numeric.svp.pl_fruit, 'candied 123 apple');
 
     const qualified = objectState();
-    initoptions_finish(parseNethackrc('OPTIONS=fruit:cursed berries'), qualified);
+    finish_fruit_option(
+        parseNethackrc('OPTIONS=fruit:cursed berries'), qualified,
+    );
     assert.equal(qualified.svp.pl_fruit, 'candied cursed berry');
 
     const spinach = objectState();
-    initoptions_finish(parseNethackrc('OPTIONS=fruit:tin of spinach'), spinach);
+    finish_fruit_option(
+        parseNethackrc('OPTIONS=fruit:tin of spinach'), spinach,
+    );
     assert.equal(spinach.svp.pl_fruit, 'candied tin of spinach');
 });
 
@@ -314,7 +365,7 @@ test('monster-shaped fruit names use the complete source resolver', () => {
     ];
     for (const [configured, expected] of cases) {
         const state = fruitState();
-        initoptions_finish(
+        finish_fruit_option(
             parseNethackrc(`OPTIONS=fruit:${configured}`),
             state,
         );
@@ -322,7 +373,7 @@ test('monster-shaped fruit names use the complete source resolver', () => {
     }
 
     const injected = fruitState();
-    initoptions_finish(parseNethackrc('OPTIONS=fruit:newt eggs'), injected, {
+    finish_fruit_option(parseNethackrc('OPTIONS=fruit:newt eggs'), injected, {
         hooks: { nameToMon: () => NON_PM },
     });
     assert.equal(injected.svp.pl_fruit, 'newt egg');
@@ -330,7 +381,7 @@ test('monster-shaped fruit names use the complete source resolver', () => {
 
 test('fruit lookup and insertion preserve ids, case, and prefix matching', () => {
     const state = objectState();
-    initoptions_finish('mangos', state);
+    finish_fruit_option('mangos', state);
     const mango = state.gf.ffruit;
     assert.equal(mango.fname, 'mango');
     assert.equal(fruit_from_indx(1, state), mango);
@@ -351,7 +402,7 @@ test('fruit lookup and insertion preserve ids, case, and prefix matching', () =>
 
 test('fruit initialization requires the mutable generated object catalog', () => {
     assert.throws(
-        () => initoptions_finish(parseNethackrc(''), {}),
+        () => finish_fruit_option(parseNethackrc(''), {}),
         /requires objects_globals_init/u,
     );
 });

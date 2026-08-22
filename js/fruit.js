@@ -693,8 +693,8 @@ export function fruitadd(str, replace_fruit = null, env = {}) {
 
 // This is the fruit-owned portion of options.c:initoptions_finish().
 // `parsedOptions` is parseNethackrc()'s result or a fruit-name string.
-export function initoptions_finish(parsedOptions = {}, state = game, env = {}) {
-    requireFruitGlobals(state, 'initoptions_finish');
+export function finish_fruit_option(parsedOptions = {}, state = game, env = {}) {
+    requireFruitGlobals(state, 'finish_fruit_option');
     const configured = typeof parsedOptions === 'string'
         ? parsedOptions
         : parsedOptions?.pl_fruit ?? DEFAULT_FRUIT;

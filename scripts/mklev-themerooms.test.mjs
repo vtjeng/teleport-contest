@@ -15,7 +15,7 @@ import {
 import { depth, level_difficulty } from '../js/dungeon.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
-import { initoptions_finish } from '../js/fruit.js';
+import { finish_fruit_option } from '../js/fruit.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { objectType, weight } from '../js/obj.js';
@@ -192,7 +192,7 @@ async function initializeNewGame(seed) {
     game.iflags = {};
     game.u = { uroleplay: {} };
     game.context = { move: 0 };
-    initoptions_finish({}, game);
+    finish_fruit_option({}, game);
     await newgame_pre_mklev(game);
 }
 

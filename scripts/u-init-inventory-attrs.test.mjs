@@ -17,7 +17,7 @@ import {
     projected_capacity,
     weight_cap,
 } from '../js/hack.js';
-import { initoptions_finish } from '../js/fruit.js';
+import { finish_fruit_option } from '../js/fruit.js';
 import { init_objects } from '../js/o_init.js';
 import { initRng } from '../js/rng.js';
 import {
@@ -498,7 +498,7 @@ test('the real object pipeline initializes every valid role/race pairing', async
             game.u = { uroleplay: {} };
             O.objects_globals_init(game);
             monst_globals_init(game);
-            initoptions_finish({}, game);
+            finish_fruit_option({}, game);
             reset_mvitals(game);
             init_objects(game);
             role_init(game);

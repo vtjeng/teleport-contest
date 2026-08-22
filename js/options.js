@@ -114,6 +114,7 @@ import {
 } from './cfgfiles.js';
 import {
     DEFAULT_FRUIT,
+    finish_fruit_option,
     normalize_initial_fruit,
 } from './fruit.js';
 import {
@@ -186,7 +187,7 @@ import {
     def_char_to_objclass,
 } from './drawing.js';
 import { escapes } from './options_escapes.js';
-import { MAXMCLASSES } from './symbols.js';
+import { finish_boulder_symbol, MAXMCLASSES } from './symbols.js';
 import { choose_classes_menu } from './windows.js';
 
 const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
@@ -2759,7 +2760,7 @@ function applyBooleanOption(result, name, row, statement, value, negated) {
         {
             const text = "There is no underlying support for"
                 + " 'idlecheckpoint' compiled in.";
-            result.startupEvents.push({ kind: 'print', text });
+            result.startupEvents.push({ text });
         }
         result.iflags.idlecheckpoint = false;
         result.give_opt_msg = false;
@@ -3467,8 +3468,11 @@ function optfn_disclose(result, statement, negated) {
         return;
     }
 
-    const isAll = op.length === 3 && equal_ncasechars(op, 'all', 3);
-    const isNone = op.length === 4 && equal_ncasechars(op, 'none', 4);
+    const opBytes = encodeUtf8ByteString(op);
+    const isAll = opBytes.length === 3
+        && equal_ncasechars(decodeUtf8ByteString(opBytes), 'all', 3);
+    const isNone = opBytes.length === 4
+        && equal_ncasechars(decodeUtf8ByteString(opBytes), 'none', 4);
     // A bare disclose asks each question with Yes preselected; a bare
     // negation, or "none", suppresses every question without asking.
     if (op === '' || isAll || isNone) {
@@ -3493,9 +3497,9 @@ function optfn_disclose(result, statement, negated) {
     // C's source declares `num` for this bound but never increments it.  Keep
     // that exact fixed-array condition: every byte before the terminating NUL
     // is parsed, including one beyond the six disclosure categories.
-    for (let index = 0; index < op.length
+    for (let index = 0; index < opBytes.length
         && num < NUM_DISCLOSURE_OPTIONS; ++index) {
-        let c = lowc(op[index]);
+        let c = lowc(String.fromCharCode(opBytes[index]));
         if (c === 'k') c = 'v'; // killed -> vanquished
         if (c === 'd') c = 'o'; // dungeon -> overview
         const disclosureIndex = disclosure_options.indexOf(c);
@@ -3518,7 +3522,10 @@ function optfn_disclose(result, statement, negated) {
             prefixVal = c;
         } else if (c !== ' ') {
             configErrorAdd(
-                result, `Unknown disclose parameter '${op[index]}'`,
+                result,
+                `Unknown disclose parameter '${decodeUtf8ByteString(
+                    [opBytes[index]],
+                )}'`,
             );
             return;
         }
@@ -4283,6 +4290,22 @@ export function finishStartupBooleanOptions(state) {
     }
 }
 
+// C ref: options.c initoptions_finish() (7324-7383), after rcfile() has
+// returned.  Keep the source-owned startup sequence together here: install
+// fruit state, activate the final primary boulder override, reconcile the
+// dark-room symbol, then apply the selected TTY map-mode fallback.
+//
+// reset_glyphmap(gm_optionchange) follows reglyph_darkroom() in C.  This port
+// resolves glyph presentation on demand and has no stored glyphmap to reset.
+// update_rest_on_space() follows that reset; command binding initialization
+// consumes the already-recorded rest_on_space operation later in start().
+export function initoptions_finish(parsedOptions = {}, state = game, env = {}) {
+    finish_fruit_option(parsedOptions, state, env);
+    finish_boulder_symbol(state);
+    reglyph_darkroom(state);
+    finishStartupBooleanOptions(state);
+}
+
 // C ref: options.c longest_option_name().  The two passes differ only in
 // which options the first one skips, and both feed the same maximum.
 export function longest_option_name(startpass, endpass) {
@@ -4638,10 +4661,10 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     },
     // go.ov_primary_syms holds an explicit S_boulder override; without one
     // the value falls back to the active rock-class symbol.
-    boulder: (state) => String.fromCharCode(
+    boulder: (state) => decodeUtf8ByteString([
         state.go?.ov_primary_syms?.[SYM_OFF_X + SYM_BOULDER]
         || state.gs.showsyms[SYM_OFF_O + ROCK_CLASS],
-    ),
+    ]),
     // gc.crash_email and gc.crash_name are null until a configuration file
     // sets them, and C then leaves the buffer empty.
     crash_email: (state) => state.gc?.crash_email ?? '',
@@ -5140,11 +5163,9 @@ function preference_update(state, pref) {
 }
 
 // C ref: options.c optfn_boolean()'s `*(allopt[optidx].addr) = !negated`
-// (5285).  booleanOptionValue() above reads the address this writes, and this
-// is its only writer.
-//
-// C stores a boolean option once, at allopt[].addr.  Startup parsing and this
-// interactive writer now share that address.  Delete any legacy flags.<name>
+// (5285). C stores a boolean option once, at allopt[].addr. Startup parsing
+// writes that address through applyBooleanOption(), and this interactive path
+// writes it through setBooleanOptionValue(). Delete any legacy flags.<name>
 // copy supplied by a hand-built test state so one C value retains one owner.
 function setBooleanOptionValue(state, option, value) {
     const path = option.addr.split('.');

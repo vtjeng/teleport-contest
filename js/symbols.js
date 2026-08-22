@@ -446,25 +446,34 @@ export function initialize_symbols_from_options(options, state = game) {
     const operations = Array.isArray(options.symbolOperations)
         ? options.symbolOperations : fallbackOperations(options);
     for (const operation of operations) {
-        if (operation.kind === 'select') selectSymbolSet(operation, state);
-        else if (operation.kind === 'clear') {
+        switch (operation.kind) {
+        case 'select':
+            selectSymbolSet(operation, state);
+            break;
+        case 'clear': {
             const set = operation.set === 'rogue' ? ROGUESET : PRIMARYSET;
             clear_symsetentry(set, operation.nameToo, state);
+            break;
         }
-        else if (operation.kind === 'override') {
+        case 'override':
             applySymbolAssignments(operation, state);
             // Both SYMBOLS and ROGUESYMBOLS call switch_symbols(TRUE).
             switch_symbols(state, true);
-        }
-        else if (operation.kind === 'boulder') {
+            break;
+        case 'boulder':
             // options.c optfn_boulder() defers the active showsyms write
             // during initial parsing, but owns both override tables now.
             applyBoulderOverride(operation, state);
-        }
-        else if (operation.kind === 'legacy-boulder') {
+            break;
+        case 'legacy-boulder':
             // cfgfiles.c cnf_line_BOULDER() predates the compound option and
             // changes only the primary override table.
             applyLegacyBoulderOverride(operation, state);
+            break;
+        default:
+            throw new Error(
+                `unknown symbol operation '${String(operation.kind)}'`,
+            );
         }
     }
 }
@@ -524,7 +533,11 @@ export function symbol_at(
         // NOMUX_CAPTURE doesn't intercept g_pututf8(). A null capture
         // character leaves the recorder-facing cell untouched while the
         // browser still receives the source glyph.
-        return { ch: null, dec: false, displayCh: unicode };
+        const result = { ch: null, dec: false, displayCh: unicode };
+        Object.defineProperty(result, 'ttychar', {
+            value: rawSymbol(index, state),
+        });
+        return result;
     }
     const byte = rawSymbol(index, state);
     const high = (byte & 0x80) !== 0;
@@ -534,6 +547,7 @@ export function symbol_at(
         && !(eightBit && (handling !== H_DEC || low < 0x60));
     const result = { ch: String.fromCharCode(high ? low : byte), dec };
     if (high && handling === H_IBM) result.displayCh = CP437_HIGH[low];
+    Object.defineProperty(result, 'ttychar', { value: byte });
     return result;
 }
 

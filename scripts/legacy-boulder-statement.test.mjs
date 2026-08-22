@@ -57,7 +57,7 @@ test('cnf_line_BOULDER reports success after queuing its raw wait', () => {
     assert.equal(cnf_line_BOULDER(result, 'x'), true);
     assert.deepEqual(result, {
         startupEvents: [{
-            kind: 'print', text: 'Syntax error in BOULDER', wait: true,
+            text: 'Syntax error in BOULDER', wait: true,
         }],
         symbolOperations: [],
     });
@@ -79,13 +79,19 @@ test('the legacy boulder recipe covers its integer and ordering branches', () =>
             'direct statement follows compound boulder',
             'malformed suffix leaves earlier direct value unchanged',
             'backslash syntax leaves S_boulder unchanged',
+            'high byte remains one optionsfull column',
+            'ordinary errors surround the immediate raw wait',
         ],
     );
     for (const [index, segment] of recipe.segments.entries()) {
         const entry = LEGACY_BOULDER_CASES[index];
         const parsed = parseNethackrc(segment.nethackrc);
         assert.equal(Object.hasOwn(segment, 'steps'), false, entry.label);
-        assert.equal(parsed.configErrorFrame.num_errors, 0, entry.label);
+        assert.equal(
+            parsed.configErrorFrame.num_errors,
+            entry.configErrors ?? 0,
+            entry.label,
+        );
         assert.equal(
             parsed.startupEvents.filter(({ wait }) => wait).length,
             entry.waits,
@@ -103,7 +109,6 @@ test('legacy boulder syntax errors are immediate raw waits, not config errors',
         );
         assert.deepEqual(parsed.configErrorFrame.output, []);
         assert.deepEqual(parsed.startupEvents, [{
-            kind: 'print',
             text: 'Syntax error in BOULDER',
             wait: true,
         }]);

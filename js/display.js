@@ -731,6 +731,9 @@ function glyphPresentation(symbol, color, state, customization = null) {
         color: recorderMapColor(color, state),
         dec: symbol.dec,
     };
+    if (Number.isInteger(symbol.ttychar)) {
+        Object.defineProperty(result, 'ttychar', { value: symbol.ttychar });
+    }
     if (displayCh) result.displayCh = displayCh;
     if (customization?.rgb && state.iflags?.wc_color !== false) {
         result.rgb = [...customization.rgb];

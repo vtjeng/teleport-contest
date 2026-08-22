@@ -16,7 +16,6 @@ import {
 } from './cmd.js';
 import {
     UnsupportedStatusRefreshError,
-    reglyph_darkroom,
 } from './display.js';
 import { UnsupportedEarthSenseError } from './dungeon.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
@@ -29,7 +28,7 @@ import {
     UnsupportedTurnBoundaryError,
 } from './allmain.js';
 import {
-    finishStartupBooleanOptions,
+    initoptions_finish,
     parseNethackrc,
 } from './options.js';
 import { config_error_done } from './cfgfiles.js';
@@ -38,7 +37,6 @@ import {
     tty_raw_print,
     tty_wait_synch,
 } from './tty_rawprint.js';
-import { initoptions_finish } from './fruit.js';
 import { GameDisplay } from './game_display.js';
 import { setStorageForTesting } from './storage.js';
 import { light_globals_init } from './light.js';
@@ -59,7 +57,6 @@ import {
     UnsupportedStartupBoundaryError,
 } from './moveloop_preamble.js';
 import {
-    finish_boulder_symbol,
     initialize_symbols_from_options,
 } from './symbols.js';
 import { ttyPline } from './tty_message.js';
@@ -381,19 +378,7 @@ export class NethackGame {
 
         // C ref: options.c:initoptions_finish() runs after the complete
         // configuration has been parsed and before player selection.
-        finishStartupBooleanOptions(g);
         initoptions_finish(opts, g);
-        finish_boulder_symbol(g);
-
-        // options.c:initoptions_finish():7347. This is where gs.showsyms gains
-        // its entry for S_darkroom: defsym.h gives that cmap its own default
-        // byte, and reglyph_darkroom() replaces it with the S_room byte under
-        // 'dark_room' and colour, or with the SYM_NOTHING byte otherwise. No
-        // level exists yet, so its repair loop has nothing to match.
-        //
-        // The reset_glyphmap(gm_optionchange) that follows it in C rebuilds a
-        // table this port does not keep; js/display.js records why.
-        reglyph_darkroom(g);
 
         // tty_init_nhwindows() precedes plnamesuffix() and any role menus, and
         // clears the terminal over whatever the configuration read printed.

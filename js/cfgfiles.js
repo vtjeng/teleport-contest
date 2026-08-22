@@ -49,7 +49,7 @@ export function config_error_init(startupEvents = []) {
 
 function appendConfigOutput(frame, text) {
     frame.output.push(text);
-    frame.startupEvents?.push({ kind: 'print', text });
+    frame.startupEvents?.push({ text });
 }
 
 // C ref: cfgfiles.c config_error_nextline(), called from parse_conf_buf() once
@@ -150,7 +150,7 @@ export function get_uchars(bufp, list, name, syntaxError) {
 export function cnf_line_BOULDER(result, bufp) {
     const parsed = [undefined];
     get_uchars(bufp, parsed, 'BOULDER', (text) => {
-        result.startupEvents.push({ kind: 'print', text, wait: true });
+        result.startupEvents.push({ text, wait: true });
     });
     if (parsed[0] !== undefined) {
         result.symbolOperations.push({

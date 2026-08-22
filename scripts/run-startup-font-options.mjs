@@ -153,6 +153,60 @@ function assertFontFields(actual, expected, label) {
     }
 }
 
+function rawRows(screen) {
+    return JSON.parse(screen).map(
+        (row) => row.map(({ ch }) => ch).join('').trimEnd(),
+    );
+}
+
+function assertWaitCadence(replay, entry) {
+    const screens = replay.getScreens();
+    if (!screens[0]) return;
+    const expectedCount = entry.errors ? 3 : 2;
+    if (screens.length !== expectedCount) {
+        throw new Error(
+            `${entry.label} recorded ${screens.length} screens, not `
+                + expectedCount,
+        );
+    }
+    const expectedCursor = entry.errors ? [0, 27, 1] : [6, 9, 1];
+    for (const cursor of replay.getCursors()) {
+        if (JSON.stringify(cursor) !== JSON.stringify(expectedCursor)) {
+            throw new Error(
+                `${entry.label} recorded cursor ${JSON.stringify(cursor)}, not `
+                    + JSON.stringify(expectedCursor),
+            );
+        }
+    }
+    if (!entry.errors) return;
+
+    const rows = rawRows(screens[0]);
+    if (entry.label === 'duplicate font size reports') {
+        const echoed = 'OPTIONS=font_size_map:11,font_size_map:12,'
+            + 'font_size_map:12,font_size_map:12,font';
+        if (rows[1] !== echoed
+            || rows.slice(2).some((row) => row
+                !== ' * Line 4: compound option specified multiple times:'
+                    + ' font_size_map.')) {
+            throw new Error(`${entry.label} rendered the wrong wait frame`);
+        }
+    } else {
+        for (let block = 0; block < MALFORMED_REPEAT_COUNT; ++block) {
+            const row = 1 + block * 4;
+            const line = 4 + block;
+            const expected = [
+                'OPTIONS=fontbogus:value',
+                ` * Line ${line}: Unknown font parameter 'fontbogus:value'.`,
+                ` * Line ${line}: bad option suffix variation 'fontbogus'.`,
+            ];
+            if (JSON.stringify(rows.slice(row, row + 3))
+                !== JSON.stringify(expected)) {
+                throw new Error(`${entry.label} rendered the wrong wait frame`);
+            }
+        }
+    }
+}
+
 export async function verifyStartupFontOptionsSegment(segment) {
     const entry = caseFor(segment);
     if (!entry) throw new Error('no startup font-options case owns segment');
@@ -167,11 +221,12 @@ export async function verifyStartupFontOptionsSegment(segment) {
     }
 
     let boundary = null;
-    await runSegment(segment, {
+    const replay = await runSegment(segment, {
         onBoundary: (error) => { boundary = error; },
     });
     if (boundary) throw boundary;
     assertFontFields(game.iflags, entry.expected, `${entry.label} startup`);
+    assertWaitCadence(replay, entry);
 }
 
 export async function runStartupFontOptionsMatrix() {

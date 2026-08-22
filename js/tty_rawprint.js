@@ -9,27 +9,46 @@ import { encodeUtf8ByteString } from './hacklib.js';
 import { NO_COLOR } from './terminal.js';
 import { xwaitforspace } from './tty_message.js';
 
-// C ref: recorder patch 006 nomux_raw_putch().  Bytes below space are dropped
-// except the newline that moves to column zero of the next row, and a byte
-// past the last row or column advances the column without being stored.
-function nomux_raw_putch(display, byte) {
+const utf8Decoder = new TextDecoder();
+
+// C ref: recorder patch 006 nomux_raw_putch()/nomux_capture_screen(). Bytes
+// below space are dropped except newline, and a byte past the last row or
+// column advances the raw cursor without being stored. The capture file then
+// exposes each stored row as UTF-8: a complete sequence occupies one screen
+// cell, while an isolated high byte becomes U+FFFD. Keep that presentation
+// separate from the byte-counted raw cursor.
+function nomux_raw_write(display, bytes) {
     const raw = display.nomuxRaw;
-    if (byte === 0x0A) {
-        raw.row += 1;
-        raw.col = 0;
-        return;
+    let captured = [];
+    let capturedStart = 0;
+    const flush = () => {
+        if (raw.row >= 0 && raw.row < display.rows) {
+            let column = capturedStart;
+            for (const character of utf8Decoder.decode(
+                Uint8Array.from(captured),
+            )) {
+                display.setCell(column++, raw.row, character, NO_COLOR, 0);
+            }
+        }
+        captured = [];
+        capturedStart = 0;
+    };
+
+    for (const byte of bytes) {
+        if (byte === 0x0A) {
+            flush();
+            raw.row += 1;
+            raw.col = 0;
+        } else if (byte >= 32) {
+            if (raw.row >= 0 && raw.row < display.rows
+                && raw.col >= 0 && raw.col < display.cols) {
+                if (captured.length === 0) capturedStart = raw.col;
+                captured.push(byte);
+            }
+            raw.col += 1;
+        }
     }
-    if (byte < 32) return;
-    // nomux_fg_cur is 7 and nomux_attr_cur is 0 until a term_start_color() or
-    // term_start_attr() runs, and none has by this point in startup.
-    // nomux_capture_screen() writes no SGR sequence for foreground 7, so the
-    // cell arrives with the terminal's default colour rather than with grey;
-    // NO_COLOR is how js/terminal.js serializes the same absence.  The bounds
-    // test nomux_raw_putch() applies before storing is setCell()'s own, so a
-    // byte past the last row or column is dropped there and the column still
-    // advances.
-    display.setCell(raw.col, raw.row, String.fromCharCode(byte), NO_COLOR, 0);
-    raw.col += 1;
+    flush();
 }
 
 // C ref: win/tty/wintty.c tty_raw_print(), whose puts() the recorder mirrors
@@ -49,10 +68,11 @@ export function tty_raw_print(state, str) {
         raw.col = 0;
         display.clearScreen();
     }
-    for (const byte of encodeUtf8ByteString(String(str)))
-        nomux_raw_putch(display, byte);
     // puts() appends the newline tty_raw_print() does not write itself.
-    nomux_raw_putch(display, 0x0A);
+    nomux_raw_write(display, [
+        ...encodeUtf8ByteString(String(str)),
+        0x0A,
+    ]);
 }
 
 // C ref: recorder patch 006 nomux_get_cursor(), which the capture writes at

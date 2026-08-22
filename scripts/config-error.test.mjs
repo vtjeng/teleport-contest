@@ -24,7 +24,10 @@ import {
     RUN_TPORT,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
-import { encodeUtf8ByteString } from '../js/hacklib.js';
+import {
+    decodeUtf8ByteString,
+    encodeUtf8ByteString,
+} from '../js/hacklib.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     FOOD_CLASS, RING_CLASS, WEAPON_CLASS,
@@ -76,6 +79,16 @@ test('raw printing writes whole lines from the top of a cleared screen',
         assert.equal(display.grid[1][0].color, NO_COLOR);
         assert.equal(display.grid[1][0].attr, 0);
     });
+
+test('raw capture decodes complete and isolated high-byte sequences', () => {
+    const state = displayState();
+    tty_raw_print(state, 'é');
+    tty_raw_print(state, decodeUtf8ByteString([0xC3]));
+
+    assert.equal(rowText(state.nhDisplay, 0), 'é');
+    assert.equal(rowText(state.nhDisplay, 1), '\uFFFD');
+    assert.deepEqual(nomux_get_cursor(state.nhDisplay), [0, 2]);
+});
 
 // C ref: patch 006 nomux_raw_putch(), which drops bytes below space other
 // than the newline, and nomux_get_cursor(), which reports the raw row and

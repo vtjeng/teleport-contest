@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { parseNethackrc } from '../js/options.js';
+import { decodeUtf8ByteString } from '../js/hacklib.js';
 import {
+    STARTUP_DISCLOSE_CASES,
+    STARTUP_DISCLOSE_NONASCII_SEGMENT,
     loadStartupDiscloseRecipe,
     STARTUP_DISCLOSE_SEGMENT,
     verifyStartupDiscloseSegment,
@@ -76,12 +79,27 @@ test('startup disclose reports an invalid byte after preserving earlier writes',
         ]);
     });
 
+test('startup disclose rejects the first byte of a non-ASCII parameter', () => {
+    const parsed = endDisclose('disclose:é');
+    const invalid = decodeUtf8ByteString([0xC3]);
+    assert.equal(parsed.flags.end_disclose.join(''), 'nnnnnn');
+    assert.deepEqual(parsed.configErrorFrame.output, [
+        '\nOPTIONS=disclose:é',
+        ` * Line 1: Unknown disclose parameter '${invalid}'.`,
+    ]);
+});
+
 test('the startup disclose recipe reaches the seventh optionsfull page',
     async () => {
         const recipe = loadStartupDiscloseRecipe();
         assert.equal(recipe.version, 5);
-        assert.deepEqual(recipe.segments, [STARTUP_DISCLOSE_SEGMENT]);
+        assert.deepEqual(
+            recipe.segments,
+            STARTUP_DISCLOSE_CASES.map(({ segment }) => segment),
+        );
         assert.equal(Object.hasOwn(STARTUP_DISCLOSE_SEGMENT, 'steps'), false);
         assert.equal(STARTUP_DISCLOSE_SEGMENT.moves, ' mO      ');
-        await verifyStartupDiscloseSegment(STARTUP_DISCLOSE_SEGMENT);
+        assert.equal(STARTUP_DISCLOSE_NONASCII_SEGMENT.moves, '\n ');
+        for (const segment of recipe.segments)
+            await verifyStartupDiscloseSegment(segment);
     });

@@ -54,7 +54,10 @@ import {
     MENU_SPELLINGS, loadPickupBurdenRecipe,
 } from './run-pickup-burden.mjs';
 import { loadOptionsDuplicateRecipe } from './run-options-duplicates.mjs';
-import { loadStartupFontOptionsRecipe } from './run-startup-font-options.mjs';
+import {
+    loadStartupFontOptionsRecipe,
+    verifyStartupFontOptionsSegment,
+} from './run-startup-font-options.mjs';
 import { loadStartupPickupTypesRecipe } from './run-startup-pickup-types.mjs';
 import {
     STARTUP_MENUSTYLE_CASES,
@@ -76,6 +79,7 @@ import {
     CLR_RED,
     NO_COLOR,
 } from '../js/terminal.js';
+import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 function characterFlags(parsed) {
     return [
@@ -212,7 +216,6 @@ test('startup boolean post-write effects preserve their source order', () => {
     assert.equal(idle.iflags.idlecheckpoint, false);
     assert.equal(idle.give_opt_msg, false);
     assert.deepEqual(idle.startupEvents, [{
-        kind: 'print',
         text: "There is no underlying support for 'idlecheckpoint' compiled in.",
     }]);
 });
@@ -415,7 +418,7 @@ test('font negation and duplicate handling follow pfxfn_font ordering', () => {
 });
 
 test('the startup font recipe uses the selected witness and parser fields',
-    () => {
+    async () => {
         const recipe = loadStartupFontOptionsRecipe();
         assert.equal(recipe.segments.length, 4);
         for (const segment of recipe.segments) {
@@ -426,6 +429,10 @@ test('the startup font recipe uses the selected witness and parser fields',
             recipe.segments.at(-1).nethackrc,
             /^OPTIONS=fontbogus:value$/mu,
         );
+        await withSerializedGrids(async () => {
+            for (const segment of recipe.segments)
+                await verifyStartupFontOptionsSegment(segment);
+        });
     });
 
 // C ref: options.c optfn_pickup_burden() (3266-3291). Every expected level is
