@@ -2662,6 +2662,11 @@
           "name": "startup-sortvanquished-to-optionsfull",
           "status": "closed",
           "closedBy": "e4878af67050b18b506f7993506795ff7bbc2746"
+        },
+        {
+          "name": "startup-windowborders-to-config-diagnostics",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
