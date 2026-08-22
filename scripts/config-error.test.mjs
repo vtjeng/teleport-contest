@@ -1200,6 +1200,16 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'scroll_margin:'."],
         [],
     ]],
+    ['tile_height', [
+        ["Missing parameter for 'tile_height'."],
+        ["Missing parameter for 'tile_height:'."],
+        [],
+    ]],
+    ['tile_width', [
+        ["Missing parameter for 'tile_width'."],
+        ["Missing parameter for 'tile_width:'."],
+        [],
+    ]],
     ['sortloot', [
         ["Missing parameter for 'sortloot'."],
         ["Missing parameter for 'sortloot:'."],
@@ -1288,8 +1298,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['soundlib', [1, 1, 0]],
     ['term_cols', [1, 1, 1]],
     ['term_rows', [1, 1, 1]],
-    ['tile_height', [1, 1, 0]],
-    ['tile_width', [1, 1, 0]],
     ['vary_msgcount', [1, 1, 0]],
     ['warnings', [1, 1, 0]],
     ['whatis_filter', [1, 1, 1]],
@@ -1312,9 +1320,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 58);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 60);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 20);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 18);
 
     let owed = 0;
     for (const row of rows) {
@@ -1348,9 +1356,9 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 48 messages over 20 rows: what porting those handlers is worth to a
+    // 44 messages over 18 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 48);
+    assert.equal(owed, 44);
 });
 
 test('startup boulder parsing rejects source clashes and signed controls',
