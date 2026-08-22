@@ -805,3 +805,5 @@ utc	event	phase	goal	detail
 2026-08-22T12:07:14.792Z	end	select	options-config-parser	Selected startup-scores-to-optionsfull; 33 confirmed gaps before slice, development ceiling 0
 2026-08-22T12:07:36.875Z	start	implement	options-config-parser	Port startup-scores-to-optionsfull from options.c optfn_scores() through config diagnostics and #optionsfull
 2026-08-22T12:39:16.912Z	end	implement	options-config-parser	startup-scores-to-optionsfull landed at 8b6cfb5; independent checkpoint 4571/4572 with sole known no-user-D-Bus mutator smoke, generated/static/dev score pass at 11/33 and 1988 screens; fresh 5 segments exact; mutation 33/33 killed
+2026-08-22T12:44:25.380Z	start	select	options-config-parser	Survey remaining options/config parser boundary after startup scores closure
+2026-08-22T12:54:10.297Z	end	select	options-config-parser	Selected startup-crash-report-identity-to-optionsfull; two source-identical CRASHREPORT string handlers through #optionsfull, development ceiling 0
