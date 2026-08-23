@@ -2717,6 +2717,11 @@
           "name": "audit-regex-evaluator-semantics-and-resource-bounds",
           "status": "closed",
           "closedBy": "b8af48bf567b7778af0b6763d60489d6b65034ab"
+        },
+        {
+          "name": "audit-regex-selection-and-resource-followup",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
