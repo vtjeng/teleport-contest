@@ -2680,8 +2680,8 @@
         },
         {
           "name": "startup-autopickup-exception-to-optionsfull-and-attributes",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "f5e626b3e967271ec0eee3fd3abcf5dbbed090d9"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
