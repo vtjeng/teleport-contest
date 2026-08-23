@@ -4231,6 +4231,60 @@
       "status": "closed",
       "from": "db6f32c9066bfbf9529c6ffc452d4ed7fbe73b63",
       "detail": "Mirror source names and ownership in js/tty_message.js: initialize the override default with MSGTYP_NORMAL rather than literal zero, and expand the module header to name the ported pline.c vpline/custompline/urgent and wintty.c display/clear branches."
+    },
+    {
+      "id": "startup-regex-capture-state-followup",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "e99227d91b777cf4c2184fa678e6c63a059fc447",
+      "detail": "Replace or extend js/posixregex.js reference-aware matching so recorder-glibc-valid same-reference alternatives remain available and quantified subgroups retain the last participating capture. Close with direct libc and installed MSGTYPE cases including (|())\\2, ^((a)|b)*\\2 on aab, and ^((a)|b)*\\2$ on aba, plus nonparticipation misses."
+    },
+    {
+      "id": "msgtype-stop-escape-state-followup",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "e99227d91b777cf4c2184fa678e6c63a059fc447",
+      "detail": "Preserve an existing TTY stop across a second non-Escape MSGTYP_STOP dismissal, while modeling WIN_NOSTOP only for More prompts that occur inside urgent tty_putstr. Close with the exact prior-message Escape then explicit STOP Space schedule, stopped-at-entry and urgent prompt-origin controls, queued-input assertions, and fresh screen/cursor evidence."
+    },
+    {
+      "id": "startup-regex-negation-literal-tests",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "e99227d91b777cf4c2184fa678e6c63a059fc447",
+      "detail": "Add direct recorder/JavaScript semantic match tests for a negated POSIX bracket class and an unmatched close parenthesis treated as a literal, distinguishing positive and negative inputs rather than compilation alone."
+    },
+    {
+      "id": "startup-warning-partial-number-test",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "e99227d91b777cf4c2184fa678e6c63a059fc447",
+      "detail": "Pin get_uchars source-defined malformed-number behavior with a preinitialized destination: 65 66x returns count one, stores 65, and leaves the in-progress 66 slot unchanged. Do not assert cnf_line_WARNINGS automatic-array tail garbage."
+    },
+    {
+      "id": "startup-msgtype-segment-reset-test",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "e99227d91b777cf4c2184fa678e6c63a059fc447",
+      "detail": "Run sequential runSegment calls in one JavaScript process with a configured hide-all MSGTYPE rule followed by no MSGTYPE row; prove the second game installs a null list and shows/stores its ordinary startup message."
+    },
+    {
+      "id": "startup-options-table-contract-clarity",
+      "area": "startup",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "e99227d91b777cf4c2184fa678e6c63a059fc447",
+      "detail": "Document source-significant MSGTYPE_NAMES prefix order, the unlocktypes index-to-1<<index bit contract, and replace the stale A fifth option wording with the exact remaining versinfo same-field fallback contract."
     }
   ],
   "areas": [
@@ -17471,6 +17525,149 @@
         }
       },
       "recordedAt": "2026-08-23T04:48:53.511Z"
+    },
+    {
+      "kind": "review",
+      "head": "e99227d91b777cf4c2184fa678e6c63a059fc447",
+      "auditedRange": "641c44886b4a6d74d9eea4315f96de519ec4c69b..e99227d91b777cf4c2184fa678e6c63a059fc447",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "a36bdd40064de3938ded8158feb449f1a55c8acb",
+        "reason": "the checklist covers a36bdd40, an ancestor of the range head; the 5 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "no-change",
+      "evidence": "Counts: 12 raw, 11 deduplicated, 10 confirmed, 0 applied, 10 deferred, 1 rejected, 0 unverified. Counts: 12 raw, 11 deduplicated, 10 confirmed, 0 applied, 10 deferred, 1 rejected, 0 unverified. Three production findings change recorder-glibc capture-state or TTY stop lifecycle behavior and require fresh cases, so review policy returned them to implementation. Four test gaps and three clarity issues were also deferred. Concurrency found serialized execution and no race; performance was omitted by trigger rule. Mutation readiness and evidence were omitted under the user session waiver.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1380,
+        "counts": {
+          "raw": 12,
+          "deduplicated": 11,
+          "confirmed": 10,
+          "applied": 0,
+          "deferred": 10,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 4,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace",
+          "concurrency"
+        ],
+        "productionDefects": [
+          {
+            "summary": "js/posixregex.js same-reference recovery removes valid same-start capture-participating alternatives",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js loses glibc's last participating subgroup value across later nonparticipating repetitions",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/tty_message.js clears an existing persistent stop when a later MSGTYP_STOP prompt is dismissed without Escape",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "readiness": {
+          "boundary": "The final expanded range includes the complete prior review corrections through installed startup regex state, live MSGTYPE/vpline waits and history, and the combined autounlock consumer, with a fourteen-entry checklist bound to a36bdd4.",
+          "sourceReview": "Five independent finders read the exact range against recorder glibc and pinned options.c, pline.c, topl.c, wintty.c, cfgfiles.c, lock.c, and JavaScript owners; two adjudicators applied source, causality, and resolution checks to all eleven deduplicated candidates.",
+          "completeness": "Every deduplicated candidate resolved to ten confirmed deferrals or one evidence-backed rejection with zero unverified. The three production findings change capture-state and TTY lifecycle behavior and require fresh cases, so policy returns them to implementation before another full pass."
+        },
+        "rejections": [
+          {
+            "summary": "Escape at an urgent MSGTYP_STOP explicit prompt must never enable persistent message suppression",
+            "counterEvidence": "wintty.c clears WIN_NOSTOP when tty_putstr returns before pline.c performs the explicit MSGTYP_STOP display. Escape at that later prompt correctly sets WIN_STOP. Wrapped/prior prompts occurring inside tty_putstr are distinct and must be tested by prompt origin, so a blanket urgent exception would break C behavior."
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "js/posixregex.js same-reference recovery removes valid same-start capture-participating alternatives",
+            "category": "production",
+            "trackedIn": "startup-regex-capture-state-followup"
+          },
+          {
+            "summary": "js/posixregex.js loses glibc's last participating subgroup value across later nonparticipating repetitions",
+            "category": "production",
+            "trackedIn": "startup-regex-capture-state-followup"
+          },
+          {
+            "summary": "js/tty_message.js clears an existing persistent stop when a later MSGTYP_STOP prompt is dismissed without Escape",
+            "category": "production",
+            "trackedIn": "msgtype-stop-escape-state-followup"
+          },
+          {
+            "summary": "Negated POSIX bracket-class semantics are not match-tested",
+            "category": "tests",
+            "trackedIn": "startup-regex-negation-literal-tests"
+          },
+          {
+            "summary": "An accepted unmatched close parenthesis is only compile-tested rather than literal-match tested",
+            "category": "tests",
+            "trackedIn": "startup-regex-negation-literal-tests"
+          },
+          {
+            "summary": "Malformed warning-number tests do not prove the in-progress number is discarded",
+            "category": "tests",
+            "trackedIn": "startup-warning-partial-number-test"
+          },
+          {
+            "summary": "MSGTYPE state reset from a configured segment to an unconfigured segment is not tested through runSegment",
+            "category": "tests",
+            "trackedIn": "startup-msgtype-segment-reset-test"
+          },
+          {
+            "summary": "MSGTYPE_NAMES source order is behavioral for ambiguous prefix matching but undocumented",
+            "category": "clarity",
+            "trackedIn": "startup-options-table-contract-clarity"
+          },
+          {
+            "summary": "unlocktypes has an implicit index-to-1-shift-index bit contract",
+            "category": "clarity",
+            "trackedIn": "startup-options-table-contract-clarity"
+          },
+          {
+            "summary": "The options.js A fifth option comment is stale after autounlock and suppress_alert ports",
+            "category": "clarity",
+            "trackedIn": "startup-options-table-contract-clarity"
+          }
+        ],
+        "warnings": [
+          "Mutation readiness and evidence were omitted under the user's explicit work-session waiver; no mutation command was run and no survivor claim is made."
+        ],
+        "validation": {
+          "focused": "Before launch, 48 focused assertions passed.",
+          "fresh": "Before launch, the direct oracle matched 69 recorder-glibc regex and five vpline byte cases; 23 fresh MSGTYPE segments matched 63,187 PRNG calls and 91 screens/cursors.",
+          "broad": "The non-mutation suite passed 4,724/4,724, generated/static/duplicate checks and exact-head Score/Coverage CI passed, and development remained 11/33 sessions with 1,988 screens, 133,574 PRNG calls, and 2,007 cursors.",
+          "audit": "Five finders produced 12 raw and 11 deduplicated candidates. Two adjudicators confirmed ten, rejected one with exact WIN_NOSTOP counterevidence, and left zero unverified. Concurrency found serialized execution and no race; performance was omitted by its trigger rule."
+        }
+      },
+      "recordedAt": "2026-08-23T05:57:33.035Z"
     }
   ]
 }
