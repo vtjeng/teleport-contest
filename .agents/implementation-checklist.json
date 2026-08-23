@@ -1,32 +1,32 @@
 {
   "mode": "ready-for-audit",
-  "reason": "All five confirmed suffix-reaching regex findings are implemented and validated at bbe2acd. Accepted finite endpoints now separate sanitized captures from their continuation frontier, reference repeats test downstream constraints lazily, and direct REG_NOSUB matching tries the suffix-aligned candidate first. Focused, recorder-libc, isolated resource, fresh MSGTYPE, broad non-mutation, generated/static, and development checks pass.",
-  "commitChecked": "bbe2acddf323677980a4dc10249629f0238c3ba9",
+  "reason": "The supported ASCII REG_NOSUB boundary is source-reviewed and validated. Finite brace intervals which repeat a referenced capture now stop before matching and are tracked in posix-finite-repeat-backreference-arrival; the audit proved that glibc's compiled-node arrival state cannot be represented by the existing capture-value heuristic without false positives and negatives.",
+  "commitChecked": "5488a3b700cedb56349e3ff021d927457f0b26dd",
   "boundary": {
     "goalId": "options-config-parser",
     "startingCommit": "7eede9da56a3cffe2c82294a07cc039706f69a27",
     "startingEvent": "A valid ASCII POSIX ERE installed by startup MSGTYPE or AUTOPICKUP_EXCEPTION is matched through the recorder-glibc REG_EXTENDED|REG_NOSUB contract.",
     "endingEvent": "Matching selects the same boolean and MSGTYPE action as recorder glibc within the committed direct and reference time/memory budgets at exact 255-byte pattern and message limits.",
-    "validInputs": "Finite repeated groups with referenced descendants, suffix-reaching correlated and zero-minimum reference patterns, and unanchored direct/reference wide-frontier patterns within the source byte limits.",
+    "validInputs": "Direct ASCII EREs, supported reference-aware EREs, unbounded referenced repetitions, suffix-reaching correlated and zero-minimum reference patterns, and unanchored direct/reference wide-frontier patterns within the source byte limits.",
     "observables": "Match boolean and installed MSGTYPE action, complete fresh screens/cursors and PRNG calls, plus isolated wall time and maxRSS for every declared exact-boundary resource case.",
-    "exclusions": "Non-ASCII C.UTF-8 locale matching, runtime autopickup object filtering, interactive MSGTYPE editing/serialization, USER_SOUNDS, and behavior after the next message/input boundary remain named before-effect boundaries."
+    "exclusions": "Finite brace intervals whose subtree captures a group used by a backreference stop at UnsupportedPosixFiniteReferenceError and are tracked by posix-finite-repeat-backreference-arrival. Non-ASCII C.UTF-8 locale matching, runtime autopickup object filtering, interactive MSGTYPE editing/serialization, USER_SOUNDS, and behavior after the next message/input boundary remain named before-effect boundaries."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "sys/share/posixregex.c regex_match delegates to glibc regexec; glibc capture endpoint selection defines the finite-repeat result; options.c msgtype_type and add_autopickup_exception are the installed consumers.",
     "dispatchTablesAndCatalogs": "The shared exact-boundary fixture catalog, its complete budget map, 255-byte source limits, repeat endpoint states, referenced capture ids, candidate starts, and absolute suffix constraints define the audited families.",
     "reachableHelpers": "The audit supplied direct-libc/live MSGTYPE discriminators for the endpoint defect and four suffix-reaching exact-boundary families that separately exercise correlated state, zero-minimum state, direct candidate ordering, and reference candidate reuse.",
     "javascriptCrossCheck": "Inspect js/posixregex.js repeat endpoint/continuation projections, direct/reference sequence search and suffix feasibility, plus all shared fixture/oracle/resource consumers for masked paths, separate catalogs, aborts, or guessed booleans.",
-    "remainingLimits": "The five confirmed deferrals are closed without a state-count abort or guessed boolean. The catalog names literal-suffix guard coverage separately from suffix-reaching direct memo, reference memo, zero-minimum, and correlated-frontier cases."
+    "remainingLimits": "The catalog names literal-suffix guard coverage separately from suffix-reaching direct memo, reference memo, zero-minimum, and correlated-frontier cases. Exact finite-copy OPEN/CLOSE arrival provenance remains the explicit posix-finite-repeat-backreference-arrival deferral rather than a guessed boolean."
   },
   "entries": [
     {
-      "candidate": "Finite-repeat accepted endpoint projection",
+      "candidate": "Finite-repeat capture and backreference arrival provenance",
       "reachability": "A bounded repeated group first captures a referenced descendant and may either stop at an intermediate count or continue through a nonparticipating sibling to its maximum.",
       "owner": "js/posixregex.js reference repeat evaluation",
-      "effects": "The accepted endpoint must clear descendant captures while the continuation frontier retains them, or MSGTYPE selects the wrong action.",
-      "evidence": "Recorder libc rejects ^((a)|b){0,2}\\2$ on aa and accepts aba; the corrected evaluator and installed live MSGTYPE rule now select those same actions.",
-      "status": "done",
-      "remaining": "None; focused, libc-oracle, and two fresh startup segments pin the sanitized aa endpoint and retained aba continuation."
+      "effects": "glibc validates distinct compiled OPEN/CLOSE occurrences with check_arrival before a backreference can affect MSGTYPE or AUTOPICKUP_EXCEPTION.",
+      "evidence": "Systematic recorder-libc comparison found both false positives and false negatives in capture-value endpoint heuristics. regex_compile still accepts the source-valid syntax, while regex_match now raises UnsupportedPosixFiniteReferenceError before a rule action is selected.",
+      "status": "later",
+      "remaining": "Port the lazy occurrence-aware state log and backreference arrival cache recorded by posix-finite-repeat-backreference-arrival, then restore its libc, live-message, and resource matrices."
     },
     {
       "candidate": "Reference late-constraint exact-boundary resource bound",
@@ -66,5 +66,5 @@
     }
   ],
   "missingWorkByOwner": [],
-  "sourceReview": "Complete. Read sys/share/posixregex.c regex_match, options.c msgtype_type/add_autopickup_exception, and the recorder libc oracle contract. Focused cases, 149 recorder-libc regex comparisons, six isolated resource cases, and 31 fresh MSGTYPE segments settle endpoint projection, suffix-aligned candidate ordering, contextual-caret provenance, and the exact source-boundary booleans."
+  "sourceReview": "Complete for the stated boundary. Read sys/share/posixregex.c regex_match, glibc 2.39 regcomp.c parse_dup_op and regexec.c get_subexp/check_arrival, options.c msgtype_type/add_autopickup_exception, and the recorder libc oracle contract. The supported corpus has 135 recorder-libc regex comparisons, five vpline comparisons, six isolated resource cases, and 28 fresh MSGTYPE segments. Finite brace-repeat capture provenance is identified by a named before-effect stop and an open quality deferral."
 }
