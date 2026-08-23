@@ -2780,6 +2780,11 @@
         },
         {
           "name": "startup-menucolor-to-menu-attributes-and-optionsfull",
+          "status": "closed",
+          "closedBy": "d9d43d38703b5ba20743e5f7e7f0422ec6627f18"
+        },
+        {
+          "name": "startup-perminv-mode-to-iflags",
           "status": "queued",
           "closedBy": null
         }
