@@ -3,6 +3,9 @@ import test from 'node:test';
 
 import {
     A_DEX,
+    AUTOUNLOCK_FORCE,
+    AUTOUNLOCK_KICK,
+    AUTOUNLOCK_UNTRAP,
     BLINDED,
     CONFUSION,
     FUMBLING,
@@ -534,16 +537,9 @@ test('the locked arm refuses what doopen_indir cannot answer for', async () => {
         ['skeleton key', 'door unlocking tool', carrying(SKELETON_KEY)],
         ['lock pick', 'door unlocking tool', carrying(LOCK_PICK)],
         ['credit card', 'door unlocking tool', carrying(CREDIT_CARD)],
-        // lock.c:884-893 needs AUTOUNLOCK_KICK. js/options.js keeps
-        // optfn_autounlock()'s do_init value, AUTOUNLOCK_APPLY_KEY, and
-        // leaves an explicit autounlock value uninterpreted, so any setting
-        // refuses. `!autounlock` reaches the same term through
-        // applyBooleanOption(); refusing it gives up a case C treats like
-        // the default, which is the price of not parsing the option.
-        ['autounlock kick', 'autounlock setting',
-            (state) => { state.flags.autounlock = 'kick'; }],
-        ['autounlock negated', 'autounlock setting',
-            (state) => { state.flags.autounlock = false; }],
+        // lock.c:884-893 needs AUTOUNLOCK_KICK and a live ynq() prompt.
+        ['autounlock kick', 'autounlock kick prompt',
+            (state) => { state.flags.autounlock = AUTOUNLOCK_KICK; }],
     ];
 
     for (const [label, reason, apply] of refusals) {
@@ -577,6 +573,22 @@ test('the locked arm still runs for the states it owns', async () => {
                 otyp: PICK_AXE, oclass: TOOL_CLASS, owt: 100, quan: 1,
                 nobj: state.invent,
             };
+        }],
+        // lock.c:876 gates the tail on any nonzero mask, but UNTRAP and FORCE
+        // have no door arm. A carried key still does nothing when APPLY_KEY is
+        // absent, which keeps the inventory refusal scoped to the active bit.
+        ['no autounlock with a skeleton key', locked, 'k', (state) => {
+            state.flags.autounlock = 0;
+            state.invent = {
+                otyp: SKELETON_KEY, oclass: TOOL_CLASS, owt: 3, quan: 1,
+                nobj: state.invent,
+            };
+        }],
+        ['door-inert untrap', locked, 'k', (state) => {
+            state.flags.autounlock = AUTOUNLOCK_UNTRAP;
+        }],
+        ['door-inert force', locked, 'k', (state) => {
+            state.flags.autounlock = AUTOUNLOCK_FORCE;
         }],
         // lock.c reaches the autounlock tail only from the message switch, so
         // a key changes nothing at a door that is merely closed.
@@ -851,7 +863,7 @@ test('a suppressed pull drops the refusals doopen_indir owns', async () => {
         }],
         ['autounlock setting', (state, door) => {
             door.flags = door.doormask = D_LOCKED;
-            state.flags.autounlock = 'kick';
+            state.flags.autounlock = AUTOUNLOCK_KICK;
         }],
     ];
 

@@ -462,22 +462,7 @@ test('the menu counts final status highlight rows without changing rules',
 
 test('the menu refuses an option whose value it cannot derive', async () => {
     const state = await startConfiguredGame(STOCK);
-    // parseNethackrc() keeps an unported compound option's raw text under
-    // flags[<option name>]; one of the shown options stores its parsed value
-    // in that same field, so that one is caught by type instead.
-    const raw = [['autounlock', 'flags', 'autounlock']];
-    for (const [name, owner, field] of raw) {
-        const saved = state[owner][field];
-        state[owner][field] = 'kick';
-        assert.throws(
-            () => dosetMenuItems(state, menuHelpers(), false),
-            (error) => error instanceof UnsupportedOptionMenuError
-                && error.what === `parseoptions() to interpret '${name}'`,
-            name,
-        );
-        state[owner][field] = saved;
-    }
-    // versinfo is a fifth option whose parsed home is its own name. Its parse
+    // versinfo is another option whose parsed home is its own name. Its parse
     // arm sits behind the test for a value, so `OPTIONS=versinfo` -- which C
     // answers with a config error that leaves flags.versinfo at its default --
     // reaches applyBooleanOption() here and leaves a boolean in that field.
@@ -611,7 +596,7 @@ test('every shown compound option guards its unparsed raw text', async () => {
     // covers, and the loop above never reaches their guards.
     assert.deepEqual(needsGuard.slice().sort(), [
         ...UNPARSED_COMPOUND_OPTIONS,
-        'autounlock', 'suppress_alert',
+        'suppress_alert',
     ].sort());
     // The other-settings rows need no guard: each counts live state instead
     // of reading an option field, so raw text under their names is inert.

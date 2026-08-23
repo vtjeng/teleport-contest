@@ -276,13 +276,15 @@ function notClosedMessage(door) {
 // above it cannot run.
 //
 // Covered: the newsym() refresh, the `!(doormask & D_CLOSED)` message switch,
-// and the `door is known to be CLOSED` roll with both of its outcomes.
+// its no-action autounlock fallthrough, and the `door is known to be CLOSED`
+// roll with both of its outcomes.
 //
 // Not covered, because js/hack.js refuses each state before the walk is
 // admitted: nohands(), u.utrap, stumble_on_door_mimic(), the Confusion and
 // Stunned `res = ECMD_TIME`, drawbridges and portcullises, a square that is
-// not a door, the message switch's autounlock tail, verysmall(), and the
-// D_TRAPPED half of the success arm with its b_trapped() and shop
+// not a door, the message switch's acting apply-key and kick arms,
+// verysmall(), and the D_TRAPPED half of the success arm with its b_trapped()
+// and shop
 // add_damage() bookkeeping.
 //
 // update_mapseen_for() and the `res = ECMD_TIME` beside newsym() are left out
@@ -310,11 +312,10 @@ export async function doopen_indir(x, y, state = game, env = {}) {
             messageAt(`This door${notClosedMessage(door)}.`, x, y, state),
             state,
         );
-        // lock.c:876-894 then offers a locked door to flags.autounlock. Its
-        // apply-key arm needs autokey(TRUE) to find a skeleton key, lock pick
-        // or credit card, and its kick arm needs AUTOUNLOCK_KICK and a ynq()
-        // prompt; js/hack.js refuses both before the walk is admitted, so the
-        // C `locked` flag that gates them has no reader here.
+        // lock.c:876-894 then offers a locked door to flags.autounlock.
+        // js/hack.js refuses the acting apply-key and kick branches before the
+        // walk is admitted. Zero, UNTRAP, FORCE, and APPLY_KEY without a tool
+        // do nothing after this message and return here exactly as C does.
         return ECMD_OK;
     }
 

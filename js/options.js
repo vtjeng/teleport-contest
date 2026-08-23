@@ -124,6 +124,7 @@ import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
     encodeUtf8Text,
+    fuzzymatch,
     letter,
     lowc,
     str_start_is,
@@ -1156,6 +1157,70 @@ function setFruit(result, statement) {
         op,
         result.iflags.wc_eight_bit_input,
     );
+}
+
+// C ref: options.c optfn_autounlock() (1066-1168), its startup do_set arm.
+// A missing or empty value selects the source default (apply-key), or none
+// when negated. Nonempty lists choose plus when the text contains any plus;
+// otherwise they split on spaces. trimspaces() handles the edge of each token,
+// while fuzzymatch() permits separators inside apply-key only when plus already
+// separates the list.
+function optfn_autounlock(result, statement, negated) {
+    const op = string_for_opt(statement, true);
+    if (op === '') {
+        result.flags.autounlock = negated ? 0 : AUTOUNLOCK_APPLY_KEY;
+        return;
+    }
+
+    let newflags = 0;
+    const separator = op.includes('+') ? '+' : ' ';
+    let remainder = op;
+    for (;;) {
+        const current = trimspaces(remainder);
+        const split = current.indexOf(separator);
+        const token = trimspaces(
+            split < 0 ? current : current.slice(0, split),
+        );
+        let matched = false;
+        if (str_start_is('none', token, true)) {
+            negated = true;
+            matched = true;
+        }
+        for (let index = 0; index < unlocktypes.length && !matched; ++index) {
+            const candidate = unlocktypes[index];
+            if (str_start_is(candidate, token, true)
+                || fuzzymatch(token, candidate, ' -_', true)) {
+                matched = true;
+                // Preserve the source's case-sensitive dispatch after its
+                // case-insensitive match. An uppercase token matches above but
+                // reaches the default arm and is therefore invalid.
+                switch (token[0]) {
+                case 'u': newflags |= AUTOUNLOCK_UNTRAP; break;
+                case 'a': newflags |= AUTOUNLOCK_APPLY_KEY; break;
+                case 'k': newflags |= AUTOUNLOCK_KICK; break;
+                case 'f': newflags |= AUTOUNLOCK_FORCE; break;
+                default: matched = false; break;
+                }
+            }
+        }
+        if (!matched) {
+            configErrorAdd(
+                result, `Invalid value for "autounlock": "${token}"`,
+            );
+            return;
+        }
+        if (split < 0) break;
+        remainder = current.slice(split + 1);
+    }
+
+    if (negated && newflags !== 0) {
+        configErrorAdd(
+            result,
+            'Invalid value combination for "autounlock": \'none\' with some',
+        );
+        return;
+    }
+    result.flags.autounlock = newflags;
 }
 
 // C ref: options.c optfn_boulder() (1171-1244), its startup do_set arm.
@@ -4027,6 +4092,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setPettype(result, statement, negated);
     } else if (name === 'fruit') {
         setFruit(result, statement);
+    } else if (name === 'autounlock') {
+        optfn_autounlock(result, statement, negated);
     } else if (name === 'boulder') {
         optfn_boulder(result, statement);
     } else if (name === 'warnings') {
@@ -5227,9 +5294,9 @@ function symsetValue(state, set, withHandling) {
 // Membership is every shown compound option that parseNethackrc() leaves as
 // raw text under flags[<option name>] and whose handler above reads some
 // other field, so the raw text sits beside the value rather than replacing
-// it.  Where the raw text lands in the very field the handler reads --
-// autounlock, suppress_alert and versinfo -- there is nothing left
-// to compare against, so those three are guarded by type inside
+// it. Where the raw text lands in the very field the handler reads --
+// suppress_alert and versinfo -- there is nothing left to compare against, so
+// those two are guarded by type inside
 // their handlers instead and are not members.  The other-settings rows need
 // neither guard: each counts live state rather than reading an option field.
 // scripts/options-menu.test.mjs derives the whole rule from parseNethackrc(),

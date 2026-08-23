@@ -7,6 +7,7 @@ import {
     A_STR,
     ALTAR,
     AUTOUNLOCK_APPLY_KEY,
+    AUTOUNLOCK_KICK,
     BLINDED,
     COLD_RES,
     CONFUSION,
@@ -1243,17 +1244,19 @@ function requireAutoopenClosedDoor(x, y, state, run) {
         // hero-directed apply, but its autounlock entry stops on the nonzero
         // coordinates this call site would pass, so removing this refusal
         // would fail open.
-        if (carriesUnlockingTool(state)) {
+        const autounlock = state.flags?.autounlock
+            ?? AUTOUNLOCK_APPLY_KEY;
+        if ((autounlock & AUTOUNLOCK_APPLY_KEY)
+            && carriesUnlockingTool(state)) {
             throw new UnsupportedHeroMoveBoundaryError('door unlocking tool');
         }
         // lock.c:884-893. AUTOUNLOCK_KICK asks "Kick it?" through ynq() and
-        // queues dokick. options.c:1074 initializes flags.autounlock to
-        // AUTOUNLOCK_APPLY_KEY, whose arm the tool test above has already
-        // taken, so that one value is the only state whose bits this port
-        // knows; every other value, including the 0 that `autounlock:none`
-        // sets, reaches an unported arm.
-        if (state.flags?.autounlock !== AUTOUNLOCK_APPLY_KEY) {
-            throw new UnsupportedHeroMoveBoundaryError('autounlock setting');
+        // queues dokick. Zero, UNTRAP and FORCE have no acting door arm, and
+        // APPLY_KEY without a tool falls through, so those values return after
+        // doopen_indir()'s locked-door message. Stop only when the kick prompt
+        // would run.
+        if (autounlock & AUTOUNLOCK_KICK) {
+            throw new UnsupportedHeroMoveBoundaryError('autounlock kick prompt');
         }
     }
 }
