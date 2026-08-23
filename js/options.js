@@ -501,6 +501,10 @@ function defaultResult() {
             // options.c optfn_player_selection() leaves this zeroed field
             // alone during do_init; zero is VIA_DIALOG.
             wc_player_selection: VIA_DIALOG,
+            // options.c optfn_term_cols() and optfn_term_rows() leave these
+            // zeroed instance-flags fields alone during do_init.
+            wc2_term_cols: 0,
+            wc2_term_rows: 0,
             // initoptions_init()'s TTY_GRAPHICS arm; this build is tty.
             prevmsg_window: 's',
             menuinvertmode: 1,
@@ -2759,6 +2763,19 @@ function atoi(str) {
     return Number(BigInt.asIntN(32, wide));
 }
 
+// C ref: the recorder's LP64 glibc atol().  Unlike atoi(), the option handlers
+// print the long result before narrowing an accepted value to int.  Keep the
+// result as BigInt so overflow diagnostics retain LONG_MIN or LONG_MAX exactly.
+function atol(str) {
+    const digits = String(str).match(/^[\t\n\v\f\r ]*[+-]?\d+/u);
+    let value = digits ? BigInt(digits[0].trim().replace(/^\+/u, '')) : 0n;
+    const longMax = (1n << 63n) - 1n;
+    const longMin = -(1n << 63n);
+    if (value > longMax) value = longMax;
+    else if (value < longMin) value = longMin;
+    return value;
+}
+
 // C ref: options.c optfn_number_pad() (2573-2645), its do_set arm.  These
 // fields affect cmd_from_ecname() during tutorial generation and the same
 // source-ordered runtime bindings.  optlist.h:535-536 gives the option
@@ -2974,6 +2991,29 @@ function optfn_vary_msgcount(result, statement, negated) {
     } else if (negated) {
         bad_negation(result, 'vary_msgcount');
     }
+}
+
+// C ref: options.c optfn_term_cols() and optfn_term_rows() (4239-4329),
+// their startup do_set arms.  optlist.h rejects negation before either
+// handler.  A positive value is mandatory, parsed by LP64 atol(), and valid
+// only below LARGEST_INT; rejected values preserve the installed dimension.
+function setTermSize(result, statement, name, field) {
+    const op = string_for_opt(statement, false, result);
+    if (op === '') return;
+    const value = atol(op);
+    if (value <= 0n || value >= BigInt(LARGEST_INT)) {
+        configErrorAdd(result, `Invalid ${name}: ${value}`);
+        return;
+    }
+    result.iflags[field] = Number(value);
+}
+
+function optfn_term_cols(result, statement) {
+    setTermSize(result, statement, 'term_cols', 'wc2_term_cols');
+}
+
+function optfn_term_rows(result, statement) {
+    setTermSize(result, statement, 'term_rows', 'wc2_term_rows');
 }
 
 // C ref: options.c optfn_pickup_burden() (3266-3291), the switch its do_set
@@ -4220,6 +4260,10 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_tile_width(result, statement, negated);
     } else if (name === 'vary_msgcount') {
         optfn_vary_msgcount(result, statement, negated);
+    } else if (name === 'term_cols') {
+        optfn_term_cols(result, statement);
+    } else if (name === 'term_rows') {
+        optfn_term_rows(result, statement);
     } else if (name === 'pickup_burden') {
         setPickupBurden(result, statement);
     } else if (name === 'menustyle') {
@@ -5438,6 +5482,10 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         ? `${state.iflags.wc_scroll_amount}` : 'default'),
     scroll_margin: (state) => (state.iflags.wc_scroll_margin
         ? `${state.iflags.wc_scroll_margin}` : 'default'),
+    term_cols: (state) => (state.iflags.wc2_term_cols
+        ? `${state.iflags.wc2_term_cols}` : 'default'),
+    term_rows: (state) => (state.iflags.wc2_term_rows
+        ? `${state.iflags.wc2_term_rows}` : 'default'),
     tile_height: (state) => (state.iflags.wc_tile_height
         ? `${state.iflags.wc_tile_height}` : 'default'),
     tile_width: (state) => (state.iflags.wc_tile_width
