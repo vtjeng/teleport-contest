@@ -2710,8 +2710,8 @@
         },
         {
           "name": "audit-msgtype-stop-input-state-correction",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d972be97139c52e560f124abea3c40ef183b13fc"
         },
         {
           "name": "audit-regex-evaluator-semantics-and-resource-bounds",
