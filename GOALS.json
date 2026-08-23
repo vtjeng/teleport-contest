@@ -2785,6 +2785,11 @@
         },
         {
           "name": "startup-perminv-mode-to-iflags",
+          "status": "closed",
+          "closedBy": "13f9b702ada21ac315c05f32532fbb47b671b24b"
+        },
+        {
+          "name": "startup-glyph-customization-to-first-command",
           "status": "queued",
           "closedBy": null
         }

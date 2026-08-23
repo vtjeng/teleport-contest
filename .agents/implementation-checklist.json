@@ -1,70 +1,174 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "The supported ASCII REG_NOSUB boundary is source-reviewed and validated. Repeats for which glibc duplicates a captured subtree consumed by a backreference now stop before matching and are tracked in posix-finite-repeat-backreference-arrival; the audit proved that glibc's compiled-node arrival state cannot be represented by the existing capture-value heuristic without false positives and negatives.",
-  "commitChecked": "edfcdd2a65b23731e37f1a926d13554c1eb00479",
+  "mode": "implementation",
+  "reason": "The full startup glyph customization path is live on the initial map but unported. Work remains across optfn_glyph parsing, generated concrete and symbolic catalogs, custom Unicode/color state, symbol-set ownership, object shuffle ordering, and application to every reachable glyph range.",
+  "commitChecked": "13f9b702ada21ac315c05f32532fbb47b671b24b",
   "boundary": {
     "goalId": "options-config-parser",
-    "startingCommit": "7eede9da56a3cffe2c82294a07cc039706f69a27",
-    "startingEvent": "A valid ASCII POSIX ERE installed by startup MSGTYPE or AUTOPICKUP_EXCEPTION is matched through the recorder-glibc REG_EXTENDED|REG_NOSUB contract.",
-    "endingEvent": "Matching selects the same boolean and MSGTYPE action as recorder glibc within the committed direct and reference time/memory budgets at exact 255-byte pattern and message limits.",
-    "validInputs": "Direct ASCII EREs, supported reference-aware EREs, star/optional/single-occurrence referenced repetitions, suffix-reaching correlated and zero-minimum reference patterns, and unanchored direct/reference wide-frontier patterns within the source byte limits.",
-    "observables": "Match boolean and installed MSGTYPE action, complete fresh screens/cursors and PRNG calls, plus isolated wall time and maxRSS for every declared exact-boundary resource case.",
-    "exclusions": "A compile-surviving repeat which makes glibc duplicate a captured subtree used by a compile-surviving backreference stops at UnsupportedPosixDuplicatedCaptureError and is tracked by posix-finite-repeat-backreference-arrival. This includes finite maxima above one, plus, and positive-minimum unbounded intervals; it excludes star, optional, {0}, {1}, {0,1}, and {0,}, and ignores every capture/reference subtree erased by {0}. Non-ASCII C.UTF-8 locale matching, runtime autopickup object filtering, interactive MSGTYPE editing/serialization, USER_SOUNDS, and behavior after the next message/input boundary remain named before-effect boundaries."
+    "startingCommit": "13f9b702ada21ac315c05f32532fbb47b671b24b",
+    "startingEvent": "Startup parseoptions() dispatches a glyph compound option from OPTIONS in the player configuration.",
+    "endingEvent": "initoptions_finish and moveloop preparation have installed and applied every customization, and the first complete map and next command boundary have been captured.",
+    "validInputs": "Concrete G_* glyph identifiers; S_* cmap, object-class, and monster-class identifiers; selected default or rogue symbol sets; Unicode and enhanced/named color specifications; duplicates, malformed values, negation, and source ordering within the recorder build.",
+    "observables": "Configuration diagnostics and waits; installed option, symbol-set, and custom-map state; PRNG calls including object description shuffling; complete 24x80 screens with attributes; cursors; and the first input boundary.",
+    "exclusions": "Interactive option editing, later glyph changes, GUI rendering, WIZKIT, MENUCOLOR, and SYMBOLS=G_* application remain outside the boundary. SYMBOLS validation/serialization without application is an explicit control. optionsfull retains the source '(to be done)' getter result."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "sys/share/posixregex.c regex_match delegates to glibc regexec; glibc capture endpoint selection defines the finite-repeat result; options.c msgtype_type and add_autopickup_exception are the installed consumers.",
-    "dispatchTablesAndCatalogs": "The shared exact-boundary fixture catalog, its complete budget map, 255-byte source limits, repeat endpoint states, referenced capture ids, candidate starts, and absolute suffix constraints define the audited families.",
-    "reachableHelpers": "The audit supplied direct-libc/live MSGTYPE discriminators for the endpoint defect and four suffix-reaching exact-boundary families that separately exercise correlated state, zero-minimum state, direct candidate ordering, and reference candidate reuse.",
-    "javascriptCrossCheck": "Inspect js/posixregex.js repeat endpoint/continuation projections, direct/reference sequence search and suffix feasibility, plus all shared fixture/oracle/resource consumers for masked paths, separate catalogs, aborts, or guessed booleans.",
-    "remainingLimits": "The catalog names literal-suffix guard coverage separately from suffix-reaching direct memo, reference memo, zero-minimum, and correlated-frontier cases. Exact finite-copy OPEN/CLOSE arrival provenance remains the explicit posix-finite-repeat-backreference-arrival deferral rather than a guessed boolean."
+    "upstreamEntryPoints": "options.c optfn_glyph; glyphs.c glyphrep_to_custom_map_entries, glyph_find_core, parse_id, add_custom_urep_entry, add_custom_nhcolor_entry, and apply_customizations; initoptions_finish and the moveloop pending-customization path.",
+    "dispatchTablesAndCatalogs": "optlist.h glyph row, generated glyph identifiers and ranges, cmap symbol catalogs, object classes, monster classes, primary/rogue symbol-set state, enhanced color names, and object description index tables.",
+    "reachableHelpers": "Trace every parse and expansion branch from optfn_glyph through queued custom entries, reset_glyphmap/application, and the first display; include diagnostics, replacement, ordering, and object-shuffle dependencies before map output.",
+    "javascriptCrossCheck": "Search options.js, symbols.js, display.js, allmain.js, generated glyph/symbol data, and explicit unported refusals for raw glyph retention, duplicate state owners, skipped ranges, and before-effect boundaries.",
+    "remainingLimits": "The catalog and full application ranges still require source review. Fresh strict witnesses currently prove only one concrete G_* hero glyph and one S_human class expansion; passing those samples is not completeness evidence."
   },
   "entries": [
     {
-      "candidate": "Duplicated-repeat capture and backreference arrival provenance",
-      "reachability": "A repeat makes glibc duplicate a captured subtree whose value a later backreference consumes, so distinct OPEN/CLOSE occurrences can reach the same input and capture values.",
-      "owner": "js/posixregex.js reference repeat evaluation",
-      "effects": "glibc validates distinct compiled OPEN/CLOSE occurrences with check_arrival before a backreference can affect MSGTYPE or AUTOPICKUP_EXCEPTION.",
-      "evidence": "Systematic recorder-libc comparison found both false positives and false negatives in capture-value endpoint heuristics. regex_compile still accepts the source-valid syntax, while regex_match raises UnsupportedPosixDuplicatedCaptureError before a rule action is selected; runSegment preserves the supported prefix as a named boundary.",
-      "status": "later",
-      "remaining": "Port the lazy occurrence-aware state log and backreference arrival cache recorded by posix-finite-repeat-backreference-arrival, then restore its libc, live-message, and resource matrices."
+      "candidate": "optfn_glyph startup syntax and diagnostics",
+      "reachability": "OPTIONS=glyph reaches the compound handler during startup, including missing, empty, negated, malformed, and duplicate values.",
+      "owner": "js/options.js optfn_glyph",
+      "effects": "Reports exact source diagnostics, preserves or replaces queued state in source order, and leaves the source getter placeholder visible.",
+      "evidence": "options.c optfn_glyph and a fresh pre-slice malformed-row divergence.",
+      "status": "missing",
+      "remaining": "Port the complete startup do_set/get_val behavior and pin duplicate and later-line precedence."
     },
     {
-      "candidate": "Reference late-constraint exact-boundary resource bound",
-      "reachability": "A valid 255-byte suffix-reaching reference pattern materializes large repeat/capture frontiers before downstream references and fixed suffix structure decide viability.",
-      "owner": "js/posixregex.js reference matcher",
-      "effects": "Synchronous matching exceeds the committed 2,000 ms and 128 MiB budget while producing the correct boolean.",
-      "evidence": "A correlated near-miss reached about 177 MiB, and a zero-minimum valid match reached about 4.4 seconds/943 MiB; recorder libc agreed on both booleans within the budget.",
-      "status": "done",
-      "remaining": "None; lazy continuation testing and incremental frontier deduplication preserve exact booleans. The zero-minimum valid match measured 152 ms/107 MiB and the correlated near-miss 859 ms/122 MiB under their 2,000 ms/128 MiB budgets."
+      "candidate": "Concrete G_* glyph identifier catalog",
+      "reachability": "A case-sensitive G_ prefix selects one generated concrete glyph id, with case-insensitive lookup of the remaining source name.",
+      "owner": "js/glyphs.js and generated glyph-id data",
+      "effects": "Queues Unicode and/or color customization for exactly one concrete glyph.",
+      "evidence": "Fresh seed 940101 reaches G_male_healer on the first map with exact PRNG/cursor counts and a hero-cell attribute mismatch.",
+      "status": "missing",
+      "remaining": "Generate the full source catalog and implement exact lookup, bounds, and error behavior."
     },
     {
-      "candidate": "Direct suffix-aligned exact-boundary search",
-      "reachability": "A nullable unanchored direct pattern has a rightmost suffix-aligned match after expensive earlier candidate starts.",
-      "owner": "js/posixregex.js direct matcher",
-      "effects": "Left-to-right candidate work exceeds the committed 1,000 ms budget despite REG_NOSUB exposing only a boolean.",
-      "evidence": "The 255-byte wide-frontier pattern on a 255-byte suffix-reaching input matched like libc but independently measured about 1.2 seconds, over budget.",
-      "status": "done",
-      "remaining": "None; REG_NOSUB tries the suffix-aligned rightmost candidate first while every evaluator call retains its actual matchStart. The exact case measured 2.5 ms/49 MiB under its 1,000 ms/96 MiB budget."
+      "candidate": "S_* cmap symbol expansion",
+      "reachability": "An S_ identifier naming a cmap symbol expands through every concrete glyph range represented by that symbol.",
+      "owner": "js/glyphs.js and js/symbols.js",
+      "effects": "Queues source-ordered customization entries for all matching cmap glyphs in the selected symbol-set context.",
+      "evidence": "glyphs.c symbolic expansion branches; S_room is a non-discriminating Unicode-to-Unicode recorder control and cannot stand alone as proof.",
+      "status": "missing",
+      "remaining": "Port the complete cmap fan-out and validate a source-visible discriminator plus range-state assertions."
     },
     {
-      "candidate": "Suffix-reaching resource-path matrix",
-      "reachability": "Every declared exact-boundary fixture should exercise the evaluator path named by its case rather than exit through the adjacent literal-suffix guard.",
-      "owner": "scripts/startup-regex-fixtures.mjs, direct libc oracle, and resource runner/test",
-      "effects": "Masked cases report millisecond green budgets while leaving direct memo, reference memo, zero-minimum, and correlated-frontier paths unmeasured.",
-      "evidence": "All committed patterns end in b$ while their inputs end in a; both matchers return before allocating memo or entering candidate loops.",
-      "status": "done",
-      "remaining": "None; the catalog names one guard and four suffix-reaching 255-byte cases for direct memo, reference memo, zero-minimum, and correlated-frontier evaluation, each with a libc boolean and isolated budget."
+      "candidate": "S_* object-class expansion",
+      "reachability": "An S_ identifier naming an object class expands over every matching object glyph, including description-index-sensitive objects.",
+      "owner": "js/glyphs.js with js/objects.js data",
+      "effects": "Queues customization records whose application must follow the recorder's shuffled object description indexes.",
+      "evidence": "glyphs.c object-class branch and moveloop pending_customizations ordering.",
+      "status": "missing",
+      "remaining": "Trace and port the full class fan-out and prove ordering around object description shuffling."
     },
     {
-      "candidate": "Single resource-case catalog owner",
-      "reachability": "Adding an exact-boundary fixture should automatically reach the libc oracle, resource runner, and output-name assertion.",
-      "owner": "scripts/startup-regex-fixtures.mjs and resource harness",
-      "effects": "Separate formula, budget, and expected-name catalogs can silently omit measurement while tests stay green.",
-      "evidence": "The oracle iterates the fixture array, but the resource runner iterates a separate budget map and its test copies expected names again.",
-      "status": "done",
-      "remaining": "None; the dependency-free fixture module owns formulas, booleans, budgets, resource enumeration, and derived output names. The fixed-point case remains separate and the test asserts complete ordered set equality."
+      "candidate": "S_* monster-class expansion",
+      "reachability": "An S_ identifier naming a monster class expands over every matching monster glyph and sex/form variant in the generated ranges.",
+      "owner": "js/glyphs.js with js/monsters.js data",
+      "effects": "Queues customization for every source-selected monster glyph before first display.",
+      "evidence": "glyphs.c monster-class branch; fresh seed 940105 S_human is a strict initial-map discriminator.",
+      "status": "missing",
+      "remaining": "Port the complete generated-range fan-out and validate representative class state and screen effects."
+    },
+    {
+      "candidate": "Primary and rogue symbol-set ownership",
+      "reachability": "Glyph names and S_* expansion resolve against gs.symset_which_set and the last loaded primary or rogue symbol set, including unnamed/default and failed named selection.",
+      "owner": "js/symbols.js and js/glyphs.js",
+      "effects": "Selects the correct base symbols, handling flags, colors, and diagnostics without creating a duplicate owner.",
+      "evidence": "symbols.c symbol-set state and glyphs.c selected-set branches.",
+      "status": "missing",
+      "remaining": "Trace default, named, missing, and rogue-set cases through queued customization and application."
+    },
+    {
+      "candidate": "Unicode customization records",
+      "reachability": "A valid U+ codepoint suffix creates or replaces a custom Unicode representation entry for each selected glyph.",
+      "owner": "js/glyphs.js add_custom_urep_entry",
+      "effects": "Stores source-shaped codepoint and representation metadata and changes the first map character/attributes where visible.",
+      "evidence": "glyphs.c add_custom_urep_entry and strict U+2603 fresh witnesses.",
+      "status": "missing",
+      "remaining": "Port validation, replacement, ordering, reset, and application for valid and malformed Unicode forms."
+    },
+    {
+      "candidate": "Enhanced, named, RGB, and black-marker color records",
+      "reachability": "A glyph value supplies an enhanced color name or RGB triple, including the source marker that distinguishes explicit black/default handling.",
+      "owner": "js/glyphs.js and js/coloratt.js",
+      "effects": "Stores source-shaped custom color state and changes glyph attributes without changing unrelated symbol state.",
+      "evidence": "glyphs.c add_custom_nhcolor_entry and coloratt.c enhanced color parsing; strict fresh RGB witnesses.",
+      "status": "missing",
+      "remaining": "Port every accepted color family, rejection, marker, replacement, and canonical value."
+    },
+    {
+      "candidate": "Duplicate replacement and source ordering",
+      "reachability": "Several glyph rows or S_* fan-outs target the same concrete glyph within one line or across later lines.",
+      "owner": "js/glyphs.js custom entry lists",
+      "effects": "Source list insertion/replacement order determines the final Unicode/color state before application.",
+      "evidence": "glyphs.c add_custom_* and apply_customizations list traversal.",
+      "status": "missing",
+      "remaining": "Pin right-to-left parse order, later-line order, and independent Unicode/color replacement."
+    },
+    {
+      "candidate": "Application across every concrete glyph range",
+      "reachability": "initoptions_finish resets the glyph map and applies queued entries before the first display.",
+      "owner": "js/glyphs.js apply_customizations and js/display.js",
+      "effects": "Updates every source range and preserves defaults for untouched glyphs, producing exact map characters and attributes.",
+      "evidence": "glyphs.c reset_glyphmap/apply_customizations and display consumers.",
+      "status": "missing",
+      "remaining": "Inventory all generated ranges and validate state plus complete first-map output, not only hero cells."
+    },
+    {
+      "candidate": "Pending customization and object shuffle order",
+      "reachability": "Object description indexes are randomized during startup before pending glyph customizations that depend on them are installed.",
+      "owner": "js/allmain.js moveloop preparation and js/glyphs.js",
+      "effects": "Preserves source PRNG order and maps object-class customizations to the post-shuffle description indexes.",
+      "evidence": "allmain.c pending_customizations path and objects oc_descr_idx initialization.",
+      "status": "missing",
+      "remaining": "Port the exact lifecycle hook and validate PRNG logs and object customization state through first command."
+    },
+    {
+      "candidate": "Getter, config formatter, and optionsfull boundary",
+      "reachability": "The configured glyph row is queried by existing option display/config formatting paths.",
+      "owner": "js/options.js",
+      "effects": "Matches the source '(to be done)' get_val behavior and does not falsely claim interactive editing or serialization support.",
+      "evidence": "options.c optfn_glyph getter branch and TTY capability filtering.",
+      "status": "missing",
+      "remaining": "Pin the exact source placeholder and named before-effect exclusions."
+    },
+    {
+      "candidate": "SYMBOLS=G_* validation without application",
+      "reachability": "A SYMBOLS row can name G_* syntax through the symbol parser, but this boundary does not make it an OPTIONS=glyph customization.",
+      "owner": "js/symbols.js",
+      "effects": "Validates or retains source symbol-set metadata without changing the first map through the glyph customization list.",
+      "evidence": "symbols.c parser versus options.c optfn_glyph dispatch separation.",
+      "status": "undecided",
+      "remaining": "Trace the exact nonapplication contract and add a fresh or focused control."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "Complete for the stated boundary. Read sys/share/posixregex.c regex_match, glibc 2.39 regcomp.c parse_dup_op and regexec.c get_subexp/check_arrival, options.c msgtype_type/add_autopickup_exception, and the recorder libc oracle contract. The supported corpus has 144 recorder-libc regex comparisons, five vpline comparisons, six isolated resource cases, and 28 fresh MSGTYPE segments. Duplicated capture occurrence provenance is identified by a named before-effect stop and an open quality deferral."
+  "missingWorkByOwner": [
+    {
+      "group": "Generated glyph identity and expansion",
+      "candidates": [
+        "Concrete G_* glyph identifier catalog",
+        "S_* cmap symbol expansion",
+        "S_* object-class expansion",
+        "S_* monster-class expansion"
+      ],
+      "next": "Generate complete source catalogs and implement glyph_find_core and parse_id expansion without hand-copied partial tables."
+    },
+    {
+      "group": "Parser and customization state",
+      "candidates": [
+        "optfn_glyph startup syntax and diagnostics",
+        "Primary and rogue symbol-set ownership",
+        "Unicode customization records",
+        "Enhanced, named, RGB, and black-marker color records",
+        "Duplicate replacement and source ordering"
+      ],
+      "next": "Port source-shaped option parsing and sole custom-entry ownership, then pin diagnostics and replacement order."
+    },
+    {
+      "group": "Startup application and display",
+      "candidates": [
+        "Application across every concrete glyph range",
+        "Pending customization and object shuffle order",
+        "Getter, config formatter, and optionsfull boundary",
+        "SYMBOLS=G_* validation without application"
+      ],
+      "next": "Install queued state at the source lifecycle point and validate PRNG, complete maps, attributes, cursors, getters, and excluded syntax."
+    }
+  ],
+  "sourceReview": "Incomplete. The selector traced optfn_glyph, glyphrep_to_custom_map_entries, glyph_find_core, parse_id, custom Unicode/color entry creation, initoptions_finish, and the pending-customization hook sufficiently to prove the boundary and strict G_* and S_* witnesses. The worker must still enumerate every generated glyph range and every valid input family, confirm source list and replacement semantics, and identify all JavaScript stops or duplicate owners before readiness."
 }
