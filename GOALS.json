@@ -2707,6 +2707,16 @@
           "name": "audit-regex-capture-msgstop-followup",
           "status": "closed",
           "closedBy": "1bfbf02bc39baa21fa65de8c24b538d39b7875ba"
+        },
+        {
+          "name": "audit-msgtype-stop-input-state-correction",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "audit-regex-evaluator-semantics-and-resource-bounds",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
