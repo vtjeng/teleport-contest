@@ -2752,6 +2752,11 @@
           "name": "startup-roguesymset-to-config-diagnostics-and-optionsfull",
           "status": "closed",
           "closedBy": "9efa85e3b9a3b9eb8364eaf1b1ac22a8433625a2"
+        },
+        {
+          "name": "startup-mouse-support-to-config-diagnostics",
+          "status": "closed",
+          "closedBy": "01ee7e410363f1768c4795888dcf8804780a9554"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
