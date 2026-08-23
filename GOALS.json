@@ -2685,8 +2685,8 @@
         },
         {
           "name": "startup-suppress-alert-to-optionsfull",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "f2bf865df7428304ebacad1c6bb99a29ac352f4e"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
