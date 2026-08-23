@@ -4156,7 +4156,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "d919556a672ade43273342439ae8547dd49b936f",
       "detail": "js/options.js add_autopickup_exception() must retain each compiled regex on ga.apelist, and js/posixregex.js regex_compile()/regex_match() must match recorder glibc for valid/invalid numeric backreferences, word/space/boundary escapes, and ranges whose leading literal endpoint is ]. Close with direct source-pinned tests plus fresh MSGTYPE/config differentials."
     },
@@ -4165,7 +4165,7 @@
       "area": "commands",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "d919556a672ade43273342439ae8547dd49b936f",
       "detail": "js/tty_message.js ttyPlineCore() must feed MSGTYPE, rendering, wrapping, and previous-message state the same BUFSZ-normalized vpline() byte string, and MSGTYP_STOP must clear the message window after its explicit wait as tty_display_nhwindow() does. Close with fresh long-message and post-wait screen/cursor differentials."
     },
@@ -4174,7 +4174,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "d919556a672ade43273342439ae8547dd49b936f",
       "detail": "scripts/startup-msgtype.test.mjs must distinguish urgent STOP lookup from OVERRIDE_MSGTYPE STOP bypass and match every ASCII POSIX class; scripts/startup-suppress-alert.test.mjs must pin js/version.js get_feature_notice_ver() at signed-long saturation. Close these assertions with the corrective implementation slices."
     },
@@ -4183,7 +4183,7 @@
       "area": "commands",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "d919556a672ade43273342439ae8547dd49b936f",
       "detail": "js/tty_message.js ttyCustomPline() accepts arbitrary pflags although ttyPlineCore() implements only the MSGTYPE slice's flags. Narrow the API to the override use or reject unsupported SUPPRESS_HISTORY and NO_CURS_ON_U bits with a named boundary, and pin that contract."
     }
