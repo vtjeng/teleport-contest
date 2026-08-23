@@ -4150,6 +4150,42 @@
       "from": "40c2f2fdbe53aadc13e4848a277668eab622976b",
       "detail": "js/o_init.js dodiscovered() accepts flags.discosort 's', 'c', and 'a' from startup parsing, gathers a discovered type, then refuses at disco_output_sorted() before rendering sorted lines. scripts/run-startup-sortdiscoveries.mjs preserves a clean sortdiscoveries:1-tail recipe that reaches the real backslash command; closing this boundary needs o_init.c discovered_cmp(), disco_output_sorted(), and the sortloot_descr() prefix path for 's', with fresh cases for all three orders.",
       "blockedOn": "disco_output_sorted"
+    },
+    {
+      "id": "startup-regex-state-corrections",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "d919556a672ade43273342439ae8547dd49b936f",
+      "detail": "js/options.js add_autopickup_exception() must retain each compiled regex on ga.apelist, and js/posixregex.js regex_compile()/regex_match() must match recorder glibc for valid/invalid numeric backreferences, word/space/boundary escapes, and ranges whose leading literal endpoint is ]. Close with direct source-pinned tests plus fresh MSGTYPE/config differentials."
+    },
+    {
+      "id": "msgtype-vpline-output-corrections",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "d919556a672ade43273342439ae8547dd49b936f",
+      "detail": "js/tty_message.js ttyPlineCore() must feed MSGTYPE, rendering, wrapping, and previous-message state the same BUFSZ-normalized vpline() byte string, and MSGTYP_STOP must clear the message window after its explicit wait as tty_display_nhwindow() does. Close with fresh long-message and post-wait screen/cursor differentials."
+    },
+    {
+      "id": "startup-options-window-test-gaps",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "d919556a672ade43273342439ae8547dd49b936f",
+      "detail": "scripts/startup-msgtype.test.mjs must distinguish urgent STOP lookup from OVERRIDE_MSGTYPE STOP bypass and match every ASCII POSIX class; scripts/startup-suppress-alert.test.mjs must pin js/version.js get_feature_notice_ver() at signed-long saturation. Close these assertions with the corrective implementation slices."
+    },
+    {
+      "id": "msgtype-custompline-flag-boundary",
+      "area": "commands",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "d919556a672ade43273342439ae8547dd49b936f",
+      "detail": "js/tty_message.js ttyCustomPline() accepts arbitrary pflags although ttyPlineCore() implements only the MSGTYPE slice's flags. Narrow the API to the override use or reject unsupported SUPPRESS_HISTORY and NO_CURS_ON_U bits with a named boundary, and pin that contract."
     }
   ],
   "areas": [
@@ -17049,6 +17085,169 @@
         }
       },
       "recordedAt": "2026-08-22T22:18:31.798Z"
+    },
+    {
+      "kind": "review",
+      "head": "d919556a672ade43273342439ae8547dd49b936f",
+      "auditedRange": "641c44886b4a6d74d9eea4315f96de519ec4c69b..d919556a672ade43273342439ae8547dd49b936f",
+      "checklist": {
+        "covers": false,
+        "path": null,
+        "commitChecked": null,
+        "reason": "No implementation checklist covers this accumulated seven-slice review window; each slice followed the repository slice-worker source trace and validation workflow, and the audit prompt records the combined boundaries and exclusions."
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "no-change",
+      "evidence": "Counts: 16 raw, 14 deduplicated, 11 confirmed, 0 applied, 11 deferred, 3 rejected, 0 unverified. Five finders and two independent adjudicators confirmed six production defects, four test gaps, and one API-boundary clarity issue. Five production findings expand the supported MSGTYPE/POSIX boundary and require fresh differentials, so review policy returned them to implementation and no audit fix was applied. Three claims were rejected with durable counter-evidence. The concurrency finder found serialized execution and no race. Performance was not enabled because the changed traversals are source-required and no material regression evidence exists. Mutation commands and evidence were omitted under the user's session waiver; all other slice gates and quality health passed.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1530,
+        "counts": {
+          "raw": 16,
+          "deduplicated": 14,
+          "confirmed": 11,
+          "applied": 0,
+          "deferred": 11,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 6,
+          "tests": 4,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/options.js add_autopickup_exception() discards the compiled regex instead of retaining it on the installed ga.apelist node",
+            "foundBy": [
+              "tests",
+              "readability"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js regex_compile()/regex_match() flatten valid numeric backreferences and accept invalid references",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js regex_compile()/regex_match() treat glibc word, space, and boundary escape operators as literals",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js bracket validation and translation cannot use a leading literal ] as a range endpoint",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/tty_message.js ttyPlineCore() leaves a one-line MSGTYP_STOP prompt visible after the explicit wait instead of clearing the message window",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/tty_message.js ttyPlineCore() matches and stores the unbounded input instead of vpline()'s BUFSZ-normalized byte string",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "readiness": {
+          "boundary": "At launch, each reviewed slice started at a player startup configuration line and ended at installed source-shaped state, nonfatal diagnostics and waits, optionsfull, or the named first live reader; saved fresh recorder cases executed those paths.",
+          "sourceReview": "Before launch, workers traced the claimed branches and helpers against pinned NetHack source with state, PRNG, and wait ordering; this audit found six missed in-boundary contracts and routed them back to implementation.",
+          "completeness": "At launch, the known exclusions stopped at named boundaries; adjudication then confirmed six unsupported or incorrect in-boundary paths, all recorded as implementation deferrals rather than treated as completed audit fixes."
+        },
+        "rejections": [
+          {
+            "summary": "The options.js and tty_message.js import cycle is a current correctness or maintainability defect",
+            "counterEvidence": "Both imported bindings are read only inside functions after module initialization, Node import smoke initializes both exports, and no current failure exists. Reopen only with a source-reachable top-level read or other concrete diff-causal failure."
+          },
+          {
+            "summary": "The separate POSIX validation and translation walkers require an AST refactor",
+            "counterEvidence": "Both walkers share bracketSpecial(), validation constrains translation input, focused glibc cases pass, and a deterministic 500000-pattern ASCII probe found no accepted translation throw. Reopen with a concrete libc/JavaScript mismatch not already tracked."
+          },
+          {
+            "summary": "The second wrapped-MSGTYP_STOP dismissal call is a behavioral defect that should be merged with the wrapping condition",
+            "counterEvidence": "The no-op mirrors C's separate redotoplin() and display_nhwindow() calls after the first wait clears toplin; it consumes no second key. Reopen only if a source-backed case demonstrates extra output, state, or input consumption."
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "js/options.js add_autopickup_exception() discards the compiled regex instead of retaining it on the installed ga.apelist node",
+            "category": "production",
+            "trackedIn": "startup-regex-state-corrections"
+          },
+          {
+            "summary": "js/posixregex.js regex_compile()/regex_match() flatten valid numeric backreferences and accept invalid references",
+            "category": "production",
+            "trackedIn": "startup-regex-state-corrections"
+          },
+          {
+            "summary": "js/posixregex.js regex_compile()/regex_match() treat glibc word, space, and boundary escape operators as literals",
+            "category": "production",
+            "trackedIn": "startup-regex-state-corrections"
+          },
+          {
+            "summary": "js/posixregex.js bracket validation and translation cannot use a leading literal ] as a range endpoint",
+            "category": "production",
+            "trackedIn": "startup-regex-state-corrections"
+          },
+          {
+            "summary": "js/tty_message.js ttyPlineCore() leaves a one-line MSGTYP_STOP prompt visible after the explicit wait instead of clearing the message window",
+            "category": "production",
+            "trackedIn": "msgtype-vpline-output-corrections"
+          },
+          {
+            "summary": "js/tty_message.js ttyPlineCore() matches and stores the unbounded input instead of vpline()'s BUFSZ-normalized byte string",
+            "category": "production",
+            "trackedIn": "msgtype-vpline-output-corrections"
+          },
+          {
+            "summary": "scripts/startup-msgtype.test.mjs does not prove that urgent messages still honor a matching MSGTYP_STOP rule",
+            "category": "tests",
+            "trackedIn": "startup-options-window-test-gaps"
+          },
+          {
+            "summary": "scripts/startup-msgtype.test.mjs does not prove that OVERRIDE_MSGTYPE bypasses a matching MSGTYP_STOP rule",
+            "category": "tests",
+            "trackedIn": "startup-options-window-test-gaps"
+          },
+          {
+            "summary": "scripts/startup-suppress-alert.test.mjs does not pin signed-long saturation in get_feature_notice_ver()",
+            "category": "tests",
+            "trackedIn": "startup-options-window-test-gaps"
+          },
+          {
+            "summary": "scripts/startup-msgtype.test.mjs does not match-test every ASCII POSIX character class mapping",
+            "category": "tests",
+            "trackedIn": "startup-options-window-test-gaps"
+          },
+          {
+            "summary": "js/tty_message.js ttyCustomPline() accepts unsupported custompline() flags without a named boundary",
+            "category": "clarity",
+            "trackedIn": "msgtype-custompline-flag-boundary"
+          }
+        ]
+      },
+      "recordedAt": "2026-08-23T03:21:36.934Z"
     }
   ]
 }
