@@ -2742,6 +2742,11 @@
           "name": "startup-term-size-to-iflags",
           "status": "closed",
           "closedBy": "393a560347c08adea8b4ec136671328b380d0a21"
+        },
+        {
+          "name": "startup-window-alignments-to-iflags",
+          "status": "closed",
+          "closedBy": "b5f608255699612e9fa1f4c0c20dac27561528d0"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
