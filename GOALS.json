@@ -2757,6 +2757,11 @@
           "name": "startup-mouse-support-to-config-diagnostics",
           "status": "closed",
           "closedBy": "01ee7e410363f1768c4795888dcf8804780a9554"
+        },
+        {
+          "name": "startup-map-mode-to-iflags-and-config-diagnostics",
+          "status": "closed",
+          "closedBy": "26dc11bc52400bd455c148af9b414da60ddcc50a"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
