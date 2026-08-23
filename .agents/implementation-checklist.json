@@ -1,15 +1,15 @@
 {
   "mode": "ready-for-audit",
-  "reason": "The supported ASCII REG_NOSUB boundary is source-reviewed and validated. Finite brace intervals which repeat a referenced capture now stop before matching and are tracked in posix-finite-repeat-backreference-arrival; the audit proved that glibc's compiled-node arrival state cannot be represented by the existing capture-value heuristic without false positives and negatives.",
-  "commitChecked": "5488a3b700cedb56349e3ff021d927457f0b26dd",
+  "reason": "The supported ASCII REG_NOSUB boundary is source-reviewed and validated. Repeats for which glibc duplicates a captured subtree consumed by a backreference now stop before matching and are tracked in posix-finite-repeat-backreference-arrival; the audit proved that glibc's compiled-node arrival state cannot be represented by the existing capture-value heuristic without false positives and negatives.",
+  "commitChecked": "edfcdd2a65b23731e37f1a926d13554c1eb00479",
   "boundary": {
     "goalId": "options-config-parser",
     "startingCommit": "7eede9da56a3cffe2c82294a07cc039706f69a27",
     "startingEvent": "A valid ASCII POSIX ERE installed by startup MSGTYPE or AUTOPICKUP_EXCEPTION is matched through the recorder-glibc REG_EXTENDED|REG_NOSUB contract.",
     "endingEvent": "Matching selects the same boolean and MSGTYPE action as recorder glibc within the committed direct and reference time/memory budgets at exact 255-byte pattern and message limits.",
-    "validInputs": "Direct ASCII EREs, supported reference-aware EREs, unbounded referenced repetitions, suffix-reaching correlated and zero-minimum reference patterns, and unanchored direct/reference wide-frontier patterns within the source byte limits.",
+    "validInputs": "Direct ASCII EREs, supported reference-aware EREs, star/optional/single-occurrence referenced repetitions, suffix-reaching correlated and zero-minimum reference patterns, and unanchored direct/reference wide-frontier patterns within the source byte limits.",
     "observables": "Match boolean and installed MSGTYPE action, complete fresh screens/cursors and PRNG calls, plus isolated wall time and maxRSS for every declared exact-boundary resource case.",
-    "exclusions": "Finite brace intervals whose subtree captures a group used by a backreference stop at UnsupportedPosixFiniteReferenceError and are tracked by posix-finite-repeat-backreference-arrival. Non-ASCII C.UTF-8 locale matching, runtime autopickup object filtering, interactive MSGTYPE editing/serialization, USER_SOUNDS, and behavior after the next message/input boundary remain named before-effect boundaries."
+    "exclusions": "A compile-surviving repeat which makes glibc duplicate a captured subtree used by a compile-surviving backreference stops at UnsupportedPosixDuplicatedCaptureError and is tracked by posix-finite-repeat-backreference-arrival. This includes finite maxima above one, plus, and positive-minimum unbounded intervals; it excludes star, optional, {0}, {1}, {0,1}, and {0,}, and ignores every capture/reference subtree erased by {0}. Non-ASCII C.UTF-8 locale matching, runtime autopickup object filtering, interactive MSGTYPE editing/serialization, USER_SOUNDS, and behavior after the next message/input boundary remain named before-effect boundaries."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "sys/share/posixregex.c regex_match delegates to glibc regexec; glibc capture endpoint selection defines the finite-repeat result; options.c msgtype_type and add_autopickup_exception are the installed consumers.",
@@ -20,11 +20,11 @@
   },
   "entries": [
     {
-      "candidate": "Finite-repeat capture and backreference arrival provenance",
-      "reachability": "A bounded repeated group first captures a referenced descendant and may either stop at an intermediate count or continue through a nonparticipating sibling to its maximum.",
+      "candidate": "Duplicated-repeat capture and backreference arrival provenance",
+      "reachability": "A repeat makes glibc duplicate a captured subtree whose value a later backreference consumes, so distinct OPEN/CLOSE occurrences can reach the same input and capture values.",
       "owner": "js/posixregex.js reference repeat evaluation",
       "effects": "glibc validates distinct compiled OPEN/CLOSE occurrences with check_arrival before a backreference can affect MSGTYPE or AUTOPICKUP_EXCEPTION.",
-      "evidence": "Systematic recorder-libc comparison found both false positives and false negatives in capture-value endpoint heuristics. regex_compile still accepts the source-valid syntax, while regex_match now raises UnsupportedPosixFiniteReferenceError before a rule action is selected.",
+      "evidence": "Systematic recorder-libc comparison found both false positives and false negatives in capture-value endpoint heuristics. regex_compile still accepts the source-valid syntax, while regex_match raises UnsupportedPosixDuplicatedCaptureError before a rule action is selected; runSegment preserves the supported prefix as a named boundary.",
       "status": "later",
       "remaining": "Port the lazy occurrence-aware state log and backreference arrival cache recorded by posix-finite-repeat-backreference-arrival, then restore its libc, live-message, and resource matrices."
     },
@@ -66,5 +66,5 @@
     }
   ],
   "missingWorkByOwner": [],
-  "sourceReview": "Complete for the stated boundary. Read sys/share/posixregex.c regex_match, glibc 2.39 regcomp.c parse_dup_op and regexec.c get_subexp/check_arrival, options.c msgtype_type/add_autopickup_exception, and the recorder libc oracle contract. The supported corpus has 135 recorder-libc regex comparisons, five vpline comparisons, six isolated resource cases, and 28 fresh MSGTYPE segments. Finite brace-repeat capture provenance is identified by a named before-effect stop and an open quality deferral."
+  "sourceReview": "Complete for the stated boundary. Read sys/share/posixregex.c regex_match, glibc 2.39 regcomp.c parse_dup_op and regexec.c get_subexp/check_arrival, options.c msgtype_type/add_autopickup_exception, and the recorder libc oracle contract. The supported corpus has 144 recorder-libc regex comparisons, five vpline comparisons, six isolated resource cases, and 28 fresh MSGTYPE segments. Duplicated capture occurrence provenance is identified by a named before-effect stop and an open quality deferral."
 }
