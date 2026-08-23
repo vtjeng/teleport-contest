@@ -154,7 +154,7 @@ import {
     truncateByteString,
     visctrl,
 } from './hacklib.js';
-import { read_sym_file } from './files.js';
+import { isDefaultSymsetName, read_sym_file } from './files.js';
 import {
     assign_soundlib,
     get_soundlib_name,
@@ -593,6 +593,13 @@ function defaultResult() {
         // optfn_windowcolors(do_init), once per configuration-file pass.
         wcolors_opt: [0, 0, 0, 0],
         options_set_window_colors_flag: false,
+        // decl.c zeros these option-transition flags. Symbol-set handlers set
+        // all three during the configuration pass, before the first input.
+        go: {
+            opt_need_redraw: false,
+            opt_need_glyph_reset: false,
+            opt_symset_changed: false,
+        },
         // cmd.c extcmdlist[] is mutable in C. Keep its flags per game so one
         // runSegment() cannot carry configuration into the next one.
         extcmdFlags: initialExtcmdFlags(),
@@ -3161,8 +3168,10 @@ function windowColorsValue(state) {
     }).join(' ');
 }
 
-// optfn_windowcolors() formats get_val and get_cnf_val identically.  The
-// options menu reaches the former; this exported formatter pins the latter.
+// optfn_windowcolors() formats get_val and get_cnf_val identically. TTY
+// capability filtering excludes the live options-menu row; direct optionValue
+// tests pin get_val, and this formatter pins get_cnf_val without claiming the
+// still-unported #saveoptions runtime path.
 export function windowColorsConfigValue(state) {
     return windowColorsValue(state);
 }
@@ -4730,6 +4739,10 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
             return;
         }
         appendSymbolSelection(result, set, value);
+        result.go.opt_need_redraw = true;
+        result.go.opt_need_glyph_reset = true;
+        result.go.opt_symset_changed = true;
+        if (isDefaultSymsetName(value)) result[name] = undefined;
     } else if (value != null) {
         // Only a negated option whose optlist.h negateok is Yes reaches the
         // stop below: a negated spelling of any other one is bad_negation()'s

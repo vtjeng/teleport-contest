@@ -17,9 +17,11 @@ export function nh_basename(fname, keepSuffix) {
     return name;
 }
 
-function isDefaultSymset(name) {
-    const folded = String(name ?? '').toLowerCase().replace(/[ _-]/gu, '');
-    return folded === 'default' || folded === 'defaultsymbols';
+export function isDefaultSymsetName(name) {
+    const text = String(name ?? '');
+    if (text.toLowerCase() === 'default') return true;
+    const folded = text.toLowerCase().replace(/[ _-]/gu, '');
+    return folded === 'defaultsymbols';
 }
 
 // C ref: files.c read_sym_file().  The scorer installs the generated projection
@@ -27,7 +29,7 @@ function isDefaultSymset(name) {
 // This covers the function's selected-name/default-alias result; symbols.c owns
 // the table and metadata mutations made while the matching block is parsed.
 export function read_sym_file(name) {
-    if (isDefaultSymset(name)) return true;
+    if (isDefaultSymsetName(name)) return true;
     const folded = String(name).toLowerCase();
     return SYMBOL_SET_DEFINITIONS.some(
         (definition) => definition.name.toLowerCase() === folded,

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { NH_BASIC_COLOR } from '../js/const.js';
-import { COLOR_TABLE } from '../js/color_data.js';
+import { COLOR_NAMES, COLOR_TABLE } from '../js/color_data.js';
 import { check_enhanced_colors, wc_color_name } from '../js/coloratt.js';
 import { game } from '../js/gstate.js';
 import { allopt } from '../js/optlist_data.js';
@@ -28,6 +28,10 @@ function windowcolorsOption() {
 }
 
 test('generated color table preserves the complete source ordering', () => {
+    assert.equal(COLOR_NAMES.length, 27);
+    assert.deepEqual(COLOR_NAMES[0], { name: 'black', color: 0 });
+    assert.deepEqual(COLOR_NAMES[16], { name: null, color: 0 });
+    assert.deepEqual(COLOR_NAMES[26], { name: 'bright cyan', color: 14 });
     assert.equal(COLOR_TABLE.length, 155);
     assert.deepEqual(COLOR_TABLE[0], {
         type: 'nh_color', tableIndex: 0, rgbIndex: 0,
@@ -55,6 +59,7 @@ test('enhanced colors accept basic aliases, indices, hex, and names', () => {
         ['#ff0000', 0xFF0000, 'red'],
         ['#0x1234', 0x001234, '#001234'],
         ['#+12345', 0x012345, '#012345'],
+        ['#12\v34\f56', 0x123456, '#123456'],
     ]) {
         const parsed = check_enhanced_colors(input);
         assert.equal(parsed, color, input);

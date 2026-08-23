@@ -490,6 +490,19 @@ function parseAsciiExtendedRegexp(pattern) {
         node.containsRepeat = containsRepeat;
         node.dependsOnMatchStart = dependsOnMatchStart;
         node.referenceIndependent = referenceIndependent;
+        if (node.type === 'literal') node.alwaysZeroWidth = node.value === '';
+        else if (node.type === 'anchor' || node.type === 'word-boundary'
+            || node.type === 'word-edge') node.alwaysZeroWidth = true;
+        else if (node.type === 'group')
+            node.alwaysZeroWidth = node.child.alwaysZeroWidth;
+        else if (node.type === 'sequence')
+            node.alwaysZeroWidth = node.nodes.every((child) => child.alwaysZeroWidth);
+        else if (node.type === 'alternative')
+            node.alwaysZeroWidth = node.nodes.every((child) => child.alwaysZeroWidth);
+        else if (node.type === 'repeat') {
+            node.alwaysZeroWidth = node.maximum === 0
+                || node.child.alwaysZeroWidth;
+        } else node.alwaysZeroWidth = false;
         if (node.type === 'literal') node.minimumWidth = node.value.length;
         else if (node.type === 'dot' || node.type === 'class')
             node.minimumWidth = 1;
@@ -539,8 +552,20 @@ function captureStateKey(state) {
     // referenced capture value and the candidate start are therefore the
     // complete future-equivalence key: merging equal keys cannot change a
     // later reference or contextual caret assertion.
+    const activeParticipation = state.participationStack ?? [];
+    const futureState = activeParticipation.length
+        ? [state.captures, activeParticipation] : state.captures;
     return `${state.matchStart}:${state.position}:`
-        + JSON.stringify(state.captures);
+        + JSON.stringify(futureState);
+}
+
+function repeatFrontierStateKey(state) {
+    return `${captureStateKey(state)}:` + JSON.stringify(
+        [
+            state.lastIterationCaptures ?? 0,
+            state.lastIterationConsumed ?? null,
+        ],
+    );
 }
 
 function uniqueCaptureStates(states) {
@@ -679,33 +704,83 @@ function isIntermediateFiniteEndpoint(node, count) {
         && count > node.minimum && count < node.maximum;
 }
 
-function acceptedRepeatEndpointStates(node, count, frontier) {
+function acceptedRepeatEndpointStates(node, count, frontier,
+    repeatStartPosition) {
+    const stripIteration = (candidate) => {
+        const {
+            lastIterationCaptures: _last,
+            lastIterationConsumed: _consumed,
+            ...accepted
+        } = candidate;
+        return accepted;
+    };
+    // glibc does not select an extra empty match of a repeated subtree after
+    // an earlier iteration has advanced. Such a path remains useful as a
+    // continuation frontier, but is not an accepted repeat endpoint.
+    const selectable = frontier.filter((candidate) => (
+        candidate.lastIterationConsumed !== false
+        || candidate.position === repeatStartPosition
+    ));
     if (!isIntermediateFiniteEndpoint(node, count)
-        || !node.child.captureGroups.size) return frontier;
+        || !node.child.captureGroups.size) return selectable.map(stripIteration);
     // A zero-minimum interval can accept before the repeated subtree has
     // participated, so glibc clears every capture owned by that subtree at an
-    // intermediate endpoint. With a positive minimum, only a group directly
-    // repeated by the interval is cleared; descendants retain the last value
-    // from an iteration in which their branch participated.
-    const clearedGroups = node.minimum === 0
-        ? [...node.child.captureGroups]
-        : node.child.type === 'group' ? [node.child.id] : [];
-    if (!clearedGroups.length) return frontier;
-    return frontier.map((candidate) => {
+    // intermediate endpoint. With a positive minimum, the directly repeated
+    // group is cleared, as is any descendant that participated in the final
+    // iteration; a skipped descendant retains its earlier value.
+    return selectable.map((candidate) => {
         const captures = [...candidate.captures];
-        for (const id of clearedGroups) captures[id] = undefined;
-        return { ...candidate, captures };
+        if (node.minimum === 0) {
+            for (const id of node.child.captureGroups)
+                captures[id] = undefined;
+        } else {
+            if (node.child.type === 'group')
+                captures[node.child.id] = undefined;
+            const participated = candidate.lastIterationCaptures ?? 0;
+            for (let id = 1; id <= 9; ++id) {
+                if ((participated & (1 << id)) !== 0)
+                    captures[id] = undefined;
+            }
+        }
+        return stripIteration({ ...candidate, captures });
     });
 }
 
 function nextReferenceRepeatFrontier(node, input, frontier, evaluator,
     maximumPosition) {
     const unique = new Map();
+    const trackParticipation = Number.isFinite(node.maximum)
+        && node.minimum > 0 && node.maximum > node.minimum + 1
+        && node.child.captureGroups.size > 0;
+    const trackConsumption = Number.isFinite(node.maximum);
     for (const current of frontier) {
+        const {
+            lastIterationCaptures: _last,
+            lastIterationConsumed: _consumed,
+            participationStack: activeStack = [],
+            ...baseState
+        } = current;
+        const iterationState = { ...baseState };
+        if (activeStack.length || trackParticipation) {
+            iterationState.participationStack = trackParticipation
+                ? [...activeStack, 0] : activeStack;
+        }
         for (const candidate of evaluateReferenceNode(
-            node.child, input, current, evaluator, maximumPosition,
+            node.child, input, iterationState, evaluator, maximumPosition,
         )) {
-            unique.set(captureStateKey(candidate), candidate);
+            const next = { ...candidate };
+            if (trackParticipation) {
+                const stack = candidate.participationStack ?? [];
+                next.participationStack = stack.slice(0, -1);
+                next.lastIterationCaptures = stack.at(-1) ?? 0;
+            }
+            if (trackConsumption) {
+                next.lastIterationConsumed = candidate.position
+                    !== current.position;
+            }
+            if (next.participationStack?.length === 0)
+                delete next.participationStack;
+            unique.set(repeatFrontierStateKey(next), next);
         }
     }
     return [...unique.values()];
@@ -726,14 +801,14 @@ function traverseReferenceRepeatEndpoints(node, input, state, evaluator,
     while (frontier.length && count <= node.maximum) {
         if (count >= node.minimum) {
             for (const candidate of acceptedRepeatEndpointStates(
-                node, count, frontier,
+                node, count, frontier, state.position,
             )) {
                 if (acceptEndpoint(candidate)) return true;
             }
             // Only an unbounded interval needs a cross-count fixed point.
             // Equal raw states at different finite counts can project to
             // different accepted capture states, including the maximum.
-            if (unbounded) {
+            if (unbounded || !node.child.alwaysZeroWidth) {
                 for (const candidate of frontier)
                     seenContinuationKeys.add(captureStateKey(candidate));
             }
@@ -750,9 +825,17 @@ function traverseReferenceRepeatEndpoints(node, input, state, evaluator,
         // create independent capture candidates.
         if (firstNestedCapture && count === 1 && next.length > 1)
             next = [next[0]];
-        if (unbounded && count >= node.minimum) {
+        if ((unbounded || !node.child.alwaysZeroWidth)
+            && count >= node.minimum) {
             next = next.filter((candidate) => (
                 !seenContinuationKeys.has(captureStateKey(candidate))
+                // At a finite maximum, an entirely zero-width repetition can
+                // select a different glibc capture endpoint even when its raw
+                // state equals an earlier count.  Once any iteration has
+                // advanced, an empty final iteration does not make the count
+                // source-distinct and the state remains mergeable.
+                || (!unbounded && !candidate.lastIterationConsumed
+                    && candidate.position === state.position)
             ));
         }
         frontier = next;
@@ -822,7 +905,13 @@ function evaluateReferenceNode(node, input, state, evaluator,
             // last participating value when this path used a sibling, which
             // is the recorder glibc repeated-subexpression rule.
             captures[node.id] = input.slice(start, result.position);
-            return { ...result, captures };
+            let participationStack = result.participationStack;
+            if (participationStack?.length) {
+                participationStack = participationStack.map(
+                    (mask) => mask | (1 << node.id),
+                );
+            }
+            return { ...result, captures, participationStack };
         });
     }
     case 'sequence': {

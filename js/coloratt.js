@@ -1,44 +1,11 @@
 // coloratt.js — Pure enhanced-color parsing from coloratt.c.
-// C refs: coloratt.c check_enhanced_colors(), wc_color_name(), and the
-// colornames[] subset the first function reaches through match_str2clr().
+// C refs: coloratt.c check_enhanced_colors(), wc_color_name(), and the complete
+// colornames[] table the first function reaches through match_str2clr().
 
 import { CLR_MAX, NH_BASIC_COLOR } from './const.js';
-import { COLOR_TABLE } from './color_data.js';
+import { COLOR_NAMES, COLOR_TABLE } from './color_data.js';
 import { fuzzymatch, strstri } from './hacklib.js';
-
-const NO_COLOR = 8;
-
-// coloratt.c colornames[], including the aliases after its null sentinel.
-// check_enhanced_colors() asks match_str2clr() to use this table before it
-// treats the same spelling as an enhanced RGB name.
-const BASIC_COLOR_NAMES = Object.freeze([
-    ['black', 0],
-    ['red', 1],
-    ['green', 2],
-    ['brown', 3],
-    ['blue', 4],
-    ['magenta', 5],
-    ['cyan', 6],
-    ['gray', 7],
-    ['orange', 9],
-    ['light green', 10],
-    ['yellow', 11],
-    ['light blue', 12],
-    ['light magenta', 13],
-    ['light cyan', 14],
-    ['white', 15],
-    ['no color', NO_COLOR],
-    ['transparent', NO_COLOR],
-    ['purple', 5],
-    ['light purple', 13],
-    ['bright purple', 13],
-    ['grey', 7],
-    ['bright red', 9],
-    ['bright green', 10],
-    ['bright blue', 12],
-    ['bright magenta', 13],
-    ['bright cyan', 14],
-]);
+import { NO_COLOR } from './terminal.js';
 
 function colorAtoi(value) {
     const digits = String(value).match(/^[+-]?\d+/u);
@@ -51,7 +18,8 @@ function colorAtoi(value) {
 }
 
 function basicColor(value) {
-    for (const [name, color] of BASIC_COLOR_NAMES) {
+    for (const { name, color } of COLOR_NAMES) {
+        if (name === null) continue;
         if (fuzzymatch(value, name, ' -_', true)) return color;
     }
     if (/^\d/u.test(value)) {
@@ -70,6 +38,10 @@ function colortable_to_int32(entry) {
 }
 
 function scanWidthTwoHex(value, start) {
+    // scanf skips leading C whitespace before each %x conversion; skipped
+    // bytes do not consume the conversion's field width.
+    while (start < value.length && /[\t\n\v\f\r ]/u.test(value[start]))
+        ++start;
     const field = value.slice(start, start + 2);
     if (!field) return null;
     // The recorder's glibc accepts a width-exhausted 0x prefix as zero.

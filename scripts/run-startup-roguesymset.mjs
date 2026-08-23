@@ -47,6 +47,8 @@ export const STARTUP_ROGUESYMSET_CASES = Object.freeze([
         expectedNoColor: 1,
         expectedPrimary: 0,
         expectedRogue: 0,
+        expectedExplicitly: false,
+        expectedSymsetChanged: false,
         expectedWall: 0x7C,
         expectedMenu: 'default',
     }),
@@ -59,6 +61,8 @@ export const STARTUP_ROGUESYMSET_CASES = Object.freeze([
         expectedNoColor: 1,
         expectedPrimary: 0,
         expectedRogue: 0,
+        expectedExplicitly: false,
+        expectedSymsetChanged: false,
         expectedWall: 0x7C,
         expectedMenu: 'default',
     }),
@@ -71,6 +75,8 @@ export const STARTUP_ROGUESYMSET_CASES = Object.freeze([
         expectedNoColor: 1,
         expectedPrimary: 0,
         expectedRogue: 1,
+        expectedExplicitly: true,
+        expectedSymsetChanged: true,
         expectedWall: 0xBA,
         expectedMenu: 'RogueIBM',
     }),
@@ -83,6 +89,8 @@ export const STARTUP_ROGUESYMSET_CASES = Object.freeze([
         expectedNoColor: 1,
         expectedPrimary: 1,
         expectedRogue: 0,
+        expectedExplicitly: true,
+        expectedSymsetChanged: true,
         expectedWall: 0xF8,
         expectedMenu: 'DECgraphics',
     }),
@@ -96,6 +104,8 @@ export const STARTUP_ROGUESYMSET_CASES = Object.freeze([
         expectedNoColor: 0,
         expectedPrimary: 0,
         expectedRogue: 0,
+        expectedExplicitly: false,
+        expectedSymsetChanged: false,
         expectedWall: 0x7C,
         expectedMenu: 'default',
     }),
@@ -111,6 +121,8 @@ export const STARTUP_ROGUESYMSET_CASES = Object.freeze([
         expectedNoColor: 1,
         expectedPrimary: 0,
         expectedRogue: 1,
+        expectedExplicitly: true,
+        expectedSymsetChanged: true,
         expectedWall: 0xBA,
         expectedMenu: 'RogueIBM',
     }),
@@ -126,7 +138,40 @@ export const STARTUP_ROGUESYMSET_CASES = Object.freeze([
         expectedNoColor: 0,
         expectedPrimary: 0,
         expectedRogue: 0,
+        expectedExplicitly: false,
+        expectedSymsetChanged: true,
         expectedWall: 0xBA,
+        expectedMenu: 'default',
+    }),
+    Object.freeze({
+        label: 'fuzzy Default symbols selects the default set',
+        optionLines: Object.freeze([
+            'OPTIONS=roguesymset:Default---symbols',
+        ]),
+        errors: 0,
+        expectedName: null,
+        expectedHandling: H_UNK,
+        expectedNoColor: 0,
+        expectedPrimary: 0,
+        expectedRogue: 0,
+        expectedExplicitly: true,
+        expectedSymsetChanged: true,
+        expectedWall: 0x7C,
+        expectedMenu: 'default',
+    }),
+    Object.freeze({
+        label: 'decorated bare default is rejected',
+        optionLines: repeated('OPTIONS=roguesymset:d-e-f-a-u-l-t'),
+        errors: 23,
+        reports: true,
+        expectedName: null,
+        expectedHandling: H_UNK,
+        expectedNoColor: 0,
+        expectedPrimary: 0,
+        expectedRogue: 0,
+        expectedExplicitly: false,
+        expectedSymsetChanged: false,
+        expectedWall: 0x7C,
         expectedMenu: 'default',
     }),
 ]);
@@ -176,8 +221,10 @@ function assertState(label, state, entry) {
         selected.nocolor,
         selected.primary,
         selected.rogue,
+        selected.explicitly,
         state.gr.rogue_syms[S_vwall],
         roguesymsetMenuValue(state),
+        state.go.opt_symset_changed,
     ];
     const expected = [
         entry.expectedName,
@@ -185,8 +232,10 @@ function assertState(label, state, entry) {
         entry.expectedNoColor,
         entry.expectedPrimary,
         entry.expectedRogue,
+        entry.expectedExplicitly,
         entry.expectedWall,
         entry.expectedMenu,
+        entry.expectedSymsetChanged,
     ];
     if (JSON.stringify(actual) !== JSON.stringify(expected)) {
         throw new Error(
@@ -209,6 +258,15 @@ export async function verifyStartupRoguesymsetSegment(segment) {
     }
     if (entry.expectedName === null && parsed.roguesymset !== undefined) {
         throw new Error(`${entry.label} left a parsed roguesymset value`);
+    }
+    for (const flag of [
+        'opt_need_redraw', 'opt_need_glyph_reset', 'opt_symset_changed',
+    ]) {
+        if (parsed.go[flag] !== entry.expectedSymsetChanged) {
+            throw new Error(
+                `${entry.label} left parsed ${flag}=${parsed.go[flag]}`,
+            );
+        }
     }
 
     let boundary = null;

@@ -11,7 +11,7 @@ import {
 test('the startup roguesymset recipe covers source selection and cleanup', () => {
     const recipe = loadStartupRoguesymsetRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 7);
+    assert.equal(recipe.segments.length, 9);
     assert.deepEqual(
         STARTUP_ROGUESYMSET_CASES.map(({ label }) => label),
         [
@@ -22,6 +22,8 @@ test('the startup roguesymset recipe covers source selection and cleanup', () =>
             'invalid zqxj reports and resumes startup',
             'invalid suffix clears before valid left selection',
             'invalid left replacement clears metadata but keeps bytes',
+            'fuzzy Default symbols selects the default set',
+            'decorated bare default is rejected',
         ],
     );
     for (const [index, segment] of recipe.segments.entries()) {

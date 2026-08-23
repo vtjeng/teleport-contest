@@ -115,7 +115,9 @@ function caseFor(segment) {
 }
 
 function tileFile(state) {
-    return state.iflags?.wc_tile_file ?? null;
+    if (!Object.hasOwn(state.iflags ?? {}, 'wc_tile_file'))
+        throw new Error('startup state has no iflags.wc_tile_file owner');
+    return state.iflags.wc_tile_file;
 }
 
 export async function verifyStartupTileFileSegment(segment) {
