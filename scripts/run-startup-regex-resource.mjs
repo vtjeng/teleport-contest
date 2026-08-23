@@ -16,7 +16,6 @@ import {
     regex_match,
 } from '../js/posixregex.js';
 import {
-    EXACT_BOUNDARY_REGEX_CASES,
     FIXED_POINT_REGEX_RESOURCE_CASE,
     REGEX_EXACT_BOUNDARY_BYTES,
     REGEX_RESOURCE_CASES,
@@ -30,9 +29,13 @@ function compileAndMatch(pattern, input) {
     return regex_match(input, regex);
 }
 
-function runExactCase(entry) {
-    assert.equal(Buffer.byteLength(entry.pattern), REGEX_EXACT_BOUNDARY_BYTES);
-    assert.equal(Buffer.byteLength(entry.input), REGEX_EXACT_BOUNDARY_BYTES);
+function runSingleCase(entry) {
+    if (entry.kind === 'exact-boundary') {
+        assert.equal(Buffer.byteLength(entry.pattern),
+            REGEX_EXACT_BOUNDARY_BYTES);
+        assert.equal(Buffer.byteLength(entry.input),
+            REGEX_EXACT_BOUNDARY_BYTES);
+    }
     assert.equal(compileAndMatch(entry.pattern, entry.input), entry.expected);
 }
 
@@ -51,11 +54,11 @@ function runChild(name) {
     if (name === FIXED_POINT_REGEX_RESOURCE_CASE.name) {
         runFixedPointCases();
     } else {
-        const entry = EXACT_BOUNDARY_REGEX_CASES.find(
+        const entry = REGEX_RESOURCE_CASES.find(
             (candidate) => candidate.name === name,
         );
         if (!entry) throw new Error(`unknown resource case: ${name}`);
-        runExactCase(entry);
+        runSingleCase(entry);
     }
     return {
         name,

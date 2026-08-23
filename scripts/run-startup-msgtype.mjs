@@ -290,6 +290,20 @@ export const STARTUP_MSGTYPE_CASES = Object.freeze([
         probes: [['Hello', false, MSGTYP_NOSHOW]],
     }),
     messageCase({
+        label: 'empty final iteration retains a descendant capture',
+        seed: 9812491,
+        datetime: '20420415153100',
+        statements: [String.raw`MSGTYPE=hide "^Hello ((a)?b?){0,2}\2,"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`^Hello ((a)?b?){0,2}\2,`,
+        }],
+        probes: [['Hello aa, welcome', false, MSGTYP_NOSHOW],
+            ['Hello a, welcome', false, MSGTYP_NORMAL]],
+        name: 'aa',
+        role: 'Archeologist',
+    }),
+    messageCase({
         label: 'positive-minimum subgroup retains its descendant capture',
         seed: 9812489,
         datetime: '20420415152900',

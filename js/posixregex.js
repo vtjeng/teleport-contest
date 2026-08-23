@@ -568,6 +568,12 @@ function repeatFrontierStateKey(state) {
     );
 }
 
+function sameRepeatFrontier(left, right) {
+    if (left.length !== right.length) return false;
+    const leftKeys = new Set(left.map(repeatFrontierStateKey));
+    return right.every((state) => leftKeys.has(repeatFrontierStateKey(state)));
+}
+
 function uniqueCaptureStates(states) {
     const unique = new Map();
     for (const state of states) unique.set(captureStateKey(state), state);
@@ -714,26 +720,19 @@ function acceptedRepeatEndpointStates(node, count, frontier,
         } = candidate;
         return accepted;
     };
-    // glibc does not select an extra empty match of a repeated subtree after
-    // an earlier iteration has advanced. Such a path remains useful as a
-    // continuation frontier, but is not an accepted repeat endpoint.
-    const selectable = frontier.filter((candidate) => (
-        candidate.lastIterationConsumed !== false
-        || candidate.position === repeatStartPosition
-    ));
-    if (!isIntermediateFiniteEndpoint(node, count)
-        || !node.child.captureGroups.size) return selectable.map(stripIteration);
+    const intermediate = isIntermediateFiniteEndpoint(node, count);
+    if (!node.child.captureGroups.size) return frontier.map(stripIteration);
     // A zero-minimum interval can accept before the repeated subtree has
     // participated, so glibc clears every capture owned by that subtree at an
     // intermediate endpoint. With a positive minimum, the directly repeated
     // group is cleared, as is any descendant that participated in the final
     // iteration; a skipped descendant retains its earlier value.
-    return selectable.map((candidate) => {
+    return frontier.map((candidate) => {
         const captures = [...candidate.captures];
-        if (node.minimum === 0) {
+        if (intermediate && node.minimum === 0) {
             for (const id of node.child.captureGroups)
                 captures[id] = undefined;
-        } else {
+        } else if (intermediate) {
             if (node.child.type === 'group')
                 captures[node.child.id] = undefined;
             const participated = candidate.lastIterationCaptures ?? 0;
@@ -741,6 +740,13 @@ function acceptedRepeatEndpointStates(node, count, frontier,
                 if ((participated & (1 << id)) !== 0)
                     captures[id] = undefined;
             }
+        } else if (candidate.lastIterationConsumed === false
+            && candidate.position !== repeatStartPosition
+            && node.child.type === 'group') {
+            // At a finite maximum, glibc retains descendants skipped by an
+            // empty final iteration but clears that iteration's directly
+            // repeated capture.  The raw continuation state stays intact.
+            captures[node.child.id] = undefined;
         }
         return stripIteration({ ...candidate, captures });
     });
@@ -831,12 +837,23 @@ function traverseReferenceRepeatEndpoints(node, input, state, evaluator,
                 !seenContinuationKeys.has(captureStateKey(candidate))
                 // At a finite maximum, an entirely zero-width repetition can
                 // select a different glibc capture endpoint even when its raw
-                // state equals an earlier count.  Once any iteration has
-                // advanced, an empty final iteration does not make the count
-                // source-distinct and the state remains mergeable.
+                // state equals an earlier count.  A maximum-count empty final
+                // iteration is also source-distinct: endpoint projection
+                // clears its direct capture while retaining skipped
+                // descendants from an earlier participating iteration.
                 || (!unbounded && !candidate.lastIterationConsumed
-                    && candidate.position === state.position)
+                    && (candidate.position === state.position
+                        || count === node.maximum))
             ));
+        }
+        if (!unbounded && node.child.alwaysZeroWidth
+            && count >= node.minimum && count < node.maximum
+            && sameRepeatFrontier(frontier, next)) {
+            // A zero-width finite repeat can stabilize thousands of counts
+            // before its maximum.  Once its complete raw frontier (including
+            // final-iteration metadata) is fixed, every skipped intermediate
+            // endpoint is identical; jump to the distinct maximum projection.
+            count = node.maximum;
         }
         frontier = next;
     }

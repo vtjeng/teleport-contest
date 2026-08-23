@@ -86,9 +86,20 @@ export const FIXED_POINT_REGEX_RESOURCE_CASE = Object.freeze({
     ]),
 });
 
+export const FINITE_ZERO_WIDTH_REGEX_RESOURCE_CASE = Object.freeze({
+    kind: 'finite-zero-width-fixed-point',
+    name: 'finite-zero-width-repeat-fixed-point',
+    budgetMs: 1000,
+    budgetMaxRssKiB: 96 * 1024,
+    pattern: String.raw`^(()|()|()|()|()|()|()|()){1,32767}\1\2\3\4\5\6\7\8\9[b]$`,
+    input: 'a'.repeat(REGEX_EXACT_BOUNDARY_BYTES),
+    expected: false,
+});
+
 export const REGEX_RESOURCE_CASES = Object.freeze([
     ...EXACT_BOUNDARY_REGEX_CASES,
     FIXED_POINT_REGEX_RESOURCE_CASE,
+    FINITE_ZERO_WIDTH_REGEX_RESOURCE_CASE,
 ]);
 
 export const REGEX_RESOURCE_OUTPUT_NAMES = Object.freeze(
