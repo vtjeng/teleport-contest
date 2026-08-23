@@ -2463,23 +2463,30 @@ test('msghistory parses atoi into unsigned storage and preserves errors', () => 
 // its do_set arm on `op != empty_optstr` and does nothing whatever when that
 // fails, and string_for_opt() answers empty_optstr for a statement that ends
 // on its separator as readily as for one that carries no separator at all.
-test('a symbol set or alert version ending on its separator selects nothing',
+test('a symbol set or alert version without a value selects nothing',
     () => {
         const untouched = parseNethackrc('');
         for (const name of ['symset', 'roguesymset', 'suppress_alert']) {
-            const parsed = parseNethackrc(`OPTIONS=${name}:\n`);
-            assert.deepEqual(parsed.configErrorFrame.output, [], name);
-            assert.equal(parsed.symset, undefined, name);
-            assert.equal(parsed.roguesymset, undefined, name);
-            assert.equal(
-                parsed.flags.suppress_alert,
-                untouched.flags.suppress_alert,
-                name,
-            );
-            // The two symbol-set rows would otherwise queue a selection for
-            // symbols.c load_symset(), which is the write the empty value has
-            // to leave undone.
-            assert.deepEqual(parsed.symbolOperations, [], name);
+            for (const suffix of ['', ':']) {
+                const statement = `${name}${suffix}`;
+                const parsed = parseNethackrc(`OPTIONS=${statement}\n`);
+                assert.deepEqual(
+                    parsed.configErrorFrame.output, [], statement,
+                );
+                assert.equal(parsed.symset, undefined, statement);
+                assert.equal(parsed.roguesymset, undefined, statement);
+                assert.equal(parsed.flags.symset, undefined, statement);
+                assert.equal(parsed.flags.roguesymset, undefined, statement);
+                assert.equal(
+                    parsed.flags.suppress_alert,
+                    untouched.flags.suppress_alert,
+                    statement,
+                );
+                // The two symbol-set rows would otherwise queue a selection
+                // for symbols.c load_symset(), which is the write the empty
+                // value has to leave undone.
+                assert.deepEqual(parsed.symbolOperations, [], statement);
+            }
         }
 
         // The same three names with a value, so that the guards above are the
@@ -2519,6 +2526,60 @@ test('an unknown primary symset reports and queues source cleanup', () => {
         '\nOPTIONS=symset:NoSuchSymbols',
         ' * Line 1: Unable to load symbol set "NoSuchSymbols" from "symbols".',
     ]);
+});
+
+test('roguesymset validates names and preserves source operation order', () => {
+    const valid = parseNethackrc('OPTIONS=roguesymset:RogueIBM\n');
+    assert.equal(valid.roguesymset, 'RogueIBM');
+    assert.deepEqual(valid.symbolOperations, [{
+        kind: 'select',
+        set: 'rogue',
+        name: 'RogueIBM',
+        legacyIfUnset: false,
+        legacyIBM: false,
+    }]);
+    assert.deepEqual(valid.configErrorFrame.output, []);
+
+    // Restrictions: primary only filters symbols.c do_symset()'s interactive
+    // pick-list. The configuration path names DECgraphics directly and loads
+    // it into ROGUESET despite that metadata.
+    const primaryRestricted = parseNethackrc(
+        'OPTIONS=roguesymset:DECgraphics\n',
+    );
+    assert.equal(primaryRestricted.roguesymset, 'DECgraphics');
+    assert.deepEqual(primaryRestricted.symbolOperations, [{
+        kind: 'select',
+        set: 'rogue',
+        name: 'DECgraphics',
+        legacyIfUnset: false,
+        legacyIBM: false,
+    }]);
+
+    const invalid = parseNethackrc('OPTIONS=roguesymset:zqxj\n');
+    assert.equal(invalid.roguesymset, undefined);
+    assert.deepEqual(invalid.symbolOperations, [{
+        kind: 'clear', set: 'rogue', nameToo: true,
+    }]);
+    assert.deepEqual(invalid.configErrorFrame.output, [
+        '\nOPTIONS=roguesymset:zqxj',
+        ' * Line 1: Unable to load symbol set "zqxj" from "symbols".',
+    ]);
+
+    // parseoptions() processes the comma suffix first. In the first spelling,
+    // the invalid suffix clears before RogueIBM loads. In the second, the
+    // invalid left element clears after the valid suffix loaded its bytes.
+    assert.deepEqual(
+        parseNethackrc(
+            'OPTIONS=roguesymset:RogueIBM,roguesymset:zqxj\n',
+        ).symbolOperations.map(({ kind, name }) => [kind, name ?? null]),
+        [['clear', null], ['select', 'RogueIBM']],
+    );
+    assert.deepEqual(
+        parseNethackrc(
+            'OPTIONS=roguesymset:zqxj,roguesymset:RogueIBM\n',
+        ).symbolOperations.map(({ kind, name }) => [kind, name ?? null]),
+        [['select', 'RogueIBM'], ['clear', null]],
+    );
 });
 
 test('status highlight options preserve source rules and condition defaults', () => {

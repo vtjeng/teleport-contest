@@ -1280,6 +1280,11 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         [],
         ['Unable to load symbol set "zqxj" from "symbols".'],
     ]],
+    ['roguesymset', [
+        [],
+        [],
+        ['Unable to load symbol set "zqxj" from "symbols".'],
+    ]],
     ['statuslines', [
         [
             "Missing parameter for 'statuslines'.",
@@ -1349,7 +1354,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['map_mode', [1, 1, 1]],
     ['mouse_support', [0, 1, 1]],
     ['perminv_mode', [1, 1, 1]],
-    ['roguesymset', [0, 0, 1]],
     ['windowcolors', [1, 1, 1]],
 ]);
 
@@ -1368,9 +1372,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 72);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 73);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 6);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 5);
 
     let owed = 0;
     for (const row of rows) {
@@ -1404,9 +1408,9 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 15 messages over 6 rows: what porting those handlers is worth to a
+    // 14 messages over 5 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 15);
+    assert.equal(owed, 14);
 });
 
 test('startup boulder parsing rejects source clashes and signed controls',

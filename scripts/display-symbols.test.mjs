@@ -34,6 +34,7 @@ import {
     DUST,
     FLYING,
     FOUNTAIN,
+    H_IBM,
     H_UNK,
     HALLUC,
     HALLUC_RES,
@@ -6717,6 +6718,52 @@ test('explicit rogue default selection restores clear_symsetentry color state', 
     );
     assert.equal(namedColor.gs.symset[ROGUESET].nocolor, 0);
 });
+
+test('startup roguesymset installs restrictions and failed cleanup keeps bytes',
+    () => {
+        const configured = (statement) => {
+            const state = {};
+            initialize_symbols_from_options(parseNethackrc(statement), state);
+            return state;
+        };
+
+        const rogueIbm = configured('OPTIONS=roguesymset:RogueIBM');
+        assert.equal(rogueIbm.gs.symset[ROGUESET].name, 'RogueIBM');
+        assert.equal(rogueIbm.gs.symset[ROGUESET].handling, H_IBM);
+        assert.equal(rogueIbm.gs.symset[ROGUESET].nocolor, 1);
+        assert.equal(rogueIbm.gs.symset[ROGUESET].primary, 0);
+        assert.equal(rogueIbm.gs.symset[ROGUESET].rogue, 1);
+        assert.equal(rogueIbm.gr.rogue_syms[S_vwall], 0xBA);
+
+        const primaryRestricted = configured(
+            'OPTIONS=roguesymset:DECgraphics',
+        );
+        assert.equal(
+            primaryRestricted.gs.symset[ROGUESET].name,
+            'DECgraphics',
+        );
+        assert.equal(primaryRestricted.gs.symset[ROGUESET].primary, 1);
+        assert.equal(primaryRestricted.gs.symset[ROGUESET].rogue, 0);
+        assert.equal(primaryRestricted.gr.rogue_syms[S_vwall], 0xF8);
+
+        const failedAfterValid = configured(
+            'OPTIONS=roguesymset:zqxj,roguesymset:RogueIBM',
+        );
+        assert.equal(failedAfterValid.gr.rogue_syms[S_vwall], 0xBA);
+        assert.equal(failedAfterValid.gs.symset[ROGUESET].name, null);
+        assert.equal(failedAfterValid.gs.symset[ROGUESET].handling, H_UNK);
+        assert.equal(failedAfterValid.gs.symset[ROGUESET].nocolor, 0);
+        assert.equal(failedAfterValid.gs.symset[ROGUESET].primary, 0);
+        assert.equal(failedAfterValid.gs.symset[ROGUESET].rogue, 0);
+
+        const validAfterFailed = configured(
+            'OPTIONS=roguesymset:RogueIBM,roguesymset:zqxj',
+        );
+        assert.equal(validAfterFailed.gr.rogue_syms[S_vwall], 0xBA);
+        assert.equal(validAfterFailed.gs.symset[ROGUESET].name, 'RogueIBM');
+        assert.equal(validAfterFailed.gs.symset[ROGUESET].handling, H_IBM);
+        assert.equal(validAfterFailed.gs.symset[ROGUESET].rogue, 1);
+    });
 
 test('SYMBOLS preserves the source mixed-delimiter recursion quirk', () => {
     const state = {};

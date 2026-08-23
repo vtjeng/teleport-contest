@@ -195,10 +195,13 @@ function resetSymbolSlot(set, state) {
     }
     state.gs.symset[set] = {
         name: null,
+        desc: null,
         handling: H_UNK,
         // init_rogue_symbols() makes this table colorless after clearing the
         // symset metadata. Named Rogue sets start through that same path.
         nocolor: rogue ? 1 : 0,
+        primary: 0,
+        rogue: 0,
         glyphs: Object.freeze({}),
     };
 }
@@ -242,8 +245,11 @@ function loadSymbolSet(name, set, state) {
         arrays.overrideUtf8.fill(null);
         state.gs.symset[set] = {
             name: null,
+            desc: null,
             handling: H_UNK,
             nocolor: 0,
+            primary: 0,
+            rogue: 0,
             glyphs: Object.freeze({}),
         };
         return;
@@ -267,6 +273,11 @@ function loadSymbolSet(name, set, state) {
     const entry = state.gs.symset[set];
     entry.name = String(name);
     entry.handling = HANDLING_BY_NAME[definition.handling] ?? H_UNK;
+    // parse_sym_line() records Restrictions metadata for a selected set, but
+    // read_sym_file() does not consult it. The interactive picker is the only
+    // source path that filters by primary/rogue compatibility.
+    entry.primary = definition.restrictions.includes('primary') ? 1 : 0;
+    entry.rogue = definition.restrictions.includes('rogue') ? 1 : 0;
     // Concrete G_* customizations come only from the selected symbols file.
     // symbols.c:parsesymbols() validates and saves standalone G_* entries but
     // deliberately does not pass them to glyphrep_to_custom_map_entries().

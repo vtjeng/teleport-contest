@@ -4450,6 +4450,31 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         // negation stop, and a value C cannot read reached no handler to
         // report it.
         applyBooleanOption(result, name, matchedRow, statement, value, negated);
+    } else if (name === 'symset' || name === 'roguesymset') {
+        // C refs: options.c optfn_symset() (4166-4201) and
+        // optfn_roguesymset() (3543-3585). parseoptions() passes each handler
+        // string_for_opt(..., TRUE), so a missing or empty value is a silent
+        // optn_err: it neither selects a set nor leaves parser residue.
+        if (value == null || value === '') return;
+        const set = name === 'roguesymset' ? 'rogue' : 'primary';
+        result[name] = value;
+        // files.c read_sym_file() selects by name without applying the
+        // Restrictions field used by the interactive picker. A miss clears
+        // the attempted name and metadata but deliberately leaves bytes from
+        // an earlier successful selection in place, so retain that cleanup
+        // in the ordered symbols.c operation stream.
+        if (!read_sym_file(value)) {
+            result[name] = undefined;
+            result.symbolOperations.push({
+                kind: 'clear', set, nameToo: true,
+            });
+            configErrorAdd(
+                result,
+                `Unable to load symbol set "${value}" from "symbols"`,
+            );
+            return;
+        }
+        appendSymbolSelection(result, set, value);
     } else if (value != null) {
         // Only a negated option whose optlist.h negateok is Yes reaches the
         // stop below: a negated spelling of any other one is bad_negation()'s
@@ -4461,45 +4486,12 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
                 `negated compound option '${name}' is not supported`,
             );
         }
-        // C refs: options.c optfn_symset() (4166-4201) and
-        // optfn_roguesymset() (3543-3572). Each opens on
-        // `op != empty_optstr` and does nothing at all when that fails, so a
-        // statement whose separator ends it selects no symbol set; each then
-        // answers optn_err, which parseoptions() cannot tell apart here.
-        const emptyValue = value === '';
-        if (name === 'symset') {
-            if (emptyValue) return;
-            result.symset = value;
-            // optfn_symset(do_set) asks files.c read_sym_file() immediately.
-            // A miss clears the attempted name but deliberately leaves earlier
-            // symbol bytes and overrides in place, so retain an ordered cleanup
-            // operation for symbols.c to replay during startup initialization.
-            if (!read_sym_file(value)) {
-                result.symset = undefined;
-                result.symbolOperations.push({
-                    kind: 'clear', set: 'primary', nameToo: true,
-                });
-                configErrorAdd(
-                    result,
-                    `Unable to load symbol set "${value}" from "symbols"`,
-                );
-                return;
-            }
-            appendSymbolSelection(result, 'primary', value);
-        } else if (name === 'roguesymset') {
-            if (emptyValue) return;
-            result.roguesymset = value;
-            appendSymbolSelection(result, 'rogue', value);
-        }
-        else {
-            // This parser currently gives source semantics to the startup
-            // subset above. Preserve other valid options for later subsystem
-            // ports instead of pretending to interpret their values here.
-            // Nothing reads what this stores, and the empty value each handler
-            // above turns away is read differently by each of the remaining
-            // rows, so no guard here would be right for all of them.
-            result.flags[name] = value;
-        }
+        // This parser currently gives source semantics to the startup subset
+        // above. Preserve other valid options for later subsystem ports
+        // instead of pretending to interpret their values here. Nothing reads
+        // what this stores, and each remaining handler reads an empty value
+        // differently, so no common guard here would be source-faithful.
+        result.flags[name] = value;
     } else {
         // Preserve the pre-existing fail-closed marker for a value-less
         // compound option whose do_set request is not ported yet.  A BoolOpt
