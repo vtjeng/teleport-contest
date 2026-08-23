@@ -4285,6 +4285,114 @@
       "status": "closed",
       "from": "e99227d91b777cf4c2184fa678e6c63a059fc447",
       "detail": "Document source-significant MSGTYPE_NAMES prefix order, the unlocktypes index-to-1<<index bit contract, and replace the stale A fifth option wording with the exact remaining versinfo same-field fallback contract."
+    },
+    {
+      "id": "audit-regex-repeat-selection",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "detail": "js/posixregex.js evaluateReferenceNode() accepts repetition decompositions that recorder glibc rejects; implement glibc repetition and submatch-selection precedence and pin the four direct-libc discriminators."
+    },
+    {
+      "id": "audit-regex-internal-caret-provenance",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "detail": "js/posixregex.js anchor evaluation lets an internal caret use an unconsumed candidate-start newline; carry candidate-start provenance in direct and reference-aware matching and pin both failures plus the consumed-newline control."
+    },
+    {
+      "id": "audit-regex-unterminated-interval-diagnostic",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "detail": "js/posixregex.js intervalExpression() gives the wrong diagnostic precedence for malformed unterminated intervals; distinguish invalid comma-form content from the unmatched-brace fallback with reference and no-reference controls."
+    },
+    {
+      "id": "audit-regex-reference-resource-bounds",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "detail": "js/posixregex.js reference-aware evaluator has material exponential state and allocation growth on short valid patterns; replace eager capture-state enumeration with a glibc-compatible bounded matcher and validate parity plus resource budgets through the 255-byte boundary."
+    },
+    {
+      "id": "audit-regex-direct-resource-bounds",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "detail": "js/posixregex.js direct V8 RegExp path has material exponential backtracking on short valid patterns; replace it with a polynomially bounded source-faithful matcher and validate ambiguous patterns through the 255-byte boundary."
+    },
+    {
+      "id": "audit-msgtype-stop-space-clear",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "detail": "js/tty_message.js dismissPendingTtyMessage() restores WIN_STOP after a later Space input that C uses to clear it; remove the restoration, reverse the wrong oracle, and extend fresh evidence through the observable following message."
+    },
+    {
+      "id": "audit-regex-reference-ast-coverage",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "detail": "Reference-aware regex tests do not exercise AST class, GNU-anchor, and contextual-anchor arms; add direct-libc and focused reference-aware discriminators."
+    },
+    {
+      "id": "audit-regex-finite-interval-coverage",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "detail": "Reference-aware regex tests do not pin finite interval maximum behavior; add the recorder-glibc four-input matrix for ^(a){2,3}\\\\1$."
+    },
+    {
+      "id": "audit-regex-variable-width-capture-coverage",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "detail": "Reference-aware regex tests do not pin variable-width capture overwrite and retention; add a direct-libc and focused variable-width capture matrix."
+    },
+    {
+      "id": "audit-msgtype-urgent-winnostop-coverage",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "detail": "The urgent WIN_NOSTOP test is masked by the independent death-message stop clear; use a long prior line and assert the following ordinary message is physically visible."
+    },
+    {
+      "id": "audit-regex-state-key-contract",
+      "area": "startup",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "detail": "js/posixregex.js capture-state deduplication leaves its state-completeness and immutability contract implicit; document the local state equivalence invariant."
+    },
+    {
+      "id": "audit-regex-capture-retention-contract",
+      "area": "startup",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "detail": "js/posixregex.js group evaluation leaves glibc descendant-capture retention implicit; document why only the enclosing group span is overwritten."
     }
   ],
   "areas": [
@@ -17668,6 +17776,201 @@
         }
       },
       "recordedAt": "2026-08-23T05:57:33.035Z"
+    },
+    {
+      "kind": "review",
+      "head": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "auditedRange": "641c44886b4a6d74d9eea4315f96de519ec4c69b..808f9a17db4bb85628ebbaaf179a74fac75cfd69",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "6717b8cb51ca9016f2f5bb6f5206c87c8a465971",
+        "reason": "the checklist covers 6717b8cb, an ancestor of the range head; the 5 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "no-change",
+      "evidence": "Counts: 20 raw, 18 deduplicated, 12 confirmed, 0 applied, 12 deferred, 6 rejected, 0 unverified. The capture evaluator over-accepts glibc repetition decompositions and has material resource blowups; the direct V8 path can backtrack exponentially; internal-caret provenance, interval diagnostics, and TTY STOP clearing also diverge. All confirmed findings return to source-driven corrective slices before another expanded pass. Mutation evidence was waived for this work session, so no mutation command ran and no survivor conclusion is made.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2240,
+        "counts": {
+          "raw": 20,
+          "deduplicated": 18,
+          "confirmed": 12,
+          "applied": 0,
+          "deferred": 12,
+          "rejected": 6,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 6,
+          "tests": 4,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace",
+          "performance",
+          "concurrency"
+        ],
+        "productionDefects": [
+          {
+            "summary": "js/posixregex.js evaluateReferenceNode() accepts repetition decompositions that recorder glibc rejects",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js anchor evaluation lets an internal caret use an unconsumed candidate-start newline",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js intervalExpression() gives the wrong diagnostic precedence for malformed unterminated intervals",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js reference-aware evaluator has material exponential state and allocation growth on short valid patterns",
+            "foundBy": [
+              "performance"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js direct V8 RegExp path has material exponential backtracking on short valid patterns",
+            "foundBy": [
+              "performance"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/tty_message.js dismissPendingTtyMessage() restores WIN_STOP after a later Space input that C uses to clear it",
+            "foundBy": [
+              "variable-trace",
+              "concurrency"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "readiness": {
+          "boundary": "The expanded range covers installed startup regex state, live MSGTYPE matching and TTY More/STOP behavior, and the capture-evaluator correction through the next observable command boundary.",
+          "sourceReview": "Six independent finders read the exact range against recorder glibc and pinned posixregex.c, options.c, pline.c, topl.c, wintty.c, and the JavaScript owners; two adjudicators applied source, causality, and resolution checks to every deduplicated candidate.",
+          "completeness": "All eighteen independent candidates resolved to twelve confirmed deferrals or six evidence-backed rejections with zero unverified. Six production findings change regex semantics, matching resource behavior, or TTY lifecycle and require fresh cases, so policy returns them to implementation before another full pass."
+        },
+        "rejections": [
+          {
+            "summary": "Reference-aware empty-capture minima must be tested at RE_DUP_MAX with accepted recorder matches",
+            "counterEvidence": "The recorder-glibc fixture terminated with signal 11 while compiling the proposed empty-capture pattern at 32767, so no authoritative boolean exists. Existing minimum-2 cases exercise the branch; a compile-only noncapture boundary would be a different test."
+          },
+          {
+            "summary": "The direct recorder-glibc oracle must run in the default JavaScript test suite",
+            "counterEvidence": "Repository validation deliberately separates default source-pinned tests from reproducible direct differential evidence. The committed runner remains rerunnable, and policy does not require a compiler-dependent oracle in npm test."
+          },
+          {
+            "summary": "The fresh recorder matrix must run in the default JavaScript test suite",
+            "counterEvidence": "Repository validation treats focused tests and fresh differentials as separate gates. The committed runner preserves repeatability without making the expensive recorder comparison part of default discovery."
+          },
+          {
+            "summary": "The repeat evaluator's results array has an undocumented dual role",
+            "counterEvidence": "The adjacent comment and eleven-line control flow already explain pre-minimum states, accepted results, and fixed-point detection; renaming would be optional style rather than a material clarity fix."
+          },
+          {
+            "summary": "The regex AST anchor absolute field is materially unclear",
+            "counterEvidence": "The conventional name distinguishes buffer-only anchors from internal newline anchors, and its sole evaluator read plus the adjacent direct-translator comment expose the exact two-value rule."
+          },
+          {
+            "summary": "The preventEscapeStop option needs renaming and another WIN_NOSTOP transition comment",
+            "counterEvidence": "The name states the modeled effect and existing call-site comments already delimit prompt-scoped WIN_NOSTOP. The concrete defect is stoppedAtPrompt restoration, not this option's naming or documentation."
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "js/posixregex.js evaluateReferenceNode() accepts repetition decompositions that recorder glibc rejects",
+            "category": "production",
+            "trackedIn": "audit-regex-repeat-selection"
+          },
+          {
+            "summary": "js/posixregex.js anchor evaluation lets an internal caret use an unconsumed candidate-start newline",
+            "category": "production",
+            "trackedIn": "audit-regex-internal-caret-provenance"
+          },
+          {
+            "summary": "js/posixregex.js intervalExpression() gives the wrong diagnostic precedence for malformed unterminated intervals",
+            "category": "production",
+            "trackedIn": "audit-regex-unterminated-interval-diagnostic"
+          },
+          {
+            "summary": "js/posixregex.js reference-aware evaluator has material exponential state and allocation growth on short valid patterns",
+            "category": "production",
+            "trackedIn": "audit-regex-reference-resource-bounds"
+          },
+          {
+            "summary": "js/posixregex.js direct V8 RegExp path has material exponential backtracking on short valid patterns",
+            "category": "production",
+            "trackedIn": "audit-regex-direct-resource-bounds"
+          },
+          {
+            "summary": "js/tty_message.js dismissPendingTtyMessage() restores WIN_STOP after a later Space input that C uses to clear it",
+            "category": "production",
+            "trackedIn": "audit-msgtype-stop-space-clear"
+          },
+          {
+            "summary": "Reference-aware regex tests do not exercise AST class, GNU-anchor, and contextual-anchor arms",
+            "category": "tests",
+            "trackedIn": "audit-regex-reference-ast-coverage"
+          },
+          {
+            "summary": "Reference-aware regex tests do not pin finite interval maximum behavior",
+            "category": "tests",
+            "trackedIn": "audit-regex-finite-interval-coverage"
+          },
+          {
+            "summary": "Reference-aware regex tests do not pin variable-width capture overwrite and retention",
+            "category": "tests",
+            "trackedIn": "audit-regex-variable-width-capture-coverage"
+          },
+          {
+            "summary": "The urgent WIN_NOSTOP test is masked by the independent death-message stop clear",
+            "category": "tests",
+            "trackedIn": "audit-msgtype-urgent-winnostop-coverage"
+          },
+          {
+            "summary": "js/posixregex.js capture-state deduplication leaves its state-completeness and immutability contract implicit",
+            "category": "clarity",
+            "trackedIn": "audit-regex-state-key-contract"
+          },
+          {
+            "summary": "js/posixregex.js group evaluation leaves glibc descendant-capture retention implicit",
+            "category": "clarity",
+            "trackedIn": "audit-regex-capture-retention-contract"
+          }
+        ],
+        "warnings": [
+          "Mutation readiness and evidence were omitted under the user's explicit work-session waiver; no mutation command was run and no survivor claim is made."
+        ],
+        "validation": {
+          "focused": "Before launch, 45 focused MSGTYPE and warning-symbol tests passed.",
+          "fresh": "Before launch, the direct oracle matched 87 recorder-glibc regex and five vpline byte cases; 26 fresh MSGTYPE segments matched 71,596 PRNG calls and 99 screens/cursors.",
+          "broad": "The non-mutation suite passed 4,729/4,729, generated/static/duplicate checks and exact-head Score/Coverage CI passed, and development remained 11/33 sessions with 1,988 screens, 133,574 PRNG calls, and 2,007 cursors.",
+          "audit": "Six finders produced 20 raw candidates. Cross-finder and same-defect deduplication left 18; two adjudicators confirmed 12, rejected six with source-backed counterevidence, and left zero unverified."
+        }
+      },
+      "recordedAt": "2026-08-23T07:12:15.871Z"
     }
   ]
 }
