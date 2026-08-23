@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
   "reason": "All ten confirmed audit findings are implemented or pinned. A source-shaped ASCII ERE evaluator now owns recorder-glibc capture state, TTY More prompts preserve persistent stop state with prompt-scoped WIN_NOSTOP, and direct, installed, fresh, reset, sentinel, and contract evidence distinguishes every correction. Mutation evidence remains absent under the user's explicit work-session waiver.",
-  "commitChecked": "14d5b2a90805f8b21291359b62e664657b7418df",
+  "commitChecked": "6717b8cb51ca9016f2f5bb6f5206c87c8a465971",
   "boundary": {
     "goalId": "options-config-parser",
     "startingCommit": "14d5b2a90805f8b21291359b62e664657b7418df",
