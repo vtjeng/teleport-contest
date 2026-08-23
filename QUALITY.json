@@ -4393,6 +4393,87 @@
       "status": "closed",
       "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
       "detail": "js/posixregex.js group evaluation leaves glibc descendant-capture retention implicit; document why only the enclosing group span is overwritten."
+    },
+    {
+      "id": "audit-regex-zero-minimum-nested-capture",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "680e6fb9d468698d6bebce6a8198cce329201262",
+      "detail": "js/posixregex.js firstNestedCapture truncation rejects recorder-glibc zero-minimum nested repetitions; restrict the positive-minimum selection rule and pin star and {0,} through libc and live MSGTYPE."
+    },
+    {
+      "id": "audit-regex-finite-descendant-retention",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "680e6fb9d468698d6bebce6a8198cce329201262",
+      "detail": "js/posixregex.js finite-repeat capture clearing discards recorder-glibc descendant retention; clear only the source-selected enclosing capture and pin nested participating/nonparticipating repetitions."
+    },
+    {
+      "id": "audit-regex-correlated-capture-resource-bound",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "680e6fb9d468698d6bebce6a8198cce329201262",
+      "detail": "js/posixregex.js reference matcher exceeds its 2000 ms and 128 MiB resource budget on a valid 255-byte correlated variable-width-capture pattern; preserve exact correlations without eager Cartesian state materialization."
+    },
+    {
+      "id": "audit-regex-unanchored-frontier-resource-bound",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "680e6fb9d468698d6bebce6a8198cce329201262",
+      "detail": "js/posixregex.js unanchored direct and reference matchers exceed their committed resource budgets on valid 255-byte wide-frontier patterns; share start-independent work without breaking contextual-caret provenance."
+    },
+    {
+      "id": "audit-regex-reference-caret-positive-test",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "680e6fb9d468698d6bebce6a8198cce329201262",
+      "detail": "Reference-aware internal-caret positive behavior lacks a libc-backed regression test; add the consumed-newline match and miss control and assert the reference-aware representation."
+    },
+    {
+      "id": "audit-regex-zero-width-fixed-point-test",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "680e6fb9d468698d6bebce6a8198cce329201262",
+      "detail": "Accepted adjacent-repeat fixed points lack a process-bounded match regression test; pin empty, repeated, and miss outcomes under an interruptible subprocess timeout."
+    },
+    {
+      "id": "audit-regex-matchstart-key-contract",
+      "area": "startup",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "680e6fb9d468698d6bebce6a8198cce329201262",
+      "detail": "js/posixregex.js state-key contract omits matchStart despite contextual-caret dependence; include it in keys or explicitly enforce and document candidate-local cache and dedup scopes."
+    },
+    {
+      "id": "audit-regex-finite-endpoint-comment",
+      "area": "startup",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "680e6fb9d468698d6bebce6a8198cce329201262",
+      "detail": "js/posixregex.js finite-interval capture-clearing rule lacks a source-shaped contract; express the corrected endpoint rule with a named predicate and glibc-focused explanation."
+    },
+    {
+      "id": "audit-regex-resource-fixture-owner",
+      "area": "startup",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "680e6fb9d468698d6bebce6a8198cce329201262",
+      "detail": "Regex libc-oracle and resource runners duplicate exact-boundary adversary fixtures; move them to one dependency-free owner while retaining byte-length assertions and runner-specific budgets."
     }
   ],
   "areas": [
@@ -17971,6 +18052,145 @@
         }
       },
       "recordedAt": "2026-08-23T07:12:15.871Z"
+    },
+    {
+      "kind": "review",
+      "head": "680e6fb9d468698d6bebce6a8198cce329201262",
+      "auditedRange": "808f9a17db4bb85628ebbaaf179a74fac75cfd69..680e6fb9d468698d6bebce6a8198cce329201262",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "14ad5a1d7becddd95d09d151d58a54eadda1976d",
+        "reason": "the checklist covers 14ad5a1d, an ancestor of the range head; the 4 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "commands"
+      ],
+      "outcome": "no-change",
+      "evidence": "Counts: 10 raw, 9 deduplicated, 9 confirmed, 0 applied, 9 deferred, 0 rejected, 0 unverified. Nine confirmed findings were deferred: two recorder-glibc repetition-selection mismatches, two valid-boundary resource failures, two regression-test gaps, and three state-key, endpoint-rule, and fixture-ownership clarity issues. All require a corrective implementation slice before the options/config boundary proceeds. Mutation readiness and evidence remain waived; the earlier accidental enumerate-only smoke ran no mutant and produced no evidence.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2470,
+        "counts": {
+          "raw": 10,
+          "deduplicated": 9,
+          "confirmed": 9,
+          "applied": 0,
+          "deferred": 9,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 4,
+          "tests": 2,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace",
+          "performance",
+          "concurrency"
+        ],
+        "productionDefects": [
+          {
+            "summary": "js/posixregex.js firstNestedCapture truncation rejects recorder-glibc zero-minimum nested repetitions",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js finite-repeat capture clearing discards recorder-glibc descendant retention",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js reference matcher exceeds its resource budget on correlated variable-width captures",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js unanchored direct and reference matchers exceed resource budgets on wide frontiers",
+            "foundBy": [
+              "performance"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "readiness": {
+          "boundary": "The expanded range covers the complete bounded ASCII ERE evaluator, its startup MSGTYPE installation and live vpline consumer, and the corrected TTY STOP input lifecycle through the next observable command boundary.",
+          "sourceReview": "Six independent finders read the exact range against recorder glibc and pinned posixregex.c, options.c, pline.c, topl.c, wintty.c, and the JavaScript owners; one independent adjudicator applied evidence, diff-causality, and smallest-resolution checks to all nine deduplicated candidates.",
+          "completeness": "All nine deduplicated candidates were independently confirmed with zero rejected or unverified. Four production and resource findings change regex matching semantics or its source-valid resource envelope, so review policy returns them to implementation before another expanded pass."
+        },
+        "rejections": [],
+        "deferrals": [
+          {
+            "summary": "js/posixregex.js firstNestedCapture truncation rejects recorder-glibc zero-minimum nested repetitions",
+            "category": "production",
+            "trackedIn": "audit-regex-zero-minimum-nested-capture"
+          },
+          {
+            "summary": "js/posixregex.js finite-repeat capture clearing discards recorder-glibc descendant retention",
+            "category": "production",
+            "trackedIn": "audit-regex-finite-descendant-retention"
+          },
+          {
+            "summary": "js/posixregex.js reference matcher exceeds its resource budget on correlated variable-width captures",
+            "category": "production",
+            "trackedIn": "audit-regex-correlated-capture-resource-bound"
+          },
+          {
+            "summary": "js/posixregex.js unanchored direct and reference matchers exceed resource budgets on wide frontiers",
+            "category": "production",
+            "trackedIn": "audit-regex-unanchored-frontier-resource-bound"
+          },
+          {
+            "summary": "Reference-aware internal-caret positive behavior lacks a libc-backed regression test",
+            "category": "tests",
+            "trackedIn": "audit-regex-reference-caret-positive-test"
+          },
+          {
+            "summary": "Accepted adjacent-repeat fixed points lack a process-bounded match regression test",
+            "category": "tests",
+            "trackedIn": "audit-regex-zero-width-fixed-point-test"
+          },
+          {
+            "summary": "js/posixregex.js state-key contract omits matchStart despite contextual-caret dependence",
+            "category": "clarity",
+            "trackedIn": "audit-regex-matchstart-key-contract"
+          },
+          {
+            "summary": "js/posixregex.js finite-interval capture-clearing rule lacks a source-shaped contract",
+            "category": "clarity",
+            "trackedIn": "audit-regex-finite-endpoint-comment"
+          },
+          {
+            "summary": "Regex libc-oracle and resource runners duplicate exact-boundary adversary fixtures",
+            "category": "clarity",
+            "trackedIn": "audit-regex-resource-fixture-owner"
+          }
+        ],
+        "warnings": [
+          "Mutation readiness and evidence were omitted under the user's explicit work-session waiver. An earlier default-suite run accidentally invoked the enumerate-only smoke, which failed before any mutant executed or evidence was produced; no survivor conclusion is made."
+        ],
+        "validation": {
+          "focused": "Before audit launch, 36 MSGTYPE and 13 AUTOPICKUP_EXCEPTION focused tests passed.",
+          "fresh": "Before audit launch, the direct oracle matched 129 recorder-glibc regex and five vpline byte cases; 28 fresh MSGTYPE segments matched 76,846 PRNG calls and 103 screens/cursors.",
+          "broad": "The explicit non-mutation suite passed 4,733/4,733, generated/static checks and exact-head Score/Coverage CI passed, and development remained 11/33 sessions with 1,988 screens, 133,574 PRNG calls, and 2,007 cursors.",
+          "audit": "Six finders produced ten raw candidates. Cross-finder deduplication left nine; independent adjudication confirmed all nine, rejected none, and left zero unverified. Concurrency found no defect; performance found one distinct source-reachable budget failure."
+        }
+      },
+      "recordedAt": "2026-08-23T09:25:53.581Z"
     }
   ]
 }
