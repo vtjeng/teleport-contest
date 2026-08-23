@@ -2672,6 +2672,11 @@
           "name": "startup-warning-symbols-to-config-diagnostics",
           "status": "closed",
           "closedBy": "7421e493c14d8e8ccc366350e18c255efdd72109"
+        },
+        {
+          "name": "startup-autounlock-to-closed-door-autoopen",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
