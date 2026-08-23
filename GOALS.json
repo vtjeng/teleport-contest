@@ -2767,6 +2767,11 @@
           "name": "startup-tile-file-to-iflags",
           "status": "closed",
           "closedBy": "855a04170da2039cdb2773036ba64dc3c812efbb"
+        },
+        {
+          "name": "startup-windowtype-to-config-diagnostics",
+          "status": "closed",
+          "closedBy": "6952c580e9b16898aec2aaec146157988b7931d8"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
