@@ -91,6 +91,7 @@ import {
     VIA_DIALOG,
     VIA_PROMPTS,
     WARNCOUNT,
+    WINTYPELEN,
     def_warnsyms,
 } from './const.js';
 import {
@@ -547,6 +548,10 @@ function defaultResult() {
             crash_email: null,
             crash_name: null,
             crash_urlmax: -1,
+            // decl.c instance_globals_c zeroes this fixed buffer. During the
+            // Unix startup configuration pass, optfn_windowtype() is its sole
+            // writer and jsmain.js installs this same value on the game.
+            chosen_windowtype: '',
             // sounds.c assign_soundlib() writes the requested interface here;
             // allmain.c activates it after configuration and name parsing.
             chosen_soundlib: soundlib_nosound,
@@ -3023,6 +3028,34 @@ function optfn_tile_width(result, statement, negated) {
     );
 }
 
+// C refs: options.c optfn_windowtype() (4943-4988) and windows.c
+// choose_windows() (267-336), restricted to the recorder's Unix TTY startup
+// path. unixmain.c has already installed tty, while window_inited,
+// windowtype_locked, and windowtype_deferred are all false. The requested
+// spelling therefore always replaces gc.chosen_windowtype, but an unknown
+// name reports the sole compiled choice and leaves the active port as tty.
+const ACTIVE_WINDOWPROCS_NAME = 'tty';
+
+function choose_windows(result, requested) {
+    if (requested.length === ACTIVE_WINDOWPROCS_NAME.length
+        && equal_ncasechars(
+            requested, ACTIVE_WINDOWPROCS_NAME, requested.length,
+        )) return;
+
+    configErrorAdd(
+        result,
+        `Window type ${requested} not recognized.  The only choice is:`
+            + ` ${ACTIVE_WINDOWPROCS_NAME}`,
+    );
+}
+
+function optfn_windowtype(result, statement) {
+    const op = string_for_env_opt(statement, false, result);
+    if (op === '') return;
+    result.gc.chosen_windowtype = truncateByteString(op, WINTYPELEN - 1);
+    choose_windows(result, result.gc.chosen_windowtype);
+}
+
 // C ref: options.c optfn_vary_msgcount() (4440-4467), its do_set arm.
 // optlist.h rejects negation before this handler, so the live startup path
 // requires a value and stores its unrestricted atoi() result.  Keep the
@@ -4310,7 +4343,9 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
 
     const menuCommand = menuCommandOption(name);
 
-    if (name === 'name') {
+    if (name === 'windowtype') {
+        optfn_windowtype(result, statement);
+    } else if (name === 'name') {
         // C ref: options.c optfn_name() (2548-2570), its do_set arm.  The
         // value is mandatory, so a statement without one is reported by
         // string_for_env_opt() and leaves svp.plname alone.
@@ -5515,7 +5550,7 @@ function windowAlignmentValue(value) {
 // as "unknown".
 const OPTION_VALUE_HANDLERS = Object.freeze({
     // windowprocs.name, which is WPID(tty) for this build's only interface.
-    windowtype: () => 'tty',
+    windowtype: () => ACTIVE_WINDOWPROCS_NAME,
     playmode: (state) => (state.flags.debug ? 'debug'
         : state.flags.explore ? 'explore' : 'normal'),
     // svp.plname; jsmain.js installs the same value as state.plname.
@@ -5775,7 +5810,6 @@ function symsetValue(state, set, withHandling) {
 // so the set cannot drift from OPTION_VALUE_HANDLERS unnoticed.
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'glyph',
-    'windowtype',
 ]));
 
 // C ref: options.c doset_add_menu()'s optfn call, plus the "unknown" default

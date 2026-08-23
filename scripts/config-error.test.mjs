@@ -935,6 +935,11 @@ test('malformed font prefixes report both source diagnostics', () => {
 // without config_erradd()'s " * Line 1: " prefix.  A C recording of all 285
 // spellings confirms each one, message for message.
 const COMPOUND_SWEEP_REPORTS = new Map([
+    ['windowtype', [
+        ["Missing parameter for 'windowtype'."],
+        ["Missing parameter for 'windowtype:'."],
+        ['Window type zqxj not recognized.  The only choice is: tty.'],
+    ]],
     ['align_message', [
         ["Missing parameter for 'align_message'."],
         ["Missing parameter for 'align_message:'."],
@@ -1360,7 +1365,6 @@ const SILENT_COMPOUND_ROWS = new Set([
 // than a silent pass, and it is the target for whichever handler is ported
 // next.
 const UNPORTED_COMPOUND_ROWS = new Map([
-    ['windowtype', [1, 1, 1]],
     ['perminv_mode', [1, 1, 1]],
     ['windowcolors', [1, 1, 1]],
 ]);
@@ -1380,9 +1384,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 75);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 76);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 3);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 2);
 
     let owed = 0;
     for (const row of rows) {
@@ -1416,9 +1420,9 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 9 messages over 3 rows: what porting those handlers is worth to a
+    // 6 messages over 2 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 9);
+    assert.equal(owed, 6);
 });
 
 test('startup boulder parsing rejects source clashes and signed controls',
