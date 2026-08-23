@@ -1,151 +1,132 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "All fourteen audit findings are implemented or pinned. The production path now matches fresh recorder-glibc probes and the 23-case startup MSGTYPE differential; source-shaped message and locked-door tests cover the remaining contracts. Mutation evidence is absent under the user's explicit work-session waiver.",
-  "commitChecked": "a36bdd40064de3938ded8158feb449f1a55c8acb",
+  "mode": "implementation",
+  "reason": "The final expanded 641c448..e99227d correctness audit confirmed three production defects, four test gaps, and three clarity issues. The production findings change recorder-glibc capture-state matching and TTY stop lifecycle behavior, so review policy returned all ten to implementation with fresh end-to-end validation.",
+  "commitChecked": "14d5b2a90805f8b21291359b62e664657b7418df",
   "boundary": {
     "goalId": "options-config-parser",
-    "startingCommit": "b79d33f5b7af6e12a54d3af45d649c9ca935bfb2",
-    "startingEvent": "A startup MSGTYPE/AUTOPICKUP_EXCEPTION pattern is compiled or matched, or an initialized pline/autounlock consumer reaches one of the audited branches.",
-    "endingEvent": "The rule is accepted or diagnosed exactly, matching and message/autounlock behavior reaches the next input boundary with source-shaped state, and all fourteen audited contracts are pinned.",
-    "validInputs": "Recorder-glibc ASCII ERE including numeric references, comma-only intervals, GNU buffer anchors, contextual caret/dollar on newline text, long UTF-8 messages, urgent/NOREP/STOP combinations, and combined autounlock masks.",
-    "observables": "Regex diagnostics and match result, installed MSGTYPE action, message history, queued input consumption, terminal screens/attributes/cursors, autounlock boundary, and PRNG calls.",
-    "exclusions": "Non-ASCII C.UTF-8 locale matching, runtime autopickup object filtering, interactive MSGTYPE editing/serialization, USER_SOUNDS, and custompline flags other than exact OVERRIDE remain named before-effect boundaries."
+    "startingCommit": "14d5b2a90805f8b21291359b62e664657b7418df",
+    "startingEvent": "A compiled startup regex evaluates a numeric reference through alternatives/repetition, a pending message and configured STOP consume More responses, or a reviewed parser/table/reset contract is exercised.",
+    "endingEvent": "Recorder-glibc match selection and retained capture state agree, TTY stop/input/history state reaches the next input boundary in C order, and all ten audited contracts have discriminating evidence.",
+    "validInputs": "ASCII recorder-glibc ERE with empty and repeated captures, configured MSGTYPE STOP with Escape/Space schedules and urgent prompt origins, negated bracket and unmatched-parenthesis forms, malformed warning numbers, sequential segments, ambiguous option prefixes, and combined autounlock display.",
+    "observables": "Regex compile/match and installed action, message history/topline/stop state, queued input consumption, complete terminal screens/attributes/cursors, installed per-segment gp state, warning scanner destination, and PRNG calls.",
+    "exclusions": "Non-ASCII locale matching, runtime autopickup object filtering, interactive MSGTYPE editing/serialization, USER_SOUNDS, non-exact-OVERRIDE custompline flags, and unrelated wrapped-urgent behavior remain named before-effect boundaries."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "sys/share/posixregex.c regex_compile/regex_match as supplied by recorder glibc, options.c msgtype_type/msgtype_add, pline.c vpline/urgent_pline/Norep, lock.c doopen_indir, and wintty.c message-window display/clear.",
-    "dispatchTablesAndCatalogs": "The glibc ERE operators exercised by the direct oracle, MSGTYPE action table, autounlock bit constants, pline flags, and BUFSZ define the finite candidate families.",
-    "reachableHelpers": "Five audit finders traced candidates through config parsing, compiled state, live classification, TTY waits/history, and the locked-door consumer; two adjudicators verified all seventeen deduplicated candidates and confirmed these fourteen.",
-    "javascriptCrossCheck": "The audit inspected js/posixregex.js, js/options.js, js/tty_message.js, js/hack.js, startup runners/oracles, and focused tests for mismatches and non-discriminating assertions.",
-    "remainingLimits": "This checklist is exhaustive for the fourteen confirmed findings recorded at review frontier db6f32c. It does not claim non-ASCII locale behavior or later excluded consumers."
+    "upstreamEntryPoints": "Recorder-glibc regcomp/regexec through sys/share/posixregex.c, options.c msgtype_type/msgtype_parse_add, pline.c vpline, topl.c update_topl/more, wintty.c tty_putstr/tty_display_nhwindow, cfgfiles.c get_uchars, and lock/autounlock tables.",
+    "dispatchTablesAndCatalogs": "Capture/reference sites, repetition/alternative structure, WIN_STOP/WIN_NOSTOP/TOPLINE states, MSGTYPE_NAMES, unlocktypes bits, config statement dispatch, and per-segment startup installation define the candidate families.",
+    "reachableHelpers": "Five finders traced the complete accumulated range and two adjudicators reconciled exact glibc probes and TTY prompt schedules; all eleven deduplicated candidates resolved to these ten findings or one rejected urgent-STOP claim.",
+    "javascriptCrossCheck": "The review inspected js/posixregex.js, js/tty_message.js, js/options.js, js/jsmain.js, input/terminal state, fresh runners/oracles, and focused warning/MSGTYPE/autounlock tests.",
+    "remainingLimits": "This checklist is exhaustive for the ten confirmed findings at review frontier e99227d and retains every adjudicated exclusion and rejection."
   },
   "entries": [
     {
-      "candidate": "Rejected backreference candidates do not hide overlapping or same-start valid glibc matches",
-      "reachability": "A valid configured pattern can produce an ECMAScript candidate whose referenced optional group did not participate before glibc would choose another valid start or alternative.",
-      "owner": "js/posixregex.js regex_match() and reference-aware compiled representation",
-      "effects": "The configured MSGTYPE action is selected for every match glibc regexec accepts.",
-      "evidence": "posixregex.c delegates to recorder glibc regexec(). regex_match now rescans at match.index + 1 and branches by disabling each observed invalid reference marker, which admits (a|(b))b?\\2 on abb, ((a)?\\2x.x|a) on xax, and ((a)?\\2|a) on a. Direct libc and installed MSGTYPE cases pin overlap and same-start recovery.",
-      "status": "done",
-      "remaining": "None within the ASCII recorder-glibc boundary."
+      "candidate": "Same-reference recovery preserves valid same-start capture-participating paths",
+      "reachability": "A rejected ECMAScript candidate can omit a referenced group while another path at the same start and same reference site participates.",
+      "owner": "js/posixregex.js reference-aware matcher",
+      "effects": "Every recorder-glibc-valid match remains selectable without admitting nonparticipation false positives.",
+      "evidence": "Recorder glibc matches (|())\\2 on empty/nonempty text and ^((a)|b)*\\2 on aab; marker disabling removes the valid path and JS returns false.",
+      "status": "missing",
+      "remaining": "Explore capture/alternative/repetition choices while preserving the reference, then pin direct and installed MSGTYPE true/false cases."
     },
     {
-      "candidate": "Comma-only interval a{,} is accepted with glibc zero-or-more semantics",
-      "reachability": "The recorder ABI accepts the form in any startup regex.",
-      "owner": "js/posixregex.js intervalExpression()/translateInterval()",
-      "effects": "Compile acceptance, installed rule, and empty/nonempty match results.",
-      "evidence": "Recorder glibc accepts a{,} as zero-or-more. intervalExpression admits the empty upper and lower texts, translateInterval emits {0,}, and direct plus installed MSGTYPE tests match empty and repeated input.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "Quantified subgroups retain glibc's last participating capture value",
+      "reachability": "A subgroup can participate in one repetition and be absent in a later repetition before its backreference.",
+      "owner": "js/posixregex.js reference-aware matcher",
+      "effects": "The backreference consumes the last participating value until the subgroup participates again.",
+      "evidence": "Recorder glibc matches ^((a)|b)*\\2$ on aba; ECMAScript clears group 2 on the b repetition and current JS returns false.",
+      "status": "missing",
+      "remaining": "Carry source-shaped capture state across repetitions and add direct plus live MSGTYPE controls."
     },
     {
-      "candidate": "GNU escaped backtick and apostrophe absolute-buffer anchors",
-      "reachability": "ASCII startup patterns may use either glibc extension and may attempt to quantify it.",
-      "owner": "js/posixregex.js validation and ASCII translation",
-      "effects": "Absolute beginning/end matches and Invalid preceding regular expression diagnostics.",
-      "evidence": "Recorder-glibc probes show escaped backtick at absolute start and escaped apostrophe at absolute end, with Invalid preceding regular expression for repetition. Validation and translation now implement those results; direct and installed MSGTYPE cases pin both anchors and diagnostics.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "A non-Escape STOP dismissal preserves an existing persistent stop",
+      "reachability": "A non-fitting prior message is dismissed with Escape, then the configured STOP message's explicit prompt is dismissed with Space before another input boundary.",
+      "owner": "js/tty_message.js dismiss/display/update flow",
+      "effects": "Two prompts consume exactly Escape then Space, existing stop remains set, and a following pre-input ordinary message updates logical history without becoming visible.",
+      "evidence": "topl.c snapshots skip before the first More, still renders STOP, then more() never clears WIN_STOP on Space; JS currently assigns false on the second dismissal.",
+      "status": "missing",
+      "remaining": "Make stop monotonic across More dismissals, model WIN_NOSTOP only for prompts inside urgent tty_putstr, and pin prompt-origin controls plus fresh screens/cursors."
     },
     {
-      "candidate": "Contextual internal caret and dollar behavior on newline-bearing text",
-      "reachability": "vpline preserves formatted newlines before MSGTYPE lookup, and startup diagnostic paths can emit them after window initialization.",
-      "owner": "js/posixregex.js anchor translation and live MSGTYPE matching",
-      "effects": "Internal-anchor match result without breaking absolute leading/trailing anchor behavior.",
-      "evidence": "Fresh libc calls distinguish branch-edge absolute anchors from internal anchors, which also admit positions beside newline bytes. The translator tracks branch context; direct tables pin $., a$., .+^, and ^end$, while an installed MSGTYPE rule classifies a live newline-bearing tty message.",
-      "status": "done",
-      "remaining": "None within ASCII matching."
+      "candidate": "Negated POSIX bracket classes have semantic match evidence",
+      "reachability": "Valid startup patterns can negate a bracket containing a POSIX class.",
+      "owner": "scripts/startup-msgtype.test.mjs and direct regex oracle",
+      "effects": "A non-digit matches ^[^[:digit:]]$ while a digit does not.",
+      "evidence": "Positive classes are covered; the leading-negation translation branch is not.",
+      "status": "missing",
+      "remaining": "Add direct recorder/JS positive and negative comparisons."
     },
     {
-      "candidate": "Long-message normalization precedes NOREP equality",
-      "reachability": "Two different 256-511-byte raw messages can normalize to the same 255-byte vpline value.",
-      "owner": "scripts/startup-msgtype.test.mjs over js/tty_message.js ttyPline()/ttyNorep()",
-      "effects": "The second normalized-equal message is suppressed with history/display/input unchanged.",
-      "evidence": "The focused test sends distinct long raw messages whose normalized 255 bytes are equal and proves the second call changes no previous-message, topline, pending-message, terminal, cursor, or input-wait state.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "Unmatched close parenthesis is literal-match tested",
+      "reachability": "Recorder glibc accepts unmatched ) as an ordinary ERE character.",
+      "owner": "scripts/startup-msgtype.test.mjs and direct regex oracle",
+      "effects": "^)$ matches ) and not empty text.",
+      "evidence": "Current coverage proves compilation only, so dropping or broadening the literal would survive.",
+      "status": "missing",
+      "remaining": "Add anchored semantic comparisons."
     },
     {
-      "candidate": "Same-line appended MSGTYP_STOP waits once and clears",
-      "reachability": "A short matching STOP message fits beside a short pending message.",
-      "owner": "scripts/startup-msgtype.test.mjs over js/tty_message.js same-line branch",
-      "effects": "Combined More screen, one consumed dismissal key, retained sentinel, then cleared row and cursor.",
-      "evidence": "The focused short-prior/short-STOP test observes the combined prior  halt--More-- row, one dismissal wait, the retained sentinel key, and the cleared row and home cursor.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "Malformed warning-number scanning discards the in-progress number",
+      "reachability": "get_uchars sees valid completed bytes followed by digits and an invalid byte before whitespace/NUL.",
+      "owner": "scripts/startup-warning-symbols.test.mjs over js/options.js get_uchars()",
+      "effects": "Count and completed prefix are returned; the destination slot for the partial number stays unchanged.",
+      "evidence": "65 66x currently asserts only slot zero; cfgfiles.c stores a number only on whitespace/NUL and jumps to error on x.",
+      "status": "missing",
+      "remaining": "Use a preinitialized sentinel destination and avoid asserting cnf_line_WARNINGS uninitialized tail."
     },
     {
-      "candidate": "Urgent messages bypass configured MSGTYP_NOREP suppression",
-      "reachability": "URGENT_MESSAGE still performs lookup but bypasses both NOSHOW and repeated-NOREP swallowing.",
-      "owner": "scripts/startup-msgtype.test.mjs over ttyUrgentPline()",
-      "effects": "A repeated urgent message is rendered and stored.",
-      "evidence": "The focused test installs MSGTYP_NOREP, emits ordinary same followed by urgent same, and observes both messages rendered and the source previous-message value retained.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "MSGTYPE state resets between sequential runSegment calls",
+      "reachability": "One segment installs hide-all and the next segment in the same JS process has no MSGTYPE directive.",
+      "owner": "js/jsmain.js NethackGame.start() with a focused runSegment integration test",
+      "effects": "The second gp.plinemsg_types is null and ordinary startup output remains visible/stored.",
+      "evidence": "Every fresh matrix case configures MSGTYPE; parser-only tests do not exercise game reset/installation.",
+      "status": "missing",
+      "remaining": "Add sequential configured-to-empty runSegment integration evidence."
     },
     {
-      "candidate": "Combined autounlock acting masks preserve bit tests and APPLY_KEY-before-KICK precedence",
-      "reachability": "Startup accepts APPLY_KEY|KICK|FORCE and doopen_indir reaches the locked-door consumer.",
-      "owner": "scripts/closed-door-autoopen.test.mjs over js/hack.js requireAutoopenClosedDoor()",
-      "effects": "With a recognized tool, stop at tool use; without one, fall through to kick prompt before force.",
-      "evidence": "The live locked-door test consumes APPLY_KEY|KICK|FORCE with a skeleton key and without a recognized tool. The former stops at apply-key tool use; the latter reaches the kick prompt boundary before FORCE.",
-      "status": "done",
-      "remaining": "None before the named unported pick-lock and kick consumers."
+      "candidate": "MSGTYPE_NAMES source order is documented as prefix behavior",
+      "reachability": "msgtype_parse_add accepts the first table entry matching an abbreviated action.",
+      "owner": "js/options.js MSGTYPE_NAMES",
+      "effects": "s remains show before stop and n remains noshow before norep.",
+      "evidence": "Tests pin current prefixes, but the apparently declarative table lacks its ordering invariant.",
+      "status": "missing",
+      "remaining": "Add a concise source-order comment naming ambiguous prefixes."
     },
     {
-      "candidate": "Accepted interval, repeated-interval, and final-hyphen forms have semantic match tests",
-      "reachability": "Valid startup patterns traverse these validator/translator branches.",
-      "owner": "scripts/startup-msgtype.test.mjs and direct recorder oracle",
-      "effects": "Positive and negative membership/repetition match glibc rather than only compiling.",
-      "evidence": "Direct libc and focused semantic tables now pin positive and negative results for a{,2}, exact a{2}{3}, and [a-]. Existing adjacent-quantifier assertions remain the sole coverage for a+? and a++.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "unlocktypes index-to-bit contract is explicit",
+      "reachability": "The optionsfull getter maps each table index to 1 shifted by that index.",
+      "owner": "js/options.js unlocktypes and autounlock getter",
+      "effects": "UNTRAP/APPLY_KEY/KICK/FORCE remain paired with bits 1/2/4/8.",
+      "evidence": "Startup now makes all masks live, while positional ownership is implicit despite current output tests.",
+      "status": "missing",
+      "remaining": "Document the exact index/bit invariant beside the table or encode explicit bit pairs."
     },
     {
-      "candidate": "UTF-8 vpline normalization is byte-based at the 249/255 boundaries",
-      "reachability": "A valid long message can split a multibyte sequence at byte 249; exactly 255 bytes remains unchanged.",
-      "owner": "scripts/startup-msgtype.test.mjs and vpline direct oracle",
-      "effects": "Encoded history bytes retain the lone lead byte, ellipsis, and source final three bytes exactly.",
-      "evidence": "The direct vpline C oracle and focused tty test compare raw encoded bytes for a 249-byte cut retaining a lone 0xC3 lead byte and for an unchanged 255-byte UTF-8 control.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "Sibling-alternative backreference availability is explicit",
-      "reachability": "Validation resets path-available capture groups at each alternative; unioning siblings would accept invalid references.",
-      "owner": "js/posixregex.js validateExtendedRegexp()",
-      "effects": "Maintainers can preserve rejection of patterns such as (a)|\\1.",
-      "evidence": "validateExtendedRegexp names pathAvailableGroups and documents its reset at sibling alternatives. Focused and direct-libc cases reject (a)|\\1 while accepting and semantically matching (a)|(b)\\2.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "Compiled-regex representation has an explicit state contract",
-      "reachability": "regex_match dispatches among rejected, non-ASCII boundary, direct ASCII, and reference-aware ASCII states.",
-      "owner": "js/posixregex.js regex_compile()/regex_match()",
-      "effects": "Legal matcher/reference combinations cannot silently drift through nullable-field conventions.",
-      "evidence": "regex_init and regex_compile now assign kind as uncompiled, rejected, locale-boundary, direct, or reference-aware, and regex_match dispatches on that discriminant. A focused transition test pins every compiled state.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "ttyPlineCore names MSGTYP_NORMAL for its override default",
-      "reachability": "OVERRIDE_MSGTYPE bypasses lookup and relies on the initialized normal action.",
-      "owner": "js/tty_message.js ttyPlineCore()",
-      "effects": "The source semantic default is explicit rather than coupled to literal zero.",
-      "evidence": "ttyPlineCore now imports and initializes MSGTYP_NORMAL exactly as pline.c vpline(); focused override and configured-action tests retain behavior.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "tty_message module header maps all ported source owners",
-      "reachability": "The module now contains topl.c, pline.c, and wintty.c branches.",
-      "owner": "js/tty_message.js header comment",
-      "effects": "Future reviewers can trace normalization, custom/urgent flags, and display/clear ordering to the correct C files.",
-      "evidence": "The module header now maps pline.c vpline/custompline/urgent/Norep, topl.c update/more/wait, and wintty.c display/clear ownership.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "versinfo comment names the remaining same-field fallback exactly",
+      "reachability": "The compound options getter retains requireParsedNumber only for versinfo among value-less same-field fallbacks.",
+      "owner": "js/options.js compound-options fallback comment",
+      "effects": "Future ports preserve the fail-closed type guard for the correct remaining row.",
+      "evidence": "A fifth option became stale after autounlock and suppress_alert left the family; sibling code identifies versinfo alone.",
+      "status": "missing",
+      "remaining": "Replace ordinal wording with the exact versinfo contract."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "Every audited branch was retraced through sys/share/posixregex.c regex_compile/regex_match and recorder glibc, options.c MSGTYPE lookup, pline.c vpline/custom/urgent/Norep, wintty.c message display/clear, and lock.c doopen_indir. The production consumer executes every done path through installed startup state or the live message/door boundary. Direct libc calls, fresh C/JS startup differentials, and source-shaped focused tests cover state, diagnostics, waits, screens/cursors, raw bytes, and unchanged PRNG order. Named exclusions stop before effect. Mutation commands remain waived for this work session."
+  "missingWorkByOwner": [
+    {
+      "owner": "js/posixregex.js and direct/live regex evidence",
+      "candidates": [0, 1]
+    },
+    {
+      "owner": "js/tty_message.js and STOP prompt evidence",
+      "candidates": [2]
+    },
+    {
+      "owner": "scripts/startup-msgtype.test.mjs and startup warning/reset tests",
+      "candidates": [3, 4, 5, 6]
+    },
+    {
+      "owner": "js/options.js source-contract comments",
+      "candidates": [7, 8, 9]
+    }
+  ],
+  "sourceReview": "The final full audit and two adjudicators source-confirmed all ten entries and rejected the blanket urgent-STOP exception because WIN_NOSTOP clears before explicit display. Production fixes must preserve exact glibc capture state and prompt-origin TTY ordering, with direct C and fresh complete-screen/input evidence. Mutation commands remain waived for this work session."
 }
