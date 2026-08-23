@@ -1,106 +1,88 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "All nine confirmed follow-up findings are implemented and validated. The evaluator now preserves recorder-glibc zero-minimum and finite-descendant selection, shares only start-independent work, and rejects exact impossible suffixes before capture materialization. Focused, direct-libc, process-bounded resource, fresh MSGTYPE, broad non-mutation, generated/static, and development checks pass.",
-  "commitChecked": "99a84e46839a9163289046e0d38179bd67729fad",
+  "mode": "implementation",
+  "reason": "The expanded audit confirmed one finite-repeat capture-selection mismatch and two suffix-reaching exact-boundary resource failures. The resource fixtures also mask those paths and have split enumeration ownership, so all five findings must be corrected and independently re-audited before parser work continues.",
+  "commitChecked": "35f7abbb5bc19af1915b6f62ab69f259fcd8abca",
   "boundary": {
     "goalId": "options-config-parser",
-    "startingCommit": "becaec927f1e605ffc6f96abda30cee85e07efd2",
-    "startingEvent": "A valid ASCII POSIX ERE installed by startup MSGTYPE or AUTOPICKUP_EXCEPTION is compiled and matched through the recorder-glibc wrapper contract.",
-    "endingEvent": "Compilation returns the recorder diagnostic or installed matching selects the same boolean and MSGTYPE action as glibc within the committed time and memory budgets at the source 255-byte pattern and message limits.",
-    "validInputs": "Recorder-glibc REG_EXTENDED|REG_NOSUB ASCII patterns containing zero-minimum and finite nested captures, numeric references, contextual carets, adjacent repeat operators, unanchored wide frontiers, and correlated variable-width retained captures.",
-    "observables": "Compile acceptance and diagnostic, match boolean and selected action, installed startup state, complete screens/cursors and PRNG calls, plus wall time and maxRSS for exact 255-byte adversaries.",
-    "exclusions": "Non-ASCII C.UTF-8 locale matching, runtime autopickup object filtering, interactive MSGTYPE editing and serialization, USER_SOUNDS, and gameplay after the next message/input boundary remain named before-effect boundaries."
+    "startingCommit": "35f7abbb5bc19af1915b6f62ab69f259fcd8abca",
+    "startingEvent": "A valid ASCII POSIX ERE installed by startup MSGTYPE or AUTOPICKUP_EXCEPTION is matched through the recorder-glibc REG_EXTENDED|REG_NOSUB contract.",
+    "endingEvent": "Matching selects the same boolean and MSGTYPE action as recorder glibc within the committed direct and reference time/memory budgets at exact 255-byte pattern and message limits.",
+    "validInputs": "Finite repeated groups with referenced descendants, suffix-reaching correlated and zero-minimum reference patterns, and unanchored direct/reference wide-frontier patterns within the source byte limits.",
+    "observables": "Match boolean and installed MSGTYPE action, complete fresh screens/cursors and PRNG calls, plus isolated wall time and maxRSS for every declared exact-boundary resource case.",
+    "exclusions": "Non-ASCII C.UTF-8 locale matching, runtime autopickup object filtering, interactive MSGTYPE editing/serialization, USER_SOUNDS, and behavior after the next message/input boundary remain named before-effect boundaries."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "sys/share/posixregex.c regex_init/regex_match delegates to recorder glibc regcomp/regexec; glibc regcomp/regexec capture selection defines the required semantics; options.c msgtype_parse_add/msgtype_type and add_autopickup_exception are the installed consumers.",
-    "dispatchTablesAndCatalogs": "The parsed ASCII ERE tree, repeat endpoint forms, referenced capture ids, candidate starts, source BUFSZ limits, and committed direct/reference resource budgets define the complete audited families.",
-    "reachableHelpers": "The expanded audit supplied direct libc and live MSGTYPE discriminators for both semantic defects and exact 255-byte formulas for both resource failures; related keying, interval-selection, fixed-point, and runner-fixture paths were clustered by shared ownership.",
-    "javascriptCrossCheck": "Inspect js/posixregex.js parser and direct/reference evaluators, js/options.js installed consumers, and the focused, direct-libc, fresh, and resource runners for duplicated fixtures, candidate-local assumptions, eager frontier materialization, and abort-based guesses.",
-    "remainingLimits": "The nine confirmed audit deferrals are closed without a state-count abort or guessed result. Named non-ASCII and later consumer boundaries remain excluded."
+    "upstreamEntryPoints": "sys/share/posixregex.c regex_match delegates to glibc regexec; glibc capture endpoint selection defines the finite-repeat result; options.c msgtype_type and add_autopickup_exception are the installed consumers.",
+    "dispatchTablesAndCatalogs": "The shared exact-boundary fixture catalog, its complete budget map, 255-byte source limits, repeat endpoint states, referenced capture ids, candidate starts, and absolute suffix constraints define the audited families.",
+    "reachableHelpers": "The audit supplied direct-libc/live MSGTYPE discriminators for the endpoint defect and four suffix-reaching exact-boundary families that separately exercise correlated state, zero-minimum state, direct candidate ordering, and reference candidate reuse.",
+    "javascriptCrossCheck": "Inspect js/posixregex.js repeat endpoint/continuation projections, direct/reference sequence search and suffix feasibility, plus all shared fixture/oracle/resource consumers for masked paths, separate catalogs, aborts, or guessed booleans.",
+    "remainingLimits": "The list is exhaustive for the five confirmed deferrals. Every resource case must reach its named evaluator path; a literal-suffix guard case may remain only when named separately from frontier/memo coverage."
   },
   "entries": [
     {
-      "candidate": "Zero-minimum nested quantified-capture selection",
-      "reachability": "A referenced capture is inside an unbounded outer star or {0,} and the input permits more than one outer repetition.",
+      "candidate": "Finite-repeat accepted endpoint projection",
+      "reachability": "A bounded repeated group first captures a referenced descendant and may either stop at an intermediate count or continue through a nonparticipating sibling to its maximum.",
       "owner": "js/posixregex.js reference repeat evaluation",
-      "effects": "A configured MSGTYPE rule can reject a welcome or ordinary message that recorder glibc matches.",
-      "evidence": "Recorder libc matches ^(a+)*\\1$ and ^(a+){0,}\\1$ on aaa and the live ^Hello (a+)*\\1, welcome rule; pre-fix JavaScript stopped the outer repeat after one iteration.",
-      "status": "done",
-      "remaining": "None; zero-minimum star and {0,}, positive-minimum controls, direct libc, and the live welcome consumer pass."
+      "effects": "The accepted endpoint must clear descendant captures while the continuation frontier retains them, or MSGTYPE selects the wrong action.",
+      "evidence": "Recorder libc rejects ^((a)|b){0,2}\\2$ on aa and accepts aba; current JavaScript accepts both and a live hide rule suppresses aa incorrectly.",
+      "status": "missing",
+      "remaining": "Separate sanitized endpoint projection from retained continuation state and pin aa false plus aba true through libc, focused, and live fresh cases."
     },
     {
-      "candidate": "Finite-repeat descendant capture retention",
-      "reachability": "A finite repeated group first reaches a referenced descendant and later takes a sibling where that descendant does not participate.",
-      "owner": "js/posixregex.js reference repeat evaluation",
-      "effects": "Clearing every descendant loses glibc's retained last participating value and changes the final match.",
-      "evidence": "Recorder libc accepts ^((a)|b){0,2}\\2$ on aba while pre-fix JavaScript rejected it; existing endpoint cases require clearing only the selected directly repeated capture.",
-      "status": "done",
-      "remaining": "None; the named finite-endpoint rule clears only the directly repeated capture and retains participating descendants."
-    },
-    {
-      "candidate": "Correlated variable-width reference-state resource bound",
-      "reachability": "Four referenced captures retain several correlated widths through an ambiguous repeat at the exact source pattern and message limits.",
+      "candidate": "Reference late-constraint exact-boundary resource bound",
+      "reachability": "A valid 255-byte suffix-reaching reference pattern materializes large repeat/capture frontiers before downstream references and fixed suffix structure decide viability.",
       "owner": "js/posixregex.js reference matcher",
-      "effects": "Synchronous matching exceeds the 2,000 ms and 128 MiB budget despite agreeing with glibc's boolean.",
-      "evidence": "The confirmed 255-byte pattern built from ^((a+)|(a+)|(a+)|(a+))*\\2\\3\\4\\5, 108 empty groups, and c{235}b$ took about 3.8 seconds/177 MiB versus libc about 31 ms.",
-      "status": "done",
-      "remaining": "None; exact absolute-end suffix feasibility avoids impossible capture materialization and the shared 255-byte case passes libc parity and the 2,000 ms/128 MiB budget."
+      "effects": "Synchronous matching exceeds the committed 2,000 ms and 128 MiB budget while producing the correct boolean.",
+      "evidence": "A correlated near-miss reached about 177 MiB, and a zero-minimum valid match reached about 4.4 seconds/943 MiB; recorder libc agreed on both booleans within the budget.",
+      "status": "missing",
+      "remaining": "Apply downstream exact suffix and capture-dependent feasibility while generating endpoints, preserve first successful REG_NOSUB behavior, and pass both exact formulas without aborts or guessed results."
     },
     {
-      "candidate": "Unanchored wide-frontier resource bound",
-      "reachability": "A valid unanchored pattern exposes a broad endpoint frontier through a long optional sequence and restarts at every candidate input position.",
-      "owner": "js/posixregex.js direct and reference matchers",
-      "effects": "Both matcher kinds exceed committed time budgets, and the direct case exceeds its memory budget.",
-      "evidence": "Exact 255-byte direct (a|aa)* plus 123 a? and b$ took about 6 seconds/142 MiB; the reference pattern with 124 a? before \\1b$ took about 3 seconds, while recorder libc returned the same false results much faster.",
-      "status": "done",
-      "remaining": "None; direct nodes key matchStart only when their subtree depends on it, and both shared 255-byte unanchored cases pass their original budgets."
+      "candidate": "Direct suffix-aligned exact-boundary search",
+      "reachability": "A nullable unanchored direct pattern has a rightmost suffix-aligned match after expensive earlier candidate starts.",
+      "owner": "js/posixregex.js direct matcher",
+      "effects": "Left-to-right candidate work exceeds the committed 1,000 ms budget despite REG_NOSUB exposing only a boolean.",
+      "evidence": "The 255-byte wide-frontier pattern on a 255-byte suffix-reaching input matched like libc but independently measured about 1.2 seconds, over budget.",
+      "status": "missing",
+      "remaining": "Use source-safe suffix-aligned candidate ordering or equivalent pruning, retain contextual-caret matchStart keys, and pass the exact libc/resource case."
     },
     {
-      "candidate": "Reference-aware internal-caret positive coverage",
-      "reachability": "A reference-bearing pattern consumes a newline before reaching an internal caret and then evaluates a later reference.",
-      "owner": "scripts/startup-msgtype.test.mjs and direct libc oracle",
-      "effects": "Candidate-start provenance can regress while existing reference-aware caret coverage remains negative-only.",
-      "evidence": "Recorder libc and corrected JavaScript match (.+^b)(x)\\2 on newline+bxx and reject newline+bx; the positive path was absent from persistent tests.",
-      "status": "done",
-      "remaining": "None; focused and libc-backed match/miss cases assert reference-aware routing."
+      "candidate": "Suffix-reaching resource-path matrix",
+      "reachability": "Every declared exact-boundary fixture should exercise the evaluator path named by its case rather than exit through the adjacent literal-suffix guard.",
+      "owner": "scripts/startup-regex-fixtures.mjs, direct libc oracle, and resource runner/test",
+      "effects": "Masked cases report millisecond green budgets while leaving direct memo, reference memo, zero-minimum, and correlated-frontier paths unmeasured.",
+      "evidence": "All committed patterns end in b$ while their inputs end in a; both matchers return before allocating memo or entering candidate loops.",
+      "status": "missing",
+      "remaining": "Keep one explicitly named guard case and add exact 255-byte suffix-reaching siblings for each production path with libc booleans and isolated budgets."
     },
     {
-      "candidate": "Adjacent-repeat zero-width fixed-point coverage",
-      "reachability": "Recorder glibc accepts adjacent repeat operators whose inner node may return its starting position.",
-      "owner": "scripts/startup-msgtype.test.mjs and subprocess resource/oracle runner",
-      "effects": "A fixed-point regression can synchronously hang while compile-only tests remain green.",
-      "evidence": "Recorder libc and corrected JavaScript match ^a**$ and ^a?+$ on empty, a, and aa and reject b; pre-fix tests only compiled these forms.",
-      "status": "done",
-      "remaining": "None; both adjacent-repeat languages run in isolated child processes under parent-enforced timeouts."
-    },
-    {
-      "candidate": "matchStart state-key completeness",
-      "reachability": "Contextual caret behavior differs for equal position/capture states that originated at different candidate starts.",
-      "owner": "js/posixregex.js captureStateKey() and direct memoization",
-      "effects": "Future cross-start memoization can merge nonequivalent states because the key and comment omit matchStart.",
-      "evidence": "Pre-fix behavior was safe only because both caches were candidate-local, while the implementation comment claimed position plus captures was complete future equivalence.",
-      "status": "done",
-      "remaining": "None; capture-state keys include matchStart and direct memo keys include it for every dependent subtree."
-    },
-    {
-      "candidate": "Finite-interval endpoint-selection contract",
-      "reachability": "A bounded repeated capture passes an intermediate count before the selected recorder-glibc endpoint.",
-      "owner": "js/posixregex.js finite repeat evaluation",
-      "effects": "An unexplained broad descendant-clearing loop conceals the confirmed semantic defect and is easy to reintroduce.",
-      "evidence": "The pre-fix condition count > minimum and count < maximum encoded a glibc-specific selection rule without naming its source behavior.",
-      "status": "done",
-      "remaining": "None; isIntermediateFiniteEndpoint() names the rule and documents the recorder-glibc direct-capture/descendant distinction."
-    },
-    {
-      "candidate": "Shared exact-boundary resource fixtures",
-      "reachability": "The direct libc oracle and resource runner are expected to validate the same 255-byte pattern/input pairs.",
-      "owner": "scripts regex oracle/resource fixtures",
-      "effects": "Independent copies can drift so boolean parity and measured budgets silently cover different adversaries.",
-      "evidence": "The pre-fix runners defined their own formulas, while only the resource runner asserted exact byte lengths.",
-      "status": "done",
-      "remaining": "None; startup-regex-fixtures.mjs owns all three formulas and both runners assert the 255-byte boundary."
+      "candidate": "Single resource-case catalog owner",
+      "reachability": "Adding an exact-boundary fixture should automatically reach the libc oracle, resource runner, and output-name assertion.",
+      "owner": "scripts/startup-regex-fixtures.mjs and resource harness",
+      "effects": "Separate formula, budget, and expected-name catalogs can silently omit measurement while tests stay green.",
+      "evidence": "The oracle iterates the fixture array, but the resource runner iterates a separate budget map and its test copies expected names again.",
+      "status": "missing",
+      "remaining": "Make the shared catalog control exact-case enumeration and budget metadata, derive expected output names, and assert complete set equality while keeping fixed-point coverage explicit."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "Complete. Read sys/share/posixregex.c regex_compile/regex_match and options.c msgtype_parse_add/msgtype_type/add_autopickup_exception, then settled zero- versus positive-minimum selection, finite descendant retention, contextual-caret provenance, adjacent fixed points, and all three exact source-boundary results with fresh recorder-libc probes."
+  "missingWorkByOwner": [
+    {
+      "group": "js/posixregex.js endpoint and suffix-reaching search",
+      "candidates": [
+        "Finite-repeat accepted endpoint projection",
+        "Reference late-constraint exact-boundary resource bound",
+        "Direct suffix-aligned exact-boundary search"
+      ],
+      "next": "Establish all red libc/resource controls, then implement exact endpoint/continuation projections and downstream-aware search without state-count aborts or guessed booleans."
+    },
+    {
+      "group": "shared exact-boundary evidence",
+      "candidates": [
+        "Suffix-reaching resource-path matrix",
+        "Single resource-case catalog owner"
+      ],
+      "next": "Centralize formula and budget ownership, prove every named evaluator path executes, and rerun focused, direct-libc, fresh, resource, broad non-mutation, generated/static, development, and exact-head CI gates."
+    }
+  ],
+  "sourceReview": "Incomplete until the worker traces the glibc finite-endpoint projection and proves that downstream-aware direct/reference search preserves every boolean and contextual-caret dependency while meeting the exact source-limit budgets."
 }
