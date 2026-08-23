@@ -39,12 +39,12 @@ function startupRc(name, ...statements) {
 }
 
 function messageCase({ label, seed, datetime, statements, moves = 's',
-    expected, probes = [], errors = 0 }) {
+    expected, probes = [], errors = 0, name = `Msg${seed}` }) {
     return Object.freeze({
         label,
         seed,
         datetime,
-        nethackrc: startupRc(`Msg${seed}`, ...statements),
+        nethackrc: startupRc(name, ...statements),
         moves: `${errors ? '\n' : ''}${moves}`,
         statements: Object.freeze([...statements]),
         expected: Object.freeze(expected.map(Object.freeze)),
@@ -72,6 +72,23 @@ export const STARTUP_MSGTYPE_CASES = Object.freeze([
         moves: 's ',
         expected: [{ msgtype: MSGTYP_STOP, pattern: '.*' }],
         probes: [['ordinary text', false, MSGTYP_STOP]],
+    }),
+    messageCase({
+        label: 'prior Escape then explicit STOP Space reaches startup input',
+        seed: 9812459,
+        datetime: '20420415145900',
+        statements: [
+            'OPTIONS=playmode:debug',
+            'MSGTYPE=stop "^You are in debug mode\\."',
+        ],
+        moves: '\x1b s',
+        expected: [{
+            msgtype: MSGTYP_STOP,
+            pattern: '^You are in debug mode\\.',
+        }],
+        probes: [['You are in debug mode.', false, MSGTYP_STOP],
+            ['ordinary text', false, MSGTYP_NORMAL]],
+        name: 'PersistentStop',
     }),
     messageCase({
         label: 'one-letter s selects show before stop',
@@ -184,6 +201,31 @@ export const STARTUP_MSGTYPE_CASES = Object.freeze([
         }],
         probes: [['Velkommen', false, MSGTYP_NOSHOW],
             ['Hello', false, MSGTYP_NORMAL]],
+    }),
+    messageCase({
+        label: 'empty same-reference alternative suppresses welcome',
+        seed: 9812447,
+        datetime: '20420415144700',
+        statements: [String.raw`MSGTYPE=hide "(|())\2"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`(|())\2`,
+        }],
+        probes: [['', false, MSGTYP_NOSHOW],
+            ['ordinary text', false, MSGTYP_NOSHOW]],
+    }),
+    messageCase({
+        label: 'repeated subgroup retains its last participating value',
+        seed: 9812449,
+        datetime: '20420415144900',
+        statements: [String.raw`MSGTYPE=hide "^Hello ((a)|b)*\2,"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`^Hello ((a)|b)*\2,`,
+        }],
+        probes: [['Hello aba,', false, MSGTYP_NOSHOW],
+            ['Hello abb,', false, MSGTYP_NORMAL]],
+        name: 'aba',
     }),
     messageCase({
         label: 'comma-only interval installs with zero-or-more semantics',

@@ -4502,6 +4502,8 @@ export function add_autopickup_exception(result, mapping) {
 }
 
 const MSGTYPE_NAMES = Object.freeze([
+    // msgtype_parse_add() accepts the first source-table name with this
+    // prefix. Keep show before stop (`s`) and noshow before norep (`n`).
     Object.freeze({ name: 'show', msgtype: MSGTYP_NORMAL }),
     Object.freeze({ name: 'hide', msgtype: MSGTYP_NOSHOW }),
     Object.freeze({ name: 'noshow', msgtype: MSGTYP_NOSHOW }),
@@ -5089,6 +5091,8 @@ function rolestring(val, array, field) {
 // menutype[]; insight.c vanqorders[]; o_init.c disco_order_let and
 // disco_orders_descr[]; decl.c disclosure_options; symbols.c
 // known_handling[].  Only the columns the value column shows are kept.
+// optfn_autounlock() maps each source-table index to 1U << index; this order
+// therefore owns the UNTRAP/APPLY_KEY/KICK/FORCE bits 1/2/4/8.
 const unlocktypes = Object.freeze(['untrap', 'apply-key', 'kick', 'force']);
 const burdentype = Object.freeze([
     'unencumbered', 'burdened', 'stressed',
@@ -5443,10 +5447,10 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         return `${major}.${minor}.${patch}`;
     },
     symset: (state) => symsetValue(state, PRIMARYSET, true),
-    // A fifth option whose parsed home is its own name: the parse arm sits
-    // inside the branch that needs a value, so `OPTIONS=versinfo`, which C
-    // answers with a config error that leaves flags.versinfo alone, reaches
-    // applyBooleanOption()'s fallback and leaves a boolean in this field.
+    // versinfo is the remaining option whose parsed home is its own field and
+    // whose parse arm requires a value. `OPTIONS=versinfo` therefore reaches
+    // applyBooleanOption()'s fallback after C reports the missing value, so
+    // this handler retains requireParsedNumber() as the same-field guard.
     versinfo: (state, option) => {
         const vi = requireParsedNumber(state, option);
         const g = (vi & VI_NAME) !== 0;

@@ -87,6 +87,15 @@ const REGEX_CASES = Object.freeze([
     ['.+^', ['\n', 'a']],
     ['^end$', ['end', 'end\n']],
     [String.raw`(a)|(b)\2`, ['a', 'bb', 'b']],
+    [String.raw`(|())\2`, ['', 'x']],
+    [String.raw`^((a)|b)*\2`, ['aab', 'abb']],
+    [String.raw`^((a)|b)*\2$`, ['aba', 'abb']],
+    ['^[^[:digit:]]$', ['a', '7']],
+    ['^)$', [')', '']],
+    [String.raw`^(()*)\2$`, ['', 'a']],
+    [String.raw`^(()){2}\2$`, ['', 'a']],
+    [String.raw`^(()){2,}\2$`, ['', 'a']],
+    [String.raw`^((a|c)|b)*\2$`, ['abcc', 'abca']],
 ]);
 
 const REGEX_ERRORS = Object.freeze([

@@ -188,7 +188,10 @@ export function clearTtyMessageWindow(state = game) {
 // C ref: win/tty/topl.c more().  A multi-line top message is repaired through
 // docorner() and homes the cursor.  A one-line message remains on screen after
 // ordinary dismissal; Escape alone clears that physical top line.
-export async function dismissPendingTtyMessage(state = game) {
+export async function dismissPendingTtyMessage(
+    state = game,
+    { preventEscapeStop = false } = {},
+) {
     if (!state._pending_message) return false;
     const display = state.nhDisplay;
     if (!display)
@@ -221,6 +224,11 @@ export async function dismissPendingTtyMessage(state = game) {
     display.putstr(promptColumn, promptRow, MORE_PROMPT, NO_COLOR, 0);
     display.setCursor(promptColumn + MORE_PROMPT.length, promptRow);
 
+    // input.js models the ordinary input-request boundary by clearing the
+    // persistent stop. more() is different: WIN_STOP remains in the message
+    // window flags while tty_nhgetch() reads this prompt, so a Space cannot
+    // clear a stop which an earlier More established.
+    const stoppedAtPrompt = Boolean(state._ttyMessageStopped);
     const response = await xwaitforspace(state);
 
     if (snapshot) {
@@ -235,7 +243,10 @@ export async function dismissPendingTtyMessage(state = game) {
     // sets WIN_STOP after tty_nhgetch() returns; subsequent plines update
     // that logical buffer without drawing until the next key wait.
     state._ttyToplines ??= lines.join('\n');
-    state._ttyMessageStopped = response === 0 || response === 27;
+    if (stoppedAtPrompt)
+        state._ttyMessageStopped = true;
+    if ((response === 0 || response === 27) && !preventEscapeStop)
+        state._ttyMessageStopped = true;
     display.topMessage = state._ttyToplines;
     display.toplines = state._ttyToplines;
     display.toplin = TOPLINE_EMPTY;
@@ -293,6 +304,7 @@ async function ttyPlineCore(message, state, pflags) {
     const normalizedMessage = normalizeVplineMessage(message);
     const next = ttyByteText(normalizedMessage);
     const noRepeat = Boolean(pflags & PLINE_NOREPEAT);
+    const urgentMessage = Boolean(pflags & URGENT_MESSAGE);
     let msgtype = MSGTYP_NORMAL;
     if (!(pflags & OVERRIDE_MSGTYPE)) {
         msgtype = msgtype_type(normalizedMessage, noRepeat, state);
@@ -353,7 +365,14 @@ async function ttyPlineCore(message, state, pflags) {
             await displayPendingTtyMessageWindow(state);
         return;
     }
-    if (current) await dismissPendingTtyMessage(state);
+    if (current) {
+        await dismissPendingTtyMessage(state, {
+            // wintty.c tty_putstr() keeps WIN_NOSTOP set only while its
+            // urgent update_topl() call can dismiss a prior or wrapped line.
+            // vpline()'s later explicit MSGTYP_STOP display is outside it.
+            preventEscapeStop: urgentMessage,
+        });
+    }
     // When the comparison above was reached, update_topl() clears WIN_STOP
     // after more() has had the opportunity to set it from an Escape response.
     if (deathComparisonReached) state._ttyMessageStopped = false;
@@ -362,7 +381,9 @@ async function ttyPlineCore(message, state, pflags) {
     // redotoplin() immediately invokes more() when update_topl() wrapped the
     // new message onto a second terminal row.
     if (wrapTtyTopline(next, columns).length > 1)
-        await dismissPendingTtyMessage(state);
+        await dismissPendingTtyMessage(state, {
+            preventEscapeStop: urgentMessage,
+        });
     if (msgtype === MSGTYP_STOP)
         await displayPendingTtyMessageWindow(state);
 }
@@ -413,11 +434,10 @@ export class UnsupportedUrgentMessageError extends Error {
 // where it is what stops that Escape setting WIN_STOP for whatever comes
 // next.
 //
-// The second reader is modelled, but by text rather than by a flag:
-// ttyPlineCore()'s `deathComparisonReached` clears the stop after the --More--
-// is dismissed, which is the same clearing for every input either rule can
-// see, because "You die..." is urgent_pline()'s only caller in this port. A
-// second urgent caller would separate them, and would want the flag instead.
+// dismissPendingTtyMessage() models the second reader by receiving the urgent
+// call's prompt origin. It prevents Escape from setting the persistent stop
+// only for a prior-line or wrapped-line More inside tty_putstr(); vpline()'s
+// later explicit MSGTYP_STOP display receives no such exemption.
 //
 // With WIN_STOP set at entry the arm does more still: tty_clear_nhwindow(
 // WIN_MESSAGE) wipes the top line before the message is written, where an

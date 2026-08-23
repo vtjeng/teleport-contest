@@ -18,6 +18,7 @@ import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { encodeUtf8ByteString } from '../js/hacklib.js';
 import { nhgetch } from '../js/input.js';
+import { runSegment } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
 import {
     msgtype_parse_add,
@@ -69,7 +70,7 @@ function messageState(config = '', keys = '') {
 test('the fresh recipe retains the MSGTYPE branch matrix', () => {
     const recipe = loadStartupMsgtypeRecipe();
     assert.equal(recipe.segments.length, STARTUP_MSGTYPE_CASES.length);
-    assert.equal(recipe.segments.length, 23);
+    assert.equal(recipe.segments.length, 26);
     assert.equal(STARTUP_MSGTYPE_CASES.filter(({ errors }) => errors).length, 4);
     assert.ok(STARTUP_MSGTYPE_CASES.some(({ statements }) => (
         statements.length === 2
@@ -248,6 +249,28 @@ test('rejected empty-reference candidates retain every valid candidate', () => {
     }
 });
 
+test('backreferences explore same-start paths and retain participating groups',
+    () => {
+        for (const [pattern, matches, misses] of [
+            [String.raw`(|())\2`, ['', 'x'], []],
+            [String.raw`^((a)|b)*\2`, ['aab'], ['abb']],
+            [String.raw`^((a)|b)*\2$`, ['aba'], ['abb']],
+            [String.raw`^(()*)\2$`, [''], ['a']],
+            [String.raw`^(()){2}\2$`, [''], ['a']],
+            [String.raw`^(()){2,}\2$`, [''], ['a']],
+            [String.raw`^((a|c)|b)*\2$`, ['abcc'], ['abca']],
+        ]) {
+            const regex = regex_init();
+            assert.equal(regex_compile(pattern, regex), true, pattern);
+            for (const text of matches)
+                assert.equal(regex_match(text, regex), true,
+                    JSON.stringify({ pattern, text }));
+            for (const text of misses)
+                assert.equal(regex_match(text, regex), false,
+                    JSON.stringify({ pattern, text }));
+        }
+    });
+
 test('sibling alternatives expose only captures on their current path', () => {
     const invalid = regex_init();
     assert.equal(regex_compile(String.raw`(a)|\1`, invalid), false);
@@ -333,6 +356,19 @@ test('all twelve ASCII POSIX character classes pin both memberships', () => {
             `${name} nonmember`);
     }
 });
+
+test('negated POSIX classes and unmatched close parentheses match literally',
+    () => {
+        for (const [pattern, match, miss] of [
+            ['^[^[:digit:]]$', 'a', '7'],
+            ['^)$', ')', ''],
+        ]) {
+            const regex = regex_init();
+            assert.equal(regex_compile(pattern, regex), true, pattern);
+            assert.equal(regex_match(match, regex), true, pattern);
+            assert.equal(regex_match(miss, regex), false, pattern);
+        }
+    });
 
 test('a leading literal close bracket can be a range endpoint', () => {
     const accepted = regex_init();
@@ -537,6 +573,63 @@ test('a fitting same-line STOP waits once, preserves a key, and clears',
         );
     });
 
+test('STOP Space preserves suppression set by a prior Escape', async () => {
+    const state = messageState('MSGTYPE=stop "halt"\n', '\x1b X');
+    const boundaries = [];
+    state._preNhgetchHook = () => boundaries.push({
+        row: state.nhDisplay.grid[0].map((cell) => cell.ch)
+            .join('').trimEnd(),
+        cursor: [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        toplines: state._ttyToplines,
+    });
+    await ttyPline('P'.repeat(68), state);
+    await ttyPline('halt', state);
+    await ttyPline('after', state);
+
+    assert.deepEqual(boundaries, [
+        {
+            row: `${'P'.repeat(68)}--More--`,
+            cursor: [76, 0],
+            toplines: 'P'.repeat(68),
+        },
+        {
+            row: 'halt--More--',
+            cursor: [12, 0],
+            toplines: 'halt',
+        },
+    ]);
+    assert.equal(state._ttyMessageStopped, true);
+    assert.equal(state._ttyPreviousMessage, 'after');
+    assert.equal(state._ttyToplines, 'halt  after');
+    assert.equal(await nhgetch(state), 'X'.charCodeAt(0));
+});
+
+test('sequential runSegment calls discard the prior MSGTYPE list', async () => {
+    const base = [
+        'OPTIONS=role:Valkyrie,race:human,gender:female,align:lawful',
+        'OPTIONS=!legacy,!tutorial,!splash_screen',
+        'OPTIONS=pettype:none,!acoustics,!autopickup',
+    ];
+    await runSegment({
+        seed: 9812451,
+        datetime: '20420415145100',
+        nethackrc: [...base, 'OPTIONS=name:Hidden', 'MSGTYPE=hide ".*"', '']
+            .join('\n'),
+        moves: 's',
+    });
+    assert.notEqual(game.gp.plinemsg_types, null);
+
+    await runSegment({
+        seed: 9812453,
+        datetime: '20420415145300',
+        nethackrc: [...base, 'OPTIONS=name:Shown', ''].join('\n'),
+        moves: 's',
+    });
+    assert.equal(game.gp.plinemsg_types, null);
+    assert.match(game._ttyPreviousMessage, /^Velkommen Shown,/u);
+    assert.match(game._ttyToplines, /^Velkommen Shown,/u);
+});
+
 test('urgent STOP waits once while override STOP consumes no input', async () => {
     const urgent = messageState('MSGTYPE=stop "urgent"\n', ' X');
     let urgentWaits = 0;
@@ -548,6 +641,11 @@ test('urgent STOP waits once while override STOP consumes no input', async () =>
     assert.equal(urgent.nhDisplay.grid[0].map((cell) => cell.ch)
         .join('').trimEnd(), '');
 
+    const urgentEscape = messageState('MSGTYPE=stop "urgent"\n', '\x1bX');
+    await ttyUrgentPline('urgent', urgentEscape);
+    assert.equal(urgentEscape._ttyMessageStopped, true);
+    assert.equal(await nhgetch(urgentEscape), 'X'.charCodeAt(0));
+
     const override = messageState('MSGTYPE=stop "override"\n', 'X');
     let overrideWaits = 0;
     override._preNhgetchHook = () => { ++overrideWaits; };
@@ -556,6 +654,20 @@ test('urgent STOP waits once while override STOP consumes no input', async () =>
     assert.equal(await nhgetch(override), 'X'.charCodeAt(0));
     assert.equal(override._pending_message, 'override');
     assert.equal(override._ttyPreviousMessage, 'override');
+});
+
+test('a STOP message suppressed at entry consumes no prompt input', async () => {
+    const state = messageState('MSGTYPE=stop "halt"\n', 'X');
+    state._ttyMessageStopped = true;
+    let waits = 0;
+    state._preNhgetchHook = () => { ++waits; };
+    await ttyPline('halt', state);
+    assert.equal(waits, 0);
+    assert.equal(state._ttyMessageStopped, true);
+    assert.equal(state._pending_message, undefined);
+    assert.equal(state._ttyPreviousMessage, 'halt');
+    assert.equal(state._ttyToplines, 'halt');
+    assert.equal(await nhgetch(state), 'X'.charCodeAt(0));
 });
 
 test('a wrapped STOP consumes one key and leaves the restored cursor',

@@ -153,6 +153,15 @@ test('direct WARNINGS syntax errors wait immediately and discard a partial',
         assert.deepEqual(result.startupEvents, [{
             text: 'Syntax error in WARNINGS', wait: true,
         }]);
+
+        assert.deepEqual(
+            scanUchars('65 66x', [7, 8, 99, 10, 11, 12]),
+            {
+                count: 1,
+                list: [65, 8, 99, 10, 11, 12],
+                errors: ['Syntax error in WARNINGS'],
+            },
+        );
     });
 
 test('direct and compound warning syntaxes apply in source order', () => {

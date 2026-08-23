@@ -242,7 +242,7 @@ export function regex_init() {
         kind: 'uncompiled',
         error: null,
         matcher: null,
-        alternatives: null,
+        evaluator: null,
         pattern: null,
     };
 }
@@ -332,32 +332,6 @@ function translateInterval(pattern, start) {
     const body = pattern.slice(start + 1, close);
     if (body.startsWith(',')) return `{0${body}}`;
     return `{${body}}`;
-}
-
-function splitTopLevelAlternatives(source) {
-    const alternatives = [];
-    let start = 0;
-    let depth = 0;
-    let inBracket = false;
-    for (let index = 0; index < source.length; ++index) {
-        const character = source[index];
-        if (character === '\\') {
-            ++index;
-        } else if (inBracket) {
-            if (character === ']') inBracket = false;
-        } else if (character === '[') {
-            inBracket = true;
-        } else if (character === '(') {
-            ++depth;
-        } else if (character === ')') {
-            --depth;
-        } else if (character === '|' && depth === 0) {
-            alternatives.push(source.slice(start, index));
-            start = index + 1;
-        }
-    }
-    alternatives.push(source.slice(start));
-    return alternatives;
 }
 
 // Translate only after validateExtendedRegexp() has accepted the pattern.
@@ -489,13 +463,274 @@ function translateAsciiExtendedRegexp(pattern, references) {
     return translatePart(0, false).source;
 }
 
+// ECMAScript backreferences do not have the recorder libc's capture state:
+// they match empty for a nonparticipating group and clear a subgroup when a
+// later repetition does not enter it. Reference-bearing patterns therefore
+// use this source-shaped ERE tree. Each node below owns one grammar operation;
+// regex_match() owns the finite set of input positions and capture ranges.
+function parseReferenceExtendedRegexp(pattern) {
+    let groupCount = 0;
+
+    function parsePart(start, stopAtClose) {
+        let index = start;
+        const alternatives = [];
+        let sequence = [];
+        while (index < pattern.length) {
+            const character = pattern[index];
+            if (stopAtClose && character === ')') {
+                alternatives.push({ type: 'sequence', nodes: sequence });
+                return {
+                    index: index + 1,
+                    node: alternatives.length === 1
+                        ? alternatives[0]
+                        : { type: 'alternative', nodes: alternatives },
+                };
+            }
+            if (character === '|') {
+                alternatives.push({ type: 'sequence', nodes: sequence });
+                sequence = [];
+                ++index;
+                continue;
+            }
+
+            let atom;
+            if (character === '\\') {
+                const escaped = pattern[index + 1];
+                if (escaped >= '1' && escaped <= '9') {
+                    atom = { type: 'reference', group: Number(escaped) };
+                } else if (escaped === 'b' || escaped === 'B') {
+                    atom = { type: 'word-boundary', invert: escaped === 'B' };
+                } else if (escaped === '<' || escaped === '>') {
+                    atom = { type: 'word-edge', edge: escaped };
+                } else if (escaped === '`' || escaped === "'") {
+                    atom = {
+                        type: 'anchor',
+                        edge: escaped === '`' ? 'start' : 'end',
+                        absolute: true,
+                    };
+                } else if (escaped === 'w' || escaped === 'W'
+                           || escaped === 's' || escaped === 'S') {
+                    const source = escaped === 'w' ? '[A-Za-z0-9_]'
+                        : escaped === 'W' ? '[^A-Za-z0-9_]'
+                            : escaped === 's' ? '[\\t-\\r ]'
+                                : '[^\\t-\\r ]';
+                    atom = { type: 'class', matcher: new RegExp(source, 's') };
+                } else {
+                    atom = { type: 'literal', value: escaped };
+                }
+                index += 2;
+            } else if (character === '[') {
+                const bracket = translateBracketExpression(pattern, index);
+                atom = {
+                    type: 'class',
+                    matcher: new RegExp(`^(?:${bracket.source})$`, 's'),
+                };
+                index = bracket.index;
+            } else if (character === '(') {
+                const id = ++groupCount;
+                const group = parsePart(index + 1, true);
+                atom = { type: 'group', id, child: group.node };
+                index = group.index;
+            } else if (character === ')') {
+                atom = { type: 'literal', value: ')' };
+                ++index;
+            } else if (character === '.') {
+                atom = { type: 'dot' };
+                ++index;
+            } else if (character === '^') {
+                atom = {
+                    type: 'anchor',
+                    edge: 'start',
+                    absolute: sequence.length === 0,
+                };
+                ++index;
+            } else if (character === '$') {
+                atom = {
+                    type: 'anchor',
+                    edge: 'end',
+                    absolute: index + 1 >= pattern.length
+                        || pattern[index + 1] === '|'
+                        || (stopAtClose && pattern[index + 1] === ')'),
+                };
+                ++index;
+            } else {
+                atom = { type: 'literal', value: character };
+                ++index;
+            }
+
+            while (index < pattern.length) {
+                let minimum;
+                let maximum;
+                if (pattern[index] === '*') {
+                    minimum = 0;
+                    maximum = Infinity;
+                    ++index;
+                } else if (pattern[index] === '+') {
+                    minimum = 1;
+                    maximum = Infinity;
+                    ++index;
+                } else if (pattern[index] === '?') {
+                    minimum = 0;
+                    maximum = 1;
+                    ++index;
+                } else if (pattern[index] === '{') {
+                    const close = pattern.indexOf('}', index + 1);
+                    const body = pattern.slice(index + 1, close);
+                    const [lower, upper] = body.split(',');
+                    minimum = lower === '' ? 0 : Number(lower);
+                    maximum = !body.includes(',') ? minimum
+                        : upper === '' ? Infinity : Number(upper);
+                    index = close + 1;
+                } else {
+                    break;
+                }
+                atom = { type: 'repeat', child: atom, minimum, maximum };
+            }
+            sequence.push(atom);
+        }
+        alternatives.push({ type: 'sequence', nodes: sequence });
+        return {
+            index,
+            node: alternatives.length === 1
+                ? alternatives[0]
+                : { type: 'alternative', nodes: alternatives },
+        };
+    }
+
+    return { root: parsePart(0, false).node, groupCount };
+}
+
+function captureStateKey(state) {
+    return `${state.position}:` + Array.from(state.captures, (capture) => (
+        capture ? `${capture.start}-${capture.end}` : '_'
+    )).join(',');
+}
+
+function uniqueCaptureStates(states) {
+    const unique = new Map();
+    for (const state of states) unique.set(captureStateKey(state), state);
+    return [...unique.values()];
+}
+
+function isAsciiWord(character) {
+    return character !== undefined && /[A-Za-z0-9_]/u.test(character);
+}
+
+function evaluateReferenceNode(node, input, state) {
+    switch (node.type) {
+    case 'literal':
+        return input.startsWith(node.value, state.position)
+            ? [{ ...state, position: state.position + node.value.length }]
+            : [];
+    case 'dot':
+        return state.position < input.length
+            ? [{ ...state, position: state.position + 1 }] : [];
+    case 'class':
+        return state.position < input.length
+            && node.matcher.test(input[state.position])
+            ? [{ ...state, position: state.position + 1 }] : [];
+    case 'anchor': {
+        const matches = node.edge === 'start'
+            ? state.position === 0 || (!node.absolute
+                && input[state.position - 1] === '\n')
+            : state.position === input.length || (!node.absolute
+                && input[state.position] === '\n');
+        return matches ? [state] : [];
+    }
+    case 'word-boundary': {
+        const boundary = isAsciiWord(input[state.position - 1])
+            !== isAsciiWord(input[state.position]);
+        return boundary !== node.invert ? [state] : [];
+    }
+    case 'word-edge': {
+        const before = isAsciiWord(input[state.position - 1]);
+        const after = isAsciiWord(input[state.position]);
+        const matches = node.edge === '<' ? !before && after : before && !after;
+        return matches ? [state] : [];
+    }
+    case 'reference': {
+        const capture = state.captures[node.group];
+        if (!capture) return [];
+        const value = input.slice(capture.start, capture.end);
+        return input.startsWith(value, state.position)
+            ? [{ ...state, position: state.position + value.length }]
+            : [];
+    }
+    case 'group': {
+        const start = state.position;
+        return evaluateReferenceNode(node.child, input, state).map((result) => {
+            const captures = [...result.captures];
+            captures[node.id] = { start, end: result.position };
+            return { ...result, captures };
+        });
+    }
+    case 'sequence': {
+        let states = [state];
+        for (const child of node.nodes) {
+            states = uniqueCaptureStates(states.flatMap(
+                (current) => evaluateReferenceNode(child, input, current),
+            ));
+            if (!states.length) break;
+        }
+        return states;
+    }
+    case 'alternative':
+        return uniqueCaptureStates(node.nodes.flatMap(
+            (child) => evaluateReferenceNode(child, input, state),
+        ));
+    case 'repeat': {
+        let count = 0;
+        let frontier = [state];
+        const results = [];
+        // Before minimum, repeated states still matter: an empty atom can
+        // satisfy `{32767}` without changing position or captures. At and
+        // above minimum, the state key is the complete future input, so a
+        // fixed point closes an unbounded repetition without a pattern limit.
+        while (frontier.length && count <= node.maximum) {
+            if (count >= node.minimum) results.push(...frontier);
+            if (count === node.maximum) break;
+            const next = uniqueCaptureStates(frontier.flatMap(
+                (current) => evaluateReferenceNode(node.child, input, current),
+            ));
+            ++count;
+            if (count < node.minimum) {
+                frontier = next;
+                continue;
+            }
+            const priorKeys = new Set(results.map(captureStateKey));
+            frontier = next.filter((candidate) => (
+                !priorKeys.has(captureStateKey(candidate))
+            ));
+        }
+        return uniqueCaptureStates(results);
+    }
+    default:
+        throw new Error(`invalid reference-aware ERE node: ${node.type}`);
+    }
+}
+
+function matchReferenceExtendedRegexp(input, evaluator) {
+    // regexec() is unanchored unless the tree's own anchors reject a start.
+    // Check starts in leftmost order; only existence is observable under
+    // REG_NOSUB, so no later submatch-selection detail leaves this function.
+    for (let start = 0; start <= input.length; ++start) {
+        const state = {
+            position: start,
+            captures: Array(evaluator.groupCount + 1),
+        };
+        if (evaluateReferenceNode(evaluator.root, input, state).length)
+            return true;
+    }
+    return false;
+}
+
 export function regex_compile(pattern, regex) {
     if (!regex) return false;
     const text = String(pattern);
     regex.error = validateExtendedRegexp(text);
     regex.pattern = regex.error ? null : text;
     regex.matcher = null;
-    regex.alternatives = null;
+    regex.evaluator = null;
     if (regex.error) {
         regex.kind = 'rejected';
     } else if (/[^\x00-\x7F]/u.test(text)) {
@@ -508,14 +743,7 @@ export function regex_compile(pattern, regex) {
             regex.matcher = new RegExp(source, 's');
         } else {
             regex.kind = 'reference-aware';
-            regex.alternatives = splitTopLevelAlternatives(source).map(
-                (alternative) => ({
-                    source: alternative,
-                    references: references.filter(({ marker }) => (
-                        alternative.includes(`?<${marker}>`)
-                    )),
-                }),
-            );
+            regex.evaluator = parseReferenceExtendedRegexp(text);
         }
     }
     return !regex.error;
@@ -545,44 +773,5 @@ export function regex_match(value, regex) {
     if (regex.kind !== 'reference-aware')
         throw new Error(`invalid compiled regex state: ${String(regex.kind)}`);
 
-    // ECMAScript accepts a backreference whose group did not participate as
-    // empty. glibc rejects that candidate. Scan again one byte later for an
-    // overlap, and separately disable each bad reference marker so the JS
-    // engine can backtrack into a valid nested alternative at the same start.
-    for (const { source, references } of regex.alternatives) {
-        const queue = [new Set()];
-        const queued = new Set(['']);
-        while (queue.length) {
-            const blocked = queue.shift();
-            let candidateSource = source;
-            for (const { group, marker } of references) {
-                if (!blocked.has(marker)) continue;
-                candidateSource = candidateSource.replace(
-                    `(?<${marker}>\\k<${group}>)`,
-                    `(?<${marker}>(?!))`,
-                );
-            }
-            const matcher = new RegExp(candidateSource, 'dgs');
-            for (;;) {
-                const match = matcher.exec(text);
-                if (!match) break;
-                const invalid = references.filter(({ group, marker }) => (
-                    match.indices.groups[marker] !== undefined
-                    && match.indices.groups[group] === undefined
-                ));
-                if (!invalid.length) return true;
-                for (const { marker } of invalid) {
-                    const next = new Set(blocked);
-                    next.add(marker);
-                    const key = [...next].sort().join(',');
-                    if (!queued.has(key)) {
-                        queued.add(key);
-                        queue.push(next);
-                    }
-                }
-                matcher.lastIndex = match.index + 1;
-            }
-        }
-    }
-    return false;
+    return matchReferenceExtendedRegexp(text, regex.evaluator);
 }
