@@ -2762,6 +2762,11 @@
           "name": "startup-map-mode-to-iflags-and-config-diagnostics",
           "status": "closed",
           "closedBy": "26dc11bc52400bd455c148af9b414da60ddcc50a"
+        },
+        {
+          "name": "startup-tile-file-to-iflags",
+          "status": "closed",
+          "closedBy": "855a04170da2039cdb2773036ba64dc3c812efbb"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
