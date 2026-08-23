@@ -4192,7 +4192,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "db6f32c9066bfbf9529c6ffc452d4ed7fbe73b63",
       "detail": "Port the remaining recorder-glibc ASCII ERE branches in js/posixregex.js: do not skip overlapping or same-start valid alternatives after a rejected nonparticipating-backreference candidate; accept comma-only a{,}; implement GNU absolute-buffer anchors escaped backtick/apostrophe with quantifier rejection; and reproduce contextual internal caret/dollar behavior for newline-bearing input. Close with direct libc oracle cases and fresh live MSGTYPE/config differentials."
     },
@@ -4201,7 +4201,7 @@
       "area": "commands",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "db6f32c9066bfbf9529c6ffc452d4ed7fbe73b63",
       "detail": "Strengthen MSGTYPE/vpline tests for normalized long-message NOREP equality, same-line appended STOP wait/clear, urgent bypass of configured NOREP, match semantics for accepted interval/repeated-interval/final-hyphen forms, and UTF-8 byte-boundary normalization including a 255-byte control."
     },
@@ -4210,7 +4210,7 @@
       "area": "commands",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "db6f32c9066bfbf9529c6ffc452d4ed7fbe73b63",
       "detail": "Exercise requireAutoopenClosedDoor with APPLY_KEY|KICK|FORCE at a locked door both with and without a recognized unlocking tool, proving bit-test semantics and APPLY_KEY-before-KICK precedence in the live consumer."
     },
@@ -4219,7 +4219,7 @@
       "area": "startup",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "db6f32c9066bfbf9529c6ffc452d4ed7fbe73b63",
       "detail": "Make js/posixregex.js branch-path group availability and its compiled-regex representation explicit. Name or document sibling-alternative backreference availability and use a discriminant or compact state contract for rejected, non-ASCII boundary, direct matcher, and reference-aware matcher states."
     },
@@ -4228,7 +4228,7 @@
       "area": "commands",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "db6f32c9066bfbf9529c6ffc452d4ed7fbe73b63",
       "detail": "Mirror source names and ownership in js/tty_message.js: initialize the override default with MSGTYP_NORMAL rather than literal zero, and expand the module header to name the ported pline.c vpline/custompline/urgent and wintty.c display/clear branches."
     }

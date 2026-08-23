@@ -2700,8 +2700,8 @@
         },
         {
           "name": "audit-startup-regex-glibc-followup",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "35ab4cc16ad28eda24c771a17c6c76fda63e4bc9"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
