@@ -1,0 +1,154 @@
+{
+  "mode": "implementation",
+  "reason": "The full 641c448..d919556 correctness audit confirmed six production defects plus four test gaps and one API-boundary clarity issue. Five production findings add source branches or fresh end-to-end cases, so the review returned them to implementation.",
+  "commitChecked": "fcb71562c611f8a9c94d86076d12e40ca9dfc3cd",
+  "boundary": {
+    "goalId": "options-config-parser",
+    "startingCommit": "fcb71562c611f8a9c94d86076d12e40ca9dfc3cd",
+    "startingEvent": "A player startup AUTOPICKUP_EXCEPTION or MSGTYPE configuration row is parsed, or an initialized pline/custompline/urgent-pline call emits a configured message.",
+    "endingEvent": "The source-shaped list is installed, the normalized message is shown or suppressed, any STOP wait returns with the message window in C state, and the next input boundary is reached.",
+    "validInputs": "ASCII POSIX ERE accepted or rejected by recorder glibc, including numeric backreferences, GNU word/space/boundary escapes, leading-] ranges, long messages through vpline's BUFSZ branch, STOP/urgent/override flags, and suppress_alert signed-long extremes.",
+    "observables": "Installed ga/gp state, regex compile diagnostics and matches, previous-message state, input consumption, PRNG calls, complete 24x80 screens/attributes, and cursors.",
+    "exclusions": "Non-ASCII C.UTF-8 collation and classes, autopickup runtime object filtering, interactive MSGTYPE editing and serialization, USER_SOUNDS, and custompline flags other than the admitted MSGTYPE boundary remain named stops before unported effects."
+  },
+  "candidateListMethod": {
+    "upstreamEntryPoints": "options.c add_autopickup_exception/msgtype_add/msgtype_type, sys/share/posixregex.c regex_compile/regex_match as implemented by recorder glibc, pline.c vpline/custompline/urgent_pline/Norep, version.c get_feature_notice_ver, and win/tty/wintty.c tty_display_nhwindow/tty_clear_nhwindow.",
+    "dispatchTablesAndCatalogs": "options.c msgtype_names, POSIX character classes and glibc ERE escape behavior, custompline flag constants, BUFSZ, and the existing direct-config statement table define the families.",
+    "reachableHelpers": "The correctness audit traced each confirmed finding from parser or message input through list insertion, game installation, rule lookup, TTY wait/clear, and previous-message storage; direct glibc probes established every regex branch.",
+    "javascriptCrossCheck": "Reviewers inspected the full diff and searched js/options.js, js/posixregex.js, js/tty_message.js, js/jsmain.js, js/version.js, and the focused startup tests for missing fields, raw values, unsupported flags, and absent assertions.",
+    "remainingLimits": "The checklist is exhaustive for the eleven adjudicated findings. It does not claim non-ASCII locale matching or behavior beyond the named startup/message ending event."
+  },
+  "entries": [
+    {
+      "candidate": "options.c add_autopickup_exception() retains compiled regex state",
+      "reachability": "Every accepted AUTOPICKUP_EXCEPTION compiles before its node is prepended and installed into game.ga.",
+      "owner": "js/options.js add_autopickup_exception() and js/jsmain.js NethackGame startup installation",
+      "effects": "The installed ga.apelist node owns pattern, grab, regex, and next.",
+      "evidence": "Audit finding startup-regex-state-corrections; options.c stores ape->regex and pickup.c later reads it.",
+      "status": "missing",
+      "remaining": "Retain the compiled object and pin parse-to-game identity/matching without porting pickup filtering."
+    },
+    {
+      "candidate": "glibc numeric backreferences in POSIX ERE",
+      "reachability": "Valid MSGTYPE and autopickup patterns may contain captures and numeric references; orphan and forward references fail compilation.",
+      "owner": "js/posixregex.js regex_compile()/regex_match()",
+      "effects": "Compile acceptance, exact diagnostic, and rule-match result.",
+      "evidence": "Pinned glibc probes: (a)\\1 matches aa not a1; \\1 and (a)\\2 report Invalid back reference.",
+      "status": "missing",
+      "remaining": "Preserve source captures, validate reference numbering, translate valid references, and add direct/live cases."
+    },
+    {
+      "candidate": "glibc word, space, and boundary escape operators",
+      "reachability": "ASCII patterns may use \\b, \\B, \\<, \\>, \\w, \\W, \\s, or \\S; zero-width boundaries cannot be repeated.",
+      "owner": "js/posixregex.js regex_compile()/regex_match()",
+      "effects": "Compile acceptance and MSGTYPE action selection.",
+      "evidence": "Direct recorder-ABI glibc probes in the correctness audit established each operator and Invalid preceding regular expression for repeated boundaries.",
+      "status": "missing",
+      "remaining": "Translate ASCII semantics and distinguish zero-width atoms during validation."
+    },
+    {
+      "candidate": "leading literal ] as a bracket-range endpoint",
+      "reachability": "A bracket expression whose first literal is ] may immediately form a range.",
+      "owner": "js/posixregex.js bracketExpression()/translateBracketExpression()",
+      "effects": "Compile diagnostics and punctuation membership.",
+      "evidence": "Glibc accepts ^[]-a]$ with ] through a membership and rejects []--] as Invalid range end.",
+      "status": "missing",
+      "remaining": "Route the leading literal through ordinary item/range parsing in validation and translation."
+    },
+    {
+      "candidate": "pline.c vpline() BUFSZ message normalization before every consumer",
+      "reachability": "Formatted byte strings of 256 through 511 bytes enter vpline's modest-overflow arm before MSGTYPE lookup.",
+      "owner": "js/tty_message.js ttyPlineCore()",
+      "effects": "Bytes 249-251 become ..., the original final three bytes are preserved, and matching/rendering/history use the same 255-byte value.",
+      "evidence": "Audit variable trace from pline.c truncation through msgtype_type(), putmesg(), and gp.prevmsg.",
+      "status": "missing",
+      "remaining": "Create one byte normalization and record fresh removed-pattern/final-three cases."
+    },
+    {
+      "candidate": "MSGTYP_STOP explicit display_nhwindow wait and clear",
+      "reachability": "A matching STOP rule renders a one-line or wrapped message after window initialization.",
+      "owner": "js/tty_message.js ttyPlineCore()/dismissPendingTtyMessage()",
+      "effects": "One wait, updated previous-message state, and post-return row/cursor matching tty_clear_nhwindow().",
+      "evidence": "pline.c vpline and wintty.c tty_display_nhwindow/tty_clear_nhwindow source trace; audit direct probe leaves reviewed JS stale.",
+      "status": "missing",
+      "remaining": "Clear only after an explicit STOP wait and cover short, wrapped, and pending-topline cases freshly."
+    },
+    {
+      "candidate": "urgent messages still honor MSGTYP_STOP lookup",
+      "reachability": "URGENT_MESSAGE bypasses only NOSHOW/NOREP suppression; STOP remains active.",
+      "owner": "scripts/startup-msgtype.test.mjs over js/tty_message.js ttyUrgentPline()",
+      "effects": "One STOP wait and previous-message update.",
+      "evidence": "Audit test finding and pline.c vpline flag order.",
+      "status": "missing",
+      "remaining": "Add a discriminating urgent-STOP assertion."
+    },
+    {
+      "candidate": "OVERRIDE_MSGTYPE bypasses MSGTYP_STOP lookup",
+      "reachability": "custompline with OVERRIDE_MSGTYPE leaves msgtyp normal even when a STOP pattern matches.",
+      "owner": "scripts/startup-msgtype.test.mjs over js/tty_message.js override entry point",
+      "effects": "No wait and no input consumption; rendered pending message updates history.",
+      "evidence": "Audit test finding and pline.c vpline override branch.",
+      "status": "missing",
+      "remaining": "Add a STOP override assertion with a queued sentinel key."
+    },
+    {
+      "candidate": "version.c atoi signed-long saturation before int narrowing",
+      "reachability": "suppress_alert components can exceed LONG_MAX or LONG_MIN within the byte-bounded config value.",
+      "owner": "scripts/startup-suppress-alert.test.mjs over js/version.js get_feature_notice_ver()",
+      "effects": "Exact packed unsigned-long version value.",
+      "evidence": "Audit source/ABI trace established positive overflow packs to 0xFFFFFFFFFFFFFF00 and negative underflow packs to zero.",
+      "status": "missing",
+      "remaining": "Pin both existing saturation guards with direct assertions."
+    },
+    {
+      "candidate": "all ASCII POSIX character-class mappings",
+      "reachability": "Any valid ASCII regex may use one of the twelve C.UTF-8 ASCII class names.",
+      "owner": "scripts/startup-msgtype.test.mjs over js/posixregex.js regex_match()",
+      "effects": "Positive and negative membership for every mapping.",
+      "evidence": "Audit found only digit match-tested and punct compile-tested.",
+      "status": "missing",
+      "remaining": "Add independent table-driven membership assertions, including punct edge characters."
+    },
+    {
+      "candidate": "custompline flag surface stops unsupported bits explicitly",
+      "reachability": "The exported MSGTYPE override helper can receive SUPPRESS_HISTORY, NO_CURS_ON_U, or other unimplemented bits.",
+      "owner": "js/tty_message.js ttyCustomPline()",
+      "effects": "Supported override works; every unsupported bit reaches a named boundary before output/state/input changes.",
+      "evidence": "Audit clarity finding msgtype-custompline-flag-boundary; C gives those bits distinct consumers.",
+      "status": "missing",
+      "remaining": "Narrow the API or reject unsupported bits and pin both paths."
+    }
+  ],
+  "missingWorkByOwner": [
+    {
+      "group": "js/posixregex.js and installed option lists",
+      "candidates": [
+        "options.c add_autopickup_exception() retains compiled regex state",
+        "glibc numeric backreferences in POSIX ERE",
+        "glibc word, space, and boundary escape operators",
+        "leading literal ] as a bracket-range endpoint"
+      ],
+      "next": "Implement and source-pin compile/match/state behavior before live message cases consume it."
+    },
+    {
+      "group": "js/tty_message.js vpline and custompline boundaries",
+      "candidates": [
+        "pline.c vpline() BUFSZ message normalization before every consumer",
+        "MSGTYP_STOP explicit display_nhwindow wait and clear",
+        "urgent messages still honor MSGTYP_STOP lookup",
+        "OVERRIDE_MSGTYPE bypasses MSGTYP_STOP lookup",
+        "custompline flag surface stops unsupported bits explicitly"
+      ],
+      "next": "Apply normalized-message and STOP window semantics, keep one history owner, and record exact fresh screens/cursors/input boundaries."
+    },
+    {
+      "group": "source-boundary test completion",
+      "candidates": [
+        "version.c atoi signed-long saturation before int narrowing",
+        "all ASCII POSIX character-class mappings"
+      ],
+      "next": "Add the adjudicated direct assertions and include them in broad validation."
+    }
+  ],
+  "sourceReview": "The full review traced all eleven candidates against upstream C and recorder glibc, covering installed state, message normalization and previous-message ownership, input waits, window clearing, and zero PRNG effects. Five finder perspectives and two independent adjudicators confirmed the list; three rejected candidates are preserved in QUALITY.json with reopening conditions."
+}
