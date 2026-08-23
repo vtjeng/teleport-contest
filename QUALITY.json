@@ -4399,7 +4399,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "680e6fb9d468698d6bebce6a8198cce329201262",
       "detail": "js/posixregex.js firstNestedCapture truncation rejects recorder-glibc zero-minimum nested repetitions; restrict the positive-minimum selection rule and pin star and {0,} through libc and live MSGTYPE."
     },
@@ -4408,7 +4408,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "680e6fb9d468698d6bebce6a8198cce329201262",
       "detail": "js/posixregex.js finite-repeat capture clearing discards recorder-glibc descendant retention; clear only the source-selected enclosing capture and pin nested participating/nonparticipating repetitions."
     },
@@ -4417,7 +4417,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "680e6fb9d468698d6bebce6a8198cce329201262",
       "detail": "js/posixregex.js reference matcher exceeds its 2000 ms and 128 MiB resource budget on a valid 255-byte correlated variable-width-capture pattern; preserve exact correlations without eager Cartesian state materialization."
     },
@@ -4426,7 +4426,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "680e6fb9d468698d6bebce6a8198cce329201262",
       "detail": "js/posixregex.js unanchored direct and reference matchers exceed their committed resource budgets on valid 255-byte wide-frontier patterns; share start-independent work without breaking contextual-caret provenance."
     },
@@ -4435,7 +4435,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "680e6fb9d468698d6bebce6a8198cce329201262",
       "detail": "Reference-aware internal-caret positive behavior lacks a libc-backed regression test; add the consumed-newline match and miss control and assert the reference-aware representation."
     },
@@ -4444,7 +4444,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "680e6fb9d468698d6bebce6a8198cce329201262",
       "detail": "Accepted adjacent-repeat fixed points lack a process-bounded match regression test; pin empty, repeated, and miss outcomes under an interruptible subprocess timeout."
     },
@@ -4453,7 +4453,7 @@
       "area": "startup",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "680e6fb9d468698d6bebce6a8198cce329201262",
       "detail": "js/posixregex.js state-key contract omits matchStart despite contextual-caret dependence; include it in keys or explicitly enforce and document candidate-local cache and dedup scopes."
     },
@@ -4462,7 +4462,7 @@
       "area": "startup",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "680e6fb9d468698d6bebce6a8198cce329201262",
       "detail": "js/posixregex.js finite-interval capture-clearing rule lacks a source-shaped contract; express the corrected endpoint rule with a named predicate and glibc-focused explanation."
     },
@@ -4471,7 +4471,7 @@
       "area": "startup",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "680e6fb9d468698d6bebce6a8198cce329201262",
       "detail": "Regex libc-oracle and resource runners duplicate exact-boundary adversary fixtures; move them to one dependency-free owner while retaining byte-length assertions and runner-specific budgets."
     }

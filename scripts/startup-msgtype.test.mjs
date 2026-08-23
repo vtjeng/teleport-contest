@@ -70,7 +70,7 @@ function messageState(config = '', keys = '') {
 test('the fresh recipe retains the MSGTYPE branch matrix', () => {
     const recipe = loadStartupMsgtypeRecipe();
     assert.equal(recipe.segments.length, STARTUP_MSGTYPE_CASES.length);
-    assert.equal(recipe.segments.length, 28);
+    assert.equal(recipe.segments.length, 29);
     assert.equal(STARTUP_MSGTYPE_CASES.filter(({ errors }) => errors).length, 4);
     assert.ok(STARTUP_MSGTYPE_CASES.some(({ statements }) => (
         statements.length === 2
@@ -255,6 +255,7 @@ test('backreferences explore same-start paths and retain participating groups',
             [String.raw`(|())\2`, ['', 'x'], []],
             [String.raw`^((a)|b)*\2`, ['aab'], ['abb']],
             [String.raw`^((a)|b)*\2$`, ['aba'], ['abb']],
+            [String.raw`^((a)|b){0,2}\2$`, ['aba'], ['abb']],
             [String.raw`^(()*)\2$`, [''], ['a']],
             [String.raw`^(()){2}\2$`, [''], ['a']],
             [String.raw`^(()){2,}\2$`, [''], ['a']],
@@ -286,6 +287,8 @@ test('sibling alternatives expose only captures on their current path', () => {
 test('backreferences follow recorder repetition and finite-interval selection',
     () => {
         for (const [pattern, matches, misses] of [
+            [String.raw`^(a+)*\1$`, ['aaa'], ['b']],
+            [String.raw`^(a+){0,}\1$`, ['aaa'], ['b']],
             [String.raw`^(a){0,2}\1$`, ['aaa'], ['aa', 'aaaa']],
             [String.raw`^(a){1,3}\1$`, ['aa', 'aaaa'], ['aaa']],
             [String.raw`^(a+)+\1$`, ['aa'], ['aaa', 'aaaa']],
@@ -309,6 +312,7 @@ test('reference-aware classes and anchors exercise their parsed-tree arms', () =
         [String.raw`^([[:digit:]])\1$`, ['44'], ['45']],
         [String.raw`\`(a)\1\'`, ['aa'], ['baa', 'aab']],
         [String.raw`(()^b)\1`, [], ['\nbb']],
+        [String.raw`(.+^b)(x)\2`, ['\nbxx'], ['\nbx']],
     ]) {
         const regex = regex_init();
         assert.equal(regex_compile(pattern, regex), true, pattern);

@@ -472,6 +472,10 @@ function parseAsciiExtendedRegexp(pattern) {
         node.nodeId = nextNodeId++;
         let groups = new Set();
         let containsRepeat = node.type === 'repeat';
+        let dependsOnMatchStart = node.type === 'anchor'
+            && node.edge === 'start' && !node.absolute;
+        let referenceIndependent = node.type !== 'reference'
+            && !(node.type === 'group' && referencedGroups.has(node.id));
         if (node.type === 'group') groups.add(node.id);
         const children = node.type === 'sequence' || node.type === 'alternative'
             ? node.nodes : node.child ? [node.child] : [];
@@ -479,9 +483,13 @@ function parseAsciiExtendedRegexp(pattern) {
             annotate(child);
             groups = new Set([...groups, ...child.captureGroups]);
             containsRepeat ||= child.containsRepeat;
+            dependsOnMatchStart ||= child.dependsOnMatchStart;
+            referenceIndependent &&= child.referenceIndependent;
         }
         node.captureGroups = groups;
         node.containsRepeat = containsRepeat;
+        node.dependsOnMatchStart = dependsOnMatchStart;
+        node.referenceIndependent = referenceIndependent;
         if (node.type === 'literal') node.minimumWidth = node.value.length;
         else if (node.type === 'dot' || node.type === 'class')
             node.minimumWidth = 1;
@@ -500,14 +508,39 @@ function parseAsciiExtendedRegexp(pattern) {
         } else node.minimumWidth = 0;
     }
     annotate(root);
-    return { root, groupCount, referencedGroups };
+    return {
+        root,
+        groupCount,
+        referencedGroups,
+        requiredAbsoluteEndSuffix: requiredAbsoluteEndSuffix(root),
+    };
+}
+
+function requiredAbsoluteEndSuffix(root) {
+    // A branch-final `$` is an absolute input-end assertion in recorder
+    // glibc. Consecutive literals immediately before a root-sequence `$` are
+    // therefore a necessary suffix for every successful match, regardless of
+    // its unanchored candidate start or capture decomposition.
+    if (root.type !== 'sequence' || root.nodes.length < 2) return null;
+    const anchor = root.nodes[root.nodes.length - 1];
+    if (anchor.type !== 'anchor' || anchor.edge !== 'end' || !anchor.absolute)
+        return null;
+    let suffix = '';
+    for (let index = root.nodes.length - 2; index >= 0; --index) {
+        const node = root.nodes[index];
+        if (node.type !== 'literal') break;
+        suffix = node.value + suffix;
+    }
+    return suffix || null;
 }
 
 function captureStateKey(state) {
     // Capture arrays never mutate after entering a state. Position plus every
-    // referenced capture value is therefore the complete future-equivalence
-    // key: merging equal keys cannot change a later reference or assertion.
-    return `${state.position}:${JSON.stringify(state.captures)}`;
+    // referenced capture value and the candidate start are therefore the
+    // complete future-equivalence key: merging equal keys cannot change a
+    // later reference or contextual caret assertion.
+    return `${state.matchStart}:${state.position}:`
+        + JSON.stringify(state.captures);
 }
 
 function uniqueCaptureStates(states) {
@@ -534,11 +567,13 @@ function uniquePositions(positions) {
 }
 
 // Reference-free patterns use position sets, the Thompson-NFA state for the
-// REG_NOSUB boolean consumed by NetHack. Memoizing node/position pairs bounds
-// matching by the parsed tree and the 256 possible BUFSZ input positions; it
-// does not inherit ECMAScript's exponential backtracking behavior.
+// REG_NOSUB boolean consumed by NetHack. A node whose subtree has a contextual
+// caret includes the candidate start in its memo key. Other nodes are safe to
+// share across unanchored candidate starts, so matching stays bounded by the
+// parsed tree and the 256 possible BUFSZ input positions.
 function evaluateDirectNode(node, input, position, matchStart, memo) {
-    const key = `${node.nodeId}:${position}`;
+    const key = `${node.nodeId}:${position}`
+        + (node.dependsOnMatchStart ? `:${matchStart}` : '');
     const cached = memo.get(key);
     if (cached) return cached;
 
@@ -624,7 +659,39 @@ function evaluateDirectNode(node, input, position, matchStart, memo) {
     return results;
 }
 
-function evaluateReferenceNode(node, input, state, evaluator) {
+function selectsFirstNestedCaptureEndpoint(node, evaluator) {
+    // glibc regexec.c get_subexp() keeps the first viable endpoint for a
+    // positive-minimum unbounded repetition of a referenced group whose
+    // nonempty body is itself quantified. A zero-minimum outer repetition
+    // continues through later endpoints.
+    return node.minimum > 0 && !Number.isFinite(node.maximum)
+        && node.child.type === 'group'
+        && evaluator.referencedGroups.has(node.child.id)
+        && node.child.child.containsRepeat
+        && node.child.minimumWidth > 0;
+}
+
+function isIntermediateFiniteEndpoint(node, count) {
+    // glibc's finite-interval submatch selection discards the directly
+    // repeated capture between the minimum and maximum endpoints. Descendant
+    // captures retain their last participating values through sibling paths.
+    return Number.isFinite(node.maximum)
+        && count > node.minimum && count < node.maximum;
+}
+
+function evaluateReferenceNode(node, input, state, evaluator,
+    maximumPosition = input.length) {
+    if (state.position > maximumPosition) return [];
+    if (node.referenceIndependent) {
+        return evaluateDirectNode(
+            node,
+            input,
+            state.position,
+            state.matchStart,
+            evaluator.directMemo,
+        ).filter((position) => position <= maximumPosition)
+            .map((position) => ({ ...state, position }));
+    }
     switch (node.type) {
     case 'literal':
         return input.startsWith(node.value, state.position)
@@ -657,14 +724,16 @@ function evaluateReferenceNode(node, input, state, evaluator) {
     case 'reference': {
         const capture = state.captures[node.group];
         if (capture === undefined) return [];
-        return input.startsWith(capture, state.position)
+        const end = state.position + capture.length;
+        return end <= maximumPosition
+            && input.startsWith(capture, state.position)
             ? [{ ...state, position: state.position + capture.length }]
             : [];
     }
     case 'group': {
         const start = state.position;
         return evaluateReferenceNode(
-            node.child, input, state, evaluator,
+            node.child, input, state, evaluator, maximumPosition,
         ).map((result) => {
             if (!evaluator.referencedGroups.has(node.id)) return result;
             const captures = [...result.captures];
@@ -677,10 +746,15 @@ function evaluateReferenceNode(node, input, state, evaluator) {
     }
     case 'sequence': {
         let states = [state];
+        let suffixMinimum = node.nodes.reduce(
+            (total, child) => total + child.minimumWidth, 0,
+        );
         for (const child of node.nodes) {
+            suffixMinimum -= child.minimumWidth;
+            const childMaximum = maximumPosition - suffixMinimum;
             states = uniqueCaptureStates(states.flatMap(
                 (current) => evaluateReferenceNode(
-                    child, input, current, evaluator,
+                    child, input, current, evaluator, childMaximum,
                 ),
             ));
             if (!states.length) break;
@@ -689,17 +763,17 @@ function evaluateReferenceNode(node, input, state, evaluator) {
     }
     case 'alternative':
         return uniqueCaptureStates(node.nodes.flatMap(
-            (child) => evaluateReferenceNode(child, input, state, evaluator),
+            (child) => evaluateReferenceNode(
+                child, input, state, evaluator, maximumPosition,
+            ),
         ));
     case 'repeat': {
         let count = 0;
         let frontier = [state];
         const results = [];
-        const firstNestedCapture = !Number.isFinite(node.maximum)
-            && node.child.type === 'group'
-            && evaluator.referencedGroups.has(node.child.id)
-            && node.child.child.containsRepeat
-            && node.child.minimumWidth > 0;
+        const firstNestedCapture = selectsFirstNestedCaptureEndpoint(
+            node, evaluator,
+        );
         // Before minimum, repeated states still matter: an empty atom can
         // satisfy `{32767}` without changing position or captures. At and
         // above minimum, the state key is the complete future input, so a
@@ -710,7 +784,7 @@ function evaluateReferenceNode(node, input, state, evaluator) {
                 break;
             let next = uniqueCaptureStates(frontier.flatMap(
                 (current) => evaluateReferenceNode(
-                    node.child, input, current, evaluator,
+                    node.child, input, current, evaluator, maximumPosition,
                 ),
             ));
             ++count;
@@ -720,14 +794,12 @@ function evaluateReferenceNode(node, input, state, evaluator) {
             // decompositions do not create independent capture candidates.
             if (firstNestedCapture && count === 1 && next.length > 1)
                 next = [next[0]];
-            if (Number.isFinite(node.maximum)
-                && count > node.minimum && count < node.maximum) {
+            if (isIntermediateFiniteEndpoint(node, count)
+                && node.child.type === 'group'
+                && evaluator.referencedGroups.has(node.child.id)) {
                 next = next.map((candidate) => {
                     const captures = [...candidate.captures];
-                    for (const group of node.child.captureGroups) {
-                        if (evaluator.referencedGroups.has(group))
-                            captures[group] = undefined;
-                    }
+                    captures[node.child.id] = undefined;
                     return { ...candidate, captures };
                 });
             }
@@ -748,9 +820,12 @@ function evaluateReferenceNode(node, input, state, evaluator) {
 }
 
 function matchReferenceExtendedRegexp(input, evaluator) {
+    if (evaluator.requiredAbsoluteEndSuffix
+        && !input.endsWith(evaluator.requiredAbsoluteEndSuffix)) return false;
     // regexec() is unanchored unless the tree's own anchors reject a start.
     // Check starts in leftmost order; only existence is observable under
     // REG_NOSUB, so no later submatch-selection detail leaves this function.
+    const context = { ...evaluator, directMemo: new Map() };
     for (let start = 0; start <= input.length; ++start) {
         const state = {
             position: start,
@@ -760,7 +835,7 @@ function matchReferenceExtendedRegexp(input, evaluator) {
             captures: [],
         };
         if (evaluateReferenceNode(
-            evaluator.root, input, state, evaluator,
+            context.root, input, state, context,
         ).length)
             return true;
     }
@@ -768,9 +843,12 @@ function matchReferenceExtendedRegexp(input, evaluator) {
 }
 
 function matchDirectExtendedRegexp(input, evaluator) {
+    if (evaluator.requiredAbsoluteEndSuffix
+        && !input.endsWith(evaluator.requiredAbsoluteEndSuffix)) return false;
+    const memo = new Map();
     for (let start = 0; start <= input.length; ++start) {
         if (evaluateDirectNode(
-            evaluator.root, input, start, start, new Map(),
+            evaluator.root, input, start, start, memo,
         ).length) return true;
     }
     return false;

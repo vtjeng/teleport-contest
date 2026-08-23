@@ -28,9 +28,9 @@ const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const OPEN_FULL_OPTIONS_MENU = ' mO      ';
 const MESSAGE_TYPES = allopt.find(({ name }) => name === 'message types');
 
-function startupRc(name, ...statements) {
+function startupRc(name, role, ...statements) {
     return [
-        `OPTIONS=name:${name},role:Valkyrie,race:human,gender:female,align:lawful`,
+        `OPTIONS=name:${name},role:${role},race:human,gender:female,align:lawful`,
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         'OPTIONS=pettype:none,!acoustics,!autopickup',
         ...statements,
@@ -39,12 +39,13 @@ function startupRc(name, ...statements) {
 }
 
 function messageCase({ label, seed, datetime, statements, moves = 's',
-    expected, probes = [], errors = 0, name = `Msg${seed}` }) {
+    expected, probes = [], errors = 0, name = `Msg${seed}`,
+    role = 'Valkyrie' }) {
     return Object.freeze({
         label,
         seed,
         datetime,
-        nethackrc: startupRc(name, ...statements),
+        nethackrc: startupRc(name, role, ...statements),
         moves: `${errors ? '\n' : ''}${moves}`,
         statements: Object.freeze([...statements]),
         expected: Object.freeze(expected.map(Object.freeze)),
@@ -250,6 +251,19 @@ export const STARTUP_MSGTYPE_CASES = Object.freeze([
         probes: [['Hello aba,', false, MSGTYP_NOSHOW],
             ['Hello abb,', false, MSGTYP_NORMAL]],
         name: 'aba',
+    }),
+    messageCase({
+        label: 'zero-minimum nested capture suppresses the live welcome line',
+        seed: 9812471,
+        datetime: '20420415151100',
+        statements: [String.raw`MSGTYPE=hide "^Hello (a+)*\1, welcome"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`^Hello (a+)*\1, welcome`,
+        }],
+        probes: [['Hello aaa, welcome', false, MSGTYP_NOSHOW]],
+        name: 'aaa',
+        role: 'Archeologist',
     }),
     messageCase({
         label: 'comma-only interval installs with zero-or-more semantics',

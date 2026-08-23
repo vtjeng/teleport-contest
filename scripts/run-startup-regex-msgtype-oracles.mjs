@@ -25,13 +25,15 @@ import {
     regex_match,
 } from '../js/posixregex.js';
 import { ttyPline } from '../js/tty_message.js';
+import {
+    ADJACENT_REPEAT_CASES,
+    EXACT_BOUNDARY_REGEX_CASES,
+    REGEX_EXACT_BOUNDARY_BYTES,
+} from './startup-regex-fixtures.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = resolve(SCRIPT_PATH, '..');
 const FIXTURE_DIR = join(SCRIPT_DIR, 'fixtures');
-const DIRECT_RESOURCE_PATTERN = '^' + '()'.repeat(121) + '(|)(a|aa)*b$';
-const REFERENCE_RESOURCE_PATTERN = String.raw`^((a)|(a)|(a)|(a))*\2\3\4\5`
-    + '()'.repeat(113) + 'b$';
 
 function run(command, args) {
     const result = spawnSync(command, args, { encoding: 'utf8' });
@@ -99,6 +101,9 @@ const REGEX_CASES = Object.freeze([
     [String.raw`^(()){2}\2$`, ['', 'a']],
     [String.raw`^(()){2,}\2$`, ['', 'a']],
     [String.raw`^((a|c)|b)*\2$`, ['abcc', 'abca']],
+    [String.raw`^(a+)*\1$`, ['aaa', 'b']],
+    [String.raw`^(a+){0,}\1$`, ['aaa', 'b']],
+    [String.raw`^((a)|b){0,2}\2$`, ['aba', 'abb']],
     [String.raw`^(a){0,2}\1$`, ['aa', 'aaa', 'aaaa']],
     [String.raw`^(a){1,3}\1$`, ['aa', 'aaa', 'aaaa']],
     [String.raw`^(a+)+\1$`, ['aa', 'aaa', 'aaaa']],
@@ -107,14 +112,19 @@ const REGEX_CASES = Object.freeze([
     [String.raw`^([[:digit:]])\1$`, ['44', '45']],
     [String.raw`\`(a)\1\'`, ['aa', 'baa', 'aab']],
     [String.raw`(()^b)\1`, ['\nbb']],
+    [String.raw`(.+^b)(x)\2`, ['\nbxx', '\nbx']],
     ['()^b', ['\nb']],
     ['a*^b', ['a\nb']],
     ['.+^b', ['\nb']],
     [String.raw`^((ab|c)|x)*\2$`, [
         'abab', 'abxab', 'abcc', 'cc', 'xabxabab', 'ababc', 'xc', 'abxc',
     ]],
-    [DIRECT_RESOURCE_PATTERN, ['a'.repeat(255)]],
-    [REFERENCE_RESOURCE_PATTERN, ['a'.repeat(255)]],
+    ...ADJACENT_REPEAT_CASES.map(({ pattern, matches, misses }) => (
+        [pattern, [...matches, ...misses]]
+    )),
+    ...EXACT_BOUNDARY_REGEX_CASES.map(({ pattern, input }) => (
+        [pattern, [input]]
+    )),
 ]);
 
 const REGEX_ERRORS = Object.freeze([
@@ -141,6 +151,10 @@ const REGEX_ERRORS = Object.freeze([
 
 function checkRegexOracle(executable) {
     let comparisons = 0;
+    for (const { pattern, input } of EXACT_BOUNDARY_REGEX_CASES) {
+        assert.equal(Buffer.byteLength(pattern), REGEX_EXACT_BOUNDARY_BYTES);
+        assert.equal(Buffer.byteLength(input), REGEX_EXACT_BOUNDARY_BYTES);
+    }
     for (const [pattern, inputs] of REGEX_CASES) {
         const cLines = run(executable, [pattern, ...inputs]).trimEnd()
             .split('\n');
