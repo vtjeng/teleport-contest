@@ -568,6 +568,18 @@ function repeatFrontierStateKey(state) {
     );
 }
 
+function maximumRepeatSourceKey(node, state) {
+    // At a finite maximum, recorder glibc distinguishes a consuming final
+    // iteration from an empty one before it selects one capture path. A
+    // zero-minimum interval also keeps the empty path's participation distinct;
+    // positive-minimum intervals select the last source path for equal empty
+    // captures before endpoint clearing.
+    const source = [state.lastIterationConsumed ?? null];
+    if (node.minimum === 0)
+        source.push(state.lastIterationCaptures ?? 0);
+    return `${captureStateKey(state)}:${JSON.stringify(source)}`;
+}
+
 function sameRepeatFrontier(left, right) {
     if (left.length !== right.length) return false;
     const leftKeys = new Set(left.map(repeatFrontierStateKey));
@@ -790,7 +802,8 @@ function nextReferenceRepeatFrontier(node, input, frontier, evaluator,
             if (next.participationStack?.length === 0)
                 delete next.participationStack;
             if (admitCandidate && !admitCandidate(next)) continue;
-            const key = captureStateKey(next);
+            const key = projectCandidate
+                ? maximumRepeatSourceKey(node, next) : captureStateKey(next);
             // For a finite maximum, recorder glibc selects one source path
             // for equivalent raw captures before applying endpoint clearing.
             // Map replacement retains the last source-ordered path, including
@@ -869,17 +882,22 @@ function traverseReferenceRepeatEndpoints(node, input, state, evaluator,
             next = [next[0]];
         if ((unbounded || !node.child.alwaysZeroWidth)
             && count >= node.minimum) {
+            // A zero-minimum finite interval may revisit the same captures at
+            // a later count by skipping its child, then select that distinct
+            // path at the maximum. Positive-minimum intervals retain only the
+            // equivalent empty path which has never advanced from the start.
             next = next.filter((candidate) => (
                 !seenContinuationKeys.has(captureStateKey(candidate))
                 || (!unbounded && !candidate.lastIterationConsumed
-                    && candidate.position === state.position)
+                    && (node.minimum === 0
+                        || candidate.position === state.position))
             ));
         }
         if (!unbounded && node.child.alwaysZeroWidth
             && count >= node.minimum && count < node.maximum
             && sameRepeatFrontier(frontier, next)) {
             // A zero-width finite repeat can stabilize thousands of counts
-            // before its maximum.  Once its complete raw frontier (including
+            // before its maximum. Once its complete raw frontier (including
             // final-iteration metadata) is fixed, every skipped intermediate
             // endpoint is identical; jump to the distinct maximum projection.
             count = node.maximum;
