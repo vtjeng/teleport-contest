@@ -335,7 +335,6 @@ function translateBracketExpression(pattern, start) {
 // regex_match() owns finite sets of input positions and referenced values.
 function parseAsciiExtendedRegexp(pattern) {
     let groupCount = 0;
-    const referencedGroups = new Set();
 
     function parsePart(start, stopAtClose) {
         let index = start;
@@ -364,7 +363,6 @@ function parseAsciiExtendedRegexp(pattern) {
                 const escaped = pattern[index + 1];
                 if (escaped >= '1' && escaped <= '9') {
                     const group = Number(escaped);
-                    referencedGroups.add(group);
                     atom = { type: 'reference', group };
                 } else if (escaped === 'b' || escaped === 'B') {
                     atom = { type: 'word-boundary', invert: escaped === 'B' };
@@ -429,7 +427,6 @@ function parseAsciiExtendedRegexp(pattern) {
             while (index < pattern.length) {
                 let minimum;
                 let maximum;
-                let intervalSyntax = false;
                 if (pattern[index] === '*') {
                     minimum = 0;
                     maximum = Infinity;
@@ -443,7 +440,6 @@ function parseAsciiExtendedRegexp(pattern) {
                     maximum = 1;
                     ++index;
                 } else if (pattern[index] === '{') {
-                    intervalSyntax = true;
                     const close = pattern.indexOf('}', index + 1);
                     const body = pattern.slice(index + 1, close);
                     const [lower, upper] = body.split(',');
@@ -459,7 +455,6 @@ function parseAsciiExtendedRegexp(pattern) {
                     child: atom,
                     minimum,
                     maximum,
-                    intervalSyntax,
                 };
             }
             sequence.push(atom);
@@ -475,12 +470,25 @@ function parseAsciiExtendedRegexp(pattern) {
 
     const root = parsePart(0, false).node;
 
+    // regcomp.c parse_dup_op() removes a {0} subtree. References inside it
+    // therefore do not create backreference work, and captures or duplicated
+    // repeats inside it cannot affect the compiled matcher either.
+    const referencedGroups = new Set();
+    function collectReferencedGroups(node) {
+        if (node.type === 'repeat' && node.maximum === 0) return;
+        if (node.type === 'reference') referencedGroups.add(node.group);
+        const children = node.type === 'sequence' || node.type === 'alternative'
+            ? node.nodes : node.child ? [node.child] : [];
+        for (const child of children) collectReferencedGroups(child);
+    }
+    collectReferencedGroups(root);
+
     let nextNodeId = 0;
     function annotate(node) {
         node.nodeId = nextNodeId++;
         let groups = new Set();
         let containsRepeat = node.type === 'repeat';
-        let hasFiniteReferencedInterval = false;
+        let hasDuplicatedReferencedCapture = false;
         let dependsOnMatchStart = node.type === 'anchor'
             && node.edge === 'start' && !node.absolute;
         let referenceIndependent = node.type !== 'reference'
@@ -492,18 +500,31 @@ function parseAsciiExtendedRegexp(pattern) {
             annotate(child);
             groups = new Set([...groups, ...child.captureGroups]);
             containsRepeat ||= child.containsRepeat;
-            hasFiniteReferencedInterval ||= child.hasFiniteReferencedInterval;
+            hasDuplicatedReferencedCapture ||=
+                child.hasDuplicatedReferencedCapture;
             dependsOnMatchStart ||= child.dependsOnMatchStart;
             referenceIndependent &&= child.referenceIndependent;
         }
+        if (node.type === 'repeat' && node.maximum === 0) {
+            groups = new Set();
+            hasDuplicatedReferencedCapture = false;
+            dependsOnMatchStart = false;
+            referenceIndependent = true;
+        }
         node.captureGroups = groups;
         node.containsRepeat = containsRepeat;
-        if (node.type === 'repeat' && node.intervalSyntax
-            && Number.isFinite(node.maximum)
+        // glibc regcomp.c parse_dup_op() reuses one OPEN/CLOSE occurrence for
+        // `*`, `?`, {0}, {1}, {0,1}, and {0,}. Every other repeat with a
+        // maximum above one duplicates the subtree. If that subtree owns a
+        // capture consumed by a backreference, matching needs the compiled
+        // occurrence provenance tracked by the named boundary below.
+        const duplicatesSubtree = node.type === 'repeat' && node.maximum > 1
+            && (node.minimum > 0 || Number.isFinite(node.maximum));
+        if (duplicatesSubtree
             && [...groups].some((id) => referencedGroups.has(id))) {
-            hasFiniteReferencedInterval = true;
+            hasDuplicatedReferencedCapture = true;
         }
-        node.hasFiniteReferencedInterval = hasFiniteReferencedInterval;
+        node.hasDuplicatedReferencedCapture = hasDuplicatedReferencedCapture;
         node.dependsOnMatchStart = dependsOnMatchStart;
         node.referenceIndependent = referenceIndependent;
         if (node.type === 'literal') node.alwaysZeroWidth = node.value === '';
@@ -541,7 +562,7 @@ function parseAsciiExtendedRegexp(pattern) {
         root,
         groupCount,
         referencedGroups,
-        hasFiniteReferencedInterval: root.hasFiniteReferencedInterval,
+        hasDuplicatedReferencedCapture: root.hasDuplicatedReferencedCapture,
         requiredAbsoluteEndSuffix: requiredAbsoluteEndSuffix(root),
     };
 }
@@ -712,6 +733,12 @@ function evaluateDirectNode(node, input, position, matchStart, memo) {
 }
 
 function selectsFirstNestedCaptureEndpoint(node, evaluator) {
+    // regex_compile() excludes repeats for which glibc duplicates a captured
+    // subtree later consumed by a backreference. The machinery below remains
+    // reachable for `*`, `?`, their single-occurrence brace equivalents,
+    // unrelated finite repeats inside a reference-aware ERE, and unbounded
+    // repeats whose subtree owns no referenced capture. Its capture-selection
+    // comments do not claim the deferred duplicated-occurrence provenance.
     // glibc regexec.c get_subexp() keeps the first viable endpoint for a
     // positive-minimum unbounded repetition of a referenced group whose
     // nonempty body is itself quantified. A zero-minimum outer repetition
@@ -1153,8 +1180,8 @@ export function regex_compile(pattern, regex) {
         regex.evaluator = parseAsciiExtendedRegexp(text);
         if (!regex.evaluator.referencedGroups.size) {
             regex.kind = 'direct';
-        } else if (regex.evaluator.hasFiniteReferencedInterval) {
-            regex.kind = 'finite-reference-boundary';
+        } else if (regex.evaluator.hasDuplicatedReferencedCapture) {
+            regex.kind = 'duplicated-capture-boundary';
         } else {
             regex.kind = 'reference-aware';
         }
@@ -1175,11 +1202,11 @@ export class UnsupportedPosixLocaleMatchError extends Error {
     }
 }
 
-export class UnsupportedPosixFiniteReferenceError extends Error {
+export class UnsupportedPosixDuplicatedCaptureError extends Error {
     constructor() {
-        super('posixregex.c regex_match() with a finite repeated capture '
+        super('posixregex.c regex_match() with a duplicated repeated capture '
             + 'used by a backreference');
-        this.name = 'UnsupportedPosixFiniteReferenceError';
+        this.name = 'UnsupportedPosixDuplicatedCaptureError';
     }
 }
 
@@ -1190,8 +1217,8 @@ export function regex_match(value, regex) {
     if (regex.kind === 'locale-boundary' || /[^\x00-\x7F]/u.test(text)) {
         throw new UnsupportedPosixLocaleMatchError();
     }
-    if (regex.kind === 'finite-reference-boundary') {
-        throw new UnsupportedPosixFiniteReferenceError();
+    if (regex.kind === 'duplicated-capture-boundary') {
+        throw new UnsupportedPosixDuplicatedCaptureError();
     }
     if (regex.kind === 'direct') {
         return matchDirectExtendedRegexp(text, regex.evaluator);

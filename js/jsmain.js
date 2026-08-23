@@ -34,6 +34,7 @@ import {
     initoptions_finish,
     parseNethackrc,
 } from './options.js';
+import { UnsupportedPosixDuplicatedCaptureError } from './posixregex.js';
 import { config_error_done } from './cfgfiles.js';
 import {
     nomux_get_cursor,
@@ -605,7 +606,8 @@ export async function runSegment(
         // fail-closed boundary raised there arrives here rather than at the
         // catch inside that loop. Ending the segment on it preserves every
         // screen start() captured, which rethrowing would discard.
-        if (error instanceof UnsupportedStartupBoundaryError) {
+        if (error instanceof UnsupportedStartupBoundaryError
+            || error instanceof UnsupportedPosixDuplicatedCaptureError) {
             onBoundary?.(error);
             return nhGame;
         }
@@ -646,7 +648,8 @@ export async function runSegment(
                 // sounds.c dosounds() runs every turn under this loop, so the
                 // first turn on a level holding an unported special room ends
                 // the segment here.
-                || e instanceof UnsupportedAmbientSoundError) {
+                || e instanceof UnsupportedAmbientSoundError
+                || e instanceof UnsupportedPosixDuplicatedCaptureError) {
                 onBoundary?.(e);
                 break;
             }

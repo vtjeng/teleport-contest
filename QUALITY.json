@@ -4595,6 +4595,14 @@
         {
           "text": "The detail's abbreviated consumer name means AUTOPICKUP_EXCEPTION. The closing matrix must cover both MSGTYPE and AUTOPICKUP_EXCEPTION.",
           "at": "88c9fec190681d5ebb5e0bd7e8fccdc73fd905a4"
+        },
+        {
+          "text": "Final source review broadened the closing condition from finite brace intervals to every repeat shape for which glibc parse_dup_op duplicates a captured subtree consumed by a backreference: finite maxima above one, plus, and positive-minimum unbounded intervals. Star, optional, {0}, {1}, {0,1}, and {0,} reuse at most one OPEN/CLOSE occurrence and remain supported. The named boundary is UnsupportedPosixDuplicatedCaptureError; runSegment converts it at startup and turn boundaries, and the closing libc/live matrix must restore every duplicated-occurrence family for MSGTYPE and AUTOPICKUP_EXCEPTION.",
+          "at": "cac6ebff2728a8d0c0aaf27742792bfe16acd4d6"
+        },
+        {
+          "text": "The duplicated-occurrence classifier follows the compiled tree, not merely the source syntax: glibc {0} erases its subtree, so captures, references, and nested duplicated repeats beneath {0} do not activate this boundary. The closing port must preserve that erasure before building occurrence ids or arrival state.",
+          "at": "cac6ebff2728a8d0c0aaf27742792bfe16acd4d6"
         }
       ]
     }

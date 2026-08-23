@@ -30,7 +30,7 @@ import {
     regex_compile,
     regex_init,
     regex_match,
-    UnsupportedPosixFiniteReferenceError,
+    UnsupportedPosixDuplicatedCaptureError,
     UnsupportedPosixLocaleMatchError,
 } from '../js/posixregex.js';
 import {
@@ -257,7 +257,6 @@ test('backreferences explore same-start paths and retain participating groups',
             [String.raw`^((a)|b)*\2`, ['aab'], ['abb']],
             [String.raw`^((a)|b)*\2$`, ['aba'], ['abb']],
             [String.raw`^(()*)\2$`, [''], ['a']],
-            [String.raw`^(()){2,}\2$`, [''], ['a']],
             [String.raw`^((a|c)|b)*\2$`, ['abcc'], ['abca']],
         ]) {
             const regex = regex_init();
@@ -271,7 +270,7 @@ test('backreferences explore same-start paths and retain participating groups',
         }
     });
 
-test('finite repeated captures stop at the named glibc provenance boundary',
+test('duplicated repeated captures stop at the named glibc provenance boundary',
     () => {
         for (const pattern of [
             String.raw`^((a)|b){0,2}\2$`,
@@ -279,16 +278,46 @@ test('finite repeated captures stop at the named glibc provenance boundary',
             String.raw`^((a?)?){2}\2$`,
             String.raw`^(a){2,3}\1$`,
             String.raw`^(()){2}\2$`,
+            String.raw`^(()){2,}\2$`,
+            String.raw`^(a+)+\1$`,
+            String.raw`^((a?)?){1,}\2$`,
         ]) {
             const regex = regex_init();
             assert.equal(regex_compile(pattern, regex), true, pattern);
-            assert.equal(regex.kind, 'finite-reference-boundary', pattern);
+            assert.equal(regex.kind, 'duplicated-capture-boundary', pattern);
             assert.throws(
                 () => regex_match('aaa', regex),
-                UnsupportedPosixFiniteReferenceError,
+                UnsupportedPosixDuplicatedCaptureError,
                 pattern,
             );
         }
+
+        for (const [pattern, text, expected] of [
+            [String.raw`^(a){0}\1$`, '', false],
+            [String.raw`^(a){1}\1$`, 'aa', true],
+            [String.raw`^(a){0,1}\1$`, 'aa', true],
+            [String.raw`^(a){0,}\1$`, 'aa', true],
+            [String.raw`^(a)(b){2}\1$`, 'abba', true],
+        ]) {
+            const regex = regex_init();
+            assert.equal(regex_compile(pattern, regex), true, pattern);
+            assert.equal(regex.kind, 'reference-aware', pattern);
+            assert.equal(regex_match(text, regex), expected, pattern);
+        }
+
+        const deletedReference = regex_init();
+        assert.equal(regex_compile(
+            String.raw`^He(l){2}(\1){0}o$`, deletedReference,
+        ), true);
+        assert.equal(deletedReference.kind, 'direct');
+        assert.equal(regex_match('Hello', deletedReference), true);
+
+        const deletedDuplicatedSubtree = regex_init();
+        assert.equal(regex_compile(
+            String.raw`^((a){2}){0}\2$`, deletedDuplicatedSubtree,
+        ), true);
+        assert.equal(deletedDuplicatedSubtree.kind, 'reference-aware');
+        assert.equal(regex_match('', deletedDuplicatedSubtree), false);
 
         const configured = parseNethackrc(
             String.raw`MSGTYPE=hide "^((a)|b){0,2}\2$"` + '\n',
@@ -296,8 +325,28 @@ test('finite repeated captures stop at the named glibc provenance boundary',
         assert.equal(configured.configErrorFrame.num_errors, 0);
         assert.throws(
             () => msgtype_type('aba', false, configured),
-            UnsupportedPosixFiniteReferenceError,
+            UnsupportedPosixDuplicatedCaptureError,
         );
+    });
+
+test('a duplicated-capture MSGTYPE ends runSegment at the startup boundary',
+    async () => {
+        let boundary = null;
+        await runSegment({
+            seed: 9812511,
+            datetime: '20420415155100',
+            nethackrc: [
+                'OPTIONS=name:Boundary,role:Archeologist,race:human,gender:female,align:lawful',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,!autopickup',
+                String.raw`MSGTYPE=hide "^He(()|l){1,2}\2lo"`,
+                '',
+            ].join('\n'),
+            moves: 's',
+        }, { onBoundary: (error) => { boundary = error; } });
+        assert.ok(boundary instanceof UnsupportedPosixDuplicatedCaptureError);
+        assert.equal(game.gp.plinemsg_types.pattern,
+            String.raw`^He(()|l){1,2}\2lo`);
     });
 
 test('sibling alternatives expose only captures on their current path', () => {
@@ -317,7 +366,6 @@ test('supported backreferences follow recorder unbounded repetition selection',
         for (const [pattern, matches, misses] of [
             [String.raw`^(a+)*\1$`, ['aaa'], ['b']],
             [String.raw`^(a+){0,}\1$`, ['aaa'], ['b']],
-            [String.raw`^(a+)+\1$`, ['aa'], ['aaa', 'aaaa']],
         ]) {
             const regex = regex_init();
             assert.equal(regex_compile(pattern, regex), true, pattern);
@@ -373,7 +421,7 @@ test('compiled regex states use one explicit representation discriminant', () =>
     assert.equal(regex_compile(String.raw`(a)\1`, regex), true);
     assert.equal(regex.kind, 'reference-aware');
     assert.equal(regex_compile(String.raw`(a){2}\1`, regex), true);
-    assert.equal(regex.kind, 'finite-reference-boundary');
+    assert.equal(regex.kind, 'duplicated-capture-boundary');
     regex.kind = 'unknown';
     assert.throws(
         () => regex_match('aa', regex),
