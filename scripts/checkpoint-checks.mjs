@@ -11,6 +11,7 @@ import {
 } from './score-baseline.mjs';
 
 const GENERATED_CHECKS = [
+    'check:colors',
     'check:config-statements',
     'check:extcmds',
     'check:glyph-offsets',

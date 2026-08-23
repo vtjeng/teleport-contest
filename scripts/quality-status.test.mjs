@@ -87,6 +87,7 @@ test('the checked-in quality ledger has a valid schema', async () => {
   assert.deepEqual(
     generatedOutputs.map(({ path }) => path).sort(),
     [
+      'js/color_data.js',
       'js/config_statement_data.js',
       'js/dungeon_data.js',
       'js/extcmdlist_data.js',

@@ -302,6 +302,9 @@ export class NethackGame {
         g.plname = opts.name ?? '';
         g.flags = { ...opts.flags };
         g.iflags = { ...opts.iflags };
+        g.options_set_window_colors_flag
+            = opts.options_set_window_colors_flag;
+        g.wcolors_opt = [...opts.wcolors_opt];
         g.gc = { ...opts.gc };
         installParsedGa(g, opts);
         g.gw = {

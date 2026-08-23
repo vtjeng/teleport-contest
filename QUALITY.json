@@ -4591,6 +4591,8 @@
       "paths": [
         "js/allmain.js",
         "js/cfgfiles.js",
+        "js/color_data.js",
+        "js/coloratt.js",
         "js/config_statement_data.js",
         "js/files.js",
         "js/jsmain.js",
@@ -4609,6 +4611,11 @@
         "js/wintty.js"
       ],
       "generatedOutputs": [
+        {
+          "path": "js/color_data.js",
+          "generator": "scripts/generate-color-data.mjs",
+          "check": "node scripts/generate-color-data.mjs --check"
+        },
         {
           "path": "js/config_statement_data.js",
           "generator": "scripts/generate-config-statements.mjs",

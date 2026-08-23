@@ -200,6 +200,7 @@ import {
     regex_init,
     regex_match,
 } from './posixregex.js';
+import { check_enhanced_colors, wc_color_name } from './coloratt.js';
 import {
     get_current_feature_ver,
     get_feature_notice_ver,
@@ -516,6 +517,12 @@ function defaultResult() {
             wc_tile_file: null,
             wc_tile_height: 0,
             wc_tile_width: 0,
+            // options.c optfn_windowcolors() leaves the zeroed four-entry
+            // iflags array alone during do_init; wc_set_window_colors() owns
+            // each nullable foreground/background pair after that.
+            wcolors: Array.from(
+                { length: 4 }, () => ({ fg: null, bg: null }),
+            ),
             // options.c optfn_vary_msgcount() also leaves its zeroed
             // instance-flags field alone during do_init.
             wc_vary_msgcount: 0,
@@ -582,6 +589,10 @@ function defaultResult() {
         pl_fruit: DEFAULT_FRUIT,
         gameplayBindings: [],
         commandOperations: [],
+        // options.c's file-scope duplicate counters are reset by
+        // optfn_windowcolors(do_init), once per configuration-file pass.
+        wcolors_opt: [0, 0, 0, 0],
+        options_set_window_colors_flag: false,
         // cmd.c extcmdlist[] is mutable in C. Keep its flags per game so one
         // runSegment() cannot carry configuration into the next one.
         extcmdFlags: initialExtcmdFlags(),
@@ -3056,6 +3067,106 @@ function optfn_windowtype(result, statement) {
     choose_windows(result, result.gc.chosen_windowtype);
 }
 
+// C refs: options.c optfn_windowcolors() and wc_set_window_colors()
+// (4894-4939, 10023-10113).  The parser consumes a mungspaces()-normalized
+// list of window-name and foreground/background groups.  It deliberately
+// keeps writes from complete leading groups when a malformed tail makes the
+// whole handler answer optn_err.
+const WINDOW_COLOR_NAMES = Object.freeze(['menu', 'message', 'status', 'text']);
+const WINDOW_COLOR_SHORT_NAMES = Object.freeze(['mnu', 'msg', 'sts', 'txt']);
+
+function windowColorIndex(name) {
+    return WINDOW_COLOR_NAMES.findIndex((longName, index) => (
+        (name.length === longName.length
+            && equal_ncasechars(name, longName, name.length))
+        || (name.length === WINDOW_COLOR_SHORT_NAMES[index].length
+            && equal_ncasechars(
+                name, WINDOW_COLOR_SHORT_NAMES[index], name.length,
+            ))
+    ));
+}
+
+function wc_set_window_colors(result, op) {
+    let remaining = mungspaces(op);
+    while (remaining) {
+        if (remaining[0] === ' ') remaining = remaining.slice(1);
+        if (!remaining) return false;
+
+        const windowEnd = remaining.indexOf(' ');
+        if (windowEnd < 0) return false;
+        const windowName = remaining.slice(0, windowEnd);
+        remaining = remaining.slice(windowEnd + 1);
+
+        if (remaining[0] === ' ') remaining = remaining.slice(1);
+        if (!remaining) return false;
+        const slash = remaining.indexOf('/');
+        if (slash < 0) return false;
+        const foreground = remaining.slice(0, slash);
+        remaining = remaining.slice(slash + 1);
+
+        if (remaining[0] === ' ') remaining = remaining.slice(1);
+        if (!remaining) return false;
+        const backgroundEnd = remaining.indexOf(' ');
+        const background = backgroundEnd < 0
+            ? remaining : remaining.slice(0, backgroundEnd);
+        remaining = backgroundEnd < 0 ? '' : remaining.slice(backgroundEnd + 1);
+
+        const index = windowColorIndex(windowName);
+        if (index < 0) {
+            configErrorAdd(
+                result,
+                'windowcolors for unrecognized window type: '
+                    + `${windowName}`,
+            );
+            continue;
+        }
+
+        if (!foreground.includes(' ')) {
+            const color = check_enhanced_colors(foreground);
+            result.iflags.wcolors[index].fg = color >= 0
+                ? wc_color_name(color) : foreground;
+        }
+        if (!background.includes(' ')) {
+            const color = check_enhanced_colors(background);
+            result.iflags.wcolors[index].bg = color >= 0
+                ? wc_color_name(color) : background;
+        }
+        if (result.wcolors_opt[index] !== 0) {
+            configErrorAdd(
+                result,
+                `windowcolors for ${WINDOW_COLOR_NAMES[index]} windows `
+                    + 'specified multiple times',
+            );
+        }
+        result.wcolors_opt[index] += 1;
+    }
+    result.options_set_window_colors_flag = true;
+    return true;
+}
+
+function optfn_windowcolors(result, statement) {
+    const op = string_for_opt(statement, false, result);
+    if (op !== '' && !wc_set_window_colors(result, op)) {
+        configErrorAdd(result, `Could not set windowcolors '${op}'`);
+    }
+}
+
+function windowColorsValue(state) {
+    return WINDOW_COLOR_NAMES.map((name, index) => {
+        const pair = state.iflags?.wcolors?.[index] ?? {};
+        const fg = pair.fg && pair.fg !== 'def' ? pair.fg : null;
+        const bg = pair.bg && pair.bg !== 'def' ? pair.bg : null;
+        return `${(fg || bg) ? name : WINDOW_COLOR_SHORT_NAMES[index]}`
+            + ` ${fg ?? 'def'}/${bg ?? 'def'}`;
+    }).join(' ');
+}
+
+// optfn_windowcolors() formats get_val and get_cnf_val identically.  The
+// options menu reaches the former; this exported formatter pins the latter.
+export function windowColorsConfigValue(state) {
+    return windowColorsValue(state);
+}
+
 // C ref: options.c optfn_vary_msgcount() (4440-4467), its do_set arm.
 // optlist.h rejects negation before this handler, so the live startup path
 // requires a value and stores its unrestricted atoi() result.  Keep the
@@ -4464,6 +4575,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_mouse_support(result, statement);
     } else if (name === 'map_mode') {
         optfn_map_mode(result, statement, negated);
+    } else if (name === 'windowcolors') {
+        optfn_windowcolors(result, statement);
     } else if (name === 'pickup_types') {
         // optfn_pickup_types() clears the restriction before looking for its
         // value.  During startup a missing or empty value still reports the
@@ -5644,6 +5757,7 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         ];
         return names[state.iflags.wc_map_mode] ?? 'default';
     },
+    windowcolors: (state) => windowColorsValue(state),
     number_pad: (state) => {
         const numpadmodes = [
             '0=off', '1=on', '2=on, MSDOS compatible',
