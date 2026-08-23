@@ -4519,6 +4519,69 @@
       "status": "closed",
       "from": "0add2083af23e9707727fcd49d5de9cf70ec9167",
       "detail": "Regex resource fixture formulas and budget enumeration have separate owners that can drift; make the shared exact-case catalog control measurement and derived expected names with complete set checks."
+    },
+    {
+      "id": "audit-regex-finite-count-dedup",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
+      "detail": "js/posixregex.js referenceRepeatMatches() and evaluateReferenceNode() deduplicate count-independent raw continuation states across finite repeat counts, which drops a required maximum endpoint for ^(){0,2} backreference matching. Preserve count/projection-sensitive endpoints in both loops and close with recorder-libc, focused, and live MSGTYPE cases."
+    },
+    {
+      "id": "audit-regex-positive-min-descendant-retention",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
+      "detail": "js/posixregex.js acceptedRepeatEndpointStates() clears every descendant capture at an intermediate positive-minimum finite-repeat endpoint, but recorder glibc retains a descendant's earlier participating value when the last iteration skips it. Track final-iteration participation/direct ownership and close with recorder-libc, focused, and live MSGTYPE cases."
+    },
+    {
+      "id": "audit-regex-resource-catalog-completeness",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
+      "detail": "scripts/startup-regex-resource.test.mjs derives expected resource names from startup-regex-fixtures.mjs REGEX_RESOURCE_CASES, while the resource and libc runners consume the same catalog, so deleting a required case stays green. Pin the six required fixture names and order independently."
+    },
+    {
+      "id": "audit-regex-suffix-fixture-path-invariant",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
+      "detail": "scripts/startup-regex-resource.test.mjs does not prove suffix-reaching fixtures satisfy js/posixregex.js requiredAbsoluteEndSuffix before measuring evaluator budgets. Assert the terminal-suffix path for each applicable fixture and keep explicit invariants for the guard and zero-minimum controls."
+    },
+    {
+      "id": "audit-regex-direct-suffix-fallback-oracle",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
+      "detail": "scripts/run-startup-regex-msgtype-oracles.mjs lacks a case where js/posixregex.js matchDirectExtendedRegexp() tries a suffix-aligned rightmost start that fails before an earlier contextual-caret start succeeds. Pin .*^b$ on a newline-bearing input against recorder libc."
+    },
+    {
+      "id": "audit-regex-unify-repeat-traversal",
+      "area": "startup",
+      "category": "clarity",
+      "effort": "slice",
+      "status": "open",
+      "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
+      "detail": "js/posixregex.js duplicates reference-repeat traversal between evaluateReferenceNode() and referenceRepeatMatches(), including endpoint projection, continuation deduplication, first-endpoint selection, and fixed-point handling. Share one source-ordered traversal primitive with a short-circuit endpoint callback while preserving raw versus projected state."
+    },
+    {
+      "id": "audit-regex-root-lazy-contract",
+      "area": "startup",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
+      "detail": "js/posixregex.js referenceSequenceMatches() is named generally even though only the root sequence gets lazy continuation evaluation and nested sequences remain eager. Rename or document the root-only scope and callback-order contract; do not generalize nested laziness without separate behavioral proof."
     }
   ],
   "areas": [
@@ -18359,6 +18422,120 @@
         }
       },
       "recordedAt": "2026-08-23T11:11:44.059Z"
+    },
+    {
+      "kind": "review",
+      "head": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
+      "auditedRange": "0add2083af23e9707727fcd49d5de9cf70ec9167..6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "bbe2acddf323677980a4dc10249629f0238c3ba9",
+        "reason": "the checklist covers bbe2acdd, an ancestor of the range head; the 4 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "startup"
+      ],
+      "outcome": "no-change",
+      "evidence": "Counts: 9 raw, 8 deduplicated, 7 confirmed, 0 applied, 7 deferred, 0 rejected, 1 unverified. Seven adjudicated findings were deferred: two finite-repeat state defects, three missing regression guards, and two maintainability contracts. One exact-boundary performance lead stayed unverified because its fixture and recorder-libc result could not be recovered. Mutation readiness and evidence remain waived; the earlier accidental enumerate-only smoke ran no mutant and produced no evidence.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1880,
+        "counts": {
+          "raw": 9,
+          "deduplicated": 8,
+          "confirmed": 7,
+          "applied": 0,
+          "deferred": 7,
+          "rejected": 0,
+          "unverified": 1
+        },
+        "categories": {
+          "production": 2,
+          "tests": 3,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace",
+          "performance",
+          "concurrency"
+        ],
+        "productionDefects": [
+          {
+            "summary": "js/posixregex.js finite-repeat continuation deduplication drops a required maximum endpoint when raw capture state repeats across counts",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js intermediate positive-minimum repeat endpoints clear descendant captures that recorder glibc retains",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "readiness": {
+          "boundary": "The final expanded range covers recorder-glibc finite-repeat endpoint projection, suffix-reaching exact-boundary resource search, installed startup MSGTYPE matching, and the next observable message/input boundary.",
+          "sourceReview": "Six finder perspectives read the exact range against recorder glibc and pinned posixregex.c, options.c, pline.c, the JavaScript evaluator, installed consumers, focused tests, fresh runner, and isolated resource harness; two independent adjudicators applied evidence, diff-causality, and resolution checks to all eight deduplicated candidates.",
+          "completeness": "Seven candidates are confirmed and durably deferred, including two production mismatches that require one bounded repeat-traversal correction before the regex work can exit. One performance lead remains explicitly unverified because its exact fixture and recorder-libc result were unavailable; concurrency found no defect."
+        },
+        "rejections": [],
+        "deferrals": [
+          {
+            "summary": "js/posixregex.js finite-repeat continuation deduplication drops a required maximum endpoint when raw capture state repeats across counts",
+            "category": "production",
+            "trackedIn": "audit-regex-finite-count-dedup"
+          },
+          {
+            "summary": "js/posixregex.js intermediate positive-minimum repeat endpoints clear descendant captures that recorder glibc retains",
+            "category": "production",
+            "trackedIn": "audit-regex-positive-min-descendant-retention"
+          },
+          {
+            "summary": "Regex resource catalog completeness tests derive expected case names from the same catalog they are meant to protect",
+            "category": "tests",
+            "trackedIn": "audit-regex-resource-catalog-completeness"
+          },
+          {
+            "summary": "Suffix-reaching resource fixtures do not assert that their inputs traverse the required terminal-suffix path",
+            "category": "tests",
+            "trackedIn": "audit-regex-suffix-fixture-path-invariant"
+          },
+          {
+            "summary": "Direct suffix-aligned candidate ordering lacks a rightmost-failure and earlier-contextual-caret-success libc oracle",
+            "category": "tests",
+            "trackedIn": "audit-regex-direct-suffix-fallback-oracle"
+          },
+          {
+            "summary": "js/posixregex.js duplicates reference-repeat traversal between eager and lazy evaluators",
+            "category": "clarity",
+            "trackedIn": "audit-regex-unify-repeat-traversal"
+          },
+          {
+            "summary": "js/posixregex.js referenceSequenceMatches() leaves its root-only lazy-continuation contract implicit",
+            "category": "clarity",
+            "trackedIn": "audit-regex-root-lazy-contract"
+          }
+        ],
+        "warnings": [
+          "Mutation readiness and evidence were omitted under the user's explicit work-session waiver. An earlier default-suite run accidentally invoked the enumerate-only smoke, which failed before any mutant executed or evidence was produced; no survivor conclusion is made.",
+          "The performance finder measured a repeatable exact-boundary suffix-fallback slowdown above the direct budget, but its exact generated fixture was unavailable and recorder-libc verification was interrupted. The adjudicator left it unverified rather than turning an irreproducible lead into a deferral."
+        ],
+        "validation": {
+          "focused": "Before audit launch, 38 focused and resource-catalog assertions passed; the direct recorder oracle matched 149 regex and five vpline cases, and every exact resource case met its committed budget.",
+          "fresh": "Before audit launch, 31 MSGTYPE segments matched 85,327 PRNG calls and 109 complete screens/cursors; the broad explicit non-mutation suite passed 4,735/4,735 and development stayed 11/33 with 1,988 screens.",
+          "audit": "Six finder perspectives produced nine raw candidates. Cross-finder deduplication left eight; two independent adjudicators confirmed seven, rejected none, and left the irreproducible performance lead unverified. Recorder-libc probes reproduced both production defects, a bounded-repeat sweep found 418 false negatives in the descendant-projection class, and a 157,392-case contextual-caret/candidate-order sweep found no additional mismatch."
+        }
+      },
+      "recordedAt": "2026-08-23T12:53:22.269Z"
     }
   ]
 }
