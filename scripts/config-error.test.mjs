@@ -1270,6 +1270,11 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'windowborders:'."],
         [],
     ]],
+    ['mouse_support', [
+        [],
+        ["Missing parameter for 'mouse_support:'."],
+        ["Illegal mouse_support parameter 'zqxj'."],
+    ]],
     ['warnings', [
         ["Missing parameter for 'warnings'."],
         ["Missing parameter for 'warnings:'."],
@@ -1352,7 +1357,6 @@ const SILENT_COMPOUND_ROWS = new Set([
 const UNPORTED_COMPOUND_ROWS = new Map([
     ['windowtype', [1, 1, 1]],
     ['map_mode', [1, 1, 1]],
-    ['mouse_support', [0, 1, 1]],
     ['perminv_mode', [1, 1, 1]],
     ['windowcolors', [1, 1, 1]],
 ]);
@@ -1372,9 +1376,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 73);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 74);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 5);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 4);
 
     let owed = 0;
     for (const row of rows) {
@@ -1408,9 +1412,9 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 14 messages over 5 rows: what porting those handlers is worth to a
+    // 12 messages over 4 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 14);
+    assert.equal(owed, 12);
 });
 
 test('startup boulder parsing rejects source clashes and signed controls',

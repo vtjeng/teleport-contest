@@ -505,6 +505,9 @@ function defaultResult() {
             // options.c optfn_vary_msgcount() also leaves its zeroed
             // instance-flags field alone during do_init.
             wc_vary_msgcount: 0,
+            // options.c optfn_mouse_support() leaves this zeroed
+            // instance-flags field alone during do_init.
+            wc_mouse_support: 0,
             // options.c optfn_player_selection() leaves this zeroed field
             // alone during do_init; zero is VIA_DIALOG.
             wc_player_selection: VIA_DIALOG,
@@ -3133,6 +3136,30 @@ function optfn_menustyle(result, statement, negated) {
     result.flags.menu_style = style;
 }
 
+// C ref: options.c optfn_mouse_support() (2396-2452), its startup do_set
+// arm.  The handler measures the whole negation-stripped statement rather
+// than the canonical option name parseoptions() matched.  At most thirteen
+// bytes keeps the missing value optional for backward compatibility; longer
+// spellings report through string_for_opt(), then startup parsing still treats
+// the empty answer as mode 1.  optlist.h rejects negation before this handler.
+function optfn_mouse_support(result, statement) {
+    const compat = encodeUtf8ByteString(statement).length <= 13;
+    const op = string_for_opt(statement, compat, result);
+    if (op === '') {
+        result.iflags.wc_mouse_support = 1;
+        return;
+    }
+
+    const mode = atoi(op);
+    if (mode < 0 || mode > 2 || (mode === 0 && op[0] !== '0')) {
+        configErrorAdd(
+            result, `Illegal mouse_support parameter '${op}'`,
+        );
+        return;
+    }
+    result.iflags.wc_mouse_support = mode;
+}
+
 // C ref: options.c parsebindings(). Comma-separated bindings recurse into
 // their suffix, so the rightmost alias is appended first and wins collisions.
 function applyMenuBindings(result, bindings) {
@@ -4322,6 +4349,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setPickupBurden(result, statement);
     } else if (name === 'menustyle') {
         optfn_menustyle(result, statement, negated);
+    } else if (name === 'mouse_support') {
+        optfn_mouse_support(result, statement);
     } else if (name === 'pickup_types') {
         // optfn_pickup_types() clears the restriction before looking for its
         // value.  During startup a missing or empty value still reports the
@@ -5483,6 +5512,14 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         return tmp === 's' ? 'single'
             : tmp === 'c' ? 'combination'
                 : tmp === 'f' ? 'full' : 'reversed';
+    },
+    // The non-WIN32 get_val arm.  TTY does not advertise WC_MOUSE_SUPPORT,
+    // so its option menus exclude this row before asking for the value.
+    mouse_support: (state) => {
+        const modes = [
+            '0=off', '1=on, O/S adjusted', '2=on, O/S unchanged',
+        ];
+        return modes[state.iflags.wc_mouse_support] ?? '';
     },
     number_pad: (state) => {
         const numpadmodes = [
