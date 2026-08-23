@@ -4237,7 +4237,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "e99227d91b777cf4c2184fa678e6c63a059fc447",
       "detail": "Replace or extend js/posixregex.js reference-aware matching so recorder-glibc-valid same-reference alternatives remain available and quantified subgroups retain the last participating capture. Close with direct libc and installed MSGTYPE cases including (|())\\2, ^((a)|b)*\\2 on aab, and ^((a)|b)*\\2$ on aba, plus nonparticipation misses."
     },
@@ -4246,7 +4246,7 @@
       "area": "commands",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "e99227d91b777cf4c2184fa678e6c63a059fc447",
       "detail": "Preserve an existing TTY stop across a second non-Escape MSGTYP_STOP dismissal, while modeling WIN_NOSTOP only for More prompts that occur inside urgent tty_putstr. Close with the exact prior-message Escape then explicit STOP Space schedule, stopped-at-entry and urgent prompt-origin controls, queued-input assertions, and fresh screen/cursor evidence."
     },
@@ -4255,7 +4255,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "e99227d91b777cf4c2184fa678e6c63a059fc447",
       "detail": "Add direct recorder/JavaScript semantic match tests for a negated POSIX bracket class and an unmatched close parenthesis treated as a literal, distinguishing positive and negative inputs rather than compilation alone."
     },
@@ -4264,7 +4264,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "e99227d91b777cf4c2184fa678e6c63a059fc447",
       "detail": "Pin get_uchars source-defined malformed-number behavior with a preinitialized destination: 65 66x returns count one, stores 65, and leaves the in-progress 66 slot unchanged. Do not assert cnf_line_WARNINGS automatic-array tail garbage."
     },
@@ -4273,7 +4273,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "e99227d91b777cf4c2184fa678e6c63a059fc447",
       "detail": "Run sequential runSegment calls in one JavaScript process with a configured hide-all MSGTYPE rule followed by no MSGTYPE row; prove the second game installs a null list and shows/stores its ordinary startup message."
     },
@@ -4282,7 +4282,7 @@
       "area": "startup",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "e99227d91b777cf4c2184fa678e6c63a059fc447",
       "detail": "Document source-significant MSGTYPE_NAMES prefix order, the unlocktypes index-to-1<<index bit contract, and replace the stale A fifth option wording with the exact remaining versinfo same-field fallback contract."
     }
