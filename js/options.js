@@ -3,6 +3,10 @@
 // nmcpy(); hacklib.c mungspaces(); bones.c sanitize_name(); role.c str2*().
 
 import {
+    ALIGN_BOTTOM,
+    ALIGN_LEFT,
+    ALIGN_RIGHT,
+    ALIGN_TOP,
     AUTOUNLOCK_APPLY_KEY,
     AUTOUNLOCK_FORCE,
     AUTOUNLOCK_KICK,
@@ -467,6 +471,9 @@ function defaultResult() {
             // options.c initializes instance_flags to zero, which is STONE.
             // Its boolean handler restores this value on every toggle.
             prev_decor: STONE,
+            // options.c initoptions_init() sets these after zeroing iflags.
+            wc_align_message: ALIGN_TOP,
+            wc_align_status: ALIGN_BOTTOM,
             wc2_statuslines: 2,
             wc2_petattr: ATR_INVERSE,
             // options.c initoptions_init() sets the curses-only window-border
@@ -3016,6 +3023,49 @@ function optfn_term_rows(result, statement) {
     setTermSize(result, statement, 'term_rows', 'wc2_term_rows');
 }
 
+// C ref: options.c optfn_align_message() and optfn_align_status()
+// (923-1020), their startup do_set arms.  Each value must begin with one
+// complete alignment word, compared without case, and may carry any suffix.
+// Missing or rejected values preserve the preceding iflags field.  The
+// align_message row admits negation through parseoptions() and rejects it
+// here; align_status has negateok No, so applyOption() rejects it first.
+const WINDOW_ALIGNMENTS = Object.freeze([
+    ['left', ALIGN_LEFT],
+    ['top', ALIGN_TOP],
+    ['right', ALIGN_RIGHT],
+    ['bottom', ALIGN_BOTTOM],
+]);
+
+function setWindowAlignment(result, statement, negated, name, field) {
+    const op = string_for_opt(statement, negated, result);
+    if (op !== '' && !negated) {
+        const matched = WINDOW_ALIGNMENTS.find(([token]) => (
+            equal_ncasechars(op, token, token.length)
+        ));
+        if (matched) {
+            result.iflags[field] = matched[1];
+        } else {
+            configErrorAdd(result, `Unknown ${name} parameter '${op}'`);
+        }
+    } else if (negated) {
+        bad_negation(result, name);
+    }
+}
+
+function optfn_align_message(result, statement, negated) {
+    setWindowAlignment(
+        result, statement, negated,
+        'align_message', 'wc_align_message',
+    );
+}
+
+function optfn_align_status(result, statement, negated) {
+    setWindowAlignment(
+        result, statement, negated,
+        'align_status', 'wc_align_status',
+    );
+}
+
 // C ref: options.c optfn_pickup_burden() (3266-3291), the switch its do_set
 // arm runs. It reads one byte -- lowc(*op) -- so the value's remaining
 // characters are never examined and "burdened" and "banana" both select
@@ -4264,6 +4314,10 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_term_cols(result, statement);
     } else if (name === 'term_rows') {
         optfn_term_rows(result, statement);
+    } else if (name === 'align_message') {
+        optfn_align_message(result, statement, negated);
+    } else if (name === 'align_status') {
+        optfn_align_status(result, statement, negated);
     } else if (name === 'pickup_burden') {
         setPickupBurden(result, statement);
     } else if (name === 'menustyle') {
@@ -5348,6 +5402,13 @@ function requireParsedNumber(state, option) {
     return value;
 }
 
+// The get_val and get_cnf_val arms of both alignment handlers use the same
+// four names and print "default" for a value outside the ALIGN_* constants.
+function windowAlignmentValue(value) {
+    return WINDOW_ALIGNMENTS.find(([, alignment]) => alignment === value)?.[0]
+        ?? 'default';
+}
+
 // The value column each compound and other option shows.  Every entry ports
 // its options.c optfn_<name>() get_val arm; the key is allopt[].optfn, which
 // is that function's name.  A handler returns the C buffer's contents, so an
@@ -5371,6 +5432,12 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     ),
     alignment: (state) => rolestring(
         state.flags.initalign, aligns, (entry) => entry.adj,
+    ),
+    align_message: (state) => windowAlignmentValue(
+        state.iflags.wc_align_message,
+    ),
+    align_status: (state) => windowAlignmentValue(
+        state.iflags.wc_align_status,
     ),
     catname: petname_optfn,
     dogname: petname_optfn,

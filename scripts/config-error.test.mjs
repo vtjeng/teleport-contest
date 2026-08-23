@@ -935,6 +935,16 @@ test('malformed font prefixes report both source diagnostics', () => {
 // without config_erradd()'s " * Line 1: " prefix.  A C recording of all 285
 // spellings confirms each one, message for message.
 const COMPOUND_SWEEP_REPORTS = new Map([
+    ['align_message', [
+        ["Missing parameter for 'align_message'."],
+        ["Missing parameter for 'align_message:'."],
+        ["Unknown align_message parameter 'zqxj'."],
+    ]],
+    ['align_status', [
+        ["Missing parameter for 'align_status'."],
+        ["Missing parameter for 'align_status:'."],
+        ["Unknown align_status parameter 'zqxj'."],
+    ]],
     ['autounlock', [
         [],
         [],
@@ -1336,8 +1346,6 @@ const SILENT_COMPOUND_ROWS = new Set([
 // next.
 const UNPORTED_COMPOUND_ROWS = new Map([
     ['windowtype', [1, 1, 1]],
-    ['align_message', [1, 1, 1]],
-    ['align_status', [1, 1, 1]],
     ['map_mode', [1, 1, 1]],
     ['mouse_support', [0, 1, 1]],
     ['perminv_mode', [1, 1, 1]],
@@ -1360,9 +1368,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 70);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 72);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 8);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 6);
 
     let owed = 0;
     for (const row of rows) {
@@ -1396,9 +1404,9 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 21 messages over 8 rows: what porting those handlers is worth to a
+    // 15 messages over 6 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 21);
+    assert.equal(owed, 15);
 });
 
 test('startup boulder parsing rejects source clashes and signed controls',
