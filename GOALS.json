@@ -2732,6 +2732,11 @@
           "name": "startup-regex-finite-repeat-audit-exit",
           "status": "closed",
           "closedBy": "9a430cdc56be536a9dad452733f722aa71cefe06"
+        },
+        {
+          "name": "startup-player-selection-to-config-diagnostics",
+          "status": "closed",
+          "closedBy": "0f126022fc8431dd3cd067d0767088db49c2127a"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
