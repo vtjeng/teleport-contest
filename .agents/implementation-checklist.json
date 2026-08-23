@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "The expanded audit confirmed two recorder-glibc repetition-selection defects and two source-valid 255-byte resource failures. The same corrective slice must add the two missing semantic tests and make the evaluator's state-key, endpoint-selection, and shared-fixture contracts explicit before another audit.",
-  "commitChecked": "becaec927f1e605ffc6f96abda30cee85e07efd2",
+  "mode": "ready-for-audit",
+  "reason": "All nine confirmed follow-up findings are implemented and validated. The evaluator now preserves recorder-glibc zero-minimum and finite-descendant selection, shares only start-independent work, and rejects exact impossible suffixes before capture materialization. Focused, direct-libc, process-bounded resource, fresh MSGTYPE, broad non-mutation, generated/static, and development checks pass.",
+  "commitChecked": "99a84e46839a9163289046e0d38179bd67729fad",
   "boundary": {
     "goalId": "options-config-parser",
     "startingCommit": "becaec927f1e605ffc6f96abda30cee85e07efd2",
@@ -16,7 +16,7 @@
     "dispatchTablesAndCatalogs": "The parsed ASCII ERE tree, repeat endpoint forms, referenced capture ids, candidate starts, source BUFSZ limits, and committed direct/reference resource budgets define the complete audited families.",
     "reachableHelpers": "The expanded audit supplied direct libc and live MSGTYPE discriminators for both semantic defects and exact 255-byte formulas for both resource failures; related keying, interval-selection, fixed-point, and runner-fixture paths were clustered by shared ownership.",
     "javascriptCrossCheck": "Inspect js/posixregex.js parser and direct/reference evaluators, js/options.js installed consumers, and the focused, direct-libc, fresh, and resource runners for duplicated fixtures, candidate-local assumptions, eager frontier materialization, and abort-based guesses.",
-    "remainingLimits": "The list is exhaustive for the nine confirmed audit deferrals. A solution must preserve exact booleans and diagnostics without a state-count abort; named non-ASCII and later consumer boundaries remain excluded."
+    "remainingLimits": "The nine confirmed audit deferrals are closed without a state-count abort or guessed result. Named non-ASCII and later consumer boundaries remain excluded."
   },
   "entries": [
     {
@@ -24,18 +24,18 @@
       "reachability": "A referenced capture is inside an unbounded outer star or {0,} and the input permits more than one outer repetition.",
       "owner": "js/posixregex.js reference repeat evaluation",
       "effects": "A configured MSGTYPE rule can reject a welcome or ordinary message that recorder glibc matches.",
-      "evidence": "Recorder libc matches ^(a+)*\\1$ and ^(a+){0,}\\1$ on aaa and the live ^Hello (a+)*\\1, welcome rule; current JavaScript stops the outer repeat after one iteration.",
-      "status": "missing",
-      "remaining": "Restrict the positive-minimum first-submatch selection rule, preserve + controls, and pass direct-libc plus live MSGTYPE cases."
+      "evidence": "Recorder libc matches ^(a+)*\\1$ and ^(a+){0,}\\1$ on aaa and the live ^Hello (a+)*\\1, welcome rule; pre-fix JavaScript stopped the outer repeat after one iteration.",
+      "status": "done",
+      "remaining": "None; zero-minimum star and {0,}, positive-minimum controls, direct libc, and the live welcome consumer pass."
     },
     {
       "candidate": "Finite-repeat descendant capture retention",
       "reachability": "A finite repeated group first reaches a referenced descendant and later takes a sibling where that descendant does not participate.",
       "owner": "js/posixregex.js reference repeat evaluation",
       "effects": "Clearing every descendant loses glibc's retained last participating value and changes the final match.",
-      "evidence": "Recorder libc accepts ^((a)|b){0,2}\\2$ on aba while current JavaScript rejects it; existing endpoint cases require clearing only the selected directly repeated capture.",
-      "status": "missing",
-      "remaining": "Implement the source-shaped endpoint rule, retain descendants, and keep both endpoint-selection and nested-retention discriminators."
+      "evidence": "Recorder libc accepts ^((a)|b){0,2}\\2$ on aba while pre-fix JavaScript rejected it; existing endpoint cases require clearing only the selected directly repeated capture.",
+      "status": "done",
+      "remaining": "None; the named finite-endpoint rule clears only the directly repeated capture and retains participating descendants."
     },
     {
       "candidate": "Correlated variable-width reference-state resource bound",
@@ -43,8 +43,8 @@
       "owner": "js/posixregex.js reference matcher",
       "effects": "Synchronous matching exceeds the 2,000 ms and 128 MiB budget despite agreeing with glibc's boolean.",
       "evidence": "The confirmed 255-byte pattern built from ^((a+)|(a+)|(a+)|(a+))*\\2\\3\\4\\5, 108 empty groups, and c{235}b$ took about 3.8 seconds/177 MiB versus libc about 31 ms.",
-      "status": "missing",
-      "remaining": "Preserve exact capture correlations with a compact or lazy representation and pass the exact-boundary oracle and resource budget without a guessed abort."
+      "status": "done",
+      "remaining": "None; exact absolute-end suffix feasibility avoids impossible capture materialization and the shared 255-byte case passes libc parity and the 2,000 ms/128 MiB budget."
     },
     {
       "candidate": "Unanchored wide-frontier resource bound",
@@ -52,77 +52,55 @@
       "owner": "js/posixregex.js direct and reference matchers",
       "effects": "Both matcher kinds exceed committed time budgets, and the direct case exceeds its memory budget.",
       "evidence": "Exact 255-byte direct (a|aa)* plus 123 a? and b$ took about 6 seconds/142 MiB; the reference pattern with 124 a? before \\1b$ took about 3 seconds, while recorder libc returned the same false results much faster.",
-      "status": "missing",
-      "remaining": "Share only start-independent work, preserve contextual-caret matchStart, avoid repeated frontier materialization, and pass both exact resource cases."
+      "status": "done",
+      "remaining": "None; direct nodes key matchStart only when their subtree depends on it, and both shared 255-byte unanchored cases pass their original budgets."
     },
     {
       "candidate": "Reference-aware internal-caret positive coverage",
       "reachability": "A reference-bearing pattern consumes a newline before reaching an internal caret and then evaluates a later reference.",
       "owner": "scripts/startup-msgtype.test.mjs and direct libc oracle",
       "effects": "Candidate-start provenance can regress while existing reference-aware caret coverage remains negative-only.",
-      "evidence": "Recorder libc and current JavaScript match (.+^b)(x)\\2 on newline+bxx and reject newline+bx; the positive path is absent from persistent tests.",
-      "status": "missing",
-      "remaining": "Add match/miss cases to focused and libc-backed validation and assert reference-aware routing."
+      "evidence": "Recorder libc and corrected JavaScript match (.+^b)(x)\\2 on newline+bxx and reject newline+bx; the positive path was absent from persistent tests.",
+      "status": "done",
+      "remaining": "None; focused and libc-backed match/miss cases assert reference-aware routing."
     },
     {
       "candidate": "Adjacent-repeat zero-width fixed-point coverage",
       "reachability": "Recorder glibc accepts adjacent repeat operators whose inner node may return its starting position.",
       "owner": "scripts/startup-msgtype.test.mjs and subprocess resource/oracle runner",
       "effects": "A fixed-point regression can synchronously hang while compile-only tests remain green.",
-      "evidence": "Recorder libc and current JavaScript match ^a**$ and ^a?+$ on empty, a, and aa and reject b; current tests only compile these forms.",
-      "status": "missing",
-      "remaining": "Add match/miss cases under an interruptible process-level timeout rather than relying on node:test's same-process timeout."
+      "evidence": "Recorder libc and corrected JavaScript match ^a**$ and ^a?+$ on empty, a, and aa and reject b; pre-fix tests only compiled these forms.",
+      "status": "done",
+      "remaining": "None; both adjacent-repeat languages run in isolated child processes under parent-enforced timeouts."
     },
     {
       "candidate": "matchStart state-key completeness",
       "reachability": "Contextual caret behavior differs for equal position/capture states that originated at different candidate starts.",
       "owner": "js/posixregex.js captureStateKey() and direct memoization",
       "effects": "Future cross-start memoization can merge nonequivalent states because the key and comment omit matchStart.",
-      "evidence": "Current behavior is safe only because both caches are candidate-local, while the implementation comment claims position plus captures is complete future equivalence.",
-      "status": "missing",
-      "remaining": "Include matchStart in both keys or explicitly enforce and document candidate-local scope; revalidate internal-caret cases."
+      "evidence": "Pre-fix behavior was safe only because both caches were candidate-local, while the implementation comment claimed position plus captures was complete future equivalence.",
+      "status": "done",
+      "remaining": "None; capture-state keys include matchStart and direct memo keys include it for every dependent subtree."
     },
     {
       "candidate": "Finite-interval endpoint-selection contract",
       "reachability": "A bounded repeated capture passes an intermediate count before the selected recorder-glibc endpoint.",
       "owner": "js/posixregex.js finite repeat evaluation",
       "effects": "An unexplained broad descendant-clearing loop conceals the confirmed semantic defect and is easy to reintroduce.",
-      "evidence": "The current condition count > minimum and count < maximum encodes a glibc-specific selection rule without naming its source behavior.",
-      "status": "missing",
-      "remaining": "Express the corrected rule with a named predicate and source-shaped comment beside the implementation and discriminators."
+      "evidence": "The pre-fix condition count > minimum and count < maximum encoded a glibc-specific selection rule without naming its source behavior.",
+      "status": "done",
+      "remaining": "None; isIntermediateFiniteEndpoint() names the rule and documents the recorder-glibc direct-capture/descendant distinction."
     },
     {
       "candidate": "Shared exact-boundary resource fixtures",
       "reachability": "The direct libc oracle and resource runner are expected to validate the same 255-byte pattern/input pairs.",
       "owner": "scripts regex oracle/resource fixtures",
       "effects": "Independent copies can drift so boolean parity and measured budgets silently cover different adversaries.",
-      "evidence": "Both runners currently define their own formulas, while only the resource runner asserts exact byte lengths.",
-      "status": "missing",
-      "remaining": "Move formulas to one dependency-free fixture owner imported by both runners; retain byte assertions and runner-specific budgets."
+      "evidence": "The pre-fix runners defined their own formulas, while only the resource runner asserted exact byte lengths.",
+      "status": "done",
+      "remaining": "None; startup-regex-fixtures.mjs owns all three formulas and both runners assert the 255-byte boundary."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "js/posixregex.js semantic and resource evaluator",
-      "candidates": [
-        "Zero-minimum nested quantified-capture selection",
-        "Finite-repeat descendant capture retention",
-        "Correlated variable-width reference-state resource bound",
-        "Unanchored wide-frontier resource bound",
-        "matchStart state-key completeness",
-        "Finite-interval endpoint-selection contract"
-      ],
-      "next": "Derive one exact evaluator correction from recorder-glibc selection semantics, add the four red production/resource discriminators, and reject any abort-based or guessed result."
-    },
-    {
-      "group": "focused, libc-oracle, and resource evidence",
-      "candidates": [
-        "Reference-aware internal-caret positive coverage",
-        "Adjacent-repeat zero-width fixed-point coverage",
-        "Shared exact-boundary resource fixtures"
-      ],
-      "next": "Centralize exact-boundary fixtures, add interruptible semantic controls, then rerun focused, direct-libc, fresh, resource, broad non-mutation, generated/static, development, and exact-head CI gates."
-    }
-  ],
-  "sourceReview": "Incomplete until the corrective worker traces glibc zero-minimum versus positive-minimum capture selection and proves the chosen compact state/frontier representation preserves every reference and contextual-caret dependency at the source limits."
+  "missingWorkByOwner": [],
+  "sourceReview": "Complete. Read sys/share/posixregex.c regex_compile/regex_match and options.c msgtype_parse_add/msgtype_type/add_autopickup_exception, then settled zero- versus positive-minimum selection, finite descendant retention, contextual-caret provenance, adjacent fixed points, and all three exact source-boundary results with fresh recorder-libc probes."
 }
