@@ -4186,6 +4186,51 @@
       "status": "closed",
       "from": "d919556a672ade43273342439ae8547dd49b936f",
       "detail": "js/tty_message.js ttyCustomPline() accepts arbitrary pflags although ttyPlineCore() implements only the MSGTYPE slice's flags. Narrow the API to the override use or reject unsupported SUPPRESS_HISTORY and NO_CURS_ON_U bits with a named boundary, and pin that contract."
+    },
+    {
+      "id": "startup-regex-glibc-remaining-cases",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "db6f32c9066bfbf9529c6ffc452d4ed7fbe73b63",
+      "detail": "Port the remaining recorder-glibc ASCII ERE branches in js/posixregex.js: do not skip overlapping or same-start valid alternatives after a rejected nonparticipating-backreference candidate; accept comma-only a{,}; implement GNU absolute-buffer anchors escaped backtick/apostrophe with quantifier rejection; and reproduce contextual internal caret/dollar behavior for newline-bearing input. Close with direct libc oracle cases and fresh live MSGTYPE/config differentials."
+    },
+    {
+      "id": "startup-msgtype-normalization-test-gaps",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "db6f32c9066bfbf9529c6ffc452d4ed7fbe73b63",
+      "detail": "Strengthen MSGTYPE/vpline tests for normalized long-message NOREP equality, same-line appended STOP wait/clear, urgent bypass of configured NOREP, match semantics for accepted interval/repeated-interval/final-hyphen forms, and UTF-8 byte-boundary normalization including a 255-byte control."
+    },
+    {
+      "id": "autounlock-combined-mask-precedence-test",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "db6f32c9066bfbf9529c6ffc452d4ed7fbe73b63",
+      "detail": "Exercise requireAutoopenClosedDoor with APPLY_KEY|KICK|FORCE at a locked door both with and without a recognized unlocking tool, proving bit-test semantics and APPLY_KEY-before-KICK precedence in the live consumer."
+    },
+    {
+      "id": "startup-regex-representation-clarity",
+      "area": "startup",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "db6f32c9066bfbf9529c6ffc452d4ed7fbe73b63",
+      "detail": "Make js/posixregex.js branch-path group availability and its compiled-regex representation explicit. Name or document sibling-alternative backreference availability and use a discriminant or compact state contract for rejected, non-ASCII boundary, direct matcher, and reference-aware matcher states."
+    },
+    {
+      "id": "msgtype-source-contract-clarity",
+      "area": "commands",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "db6f32c9066bfbf9529c6ffc452d4ed7fbe73b63",
+      "detail": "Mirror source names and ownership in js/tty_message.js: initialize the override default with MSGTYP_NORMAL rather than literal zero, and expand the module header to name the ported pline.c vpline/custompline/urgent and wintty.c display/clear branches."
     }
   ],
   "areas": [
@@ -17248,6 +17293,184 @@
         ]
       },
       "recordedAt": "2026-08-23T03:21:36.934Z"
+    },
+    {
+      "kind": "review",
+      "head": "db6f32c9066bfbf9529c6ffc452d4ed7fbe73b63",
+      "auditedRange": "641c44886b4a6d74d9eea4315f96de519ec4c69b..db6f32c9066bfbf9529c6ffc452d4ed7fbe73b63",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "c39cca39093a58f158a4e0bcdf58a41a7f16f68d",
+        "reason": "the checklist covers c39cca39, an ancestor of the range head; the 5 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "no-change",
+      "evidence": "Counts: 18 raw, 17 deduplicated, 14 confirmed, 0 applied, 14 deferred, 3 rejected, 0 unverified. Counts: 18 raw, 17 deduplicated, 14 confirmed, 0 applied, 14 deferred, 3 rejected, 0 unverified. Four production findings add recorder-glibc branches and fresh live cases, so review policy returned them to implementation. Six test gaps and four clarity issues were also deferred. Concurrency found serialized execution and no race; performance was omitted by trigger rule. Mutation readiness and evidence were omitted under the user session waiver.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1320,
+        "counts": {
+          "raw": 18,
+          "deduplicated": 17,
+          "confirmed": 14,
+          "applied": 0,
+          "deferred": 14,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 4,
+          "tests": 6,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace",
+          "concurrency"
+        ],
+        "productionDefects": [
+          {
+            "summary": "js/posixregex.js skips valid overlapping or same-start glibc matches after rejecting a nonparticipating-backreference candidate",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js rejects the glibc-valid comma-only interval a{,}",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js treats GNU absolute-buffer anchors escaped backtick and apostrophe as repeatable literals",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js translates every caret and dollar as absolute anchors, diverging from contextual glibc behavior on newline-bearing input",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "readiness": {
+          "boundary": "The expanded range starts at the prior startup/options review frontier and ends after the eleven corrective findings were implemented, installed through source-shaped state, exercised through live readers and TTY waits, and recorded in the bound implementation checklist.",
+          "sourceReview": "Five independent finders read the exact committed range against pinned NetHack options.c, cfgfiles.c, pline.c, version.c, posixregex.c, and wintty.c behavior; two independent adjudicators verified every deduplicated candidate through source evidence, diff causality, and resolution adequacy.",
+          "completeness": "The pass reconciled all 17 deduplicated candidates into 14 confirmed deferrals and three evidence-backed rejections with no warning-truncated or unverified batch. Four production findings expand supported recorder-glibc behavior, so policy returns them to implementation before another full pass."
+        },
+        "rejections": [
+          {
+            "summary": "The two source-owned recorder atoi implementations must be centralized or share another conformance table",
+            "counterEvidence": "options and version each document the recorder ABI and independently pin positive and negative signed-long saturation; no mismatching branch or unguarded semantic drift was found."
+          },
+          {
+            "summary": "The sortvanquished parser/display ordering is an unprotected duplicated contract",
+            "counterEvidence": "Focused tests parse every source letter and numeric alias to its index and independently verify every index's optionsfull letter and description, so changing either ordering alone fails."
+          },
+          {
+            "summary": "NethackGame.start needs one blanket comment for warnsyms, MSGTYPE, and autopickup installation policies",
+            "counterEvidence": "The unrelated structures have distinct source ownership and local comments: warnsyms is cloned, MSGTYPE retains its completed list, and autopickup preserves opaque list/regex identity, which is directly asserted. A blanket rule would be less precise."
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "js/posixregex.js skips valid overlapping or same-start glibc matches after rejecting a nonparticipating-backreference candidate",
+            "category": "production",
+            "trackedIn": "startup-regex-glibc-remaining-cases"
+          },
+          {
+            "summary": "js/posixregex.js rejects the glibc-valid comma-only interval a{,}",
+            "category": "production",
+            "trackedIn": "startup-regex-glibc-remaining-cases"
+          },
+          {
+            "summary": "js/posixregex.js treats GNU absolute-buffer anchors escaped backtick and apostrophe as repeatable literals",
+            "category": "production",
+            "trackedIn": "startup-regex-glibc-remaining-cases"
+          },
+          {
+            "summary": "js/posixregex.js translates every caret and dollar as absolute anchors, diverging from contextual glibc behavior on newline-bearing input",
+            "category": "production",
+            "trackedIn": "startup-regex-glibc-remaining-cases"
+          },
+          {
+            "summary": "Long-message normalization is not pinned before the NOREP comparison",
+            "category": "tests",
+            "trackedIn": "startup-msgtype-normalization-test-gaps"
+          },
+          {
+            "summary": "The same-line appended MSGTYP_STOP wait-and-clear branch is not pinned",
+            "category": "tests",
+            "trackedIn": "startup-msgtype-normalization-test-gaps"
+          },
+          {
+            "summary": "URGENT_MESSAGE bypass of configured MSGTYP_NOREP suppression is not pinned",
+            "category": "tests",
+            "trackedIn": "startup-msgtype-normalization-test-gaps"
+          },
+          {
+            "summary": "Combined autounlock acting masks and APPLY_KEY-before-KICK precedence are not pinned in the locked-door consumer",
+            "category": "tests",
+            "trackedIn": "autounlock-combined-mask-precedence-test"
+          },
+          {
+            "summary": "Accepted bare-lower intervals, repeated intervals, and final-hyphen bracket forms are only compile-tested",
+            "category": "tests",
+            "trackedIn": "startup-msgtype-normalization-test-gaps"
+          },
+          {
+            "summary": "vpline byte normalization is not tested where the 249-byte cut splits a UTF-8 sequence",
+            "category": "tests",
+            "trackedIn": "startup-msgtype-normalization-test-gaps"
+          },
+          {
+            "summary": "Branch-path backreference availability across sibling alternatives is implicit in js/posixregex.js",
+            "category": "clarity",
+            "trackedIn": "startup-regex-representation-clarity"
+          },
+          {
+            "summary": "The four legal compiled-regex states are encoded only by nullable matcher fields",
+            "category": "clarity",
+            "trackedIn": "startup-regex-representation-clarity"
+          },
+          {
+            "summary": "ttyPlineCore initializes the source MSGTYP_NORMAL state with a literal zero",
+            "category": "clarity",
+            "trackedIn": "msgtype-source-contract-clarity"
+          },
+          {
+            "summary": "js/tty_message.js header omits its ported pline.c and wintty.c owners",
+            "category": "clarity",
+            "trackedIn": "msgtype-source-contract-clarity"
+          }
+        ],
+        "warnings": [
+          "Mutation readiness and evidence were omitted under the user's explicit work-session waiver; no mutation command was run and no survivor claim is made."
+        ],
+        "validation": {
+          "focused": "Before launch, focused MSGTYPE 18/18, AUTOPICKUP 13/13, and suppress_alert 11/11 passed.",
+          "fresh": "Before launch, MSGTYPE matched 17 segments, 46,608 PRNG calls, and 70 screens/cursors; AUTOPICKUP matched 22 segments, 59,725 PRNG calls, and 230 screens/cursors; the direct oracle matched 36 regex and three vpline cases.",
+          "broad": "The non-mutation suite passed 4,714/4,714, nine generated and four static checks passed, exact-head Score/Coverage CI passed, and development remained 11/33 sessions with 1,988 screens, 133,574 PRNG calls, and 2,007 cursors.",
+          "audit": "Five finders produced 18 raw and 17 deduplicated candidates. Two adjudicators confirmed 14, rejected three with concrete counterevidence, and left zero unverified. Concurrency found serialized execution and no issue; performance was omitted by its trigger rule."
+        }
+      },
+      "recordedAt": "2026-08-23T04:48:53.511Z"
     }
   ]
 }
