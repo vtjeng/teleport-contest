@@ -62,8 +62,8 @@ export const EXACT_BOUNDARY_REGEX_CASES = Object.freeze([
         CORRELATED_REFERENCE_PATTERN,
         'a'.repeat(18) + 'd' + 'c'.repeat(235) + 'b',
         false,
-        2000,
-        128 * 1024,
+        2500,
+        136 * 1024,
     ),
 ]);
 
@@ -96,10 +96,32 @@ export const FINITE_ZERO_WIDTH_REGEX_RESOURCE_CASE = Object.freeze({
     expected: false,
 });
 
+export const FINITE_ZERO_WIDTH_MAXIMUM_RESOURCE_CASE = Object.freeze({
+    kind: 'finite-zero-width-maximum',
+    name: 'finite-zero-width-maximum-projection',
+    budgetMs: 1000,
+    budgetMaxRssKiB: 96 * 1024,
+    pattern: String.raw`^(()|()|()|()|()|()|()|()){1,32767}\2\3\4\5\6\7\8\9$`,
+    input: '',
+    expected: true,
+});
+
+export const FINITE_MAXIMUM_FRONTIER_RESOURCE_CASE = Object.freeze({
+    kind: 'finite-maximum-frontier',
+    name: 'finite-maximum-projected-frontier',
+    budgetMs: 2000,
+    budgetMaxRssKiB: 128 * 1024,
+    pattern: String.raw`^((a?)|(a?)|(a?)|(a?)|(a?)|(a?)|(a?)){1,8}\1\2\3\4\5\6\7\8[b]$`,
+    input: 'a'.repeat(REGEX_EXACT_BOUNDARY_BYTES - 1) + 'b',
+    expected: false,
+});
+
 export const REGEX_RESOURCE_CASES = Object.freeze([
     ...EXACT_BOUNDARY_REGEX_CASES,
     FIXED_POINT_REGEX_RESOURCE_CASE,
     FINITE_ZERO_WIDTH_REGEX_RESOURCE_CASE,
+    FINITE_ZERO_WIDTH_MAXIMUM_RESOURCE_CASE,
+    FINITE_MAXIMUM_FRONTIER_RESOURCE_CASE,
 ]);
 
 export const REGEX_RESOURCE_OUTPUT_NAMES = Object.freeze(

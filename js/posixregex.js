@@ -741,22 +741,25 @@ function acceptedRepeatEndpointStates(node, count, frontier,
                     captures[id] = undefined;
             }
         } else if (candidate.lastIterationConsumed === false
-            && candidate.position !== repeatStartPosition
-            && node.child.type === 'group') {
-            // At a finite maximum, glibc retains descendants skipped by an
-            // empty final iteration but clears that iteration's directly
-            // repeated capture.  The raw continuation state stays intact.
-            captures[node.child.id] = undefined;
+            && candidate.position !== repeatStartPosition) {
+            // At a finite maximum, glibc clears every capture which
+            // participated in an empty final iteration. Descendants skipped
+            // by that iteration retain their earlier value.
+            const participated = candidate.lastIterationCaptures ?? 0;
+            for (let id = 1; id <= 9; ++id) {
+                if ((participated & (1 << id)) !== 0)
+                    captures[id] = undefined;
+            }
         }
         return stripIteration({ ...candidate, captures });
     });
 }
 
 function nextReferenceRepeatFrontier(node, input, frontier, evaluator,
-    maximumPosition) {
+    maximumPosition, projectCandidate = null, admitCandidate = null) {
     const unique = new Map();
     const trackParticipation = Number.isFinite(node.maximum)
-        && node.minimum > 0 && node.maximum > node.minimum + 1
+        && node.maximum > 1
         && node.child.captureGroups.size > 0;
     const trackConsumption = Number.isFinite(node.maximum);
     for (const current of frontier) {
@@ -786,10 +789,22 @@ function nextReferenceRepeatFrontier(node, input, frontier, evaluator,
             }
             if (next.participationStack?.length === 0)
                 delete next.participationStack;
-            unique.set(repeatFrontierStateKey(next), next);
+            if (admitCandidate && !admitCandidate(next)) continue;
+            const key = captureStateKey(next);
+            // For a finite maximum, recorder glibc selects one source path
+            // for equivalent raw captures before applying endpoint clearing.
+            // Map replacement retains the last source-ordered path, including
+            // whether its final empty iteration participated in descendants.
+            unique.set(key, next);
         }
     }
-    return [...unique.values()];
+    if (!projectCandidate) return [...unique.values()];
+    const projected = new Map();
+    for (const candidate of unique.values()) {
+        const future = projectCandidate(candidate);
+        projected.set(captureStateKey(future), future);
+    }
+    return [...projected.values()];
 }
 
 function traverseReferenceRepeatEndpoints(node, input, state, evaluator,
@@ -806,9 +821,12 @@ function traverseReferenceRepeatEndpoints(node, input, state, evaluator,
     // that succeeds; the eager nested evaluator records every endpoint.
     while (frontier.length && count <= node.maximum) {
         if (count >= node.minimum) {
-            for (const candidate of acceptedRepeatEndpointStates(
-                node, count, frontier, state.position,
-            )) {
+            const accepted = uniqueCaptureStates(
+                acceptedRepeatEndpointStates(
+                    node, count, frontier, state.position,
+                ),
+            );
+            for (const candidate of accepted) {
                 if (acceptEndpoint(candidate)) return true;
             }
             // Only an unbounded interval needs a cross-count fixed point.
@@ -821,10 +839,28 @@ function traverseReferenceRepeatEndpoints(node, input, state, evaluator,
         }
         if (count === node.maximum || (firstNestedCapture && count === 1))
             break;
+        const nextCount = count + 1;
+        const projectMaximum = !unbounded && nextCount === node.maximum;
+        const projectCandidate = projectMaximum ? (candidate) => (
+            acceptedRepeatEndpointStates(
+                node, nextCount, [candidate], state.position,
+            )[0]
+        ) : null;
+        const admitCandidate = projectMaximum ? (candidate) => (
+            !seenContinuationKeys.has(captureStateKey(candidate))
+            || candidate.lastIterationConsumed === false
+        ) : null;
         let next = nextReferenceRepeatFrontier(
             node, input, frontier, evaluator, maximumPosition,
+            projectCandidate, admitCandidate,
         );
-        ++count;
+        count = nextCount;
+        if (projectMaximum) {
+            for (const candidate of next) {
+                if (acceptEndpoint(candidate)) return true;
+            }
+            return false;
+        }
         // get_subexp() caches the first viable open/close path for a quantified
         // referenced group at one backreference node. When that group's
         // nonempty body is itself quantified, later decompositions do not
@@ -835,15 +871,8 @@ function traverseReferenceRepeatEndpoints(node, input, state, evaluator,
             && count >= node.minimum) {
             next = next.filter((candidate) => (
                 !seenContinuationKeys.has(captureStateKey(candidate))
-                // At a finite maximum, an entirely zero-width repetition can
-                // select a different glibc capture endpoint even when its raw
-                // state equals an earlier count.  A maximum-count empty final
-                // iteration is also source-distinct: endpoint projection
-                // clears its direct capture while retaining skipped
-                // descendants from an earlier participating iteration.
                 || (!unbounded && !candidate.lastIterationConsumed
-                    && (candidate.position === state.position
-                        || count === node.maximum))
+                    && candidate.position === state.position)
             ));
         }
         if (!unbounded && node.child.alwaysZeroWidth

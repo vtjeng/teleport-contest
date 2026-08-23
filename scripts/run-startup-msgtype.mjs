@@ -304,6 +304,19 @@ export const STARTUP_MSGTYPE_CASES = Object.freeze([
         role: 'Archeologist',
     }),
     messageCase({
+        label: 'empty final iteration clears a participating descendant',
+        seed: 9812497,
+        datetime: '20420415153700',
+        statements: [String.raw`MSGTYPE=hide "^He((l?)|x){0,2}\2lo"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`^He((l?)|x){0,2}\2lo`,
+        }],
+        probes: [['Hello', false, MSGTYP_NORMAL]],
+        name: 'Participating',
+        role: 'Archeologist',
+    }),
+    messageCase({
         label: 'positive-minimum subgroup retains its descendant capture',
         seed: 9812489,
         datetime: '20420415152900',
