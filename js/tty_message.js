@@ -11,7 +11,10 @@ import {
     URGENT_MESSAGE,
 } from './const.js';
 import { flush_screen } from './display.js';
-import { encodeUtf8ByteString } from './hacklib.js';
+import {
+    decodeUtf8ByteString,
+    encodeUtf8ByteString,
+} from './hacklib.js';
 import { nhgetch } from './input.js';
 import { emitGlyphUpdateNotices } from './startup_a11y.js';
 import { NO_COLOR } from './terminal.js';
@@ -46,6 +49,20 @@ function ttyByteText(value) {
     return encodeUtf8ByteString(value).map((byte) => (
         byte < 0x80 ? String.fromCharCode(byte) : '\0'
     )).join('');
+}
+
+// C ref: pline.c vpline()'s modest-overflow arm. The formatted byte string is
+// reduced to BUFSZ - 1 bytes once, before MSGTYPE lookup, TTY rendering, and
+// gp.prevmsg storage. Bytes 249 through 251 become an ellipsis and bytes 252
+// through 254 preserve the original final three bytes.
+function normalizeVplineMessage(value) {
+    const bytes = encodeUtf8ByteString(value);
+    if (bytes.length <= 255) return decodeUtf8ByteString(bytes);
+    return decodeUtf8ByteString([
+        ...bytes.slice(0, 249),
+        0x2E, 0x2E, 0x2E,
+        ...bytes.slice(-3),
+    ]);
 }
 
 function writeRecorderTtyLine(display, row, value) {
@@ -222,6 +239,20 @@ export async function dismissPendingTtyMessage(state = game) {
     return true;
 }
 
+// C ref: wintty.c tty_display_nhwindow(WIN_MESSAGE, TRUE). An explicit STOP
+// display calls more(), temporarily restores NEED_MORE, and clears the message
+// window. A wrapped message has already called more(); the second source call
+// sees an empty top line and consumes no input.
+async function displayPendingTtyMessageWindow(state) {
+    const waited = await dismissPendingTtyMessage(state);
+    if (waited) {
+        state.nhDisplay.toplin = TOPLINE_NEED_MORE;
+        clearTtyMessageWindow(state);
+    } else if (state.nhDisplay) {
+        state.nhDisplay.toplin = TOPLINE_EMPTY;
+    }
+}
+
 function fitsOnTtyTopline(prior, next, columns) {
     return wrapTtyTopline(prior, columns).length === 1
         && next.length + prior.length + 3
@@ -256,15 +287,16 @@ async function ttyPlineCore(message, state, pflags) {
     if (!state._emittingGlyphUpdateNotices) {
         await emitGlyphUpdateNotices(state, { pline: ttyPline });
     }
-    const next = ttyByteText(message);
+    const normalizedMessage = normalizeVplineMessage(message);
+    const next = ttyByteText(normalizedMessage);
     const noRepeat = Boolean(pflags & PLINE_NOREPEAT);
     let msgtype = 0;
     if (!(pflags & OVERRIDE_MSGTYPE)) {
-        msgtype = msgtype_type(String(message), noRepeat, state);
+        msgtype = msgtype_type(normalizedMessage, noRepeat, state);
         if (!(pflags & URGENT_MESSAGE)
             && (msgtype === MSGTYP_NOSHOW
                 || (msgtype === MSGTYP_NOREP
-                    && next === state._ttyPreviousMessage))) {
+                    && normalizedMessage === state._ttyPreviousMessage))) {
             return;
         }
     }
@@ -304,7 +336,7 @@ async function ttyPlineCore(message, state, pflags) {
     // continue updating gt.toplines for history but remain invisible.
     if (stoppedAtEntry && !deathComparisonReached) {
         rememberSuppressedMessage(state, next, columns);
-        state._ttyPreviousMessage = next;
+        state._ttyPreviousMessage = normalizedMessage;
         return;
     }
     if (stoppedAtEntry) state._ttyMessageStopped = false;
@@ -313,9 +345,9 @@ async function ttyPlineCore(message, state, pflags) {
         && !deathMessage
         && fitsOnTtyTopline(current, next, columns)) {
         rememberPendingMessage(state, `${current}  ${next}`);
-        state._ttyPreviousMessage = next;
+        state._ttyPreviousMessage = normalizedMessage;
         if (msgtype === MSGTYP_STOP)
-            await dismissPendingTtyMessage(state);
+            await displayPendingTtyMessageWindow(state);
         return;
     }
     if (current) await dismissPendingTtyMessage(state);
@@ -323,13 +355,13 @@ async function ttyPlineCore(message, state, pflags) {
     // after more() has had the opportunity to set it from an Escape response.
     if (deathComparisonReached) state._ttyMessageStopped = false;
     rememberPendingMessage(state, next);
-    state._ttyPreviousMessage = next;
+    state._ttyPreviousMessage = normalizedMessage;
     // redotoplin() immediately invokes more() when update_topl() wrapped the
     // new message onto a second terminal row.
     if (wrapTtyTopline(next, columns).length > 1)
         await dismissPendingTtyMessage(state);
     if (msgtype === MSGTYP_STOP)
-        await dismissPendingTtyMessage(state);
+        await displayPendingTtyMessageWindow(state);
 }
 
 export async function ttyPline(message, state = game) {
@@ -340,10 +372,19 @@ export async function ttyNorep(message, state = game) {
     return ttyPlineCore(message, state, PLINE_NOREPEAT);
 }
 
-// C ref: pline.c custompline(). This slice needs OVERRIDE_MSGTYPE's direct
-// bypass; SUPPRESS_HISTORY and the other presentation flags retain their
-// existing caller-specific implementations.
+export class UnsupportedCustomPlineFlagsError extends Error {
+    constructor(pflags) {
+        super(`custompline() flags ${pflags} outside OVERRIDE_MSGTYPE`);
+        this.name = 'UnsupportedCustomPlineFlagsError';
+    }
+}
+
+// C ref: pline.c custompline(). This API admits the sole operation its current
+// consumer needs. Every other flag stops before glyph notices, output, state,
+// or input because its distinct source effect is not ported at this boundary.
 export async function ttyCustomPline(message, pflags, state = game) {
+    if (pflags !== OVERRIDE_MSGTYPE)
+        throw new UnsupportedCustomPlineFlagsError(pflags);
     return ttyPlineCore(message, state, pflags);
 }
 

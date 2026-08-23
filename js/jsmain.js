@@ -303,7 +303,7 @@ export class NethackGame {
         g.flags = { ...opts.flags };
         g.iflags = { ...opts.iflags };
         g.gc = { ...opts.gc };
-        g.ga = { ...opts.ga };
+        installParsedGa(g, opts);
         g.gw = {
             ...opts.gw,
             warnsyms: [...opts.gw.warnsyms],
@@ -511,6 +511,13 @@ export class NethackGame {
     getThemeroomSelections() {
         return this._themeroomSelectionCollector?.snapshot() ?? null;
     }
+}
+
+// Startup parsing allocates ga.apelist nodes and their compiled regex objects.
+// C installs that list by global identity; this shallow struct copy preserves
+// the same nodes and regex objects instead of rebuilding either one.
+export function installParsedGa(state, parsedOptions) {
+    state.ga = { ...parsedOptions.ga };
 }
 
 function createThemeroomSelectionCollector() {

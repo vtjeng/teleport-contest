@@ -48,6 +48,14 @@ test('feature notice packing follows recorder int and unsigned-long widths',
             get_feature_notice_ver('3.7.-1'),
             0xFFFFFFFFFFFFFF00n,
         );
+        assert.equal(
+            get_feature_notice_ver('0.0.9223372036854775808'),
+            0xFFFFFFFFFFFFFF00n,
+        );
+        assert.equal(
+            get_feature_notice_ver('0.0.-9223372036854775809'),
+            0n,
+        );
     });
 
 test('suppress_alert defaults to zero and empty forms do nothing', () => {

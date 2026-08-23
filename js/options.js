@@ -4495,6 +4495,7 @@ export function add_autopickup_exception(result, mapping) {
     result.ga.apelist = {
         pattern: scanned.text,
         grab,
+        regex,
         next: result.ga.apelist ?? null,
     };
     return 1;

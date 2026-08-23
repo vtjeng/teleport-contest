@@ -27,6 +27,7 @@ const INVALID_REGEXP = 'Invalid regular expression';
 const UNMATCHED_BRACKET = 'Unmatched [, [^, [:, [., or [=';
 const INVALID_RANGE = 'Invalid range end';
 const INVALID_COLLATION = 'Invalid collation character';
+const INVALID_BACK_REFERENCE = 'Invalid back reference';
 
 const ASCII_POSIX_CHARACTER_CLASSES = Object.freeze({
     alnum: 'A-Za-z0-9',
@@ -87,11 +88,6 @@ function bracketExpression(pattern, start) {
     if (pattern[index] === '^') ++index;
 
     let first = true;
-    if (pattern[index] === ']') {
-        ++index;
-        first = false;
-    }
-
     while (index < pattern.length) {
         if (pattern[index] === ']' && !first) {
             return { index: index + 1 };
@@ -150,15 +146,30 @@ function intervalExpression(pattern, start) {
 
 function validateExtendedRegexp(pattern) {
     let index = 0;
-    let openGroups = 0;
     let repeatable = false;
+    let groupCount = 0;
+    let availableGroups = new Set();
+    const frames = [{
+        branchStartGroups: new Set(),
+        subtreeGroups: [],
+    }];
 
     while (index < pattern.length) {
         const character = pattern[index];
         if (character === '\\') {
             if (index + 1 >= pattern.length) return 'Trailing backslash';
+            const escaped = pattern[index + 1];
+            if (escaped >= '1' && escaped <= '9') {
+                if (!availableGroups.has(Number(escaped))) {
+                    return INVALID_BACK_REFERENCE;
+                }
+                repeatable = true;
+            } else if (['b', 'B', '<', '>'].includes(escaped)) {
+                repeatable = false;
+            } else {
+                repeatable = true;
+            }
             index += 2;
-            repeatable = true;
             continue;
         }
         if (character === '[') {
@@ -169,18 +180,25 @@ function validateExtendedRegexp(pattern) {
             continue;
         }
         if (character === '(') {
-            ++openGroups;
+            const id = ++groupCount;
+            frames.push({
+                branchStartGroups: new Set(availableGroups),
+                subtreeGroups: [id],
+            });
             ++index;
             repeatable = false;
             continue;
         }
-        if (character === ')' && openGroups > 0) {
-            --openGroups;
+        if (character === ')' && frames.length > 1) {
+            const frame = frames.pop();
+            frames.at(-1).subtreeGroups.push(...frame.subtreeGroups);
+            for (const id of frame.subtreeGroups) availableGroups.add(id);
             ++index;
             repeatable = true;
             continue;
         }
         if (character === '|') {
+            availableGroups = new Set(frames.at(-1).branchStartGroups);
             ++index;
             repeatable = false;
             continue;
@@ -210,11 +228,17 @@ function validateExtendedRegexp(pattern) {
         repeatable = true;
     }
 
-    return openGroups ? 'Unmatched ( or \\(' : null;
+    return frames.length > 1 ? 'Unmatched ( or \\(' : null;
 }
 
 export function regex_init() {
-    return { error: null, matcher: null, pattern: null };
+    return {
+        error: null,
+        matcher: null,
+        matchers: null,
+        pattern: null,
+        references: null,
+    };
 }
 
 function escapeRegexpLiteral(character) {
@@ -277,12 +301,6 @@ function translateBracketExpression(pattern, start) {
         ++index;
     }
     let first = true;
-    if (pattern[index] === ']') {
-        source += '\\]';
-        ++index;
-        first = false;
-    }
-
     while (index < pattern.length) {
         if (pattern[index] === ']' && !first) {
             return { index: index + 1, source: `${source}]` };
@@ -310,10 +328,38 @@ function translateInterval(pattern, start) {
     return `{${body}}`;
 }
 
+function splitTopLevelAlternatives(source) {
+    const alternatives = [];
+    let start = 0;
+    let depth = 0;
+    let inBracket = false;
+    for (let index = 0; index < source.length; ++index) {
+        const character = source[index];
+        if (character === '\\') {
+            ++index;
+        } else if (inBracket) {
+            if (character === ']') inBracket = false;
+        } else if (character === '[') {
+            inBracket = true;
+        } else if (character === '(') {
+            ++depth;
+        } else if (character === ')') {
+            --depth;
+        } else if (character === '|' && depth === 0) {
+            alternatives.push(source.slice(start, index));
+            start = index + 1;
+        }
+    }
+    alternatives.push(source.slice(start));
+    return alternatives;
+}
+
 // Translate only after validateExtendedRegexp() has accepted the pattern.
 // Non-capturing wrappers make source-accepted adjacent duplication operators
 // explicit: `a+?` is `(?:a+)?`, rather than JavaScript's lazy `a+?`.
-function translateAsciiExtendedRegexp(pattern) {
+function translateAsciiExtendedRegexp(pattern, references) {
+    let groupCount = 0;
+
     function translatePart(start, stopAtClose) {
         let index = start;
         let source = '';
@@ -342,15 +388,47 @@ function translateAsciiExtendedRegexp(pattern) {
 
             let atom;
             if (character === '\\') {
-                atom = escapeRegexpLiteral(pattern[index + 1]);
+                const escaped = pattern[index + 1];
+                if (escaped >= '1' && escaped <= '9') {
+                    const reference = {
+                        group: `posixGroup${escaped}`,
+                        marker: `posixReference${references.length + 1}`,
+                    };
+                    references.push(reference);
+                    // The wrapper keeps a following source digit separate:
+                    // glibc reads `\\10` as backreference 1 plus literal 0,
+                    // while ECMAScript can read it as reference 10 or octal.
+                    // Its marker also records whether this reference's path
+                    // participated, so references in other alternatives do
+                    // not require their groups in the chosen match.
+                    atom = `(?<${reference.marker}>`
+                        + `\\k<${reference.group}>)`;
+                } else if (escaped === 'b' || escaped === 'B') {
+                    atom = `\\${escaped}`;
+                } else if (escaped === '<') {
+                    atom = '(?<![A-Za-z0-9_])(?=[A-Za-z0-9_])';
+                } else if (escaped === '>') {
+                    atom = '(?<=[A-Za-z0-9_])(?![A-Za-z0-9_])';
+                } else if (escaped === 'w') {
+                    atom = '[A-Za-z0-9_]';
+                } else if (escaped === 'W') {
+                    atom = '[^A-Za-z0-9_]';
+                } else if (escaped === 's') {
+                    atom = '[\\t-\\r ]';
+                } else if (escaped === 'S') {
+                    atom = '[^\\t-\\r ]';
+                } else {
+                    atom = escapeRegexpLiteral(escaped);
+                }
                 index += 2;
             } else if (character === '[') {
                 const bracket = translateBracketExpression(pattern, index);
                 atom = bracket.source;
                 index = bracket.index;
             } else if (character === '(') {
+                const groupName = `posixGroup${++groupCount}`;
                 const group = translatePart(index + 1, true);
-                atom = `(?:${group.source})`;
+                atom = `(?<${groupName}>${group.source})`;
                 index = group.index;
             } else if (character === ')') {
                 // glibc treats an unmatched close parenthesis as ordinary.
@@ -394,8 +472,27 @@ export function regex_compile(pattern, regex) {
     regex.error = validateExtendedRegexp(text);
     regex.pattern = regex.error ? null : text;
     regex.matcher = null;
+    regex.matchers = null;
+    regex.references = null;
     if (!regex.error && !/[^\x00-\x7F]/u.test(text)) {
-        regex.matcher = new RegExp(translateAsciiExtendedRegexp(text), 's');
+        regex.references = [];
+        const source = translateAsciiExtendedRegexp(text, regex.references);
+        if (!regex.references.length) {
+            regex.matcher = new RegExp(source, 's');
+        } else {
+            // Test source alternatives independently. ECMAScript accepts an
+            // unmatched-group backreference as empty and can otherwise stop
+            // on that invalid candidate before trying a later POSIX-valid
+            // alternative at the same starting position.
+            regex.matchers = splitTopLevelAlternatives(source).map(
+                (alternative) => ({
+                    matcher: new RegExp(alternative, 'dgs'),
+                    references: regex.references.filter(({ marker }) => (
+                        alternative.includes(`?<${marker}>`)
+                    )),
+                }),
+            );
+        }
     }
     return !regex.error;
 }
@@ -420,5 +517,25 @@ export function regex_match(value, regex) {
         || /[^\x00-\x7F]/u.test(text)) {
         throw new UnsupportedPosixLocaleMatchError();
     }
-    return regex.matcher.test(text);
+    if (!regex.references?.length) return regex.matcher.test(text);
+
+    // ECMAScript treats a backreference to a group which did not participate
+    // in this match as empty. glibc rejects that candidate. Keep looking at
+    // later starting positions because an unanchored pattern can still have a
+    // source-valid match after such a candidate.
+    for (const { matcher, references } of regex.matchers) {
+        matcher.lastIndex = 0;
+        for (;;) {
+            const match = matcher.exec(text);
+            if (!match) break;
+            if (references.every(
+                ({ group, marker }) => (
+                    match.indices.groups[marker] === undefined
+                    || match.indices.groups[group] !== undefined
+                ),
+            )) return true;
+            if (match[0].length === 0) ++matcher.lastIndex;
+        }
+    }
+    return false;
 }

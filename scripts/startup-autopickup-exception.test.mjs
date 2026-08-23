@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { encodeUtf8ByteString } from '../js/hacklib.js';
+import { installParsedGa } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
 import {
     add_autopickup_exception,
@@ -12,6 +13,7 @@ import {
     regex_compile,
     regex_error_desc,
     regex_init,
+    regex_match,
 } from '../js/posixregex.js';
 import {
     loadStartupAutopickupExceptionRecipe,
@@ -34,6 +36,13 @@ function list(result) {
         entries.push({ pattern: ape.pattern, grab: ape.grab });
     }
     return entries;
+}
+
+function assertCompiledList(state) {
+    for (let ape = state.ga?.apelist; ape; ape = ape.next) {
+        assert.equal(ape.regex.pattern, ape.pattern);
+        assert.equal(regex_match(ape.pattern, ape.regex), true, ape.pattern);
+    }
 }
 
 test('the direct statement accepts its exact and five-byte source names', () => {
@@ -61,6 +70,7 @@ test('add_autopickup_exception preserves the three source mapping forms', () => 
         { pattern: 'scroll', grab: true },
     ]);
     assert.equal(parsedValue(parsed), '(3 currently set)');
+    assertCompiledList(parsed);
 });
 
 test('quoted mappings accept whitespace or comments and reject junk', () => {
@@ -218,6 +228,19 @@ test('the source-owned helper prepends to the sole ga.apelist state', () => {
         { pattern: 'wand', grab: false },
         { pattern: 'food', grab: true },
     ]);
+    assertCompiledList(result);
+});
+
+test('startup installation retains each parsed node and compiled regex', () => {
+    const parsed = parseNethackrc(
+        'AUTOPICKUP_EXCEPTION=">(wand)\\1"\n',
+    );
+    const state = {};
+    installParsedGa(state, parsed);
+    assert.equal(state.ga.apelist, parsed.ga.apelist);
+    assert.equal(state.ga.apelist.regex, parsed.ga.apelist.regex);
+    assert.equal(regex_match('wandwand', state.ga.apelist.regex), true);
+    assert.equal(regex_match('wand1', state.ga.apelist.regex), false);
 });
 
 test('the fresh autopickup-exception matrix carries replay inputs only', () => {

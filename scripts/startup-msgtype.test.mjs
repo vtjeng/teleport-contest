@@ -6,10 +6,17 @@ import {
     MSGTYP_NORMAL,
     MSGTYP_NOSHOW,
     MSGTYP_STOP,
+    NO_CURS_ON_U,
     OVERRIDE_MSGTYPE,
+    PLINE_NOREPEAT,
+    PLINE_SPEECH,
+    PLINE_VERBALIZE,
+    SUPPRESS_HISTORY,
+    URGENT_MESSAGE,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
+import { nhgetch } from '../js/input.js';
 import { allopt } from '../js/optlist_data.js';
 import {
     msgtype_parse_add,
@@ -28,6 +35,7 @@ import {
     ttyNorep,
     ttyPline,
     ttyUrgentPline,
+    UnsupportedCustomPlineFlagsError,
 } from '../js/tty_message.js';
 import {
     loadStartupMsgtypeRecipe,
@@ -60,7 +68,7 @@ function messageState(config = '', keys = '') {
 test('the fresh recipe retains the MSGTYPE branch matrix', () => {
     const recipe = loadStartupMsgtypeRecipe();
     assert.equal(recipe.segments.length, STARTUP_MSGTYPE_CASES.length);
-    assert.equal(recipe.segments.length, 12);
+    assert.equal(recipe.segments.length, 17);
     assert.equal(STARTUP_MSGTYPE_CASES.filter(({ errors }) => errors).length, 3);
     assert.ok(STARTUP_MSGTYPE_CASES.some(({ statements }) => (
         statements.length === 2
@@ -195,6 +203,106 @@ test('regex_match implements the ASCII POSIX ERE forms MSGTYPE consumes', () => 
     }
 });
 
+test('numeric backreferences follow recorder glibc compile and match rules',
+    () => {
+        for (const [pattern, matches, misses] of [
+            [String.raw`(a)\1`, ['aa', 'zaa'], ['a1', 'a']],
+            [String.raw`(a)\10`, ['aa0'], ['a10', 'aa']],
+            [String.raw`^(a)\1|(b)\2$`, ['aa', 'bb'], ['ab', 'ba']],
+            [String.raw`^(a)?\1|a$`, ['a', 'aa'], ['b']],
+            [String.raw`^(X)?\1Hello`, ['XXHello'], ['Hello']],
+            [String.raw`^(a)(b)(c)(d)(e)(f)(g)(h)(i)\9$`,
+                ['abcdefghii'], ['abcdefghii9']],
+            [String.raw`^\0$`, ['0'], ['\\0']],
+        ]) {
+            const regex = regex_init();
+            assert.equal(regex_compile(pattern, regex), true, pattern);
+            for (const text of matches)
+                assert.equal(regex_match(text, regex), true,
+                    JSON.stringify({ pattern, text }));
+            for (const text of misses)
+                assert.equal(regex_match(text, regex), false,
+                    JSON.stringify({ pattern, text }));
+        }
+
+        for (const pattern of [
+            String.raw`\1`, String.raw`(a)\2`, String.raw`(a\1)`,
+        ]) {
+            const regex = regex_init();
+            assert.equal(regex_compile(pattern, regex), false, pattern);
+            assert.equal(regex.error, 'Invalid back reference', pattern);
+        }
+    });
+
+test('GNU word, space, and boundary escapes use ASCII glibc semantics', () => {
+    const cases = [
+        [String.raw`^\bfoo\b$`, 'foo', 'foo_'],
+        [String.raw`\Boo\B`, 'xooz', 'foo'],
+        [String.raw`\<foo\>`, ' foo ', '_foo'],
+        [String.raw`^\w+$`, 'abc_123', 'abc-'],
+        [String.raw`^\W+$`, ' -', '_'],
+        [String.raw`^\s+$`, '\t\n\v\f\r ', 'a'],
+        [String.raw`^\S+$`, 'abc_123', 'a b'],
+    ];
+    for (const [pattern, match, miss] of cases) {
+        const regex = regex_init();
+        assert.equal(regex_compile(pattern, regex), true, pattern);
+        assert.equal(regex_match(match, regex), true, pattern);
+        assert.equal(regex_match(miss, regex), false, pattern);
+    }
+    for (const boundary of [
+        String.raw`\b`, String.raw`\B`, String.raw`\<`, String.raw`\>`,
+    ]) {
+        for (const quantifier of ['*', '+', '?', '{1}']) {
+            const pattern = boundary + quantifier;
+            const regex = regex_init();
+            assert.equal(regex_compile(pattern, regex), false, pattern);
+            assert.equal(
+                regex.error,
+                'Invalid preceding regular expression',
+                pattern,
+            );
+        }
+    }
+});
+
+test('all twelve ASCII POSIX character classes pin both memberships', () => {
+    for (const [name, member, nonmember] of [
+        ['alnum', 'A', '-'],
+        ['alpha', 'z', '7'],
+        ['blank', '\t', '\n'],
+        ['cntrl', '\x7F', ' '],
+        ['digit', '4', 'a'],
+        ['graph', '~', ' '],
+        ['lower', 'q', 'Q'],
+        ['print', ' ', '\x7F'],
+        ['punct', '[', 'A'],
+        ['space', '\v', '_'],
+        ['upper', 'Q', 'q'],
+        ['xdigit', 'F', 'G'],
+    ]) {
+        const pattern = `^[[:${name}:]]$`;
+        const regex = regex_init();
+        assert.equal(regex_compile(pattern, regex), true, name);
+        assert.equal(regex_match(member, regex), true, `${name} member`);
+        assert.equal(regex_match(nonmember, regex), false,
+            `${name} nonmember`);
+    }
+});
+
+test('a leading literal close bracket can be a range endpoint', () => {
+    const accepted = regex_init();
+    assert.equal(regex_compile('^[]-a]$', accepted), true);
+    for (const text of [']', '^', '_', '`', 'a'])
+        assert.equal(regex_match(text, accepted), true, text);
+    for (const text of ['\\', 'b', '-'])
+        assert.equal(regex_match(text, accepted), false, text);
+
+    const rejected = regex_init();
+    assert.equal(regex_compile('[]--]', rejected), false);
+    assert.equal(rejected.error, 'Invalid range end');
+});
+
 test('every source-accepted translator edge compiles without a JS leak', () => {
     for (const pattern of [
         ')', '()', '(|)', 'a{,2}', 'a{2,}', 'a{2}{3}', 'a**', 'a?+',
@@ -257,6 +365,12 @@ test('vpline applies hide, norep, stop, urgent, and override rules', async () =>
     }]);
     assert.equal(stopped._pending_message, '');
     assert.equal(stopped._ttyPreviousMessage, 'halt');
+    assert.equal(stopped.nhDisplay.grid[0].map((cell) => cell.ch)
+        .join('').trimEnd(), '');
+    assert.deepEqual(
+        [stopped.nhDisplay.cursorCol, stopped.nhDisplay.cursorRow],
+        [0, 0],
+    );
 
     const pendingStop = messageState('MSGTYPE=stop "halt"\n', '  ');
     const pendingBoundaries = [];
@@ -274,6 +388,12 @@ test('vpline applies hide, norep, stop, urgent, and override rules', async () =>
         { row: `${'P'.repeat(68)}--More--`, cursor: [76, 0] },
         { row: 'halt--More--', cursor: [12, 0] },
     ]);
+    assert.equal(pendingStop.nhDisplay.grid[0].map((cell) => cell.ch)
+        .join('').trimEnd(), '');
+    assert.deepEqual(
+        [pendingStop.nhDisplay.cursorCol, pendingStop.nhDisplay.cursorRow],
+        [0, 0],
+    );
 
     const urgent = messageState('MSGTYPE=hide ".*"\n');
     await ttyUrgentPline('urgent', urgent);
@@ -282,4 +402,85 @@ test('vpline applies hide, norep, stop, urgent, and override rules', async () =>
     const override = messageState('MSGTYPE=hide ".*"\n');
     await ttyCustomPline('override', OVERRIDE_MSGTYPE, override);
     assert.equal(override._pending_message, 'override');
+});
+
+test('urgent STOP waits once while override STOP consumes no input', async () => {
+    const urgent = messageState('MSGTYPE=stop "urgent"\n', ' X');
+    let urgentWaits = 0;
+    urgent._preNhgetchHook = () => { ++urgentWaits; };
+    await ttyUrgentPline('urgent', urgent);
+    assert.equal(urgentWaits, 1);
+    assert.equal(await nhgetch(urgent), 'X'.charCodeAt(0));
+    assert.equal(urgent._ttyPreviousMessage, 'urgent');
+    assert.equal(urgent.nhDisplay.grid[0].map((cell) => cell.ch)
+        .join('').trimEnd(), '');
+
+    const override = messageState('MSGTYPE=stop "override"\n', 'X');
+    let overrideWaits = 0;
+    override._preNhgetchHook = () => { ++overrideWaits; };
+    await ttyCustomPline('override', OVERRIDE_MSGTYPE, override);
+    assert.equal(overrideWaits, 0);
+    assert.equal(await nhgetch(override), 'X'.charCodeAt(0));
+    assert.equal(override._pending_message, 'override');
+    assert.equal(override._ttyPreviousMessage, 'override');
+});
+
+test('a wrapped STOP consumes one key and leaves the restored cursor',
+    async () => {
+        const state = messageState('MSGTYPE=stop "^W"\n', ' X');
+        let waits = 0;
+        state._preNhgetchHook = () => { ++waits; };
+        await ttyPline('W'.repeat(90), state);
+        assert.equal(waits, 1);
+        assert.equal(await nhgetch(state), 'X'.charCodeAt(0));
+        assert.equal(state._ttyPreviousMessage, 'W'.repeat(90));
+        assert.deepEqual(
+            [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+            [0, 0],
+        );
+    });
+
+test('vpline normalizes one byte string before lookup, output, and history',
+    async () => {
+        const original = 'a'.repeat(249) + 'REMOVED'
+            + 'b'.repeat(41) + 'XYZ';
+        const normalized = 'a'.repeat(249) + '...XYZ';
+        assert.equal(original.length, 300);
+        assert.equal(normalized.length, 255);
+
+        const removedRule = messageState('MSGTYPE=hide "REMOVED"\n', ' X');
+        await ttyPline(original, removedRule);
+        assert.equal(await nhgetch(removedRule), 'X'.charCodeAt(0));
+        assert.equal(removedRule._ttyPreviousMessage, normalized);
+        assert.equal(removedRule._ttyToplines, normalized);
+
+        const finalRule = messageState('MSGTYPE=hide "XYZ$"\n');
+        await ttyPline(original, finalRule);
+        assert.equal(finalRule._pending_message, undefined);
+        assert.equal(finalRule._ttyPreviousMessage, '');
+    });
+
+test('custompline refuses every unsupported flag before effects', async () => {
+    for (const flags of [
+        0,
+        PLINE_NOREPEAT,
+        SUPPRESS_HISTORY,
+        URGENT_MESSAGE,
+        PLINE_VERBALIZE,
+        PLINE_SPEECH,
+        NO_CURS_ON_U,
+        OVERRIDE_MSGTYPE | SUPPRESS_HISTORY,
+        0x80,
+    ]) {
+        const state = messageState('', 'X');
+        await assert.rejects(
+            ttyCustomPline('unsupported', flags, state),
+            (error) => error instanceof UnsupportedCustomPlineFlagsError
+                && /custompline\(\).*flags/u.test(error.message),
+            String(flags),
+        );
+        assert.equal(state._pending_message, undefined, String(flags));
+        assert.equal(state._ttyPreviousMessage, '', String(flags));
+        assert.equal(await nhgetch(state), 'X'.charCodeAt(0), String(flags));
+    }
 });

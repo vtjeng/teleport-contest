@@ -13,6 +13,7 @@ import { truncateByteString } from '../js/hacklib.js';
 import { runSegment } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
 import { optionValue, parseNethackrc } from '../js/options.js';
+import { regex_match } from '../js/posixregex.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
 
@@ -34,7 +35,7 @@ function startupRc(name, ...statements) {
 }
 
 function parserCase({ label, seed, datetime, statements, expected,
-    errors = 0, attributes = false, diagnostic = null }) {
+    errors = 0, attributes = false, diagnostic = null, probes = [] }) {
     return Object.freeze({
         label,
         seed,
@@ -45,6 +46,7 @@ function parserCase({ label, seed, datetime, statements, expected,
         expected: Object.freeze(expected.map(Object.freeze)),
         errors,
         diagnostic,
+        probes: Object.freeze(probes.map(Object.freeze)),
     });
 }
 
@@ -74,6 +76,7 @@ export const STARTUP_AUTOPICKUP_EXCEPTION_CASES = Object.freeze([
         datetime: '20390418120100',
         statements: ['AUTOPICKUP_EXCEPTION=\">[[:digit:]]+ wand\"'],
         expected: [{ pattern: '[[:digit:]]+ wand', grab: false }],
+        probes: [['12 wand', true], ['twelve wand', false]],
     }),
     parserCase({
         label: 'short statement and repeated rows preserve head insertion',
@@ -114,6 +117,33 @@ export const STARTUP_AUTOPICKUP_EXCEPTION_CASES = Object.freeze([
         statements: ['AUTOPICKUP_EXCEPTION=\">.*wand\"'],
         expected: [{ pattern: '.*wand', grab: false }],
         attributes: true,
+        probes: [['oak wand', true], ['scroll', false]],
+    }),
+    parserCase({
+        label: 'backreference and GNU escapes retain installed matchers',
+        seed: 9684308,
+        datetime: '20390418120800',
+        statements: [
+            String.raw`AUTOPICKUP_EXCEPTION=">(wand)\1"`,
+            String.raw`AUTOPICKUP_EXCEPTION="<\<food\>\s\w+"`,
+        ],
+        expected: [
+            { pattern: String.raw`\<food\>\s\w+`, grab: true },
+            { pattern: String.raw`(wand)\1`, grab: false },
+        ],
+        probes: [
+            ['food ration', true, 0],
+            ['wandwand', true, 1],
+            ['wand1', false, 1],
+        ],
+    }),
+    parserCase({
+        label: 'leading close-bracket range retains its installed matcher',
+        seed: 9684310,
+        datetime: '20390418121000',
+        statements: ['AUTOPICKUP_EXCEPTION=">^[]-a]$"'],
+        expected: [{ pattern: '^[]-a]$', grab: false }],
+        probes: [[']', true], ['a', true], ['b', false]],
     }),
     parserCase({
         label: 'syntax errors continue to a commented valid row',
@@ -178,6 +208,25 @@ export const STARTUP_AUTOPICKUP_EXCEPTION_CASES = Object.freeze([
         'open interval reports Unmatched interval',
         9684331, '20390418123100', 'a{1', 'Unmatched \\{',
     ),
+    diagnosticCase(
+        'orphan numeric reference reports Invalid back reference',
+        9684333, '20390418123300', String.raw`\1`,
+        'Invalid back reference',
+    ),
+    diagnosticCase(
+        'forward numeric reference reports Invalid back reference',
+        9684335, '20390418123500', String.raw`(a)\2`,
+        'Invalid back reference',
+    ),
+    diagnosticCase(
+        'repeated boundary reports Invalid preceding expression',
+        9684337, '20390418123700', String.raw`\b*`,
+        'Invalid preceding regular expression',
+    ),
+    diagnosticCase(
+        'descending leading close-bracket range reports Invalid range end',
+        9684339, '20390418123900', '[]--]', 'Invalid range end',
+    ),
 ]);
 
 function segmentFor(entry) {
@@ -224,6 +273,17 @@ function verifyState(state, entry, phase) {
         throw new Error(
             `${entry.label} ${phase} reported ${value}, not ${expectedValue}`,
         );
+    }
+    const nodes = [];
+    for (let ape = state.ga?.apelist; ape; ape = ape.next) nodes.push(ape);
+    for (const [text, expected, index = 0] of entry.probes) {
+        const node = nodes[index];
+        if (!node?.regex || node.regex.pattern !== node.pattern) {
+            throw new Error(`${entry.label} ${phase} lost its compiled regex`);
+        }
+        if (node.regex && regex_match(text, node.regex) !== expected) {
+            throw new Error(`${entry.label} ${phase} mismatched ${text}`);
+        }
     }
 }
 
