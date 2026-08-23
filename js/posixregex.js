@@ -429,6 +429,7 @@ function parseAsciiExtendedRegexp(pattern) {
             while (index < pattern.length) {
                 let minimum;
                 let maximum;
+                let intervalSyntax = false;
                 if (pattern[index] === '*') {
                     minimum = 0;
                     maximum = Infinity;
@@ -442,6 +443,7 @@ function parseAsciiExtendedRegexp(pattern) {
                     maximum = 1;
                     ++index;
                 } else if (pattern[index] === '{') {
+                    intervalSyntax = true;
                     const close = pattern.indexOf('}', index + 1);
                     const body = pattern.slice(index + 1, close);
                     const [lower, upper] = body.split(',');
@@ -452,7 +454,13 @@ function parseAsciiExtendedRegexp(pattern) {
                 } else {
                     break;
                 }
-                atom = { type: 'repeat', child: atom, minimum, maximum };
+                atom = {
+                    type: 'repeat',
+                    child: atom,
+                    minimum,
+                    maximum,
+                    intervalSyntax,
+                };
             }
             sequence.push(atom);
         }
@@ -472,6 +480,7 @@ function parseAsciiExtendedRegexp(pattern) {
         node.nodeId = nextNodeId++;
         let groups = new Set();
         let containsRepeat = node.type === 'repeat';
+        let hasFiniteReferencedInterval = false;
         let dependsOnMatchStart = node.type === 'anchor'
             && node.edge === 'start' && !node.absolute;
         let referenceIndependent = node.type !== 'reference'
@@ -483,11 +492,18 @@ function parseAsciiExtendedRegexp(pattern) {
             annotate(child);
             groups = new Set([...groups, ...child.captureGroups]);
             containsRepeat ||= child.containsRepeat;
+            hasFiniteReferencedInterval ||= child.hasFiniteReferencedInterval;
             dependsOnMatchStart ||= child.dependsOnMatchStart;
             referenceIndependent &&= child.referenceIndependent;
         }
         node.captureGroups = groups;
         node.containsRepeat = containsRepeat;
+        if (node.type === 'repeat' && node.intervalSyntax
+            && Number.isFinite(node.maximum)
+            && [...groups].some((id) => referencedGroups.has(id))) {
+            hasFiniteReferencedInterval = true;
+        }
+        node.hasFiniteReferencedInterval = hasFiniteReferencedInterval;
         node.dependsOnMatchStart = dependsOnMatchStart;
         node.referenceIndependent = referenceIndependent;
         if (node.type === 'literal') node.alwaysZeroWidth = node.value === '';
@@ -525,6 +541,7 @@ function parseAsciiExtendedRegexp(pattern) {
         root,
         groupCount,
         referencedGroups,
+        hasFiniteReferencedInterval: root.hasFiniteReferencedInterval,
         requiredAbsoluteEndSuffix: requiredAbsoluteEndSuffix(root),
     };
 }
@@ -1136,6 +1153,8 @@ export function regex_compile(pattern, regex) {
         regex.evaluator = parseAsciiExtendedRegexp(text);
         if (!regex.evaluator.referencedGroups.size) {
             regex.kind = 'direct';
+        } else if (regex.evaluator.hasFiniteReferencedInterval) {
+            regex.kind = 'finite-reference-boundary';
         } else {
             regex.kind = 'reference-aware';
         }
@@ -1156,12 +1175,23 @@ export class UnsupportedPosixLocaleMatchError extends Error {
     }
 }
 
+export class UnsupportedPosixFiniteReferenceError extends Error {
+    constructor() {
+        super('posixregex.c regex_match() with a finite repeated capture '
+            + 'used by a backreference');
+        this.name = 'UnsupportedPosixFiniteReferenceError';
+    }
+}
+
 export function regex_match(value, regex) {
     if (!regex || regex.kind === 'uncompiled' || regex.kind === 'rejected')
         return false;
     const text = String(value);
     if (regex.kind === 'locale-boundary' || /[^\x00-\x7F]/u.test(text)) {
         throw new UnsupportedPosixLocaleMatchError();
+    }
+    if (regex.kind === 'finite-reference-boundary') {
+        throw new UnsupportedPosixFiniteReferenceError();
     }
     if (regex.kind === 'direct') {
         return matchDirectExtendedRegexp(text, regex.evaluator);

@@ -4582,6 +4582,21 @@
       "status": "closed",
       "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
       "detail": "js/posixregex.js referenceSequenceMatches() is named generally even though only the root sequence gets lazy continuation evaluation and nested sequences remain eager. Rename or document the root-only scope and callback-order contract; do not generalize nested laziness without separate behavioral proof."
+    },
+    {
+      "id": "posix-finite-repeat-backreference-arrival",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "88c9fec190681d5ebb5e0bd7e8fccdc73fd905a4",
+      "detail": "js/posixregex.js stops before matching an ASCII ERE when a finite brace interval repeats a capture later used by a backreference. Recorder glibc 2.39 expands each finite copy into distinct OPEN/CLOSE nodes and admits a backreference only after check_arrival proves the selected open-to-close and close-to-backreference paths; the current capture-value evaluator cannot preserve that compiled-node provenance without false positives and negatives. Port a lazy occurrence-aware state log and backreference arrival cache, then restore the finite MSGTYPE/APЕ libc matrix and exact-boundary resource cases.",
+      "notes": [
+        {
+          "text": "The detail's abbreviated consumer name means AUTOPICKUP_EXCEPTION. The closing matrix must cover both MSGTYPE and AUTOPICKUP_EXCEPTION.",
+          "at": "88c9fec190681d5ebb5e0bd7e8fccdc73fd905a4"
+        }
+      ]
     }
   ],
   "areas": [

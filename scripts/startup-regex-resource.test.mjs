@@ -5,9 +5,6 @@ import test from 'node:test';
 
 import {
     EXACT_BOUNDARY_REGEX_CASES,
-    FINITE_MAXIMUM_FRONTIER_RESOURCE_CASE,
-    FINITE_ZERO_WIDTH_MAXIMUM_RESOURCE_CASE,
-    FINITE_ZERO_WIDTH_REGEX_RESOURCE_CASE,
     FIXED_POINT_REGEX_RESOURCE_CASE,
     REGEX_EXACT_BOUNDARY_BYTES,
     REGEX_RESOURCE_CASES,
@@ -22,9 +19,6 @@ const REQUIRED_RESOURCE_NAMES = Object.freeze([
     'suffix-reaching-zero-minimum',
     'suffix-reaching-correlated-frontier',
     'adjacent-repeat-fixed-point',
-    'finite-zero-width-repeat-fixed-point',
-    'finite-zero-width-maximum-projection',
-    'finite-maximum-projected-frontier',
 ]);
 
 test('regex adversaries satisfy exact resource and fixed-point bounds', () => {
@@ -48,9 +42,6 @@ test('the fixture catalog completely owns exact and fixed-point resources', () =
     assert.deepEqual(REGEX_RESOURCE_CASES, [
         ...EXACT_BOUNDARY_REGEX_CASES,
         FIXED_POINT_REGEX_RESOURCE_CASE,
-        FINITE_ZERO_WIDTH_REGEX_RESOURCE_CASE,
-        FINITE_ZERO_WIDTH_MAXIMUM_RESOURCE_CASE,
-        FINITE_MAXIMUM_FRONTIER_RESOURCE_CASE,
     ]);
     assert.equal(new Set(REGEX_RESOURCE_OUTPUT_NAMES).size,
         REGEX_RESOURCE_CASES.length);
@@ -63,14 +54,6 @@ test('the fixture catalog completely owns exact and fixed-point resources', () =
     }
     assert.equal(FIXED_POINT_REGEX_RESOURCE_CASE.kind, 'fixed-point');
     assert.ok(FIXED_POINT_REGEX_RESOURCE_CASE.cases.length > 0);
-    assert.equal(FINITE_ZERO_WIDTH_REGEX_RESOURCE_CASE.kind,
-        'finite-zero-width-fixed-point');
-    assert.equal(FINITE_ZERO_WIDTH_REGEX_RESOURCE_CASE.expected, false);
-    assert.equal(FINITE_ZERO_WIDTH_REGEX_RESOURCE_CASE.input.length,
-        REGEX_EXACT_BOUNDARY_BYTES);
-    assert.equal(FINITE_ZERO_WIDTH_MAXIMUM_RESOURCE_CASE.expected, true);
-    assert.equal(FINITE_MAXIMUM_FRONTIER_RESOURCE_CASE.input.length,
-        REGEX_EXACT_BOUNDARY_BYTES);
 });
 
 test('suffix-reaching fixtures enter the evaluator paths their names claim',

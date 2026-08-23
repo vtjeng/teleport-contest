@@ -30,6 +30,7 @@ import {
     regex_compile,
     regex_init,
     regex_match,
+    UnsupportedPosixFiniteReferenceError,
     UnsupportedPosixLocaleMatchError,
 } from '../js/posixregex.js';
 import {
@@ -70,7 +71,7 @@ function messageState(config = '', keys = '') {
 test('the fresh recipe retains the MSGTYPE branch matrix', () => {
     const recipe = loadStartupMsgtypeRecipe();
     assert.equal(recipe.segments.length, STARTUP_MSGTYPE_CASES.length);
-    assert.equal(recipe.segments.length, 37);
+    assert.equal(recipe.segments.length, 28);
     assert.equal(STARTUP_MSGTYPE_CASES.filter(({ errors }) => errors).length, 4);
     assert.ok(STARTUP_MSGTYPE_CASES.some(({ statements }) => (
         statements.length === 2
@@ -255,21 +256,7 @@ test('backreferences explore same-start paths and retain participating groups',
             [String.raw`(|())\2`, ['', 'x'], []],
             [String.raw`^((a)|b)*\2`, ['aab'], ['abb']],
             [String.raw`^((a)|b)*\2$`, ['aba'], ['abb']],
-            [String.raw`^((a)|b){0,2}\2$`, ['aba'], ['aa', 'abb']],
-            [String.raw`^(()|a){1,2}\2$`, ['a'], []],
-            [String.raw`^(()|a){3}\2$`, ['', 'aa'], ['a']],
-            [String.raw`^((a)?b?){0,2}\2$`, ['aa', 'aaa'], ['a', 'aaaa']],
-            [String.raw`^((a?)?){0,2}\2$`, [], ['a']],
-            [String.raw`^((a?)?){0,3}\2$`, ['aa'], ['a']],
-            [String.raw`^((a?)|){0,4}\2$`, [], ['a']],
-            [String.raw`^(){0,2}\1$`, [''], ['a']],
-            [String.raw`^((a)|b){1,3}\2$`, ['aba'], ['aaa', 'abb']],
-            [String.raw`^((a)|b?){1,3}\2$`, ['aaa'], ['a']],
-            [String.raw`^((a?)?){1,3}\2$`, [], ['a']],
-            [String.raw`^((a?)?){2}\2$`, [], ['a']],
-            [String.raw`^(a?){0,2}\1$`, ['', 'aaa'], ['a', 'aa']],
             [String.raw`^(()*)\2$`, [''], ['a']],
-            [String.raw`^(()){2}\2$`, [''], ['a']],
             [String.raw`^(()){2,}\2$`, [''], ['a']],
             [String.raw`^((a|c)|b)*\2$`, ['abcc'], ['abca']],
         ]) {
@@ -284,6 +271,35 @@ test('backreferences explore same-start paths and retain participating groups',
         }
     });
 
+test('finite repeated captures stop at the named glibc provenance boundary',
+    () => {
+        for (const pattern of [
+            String.raw`^((a)|b){0,2}\2$`,
+            String.raw`^(()|a){3}\2$`,
+            String.raw`^((a?)?){2}\2$`,
+            String.raw`^(a){2,3}\1$`,
+            String.raw`^(()){2}\2$`,
+        ]) {
+            const regex = regex_init();
+            assert.equal(regex_compile(pattern, regex), true, pattern);
+            assert.equal(regex.kind, 'finite-reference-boundary', pattern);
+            assert.throws(
+                () => regex_match('aaa', regex),
+                UnsupportedPosixFiniteReferenceError,
+                pattern,
+            );
+        }
+
+        const configured = parseNethackrc(
+            String.raw`MSGTYPE=hide "^((a)|b){0,2}\2$"` + '\n',
+        );
+        assert.equal(configured.configErrorFrame.num_errors, 0);
+        assert.throws(
+            () => msgtype_type('aba', false, configured),
+            UnsupportedPosixFiniteReferenceError,
+        );
+    });
+
 test('sibling alternatives expose only captures on their current path', () => {
     const invalid = regex_init();
     assert.equal(regex_compile(String.raw`(a)|\1`, invalid), false);
@@ -296,16 +312,12 @@ test('sibling alternatives expose only captures on their current path', () => {
     assert.equal(regex_match('b', valid), false);
 });
 
-test('backreferences follow recorder repetition and finite-interval selection',
+test('supported backreferences follow recorder unbounded repetition selection',
     () => {
         for (const [pattern, matches, misses] of [
             [String.raw`^(a+)*\1$`, ['aaa'], ['b']],
             [String.raw`^(a+){0,}\1$`, ['aaa'], ['b']],
-            [String.raw`^(a){0,2}\1$`, ['aaa'], ['aa', 'aaaa']],
-            [String.raw`^(a){1,3}\1$`, ['aa', 'aaaa'], ['aaa']],
             [String.raw`^(a+)+\1$`, ['aa'], ['aaa', 'aaaa']],
-            [String.raw`(l){0,2}\1`, ['Hlllo'], ['Hello']],
-            [String.raw`^(a){2,3}\1$`, ['aaa', 'aaaa'], ['aa', 'aaaaa']],
         ]) {
             const regex = regex_init();
             assert.equal(regex_compile(pattern, regex), true, pattern);
@@ -360,6 +372,8 @@ test('compiled regex states use one explicit representation discriminant', () =>
     assert.equal(regex.kind, 'direct');
     assert.equal(regex_compile(String.raw`(a)\1`, regex), true);
     assert.equal(regex.kind, 'reference-aware');
+    assert.equal(regex_compile(String.raw`(a){2}\1`, regex), true);
+    assert.equal(regex.kind, 'finite-reference-boundary');
     regex.kind = 'unknown';
     assert.throws(
         () => regex_match('aa', regex),
