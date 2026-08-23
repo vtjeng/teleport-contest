@@ -4474,6 +4474,51 @@
       "status": "closed",
       "from": "680e6fb9d468698d6bebce6a8198cce329201262",
       "detail": "Regex libc-oracle and resource runners duplicate exact-boundary adversary fixtures; move them to one dependency-free owner while retaining byte-length assertions and runner-specific budgets."
+    },
+    {
+      "id": "audit-regex-finite-endpoint-projection",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "0add2083af23e9707727fcd49d5de9cf70ec9167",
+      "detail": "js/posixregex.js finite-repeat endpoints retain descendant captures that glibc clears; separate sanitized accepted endpoints from the retained continuation frontier and pin aa rejection plus aba acceptance through libc and live MSGTYPE."
+    },
+    {
+      "id": "audit-regex-reference-late-constraint-resource",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "0add2083af23e9707727fcd49d5de9cf70ec9167",
+      "detail": "js/posixregex.js reference matcher exceeds its exact-boundary 2000 ms/128 MiB budget before downstream suffix and capture constraints prune states; implement continuation-aware exact search without aborts or guessed booleans."
+    },
+    {
+      "id": "audit-regex-direct-suffix-aligned-search",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "0add2083af23e9707727fcd49d5de9cf70ec9167",
+      "detail": "js/posixregex.js direct matcher exceeds its exact-boundary 1000 ms budget before a suffix-aligned match; use REG_NOSUB-safe suffix-aligned candidate ordering while preserving contextual-caret keys."
+    },
+    {
+      "id": "audit-regex-resource-path-fixtures",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "0add2083af23e9707727fcd49d5de9cf70ec9167",
+      "detail": "Exact-boundary resource fixtures short-circuit before the evaluator paths they claim to measure; distinguish intentional suffix-guard coverage from suffix-reaching direct memo, reference memo, zero-minimum, and correlated-frontier cases."
+    },
+    {
+      "id": "audit-regex-resource-catalog-owner",
+      "area": "startup",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "0add2083af23e9707727fcd49d5de9cf70ec9167",
+      "detail": "Regex resource fixture formulas and budget enumeration have separate owners that can drift; make the shared exact-case catalog control measurement and derived expected names with complete set checks."
     }
   ],
   "areas": [
@@ -18191,6 +18236,129 @@
         }
       },
       "recordedAt": "2026-08-23T09:25:53.581Z"
+    },
+    {
+      "kind": "review",
+      "head": "0add2083af23e9707727fcd49d5de9cf70ec9167",
+      "auditedRange": "680e6fb9d468698d6bebce6a8198cce329201262..0add2083af23e9707727fcd49d5de9cf70ec9167",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "99a84e46839a9163289046e0d38179bd67729fad",
+        "reason": "the checklist covers 99a84e46, an ancestor of the range head; the 4 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "startup"
+      ],
+      "outcome": "no-change",
+      "evidence": "Counts: 11 raw, 7 deduplicated, 5 confirmed, 0 applied, 5 deferred, 2 rejected, 0 unverified. Five confirmed findings were deferred: a finite-repeat endpoint mismatch, reference and direct exact-boundary resource failures, a resource matrix masked by the suffix guard, and split fixture/budget ownership. Two clarity candidates were rejected with local code and test counterevidence. Mutation readiness and evidence remain waived; the earlier accidental enumerate-only smoke ran no mutant and produced no evidence.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3303,
+        "counts": {
+          "raw": 11,
+          "deduplicated": 7,
+          "confirmed": 5,
+          "applied": 0,
+          "deferred": 5,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 1,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace",
+          "performance",
+          "concurrency"
+        ],
+        "productionDefects": [
+          {
+            "summary": "js/posixregex.js finite-repeat endpoints retain descendant captures that glibc clears",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js reference matcher exceeds its exact-boundary budget before downstream constraints prune states",
+            "foundBy": [
+              "correctness",
+              "variable-trace",
+              "performance"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/posixregex.js direct matcher exceeds its exact-boundary budget before a suffix-aligned match",
+            "foundBy": [
+              "performance"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "readiness": {
+          "boundary": "The expanded range covers the complete recorder-glibc selection/resource correction through compiled startup MSGTYPE state, repeated live vpline matching, exact 255-byte source limits, and the next observable message/input boundary.",
+          "sourceReview": "Six finder perspectives read the exact range against recorder glibc and pinned posixregex.c, options.c, pline.c, the JavaScript evaluator, installed consumers, focused tests, fresh runner, and isolated resource harness; two independent adjudicators applied evidence, diff-causality, and resolution checks to all seven deduplicated candidates.",
+          "completeness": "All seven deduplicated candidates resolved to five confirmed deferrals or two evidence-backed rejections with zero unverified. Three production/resource findings require source-driven implementation and suffix-reaching fresh/resource cases before another expanded audit."
+        },
+        "rejections": [
+          {
+            "summary": "Per-call regex memo lifetime is materially undocumented",
+            "counterEvidence": "Both memo maps are allocated inside the single-input match functions, the adjacent comment limits sharing to candidate starts within that call, and existing tests reuse one compiled regex across matching and nonmatching inputs; hoisting the memo would fail those tests."
+          },
+          {
+            "summary": "Glibc first viable capture endpoint ordering is undocumented",
+            "counterEvidence": "The local comment names glibc get_subexp() and first viable open/close selection, JavaScript array and Map insertion order preserve traversal priority, a libc-backed positive-minimum case distinguishes that priority, and the next[0] ordering predates this range."
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "js/posixregex.js finite-repeat endpoints retain descendant captures that glibc clears",
+            "category": "production",
+            "trackedIn": "audit-regex-finite-endpoint-projection"
+          },
+          {
+            "summary": "js/posixregex.js reference matcher exceeds its exact-boundary budget before downstream constraints prune states",
+            "category": "production",
+            "trackedIn": "audit-regex-reference-late-constraint-resource"
+          },
+          {
+            "summary": "js/posixregex.js direct matcher exceeds its exact-boundary budget before a suffix-aligned match",
+            "category": "production",
+            "trackedIn": "audit-regex-direct-suffix-aligned-search"
+          },
+          {
+            "summary": "Exact-boundary resource fixtures short-circuit before the evaluator paths they claim to measure",
+            "category": "tests",
+            "trackedIn": "audit-regex-resource-path-fixtures"
+          },
+          {
+            "summary": "Regex resource fixture formulas and budget enumeration have separate owners that can drift",
+            "category": "clarity",
+            "trackedIn": "audit-regex-resource-catalog-owner"
+          }
+        ],
+        "warnings": [
+          "Mutation readiness and evidence were omitted under the user's explicit work-session waiver. An earlier default-suite run accidentally invoked the enumerate-only smoke, which failed before any mutant executed or evidence was produced; no survivor conclusion is made.",
+          "One readability finder ran a whole-tree status command in the isolated Windows-mounted audit worktree, which unexpectedly displayed sealed-holdout pathnames. No holdout file was opened, read, searched, parsed, copied, or passed onward; the finder disclosed the incident immediately and all subsequent review used explicit non-holdout paths."
+        ],
+        "validation": {
+          "focused": "Before audit launch, 37 focused and process-bounded resource assertions passed; independent orchestration reran all 37 green.",
+          "fresh": "Before audit launch and again independently, the direct oracle matched 146 recorder-glibc regex and five vpline byte cases; 29 fresh MSGTYPE segments matched 79,700 PRNG calls and 105 screens/cursors.",
+          "broad": "The explicit non-mutation suite passed 4,734/4,734, generated/static checks and exact-head Score/Coverage CI passed, and independent development replay remained 11/33 sessions with 1,988 screens, 133,574 PRNG calls, and 2,007 cursors.",
+          "audit": "Six finder perspectives produced eleven raw candidates. Cross-finder deduplication left seven; two adjudicators confirmed five, rejected two with concrete counterevidence, and left zero unverified. New suffix-reaching exact-boundary probes exposed the three production/resource defects; concurrency found no defect."
+        }
+      },
+      "recordedAt": "2026-08-23T11:11:44.059Z"
     }
   ]
 }
