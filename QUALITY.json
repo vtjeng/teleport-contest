@@ -4525,7 +4525,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
       "detail": "js/posixregex.js referenceRepeatMatches() and evaluateReferenceNode() deduplicate count-independent raw continuation states across finite repeat counts, which drops a required maximum endpoint for ^(){0,2} backreference matching. Preserve count/projection-sensitive endpoints in both loops and close with recorder-libc, focused, and live MSGTYPE cases."
     },
@@ -4534,7 +4534,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
       "detail": "js/posixregex.js acceptedRepeatEndpointStates() clears every descendant capture at an intermediate positive-minimum finite-repeat endpoint, but recorder glibc retains a descendant's earlier participating value when the last iteration skips it. Track final-iteration participation/direct ownership and close with recorder-libc, focused, and live MSGTYPE cases."
     },
@@ -4543,7 +4543,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
       "detail": "scripts/startup-regex-resource.test.mjs derives expected resource names from startup-regex-fixtures.mjs REGEX_RESOURCE_CASES, while the resource and libc runners consume the same catalog, so deleting a required case stays green. Pin the six required fixture names and order independently."
     },
@@ -4552,7 +4552,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
       "detail": "scripts/startup-regex-resource.test.mjs does not prove suffix-reaching fixtures satisfy js/posixregex.js requiredAbsoluteEndSuffix before measuring evaluator budgets. Assert the terminal-suffix path for each applicable fixture and keep explicit invariants for the guard and zero-minimum controls."
     },
@@ -4561,7 +4561,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
       "detail": "scripts/run-startup-regex-msgtype-oracles.mjs lacks a case where js/posixregex.js matchDirectExtendedRegexp() tries a suffix-aligned rightmost start that fails before an earlier contextual-caret start succeeds. Pin .*^b$ on a newline-bearing input against recorder libc."
     },
@@ -4570,7 +4570,7 @@
       "area": "startup",
       "category": "clarity",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
       "detail": "js/posixregex.js duplicates reference-repeat traversal between evaluateReferenceNode() and referenceRepeatMatches(), including endpoint projection, continuation deduplication, first-endpoint selection, and fixed-point handling. Share one source-ordered traversal primitive with a short-circuit endpoint callback while preserving raw versus projected state."
     },
@@ -4579,7 +4579,7 @@
       "area": "startup",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "6a9eeaff4bde55ee3d8f80046b2c047bab0455e4",
       "detail": "js/posixregex.js referenceSequenceMatches() is named generally even though only the root sequence gets lazy continuation evaluation and nested sequences remain eager. Rename or document the root-only scope and callback-order contract; do not generalize nested laziness without separate behavioral proof."
     }

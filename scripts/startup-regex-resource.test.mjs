@@ -12,6 +12,14 @@ import {
 } from './startup-regex-fixtures.mjs';
 
 const RUNNER = resolve('scripts/run-startup-regex-resource.mjs');
+const REQUIRED_RESOURCE_NAMES = Object.freeze([
+    'literal-suffix-guard',
+    'suffix-reaching-direct-memo',
+    'suffix-reaching-reference-memo',
+    'suffix-reaching-zero-minimum',
+    'suffix-reaching-correlated-frontier',
+    'adjacent-repeat-fixed-point',
+]);
 
 test('regex adversaries satisfy exact resource and fixed-point bounds', () => {
     const result = spawnSync(process.execPath, [RUNNER], {
@@ -30,6 +38,7 @@ test('regex adversaries satisfy exact resource and fixed-point bounds', () => {
 });
 
 test('the fixture catalog completely owns exact and fixed-point resources', () => {
+    assert.deepEqual(REGEX_RESOURCE_OUTPUT_NAMES, REQUIRED_RESOURCE_NAMES);
     assert.deepEqual(REGEX_RESOURCE_CASES, [
         ...EXACT_BOUNDARY_REGEX_CASES,
         FIXED_POINT_REGEX_RESOURCE_CASE,
@@ -46,3 +55,24 @@ test('the fixture catalog completely owns exact and fixed-point resources', () =
     assert.equal(FIXED_POINT_REGEX_RESOURCE_CASE.kind, 'fixed-point');
     assert.ok(FIXED_POINT_REGEX_RESOURCE_CASE.cases.length > 0);
 });
+
+test('suffix-reaching fixtures enter the evaluator paths their names claim',
+    () => {
+        const fixture = Object.fromEntries(EXACT_BOUNDARY_REGEX_CASES.map(
+            (entry) => [entry.name, entry],
+        ));
+        for (const name of [
+            'suffix-reaching-direct-memo',
+            'suffix-reaching-reference-memo',
+            'suffix-reaching-correlated-frontier',
+        ]) {
+            assert.ok(fixture[name].pattern.endsWith('b$'), name);
+            assert.ok(fixture[name].input.endsWith('b'), name);
+        }
+        assert.ok(fixture['literal-suffix-guard'].pattern.endsWith('b$'));
+        assert.ok(!fixture['literal-suffix-guard'].input.endsWith('b'));
+        assert.equal(fixture['literal-suffix-guard'].expected, false);
+        assert.ok(!fixture['suffix-reaching-zero-minimum'].pattern
+            .endsWith('b$'));
+        assert.equal(fixture['suffix-reaching-zero-minimum'].expected, true);
+    });

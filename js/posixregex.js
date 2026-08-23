@@ -682,9 +682,18 @@ function isIntermediateFiniteEndpoint(node, count) {
 function acceptedRepeatEndpointStates(node, count, frontier) {
     if (!isIntermediateFiniteEndpoint(node, count)
         || !node.child.captureGroups.size) return frontier;
+    // A zero-minimum interval can accept before the repeated subtree has
+    // participated, so glibc clears every capture owned by that subtree at an
+    // intermediate endpoint. With a positive minimum, only a group directly
+    // repeated by the interval is cleared; descendants retain the last value
+    // from an iteration in which their branch participated.
+    const clearedGroups = node.minimum === 0
+        ? [...node.child.captureGroups]
+        : node.child.type === 'group' ? [node.child.id] : [];
+    if (!clearedGroups.length) return frontier;
     return frontier.map((candidate) => {
         const captures = [...candidate.captures];
-        for (const id of node.child.captureGroups) captures[id] = undefined;
+        for (const id of clearedGroups) captures[id] = undefined;
         return { ...candidate, captures };
     });
 }
@@ -700,6 +709,55 @@ function nextReferenceRepeatFrontier(node, input, frontier, evaluator,
         }
     }
     return [...unique.values()];
+}
+
+function traverseReferenceRepeatEndpoints(node, input, state, evaluator,
+    maximumPosition, acceptEndpoint) {
+    let count = 0;
+    let frontier = [state];
+    const unbounded = !Number.isFinite(node.maximum);
+    const seenContinuationKeys = new Set();
+    const firstNestedCapture = selectsFirstNestedCaptureEndpoint(
+        node, evaluator,
+    );
+    // Endpoint callbacks run immediately in repeat-count and frontier order.
+    // The root matcher uses that order to short-circuit the first continuation
+    // that succeeds; the eager nested evaluator records every endpoint.
+    while (frontier.length && count <= node.maximum) {
+        if (count >= node.minimum) {
+            for (const candidate of acceptedRepeatEndpointStates(
+                node, count, frontier,
+            )) {
+                if (acceptEndpoint(candidate)) return true;
+            }
+            // Only an unbounded interval needs a cross-count fixed point.
+            // Equal raw states at different finite counts can project to
+            // different accepted capture states, including the maximum.
+            if (unbounded) {
+                for (const candidate of frontier)
+                    seenContinuationKeys.add(captureStateKey(candidate));
+            }
+        }
+        if (count === node.maximum || (firstNestedCapture && count === 1))
+            break;
+        let next = nextReferenceRepeatFrontier(
+            node, input, frontier, evaluator, maximumPosition,
+        );
+        ++count;
+        // get_subexp() caches the first viable open/close path for a quantified
+        // referenced group at one backreference node. When that group's
+        // nonempty body is itself quantified, later decompositions do not
+        // create independent capture candidates.
+        if (firstNestedCapture && count === 1 && next.length > 1)
+            next = [next[0]];
+        if (unbounded && count >= node.minimum) {
+            next = next.filter((candidate) => (
+                !seenContinuationKeys.has(captureStateKey(candidate))
+            ));
+        }
+        frontier = next;
+    }
+    return false;
 }
 
 function evaluateReferenceNode(node, input, state, evaluator,
@@ -791,48 +849,13 @@ function evaluateReferenceNode(node, input, state, evaluator,
             ),
         ));
     case 'repeat': {
-        let count = 0;
-        let frontier = [state];
         const accepted = new Map();
-        const seenContinuationKeys = new Set();
-        const firstNestedCapture = selectsFirstNestedCaptureEndpoint(
-            node, evaluator,
+        traverseReferenceRepeatEndpoints(
+            node, input, state, evaluator, maximumPosition, (candidate) => {
+                accepted.set(captureStateKey(candidate), candidate);
+                return false;
+            },
         );
-        // Before minimum, repeated states still matter: an empty atom can
-        // satisfy `{32767}` without changing position or captures. At and
-        // above minimum, the state key is the complete future input, so a
-        // fixed point closes an unbounded repetition without a pattern limit.
-        while (frontier.length && count <= node.maximum) {
-            if (count >= node.minimum) {
-                for (const candidate of acceptedRepeatEndpointStates(
-                    node, count, frontier,
-                )) {
-                    accepted.set(captureStateKey(candidate), candidate);
-                }
-                for (const candidate of frontier) {
-                    seenContinuationKeys.add(captureStateKey(candidate));
-                }
-            }
-            if (count === node.maximum || (firstNestedCapture && count === 1))
-                break;
-            let next = nextReferenceRepeatFrontier(
-                node, input, frontier, evaluator, maximumPosition,
-            );
-            ++count;
-            // get_subexp() caches the first viable open/close path for a
-            // quantified referenced group at one backreference node. When
-            // that group's nonempty body is itself quantified, later
-            // decompositions do not create independent capture candidates.
-            if (firstNestedCapture && count === 1 && next.length > 1)
-                next = [next[0]];
-            if (count < node.minimum) {
-                frontier = next;
-                continue;
-            }
-            frontier = next.filter((candidate) => (
-                !seenContinuationKeys.has(captureStateKey(candidate))
-            ));
-        }
         return [...accepted.values()];
     }
     default:
@@ -840,45 +863,12 @@ function evaluateReferenceNode(node, input, state, evaluator,
     }
 }
 
-function referenceRepeatMatches(node, input, state, evaluator,
-    maximumPosition, continuation) {
-    let count = 0;
-    let frontier = [state];
-    const seenContinuationKeys = new Set();
-    const firstNestedCapture = selectsFirstNestedCaptureEndpoint(
-        node, evaluator,
-    );
-    while (frontier.length && count <= node.maximum) {
-        if (count >= node.minimum) {
-            for (const candidate of acceptedRepeatEndpointStates(
-                node, count, frontier,
-            )) {
-                if (continuation(candidate)) return true;
-            }
-            for (const candidate of frontier) {
-                seenContinuationKeys.add(captureStateKey(candidate));
-            }
-        }
-        if (count === node.maximum || (firstNestedCapture && count === 1))
-            break;
-        let next = nextReferenceRepeatFrontier(
-            node, input, frontier, evaluator, maximumPosition,
-        );
-        ++count;
-        if (firstNestedCapture && count === 1 && next.length > 1)
-            next = [next[0]];
-        if (count < node.minimum) {
-            frontier = next;
-        } else {
-            frontier = next.filter((candidate) => (
-                !seenContinuationKeys.has(captureStateKey(candidate))
-            ));
-        }
-    }
-    return false;
-}
-
-function referenceSequenceMatches(nodes, index, input, state, evaluator,
+// Only the root sequence uses lazy continuation matching. Nested sequences stay
+// eager in evaluateReferenceNode(), where their complete state set is needed by
+// the surrounding group, alternative, or repeat. Recursion preserves source
+// order and stops at the first complete root match, exactly what REG_NOSUB
+// exposes to regex_match().
+function rootReferenceSequenceMatches(nodes, index, input, state, evaluator,
     maximumPosition) {
     if (index >= nodes.length) return true;
     let suffixMinimum = 0;
@@ -886,11 +876,11 @@ function referenceSequenceMatches(nodes, index, input, state, evaluator,
         suffixMinimum += nodes[suffix].minimumWidth;
     const child = nodes[index];
     const childMaximum = maximumPosition - suffixMinimum;
-    const continuation = (candidate) => referenceSequenceMatches(
+    const continuation = (candidate) => rootReferenceSequenceMatches(
         nodes, index + 1, input, candidate, evaluator, maximumPosition,
     );
     if (child.type === 'repeat') {
-        return referenceRepeatMatches(
+        return traverseReferenceRepeatEndpoints(
             child, input, state, evaluator, childMaximum, continuation,
         );
     }
@@ -918,7 +908,7 @@ function matchReferenceExtendedRegexp(input, evaluator) {
             captures: [],
         };
         const matched = context.root.type === 'sequence'
-            ? referenceSequenceMatches(
+            ? rootReferenceSequenceMatches(
                 context.root.nodes, 0, input, state, context, input.length,
             )
             : evaluateReferenceNode(

@@ -279,6 +279,31 @@ export const STARTUP_MSGTYPE_CASES = Object.freeze([
         role: 'Archeologist',
     }),
     messageCase({
+        label: 'finite empty capture reaches its maximum endpoint',
+        seed: 9812483,
+        datetime: '20420415152300',
+        statements: [String.raw`MSGTYPE=hide "^(){0,2}\1Hello"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`^(){0,2}\1Hello`,
+        }],
+        probes: [['Hello', false, MSGTYP_NOSHOW]],
+    }),
+    messageCase({
+        label: 'positive-minimum subgroup retains its descendant capture',
+        seed: 9812489,
+        datetime: '20420415152900',
+        statements: [String.raw`MSGTYPE=hide "^Hello ((a)|b){1,3}\2,"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`^Hello ((a)|b){1,3}\2,`,
+        }],
+        probes: [['Hello aba, welcome', false, MSGTYP_NOSHOW],
+            ['Hello abb, welcome', false, MSGTYP_NORMAL]],
+        name: 'aba',
+        role: 'Archeologist',
+    }),
+    messageCase({
         label: 'zero-minimum nested capture suppresses the live welcome line',
         seed: 9812471,
         datetime: '20420415151100',
