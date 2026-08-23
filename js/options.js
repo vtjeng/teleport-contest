@@ -177,6 +177,8 @@ import {
     regex_init,
 } from './posixregex.js';
 import {
+    get_current_feature_ver,
+    get_feature_notice_ver,
     status_version,
     VI_BRANCH,
     VI_NAME,
@@ -3581,6 +3583,32 @@ function optfn_sortvanquished(result, statement, negated) {
     }
 }
 
+// C ref: options.c feature_alert_opts(), startup branch. The parsed
+// unsigned-long value remains exact until it is compared with this build's
+// version. Only an accepted value is stored, and every accepted value fits in
+// JavaScript's exact integer range because the current version is 5.0.0.
+function feature_alert_opts(result, op, optn) {
+    const fnv = get_feature_notice_ver(op);
+    if (fnv === 0n) return 0;
+    if (fnv > get_current_feature_ver()) {
+        configErrorAdd(
+            result,
+            `${optn}=${op} Invalid reference to a future version ignored`,
+        );
+        return 0;
+    }
+    result.flags.suppress_alert = Number(fnv);
+    return 1;
+}
+
+// C ref: options.c optfn_suppress_alert(), startup do_set arm. optlist.h
+// rejects negation before this handler, and an absent or empty value is the
+// empty_optstr sentinel, which leaves the existing setting alone.
+function optfn_suppress_alert(result, value) {
+    if (value == null || value === '') return;
+    feature_alert_opts(result, value, 'suppress_alert');
+}
+
 // C ref: options.c bad_negation() (6692-6697).  Three of its callers are
 // reachable here -- parseoptions() (627), optfn_menu_headings() (2201) and
 // optfn_pile_limit() (3421) -- and all three pass with_parameter TRUE, whether
@@ -4242,6 +4270,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_sortdiscoveries(result, statement, negated);
     } else if (name === 'sortvanquished') {
         optfn_sortvanquished(result, statement, negated);
+    } else if (name === 'suppress_alert') {
+        optfn_suppress_alert(result, value);
     } else if (name === 'windowborders') {
         optfn_windowborders(result, statement, negated);
     } else if (name === 'versinfo') {
@@ -4294,12 +4324,11 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
                 `negated compound option '${name}' is not supported`,
             );
         }
-        // C refs: options.c optfn_symset() (4166-4201), optfn_roguesymset()
-        // (3543-3572) and optfn_suppress_alert() (4134-4149).  Each opens on
+        // C refs: options.c optfn_symset() (4166-4201) and
+        // optfn_roguesymset() (3543-3572). Each opens on
         // `op != empty_optstr` and does nothing at all when that fails, so a
-        // statement whose separator ends it selects no symbol set and
-        // suppresses no alert; the first two then answer optn_err and the
-        // third optn_ok, which parseoptions() cannot tell apart here.
+        // statement whose separator ends it selects no symbol set; each then
+        // answers optn_err, which parseoptions() cannot tell apart here.
         const emptyValue = value === '';
         if (name === 'symset') {
             if (emptyValue) return;
@@ -4325,10 +4354,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
             result.roguesymset = value;
             appendSymbolSelection(result, 'rogue', value);
         }
-        else if (name === 'suppress_alert') {
-            if (emptyValue) return;
-            result.flags.suppress_alert = value;
-        } else {
+        else {
             // This parser currently gives source semantics to the startup
             // subset above. Preserve other valid options for later subsystem
             // ports instead of pretending to interpret their values here.
@@ -5294,14 +5320,16 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     statuslines: (state) => (wc2_supported('statuslines')
         ? (state.iflags.wc2_statuslines < 3 ? '2' : '3') : 'unknown'),
     suppress_alert: (state, option) => {
-        // feature_alert_opts(), which packs the option's version number into
-        // this field, is not ported, so zero is the only value it can hold.
-        if (requireParsedNumber(state, option) !== 0) {
-            throw new UnsupportedOptionMenuError(
-                'a packed suppress_alert version',
-            );
-        }
-        return none;
+        // C ref: optfn_suppress_alert(get_val), including the macros whose
+        // major field is deliberately unmasked while minor and patch retain
+        // one byte each. Arithmetic avoids JavaScript's signed 32-bit
+        // bitwise conversion.
+        const packed = requireParsedNumber(state, option);
+        if (packed === 0) return none;
+        const major = Math.floor(packed / 0x01000000);
+        const minor = Math.floor(packed / 0x00010000) % 0x100;
+        const patch = Math.floor(packed / 0x00000100) % 0x100;
+        return `${major}.${minor}.${patch}`;
     },
     symset: (state) => symsetValue(state, PRIMARYSET, true),
     // A fifth option whose parsed home is its own name: the parse arm sits
@@ -5363,10 +5391,10 @@ function symsetValue(state, set, withHandling) {
 // raw text under flags[<option name>] and whose handler above reads some
 // other field, so the raw text sits beside the value rather than replacing
 // it. Where the raw text lands in the very field the handler reads --
-// suppress_alert and versinfo -- there is nothing left to compare against, so
-// those two are guarded by type inside
-// their handlers instead and are not members.  The other-settings rows need
-// neither guard: each counts live state rather than reading an option field.
+// versinfo -- there is nothing left to compare against, so it is guarded by
+// type inside its handler instead and is not a member. The other-settings
+// rows need neither guard: each counts live state rather than reading an
+// option field.
 // scripts/options-menu.test.mjs derives the whole rule from parseNethackrc(),
 // so the set cannot drift from OPTION_VALUE_HANDLERS unnoticed.
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([

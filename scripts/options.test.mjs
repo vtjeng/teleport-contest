@@ -1924,7 +1924,7 @@ test('config and source option names accept valid abbreviations', () => {
         'OPTI=nam:Alice,rol:Healer,rac:elf,gen:female,alignm:chaotic',
         'OPTI=playm:debug,!col,showe,!verb,menu_h:bold',
         'OPTI=!menu_ov,eig,pett:cat,fru:pear,hor:Shadowfax',
-        'OPTI=bli,dea,nud,pau,rer,sym:Enhanced1,sup:3.7,msg_:r,pus',
+        'OPTI=bli,dea,nud,pau,rer,sym:Enhanced1,sup:3.7.0,msg_:r,pus',
         'CHAR=Wizard',
         'DOG=Fido',
         'CAT=Mog',
@@ -1951,7 +1951,7 @@ test('config and source option names accept valid abbreviations', () => {
     assert.equal(parsed.uroleplay.pauper, true);
     assert.equal(parsed.uroleplay.reroll, true);
     assert.equal(parsed.symset, 'Enhanced1');
-    assert.equal(parsed.flags.suppress_alert, '3.7');
+    assert.equal(parsed.flags.suppress_alert, 0x03070000);
     assert.equal(parsed.iflags.prevmsg_window, 'r');
     assert.equal(parsed.flags.pushweapon, true);
     assert.equal(parsed.dogname, 'Fido');
@@ -2316,7 +2316,7 @@ test('valid startup option mappings remain available', () => {
     const parsed = parseNethackrc(
         'OPTIONS=!autopickup,color,!legacy,!tutorial,!splash_screen,'
         + 'pushweapon,showexp,time,!verbose,symset:Enhanced1,msg_window:r,'
-        + 'suppress_alert:3.7,soundlib:example,S_vwall:|',
+        + 'suppress_alert:3.7.0,soundlib:example,S_vwall:|',
     );
     assert.equal(parsed.flags.pickup, false);
     assert.equal(parsed.flags.color, undefined);
@@ -2344,7 +2344,7 @@ test('valid startup option mappings remain available', () => {
     assert.equal(parsed.symset, 'Enhanced1');
     assert.equal(parsed.iflags.prevmsg_window, 'r');
     assert.equal(parsed.iflags.wc2_statuslines, 2);
-    assert.equal(parsed.flags.suppress_alert, '3.7');
+    assert.equal(parsed.flags.suppress_alert, 0x03070000);
     assert.equal(parsed.flags.soundlib, undefined);
     assert.equal(parsed.gc.chosen_soundlib, 0);
     assert.equal(parsed.flags.s_vwall, '|');
@@ -2504,7 +2504,7 @@ test('a symbol set or alert version ending on its separator selects nothing',
         assert.equal(
             parseNethackrc('OPTIONS=suppress_alert:3.6.1\n')
                 .flags.suppress_alert,
-            '3.6.1',
+            0x03060100,
         );
     });
 

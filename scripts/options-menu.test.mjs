@@ -594,10 +594,10 @@ test('every shown compound option guards its unparsed raw text', async () => {
     // a non-number and a letter outside "ubsnotl" -- so raw text reaches
     // their fields only through the value-less spelling the refusal test
     // covers, and the loop above never reaches their guards.
-    assert.deepEqual(needsGuard.slice().sort(), [
-        ...UNPARSED_COMPOUND_OPTIONS,
-        'suppress_alert',
-    ].sort());
+    assert.deepEqual(
+        needsGuard.slice().sort(),
+        [...UNPARSED_COMPOUND_OPTIONS].sort(),
+    );
     // The other-settings rows need no guard: each counts live state instead
     // of reading an option field, so raw text under their names is inert.
     for (const name of UNPARSED_COMPOUND_OPTIONS) {
