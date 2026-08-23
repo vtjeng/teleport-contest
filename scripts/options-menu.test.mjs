@@ -655,16 +655,14 @@ test('the menu refuses the tab-separated layout menu_tab_sep asks for',
         assert.equal(dosetMenuItems(state, menuHelpers(), false).length, 150);
     });
 
-// C ref: coloratt.c count_menucolors() and options.c msgtype_count(). Each
-// walks a list that a configuration statement this port drops is what fills.
-test('each unported Other settings count refuses a dropped statement',
+// C ref: coloratt.c count_menucolors(). Its direct configuration statement
+// remains dropped, so the count refuses rather than inventing an empty list.
+test('the unported menu-color count refuses its dropped statement',
     async () => {
         const dropped = [
             // cfgfiles.c cnf_line_MENUCOLOR() appends one gm.menu_colorings
             // node, which count_menucolors() counts.
             ['MENUCOLOR="blessed"=green', 'menu colors', 'MENUCOLOR'],
-            // cnf_line_MSGTYPE() appends one gp.plinemsg_types node.
-            ['MSGTYPE=hide "You swap places*"', 'message types', 'MSGTYPE'],
         ];
         for (const [line, row, handler] of dropped) {
             const state = await startGameWithConfig(line);
@@ -675,8 +673,8 @@ test('each unported Other settings count refuses a dropped statement',
                 row,
             );
         }
-        // Each count stops only on its own statement, so the other rows
-        // still report the empty list the port really holds.
+        // Other list counts still report the empty lists the port really
+        // holds when their own configuration statements were absent.
         const state = await startGameWithConfig('MENUCOLOR="blessed"=green');
         state.unportedConfigStatements = [];
         const items = dosetMenuItems(state, menuHelpers(), false);
@@ -684,6 +682,19 @@ test('each unported Other settings count refuses a dropped statement',
             'autopickup exceptions'])
             assert.equal(valueOf(items, row), '(0 currently set)', row);
     });
+
+// C ref: cfgfiles.c cnf_line_MSGTYPE() prepends one gp.plinemsg_types node per
+// valid row, and options.c msgtype_count() reports every node without merging.
+test('the message types row counts configured list nodes', async () => {
+    const state = await startGameWithConfig(
+        'MSGTYPE=hide "You swap places*"',
+        'MSGTYPE=show "You swap places*"',
+    );
+    assert.equal(
+        valueOf(dosetMenuItems(state, menuHelpers(), false), 'message types'),
+        '(2 currently set)',
+    );
+});
 
 // C ref: cfgfiles.c cnf_line_AUTOPICKUP_EXCEPTION() appends one ga.apelist
 // node per valid row, and options.c count_apes() supplies the Other settings

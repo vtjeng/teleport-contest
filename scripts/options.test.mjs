@@ -1888,6 +1888,7 @@ test('every generated config statement participates in source prefix matching',
         const values = {
             options: 'name:Catalog',
             autopickup_exception: '">x"',
+            msgtype: 'hide "x"',
             bindings: 'a:inventory',
             roguesymbols: 'S_room:.',
             symbols: 'S_room:.',
@@ -4241,13 +4242,13 @@ test('msg_window keeps one letter and answers its value-less spellings', () => {
     ]);
 });
 
-// C ref: cfgfiles.c config_line_stmt[]. Fourteen handlers above are ported.
+// C ref: cfgfiles.c config_line_stmt[]. The handlers above are ported.
 // Every other player row is recognized and recorded so a later consumer can
 // refuse the missing cnf_line_<NAME>() state rather than silently use a default.
 test('the parser records the config statements it cannot interpret', () => {
     assert.deepEqual(parseNethackrc('').unportedConfigStatements, []);
     const unported = [
-        'msgtype', 'hackdir', 'leveldir', 'levels', 'savedir', 'bonesdir',
+        'hackdir', 'leveldir', 'levels', 'savedir', 'bonesdir',
         'datadir',
         'scoredir', 'lockdir', 'configdir', 'troubledir',
         'menucolor', 'wizkit',
@@ -4260,9 +4261,9 @@ test('the parser records the config statements it cannot interpret', () => {
     );
     // The shortest accepted prefix of each, and the longest rejected one.
     assert.deepEqual(
-        parseNethackrc('AUTOC=x\nMSGTYPE=x\nMENUCOLOR=x\n')
+        parseNethackrc('AUTOC=x\nMSGTYPE=hide "x"\nMENUCOLOR=x\n')
             .unportedConfigStatements,
-        ['msgtype', 'menucolor'],
+        ['menucolor'],
     );
     assert.deepEqual(
         parseNethackrc('AUTO=x\nMSGTYP=x\nMENUCOLO=x\n')

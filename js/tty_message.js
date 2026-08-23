@@ -2,12 +2,21 @@
 // C refs: win/tty/topl.c update_topl(), more(), and xwaitforspace().
 
 import { game } from './gstate.js';
+import {
+    MSGTYP_NOREP,
+    MSGTYP_NOSHOW,
+    MSGTYP_STOP,
+    OVERRIDE_MSGTYPE,
+    PLINE_NOREPEAT,
+    URGENT_MESSAGE,
+} from './const.js';
 import { flush_screen } from './display.js';
 import { encodeUtf8ByteString } from './hacklib.js';
 import { nhgetch } from './input.js';
 import { emitGlyphUpdateNotices } from './startup_a11y.js';
 import { NO_COLOR } from './terminal.js';
 import { vision_recalc } from './vision.js';
+import { msgtype_type } from './options.js';
 
 // C ref: win/tty/wintty.c defmorestr[], the prompt both more() and dmore()
 // print when no window supplies its own.
@@ -239,7 +248,7 @@ function rememberSuppressedMessage(state, message, columns) {
 // share the top line only when both fit with two separating spaces and room
 // for a future --More--. PLINE_NOREPEAT compares the new individual message
 // against gp.prevmsg before the window port sees it.
-async function ttyPlineCore(message, state, noRepeat) {
+async function ttyPlineCore(message, state, pflags) {
     // display.c show_glyph() calls pline_xy() synchronously. JS defers the
     // awaitable TTY work, so a later ordinary message must first drain every
     // source-earlier glyph notice. emitGlyphUpdateNotices marks its recursive
@@ -248,7 +257,17 @@ async function ttyPlineCore(message, state, noRepeat) {
         await emitGlyphUpdateNotices(state, { pline: ttyPline });
     }
     const next = ttyByteText(message);
-    if (noRepeat && next === state._ttyPreviousMessage) return;
+    const noRepeat = Boolean(pflags & PLINE_NOREPEAT);
+    let msgtype = 0;
+    if (!(pflags & OVERRIDE_MSGTYPE)) {
+        msgtype = msgtype_type(String(message), noRepeat, state);
+        if (!(pflags & URGENT_MESSAGE)
+            && (msgtype === MSGTYP_NOSHOW
+                || (msgtype === MSGTYP_NOREP
+                    && next === state._ttyPreviousMessage))) {
+            return;
+        }
+    }
     const deathMessage = next.startsWith('You die');
     const columns = state.nhDisplay?.cols ?? 80;
     const stoppedAtEntry = Boolean(state._ttyMessageStopped);
@@ -295,6 +314,8 @@ async function ttyPlineCore(message, state, noRepeat) {
         && fitsOnTtyTopline(current, next, columns)) {
         rememberPendingMessage(state, `${current}  ${next}`);
         state._ttyPreviousMessage = next;
+        if (msgtype === MSGTYP_STOP)
+            await dismissPendingTtyMessage(state);
         return;
     }
     if (current) await dismissPendingTtyMessage(state);
@@ -307,14 +328,23 @@ async function ttyPlineCore(message, state, noRepeat) {
     // new message onto a second terminal row.
     if (wrapTtyTopline(next, columns).length > 1)
         await dismissPendingTtyMessage(state);
+    if (msgtype === MSGTYP_STOP)
+        await dismissPendingTtyMessage(state);
 }
 
 export async function ttyPline(message, state = game) {
-    return ttyPlineCore(message, state, false);
+    return ttyPlineCore(message, state, 0);
 }
 
 export async function ttyNorep(message, state = game) {
-    return ttyPlineCore(message, state, true);
+    return ttyPlineCore(message, state, PLINE_NOREPEAT);
+}
+
+// C ref: pline.c custompline(). This slice needs OVERRIDE_MSGTYPE's direct
+// bypass; SUPPRESS_HISTORY and the other presentation flags retain their
+// existing caller-specific implementations.
+export async function ttyCustomPline(message, pflags, state = game) {
+    return ttyPlineCore(message, state, pflags);
 }
 
 export class UnsupportedUrgentMessageError extends Error {
@@ -331,10 +361,9 @@ export class UnsupportedUrgentMessageError extends Error {
 // WIN_STOP the player set with Escape at an earlier --More-- and marks this
 // one message WIN_NOSTOP.
 //
-// Neither of the first two matters here: the port models no MSGTYPE rules, so
-// vpline() suppresses nothing. The third does, and it stops. With WIN_STOP
-// clear -- which is every message the port has drawn so far -- the arm sets
-// only WIN_NOSTOP, which has two readers. update_topl():257 reads it as
+// vpline() now applies the first two rules above. The third still stops here.
+// With WIN_STOP clear -- which is every message the port has drawn so far --
+// the arm sets only WIN_NOSTOP, which has two readers. update_topl():257 reads it as
 // `skip = FALSE`, exactly what a clear WIN_STOP already gives; and more():233
 // reads it when the player answers this message's own --More-- with Escape,
 // where it is what stops that Escape setting WIN_STOP for whatever comes
@@ -355,5 +384,5 @@ export async function ttyUrgentPline(message, state = game) {
             'tty_putstr()\'s ATR_URGENT arm clearing WIN_STOP',
         );
     }
-    return ttyPlineCore(message, state, false);
+    return ttyPlineCore(message, state, URGENT_MESSAGE);
 }

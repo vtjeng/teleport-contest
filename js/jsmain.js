@@ -380,7 +380,13 @@ export class NethackGame {
             plnamelen: 0,
             // C ref: decl.h instance_globals_p; dog.c:pet_type().
             preferred_pet: opts.preferred_pet ?? '',
+            // cfgfiles.c cnf_line_MSGTYPE() has finished prepending the
+            // per-game options.c list before any initialized vpline() call.
+            plinemsg_types: opts.gp?.plinemsg_types ?? null,
         };
+        // decl.c initializes gp.prevmsg to an empty byte string. The TTY port
+        // keeps that sole value here because getline.js and vpline() share it.
+        g._ttyPreviousMessage = '';
 
         // C ref: options.c:initoptions() and symbols.c. Initialize the
         // default cmap, then layer the configured symset and S_* overrides.
