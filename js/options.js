@@ -72,6 +72,8 @@ import {
     STONE,
     SYM_BOULDER,
     UNENCUMBERED,
+    VIA_DIALOG,
+    VIA_PROMPTS,
     WARNCOUNT,
     def_warnsyms,
 } from './const.js';
@@ -496,6 +498,9 @@ function defaultResult() {
             // options.c optfn_vary_msgcount() also leaves its zeroed
             // instance-flags field alone during do_init.
             wc_vary_msgcount: 0,
+            // options.c optfn_player_selection() leaves this zeroed field
+            // alone during do_init; zero is VIA_DIALOG.
+            wc_player_selection: VIA_DIALOG,
             // initoptions_init()'s TTY_GRAPHICS arm; this build is tty.
             prevmsg_window: 's',
             menuinvertmode: 1,
@@ -3244,6 +3249,27 @@ function setPileLimit(result, statement, negated) {
     }
 }
 
+// C ref: options.c optfn_player_selection() (3438-3468), its do_set arm.
+// optlist.h rejects negation before this handler.  Each accepted word is a
+// six-byte case-insensitive prefix: "dialog" selects VIA_DIALOG, while
+// "prompt", "prompts", "prompting", and longer prompt-prefixed values all
+// select VIA_PROMPTS.  Missing and unknown values leave the previous field
+// untouched after reporting their configuration error.
+function optfn_player_selection(result, statement, negated) {
+    const op = string_for_opt(statement, negated, result);
+    if (op === '' || negated) return;
+
+    if (equal_ncasechars(op, 'dialog', 6)) {
+        result.iflags.wc_player_selection = VIA_DIALOG;
+    } else if (equal_ncasechars(op, 'prompt', 6)) {
+        result.iflags.wc_player_selection = VIA_PROMPTS;
+    } else {
+        configErrorAdd(
+            result, `Unknown player_selection parameter '${op}'`,
+        );
+    }
+}
+
 // C ref: options.c optfn_statuslines() (4066-4098), its do_set arm.
 // optlist.h gives statuslines negateok No, so parseoptions() answers a negated
 // spelling with bad_negation() and the handler's own negation arm -- which
@@ -4220,6 +4246,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         }
     } else if (name === 'pile_limit') {
         setPileLimit(result, statement, negated);
+    } else if (name === 'player_selection') {
+        optfn_player_selection(result, statement, negated);
     } else if (name === 'statuslines') {
         setStatuslines(result, statement, negated);
     } else if (name === 'msghistory') {
