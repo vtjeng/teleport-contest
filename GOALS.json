@@ -2747,6 +2747,11 @@
           "name": "startup-window-alignments-to-iflags",
           "status": "closed",
           "closedBy": "b5f608255699612e9fa1f4c0c20dac27561528d0"
+        },
+        {
+          "name": "startup-roguesymset-to-config-diagnostics-and-optionsfull",
+          "status": "closed",
+          "closedBy": "9efa85e3b9a3b9eb8364eaf1b1ac22a8433625a2"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
