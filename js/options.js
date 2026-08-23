@@ -42,6 +42,18 @@ import {
     MENU_FULL,
     MENU_PARTIAL,
     MENU_TRADITIONAL,
+    MAP_MODE_ASCII4x6,
+    MAP_MODE_ASCII6x8,
+    MAP_MODE_ASCII8x8,
+    MAP_MODE_ASCII16x8,
+    MAP_MODE_ASCII7x12,
+    MAP_MODE_ASCII8x12,
+    MAP_MODE_ASCII16x12,
+    MAP_MODE_ASCII12x16,
+    MAP_MODE_ASCII10x18,
+    MAP_MODE_ASCII_FIT_TO_SCREEN,
+    MAP_MODE_TILES,
+    MAP_MODE_TILES_FIT_TO_SCREEN,
     MOD_ENCUMBER,
     MSGTYP_NOREP,
     MSGTYP_NORMAL,
@@ -508,6 +520,9 @@ function defaultResult() {
             // options.c optfn_mouse_support() leaves this zeroed
             // instance-flags field alone during do_init.
             wc_mouse_support: 0,
+            // options.c optfn_map_mode() also leaves this zeroed field alone;
+            // zero is MAP_MODE_TILES.
+            wc_map_mode: MAP_MODE_TILES,
             // options.c optfn_player_selection() leaves this zeroed field
             // alone during do_init; zero is VIA_DIALOG.
             wc_player_selection: VIA_DIALOG,
@@ -3160,6 +3175,47 @@ function optfn_mouse_support(result, statement) {
     result.iflags.wc_mouse_support = mode;
 }
 
+// C ref: options.c optfn_map_mode() (1963-2047), its startup do_set arm.
+// The tiles spelling is an exact case-insensitive match.  Every other token
+// is a fixed-length prefix comparison, so trailing bytes remain accepted.
+// TTY does not advertise WC_MAP_MODE; startup still stores the selected mode,
+// but preference_update() and the options-menu row are both unreachable.
+const MAP_MODE_PREFIXES = Object.freeze([
+    ['ascii4x6', MAP_MODE_ASCII4x6],
+    ['ascii6x8', MAP_MODE_ASCII6x8],
+    ['ascii8x8', MAP_MODE_ASCII8x8],
+    ['ascii16x8', MAP_MODE_ASCII16x8],
+    ['ascii7x12', MAP_MODE_ASCII7x12],
+    ['ascii8x12', MAP_MODE_ASCII8x12],
+    ['ascii16x12', MAP_MODE_ASCII16x12],
+    ['ascii12x16', MAP_MODE_ASCII12x16],
+    ['ascii10x18', MAP_MODE_ASCII10x18],
+    ['fit_to_screen', MAP_MODE_ASCII_FIT_TO_SCREEN],
+    ['ascii_fit_to_screen', MAP_MODE_ASCII_FIT_TO_SCREEN],
+    ['tiles_fit_to_screen', MAP_MODE_TILES_FIT_TO_SCREEN],
+]);
+
+function optfn_map_mode(result, statement, negated) {
+    const op = string_for_opt(statement, negated, result);
+    if (op !== '' && !negated) {
+        let mode;
+        if (op.length === 5 && equal_ncasechars(op, 'tiles', 5)) {
+            mode = MAP_MODE_TILES;
+        } else {
+            mode = MAP_MODE_PREFIXES.find(([name]) => (
+                equal_ncasechars(op, name, name.length)
+            ))?.[1];
+        }
+        if (mode === undefined) {
+            configErrorAdd(result, `Unknown map_mode parameter '${op}'`);
+            return;
+        }
+        result.iflags.wc_map_mode = mode;
+    } else if (negated) {
+        bad_negation(result, 'map_mode');
+    }
+}
+
 // C ref: options.c parsebindings(). Comma-separated bindings recurse into
 // their suffix, so the rightmost alias is appended first and wins collisions.
 function applyMenuBindings(result, bindings) {
@@ -4351,6 +4407,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_menustyle(result, statement, negated);
     } else if (name === 'mouse_support') {
         optfn_mouse_support(result, statement);
+    } else if (name === 'map_mode') {
+        optfn_map_mode(result, statement, negated);
     } else if (name === 'pickup_types') {
         // optfn_pickup_types() clears the restriction before looking for its
         // value.  During startup a missing or empty value still reports the
@@ -5520,6 +5578,16 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
             '0=off', '1=on, O/S adjusted', '2=on, O/S unchanged',
         ];
         return modes[state.iflags.wc_mouse_support] ?? '';
+    },
+    // optfn_map_mode()'s source getter omits mode 11 even though its setter
+    // accepts tiles_fit_to_screen, so that stored value reports "default".
+    map_mode: (state) => {
+        const names = [
+            'tiles', 'ascii4x6', 'ascii6x8', 'ascii8x8', 'ascii16x8',
+            'ascii7x12', 'ascii8x12', 'ascii16x12', 'ascii12x16',
+            'ascii10x18', 'fit_to_screen',
+        ];
+        return names[state.iflags.wc_map_mode] ?? 'default';
     },
     number_pad: (state) => {
         const numpadmodes = [

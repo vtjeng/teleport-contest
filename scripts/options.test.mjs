@@ -4227,13 +4227,14 @@ test('every option that refuses negation is answered from allopt[]', () => {
     const rows = allopt.filter(
         (row) => !row.pfx && !row.name.includes(' '),
     );
-    // Eleven negateok Yes rows cannot use the generic assertion. Negated role,
+    // Twelve negateok Yes rows cannot use the generic assertion. Negated role,
     // race, gender and alignment build gr.rfilter; negated hilite_status
-    // clears the rule list; align_message and the five font-name handlers issue
-    // their own identical bad_negation() message after the table admits them.
+    // clears the rule list; align_message, map_mode, and the five font-name
+    // handlers issue their own identical bad_negation() message after the
+    // table admits them.
     const exceptions = new Set([
         'role', 'race', 'gender', 'alignment', 'hilite_status',
-        'align_message',
+        'align_message', 'map_mode',
         'font_map', 'font_menu', 'font_message', 'font_status', 'font_text',
     ]);
     let refused = 0;
@@ -4253,8 +4254,8 @@ test('every option that refuses negation is answered from allopt[]', () => {
     // A guard that answered nothing would satisfy the loop above for every
     // negateok Yes row, so pin how many rows the table actually refuses.  The
     // 58 is a literal count of js/optlist_data.js: of its 217 allopt[] rows,
-    // 209 survive the pfx and spaced-name filter above, 11 of those are listed
-    // as exceptions, and 58 of the remaining 198 carry negateok false. A rerun
+    // 209 survive the pfx and spaced-name filter above, 12 of those are listed
+    // as exceptions, and 58 of the remaining 197 carry negateok false. A rerun
     // of that count is the only thing that may change this number.
     assert.equal(refused, 58, `${refused} rows refused negation`);
 });
