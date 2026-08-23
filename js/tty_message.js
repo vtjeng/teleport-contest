@@ -224,11 +224,8 @@ export async function dismissPendingTtyMessage(
     display.putstr(promptColumn, promptRow, MORE_PROMPT, NO_COLOR, 0);
     display.setCursor(promptColumn + MORE_PROMPT.length, promptRow);
 
-    // input.js models the ordinary input-request boundary by clearing the
-    // persistent stop. more() is different: WIN_STOP remains in the message
-    // window flags while tty_nhgetch() reads this prompt, so a Space cannot
-    // clear a stop which an earlier More established.
-    const stoppedAtPrompt = Boolean(state._ttyMessageStopped);
+    // wintty.c tty_nhgetch() clears WIN_STOP before every key. more() restores
+    // it only when this prompt's final response is Escape without WIN_NOSTOP.
     const response = await xwaitforspace(state);
 
     if (snapshot) {
@@ -243,8 +240,6 @@ export async function dismissPendingTtyMessage(
     // sets WIN_STOP after tty_nhgetch() returns; subsequent plines update
     // that logical buffer without drawing until the next key wait.
     state._ttyToplines ??= lines.join('\n');
-    if (stoppedAtPrompt)
-        state._ttyMessageStopped = true;
     if ((response === 0 || response === 27) && !preventEscapeStop)
         state._ttyMessageStopped = true;
     display.topMessage = state._ttyToplines;

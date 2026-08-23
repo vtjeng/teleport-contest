@@ -4336,7 +4336,7 @@
       "area": "commands",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
       "detail": "js/tty_message.js dismissPendingTtyMessage() restores WIN_STOP after a later Space input that C uses to clear it; remove the restoration, reverse the wrong oracle, and extend fresh evidence through the observable following message."
     },
@@ -4372,7 +4372,7 @@
       "area": "commands",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
       "detail": "The urgent WIN_NOSTOP test is masked by the independent death-message stop clear; use a long prior line and assert the following ordinary message is physically visible."
     },

@@ -570,15 +570,19 @@ test('an urgent message stops where Escape has suppressed the window',
     assert.equal(running._ttyToplines, 'You die...');
 
     // topl.c more():232-234. WIN_NOSTOP's second reader: an Escape answered at
-    // the --More-- this urgent message itself raises must not set WIN_STOP,
-    // where the same Escape at an ordinary message's --More-- does. The port
-    // models that through ttyPlineCore()'s deathComparisonReached clear rather
-    // than through a WIN_NOSTOP flag, which is the same answer for every input
-    // either rule can see while "You die..." is urgent_pline()'s only caller.
+    // a --More-- inside this urgent tty_putstr() call must not set WIN_STOP.
+    // A 68-byte prior line makes deathComparisonReached false, so only the
+    // prompt's WIN_NOSTOP-equivalent path can produce the expected state.
     const escaped = preambleState('20260129120000', '\x1b');
-    await ttyPline('A prior message.', escaped);
+    await ttyPline('P'.repeat(68), escaped);
     await ttyUrgentPline('You die...', escaped);
     assert.equal(escaped._ttyMessageStopped, false);
+    await ttyPline('An ordinary follow-up.', escaped);
+    await flush_screen(1);
+    assert.equal(
+        escaped.nhDisplay.grid[0].map((cell) => cell.ch).join('').trimEnd(),
+        'You die...  An ordinary follow-up.',
+    );
 
     // The control: the same Escape at an ordinary message's --More--. Two
     // 50-byte messages are what raise it, since a short pair shares the top

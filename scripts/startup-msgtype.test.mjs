@@ -573,7 +573,7 @@ test('a fitting same-line STOP waits once, preserves a key, and clears',
         );
     });
 
-test('STOP Space preserves suppression set by a prior Escape', async () => {
+test('STOP Space clears suppression set by a prior Escape', async () => {
     const state = messageState('MSGTYPE=stop "halt"\n', '\x1b X');
     const boundaries = [];
     state._preNhgetchHook = () => boundaries.push({
@@ -598,9 +598,11 @@ test('STOP Space preserves suppression set by a prior Escape', async () => {
             toplines: 'halt',
         },
     ]);
-    assert.equal(state._ttyMessageStopped, true);
+    assert.equal(state._ttyMessageStopped, false);
     assert.equal(state._ttyPreviousMessage, 'after');
-    assert.equal(state._ttyToplines, 'halt  after');
+    assert.equal(state._ttyToplines, 'after');
+    assert.equal(state._pending_message, 'after');
+    assert.equal(state.nhDisplay.topMessage, 'after');
     assert.equal(await nhgetch(state), 'X'.charCodeAt(0));
 });
 
