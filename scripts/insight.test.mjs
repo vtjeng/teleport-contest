@@ -524,19 +524,24 @@ test('the autopickup line consumes configured pickup_types', async () => {
 
 // C ref: insight.c basics_enlightenment() (817-818), `if (ga.apelist)
 // Strcat(buf, ", with exceptions")`. cfgfiles.c cnf_line_AUTOPICKUP_EXCEPTION()
-// (612) is the only thing in reach that appends to that list, and
-// parseNethackrc() records the statement without interpreting it, so the empty
-// list would otherwise read as "no exceptions".
-test('the autopickup line stops on a configured exception list', async () => {
+// appends the list node during startup.
+test('the autopickup line reports a configured exception list', async () => {
     const state = await readyGame(
-        'autopickup', 'AUTOPICKUP_EXCEPTION="<*scroll of scare monster"',
+        'autopickup', 'AUTOPICKUP_EXCEPTION="<scroll of scare monster"',
     );
-    assert.deepEqual(state.unportedConfigStatements, ['autopickup_exception']);
-    assert.equal(state.ga?.apelist, undefined);
-    await assert.rejects(
-        () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
-        (error) => error instanceof UnsupportedEnlightenmentError
-            && error.branch === 'cfgfiles.c cnf_line_AUTOPICKUP_EXCEPTION()',
+    assert.deepEqual(state.unportedConfigStatements, []);
+    assert.deepEqual(
+        { pattern: state.ga.apelist.pattern, grab: state.ga.apelist.grab },
+        { pattern: 'scroll of scare monster', grab: true },
+    );
+    assert.equal(
+        statusLine(
+            await enlightenment(
+                BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+            ),
+            ' Autopickup ',
+        ),
+        ' Autopickup is on for all types, with exceptions.',
     );
 
     // Without the statement the same game reports the empty list, which is

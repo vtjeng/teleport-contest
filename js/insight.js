@@ -167,7 +167,7 @@ import { lcase, lowc, highc, mungspaces, strsubst } from './hacklib.js';
 import { currency, money_cnt } from './invent.js';
 import { makeplural } from './fruit.js';
 import { an } from './objnam.js';
-import { hasUnportedConfigStatement, oc_to_str } from './options.js';
+import { oc_to_str } from './options.js';
 import {
     DUNCE_CAP,
     DWARVISH_CLOAK,
@@ -642,15 +642,6 @@ function basics_enlightenment(final, state, lines) {
             buf += ` for ${ocl ? `'${ocl}'` : 'all types'}`;
             /* show when not 'all types' */
             if (state.flags.pickup_thrown && ocl) buf += ' plus thrown';
-            // cfgfiles.c cnf_line_AUTOPICKUP_EXCEPTION() is what appends to
-            // ga.apelist, and parseNethackrc() only records the statement, so
-            // the empty list below would read as "no exceptions" for a
-            // session that configured some.
-            if (hasUnportedConfigStatement(state, 'autopickup_exception')) {
-                throw new UnsupportedEnlightenmentError(
-                    'cfgfiles.c cnf_line_AUTOPICKUP_EXCEPTION()',
-                );
-            }
             if (state.ga?.apelist) buf += ', with exceptions';
         }
     } else {

@@ -172,6 +172,11 @@ import {
     SYM_OFF_X,
 } from './symbol_data.js';
 import {
+    regex_compile,
+    regex_error_desc,
+    regex_init,
+} from './posixregex.js';
+import {
     status_version,
     VI_BRANCH,
     VI_NAME,
@@ -4368,6 +4373,7 @@ function applyDirectOption(result, key, value) {
 // consumer can refuse its missing cnf_line_<NAME>() state explicitly.
 const CONFIG_STATEMENT_HANDLERS = Object.freeze({
     options: Object.freeze({ kind: 'options' }),
+    autopickup_exception: Object.freeze({ kind: 'autopickup-exception' }),
     bindings: Object.freeze({ kind: 'bindings' }),
     autocomplete: Object.freeze({ kind: 'autocomplete' }),
     roguesymbols: Object.freeze({ kind: 'symbols', set: 'rogue' }),
@@ -4391,6 +4397,69 @@ function configDelimiter(line) {
 
 function matchesConfigName(name, canonical, minLength) {
     return name.length >= minLength && canonical.startsWith(name);
+}
+
+function scanfAutopickupMapping(mapping, prefix) {
+    const bytes = encodeUtf8ByteString(mapping);
+    let index = 0;
+    if (bytes[index++] !== 0x22) return { n: 0 }; // opening '"'
+    if (prefix != null && bytes[index++] !== prefix) return { n: 0 };
+
+    const text = [];
+    while (index < bytes.length && bytes[index] !== 0x00
+           && bytes[index] !== 0x22 && text.length < 253) {
+        text.push(bytes[index++]);
+    }
+    if (!text.length) return { n: 0 };
+    const decoded = decodeUtf8ByteString(text);
+    // scanf() keeps prior assignments when a later literal does not match.
+    // That makes an unclosed quote, and a quote beyond the field width, n=1.
+    if (bytes[index] !== 0x22) return { n: 1, text: decoded };
+    ++index;
+    while ([0x20, 0x09, 0x0A, 0x0B, 0x0C, 0x0D].includes(bytes[index])) {
+        ++index;
+    }
+    if (index >= bytes.length || bytes[index] === 0x00) {
+        return { n: 1, text: decoded };
+    }
+    return { n: 2, text: decoded, end: bytes[index] };
+}
+
+// C ref: options.c add_autopickup_exception(). cfgfiles.c passes the munged
+// post-delimiter value, and the three sscanf() calls retain their assignment
+// counts even when a closing quote or the byte after field width 253 fails.
+export function add_autopickup_exception(result, mapping) {
+    let scanned = scanfAutopickupMapping(mapping, 0x3C); // '<'
+    let grab = false;
+    if (scanned.n === 1 || (scanned.n === 2 && scanned.end === 0x23)) {
+        grab = true;
+    } else {
+        scanned = scanfAutopickupMapping(mapping, 0x3E); // '>'
+        if (scanned.n !== 1) {
+            scanned = scanfAutopickupMapping(mapping, null);
+        }
+        if (!(scanned.n === 1
+              || (scanned.n === 2 && scanned.end === 0x23))) {
+            configErrorAdd(result, 'syntax error in AUTOPICKUP_EXCEPTION');
+            return 0;
+        }
+    }
+
+    const regex = regex_init();
+    if (!regex_compile(scanned.text, regex)) {
+        configErrorAdd(
+            result,
+            'regex error in AUTOPICKUP_EXCEPTION: '
+                + regex_error_desc(regex),
+        );
+        return 0;
+    }
+    result.ga.apelist = {
+        pattern: scanned.text,
+        grab,
+        next: result.ga.apelist ?? null,
+    };
+    return 1;
 }
 
 function configSection(line) {
@@ -4575,6 +4644,10 @@ export function parseNethackrc(rc, random = rn2) {
         }
 
         const normalizedValue = mungspaces(rawValue);
+        if (statement.kind === 'autopickup-exception') {
+            add_autopickup_exception(result, normalizedValue);
+            continue;
+        }
         if (statement.kind === 'bindings') {
             applyMenuBindings(result, normalizedValue);
             continue;
@@ -5009,13 +5082,8 @@ function count_cond(state) {
         .filter(Boolean).length;
 }
 
-// C ref: options.c count_apes(), over ga.apelist.  cfgfiles.c
-// cnf_line_AUTOPICKUP_EXCEPTION() is the only thing that appends to that list
-// in reach -- no ported command adds one -- and parseNethackrc() records the
-// statement without interpreting it, so the count stops rather than report an
-// empty list as the session's.
+// C ref: options.c count_apes(), over ga.apelist.
 function count_apes(state) {
-    refuseUnportedConfigStatement(state, 'autopickup_exception');
     let numapes = 0;
     for (let ape = state.ga?.apelist; ape; ape = ape.next) numapes++;
     return numapes;

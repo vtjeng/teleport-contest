@@ -4168,6 +4168,7 @@
         "js/optlist_data.js",
         "js/player_selection.js",
         "js/player_selection_tty.js",
+        "js/posixregex.js",
         "js/startup_a11y.js",
         "js/startup_reroll.js",
         "js/tty_rawprint.js",

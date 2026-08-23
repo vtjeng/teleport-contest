@@ -1887,6 +1887,7 @@ test('every generated config statement participates in source prefix matching',
     () => {
         const values = {
             options: 'name:Catalog',
+            autopickup_exception: '">x"',
             bindings: 'a:inventory',
             roguesymbols: 'S_room:.',
             symbols: 'S_room:.',
@@ -4240,14 +4241,14 @@ test('msg_window keeps one letter and answers its value-less spellings', () => {
     ]);
 });
 
-// C ref: cfgfiles.c config_line_stmt[]. Thirteen handlers above are ported. Every
-// other player row is recognized and recorded so a later consumer can refuse
-// the missing cnf_line_<NAME>() state rather than silently use a default.
+// C ref: cfgfiles.c config_line_stmt[]. Fourteen handlers above are ported.
+// Every other player row is recognized and recorded so a later consumer can
+// refuse the missing cnf_line_<NAME>() state rather than silently use a default.
 test('the parser records the config statements it cannot interpret', () => {
     assert.deepEqual(parseNethackrc('').unportedConfigStatements, []);
     const unported = [
-        'autopickup_exception', 'msgtype',
-        'hackdir', 'leveldir', 'levels', 'savedir', 'bonesdir', 'datadir',
+        'msgtype', 'hackdir', 'leveldir', 'levels', 'savedir', 'bonesdir',
+        'datadir',
         'scoredir', 'lockdir', 'configdir', 'troubledir',
         'menucolor', 'wizkit',
         'qt_tilewidth', 'qt_tileheight', 'qt_fontsize', 'qt_compact',

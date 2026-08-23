@@ -655,9 +655,8 @@ test('the menu refuses the tab-separated layout menu_tab_sep asks for',
         assert.equal(dosetMenuItems(state, menuHelpers(), false).length, 150);
     });
 
-// C ref: coloratt.c count_menucolors(), options.c msgtype_count(), and
-// count_apes(). Each walks a list that a configuration statement this port
-// drops is what fills.
+// C ref: coloratt.c count_menucolors() and options.c msgtype_count(). Each
+// walks a list that a configuration statement this port drops is what fills.
 test('each unported Other settings count refuses a dropped statement',
     async () => {
         const dropped = [
@@ -666,12 +665,6 @@ test('each unported Other settings count refuses a dropped statement',
             ['MENUCOLOR="blessed"=green', 'menu colors', 'MENUCOLOR'],
             // cnf_line_MSGTYPE() appends one gp.plinemsg_types node.
             ['MSGTYPE=hide "You swap places*"', 'message types', 'MSGTYPE'],
-            // cnf_line_AUTOPICKUP_EXCEPTION() (cfgfiles.c:612) appends one
-            // ga.apelist node, which count_apes() counts. The table row that
-            // dispatches it is CNFL_N(AUTOPICKUP_EXCEPTION, 5) at
-            // cfgfiles.c:1313.
-            ['AUTOPICKUP_EXCEPTION=">*wand"', 'autopickup exceptions',
-                'AUTOPICKUP_EXCEPTION'],
         ];
         for (const [line, row, handler] of dropped) {
             const state = await startGameWithConfig(line);
@@ -691,6 +684,21 @@ test('each unported Other settings count refuses a dropped statement',
             'autopickup exceptions'])
             assert.equal(valueOf(items, row), '(0 currently set)', row);
     });
+
+// C ref: cfgfiles.c cnf_line_AUTOPICKUP_EXCEPTION() appends one ga.apelist
+// node per valid row, and options.c count_apes() supplies the Other settings
+// value without deduplicating identical patterns.
+test('the autopickup exceptions row counts configured list nodes', async () => {
+    const state = await startGameWithConfig(
+        'AUTOPICKUP_EXCEPTION=">.*wand"',
+        'AUTOPICKUP_EXCEPTION=">.*wand"',
+    );
+    assert.equal(
+        valueOf(dosetMenuItems(state, menuHelpers(), false),
+            'autopickup exceptions'),
+        '(2 currently set)',
+    );
+});
 
 test('the autocompletions row counts AUTOCOMP_ADJ command flags',
     async () => {
