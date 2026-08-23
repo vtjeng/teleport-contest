@@ -70,7 +70,7 @@ function messageState(config = '', keys = '') {
 test('the fresh recipe retains the MSGTYPE branch matrix', () => {
     const recipe = loadStartupMsgtypeRecipe();
     assert.equal(recipe.segments.length, STARTUP_MSGTYPE_CASES.length);
-    assert.equal(recipe.segments.length, 26);
+    assert.equal(recipe.segments.length, 28);
     assert.equal(STARTUP_MSGTYPE_CASES.filter(({ errors }) => errors).length, 4);
     assert.ok(STARTUP_MSGTYPE_CASES.some(({ statements }) => (
         statements.length === 2
@@ -283,6 +283,56 @@ test('sibling alternatives expose only captures on their current path', () => {
     assert.equal(regex_match('b', valid), false);
 });
 
+test('backreferences follow recorder repetition and finite-interval selection',
+    () => {
+        for (const [pattern, matches, misses] of [
+            [String.raw`^(a){0,2}\1$`, ['aaa'], ['aa', 'aaaa']],
+            [String.raw`^(a){1,3}\1$`, ['aa', 'aaaa'], ['aaa']],
+            [String.raw`^(a+)+\1$`, ['aa'], ['aaa', 'aaaa']],
+            [String.raw`(l){0,2}\1`, ['Hlllo'], ['Hello']],
+            [String.raw`^(a){2,3}\1$`, ['aaa', 'aaaa'], ['aa', 'aaaaa']],
+        ]) {
+            const regex = regex_init();
+            assert.equal(regex_compile(pattern, regex), true, pattern);
+            assert.equal(regex.kind, 'reference-aware', pattern);
+            for (const text of matches)
+                assert.equal(regex_match(text, regex), true,
+                    JSON.stringify({ pattern, text }));
+            for (const text of misses)
+                assert.equal(regex_match(text, regex), false,
+                    JSON.stringify({ pattern, text }));
+        }
+    });
+
+test('reference-aware classes and anchors exercise their parsed-tree arms', () => {
+    for (const [pattern, matches, misses] of [
+        [String.raw`^([[:digit:]])\1$`, ['44'], ['45']],
+        [String.raw`\`(a)\1\'`, ['aa'], ['baa', 'aab']],
+        [String.raw`(()^b)\1`, [], ['\nbb']],
+    ]) {
+        const regex = regex_init();
+        assert.equal(regex_compile(pattern, regex), true, pattern);
+        assert.equal(regex.kind, 'reference-aware', pattern);
+        for (const text of matches)
+            assert.equal(regex_match(text, regex), true,
+                JSON.stringify({ pattern, text }));
+        for (const text of misses)
+            assert.equal(regex_match(text, regex), false,
+                JSON.stringify({ pattern, text }));
+    }
+});
+
+test('variable-width captures overwrite and retain recorder values', () => {
+    const pattern = String.raw`^((ab|c)|x)*\2$`;
+    const regex = regex_init();
+    assert.equal(regex_compile(pattern, regex), true);
+    assert.equal(regex.kind, 'reference-aware');
+    for (const text of ['abab', 'abxab', 'abcc', 'cc', 'xabxabab'])
+        assert.equal(regex_match(text, regex), true, text);
+    for (const text of ['ababc', 'xc', 'abxc'])
+        assert.equal(regex_match(text, regex), false, text);
+});
+
 test('compiled regex states use one explicit representation discriminant', () => {
     const regex = regex_init();
     assert.equal(regex.kind, 'uncompiled');
@@ -464,6 +514,20 @@ test('regex_match names its unported C.UTF-8 locale boundary', () => {
         );
     }
 });
+
+test('internal caret requires the current candidate to consume its newline',
+    () => {
+        for (const [pattern, text, expected] of [
+            ['()^b', '\nb', false],
+            ['a*^b', 'a\nb', false],
+            ['.+^b', '\nb', true],
+        ]) {
+            const regex = regex_init();
+            assert.equal(regex_compile(pattern, regex), true, pattern);
+            assert.equal(regex.kind, 'direct', pattern);
+            assert.equal(regex_match(text, regex), expected, pattern);
+        }
+    });
 
 test('vpline applies hide, norep, stop, urgent, and override rules', async () => {
     const hidden = messageState('MSGTYPE=hide ".*"\n');

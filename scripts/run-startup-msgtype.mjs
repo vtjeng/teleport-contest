@@ -128,6 +128,30 @@ export const STARTUP_MSGTYPE_CASES = Object.freeze([
             ['Hel1o', false, MSGTYP_NORMAL]],
     }),
     messageCase({
+        label: 'bounded repeated capture rejects its intermediate copy',
+        seed: 9812461,
+        datetime: '20420415150100',
+        statements: [String.raw`MSGTYPE=hide "(m){0,2}\1"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`(m){0,2}\1`,
+        }],
+        probes: [['Velkommen', false, MSGTYP_NORMAL],
+            ['Velkommmen', false, MSGTYP_NOSHOW]],
+    }),
+    messageCase({
+        label: 'reference-aware POSIX class suppresses the welcome line',
+        seed: 9812467,
+        datetime: '20420415150700',
+        statements: [String.raw`MSGTYPE=hide "([[:lower:]])\1"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`([[:lower:]])\1`,
+        }],
+        probes: [['Velkommen', false, MSGTYP_NOSHOW],
+            ['Valkyrie', false, MSGTYP_NORMAL]],
+    }),
+    messageCase({
         label: 'unmatched optional backreference does not suppress welcome',
         seed: 9812415,
         datetime: '20420415141500',

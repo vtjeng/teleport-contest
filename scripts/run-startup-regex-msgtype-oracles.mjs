@@ -29,6 +29,9 @@ import { ttyPline } from '../js/tty_message.js';
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = resolve(SCRIPT_PATH, '..');
 const FIXTURE_DIR = join(SCRIPT_DIR, 'fixtures');
+const DIRECT_RESOURCE_PATTERN = '^' + '()'.repeat(121) + '(|)(a|aa)*b$';
+const REFERENCE_RESOURCE_PATTERN = String.raw`^((a)|(a)|(a)|(a))*\2\3\4\5`
+    + '()'.repeat(113) + 'b$';
 
 function run(command, args) {
     const result = spawnSync(command, args, { encoding: 'utf8' });
@@ -96,6 +99,22 @@ const REGEX_CASES = Object.freeze([
     [String.raw`^(()){2}\2$`, ['', 'a']],
     [String.raw`^(()){2,}\2$`, ['', 'a']],
     [String.raw`^((a|c)|b)*\2$`, ['abcc', 'abca']],
+    [String.raw`^(a){0,2}\1$`, ['aa', 'aaa', 'aaaa']],
+    [String.raw`^(a){1,3}\1$`, ['aa', 'aaa', 'aaaa']],
+    [String.raw`^(a+)+\1$`, ['aa', 'aaa', 'aaaa']],
+    [String.raw`(l){0,2}\1`, ['Hello', 'Hlllo']],
+    [String.raw`^(a){2,3}\1$`, ['aa', 'aaa', 'aaaa', 'aaaaa']],
+    [String.raw`^([[:digit:]])\1$`, ['44', '45']],
+    [String.raw`\`(a)\1\'`, ['aa', 'baa', 'aab']],
+    [String.raw`(()^b)\1`, ['\nbb']],
+    ['()^b', ['\nb']],
+    ['a*^b', ['a\nb']],
+    ['.+^b', ['\nb']],
+    [String.raw`^((ab|c)|x)*\2$`, [
+        'abab', 'abxab', 'abcc', 'cc', 'xabxabab', 'ababc', 'xc', 'abxc',
+    ]],
+    [DIRECT_RESOURCE_PATTERN, ['a'.repeat(255)]],
+    [REFERENCE_RESOURCE_PATTERN, ['a'.repeat(255)]],
 ]);
 
 const REGEX_ERRORS = Object.freeze([
@@ -110,6 +129,14 @@ const REGEX_ERRORS = Object.freeze([
     [String.raw`\`*`, 'Invalid preceding regular expression'],
     [String.raw`\'+`, 'Invalid preceding regular expression'],
     [String.raw`(a)|\1`, 'Invalid back reference'],
+    [String.raw`(a)\1{a,`, String.raw`Invalid content of \{\}`],
+    ['a{a,,', String.raw`Invalid content of \{\}`],
+    ['a{a,', String.raw`Invalid content of \{\}`],
+    ['a{1a,', String.raw`Invalid content of \{\}`],
+    ['a{,', String.raw`Unmatched \{`],
+    ['a{1,', String.raw`Unmatched \{`],
+    ['a{a', String.raw`Unmatched \{`],
+    ['a{1', String.raw`Unmatched \{`],
 ]);
 
 function checkRegexOracle(executable) {

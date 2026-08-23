@@ -4291,7 +4291,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
       "detail": "js/posixregex.js evaluateReferenceNode() accepts repetition decompositions that recorder glibc rejects; implement glibc repetition and submatch-selection precedence and pin the four direct-libc discriminators."
     },
@@ -4300,7 +4300,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
       "detail": "js/posixregex.js anchor evaluation lets an internal caret use an unconsumed candidate-start newline; carry candidate-start provenance in direct and reference-aware matching and pin both failures plus the consumed-newline control."
     },
@@ -4309,7 +4309,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
       "detail": "js/posixregex.js intervalExpression() gives the wrong diagnostic precedence for malformed unterminated intervals; distinguish invalid comma-form content from the unmatched-brace fallback with reference and no-reference controls."
     },
@@ -4318,7 +4318,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
       "detail": "js/posixregex.js reference-aware evaluator has material exponential state and allocation growth on short valid patterns; replace eager capture-state enumeration with a glibc-compatible bounded matcher and validate parity plus resource budgets through the 255-byte boundary."
     },
@@ -4327,7 +4327,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
       "detail": "js/posixregex.js direct V8 RegExp path has material exponential backtracking on short valid patterns; replace it with a polynomially bounded source-faithful matcher and validate ambiguous patterns through the 255-byte boundary."
     },
@@ -4345,7 +4345,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
       "detail": "Reference-aware regex tests do not exercise AST class, GNU-anchor, and contextual-anchor arms; add direct-libc and focused reference-aware discriminators."
     },
@@ -4354,7 +4354,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
       "detail": "Reference-aware regex tests do not pin finite interval maximum behavior; add the recorder-glibc four-input matrix for ^(a){2,3}\\\\1$."
     },
@@ -4363,7 +4363,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
       "detail": "Reference-aware regex tests do not pin variable-width capture overwrite and retention; add a direct-libc and focused variable-width capture matrix."
     },
@@ -4381,7 +4381,7 @@
       "area": "startup",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
       "detail": "js/posixregex.js capture-state deduplication leaves its state-completeness and immutability contract implicit; document the local state equivalence invariant."
     },
@@ -4390,7 +4390,7 @@
       "area": "startup",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "808f9a17db4bb85628ebbaaf179a74fac75cfd69",
       "detail": "js/posixregex.js group evaluation leaves glibc descendant-capture retention implicit; document why only the enclosing group span is overwritten."
     }

@@ -125,7 +125,14 @@ function decimalCount(text) {
 
 function intervalExpression(pattern, start) {
     const close = pattern.indexOf('}', start + 1);
-    if (close < 0) return { error: 'Unmatched \\{' };
+    if (close < 0) {
+        const tail = pattern.slice(start + 1);
+        // regcomp.c parse_dup_op() reports REG_BADBR when fetch_number()
+        // reaches invalid comma-form content before the missing close.  A
+        // syntactically viable prefix that merely ends first is REG_EBRACE.
+        return { error: /(?:[^0-9,].*|,,+)$/.test(tail) && tail.endsWith(',')
+            ? 'Invalid content of \\{\\}' : 'Unmatched \\{' };
+    }
     const body = pattern.slice(start + 1, close);
     const match = /^(?:([0-9]+)(?:,([0-9]*))?|,([0-9]*))$/u.exec(body);
     if (!match) return { error: 'Invalid content of \\{\\}' };
@@ -247,11 +254,6 @@ export function regex_init() {
     };
 }
 
-function escapeRegexpLiteral(character) {
-    return /[\\^$.*+?()[\]{}|]/u.test(character)
-        ? `\\${character}` : character;
-}
-
 function escapeBracketCharacter(character) {
     if (character === '\\' || character === ']' || character === '['
         || character === '^' || character === '-') {
@@ -327,149 +329,13 @@ function translateBracketExpression(pattern, start) {
     throw new Error('validated POSIX bracket expression did not close');
 }
 
-function translateInterval(pattern, start) {
-    const close = pattern.indexOf('}', start + 1);
-    const body = pattern.slice(start + 1, close);
-    if (body.startsWith(',')) return `{0${body}}`;
-    return `{${body}}`;
-}
-
-// Translate only after validateExtendedRegexp() has accepted the pattern.
-// Non-capturing wrappers make source-accepted adjacent duplication operators
-// explicit: `a+?` is `(?:a+)?`, rather than JavaScript's lazy `a+?`.
-function translateAsciiExtendedRegexp(pattern, references) {
+// ECMAScript regular expressions do not have the recorder libc's repetition,
+// anchor, or capture semantics. All ASCII patterns therefore use this
+// source-shaped ERE tree. Each node below owns one grammar operation;
+// regex_match() owns finite sets of input positions and referenced values.
+function parseAsciiExtendedRegexp(pattern) {
     let groupCount = 0;
-
-    function translatePart(start, stopAtClose) {
-        let index = start;
-        let source = '';
-        let branchStart = true;
-        while (index < pattern.length) {
-            const character = pattern[index];
-            if (stopAtClose && character === ')') {
-                return { index: index + 1, source };
-            }
-            if (character === '|') {
-                source += '|';
-                ++index;
-                branchStart = true;
-                continue;
-            }
-            if (character === '^') {
-                // glibc makes a branch-leading caret absolute. Elsewhere it
-                // also admits the position after a newline, even without
-                // REG_NEWLINE; absolute beginning remains valid.
-                source += branchStart ? '^' : '(?:^|(?<=\n))';
-                ++index;
-                branchStart = false;
-                continue;
-            }
-            if (character === '$') {
-                const branchEnd = index + 1 >= pattern.length
-                    || pattern[index + 1] === '|'
-                    || (stopAtClose && pattern[index + 1] === ')');
-                // A branch-final dollar is absolute. An internal dollar also
-                // admits the position before a newline.
-                source += branchEnd
-                    ? '(?![\\s\\S])'
-                    : '(?:(?![\\s\\S])|(?=\n))';
-                ++index;
-                branchStart = false;
-                continue;
-            }
-
-            let atom;
-            if (character === '\\') {
-                const escaped = pattern[index + 1];
-                if (escaped >= '1' && escaped <= '9') {
-                    const reference = {
-                        group: `posixGroup${escaped}`,
-                        marker: `posixReference${references.length + 1}`,
-                    };
-                    references.push(reference);
-                    // The wrapper keeps a following source digit separate:
-                    // glibc reads `\\10` as backreference 1 plus literal 0,
-                    // while ECMAScript can read it as reference 10 or octal.
-                    // Its marker also records whether this reference's path
-                    // participated, so references in other alternatives do
-                    // not require their groups in the chosen match.
-                    atom = `(?<${reference.marker}>`
-                        + `\\k<${reference.group}>)`;
-                } else if (escaped === 'b' || escaped === 'B') {
-                    atom = `\\${escaped}`;
-                } else if (escaped === '<') {
-                    atom = '(?<![A-Za-z0-9_])(?=[A-Za-z0-9_])';
-                } else if (escaped === '>') {
-                    atom = '(?<=[A-Za-z0-9_])(?![A-Za-z0-9_])';
-                } else if (escaped === '`') {
-                    atom = '^';
-                } else if (escaped === "'") {
-                    atom = '(?![\\s\\S])';
-                } else if (escaped === 'w') {
-                    atom = '[A-Za-z0-9_]';
-                } else if (escaped === 'W') {
-                    atom = '[^A-Za-z0-9_]';
-                } else if (escaped === 's') {
-                    atom = '[\\t-\\r ]';
-                } else if (escaped === 'S') {
-                    atom = '[^\\t-\\r ]';
-                } else {
-                    atom = escapeRegexpLiteral(escaped);
-                }
-                index += 2;
-            } else if (character === '[') {
-                const bracket = translateBracketExpression(pattern, index);
-                atom = bracket.source;
-                index = bracket.index;
-            } else if (character === '(') {
-                const groupName = `posixGroup${++groupCount}`;
-                const group = translatePart(index + 1, true);
-                atom = `(?<${groupName}>${group.source})`;
-                index = group.index;
-            } else if (character === ')') {
-                // glibc treats an unmatched close parenthesis as ordinary.
-                atom = '\\)';
-                ++index;
-            } else if (character === '.') {
-                atom = '.';
-                ++index;
-            } else {
-                atom = escapeRegexpLiteral(character);
-                ++index;
-            }
-
-            let duplicated = false;
-            while (index < pattern.length) {
-                let duplication;
-                if (['*', '+', '?'].includes(pattern[index])) {
-                    duplication = pattern[index++];
-                } else if (pattern[index] === '{') {
-                    duplication = translateInterval(pattern, index);
-                    index = pattern.indexOf('}', index + 1) + 1;
-                } else {
-                    break;
-                }
-                atom = duplicated
-                    ? `(?:${atom})${duplication}`
-                    : `${atom}${duplication}`;
-                duplicated = true;
-            }
-            source += atom;
-            branchStart = false;
-        }
-        return { index, source };
-    }
-
-    return translatePart(0, false).source;
-}
-
-// ECMAScript backreferences do not have the recorder libc's capture state:
-// they match empty for a nonparticipating group and clear a subgroup when a
-// later repetition does not enter it. Reference-bearing patterns therefore
-// use this source-shaped ERE tree. Each node below owns one grammar operation;
-// regex_match() owns the finite set of input positions and capture ranges.
-function parseReferenceExtendedRegexp(pattern) {
-    let groupCount = 0;
+    const referencedGroups = new Set();
 
     function parsePart(start, stopAtClose) {
         let index = start;
@@ -497,7 +363,9 @@ function parseReferenceExtendedRegexp(pattern) {
             if (character === '\\') {
                 const escaped = pattern[index + 1];
                 if (escaped >= '1' && escaped <= '9') {
-                    atom = { type: 'reference', group: Number(escaped) };
+                    const group = Number(escaped);
+                    referencedGroups.add(group);
+                    atom = { type: 'reference', group };
                 } else if (escaped === 'b' || escaped === 'B') {
                     atom = { type: 'word-boundary', invert: escaped === 'B' };
                 } else if (escaped === '<' || escaped === '>') {
@@ -597,13 +465,49 @@ function parseReferenceExtendedRegexp(pattern) {
         };
     }
 
-    return { root: parsePart(0, false).node, groupCount };
+    const root = parsePart(0, false).node;
+
+    let nextNodeId = 0;
+    function annotate(node) {
+        node.nodeId = nextNodeId++;
+        let groups = new Set();
+        let containsRepeat = node.type === 'repeat';
+        if (node.type === 'group') groups.add(node.id);
+        const children = node.type === 'sequence' || node.type === 'alternative'
+            ? node.nodes : node.child ? [node.child] : [];
+        for (const child of children) {
+            annotate(child);
+            groups = new Set([...groups, ...child.captureGroups]);
+            containsRepeat ||= child.containsRepeat;
+        }
+        node.captureGroups = groups;
+        node.containsRepeat = containsRepeat;
+        if (node.type === 'literal') node.minimumWidth = node.value.length;
+        else if (node.type === 'dot' || node.type === 'class')
+            node.minimumWidth = 1;
+        else if (node.type === 'group')
+            node.minimumWidth = node.child.minimumWidth;
+        else if (node.type === 'sequence') {
+            node.minimumWidth = node.nodes.reduce(
+                (total, child) => total + child.minimumWidth, 0,
+            );
+        } else if (node.type === 'alternative') {
+            node.minimumWidth = Math.min(
+                ...node.nodes.map((child) => child.minimumWidth),
+            );
+        } else if (node.type === 'repeat') {
+            node.minimumWidth = node.minimum * node.child.minimumWidth;
+        } else node.minimumWidth = 0;
+    }
+    annotate(root);
+    return { root, groupCount, referencedGroups };
 }
 
 function captureStateKey(state) {
-    return `${state.position}:` + Array.from(state.captures, (capture) => (
-        capture ? `${capture.start}-${capture.end}` : '_'
-    )).join(',');
+    // Capture arrays never mutate after entering a state. Position plus every
+    // referenced capture value is therefore the complete future-equivalence
+    // key: merging equal keys cannot change a later reference or assertion.
+    return `${state.position}:${JSON.stringify(state.captures)}`;
 }
 
 function uniqueCaptureStates(states) {
@@ -616,7 +520,111 @@ function isAsciiWord(character) {
     return character !== undefined && /[A-Za-z0-9_]/u.test(character);
 }
 
-function evaluateReferenceNode(node, input, state) {
+function anchorMatches(node, input, position, matchStart) {
+    if (node.edge === 'end') {
+        return position === input.length || (!node.absolute
+            && input[position] === '\n');
+    }
+    return position === 0 || (!node.absolute && position > matchStart
+        && input[position - 1] === '\n');
+}
+
+function uniquePositions(positions) {
+    return [...new Set(positions)];
+}
+
+// Reference-free patterns use position sets, the Thompson-NFA state for the
+// REG_NOSUB boolean consumed by NetHack. Memoizing node/position pairs bounds
+// matching by the parsed tree and the 256 possible BUFSZ input positions; it
+// does not inherit ECMAScript's exponential backtracking behavior.
+function evaluateDirectNode(node, input, position, matchStart, memo) {
+    const key = `${node.nodeId}:${position}`;
+    const cached = memo.get(key);
+    if (cached) return cached;
+
+    let results;
+    switch (node.type) {
+    case 'literal':
+        results = input.startsWith(node.value, position)
+            ? [position + node.value.length] : [];
+        break;
+    case 'dot':
+        results = position < input.length ? [position + 1] : [];
+        break;
+    case 'class':
+        results = position < input.length && node.matcher.test(input[position])
+            ? [position + 1] : [];
+        break;
+    case 'anchor':
+        results = anchorMatches(node, input, position, matchStart)
+            ? [position] : [];
+        break;
+    case 'word-boundary': {
+        const boundary = isAsciiWord(input[position - 1])
+            !== isAsciiWord(input[position]);
+        results = boundary !== node.invert ? [position] : [];
+        break;
+    }
+    case 'word-edge': {
+        const before = isAsciiWord(input[position - 1]);
+        const after = isAsciiWord(input[position]);
+        const matches = node.edge === '<' ? !before && after : before && !after;
+        results = matches ? [position] : [];
+        break;
+    }
+    case 'group':
+        results = evaluateDirectNode(
+            node.child, input, position, matchStart, memo,
+        );
+        break;
+    case 'sequence': {
+        let positions = [position];
+        for (const child of node.nodes) {
+            positions = uniquePositions(positions.flatMap((current) => (
+                evaluateDirectNode(child, input, current, matchStart, memo)
+            )));
+            if (!positions.length) break;
+        }
+        results = positions;
+        break;
+    }
+    case 'alternative':
+        results = uniquePositions(node.nodes.flatMap((child) => (
+            evaluateDirectNode(child, input, position, matchStart, memo)
+        )));
+        break;
+    case 'repeat': {
+        let count = 0;
+        let frontier = [position];
+        const accepted = [];
+        const seen = new Set();
+        while (frontier.length && count <= node.maximum) {
+            if (count >= node.minimum) accepted.push(...frontier);
+            if (count === node.maximum) break;
+            const next = uniquePositions(frontier.flatMap((current) => (
+                evaluateDirectNode(node.child, input, current, matchStart, memo)
+            )));
+            ++count;
+            if (count < node.minimum) {
+                frontier = next;
+                continue;
+            }
+            frontier = next.filter((candidate) => !seen.has(candidate));
+            for (const candidate of frontier) seen.add(candidate);
+        }
+        results = uniquePositions(accepted);
+        break;
+    }
+    case 'reference':
+        throw new Error('reference reached the direct ERE evaluator');
+    default:
+        throw new Error(`invalid direct ERE node: ${node.type}`);
+    }
+    memo.set(key, results);
+    return results;
+}
+
+function evaluateReferenceNode(node, input, state, evaluator) {
     switch (node.type) {
     case 'literal':
         return input.startsWith(node.value, state.position)
@@ -630,11 +638,9 @@ function evaluateReferenceNode(node, input, state) {
             && node.matcher.test(input[state.position])
             ? [{ ...state, position: state.position + 1 }] : [];
     case 'anchor': {
-        const matches = node.edge === 'start'
-            ? state.position === 0 || (!node.absolute
-                && input[state.position - 1] === '\n')
-            : state.position === input.length || (!node.absolute
-                && input[state.position] === '\n');
+        const matches = anchorMatches(
+            node, input, state.position, state.matchStart,
+        );
         return matches ? [state] : [];
     }
     case 'word-boundary': {
@@ -650,17 +656,22 @@ function evaluateReferenceNode(node, input, state) {
     }
     case 'reference': {
         const capture = state.captures[node.group];
-        if (!capture) return [];
-        const value = input.slice(capture.start, capture.end);
-        return input.startsWith(value, state.position)
-            ? [{ ...state, position: state.position + value.length }]
+        if (capture === undefined) return [];
+        return input.startsWith(capture, state.position)
+            ? [{ ...state, position: state.position + capture.length }]
             : [];
     }
     case 'group': {
         const start = state.position;
-        return evaluateReferenceNode(node.child, input, state).map((result) => {
+        return evaluateReferenceNode(
+            node.child, input, state, evaluator,
+        ).map((result) => {
+            if (!evaluator.referencedGroups.has(node.id)) return result;
             const captures = [...result.captures];
-            captures[node.id] = { start, end: result.position };
+            // Only the enclosing span changes. Descendant entries retain the
+            // last participating value when this path used a sibling, which
+            // is the recorder glibc repeated-subexpression rule.
+            captures[node.id] = input.slice(start, result.position);
             return { ...result, captures };
         });
     }
@@ -668,7 +679,9 @@ function evaluateReferenceNode(node, input, state) {
         let states = [state];
         for (const child of node.nodes) {
             states = uniqueCaptureStates(states.flatMap(
-                (current) => evaluateReferenceNode(child, input, current),
+                (current) => evaluateReferenceNode(
+                    child, input, current, evaluator,
+                ),
             ));
             if (!states.length) break;
         }
@@ -676,23 +689,48 @@ function evaluateReferenceNode(node, input, state) {
     }
     case 'alternative':
         return uniqueCaptureStates(node.nodes.flatMap(
-            (child) => evaluateReferenceNode(child, input, state),
+            (child) => evaluateReferenceNode(child, input, state, evaluator),
         ));
     case 'repeat': {
         let count = 0;
         let frontier = [state];
         const results = [];
+        const firstNestedCapture = !Number.isFinite(node.maximum)
+            && node.child.type === 'group'
+            && evaluator.referencedGroups.has(node.child.id)
+            && node.child.child.containsRepeat
+            && node.child.minimumWidth > 0;
         // Before minimum, repeated states still matter: an empty atom can
         // satisfy `{32767}` without changing position or captures. At and
         // above minimum, the state key is the complete future input, so a
         // fixed point closes an unbounded repetition without a pattern limit.
         while (frontier.length && count <= node.maximum) {
             if (count >= node.minimum) results.push(...frontier);
-            if (count === node.maximum) break;
-            const next = uniqueCaptureStates(frontier.flatMap(
-                (current) => evaluateReferenceNode(node.child, input, current),
+            if (count === node.maximum || (firstNestedCapture && count === 1))
+                break;
+            let next = uniqueCaptureStates(frontier.flatMap(
+                (current) => evaluateReferenceNode(
+                    node.child, input, current, evaluator,
+                ),
             ));
             ++count;
+            // get_subexp() caches the first viable open/close path for a
+            // quantified referenced group at one backreference node. When
+            // that group's nonempty body is itself quantified, later
+            // decompositions do not create independent capture candidates.
+            if (firstNestedCapture && count === 1 && next.length > 1)
+                next = [next[0]];
+            if (Number.isFinite(node.maximum)
+                && count > node.minimum && count < node.maximum) {
+                next = next.map((candidate) => {
+                    const captures = [...candidate.captures];
+                    for (const group of node.child.captureGroups) {
+                        if (evaluator.referencedGroups.has(group))
+                            captures[group] = undefined;
+                    }
+                    return { ...candidate, captures };
+                });
+            }
             if (count < node.minimum) {
                 frontier = next;
                 continue;
@@ -716,10 +754,24 @@ function matchReferenceExtendedRegexp(input, evaluator) {
     for (let start = 0; start <= input.length; ++start) {
         const state = {
             position: start,
-            captures: Array(evaluator.groupCount + 1),
+            matchStart: start,
+            // Sparse ids are intentional: unreferenced groups never enter the
+            // state key, even when a 255-byte pattern declares many of them.
+            captures: [],
         };
-        if (evaluateReferenceNode(evaluator.root, input, state).length)
+        if (evaluateReferenceNode(
+            evaluator.root, input, state, evaluator,
+        ).length)
             return true;
+    }
+    return false;
+}
+
+function matchDirectExtendedRegexp(input, evaluator) {
+    for (let start = 0; start <= input.length; ++start) {
+        if (evaluateDirectNode(
+            evaluator.root, input, start, start, new Map(),
+        ).length) return true;
     }
     return false;
 }
@@ -736,14 +788,11 @@ export function regex_compile(pattern, regex) {
     } else if (/[^\x00-\x7F]/u.test(text)) {
         regex.kind = 'locale-boundary';
     } else {
-        const references = [];
-        const source = translateAsciiExtendedRegexp(text, references);
-        if (!references.length) {
+        regex.evaluator = parseAsciiExtendedRegexp(text);
+        if (!regex.evaluator.referencedGroups.size) {
             regex.kind = 'direct';
-            regex.matcher = new RegExp(source, 's');
         } else {
             regex.kind = 'reference-aware';
-            regex.evaluator = parseReferenceExtendedRegexp(text);
         }
     }
     return !regex.error;
@@ -769,7 +818,9 @@ export function regex_match(value, regex) {
     if (regex.kind === 'locale-boundary' || /[^\x00-\x7F]/u.test(text)) {
         throw new UnsupportedPosixLocaleMatchError();
     }
-    if (regex.kind === 'direct') return regex.matcher.test(text);
+    if (regex.kind === 'direct') {
+        return matchDirectExtendedRegexp(text, regex.evaluator);
+    }
     if (regex.kind !== 'reference-aware')
         throw new Error(`invalid compiled regex state: ${String(regex.kind)}`);
 
