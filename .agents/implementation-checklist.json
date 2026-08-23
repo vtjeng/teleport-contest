@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
   "reason": "All eleven adjudicated corrections now have source-pinned focused evidence, fresh C/JS coverage where production behavior changed, a green 4,714-test non-mutation suite, nine green generated-data checks, four green static checks, and a stable 11/33 development score. The slice is ready for the orchestrator to bind commitChecked to the implementation commit and schedule audit.",
-  "commitChecked": "fcb71562c611f8a9c94d86076d12e40ca9dfc3cd",
+  "commitChecked": "c39cca39093a58f158a4e0bcdf58a41a7f16f68d",
   "boundary": {
     "goalId": "options-config-parser",
     "startingCommit": "fcb71562c611f8a9c94d86076d12e40ca9dfc3cd",
