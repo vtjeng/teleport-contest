@@ -512,6 +512,7 @@ function defaultResult() {
             wc_scroll_margin: 0,
             // options.c optfn_tile_height() and optfn_tile_width() likewise
             // leave their zeroed instance-flags fields alone during do_init.
+            wc_tile_file: null,
             wc_tile_height: 0,
             wc_tile_width: 0,
             // options.c optfn_vary_msgcount() also leaves its zeroed
@@ -2979,6 +2980,23 @@ function optfn_soundlib(result, statement) {
     assign_soundlib(result, result.gc.chosen_soundlib);
 }
 
+// C ref: options.c optfn_tile_file() (4321-4351).  parseoptions() supplies
+// string_for_opt(..., TRUE), so a missing or empty value is a silent optn_err
+// that preserves the previous pointer.  A nonempty value frees and replaces
+// that pointer; one nullable string in iflags is the port's sole owner too.
+function optfn_tile_file(result, statement) {
+    const op = string_for_opt(statement, true);
+    if (op !== '') result.iflags.wc_tile_file = op;
+}
+
+// optfn_tile_file(get_cnf_val) differs from get_val only for the null default:
+// saved configuration receives an empty buffer while an options display says
+// "default".  #saveoptions is outside this runtime boundary, so this pure
+// formatter pins the source contract without claiming that command is ported.
+export function tileFileConfigValue(state) {
+    return state.iflags.wc_tile_file ?? '';
+}
+
 // C ref: options.c optfn_tile_height() and optfn_tile_width() (4354-4415),
 // their do_set arms.  A non-negated value stores unrestricted atoi() output,
 // while a bare negation resets the dimension to zero.  Missing positive
@@ -4387,6 +4405,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_scroll_margin(result, statement, negated);
     } else if (name === 'soundlib') {
         optfn_soundlib(result, statement);
+    } else if (name === 'tile_file') {
+        optfn_tile_file(result, statement);
     } else if (name === 'tile_height') {
         optfn_tile_height(result, statement, negated);
     } else if (name === 'tile_width') {
@@ -5650,6 +5670,7 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         ? `${state.iflags.wc2_term_cols}` : 'default'),
     term_rows: (state) => (state.iflags.wc2_term_rows
         ? `${state.iflags.wc2_term_rows}` : 'default'),
+    tile_file: (state) => state.iflags.wc_tile_file ?? 'default',
     tile_height: (state) => (state.iflags.wc_tile_height
         ? `${state.iflags.wc_tile_height}` : 'default'),
     tile_width: (state) => (state.iflags.wc_tile_width
