@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
+import { encodeUtf8ByteString } from '../js/hacklib.js';
 import {
     regex_compile,
     regex_error_desc,
@@ -35,6 +36,17 @@ function run(command, args) {
     if (result.status !== 0) {
         throw new Error(
             `${command} exited ${result.status}: ${result.stderr.trim()}`,
+        );
+    }
+    return result.stdout;
+}
+
+function runBuffer(command, args) {
+    const result = spawnSync(command, args);
+    if (result.error) throw result.error;
+    if (result.status !== 0) {
+        throw new Error(
+            `${command} exited ${result.status}: ${result.stderr.toString().trim()}`,
         );
     }
     return result.stdout;
@@ -61,6 +73,20 @@ const REGEX_CASES = Object.freeze([
     [String.raw`^\s+$`, ['\t\n\v\f\r ', 'a']],
     [String.raw`^\S+$`, ['abc_123', 'a b']],
     ['^[]-a]$', [']', 'b']],
+    [String.raw`(a|(b))b?\2`, ['abb', 'ab']],
+    [String.raw`((a)?\2x.x|a)`, ['xax', 'xxx']],
+    [String.raw`((a)?\2|a)`, ['a', 'b']],
+    ['^a{,}$', ['', 'aaa', 'b']],
+    ['^a{,2}$', ['aa', 'aaa']],
+    ['^a{2}{3}$', ['aaaaaa', 'aaaaa']],
+    ['^[a-]$', ['-', 'b']],
+    [String.raw`\`a`, ['a', 'ba']],
+    [String.raw`a\'`, ['a', 'ab']],
+    ['$.', ['\n', 'a']],
+    ['a$.', ['a\n', 'a']],
+    ['.+^', ['\n', 'a']],
+    ['^end$', ['end', 'end\n']],
+    [String.raw`(a)|(b)\2`, ['a', 'bb', 'b']],
 ]);
 
 const REGEX_ERRORS = Object.freeze([
@@ -72,6 +98,9 @@ const REGEX_ERRORS = Object.freeze([
     [String.raw`\<{1}`, 'Invalid preceding regular expression'],
     [String.raw`\>?`, 'Invalid preceding regular expression'],
     ['[]--]', 'Invalid range end'],
+    [String.raw`\`*`, 'Invalid preceding regular expression'],
+    [String.raw`\'+`, 'Invalid preceding regular expression'],
+    [String.raw`(a)|\1`, 'Invalid back reference'],
 ]);
 
 function checkRegexOracle(executable) {
@@ -110,9 +139,10 @@ async function checkVplineOracle(executable) {
         'a'.repeat(253) + 'XYZ',
         'a'.repeat(249) + 'REMOVED' + 'b'.repeat(41) + 'XYZ',
         'q'.repeat(508) + 'END',
+        'a'.repeat(248) + 'é' + 'removed' + 'XYZ',
+        'b'.repeat(253) + 'é',
     ];
     for (const input of cases) {
-        const expected = run(executable, [input]);
         resetGame();
         game.nhDisplay = new GameDisplay(null);
         game.iflags = { cbreak: true };
@@ -123,7 +153,11 @@ async function checkVplineOracle(executable) {
         for (let index = 0; index < 8; ++index)
             game.nhDisplay.pushKey(' '.charCodeAt(0));
         await ttyPline(input, game);
-        assert.equal(game._ttyPreviousMessage, expected, String(input.length));
+        assert.deepEqual(
+            encodeUtf8ByteString(game._ttyPreviousMessage),
+            Array.from(runBuffer(executable, [input])),
+            String(input.length),
+        );
     }
     return cases.length;
 }

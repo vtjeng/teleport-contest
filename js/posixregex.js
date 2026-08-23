@@ -127,7 +127,7 @@ function intervalExpression(pattern, start) {
     const close = pattern.indexOf('}', start + 1);
     if (close < 0) return { error: 'Unmatched \\{' };
     const body = pattern.slice(start + 1, close);
-    const match = /^(?:([0-9]+)(?:,([0-9]*))?|,([0-9]+))$/u.exec(body);
+    const match = /^(?:([0-9]+)(?:,([0-9]*))?|,([0-9]*))$/u.exec(body);
     if (!match) return { error: 'Invalid content of \\{\\}' };
 
     const lower = decimalCount(match[1] ?? '0');
@@ -148,7 +148,7 @@ function validateExtendedRegexp(pattern) {
     let index = 0;
     let repeatable = false;
     let groupCount = 0;
-    let availableGroups = new Set();
+    let pathAvailableGroups = new Set();
     const frames = [{
         branchStartGroups: new Set(),
         subtreeGroups: [],
@@ -160,11 +160,11 @@ function validateExtendedRegexp(pattern) {
             if (index + 1 >= pattern.length) return 'Trailing backslash';
             const escaped = pattern[index + 1];
             if (escaped >= '1' && escaped <= '9') {
-                if (!availableGroups.has(Number(escaped))) {
+                if (!pathAvailableGroups.has(Number(escaped))) {
                     return INVALID_BACK_REFERENCE;
                 }
                 repeatable = true;
-            } else if (['b', 'B', '<', '>'].includes(escaped)) {
+            } else if (['b', 'B', '<', '>', '`', "'"].includes(escaped)) {
                 repeatable = false;
             } else {
                 repeatable = true;
@@ -182,7 +182,7 @@ function validateExtendedRegexp(pattern) {
         if (character === '(') {
             const id = ++groupCount;
             frames.push({
-                branchStartGroups: new Set(availableGroups),
+                branchStartGroups: new Set(pathAvailableGroups),
                 subtreeGroups: [id],
             });
             ++index;
@@ -192,13 +192,19 @@ function validateExtendedRegexp(pattern) {
         if (character === ')' && frames.length > 1) {
             const frame = frames.pop();
             frames.at(-1).subtreeGroups.push(...frame.subtreeGroups);
-            for (const id of frame.subtreeGroups) availableGroups.add(id);
+            for (const id of frame.subtreeGroups)
+                pathAvailableGroups.add(id);
             ++index;
             repeatable = true;
             continue;
         }
         if (character === '|') {
-            availableGroups = new Set(frames.at(-1).branchStartGroups);
+            // A capture from one sibling is unavailable on every other
+            // sibling path. glibc therefore rejects `(a)|\1`, even though
+            // the first branch owns group 1.
+            pathAvailableGroups = new Set(
+                frames.at(-1).branchStartGroups,
+            );
             ++index;
             repeatable = false;
             continue;
@@ -233,11 +239,11 @@ function validateExtendedRegexp(pattern) {
 
 export function regex_init() {
     return {
+        kind: 'uncompiled',
         error: null,
         matcher: null,
-        matchers: null,
+        alternatives: null,
         pattern: null,
-        references: null,
     };
 }
 
@@ -363,6 +369,7 @@ function translateAsciiExtendedRegexp(pattern, references) {
     function translatePart(start, stopAtClose) {
         let index = start;
         let source = '';
+        let branchStart = true;
         while (index < pattern.length) {
             const character = pattern[index];
             if (stopAtClose && character === ')') {
@@ -371,18 +378,29 @@ function translateAsciiExtendedRegexp(pattern, references) {
             if (character === '|') {
                 source += '|';
                 ++index;
+                branchStart = true;
                 continue;
             }
             if (character === '^') {
-                source += '^';
+                // glibc makes a branch-leading caret absolute. Elsewhere it
+                // also admits the position after a newline, even without
+                // REG_NEWLINE; absolute beginning remains valid.
+                source += branchStart ? '^' : '(?:^|(?<=\n))';
                 ++index;
+                branchStart = false;
                 continue;
             }
             if (character === '$') {
-                // ECMAScript `$` also matches before a final newline. libc
-                // regexec() without REG_NEWLINE matches only absolute end.
-                source += '(?![\\s\\S])';
+                const branchEnd = index + 1 >= pattern.length
+                    || pattern[index + 1] === '|'
+                    || (stopAtClose && pattern[index + 1] === ')');
+                // A branch-final dollar is absolute. An internal dollar also
+                // admits the position before a newline.
+                source += branchEnd
+                    ? '(?![\\s\\S])'
+                    : '(?:(?![\\s\\S])|(?=\n))';
                 ++index;
+                branchStart = false;
                 continue;
             }
 
@@ -409,6 +427,10 @@ function translateAsciiExtendedRegexp(pattern, references) {
                     atom = '(?<![A-Za-z0-9_])(?=[A-Za-z0-9_])';
                 } else if (escaped === '>') {
                     atom = '(?<=[A-Za-z0-9_])(?![A-Za-z0-9_])';
+                } else if (escaped === '`') {
+                    atom = '^';
+                } else if (escaped === "'") {
+                    atom = '(?![\\s\\S])';
                 } else if (escaped === 'w') {
                     atom = '[A-Za-z0-9_]';
                 } else if (escaped === 'W') {
@@ -459,6 +481,7 @@ function translateAsciiExtendedRegexp(pattern, references) {
                 duplicated = true;
             }
             source += atom;
+            branchStart = false;
         }
         return { index, source };
     }
@@ -472,22 +495,23 @@ export function regex_compile(pattern, regex) {
     regex.error = validateExtendedRegexp(text);
     regex.pattern = regex.error ? null : text;
     regex.matcher = null;
-    regex.matchers = null;
-    regex.references = null;
-    if (!regex.error && !/[^\x00-\x7F]/u.test(text)) {
-        regex.references = [];
-        const source = translateAsciiExtendedRegexp(text, regex.references);
-        if (!regex.references.length) {
+    regex.alternatives = null;
+    if (regex.error) {
+        regex.kind = 'rejected';
+    } else if (/[^\x00-\x7F]/u.test(text)) {
+        regex.kind = 'locale-boundary';
+    } else {
+        const references = [];
+        const source = translateAsciiExtendedRegexp(text, references);
+        if (!references.length) {
+            regex.kind = 'direct';
             regex.matcher = new RegExp(source, 's');
         } else {
-            // Test source alternatives independently. ECMAScript accepts an
-            // unmatched-group backreference as empty and can otherwise stop
-            // on that invalid candidate before trying a later POSIX-valid
-            // alternative at the same starting position.
-            regex.matchers = splitTopLevelAlternatives(source).map(
+            regex.kind = 'reference-aware';
+            regex.alternatives = splitTopLevelAlternatives(source).map(
                 (alternative) => ({
-                    matcher: new RegExp(alternative, 'dgs'),
-                    references: regex.references.filter(({ marker }) => (
+                    source: alternative,
+                    references: references.filter(({ marker }) => (
                         alternative.includes(`?<${marker}>`)
                     )),
                 }),
@@ -511,30 +535,53 @@ export class UnsupportedPosixLocaleMatchError extends Error {
 }
 
 export function regex_match(value, regex) {
-    if (!regex || regex.pattern == null) return false;
+    if (!regex || regex.kind === 'uncompiled' || regex.kind === 'rejected')
+        return false;
     const text = String(value);
-    if (/[^\x00-\x7F]/u.test(regex.pattern)
-        || /[^\x00-\x7F]/u.test(text)) {
+    if (regex.kind === 'locale-boundary' || /[^\x00-\x7F]/u.test(text)) {
         throw new UnsupportedPosixLocaleMatchError();
     }
-    if (!regex.references?.length) return regex.matcher.test(text);
+    if (regex.kind === 'direct') return regex.matcher.test(text);
+    if (regex.kind !== 'reference-aware')
+        throw new Error(`invalid compiled regex state: ${String(regex.kind)}`);
 
-    // ECMAScript treats a backreference to a group which did not participate
-    // in this match as empty. glibc rejects that candidate. Keep looking at
-    // later starting positions because an unanchored pattern can still have a
-    // source-valid match after such a candidate.
-    for (const { matcher, references } of regex.matchers) {
-        matcher.lastIndex = 0;
-        for (;;) {
-            const match = matcher.exec(text);
-            if (!match) break;
-            if (references.every(
-                ({ group, marker }) => (
-                    match.indices.groups[marker] === undefined
-                    || match.indices.groups[group] !== undefined
-                ),
-            )) return true;
-            if (match[0].length === 0) ++matcher.lastIndex;
+    // ECMAScript accepts a backreference whose group did not participate as
+    // empty. glibc rejects that candidate. Scan again one byte later for an
+    // overlap, and separately disable each bad reference marker so the JS
+    // engine can backtrack into a valid nested alternative at the same start.
+    for (const { source, references } of regex.alternatives) {
+        const queue = [new Set()];
+        const queued = new Set(['']);
+        while (queue.length) {
+            const blocked = queue.shift();
+            let candidateSource = source;
+            for (const { group, marker } of references) {
+                if (!blocked.has(marker)) continue;
+                candidateSource = candidateSource.replace(
+                    `(?<${marker}>\\k<${group}>)`,
+                    `(?<${marker}>(?!))`,
+                );
+            }
+            const matcher = new RegExp(candidateSource, 'dgs');
+            for (;;) {
+                const match = matcher.exec(text);
+                if (!match) break;
+                const invalid = references.filter(({ group, marker }) => (
+                    match.indices.groups[marker] !== undefined
+                    && match.indices.groups[group] === undefined
+                ));
+                if (!invalid.length) return true;
+                for (const { marker } of invalid) {
+                    const next = new Set(blocked);
+                    next.add(marker);
+                    const key = [...next].sort().join(',');
+                    if (!queued.has(key)) {
+                        queued.add(key);
+                        queue.push(next);
+                    }
+                }
+                matcher.lastIndex = match.index + 1;
+            }
         }
     }
     return false;

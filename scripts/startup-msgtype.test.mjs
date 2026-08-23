@@ -16,6 +16,7 @@ import {
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
+import { encodeUtf8ByteString } from '../js/hacklib.js';
 import { nhgetch } from '../js/input.js';
 import { allopt } from '../js/optlist_data.js';
 import {
@@ -68,8 +69,8 @@ function messageState(config = '', keys = '') {
 test('the fresh recipe retains the MSGTYPE branch matrix', () => {
     const recipe = loadStartupMsgtypeRecipe();
     assert.equal(recipe.segments.length, STARTUP_MSGTYPE_CASES.length);
-    assert.equal(recipe.segments.length, 17);
-    assert.equal(STARTUP_MSGTYPE_CASES.filter(({ errors }) => errors).length, 3);
+    assert.equal(recipe.segments.length, 23);
+    assert.equal(STARTUP_MSGTYPE_CASES.filter(({ errors }) => errors).length, 4);
     assert.ok(STARTUP_MSGTYPE_CASES.some(({ statements }) => (
         statements.length === 2
         && statements[0].startsWith('MSGTYPE=hide ".*"')
@@ -234,6 +235,49 @@ test('numeric backreferences follow recorder glibc compile and match rules',
         }
     });
 
+test('rejected empty-reference candidates retain every valid candidate', () => {
+    for (const [pattern, text] of [
+        [String.raw`(a|(b))b?\2`, 'abb'],
+        [String.raw`((a)?\2x.x|a)`, 'xax'],
+        [String.raw`((a)?\2|a)`, 'a'],
+    ]) {
+        const regex = regex_init();
+        assert.equal(regex_compile(pattern, regex), true, pattern);
+        assert.equal(regex_match(text, regex), true,
+            JSON.stringify({ pattern, text }));
+    }
+});
+
+test('sibling alternatives expose only captures on their current path', () => {
+    const invalid = regex_init();
+    assert.equal(regex_compile(String.raw`(a)|\1`, invalid), false);
+    assert.equal(invalid.error, 'Invalid back reference');
+
+    const valid = regex_init();
+    assert.equal(regex_compile(String.raw`(a)|(b)\2`, valid), true);
+    assert.equal(regex_match('a', valid), true);
+    assert.equal(regex_match('bb', valid), true);
+    assert.equal(regex_match('b', valid), false);
+});
+
+test('compiled regex states use one explicit representation discriminant', () => {
+    const regex = regex_init();
+    assert.equal(regex.kind, 'uncompiled');
+    assert.equal(regex_compile('[z-a]', regex), false);
+    assert.equal(regex.kind, 'rejected');
+    assert.equal(regex_compile('é', regex), true);
+    assert.equal(regex.kind, 'locale-boundary');
+    assert.equal(regex_compile('a+', regex), true);
+    assert.equal(regex.kind, 'direct');
+    assert.equal(regex_compile(String.raw`(a)\1`, regex), true);
+    assert.equal(regex.kind, 'reference-aware');
+    regex.kind = 'unknown';
+    assert.throws(
+        () => regex_match('aa', regex),
+        /invalid compiled regex state: unknown/u,
+    );
+});
+
 test('GNU word, space, and boundary escapes use ASCII glibc semantics', () => {
     const cases = [
         [String.raw`^\bfoo\b$`, 'foo', 'foo_'],
@@ -305,7 +349,7 @@ test('a leading literal close bracket can be a range endpoint', () => {
 
 test('every source-accepted translator edge compiles without a JS leak', () => {
     for (const pattern of [
-        ')', '()', '(|)', 'a{,2}', 'a{2,}', 'a{2}{3}', 'a**', 'a?+',
+        ')', '()', '(|)', 'a{,}', 'a{,2}', 'a{2,}', 'a{2}{3}', 'a**', 'a?+',
         '[]a]', '[a-]', '[[:punct:]]', '[[=a=]]', '[[.a.]]',
         String.raw`\(\)\{\}\+\?\|\.\^\$`,
     ]) {
@@ -314,6 +358,64 @@ test('every source-accepted translator edge compiles without a JS leak', () => {
         assert.equal(regex_compile(pattern, regex), true, pattern);
     }
 });
+
+test('accepted interval and final-hyphen forms match their libc languages',
+    () => {
+        for (const [pattern, matches, misses] of [
+            ['^a{,}$', ['', 'a', 'aaaa'], ['b']],
+            ['^a{,2}$', ['', 'a', 'aa'], ['aaa', 'b']],
+            ['^a{2}{3}$', ['aaaaaa'], ['', 'aa', 'aaaaa']],
+            ['^[a-]$', ['a', '-'], ['b', 'aa']],
+        ]) {
+            const regex = regex_init();
+            assert.equal(regex_compile(pattern, regex), true, pattern);
+            for (const text of matches)
+                assert.equal(regex_match(text, regex), true,
+                    JSON.stringify({ pattern, text }));
+            for (const text of misses)
+                assert.equal(regex_match(text, regex), false,
+                    JSON.stringify({ pattern, text }));
+        }
+    });
+
+test('GNU buffer anchors and contextual line anchors match recorder glibc',
+    () => {
+        for (const [pattern, matches, misses] of [
+            [String.raw`\`a`, ['a', 'ab'], ['ba']],
+            [String.raw`a\'`, ['a', 'ba'], ['ab', 'a\n']],
+            ['$.', ['\n', 'a\n'], ['', 'a']],
+            ['a$.', ['a\n', 'a\nb'], ['a', 'b\n']],
+            ['.+^', ['\n', 'a\n'], ['', 'a']],
+            ['^end$', ['end'], ['end\n', 'xend']],
+        ]) {
+            const regex = regex_init();
+            assert.equal(regex_compile(pattern, regex), true, pattern);
+            for (const text of matches)
+                assert.equal(regex_match(text, regex), true,
+                    JSON.stringify({ pattern, text }));
+            for (const text of misses)
+                assert.equal(regex_match(text, regex), false,
+                    JSON.stringify({ pattern, text }));
+        }
+
+        for (const anchor of [String.raw`\``, String.raw`\'`]) {
+            for (const quantifier of ['*', '+', '?', '{1}']) {
+                const pattern = anchor + quantifier;
+                const regex = regex_init();
+                assert.equal(regex_compile(pattern, regex), false, pattern);
+                assert.equal(regex.error,
+                    'Invalid preceding regular expression', pattern);
+            }
+        }
+    });
+
+test('configured internal dollar classifies a live newline message',
+    async () => {
+        const state = messageState('MSGTYPE=hide "$."\n');
+        await ttyPline('line\n', state);
+        assert.equal(state._pending_message, undefined);
+        assert.equal(state._ttyPreviousMessage, '');
+    });
 
 test('regex_match names its unported C.UTF-8 locale boundary', () => {
     for (const [pattern, text] of [['é', 'é'], ['.*', 'é']]) {
@@ -399,10 +501,41 @@ test('vpline applies hide, norep, stop, urgent, and override rules', async () =>
     await ttyUrgentPline('urgent', urgent);
     assert.equal(urgent._pending_message, 'urgent');
 
+    const urgentNorep = messageState('MSGTYPE=norep "same"\n');
+    await ttyPline('same', urgentNorep);
+    await ttyUrgentPline('same', urgentNorep);
+    assert.equal(urgentNorep._pending_message, 'same  same');
+    assert.equal(urgentNorep._ttyPreviousMessage, 'same');
+
     const override = messageState('MSGTYPE=hide ".*"\n');
     await ttyCustomPline('override', OVERRIDE_MSGTYPE, override);
     assert.equal(override._pending_message, 'override');
 });
+
+test('a fitting same-line STOP waits once, preserves a key, and clears',
+    async () => {
+        const state = messageState('MSGTYPE=stop "halt"\n', ' X');
+        const boundaries = [];
+        state._preNhgetchHook = () => boundaries.push({
+            row: state.nhDisplay.grid[0].map((cell) => cell.ch)
+                .join('').trimEnd(),
+            cursor: [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        });
+        await ttyPline('prior', state);
+        await ttyPline('halt', state);
+        assert.deepEqual(boundaries, [{
+            row: 'prior  halt--More--',
+            cursor: [19, 0],
+        }]);
+        assert.equal(await nhgetch(state), 'X'.charCodeAt(0));
+        assert.equal(state._pending_message, '');
+        assert.equal(state.nhDisplay.grid[0].map((cell) => cell.ch)
+            .join('').trimEnd(), '');
+        assert.deepEqual(
+            [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+            [0, 0],
+        );
+    });
 
 test('urgent STOP waits once while override STOP consumes no input', async () => {
     const urgent = messageState('MSGTYPE=stop "urgent"\n', ' X');
@@ -458,6 +591,55 @@ test('vpline normalizes one byte string before lookup, output, and history',
         await ttyPline(original, finalRule);
         assert.equal(finalRule._pending_message, undefined);
         assert.equal(finalRule._ttyPreviousMessage, '');
+    });
+
+test('normalized-equal long messages compare equal before NOREP', async () => {
+    const first = 'a'.repeat(249) + 'FIRST-MIDDLE' + 'XYZ';
+    const second = 'a'.repeat(249) + 'SECOND-MIDDLE' + 'XYZ';
+    const state = messageState('MSGTYPE=norep ".*"\n', '        ');
+    let waits = 0;
+    state._preNhgetchHook = () => { ++waits; };
+    await ttyPline(first, state);
+    const before = {
+        previous: state._ttyPreviousMessage,
+        toplines: state._ttyToplines,
+        pending: state._pending_message,
+        grid: state.nhDisplay.grid.map(
+            (row) => row.map((cell) => ({ ...cell })),
+        ),
+        cursor: [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        waits,
+    };
+    await ttyPline(second, state);
+    assert.equal(state._ttyPreviousMessage, before.previous);
+    assert.equal(state._ttyToplines, before.toplines);
+    assert.equal(state._pending_message, before.pending);
+    assert.deepEqual(state.nhDisplay.grid, before.grid);
+    assert.deepEqual(
+        [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        before.cursor,
+    );
+    assert.equal(waits, before.waits);
+});
+
+test('vpline normalization slices UTF-8 bytes and preserves 255 bytes',
+    async () => {
+        const split = 'a'.repeat(248) + 'é' + 'removed' + 'XYZ';
+        const splitState = messageState('', '        ');
+        await ttyPline(split, splitState);
+        assert.deepEqual(encodeUtf8ByteString(splitState._ttyPreviousMessage), [
+            ...Array(248).fill(0x61), 0xC3, 0x2E, 0x2E, 0x2E,
+            0x58, 0x59, 0x5A,
+        ]);
+
+        const atLimit = 'b'.repeat(253) + 'é';
+        assert.equal(encodeUtf8ByteString(atLimit).length, 255);
+        const controlState = messageState('', '        ');
+        await ttyPline(atLimit, controlState);
+        assert.deepEqual(
+            encodeUtf8ByteString(controlState._ttyPreviousMessage),
+            encodeUtf8ByteString(atLimit),
+        );
     });
 
 test('custompline refuses every unsupported flag before effects', async () => {

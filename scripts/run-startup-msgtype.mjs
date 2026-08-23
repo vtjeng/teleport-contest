@@ -162,6 +162,78 @@ export const STARTUP_MSGTYPE_CASES = Object.freeze([
             ['elkommen', false, MSGTYP_NOSHOW]],
     }),
     messageCase({
+        label: 'overlapping backreference candidate suppresses welcome',
+        seed: 9812416,
+        datetime: '20420415141600',
+        statements: [String.raw`MSGTYPE=hide "(o|(m))m?\2"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`(o|(m))m?\2`,
+        }],
+        probes: [['Velkommen', false, MSGTYP_NOSHOW],
+            ['Hello', false, MSGTYP_NORMAL]],
+    }),
+    messageCase({
+        label: 'same-start nested alternative suppresses welcome',
+        seed: 9812415,
+        datetime: '20420415141500',
+        statements: [String.raw`MSGTYPE=hide "((V)?\2|V)"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`((V)?\2|V)`,
+        }],
+        probes: [['Velkommen', false, MSGTYP_NOSHOW],
+            ['Hello', false, MSGTYP_NORMAL]],
+    }),
+    messageCase({
+        label: 'comma-only interval installs with zero-or-more semantics',
+        seed: 9812359,
+        datetime: '20420415133700',
+        statements: ['MSGTYPE=hide "V{,}"'],
+        expected: [{ msgtype: MSGTYP_NOSHOW, pattern: 'V{,}' }],
+        probes: [['', false, MSGTYP_NOSHOW],
+            ['VVV', false, MSGTYP_NOSHOW]],
+    }),
+    messageCase({
+        label: 'GNU absolute-buffer anchors install through MSGTYPE',
+        seed: 9812418,
+        datetime: '20420415141800',
+        statements: [
+            String.raw`MSGTYPE=hide "\`Vel"`,
+            String.raw`MSGTYPE=hide "\.\'"`,
+        ],
+        expected: [
+            { msgtype: MSGTYP_NOSHOW, pattern: String.raw`\.\'` },
+            { msgtype: MSGTYP_NOSHOW, pattern: String.raw`\`Vel` },
+        ],
+        probes: [['Velkommen', false, MSGTYP_NOSHOW],
+            ['xVelkommen', false, MSGTYP_NORMAL],
+            ['done.', false, MSGTYP_NOSHOW],
+            ['done.!', false, MSGTYP_NORMAL]],
+    }),
+    messageCase({
+        label: 'contextual internal anchor installs for newline messages',
+        seed: 9812411,
+        datetime: '20420415141100',
+        statements: ['MSGTYPE=hide "$."'],
+        expected: [{ msgtype: MSGTYP_NOSHOW, pattern: '$.' }],
+        probes: [['a\n', false, MSGTYP_NOSHOW],
+            ['a', false, MSGTYP_NORMAL]],
+    }),
+    messageCase({
+        label: 'repeated GNU anchors report and later config continues',
+        seed: 9812441,
+        datetime: '20420415144100',
+        moves: OPEN_FULL_OPTIONS_MENU,
+        statements: [
+            ...Array(30).fill(String.raw`MSGTYPE=hide "\`*"`),
+            String.raw`MSGTYPE=hide "\'+"`,
+            'MSGTYPE=show "^never$"',
+        ],
+        expected: [{ msgtype: MSGTYP_NORMAL, pattern: '^never$' }],
+        errors: 31,
+    }),
+    messageCase({
         label: 'later show rule wins over earlier matching hide rule',
         seed: 9812423,
         datetime: '20420415142300',
@@ -334,7 +406,10 @@ export async function runStartupMsgtypeMatrix() {
         }],
         summaryLabel: 'STARTUP MSGTYPE',
         verifySegment: verifyStartupMsgtypeSegment,
-        chunkLimit: 6,
+        // Every segment stops a debug game at the startup boundary. Isolate
+        // their recorder install state so a preceding terminated game cannot
+        // affect the next case's save/lock discovery.
+        chunkLimit: 1,
     });
 }
 

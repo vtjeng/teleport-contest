@@ -1,9 +1,12 @@
-// tty_message.js -- Source-shaped TTY top-line message boundaries.
-// C refs: win/tty/topl.c update_topl(), more(), and xwaitforspace().
+// tty_message.js -- Source-shaped message normalization and TTY display.
+// C refs: pline.c vpline(), custompline(), urgent_pline(), and Norep();
+// win/tty/topl.c update_topl(), more(), and xwaitforspace(); and
+// win/tty/wintty.c tty_display_nhwindow() and tty_clear_nhwindow().
 
 import { game } from './gstate.js';
 import {
     MSGTYP_NOREP,
+    MSGTYP_NORMAL,
     MSGTYP_NOSHOW,
     MSGTYP_STOP,
     OVERRIDE_MSGTYPE,
@@ -290,7 +293,7 @@ async function ttyPlineCore(message, state, pflags) {
     const normalizedMessage = normalizeVplineMessage(message);
     const next = ttyByteText(normalizedMessage);
     const noRepeat = Boolean(pflags & PLINE_NOREPEAT);
-    let msgtype = 0;
+    let msgtype = MSGTYP_NORMAL;
     if (!(pflags & OVERRIDE_MSGTYPE)) {
         msgtype = msgtype_type(normalizedMessage, noRepeat, state);
         if (!(pflags & URGENT_MESSAGE)

@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     A_DEX,
+    AUTOUNLOCK_APPLY_KEY,
     AUTOUNLOCK_FORCE,
     AUTOUNLOCK_KICK,
     AUTOUNLOCK_UNTRAP,
@@ -548,6 +549,33 @@ test('the locked arm refuses what doopen_indir cannot answer for', async () => {
         assert.equal(door.flags, D_LOCKED, label);
         apply(game, door);
 
+        game.nhDisplay.pushKey(walkNorth);
+        await assert.rejects(
+            moveloop_core(),
+            (error) => error.reason === reason,
+            label,
+        );
+    }
+});
+
+test('combined autounlock bits keep apply-key before kick', async () => {
+    const base = loadLockedDoorRecipe().segments[0];
+    const walkNorth = commandKeyCode(base.moves[0]);
+    const combined = AUTOUNLOCK_APPLY_KEY | AUTOUNLOCK_KICK
+        | AUTOUNLOCK_FORCE;
+
+    for (const [label, tool, reason] of [
+        ['recognized tool', SKELETON_KEY, 'door unlocking tool'],
+        ['no recognized tool', null, 'autounlock kick prompt'],
+    ]) {
+        await runSegment({ ...base, moves: '' });
+        game.flags.autounlock = combined;
+        if (tool != null) {
+            game.invent = {
+                otyp: tool, oclass: TOOL_CLASS, owt: 3, quan: 1,
+                nobj: game.invent,
+            };
+        }
         game.nhDisplay.pushKey(walkNorth);
         await assert.rejects(
             moveloop_core(),
