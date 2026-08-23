@@ -1034,6 +1034,18 @@ export const ANY_INVALID = (ANY_MASK32 + 1);
 export const NHW_LAST_TYPE = NHW_PERMINVENT;
 export const ATR_DIM = 2;
 export const ATR_ITALIC = 3;
+// wintype.h enum inv_mode_bits and enum inv_modes.  Values 5 and 6 need
+// TTY_PERM_INVENT; this build does not expose those two modes.
+export const INV_NORMAL = 1;
+export const INV_SHOW_GOLD = 2;
+export const INV_SPARSE = 4;
+export const INV_IN_USE = 8;
+export const INVOPT_NONE = 0;
+export const INVOPT_ON = INV_NORMAL;
+export const INVOPT_FULL = INV_SHOW_GOLD;
+export const INVOPT_ON_GRID = INV_NORMAL | INV_SPARSE;
+export const INVOPT_FULL_GRID = INV_SHOW_GOLD | INV_SPARSE;
+export const INVOPT_IN_USE = INV_IN_USE;
 export const CLICK_1 = 1;
 export const CLICK_2 = 2;
 export const NUM_MOUSE_BUTTONS = 2;

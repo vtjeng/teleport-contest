@@ -1130,6 +1130,11 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'map_mode:'."],
         ["Unknown map_mode parameter 'zqxj'."],
     ]],
+    ['perminv_mode', [
+        ["Missing parameter for 'perminv_mode'."],
+        ["Missing parameter for 'perminv_mode:'."],
+        ["Unknown perminv_mode parameter 'zqxj'."],
+    ]],
     ['windowcolors', [
         ["Missing parameter for 'windowcolors'."],
         ["Missing parameter for 'windowcolors:'."],
@@ -1369,9 +1374,7 @@ const SILENT_COMPOUND_ROWS = new Set([
 // what makes a row crossing between these three collections an edit rather
 // than a silent pass, and it is the target for whichever handler is ported
 // next.
-const UNPORTED_COMPOUND_ROWS = new Map([
-    ['perminv_mode', [1, 1, 1]],
-]);
+const UNPORTED_COMPOUND_ROWS = new Map([]);
 
 test('every compound option reports exactly what this parser owes it', () => {
     // optlist.h gives both prefix rows setwhere set_hidden, which labels them
@@ -1388,9 +1391,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 77);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 78);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 1);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 0);
 
     let owed = 0;
     for (const row of rows) {
@@ -1424,9 +1427,7 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // Three messages over the remaining row: what porting that handler is
-    // worth to a configuration file that names it.
-    assert.equal(owed, 3);
+    assert.equal(owed, 0);
 });
 
 test('startup boulder parsing rejects source clashes and signed controls',

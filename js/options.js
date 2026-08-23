@@ -37,6 +37,9 @@ import {
     HL_UNDEF,
     HVY_ENCUMBER,
     Is_rogue_level,
+    INVOPT_IN_USE,
+    INVOPT_NONE,
+    INV_SPARSE,
     LARGEST_INT,
     MENU_COMBINATION,
     MENU_FULL,
@@ -537,6 +540,9 @@ function defaultResult() {
             // options.c optfn_player_selection() leaves this zeroed field
             // alone during do_init; zero is VIA_DIALOG.
             wc_player_selection: VIA_DIALOG,
+            // options.c optfn_perminv_mode() leaves this zeroed field alone
+            // during do_init; zero is InvOptNone.
+            perminv_mode: INVOPT_NONE,
             // options.c optfn_term_cols() and optfn_term_rows() leave these
             // zeroed instance-flags fields alone during do_init.
             wc2_term_cols: 0,
@@ -3394,6 +3400,65 @@ function optfn_map_mode(result, statement, negated) {
     }
 }
 
+// C ref: options.c perminv_modes[] and optfn_perminv_mode() (3046-3133),
+// its startup do_set arm.  The table has nine numeric slots because its index
+// is the stored mode.  TTY_PERM_INVENT is absent from this recorder build, so
+// slots 5 and 6 are null alongside the unused bit combinations 3, 4 and 7.
+const PERMINV_MODES = Object.freeze([
+    Object.freeze({
+        name: 'none', alias: 'off',
+        description: 'no permanent inventory window',
+    }),
+    Object.freeze({
+        name: 'all', alias: 'on',
+        description: 'all inventory except for gold',
+    }),
+    Object.freeze({
+        name: 'full', alias: 'gold',
+        description: 'full inventory including gold',
+    }),
+    null,
+    null,
+    null,
+    null,
+    null,
+    Object.freeze({
+        name: 'in-use', alias: 'inuse-only',
+        description: 'subset: items currently in use',
+    }),
+]);
+
+function optfn_perminv_mode(result, statement, negated) {
+    // Unlike most mandatory-value handlers, this one makes its value optional
+    // under negation so that bare !perminv_mode can turn both fields off.
+    const op = string_for_opt(statement, negated, result);
+    if (op !== '' && negated) {
+        bad_negation(result, 'perminv_mode');
+        return;
+    }
+    if (op !== '') {
+        const mode = PERMINV_MODES.findIndex((entry, index) => entry !== null
+            && (equal_ncasechars(op, entry.name, op.length)
+                || equal_ncasechars(op, entry.alias, op.length)
+                // C checks only op[0], after skipping null table slots.
+                || op.charCodeAt(0) === index + '0'.charCodeAt(0)));
+        if (mode < 0) {
+            configErrorAdd(
+                result, `Unknown perminv_mode parameter '${op}'`,
+            );
+            result.iflags.perminv_mode = INVOPT_NONE;
+            result.iflags.perm_invent = false;
+            return;
+        }
+        result.iflags.perminv_mode = mode;
+        // The C loop performs this write even for mode none/off.
+        result.iflags.perm_invent = true;
+    } else if (negated) {
+        result.iflags.perminv_mode = INVOPT_NONE;
+        result.iflags.perm_invent = false;
+    }
+}
+
 // C ref: options.c parsebindings(). Comma-separated bindings recurse into
 // their suffix, so the rightmost alias is appended first and wins collisions.
 function applyMenuBindings(result, bindings) {
@@ -4591,6 +4656,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_mouse_support(result, statement);
     } else if (name === 'map_mode') {
         optfn_map_mode(result, statement, negated);
+    } else if (name === 'perminv_mode') {
+        optfn_perminv_mode(result, statement, negated);
     } else if (name === 'windowcolors') {
         optfn_windowcolors(result, statement);
     } else if (name === 'pickup_types') {
@@ -5774,6 +5841,20 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
             'ascii10x18', 'fit_to_screen',
         ];
         return names[state.iflags.wc_map_mode] ?? 'default';
+    },
+    perminv_mode: (state) => {
+        const mode = state.iflags.perminv_mode;
+        const entry = PERMINV_MODES[mode];
+        if (!entry) return '';
+        let description = entry.description;
+        if (mode !== INVOPT_NONE && !state.iflags.perm_invent) {
+            description = mode === INVOPT_IN_USE
+                ? description.replace(' currently', '')
+                : description.replace(' inventory', ' invent');
+            description += (mode & INV_SPARSE) !== 0
+                ? ' (Off)' : " ('perm_invent' is Off)";
+        }
+        return description;
     },
     windowcolors: (state) => windowColorsValue(state),
     number_pad: (state) => {

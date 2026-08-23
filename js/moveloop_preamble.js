@@ -127,8 +127,9 @@ export class UnsupportedStartupBoundaryError extends Error {
 // This wraps the whole preamble rather than the statements that refuse today.
 // Which ones those are keeps changing: set_wear() and preflight_initial_pickup()
 // refuse now, pickup(1) reaches every refusal in js/pickup.js, and
-// update_inventory() at the tail refuses as soon as a window port advertises
-// WC_PERM_INVENT, which js/options.js TTY_WINCAP does not.
+// update_inventory() at the tail refuses when a supporting window port omits
+// its display hook.  The recorder's tty_update_inventory() is compiled as a
+// no-op, so jsmain.js supplies that source hook on the production startup.
 // The arguments are the wrapped function's own, forwarded unchanged; it holds
 // the defaults for all three.
 export async function runMoveloopPreambleAtStartupBoundary(
