@@ -14,7 +14,8 @@ function scanUchars(value, initial = 0x3F) {
     const list = [initial];
     const errors = [];
     const count = get_uchars(
-        value, list, 'BOULDER', (message) => errors.push(message),
+        value, list, true, 1, 'BOULDER',
+        (message) => errors.push(message),
     );
     return { count, byte: list[0], errors };
 }

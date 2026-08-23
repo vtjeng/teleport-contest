@@ -304,6 +304,10 @@ export class NethackGame {
         g.iflags = { ...opts.iflags };
         g.gc = { ...opts.gc };
         g.ga = { ...opts.ga };
+        g.gw = {
+            ...opts.gw,
+            warnsyms: [...opts.gw.warnsyms],
+        };
         // C ref: sys/share/unixtty.c setftty() (251-259).  iflags is a static
         // struct and no option writes cbreak, so it is false until
         // tty_init_nhwindows() raises it -- which js/tty_startup.js

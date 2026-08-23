@@ -68,6 +68,8 @@ import {
     STONE,
     SYM_BOULDER,
     UNENCUMBERED,
+    WARNCOUNT,
+    def_warnsyms,
 } from './const.js';
 import {
     ROLE_ALIGNMASK,
@@ -108,6 +110,7 @@ import {
 } from './terminal.js';
 import {
     cnf_line_BOULDER,
+    cnf_line_WARNINGS,
     config_error_add,
     config_error_init,
     config_error_nextline,
@@ -503,6 +506,12 @@ function defaultResult() {
         ga: {
             // decl.c instance_globals_a starts on the built-in interface.
             active_soundlib: soundlib_nosound,
+        },
+        // options.c initoptions_init() initializes the sole symbols.c-owned
+        // warning array before reading either OPTIONS=warnings or the legacy
+        // direct WARNINGS statement. jsmain.js installs this object at gw.
+        gw: {
+            warnsyms: def_warnsyms.map(({ ch }) => ch.charCodeAt(0)),
         },
         roleFilter: defaultRoleFilter(),
         uroleplay: defaultRoleplay(),
@@ -1177,6 +1186,33 @@ function optfn_boulder(result, statement) {
         return;
     }
     result.symbolOperations.push({ kind: 'boulder', byte });
+}
+
+// C refs: options.c optfn_warnings(), warning_opts(), and assign_warnings().
+// The option value is mandatory, then escapes() rewrites its bytes in place.
+// strlen() stops at the first expanded NUL; a short value changes its prefix
+// and leaves the remaining slots alone, while bytes after the sixth are
+// ignored by assign_warnings().
+function optfn_warnings(result, statement) {
+    const op = string_for_env_opt(statement, false, result);
+    if (op === '') return;
+    const expanded = escapes(op);
+    const nul = expanded.indexOf(0);
+    const length = nul < 0 ? expanded.length : nul;
+    const translate = Array.from(
+        { length: WARNCOUNT },
+        (_, index) => index < length ? expanded[index] : 0,
+    );
+    assign_warnings(result, translate);
+}
+
+// C ref: options.c assign_warnings(). gw.warnsyms is the sole installed
+// warning-symbol state; zero entries mean that the corresponding slot is not
+// changed.
+export function assign_warnings(result, graphChars) {
+    for (let index = 0; index < WARNCOUNT; ++index) {
+        if (graphChars[index]) result.gw.warnsyms[index] = graphChars[index];
+    }
 }
 
 // C ref: options.c optfn_crash_email() (1259-1282), its startup do_set arm.
@@ -3993,6 +4029,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setFruit(result, statement);
     } else if (name === 'boulder') {
         optfn_boulder(result, statement);
+    } else if (name === 'warnings') {
+        optfn_warnings(result, statement);
     } else if (name === 'crash_email') {
         optfn_crash_email(result, statement);
     } else if (name === 'crash_name') {
@@ -4274,6 +4312,7 @@ const CONFIG_STATEMENT_HANDLERS = Object.freeze({
     dogname: Object.freeze({ kind: 'direct', directName: 'dogname' }),
     catname: Object.freeze({ kind: 'direct', directName: 'catname' }),
     boulder: Object.freeze({ kind: 'legacy-boulder' }),
+    warnings: Object.freeze({ kind: 'warnings' }),
 });
 
 function configDelimiter(line) {
@@ -4493,6 +4532,10 @@ export function parseNethackrc(rc, random = rn2) {
         }
         if (statement.kind === 'legacy-boulder') {
             cnf_line_BOULDER(result, normalizedValue);
+            continue;
+        }
+        if (statement.kind === 'warnings') {
+            cnf_line_WARNINGS(result, normalizedValue, assign_warnings);
             continue;
         }
         if (statement.kind === 'autocomplete') {

@@ -5,6 +5,7 @@
 
 import { game } from './gstate.js';
 import { encodeUtf8ByteString } from './hacklib.js';
+import { WARNCOUNT } from './const.js';
 
 // C ref: cfgfiles.c default_configfile (126-139), the UNIX arm.
 export const DEFAULT_CONFIGFILE = '.nethackrc';
@@ -104,13 +105,15 @@ export function config_error_done(frame, state = game) {
     return n;
 }
 
-// C ref: cfgfiles.c get_uchars(), the modlist=TRUE, size=1 path called only by
-// cnf_line_BOULDER() in this slice. The caller supplies a byte array because
-// the source writes through an `uchar *`. Decimal accumulation uses unsigned
-// int arithmetic, then assignment narrows to one byte. A literal zero leaves
-// the slot unchanged, while any other accumulated value writes even when
-// narrowing produces zero.
-export function get_uchars(bufp, list, name, syntaxError) {
+// C ref: cfgfiles.c get_uchars(). The caller supplies a byte array because the
+// source writes through an `uchar *`. Decimal accumulation uses unsigned-int
+// arithmetic, then assignment narrows to one byte. In modification mode a
+// literal zero leaves the slot unchanged; otherwise it is installed. The
+// scanner returns after `size` values even when more text follows, and a bad
+// byte returns without storing the number currently being accumulated.
+export function get_uchars(
+    bufp, list, modlist, size, name, syntaxError,
+) {
     const bytes = encodeUtf8ByteString(String(bufp ?? ''));
     let num = 0;
     let count = 0;
@@ -121,16 +124,15 @@ export function get_uchars(bufp, list, name, syntaxError) {
         const byte = index < bytes.length ? bytes[index] : 0;
         // parse_config_line() has already run mungspaces(), so tabs became
         // spaces and a physical newline became this buffer's terminating NUL.
-        if (byte === 0x00) {
-            if (!havenum) return count;
-            if (num !== 0) list[count] = num & 0xFF;
-            return count + 1;
-        }
-        if (byte === 0x20) {
+        if (byte === 0x00 || byte === 0x20
+            || byte === 0x09 || byte === 0x0A) {
             if (havenum) {
-                if (num !== 0) list[count] = num & 0xFF;
-                return count + 1;
+                if (num !== 0 || !modlist) list[count] = num & 0xFF;
+                ++count;
+                num = 0;
+                havenum = false;
             }
+            if (count === size || byte === 0x00) return count;
             index++;
             continue;
         }
@@ -149,7 +151,7 @@ export function get_uchars(bufp, list, name, syntaxError) {
 // only go.ov_primary_syms; OPTIONS=boulder writes the rogue override too.
 export function cnf_line_BOULDER(result, bufp) {
     const parsed = [undefined];
-    get_uchars(bufp, parsed, 'BOULDER', (text) => {
+    get_uchars(bufp, parsed, true, 1, 'BOULDER', (text) => {
         result.startupEvents.push({ text, wait: true });
     });
     if (parsed[0] !== undefined) {
@@ -158,5 +160,23 @@ export function cnf_line_BOULDER(result, bufp) {
             byte: parsed[0],
         });
     }
+    return true;
+}
+
+// C ref: cfgfiles.c cnf_line_WARNINGS().
+// The direct statement parses up to six unsigned decimal values and reports a
+// malformed byte immediately, outside the accumulated configuration errors;
+// its caller supplies options.c assign_warnings(), preserving that function's
+// source-file ownership without an options.js <-> cfgfiles.js import cycle.
+export function cnf_line_WARNINGS(result, bufp, assignWarnings) {
+    // C leaves the MAXPCHARS automatic array uninitialized. Model the bytes
+    // get_uchars() actually defines, not compiler stack garbage outside the C
+    // language contract. Tests deliberately leave a short or malformed
+    // input's unwritten gw tail unspecified.
+    const parsed = Array(WARNCOUNT).fill(0);
+    get_uchars(bufp, parsed, false, WARNCOUNT, 'WARNINGS', (text) => {
+        result.startupEvents.push({ text, wait: true });
+    });
+    assignWarnings(result, parsed);
     return true;
 }

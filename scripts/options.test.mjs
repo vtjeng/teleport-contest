@@ -4240,7 +4240,7 @@ test('msg_window keeps one letter and answers its value-less spellings', () => {
     ]);
 });
 
-// C ref: cfgfiles.c config_line_stmt[]. Twelve handlers above are ported. Every
+// C ref: cfgfiles.c config_line_stmt[]. Thirteen handlers above are ported. Every
 // other player row is recognized and recorded so a later consumer can refuse
 // the missing cnf_line_<NAME>() state rather than silently use a default.
 test('the parser records the config statements it cannot interpret', () => {
@@ -4249,7 +4249,7 @@ test('the parser records the config statements it cannot interpret', () => {
         'autopickup_exception', 'msgtype',
         'hackdir', 'leveldir', 'levels', 'savedir', 'bonesdir', 'datadir',
         'scoredir', 'lockdir', 'configdir', 'troubledir',
-        'menucolor', 'warnings', 'wizkit',
+        'menucolor', 'wizkit',
         'qt_tilewidth', 'qt_tileheight', 'qt_fontsize', 'qt_compact',
     ];
     assert.deepEqual(
