@@ -105,9 +105,11 @@ const REGEX_CASES = Object.freeze([
     [String.raw`^(a+){0,}\1$`, ['aaa', 'b']],
     [String.raw`^((a)|b){0,2}\2$`, ['aa', 'aba', 'abb']],
     [String.raw`^(()|a){1,2}\2$`, ['a']],
+    [String.raw`^(()|a){3}\2$`, ['', 'a', 'aa']],
     [String.raw`^((a)?b?){0,2}\2$`, ['a', 'aa', 'aaa', 'aaaa']],
     [String.raw`^((a?)?){0,2}\2$`, ['a']],
-    [String.raw`^((a?)?){0,3}\2$`, ['aa']],
+    [String.raw`^((a?)?){0,3}\2$`, ['a', 'aa']],
+    [String.raw`^((a?)|){0,4}\2$`, ['a']],
     [String.raw`((l)|x?){0,2}\2`, ['Hello', 'Helo']],
     [String.raw`^(()|()|()|()|()|()|()|()){1,20}\1\2\3\4\5\6\7\8\9[b]$`, [
         'a'.repeat(255),

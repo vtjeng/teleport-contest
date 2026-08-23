@@ -330,6 +330,19 @@ export const STARTUP_MSGTYPE_CASES = Object.freeze([
         role: 'Archeologist',
     }),
     messageCase({
+        label: 'maximum repeat rejects a shorter duplicated source path',
+        seed: 9812501,
+        datetime: '20420415154300',
+        statements: [String.raw`MSGTYPE=hide "^He(()|l){3}\2lo"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`^He(()|l){3}\2lo`,
+        }],
+        probes: [['Hello', false, MSGTYP_NORMAL]],
+        name: 'Hello',
+        role: 'Archeologist',
+    }),
+    messageCase({
         label: 'positive-minimum subgroup retains its descendant capture',
         seed: 9812489,
         datetime: '20420415152900',

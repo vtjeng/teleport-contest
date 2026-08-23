@@ -568,18 +568,6 @@ function repeatFrontierStateKey(state) {
     );
 }
 
-function maximumRepeatSourceKey(node, state) {
-    // At a finite maximum, recorder glibc distinguishes a consuming final
-    // iteration from an empty one before it selects one capture path. A
-    // zero-minimum interval also keeps the empty path's participation distinct;
-    // positive-minimum intervals select the last source path for equal empty
-    // captures before endpoint clearing.
-    const source = [state.lastIterationConsumed ?? null];
-    if (node.minimum === 0)
-        source.push(state.lastIterationCaptures ?? 0);
-    return `${captureStateKey(state)}:${JSON.stringify(source)}`;
-}
-
 function sameRepeatFrontier(left, right) {
     if (left.length !== right.length) return false;
     const leftKeys = new Set(left.map(repeatFrontierStateKey));
@@ -590,6 +578,10 @@ function uniqueCaptureStates(states) {
     const unique = new Map();
     for (const state of states) unique.set(captureStateKey(state), state);
     return [...unique.values()];
+}
+
+function isStrictMaskSubset(left, right) {
+    return left !== right && (left & ~right) === 0;
 }
 
 function isAsciiWord(character) {
@@ -728,6 +720,7 @@ function acceptedRepeatEndpointStates(node, count, frontier,
         const {
             lastIterationCaptures: _last,
             lastIterationConsumed: _consumed,
+            lastIterationChangedCaptures: _changed,
             ...accepted
         } = candidate;
         return accepted;
@@ -778,6 +771,7 @@ function nextReferenceRepeatFrontier(node, input, frontier, evaluator,
         const {
             lastIterationCaptures: _last,
             lastIterationConsumed: _consumed,
+            lastIterationChangedCaptures: _changed,
             participationStack: activeStack = [],
             ...baseState
         } = current;
@@ -798,12 +792,43 @@ function nextReferenceRepeatFrontier(node, input, frontier, evaluator,
             if (trackConsumption) {
                 next.lastIterationConsumed = candidate.position
                     !== current.position;
+                let changed = 0;
+                for (const id of evaluator.referencedGroups) {
+                    if (candidate.captures[id] !== current.captures[id])
+                        changed |= 1 << id;
+                }
+                next.lastIterationChangedCaptures = changed;
             }
             if (next.participationStack?.length === 0)
                 delete next.participationStack;
             if (admitCandidate && !admitCandidate(next)) continue;
-            const key = projectCandidate
-                ? maximumRepeatSourceKey(node, next) : captureStateKey(next);
+            const key = captureStateKey(next);
+            const prior = unique.get(key);
+            if (projectCandidate && prior
+                && isStrictMaskSubset(
+                    prior.lastIterationChangedCaptures,
+                    next.lastIterationChangedCaptures,
+                )) {
+                // When equivalent maximum-count states came from different
+                // duplicated source paths, glibc keeps the path whose final
+                // iteration changed fewer referenced captures. Source order
+                // breaks ties. This distinguishes retaining an earlier empty
+                // capture from creating that same empty capture at the end.
+                continue;
+            }
+            if (projectCandidate && prior
+                && prior.lastIterationChangedCaptures
+                    === next.lastIterationChangedCaptures
+                && isStrictMaskSubset(
+                    next.lastIterationCaptures,
+                    prior.lastIterationCaptures,
+                )) {
+                // An empty participating subexpression has priority over an
+                // equivalent path which skipped it. This is observable after
+                // maximum-count endpoint clearing even though the raw capture
+                // values are equal.
+                continue;
+            }
             // For a finite maximum, recorder glibc selects one source path
             // for equivalent raw captures before applying endpoint clearing.
             // Map replacement retains the last source-ordered path, including
