@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
   "reason": "All fourteen audit findings are implemented or pinned. The production path now matches fresh recorder-glibc probes and the 23-case startup MSGTYPE differential; source-shaped message and locked-door tests cover the remaining contracts. Mutation evidence is absent under the user's explicit work-session waiver.",
-  "commitChecked": "6be9dc677aa27d896b9d7cf992c53ea57d936862",
+  "commitChecked": "a36bdd40064de3938ded8158feb449f1a55c8acb",
   "boundary": {
     "goalId": "options-config-parser",
     "startingCommit": "b79d33f5b7af6e12a54d3af45d649c9ca935bfb2",
