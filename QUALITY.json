@@ -4480,7 +4480,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "0add2083af23e9707727fcd49d5de9cf70ec9167",
       "detail": "js/posixregex.js finite-repeat endpoints retain descendant captures that glibc clears; separate sanitized accepted endpoints from the retained continuation frontier and pin aa rejection plus aba acceptance through libc and live MSGTYPE."
     },
@@ -4489,7 +4489,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "0add2083af23e9707727fcd49d5de9cf70ec9167",
       "detail": "js/posixregex.js reference matcher exceeds its exact-boundary 2000 ms/128 MiB budget before downstream suffix and capture constraints prune states; implement continuation-aware exact search without aborts or guessed booleans."
     },
@@ -4498,7 +4498,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "0add2083af23e9707727fcd49d5de9cf70ec9167",
       "detail": "js/posixregex.js direct matcher exceeds its exact-boundary 1000 ms budget before a suffix-aligned match; use REG_NOSUB-safe suffix-aligned candidate ordering while preserving contextual-caret keys."
     },
@@ -4507,7 +4507,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "0add2083af23e9707727fcd49d5de9cf70ec9167",
       "detail": "Exact-boundary resource fixtures short-circuit before the evaluator paths they claim to measure; distinguish intentional suffix-guard coverage from suffix-reaching direct memo, reference memo, zero-minimum, and correlated-frontier cases."
     },
@@ -4516,7 +4516,7 @@
       "area": "startup",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "0add2083af23e9707727fcd49d5de9cf70ec9167",
       "detail": "Regex resource fixture formulas and budget enumeration have separate owners that can drift; make the shared exact-case catalog control measurement and derived expected names with complete set checks."
     }

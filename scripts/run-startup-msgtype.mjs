@@ -253,6 +253,32 @@ export const STARTUP_MSGTYPE_CASES = Object.freeze([
         name: 'aba',
     }),
     messageCase({
+        label: 'bounded subgroup clears an accepted descendant endpoint',
+        seed: 9812473,
+        datetime: '20420415151300',
+        statements: [String.raw`MSGTYPE=hide "^Hello ((a)|b){0,2}\2,"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`^Hello ((a)|b){0,2}\2,`,
+        }],
+        probes: [['Hello aa, welcome', false, MSGTYP_NORMAL]],
+        name: 'aa',
+        role: 'Archeologist',
+    }),
+    messageCase({
+        label: 'bounded subgroup retains descendants in its continuation',
+        seed: 9812479,
+        datetime: '20420415151900',
+        statements: [String.raw`MSGTYPE=hide "^Hello ((a)|b){0,2}\2,"`],
+        expected: [{
+            msgtype: MSGTYP_NOSHOW,
+            pattern: String.raw`^Hello ((a)|b){0,2}\2,`,
+        }],
+        probes: [['Hello aba, welcome', false, MSGTYP_NOSHOW]],
+        name: 'aba',
+        role: 'Archeologist',
+    }),
+    messageCase({
         label: 'zero-minimum nested capture suppresses the live welcome line',
         seed: 9812471,
         datetime: '20420415151100',

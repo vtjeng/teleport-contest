@@ -672,11 +672,34 @@ function selectsFirstNestedCaptureEndpoint(node, evaluator) {
 }
 
 function isIntermediateFiniteEndpoint(node, count) {
-    // glibc's finite-interval submatch selection discards the directly
-    // repeated capture between the minimum and maximum endpoints. Descendant
-    // captures retain their last participating values through sibling paths.
+    // glibc's finite-interval submatch selection clears captures owned by an
+    // accepted endpoint between the minimum and maximum counts. The raw
+    // continuation state remains available to reach a later endpoint.
     return Number.isFinite(node.maximum)
         && count > node.minimum && count < node.maximum;
+}
+
+function acceptedRepeatEndpointStates(node, count, frontier) {
+    if (!isIntermediateFiniteEndpoint(node, count)
+        || !node.child.captureGroups.size) return frontier;
+    return frontier.map((candidate) => {
+        const captures = [...candidate.captures];
+        for (const id of node.child.captureGroups) captures[id] = undefined;
+        return { ...candidate, captures };
+    });
+}
+
+function nextReferenceRepeatFrontier(node, input, frontier, evaluator,
+    maximumPosition) {
+    const unique = new Map();
+    for (const current of frontier) {
+        for (const candidate of evaluateReferenceNode(
+            node.child, input, current, evaluator, maximumPosition,
+        )) {
+            unique.set(captureStateKey(candidate), candidate);
+        }
+    }
+    return [...unique.values()];
 }
 
 function evaluateReferenceNode(node, input, state, evaluator,
@@ -770,7 +793,8 @@ function evaluateReferenceNode(node, input, state, evaluator,
     case 'repeat': {
         let count = 0;
         let frontier = [state];
-        const results = [];
+        const accepted = new Map();
+        const seenContinuationKeys = new Set();
         const firstNestedCapture = selectsFirstNestedCaptureEndpoint(
             node, evaluator,
         );
@@ -779,14 +803,21 @@ function evaluateReferenceNode(node, input, state, evaluator,
         // above minimum, the state key is the complete future input, so a
         // fixed point closes an unbounded repetition without a pattern limit.
         while (frontier.length && count <= node.maximum) {
-            if (count >= node.minimum) results.push(...frontier);
+            if (count >= node.minimum) {
+                for (const candidate of acceptedRepeatEndpointStates(
+                    node, count, frontier,
+                )) {
+                    accepted.set(captureStateKey(candidate), candidate);
+                }
+                for (const candidate of frontier) {
+                    seenContinuationKeys.add(captureStateKey(candidate));
+                }
+            }
             if (count === node.maximum || (firstNestedCapture && count === 1))
                 break;
-            let next = uniqueCaptureStates(frontier.flatMap(
-                (current) => evaluateReferenceNode(
-                    node.child, input, current, evaluator, maximumPosition,
-                ),
-            ));
+            let next = nextReferenceRepeatFrontier(
+                node, input, frontier, evaluator, maximumPosition,
+            );
             ++count;
             // get_subexp() caches the first viable open/close path for a
             // quantified referenced group at one backreference node. When
@@ -794,29 +825,81 @@ function evaluateReferenceNode(node, input, state, evaluator,
             // decompositions do not create independent capture candidates.
             if (firstNestedCapture && count === 1 && next.length > 1)
                 next = [next[0]];
-            if (isIntermediateFiniteEndpoint(node, count)
-                && node.child.type === 'group'
-                && evaluator.referencedGroups.has(node.child.id)) {
-                next = next.map((candidate) => {
-                    const captures = [...candidate.captures];
-                    captures[node.child.id] = undefined;
-                    return { ...candidate, captures };
-                });
-            }
             if (count < node.minimum) {
                 frontier = next;
                 continue;
             }
-            const priorKeys = new Set(results.map(captureStateKey));
             frontier = next.filter((candidate) => (
-                !priorKeys.has(captureStateKey(candidate))
+                !seenContinuationKeys.has(captureStateKey(candidate))
             ));
         }
-        return uniqueCaptureStates(results);
+        return [...accepted.values()];
     }
     default:
         throw new Error(`invalid reference-aware ERE node: ${node.type}`);
     }
+}
+
+function referenceRepeatMatches(node, input, state, evaluator,
+    maximumPosition, continuation) {
+    let count = 0;
+    let frontier = [state];
+    const seenContinuationKeys = new Set();
+    const firstNestedCapture = selectsFirstNestedCaptureEndpoint(
+        node, evaluator,
+    );
+    while (frontier.length && count <= node.maximum) {
+        if (count >= node.minimum) {
+            for (const candidate of acceptedRepeatEndpointStates(
+                node, count, frontier,
+            )) {
+                if (continuation(candidate)) return true;
+            }
+            for (const candidate of frontier) {
+                seenContinuationKeys.add(captureStateKey(candidate));
+            }
+        }
+        if (count === node.maximum || (firstNestedCapture && count === 1))
+            break;
+        let next = nextReferenceRepeatFrontier(
+            node, input, frontier, evaluator, maximumPosition,
+        );
+        ++count;
+        if (firstNestedCapture && count === 1 && next.length > 1)
+            next = [next[0]];
+        if (count < node.minimum) {
+            frontier = next;
+        } else {
+            frontier = next.filter((candidate) => (
+                !seenContinuationKeys.has(captureStateKey(candidate))
+            ));
+        }
+    }
+    return false;
+}
+
+function referenceSequenceMatches(nodes, index, input, state, evaluator,
+    maximumPosition) {
+    if (index >= nodes.length) return true;
+    let suffixMinimum = 0;
+    for (let suffix = index + 1; suffix < nodes.length; ++suffix)
+        suffixMinimum += nodes[suffix].minimumWidth;
+    const child = nodes[index];
+    const childMaximum = maximumPosition - suffixMinimum;
+    const continuation = (candidate) => referenceSequenceMatches(
+        nodes, index + 1, input, candidate, evaluator, maximumPosition,
+    );
+    if (child.type === 'repeat') {
+        return referenceRepeatMatches(
+            child, input, state, evaluator, childMaximum, continuation,
+        );
+    }
+    for (const candidate of evaluateReferenceNode(
+        child, input, state, evaluator, childMaximum,
+    )) {
+        if (continuation(candidate)) return true;
+    }
+    return false;
 }
 
 function matchReferenceExtendedRegexp(input, evaluator) {
@@ -834,9 +917,14 @@ function matchReferenceExtendedRegexp(input, evaluator) {
             // state key, even when a 255-byte pattern declares many of them.
             captures: [],
         };
-        if (evaluateReferenceNode(
-            context.root, input, state, context,
-        ).length)
+        const matched = context.root.type === 'sequence'
+            ? referenceSequenceMatches(
+                context.root.nodes, 0, input, state, context, input.length,
+            )
+            : evaluateReferenceNode(
+                context.root, input, state, context,
+            ).length > 0;
+        if (matched)
             return true;
     }
     return false;
@@ -846,7 +934,18 @@ function matchDirectExtendedRegexp(input, evaluator) {
     if (evaluator.requiredAbsoluteEndSuffix
         && !input.endsWith(evaluator.requiredAbsoluteEndSuffix)) return false;
     const memo = new Map();
-    for (let start = 0; start <= input.length; ++start) {
+    const lastStart = input.length - evaluator.root.minimumWidth;
+    if (lastStart < 0) return false;
+    // REG_NOSUB exposes only existence. Try the suffix-aligned rightmost
+    // candidate first, then preserve left-to-right search for the rest. Each
+    // evaluation still carries its actual matchStart for contextual carets.
+    const starts = [];
+    const suffixAlignedFirst = Boolean(evaluator.requiredAbsoluteEndSuffix);
+    if (suffixAlignedFirst) starts.push(lastStart);
+    for (let start = 0; start <= lastStart; ++start) {
+        if (!suffixAlignedFirst || start !== lastStart) starts.push(start);
+    }
+    for (const start of starts) {
         if (evaluateDirectNode(
             evaluator.root, input, start, start, memo,
         ).length) return true;

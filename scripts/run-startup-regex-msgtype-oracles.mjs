@@ -26,8 +26,8 @@ import {
 } from '../js/posixregex.js';
 import { ttyPline } from '../js/tty_message.js';
 import {
-    ADJACENT_REPEAT_CASES,
     EXACT_BOUNDARY_REGEX_CASES,
+    FIXED_POINT_REGEX_RESOURCE_CASE,
     REGEX_EXACT_BOUNDARY_BYTES,
 } from './startup-regex-fixtures.mjs';
 
@@ -103,7 +103,7 @@ const REGEX_CASES = Object.freeze([
     [String.raw`^((a|c)|b)*\2$`, ['abcc', 'abca']],
     [String.raw`^(a+)*\1$`, ['aaa', 'b']],
     [String.raw`^(a+){0,}\1$`, ['aaa', 'b']],
-    [String.raw`^((a)|b){0,2}\2$`, ['aba', 'abb']],
+    [String.raw`^((a)|b){0,2}\2$`, ['aa', 'aba', 'abb']],
     [String.raw`^(a){0,2}\1$`, ['aa', 'aaa', 'aaaa']],
     [String.raw`^(a){1,3}\1$`, ['aa', 'aaa', 'aaaa']],
     [String.raw`^(a+)+\1$`, ['aa', 'aaa', 'aaaa']],
@@ -119,9 +119,10 @@ const REGEX_CASES = Object.freeze([
     [String.raw`^((ab|c)|x)*\2$`, [
         'abab', 'abxab', 'abcc', 'cc', 'xabxabab', 'ababc', 'xc', 'abxc',
     ]],
-    ...ADJACENT_REPEAT_CASES.map(({ pattern, matches, misses }) => (
+    ...FIXED_POINT_REGEX_RESOURCE_CASE.cases.map(
+        ({ pattern, matches, misses }) => (
         [pattern, [...matches, ...misses]]
-    )),
+        )),
     ...EXACT_BOUNDARY_REGEX_CASES.map(({ pattern, input }) => (
         [pattern, [input]]
     )),

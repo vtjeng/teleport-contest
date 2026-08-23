@@ -16,30 +16,13 @@ import {
     regex_match,
 } from '../js/posixregex.js';
 import {
-    ADJACENT_REPEAT_CASES,
     EXACT_BOUNDARY_REGEX_CASES,
+    FIXED_POINT_REGEX_RESOURCE_CASE,
     REGEX_EXACT_BOUNDARY_BYTES,
+    REGEX_RESOURCE_CASES,
 } from './startup-regex-fixtures.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const BUDGETS = Object.freeze({
-    'correlated-reference': Object.freeze({
-        budgetMs: 2000,
-        budgetMaxRssKiB: 128 * 1024,
-    }),
-    'unanchored-direct': Object.freeze({
-        budgetMs: 1000,
-        budgetMaxRssKiB: 96 * 1024,
-    }),
-    'unanchored-reference': Object.freeze({
-        budgetMs: 2000,
-        budgetMaxRssKiB: 128 * 1024,
-    }),
-    'adjacent-repeat-fixed-point': Object.freeze({
-        budgetMs: 1000,
-        budgetMaxRssKiB: 96 * 1024,
-    }),
-});
 
 function compileAndMatch(pattern, input) {
     const regex = regex_init();
@@ -54,7 +37,8 @@ function runExactCase(entry) {
 }
 
 function runFixedPointCases() {
-    for (const { pattern, matches, misses } of ADJACENT_REPEAT_CASES) {
+    for (const { pattern, matches, misses }
+        of FIXED_POINT_REGEX_RESOURCE_CASE.cases) {
         for (const input of matches)
             assert.equal(compileAndMatch(pattern, input), true, pattern);
         for (const input of misses)
@@ -64,7 +48,7 @@ function runFixedPointCases() {
 
 function runChild(name) {
     const started = performance.now();
-    if (name === 'adjacent-repeat-fixed-point') {
+    if (name === FIXED_POINT_REGEX_RESOURCE_CASE.name) {
         runFixedPointCases();
     } else {
         const entry = EXACT_BOUNDARY_REGEX_CASES.find(
@@ -118,8 +102,8 @@ function main(argv) {
         return;
     }
     if (argv.length) throw new Error('arguments are not accepted');
-    for (const [name, budget] of Object.entries(BUDGETS))
-        runBoundedChild(name, budget);
+    for (const entry of REGEX_RESOURCE_CASES)
+        runBoundedChild(entry.name, entry);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {

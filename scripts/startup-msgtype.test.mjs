@@ -70,7 +70,7 @@ function messageState(config = '', keys = '') {
 test('the fresh recipe retains the MSGTYPE branch matrix', () => {
     const recipe = loadStartupMsgtypeRecipe();
     assert.equal(recipe.segments.length, STARTUP_MSGTYPE_CASES.length);
-    assert.equal(recipe.segments.length, 29);
+    assert.equal(recipe.segments.length, 31);
     assert.equal(STARTUP_MSGTYPE_CASES.filter(({ errors }) => errors).length, 4);
     assert.ok(STARTUP_MSGTYPE_CASES.some(({ statements }) => (
         statements.length === 2
@@ -255,7 +255,7 @@ test('backreferences explore same-start paths and retain participating groups',
             [String.raw`(|())\2`, ['', 'x'], []],
             [String.raw`^((a)|b)*\2`, ['aab'], ['abb']],
             [String.raw`^((a)|b)*\2$`, ['aba'], ['abb']],
-            [String.raw`^((a)|b){0,2}\2$`, ['aba'], ['abb']],
+            [String.raw`^((a)|b){0,2}\2$`, ['aba'], ['aa', 'abb']],
             [String.raw`^(()*)\2$`, [''], ['a']],
             [String.raw`^(()){2}\2$`, [''], ['a']],
             [String.raw`^(()){2,}\2$`, [''], ['a']],
