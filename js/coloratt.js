@@ -1,11 +1,40 @@
-// coloratt.js — Pure enhanced-color parsing from coloratt.c.
-// C refs: coloratt.c check_enhanced_colors(), wc_color_name(), and the complete
-// colornames[] table the first function reaches through match_str2clr().
+// coloratt.js — Color, attribute, and menu-color parsing from coloratt.c.
+// C refs: coloratt.c match_str2clr(), match_str2attr(),
+// add_menu_coloring_parsed(), add_menu_coloring(), count_menucolors(),
+// check_enhanced_colors(), wc_color_name(), and the complete colornames[]
+// table those functions reach.
 
-import { CLR_MAX, NH_BASIC_COLOR } from './const.js';
+import { BUFSZ, CLR_MAX, NH_BASIC_COLOR } from './const.js';
 import { COLOR_NAMES, COLOR_TABLE } from './color_data.js';
-import { fuzzymatch, strstri } from './hacklib.js';
+import {
+    fuzzymatch,
+    mungspaces,
+    strstri,
+    truncateByteString,
+} from './hacklib.js';
+import {
+    regex_compile,
+    regex_error_desc,
+    regex_init,
+} from './posixregex.js';
 import { NO_COLOR } from './terminal.js';
+
+// C ref: coloratt.c attrnames[]. These are the source ATR_* enum values,
+// rather than the recorder attribute bits js/terminal.js exposes. The
+// JavaScript windows.c seam maps a matched source value before TTY drawing.
+export const MENU_COLOR_ATTRIBUTES = Object.freeze([
+    Object.freeze({ name: 'none', attr: 0 }),
+    Object.freeze({ name: 'bold', attr: 1 }),
+    Object.freeze({ name: 'dim', attr: 2 }),
+    Object.freeze({ name: 'italic', attr: 3 }),
+    Object.freeze({ name: 'underline', attr: 4 }),
+    Object.freeze({ name: 'blink', attr: 5 }),
+    Object.freeze({ name: 'inverse', attr: 7 }),
+    Object.freeze({ name: null, attr: 0 }),
+    Object.freeze({ name: 'normal', attr: 0 }),
+    Object.freeze({ name: 'uline', attr: 4 }),
+    Object.freeze({ name: 'reverse', attr: 7 }),
+]);
 
 function colorAtoi(value) {
     const digits = String(value).match(/^[+-]?\d+/u);
@@ -27,6 +56,103 @@ function basicColor(value) {
         if (color >= 0 && color < CLR_MAX) return color;
     }
     return null;
+}
+
+// C ref: coloratt.c match_str2clr(). Null is C's CLR_MAX sentinel. The
+// caller supplies config_error_add() because coloratt.c reports through the
+// active configuration frame without owning that frame.
+export function match_str2clr(value, suppressMessage = false, report = null) {
+    const color = basicColor(String(value));
+    if (color !== null) return color;
+    if (!suppressMessage && report) {
+        report(`Unknown color '${truncateByteString(value, 60)}'`);
+    }
+    return null;
+}
+
+// C ref: coloratt.c match_str2attr(). Null is C's -1 sentinel.
+export function match_str2attr(value, complain = false, report = null) {
+    const text = String(value);
+    const row = MENU_COLOR_ATTRIBUTES.find(({ name }) => (
+        name !== null && fuzzymatch(text, name, ' -_', true)
+    ));
+    if (row) return row.attr;
+    if (complain && report) {
+        report(
+            `Unknown text attribute '${truncateByteString(text, 50)}'`,
+        );
+    }
+    return null;
+}
+
+// C ref: coloratt.c add_menu_coloring_parsed(). Each successful rule is
+// prepended, so later configuration lines win and the first match wins.
+export function add_menu_coloring_parsed(
+    state, pattern, color, attr, report = null,
+) {
+    if (pattern == null) return false;
+    const regex = regex_init();
+    if (!regex_compile(String(pattern), regex)) {
+        if (report) {
+            report(`Menucolor regex error: ${regex_error_desc(regex)}`);
+        }
+        return false;
+    }
+    state.gm ??= {};
+    state.gm.menu_colorings = {
+        regex,
+        origstr: String(pattern),
+        color,
+        attr,
+        next: state.gm.menu_colorings ?? null,
+    };
+    state.iflags ??= {};
+    state.iflags.use_menu_color = true;
+    return true;
+}
+
+// C ref: coloratt.c add_menu_coloring(). The input has already passed
+// parse_config_line()'s mungspaces() pass. This function copies it through a
+// BUFSZ buffer, parses the first '=' and '&', then removes matching quotes
+// around the pattern without condensing the pattern again.
+export function add_menu_coloring(state, tmpstr, report = null) {
+    const str = truncateByteString(String(tmpstr ?? ''), BUFSZ - 1);
+    const equals = str.indexOf('=');
+    if (equals < 0) {
+        if (report) report('Malformed MENUCOLOR');
+        return false;
+    }
+
+    const colorAndAttr = mungspaces(str.slice(equals + 1));
+    const amp = colorAndAttr.indexOf('&');
+    const colorText = amp < 0
+        ? colorAndAttr : colorAndAttr.slice(0, amp);
+    const color = match_str2clr(colorText, false, report);
+    if (color === null) return false;
+
+    let attr = 0;
+    if (amp >= 0) {
+        const attrText = colorAndAttr.slice(amp + 1);
+        attr = match_str2attr(attrText, true, report);
+        if (attr === null) return false;
+    }
+
+    let pattern = str.slice(0, equals);
+    if (pattern[0] === '"' || pattern[0] === "'") {
+        let close = pattern.length - 1;
+        while (close >= 0 && /[\t\n\v\f\r ]/u.test(pattern[close])) --close;
+        if (pattern[close] === pattern[0]) {
+            pattern = pattern.slice(1, close);
+        }
+    }
+    return add_menu_coloring_parsed(state, pattern, color, attr, report);
+}
+
+// C ref: coloratt.c count_menucolors().
+export function count_menucolors(state) {
+    let count = 0;
+    for (let rule = state.gm?.menu_colorings; rule; rule = rule.next) ++count;
+    return count;
 }
 
 function colortable_to_int32(entry) {

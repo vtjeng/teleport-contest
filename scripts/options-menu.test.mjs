@@ -655,33 +655,19 @@ test('the menu refuses the tab-separated layout menu_tab_sep asks for',
         assert.equal(dosetMenuItems(state, menuHelpers(), false).length, 150);
     });
 
-// C ref: coloratt.c count_menucolors(). Its direct configuration statement
-// remains dropped, so the count refuses rather than inventing an empty list.
-test('the unported menu-color count refuses its dropped statement',
-    async () => {
-        const dropped = [
-            // cfgfiles.c cnf_line_MENUCOLOR() appends one gm.menu_colorings
-            // node, which count_menucolors() counts.
-            ['MENUCOLOR="blessed"=green', 'menu colors', 'MENUCOLOR'],
-        ];
-        for (const [line, row, handler] of dropped) {
-            const state = await startGameWithConfig(line);
-            assert.throws(
-                () => dosetMenuItems(state, menuHelpers(), false),
-                (error) => error instanceof UnsupportedOptionMenuError
-                    && error.what === `cfgfiles.c cnf_line_${handler}()`,
-                row,
-            );
-        }
-        // Other list counts still report the empty lists the port really
-        // holds when their own configuration statements were absent.
-        const state = await startGameWithConfig('MENUCOLOR="blessed"=green');
-        state.unportedConfigStatements = [];
-        const items = dosetMenuItems(state, menuHelpers(), false);
-        for (const row of ['menu colors', 'message types', 'autocompletions',
-            'autopickup exceptions'])
-            assert.equal(valueOf(items, row), '(0 currently set)', row);
-    });
+// C ref: coloratt.c count_menucolors(). Every valid direct configuration row
+// prepends one node, including a duplicate pattern.
+test('the menu colors row counts configured list nodes', async () => {
+    const state = await startGameWithConfig([
+        'MENUCOLOR="blessed"=green',
+        'MENUCOLOR="blessed"=red&bold',
+    ].join('\n'));
+    const items = dosetMenuItems(state, menuHelpers(), false);
+    assert.equal(valueOf(items, 'menu colors'), '(2 currently set)');
+    for (const row of ['message types', 'autocompletions',
+        'autopickup exceptions'])
+        assert.equal(valueOf(items, row), '(0 currently set)', row);
+});
 
 // C ref: cfgfiles.c cnf_line_MSGTYPE() prepends one gp.plinemsg_types node per
 // valid row, and options.c msgtype_count() reports every node without merging.

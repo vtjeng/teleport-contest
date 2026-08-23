@@ -133,11 +133,13 @@ import {
 } from './terminal.js';
 import {
     cnf_line_BOULDER,
+    cnf_line_MENUCOLOR,
     cnf_line_WARNINGS,
     config_error_add,
     config_error_init,
     config_error_nextline,
 } from './cfgfiles.js';
+import { count_menucolors } from './coloratt.js';
 import {
     DEFAULT_FRUIT,
     finish_fruit_option,
@@ -572,6 +574,11 @@ function defaultResult() {
             // direct MSGTYPE row prepends one compiled rule; jsmain.js moves
             // the resulting per-parse list into the new game's gp owner.
             plinemsg_types: null,
+        },
+        gm: {
+            // decl.c instance_globals_m starts this list at NULL. Each valid
+            // direct MENUCOLOR row prepends one compiled coloratt.c rule.
+            menu_colorings: null,
         },
         // options.c initoptions_init() initializes the sole symbols.c-owned
         // warning array before reading either OPTIONS=warnings or the legacy
@@ -4809,6 +4816,7 @@ const CONFIG_STATEMENT_HANDLERS = Object.freeze({
     dogname: Object.freeze({ kind: 'direct', directName: 'dogname' }),
     catname: Object.freeze({ kind: 'direct', directName: 'catname' }),
     boulder: Object.freeze({ kind: 'legacy-boulder' }),
+    menucolor: Object.freeze({ kind: 'menucolor' }),
     warnings: Object.freeze({ kind: 'warnings' }),
 });
 
@@ -5199,6 +5207,10 @@ export function parseNethackrc(rc, random = rn2) {
         }
         if (statement.kind === 'legacy-boulder') {
             cnf_line_BOULDER(result, normalizedValue);
+            continue;
+        }
+        if (statement.kind === 'menucolor') {
+            cnf_line_MENUCOLOR(result, normalizedValue);
             continue;
         }
         if (statement.kind === 'warnings') {
@@ -5633,13 +5645,6 @@ function refuseUnportedConfigStatement(state, name) {
     }
 }
 
-// C ref: coloratt.c count_menucolors(). cnf_line_MENUCOLOR() remains unported,
-// and the interactive menu command that would add entries is outside this
-// startup slice.
-function count_menucolors(state) {
-    refuseUnportedConfigStatement(state, 'menucolor');
-    return 0;
-}
 function msgtype_count(state) {
     let count = 0;
     for (let rule = state.gp?.plinemsg_types; rule; rule = rule.next) ++count;

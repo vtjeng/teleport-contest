@@ -1707,6 +1707,9 @@ async function runOptionsCommand(key, state) {
         headingStyle: {
             attr: menuTitleStyle(state).titleAttr,
             color: menuTitleStyle(state).titleColor,
+            // windows.c add_menu_heading() passes this flag through
+            // add_menu(), so a catch-all MENUCOLOR cannot replace it.
+            skipMenuColors: true,
         },
         // Both menus end with end_menu(prompt) and then call select_menu().
         // doset() asks for PICK_ANY, where Escape answers null and an empty

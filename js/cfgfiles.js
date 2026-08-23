@@ -6,6 +6,7 @@
 import { game } from './gstate.js';
 import { encodeUtf8ByteString } from './hacklib.js';
 import { WARNCOUNT } from './const.js';
+import { add_menu_coloring } from './coloratt.js';
 
 // C ref: cfgfiles.c default_configfile (126-139), the UNIX arm.
 export const DEFAULT_CONFIGFILE = '.nethackrc';
@@ -161,6 +162,14 @@ export function cnf_line_BOULDER(result, bufp) {
         });
     }
     return true;
+}
+
+// C ref: cfgfiles.c cnf_line_MENUCOLOR(). coloratt.c owns the parser and list;
+// this configuration-file wrapper supplies the active error frame.
+export function cnf_line_MENUCOLOR(result, bufp) {
+    return add_menu_coloring(result, bufp, (text) => {
+        config_error_add(result.configErrorFrame, text);
+    });
 }
 
 // C ref: cfgfiles.c cnf_line_WARNINGS().

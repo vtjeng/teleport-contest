@@ -398,12 +398,13 @@ export async function displayTtyMenuTextWindow(
 
 function itemLine(item) {
     if (typeof item === 'string')
-        return { text: item, attr: 0, item: null };
+        return { text: item, attr: 0, styleStart: 0, item: null };
     if (!Object.hasOwn(item, 'value')) {
         return {
             text: item.text ?? item.label ?? '',
             attr: item.attr ?? 0,
             color: item.color,
+            styleStart: 0,
             item: null,
         };
     }
@@ -416,6 +417,7 @@ function itemLine(item) {
         text: `${selector} ${marker} ${item.label ?? item.text ?? ''}`,
         attr: item.attr ?? 0,
         color: item.color,
+        styleStart: 4,
         item,
     };
 }
@@ -603,11 +605,20 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0,
     for (let row = 0; row < layout.lines.length; row++) {
         const line = layout.lines[row];
         const text = String(line.text ?? '');
+        const styleStart = line.styleStart ?? 0;
         writeStyledText(
             display,
             layout.startColumn,
             row,
-            text,
+            text.slice(0, styleStart),
+            NO_COLOR,
+            0,
+        );
+        writeStyledText(
+            display,
+            layout.startColumn + styleStart,
+            row,
+            text.slice(styleStart),
             line.color ?? NO_COLOR,
             line.attr ?? 0,
         );
@@ -1175,8 +1186,8 @@ function refreshVisibleSelections(state, rendered, changedItems = null) {
             rendered.layout.startColumn + 2,
             row,
             selectionMarker(item),
-            item.color ?? NO_COLOR,
-            item.attr ?? 0,
+            NO_COLOR,
+            0,
         );
     }
 }

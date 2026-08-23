@@ -4605,6 +4605,15 @@
           "at": "cac6ebff2728a8d0c0aaf27742792bfe16acd4d6"
         }
       ]
+    },
+    {
+      "id": "tty-menu-leading-styled-space-serialization",
+      "area": "display",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "7a0c54f1c678f5a8c2b449dc15d19d8d61a54de4",
+      "detail": "js/tty_menu.js writeStyledText() can hold color and attribute on the leading spaces in a menu description, but judge-owned Terminal.serialize() skips every leading space through the first nonspace. Enabled MENUCOLOR rules therefore lose that styling in menus such as #optionsfull even though the following text matches. Close by providing a source-faithful captured-screen path for styled leading whitespace without changing judge-owned files, then restore an enabled catch-all #optionsfull fresh case."
     }
   ],
   "areas": [

@@ -1897,6 +1897,7 @@ test('every generated config statement participates in source prefix matching',
             character: 'Healer',
             dogname: 'Fido',
             catname: 'Mog',
+            menucolor: '"x"=green',
         };
         for (const row of configLineStatements) {
             const acceptedName = row.name.slice(0, row.minLength).toUpperCase();
@@ -4313,8 +4314,7 @@ test('the parser records the config statements it cannot interpret', () => {
     const unported = [
         'hackdir', 'leveldir', 'levels', 'savedir', 'bonesdir',
         'datadir',
-        'scoredir', 'lockdir', 'configdir', 'troubledir',
-        'menucolor', 'wizkit',
+        'scoredir', 'lockdir', 'configdir', 'troubledir', 'wizkit',
         'qt_tilewidth', 'qt_tileheight', 'qt_fontsize', 'qt_compact',
     ];
     assert.deepEqual(
@@ -4324,9 +4324,9 @@ test('the parser records the config statements it cannot interpret', () => {
     );
     // The shortest accepted prefix of each, and the longest rejected one.
     assert.deepEqual(
-        parseNethackrc('AUTOC=x\nMSGTYPE=hide "x"\nMENUCOLOR=x\n')
+        parseNethackrc('AUTOC=x\nMSGTYPE=hide "x"\nMENUCOLOR="x"=green\n')
             .unportedConfigStatements,
-        ['menucolor'],
+        [],
     );
     assert.deepEqual(
         parseNethackrc('AUTO=x\nMSGTYP=x\nMENUCOLO=x\n')
@@ -4338,13 +4338,11 @@ test('the parser records the config statements it cannot interpret', () => {
             .configErrorFrame.num_errors,
         3,
     );
-    // Every occurrence is recorded, because each one appends its own node to
-    // the list the count walks.
-    assert.deepEqual(
-        parseNethackrc('MENUCOLOR="a"=green\nMENUCOLOR="b"=red\n')
-            .unportedConfigStatements,
-        ['menucolor', 'menucolor'],
+    const colors = parseNethackrc(
+        'MENUCOLOR="a"=green\nMENUCOLOR="b"=red\n',
     );
+    assert.equal(colors.gm.menu_colorings.origstr, 'b');
+    assert.equal(colors.gm.menu_colorings.next.origstr, 'a');
 });
 
 // The fresh matrix reaches cfgfiles.c config_error_done() with the three name

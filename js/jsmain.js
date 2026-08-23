@@ -303,6 +303,9 @@ export class NethackGame {
         g.plname = opts.name ?? '';
         g.flags = { ...opts.flags };
         g.iflags = { ...opts.iflags };
+        // cfgfiles.c cnf_line_MENUCOLOR() has finished prepending the
+        // per-game coloratt.c list before any menu can be built.
+        g.gm = { ...opts.gm };
         g.options_set_window_colors_flag
             = opts.options_set_window_colors_flag;
         g.wcolors_opt = [...opts.wcolors_opt];

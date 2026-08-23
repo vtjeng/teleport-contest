@@ -2,13 +2,67 @@
 // C ref: src/windows.c, the interface-independent layer between the game and
 // whichever window port is linked in.
 
-import { PICK_ANY } from './const.js';
+import {
+    MENU_ITEMFLAGS_SKIPMENUCOLORS,
+    PICK_ANY,
+} from './const.js';
 import { def_char_to_objclass } from './drawing.js';
 import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
 import { MAXOCLASSES } from './objects.js';
 import { OBJCLASS_EXPLANATIONS } from './symbol_data.js';
 import { selectTtyMenu } from './tty_menu.js';
+import { regex_match } from './posixregex.js';
+import {
+    ATR_BOLD,
+    ATR_INVERSE,
+    ATR_NONE,
+    ATR_UNDERLINE,
+} from './terminal.js';
+
+// C ref: windows.c get_menu_coloring(). The list is newest-first and the
+// first matching expression supplies both fields.
+export function get_menu_coloring(str, state = game) {
+    if (state.iflags?.use_menu_color) {
+        for (let rule = state.gm?.menu_colorings; rule; rule = rule.next) {
+            if (regex_match(String(str), rule.regex)) {
+                return { color: rule.color, attr: rule.attr };
+            }
+        }
+    }
+    return null;
+}
+
+function ttyMenuColorAttribute(attr) {
+    if (attr === 1) return ATR_BOLD;
+    if (attr === 4) return ATR_UNDERLINE;
+    if (attr === 7) return ATR_INVERSE;
+    // Recorder patch 006 does not capture ATR_DIM, ATR_ITALIC, or ATR_BLINK.
+    return ATR_NONE;
+}
+
+// C ref: windows.c add_menu(). JavaScript callers already construct the TTY
+// item's other fields; this common step applies menu coloring to the original
+// description, then clears the one flag no window port receives.
+export function add_menu(state, item) {
+    if (typeof item === 'string') item = { text: item };
+    if (typeof item !== 'object' || item === null) return item;
+    const itemflags = Number.isInteger(item.itemflags) ? item.itemflags : 0;
+    const skip = item.skipMenuColors === true || item.heading === true
+        || (itemflags & MENU_ITEMFLAGS_SKIPMENUCOLORS) !== 0;
+    if (!skip && state.iflags?.use_menu_color) {
+        const text = item.label ?? item.text ?? '';
+        const style = get_menu_coloring(text, state);
+        if (style) {
+            item.color = style.color;
+            item.attr = ttyMenuColorAttribute(style.attr);
+        }
+    }
+    if (Number.isInteger(item.itemflags)) {
+        item.itemflags &= ~MENU_ITEMFLAGS_SKIPMENUCOLORS;
+    }
+    return item;
+}
 
 // C ref: decl.c:233, which initializes gb.bot_disabled to FALSE, and
 // include/decl.h:218, which declares it.  Only select_menu() and getlin()
@@ -45,7 +99,15 @@ export async function select_menu(state, spec) {
     const old_bot_disabled = bot_disabled_is_set(state);
 
     state.gb.bot_disabled = true;
-    const reslt = await selectTtyMenu(state, spec);
+    // Core callers model calls to add_menu() as item objects or display-only
+    // strings. Apply the interface-independent adjustment once before the
+    // TTY port stores or draws them.
+    const adjustedSpec = {
+        ...spec,
+        items: spec.items?.map((item) => add_menu(state, item)),
+        lines: spec.lines?.map((line) => add_menu(state, line)),
+    };
+    const reslt = await selectTtyMenu(state, adjustedSpec);
     state.gb.bot_disabled = old_bot_disabled;
     return reslt;
 }
