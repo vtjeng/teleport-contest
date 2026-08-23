@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "Ten confirmed audit findings remain: five recorder-glibc semantic/resource defects, three discriminating test gaps, and two evaluator-contract comments. The matcher must reach source parity and bounded resource behavior before this slice is ready for audit.",
-  "commitChecked": "d0073827c23091a623fba4c7adb76e2da4e4f805",
+  "mode": "ready-for-audit",
+  "reason": "All ten confirmed findings are implemented and independently validated. One parsed ASCII ERE tree now owns both bounded matcher paths; recorder-glibc semantics, diagnostics, installed consumers, fresh screens, and exact 255-byte resource budgets are pinned. Mutation evidence remains waived; the default suite's accidental enumerate-only smoke failed before any mutant ran or evidence was produced.",
+  "commitChecked": "14ad5a1d7becddd95d09d151d58a54eadda1976d",
   "boundary": {
     "goalId": "options-config-parser",
     "startingCommit": "d0073827c23091a623fba4c7adb76e2da4e4f805",
@@ -16,7 +16,7 @@
     "dispatchTablesAndCatalogs": "The complete ASCII ERE grammar, capture/reference ids, repetition bounds through RE_DUP_MAX, anchor position rules, and MSGTYPE/AUTOPICKUP_EXCEPTION pattern storage define the families.",
     "reachableHelpers": "The expanded correctness audit supplied direct glibc discriminators for every semantic defect and adversarial valid patterns for both resource defects; related AST arms and compile diagnostics were clustered by shared ownership.",
     "javascriptCrossCheck": "Inspect js/posixregex.js regex_compile/regex_match, parser/translator/evaluator helpers, js/options.js consumers, and the focused/direct/fresh regex runners for duplicated engines, unsupported fallbacks, and V8 RegExp routing.",
-    "remainingLimits": "The audit is exhaustive for the ten recorded deferrals. The worker must still trace glibc leftmost/longest and subgroup precedence closely enough to replace enumeration without overfitting the listed examples."
+    "remainingLimits": "The checklist is exhaustive for the ten recorded deferrals. Named non-ASCII locale behavior and later runtime/interactive consumers remain outside this slice at explicit before-effect boundaries."
   },
   "entries": [
     {
@@ -25,7 +25,7 @@
       "owner": "js/posixregex.js reference-aware matching",
       "effects": "The selected capture decomposition determines whether the reference matches and which startup rule applies.",
       "evidence": "Audit probes reject ^(a){0,2}\\1$ on aa, ^(a){1,3}\\1$ on aaa, ^(a+)+\\1$ on aaa, and unanchored (l){0,2}\\1 on Hello while the current evaluator accepts them.",
-      "status": "ready-for-audit",
+      "status": "done",
       "remaining": "Implemented with glibc-shaped interval endpoint and nested quantified-capture selection; focused and direct libc cases pass."
     },
     {
@@ -34,7 +34,7 @@
       "owner": "js/posixregex.js direct and reference-aware anchor evaluation",
       "effects": "The current code admits matches glibc rejects in both matcher representations.",
       "evidence": "glibc rejects ()^b on newline+b and (()^b)\\1 on newline+bb; both accept the consumed-newline control .+^b.",
-      "status": "ready-for-audit",
+      "status": "done",
       "remaining": "Both representations carry candidate-start provenance; direct/reference failures and the consumed-newline control pass against libc."
     },
     {
@@ -43,7 +43,7 @@
       "owner": "js/posixregex.js intervalExpression()",
       "effects": "Startup configuration reports the wrong libc diagnostic text/category.",
       "evidence": "Fresh recorder-libc probes report Invalid content of braces for `(a)\\1{a,`, `a{a,,`, `a{a,`, and `a{1a,`, but Unmatched brace for `a{,`, `a{1,`, `a{a`, and `a{1`.",
-      "status": "ready-for-audit",
+      "status": "done",
       "remaining": "Unterminated comma-form scanning follows parse_dup_op() diagnostic precedence; reference and direct controls pass against libc."
     },
     {
@@ -52,7 +52,7 @@
       "owner": "js/posixregex.js reference-aware matcher",
       "effects": "Synchronous startup or message matching can take seconds and allocate hundreds of MiB.",
       "evidence": "The audit measured a 25-byte valid nested pattern on 16 bytes at about 6.2 seconds/108 MiB versus glibc about 0.01 seconds/2 MiB; larger prior probes reached hundreds of MiB.",
-      "status": "ready-for-audit",
+      "status": "done",
       "remaining": "The evaluator retains immutable values only for referenced groups; the 255-byte-pattern/255-byte-input adversary passes the 2,000 ms/128 MiB maxRSS budget without an abort."
     },
     {
@@ -61,7 +61,7 @@
       "owner": "js/posixregex.js direct matcher",
       "effects": "Native exponential backtracking can stall every ordinary vpline consumer.",
       "evidence": "^(a|aa)*b$ on 40 a bytes took about 13 seconds in JavaScript while recorder glibc rejected 255 bytes in under 0.01 seconds.",
-      "status": "ready-for-audit",
+      "status": "done",
       "remaining": "The direct path uses memoized Thompson position sets; the 255-byte-pattern/255-byte-input adversary passes the 1,000 ms/96 MiB maxRSS budget and libc result."
     },
     {
@@ -70,7 +70,7 @@
       "owner": "scripts/startup-msgtype.test.mjs and direct regex oracle",
       "effects": "AST-only parser/evaluator arms can regress while no-reference tests stay green.",
       "evidence": "Existing semantic cases for these constructs route to the direct matcher; the audit exposed an AST anchor defect this gap concealed.",
-      "status": "ready-for-audit",
+      "status": "done",
       "remaining": "Focused and direct-libc cases cover reference-aware POSIX class, GNU buffer anchors, and internal caret while asserting the representation."
     },
     {
@@ -79,7 +79,7 @@
       "owner": "scripts/startup-msgtype.test.mjs and direct regex oracle",
       "effects": "Treating {m,n} as exact or open would escape current tests.",
       "evidence": "The missing matrix for ^(a){2,3}\\1$ rejects aa/aaaaa and matches aaa/aaaa in recorder glibc.",
-      "status": "ready-for-audit",
+      "status": "done",
       "remaining": "The four-input ^(a){2,3}\\1$ matrix passes focused and direct-libc validation."
     },
     {
@@ -88,7 +88,7 @@
       "owner": "scripts/startup-msgtype.test.mjs and direct regex oracle",
       "effects": "Stale start/end or fixed-width capture bugs can pass all existing equal-width tests.",
       "evidence": "Audit glibc probes for ^((ab|c)|x)*\\2$ distinguish overwrite, retention, content, and span length.",
-      "status": "ready-for-audit",
+      "status": "done",
       "remaining": "The ^((ab|c)|x)*\\2$ overwrite/retention matrix passes focused and direct-libc validation."
     },
     {
@@ -97,7 +97,7 @@
       "owner": "js/posixregex.js captureStateKey()/state storage",
       "effects": "A future mutable or unkeyed field could merge unequal paths or corrupt stored alternatives.",
       "evidence": "The audit confirmed the current invariant is necessary and correct but implicit at its definition.",
-      "status": "ready-for-audit",
+      "status": "done",
       "remaining": "captureStateKey() documents immutability and complete future-equivalence for referenced values."
     },
     {
@@ -106,26 +106,10 @@
       "owner": "js/posixregex.js group evaluation",
       "effects": "Conventional clearing would lose glibc's last participating descendant value.",
       "evidence": "Existing equal-width cases prove retention, but the mechanism that overwrites only the enclosing span is not locally explained.",
-      "status": "ready-for-audit",
+      "status": "done",
       "remaining": "The group transition documents why only the enclosing span changes and descendants retain their last participating values."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "js/posixregex.js parser and compile diagnostics",
-      "candidates": ["Malformed unterminated interval diagnostic precedence"],
-      "next": "Pin exact libc diagnostic controls, then correct interval scanning."
-    },
-    {
-      "group": "js/posixregex.js bounded matcher architecture",
-      "candidates": ["Polynomial resource bound for no-reference matching", "Polynomial resource bound for reference-aware matching", "Recorder-glibc repetition and submatch-selection precedence", "Internal caret candidate-start provenance"],
-      "next": "Trace glibc/POSIX selection rules, choose a shared bounded representation, and implement semantics before optimizing evidence cases."
-    },
-    {
-      "group": "regex regression evidence and contracts",
-      "candidates": ["Reference-aware class and anchor arm coverage", "Reference-aware finite interval maximum coverage", "Variable-width capture overwrite and retention coverage", "Capture-state key completeness and immutability contract", "Descendant capture-retention contract"],
-      "next": "Add discriminating focused/direct/fresh evidence and document only the final architecture's durable invariants."
-    }
-  ],
+  "missingWorkByOwner": [],
   "sourceReview": "Complete. Traced sys/share/posixregex.c's REG_EXTENDED|REG_NOSUB wrapper, glibc regcomp.c parse_dup_op()/mark_opt_subexp(), regexec.c get_subexp()/capture-state paths, and the installed MSGTYPE/AUTOPICKUP_EXCEPTION consumers. Fresh libc probes settled bounded-repeat endpoints, nested quantified captures, internal-caret provenance, and malformed-interval diagnostic precedence."
 }
