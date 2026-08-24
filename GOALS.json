@@ -3538,6 +3538,35 @@
       "openStanding": null,
       "closedAt": null,
       "delivered": null
+    },
+    {
+      "id": "initial-level-monster-umber-hulk",
+      "status": "open",
+      "boundary": "unsupported initial-level monster creation: monster 225",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 93,
+        "basis": "Capped look-ahead at b8c44b1: seed0383 has 95 raw steps after the boundary. Capped at 93 by dragon armor wear (Is_dragon_armor refused by do_wear.js). Same session and cap as the prior special-room-beehive goal; the boundary moved from do_mkroom(5) to monster creation at the same step.",
+        "sessions": [
+          "seed0383-wizard-hallucinate"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383-wizard-hallucinate",
+            "evidence": "hero types e (eat) at step 42 after level teleport via ? menu. C path: do.c goto_level -> mklev.c makelevel creates initial level monsters including an umber hulk. makemon refuses PM_UMBER_HULK (225) in the JS port. C proceeds to wish prompt. Capped at 93 by Is_dragon_armor refusal."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "b8c44b1f31700315744c98363ba4ca77d04797d9",
+      "openStanding": {
+        "sha": "15037938c9d862daa84e6c68060618e1eae1911e",
+        "screens": 1998,
+        "rng": 133716
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
