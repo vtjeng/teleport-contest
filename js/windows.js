@@ -18,6 +18,7 @@ import {
     ATR_INVERSE,
     ATR_NONE,
     ATR_UNDERLINE,
+    NO_COLOR,
 } from './terminal.js';
 
 // C ref: windows.c get_menu_coloring(). The list is newest-first and the
@@ -62,6 +63,26 @@ export function add_menu(state, item) {
         item.itemflags &= ~MENU_ITEMFLAGS_SKIPMENUCOLORS;
     }
     return item;
+}
+
+// C ref: windows.c add_menu_heading() (1816-1828). Inserts a non-selectable,
+// highlighted heading into a menu, using iflags.menu_headings for attr and
+// color. C suppresses highlighting during end-of-game disclosure
+// (program_state.gameover), which this port cannot reach.
+//
+// Returns a menu item object with `heading: true` so that windows.js
+// add_menu() skips menu coloring (MENU_ITEMFLAGS_SKIPMENUCOLORS), and with
+// the attr/color fields set from iflags.menu_headings.
+export function add_menu_heading(text, state = game) {
+    const style = state.iflags?.menu_headings;
+    const attr = Number.isInteger(style?.attr) ? style.attr : ATR_INVERSE;
+    const color = Number.isInteger(style?.color) ? style.color : NO_COLOR;
+    return {
+        text,
+        heading: true,
+        attr,
+        color,
+    };
 }
 
 // C ref: decl.c:233, which initializes gb.bot_disabled to FALSE, and

@@ -64,6 +64,7 @@ import {
     ledger_no,
     lev_by_name,
     on_level,
+    print_dungeon,
     single_level_branch,
     u_on_newpos,
 } from './dungeon.js';
@@ -1262,9 +1263,35 @@ export async function level_tele(state = game) {
     // 1221: `wizard && !strcmp(buf, "?")`, whose first operand this function
     // has already established.
     if (buf === '?') {
-        throw new UnsupportedLevelChangeError(
-            'level_tele() reaching print_dungeon() for "?"',
+        // C: levTport_menu label (1225-1247). print_dungeon(TRUE) shows a
+        // selectable dungeon overview; force_dest = TRUE skips all the
+        // numeric-answer validation below and goes straight to schedule_goto.
+        const dest = await print_dungeon(state);
+        if (!dest) return;  // C: `if (!newlev) return;`
+
+        const newlevel = { dnum: dest.dnum, dlevel: dest.dlevel };
+        // C:1234-1246 endgame-amulet branch: when the selected level is in
+        // the endgame and the hero is not, wizard mode conjures the Amulet
+        // of Yendor. No witness session exercises this path.
+        const inEndgame = newlevel.dnum === state.astral_level?.dnum;
+        const heroInEndgame = state.u.uz.dnum === state.astral_level?.dnum;
+        if (inEndgame && !heroInEndgame) {
+            throw new UnsupportedLevelChangeError(
+                'level_tele() endgame-amulet branch via print_dungeon menu',
+            );
+        }
+        // force_dest = TRUE: skip single_level_branch, In_quest, next_to_u,
+        // In_endgame, negative-level heaven, find_hell, and get_level.
+        schedule_goto(
+            newlevel,
+            UTOTYPE_NONE,
+            null,
+            state.flags?.verbose
+                ? 'You materialize on a different level!'
+                : null,
+            state,
         );
+        return;
     }
     const namedLevel = lev_by_name(buf, state);
     let newlev = namedLevel || cAtoi(buf);

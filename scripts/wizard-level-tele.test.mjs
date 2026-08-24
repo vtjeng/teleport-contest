@@ -235,8 +235,6 @@ test('an Escape over a typed answer repaints instead of cancelling',
 for (const [answer, reason] of [
     // 1213-1214: "*" jumps to random_levtport.
     ['*', 'level_tele() random_levtport for "*"'],
-    // 1221-1228: a wizard's "?" opens dungeon.c print_dungeon().
-    ['?', 'level_tele() reaching print_dungeon() for "?"'],
     // The same tail for a name, which lev_by_name() rather than atoi()
     // would answer.
     ['sokoban', 'level_tele() resolving a non-positive or named destination'],

@@ -37,6 +37,7 @@ import {
     M_AP_TYPMASK,
     MAX_TYPE,
     MOAT,
+    PICK_ONE,
     ROWNO,
     ROOM,
     SDOOR,
@@ -53,6 +54,7 @@ import { PM_DWARF } from './monsters.js';
 // the other's exports only inside function bodies, so the cycle resolves.
 import { see_nearby_objects } from './display.js';
 import { hliquid } from './do_name.js';
+import { makeplural } from './fruit.js';
 import { switch_terrain } from './hack.js';
 import { strstri } from './hacklib.js';
 import { place_lregion } from './mkmaze.js';
@@ -69,6 +71,8 @@ import { is_ice } from './terrain.js';
 // js/trap.js imports on_level() from this file. Both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
 import { is_lava, is_pool } from './trap.js';
+// js/windows.js does not import from this file, so there is no cycle.
+import { add_menu_heading, select_menu } from './windows.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -1261,6 +1265,181 @@ export function on_level(left, right) {
 export function Is_special(level, state = game) {
     for (const special of state.specialLevels ?? []) {
         if (on_level(level, special.dlevel)) return special;
+    }
+    return null;
+}
+
+// ---------------------------------------------------------------------------
+// print_dungeon() and its helpers, ported for the bymenu=TRUE path only.
+// C ref: dungeon.c unplaced_floater(), unreachable_level(), tport_menu(),
+// br_string(), chr_u_on_lvl(), print_branch(), print_dungeon() (2174-2398).
+// ---------------------------------------------------------------------------
+
+// C ref: dungeon.c unplaced_floater() (2174-2187). Returns true when the
+// dungeon at index `idx` is Fort Ludios and its branch parent is the sentinel
+// n_dgns, meaning init_dungeons() did not place it.
+function unplaced_floater(idx, state) {
+    if (idx !== state.knox_level?.dnum) return false;
+    for (let br = state.svb?.branches; br; br = br.next) {
+        if (br.end1.dnum === state.n_dgns && br.end2.dnum === idx)
+            return true;
+    }
+    return false;
+}
+
+// C ref: dungeon.c unreachable_level() (2189-2201). Decides whether a level
+// should be shown but not selectable in the teleport menu.
+function unreachable_level(lvl_p, unplaced, state) {
+    if (unplaced) return true;
+    // In_endgame spelled out against state, as has_ceiling() does.
+    const inEndgame = state.u.uz.dnum === state.astral_level?.dnum;
+    if (inEndgame && lvl_p.dnum !== state.astral_level?.dnum) return true;
+    const dummy = find_level('dummy', state);
+    if (dummy && on_level(lvl_p, dummy.dlevel)) return true;
+    return false;
+}
+
+// C ref: dungeon.c tport_menu() (2203-2236). Pushes one level entry into the
+// items array and the lchoices bookkeeping struct. An unreachable entry is
+// displayed with four leading spaces in place of a menu selector.
+function tport_menu(items, entry, lchoices, lvl_p, cannotreach, state) {
+    lchoices.lev[lchoices.idx] = lvl_p.dlevel;
+    lchoices.dgn[lchoices.idx] = lvl_p.dnum;
+    lchoices.playerlev[lchoices.idx] = depth(lvl_p, state);
+    if (cannotreach) {
+        // Not selectable: prepend padding in place of missing selector.
+        items.push({ text: `    ${entry}` });
+    } else {
+        items.push({
+            selector: lchoices.menuletter,
+            label: entry,
+            value: lchoices.idx + 1,  // any.a_int = idx + 1
+        });
+    }
+    // Advance the menu letter; C assumes at most 52 interesting levels.
+    lchoices.menuletter = lchoices.menuletter === 'z'
+        ? 'A'
+        : String.fromCharCode(lchoices.menuletter.charCodeAt(0) + 1);
+    lchoices.idx++;
+}
+
+// C ref: dungeon.c br_string() (2238-2253). Converts a branch type constant
+// to a display string.
+export function br_string(type) {
+    switch (type) {
+    case BR_PORTAL:   return 'Portal';
+    case BR_NO_END1:  return 'Connection';
+    case BR_NO_END2:  return 'One way stair';
+    case BR_STAIR:    return 'Stair';
+    }
+    return ' (unknown)';
+}
+
+// C ref: dungeon.c chr_u_on_lvl() (2255-2259). Returns '*' if the hero is on
+// the given level, ' ' otherwise.
+function chr_u_on_lvl(dlev, state) {
+    return (state.u.uz.dnum === dlev.dnum
+        && state.u.uz.dlevel === dlev.dlevel) ? '*' : ' ';
+}
+
+// C ref: dungeon.c print_branch() (2261-2286). Pushes branch entries whose
+// parent end (end1) falls between the lower and upper bounds in the given
+// dungeon. Only the bymenu=TRUE arm is ported.
+function print_branch(items, dnum, lower_bound, upper_bound, lchoices, state) {
+    for (let br = state.svb?.branches; br; br = br.next) {
+        if (br.end1.dnum === dnum && lower_bound < br.end1.dlevel
+            && br.end1.dlevel <= upper_bound) {
+            const buf = `${chr_u_on_lvl(br.end1, state)} ${br_string(br.type)}`
+                + ` to ${state.dungeons[br.end2.dnum].dname}: `
+                + `${depth(br.end1, state)}`;
+            tport_menu(items, buf, lchoices, br.end1,
+                unreachable_level(br.end1, false, state), state);
+        }
+    }
+}
+
+// C ref: dungeon.c print_dungeon() (2288-2398), bymenu=TRUE path only.
+// Builds a PICK_ONE menu of all dungeon levels and branches, highlights
+// dungeon headings with iflags.menu_headings, and returns { playerlev, dnum,
+// dlevel } for the selected entry or null when the hero cancels.
+//
+// The bymenu=FALSE informational path uses putstr/NHW_TEXT and is not ported.
+export async function print_dungeon(state = game) {
+    const items = [];
+    const lchoices = {
+        lev: [],
+        dgn: [],
+        playerlev: [],
+        menuletter: 'a',
+        idx: 0,
+    };
+
+    for (let i = 0; i < state.n_dgns; i++) {
+        const dptr = state.dungeons[i];
+        // In_endgame spelled out against state.
+        const inEndgame = state.u.uz.dnum === state.astral_level?.dnum;
+        if (inEndgame && i !== state.astral_level?.dnum) continue;
+
+        const isUnplaced = unplaced_floater(i, state);
+        const descr = isUnplaced ? 'depth' : 'level';
+        const nlev = dptr.num_dunlevs;
+        let buf;
+        if (nlev > 1) {
+            buf = `${dptr.dname}: ${makeplural(descr)} ${dptr.depth_start}`
+                + ` to ${dptr.depth_start + nlev - 1}`;
+        } else {
+            buf = `${dptr.dname}: ${descr} ${dptr.depth_start}`;
+        }
+
+        // Most entrances are uninteresting.
+        if (dptr.entry_lev !== 1) {
+            if (dptr.entry_lev === nlev) {
+                buf += ', entrance from below';
+            } else {
+                buf += `, entrance on ${dptr.depth_start + dptr.entry_lev - 1}`;
+            }
+        }
+        items.push(add_menu_heading(buf, state));
+
+        // Circle through the special levels to find levels in this dungeon.
+        let last_level = 0;
+        for (let slev = state.sp_levchn; slev; slev = slev.next) {
+            if (slev.dlevel.dnum !== i) continue;
+
+            // Print any branches before this level.
+            print_branch(items, i, last_level, slev.dlevel.dlevel,
+                lchoices, state);
+
+            let entry = `${chr_u_on_lvl(slev.dlevel, state)} ${slev.proto}: `
+                + `${depth(slev.dlevel, state)}`;
+            // Is_stronghold spelled out against state.
+            if (on_level(slev.dlevel, state.stronghold_level)) {
+                entry += ` (tune ${state.svt?.tune ?? state.tune ?? ''})`;
+            }
+            tport_menu(items, entry, lchoices, slev.dlevel,
+                unreachable_level(slev.dlevel, isUnplaced, state), state);
+
+            last_level = slev.dlevel.dlevel;
+        }
+        // Print branches after the last special level.
+        print_branch(items, i, last_level, MAXLEVEL, lchoices, state);
+    }
+
+    const selected = await select_menu(state, {
+        title: 'Level teleport to where:',
+        items,
+        how: PICK_ONE,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+
+    if (selected != null) {
+        const idx = selected - 1;  // C: idx = selected[0].item.a_int - 1
+        return {
+            playerlev: lchoices.playerlev[idx],
+            dlevel: lchoices.lev[idx],
+            dnum: lchoices.dgn[idx],
+        };
     }
     return null;
 }
