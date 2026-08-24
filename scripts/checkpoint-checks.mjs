@@ -102,6 +102,11 @@ export function checkpointCommands(focusedTests = [], {
         command: 'npm',
         args: ['run', 'check:fixed-datetime'],
     });
+    commands.push({
+        label: 'static sources (check:score-quoting)',
+        command: 'npm',
+        args: ['run', 'check:score-quoting'],
+    });
     // Informational: a name defined twice is sometimes a module-private helper
     // that genuinely differs from its namesake, and only a reader who knows the
     // C function can tell that from a divergent duplicate port. The listing
@@ -259,10 +264,14 @@ export function summarizeDuplicateSymbols({ stdout = '' }) {
 export function summarizeMutation({ stdout = '', stderr = '', status }) {
     const output = `${stdout}${stderr}`;
     if (status !== 0) {
-        const reason = /the unmutated tests do not pass/u.test(output)
-            ? 'the tests covering the changed js/ files are red, so no mutant '
-                + 'was measured'
-            : `the mutator exited ${status}`;
+        let reason = `the mutator exited ${status}`;
+        if (/the unmutated tests do not pass/u.test(output)) {
+            reason = 'the tests covering the changed js/ files are red, so no '
+                + 'mutant was measured';
+        } else if (/mutation host probe/u.test(output)) {
+            reason = 'the mutation host probe failed, so no mutant was '
+                + 'measured; rerun outside the command sandbox';
+        }
         return { body: output.trimEnd(), detail: reason, skipped: true };
     }
     const survivors = output.split('\n')
