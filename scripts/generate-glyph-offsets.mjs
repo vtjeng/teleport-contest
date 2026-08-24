@@ -9,11 +9,12 @@
 // defsym indices that decide how wide each range is, so a change to NUMMONS or
 // to defsym.h moves every offset above it.
 //
-// The expressions are emitted as expressions rather than as numbers, and every
-// identifier they name is imported from the js/ module that owns it, so a
-// count that drifts breaks the import or changes the offsets rather than
-// leaving a stale literal behind. The offsets themselves are therefore never
-// written down anywhere in this repository.
+// The expressions are emitted as expressions rather than as numbers. Counts
+// come from the js/ module that owns them. S_* indices come through generated
+// SYMBOL_INDEX_BY_NAME instead of importing symbols.js, because symbols.js
+// consumes these offsets and importing it here would create a module cycle.
+// A drifting input therefore breaks generation or changes the offsets rather
+// than leaving a stale literal behind.
 
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -26,11 +27,9 @@ const SOURCE_PATH = join(UPSTREAM_ROOT, 'include', 'display.h');
 const OUTPUT_PATH = join(PROJECT_ROOT, 'js', 'glyph_offsets.js');
 const PINNED_REVISION = '16ff59115315917b93185d026aeefea06db9b0f4';
 
-// Where each identifier the enum names is exported from. An identifier that no
-// listed module exports fails generation rather than the import, which is what
-// caught NUM_ZAP, S_digbeam and S_goodpos as the three inputs js/ lacked.
-// NUM_ZAP is display.h's own #define and is emitted below, so it is resolved
-// from this file rather than looked up.
+// Where each non-S_* identifier the enum names is exported from. An identifier
+// that no listed module exports fails generation. NUM_ZAP is display.h's own
+// #define and is emitted below; S_* values follow the cycle-safe path above.
 const CONSTANT_MODULES = [
     { path: join(PROJECT_ROOT, 'js', 'const.js'), specifier: './const.js' },
     { path: join(PROJECT_ROOT, 'js', 'monsters.js'), specifier: './monsters.js' },

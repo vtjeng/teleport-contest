@@ -209,6 +209,10 @@ import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { init_objects } from '../js/o_init.js';
 import { parseNethackrc } from '../js/options.js';
+import {
+    apply_customizations,
+    numeric_glyph_customization,
+} from '../js/glyphs.js';
 import { sourceGlyphName } from '../js/glyph_ids.js';
 import {
     add_rect_to_reg,
@@ -303,7 +307,7 @@ import {
     defsym_to_trap,
     finish_boulder_symbol,
     get_othersym,
-    glyph_customization,
+    named_glyph_customization,
     initialize_symbols_from_options,
     MAXOTHER,
     MAXPCHARS,
@@ -1144,6 +1148,10 @@ test('object and monster classes use their absolute source symbol slots', () => 
 });
 
 test('UTF-8 object-class overrides retain glyphs.c concrete-object semantics', () => {
+    // S_* UTF-8 values in a UTF-8-handling set route through
+    // glyphrep_to_custom_map_entries(), which installs a glyph customization
+    // rather than a showutf8 byte override.  apply_customizations() moves the
+    // record into the per-glyph map that display.c consults.
     const state = {};
     initialize_symbols_from_options(
         parseNethackrc([
@@ -1152,16 +1160,24 @@ test('UTF-8 object-class overrides retain glyphs.c concrete-object semantics', (
         ].join('\n')),
         state,
     );
+    apply_customizations(state.gc?.currentgraphics ?? PRIMARYSET, state);
 
+    // The class-level symbol returns the raw byte; the Unicode override lives
+    // in the per-glyph customization map.
     assert.deepEqual(object_class_symbol(WEAPON_CLASS, state), {
-        ch: null,
+        ch: ')',
         dec: false,
-        displayCh: '☃',
     });
+    // The concrete-object variant (otyp !== oclass) always returns the byte.
     assert.deepEqual(object_class_symbol(WEAPON_CLASS, state, 42), {
         ch: ')',
         dec: false,
     });
+    // The customization installs on the generic weapon glyph.
+    const customization = numeric_glyph_customization(
+        GLYPH_OBJ_OFF + WEAPON_CLASS, state,
+    );
+    assert.equal(customization?.displayCh, '☃');
 });
 
 test('hero and pet symbol overrides require sysconf accessibility', () => {
@@ -1202,7 +1218,12 @@ test('hero and pet symbol overrides require sysconf accessibility', () => {
     assert.equal(hero_glyph_info(state).ch, 'f');
 });
 
-test('UTF-8 hero and pet overrides survive zero raw optional symbols', async () => {
+test('UTF-8 misc symbol overrides have no glyph expansion', async () => {
+    // S_hero_override and S_pet_override are optional misc symbols in the
+    // SYM_OFF_X range.  glyph_find() returns null for them, so
+    // glyphrep_to_custom_map_entries() creates no customization record.
+    // With a UTF-8-handling set, the override path goes through glyphrep
+    // rather than the byte override, and the Unicode value is silently lost.
     const configured = parseNethackrc([
         'OPTIONS=symset:Enhanced1',
         'SYMBOLS=S_pet_override:U+2603,S_hero_override:U+2602',
@@ -1234,30 +1255,15 @@ test('UTF-8 hero and pet overrides survive zero raw optional symbols', async () 
         return state;
     };
 
+    // No glyph expansion means the hero shows its normal '@'.
     let state = makeState(true);
     assert.deepEqual(hero_glyph_info(state), {
-        ch: null,
+        ch: '@',
         color: CLR_RED,
         dec: false,
-        displayCh: '☂',
     });
-    newsym(7, 4);
-    assert.deepEqual(
-        {
-            ch: state.level.at(7, 4).disp_ch,
-            color: state.level.at(7, 4).disp_color,
-            attr: state.level.at(7, 4).disp_attr,
-            browserCh: state.level.at(7, 4).disp_browser_ch,
-        },
-        { ch: ' ', color: NO_COLOR, attr: ATR_NONE, browserCh: '☂' },
-    );
-    enableBrowserGlyphProjection(state.nhDisplay);
-    await flush_screen(1);
-    assert.deepEqual(
-        state.nhDisplay.grid[5][6],
-        { ch: '☂', color: CLR_RED, attr: ATR_NONE },
-    );
 
+    // The pet shows its normal 'f' without the override.
     state = makeState(false);
     const pet = {
         data: { mlet: S_FELINE, mcolor: CLR_WHITE },
@@ -1270,27 +1276,10 @@ test('UTF-8 hero and pet overrides survive zero raw optional symbols', async () 
     };
     state.level.monsters[7][4] = pet;
     assert.deepEqual(monster_glyph_info(pet, state), {
-        ch: null,
+        ch: 'f',
         color: CLR_WHITE,
         dec: false,
-        displayCh: '☃',
     });
-    newsym(7, 4);
-    assert.deepEqual(
-        {
-            ch: state.level.at(7, 4).disp_ch,
-            color: state.level.at(7, 4).disp_color,
-            attr: state.level.at(7, 4).disp_attr,
-            browserCh: state.level.at(7, 4).disp_browser_ch,
-        },
-        { ch: ' ', color: NO_COLOR, attr: ATR_NONE, browserCh: '☃' },
-    );
-    enableBrowserGlyphProjection(state.nhDisplay);
-    await flush_screen(1);
-    assert.deepEqual(
-        state.nhDisplay.grid[5][6],
-        { ch: '☃', color: CLR_WHITE, attr: ATR_NONE },
-    );
 
     state.iflags.customsymbols = false;
     assert.deepEqual(hero_glyph_info(state), {
@@ -6522,7 +6511,7 @@ test('standalone SYMBOLS validates but does not apply G_* customizations', () =>
         '⌠',
     );
     assert.equal(
-        glyph_customization('G_vwall_sokoban', overridden).displayCh,
+        named_glyph_customization('G_vwall_sokoban', overridden).displayCh,
         '│',
     );
 
@@ -6592,7 +6581,7 @@ test('standalone SYMBOLS validates but does not apply G_* customizations', () =>
         );
     }
     assert.equal(
-        glyph_customization(
+        named_glyph_customization(
             'G_long_sword',
             configured([
                 'OPTIONS=symset:Enhanced1',

@@ -19,7 +19,7 @@ import {
     apply_customizations,
     clear_all_glyphmap_colors,
     clear_all_glyphmap_unicode,
-    glyph_customization as numeric_glyph_customization,
+    numeric_glyph_customization,
     glyphrep_to_custom_map_entries,
     purge_custom_entries,
 } from './glyphs.js';
@@ -265,18 +265,10 @@ function loadSymbolSet(name, set, state) {
         // record matches, so clear_symsetentry() clears metadata and UTF-8
         // customizations without re-running init_rogue_symbols(). Preserve
         // the previously loaded byte table, including this source quirk.
+        clear_symsetentry(set, true, state);
         arrays.baseUtf8.fill(null);
         arrays.overrideUtf8.fill(null);
-        state.gs.symset[set] = {
-            name: null,
-            explicitly: true,
-            desc: null,
-            handling: H_UNK,
-            nocolor: 0,
-            primary: 0,
-            rogue: 0,
-            glyphs: Object.freeze({}),
-        };
+        state.gs.symset[set].explicitly = true;
         return;
     }
 
@@ -313,11 +305,7 @@ function loadSymbolSet(name, set, state) {
     entry.glyphs = { ...definition.glyphs };
     if (definition.color !== null) entry.nocolor = definition.color ? 0 : 1;
     for (const [glyphName, value] of Object.entries(definition.glyphs)) {
-        glyphrep_to_custom_map_entries(
-            `${glyphName}:${value}`,
-            state,
-            set,
-        );
+        glyphrep_to_custom_map_entries(`${glyphName}:${value}`, state);
     }
     apply_customizations(state.gc.currentgraphics, state);
 }
@@ -367,19 +355,6 @@ function symbolIndex(name) {
     return SYMBOL_INDEX_BY_NAME[name];
 }
 
-function unicodeOverride(value) {
-    const text = String(value);
-    if (!/^U\+/iu.test(text)) return undefined;
-    const match = text.match(/^U\+([0-9a-f]+)/iu);
-    if (!match) return null;
-    const codePoint = Number.parseInt(match[1], 16);
-    if (!codePoint || codePoint > 0x10FFFF
-        || (codePoint >= 0xD800 && codePoint <= 0xDFFF)) {
-        return null;
-    }
-    return String.fromCodePoint(codePoint);
-}
-
 function applySymbolAssignments(operation, state) {
     const set = operation.set === 'rogue' ? ROGUESET : PRIMARYSET;
     const arrays = slotArrays(set, state);
@@ -393,14 +368,20 @@ function applySymbolAssignments(operation, state) {
         }
         const index = symbolIndex(assignment.name);
         if (index === undefined) continue;
-        const utf8 = unicodeOverride(assignment.rawValue);
-        if (utf8Handling || utf8 !== undefined) {
-            // Invalid U+ syntax stays on the custom-glyph path and leaves the
-            // existing mapping intact; it never falls back to byte 'U'.
-            if (utf8) arrays.overrideUtf8[index] = utf8;
-        } else {
-            arrays.overrides[index] = sym_val(assignment.rawValue);
+        const explicitUnicode = /^[Uu]\+/u.test(assignment.rawValue);
+        if (utf8Handling || explicitUnicode) {
+            // parsesymbols() chooses this path from the requested slot, then
+            // glyphrep_to_custom_map_entries() records against the last slot
+            // read_sym_file() selected. Preserve the original S_* spelling:
+            // match_sym() accepts aliases and prefixes that parse_id() does
+            // not, and the ignored glyphrep result is part of that behavior.
+            glyphrep_to_custom_map_entries(
+                `${assignment.glyphrepName}:${assignment.rawValue}`,
+                state,
+            );
+            continue;
         }
+        arrays.overrides[index] = sym_val(assignment.rawValue);
     }
 }
 
@@ -501,6 +482,14 @@ export function switch_symbols(state = game, useOverrides = true) {
 
 export function initialize_symbols_from_options(options, state = game) {
     init_symbols(state);
+    replay_symbol_operations(options, state);
+}
+
+// Replay the ordered effects of one configuration parse into initialized
+// symbols.c state.  initialize_symbols_from_options() is the production owner;
+// this narrower seam lets lifecycle tests exercise consecutive set changes
+// without rebuilding the state that clear_symsetentry() must purge.
+export function replay_symbol_operations(options, state = game) {
     const operations = Array.isArray(options.symbolOperations)
         ? options.symbolOperations : fallbackOperations(options);
     for (const operation of operations) {
@@ -525,7 +514,7 @@ export function initialize_symbols_from_options(options, state = game) {
         case 'glyph-customization': {
             const set = operation.set === 'rogue' ? ROGUESET : PRIMARYSET;
             state.gs.symset_which_set = set;
-            glyphrep_to_custom_map_entries(operation.raw, state, set);
+            glyphrep_to_custom_map_entries(operation.raw, state);
             break;
         }
         case 'boulder':
@@ -566,11 +555,6 @@ export function get_othersym(index, set = PRIMARYSET, state = game) {
 export function finish_boulder_symbol(state = game) {
     const symbol = get_othersym(SYM_BOULDER, PRIMARYSET, state);
     if (symbol) state.gs.showsyms[SYM_OFF_X + SYM_BOULDER] = symbol;
-}
-
-/** glyph-owned remainder of options.c initoptions_finish(). */
-export function finish_glyph_customizations(state = game) {
-    apply_customizations(state.gc.currentgraphics ?? PRIMARYSET, state);
 }
 
 function rawSymbol(index, state) {
@@ -661,7 +645,7 @@ export function optional_misc_symbol(index, state = game) {
 }
 
 /** Named G_* customization for a concrete glyph family. */
-export function glyph_customization(name, state = game) {
+export function named_glyph_customization(name, state = game) {
     const glyph = sourceGlyphNumber(name);
     return glyph === null ? null : numeric_glyph_customization(glyph, state);
 }

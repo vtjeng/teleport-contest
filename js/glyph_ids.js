@@ -96,6 +96,21 @@ const EXPLOSION_POSITIONS = Object.freeze([
     'br',
 ]);
 
+// symbols.c loadsyms[] partitions the primary character rows into the cmap
+// families glyphs.c parse_id() handles differently.  Keep the partition next
+// to the ID catalog so both ID generation and S_* fanout consume one layout.
+export const GLYPHREP_CMAP_PARTITIONS = Object.freeze({
+    stone: Object.freeze([0, 0]),
+    walls: Object.freeze([1, 11]),
+    cmapA: Object.freeze([12, 32]),
+    altar: Object.freeze([33, 33]),
+    cmapB: Object.freeze([34, 73]),
+    zap: Object.freeze([74, 77]),
+    cmapC: Object.freeze([78, 87]),
+    swallow: Object.freeze([88, 95]),
+    explosion: Object.freeze([96, 104]),
+});
+
 // glyphs.c:fix_glyphname() lowercases ASCII and replaces every other byte
 // except an ASCII digit with an underscore.
 function fixGlyphName(name) {
@@ -219,24 +234,35 @@ function buildSourceGlyphIds() {
     appendMonsterFamily(ids, DETECTED_AND_RIDDEN_PREFIXES[3], monsters);
     appendObjectFamily(ids);
 
+    const partition = GLYPHREP_CMAP_PARTITIONS;
     ids.push('G_stone_substrate');
     for (const branch of WALL_BRANCHES) {
-        for (let index = 1; index <= 11; ++index)
+        for (let index = partition.walls[0];
+            index <= partition.walls[1]; ++index) {
             ids.push(glyphId(`${symbols[index]}_${branch}`));
+        }
     }
-    for (let index = 12; index <= 32; ++index)
+    for (let index = partition.cmapA[0];
+        index <= partition.cmapA[1]; ++index) {
         ids.push(glyphId(symbols[index]));
+    }
     for (const alignment of ['unaligned', 'chaotic', 'neutral', 'lawful'])
         ids.push(glyphId(`${alignment}_altar`));
     ids.push('G_altar_other');
-    for (let index = 34; index <= 73; ++index)
+    for (let index = partition.cmapB[0];
+        index <= partition.cmapB[1]; ++index) {
         ids.push(glyphId(symbols[index]));
-    for (const zapType of ZAP_TYPES) {
-        for (let index = 74; index <= 77; ++index)
-            ids.push(glyphId(`${zapType} zap ${symbols[index]}`));
     }
-    for (let index = 78; index <= 87; ++index)
+    for (const zapType of ZAP_TYPES) {
+        for (let index = partition.zap[0];
+            index <= partition.zap[1]; ++index) {
+            ids.push(glyphId(`${zapType} zap ${symbols[index]}`));
+        }
+    }
+    for (let index = partition.cmapC[0];
+        index <= partition.cmapC[1]; ++index) {
         ids.push(glyphId(symbols[index]));
+    }
     for (const monster of monsters) {
         for (const position of SWALLOW_POSITIONS)
             ids.push(glyphId(`swallow ${monster} ${position}`));
@@ -266,7 +292,12 @@ if (SOURCE_GLYPH_IDS.length !== MAX_GLYPH) {
 
 const SOURCE_GLYPH_NUMBER_BY_FOLDED_ID = new Map();
 for (const [glyph, name] of SOURCE_GLYPH_IDS.entries()) {
-    if (name) SOURCE_GLYPH_NUMBER_BY_FOLDED_ID.set(name.toLowerCase(), glyph);
+    // add_glyph_to_cache() scans ascending glyph numbers and
+    // find_glyph_in_cache() returns the first equal ID.  Several generic
+    // object IDs also occur in a later piletop range.
+    if (name && !SOURCE_GLYPH_NUMBER_BY_FOLDED_ID.has(name.toLowerCase())) {
+        SOURCE_GLYPH_NUMBER_BY_FOLDED_ID.set(name.toLowerCase(), glyph);
+    }
 }
 
 /** glyphs.c:match_glyph() lookup after its case-sensitive G_ gate. */

@@ -189,7 +189,7 @@ import {
     SYM_OFF_X,
     trap_to_defsym,
 } from './symbols.js';
-import { glyph_customization } from './glyphs.js';
+import { numeric_glyph_customization } from './glyphs.js';
 import {
     GLYPH_ALTAR_OFF,
     GLYPH_BODY_OFF,
@@ -797,7 +797,7 @@ export function hero_glyph_info(state = game) {
         (showRace && !Upolyd(state.u))
             ? HI_DOMESTIC : species?.mcolor ?? CLR_WHITE,
         state,
-        glyph_customization(logicalGlyph, state),
+        numeric_glyph_customization(logicalGlyph, state),
     );
     // C ref: display.h hero_glyph (654-656). The hero's own square takes an
     // ordinary monster glyph, so reset_glyphmap()'s GLYPH_MON arm gives it
@@ -852,7 +852,7 @@ function actualMonsterGlyphInfo(monster, state) {
         symbol,
         monster.data.mcolor,
         state,
-        glyph_customization(logicalGlyph, state),
+        numeric_glyph_customization(logicalGlyph, state),
     );
     // C ref: display.h pet_to_glyph() (563-565) and mon_to_glyph() (554-556),
     // resolved through reset_glyphmap()'s pet arms (3036-3049) and ordinary
@@ -986,7 +986,7 @@ function presentedMonsterGlyphInfo(monster, state, detected) {
         monster_class_symbol(species.mlet, state),
         species.mcolor,
         state,
-        glyph_customization(logicalGlyph, state),
+        numeric_glyph_customization(logicalGlyph, state),
     );
     const attr = print_glyph_attr(
         (detected ? MG_DETECT : 0) | monsterGenderFlag(monster.female),
@@ -1028,7 +1028,7 @@ function riddenMonsterGlyphInfo(monster, state) {
         monster_class_symbol(species.mlet, state),
         species.mcolor,
         state,
-        glyph_customization(logicalGlyph, state),
+        numeric_glyph_customization(logicalGlyph, state),
     );
     const attr = print_glyph_attr(
         MG_RIDDEN | monsterGenderFlag(monster.female), state,
@@ -1072,7 +1072,7 @@ function mimickedMonsterGlyphInfo(monster, state) {
         monster_class_symbol(species.mlet, state),
         species.mcolor,
         state,
-        glyph_customization(logicalGlyph, state),
+        numeric_glyph_customization(logicalGlyph, state),
     );
     // display.c:578-581 passes mgendercode, which :524 read from the
     // *mimicking* monster's mon->female. The species on show is the
@@ -1156,7 +1156,7 @@ function warningGlyphInfo(monster, state) {
         symbol_at(SYM_OFF_W + warningLevel, state),
         def_warnsyms[warningLevel].color,
         state,
-        glyph_customization(warningLevel + GLYPH_WARNING_OFF, state),
+        numeric_glyph_customization(warningLevel + GLYPH_WARNING_OFF, state),
     );
     withLogicalGlyph(glyph, warningLevel + GLYPH_WARNING_OFF);
     if (!state.a11y?.glyph_updates) return glyph;
@@ -1824,7 +1824,7 @@ export function map_glyphinfo(glyph, state = game) {
         symbol,
         color,
         state,
-        glyph_customization(glyph, state),
+        numeric_glyph_customization(glyph, state),
     );
     const attr = print_glyph_attr(glyphflags, state);
     if (attr) presentation.attr = attr;

@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 import { PRIMARYSET, ROGUESET } from '../js/const.js';
 import {
-    glyph_customization,
+    numeric_glyph_customization,
     glyph_find,
 } from '../js/glyphs.js';
 import { sourceGlyphNumber } from '../js/glyph_ids.js';
@@ -211,7 +211,7 @@ export async function verifyStartupGlyphCustomizationSegment(segment) {
         const glyphs = glyph_find(entry.expanded);
         for (const glyph of glyphs) {
             assertCustomization(
-                glyph_customization(glyph, game),
+                numeric_glyph_customization(glyph, game),
                 entry.expected,
                 `${entry.label} glyph ${glyph}`,
             );
@@ -227,7 +227,7 @@ export async function verifyStartupGlyphCustomizationSegment(segment) {
         }
         for (const destination of destinations) {
             assertCustomization(
-                glyph_customization(GLYPH_OBJ_OFF + destination, game),
+                numeric_glyph_customization(GLYPH_OBJ_OFF + destination, game),
                 entry.expected,
                 `${entry.label} object ${destination}`,
             );
@@ -235,7 +235,7 @@ export async function verifyStartupGlyphCustomizationSegment(segment) {
     } else {
         const glyph = sourceGlyphNumber(entry.glyph);
         assertCustomization(
-            glyph_customization(glyph, game),
+            numeric_glyph_customization(glyph, game),
             entry.expected,
             entry.label,
         );
