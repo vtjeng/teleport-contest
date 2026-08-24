@@ -194,9 +194,10 @@ session. When its RNG log still matches in full, the loss is the divergent
 screens alone. When its RNG log has desynchronized, nothing past the
 divergence converts until the divergence is fixed: count that session toward
 a boundary candidate only up to its first mismatch, and rank the divergence
-itself as a candidate, priced by the screens standing behind it. Locate the
-mismatch by comparing the session's emitted screens with its recorded
-screens.
+itself as a candidate, priced by the screens standing behind it. The scan's
+"Silent divergences" section reports each affected session's first differing
+screen, cursor, and RNG call inside its replayed input, and the step each
+sits on.
 
 **Read the stretch with a classifier before trusting it.** Hand each
 session's `--ahead` stream to a `sonnet-worker` subagent together with the

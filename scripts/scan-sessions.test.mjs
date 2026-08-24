@@ -30,6 +30,7 @@ import {
     recordedTopLine,
     reconcile,
     refusalsWithoutBehavior,
+    silentDivergence,
     stopPointAgreement,
     stopStepIndex,
     supportedCommands,
@@ -775,4 +776,111 @@ test('ceilingAgainstSupports separates the projections from the rest', () => {
         supports: 383,
     }]);
     assert.deepEqual(differs, [{ member: '#pray', ceiling: 21, supports: 62 }]);
+});
+
+// silentDivergence() compares the replayed slice of a session against its
+// recording through scripts/diff-fresh.mjs compareSessionOutputs(). A case
+// needs one normalized segment and the port-side streams. Screens are plain
+// strings, which frozen/screen-decode.mjs pads to the 24x80 cell grid, so
+// two strings differing in one character differ in exactly one cell. Seed 1
+// and the datetime are arbitrary: normalizeSession() requires the fields and
+// the comparison never reads them.
+function divergenceSegment(steps) {
+    return {
+        seed: 1,
+        datetime: '2026-01-01T00:00:00Z',
+        nethackrc: '',
+        moves: '',
+        steps,
+    };
+}
+
+test('silentDivergence reports nothing when replayed output matches', () => {
+    // Two steps whose screens, cursors, and single RNG call the port
+    // reproduces exactly; both the stopped and the finished reading must
+    // return null.
+    const steps = [
+        { key: null, screen: 'same', cursor: [0, 0, 1], rng: ['rn2(4)=1'] },
+        { key: 'j', screen: 'other', cursor: [1, 2, 1], rng: [] },
+    ];
+    const jsOutput = {
+        rng: ['rn2(4)=1'],
+        screens: ['same', 'other'],
+        cursors: [[0, 0, 1], [1, 2, 1]],
+    };
+    assert.equal(silentDivergence([divergenceSegment(steps)], jsOutput, true),
+        null);
+    assert.equal(silentDivergence([divergenceSegment(steps)], jsOutput, false),
+        null);
+});
+
+test('silentDivergence localizes the first differing screen', () => {
+    // The second screen differs in one character, 'y' for the recorded 'x'
+    // at string index 4, so the first mismatch is screen index 1, cell row 0
+    // column 4, while the RNG stream (empty on both sides) stays aligned.
+    const steps = [
+        { key: null, screen: 'same', cursor: [0, 0, 1], rng: [] },
+        { key: 'j', screen: 'cellx', cursor: [0, 0, 1], rng: [] },
+    ];
+    const jsOutput = {
+        rng: [],
+        screens: ['same', 'celly'],
+        cursors: [[0, 0, 1], [0, 0, 1]],
+    };
+    const divergence = silentDivergence(
+        [divergenceSegment(steps)], jsOutput, true,
+    );
+    assert.equal(divergence.screen.index, 1);
+    assert.equal(divergence.screen.row, 0);
+    assert.equal(divergence.screen.column, 4);
+    assert.equal(divergence.screen.location.stepIndex, 1);
+    assert.equal(divergence.rng, null);
+});
+
+test('silentDivergence reports an RNG value mismatch either way', () => {
+    // The port's first call disagrees in value, rn2(4)=2 against the
+    // recorded rn2(4)=1 at call index 0. A value mismatch inside the common
+    // prefix is a real desynchronization whether or not the session stopped.
+    const steps = [
+        { key: null, screen: 's', cursor: [0, 0, 1], rng: ['rn2(4)=1'] },
+    ];
+    const jsOutput = {
+        rng: ['rn2(4)=2'], screens: ['s'], cursors: [[0, 0, 1]],
+    };
+    for (const stopped of [true, false]) {
+        const divergence = silentDivergence(
+            [divergenceSegment(steps)], jsOutput, stopped,
+        );
+        assert.equal(divergence.rng.index, 0);
+        assert.equal(divergence.rng.cEntry, 'rn2(4)=1');
+        assert.equal(divergence.rng.jsEntry, 'rn2(4)=2');
+        assert.equal(divergence.screen, null);
+    }
+});
+
+test('a shorter RNG log reports only when the session finished', () => {
+    // C recorded two calls and the port made one, with screen and cursor
+    // matching. For a stopped session the missing rnd(6)=2 at call index 1
+    // is a truncation artifact -- the port stops before consuming randomness
+    // at the refused step -- so the reading is null. For a finished session
+    // nothing was truncated, so the same tail is a real divergence.
+    const steps = [
+        {
+            key: null,
+            screen: 's',
+            cursor: [0, 0, 1],
+            rng: ['rn2(4)=1', 'rnd(6)=2'],
+        },
+    ];
+    const jsOutput = {
+        rng: ['rn2(4)=1'], screens: ['s'], cursors: [[0, 0, 1]],
+    };
+    assert.equal(silentDivergence([divergenceSegment(steps)], jsOutput, true),
+        null);
+    const finished = silentDivergence(
+        [divergenceSegment(steps)], jsOutput, false,
+    );
+    assert.equal(finished.rng.index, 1);
+    assert.equal(finished.rng.cEntry, 'rnd(6)=2');
+    assert.equal(finished.rng.jsEntry, undefined);
 });

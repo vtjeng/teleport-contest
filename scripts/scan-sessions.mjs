@@ -102,7 +102,23 @@ import { commandForKey } from '../js/command_bindings.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { Terminal } from '../js/terminal.js';
+import { Terminal as FrozenTerminal } from '../frozen/terminal.js';
+import { compareSessionOutputs } from './diff-fresh.mjs';
 import { PROJECT_ROOT, listSessionFiles } from './scoring-workspace.mjs';
+
+// The judge replaces js/terminal.js with frozen/terminal.js before scoring,
+// and only the frozen copy defines serialize(), the method js/jsmain.js's
+// screen capture calls (`term?.serialize ? term.serialize() : ''`). This scan
+// replays in the working tree, where every captured screen is therefore ''
+// and no screen comparison is possible. Grafting the judge's serializer onto
+// the tree's Terminal reproduces the scoring serialization exactly,
+// including its known defects, which is the point: the divergence report
+// below must agree with the scorer, not improve on it. The two files differ
+// by exactly this one method (`diff js/terminal.js frozen/terminal.js`).
+if (!Terminal.prototype.serialize) {
+    Terminal.prototype.serialize = FrozenTerminal.prototype.serialize;
+}
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 
@@ -356,6 +372,45 @@ export function isCommandRefusal(boundary) {
 }
 
 /**
+ * The first mismatch between the port's replayed output and the recording,
+ * confined to replayed input.
+ *
+ * The observed half of this report otherwise treats every replayed screen as
+ * faithful, and the score disagrees for some sessions: a session can emit a
+ * screen at every recorded step and still differ from the recording, which
+ * `.agents/selection.md` calls a silent divergence. This reports where
+ * matching first breaks; scripts/score-development.mjs stays the authority
+ * on how many screens match.
+ *
+ * The caller truncates the C side to the steps the port replayed, so the
+ * screen and cursor streams compare value against value. The RNG logs can
+ * still differ in length at the truncation tail: the port stops before
+ * consuming randomness at a refused step, but the two logs need not end on
+ * the same call. A length-only difference therefore reports null for a
+ * stopped session, and reports for a session that finished its input, where
+ * nothing was truncated and a shorter or longer log is a real divergence.
+ */
+export function silentDivergence(replayedSegments, jsOutput, stopped) {
+    const comparison = compareSessionOutputs(
+        { version: 5, segments: replayedSegments },
+        jsOutput,
+    );
+    const lengthKinds = new Set(['js-missing', 'c-missing']);
+    const screen = comparison.screenMismatch
+        && !(stopped && lengthKinds.has(comparison.screenMismatch.kind))
+        ? comparison.screenMismatch : null;
+    const rng = comparison.rngMismatch
+        && !(stopped && (comparison.rngMismatch.cEntry === undefined
+            || comparison.rngMismatch.jsEntry === undefined))
+        ? comparison.rngMismatch : null;
+    const cursor = comparison.cursorMismatch
+        && !(stopped && (!Array.isArray(comparison.cursorMismatch.cCursor)
+            || !Array.isArray(comparison.cursorMismatch.jsCursor)))
+        ? comparison.cursorMismatch : null;
+    return screen || rng || cursor ? { screen, rng, cursor } : null;
+}
+
+/**
  * Replay one session once, collecting both halves of the report.
  *
  * The observed half is fixed at the first boundary: after that the port is
@@ -364,6 +419,9 @@ export function isCommandRefusal(boundary) {
  * 106, at 573 against the 467 scripts/score-development.mjs matched on 31 July
  * 2026. The modeled half keeps reading every later segment, because a session's
  * debt is the whole set of behaviors between it and its last recorded screen.
+ * The replayed screens, cursors, and RNG calls are also compared with the
+ * recording, and the first difference reports through silentDivergence()
+ * above.
  */
 export async function scanSession(file) {
     const data = normalizeSession(
@@ -379,6 +437,13 @@ export async function scanSession(file) {
     let stop = null;
     let behavioral = null;
     let stepOffset = 0;
+    // The replayed slice of the session, both sides, for silentDivergence():
+    // the recorded segments truncated to what the port emitted, and the
+    // port's own output streams.
+    const replayedSegments = [];
+    const replayedRng = [];
+    const replayedScreens = [];
+    const replayedCursors = [];
     const completedContexts = [];
     // Every command the session issued, numbered across segments so one index
     // orders the whole recording.
@@ -392,7 +457,8 @@ export async function scanSession(file) {
             { ...replayInputFor(segment), storage },
             { onBoundary: (error) => { boundary ??= error; } },
         );
-        const segmentScreens = (segmentGame.getScreens?.() ?? []).length;
+        const segmentScreenList = segmentGame.getScreens?.() ?? [];
+        const segmentScreens = segmentScreenList.length;
         const steps = segment.steps || [];
         const contextFor = (inputThroughStop) => ({
             segment: segmentIndex,
@@ -401,7 +467,20 @@ export async function scanSession(file) {
             nethackrc: segment.nethackrc ?? '',
             inputThroughStop,
         });
-        if (stop === null) screensEmitted += segmentScreens;
+        if (stop === null) {
+            screensEmitted += segmentScreens;
+            // The port emits one screen per recorded step, so the slice pairs
+            // each emitted screen with the step it answers; steps past the
+            // emitted count were never consumed.
+            replayedSegments.push(
+                { ...segment, steps: steps.slice(0, segmentScreens) },
+            );
+            for (const entry of segmentGame.getRngLog?.() ?? [])
+                replayedRng.push(entry);
+            for (const screen of segmentScreenList) replayedScreens.push(screen);
+            for (const cursor of segmentGame.getCursors?.() ?? [])
+                replayedCursors.push(cursor);
+        }
         // Read the bindings before the next segment overwrites the shared game
         // singleton. Both the refused keystroke below and this segment's issued
         // commands resolve through them.
@@ -464,6 +543,15 @@ export async function scanSession(file) {
         file,
         screensEmitted,
         recordedSteps,
+        divergence: silentDivergence(
+            replayedSegments,
+            {
+                rng: replayedRng,
+                screens: replayedScreens,
+                cursors: replayedCursors,
+            },
+            stop !== null,
+        ),
         boundary: stop?.boundary ?? null,
         commandRefusal: stop?.commandRefusal ?? false,
         key: stop?.key ?? null,
@@ -808,6 +896,46 @@ function reportStops(rows) {
     }
 }
 
+// The observed half's third section: sessions whose replayed output differs
+// from the recording while the port plays on. ".agents/selection.md", "Cap a
+// session that already mismatches", reads this section to cap the session's
+// contribution to a boundary candidate at its first mismatch.
+function reportDivergences(rows) {
+    console.log('\nSilent divergences, observed (first mismatch inside '
+        + 'replayed input)');
+    const divergent = rows.filter((row) => row.divergence);
+    if (divergent.length === 0) {
+        console.log('  (none: every replayed screen, cursor, and RNG call '
+            + 'matches its recording)');
+        return;
+    }
+    const nameWidth = Math.max(...divergent.map((row) => row.file.length));
+    const at = (location) => (location
+        ? `segment ${location.segmentIndex} step ${location.stepIndex}`
+        : 'past the recorded steps');
+    const rngSide = (value) => value ?? '(log ends)';
+    for (const row of divergent) {
+        const { screen, rng, cursor } = row.divergence;
+        const parts = [];
+        if (screen) {
+            parts.push(`screen ${screen.index} of ${row.screensEmitted} `
+                + `replayed (${at(screen.location)}) differs at row `
+                + `${screen.row} column ${screen.column}`);
+        }
+        if (cursor && (!screen || cursor.index < screen.index)) {
+            parts.push(`cursor ${cursor.index} (${at(cursor.location)}) is `
+                + `${JSON.stringify(cursor.jsCursor)} where C recorded `
+                + `${JSON.stringify(cursor.cCursor)}`);
+        }
+        parts.push(rng
+            ? `RNG call ${rng.index} (${at(rng.location)}) is `
+                + `${rngSide(rng.jsEntry)} where C recorded `
+                + `${rngSide(rng.cEntry)}`
+            : 'RNG aligned');
+        console.log(`  ${row.file.padEnd(nameWidth)}  ${parts.join('; ')}`);
+    }
+}
+
 function reportDebt(rows) {
     const nameWidth = Math.max(...rows.map((r) => r.file.length));
     console.log('\nWhole remaining debt per development session (modeled)\n');
@@ -933,6 +1061,7 @@ function reportRanking(rows, recorded, order) {
 
 function report(rows, order) {
     reportStops(rows);
+    reportDivergences(rows);
     reportDebt(rows);
 
     const emitted = rows.reduce((n, r) => n + r.screensEmitted, 0);
@@ -980,6 +1109,13 @@ export function legend(recorded) {
         + 'screens, as guidance. Every session with an unmet behavior has '
         + 'exactly one earliest, so the unlocks sessions column sums to the '
         + 'number of unfinished sessions.'
+        + '\n\nA silent divergence is a replayed screen, cursor, or RNG call '
+        + 'that differs from the recording while the port plays on. Its '
+        + "section reports each affected session's first difference inside "
+        + 'replayed input. A session whose RNG log has diverged converts '
+        + 'nothing past that call until the divergence is fixed; "Cap a '
+        + 'session that already mismatches" in .agents/selection.md states '
+        + 'how to rank it.'
     );
 }
 
