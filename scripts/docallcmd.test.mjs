@@ -42,20 +42,74 @@ test('docallcmd omits inventory items when state.invent is null',
     async () => {
         const state = menuState('\x1b');
         state.invent = null;
+        // Capture rendered menu lines to verify item count.
+        // With null invent, the two inventory items (i, o) are absent,
+        // leaving four items: m, f, d, a (do_name.c:526-536 guard).
+        const selectors = [];
+        state._preNhgetchHook = () => {
+            for (const row of state.nhDisplay.grid) {
+                // Each menu item renders "X - label" starting at the
+                // overlay column. Scan the whole row for a selector
+                // pattern where the following three characters are
+                // " - " (space-dash-space); this avoids false matches
+                // from banner text that may share the row.
+                for (let col = 0; col < row.length - 3; col++) {
+                    const ch = row[col].ch;
+                    if (/^[a-z]$/u.test(ch)
+                        && row[col + 1].ch === ' '
+                        && row[col + 2].ch === '-'
+                        && row[col + 3].ch === ' ') {
+                        selectors.push(ch);
+                        break;
+                    }
+                }
+            }
+        };
         const result = await docallcmd(state);
         assert.equal(result, ECMD_OK);
+        // Four items: m(onster), f(loor), d(iscoveries), a(nnotation).
+        // Broke: removed `if (state.invent)` guard at js/do_name.js:259;
+        // test failed with 6 items instead of 4.
+        // Four selectors: m(onster), f(loor), d(iscoveries), a(nnotation).
+        // Broke: removed `if (state.invent)` guard at js/do_name.js:259;
+        // test failed with 6 selectors instead of 4.
+        assert.deepEqual(selectors, ['m', 'f', 'd', 'a'],
+            'null invent omits the two inventory items');
     });
 
 // When flags.lootabc is true, C passes 0 as the accelerator for every menu
 // item (do_name.c:524, 530, 534, 539, 543, 547), letting tty_end_menu()
 // auto-assign a..z.  The cancel path is unaffected by the accelerators.
-test('docallcmd returns ECMD_OK with lootabc enabled',
+test('docallcmd uses auto-assigned selectors when lootabc is enabled',
     async () => {
         const state = menuState('\x1b');
         state.flags = { ...state.flags, lootabc: true };
         state.invent = { otyp: 0, nobj: null };
+        // Capture rendered accelerator letters. With lootabc=true, C passes
+        // 0 as the accelerator (do_name.c:524,530,534,539,543,547), so
+        // tty_end_menu auto-assigns a..f instead of the explicit m,i,o,f,d,a.
+        const selectors = [];
+        state._preNhgetchHook = () => {
+            for (const row of state.nhDisplay.grid) {
+                for (let col = 0; col < row.length - 3; col++) {
+                    const ch = row[col].ch;
+                    if (/^[a-z]$/u.test(ch)
+                        && row[col + 1].ch === ' '
+                        && row[col + 2].ch === '-'
+                        && row[col + 3].ch === ' ') {
+                        selectors.push(ch);
+                        break;
+                    }
+                }
+            }
+        };
         const result = await docallcmd(state);
         assert.equal(result, ECMD_OK);
+        // Auto-assigned: a,b,c,d,e,f. Without lootabc: m,i,o,f,d,a.
+        // Broke: replaced `abc ? undefined : 'm'` with `'m'` at
+        // js/do_name.js:253; test failed because first selector was 'm'.
+        assert.deepEqual(selectors, ['a', 'b', 'c', 'd', 'e', 'f'],
+            'lootabc causes auto-assigned a-f selectors');
     });
 
 // When iflags.menu_overlay is false, the menu should use fullscreen layout
