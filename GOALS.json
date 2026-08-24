@@ -3435,8 +3435,8 @@
       "slices": [
         {
           "name": "print-dungeon-and-level-tele-question",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "749335db4f33bb7c67d7c1a4436434e550fe7d0e"
         }
       ],
       "openedAt": "9f94e35608de83cecb28211bc3408e9a05d275d4",
