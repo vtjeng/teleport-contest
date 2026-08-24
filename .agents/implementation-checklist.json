@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
   "reason": "The complete startup glyph customization boundary is source-reviewed, implemented, and validated against a strict ten-segment patched-C matrix. The generated 9,624-entry G_* catalog and complete S_* fanout feed one glyphs.c-owned state path through primary/rogue association, Unicode and color application, post-init object-description shuffling, the first map, and the next command.",
-  "commitChecked": "db674a51f9f998c2ca919af3e00cb7f1e97ca481",
+  "commitChecked": "9b34adacc2ac9ac267834a7acbee98c410238896",
   "boundary": {
     "goalId": "options-config-parser",
     "startingCommit": "db674a51f9f998c2ca919af3e00cb7f1e97ca481",

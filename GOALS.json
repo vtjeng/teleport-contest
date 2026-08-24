@@ -2790,8 +2790,8 @@
         },
         {
           "name": "startup-glyph-customization-to-first-command",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "9b34adacc2ac9ac267834a7acbee98c410238896"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
