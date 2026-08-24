@@ -3453,7 +3453,7 @@
     },
     {
       "id": "special-room-beehive",
-      "status": "open",
+      "status": "closed",
       "boundary": "makelevel.c do_mkroom(BEEHIVE) populates a room with killer bees and royal jelly during level generation. The port refuses at the makelevel special-room dispatch.",
       "upstreamOwners": [],
       "forecast": {
@@ -3483,8 +3483,11 @@
         "screens": 1998,
         "rng": 133716
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "15037938c9d862daa84e6c68060618e1eae1911e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     },
     {
       "id": "special-room-morgue",
