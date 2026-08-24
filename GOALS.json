@@ -2505,7 +2505,7 @@
     },
     {
       "id": "options-config-parser",
-      "status": "open",
+      "status": "closed",
       "boundary": "options.c parseoptions() and cfgfiles.c parse_config_line() report a configuration error and play on where the port throws and loses the whole segment, and every option lands at the C address its optlist.h row names rather than in result.flags.",
       "upstreamOwners": [],
       "forecast": {
@@ -2800,8 +2800,11 @@
         "screens": 1982,
         "rng": 133543
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "2b2ef844d884b39bc32f36895798975d99eec517",
+      "delivered": {
+        "screens": 6,
+        "rng": 31
+      }
     },
     {
       "id": "option-toggle-repaints-the-map",
