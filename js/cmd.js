@@ -60,7 +60,7 @@ import {
 import { reset_pick, UnsupportedLockError } from './lock.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
 import { UnsupportedRegionPlacementError } from './mkmaze.js';
-import { UnsupportedObjectNamingError } from './do_name.js';
+import { docallcmd, UnsupportedObjectNamingError } from './do_name.js';
 import { UnsupportedObjectOperationError } from './obj.js';
 import { UnsupportedPickupError } from './pickup.js';
 import { UnsupportedPotionError } from './potion.js';
@@ -1939,6 +1939,9 @@ async function doextcmd(key, state) {
         return await runTwoWeaponCommand(key, state);
     case 'dotalk':
         return await runChatCommand(key, state);
+    case 'docallcmd':
+        // C ref: do_name.c docallcmd(), which returns its own ECMD_* result.
+        return await docallcmd(state);
     case 'enhance_weapon_skill':
         return await runEnhanceCommand(key, state);
     case 'wiz_level_change':

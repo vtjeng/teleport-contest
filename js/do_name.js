@@ -1,6 +1,6 @@
-// Monster names and novel-title data.
-// C ref: src/do_name.c christen_monst(), docall(), rndghostname(), bogusmon(),
-// rndmonnam(),
+// Monster names, naming commands, and novel-title data.
+// C ref: src/do_name.c docallcmd(), christen_monst(), docall(),
+// rndghostname(), bogusmon(), rndmonnam(),
 // sir_Terry_novels[], noveltitle(), and lookup_novel().
 
 import {
@@ -15,6 +15,7 @@ import {
     CORPSTAT_GENDER,
     CORPSTAT_MALE,
     CORPSTAT_RANDOM,
+    ECMD_OK,
     FEMALE,
     HALLUC,
     HALLUC_RES,
@@ -27,6 +28,7 @@ import {
     NUM_MGENDERS,
     ONAME_SKIP_INVUPD,
     ONAME_VIA_NAMING,
+    PICK_ONE,
     PL_PSIZ,
     PRONOUN_HALLU,
     SUPPRESS_HALLUCINATION,
@@ -75,6 +77,8 @@ import { rn2, rn2_on_display_rng } from './rng.js';
 // Neither uses the other's binding while its module body evaluates, which is
 // what an ES module cycle requires; js/obj.js and this file already form one.
 import { canSpotMonster } from './startup_a11y.js';
+import { menuTitleStyle } from './tty_menu.js';
+import { select_menu } from './windows.js';
 
 const GHOST_NAMES = Object.freeze([
     'Adri',
@@ -229,6 +233,93 @@ export class UnsupportedObjectNamingError extends Error {
         this.name = 'UnsupportedObjectNamingError';
         this.reason = reason;
     }
+}
+
+// C ref: do_name.c docallcmd() (499-601). The #call / #name command presents
+// a "What do you want to name?" menu offering six naming options. When the
+// player dismisses the menu without selecting an option (ESC), ch is set to
+// 'q' (555), which falls through to case 'q': break (559-562) and returns
+// ECMD_OK (600).
+//
+// The cmdq_pop() / command-queue path (511-518) is not exercised and is left
+// as a boundary. The naming options (m, i, o, f, d, a) each dispatch to
+// their own handler and are left as boundaries for future slices.
+export async function docallcmd(state) {
+    /* if player wants a,b,c instead of i,o when looting, do that here too */
+    const abc = Boolean(state.flags?.lootabc);
+
+    const items = [
+        {
+            selector: abc ? undefined : 'm',
+            groupSelector: 'C',
+            label: 'a monster',
+            value: 'm',
+        },
+    ];
+    if (state.invent) {
+        items.push(
+            {
+                selector: abc ? undefined : 'i',
+                groupSelector: 'y',
+                label: 'a particular object in inventory',
+                value: 'i',
+            },
+            {
+                selector: abc ? undefined : 'o',
+                groupSelector: 'n',
+                label: 'the type of an object in inventory',
+                value: 'o',
+            },
+        );
+    }
+    items.push(
+        {
+            selector: abc ? undefined : 'f',
+            groupSelector: ',',
+            label: 'the type of an object upon the floor',
+            value: 'f',
+        },
+        {
+            selector: abc ? undefined : 'd',
+            groupSelector: '\\',
+            label: 'the type of an object on discoveries list',
+            value: 'd',
+        },
+        {
+            selector: abc ? undefined : 'a',
+            groupSelector: 'l',
+            label: 'record an annotation for the current level',
+            value: 'a',
+        },
+    );
+
+    const choice = await select_menu(state, {
+        title: 'What do you want to name?',
+        ...menuTitleStyle(state),
+        items,
+        how: PICK_ONE,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+
+    // C: if (select_menu > 0) ch = pick_list[0].item.a_char; else ch = 'q';
+    // select_menu returns null on cancel (ESC), mapping to ch = 'q'.
+    const ch = choice ?? 'q';
+    switch (ch) {
+    default:
+    case 'q':
+        break;
+    case 'm': /* name a visible monster */
+    case 'i': /* name an individual object in inventory */
+    case 'o': /* name a type of object in inventory */
+    case 'f': /* name a type of object visible on the floor */
+    case 'd': /* name a type of object on the discoveries list */
+    case 'a': /* annotate level */
+        throw new UnsupportedObjectNamingError(
+            `docallcmd() naming option '${ch}'`,
+        );
+    }
+    return ECMD_OK;
 }
 
 // C ref: do_name.c docall() (640-676). Everything below its `!obj->dknown`
