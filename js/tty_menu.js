@@ -1186,8 +1186,8 @@ function refreshVisibleSelections(state, rendered, changedItems = null) {
             rendered.layout.startColumn + 2,
             row,
             selectionMarker(item),
-            NO_COLOR,
-            0,
+            item.color ?? NO_COLOR,
+            item.attr ?? 0,
         );
     }
 }

@@ -7,6 +7,7 @@ import {
 } from '../js/coloratt.js';
 import {
     MENU_ITEMFLAGS_SKIPMENUCOLORS,
+    PICK_ANY,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { parseNethackrc } from '../js/options.js';
@@ -19,7 +20,7 @@ import {
     CLR_RED,
     NO_COLOR,
 } from '../js/terminal.js';
-import { renderTtyMenu } from '../js/tty_menu.js';
+import { renderTtyMenu, selectTtyMenu } from '../js/tty_menu.js';
 import { add_menu, get_menu_coloring } from '../js/windows.js';
 import {
     loadStartupMenucolorRecipe,
@@ -201,6 +202,47 @@ test('TTY starts a selectable menu color after its selector prefix', () => {
     assert.deepEqual(
         [description.color, description.attr],
         [CLR_BLUE, ATR_UNDERLINE],
+    );
+});
+
+test('interactive menu refresh styles its selection marker', async () => {
+    const state = parseNethackrc('MENUCOLOR="scalpel"=blue&underline\n');
+    state.nhDisplay = new GameDisplay(null);
+    const item = {
+        selector: 'a', label: 'a +0 scalpel', value: 'scalpel',
+    };
+    add_menu(state, item);
+    for (const character of 'a12aa\n')
+        state.nhDisplay.pushKey(character.charCodeAt(0));
+
+    const markers = [];
+    state._preNhgetchHook = () => {
+        for (const row of state.nhDisplay.grid) {
+            const text = row.map((cell) => cell.ch).join('');
+            const labelColumn = text.indexOf('a +0 scalpel');
+            if (labelColumn < 0) continue;
+            const marker = row[labelColumn - 2];
+            markers.push({
+                ch: marker.ch, color: marker.color, attr: marker.attr,
+            });
+            return;
+        }
+    };
+    assert.deepEqual(await selectTtyMenu(state, {
+        title: 'Inventory', titleAttr: 0, how: PICK_ANY, items: [item],
+    }), []);
+    assert.deepEqual(markers[0], { ch: '-', color: NO_COLOR, attr: 0 });
+    assert.deepEqual(
+        markers[1],
+        { ch: '+', color: CLR_BLUE, attr: ATR_UNDERLINE },
+    );
+    assert.deepEqual(
+        markers[4],
+        { ch: '#', color: CLR_BLUE, attr: ATR_UNDERLINE },
+    );
+    assert.deepEqual(
+        markers[5],
+        { ch: '-', color: CLR_BLUE, attr: ATR_UNDERLINE },
     );
 });
 
