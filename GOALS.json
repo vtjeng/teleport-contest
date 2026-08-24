@@ -3558,7 +3558,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "admit-umber-hulk-species",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "b8c44b1f31700315744c98363ba4ca77d04797d9",
       "openStanding": {
         "sha": "15037938c9d862daa84e6c68060618e1eae1911e",
