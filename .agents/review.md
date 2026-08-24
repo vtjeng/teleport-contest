@@ -2,8 +2,8 @@
 
 Read this file before scheduling, running, or recording a formal review pass.
 Only the orchestrator does this work. `.agents/loop.md` assigns the roles and
-holds the loop these passes are steps in. `.agents/workflow.md` defines the
-implementation vocabulary this file relies on: a coherent implementation
+holds the loop in which these passes are steps. `.agents/workflow.md` defines
+the implementation vocabulary this file relies on: a coherent implementation
 chunk, a behavior slice, a goal, and a review window.
 
 A **formal review pass** is an independent structured review of a frozen
@@ -14,7 +14,7 @@ reports possible problems; the orchestrator reviews each finding and applies
 only fixes for confirmed findings. All four kinds follow the process rules in
 "Running formal review passes" below.
 
-**Audit** means the same thing. That word is fixed in the skill names
+**Audit** means a formal review pass. The word is fixed in the skill names
 `/audit-diff-correctness` and `/audit-diff-clarity`, and in the `Audit-fix-for:`
 commit trailer.
 
@@ -25,10 +25,13 @@ and `publish` rows when those events complete, as `.agents/scoring.md`,
 completed correctness and simplification passes. Formal review ranges remain in
 that ledger.
 
+A **review frontier** is the latest integrated commit covered by a recorded
+correctness pass.
+
 ## Readiness for a formal review pass
 
-While implementation is incomplete, find and fix gaps with the loop's own
-instruments: trace each ported function against its upstream C or Lua
+While implementation is incomplete, find and fix gaps with the activities the
+loop already requires: trace each ported function against its upstream C or Lua
 source as you port it, commit each chunk with its focused tests, run the
 full suite at every checkpoint, and run a fresh differential when a slice
 closes. Launch a formal review pass only when the orchestrator judges the
@@ -37,15 +40,16 @@ behavior and evidence complete. Freeze the committed range and prepare it with
 `npm run checkpoint`, `npm run quality -- --check --health`, and the mutation command
 selected by "Mutation-test the reviewed lines" at the repository head. It
 embeds each command, mutation range, report path, and result in the manifest
-and refuses to prepare while any is red. A window's first correctness pass
-mutates the whole frozen range. A follow-up pass over audit fixes mutates its
-new delta unless the conditions below require an earlier scope to be repeated.
-That is the machine half of readiness; "Mutation-test the reviewed lines"
+and refuses to prepare while any command fails (reports red). A window's
+first correctness pass mutates the whole frozen range. A follow-up pass over
+audit fixes mutates its new delta unless the conditions below require an
+earlier scope to be repeated.
+Those are the automated prerequisites. "Mutation-test the reviewed lines"
 states what a survivor proves and how the run's survivor list reaches the
 review.
 
-The hand-written half is three attestations, recorded in the pass's
-`auditMetrics.readiness`:
+Three manual attestations, recorded in the pass's `auditMetrics.readiness`,
+are also required:
 
 - **boundary**: name the user-visible starting and ending events and confirm
   the real game executes the path.
@@ -65,8 +69,9 @@ command is `NOT READY`: launch no reviewers.
 
 ## Review scheduling
 
-`QUALITY.json` is the executable source for quality areas and numeric
-thresholds. When a threshold changes, update this policy and
+`QUALITY.json` is the authoritative definition of quality areas and their
+numeric thresholds; the quality tools read it at runtime. When a threshold
+changes, update this policy and
 `scripts/quality-status.test.mjs` in the same chunk.
 
 Two events require every outstanding review to be complete before they
@@ -78,8 +83,9 @@ thresholds. Their generators do count, and a commit touching a generator or
 output counts toward the commit threshold unless it is a linked audit-fix
 commit. Each declaration names the generator and regeneration check; reviews
 cover both. An **evidence-only commit** changes only `SCORE.tsv`, `SCORE.md`, correctness
-or simplification records, or their supporting documentation, and no
-area-owned path. A **quality-ledger-only commit** is the subtype of evidence-only commit
+or simplification records, or their supporting documentation, and no path
+that `QUALITY.json` assigns to a quality area (an area-owned path). A
+**quality-ledger-only commit** is the subtype of evidence-only commit
 that changes only correctness or simplification records. Evidence-only
 commits do not count toward path-scoped commit totals and do not receive
 their own evidence snapshots.
@@ -113,7 +119,7 @@ their own evidence snapshots.
   Add the trailer only after scoring both commits and confirming every session
   matched, call for call and screen for screen. Put nothing else in that
   commit.
-- A full pass is also due after a mismatch nobody can explain, whether found
+- A full pass is also due after an unexplained mismatch, whether found
   while tracing the port against its upstream C or Lua source or by a
   differential, and before a review deadline.
 - Other small cohesive fixes may batch until one of the conditions in this
@@ -167,7 +173,7 @@ themselves.
   and clarity triggers. Run a formal review pass only when inspection
   identifies one,
   and record its outcome with the evidence the "Readiness for a formal review
-  pass" note lists
+  pass" section lists
   for that pass's boundary.
 - Run `/copyedit-technical-prose` before publishing changed documentation or
   reports outside this repository. Tracker-only SHA and score entries do not
@@ -193,13 +199,13 @@ identifies a transitive test capable of deciding the survivor. Use
 their source path, caller invariants, and declared exclusions.
 
 **Per slice.** A behavior slice closes with a mutation run over its own lines.
-The worker runs it while the work is uncommitted, which
-`.claude/agents/slice-worker.md` states, and the slice's commit message
-carries the `Mutants:` trailer that `--emit-trailer` prints, with the reason
-no test can kill each surviving relational, logical, or boolean mutant in the
-body. One recorded reason may cover several survivors that sit on the same
-branch. A survivor of those three kinds with no recorded reason blocks the
-slice from closing. Integer survivors are not gating.
+The worker runs it while the work is uncommitted, as
+`.claude/agents/slice-worker.md` states. The slice's commit message carries
+the `Mutants:` trailer that `--emit-trailer` prints. The commit-message body
+gives the reason no test can kill each surviving relational, logical, or
+boolean mutant. One recorded reason may cover several survivors that sit on
+the same branch. A survivor of those three kinds with no recorded reason
+blocks the slice from closing. Integer survivors are not gating.
 `npm run quality -- slice-mutants --range <base>..<head>` lists the
 js/-touching commits in a range that carry no `Mutants:` trailer, so the
 orchestrator checks the record in place of inspecting for it.
@@ -220,10 +226,11 @@ range:
 npm run mutate -- --range <base>..<head> --kind relational,logical,boolean
 ```
 
-It names two commits, so a later reader repeats it and reaches the same target
-set, while a slice run's subject no longer exists after the commit. It also
-covers the `js/` lines of commits that close no slice and judges every mutant
-against the integrated suite at the first review boundary.
+The command names two commits, so a later reader repeats it and reaches the
+same target set, while a slice run's subject no longer exists after the
+commit. It also covers the `js/` lines of commits that close no slice and
+judges every mutant against the integrated suite at the first review
+boundary.
 
 A follow-up pass whose new range contains audit fixes or simplification commits
 passes that delta to readiness explicitly:
@@ -249,24 +256,24 @@ finder's conclusion under `mutation` in the pass's `auditMetrics`, together
 with every mutation range used. Where a per-slice record and a later window or
 delta run disagree about a mutant, the later run is the record.
 
-Two limits bound what either list proves. A line holding no mutable site
+Two limits bound what any mutation run proves. A line holding no mutable site
 produces no mutant, so a line the list omits carries no evidence either way. A
 first-wave survivor may still be killed by a test that reaches its module
 through another `js/` module, which is what `--whole-suite` settles.
 
-For the first limit, delete the line and run the whole suite. One failure, and
-it is the test you expect, proves that test pins the line and nothing else
-does; none means the line is unpinned. Restore it, and record which line you
-deleted and what failed.
+For the first limit, delete the line and run the whole suite. If exactly one
+test fails and it is the test you expect, that test pins the line and nothing
+else does. If no test fails, the line is unpinned. Restore it, and record
+which line you deleted and what failed.
 
-A search for a message string answers less than it appears to. A refusal
+A search for a message string is unreliable for two reasons. A refusal
 comment quotes the C message it refuses, so the text appears in commentary as
 often as in code, and a message assembled by interpolation matches no literal
 search at all. Read the emitting site.
 
 Hand the survivor list to the pass as a `validation` context item addressed to
 the `tests` finder, which is how `/audit-diff-correctness` routes evidence to
-one perspective. That finder traces each survivor against its source, so a false
+a single finder. That finder traces each survivor against its source, so a false
 survivor costs one trace.
 
 `scripts/mutate-sites.mjs` belongs to no quality area; its header states why and
@@ -274,28 +281,27 @@ what covers it instead.
 
 ## Findings and scope changes
 
-During a formal review pass, an **audit fix** is limited to corrections to
-changes in the
+During a formal review pass, an **audit fix** corrects only code within the
 reviewed range: a condition, order, constant, state update, test, name, or
 comment.
 
-Return to **Implementation** when a finding:
+Return to implementation when a finding:
 
 - requires a new upstream function family or branch;
 - changes a state or lifecycle owner, PRNG or rendering behavior, or an input
   or persistence boundary; or
 - requires new end-to-end cases because supported behavior has grown.
 
-Before returning, establish from the census or a traced witness whether a
-development session reaches the finding's behavior. When none does and
-already-scoring behavior stays correct, record the finding as a ledger entry
-with `npm run quality -- defer` instead of returning to implementation.
+Before returning, check whether any development session reaches the finding's
+behavior by reviewing the session records or by tracing a replay through the
+code path. When none does and already-scoring behavior stays correct, record
+the finding as a ledger entry with `npm run quality -- defer` instead of
+returning to implementation.
 Otherwise stop audit-fix work, record the requirement in the pass report, and
 do not claim the pass covers the new implementation. Do not run another pass
-first.
-Implement through the next observable boundary,
-satisfy the readiness requirements again, and run a new full correctness
-pass over the expanded range.
+first; implement through the next observable boundary, satisfy the readiness
+requirements again, and run a new full correctness pass over the expanded
+range.
 
 After applying in-scope audit fixes, inspect the fix diff and run the focused
 and broad validation that `.agents/validation.md` specifies for the affected
@@ -304,11 +310,11 @@ behavior. A commit confined to confirmed findings may use
 changes. The `npm run quality` dashboard excludes a valid linked audit-fix
 commit from the commit threshold but still counts its production lines.
 
-A pass closes over its own fixes. After the audit-fix commit lands, re-verify
-its diff against the pass's confirmed findings and record the pass with
-`--range <base>..<audit-fix commit>`, so the fixes leave no correctness debt
-behind. A fix applied after its pass was recorded is correctness debt for the
-next scheduled correctness range. Run a full pass when fixes expand scope,
+After the audit-fix commit lands, re-verify its diff against the pass's
+confirmed findings and record the pass with `--range <base>..<audit-fix
+commit>`, so the fixes leave no correctness debt behind. A fix applied after
+its pass was recorded is correctness debt for the next scheduled correctness
+range. Run a full pass when fixes expand scope,
 change a shared contract, cause an unexplained mismatch, or independently
 meet a normal full-review trigger.
 
@@ -344,9 +350,10 @@ copyediting passes:
   items, warnings, and validation in its `QUALITY.json` entry. That entry is
   the pass's whole durable record; no separate report file is retained.
 
-Preserve source-shaped code, planned dependency seams, generated data, and
-temporary scaffolding until a source-faithful replacement owns the behavior and
-state. Simplification must preserve PRNG and evaluation order.
+Preserve code whose structure mirrors the C source, interfaces reserved for
+future dependencies, generated data, and temporary scaffolding until a
+source-faithful replacement owns the behavior and state. Simplification must
+preserve PRNG and evaluation order.
 
 ### Launching a formal review pass
 
@@ -360,12 +367,11 @@ state. Simplification must preserve PRNG and evaluation order.
   not relaunch one that is still running: a second launch restarts the pass at
   zero and produces a duplicate pass over the same head. When a pass returns a
   result that looks wrong, read its transcript before relaunching it. The
-  finding work is usually intact and only the final assembly failed, which a
-  re-run of that step alone repairs.
+  individual reviewer results are usually intact, and only the step that
+  combines them into the pass result failed. Re-running that combination step
+  alone repairs the result.
 
 ## Recording formal review passes
-
-A review frontier is the latest integrated commit covered by a recorded pass.
 
 - A `SCORE.tsv` evidence snapshot may reference the correctness and
   simplification records described in this section, and the retained pass
@@ -432,8 +438,8 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   names an id the ledger does not hold, and one whose production-category
   deferrals disagree with the deferred `productionDefects` entries.
 - Cite a symbol in an entry's text: the file together with the function or
-  constant name. Line numbers rot. Any edit above a citation moves the line it
-  names, and the symbol stays findable through the same edit.
+  constant name. Avoid line numbers, because any edit above a cited line
+  shifts its number, whereas a symbol name survives the same edit unchanged.
 - Correct an open entry with `npm run quality -- note-deferral --id <id> --note
   <text>`. It appends a note stamped with the commit it was written at and
   leaves `detail` as first written, so a reader can separate an original claim
@@ -446,8 +452,9 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   <symbol>`, or `block-deferral --id <id> --blocked-on <symbol>` afterwards.
   Set it only where the entry cannot close until other work lands, and name the
   symbol the entry waits on rather than the function the missing arm sits
-  inside: `js/` already holds partial ports under their C names, so a blocker
-  named too loosely reads as landed the day it is written.
+  inside: a blocker that names the containing function rather than the missing
+  symbol appears to be resolved already, because `js/` already holds a partial
+  port under that C function's name.
 - A full correctness record also names the exact range, enabled optional
   finders, fixes, deferrals, unverified judgments, rejections and their
   counter-evidence, warnings, and validation. Record clarity separately only
@@ -462,5 +469,5 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   before a review deadline.
   Resolve concrete simplification or clarity triggers, but do not invent
   a formal review pass when none exists. An area no recorded pass has covered
-  appears in the dashboard's never-reviewed line, which is information but
-  does not block.
+  appears in the dashboard's never-reviewed line. That line is informational
+  and does not require action.

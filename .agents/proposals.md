@@ -1,7 +1,8 @@
 # Proposed changes
 
-Costed changes to tooling or process that nobody has scheduled. `ROADMAP.md`
-holds open game behavior; nothing here is selectable work.
+Changes to tooling or process that nobody has scheduled. `ROADMAP.md`
+holds open game behavior; nothing here is work an agent can pick up as a
+goal.
 
 Each entry states what it would change, what it costs, what prompted it, and
 what it leaves unfixed. Delete an entry when the change lands or a decision
@@ -18,20 +19,20 @@ skipped it.
 
 **Scope.** One script beside `scripts/check-namespace-members.mjs`, which
 already parses `js/` imports for a related purpose, plus its test and a line in
-the checkpoint summary. Informational, in the pattern of the sweep-candidate
-line; it prints and does not block, because a pure-function batch is allowed to
-land ahead of its caller and only becomes a defect once an injection stands in
-for the same behavior.
+the checkpoint summary. The check prints a count and does not block, in the
+pattern of the sweep-candidate line (`npm run quality` prints the deferral
+area with the most open entries as a sweep candidate); it prints and does not
+block, because a pure-function batch is allowed to land ahead of its caller
+and only becomes a defect once an injection stands in for the same behavior.
 
 **What prompted it.** `3d33c40` on 24 July 2026 ported `artifact.c
 touch_artifact()`'s monster branch into `js/artifacts.js` with tests, and
 deleted none of the five injections that stand in for it
 (`js/monmove.js postmov()`, four in `js/unported_monster_actions.js`). It went
-unnoticed for thirteen days. On 6 August the `monsters` sweep spent most of one
-slice rediscovering it: two agents in succession reasoned about a capability
-the port already had, and the closing entry
-`touch-artifact-ported-but-unwired` exists only to record work that the
-original batch was required to finish.
+unnoticed for thirteen days. On 6 August, two consecutive agents in the
+`monsters` sweep used most of one slice on a capability the port already had,
+and the closing entry `touch-artifact-ported-but-unwired` exists only to
+record work that the original batch was required to finish.
 
 **Cost.** Small. Resolving which module a symbol comes from needs the import
 block parsed rather than grepped, which `check-namespace-members.mjs` already
@@ -44,7 +45,7 @@ for a function nobody has ported yet, which is the ordinary and correct state.
 
 ## Print the remaining unenforced advisories
 
-**What it changes.** Three checks that turn prose rules into printed numbers.
+**What it changes.** Three checks would turn prose rules into printed numbers.
 Two others have landed: `node scripts/goal-log.mjs calibration` on 2 August
 2026, and the per-goal gate in `scripts/score-holdout.mjs` on 12 August.
 
@@ -61,9 +62,9 @@ Two others have landed: `node scripts/goal-log.mjs calibration` on 2 August
 **Scope.** Each item is a small addition to an existing script and its test
 file; the first adds one subcommand.
 
-**What prompted it.** A survey of the instruction documents for rules that
-present as limits or cadences while nothing detects a violation. Two
-siblings landed the same day it ran: the review-gate refusal in
+**What prompted it.** A survey of the instruction documents identified rules
+that present as limits or cadences while nothing detects a violation. Two
+related checks landed the same day the survey ran: the review-gate refusal in
 `score-holdout.mjs` and the review-gate line in the checkpoint summary.
 
 **Cost.** Small per item. None blocks; each prints, in the pattern of the
@@ -86,8 +87,8 @@ code comment beside the reporter choice.
 
 **Scope.** Output capture in `runCheckpointChecks()`, the recipe cut in
 `.agents/validation.md`, and the `scripts/checkpoint-checks.test.mjs`
-assertion that explains why detail rides the summary line, which moves with
-the recipe.
+assertion that explains why per-check detail is appended to the summary line
+rather than printed separately, which moves with the recipe.
 
 **What prompted it.** The reading audit of the agent briefs on 2 August
 2026: every reader of `.agents/validation.md` pays about 20 lines of
@@ -97,10 +98,12 @@ perform itself.
 **Cost.** Small in code but it changes the one command every agent runs.
 Capturing a child's stdout replaces `stdio: 'inherit'`, which streamed live
 progress; the TTY case has to keep streaming, and the summary must stay at
-the end of the log so a tail read stays valid while agents migrate.
+the end of the log so a tail read stays valid while agents adopt the new
+command.
 
 **What it leaves unfixed.** The log still keeps its 14,491 lines on disk, and
-an agent that opens it whole still drowns.
+an agent that opens it whole must still work through most of them to find the
+summary and the failing test's location.
 
 ## Serialise mutation runs across parallel workers
 
@@ -109,7 +112,8 @@ an agent that opens it whole still drowns.
 another run owns it, and that a refused worker finishes the rest of its slice
 before escalating again. The refusal in `scripts/mutate-sites.mjs` would report
 how long the incumbent has held the lock, beside the pid it already reports.
-The lock stays as it is, because both resources it protects belong to the host.
+The lock stays as it is, because both resources it protects, the host's
+memory and task budget and its single-owner recovery, belong to the host.
 
 `acquireMutationLock()` takes `/run/user/<uid>/teleport-mutate.lock` (lines
 185-189) and writes an `owner.json` holding the pid, the process start time and
@@ -126,10 +130,11 @@ scopes and reverts its runtime drop-in (lines 455-461, and
 `stopMutationSlice()` at 588-606). Refusing a contender before it creates a unit
 is what leaves one recoverable unit set on the host at a time.
 
-A second concurrent run would also return little. The header's 6 August
-measurement (lines 111-126) puts three mutation lanes at a 40.71 s median
-against two lanes at 40.68 s on a 5-core host, so the machine saturates near two
-lanes and two runs at once would divide the same throughput between them.
+A second concurrent run would also return little. The header comment in
+`scripts/mutate-sites.mjs` (lines 111-126) records a 6 August measurement:
+three mutation lanes at a 40.71 s median against two lanes at 40.68 s on a
+5-core host, so throughput plateaus at two lanes and two runs at once would
+divide the same throughput between them.
 
 **Scope.** Two sentences under "Mutation-test the lines you changed" in
 `.claude/agents/slice-worker.md`, one `statSync()` call and one clause in the
@@ -155,15 +160,15 @@ so a caller cannot mistake contention for a clean sweep. It reports no age, so
 a contender cannot judge whether the wait is two minutes or an hour, and it
 refuses `--enumerate-only`, which runs no test.
 
-The two verdicts cost very different amounts, which is what makes a collision
-expensive. A first wave runs only the test files that import the mutated module
-directly, while a `--whole-suite` escalation runs the entire suite once per
-surviving mutant. The script's 30 July figures put the first wave at 1.36 s
-and 0.14 s per mutant on two ranges, against 12.7 s and 13.0 s per mutant
-through the suite. Runs during the 12 August session measured 2.34 s per mutant
-on a scoped first wave and 4.78 s per mutant amortised over a 367-mutant range
-run, against a 51.7 s baseline for the suite; those three figures are recorded
-nowhere in the repository.
+A mutation run produces two kinds of result at very different costs, which is
+what makes a collision expensive. A first wave runs only the test files that
+import the mutated module directly, while a `--whole-suite` escalation runs the
+entire suite once per surviving mutant. The script's 30 July figures put the
+first wave at 1.36 s and 0.14 s per mutant on two ranges, against 12.7 s and
+13.0 s per mutant through the suite. Runs during the 12 August session measured
+2.34 s per mutant on a scoped first wave and 4.78 s per mutant amortised over a
+367-mutant range run, against a 51.7 s baseline for the suite; those three
+figures are recorded nowhere in the repository.
 
 **Cost.** Small, and mostly prose. The judgement the brief asks of a worker
 cannot be enforced, so a worker that spins anyway is refused as cheaply as
@@ -172,7 +177,7 @@ before.
 **What it leaves unfixed.** Nothing here reduces the price of a whole-suite
 escalation. Deliberate serialisation removes the idle waiting and leaves the
 hour of test time, since one full suite runs for each surviving mutant either
-way. The lever that would remove the escalation sits upstream of the lock: a
+way. The change that would eliminate escalation is upstream of the lock: a
 module that a test file imports directly has its mutants judged in the cheap
 first wave. `d5e382b` measured what its absence costs, with 94 of its 125
 first-wave survivors in `js/dothrow.js`, whose direct test file exercises four
@@ -239,9 +244,11 @@ mislabelled, so only the detection is missing.
 
 **What prompted it.** The area label decides scheduling. `deferralCounts()`
 totals open entries per area and `npm run quality` prints the largest as a
-sweep candidate, so a wrong label inflates one area and deflates another. A
-mislabel once scheduled a sweep measured at 0 recorded steps ahead of a
-boundary goal measured at 21. Correcting a single blocker on 12 August 2026
+sweep candidate, so a wrong label increases one area's entry count and
+decreases another's. A mislabelled entry once caused `deferralCounts()` to
+select the wrong area as sweep candidate. The selected area had 0 recorded
+steps, yet it ranked ahead of a boundary goal measured at 21. Correcting a
+single blocker on 12 August 2026
 moved `commands` from 10 counted entries to 9 and dropped it out of candidacy,
 which shows how little it takes to change what the loop does next.
 
@@ -255,8 +262,9 @@ rule. Measured at `4930664` over 92 open entries, the naive comparison flagged
 under one area often cites a helper that lives in another, as
 `pick-lock-lookalike-pile-top-has-no-fresh-case` does when it is filed under
 `commands` and cites `js/display.js`. "Flag only when no cited file maps to the
-entry's area" is the candidate rule. The ledger has since grown to 108 open
-entries, so that flag rate needs measuring again before the rule is chosen.
+entry's area" is the candidate rule. The number of open deferrals has since
+grown to 108, so that flag rate needs measuring again before the rule is
+chosen.
 
 **What it leaves unfixed.** A check that reads `detail` cannot see an entry
 that cites no path at all. Of the 92 open entries measured at `4930664`, 33
@@ -334,7 +342,7 @@ between them.
 already. Substitution removes the backticks together with the text between
 them, so a corrupted text has an even backtick count exactly as an intact one
 does, and no text in the ledger has an unbalanced backtick. The one confirmed
-instance is a floor rather than a count, and finding the rest means reading
+instance is a lower bound rather than a count, and finding the rest means reading
 every entry against the source it cites.
 
 ## Flag the values a mutation run cannot reach
@@ -351,9 +359,9 @@ rather than only what it did. It changes no verdict and blocks nothing.
 walks the same syntax tree to find operators; its test; and a line in the
 checkpoint summary, in the pattern of the sweep-candidate line.
 
-**What prompted it.** Four consecutive closing correctness passes found their
-sharpest defect in a value no mutant of any kind this project runs can reach,
-and the last found two.
+**What prompted it.** In four consecutive closing correctness passes, the
+highest-severity defect was in a value that no mutant operator in this
+project can alter, and the last pass found two.
 
 - `wizard-create-monster`, pass over `ea331c8..2d84dfa`: `js/read.js` seeds
   `name_to_monplus()` with `gender: NEUTRAL`. It is a whole argument. Two
@@ -369,8 +377,9 @@ and the last found two.
 - `hero-zaps-a-ray-wand` slice 3, pass over `4fe4f56..ac46567`: a refusal
   placed ahead of the guards `apply.c catch_lit()` answers first, which is an
   ordering error rather than an operator; and `js/display.js`'s hit-point
-  clamp, which the run reported as an equivalent survivor and which the
-  orchestrator then measured as having no oracle at all.
+  clamp, which the run classified as equivalent to the original (no test
+  distinguished it from unmutated code), and which the orchestrator then
+  found had no test covering the mutated behavior at all.
 
 **Cost.** Small to medium. The traversal is mechanical, but deciding what
 counts as a value "no mutant can reach" is a judgment the tool has to encode:
@@ -379,10 +388,10 @@ row a test already reads is not either. Starting narrow — array literals of
 more than four elements, `switch` label sets, and arguments that are bare
 identifiers or literals — would cover every instance above.
 
-**What it leaves unfixed.** The sharpest finding of the fourth pass is outside
-its reach entirely. `zap.c:4572`'s dropped `type == 0 &&` conjunct *is* an
+**What it leaves unfixed.** The highest-severity finding of the fourth pass is
+outside its reach entirely. `zap.c:4572`'s dropped `type == 0 &&` conjunct *is* an
 operator the run mutates, and every mutant of it died — against a test that
 asserted the port's reading rather than C's. A mutation run measures whether
 the tests notice a change; it cannot notice that the tests agree with the code
 against the source. Nothing proposed here detects that, and the only instrument
-that has is a reviewer reading the C.
+that has detected it is a reviewer reading the C source.
