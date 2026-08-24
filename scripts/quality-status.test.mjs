@@ -7,8 +7,6 @@ import {
   assignPathToArea,
   refileDeferralArea,
   auditMetricsFromOptions,
-  deferralCounts,
-  formatDeferralCounts,
   formatDeferralRow,
   formatStaleAnchors,
   setDeferralBlocker,
@@ -33,7 +31,6 @@ import {
   openDeferrals,
   portDefines,
   portFileDefines,
-  sweepCandidates,
   upstreamMentions,
   collectRejections,
   missingMutantTrailers,
@@ -1283,8 +1280,7 @@ test('ledger queries flatten pass rejections and filter deferrals', () => {
     // The deferred ledger: two open entries in monsters, one closed, one open
     // without an area. Defaults return open entries only; the closed entry
     // needs status 'closed' or 'all'; the area filter excludes the null-area
-    // entry; and the sweep threshold of 2 fires for monsters alone, because
-    // closed and area-less entries never count toward a sweep.
+    // entry.
     const ledger = [
         { id: 'A', area: 'monsters', status: 'open', category: 'production' },
         { id: 'B', area: 'monsters', status: 'open', category: 'production' },
@@ -1298,116 +1294,6 @@ test('ledger queries flatten pass rejections and filter deferrals', () => {
     assert.deepEqual(openDeferrals(ledger, { status: 'closed' })
         .map(({ id }) => id), ['C']);
     assert.deepEqual(openDeferrals(ledger, { status: 'all' }).length, 4);
-    assert.deepEqual(sweepCandidates(ledger, 2),
-        [['monsters', { counted: 2, blocked: 0 }]]);
-    assert.deepEqual(sweepCandidates(ledger, 3), []);
-});
-
-test('only a production deferral counts toward a sweep candidate', () => {
-    // A sweep is scheduled by debt whose resolution changes what the game
-    // does. QUALITY.json's review limits already schedule clarity and
-    // simplification, a tests entry records a ported line no recorded case
-    // pins, and a scope entry names territory a boundary goal attacks. One
-    // entry of each sits beside a single production entry, so a threshold of 2
-    // must stay silent and a threshold of 1 must fire on that entry alone.
-    const ledger = [
-        { id: 'A', area: 'monsters', status: 'open', category: 'production' },
-        { id: 'B', area: 'monsters', status: 'open', category: 'tests' },
-        { id: 'C', area: 'monsters', status: 'open', category: 'scope' },
-        { id: 'D', area: 'monsters', status: 'open', category: 'clarity' },
-        {
-            id: 'E', area: 'monsters', status: 'open',
-            category: 'simplification',
-        },
-    ];
-    assert.deepEqual(deferralCounts(ledger),
-        new Map([['monsters', { counted: 1, blocked: 0 }]]));
-    assert.deepEqual(sweepCandidates(ledger, 2), []);
-    assert.deepEqual(sweepCandidates(ledger, 1),
-        [['monsters', { counted: 1, blocked: 0 }]]);
-});
-
-test('a blocked deferral stops counting until its blocker lands', () => {
-    // Three open production entries in one area, one of them waiting on a C
-    // symbol. The threshold of 3 is the smallest that separates the two
-    // answers: it fires on the raw count of three and stays silent on the two
-    // a sweep can actually resolve.
-    const ledger = [
-        { id: 'A', area: 'monsters', status: 'open', category: 'production' },
-        { id: 'B', area: 'monsters', status: 'open', category: 'production' },
-        {
-            id: 'C', area: 'monsters', status: 'open', category: 'production',
-            blockedOn: 'find_offensive',
-        },
-    ];
-    // No js/ read: the probe is injected, so what the port happens to define
-    // today cannot move this test.
-    const landed = (symbol) => symbol === 'mattacku';
-    assert.deepEqual(deferralCounts(ledger, landed),
-        new Map([['monsters', { counted: 2, blocked: 1 }]]));
-    assert.deepEqual(sweepCandidates(ledger, 3, landed), []);
-    assert.deepEqual(sweepCandidates(ledger, 2, landed),
-        [['monsters', { counted: 2, blocked: 1 }]]);
-
-    // AGENTS.md gives a ported function its C function's name, so a definition
-    // under that name expires the exclusion and the entry counts again.
-    const afterTheBlockerLands = (symbol) => symbol === 'find_offensive';
-    assert.deepEqual(sweepCandidates(ledger, 3, afterTheBlockerLands),
-        [['monsters', { counted: 3, blocked: 0 }]]);
-});
-
-test('the sweep threshold defaults to ten', () => {
-    // "Keep every area under ten" in .agents/selection.md requires one entry
-    // resolved once an area reaches ten, so nine must stay silent and ten must
-    // report.
-    const entries = (count) => Array.from({ length: count }, (unused, index) => ({
-        id: `E${index}`,
-        area: 'commands',
-        status: 'open',
-        category: 'production',
-    }));
-    assert.deepEqual(sweepCandidates(entries(9)), []);
-    assert.deepEqual(sweepCandidates(entries(10)),
-        [['commands', { counted: 10, blocked: 0 }]]);
-});
-
-test('both listings print what an area stopped counting', () => {
-    // monsters at ten open entries, four of them blocked, is the 10 August
-    // 2026 shape this exclusion was built for: it reads six counted, which is
-    // under the threshold, so no sweep line prints for it and the blocked line
-    // is the only place its four exclusions are visible. display carries one
-    // blocked entry far below the threshold, for the same reason. commands
-    // reaches the threshold with nothing blocked, so the parenthetical stays
-    // off a line that excluded nothing; objects reaches it with two blocked,
-    // where the parenthetical says the area is really carrying twelve.
-    const area = (id, count, extra = {}) => Array.from(
-        { length: count },
-        (unused, index) => ({
-            id: `${id}-${index}`, area: id, status: 'open',
-            category: 'production', ...extra,
-        }),
-    );
-    const ledger = [
-        ...area('monsters', 6),
-        ...area('monsters', 4, { blockedOn: 'find_offensive' }),
-        ...area('display', 1, { blockedOn: 'getlev' }),
-        ...area('commands', 10),
-        ...area('objects', 10),
-        ...area('objects', 2, { blockedOn: 'set_wear' }),
-    ];
-    assert.deepEqual(formatDeferralCounts(ledger, () => false), [
-        'Blocked on an unported symbol, so uncounted: monsters 4, display 1, '
-            + 'objects 2.',
-        'Sweep candidate: commands holds 10 open deferrals.',
-        'Sweep candidate: objects holds 10 open deferrals (2 blocked).',
-    ]);
-    // Once every blocker lands nothing is excluded, monsters passes the
-    // threshold on its own entries, and the blocked line disappears.
-    assert.deepEqual(formatDeferralCounts(ledger, () => true), [
-        'Sweep candidate: monsters holds 10 open deferrals.',
-        'Sweep candidate: commands holds 10 open deferrals.',
-        'Sweep candidate: objects holds 12 open deferrals.',
-    ]);
 });
 
 test('a stale anchor reports a landed blocker and an undefined citation', () => {
@@ -1446,9 +1332,9 @@ test('a stale anchor reports a landed blocker and an undefined citation', () => 
             id: 'closed', status: 'closed',
             detail: '`js/mklev.js place_lregion()` is synchronous.',
         },
-        // The blocker half, both ways round. dotrap() has landed, so the entry
-        // silently counts toward its area's sweep again and the reader is told;
-        // conjoined_pits() has not, so it stays blocked and silent.
+        // The blocker half, both ways round. dotrap() has landed, so the
+        // entry may be resolvable and the reader is told; conjoined_pits()
+        // has not, so it stays blocked and silent.
         { id: 'blocker-landed', status: 'open', blockedOn: 'dotrap', detail: 'x' },
         { id: 'still-blocked', status: 'open', blockedOn: 'conjoined_pits', detail: 'x' },
     ];
