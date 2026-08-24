@@ -391,6 +391,23 @@ function main(args) {
         console.log(formatGoal(goal));
         return;
     }
+    if (mode === 'discard-goal') {
+        required(options, ['id', 'reason']);
+        const store = readGoals();
+        const index = store.goals.findIndex((entry) => entry.id === options.id);
+        if (index === -1) throw new Error(`no goal with id: ${options.id}`);
+        const goal = store.goals[index];
+        if (goal.status !== 'queued') {
+            throw new Error(
+                `goal ${goal.id} is ${goal.status}; only queued goals can be `
+                + 'discarded',
+            );
+        }
+        store.goals.splice(index, 1);
+        writeGoals(store);
+        console.log(`discarded ${goal.id}: ${options.reason}`);
+        return;
+    }
     if (mode === 'close-goal') {
         required(options, ['goal']);
         const store = readGoals();
@@ -409,7 +426,8 @@ function main(args) {
         return;
     }
     throw new Error('modes: --current [--detail], calibration, queue-goal, '
-        + 'restate-forecast, open-goal, queue-slice, close-slice, close-goal');
+        + 'restate-forecast, open-goal, discard-goal, queue-slice, close-slice, '
+        + 'close-goal');
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

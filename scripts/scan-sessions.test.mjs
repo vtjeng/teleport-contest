@@ -66,17 +66,17 @@ test('main rejects every argument outside its three options', async () => {
     // carries its value in the same token, so no bare argument is ever read.
     await assert.rejects(
         () => main(['sessions/holdout']),
-        /only --json, --by=<unlocks\|supports>, --ahead=<behavior> and --ahead-all/,
+        /only --json, --by=<unlocks\|supports>, --ahead=<behavior>, --ahead-all, --write-cache and --read-cache/,
     );
     await assert.rejects(
         () => main(['--json', '--sessions=/tmp/elsewhere']),
-        /only --json, --by=<unlocks\|supports>, --ahead=<behavior> and --ahead-all/,
+        /only --json, --by=<unlocks\|supports>, --ahead=<behavior>, --ahead-all, --write-cache and --read-cache/,
     );
     // `--by` takes only the two orders RANK_ORDERS defines; anything else is
     // a typo rather than a request, and must not reach the report.
     await assert.rejects(
         () => main(['--by=screens']),
-        /only --json, --by=<unlocks\|supports>, --ahead=<behavior> and --ahead-all/,
+        /only --json, --by=<unlocks\|supports>, --ahead=<behavior>, --ahead-all, --write-cache and --read-cache/,
     );
 });
 

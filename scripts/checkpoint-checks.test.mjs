@@ -190,7 +190,7 @@ test('checkpoint options collect focus files and can skip scoring', () => {
 test('checkpoint runner finishes all checks and reports any failure', () => {
     const calls = [];
     const output = [];
-    const passed = runCheckpointChecks([
+    const { allPassed: passed } = runCheckpointChecks([
         { label: 'focused tests', command: 'node', args: ['focused'] },
         { label: 'full test suite', command: 'npm', args: ['test'] },
     ], {
@@ -282,7 +282,7 @@ test('a failed host probe skips the mutation check and names the remedy',
 
 test('an informational check carries evidence and never fails the run', () => {
     const output = [];
-    const passed = runCheckpointChecks([
+    const { allPassed: passed } = runCheckpointChecks([
         { label: 'full test suite', command: 'npm', args: ['test'] },
         {
             label: 'uncommitted mutants',
@@ -451,7 +451,7 @@ test('the score check abstains when it cannot read the scorer output', () => {
 
 test('a summarize verdict decides a check the command called green', () => {
     const output = [];
-    const passed = runCheckpointChecks([
+    const { allPassed: passed } = runCheckpointChecks([
         {
             label: 'development score',
             command: 'node',

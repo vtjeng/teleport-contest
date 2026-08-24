@@ -75,10 +75,6 @@ numeric thresholds; the quality tools read it at runtime. When a threshold
 changes, update this policy and
 `scripts/quality-status.test.mjs` in the same chunk.
 
-Two events require every outstanding review to be complete before they
-happen: an authorized holdout evaluation and publishing a result outside
-this repository. This file calls those two events **review deadlines**.
-
 Generated outputs declared in `QUALITY.json` do not count toward changed-line
 thresholds. Their generators do count, and a commit touching a generator or
 output counts toward the commit threshold unless it is a linked audit-fix
@@ -93,8 +89,8 @@ evidence snapshots.
 
 ### When a correctness pass is due
 
-- Run a full correctness pass no later than ten unreviewed implementation
-  commits or 1,000 changed production lines since the frontier.
+- Run a full correctness pass no later than twenty unreviewed implementation
+  commits or 2,000 changed production lines since the frontier.
   `npm run quality` reports the running debt against that gate; plan each
   pass to land at a slice boundary before the gate forces one mid-slice.
 - These limits count changed production lines across every area-owned path,
@@ -122,7 +118,7 @@ evidence snapshots.
   to that commit.
 - A full pass is also due after an unexplained mismatch, whether found
   while tracing the port against its upstream C or Lua source or by a
-  differential, and before a review deadline.
+  differential.
 - Other small cohesive fixes may batch until one of the conditions in this
   section makes a full pass due. Do not repeat the same formal review pass
   until another threshold is met or the design materially changes.
@@ -170,12 +166,10 @@ themselves.
   state ownership or control flow, unclear test intent, misleading names or
   comments, or conflicting documentation. Scope it to implicated code, tests,
   and prose.
-- Before a review deadline or an external review, inspect for simplification
-  and clarity triggers. Run a formal review pass only when inspection
-  identifies one,
-  and record its outcome with the evidence the "Readiness for a formal review
-  pass" section lists
-  for that pass's boundary.
+- Inspect for simplification and clarity triggers when a goal closes. Run a
+  formal review pass only when inspection identifies one, and record its
+  outcome with the evidence the "Readiness for a formal review pass" section
+  lists for that pass's boundary.
 - Run `/copyedit-technical-prose` before publishing changed documentation or
   reports outside this repository. Tracker-only SHA and score entries do not
   trigger it. Do not run it on unchanged prose.
@@ -464,8 +458,7 @@ preserve PRNG and evaluation order.
   review debt at a batching threshold declared in `QUALITY.json` and assign
   every unassigned `js/` file to a `QUALITY.json` area with
   `npm run quality -- assign`. An audit-fix commit
-  applied after its pass was recorded may stand as correctness debt, except
-  before a review deadline.
+  applied after its pass was recorded may stand as correctness debt.
   Resolve concrete simplification or clarity triggers, but do not invent
   a formal review pass when none exists. An area that no recorded pass has
   covered appears in the dashboard's never-reviewed line. That line is

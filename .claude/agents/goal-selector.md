@@ -15,7 +15,7 @@ that agent.
 
 ## Method
 
-1. Run `node scripts/scan-sessions.mjs --ahead-all`, which replays the
+1. Run `node scripts/scan-sessions.mjs --ahead-all --write-cache`, which replays the
    development sessions once and reports the first-stop census, ranked
    candidates, and reconciliation of observed stops and modeled needs,
    followed by every candidate's look-ahead streams, the output that
@@ -45,20 +45,32 @@ directory or any path inside it to another agent or tool.
 
 ## What to report
 
-Keep it brief. Report every field a `GOALS.json` entry holds: id, boundary, upstream owners,
-forecast with its basis, and detail.
+Write every candidate you capped during the ranking to
+`.cache/selector-candidates.json` as a JSON array ordered by capped forecast
+(highest first). Each element has:
 
-- The goal: the behavior it implements, and the bounding property stated as a
-  condition a reader can test against the C source, matching the `boundary`
-  format in existing `GOALS.json` entries.
-- What the goal unblocks: the development sessions, their recorded steps stated
-  as an upper bound, each session's C-path witness, and any command sequence it
-  opens for later goals.
-- The upstream C files and functions the goal covers, and how much C that is.
-- Any traced finding that shapes the goal: a branch a starting character does
-  not reach, a prerequisite that must land before the first commit, or a helper
-  already ported. Report what you found while reading, and leave the division
-  into slices to the slice-selector.
-- The runner-up: the goal you came closest to choosing under the rules in
-  `.agents/selection.md`, one sentence on why you chose the reported goal, and
-  one sentence on why you set the runner-up aside.
+```json
+{
+  "id":            "kebab-case-boundary-id",
+  "boundary":      "The boundary condition a reader can test against C source.",
+  "owners":        ["do_name.c"],
+  "forecastSteps": 16,
+  "forecastBasis": "Capped look-ahead at ...",
+  "sessions":      ["seed0102-ranger-name-cancel"],
+  "witnesses":     [{ "session": "seed0102-...", "evidence": "stop at ..." }],
+  "detail":        "Traced findings: branches not reached, prerequisites, ..."
+}
+```
+
+The orchestrator runs
+`node scripts/queue-candidates.mjs .cache/selector-candidates.json`
+to queue every candidate and opens the leader. At the next goal close, it
+re-uses the queue instead of spawning a new selector (`.agents/selection.md`,
+"Re-using the candidate queue").
+
+State each candidate's boundary as a condition a reader can test against the C
+source, matching the format in existing `GOALS.json` entries. Put traced
+findings (branches a starting character does not reach, prerequisites, helpers
+already ported) in `detail`, and leave the division into slices to the
+slice-selector.
+

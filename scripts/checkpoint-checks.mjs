@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
-import { pathToFileURL } from 'node:url';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import {
     compareToBaseline,
@@ -189,8 +191,10 @@ export function runCheckpointChecks(commands, {
         // ratchet, so a run that exits 0 while a session matched fewer screens
         // than its baseline still fails.
         const passed = summary.passed ?? (result.status === 0);
-        results.push({ label, passed, informational,
-            skipped: Boolean(summary.skipped), detail: summary.detail ?? '' });
+        const entry = { label, passed, informational,
+            skipped: Boolean(summary.skipped), detail: summary.detail ?? '' };
+        if (label === 'development score' && capture) entry.stdout = result.stdout;
+        results.push(entry);
     }
 
     output('\nCheckpoint summary');
@@ -209,8 +213,9 @@ export function runCheckpointChecks(commands, {
     // failures. The development score used to be informational too, which meant
     // a crashed scoring run reported DONE and exited 0; it now carries a
     // verdict of its own through scripts/score-baseline.mjs.
-    return results.every(({ passed, informational, skipped }) =>
+    const allPassed = results.every(({ passed, informational, skipped }) =>
         passed || informational || skipped);
+    return { allPassed, results };
 }
 
 /**
@@ -362,10 +367,38 @@ export function summarizeDevelopmentScore(stdout) {
 // record a row at each event instead, when the tree is committed. The score's
 // verdict never depended on the row: compareScoreToBaseline() alone decides it.
 
+const SUMMARY_PATH = new URL('../.cache/checkpoint-summary.json',
+    import.meta.url);
+
+export function writeCheckpointSummary(results, { includeScore }) {
+    const commit = spawnSync('git', ['rev-parse', 'HEAD'],
+        { encoding: 'utf8' }).stdout.trim();
+    const testEntry = results.find(({ label }) => label === 'full test suite');
+    const summary = {
+        commit,
+        timestamp: new Date().toISOString(),
+        allPassed: results.every(({ passed, informational, skipped }) =>
+            passed || informational || skipped),
+        tests: { passed: testEntry?.passed ?? false },
+    };
+    if (includeScore) {
+        const scoreEntry = results.find(
+            ({ label }) => label === 'development score');
+        summary.score = scoreEntry?.stdout
+            ? developmentTotals(scoreEntry.stdout)
+            : null;
+    }
+    const dest = fileURLToPath(SUMMARY_PATH);
+    mkdirSync(dirname(dest), { recursive: true });
+    writeFileSync(dest, JSON.stringify(summary, null, 2) + '\n');
+}
+
 function main(args) {
     const options = parseCheckpointArgs(args);
     const commands = checkpointCommands(options.focusedTests, options);
-    if (!runCheckpointChecks(commands)) process.exitCode = 1;
+    const { allPassed, results } = runCheckpointChecks(commands);
+    writeCheckpointSummary(results, options);
+    if (!allPassed) process.exitCode = 1;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

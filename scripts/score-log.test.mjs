@@ -7,6 +7,7 @@ import test from 'node:test';
 import {
     appendRow,
     COLUMNS,
+    generateNote,
     latestRow,
     readRows,
     rowsSince,
@@ -98,6 +99,81 @@ test('standing carries the last stated holdout figure forward', () => {
     assert.equal(holdout.sha, 'aaaa111');
     assert.equal(holdout.holdout_screens_matched, '139');
     assert.equal(publish, null);
+});
+
+test('generateNote composes a delta summary from current and previous', () => {
+    // screens_matched changed 496→520; rng_matched changed 106505→107227.
+    // The note shows both deltas, the totals, and the label.
+    const note = generateNote({
+        event: 'slice',
+        label: 'pickup-autopickup',
+        current: {
+            screens_matched: '520', screens_total: '7765',
+            rng_matched: '107227', rng_total: '610816',
+            sessions_passed: '8', sessions_total: '10',
+        },
+        previous: {
+            screens_matched: '496', rng_matched: '106505',
+        },
+        holdout: null,
+    });
+    assert.match(note, /pickup-autopickup closes\./u);
+    assert.match(note, /496→520 of 7765 screens/u);
+    assert.match(note, /106505→107227 of 610816 rng/u);
+    assert.match(note, /8 of 10 sessions/u);
+});
+
+test('generateNote omits delta arrows when figures are unchanged', () => {
+    // When screens_matched and rng_matched are the same as previous, the
+    // note prints the value once rather than "520→520".
+    const note = generateNote({
+        event: 'slice',
+        label: null,
+        current: {
+            screens_matched: '520', screens_total: '7765',
+            rng_matched: '107227', rng_total: '610816',
+        },
+        previous: {
+            screens_matched: '520', rng_matched: '107227',
+        },
+        holdout: null,
+    });
+    assert.doesNotMatch(note, /→/u);
+    assert.match(note, /520 of 7765/u);
+});
+
+test('generateNote includes holdout figures when provided', () => {
+    const note = generateNote({
+        event: 'goal',
+        label: 'zap-command',
+        current: {
+            screens_matched: '520', screens_total: '7765',
+            rng_matched: '107227', rng_total: '610816',
+        },
+        previous: null,
+        holdout: {
+            holdout_screens_matched: '139', holdout_screens_total: '3640',
+            holdout_rng_matched: '30048', holdout_rng_total: '182022',
+        },
+    });
+    assert.match(note, /Holdout 139\/3640 screens, 30048\/182022 rng/u);
+});
+
+test('generateNote works with no previous standing', () => {
+    // The first row ever has no previous to compare against.
+    const note = generateNote({
+        event: 'slice',
+        label: 'first-slice',
+        current: {
+            screens_matched: '10', screens_total: '100',
+            rng_matched: '50', rng_total: '500',
+        },
+        previous: null,
+        holdout: null,
+    });
+    assert.match(note, /first-slice closes\./u);
+    assert.match(note, /Development 10 of 100 screens, 50 of 500 rng/u);
+    assert.doesNotMatch(note, /→/u);
 });
 
 test('rowsSince slices from the matched sha, inclusive', () => {

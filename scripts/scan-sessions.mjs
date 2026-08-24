@@ -87,7 +87,8 @@
 // `--ahead=`'s value is only ever compared against the behavior names this scan
 // produced -- it is never opened.
 
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -146,6 +147,33 @@ const HERO_GLYPH = '@';
 const PROMPT_TERMINATORS = new Set(['\r', '\n']);
 
 const EXTENDED_COMMAND_KEY = '#';
+
+const CACHE_DIR = join(PROJECT_ROOT, '.cache');
+const SCAN_CACHE_PATH = join(CACHE_DIR, 'scan-cache.json');
+
+function repositoryHead() {
+    return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: PROJECT_ROOT })
+        .toString().trim();
+}
+
+function writeScanCache(rows) {
+    if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR, { recursive: true });
+    writeFileSync(SCAN_CACHE_PATH, JSON.stringify({
+        sha: repositoryHead(),
+        rows,
+    }));
+}
+
+function readScanCache() {
+    if (!existsSync(SCAN_CACHE_PATH)) return null;
+    try {
+        const cache = JSON.parse(readFileSync(SCAN_CACHE_PATH, 'utf8'));
+        if (cache.sha !== repositoryHead()) return null;
+        return cache.rows;
+    } catch {
+        return null;
+    }
+}
 
 // The judge builds each segment's input from exactly these fields; mirroring
 // frozen/ps_test_runner.mjs replayInputFor() keeps this scan aligned with the
@@ -1218,6 +1246,10 @@ export async function main(args) {
             + ' look-ahead streams to the report.'
             + '\n  --json                   emit the same figures in'
             + ' machine-readable form.'
+            + '\n  --write-cache            write the replay rows to'
+            + ' .cache/scan-cache.json after the scan.'
+            + '\n  --read-cache             skip the replay when'
+            + ' .cache/scan-cache.json matches HEAD.'
             + '\n\nThe scanned directory is fixed and no path argument is'
             + ' accepted, so this scan\ncannot be aimed at sessions/holdout/.',
         );
@@ -1229,12 +1261,15 @@ export async function main(args) {
     // directory.
     const rejected = args.find((arg) => arg !== '--json'
         && arg !== '--ahead-all'
+        && arg !== '--write-cache'
+        && arg !== '--read-cache'
         && !orders.some((order) => arg === `--by=${order}`)
         && !arg.startsWith(AHEAD_PREFIX));
     if (rejected !== undefined) {
         throw new Error(
             `only --json, --by=<${orders.join('|')}>, `
-            + `${AHEAD_PREFIX}<behavior> and --ahead-all are accepted`,
+            + `${AHEAD_PREFIX}<behavior>, --ahead-all, --write-cache`
+            + ' and --read-cache are accepted',
         );
     }
     const json = args.includes('--json');
@@ -1249,13 +1284,23 @@ export async function main(args) {
         );
     }
 
-    const files = listSessionFiles(DEVELOPMENT_DIR);
-    if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
-        throw new Error('development count changed');
+    const useCache = args.includes('--read-cache');
+    const writeCache = args.includes('--write-cache');
 
-    const scanned = [];
-    for (const file of files) scanned.push(await scanSession(file));
-    const rows = attachBehaviors(scanned);
+    let rows;
+    const cached = useCache ? readScanCache() : null;
+    if (cached) {
+        rows = cached;
+    } else {
+        const files = listSessionFiles(DEVELOPMENT_DIR);
+        if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
+            throw new Error('development count changed');
+
+        const scanned = [];
+        for (const file of files) scanned.push(await scanSession(file));
+        rows = attachBehaviors(scanned);
+    }
+    if (writeCache && !cached) writeScanCache(rows);
 
     if (ahead !== undefined) {
         if (json) {

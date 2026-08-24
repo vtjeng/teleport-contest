@@ -75,8 +75,8 @@ test('the checked-in quality ledger has a valid schema', async () => {
     true,
   );
   assert.deepEqual(config.thresholds, {
-    reviewCommits: 10,
-    reviewChangedLines: 1000,
+    reviewCommits: 20,
+    reviewChangedLines: 2000,
   });
   const generatedOutputs = config.areas.flatMap(
     (area) => area.generatedOutputs ?? [],

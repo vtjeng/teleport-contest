@@ -35,26 +35,33 @@ work, and each agent performs exactly one role.
 
 The orchestrator repeats, without returning to the user between its steps:
 
-1. When no goal is in progress, ask the goal-selector for the next one. It
-   ranks every candidate by restated capped forecast (as
-   `.agents/selection.md` defines), applying the same ranking to both queued
-   goals and census boundaries. When two candidates have the same capped
-   forecast, a queued goal whose tracing (the source analysis recorded in
-   its queue entry) is already done wins the tie; that tracing grants no
-   other precedence. Record an unqueued winner with `queue-goal`: the traced
-   source findings go in `--detail` and the look-ahead forecast goes in
-   `--forecast-steps` and `--forecast-basis`, with one
-   `--forecast-witness '<session>=<C-path evidence>'` for every contributing
-   session. Before opening a goal, rerun the census so the forecast reflects
-   the current development score. Then `open-goal` it, which captures the
+1. When no goal is in progress, check whether the candidate queue in
+   `GOALS.json` can supply the next goal without a full selector run,
+   following `.agents/selection.md`, "Re-using the candidate queue". Run the
+   census scan, compare its boundaries against the queue, and either open the
+   queue leader directly or re-cap only the new candidates. Spawn the
+   goal-selector only when the queue is empty or the re-use rules require it.
+
+   The goal-selector writes every candidate it capped to
+   `.cache/selector-candidates.json`. Queue them with
+   `node scripts/queue-candidates.mjs .cache/selector-candidates.json`,
+   which adds each new candidate to `GOALS.json` and skips any whose
+   identifier already exists.
+
+   Before opening a goal, rerun the census so the forecast reflects the
+   current development score. Then `open-goal` it, which captures the
    score standing the close will be measured against, and take the goal's
    first queued slice. When the goal has no queued slice, ask the
    slice-selector and `queue-slice` the answer. Both selectors return their
    recommendation; only you record it.
 2. Spawn a worker for that slice. When it returns, establish independently
    what landed: `git log --oneline` and `git status --short` for the commits
-   and the tree, and `npm run checkpoint` for the suite and the development
-   score. Accept no figure from the worker that these commands measure. Add
+   and the tree. The worker's `npm run checkpoint` writes
+   `.cache/checkpoint-summary.json` with the commit SHA, test verdict, and
+   development score figures. Read that file and verify its `commit` matches
+   `git rev-parse HEAD`; if it matches, use its figures instead of re-running
+   `npm run checkpoint`. If it does not match (the worker did not commit, or
+   another agent committed after it), run `npm run checkpoint` yourself. Add
    `git log --oneline origin/main..HEAD` for what is not pushed. Push
    whatever the worker left behind and every commit you landed yourself,
    then watch the CI run from a background task as `.agents/workflow.md`,
@@ -79,9 +86,9 @@ The orchestrator repeats, without returning to the user between its steps:
    `npm run quality -- defer`. A sequence of slices whose queue entry
    records that the development score will change within the next two
    slices is exempt from the census rerun and forecast restatement. When
-   the last slice of the goal closes, satisfy the readiness requirements in
-   `.agents/review.md` and run the goal's full correctness pass, then
-   continue at step 1.
+   the last slice of the goal closes, continue at step 5. A correctness
+   pass is not required at every goal close; it fires when the threshold in
+   `.agents/review.md`, "When a correctness pass is due", is met.
 5. When a goal closes, run the authorized holdout evaluation and record its
    result with the goal's evidence. Resolve every open deferral the goal's
    commits closed, read from `npm run quality -- deferrals --area <id>` for

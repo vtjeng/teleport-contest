@@ -32,6 +32,13 @@ figure on every row, even when that row recorded no new holdout evidence. Do not
 answer a score question by scanning `SCORE.tsv` directly, because the raw rows
 do not reflect supersession or carry forward the last holdout figure.
 
+Generate the `note` column with `node scripts/score-log.mjs --generate-note
+event=<event> [label=<id>] screens_matched=<n> screens_total=<n>
+rng_matched=<n> rng_total=<n> [sessions_passed=<n> sessions_total=<n>]
+[holdout_screens_matched=<n> ...]`. The command reads the previous standing
+from SCORE.tsv, computes deltas, and prints a one-line note. Pipe the output
+into the `note=` column of `--append` rather than composing the note by hand.
+
 Prefer improvements that translate the C source faithfully over changes that
 raise the score without matching the source's behavior. Run the generalization
 failure protocol below when a review of the source, the implementation diff,

@@ -122,6 +122,55 @@ export function rowsSince(rows, shaPrefix) {
     return rows.slice(index);
 }
 
+/**
+ * Generate a note from the current row's figures and the previous standing.
+ *
+ * Returns a one-line summary with the goal/slice identifier and the figure
+ * deltas. The orchestrator can append additional context after this line.
+ */
+export function generateNote({ event, label, current, previous, holdout }) {
+    const parts = [];
+    if (label) parts.push(`${label} closes.`);
+
+    if (current && previous) {
+        const sm = current.screens_matched ?? current.screensMatched;
+        const st = current.screens_total ?? current.screensTotal;
+        const rm = current.rng_matched ?? current.rngMatched;
+        const rt = current.rng_total ?? current.rngTotal;
+        const psm = previous.screens_matched ?? previous.screensMatched;
+        const prm = previous.rng_matched ?? previous.rngMatched;
+        const sp = current.sessions_passed ?? current.sessionsPassed;
+        const sto = current.sessions_total ?? current.sessionsTotal;
+
+        const screensDelta = sm !== psm ? `${psm}→${sm}` : `${sm}`;
+        const rngDelta = rm !== prm ? `${prm}→${rm}` : `${rm}`;
+        parts.push(`Development ${screensDelta} of ${st} screens,`
+            + ` ${rngDelta} of ${rt} rng.`);
+        if (sp !== undefined && sto !== undefined) {
+            parts.push(`${sp} of ${sto} sessions.`);
+        }
+    } else if (current) {
+        const sm = current.screens_matched ?? current.screensMatched;
+        const st = current.screens_total ?? current.screensTotal;
+        const rm = current.rng_matched ?? current.rngMatched;
+        const rt = current.rng_total ?? current.rngTotal;
+        parts.push(`Development ${sm} of ${st} screens,`
+            + ` ${rm} of ${rt} rng.`);
+    }
+
+    if (holdout) {
+        const hsm = holdout.holdout_screens_matched
+            ?? holdout.holdoutScreensMatched;
+        const hst = holdout.holdout_screens_total
+            ?? holdout.holdoutScreensTotal;
+        const hrm = holdout.holdout_rng_matched ?? holdout.holdoutRngMatched;
+        const hrt = holdout.holdout_rng_total ?? holdout.holdoutRngTotal;
+        parts.push(`Holdout ${hsm}/${hst} screens, ${hrm}/${hrt} rng.`);
+    }
+
+    return parts.join(' ');
+}
+
 function formatRow(row) {
     if (!row) return '(no row)';
     return COLUMNS.filter((column) => row[column] !== '')
@@ -159,13 +208,45 @@ function main(args) {
         console.log(publish
             ? `published (${publish.sha}): ${publish.note}`
             : 'published: none recorded');
+    } else if (mode === '--generate-note') {
+        const fields = Object.fromEntries(args.slice(1).map((pair) => {
+            const eq = pair.indexOf('=');
+            if (eq < 0) throw new Error(
+                '--generate-note takes key=value, got ' + pair);
+            return [pair.slice(0, eq), pair.slice(eq + 1)];
+        }));
+        if (!fields.event) throw new Error('--generate-note needs event=...');
+        const { development: prev } = standing(rows);
+        console.log(generateNote({
+            event: fields.event,
+            label: fields.label ?? null,
+            current: {
+                screens_matched: fields.screens_matched,
+                screens_total: fields.screens_total,
+                rng_matched: fields.rng_matched,
+                rng_total: fields.rng_total,
+                sessions_passed: fields.sessions_passed,
+                sessions_total: fields.sessions_total,
+            },
+            previous: prev ? {
+                screens_matched: prev.screens_matched,
+                rng_matched: prev.rng_matched,
+            } : null,
+            holdout: fields.holdout_screens_matched ? {
+                holdout_screens_matched: fields.holdout_screens_matched,
+                holdout_screens_total: fields.holdout_screens_total,
+                holdout_rng_matched: fields.holdout_rng_matched,
+                holdout_rng_total: fields.holdout_rng_total,
+            } : null,
+        }));
     } else if (mode === '--since') {
         if (!args[1]) throw new Error('--since takes a sha prefix');
         for (const row of rowsSince(rows, args[1]))
             console.log(`${row.utc}\t${row.sha}\t${row.event}\t`
                 + `${row.screens_matched}\t${row.rng_matched}\t${row.note}`);
     } else {
-        throw new Error('modes: --append column=value..., --latest [event], '
+        throw new Error('modes: --append column=value..., --generate-note '
+            + 'event=... [label=...] [column=value...], --latest [event], '
             + '--standing, --since <sha>');
     }
 }

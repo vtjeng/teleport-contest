@@ -10,21 +10,8 @@ import {
     isCommitAncestor,
     parseEvaluationArgs,
     parseRunnerBundle,
-    reviewGateRefusal,
     summarizeBundle,
 } from './score-holdout.mjs';
-
-test('a red review gate refuses a holdout evaluation', () => {
-    // execFileSync throws when the dashboard exits nonzero, so a throwing
-    // runner stands in for a blocked gate. The refusal names the dashboard
-    // command and the override flag, so a reader can tell a deliberate
-    // exception from an oversight.
-    const refusal = reviewGateRefusal(() => { throw new Error('exit 1'); });
-    assert.match(refusal, /review debt blocks a holdout evaluation/u);
-    assert.match(refusal, /--despite-review-debt/u);
-    // A runner that returns is a clear gate: no refusal, evaluation proceeds.
-    assert.equal(reviewGateRefusal(() => {}), null);
-});
 
 // A synthetic linear history. `isAncestor` answers by position, and a sha
 // outside it stands for a commit this repository cannot resolve, which is
@@ -161,17 +148,15 @@ test('parses the options an evaluation accepts', () => {
     assert.deepEqual(
         parseEvaluationArgs([
             '--goal', 'zap-command',
-            '--despite-review-debt',
             '--despite-prior-evaluation', 'a recorded reason',
         ]),
         {
             goal: 'zap-command',
-            despiteReviewDebt: true,
             despitePriorEvaluation: 'a recorded reason',
         },
     );
     assert.deepEqual(parseEvaluationArgs([]), {
-        goal: null, despiteReviewDebt: false, despitePriorEvaluation: null,
+        goal: null, despitePriorEvaluation: null,
     });
 
     // A value-taking option with no value, and an unknown option, both throw

@@ -14,6 +14,24 @@ Open a goal on a fresh-seed-census boundary only when the development-session ce
 
 The deferral ledger records known gaps for later reference without scheduling when they are resolved, so that later reviews and traces do not re-derive them. An open entry is retired by the goal whose port reaches its subject, or resolved at a goal close when that goal's commits already closed it. Record what an entry waits on with `npm run quality -- block-deferral --id <id> --blocked-on <symbol>`, so a reader learns it from the entry instead of repeating the trace.
 
+### Re-using the candidate queue
+
+The goal-selector queues every candidate it capped, each with its full forecast, witnesses, and detail, in `GOALS.json`. Closing a goal changes only that goal's sessions; every other candidate's stretch is unchanged.
+
+At the next goal close, the orchestrator re-uses the queue instead of running the full selector:
+
+1. Run the census scan (`node scripts/scan-sessions.mjs`).
+2. Compare the scan's boundary candidates against the queued entries. A queued entry is current when the census shows the same sessions stopped on its boundary. Discard a queued entry with `node scripts/goal-log.mjs discard-goal --id <id> --reason <text>` when either condition holds:
+   - The census no longer shows any session stopped on the entry's boundary (another goal resolved it as a side effect).
+   - The set of sessions stopped on the entry's boundary changed (a session was added because a prior goal unblocked it, or one was removed).
+
+   Treat a census boundary with no current queue entry as a new candidate.
+3. If no new candidates appeared, open the queued entry with the highest capped forecast. No selector run is needed.
+4. If new candidates appeared, re-cap only those candidates by handing their `--ahead` streams to parallel `sonnet-worker` classifiers, using the same capping rules as the full selector. Merge the re-capped candidates into the queue, pick the leader, and open it.
+5. Run the full selector only when the queue is empty.
+
+Queued forecasts are conservative: when a later goal resolves a boundary that fell inside a queued candidate's stretch, the stretch behind the queued candidate is now longer than the stored forecast records. Re-capping the queued entry would raise its forecast, but doing so for every queued entry is the cost this queue is designed to avoid. The underestimate may delay picking the queued candidate by one goal cycle; it cannot cause a mis-selection in the other direction, and a full selector run recalculates every forecast from scratch when the queue empties.
+
 ## Opening the goal
 
 **Record the forecast when the goal opens and the delivery when it closes.** Record the capped forecast and the sessions it covers with `node scripts/goal-log.mjs queue-goal --forecast-steps <n> --forecast-basis <text> --sessions <csv>`; `open-goal` captures the score standing, and `close-goal` records delivered figures beside the forecast from the score log. A slice scores a fraction of what its whole behavior does, so compare a slice's delivery against its forecast, and compare the goal's delivery against the goal's forecast. Retire a ranking statistic from selection when the last three closed goals in `GOALS.json` each delivered less than a tenth of its forecast. Use it again only in a goal entry whose `--forecast-basis` states how those three closes corrected it.

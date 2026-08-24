@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { execFileSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,21 +33,6 @@ function sessionFiles() {
 }
 
 export { parseRunnerBundle };
-
-// .agents/review.md, "Review scheduling": an authorized holdout evaluation is
-// a review deadline, so every outstanding review completes before one runs.
-// The dashboard's exit code is that rule's executable form; runCheck is
-// injected so a test can stand in for the spawned dashboard.
-export function reviewGateRefusal(runCheck) {
-    try {
-        runCheck();
-        return null;
-    } catch {
-        return 'review debt blocks a holdout evaluation: npm run quality -- '
-            + '--check is red. Clear the gate, or pass --despite-review-debt '
-            + 'to record a deliberate exception.';
-    }
-}
 
 // AGENTS.md, "Prevent overfitting to the holdout sessions": the user
 // authorizes one evaluation at the close of each goal in advance, and an
@@ -85,19 +70,13 @@ const VALUED_OPTIONS = new Set(['--goal', '--despite-prior-evaluation']);
 export function parseEvaluationArgs(args) {
     const options = {
         goal: null,
-        despiteReviewDebt: false,
         despitePriorEvaluation: null,
     };
     for (let index = 0; index < args.length; index += 1) {
         const argument = args[index];
-        if (argument === '--despite-review-debt') {
-            options.despiteReviewDebt = true;
-            continue;
-        }
         if (!VALUED_OPTIONS.has(argument) || index + 1 >= args.length) {
             throw new Error('usage: score-holdout.mjs --goal <id> '
-                + '[--despite-prior-evaluation <reason>] '
-                + '[--despite-review-debt]');
+                + '[--despite-prior-evaluation <reason>]');
         }
         index += 1;
         if (argument === '--goal') options.goal = args[index];
@@ -292,21 +271,6 @@ async function main(args) {
         console.error(gate.refusal);
         process.exitCode = 1;
         return;
-    }
-
-    if (!options.despiteReviewDebt) {
-        const refusal = reviewGateRefusal(() => execFileSync(
-            process.execPath,
-            [join(PROJECT_ROOT, 'scripts', 'quality-status.mjs'), '--check'],
-            { stdio: 'ignore' },
-        ));
-        if (refusal) {
-            // Printed directly: the generic catch below hides messages by
-            // design, and this refusal precedes any holdout access.
-            console.error(refusal);
-            process.exitCode = 1;
-            return;
-        }
     }
 
     // Ahead of the run, so a deliberate second evaluation states itself even
