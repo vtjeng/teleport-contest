@@ -30,7 +30,9 @@ slicing to the slice-selector.
 3. Read `ROADMAP.md` for the systems the current goals belong to, and run
    `node scripts/goal-log.mjs --current --detail` for the goals already
    queued with
-   their traced source findings.
+   their traced source findings. A queued goal is a candidate like any census
+   boundary: rank it by a restated forecast, and let its recorded tracing
+   break a forecast tie in its favor.
 4. For every session counted in the forecast, use the scan's replay context to
    trace the exact C path at the stop. Report the governing state and option
    preconditions as that session's forecast witness.

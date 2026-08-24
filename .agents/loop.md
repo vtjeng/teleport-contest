@@ -33,15 +33,16 @@ Four agents run that loop, and no agent performs more than one of these jobs.
 
 The orchestrator repeats, without returning to the user between its steps:
 
-1. When no goal is in progress, open the first goal
-   `node scripts/goal-log.mjs --current` reports queued. When none is queued,
-   ask the goal-selector for the next one and record it yourself with
+1. When no goal is in progress, ask the goal-selector for the next one. It
+   ranks every candidate by restated capped forecast, queued goals and census
+   boundaries alike; a queued goal's recorded tracing breaks a forecast tie
+   in its favor and grants no other precedence. Record an unqueued winner with
    `queue-goal`: the traced source findings go in `--detail` and the
    look-ahead forecast goes in `--forecast-steps` and `--forecast-basis`, with
    one `--forecast-witness '<session>=<C-path evidence>'` for every contributing
-   session. Restate a queued forecast after re-ranking; never open it with stale
-   figures. Then `open-goal` it, which captures the score standing the close
-   will be measured against, and take its first queued slice. When it lists
+   session. Never open a goal on stale figures. Then `open-goal` it, which
+   captures the score standing the close will be measured against, and take
+   its first queued slice. When it lists
    none, ask the slice-selector and `queue-slice` the answer. Both selectors
    report; only you write.
 2. Spawn a worker for that slice. When it returns, establish independently what
@@ -60,15 +61,22 @@ The orchestrator repeats, without returning to the user between its steps:
 4. When a slice closes, append its `SCORE.tsv` row as `.agents/scoring.md`,
    "Score evidence", requires, in the commit that records the closure in
    `GOALS.json`. Its `sha` and figures are step 2's measurement. Continue at
-   step 1. When the last slice of the goal closes, satisfy the readiness
+   step 1. When three consecutive slice closes leave the development score
+   unchanged in `SCORE.tsv`, take no further slice from the goal until you
+   rerun the census and restate the goal's remaining capped forecast. Record
+   in the goal entry either why the remaining slices outrank the census
+   leader, or the split: close the delivered part, and move each remaining
+   obligation to the deferral ledger with `npm run quality -- defer`. A slice
+   chain whose queue entry records that it reaches a scoring boundary within
+   the next two slices is exempt. When the last slice of the goal closes,
+   satisfy the readiness
    requirements in `.agents/review.md` and run the goal's full correctness
    pass, then continue at step 1.
 5. When a goal closes, run the authorized holdout evaluation and record its
-   result with the goal's evidence. Dispose of every open deferral in the
-   areas the goal touched, read from `npm run quality -- deferrals --area
-   <id>`: fix a `small` one in the goal's audit-fix commit and resolve its
-   entry, queue a `slice` one as a queued slice, or state in the closing
-   report why it stays open. Close the goal with
+   result with the goal's evidence. Resolve every open deferral the goal's
+   commits closed, read from `npm run quality -- deferrals --area <id>` for
+   the areas the goal touched; the rest stay open, and none becomes a queued
+   slice. Close the goal with
    `node scripts/goal-log.mjs close-goal`, which records delivered figures
    beside the forecast from the score log; the closed entry stays in
    `GOALS.json` as the calibration record. Continue at step 1.

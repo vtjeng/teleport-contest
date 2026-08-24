@@ -286,8 +286,13 @@ Return to **Implementation** when a finding:
   or persistence boundary; or
 - requires new end-to-end cases because supported behavior has grown.
 
-Stop audit-fix work, record the requirement in the pass report, and do not
-claim the pass covers the new implementation. Do not run another pass first.
+Before returning, establish from the census or a traced witness whether a
+development session reaches the finding's behavior. When none does and
+already-scoring behavior stays correct, record the finding as a ledger entry
+with `npm run quality -- defer` instead of returning to implementation.
+Otherwise stop audit-fix work, record the requirement in the pass report, and
+do not claim the pass covers the new implementation. Do not run another pass
+first.
 Implement through the next observable boundary,
 satisfy the readiness requirements again, and run a new full correctness
 pass over the expanded range.
@@ -442,9 +447,7 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   Set it only where the entry cannot close until other work lands, and name the
   symbol the entry waits on rather than the function the missing arm sits
   inside: `js/` already holds partial ports under their C names, so a blocker
-  named too loosely reads as landed the day it is written. Such an entry stops
-  counting toward the sweep threshold, so an unset field costs a sweep run and
-  a wrong one hides real debt.
+  named too loosely reads as landed the day it is written.
 - A full correctness record also names the exact range, enabled optional
   finders, fixes, deferrals, unverified judgments, rejections and their
   counter-evidence, warnings, and validation. Record clarity separately only

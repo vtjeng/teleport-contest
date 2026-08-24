@@ -8,46 +8,15 @@ closing a goal triggers.)
 
 ## Choosing a goal
 
-We have two categories of goals. Clear every deferred-area sweep the report
-names before opening a fail-closed boundary port. Prefer a boundary port after
-a sweep, since a sweep files new deferrals as it reads. Record in the goal
-entry why a second sweep in a row was selected.
+Every goal is a fail-closed boundary port: it implements C behavior the port
+refuses.
 
-### Deferred-area sweeps
-
-A deferred-area sweep resolves the open deferral entries one area has
-accumulated. The threshold counts an area's open `production` entries. An
-entry naming a `blockedOn` symbol counts only once `js/` defines that symbol,
-because until then only a port the threshold itself blocks can retire it.
-`npm run quality -- deferrals` applies both rules, reports an area holding ten
-or more, and says how many entries each area stopped counting.
-
-Resolve one of the counted entries before opening the next boundary goal.
-
-Order the entries by how the port behaves at each one. An entry where the port
-skips a message-writing C branch silently comes before an entry where the port
-stops on a named refusal, because `AGENTS.md` forbids the first and permits the
-second.
-
-Read every entry in the area before opening the goal, then close every entry
-that reading showed to be small, even after the count falls below ten. The
-reading costs more than the closing. Once below ten, stop at an entry that
-turns out to need a fresh recording, a state-owner change, or a decision its
-record does not settle: queue it as its own slice, and state in the closing
-report what the reading found, because the ledger has no command that amends an
-open entry.
-
-An entry closes only when the behavior its record names as the closing
-condition is ported. An entry waiting on an unported command survives the
-sweep. Name each surviving entry in the closing report with the behavior it
-waits on, and record that behavior on the entry with
-`npm run quality -- block-deferral --id <id> --blocked-on <symbol>`, so the
-next count reads what this reading found rather than repeating it.
-
-### Fail-closed boundary ports
-
-Once the report lists no area, pick a fail-closed boundary port. This goal
-implements C behavior the port refuses.
+The deferral ledger is memory, not a schedule. An open entry records a known
+gap so that no later review or trace re-derives it; it is retired by the goal
+whose port reaches its subject, or resolved at a goal close when that goal's
+commits already closed it. Record what an entry waits on with
+`npm run quality -- block-deferral --id <id> --blocked-on <symbol>`, so a
+reader learns it from the entry instead of repeating the trace.
 
 Two sources nominate a boundary.
 
@@ -85,16 +54,19 @@ closes corrected it.
 **A goal may be larger than one agent session.** It then closes through several
 behavior slices, each closed on its own. A goal may list the slices it is known
 to need; where it does not, the slice-selector identifies each in turn while the
-goal is in progress. A sweep needs no slice selection: each open entry is a
-slice, scoped when it was deferred. Group several entries into one slice when
-one body of evidence closes all of them. Leave an entry in its own slice when
-closing it needs a fresh recording, changes a state owner, or revives a dead
-refusal. `AGENTS.md` states when a goal needs a
+goal is in progress. Close slices that port rows of one C table or arms of
+one C function family as one slice with one recording matrix.
+`AGENTS.md` states when a goal needs a
 checklist: work that continues across agent sessions, touches more than one
 game system, or approaches 500 changed lines of game code. `QUALITY.json`'s
 thresholds schedule reviews inside a goal and set no ceiling on its size; size
-never justifies refusing, deferring, or silently narrowing a stated goal. Start
-at the first queued slice.
+never justifies refusing, deferring, or silently narrowing a stated goal;
+narrow a goal only through the recorded split that `.agents/loop.md` step 4
+defines. Start at the first queued slice.
+
+**State the boundary in terms the forecast witnesses reach.** A criterion no
+witness session exercises — "every option", "every row of a table" — belongs
+in its own queued goal with its own forecast, where the ranking prices it.
 
 **The agent selecting work chooses the goal.** Do not ask the user which goal
 to take.
@@ -214,6 +186,17 @@ times. The table's default order already ranks by `unlocks`, and
 session's message stream for the capping read. The other column, `supports`,
 measures dependency breadth and stays in the report as context; it ranked the
 descent goal by 3,515 screens that closed as 9 (`125601d`).
+
+**Cap a session that already mismatches.** A session that matches fewer
+screens than it emits carries a silent divergence inside its replayed input;
+the last scoring run's `.cache/session-results.json` reports both figures per
+session. When its RNG log still matches in full, the loss is the divergent
+screens alone. When its RNG log has desynchronized, nothing past the
+divergence converts until the divergence is fixed: count that session toward
+a boundary candidate only up to its first mismatch, and rank the divergence
+itself as a candidate, priced by the screens standing behind it. Locate the
+mismatch by comparing the session's emitted screens with its recorded
+screens.
 
 **Read the stretch with a classifier before trusting it.** Hand each
 session's `--ahead` stream to a `sonnet-worker` subagent together with the
