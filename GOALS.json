@@ -3473,8 +3473,8 @@
       "slices": [
         {
           "name": "beehive-fill-zoo",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "675b97891ae76608cb90a12e19b9c206c74a8f2b"
         }
       ],
       "openedAt": "a46ef45f39e9ba0106b02a7200a0fcc1fd45b875",
