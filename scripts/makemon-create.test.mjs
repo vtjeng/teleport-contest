@@ -139,6 +139,7 @@ import {
     PM_FROST_GIANT,
     PM_ETTIN,
     PM_TROLL,
+    PM_UMBER_HULK,
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
     PM_WHITE_UNICORN,
@@ -5125,3 +5126,57 @@ test("the health food store's shares divide its two arms at 70", () => {
 // as generated. No row but the health food store's lists an itype above
 // MAXOCLASSES, and that row lists nothing else that is non-negative, so
 // dropping either clause leaves every reachable case unchanged.
+
+test('umber hulk creation proceeds through the species gate and full '
+    + 'mklev path without AT_WEAP inventory', () => {
+    // PM_UMBER_HULK has difficulty 12, which exceeds the D:5 reservoir cap of
+    // 9 in isOrdinaryD5ReservoirSpecies(). The species gate admits it by
+    // direct pmidx check so that deeper level-teleport targets can generate
+    // umber hulks through rndmonst(). Source confirms no S_UMBER or
+    // PM_UMBER_HULK special cases in makemon.c, no AT_WEAP attacks, and
+    // m_dowear() running over an empty inventory.
+    //
+    // The umber hulk has mlevel 9; at the test's D:1 level_difficulty of 1,
+    // adj_lev adjusts it to 8 (difference = 1-9 = -8 decrements once).
+    // maligntyp = 0, so peace_minded reaches the rn2(alignmentRecordBound)
+    // path; returning 0 short-circuits to hostile without a second draw.
+    const state = initialLevelState();
+    const random = scriptedRandom([
+        // next_ident: advance the shared monster id from 2 to 3.
+        step('rnd', [2], 1),
+        // newmonhp: adjusted level 8 gives d(8, 8) hit points.
+        step('d', [8, 8], 20),
+        // Non-neuter gender selection.
+        step('rn2', [2], 1),
+        // peace_minded: neutral hero, neutral monster (maligntyp 0).
+        // rn2(16) returns 0, short-circuiting to hostile.
+        step('rn2', [16], 0),
+        // m_initinv: no species-specific branch for S_UMBER.
+        // Defensive item gate: m_lev 8 vs rn2(50); 8 <= 49 fails.
+        step('rn2', [50], 49),
+        // Misc item gate: m_lev 8 vs rn2(100); 8 <= 99 fails.
+        step('rn2', [100], 99),
+        // Saddle gate: consumed but M2_DOMESTIC is false for umber hulks.
+        step('rn2', [100], 1),
+    ]);
+
+    const monster = makemon(
+        state.mons[PM_UMBER_HULK],
+        MON_X,
+        MON_Y,
+        0,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+
+    assert.ok(monster, 'makemon returned a monster');
+    assert.equal(monster.data.pmidx, PM_UMBER_HULK);
+    // Adjusted level 8 from adj_lev (mlevel 9 at level_difficulty 1).
+    assert.equal(monster.m_lev, 8);
+    assert.deepEqual([monster.mhp, monster.mhpmax], [20, 20]);
+    // Hostile from the short-circuiting peace_minded rn2(16) = 0.
+    assert.equal(monster.mpeaceful, false);
+    // No inventory: no AT_WEAP, and both item gates failed.
+    assert.equal(monster.minvent, null);
+    assert.equal(state.mvitals[PM_UMBER_HULK].born, 1);
+});

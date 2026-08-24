@@ -217,6 +217,7 @@ import {
     PM_SNAKE,
     PM_STALKER,
     PM_STONE_GIANT,
+    PM_UMBER_HULK,
     PM_URUK_HAI,
     PM_VAMPIRE,
     PM_VAMPIRE_BAT,
@@ -1071,7 +1072,8 @@ function assertSupportedSpecies(species) {
             && !isOrdinaryD5ReservoirSpecies(species)
             && !isMausoleumSpecies(species)
             && !courtSpecies
-            && !beehiveSpecies)) {
+            && !beehiveSpecies
+            && species.pmidx !== PM_UMBER_HULK)) {
         throw new UnsupportedMonsterCreationError(
             `monster ${species?.pmidx ?? 'null'}`,
         );
