@@ -3377,6 +3377,70 @@
         "screens": 6,
         "rng": 6
       }
+    },
+    {
+      "id": "engraving-read-on-movement",
+      "status": "queued",
+      "boundary": "a walking hero one-square step reaches a floor square that holds an engraving; hack.c domove_core() commits the step and pickup.c check_here() calls engrave.c read_engr_at() to display the engraving text. The port currently throws UnsupportedHeroMoveBoundaryError at js/hack.js:1076-1077 when engr_at(x, y) returns non-null.",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 25,
+        "basis": "Capped look-ahead at c6c1ef7: scan-sessions --ahead-all for the one session stopped on engraving interaction. seed0030 capped at 25 by monster ranged attack (mthrowu.c m_throw, unported). Raw unlocks 609; 24.6x overstatement.",
+        "sessions": [
+          "seed0030-ten-diverse-deaths"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0030-ten-diverse-deaths",
+            "evidence": "hero presses l (moveeast) at step 23; destination square holds a MARK-type engraving. C path: hack.c domove_core() -> test_move() admits the step -> domove_core() updates hero position -> spoteffects() -> pickup.c pickup() -> check_here() -> engrave.c read_engr_at() -> pline. Stretch capped at 25 by gnome throwing a potion (mthrowu.c m_throw unported)."
+          }
+        ]
+      },
+      "detail": "read_engr_at() is already ported at js/engrave.js:231-313. The work is removing the preflight throw at js/hack.js:1076-1077 and wiring read_engr_at() into the post-move path. seed0030 stretch capped at 25 screens (raw 609, 24.6x overstatement) because a gnome throws a potion at the hero.",
+      "slices": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null
+    },
+    {
+      "id": "dungeon-overview-menu",
+      "status": "open",
+      "boundary": "teleport.c level_tele() answers the wizard-mode hero \"?\" input by calling dungeon.c print_dungeon(TRUE, ...) to display a selectable menu of all known dungeon levels and branches; the hero selects a destination, and level_tele() completes with schedule_goto() to that destination. The port currently throws UnsupportedLevelChangeError at js/teleport.js:1264-1267.",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 114,
+        "basis": "Capped look-ahead at c6c1ef7: scan-sessions --ahead-all across the three sessions stopped on level_tele() reaching print_dungeon() for \"?\". seed2600 clean at 19 (informational commands). seed0383 capped at 93 by dragon armor wear (Is_dragon_armor refused by do_wear.js). seed0373 capped at 2 by quest arrival message (onquest() unported in goto_level). Raw unlocks 198; capped sum 19+93+2=114.",
+        "sessions": [
+          "seed0373-barbarian-quest-tour",
+          "seed0383-wizard-hallucinate",
+          "seed2600-wizard-custom-binds"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0373-barbarian-quest-tour",
+            "evidence": "wizard mode (playmode:debug); input Ctrl+V then \"?\" at getlin prompt; C path teleport.c level_tele():1221 wizard && !strcmp(buf, \"?\") -> print_dungeon(TRUE, &destlev, &destdnum):1228. Hero selects a quest branch level; goto_level arrival runs but JS port has no In_quest() branch so quest arrival message is unported; stretch capped at 2."
+          },
+          {
+            "session": "seed0383-wizard-hallucinate",
+            "evidence": "wizard mode (playmode:debug); same C path teleport.c level_tele():1221-1228 print_dungeon(TRUE, ...). Hero selects a main dungeon level, then wizwish x3, then wears gray dragon scale mail; Is_dragon_armor refused by accessory_or_armor_on() in do_wear.js; stretch capped at 93."
+          },
+          {
+            "session": "seed2600-wizard-custom-binds",
+            "evidence": "wizard mode (playmode:debug); same C path teleport.c level_tele():1221-1228 print_dungeon(TRUE, ...). Hero uses print_dungeon twice, selects main dungeon levels. Remaining commands all ported; stretch clean at 19."
+          }
+        ]
+      },
+      "detail": "print_dungeon() at dungeon.c:2290-2398 (~149 lines) creates a bymenu NHW_MENU window, iterates the dungeon chain, lists special levels and branches via print_branch() (~24 lines), tport_menu() (~33 lines), chr_u_on_lvl() (~4 lines), and unreachable_level() (~12 lines), then returns the selected destination dnum and dlevel. Total: roughly 222 lines of C for print_dungeon and its helpers, plus 27 lines for level_tele \"?\" path (C:1221-1247). The port already has: menu infrastructure, schedule_goto() and goto_level() for main dungeon levels, level_tele() for numeric answers, the special level chain sp_levchn, Is_stronghold(), the branches chain, and depth().",
+      "slices": [],
+      "openedAt": "9f94e35608de83cecb28211bc3408e9a05d275d4",
+      "openStanding": {
+        "sha": "ce5f3bb3cb175a04b2446357056623073b4f89df",
+        "screens": 1994,
+        "rng": 133580
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

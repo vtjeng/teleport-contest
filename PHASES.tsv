@@ -956,3 +956,5 @@ utc	event	phase	goal	detail
 2026-08-24T18:22:20.955Z	end	implement	name-command-cancel	
 2026-08-24T18:23:15.825Z	start	review	name-command-cancel	
 2026-08-24T18:43:34.951Z	end	review	name-command-cancel	
+2026-08-24T18:44:53.960Z	start	select	next	
+2026-08-24T19:12:03.999Z	end	select	dungeon-overview-menu	
