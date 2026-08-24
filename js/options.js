@@ -239,7 +239,12 @@ import {
     def_char_to_objclass,
 } from './drawing.js';
 import { escapes } from './options_escapes.js';
-import { finish_boulder_symbol, MAXMCLASSES } from './symbols.js';
+import {
+    finish_boulder_symbol,
+    finish_glyph_customizations,
+    MAXMCLASSES,
+} from './symbols.js';
+import { inspect_glyphrep } from './glyphs.js';
 import { choose_classes_menu } from './windows.js';
 
 const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
@@ -625,6 +630,15 @@ function defaultResult() {
         // its only configuration-time writer.
         give_opt_msg: true,
         symbolOperations: [],
+        // files.c read_sym_file() owns the association of a following G_/S_
+        // glyph record. It is the last selected slot, not necessarily the
+        // currently displayed slot.
+        glyphSetContext: {
+            set: 'primary',
+            names: { primary: null, rogue: null },
+            unicodeNagged: false,
+            colorNagged: false,
+        },
         rogueSymbols: {},
         // The configuration statements this parser recognizes but does not
         // interpret, in the order the file spelled them. A consumer that would
@@ -4601,6 +4615,15 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
             appendSymbolSelection(result, 'primary', 'DECgraphics', {
                 legacyIfUnset: true,
             });
+            // BACKWARD_COMPAT's handler calls read_sym_file(PRIMARYSET) only
+            // when that slot has no name.  read_sym_file() is what changes
+            // symset_which_set, so a failed legacy selection leaves the prior
+            // glyph association alone.
+            const context = result.glyphSetContext;
+            if (!context.names.primary) {
+                context.set = 'primary';
+                context.names.primary = 'DECgraphics';
+            }
         }
     } else if (name === 'ibmgraphics') {
         result.flags.ibmgraphics = !negated;
@@ -4609,6 +4632,18 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
                 legacyIfUnset: true,
                 legacyIBM: true,
             });
+            // IBMgraphics loops through primary and rogue in that order.  A
+            // successful load owns subsequent glyph rows; encountering an
+            // already named slot stops the loop without selecting it.
+            const context = result.glyphSetContext;
+            if (!context.names.primary) {
+                context.set = 'primary';
+                context.names.primary = 'IBMgraphics';
+                if (!context.names.rogue) {
+                    context.set = 'rogue';
+                    context.names.rogue = 'RogueIBM';
+                }
+            }
         }
     } else if (isSymbolAssignment) {
         // parsesymbols() does not receive parseoptions()'s negation flag.
@@ -4788,6 +4823,39 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         // negation stop, and a value C cannot read reached no handler to
         // report it.
         applyBooleanOption(result, name, matchedRow, statement, value, negated);
+    } else if (name === 'glyph') {
+        // C ref: options.c optfn_glyph(). Empty spellings fail silently. A
+        // valid ID succeeds even when an invalid payload contributes no
+        // Unicode or color detail.
+        if (value == null || value === '') return;
+        if (negated) {
+            bad_negation(result, name);
+            return;
+        }
+        const inspected = inspect_glyphrep(value);
+        if (!inspected.valid) return;
+        const context = result.glyphSetContext;
+        result.symbolOperations.push({
+            kind: 'glyph-customization',
+            set: context.set,
+            raw: value,
+        });
+        if (!context.names[context.set]) {
+            if (inspected.hasUnicode && !context.unicodeNagged) {
+                context.unicodeNagged = true;
+                configErrorAdd(
+                    result,
+                    'Unimplemented customization feature, ignoring for now',
+                );
+            }
+            if (inspected.hasColor && !context.colorNagged) {
+                context.colorNagged = true;
+                configErrorAdd(
+                    result,
+                    'Unimplemented customization feature, ignoring for now',
+                );
+            }
+        }
     } else if (name === 'symset' || name === 'roguesymset') {
         // C refs: options.c optfn_symset() (4166-4201) and
         // optfn_roguesymset() (3543-3585). parseoptions() passes each handler
@@ -4795,6 +4863,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         // optn_err: it neither selects a set nor leaves parser residue.
         if (value == null || value === '') return;
         const set = name === 'roguesymset' ? 'rogue' : 'primary';
+        result.glyphSetContext.set = set;
         result[name] = value;
         // files.c read_sym_file() selects by name without applying the
         // Restrictions field used by the interactive picker. A miss clears
@@ -4802,6 +4871,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         // an earlier successful selection in place, so retain that cleanup
         // in the ordered symbols.c operation stream.
         if (!read_sym_file(value)) {
+            result.glyphSetContext.names[set] = null;
             result[name] = undefined;
             result.symbolOperations.push({
                 kind: 'clear', set, nameToo: true,
@@ -4812,6 +4882,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
             );
             return;
         }
+        result.glyphSetContext.names[set] = isDefaultSymsetName(value)
+            ? null : value;
         appendSymbolSelection(result, set, value);
         result.go.opt_need_redraw = true;
         result.go.opt_need_glyph_reset = true;
@@ -5444,6 +5516,7 @@ export function finishStartupBooleanOptions(state) {
 export function initoptions_finish(parsedOptions = {}, state = game, env = {}) {
     finish_fruit_option(parsedOptions, state, env);
     finish_boulder_symbol(state);
+    finish_glyph_customizations(state);
     reglyph_darkroom(state);
     finishStartupBooleanOptions(state);
 }
@@ -6021,9 +6094,7 @@ function symsetValue(state, set, withHandling) {
 // option field.
 // scripts/options-menu.test.mjs derives the whole rule from parseNethackrc(),
 // so the set cannot drift from OPTION_VALUE_HANDLERS unnoticed.
-export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
-    'glyph',
-]));
+export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set());
 
 // C ref: options.c doset_add_menu()'s optfn call, plus the "unknown" default
 // it keeps when the handler writes nothing.

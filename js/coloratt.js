@@ -223,6 +223,34 @@ export function check_enhanced_colors(buf) {
     return -1;
 }
 
+// C refs: coloratt.c onlyhexdigits(), rgbstr_to_int32().  The name of the
+// first helper is misleading in the source: it accepts '-' too.  The decimal
+// parser below then rejects hexadecimal letters and deliberately retains the
+// source's last-component-wins behavior when more than two dashes occur.
+export function onlyhexdigits(buf) {
+    return /^[0-9a-f-]*$/iu.test(String(buf));
+}
+
+export function rgbstr_to_int32(rgbstr) {
+    const value = String(rgbstr ?? '');
+    if (value && onlyhexdigits(value)) {
+        if (!/^[0-9-]+$/u.test(value)) return -1;
+        const components = value.split('-');
+        const r = components[0];
+        const g = components[1];
+        const b = components.at(-1);
+        if (components.length >= 3
+            && [r, g, b].every((part) => part.length > 0 && part.length < 4)) {
+            return (Number.parseInt(r, 10) << 16)
+                | (Number.parseInt(g, 10) << 8)
+                | Number.parseInt(b, 10);
+        }
+    } else if (value) {
+        return check_enhanced_colors(value);
+    }
+    return -1;
+}
+
 // C ref: coloratt.c wc_color_name().  RGB aliases keep the first source row;
 // the source table's order is therefore part of the result.
 export function wc_color_name(colorindx) {

@@ -24,6 +24,7 @@ import {
     WAN_LIGHTNING,
 } from './objects.js';
 import { SYMBOL_INDEX_BY_NAME } from './symbol_data.js';
+import { MAX_GLYPH } from './glyph_offsets.js';
 
 const { NUMMONS } = MONSTERS;
 
@@ -109,7 +110,7 @@ function glyphId(detail) {
     return `G_${fixGlyphName(detail)}`;
 }
 
-function sourceSymbolNamesByIndex() {
+export function sourceSymbolNamesByIndex() {
     const names = [];
     for (const [name, index] of Object.entries(SYMBOL_INDEX_BY_NAME)) {
         // Aliases are appended after canonical defsym.h names, so the first
@@ -179,7 +180,13 @@ function appendMonsterFamily(ids, prefix, monsters) {
 function appendObjectFamily(ids, piletop = false) {
     for (let index = 0; index < NUM_OBJECTS; ++index) {
         const detail = objectGlyphDetail(index);
-        if (detail === null) continue;
+        // parse_id() allocates one cache slot per glyph number even when an
+        // object has no stable source name.  Retain the unnamed slot so that
+        // every later G_* entry stays aligned with display.h's offsets.
+        if (detail === null) {
+            ids.push('');
+            continue;
+        }
         if (!piletop) {
             ids.push(glyphId(detail));
         } else if (index === FIRST_OBJECT - 1) {
@@ -250,12 +257,36 @@ function buildSourceGlyphIds() {
     return ids;
 }
 
-const SOURCE_GLYPH_NAME_BY_FOLDED_ID = new Map(
-    buildSourceGlyphIds().map((name) => [name.toLowerCase(), name]),
-);
+export const SOURCE_GLYPH_IDS = Object.freeze(buildSourceGlyphIds());
+if (SOURCE_GLYPH_IDS.length !== MAX_GLYPH) {
+    throw new Error(
+        `glyphs.c ID catalog has ${SOURCE_GLYPH_IDS.length} entries; expected ${MAX_GLYPH}`,
+    );
+}
+
+const SOURCE_GLYPH_NUMBER_BY_FOLDED_ID = new Map();
+for (const [glyph, name] of SOURCE_GLYPH_IDS.entries()) {
+    if (name) SOURCE_GLYPH_NUMBER_BY_FOLDED_ID.set(name.toLowerCase(), glyph);
+}
 
 /** glyphs.c:match_glyph() lookup after its case-sensitive G_ gate. */
 export function sourceGlyphName(name) {
-    return SOURCE_GLYPH_NAME_BY_FOLDED_ID.get(String(name).toLowerCase())
+    const glyph = sourceGlyphNumber(name);
+    return glyph === null ? null : SOURCE_GLYPH_IDS[glyph];
+}
+
+/** Numeric glyphs.c:match_glyph() result after its case-sensitive G_ gate. */
+export function sourceGlyphNumber(name) {
+    return SOURCE_GLYPH_NUMBER_BY_FOLDED_ID.get(String(name).toLowerCase())
         ?? null;
+}
+
+/** Canonical loadsyms[] spelling for glyphs.c's case-sensitive S_ gate. */
+export function sourceSymbolIndex(name) {
+    const folded = String(name).toLowerCase();
+    const canonical = sourceSymbolNamesByIndex();
+    const index = canonical.findIndex((entry) => (
+        entry !== undefined && `s_${entry}`.toLowerCase() === folded
+    ));
+    return index < 0 ? null : index;
 }

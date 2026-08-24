@@ -15,6 +15,15 @@ import {
 } from './const.js';
 import { game } from './gstate.js';
 import { isDefaultSymsetName } from './files.js';
+import {
+    apply_customizations,
+    clear_all_glyphmap_colors,
+    clear_all_glyphmap_unicode,
+    glyph_customization as numeric_glyph_customization,
+    glyphrep_to_custom_map_entries,
+    purge_custom_entries,
+} from './glyphs.js';
+import { sourceGlyphNumber } from './glyph_ids.js';
 import { encodeUtf8ByteString } from './hacklib.js';
 import { escapes } from './options_escapes.js';
 import {
@@ -187,6 +196,16 @@ function slotArrays(set, state) {
 
 function resetSymbolSlot(set, state) {
     const rogue = set === ROGUESET;
+    const previous = state.gs.symset[set];
+    if (previous && Object.hasOwn(previous, 'handling')) {
+        purge_custom_entries(set, state);
+        clear_all_glyphmap_colors(state);
+        const otherSet = rogue ? PRIMARYSET : ROGUESET;
+        if (previous.handling === H_UTF8
+            && state.gs.symset[otherSet]?.handling !== H_UTF8) {
+            clear_all_glyphmap_unicode(state);
+        }
+    }
     if (rogue) {
         state.gr.rogue_syms = [...DEFAULT_ROGUE_SYMBOLS];
         state.gr.rogue_utf8_syms = Array(SYM_MAX).fill(null);
@@ -215,6 +234,7 @@ function resetSymbolSlot(set, state) {
 export function clear_symsetentry(set, nameToo, state = game) {
     graphicsState(state);
     const entry = state.gs.symset[set];
+    const oldHandling = entry.handling;
     entry.desc = null;
     entry.handling = H_UNK;
     entry.nocolor = 0;
@@ -222,6 +242,13 @@ export function clear_symsetentry(set, nameToo, state = game) {
     entry.rogue = 0;
     entry.glyphs = Object.freeze({});
     if (nameToo) entry.name = null;
+    purge_custom_entries(set, state);
+    clear_all_glyphmap_colors(state);
+    const otherSet = set === PRIMARYSET ? ROGUESET : PRIMARYSET;
+    if (oldHandling === H_UTF8
+        && state.gs.symset[otherSet].handling !== H_UTF8) {
+        clear_all_glyphmap_unicode(state);
+    }
 }
 
 function symbolSetDefinition(name) {
@@ -285,6 +312,14 @@ function loadSymbolSet(name, set, state) {
     // deliberately does not pass them to glyphrep_to_custom_map_entries().
     entry.glyphs = { ...definition.glyphs };
     if (definition.color !== null) entry.nocolor = definition.color ? 0 : 1;
+    for (const [glyphName, value] of Object.entries(definition.glyphs)) {
+        glyphrep_to_custom_map_entries(
+            `${glyphName}:${value}`,
+            state,
+            set,
+        );
+    }
+    apply_customizations(state.gc.currentgraphics, state);
 }
 
 // C ref: symbols.c:init_symbols(), init_primary_symbols(),
@@ -384,13 +419,23 @@ function selectSymbolSet(operation, state) {
     if (operation.legacyIBM) {
         let failed = false;
         if (state.gs.symset[PRIMARYSET].name) failed = true;
-        else loadSymbolSet('IBMgraphics', PRIMARYSET, state);
+        else {
+            state.gs.symset_which_set = PRIMARYSET;
+            loadSymbolSet('IBMgraphics', PRIMARYSET, state);
+        }
         if (state.gs.symset[ROGUESET].name) failed = true;
-        else loadSymbolSet('RogueIBM', ROGUESET, state);
+        else {
+            state.gs.symset_which_set = ROGUESET;
+            loadSymbolSet('RogueIBM', ROGUESET, state);
+        }
         if (!failed) switch_symbols(state, true);
         return;
     }
     if (operation.legacyIfUnset && state.gs.symset[set].name) return;
+    // files.c read_sym_file() records this before opening the file. A later
+    // OPTIONS=glyph line therefore belongs to the last selected slot, even
+    // when that slot is not the currently displayed primary set.
+    state.gs.symset_which_set = set;
     loadSymbolSet(operation.name, set, state);
     if (set === PRIMARYSET) {
         switch_symbols(state, !isDefaultSymsetName(operation.name));
@@ -477,6 +522,12 @@ export function initialize_symbols_from_options(options, state = game) {
             // Both SYMBOLS and ROGUESYMBOLS call switch_symbols(TRUE).
             switch_symbols(state, true);
             break;
+        case 'glyph-customization': {
+            const set = operation.set === 'rogue' ? ROGUESET : PRIMARYSET;
+            state.gs.symset_which_set = set;
+            glyphrep_to_custom_map_entries(operation.raw, state, set);
+            break;
+        }
         case 'boulder':
             // options.c optfn_boulder() defers the active showsyms write
             // during initial parsing, but owns both override tables now.
@@ -515,6 +566,11 @@ export function get_othersym(index, set = PRIMARYSET, state = game) {
 export function finish_boulder_symbol(state = game) {
     const symbol = get_othersym(SYM_BOULDER, PRIMARYSET, state);
     if (symbol) state.gs.showsyms[SYM_OFF_X + SYM_BOULDER] = symbol;
+}
+
+/** glyph-owned remainder of options.c initoptions_finish(). */
+export function finish_glyph_customizations(state = game) {
+    apply_customizations(state.gc.currentgraphics ?? PRIMARYSET, state);
 }
 
 function rawSymbol(index, state) {
@@ -604,41 +660,8 @@ export function optional_misc_symbol(index, state = game) {
     return symbol;
 }
 
-function parseGlyphCustomization(raw) {
-    if (typeof raw !== 'string') return null;
-    const [symbolPart, colorPart] = raw.split('/', 2);
-    let displayCh = null;
-    if (symbolPart) {
-        const match = symbolPart.match(/^U\+([0-9a-f]{1,6})$/iu);
-        if (!match) return null;
-        const codePoint = Number.parseInt(match[1], 16);
-        if (!codePoint || codePoint > 0x10FFFF
-            || (codePoint >= 0xD800 && codePoint <= 0xDFFF)) return null;
-        displayCh = String.fromCodePoint(codePoint);
-    }
-    let rgb = null;
-    if (colorPart && /^\d{1,3}-\d{1,3}-\d{1,3}$/u.test(colorPart)) {
-        const channels = colorPart.split('-').map(Number);
-        if (channels.every((channel) => channel >= 0 && channel <= 255))
-            rgb = channels;
-    }
-    return displayCh || rgb ? { displayCh, rgb } : null;
-}
-
 /** Named G_* customization for a concrete glyph family. */
 export function glyph_customization(name, state = game) {
-    const activeSet = state.gc?.currentgraphics ?? PRIMARYSET;
-    const parsed = parseGlyphCustomization(
-        state.gs?.symset?.[activeSet]?.glyphs?.[name],
-    );
-    if (!parsed) return null;
-
-    // glyphs.c:apply_customizations() gates the two halves independently.
-    // A color customization still applies when customsymbols is disabled,
-    // and a Unicode representation still applies when customcolors is off.
-    const displayCh = state.gs?.symset?.[activeSet]?.handling === H_UTF8
-        && state.iflags?.customsymbols !== false
-        ? parsed.displayCh : null;
-    const rgb = state.iflags?.customcolors !== false ? parsed.rgb : null;
-    return displayCh || rgb ? { displayCh, rgb } : null;
+    const glyph = sourceGlyphNumber(name);
+    return glyph === null ? null : numeric_glyph_customization(glyph, state);
 }

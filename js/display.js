@@ -126,7 +126,6 @@ import {
 import {
     cmap_symbol,
     cmap_symbol_byte,
-    glyph_customization,
     misc_symbol,
     monster_class_symbol,
     object_class_symbol,
@@ -190,6 +189,7 @@ import {
     SYM_OFF_X,
     trap_to_defsym,
 } from './symbols.js';
+import { glyph_customization } from './glyphs.js';
 import {
     GLYPH_ALTAR_OFF,
     GLYPH_BODY_OFF,
@@ -728,7 +728,10 @@ function glyphPresentation(symbol, color, state, customization = null) {
         // shadow frame, so its existing cell stays untouched.  The browser
         // still receives the Unicode presentation independently.
         ch: customization?.displayCh ? null : symbol.ch,
-        color: recorderMapColor(color, state),
+        color: recorderMapColor(
+            customization?.basicColor ?? color,
+            state,
+        ),
         dec: symbol.dec,
     };
     if (Number.isInteger(symbol.ttychar)) {
@@ -783,11 +786,18 @@ export function hero_glyph_info(state = game) {
     const symbol = (accessibilityOverridesEnabled(state)
         ? optional_misc_symbol(SYM_HERO_OVERRIDE, state) : null)
         ?? monster_class_symbol(species?.mlet ?? 53, state);
+    const logicalGlyph = genderedMonsterGlyph(
+        mnum,
+        Ugender(state),
+        GLYPH_MON_MALE_OFF,
+        GLYPH_MON_FEM_OFF,
+    );
     const glyph = glyphPresentation(
         symbol,
         (showRace && !Upolyd(state.u))
             ? HI_DOMESTIC : species?.mcolor ?? CLR_WHITE,
         state,
+        glyph_customization(logicalGlyph, state),
     );
     // C ref: display.h hero_glyph (654-656). The hero's own square takes an
     // ordinary monster glyph, so reset_glyphmap()'s GLYPH_MON arm gives it
@@ -799,12 +809,7 @@ export function hero_glyph_info(state = game) {
     if (attr) glyph.attr = attr;
     return withLogicalGlyph(
         glyph,
-        genderedMonsterGlyph(
-            mnum,
-            Ugender(state),
-            GLYPH_MON_MALE_OFF,
-            GLYPH_MON_FEM_OFF,
-        ),
+        logicalGlyph,
     );
 }
 
@@ -829,7 +834,26 @@ function actualMonsterGlyphInfo(monster, state) {
         ? optional_misc_symbol(SYM_PET_OVERRIDE, state)
             ?? monster_class_symbol(monster.data.mlet, state)
         : monster_class_symbol(monster.data.mlet, state);
-    const glyph = glyphPresentation(symbol, monster.data.mcolor, state);
+    const mnum = monster.data?.pmidx;
+    const logicalGlyph = monster.mtame
+        ? genderedMonsterGlyph(
+            mnum,
+            monster.female,
+            GLYPH_PET_MALE_OFF,
+            GLYPH_PET_FEM_OFF,
+        )
+        : genderedMonsterGlyph(
+            mnum,
+            monster.female,
+            GLYPH_MON_MALE_OFF,
+            GLYPH_MON_FEM_OFF,
+        );
+    const glyph = glyphPresentation(
+        symbol,
+        monster.data.mcolor,
+        state,
+        glyph_customization(logicalGlyph, state),
+    );
     // C ref: display.h pet_to_glyph() (563-565) and mon_to_glyph() (554-556),
     // resolved through reset_glyphmap()'s pet arms (3036-3049) and ordinary
     // monster arms (3050-3065). Pet highlighting is a tty presentation
@@ -839,23 +863,7 @@ function actualMonsterGlyphInfo(monster, state) {
         state,
     );
     if (attr) glyph.attr = attr;
-    const mnum = monster.data?.pmidx;
-    withLogicalGlyph(
-        glyph,
-        monster.mtame
-            ? genderedMonsterGlyph(
-                mnum,
-                monster.female,
-                GLYPH_PET_MALE_OFF,
-                GLYPH_PET_FEM_OFF,
-            )
-            : genderedMonsterGlyph(
-                mnum,
-                monster.female,
-                GLYPH_MON_MALE_OFF,
-                GLYPH_MON_FEM_OFF,
-            ),
-    );
+    withLogicalGlyph(glyph, logicalGlyph);
     return withMonsterAccessibility(
         glyph,
         monster,
@@ -960,33 +968,32 @@ function presentedMonsterGlyphInfo(monster, state, detected) {
             'monster display requires the complete monster catalog',
         );
     }
+    const mnum = species.pmidx;
+    const logicalGlyph = detected
+        ? genderedMonsterGlyph(
+            mnum,
+            monster.female,
+            GLYPH_DETECT_MALE_OFF,
+            GLYPH_DETECT_FEM_OFF,
+        )
+        : genderedMonsterGlyph(
+            mnum,
+            monster.female,
+            GLYPH_MON_MALE_OFF,
+            GLYPH_MON_FEM_OFF,
+        );
     const glyph = glyphPresentation(
         monster_class_symbol(species.mlet, state),
         species.mcolor,
         state,
+        glyph_customization(logicalGlyph, state),
     );
     const attr = print_glyph_attr(
         (detected ? MG_DETECT : 0) | monsterGenderFlag(monster.female),
         state,
     );
     if (attr) glyph.attr = attr;
-    const mnum = species.pmidx;
-    withLogicalGlyph(
-        glyph,
-        detected
-            ? genderedMonsterGlyph(
-                mnum,
-                monster.female,
-                GLYPH_DETECT_MALE_OFF,
-                GLYPH_DETECT_FEM_OFF,
-            )
-            : genderedMonsterGlyph(
-                mnum,
-                monster.female,
-                GLYPH_MON_MALE_OFF,
-                GLYPH_MON_FEM_OFF,
-            ),
-    );
+    withLogicalGlyph(glyph, logicalGlyph);
     return withMonsterAccessibility(
         glyph,
         monster,
@@ -1011,10 +1018,17 @@ function riddenMonsterGlyphInfo(monster, state) {
             'ridden monster display requires the complete monster catalog',
         );
     }
+    const logicalGlyph = genderedMonsterGlyph(
+        species.pmidx,
+        monster.female,
+        GLYPH_RIDDEN_MALE_OFF,
+        GLYPH_RIDDEN_FEM_OFF,
+    );
     const glyph = glyphPresentation(
         monster_class_symbol(species.mlet, state),
         species.mcolor,
         state,
+        glyph_customization(logicalGlyph, state),
     );
     const attr = print_glyph_attr(
         MG_RIDDEN | monsterGenderFlag(monster.female), state,
@@ -1022,12 +1036,7 @@ function riddenMonsterGlyphInfo(monster, state) {
     if (attr) glyph.attr = attr;
     withLogicalGlyph(
         glyph,
-        genderedMonsterGlyph(
-            species.pmidx,
-            monster.female,
-            GLYPH_RIDDEN_MALE_OFF,
-            GLYPH_RIDDEN_FEM_OFF,
-        ),
+        logicalGlyph,
     );
     return withMonsterAccessibility(
         glyph, monster, species, state, 'ridden',
@@ -1053,10 +1062,17 @@ function mimickedMonsterGlyphInfo(monster, state) {
             'mimicked monster display requires the complete monster catalog',
         );
     }
+    const logicalGlyph = genderedMonsterGlyph(
+        speciesIndex,
+        monster.female,
+        GLYPH_MON_MALE_OFF,
+        GLYPH_MON_FEM_OFF,
+    );
     const glyph = glyphPresentation(
         monster_class_symbol(species.mlet, state),
         species.mcolor,
         state,
+        glyph_customization(logicalGlyph, state),
     );
     // display.c:578-581 passes mgendercode, which :524 read from the
     // *mimicking* monster's mon->female. The species on show is the
@@ -1065,12 +1081,7 @@ function mimickedMonsterGlyphInfo(monster, state) {
     if (attr) glyph.attr = attr;
     withLogicalGlyph(
         glyph,
-        genderedMonsterGlyph(
-            speciesIndex,
-            monster.female,
-            GLYPH_MON_MALE_OFF,
-            GLYPH_MON_FEM_OFF,
-        ),
+        logicalGlyph,
     );
     return withMonsterAccessibility(
         glyph, monster, species, state, 'disguise',
@@ -1145,7 +1156,7 @@ function warningGlyphInfo(monster, state) {
         symbol_at(SYM_OFF_W + warningLevel, state),
         def_warnsyms[warningLevel].color,
         state,
-        glyph_customization(`G_warning${warningLevel}`, state),
+        glyph_customization(warningLevel + GLYPH_WARNING_OFF, state),
     );
     withLogicalGlyph(glyph, warningLevel + GLYPH_WARNING_OFF);
     if (!state.a11y?.glyph_updates) return glyph;
@@ -1806,13 +1817,15 @@ export function map_glyphinfo(glyph, state = game) {
         color = NO_COLOR;
         glyphflags = MG_INVIS;
     }
-    let customization = null;
     if (cmap !== null) {
         symbol = cmap_symbol(cmap, state);
-        if (customizationName)
-            customization = glyph_customization(customizationName, state);
     }
-    const presentation = glyphPresentation(symbol, color, state, customization);
+    const presentation = glyphPresentation(
+        symbol,
+        color,
+        state,
+        glyph_customization(glyph, state),
+    );
     const attr = print_glyph_attr(glyphflags, state);
     if (attr) presentation.attr = attr;
     // The glyph number itself, which is what C stores in levl[x][y].glyph.

@@ -4874,6 +4874,7 @@
         "js/game_display.js",
         "js/glyph_ids.js",
         "js/glyph_offsets.js",
+        "js/glyphs.js",
         "js/symbol_data.js",
         "js/symbols.js"
       ],

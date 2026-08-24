@@ -20,16 +20,16 @@ import {
 import {
     NUM_OBJECTS,
 } from './objects.js';
-import {
-    S_arrow_trap,
-    S_brdnladder,
-    S_digbeam,
-    S_goodpos,
-    S_grave,
-    S_ndoor,
-    S_trwall,
-    S_vwall,
-} from './symbols.js';
+import { SYMBOL_INDEX_BY_NAME } from './symbol_data.js';
+
+const S_trwall = SYMBOL_INDEX_BY_NAME.s_trwall;
+const S_vwall = SYMBOL_INDEX_BY_NAME.s_vwall;
+const S_brdnladder = SYMBOL_INDEX_BY_NAME.s_brdnladder;
+const S_ndoor = SYMBOL_INDEX_BY_NAME.s_ndoor;
+const S_arrow_trap = SYMBOL_INDEX_BY_NAME.s_arrow_trap;
+const S_grave = SYMBOL_INDEX_BY_NAME.s_grave;
+const S_goodpos = SYMBOL_INDEX_BY_NAME.s_goodpos;
+const S_digbeam = SYMBOL_INDEX_BY_NAME.s_digbeam;
 
 // display.h:359. The number of zap beam types; four cmap symbols per type.
 export const NUM_ZAP = 8;

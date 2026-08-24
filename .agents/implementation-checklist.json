@@ -1,10 +1,10 @@
 {
-  "mode": "implementation",
-  "reason": "The full startup glyph customization path is live on the initial map but unported. Work remains across optfn_glyph parsing, generated concrete and symbolic catalogs, custom Unicode/color state, symbol-set ownership, object shuffle ordering, and application to every reachable glyph range.",
-  "commitChecked": "13f9b702ada21ac315c05f32532fbb47b671b24b",
+  "mode": "ready-for-audit",
+  "reason": "The complete startup glyph customization boundary is source-reviewed, implemented, and validated against a strict ten-segment patched-C matrix. The generated 9,624-entry G_* catalog and complete S_* fanout feed one glyphs.c-owned state path through primary/rogue association, Unicode and color application, post-init object-description shuffling, the first map, and the next command.",
+  "commitChecked": "db674a51f9f998c2ca919af3e00cb7f1e97ca481",
   "boundary": {
     "goalId": "options-config-parser",
-    "startingCommit": "13f9b702ada21ac315c05f32532fbb47b671b24b",
+    "startingCommit": "db674a51f9f998c2ca919af3e00cb7f1e97ca481",
     "startingEvent": "Startup parseoptions() dispatches a glyph compound option from OPTIONS in the player configuration.",
     "endingEvent": "initoptions_finish and moveloop preparation have installed and applied every customization, and the first complete map and next command boundary have been captured.",
     "validInputs": "Concrete G_* glyph identifiers; S_* cmap, object-class, and monster-class identifiers; selected default or rogue symbol sets; Unicode and enhanced/named color specifications; duplicates, malformed values, negation, and source ordering within the recorder build.",
@@ -16,7 +16,7 @@
     "dispatchTablesAndCatalogs": "optlist.h glyph row, generated glyph identifiers and ranges, cmap symbol catalogs, object classes, monster classes, primary/rogue symbol-set state, enhanced color names, and object description index tables.",
     "reachableHelpers": "Trace every parse and expansion branch from optfn_glyph through queued custom entries, reset_glyphmap/application, and the first display; include diagnostics, replacement, ordering, and object-shuffle dependencies before map output.",
     "javascriptCrossCheck": "Search options.js, symbols.js, display.js, allmain.js, generated glyph/symbol data, and explicit unported refusals for raw glyph retention, duplicate state owners, skipped ranges, and before-effect boundaries.",
-    "remainingLimits": "The catalog and full application ranges still require source review. Fresh strict witnesses currently prove only one concrete G_* hero glyph and one S_human class expansion; passing those samples is not completeness evidence."
+    "remainingLimits": "No in-boundary source branch remains. Unicode custom glyph bytes and true-RGB terminal escapes are intentionally absent from NOMUX recorder cells because the comparison patch does not mirror g_pututf8() or term_start_extracolor(); browser projection is pinned separately. The last selected primary or rogue slot owns a later glyph row even when that slot is inactive. Interactive edits, GUI-only behavior, later changes, WIZKIT, and SYMBOLS=G_* application remain excluded."
   },
   "entries": [
     {
@@ -24,151 +24,119 @@
       "reachability": "OPTIONS=glyph reaches the compound handler during startup, including missing, empty, negated, malformed, and duplicate values.",
       "owner": "js/options.js optfn_glyph",
       "effects": "Reports exact source diagnostics, preserves or replaces queued state in source order, and leaves the source getter placeholder visible.",
-      "evidence": "options.c optfn_glyph and a fresh pre-slice malformed-row divergence.",
-      "status": "missing",
-      "remaining": "Port the complete startup do_set/get_val behavior and pin duplicate and later-line precedence."
+      "evidence": "options.c optfn_glyph; scripts/glyph-customization.test.mjs pins empty, valid, diagnostics, operation ownership, and the literal getter; the ten-segment fresh matrix reaches the first command.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Concrete G_* glyph identifier catalog",
       "reachability": "A case-sensitive G_ prefix selects one generated concrete glyph id, with case-insensitive lookup of the remaining source name.",
       "owner": "js/glyphs.js and generated glyph-id data",
       "effects": "Queues Unicode and/or color customization for exactly one concrete glyph.",
-      "evidence": "Fresh seed 940101 reaches G_male_healer on the first map with exact PRNG/cursor counts and a hero-cell attribute mismatch.",
-      "status": "missing",
-      "remaining": "Generate the full source catalog and implement exact lookup, bounds, and error behavior."
+      "evidence": "js/glyph_ids.js derives and asserts all 9,624 glyph-number-aligned entries from generated source data; focused family assertions and fresh seed 940101 G_male_healer pass strictly.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "S_* cmap symbol expansion",
       "reachability": "An S_ identifier naming a cmap symbol expands through every concrete glyph range represented by that symbol.",
       "owner": "js/glyphs.js and js/symbols.js",
       "effects": "Queues source-ordered customization entries for all matching cmap glyphs in the selected symbol-set context.",
-      "evidence": "glyphs.c symbolic expansion branches; S_room is a non-discriminating Unicode-to-Unicode recorder control and cannot stand alone as proof.",
-      "status": "missing",
-      "remaining": "Port the complete cmap fan-out and validate a source-visible discriminator plus range-state assertions."
+      "evidence": "Focused assertions cover stone, five wall branches, cmap A/B/C, five altars, eight zap types, every swallow monster, seven explosion types, and parse_id's empty-success S_nothing fencepost; fresh S_altar state and strict screens pass.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "S_* object-class expansion",
-      "reachability": "An S_ identifier naming an object class expands over every matching object glyph, including description-index-sensitive objects.",
+      "reachability": "An S_ identifier naming an object class expands to the normal and piletop generic class glyphs for which glyph_to_obj(glyph)==class; it does not select every concrete object whose oc_class matches.",
       "owner": "js/glyphs.js with js/objects.js data",
       "effects": "Queues customization records whose application must follow the recorder's shuffled object description indexes.",
-      "evidence": "glyphs.c object-class branch and moveloop pending_customizations ordering.",
-      "status": "missing",
-      "remaining": "Trace and port the full class fan-out and prove ordering around object description shuffling."
+      "evidence": "glyphs.c glyph_find_core find_oc comparison; focused S_weapon asserts exactly two generic glyphs, and the fresh S_weapon segment plus concrete G_long_sword shuffle segment pass.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "S_* monster-class expansion",
       "reachability": "An S_ identifier naming a monster class expands over every matching monster glyph and sex/form variant in the generated ranges.",
       "owner": "js/glyphs.js with js/monsters.js data",
       "effects": "Queues customization for every source-selected monster glyph before first display.",
-      "evidence": "glyphs.c monster-class branch; fresh seed 940105 S_human is a strict initial-map discriminator.",
-      "status": "missing",
-      "remaining": "Port the complete generated-range fan-out and validate representative class state and screen effects."
+      "evidence": "Focused generated-data assertions cover normal, pet, detected, and ridden male/female ranges for every matching monster; fresh seed 940105 S_human is strict through the next command.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Primary and rogue symbol-set ownership",
       "reachability": "Glyph names and S_* expansion resolve against gs.symset_which_set and the last loaded primary or rogue symbol set, including unnamed/default and failed named selection.",
       "owner": "js/symbols.js and js/glyphs.js",
       "effects": "Selects the correct base symbols, handling flags, colors, and diagnostics without creating a duplicate owner.",
-      "evidence": "symbols.c symbol-set state and glyphs.c selected-set branches.",
-      "status": "missing",
-      "remaining": "Trace default, named, missing, and rogue-set cases through queued customization and application."
+      "evidence": "Focused named/default/unaffiliated/rogue and legacy IBM cases pin gs.symset_which_set as last-selected-set association; fresh named/default/unaffiliated/rogue cases are strict, and the inactive rogue record remains owned but unapplied.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Unicode customization records",
       "reachability": "A valid U+ codepoint suffix creates or replaces a custom Unicode representation entry for each selected glyph.",
       "owner": "js/glyphs.js add_custom_urep_entry",
-      "effects": "Stores source-shaped codepoint and representation metadata and changes the first map character/attributes where visible.",
-      "evidence": "glyphs.c add_custom_urep_entry and strict U+2603 fresh witnesses.",
-      "status": "missing",
-      "remaining": "Port validation, replacement, ordering, reset, and application for valid and malformed Unicode forms."
+      "effects": "Stores source-shaped codepoint and representation metadata. H_UTF8 browser projection sees it, while NOMUX recorder cells remain untouched because patch 006 does not mirror g_pututf8().",
+      "evidence": "utf8map.c unicode_val and glyphs.c add_custom_urep_entry; focused malformed/suffix/range/replacement tests and strict U+2603 witnesses pass with the recorder limitation explicit.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Enhanced, named, RGB, and black-marker color records",
       "reachability": "A glyph value supplies an enhanced color name or RGB triple, including the source marker that distinguishes explicit black/default handling.",
       "owner": "js/glyphs.js and js/coloratt.js",
       "effects": "Stores source-shaped custom color state and changes glyph attributes without changing unrelated symbol state.",
-      "evidence": "glyphs.c add_custom_nhcolor_entry and coloratt.c enhanced color parsing; strict fresh RGB witnesses.",
-      "status": "missing",
-      "remaining": "Port every accepted color family, rejection, marker, replacement, and canonical value."
+      "evidence": "coloratt.c onlyhexdigits/rgbstr_to_int32 and glyphs.c color entries; focused RGB, basic, enhanced-name, explicit-black, malformed, and replacement cases pass. Fresh RGB/basic/black cases are strict; true RGB remains browser-visible but NOMUX does not mirror term_start_extracolor().",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Duplicate replacement and source ordering",
       "reachability": "Several glyph rows or S_* fan-outs target the same concrete glyph within one line or across later lines.",
       "owner": "js/glyphs.js custom entry lists",
       "effects": "Source list insertion/replacement order determines the final Unicode/color state before application.",
-      "evidence": "glyphs.c add_custom_* and apply_customizations list traversal.",
-      "status": "missing",
-      "remaining": "Pin right-to-left parse order, later-line order, and independent Unicode/color replacement."
+      "evidence": "Focused list assertions pin in-place replacement and independent slot ownership; the fresh S_human then G_male_healer case proves later concrete replacement on the live hero.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Application across every concrete glyph range",
       "reachability": "initoptions_finish resets the glyph map and applies queued entries before the first display.",
       "owner": "js/glyphs.js apply_customizations and js/display.js",
       "effects": "Updates every source range and preserves defaults for untouched glyphs, producing exact map characters and attributes.",
-      "evidence": "glyphs.c reset_glyphmap/apply_customizations and display consumers.",
-      "status": "missing",
-      "remaining": "Inventory all generated ranges and validate state plus complete first-map output, not only hero cells."
+      "evidence": "Generated range assertions exercise every parse_id family and numeric display consumers now query the sole installed glyph map; ten fresh segments match all 21 complete screens/cursors and 26,063 PRNG calls.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Pending customization and object shuffle order",
       "reachability": "Object description indexes are randomized during startup before pending glyph customizations that depend on them are installed.",
       "owner": "js/allmain.js moveloop preparation and js/glyphs.js",
-      "effects": "Preserves source PRNG order and maps object-class customizations to the post-shuffle description indexes.",
-      "evidence": "allmain.c pending_customizations path and objects oc_descr_idx initialization.",
-      "status": "missing",
-      "remaining": "Port the exact lifecycle hook and validate PRNG logs and object customization state through first command."
+      "effects": "Preserves source PRNG order and maps both concrete-object Unicode and color customizations to post-shuffle description indexes in normal and piletop ranges.",
+      "evidence": "allmain.c maybe_shuffle_customizations and o_init.c indexes; focused remap assertion plus fresh G_long_sword installed-state verification pass after pending state clears at the next command.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Getter, config formatter, and optionsfull boundary",
       "reachability": "The configured glyph row is queried by existing option display/config formatting paths.",
       "owner": "js/options.js",
       "effects": "Matches the source '(to be done)' get_val behavior and does not falsely claim interactive editing or serialization support.",
-      "evidence": "options.c optfn_glyph getter branch and TTY capability filtering.",
-      "status": "missing",
-      "remaining": "Pin the exact source placeholder and named before-effect exclusions."
+      "evidence": "Focused optionValue assertion pins '(to be done)'; exclusions remain named in the checklist boundary and no interactive mutation path was added.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "SYMBOLS=G_* validation without application",
       "reachability": "A SYMBOLS row can name G_* syntax through the symbol parser, but this boundary does not make it an OPTIONS=glyph customization.",
       "owner": "js/symbols.js",
       "effects": "Validates or retains source symbol-set metadata without changing the first map through the glyph customization list.",
-      "evidence": "symbols.c parser versus options.c optfn_glyph dispatch separation.",
-      "status": "undecided",
-      "remaining": "Trace the exact nonapplication contract and add a fresh or focused control."
+      "evidence": "symbols.c parsesymbols guard and the focused standalone SYMBOLS=G_male_healer control prove validation without glyph-map application.",
+      "status": "done",
+      "remaining": ""
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "Generated glyph identity and expansion",
-      "candidates": [
-        "Concrete G_* glyph identifier catalog",
-        "S_* cmap symbol expansion",
-        "S_* object-class expansion",
-        "S_* monster-class expansion"
-      ],
-      "next": "Generate complete source catalogs and implement glyph_find_core and parse_id expansion without hand-copied partial tables."
-    },
-    {
-      "group": "Parser and customization state",
-      "candidates": [
-        "optfn_glyph startup syntax and diagnostics",
-        "Primary and rogue symbol-set ownership",
-        "Unicode customization records",
-        "Enhanced, named, RGB, and black-marker color records",
-        "Duplicate replacement and source ordering"
-      ],
-      "next": "Port source-shaped option parsing and sole custom-entry ownership, then pin diagnostics and replacement order."
-    },
-    {
-      "group": "Startup application and display",
-      "candidates": [
-        "Application across every concrete glyph range",
-        "Pending customization and object shuffle order",
-        "Getter, config formatter, and optionsfull boundary",
-        "SYMBOLS=G_* validation without application"
-      ],
-      "next": "Install queued state at the source lifecycle point and validate PRNG, complete maps, attributes, cursors, getters, and excluded syntax."
-    }
-  ],
-  "sourceReview": "Incomplete. The selector traced optfn_glyph, glyphrep_to_custom_map_entries, glyph_find_core, parse_id, custom Unicode/color entry creation, initoptions_finish, and the pending-customization hook sufficiently to prove the boundary and strict G_* and S_* witnesses. The worker must still enumerate every generated glyph range and every valid input family, confirm source list and replacement semantics, and identify all JavaScript stops or duplicate owners before readiness."
+  "missingWorkByOwner": [],
+  "sourceReview": "Complete for the declared boundary. options.c optfn_glyph do_set/get_val and legacy DEC/IBM selection, glyphs.c parsing and every parse_id/glyph_find_core G_*/S_* family, utf8map.c Unicode conversion, coloratt.c enhanced/basic/RGB parsing, symbols.c primary/rogue lifecycle and unaffiliated diagnostics, options.c initoptions_finish, o_init.c description shuffling, allmain.c pending application, display.c glyph consumers, and NOMUX patch visibility were read end to end. The only object-class expansion is glyph_to_obj(glyph)==class, which yields generic normal and piletop class glyphs rather than every concrete class member. parse_id's inclusive monster-class loop admits S_nothing, the first post-monster loadsyms row, as an empty successful expansion and rejects later misc rows. Unicode g_pututf8() and true-RGB term_start_extracolor() are browser-visible but not mirrored into recorder cells. Later glyph rows remain associated with the last successfully selected set, including RogueIBM after a complete legacy IBM load, not automatically with the active primary set. No in-boundary JavaScript stop or duplicate owner remains."
 }

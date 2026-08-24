@@ -35,7 +35,6 @@ const CONSTANT_MODULES = [
     { path: join(PROJECT_ROOT, 'js', 'const.js'), specifier: './const.js' },
     { path: join(PROJECT_ROOT, 'js', 'monsters.js'), specifier: './monsters.js' },
     { path: join(PROJECT_ROOT, 'js', 'objects.js'), specifier: './objects.js' },
-    { path: join(PROJECT_ROOT, 'js', 'symbols.js'), specifier: './symbols.js' },
 ];
 
 const checkOnly = process.argv.length === 3 && process.argv[2] === '--check';
@@ -151,13 +150,24 @@ function importPlan(identifiers, selfDefined) {
 }
 
 function generatedSource(members, numZap) {
-    const plan = importPlan(freeIdentifiers(members), new Set(['NUM_ZAP']));
+    const free = freeIdentifiers(members);
+    const symbolNames = [...free].filter((name) => /^S_/u.test(name));
+    const plan = importPlan(
+        free,
+        new Set(['NUM_ZAP', ...symbolNames]),
+    );
     const imports = [...plan.entries()]
         .filter(([, names]) => names.length)
         .map(([specifier, names]) => (
             `import {\n${names.map((name) => `    ${name},`).join('\n')}\n} from '${specifier}';`
         ))
         .join('\n');
+    const symbolImport = symbolNames.length
+        ? "import { SYMBOL_INDEX_BY_NAME } from './symbol_data.js';"
+        : '';
+    const symbolConstants = symbolNames.map((name) => (
+        `const ${name} = SYMBOL_INDEX_BY_NAME.${name.toLowerCase()};`
+    )).join('\n');
     const lines = members.map(({ name, expression, implicit }) => (
         implicit
             ? `// One past the last range, which is C's value for a bare final member.\nexport const ${name} = ${expression};`
@@ -175,6 +185,9 @@ function generatedSource(members, numZap) {
 // its arms must be tested in.
 
 ${imports}
+${symbolImport}
+
+${symbolConstants}
 
 // display.h:359. The number of zap beam types; four cmap symbols per type.
 export const NUM_ZAP = ${numZap};

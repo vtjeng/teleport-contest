@@ -47,6 +47,7 @@ import {
     UnsupportedMonsterCreationError,
 } from './makemon_create.js';
 import { init_objects } from './o_init.js';
+import { maybe_shuffle_customizations } from './glyphs.js';
 import { UnsupportedObjectNameError } from './objnam.js';
 import { UnsupportedObjectOperationError } from './obj.js';
 import { UnsupportedMonsterPickupOperationError } from './steal.js';
@@ -1159,6 +1160,8 @@ async function advanceElapsedTurn(state) {
 // C ref: allmain.c moveloop_core()
 export async function moveloop_core() {
     const g = game;
+
+    maybe_shuffle_customizations(g);
 
     // C gates its entire elapsed-time block on the preceding command's
     // context.move value. Capture that value before the next command dispatch
