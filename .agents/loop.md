@@ -13,23 +13,21 @@ implementation slices that follow the C source, within the limits in
 Implementation and review alternate inside one goal. Four agents share that
 work, and each agent performs exactly one role.
 
-- The **goal-selector** runs when no goal is in progress. It applies
-  `.agents/selection.md` to propose the next goal, without modifying any
-  files; the slice-selector divides the goal once it is in progress.
-  `.claude/agents/goal-selector.md` is its brief (the instruction file
-  loaded when the agent spawns).
-- The **slice-selector** runs while a goal is in progress. It applies
-  `.agents/selection.md` to identify the next slice inside that goal,
-  without modifying any files. `.claude/agents/slice-selector.md` is its
-  brief.
-- The **worker** closes exactly one slice, taking it from queued to closed in
-  a single run: trace it to upstream source, implement it, record a fresh
-  case with the C reference program and replay it as `.agents/validation.md`
-  requires, and commit the result. A worker that cannot reach that state
-  reports what blocked it without committing, so the slice stays queued. It
-  does not run a formal review pass or check the review-debt gate, and
-  records only deferrals through `npm run quality -- defer`.
-  `.claude/agents/slice-worker.md` is its brief.
+- The **goal-selector** (`.claude/agents/goal-selector.md`) runs when no
+  goal is in progress. It applies `.agents/selection.md` to propose the next
+  goal, without modifying any files; the slice-selector divides the goal
+  once it is in progress.
+- The **slice-selector** (`.claude/agents/slice-selector.md`) runs while a
+  goal is in progress. It applies `.agents/selection.md` to identify the
+  next slice inside that goal, without modifying any files.
+- The **worker** (`.claude/agents/slice-worker.md`) closes exactly one slice,
+  taking it from queued to closed in a single run: trace it to upstream
+  source, implement it, record a fresh case with the C reference program
+  and replay it as `.agents/validation.md` requires, and commit the result.
+  A worker that cannot reach that state reports what blocked it without
+  committing, so the slice stays queued. It does not run a formal review
+  pass or check the review-debt gate, and records only deferrals through
+  `npm run quality -- defer`.
 - The **orchestrator** spawns the other three, measures independently what the
   worker landed, and owns every formal review pass.
 
@@ -139,18 +137,12 @@ with the work that ended the phase.
 
 Spawn a subagent only at the step that calls for one, and spawn a fresh one
 each time; none of them persists between steps. Spawn each one by its agent
-type (such as `slice-worker`), which loads both the brief and the model its
-definition file specifies; copying the brief text into a prompt bypasses the
-model selection. Run it in the background and let its completion notification
-advance the loop.
+type (such as `slice-worker`), not by copying its instructions into a prompt.
 
-When the loop runs under `/loop`, the wake signal is a worker or a pass
-completing, and the scheduled wakeup is only a watchdog against a broken
-notification chain. Set the wakeup to a long interval while work is in
-flight and a short one when idle, and advance the loop only
-on the wake signal. End the loop with `ScheduleWakeup stop` only for one of
-those three stop cases; running low on context is not a reason to stop,
-because the loop survives context-window compaction.
+When the loop runs under `/loop`, set a long wakeup interval while work is
+in flight and a short one when idle. End the loop with `ScheduleWakeup stop`
+only for one of those three stop cases; running low on context is not a
+reason to stop.
 
 ## The report per worker iteration
 

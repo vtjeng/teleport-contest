@@ -8,10 +8,9 @@ chunk, a behavior slice, a goal, and a review window.
 
 A **formal review pass** is an independent structured review of a frozen
 committed range, in one of four kinds: correctness, clarity, simplification,
-and copyediting. The orchestrator invokes the skill named for the kind it needs,
-which runs its reviewers as parallel subagents and reports possible problems;
-the orchestrator then reviews each finding and applies only confirmed fixes. All
-four kinds follow the process rules in "Running formal review passes" below.
+and copyediting. The orchestrator invokes the skill for the pass it needs,
+reviews each reported finding, and applies only confirmed fixes. All four
+kinds follow the process rules in "Running formal review passes" below.
 
 **Audit** means a formal review pass. The word is fixed in the skill names
 `/audit-diff-correctness` and `/audit-diff-clarity`, and in the `Audit-fix-for:`
@@ -319,9 +318,8 @@ copyediting passes:
 - These instructions authorize the orchestrator to launch a required pass
   without separate confirmation. They authorize neither holdout access nor
   sharing repository material outside that pass.
-- Launch each pass by invoking its named skill with the Skill tool, from the
-  orchestrator only. The skill runs its own reviewers as parallel subagents. Do
-  not override the model or reasoning effort the skill selects unless the user
+- Launch each pass by invoking its skill from the orchestrator only. Do not
+  override the model or reasoning effort the skill selects unless the user
   asks for it.
 - Give reviewers only the exact committed range or document snapshots, affected
   areas, relevant sources or artifacts, compact prior validation, decided
@@ -350,13 +348,11 @@ preserve PRNG and evaluation order.
 
 ### Launching a formal review pass
 
-- A pass runs as a background task and returns through a task notification. Do
-  not relaunch one that is still running: a second launch restarts the pass at
-  zero and produces a duplicate pass over the same head. When a pass returns a
+- Do not relaunch a pass that is still running — a second launch restarts at
+  zero and produces a duplicate over the same head. When a pass returns a
   result that looks wrong, read its transcript before relaunching it. The
-  individual reviewer results are usually intact, and only the step that
-  combines them into the pass result failed. Re-running that combination step
-  alone repairs the result.
+  individual reviewer results are usually intact, and only the combination
+  step failed; rerunning that step alone repairs the result.
 
 ## Recording formal review passes
 

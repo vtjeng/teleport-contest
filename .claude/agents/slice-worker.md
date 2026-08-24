@@ -53,9 +53,8 @@ when validation leaves a case outside the goal's limit. The goal list in
 `GOALS.json` and the review and simplification entries in `QUALITY.json`
 belong to the orchestrator, including on the last slice of a goal.
 
-Do not run formal review passes or launch reviewer skills: a subagent has
-no `Workflow` tool, so the bundled audit skills cannot start from a slice
-worker. If the chunk looks like it needs a pass, say so in your report.
+Do not run formal review passes or launch reviewer skills. If the chunk
+looks like it needs a pass, say so in your report.
 
 Never run `scripts/score-holdout.mjs` and never touch `sessions/holdout/`,
 directly or through a subagent.
