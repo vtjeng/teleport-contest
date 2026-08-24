@@ -389,3 +389,47 @@ measures whether the tests notice a change; it cannot notice that the tests
 agree with the code against the source. This proposal does not detect that
 fault, and the only instrument that has detected it is a reviewer reading the C
 source.
+
+## Reuse compiled code and shard the development scorer
+
+**What it changes.** `scripts/run-test-suite.mjs` and `childEnvironment()` in
+`scripts/mutate-sites.mjs` would set `NODE_COMPILE_CACHE` on the `node --test`
+children they spawn, so each process reads compiled code from Node 22's
+cross-process cache instead of compiling the `js/` graph again.
+`scripts/score-development.mjs` would split the 33 development sessions across
+several workspace copies, run one `frozen/ps_test_runner.mjs` per copy
+concurrently, and merge their `__RESULTS_JSON__` bundles. Both cut runner
+overhead and leave the tests and the replay themselves unchanged.
+
+**Scope.** One `env` assignment at each of the two spawn sites, and a shard loop
+in `score-development.mjs` over `createScoringWorkspace()`, `runScorer()`, and
+`parseRunnerBundle()` from `scripts/scoring-workspace.mjs`, plus a test for
+each. `frozen/` stays untouched because the scorer owns it.
+`scripts/score-holdout.mjs` calls the same three helpers and could take the
+sharded path later.
+
+**What prompted it.** A measurement on 24 August 2026, on a clean worktree at
+`6d10947` and this project's 5-core/10-thread host, one run per configuration:
+`npm test` takes 59.5 s wall and 530 CPU-seconds over 297 test files and 4,868
+tests, and `node --test` keeps about 9 of 10 logical CPUs busy, so savings must
+come from doing less work rather than from more parallelism. Each test process
+spends about 0.33 s booting Node and importing the cyclic `js/` graph (165
+modules, 5.3 MB), which is about 98 CPU-seconds across the 297 files, or 18% of
+the suite. A warm `NODE_COMPILE_CACHE` ran the same suite in 55.8 s, 6% under
+that baseline. `scripts/score-development.mjs` takes 19.7 s, of which about 8 s
+is replay: `frozen/ps_test_runner.mjs:464` spawns one worker per session and
+waits for it before the next, so 33 processes import the graph one after
+another. Every slice worker pays both costs on each `npm run checkpoint`, and
+`mutate-sites.mjs` reruns test waves once per mutant, which its header
+extrapolates to 26 to 52 minutes for a full review pass.
+
+**Cost.** Small. The env var needs no other change, because Node invalidates its
+own entries when a source file changes. Sharding adds one workspace copy per
+shard and a merge step; 4-way sharding is estimated at about 5 s wall, derived
+from the 19.7 s and 8 s figures above rather than measured.
+
+**What it leaves unfixed.** The compile cache removes compilation but not module
+import and execution, so part of the 0.33 s per process survives it. A mutation
+wave still compiles the mutated module fresh, and the 6% figure was measured on
+the full suite rather than on a wave. Neither change shortens a `--whole-suite`
+escalation, whose cost is the tests running rather than the runner starting.
