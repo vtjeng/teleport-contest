@@ -159,19 +159,9 @@ during validation.
   line the run prints; where it reports zero,
   `--whole-suite` is not optional.
 
-## Score estimates
-
-Each completed implementation chunk needs a score estimate with three parts:
-the development-session score (shown), the holdout score (hidden), and their
-sum (total). Format the estimate as:
-
-`<shown> shown + <hidden> hidden = <total> total`
-
-Report current published aggregate results when available; otherwise estimate
-from development and fresh-differential evidence and state the uncertainty.
-Never run the sealed holdout merely to produce an estimate.
+## Scoring
 
 A scoring run writes no `SCORE.tsv` row, so `npm run checkpoint` leaves the tree
 as it found it. `.agents/scoring.md` states how the orchestrator records every
 `SCORE.tsv` event row and what an authorized holdout evaluation triggers when it
-has no carry-over.
+has no carry-over. Never run the sealed holdout merely to produce an estimate.

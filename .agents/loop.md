@@ -108,7 +108,7 @@ a batching threshold outside the frozen range is either cleared or exempt.
 Clear that debt when declaring readiness; implementation may continue while
 it accumulates.
 
-`AGENTS.md` lists the four cases that stop this loop for the user. Nothing
+`AGENTS.md` lists the three cases that stop this loop for the user. Nothing
 else stops it; an iteration ending at a clean committed state is a reason to
 start the next. End each turn with a subagent or a pass running, or with the
 next step started.
@@ -138,12 +138,10 @@ because scoring runs do not append `SCORE.tsv` rows.
 with the work that ended the phase.
 
 Spawn a subagent only at the step that calls for one, and spawn a fresh one
-each time; none of them persists between steps. a worker to take the next queued slice from queued to closed, a
-slice-selector when the goal in progress has no queued slice left, a
-goal-selector when no goal is queued. Spawn each one by its agent type (such
-as `slice-worker`), which loads both the brief and the model its definition
-file specifies; copying the brief text into a prompt bypasses the model
-selection. Run it in the background and let its completion notification
+each time; none of them persists between steps. Spawn each one by its agent
+type (such as `slice-worker`), which loads both the brief and the model its
+definition file specifies; copying the brief text into a prompt bypasses the
+model selection. Run it in the background and let its completion notification
 advance the loop.
 
 When the loop runs under `/loop`, the wake signal is a worker or a pass
@@ -151,7 +149,7 @@ completing, and the scheduled wakeup is only a watchdog against a broken
 notification chain. Set the wakeup to a long interval while work is in
 flight and a short one when idle, and advance the loop only
 on the wake signal. End the loop with `ScheduleWakeup stop` only for one of
-those four stop cases; running low on context is not a reason to stop,
+those three stop cases; running low on context is not a reason to stop,
 because the loop survives context-window compaction.
 
 ## The report per worker iteration

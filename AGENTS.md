@@ -314,7 +314,6 @@ only for:
 
 - a holdout evaluation outside the close of a goal;
 - a change to which sessions belong to the development and holdout sets;
-- publishing anything outside this repository;
 - a decision not covered by this file or any file it references.
 
 Report progress when the user asks and when the loop stops. Do not stop merely

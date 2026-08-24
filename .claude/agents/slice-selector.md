@@ -46,8 +46,5 @@ Briefly report the one slice you identified:
   functions to port, and where the running game reaches them.
 - What the slice would move past that boundary: the number of development
   sessions that stop there and their recorded steps, both as upper bounds.
-- The runner-up: the candidate you came closest to selecting under the rules
-  in `.agents/selection.md`, with one sentence on why you chose the reported
-  slice and one on why the runner-up was set aside.
 - Anything about porting this slice that you expect to be complicated, and
   why.

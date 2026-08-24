@@ -58,11 +58,7 @@ For every coherent implementation chunk:
    `npm run quality` cannot measure files that are not yet committed.
 3. Commit the implementation, then run `npm run quality` to display the
    scheduling dashboard.
-4. Directly review source behavior, PRNG and evaluation order, parsing, state
-   ownership, persistence, input boundaries, and rendering. Small mechanical
-   or test-only changes may rely on immediate diff inspection and tests, but
-   include them in the next scheduled correctness pass.
-5. Collect score and validation evidence for the current behavior slice or
+4. Collect score and validation evidence for the current behavior slice or
    review window. The slice-worker subagent (`.claude/agents/slice-worker.md`)
    reports the score and validation evidence; the orchestrator then appends
    the `SCORE.tsv` row as `.agents/scoring.md` states. Do not
