@@ -3362,8 +3362,8 @@
       "slices": [
         {
           "name": "name-command-cancel-menu-dismiss",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0bcbc844393dac0fea19cde7923dea68ef030f5b"
         }
       ],
       "openedAt": "61de642040650c62c7516217c069486c1bbfb72b",
