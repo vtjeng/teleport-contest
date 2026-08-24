@@ -259,7 +259,9 @@ export function summarizeDuplicateSymbols({ stdout = '' }) {
  * Survivors are evidence and never a failure. The mutator exits 2 without
  * measuring anything when the tests covering the changed modules are red, and
  * the suite check above has already reported that, so this reports itself
- * skipped.
+ * skipped. It also exits 2 when its host probe finds the lock directory or
+ * user systemd unavailable, which is what running inside a command sandbox
+ * looks like; that skip names the remedy.
  */
 export function summarizeMutation({ stdout = '', stderr = '', status }) {
     const output = `${stdout}${stderr}`;

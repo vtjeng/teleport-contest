@@ -91,8 +91,11 @@
 // own set, which `scripts/mutate-sites.integration.mjs` asserts against
 // whichever commit last changed js/.
 //
-// Every CLI form acquires one local exclusivity lock and creates a uniquely
-// named aggregate slice. The slice contains the outer mutator and every wave,
+// Every CLI form first probes the two host facilities it depends on -- a
+// writable lock directory and a reachable user systemd manager -- and exits 2
+// with the observed error and the likely cause when either is missing, which
+// is the failure mode inside a command sandbox. It then acquires one local
+// exclusivity lock and creates a uniquely named aggregate slice. The slice contains the outer mutator and every wave,
 // caps their combined memory at 8 GiB, disables swap, and permits at most 512
 // tasks. Each wave remains capped at 1 GiB and 64 tasks. The lock refuses a
 // second local run without giving that contender any unit it could stop. The
@@ -493,6 +496,45 @@ export function releaseMutationLock(lock) {
         throw new Error(`mutation lock ownership changed at ${lock.lockPath}`);
     }
     rmSync(lock.lockPath, { recursive: true, force: true });
+}
+
+/**
+ * Confirm the host facilities every CLI run needs before taking the lock or
+ * creating any unit: a writable lock directory and a reachable user systemd
+ * manager. A command sandbox denies both (EROFS under /run/user, `Failed to
+ * connect to bus` from systemd-run), and without this check those errors
+ * surface mid-run, after setup work is already spent. The probe cannot tell
+ * a sandbox from a genuinely broken user systemd, so its message quotes the
+ * observed error and names the sandbox as the likely cause, not the certain
+ * one.
+ */
+export function probeMutationHost({
+    lockPath = process.env.TELEPORT_MUTATION_LOCK ?? DEFAULT_MUTATION_LOCK,
+    execute = spawnSync,
+} = {}) {
+    const probePath = `${lockPath}.probe.${process.pid}`;
+    try {
+        writeFileSync(probePath, '');
+        rmSync(probePath, { force: true });
+    } catch (error) {
+        throw new Error(`mutation host probe: cannot create ${probePath} `
+            + `(${error.code ?? error.message}); a command sandbox is the `
+            + 'likely cause, so rerun outside it');
+    }
+    const result = execute('systemctl', ['--user', 'is-system-running'], {
+        encoding: 'utf8',
+        env: { ...process.env, LC_ALL: 'C' },
+    });
+    // is-system-running exits non-zero for every state but "running" and
+    // still prints the state word, so reachability is stdout being non-empty,
+    // not the exit status.
+    if (result.error || !(result.stdout ?? '').trim()) {
+        const detail = result.error?.message
+            ?? ((result.stderr ?? '').trim() || 'no response');
+        throw new Error('mutation host probe: user systemd is unreachable '
+            + `(${detail}); a command sandbox is the likely cause, so rerun `
+            + 'outside it');
+    }
 }
 
 export function runSystemctl(args, action, {
@@ -2795,6 +2837,7 @@ if (!isMainThread) {
         if (isVerifiedMutationWorker()) {
             await main(process.argv.slice(2));
         } else {
+            probeMutationHost();
             process.exitCode = await runInMutationCgroup(
                 SCRIPT_PATH, process.argv.slice(2));
         }

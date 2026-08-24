@@ -258,6 +258,28 @@ test('a red covering suite skips the mutation check instead of failing it',
             'the mutator exited 3');
     });
 
+test('a failed host probe skips the mutation check and names the remedy',
+    () => {
+        // The stderr line is what the mutator's probeMutationHost() prints
+        // through the CLI when a command sandbox blocks the user bus; the
+        // parenthesised detail is the verbatim systemd error such a sandbox
+        // produces. The summary must map it to the skip reason that tells the
+        // reader to rerun outside the sandbox rather than the generic
+        // exited-2 reason.
+        const probed = summarizeMutation({
+            stdout: '',
+            stderr: 'mutate-sites: mutation host probe: user systemd is '
+                + 'unreachable (Failed to connect to bus: Operation not '
+                + 'permitted); a command sandbox is the likely cause, so '
+                + 'rerun outside it',
+            status: 2,
+        });
+
+        assert.equal(probed.skipped, true);
+        assert.equal(probed.detail, 'the mutation host probe failed, so no '
+            + 'mutant was measured; rerun outside the command sandbox');
+    });
+
 test('an informational check carries evidence and never fails the run', () => {
     const output = [];
     const passed = runCheckpointChecks([
