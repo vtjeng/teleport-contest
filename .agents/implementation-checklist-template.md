@@ -1,11 +1,14 @@
 # Implementation checklist
 
-A behavior slice is a bounded implementation unit. Create or replace
+A behavior slice is an implementation unit with a defined starting event,
+ending event, and set of valid inputs (the `boundary` object below captures
+these). Create or replace
 `.agents/implementation-checklist.json`, following the schema below, when a
 behavior slice is expected to:
 
-- span sessions;
-- cross subsystems; or
+- span agent sessions;
+- cross subsystems (change code under more than one upstream function or
+  owner group); or
 - reach about 500 changed production lines across the quality areas it
   affects, which `QUALITY.json` lists.
 
@@ -13,36 +16,41 @@ Create the checklist as soon as a smaller slice grows to meet any of these
 three conditions.
 
 The orchestrator owns the checklist and verifies every piece of evidence
-recorded in it against the repository; a subagent's report of that evidence
-is a claim to check. Build the checklist's candidate entries from upstream
+recorded in it against the repository, including evidence a subagent
+reported. Build the checklist's candidate entries from upstream
 entry points, dispatch tables, catalogs, reachable helpers, and valid input
-or configuration families. Cross-check those entries against JavaScript
-stops, fallbacks, no-ops, and replay code. Maintain the list throughout
-implementation. Passing samples do not prove completeness. When a fresh case
-exposes an omitted path, add it and inspect related branches owned by the
-same upstream function or subsystem.
+or configuration families. Cross-check those entries against JavaScript code
+that blocks unported paths (stops), substitutes placeholder behavior
+(fallbacks and no-ops), or handles replay. Maintain the list throughout
+implementation, because passing samples do not prove completeness: when a
+fresh case exposes an omitted path, add it and inspect related branches
+owned by the same upstream function or subsystem.
 
 Keep `mode` at `implementation` while any checklist entry is `missing` or
 `undecided`. "Readiness" below defines that mode and the alternative,
-`ready-for-audit`; `scripts/audit-worktree.mjs prepare` enforces both and the
-`commitChecked` match as data. Commit a checklist update in the same commit
-as the work it describes; a checklist-only commit is for opening or retiring
-the file. Before a formal review pass, the checklist evidence must apply to
-the commit being reviewed, or to an earlier one if no commit since then changed
-code a pass would read. After the slice closes and its evidence is recorded
+`ready-for-audit`. `scripts/audit-worktree.mjs prepare` checks the `mode`,
+`status`, and `commitChecked` fields in the checklist JSON and refuses to run
+when any of them violates the rules below. Commit a checklist update in the
+same commit as the work it describes. The exception is a checklist-only
+commit, which is appropriate only when creating a new checklist or removing
+a completed one. Before a formal review pass (described in
+`.agents/review.md`), the checklist evidence must apply to the commit being
+reviewed, or to an earlier commit if no subsequent commit changed code that
+the review covers. After the slice closes and its evidence is recorded
 in existing trackers, remove the checklist or replace it for the next
 qualifying slice. Smaller slices may keep equivalent information in their
 commit messages and in the readiness attestations in `.agents/review.md`.
 
 The checklist is JSON so `scripts/audit-worktree.mjs prepare` can check it
-automatically. `prepare` will not run when `mode` is not `ready-for-audit`,
-when any entry's `status` is `missing` or `undecided`, or when `commitChecked`
-names neither the commit being reviewed nor an earlier one whose intervening
-commits changed no code a pass would read.
+automatically. `prepare` runs only when `mode` is `ready-for-audit`, every
+entry's `status` is `done`, `no-effect-yet`, `later`, or `cannot-occur`, and
+`commitChecked` names the commit being reviewed or an earlier commit after
+which the code the pass reads remained unchanged.
 
-`prepare` reads only those three fields. Everything else in the checklist is
-prose for whoever opens it next, and no check reads that prose, so a wrong or
-stale sentence there will not stop a pass.
+`prepare` reads only `mode`, each entry's `status`, and `commitChecked`.
+Everything else in the checklist is prose for whoever opens it next.
+Automated checks do not read that prose, so a wrong or stale sentence there
+does not stop a pass.
 
 ## Fields
 
@@ -95,14 +103,14 @@ Assign exactly one status to every entry:
 
 - `done`: the production JavaScript game path executes behavior that matches
   the upstream source, with supporting evidence.
-- `no-effect-yet`: source tracing proves the valid path has no effect through
-  the ending event.
+- `no-effect-yet`: source tracing proves the candidate path produces no
+  observable effect before the ending event.
 - `later`: source tracing identifies the path's first effect after the ending
   event.
-- `cannot-occur`: a specific upstream or valid-input condition prevents the
-  path inside the boundary.
-- `missing`: source tracing and a focused reproduction show implementation
-  work remains.
+- `cannot-occur`: a specific condition in the upstream source or in the set
+  of valid inputs makes the path unreachable within the boundary.
+- `missing`: source tracing and a reproduction (a recorded case or test that
+  exercises the path) show that implementation work remains.
 - `undecided`: available evidence is insufficient to choose another status.
 
 Prefer the most specific status the evidence supports; otherwise use
@@ -112,7 +120,8 @@ Prefer the most specific status the evidence supports; otherwise use
 
 Group `missing` and `undecided` entries into `missingWorkByOwner` when they
 correspond to the same upstream function, name the same JavaScript owner,
-share an initialization or persistence stage, or depend on one another. Order
+share initialization code or persist state through the same mechanism, or
+depend on one another. Order
 groups so each prerequisite precedes the groups that use it. Use an empty
 array only when no entry is `missing` or `undecided`.
 
@@ -124,7 +133,7 @@ source review in `sourceReview` covers everything reachable through the
 ending event; the production game executes every `done` path; and every
 reachable excluded branch stops before changing state, consuming randomness,
 or producing output. Otherwise keep `mode` at `implementation` and state the
-gap in `reason`. Validation commands are not recorded here: the readiness
-note in `.agents/review.md` covers them, and a case expected to fail because
-it belongs to future work is recorded as a deferred entry with
+gap in `reason`. Validation commands are not recorded in the checklist; the
+readiness note in `.agents/review.md` covers them. A case expected to fail
+because it belongs to future work is recorded as a deferred entry with
 `npm run quality -- defer`.
