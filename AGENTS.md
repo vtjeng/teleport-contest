@@ -48,20 +48,16 @@ Only these commands may access `sessions/holdout/`:
   all holdout sessions and compares its screens and random-number calls with the
   recorded C results. It reports only combined counts for sessions, screens, and
   random-number calls. Only the orchestrator (the agent session running the loop
-  described in `.agents/loop.md`, as opposed to the loop workers) may run it.
-  The user authorizes one evaluation at the close of each goal in advance; an
-  evaluation at any other time needs explicit authorization for that specific
-  run. The script refuses a second evaluation for a goal that already has one,
-  unless `--despite-prior-evaluation <reason>` records why this run was
-  authorized.
+  in `.agents/loop.md`, rather than a loop worker) may run it. The user
+  authorizes one evaluation at each goal's close; any other evaluation needs
+  explicit authorization. The
+  script refuses a second evaluation for a goal that already has one, unless
+  `--despite-prior-evaluation <reason>` records why this run was authorized.
 
-The holdout result measures whether completed work generalizes to unseen
-sessions. In contrast, implementation decisions come from the C source and
-evidence gathered with the development sessions.
-
-For routine scoring, run `node scripts/score-development.mjs`. It scores the
-development sessions in a temporary workspace and leaves the scorer-supplied
-files under `js/` unchanged.
+Implementation decisions come from the C source and the development sessions
+rather than the holdout results. For routine scoring, run
+`node scripts/score-development.mjs`. It scores the development sessions in a
+temporary workspace and leaves the scorer-supplied files under `js/` unchanged.
 
 All other access to `sessions/holdout/` is prohibited:
 
@@ -80,11 +76,10 @@ All other access to `sessions/holdout/` is prohibited:
 ## Read the instructions for your task
 
 Before starting work, find every matching row below and read every listed file.
-Follow all instructions in those files.
-
-A behavior slice is a portion of a goal's gameplay behavior, scoped so that one
-agent session can implement and validate it. The slice worker
-(`.claude/agents/slice-worker.md`) completes one slice per run.
+Follow all instructions in those files. Several rows mention a "behavior slice":
+a portion of a goal's gameplay behavior scoped so that one agent session can
+implement and validate it. The slice worker (`.claude/agents/slice-worker.md`)
+completes one slice per run.
 
 | Before you... | Read... |
 | --- | --- |
@@ -117,10 +112,10 @@ agent session can implement and validate it. The slice worker
   includes its identity, seed, date and time, input sequence, replay position,
   expected output, totals across all sessions, random-number log, and screen
   contents.
-- Implement from the C function. Do not implement from observed output. A
-  message, screen, or recorded trace can point you to the C function that
-  produces the output, but it does not define the function's behavior. Find the
-  function that produces the output and translate that.
+- Implement from the C function rather than from observed output. A message,
+  screen, or recorded trace can help locate the upstream function but does not
+  define its behavior. Find and translate the function that produces the
+  output.
 
 ### Complete common gameplay first
 
@@ -134,21 +129,21 @@ agent session can implement and validate it. The slice worker
    behavior between those points. Match every game-state change, random-number
    call, message, screen update, and saved value.
 3. Before implementing a helper, data structure, or game mechanic, identify
-   exactly where the current goal will use it in the running game. Implement
+   exactly where the current goal will use it in the running game and implement
    that use at the same time. If the current goal does not use the code in the
-   running game, defer it. Do not prepare code for future commands or branches.
-   This applies to code that makes a random-number call, writes output, or
-   changes game state. For pure functions, follow the rules in "Port pure
-   functions in bulk" instead.
+   running game, defer it; do not prepare code for future commands or
+   branches. This rule applies to code that makes a random-number
+   call, writes output, or changes game state; for pure functions, follow "Port
+   pure functions in bulk" instead.
 
 ### Keep each game value in one place
 
-Store each C state value in one JavaScript location, and when the connection
-between them is not obvious, add a comment explaining which C value it
-represents and when the JavaScript value is initialized, reset, changed, saved,
-restored, or discarded. Create separate JavaScript values only when the C code
-treats them as separate, keep their update logic together, and test that values
-the C code changes together are also changed together in JavaScript.
+Store each C state value in one JavaScript location. When the connection between
+them is not obvious, add a comment explaining which C value it represents and
+when the JavaScript value is initialized, reset, changed, saved, restored, or
+discarded. Create separate JavaScript values only when the C code treats them as
+separate, keep their update logic together, and test that values the C code
+changes together are also changed together in JavaScript.
 
 ### Keep each source file's port in one place
 
@@ -172,8 +167,8 @@ are ported.
 
 ### Port pure functions in bulk
 
-A function is pure here when it makes no random-number call, writes no message
-or screen output, and changes no game state. Porting a pure function cannot
+A function is pure here when it does not make random-number calls, write
+messages or screen output, or change game state. Porting a pure function cannot
 change what already-working code does, so it does not need a caller in the
 running game first.
 
@@ -182,9 +177,9 @@ running game first.
 - Confirm purity by reading the C source rather than judging the name. A
   function that turns out to use randomness, write output, or change state
   leaves the batch and follows "Complete common gameplay first" instead.
-- Before committing a batch, show that it changed nothing that already worked:
-  the full test suite passes and the development score is identical: every
-  random-number call and every screen output match the previous run.
+- Before committing a batch, show that it did not change what already worked:
+  the full test suite passes and the development score matches call for call
+  and screen for screen.
 - Give every ported function a test that pins its result to values read from
   the C source. The score cannot check a function the game does not call yet,
   so its test is the only proof it is correct.
@@ -213,13 +208,11 @@ freshly generated output.
 
 ## Validate completed work
 
-A focused unit test can show that one function works by itself. It does not
-show that the running game reaches that function or produces the complete
-result correctly.
-
-Before calling a gameplay case complete, record a new case with the patched C
-program and replay the same inputs with the JavaScript port. Compare everything
-from the chosen starting point through the chosen result.
+A focused unit test can show that one function works by itself but does not show
+that the running game reaches that function or produces the complete result
+correctly. Before calling a gameplay case complete, record a new case with the
+patched C program, replay the same inputs with the JavaScript port, and compare
+everything from the chosen starting point through the chosen result.
 
 When choosing new cases:
 
@@ -230,23 +223,23 @@ When choosing new cases:
 - When the goal has an explicit limit, run a representative case just outside
   that limit. If the current goal says how the program should handle that case,
   add a passing test for the specified result. If the case belongs to future
-  work and does not match the C reference yet, keep it out of the normal passing
-  test suite and record its inputs and expected failure as a deferred entry with
+  work and does not yet match the C reference, keep it out of the normal passing
+  test suite. Record its inputs and expected failure as a deferred entry with
   `npm run quality -- defer`, which persists after the slice and its checklist
   are complete.
-- Change the seed, date and time, options, character choices, or input sequence
-  only when that input can affect the behavior being checked.
-- Choose inputs independently instead of copying values from an existing
-  recorded session.
+- Choose inputs independently rather than copying values from an existing
+  recorded session, and change the seed, date and time, options, character
+  choices, or input sequence only when that input can affect the behavior being
+  checked.
 
 ## Commit, review, and report the work
 
 `SCORE.md` summarizes development-score results for completed work. Add entries
-at the points listed in `.agents/scoring.md`, "Score evidence". You do not
-need to add an entry after every commit.
+at the points listed in `.agents/scoring.md`, "Score evidence"; you do not
+need one after every commit.
 
-Keep progress updates short. The "Progress reports" section of
-`.agents/workflow.md` states the required shape for progress updates.
+Keep progress updates short; `.agents/workflow.md`, "Progress reports," states
+their required shape.
 
 Create or update a checklist, note, report, or permanent record only when
 `.agents/workflow.md` or `.agents/review.md` requires it.
@@ -256,32 +249,31 @@ Create or update a checklist, note, report, or permanent record only when
 Git records `nethack-c/upstream` as a submodule gitlink, and `git worktree add`
 leaves that path as an empty directory. The eight generated-data checks (which
 compare committed tables against freshly generated output) and the source-pinned
-tests (which verify values against the C source) read the C source, so all of
-them fail until you check it out. When both sets of failures appear together
-without mentioning git or the submodule, the cause is a missing submodule
-checkout. Run this once in a new worktree, before its first
-`npm run checkpoint`:
+tests (which verify values against the C source) read the C source from that
+path, so they all fail until you check it out. When both sets of failures appear together without mentioning git
+or the submodule, the missing checkout is the cause. Run this once in a new
+worktree, before its first `npm run checkpoint`:
 
 ```
 git submodule update --init --checkout --no-fetch -- nethack-c/upstream
 ```
 
-Two commands confirm the checkout. `ls nethack-c/upstream/src/monst.c` prints
+Two commands confirm the checkout: `ls nethack-c/upstream/src/monst.c` prints
 that path, and `git status` reports a clean tree with no `T nethack-c/upstream`
 line. Git writes a separate submodule gitdir under
-`.git/worktrees/<name>/modules/` for each worktree, so this checkout disturbs no
-other worktree. It costs 31 MiB for the working tree and 170 MiB for that
-gitdir.
+`.git/worktrees/<name>/modules/` for each worktree, so this checkout does not
+disturb other worktrees. It costs 31 MiB for the working tree and 170 MiB for
+that gitdir.
 
 ### Stage paths by name
 
-Stage the paths the current work changed:
+Stage the paths that the current work changed:
 
 `git add path/one path/two`
 
 Avoid the whole-tree forms (`git add -A`, `git add --all`, `git add -u`,
-`git add --update`, `git add .`), since they also stage any other in-progress
-changes from the shared working tree.
+`git add --update`, `git add .`), since they also stage in-progress changes from other agents in the shared
+working tree.
 
 Before committing, inspect `git diff --cached --name-only` and confirm that
 every staged path belongs to the commit.
@@ -294,7 +286,7 @@ discards unstaged ones; the next section identifies when that matters.
 Watching a new test fail means making a temporary edit to a line of game code,
 in a file that also holds the rest of an uncommitted slice, then putting the
 line back. Reverse the edit the way you made it: a text edit that restores the
-line touches nothing else in the file.
+line does not touch anything else in the file.
 
 Git can do it instead, with one precondition. `git checkout -- <path>` and
 `git restore <path>` rewrite the whole path from the index, discarding every
@@ -306,9 +298,9 @@ the staged version. Avoid `git checkout -- .`, `git checkout HEAD -- .` and
 `git restore .`, because they touch every file in the tree, including unrelated
 work by another agent; `.claude/settings.json` denies all three.
 
-Write the deny message in `.claude/settings.json` without an apostrophe. The
-message sits inside a single-quoted shell string; an apostrophe breaks the
-quoting and causes the hook to reject every Bash command.
+Write the deny message in `.claude/settings.json` without an apostrophe,
+because the message sits inside a single-quoted shell string and an apostrophe
+breaks the quoting.
 
 A staged version can still be recovered after `git checkout HEAD -- <path>`:
 `git fsck --unreachable` lists it and `git cat-file -p <sha>` prints it. A
@@ -316,9 +308,9 @@ version that was never staged is gone.
 
 ### When to stop and ask the user
 
-`.agents/loop.md` describes a loop that
-alternates implementation and review without returning to the user between its
-steps. Stop that loop and ask the user only for:
+`.agents/loop.md` describes a loop that alternates implementation and review
+without returning to the user between its steps. Stop that loop and ask the user
+only for:
 
 - a holdout evaluation outside the close of a goal;
 - a change to which sessions belong to the development and holdout sets;

@@ -4,8 +4,8 @@ description: Completes exactly one behavior slice of the NetHack port, from upst
 model: opus
 ---
 
-You complete exactly one behavior slice of the NetHack 5.0 JavaScript port and
-end at a committed, fully validated state.
+Each iteration of the continuous-operation loop gives you one behavior slice
+to port, validate, and commit.
 
 ## Read before you start
 
@@ -22,32 +22,31 @@ Read these three sources:
 Then read the C source for every function you are porting, before you write
 anything.
 
-You do not open `.agents/review.md`, `.agents/selection.md`, or `ROADMAP.md`:
-review scheduling, slice choice, and the grouping of game systems belong
-to the orchestrator and the selectors (other agents in the loop, defined in
-`.agents/loop.md`), and this list overrides the AGENTS.md reading rows that
-name those files.
+Do not open `.agents/review.md`, `.agents/selection.md`, or `ROADMAP.md`.
+Review scheduling, slice choice, and the grouping of game systems into goals
+belong to the orchestrator and selectors (separate agents defined in
+`.agents/loop.md`), and this restriction overrides the AGENTS.md reading rows
+that name them.
 
 ## Scope
 
 You own one slice: the source it ports, the code and tests it changes,
 the validation scripts, and the commits that land them. `.agents/loop.md`
 assigns the rest of the loop to the orchestrator and the two selectors,
-which choose goals and slices. Read `.agents/loop.md` to learn which steps
-belong to other agents. Editing that file is one of those steps. If you
-find a gap in the loop definition, report it instead of editing the file.
+which choose goals and slices. Read it to learn which steps belong to other
+agents; editing that file is one of those steps, so report any gaps you find
+in its definition rather than editing the file.
 
-Two of their steps appear inside instructions you are told to read. Skip both
-deliberately:
+Two of their steps appear inside instructions you are told to read. Skip both:
 
-- After each commit, "Per-chunk workflow" says to run `npm run quality`. Do
-  not run it. The orchestrator runs it and reads the thresholds it reports.
+- After each commit, "Per-chunk workflow" says to run `npm run quality`. The
+  orchestrator runs it and reads the thresholds, so do not run it yourself.
 - When a slice closes, `.agents/validation.md`, "Score estimates", names
   the `SCORE.tsv` event rows that `.agents/scoring.md` specifies. Those rows
-  and the `SCORE.md` entry belong to the orchestrator. Do not append either;
-  put the score and validation evidence in your report instead.
+  and the `SCORE.md` entry belong to the orchestrator. Put the score and
+  validation evidence in your report instead.
 
-Outside code and tests you write two things. First, assign each new `js/`
+Beyond code and tests, you write two things. First, assign each new `js/`
 file to its `QUALITY.json` area with `npm run quality -- assign --file
 <path> --area <id>` as soon as you create the file, as "Per-chunk workflow"
 requires. Second, record a deferral with `npm run quality -- defer`
@@ -55,19 +54,18 @@ when validation leaves a case outside the goal's limit. The goal list in
 `GOALS.json` and the review and simplification entries in `QUALITY.json`
 belong to the orchestrator, including on the last slice of a goal.
 
-You run no formal review pass and do not launch reviewer skills yourself,
-because a subagent has no `Workflow` tool and the bundled audit skills
-cannot start from a slice worker. If the chunk looks like it needs a pass,
-say so in your report.
+Do not run formal review passes or launch reviewer skills: a subagent has
+no `Workflow` tool, so the bundled audit skills cannot start from a slice
+worker. If the chunk looks like it needs a pass, say so in your report.
 
 Never run `scripts/score-holdout.mjs` and never touch `sessions/holdout/`,
 directly or through a subagent.
 
-Kill only a process you started. Never kill one you found with `ps` or
-`pgrep`: another agent works in this tree, and a pattern match cannot tell
-its `npm run checkpoint` from yours. To wait for your own command to finish,
-poll a bounded number of times for a result the command produces, such as
-a file it writes or its exit code.
+Kill only a process you started. Another agent works in this tree, and a
+pattern match from `ps` or `pgrep` cannot distinguish its `npm run checkpoint`
+from yours. To wait for your own command to finish, poll a bounded number of
+times for a result the command produces, such as a file it writes or its
+exit code.
 
 Never amend or force-push a commit that is already on `origin/main`, including
 with `--force-with-lease`. To correct a commit message or a trailer after
@@ -80,9 +78,8 @@ Sonnet: `Explore` with `model: sonnet` to locate code, call sites, and naming
 conventions, or `sonnet-worker` to classify against a rubric you supply. Verify
 each pointer a subagent returns by opening the file.
 
-A subagent returns a paraphrase of the C source, and if it omits a branch,
-the omission is invisible in that paraphrase. Read the C you port yourself
-so you do not miss branches the subagent dropped.
+A subagent's paraphrase of the C source can invisibly omit branches, so read
+the C you port yourself.
 
 Pass every restriction in this document to each subagent you spawn, including
 the ban on `scripts/score-holdout.mjs` and `sessions/holdout/`.
@@ -93,18 +90,17 @@ the ban on `scripts/score-holdout.mjs` and `sessions/holdout/`.
 js/ diff, writes a JSON report, and prints its path and survivor count on
 the summary line. A survivor is a mutant that no test failed on: your tests
 do not distinguish the changed line from a wrong version of it. Preserve
-the report, read that line after each checkpoint, and attempt to kill
-every surviving mutant. Never rerun that mutation check (the first wave)
-solely to create its report.
+the report, read that line after each checkpoint, and work to kill every
+surviving mutant. Never rerun the first-wave mutation check solely to
+create its report.
 
 Before you commit, every surviving relational, logical, or boolean mutant
 needs one of two outcomes: an assertion that kills it, or a reason no test
-can kill it. One reason may cover several survivors that sit on the same
-branch. Integer survivors are not gating, because most integers in js/
-are constants that no observable behavior depends on, and they have the
-lowest kill rate among the four mutant kinds. Open the script's 134-line
-header comment only when you need those measured figures; nothing else in
-it is required here.
+can kill it. One reason may cover several survivors on the same branch.
+Integer survivors are not gating: most integers in js/ are constants with
+no observable behavioral effect, and they have the lowest kill rate of the
+four mutant kinds. Open the script's 134-line header comment only when you
+need the measured figures; the rest of the header is not required here.
 
 A survivor may be a false positive: the mutation check judges each mutant
 by the test files that reach its module without passing through another js/
@@ -136,7 +132,7 @@ trailer.
   with their CI run reporting `success`, as "Pushing and CI" in
   `.agents/workflow.md` requires.
 
-If you cannot reach that state, commit nothing and report what blocked you. The
+If you cannot reach that state, do not commit; report what blocked you. The
 next iteration then starts from a clean tree.
 
 ## What to report
@@ -156,4 +152,4 @@ Report to the orchestrator in one brief message. Cover:
   implied.
 
 The orchestrator independently measures which commits you landed, the
-development score, and the test-suite result, so spend no words on those.
+development score, and the test-suite result, so do not repeat those.

@@ -4,7 +4,7 @@ A divergence viewer for the Teleport Coding Challenge that runs
 directly in the browser with no build step. It loads a recorded
 session and runs the JavaScript port once per segment. Each segment
 produces a sequence of steps. The viewer compares each step's PRNG
-calls and screen output against the recorded C result and marks
+calls and screen output against the recorded C result, marking
 divergences on a timeline and a 24×80 map.
 
 ```
@@ -33,36 +33,33 @@ python3 -m http.server 8080
 
 Pick a session from the dropdown, which lists the development
 sessions named in `sessions/manifest.json`, or use the file picker
-labeled `or load file…` to load any `.session.json` you have on
-disk. The viewer:
+labeled `or load file…` to load any `.session.json` from disk.
+The viewer then:
 
 1. Fetches the session.
 2. Calls `runSegment()` from your `js/jsmain.js` once per segment
    and reads the screens, cursors, and PRNG slices from the
    `NethackGame` instance each call returns.
-3. Decodes both the canonical and the JS-port screens into a
-   24×80 grid and diffs them per cell.
-4. Draws the three timeline rows and the map.
+3. Decodes both the canonical and JS-port screens into a 24×80 grid,
+   diffs them per cell, and draws the timeline rows and the map.
 
-The viewer computes every step's screens, cursors, and PRNG calls
-while the session loads. When the user moves to a different step,
-the viewer redraws the timeline canvas and rebuilds the map grid
-without re-running the port.
+All screens, cursors, and PRNG calls are computed during loading.
+Moving to a different step redraws the timeline and map without
+re-running the port.
 
 ## The three panes
 
 **Status line (under the header).** After a session loads, the line
-under the header reads `<name> - <n> steps · PRNG <matched>/<total>
-· screens <matched>/<total>`. For PRNG, the viewer pairs each step's
-canon and js calls in order and counts the pairs whose call name,
-bound, and drawn value agree. The total is the sum, across all
-steps, of the larger of the two call counts in each step. For
-screens, it counts the steps whose characters, attributes, and
-cursor coordinates all match, using the same cell-level comparison
-that the map and the `screen` strip use. The contest comparator
-tests the two screens for exact equality of their canonicalized SGR
-(color and attribute escape) strings, so it can reject a screen that
-the `screens` count treats as matching.
+reads `<name> - <n> steps · PRNG <matched>/<total> · screens
+<matched>/<total>`. For PRNG, the viewer pairs each step's canon and
+JS calls in order and counts pairs whose call name, bound, and drawn
+value agree; the total is the sum across all steps of the larger call
+count in each step. For screens, it counts the steps whose
+characters, attributes, and cursor coordinates all match, using the
+same cell-level comparison as the map and the `screen` strip. The
+contest comparator tests screens for exact equality of their
+canonicalized SGR (color and attribute escape) strings, so it can
+reject a screen that the `screens` count treats as matching.
 
 **Timelines (top).** Three rows sharing one X axis:
 
@@ -93,9 +90,8 @@ the `screens` count treats as matching.
 
 A bold dark-brown vertical bar marks segment boundaries (multi-game
 or save+restore sessions). Click anywhere on the timeline to jump to
-that step, or hold the mouse button down and drag along it to scrub.
-Press ← or → to move one step; hold Shift while pressing either key
-to move ten steps.
+that step, or hold the mouse button and drag to scrub. Press ← or →
+to move one step, or Shift+← / Shift+→ to move ten.
 
 **Map (center).** A 24×80 viewport with three switchable modes
 (buttons above the grid):
@@ -107,13 +103,13 @@ to move ten steps.
   differs and the port rendered a blank, the canonical character is
   shown; the same divergence highlights apply
 
-**Details (right).** The pane holds three blocks. `cursor` prints
-the canon and js cursor coordinates and flags a mismatch. `prng
-(this step)` lists the step's calls in order, color-coded
-`match`/`diff`/`missing`/`extra` (corresponding to the timeline's
-`match`, `value diff`, `canon-only call`, and `js-only call` colors).
-`message line` prints row 0 of the canonical screen, and the port's
-row 0 below it when the two differ.
+**Details (right).** Three blocks: `cursor` prints the canon and JS
+cursor coordinates and flags a mismatch; `prng (this step)` lists the
+step's calls in order, color-coded `match`/`diff`/`missing`/`extra`
+(corresponding to the timeline's `match`, `value diff`, `canon-only
+call`, and `js-only call` colors); `message line` prints row 0 of
+the canonical screen, and the port's row 0 below it when the two
+differ.
 
 ## Pass/fail decoration
 
@@ -127,7 +123,7 @@ to refresh it. Without the advisory file, the prefixes all read `·`.
 
 The viewer writes the selected session, the current step, and the
 map mode into the URL hash, so a refresh or a shared link reopens
-the same session at the same step in the same map mode.
+the same view.
 
 - `#session=<substring>`: picks the first dropdown entry whose name
   contains the substring
@@ -148,8 +144,9 @@ the same session at the same step in the same map mode.
   arrays with a per-segment offset. Without `getRngSlices()`, the
   viewer divides the entries from `getRngLog()` into equal-sized
   groups, one per step.
-- Sessions live under `sessions/`. The dropdown lists the file names
-  in `sessions/manifest.json`; when that fetch fails, the viewer
-  reads the `.session.json` links from the server's directory
-  listing of `sessions/`. The file picker loads a `.session.json`
-  from disk regardless of whether the manifest loaded.
+- Sessions live under `sessions/`. The dropdown lists file names from
+  `sessions/manifest.json`; when
+  that fetch fails, the viewer reads the `.session.json` links from
+  the server's directory listing of `sessions/`. The file picker
+  loads a `.session.json` from disk regardless of whether the
+  manifest loaded.

@@ -9,48 +9,43 @@ behavior slice is expected to:
 - span agent sessions;
 - cross subsystems (change code under more than one upstream function or
   owner group); or
-- reach about 500 changed production lines across the quality areas it
-  affects, which `QUALITY.json` lists.
+- reach about 500 changed production lines across the quality areas listed
+  in `QUALITY.json`.
 
 Create the checklist as soon as a smaller slice grows to meet any of these
 three conditions.
 
 The orchestrator owns the checklist and verifies every piece of evidence
-recorded in it against the repository, including evidence a subagent
+recorded in it against the repository, including evidence that a subagent
 reported. Build the checklist's candidate entries from upstream
 entry points, dispatch tables, catalogs, reachable helpers, and valid input
-or configuration families. Cross-check those entries against JavaScript code
-that blocks unported paths (stops), substitutes placeholder behavior
+or configuration families, then cross-check those entries against JavaScript
+code that blocks unported paths (stops), substitutes placeholder behavior
 (fallbacks and no-ops), or handles replay. Maintain the list throughout
-implementation, because passing samples do not prove completeness: when a
-fresh case exposes an omitted path, add it and inspect related branches
-owned by the same upstream function or subsystem.
+implementation: passing samples do not prove completeness, so when a fresh
+case exposes an omitted path, add it and inspect related branches owned by
+the same upstream function or subsystem.
 
 Keep `mode` at `implementation` while any checklist entry is `missing` or
-`undecided`. "Readiness" below defines that mode and the alternative,
-`ready-for-audit`. `scripts/audit-worktree.mjs prepare` checks the `mode`,
-`status`, and `commitChecked` fields in the checklist JSON and refuses to run
-when any of them violates the rules below. Commit a checklist update in the
-same commit as the work it describes. The exception is a checklist-only
-commit, which is appropriate only when creating a new checklist or removing
-a completed one. Before a formal review pass (described in
-`.agents/review.md`), the checklist evidence must apply to the commit being
-reviewed, or to an earlier commit if no subsequent commit changed code that
-the review covers. After the slice closes and its evidence is recorded
-in existing trackers, remove the checklist or replace it for the next
-qualifying slice. Smaller slices may keep equivalent information in their
-commit messages and in the readiness attestations in `.agents/review.md`.
+`undecided`; the Readiness section below defines when `mode` changes to
+`ready-for-audit`. Commit each checklist update in the same commit as the
+work it describes, except when creating a new checklist or removing a
+completed one. Before a formal review pass (described in `.agents/review.md`),
+the checklist evidence must apply to the commit being reviewed, or to an
+earlier commit if no subsequent commit changed code that the review covers.
+After the slice closes and its evidence is recorded in existing trackers,
+remove the checklist or replace it for the next qualifying slice. Smaller
+slices may keep equivalent information in their commit messages and in the
+readiness attestations in `.agents/review.md`.
 
 The checklist is JSON so `scripts/audit-worktree.mjs prepare` can check it
-automatically. `prepare` runs only when `mode` is `ready-for-audit`, every
+automatically. `prepare` reads `mode`, each entry's `status`, and
+`commitChecked`. It runs only when `mode` is `ready-for-audit`, every
 entry's `status` is `done`, `no-effect-yet`, `later`, or `cannot-occur`, and
-`commitChecked` names the commit being reviewed or an earlier commit after
-which the code the pass reads remained unchanged.
-
-`prepare` reads only `mode`, each entry's `status`, and `commitChecked`.
-Everything else in the checklist is prose for whoever opens it next.
-Automated checks do not read that prose, so a wrong or stale sentence there
-does not stop a pass.
+`commitChecked` names the commit being reviewed, or an earlier commit if the
+code under review has not changed since. Everything else in the checklist is
+prose for whoever opens it next; automated checks do not read it, so a wrong
+or stale sentence does not block a pass.
 
 ## Fields
 
@@ -103,8 +98,8 @@ Assign exactly one status to every entry:
 
 - `done`: the production JavaScript game path executes behavior that matches
   the upstream source, with supporting evidence.
-- `no-effect-yet`: source tracing proves the candidate path produces no
-  observable effect before the ending event.
+- `no-effect-yet`: source tracing proves the candidate path does not produce
+  an observable effect before the ending event.
 - `later`: source tracing identifies the path's first effect after the ending
   event.
 - `cannot-occur`: a specific condition in the upstream source or in the set
@@ -114,16 +109,16 @@ Assign exactly one status to every entry:
 - `undecided`: available evidence is insufficient to choose another status.
 
 Prefer the most specific status the evidence supports; otherwise use
-`undecided`. Passing samples do not prove completeness.
+`undecided`.
 
 ## Grouping missing work
 
 Group `missing` and `undecided` entries into `missingWorkByOwner` when they
 correspond to the same upstream function, name the same JavaScript owner,
 share initialization code or persist state through the same mechanism, or
-depend on one another. Order
-groups so each prerequisite precedes the groups that use it. Use an empty
-array only when no entry is `missing` or `undecided`.
+depend on one another. Order groups so each prerequisite precedes the groups
+that depend on it. Leave the array empty only when every entry has reached
+`done`, `no-effect-yet`, `later`, or `cannot-occur`.
 
 ## Readiness
 

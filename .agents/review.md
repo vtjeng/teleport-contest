@@ -7,26 +7,25 @@ the implementation vocabulary this file relies on: a coherent implementation
 chunk, a behavior slice, a goal, and a review window.
 
 A **formal review pass** is an independent structured review of a frozen
-committed range. It comes in four kinds: correctness, clarity, simplification,
-and copyediting. The orchestrator invokes the skill that this file
-names for the kind it needs, which runs its reviewers as parallel subagents and
-reports possible problems; the orchestrator reviews each finding and applies
-only fixes for confirmed findings. All four kinds follow the process rules in
-"Running formal review passes" below.
+committed range, in one of four kinds: correctness, clarity, simplification,
+and copyediting. The orchestrator invokes the skill named for the kind it needs,
+which runs its reviewers as parallel subagents and reports possible problems;
+the orchestrator then reviews each finding and applies only confirmed fixes. All
+four kinds follow the process rules in "Running formal review passes" below.
 
 **Audit** means a formal review pass. The word is fixed in the skill names
 `/audit-diff-correctness` and `/audit-diff-clarity`, and in the `Audit-fix-for:`
 commit trailer.
 
 An **evidence snapshot** is one `SCORE.tsv` row for the exact integrated code
-state at a full commit SHA: agents append `slice`, `window`, `goal`, `holdout`,
-and `publish` rows when those events complete, as `.agents/scoring.md`,
-"Score evidence", states. The quality ledger is `QUALITY.json`, which records
-completed correctness and simplification passes. Formal review ranges remain in
-that ledger.
+state at a full commit SHA. Agents append `slice`, `window`, `goal`, `holdout`,
+and `publish` rows as `.agents/scoring.md`,
+"Score evidence", states.
 
-A **review frontier** is the latest integrated commit covered by a recorded
-correctness pass.
+The quality ledger is `QUALITY.json`, which records completed correctness and
+simplification passes. Formal review ranges remain in that ledger. A **review
+frontier** is the latest integrated commit covered by a recorded correctness
+pass.
 
 ## Readiness for a formal review pass
 
@@ -34,12 +33,14 @@ While implementation is incomplete, find and fix gaps with the activities the
 loop already requires: trace each ported function against its upstream C or Lua
 source as you port it, commit each chunk with its focused tests, run the
 full suite at every checkpoint, and run a fresh differential when a slice
-closes. Launch a formal review pass only when the orchestrator judges the
-behavior and evidence complete. Freeze the committed range and prepare it with
+closes.
+
+Launch a formal review pass only when the orchestrator judges the behavior and
+evidence complete. Freeze the committed range and prepare it with
 `node scripts/audit-worktree.mjs prepare ... --readiness`, which runs
-`npm run checkpoint`, `npm run quality -- --check --health`, and the mutation command
-selected by "Mutation-test the reviewed lines" at the repository head. It
-embeds each command, mutation range, report path, and result in the manifest
+`npm run checkpoint`, `npm run quality -- --check --health`, and the mutation
+command selected by "Mutation-test the reviewed lines" at the repository head.
+It embeds each command, mutation range, report path, and result in the manifest
 and refuses to prepare while any command fails (reports red). A window's
 first correctness pass mutates the whole frozen range. A follow-up pass over
 audit fixes mutates its new delta unless the conditions below require an
@@ -82,13 +83,13 @@ Generated outputs declared in `QUALITY.json` do not count toward changed-line
 thresholds. Their generators do count, and a commit touching a generator or
 output counts toward the commit threshold unless it is a linked audit-fix
 commit. Each declaration names the generator and regeneration check; reviews
-cover both. An **evidence-only commit** changes only `SCORE.tsv`, `SCORE.md`, correctness
-or simplification records, or their supporting documentation, and no path
-that `QUALITY.json` assigns to a quality area (an area-owned path). A
-**quality-ledger-only commit** is the subtype of evidence-only commit
-that changes only correctness or simplification records. Evidence-only
-commits do not count toward path-scoped commit totals and do not receive
-their own evidence snapshots.
+cover both. An **evidence-only commit** changes only `SCORE.tsv`, `SCORE.md`,
+correctness or simplification records, or their supporting documentation, and
+no path that `QUALITY.json` assigns to a quality area (an area-owned path).
+A **quality-ledger-only commit** is the subtype that
+changes only correctness or simplification records. Evidence-only commits do
+not count toward path-scoped commit totals and do not receive their own
+evidence snapshots.
 
 ### When a correctness pass is due
 
@@ -117,8 +118,8 @@ their own evidence snapshots.
   subtracts that commit's lines from the area's gate total and reports them as
   relocated lines, so the remaining debt is the work that still needs review.
   Add the trailer only after scoring both commits and confirming every session
-  matched, call for call and screen for screen. Put nothing else in that
-  commit.
+  matched, call for call and screen for screen. Do not add anything else
+  to that commit.
 - A full pass is also due after an unexplained mismatch, whether found
   while tracing the port against its upstream C or Lua source or by a
   differential, and before a review deadline.
@@ -183,10 +184,9 @@ themselves.
 
 `scripts/mutate-sites.mjs` rewrites one operator, boolean, or integer bound at a
 time in a set of `js/` lines, runs the tests that reach those modules, and
-reports the mutants that no test failed on. The script calls such a mutant a
-**survivor**: no test distinguishes the changed line from a wrong version of it.
-Its header comment states the site set, the two waves, the target forms, and the
-measured cost.
+reports the mutants that no test failed on (called **survivors**): no test
+distinguishes the changed line from a wrong version of it. Its header comment
+states the site set, the two waves, the target forms, and the measured cost.
 
 Both runs below pass `--kind relational,logical,boolean`, which leaves out
 integer bounds, the largest group and the weakest signal, because most of them
@@ -203,9 +203,9 @@ The worker runs it while the work is uncommitted, as
 `.claude/agents/slice-worker.md` states. The slice's commit message carries
 the `Mutants:` trailer that `--emit-trailer` prints. The commit-message body
 gives the reason no test can kill each surviving relational, logical, or
-boolean mutant. One recorded reason may cover several survivors that sit on
-the same branch. A survivor of those three kinds with no recorded reason
-blocks the slice from closing. Integer survivors are not gating.
+boolean mutant; one recorded reason may cover several survivors on the same
+branch. A survivor of those three kinds with no recorded reason blocks the
+slice from closing. Integer survivors are not gating.
 `npm run quality -- slice-mutants --range <base>..<head>` lists the
 js/-touching commits in a range that carry no `Mutants:` trailer, so the
 orchestrator checks the record in place of inspecting for it.
@@ -226,7 +226,7 @@ range:
 npm run mutate -- --range <base>..<head> --kind relational,logical,boolean
 ```
 
-The command names two commits, so a later reader repeats it and reaches the
+The command names two commits, so a later reader can repeat it and reach the
 same target set, while a slice run's subject no longer exists after the
 commit. It also covers the `js/` lines of commits that close no slice and
 judges every mutant against the integrated suite at the first review
@@ -256,20 +256,20 @@ finder's conclusion under `mutation` in the pass's `auditMetrics`, together
 with every mutation range used. Where a per-slice record and a later window or
 delta run disagree about a mutant, the later run is the record.
 
-Two limits bound what any mutation run proves. A line holding no mutable site
+Two limits bound what any mutation run proves. A line that holds no mutable site
 produces no mutant, so a line the list omits carries no evidence either way. A
 first-wave survivor may still be killed by a test that reaches its module
 through another `js/` module, which is what `--whole-suite` settles.
 
 For the first limit, delete the line and run the whole suite. If exactly one
-test fails and it is the test you expect, that test pins the line and nothing
-else does. If no test fails, the line is unpinned. Restore it, and record
+test fails and it is the test you expect, that test pins the line and no other
+test does. If no test fails, the line is unpinned. Restore it, and record
 which line you deleted and what failed.
 
 A search for a message string is unreliable for two reasons. A refusal
 comment quotes the C message it refuses, so the text appears in commentary as
-often as in code, and a message assembled by interpolation matches no literal
-search at all. Read the emitting site.
+often as in code, and a message assembled by interpolation does not match any
+literal search. Read the emitting site.
 
 Hand the survivor list to the pass as a `validation` context item addressed to
 the `tests` finder, which is how `/audit-diff-correctness` routes evidence to
@@ -298,10 +298,9 @@ code path. When none does and already-scoring behavior stays correct, record
 the finding as a ledger entry with `npm run quality -- defer` instead of
 returning to implementation.
 Otherwise stop audit-fix work, record the requirement in the pass report, and
-do not claim the pass covers the new implementation. Do not run another pass
-first; implement through the next observable boundary, satisfy the readiness
-requirements again, and run a new full correctness pass over the expanded
-range.
+do not claim the pass covers the new implementation. Implement through the next
+observable boundary, satisfy the readiness requirements again, and run a new
+full correctness pass over the expanded range; do not run another pass first.
 
 After applying in-scope audit fixes, inspect the fix diff and run the focused
 and broad validation that `.agents/validation.md` specifies for the affected
@@ -388,15 +387,15 @@ preserve PRNG and evaluation order.
   whether an implementation checklist covered the range. The recorder stores
   the answer as the pass's `checklist`, and a pass prepared with
   `--no-checklist-reason` records that reason there. Without `--manifest` the
-  pass carries no such field, and a later reader cannot tell a range that had a
-  covering plan from one that did not.
+  pass carries no such field, and a later reader cannot distinguish a range that
+  had a covering plan from one that did not.
 - A correctness range's base must be at or before the review frontier, the
   newest recorded review head. The recorder refuses a range that starts after
   it, because recording that pass would turn the skipped commits into
   reviewed history; the refusal names the frontier and the base it received.
   A base older than the frontier re-reads reviewed commits and is harmless.
   This applies to correctness alone. A simplification pass records the range it
-  read and nothing else: its coverage is the union of every recorded range, and
+  read: its coverage is the union of every recorded range, and
   the commits outside that union are its debt. A scoped pass is therefore
   recordable wherever it sits, and recording one marks no commit it did not
   read. Correctness keeps the single frontier because its gate asserts gapless
@@ -437,7 +436,7 @@ preserve PRNG and evaluation order.
   pass whose entry count differs from the deferred count, one whose entry
   names an id the ledger does not hold, and one whose production-category
   deferrals disagree with the deferred `productionDefects` entries.
-- Cite a symbol in an entry's text: the file together with the function or
+- Cite a symbol in an entry's text as the file together with the function or
   constant name. Avoid line numbers, because any edit above a cited line
   shifts its number, whereas a symbol name survives the same edit unchanged.
 - Correct an open entry with `npm run quality -- note-deferral --id <id> --note
@@ -446,8 +445,8 @@ preserve PRNG and evaluation order.
   from a later correction and date each one. Write a note when a later commit
   falsifies a claim the entry rests on, or closes part of what it counts.
   `npm run quality -- deferrals` prints each entry's note count, and
-  `--id <id>` prints the notes themselves. A closed entry takes no note;
-  recording a deferral against its id reopens it first.
+  `--id <id>` prints the notes themselves. A closed entry does not accept a
+  note; recording a deferral against its id reopens it first.
 - Record what an entry waits on with `npm run quality -- defer --blocked-on
   <symbol>`, or `block-deferral --id <id> --blocked-on <symbol>` afterwards.
   Set it only where the entry cannot close until other work lands, and name the
@@ -468,6 +467,6 @@ preserve PRNG and evaluation order.
   applied after its pass was recorded may stand as correctness debt, except
   before a review deadline.
   Resolve concrete simplification or clarity triggers, but do not invent
-  a formal review pass when none exists. An area no recorded pass has covered
-  appears in the dashboard's never-reviewed line. That line is informational
-  and does not require action.
+  a formal review pass when none exists. An area that no recorded pass has
+  covered appears in the dashboard's never-reviewed line. That line is
+  informational and does not require action.
