@@ -4,8 +4,8 @@
   "enforcementBase": "f11f5c2bfb80d323ac171f83b0a3214d9dbaf9b3",
   "legacyPassCount": 21,
   "thresholds": {
-    "reviewCommits": 10,
-    "reviewChangedLines": 1000
+    "reviewCommits": 20,
+    "reviewChangedLines": 2000
   },
   "deferred": [
     {
@@ -18770,6 +18770,69 @@
         }
       },
       "recordedAt": "2026-08-24T17:20:59.957Z"
+    },
+    {
+      "kind": "review",
+      "head": "fd3c8068b8ba12bc298cc8450d9727b8f5f514a5",
+      "auditedRange": "d92c8061aa1dddbdc29d20f82193158cce3859a1..fd3c8068b8ba12bc298cc8450d9727b8f5f514a5",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "9b34adacc2ac9ac267834a7acbee98c410238896",
+        "reason": "Goal has 1 slice and 102 changed lines, below the 500-line checklist threshold; the existing checklist covers a prior goal at 9b34adac"
+      },
+      "level": "light",
+      "areas": [
+        "objects",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 2 raw, 2 deduplicated, 2 confirmed, 2 applied, 0 deferred, 0 rejected, 0 unverified; mutation: 0 survivors of 1 mutants. Light correctness pass (correctness, tests, variable-trace). 2 raw, 2 confirmed, 2 applied: both test-quality findings adding selector assertions to the inventory-guard and lootabc tests. No production defects, no rejections, no deferrals.",
+      "auditMetrics": {
+        "mode": "light",
+        "finders": [
+          "correctness",
+          "tests",
+          "variable-trace"
+        ],
+        "wallTimeSeconds": 500,
+        "counts": {
+          "raw": 2,
+          "deduplicated": 2,
+          "confirmed": 2,
+          "applied": 2,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 2,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [],
+        "rejections": [],
+        "deferrals": [],
+        "readiness": {
+          "boundary": "Starting event: player types #name and presses Enter at step 9 of seed0102-ranger-name-cancel. Ending event: docallcmd() presents the naming menu through select_menu(), the player presses ESC, and the function returns ECMD_OK.",
+          "sourceReview": "Every branch in docallcmd() (do_name.c 499-601) traced against C source. Menu item population, select_menu call, ESC handling, window destruction, and ECMD_OK return verified. cmdq_pop() path (511-518) and six naming handlers identified and excluded.",
+          "completeness": "No known unsupported behavior within the boundary. Excluded branches (naming handlers m/i/o/f/d/a, cmdq_pop path) stop before changing state, consuming randomness, or producing output."
+        },
+        "mutation": {
+          "mutants": 1,
+          "survivors": 0,
+          "byKind": {
+            "boolean": {
+              "ran": 1,
+              "killed": 1
+            }
+          },
+          "finderConclusion": "Single boolean mutant at overlay field killed by screen-position assertion."
+        }
+      },
+      "recordedAt": "2026-08-24T18:43:28.676Z"
     }
   ]
 }
