@@ -3339,6 +3339,35 @@
         "screens": 33,
         "rng": 75
       }
+    },
+    {
+      "id": "name-command-cancel",
+      "status": "open",
+      "boundary": "The #name extended command (do_name.c docallcmd(), 499-601) presents its What-do-you-want-to-name menu through select_menu() and returns ECMD_OK when the player dismisses the menu without selecting a naming option, instead of raising UnsupportedHeroCommandBoundaryError at js/cmd.js doextcmd() default arm for the extended command name.",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 16,
+        "basis": "Capped look-ahead at 61de642. One session stops here, seed0102-ranger-name-cancel, at step 9 of 25. Raw unlocks 16 over steps 9..24 all uncapped: after the ESC that cancels the menu (step 10), the remaining 14 bytes are fire (f), known (\\), attributes (ctrl-X), search (s), and look (:), all in ADMITTED_COMMANDS. Every candidate above #name in the raw column caps below 16.",
+        "sessions": [
+          "seed0102-ranger-name-cancel"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0102-ranger-name-cancel",
+            "evidence": "stop at step 9 on #name extended command, C next screen What do you want to name?, 16 uncapped screens through step 24"
+          }
+        ]
+      },
+      "detail": "The port needs a docallcmd case in js/cmd.js doextcmd() switch (around line 1951) and docallcmd() in js/do_name.js using the menu infrastructure already ported. The cancel path exercises menu creation (520-550), select_menu (551), and window destruction (556). No naming helper is reached. js/do_name.js already ports docall() at line 243. About 60 lines of new C coverage for the exercised path; the full function is 103 lines.",
+      "slices": [],
+      "openedAt": "61de642040650c62c7516217c069486c1bbfb72b",
+      "openStanding": {
+        "sha": "2b2ef844d884b39bc32f36895798975d99eec517",
+        "screens": 1988,
+        "rng": 133574
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
