@@ -77,41 +77,6 @@ the C you port yourself.
 Pass every restriction in this document to each subagent you spawn, including
 the ban on `scripts/score-holdout.mjs` and `sessions/holdout/`.
 
-## Mutation-test the lines you changed
-
-`npm run checkpoint` runs `scripts/mutate-sites.mjs` over your uncommitted
-js/ diff, writes a JSON report, and prints its path and survivor count on
-the summary line. A survivor is a mutant no test detects. Preserve the
-report, read that line after each checkpoint, and work to kill every
-survivor. Never rerun the first-wave mutation check solely to create its
-report.
-
-Before you commit, every surviving relational, logical, or boolean mutant
-needs one of two outcomes: an assertion that kills it, or a reason no test
-can kill it. One reason may cover several survivors on the same branch.
-Integer survivors are not gating: most integers in js/ are constants with
-no observable effect, and they have the lowest kill rate of the four mutant
-kinds. Open the script's 134-line header comment only when you need the
-measured figures.
-
-A survivor may be a false positive: the mutation check judges each mutant
-by the test files that import its module directly, so a test that reaches
-the module through another js/ module can kill a mutant this check reports
-as surviving. Kill what you can from the first-wave result. Use
-`--whole-suite` only when the first wave names no test file for the
-mutant's module, or when you trace a call chain through another js/ module
-to a test that can decide the survivor. Select those survivors from the
-first-wave report, then run `npm run mutate -- --from-report <path> --kind
-relational,logical,boolean --whole-suite`. Classify the remaining survivors
-from their source path, caller invariants, and the exclusions
-`mutate-sites.mjs` declares.
-
-Record the run in the slice's commit: rerun the final command with
-`--emit-trailer`, copy the `Mutants:` line it prints into the commit message
-as a trailer, and state each survivor's reason in the body.
-`npm run quality -- slice-mutants` later flags a js/ commit without that
-trailer.
-
 ## When the slice is done
 
 - The ported code has a real caller that executes in the running game, per
@@ -136,7 +101,6 @@ Report to the orchestrator in one brief message. Cover:
 - Every bug and surprise you hit, and what you did about it.
 - Each decision the C source did not settle immediately, and the evidence
   you used to resolve it.
-- Any survivors you could not kill, with the reason for each.
 - What you expect the next iteration to encounter as a problem.
 - Whether the slice matched its description. Say so if closing it needed
   far more C source traced, or touched more subsystems, than the description

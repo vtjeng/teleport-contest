@@ -8,26 +8,27 @@ import {
 
 test('the default suite admits ordinary tests and excludes registered suites',
     () => {
-        // These three names represent one ordinary test, the fast mutator
-        // contract, and the dedicated lifecycle suite respectively.
+        // Two ordinary tests and one dedicated suite entry exercise the
+        // partition: discovered files stay in default unless a dedicated
+        // suite claims them.
         const discovered = [
+            'scripts/color.test.mjs',
             'scripts/game.test.mjs',
-            'scripts/mutate-sites.test.mjs',
-            'scripts/mutate-sites.integration.mjs',
+            'scripts/slow.integration.mjs',
         ];
         const dedicated = {
-            mutationRunner: ['scripts/mutate-sites.integration.mjs'],
+            lifecycle: ['scripts/slow.integration.mjs'],
         };
         const suites = buildTestSuites(discovered, dedicated, {
             exists: () => true,
         });
 
         assert.deepEqual(suites.default, discovered.slice(0, 2));
-        assert.deepEqual(suites.mutationRunner,
-            ['scripts/mutate-sites.integration.mjs']);
+        assert.deepEqual(suites.lifecycle,
+            ['scripts/slow.integration.mjs']);
         assert.deepEqual(suites.all, [
             ...discovered.slice(0, 2),
-            'scripts/mutate-sites.integration.mjs',
+            'scripts/slow.integration.mjs',
         ]);
     });
 
@@ -44,15 +45,13 @@ test('suite registration rejects missing and duplicate dedicated files', () => {
     }, { exists: () => false }), /registered test does not exist/u);
 });
 
-test('the repository registry selects each named command suite', () => {
-    const ordinary = testFilesForSuite('default');
-    const dedicated = testFilesForSuite('mutation-runner');
-    const all = testFilesForSuite('all');
+test('the repository registry lists all discovered tests with no dedicated suites',
+    () => {
+        // With DEDICATED_TEST_SUITES empty, every discovered test file
+        // lands in the default suite and `all` matches it.
+        const ordinary = testFilesForSuite('default');
+        const all = testFilesForSuite('all');
 
-    assert.equal(ordinary.includes('scripts/mutate-sites.test.mjs'), true);
-    assert.equal(
-        ordinary.includes('scripts/mutate-sites.integration.mjs'), false);
-    assert.deepEqual(dedicated, ['scripts/mutate-sites.integration.mjs']);
-    assert.equal(all.length, ordinary.length + dedicated.length);
-    assert.throws(() => testFilesForSuite('unknown'), /unknown test suite/u);
-});
+        assert.equal(all.length, ordinary.length);
+        assert.throws(() => testFilesForSuite('unknown'), /unknown test suite/u);
+    });

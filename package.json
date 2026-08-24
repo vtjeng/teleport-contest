@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "test": "node scripts/run-test-suite.mjs default",
-    "test:mutation-runner": "node scripts/run-test-suite.mjs mutation-runner",
     "test:all": "node scripts/run-test-suite.mjs all",
     "check:duplicate-symbols": "node scripts/check-duplicate-symbols.mjs",
     "check:config-statements": "node scripts/generate-config-statements.mjs --check",
@@ -23,7 +22,6 @@
     "check:themerooms": "node scripts/generate-themeroom-data.mjs --check",
     "checkpoint": "node scripts/checkpoint-checks.mjs",
     "coverage-report": "node scripts/coverage-report.mjs",
-    "mutate": "node scripts/mutate-sites.mjs",
     "quality": "node scripts/quality-status.mjs",
     "score": "bash frozen/score.sh",
     "play": "echo 'Open index.html in a browser to play'"

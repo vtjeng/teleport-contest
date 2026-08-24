@@ -26,14 +26,12 @@ import {
   thresholdReached,
   validateAuditedRangeCoverage,
   validateAuditMetrics,
-  validateAuditMutation,
   validatePassChecklist,
   openDeferrals,
   portDefines,
   portFileDefines,
   upstreamMentions,
   collectRejections,
-  missingMutantTrailers,
   renderCountsSentence,
   validateConfigShape,
     main,
@@ -295,79 +293,6 @@ test('structured audit metrics preserve categories and finder attribution', () =
     /categories must total the confirmed count/,
   );
 });
-
-test('a pass records what the mutation run reported and what the finder made of it',
-  () => {
-    // The numbers a pass attaches under `.agents/review.md`, "Mutation-test the
-    // reviewed lines": what ran, what survived, the per-kind split, and the
-    // test-quality finder's conclusion about the survivors.
-    const mutation = {
-      mutants: 119,
-      survivors: 49,
-      byKind: {
-        relational: { ran: 30, killed: 12 },
-        logical: { ran: 60, killed: 40 },
-        boolean: { ran: 29, killed: 18 },
-      },
-      finderConclusion: 'traced all 49 survivors; two became test findings',
-    };
-
-    assert.equal(validateAuditMutation(mutation), mutation);
-    assert.equal(
-      validateAuditMetrics({ ...EMPTY_AUDIT_METRICS, mutation }).mutation,
-      mutation,
-    );
-    // The ledger has to reject it too, so a broken record cannot reach
-    // QUALITY.json through the metrics validator that writes it.
-    assert.throws(
-      () => validateAuditMetrics({
-        ...EMPTY_AUDIT_METRICS,
-        mutation: { ...mutation, survivors: 48 },
-      }),
-      /byKind must leave the survivor count unkilled/,
-    );
-
-    // The per-kind split is the record's own arithmetic check: 30 + 60 + 29 is
-    // 119 mutants, and 119 less the 70 killed is 49 survivors. A record whose
-    // headline disagrees with its breakdown states a rate it cannot support.
-    assert.throws(
-      () => validateAuditMutation({ ...mutation, mutants: 120 }),
-      /byKind must total the mutant count/,
-    );
-    assert.throws(
-      () => validateAuditMutation({ ...mutation, survivors: 48 }),
-      /byKind must leave the survivor count unkilled/,
-    );
-    assert.throws(
-      () => validateAuditMutation({ ...mutation, survivors: 200 }),
-      /more survivors than mutants/,
-    );
-    assert.throws(
-      () => validateAuditMutation({
-        ...mutation,
-        byKind: { ...mutation.byKind, statement: { ran: 0, killed: 0 } },
-      }),
-      /is not a mutation kind/,
-    );
-    assert.throws(
-      () => validateAuditMutation({
-        ...mutation,
-        byKind: { relational: { ran: 30, killed: 31 }, logical: { ran: 60, killed: 40 },
-          boolean: { ran: 29, killed: 18 } },
-      }),
-      /cannot kill more mutants than it ran/,
-    );
-    // A run that names no kind measured nothing, and an unexplained survivor
-    // list is what this record exists to prevent.
-    assert.throws(
-      () => validateAuditMutation({ ...mutation, byKind: {} }),
-      /must name the kinds the run covered/,
-    );
-    assert.throws(
-      () => validateAuditMutation({ ...mutation, finderConclusion: '   ' }),
-      /finderConclusion must be nonempty/,
-    );
-  });
 
 test('rejected findings are stored with their counter-evidence verbatim', () => {
   // One rejected finding, so a rejections list of any other length is wrong.
@@ -1371,61 +1296,15 @@ test('the citation probe reads the real js/ tree', () => {
 });
 
 test('the recorder renders the counts sentence from the metrics', () => {
-    // Counts from the 2026-08-01 pet-goal closing pass, whose hand-written
-    // evidence duplicated exactly these values; the mutation clause appends
-    // only when the metrics carry a mutation record.
+    // Counts from the 2026-08-01 pet-goal closing pass.
     const metrics = {
         counts: { raw: 17, deduplicated: 15, confirmed: 12, applied: 11,
             deferred: 1, rejected: 3, unverified: 0 },
-        mutation: { mutants: 361, survivors: 63 },
     };
     assert.equal(renderCountsSentence(metrics),
         'Counts: 17 raw, 15 deduplicated, 12 confirmed, 11 applied, '
-            + '1 deferred, 3 rejected, 0 unverified; mutation: 63 survivors '
-            + 'of 361 mutants.');
-    assert.equal(renderCountsSentence({ counts: metrics.counts }),
-        'Counts: 17 raw, 15 deduplicated, 12 confirmed, 11 applied, '
             + '1 deferred, 3 rejected, 0 unverified.');
 });
-
-test('slice-mutants finds a Mutants record wherever the message holds it',
-    () => {
-        // Five js commits, in the shape `git log --format=%x1e%H%x09%B`
-        // prints: a record separator, the SHA, a tab, then the whole message.
-        //
-        // The first puts the record in the final paragraph, where git's own
-        // trailer parser reads it. The second is the placement that lost five
-        // real records, 1f3e323 among them: a blank line separates `Mutants:`
-        // from `Assisted-by:`, so git parses the last paragraph alone and
-        // reports the record absent. The third mentions another commit's
-        // figure inside a sentence, which is a reference rather than this
-        // commit's own record. The fourth ran no mutation at all, and the
-        // fifth has the key with no figures after it, which the previous
-        // parser also counted as missing because git returned an empty value.
-        const output = [
-            `${'a'.repeat(40)}\tPort one function\n\n`
-                + 'Mutants: 36/36 kind=relational,logical,boolean\n'
-                + 'Assisted-by: Claude Code\n',
-            `${'b'.repeat(40)}\tPort another function\n\n`
-                + 'Mutants: 7/7 kind=relational,logical,boolean\n\n'
-                + 'Assisted-by: Claude Code\n',
-            `${'c'.repeat(40)}\tAdjust a comment\n\n`
-                + 'The earlier Mutants: 7/7 run covers these lines.\n\n'
-                + 'Assisted-by: Claude Code\n',
-            `${'d'.repeat(40)}\tRelocate a helper\n\n`
-                + 'Assisted-by: Claude Code\n',
-            `${'e'.repeat(40)}\tPort a third function\n\n`
-                + 'Mutants:\n'
-                + 'Assisted-by: Claude Code\n',
-        ].map((record) => `\x1e${record}`).join('\n');
-        assert.deepEqual(missingMutantTrailers(output), {
-            commits: 5,
-            missing: ['c'.repeat(40), 'd'.repeat(40), 'e'.repeat(40)],
-        });
-        // An empty log means an empty range, never a failure.
-        assert.deepEqual(missingMutantTrailers(''),
-            { commits: 0, missing: [] });
-    });
 
 test('recorded readiness attestations must carry all three statements', () => {
     // The three keys review.md defines; whitespace-only text is as absent as

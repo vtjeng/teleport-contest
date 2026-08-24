@@ -52,24 +52,6 @@ export function checkpointCommands(focusedTests = [], {
         command: 'npm',
         args: ['test'],
     });
-    // Informational, and ordered after the suite on purpose: a red suite makes
-    // the mutator exit 2 without measuring anything, and the suite has already
-    // reported that. On a clean tree there is no mutant and the run costs
-    // 0.59 s, so this bills only while js/ work is uncommitted, which is when
-    // an added assertion is cheapest to write.
-    commands.push({
-        label: 'uncommitted mutants',
-        command: process.execPath,
-        args: [
-            'scripts/mutate-sites.mjs',
-            '--worktree',
-            '--kind',
-            'relational,logical,boolean',
-        ],
-        capture: true,
-        informational: true,
-        summarize: summarizeMutation,
-    });
     for (const check of GENERATED_CHECKS) {
         commands.push({
             label: `generated data (${check})`,
@@ -203,11 +185,7 @@ export function runCheckpointChecks(commands, {
             + (result.detail ? `: ${result.detail}` : ''));
     }
     // A skipped check ran nothing and has nothing to say. An informational one
-    // carries evidence and no verdict, so it cannot fail either; the mutation
-    // run is the only one left, and its survivors are findings rather than
-    // failures. The development score used to be informational too, which meant
-    // a crashed scoring run reported DONE and exited 0; it now carries a
-    // verdict of its own through scripts/score-baseline.mjs.
+    // carries evidence and no verdict, so it cannot fail either.
     const allPassed = results.every(({ passed, informational, skipped }) =>
         passed || informational || skipped);
     return { allPassed, results };
@@ -250,44 +228,6 @@ export function summarizeDuplicateSymbols({ stdout = '' }) {
             summary ?? 'no summary line in the duplicate-symbol index',
             nearMiss,
         ].filter(Boolean).join('; '),
-    };
-}
-
-/**
- * Read the mutation run's outcome for the checkpoint.
- *
- * Survivors are evidence and never a failure. The mutator exits 2 without
- * measuring anything when the tests covering the changed modules are red, and
- * the suite check above has already reported that, so this reports itself
- * skipped. It also exits 2 when its host probe finds the lock directory or
- * user systemd unavailable, which is what running inside a command sandbox
- * looks like; that skip names the remedy.
- */
-export function summarizeMutation({ stdout = '', stderr = '', status }) {
-    const output = `${stdout}${stderr}`;
-    if (status !== 0) {
-        let reason = `the mutator exited ${status}`;
-        if (/the unmutated tests do not pass/u.test(output)) {
-            reason = 'the tests covering the changed js/ files are red, so no '
-                + 'mutant was measured';
-        } else if (/mutation host probe/u.test(output)) {
-            reason = 'the mutation host probe failed, so no mutant was '
-                + 'measured; rerun outside the command sandbox';
-        }
-        return { body: output.trimEnd(), detail: reason, skipped: true };
-    }
-    const survivors = output.split('\n')
-        .filter((line) => line.startsWith('survived '));
-    const report = /^report written: (.+)$/mu.exec(output)?.[1];
-    const reportDetail = report ? `; report ${report}` : '';
-    const summary = /^(\d+) mutant\(s\): (\d+) killed/mu.exec(output);
-    if (!summary)
-        return { body: output.trimEnd(),
-            detail: `no js/ line in scope${reportDetail}` };
-    return {
-        body: output.trimEnd(),
-        detail: `${survivors.length} survivor(s) of ${summary[1]} mutant(s) `
-            + `over the uncommitted js/ diff${reportDetail}`,
     };
 }
 

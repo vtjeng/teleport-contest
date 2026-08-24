@@ -18,9 +18,8 @@ review window are defined in `.agents/workflow.md`.
   duplicate-symbol report, and the development score in one command. Repeat
   `--focus` to add more test files. `--skip-score` omits the development score
   for a quick run; the score must still pass before you commit.
-- `npm test` excludes the mutation-runner integration suite. Run
-  `npm run test:mutation-runner` when changing that runner or suite, and
-  `npm run test:all` when changing test registration.
+- `npm run test:all` runs all registered test suites, including those excluded
+  from the default `npm test`.
 - Redirect every checkpoint run to a log and read only its tail:
 
   ```
@@ -50,18 +49,6 @@ review window are defined in `.agents/workflow.md`.
 - Verify the PRNG log, complete 24x80 screens and their attributes, cursor
   positions, and persisted state through the next point where the player or
   scoring system can observe the result.
-
-`scripts/mutate-sites.mjs` rewrites one operator, boolean, or integer bound at a
-time in a set of `js/` lines, runs the tests that reach those modules, and
-reports the mutants that no test detects. `--worktree` scopes uncommitted work;
-`--range <base>..<head>` scopes a commit range. `.claude/agents/slice-worker.md`
-covers the per-slice run over uncommitted work, and `.agents/review.md`,
-"Mutation-test the reviewed lines", covers the per-window run over a frozen
-range.
-
-A mutant that survives (passes every test despite a rewritten operator or bound)
-shows the suite would not detect a wrong value on that line. A fresh
-differential against the C reference confirms whether the line is correct.
 
 Launch a browser only for changes to browser-specific code, DOM/CSS,
 input/storage, or browser-only presentation. When focused tests cover the
@@ -140,13 +127,6 @@ Five properties of the measuring tools commonly cause wrong conclusions.
   string.** Read `gt.toplines` (the top-line message buffer, ported as
   `display.toplines`), or run inside the workspace that
   `scripts/score-development.mjs` builds.
-- **`scripts/mutate-sites.mjs` can report zero covering test files for a
-  module.** The first pass judges each mutant using only the test files that
-  reach its module without passing through another `js/` module. A module
-  reached only through other `js/` modules reports `0 covering test file(s)`,
-  and every mutant survives its first wave vacuously. Check the per-file line;
-  where it reports zero, `--whole-suite` is not optional.
-
 ## Scoring
 
 A scoring run writes no `SCORE.tsv` row, so `npm run checkpoint` leaves the tree

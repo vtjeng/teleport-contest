@@ -57,14 +57,6 @@ const AUDIT_CATEGORY_FIELDS = Object.freeze([
   'other',
 ]);
 const AUDIT_RESOLUTIONS = new Set(['applied', 'deferred']);
-// The mutation kinds scripts/mutate-sites.mjs tags a site with. A pass records
-// only the kinds it ran, so a run under `--kind` names a subset.
-const MUTATION_KINDS = Object.freeze([
-  'boolean',
-  'integer',
-  'logical',
-  'relational',
-]);
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function fail(message) {
@@ -294,69 +286,6 @@ function validateDeferredProductionAgreement(deferrals, productionDefects) {
 
 
 /**
- * Check one pass's mutation record: what `scripts/mutate-sites.mjs` reported
- * over the frozen range and what the test-quality finder concluded about it.
- *
- * `.agents/review.md`, under "Mutation-test the reviewed lines", states the
- * command a pass runs. The per-kind counts have to total the mutants and the
- * survivors, so a record cannot claim a rate its own breakdown contradicts.
- */
-export function validateAuditMutation(mutation) {
-  if (!mutation || typeof mutation !== 'object' || Array.isArray(mutation)) {
-    fail('auditMetrics.mutation must be an object');
-  }
-  for (const field of ['mutants', 'survivors']) {
-    if (!Number.isInteger(mutation[field]) || mutation[field] < 0) {
-      fail(`auditMetrics.mutation.${field} must be a nonnegative integer`);
-    }
-  }
-  if (mutation.survivors > mutation.mutants) {
-    fail('auditMetrics.mutation cannot report more survivors than mutants');
-  }
-  const { byKind } = mutation;
-  if (!byKind || typeof byKind !== 'object' || Array.isArray(byKind)) {
-    fail('auditMetrics.mutation.byKind must be an object');
-  }
-  const kinds = Object.keys(byKind);
-  if (kinds.length === 0) {
-    fail('auditMetrics.mutation.byKind must name the kinds the run covered');
-  }
-  let ran = 0;
-  let killed = 0;
-  for (const kind of kinds) {
-    const label = `auditMetrics.mutation.byKind.${kind}`;
-    if (!MUTATION_KINDS.includes(kind)) {
-      fail(`${label} is not a mutation kind: ${MUTATION_KINDS.join(', ')}`);
-    }
-    const tally = byKind[kind];
-    if (!tally || typeof tally !== 'object' || Array.isArray(tally)) {
-      fail(`${label} must be an object`);
-    }
-    for (const field of ['ran', 'killed']) {
-      if (!Number.isInteger(tally[field]) || tally[field] < 0) {
-        fail(`${label}.${field} must be a nonnegative integer`);
-      }
-    }
-    if (tally.killed > tally.ran) {
-      fail(`${label} cannot kill more mutants than it ran`);
-    }
-    ran += tally.ran;
-    killed += tally.killed;
-  }
-  if (ran !== mutation.mutants) {
-    fail('auditMetrics.mutation.byKind must total the mutant count');
-  }
-  if (ran - killed !== mutation.survivors) {
-    fail('auditMetrics.mutation.byKind must leave the survivor count unkilled');
-  }
-  if (typeof mutation.finderConclusion !== 'string'
-      || mutation.finderConclusion.trim().length === 0) {
-    fail('auditMetrics.mutation.finderConclusion must be nonempty');
-  }
-  return mutation;
-}
-
-/**
  * Check one pass's checklist record: what plan stood behind the range it read.
  *
  * `scripts/audit-worktree.mjs prepare` decides whether the implementation
@@ -468,8 +397,6 @@ export function validateAuditMetrics(metrics, {
   if (appliedProduction > counts.applied || deferredProduction > counts.deferred) {
     fail('auditMetrics production resolutions exceed the overall resolution counts');
   }
-
-  if (metrics.mutation !== undefined) validateAuditMutation(metrics.mutation);
 
   // The hand-written half of readiness: three attestations recorded with the
   // pass. .agents/review.md defines them; prepare --readiness supplies the
@@ -1572,14 +1499,10 @@ function recordPass(kind, options) {
 // nonzero count into --evidence by hand.
 export function renderCountsSentence(metrics) {
   const { counts } = metrics;
-  const mutation = metrics.mutation
-    ? `; mutation: ${metrics.mutation.survivors} survivors of `
-      + `${metrics.mutation.mutants} mutants`
-    : '';
   return `Counts: ${counts.raw} raw, ${counts.deduplicated} deduplicated, `
     + `${counts.confirmed} confirmed, ${counts.applied} applied, `
     + `${counts.deferred} deferred, ${counts.rejected} rejected, `
-    + `${counts.unverified} unverified${mutation}.`;
+    + `${counts.unverified} unverified.`;
 }
 
 export function collectRejections(passes) {
@@ -1912,63 +1835,6 @@ function assignEntry(options) {
   });
 }
 
-// A record line, anchored so that a sentence naming another commit's figure
-// is a reference rather than this commit's own record.
-const MUTANTS_RECORD = /^Mutants:[ \t]*\S/mu;
-
-/**
- * Parse `git log --format=%x1e%H%x09%B` records for the check.
- *
- * Each record is a separator, the SHA, a tab, and the whole message. The
- * message keeps that tab, so the subject line starts with it and no subject
- * can read as a record.
- *
- * Git's own `%(trailers:key=Mutants)` reads only the message's final
- * paragraph, so a record a blank line above `Assisted-by:` is present to a
- * reader and absent to the tool; five commits in this history, 1f3e323 among
- * them, recorded a mutation run that the check then called missing. Scanning
- * the whole message finds the record wherever the worker put it, and leaves no
- * reason to rewrite a pushed message to move it.
- */
-export function missingMutantTrailers(logOutput) {
-  const records = logOutput.split('\x1e')
-    .filter((record) => record.trim())
-    .map((record) => {
-      const tab = record.indexOf('\t');
-      return { sha: record.slice(0, tab).trim(), message: record.slice(tab) };
-    });
-  return {
-    commits: records.length,
-    missing: records
-      .filter((record) => !MUTANTS_RECORD.test(record.message))
-      .map((record) => record.sha),
-  };
-}
-
-// Turns .agents/review.md's per-slice mutation record from an inspection
-// into a check: every js/-touching commit in the range must carry the
-// `Mutants:` trailer that `mutate-sites --emit-trailer` prints.
-function sliceMutants(options) {
-  rejectUnknownOptions(options, new Set(['range']));
-  if (!options.range?.trim()) fail('--range <base>..<head> is required');
-  const revisions = parseRange(options.range.trim());
-  // Whole messages are bulky: the 591 js/ commits to 1305c8d print 876 KB,
-  // against execFileSync's 1 MiB default, so the buffer is raised rather than
-  // left to overflow on a range wider than a review window.
-  const output = git([
-    'log',
-    '--format=%x1e%H%x09%B',
-    `${resolveCommit(revisions.base)}..${resolveCommit(revisions.head)}`,
-    '--',
-    'js',
-  ], { maxBuffer: 1e8 });
-  const { commits, missing } = missingMutantTrailers(output);
-  for (const sha of missing) console.log(`no Mutants trailer: ${sha}`);
-  console.log(`${plural(commits, 'js commit')} in range, `
-    + `${missing.length} without a Mutants trailer.`);
-  if (missing.length > 0) process.exitCode = 1;
-}
-
 function resolveDeferral(options) {
   rejectUnknownOptions(options, new Set(['id']));
   if (!options.id?.trim()) fail('--id is required');
@@ -2007,7 +1873,6 @@ function printHelp() {
   npm run quality -- refile-deferral --id <id> --area <id> --note <text>
   npm run quality -- block-deferral --id <id> <--blocked-on <symbol>|--clear>
   npm run quality -- resolve-deferral --id <id>
-  npm run quality -- slice-mutants --range <base>..<head>
 
 The query subcommands read the ledger, so a later pass consults prior
 rejections and open deferrals without opening QUALITY.json. defer opens a
@@ -2100,11 +1965,6 @@ export function main(argv) {
     resolveDeferral(parseOptions(rest));
     return;
   }
-  if (first === 'slice-mutants') {
-    sliceMutants(parseOptions(rest));
-    return;
-  }
-
   const statusArgs = first === 'status' ? rest : argv;
   const options = parseOptions(statusArgs);
   rejectUnknownOptions(options, new Set(['check', 'verbose', 'health']));

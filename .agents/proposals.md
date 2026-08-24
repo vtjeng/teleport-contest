@@ -40,7 +40,7 @@ unported function, which is the ordinary state.
 
 ## Print the remaining unenforced advisories
 
-**What it changes.** Three checks would turn prose rules into printed numbers.
+**What it changes.** Two checks would turn prose rules into printed numbers.
 Two related checks have landed: `node scripts/goal-log.mjs calibration` on
 2 August 2026, and the per-goal gate in `scripts/score-holdout.mjs` on
 12 August.
@@ -48,9 +48,6 @@ Two related checks have landed: `node scripts/goal-log.mjs calibration` on
 - `npm run quality` warns when dirty-tree changed lines exceed 500 while no
   `.agents/implementation-checklist.json` exists, the checklist-creation
   trigger in `.agents/implementation-checklist-template.md`.
-- `npm run checkpoint` runs `npm run quality -- slice-mutants` over new
-  commits as an informational line, so a missing `Mutants:` trailer
-  surfaces without anyone invoking the check by hand.
 - A turn-end warning prints `git log --oneline origin/main..HEAD` when
   commits sit unpushed, the push rule in `.agents/workflow.md`,
   "Pushing and CI".
@@ -96,77 +93,6 @@ read stays valid.
 **What it leaves unfixed.** The log keeps its 14,491 lines on disk. An agent
 that opens it whole must work through most of them to find the summary and the
 failing test's location.
-
-## Serialise mutation runs across parallel workers
-
-**What it changes.** `.claude/agents/slice-worker.md` would state that
-`npm run mutate` holds one host-wide lock, that exit status 2 means another run
-owns it, and that a refused worker finishes the rest of its slice before
-retrying. The refusal in `scripts/mutate-sites.mjs` would report how long the
-incumbent has held the lock, beside the pid it already reports.
-
-The lock is host-scoped because both resources it protects belong to the host.
-`acquireMutationLock()` takes `/run/user/<uid>/teleport-mutate.lock`
-(lines 185-189) and writes an `owner.json` with the pid, start time, and
-systemd unit names; `runInMutationCgroup()` takes it at line 684 ahead of every
-unit it creates. The first resource is the memory and task budget:
-`startMutationSlice()` caps each run at `MemoryMax=8G`, `MemorySwapMax=0`, and
-`TasksMax=512` (lines 520-530), and each test wave at 1 GiB and 64 tasks
-(lines 1543-1545). Unit names carry the owner's pid, so two runs' units cannot
-collide, but their budgets would. The second is recovery: an acquirer that finds
-a dead owner reads the slice name from `owner.json`, stops that slice, resets
-its failed wave scopes, and reverts its runtime drop-in (lines 455-461 and
-`stopMutationSlice()` at 588-606). Refusing a contender before it creates a
-unit keeps one recoverable unit set on the host.
-
-Throughput also plateaus at two lanes: the header comment (lines 111-126)
-records a 6 August measurement of three lanes at 40.71 s median against two at
-40.68 s on a 5-core host, so two concurrent runs would divide the same
-throughput.
-
-**Scope.** Two sentences under "Mutation-test the lines you changed" in
-`.claude/agents/slice-worker.md`, one `statSync()` call and one clause in the
-two refusal messages at lines 424-425 and 452-453, and the assertion in
-`scripts/mutate-sites.integration.mjs` that already matches
-`/another mutation run owns/`. The acquisition, reclaim, and teardown paths are
-untouched.
-
-**What prompted it.** `d5e382b` records the incumbent side of a collision on
-12 August 2026: a whole-suite escalation over 125 survivors "was started and
-abandoned at about an hour, because it runs the entire 3,477-test suite once per
-mutant and was holding the shared lock against another worktree." The waiting
-side left no trace. Four slice workers ran in separate worktrees while one
-re-attempted the same mutation command in a retry loop for about 90 minutes.
-
-The refusal works correctly: holding a lock via `TELEPORT_MUTATION_LOCK` and
-running `node scripts/mutate-sites.mjs --file js/regen.js --enumerate-only`
-exits 2, prints `mutate-sites: another mutation run owns <path> (pid <pid>)` on
-stderr, and writes nothing to stdout, so a caller cannot mistake contention for
-a clean sweep. It reports no age, so a contender cannot judge whether the wait
-is two minutes or an hour, and it refuses `--enumerate-only`, which runs no
-test.
-
-The collision is expensive because first-wave and whole-suite runs differ by an
-order of magnitude. A first wave runs only the test files that import the
-mutated module; a `--whole-suite` escalation runs the full suite per surviving
-mutant. The 30 July figures: 1.36 s and 0.14 s per mutant on two first-wave
-ranges, against 12.7 s and 13.0 s per mutant through the suite. The 12 August
-session measured 2.34 s per mutant (scoped first wave), 4.78 s per mutant
-(367-mutant range), and 51.7 s (suite baseline); those three figures are
-unrecorded in the repository.
-
-**Cost.** Small, mostly prose. The judgment cannot be enforced, so a worker that
-spins is refused as cheaply as before.
-
-**What it leaves unfixed.** Serialisation removes idle waiting but not the hour
-of test time, since one full suite runs per surviving mutant either way. The
-change that would eliminate escalation is upstream of the lock: a module that a
-test file imports directly has its mutants judged in the cheap first wave.
-`d5e382b` measured the cost of the gap, with 94 of its 125 first-wave survivors
-in `js/dothrow.js`, whose direct test file exercises four pure functions while
-`scripts/fire-command.test.mjs` covers the command path through `js/jsmain.js`.
-A refused worker gains no queue position and decides for itself when to retry.
-
 
 ## Report a deferral whose area owns none of the files it cites
 
@@ -271,94 +197,30 @@ so a corrupted text has an even backtick count, the same as an intact one. The
 one confirmed instance is a lower bound; finding the rest means reading every
 entry against its cited source.
 
-## Flag the values a mutation run cannot reach
+## Shard the development scorer
 
-**What it changes.** `scripts/mutate-sites.mjs` would report, for the lines a
-run covers, the sites it cannot generate a mutant for: table literal elements,
-`switch` label sets, whole arguments at call sites, and values passed through
-unchanged. The checkpoint prints the count beside the mutant figures, and the
-report carries the list so the slice's author sees what the run did not measure.
-It changes no verdict and does not block.
+**What it changes.** `scripts/score-development.mjs` would split the 33
+development sessions across several workspace copies, run one
+`frozen/ps_test_runner.mjs` per copy concurrently, and merge their
+`__RESULTS_JSON__` bundles.
 
-**Scope.** One traversal beside the existing site selection (which already walks
-the same syntax tree to find operators), its test, and a checkpoint summary
-line.
-
-**What prompted it.** In four consecutive correctness passes, the
-highest-severity defect was in a value no mutant operator in this project can
-alter, and the last pass found two.
-
-- `wizard-create-monster`, pass over `ea331c8..2d84dfa`: `js/read.js` seeds
-  `name_to_monplus()` with `gender: NEUTRAL`, a whole argument. Two mutation
-  runs reported the line covered, but both comments describing the seed cited a
-  mechanism `js/mondata.js` does not have, and the one input class that makes
-  the seed observable had no test.
-- `hero-zaps-a-ray-wand` slice 1, pass over `2d84dfa..4fe4f56`: two production
-  defects, neither reachable by mutation. `trap.c erode_obj()`'s per-type
-  `check_grease` was a missing table field, and `zap.c adtyp_to_prop()` had
-  four extra `switch` cases. The window ran 106 mutants over 3,807 tests (the
-  largest run this project has made) and found neither. Five of the pass's six
-  test findings had the same shape.
-- `hero-zaps-a-ray-wand` slice 3, pass over `4fe4f56..ac46567`: a refusal
-  placed ahead of the guards `apply.c catch_lit()` answers first (an ordering
-  error, not an operator target); and `js/display.js`'s hit-point clamp, which
-  the run classified as equivalent because no test distinguished it from
-  unmutated code — the orchestrator then found no test covered the mutated
-  behavior at all.
-
-**Cost.** Small to medium. The traversal is mechanical, but deciding what counts
-as an unreachable value is a judgment the tool must encode: an argument the
-callee ignores is not worth listing, nor is a table whose every row a test
-already reads. Starting narrow (array literals of more than four elements,
-`switch` label sets, and arguments that are bare identifiers or literals) would
-cover every instance above.
-
-**What it leaves unfixed.** The highest-severity finding of the fourth pass
-falls outside this proposal's reach. `zap.c:4572`'s dropped `type == 0 &&`
-conjunct *is* an operator the run mutates, and every mutant of it died against
-a test that asserted the port's reading rather than C's. A mutation run measures
-whether tests notice a change; it cannot detect tests that agree with the code
-against the source. The only instrument that has detected this fault is a
-reviewer reading the C source.
-
-## Reuse compiled code and shard the development scorer
-
-**What it changes.** `scripts/run-test-suite.mjs` and `childEnvironment()` in
-`scripts/mutate-sites.mjs` would set `NODE_COMPILE_CACHE` on the `node --test`
-children they spawn, so each process reads compiled code from Node 22's
-cross-process cache instead of recompiling the `js/` graph.
-`scripts/score-development.mjs` would split the 33 development sessions across
-several workspace copies, run one `frozen/ps_test_runner.mjs` per copy
-concurrently, and merge their `__RESULTS_JSON__` bundles. Both changes cut
-runner overhead; the tests and replay are unchanged.
-
-**Scope.** One `env` assignment at each of the two spawn sites, and a shard loop
-in `score-development.mjs` over `createScoringWorkspace()`, `runScorer()`, and
-`parseRunnerBundle()` from `scripts/scoring-workspace.mjs`, plus a test each.
-`frozen/` stays untouched. `scripts/score-holdout.mjs` calls the same three
-helpers and could take the sharded path later.
+**Scope.** A shard loop in `score-development.mjs` over
+`createScoringWorkspace()`, `runScorer()`, and `parseRunnerBundle()` from
+`scripts/scoring-workspace.mjs`, plus a test. `frozen/` stays untouched.
+`scripts/score-holdout.mjs` calls the same three helpers and could take the
+sharded path later.
 
 **What prompted it.** Measured on 24 August 2026, clean worktree at `6d10947`,
-5-core/10-thread host, one run per configuration: `npm test` takes 59.5 s wall
-and 530 CPU-seconds over 297 test files and 4,868 tests. `node --test` keeps
-about 9 of 10 logical CPUs busy, so savings come from doing less work, not more
-parallelism. Each test process spends about 0.33 s booting Node and importing
-the cyclic `js/` graph (165 modules, 5.3 MB) — about 98 CPU-seconds across 297
-files, or 18% of the suite. A warm `NODE_COMPILE_CACHE` ran the same suite in
-55.8 s, 6% faster. `scripts/score-development.mjs` takes 19.7 s, of which
-about 8 s is replay: `frozen/ps_test_runner.mjs:464` spawns one worker per
-session sequentially, so 33 processes import the graph one after another. Every
-slice worker pays both costs on each `npm run checkpoint`, and
-`mutate-sites.mjs` reruns test waves once per mutant, which its header
-extrapolates to 26–52 minutes for a full review pass.
+5-core/10-thread host: `scripts/score-development.mjs` takes 19.7 s, of which
+about 8 s is replay. `frozen/ps_test_runner.mjs:464` spawns one worker per
+session sequentially, so 33 processes import the `js/` graph one after another.
+Every slice worker pays this cost on each `npm run checkpoint`.
 
-**Cost.** Small. The env var needs no other change because Node invalidates its
-own entries when a source file changes. Sharding adds one workspace copy per
-shard and a merge step; 4-way sharding is estimated at about 5 s wall (derived
-from the 19.7 s and 8 s figures above, not measured).
+**Cost.** Small. Sharding adds one workspace copy per shard and a merge step;
+4-way sharding is estimated at about 5 s wall (derived from the 19.7 s and 8 s
+figures above, not measured).
 
-**What it leaves unfixed.** The compile cache removes compilation but not module
-import and execution, so part of the 0.33 s per process survives. A mutation
-wave still compiles the mutated module fresh, and the 6% figure was measured on
-the full suite, not on a wave. Neither change shortens a `--whole-suite`
-escalation, whose cost is running tests, not starting the runner.
+**What it leaves unfixed.** Each shard still boots Node and imports the full
+`js/` graph per session. `NODE_COMPILE_CACHE` was measured at 6% faster on the
+test suite but 33% slower under high parallelism (I/O contention across ~10
+parallel test processes), so it is not viable on this host.

@@ -6,12 +6,9 @@
 // wrong table entry fails as itself rather than as a wrong bonus.
 //
 // The three command functions are driven on a state this file builds rather
-// than on a replayed session, so nothing here imports js/jsmain.js. That is
-// what lets scripts/mutate-sites.mjs judge js/dothrow.js by these tests:
-// it admits only the test files that reach a module without passing through
-// another js/ module, and a session replay reaches dothrow.js through
-// runSegment(). scripts/fire-command.test.mjs covers the same command the
-// other way round, over recorded recipes.
+// than on a replayed session, so nothing here imports js/jsmain.js.
+// scripts/fire-command.test.mjs covers the same command the other way round,
+// over recorded recipes.
 //
 // Two kinds of assertion carry most of the weight:
 //

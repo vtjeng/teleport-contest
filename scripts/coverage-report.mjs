@@ -8,8 +8,8 @@
 // coverage while asserting the inverted form of C's `!rn2(3)`, so a fully
 // covered line certified a production bug all the way into a formal audit.
 // A line this report omits was reached, which says nothing about whether
-// anything checked what it did. Treat the counts as a work queue for
-// scripts/mutate-sites.mjs and for new assertions, never as a number to raise.
+// anything checked what it did. Treat the counts as a work queue for new
+// assertions, never as a number to raise.
 //
 // What it does say is worth knowing. The port has two independent oracles:
 //
@@ -19,9 +19,7 @@
 //           positionally.
 //
 // A js/ line the score executes is pinned by the strongest oracle here. A line
-// neither population executes is guarded by nothing at all, and until this
-// script existed nobody could tell the two apart -- a mutation sweep could
-// report survivors with no way to say which of them mattered.
+// neither population executes is guarded by nothing at all.
 //
 // How it measures. Both populations run under NODE_V8_COVERAGE, Node's own
 // built-in V8 coverage dump, which needs no dependency. Both spawn children --

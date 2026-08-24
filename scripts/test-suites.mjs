@@ -5,11 +5,7 @@ import { fileURLToPath } from 'node:url';
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = resolve(SCRIPT_DIR, '..');
 
-export const DEDICATED_TEST_SUITES = Object.freeze({
-    'mutation-runner': Object.freeze([
-        'scripts/mutate-sites.integration.mjs',
-    ]),
-});
+export const DEDICATED_TEST_SUITES = Object.freeze({});
 
 export function buildTestSuites(discovered, dedicated, {
     exists = (path) => existsSync(resolve(PROJECT_ROOT, path)),

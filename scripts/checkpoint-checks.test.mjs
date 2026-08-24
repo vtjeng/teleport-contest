@@ -9,7 +9,6 @@ import {
     runCheckpointChecks,
     summarizeDevelopmentScore,
     summarizeDuplicateSymbols,
-    summarizeMutation,
     summarizeReviewGate,
 } from './checkpoint-checks.mjs';
 import { readBaseline } from './score-baseline.mjs';
@@ -83,8 +82,7 @@ test('the checkpoint reports duplicate symbols without gating on them', () => {
     );
 });
 
-test('checkpoint runs focused, full, mutants, generated, static, and score',
-    () => {
+test('checkpoint runs focused, full, generated, static, and score', () => {
         const commands = checkpointCommands([
             'scripts/dogmove.test.mjs',
             'scripts/monmove.test.mjs',
@@ -95,7 +93,6 @@ test('checkpoint runs focused, full, mutants, generated, static, and score',
             [
                 'focused tests',
                 'full test suite',
-                'uncommitted mutants',
                 'generated data (check:colors)',
                 'generated data (check:config-statements)',
                 'generated data (check:extcmds)',
@@ -209,87 +206,17 @@ test('checkpoint runner finishes all checks and reports any failure', () => {
     assert.equal(output.at(-1), 'PASS  full test suite');
 });
 
-test('the mutation check reports survivors on its summary line', () => {
-    // `.agents/validation.md` has agents read the tail of the checkpoint log,
-    // which holds the summary lines and none of the bodies, so the count has to
-    // ride the summary line.
-    const stdout = [
-        'js/lock.js: 3 line(s) in scope, 2 site(s), 2 mutant(s) [logical 2], 1',
-        'verdict: the first wave only, so a survivor below may still be killed',
-        'survived js/lock.js:29:50: logical `||` -> `&&` (first wave was 1)',
-        'killed js/lock.js:29:28: logical `||` -> `&&` (first wave: lock.test)',
-        '2 mutant(s): 1 killed, 1 survived, 0 timed out; 0.9 s of test time',
-        'report written: /tmp/teleport-mutation-report-fixed/report.json',
-    ].join('\n');
-
-    assert.deepEqual(summarizeMutation({ stdout, status: 0 }), {
-        body: stdout,
-        detail: '1 survivor(s) of 2 mutant(s) over the uncommitted js/ diff; '
-            + 'report /tmp/teleport-mutation-report-fixed/report.json',
-    });
-
-    // A clean tree puts no line in scope, so the mutator prints no summary.
-    assert.equal(
-        summarizeMutation({ stdout: '0 file(s), 0 line(s) in scope', status: 0 })
-            .detail,
-        'no js/ line in scope',
-    );
-});
-
-test('a red covering suite skips the mutation check instead of failing it',
-    () => {
-        // The mutator exits 2 without measuring anything when the tests
-        // covering the changed modules fail, and the suite check above has
-        // already reported that. Reporting this one as failed would name the
-        // same problem twice.
-        const red = summarizeMutation({
-            stdout: '',
-            stderr: 'mutate-sites: the unmutated tests do not pass, so no '
-                + 'mutant result would be meaningful',
-            status: 2,
-        });
-
-        assert.equal(red.skipped, true);
-        assert.equal(red.detail, 'the tests covering the changed js/ files are '
-            + 'red, so no mutant was measured');
-        // Any other nonzero exit is skipped too, and says which code it was.
-        assert.equal(summarizeMutation({ stdout: 'boom', status: 3 }).detail,
-            'the mutator exited 3');
-    });
-
-test('a failed host probe skips the mutation check and names the remedy',
-    () => {
-        // The stderr line is what the mutator's probeMutationHost() prints
-        // through the CLI when a command sandbox blocks the user bus; the
-        // parenthesised detail is the verbatim systemd error such a sandbox
-        // produces. The summary must map it to the skip reason that tells the
-        // reader to rerun outside the sandbox rather than the generic
-        // exited-2 reason.
-        const probed = summarizeMutation({
-            stdout: '',
-            stderr: 'mutate-sites: mutation host probe: user systemd is '
-                + 'unreachable (Failed to connect to bus: Operation not '
-                + 'permitted); a command sandbox is the likely cause, so '
-                + 'rerun outside it',
-            status: 2,
-        });
-
-        assert.equal(probed.skipped, true);
-        assert.equal(probed.detail, 'the mutation host probe failed, so no '
-            + 'mutant was measured; rerun outside the command sandbox');
-    });
-
 test('an informational check carries evidence and never fails the run', () => {
     const output = [];
     const { allPassed: passed } = runCheckpointChecks([
         { label: 'full test suite', command: 'npm', args: ['test'] },
         {
-            label: 'uncommitted mutants',
+            label: 'duplicate symbols',
             command: 'node',
-            args: ['mutate'],
+            args: ['check-dup'],
             capture: true,
             informational: true,
-            summarize: () => ({ body: 'body text', detail: '3 survivor(s)' }),
+            summarize: () => ({ body: 'body text', detail: '3 duplicate(s)' }),
         },
         {
             label: 'development score',
@@ -309,7 +236,7 @@ test('an informational check carries evidence and never fails the run', () => {
     assert.equal(passed, true);
     assert.equal(output.at(-3), 'PASS  full test suite');
     // The detail rides the summary line; a skipped check says SKIP.
-    assert.equal(output.at(-2), 'FAIL  uncommitted mutants: 3 survivor(s)');
+    assert.equal(output.at(-2), 'FAIL  duplicate symbols: 3 duplicate(s)');
     assert.equal(output.at(-1), 'SKIP  development score');
     assert.equal(output.includes('body text'), true);
 });

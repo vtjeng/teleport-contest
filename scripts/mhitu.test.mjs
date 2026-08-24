@@ -1366,8 +1366,6 @@ test('hitmu reduces damage for a negative armor class and not for zero',
     // exactly zero and nowhere else: the same 1d1 bite rolls one and the
     // second rnd(4) answers one, so C's `< 1` pays a point while `< 0` leaves
     // zero, fails hitmu()'s `mhm.damage > 0`, and skips mdamageu() entirely.
-    // The mutation run over 2be53e4..d0612ef reported this line as a
-    // survivor with no recorded reason.
     before = state.u.uhp;
     const atZero = meleeEnv(state, [1, 1, 1]);
     assert.equal(await mattacku(bug, atZero.env), false);
