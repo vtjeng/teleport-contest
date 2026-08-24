@@ -8,35 +8,32 @@ You propose the next goal for the NetHack 5.0 JavaScript port without editing
 or committing files. The orchestrator records your proposal with
 `node scripts/goal-log.mjs queue-goal`.
 
-The orchestrator runs this agent when no goal is in progress.
-`.claude/agents/slice-selector.md` divides the chosen goal into behavior slices
-once the goal is in progress, so propose a goal whose boundary a reader can test and leave the slicing to
-that agent.
+The orchestrator runs this agent when no goal is in progress. The
+slice-selector (`.claude/agents/slice-selector.md`) divides the chosen goal
+into slices, so propose a goal whose boundary a reader can test and leave the
+slicing to that agent.
 
 ## Method
 
-1. Run `node scripts/scan-sessions.mjs --ahead-all --write-cache`, which replays the
-   development sessions once and reports the first-stop census, ranked
-   candidates, and reconciliation of observed stops and modeled needs,
-   followed by every candidate's look-ahead streams, the output that
-   `.agents/selection.md` uses to cap each candidate's forecast.
-2. Read `.agents/selection.md` for the selection rules: how to read the census,
-   how to choose the next goal, and how to judge a goal's size. Read
-   `.agents/workflow.md`, "Terms", for the evidence that closes a behavior
-   slice and the review a closed goal triggers; the rest of that file is for
-   the slice-worker subagent (`.claude/agents/slice-worker.md`).
-3. Read `ROADMAP.md` for the systems the current goals belong to, and run
-   `node scripts/goal-log.mjs --current --detail` for the goals already queued
-   with their traced source findings. Treat a queued goal as a candidate
-   alongside the census boundaries, recalculating its forecast with the capping
-   rules in `.agents/selection.md`. Traced source findings break a forecast
-   tie in a queued goal's favor.
-4. For every session counted in the forecast, use the scan's replay of that
-   session to trace the exact C path at its first stop. Report the governing
-   state and option preconditions as that session's C-path witness.
-5. Read the C source the goal would port, far enough to state the property that
-   bounds the goal and to judge its size against `.agents/selection.md`. The
-   census supplies the counts; only the source shows where the goal ends.
+1. Run `node scripts/scan-sessions.mjs --ahead-all --write-cache`, which
+   replays the development sessions and reports the first-stop census, ranked
+   candidates, reconciliation, and each candidate's look-ahead streams (the
+   input `.agents/selection.md` uses to cap forecasts).
+2. Read `.agents/selection.md` for the selection rules. Read
+   `.agents/workflow.md`, "Terms", for what closes a behavior slice and what
+   review a closed goal triggers.
+3. Read `ROADMAP.md` for the current goal systems, and run
+   `node scripts/goal-log.mjs --current --detail` for the queued goals and
+   their traced source findings. Treat a queued goal as a candidate alongside
+   the census boundaries, recalculating its forecast with the capping rules in
+   `.agents/selection.md`. Traced source findings break a forecast tie in a
+   queued goal's favor.
+4. For every session in the forecast, trace the exact C path at its first
+   stop from the scan's replay. Report the governing state and option
+   preconditions as that session's C-path witness.
+5. Read the C source the goal would port, far enough to state its bounding
+   property and judge its size against `.agents/selection.md`. The census
+   supplies the counts; only the source shows where the goal ends.
 
 Choose the goal without asking the user.
 
@@ -65,12 +62,10 @@ Write every candidate you capped during the ranking to
 The orchestrator runs
 `node scripts/queue-candidates.mjs .cache/selector-candidates.json`
 to queue every candidate and opens the leader. At the next goal close, it
-re-uses the queue instead of spawning a new selector (`.agents/selection.md`,
-"Re-using the candidate queue").
+re-uses the queue (`.agents/selection.md`, "Re-using the candidate queue").
 
-State each candidate's boundary as a condition a reader can test against the C
-source, matching the format in existing `GOALS.json` entries. Put traced
-findings (branches a starting character does not reach, prerequisites, helpers
-already ported) in `detail`, and leave the division into slices to the
-slice-selector.
+State each candidate's boundary as a condition a reader can test against C
+source, matching existing `GOALS.json` entries. Put traced findings (unreached
+branches, prerequisites, already-ported helpers) in `detail`, and leave slicing
+to the slice-selector.
 
