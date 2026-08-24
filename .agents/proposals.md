@@ -280,8 +280,8 @@ on a session that lost cursor matches while keeping its screens.
 currently catches. It moves independently of `screens`: measured at `16ab32d`
 over the 33 development sessions, 4 disagree, and `seed0006-wizard-water-demon`
 disagrees by 8, at 56 screens against 64 cursors. The comment above
-`RATCHET_METRICS` explains why `rngCalls` was added beside `screens` — a session
-can keep its screens while the state behind them drifts — and the same argument
+`RATCHET_METRICS` explains why `rngCalls` was added beside `screens`: a session
+can keep its screens while the state behind them drifts. The same argument
 covers the cursor.
 
 **Scope.** `raiseBaseline()` and `lowerBaseline()` already iterate
@@ -383,13 +383,13 @@ project can alter, and the last pass found two.
 **Cost.** Small to medium. The traversal is mechanical, but deciding what
 counts as a value "no mutant can reach" is a judgment the tool has to encode:
 an argument the callee ignores is not worth listing, and a table whose every
-row a test already reads is not either. Starting narrow — array literals of
+row a test already reads is not either. Starting narrow (array literals of
 more than four elements, `switch` label sets, and arguments that are bare
-identifiers or literals — would cover every instance above.
+identifiers or literals) would cover every instance above.
 
 **What it leaves unfixed.** The highest-severity finding of the fourth pass is
 outside its reach entirely. `zap.c:4572`'s dropped `type == 0 &&` conjunct *is* an
-operator the run mutates, and every mutant of it died — against a test that
+operator the run mutates, and every mutant of it died, against a test that
 asserted the port's reading rather than C's. A mutation run measures whether
 the tests notice a change; it cannot notice that the tests agree with the code
 against the source. Nothing proposed here detects that, and the only instrument

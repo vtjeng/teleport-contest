@@ -52,7 +52,7 @@ without re-running the port.
 ## The three panes
 
 **Status line (under the header).** After a session loads, the line
-under the header reads `<name> — <n> steps · PRNG <matched>/<total>
+under the header reads `<name> - <n> steps · PRNG <matched>/<total>
 · screens <matched>/<total>`. For PRNG, the viewer pairs each step's
 canon and js calls in order and counts the pairs whose call name,
 bound, and drawn value agree. The total is the sum, across all
