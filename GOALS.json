@@ -3359,7 +3359,13 @@
         ]
       },
       "detail": "The port needs a docallcmd case in js/cmd.js doextcmd() switch (around line 1951) and docallcmd() in js/do_name.js using the menu infrastructure already ported. The cancel path exercises menu creation (520-550), select_menu (551), and window destruction (556). No naming helper is reached. js/do_name.js already ports docall() at line 243. About 60 lines of new C coverage for the exercised path; the full function is 103 lines.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "name-command-cancel-menu-dismiss",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "61de642040650c62c7516217c069486c1bbfb72b",
       "openStanding": {
         "sha": "2b2ef844d884b39bc32f36895798975d99eec517",
