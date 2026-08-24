@@ -1,37 +1,35 @@
 # Continuous operation
 
-Only the orchestrator follows this file. It defines the orchestration loop,
-the four agent roles, the orchestrator's steps, question triage, and phase
-logging. `.agents/workflow.md` defines the vocabulary it uses, and
-`.agents/review.md` states when a formal review pass is due and how to run
-one.
+Only the orchestrator follows this file. It defines the loop, the four agent
+roles, question triage, and phase logging. `.agents/workflow.md` defines the
+terms it uses, and `.agents/review.md` states when a formal review pass is
+due and how to run one.
 
-The orchestrator keeps a goal active while completing small, coherent
-implementation slices that follow the C source, within the limits in
-`.agents/review.md`, "Review scheduling".
+The orchestrator keeps a goal active while completing small, coherent slices
+that follow the C source, within the limits in `.agents/review.md`, "Review
+scheduling".
 
-Implementation and review alternate inside one goal. Four agents share that
-work, and each agent performs exactly one role.
+Implementation and review alternate inside one goal. Four agents share the
+work, each performing exactly one role.
 
 - The **goal-selector** (`.claude/agents/goal-selector.md`) runs when no
   goal is in progress. It applies `.agents/selection.md` to propose the next
-  goal, without modifying any files; the slice-selector divides the goal
-  once it is in progress.
+  goal without modifying files; the slice-selector divides the goal once it
+  is in progress.
 - The **slice-selector** (`.claude/agents/slice-selector.md`) runs while a
   goal is in progress. It applies `.agents/selection.md` to identify the
-  next slice inside that goal, without modifying any files.
-- The **worker** (`.claude/agents/slice-worker.md`) closes exactly one slice,
-  taking it from queued to closed in a single run: trace it to upstream
-  source, implement it, record a fresh case with the C reference program
-  and replay it as `.agents/validation.md` requires, and commit the result.
-  A worker that cannot reach that state reports what blocked it without
-  committing, so the slice stays queued. It does not run a formal review
-  pass or check the review-debt gate, and records only deferrals through
-  `npm run quality -- defer`.
-- The **orchestrator** spawns the other three, measures independently what the
-  worker landed, and owns every formal review pass.
+  next slice without modifying files.
+- The **worker** (`.claude/agents/slice-worker.md`) closes exactly one slice
+  in a single run: trace it to upstream source, implement it, record a fresh
+  case with the C reference program and replay it as `.agents/validation.md`
+  requires, and commit the result. A worker that cannot reach that state
+  reports what blocked it without committing, so the slice stays queued. It
+  does not run a formal review pass or check the review-debt gate, and
+  records only deferrals through `npm run quality -- defer`.
+- The **orchestrator** spawns the other three, independently measures what
+  the worker landed, and owns every formal review pass.
 
-The orchestrator repeats, without returning to the user between its steps:
+The orchestrator repeats without returning to the user between steps:
 
 1. When no goal is in progress, check whether the candidate queue in
    `GOALS.json` can supply the next goal without a full selector run,
@@ -43,86 +41,82 @@ The orchestrator repeats, without returning to the user between its steps:
    The goal-selector writes every candidate it capped to
    `.cache/selector-candidates.json`. Queue them with
    `node scripts/queue-candidates.mjs .cache/selector-candidates.json`,
-   which adds each new candidate to `GOALS.json` and skips any whose
-   identifier already exists.
+   which adds new candidates to `GOALS.json` and skips any whose identifier
+   already exists.
 
    Before opening a goal, rerun the census so the forecast reflects the
-   current development score. Then `open-goal` it, which captures the
-   score standing the close will be measured against, and take the goal's
-   first queued slice. When the goal has no queued slice, ask the
-   slice-selector and `queue-slice` the answer. Both selectors return their
-   recommendation; only you record it.
-2. Spawn a worker for that slice. When it returns, establish independently
-   what landed: `git log --oneline` and `git status --short` for the commits
-   and the tree. The worker's `npm run checkpoint` writes
-   `.cache/checkpoint-summary.json` with the commit SHA, test verdict, and
-   development score figures. Read that file and verify its `commit` matches
-   `git rev-parse HEAD`; if it matches, use its figures instead of re-running
-   `npm run checkpoint`. If it does not match (the worker did not commit, or
-   another agent committed after it), run `npm run checkpoint` yourself. Add
-   `git log --oneline origin/main..HEAD` for what is not pushed. Push
-   whatever the worker left behind and every commit you landed yourself,
-   then watch the CI run from a background task as `.agents/workflow.md`,
-   "Pushing and CI", states.
-3. Run `npm run quality` yourself; no worker reports it. Its single
-   `Review since <frontier>` line reports how much unreviewed code has
-   accumulated. `DUE` is the review-debt gate that stops implementation
-   until the required pass has run, its confirmed findings are applied,
-   and its entry is recorded. `WATCH` prints the current counts against
-   that gate. `.agents/review.md`, "When a correctness pass is due",
-   defines the gate.
+   current development score. Then `open-goal` it (which captures the score
+   the close will be measured against) and take the goal's first queued
+   slice. When the goal has no queued slice, ask the slice-selector and
+   `queue-slice` the answer. Both selectors return their recommendation;
+   only you record it.
+2. Spawn a worker for that slice. When it returns, establish what landed:
+   `git log --oneline` and `git status --short` for the commits and tree.
+   The worker's `npm run checkpoint` writes `.cache/checkpoint-summary.json`
+   with the commit SHA, test verdict, and development score. Read that file
+   and verify its `commit` matches `git rev-parse HEAD`; if it matches, use
+   its figures instead of re-running `npm run checkpoint`. If it does not
+   match (the worker did not commit, or another agent committed after it),
+   run `npm run checkpoint` yourself. Add `git log --oneline
+   origin/main..HEAD` for unpushed commits. Push whatever the worker left
+   behind and every commit you landed, then watch the CI run from a
+   background task as `.agents/workflow.md`, "Pushing and CI", states.
+3. Run `npm run quality` yourself; no worker reports it. Its `Review since
+   <frontier>` line reports how much unreviewed code has accumulated. `DUE`
+   stops implementation until the required pass has run, its confirmed
+   findings are applied, and its entry is recorded. `WATCH` prints the
+   current counts against the gate. `.agents/review.md`, "When a
+   correctness pass is due", defines the gate.
 4. When a slice closes, append its `SCORE.tsv` row as `.agents/scoring.md`,
    "Score evidence", requires, in the commit that records the closure in
    `GOALS.json`. The row's `sha` and figures come from step 2's measurement.
    Continue at step 1. When three consecutive slice closes leave the
-   development score unchanged in `SCORE.tsv`, take no further slice from
-   the goal until you rerun the census (the scan of session mismatches that
-   identifies implementation candidates) and restate the goal's remaining
-   capped forecast. Record in the goal entry either why the remaining
-   slices outrank the census leader, or the split: close the delivered
-   part, and move each remaining obligation to the deferral ledger with
+   development score unchanged in `SCORE.tsv`, take no further slice until
+   you rerun the census and restate the goal's remaining capped forecast.
+   Record in the goal entry either why the remaining slices outrank the
+   census leader, or the split: close the delivered part and move each
+   remaining obligation to the deferral ledger with
    `npm run quality -- defer`. A sequence of slices whose queue entry
    records that the development score will change within the next two
    slices is exempt from the census rerun and forecast restatement. When
    the last slice of the goal closes, continue at step 5. A correctness
-   pass is not required at every goal close; it fires when the threshold in
-   `.agents/review.md`, "When a correctness pass is due", is met.
+   pass is not required at every goal close; it fires when the threshold
+   in `.agents/review.md`, "When a correctness pass is due", is met.
 5. When a goal closes, run the authorized holdout evaluation and record its
    result with the goal's evidence. Resolve every open deferral the goal's
    commits closed, read from `npm run quality -- deferrals --area <id>` for
    the areas the goal touched; the rest stay open, and none becomes a
    queued slice. Close the goal with `node scripts/goal-log.mjs close-goal`,
-   which records delivered figures beside the forecast from the score log;
-   the closed entry stays in `GOALS.json` so that forecast accuracy can be
-   compared against delivered results. Continue at step 1.
+   which records delivered figures beside the forecast. The closed entry
+   stays in `GOALS.json` for forecast-accuracy comparison. Continue at
+   step 1.
 
 A formal review pass is a step of this loop, and the orchestrator runs it.
 
-Commits may land while a formal review pass reviews its fixed range of code.
-They fall outside that range and belong to the next pass, and neither the
-pass nor the commits block the other. They do constrain the readiness
-requirements in `.agents/review.md`, which requires that all review debt at
-a batching threshold outside the frozen range is either cleared or exempt.
-Clear that debt when declaring readiness; implementation may continue while
-it accumulates.
+Commits may land while a formal review pass reviews its fixed range. They
+belong to the next pass, and neither the pass nor the commits block the
+other. They do constrain readiness: `.agents/review.md` requires that all
+review debt at a batching threshold outside the frozen range is cleared or
+exempt. Clear that debt when declaring readiness; implementation may
+continue while it accumulates.
 
-`AGENTS.md` lists the three cases that stop this loop for the user. Nothing
-else stops it; an iteration ending at a clean committed state is a reason to
-start the next. End each turn with a subagent or a pass running, or with the
-next step started.
+`AGENTS.md` lists the three cases that stop this loop. Nothing else stops
+it; an iteration ending at a clean committed state is a reason to start the
+next. End each turn with a subagent or a pass running, or with the next
+step started.
 
-When a question arises that `AGENTS.md`, this file, or the files they name
+When a question arises that `AGENTS.md`, this file, or their references
 already answer, state the decision, cite the rule, and continue. Triage
 every other question by what it blocks:
 
 - If it does not block anything, append it to `.agents/questions.md` with the
   provisional decision the loop took and continue.
 - If it blocks only the current slice, park the slice (the worker reports
-  what blocked it without committing, so the slice stays queued), append the
-  entry to `.agents/questions.md`, fire a push notification to the user, and
-  take the next slice or goal.
-- If it blocks every next step, this is the fourth stop case in `AGENTS.md`,
-  and it stops the loop.
+  what blocked it without committing, so it stays queued), append the entry
+  to `.agents/questions.md`, fire a push notification to the user, and take
+  the next slice or goal.
+- If it blocks every next step, this is the fourth stop case in `AGENTS.md`
+  and stops the loop.
 
 Entries stay open until the user answers them. Open each progress report
 with the count of open entries and the newest one.
@@ -130,14 +124,13 @@ with the count of open entries and the newest one.
 Mark phase boundaries as they happen: `node scripts/phase-log.mjs start
 <phase>` and `end <phase>`, with `--goal <id>`, around selection (`select`),
 each worker run (`implement`), and each formal review pass (`review`).
-`validate` rows are optional but are the only record of validation time,
-because scoring runs do not append `SCORE.tsv` rows.
+`validate` rows are optional but are the only record of validation time.
 `node scripts/phase-log.mjs --summary` totals the phases; commit `PHASES.tsv`
 with the work that ended the phase.
 
-Spawn a subagent only at the step that calls for one, and spawn a fresh one
-each time; none of them persists between steps. Spawn each one by its agent
-type (such as `slice-worker`), not by copying its instructions into a prompt.
+Spawn a subagent only at the step that calls for one, fresh each time.
+Spawn by agent type (such as `slice-worker`), not by copying its
+instructions into a prompt.
 
 When the loop runs under `/loop`, set a long wakeup interval while work is
 in flight and a short one when idle. End the loop with `ScheduleWakeup stop`
@@ -146,8 +139,7 @@ reason to stop.
 
 ## The report per worker iteration
 
-Under `/loop`, relay one report to the user for each worker iteration: the
-slice that closed, the development score before and after, any bug the
-worker hit, and which slice or goal the loop takes next. Every figure in
-that report comes from your own measurement in step 2 of the loop. Do not
-use figures the worker reports.
+Under `/loop`, relay one report per worker iteration: the slice that
+closed, the development score before and after, any bug the worker hit, and
+which slice or goal the loop takes next. Every figure comes from your own
+measurement in step 2. Do not use figures the worker reports.
