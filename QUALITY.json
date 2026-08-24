@@ -18833,6 +18833,99 @@
         }
       },
       "recordedAt": "2026-08-24T18:43:28.676Z"
+    },
+    {
+      "kind": "review",
+      "head": "b2d88955c213af711ca9304a0891c282bdbc9f0d",
+      "auditedRange": "fd3c8068b8ba12bc298cc8450d9727b8f5f514a5..b2d88955c213af711ca9304a0891c282bdbc9f0d",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "9b34adacc2ac9ac267834a7acbee98c410238896",
+        "reason": "The checklist is from the prior glyph-customization goal. The dungeon-overview-menu goal had one slice whose implementation (249 lines of C, 231 JS) fit in a single worker run without a checklist."
+      },
+      "level": "full",
+      "areas": [
+        "generation",
+        "monsters",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 11 raw, 11 deduplicated, 9 confirmed, 9 applied, 0 deferred, 2 rejected, 0 unverified; mutation: 4 survivors of 22 mutants. Counts: 11 raw, 11 deduplicated, 9 confirmed, 9 applied, 0 deferred, 2 rejected, 0 unverified; mutation: 0 survivors of 22 mutants + 0 survivors of 1 audit-fix mutant. Full correctness pass (correctness, readability, tests, variable-trace). 1 production defect: buried-ball guard missing in the ? path. 8 test-quality findings adding _captureMenuItems hook assertions and deleting 2 false-positive Escape-only tests. 2 readability findings rejected.",
+      "auditMetrics": {
+        "mode": "full",
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace"
+        ],
+        "wallTimeSeconds": 600,
+        "counts": {
+          "raw": 11,
+          "deduplicated": 11,
+          "confirmed": 9,
+          "applied": 9,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 8,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "file": "js/teleport.js",
+            "line": 1285,
+            "summary": "buried-ball guard missing in level_tele ? path before schedule_goto",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "readability: extract common dungeon-state setup into a helper",
+            "counterEvidence": "Tests already use printDungeonState() helper; the suggestion duplicates existing structure"
+          },
+          {
+            "summary": "readability: rename state._captureMenuItems to a more descriptive identifier",
+            "counterEvidence": "The underscore-prefixed name follows the existing _preNhgetchHook convention for test hooks"
+          }
+        ],
+        "deferrals": [],
+        "readiness": {
+          "boundary": "Starting event: player types ? in level_tele and enters the print_dungeon menu. Ending event: schedule_goto stores the selected level and deferred post-teleport message.",
+          "sourceReview": "Every branch in level_tele (teleport.c:1267-1440) print_dungeon menu path traced against C source. print_dungeon item construction, menu heading text, hero marker, castle tune annotation, level reachability, buried_ball_to_punishment guard, verbose-dependent message, and schedule_goto call verified.",
+          "completeness": "No known unsupported behavior within the boundary. Excluded branches (endgame amulet, controlled teleport destination, force_dest=false cases) stop at UnsupportedLevelChangeError before changing state."
+        },
+        "mutation": {
+          "mutants": 22,
+          "survivors": 4,
+          "byKind": {
+            "relational": {
+              "ran": 8,
+              "killed": 6
+            },
+            "logical": {
+              "ran": 8,
+              "killed": 6
+            },
+            "boolean": {
+              "ran": 6,
+              "killed": 6
+            }
+          },
+          "finderConclusion": "4 survivors in print_dungeon heading and level-entry code; the audit fix commit adds targeted tests that kill the guard mutant and the audit-fix checkpoint confirms 0 survivors of its 1 mutant."
+        }
+      },
+      "recordedAt": "2026-08-24T21:02:51.516Z"
     }
   ]
 }
