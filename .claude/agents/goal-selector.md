@@ -15,12 +15,11 @@ that agent.
 
 ## Method
 
-1. Run `node scripts/scan-sessions.mjs`, which replays the development sessions
-   once and reports the first-stop census, ranked candidates, and reconciliation of
-   observed stops and modeled needs. Then run
-   `node scripts/scan-sessions.mjs --ahead=<behavior>` per candidate to collect
-   the look-ahead output that `.agents/selection.md` uses to cap each
-   candidate's forecast.
+1. Run `node scripts/scan-sessions.mjs --ahead-all`, which replays the
+   development sessions once and reports the first-stop census, ranked
+   candidates, and reconciliation of observed stops and modeled needs,
+   followed by every candidate's look-ahead streams, the output that
+   `.agents/selection.md` uses to cap each candidate's forecast.
 2. Read `.agents/selection.md` for the selection rules: how to read the census,
    how to choose the next goal, and how to judge a goal's size. Read
    `.agents/workflow.md`, "Terms", for the evidence that closes a behavior

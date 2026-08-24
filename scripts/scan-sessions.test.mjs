@@ -10,6 +10,7 @@ import {
 import { UnsupportedHeroMoveBoundaryError } from '../js/hack.js';
 import {
     DEVELOPMENT_DIR,
+    aheadMembers,
     aheadStretch,
     assembleBehaviors,
     attachBehaviors,
@@ -65,17 +66,17 @@ test('main rejects every argument outside its three options', async () => {
     // carries its value in the same token, so no bare argument is ever read.
     await assert.rejects(
         () => main(['sessions/holdout']),
-        /only --json, --by=<unlocks\|supports> and --ahead=<behavior>/,
+        /only --json, --by=<unlocks\|supports>, --ahead=<behavior> and --ahead-all/,
     );
     await assert.rejects(
         () => main(['--json', '--sessions=/tmp/elsewhere']),
-        /only --json, --by=<unlocks\|supports> and --ahead=<behavior>/,
+        /only --json, --by=<unlocks\|supports>, --ahead=<behavior> and --ahead-all/,
     );
     // `--by` takes only the two orders RANK_ORDERS defines; anything else is
     // a typo rather than a request, and must not reach the report.
     await assert.rejects(
         () => main(['--by=screens']),
-        /only --json, --by=<unlocks\|supports> and --ahead=<behavior>/,
+        /only --json, --by=<unlocks\|supports>, --ahead=<behavior> and --ahead-all/,
     );
 });
 
@@ -105,6 +106,7 @@ test('--help prints the options and replays nothing', async () => {
     }
     const printed = lines.join('\n');
     assert.match(printed, /--ahead=<behavior>/);
+    assert.match(printed, /--ahead-all/);
     assert.match(printed, /--by=<unlocks\|supports>/);
     assert.match(printed, /--json/);
     // A replay prints this heading, so its absence shows --help returned first.
@@ -521,6 +523,24 @@ test('a session whose earliest behavior misses the stop point is reported', () =
     assert.equal(agreement.total, 2);
     assert.equal(agreement.agree, 1);
     assert.deepEqual(agreement.mismatches.map((row) => row.file), ['b']);
+});
+
+test('aheadMembers lists each earliest unmet behavior once, in unlocks order', () => {
+    // Three unfinished sessions and one finished one. seed-a and seed-b stop
+    // first on "wield": 70-10=60 and 90-40=50 steps ahead, so unlocks 110.
+    // seed-c stops first on "quaff": 80-50=30. "close" appears only as a
+    // second behavior, so it has no stream and must be omitted; the finished
+    // session has no unmet behavior and must not appear under any member.
+    const rows = [
+        { file: 'seed-a', recordedSteps: 100,
+            behaviors: [{ member: 'wield', at: 10 }, { member: 'close', at: 70 }] },
+        { file: 'seed-b', recordedSteps: 90,
+            behaviors: [{ member: 'wield', at: 40 }] },
+        { file: 'seed-c', recordedSteps: 80,
+            behaviors: [{ member: 'quaff', at: 50 }] },
+        { file: 'seed-done', recordedSteps: 70, behaviors: [] },
+    ];
+    assert.deepEqual(aheadMembers(rows), ['wield', 'quaff']);
 });
 
 test('aheadStretch spans from the current stop to the next one', () => {

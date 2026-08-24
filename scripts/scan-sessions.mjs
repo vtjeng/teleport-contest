@@ -58,7 +58,9 @@
 // rule: `--by=unlocks` orders the candidates by the look-ahead forecast's
 // starting figure, and a classifier caps each session's stretch before the
 // figure is trusted. `--ahead=<behavior>` prints the message stream that
-// capping read works from. The raw `unlocks` count is an upper bound; measured
+// capping read works from, and `--ahead-all` appends every candidate's
+// streams to the report, so the selection read needs one run instead of one
+// per candidate. The raw `unlocks` count is an upper bound; measured
 // against three closed goals it overstated by 5.8, 4.8 and 26 times.
 //
 // Which recorded bytes are commands
@@ -1172,6 +1174,30 @@ function aheadStretches(rows, target) {
         });
 }
 
+/**
+ * The candidates `--ahead-all` covers: every behavior that is some session's
+ * earliest unmet behavior, in the unlocks ranking's order. Each unfinished
+ * session has exactly one earliest, so the full dump holds one stream per
+ * unfinished session. A behavior that stops no session first has no stream
+ * and is omitted.
+ */
+export function aheadMembers(rows) {
+    const members = new Set(
+        rows.map((row) => aheadStretch(row)?.member).filter(Boolean),
+    );
+    return rankCandidates(rows, 'unlocks')
+        .map((entry) => entry.member)
+        .filter((member) => members.has(member));
+}
+
+/** The `--ahead=<behavior>` sections for every candidate, after the report. */
+function reportAheadAll(rows) {
+    for (const member of aheadMembers(rows)) {
+        console.log(`\n==== Look-ahead for "${member}"\n`);
+        reportAhead(rows, member);
+    }
+}
+
 const AHEAD_PREFIX = '--ahead=';
 
 export async function main(args) {
@@ -1188,6 +1214,8 @@ export async function main(args) {
             + '\n  --ahead=<behavior>       print each stopped session\'s'
             + ' recorded messages between\n'
             + '                           its stop and its next unmet behavior.'
+            + '\n  --ahead-all              append every candidate\'s'
+            + ' look-ahead streams to the report.'
             + '\n  --json                   emit the same figures in'
             + ' machine-readable form.'
             + '\n\nThe scanned directory is fixed and no path argument is'
@@ -1200,12 +1228,13 @@ export async function main(args) {
     // same token for that reason, so no argument here can ever be read as a
     // directory.
     const rejected = args.find((arg) => arg !== '--json'
+        && arg !== '--ahead-all'
         && !orders.some((order) => arg === `--by=${order}`)
         && !arg.startsWith(AHEAD_PREFIX));
     if (rejected !== undefined) {
         throw new Error(
-            `only --json, --by=<${orders.join('|')}> and `
-            + `${AHEAD_PREFIX}<behavior> are accepted`,
+            `only --json, --by=<${orders.join('|')}>, `
+            + `${AHEAD_PREFIX}<behavior> and --ahead-all are accepted`,
         );
     }
     const json = args.includes('--json');
@@ -1213,6 +1242,12 @@ export async function main(args) {
         ?.slice('--by='.length) ?? 'unlocks';
     const ahead = args.find((arg) => arg.startsWith(AHEAD_PREFIX))
         ?.slice(AHEAD_PREFIX.length);
+    const aheadAll = args.includes('--ahead-all');
+    if (aheadAll && ahead !== undefined) {
+        throw new Error(
+            '--ahead-all already prints every candidate; drop --ahead=<behavior>',
+        );
+    }
 
     const files = listSessionFiles(DEVELOPMENT_DIR);
     if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
@@ -1238,6 +1273,12 @@ export async function main(args) {
             rows,
             order,
             ranking,
+            ...(aheadAll ? {
+                stretches: aheadMembers(rows).map((member) => ({
+                    member,
+                    sessions: aheadStretches(rows, member),
+                })),
+            } : {}),
             reconciliation: {
                 stopPointAgreement: stopPointAgreement(rows),
                 carried: carried.map((row) => row.file),
@@ -1251,7 +1292,10 @@ export async function main(args) {
                 ceilingAgainstSupports: ceilingAgainstSupports(rows, ranking),
             },
         }, null, 2));
-    } else report(rows, order);
+    } else {
+        report(rows, order);
+        if (aheadAll) reportAheadAll(rows);
+    }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
