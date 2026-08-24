@@ -3541,7 +3541,7 @@
     },
     {
       "id": "initial-level-monster-umber-hulk",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported initial-level monster creation: monster 225",
       "upstreamOwners": [],
       "forecast": {
@@ -3561,8 +3561,8 @@
       "slices": [
         {
           "name": "admit-umber-hulk-species",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "55c453db36094dfa4f52e1cd2ceefbf69bd4f334"
         }
       ],
       "openedAt": "b8c44b1f31700315744c98363ba4ca77d04797d9",
@@ -3571,8 +3571,11 @@
         "screens": 1998,
         "rng": 133716
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "55c453db36094dfa4f52e1cd2ceefbf69bd4f334",
+      "delivered": {
+        "screens": 0,
+        "rng": 1
+      }
     }
   ]
 }
