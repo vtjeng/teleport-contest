@@ -350,12 +350,6 @@ preserve PRNG and evaluation order.
 
 ### Launching a formal review pass
 
-- Put the scratch root on a local filesystem. `audit-worktree.mjs prepare`
-  creates its temporary root under `os.tmpdir()`, which resolves to the Windows
-  `/mnt/c` DrvFS mount when `TMPDIR` is unset and `TEMP` and `TMP` are inherited
-  from Windows. Export `TMPDIR=/tmp` for `prepare` and for the pass. DrvFS is 15
-  to 77 times slower than a local filesystem for the pass's many small file
-  reads and writes.
 - A pass runs as a background task and returns through a task notification. Do
   not relaunch one that is still running: a second launch restarts the pass at
   zero and produces a duplicate pass over the same head. When a pass returns a

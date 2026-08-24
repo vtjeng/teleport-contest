@@ -13,7 +13,6 @@ import {
     rmSync,
     writeFileSync,
 } from 'node:fs';
-import { tmpdir } from 'node:os';
 import {
     basename,
     dirname,
@@ -23,6 +22,8 @@ import {
     resolve,
 } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { localTmpdir } from './local-tmpdir.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 export const PROJECT_ROOT = resolve(dirname(SCRIPT_PATH), '..');
@@ -675,7 +676,7 @@ export function prepareAuditWorktree({
     readiness = false,
     runReadinessCommands = runReadiness,
     repositoryRoot = PROJECT_ROOT,
-    temporaryRoot = tmpdir(),
+    temporaryRoot = localTmpdir(),
 }) {
     if (mutationRange !== null && !readiness) {
         throw new Error('mutationRange requires readiness');

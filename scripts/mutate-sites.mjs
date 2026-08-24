@@ -175,12 +175,12 @@ import {
     unlinkSync,
     writeFileSync,
 } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isMainThread, parentPort, Worker, workerData } from 'node:worker_threads';
 
 import { blankCommentsAndStrings } from './check-namespace-members.mjs';
+import { localTmpdir } from './local-tmpdir.mjs';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const MUTATION_CGROUP_MARKER = 'TELEPORT_MUTATION_CGROUP';
@@ -1310,7 +1310,7 @@ export function coveringTests(rootPath = REPO_ROOT) {
 // The workspace
 // ---------------------------------------------------------------------------
 
-const WORKSPACE_PREFIX = join(tmpdir(), 'teleport-mutate-');
+const WORKSPACE_PREFIX = join(localTmpdir(), 'teleport-mutate-');
 
 // Workspaces that exist right now. A `finally` arm removes each one on the
 // ordinary path, and a terminating signal skips every `finally`, so a run
@@ -1570,7 +1570,7 @@ export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
     startedToken = 'authenticated-start') {
     const resolvedUnitName = unitName ?? mutationWaveName(sliceName);
     const resolvedStartedPath = startedPath
-        ?? join(tmpdir(), `${resolvedUnitName}.started`);
+        ?? join(localTmpdir(), `${resolvedUnitName}.started`);
     const sliceArgs = sliceName ? [`--slice=${sliceName}.slice`] : [];
     return {
         command: 'systemd-run',
@@ -2720,7 +2720,7 @@ export const REPORT_VERSION = 3;
 
 export function automaticReportPath(requested, {
     makeTemporaryRoot = () => mkdtempSync(join(
-        tmpdir(), 'teleport-mutation-report-')),
+        localTmpdir(), 'teleport-mutation-report-')),
 } = {}) {
     return requested ?? join(makeTemporaryRoot(), 'report.json');
 }

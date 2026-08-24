@@ -6,9 +6,10 @@ import {
     readdirSync,
     rmSync,
 } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { localTmpdir } from './local-tmpdir.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 export const PROJECT_ROOT = resolve(dirname(SCRIPT_PATH), '..');
@@ -25,7 +26,7 @@ export function listSessionFiles(sessionDir) {
 }
 
 export function createScoringWorkspace(sessionDir, files) {
-    const targetRoot = mkdtempSync(join(tmpdir(), 'teleport-score-'));
+    const targetRoot = mkdtempSync(join(localTmpdir(), 'teleport-score-'));
     try {
         cpSync(join(PROJECT_ROOT, 'js'), join(targetRoot, 'js'), { recursive: true });
         cpSync(join(PROJECT_ROOT, 'frozen'), join(targetRoot, 'frozen'), { recursive: true });
@@ -67,7 +68,7 @@ export function parseRunnerBundle(stdout) {
 }
 
 export function removeScoringWorkspace(targetRoot) {
-    const expectedPrefix = join(tmpdir(), 'teleport-score-');
+    const expectedPrefix = join(localTmpdir(), 'teleport-score-');
     if (!resolve(targetRoot).startsWith(expectedPrefix)) {
         throw new Error('refusing to remove an unexpected scoring path');
     }
