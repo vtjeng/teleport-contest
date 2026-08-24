@@ -1,11 +1,10 @@
 # Score recording
 
 Read this file when you append a `SCORE.tsv` event row, answer a score
-question from the log, or respond to an authorized holdout evaluation where
-improvements in the development score did not appear in the holdout score.
-Only the orchestrator appends rows; a slice-worker states its score evidence
-in its report, as `.claude/agents/slice-worker.md` states. The holdout rules
-in `AGENTS.md` for `sessions/holdout/` always apply.
+question from the log, or respond to a holdout evaluation where improvements
+in the development score did not appear in the holdout score. Only the
+orchestrator appends rows; a slice-worker states its score evidence in its
+report. The holdout rules in `AGENTS.md` always apply.
 
 ## Score evidence
 
@@ -13,24 +12,23 @@ in `AGENTS.md` for `sessions/holdout/` always apply.
 with the columns `SCORE.md` documents. Append a `slice`, `window`, `goal`,
 `holdout`, or `publish` row with `node scripts/score-log.mjs --append
 column=value ...` when that event completes. You may also append a `candidate`
-row after validating a slice-worker's results on a slice that has not yet
-closed, but a scoring run does not append a row. Take each row's figures from a
-run of the working tree at the commit the row names, because a run over
-uncommitted work produces figures that no later run can reproduce. A later row
-supersedes an earlier one, so no row is rewritten; when two events share the
-same commit, combine them into one row recording the more important event. The
-`note` column may hold a brief prediction or anomaly. Fill the four holdout
-columns (as `SCORE.md` defines them) only on a row whose event included an
+row after validating a slice-worker's results on an unclosed slice, but a
+scoring run does not append a row. Take each row's figures from the working tree
+at the commit the row names; a run over uncommitted work produces figures no
+later run can reproduce. A later row supersedes an earlier one, so no row is
+rewritten; when two events share a commit, combine them into one row recording
+the more important event. The `note` column may hold a brief prediction or
+anomaly. Fill the four holdout columns only on a row whose event included an
 authorized holdout evaluation; an empty holdout cell means no new holdout
-evidence is available. Longer evidence belongs in the commit message of the SHA
-the row names, and review metrics belong in `QUALITY.json`. `SCORE.md` explains
-the columns and states the current standing without per-event prose.
+evidence. Longer evidence belongs in the commit message; review metrics belong
+in `QUALITY.json`. `SCORE.md` explains the columns and states the current
+standing.
 
 Read the log with `node scripts/score-log.mjs --latest [event]`, `--standing`,
-or `--since <sha>`. The `--standing` flag repeats the most recent holdout
-figure on every row, even when that row recorded no new holdout evidence. Do not
-answer a score question by scanning `SCORE.tsv` directly, because the raw rows
-do not reflect supersession or carry forward the last holdout figure.
+or `--since <sha>`. `--standing` carries forward the most recent holdout figure
+on every row. Do not answer a score question by scanning `SCORE.tsv` directly;
+the raw rows do not reflect supersession or carry forward the last holdout
+figure.
 
 Generate the `note` column with `node scripts/score-log.mjs --generate-note
 event=<event> [label=<id>] screens_matched=<n> screens_total=<n>
@@ -41,13 +39,12 @@ into the `note=` column of `--append` rather than composing the note by hand.
 
 Prefer improvements that translate the C source faithfully over changes that
 raise the score without matching the source's behavior. Run the generalization
-failure protocol below when a review of the source, the implementation diff,
-and the development evidence confirms that behavior was special-cased to a
-recorded session (fixture-specific) or hardcoded, and passed the development
-checks in that form. Any evidence can prompt that review. A holdout figure that
-moves little or not at all is not sufficient by itself: the holdout evaluation
-detects large inadvertent regressions, and a goal that leaves the holdout
-figure unchanged is expected.
+failure protocol below when a review of the source, implementation diff, and
+development evidence confirms that behavior was special-cased to a recorded
+session (fixture-specific) or hardcoded. Any evidence can prompt that review. A
+holdout figure that moves little or not at all is not sufficient by itself: the
+holdout evaluation detects large inadvertent regressions, and a goal that leaves
+the holdout figure unchanged is expected.
 
 ## Generalization failure protocol
 
@@ -60,10 +57,9 @@ figure unchanged is expected.
    per-session holdout results. The subagent reports its analysis; the
    orchestrator carries out the remaining steps.
 3. Replace the fixture-specific or hardcoded behavior with the source-faithful
-   implementation the subagent proposed, and add a development test or newly
-   recorded session that covers the broader category of bug so similar
-   fixture-specific changes are caught in the future.
+   implementation the subagent proposed, and add a development test or recorded
+   session that covers the broader category so similar changes are caught.
 4. Add a concise, reusable rule to `AGENTS.md` that would have prevented this
-   kind of fixture-specific or hardcoded implementation from being committed.
-   Repeat this step after every confirmed generalization failure. Exclude
-   incident-specific scores, session filenames, and progress notes.
+   kind of fixture-specific implementation from being committed. Repeat after
+   every confirmed generalization failure. Exclude incident-specific scores,
+   session filenames, and progress notes.
