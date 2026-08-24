@@ -1425,6 +1425,7 @@ export async function print_dungeon(state = game) {
         print_branch(items, i, last_level, MAXLEVEL, lchoices, state);
     }
 
+    state._captureMenuItems?.(items);
     const selected = await select_menu(state, {
         title: 'Level teleport to where:',
         items,

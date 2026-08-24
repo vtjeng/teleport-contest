@@ -12,6 +12,8 @@ import test from 'node:test';
 import {
     CONFUSION,
     LAST_PROP,
+    TT_BEARTRAP,
+    TT_BURIEDBALL,
     UTOTYPE_DEFERRED,
     UTOTYPE_NONE,
 } from '../js/const.js';
@@ -186,11 +188,24 @@ test('print_dungeon oracle selection returns correct depth', async () => {
 // Selecting the castle (third selectable item, 'c') which has a tune.
 test('print_dungeon castle selection includes tune in label', async () => {
     const state = printDungeonState({ selectIndex: 2 });
+    // Capture items to verify tune text in the castle entry.
+    // C: dungeon.c:2355-2357 appends " (tune %s)" when Is_stronghold.
+    let castleLabel = '';
+    state._captureMenuItems = (items) => {
+        const castleItem = items.find(
+            (it) => it.label && it.label.includes('castle'),
+        );
+        castleLabel = castleItem?.label ?? '';
+    };
     const result = await print_dungeon(state);
     assert.ok(result);
     assert.equal(result.dnum, 0);
     assert.equal(result.dlevel, 25);
     assert.equal(result.playerlev, 25);
+    // Broke: removed the Is_stronghold tune block at js/dungeon.js:1416-1418;
+    // test failed because the castle label lacked "(tune ABCDE)".
+    assert.ok(castleLabel.includes('(tune ABCDE)'),
+        `castle label should contain tune: ${castleLabel}`);
 });
 
 // Cancelling the menu (Escape) returns null.
@@ -209,10 +224,27 @@ test('print_dungeon marks the current level with *', async () => {
         heroLevel: { dnum: 0, dlevel: 5 },
         selectIndex: 1,
     });
+    // Capture items to verify the '*' marker on the hero's level.
+    // C: dungeon.c chr_u_on_lvl() (2255-2259) returns '*' when the hero
+    // is on the given level, ' ' otherwise.
+    let oracleLabel = '';
+    let branchLabel = '';
+    state._captureMenuItems = (items) => {
+        const selectable = items.filter((it) => it.label);
+        branchLabel = selectable[0]?.label ?? '';
+        oracleLabel = selectable[1]?.label ?? '';
+    };
     const result = await print_dungeon(state);
     assert.ok(result);
     assert.equal(result.dnum, 0);
     assert.equal(result.dlevel, 5);
+    // Broke: changed chr_u_on_lvl to always return ' ' at
+    // js/dungeon.js:1342; test failed because the oracle label started
+    // with '  ' instead of '* '.
+    assert.ok(oracleLabel.startsWith('* '),
+        `oracle label should start with "* ": ${oracleLabel}`);
+    assert.ok(branchLabel.startsWith('  '),
+        `branch label should start with "  ": ${branchLabel}`);
 });
 
 // A Mines-only level selection (index 3 = 'd') returns the minetown.
@@ -227,55 +259,74 @@ test('print_dungeon Mines level selection', async () => {
 });
 
 // A dungeon heading uses entry_lev != 1 to append an entrance annotation.
+// C: dungeon.c:2336-2341 appends ", entrance from below" when entry_lev ==
+// nlev, or ", entrance on <depth>" for a middle entry.
 test('print_dungeon heading for a dungeon entered from below', async () => {
     const state = printDungeonState({ selectIndex: 0 });
     // Make the Mines entered from below (entry_lev == num_dunlevs).
     state.dungeons[1].entry_lev = 9;  // == num_dunlevs
+    let minesHeading = '';
+    state._captureMenuItems = (items) => {
+        const heading = items.find(
+            (it) => it.heading && it.text?.includes('Gnomish Mines'),
+        );
+        minesHeading = heading?.text ?? '';
+    };
     const result = await print_dungeon(state);
     assert.ok(result, 'selection still works with modified entry_lev');
+    // Broke: removed the entry_lev == nlev branch at js/dungeon.js:1396-1397;
+    // test failed because the heading lacked ", entrance from below".
+    assert.ok(minesHeading.includes(', entrance from below'),
+        `heading should say "entrance from below": ${minesHeading}`);
 });
 
 // Entrance from a middle level (entry_lev != 1 && entry_lev != nlev).
 test('print_dungeon heading for a middle-entry dungeon', async () => {
     const state = printDungeonState({ selectIndex: 0 });
     state.dungeons[1].entry_lev = 5;  // middle entrance
+    let minesHeading = '';
+    state._captureMenuItems = (items) => {
+        const heading = items.find(
+            (it) => it.heading && it.text?.includes('Gnomish Mines'),
+        );
+        minesHeading = heading?.text ?? '';
+    };
     const result = await print_dungeon(state);
     assert.ok(result);
+    // depth_start(5) + entry_lev(5) - 1 = 9
+    // Broke: removed the middle-entry branch at js/dungeon.js:1398-1399;
+    // test failed because the heading lacked ", entrance on 9".
+    assert.ok(minesHeading.includes(', entrance on 9'),
+        `heading should say "entrance on 9": ${minesHeading}`);
 });
 
 // Single-level dungeon: descr uses singular "level" instead of "levels".
+// C: dungeon.c:2319 uses makeplural(descr) only when nlev > 1.
 test('print_dungeon uses singular level for a single-level dungeon', async () => {
     const state = printDungeonState({ selectIndex: 0 });
     // Make dungeon 1 a single-level dungeon.
     state.dungeons[1].num_dunlevs = 1;
+    let minesHeading = '';
+    state._captureMenuItems = (items) => {
+        const heading = items.find(
+            (it) => it.heading && it.text?.includes('Gnomish Mines'),
+        );
+        minesHeading = heading?.text ?? '';
+    };
     const result = await print_dungeon(state);
     assert.ok(result);
+    // Broke: changed nlev > 1 to nlev >= 1 at js/dungeon.js:1387; test
+    // failed because the heading said "levels" instead of "level".
+    assert.ok(minesHeading.includes(': level '),
+        `heading should use singular "level": ${minesHeading}`);
+    assert.ok(!minesHeading.includes('levels'),
+        `heading should not use plural "levels": ${minesHeading}`);
 });
 
-// Unplaced floater: when a dungeon at knox_level.dnum has a branch parent of
-// n_dgns, it uses "depth" instead of "level" and marks its levels unreachable.
-test('print_dungeon treats an unplaced floater as unreachable', async () => {
-    const state = printDungeonState({ selectIndex: undefined });
-    // Make dungeon 1 the knox dungeon with an unplaced branch.
-    state.knox_level = { dnum: 1, dlevel: 1 };
-    state.n_dgns = 2;
-    // Add a branch whose end1.dnum == n_dgns (the sentinel) and end2 == 1.
-    const floaterBranch = {
-        end1: { dnum: 2, dlevel: 1 },  // n_dgns == 2
-        end2: { dnum: 1, dlevel: 1 },
-        type: BR_STAIR,
-        next: null,
-    };
-    // Prepend the floater branch to the linked list.
-    const existingBranch = state.svb.branches;
-    floaterBranch.next = existingBranch;
-    state.svb.branches = floaterBranch;
-    state.branches = [floaterBranch, ...state.branches];
-
-    // Cancel since items from the unplaced dungeon are not selectable.
-    const result = await print_dungeon(state);
-    assert.equal(result, null);
-});
+// (Deleted: previous test 'print_dungeon treats an unplaced floater as
+// unreachable' pushed only Escape, which returns null for any menu. The
+// genuine floater test at line 460 covers this behavior by attempting
+// selection and verifying the floater level is not selectable.)
 
 // ---------------------------------------------------------------------------
 // level_tele "?" path — integration test covering teleport.c:1221-1247.
@@ -375,6 +426,106 @@ test('level_tele "?" endgame selection throws', async () => {
     );
 });
 
+// C: teleport.c:1301-1302 runs buried_ball_to_punishment() unconditionally
+// before schedule_goto. The '?' path must throw UnsupportedLevelChangeError
+// for a hero tethered to a buried ball, matching the non-'?' guard at
+// js/teleport.js:1318-1321.
+test('level_tele "?" with buried ball throws', async () => {
+    const state = printDungeonState({ selectIndex: 1 });
+    state.u.uz0 = { dnum: 0, dlevel: 1 };
+    state.u.utolev = { dnum: 0, dlevel: 1 };
+    state.u.utotype = UTOTYPE_NONE;
+    // TT_BURIEDBALL (6): hero is trapped by a buried ball.
+    state.u.utrap = 1;
+    state.u.utraptype = TT_BURIEDBALL;
+    state.u.usteed = null;
+
+    state.nhDisplay = new GameDisplay(null);
+    state.nhDisplay.onEmptyQueue = () => {
+        throw new Error('unexpected key read');
+    };
+    state.nhDisplay.pushKey('?'.charCodeAt(0));
+    state.nhDisplay.pushKey('\n'.charCodeAt(0));
+    state.nhDisplay.pushKey('b'.charCodeAt(0));
+
+    initRng(42);
+    enableRngLog();
+    // Broke: removed the buried-ball guard before schedule_goto in the '?'
+    // path at js/teleport.js:1283-1287; test failed because schedule_goto
+    // fired instead of throwing.
+    await assert.rejects(
+        () => level_tele(state),
+        (error) => {
+            assert.ok(error instanceof UnsupportedLevelChangeError);
+            return true;
+        },
+    );
+    // schedule_goto did not fire.
+    assert.equal(state.u.utotype, UTOTYPE_NONE);
+});
+
+// C: teleport.c:1301 buried_ball_to_punishment() fires only for
+// TT_BURIEDBALL. A hero in a bear trap (TT_BEARTRAP) should proceed.
+// Kills the && -> || mutant at js/teleport.js:1285, which would throw
+// for any trapped hero regardless of trap type.
+test('level_tele "?" with non-buried-ball trap proceeds', async () => {
+    const state = printDungeonState({ selectIndex: 1 });
+    state.u.uz0 = { dnum: 0, dlevel: 1 };
+    state.u.utolev = { dnum: 0, dlevel: 1 };
+    state.u.utotype = UTOTYPE_NONE;
+    // TT_BEARTRAP (1): hero is trapped but not by a buried ball.
+    state.u.utrap = 1;
+    state.u.utraptype = TT_BEARTRAP;
+    state.u.usteed = null;
+
+    state.nhDisplay = new GameDisplay(null);
+    state.nhDisplay.onEmptyQueue = () => {
+        throw new Error('unexpected key read');
+    };
+    state.nhDisplay.pushKey('?'.charCodeAt(0));
+    state.nhDisplay.pushKey('\n'.charCodeAt(0));
+    state.nhDisplay.pushKey('b'.charCodeAt(0));
+
+    initRng(42);
+    enableRngLog();
+    await level_tele(state);
+
+    assert.equal(state.u.utotype, UTOTYPE_DEFERRED);
+    assert.deepEqual(state.u.utolev, { dnum: 0, dlevel: 5 });
+});
+
+// C: teleport.c:1427 schedule_goto receives the verbose-dependent message.
+// When flags.verbose is false, schedule_goto's post_msg is null.
+test('level_tele "?" with verbose=false passes null message', async () => {
+    const state = printDungeonState({ selectIndex: 1 });
+    state.flags = { verbose: false };
+    state.u.uz0 = { dnum: 0, dlevel: 1 };
+    state.u.utolev = { dnum: 0, dlevel: 1 };
+    state.u.utotype = UTOTYPE_NONE;
+    state.u.utrap = 0;
+    state.u.usteed = null;
+
+    state.nhDisplay = new GameDisplay(null);
+    state.nhDisplay.onEmptyQueue = () => {
+        throw new Error('unexpected key read');
+    };
+    state.nhDisplay.pushKey('?'.charCodeAt(0));
+    state.nhDisplay.pushKey('\n'.charCodeAt(0));
+    state.nhDisplay.pushKey('b'.charCodeAt(0));
+
+    initRng(42);
+    enableRngLog();
+    await level_tele(state);
+
+    assert.equal(state.u.utotype, UTOTYPE_DEFERRED);
+    assert.deepEqual(state.u.utolev, { dnum: 0, dlevel: 5 });
+    // Broke: changed the ternary at js/teleport.js:1295 to always pass the
+    // string; test failed because dfr_post_msg was set when it should be
+    // absent.
+    assert.equal(state.gd?.dfr_post_msg, undefined,
+        'verbose=false should not set a post-teleport message');
+});
+
 // ---------------------------------------------------------------------------
 // unreachable_level — exercised through print_dungeon menu structure.
 // ---------------------------------------------------------------------------
@@ -394,23 +545,10 @@ test('unreachable_level: endgame hero sees non-endgame as unreachable', async ()
     assert.equal(result, null);
 });
 
-// The dummy level (find_level('dummy')) is unreachable. Add a special level
-// named "dummy" and verify it shows but is not selectable.
-test('unreachable_level: dummy level is not selectable', async () => {
-    const state = printDungeonState({ selectIndex: undefined });
-    // Insert a dummy special level in dnum 0 at dlevel 2.
-    const dummy = {
-        proto: 'dummy', dlevel: { dnum: 0, dlevel: 2 }, next: null,
-    };
-    // Insert at the start of the chain.
-    dummy.next = state.sp_levchn;
-    state.sp_levchn = dummy;
-    state.specialLevels = [dummy, ...state.specialLevels];
-
-    // Cancel to check the menu was built.
-    const result = await print_dungeon(state);
-    assert.equal(result, null);
-});
+// (Deleted: previous test 'unreachable_level: dummy level is not selectable'
+// pushed only Escape, which returns null for any menu. The genuine dummy
+// test below ('dummy level is not selectable via menu') covers this behavior
+// by attempting selection and verifying the dummy level is not selectable.)
 
 // ---------------------------------------------------------------------------
 // Mutation-killing tests for unplaced_floater, unreachable_level, chr_u_on_lvl,
@@ -526,18 +664,26 @@ test('unplaced_floater: genuine floater makes levels unreachable', async () => {
 // the entry text uses ' ' instead of '*'.
 test('chr_u_on_lvl does not mark a level when dlevel differs', async () => {
     // Hero on dnum 0 dlevel 1; the oracle is at dnum 0 dlevel 5.
-    // chr_u_on_lvl should return ' ', not '*'.
-    // The menu items include the text; we verify that selecting the oracle
-    // works (it would work either way), but more importantly we confirm
-    // the mutation through an integration run.
+    // chr_u_on_lvl should return ' ' (not '*') because the hero's dlevel
+    // differs even though the dnum matches.
     const state = printDungeonState({
         heroLevel: { dnum: 0, dlevel: 1 },
         selectIndex: 1,  // oracle
     });
+    let oracleLabel = '';
+    state._captureMenuItems = (items) => {
+        const selectable = items.filter((it) => it.label);
+        oracleLabel = selectable[1]?.label ?? '';
+    };
     const result = await print_dungeon(state);
     assert.ok(result);
     assert.equal(result.dnum, 0);
     assert.equal(result.dlevel, 5);
+    // Broke: changed && to || in chr_u_on_lvl at js/dungeon.js:1342;
+    // test failed because the oracle label started with '* ' instead of
+    // '  ' (dnum matched even though dlevel did not).
+    assert.ok(oracleLabel.startsWith('  '),
+        `oracle label should start with "  " (not "*"): ${oracleLabel}`);
 });
 
 // print_branch bounds: the Mines branch at dnum 0 dlevel 3 should appear

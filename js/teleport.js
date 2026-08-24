@@ -1280,6 +1280,13 @@ export async function level_tele(state = game) {
                 'level_tele() endgame-amulet branch via print_dungeon menu',
             );
         }
+        // C:1301-1302 buried_ball_to_punishment() runs unconditionally,
+        // outside any !force_dest guard.
+        if (state.u.utrap && state.u.utraptype === TT_BURIEDBALL) {
+            throw new UnsupportedLevelChangeError(
+                'level_tele() with the hero tethered to a buried ball',
+            );
+        }
         // force_dest = TRUE: skip single_level_branch, In_quest, next_to_u,
         // In_endgame, negative-level heaven, find_hell, and get_level.
         schedule_goto(
