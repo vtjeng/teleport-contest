@@ -6,6 +6,7 @@
 import {
     AIR,
     ALTAR,
+    BEEHIVE,
     BLCORNER,
     BRCORNER,
     CLOUD,
@@ -58,7 +59,9 @@ import {
     PM_ELVEN_MONARCH,
     PM_GNOME_RULER,
     PM_HOBGOBLIN,
+    PM_KILLER_BEE,
     PM_OGRE_TYRANT,
+    PM_QUEEN_BEE,
     S_CENTAUR,
     S_DRAGON,
     S_GIANT,
@@ -70,6 +73,7 @@ import {
 import {
     CHEST,
     GOLD_PIECE,
+    LUMP_OF_ROYAL_JELLY,
     MACE,
     SPBOOK_CLASS,
     WAND_CLASS,
@@ -404,31 +408,63 @@ export function courtCellIsFillable(sroom, x, y, state) {
         || (y === sroom.hy && door.y === y + 1));
 }
 
-// C ref: mkroom.c fill_zoo(), restricted to the rectangular, non-maze COURT
-// arm selected by ordinary D:5 generation. Irregular and maze-level Courts,
-// plus the other zoo families, retain their named generation boundary.
+// C ref: mkroom.c fill_zoo(). The COURT and BEEHIVE arms are ported;
+// remaining zoo families retain their named generation boundary.
 export function fill_zoo(sroom, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? SOURCE_RANDOM;
     const normalized = { ...env, state, random };
-    if (sroom.rtype !== COURT) {
+    const type = sroom.rtype;
+    if (type !== COURT && type !== BEEHIVE) {
         throw new UnsupportedSpecialRoomError(
-            `fill_zoo(${sroom.rtype}) beyond the Court boundary`,
+            `fill_zoo(${type}) beyond the Beehive boundary`,
         );
     }
 
-    const throne = { x: 0, y: 0 };
-    let remaining = 100;
-    do {
-        somexyspace(sroom, throne, normalized);
-    } while (occupied(throne.x, throne.y, state) && --remaining > 0);
-    mk_zoo_thronemon(throne.x, throne.y, normalized);
+    // C ref: fill_zoo() lines 288-321 — pre-loop, type-specific setup.
+    // tx/ty hold the throne position (COURT) or the queen-bee center (BEEHIVE).
+    let tx = 0;
+    let ty = 0;
+    if (type === COURT) {
+        const throne = { x: 0, y: 0 };
+        let remaining = 100;
+        do {
+            somexyspace(sroom, throne, normalized);
+        } while (occupied(throne.x, throne.y, state) && --remaining > 0);
+        tx = throne.x;
+        ty = throne.y;
+        mk_zoo_thronemon(tx, ty, normalized);
+    } else if (type === BEEHIVE) {
+        // C ref: fill_zoo() lines 305-316. Center of the room; irregular rooms
+        // relocate the queen when the center is outside the room.
+        tx = sroom.lx + Math.trunc((sroom.hx - sroom.lx + 1) / 2);
+        ty = sroom.ly + Math.trunc((sroom.hy - sroom.ly + 1) / 2);
+        if (sroom.irregular) {
+            const rmno = (sroom.roomnoidx
+                ?? state.level.rooms.indexOf(sroom)) + ROOMOFFSET;
+            const loc = state.level.at(tx, ty);
+            if (!loc || loc.roomno !== rmno || loc.edge) {
+                const mm = { x: 0, y: 0 };
+                somexyspace(sroom, mm, normalized);
+                tx = mm.x;
+                ty = mm.y;
+            }
+        }
+    }
 
+    // C ref: fill_zoo() lines 323-419 — per-cell loop shared across zoo types.
     for (let x = sroom.lx; x <= sroom.hx; ++x) {
         for (let y = sroom.ly; y <= sroom.hy; ++y) {
             if (!courtCellIsFillable(sroom, x, y, state)) continue;
-            if (state.level.at(x, y).typ === THRONE) continue;
-            const species = courtmon(state, random);
+            // C ref: line 342 — skip an explicitly placed throne (COURT only).
+            if (type === COURT && state.level.at(x, y).typ === THRONE) continue;
+
+            // C ref: lines 344-361 — type-specific monster selection.
+            const species = type === COURT
+                ? courtmon(state, random)
+                : (x === tx && y === ty
+                    ? state.mons[PM_QUEEN_BEE]
+                    : state.mons[PM_KILLER_BEE]);
             const monster = makemon(
                 species,
                 x,
@@ -436,46 +472,56 @@ export function fill_zoo(sroom, env = {}) {
                 MM_ASLEEP | MM_NOGRP,
                 normalized,
             );
-            if (monster && monster.mpeaceful) {
+            if (monster && type === COURT && monster.mpeaceful) {
                 monster.mpeaceful = false;
                 set_malign(monster, state);
+            }
+
+            // C ref: lines 369-418 — type-specific post-monster items.
+            if (type === BEEHIVE && !random.rn2(3)) {
+                mksobj_at(LUMP_OF_ROYAL_JELLY, x, y, true, false, normalized);
             }
         }
     }
 
-    state.level.at(throne.x, throne.y).typ = THRONE;
-    const coffers = { x: 0, y: 0 };
-    somexyspace(sroom, coffers, normalized);
-    const gold = mksobj(GOLD_PIECE, true, false, normalized);
-    gold.quan = random.rn1(50 * level_difficulty(state), 10);
-    gold.owt = weight(gold, normalized);
-    const chest = mksobj_at(
-        CHEST,
-        coffers.x,
-        coffers.y,
-        true,
-        false,
-        normalized,
-    );
-    add_to_container(chest, gold, normalized);
-    chest.owt = weight(chest, normalized);
-    chest.spe = 2;
-    state.level.flags.has_court = true;
+    // C ref: fill_zoo() lines 420-451 — post-loop, type-specific finalization.
+    if (type === COURT) {
+        state.level.at(tx, ty).typ = THRONE;
+        const coffers = { x: 0, y: 0 };
+        somexyspace(sroom, coffers, normalized);
+        const gold = mksobj(GOLD_PIECE, true, false, normalized);
+        gold.quan = random.rn1(50 * level_difficulty(state), 10);
+        gold.owt = weight(gold, normalized);
+        const chest = mksobj_at(
+            CHEST,
+            coffers.x,
+            coffers.y,
+            true,
+            false,
+            normalized,
+        );
+        add_to_container(chest, gold, normalized);
+        chest.owt = weight(chest, normalized);
+        chest.spe = 2;
+        state.level.flags.has_court = true;
+    } else if (type === BEEHIVE) {
+        state.level.flags.has_beehive = true;
+    }
 }
 
 // C ref: mkroom.c do_mkroom(). mklev.c makelevel() calls it at most once per
 // level, with the type its depth selects.
 //
-// The ordinary D:2/D:5 boundary reaches shops and COURT. Later zoo families,
-// swamps and temples stay named refusals until their complete population and
-// entry effects are selected.
+// The ordinary boundary reaches shops, COURT, and BEEHIVE. Later zoo
+// families, swamps, and temples stay named refusals until their complete
+// population and entry effects are selected.
 export function do_mkroom(roomtype, state = game, random = SOURCE_RANDOM) {
     if (roomtype >= SHOPBASE) {
         mkshop(state, random);
         return;
     }
-    if (roomtype === COURT) {
-        mkzoo(COURT, state, random);
+    if (roomtype === COURT || roomtype === BEEHIVE) {
+        mkzoo(roomtype, state, random);
         return;
     }
     throw new UnsupportedSpecialRoomError(`do_mkroom(${roomtype})`);

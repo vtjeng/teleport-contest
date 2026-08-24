@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BEEHIVE,
     FILL_NONE,
     FILL_NORMAL,
     COURT,
@@ -43,7 +44,9 @@ import {
     PM_GNOME_RULER,
     PM_HOBGOBLIN,
     PM_HUMAN,
+    PM_KILLER_BEE,
     PM_LICHEN,
+    PM_QUEEN_BEE,
     M2_GNOME,
     S_MIMIC,
     S_GNOME,
@@ -484,25 +487,37 @@ test('stock_room rejects a row shtypes[] does not carry', () => {
     assert.throws(() => stock_room(12, room, { state }), RangeError);
 });
 
-test('do_mkroom supports Court and refuses every later special room', () => {
-    // COURT is the first depth-gated family and now dispatches to mkzoo().
-    // The other nine types remain the explicit later-family boundary.
-    const state = initializedState();
-    const room = shopCandidate(state, { hx: 13, hy: 8 });
-    room.rtype = OROOM;
-    room.needfill = FILL_NONE;
-    do_mkroom(2, state, { rn2: () => 0 });
-    assert.equal(room.rtype, 2);
-    assert.equal(room.needfill, FILL_NORMAL);
+test('do_mkroom supports Court and Beehive and refuses later special rooms',
+    () => {
+        // COURT and BEEHIVE dispatch to mkzoo(). The other eight types remain
+        // named refusals until their complete population and entry effects are
+        // ported.
+        const state = initializedState();
+        const room = shopCandidate(state, { hx: 13, hy: 8 });
 
-    for (const roomtype of [3, 5, 6, 7, 8, 10, 11, 12, 13]) {
-        assert.throws(
-            () => do_mkroom(roomtype, state),
-            UnsupportedSpecialRoomError,
-            `roomtype ${roomtype}`,
-        );
-    }
-});
+        // COURT (roomtype 2): pick_room selects, mkzoo sets rtype and needfill.
+        room.rtype = OROOM;
+        room.needfill = FILL_NONE;
+        do_mkroom(COURT, state, { rn2: () => 0 });
+        assert.equal(room.rtype, COURT);
+        assert.equal(room.needfill, FILL_NORMAL);
+
+        // BEEHIVE (roomtype 5): same pick_room path as COURT.
+        room.rtype = OROOM;
+        room.needfill = FILL_NONE;
+        do_mkroom(BEEHIVE, state, { rn2: () => 0 });
+        assert.equal(room.rtype, BEEHIVE);
+        assert.equal(room.needfill, FILL_NORMAL);
+
+        // Remaining zoo families, swamp, and temple are still refused.
+        for (const roomtype of [3, 6, 7, 8, 10, 11, 12, 13]) {
+            assert.throws(
+                () => do_mkroom(roomtype, state),
+                UnsupportedSpecialRoomError,
+                `roomtype ${roomtype}`,
+            );
+        }
+    });
 
 test('pick_room preserves strict stairs, wrap count, and source draw order',
     () => {
@@ -770,6 +785,174 @@ test('live D:5 Court fill pins population bounds, ruler, coffers, and flag',
         assert.ok(segment);
         await verifyLevelTeleportArrival(segment);
     });
+
+// C ref: mkroom.c fill_zoo() lines 305-316, 350-353, 392-396, 448-449.
+// A 3x3 BEEHIVE room (width 3, height 3) places its center at lx+1, ly+1.
+// The queen bee goes at the center; killer bees fill the remaining eight
+// cells. Royal jelly appears when !rn2(3) succeeds.
+
+function beehiveFillRandom() {
+    // A deterministic random source for beehive fill_zoo() tests. rn2(3)
+    // controls jelly placement: returning 0 means !rn2(3) is true, so jelly
+    // appears. Returning 1 means no jelly.
+    return {
+        d: (count) => count,
+        rn1: (_bound, base) => base,
+        rn2(bound) {
+            // rn2(3) for jelly: return 0 so every cell gets jelly.
+            if (bound === 3) return 0;
+            return bound > 1 ? 1 : 0;
+        },
+        rnd: () => 1,
+        rne: () => 1,
+        rnz: (value) => value,
+    };
+}
+
+test('Beehive fill places queen at center and killer bees elsewhere', () => {
+    // A 3x3 room with no door gives nine fillable cells. C integer division
+    // puts the center at lx + trunc(3/2) = lx+1, ly + trunc(3/2) = ly+1.
+    const state = initializedCourtState();
+    const room = shopCandidate(state, {
+        lx: 10, ly: 5, hx: 12, hy: 7,
+    });
+    room.rtype = BEEHIVE;
+    room.doorct = 0;
+    const random = beehiveFillRandom();
+    fill_zoo(room, objectGenerationEnv({
+        state,
+        random,
+        hooks: { populateContainer: () => {} },
+    }));
+
+    // Check queen at center (11, 6), killer bees everywhere else.
+    const queen = m_at(11, 6, state);
+    assert.ok(queen, 'queen bee placed at room center');
+    assert.equal(queen.mnum, PM_QUEEN_BEE, 'center monster is PM_QUEEN_BEE');
+    for (let x = 10; x <= 12; ++x) {
+        for (let y = 5; y <= 7; ++y) {
+            if (x === 11 && y === 6) continue;
+            const mon = m_at(x, y, state);
+            assert.ok(mon, `killer bee at (${x},${y})`);
+            assert.equal(
+                mon.mnum, PM_KILLER_BEE,
+                `non-center cell (${x},${y}) is PM_KILLER_BEE`,
+            );
+        }
+    }
+    assert.equal(state.level.flags.has_beehive, true, 'has_beehive flag set');
+});
+
+test('Beehive fill places royal jelly controlled by rn2(3)', () => {
+    // rn2(3) returning 0 means !rn2(3) is true, so jelly appears.
+    // rn2(3) returning nonzero means no jelly.
+    const state = initializedCourtState();
+    const room = shopCandidate(state, {
+        lx: 10, ly: 5, hx: 12, hy: 7,
+    });
+    room.rtype = BEEHIVE;
+    room.doorct = 0;
+    const jellyPlaced = [];
+    let jellyCheckCount = 0;
+    const random = {
+        d: (count) => count,
+        rn1: (_bound, base) => base,
+        rn2(bound) {
+            // Track jelly rn2(3) calls: alternate between placing jelly (0)
+            // and skipping it (1).
+            if (bound === 3) {
+                jellyCheckCount++;
+                return (jellyCheckCount % 2 === 1) ? 0 : 1;
+            }
+            return bound > 1 ? 1 : 0;
+        },
+        rnd: () => 1,
+        rne: () => 1,
+        rnz: (value) => value,
+    };
+    fill_zoo(room, objectGenerationEnv({
+        state,
+        random,
+        hooks: { populateContainer: () => {} },
+    }));
+
+    // Nine cells, nine rn2(3) checks. Odd-numbered checks place jelly,
+    // even ones skip it. Count LUMP_OF_ROYAL_JELLY objects on the map.
+    let jellyCount = 0;
+    let someJelly = null;
+    for (let obj = state.level.objlist; obj; obj = obj.nobj) {
+        if (obj.otyp === LUMP_OF_ROYAL_JELLY) {
+            jellyCount++;
+            someJelly = obj;
+        }
+    }
+    assert.equal(jellyCheckCount, 9, 'one rn2(3) call per cell');
+    // Checks 1,3,5,7,9 return 0 => 5 cells get jelly.
+    assert.equal(jellyCount, 5, 'jelly placed on 5 of 9 cells');
+    // mksobj_at init=true sets weight through mksobj_init; init=false leaves
+    // it at the default. C passes TRUE here.
+    assert.ok(someJelly.owt > 0, 'jelly is fully initialized (init=true)');
+});
+
+test('Beehive center relocates when irregular room center is outside', () => {
+    // An irregular room whose geometric center falls outside the room
+    // boundary (wrong roomno or edge flag set) triggers somexyspace() to
+    // find a valid position for the queen.
+    const state = initializedCourtState();
+    const room = shopCandidate(state, {
+        lx: 10, ly: 5, hx: 14, hy: 9,
+    });
+    room.rtype = BEEHIVE;
+    room.doorct = 0;
+    room.irregular = true;
+
+    // Geometric center: lx + trunc(5/2) = 12, ly + trunc(5/2) = 7.
+    // Mark that cell as belonging to a different room so the irregular-room
+    // check relocates the queen.
+    const rmno = room.roomnoidx + ROOMOFFSET;
+    for (let x = 10; x <= 14; ++x) {
+        for (let y = 5; y <= 9; ++y) {
+            state.level.at(x, y).roomno = rmno;
+            state.level.at(x, y).edge = false;
+        }
+    }
+    // Center cell is outside the room (wrong roomno).
+    state.level.at(12, 7).roomno = rmno + 1;
+
+    let somexyspaceCalled = false;
+    const random = {
+        d: (count) => count,
+        rn1(bound, base) {
+            // somexyspace -> somexy -> somex/somey call rn1. Return the
+            // first valid non-center cell.
+            somexyspaceCalled = true;
+            return base;
+        },
+        rn2: () => 0,
+        rnd: () => 1,
+        rne: () => 1,
+        rnz: (value) => value,
+    };
+    fill_zoo(room, objectGenerationEnv({
+        state,
+        random,
+        hooks: { populateContainer: () => {} },
+    }));
+
+    assert.ok(somexyspaceCalled, 'somexyspace called to relocate queen');
+    // The queen is no longer at the geometric center.
+    const queenAtCenter = m_at(12, 7, state);
+    const queenPresent = queenAtCenter?.mnum === PM_QUEEN_BEE;
+    // Center cell had wrong roomno, so queen should not be there.
+    assert.equal(queenPresent, false, 'queen not at invalid center');
+
+    // Verify a queen bee exists somewhere in the room.
+    let foundQueen = false;
+    for (let monster = state.level.monlist; monster; monster = monster.nmon) {
+        if (monster.mnum === PM_QUEEN_BEE) foundQueen = true;
+    }
+    assert.ok(foundQueen, 'queen bee placed somewhere in the room');
+});
 
 // Walk one Valkyrie from her up staircase to D:1's down staircase, descend,
 // and read back the shop that makelevel() stocked on D:2. Every seed and walk

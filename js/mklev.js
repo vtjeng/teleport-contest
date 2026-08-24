@@ -328,17 +328,17 @@ export function fill_special_room(croom, env = {}) {
             break;
         }
         case COURT:
+        case BEEHIVE:
             fill_zoo(croom, normalized);
             break;
         case ZOO:
-        case BEEHIVE:
         case ANTHOLE:
         case COCKNEST:
         case LEPREHALL:
         case MORGUE:
         case BARRACKS:
             throw new UnsupportedSpecialRoomError(
-                `fill_special_room(${croom.rtype}) beyond the Court boundary`,
+                `fill_special_room(${croom.rtype}) beyond the Beehive boundary`,
             );
         default:
             break;
