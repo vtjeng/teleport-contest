@@ -18697,6 +18697,79 @@
         }
       },
       "recordedAt": "2026-08-23T22:20:01.391Z"
+    },
+    {
+      "kind": "review",
+      "head": "d92c8061aa1dddbdc29d20f82193158cce3859a1",
+      "auditedRange": "5e789186015c9011e4281924cb51c320d670bd20..d92c8061aa1dddbdc29d20f82193158cce3859a1",
+      "level": "full",
+      "areas": [
+        "startup",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 8 raw, 8 deduplicated, 7 confirmed, 7 applied, 0 deferred, 1 rejected, 0 unverified; mutation: 48 survivors of 138 mutants. Full correctness pass (correctness, readability, tests, variable-trace) over the menucolor, perminv-mode, and glyph-customization window. 8 raw, 8 deduplicated, 7 confirmed, 1 rejected. No production defects; 3 test-quality fixes (duplicate-replacement oracle, shuffle precondition, symmetric silentDivergence case), 3 clarity fixes (NONZERO_BLACK alias, addDetail comment, shuffle comment), 1 simplification (extracted purgeSlotCustomizations). The rejected finding (apply_customizations uses currentgraphics) faithfully matches C symbols.c:683. Development score unchanged.",
+      "auditMetrics": {
+        "mode": "full",
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace"
+        ],
+        "wallTimeSeconds": 2400,
+        "counts": {
+          "raw": 8,
+          "deduplicated": 8,
+          "confirmed": 7,
+          "applied": 7,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 3,
+          "clarity": 3,
+          "simplification": 1,
+          "other": 0
+        },
+        "productionDefects": [],
+        "rejections": [
+          {
+            "summary": "apply_customizations uses currentgraphics instead of the set being loaded, silently discarding rogue-set glyph customizations",
+            "counterEvidence": "C source at symbols.c:683 passes gc.currentgraphics to apply_customizations, not which_set. The JS port faithfully reproduces this. No rogue set defines glyphs. Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ],
+        "deferrals": [],
+        "readiness": {
+          "boundary": "Starting event: startup parseoptions() dispatches MENUCOLOR, perm_invent, and glyph compound options. Ending event: all three subsystems installed and first command boundary reached with glyph customizations applied.",
+          "sourceReview": "Every branch in optfn_menucolor, optfn_glyph, add_menu_coloring, glyph_find_core, parse_id, add_custom_urep_entry, add_custom_nhcolor_entry, apply_customizations, and related helpers traced against C source. State and PRNG order verified through fresh differential replays. Stubs for interactive editing, GUI rendering, WIZKIT, and SYMBOLS=G_* application identified and excluded.",
+          "completeness": "No known unsupported behavior within the boundary. Excluded branches (interactive option editing, later glyph changes, GUI rendering) stop before changing state, consuming randomness, or producing output."
+        },
+        "mutation": {
+          "mutants": 138,
+          "survivors": 48,
+          "byKind": {
+            "boolean": {
+              "ran": 41,
+              "killed": 24
+            },
+            "logical": {
+              "ran": 51,
+              "killed": 37
+            },
+            "relational": {
+              "ran": 46,
+              "killed": 29
+            }
+          },
+          "finderConclusion": "Window run (137 mutants, 90 killed, 47 survived) plus audit-fix delta (1 mutant, 0 killed, 1 survived). The delta survivor at js/symbols.js:202 &&->|| is the same pre-existing site relocated by the purgeSlotCustomizations extraction. js/coloratt.js 19 survivors lack independent first-wave coverage because the module is reached only through startup-menucolor.test.mjs integration. js/glyphs.js 21 survivors sit at boundary-value sites in generated-data-driven iteration where the relational direction is indistinguishable for values the generator produces. Remaining survivors in cmd.js, options.js, and windows.js are boolean/logical sites in guard conditions that the first-wave test set cannot distinguish."
+        }
+      },
+      "recordedAt": "2026-08-24T17:20:59.957Z"
     }
   ]
 }
