@@ -3405,7 +3405,7 @@
     },
     {
       "id": "dungeon-overview-menu",
-      "status": "open",
+      "status": "closed",
       "boundary": "teleport.c level_tele() answers the wizard-mode hero \"?\" input by calling dungeon.c print_dungeon(TRUE, ...) to display a selectable menu of all known dungeon levels and branches; the hero selects a destination, and level_tele() completes with schedule_goto() to that destination. The port currently throws UnsupportedLevelChangeError at js/teleport.js:1264-1267.",
       "upstreamOwners": [],
       "forecast": {
@@ -3445,8 +3445,11 @@
         "screens": 1994,
         "rng": 133580
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "a4c1aaff2b23c7db30de742fffb207956046ba31",
+      "delivered": {
+        "screens": 4,
+        "rng": 136
+      }
     }
   ]
 }
