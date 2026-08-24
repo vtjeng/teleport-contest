@@ -788,7 +788,7 @@ test('ceilingAgainstSupports separates the projections from the rest', () => {
 function divergenceSegment(steps) {
     return {
         seed: 1,
-        datetime: '2026-01-01T00:00:00Z',
+        datetime: '20260101000000',
         nethackrc: '',
         moves: '',
         steps,
