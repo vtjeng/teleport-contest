@@ -3450,6 +3450,85 @@
         "screens": 4,
         "rng": 136
       }
+    },
+    {
+      "id": "special-room-beehive",
+      "status": "open",
+      "boundary": "makelevel.c do_mkroom(BEEHIVE) populates a room with killer bees and royal jelly during level generation. The port refuses at the makelevel special-room dispatch.",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 93,
+        "basis": "Capped look-ahead at d01b779: seed0383 has 95 raw steps after do_mkroom(5). Capped at 93 by dragon armor wear (Is_dragon_armor refused by do_wear.js). 1.02x overstatement.",
+        "sessions": [
+          "seed0383-wizard-hallucinate"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383-wizard-hallucinate",
+            "evidence": "hero selects e (eat) at step 42 after level teleport via ? menu to a level whose makelevel calls do_mkroom(BEEHIVE). C path: do.c goto_level -> mklev.c makelevel -> mkroom.c fill_ordinary_room -> do_mkroom(5). After BEEHIVE generation, session completes 3 wish prompts (already ported), then capped at step 135 by Is_dragon_armor in do_wear.js."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "a46ef45f39e9ba0106b02a7200a0fcc1fd45b875",
+      "openStanding": {
+        "sha": "a4c1aaff2b23c7db30de742fffb207956046ba31",
+        "screens": 1998,
+        "rng": 133716
+      },
+      "closedAt": null,
+      "delivered": null
+    },
+    {
+      "id": "special-room-morgue",
+      "status": "queued",
+      "boundary": "makelevel.c do_mkroom(MORGUE) populates a room with corpses, undead, and graves during level generation. The port refuses at the makelevel special-room dispatch.",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 2,
+        "basis": "Capped look-ahead at d01b779: seed0373 has 81 raw steps after do_mkroom(6). Capped at 2 by onquest() in goto_level (quest.c onquest unported). onquest fires inside the same goto_level call before player input, producing quest arrival text. After onquest, session continues with 79 steps of level teleports and informational commands.",
+        "sessions": [
+          "seed0373-barbarian-quest-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0373-barbarian-quest-tour",
+            "evidence": "hero selects y (movenorthwest) at step 43 after level teleport via ? menu to a quest level whose makelevel calls do_mkroom(MORGUE). C path: do.c goto_level -> mklev.c makelevel -> mkroom.c fill_ordinary_room -> do_mkroom(6). After MORGUE generation, goto_level calls quest.c onquest which produces arrival text. Capped at 2 by unported onquest()."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null
+    },
+    {
+      "id": "special-room-zoo",
+      "status": "queued",
+      "boundary": "makelevel.c do_mkroom(ZOO) covers the floor with treasure and monsters during level generation. The port refuses at the makelevel special-room dispatch.",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 5,
+        "basis": "Capped look-ahead at d01b779: seed2600 has 18 raw steps after do_mkroom(8). After materialization, session does a level teleport via ? menu to fakewiz2 level 48, a special maze level whose generation needs makemaz() (unported). Capped at approximately 5 by the second materialization needing makemaz. The remaining 13 steps are informational commands.",
+        "sessions": [
+          "seed2600-wizard-custom-binds"
+        ],
+        "witnesses": [
+          {
+            "session": "seed2600-wizard-custom-binds",
+            "evidence": "hero selects e (eat) at step 20 after level teleport via ? menu to a level whose makelevel calls do_mkroom(ZOO). C path: do.c goto_level -> mklev.c makelevel -> mkroom.c fill_ordinary_room -> do_mkroom(8). After ZOO generation, session does another level teleport via ? menu selecting fakewiz2:48. Capped at approximately 5 by makemaz() needed for the special maze level."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
