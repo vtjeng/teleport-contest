@@ -16,8 +16,10 @@ review window are defined in `.agents/workflow.md`.
   `npm run checkpoint -- --focus <test-file>` runs focused tests, the full
   test suite, the eight generated-data checks, the static-source checks, the
   duplicate-symbol report, and the development score in one command. Repeat
-  `--focus` to add more test files. `--skip-score` omits the development score
-  for a quick run; the score must still pass before you commit.
+  `--focus` to add more test files. `--skip-score` omits the development
+  score; use it for intermediate chunks within a slice, where the test suite
+  catches regressions and the score adds ~20 seconds without changing the
+  commit decision. Run the score on the final chunk before closing the slice.
 - `npm run test:all` runs all registered test suites, including those excluded
   from the default `npm test`.
 - Redirect every checkpoint run to a log and read only its tail:
