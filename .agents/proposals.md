@@ -1,8 +1,7 @@
 # Proposed changes
 
-Changes to tooling or process that nobody has scheduled. `ROADMAP.md`
-holds open game behavior; nothing here is work an agent can pick up as a
-goal.
+This file collects proposed changes to tooling and process. Agents do not
+select goals from it. For unimplemented game behavior, see `ROADMAP.md`.
 
 Each entry states what it would change, what it costs, what prompted it, and
 what it leaves unfixed. Delete an entry when the change lands or a decision
@@ -41,7 +40,7 @@ does.
 **What it leaves unfixed.** It cannot tell a batch that is correctly ahead of
 its caller from one that is overdue, so the flagged subset is a reading list
 rather than a verdict. It also says nothing about an injection that stands in
-for a function nobody has ported yet, which is the ordinary and correct state.
+for an unported function, which is the ordinary and correct state.
 
 ## Print the remaining unenforced advisories
 
@@ -226,7 +225,7 @@ cases; the fallback also rescues the commits already written, of which the
 
 **What it leaves unfixed.** Neither repairs a commit that carries no record at
 all, and neither can tell a truthful trailer from a wrong one: the count is
-copied from a run nobody re-executes. A trailer that says `7/7` when the run
+copied from a run that is never re-executed. A trailer that says `7/7` when the run
 found survivors reads exactly like one that does not.
 
 ## Report a deferral whose area owns none of the files it cites

@@ -1,7 +1,7 @@
 # How work flows
 
-Read this file for the vocabulary the other instruction files use and for the
-sequence every implementation chunk follows before it is committed.
+This file defines the vocabulary the other instruction files use and the
+sequence every coherent implementation chunk follows before it is committed.
 
 Four sibling files cover the rest. `.agents/loop.md` holds the
 continuous-operation loop, `.agents/selection.md` states what to implement
@@ -18,8 +18,8 @@ of game systems the current goals belong to.
 
 A slice or a goal is **in progress** from the moment work starts
 on it until it **closes**. Work written down but not begun is **queued**.
-Closing takes more than stopping: a slice closes on the evidence stated below,
-and a goal closes when its last slice does.
+A slice closes only on the evidence stated below, and a goal closes when its
+last slice does.
 
 A **coherent implementation chunk** is one reviewable production change with
 its focused tests. A chunk may be one of several commits inside a behavior
@@ -33,14 +33,15 @@ behavior; `.agents/validation.md`, "Fresh differentials", states how to run a
 fresh differential. A slice is the unit of evidence.
 
 A **goal** is one coherent unit of behavior. It may
-hold several ordered behavior slices. When a slice meets the conditions in
-`.agents/implementation-checklist-template.md`,
-`.agents/implementation-checklist.json` carries the
-goal's state between sessions. A goal is the unit of review: when its last
-slice closes, a full correctness pass covers it.
+hold several ordered behavior slices. When a goal is large enough to need a
+checklist (the template in `.agents/implementation-checklist-template.md`
+states the threshold), record the goal's state in
+`.agents/implementation-checklist.json` so that later sessions can resume the
+work. A goal is the unit of review: when its last slice closes, a full
+correctness pass covers it.
 
-`scripts/scan-sessions.mjs` selects each goal from every owner the development
-sessions need; `.agents/selection.md` states how to run it.
+`scripts/scan-sessions.mjs` selects goals from the development sessions;
+`.agents/selection.md` states how to run it.
 
 A **review window** is the bounded group of related implementation chunks
 covered by one scheduled correctness review. A review window completes when
@@ -55,13 +56,13 @@ formal review pass, an audit, and an evidence snapshot.
 
 For every coherent implementation chunk:
 
-1. Connect the production game path that consumes the new behavior (the real
+1. Add the new behavior to the production game path that consumes it (the real
    consumer), then run the checks in `.agents/validation.md`.
 2. Assign every new `js/` file to exactly one `QUALITY.json` area as soon as
    the file is created, with `npm run quality -- assign --file <path>
-   --area <id>`; `npm run quality -- areas` lists the ids. Count untracked
-   production files toward review limits before the `npm run quality`
-   scheduling dashboard can measure them.
+   --area <id>`; `npm run quality -- areas` lists the ids. Include each
+   untracked production file in the review-limit tally for its area, because
+   `npm run quality` cannot measure files that are not yet committed.
 3. Commit the implementation, then run `npm run quality` to display the
    scheduling dashboard.
 4. Directly review source behavior, PRNG and evaluation order, parsing, state
@@ -69,7 +70,8 @@ For every coherent implementation chunk:
    or test-only changes may rely on immediate diff inspection and tests, but
    include them in the next scheduled correctness pass.
 5. Collect score and validation evidence for the current behavior slice or
-   review window. A worker states it in its report; the orchestrator appends
+   review window. The slice-worker subagent (`.claude/agents/slice-worker.md`)
+   reports the score and validation evidence; the orchestrator then appends
    the `SCORE.tsv` row as `.agents/scoring.md` states. Do not
    add a routine per-chunk `SCORE.md` row.
 
@@ -81,15 +83,16 @@ together with any code it validates that is not yet committed.
 Close a behavior slice only after its real consumer executes and a fresh
 end-to-end differential verifies the PRNG log, complete screens and attributes,
 cursors, and persisted state through the next boundary. Unit tests can validate
-a prerequisite but cannot close a dormant path.
+a prerequisite but cannot close a code path whose real consumer has not
+executed.
 
 ## Pushing and CI
 
-Push when a behavior slice closes, and push any other commit, an evidence-only
-one included, before the turn ends. CI does not see a commit until it is
-pushed, and it can fail where a local checkpoint passes, because it runs from a
-fresh checkout on the Node version `.github/workflows/score.yml` pins,
-currently 22.
+Push when a behavior slice closes, and push every other commit (including
+evidence-only commits) before the conversation turn ends. CI does not see a
+commit until it is pushed, and it can fail where a local `npm run checkpoint`
+passes, because it runs from a fresh checkout on the Node version
+`.github/workflows/score.yml` pins, currently 22.
 
 ```
 gh run list --limit 1
@@ -98,25 +101,26 @@ gh run watch <id> --exit-status
 
 Neither command needs a `--repo` flag: `gh repo set-default
 vtjeng/teleport-contest` is set in this clone, and linked worktrees share that
-config. Without it `gh` answers for `davidbau/teleport-contest`, the `upstream`
-remote, whose runs belong to someone else and stopped in June 2026, so a push
-looks as though it started no run at all. If `gh run list` ever shows runs you
-do not recognize, run `set-default` again.
+config. Without `set-default`, `gh` queries `davidbau/teleport-contest` (the
+`upstream` remote), which has no CI runs after June 2026, so `gh run list`
+returns no matching run after a push. If `gh run list` ever shows runs you do
+not recognize, run `set-default` again.
 
 After pushing, watch the run from a background task and start the next slice
-without waiting; the two runs measured on 1 August 2026 took 1 minute 47
-seconds and 1 minute 41 seconds. When a watched run fails, reopen the work
-that pushed it as the current slice's first item: diagnose the failure, fix
-it, push, and watch the new run before the current slice closes.
+without waiting. CI runs are short (the two measured on 1 August 2026 took 1
+minute 47 seconds and 1 minute 41 seconds). When a watched run fails, treat the
+failure as the current slice's first item: diagnose the failure, fix it, push,
+and watch the new run before the current slice closes.
 
 ## Progress reports
 
-During implementation, validation, or review work, keep updates brief, natural,
-and specific. Report changed behavior, remaining work, and the next check when
-useful. Do not force routine updates into fixed labels or repeat unchanged
-status. Explain specialized terms on first use.
+During implementation, validation, or review work, keep updates brief and
+specific: report changed behavior, remaining work, and the next check when
+useful, but do not force routine updates into a rigid template or repeat
+unchanged status. Explain specialized terms on first use.
 
-State a workflow-mode change once and explain why. Formal readiness
-attestations and
-pass reports keep their required structures. Planning, process discussion,
-questions, and other meta-conversation use ordinary prose.
+When switching between implementation, validation, and review, state the
+switch once and explain why. Readiness checks and review-pass reports follow
+the structures defined in `.agents/review.md`. Planning, process discussion,
+questions, and other conversation about the workflow itself use ordinary
+prose.
