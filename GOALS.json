@@ -3596,7 +3596,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "big-room-level-generation",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "133174f2814964b0912f239b0ad8de2d21f2cf1a",
       "openStanding": {
         "sha": "55c453db36094dfa4f52e1cd2ceefbf69bd4f334",
