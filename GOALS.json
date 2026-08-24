@@ -3432,7 +3432,13 @@
         ]
       },
       "detail": "print_dungeon() at dungeon.c:2290-2398 (~149 lines) creates a bymenu NHW_MENU window, iterates the dungeon chain, lists special levels and branches via print_branch() (~24 lines), tport_menu() (~33 lines), chr_u_on_lvl() (~4 lines), and unreachable_level() (~12 lines), then returns the selected destination dnum and dlevel. Total: roughly 222 lines of C for print_dungeon and its helpers, plus 27 lines for level_tele \"?\" path (C:1221-1247). The port already has: menu infrastructure, schedule_goto() and goto_level() for main dungeon levels, level_tele() for numeric answers, the special level chain sp_levchn, Is_stronghold(), the branches chain, and depth().",
-      "slices": [],
+      "slices": [
+        {
+          "name": "print-dungeon-and-level-tele-question",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "9f94e35608de83cecb28211bc3408e9a05d275d4",
       "openStanding": {
         "sha": "ce5f3bb3cb175a04b2446357056623073b4f89df",
