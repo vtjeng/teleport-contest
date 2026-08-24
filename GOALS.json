@@ -3342,7 +3342,7 @@
     },
     {
       "id": "name-command-cancel",
-      "status": "open",
+      "status": "closed",
       "boundary": "The #name extended command (do_name.c docallcmd(), 499-601) presents its What-do-you-want-to-name menu through select_menu() and returns ECMD_OK when the player dismisses the menu without selecting a naming option, instead of raising UnsupportedHeroCommandBoundaryError at js/cmd.js doextcmd() default arm for the extended command name.",
       "upstreamOwners": [],
       "forecast": {
@@ -3372,8 +3372,11 @@
         "screens": 1988,
         "rng": 133574
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "ce5f3bb3cb175a04b2446357056623073b4f89df",
+      "delivered": {
+        "screens": 6,
+        "rng": 6
+      }
     }
   ]
 }
