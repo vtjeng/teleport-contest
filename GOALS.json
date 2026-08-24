@@ -3576,6 +3576,35 @@
         "screens": 0,
         "rng": 1
       }
+    },
+    {
+      "id": "big-room-level-arrival",
+      "status": "open",
+      "boundary": "unsupported level change: goto_level() arriving in the big room",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 93,
+        "basis": "Capped look-ahead at 133174f: seed0383 has 95 raw steps after the boundary. Capped at 93 by dragon armor wear (Is_dragon_armor refused by do_wear.js). Third consecutive makelevel chain boundary on this session: do_mkroom(5) -> monster 225 -> big room. Each prior goal delivered 0 screens.",
+        "sessions": [
+          "seed0383-wizard-hallucinate"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383-wizard-hallucinate",
+            "evidence": "hero types e (eat) at step 42 after level teleport via ? menu. C path: do.c goto_level -> mklev.c makelevel generates a big room. After big room generation, session continues with three wish prompts and dragon armor wear. Capped at 93 by Is_dragon_armor refusal."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "133174f2814964b0912f239b0ad8de2d21f2cf1a",
+      "openStanding": {
+        "sha": "55c453db36094dfa4f52e1cd2ceefbf69bd4f334",
+        "screens": 1998,
+        "rng": 133717
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
