@@ -79,7 +79,7 @@ states it.
 
 Per-event history lives in `SCORE.tsv`. The longer evidence behind any row
 lives in that row's commit message and in `QUALITY.json`: validation runs,
-mutation results, deferred findings, and review metrics. The prose rows this
+deferred findings, and review metrics. The prose rows this
 file held before 2026-08-01 remain in its Git history.
 
 `SCORE.tsv` also held a `checkpoint` row per scoring run, added on 2026-08-01
