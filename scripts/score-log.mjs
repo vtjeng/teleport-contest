@@ -74,8 +74,8 @@ export function appendRow(fields, path = DEFAULT_PATH) {
     const row = { utc: new Date().toISOString(), ...fields };
     const cells = COLUMNS.map((column) => {
         const value = String(row[column] ?? '');
-        if (/[\t\n]/u.test(value))
-            throw new Error(`value for ${column} contains a tab or newline`);
+        if (/[\t\n"]/u.test(value))
+            throw new Error(`value for ${column} contains a tab, newline, or double quote`);
         return value;
     });
     appendFileSync(path, `${cells.join('\t')}\n`);

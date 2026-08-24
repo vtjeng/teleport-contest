@@ -79,7 +79,12 @@ test('appendRow composes a full row and refuses malformed input', () => {
         path), /unknown SCORE.tsv column/u);
     // A tab inside a value would shift every later column of the row.
     assert.throws(() => appendRow(
-        { sha: 'e', event: 'goal', note: 'a\tb' }, path), /tab or newline/u);
+        { sha: 'e', event: 'goal', note: 'a\tb' }, path), /tab, newline, or double quote/u);
+    // A double quote breaks GitHub's TSV renderer, which treats it as a
+    // field delimiter (the TSV spec inherits CSV quoting rules).
+    assert.throws(() => appendRow(
+        { sha: 'e', event: 'goal', note: 'the "?" path' }, path),
+        /double quote/u);
 });
 
 test('latestRow returns the last row, or the last of one event', () => {

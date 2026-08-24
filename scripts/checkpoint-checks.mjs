@@ -104,11 +104,6 @@ export function checkpointCommands(focusedTests = [], {
         command: 'npm',
         args: ['run', 'check:fixed-datetime'],
     });
-    commands.push({
-        label: 'static sources (check:score-quoting)',
-        command: 'npm',
-        args: ['run', 'check:score-quoting'],
-    });
     // Informational: a name defined twice is sometimes a module-private helper
     // that genuinely differs from its namesake, and only a reader who knows the
     // C function can tell that from a divergent duplicate port. The listing
