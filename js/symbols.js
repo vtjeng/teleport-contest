@@ -194,17 +194,21 @@ function slotArrays(set, state) {
     };
 }
 
+function purgeSlotCustomizations(set, oldHandling, state) {
+    purge_custom_entries(set, state);
+    clear_all_glyphmap_colors(state);
+    const otherSet = set === PRIMARYSET ? ROGUESET : PRIMARYSET;
+    if (oldHandling === H_UTF8
+        && state.gs.symset[otherSet]?.handling !== H_UTF8) {
+        clear_all_glyphmap_unicode(state);
+    }
+}
+
 function resetSymbolSlot(set, state) {
     const rogue = set === ROGUESET;
     const previous = state.gs.symset[set];
     if (previous && Object.hasOwn(previous, 'handling')) {
-        purge_custom_entries(set, state);
-        clear_all_glyphmap_colors(state);
-        const otherSet = rogue ? PRIMARYSET : ROGUESET;
-        if (previous.handling === H_UTF8
-            && state.gs.symset[otherSet]?.handling !== H_UTF8) {
-            clear_all_glyphmap_unicode(state);
-        }
+        purgeSlotCustomizations(set, previous.handling, state);
     }
     if (rogue) {
         state.gr.rogue_syms = [...DEFAULT_ROGUE_SYMBOLS];
@@ -242,13 +246,7 @@ export function clear_symsetentry(set, nameToo, state = game) {
     entry.rogue = 0;
     entry.glyphs = Object.freeze({});
     if (nameToo) entry.name = null;
-    purge_custom_entries(set, state);
-    clear_all_glyphmap_colors(state);
-    const otherSet = set === PRIMARYSET ? ROGUESET : PRIMARYSET;
-    if (oldHandling === H_UTF8
-        && state.gs.symset[otherSet].handling !== H_UTF8) {
-        clear_all_glyphmap_unicode(state);
-    }
+    purgeSlotCustomizations(set, oldHandling, state);
 }
 
 function symbolSetDefinition(name) {

@@ -493,10 +493,16 @@ test('direct S_* rows route numerically by requested slot and last owner', () =>
 test('duplicate records replace in place and different slots stay independent', () => {
     const { state } = configured('OPTIONS=symset:Enhanced1');
     glyphrep_to_custom_map_entries('G_male_healer:U+2603/1-2-3', state, PRIMARYSET);
-    glyphrep_to_custom_map_entries('G_male_healer:U+2602/4-5-6', state, PRIMARYSET);
     const primary = state.gs.sym_customizations[PRIMARYSET];
+    // captures length before the replacement call, so "replace in place" can be verified
+    const unicodeLenBefore = primary.unicode.details.length;
+    const colorLenBefore = primary.color.details.length;
+    glyphrep_to_custom_map_entries('G_male_healer:U+2602/4-5-6', state, PRIMARYSET);
     assert.equal(primary.unicode.details.at(-1).value, '☂');
     assert.equal(primary.color.details.at(-1).value, 0x040506);
+    // the second call replaces the healer entry rather than appending a duplicate
+    assert.equal(primary.unicode.details.length, unicodeLenBefore);
+    assert.equal(primary.color.details.length, colorLenBefore);
 
     state.gs.symset[ROGUESET].name = 'RogueIBM';
     glyphrep_to_custom_map_entries('G_male_healer:U+2601/7-8-9', state, ROGUESET);
@@ -587,6 +593,9 @@ test('object customization shuffle follows post-init description indices', () =>
     const piletopExpected = {
         ...state.gg.glyph_customizations[GLYPH_OBJ_PILETOP_OFF + sourceIndex],
     };
+    // destination slot has no pre-existing customization from Enhanced1
+    assert.equal(state.gg.glyph_customizations[GLYPH_OBJ_OFF + destination], null);
+    assert.equal(state.gg.glyph_customizations[GLYPH_OBJ_PILETOP_OFF + destination], null);
     state.objects[sourceIndex].oc_descr_idx = destination;
     state.objects[destination].oc_descr_idx = sourceIndex;
     maybe_shuffle_customizations(state);

@@ -884,3 +884,28 @@ test('a shorter RNG log reports only when the session finished', () => {
     assert.equal(finished.rng.cEntry, 'rnd(6)=2');
     assert.equal(finished.rng.jsEntry, undefined);
 });
+
+test('a longer JS RNG log reports only when the session finished', () => {
+    // Symmetric to the previous test: C recorded one call and the port made
+    // two. For a stopped session the extra rnd(6)=2 at call index 1 is a
+    // truncation artifact, so the reading is null.
+    const steps = [
+        {
+            key: null,
+            screen: 's',
+            cursor: [0, 0, 1],
+            rng: ['rn2(4)=1'],
+        },
+    ];
+    const jsOutput = {
+        rng: ['rn2(4)=1', 'rnd(6)=2'], screens: ['s'], cursors: [[0, 0, 1]],
+    };
+    assert.equal(silentDivergence([divergenceSegment(steps)], jsOutput, true),
+        null);
+    const finished = silentDivergence(
+        [divergenceSegment(steps)], jsOutput, false,
+    );
+    assert.equal(finished.rng.index, 1);
+    assert.equal(finished.rng.cEntry, undefined);
+    assert.equal(finished.rng.jsEntry, 'rnd(6)=2');
+});

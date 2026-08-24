@@ -50,7 +50,6 @@ import {
     SYM_OFF_X,
 } from './symbol_data.js';
 
-const NONZERO_BLACK = NH_BASIC_COLOR;
 const MONSTER_GLYPH_OFFSETS = Object.freeze([
     GLYPH_MON_MALE_OFF,
     GLYPH_MON_FEM_OFF,
@@ -188,6 +187,7 @@ function addDetail(bucket, name, glyph, value) {
             return;
         }
     }
+    // C allocates a new list node for every callback; the last entry for a glyph wins in apply_customizations
     bucket.details.push({ glyph, value });
 }
 
@@ -242,8 +242,9 @@ export function glyphrep_to_custom_map_entries(raw, state, whichSet = null) {
     if (!glyphs.length) return true;
     const unicodeCh = unicodeCharacter(unicode);
     const parsedColor = color === null ? -1 : rgbstr_to_int32(color);
+    // NH_BASIC_COLOR marks color-index 0 (black) as present, so 0 means "no color customization"
     const nhcolor = parsedColor === -1
-        ? 0 : parsedColor === 0 ? NONZERO_BLACK : parsedColor >>> 0;
+        ? 0 : parsedColor === 0 ? NH_BASIC_COLOR : parsedColor >>> 0;
     if (!unicodeCh && !nhcolor) return true;
     const set = whichSet ?? state.gs?.symset_which_set ?? PRIMARYSET;
     const name = state.gs?.symset?.[set]?.name ?? null;
@@ -349,8 +350,8 @@ export function numeric_glyph_customization(glyph, state) {
     return Object.keys(result).length ? result : null;
 }
 
-// allmain.c invokes this once, after init_objects() has shuffled description
-// indices and after the initial map, immediately before the first command.
+// moveloop_core calls this every turn; pending_customizations ensures it runs
+// only once, after init_objects() has shuffled description indices.
 export function maybe_shuffle_customizations(state) {
     if (!state.iflags?.pending_customizations) return;
     ensureCustomizationState(state);
