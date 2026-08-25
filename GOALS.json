@@ -3397,7 +3397,13 @@
         ]
       },
       "detail": "read_engr_at() is already ported at js/engrave.js:231-313. The work is removing the preflight throw at js/hack.js:1076-1077 and wiring read_engr_at() into the post-move path. seed0030 stretch capped at 25 screens (raw 609, 24.6x overstatement) because a gnome throws a potion at the hero.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "remove-engraving-preflight-guard",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "68d6a167e8c946ff558692cce0090f5c33569a4f",
       "openStanding": {
         "sha": "621cab0",
