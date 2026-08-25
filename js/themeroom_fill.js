@@ -29,6 +29,7 @@ import {
     MKTRAP_NOSPIDERONWEB,
     MKTRAP_SEEN,
     MM_NOCOUNTBIRTH,
+    MM_NOGRP,
     M_AP_OBJECT,
     M_AP_MONSTER,
     NO_LOC_WARN,
@@ -561,9 +562,15 @@ function createMonsterBody(specification, room, env) {
         return null;
     }
     const monsterEnv = themedCreationEnv(env);
-    const mmflags = specification.countbirth === false
+    // C ref: sp_lev.c lspo_monster() initializes mm_flags = NO_MM_FLAGS.
+    // Group creation (m_initgrp) for random monsters is unported, so suppress
+    // it with MM_NOGRP to let rndmonst_adj run and consume its reservoir
+    // sampling calls.  Without it, makemon_create.js preflightCreation()
+    // refuses the null-species call, skipping the entire rndmonst_adj draw.
+    let mmflags = specification.countbirth === false
         ? MM_NOCOUNTBIRTH
         : 0;
+    if (!species) mmflags |= MM_NOGRP;
     const monster = makemon(
         species,
         coordinate.x,

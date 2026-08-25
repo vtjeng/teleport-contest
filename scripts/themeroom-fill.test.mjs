@@ -64,7 +64,10 @@ import { GameMap } from '../js/game.js';
 import { engr_at } from '../js/engrave.js';
 import { add_to_minv } from '../js/invent.js';
 import { light_globals_init } from '../js/light.js';
-import { dmonsfree } from '../js/makemon_create.js';
+import {
+    UnsupportedMonsterCreationError,
+    dmonsfree,
+} from '../js/makemon_create.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import { mksobj } from '../js/obj.js';
@@ -2711,4 +2714,50 @@ test('Spider nest puts a giant spider on each web the source asks for', () => {
     const spider = level.monsters[2][3];
     assert.ok(spider, 'no monster on the web');
     assert.equal(spider.data, state.mons[PM_GIANT_SPIDER]);
+});
+
+test('create_monster with no species passes MM_NOGRP so preflightCreation accepts it', () => {
+    // C ref: sp_lev.c lspo_monster() initializes mm_flags = NO_MM_FLAGS (0).
+    // A bare des.monster() call sets neither id nor class, so create_monster()
+    // resolves species = null and makemon() must call rndmonst_adj() to
+    // select one. Without MM_NOGRP, preflightCreation() refuses the call
+    // with "random monster groups" because m_initgrp (group creation) is
+    // unported.
+    //
+    // Set level.flags.rndmongen = false so makemon() returns null at its
+    // debug_mongen/rndmongen gate (makemon.c:1392-1393) before consuming
+    // any rndmonst_adj RNG. This isolates the test to the MM_NOGRP fix in
+    // createMonsterBody().
+    const { level, room } = twoByTwoRoom();
+    const state = {
+        ...rawMonsterGenerationState(),
+        context: { ident: 2 },
+        flags: { initalign: 0 },
+        in_mklev: true,
+        level,
+        moves: 7,
+        urole: { mnum: PM_ARCHEOLOGIST, questarti: 0 },
+    };
+    level.flags.rndmongen = false;
+    monst_globals_init(state);
+    reset_mvitals(state);
+    const random = scriptedRandom([
+        // induced_align(80) fallback: both special-level and dungeon
+        // alignments are zero, so only the final rn2(3) fires.
+        step('rn2', [3], 2),
+        // somexy() picks a coordinate inside the 2x2 room via somex/somey.
+        step('rn1', [2, 2], 2), // somex: hx - lx + 1 = 2, base = lx = 2
+        step('rn1', [2, 3], 3), // somey: hy - ly + 1 = 2, base = ly = 3
+    ]);
+
+    // Must not throw UnsupportedMonsterCreationError('random monster groups').
+    const monster = create_monster({}, room, {
+        state,
+        random: random.random,
+    });
+
+    random.assertExhausted();
+    // makemon returns null because rndmongen is false, not because
+    // preflightCreation refused the call.
+    assert.equal(monster, null);
 });

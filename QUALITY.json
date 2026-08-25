@@ -4659,6 +4659,15 @@
       "status": "open",
       "from": "c252bb416725df10184d8e612882dde9f84c0945",
       "detail": "bigrm-level-generation.test.mjs:59 asserts tautologies on literals without calling percent(). percent() is module-private; fixing requires either exporting it or building loader-level test infrastructure. Deferred to bigrm system work."
+    },
+    {
+      "id": "rndmonst-adj-unsupported-species",
+      "area": null,
+      "category": "scope",
+      "effort": "small",
+      "status": "open",
+      "from": "f555a7f5fd1812f48da909b7cd8f83bf2ae69fe7",
+      "detail": "After rndmonst_adj selects a monster on higher levels (e.g. bigrm level 12), assertSupportedSpecies throws because most high-level monsters are not in INITIAL_LEVEL_MONSTERS. This skips the remaining makemon initialization (~6 RNG calls per monster), causing a smaller downstream divergence. Fixing requires expanding the supported species set for special-level monster creation."
     }
   ],
   "areas": [
