@@ -3602,6 +3602,179 @@
         "screens": 2,
         "rng": 385
       }
+    },
+    {
+      "id": "starting-little-dog-actions",
+      "status": "open",
+      "boundary": "simple monster action requires the starting little dog",
+      "upstreamOwners": [
+        "makemon.c",
+        "mon.c",
+        "monmove.c"
+      ],
+      "forecast": {
+        "steps": 18,
+        "basis": "Capped look-ahead at 6f8d90b: seed0030 has 603 raw steps after the starting little dog boundary. Capped at 18 by monster ranged weapon attacks (mthrowu.c thrwmu/m_throw, unported). The gnome throws a phial (potion) at the hero; js/mthrowu.js header states thrwmu/m_throw are not ported and js/unported_monster_actions.js:909-930 refuses the path.",
+        "sessions": [
+          "seed0030-ten-diverse-deaths"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0030-ten-diverse-deaths",
+            "evidence": "Step 29: boundary. Step ~47: gnome throws a phial (mthrowu.c m_throw). Capped forecast 18 steps. Classifier verified thrwmu is unported in js/mthrowu.js and js/unported_monster_actions.js."
+          }
+        ]
+      },
+      "detail": "The starting pet (kitten or little dog) is created at game start. When it takes a simple monster action — moving, fighting, eating, picking up items — the port refuses because the starting pet is not recognized. This boundary also caps the puton and loot candidates: both sessions have a kitten whose actions appear in the stretch before reaching the candidate's own target behavior.\n\nseed0030 stops at step 29/1953. After the pet combat boundary, the stretch shows pet eating, hero combat, stairs, monster combat, and hero death — all ported — until the gnome throws a potion at step ~47 (mthrowu.c m_throw, unported).",
+      "slices": [],
+      "openedAt": "5dd88bb96e79ac184f2f978c615743153e686a32",
+      "openStanding": {
+        "sha": "7208cd2",
+        "screens": 2006,
+        "rng": 137990
+      },
+      "closedAt": null,
+      "delivered": null
+    },
+    {
+      "id": "door-unlock-tool",
+      "status": "queued",
+      "boundary": "unsupported hero move: door unlocking tool",
+      "upstreamOwners": [
+        "lock.c"
+      ],
+      "forecast": {
+        "steps": 18,
+        "basis": "Capped look-ahead at 6f8d90b: seed0007 has 18 raw steps after the door unlocking tool boundary. No second unported behavior found in the stretch. After lock picking, the hero opens the door, moves, descends stairs, and hears sounds — all ported. Full 18-step stretch is clean.",
+        "sessions": [
+          "seed0007-rogue-snake-swamp"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0007-rogue-snake-swamp",
+            "evidence": "Step 50: boundary (locked door). Steps 51-68: lock pick, door opens, movement, stairs, sounds. No unported behavior found. Capped forecast 18 steps (uncapped). Classifier flagged dosounds() cash-register/door-open messages as ambiguous but classified them as ported."
+          }
+        ]
+      },
+      "detail": "The hero walks into a locked door while carrying a lock pick. lock.c pick_lock() prompts for the tool, attempts to pick the lock, and opens the door on success. The port throws UnsupportedHeroMoveBoundaryError at the hero-move preflight.\n\nseed0007 stops at step 50/302. The 18-step stretch after the boundary is clean: door opens, hero moves, descends stairs, hears dosounds() flavor messages.",
+      "slices": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null
+    },
+    {
+      "id": "close-command",
+      "status": "queued",
+      "boundary": "unsupported hero command: the repeated-command boundary refuses the close command",
+      "upstreamOwners": [
+        "close.c"
+      ],
+      "forecast": {
+        "steps": 7,
+        "basis": "Capped look-ahead at 6f8d90b: seed5002 has 50 raw steps after the close command. Capped at 7 by doapply()'s MAGIC_MARKER arm (dowrite in write.c, reached from apply.c:4361). Classifier verified js/apply.js implements only STETHOSCOPE, LOCK_PICK, CREDIT_CARD, SKELETON_KEY; MAGIC_MARKER falls to the default throw.",
+        "sessions": [
+          "seed5002-wizard-coverage-pair"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5002-wizard-coverage-pair",
+            "evidence": "Step 223: close command. Steps 224-228: direction prompt, cmdassist retries. Step 229: apply command (ported). Step 230: doapply MAGIC_MARKER arm (unported) — 'What do you want to write on?' is dowrite(), not engrave. Capped forecast 7 steps."
+          }
+        ]
+      },
+      "detail": "The close command (bound to 'c') lets the hero close an open door. It prompts for a direction and closes the door in that direction. close.c doclosef() handles the logic.\n\nseed5002 stops at step 223/273. After the close command finishes (direction prompt and cmdassist retries), the user types an apply command (ported), then selects a magic marker — doapply()'s MAGIC_MARKER arm throws UnsupportedApplyError.",
+      "slices": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null
+    },
+    {
+      "id": "puton-command",
+      "status": "queued",
+      "boundary": "unsupported hero command: the repeated-command boundary refuses the puton command",
+      "upstreamOwners": [
+        "do_wear.c"
+      ],
+      "forecast": {
+        "steps": 5,
+        "basis": "Capped look-ahead at 6f8d90b: seed0383 has 25 raw steps, capped at 1 by starting little dog (kitten acts during wear occupation). seed5006 has 47 raw steps, capped at 4 by starting little dog (kitten acts during wear). Sum: 5 steps across 2 sessions.",
+        "sessions": [
+          "seed0383-wizard-hallucinate",
+          "seed5006-tourist-stress-disaster"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383-wizard-hallucinate",
+            "evidence": "Step 137: puton prompt. Step 138: kitten misses gnome (starting little dog boundary). Capped at 1."
+          },
+          {
+            "session": "seed5006-tourist-stress-disaster",
+            "evidence": "Step 109: puton prompt. Steps 110-112: ring finger, ring worn, wear prompt. Step 113: kitten misses sewer rat (starting little dog boundary). Capped at 4."
+          }
+        ]
+      },
+      "detail": "The puton command (bound to 'P') lets the hero put on rings and amulets. do_wear.c Puton_on() handles selection and the multi-turn dressing occupation.\n\nBoth sessions have a kitten (starting pet) that acts during the dressing occupation, triggering the starting little dog boundary. Without that boundary, seed0383 would cap at 16 (#wizintrinsic) and seed5006 at 47 (full stretch through wizwish).",
+      "slices": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null
+    },
+    {
+      "id": "loot-command",
+      "status": "queued",
+      "boundary": "unsupported hero command: the extended command 'loot' is not ported",
+      "upstreamOwners": [
+        "pickup.c"
+      ],
+      "forecast": {
+        "steps": 1,
+        "basis": "Capped look-ahead at 6f8d90b: seed0012 has 33 raw steps, capped at 1 by starting little dog (little dog acts immediately after loot prompt).",
+        "sessions": [
+          "seed0012-monk-vault-escort"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0012-monk-vault-escort",
+            "evidence": "Step 24: loot prompt. Step 25: 'The little dog misses the lichen' (starting little dog boundary). Capped at 1."
+          }
+        ]
+      },
+      "detail": "The #loot extended command lets the hero interact with containers on the floor. pickup.c doloot() handles it.\n\nseed0012 stops at step 24/308. The little dog acts immediately after the loot prompt, capping the forecast at 1.",
+      "slices": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null
+    },
+    {
+      "id": "rub-command",
+      "status": "queued",
+      "boundary": "unsupported hero command: the extended command 'rub' is not ported",
+      "upstreamOwners": [
+        "apply.c"
+      ],
+      "forecast": {
+        "steps": 1,
+        "basis": "Capped look-ahead at 6f8d90b: seed0108 has 33 raw steps, capped at 1 by monster ranged attack (goblin throws a crude dagger during the rub command). mthrowu.c thrwmu/m_throw are unported.",
+        "sessions": [
+          "seed0108-wizard-extcmd-wishlist"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0108-wizard-extcmd-wishlist",
+            "evidence": "Step 29: rub prompt. Step 30: 'The goblin throws a crude dagger!' (mthrowu.c m_throw, unported). Capped at 1."
+          }
+        ]
+      },
+      "detail": "The #rub extended command lets the hero rub a lamp. apply.c dorub() handles it.\n\nseed0108 stops at step 29/303. A goblin throws a crude dagger during the same turn, triggering the unported monster ranged weapon attack boundary (mthrowu.c thrwmu).",
+      "slices": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
