@@ -4050,7 +4050,7 @@
     },
     {
       "id": "loot-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero command: the extended command 'loot' is not ported",
       "upstreamOwners": [],
       "forecast": {
@@ -4085,8 +4085,11 @@
         "screens": 2197,
         "rng": 151979
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "29fb7e8bd0b1f2c9503bd9a0b2c44355716b2728",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
