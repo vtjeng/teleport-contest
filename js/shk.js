@@ -27,6 +27,7 @@ import { s_suffix } from './hacklib.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
 import { set_malign } from './makemon.js';
+import { wake_nearto } from './mon.js';
 import {
     carried, hasContents, isCandle, isContainer, objectType,
 } from './obj.js';
@@ -63,6 +64,21 @@ export function inhishop(shopkeeper, state) {
             SHOPBASE,
             state,
         ).includes(extension.shoproom));
+}
+
+// C ref: shk.c tended_shop() (1117-1123).
+export function tended_shop(sroom, state) {
+    const mtmp = sroom?.resident;
+    return mtmp ? inhishop(mtmp, state) : false;
+}
+
+// C ref: shk.c noisy_shop() (1125-1133).
+export async function noisy_shop(sroom, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const mtmp = sroom?.resident;
+    if (mtmp && inhishop(mtmp, state)) {
+        await wake_nearto(mtmp.mx, mtmp.my, 11 * 11, rawEnv);
+    }
 }
 
 // C ref: shk.c inside_shop(). A wall, boundary square, or non-shop room is

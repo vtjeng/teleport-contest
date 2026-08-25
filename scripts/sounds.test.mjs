@@ -6,6 +6,7 @@ import {
     HALLUC,
     HALLUC_RES,
     ROOMOFFSET,
+    SHOPBASE,
     VAULT,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
@@ -365,38 +366,114 @@ test('dosounds refuses each unported branch by name, in source order',
         assert.deepEqual(sinkOracle.level.flags, refusal.flagsBefore);
     });
 
-test('a refused ambient sound ends the segment on its matching prefix',
-    async () => {
-        let boundary = null;
-        const segment = await runSegment({
-            // A fresh case, chosen so ordinary generation reaches a shop:
-            // mklev.c:1349-1351 tries do_mkroom(SHOPBASE) on every Dlvl 2 with
-            // enough rooms, because rn2(2) is always below 3 there.
-            seed: 4711,
-            datetime: '20000110090000',
-            nethackrc: [
-                'OPTIONS=name:FreshDiff,role:Valkyrie,race:human,'
-                    + 'gender:female,align:neutral',
-                'OPTIONS=!legacy,!tutorial,!splash_screen',
-                'OPTIONS=playmode:debug',
-                '',
-            ].join('\n'),
-            // Wizard level teleport (^V) to Dlvl 2, then rests, the first of
-            // which spends a turn and reaches dosounds().
-            moves: '\x162\n....',
-        }, { onBoundary: (error) => { boundary ??= error; } });
+// Creates a minimal state where has_shop is set and a tended shop exists.
+// The shopkeeper (resident) is placed at (5, 5) inside a room whose roomno is
+// ROOMOFFSET + 0 = 3. The hero is at (20, 10), outside the shop.
+function shopState({ tended = true } = {}) {
+    const state = soundState();
+    const roomnoidx = 0;
+    const roomno = roomnoidx + ROOMOFFSET;
+    const room = {
+        lx: 3,
+        hx: 7,
+        ly: 3,
+        hy: 7,
+        roomnoidx,
+        rtype: SHOPBASE, // general store
+    };
+    if (tended) {
+        room.resident = {
+            isshk: true,
+            mx: 5,
+            my: 5,
+            mhp: 10,
+            mextra: {
+                eshk: {
+                    shoplevel: { ...state.u.uz },
+                    shoproom: roomno,
+                },
+            },
+        };
+        // Place the shopkeeper on the map so in_rooms() finds it in the shop.
+        state.level.locations[5][5].roomno = roomno;
+    } else {
+        room.resident = null;
+    }
+    state.level.rooms = [room, { hx: -1 }];
+    state.level.nroom = 1;
+    state.level.flags.has_shop = true;
+    return state;
+}
 
-        assert.equal(boundary?.name, 'UnsupportedAmbientSoundError');
-        assert.equal(boundary?.message,
-            'dosounds() needs the has_shop level-sound branch');
-        assert.equal(game.u.uz.dlevel, 2);
-        assert.equal(game.level.flags.has_shop, true);
-        // runSegment() has to recognize the refusal as a boundary and keep the
-        // prefix. The four screens and 6,017 draws below are what the C
-        // recorder emits before its own rn2(200) at sounds.c:313, verified
-        // with scripts/diff-fresh.mjs on this case; raising the refusal as a
-        // plain Error instead let it escape runSegment() and left zero of
-        // both.
-        assert.equal(segment.getScreens().length, 4);
-        assert.equal(segment.getRngLog().length, 6017);
-    });
+test('dosounds plays the shop sound when a tended shop exists', async () => {
+    const state = shopState();
+    // rn2(200) = 0 hits the shop gate; rn2(2) = 0 selects the first message.
+    const result = await runSounds(state, [0, 0]);
+    result.script.assertBounds([200, 2]);
+    assert.deepEqual(result.messages, [
+        'You hear someone cursing shoplifters.',
+    ]);
+});
+
+test('dosounds selects the cash register message for shop sounds', async () => {
+    const state = shopState();
+    // rn2(200) = 0 hits the shop gate; rn2(2) = 1 selects the second message.
+    const result = await runSounds(state, [0, 1]);
+    result.script.assertBounds([200, 2]);
+    assert.deepEqual(result.messages, [
+        'You hear the chime of a cash register.',
+    ]);
+});
+
+test('dosounds selects the hallucination shop message', async () => {
+    const state = shopState();
+    state.u.uprops[HALLUC].intrinsic = 1;
+    // rn2(200) = 0 hits the shop gate; rn2(2) = 1, shifted by hallu = 1,
+    // selects shop_msg[2] -- the hallucination message.
+    const result = await runSounds(state, [0, 1]);
+    result.script.assertBounds([200, 2]);
+    assert.deepEqual(result.messages, [
+        'You hear Neiman and Marcus arguing!',
+    ]);
+});
+
+test('dosounds is silent for an untended shop', async () => {
+    const state = shopState({ tended: false });
+    // rn2(200) = 0 hits the shop gate; tended_shop returns false, so no draw
+    // for the message index and no message.
+    const result = await runSounds(state, [0]);
+    result.script.assertBounds([200]);
+    assert.deepEqual(result.messages, []);
+});
+
+test('dosounds is silent when the hero is inside the shop', async () => {
+    const state = shopState();
+    // The hero is currently in the shop room.
+    state.u.ushops = [ROOMOFFSET, 0, 0, 0, 0];
+    // rn2(200) = 0 hits the shop gate; the ushops check suppresses the
+    // message, so no rn2(2) draw occurs.
+    const result = await runSounds(state, [0]);
+    result.script.assertBounds([200]);
+    assert.deepEqual(result.messages, []);
+});
+
+test('dosounds clears a stale shop flag when no shop room exists', async () => {
+    const state = soundState();
+    state.level.flags.has_shop = true;
+    // rn2(200) = 0 hits the shop gate; search_special(ANY_SHOP) finds nothing.
+    const { script, messages } = await runSounds(state, [0]);
+    script.assertBounds([200]);
+    assert.equal(state.level.flags.has_shop, false);
+    assert.deepEqual(messages, []);
+});
+
+test('dosounds returns after the shop gate even without a message', async () => {
+    // An untended shop still returns before later branches.
+    const state = shopState({ tended: false });
+    state.level.flags.has_temple = true;
+    // rn2(200) = 0 hits the shop gate; the untended shop produces no message.
+    // The temple flag would cause a refusal if shop did not return first.
+    const result = await runSounds(state, [0]);
+    result.script.assertBounds([200]);
+    assert.deepEqual(result.messages, []);
+});

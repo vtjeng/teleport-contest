@@ -2,6 +2,7 @@
 // C refs: sounds.c dosounds(), dotalk(), dochat().
 
 import {
+    ANY_SHOP,
     BLINDED,
     DEAF,
     ECMD_CANCEL,
@@ -13,6 +14,7 @@ import {
     MALE,
     ROOMOFFSET,
     SDOOR,
+    SHOPBASE,
     STONE,
     STRANGLED,
     VAULT,
@@ -30,7 +32,7 @@ import { g_at } from './obj.js';
 import { an } from './objnam.js';
 import { STATUE } from './objects.js';
 import { rn2 } from './rng.js';
-import { shop_object } from './shk.js';
+import { noisy_shop, shop_object, tended_shop } from './shk.js';
 import { ttyPline } from './tty_message.js';
 
 const FOUNTAIN_MESSAGES = Object.freeze([
@@ -51,12 +53,17 @@ const PRE_VAULT_SPECIAL_SOUND_FLAGS = Object.freeze([
     'has_swamp',
 ]);
 
-const POST_VAULT_SPECIAL_SOUND_FLAGS = Object.freeze([
+// C's dosounds() checks special-room flags in this order after the vault:
+// beehive, morgue, barracks, zoo, shop, temple. The shop branch is ported;
+// the rest are rejected before their gate draws.
+const PRE_SHOP_SPECIAL_SOUND_FLAGS = Object.freeze([
     'has_beehive',
     'has_morgue',
     'has_barracks',
     'has_zoo',
-    'has_shop',
+]);
+
+const POST_SHOP_SPECIAL_SOUND_FLAGS = Object.freeze([
     'has_temple',
 ]);
 
@@ -88,6 +95,17 @@ function Blind(state) {
         && !blinded?.blocked;
 }
 
+// C ref: strchr(u.ushops, roomno). Checks whether a 0-terminated room-number
+// buffer contains a specific room number.
+function roomStringContainsValue(buffer, value) {
+    for (const raw of buffer ?? []) {
+        const entry = Math.trunc(raw ?? 0);
+        if (!entry) break;
+        if (entry === value) return true;
+    }
+    return false;
+}
+
 function roomStringContainsType(buffer, roomType, state) {
     for (const rawRoomNumber of buffer ?? []) {
         const roomNumber = Math.trunc(rawRoomNumber ?? 0);
@@ -99,17 +117,22 @@ function roomStringContainsType(buffer, roomType, state) {
 }
 
 function searchSpecial(roomType, state) {
-    // C's search_special() scans its main-room array and separate subroom
-    // array. mklev.js preserves that split as level.rooms and root subrooms.
+    // C ref: mkroom.c search_special(). Scans main rooms then subrooms.
+    // ANY_SHOP matches any room with rtype >= SHOPBASE (any shop type).
     for (const room of state.level?.rooms ?? []) {
         if (!room || room.hx < 0) break;
-        if (room.rtype === roomType) return room;
+        if (roomTypeMatches(room.rtype, roomType)) return room;
     }
     for (const room of state.subrooms ?? []) {
         if (!room || room.hx < 0) break;
-        if (room.rtype === roomType) return room;
+        if (roomTypeMatches(room.rtype, roomType)) return room;
     }
     return null;
+}
+
+function roomTypeMatches(rtype, wanted) {
+    if (wanted === ANY_SHOP) return rtype >= SHOPBASE;
+    return rtype === wanted;
 }
 
 function vaultGuardPresent(state) {
@@ -172,9 +195,9 @@ async function hear(message, state, pline) {
 /**
  * Run every sounds.c:dosounds() branch reachable on an ordinary initial level.
  *
- * Fountain, sink, and secret-vault behavior is complete.  Special rooms which
- * require a deeper level, plus the Oracle level, are rejected before any draw
- * until their owning gameplay goals make them reachable.
+ * Fountain, sink, secret-vault, and shop behavior is complete.  Special rooms
+ * which require a deeper level, plus the Oracle level, are rejected before any
+ * draw until their owning gameplay goals make them reachable.
  */
 export async function dosoundsInitialLevel(
     state = game,
@@ -232,7 +255,29 @@ export async function dosoundsInitialLevel(
         // guard or the hero's room suppresses its selection draw.
         return;
     }
-    rejectUnportedSpecialSound(state, POST_VAULT_SPECIAL_SOUND_FLAGS);
+    rejectUnportedSpecialSound(state, PRE_SHOP_SPECIAL_SOUND_FLAGS);
+    if (flags.has_shop && random(200) === 0) {
+        const sroom = searchSpecial(ANY_SHOP, state);
+        if (!sroom) {
+            // strange...
+            flags.has_shop = false;
+            return;
+        }
+        if (tended_shop(sroom, state)
+            && !roomStringContainsValue(
+                hero?.ushops, (sroom.roomnoidx ?? 0) + ROOMOFFSET,
+            )) {
+            const shopMessages = [
+                'someone cursing shoplifters.',
+                'the chime of a cash register.',
+                'Neiman and Marcus arguing!',
+            ];
+            await hear(shopMessages[random(2) + hallu], state, pline);
+            await noisy_shop(sroom, { state, message: pline });
+        }
+        return;
+    }
+    rejectUnportedSpecialSound(state, POST_SHOP_SPECIAL_SOUND_FLAGS);
     rejectUnportedOracleSound(state);
 }
 
