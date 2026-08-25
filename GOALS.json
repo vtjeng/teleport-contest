@@ -3626,7 +3626,13 @@
         ]
       },
       "detail": "The starting pet (kitten or little dog) is created at game start. When it takes a simple monster action — moving, fighting, eating, picking up items — the port refuses because the starting pet is not recognized. This boundary also caps the puton and loot candidates: both sessions have a kitten whose actions appear in the stretch before reaching the candidate's own target behavior.\n\nseed0030 stops at step 29/1953. After the pet combat boundary, the stretch shows pet eating, hero combat, stairs, monster combat, and hero death — all ported — until the gnome throws a potion at step ~47 (mthrowu.c m_throw, unported).",
-      "slices": [],
+      "slices": [
+        {
+          "name": "widen-dog-eat-species-and-corpse-gate",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "5dd88bb96e79ac184f2f978c615743153e686a32",
       "openStanding": {
         "sha": "7208cd2",
