@@ -4090,6 +4090,35 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "save-command",
+      "status": "open",
+      "boundary": "The hero types S (save), dispatching save.c dosave(). dosave() prompts 'Really save?', calls dosave0() to serialize game state to storage, prints 'Be seeing you...', and exits the segment. A subsequent segment restores the saved state through restore.c dorestore()/restgamestate(), and allmain.c welcome(FALSE) produces the welcome-back greeting.",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 13,
+        "basis": "Capped look-ahead at db7bd95: seed0013-friday13-save-then-fullmoon-restore cappedStretch=13 (cap-stable). Save prompt, Be seeing you exit, restore welcome-back greeting, phase_of_the_moon Full moon message, then known/attributes/showspells/space (all ported). 1 session, no tie.",
+        "sessions": [
+          "seed0013-friday13-save-then-fullmoon-restore"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0013-friday13-save-then-fullmoon-restore",
+            "evidence": "Step 47 hero types S. C dispatches to save.c dosave():43. dosave() calls y_n('Really save?'). Hero answers y. dosave0() undoes Friday-13th luck (change_luck(1) at save.c:145) then serializes via savelev()/savegamestate(). exit_nhwindows('Be seeing you...') exits. Segment 1 restores with datetime 20001114090000 (full moon). moveloop_preamble(true) produces 'You are lucky! Full moon tonight.' welcome(FALSE) produces 'Hello Sneaky, the human Rogue, welcome back to NetHack!'"
+          }
+        ]
+      },
+      "detail": "Traced source findings: dosave() is 27 lines at save.c:43-70. dosave0() at save.c:74 serializes via savelev()/savegamestate(). savegamestate() (save.c:265-333) calls 15 save helpers. restgamestate() (restore.c:525-899) deserializes each subsystem. dorestore() opens save, calls restgamestate, runs welcome(FALSE). The JS port cross-segment persistence uses input.storage (InMemoryStorage). moveloop_preamble(resuming=true) is ported; welcome(FALSE) path is not. NethackGame.start() always calls resetGame() -- the restore path must detect saved state in storage. The session exercises dosave0() undoing Friday-13th luck, segment exit, restore with changed datetime (20001013 -> 20001114 full moon), welcome-back greeting. Debt beyond: seeamulet, seearmor, seerings, seeweapon, showgold, terrain. save.c 1191 lines, restore.c 1622 lines -- most is binary I/O the JS port replaces with storage serialization.",
+      "slices": [],
+      "openedAt": "db7bd9507ea25204eff719b842feda41dcee6b0d",
+      "openStanding": {
+        "sha": "29fb7e8",
+        "screens": 2197,
+        "rng": 151979
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
