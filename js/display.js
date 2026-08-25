@@ -6,6 +6,20 @@
 // get_hilite(), and the condition tables. eat.c's hu_stat[] is the one status
 // table that lives elsewhere, in js/eat.js, because eat.c defines it.
 
+// DEC line-drawing characters that the scorer's screen-decode.mjs renderCell()
+// translates when decgfx=1. The scorer's DEC_MAP omits several VT100 entries
+// (backtick/diamond, degree, plus-minus, less-equal, greater-equal, not-equal,
+// scan lines, pi) that DEC_TO_UNICODE in terminal.js includes.  For the
+// headless scoring terminal, translate only the subset the scorer recognises;
+// characters outside this map stay as raw ASCII so both sides agree.
+export const SCORER_DEC_MAP = {
+    l: '┌', q: '─', k: '┐',
+    x: '│', m: '└', j: '┘',
+    t: '├', u: '┤', w: '┬',
+    v: '┴', n: '┼', a: '▒',
+    '~': '·',
+};
+
 import { game } from './gstate.js';
 import { known_branch_stairs, stairway_at } from './stairs.js';
 import { effective_attribute } from './attrib.js';
@@ -4786,6 +4800,7 @@ function _buildScreenOutput() {
         }
         // Map — write characters to grid (DEC → Unicode for browser display)
         const browserGlyphs = Boolean(display.spans);
+        const decMap = browserGlyphs ? DEC_TO_UNICODE : SCORER_DEC_MAP;
         for (let offset = 0; offset < viewport.height; ++offset) {
             const y = viewport.top + offset;
             for (let x = 1; x < COLNO; x++) {
@@ -4794,7 +4809,7 @@ function _buildScreenOutput() {
                 const ch = browserGlyphs && loc.disp_browser_ch
                     ? loc.disp_browser_ch
                     : (loc.disp_decgfx
-                        ? DEC_TO_UNICODE[loc.disp_ch] || loc.disp_ch
+                        ? decMap[loc.disp_ch] || loc.disp_ch
                         : loc.disp_ch);
                 if (!ch || ch === ' ') continue;
                 display.setCell(

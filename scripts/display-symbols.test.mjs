@@ -172,6 +172,7 @@ import {
     unmap_invisible,
     UnsupportedMapMemoryError,
     UnsupportedStatusRefreshError,
+    SCORER_DEC_MAP,
     weapon_status,
 } from '../js/display.js';
 import {
@@ -293,6 +294,7 @@ import {
     CLR_RED,
     CLR_WHITE,
     CLR_YELLOW,
+    DEC_TO_UNICODE,
     NO_COLOR,
 } from '../js/terminal.js';
 import {
@@ -9454,4 +9456,90 @@ test('a cmap glyph carries the accessibility kind its index falls in', () => {
     // the staircases into cmap B; S_pool is the first index past its end.
     assert.equal(kindOf(S_grave), 'furniture');
     assert.equal(kindOf(S_pool), 'cmap');
+});
+
+// frozen/screen-decode.mjs renderCell() uses a DEC_MAP that deliberately omits
+// several VT100 characters that DEC_TO_UNICODE includes: backtick (diamond),
+// f (degree), g (plus-minus), y (less-equal), z (greater-equal), | (not-equal),
+// o/s (scan lines), { (pi).  When the headless scoring terminal translates DEC
+// characters, it must use SCORER_DEC_MAP — which matches the scorer's DEC_MAP —
+// instead of DEC_TO_UNICODE.  Using the full DEC_TO_UNICODE map produces Unicode
+// characters for entries the scorer does not translate, causing a mismatch where
+// the C side leaves the raw ASCII byte and the JS side emits the Unicode glyph.
+test('SCORER_DEC_MAP matches the scorer DEC_MAP and omits backtick', () => {
+    // The scorer's DEC_MAP from frozen/screen-decode.mjs, verified by reading
+    // the source.  SCORER_DEC_MAP must be identical to this set.
+    const expectedEntries = {
+        l: '┌', q: '─', k: '┐',
+        x: '│', m: '└', j: '┘',
+        t: '├', u: '┤', w: '┬',
+        v: '┴', n: '┼', a: '▒',
+        '~': '·',
+    };
+
+    // Every entry in the scorer's DEC_MAP appears in SCORER_DEC_MAP with the
+    // same Unicode character.
+    for (const [key, value] of Object.entries(expectedEntries)) {
+        assert.equal(
+            SCORER_DEC_MAP[key], value,
+            `SCORER_DEC_MAP['${key}'] should be ${value}`,
+        );
+    }
+
+    // SCORER_DEC_MAP has no extra entries beyond the scorer's DEC_MAP.
+    assert.equal(
+        Object.keys(SCORER_DEC_MAP).length,
+        Object.keys(expectedEntries).length,
+        'SCORER_DEC_MAP should have exactly the same number of entries '
+        + 'as the scorer DEC_MAP',
+    );
+
+    // Backtick (VT100 diamond) is the specific character that caused the
+    // seed0383 DECgraphics mismatch.  It appears in DEC_TO_UNICODE (which the
+    // browser rendering uses) but must NOT appear in SCORER_DEC_MAP (which the
+    // scoring terminal uses).  The scorer's renderCell leaves the raw backtick
+    // unchanged, so the JS port must do the same.
+    assert.ok(
+        DEC_TO_UNICODE['`'],
+        'DEC_TO_UNICODE should map backtick to diamond (U+25C6)',
+    );
+    assert.equal(
+        SCORER_DEC_MAP['`'], undefined,
+        'SCORER_DEC_MAP must not translate backtick — the scorer leaves it raw',
+    );
+});
+
+// The DECgraphics pool symbol uses byte 0xe0 (128+96), whose low 7 bits are
+// 0x60 = backtick.  The displaySymbol helper returns {ch: '`', dec: true}.
+// Rendering this to a headless terminal must leave it as a raw backtick rather
+// than translating it to the Unicode diamond, because the scorer's DEC_MAP does
+// not include backtick.
+test('DECgraphics pool renders as raw backtick, not diamond', () => {
+    const state = {};
+    initialize_symbols_from_options({
+        symset: 'DECgraphics',
+        flags: {},
+    }, state);
+
+    // S_pool in DECgraphics has byte 0xe0 (high bit set, low byte = backtick).
+    const poolSymbol = displaySymbol({ typ: POOL }, state);
+    assert.equal(poolSymbol.ch, '`',
+        'pool character should be the low 7 bits of DECgraphics 0xe0 = backtick');
+    assert.equal(poolSymbol.dec, true,
+        'pool should have dec=true because the DECgraphics byte has the high bit');
+
+    // Verify that the scoring terminal would leave this as raw backtick:
+    // SCORER_DEC_MAP does not contain backtick, so the fallback is the raw char.
+    assert.equal(
+        SCORER_DEC_MAP[poolSymbol.ch] || poolSymbol.ch,
+        '`',
+        'scoring path should leave the backtick untranslated',
+    );
+
+    // Verify that the browser path would correctly translate to diamond:
+    assert.equal(
+        DEC_TO_UNICODE[poolSymbol.ch],
+        '◆',
+        'browser path should translate backtick to Unicode diamond',
+    );
 });
