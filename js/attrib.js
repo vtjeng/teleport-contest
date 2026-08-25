@@ -428,6 +428,14 @@ export function newhp(state = game, random = { rnd }) {
     return hp;
 }
 
+// C ref: attrib.c minuhpmax() (1146-1152). The minimum uhpmax is the hero's
+// experience level, but for life-saving it is always at least 10 (the altmin
+// argument) when the hero's level is below that.
+export function minuhpmax(altmin, state = game) {
+    if (altmin < 1) altmin = 1;
+    return Math.max(state.u.ulevel, altmin);
+}
+
 // C ref: attrib.c setuhpmax(). It owns u.uhpmax, u.uhppeak and the u.uhp
 // ceiling together, so nothing else writes u.uhpmax once a level is gained.
 // The Upolyd arm, which redirects the same work at u.mhmax, has no owner:

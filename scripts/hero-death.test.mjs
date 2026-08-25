@@ -418,10 +418,24 @@ test('the keep-playing query opens for debug mode and for explore mode',
      async () => {
     for (const playmode of ['debug', 'explore']) {
         await dyingGame({ playmode });
-        // 'n' declines the death, which is what sends C into savelife().
+        // 'n' declines the death, which sends C into savelife().
+        // Set context.mon_moving so savelife() skips endmultishot().
+        game.context.mon_moving = true;
         answerQuery('n');
-        assert.equal(await refusal(DIED),
-                     `savelife(${DIED}) for a declined death`);
+        // done() returns normally after savelife() restores the hero.
+        await done(DIED, game);
+        // savelife() restores HP from the constitution-based formula.
+        // Tourist starting CON is 15 (ACURR(A_CON) = 15), giving
+        // givehp = 50 + 10 * floor(15 / 2) = 50 + 70 = 120. uhpmax is 10,
+        // so u.uhp = min(10, 120) = 10.
+        assert.equal(game.u.uhp, 10, 'HP restored to uhpmax');
+        // savelife() sets multi to -1 (can't move during this turn).
+        assert.equal(game.multi, -1, 'multi set to -1');
+        // savelife() sets the survive message.
+        assert.equal(game.nomovemsg,
+                     'You survived that attempt on your life.');
+        // The killer is cleared by the survive return path.
+        assert.equal(game.killer.name, '', 'killer name cleared');
     }
 });
 
@@ -429,9 +443,12 @@ test('the query covers every how through GENOCIDED and accepts the death',
      async () => {
     await dyingGame({ playmode: 'debug' });
     // end.c:1105's `how <= GENOCIDED`, at the boundary itself.
+    // Set context.mon_moving so savelife() skips endmultishot().
+    game.context.mon_moving = true;
     answerQuery('n');
-    assert.equal(await refusal(GENOCIDED),
-                 `savelife(${GENOCIDED}) for a declined death`);
+    // done() returns normally after savelife().
+    await done(GENOCIDED, game);
+    assert.equal(game.killer.name, '', 'killer cleared after survive');
 
     await dyingGame({ playmode: 'debug' });
     // 'y' accepts, so C falls past the block into really_done().

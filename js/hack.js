@@ -2878,7 +2878,7 @@ export async function nh_delay_output(state = game) {
 // other state would write disp.time_botl into one object and have it read and
 // cleared from another. The production path only ever runs on `game`; this
 // refuses anything else rather than flushing the wrong game silently.
-async function curs_on_u(state) {
+export async function curs_on_u(state) {
     if (state !== game) {
         throw new TypeError('curs_on_u() flushes the global game state');
     }

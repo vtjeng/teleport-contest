@@ -17,6 +17,7 @@ import test from 'node:test';
 import {
     adjabil,
     innateTablesHaveSilentLevelOneEntries,
+    minuhpmax,
     role_abil,
     setuhpmax,
 } from '../js/attrib.js';
@@ -1004,4 +1005,20 @@ test('the level-change matrix covers each traced branch', () => {
     ]) {
         assert.ok(roles.some((key) => key.startsWith(expected)), why);
     }
+});
+
+// C ref: attrib.c minuhpmax() (1146-1152). "minimum value for uhpmax is ulevel
+// but for life-saving it is always at least 10 if ulevel is less than that."
+// Pure function: max(ulevel, max(altmin, 1)). Tested against the C source's
+// two branches: altmin < 1 is clamped to 1, then the result is max(ulevel,
+// altmin).
+test('minuhpmax returns the larger of ulevel and the clamped altmin', () => {
+    // altmin = 10, ulevel = 1: savelife()'s call. altmin wins because 10 > 1.
+    assert.equal(minuhpmax(10, { u: { ulevel: 1 } }), 10);
+    // altmin = 10, ulevel = 15: ulevel wins because 15 > 10.
+    assert.equal(minuhpmax(10, { u: { ulevel: 15 } }), 15);
+    // altmin = 0: clamped to 1, so max(ulevel=5, 1) = 5.
+    assert.equal(minuhpmax(0, { u: { ulevel: 5 } }), 5);
+    // altmin = -3: clamped to 1, so max(ulevel=1, 1) = 1.
+    assert.equal(minuhpmax(-3, { u: { ulevel: 1 } }), 1);
 });

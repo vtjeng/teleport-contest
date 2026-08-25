@@ -301,7 +301,10 @@ function setInitialUasmon(state) {
     state.gw.were_changes = 0;
 }
 
-function init_uhunger(state) {
+// C ref: eat.c init_uhunger(). Sets hunger to 900 and the hunger-state fields
+// to their NOT_HUNGRY defaults. Exported for savelife() in end.js, which
+// restores hunger when it falls below 500 or the hero is choking.
+export function init_uhunger(state) {
     const { u } = state;
     state.disp ??= {};
     state.disp.botl = u.uhs !== NOT_HUNGRY || u.atemp[0] < 0;
