@@ -37,7 +37,7 @@ import {
     st_resists,
 } from './const.js';
 import { flush_screen, newsym } from './display.js';
-import { can_reach_floor, engr_at, read_engr_at } from './engrave.js';
+import { can_reach_floor, read_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
     calc_capacity,
