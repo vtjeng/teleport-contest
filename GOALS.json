@@ -3503,31 +3503,6 @@
       }
     },
     {
-      "id": "special-room-morgue",
-      "status": "queued",
-      "boundary": "makelevel.c do_mkroom(MORGUE) populates a room with corpses, undead, and graves during level generation. The port refuses at the makelevel special-room dispatch.",
-      "upstreamOwners": [],
-      "forecast": {
-        "steps": 2,
-        "basis": "Capped look-ahead at d01b779: seed0373 has 81 raw steps after do_mkroom(6). Capped at 2 by onquest() in goto_level (quest.c onquest unported). onquest fires inside the same goto_level call before player input, producing quest arrival text. After onquest, session continues with 79 steps of level teleports and informational commands.",
-        "sessions": [
-          "seed0373-barbarian-quest-tour"
-        ],
-        "witnesses": [
-          {
-            "session": "seed0373-barbarian-quest-tour",
-            "evidence": "hero selects y (movenorthwest) at step 43 after level teleport via ? menu to a quest level whose makelevel calls do_mkroom(MORGUE). C path: do.c goto_level -> mklev.c makelevel -> mkroom.c fill_ordinary_room -> do_mkroom(6). After MORGUE generation, goto_level calls quest.c onquest which produces arrival text. Capped at 2 by unported onquest()."
-          }
-        ]
-      },
-      "detail": "",
-      "slices": [],
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null
-    },
-    {
       "id": "initial-level-monster-umber-hulk",
       "status": "closed",
       "boundary": "unsupported initial-level monster creation: monster 225",
@@ -3724,60 +3699,6 @@
         "screens": 1,
         "rng": 0
       }
-    },
-    {
-      "id": "loot-command",
-      "status": "queued",
-      "boundary": "unsupported hero command: the extended command 'loot' is not ported",
-      "upstreamOwners": [
-        "pickup.c"
-      ],
-      "forecast": {
-        "steps": 1,
-        "basis": "Capped look-ahead at 6f8d90b: seed0012 has 33 raw steps, capped at 1 by starting little dog (little dog acts immediately after loot prompt).",
-        "sessions": [
-          "seed0012-monk-vault-escort"
-        ],
-        "witnesses": [
-          {
-            "session": "seed0012-monk-vault-escort",
-            "evidence": "Step 24: loot prompt. Step 25: 'The little dog misses the lichen' (starting little dog boundary). Capped at 1."
-          }
-        ]
-      },
-      "detail": "The #loot extended command lets the hero interact with containers on the floor. pickup.c doloot() handles it.\n\nseed0012 stops at step 24/308. The little dog acts immediately after the loot prompt, capping the forecast at 1.",
-      "slices": [],
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null
-    },
-    {
-      "id": "rub-command",
-      "status": "queued",
-      "boundary": "unsupported hero command: the extended command 'rub' is not ported",
-      "upstreamOwners": [
-        "apply.c"
-      ],
-      "forecast": {
-        "steps": 1,
-        "basis": "Capped look-ahead at 6f8d90b: seed0108 has 33 raw steps, capped at 1 by monster ranged attack (goblin throws a crude dagger during the rub command). mthrowu.c thrwmu/m_throw are unported.",
-        "sessions": [
-          "seed0108-wizard-extcmd-wishlist"
-        ],
-        "witnesses": [
-          {
-            "session": "seed0108-wizard-extcmd-wishlist",
-            "evidence": "Step 29: rub prompt. Step 30: 'The goblin throws a crude dagger!' (mthrowu.c m_throw, unported). Capped at 1."
-          }
-        ]
-      },
-      "detail": "The #rub extended command lets the hero rub a lamp. apply.c dorub() handles it.\n\nseed0108 stops at step 29/303. A goblin throws a crude dagger during the same turn, triggering the unported monster ranged weapon attack boundary (mthrowu.c thrwmu).",
-      "slices": [],
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null
     },
     {
       "id": "dosounds-has-shop",
@@ -4035,31 +3956,6 @@
         "screens": 0,
         "rng": 8353
       }
-    },
-    {
-      "id": "save-command",
-      "status": "queued",
-      "boundary": "save",
-      "upstreamOwners": [],
-      "forecast": {
-        "steps": 13,
-        "basis": "Capped look-ahead at 382b49b: seed0013 stops at step 47 on save. 13 steps ahead: save/restore flow (save prompt, completion, restore welcome x2, full moon check), then known/attributes/showspells/no-op (all ported). Sonnet classifier confirmed cap at 13, 0 ambiguous.",
-        "sessions": [
-          "seed0013"
-        ],
-        "witnesses": [
-          {
-            "session": "seed0013",
-            "evidence": "seed 13, Rogue Sneaky, Friday 13 Oct 2000. At step 47 the player types S (save). C runs dosave0() in save.c, prompts Really save?, writes the save file with Be seeing you..., then restore loads it back with Hello Sneaky welcome back. Restore runs phase_of_the_moon producing You are lucky! Full moon tonight. Post-restore input exercises known, attributes, showspells, and space (all ported)."
-          }
-        ]
-      },
-      "detail": "",
-      "slices": [],
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null
     },
     {
       "id": "decgfx-screen-mismatch",
