@@ -2482,6 +2482,10 @@ test('Ring_on adjust_attrib changes CHA for ring of adornment', async () => {
         effective_attribute(game, A_CHA), chaBefore + 1,
         'CHA rises by the ring spe (+1)',
     );
+    // adjust_attrib sets the status-line refresh flag on game.disp, not
+    // game.nhDisplay (the terminal object). flush_screen reads game.disp.botl
+    // to decide whether to call bot().
+    assert.equal(game.disp.botl, true, 'botl flag set for status-line refresh');
 });
 
 test('Ring_on adjust_attrib changes STR for ring of gain strength', async () => {
@@ -2500,6 +2504,28 @@ test('Ring_on adjust_attrib changes STR for ring of gain strength', async () => 
     assert.equal(
         effective_attribute(game, A_STR), strBefore + 1,
         'STR rises by the ring spe (+1)',
+    );
+});
+
+test('Ring_on adjust_attrib changes CON for ring of gain constitution',
+     async () => {
+    // Ring_on(RIN_GAIN_CONSTITUTION) calls adjust_attrib(obj, A_CON, spe).
+    // A +1 ring bumps CON by 1. This exercises the A_CON path through
+    // extremeattr(), which has Ogresmasher-specific logic distinct from the
+    // A_STR (Gauntlets of Power) and A_CHA (no override) branches.
+    const debug = debugRingSegment('ring of gain constitution', `${WAIT}`);
+    await setup(debug, debug.moves);
+    const conBefore = effective_attribute(game, A_CON);
+
+    const ring = syntheticRing(RIN_GAIN_CONSTITUTION, 1);
+    ring.owornmask = W_RINGL;
+    game.uleft = ring;
+
+    await Ring_on(ring, game);
+
+    assert.equal(
+        effective_attribute(game, A_CON), conBefore + 1,
+        'CON rises by the ring spe (+1)',
     );
 });
 

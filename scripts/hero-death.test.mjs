@@ -421,14 +421,18 @@ test('the keep-playing query opens for debug mode and for explore mode',
         // 'n' declines the death, which sends C into savelife().
         // Set context.mon_moving so savelife() skips endmultishot().
         game.context.mon_moving = true;
+        // Set uhpmax above givehp so the formula result is the binding
+        // constraint, not uhpmax itself.
+        game.u.uhpmax = 200;
         answerQuery('n');
         // done() returns normally after savelife() restores the hero.
         await done(DIED, game);
         // savelife() restores HP from the constitution-based formula.
-        // Tourist starting CON is 15 (ACURR(A_CON) = 15), giving
-        // givehp = 50 + 10 * floor(15 / 2) = 50 + 70 = 120. uhpmax is 10,
-        // so u.uhp = min(10, 120) = 10.
-        assert.equal(game.u.uhp, 10, 'HP restored to uhpmax');
+        // In debug mode ACURR(A_CON) = 17; in explore mode 16. Both give
+        // floor(CON / 2) = 8, so givehp = 50 + 10 * 8 = 130.
+        // uhpmax (200) > givehp (130), so u.uhp = givehp = 130.
+        assert.equal(game.u.uhp, 130,
+            'HP restored to givehp (uhpmax > givehp exercises the formula)');
         // savelife() sets multi to -1 (can't move during this turn).
         assert.equal(game.multi, -1, 'multi set to -1');
         // savelife() sets the survive message.

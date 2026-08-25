@@ -366,26 +366,35 @@ function clearPendingMessages() {
     game._pending_message = '';
 }
 
-test('doclose successfully closes an open door', async () => {
-    // C ref: lock.c:1039-1043. rn2(25) < threshold succeeds. With STR 68
-    // (acurrstr 20), DEX 3, CON 3 the threshold is (20+3+3)/3 = 8. The roll
-    // uses the real RNG seeded from the game state; this test checks the
-    // mechanical result by verifying the mask changed and ECMD_TIME returned,
-    // regardless of whether the roll succeeded or the door resisted.
+test('doclose resist roll leaves the door open and costs a turn', async () => {
+    // C ref: lock.c:1038-1047. rn2(25) < threshold succeeds; otherwise the
+    // door resists. With STR 68 (acurrstr 20), DEX 3, CON 3, threshold =
+    // (20+3+3)/3 = 8. For seed 9400016 the rn2(25) roll is >= 8, so the
+    // door resists and stays D_ISOPEN.
     const { door } = await openDoorBesideHero();
 
-    // 'h' is move-west, pointing at the door one square west of the hero.
     answer('h');
     const result = await doclose(game);
 
     // lock.c:1050 returns ECMD_TIME for every path through the D_ISOPEN block.
-    assert.equal(result, ECMD_TIME, 'close attempt spends a turn');
-    // The door is either D_CLOSED (success) or D_ISOPEN (resist). Both are
-    // correct outcomes of the RNG; the differential validates the exact one.
-    assert.ok(
-        door.flags === D_CLOSED || door.flags === D_ISOPEN,
-        `door mask is D_CLOSED or D_ISOPEN, got ${door.flags}`,
-    );
+    assert.equal(result, ECMD_TIME, 'resist attempt still spends a turn');
+    // The roll failed for this seed: door stays open.
+    assert.equal(door.flags, D_ISOPEN, 'door resisted closing');
+});
+
+test('doclose mounted hero always closes the door', async () => {
+    // C ref: lock.c:1038. `u.usteed || rn2(25) < threshold` — a mounted hero
+    // bypasses the roll entirely and always succeeds.
+    const { door } = await openDoorBesideHero();
+
+    // A truthy usteed short-circuits the rn2(25) check.
+    game.u.usteed = true;
+    answer('h');
+    const result = await doclose(game);
+
+    assert.equal(result, ECMD_TIME, 'close spends a turn');
+    assert.equal(door.flags, D_CLOSED, 'mounted hero closes the door');
+    game.u.usteed = null;
 });
 
 test('doclose on a cancelled direction returns ECMD_CANCEL', async () => {

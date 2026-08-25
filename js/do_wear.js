@@ -390,7 +390,7 @@ function adjust_attrib(obj, which, val, state) {
     // extreme, learnring() runs only when the change was observable.
     if (observable || !extremeattr(which, state))
         learnring(obj, observable, state);
-    state.nhDisplay.botl = true;
+    state.disp.botl = true;
 }
 
 // C ref: attrib.c extremeattr() (1268-1293). Answers whether the attribute at

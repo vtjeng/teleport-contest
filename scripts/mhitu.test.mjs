@@ -1841,6 +1841,9 @@ test('planning pass simulates wizard-mode survival instead of throwing',
     const state = await meleeHero();
     const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0);
     state.u.uhp = 1;
+    // Set uhpmax above givehp so the formula result is the binding
+    // constraint, not uhpmax itself.
+    state.u.uhpmax = 200;
 
     // Wizard mode: the planning pass should survive, not throw.
     state.wizard = true;
@@ -1849,19 +1852,19 @@ test('planning pass simulates wizard-mode survival instead of throwing',
     assert.equal(await mattacku(bug, wizEnv.env), false);
     // savelife() formula: givehp = 50 + 10 * floor(CON / 2). This
     // Valkyrie's ACURR(A_CON) is 18, giving givehp = 50 + 90 = 140.
-    // uhpmax is 16, so uhp = min(16, 140) = 16.
-    assert.equal(state.u.uhp, 16, 'HP restored to uhpmax');
+    // uhpmax (200) > givehp (140), so uhp = givehp = 140.
+    assert.equal(state.u.uhp, 140, 'HP restored to givehp');
     assert.equal(state.u.umortality, before + 1, 'mortality incremented');
     assert.equal(state.context.move, 0, 'context.move cleared');
     assert.equal(state.multi, -1, 'multi set to -1');
 
-    // Explore mode: same survival path.
+    // Explore mode: same survival path. uhpmax is still 200 from above.
     state.wizard = false;
     state.discover = true;
     state.u.uhp = 1;
     const exploreEnv = meleeEnv(state, [1], { planning: true });
     assert.equal(await mattacku(bug, exploreEnv.env), false);
-    assert.equal(state.u.uhp, 16, 'explore mode also restores HP');
+    assert.equal(state.u.uhp, 140, 'explore mode also restores HP to givehp');
     assert.equal(state.u.umortality, before + 2, 'mortality incremented again');
 
     // Non-wizard, non-discover: the throw is correct (hero dies for real).

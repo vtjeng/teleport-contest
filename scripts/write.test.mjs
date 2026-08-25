@@ -183,13 +183,15 @@ test('cost returns 10 * oc_level for spellbooks', () => {
     // SPE_HEALING is level 1, so cost is 10. SPE_STONE_TO_FLESH is level 3,
     // so cost is 30.
     const state = costState();
+    // SPE_HEALING is level 1 in objects.c, so cost = 10 * 1 = 10.
     assert.equal(
         cost({ oclass: SPBOOK_CLASS, otyp: SPE_HEALING }, state),
-        10 * state.objects[SPE_HEALING].oc_level,
+        10,
     );
+    // SPE_STONE_TO_FLESH is level 3 in objects.c, so cost = 10 * 3 = 30.
     assert.equal(
         cost({ oclass: SPBOOK_CLASS, otyp: SPE_STONE_TO_FLESH }, state),
-        10 * state.objects[SPE_STONE_TO_FLESH].oc_level,
+        30,
     );
 });
 
