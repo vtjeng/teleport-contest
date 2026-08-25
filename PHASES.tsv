@@ -989,3 +989,7 @@ utc	event	phase	goal	detail
 2026-08-25T03:52:01.852Z	start	review	door-unlock-tool	
 2026-08-25T04:46:05.340Z	end	review	door-unlock-tool	
 2026-08-25T04:50:41.434Z	start	select	dosounds-has-shop	
+2026-08-25T05:46:37.552Z	start	select	rndmonst-adj-divergence	
+2026-08-25T05:51:19.166Z	end	select	rndmonst-adj-divergence	
+2026-08-25T05:51:40.681Z	start	implement	rndmonst-adj-divergence	
+2026-08-25T06:38:19.247Z	end	implement	rndmonst-adj-divergence	

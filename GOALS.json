@@ -3860,6 +3860,51 @@
         "screens": 1,
         "rng": 3
       }
+    },
+    {
+      "id": "rndmonst-adj-divergence",
+      "status": "closed",
+      "boundary": "makemon.c rndmonst_adj() passes the wrong argument to rn2 at line 1716, causing RNG desynchronization. JS calls rn2(75) or rn2(74) where C calls rn2(5), meaning JS admits far more monsters into the weighted reservoir than C does.",
+      "upstreamOwners": [
+        "makemon.c"
+      ],
+      "forecast": {
+        "steps": 100,
+        "basis": "Capped divergence look-ahead at f555a7f: seed0383 diverges at screen 42 (RNG call 2700 is rn2(75) vs C rn2(5)), 95 screens blocked through puton boundary at step 137; ahead stream contains only wizwish and wizlevelport (ported), cap at 95. seed2600 diverges at screen 20 (RNG call 3102 is rn2(74) vs C rn2(5)), 5 screens blocked through up-building-dungeon boundary at step 25; no second behavior, cap at 5. Sum: 100.",
+        "sessions": [
+          "seed0383",
+          "seed2600"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383",
+            "evidence": "At step 42, monster creation calls rndmonst_adj (makemon.c:1659). C RNG call 2700 is rn2(5) at line 1716 (totalweight=5 in weighted reservoir sampling). JS calls rn2(75) (totalweight=75). The 70-point totalweight gap means JS admits far more monsters into the eligible set. 95 screens blocked through puton at step 137; ahead stream (wizwish/wizlevelport, both ported) implies no second behavior."
+          },
+          {
+            "session": "seed2600",
+            "evidence": "At step 20, monster creation calls rndmonst_adj (makemon.c:1659). C RNG call 3102 is rn2(5) at line 1716 (totalweight=5). JS calls rn2(74) (totalweight=74). Same pattern as seed0383. 5 screens blocked through up-building-dungeon boundary at step 25; no second behavior in stretch."
+          }
+        ]
+      },
+      "detail": "rndmonst_adj (makemon.c:1659-1732) selects a random monster using weighted reservoir sampling. Line 1716 calls rn2(totalweight) where totalweight accumulates (geno & G_FREQ) + align_shift + temperature_shift for each eligible monster. Eligibility is filtered by montooweak(mndx, minmlev) and montoostrong(mndx, maxmlev). The JS port (js/makemon.js:660-699) uses monster.difficulty < minmlev || monster.difficulty > maxmlev. The totalweight divergence (5 in C vs 75 in JS) indicates either the difficulty filtering, the weight calculation, or the monster data produces a different eligible set. The worker should trace which monsters C and JS each admit and find where they diverge.",
+      "slices": [
+        {
+          "name": "fix-rndmonst-adj-eligible-set",
+          "status": "closed",
+          "closedBy": "794d6dbbb7d2137a7d499e734237926f95e2d2af"
+        }
+      ],
+      "openedAt": "f555a7f5fd1812f48da909b7cd8f83bf2ae69fe7",
+      "openStanding": {
+        "sha": "58e2eb1",
+        "screens": 2032,
+        "rng": 140949
+      },
+      "closedAt": "794d6dbbb7d2137a7d499e734237926f95e2d2af",
+      "delivered": {
+        "screens": 0,
+        "rng": 2611
+      }
     }
   ]
 }
