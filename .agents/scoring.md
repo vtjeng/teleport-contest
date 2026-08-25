@@ -27,8 +27,8 @@ states it.
 
 ## Score evidence
 
-`SCORE.tsv` is the score record: one append-only, tab-separated row per event,
-with the columns the table above documents. Append a `slice`, `window`, `goal`,
+`SCORE.tsv` is the score record: one append-only, tab-separated row per event.
+Append a `slice`, `window`, `goal`,
 `holdout`, or `publish` row with `node scripts/score-log.mjs --append
 column=value ...` when that event completes. You may also append a `candidate`
 row after validating a slice-worker's results on an unclosed slice, but a
@@ -40,8 +40,7 @@ the more important event. The `note` column may hold a brief prediction or
 anomaly. Fill the four holdout columns only on a row whose event included an
 authorized holdout evaluation; an empty holdout cell means no new holdout
 evidence. Longer evidence belongs in the commit message; review metrics belong
-in `QUALITY.json`. Query the current standing with
-`node scripts/score-log.mjs --standing`.
+in `QUALITY.json`.
 
 Read the log with `node scripts/score-log.mjs --latest [event]`, `--standing`,
 or `--since <sha>`. `--standing` carries forward the most recent holdout figure

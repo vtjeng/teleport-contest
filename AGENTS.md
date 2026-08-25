@@ -218,9 +218,7 @@ When choosing new cases:
 
 ## Commit, review, and report the work
 
-Append `SCORE.tsv` rows at the points listed in `.agents/scoring.md`, "Score
-evidence"; you do not need one after every commit. Query the current standing
-with `node scripts/score-log.mjs --standing`.
+`.agents/scoring.md` states when and how to append a `SCORE.tsv` row.
 
 Keep progress updates short; `.agents/workflow.md`, "Progress reports," states
 their required shape.

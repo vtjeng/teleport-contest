@@ -69,8 +69,8 @@ The orchestrator repeats without returning to the user between steps:
    findings are applied, and its entry is recorded. `WATCH` prints the
    current counts against the gate. `.agents/review.md`, "When a
    correctness pass is due", defines the gate.
-5. When a slice closes, append its `SCORE.tsv` row as `.agents/scoring.md`,
-   "Score evidence", requires, in the commit that records the closure in
+5. When a slice closes, append its `SCORE.tsv` row as `.agents/scoring.md`
+   requires, in the commit that records the closure in
    `GOALS.json`. The row's `sha` and figures come from step 3's measurement.
    Continue at step 2. When three consecutive slice closes leave the
    development score unchanged in `SCORE.tsv`, take no further slice until

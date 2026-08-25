@@ -1,14 +1,8 @@
 #!/usr/bin/env node
 
-// Owns the SCORE.tsv format. Agents append event rows through `--append`, and
-// the query modes below answer the questions agents previously answered by
-// reading SCORE.md's prose rows (removed in August 2025). scoring.md documents
-// the columns; this file is the only code that composes or parses a row.
-//
-// Every row names a commit an agent chose to record. `npm run checkpoint`
-// appended a `checkpoint` row of its own until 2026-08-02, which no query could
-// trust: 34 of those 42 rows measured an uncommitted tree while naming HEAD,
-// and none of them recorded a figure an event row did not already carry.
+// Owns the SCORE.tsv format. Agents append event rows through `--append` and
+// query them through the modes below. This file is the only code that composes
+// or parses a row.
 
 import { appendFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
