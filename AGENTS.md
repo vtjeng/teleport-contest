@@ -80,8 +80,6 @@ slice worker (`.claude/agents/slice-worker.md`) completes one slice per run.
 | Implement game behavior | `ROADMAP.md`, `.agents/workflow.md`, and `.agents/validation.md` |
 | Validate game behavior | `ROADMAP.md` and `.agents/validation.md` |
 | Propose a change to tooling or process | `.agents/proposals.md` |
-| Plan work likely to continue across agent sessions, involve more than one game system, or approach a total of 500 changed lines of game code | `.agents/implementation-checklist-template.md` |
-| Continue the active work described in `.agents/implementation-checklist.json` | `.agents/implementation-checklist.json` |
 | Complete one behavior slice as a loop worker | `.claude/agents/slice-worker.md` |
 | Commit game implementation | `.agents/workflow.md` and `.agents/validation.md` |
 | Append a `SCORE.tsv` event row or respond to a holdout result (orchestrator only) | `.agents/scoring.md` |
@@ -212,8 +210,7 @@ When choosing new cases:
   that limit. If the current goal specifies the result, add a passing test. If
   the case belongs to future work and does not yet match the C reference, keep
   it out of the passing test suite. Record its inputs and expected failure with
-  `npm run quality -- defer`, which persists after the slice and its checklist
-  are complete.
+  `npm run quality -- defer`, which persists after the slice closes.
 - Choose inputs independently rather than copying values from an existing
   recorded session, and change the seed, date and time, options, character
   choices, or input sequence only when that input can affect the behavior being
@@ -228,7 +225,7 @@ need one after every commit.
 Keep progress updates short; `.agents/workflow.md`, "Progress reports," states
 their required shape.
 
-Create or update a checklist, note, report, or permanent record only when
+Create or update a note, report, or permanent record only when
 `.agents/workflow.md` or `.agents/review.md` requires it.
 
 ### Check out the C source in a new worktree

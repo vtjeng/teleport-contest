@@ -50,8 +50,6 @@ are also required:
   the boundary, and that any reachable excluded branch stops before changing
   state, consuming randomness, or producing output.
 
-The implementation checklist (`.agents/implementation-checklist.json`) supports
-these attestations; it does not replace tests, differentials, or source review.
 A missing attestation or a red prepared command is `NOT READY`: launch no
 reviewers.
 
@@ -240,12 +238,7 @@ preserve PRNG and evaluation order.
   `scripts/audit-worktree.mjs prepare` takes. The recorder stores it as the
   pass's `auditedRange`. Pass `--head` only to restate the range head; it must
   name the same commit.
-- Pass `--manifest <path>` with the path `prepare` printed, so the pass records
-  whether an implementation checklist covered the range. The recorder stores
-  the answer as the pass's `checklist`, and a pass prepared with
-  `--no-checklist-reason` records that reason there. Without `--manifest` the
-  pass carries no such field, and a later reader cannot distinguish a range that
-  had a covering plan from one that did not.
+- Pass `--manifest <path>` with the path `prepare` printed.
 - A correctness range's base must be at or before the review frontier. The
   recorder refuses a range that starts after it, because recording that pass
   would mark the skipped commits as reviewed. A base older than the frontier

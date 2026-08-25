@@ -26,11 +26,10 @@ a fresh end-to-end differential verifies the boundary;
 `.agents/validation.md`, "Fresh differentials", states how. A slice is the
 unit of evidence.
 
-A **goal** groups several ordered behavior slices. When a goal crosses the
-checklist threshold (`.agents/implementation-checklist-template.md`), record
-its state in `.agents/implementation-checklist.json` so later sessions can
-resume. `scripts/scan-sessions.mjs` selects goals from the development
-sessions; `.agents/selection.md` states how to run it.
+A **goal** groups several ordered behavior slices. `GOALS.json` tracks each
+goal's slices across sessions via `node scripts/goal-log.mjs`.
+`scripts/scan-sessions.mjs` selects goals from the development sessions;
+`.agents/selection.md` states how to run it.
 
 A **review window** is the group of implementation chunks covered by one
 scheduled correctness review. It completes when the review, its fixes, and

@@ -45,9 +45,6 @@ Two related checks have landed: `node scripts/goal-log.mjs calibration` on
 2 August 2026, and the per-goal gate in `scripts/score-holdout.mjs` on
 12 August.
 
-- `npm run quality` warns when dirty-tree changed lines exceed 500 while no
-  `.agents/implementation-checklist.json` exists, the checklist-creation
-  trigger in `.agents/implementation-checklist-template.md`.
 - A turn-end warning prints `git log --oneline origin/main..HEAD` when
   commits sit unpushed, the push rule in `.agents/workflow.md`,
   "Pushing and CI".

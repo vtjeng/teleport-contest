@@ -77,10 +77,10 @@ browser validation.
   that scan completes.
 - With explicit user authorization, C source analysis and a constructed
   integration test may replace a fresh C case when valid C inputs cannot create
-  the required setup within the declared search domain. Record in the
-  implementation checklist: the exact setup, the C functions that determine its
-  behavior, the integration test, why the C case could not reach it, and what
-  the substitute does not prove.
+  the required setup within the declared search domain. Record in the commit
+  message: the exact setup, the C functions that determine its behavior, the
+  integration test, why the C case could not reach it, and what the substitute
+  does not prove.
 - Before closing a nontrivial behavior slice or goal, run a reproducible
   matrix that varies inputs relevant to the change. Cover ordinary cases and
   rare branches identified from source; exhaustive combinations are
@@ -91,8 +91,8 @@ browser validation.
 When exploring many cases, run
 `node scripts/scan-fresh.mjs <scan-plan.json>`. It groups cases by the first
 JavaScript error, PRNG mismatch, screen mismatch, or cursor mismatch and
-retains one case per group. Add newly exposed paths to the implementation
-checklist and inspect sibling branches in the same upstream subsystem. Run
+retains one case per group. Inspect sibling branches in the same upstream
+subsystem for newly exposed paths. Run
 individual cases only to derive a minimal case for a selected group or to
 diagnose that group.
 
