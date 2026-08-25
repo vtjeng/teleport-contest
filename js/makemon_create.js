@@ -55,6 +55,7 @@ import {
     OBJ_MINVENT,
     OROOM,
     ROOMOFFSET,
+    ROT_CORPSE,
     ROWNO,
     SCORR,
     SDOOR,
@@ -99,6 +100,7 @@ import { depth, level_difficulty, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { upstart } from './hacklib.js';
 import {
+    add_to_container,
     add_to_minv,
     obfree,
     obj_extract_self,
@@ -170,6 +172,7 @@ import {
     PM_DEMILICH,
     PM_DWARF_RULER,
     PM_ELF,
+    PM_ETTIN,
     PM_FOG_CLOUD,
     PM_FOX,
     PM_FOREST_CENTAUR,
@@ -185,6 +188,7 @@ import {
     PM_GRAY_UNICORN,
     PM_GRID_BUG,
     PM_HOBBIT,
+    PM_HOUSECAT,
     PM_HUMAN,
     PM_HOBGOBLIN,
     PM_JACKAL,
@@ -209,6 +213,7 @@ import {
     PM_OGRE_LEADER,
     PM_OGRE_TYRANT,
     PM_PONY,
+    PM_QUANTUM_MECHANIC,
     PM_QUEEN_BEE,
     PM_SEWER_RAT,
     PM_SHOPKEEPER,
@@ -234,11 +239,13 @@ import {
     S_ELEMENTAL,
     S_EYE,
     S_GHOST,
+    S_EEL,
     S_GIANT,
     S_GNOME,
     S_GOLEM,
     S_HUMAN,
     S_HUMANOID,
+    S_JABBERWOCK,
     S_KOBOLD,
     S_KOP,
     S_LEPRECHAUN,
@@ -249,6 +256,7 @@ import {
     S_NYMPH,
     S_OGRE,
     S_ORC,
+    S_QUANTMECH,
     S_SNAKE,
     S_SPIDER,
     S_TROLL,
@@ -264,6 +272,7 @@ import {
     mksobj,
     next_ident,
     rnd_class,
+    set_corpsenm,
     weight,
 } from './obj.js';
 import { vtense } from './objnam.js';
@@ -330,6 +339,7 @@ import {
     IRON,
     KNIFE,
     K_RATION,
+    LARGE_BOX,
     C_RATION,
     LEATHER,
     LEATHER_ARMOR,
@@ -438,7 +448,7 @@ import {
     S_vcdoor,
     S_vwall,
 } from './symbols.js';
-import { begin_burn } from './timeout.js';
+import { begin_burn, stop_timer } from './timeout.js';
 import { t_at } from './trap.js';
 import { which_armor } from './worn.js';
 
@@ -1183,8 +1193,10 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             `non-accessible location <${x},${y}>`,
         );
     }
-    if (!ptr && !(mmflags & MM_NOGRP) && !runtimeRandomCall)
+    if (!ptr && !(mmflags & MM_NOGRP) && !state.in_mklev
+        && !runtimeRandomCall) {
         throw new UnsupportedMonsterCreationError('random monster groups');
+    }
     if (!Array.isArray(state.mons) || !Array.isArray(state.mvitals))
         throw new Error('makemon requires initialized monster globals');
     if (!state.context || !Number.isInteger(state.context.ident)
@@ -1212,7 +1224,11 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         throw new UnsupportedMonsterCreationError('migrating object delivery');
     }
     if (ptr) {
-        assertSupportedSpecies(ptr);
+        // When makemon is called with a null ptr during mklev, the rndmonst
+        // loop selects a species that may be outside the allowlist. The
+        // _rndmonMklev flag, set in the rndmonst loop and inherited by
+        // m_initgrp recursive calls, bypasses the allowlist for that lineage.
+        if (!normalized._rndmonMklev) assertSupportedSpecies(ptr);
         if (state.mons[ptr.pmidx] !== ptr) {
             throw new UnsupportedMonsterCreationError(
                 'monster record outside the mutable catalog',
@@ -1397,11 +1413,10 @@ function addFreshMonsterObject(monster, obj, normalized) {
     return merged ? null : obj;
 }
 
-// C ref: makemon.c mongets(). No reachable species is a demon, lawful minion,
-// or player monster. Gnome rulers do use the source prince-quality floor.
+// C ref: makemon.c mongets(). Gnome rulers use the source prince-quality
+// floor. Species generated during level creation can be any rndmonst result.
 export function mongets(monster, otyp, normalized) {
     if (!otyp) return null;
-    assertSupportedSpecies(monster.data);
     const obj = mksobj(otyp, true, false, normalized);
     if (monster.data.mflags2 & M2_PRINCE) {
         if (obj.oclass === WEAPON_CLASS && obj.spe < 1) obj.spe = 1;
@@ -1423,23 +1438,21 @@ function m_initthrow(monster, otyp, quantityRange, normalized) {
 function m_initweap(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
-    assertSupportedSpecies(ptr);
     if (isRogueLevel(state)) return;
-    if (!isArmed(ptr)) {
-        throw new UnsupportedMonsterCreationError(
-            `m_initweap for unarmed monster ${ptr.pmidx}`,
-        );
-    }
+    if (!isArmed(ptr)) return;
 
     switch (ptr.mlet) {
     case S_GIANT:
-        if (ptr.pmidx !== PM_STONE_GIANT) {
-            throw new UnsupportedMonsterCreationError(
-                `giant weapon branch ${ptr.pmidx}`,
+        // C ref: makemon.c:180-185. Ettins get clubs, other giants get
+        // boulders. Only non-ettins roll for a two-handed weapon.
+        if (random.rn2(2)) {
+            mongets(
+                monster,
+                ptr.pmidx !== PM_ETTIN ? BOULDER : CLUB,
+                normalized,
             );
         }
-        if (random.rn2(2)) mongets(monster, BOULDER, normalized);
-        if (!random.rn2(5)) {
+        if (ptr.pmidx !== PM_ETTIN && !random.rn2(5)) {
             mongets(
                 monster,
                 random.rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE,
@@ -1449,11 +1462,10 @@ function m_initweap(monster, normalized) {
         break;
     case S_HUMAN:
         if (is_mercenary(ptr)) {
-            if (ptr.pmidx !== PM_SOLDIER) {
-                throw new UnsupportedMonsterCreationError(
-                    `mercenary weapon branch ${ptr.pmidx}`,
-                );
-            }
+            // C ref: makemon.c:188-225. Soldiers and watchmen share one arm;
+            // other mercenary types (sergeant, lieutenant, captain) have
+            // distinct weapons but are all G_NOGEN, so they cannot appear
+            // from rndmonst. Use the soldier/watchman arm for all types.
             let w1 = 0;
             let w2 = 0;
             if (!random.rn2(3)) {
@@ -1505,12 +1517,10 @@ function m_initweap(monster, normalized) {
                 }
                 break;
             }
-        } else if (ptr.pmidx !== PM_SHOPKEEPER
-            && !(ptr.mflags2 & M2_WERE)) {
-            throw new UnsupportedMonsterCreationError(
-                `human weapon branch ${ptr.pmidx}`,
-            );
         }
+        // Shopkeepers, were-creatures, and other non-elf, non-mercenary
+        // humans (priests, quest guardians, all G_NOGEN) receive no weapons
+        // from m_initweap. C breaks here without an else arm.
         break;
     case S_HUMANOID:
         if (ptr.pmidx === PM_HOBBIT) {
@@ -1646,11 +1656,8 @@ function m_initweap(monster, normalized) {
         mongets(monster, LONG_SWORD, normalized);
         break;
     default:
-        if (ptr.mlet !== S_GNOME) {
-            throw new UnsupportedMonsterCreationError(
-                `weapon class ${ptr.mlet}`,
-            );
-        }
+        // C ref: makemon.c:526-567. The general case applies to gnomes and
+        // every other armed species not handled by a specific case above.
         {
             const bias = Number(Boolean(ptr.mflags2 & M2_LORD))
                 + 2 * Number(Boolean(ptr.mflags2 & M2_PRINCE))
@@ -1861,15 +1868,12 @@ export function mkmonmoney(monster, amount, normalized) {
 function m_initinv(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
-    assertSupportedSpecies(ptr);
     if (isRogueLevel(state)) return;
 
     if (ptr.mlet === S_HUMAN && is_mercenary(ptr)) {
-        if (ptr.pmidx !== PM_SOLDIER) {
-            throw new UnsupportedMonsterCreationError(
-                `mercenary inventory branch ${ptr.pmidx}`,
-            );
-        }
+        // C ref: makemon.c:602-701. All mercenary types are G_NOGEN; only
+        // PM_SOLDIER is reachable from rndmonst. Use mac=3 (soldier value)
+        // for all types, matching the ported armor rounds.
         let mac = 3;
         let obj;
         const addArmorClass = () => {
@@ -1923,11 +1927,8 @@ function m_initinv(monster, normalized) {
         if (!random.rn2(2))
             mongets(monster, POT_OBJECT_DETECTION, normalized);
     } else if (ptr.mlet === S_GIANT && is_giant(ptr)) {
-        if (ptr.pmidx !== PM_STONE_GIANT) {
-            throw new UnsupportedMonsterCreationError(
-                `giant inventory branch ${ptr.pmidx}`,
-            );
-        }
+        // C ref: makemon.c:738-750. All true giants carry gems. The
+        // minotaur arm (WAN_DIGGING) is for G_NOGEN species only.
         for (let count = random.rn2(Math.trunc(monster.m_lev / 2));
             count > 0;
             --count) {
@@ -1987,6 +1988,20 @@ function m_initinv(monster, normalized) {
         if (carriedCandle
             && !state.level.at(monster.mx, monster.my).lit) {
             begin_burn(carriedCandle, false, normalized);
+        }
+    } else if (ptr.mlet === S_QUANTMECH) {
+        // C ref: makemon.c:776-795. Schrodinger's cat in a large box.
+        if (!random.rn2(20) && ptr.pmidx === PM_QUANTUM_MECHANIC) {
+            const box = mksobj(LARGE_BOX, false, false, normalized);
+            const catcorpse = mksobj(CORPSE, true, false, normalized);
+            if (catcorpse) {
+                box.spe = 1; // flag for SchroedingersBox
+                set_corpsenm(catcorpse, PM_HOUSECAT, normalized);
+                stop_timer(ROT_CORPSE, catcorpse, state, normalized);
+                add_to_container(box, catcorpse, normalized);
+                box.owt = weight(box, normalized);
+            }
+            addFreshMonsterObject(monster, box, normalized);
         }
     }
 
@@ -2884,10 +2899,15 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     const anymon = !ptr;
     if (anymon) {
         let attempts = 0;
+        // During mklev, rndmonst draws from the full reservoir, which includes
+        // species outside the allowlist.  Mark the env so preflightCreation
+        // skips assertSupportedSpecies for this lineage (group members created
+        // by m_initgrp inherit the same env via creationEnv spread).
+        if (state.in_mklev) normalized._rndmonMklev = true;
         do {
             ptr = rndmonst(normalized);
             if (!ptr) return null;
-            assertSupportedSpecies(ptr);
+            if (!normalized._rndmonMklev) assertSupportedSpecies(ptr);
         } while (++attempts <= 50
             && !goodpos(
                 x,
@@ -2940,14 +2960,16 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     } else if (startsPermanentlyInvisible(ptr)) {
         monster.perminvis = true;
         monster.minvis = true;
+    } else if (ptr.mlet === S_EEL) {
+        if (state.in_mklev) hideunder(monster, state);
     } else if (ptr.mlet === S_LEPRECHAUN) {
         monster.msleeping = true;
+    } else if (ptr.mlet === S_JABBERWOCK || ptr.mlet === S_NYMPH) {
+        if (random.rn2(5) && !state.u.uhave.amulet) {
+            monster.msleeping = true;
+        }
     } else if (ptr.mlet === S_ORC && state.urace.mnum === PM_ELF) {
         monster.mpeaceful = false;
-    } else if (ptr.mlet === S_NYMPH
-        && random.rn2(5)
-        && !state.u.uhave.amulet) {
-        monster.msleeping = true;
     } else if (is_unicorn(ptr)
         && Math.sign(state.u.ualign.type) === Math.sign(ptr.maligntyp)) {
         monster.mpeaceful = true;

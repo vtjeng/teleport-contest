@@ -4012,6 +4012,53 @@ test('runtime random stone giant groups finish members before parent inventory',
         );
     });
 
+// C ref: makemon.c:180-185. Ettins (S_GIANT, pmidx PM_ETTIN) receive a CLUB
+// instead of BOULDER, and skip the heavy-weapon rn2(5) gate that other giants
+// use.  This arm fires only when rndmonst selects an ettin during level
+// generation (ettin difficulty 10 exceeds the D:5 reservoir ceiling of 9).
+test('ettins receive CLUB instead of BOULDER and skip the heavy-weapon gate',
+    () => {
+        const state = initialLevelState();
+        // Ettins share S_GIANT but lack M2_GIANT, so is_giant is false and
+        // the gem loop in m_initinv does not apply.
+        assert.equal(is_giant(state.mons[PM_ETTIN]), false);
+        const random = recordingRandom();
+        // _rndmonMklev bypasses assertSupportedSpecies, matching the path
+        // rndmonst takes during mklev for species outside the reservoir
+        // allowlist.
+        const monster = makemon(
+            state.mons[PM_ETTIN],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+            { state, random: random.random, _rndmonMklev: true },
+        );
+
+        assert.ok(monster, 'ettin should be created');
+        // The recording random's rn2(2) returns 1 (truthy), so the boulder/
+        // club gate fires.  Ettin gets CLUB where stone giant gets BOULDER.
+        const inventory = monsterInventory(monster);
+        const clubs = inventory.filter((obj) => obj.otyp === CLUB);
+        assert.ok(clubs.length > 0, 'ettin must have at least one club');
+        const boulders = inventory.filter((obj) => obj.otyp === BOULDER);
+        assert.equal(boulders.length, 0, 'ettin must not have a boulder');
+
+        // The heavy-weapon gate rn2(5) must not appear: C guards it with
+        // ptr->mnum != PM_ETTIN.
+        const heavyWeaponGate = random.calls.find(
+            (call) => call.kind === 'rn2' && call.args[0] === 5
+                && random.calls.indexOf(call)
+                    > random.calls.findIndex(
+                        (c) => c.kind === 'rn2' && c.args[0] === 2,
+                    ),
+        );
+        assert.equal(
+            heavyWeaponGate,
+            undefined,
+            'ettin must skip the rn2(5) heavy-weapon gate',
+        );
+    });
+
 test('hobbits receive each source weapon arm before the generic item gates', () => {
     const cases = [
         {
@@ -4793,6 +4840,10 @@ test('unsupported creation modes fail before consuming RNG or state', () => {
     const state = initialLevelState();
     const random = scriptedRandom([]);
 
+    // Random monster groups without MM_NOGRP are unsupported at runtime
+    // (outside mklev). During mklev, rndmonst-chosen species may form
+    // groups, so null-ptr without MM_NOGRP is a valid call shape there.
+    state.in_mklev = false;
     assert.throws(
         () => makemon(null, MON_X, MON_Y, 0, {
             state,
@@ -4800,6 +4851,7 @@ test('unsupported creation modes fail before consuming RNG or state', () => {
         }),
         UnsupportedMonsterCreationError,
     );
+    state.in_mklev = true;
     state.rogue_level = { ...state.u.uz };
     assert.throws(
         () => makemon(state.mons[PM_CHAMELEON], MON_X, MON_Y, MM_NOGRP, {
