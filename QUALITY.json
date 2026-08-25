@@ -4698,6 +4698,42 @@
       "from": "98e378dc7f903afc2c77d3e1e9f9fdab21c95232",
       "detail": "write.c dowrite() Glib branch (lines 83-92) throws UnsupportedWriteError because dropx() requires newsym, encumberMessage, and extractExternalObject hooks. The Glib branch requires the hero to have greasy hands and apply a magic marker, which no session exercises.",
       "blockedOn": "dropx"
+    },
+    {
+      "id": "savelife-endmultishot",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "c52054715380450754d830935321c9d36a445be8",
+      "detail": "savelife() throws UnsupportedEndOfGameError when context.mon_moving is false because endmultishot() is not ported. This path fires when the hero dies on their own turn."
+    },
+    {
+      "id": "savelife-expels",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "c52054715380450754d830935321c9d36a445be8",
+      "detail": "savelife() throws UnsupportedEndOfGameError when u.uswallow is true because expels() is not ported. This path fires when the hero dies while engulfed."
+    },
+    {
+      "id": "savelife-make-sick",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "c52054715380450754d830935321c9d36a445be8",
+      "detail": "savelife() throws UnsupportedEndOfGameError when (Sick & TIMEOUT) === 1 because make_sick() in eat.c is not ported. This path cures one-turn sickness during life saving."
+    },
+    {
+      "id": "savelife-stuck-release",
+      "area": null,
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "c52054715380450754d830935321c9d36a445be8",
+      "detail": "savelife() throws UnsupportedEndOfGameError when u.ustuck is truthy because the release messages need mon_nam()/Monnam() from do_name.c and sticks() from mondata.c, which are not fully ported."
     }
   ],
   "areas": [
