@@ -4072,6 +4072,11 @@
           "name": "doloot-dispatch-locked-container",
           "status": "closed",
           "closedBy": "e994ba02b37b593a28394ff1513ec4a3bf1288a5"
+        },
+        {
+          "name": "doloot-use-container-view-quit",
+          "status": "closed",
+          "closedBy": "268de64eea98ae5160d676131558c9be57a25561"
         }
       ],
       "openedAt": "e994ba02b37b593a28394ff1513ec4a3bf1288a5",
