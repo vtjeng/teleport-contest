@@ -57,7 +57,7 @@ import {
     dotakeoff, dowear, reset_remarm, UnsupportedTakeOffError,
     UnsupportedWearError,
 } from './do_wear.js';
-import { reset_pick, UnsupportedLockError } from './lock.js';
+import { doclose, reset_pick, UnsupportedLockError } from './lock.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
 import { UnsupportedRegionPlacementError } from './mkmaze.js';
 import { docallcmd, UnsupportedObjectNamingError } from './do_name.js';
@@ -884,9 +884,9 @@ export async function parseCommand(state = game) {
 // the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'apply', 'down', 'drop', 'pickup', 'takeoff', 'wear', 'zap',
-    'reqmenu', 'fight', 'options', 'wizwish', 'wizlevelport', 'wizgenesis',
-    'fire', 'throw', 'swap', 'kick', '#',
+    'eat', 'apply', 'close', 'down', 'drop', 'pickup', 'takeoff', 'wear',
+    'zap', 'reqmenu', 'fight', 'options', 'wizwish', 'wizlevelport',
+    'wizgenesis', 'fire', 'throw', 'swap', 'kick', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -1570,6 +1570,16 @@ async function runApplyCommand(key, state) {
     return failClosedCommand(key, state, () => doapply(state));
 }
 
+// C ref: lock.c doclose(). Like dosearch() and doeat() it returns its own
+// ECMD_* result: ECMD_OK for the nohands/pit refusals, ECMD_CANCEL for a
+// cancelled direction prompt, and ECMD_TIME for every path past the direction
+// prompt (including refusals like "You are in the way!"). The Confusion and
+// Stunned ECMD_TIME branch is unreachable because getdir()'s confdir() throws
+// for an impaired hero.
+async function runCloseCommand(key, state) {
+    return failClosedCommand(key, state, () => doclose(state));
+}
+
 // C ref: zap.c dozap(). Like dosearch() and doeat() it returns its own ECMD_*
 // result: ECMD_OK for the two guards above the object prompt, ECMD_CANCEL for
 // an escaped object prompt, and ECMD_TIME once a wand has been chosen, whether
@@ -2223,6 +2233,22 @@ export async function rhack(key, state = game) {
             // and for the three use_stethoscope() guards, and ECMD_TIME for a
             // second listen in the same move.
             const res = await runApplyCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'close') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the '#', `search`, `eat` and `apply` arms apply.
+            // doclose() reaches all three: ECMD_CANCEL for a cancelled
+            // direction prompt, ECMD_OK for the nohands/pit refusals, and
+            // ECMD_TIME for every path past the direction prompt (including
+            // the self-square refusal and the close roll). The MOVEMENTCMD
+            // and domove_attempting tests at 3773-3800 cannot divert it,
+            // because cmd.c:1545's "close" row carries no flags at all.
+            const res = await runCloseCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

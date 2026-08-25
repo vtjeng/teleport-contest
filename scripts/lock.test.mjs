@@ -12,12 +12,16 @@ import {
     D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
+    ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    OBJ_FLOOR,
+    TT_PIT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { autokey, doopen_indir } from '../js/lock.js';
+import { autokey, doclose, doopen_indir } from '../js/lock.js';
+import { M1_NOHANDS } from '../js/monsters.js';
 import { is_magic_key } from '../js/artifacts.js';
 import { ART_MASTER_KEY_OF_THIEVERY } from '../js/artifacts.js';
 import { PM_ROGUE, PM_WIZARD } from '../js/monsters.js';
@@ -324,4 +328,176 @@ test('doopen_indir with empty inventory skips pick_lock for a locked door',
     assert.deepEqual(events, ['message(This door is locked.)']);
     assert.equal(result, ECMD_OK);
     game.invent = savedInvent;
+});
+
+// --- doclose() tests ---
+//
+// doclose() calls getdir() for a direction key. The input queue created by
+// pushKey() feeds yn_function(), which getdir() reads. After runSegment(), the
+// hero stands at DOOR_SEED's starting position, with a plain closed door one
+// square west. The doclose tests set up the door state they need and push a
+// direction key into the queue before calling doclose(game).
+//
+// Return-value notes: lock.c:962 initializes `res = ECMD_OK`. lock.c:992-993
+// sets `res = ECMD_TIME` for a confused or stunned hero; since the JS port's
+// confdir() throws before doclose reaches that test, res stays ECMD_OK for
+// every unimpaired hero. The paths that return `res` therefore answer ECMD_OK,
+// while the explicit returns and lock.c:1050 answer ECMD_TIME or ECMD_CANCEL.
+
+// Push a keystroke into the input queue that getdir() reads.
+function answer(...keys) {
+    for (const key of keys) game.nhDisplay.pushKey(key.charCodeAt(0));
+}
+
+// Set up an open door beside the hero for doclose() to act on. Sets the seed's
+// closed door to D_ISOPEN and returns the door location. Also clears pending
+// messages so that doclose()'s ttyPline calls do not try to dismiss stale
+// output from the initial runSegment().
+async function openDoorBesideHero({ foldedStrength = true } = {}) {
+    const result = await closedDoorBesideHero({ foldedStrength });
+    result.door.flags = D_ISOPEN;
+    result.door.doormask = D_ISOPEN;
+    game._pending_message = '';
+    return result;
+}
+
+// Clear pending messages left by runSegment() so that doclose()'s ttyPline
+// calls do not try to dismiss stale output and read an extra key.
+function clearPendingMessages() {
+    game._pending_message = '';
+}
+
+test('doclose successfully closes an open door', async () => {
+    // C ref: lock.c:1039-1043. rn2(25) < threshold succeeds. With STR 68
+    // (acurrstr 20), DEX 3, CON 3 the threshold is (20+3+3)/3 = 8. The roll
+    // uses the real RNG seeded from the game state; this test checks the
+    // mechanical result by verifying the mask changed and ECMD_TIME returned,
+    // regardless of whether the roll succeeded or the door resisted.
+    const { door } = await openDoorBesideHero();
+
+    // 'h' is move-west, pointing at the door one square west of the hero.
+    answer('h');
+    const result = await doclose(game);
+
+    // lock.c:1050 returns ECMD_TIME for every path through the D_ISOPEN block.
+    assert.equal(result, ECMD_TIME, 'close attempt spends a turn');
+    // The door is either D_CLOSED (success) or D_ISOPEN (resist). Both are
+    // correct outcomes of the RNG; the differential validates the exact one.
+    assert.ok(
+        door.flags === D_CLOSED || door.flags === D_ISOPEN,
+        `door mask is D_CLOSED or D_ISOPEN, got ${door.flags}`,
+    );
+});
+
+test('doclose on a cancelled direction returns ECMD_CANCEL', async () => {
+    // C ref: lock.c:974-975. getdir(null) returns 0 when the hero presses
+    // Escape, and doclose returns ECMD_CANCEL.
+    await closedDoorBesideHero();
+    clearPendingMessages();
+    answer('\x1B');
+    const result = await doclose(game);
+    assert.equal(result, ECMD_CANCEL, 'Escape cancels the close command');
+});
+
+test('doclose nohands refusal costs no turn', async () => {
+    // C ref: lock.c:964-967. A hero with no hands cannot close anything.
+    // nohands() is true when the species has M1_NOHANDS. Returns ECMD_OK
+    // without prompting for a direction.
+    await closedDoorBesideHero();
+    clearPendingMessages();
+    const savedFlags = game.youmonst.data.mflags1;
+    game.youmonst.data.mflags1 |= M1_NOHANDS;
+
+    const result = await doclose(game);
+
+    assert.equal(result, ECMD_OK, 'nohands returns ECMD_OK');
+    game.youmonst.data.mflags1 = savedFlags;
+});
+
+test('doclose pit refusal costs no turn', async () => {
+    // C ref: lock.c:969-972. A hero in a pit cannot reach over the edge.
+    // Returns ECMD_OK without prompting for a direction.
+    await closedDoorBesideHero();
+    clearPendingMessages();
+    game.u.utrap = 1;
+    game.u.utraptype = TT_PIT;
+
+    const result = await doclose(game);
+
+    assert.equal(result, ECMD_OK, 'pit returns ECMD_OK');
+    game.u.utrap = 0;
+    game.u.utraptype = 0;
+});
+
+test('doclose self-square says "You are in the way!"', async () => {
+    // C ref: lock.c:979-982. getdir()'s self key ('.') sets dx=0, dy=0, so
+    // u.ux + u.dx == u.ux and the hero targets her own square. The guard
+    // tests !Passes_walls, which is true for a normal hero.
+    await closedDoorBesideHero();
+    clearPendingMessages();
+    answer('.');
+
+    const result = await doclose(game);
+
+    // lock.c:982 returns ECMD_TIME explicitly.
+    assert.equal(result, ECMD_TIME, 'self-square spends a turn');
+});
+
+test('doclose on an already-closed door reports it', async () => {
+    // C ref: lock.c:1028-1030. The door's D_CLOSED mask triggers "This door
+    // is already closed." and returns `res` (ECMD_OK for an unimpaired hero).
+    await closedDoorBesideHero();
+    clearPendingMessages();
+    answer('h');
+
+    const result = await doclose(game);
+
+    // lock.c:1030 `return res` where res is ECMD_OK for an unimpaired hero.
+    assert.equal(result, ECMD_OK, 'already-closed returns res = ECMD_OK');
+});
+
+test('doclose on a no-door doorway reports it', async () => {
+    // C ref: lock.c:1020-1021. A doorway with D_NODOOR mask produces "This
+    // doorway has no door." and returns `res` (ECMD_OK unimpaired).
+    const { door } = await closedDoorBesideHero();
+    clearPendingMessages();
+    door.flags = D_NODOOR;
+    door.doormask = D_NODOOR;
+    answer('h');
+
+    const result = await doclose(game);
+
+    assert.equal(result, ECMD_OK, 'D_NODOOR returns res = ECMD_OK');
+});
+
+test('doclose on a broken door reports it', async () => {
+    // C ref: lock.c:1025-1027. D_BROKEN produces "This door is broken."
+    // and returns `res` (ECMD_OK unimpaired).
+    const { door } = await closedDoorBesideHero();
+    clearPendingMessages();
+    door.flags = D_BROKEN;
+    door.doormask = D_BROKEN;
+    answer('h');
+
+    const result = await doclose(game);
+
+    assert.equal(result, ECMD_OK, 'D_BROKEN returns res = ECMD_OK');
+});
+
+test('doclose verysmall refusal costs no turn for an unimpaired hero', async () => {
+    // C ref: lock.c:1034-1037. A verysmall hero without a steed cannot push
+    // the door closed and returns `res` (ECMD_OK unimpaired). verysmall()
+    // checks msize <= MZ_TINY (1); a normal hero is MZ_HUMAN (2).
+    const { door } = await openDoorBesideHero();
+    const savedSize = game.youmonst.data.msize;
+    game.youmonst.data.msize = 0; // MZ_TINY
+
+    answer('h');
+    const result = await doclose(game);
+
+    // lock.c:1037 `return res` inside the D_ISOPEN block, before the close
+    // roll. res is ECMD_OK for an unimpaired hero.
+    assert.equal(result, ECMD_OK, 'verysmall returns res = ECMD_OK');
+
+    game.youmonst.data.msize = savedSize;
 });

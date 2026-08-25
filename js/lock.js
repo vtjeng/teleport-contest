@@ -7,22 +7,38 @@ import {
     A_STR,
     AUTOUNLOCK_APPLY_KEY,
     AUTOUNLOCK_UNTRAP,
+    CONFUSION,
     D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
     D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
+    DRAWBRIDGE_DOWN,
+    DRAWBRIDGE_UP,
+    ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
     IS_DOOR,
+    M_AP_FURNITURE,
+    M_AP_OBJECT,
+    M_AP_TYPE,
+    OBJ_AT,
     OBJ_INVENT,
+    PASSES_WALLS,
+    STUNNED,
     TT_PIT,
+    isok,
     u_at,
 } from './const.js';
 import { is_magic_key } from './artifacts.js';
 import { acurrstr, effective_attribute, exercise } from './attrib.js';
-import { get_adjacent_loc, set_occupation, yn_function } from './cmd.js';
+import {
+    get_adjacent_loc,
+    getdir,
+    set_occupation,
+    yn_function,
+} from './cmd.js';
 import {
     feel_location,
     feel_newsym,
@@ -32,7 +48,7 @@ import {
 import { update_mapseen_for } from './dungeon.js';
 import { game } from './gstate.js';
 import { m_at } from './monst.js';
-import { nohands } from './mondata.js';
+import { nohands, verysmall } from './mondata.js';
 import { PM_ROGUE } from './monsters.js';
 import {
     CREDIT_CARD,
@@ -44,11 +60,12 @@ import { is_quest_artifact } from './questpgr.js';
 import { rn2, rnl } from './rng.js';
 import {
     heroIsBlind,
+    is_db_wall,
     is_drawbridge_wall,
     messageAt,
 } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
-import { recalc_block_point } from './vision.js';
+import { block_point, recalc_block_point } from './vision.js';
 import { yname } from './objnam.js';
 
 // Thrown where lock.c reaches a branch this port has not ported.
@@ -556,6 +573,235 @@ export async function doopen_indir(x, y, state = game, env = {}) {
             encumberMessage: encumber_msg,
         });
         await message(messageAt('The door resists!', x, y, state), state);
+    }
+
+    return ECMD_TIME;
+}
+
+// C ref: lock.c stumble_on_door_mimic() (759-769). Checks whether a monster
+// at (x,y) is a door mimic and, if so, forces the hero to interact with it.
+// stumble_onto_mimic() is unported, so this function throws when the mimic
+// condition is met. In normal play the condition requires a shapechanger
+// mimicking a closed door, which is rare enough that the throw is acceptable.
+function stumble_on_door_mimic(x, y, state = game) {
+    const mtmp = m_at(x, y, state);
+    if (mtmp && is_door_mappear(mtmp)
+        && !Protection_from_shape_changers(state)) {
+        throw new UnsupportedLockError(
+            'stumble_onto_mimic() in stumble_on_door_mimic()',
+        );
+    }
+    return false;
+}
+
+// C ref: mondata.h is_door_mappear(): TRUE when the monster is mimicking a
+// closed door (horizontal or vertical).
+function is_door_mappear(mtmp) {
+    // monst.h S_hcdoor = 36, S_vcdoor = 37, from defsym_values enum.
+    const S_hcdoor = 36;
+    const S_vcdoor = 37;
+    return M_AP_TYPE(mtmp) === M_AP_FURNITURE
+        && (mtmp.mappearance === S_hcdoor || mtmp.mappearance === S_vcdoor);
+}
+
+// C ref: youprop.h:287 Protection_from_shape_changers, the bare intrinsic OR
+// extrinsic. The constant 65 is prop.h PROT_FROM_SHAPE_CHANGERS.
+function Protection_from_shape_changers(state) {
+    const PROT_FROM_SHAPE_CHANGERS = 65;
+    const prop = state.u?.uprops?.[PROT_FROM_SHAPE_CHANGERS];
+    return Boolean(prop?.intrinsic || prop?.extrinsic);
+}
+
+// C ref: lock.c obstructed() (926-953). Checks whether a monster or object
+// blocks the hero from closing a door. The monster arm needs canspotmon() and
+// Some_Monnam(), which are unported; this function throws for any visible
+// monster that is not an object-mimic (M_AP_OBJECT falls through to the
+// OBJ_AT arm, matching C's goto objhere).
+//
+// Covered: the OBJ_AT arm that prints "Something's in the way."
+// Not covered: the visible-monster arm (canspotmon/Some_Monnam unported).
+function obstructed(x, y, quietly, state = game) {
+    const mtmp = m_at(x, y, state);
+    if (mtmp && M_AP_TYPE(mtmp) !== M_AP_FURNITURE) {
+        if (M_AP_TYPE(mtmp) === M_AP_OBJECT) {
+            // C: goto objhere -- fall through to the OBJ_AT arm below.
+        } else {
+            // The visible-monster arm needs canspotmon() and Some_Monnam(),
+            // neither of which is ported.
+            throw new UnsupportedLockError(
+                'obstructed() visible-monster arm (canspotmon/Some_Monnam)',
+            );
+        }
+    } else if (OBJ_AT(x, y, state)) {
+        // objhere:
+        if (!quietly)
+            return { blocked: true, message: "Something's in the way." };
+        return { blocked: true };
+    } else {
+        return { blocked: false };
+    }
+    // Reached only from the M_AP_OBJECT fall-through above.
+    // objhere:
+    if (!quietly)
+        return { blocked: true, message: "Something's in the way." };
+    return { blocked: true };
+}
+
+// C ref: youprop.h:286 Passes_walls, the bare intrinsic OR extrinsic.
+function Passes_walls(state) {
+    const passes = state.u?.uprops?.[PASSES_WALLS];
+    return Boolean(passes?.intrinsic || passes?.extrinsic);
+}
+
+// C ref: youprop.h:83-84 Confusion, the bare intrinsic field.
+function Confusion(state) {
+    return Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
+}
+
+// C ref: youprop.h:81 Stunned, the bare intrinsic field.
+function Stunned(state) {
+    return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
+}
+
+// C ref: lock.c doclose() (957-1051), the #close command handler. Prompts for
+// a direction, checks preconditions, and attempts to close the door.
+//
+// Covered: nohands, pit, getdir prompt, self-square with Passes_walls guard,
+// isok, drawbridge messages, door-state checks (D_NODOOR, obstructed,
+// D_BROKEN, already closed/locked), the verysmall refusal, the rn2(25) close
+// roll with both outcomes, and the exercise/resist path.
+//
+// Not covered, each throwing: stumble_on_door_mimic (mimic path),
+// Confusion/Stunned (confdir throws first), and obstructed's visible-monster
+// arm.
+export async function doclose(state = game) {
+    const u = state.u;
+
+    // lock.c:964-967
+    if (nohands(state.youmonst.data)) {
+        await ttyPline("You can't close anything -- you have no hands!", state);
+        return ECMD_OK;
+    }
+
+    // lock.c:969-972
+    if (u.utrap && u.utraptype === TT_PIT) {
+        await ttyPline("You can't reach over the edge of the pit.", state);
+        return ECMD_OK;
+    }
+
+    // lock.c:974-975
+    if (!await getdir(null, state))
+        return ECMD_CANCEL;
+
+    const x = u.ux + u.dx;
+    const y = u.uy + u.dy;
+    let res = ECMD_OK;
+
+    // lock.c:979-982. u_at checks whether the target is the hero's own square.
+    // Passes_walls heroes can close from their own square.
+    if (u_at(x, y, state) && !Passes_walls(state)) {
+        await ttyPline('You are in the way!', state);
+        return ECMD_TIME;
+    }
+
+    // lock.c:984-985. isok rejects coordinates outside the map.
+    if (!isok(x, y)) {
+        const blind = heroIsBlind(state);
+        await ttyPline(
+            `You ${blind ? 'feel' : 'see'} no door there.`, state,
+        );
+        return res;
+    }
+
+    // lock.c:987-988. stumble_on_door_mimic throws for the mimic path.
+    if (stumble_on_door_mimic(x, y, state))
+        return ECMD_TIME;
+
+    // lock.c:992-993. Unreachable in this port: getdir() calls confdir(), which
+    // throws for a confused or stunned hero. Written out so the branch exists
+    // when confdir is ported.
+    if (Confusion(state) || Stunned(state))
+        res = ECMD_TIME;
+
+    const door = state.level.at(x, y);
+    const portcullis = is_drawbridge_wall(x, y, state);
+
+    // lock.c:997-1005. Blind hero feels the location to learn what is there.
+    if (heroIsBlind(state)) {
+        const oldglyph = door.remembered_glyph;
+        const oldlastseentyp = update_mapseen_for(x, y, state);
+
+        feel_location(x, y, state);
+        if (!same_remembered_glyph(oldglyph, door.remembered_glyph)
+            || state.level.lastseentyp[x][y] !== oldlastseentyp)
+            res = ECMD_TIME; /* learned something */
+    }
+
+    // lock.c:1007-1018. Not a door.
+    if (portcullis || !IS_DOOR(door.typ)) {
+        if (is_db_wall(x, y, state) || door.typ === DRAWBRIDGE_UP)
+            await ttyPline('The drawbridge is already closed.', state);
+        else if (portcullis || door.typ === DRAWBRIDGE_DOWN)
+            await ttyPline(
+                'There is no obvious way to close the drawbridge.', state,
+            );
+        else {
+            // nodoor:
+            const blind = heroIsBlind(state);
+            await ttyPline(
+                `You ${blind ? 'feel' : 'see'} no door there.`, state,
+            );
+        }
+        return res;
+    }
+
+    // lock.c:1020-1031. Door-state checks.
+    if (doorMask(door) === D_NODOOR) {
+        await ttyPline('This doorway has no door.', state);
+        return res;
+    }
+    const obs = obstructed(x, y, false, state);
+    if (obs.blocked) {
+        if (obs.message) await ttyPline(obs.message, state);
+        return res;
+    }
+    if (doorMask(door) === D_BROKEN) {
+        await ttyPline('This door is broken.', state);
+        return res;
+    }
+    if (doorMask(door) & (D_CLOSED | D_LOCKED)) {
+        await ttyPline('This door is already closed.', state);
+        return res;
+    }
+
+    // lock.c:1033-1048. The door is D_ISOPEN; try to close it.
+    if (doorMask(door) === D_ISOPEN) {
+        // lock.c:1034-1037
+        if (verysmall(state.youmonst.data) && !u.usteed) {
+            await ttyPline(
+                "You're too small to push the door closed.", state,
+            );
+            return res;
+        }
+        // lock.c:1038-1047. Mounted heroes always succeed; otherwise roll
+        // rn2(25) against the average of ACURRSTR, ACURR(A_DEX), ACURR(A_CON).
+        const threshold = Math.trunc((
+            acurrstr(state)
+            + effective_attribute(state, A_DEX)
+            + effective_attribute(state, A_CON)
+        ) / 3);
+        if (u.usteed || rn2(25) < threshold) {
+            await ttyPline('The door closes.', state);
+            door.flags = D_CLOSED;
+            door.doormask = D_CLOSED;
+            feel_newsym(x, y, state);
+            block_point(x, y, state);
+        } else {
+            await exercise(A_STR, true, state, { rn2 }, {
+                encumberMessage: encumber_msg,
+            });
+            await ttyPline('The door resists!', state);
+        }
     }
 
     return ECMD_TIME;
