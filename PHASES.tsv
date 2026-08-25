@@ -1019,3 +1019,7 @@ utc	event	phase	goal	detail
 2026-08-25T11:21:37.215Z	end	select	mkobj-next-ident-divergence	
 2026-08-25T11:52:27.195Z	start	implement	mkobj-next-ident-divergence	
 2026-08-25T12:51:14.098Z	end	implement	mkobj-next-ident-divergence	
+2026-08-25T12:57:34.523Z	start	select	decgfx-screen-mismatch	
+2026-08-25T12:57:34.602Z	end	select	decgfx-screen-mismatch	
+2026-08-25T12:57:41.849Z	start	implement	decgfx-screen-mismatch	
+2026-08-25T13:21:51.462Z	end	implement	decgfx-screen-mismatch	

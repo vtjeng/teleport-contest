@@ -3974,33 +3974,6 @@
       }
     },
     {
-      "id": "puton-command",
-      "status": "queued",
-      "boundary": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, apply, close, down, drop, pickup, takeoff, wear, zap, reqmenu, fight, options, wizwish, wizlevelport, wizgenesis, fire, throw, swap, kick, #, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
-      "upstreamOwners": [
-        "do_wear.c"
-      ],
-      "forecast": {
-        "steps": 4,
-        "basis": "Capped look-ahead at 08e7797: seed5006 has 47 raw steps after puton stop. Capped at 4 by starting little dog acting during wear command (starting little dog boundary).",
-        "sessions": [
-          "seed5006"
-        ],
-        "witnesses": [
-          {
-            "session": "seed5006",
-            "evidence": "At step 109, the hero types P (puton). The repeated-command boundary refuses it. C path: do_wear.c Puton_on() handles accessory and shield wearing. After puton, at step 113 the starting little dog acts during the wear turn (kitten acts during wear), which the port does not support. Capped at 4."
-          }
-        ]
-      },
-      "detail": "The puton command (P) lets the hero put on accessories (rings, amulets) and shields. do_wear.c Puton_on() handles it. seed5006 stops at step 109/249.",
-      "slices": [],
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null
-    },
-    {
       "id": "hero-dies-from-monster-attack",
       "status": "closed",
       "boundary": "simple monster action requires the hero dying of a monster attack",
@@ -4112,6 +4085,69 @@
       "openStanding": null,
       "closedAt": null,
       "delivered": null
+    },
+    {
+      "id": "puton-command",
+      "status": "queued",
+      "boundary": "puton",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 4,
+        "basis": "Re-capped at c7a4646: seed5006 has 47 raw steps after puton stop. Capped at 4 by starting little dog acting during wear command (unchanged from 08e7797). seed0383 now also stops on puton at step 137, but diverges at screen 42 (DEC graphics, RNG aligned) so its unlocks contribution is zeroed.",
+        "sessions": [
+          "seed5006"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5006",
+            "evidence": "seed 5006, tourist, step 109, player types P (puton). C runs doputon() in do_wear.c, prompts What do you want to put on? After puton, starting little dog acts during wear command at step 113."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null
+    },
+    {
+      "id": "decgfx-screen-mismatch",
+      "status": "closed",
+      "boundary": "DECgraphics symset renders wrong character: C renders backtick with decgfx=1 while JS renders diamond at seed0383 screen 43. Game logic and RNG match through 9706 calls but screen comparison fails.",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 95,
+        "basis": "Capped look-ahead at c7a4646: seed0383 diverges at screen 42 (DEC graphics at row 7 col 15, RNG aligned). All 95 blocked screens (42..137) contain ported behavior: wizlevelport + wizwish x3 (classified at 92 by sonnet at 382b49b) plus takeoff + unknown command (both ported). Cap extended to 95.",
+        "sessions": [
+          "seed0383"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383",
+            "evidence": "seed 383, debug wizard, levelchanges to level 20 at step 42. C draws a big-room level with DECgraphics symset. At screen 42 C renders a backtick at row 7 col 15 for a map feature while JS renders a diamond. RNG matches through 9706 calls. The display difference cascades through all 95 subsequent screens."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "fix-decgfx-backtick-rendering",
+          "status": "closed",
+          "closedBy": "f4e7a044f1c76781d89feb8d666a43594a9b105e"
+        }
+      ],
+      "openedAt": "c7a46460cfdf1622f19dc3aa0bab631f7b70acc3",
+      "openStanding": {
+        "sha": "d205de6",
+        "screens": 2092,
+        "rng": 152044
+      },
+      "closedAt": "f4e7a044f1c76781d89feb8d666a43594a9b105e",
+      "delivered": {
+        "screens": 95,
+        "rng": 0
+      }
     }
   ]
 }
