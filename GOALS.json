@@ -3687,7 +3687,7 @@
     },
     {
       "id": "close-command",
-      "status": "queued",
+      "status": "open",
       "boundary": "unsupported hero command: the repeated-command boundary refuses the close command",
       "upstreamOwners": [
         "close.c"
@@ -3707,40 +3707,12 @@
       },
       "detail": "The close command (bound to 'c') lets the hero close an open door. It prompts for a direction and closes the door in that direction. close.c doclosef() handles the logic.\n\nseed5002 stops at step 223/273. After the close command finishes (direction prompt and cmdassist retries), the user types an apply command (ported), then selects a magic marker — doapply()'s MAGIC_MARKER arm throws UnsupportedApplyError.",
       "slices": [],
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null
-    },
-    {
-      "id": "puton-command",
-      "status": "queued",
-      "boundary": "unsupported hero command: the repeated-command boundary refuses the puton command",
-      "upstreamOwners": [
-        "do_wear.c"
-      ],
-      "forecast": {
-        "steps": 5,
-        "basis": "Capped look-ahead at 6f8d90b: seed0383 has 25 raw steps, capped at 1 by starting little dog (kitten acts during wear occupation). seed5006 has 47 raw steps, capped at 4 by starting little dog (kitten acts during wear). Sum: 5 steps across 2 sessions.",
-        "sessions": [
-          "seed0383-wizard-hallucinate",
-          "seed5006-tourist-stress-disaster"
-        ],
-        "witnesses": [
-          {
-            "session": "seed0383-wizard-hallucinate",
-            "evidence": "Step 137: puton prompt. Step 138: kitten misses gnome (starting little dog boundary). Capped at 1."
-          },
-          {
-            "session": "seed5006-tourist-stress-disaster",
-            "evidence": "Step 109: puton prompt. Steps 110-112: ring finger, ring worn, wear prompt. Step 113: kitten misses sewer rat (starting little dog boundary). Capped at 4."
-          }
-        ]
+      "openedAt": "2b5cc715fae825eb666f0fd5593af4eb99a9af37",
+      "openStanding": {
+        "sha": "794d6db",
+        "screens": 2032,
+        "rng": 143560
       },
-      "detail": "The puton command (bound to 'P') lets the hero put on rings and amulets. do_wear.c Puton_on() handles selection and the multi-turn dressing occupation.\n\nBoth sessions have a kitten (starting pet) that acts during the dressing occupation, triggering the starting little dog boundary. Without that boundary, seed0383 would cap at 16 (#wizintrinsic) and seed5006 at 47 (full stretch through wizwish).",
-      "slices": [],
-      "openedAt": null,
-      "openStanding": null,
       "closedAt": null,
       "delivered": null
     },
