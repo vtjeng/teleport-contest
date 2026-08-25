@@ -4101,7 +4101,7 @@
     },
     {
       "id": "puton-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "puton",
       "upstreamOwners": [],
       "forecast": {
@@ -4133,6 +4133,11 @@
           "name": "amulet-on",
           "status": "closed",
           "closedBy": "f16b4fd3b10f4d8b5a1e8215c8628519cac47444"
+        },
+        {
+          "name": "blindf-on",
+          "status": "closed",
+          "closedBy": "67ce9dee43041598394214f50a8d2acb5c9fdfd2"
         }
       ],
       "openedAt": "77bf9d2904a2094ab95d4cc247da4533784bc5cb",
@@ -4141,8 +4146,11 @@
         "screens": 2187,
         "rng": 152044
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "67ce9dee43041598394214f50a8d2acb5c9fdfd2",
+      "delivered": {
+        "screens": 9,
+        "rng": -102
+      }
     }
   ]
 }
