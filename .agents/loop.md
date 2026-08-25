@@ -36,9 +36,11 @@ The orchestrator repeats without returning to the user between steps:
    stretches (skipping cap-stable sessions), and proposes one goal.
    Queue it with `node scripts/goal-log.mjs queue-goal` and then
    `open-goal` it (which captures the score the close will be measured
-   against). Take the goal's first queued slice. When the goal has no
-   queued slice, ask the slice-selector and `queue-slice` the answer.
-2. Spawn a worker for that slice. When it returns, establish what landed:
+   against).
+2. Spawn the slice-selector (`.claude/agents/slice-selector.md`) to
+   identify the next slice. Queue it with
+   `node scripts/goal-log.mjs queue-slice`.
+3. Spawn a worker for that slice. When it returns, establish what landed:
    `git log --oneline` and `git status --short` for the commits and tree.
    The worker's `npm run checkpoint` writes `.cache/checkpoint-summary.json`
    with the commit SHA, test verdict, and development score. Read that file
@@ -49,16 +51,16 @@ The orchestrator repeats without returning to the user between steps:
    origin/main..HEAD` for unpushed commits. Push whatever the worker left
    behind and every commit you landed, then watch the CI run from a
    background task as `.agents/workflow.md`, "Pushing and CI", states.
-3. Run `npm run quality` yourself; no worker reports it. Its `Review since
+4. Run `npm run quality` yourself; no worker reports it. Its `Review since
    <frontier>` line reports how much unreviewed code has accumulated. `DUE`
    stops implementation until the required pass has run, its confirmed
    findings are applied, and its entry is recorded. `WATCH` prints the
    current counts against the gate. `.agents/review.md`, "When a
    correctness pass is due", defines the gate.
-4. When a slice closes, append its `SCORE.tsv` row as `.agents/scoring.md`,
+5. When a slice closes, append its `SCORE.tsv` row as `.agents/scoring.md`,
    "Score evidence", requires, in the commit that records the closure in
-   `GOALS.json`. The row's `sha` and figures come from step 2's measurement.
-   Continue at step 1. When three consecutive slice closes leave the
+   `GOALS.json`. The row's `sha` and figures come from step 3's measurement.
+   Continue at step 2. When three consecutive slice closes leave the
    development score unchanged in `SCORE.tsv`, take no further slice until
    you rerun the census and restate the goal's remaining capped forecast.
    Record in the goal entry either why the remaining slices outrank the
@@ -67,10 +69,10 @@ The orchestrator repeats without returning to the user between steps:
    `npm run quality -- defer`. A sequence of slices whose queue entry
    records that the development score will change within the next two
    slices is exempt from the census rerun and forecast restatement. When
-   the last slice of the goal closes, continue at step 5. A correctness
+   the last slice of the goal closes, continue at step 6. A correctness
    pass is not required at every goal close; it fires when the threshold
    in `.agents/review.md`, "When a correctness pass is due", is met.
-5. When a goal closes, run the authorized holdout evaluation and record its
+6. When a goal closes, run the authorized holdout evaluation and record its
    result with the goal's evidence. Resolve every open deferral the goal's
    commits closed, read from `npm run quality -- deferrals --area <id>` for
    the areas the goal touched; the rest stay open, and none becomes a
@@ -130,4 +132,4 @@ reason to stop.
 Under `/loop`, relay one report per worker iteration: the slice that
 closed, the development score before and after, any bug the worker hit, and
 which slice or goal the loop takes next. Every figure comes from your own
-measurement in step 2. Do not use figures the worker reports.
+measurement in step 3. Do not use figures the worker reports.
