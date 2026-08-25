@@ -41,7 +41,6 @@ import {
     TOOL_CLASS,
     WEAPON_CLASS,
 } from '../js/objects.js';
-import { SPELL_KNOWLEDGE_KEEN } from '../js/startup_skills.js';
 import {
     known_spell,
     spe_Forgotten,
