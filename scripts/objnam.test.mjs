@@ -15,7 +15,6 @@ import {
     COLNO,
     CORR,
     DOOR,
-    FOUNTAIN,
     IN_SIGHT,
     LAVAPOOL,
     LOOKHERE_NOFLAGS,

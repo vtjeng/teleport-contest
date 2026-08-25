@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    A_CHA,
     BUFSZ,
     HUNGRY,
     OBJ_CONTAINED,

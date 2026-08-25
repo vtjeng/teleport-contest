@@ -36,7 +36,6 @@ import {
 } from '../js/const.js';
 import { DUNGEON_DATA } from '../js/dungeon_data.js';
 import {
-    BR_PORTAL,
     Can_dig_down,
     Can_fall_thru,
     Invocation_lev,

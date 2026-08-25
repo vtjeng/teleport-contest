@@ -7,7 +7,7 @@ import { UnsupportedLevelChangeError } from './do.js';
 import { rn2 } from './rng.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import {
-    COLNO, ROWNO, ROOM, STONE, HWALL, VWALL, MATCH_WALL,
+    COLNO, ROWNO, ROOM, STONE, HWALL, VWALL,
 } from './const.js';
 import { splev_chr2typ } from './mklev.js';
 

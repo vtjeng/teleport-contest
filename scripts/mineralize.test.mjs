@@ -22,7 +22,6 @@ import {
 import { init_objects } from '../js/o_init.js';
 import {
     AQUAMARINE,
-    GEM_CLASS,
     GOLD_PIECE,
     KELP_FROND,
     ROCK,

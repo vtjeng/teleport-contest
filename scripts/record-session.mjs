@@ -21,7 +21,6 @@ import { promises as fs, constants as fsConstants } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
-import { setTimeout as sleep } from 'node:timers/promises';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_ROOT = path.resolve(SCRIPT_DIR, '..');

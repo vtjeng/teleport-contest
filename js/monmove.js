@@ -207,7 +207,6 @@ import {
     nonliving,
     passes_walls,
     perceives,
-    resist_conflict,
     throws_rocks,
     touch_petrifies,
     tunnels,

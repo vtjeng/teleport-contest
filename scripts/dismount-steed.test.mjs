@@ -86,7 +86,7 @@ import {
 } from '../js/objects.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { strongmonst, throws_rocks } from '../js/mondata.js';
-import { mksobj, place_object, remove_object } from '../js/obj.js';
+import { mksobj, place_object } from '../js/obj.js';
 import { BOULDER } from '../js/objects.js';
 import { set_ustuck } from '../js/mon.js';
 import { update_player_regions } from '../js/region.js';

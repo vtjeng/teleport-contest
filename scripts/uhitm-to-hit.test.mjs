@@ -9,9 +9,7 @@ import test from 'node:test';
 
 import {
     A_CHAOTIC,
-    A_DEX,
     A_LAWFUL,
-    A_STR,
     CONFUSION,
     DETECT_MONSTERS,
     HALLUC,

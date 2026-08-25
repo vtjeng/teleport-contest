@@ -24,8 +24,6 @@ import {
     D_TRAPPED,
 } from '../js/const.js';
 import {
-    CREDIT_CARD,
-    LOCK_PICK,
     PICK_AXE,
     SKELETON_KEY,
     TOOL_CLASS,

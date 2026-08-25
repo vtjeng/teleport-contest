@@ -27,7 +27,6 @@ import {
     PM_ARCHEOLOGIST,
     PM_BAT,
     PM_DEATH,
-    PM_DOG,
     PM_EARTH_ELEMENTAL,
     PM_ERINYS,
     PM_FIRE_ANT,

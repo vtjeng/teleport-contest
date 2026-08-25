@@ -66,7 +66,6 @@ import {
 } from './mondata.js';
 import {
     AT_MAGC,
-    AT_WEAP,
     PM_ERINYS,
     PM_FOG_CLOUD,
     PM_GELATINOUS_CUBE,

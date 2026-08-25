@@ -134,7 +134,7 @@ import {
 } from './monsters.js';
 import { stairway_add } from './stairs.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
-import { selection_area, ThemeroomSelection } from './themerooms.js';
+import { selection_area } from './themerooms.js';
 import {
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS, LADDER, DRY, SP_COORD_IS_RANDOM,
     HWALL, VWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
@@ -149,7 +149,7 @@ import {
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
     IS_WALL, IS_STWALL, IS_DOOR, IS_ROOM, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
     IS_LAVA,
-    SPACE_POS, isok, W_NONDIGGABLE,
+    isok, W_NONDIGGABLE,
     W_RANDOM, W_NORTH, W_SOUTH, W_EAST, W_WEST, W_ANY,
     FILL_NONE, FILL_NORMAL,
     G_GONE,
@@ -158,16 +158,12 @@ import {
     MAX_TYPE, MATCH_WALL,
     A_LAWFUL, A_NEUTRAL, A_CHAOTIC,
     LR_TELE, MALE,
-    NO_TRAP, TRAPNUM, ARROW_TRAP, DART_TRAP, ROCKTRAP,
-    SQKY_BOARD, LANDMINE, ROLLING_BOULDER_TRAP,
-    SLP_GAS_TRAP, RUST_TRAP, FIRE_TRAP, PIT, SPIKED_PIT, HOLE,
-    TRAPDOOR, TELEP_TRAP, LEVEL_TELEP, MAGIC_PORTAL, WEB,
-    STATUE_TRAP, MAGIC_TRAP, POLY_TRAP,
-    VIBRATING_SQUARE, TRAPPED_DOOR, TRAPPED_CHEST,
+    NO_TRAP, ROCKTRAP,
+    TRAPDOOR, TELEP_TRAP, LEVEL_TELEP, WEB,
     MKTRAP_NOFLAGS, MKTRAP_MAZEFLAG, MKTRAP_NOSPIDERONWEB,
     MKTRAP_NOVICTIM, MKTRAP_SEEN,
     CORPSTAT_INIT, MARK, MM_NOGRP,
-    is_hole, is_pit,
+    is_hole,
 } from './const.js';
 
 const XLIM = 4;

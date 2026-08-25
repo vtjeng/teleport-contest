@@ -17,7 +17,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { autokey, doopen_indir, reset_pick } from '../js/lock.js';
+import { autokey, doopen_indir } from '../js/lock.js';
 import { is_magic_key } from '../js/artifacts.js';
 import { ART_MASTER_KEY_OF_THIEVERY } from '../js/artifacts.js';
 import { PM_ROGUE, PM_WIZARD } from '../js/monsters.js';
@@ -25,7 +25,6 @@ import {
     CREDIT_CARD,
     LOCK_PICK,
     SKELETON_KEY,
-    TOOL_CLASS,
 } from '../js/objects.js';
 
 // Seed 9400016 puts a plain closed door one square west of a Valkyrie's

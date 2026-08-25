@@ -23,7 +23,6 @@ import {
     reset_needed_visuals,
     UnsupportedOptionMenuError,
 } from '../js/options.js';
-import { failClosedCommandRefusals } from '../js/cmd.js';
 import {
     flush_screen, newsym, reglyph_darkroom,
 } from '../js/display.js';

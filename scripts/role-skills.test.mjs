@@ -8,7 +8,6 @@ import {
     P_BASIC,
     P_DIVINATION_SPELL,
     P_EXPERT,
-    P_HEALING_SPELL,
     P_MARTIAL_ARTS,
     P_GRAND_MASTER,
 } from '../js/const.js';

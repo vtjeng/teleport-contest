@@ -32,8 +32,6 @@ import {
     P_KNIFE,
     P_SKILLED,
     ROWNO,
-    W_RINGL,
-    W_RINGR,
 } from '../js/const.js';
 import { ART_EXCALIBUR } from '../js/artifacts.js';
 import { game } from '../js/gstate.js';
