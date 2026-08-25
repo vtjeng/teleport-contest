@@ -31,15 +31,27 @@ work, each performing exactly one role.
 
 The orchestrator repeats without returning to the user between steps:
 
+   On entry (or after a restart), check
+   `node scripts/goal-log.mjs --current` for the current state:
+
+   - No goal in progress: start at step 1.
+   - Goal in progress, a slice is in-progress: the worker may have been
+     interrupted. Run `git log --oneline` and check
+     `.cache/checkpoint-summary.json` to establish what it landed, then
+     continue from step 3's post-worker logic (measurement and push).
+   - Goal in progress, a queued slice exists: start at step 3.
+   - Goal in progress, no queued or in-progress slices: start at step 2.
+
 1. When no goal is in progress, spawn the goal-selector
    (`.claude/agents/goal-selector.md`). It runs the census, caps the
    stretches (skipping cap-stable sessions), and proposes one goal.
    Queue it with `node scripts/goal-log.mjs queue-goal` and then
    `open-goal` it (which captures the score the close will be measured
    against).
-2. Spawn the slice-selector (`.claude/agents/slice-selector.md`) to
-   identify the next slice. Queue it with
-   `node scripts/goal-log.mjs queue-slice`.
+2. If the goal has a queued slice, take it and continue at step 3.
+   Otherwise spawn the slice-selector
+   (`.claude/agents/slice-selector.md`) to identify the next slice and
+   queue it with `node scripts/goal-log.mjs queue-slice`.
 3. Spawn a worker for that slice. When it returns, establish what landed:
    `git log --oneline` and `git status --short` for the commits and tree.
    The worker's `npm run checkpoint` writes `.cache/checkpoint-summary.json`
