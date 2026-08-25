@@ -67,9 +67,8 @@ Write every candidate you capped during the ranking to
 }
 ```
 
-The orchestrator runs
-`node scripts/queue-candidates.mjs .cache/selector-candidates.json`
-to queue every candidate and opens the leader.
+The orchestrator queues the leader with
+`node scripts/goal-log.mjs queue-goal` and opens it.
 
 State each candidate's boundary as a condition a reader can test against C
 source, matching existing `GOALS.json` entries. Put traced findings (unreached

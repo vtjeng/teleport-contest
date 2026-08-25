@@ -31,25 +31,13 @@ work, each performing exactly one role.
 
 The orchestrator repeats without returning to the user between steps:
 
-1. When no goal is in progress, check whether the candidate queue in
-   `GOALS.json` can supply the next goal without a full selector run,
-   following `.agents/selection.md`, "Re-using the candidate queue". Run the
-   census scan, compare its boundaries against the queue, and either open the
-   queue leader directly or re-cap only the new candidates. Spawn the
-   goal-selector only when the queue is empty or the re-use rules require it.
-
-   The goal-selector writes every candidate it capped to
-   `.cache/selector-candidates.json`. Queue them with
-   `node scripts/queue-candidates.mjs .cache/selector-candidates.json`,
-   which adds new candidates to `GOALS.json` and skips any whose identifier
-   already exists.
-
-   Before opening a goal, rerun the census so the forecast reflects the
-   current development score. Then `open-goal` it (which captures the score
-   the close will be measured against) and take the goal's first queued
-   slice. When the goal has no queued slice, ask the slice-selector and
-   `queue-slice` the answer. Both selectors return their recommendation;
-   only you record it.
+1. When no goal is in progress, spawn the goal-selector
+   (`.claude/agents/goal-selector.md`). It runs the census, caps the
+   stretches (skipping cap-stable sessions), and proposes one goal.
+   Queue it with `node scripts/goal-log.mjs queue-goal` and then
+   `open-goal` it (which captures the score the close will be measured
+   against). Take the goal's first queued slice. When the goal has no
+   queued slice, ask the slice-selector and `queue-slice` the answer.
 2. Spawn a worker for that slice. When it returns, establish what landed:
    `git log --oneline` and `git status --short` for the commits and tree.
    The worker's `npm run checkpoint` writes `.cache/checkpoint-summary.json`
