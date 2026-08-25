@@ -4688,6 +4688,16 @@
       "from": "d8b9735dee8e0233b47ecc3375a546965b34def0",
       "detail": "help_dir() dowhatdoes_core() ctrl-key suggestion (cmd.c:4243-4261). Unreachable when sym is the null byte because C letter() returns false. Both witness sessions pass sym=0. Exercised only when the player types a letter at a prefix-key direction prompt.",
       "blockedOn": "dowhatdoes_core"
+    },
+    {
+      "id": "dowrite-glib-branch",
+      "area": "commands",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "98e378dc7f903afc2c77d3e1e9f9fdab21c95232",
+      "detail": "write.c dowrite() Glib branch (lines 83-92) throws UnsupportedWriteError because dropx() requires newsym, encumberMessage, and extractExternalObject hooks. The Glib branch requires the hero to have greasy hands and apply a magic marker, which no session exercises.",
+      "blockedOn": "dropx"
     }
   ],
   "areas": [
