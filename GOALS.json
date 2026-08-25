@@ -4128,6 +4128,11 @@
           "name": "doputon-ring-on",
           "status": "closed",
           "closedBy": "90d5867e6482ad01f9687cb8967c08db6bd32e91"
+        },
+        {
+          "name": "amulet-on",
+          "status": "closed",
+          "closedBy": "f16b4fd3b10f4d8b5a1e8215c8628519cac47444"
         }
       ],
       "openedAt": "77bf9d2904a2094ab95d4cc247da4533784bc5cb",
