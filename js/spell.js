@@ -54,6 +54,33 @@ const uarmhbon = 4; // Metal helmets interfere with the mind
 const uarmgbon = 6; // Casting channels through the hands
 const uarmfbon = 2; // All metal interferes to some degree
 
+// C ref: spell.h enum spellknowledge (20-25). Values returned by known_spell()
+// and used by write.c dowrite() to gate writing by spell knowledge.
+export const spe_Forgotten  = -1; // known but no longer castable
+export const spe_Unknown    =  0; // not yet known
+export const spe_Fresh      =  1; // castable if various casting criteria met
+export const spe_GoingStale =  2; // still castable but nearly forgotten
+
+// C ref: spell.c known_spell() (2361-2375). Returns one of the spe_*
+// constants indicating the hero's knowledge of a spell identified by its
+// object type. The spell must already be in the spellbook list (learned via
+// reading) for any result other than spe_Unknown.
+export function known_spell(otyp, state = game) {
+    for (let i = 0; i < MAXSPELL && spellid(i, state) !== NO_SPELL; i++) {
+        if (spellid(i, state) === otyp) {
+            const k = spellknow(i, state);
+            // KEEN / 10 is the boundary between fresh and going stale.
+            // C: (k > KEEN / 10) ? spe_Fresh : (k > 0) ? spe_GoingStale
+            //                                           : spe_Forgotten
+            return (k > Math.trunc(SPELL_KNOWLEDGE_KEEN / 10))
+                ? spe_Fresh
+                : (k > 0) ? spe_GoingStale
+                    : spe_Forgotten;
+        }
+    }
+    return spe_Unknown;
+}
+
 // A pass through the move loop ages every contiguous known spell once,
 // independent of the hero's speed or consciousness.
 export function age_spells(state = game) {

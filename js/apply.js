@@ -2,8 +2,9 @@
 // C refs: src/apply.c apply_ok(), doapply(), use_stethoscope(), its_dead(),
 // and reset_trapset().
 //
-// doapply()'s switch has thirty-odd arms. Two are live: STETHOSCOPE, and the
-// LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c pick_lock() serves. Every
+// doapply()'s switch has thirty-odd arms. Three are live: STETHOSCOPE, the
+// LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c pick_lock() serves, and
+// MAGIC_MARKER which delegates to write.c dowrite() in js/write.js. Every
 // other arm, and the wand, spellbook and coin shortcuts above the switch,
 // stops at a refusal naming the C function it needs. use_stethoscope() covers
 // the no-hands, Deaf and free-hand guards, the free-action rule, self and
@@ -99,6 +100,7 @@ import {
     LENSES,
     LOCK_PICK,
     LUMP_OF_ROYAL_JELLY,
+    MAGIC_MARKER,
     POT_OIL,
     POTION_CLASS,
     SKELETON_KEY,
@@ -120,6 +122,7 @@ import { t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { recalc_block_point, unblock_point } from './vision.js';
 import { is_pole } from './worn.js';
+import { dowrite } from './write.js';
 import { genders } from './roles.js';
 
 // Thrown where apply.c reaches a tool or a branch this port has not ported.
@@ -597,6 +600,9 @@ export async function doapply(state = game) {
         // turn's random numbers.
         return (await pick_lock(obj, 0, 0, null, state) !== 0)
             ? ECMD_TIME : ECMD_OK;
+    case MAGIC_MARKER:
+        // apply.c:4361-4362. dowrite() handles the full magic marker flow.
+        return dowrite(obj, state);
     default:
         // Every other arm of C's switch, and its `default` -- which redirects
         // a polearm to use_pole(), a pick or an axe to use_pick_axe(), and

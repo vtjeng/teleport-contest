@@ -4930,7 +4930,8 @@
         "js/tty_message.js",
         "js/uhitm.js",
         "js/windows.js",
-        "js/wizcmds.js"
+        "js/wizcmds.js",
+        "js/write.js"
       ],
       "generatedOutputs": [
         {
