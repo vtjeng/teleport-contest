@@ -3669,8 +3669,8 @@
       "slices": [
         {
           "name": "port-lock-picking-occupation",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "f34e21c00eb493c1abb7f8bc041b6ae24f9c9fa0"
         }
       ],
       "openedAt": "3ee57b9ffa99946efe91a05c1e20fc3dbf474d8e",
