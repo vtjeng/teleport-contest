@@ -10,6 +10,14 @@ falsified predictions and measured overstatements are recorded so nobody
 re-derives them. Deferred findings live in `QUALITY.json`, read with
 `npm run quality -- deferrals`.
 
+## Object creation
+
+Object ID assignment, wish parsing, and the helper functions that
+`mkobj.c` calls when constructing an object. The current goal fixes a
+divergence in `next_ident(mkobj.c:521)` where the port uses the wrong
+random function, desyncing the RNG stream and blocking 92 screens of
+otherwise-ported behavior in seed0383.
+
 ## Exploration
 
 Movement beyond the first unobstructed step, then running, search, doors,

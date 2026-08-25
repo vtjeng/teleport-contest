@@ -4049,6 +4049,69 @@
         "screens": 31,
         "rng": 85
       }
+    },
+    {
+      "id": "mkobj-next-ident-divergence",
+      "status": "closed",
+      "boundary": "Silent divergence in next_ident(mkobj.c:521): the port calls rn2(3) at RNG call 3124 where C calls rnd(2), desyncing all subsequent RNG values and blocking 92 screens of ported behavior.",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 92,
+        "basis": "Capped look-ahead at 382b49b: seed0383 diverges at screen 42 in next_ident(mkobj.c:521). All 92 blocked screens (42..134) contain ported behavior (wizlevelport + wizwish x3). Sonnet classifier confirmed cap at 92, 0 ambiguous.",
+        "sessions": [
+          "seed0383"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383",
+            "evidence": "seed 383, debug wizard, levelchanges to level 20 at step 42. C calls rnd(2) in next_ident(mkobj.c:521) during object creation on the new level. The port calls rn2(3) instead, producing a wrong RNG value and desyncing the stream from call 3124 onward. Screen 42 differs at row 3 column 9."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "makemon-rng-sync-for-unsupported-species",
+          "status": "closed",
+          "closedBy": "d205de64b58e2bef482cb418084ca2552f8b63c6"
+        }
+      ],
+      "openedAt": "382b49bbc7023fd5dad76c9b94f90e76be09fa74",
+      "openStanding": {
+        "sha": "5a3d7ef",
+        "screens": 2092,
+        "rng": 143691
+      },
+      "closedAt": "d205de64b58e2bef482cb418084ca2552f8b63c6",
+      "delivered": {
+        "screens": 0,
+        "rng": 8353
+      }
+    },
+    {
+      "id": "save-command",
+      "status": "queued",
+      "boundary": "save",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 13,
+        "basis": "Capped look-ahead at 382b49b: seed0013 stops at step 47 on save. 13 steps ahead: save/restore flow (save prompt, completion, restore welcome x2, full moon check), then known/attributes/showspells/no-op (all ported). Sonnet classifier confirmed cap at 13, 0 ambiguous.",
+        "sessions": [
+          "seed0013"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0013",
+            "evidence": "seed 13, Rogue Sneaky, Friday 13 Oct 2000. At step 47 the player types S (save). C runs dosave0() in save.c, prompts Really save?, writes the save file with Be seeing you..., then restore loads it back with Hello Sneaky welcome back. Restore runs phase_of_the_moon producing You are lucky! Full moon tonight. Post-restore input exercises known, attributes, showspells, and space (all ported)."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

@@ -1015,3 +1015,7 @@ utc	event	phase	goal	detail
 2026-08-25T10:35:03.551Z	end	implement	hero-dies-from-monster-attack	
 2026-08-25T10:36:39.046Z	start	implement	hero-dies-from-monster-attack	
 2026-08-25T10:59:07.927Z	end	implement	hero-dies-from-monster-attack	
+2026-08-25T11:21:06.817Z	start	select	mkobj-next-ident-divergence	
+2026-08-25T11:21:37.215Z	end	select	mkobj-next-ident-divergence	
+2026-08-25T11:52:27.195Z	start	implement	mkobj-next-ident-divergence	
+2026-08-25T12:51:14.098Z	end	implement	mkobj-next-ident-divergence	
