@@ -216,9 +216,13 @@ function frontierState(row) {
  * Annotate each row with capping stability by comparing its state against
  * the cached frontiers.
  */
+function sessionKey(file) {
+    return file.replace(/\.session\.json$/, '');
+}
+
 function annotateFrontiers(rows, frontiers) {
     for (const row of rows) {
-        const cached = frontiers?.[row.file];
+        const cached = frontiers?.[sessionKey(row.file)];
         if (!cached) {
             row.capStable = false;
             continue;
@@ -247,9 +251,10 @@ function setCapEntries(setCaps, rows) {
         const value = Number(arg.slice(eq + 1));
         if (!Number.isFinite(value))
             throw new Error(`--set-cap value is not a number: ${arg}`);
-        const row = rows?.find((r) => r.file === session);
+        const key = sessionKey(session);
+        const row = rows?.find((r) => sessionKey(r.file) === key);
         const state = row ? frontierState(row) : {};
-        frontiers[session] = { ...state, cappedStretch: value, cappedBy: sha };
+        frontiers[key] = { ...state, cappedStretch: value, cappedBy: sha };
     }
     writeFrontiers(frontiers);
 }
