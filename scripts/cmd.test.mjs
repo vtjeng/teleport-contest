@@ -57,6 +57,7 @@ import {
     LADDER,
     LAVAPOOL,
     LEVITATION,
+    MARK,
     M_AP_FURNITURE,
     MON_FLOOR,
     NORMAL_SPEED,
@@ -1259,19 +1260,6 @@ test('simple hero movement rejects spot effects before mutation', async () => {
                 ]));
             },
         },
-        {
-            name: 'floor engraving',
-            reason: 'engraving interaction',
-            setup: ({ x, y }) => {
-                installFloorPile(x, y);
-                game.head_engr = {
-                    engr_x: x,
-                    engr_y: y,
-                    engr_txt: ['Elbereth'],
-                    nxt_engr: null,
-                };
-            },
-        },
         // An ordinary hostile at the destination is no longer an admission
         // case at all: hack.c domove_core() hands it to uhitm.c do_attack(),
         // which spends the turn. What is still refused ahead of every
@@ -1346,6 +1334,40 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             );
         }
     }
+});
+
+// A MARK engraving at the destination no longer stops the hero. pickup()
+// reaches read_engr_at() through its no-object early return, and
+// maybe_smudge_engr() runs at the end of domove_core().
+test('hero walks onto a MARK engraving and reads it', async () => {
+    const { x, y } = await prepareHeroMoveAdmission();
+    // Place a MARK engraving at the destination with graffiti text.
+    // MARK is the engraving type the seed0030 witness exercises.
+    game.head_engr = {
+        engr_x: x,
+        engr_y: y,
+        engr_type: MARK,
+        engr_txt: ['test graffiti'],
+        engr_time: 0,
+        nxt_engr: null,
+    };
+
+    // read_engr_at() emits two pline messages, each of which triggers a
+    // --More-- prompt. Push two space keys to dismiss them.
+    const SPACE = ' '.charCodeAt(0);
+    game.nhDisplay.pushKey(SPACE);
+    game.nhDisplay.pushKey(SPACE);
+
+    // domove() must complete without throwing; the hero is now on the
+    // engraving square, and read_engr_at() has placed the graffiti message
+    // on the top line.
+    await domove(game);
+    assert.equal(game.u.ux, x, 'hero reached the engraving square');
+    assert.equal(game.u.uy, y);
+    assert.ok(
+        game.nhDisplay.toplines.includes('graffiti'),
+        `expected graffiti message, got: ${game.nhDisplay.toplines}`,
+    );
 });
 
 // With `safe_pet` off, is_safemon() is false for the hero's own pet, so

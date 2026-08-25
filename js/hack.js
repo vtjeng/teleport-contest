@@ -1073,8 +1073,6 @@ export function requireSimpleHeroDestination(
         if (Boolean(region.hero_inside) !== inside_region(region, x, y))
             throw new UnsupportedHeroMoveBoundaryError('region crossing');
     }
-    if (engr_at(x, y, state))
-        throw new UnsupportedHeroMoveBoundaryError('engraving interaction');
     try {
         preflight_shop_transition(state.u.ux, state.u.uy, x, y, state);
     } catch (error) {
