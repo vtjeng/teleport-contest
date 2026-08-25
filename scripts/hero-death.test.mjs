@@ -25,10 +25,14 @@ import {
     TRICKED,
     TURNED_SLIME,
 } from '../js/const.js';
-import { UnsupportedEndOfGameError, deaths, done } from '../js/end.js';
+import { UnsupportedEndOfGameError, deaths, done, done_in_by }
+    from '../js/end.js';
 import { game } from '../js/gstate.js';
 import { losehp } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
+import { newMonster } from '../js/monst.js';
+import { NON_PM, PM_GIANT_BAT, PM_GHOUL, PM_GRID_BUG, PM_WRAITH }
+    from '../js/monsters.js';
 import {
     EXPLORE_CASE,
     HERO_DEATH_CASES,
@@ -612,4 +616,84 @@ test('the hero-death matrix carries replay inputs only', () => {
     // Both segments end on the key that dismisses the death's --More--, which
     // is the key that draws the query. A third would answer it.
     assert.ok(recipe.segments.every(({ moves }) => moves.endsWith('  ')));
+});
+
+// ── done_in_by() tests ──
+// done_in_by() (end.c:185-344) builds the killer string from the monster
+// that dealt lethal damage, then calls done(). These tests verify the killer
+// format, name, and ugrave_arise for representative monster types.
+
+// Build a monster that done_in_by can identify. dyingGame() leaves a welcome
+// message pending on the top line; ttyUrgentPline("You die...") dismisses
+// it, so one space key is enough. done() then reaches really_done() without
+// a query for an ordinary (non-wizard) game.
+function killerMonster(pmidx, overrides = {}) {
+    return newMonster({
+        data: game.mons[pmidx],
+        cham: NON_PM,          // not a shapechanger
+        m_id: 9999,
+        mhp: 10,
+        mhpmax: 10,
+        ...overrides,
+    });
+}
+
+test('done_in_by sets the killer for a plain monster', async () => {
+    // end.c:323-325 plain-monster path. A giant bat is neuter, so pmname()
+    // returns the neutral name "giant bat". KILLED_BY_AN is the default
+    // because no branch resets it.
+    await dyingGame();
+    const bat = killerMonster(PM_GIANT_BAT);
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await assert.rejects(
+        done_in_by(bat, DIED, game),
+        UnsupportedEndOfGameError,
+    );
+    assert.equal(game.killer.name, 'giant bat');
+    assert.equal(game.killer.format, KILLED_BY_AN);
+});
+
+test('done_in_by sets ugrave_arise for a wraith', async () => {
+    // end.c:326-327. A wraith's mlet is S_WRAITH, so ugrave_arise receives
+    // PM_WRAITH.
+    await dyingGame();
+    const wraith = killerMonster(PM_WRAITH);
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await assert.rejects(
+        done_in_by(wraith, DIED, game),
+        UnsupportedEndOfGameError,
+    );
+    assert.equal(game.killer.name, 'wraith');
+    assert.equal(game.killer.format, KILLED_BY_AN);
+    assert.equal(game.u.ugrave_arise, PM_WRAITH);
+});
+
+test('done_in_by sets ugrave_arise for a ghoul', async () => {
+    // end.c:337-338. PM_GHOUL is tested explicitly (not by mlet).
+    await dyingGame();
+    const ghoul = killerMonster(PM_GHOUL);
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await assert.rejects(
+        done_in_by(ghoul, DIED, game),
+        UnsupportedEndOfGameError,
+    );
+    assert.equal(game.killer.name, 'ghoul');
+    assert.equal(game.killer.format, KILLED_BY_AN);
+    assert.equal(game.u.ugrave_arise, PM_GHOUL);
+});
+
+test('done_in_by uses STONING message and killer for a stoning death',
+     async () => {
+    // end.c:197 prints "You turn to stone..." instead of "You die..." and
+    // passes STONING through to done(). The killer name still comes from
+    // the monster's permonst data.
+    await dyingGame();
+    const bug = killerMonster(PM_GRID_BUG);
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await assert.rejects(
+        done_in_by(bug, STONING, game),
+        UnsupportedEndOfGameError,
+    );
+    assert.equal(game.killer.name, 'grid bug');
+    assert.equal(game.killer.format, KILLED_BY_AN);
 });

@@ -8,6 +8,7 @@ import {
     AC_VALUE,
     BLINDED,
     CONFLICT,
+    DIED,
     HALF_PHDAM,
     INVIS,
     M_AP_NOTHING,
@@ -37,6 +38,7 @@ import { midnight } from './calendar.js';
 import { bot, newsym } from './display.js';
 import { capitalizedMonsterName, monsterPossessive } from './do_name.js';
 import { on_level } from './dungeon.js';
+import { done_in_by, UnsupportedEndOfGameError } from './end.js';
 import { game } from './gstate.js';
 import { nomul, showdamage } from './hack.js';
 import { dist2 } from './hacklib.js';
@@ -930,9 +932,12 @@ async function hitmu(mtmp, mattk, env) {
 
 // C ref: mhitu.c mdamageu() (1901-1927). "mtmp hits you for n points damage".
 //
-// The hero's death is the goal's declared fail-closed edge: done_in_by() owns
-// the killer string, the tombstone and the whole end of game, none of which is
-// ported. js/hack.js losehp() stops on the same boundary.
+// C ref: mhitu.c mdamageu() (1901-1927). "mtmp hits you for n points damage".
+//
+// done_in_by() is ported in js/end.js and wired below. The live pass calls
+// it when uhp drops below 1; the planning pass throws
+// UnsupportedEndOfGameError instead, because done() calls bot() on the
+// module-level game and paranoid_query() reads input.
 async function mdamageu(mtmp, n, state, env) {
     const unsupported = requireMattackuOperation(env, 'unsupported');
     const message = requireMattackuOperation(env, 'message');
@@ -956,8 +961,19 @@ async function mdamageu(mtmp, n, state, env) {
     /* caller might have reduced uhpmax before calling mdamageu() */
     if (state.u.uhp > state.u.uhpmax)
         state.u.uhp = state.u.uhpmax;
-    if (state.u.uhp < 1)
-        unsupported('the hero dying of a monster attack');
+    if (state.u.uhp < 1) {
+        // C ref: mhitu.c:1924-1925. done_in_by() prints "You die...", builds
+        // the killer string, and calls done(). done() calls bot() on the
+        // module-level game and paranoid_query() reads input, so it cannot
+        // run on the planning pass's clone. The planning pass throws here;
+        // the live pass calls done_in_by() and propagates done()'s refusal.
+        if (env.planning) {
+            throw new UnsupportedEndOfGameError(
+                'the hero dying of a monster attack',
+            );
+        }
+        await done_in_by(mtmp, DIED, state);
+    }
 }
 
 // C ref: mhitu.c ranged_attk_available() (2412-2426). "returns TRUE if monster

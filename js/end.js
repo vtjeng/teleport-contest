@@ -9,9 +9,11 @@
 // after a declined query, and really_done() (1130-1590) with its disclosure,
 // tombstone, bones and score file remain refused, in that source order.
 //
-// The one caller this port reaches is hack.c losehp()'s death branch, one
-// statement after urgent_pline("You die..."), so a segment that runs out of
-// input at the query ends on the "Die? [yn] (n)" this file draws.
+// done_in_by() (end.c:185-344) sets up the killer string from a monster
+// that dealt lethal damage and calls done(). losehp()'s death branch in
+// hack.js is the other path into done(), one statement after
+// urgent_pline("You die..."), so a segment that runs out of input at the
+// query ends on the "Die? [yn] (n)" this file draws.
 
 // js/cmd.js imports UnsupportedEndOfGameError back from this file. Both cycle
 // edges are safe because their imported bindings are read only inside
@@ -21,19 +23,47 @@ import { paranoid_query } from './cmd.js';
 import {
     ASCENDED,
     BURNING,
+    G_GENOD,
     GENOCIDED,
     KILLED_BY,
+    KILLED_BY_AN,
     LIFESAVED,
+    M_AP_MONSTER,
+    M_AP_TYPE,
     NO_KILLER_PREFIX,
     PANICKED,
     PARANOID_DIE,
     QUIT,
     STARVING,
+    STONING,
     TRICKED,
     Upolyd,
+    has_ebones,
+    has_mgivenname,
+    ismnum,
+    MGIVENNAME,
+    NON_PM,
 } from './const.js';
 import { bot } from './display.js';
+import { pmname } from './do_name.js';
 import { game } from './gstate.js';
+import { zombie_maker } from './mon.js';
+import { gender, is_vampshifter, type_is_pname } from './mondata.js';
+import {
+    G_UNIQ,
+    PM_GHOST,
+    PM_GHOUL,
+    PM_HIGH_CLERIC,
+    PM_HUMAN,
+    PM_VAMPIRE,
+    PM_WRAITH,
+    S_MUMMY,
+    S_VAMPIRE,
+    S_WRAITH,
+} from './monsters.js';
+import { an, the_unique_pm } from './objnam.js';
+import { canSpotMonster } from './startup_a11y.js';
+import { ttyUrgentPline } from './tty_message.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -74,6 +104,169 @@ function Lifesaved(state) {
 // first output or mutation whenever its supported path can reach the query.
 function ParanoidDie(state) {
     return (state.flags.paranoia_bits & PARANOID_DIE) !== 0;
+}
+
+// C ref: end.c done_in_by() (185-344). Sets up the killer string from the
+// monster that dealt lethal damage and calls done(how). The name is built
+// from the monster's permonst data, with special handling for shapechangers,
+// ghosts, shopkeepers, priests, and minions. monhealthdescr() is behind
+// #if 0 in C (pager.c:140) and returns the empty string; skipped here.
+// mark_synch() is tty_mark_synch(), an fflush() with no JS counterpart.
+//
+// Unported branches that throw UnsupportedEndOfGameError: shopkeepers (need
+// shkname from shk.c) and priests/minions (need m_monnam from do_name.c).
+// Every other branch is ported, including the imitator/shapechanger path,
+// ghosts with given names, the multi_reason fixup, and ugrave_arise.
+export async function done_in_by(mtmp, how, state = game) {
+    const mons = state.mons;
+    const mptr = mtmp.data;
+    const champtr = ismnum(mtmp.cham) ? mons[mtmp.cham] : mptr;
+    // C ref: display.h:129 canspotmon(). Hallucination is youprop.h:116-120:
+    // the intrinsic timeout defeated by either half of Halluc_resistance.
+    const hallucinating = Boolean(
+        state.u?.uprops?.[23]?.intrinsic  // HALLUC = 23
+        && !(state.u?.uprops?.[24]?.intrinsic  // HALLUC_RES = 24
+            || state.u?.uprops?.[24]?.extrinsic),
+    );
+    const distorted = hallucinating && canSpotMonster(mtmp, state);
+    const mimicker = M_AP_TYPE(mtmp) === M_AP_MONSTER;
+    const imitator = mptr !== champtr || mimicker;
+
+    await ttyUrgentPline(
+        how === STONING ? 'You turn to stone...' : 'You die...',
+        state,
+    );
+    // mark_synch() -- no JS counterpart (fflush of buffered screen output).
+
+    let buf = '';
+    state.killer ??= {};
+    state.killer.format = KILLED_BY_AN;
+
+    // "killed by the high priest of Crom" is OK,
+    // "killed by the high priest" alone is not.
+    let effectiveMptr = mptr;
+    if ((mptr.geno & G_UNIQ) !== 0 && !(imitator && !mimicker)
+        && !(mptr === mons[PM_HIGH_CLERIC] && !mtmp.ispriest)) {
+        if (!type_is_pname(mptr))
+            buf += 'the ';
+        state.killer.format = KILLED_BY;
+    }
+    // _the_ <invisible> <distorted> ghost of Dudley
+    if (mptr === mons[PM_GHOST] && has_mgivenname(mtmp)) {
+        buf += 'the ';
+        state.killer.format = KILLED_BY;
+    }
+    // monhealthdescr() is behind #if 0 in C -- returns empty string.
+    if (mtmp.minvis)
+        buf += 'invisible ';
+    if (distorted)
+        buf += 'hallucinogen-distorted ';
+
+    if (imitator) {
+        const realnm = pmname(champtr, gender(mtmp));
+        let fakenm = pmname(mptr, gender(mtmp));
+        const alt = is_vampshifter(mtmp);
+
+        if (mimicker) {
+            // realnm is already correct because champtr===mptr;
+            // set up fake mptr for type_is_pname/the_unique_pm.
+            effectiveMptr = mons[mtmp.mappearance];
+            fakenm = pmname(effectiveMptr, gender(mtmp));
+        } else if (alt && realnm.toLowerCase().includes('vampire')
+                   && fakenm === 'vampire bat') {
+            // Special case: use "vampire in bat form" in preference
+            // to redundant looking "vampire in vampire bat form".
+            fakenm = 'bat';
+        }
+        let shape;
+        if (alt || type_is_pname(effectiveMptr)) {
+            shape = fakenm;
+        } else if (the_unique_pm(effectiveMptr)) {
+            shape = `the ${fakenm}`;
+        } else {
+            shape = an(fakenm);
+        }
+        if (alt) {
+            buf += `${realnm} in ${shape} form`;
+        } else if (mimicker) {
+            buf += `${realnm} disguised as ${shape}`;
+        } else {
+            buf += `${realnm} imitating ${shape}`;
+        }
+        // mptr is not reassigned here; effectiveMptr was used for the
+        // article lookup and is no longer needed.
+    } else if (mptr === mons[PM_GHOST]) {
+        buf += 'ghost';
+        if (has_mgivenname(mtmp))
+            buf += ` of ${MGIVENNAME(mtmp)}`;
+    } else if (mtmp.isshk) {
+        // shkname() and shkname_is_pname() live in shk.c, which is not
+        // ported. No ported monster-creation path sets isshk.
+        throw new UnsupportedEndOfGameError(
+            'done_in_by() for a shopkeeper (needs shkname from shk.c)',
+        );
+    } else if (mtmp.ispriest || mtmp.isminion) {
+        // m_monnam() lives in do_name.c and handles "invisible" and
+        // Hallucination overrides for priests and minions. Not ported.
+        throw new UnsupportedEndOfGameError(
+            'done_in_by() for a priest or minion (needs m_monnam from do_name.c)',
+        );
+    } else {
+        buf += pmname(mptr, gender(mtmp));
+        if (has_mgivenname(mtmp)) {
+            buf += ` ${has_ebones(mtmp) ? 'of' : 'called'} ${MGIVENNAME(mtmp)}`;
+        }
+    }
+
+    state.killer.name = buf;
+
+    // Might need to fix up multi_reason if mtmp caused the reason.
+    // C ref: end.c:287-314. gm.multi_reason points into gm.multireasonbuf
+    // past an "id:reason" prefix. When the killer matches the id, the
+    // reason is truncated at its first space to avoid "Killed by a ghoul,
+    // while paralyzed by a ghoul."
+    if (state.gm?.multi_reason
+        && state.gm.multireasonbuf
+        && state.gm.multi_reason !== state.gm.multireasonbuf) {
+        const colonIndex = state.gm.multireasonbuf.indexOf(':');
+        if (colonIndex > 0) {
+            const idStr = state.gm.multireasonbuf.substring(0, colonIndex);
+            const reasonmid = parseInt(idStr, 10);
+            if (!isNaN(reasonmid) && mtmp.m_id === reasonmid) {
+                const spaceIndex = state.gm.multi_reason.indexOf(' ');
+                if (spaceIndex >= 0) {
+                    state.gm.multi_reason =
+                        state.gm.multi_reason.substring(0, spaceIndex);
+                }
+            }
+        }
+    }
+
+    // Undead transformation: ugrave_arise.
+    // C ref: end.c:326-340.
+    if (mptr.mlet === S_WRAITH)
+        state.u.ugrave_arise = PM_WRAITH;
+    else if (mptr.mlet === S_MUMMY
+        && state.urace?.mummynum !== undefined
+        && state.urace.mummynum !== NON_PM)
+        state.u.ugrave_arise = state.urace.mummynum;
+    else if (zombie_maker(mtmp)
+        && state.urace?.zombienum !== undefined
+        && state.urace.zombienum !== NON_PM)
+        state.u.ugrave_arise = state.urace.zombienum;
+    else if (mptr.mlet === S_VAMPIRE
+        && state.urace?.mnum === PM_HUMAN)
+        state.u.ugrave_arise = PM_VAMPIRE;
+    else if (mptr === mons[PM_GHOUL])
+        state.u.ugrave_arise = PM_GHOUL;
+
+    // This could happen if a high-end vampire kills the hero when ordinary
+    // vampires are genocided; ditto for wraiths.
+    if (state.u.ugrave_arise >= 0  // LOW_PM = 0
+        && (state.mvitals?.[state.u.ugrave_arise]?.mvflags & G_GENOD))
+        state.u.ugrave_arise = NON_PM;
+
+    await done(how, state);
 }
 
 // C ref: end.c done() (1019-1126), "Be careful not to call panic from here!".

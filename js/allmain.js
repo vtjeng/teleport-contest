@@ -132,6 +132,7 @@ import {
     reset_eat,
     UnsupportedHungerTransitionError,
 } from './eat.js';
+import { UnsupportedEndOfGameError } from './end.js';
 import { m_everyturn_effect } from './monmove.js';
 import {
     admitPlannedVisionChange,
@@ -945,6 +946,13 @@ function elapsedTurnPlanningRefusals() {
         // from inside the monster scan, where the previous code raised the
         // injected refusal of the first class above.
         UnsupportedMapMemoryError,
+        // mhitu.c mdamageu() calls done_in_by() when the hero takes lethal
+        // damage from a monster. done() calls bot() on the module-level game
+        // and paranoid_query() reads input, so neither can run on the
+        // planning clone. mdamageu() throws this class during planning;
+        // the live pass calls done_in_by() and propagates done()'s own
+        // UnsupportedEndOfGameError from savelife() or really_done().
+        UnsupportedEndOfGameError,
     ];
 }
 

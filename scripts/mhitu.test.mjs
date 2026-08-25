@@ -109,6 +109,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { mhitm_ad_phys } from '../js/uhitm.js';
+import { UnsupportedEndOfGameError } from '../js/end.js';
 import { UnsupportedSimpleMonsterActionError }
     from '../js/unported_monster_actions.js';
 
@@ -1797,18 +1798,21 @@ test('mhitm_ad_phys adjusts one monster\'s blow on another in silence',
 
 test('mdamageu stops at the hero\'s death and not one hit point above it',
     async () => {
-    // mhitu.c:1922-1925. done_in_by() owns the killer, the tombstone and the
-    // whole end of game; the goal declares this the fail-closed edge.
+    // mhitu.c:1922-1925. done_in_by() sets up the killer and calls done();
+    // done() calls bot() on the module-level game and paranoid_query() reads
+    // input, so it cannot run on the planning pass's clone. The planning pass
+    // throws UnsupportedEndOfGameError here.
     const state = await meleeHero();
     const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0);
     state.u.uhp = 2;
-    const survived = meleeEnv(state, [1]);
+    const survived = meleeEnv(state, [1], { planning: true });
     assert.equal(await mattacku(bug, survived.env), false);
     assert.equal(state.u.uhp, 1);
 
     await assert.rejects(
-        () => mattacku(bug, meleeEnv(state, [1]).env),
-        (error) => error.reason === 'the hero dying of a monster attack',
+        () => mattacku(bug, meleeEnv(state, [1], { planning: true }).env),
+        (error) => error instanceof UnsupportedEndOfGameError
+            && error.message === 'the hero dying of a monster attack',
     );
 
     // mhitu.c:1199-1202 asks the same question before the blow lands, and one
