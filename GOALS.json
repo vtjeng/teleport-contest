@@ -4110,7 +4110,13 @@
         ]
       },
       "detail": "Traced source findings: dosave() is 27 lines at save.c:43-70. dosave0() at save.c:74 serializes via savelev()/savegamestate(). savegamestate() (save.c:265-333) calls 15 save helpers. restgamestate() (restore.c:525-899) deserializes each subsystem. dorestore() opens save, calls restgamestate, runs welcome(FALSE). The JS port cross-segment persistence uses input.storage (InMemoryStorage). moveloop_preamble(resuming=true) is ported; welcome(FALSE) path is not. NethackGame.start() always calls resetGame() -- the restore path must detect saved state in storage. The session exercises dosave0() undoing Friday-13th luck, segment exit, restore with changed datetime (20001013 -> 20001114 full moon), welcome-back greeting. Debt beyond: seeamulet, seearmor, seerings, seeweapon, showgold, terrain. save.c 1191 lines, restore.c 1622 lines -- most is binary I/O the JS port replaces with storage serialization.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "save-prompt-and-segment-exit",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "db7bd9507ea25204eff719b842feda41dcee6b0d",
       "openStanding": {
         "sha": "29fb7e8",
