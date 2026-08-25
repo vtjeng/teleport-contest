@@ -18972,6 +18972,87 @@
         }
       },
       "recordedAt": "2026-08-24T21:02:51.516Z"
+    },
+    {
+      "kind": "review",
+      "head": "c252bb416725df10184d8e612882dde9f84c0945",
+      "auditedRange": "b2d88955c213af711ca9304a0891c282bdbc9f0d..c252bb416725df10184d8e612882dde9f84c0945",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "9b34adacc2ac9ac267834a7acbee98c410238896",
+        "reason": "Single-slice goal (door-unlock-tool) does not approach 500 changed lines of game code or continue across sessions"
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "generation",
+        "monsters",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 15 raw, 15 deduplicated, 14 confirmed, 12 applied, 2 deferred, 1 rejected, 0 unverified. Full correctness audit: 15 raw, 15 deduped, 14 confirmed, 1 rejected. 12 fixed in b44ff5c, 2 deferred (bigrm test infrastructure). Regression test for AUTOUNLOCK_UNTRAP confirmed the defect. Dev score unchanged at 2031/7765 screens, 140946/610816 RNG.",
+      "auditMetrics": {
+        "mode": "full",
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace"
+        ],
+        "wallTimeSeconds": 2100,
+        "agents": 6,
+        "tokens": 617493,
+        "counts": {
+          "raw": 15,
+          "deduplicated": 15,
+          "confirmed": 14,
+          "applied": 12,
+          "deferred": 2,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 7,
+          "clarity": 6,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "file": "js/lock.js",
+            "line": 403,
+            "summary": "AUTOUNLOCK_UNTRAP guard narrower than C source: autounlock && prefix skipped the manual #apply path",
+            "fix": "b44ff5c",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "stop() reason strings for species-gate checks invert the natural reading",
+            "counterEvidence": "Internal developer-facing strings interpolated into TypeError messages. The audit scope says leave prose-only polish to a clarity audit. The stop() strings have no effect on game behavior."
+          }
+        ],
+        "deferrals": [
+          {
+            "id": "bigrm-dimension-test",
+            "summary": "bigrm-12 dimension test reads only C source, never JS map",
+            "category": "tests",
+            "trackedIn": "bigrm-dimension-test"
+          },
+          {
+            "id": "bigrm-percent-tautology",
+            "summary": "percent() test asserts tautologies on literals without calling production code",
+            "category": "tests",
+            "trackedIn": "bigrm-percent-tautology"
+          }
+        ]
+      },
+      "recordedAt": "2026-08-25T04:45:52.884Z"
     }
   ]
 }

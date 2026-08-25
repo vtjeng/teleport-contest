@@ -986,3 +986,5 @@ utc	event	phase	goal	detail
 2026-08-25T02:51:14.198Z	end	select	door-unlock-tool	
 2026-08-25T02:58:21.901Z	start	implement	door-unlock-tool	
 2026-08-25T03:41:53.710Z	end	implement	door-unlock-tool	
+2026-08-25T03:52:01.852Z	start	review	door-unlock-tool	
+2026-08-25T04:46:05.340Z	end	review	door-unlock-tool	
