@@ -238,7 +238,6 @@ preserve PRNG and evaluation order.
   `scripts/audit-worktree.mjs prepare` takes. The recorder stores it as the
   pass's `auditedRange`. Pass `--head` only to restate the range head; it must
   name the same commit.
-- Pass `--manifest <path>` with the path `prepare` printed.
 - A correctness range's base must be at or before the review frontier. The
   recorder refuses a range that starts after it, because recording that pass
   would mark the skipped commits as reviewed. A base older than the frontier

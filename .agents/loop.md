@@ -1,9 +1,9 @@
 # Continuous operation
 
 Only the orchestrator follows this file. It defines the loop, the four agent
-roles, question triage, and phase logging. `.agents/workflow.md` defines the
-terms it uses, and `.agents/review.md` states when a formal review pass is
-due and how to run one.
+roles, and question triage. `.agents/workflow.md` defines the terms it uses,
+and `.agents/review.md` states when a formal review pass is due and how to
+run one.
 
 The orchestrator keeps a goal active while completing small, coherent slices
 that follow the C source, within the limits in `.agents/review.md`, "Review
@@ -122,13 +122,6 @@ every other question by what it blocks:
 
 Entries stay open until the user answers them. Open each progress report
 with the count of open entries and the newest one.
-
-Mark phase boundaries as they happen: `node scripts/phase-log.mjs start
-<phase>` and `end <phase>`, with `--goal <id>`, around selection (`select`),
-each worker run (`implement`), and each formal review pass (`review`).
-`validate` rows are optional but are the only record of validation time.
-`node scripts/phase-log.mjs --summary` totals the phases; commit `PHASES.tsv`
-with the work that ended the phase.
 
 Spawn a subagent only at the step that calls for one, fresh each time.
 Spawn by agent type (such as `slice-worker`), not by copying its

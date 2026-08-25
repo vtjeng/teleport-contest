@@ -26,7 +26,6 @@ import {
   thresholdReached,
   validateAuditedRangeCoverage,
   validateAuditMetrics,
-  validatePassChecklist,
   openDeferrals,
   portDefines,
   portFileDefines,
@@ -1332,94 +1331,6 @@ test('recorded readiness attestations must carry all three statements', () => {
 // text but nothing parsed it. The write succeeded, the field was dropped, and
 // the command then exited non-zero on a ReferenceError, so the failure looked
 // like the record had not been made when it had.
-// The audit manifest holds why a range was reviewed with no covering plan, and
-// cleanup deletes the temporary root it lives in. The pass record is where that
-// survives, so its shape is checked on every load rather than at record time
-// alone.
-test('a pass records what plan stood behind the range it read', () => {
-  const covering = {
-    covers: true,
-    path: '.agents/implementation-checklist.json',
-    commitChecked: 'a'.repeat(40),
-    reason: null,
-  };
-  assert.doesNotThrow(() => validatePassChecklist(covering));
-  // A checklist accepted over an ancestor gap records why it was accepted.
-  assert.doesNotThrow(() => validatePassChecklist({
-    ...covering,
-    reason: 'the 2 path(s) changed between them own no QUALITY.json area',
-  }));
-
-  // The case this field exists for: no checklist covered the range. The stated
-  // exception is what makes that legible, so a blank one is as absent as a
-  // missing key.
-  const exception = {
-    covers: false,
-    path: '.agents/implementation-checklist.json',
-    commitChecked: 'b'.repeat(40),
-    reason: 'the eight ported units landed as separate slices',
-  };
-  assert.doesNotThrow(() => validatePassChecklist(exception));
-  assert.throws(
-    () => validatePassChecklist({ ...exception, reason: '   ' }),
-    /must state why/u,
-  );
-  assert.throws(
-    () => validatePassChecklist({ ...exception, reason: null }),
-    /must state why/u,
-  );
-  // No checklist existed at all, which is a different fact from one that
-  // stopped short, so both names are null rather than absent.
-  assert.doesNotThrow(() => validatePassChecklist({
-    ...exception, path: null, commitChecked: null,
-  }));
-  assert.throws(
-    () => validatePassChecklist({ ...covering, covers: 'yes' }),
-    /covers must be a boolean/u,
-  );
-  assert.throws(
-    () => validatePassChecklist({ ...covering, commitChecked: 7 }),
-    /commitChecked must be a string or null/u,
-  );
-  assert.throws(() => validatePassChecklist([]), /must be an object/u);
-});
-
-test('a stored pass checklist is revalidated with the ledger', () => {
-  const pass = {
-    kind: 'review',
-    head: '2'.repeat(40),
-    level: 'light',
-    outcome: 'no-change',
-    evidence: 'No findings.',
-    recordedAt: '2026-08-12T00:00:00.000Z',
-    auditMetrics: EMPTY_AUDIT_METRICS,
-  };
-  const config = {
-    version: 4,
-    trackingBase: '1'.repeat(40),
-    enforcementBase: '2'.repeat(40),
-    legacyPassCount: 0,
-    thresholds: { reviewCommits: 10, reviewChangedLines: 1000 },
-    deferred: [],
-    areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
-    passes: [pass],
-  };
-
-  // Every pass recorded before the recorder read the prepared manifest carries
-  // none, and the ledger is append-only, so absence stays valid.
-  assert.doesNotThrow(() => validateConfigShape(config));
-  pass.checklist = {
-    covers: false,
-    path: '.agents/implementation-checklist.json',
-    commitChecked: '3'.repeat(40),
-    reason: 'the range predates the checklist that names it',
-  };
-  assert.doesNotThrow(() => validateConfigShape(config));
-  // A bypass whose reason was edited away leaves a pass claiming nothing.
-  pass.checklist = { ...pass.checklist, reason: null };
-  assert.throws(() => validateConfigShape(config), /must state why/u);
-});
-
 test('a pass derives its area labels from the paths the range changed', () => {
     const config = {
         areas: [
@@ -1479,20 +1390,15 @@ test('the recorder command accepts --areas', () => {
     // --areas must clear option validation. Whatever the command then refuses
     // it for, the message must not be the unknown-option one.
     assert.ok(!run(['--areas', 'commands']).includes('unknown option'));
-    // --manifest is the same shape of defect waiting to happen: the code that
-    // reads the prepared manifest sits well past option validation, so a name
-    // missing from the allowed set makes it unreachable.
-    assert.ok(!run(['--manifest', '/tmp/absent/audit-worktree.json'])
-        .includes('unknown option'));
-    // A name the parser really does not take still fails, so the assertions
-    // above are not vacuous.
+    // A name the parser really does not take still fails, so the assertion
+    // above is not vacuous.
     assert.match(run(['--nosuchoption', 'x']), /unknown option: --nosuchoption/u);
 });
 
 test('the recorder accepts every option its pass record can carry', () => {
     for (const name of [
         'range', 'head', 'outcome', 'evidence',
-        'audit-metrics', 'audit-metrics-file', 'areas', 'manifest', 'dry-run',
+        'audit-metrics', 'audit-metrics-file', 'areas', 'dry-run',
     ]) {
         assert.ok(passOptionNames('review').has(name), name);
         assert.ok(passOptionNames('simplification').has(name), name);
