@@ -621,6 +621,97 @@ export function confdir(force_impairment, state = game) {
     }
 }
 
+// C ref: cmd.c show_direction_keys() (4121-4165). Appends a direction-key
+// diagram to `lines` (an array of {text} objects for displayTtyTextWindow).
+// `centerchar` is '.' when help_dir is showing a non-prefix prompt, or ' '
+// when showing prefix help. `nodiag` is true for grid bugs.
+function show_direction_keys(lines, centerchar, nodiag, state = game) {
+    const model = commandBindings(state);
+    // C ref: cmd_from_func(do_move_*) returns the key currently bound to each
+    // movement command; visctrl() renders control characters as ^X.
+    const k = (cmd) => visctrl(keyForCommand(model, cmd));
+    if (!centerchar) centerchar = ' ';
+
+    if (nodiag) {
+        lines.push({ text: `             ${k('movenorth')}   ` });
+        lines.push({ text: '             |   ' });
+        lines.push({ text:
+            `          ${k('movewest')}- ${centerchar} -${k('moveeast')}` });
+        lines.push({ text: '             |   ' });
+        lines.push({ text: `             ${k('movesouth')}   ` });
+    } else {
+        lines.push({ text:
+            `          ${k('movenorthwest')}  ${k('movenorth')}  ${k('movenortheast')}` });
+        lines.push({ text: '           \\ | / ' });
+        lines.push({ text:
+            `          ${k('movewest')}- ${centerchar} -${k('moveeast')}` });
+        lines.push({ text: '           / | \\ ' });
+        lines.push({ text:
+            `          ${k('movesouthwest')}  ${k('movesouth')}  ${k('movesoutheast')}` });
+    }
+}
+
+// C ref: cmd.c help_dir() (4170-4296). Displays direction help when cmdassist
+// is enabled and the player types an invalid direction key. Called from
+// getdir() at cmd.c:4101.
+//
+// The #if 0 block (lines 4195-4227) is dead code in the C source; skipped.
+// The dowhatdoes_core() ctrl-key suggestion branch (lines 4243-4261) is
+// unreachable when sym == '\0' because letter('\0') is false; left as a
+// deferred stub.
+// The help_requested retry path (goto retry at cmd.c:4106) is not exercised
+// by any witness session; deferred.
+async function help_dir(sym, spkey, msg, state = game) {
+    const model = commandBindings(state);
+    const prefixhandling = (spkey !== model.specialKeys.escape);
+    // nhUse(prefixhandling) -- the #if 0 block's prefix tests are dead code.
+
+    const lines = [];
+
+    // When msg is non-null and buf is empty (no prefix handling wrote to it),
+    // show "cmdassist: <msg>".
+    if (msg) {
+        lines.push({ text: `cmdassist: ${msg}` });
+        lines.push({ text: '' });
+    }
+
+    // The dowhatdoes_core() ctrl-key suggestion is unreachable when sym is
+    // '\0' (null byte) because C's letter() returns false for it. Both witness
+    // sessions pass sym='\0'. Stub the branch.
+    if (!prefixhandling && sym !== 0
+        && ((sym >= 0x41 && sym <= 0x5A)     // A-Z
+            || (sym >= 0x61 && sym <= 0x7A)  // a-z
+            || sym === 0x40                  // @
+            || sym === 0x5B)) {              // [
+        // dowhatdoes_core() suggestion -- deferred.
+    }
+
+    const nodiag = NODIAG(state.u.umonnum);
+    lines.push({ text:
+        `Valid direction keys${prefixhandling ? ' to ' : ''}${prefixhandling ? 'do that' : ''}${nodiag ? ' in your current form' : ''} are:` });
+    show_direction_keys(lines, !prefixhandling ? '.' : ' ', nodiag, state);
+
+    if (!prefixhandling) {
+        lines.push({ text: '' });
+        lines.push({ text: '          <  up' });
+        lines.push({ text: '          >  down' });
+        // C: int selfi = gc.Cmd.num_pad ? NHKF_GETDIR_SELF2 : NHKF_GETDIR_SELF
+        const selfi = state.iflags.num_pad
+            ? 'getdir.self2' : 'getdir.self';
+        lines.push({ text:
+            `       ${visctrl(model.specialKeys[selfi]).padStart(4)}  direct at yourself` });
+    }
+
+    if (msg) {
+        lines.push({ text: '' });
+        lines.push({ text:
+            '(Suppress this message with !cmdassist in config file.)' });
+    }
+
+    await displayTtyTextWindow(state, lines);
+    return true;
+}
+
 // C ref: cmd.c get_adjacent_loc() (3929-3953), translated whole. getdir()
 // supplies the direction; this turns it into a square and checks it. Callers
 // pass <u.ux, u.uy> as the origin, so `cc` names one of the eight neighbours,
@@ -650,10 +741,11 @@ export async function get_adjacent_loc(prompt, emsg, x, y, cc, state = game) {
 // C ref: cmd.c getdir() (3958-4098). Returns 1 when u.dx/u.dy/u.dz name a
 // direction and 0 otherwise, exactly as C does.
 //
-// Four inputs stop here. The simulated-mouse key needs getpos(); '^R' needs
-// docrt_flags() and the retry loop above got_dirsym; an invalid direction key
-// reaches help_dir(), which builds an NHW_TEXT window whenever cmdassist is
-// set, which it is by default; and confdir() stops for an impaired hero.
+// Three inputs stop here. The simulated-mouse key needs getpos(); '^R' needs
+// docrt_flags() and the retry loop above got_dirsym; and confdir() stops for
+// an impaired hero. help_dir() is ported and displays the direction-key window
+// when cmdassist is set (the default). The help_requested retry path
+// (cmd.c:4106 goto retry) is deferred.
 //
 // Two of C's own inputs cannot arrive at all: gi.in_doagain and
 // readchar_queue are always empty, and iflags.debug_fuzzer is never set.
@@ -708,18 +800,31 @@ export async function getdir(s, state = game) {
     } else {
         const is_mov = movecmd(dirsym, MV_ANY, state);
         if (!is_mov && !u.dz) {
+            let did_help = false;
             if (!quitchars.includes(String.fromCharCode(dirsym))) {
                 const help_requested = dirsym === spkeys['getdir.help'];
                 if (help_requested || state.iflags.cmdassist) {
                     // help_dir()'s `!viawindow` early return is inside an
                     // `#if 0` block, so with cmdassist set it always opens a
                     // window and always answers TRUE.
-                    throw new UnsupportedDirectionBoundaryError(
-                        'help_dir() opens the direction-key window',
+                    did_help = await help_dir(
+                        (s && s[0] === '^') ? dirsym : 0,
+                        spkeys.escape,
+                        help_requested ? null : 'Invalid direction key!',
+                        state,
                     );
+                    if (help_requested) {
+                        // The C source jumps to `retry:` (cmd.c:4106),
+                        // re-prompting for a direction. Not exercised by any
+                        // witness session; deferred.
+                        throw new UnsupportedDirectionBoundaryError(
+                            'help_requested retry path re-prompts for direction',
+                        );
+                    }
                 }
-                // did_help stayed FALSE, which only !cmdassist can reach.
-                await ttyPline('What a strange direction!', state);
+                if (!did_help) {
+                    await ttyPline('What a strange direction!', state);
+                }
             }
             return 0;
         }

@@ -237,24 +237,36 @@ test("'>' and '<' answer the prompt with u.dz alone", async () => {
     }
 });
 
-test('an invalid direction key opens help_dir() while cmdassist is set',
-    async () => {
+test('an invalid direction key opens the help_dir() text window while '
+    + 'cmdassist is set', async () => {
     // help_dir()'s pline-only path sits inside an `#if 0` block, so with
     // cmdassist -- which optlist.h:233 defaults On -- it always builds an
-    // NHW_TEXT window listing the direction keys.
-    const { boundary, replay } = await rideWith(promptSegment(), STRANGE_KEY);
-    assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
-    assert.match(boundary.message, /help_dir\(\)/u);
-    // The prompt screen was painted and the answering key consumed, so the
-    // segment keeps every screen up to and including the open prompt.
-    assert.equal(replay.getScreens().length, `.${RIDE_COMMAND}`.length + 1);
+    // NHW_TEXT window listing the direction keys. getdir() returns 0 and no
+    // boundary is thrown; the segment ends when input runs out during the
+    // text window's --More-- prompt.
+    const { boundary } = await rideWith(promptSegment(), STRANGE_KEY);
+    assert.equal(boundary, null);
+    // The live display shows the help_dir() text window. Row 0 is the
+    // "cmdassist: Invalid direction key!" header and row 2 lists the valid
+    // direction keys.
+    const display = game.nhDisplay;
+    const row = (r) => display.grid[r].map(({ ch }) => ch).join('').trimEnd();
+    assert.equal(row(0), 'cmdassist: Invalid direction key!');
+    assert.equal(row(2), 'Valid direction keys are:');
+    // The direction key diagram uses the default vi keys (y k u / h . l /
+    // b j n). Row 3 shows the top row of the 8-direction diagram.
+    assert.match(row(3), /y\s+k\s+u/u);
 
     // '?' is gc.Cmd.spkeys[NHKF_GETDIR_HELP], and `help_requested ||
     // iflags.cmdassist` reaches help_dir() through either operand, so turning
-    // cmdassist off leaves '?' asking for the window anyway.
+    // cmdassist off leaves '?' asking for the window anyway. The retry path
+    // (goto retry at cmd.c:4106) is deferred, so the boundary fires after the
+    // text window's --More-- is dismissed.
     const noAssist = segmentFor(`${RIDE_COMMAND}${STRANGE_KEY}.`);
-    const asked = await rideWith(noAssist, '?');
-    assert.match(asked.boundary?.message ?? '', /help_dir\(\)/u);
+    // Provide a space to dismiss the --More-- prompt so the retry path runs.
+    const asked = await rideWith(noAssist, '? ');
+    assert.equal(asked.boundary?.name, 'UnsupportedHeroCommandBoundaryError');
+    assert.match(asked.boundary.message, /help_requested retry path/u);
 });
 
 test('without cmdassist an invalid direction key prints the strange-direction '
@@ -312,8 +324,11 @@ test('moving a gc.Cmd.spkeys[] getdir key moves the arm that reads it',
 
         // And the key the bind moved the arm onto takes it instead. The two
         // self keys run through to mount_steed()'s `!mtmp` guard; the other
-        // two stop in an arm this port has not reached.
-        const { boundary } = await rideWith(segment, 'a');
+        // two stop in an arm this port has not reached. When getdir.help is
+        // rebound onto 'a', help_dir() displays a text window needing a key
+        // to dismiss the --More-- before the deferred retry path throws.
+        const answer = spkey === 'getdir.help' ? 'a ' : 'a';
+        const { boundary } = await rideWith(segment, answer);
         if (spkey === 'getdir.self' || spkey === 'getdir.self2') {
             assert.equal(boundary, null, spkey);
             assert.equal(topLine(), 'I see nobody there.', spkey);
@@ -323,7 +338,10 @@ test('moving a gc.Cmd.spkeys[] getdir key moves the arm that reads it',
             );
             assert.match(
                 boundary.message,
-                spkey === 'getdir.help' ? /help_dir\(\)/u
+                // With getdir.help rebound onto 'a', pressing 'a' triggers
+                // help_requested. help_dir() runs but the retry path is
+                // deferred, so the boundary fires there.
+                spkey === 'getdir.help' ? /help_requested retry path/u
                     : /simulated mouse click/u,
                 spkey,
             );

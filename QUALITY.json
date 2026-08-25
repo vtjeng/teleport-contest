@@ -4668,6 +4668,26 @@
       "status": "open",
       "from": "f555a7f5fd1812f48da909b7cd8f83bf2ae69fe7",
       "detail": "After rndmonst_adj selects a monster on higher levels (e.g. bigrm level 12), assertSupportedSpecies throws because most high-level monsters are not in INITIAL_LEVEL_MONSTERS. This skips the remaining makemon initialization (~6 RNG calls per monster), causing a smaller downstream divergence. Fixing requires expanding the supported species set for special-level monster creation."
+    },
+    {
+      "id": "help-requested-retry-path",
+      "area": null,
+      "category": "scope",
+      "effort": "small",
+      "status": "open",
+      "from": "d8b9735dee8e0233b47ecc3375a546965b34def0",
+      "detail": "getdir() help_requested goto retry re-prompts for a direction (cmd.c:4106). help_dir() displays the text window correctly; only the re-prompt after dismissal is unported.",
+      "blockedOn": "getdir"
+    },
+    {
+      "id": "help-dir-ctrl-key-suggestion",
+      "area": null,
+      "category": "scope",
+      "effort": "small",
+      "status": "open",
+      "from": "d8b9735dee8e0233b47ecc3375a546965b34def0",
+      "detail": "help_dir() dowhatdoes_core() ctrl-key suggestion (cmd.c:4243-4261). Unreachable when sym is the null byte because C letter() returns false. Both witness sessions pass sym=0. Exercised only when the player types a letter at a prefix-key direction prompt.",
+      "blockedOn": "dowhatdoes_core"
     }
   ],
   "areas": [
