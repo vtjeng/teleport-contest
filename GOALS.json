@@ -3579,7 +3579,7 @@
     },
     {
       "id": "big-room-level-arrival",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported level change: goto_level() arriving in the big room",
       "upstreamOwners": [],
       "forecast": {
@@ -3609,8 +3609,11 @@
         "screens": 1998,
         "rng": 133717
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "621cab0b787c500a48b5144d74aeab5ef926a8c6",
+      "delivered": {
+        "screens": 2,
+        "rng": 385
+      }
     }
   ]
 }
