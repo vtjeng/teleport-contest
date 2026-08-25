@@ -3886,6 +3886,48 @@
         "screens": 0,
         "rng": 2611
       }
+    },
+    {
+      "id": "help-dir-direction-window",
+      "status": "open",
+      "boundary": "unsupported hero command: an unported branch of this command: unsupported direction prompt: help_dir() opens the direction-key window",
+      "upstreamOwners": [
+        "cmd.c"
+      ],
+      "forecast": {
+        "steps": 15,
+        "basis": "Capped look-ahead at d8b9735: seed0102 has 10 raw steps after help_dir stop, no second behavior in stretch (info displays only), cap at 10. seed5002 has 49 raw steps, capped at 5 by MAGIC_MARKER arm of doapply() at step 229 (dowrite in write.c). Sum: 15.",
+        "sessions": [
+          "seed0102",
+          "seed5002"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0102",
+            "evidence": "At step 15, byte + arrives during getdir() direction prompt (cmd.c:4095). + is not a valid direction, so getdir() calls help_dir() (cmd.c:4101) with msg \"Invalid direction key!\" because cmdassist is enabled. help_dir() (cmd.c:4171) opens a NHW_TEXT window showing direction keys. The port throws. After help_dir, 10 steps of info displays (discoveries, attributes, staircase) with no second behavior."
+          },
+          {
+            "session": "seed5002",
+            "evidence": "At step 224, byte r arrives during getdir() direction prompt. Same path: getdir() calls help_dir(). After help_dir, 4 cmdassist retries (steps 224-227), then apply command at step 228 (ported), then MAGIC_MARKER arm at step 229 (dowrite, unported). Capped at 5 steps."
+          }
+        ]
+      },
+      "detail": "help_dir() in cmd.c:4171-4282 displays direction help when cmdassist is enabled and the player types an invalid direction key. Called from getdir() at cmd.c:4101. It creates an NHW_TEXT window listing valid direction keys. The port currently throws UnsupportedDirectionPromptError. Porting requires implementing the help_dir window display through the terminal interface.",
+      "slices": [
+        {
+          "name": "port help_dir and show_direction_keys from cmd.c",
+          "status": "closed",
+          "closedBy": "e58205e2bcf22a0c1e3d5e93d387fc21346ebbfe"
+        }
+      ],
+      "openedAt": "d8b9735dee8e0233b47ecc3375a546965b34def0",
+      "openStanding": {
+        "sha": "c49d3c0",
+        "screens": 2033,
+        "rng": 143560
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

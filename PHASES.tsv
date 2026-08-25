@@ -997,3 +997,7 @@ utc	event	phase	goal	detail
 2026-08-25T06:50:33.894Z	end	select	close-command	
 2026-08-25T06:50:41.290Z	start	implement	close-command	
 2026-08-25T07:23:29.119Z	end	implement	close-command	
+2026-08-25T07:29:33.261Z	start	select	help-dir-direction-window	
+2026-08-25T07:33:08.244Z	end	select	help-dir-direction-window	
+2026-08-25T07:33:15.203Z	start	implement	help-dir-direction-window	
+2026-08-25T08:00:35.638Z	end	implement	help-dir-direction-window	
