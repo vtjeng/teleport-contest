@@ -3889,7 +3889,7 @@
     },
     {
       "id": "help-dir-direction-window",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero command: an unported branch of this command: unsupported direction prompt: help_dir() opens the direction-key window",
       "upstreamOwners": [
         "cmd.c"
@@ -3926,8 +3926,11 @@
         "screens": 2033,
         "rng": 143560
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "9d456677d0ccfcad6b6db2ae12ed669255635e36",
+      "delivered": {
+        "screens": 16,
+        "rng": 37
+      }
     }
   ]
 }
