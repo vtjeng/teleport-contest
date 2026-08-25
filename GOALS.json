@@ -3687,7 +3687,7 @@
     },
     {
       "id": "close-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero command: the repeated-command boundary refuses the close command",
       "upstreamOwners": [
         "close.c"
@@ -3706,15 +3706,24 @@
         ]
       },
       "detail": "The close command (bound to 'c') lets the hero close an open door. It prompts for a direction and closes the door in that direction. close.c doclosef() handles the logic.\n\nseed5002 stops at step 223/273. After the close command finishes (direction prompt and cmdassist retries), the user types an apply command (ported), then selects a magic marker — doapply()'s MAGIC_MARKER arm throws UnsupportedApplyError.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "port-doclose",
+          "status": "closed",
+          "closedBy": "c49d3c0e0accd588fc10b158ca2fcb68218dd1a4"
+        }
+      ],
       "openedAt": "2b5cc715fae825eb666f0fd5593af4eb99a9af37",
       "openStanding": {
         "sha": "794d6db",
         "screens": 2032,
         "rng": 143560
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "c49d3c0e0accd588fc10b158ca2fcb68218dd1a4",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      }
     },
     {
       "id": "loot-command",

@@ -994,3 +994,6 @@ utc	event	phase	goal	detail
 2026-08-25T05:51:40.681Z	start	implement	rndmonst-adj-divergence	
 2026-08-25T06:38:19.247Z	end	implement	rndmonst-adj-divergence	
 2026-08-25T06:44:10.655Z	start	select	close-command	
+2026-08-25T06:50:33.894Z	end	select	close-command	
+2026-08-25T06:50:41.290Z	start	implement	close-command	
+2026-08-25T07:23:29.119Z	end	implement	close-command	
