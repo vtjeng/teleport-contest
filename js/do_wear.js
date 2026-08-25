@@ -38,6 +38,7 @@ import {
     ECMD_TIME,
     FACE,
     FINGER,
+    FLYING,
     FOOT,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
@@ -51,6 +52,9 @@ import {
     LEG,
     PARANOID_REMOVE,
     RIGHT_RING,
+    SLEEPY,
+    STRANGLED,
+    TIMEOUT,
     TT_BEARTRAP,
     TT_BURIEDBALL,
     TT_INFLOOR,
@@ -88,11 +92,13 @@ import { nomul, unmul } from './hack.js';
 import { getobj, prinv, update_inventory } from './invent.js';
 import { racial_exception } from './makemon_create.js';
 import {
+    can_be_strangled,
     cantweararm,
     cvt_prop_to_mseenres,
     has_head,
     has_horns,
     humanoid,
+    is_flyer,
     monstunseesu,
     nohands,
     nolimbs,
@@ -120,7 +126,18 @@ import {
 import {
     ALCHEMY_SMOCK,
     AMULET_CLASS,
+    AMULET_OF_CHANGE,
+    AMULET_OF_ESP,
+    AMULET_OF_FLYING,
+    AMULET_OF_GUARDING,
+    AMULET_OF_LIFE_SAVING,
+    AMULET_OF_MAGICAL_BREATHING,
+    AMULET_OF_REFLECTION,
+    AMULET_OF_RESTFUL_SLEEP,
+    AMULET_OF_STRANGULATION,
     AMULET_OF_UNCHANGING,
+    AMULET_OF_YENDOR,
+    AMULET_VERSUS_POISON,
     ARMOR_CLASS,
     ARM_SHIELD,
     ARM_SHIRT,
@@ -135,6 +152,7 @@ import {
     DWARVISH_CLOAK,
     DWARVISH_IRON_HELM,
     ELVEN_LEATHER_HELM,
+    FAKE_AMULET_OF_YENDOR,
     FEDORA,
     HAWAIIAN_SHIRT,
     HELMET,
@@ -198,7 +216,8 @@ import {
     Tobjnam,
     xnameFresh,
 } from './objnam.js';
-import { body_part } from './polyself.js';
+import { body_part, float_vs_flight } from './polyself.js';
+import { rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { Glib, welded } from './wield.js';
@@ -555,11 +574,108 @@ export class UnsupportedAccessoryOnError extends Error {
     }
 }
 
-// C ref: do_wear.c Amulet_on() (1346-1437). Fail-closed entry point; the
-// amulet half of accessory_or_armor_on() dispatches here once the amulet
-// passes the "already wearing" check.
-function Amulet_on(/* obj, state */) {
-    throw new UnsupportedAccessoryOnError('Amulet_on()');
+// C ref: do_wear.c Amulet_on() (963-1087). The amulet half of
+// accessory_or_armor_on() dispatches here after the "already wearing" check.
+// Calls setworn() itself and decides when to call on_msg().
+//
+// remove_worn_item() at the top unwields the amulet when it is wielded or
+// quivered; in the common case (owornmask 0) it returns immediately.
+async function Amulet_on(obj, state = game) {
+    let on_msg_done = false;
+
+    // C ref: steal.c remove_worn_item() (213-290). When the amulet has no
+    // worn mask it was never in a worn slot, so nothing to remove.
+    if (obj.owornmask) {
+        // The amulet is wielded/alt-wielded/quivered. The full
+        // remove_worn_item path is not ported; throw fail-closed.
+        throw new UnsupportedAccessoryOnError(
+            'remove_worn_item() for wielded amulet',
+        );
+    }
+
+    setworn(obj, W_AMUL, setwornEnv(state));
+
+    switch (state.uamul.otyp) {
+    case AMULET_OF_ESP:
+    case AMULET_OF_LIFE_SAVING:
+    case AMULET_VERSUS_POISON:
+    case AMULET_OF_REFLECTION:
+    case FAKE_AMULET_OF_YENDOR:
+        break;
+    case AMULET_OF_MAGICAL_BREATHING:
+        throw new UnsupportedAccessoryOnError(
+            'AMULET_OF_MAGICAL_BREATHING (needs region_danger integration)',
+        );
+    case AMULET_OF_UNCHANGING:
+        throw new UnsupportedAccessoryOnError(
+            'AMULET_OF_UNCHANGING (needs make_slimed)',
+        );
+    case AMULET_OF_CHANGE:
+        throw new UnsupportedAccessoryOnError(
+            'AMULET_OF_CHANGE (needs change_sex, livelog_newform, useup, trycall)',
+        );
+    case AMULET_OF_STRANGULATION:
+        /* note: might already be Strangled (via #wizintrinsic) */
+        if (can_be_strangled(state.youmonst, state)
+            && !state.u.uprops[STRANGLED].intrinsic) {
+            discover_object(AMULET_OF_STRANGULATION, true, true, true, state);
+            state.u.uprops[STRANGLED].intrinsic = 6;
+            state.disp.botl = true;
+            await on_msg(state.uamul, state);
+            on_msg_done = true;
+            await ttyPline('It constricts your throat!', state);
+        }
+        break;
+    case AMULET_OF_RESTFUL_SLEEP: {
+        const newnap = rnd(98) + 2;
+        const oldnap = state.u.uprops[SLEEPY].intrinsic & TIMEOUT;
+
+        if (newnap < oldnap || oldnap === 0)
+            /* avoid clobbering FROMOUTSIDE bit, which might have
+               gotten set by previously eating one of these amulets */
+            state.u.uprops[SLEEPY].intrinsic
+                = (state.u.uprops[SLEEPY].intrinsic & ~TIMEOUT) | newnap;
+        break;
+    }
+    case AMULET_OF_FLYING: {
+        /* setworn() has already set extrinsic flying */
+        float_vs_flight(state); /* block flying if levitating */
+
+        // youprop.h:253 Flying macro
+        const flyProp = state.u.uprops[FLYING];
+        const heroFlying = () => Boolean(
+            (flyProp.intrinsic || flyProp.extrinsic
+             || (state.u.usteed && is_flyer(state.u.usteed.data)))
+            && !flyProp.blocked,
+        );
+
+        if (heroFlying()) {
+            /* to determine whether this flight is new we temporarily
+               remove the amulet's contribution */
+            flyProp.extrinsic &= ~W_AMUL;
+            const already_flying = heroFlying();
+            flyProp.extrinsic |= W_AMUL;
+
+            if (!already_flying) {
+                discover_object(AMULET_OF_FLYING, true, true, true, state);
+                await on_msg(state.uamul, state);
+                on_msg_done = true;
+                state.disp.botl = true; /* status: 'Fly' On */
+                await ttyPline('You are now in flight.', state);
+            }
+        }
+        break;
+    }
+    case AMULET_OF_GUARDING:
+        discover_object(AMULET_OF_GUARDING, true, true, true, state);
+        find_ac(state);
+        break;
+    case AMULET_OF_YENDOR:
+        break;
+    }
+
+    if (!on_msg_done)
+        await on_msg(state.uamul, state);
 }
 
 // C ref: do_wear.c Blindf_on() (1495-1535). Fail-closed entry point; the
@@ -2060,7 +2176,7 @@ async function accessory_or_armor_on(obj, state = game) {
                 await on_msg(obj, state);
         } else if (amulet) {
             /* setworn() and on_msg() handled by Amulet_on() */
-            Amulet_on(obj, state);
+            await Amulet_on(obj, state);
         } else if (eyewear) {
             /* setworn() and on_msg() handled by Blindf_on() */
             Blindf_on(obj, state);
@@ -2202,6 +2318,7 @@ export async function dotakeoff(state = game) {
 }
 
 export const _doWearInternals = Object.freeze({
+    Amulet_on,
     Armor_off,
     Armor_on,
     Boots_on,

@@ -25,6 +25,7 @@ import {
     M_SEEN_POISON,
     M_SEEN_REFL,
     M_SEEN_SLEEP,
+    MAGICAL_BREATHING,
     MALE,
     MS_SILENT,
     NATTK,
@@ -39,6 +40,7 @@ import {
     SLEEP_RES,
     Upolyd,
     W_ACCESSORY,
+    W_AMUL,
     W_ARMC,
     W_ARMOR,
     W_WEP,
@@ -52,7 +54,7 @@ import { has_ceiling } from './dungeon.js';
 import { game } from './gstate.js';
 import { dist2, highc } from './hacklib.js';
 import * as M from './monsters.js';
-import { ALCHEMY_SMOCK } from './objects.js';
+import { ALCHEMY_SMOCK, AMULET_OF_MAGICAL_BREATHING } from './objects.js';
 import { rn2, rnd } from './rng.js';
 import { genders, roles } from './roles.js';
 import { is_fshk } from './shk.js';
@@ -61,6 +63,7 @@ import { is_fshk } from './shk.js';
 // already do, and neither side uses the other's exports at module scope.
 import { m_canseeu } from './vision.js';
 import { mon_has_amulet } from './wizard.js';
+import { which_armor } from './worn.js';
 
 function hasAttackType(species, attackType) {
     return Boolean(species?.mattk?.some(
@@ -1187,11 +1190,34 @@ export function dead_species(m_idx, egg = false, env = {}) {
 //   monstseesu             change monster or hero state.  monstunseesu() is
 //                           ported below rather than here, because it does
 //                           change monster state; setworn() calls it.
-//   can_blow, can_chant, can_be_strangled
-//                           their hero branches read Strangled and Breathless,
-//                           which the port does not model yet
+//   can_blow, can_chant    their hero branches read Strangled, which callers
+//                           of the port do not exercise yet
 //   can_track               needs u_wield_art()
 //   name_to_monclass        needs def_monsyms[], makesingular(), strstri()
+
+// C ref: mondata.c can_be_strangled() (591-619). Strangulation is loss of
+// blood flow to the brain from neck constriction: headless creatures are immune
+// (no neck), and mindless creatures that do not breathe are also immune.
+export function can_be_strangled(mon, state = game) {
+    if (!has_head(mon.data))
+        return false;
+
+    let nobrainer, nonbreathing;
+    if (mon === state.youmonst) {
+        nobrainer = mindless(state.youmonst.data);
+        // youprop.h:276 Breathless
+        const mb = state.u.uprops[MAGICAL_BREATHING];
+        nonbreathing = Boolean(mb.intrinsic || mb.extrinsic
+                               || breathless(state.youmonst.data));
+    } else {
+        nobrainer = mindless(mon.data);
+        const mamul = which_armor(mon, W_AMUL, state);
+        nonbreathing = breathless(mon.data)
+            || (mamul != null
+                && mamul.otyp === AMULET_OF_MAGICAL_BREATHING);
+    }
+    return !nobrainer || !nonbreathing;
+}
 
 // C ref: mondata.c levl_follower() (1209-1226). Answers whether a monster
 // beside the hero accompanies her to the next level; dog.c keepdogs() reads it
