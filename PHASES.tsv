@@ -980,3 +980,5 @@ utc	event	phase	goal	detail
 2026-08-25T01:22:23.011Z	end	implement	engraving-read-on-movement	
 2026-08-25T01:47:15.742Z	start	select	starting-little-dog-actions	
 2026-08-25T01:47:33.647Z	end	select	starting-little-dog-actions	
+2026-08-25T02:02:42.872Z	start	implement	starting-little-dog-actions	
+2026-08-25T02:34:45.957Z	end	implement	starting-little-dog-actions	
