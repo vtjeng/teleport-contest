@@ -1,14 +1,8 @@
 # Source-faithful port roadmap
 
 This file describes the group of game systems the current goals belong to.
-It holds no goal state. `GOALS.json` records the goal in progress and the goals
-queued after it; read it with `node scripts/goal-log.mjs --current` and write
-it only through that script, which records the look-ahead forecast at open
-and computes delivered figures from `SCORE.tsv` at close.
-`docs/goal-history.md` holds what the closed goals carried over; its
-falsified predictions and measured overstatements are recorded so nobody
-re-derives them. Deferred findings live in `QUALITY.json`, read with
-`npm run quality -- deferrals`.
+Goal state lives where `.agents/selection.md`, "Where goal state lives,"
+describes.
 
 ## Accessories and equipment
 

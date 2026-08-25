@@ -53,8 +53,7 @@ For every coherent implementation chunk:
 3. Commit the implementation, then run `npm run quality` to display the
    scheduling dashboard.
 4. Collect score and validation evidence. The slice worker reports evidence;
-   the orchestrator appends the `SCORE.tsv` row as `.agents/scoring.md`
-   states.
+   the orchestrator appends the `SCORE.tsv` row.
 
 A final integration runner, fixture, or test may remain uncommitted while it is
 changing. Commit completed production behavior and focused tests as soon as

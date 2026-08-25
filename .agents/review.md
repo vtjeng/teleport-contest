@@ -16,8 +16,6 @@ below.
 `Audit-fix-for:` commit trailer.
 
 An **evidence snapshot** is one `SCORE.tsv` row at a full commit SHA.
-Agents append `slice`, `window`, `goal`, `holdout`, and `publish` rows
-following `.agents/scoring.md`, "Score evidence".
 
 `QUALITY.json` records completed correctness and simplification passes and
 their ranges. A **review frontier** is the latest commit a recorded
@@ -107,11 +105,6 @@ A change crosses quality areas only when it changes state ownership or
 persistence, PRNG or evaluation order, lifecycle ownership, an input boundary,
 or another shared behavioral interface. Imports, exports, call sites, tests,
 and wiring that consume an existing contract do not cross areas by themselves.
-
-Apply the per-chunk workflow in `.agents/workflow.md` to every commit of an
-open slice. Once the game executes the newly ported behavior during normal
-play, run the fresh differentials in `.agents/validation.md`, "Fresh
-differentials".
 
 ### Which finders and other passes to run
 

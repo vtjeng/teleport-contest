@@ -1,7 +1,6 @@
 # What the closed goals have carried over
 
-Commit 600113b moved this analysis out of ROADMAP.md on 2026-08-01, when
-goal state moved to GOALS.json. This is analysis for goal selection, read
+This is analysis for goal selection, read
 when choosing work, and it is on no mandatory reading path. The falsified
 predictions and measured overstatements recorded here are what
 later entries in this file depend on: do not re-derive them.

@@ -132,6 +132,4 @@ Five properties of the measuring tools commonly cause wrong conclusions.
 ## Scoring
 
 A scoring run writes no `SCORE.tsv` row, so `npm run checkpoint` leaves the tree
-as it found it. `.agents/scoring.md` covers how the orchestrator records
-`SCORE.tsv` event rows and what an authorized holdout evaluation triggers. Never
-run the sealed holdout merely to produce an estimate.
+as it found it.
