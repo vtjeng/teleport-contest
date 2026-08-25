@@ -3647,7 +3647,7 @@
     },
     {
       "id": "door-unlock-tool",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero move: door unlocking tool",
       "upstreamOwners": [
         "lock.c"
@@ -3679,8 +3679,11 @@
         "screens": 2022,
         "rng": 138368
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "200338d72c6b39d2edd7ff63f86785e820b56a9f",
+      "delivered": {
+        "screens": 9,
+        "rng": 2578
+      }
     },
     {
       "id": "close-command",
