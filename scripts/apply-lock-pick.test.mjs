@@ -175,14 +175,13 @@ test('the doormask switch reads the whole mask, not one bit', async () => {
     // further bit lands on `default`. No generator writes D_ISOPEN | D_TRAPPED
     // -- mklev.c dosdoor() adds D_TRAPPED only to the two closed masks -- so
     // the state is built here to hold the equality test in place.
+    // D_ISOPEN | D_TRAPPED is 0x12, which does not match D_NODOOR, D_ISOPEN,
+    // or D_BROKEN, so it hits the default arm and prompts "Lock it?".
+    // Answering 'q' cancels with PICKLOCK_DID_NOTHING (mapped to ECMD_OK).
     await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
     doorNorth().flags = D_ISOPEN | D_TRAPPED;
-    answer(LOCK_PICK_SLOT, 'k');
-    await assert.rejects(
-        () => doapply(game),
-        (error) => error instanceof UnsupportedLockError
-            && error.branch === 'locking or unlocking a door',
-    );
+    answer(LOCK_PICK_SLOT, 'k', 'q');
+    assert.equal(await doapply(game), ECMD_OK);
 });
 
 test('a broken door reports itself and still spends the turn', async () => {
@@ -196,20 +195,15 @@ test('a broken door reports itself and still spends the turn', async () => {
     assert.equal(pendingTopLine(), 'This door is broken.');
 });
 
-test('a closed or locked door reaches the unported unlock attempt', async () => {
-    // lock.c:604-647, the arm that asks "Unlock it?" and starts the picklock()
-    // occupation. Both masks that reach it are ordinary output of mklev.c
-    // dosdoor().
+test('a closed or locked door prompts to lock or unlock', async () => {
+    // lock.c:604-647, the arm that asks "Lock it?" or "Unlock it?" and starts
+    // the picklock() occupation. Both masks that reach it are ordinary output
+    // of mklev.c dosdoor(). Answering 'q' cancels with PICKLOCK_DID_NOTHING.
     for (const mask of [D_CLOSED, D_LOCKED]) {
         await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
         doorNorth().flags = mask;
-        answer(LOCK_PICK_SLOT, 'k');
-        await assert.rejects(
-            () => doapply(game),
-            (error) => error instanceof UnsupportedLockError
-                && error.branch === 'locking or unlocking a door',
-            `mask ${mask}`,
-        );
+        answer(LOCK_PICK_SLOT, 'k', 'q');
+        assert.equal(await doapply(game), ECMD_OK, `mask ${mask}`);
     }
 });
 
@@ -446,19 +440,23 @@ test('pick_lock stops on every entry doapply() does not use', async () => {
     await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
     const pick = lockPick();
 
-    // lock.c:370. Either half of `rx != 0 || container != NULL` makes the
-    // call an autounlock, which needs flags.autounlock and ynq().
-    for (const [rx, ry, container] of [
-        [game.u.ux, game.u.uy - 1, null],
-        [0, 0, { otyp: LOCK_PICK }],
-    ]) {
-        await assert.rejects(
-            () => pick_lock(pick, rx, ry, container, game),
-            (error) => error instanceof UnsupportedLockError
-                && error.branch === 'an autounlock attempt',
-            `rx ${rx} container ${container ? 'set' : 'null'}`,
-        );
-    }
+    // lock.c:370. A nonzero container makes the call an autounlock container
+    // attempt, which is not ported.
+    await assert.rejects(
+        () => pick_lock(pick, 0, 0, { otyp: LOCK_PICK }, game),
+        (error) => error instanceof UnsupportedLockError
+            && error.branch === 'autounlock on a container',
+        'container set',
+    );
+
+    // lock.c:421. A nonzero rx with null container is the autounlock door
+    // path, now ported. The test setup leaves the door at D_ISOPEN, so
+    // pick_lock reports "You cannot lock an open door." without prompting.
+    assert.equal(
+        await pick_lock(pick, game.u.ux, game.u.uy - 1, null, game),
+        PICKLOCK_LEARNED_SOMETHING,
+        'autounlock door reports open door',
+    );
 
     // lock.c:373-376, do_loot_cont()'s Null pick.
     await assert.rejects(

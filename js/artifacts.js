@@ -1070,3 +1070,20 @@ export function permapoisoned(obj) {
 export function isPermanentlyPoisoned(obj) {
     return permapoisoned(obj);
 }
+
+// C ref: artifact.c is_magic_key() (2774-2786). The Master Key of Thievery
+// acts as a magic key when its bless/curse state meets role-dependent criteria:
+// not cursed for rogues, blessed for non-rogues. `mon` is the wielder; null
+// means non-rogue is assumed, and youmonst means check the hero's own role.
+export function is_magic_key(mon, obj, state = game) {
+    if (obj && obj.oartifact === ART_MASTER_KEY_OF_THIEVERY) {
+        const isRogue = (mon === state.youmonst)
+            ? (state.urole?.mnum === PM_ROGUE)
+            : (mon && mon.data === state.mons?.[PM_ROGUE]);
+        if (isRogue)
+            return !obj.cursed; /* a rogue; non-cursed suffices for magic */
+        /* not a rogue; key must be blessed to behave as a magic one */
+        return Boolean(obj.blessed);
+    }
+    return false;
+}

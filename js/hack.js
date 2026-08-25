@@ -1232,28 +1232,20 @@ function requireAutoopenClosedDoor(x, y, state, run) {
         throw new UnsupportedHeroMoveBoundaryError('trapped or unusual door');
     }
     if (mask !== D_CLOSED) {
-        // lock.c:876-883. A locked door offers itself to flags.autounlock,
-        // whose apply-key arm runs pick_lock() when autokey(TRUE) finds a
-        // tool. autokey() (lock.c:289) returns one exactly when inventory
-        // holds a skeleton key, lock pick or credit card; its quest-artifact
-        // and magic-key preferences only choose among those three, and
-        // pick_lock() is the sole caller that observes which one, so the
-        // function is deferred with it. js/lock.js pick_lock() serves the
-        // hero-directed apply, but its autounlock entry stops on the nonzero
-        // coordinates this call site would pass, so removing this refusal
-        // would fail open.
+        // lock.c:876-894. doopen_indir() now handles the autounlock apply-key
+        // path by calling autokey() and pick_lock() itself. The kick arm is
+        // an `else if` in C: it fires only when apply-key did not handle the
+        // door (no APPLY_KEY flag, or no tool in inventory).
         const autounlock = state.flags?.autounlock
             ?? AUTOUNLOCK_APPLY_KEY;
-        if ((autounlock & AUTOUNLOCK_APPLY_KEY)
-            && carriesUnlockingTool(state)) {
-            throw new UnsupportedHeroMoveBoundaryError('door unlocking tool');
-        }
         // lock.c:884-893. AUTOUNLOCK_KICK asks "Kick it?" through ynq() and
-        // queues dokick. Zero, UNTRAP and FORCE have no acting door arm, and
-        // APPLY_KEY without a tool falls through, so those values return after
-        // doopen_indir()'s locked-door message. Stop only when the kick prompt
-        // would run.
-        if (autounlock & AUTOUNLOCK_KICK) {
+        // queues dokick. Refuse it only when apply-key will not handle the
+        // door first: either APPLY_KEY is not set, or it is set but autokey()
+        // finds no tool. When APPLY_KEY is set and a tool exists, doopen_indir
+        // will handle the door and C's `else if` means kick never runs.
+        const applyKeyHandles = (autounlock & AUTOUNLOCK_APPLY_KEY)
+            && carriesUnlockingTool(state);
+        if ((autounlock & AUTOUNLOCK_KICK) && !applyKeyHandles) {
             throw new UnsupportedHeroMoveBoundaryError('autounlock kick prompt');
         }
     }

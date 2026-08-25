@@ -17,7 +17,16 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { doopen_indir } from '../js/lock.js';
+import { autokey, doopen_indir, reset_pick } from '../js/lock.js';
+import { is_magic_key } from '../js/artifacts.js';
+import { ART_MASTER_KEY_OF_THIEVERY } from '../js/artifacts.js';
+import { PM_ROGUE } from '../js/monsters.js';
+import {
+    CREDIT_CARD,
+    LOCK_PICK,
+    SKELETON_KEY,
+    TOOL_CLASS,
+} from '../js/objects.js';
 
 // Seed 9400016 puts a plain closed door one square west of a Valkyrie's
 // starting position, which is the state hack.c test_move()'s autoopen arm
@@ -200,4 +209,120 @@ test('doopen_indir rejects a substitution it would never read', async () => {
         () => doopen_indir(x, y, game, { messsage: () => {} }),
         /does not read env\.messsage/u,
     );
+});
+
+// --- is_magic_key() tests ---
+
+test('is_magic_key returns false for a non-artifact', () => {
+    // A plain lock pick is never a magic key regardless of bless/curse state.
+    // C ref: artifact.c:2778 checks is_art(obj, ART_MASTER_KEY_OF_THIEVERY)
+    // first; a non-artifact has oartifact 0, so the test fails immediately.
+    const obj = { otyp: LOCK_PICK, oartifact: 0, cursed: false, blessed: true };
+    const state = { youmonst: {}, urole: { mnum: PM_ROGUE } };
+    assert.equal(is_magic_key(state.youmonst, obj, state), false);
+});
+
+test('is_magic_key respects role-dependent bless/curse rules', () => {
+    // C ref: artifact.c:2779-2783. For a rogue, non-cursed suffices; for a
+    // non-rogue, the key must be blessed.
+    const mkObj = (cursed, blessed) => ({
+        otyp: SKELETON_KEY,
+        oartifact: ART_MASTER_KEY_OF_THIEVERY,
+        cursed,
+        blessed,
+    });
+    const rogueState = {
+        youmonst: {},
+        urole: { mnum: PM_ROGUE },
+    };
+    // Rogue: non-cursed is magic; cursed is not.
+    assert.equal(
+        is_magic_key(rogueState.youmonst, mkObj(false, false), rogueState),
+        true,
+        'rogue uncursed',
+    );
+    assert.equal(
+        is_magic_key(rogueState.youmonst, mkObj(true, false), rogueState),
+        false,
+        'rogue cursed',
+    );
+    // Non-rogue: must be blessed.
+    const wizState = {
+        youmonst: {},
+        urole: { mnum: 345 /* PM_WIZARD */ },
+    };
+    assert.equal(
+        is_magic_key(wizState.youmonst, mkObj(false, true), wizState),
+        true,
+        'non-rogue blessed',
+    );
+    assert.equal(
+        is_magic_key(wizState.youmonst, mkObj(false, false), wizState),
+        false,
+        'non-rogue uncursed unblessed',
+    );
+});
+
+// --- autokey() tests ---
+
+test('autokey prefers skeleton key over lock pick over credit card', async () => {
+    // C ref: lock.c:337-343. The return priority is key > pick > card, and
+    // within each type the first mundane item found wins.
+    await runSegment({
+        seed: DOOR_SEED,
+        datetime: DOOR_DATETIME,
+        nethackrc: DOOR_RC,
+        moves: '',
+    });
+    // Clear inventory and build a chain of three tools.
+    const card = { otyp: CREDIT_CARD, oartifact: 0, nobj: null };
+    const pick = { otyp: LOCK_PICK, oartifact: 0, nobj: card };
+    const key = { otyp: SKELETON_KEY, oartifact: 0, nobj: null };
+
+    // With all three, autokey chooses the skeleton key.
+    game.invent = { ...key, nobj: pick };
+    assert.equal(autokey(true, game).otyp, SKELETON_KEY, 'key wins');
+
+    // Without a key, it chooses the lock pick.
+    game.invent = pick;
+    assert.equal(autokey(true, game).otyp, LOCK_PICK, 'pick wins');
+
+    // Without a pick, it chooses the credit card.
+    game.invent = card;
+    assert.equal(autokey(true, game).otyp, CREDIT_CARD, 'card wins');
+
+    // When opening is false, credit cards are excluded.
+    assert.equal(autokey(false, game), null, 'card excluded when not opening');
+
+    // Empty inventory returns null.
+    game.invent = null;
+    assert.equal(autokey(true, game), null, 'empty inventory');
+});
+
+// --- doopen_indir autounlock wiring ---
+
+test('doopen_indir calls autokey and pick_lock for a locked door',
+    async () => {
+    // C ref: lock.c:876-883. A locked door with AUTOUNLOCK_APPLY_KEY set
+    // calls autokey(true) to find a tool. With no tool in inventory,
+    // pick_lock is never called and doopen_indir returns ECMD_OK after
+    // printing "This door is locked.". This avoids the ynq terminal prompt.
+    const { x, y, door } = await closedDoorBesideHero();
+    door.flags = D_LOCKED;
+    door.doormask = D_LOCKED;
+    // No unlocking tool in inventory, so autokey(true) returns null and the
+    // autounlock path falls through without calling pick_lock.
+    const savedInvent = game.invent;
+    game.invent = null;
+    const events = [];
+
+    const result = await doopen_indir(
+        x, y, game, scriptedPull(events, 0),
+    );
+
+    // The "This door is locked." message fires, but autokey finds no tool,
+    // so the function returns ECMD_OK without prompting.
+    assert.deepEqual(events, ['message(This door is locked.)']);
+    assert.equal(result, ECMD_OK);
+    game.invent = savedInvent;
 });

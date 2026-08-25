@@ -534,10 +534,6 @@ test('the locked arm refuses what doopen_indir cannot answer for', async () => {
         // served, which the sibling test below pins.
         ['trapped closed door', 'trapped or unusual door',
             (state, door) => { door.flags = D_CLOSED | D_TRAPPED; }],
-        // lock.c:880-883, the three object types autokey(TRUE) can return.
-        ['skeleton key', 'door unlocking tool', carrying(SKELETON_KEY)],
-        ['lock pick', 'door unlocking tool', carrying(LOCK_PICK)],
-        ['credit card', 'door unlocking tool', carrying(CREDIT_CARD)],
         // lock.c:884-893 needs AUTOUNLOCK_KICK and a live ynq() prompt.
         ['autounlock kick', 'autounlock kick prompt',
             (state) => { state.flags.autounlock = AUTOUNLOCK_KICK; }],
@@ -564,25 +560,31 @@ test('combined autounlock bits keep apply-key before kick', async () => {
     const combined = AUTOUNLOCK_APPLY_KEY | AUTOUNLOCK_KICK
         | AUTOUNLOCK_FORCE;
 
-    for (const [label, tool, reason] of [
-        ['recognized tool', SKELETON_KEY, 'door unlocking tool'],
-        ['no recognized tool', null, 'autounlock kick prompt'],
-    ]) {
-        await runSegment({ ...base, moves: '' });
-        game.flags.autounlock = combined;
-        if (tool != null) {
-            game.invent = {
-                otyp: tool, oclass: TOOL_CLASS, owt: 3, quan: 1,
-                nobj: game.invent,
-            };
-        }
-        game.nhDisplay.pushKey(walkNorth);
-        await assert.rejects(
-            moveloop_core(),
-            (error) => error.reason === reason,
-            label,
-        );
-    }
+    // With a recognized tool, apply-key runs first and prompts "Unlock it
+    // with your skeleton key?"; answering 'q' cancels without reaching the
+    // kick arm. Key order: walk-direction, space to dismiss the "This door
+    // is locked." --More-- line, then 'q' to cancel the ynq prompt.
+    await runSegment({ ...base, moves: '' });
+    game.flags.autounlock = combined;
+    game.invent = {
+        otyp: SKELETON_KEY, oclass: TOOL_CLASS, owt: 3, quan: 1,
+        nobj: game.invent,
+    };
+    game.nhDisplay.pushKey(walkNorth);
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey('q'.charCodeAt(0));
+    await moveloop_core(); // completes without throwing
+
+    // Without a recognized tool, apply-key finds nothing and the kick arm
+    // fires, which is still refused.
+    await runSegment({ ...base, moves: '' });
+    game.flags.autounlock = combined;
+    game.nhDisplay.pushKey(walkNorth);
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error.reason === 'autounlock kick prompt',
+        'no recognized tool',
+    );
 });
 
 // The counterpart to the refusals above. Each term has to be narrow enough to
