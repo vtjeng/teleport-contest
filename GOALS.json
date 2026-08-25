@@ -4047,6 +4047,41 @@
         "screens": 9,
         "rng": -102
       }
+    },
+    {
+      "id": "loot-command",
+      "status": "open",
+      "boundary": "unsupported hero command: the extended command 'loot' is not ported",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 33,
+        "basis": "Capped look-ahead at f555a7f: seed0012 has 33 raw steps after #loot.",
+        "sessions": [
+          "seed0012-monk-vault-escort"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0012-monk-vault-escort",
+            "evidence": "Step 24: hero types \\r completing #loot. C dispatches to pickup.c doloot() -> doloot_core(). doloot_core() finds 2 containers via container_at(). do_loot_cont() handles locked chest."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "doloot-dispatch-locked-container",
+          "status": "closed",
+          "closedBy": "e994ba02b37b593a28394ff1513ec4a3bf1288a5"
+        }
+      ],
+      "openedAt": "e994ba02b37b593a28394ff1513ec4a3bf1288a5",
+      "openStanding": {
+        "sha": "815af21",
+        "screens": 2197,
+        "rng": 151979
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
