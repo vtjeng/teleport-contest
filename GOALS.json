@@ -3825,7 +3825,7 @@
     },
     {
       "id": "dosounds-has-shop",
-      "status": "open",
+      "status": "closed",
       "boundary": "dosounds() needs the has_shop level-sound branch",
       "upstreamOwners": [],
       "forecast": {
@@ -3842,15 +3842,24 @@
         ]
       },
       "detail": "dosounds() at sound.c processes ambient level sounds during moveloop. The has_shop branch produces cash register and door open messages when the hero is near a shop. seed0007 reaches this at step 59/302, after the door-unlock-tool port cleared its previous boundary at step 50. The stretch of 9 steps contains only movement and dosounds messages.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "port-dosounds-has-shop",
+          "status": "closed",
+          "closedBy": "58e2eb1c0beeaeb9ff85b1df385b4679702a9081"
+        }
+      ],
       "openedAt": "aec3b573ea53a2beaf1d91e2aa9006ebd1702351",
       "openStanding": {
         "sha": "200338d",
         "screens": 2031,
         "rng": 140946
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "58e2eb1c0beeaeb9ff85b1df385b4679702a9081",
+      "delivered": {
+        "screens": 1,
+        "rng": 3
+      }
     }
   ]
 }
