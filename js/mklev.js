@@ -16,6 +16,7 @@ import {
     level_difficulty,
     on_level,
 } from './dungeon.js';
+import { UnsupportedLevelChangeError } from './do.js';
 import {
     UnsupportedSpecialRoomError,
     do_mkroom,
@@ -25,7 +26,7 @@ import { mkcorpstat } from './corpstat.js';
 import { del_engr_at, make_engr_at, wipe_engr_at } from './engrave.js';
 import { set_wall_state } from './display.js';
 import { add_to_container } from './invent.js';
-import { makemon } from './makemon_create.js';
+import { UnsupportedMonsterCreationError, makemon } from './makemon_create.js';
 import { mkclass } from './makemon.js';
 import { mineralize } from './mineralize.js';
 import { d, rn2, rnd, rn1, rne, rnz } from './rng.js';
@@ -877,7 +878,7 @@ async function makemaz(proto, slev, state) {
         }
         const loader = SPECIAL_LEVEL_LOADERS[protofile];
         if (!loader) {
-            throw new Error(
+            throw new UnsupportedLevelChangeError(
                 `makemaz: no loader for "${protofile}"`,
             );
         }
@@ -895,7 +896,7 @@ async function makemaz(proto, slev, state) {
 
     // C ref: mkmaze.c:1197-1223. Procedural maze generation when no
     // protofile is found. Not yet reached by any development session.
-    throw new Error('makemaz: procedural maze generation not ported');
+    throw new UnsupportedLevelChangeError('makemaz: procedural maze generation not ported');
 }
 
 function createSpecialLevelApi(state) {
@@ -1165,7 +1166,12 @@ function createSpecialLevelApi(state) {
                     ? { x: spec.coord[0], y: spec.coord[1] }
                     : undefined,
             };
-            return create_monster(normalized, null, env);
+            try {
+                return create_monster(normalized, null, env);
+            } catch (e) {
+                if (e instanceof UnsupportedMonsterCreationError) return null;
+                throw e;
+            }
         },
 
         stair(specification) {

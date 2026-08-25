@@ -3,6 +3,7 @@
 // translates one Lua file into the same sequence of des.* API calls, using
 // the same nhlib.lua shims (percent, math.random = 1 + rn2, shuffle).
 
+import { UnsupportedLevelChangeError } from './do.js';
 import { rn2 } from './rng.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import {
@@ -659,7 +660,7 @@ async function bigrm11(des, state) {
     // The maze init produces the same result as mazegrid + walkfrom. For
     // this variant we throw until the maze init is ported, since it is not
     // hit by any development session.
-    throw new Error(
+    throw new UnsupportedLevelChangeError(
         'bigrm-11: level_init({style:"maze"}) not yet ported',
     );
 }
