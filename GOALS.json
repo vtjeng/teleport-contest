@@ -3822,6 +3822,35 @@
       "openStanding": null,
       "closedAt": null,
       "delivered": null
+    },
+    {
+      "id": "dosounds-has-shop",
+      "status": "open",
+      "boundary": "dosounds() needs the has_shop level-sound branch",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 9,
+        "basis": "Capped look-ahead at aec3b57: seed0007 has 9 raw steps after the dosounds has_shop boundary. Text shows movement and dosounds sound messages (cash register, door open). No second unported behavior found in the 9-step stretch.",
+        "sessions": [
+          "seed0007-rogue-snake-swamp"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0007-rogue-snake-swamp",
+            "evidence": "Step 59: dosounds has_shop boundary. Steps 60-68: movement, cash register sound, door open sound. No unported behavior found. Uncapped at 9 steps."
+          }
+        ]
+      },
+      "detail": "dosounds() at sound.c processes ambient level sounds during moveloop. The has_shop branch produces cash register and door open messages when the hero is near a shop. seed0007 reaches this at step 59/302, after the door-unlock-tool port cleared its previous boundary at step 50. The stretch of 9 steps contains only movement and dosounds messages.",
+      "slices": [],
+      "openedAt": "aec3b573ea53a2beaf1d91e2aa9006ebd1702351",
+      "openStanding": {
+        "sha": "200338d",
+        "screens": 2031,
+        "rng": 140946
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
