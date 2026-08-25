@@ -3931,6 +3931,74 @@
         "screens": 16,
         "rng": 37
       }
+    },
+    {
+      "id": "doapply-magic-marker",
+      "status": "closed",
+      "boundary": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 242",
+      "upstreamOwners": [
+        "apply.c",
+        "write.c"
+      ],
+      "forecast": {
+        "steps": 43,
+        "basis": "Capped look-ahead at 08e7797: seed5002 has 43 steps from step 230 to step 273 (end of segment 1). Messages after dowrite prompts are ported combat (melee, pet-melee, monster-melee) and ported hero death/wizard survival (done()). No second unported behavior in the stretch. Cap: 43.",
+        "sessions": [
+          "seed5002"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5002",
+            "evidence": "At step 230, the hero applies a magic marker. doapply() (apply.c:4158) dispatches to case MAGIC_MARKER (apply.c:4361) which calls dowrite(obj) (apply.c:4362, write.c). The port throws UnsupportedDoapplyError because the MAGIC_MARKER arm is unported. After dowrite, 43 steps of dowrite prompts/failures, ported combat (melee, pet, monster), and ported hero death/wizard survival. No second unported behavior."
+          }
+        ]
+      },
+      "detail": "doapply() case MAGIC_MARKER calls dowrite() in write.c. dowrite() prompts the hero to choose what to write on (a scroll), checks inventory, and processes the writing. The port currently throws at the MAGIC_MARKER arm dispatch. seed5002 step 230 is in segment 1 (seed 5003, wizard mode). After dowrite, the hero fights and dies but survives via wizard mode.",
+      "slices": [
+        {
+          "name": "port dowrite from write.c and MAGIC_MARKER case in doapply",
+          "status": "closed",
+          "closedBy": "ee9995d01ebf4d205bf49753d51873fef651a3fb"
+        }
+      ],
+      "openedAt": "08e779785e0466f9191f7261737ccde36ec3f0d0",
+      "openStanding": {
+        "sha": "9d45667",
+        "screens": 2049,
+        "rng": 143597
+      },
+      "closedAt": "ee9995d01ebf4d205bf49753d51873fef651a3fb",
+      "delivered": {
+        "screens": 12,
+        "rng": 9
+      }
+    },
+    {
+      "id": "puton-command",
+      "status": "queued",
+      "boundary": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, apply, close, down, drop, pickup, takeoff, wear, zap, reqmenu, fight, options, wizwish, wizlevelport, wizgenesis, fire, throw, swap, kick, #, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+      "upstreamOwners": [
+        "do_wear.c"
+      ],
+      "forecast": {
+        "steps": 4,
+        "basis": "Capped look-ahead at 08e7797: seed5006 has 47 raw steps after puton stop. Capped at 4 by starting little dog acting during wear command (starting little dog boundary).",
+        "sessions": [
+          "seed5006"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5006",
+            "evidence": "At step 109, the hero types P (puton). The repeated-command boundary refuses it. C path: do_wear.c Puton_on() handles accessory and shield wearing. After puton, at step 113 the starting little dog acts during the wear turn (kitten acts during wear), which the port does not support. Capped at 4."
+          }
+        ]
+      },
+      "detail": "The puton command (P) lets the hero put on accessories (rings, amulets) and shields. do_wear.c Puton_on() handles it. seed5006 stops at step 109/249.",
+      "slices": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

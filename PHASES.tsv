@@ -1001,3 +1001,7 @@ utc	event	phase	goal	detail
 2026-08-25T07:33:08.244Z	end	select	help-dir-direction-window	
 2026-08-25T07:33:15.203Z	start	implement	help-dir-direction-window	
 2026-08-25T08:00:35.638Z	end	implement	help-dir-direction-window	
+2026-08-25T08:08:03.123Z	start	select	doapply-magic-marker	
+2026-08-25T08:14:10.352Z	end	select	doapply-magic-marker	
+2026-08-25T08:14:15.513Z	start	implement	doapply-magic-marker	
+2026-08-25T08:59:10.279Z	end	implement	doapply-magic-marker	
