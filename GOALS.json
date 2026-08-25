@@ -3400,8 +3400,8 @@
       "slices": [
         {
           "name": "remove-engraving-preflight-guard",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "a4bad8ea6edb9af3dc874b737b5c907e489ac0fc"
         }
       ],
       "openedAt": "68d6a167e8c946ff558692cce0090f5c33569a4f",
