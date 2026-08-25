@@ -162,7 +162,16 @@
   },
   "seed5006-tourist-stress-disaster.session.json": {
     "screens": 109,
-    "rngCalls": 8493
+    "rngCalls": 8391,
+    "lowerings": [
+      {
+        "metric": "rngCalls",
+        "from": 8493,
+        "to": 8391,
+        "commit": "pending-puton-ring-on",
+        "reason": "Admitting the P command lets the game run past the former ADMITTED_COMMANDS boundary (8344 RNG calls) through a correct ring-on sequence to the take-off boundary. All 8373 seg-0 RNG calls match C; the 102-call drop is entirely from segment-1 entries shifting position in the concatenated array."
+      }
+    ]
   },
   "seed8000-tourist-starter.session.json": {
     "screens": 23,

@@ -5,6 +5,9 @@ import { ART_SUNSWORD } from '../js/artifacts.js';
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
     ACID_RES,
+    A_CHA,
+    A_CON,
+    A_STR,
     BASICENLIGHTENMENT,
     ECMD_CANCEL,
     ECMD_OK,
@@ -30,12 +33,14 @@ import {
     W_ARMS,
     W_ARMU,
     W_AMUL,
+    W_RING,
     W_RINGL,
     W_RINGR,
     W_SWAPWEP,
     W_TOOL,
 } from '../js/const.js';
 import {
+    UnsupportedRingOnError,
     UnsupportedWearError,
     _doWearInternals,
     canwearobj,
@@ -45,6 +50,7 @@ import {
     set_wear,
     wear_ok,
 } from '../js/do_wear.js';
+import { effective_attribute } from '../js/attrib.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { UnsupportedEnlightenmentError, enlightenment } from '../js/insight.js';
@@ -130,9 +136,18 @@ import {
     ORCISH_CLOAK,
     ORCISH_HELM,
     ORCISH_RING_MAIL,
+    MEAT_RING,
     RING_CLASS,
     RING_MAIL,
     RIN_ADORNMENT,
+    RIN_GAIN_CONSTITUTION,
+    RIN_GAIN_STRENGTH,
+    RIN_INCREASE_ACCURACY,
+    RIN_INCREASE_DAMAGE,
+    RIN_PROTECTION,
+    RIN_REGENERATION,
+    RIN_STEALTH,
+    RIN_TELEPORTATION,
     ROBE,
     SHORT_SWORD,
     SILVER_SABER,
@@ -160,8 +175,8 @@ import {
     loadWearWishRecipe,
 } from './run-wear-armor.mjs';
 
-const { Armor_on, Boots_on, Cloak_on, Gloves_on, Helmet_on, Shield_on,
-    Shirt_on, accessory_or_armor_on, already_wearing, on_msg }
+const { Armor_on, Boots_on, Cloak_on, Gloves_on, Helmet_on, Ring_on,
+    Shield_on, Shirt_on, accessory_or_armor_on, already_wearing, on_msg }
     = _doWearInternals;
 
 function topLine() {
@@ -755,21 +770,23 @@ test('a two-handed weapon keeps every shield off', async () => {
     }
 });
 
-test('an accessory answered at the W prompt stops', async () => {
-    // do_wear.c:2239-2353. C runs the ring, amulet and eyewear arms from the
-    // same function, and this goal holds all three refused; the boundary is
-    // raised before anything is worn.
+test('an unported Ring_on arm stops at the ring boundary', async () => {
+    // do_wear.c Ring_on() arms that call unported helpers throw
+    // UnsupportedRingOnError. accessory_or_armor_on() wears the ring (setworn)
+    // before Ring_on() runs, so the error fires after the slot is filled.
+    // RIN_STEALTH reaches toggle_stealth(), which is not ported.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, WAIT);
-    const ring = { oclass: RING_CLASS, otyp: RIN_ADORNMENT, owornmask: 0,
-        quan: 1 };
+    // Fill left ring so the ring goes straight to the right slot -- no prompt.
+    game.uleft = { oclass: RING_CLASS, otyp: RIN_ADORNMENT, owornmask: W_RINGL,
+        quan: 1, spe: 0 };
+    const ring = { oclass: RING_CLASS, otyp: RIN_STEALTH, owornmask: 0,
+        quan: 1, spe: 0, dknown: false };
 
     await assert.rejects(
         () => accessory_or_armor_on(ring, game),
-        refusal(UnsupportedWearError, 'accessory_or_armor_on() accessories'),
+        refusal(UnsupportedRingOnError, 'toggle_stealth()'),
     );
-    assert.equal(game.uleft ?? null, null);
-    assert.equal(game.uright ?? null, null);
 });
 
 test('every one of the seven slots installs its own callback', async () => {
@@ -1940,26 +1957,23 @@ test('on_msg prints only when flags.verbose is on', async () => {
     assert.equal(takePendingTopLine(), '');
     game.flags.verbose = true;
 
-    // The accessory arm calls invent.c prinv(), which is unported. do_wear.c:80
-    // tests `owornmask & (W_RING | W_AMUL)`, and obj.h spells W_RING as
+    // The accessory arm calls invent.c prinv(). do_wear.c:80 tests
+    // `owornmask & (W_RING | W_AMUL)`, and obj.h spells W_RING as
     // W_RINGL | W_RINGR, so all three bits take this arm whatever
-    // flags.verbose says; eyewear takes it only when verbose is off. Naming the
-    // constants is the point: these were written as the literals 0x00010000 and
-    // 0x00040000, the first labelled W_RING when const.js gives that value to
-    // W_AMUL. The second is W_RINGR, so one ring bit was covered and only
-    // W_RINGL reached no case; naming the constants is what makes that visible.
+    // flags.verbose says; eyewear takes it only when verbose is off.
+    // prinv() prints through ttyPline, so takePendingTopLine() captures it.
     for (const mask of [W_ARMS | W_AMUL, W_RINGL, W_RINGR]) {
-        await assert.rejects(
-            () => on_msg({ ...shield, owornmask: mask }, game),
-            refusal(UnsupportedWearError, 'on_msg() prinv()'),
-            `mask ${mask}`,
-        );
+        await on_msg({ ...shield, owornmask: mask }, game);
+        // prinv() produces a line for each; verify it printed something.
+        const line = takePendingTopLine();
+        assert.ok(line.length > 0, `mask ${mask} should produce output`);
     }
     const towel = { oclass: TOOL_CLASS, otyp: 0, owornmask: W_TOOL, quan: 1 };
     game.flags.verbose = false;
-    await assert.rejects(
-        () => on_msg(towel, game),
-        refusal(UnsupportedWearError, 'on_msg() prinv()'),
+    await on_msg(towel, game);
+    // With verbose off, terse eyewear takes the prinv() arm too.
+    assert.ok(takePendingTopLine().length > 0,
+        'terse eyewear should produce prinv output',
     );
     game.flags.verbose = true;
 });
@@ -2365,10 +2379,10 @@ test('the W command reaches no unported branch on the matrix inputs',
     }
 });
 
-test('W answered with a ring stops before the accessory half', async () => {
-    // The case just outside this goal's stated limit, recorded as the
-    // QUALITY.json deferral wear-answered-with-an-accessory-stops. C asks
-    // "Which ring-finger, Right or Left? [rl]"; the port stops instead.
+test('W answered with a ring puts the ring on', async () => {
+    // With the accessory half of accessory_or_armor_on() ported, a ring
+    // selected at the 'W' prompt goes through. The 'r' keystroke answers
+    // the "Which ring-finger, Right or Left?" prompt.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     const debug = {
         ...segment,
@@ -2376,11 +2390,12 @@ test('W answered with a ring stops before the accessory half', async () => {
         nethackrc: segment.nethackrc.replace(
             'showexp', 'showexp,playmode:debug',
         ),
-        moves: `${WAIT}\x17ring of adornment\n${WEAR_KEY}e${WAIT}`,
+        moves: `${WAIT}\x17ring of adornment\n${WEAR_KEY}er${WAIT}`,
     };
+    // The ring of adornment's adjust_attrib() arm is ported, so the whole
+    // command completes without hitting a boundary.
     const boundary = await boundaryFor(debug, debug.moves);
-    assert.ok(boundary, 'the ring reaches a fail-closed boundary');
-    assert.match(boundary.message, /accessory_or_armor_on\(\) accessories/);
+    assert.equal(boundary, null, 'no fail-closed boundary');
 });
 
 test('the status line moves with the shield', async () => {
@@ -2393,4 +2408,233 @@ test('the status line moves with the shield', async () => {
     assert.match(statusRow(), /AC:10 /);
     await runSegment({ ...segment, moves: `${OFF}${WEAR_KEY}c` });
     assert.match(statusRow(), /AC:6 /);
+});
+
+// ---- P command (puton) and Ring_on() tests ----
+
+// Build a debug-mode segment that wishes for the given item and then replays
+// `extraMoves`. The seed 7720141 and the 'showexp' anchor are shared with the
+// existing 'W answered with a ring' test above; both need a character that
+// starts with empty ring slots.
+function debugRingSegment(wishItem, extraMoves) {
+    // The base segment is any worn-armor-matrix segment with the right option
+    // string, so the hero starts in a dungeon with an inventory.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    return {
+        ...segment,
+        seed: 7720141,
+        nethackrc: segment.nethackrc.replace(
+            'showexp', 'showexp,playmode:debug',
+        ),
+        moves: `${WAIT}\x17${wishItem}\n${extraMoves}`,
+    };
+}
+
+// Find the first inventory item with the given otyp. Inventory is a linked list
+// on `nobj`; the wished-for ring lands at the tail because addinv() appends it
+// after the starting kit.
+function inventoryByOtyp(otyp) {
+    for (let obj = game.invent; obj; obj = obj.nobj) {
+        if (obj.otyp === otyp) return obj;
+    }
+    return null;
+}
+
+// Create a synthetic ring object suitable for Ring_on(). Ring_on reads otyp,
+// spe, owornmask, dknown, and the uprops extrinsic; it does not walk the
+// inventory list, so a detached object works.
+function syntheticRing(otyp, spe = 0) {
+    return {
+        oclass: RING_CLASS, otyp, spe,
+        owornmask: 0, dknown: false, known: false, quan: 1, where: 0,
+    };
+}
+
+test('the puton command is admitted and shares its row with doputon', () => {
+    // cmd.js ADMITTED_COMMANDS includes 'puton'; the extcmdlist row has P (0x50)
+    // as its key and 'doputon' as its function name. The row has no flags, so
+    // rhack() refuses an 'm' prefix rather than running the command under it.
+    assert.ok(ADMITTED_COMMANDS.includes('puton'));
+    const row = extcmdlist.find(({ ef_txt }) => ef_txt === 'puton');
+    assert.ok(row, 'extcmdlist[] has a puton row');
+    assert.equal(row.ef_funct, 'doputon');
+    assert.equal(row.flags, 0);
+    assert.equal(row.key, 0x50, 'P key maps to doputon');
+});
+
+test('Ring_on adjust_attrib changes CHA for ring of adornment', async () => {
+    // Ring_on(RIN_ADORNMENT) calls adjust_attrib(obj, A_CHA, spe). A +1 ring
+    // bumps CHA by 1. We initialize game state, place a synthetic ring in the
+    // left slot, and call Ring_on directly.
+    const debug = debugRingSegment('ring of adornment', `${WAIT}`);
+    await setup(debug, debug.moves);
+    const chaBefore = effective_attribute(game, A_CHA);
+
+    // Synthetic +1 ring of adornment, placed in the left ring slot.
+    const ring = syntheticRing(RIN_ADORNMENT, 1);
+    ring.owornmask = W_RINGL;
+    game.uleft = ring;
+
+    await Ring_on(ring, game);
+
+    // A_CHA increased by spe (1).
+    assert.equal(
+        effective_attribute(game, A_CHA), chaBefore + 1,
+        'CHA rises by the ring spe (+1)',
+    );
+});
+
+test('Ring_on adjust_attrib changes STR for ring of gain strength', async () => {
+    // Ring_on(RIN_GAIN_STRENGTH) calls adjust_attrib(obj, A_STR, spe).
+    // A +1 ring bumps STR by 1.
+    const debug = debugRingSegment('ring of gain strength', `${WAIT}`);
+    await setup(debug, debug.moves);
+    const strBefore = effective_attribute(game, A_STR);
+
+    const ring = syntheticRing(RIN_GAIN_STRENGTH, 1);
+    ring.owornmask = W_RINGR;
+    game.uright = ring;
+
+    await Ring_on(ring, game);
+
+    assert.equal(
+        effective_attribute(game, A_STR), strBefore + 1,
+        'STR rises by the ring spe (+1)',
+    );
+});
+
+test('Ring_on no-op types do not throw', async () => {
+    // Sixteen ring types plus meat ring have no effect beyond the extrinsic
+    // that setworn() already set. Ring_on must not throw for any of them.
+    // Three representative types exercise the code path: teleportation
+    // (first no-op case), regeneration (middle), meat ring (standalone arm).
+    const noOpTypes = [
+        RIN_TELEPORTATION, RIN_REGENERATION, MEAT_RING,
+    ];
+    const debug = debugRingSegment('ring of regeneration', `${WAIT}`);
+    await setup(debug, debug.moves);
+
+    for (const otyp of noOpTypes) {
+        const ring = syntheticRing(otyp, 0);
+        ring.owornmask = W_RINGL;
+        game.uleft = ring;
+        // Must complete without throwing.
+        await Ring_on(ring, game);
+        // Clean up for the next iteration.
+        game.uleft = null;
+        ring.owornmask = 0;
+    }
+});
+
+test('Ring_on increase_accuracy adjusts uhitinc', async () => {
+    // Ring_on(RIN_INCREASE_ACCURACY) adds obj.spe to u.uhitinc. A +2 ring
+    // bumps the hit bonus by 2.
+    const debug = debugRingSegment('ring of increase accuracy', `${WAIT}`);
+    await setup(debug, debug.moves);
+    const hitBefore = game.u.uhitinc ?? 0;
+
+    const ring = syntheticRing(RIN_INCREASE_ACCURACY, 2);
+    ring.owornmask = W_RINGL;
+    game.uleft = ring;
+
+    await Ring_on(ring, game);
+
+    assert.equal(game.u.uhitinc, hitBefore + 2,
+        'uhitinc increased by ring spe (+2)');
+});
+
+test('Ring_on increase_damage adjusts udaminc', async () => {
+    // Ring_on(RIN_INCREASE_DAMAGE) adds obj.spe to u.udaminc. A +3 ring bumps
+    // the damage bonus by 3.
+    const debug = debugRingSegment('ring of increase damage', `${WAIT}`);
+    await setup(debug, debug.moves);
+    const damBefore = game.u.udaminc ?? 0;
+
+    const ring = syntheticRing(RIN_INCREASE_DAMAGE, 3);
+    ring.owornmask = W_RINGR;
+    game.uright = ring;
+
+    await Ring_on(ring, game);
+
+    assert.equal(game.u.udaminc, damBefore + 3,
+        'udaminc increased by ring spe (+3)');
+});
+
+test('Ring_on protection calls find_ac and learns the ring', async () => {
+    // Ring_on(RIN_PROTECTION) calls learnring(obj, observable) with
+    // observable = (spe != 0), then find_ac(). A +1 ring of protection lowers
+    // AC by 1.
+    const debug = debugRingSegment('ring of protection', `${WAIT}`);
+    await setup(debug, debug.moves);
+
+    // Capture AC before placing the ring. find_ac() reads uleft/uright, so
+    // calling it while the slot is empty gives the ringless baseline.
+    find_ac(game);
+    const acBefore = game.u.uac;
+
+    const ring = syntheticRing(RIN_PROTECTION, 1);
+    ring.owornmask = W_RINGL;
+    game.uleft = ring;
+
+    await Ring_on(ring, game);
+
+    // find_ac() inside Ring_on recalculates u.uac counting the new ring.
+    // A +1 ring of protection lowers AC by 1.
+    assert.equal(game.u.uac, acBefore - 1,
+        'AC drops by 1 for a +1 ring of protection');
+});
+
+test('Ring_on throws UnsupportedRingOnError for stealth', async () => {
+    // The stealth arm (toggle_stealth) is unported. Ring_on must refuse it
+    // with the specific error class that failClosedCommandRefusals catches.
+    const debug = debugRingSegment('ring of stealth', `${WAIT}`);
+    await setup(debug, debug.moves);
+
+    const ring = syntheticRing(RIN_STEALTH, 0);
+    ring.owornmask = W_RINGL;
+    game.uleft = ring;
+
+    await assert.rejects(
+        () => Ring_on(ring, game),
+        refusal(UnsupportedRingOnError, 'toggle_stealth'),
+    );
+});
+
+test('P command puts a ring on through the full command flow', async () => {
+    // End-to-end: P prompt selects a wished-for ring of regeneration (a no-op
+    // type), 'r' answers the finger prompt. No fail-closed boundary fires.
+    const debug = debugRingSegment('ring of regeneration', `Per${WAIT}`);
+    const boundary = await boundaryFor(debug, debug.moves);
+    assert.equal(boundary, null, 'no fail-closed boundary for P + ring');
+});
+
+test('yn_function with NUL default omits the default display', async () => {
+    // C ref: topl.c:415 `if (def)` tests the char value; NUL (0) is falsy and
+    // suppresses the " (X)" suffix. In JS, def arrives as a one-character
+    // string, so '\0' must be tested by code point, not truthiness. The fix is
+    // in getline.js tty_yn_function.
+    //
+    // The finger prompt "Which ring-finger, Right or Left? [rl] " must not
+    // end with " (\0) " (which would be 4 characters wider than the C output).
+    // We verify by running the P command for a ring and checking the top-line
+    // screen content at the finger prompt boundary.
+    const debug = debugRingSegment('ring of regeneration', `Pe`);
+    // After 'Pe', the game has shown the ring-finger prompt and is waiting for
+    // the answer. The prompt is on the top line.
+    await runSegment({ ...debug, moves: debug.moves });
+    const prompt = topLine();
+    // The prompt must NOT contain the literal "(\0)" or "(^@)" substring.
+    assert.ok(!prompt.includes('(\0)'),
+        `prompt must not show NUL default: ${JSON.stringify(prompt)}`);
+    assert.ok(!prompt.includes('(^@)'),
+        `prompt must not show NUL as caret notation: ${JSON.stringify(prompt)}`);
+    // The prompt must contain "[rl]" (the choices). topLine() trims trailing
+    // whitespace, so the trailing space after "]" is gone; the fixed prompt
+    // ends the line.
+    assert.ok(prompt.includes('[rl]'),
+        `prompt must show choices: ${JSON.stringify(prompt)}`);
+    // Verify it does NOT have "[rl] (" which would mean a default is displayed.
+    // (Before the fix, the 4-char-wider prompt showed "[rl] (\0) ".)
+    assert.ok(!prompt.includes('[rl] ('),
+        `prompt must not show a default after choices: ${JSON.stringify(prompt)}`);
 });

@@ -54,8 +54,9 @@ import {
     UnsupportedLevelChangeError,
 } from './do.js';
 import {
-    dotakeoff, dowear, reset_remarm, UnsupportedTakeOffError,
-    UnsupportedWearError,
+    doputon, dotakeoff, dowear, reset_remarm,
+    UnsupportedAccessoryOnError, UnsupportedRingOnError,
+    UnsupportedTakeOffError, UnsupportedWearError,
 } from './do_wear.js';
 import { doclose, reset_pick, UnsupportedLockError } from './lock.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
@@ -990,7 +991,7 @@ export async function parseCommand(state = game) {
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'apply', 'close', 'down', 'drop', 'pickup', 'takeoff', 'wear',
-    'zap', 'reqmenu', 'fight', 'options', 'wizwish', 'wizlevelport',
+    'puton', 'zap', 'reqmenu', 'fight', 'options', 'wizwish', 'wizlevelport',
     'wizgenesis', 'fire', 'throw', 'swap', 'kick', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
@@ -1342,13 +1343,22 @@ export function failClosedCommandRefusals() {
         // is unported, in both cases before anything is drawn or removed.
         UnsupportedTakeOffError,
         // do_wear.c accessory_or_armor_on() raises this above setworn() for
-        // the accessory half, the quest helm, an artifact, armor held in a
-        // weapon slot, and the suit, cloak, helmet, glove and boot otyps whose
-        // <X>_on() reaches outside do_wear.c. No slot refuses wholesale: all
-        // seven reach a callback. on_msg() raises it for prinv().
+        // the quest helm, an artifact, armor held in a weapon slot, and the
+        // suit, cloak, helmet, glove and boot otyps whose <X>_on() reaches
+        // outside do_wear.c. Also raised for the headless-polymorph eyewear
+        // arm, which needs ansimpleoname(). No armor slot refuses wholesale:
+        // all seven reach a callback.
         // set_wear() raises it too, from moveloop_preamble() rather than from
         // a command, which is the raiser the startup reader above converts.
         UnsupportedWearError,
+        // do_wear.c Ring_on() raises this for the five ring types whose
+        // on-wear effect calls helpers this port has not reached:
+        // toggle_stealth, set_mimic_blocking, self_invis_message, float_up,
+        // rescham. The no-op, arithmetic and protection arms work without them.
+        UnsupportedRingOnError,
+        // do_wear.c Amulet_on() and Blindf_on() are fail-closed entry points
+        // that belong to later puton-command slices.
+        UnsupportedAccessoryOnError,
         // eat.c newuhs() is shared: gethungry() calls it from the turn loop,
         // and done_eating() and lesshungry() call it from doeat().
         UnsupportedHungerTransitionError,
@@ -1731,6 +1741,14 @@ async function runWearCommand(key, state) {
     return failClosedCommand(key, state, () => dowear(state));
 }
 
+// C ref: do_wear.c doputon(). Like dowear() it returns its own ECMD_* result,
+// and reaches all three: ECMD_OK for the "full" guard and for the accessory
+// refusals, ECMD_CANCEL for an escaped getobj(), and ECMD_TIME for a ring
+// that goes on.
+async function runPutonCommand(key, state) {
+    return failClosedCommand(key, state, () => doputon(state));
+}
+
 // C ref: wizcmds.c wiz_level_change(). Like dosearch() and doeat() it returns
 // its own ECMD_* result; #levelchange never spends a turn, so that result is
 // always ECMD_OK.
@@ -2038,6 +2056,8 @@ async function doextcmd(key, state) {
         return await runTakeOffCommand(key, state);
     case 'dowear':
         return await runWearCommand(key, state);
+    case 'doputon':
+        return await runPutonCommand(key, state);
     case 'doride':
         // C ref: steed.c doride(), which returns its own ECMD_* result.
         return await doride(state);
@@ -2460,6 +2480,20 @@ export async function rhack(key, state = game) {
             // domove_attempting tests at 3773-3800 cannot divert it, because
             // cmd.c:1932's "wear" row carries no flags at all.
             const res = await runWearCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'puton') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the `wear` arm above applies. doputon() reaches
+            // all three: ECMD_CANCEL when the getobj() prompt is escaped,
+            // ECMD_OK for a hero already wearing all accessories and for
+            // each accessory_or_armor_on() refusal, and ECMD_TIME for a
+            // ring that goes on. cmd.c:1821's "puton" row carries no flags.
+            const res = await runPutonCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

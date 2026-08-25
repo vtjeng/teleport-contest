@@ -28,7 +28,6 @@ import {
     ROOM,
     ROWNO,
     GLIB,
-    W_RINGR,
     W_WEP,
     W_AMUL,
     W_ARM,
@@ -1876,15 +1875,6 @@ test('unsupported naming branches fail before discovery or state changes', () =>
 
     state.iflags.pricequotes = false;
 
-    // A worn ring is still refused: doname() names the hand it is on, which
-    // needs the ring branch of its class switch.
-    const wornRing = objectOf(state, RIN_PROTECTION, { owornmask: W_RINGR });
-    assert.throws(
-        () => donameFresh(wornRing, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'worn-ring suffix',
-    );
-    assert.equal(wornRing.dknown, false);
     state.objects[WAN_SLEEP].oc_uname = 'napper';
     const calledWand = objectOf(state, WAN_SLEEP);
     assert.throws(

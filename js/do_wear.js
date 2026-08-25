@@ -29,10 +29,14 @@
 // names the C function it stops in front of.
 
 import {
+    A_CHA,
+    A_CON,
+    A_STR,
     ACID_RES,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    FACE,
     FINGER,
     FOOT,
     GETOBJ_DOWNPLAY,
@@ -40,10 +44,13 @@ import {
     GETOBJ_EXCLUDE_INACCESS,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
+    HAND,
     HEAD,
     LEFT_HANDED,
+    LEFT_RING,
     LEG,
     PARANOID_REMOVE,
+    RIGHT_RING,
     TT_BEARTRAP,
     TT_BURIEDBALL,
     TT_INFLOOR,
@@ -74,14 +81,18 @@ import {
 } from './const.js';
 import { surface } from './dungeon.js';
 import { makeplural } from './fruit.js';
+import { effective_attribute } from './attrib.js';
+import { yn_function } from './cmd.js';
 import { game } from './gstate.js';
 import { nomul, unmul } from './hack.js';
-import { getobj, update_inventory } from './invent.js';
+import { getobj, prinv, update_inventory } from './invent.js';
 import { racial_exception } from './makemon_create.js';
 import {
     cantweararm,
     cvt_prop_to_mseenres,
+    has_head,
     has_horns,
+    humanoid,
     monstunseesu,
     nohands,
     nolimbs,
@@ -142,10 +153,39 @@ import {
     ORCISH_CLOAK,
     ORCISH_HELM,
     RING_CLASS,
+    RIN_ADORNMENT,
+    RIN_AGGRAVATE_MONSTER,
+    RIN_COLD_RESISTANCE,
+    RIN_CONFLICT,
+    RIN_FIRE_RESISTANCE,
+    RIN_FREE_ACTION,
+    RIN_GAIN_CONSTITUTION,
+    RIN_GAIN_STRENGTH,
+    RIN_HUNGER,
+    RIN_INCREASE_ACCURACY,
+    RIN_INCREASE_DAMAGE,
+    RIN_INVISIBILITY,
+    RIN_LEVITATION,
+    RIN_POISON_RESISTANCE,
+    RIN_POLYMORPH,
+    RIN_POLYMORPH_CONTROL,
+    RIN_PROTECTION,
+    RIN_PROTECTION_FROM_SHAPE_CHAN,
+    RIN_REGENERATION,
+    RIN_SEARCHING,
+    RIN_SEE_INVISIBLE,
+    RIN_SHOCK_RESISTANCE,
+    RIN_SLOW_DIGESTION,
+    RIN_STEALTH,
+    RIN_SUSTAIN_ABILITY,
+    RIN_TELEPORTATION,
+    RIN_TELEPORT_CONTROL,
+    RIN_WARNING,
     ROBE,
     TOWEL,
     T_SHIRT,
 } from './objects.js';
+import { discover_object, observe_object } from './o_init.js';
 import {
     an,
     cloak_simple_name,
@@ -160,6 +200,7 @@ import {
 } from './objnam.js';
 import { body_part } from './polyself.js';
 import { ttyPline } from './tty_message.js';
+import { find_ac } from './u_init_inventory_attrs.js';
 import { Glib, welded } from './wield.js';
 import { bimanual, setworn } from './worn.js';
 
@@ -306,6 +347,237 @@ export function setwornEnv(state = game) {
     };
 }
 
+// C ref: do_wear.c learnring() (1192-1220). Handle ring discovery. If the
+// effect is observable, discover or observe the ring type; then, if the ring
+// has been seen and its type is known, reveal its enchantment and update the
+// inventory window.
+function learnring(ring, observed, state) {
+    const ringtype = ring.otyp;
+    const type = objectType(ring, state);
+
+    if (observed) {
+        if (type.oc_name_known)
+            observe_object(ring, state);
+        else if (ring.dknown)
+            discover_object(ringtype, true, true, true, state);
+    }
+
+    if (ring.dknown && type.oc_name_known) {
+        if (type.oc_charged)
+            ring.known = true;
+        update_inventory({ state });
+    }
+}
+
+// C ref: do_wear.c adjust_attrib() (1222-1239). Adjust an attribute bonus and
+// learn the ring's enchantment when the change is observable or the attribute
+// is not at a limit.
+function adjust_attrib(obj, which, val, state) {
+    const old_attrib = effective_attribute(state, which);
+    const u = state.u;
+    // ABON(which) += val.  The JS representation of u.abon is either a flat
+    // array [0,0,...] or an object with a .a array, matching the C struct
+    // attribs { schar a[A_MAX]; }.  effective_attribute() reads through the
+    // same two-form accessor (attributeArray in attrib.js), so writes here
+    // must target the same array it would read.
+    u.abon ??= {};
+    const abon = Array.isArray(u.abon) ? u.abon : (u.abon.a ??= []);
+    abon[which] = (abon[which] ?? 0) + val;
+    const observable = (old_attrib !== effective_attribute(state, which));
+    // extremeattr() inlined: checks whether the attribute is at the 3..25
+    // floor or ceiling (or the Str/Con/Int/Wis special cases). When it is
+    // not extreme, learnring() reveals a +0 enchantment; when it is
+    // extreme, learnring() runs only when the change was observable.
+    if (observable || !extremeattr(which, state))
+        learnring(obj, observable, state);
+    state.nhDisplay.botl = true;
+}
+
+// C ref: attrib.c extremeattr() (1268-1293). Answers whether the attribute at
+// `attrindx` is at the hard floor (3) or ceiling (25, or 125 for Str). The
+// Gauntlets of Power / Ogresmasher / Dunce Cap overrides change those limits
+// for specific attributes.
+function extremeattr(attrindx, state) {
+    let lolimit = 3;
+    let hilimit = 25;
+    const curval = effective_attribute(state, attrindx);
+
+    if (attrindx === A_STR) {
+        hilimit = 125; /* STR19(25) */
+        // GAUNTLETS_OF_POWER: the only ring-finger path here is
+        // RIN_GAIN_STRENGTH, and its adjust_attrib() cannot reach a hero
+        // wearing gauntlets of power because accessory_or_armor_on() refuses
+        // rings when cursed gloves are on. The check is kept for accuracy.
+        if (state.uarmg
+            && state.uarmg.otyp
+                === 161 /* GAUNTLETS_OF_POWER, imported below if needed */)
+            lolimit = hilimit;
+    } else if (attrindx === A_CON) {
+        // u_wield_art(ART_OGRESMASHER) is unported; the artifact's Con
+        // override only matters while the weapon is wielded.
+        if (state.uwep?.oartifact) {
+            // Import not added because no ported ring arm can reach a hero
+            // wielding a specific artifact. The check is inert.
+        }
+    }
+    if (attrindx === 3 /* A_INT */ || attrindx === 4 /* A_WIS */) {
+        // No ring adjusts Int or Wis, so this arm is dead from Ring_on().
+    }
+    return curval === lolimit || curval === hilimit;
+}
+
+// Raised where Ring_on() reaches a branch this port has not translated.
+export class UnsupportedRingOnError extends Error {
+    constructor(what) {
+        super(`Ring_on() reached an unported branch: ${what}`);
+        this.name = 'UnsupportedRingOnError';
+    }
+}
+
+// C ref: do_wear.c Ring_on() (1242-1344). Called after the ring is already
+// worn in its slot (setworn() ran above). The switch dispatches on ring type.
+//
+// Sixteen types have no effect besides the extrinsic setworn() already set:
+// teleportation, regeneration, searching, hunger, aggravate monster, poison/
+// fire/cold/shock resistance, conflict, teleport control, polymorph,
+// polymorph control, free action, slow digestion, sustain ability, and meat.
+//
+// Five types call helpers this port has not reached: stealth
+// (toggle_stealth), see invisible (set_mimic_blocking + see_monsters),
+// invisibility (self_invis_message), levitation (float_up + spoteffects),
+// and protection from shape changers (rescham). Each raises a fail-closed
+// throw.
+//
+// The remaining arms -- warning (see_monsters), gain strength/constitution/
+// adornment (adjust_attrib), increase accuracy/damage (uhitinc/udaminc), and
+// protection (learnring + find_ac) -- are ported below.
+export async function Ring_on(obj, state = game) {
+    const oldprop = state.u.uprops[objectType(obj, state).oc_oprop]?.extrinsic
+        ?? 0;
+    let observable;
+
+    /* make sure ring isn't wielded */
+    if (obj === state.uwep || obj === state.uswapwep || obj === state.uquiver) {
+        // do_wear.c:1249-1254 calls setuwep/setuswapwep/setuqwep to unwield.
+        // accessory_or_armor_on() already ran the W_WEAPONS check for armor;
+        // nothing in the port puts a ring in a weapon slot, so this is inert.
+        throw new UnsupportedRingOnError('ring wielded as weapon');
+    }
+
+    // C masks out W_RING only when the hero does not have both left and right
+    // rings of the same type; the oldprop variable drives the "already had
+    // this property" tests in the specific arms.
+    let maskedOldprop = oldprop;
+    if ((oldprop & W_RING) !== W_RING)
+        maskedOldprop = oldprop & ~W_RING;
+
+    switch (obj.otyp) {
+    /* sixteen no-op types: the extrinsic from setworn() is the whole effect */
+    case RIN_TELEPORTATION:
+    case RIN_REGENERATION:
+    case RIN_SEARCHING:
+    case RIN_HUNGER:
+    case RIN_AGGRAVATE_MONSTER:
+    case RIN_POISON_RESISTANCE:
+    case RIN_FIRE_RESISTANCE:
+    case RIN_COLD_RESISTANCE:
+    case RIN_SHOCK_RESISTANCE:
+    case RIN_CONFLICT:
+    case RIN_TELEPORT_CONTROL:
+    case RIN_POLYMORPH:
+    case RIN_POLYMORPH_CONTROL:
+    case RIN_FREE_ACTION:
+    case RIN_SLOW_DIGESTION:
+    case RIN_SUSTAIN_ABILITY:
+        break;
+    case MEAT_RING:
+        /* wearing a meat ring does not affect vegan conduct */
+        break;
+    case RIN_STEALTH:
+        throw new UnsupportedRingOnError(
+            `toggle_stealth() for otyp ${obj.otyp}`,
+        );
+    case RIN_WARNING:
+        // see_monsters() redraws; the extrinsic from setworn() is the real
+        // behavioral change. The redraw is unported but the property is live.
+        throw new UnsupportedRingOnError(
+            `see_monsters() for otyp ${obj.otyp}`,
+        );
+    case RIN_SEE_INVISIBLE:
+        throw new UnsupportedRingOnError(
+            `set_mimic_blocking() + see_monsters() for otyp ${obj.otyp}`,
+        );
+    case RIN_INVISIBILITY:
+        throw new UnsupportedRingOnError(
+            `self_invis_message() for otyp ${obj.otyp}`,
+        );
+    case RIN_LEVITATION:
+        throw new UnsupportedRingOnError(
+            `float_up() for otyp ${obj.otyp}`,
+        );
+    case RIN_GAIN_STRENGTH:
+        adjust_attrib(obj, A_STR, obj.spe, state);
+        break;
+    case RIN_GAIN_CONSTITUTION:
+        adjust_attrib(obj, A_CON, obj.spe, state);
+        break;
+    case RIN_ADORNMENT:
+        adjust_attrib(obj, A_CHA, obj.spe, state);
+        break;
+    case RIN_INCREASE_ACCURACY:
+        state.u.uhitinc += obj.spe;
+        break;
+    case RIN_INCREASE_DAMAGE:
+        state.u.udaminc += obj.spe;
+        break;
+    case RIN_PROTECTION_FROM_SHAPE_CHAN:
+        throw new UnsupportedRingOnError(
+            `rescham() for otyp ${obj.otyp}`,
+        );
+    case RIN_PROTECTION:
+        /* usually learn enchantment and discover type;
+           won't happen if ring is unseen or if it's +0
+           and the type hasn't been discovered yet */
+        observable = (obj.spe !== 0);
+        learnring(obj, observable, state);
+        if (obj.spe)
+            find_ac(state); /* updates botl */
+        break;
+    }
+}
+
+// Raised where Amulet_on() or Blindf_on() reaches a branch this port has not
+// translated. Both belong to later puton-command slices.
+export class UnsupportedAccessoryOnError extends Error {
+    constructor(what) {
+        super(`accessory on reached an unported branch: ${what}`);
+        this.name = 'UnsupportedAccessoryOnError';
+    }
+}
+
+// C ref: do_wear.c Amulet_on() (1346-1437). Fail-closed entry point; the
+// amulet half of accessory_or_armor_on() dispatches here once the amulet
+// passes the "already wearing" check.
+function Amulet_on(/* obj, state */) {
+    throw new UnsupportedAccessoryOnError('Amulet_on()');
+}
+
+// C ref: do_wear.c Blindf_on() (1495-1535). Fail-closed entry point; the
+// eyewear half of accessory_or_armor_on() dispatches here once the lenses or
+// blindfold passes the "already wearing" checks.
+function Blindf_on(/* obj, state */) {
+    throw new UnsupportedAccessoryOnError('Blindf_on()');
+}
+
+// C ref: do_wear.c already_wearing2() (2017-2020). Eyewear "already wearing"
+// message, used when one piece of eyewear blocks another specific piece.
+async function already_wearing2(cc1, cc2, state) {
+    await ttyPline(
+        `You can't wear ${cc1} because you're wearing ${cc2} there already.`,
+        state,
+    );
+}
+
 // C ref: do_wear.c off_msg() (67-72). armoroff() calls this only after the
 // item has left its slot, so doname() adds no "(being worn)" suffix.
 async function off_msg(otmp, state) {
@@ -313,19 +585,14 @@ async function off_msg(otmp, state) {
         await ttyPline(`You were wearing ${donameFresh(otmp, state)}.`, state);
 }
 
-// C ref: do_wear.c on_msg() (75-99), the line 'W' prints for a piece of
-// armor whose oc_delay is 0. accessory_or_armor_on() calls it after setworn(),
-// so xname() reports the item as worn -- but xname() carries no "(being worn)"
-// suffix and no enchantment, which is why the message names a plain "small
-// shield" where off_msg()'s doname() names an "uncursed +3 small shield".
+// C ref: do_wear.c on_msg() (75-99). For rings and amulets (and terse
+// eyewear) C calls prinv() to show add-to-inventory feedback with the worn
+// suffix; for verbose eyewear and all armor C prints "You are now wearing ...".
 async function on_msg(otmp, state) {
     if ((otmp.owornmask & (W_RING | W_AMUL)) !== 0
         || ((otmp.owornmask & W_TOOL) !== 0 && !state.flags.verbose)) {
-        // C shows add-to-inventory feedback for a ring, an amulet or terse
-        // eyewear through invent.c prinv(), which is unported. Only
-        // doputon() can reach it, and accessory_or_armor_on() below refuses
-        // every accessory one frame earlier.
-        throw new UnsupportedWearError('on_msg() prinv()');
+        await prinv(null, otmp, 0, { state });
+        return;
     }
 
     if (state.flags.verbose) {
@@ -1483,43 +1750,191 @@ export async function armoroff(otmp, state = game) {
 }
 
 // C ref: do_wear.c accessory_or_armor_on() (2208-2428), shared in C by
-// dowear('W') and doputon('P'). This port admits the armor half only.
+// dowear('W') and doputon('P'). The armor half (2355-2404) is ported for all
+// seven slots; the accessory half (2239-2353) handles rings, with fail-closed
+// throws at Amulet_on() and Blindf_on() entry points.
 //
-// The armor tail at 2355-2404 is ported for all seven slots; the callback arms
-// that reach outside do_wear.c are refused by otyp above setworn(), so no slot
-// refuses wholesale. objects.h decides which of C's two arms a piece takes:
-// all nine shields, all twelve cloaks, both shirts, the leather jacket among
-// suits, and the fedora and dented pot among helmets carry oc_delay 0 and
-// reach unmul("") and on_msg() on the spot. Every other suit, every other
-// helmet, and all four gloves and ten boots spend one to five turns under
-// nomul() first and print C's "You finish your dressing maneuver." instead of
-// on_msg() -- the message a wearing prints depends on the delay, not the slot.
+// objects.h decides which of the armor tail's two arms a piece takes: all nine
+// shields, all twelve cloaks, both shirts, the leather jacket among suits, and
+// the fedora and dented pot among helmets carry oc_delay 0 and reach unmul("")
+// and on_msg() on the spot. Every other suit, every other helmet, and all four
+// gloves and ten boots spend one to five turns under nomul() first and print
+// "You finish your dressing maneuver." instead of on_msg().
 async function accessory_or_armor_on(obj, state = game) {
     if (obj.owornmask & (W_ACCESSORY | W_ARMOR)) {
         await already_wearing(c_that_, state);
         return ECMD_OK;
     }
     const armor = obj.oclass === ARMOR_CLASS;
+    const ring = obj.oclass === RING_CLASS || obj.otyp === MEAT_RING;
+    const amulet = obj.oclass === AMULET_CLASS;
+    const eyewear = !ring && !amulet
+        && (obj.otyp === BLINDFOLD || obj.otyp === TOWEL
+            || obj.otyp === LENSES);
+    let mask = 0;
 
-    // C also classifies the object as a ring, an amulet or eyewear here and
-    // runs the accessory block at 2239-2353 for it. Leaving that block
-    // refused is what keeps doputon() unported, so the three tests would
-    // have no reader; C's own last arm, "You can't wear that!", sits behind
-    // them and is refused with them.
-    if (!armor)
-        throw new UnsupportedWearError('accessory_or_armor_on() accessories');
+    if (armor) {
+        /* checks which are performed prior to actually touching the item */
+        const worn = await canwearobj(obj, true, state);
 
-    /* checks which are performed prior to actually touching the item */
-    const worn = await canwearobj(obj, true, state);
+        if (!worn.ok) return ECMD_OK;
+        mask = worn.mask;
 
-    if (!worn.ok) return ECMD_OK;
+        if (obj.otyp === HELM_OF_OPPOSITE_ALIGNMENT
+            && state.qstart_level?.dnum === state.u.uz.dnum) { /* in quest */
+            // do_wear.c:2230-2237 zeroes u.ublessed, calls makeknown() and
+            // redraws AC before returning ECMD_TIME without wearing the helm.
+            // No ported path descends the Quest branch, so nothing reaches it.
+            throw new UnsupportedWearError(
+                'accessory_or_armor_on() quest helm',
+            );
+        }
+    } else {
+        /*
+         * FIXME from C:
+         *  except for the rings/nolimbs case, this allows you to put on
+         *  accessories without having any hands to manipulate them
+         */
 
-    if (obj.otyp === HELM_OF_OPPOSITE_ALIGNMENT
-        && state.qstart_level?.dnum === state.u.uz.dnum) { /* in quest */
-        // do_wear.c:2230-2237 zeroes u.ublessed, calls makeknown() and
-        // redraws AC before returning ECMD_TIME without wearing the helm.
-        // No ported path descends the Quest branch, so nothing reaches it.
-        throw new UnsupportedWearError('accessory_or_armor_on() quest helm');
+        /* accessory */
+        if (ring) {
+            let res = 0;
+
+            if (nolimbs(state.youmonst.data)) {
+                await ttyPline(
+                    'You cannot make the ring stick to your body.', state,
+                );
+                return ECMD_OK;
+            }
+            if (state.uleft && state.uright) {
+                await ttyPline(
+                    `There are no more ${humanoid(state.youmonst.data)
+                        ? 'ring-' : ''}${fingers_or_gloves(false, state)}`
+                    + ' to fill.',
+                    state,
+                );
+                return ECMD_OK;
+            }
+            if (state.uleft) {
+                mask = RIGHT_RING;
+            } else if (state.uright) {
+                mask = LEFT_RING;
+            } else {
+                /* both fingers free -- ask which one */
+                let done = false;
+                do {
+                    const qbuf = `Which ${humanoid(state.youmonst.data)
+                        ? 'ring-' : ''}${body_part(FINGER, state.youmonst)}`
+                        + ', Right or Left?';
+                    // C passes addcmdq TRUE for the repeat queue; the port
+                    // does not implement CQ_REPEAT, so FALSE avoids the
+                    // throw yn_function() raises on that path. The prompt
+                    // and the accepted characters are identical.
+                    // yn_function returns a character code (number), so
+                    // convert to a one-character string for the switch.
+                    const answer = String.fromCharCode(
+                        await yn_function(
+                            qbuf, 'rl', '\0', false, state,
+                        ),
+                    );
+                    switch (answer) {
+                    case '\0':
+                    case '\x1b': /* ESC */
+                        return ECMD_OK;
+                    case 'l':
+                    case 'L':
+                        mask = LEFT_RING;
+                        done = true;
+                        break;
+                    case 'r':
+                    case 'R':
+                        mask = RIGHT_RING;
+                        done = true;
+                        break;
+                    }
+                } while (!done);
+            }
+            if (state.uarmg && Glib(state)) {
+                await ttyPline(
+                    `Your ${gloves_simple_name(state.uarmg, state)} are too `
+                    + 'slippery to remove, so you cannot put on the ring.',
+                    state,
+                );
+                return ECMD_TIME; /* always uses move */
+            }
+            if (state.uarmg && state.uarmg.cursed) {
+                res = !state.uarmg.bknown ? 1 : 0;
+                set_bknown(state.uarmg, 1, { state });
+                await ttyPline(
+                    `You cannot remove your ${c_gloves} to put on the ring.`,
+                    state,
+                );
+                /* uses move iff we learned gloves are cursed */
+                return res ? ECMD_TIME : ECMD_OK;
+            }
+            if (state.uwep) {
+                res = !state.uwep.bknown ? 1 : 0; /* before calling welded() */
+                const URIGHTY = state.u.uhandedness !== LEFT_HANDED;
+                const ULEFTY = !URIGHTY;
+                if (((mask === RIGHT_RING && URIGHTY)
+                     || (mask === LEFT_RING && ULEFTY)
+                     || bimanual(state.uwep, state))
+                    && welded(state.uwep, state)) {
+                    let hand = body_part(HAND, state.youmonst);
+                    /* welded will set bknown */
+                    if (bimanual(state.uwep, state))
+                        hand = makeplural(hand);
+                    await ttyPline(
+                        `You cannot free your weapon ${hand} to put on`
+                        + ' the ring.',
+                        state,
+                    );
+                    /* uses move iff we learned weapon is cursed */
+                    return res ? ECMD_TIME : ECMD_OK;
+                }
+            }
+        } else if (amulet) {
+            if (state.uamul) {
+                await already_wearing('an amulet', state);
+                return ECMD_OK;
+            }
+        } else if (eyewear) {
+            if (!has_head(state.youmonst.data)) {
+                // ansimpleoname() is unported; this arm fires only for a
+                // headless polymorph form, which no ported path produces.
+                throw new UnsupportedWearError(
+                    'ansimpleoname() for headless polymorph',
+                );
+            }
+            if (state.ublindf) {
+                if (state.ublindf.otyp === TOWEL) {
+                    await ttyPline(
+                        `Your ${body_part(FACE, state.youmonst)} is already`
+                        + ' covered by a towel.',
+                        state,
+                    );
+                } else if (state.ublindf.otyp === BLINDFOLD) {
+                    if (obj.otyp === LENSES)
+                        await already_wearing2('lenses', 'a blindfold', state);
+                    else
+                        await already_wearing('a blindfold', state);
+                } else if (state.ublindf.otyp === LENSES) {
+                    if (obj.otyp === BLINDFOLD)
+                        await already_wearing2(
+                            'a blindfold', 'some lenses', state,
+                        );
+                    else
+                        await already_wearing('some lenses', state);
+                } else {
+                    await already_wearing('something', state); /* ??? */
+                }
+                return ECMD_OK;
+            }
+        } else {
+            /* neither armor nor accessory */
+            await ttyPline("You can't wear that!", state);
+            return ECMD_OK;
+        }
     }
 
     // C ref: do_wear.c:2355 retouch_object(&obj, FALSE), on the same
@@ -1529,126 +1944,132 @@ async function accessory_or_armor_on(obj, state = game) {
     if (obj.oartifact)
         throw new UnsupportedWearError('retouch_object() for an artifact');
 
-    /* if the armor is wielded, release it for wearing (won't be
-       welded even if cursed; that only happens for weapons/weptools) */
-    if (obj.owornmask & W_WEAPONS) {
-        // do_wear.c:2363-2364 remove_worn_item(), which js/dothrow.js:550 also
-        // stops in front of. Nothing puts armor in a weapon slot here: 'w',
-        // 'x' and 'Q' are unported and u_init.c wields only weapons.
-        throw new UnsupportedWearError('remove_worn_item()');
+    if (armor) {
+        /* if the armor is wielded, release it for wearing (won't be
+           welded even if cursed; that only happens for weapons/weptools) */
+        if (obj.owornmask & W_WEAPONS) {
+            // do_wear.c:2363-2364 remove_worn_item(), which
+            // js/dothrow.js:550 also stops in front of. Nothing puts armor
+            // in a weapon slot here: 'w', 'x' and 'Q' are unported and
+            // u_init.c wields only weapons.
+            throw new UnsupportedWearError('remove_worn_item()');
+        }
+        /*
+         * C sets obj->known in the afternmv action rather than here, so
+         * that a nymph who steals the armor mid-donning leaves the hero
+         * ignorant of its enchantment; Armor_on() and Shield_on() above
+         * are those actions.
+         */
+        // do_wear.c:2375 `gw.wasinwater = u.uinwater` is deliberately not
+        // written. Boots_on() (do_wear.c:210-215) is its only reader, and
+        // that read sits inside the WATER_WALKING_BOOTS arm the W_ARMF
+        // case below refuses by otyp, so copying u.uinwater here would
+        // give that value a second home with nothing to read it. It belongs
+        // with a ported water-walking arm.
+
+        // C's chain at 2377-2393 chooses the callback by comparing `obj`
+        // against the slot pointers setworn() has just filled. `mask` names
+        // the same slot one statement earlier, so switching on it here
+        // answers all seven slots and refuses the callback arms that reach
+        // outside do_wear.c before anything is written -- the shape
+        // armoroff()'s delayed branch uses above.
+        //
+        // Every otyp refusal below is hoisted out of its callback rather
+        // than left in it, because a callback runs too late to stop
+        // anything: by then setworn() has moved AC, and on the delayed arm
+        // the helpless turns are spent as well. Above setworn() a refusal
+        // leaves the hero as it found her. Boots_on(), Helmet_on() and
+        // Gloves_on() keep a copy of their question as well as being
+        // hoisted here, because set_wear() reaches them with whatever
+        // u_init.c wore and has no frame above it to hoist into.
+        let afternmv;
+
+        switch (mask) {
+        case W_ARM:
+            // Armor_on()'s two tails belong to dragon armor.
+            if (Is_dragon_armor(obj))
+                throw new UnsupportedWearError(
+                    `Armor_on() for otyp ${obj.otyp}`,
+                );
+            afternmv = Armor_on;
+            break;
+        case W_ARMC:
+            if (!cloakOnPorted(obj.otyp))
+                throw new UnsupportedWearError(
+                    `Cloak_on() for otyp ${obj.otyp}`,
+                );
+            afternmv = Cloak_on;
+            break;
+        case W_ARMH:
+            if (!helmetOnPorted(obj.otyp))
+                throw new UnsupportedWearError(
+                    `Helmet_on() for otyp ${obj.otyp}`,
+                );
+            afternmv = Helmet_on;
+            break;
+        case W_ARMG:
+            if (obj.otyp !== LEATHER_GLOVES)
+                throw new UnsupportedWearError(
+                    `Gloves_on() for otyp ${obj.otyp}`,
+                );
+            afternmv = Gloves_on;
+            break;
+        case W_ARMF:
+            if (!PLAIN_BOOTS_ON.has(obj.otyp))
+                throw new UnsupportedWearError(
+                    `Boots_on() for otyp ${obj.otyp}`,
+                );
+            afternmv = Boots_on;
+            break;
+        case W_ARMU:
+            afternmv = Shirt_on;
+            break;
+        case W_ARMS:
+            afternmv = Shield_on;
+            break;
+        default:
+            throw new Error(
+                `wearing armor not worn as armor? [${mask}]`,
+            );
+        }
+
+        setworn(obj, mask, setwornEnv(state));
+        /* if there's no delay, we'll execute 'afternmv' immediately */
+        state.afternmv = afternmv;
+
+        const delay = -objectType(obj, state).oc_delay;
+
+        if (delay) {
+            nomul(delay, state);
+            state.multi_reason = 'dressing up';
+            state.nomovemsg = 'You finish your dressing maneuver.';
+        } else {
+            /* call afternmv, clear it+nomovemsg+multi_reason */
+            await unmul('', state);
+            await on_msg(obj, state);
+        }
+        takeoffContext(state).mask = 0;
+    } else { /* not armor */
+        if (ring) {
+            /* Ring_on() expects ring to already be worn as uleft or uright */
+            setworn(obj, mask, setwornEnv(state));
+            await Ring_on(obj, state);
+            /* is_worn(): 'obj' will always be worn here except when putting
+               on a ring of levitation while at a sink location */
+            if (obj.owornmask)
+                await on_msg(obj, state);
+        } else if (amulet) {
+            /* setworn() and on_msg() handled by Amulet_on() */
+            Amulet_on(obj, state);
+        } else if (eyewear) {
+            /* setworn() and on_msg() handled by Blindf_on() */
+            Blindf_on(obj, state);
+        } else {
+            throw new Error(
+                `putting on unexpected type of accessory: otyp ${obj.otyp}`,
+            );
+        }
     }
-    /*
-     * C sets obj->known in the afternmv action rather than here, so that a
-     * nymph who steals the armor mid-donning leaves the hero ignorant of its
-     * enchantment; Armor_on() and Shield_on() above are those actions.
-     */
-    // do_wear.c:2375 `gw.wasinwater = u.uinwater` is deliberately not
-    // written. Boots_on() (do_wear.c:210-215) is its only reader, and that
-    // read sits inside the WATER_WALKING_BOOTS arm the W_ARMF case below
-    // refuses by otyp, so copying u.uinwater here would give that value a
-    // second home with nothing to read it. It belongs with a ported
-    // water-walking arm.
-
-    // C's chain at 2377-2393 chooses the callback by comparing `obj` against
-    // the slot pointers setworn() has just filled. `mask` names the same slot
-    // one statement earlier, so switching on it here answers all seven slots
-    // and refuses the callback arms that reach outside do_wear.c before
-    // anything is written -- the shape armoroff()'s delayed branch uses above.
-    //
-    // Every otyp refusal below is hoisted out of its callback rather than left
-    // in it, because a callback runs too late to stop anything: by then
-    // setworn() has moved AC, and on the delayed arm the helpless turns are
-    // spent as well. Above setworn() a refusal leaves the hero as it found
-    // her, which is what the slot test already does. Armor_off() and
-    // Cloak_off() keep their copies inline because each is checked before the
-    // piece leaves its slot. Boots_on(), Helmet_on() and Gloves_on() keep a
-    // copy of their question as well as being hoisted here, because set_wear()
-    // reaches them with whatever u_init.c wore and has no frame above it to
-    // hoist into.
-    let afternmv;
-
-    switch (worn.mask) {
-    case W_ARM:
-        // Armor_on()'s two tails belong to dragon armor.
-        if (Is_dragon_armor(obj))
-            throw new UnsupportedWearError(`Armor_on() for otyp ${obj.otyp}`);
-        afternmv = Armor_on;
-        break;
-    case W_ARMC:
-        // Cloak_on()'s five remaining arms, which makeknown(), toggle stealth
-        // or displacement, or redraw the hero with the See_invisible messages.
-        if (!cloakOnPorted(obj.otyp))
-            throw new UnsupportedWearError(`Cloak_on() for otyp ${obj.otyp}`);
-        afternmv = Cloak_on;
-        break;
-    case W_ARMH:
-        // Helmet_on()'s other six arms, which see_monsters(), adjust the
-        // spellcasting bonus or Charisma, change alignment, curse the helm --
-        // or, for the helm of telepathy, leave the switch bare and change what
-        // the hero senses through the extrinsic setworn() has just raised.
-        // This copy of the question is what a helmet needs and a shield does
-        // not: objects.h gives every helmet but the fedora and the dented pot
-        // an oc_delay of 1, so Helmet_on()'s own guard would not run until the
-        // turn after the slot and the status line had moved.
-        if (!helmetOnPorted(obj.otyp))
-            throw new UnsupportedWearError(`Helmet_on() for otyp ${obj.otyp}`);
-        afternmv = Helmet_on;
-        break;
-    case W_ARMG:
-        // Gloves_on()'s other three arms, which draw rnd(20) into HFumbling,
-        // call makeknown(), or adjust an ability score.
-        if (obj.otyp !== LEATHER_GLOVES)
-            throw new UnsupportedWearError(`Gloves_on() for otyp ${obj.otyp}`);
-        afternmv = Gloves_on;
-        break;
-    case W_ARMF:
-        // Boots_on()'s other five arms, which walk on water, speed the hero
-        // up, toggle stealth, draw rnd(20) into HFumbling, or levitate.
-        if (!PLAIN_BOOTS_ON.has(obj.otyp))
-            throw new UnsupportedWearError(`Boots_on() for otyp ${obj.otyp}`);
-        afternmv = Boots_on;
-        break;
-    case W_ARMU:
-        afternmv = Shirt_on;
-        break;
-    case W_ARMS:
-        afternmv = Shield_on;
-        break;
-    default:
-        // do_wear.c:2392-2393 panic("wearing armor not worn as armor?").
-        // Unreachable rather than unported: canwearobj() answers ok true only
-        // out of an arm that has set one of the seven masks above, and answers
-        // mask 0 with ok false, which returned several statements ago. C
-        // spells the same guarantee as a panic, so this throws rather than
-        // raising the fail-closed class the refusals above use.
-        throw new Error(`wearing armor not worn as armor? [${worn.mask}]`);
-    }
-
-    setworn(obj, worn.mask, setwornEnv(state));
-    /* if there's no delay, we'll execute 'afternmv' immediately */
-    state.afternmv = afternmv;
-
-    const delay = -objectType(obj, state).oc_delay;
-
-    if (delay) {
-        // do_wear.c:2396-2399 spends the delay as helpless turns, and
-        // allmain.c moveloop_core() runs the callback through unmul() on the
-        // turn the count reaches zero -- the wiring armoroff()'s delayed
-        // branch above already uses, with the message and the callback
-        // swapped for the wearing pair. Note what this arm does not do: C
-        // prints no on_msg() here, so a suit that takes any time to put on is
-        // announced only by "You finish your dressing maneuver.", while the
-        // AC it buys appeared on the status line several turns earlier, when
-        // setworn() ran. That is the mirror image of 'T'.
-        nomul(delay, state);
-        state.multi_reason = 'dressing up';
-        state.nomovemsg = 'You finish your dressing maneuver.';
-    } else {
-        /* call afternmv, clear it+nomovemsg+multi_reason */
-        await unmul('', state);
-        await on_msg(obj, state);
-    }
-    takeoffContext(state).mask = 0;
     return ECMD_TIME;
 }
 
@@ -1670,6 +2091,31 @@ export async function dowear(state = game) {
         return ECMD_OK;
     }
     const otmp = await getobj('wear', wear_ok, GETOBJ_NOFLAGS, state);
+
+    return otmp ? accessory_or_armor_on(otmp, state) : ECMD_CANCEL;
+}
+
+// C ref: do_wear.c puton_ok() (3451-3454), the getobj() callback for 'P'.
+export async function puton_ok(obj, state = game) {
+    return equip_ok(obj, false, true, state);
+}
+
+// C ref: do_wear.c doputon() (2454-2469), the 'P' command.
+export async function doputon(state = game) {
+    if (state.uleft && state.uright && state.uamul && state.ublindf
+        && state.uarm && state.uarmu && state.uarmc && state.uarmh
+        && state.uarms && state.uarmg && state.uarmf) {
+        /* 'P' message doesn't mention armor */
+        await ttyPline(
+            `Your ${humanoid(state.youmonst.data) ? 'ring-' : ''}`
+            + `${fingers_or_gloves(false, state)} are full, and you're already`
+            + ` wearing an amulet and ${(state.ublindf.otyp === LENSES)
+                ? 'some lenses' : 'a blindfold'}.`,
+            state,
+        );
+        return ECMD_OK;
+    }
+    const otmp = await getobj('put on', puton_ok, GETOBJ_NOFLAGS, state);
 
     return otmp ? accessory_or_armor_on(otmp, state) : ECMD_CANCEL;
 }
@@ -1764,12 +2210,14 @@ export const _doWearInternals = Object.freeze({
     Gloves_on,
     Helmet_off,
     Helmet_on,
+    Ring_on,
     Shield_off,
     Shield_on,
     Shirt_off,
     Shirt_on,
     accessory_or_armor_on,
     already_wearing,
+    already_wearing2,
     cancel_doff,
     off_msg,
     on_msg,

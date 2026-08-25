@@ -37,7 +37,6 @@ import {
     ROOMOFFSET,
     SHARED,
     SHOPBASE,
-    W_RING,
 } from '../js/const.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { PM_TOURIST } from '../js/monsters.js';
@@ -457,16 +456,13 @@ test('priced preflight refuses every excluded branch before naming',
                 ({ state, upper }) => {
                     state.objects[upper.otyp].oc_uname = 'needle';
                 }],
-            ['doname-only worn suffix', /worn-ring suffix/u,
-                ({ upper }) => { upper.owornmask = W_RING; }],
         ];
 
         for (const [name, expected, prepare] of cases) {
             const fixture = await generatedShopPile();
             prepare(fixture);
             const namingOwner = name === 'hallucinated currency'
-                || name === 'unsupported base name'
-                || name === 'doname-only worn suffix';
+                || name === 'unsupported base name';
             assert.throws(
                 () => namingOwner
                     ? assertPricedObjectNameable(

@@ -349,8 +349,6 @@ function preflightDoname(obj, type, state, allowLiveShopPrice) {
         unsupported('shop price suffix', obj);
     if (!allowLiveShopPrice && state.iflags?.pricequotes && !type.oc_name_known)
         unsupported('price quote suffix', obj);
-    if (obj.owornmask & (W_RING | W_RINGL | W_RINGR))
-        unsupported('worn-ring suffix', obj);
     // objnam.c:1563 and :1592. wornSuffix() below ports the "wielded in" and
     // "weapon in" arms of that word choice; "tethered to" would also have to
     // follow the aklys back to the hand it is attached to, so it still stops.
@@ -905,6 +903,13 @@ function wornSuffix(obj, type, state) {
         // paren is always the last character here and the guard is vacuous.
         if (obj === state.uarmg && Glib(state))
             suffix = `${suffix.slice(0, -1)}; slippery)`;
+    }
+    // objnam.c:1492-1499. Ring class adds "(on right hand)" or "(on left hand)"
+    // based on which ring slot the hero wears it in. body_part(HAND) adapts
+    // to polymorphed forms.
+    if (classForSuffix === RING_CLASS && (mask & W_RING)) {
+        const side = (mask & W_RINGR) ? 'right' : 'left';
+        suffix += ` (on ${side} ${body_part(HAND, state.youmonst)})`;
     }
     // objnam.c:1561 also requires !gm.mrg_to_wielded, which pickup.c:1881-1882
     // raises only while pickup_prinv() names a stack that just merged into the

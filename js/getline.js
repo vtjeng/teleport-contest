@@ -322,7 +322,11 @@ export async function tty_yn_function(query, resp, def, state = game) {
                 'tty_yn_function() with hidden responses after <esc>',
             );
         }
-        prompt = `${query} [${resp}]${def ? ` (${def})` : ''} `;
+        // C ref: topl.c:415 `if (def)` tests a char, so '\0' (0) is falsy
+        // and suppresses the default display.  In JS the parameter arrives
+        // as a one-character string, so '\0' is truthy; test the code point.
+        const showDef = def && def.charCodeAt(0) !== 0;
+        prompt = `${query} [${resp}]${showDef ? ` (${def})` : ''} `;
     } else {
         prompt = `${query} `;
     }
