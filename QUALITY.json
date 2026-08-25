@@ -19138,6 +19138,89 @@
         ]
       },
       "recordedAt": "2026-08-25T04:45:52.884Z"
+    },
+    {
+      "kind": "review",
+      "head": "d91521d10dbe8bdb47229a576da4c52248459e72",
+      "auditedRange": "c252bb416725df10184d8e612882dde9f84c0945..d91521d10dbe8bdb47229a576da4c52248459e72",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "9b34adacc2ac9ac267834a7acbee98c410238896",
+        "reason": "The existing checklist covers a prior goal (options-config-parser, ending at 9b34ada). The eight goals in this range were each single-slice goals with their own differentials and no formal checklist."
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 13 raw, 11 deduplicated, 5 confirmed, 5 applied, 0 deferred, 6 rejected, 0 unverified. Full correctness pass (4 finders, 2 verifiers). 13 raw, 11 deduped, 5 confirmed, 5 fixed at 2e3c334. Fixes: botl target (correctness), savelife formula test, doclose split, CON ring test, cost hardcode.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1400,
+        "counts": {
+          "raw": 13,
+          "deduplicated": 11,
+          "confirmed": 5,
+          "applied": 5,
+          "deferred": 0,
+          "rejected": 6,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 4,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "adjust_attrib writes state.nhDisplay.botl instead of state.disp.botl, so Ring_on does not schedule the status-line repaint that flush_screen reads from game.disp.botl",
+            "foundBy": [
+              "correctness",
+              "readability",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "done_in_by() uses hardcoded numeric indices 23 and 24 instead of named constants HALLUC and HALLUC_RES",
+            "counterEvidence": "Readability concern, not correctness. Values are correct and inline comments identify the constants. The per-file duplication convention predates this diff."
+          },
+          {
+            "summary": "obstructed() emulates C goto with an empty if-block and duplicates the objhere code outside the if-else chain",
+            "counterEvidence": "Both code paths produce identical output. The C reference uses goto objhere which bypasses the OBJ_AT check, and the JS duplicate correctly mirrors this. Structural cleanup, not a correctness defect."
+          },
+          {
+            "summary": "mdamageu() doc comment contains a verbatim duplicate C-ref line",
+            "counterEvidence": "A duplicated comment has zero behavioral impact. Prose polish belongs in a clarity audit."
+          },
+          {
+            "summary": "Planning-pass savelife simulation inlines a subset of savelife() mutations, omitting hunger reset, trap release, and others",
+            "counterEvidence": "None of the omitted mutations gate RNG calls during the remaining monster-attack sequence. The finding itself acknowledges the omissions do not consume RNG. Speculative future risk, not a demonstrated current defect."
+          },
+          {
+            "summary": "heroHallucinating() duplicated from apply.js into write.js",
+            "counterEvidence": "The per-file duplication pattern predates this diff (six or more existing copies). The convention follows AGENTS.md's 'keep each source file's port in one place' rule, mirroring C's per-file header inclusion."
+          },
+          {
+            "summary": "on_msg prinv() test uses line.length > 0 as oracle instead of checking content",
+            "counterEvidence": "The test verifies mask-dispatch routing (accessory masks reach the prinv arm), not prinv output format. The exact content is tested at line 1953-1954 for the main path; the loop tests three routing conditions. The oracle is appropriate for branch-dispatch testing."
+          }
+        ],
+        "deferrals": []
+      },
+      "recordedAt": "2026-08-25T16:38:45.594Z"
     }
   ]
 }
