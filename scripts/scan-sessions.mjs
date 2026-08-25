@@ -719,6 +719,19 @@ export function rankCandidates(rows, order = 'unlocks') {
                 entry.unlocksSessions += 1;
                 const next = row.behaviors[1];
                 entry.unlocks += (next ? next.at : row.recordedSteps) - behavior.at;
+                const screenDiv = row.divergence?.screen;
+                if (screenDiv && screenDiv.index <= behavior.at) {
+                    const annotation = {
+                        file: row.file,
+                        behaviorAt: behavior.at,
+                        screenDivergenceAt: screenDiv.index,
+                        rngDivergenceAt: row.divergence.rng?.index ?? null,
+                        rngCaller: row.divergence.rng?.cCaller ?? null,
+                        relation: screenDiv.index < behavior.at
+                            ? 'before' : 'at',
+                    };
+                    (entry.divergentSessions ??= []).push(annotation);
+                }
             }
             candidates.set(behavior.member, entry);
         }
@@ -726,6 +739,22 @@ export function rankCandidates(rows, order = 'unlocks') {
     return [...candidates.values()].sort(
         (a, b) => compare(a, b) || a.member.localeCompare(b.member),
     );
+}
+
+export function divergenceCandidates(rows) {
+    const results = [];
+    for (const row of rows) {
+        const screenDiv = row.divergence?.screen;
+        if (!screenDiv) continue;
+        results.push({
+            file: row.file,
+            screensEmitted: row.screensEmitted,
+            screenDivergenceAt: screenDiv.index,
+            rngCaller: row.divergence.rng?.cCaller ?? null,
+            blocked: row.screensEmitted - screenDiv.index,
+        });
+    }
+    return results;
 }
 
 /**
@@ -1086,6 +1115,27 @@ function reportRanking(rows, recorded, order) {
             + `${String(entry.unlocks).padStart(7)}  `
             + `${String(entry.unlocksSessions).padStart(8)}  ${entry.member}`,
         );
+        for (const d of entry.divergentSessions ?? []) {
+            const name = d.file.replace(/\.session\.json$/u, '');
+            const caller = d.rngCaller ? `  in ${d.rngCaller}` : '';
+            console.log(
+                `    ^ ${name} diverges at screen ${d.screenDivergenceAt}`
+                + ` (${d.relation} step ${d.behaviorAt})${caller}`,
+            );
+        }
+    }
+
+    const divCandidates = divergenceCandidates(rows);
+    if (divCandidates.length > 0) {
+        console.log('\nSilent divergences as candidates '
+            + '(screens emitted but not matching)');
+        for (const d of divCandidates) {
+            const caller = d.rngCaller ? `  in ${d.rngCaller}` : '';
+            console.log(
+                `  ${d.file}  diverges at screen ${d.screenDivergenceAt}`
+                + `, ${d.blocked} screens blocked${caller}`,
+            );
+        }
     }
 }
 
@@ -1314,10 +1364,12 @@ export async function main(args) {
     if (json) {
         const { carried, alike, differing, unreconciled } = reconcile(rows);
         const ranking = rankCandidates(rows, order);
+        const divCandidates = divergenceCandidates(rows);
         console.log(JSON.stringify({
             rows,
             order,
             ranking,
+            divergenceCandidates: divCandidates,
             ...(aheadAll ? {
                 stretches: aheadMembers(rows).map((member) => ({
                     member,

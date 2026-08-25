@@ -21,6 +21,7 @@ import {
     cursorState,
     refusedCommandKey,
     dedupeMessages,
+    divergenceCandidates,
     executedCommands,
     extendedCommandAt,
     formatReplayContext,
@@ -928,4 +929,147 @@ test('a longer JS RNG log reports only when the session finished', () => {
     assert.equal(finished.rng.index, 1);
     assert.equal(finished.rng.cEntry, undefined);
     assert.equal(finished.rng.jsEntry, 'rnd(6)=2');
+});
+
+// rankCandidates divergence annotations: a session whose screens diverge
+// before its boundary step inflates that candidate's unlocks figure, so the
+// annotation exposes which sessions are suspect and why.
+
+test('rankCandidates annotates a session that diverges before its boundary', () => {
+    const rows = [
+        {
+            // Session diverges at screen 42 but its boundary behavior sits at
+            // step 137, so 95 screens of unlocks credit rest on output that
+            // already differs from C.
+            file: 'divergent.session.json',
+            recordedSteps: 200,
+            behaviors: [{ member: 'puton', at: 137 }],
+            divergence: {
+                screen: { index: 42 },
+                rng: { index: 2700, cCaller: 'rndmonst_adj(makemon.c:1716)' },
+                cursor: null,
+            },
+        },
+        {
+            // Clean session with no divergence — exercises the path where no
+            // annotation is added.
+            file: 'clean.session.json',
+            recordedSteps: 100,
+            behaviors: [{ member: 'puton', at: 50 }],
+            divergence: null,
+        },
+    ];
+    const [entry] = rankCandidates(rows);
+    assert.equal(entry.member, 'puton');
+    assert.equal(entry.divergentSessions.length, 1);
+    assert.deepEqual(entry.divergentSessions[0], {
+        file: 'divergent.session.json',
+        behaviorAt: 137,
+        screenDivergenceAt: 42,
+        rngDivergenceAt: 2700,
+        rngCaller: 'rndmonst_adj(makemon.c:1716)',
+        relation: 'before',
+    });
+});
+
+test('rankCandidates marks relation as at when divergence equals the boundary', () => {
+    const rows = [
+        {
+            // Divergence at screen 42 and behavior at step 42: the divergence
+            // might be caused by the boundary itself, so the selector must
+            // investigate rather than discount.
+            file: 'at-boundary.session.json',
+            recordedSteps: 200,
+            behaviors: [{ member: 'levelgen', at: 42 }],
+            divergence: {
+                screen: { index: 42 },
+                rng: null,
+                cursor: null,
+            },
+        },
+    ];
+    const [entry] = rankCandidates(rows);
+    assert.equal(entry.divergentSessions[0].relation, 'at');
+    // No RNG divergence, so both rng fields are null.
+    assert.equal(entry.divergentSessions[0].rngDivergenceAt, null);
+    assert.equal(entry.divergentSessions[0].rngCaller, null);
+});
+
+test('rankCandidates omits divergentSessions when divergence is after the boundary', () => {
+    const rows = [
+        {
+            // Divergence at screen 95 but behavior at step 50 — the session is
+            // clean up to and past the boundary, so the unlocks figure is sound.
+            file: 'late-divergence.session.json',
+            recordedSteps: 200,
+            behaviors: [{ member: 'eat', at: 50 }],
+            divergence: {
+                screen: { index: 95 },
+                rng: null,
+                cursor: null,
+            },
+        },
+    ];
+    const [entry] = rankCandidates(rows);
+    assert.equal(entry.member, 'eat');
+    assert.equal(entry.divergentSessions, undefined);
+});
+
+test('rankCandidates preserves backward compatibility for clean rows', () => {
+    // Existing test rows carry no divergence property; verify that adding the
+    // annotation logic did not change the shape for clean entries.
+    const rows = [
+        { file: 'a', recordedSteps: 100, behaviors: [{ member: 'eat', at: 40 }] },
+    ];
+    const [entry] = rankCandidates(rows);
+    assert.equal(entry.divergentSessions, undefined);
+    assert.deepEqual(entry, {
+        member: 'eat', supports: 60, supportsSessions: 1,
+        unlocks: 60, unlocksSessions: 1,
+    });
+});
+
+// divergenceCandidates: surfaces each divergent session as a candidate to fix,
+// priced by the screens emitted past the divergence point.
+
+test('divergenceCandidates returns blocked screen counts for divergent sessions', () => {
+    const rows = [
+        {
+            // 137 screens emitted, divergence at screen 42: 95 screens are
+            // emitted but cannot match until the divergence is fixed.
+            file: 'divergent.session.json',
+            screensEmitted: 137,
+            divergence: {
+                screen: { index: 42 },
+                rng: { index: 2700, cCaller: 'rndmonst_adj(makemon.c:1716)' },
+                cursor: null,
+            },
+        },
+        {
+            // No divergence — should not appear in the output.
+            file: 'clean.session.json',
+            screensEmitted: 100,
+            divergence: null,
+        },
+        {
+            // RNG-only divergence with no screen mismatch — cursor or RNG
+            // alone does not block screen matching, so this session is excluded.
+            file: 'rng-only.session.json',
+            screensEmitted: 80,
+            divergence: {
+                screen: null,
+                rng: { index: 500, cCaller: 'some_func()' },
+                cursor: null,
+            },
+        },
+    ];
+    const candidates = divergenceCandidates(rows);
+    assert.equal(candidates.length, 1);
+    assert.deepEqual(candidates[0], {
+        file: 'divergent.session.json',
+        screensEmitted: 137,
+        screenDivergenceAt: 42,
+        rngCaller: 'rndmonst_adj(makemon.c:1716)',
+        blocked: 95,
+    });
 });
