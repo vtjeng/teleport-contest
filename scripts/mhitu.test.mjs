@@ -1828,6 +1828,52 @@ test('mdamageu stops at the hero\'s death and not one hit point above it',
     state.invent = state.invent.nobj;
 });
 
+test('planning pass simulates wizard-mode survival instead of throwing',
+    async () => {
+    // When the hero is in wizard or discover mode and u.uhp drops below 1,
+    // done() asks "Die? [yn]" and the player answers "n", then savelife()
+    // restores the hero. The planning pass cannot run done() (it needs the
+    // live terminal), so it simulates the survival inline: umortality
+    // increments, HP is restored from the savelife() constitution formula,
+    // and the turn continues.
+    //
+    // C ref: end.c done():1071, :1077, savelife():719-722.
+    const state = await meleeHero();
+    const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0);
+    state.u.uhp = 1;
+
+    // Wizard mode: the planning pass should survive, not throw.
+    state.wizard = true;
+    const before = state.u.umortality ?? 0;
+    const wizEnv = meleeEnv(state, [1], { planning: true });
+    assert.equal(await mattacku(bug, wizEnv.env), false);
+    // savelife() formula: givehp = 50 + 10 * floor(CON / 2). This
+    // Valkyrie's ACURR(A_CON) is 18, giving givehp = 50 + 90 = 140.
+    // uhpmax is 16, so uhp = min(16, 140) = 16.
+    assert.equal(state.u.uhp, 16, 'HP restored to uhpmax');
+    assert.equal(state.u.umortality, before + 1, 'mortality incremented');
+    assert.equal(state.context.move, 0, 'context.move cleared');
+    assert.equal(state.multi, -1, 'multi set to -1');
+
+    // Explore mode: same survival path.
+    state.wizard = false;
+    state.discover = true;
+    state.u.uhp = 1;
+    const exploreEnv = meleeEnv(state, [1], { planning: true });
+    assert.equal(await mattacku(bug, exploreEnv.env), false);
+    assert.equal(state.u.uhp, 16, 'explore mode also restores HP');
+    assert.equal(state.u.umortality, before + 2, 'mortality incremented again');
+
+    // Non-wizard, non-discover: the throw is correct (hero dies for real).
+    state.discover = false;
+    state.u.uhp = 1;
+    await assert.rejects(
+        () => mattacku(bug, meleeEnv(state, [1], { planning: true }).env),
+        (error) => error instanceof UnsupportedEndOfGameError
+            && error.message === 'the hero dying of a monster attack',
+    );
+});
+
 test('a thwarted bite leaves the status line alone and a landed one marks it',
     async () => {
     // mhitu.c:1908 sets disp.botl inside mdamageu(), which is the only writer

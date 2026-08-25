@@ -5,6 +5,7 @@
 // passiveum().
 
 import {
+    A_CON,
     AC_VALUE,
     BLINDED,
     CONFLICT,
@@ -34,6 +35,7 @@ import {
 // reads it at module scope.
 import { stop_occupation } from './allmain.js';
 import { ART_SNICKERSNEE } from './artifacts.js';
+import { effective_attribute, minuhpmax, setuhpmax } from './attrib.js';
 import { midnight } from './calendar.js';
 import { bot, newsym } from './display.js';
 import { capitalizedMonsterName, monsterPossessive } from './do_name.js';
@@ -965,14 +967,40 @@ async function mdamageu(mtmp, n, state, env) {
         // C ref: mhitu.c:1924-1925. done_in_by() prints "You die...", builds
         // the killer string, and calls done(). done() calls bot() on the
         // module-level game and paranoid_query() reads input, so it cannot
-        // run on the planning pass's clone. The planning pass throws here;
-        // the live pass calls done_in_by() and propagates done()'s refusal.
+        // run on the planning pass's clone.
         if (env.planning) {
-            throw new UnsupportedEndOfGameError(
-                'the hero dying of a monster attack',
-            );
+            if (state.wizard || state.discover) {
+                // In wizard or discover mode, done() asks "Die? [yn]" and the
+                // player answers "n". done() then calls savelife(), which
+                // restores the hero to a viable state, and returns normally.
+                // Neither done() nor savelife() makes a random-number call, so
+                // the planning pass can simulate survival by applying the same
+                // state changes without running done()'s display operations
+                // (bot(), paranoid_query(), curs_on_u()) that need the live
+                // terminal.
+                //
+                // C ref: end.c done():1071 u.umortality++, :1077 u.uhp=0, then
+                // savelife():719-722 restores HP from CON.
+                state.u.umortality++;
+                state.u.uhp = 0;
+                const uhpmin = minuhpmax(10, state);
+                if (state.u.uhpmax < uhpmin)
+                    setuhpmax(uhpmin, true, state);
+                const givehp = 50
+                    + 10 * Math.trunc(effective_attribute(state, A_CON) / 2);
+                state.u.uhp = Math.min(state.u.uhpmax, givehp);
+                state.context.move = 0;
+                state.multi = -1;
+            } else {
+                throw new UnsupportedEndOfGameError(
+                    'the hero dying of a monster attack',
+                );
+            }
+        } else {
+            // Live pass: done_in_by() calls done(), which in wizard/discover
+            // mode asks "Die?"; savelife() runs on the real game state.
+            await done_in_by(mtmp, DIED, state);
         }
-        await done_in_by(mtmp, DIED, state);
     }
 }
 
