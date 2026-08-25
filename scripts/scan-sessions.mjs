@@ -717,9 +717,14 @@ export function rankCandidates(rows, order = 'unlocks') {
             entry.supportsSessions += 1;
             if (position === 0) {
                 entry.unlocksSessions += 1;
-                const next = row.behaviors[1];
-                entry.unlocks += (next ? next.at : row.recordedSteps) - behavior.at;
                 const screenDiv = row.divergence?.screen;
+                const divergesBefore = screenDiv
+                    && screenDiv.index < behavior.at;
+                if (!divergesBefore) {
+                    const next = row.behaviors[1];
+                    entry.unlocks
+                        += (next ? next.at : row.recordedSteps) - behavior.at;
+                }
                 if (screenDiv && screenDiv.index <= behavior.at) {
                     const annotation = {
                         file: row.file,
@@ -727,8 +732,7 @@ export function rankCandidates(rows, order = 'unlocks') {
                         screenDivergenceAt: screenDiv.index,
                         rngDivergenceAt: row.divergence.rng?.index ?? null,
                         rngCaller: row.divergence.rng?.cCaller ?? null,
-                        relation: screenDiv.index < behavior.at
-                            ? 'before' : 'at',
+                        relation: divergesBefore ? 'before' : 'at',
                     };
                     (entry.divergentSessions ??= []).push(annotation);
                 }

@@ -933,15 +933,15 @@ test('a longer JS RNG log reports only when the session finished', () => {
 });
 
 // rankCandidates divergence annotations: a session whose screens diverge
-// before its boundary step inflates that candidate's unlocks figure, so the
-// annotation exposes which sessions are suspect and why.
+// before its boundary step cannot deliver matched screens for that candidate,
+// so its unlocks contribution is zeroed and the annotation records why.
 
-test('rankCandidates annotates a session that diverges before its boundary', () => {
+test('rankCandidates zeroes unlocks for a session that diverges before its boundary', () => {
     const rows = [
         {
             // Session diverges at screen 42 but its boundary behavior sits at
-            // step 137, so 95 screens of unlocks credit rest on output that
-            // already differs from C.
+            // step 137. The 63 screens between step 137 and recordedSteps 200
+            // cannot match because the output already differs at screen 42.
             file: 'divergent.session.json',
             recordedSteps: 200,
             behaviors: [{ member: 'puton', at: 137 }],
@@ -952,8 +952,8 @@ test('rankCandidates annotates a session that diverges before its boundary', () 
             },
         },
         {
-            // Clean session with no divergence — exercises the path where no
-            // annotation is added.
+            // Clean session with no divergence — contributes 100 - 50 = 50
+            // screens to unlocks.
             file: 'clean.session.json',
             recordedSteps: 100,
             behaviors: [{ member: 'puton', at: 50 }],
@@ -962,6 +962,10 @@ test('rankCandidates annotates a session that diverges before its boundary', () 
     ];
     const [entry] = rankCandidates(rows);
     assert.equal(entry.member, 'puton');
+    // Only the clean session's 50 screens count; the divergent session's 63
+    // are zeroed because its output diverges 95 screens before the boundary.
+    assert.equal(entry.unlocks, 50);
+    assert.equal(entry.unlocksSessions, 2);
     assert.equal(entry.divergentSessions.length, 1);
     assert.deepEqual(entry.divergentSessions[0], {
         file: 'divergent.session.json',
@@ -990,6 +994,9 @@ test('rankCandidates marks relation as at when divergence equals the boundary', 
         },
     ];
     const [entry] = rankCandidates(rows);
+    // AT divergences keep their unlocks contribution because the boundary
+    // itself may be the cause; only BEFORE divergences are zeroed.
+    assert.equal(entry.unlocks, 200 - 42);
     assert.equal(entry.divergentSessions[0].relation, 'at');
     // No RNG divergence, so both rng fields are null.
     assert.equal(entry.divergentSessions[0].rngDivergenceAt, null);
