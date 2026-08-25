@@ -10,13 +10,13 @@ falsified predictions and measured overstatements are recorded so nobody
 re-derives them. Deferred findings live in `QUALITY.json`, read with
 `npm run quality -- deferrals`.
 
-## Object creation
+## Accessories and equipment
 
-Object ID assignment, wish parsing, and the helper functions that
-`mkobj.c` calls when constructing an object. The current goal fixes a
-divergence in `next_ident(mkobj.c:521)` where the port uses the wrong
-random function, desyncing the RNG stream and blocking 92 screens of
-otherwise-ported behavior in seed0383.
+Putting on and taking off rings, amulets, and blindfolds — `doputon()`
+and `dotakeoff()` in `do_wear.c`. The port already handles the armor
+half of `accessory_or_armor_on()` and `armoroff()`; the current goal
+ports `doputon()` and the accessory effects `Ring_on()`, `Amulet_on()`,
+and `Blindf_on()`.
 
 ## Exploration
 

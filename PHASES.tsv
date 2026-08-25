@@ -1023,3 +1023,7 @@ utc	event	phase	goal	detail
 2026-08-25T12:57:34.602Z	end	select	decgfx-screen-mismatch	
 2026-08-25T12:57:41.849Z	start	implement	decgfx-screen-mismatch	
 2026-08-25T13:21:51.462Z	end	implement	decgfx-screen-mismatch	
+2026-08-25T13:43:11.856Z	start	select	puton-command	
+2026-08-25T13:43:34.241Z	end	select	puton-command	
+2026-08-25T13:51:40.263Z	start	implement	puton-command	
+2026-08-25T15:52:04.009Z	end	implement	puton-command	

@@ -3780,31 +3780,6 @@
       "delivered": null
     },
     {
-      "id": "branch-level-monster-creation",
-      "status": "queued",
-      "boundary": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: outside the main dungeon",
-      "upstreamOwners": [],
-      "forecast": {
-        "steps": 2,
-        "basis": "Capped look-ahead at 8ed9933: seed0030 has 587 raw steps after the branch-level monster creation boundary. Capped at ~2 by monster ranged weapon attack (gnome throws a phial, mthrowu.c m_throw unported). The old starting-little-dog analysis placed the gnome throw at step ~47; boundary is now at step 45. Sonnet classifier missed the gnome throw and reported cap at step 576 (shopkeeper anger); corrected here.",
-        "sessions": [
-          "seed0030-ten-diverse-deaths"
-        ],
-        "witnesses": [
-          {
-            "session": "seed0030-ten-diverse-deaths",
-            "evidence": "Step 45: preflightCreation() in makemon_create.js throws UnsupportedMonsterCreationError('outside the main dungeon') because isMainDungeonLevel() returns false (dnum !== 0). Confirmed via js/makemon_create.js:1093-1108 and :589-591. Step ~47: gnome throws a phial (mthrowu.c m_throw, unported). Capped forecast 2 steps."
-          }
-        ]
-      },
-      "detail": "The hero descends stairs into a non-main-dungeon branch (likely Gnomish Mines, unverified). makemon_create.js preflightCreation() throws UnsupportedMonsterCreationError when isMainDungeonLevel() returns false (dnum !== 0). Porting requires allowing monster creation on branch levels, including branch-specific monster pools and difficulty adjustments. After the boundary, the gnome throws a phial at the hero (mthrowu.c m_throw), capping the stretch almost immediately.",
-      "slices": [],
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null
-    },
-    {
       "id": "dosounds-has-shop",
       "status": "closed",
       "boundary": "dosounds() needs the has_shop level-sound branch",
@@ -4087,31 +4062,6 @@
       "delivered": null
     },
     {
-      "id": "puton-command",
-      "status": "queued",
-      "boundary": "puton",
-      "upstreamOwners": [],
-      "forecast": {
-        "steps": 4,
-        "basis": "Re-capped at c7a4646: seed5006 has 47 raw steps after puton stop. Capped at 4 by starting little dog acting during wear command (unchanged from 08e7797). seed0383 now also stops on puton at step 137, but diverges at screen 42 (DEC graphics, RNG aligned) so its unlocks contribution is zeroed.",
-        "sessions": [
-          "seed5006"
-        ],
-        "witnesses": [
-          {
-            "session": "seed5006",
-            "evidence": "seed 5006, tourist, step 109, player types P (puton). C runs doputon() in do_wear.c, prompts What do you want to put on? After puton, starting little dog acts during wear command at step 113."
-          }
-        ]
-      },
-      "detail": "",
-      "slices": [],
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null
-    },
-    {
       "id": "decgfx-screen-mismatch",
       "status": "closed",
       "boundary": "DECgraphics symset renders wrong character: C renders backtick with decgfx=1 while JS renders diamond at seed0383 screen 43. Game logic and RNG match through 9706 calls but screen comparison fails.",
@@ -4148,6 +4098,46 @@
         "screens": 95,
         "rng": 0
       }
+    },
+    {
+      "id": "puton-command",
+      "status": "open",
+      "boundary": "puton",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 20,
+        "basis": "Capped look-ahead at 77bf9d2: seed5006 caps at 16 (Blindf_off via dotakeoff accessory path, do_wear.js:1718), seed0383 caps at 4 (AT_ENGL engulfing, mhitu.js:676). Combined: 20. Both classifiers reported 0 ambiguous.",
+        "sessions": [
+          "seed5006",
+          "seed0383"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5006",
+            "evidence": "Step 109: hero types P (puton). C dispatches through cmd.c to doputon() (do_wear.c). C records \"What do you want to put on? [no or ?*]\" — the doputon prompt. The port refuses because doputon() is unported."
+          },
+          {
+            "session": "seed0383",
+            "evidence": "Step 137: hero types P (puton). C dispatches through cmd.c to doputon() (do_wear.c). C records \"What do you want to put on? [den or ?*]\" — the doputon prompt. The port refuses because doputon() is unported."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "doputon-ring-on",
+          "status": "closed",
+          "closedBy": "90d5867e6482ad01f9687cb8967c08db6bd32e91"
+        }
+      ],
+      "openedAt": "77bf9d2904a2094ab95d4cc247da4533784bc5cb",
+      "openStanding": {
+        "sha": "f4e7a04",
+        "screens": 2187,
+        "rng": 152044
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
