@@ -3666,7 +3666,13 @@
         ]
       },
       "detail": "The hero walks into a locked door while carrying a lock pick. lock.c pick_lock() prompts for the tool, attempts to pick the lock, and opens the door on success. The port throws UnsupportedHeroMoveBoundaryError at the hero-move preflight.\n\nseed0007 stops at step 50/302. The 18-step stretch after the boundary is clean: door opens, hero moves, descends stairs, hears dosounds() flavor messages.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "port-lock-picking-occupation",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "3ee57b9ffa99946efe91a05c1e20fc3dbf474d8e",
       "openStanding": {
         "sha": "fba96aa",
