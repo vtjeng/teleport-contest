@@ -64,10 +64,7 @@ import { GameMap } from '../js/game.js';
 import { engr_at } from '../js/engrave.js';
 import { add_to_minv } from '../js/invent.js';
 import { light_globals_init } from '../js/light.js';
-import {
-    UnsupportedMonsterCreationError,
-    dmonsfree,
-} from '../js/makemon_create.js';
+import { dmonsfree } from '../js/makemon_create.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import { mksobj } from '../js/obj.js';
