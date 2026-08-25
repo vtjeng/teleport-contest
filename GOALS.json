@@ -3380,7 +3380,7 @@
     },
     {
       "id": "engraving-read-on-movement",
-      "status": "open",
+      "status": "closed",
       "boundary": "a walking hero one-square step reaches a floor square that holds an engraving; hack.c domove_core() commits the step and pickup.c check_here() calls engrave.c read_engr_at() to display the engraving text. The port currently throws UnsupportedHeroMoveBoundaryError at js/hack.js:1076-1077 when engr_at(x, y) returns non-null.",
       "upstreamOwners": [],
       "forecast": {
@@ -3410,8 +3410,11 @@
         "screens": 2000,
         "rng": 134102
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "7208cd2a3a024a3fb04f17fa8ef0ddaec24dd217",
+      "delivered": {
+        "screens": 6,
+        "rng": 3888
+      }
     },
     {
       "id": "dungeon-overview-menu",
