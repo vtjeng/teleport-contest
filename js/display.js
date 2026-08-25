@@ -12,7 +12,7 @@ import { effective_attribute } from './attrib.js';
 import { near_capacity } from './hack.js';
 import { In_hell, depth, on_level, update_lastseentyp } from './dungeon.js';
 import { money_cnt } from './invent.js';
-import { cansee, seenv_matrix, vision_recalc } from './vision.js';
+import { cansee, seenv_matrix } from './vision.js';
 // js/tty_message.js imports flush_screen() from this file; both sides use the
 // other's exports only inside function bodies, so the cycle resolves.
 import {
@@ -65,7 +65,6 @@ import {
     NO_COLOR,
     CLR_BLACK,
     CLR_BRIGHT_BLUE,
-    CLR_BRIGHT_GREEN,
     CLR_BRIGHT_MAGENTA,
     CLR_GRAY,
     CLR_GREEN,

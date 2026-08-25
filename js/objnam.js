@@ -190,7 +190,7 @@ export function obj_typename(otyp, state = game) {
         else if (otyp >= GRAY_DRAGON_SCALES && otyp <= YELLOW_DRAGON_SCALES)
             buf = 'set of ';
     // FALLTHROUGH
-    default: // eslint-disable-line no-fallthrough
+    default:  
         if (nn) {
             buf += actualn;
             if (isGemStone(otyp, ocl)) buf += ' stone';

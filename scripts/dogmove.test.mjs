@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    APPORT,
     ALLOW_M,
     ALLOW_TRAPS,
     ALLOW_U,
@@ -60,7 +59,6 @@ import {
     PM_GRID_BUG,
     PM_KITTEN,
     PM_LITTLE_DOG,
-    PM_PONY,
     PM_ROTHE,
 } from '../js/monsters.js';
 import { place_monster } from '../js/monst.js';

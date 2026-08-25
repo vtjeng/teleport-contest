@@ -28,7 +28,6 @@ import {
 } from '../js/roles.js';
 import {
     Hello,
-    applyRoleInitMonsterOverrides,
     characterConfigIdentity,
     pick_align,
     pick_gend,

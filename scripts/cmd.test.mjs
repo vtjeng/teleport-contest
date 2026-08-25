@@ -41,7 +41,6 @@ import {
     D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
-    D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
     DOOR,
@@ -108,7 +107,6 @@ import {
 } from '../js/objects.js';
 import { game, resetGame } from '../js/gstate.js';
 import { newObject, place_object } from '../js/obj.js';
-import { UnsupportedFeatureDescriptionError } from '../js/invent.js';
 import {
     domove,
     monsterNearby,
@@ -128,7 +126,6 @@ import {
     PM_COCKATRICE,
     PM_LICHEN,
     PM_NEWT,
-    S_FELINE,
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { BOULDER } from '../js/objects.js';

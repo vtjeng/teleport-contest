@@ -82,7 +82,6 @@ import {
     WIZMODECMD,
     extcmdlist,
 } from './extcmdlist_data.js';
-import { extcmds_match } from './cmd_autocomplete.js';
 export { extcmds_match } from './cmd_autocomplete.js';
 import {
     UnsupportedGetlinBoundaryError,

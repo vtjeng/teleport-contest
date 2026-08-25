@@ -68,7 +68,6 @@ import {
     PM_FIRE_ANT,
     PM_GIANT_EEL,
     PM_GLASS_PIERCER,
-    PM_GRID_BUG,
     PM_HORSE,
     PM_HUMAN_WEREJACKAL,
     PM_JACKAL,

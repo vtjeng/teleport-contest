@@ -10,7 +10,6 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    CONFUSION,
     LAST_PROP,
     TT_BEARTRAP,
     TT_BURIEDBALL,
@@ -23,17 +22,14 @@ import {
     BR_PORTAL,
     BR_STAIR,
     br_string,
-    depth,
-    on_level,
     print_dungeon,
 } from '../js/dungeon.js';
 import {
-    schedule_goto,
     UnsupportedLevelChangeError,
 } from '../js/do.js';
 import { GameDisplay } from '../js/game_display.js';
-import { game, resetGame } from '../js/gstate.js';
-import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import { resetGame } from '../js/gstate.js';
+import { enableRngLog, initRng } from '../js/rng.js';
 import { level_tele } from '../js/teleport.js';
 import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
 import { add_menu_heading } from '../js/windows.js';

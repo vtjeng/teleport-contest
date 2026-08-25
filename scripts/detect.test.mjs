@@ -14,7 +14,6 @@ import {
     D_LOCKED,
     D_TRAPPED,
     DUST,
-    ECMD_OK,
     ECMD_TIME,
     ENGRAVE,
     HALLUC,

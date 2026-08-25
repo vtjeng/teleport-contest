@@ -63,7 +63,6 @@ import {
     RIN_SLOW_DIGESTION,
     SILVER_DAGGER,
     STATUE,
-    TIN,
     TRIPE_RATION,
     WEAPON_CLASS,
 } from '../js/objects.js';
