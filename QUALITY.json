@@ -4734,6 +4734,15 @@
       "status": "open",
       "from": "c52054715380450754d830935321c9d36a445be8",
       "detail": "savelife() throws UnsupportedEndOfGameError when u.ustuck is truthy because the release messages need mon_nam()/Monnam() from do_name.c and sticks() from mondata.c, which are not fully ported."
+    },
+    {
+      "id": "decgfx-screen-mismatch",
+      "area": "display",
+      "category": "scope",
+      "effort": "small",
+      "status": "open",
+      "from": "6603971e3f7106d13cf43a3bfe494bc1e8cdea26",
+      "detail": "DECgraphics symset: C renders backtick with decgfx=1 while JS renders diamond at seed0383 screen 43 row 8 col 16. Game logic and RNG match through 9706 calls but screen comparison fails for DEC graphics characters on deep generated levels."
     }
   ],
   "areas": [
