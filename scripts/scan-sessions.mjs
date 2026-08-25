@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 // One replay of the development sessions, reporting where the JavaScript port
-// stops and what each session's recorded input still owes it.
+// stops, what each session's recorded input still owes it, and which sessions
+// diverge from the recording before their first unported behavior.
 //
 // The port is fail-closed: it ends a segment at a boundary rather than guess at
 // unported behavior. That splits every question about the port's remaining work
@@ -92,7 +93,7 @@ import { execFileSync } from 'node:child_process';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { decodeScreen } from '../frozen/screen-decode.mjs';
+import { decodeScreen, renderCell } from '../frozen/screen-decode.mjs';
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import {
     ADMITTED_COMMANDS,
@@ -150,6 +151,8 @@ const EXTENDED_COMMAND_KEY = '#';
 
 const CACHE_DIR = join(PROJECT_ROOT, '.cache');
 const SCAN_CACHE_PATH = join(CACHE_DIR, 'scan-cache.json');
+const FRONTIERS_PATH = join(CACHE_DIR, 'session-frontiers.json');
+const SCORER_CACHE_PATH = join(CACHE_DIR, 'session-results.json');
 
 function repositoryHead() {
     return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: PROJECT_ROOT })
@@ -172,6 +175,108 @@ function readScanCache() {
         return cache.rows;
     } catch {
         return null;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Per-session capping persistence (session-frontiers.json)
+// ---------------------------------------------------------------------------
+
+function readFrontiers() {
+    if (!existsSync(FRONTIERS_PATH)) return null;
+    try {
+        return JSON.parse(readFileSync(FRONTIERS_PATH, 'utf8'));
+    } catch {
+        return null;
+    }
+}
+
+function writeFrontiers(frontiers) {
+    if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR, { recursive: true });
+    writeFileSync(FRONTIERS_PATH, JSON.stringify(frontiers, null, 2) + '\n');
+}
+
+/**
+ * Build the state tuple that determines whether a session's cached cap is
+ * still valid: if these four values match the cached entry, the message
+ * stream in the stretch is identical and the cap is reusable.
+ */
+function frontierState(row) {
+    const screenDiv = row.divergence?.screen;
+    const rngDiv = row.divergence?.rng;
+    return {
+        boundary: row.boundary,
+        screensEmitted: row.screensEmitted,
+        screenDivergenceAt: screenDiv?.index ?? null,
+        rngDivergenceStep: rngDiv?.stepIndex ?? null,
+    };
+}
+
+/**
+ * Annotate each row with capping stability by comparing its state against
+ * the cached frontiers.
+ */
+function annotateFrontiers(rows, frontiers) {
+    for (const row of rows) {
+        const cached = frontiers?.[row.file];
+        if (!cached) {
+            row.capStable = false;
+            continue;
+        }
+        const state = frontierState(row);
+        row.capStable = cached.boundary === state.boundary
+            && cached.screensEmitted === state.screensEmitted
+            && cached.screenDivergenceAt === state.screenDivergenceAt
+            && cached.rngDivergenceStep === state.rngDivergenceStep;
+        if (row.capStable) row.cachedCap = cached.cappedStretch;
+    }
+}
+
+/**
+ * Process --set-cap arguments: store capped stretches in the frontiers file.
+ * Each argument is `<session>=<value>`.
+ */
+function setCapEntries(setCaps, rows) {
+    const frontiers = readFrontiers() ?? {};
+    const sha = repositoryHead();
+    for (const arg of setCaps) {
+        const eq = arg.indexOf('=');
+        if (eq < 0)
+            throw new Error(`--set-cap needs session=value: ${arg}`);
+        const session = arg.slice(0, eq);
+        const value = Number(arg.slice(eq + 1));
+        if (!Number.isFinite(value))
+            throw new Error(`--set-cap value is not a number: ${arg}`);
+        const row = rows?.find((r) => r.file === session);
+        const state = row ? frontierState(row) : {};
+        frontiers[session] = { ...state, cappedStretch: value, cappedBy: sha };
+    }
+    writeFrontiers(frontiers);
+}
+
+// ---------------------------------------------------------------------------
+// Scorer-cache integration
+// ---------------------------------------------------------------------------
+
+function readScorerCache() {
+    if (!existsSync(SCORER_CACHE_PATH)) return null;
+    try {
+        return JSON.parse(readFileSync(SCORER_CACHE_PATH, 'utf8'));
+    } catch {
+        return null;
+    }
+}
+
+function annotateScorerData(rows) {
+    const cache = readScorerCache();
+    if (!cache?.results) return;
+    const bySession = new Map();
+    for (const r of cache.results) bySession.set(r.session, r);
+    for (const row of rows) {
+        const entry = bySession.get(row.file);
+        if (!entry?.metrics?.screens) continue;
+        row.scorerScreensMatched = entry.metrics.screens.matched;
+        row.scorerScreensTotal = entry.metrics.screens.total;
     }
 }
 
@@ -441,6 +546,50 @@ export function silentDivergence(replayedSegments, jsOutput, stopped) {
 }
 
 /**
+ * Whether a screen mismatch is caused by the serialize bug (davidbau/teleport-contest#18):
+ * frozen/terminal.js serialize() drops attributes from leading spaces, so
+ * inverse or underline on a space before the first non-space column is lost
+ * in the JS screen string while the C recording preserves it.
+ */
+export function isSerializeBugMismatch(mismatch) {
+    if (!mismatch || mismatch.kind !== 'attr') return false;
+    return renderCell(mismatch.cCell) === ' '
+        && renderCell(mismatch.jsCell) === ' ';
+}
+
+/**
+ * Convert an RNG divergence's per-segment stepIndex to a cumulative step
+ * index comparable with behavior.at and screen divergence indices.
+ */
+function cumulativeRngStep(rngDiv, replayedSegments) {
+    if (!rngDiv?.location) return null;
+    let offset = 0;
+    for (let i = 0; i < rngDiv.location.segmentIndex; i++)
+        offset += (replayedSegments[i]?.steps || []).length;
+    return offset + rngDiv.location.stepIndex;
+}
+
+/**
+ * Enrich a divergence object with cumulative step indices and serialize-bug
+ * detection. The raw divergence from silentDivergence() has per-segment RNG
+ * locations and does not classify screen mismatches by cause.
+ */
+function enrichDivergence(divergence, replayedSegments) {
+    if (!divergence) return null;
+    const result = { ...divergence };
+    if (result.rng) {
+        result.rng = {
+            ...result.rng,
+            stepIndex: cumulativeRngStep(result.rng, replayedSegments),
+        };
+    }
+    if (result.screen) {
+        result.serializeBug = isSerializeBugMismatch(result.screen);
+    }
+    return result;
+}
+
+/**
  * Replay one session once, collecting both halves of the report.
  *
  * The observed half is fixed at the first boundary: after that the port is
@@ -569,19 +718,20 @@ export async function scanSession(file) {
     // Behaviors are assembled by the caller, once every session has been
     // scanned, because the supported set depends on what the port executed
     // across all of them. See executedCommands() below.
+    const rawDivergence = silentDivergence(
+        replayedSegments,
+        {
+            rng: replayedRng,
+            screens: replayedScreens,
+            cursors: replayedCursors,
+        },
+        stop !== null,
+    );
     return {
         file,
         screensEmitted,
         recordedSteps,
-        divergence: silentDivergence(
-            replayedSegments,
-            {
-                rng: replayedRng,
-                screens: replayedScreens,
-                cursors: replayedCursors,
-            },
-            stop !== null,
-        ),
+        divergence: enrichDivergence(rawDivergence, replayedSegments),
         boundary: stop?.boundary ?? null,
         commandRefusal: stop?.commandRefusal ?? false,
         key: stop?.key ?? null,
@@ -718,21 +868,28 @@ export function rankCandidates(rows, order = 'unlocks') {
             if (position === 0) {
                 entry.unlocksSessions += 1;
                 const screenDiv = row.divergence?.screen;
-                const divergesBefore = screenDiv
-                    && screenDiv.index < behavior.at;
+                const rngDiv = row.divergence?.rng;
+                const screenStep = screenDiv?.index;
+                const rngStep = rngDiv?.stepIndex;
+                const earliestDiv = [screenStep, rngStep]
+                    .filter((v) => v != null)
+                    .reduce((a, b) => Math.min(a, b), Infinity);
+                const divergesBefore = earliestDiv < behavior.at;
                 if (!divergesBefore) {
                     const next = row.behaviors[1];
                     entry.unlocks
                         += (next ? next.at : row.recordedSteps) - behavior.at;
                 }
-                if (screenDiv && screenDiv.index <= behavior.at) {
+                if (earliestDiv <= behavior.at) {
+                    const relation = divergesBefore ? 'before' : 'at';
                     const annotation = {
                         file: row.file,
                         behaviorAt: behavior.at,
-                        screenDivergenceAt: screenDiv.index,
-                        rngDivergenceAt: row.divergence.rng?.index ?? null,
-                        rngCaller: row.divergence.rng?.cCaller ?? null,
-                        relation: divergesBefore ? 'before' : 'at',
+                        screenDivergenceAt: screenStep ?? null,
+                        rngDivergenceAt: rngStep ?? null,
+                        rngCaller: rngDiv?.cCaller ?? null,
+                        serializeBug: row.divergence?.serializeBug ?? false,
+                        relation,
                     };
                     (entry.divergentSessions ??= []).push(annotation);
                 }
@@ -746,41 +903,68 @@ export function rankCandidates(rows, order = 'unlocks') {
 }
 
 export function divergenceCandidates(rows) {
-    const results = [];
+    const candidates = [];
+    const serializeBugSessions = [];
     for (const row of rows) {
         const screenDiv = row.divergence?.screen;
-        if (!screenDiv) continue;
-        results.push({
-            file: row.file,
-            screensEmitted: row.screensEmitted,
-            screenDivergenceAt: screenDiv.index,
-            rngCaller: row.divergence.rng?.cCaller ?? null,
-            blocked: row.screensEmitted - screenDiv.index,
-        });
+        const rngDiv = row.divergence?.rng;
+        if (!screenDiv && !rngDiv) continue;
+        if (rngDiv) {
+            candidates.push({
+                file: row.file,
+                type: 'rng-fix',
+                screensEmitted: row.screensEmitted,
+                divergenceAt: rngDiv.stepIndex,
+                rngCaller: rngDiv.cCaller ?? null,
+                blocked: row.screensEmitted - rngDiv.stepIndex,
+            });
+        } else if (row.divergence?.serializeBug) {
+            serializeBugSessions.push(row.file);
+        } else {
+            candidates.push({
+                file: row.file,
+                type: 'screen-fix',
+                screensEmitted: row.screensEmitted,
+                divergenceAt: screenDiv.index,
+                rngCaller: null,
+                blocked: row.screensEmitted - screenDiv.index,
+            });
+        }
     }
-    return results;
+    return { candidates, serializeBugSessions };
 }
 
 /**
  * The look-ahead read for divergence candidates: each divergent session's
- * recorded message lines between its first screen mismatch and the end of
- * its emitted screens. The selector hands this stream to a classifier the
+ * recorded message lines between its first mismatch and the end of its
+ * emitted screens. The selector hands this stream to a classifier the
  * same way it reads boundary stretches, capping at the first message that
- * implies an independent issue unrelated to the divergence cause.
+ * implies an independent issue unrelated to the divergence cause. Skips
+ * serialize-bug-only screen divergences (issue #18, unfixable).
  */
 export function divergenceStretches(rows) {
     return rows
-        .filter((row) => row.divergence?.screen)
+        .filter((row) => {
+            if (!row.divergence) return false;
+            if (row.divergence.rng) return true;
+            if (row.divergence.screen && !row.divergence.serializeBug)
+                return true;
+            return false;
+        })
         .map((row) => {
+            const rngDiv = row.divergence.rng;
             const screenDiv = row.divergence.screen;
-            const from = screenDiv.index;
+            const from = rngDiv
+                ? rngDiv.stepIndex
+                : screenDiv.index;
             const to = row.screensEmitted;
             return {
                 file: row.file,
+                type: rngDiv ? 'rng-fix' : 'screen-fix',
                 from,
                 to,
                 blocked: to - from,
-                rngCaller: row.divergence.rng?.cCaller ?? null,
+                rngCaller: rngDiv?.cCaller ?? null,
                 messages: dedupeMessages(
                     recordedStepsFor(row.file)
                         .slice(from, to)
@@ -1007,12 +1191,13 @@ function reportDivergences(rows) {
         : 'past the recorded steps');
     const rngSide = (value) => value ?? '(log ends)';
     for (const row of divergent) {
-        const { screen, rng, cursor } = row.divergence;
+        const { screen, rng, cursor, serializeBug } = row.divergence;
         const parts = [];
         if (screen) {
+            const bugTag = serializeBug ? ' [serialize bug]' : '';
             parts.push(`screen ${screen.index} of ${row.screensEmitted} `
                 + `replayed (${at(screen.location)}) differs at row `
-                + `${screen.row} column ${screen.column}`);
+                + `${screen.row} column ${screen.column}${bugTag}`);
         }
         if (cursor && (!screen || cursor.index < screen.index)) {
             parts.push(`cursor ${cursor.index} (${at(cursor.location)}) is `
@@ -1020,10 +1205,15 @@ function reportDivergences(rows) {
                 + `${JSON.stringify(cursor.cCursor)}`);
         }
         parts.push(rng
-            ? `RNG call ${rng.index} (${at(rng.location)}) is `
+            ? `RNG call ${rng.index} (${at(rng.location)}, `
+                + `step ${rng.stepIndex}) is `
                 + `${rngSide(rng.jsEntry)} where C recorded `
                 + `${rngSide(rng.cEntry)}`
             : 'RNG aligned');
+        if (row.scorerScreensMatched != null) {
+            parts.push(`scorer: ${row.scorerScreensMatched}`
+                + `/${row.scorerScreensTotal} matched`);
+        }
         console.log(`  ${row.file.padEnd(nameWidth)}  ${parts.join('; ')}`);
     }
 }
@@ -1151,24 +1341,52 @@ function reportRanking(rows, recorded, order) {
         for (const d of entry.divergentSessions ?? []) {
             const name = d.file.replace(/\.session\.json$/u, '');
             const caller = d.rngCaller ? `  in ${d.rngCaller}` : '';
+            const bug = d.serializeBug ? ' [serialize bug]' : '';
+            const divAt = d.rngDivergenceAt ?? d.screenDivergenceAt;
+            const divType = d.rngDivergenceAt != null ? 'RNG step' : 'screen';
             console.log(
-                `    ^ ${name} diverges at screen ${d.screenDivergenceAt}`
-                + ` (${d.relation} step ${d.behaviorAt})${caller}`,
+                `    ^ ${name} diverges at ${divType} ${divAt}`
+                + ` (${d.relation} step ${d.behaviorAt})${caller}${bug}`,
             );
         }
     }
 
-    const divCandidates = divergenceCandidates(rows);
+    const { candidates: divCandidates, serializeBugSessions }
+        = divergenceCandidates(rows);
     if (divCandidates.length > 0) {
-        console.log('\nSilent divergences as candidates '
+        console.log('\nDivergence candidates '
             + '(screens emitted but not matching)');
         for (const d of divCandidates) {
             const caller = d.rngCaller ? `  in ${d.rngCaller}` : '';
             console.log(
-                `  ${d.file}  diverges at screen ${d.screenDivergenceAt}`
+                `  ${d.file}  [${d.type}] diverges at step ${d.divergenceAt}`
                 + `, ${d.blocked} screens blocked${caller}`,
             );
         }
+    }
+    if (serializeBugSessions.length > 0) {
+        console.log('\nSerialize-bug divergences (issue #18, unfixable)');
+        for (const file of serializeBugSessions)
+            console.log(`  ${file}`);
+    }
+}
+
+function reportCappingStatus(rows) {
+    const stoppedRows = rows.filter((r) => r.boundary);
+    if (stoppedRows.length === 0) return;
+    const hasFrontiers = stoppedRows.some((r) => r.capStable != null);
+    if (!hasFrontiers) return;
+    const stable = stoppedRows.filter((r) => r.capStable);
+    const changed = stoppedRows.filter((r) => !r.capStable);
+    console.log('\nCapping status');
+    if (stable.length > 0) {
+        console.log(`  ${stable.length} session(s) cached (cap reusable):`);
+        for (const row of stable)
+            console.log(`    ${row.file}  cappedStretch=${row.cachedCap}`);
+    }
+    if (changed.length > 0) {
+        console.log(`  ${changed.length} session(s) need re-capping:`);
+        for (const row of changed) console.log(`    ${row.file}`);
     }
 }
 
@@ -1191,6 +1409,7 @@ function report(rows, order) {
 
     reportReconciliation(rows, rankCandidates(rows, order));
     reportRanking(rows, recorded, order);
+    reportCappingStatus(rows);
 
     console.log(legend(recorded));
 }
@@ -1225,10 +1444,29 @@ export function legend(recorded) {
         + '\n\nA silent divergence is a replayed screen, cursor, or RNG call '
         + 'that differs from the recording while the port plays on. Its '
         + "section reports each affected session's first difference inside "
-        + 'replayed input. A session whose RNG log has diverged converts '
-        + 'nothing past that call until the divergence is fixed; "Cap a '
-        + 'session that already mismatches" in .agents/selection.md states '
-        + 'how to rank it.'
+        + 'replayed input.'
+        + '\n\nDivergence rules. When a session diverges before its first '
+        + 'unported behavior (the boundary), its unlocks contribution is '
+        + 'zeroed: those screens cannot match regardless of what the boundary '
+        + 'ports. The ranking table annotates each such session. When both '
+        + 'screen and RNG divergences exist, the earlier one determines the '
+        + 'relation. Three relations: before the boundary (zeroed, creates a '
+        + 'divergence-fix candidate), at the boundary (kept, the boundary '
+        + 'caused it), or none (full contribution). A session whose RNG log '
+        + 'has diverged converts nothing past that call until the root cause '
+        + 'is fixed.'
+        + '\n\nSerialize-bug divergences (davidbau/teleport-contest#18). frozen/terminal.js '
+        + 'serialize() drops attributes from leading spaces, producing '
+        + 'attribute-only screen mismatches on inverse or underlined spaces. '
+        + 'These affect the scorer (the same diffCell detects them) but are '
+        + 'unfixable from the port side. The report tags them [serialize bug] '
+        + 'and excludes them from divergence candidates.'
+        + '\n\nCapping status. When .cache/session-frontiers.json exists, the '
+        + 'report annotates each stopped session as cap-stable or needing '
+        + 're-capping. A session is cap-stable when its boundary, '
+        + 'screensEmitted, screenDivergenceAt, and rngDivergenceStep all '
+        + 'match the cached entry. Use --set-cap=<session>=<n> to store a '
+        + 'capped stretch after a classifier run.'
     );
 }
 
@@ -1329,12 +1567,10 @@ function reportAheadAll(rows) {
 }
 
 const AHEAD_PREFIX = '--ahead=';
+const SET_CAP_PREFIX = '--set-cap=';
 
 export async function main(args) {
     const orders = Object.keys(RANK_ORDERS);
-    // .agents/selection.md documents --ahead alone and sends a reader here for
-    // the rest, so --help answers before the replay rather than by being
-    // rejected as an unknown flag.
     if (args.includes('--help')) {
         console.log(
             `Usage: node scripts/scan-sessions.mjs [--by=<${orders.join('|')}>]`
@@ -1343,7 +1579,7 @@ export async function main(args) {
             + ' Default: unlocks.'
             + '\n  --ahead=<behavior>       print each stopped session\'s'
             + ' recorded messages between\n'
-            + '                           its stop and its next unmet behavior.'
+            + '                           its stop and its next unported behavior.'
             + '\n  --ahead-all              append every candidate\'s'
             + ' look-ahead streams and divergence\n'
             + '                           candidate stretches to the report.'
@@ -1353,26 +1589,27 @@ export async function main(args) {
             + ' .cache/scan-cache.json after the scan.'
             + '\n  --read-cache             skip the replay when'
             + ' .cache/scan-cache.json matches HEAD.'
+            + '\n  --set-cap=<session>=<n>  store a capped stretch for one'
+            + ' session in\n'
+            + '                           .cache/session-frontiers.json.'
+            + ' Repeatable.'
             + '\n\nThe scanned directory is fixed and no path argument is'
             + ' accepted, so this scan\ncannot be aimed at sessions/holdout/.',
         );
         return undefined;
     }
-    // Reject every other argument, including any bare path: this scan must not
-    // be aimable at sessions/holdout/. Every option carries its value in the
-    // same token for that reason, so no argument here can ever be read as a
-    // directory.
     const rejected = args.find((arg) => arg !== '--json'
         && arg !== '--ahead-all'
         && arg !== '--write-cache'
         && arg !== '--read-cache'
         && !orders.some((order) => arg === `--by=${order}`)
-        && !arg.startsWith(AHEAD_PREFIX));
+        && !arg.startsWith(AHEAD_PREFIX)
+        && !arg.startsWith(SET_CAP_PREFIX));
     if (rejected !== undefined) {
         throw new Error(
             `only --json, --by=<${orders.join('|')}>, `
-            + `${AHEAD_PREFIX}<behavior>, --ahead-all, --write-cache`
-            + ' and --read-cache are accepted',
+            + `${AHEAD_PREFIX}<behavior>, --ahead-all, --write-cache, `
+            + `--read-cache and ${SET_CAP_PREFIX}<session>=<n> are accepted`,
         );
     }
     const json = args.includes('--json');
@@ -1386,6 +1623,9 @@ export async function main(args) {
             '--ahead-all already prints every candidate; drop --ahead=<behavior>',
         );
     }
+    const setCaps = args
+        .filter((arg) => arg.startsWith(SET_CAP_PREFIX))
+        .map((arg) => arg.slice(SET_CAP_PREFIX.length));
 
     const useCache = args.includes('--read-cache');
     const writeCache = args.includes('--write-cache');
@@ -1405,6 +1645,14 @@ export async function main(args) {
     }
     if (writeCache && !cached) writeScanCache(rows);
 
+    annotateFrontiers(rows, readFrontiers());
+    annotateScorerData(rows);
+
+    if (setCaps.length > 0) {
+        setCapEntries(setCaps, rows);
+        return;
+    }
+
     if (ahead !== undefined) {
         if (json) {
             const stretches = aheadStretches(rows, ahead);
@@ -1417,12 +1665,14 @@ export async function main(args) {
     if (json) {
         const { carried, alike, differing, unreconciled } = reconcile(rows);
         const ranking = rankCandidates(rows, order);
-        const divCandidates = divergenceCandidates(rows);
+        const { candidates: divCandidates, serializeBugSessions }
+            = divergenceCandidates(rows);
         console.log(JSON.stringify({
             rows,
             order,
             ranking,
             divergenceCandidates: divCandidates,
+            serializeBugSessions,
             ...(aheadAll ? {
                 stretches: aheadMembers(rows).map((member) => ({
                     member,

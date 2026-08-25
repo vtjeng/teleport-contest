@@ -27,6 +27,7 @@ import {
     extendedCommandAt,
     formatReplayContext,
     isCommandRefusal,
+    isSerializeBugMismatch,
     legend,
     main,
     rankCandidates,
@@ -68,17 +69,17 @@ test('main rejects every argument outside its three options', async () => {
     // carries its value in the same token, so no bare argument is ever read.
     await assert.rejects(
         () => main(['sessions/holdout']),
-        /only --json, --by=<unlocks\|supports>, --ahead=<behavior>, --ahead-all, --write-cache and --read-cache/,
+        /only --json, --by=<unlocks\|supports>/,
     );
     await assert.rejects(
         () => main(['--json', '--sessions=/tmp/elsewhere']),
-        /only --json, --by=<unlocks\|supports>, --ahead=<behavior>, --ahead-all, --write-cache and --read-cache/,
+        /only --json, --by=<unlocks\|supports>/,
     );
     // `--by` takes only the two orders RANK_ORDERS defines; anything else is
     // a typo rather than a request, and must not reach the report.
     await assert.rejects(
         () => main(['--by=screens']),
-        /only --json, --by=<unlocks\|supports>, --ahead=<behavior>, --ahead-all, --write-cache and --read-cache/,
+        /only --json, --by=<unlocks\|supports>/,
     );
 });
 
@@ -939,15 +940,16 @@ test('a longer JS RNG log reports only when the session finished', () => {
 test('rankCandidates zeroes unlocks for a session that diverges before its boundary', () => {
     const rows = [
         {
-            // Session diverges at screen 42 but its boundary behavior sits at
-            // step 137. The 63 screens between step 137 and recordedSteps 200
-            // cannot match because the output already differs at screen 42.
+            // Session diverges at screen 42 and RNG at step 30; its boundary
+            // behavior sits at step 137. The 63 screens between step 137 and
+            // recordedSteps 200 cannot match because the output already differs
+            // at step 30 (earliest of screen 42 and RNG step 30).
             file: 'divergent.session.json',
             recordedSteps: 200,
             behaviors: [{ member: 'puton', at: 137 }],
             divergence: {
                 screen: { index: 42 },
-                rng: { index: 2700, cCaller: 'rndmonst_adj(makemon.c:1716)' },
+                rng: { index: 2700, stepIndex: 30, cCaller: 'rndmonst_adj(makemon.c:1716)' },
                 cursor: null,
             },
         },
@@ -963,7 +965,7 @@ test('rankCandidates zeroes unlocks for a session that diverges before its bound
     const [entry] = rankCandidates(rows);
     assert.equal(entry.member, 'puton');
     // Only the clean session's 50 screens count; the divergent session's 63
-    // are zeroed because its output diverges 95 screens before the boundary.
+    // are zeroed because its output diverges before the boundary.
     assert.equal(entry.unlocks, 50);
     assert.equal(entry.unlocksSessions, 2);
     assert.equal(entry.divergentSessions.length, 1);
@@ -971,8 +973,9 @@ test('rankCandidates zeroes unlocks for a session that diverges before its bound
         file: 'divergent.session.json',
         behaviorAt: 137,
         screenDivergenceAt: 42,
-        rngDivergenceAt: 2700,
+        rngDivergenceAt: 30,
         rngCaller: 'rndmonst_adj(makemon.c:1716)',
+        serializeBug: false,
         relation: 'before',
     });
 });
@@ -998,9 +1001,9 @@ test('rankCandidates marks relation as at when divergence equals the boundary', 
     // itself may be the cause; only BEFORE divergences are zeroed.
     assert.equal(entry.unlocks, 200 - 42);
     assert.equal(entry.divergentSessions[0].relation, 'at');
-    // No RNG divergence, so both rng fields are null.
     assert.equal(entry.divergentSessions[0].rngDivergenceAt, null);
     assert.equal(entry.divergentSessions[0].rngCaller, null);
+    assert.equal(entry.divergentSessions[0].serializeBug, false);
 });
 
 test('rankCandidates omits divergentSessions when divergence is after the boundary', () => {
@@ -1043,43 +1046,65 @@ test('rankCandidates preserves backward compatibility for clean rows', () => {
 test('divergenceCandidates returns blocked screen counts for divergent sessions', () => {
     const rows = [
         {
-            // 137 screens emitted, divergence at screen 42: 95 screens are
-            // emitted but cannot match until the divergence is fixed.
+            // RNG diverges at step 30 (screen at 42): the RNG desync is the root
+            // cause, so this produces an rng-fix candidate from step 30.
             file: 'divergent.session.json',
             screensEmitted: 137,
             divergence: {
                 screen: { index: 42 },
-                rng: { index: 2700, cCaller: 'rndmonst_adj(makemon.c:1716)' },
+                rng: { index: 2700, stepIndex: 30, cCaller: 'rndmonst_adj(makemon.c:1716)' },
                 cursor: null,
             },
         },
         {
-            // No divergence — should not appear in the output.
+            // No divergence — excluded.
             file: 'clean.session.json',
             screensEmitted: 100,
             divergence: null,
         },
         {
-            // RNG-only divergence with no screen mismatch — cursor or RNG
-            // alone does not block screen matching, so this session is excluded.
+            // RNG-only divergence (no screen mismatch): still produces an
+            // rng-fix candidate because RNG desync cascades.
             file: 'rng-only.session.json',
             screensEmitted: 80,
             divergence: {
                 screen: null,
-                rng: { index: 500, cCaller: 'some_func()' },
+                rng: { index: 500, stepIndex: 40, cCaller: 'some_func()' },
                 cursor: null,
             },
         },
+        {
+            // Serialize-bug-only screen divergence: excluded from candidates,
+            // listed in serializeBugSessions instead.
+            file: 'serialize-bug.session.json',
+            screensEmitted: 50,
+            divergence: {
+                screen: { index: 20 },
+                rng: null,
+                cursor: null,
+                serializeBug: true,
+            },
+        },
     ];
-    const candidates = divergenceCandidates(rows);
-    assert.equal(candidates.length, 1);
+    const { candidates, serializeBugSessions } = divergenceCandidates(rows);
+    assert.equal(candidates.length, 2);
     assert.deepEqual(candidates[0], {
         file: 'divergent.session.json',
+        type: 'rng-fix',
         screensEmitted: 137,
-        screenDivergenceAt: 42,
+        divergenceAt: 30,
         rngCaller: 'rndmonst_adj(makemon.c:1716)',
-        blocked: 95,
+        blocked: 107,
     });
+    assert.deepEqual(candidates[1], {
+        file: 'rng-only.session.json',
+        type: 'rng-fix',
+        screensEmitted: 80,
+        divergenceAt: 40,
+        rngCaller: 'some_func()',
+        blocked: 40,
+    });
+    assert.deepEqual(serializeBugSessions, ['serialize-bug.session.json']);
 });
 
 // divergenceStretches: the look-ahead read for divergence candidates, parallel
@@ -1090,13 +1115,13 @@ test('divergenceCandidates returns blocked screen counts for divergent sessions'
 test('divergenceStretches returns metadata for divergent sessions', () => {
     const rows = [
         {
-            // 137 screens emitted, divergence at screen 42: the stretch covers
-            // screens 42..137, the 95 screens emitted past the divergence.
+            // RNG diverges at step 30 (cumulative), screen at 42: the stretch
+            // starts from the RNG step (earlier), covering steps 30..137.
             file: 'seed0383-wizard-hallucinate.session.json',
             screensEmitted: 137,
             divergence: {
                 screen: { index: 42 },
-                rng: { index: 2700, cCaller: 'rndmonst_adj(makemon.c:1716)' },
+                rng: { index: 2700, stepIndex: 30, cCaller: 'rndmonst_adj(makemon.c:1716)' },
                 cursor: null,
             },
         },
@@ -1107,38 +1132,96 @@ test('divergenceStretches returns metadata for divergent sessions', () => {
             divergence: null,
         },
     ];
-    // divergenceStretches calls recordedStepsFor which reads from disk, so
-    // only the row with a real session file produces messages. Call with
-    // the real session name so it can read the file.
     const stretches = divergenceStretches(rows.slice(0, 1));
     assert.equal(stretches.length, 1);
     assert.equal(stretches[0].file, 'seed0383-wizard-hallucinate.session.json');
-    assert.equal(stretches[0].from, 42);
+    assert.equal(stretches[0].type, 'rng-fix');
+    assert.equal(stretches[0].from, 30);
     assert.equal(stretches[0].to, 137);
-    assert.equal(stretches[0].blocked, 95);
+    assert.equal(stretches[0].blocked, 107);
     assert.equal(stretches[0].rngCaller, 'rndmonst_adj(makemon.c:1716)');
     assert.ok(Array.isArray(stretches[0].messages));
 });
 
-test('divergenceStretches omits sessions without a screen divergence', () => {
+test('divergenceStretches includes RNG-only divergences', () => {
+    // RNG-only divergences now produce stretches (the RNG desync cascades
+    // to all downstream screens). The stretch starts from rng.stepIndex.
     const rows = [
         {
-            // RNG-only divergence with no screen mismatch — the stretch
-            // definition requires a screen divergence index as its start point.
-            file: 'rng-only.session.json',
-            screensEmitted: 80,
+            file: 'seed0030-ten-diverse-deaths.session.json',
+            screensEmitted: 45,
             divergence: {
                 screen: null,
-                rng: { index: 500, cCaller: 'some_func()' },
+                rng: { index: 10701, stepIndex: 36, cCaller: 'm_move(monmove.c:1963)' },
                 cursor: null,
             },
         },
+    ];
+    const stretches = divergenceStretches(rows);
+    assert.equal(stretches.length, 1);
+    assert.equal(stretches[0].type, 'rng-fix');
+    assert.equal(stretches[0].from, 36);
+    assert.equal(stretches[0].blocked, 9);
+});
+
+test('divergenceStretches omits serialize-bug-only and clean sessions', () => {
+    const rows = [
         {
-            // No divergence at all.
+            file: 'serialize-bug.session.json',
+            screensEmitted: 50,
+            divergence: {
+                screen: { index: 20 },
+                rng: null,
+                cursor: null,
+                serializeBug: true,
+            },
+        },
+        {
             file: 'clean.session.json',
             screensEmitted: 50,
             divergence: null,
         },
     ];
     assert.deepEqual(divergenceStretches(rows), []);
+});
+
+// isSerializeBugMismatch: detect the frozen/terminal.js serialize() bug where
+// attributes are dropped from leading spaces (issue #18).
+
+test('isSerializeBugMismatch detects attr-only mismatch on a space', () => {
+    // Inverse attribute on a space: C has attr=1 (inverse), JS has attr=0.
+    // Both render as space. This is the serialize bug.
+    assert.equal(isSerializeBugMismatch({
+        kind: 'attr',
+        row: 2,
+        column: 20,
+        cCell: { ch: ' ', color: 8, attr: 1, decgfx: 0 },
+        jsCell: { ch: ' ', color: 8, attr: 0, decgfx: 0 },
+    }), true);
+});
+
+test('isSerializeBugMismatch rejects character mismatches', () => {
+    // Different characters are a real rendering bug, not serialize bug.
+    assert.equal(isSerializeBugMismatch({
+        kind: 'ch',
+        row: 3,
+        column: 21,
+        cCell: { ch: ' ', color: 8, attr: 0, decgfx: 0 },
+        jsCell: { ch: '~', color: 4, attr: 0, decgfx: 0 },
+    }), false);
+});
+
+test('isSerializeBugMismatch rejects attr mismatch on non-space', () => {
+    // Attribute mismatch on a non-space character is a real bug.
+    assert.equal(isSerializeBugMismatch({
+        kind: 'attr',
+        row: 5,
+        column: 10,
+        cCell: { ch: 'a', color: 8, attr: 2, decgfx: 0 },
+        jsCell: { ch: 'a', color: 8, attr: 0, decgfx: 0 },
+    }), false);
+});
+
+test('isSerializeBugMismatch returns false for null', () => {
+    assert.equal(isSerializeBugMismatch(null), false);
 });

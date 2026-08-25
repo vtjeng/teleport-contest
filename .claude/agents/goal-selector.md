@@ -17,8 +17,10 @@ slicing to that agent.
 
 1. Run `node scripts/scan-sessions.mjs --ahead-all --write-cache`, which
    replays the development sessions and reports the first-stop census, ranked
-   candidates, reconciliation, and each candidate's look-ahead streams (the
-   input `.agents/selection.md` uses to cap forecasts).
+   candidates, reconciliation, each candidate's look-ahead streams, and
+   capping status. The scan automatically zeroes `unlocks` contributions for
+   sessions whose screen or RNG divergence is before their boundary, and
+   excludes serialize-bug divergences (davidbau/teleport-contest#18) from candidates.
 2. Read `.agents/selection.md` for the selection rules. Read
    `.agents/workflow.md`, "Terms", for what closes a behavior slice and what
    review a closed goal triggers.
@@ -28,10 +30,16 @@ slicing to that agent.
    the census boundaries, recalculating its forecast with the capping rules in
    `.agents/selection.md`. Traced source findings break a forecast tie in a
    queued goal's favor.
-4. For every session in the forecast, trace the exact C path at its first
+4. Cap each session's stretch. Skip cap-stable sessions (the scan's
+   "Capping status" section identifies them). For each session that needs
+   re-capping, hand its `--ahead` stream to a `sonnet-worker` classifier.
+   After capping, persist the result with
+   `node scripts/scan-sessions.mjs --set-cap=<session>=<n>` so the next run
+   reuses it.
+5. For every session in the forecast, trace the exact C path at its first
    stop from the scan's replay. Report the governing state and option
    preconditions as that session's C-path witness.
-5. Read the C source the goal would port, far enough to state its bounding
+6. Read the C source the goal would port, far enough to state its bounding
    property and judge its size against `.agents/selection.md`. The census
    supplies the counts; only the source shows where the goal ends.
 
@@ -61,8 +69,7 @@ Write every candidate you capped during the ranking to
 
 The orchestrator runs
 `node scripts/queue-candidates.mjs .cache/selector-candidates.json`
-to queue every candidate and opens the leader. At the next goal close, it
-re-uses the queue (`.agents/selection.md`, "Re-using the candidate queue").
+to queue every candidate and opens the leader.
 
 State each candidate's boundary as a condition a reader can test against C
 source, matching existing `GOALS.json` entries. Put traced findings (unreached
