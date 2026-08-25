@@ -1240,9 +1240,10 @@ function requireAutoopenClosedDoor(x, y, state, run) {
             ?? AUTOUNLOCK_APPLY_KEY;
         // lock.c:884-893. AUTOUNLOCK_KICK asks "Kick it?" through ynq() and
         // queues dokick. Refuse it only when apply-key will not handle the
-        // door first: either APPLY_KEY is not set, or it is set but autokey()
-        // finds no tool. When APPLY_KEY is set and a tool exists, doopen_indir
-        // will handle the door and C's `else if` means kick never runs.
+        // door first: either APPLY_KEY is not set, or it is set but
+        // carriesUnlockingTool() finds no tool. When APPLY_KEY is set and a
+        // tool exists, doopen_indir handles the door and C's `else if` means
+        // kick never runs.
         const applyKeyHandles = (autounlock & AUTOUNLOCK_APPLY_KEY)
             && carriesUnlockingTool(state);
         if ((autounlock & AUTOUNLOCK_KICK) && !applyKeyHandles) {

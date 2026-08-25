@@ -4641,6 +4641,24 @@
       "status": "open",
       "from": "956eee38488de74bda5da26ff60292094b6e9a77",
       "detail": "lock.c picklock() magic-key trap detection (lines 101-136): when a target is trapped and the hero uses the Master Key of Thievery, the key detects and disarms the trap. Requires the artifact to be in inventory, which no development session has."
+    },
+    {
+      "id": "bigrm-dimension-test",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "c252bb416725df10184d8e612882dde9f84c0945",
+      "detail": "bigrm-level-generation.test.mjs:36 reads only the C source dimensions, never the JS map. Needs mock des API to capture bigrm-12 loader output. Deferred to bigrm system work."
+    },
+    {
+      "id": "bigrm-percent-tautology",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "c252bb416725df10184d8e612882dde9f84c0945",
+      "detail": "bigrm-level-generation.test.mjs:59 asserts tautologies on literals without calling percent(). percent() is module-private; fixing requires either exporting it or building loader-level test infrastructure. Deferred to bigrm system work."
     }
   ],
   "areas": [

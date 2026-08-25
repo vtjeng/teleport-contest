@@ -20,7 +20,7 @@ import { runSegment } from '../js/jsmain.js';
 import { autokey, doopen_indir, reset_pick } from '../js/lock.js';
 import { is_magic_key } from '../js/artifacts.js';
 import { ART_MASTER_KEY_OF_THIEVERY } from '../js/artifacts.js';
-import { PM_ROGUE } from '../js/monsters.js';
+import { PM_ROGUE, PM_WIZARD } from '../js/monsters.js';
 import {
     CREDIT_CARD,
     LOCK_PICK,
@@ -249,7 +249,7 @@ test('is_magic_key respects role-dependent bless/curse rules', () => {
     // Non-rogue: must be blessed.
     const wizState = {
         youmonst: {},
-        urole: { mnum: 345 /* PM_WIZARD */ },
+        urole: { mnum: PM_WIZARD },
     };
     assert.equal(
         is_magic_key(wizState.youmonst, mkObj(false, true), wizState),
@@ -301,7 +301,7 @@ test('autokey prefers skeleton key over lock pick over credit card', async () =>
 
 // --- doopen_indir autounlock wiring ---
 
-test('doopen_indir calls autokey and pick_lock for a locked door',
+test('doopen_indir with empty inventory skips pick_lock for a locked door',
     async () => {
     // C ref: lock.c:876-883. A locked door with AUTOUNLOCK_APPLY_KEY set
     // calls autokey(true) to find a tool. With no tool in inventory,

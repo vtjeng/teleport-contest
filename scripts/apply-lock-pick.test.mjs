@@ -4,6 +4,8 @@ import test from 'node:test';
 import { doapply } from '../js/apply.js';
 import { get_adjacent_loc } from '../js/cmd.js';
 import {
+    AUTOUNLOCK_APPLY_KEY,
+    AUTOUNLOCK_UNTRAP,
     BLINDED,
     DBWALL,
     DB_SOUTH,
@@ -199,12 +201,40 @@ test('a closed or locked door prompts to lock or unlock', async () => {
     // lock.c:604-647, the arm that asks "Lock it?" or "Unlock it?" and starts
     // the picklock() occupation. Both masks that reach it are ordinary output
     // of mklev.c dosdoor(). Answering 'q' cancels with PICKLOCK_DID_NOTHING.
-    for (const mask of [D_CLOSED, D_LOCKED]) {
+    for (const [mask, verb] of [[D_CLOSED, 'Lock'], [D_LOCKED, 'Unlock']]) {
         await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
         doorNorth().flags = mask;
         answer(LOCK_PICK_SLOT, 'k', 'q');
         assert.equal(await doapply(game), ECMD_OK, `mask ${mask}`);
+        // The ynq prompt text lives in _ttyPreviousMessage after yn_function.
+        assert.ok(
+            game._ttyPreviousMessage.startsWith(`${verb} it?`),
+            `expected "${verb} it?" prompt for mask ${mask}, ` +
+            `got "${game._ttyPreviousMessage}"`,
+        );
     }
+});
+
+test('AUTOUNLOCK_UNTRAP fires on the manual path', async () => {
+    // Regression: lock.js guarded this with `autounlock &&`, skipping it when
+    // rx=0 (manual #apply). C lock.c:605 checks flags.autounlock
+    // unconditionally. With rx=0 and AUTOUNLOCK_UNTRAP set, pick_lock must
+    // throw UnsupportedLockError.
+    await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
+    doorNorth().flags = D_LOCKED;
+    game.flags ??= {};
+    game.flags.autounlock = AUTOUNLOCK_APPLY_KEY | AUTOUNLOCK_UNTRAP;
+    const pick = lockPick();
+    // Push 'k' for get_adjacent_loc's direction prompt (north, toward the
+    // door). rx=0 is the manual path (hero typed #apply, not walked into the
+    // door).
+    answer('k');
+    await assert.rejects(
+        () => pick_lock(pick, 0, 0, null, game),
+        (error) => error instanceof UnsupportedLockError
+            && error.branch === 'AUTOUNLOCK_UNTRAP door path',
+        'manual pick_lock with AUTOUNLOCK_UNTRAP must throw',
+    );
 });
 
 test('a hero in a pit cannot reach over its edge', async () => {

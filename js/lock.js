@@ -5,8 +5,8 @@ import {
     A_CON,
     A_DEX,
     A_STR,
-    A_WIS,
     AUTOUNLOCK_APPLY_KEY,
+    AUTOUNLOCK_UNTRAP,
     D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
@@ -172,9 +172,8 @@ async function picklock(state = game) {
     // lock.c:101-136. The magic-key trap detection arm fires when the target
     // is trapped and xlock.magic_key is set. That combination requires the
     // Master Key of Thievery, which no development session carries.
-    if ((xlock.door ? (doorMask(xlock.door) & D_TRAPPED) !== 0
-                    : Boolean(xlock.box?.otrapped))
-        && xlock.magic_key) {
+    // xlock.box is refused at line 140; only xlock.door reaches here.
+    if ((doorMask(xlock.door) & D_TRAPPED) !== 0 && xlock.magic_key) {
         throw new UnsupportedLockError('magic-key trap detection in picklock()');
     }
 
@@ -254,7 +253,6 @@ const YNQCHARS = 'ynq';
 async function ynq(query, state = game) {
     const KEY_Q = 'q'.charCodeAt(0);
     const KEY_Y = 'y'.charCodeAt(0);
-    const KEY_N = 'n'.charCodeAt(0);
     const c = await yn_function(query, YNQCHARS, 'q', false, state);
     if (c === KEY_Y) return 'y';
     if (c === KEY_Q) return 'q';
@@ -400,8 +398,7 @@ export async function pick_lock(pick, rx, ry, container, state = game) {
 
         // lock.c:605-613. AUTOUNLOCK_UNTRAP checks for door traps before
         // attempting to pick the lock. Not ported.
-        if (autounlock
-            && (state.flags?.autounlock & 1) !== 0) { // AUTOUNLOCK_UNTRAP
+        if ((state.flags?.autounlock & AUTOUNLOCK_UNTRAP) !== 0) {
             throw new UnsupportedLockError('AUTOUNLOCK_UNTRAP door path');
         }
 
@@ -502,6 +499,8 @@ function notClosedMessage(door) {
 // not a door, the kick arm, verysmall(), and the D_TRAPPED half of the
 // success arm with its b_trapped() and shop add_damage() bookkeeping.
 export async function doopen_indir(x, y, state = game, env = {}) {
+    // Reject unknown keys so a test substitution cannot silently fall through
+    // to the real operation.
     for (const name of Object.keys(env)) {
         if (name !== 'message' && name !== 'random')
             throw new TypeError(`doopen_indir does not read env.${name}`);

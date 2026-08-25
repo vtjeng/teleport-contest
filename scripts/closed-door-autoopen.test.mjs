@@ -514,19 +514,6 @@ test('the locked arm refuses what doopen_indir cannot answer for', async () => {
     // refused path looks at the rest.
     // Appended at the TAIL, not the head: prepending leaves the seam's loop
     // unexercised, so a first-object-only implementation would pass.
-    const carrying = (otyp) => (state) => {
-        const tool = {
-            otyp, oclass: TOOL_CLASS, owt: 4, quan: 1, nobj: null,
-        };
-        if (!state.invent) {
-            state.invent = tool;
-            return;
-        }
-        let last = state.invent;
-        while (last.nobj) last = last.nobj;
-        last.nobj = tool;
-    };
-
     const refusals = [
         // lock.c:907's D_TRAPPED half fires b_trapped() and bills a shop, but
         // only from the "known to be CLOSED" arm, so D_CLOSED is what makes it
@@ -573,7 +560,13 @@ test('combined autounlock bits keep apply-key before kick', async () => {
     game.nhDisplay.pushKey(walkNorth);
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     game.nhDisplay.pushKey('q'.charCodeAt(0));
-    await moveloop_core(); // completes without throwing
+    await moveloop_core();
+    // The autounlock ynq prompt must have fired with the tool description.
+    // yname() renders the skeleton key as "the key" in this context.
+    assert.ok(
+        game._ttyPreviousMessage.startsWith('Unlock it with'),
+        `expected autounlock prompt, got "${game._ttyPreviousMessage}"`,
+    );
 
     // Without a recognized tool, apply-key finds nothing and the kick arm
     // fires, which is still refused.
