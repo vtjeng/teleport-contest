@@ -3999,6 +3999,43 @@
       "openStanding": null,
       "closedAt": null,
       "delivered": null
+    },
+    {
+      "id": "hero-dies-from-monster-attack",
+      "status": "open",
+      "boundary": "simple monster action requires the hero dying of a monster attack",
+      "upstreamOwners": [
+        "mhitu.c"
+      ],
+      "forecast": {
+        "steps": 31,
+        "basis": "Capped look-ahead at 926233a: seed5002 has 31 steps from step 242 to step 273 (end of segment 1). Messages are ported combat (melee, pet-melee, monster-melee) and ported hero death/wizard survival (done(), Die? prompt). No second unported behavior. Cap: 31.",
+        "sessions": [
+          "seed5002"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5002",
+            "evidence": "At step 242, the hero moves east. During the monster turn, the giant bat attacks and deals lethal damage. mdamageu() (mhitu.c) reduces u.uhp below 1, which in C calls done_in_by(mtmp, dmg) then done(DIED). The port (js/mhitu.js:960) throws unsupported instead of calling done(). After wiring the death call, 31 steps of ported combat and wizard-mode death survival remain with no second unported behavior."
+          }
+        ]
+      },
+      "detail": "mdamageu() in mhitu.c:1929 calls done_in_by() when u.uhp < 1. done_in_by() sets up the killer string and calls done(DIED). The JS port (mhitu.js:960) throws UnsupportedSimpleMonsterBoundaryError instead. The fix: replace the throw with a call to done(), which is already ported (hero-death-reaches-done goal). seed5002 is wizard mode, so done() asks Die? and the hero survives.",
+      "slices": [
+        {
+          "name": "port done_in_by from end.c and wire into mdamageu",
+          "status": "closed",
+          "closedBy": "b86d7633097a4ad2614941835ce882d4803901a5"
+        }
+      ],
+      "openedAt": "926233ad2941b3315c0ba5ade422309065227434",
+      "openStanding": {
+        "sha": "ee9995d",
+        "screens": 2061,
+        "rng": 143606
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

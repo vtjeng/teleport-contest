@@ -1005,3 +1005,7 @@ utc	event	phase	goal	detail
 2026-08-25T08:14:10.352Z	end	select	doapply-magic-marker	
 2026-08-25T08:14:15.513Z	start	implement	doapply-magic-marker	
 2026-08-25T08:59:10.279Z	end	implement	doapply-magic-marker	
+2026-08-25T09:03:26.292Z	start	select	hero-dies-from-monster-attack	
+2026-08-25T09:10:12.655Z	end	select	hero-dies-from-monster-attack	
+2026-08-25T09:10:18.621Z	start	implement	hero-dies-from-monster-attack	
+2026-08-25T09:58:52.268Z	end	implement	hero-dies-from-monster-attack	
