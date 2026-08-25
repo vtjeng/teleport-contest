@@ -217,7 +217,9 @@ import {
     xnameFresh,
 } from './objnam.js';
 import { body_part, float_vs_flight } from './polyself.js';
+import { toggle_blindness } from './potion.js';
 import { rnd } from './rng.js';
+import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { Glib, welded } from './wield.js';
@@ -678,11 +680,62 @@ async function Amulet_on(obj, state = game) {
         await on_msg(state.uamul, state);
 }
 
-// C ref: do_wear.c Blindf_on() (1495-1535). Fail-closed entry point; the
-// eyewear half of accessory_or_armor_on() dispatches here once the lenses or
-// blindfold passes the "already wearing" checks.
-function Blindf_on(/* obj, state */) {
-    throw new UnsupportedAccessoryOnError('Blindf_on()');
+// C ref: do_wear.c Blindf_on() (1461-1492). The eyewear half of
+// accessory_or_armor_on() dispatches here once the lenses or blindfold passes
+// the "already wearing" checks. Calls setworn() and on_msg() itself, then
+// detects whether blindness status changed and calls toggle_blindness().
+//
+// Common path: sighted hero puts on a BLINDFOLD or TOWEL, becomes blind.
+//
+// Fail-closed items:
+// - set_bc(0): fires only when Punished. No ported session is punished while
+//   putting on a blindfold.
+// - The "regaining sight" branch (already_blind && !Blind): applies only to
+//   the Eyes of the Overworld artifact. accessory_or_armor_on() refuses
+//   artifacts above the dispatch, so this branch is unreachable.
+async function Blindf_on(obj, state = game) {
+    const already_blind = heroIsBlind(state);
+
+    // C ref: steal.c remove_worn_item() (213-290). When the blindfold has no
+    // worn mask it was never in a worn slot, so nothing to remove.
+    if (obj.owornmask) {
+        // The blindfold is wielded/alt-wielded/quivered. The full
+        // remove_worn_item path is not ported; throw fail-closed.
+        throw new UnsupportedAccessoryOnError(
+            'remove_worn_item() for wielded blindfold',
+        );
+    }
+
+    setworn(obj, W_TOOL, setwornEnv(state));
+    await on_msg(obj, state);
+
+    let changed = false;
+
+    if (heroIsBlind(state) && !already_blind) {
+        // Hero just went blind from wearing the blindfold.
+        changed = true;
+        if (state.flags.verbose)
+            await ttyPline("You can't see any more.", state);
+        // C ref: do_wear.c:1475-1476. set_bc(0) sets the ball-and-chain
+        // display variables before the hero goes blind. Fires only when
+        // Punished.
+        if (state.uball) {
+            throw new UnsupportedAccessoryOnError(
+                'set_bc(0) while Punished',
+            );
+        }
+    } else if (already_blind && !heroIsBlind(state)) {
+        // Hero regained sight -- only the Eyes of the Overworld artifact does
+        // this. accessory_or_armor_on() refuses artifacts, so this branch is
+        // unreachable in the current port.
+        throw new UnsupportedAccessoryOnError(
+            'Blindf_on() regaining sight (Eyes of the Overworld)',
+        );
+    }
+
+    if (changed) {
+        toggle_blindness(state);
+    }
 }
 
 // C ref: do_wear.c already_wearing2() (2017-2020). Eyewear "already wearing"
@@ -2179,7 +2232,7 @@ async function accessory_or_armor_on(obj, state = game) {
             await Amulet_on(obj, state);
         } else if (eyewear) {
             /* setworn() and on_msg() handled by Blindf_on() */
-            Blindf_on(obj, state);
+            await Blindf_on(obj, state);
         } else {
             throw new Error(
                 `putting on unexpected type of accessory: otyp ${obj.otyp}`,
@@ -2319,6 +2372,7 @@ export async function dotakeoff(state = game) {
 
 export const _doWearInternals = Object.freeze({
     Amulet_on,
+    Blindf_on,
     Armor_off,
     Armor_on,
     Boots_on,

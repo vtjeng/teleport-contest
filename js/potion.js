@@ -1,18 +1,29 @@
 // potion.js -- what a potion's vapors do to the hero.
-// C ref: src/potion.c potionbreathe().
+// C ref: src/potion.c potionbreathe() (1931-2118),
+//        toggle_blindness() (336-364).
 //
-// zap.c maybe_destroy_item() is the only ported caller: a potion in the hero's
-// own pack that boils, explodes or shatters sends its vapors up at zap.c:5917.
-// potion.c dodip() and peffects(), dothrow.c potionhit() and trap.c's shattered
-// potions reach the same function and none of those is ported.
+// zap.c maybe_destroy_item() is the only ported caller of potionbreathe(): a
+// potion in the hero's own pack that boils, explodes or shatters sends its
+// vapors up at zap.c:5917. potion.c dodip() and peffects(), dothrow.c
+// potionhit() and trap.c's shattered potions reach the same function and none
+// of those is ported.
+//
+// toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
+// status changes. It forces a full vision rebuild and updates monster display.
 
 import {
+    INFRAVISION,
     INVIS,
     SEE_INVIS,
+    TELEPAT,
+    WARN_OF_MON,
+    W_WEP,
 } from './const.js';
+import { see_monsters } from './display.js';
 import { trycall } from './do.js';
 import { game } from './gstate.js';
 import { discover_object } from './o_init.js';
+import { vision_recalc } from './vision.js';
 import {
     POT_ACID,
     POT_BLINDNESS,
@@ -51,6 +62,58 @@ export class UnsupportedPotionError extends Error {
         super(`a potion's vapors require ${branch}`);
         this.name = 'UnsupportedPotionError';
         this.branch = branch;
+    }
+}
+
+// C ref: potion.c toggle_blindness() (336-364). Called by Blindf_on() and
+// Blindf_off() after the blindness state has already changed. Forces a full
+// vision rebuild and updates the monster display for heroes whose senses
+// (telepathy, infravision, or Sting-glow) depend on the blind/sighted split.
+//
+// Fail-closed items:
+// - Sting_effects(-1): fires only when the hero wields the artifact Sting.
+//   The Stinging local is checked for the see_monsters() gate (the condition
+//   is cheap and wrong to skip) but the Sting_effects() call itself is
+//   refused, since no ported session wields that artifact.
+// - learn_unseen_invent(): fires only when !Blind (hero just regained sight).
+//   The Blindf_on() caller that reaches here always leaves the hero blind, so
+//   the condition is false on the common path. A future Blindf_off() caller
+//   that restores sight will need this ported; until then, refused.
+export function toggle_blindness(state = game) {
+    const hero = state.u;
+
+    // C ref: potion.c:338. Stinging = (uwep && (EWarn_of_mon & W_WEP) != 0L).
+    // True only when the hero wields the artifact Sting.
+    const EWarn_of_mon = hero.uprops?.[WARN_OF_MON]?.extrinsic ?? 0;
+    const Stinging = Boolean(state.uwep && (EWarn_of_mon & W_WEP));
+
+    state.disp.botl = true;               // status conditions need update
+    state.vision_full_recalc = 1;          // vision has changed
+    vision_recalc(0, { state });
+
+    // C ref: potion.c:349. Blind_telepat = (HTelepat || ETelepat);
+    // Infravision = (HInfravision || EInfravision).
+    const Blind_telepat = Boolean(
+        hero.uprops?.[TELEPAT]?.intrinsic
+        || hero.uprops?.[TELEPAT]?.extrinsic,
+    );
+    const Infravision = Boolean(
+        hero.uprops?.[INFRAVISION]?.intrinsic
+        || hero.uprops?.[INFRAVISION]?.extrinsic,
+    );
+    if (Blind_telepat || Infravision || Stinging)
+        see_monsters(state);
+
+    // C ref: potion.c:359-360. Sting_effects(-1) resets the Sting glow/quiver
+    // message to match the new blindness state. Fires only for artifact Sting.
+    if (Stinging) {
+        throw new UnsupportedPotionError('Sting_effects(-1)');
+    }
+
+    // C ref: potion.c:362-363. learn_unseen_invent() marks dknown on objects
+    // the hero picked up while blind. Fires only when the hero regains sight.
+    if (!heroIsBlind(state)) {
+        throw new UnsupportedPotionError('learn_unseen_invent()');
     }
 }
 
