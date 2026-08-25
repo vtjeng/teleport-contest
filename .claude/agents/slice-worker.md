@@ -38,8 +38,8 @@ Two orchestrator steps appear in files you read. Skip both:
 - After each commit, "Per-chunk workflow" says to run `npm run quality`. The
   orchestrator runs it, so do not run it yourself.
 - When a slice closes, `.agents/scoring.md` specifies the `SCORE.tsv` event
-  rows. Those rows and the `SCORE.md` entry belong to the orchestrator. Put
-  score and validation evidence in your report instead.
+  rows, which belong to the orchestrator. Put score and validation evidence
+  in your report instead.
 
 Beyond code and tests, you write two things. First, assign each new `js/`
 file to its `QUALITY.json` area with `npm run quality -- assign --file

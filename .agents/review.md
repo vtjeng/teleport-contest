@@ -63,7 +63,7 @@ Generated outputs declared in `QUALITY.json` do not count toward changed-line
 thresholds. Their generators do count, and a commit touching a generator or
 output counts toward the commit threshold unless it is a linked audit-fix
 commit. Each declaration names the generator and regeneration check; reviews
-cover both. An **evidence-only commit** changes only `SCORE.tsv`, `SCORE.md`,
+cover both. An **evidence-only commit** changes only `SCORE.tsv`,
 correctness or simplification records, or their supporting documentation,
 and no area-owned path. A **quality-ledger-only commit** changes only
 correctness or simplification records. Evidence-only commits do not count

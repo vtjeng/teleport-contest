@@ -2,9 +2,8 @@
 
 // Owns the SCORE.tsv format. Agents append event rows through `--append`, and
 // the query modes below answer the questions agents previously answered by
-// reading SCORE.md's prose rows. SCORE.md documents the columns; this file is
-// the only code that composes or parses a row, so the two cannot drift apart
-// without a test here failing.
+// reading SCORE.md's prose rows (removed in August 2025). scoring.md documents
+// the columns; this file is the only code that composes or parses a row.
 //
 // Every row names a commit an agent chose to record. `npm run checkpoint`
 // appended a `checkpoint` row of its own until 2026-08-02, which no query could
@@ -95,7 +94,7 @@ export function latestRow(rows, event = null) {
  *
  * Holdout cells are filled only on rows whose own event ran an evaluation, so
  * the standing carries the last stated figure forward, which is what an empty
- * cell means per SCORE.md.
+ * cell means per the column documentation in scoring.md.
  */
 export function standing(rows) {
     const development = latestNonEmpty(rows, 'screens_matched');

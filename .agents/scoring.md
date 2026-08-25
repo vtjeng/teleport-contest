@@ -6,10 +6,29 @@ in the development score did not appear in the holdout score. Only the
 orchestrator appends rows; a slice-worker states its score evidence in its
 report. The holdout rules in `AGENTS.md` always apply.
 
+## SCORE.tsv columns
+
+| Column | What it holds |
+| --- | --- |
+| `utc` | The date, or date and time, recorded for the snapshot, as written. |
+| `sha` | The commit the figures were measured at, full or abbreviated as recorded. |
+| `event` | What prompted the snapshot: `slice` (behavior slice closure), `window` (review window closure), `goal` (goal closure), `holdout` (standalone holdout evaluation), `publish` (published leaderboard result), `candidate` (validated handoff for an open slice). Where triggers coincide, the row records the most important one. |
+| `sessions_passed`, `sessions_total` | Development sessions matching completely, out of the development set. |
+| `screens_matched`, `screens_total` | Development screens matched, out of the screens the C reference recorded. |
+| `rng_matched`, `rng_total` | Development random-number values matched, out of those recorded. `frozen/ps_test_runner.mjs` compares the two logs position by position over their whole length, so a segment that stops early scores its next segment's startup calls against C's continuing log, and this count can fall while correctness rises. |
+| `cursors_matched`, `cursors_total` | Development cursor positions matched, out of those recorded. |
+| `holdout_screens_matched`, `holdout_screens_total`, `holdout_rng_matched`, `holdout_rng_total` | Combined figures from the reserved local holdout of 11 sessions, filled only where that row's own event ran an evaluation. Empty means no new holdout evidence, so carry the last stated figure forward. |
+| `note` | A brief prediction, falsified forecast, or anomaly worth keeping. |
+
+A development figure is a conservative lower bound for the 44-session public
+score and does not scale from 33 to 44 sessions. The official held-out score is
+separate from the reserved local holdout; only a published leaderboard result
+states it.
+
 ## Score evidence
 
 `SCORE.tsv` is the score record: one append-only, tab-separated row per event,
-with the columns `SCORE.md` documents. Append a `slice`, `window`, `goal`,
+with the columns the table above documents. Append a `slice`, `window`, `goal`,
 `holdout`, or `publish` row with `node scripts/score-log.mjs --append
 column=value ...` when that event completes. You may also append a `candidate`
 row after validating a slice-worker's results on an unclosed slice, but a
@@ -21,8 +40,8 @@ the more important event. The `note` column may hold a brief prediction or
 anomaly. Fill the four holdout columns only on a row whose event included an
 authorized holdout evaluation; an empty holdout cell means no new holdout
 evidence. Longer evidence belongs in the commit message; review metrics belong
-in `QUALITY.json`. `SCORE.md` explains the columns and states the current
-standing.
+in `QUALITY.json`. Query the current standing with
+`node scripts/score-log.mjs --standing`.
 
 Read the log with `node scripts/score-log.mjs --latest [event]`, `--standing`,
 or `--since <sha>`. `--standing` carries forward the most recent holdout figure

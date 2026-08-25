@@ -54,7 +54,7 @@ For every coherent implementation chunk:
    scheduling dashboard.
 4. Collect score and validation evidence. The slice worker reports evidence;
    the orchestrator appends the `SCORE.tsv` row as `.agents/scoring.md`
-   states. Do not add a routine per-chunk `SCORE.md` row.
+   states.
 
 A final integration runner, fixture, or test may remain uncommitted while it is
 changing. Commit completed production behavior and focused tests as soon as

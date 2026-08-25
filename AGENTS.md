@@ -218,9 +218,9 @@ When choosing new cases:
 
 ## Commit, review, and report the work
 
-`SCORE.md` summarizes development-score results for completed work. Add entries
-at the points listed in `.agents/scoring.md`, "Score evidence"; you do not
-need one after every commit.
+Append `SCORE.tsv` rows at the points listed in `.agents/scoring.md`, "Score
+evidence"; you do not need one after every commit. Query the current standing
+with `node scripts/score-log.mjs --standing`.
 
 Keep progress updates short; `.agents/workflow.md`, "Progress reports," states
 their required shape.
