@@ -4726,6 +4726,7 @@
       "id": "generation",
       "label": "Level and room generation",
       "paths": [
+        "js/bigrm.js",
         "js/dungeon.js",
         "js/dungeon_data.js",
         "js/mineralize.js",

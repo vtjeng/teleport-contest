@@ -519,17 +519,23 @@ function createMonsterBody(specification, room, env) {
         female = specification.female == null
             ? false : Boolean(specification.female);
     } else {
-        throw new Error('special-level monster requires species or class');
+        // C ref: sp_lev.c create_monster() with class -1 / id NON_PM:
+        // bare des.monster() call produces a random monster. female
+        // defaults to false (MALE, matching C's safety net at 3355).
+        female = specification.female == null
+            ? false : Boolean(specification.female);
     }
 
     // sp_amask_to_amask(AM_SPLEV_RANDOM) runs before mkclass().
     induced_align(80, env.state, env.random.rn2);
-    if (!species) {
+    if (!species && specification.class != null) {
         species = mkclass(specification.class, G_NOGEN, {
             state: env.state,
             random: env.random,
         });
     }
+    // When both id and class are absent, species stays null and makemon()
+    // creates a random monster (C ref: sp_lev.c:1945-1946).
 
     const coordinate = themedMonsterCoordinate(
         specification,

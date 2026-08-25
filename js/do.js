@@ -6,6 +6,7 @@
 // deliver_splev_message().
 
 import {
+    ACH_BGRM,
     A_DEX,
     BOTH_SIDES,
     CORR,
@@ -87,6 +88,7 @@ import {
     u_on_rndspot,
 } from './dungeon.js';
 import { more_experienced, newexplevel } from './exper.js';
+import { record_achievement } from './insight.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
 import {
@@ -1328,11 +1330,9 @@ export async function goto_level(
     // false for D:2 of the main dungeon, so the `else` arm runs.
     if (isNew && state.bigroom_level
         && on_level(u.uz, state.bigroom_level)) {
-        // record_achievement(ACH_BGRM). dat/dungeon.lua puts the big room
-        // between depths 10 and 12.
-        throw new UnsupportedLevelChangeError(
-            'goto_level() arriving in the big room',
-        );
+        // C ref: do.c:1907. dat/dungeon.lua puts the big room between
+        // depths 10 and 12.
+        record_achievement(ACH_BGRM, state);
     }
     if (!In_quest(u.uz0)
         && at_dgn_entrance('The Quest', state)
