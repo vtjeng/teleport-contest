@@ -2849,8 +2849,10 @@ test('simple preflight keeps starting-pet owner seams retryable',
                 },
             },
             {
+                // Kitten tries to eat TRIPE_RATION; dog_eat rejects because
+                // the port admits only whole corpses (otyp !== CORPSE).
                 name: 'kitten eating',
-                reason: 'the starting little dog',
+                reason: 'one whole corpse',
                 prepare: async () => {
                     const target = await prepareStartingPetAction(PM_KITTEN);
                     installObject(
@@ -2866,8 +2868,9 @@ test('simple preflight keeps starting-pet owner seams retryable',
                 },
             },
             {
+                // Kitten moves onto adjacent TRIPE_RATION; same rejection.
                 name: 'kitten moving onto adjacent food',
-                reason: 'the starting little dog',
+                reason: 'one whole corpse',
                 prepare: async () => {
                     const target = await prepareStartingPetAction(PM_KITTEN);
                     installObject(

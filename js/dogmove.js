@@ -104,12 +104,9 @@ import {
     PM_DOG,
     PM_GIANT_RAT,
     PM_HOUSECAT,
-    PM_GIANT_MIMIC,
     PM_LARGE_CAT,
     PM_LARGE_DOG,
-    PM_LARGE_MIMIC,
     PM_LITTLE_DOG,
-    PM_SMALL_MIMIC,
     PM_PONY,
     PM_FLOATING_EYE,
     PM_GELATINOUS_CUBE,
@@ -482,17 +479,10 @@ export function dog_nutrition(mtmp, obj, state = game) {
     return nutrit;
 }
 
-function mimicCorpse(obj) {
-    return obj?.otyp === CORPSE
-        && (obj.corpsenm === PM_SMALL_MIMIC
-            || obj.corpsenm === PM_LARGE_MIMIC
-            || obj.corpsenm === PM_GIANT_MIMIC);
-}
-
-// C ref: dogmove.c dog_eat() (218-340), for an ordinary starting little dog
-// eating one whole mimic corpse from the floor.  The validation is ahead of
-// hungrytime and meating so stacks, shops, pools, special eaters, partly eaten
-// food, and other food types remain atomic fail-closed paths.
+// C ref: dogmove.c dog_eat() (218-345), for a tame pet eating one whole
+// corpse from the floor.  The validation is ahead of hungrytime and meating
+// so stacks, shops, pools, special eaters, partly eaten food, and other food
+// types remain atomic fail-closed paths.
 export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const edog = mtmp?.mextra?.edog;
@@ -501,10 +491,9 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
         if (typeof unsupported === 'function') unsupported(reason);
         throw new TypeError(`dog_eat requires ${reason}`);
     };
-    if (!edog || mtmp.data?.pmidx !== PM_LITTLE_DOG)
-        stop('the starting little dog');
-    if (!mimicCorpse(obj) || obj.oclass !== FOOD_CLASS || obj.oeaten)
-        stop('one whole mimic corpse');
+    if (!edog) stop('a tame pet with edog');
+    if (obj?.oclass !== FOOD_CLASS || obj.otyp !== CORPSE || obj.oeaten)
+        stop('one whole corpse');
     if (obj.quan !== 1 || obj.unpaid || obj.oartifact || obj.cobj)
         stop('one ordinary floor corpse');
     if (devour) stop('the ordinary eat path');

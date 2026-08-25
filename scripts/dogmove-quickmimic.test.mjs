@@ -41,7 +41,11 @@ import {
     PM_KITTEN,
     PM_GIANT_MIMIC,
     PM_LITTLE_DOG,
+    PM_NEWT,
+    PM_NURSE,
     PM_SMALL_MIMIC,
+    PM_STALKER,
+    PM_WRAITH,
     monst_globals_init,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
@@ -293,27 +297,67 @@ test('dog_eat keeps a one-HP pet alive after an admitted mimic corpse',
         assert.equal(monster.mhp, 1);
     });
 
-test('dog_eat validates every excluded mimic-meal state before mutation',
+// A newt corpse conveys no intrinsic (mconveys 0, not giant, not stalker),
+// so m_consume_obj calls only delobj.  No quickmimic, no mon_givit effect,
+// and no random draw.  This exercises the widened species and corpse gates:
+// PM_KITTEN was previously rejected (only PM_LITTLE_DOG admitted), and
+// non-mimic corpses were previously rejected by the mimic-corpse-only gate.
+test('dog_eat lets a kitten eat an inert non-mimic corpse',
+    async () => {
+        const { monster, state } = quickState(true);
+        // Switch from the default little dog to a kitten.
+        monster.data = state.mons[PM_KITTEN];
+        // Place a newt corpse (mconveys 0, not giant, not stalker) on the
+        // kitten's square.  cwt 10 means meating = 3 + (10 >> 6) = 3.
+        // cnutrit 20 * 6 (MZ_SMALL kitten) = 120.
+        const corpse = floorMimicCorpse(state, PM_NEWT);
+        const messages = [];
+        assert.equal(
+            await dog_eat(
+                monster, corpse, 5, 5, false,
+                eatingEnv(state, messages),
+            ),
+            MMOVE_MOVED,
+        );
+        // Corpse consumed: removed from the floor.
+        assert.equal(state.level.objects[5][5], null);
+        // No quickmimic: the pet keeps its identity.
+        assert.equal(monster.m_ap_type, M_AP_NOTHING);
+        assert.equal(monster.mappearance, 0);
+        // Nutrition: cnutrit 20 * 6 (MZ_SMALL) = 120, added to hungrytime.
+        assert.equal(monster.mextra.edog.hungrytime, 10 + 120);
+        // Eating time: 3 + (10 >> 6) = 3.
+        assert.equal(monster.meating, 3);
+        // Confusion cleared by dog_eat.
+        assert.equal(monster.mconf, 0);
+        // Starvation penalty cleared.
+        assert.equal(monster.mextra.edog.mhpmax_penalty, 0);
+        // Tameness incremented by 1.
+        assert.equal(monster.mtame, 11);
+    });
+
+test('dog_eat validates every excluded corpse-meal state before mutation',
     async () => {
         const cases = [
+            // edog absent: the C function requires EDOG(mtmp), so a pet
+            // without edog data is rejected before any mutation.
             ['missing pet state', ({ monster }) => {
                 delete monster.mextra.edog;
-            }, /starting little dog/u],
-            ['wrong pet species', ({ monster, state }) => {
-                monster.data = state.mons[PM_KITTEN];
-            }, /starting little dog/u],
+            }, /tame pet with edog/u],
+            // Non-CORPSE food: the port gates non-corpse food types because
+            // dog_nutrition's coin and odd-object branches are unported.
             ['wrong object type', ({ corpse }) => {
                 corpse.otyp = TRIPE_RATION;
-            }, /whole mimic corpse/u],
-            ['wrong corpse species', ({ corpse }) => {
-                corpse.corpsenm = PM_KITTEN;
-            }, /whole mimic corpse/u],
+            }, /whole corpse/u],
+            // Wrong oclass with CORPSE otyp: exercises the oclass guard.
             ['wrong object class', ({ corpse }) => {
                 corpse.oclass = WEAPON_CLASS;
-            }, /whole mimic corpse/u],
+            }, /whole corpse/u],
+            // Partly eaten: oeaten != 0 triggers eaten_stat in C, which the
+            // port does not yet cover.
             ['partly eaten corpse', ({ corpse }) => {
                 corpse.oeaten = 1;
-            }, /whole mimic corpse/u],
+            }, /whole corpse/u],
             ['stacked corpse', ({ corpse }) => {
                 corpse.quan = 2;
             }, /ordinary floor corpse/u],
@@ -400,9 +444,10 @@ test('dog_eat prints no meal line for a pet sensed outside line of sight',
 test('m_consume_obj rejects non-corpses and both punishment objects',
     async () => {
         const cases = [
+            // Non-corpse food: m_consume_obj requires otyp === CORPSE.
             ['wrong object type', ({ corpse }) => {
                 corpse.otyp = TRIPE_RATION;
-            }, /mimic corpse/u],
+            }, /corpse object/u],
             ['punishment ball', ({ corpse, state }) => {
                 state.uball = corpse;
             }, /unpunished corpse/u],
@@ -414,6 +459,53 @@ test('m_consume_obj rejects non-corpses and both punishment objects',
             const { monster, state } = quickState(false);
             const corpse = floorMimicCorpse(state);
             mutate({ corpse, state });
+            await assert.rejects(
+                m_consume_obj(monster, corpse, {
+                    ...eatingEnv(state),
+                    quickMimic: async () => assert.fail(name),
+                }),
+                reason,
+                name,
+            );
+            assert.equal(state.level.objects[5][5], corpse, name);
+        }
+    });
+
+// m_consume_obj accepts a non-mimic inert corpse: delobj fires and the
+// corpse is removed from the floor.  No quickmimic call occurs because the
+// corpse is not a mimic.
+test('m_consume_obj deletes an inert non-mimic corpse without quickmimic',
+    async () => {
+        const { monster, state } = quickState(false);
+        // newt: mconveys 0, not giant, not stalker, no polymorph
+        const corpse = floorMimicCorpse(state, PM_NEWT);
+        let quickMimicCalled = false;
+        await m_consume_obj(monster, corpse, {
+            ...eatingEnv(state),
+            quickMimic: async () => { quickMimicCalled = true; },
+        });
+        assert.equal(state.level.objects[5][5], null,
+            'newt corpse removed from floor');
+        assert.equal(quickMimicCalled, false,
+            'quickmimic not called for non-mimic');
+    });
+
+// m_consume_obj rejects corpses that would trigger unported mon_givit
+// effects.  PM_WRAITH triggers the mlevelgain branch; PM_NURSE triggers
+// mhealup; PM_STALKER triggers the invisible-stalker path.
+test('m_consume_obj rejects corpses with unported effect branches',
+    async () => {
+        const cases = [
+            // Wraith corpse: mlevelgain branch (grow_up).
+            ['wraith corpse', PM_WRAITH, /non-wraith/u],
+            // Nurse corpse: mhealup branch (full heal).
+            ['nurse corpse', PM_NURSE, /non-nurse/u],
+            // Stalker corpse: mon_givit invisibility path.
+            ['stalker corpse', PM_STALKER, /non-stalker/u],
+        ];
+        for (const [name, corpsenm, reason] of cases) {
+            const { monster, state } = quickState(false);
+            const corpse = floorMimicCorpse(state, corpsenm);
             await assert.rejects(
                 m_consume_obj(monster, corpse, {
                     ...eatingEnv(state),

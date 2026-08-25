@@ -110,12 +110,15 @@ import {
     amorphous,
     attacktype,
     bigmonst,
+    can_teleport,
     ceiling_hider,
     completelyburns,
     completelyrots,
     completelyrusts,
+    control_teleport,
     dmgtype,
     emits_light,
+    flesh_petrifies,
     is_female,
     is_giant,
     is_golem,
@@ -141,6 +144,7 @@ import {
     regenerates,
     resist_conflict,
     strongmonst,
+    telepathic,
     throws_rocks,
     tunnels,
     undead_to_corpse,
@@ -154,6 +158,7 @@ import {
     AD_DGST,
     AD_DRST,
     AD_FIRE,
+    AD_POLY,
     AD_RBRE,
     AD_RUST,
     AD_SEDU,
@@ -227,6 +232,7 @@ import {
     PM_MAIL_DAEMON,
     PM_MEDUSA,
     PM_MINOTAUR,
+    PM_NURSE,
     PM_ORANGE_DRAGON,
     PM_ORC_MUMMY,
     PM_ORC_ZOMBIE,
@@ -236,6 +242,7 @@ import {
     PM_SILVER_DRAGON,
     PM_SKELETON,
     PM_SMALL_MIMIC,
+    PM_STALKER,
     PM_STEAM_VORTEX,
     PM_STONE_GOLEM,
     PM_VAMPIRE,
@@ -247,6 +254,7 @@ import {
     PM_WHITE_DRAGON,
     PM_WHITE_UNICORN,
     PM_WIZARD,
+    PM_WRAITH,
     PM_WOOD_GOLEM,
     PM_YELLOW_DRAGON,
     S_EEL,
@@ -606,38 +614,83 @@ export function m_carrying(monster, type, state = game) {
     return null;
 }
 
-// C ref: mon.c m_consume_obj() (1392-1461), the tame-monster branch for a
-// mimic corpse.  dogmove.c dog_eat() is its live caller.  Other object types
-// can polymorph, grow, heal, blind, petrify, slime, explode, spill container
-// contents, or interact with punishment; those branches stop before this
-// function changes the pet or object.
+// C ref: mon.c m_consume_obj() (1392-1453), the tame-monster branch for a
+// corpse.  dogmove.c dog_eat() is its live caller.  The uball/uchain and
+// Has_contents arms are gated before entry.  After delobj, corpses that
+// trigger polyfood, mlevelgain, mhealup, mstoning, sliming, pyrolisk
+// explosion, or mon_givit effects are refused fail-closed; only inert
+// corpses and the mimic-quickmimic branch pass through.
 export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const mimicCorpse = otmp?.otyp === CORPSE
-        && (otmp.corpsenm === PM_SMALL_MIMIC
-            || otmp.corpsenm === PM_LARGE_MIMIC
-            || otmp.corpsenm === PM_GIANT_MIMIC);
     const unsupported = rawEnv.unsupported;
     const stop = (reason) => {
         if (typeof unsupported === 'function') unsupported(reason);
         throw new TypeError(`m_consume_obj requires ${reason}`);
     };
 
-    // Every excluded source arm precedes delobj(), so reject the complete
-    // branch set before consuming the object.  Mimics convey no intrinsic
-    // (monst.c gives them mconveys 0 and they are not giants), so mon_givit()
-    // has no effect and makes no random draw for this admitted branch.
     if (!mtmp?.mtame) stop('a tame monster');
-    if (!mimicCorpse) stop('a mimic corpse');
+    if (otmp?.otyp !== CORPSE) stop('a corpse object');
     if (otmp.cobj) stop('an empty corpse object');
     if (otmp === state.uball || otmp === state.uchain)
         stop('an unpunished corpse object');
     if (otmp.oartifact) stop('an ordinary corpse object');
-    if (typeof rawEnv.quickMimic !== 'function')
-        throw new TypeError('m_consume_obj requires a quickMimic operation');
+
+    const corpsenm = otmp.corpsenm;
+    const corpseSpecies = ismnum(corpsenm) ? state.mons?.[corpsenm] : null;
+
+    // Gate every post-delobj effect branch.  Each check mirrors the C macro
+    // or inline test that guards the branch.  Refuse any corpse that would
+    // fire an unported branch; allow the rest through to delobj.
+    const isMimic = corpsenm === PM_SMALL_MIMIC
+        || corpsenm === PM_LARGE_MIMIC
+        || corpsenm === PM_GIANT_MIMIC;
+    // polyfood: pm_to_cham or AD_POLY
+    if (corpseSpecies && ismnum(corpsenm)
+        && (pm_to_cham(corpsenm, state) !== NON_PM
+            || dmgtype(corpseSpecies, AD_POLY)))
+        stop('a non-polymorphing corpse');
+    // GLOB_OF_GREEN_SLIME is caught by the CORPSE otyp check above.
+    // mlevelgain: PM_WRAITH
+    if (corpsenm === PM_WRAITH) stop('a non-wraith corpse');
+    // mhealup: PM_NURSE
+    if (corpsenm === PM_NURSE) stop('a non-nurse corpse');
+    // mstoning: flesh_petrifies
+    if (corpseSpecies && flesh_petrifies(corpseSpecies))
+        stop('a non-petrifying corpse');
+    // eyes: CARROT is not a corpse, so this branch never fires here.
+    // pyrolisk egg: EGG is not a corpse, so this branch never fires here.
+    // mon_givit: fires when corpsenm != NON_PM.  For corpses whose species
+    // conveys no intrinsic and is not a stalker, corpse_intrinsic returns 0
+    // and mon_givit returns immediately with no random draw or state change.
+    // Gate corpses that WOULD convey an intrinsic or trigger the stalker
+    // invisibility path.
+    if (corpsenm === PM_STALKER) stop('a non-stalker corpse');
+    if (corpseSpecies) {
+        if (is_giant(corpseSpecies))
+            stop('a non-giant corpse');
+        if (corpseSpecies.mconveys)
+            stop('a corpse that conveys no intrinsic');
+        if (can_teleport(corpseSpecies)
+            || control_teleport(corpseSpecies)
+            || telepathic(corpseSpecies))
+            stop('a corpse that conveys no intrinsic');
+    }
+
+    if (isMimic) {
+        if (typeof rawEnv.quickMimic !== 'function')
+            throw new TypeError(
+                'm_consume_obj requires a quickMimic operation',
+            );
+    }
 
     delobj(otmp, objectGenerationEnv({ ...rawEnv, state })); /* munch */
-    await rawEnv.quickMimic(mtmp, { ...rawEnv, state });
+
+    // Mimic corpses trigger quickmimic for tame pets (C line 1446-1447).
+    if (isMimic) {
+        await rawEnv.quickMimic(mtmp, { ...rawEnv, state });
+    }
+    // For non-mimic corpses with no effect branches, mon_givit is a no-op
+    // (corpse_intrinsic returns 0), so nothing happens after delobj.
 }
 
 // C ref: mon.c check_gear_next_turn(). Setting misc_worn_check's I_SPECIAL bit
