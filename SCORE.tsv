@@ -340,3 +340,6 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-25	ee9995d	slice	12	33	2061	7765	143606	610816	2170	7765					Development 2049→2061 of 7765 screens, 143597→143606 of 610816 rng. 12 of 33 sessions.
 2026-08-25	ee9995d	goal	12	33	2061	7765	143606	610816	2170	7765	232	3640	32638	182022	Development 2061 of 7765 screens, 143606 of 610816 rng. 12 of 33 sessions. Holdout 232/3640 screens, 32638/182022 rng.
 2026-08-25	b86d763	slice	12	33	2061	7765	143606	610816	2170	7765					Development 2061 of 7765 screens, 143606 of 610816 rng. 12 of 33 sessions. No screen change: done_in_by stops at savelife() before producing new screens.
+2026-08-25	8679305	slice	12	33	2061	7765	143606	610816	2170	7765					Development unchanged at 2061 screens. savelife ported but distfleeck mismatch at seed5002 seg1 step 119 blocks scorer from reaching death at step 132.
+2026-08-25	5a3d7ef	slice	12	33	2092	7765	143691	610816	2201	7765					Development 2061→2092 of 7765 screens, 143606→143691 of 610816 rng. 12 of 33 sessions.
+2026-08-25	5a3d7ef	goal	12	33	2092	7765	143691	610816	2201	7765	232	3640	32638	182022	Development 2092 of 7765 screens, 143691 of 610816 rng. 12 of 33 sessions. Holdout 232/3640 screens, 32638/182022 rng.

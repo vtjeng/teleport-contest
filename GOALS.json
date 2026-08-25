@@ -4002,7 +4002,7 @@
     },
     {
       "id": "hero-dies-from-monster-attack",
-      "status": "open",
+      "status": "closed",
       "boundary": "simple monster action requires the hero dying of a monster attack",
       "upstreamOwners": [
         "mhitu.c"
@@ -4026,6 +4026,16 @@
           "name": "port done_in_by from end.c and wire into mdamageu",
           "status": "closed",
           "closedBy": "b86d7633097a4ad2614941835ce882d4803901a5"
+        },
+        {
+          "name": "port savelife and done survive path from end.c",
+          "status": "closed",
+          "closedBy": "8679305ac0dd950d4112d9fb8a90cfb36527fc89"
+        },
+        {
+          "name": "make planning pass survive wizard-mode death in mdamageu",
+          "status": "closed",
+          "closedBy": "5a3d7ef97c7e2165b9084a996b4ee3b1c7c743a0"
         }
       ],
       "openedAt": "926233ad2941b3315c0ba5ade422309065227434",
@@ -4034,8 +4044,11 @@
         "screens": 2061,
         "rng": 143606
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "5a3d7ef97c7e2165b9084a996b4ee3b1c7c743a0",
+      "delivered": {
+        "screens": 31,
+        "rng": 85
+      }
     }
   ]
 }

@@ -1009,3 +1009,9 @@ utc	event	phase	goal	detail
 2026-08-25T09:10:12.655Z	end	select	hero-dies-from-monster-attack	
 2026-08-25T09:10:18.621Z	start	implement	hero-dies-from-monster-attack	
 2026-08-25T09:58:52.268Z	end	implement	hero-dies-from-monster-attack	
+2026-08-25T09:59:29.978Z	start	select	hero-dies-from-monster-attack	
+2026-08-25T10:02:31.310Z	end	select	hero-dies-from-monster-attack	
+2026-08-25T10:02:36.405Z	start	implement	hero-dies-from-monster-attack	
+2026-08-25T10:35:03.551Z	end	implement	hero-dies-from-monster-attack	
+2026-08-25T10:36:39.046Z	start	implement	hero-dies-from-monster-attack	
+2026-08-25T10:59:07.927Z	end	implement	hero-dies-from-monster-attack	
