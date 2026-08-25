@@ -22,6 +22,7 @@ import {
     refusedCommandKey,
     dedupeMessages,
     divergenceCandidates,
+    divergenceStretches,
     executedCommands,
     extendedCommandAt,
     formatReplayContext,
@@ -1072,4 +1073,65 @@ test('divergenceCandidates returns blocked screen counts for divergent sessions'
         rngCaller: 'rndmonst_adj(makemon.c:1716)',
         blocked: 95,
     });
+});
+
+// divergenceStretches: the look-ahead read for divergence candidates, parallel
+// to aheadStretches for boundary candidates. Tests verify the metadata fields
+// only; messages require session files on disk, matching how aheadStretch tests
+// verify from/to/member without testing message content.
+
+test('divergenceStretches returns metadata for divergent sessions', () => {
+    const rows = [
+        {
+            // 137 screens emitted, divergence at screen 42: the stretch covers
+            // screens 42..137, the 95 screens emitted past the divergence.
+            file: 'seed0383-wizard-hallucinate.session.json',
+            screensEmitted: 137,
+            divergence: {
+                screen: { index: 42 },
+                rng: { index: 2700, cCaller: 'rndmonst_adj(makemon.c:1716)' },
+                cursor: null,
+            },
+        },
+        {
+            // No divergence — must not appear in the output.
+            file: 'clean.session.json',
+            screensEmitted: 100,
+            divergence: null,
+        },
+    ];
+    // divergenceStretches calls recordedStepsFor which reads from disk, so
+    // only the row with a real session file produces messages. Call with
+    // the real session name so it can read the file.
+    const stretches = divergenceStretches(rows.slice(0, 1));
+    assert.equal(stretches.length, 1);
+    assert.equal(stretches[0].file, 'seed0383-wizard-hallucinate.session.json');
+    assert.equal(stretches[0].from, 42);
+    assert.equal(stretches[0].to, 137);
+    assert.equal(stretches[0].blocked, 95);
+    assert.equal(stretches[0].rngCaller, 'rndmonst_adj(makemon.c:1716)');
+    assert.ok(Array.isArray(stretches[0].messages));
+});
+
+test('divergenceStretches omits sessions without a screen divergence', () => {
+    const rows = [
+        {
+            // RNG-only divergence with no screen mismatch — the stretch
+            // definition requires a screen divergence index as its start point.
+            file: 'rng-only.session.json',
+            screensEmitted: 80,
+            divergence: {
+                screen: null,
+                rng: { index: 500, cCaller: 'some_func()' },
+                cursor: null,
+            },
+        },
+        {
+            // No divergence at all.
+            file: 'clean.session.json',
+            screensEmitted: 50,
+            divergence: null,
+        },
+    ];
+    assert.deepEqual(divergenceStretches(rows), []);
 });

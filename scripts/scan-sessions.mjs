@@ -758,6 +758,35 @@ export function divergenceCandidates(rows) {
 }
 
 /**
+ * The look-ahead read for divergence candidates: each divergent session's
+ * recorded message lines between its first screen mismatch and the end of
+ * its emitted screens. The selector hands this stream to a classifier the
+ * same way it reads boundary stretches, capping at the first message that
+ * implies an independent issue unrelated to the divergence cause.
+ */
+export function divergenceStretches(rows) {
+    return rows
+        .filter((row) => row.divergence?.screen)
+        .map((row) => {
+            const screenDiv = row.divergence.screen;
+            const from = screenDiv.index;
+            const to = row.screensEmitted;
+            return {
+                file: row.file,
+                from,
+                to,
+                blocked: to - from,
+                rngCaller: row.divergence.rng?.cCaller ?? null,
+                messages: dedupeMessages(
+                    recordedStepsFor(row.file)
+                        .slice(from, to)
+                        .map(recordedTopLine),
+                ),
+            };
+        });
+}
+
+/**
  * Check each session's earliest behavior against where the port actually
  * stopped.
  *
@@ -1268,12 +1297,31 @@ export function aheadMembers(rows) {
         .filter((member) => members.has(member));
 }
 
+function reportDivergenceAhead(rows) {
+    const stretches = divergenceStretches(rows);
+    if (stretches.length === 0) return;
+    console.log('\n==== Look-ahead for divergence candidates\n');
+    let total = 0;
+    for (const stretch of stretches) {
+        total += stretch.blocked;
+        const caller = stretch.rngCaller
+            ? `  in ${stretch.rngCaller}` : '';
+        console.log(`== ${stretch.file}: screens ${stretch.from}..${stretch.to}`
+            + ` (${stretch.blocked} blocked)${caller}`);
+        for (const { line, count } of stretch.messages)
+            console.log(count > 1 ? `${line}  [x${count}]` : line);
+        console.log('');
+    }
+    console.log(`${stretches.length} session(s), ${total} blocked screens.`);
+}
+
 /** The `--ahead=<behavior>` sections for every candidate, after the report. */
 function reportAheadAll(rows) {
     for (const member of aheadMembers(rows)) {
         console.log(`\n==== Look-ahead for "${member}"\n`);
         reportAhead(rows, member);
     }
+    reportDivergenceAhead(rows);
 }
 
 const AHEAD_PREFIX = '--ahead=';
@@ -1293,7 +1341,8 @@ export async function main(args) {
             + ' recorded messages between\n'
             + '                           its stop and its next unmet behavior.'
             + '\n  --ahead-all              append every candidate\'s'
-            + ' look-ahead streams to the report.'
+            + ' look-ahead streams and divergence\n'
+            + '                           candidate stretches to the report.'
             + '\n  --json                   emit the same figures in'
             + ' machine-readable form.'
             + '\n  --write-cache            write the replay rows to'
@@ -1375,6 +1424,7 @@ export async function main(args) {
                     member,
                     sessions: aheadStretches(rows, member),
                 })),
+                divergenceStretches: divergenceStretches(rows),
             } : {}),
             reconciliation: {
                 stopPointAgreement: stopPointAgreement(rows),
