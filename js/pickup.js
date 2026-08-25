@@ -1,18 +1,28 @@
-// Inventory burden feedback, floor-square inspection and the pickup itself,
-// all owned by pickup.c. C refs: pickup.c encumber_msg(), pickup(),
-// check_here(), query_objlist(), all_but_uchain(), pickup_object() and the
-// three corpse-handling helpers at 272-313.
+// Inventory burden feedback, floor-square inspection, the pickup itself, and
+// the #loot container-looting dispatch, all owned by pickup.c. C refs:
+// pickup.c encumber_msg(), pickup(), check_here(), query_objlist(),
+// all_but_uchain(), pickup_object(), the three corpse-handling helpers at
+// 272-313, doloot(), doloot_core(), container_at(), able_to_loot(),
+// mon_beside(), and do_loot_cont().
 
 import {
     AUTOSELECT_SINGLE,
+    AUTOUNLOCK_APPLY_KEY,
+    AUTOUNLOCK_FORCE,
+    AUTOUNLOCK_UNTRAP,
     BLINDED,
     BY_NEXTHERE,
+    CONFUSION,
+    ECMD_OK,
+    ECMD_TIME,
     EXT_ENCUMBER,
     FEEL_COCKATRICE,
     FUMBLING,
+    HAND,
     HVY_ENCUMBER,
     INCLUDE_HERO,
     INVORDER_SORT,
+    IS_GRAVE,
     LOOKHERE_NOFLAGS,
     LOOKHERE_PICKED_SOME,
     LOOKHERE_SKIP_DFEATURE,
@@ -21,28 +31,38 @@ import {
     MOD_ENCUMBER,
     OBJ_FLOOR,
     OBJ_MINVENT,
+    PICK_ANY,
     SIGNAL_NOMENU,
     SLT_ENCUMBER,
     STAIRS,
     STONE,
     STONE_RES,
+    STUNNED,
     ROOM,
     CORR,
     W_WEP,
     is_pit,
+    isok,
     st_all,
     st_corpse,
     st_gloves,
     st_petrifies,
     st_resists,
+    u_at,
 } from './const.js';
+import { get_adjacent_loc } from './cmd.js';
+import { autokey } from './lock.js';
 import { flush_screen, newsym } from './display.js';
-import { can_reach_floor, read_engr_at } from './engrave.js';
+import { hliquid } from './do_name.js';
+import { ceiling } from './dungeon.js';
+import { can_reach_floor, freehand, read_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
     calc_capacity,
+    check_capacity,
     inv_cnt,
     inv_weight,
+    losehp,
     near_capacity,
     nomul,
     weight_cap,
@@ -57,15 +77,21 @@ import {
     preflight_look_here,
     prinv,
 } from './invent.js';
-import { is_rider, notake, touch_petrifies } from './mondata.js';
+import { is_rider, nohands, nolimbs, notake, touch_petrifies } from './mondata.js';
+import { m_at } from './monst.js';
+import { isContainer } from './obj.js';
 import { observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { COIN_CLASS, CORPSE, SCR_SCARE_MONSTER } from './objects.js';
-import { assertObjectNameable } from './objnam.js';
+import { BAG_OF_TRICKS, COIN_CLASS, CORPSE, SCR_SCARE_MONSTER } from './objects.js';
+import { assertObjectNameable, donameFresh, the, The, xnameFresh } from './objnam.js';
+import { body_part } from './polyself.js';
+import { rn2, rnd } from './rng.js';
 import { costly_spot } from './shk.js';
 import { stairway_at } from './stairs.js';
+import { menuTitleStyle } from './tty_menu.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
+import { select_menu } from './windows.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
     null,
@@ -815,4 +841,373 @@ export async function check_here(picked_some, state = game) {
             canReachFloor: can_reach_floor,
         });
     }
+}
+
+// ---- #loot command: doloot(), doloot_core(), container_at(),
+//      able_to_loot(), mon_beside(), do_loot_cont() ----
+
+// C ref: pickup.c container_at() (2024-2038). Counts containers on the floor
+// at (x, y). When countem is false, returns 0 or 1 (stops after the first).
+export function container_at(x, y, countem, state = game) {
+    let container_count = 0;
+    for (let cobj = state.level?.objects?.[x]?.[y] ?? null;
+        cobj;
+        cobj = cobj.nexthere) {
+        if (isContainer(cobj)) {
+            container_count++;
+            if (!countem) break;
+        }
+    }
+    return container_count;
+}
+
+// C ref: pickup.c able_to_loot() (2041-2069). Returns true when the hero can
+// loot or tip at (x, y). The only call in this slice passes looting = true.
+async function able_to_loot(x, y, looting, state) {
+    const verb = looting ? 'loot' : 'tip';
+    const trap = t_at(x, y, state);
+    if (!can_reach_floor(Boolean(trap && is_pit(trap.ttyp)), state)) {
+        // C's two arms need rider_cant_reach() and cant_reach_floor(), neither
+        // of which is exported. The hero must be levitating, riding, or in a
+        // pit to reach this point, and none of those states appear in the
+        // current witness.
+        throw new UnsupportedPickupError(
+            'able_to_loot: hero cannot reach the floor',
+        );
+    } else if ((is_pool(x, y, state) && (looting || !state.u.uinwater))
+        || is_lava(x, y, state)) {
+        await ttyPline(
+            `You cannot ${verb} things that are deep in the `
+            + `${hliquid(is_lava(x, y, state) ? 'lava' : 'water')}.`,
+            state,
+        );
+        return false;
+    } else if (nolimbs(state.youmonst.data)) {
+        await ttyPline(
+            `Without limbs, you cannot ${verb} anything.`,
+            state,
+        );
+        return false;
+    } else if (looting && !freehand(state)) {
+        await ttyPline(
+            `Without a free ${body_part(HAND, state.youmonst)}, `
+            + 'you cannot loot anything.',
+            state,
+        );
+        return false;
+    }
+    return true;
+}
+
+// C ref: pickup.c mon_beside() (2072-2085). Returns true when any monster
+// occupies a square adjacent to or at (x, y).
+function mon_beside(x, y, state) {
+    for (let i = -1; i <= 1; i++) {
+        for (let j = -1; j <= 1; j++) {
+            const nx = x + i;
+            const ny = y + j;
+            if (isok(nx, ny) && m_at(nx, ny, state))
+                return true;
+        }
+    }
+    return false;
+}
+
+// C ref: pickup.c do_loot_cont() (2088-2162). Handles a single container
+// found on the floor. If locked, prints a message and sets lknown. If
+// unlocked, delegates to use_container(), which is the current boundary.
+//
+// Covered: the locked-container message arm (both lknown true and false),
+// the lknown=1 assignment, and the delegation to use_container().
+//
+// Not covered: flags.autounlock (key, untrap, force arms), BAG_OF_TRICKS
+// bite. Both refuse with UnsupportedPickupError.
+async function do_loot_cont(cobj, cindex, ccount, state) {
+    if (!cobj) return ECMD_OK;
+
+    if (cobj.olocked) {
+        // pickup.c:2106-2109. The #if 0 block at 2100-2105 is dead code.
+        if (cobj.lknown) {
+            await ttyPline(
+                `${The(xnameFresh(cobj, state), state)} is locked.`,
+                state,
+            );
+        } else {
+            await ttyPline(
+                `Hmmm, ${the(xnameFresh(cobj, state), state)} `
+                + 'turns out to be locked.',
+                state,
+            );
+        }
+        cobj.lknown = 1;
+
+        // pickup.c:2112-2145. The autounlock block. When the hero has no
+        // unlocking tool and AUTOUNLOCK_UNTRAP is not set, neither the
+        // apply-key nor the untrap arm fires and the function returns
+        // ECMD_OK, matching a hero without lockpicking tools.
+        if (state.flags?.autounlock) {
+            const autounlock = state.flags.autounlock;
+            let unlocktool = null;
+            if ((autounlock & AUTOUNLOCK_APPLY_KEY)
+                && (unlocktool = autokey(true, state))) {
+                // The hero has a key or lock pick. pick_lock() is the
+                // handler, which is not ported for the container path.
+                throw new UnsupportedPickupError(
+                    'do_loot_cont: autounlock apply-key on container',
+                );
+            }
+            if (autounlock & AUTOUNLOCK_UNTRAP) {
+                throw new UnsupportedPickupError(
+                    'do_loot_cont: autounlock untrap on container',
+                );
+            }
+            if ((autounlock & AUTOUNLOCK_FORCE) && ccount === 1) {
+                throw new UnsupportedPickupError(
+                    'do_loot_cont: autounlock force on container',
+                );
+            }
+        }
+        return ECMD_OK;
+    }
+    cobj.lknown = 1; /* floor container, no update_inventory() needed */
+
+    // pickup.c:2150-2159. The BAG_OF_TRICKS arm bites the hero and needs
+    // makeknown(), which is not imported.
+    if (cobj.otyp === BAG_OF_TRICKS) {
+        throw new UnsupportedPickupError(
+            'do_loot_cont: BAG_OF_TRICKS carnivorous bag',
+        );
+    }
+    // pickup.c:2161. Boundary: use_container() is unported.
+    throw new UnsupportedPickupError(
+        `use_container for ${xnameFresh(cobj, state)}`,
+    );
+}
+
+// C ref: pickup.c:2202-2209. The Confusion branch calls reverse_loot(),
+// which has unported inventory and shop interactions.
+function ConfusionProp(state) {
+    return Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
+}
+function StunnedProp(state) {
+    return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
+}
+
+// C ref: pickup.c doloot_core() (2178-2346). The main body of the #loot
+// command. Finds containers at the hero's location and interacts with them
+// through do_loot_cont(). Falls through to directional looting when no
+// container is found directly underfoot.
+//
+// Covered: the container-at-hero path (single and multi-container), the
+// grave message, the directional looting direction prompt through
+// get_adjacent_loc(), the underfoot redirect, the u.dz < 0 ceiling arm, and
+// the no-container messages.
+//
+// Not covered: Confusion/reverse_loot() (refuses), loot_mon() (refuses),
+// cockatrice blind-no-glove arm (refuses).
+async function doloot_core(state) {
+    let c = -1;
+    let timepassed = 0;
+    const cc = { x: state.u.ux, y: state.u.uy };
+    let underfoot = true;
+
+    state.ga ??= {};
+    state.ga.abort_looting = false;
+
+    // pickup.c:2194-2197.
+    if (await check_capacity(null, state)) return ECMD_OK;
+
+    // pickup.c:2198-2200.
+    if (nohands(state.youmonst.data)) {
+        await ttyPline('You have no hands!', state);
+        return ECMD_OK;
+    }
+
+    // pickup.c:2202-2209. Confusion causes random reverse looting or a
+    // wasted turn. reverse_loot() interacts with inventory and shops, which
+    // this slice does not own.
+    if (ConfusionProp(state)) {
+        throw new UnsupportedPickupError(
+            'doloot_core: confused looting',
+        );
+    }
+
+    // pickup.c:2210-2211. cc is already set to hero's position.
+
+    // pickup.c:2213-2214.
+    if (state.iflags?.menu_requested)
+        return doloot_core_lootmon(
+            state, cc, c, timepassed, underfoot,
+        );
+
+    // pickup.c lootcont: 2217-2290.
+    const num_conts = container_at(cc.x, cc.y, true, state);
+    if (num_conts > 0) {
+        if (!(await able_to_loot(cc.x, cc.y, true, state)))
+            return ECMD_OK;
+
+        // pickup.c:2223-2235. Blind cockatrice corpse handling.
+        if (heroIsBlind(state) && !state.uarmg) {
+            for (let nobj = state.level.objects[cc.x][cc.y]; nobj;
+                nobj = nobj.nexthere) {
+                if (nobj.otyp === CORPSE
+                    && touch_petrifies(state.mons[nobj.corpsenm])) {
+                    throw new UnsupportedPickupError(
+                        'doloot_core: blind cockatrice corpse on floor',
+                    );
+                }
+            }
+        }
+
+        if (num_conts > 1) {
+            // pickup.c:2237-2270. Multi-container menu.
+            const items = [];
+            for (let cobj = state.level.objects[cc.x][cc.y]; cobj;
+                cobj = cobj.nexthere) {
+                if (isContainer(cobj)) {
+                    items.push({
+                        label: donameFresh(cobj, state),
+                        value: cobj,
+                    });
+                }
+            }
+            const result = await select_menu(state, {
+                title: 'Loot which containers?',
+                ...menuTitleStyle(state),
+                items,
+                how: PICK_ANY,
+                cancelValue: null,
+                overlay: state.iflags?.menu_overlay !== false,
+            });
+            const n = result ? result.length : 0;
+            if (n > 0) {
+                for (let i = 0; i < n; i++) {
+                    const cobj = result[i].value;
+                    timepassed |= await do_loot_cont(
+                        cobj, i + 1, n, state,
+                    );
+                    if (state.ga.abort_looting) {
+                        return timepassed ? ECMD_TIME : ECMD_OK;
+                    }
+                }
+            }
+            if (n !== 0) c = 'y';
+        } else {
+            // pickup.c:2273-2287. Single-container path.
+            let anyfound = false;
+            for (let cobj = state.level.objects[cc.x][cc.y]; cobj;
+                cobj = cobj.nexthere) {
+                if (isContainer(cobj)) {
+                    anyfound = true;
+                    timepassed |= await do_loot_cont(
+                        cobj, 1, 1, state,
+                    );
+                    if (state.ga?.abort_looting)
+                        return timepassed ? ECMD_TIME : ECMD_OK;
+                }
+            }
+            if (anyfound) c = 'y';
+        }
+    } else if (IS_GRAVE(state.level.at(cc.x, cc.y)?.typ)) {
+        await ttyPline(
+            'You need to dig up the grave to effectively loot it...',
+            state,
+        );
+    }
+
+    // pickup.c lootmon: 2296-2344.
+    return doloot_core_lootmon(
+        state, cc, c, timepassed, underfoot,
+    );
+}
+
+// The lootmon label section of doloot_core() (pickup.c:2296-2344), split out
+// so that the iflags.menu_requested goto can reach it without a goto.
+async function doloot_core_lootmon(
+    state, cc, c, timepassed, underfoot,
+) {
+    const dont_find_anything = "don't find anything";
+    // pickup.c:2296.
+    if (c !== 'y'
+        && (mon_beside(state.u.ux, state.u.uy, state)
+            || state.iflags?.menu_requested)) {
+        const result = await get_adjacent_loc(
+            'Loot in what direction?',
+            'Invalid loot location',
+            state.u.ux, state.u.uy, cc, state,
+        );
+        if (!result) return ECMD_OK;
+        underfoot = u_at(cc.x, cc.y, state);
+        if (underfoot && container_at(cc.x, cc.y, false, state)) {
+            // goto lootcont: re-run the container path at the hero's
+            // location. The direction pointed back at the hero, so cc is
+            // still (u.ux, u.uy).
+            if (!(await able_to_loot(cc.x, cc.y, true, state)))
+                return ECMD_OK;
+            for (let cobj = state.level.objects[cc.x][cc.y]; cobj;
+                cobj = cobj.nexthere) {
+                if (isContainer(cobj)) {
+                    timepassed |= await do_loot_cont(
+                        cobj, 1, 1, state,
+                    );
+                    if (state.ga?.abort_looting)
+                        return timepassed ? ECMD_TIME : ECMD_OK;
+                }
+            }
+            return timepassed ? ECMD_TIME : ECMD_OK;
+        }
+        // pickup.c:2304-2308.
+        if (state.u.dz < 0) {
+            await ttyPline(
+                `You ${dont_find_anything} to loot on the `
+                + `${ceiling(cc.x, cc.y, state)}.`,
+                state,
+            );
+            return ECMD_TIME;
+        }
+        // pickup.c:2309-2313. loot_mon() is unported.
+        const mtmp = m_at(cc.x, cc.y, state);
+        if (mtmp) {
+            throw new UnsupportedPickupError(
+                'doloot_core: loot_mon() is unported',
+            );
+        }
+        // pickup.c:2318-2319.
+        if (ConfusionProp(state) || StunnedProp(state))
+            timepassed = 1;
+        // pickup.c:2325-2340.
+        if (!underfoot && container_at(cc.x, cc.y, false, state)) {
+            await ttyPline(
+                'You have to be at a container to loot it.',
+                state,
+            );
+        } else {
+            await ttyPline(
+                `You ${dont_find_anything} `
+                + `${!underfoot ? 't' : ''}here to loot.`,
+                state,
+            );
+            return timepassed ? ECMD_TIME : ECMD_OK;
+        }
+    } else if (c !== 'y' && c !== 'n') {
+        // pickup.c:2341-2343.
+        await ttyPline(
+            `You ${dont_find_anything} `
+            + `${underfoot ? 'here' : 'there'} to loot.`,
+            state,
+        );
+    }
+    return timepassed ? ECMD_TIME : ECMD_OK;
+}
+
+// C ref: pickup.c doloot() (2166-2174). The #loot extended command.
+export async function doloot(state = game) {
+    state.loot_reset_justpicked = true;
+    let res;
+    try {
+        res = await doloot_core(state);
+    } finally {
+        state.loot_reset_justpicked = false;
+    }
+    return res;
 }

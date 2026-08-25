@@ -63,7 +63,7 @@ import { UnsupportedMonsterCreationError } from './makemon_create.js';
 import { UnsupportedRegionPlacementError } from './mkmaze.js';
 import { docallcmd, UnsupportedObjectNamingError } from './do_name.js';
 import { UnsupportedObjectOperationError } from './obj.js';
-import { UnsupportedPickupError } from './pickup.js';
+import { doloot, UnsupportedPickupError } from './pickup.js';
 import { UnsupportedPotionError } from './potion.js';
 import { UnsupportedItemDestructionError } from './zap_destroy_items.js';
 import { UnsupportedPositionCheckError } from './teleport.js';
@@ -1725,6 +1725,13 @@ async function runPickupCommand(key, state) {
     return failClosedCommand(key, state, () => dopickup(state));
 }
 
+// C ref: pickup.c doloot(), the #loot extended command. doloot() returns its
+// own ECMD_* result: locked containers and the no-container messages answer
+// ECMD_OK, and use_container() paths answer ECMD_TIME.
+async function runLootCommand(key, state) {
+    return failClosedCommand(key, state, () => doloot(state));
+}
+
 // C ref: do_wear.c dotakeoff(). Like dosearch() and doeat() it returns its own
 // ECMD_* result, and it is the first ported command to answer ECMD_CANCEL from
 // a getobj() the player escaped: an empty pack answers ECMD_OK instead,
@@ -2052,6 +2059,8 @@ async function doextcmd(key, state) {
         return await runDropCommand(key, state);
     case 'dopickup':
         return await runPickupCommand(key, state);
+    case 'doloot':
+        return await runLootCommand(key, state);
     case 'dotakeoff':
         return await runTakeOffCommand(key, state);
     case 'dowear':
