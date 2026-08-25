@@ -10,8 +10,6 @@ import {
     VAULT,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
-import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
 import { COIN_CLASS } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
 import {
