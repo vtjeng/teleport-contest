@@ -4614,6 +4614,33 @@
       "status": "open",
       "from": "7a0c54f1c678f5a8c2b449dc15d19d8d61a54de4",
       "detail": "js/tty_menu.js writeStyledText() can hold color and attribute on the leading spaces in a menu description, but judge-owned Terminal.serialize() skips every leading space through the first nonspace. Enabled MENUCOLOR rules therefore lose that styling in menus such as #optionsfull even though the following text matches. Close by providing a source-faithful captured-screen path for styled leading whitespace without changing judge-owned files, then restore an enabled catch-all #optionsfull fresh case."
+    },
+    {
+      "id": "picklock-box-arm",
+      "area": null,
+      "category": "scope",
+      "effort": "slice",
+      "status": "open",
+      "from": "956eee38488de74bda5da26ff60292094b6e9a77",
+      "detail": "lock.c picklock() box arm (lines 67-97): toggling olocked on containers, including the magic-key trap detection arm. No development session reaches this path through pick_lock()."
+    },
+    {
+      "id": "picklock-door-trap",
+      "area": null,
+      "category": "scope",
+      "effort": "small",
+      "status": "open",
+      "from": "956eee38488de74bda5da26ff60292094b6e9a77",
+      "detail": "lock.c picklock() door-trap arm (lines 140-146): b_trapped() fires the door trap. Requires b_trapped(), unblock_point(), in_rooms(), add_damage(), and newsym(). No development session reaches a trapped door through pick_lock()."
+    },
+    {
+      "id": "picklock-magic-key-trap",
+      "area": null,
+      "category": "scope",
+      "effort": "small",
+      "status": "open",
+      "from": "956eee38488de74bda5da26ff60292094b6e9a77",
+      "detail": "lock.c picklock() magic-key trap detection (lines 101-136): when a target is trapped and the hero uses the Master Key of Thievery, the key detects and disarms the trap. Requires the artifact to be in inventory, which no development session has."
     }
   ],
   "areas": [
