@@ -15,7 +15,6 @@ import {
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
-    OBJ_FLOOR,
     TT_PIT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
