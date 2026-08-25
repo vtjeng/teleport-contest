@@ -316,17 +316,23 @@ export async function tty_yn_function(query, resp, def, state = game) {
                 'tty_yn_function() preserving case in the answer',
             );
         }
-        /* any acceptable responses that follow <esc> aren't displayed */
+        // C ref: topl.c:412-413. Characters after the first ESC in resp are
+        // accepted but not shown in the prompt bracket. The displayed portion
+        // is everything before the ESC; the full resp (without the ESC itself)
+        // is used for key matching.
+        let displayResp = resp;
         if (resp.includes('\x1B')) {
-            throw new UnsupportedGetlinBoundaryError(
-                'tty_yn_function() with hidden responses after <esc>',
-            );
+            const escIdx = resp.indexOf('\x1B');
+            displayResp = resp.slice(0, escIdx);
+            // Replace resp with visible + hidden (without the ESC separator)
+            // so the matching loop below accepts hidden characters too.
+            resp = resp.slice(0, escIdx) + resp.slice(escIdx + 1);
         }
         // C ref: topl.c:415 `if (def)` tests a char, so '\0' (0) is falsy
         // and suppresses the default display.  In JS the parameter arrives
         // as a one-character string, so '\0' is truthy; test the code point.
         const showDef = def && def.charCodeAt(0) !== 0;
-        prompt = `${query} [${resp}]${showDef ? ` (${def})` : ''} `;
+        prompt = `${query} [${displayResp}]${showDef ? ` (${def})` : ''} `;
     } else {
         prompt = `${query} `;
     }

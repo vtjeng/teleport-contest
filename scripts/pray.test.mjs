@@ -1305,7 +1305,6 @@ test('tty_yn_function stops on the response sets it cannot read', async () => {
     for (const [resp, reason] of [
         ['yn#', /yn_number/u],
         ['yN', /preserving case/u],
-        ['yn\x1Bq', /hidden responses/u],
     ]) {
         await assert.rejects(
             tty_yn_function('Ring?', resp, 'n', game),
@@ -1313,7 +1312,7 @@ test('tty_yn_function stops on the response sets it cannot read', async () => {
                 && reason.test(error.message),
         );
     }
-    // topl.c:397-408 reads all three out of `resp` before the prompt is built.
+    // topl.c:397-408 reads both out of `resp` before the prompt is built.
     assert.equal(
         game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd(), row,
     );

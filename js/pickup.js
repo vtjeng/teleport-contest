@@ -39,6 +39,7 @@ import {
     STONE_RES,
     STUNNED,
     ROOM,
+    SELL_NORMAL,
     CORR,
     W_WEP,
     is_pit,
@@ -50,7 +51,8 @@ import {
     st_resists,
     u_at,
 } from './const.js';
-import { get_adjacent_loc } from './cmd.js';
+import { get_adjacent_loc, yn_function } from './cmd.js';
+import { container_contents } from './end.js';
 import { autokey } from './lock.js';
 import { flush_screen, newsym } from './display.js';
 import { hliquid } from './do_name.js';
@@ -76,17 +78,24 @@ import {
     preflight_addinv_sequence,
     preflight_look_here,
     prinv,
+    update_inventory,
 } from './invent.js';
 import { is_rider, nohands, nolimbs, notake, touch_petrifies } from './mondata.js';
 import { m_at } from './monst.js';
-import { isContainer } from './obj.js';
+import { hasContents, isContainer } from './obj.js';
 import { observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { BAG_OF_TRICKS, COIN_CLASS, CORPSE, SCR_SCARE_MONSTER } from './objects.js';
-import { assertObjectNameable, donameFresh, the, The, xnameFresh } from './objnam.js';
+import {
+    BAG_OF_HOLDING, BAG_OF_TRICKS, COIN_CLASS, CORPSE, LARGE_BOX,
+    SCR_SCARE_MONSTER,
+} from './objects.js';
+import {
+    Tobjnam, Yname2, Ysimple_name2, assertObjectNameable, donameFresh,
+    safe_qbuf, the, The, xnameFresh, yname, ysimple_name,
+} from './objnam.js';
 import { body_part } from './polyself.js';
 import { rn2, rnd } from './rng.js';
-import { costly_spot } from './shk.js';
+import { costly_spot, sellobj_state } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { is_lava, is_pool, t_at } from './trap.js';
@@ -978,10 +987,201 @@ async function do_loot_cont(cobj, cindex, ccount, state) {
             'do_loot_cont: BAG_OF_TRICKS carnivorous bag',
         );
     }
-    // pickup.c:2161. Boundary: use_container() is unported.
-    throw new UnsupportedPickupError(
-        `use_container for ${xnameFresh(cobj, state)}`,
-    );
+    // pickup.c:2161. use_container(cobjp, FALSE, cindex < ccount).
+    const more_containers = cindex < ccount;
+    return use_container(cobj, false, more_containers, state);
+}
+
+// C ref: pickup.c u_handsy() (2943-2953). Checks whether the hero has free
+// hands to manipulate a container.
+async function u_handsy(state) {
+    if (nohands(state.youmonst.data)) {
+        await ttyPline('You have no hands!', state);
+        return false;
+    } else if (!freehand(state)) {
+        await ttyPline(
+            `You have no free ${body_part(HAND, state.youmonst)}.`,
+            state,
+        );
+        return false;
+    }
+    return true;
+}
+
+// C ref: pickup.c use_container() (2972-3226). Handles one container: entry
+// checks (u_handsy, lknown, olocked, otrapped), the for(;;) prompt loop
+// ("Do what with <container>?"), the ':' path (container_contents), the
+// 'q'/Escape exit, and cleanup (cknown, update_inventory, sellobj_state,
+// null out current_container).
+//
+// Covered: the ':' (view) and 'q'/'n' (quit/next) paths, the
+// SchroedingersBox FALSE stub for ordinary containers, the cknown and
+// sellobj_state containerdone cleanup.
+//
+// Not covered: 'o'/'i'/'b'/'r'/'s' (item transfer), otrapped/chest_trap,
+// cursed bag of holding loss, SchroedingersBox/observe_quantum_cat. All
+// refuse with UnsupportedPickupError.
+async function use_container(obj, held, more_containers, state) {
+    state.ga ??= {};
+    state.ga.abort_looting = false;
+    state.gs ??= {};
+    state.gs.sellobj_first = true;
+
+    if (!(await u_handsy(state)))
+        return ECMD_OK;
+
+    if (!obj.lknown) {
+        obj.lknown = 1;
+        if (held) update_inventory({ state });
+    }
+    if (obj.olocked) {
+        await ttyPline(
+            `${Tobjnam(obj, 'are', state)} locked.`,
+            state,
+        );
+        if (held)
+            await ttyPline('You must put it down to unlock.', state);
+        return ECMD_OK;
+    } else if (obj.otrapped) {
+        throw new UnsupportedPickupError(
+            'use_container: otrapped container (chest_trap)',
+        );
+    }
+
+    state.gc ??= {};
+    state.gc.current_container = obj;
+    let used = ECMD_OK;
+
+    // SchroedingersBox: spe === 1 on a LARGE_BOX.
+    const quantum_cat = (obj.otyp === LARGE_BOX && obj.spe === 1);
+    if (quantum_cat) {
+        throw new UnsupportedPickupError(
+            'use_container: SchroedingersBox (observe_quantum_cat)',
+        );
+    }
+
+    // Cursed bag of holding.
+    const cursed_mbag = isMbag(obj) && obj.cursed && hasContents(obj);
+    if (cursed_mbag) {
+        throw new UnsupportedPickupError(
+            'use_container: cursed bag of holding (boh_loss)',
+        );
+    }
+
+    // Might put something in if carrying anything besides the container.
+    const inokay = Boolean(state.invent
+        && (state.invent !== state.gc.current_container
+            || state.invent.nobj));
+    // Might take something out if container is not empty.
+    const outokay = hasContents(state.gc.current_container);
+    let emptymsg = '';
+    if (!outokay) {
+        emptymsg = `${Ysimple_name2(state.gc.current_container, state)} is empty.`;
+    }
+
+    // The for(;;) prompt loop.
+    let c;
+    for (;;) {
+        const outmaybe = outokay || !state.gc.current_container.cknown;
+        let qbuf;
+        if (!outmaybe) {
+            qbuf = safe_qbuf(
+                null,
+                ' is empty.  Do what with it?',
+                state.gc.current_container,
+                (o, s) => Yname2(o, s),
+                (o, s) => Ysimple_name2(o, s),
+                'This',
+                state,
+            );
+        } else {
+            qbuf = safe_qbuf(
+                'Do what with ',
+                '?',
+                state.gc.current_container,
+                (o, s) => yname(o, s),
+                (o, s) => ysimple_name(o, s),
+                'it',
+                state,
+            );
+        }
+        // Build the response string and call yn_function.
+        // C builds pbuf with allowed and hidden characters. The JS port
+        // builds the visible prompt and accepted characters similarly.
+        const xbuf = [];
+        let pbuf = ':';
+        if (outmaybe) pbuf += 'o'; else xbuf.push('o');
+        if (inokay) pbuf += 'i'; else xbuf.push('i');
+        if (outmaybe) pbuf += 'b'; else xbuf.push('b');
+        if (inokay) { pbuf += 'rs'; } else { xbuf.push('r'); xbuf.push('s'); }
+        pbuf += ' ';
+        if (more_containers) pbuf += 'n'; else xbuf.push('n');
+        pbuf += 'q';
+        if (state.iflags?.cmdassist) {
+            pbuf += ' or ?';
+        } else {
+            xbuf.push('?');
+        }
+        if (xbuf.length > 0)
+            pbuf += '\x1b' + xbuf.join('');
+
+        c = await yn_function(
+            qbuf, pbuf, more_containers ? 'n' : 'q', false, state,
+        );
+        // yn_function returns a key code (number). Convert to character
+        // for the comparisons below.
+        const ch = String.fromCharCode(c);
+
+        if (ch === '?') {
+            // explain_container_prompt is a text window listing actions.
+            // For this slice, refuse it rather than porting the text window.
+            throw new UnsupportedPickupError(
+                'use_container: explain_container_prompt (?)',
+            );
+        } else if (ch === ':') {
+            if (!state.gc.current_container.cknown)
+                used = ECMD_TIME;
+            await container_contents(
+                state.gc.current_container,
+                false, false, true, state,
+            );
+        } else {
+            c = ch;
+            break;
+        }
+    }
+
+    if (c === 'q')
+        state.ga.abort_looting = true;
+    if (c === 'n' || c === 'q') {
+        // goto containerdone
+    } else {
+        // Item transfer paths: o, i, b, r, s.
+        throw new UnsupportedPickupError(
+            `use_container: item transfer '${c}'`,
+        );
+    }
+
+    // containerdone:
+    if (used) {
+        if (state.gc.current_container)
+            state.gc.current_container.cknown = 1;
+        update_inventory({ state });
+    }
+
+    sellobj_state(SELL_NORMAL, state);
+    const result_obj = state.gc.current_container;
+    if (state.gc.current_container)
+        state.gc.current_container = null;
+    else
+        state.ga.abort_looting = true;
+
+    return used;
+}
+
+// C ref: obj.h Is_mbag(). True for a bag of holding (the only magic bag).
+function isMbag(obj) {
+    return obj.otyp === BAG_OF_HOLDING;
 }
 
 // C ref: pickup.c:2202-2209. The Confusion branch calls reverse_loot(),

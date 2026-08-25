@@ -495,23 +495,22 @@ test('the response sets tty_yn_function still refuses stop before it paints',
     async () => {
     await runSegment({ ...promptSegment(), moves: `.${RIDE_COMMAND}` });
     const row = topLine();
-    // topl.c:397-408 reads three things out of `resp` before the prompt is
+    // topl.c:397-408 reads two things out of `resp` before the prompt is
     // built, and each one has a reader this port lacks: '#' turns digits into
-    // yn_number, an uppercase letter suppresses the lowc() on the answer, and
-    // an <esc> hides the responses that follow it from the prompt.
+    // yn_number and an uppercase letter suppresses the lowc() on the answer.
+    // Hidden responses after ESC are now handled (topl.c:412-413).
     for (const [resp, reason] of [
         ['yn#', /yn_number/u],
         ['yN', /preserving case/u],
-        [`yn\u001bq`, /hidden responses/u],
     ]) {
         await assert.rejects(
             yn_function('Force the mount to succeed?', resp, 'n', false, game),
             reason,
         );
     }
-    // All three guards precede show_topl(), so none of them painted a query.
+    // Both guards precede show_topl(), so neither painted a query.
     assert.equal(topLine(), row);
-    // "yn" itself carries none of the three, so it gets past them and fails at
+    // "yn" itself carries neither, so it gets past them and fails at
     // the spent input queue instead.
     await assert.rejects(
         yn_function('Force the mount to succeed?', 'yn', 'n', false, game),

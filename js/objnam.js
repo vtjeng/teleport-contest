@@ -730,21 +730,84 @@ export function xnameFresh(obj, state) {
     return base.replace(/^the /iu, '');
 }
 
-// C ref: objnam.c minimal_xname() and simpleonames(), restricted to the
-// SLIME_MOLD object apply.c use_stethoscope() constructs for a named-fruit
-// mimic. That caller sets spe to the mimic's saved fruit id and quan to one,
-// so instance naming, damage, charges, and every other object class are
-// outside this live call. Fruit pluralization is kept because simpleonames()
-// owns it even though the caller's dummy object is singular.
-export function simpleonames(obj, state = game) {
-    if (obj.otyp !== SLIME_MOLD) {
-        unsupported('simpleonames() outside the named-fruit branch', obj);
+// C ref: objnam.c minimal_xname() (1038-1086). Builds a bare object with
+// only otyp, oclass, dknown, known, and quan=1, suppresses oc_uname and
+// conditionally oc_name_known on the type, formats through
+// distant_name(xname), and strips any "uncursed " prefix the cleric role
+// forces. The result is the simplest type name: "potion", "brown potion",
+// or "potion of object detection" depending on what the hero has seen.
+function minimal_xname(obj, state = game) {
+    const otyp = obj.otyp;
+    const type = objectType(obj, state);
+    // Save and suppress oc_uname.
+    const save_oc_uname = type.oc_uname;
+    type.oc_uname = null;
+    // Save oc_name_known; suppress it if the object's description is unknown,
+    // unless override_ID is raised (which forces it on).
+    const save_oc_name_known = type.oc_name_known;
+    if (state.iflags?.override_ID)
+        type.oc_name_known = true;
+    else if (!obj.dknown)
+        type.oc_name_known = false;
+
+    // Build a bare object with minimal fields.
+    const bareobj = {
+        otyp,
+        oclass: obj.oclass,
+        dknown: (obj.dknown || state.iflags?.override_ID) ? 1 : 0,
+        // Suppress known except for amulets (needed for fakes and the real
+        // Amulet of Yendor); default "on" for types that do not use it.
+        known: (obj.oclass === AMULET_CLASS)
+            ? obj.known
+            : !type.oc_uses_known,
+        quan: 1,
+        // For a boulder, leave corpsenm as 0 (undefined); non-zero produces
+        // "next boulder".
+        corpsenm: otyp !== BOULDER ? NON_PM : undefined,
+        // Slime mold needs spe for the fruit name.
+        spe: otyp === SLIME_MOLD ? obj.spe : 0,
+    };
+
+    let bufp;
+    try {
+        bufp = distant_name(bareobj, xnameFresh, state);
+    } finally {
+        // Restore the type's saved fields even if xname throws.
+        type.oc_uname = save_oc_uname;
+        type.oc_name_known = save_oc_name_known;
     }
-    const fruit = fruit_from_indx(obj.spe, state);
-    let name = fruit?.fname ?? 'fruit';
+    // Undo forced "uncursed" prefix that the cleric role adds via bknown.
+    if (bufp.startsWith('uncursed '))
+        bufp = bufp.slice(9);
+    return bufp;
+}
+
+// C ref: objnam.c simpleonames() (2427-2442). "scroll" or "scrolls":
+// minimal_xname's result, pluralized when quan > 1.
+export function simpleonames(obj, state = game) {
+    let name = minimal_xname(obj, state);
     if (Math.trunc(obj.quan ?? 1) !== 1)
         name = makeplural(makesingular(name));
     return name;
+}
+
+// C ref: objnam.c thesimpleoname() (2474-2483). "the scroll" or "the scrolls".
+export function thesimpleoname(obj, state = game) {
+    return the(simpleonames(obj, state), state);
+}
+
+// C ref: objnam.c ysimple_name() (2391-2398). "your <minimal_xname>" for what
+// the hero carries, "the <minimal_xname>" for what she does not, or a
+// shopkeeper's possessive where shk_your() finds an owner.
+export function ysimple_name(obj, state = game) {
+    return `${shk_your(obj, state)}${minimal_xname(obj, state)}`;
+}
+
+// C ref: objnam.c Ysimple_name2() (2402-2408). Capitalized variant of
+// ysimple_name().
+export function Ysimple_name2(obj, state = game) {
+    const s = ysimple_name(obj, state);
+    return highc(s[0]) + s.slice(1);
 }
 function bucWord(obj, type, state, ident) {
     if (!ident.bknown || obj.oclass === COIN_CLASS) return '';
@@ -1414,4 +1477,17 @@ export function distant_name(obj, func, state = game) {
         // every later name in the same game.
         state.gd.distantname -= 1;
     }
+}
+
+// C ref: objnam.c safe_qbuf() (5624-5698). Builds a prompt string from an
+// optional prefix, an object name, and an optional suffix. The C version
+// guards against QBUFSZ overflow by trying the primary function, then a
+// shorter alternative, then a last-resort literal. JavaScript strings have no
+// fixed-size buffer, so only the first formatting function is tried; the
+// fallback and last resort exist for API fidelity with callers ported from C.
+export function safe_qbuf(
+    prefix, suffix, obj, func, altfunc, lastR, state = game,
+) {
+    const mid = func(obj, state);
+    return `${prefix ?? ''}${mid}${suffix ?? ''}`;
 }

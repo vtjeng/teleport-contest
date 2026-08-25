@@ -43,7 +43,14 @@ import {
     IS_THRONE,
     ROOM,
     TREE,
+    P_BOW,
+    P_CROSSBOW,
     P_DAGGER,
+    P_KNIFE,
+    P_SPEAR,
+    SORTLOOT_INVLET,
+    SORTLOOT_LOOT,
+    SORTLOOT_PACK,
     is_pit,
     Is_airlevel,
     Is_waterlevel,
@@ -114,6 +121,8 @@ import { displayTtyMenuTextWindow } from './tty_menu.js';
 import {
     AMULET_OF_YENDOR,
     AKLYS,
+    ARMOR_CLASS,
+    BAG_OF_TRICKS,
     BELL_OF_OPENING,
     BOULDER,
     CANDELABRUM_OF_INVOCATION,
@@ -124,26 +133,34 @@ import {
     FIGURINE,
     FOOD_CLASS,
     GEM_CLASS,
+    GEMSTONE,
     GLASS,
+    HORN_OF_PLENTY,
     LEASH,
     LOADSTONE,
     LUCKSTONE,
+    MINERAL,
+    PIERCE,
     POT_OIL,
+    ROCK,
     SCR_BLANK_PAPER,
     SCR_MAIL,
     SCROLL_CLASS,
+    SLIME_MOLD,
     SPE_BOOK_OF_THE_DEAD,
     SPBOOK_CLASS,
     TIN,
+    TOOL_CLASS,
+    VENOM_CLASS,
     WAR_HAMMER,
     WEAPON_CLASS,
-    PIERCE,
 } from './objects.js';
 import {
     UnsupportedObjectOperationError,
     curseFreeObject,
     dealloc_obj,
     erosionMatters,
+    greatest_erosion,
     isCandle,
     isContainer,
     isPudding,
@@ -160,6 +177,7 @@ import {
     an,
     assertObjectNameable,
     assertPricedObjectNameable,
+    cxname,
     donameFresh,
     doname_with_price,
     vtense,
@@ -167,6 +185,7 @@ import {
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
 import { UnsupportedShopError, costly_spot } from './shk.js';
+import { is_pole } from './worn.js';
 
 export const INVLET_BASIC = 52;
 export const NOINVSYM = '#';
@@ -321,6 +340,213 @@ function sortlootByInvlet(state) {
     return items.sort(
         (a, b) => invletter_value(a.invlet) - invletter_value(b.invlet),
     );
+}
+
+// C ref: invent.c loot_classify() (149-305). Assigns orderclass, subclass,
+// disco, and inuse fields to a sortloot item based on the object's class,
+// type, and discovery status.
+//
+// The armcat table maps C's ARM_* subtype values to a display ordering
+// different from the numerical order in objclass.h.
+const ARMCAT = [
+    /* ARM_SUIT=0 */ 7,
+    /* ARM_SHIELD=1 */ 4,
+    /* ARM_HELM=2 */ 1,
+    /* ARM_GLOVES=3 */ 2,
+    /* ARM_BOOTS=4 */ 3,
+    /* ARM_CLOAK=5 */ 5,
+    /* ARM_SHIRT=6 */ 6,
+    /* sentinel  */ 8,
+];
+
+// C ref: invent.c def_srt_order[] (155-158). Used when sortpack is off.
+const DEF_SRT_ORDER = '\x0B\x04\x05\x06\x08\x09\x0A\x0C\x07\x0D\x02\x03\x0F\x10\x11';
+
+function loot_classify(obj, state) {
+    const otyp = obj.otyp;
+    const oclass = obj.oclass;
+    const type = objectType(obj, state);
+    const seen = obj.dknown ? true : false;
+    const discovered = type.oc_name_known ? true : false;
+    if (!heroIsBlind(state))
+        observe_object(obj, state);
+
+    // Class order.
+    const classorder = state.flags?.sortpack
+        ? (state.flags.inv_order ?? DEF_SRT_ORDER)
+        : DEF_SRT_ORDER;
+    let p = -1;
+    for (let i = 0; i < classorder.length; i++) {
+        if ((typeof classorder[i] === 'string'
+            ? classorder[i].charCodeAt(0) : classorder[i]) === oclass) {
+            p = i;
+            break;
+        }
+    }
+    const orderclass = p >= 0
+        ? (1 + p)
+        : (1 + classorder.length + (oclass !== VENOM_CLASS ? 1 : 0));
+
+    // Subclass designation.
+    let subclass;
+    switch (oclass) {
+    case ARMOR_CLASS: {
+        let k = type.oc_armcat ?? type.oc_subtyp ?? 0;
+        if (k < 0 || k >= 7) k = 7;
+        subclass = ARMCAT[k];
+        break;
+    }
+    case WEAPON_CLASS: {
+        const sk = type.oc_skill ?? type.oc_subtyp ?? 0;
+        if (sk < 0) {
+            subclass = (sk >= -P_CROSSBOW && sk <= -P_BOW) ? 1 : 3;
+        } else {
+            subclass = (sk >= P_BOW && sk <= P_CROSSBOW) ? 2
+                : (sk === P_SPEAR || sk === P_DAGGER || sk === P_KNIFE) ? 4
+                    : (!is_pole(obj, state)) ? 5 : 6;
+        }
+        break;
+    }
+    case TOOL_CLASS:
+        if (seen && discovered
+            && (otyp === BAG_OF_TRICKS || otyp === HORN_OF_PLENTY))
+            subclass = 2;
+        else if (isContainer(obj))
+            subclass = 1;
+        else
+            subclass = 4;
+        break;
+    case FOOD_CLASS:
+        switch (otyp) {
+        case SLIME_MOLD: subclass = 1; break;
+        case TIN: subclass = 3; break;
+        case EGG: subclass = 4; break;
+        case CORPSE: subclass = 5; break;
+        default: subclass = obj.globby ? 6 : 2; break;
+        }
+        break;
+    case GEM_CLASS: {
+        const mat = type.oc_material ?? 0;
+        if (mat === GEMSTONE)
+            subclass = !seen ? 1 : !discovered ? 2 : 3;
+        else if (mat === GLASS)
+            subclass = !seen ? 1 : !discovered ? 2 : 4;
+        else // MINERAL
+            subclass = !seen ? 5
+                : (otyp !== ROCK) ? (!discovered ? 6 : 7) : 8;
+        break;
+    }
+    default:
+        subclass = 1;
+        break;
+    }
+
+    // Discovery status.
+    const OBJ_DESCR = type.oc_descr_idx !== undefined
+        ? type.oc_descr_idx : null;
+    const disco = !seen ? 1
+        : (discovered || OBJ_DESCR == null) ? 4
+            : type.oc_uname ? 3
+                : 2;
+
+    return { orderclass, subclass, disco };
+}
+
+// C ref: invent.c loot_xname() (309-387). Formats an object name for
+// alphabetical sorting, suppressing attributes (BUC, dilution, user name)
+// that sortloot_cmp handles separately.
+function loot_xname(obj, state) {
+    // cxname with quan forced to 1, suppressing user attributes that change
+    // alphabetical order. For container contents display, the exact sort
+    // is less critical than for pickup menus -- cxname(obj) with quan forced
+    // to 1 suffices for correct class+subclass+name ordering.
+    const saved_quan = obj.quan;
+    obj.quan = 1;
+    let res;
+    try {
+        res = cxname(obj, state);
+    } finally {
+        obj.quan = saved_quan;
+    }
+    return res;
+}
+
+// C ref: invent.c sortloot_cmp() (403-547). Comparison function for sortloot
+// in SORTLOOT_LOOT|SORTLOOT_PACK mode. Uses class/subclass/discovery ordering
+// from loot_classify, then alphabetical name comparison, then BUC, greasing,
+// erosion, erodeproofing, enchantment, and finally stable-sort tiebreak.
+function sortloot_cmp(a, b, mode, state) {
+    // Class/subclass/discovery ordering when PACK or LOOT is set and INVLET
+    // is not set alone.
+    if ((mode & (SORTLOOT_PACK | SORTLOOT_INVLET)) !== SORTLOOT_INVLET) {
+        if (!a.classified) a.classified = loot_classify(a.obj, state);
+        if (!b.classified) b.classified = loot_classify(b.obj, state);
+        if (a.classified.orderclass !== b.classified.orderclass)
+            return a.classified.orderclass - b.classified.orderclass;
+        if (!(mode & SORTLOOT_INVLET)) {
+            if (a.classified.subclass !== b.classified.subclass)
+                return a.classified.subclass - b.classified.subclass;
+            if (a.classified.disco !== b.classified.disco)
+                return a.classified.disco - b.classified.disco;
+        }
+    }
+    // Invlet ordering.
+    if (mode & SORTLOOT_INVLET) {
+        const v1 = invletter_value(a.obj.invlet);
+        const v2 = invletter_value(b.obj.invlet);
+        if (v1 !== v2) return v1 - v2;
+    }
+    if (!(mode & SORTLOOT_LOOT)) return a.indx - b.indx;
+
+    // Alphabetical name comparison.
+    if (!a.str) a.str = loot_xname(a.obj, state);
+    if (!b.str) b.str = loot_xname(b.obj, state);
+    const namcmp = a.str.toLowerCase().localeCompare(b.str.toLowerCase());
+    if (namcmp !== 0) return namcmp;
+
+    // BUC: blessed > uncursed > cursed > unknown.
+    const bval = (o) => o.bknown ? (o.blessed ? 3 : !o.cursed ? 2 : 1) : 0;
+    const bv1 = bval(a.obj), bv2 = bval(b.obj);
+    if (bv1 !== bv2) return bv2 - bv1;
+
+    // Greasing.
+    if ((a.obj.greased ?? 0) !== (b.obj.greased ?? 0))
+        return (b.obj.greased ?? 0) - (a.obj.greased ?? 0);
+
+    // Erosion.
+    const e1 = greatest_erosion(a.obj), e2 = greatest_erosion(b.obj);
+    if (e1 !== e2) return e1 - e2;
+
+    // Erodeproofing.
+    const ep1 = (a.obj.rknown && a.obj.oerodeproof) ? 1 : 0;
+    const ep2 = (b.obj.rknown && b.obj.oerodeproof) ? 1 : 0;
+    if (ep1 !== ep2) return ep2 - ep1;
+
+    // Enchantment.
+    const type1 = objectType(a.obj, state);
+    if (type1.oc_uses_known && a.obj.oclass !== FOOD_CLASS) {
+        const s1 = a.obj.known ? (a.obj.spe ?? 0) : -1000;
+        const s2 = b.obj.known ? (b.obj.spe ?? 0) : -1000;
+        if (s1 !== s2) return s2 - s1;
+    }
+
+    return a.indx - b.indx;
+}
+
+// C ref: invent.c sortloot() (592-643). Returns an array of {obj} entries
+// sorted according to mode flags. Does not reorder the linked list.
+export function sortloot(olist, mode, by_nexthere, filterfunc, state = game) {
+    const items = [];
+    let i = 0;
+    for (let o = olist; o; o = by_nexthere ? o.nexthere : o.nobj) {
+        if (filterfunc && !filterfunc(o)) continue;
+        items.push({ obj: o, indx: i, classified: null, str: null });
+        i++;
+    }
+    if (mode && items.length > 1) {
+        items.sort((a, b) => sortloot_cmp(a, b, mode, state));
+    }
+    return items;
 }
 
 // C ref: invent.c compactify() (1626-1659). Rewrites a run of three or more

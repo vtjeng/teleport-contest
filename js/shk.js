@@ -18,6 +18,7 @@ import {
     OBJ_MINVENT,
     PL_NSIZ,
     ROOMOFFSET,
+    SELL_NORMAL,
     SHOPBASE,
 } from './const.js';
 import { effective_attribute } from './attrib.js';
@@ -649,6 +650,19 @@ export async function u_entered_shop(
         await message(`You enter ${owner} ${shopName}${again}!`, state);
     }
     return true;
+}
+
+// C ref: shk.c sellobj_state() (3913-3924). Switches the shopkeeper's billing
+// mode. SELL_NORMAL resets auto-credit and sell_response; other values prime
+// sell_response to 'a' so the next accidental drop is auto-sold.
+// use_container() calls sellobj_state(SELL_NORMAL) at containerdone to restore
+// the default state after in_container() may have changed it.
+export function sellobj_state(deliberate, state = game) {
+    state.gs ??= {};
+    state.gs.sell_response = (deliberate !== 0) ? '\0' : 'a';
+    state.gs.sell_how = deliberate;
+    state.ga ??= {};
+    state.ga.auto_credit = false;
 }
 
 // Thrown where shk.c reaches shop bookkeeping this port has not ported.

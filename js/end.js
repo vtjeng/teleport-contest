@@ -45,6 +45,8 @@ import {
     PLNMSG_OK_DONT_DIE,
     QUIT,
     SICK,
+    SORTLOOT_LOOT,
+    SORTLOOT_PACK,
     STARVING,
     STONING,
     TIMEOUT,
@@ -77,7 +79,14 @@ import {
     S_VAMPIRE,
     S_WRAITH,
 } from './monsters.js';
-import { an, the_unique_pm } from './objnam.js';
+import { upstart } from './hacklib.js';
+import { currency, sortloot, update_inventory } from './invent.js';
+import { isContainer } from './obj.js';
+import { BAG_OF_TRICKS, LARGE_BOX, STATUE } from './objects.js';
+import {
+    an, doname_with_price, the, thesimpleoname, the_unique_pm, xnameFresh,
+} from './objnam.js';
+import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { reset_utrap } from './trap.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
@@ -511,4 +520,72 @@ export async function done(how, state = game) {
         `really_done(${how}) for killer "${killer.name ?? ''}"`
         + ` in format ${killer.format}`,
     );
+}
+
+// C ref: end.c container_contents() (1594-1670). Creates a NHW_MENU text
+// window listing the contents of a container. For the use_container() ':'
+// path, `identified` is FALSE and `all_containers` is FALSE; those branches
+// are the only ones this slice supports.
+//
+// The C version iterates `list->nobj` when `all_containers` is TRUE, recursing
+// into nested containers. This port treats `list` as a single container.
+//
+// SchroedingersBox is treated as false for ordinary containers (spe !== 1 or
+// otyp !== LARGE_BOX), which matches every reachable case. The identified
+// branch that calls discover_object is not reached because every caller in
+// this slice passes identified=FALSE.
+export async function container_contents(
+    box, identified, all_containers, reportempty, state = game,
+) {
+    if (identified) {
+        throw new UnsupportedEndOfGameError(
+            'container_contents() with identified=TRUE',
+        );
+    }
+    if (all_containers) {
+        throw new UnsupportedEndOfGameError(
+            'container_contents() with all_containers=TRUE',
+        );
+    }
+    // C: Is_container(box) || box->otyp == STATUE
+    if (!isContainer(box) && box.otyp !== STATUE) return;
+
+    if (!box.cknown || (identified && !box.lknown)) {
+        box.cknown = 1;
+        if (identified) box.lknown = 1;
+        update_inventory({ state });
+    }
+    if (box.otyp === BAG_OF_TRICKS) return; // wrong type of container
+
+    if (box.cobj) {
+        // SchroedingersBox: ordinary containers have spe !== 1 or are not
+        // LARGE_BOX, so this is always false in the supported path.
+        const cat = (box.otyp === LARGE_BOX && box.spe === 1);
+
+        const header = `Contents of ${the(xnameFresh(box, state), state)}:`;
+        const lines = [header, ''];
+
+        if (box.cobj && !cat) {
+            const sortflags = (((state.flags?.sortloot === 'l'
+                || state.flags?.sortloot === 'f')
+                ? SORTLOOT_LOOT : 0)
+                | (state.flags?.sortpack ? SORTLOOT_PACK : 0));
+            const sorted = sortloot(box.cobj, sortflags, false, null, state);
+            for (const entry of sorted) {
+                lines.push(`  ${doname_with_price(entry.obj, state, { currencyName: currency })}`);
+            }
+        } else if (cat) {
+            lines.push("  Schroedinger's cat!");
+        }
+
+        await displayTtyMenuTextWindow(state, lines);
+    } else if (reportempty) {
+        await ttyPline(
+            `${upstart(thesimpleoname(box, state))} is empty.`,
+            state,
+        );
+        // C: display_nhwindow(WIN_MESSAGE, FALSE). The pline call above
+        // displays the message; the explicit display_nhwindow in C ensures
+        // it is flushed, which ttyPline already does.
+    }
 }
