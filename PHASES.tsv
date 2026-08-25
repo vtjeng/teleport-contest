@@ -982,3 +982,5 @@ utc	event	phase	goal	detail
 2026-08-25T01:47:33.647Z	end	select	starting-little-dog-actions	
 2026-08-25T02:02:42.872Z	start	implement	starting-little-dog-actions	
 2026-08-25T02:34:45.957Z	end	implement	starting-little-dog-actions	
+2026-08-25T02:51:08.656Z	start	select	door-unlock-tool	
+2026-08-25T02:51:14.198Z	end	select	door-unlock-tool	
