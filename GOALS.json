@@ -3599,8 +3599,8 @@
       "slices": [
         {
           "name": "big-room-level-generation",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "1c81148399bb182b94b975b4a5f940ca427aab56"
         }
       ],
       "openedAt": "133174f2814964b0912f239b0ad8de2d21f2cf1a",
