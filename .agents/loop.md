@@ -42,12 +42,14 @@ The orchestrator repeats without returning to the user between steps:
    - Goal in progress, a queued slice exists: start at step 3.
    - Goal in progress, no queued or in-progress slices: start at step 2.
 
-1. When no goal is in progress, spawn the goal-selector
-   (`.claude/agents/goal-selector.md`). It runs the census, caps the
-   stretches (skipping cap-stable sessions), and proposes one goal.
-   Queue it with `node scripts/goal-log.mjs queue-goal` and then
-   `open-goal` it (which captures the score the close will be measured
-   against).
+1. When no goal is in progress, select the next goal. If the Workflow
+   tool is available, run the `goal-selector` workflow
+   (`.claude/workflows/goal-selector.js`). Otherwise spawn the
+   goal-selector agent (`.claude/agents/goal-selector.md`). The selector
+   runs the census, caps non-stable stretches, and proposes one goal.
+   Queue the proposed goal with `node scripts/goal-log.mjs queue-goal`
+   and then `open-goal` (which captures the score the close will be
+   measured against).
 2. If the goal has a queued slice, take it and continue at step 3.
    Otherwise spawn the slice-selector
    (`.claude/agents/slice-selector.md`) to identify the next slice and
