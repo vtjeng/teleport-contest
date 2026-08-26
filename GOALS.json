@@ -4398,7 +4398,13 @@
         ]
       },
       "detail": "garlic_breath() is a small function in eat.c (4 lines). It checks olfaction(mtmp->data) and distu() < 7, then calls monflee(). Called from fprefx() at eat.c:2167 for CLOVE_OF_GARLIC. The port eat.js already handles most eating paths; the garlic case throws UnsupportedEatError at eat.js:1713. Debt beyond this window includes teleport.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "garlic-breath-iter-mons",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "8e0404f283e8541dc8ace5775813668a532b0891",
       "openStanding": {
         "sha": "0c49e93",
