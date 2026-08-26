@@ -4509,7 +4509,7 @@
     },
     {
       "id": "quaff-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "The hero types q (quaff), dispatching potion.c dodrink(). dodrink() prompts What do you want to drink, selects a potion via getobj(), and calls dopotion() which dispatches the potion effect through peffects().",
       "upstreamOwners": [
         "potion.c"
@@ -4536,8 +4536,8 @@
       "slices": [
         {
           "name": "dodrink-speed-potion",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "6030326b6b3da38529d01cc21669c6fb841d0af0"
         }
       ],
       "openedAt": "56bba516f4d967e2e30d95fd70026cb3b900ecaf",
@@ -4546,8 +4546,11 @@
         "screens": 2322,
         "rng": 155654
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "6030326b6b3da38529d01cc21669c6fb841d0af0",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      }
     }
   ]
 }
