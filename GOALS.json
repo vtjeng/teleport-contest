@@ -4227,6 +4227,11 @@
           "name": "admit can_teleport monsters through the dochug normal path",
           "status": "closed",
           "closedBy": "7c6daedd0c385e90b6ca93560cc343d1696e56d7"
+        },
+        {
+          "name": "admit flying/floating monsters over pool and lava terrain",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "b58894204a8736853a941bc515f08800df422fd1",
