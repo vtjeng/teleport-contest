@@ -4315,7 +4315,13 @@
         ]
       },
       "detail": "The port's monster movement in js/monmove.js handles basic movement but not door opening/smashing. The ahead stream shows You hear a door open messages (x4) confirming monsters exercising door operations. Debt beyond this 6-step window includes quaff, read, travel, up.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "shopkeeper movement dispatch stationary case",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "64835acaa0f06e8249bcf49c9f171d312d5004e4",
       "openStanding": {
         "sha": "cc8c823",
