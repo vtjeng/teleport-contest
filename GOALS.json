@@ -4419,7 +4419,7 @@
     },
     {
       "id": "altered-monster-movement-state",
-      "status": "open",
+      "status": "closed",
       "boundary": "During monster movement, movemon_singlemon() encounters a monster with confusion (mconf), stun (mstun), eating (meating for a non-starting pet), or fleeing (mflee for a hostile monster or with an out-of-bounds timer for a starting pet). The port refuses at the pre-dochug guard in unported_monster_actions.js:269-302 before entering dochug state-recovery and movement-decision code at monmove.c:737-882.",
       "upstreamOwners": [
         "monmove.c"
@@ -4456,8 +4456,11 @@
         "screens": 2235,
         "rng": 152712
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "ea75c0566d4a06596a0653621647a7355f816cfc",
+      "delivered": {
+        "screens": 78,
+        "rng": 146
+      }
     }
   ]
 }
