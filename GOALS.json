@@ -4711,6 +4711,43 @@
         "screens": 32,
         "rng": -12
       }
+    },
+    {
+      "id": "special-room-temple",
+      "status": "open",
+      "boundary": "During level generation, makelevel() calls do_mkroom(TEMPLE) to populate a room with an altar attended by a priest. The port refuses at the special-room dispatch for room type 10 (TEMPLE, mkroom.h:62).",
+      "upstreamOwners": [
+        "mkroom.c"
+      ],
+      "forecast": {
+        "steps": 4,
+        "basis": "Capped look-ahead: seed0361 cappedStretch=4 (cap-stable).",
+        "sessions": [
+          "seed0361-archeologist-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0361-archeologist-tour",
+            "evidence": "Step 147, byte y (movenorthwest). Hero answers level teleport prompt. C goto_level() generates a level via mklev() -> makelevel() -> do_mkroom(TEMPLE=10). Port throws because do_mkroom(10) is unported. C output: You materialize on a different level!--More--."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "temple-room-generation",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "8aab48d34b2132807bfa7b85271de8f64e654255",
+      "openStanding": {
+        "sha": "d2cf3a2",
+        "screens": 2365,
+        "rng": 155729
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
