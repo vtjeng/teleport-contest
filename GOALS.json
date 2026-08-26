@@ -4416,6 +4416,37 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "altered-monster-movement-state",
+      "status": "open",
+      "boundary": "During monster movement, movemon_singlemon() encounters a monster with confusion (mconf), stun (mstun), eating (meating for a non-starting pet), or fleeing (mflee for a hostile monster or with an out-of-bounds timer for a starting pet). The port refuses at the pre-dochug guard in unported_monster_actions.js:269-302 before entering dochug state-recovery and movement-decision code at monmove.c:737-882.",
+      "upstreamOwners": [
+        "monmove.c"
+      ],
+      "forecast": {
+        "steps": 88,
+        "basis": "Capped look-ahead: seed0367 cappedStretch=88. Capped at quest.c on_locate() message during goto_level() to the Priest quest locate level, for which no special-level loader exists.",
+        "sessions": [
+          "seed0367-priest-quest-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0367-priest-quest-tour",
+            "evidence": "Step 61: hero eats garlic (eat command at step 56, Priest debug mode on D:20, seed 367). After eating, movemon() encounters a monster with mconf/mstun/mflee, reaching the guard at unported_monster_actions.js:269-302. C dochug() handles mconf recovery at monmove.c:737-738 (rn2(50)), mstun recovery at 741-742 (rn2(10)), mflee teleport at 745-749, mflee recovery at 758-760. Movement decision at 882 branches on mflee/mconf/mstun."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "66ea45cd123510ebe75c75f5b928e7dec96550d1",
+      "openStanding": {
+        "sha": "a16b7b7",
+        "screens": 2235,
+        "rng": 152712
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
