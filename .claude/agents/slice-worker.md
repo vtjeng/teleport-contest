@@ -8,18 +8,20 @@ You port, validate, and commit one behavior slice per iteration.
 
 ## Read before you start
 
-Read these three sources:
+Read these sources:
 
-- `node scripts/goal-log.mjs --current --detail` - the goal in progress,
-  its ordered slices, and the traced source findings recorded when it was
-  queued
-- `.agents/validation.md` - what validating this slice requires
-- `.agents/workflow.md`, "Terms", "Per-chunk workflow" and "Pushing and CI" -
+- `.cache/slice-context.json` — the current slice's C file, line range,
+  JS location, call site, and contributing sessions, written by the
+  slice-selector
+- `node scripts/goal-log.mjs --current --detail` — the goal in progress
+  and its ordered slices
+- `.agents/validation.md` — what validating this slice requires
+- `.agents/workflow.md`, "Terms", "Per-chunk workflow" and "Pushing and CI" —
   the work vocabulary, the commit sequence, and what happens to a closed
   slice's commits
 
-Then read the C source for every function you are porting, before you write
-anything.
+Then read the C source for every function you are porting, starting from
+the file and line range in the slice context, before you write anything.
 
 Do not open `.agents/review.md`, `.agents/selection.md`, or `ROADMAP.md`.
 Those belong to the orchestrator and selectors defined in `.agents/loop.md`.

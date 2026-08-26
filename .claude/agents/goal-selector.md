@@ -57,7 +57,13 @@ directory or any path inside it to another agent or tool.
 
 Write every candidate you capped during the ranking to
 `.cache/selector-candidates.json` as a JSON array ordered by capped forecast
-(highest first). Each element has:
+(highest first).
+
+Write the winning candidate's entry to `.cache/goal-context.json` as a
+single object with the same fields. The slice-selector and worker read
+this file for the current goal's context.
+
+Each candidate element has:
 
 ```json
 {

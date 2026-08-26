@@ -273,9 +273,10 @@ const witnessEntries = Object.entries(allWitnesses)
   .join(',\n')
 
 const report = await agent(`
-Write the selector-candidates.json cache and report the winning goal.
+Write the cache files and report the winning goal.
 
-Read .claude/agents/goal-selector.md "What to report" section for the JSON format.
+Read .claude/agents/goal-selector.md "What to report" section for the JSON format
+and the two files to write (selector-candidates.json and goal-context.json).
 
 Winner:
   member: ${JSON.stringify(winnerMember)}
@@ -296,9 +297,10 @@ Steps:
 2. Build the full candidates array from the ranking. For the winner, use the
    provided witnesses and detail. For other candidates, use the data from the
    ranking (set witnesses and detail to empty if not traced).
-3. Write .cache/selector-candidates.json with the array, ordered by capped
+3. Write .cache/selector-candidates.json with the full array, ordered by capped
    forecast descending.
-4. Return winnerId (kebab-case), winnerBoundary, forecast, sessions, and
+4. Write .cache/goal-context.json with the winner's entry as a single object.
+5. Return winnerId (kebab-case), winnerBoundary, forecast, sessions, and
    candidatesWritten=true.
 
 Do NOT modify any game files. Only write to .cache/.
