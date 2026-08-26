@@ -4133,6 +4133,40 @@
         "screens": 4,
         "rng": 1
       }
+    },
+    {
+      "id": "wield-command",
+      "status": "open",
+      "boundary": "dowield() in wield.c: the hero types w, the port prompts 'What do you want to wield?', and the selected weapon is set via ready_weapon()",
+      "upstreamOwners": [
+        "wield.c dowield()",
+        "wield.c wield_ok()",
+        "wield.c finish_splitting()",
+        "wield.c weldmsg()"
+      ],
+      "forecast": {
+        "steps": 11,
+        "basis": "Capped look-ahead at 29fb7e8: seed0361 cappedStretch=11. Steps 1-2 wield prompt/result, 3-4 wear (supported), 5-6 puton (supported), 7-11 wizlevelport (supported). Cap at step 12: quest.c onquest() text unported.",
+        "sessions": [
+          "seed0361-archeologist-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0361-archeologist-tour",
+            "evidence": "Step 137 byte w dispatches to wield.c dowield():355. cantwield() false. getobj('wield',wield_ok) prompts. Hero answers i (Grayswandir). welded(uwep) false. ready_weapon(wep) sets uwep via setuwep()."
+          }
+        ]
+      },
+      "detail": "dowield() is ~100 lines at wield.c:354-457. Most dependencies already ported: ready_weapon() (wield.js:317), doswapweapon() (wield.js:402), untwoweapon() (wield.js:282), cantwield() (wield.js:264), welded() (wield.js:219), setuwep()/setuswapwep() (worn.js), clear_splitobjs() (obj.js), reset_remarm() (do_wear.js), getobj() (invent.js). Unported: dowield() itself, wield_ok() callback (12 lines at wield.c:330-343), finish_splitting() (6 lines at wield.c:345-351), weldmsg() completion (14 lines at wield.c:1060-1074, currently a stub). Five sessions carry wield in their debt (supports=987 screens, 5 sessions). The witness path is the simple branch: no welding, no quiver, no split objects, no worn armor conflict.",
+      "slices": [],
+      "openedAt": "e1acf48be9d4453a6c49ad85dc360142320c0867",
+      "openStanding": {
+        "sha": "c68c747",
+        "screens": 2201,
+        "rng": 151980
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
