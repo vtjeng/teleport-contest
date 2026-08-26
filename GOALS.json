@@ -4358,7 +4358,13 @@
         ]
       },
       "detail": "doup() is 46 lines. All helpers ported. climb_pit() not ported but witness does not exercise it. prev_level() is 26 lines, symmetric to ported next_level(). goto_level ascending-at-stairs arm (do.c:1748-1764) currently throws at js/do.js:1230. Needs u_on_dnstairs() (stairs.c:137-145). Largest piece: level save/restore. savelev() does teardown only, no serialization. getlev() reload at js/do.js:1203-1207 throws. Port needs to serialize level (map, monsters, objects, traps, rooms, engravings, timers, lights) to in-memory store when leaving, and deserialize when returning.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "doup dispatch and level save/restore",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "272a9a88fcc71f330073fbf03df9f09e4951cfca",
       "openStanding": {
         "sha": "a7c26f9",
