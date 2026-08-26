@@ -4113,8 +4113,8 @@
       "slices": [
         {
           "name": "save-prompt-and-segment-exit",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "5f67880619f48708addf2f1454c41a46e241130c"
         }
       ],
       "openedAt": "db7bd9507ea25204eff719b842feda41dcee6b0d",
