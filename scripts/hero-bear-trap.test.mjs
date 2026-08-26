@@ -332,10 +332,9 @@ test('a held hero struggles toward a square the seam screens when free',
             // autoopen pulls it open, so that case pins only the order of the
             // held arm against the closed-door arm below it.
             { index: 3, walkIn: 'n ', dx: 1, dy: -1, freeReason: null },
-            {
-                index: 1, walkIn: 'j ', dx: 1, dy: -1,
-                freeReason: 'trap activation',
-            },
+            // The neighbor trap is a DART_TRAP (type 2), whose hero arm is
+            // ported, so preflight_dotrap() admits it and freeReason is null.
+            { index: 1, walkIn: 'j ', dx: 1, dy: -1, freeReason: null },
             // A boulder, written onto the bare floor northwest of seed 395's
             // trap: no generated level puts one beside any of these six traps,
             // and it is the neighbour a room is likeliest to hold. A lone

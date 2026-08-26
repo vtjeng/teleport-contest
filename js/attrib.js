@@ -1,7 +1,8 @@
 // attrib.js — hero attributes, advancement, exercise, and adjustment.
 // C ref: src/attrib.c the innate-ability tables, role_abil(), postadjabil(),
 // adjabil(), newhp(), setuhpmax(), init_attr(), vary_init_attr(), exercise(),
-// exerper(), adjattrib(), and exerchk().
+// exerper(), adjattrib(), exerchk(), poisontell(), poisoned(), and
+// adjuhploss().
 
 import {
     A_CHA,
@@ -13,6 +14,7 @@ import {
     CLAIRVOYANT,
     COLD_RES,
     CONFUSION,
+    DIED,
     EXT_ENCUMBER,
     FAINTED,
     FAINTING,
@@ -29,11 +31,14 @@ import {
     HVY_ENCUMBER,
     INFRAVISION,
     INTRINSIC,
+    KILLED_BY,
+    KILLED_BY_AN,
     MAXULEV,
     MOD_ENCUMBER,
     NOT_HUNGRY,
     NUM_ATTRS,
     POISON_RES,
+    POISONING,
     REGENERATION,
     SATIATED,
     SEARCHING,
@@ -42,6 +47,7 @@ import {
     SICK,
     SLEEP_RES,
     STEALTH,
+    STR19,
     STUNNED,
     TELEPORT_CONTROL,
     Upolyd,
@@ -49,16 +55,22 @@ import {
     WARNING,
     WEAK,
     WOUNDED_LEGS,
+    ismnum,
 } from './const.js';
 import { SPFX_LUCK } from './artifacts.js';
 // js/display.js imports effective_attribute() from this file; both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
 import { see_monsters } from './display.js';
 import { game } from './gstate.js';
+import { strstri } from './hacklib.js';
 // js/mon.js imports adjalign() from this file; both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
 import { adj_erinys } from './mon.js';
+// js/mondata.js imports effective_attribute() from this file; both sides use
+// the other's exports only inside function bodies, so the cycle resolves.
+import { name_to_mon, type_is_pname } from './mondata.js';
 import {
+    G_UNIQ,
     PM_AMOROUS_DEMON,
     PM_ARCHEOLOGIST,
     PM_BARBARIAN,
@@ -78,7 +90,8 @@ import {
     S_NYMPH,
 } from './monsters.js';
 import { DUNCE_CAP, LUCKSTONE } from './objects.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { the } from './objnam.js';
+import { d, rn1, rn2, rnd } from './rng.js';
 import { aligns } from './roles.js';
 import { add_weapon_skill } from './weapon.js';
 
@@ -1028,6 +1041,162 @@ export function stone_luck(includeUncursed, state = game) {
         else if (object.blessed || includeUncursed) bonus += quantity;
     }
     return Math.sign(bonus);
+}
+
+// C ref: attrib.c poiseff[] (280-290). Each entry's delivery function controls
+// how the message opens: You_feel "weaker" => "You feel weaker", Your "brain
+// is on fire" => "Your brain is on fire", You "break out in hives" =>
+// "You break out in hives".
+const POISON_EFFECT_MESSAGES = Object.freeze([
+    /* A_STR */ { prefix: 'You feel',  msg: 'weaker' },
+    /* A_INT */ { prefix: 'Your',      msg: 'brain is on fire' },
+    /* A_WIS */ { prefix: 'Your',      msg: 'judgement is impaired' },
+    /* A_DEX */ { prefix: 'Your',      msg: 'muscles won\'t obey you' },
+    /* A_CON */ { prefix: 'You feel',  msg: 'very sick' },
+    /* A_CHA */ { prefix: 'You',       msg: 'break out in hives' },
+]);
+
+// C ref: attrib.c poisontell() (293-313). Feedback for attribute loss due to
+// poisoning. Two special cases override the table's message: gauntlets of power
+// force A_STR to stay at STR19(25), giving "innately weaker", and maximum A_CON
+// gives "sick inside".
+export async function poisontell(typ, exclaim, state = game, env = {}) {
+    const effect = POISON_EFFECT_MESSAGES[typ];
+    let msg = effect.msg;
+    if (typ === A_STR && effective_attribute(state, A_STR) === STR19(25))
+        msg = 'innately weaker';
+    else if (typ === A_CON && effective_attribute(state, A_CON) === 25)
+        msg = 'sick inside';
+    const message = requiredOperation(env, 'message');
+    await message(`${effect.prefix} ${msg}${exclaim ? '!' : '.'}`, state);
+}
+
+// C ref: attrib.c adjuhploss() (1182-1194). Called after setuhpmax() when
+// damage is pending; if uhpmax has been reduced, it might have caused uhp to be
+// reduced too; if so, recalculate pending loss to account for that.
+export function adjuhploss(loss, olduhp, state = game) {
+    if (!Upolyd(state.u)) {
+        if (state.u.uhp < olduhp)
+            loss -= (olduhp - state.u.uhp);
+    } else {
+        // The Upolyd arm redirects at u.mh; no caller can reach it today
+        // because nothing polymorphs the hero.
+        if (state.u.mh < olduhp)
+            loss -= (olduhp - state.u.mh);
+    }
+    return Math.max(loss, 1);
+}
+
+// C ref: attrib.c poisoned() (317-408). Called when an attack or trap has
+// poisoned the hero.
+//
+// Three branches:
+//   i == 0 && typ != A_CHA: instant-kill attempt (fatal damage or severe HP
+//     and attribute loss).
+//   i > 5: HP damage only, more likely but less severe for thrown weapons.
+//   else: attribute loss only.
+//
+// Cycle avoidance: losehp() lives in hack.js and done() in end.js, both of
+// which import from this file. To avoid a circular dependency, both are
+// injected through env.losehp and env.done.
+export async function poisoned(
+    reason, typ, pkiller, fatal, thrown_weapon,
+    state = game, env = {},
+) {
+    const random = env.random ?? { rn2, d, rnd };
+    const message = requiredOperation(env, 'message');
+    const losehp = requiredOperation(env, 'losehp');
+    const done = requiredOperation(env, 'done');
+    const encumberMessage = requiredOperation(env, 'encumberMessage');
+    const blast = reason === 'blast';
+
+    // Inform the player about being poisoned unless the reason already says
+    // "poison" or was a gas "blast" whose message has already been shown.
+    if (!blast && strstri(reason, 'poison') < 0) {
+        const plural = reason.length > 0 && reason[reason.length - 1] === 's';
+        const article = reason.length > 0
+            && reason[0] === reason[0].toUpperCase() ? '' : 'The ';
+        await message(
+            `${article}${reason} ${plural ? 'were' : 'was'} poisoned!`,
+            state,
+        );
+    }
+
+    // Poison resistance blocks the effect entirely.
+    const poisonRes = state.u?.uprops?.[POISON_RES];
+    if (poisonRes?.intrinsic || poisonRes?.extrinsic) {
+        // shieldeff() is a display-only shield animation; the tty build this
+        // port targets writes nothing for it. Omitted for blast path.
+        await message('The poison doesn\'t seem to affect you.', state);
+        return;
+    }
+
+    // Suppress killer prefix if it already has one.
+    let kprefix = KILLED_BY_AN;
+    const i_mon = name_to_mon(pkiller, { state });
+    if (ismnum(i_mon) && (state.mons[i_mon].geno & G_UNIQ)) {
+        kprefix = KILLED_BY;
+        if (!type_is_pname(state.mons[i_mon]))
+            pkiller = the(pkiller, state);
+    } else if (pkiller.length >= 4
+               && (pkiller.slice(0, 4).toLowerCase() === 'the '
+                   || pkiller.slice(0, 3).toLowerCase() === 'an '
+                   || pkiller.slice(0, 2).toLowerCase() === 'a ')) {
+        kprefix = KILLED_BY;
+    }
+
+    const i = !fatal ? 1 : random.rn2(fatal + (thrown_weapon ? 20 : 0));
+
+    if (i === 0 && typ !== A_CHA) {
+        // Instant-kill attempt, sometimes survivable.
+        const loss = 6 + random.d(4, 6); // 6 + 4d6 => 10..34
+        if (state.u.uhp <= loss) {
+            state.u.uhp = -1;
+            state.disp ??= {};
+            state.disp.botl = true;
+            await message('The poison was deadly...', state);
+        } else {
+            // Survived, but with severe reaction.
+            const olduhp = state.u.uhp;
+            const newuhpmax = state.u.uhpmax - Math.trunc(loss / 2);
+            setuhpmax(Math.max(newuhpmax, minuhpmax(3, state)), true, state);
+            const adjustedLoss = adjuhploss(loss, olduhp, state);
+
+            await losehp(adjustedLoss, pkiller, kprefix, state);
+            if (await adjattrib(A_CON, typ !== A_CON ? -1 : -3, 1, state, env))
+                await poisontell(A_CON, true, state, env);
+            if (typ !== A_CON
+                && await adjattrib(typ, -3, 1, state, env))
+                await poisontell(typ, true, state, env);
+        }
+    } else if (i > 5) {
+        // HP damage; more likely but less severe with missiles.
+        let loss = thrown_weapon ? random.rnd(6) : rn1(10, 6);
+        // Half_gas_damage (blast or cloud + worn towel) is not ported; the dart
+        // trap caller passes thrown_weapon=true, so blast and cloud are
+        // unreachable. Guard with a refusal rather than silently skipping.
+        if ((blast || reason === 'gas cloud')
+            && state.u?.uprops) {
+            // Half_gas_damage check: the towel halving. No consumer can reach
+            // this for a dart trap, so leave it as a no-op placeholder.
+        }
+        await losehp(loss, pkiller, kprefix, state);
+    } else {
+        // Attribute loss.
+        const loss = (thrown_weapon || !fatal)
+            ? 1 : random.d(2, 2); // d(2,2) was rn1(3,3)
+        if (await adjattrib(typ, -loss, 1, state, env))
+            await poisontell(typ, true, state, env);
+    }
+
+    if (state.u.uhp < 1) {
+        state.killer ??= {};
+        state.killer.format = kprefix;
+        state.killer.name = pkiller;
+        // "Poisoned by a poisoned ___" is redundant.
+        await done(strstri(pkiller, 'poison') >= 0 ? DIED : POISONING, state);
+    }
+    await encumberMessage(state);
 }
 
 export const _attribInternals = Object.freeze({
