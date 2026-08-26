@@ -1544,6 +1544,76 @@ export function aheadMembers(rows) {
         .filter((member) => members.has(member));
 }
 
+/**
+ * Rank candidates by capped forecast using cached caps from
+ * session-frontiers.json.  Each candidate's forecast is the sum of its
+ * contributing sessions' capped stretches.  A session whose divergence is
+ * before its boundary contributes 0 (divergence zeroing, handled by
+ * rankCandidates).
+ *
+ * For cap-stable sessions the cached cappedStretch is used directly.
+ * Sessions that need re-capping are flagged: their raw stretch enters the
+ * sum as a placeholder and the candidate is marked `tentative`.
+ *
+ * Returns an array sorted by cappedForecast desc, then session count desc,
+ * then member name asc.
+ */
+export function cappedRanking(rows) {
+    const candidates = new Map();
+    for (const row of rows) {
+        const stretch = aheadStretch(row);
+        if (!stretch) continue;
+        const entry = candidates.get(stretch.member) ?? {
+            member: stretch.member,
+            cappedForecast: 0,
+            sessions: [],
+            tentative: false,
+        };
+        const screenDiv = row.divergence?.screen;
+        const rngDiv = row.divergence?.rng;
+        const screenStep = screenDiv?.index;
+        const rngStep = rngDiv?.stepIndex;
+        const earliestDiv = [screenStep, rngStep]
+            .filter((v) => v != null)
+            .reduce((a, b) => Math.min(a, b), Infinity);
+        const divergesBefore = earliestDiv < (row.behaviors[0]?.at ?? Infinity);
+        const sessionName = sessionKey(row.file);
+        if (divergesBefore) {
+            entry.sessions.push({
+                session: sessionName,
+                cappedStretch: 0,
+                capStable: row.capStable ?? false,
+                divergenceZeroed: true,
+            });
+        } else if (row.capStable && row.cachedCap != null) {
+            entry.cappedForecast += row.cachedCap;
+            entry.sessions.push({
+                session: sessionName,
+                cappedStretch: row.cachedCap,
+                capStable: true,
+                divergenceZeroed: false,
+            });
+        } else {
+            const rawStretch = stretch.to - stretch.from;
+            entry.cappedForecast += rawStretch;
+            entry.tentative = true;
+            entry.sessions.push({
+                session: sessionName,
+                cappedStretch: null,
+                rawStretch,
+                capStable: false,
+                divergenceZeroed: false,
+            });
+        }
+        candidates.set(stretch.member, entry);
+    }
+    return [...candidates.values()].sort(
+        (a, b) => b.cappedForecast - a.cappedForecast
+            || b.sessions.length - a.sessions.length
+            || a.member.localeCompare(b.member),
+    );
+}
+
 function reportDivergenceAhead(rows) {
     const stretches = divergenceStretches(rows);
     if (stretches.length === 0) return;
@@ -1588,6 +1658,12 @@ export async function main(args) {
             + '\n  --ahead-all              append every candidate\'s'
             + ' look-ahead streams and divergence\n'
             + '                           candidate stretches to the report.'
+            + '\n  --capped-ranking         emit a JSON capped ranking using'
+            + ' cached caps from\n'
+            + '                           .cache/session-frontiers.json.'
+            + ' Candidates with\n'
+            + '                           non-stable sessions are marked'
+            + ' tentative.'
             + '\n  --json                   emit the same figures in'
             + ' machine-readable form.'
             + '\n  --write-cache            write the replay rows to'
@@ -1605,6 +1681,7 @@ export async function main(args) {
     }
     const rejected = args.find((arg) => arg !== '--json'
         && arg !== '--ahead-all'
+        && arg !== '--capped-ranking'
         && arg !== '--write-cache'
         && arg !== '--read-cache'
         && !orders.some((order) => arg === `--by=${order}`)
@@ -1623,6 +1700,7 @@ export async function main(args) {
     const ahead = args.find((arg) => arg.startsWith(AHEAD_PREFIX))
         ?.slice(AHEAD_PREFIX.length);
     const aheadAll = args.includes('--ahead-all');
+    const cappedRankingMode = args.includes('--capped-ranking');
     if (aheadAll && ahead !== undefined) {
         throw new Error(
             '--ahead-all already prints every candidate; drop --ahead=<behavior>',
@@ -1655,6 +1733,20 @@ export async function main(args) {
 
     if (setCaps.length > 0) {
         setCapEntries(setCaps, rows);
+        return;
+    }
+
+    if (cappedRankingMode) {
+        const ranked = cappedRanking(rows);
+        const needsCapping = ranked.flatMap((c) =>
+            c.sessions.filter((s) => !s.capStable && !s.divergenceZeroed)
+                .map((s) => s.session));
+        console.log(JSON.stringify({
+            winner: ranked[0] ?? null,
+            ranking: ranked,
+            needsCapping,
+            allStable: needsCapping.length === 0,
+        }, null, 2));
         return;
     }
 
