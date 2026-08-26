@@ -332,6 +332,7 @@ function meleeEnv(state, rolls, extra = {}) {
             },
             message: async (text) => { lines.push(text); },
             redraw: () => {},
+            markInvisible: () => {},
             statusRefresh: async () => {},
             wieldMonsterItem: async () => 0,
             throwRangedWeapon: () => {},
@@ -968,11 +969,12 @@ test('mattacku reveals an eel the moment it strikes', async () => {
     const quiet = meleeEnv(state, [20, 21], {
         redraw: () => assert.fail('a non-eel needs no reveal'),
     });
-    // An invisible non-eel keeps its invisibility and stops in missmu()
-    // instead, because canspotmon() is false for it.
+    // An invisible non-eel keeps its invisibility. missmu() now calls
+    // markInvisible (the canSpotMonster guard is ported), then stops at the
+    // mtmp.minvis guard which has not been validated yet.
     await assert.rejects(() => mattacku(rat, quiet.env),
         (error) => error.reason
-            === 'a miss by a monster the hero cannot spot');
+            === 'a miss by an invisible monster the hero can see');
     assert.equal(rat.minvis, true);
 });
 
@@ -1483,24 +1485,33 @@ test('hitmu doubles an undead attacker\'s damage during the midnight hour',
         ['d(1,1)']);
 });
 
-test('hitmu stops for an attacker that was hiding under something',
+test('hitmu marks an invisible-monster square for an unspotted attacker',
     async () => {
-    // mhitu.c:1159-1185. The two refusals sit one after the other. C first
-    // calls map_invisible() for an attacker the hero cannot spot, and
-    // display.h canseemon() answers no for an undetected one; C then reveals a
-    // hider or an eel and names what it was under, which needs doname(),
-    // Amonnam() and tp_sensemon().
+    // mhitu.c:1155-1156. When canspotmon(mtmp) is false -- the hero is blind,
+    // the attacker is invisible, or the attacker is undetected -- C calls
+    // map_invisible() and continues the damage computation unchanged. An
+    // undetected grid bug has canspotmon() false because monsterVisible()
+    // returns false for mundetected monsters. The grid bug is neither a hider
+    // nor an eel, so both terms of the next guard (mhitu.c:1161) leave it
+    // alone, and the bite lands through hitmu()'s full path.
     const state = await meleeHero();
     const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0, { mundetected: 1 });
-    await assert.rejects(
-        () => mattacku(bug, meleeEnv(state, [1]).env),
-        (error) => error.reason
-            === 'a hit by a monster the hero cannot spot',
-    );
+    const marked = [];
+    // markInvisible tracks which squares map_invisible() would mark.
+    const marking = meleeEnv(state, [1], {
+        markInvisible: (x, y) => marked.push([x, y]),
+    });
+    assert.equal(await mattacku(bug, marking.env), false);
+    // The attacker's square is marked as containing an invisible monster.
+    assert.deepEqual(marked, [[bug.mx, bug.my]]);
+    // Monnam() sees canspotmon() false and names the attacker "It".
+    assert.deepEqual(marking.lines, ['It bites!', 'You get zapped!']);
+});
 
-    // Telepathy and detect-monsters are how C gets past that first test with
-    // the attacker still undetected, and canspotmon() is the seam this file
-    // already lets a caller supply. Past it, an undetected grid bug is neither
+test('hitmu stops for an attacker that was hiding under something',
+    async () => {
+    // mhitu.c:1161-1184. After map_invisible(), hitmu() checks whether the
+    // attacker was hiding. A detected grid bug with DETECT_MONSTERS is neither
     // a hider nor an eel, so both terms of C's guard leave it alone.
     //
     // The property is set as well as the seam, because hitmu()'s line names
@@ -1508,6 +1519,8 @@ test('hitmu stops for an attacker that was hiding under something',
     // display.h canspotmon() itself rather than through this env. Without a
     // hero who really senses the grid bug the two would disagree and the line
     // would read "It bites!".
+    const state = await meleeHero();
+    const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0, { mundetected: 1 });
     state.u.uprops[DETECT_MONSTERS] = {
         intrinsic: 1, extrinsic: 0, blocked: 0,
     };

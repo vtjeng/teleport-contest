@@ -1712,17 +1712,21 @@ test('simple preflight rejects every selected excluded action atomically',
     async () => {
         const cases = [
             {
-                // mhitu.c mattacku() carries the melee arms through their
-                // to-hit test now, so this fixture reaches missmu().
-                // prepareSelectedAction() rewrites the route as unlit ROOM
-                // and raises COULD_SEE alone, so display.h cansee() and with
-                // it canspotmon() are false, and missmu() stops at
-                // map_invisible(), which is unported.
+                // A cave spider (M1_CONCEAL) with mundetected triggers
+                // hitmu()'s hider guard after the ported map_invisible()
+                // call. m_lev 100 ensures the blow lands regardless of the
+                // hit roll.
                 name: 'hero attack',
-                reason: 'a miss by a monster the hero cannot spot',
-                prepare: () => prepareSelectedAction({
-                    adjacentHero: true,
-                }),
+                reason: 'a hit by a monster that was hiding',
+                prepare: async () => {
+                    const target = await prepareSelectedAction({
+                        adjacentHero: true,
+                        pmidx: PM_CAVE_SPIDER,
+                    });
+                    target.monster.mundetected = 1;
+                    target.monster.m_lev = 100;
+                    return target;
+                },
             },
             {
                 name: 'monster aggression',
@@ -2801,11 +2805,14 @@ test('a starting pony targets at range and later refusal stays retryable',
         target.heroY - 2,
         { m_id: 9002, movement: 0 },
     );
+    // A cave spider (M1_CONCEAL) with mundetected triggers hitmu()'s
+    // hider guard. m_lev 100 ensures the blow always lands regardless of
+    // the hit roll, so the refusal is deterministic.
     const laterAttacker = ordinaryMonster(
-        PM_GIANT_RAT,
+        PM_CAVE_SPIDER,
         game.u.ux,
         game.u.uy - 1,
-        { m_id: 9003 },
+        { m_id: 9003, mundetected: 1, m_lev: 100 },
     );
     pony.nmon = defender;
     defender.nmon = laterAttacker;
@@ -2837,11 +2844,11 @@ test('a starting pony targets at range and later refusal stays retryable',
             preflightSimpleMonsterActions(game),
             (error) => error instanceof UnsupportedSimpleMonsterActionError
                 // The later attacker's square is left out of viz_array above,
-                // so its landed blow stops on hitmu()'s map_invisible()
-                // boundary rather than on its damage type. Which boundary is
-                // incidental here; that the refusal repeats is the point.
+                // so its landed blow stops on hitmu()'s hider guard rather
+                // than on its damage type. Which boundary is incidental
+                // here; that the refusal repeats is the point.
                 && error.reason
-                    === 'a hit by a monster the hero cannot spot',
+                    === 'a hit by a monster that was hiding',
         );
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),

@@ -37,7 +37,7 @@ import { stop_occupation } from './allmain.js';
 import { ART_SNICKERSNEE } from './artifacts.js';
 import { effective_attribute, minuhpmax, setuhpmax } from './attrib.js';
 import { midnight } from './calendar.js';
-import { bot, newsym } from './display.js';
+import { bot, map_invisible, newsym } from './display.js';
 import { capitalizedMonsterName, monsterPossessive } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { done_in_by, UnsupportedEndOfGameError } from './end.js';
@@ -275,23 +275,24 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
 
 // C ref: mhitu.c missmu() (84-100). "monster missed you".
 //
-// C opens with map_invisible() for a monster the hero cannot spot. Both that
-// function and the "it" name this would print are ported now, so what is left
-// is the case rather than the machinery: no fresh recording covers a hero
-// missed by a monster it cannot spot, and the goal that owns this arm is the
-// one that will record it. The refusal stands until then.
+// C opens with map_invisible() for a monster the hero cannot spot, marking the
+// square as containing an invisible monster, then falls through to the miss
+// message. capitalizedMonsterName() produces "It" when canspotmon() is false.
 async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
     const message = requireMattackuOperation(rawEnv, 'message');
+    const markInvisible = requireMattackuOperation(rawEnv, 'markInvisible');
     const spotMonster = rawEnv.canSpotMonster ?? canSpotMonster;
     const gh = hitmsgState(state);
 
     gh.hitmsg_mid = 0;
     gh.hitmsg_prev = null;
 
+    // C ref: mhitu.c:90-91. Same pattern as hitmu(): mark the square as
+    // containing an invisible monster when the hero cannot spot the attacker.
     if (!spotMonster(mtmp, state))
-        unsupported('a miss by a monster the hero cannot spot');
+        markInvisible(mtmp.mx, mtmp.my);
     if (mtmp.minvis)
         unsupported('a miss by an invisible monster the hero can see');
 
@@ -513,7 +514,16 @@ export async function mattacku(monster, rawEnv = {}) {
     const statusRefresh = rawEnv.planning
         ? async () => {}
         : (rawEnv.statusRefresh ?? (() => bot()));
-    const env = { ...rawEnv, state, message, redraw, statusRefresh };
+    // map_invisible() writes map memory and then paints through
+    // show_glyph_cell(), both against the module-global game. The planning
+    // scan replays the same turn live afterwards, so a dry run must write
+    // neither half; the live replay writes both.
+    const markInvisible = rawEnv.planning
+        ? () => {}
+        : (rawEnv.markInvisible ?? map_invisible);
+    const env = {
+        ...rawEnv, state, message, redraw, statusRefresh, markInvisible,
+    };
 
     const mdat = monster.data;
     const initial = calc_mattacku_vars(monster, env);
@@ -863,6 +873,7 @@ async function hitmu(mtmp, mattk, env) {
     const state = env.state;
     const random = env.random;
     const unsupported = requireMattackuOperation(env, 'unsupported');
+    const markInvisible = requireMattackuOperation(env, 'markInvisible');
     const spotMonster = env.canSpotMonster ?? canSpotMonster;
     const mdat = mtmp.data;
     const olduasmon = state.youmonst.data;
@@ -875,8 +886,12 @@ async function hitmu(mtmp, mattk, env) {
         done: false,
     };
 
+    // C ref: mhitu.c:1155-1156. When the hero cannot spot the attacker (blind
+    // with no telepathy, attacker invisible, etc.), mark the square as
+    // containing an invisible monster. The damage computation below is the
+    // same regardless.
     if (!spotMonster(mtmp, state))
-        unsupported('a hit by a monster the hero cannot spot');
+        markInvisible(mtmp.mx, mtmp.my);
 
     /*  If the monster is undetected & hits you, you should know where
      *  the attack came from.
