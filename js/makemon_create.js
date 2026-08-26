@@ -32,6 +32,7 @@ import {
     MM_ANGRY,
     MM_ASLEEP,
     MM_EDOG,
+    MM_EPRI,
     MM_ESHK,
     MM_FEMALE,
     MM_MALE,
@@ -422,6 +423,7 @@ import {
     WAX_CANDLE,
     WEAPON_CLASS,
 } from './objects.js';
+import { newepri } from './priest.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { enexto_core, goodpos } from './teleport.js';
 import {
@@ -457,6 +459,7 @@ const SUPPORTED_FLAGS = NO_MINVENT
     | MM_ANGRY
     | MM_ASLEEP
     | MM_EDOG
+    | MM_EPRI
     | MM_ESHK
     | MM_NOGRP
     | MM_MALE
@@ -2930,6 +2933,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     );
     const monster = newMonster();
     if (mmflags & MM_ESHK) neweshk(monster);
+    if (mmflags & MM_EPRI) newepri(monster);
     if (mmflags & MM_EDOG) newedog(monster);
     monster.msleeping = Boolean(mmflags & MM_ASLEEP);
     monster.nmon = state.level.monlist;

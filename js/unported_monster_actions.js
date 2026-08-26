@@ -279,12 +279,12 @@ function assertSimpleActionState(monster, state) {
 
     if (monster.mtame || monster.isminion)
         unsupported('minion movement');
-    if (monster.wormno || monster.isgd
-        || monster.ispriest || is_covetous(monster.data)) {
+    if (monster.wormno || monster.isgd || is_covetous(monster.data)) {
         unsupported('special monster movement');
     }
-    // isshk is admitted: m_move() dispatches to shk_move() for shopkeepers,
-    // which handles the stationary return-0 path and refuses the rest.
+    // isshk and ispriest are admitted: m_move() dispatches to shk_move()
+    // and pri_move() respectively, which handle the stationary and milling
+    // paths and refuse the rest.
     if (SPECIAL_RESPONDERS.has(monster.data?.pmidx)
         || monster.data?.pmidx === PM_TENGU
         || monster.data?.pmidx === PM_LEPRECHAUN

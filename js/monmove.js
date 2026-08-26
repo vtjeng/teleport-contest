@@ -314,6 +314,7 @@ import {
     in_your_sanctuary,
     inhistemple,
     mon_aligntyp,
+    pri_move,
 } from './priest.js';
 import { m_in_out_region, visible_region_at } from './region.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
@@ -2563,23 +2564,27 @@ export async function m_move(monster, rawEnv = {}) {
     // normal movement; -2 means the monster died.
     if (monster.isshk || monster.isgd || monster.ispriest) {
         if (monster.isgd) unsupported('guard movement');
-        if (monster.ispriest) unsupported('priest movement');
-        // shk_move returns: 1 moved, 0 didn't, -1 let m_move do it, -2 died.
-        const xm = shk_move(monster, state);
+        // shk_move / pri_move return: 1 moved, 0 didn't, -1 let m_move
+        // do it, -2 died.
+        const xm = monster.ispriest
+            ? pri_move(monster, env)
+            : shk_move(monster, state);
         if (xm === -2) return MMOVE_DIED;
         if (xm === -1) {
-            // shk following hero outside shop -- fall through to normal
-            // movement.  Not yet ported.
-            unsupported('shopkeeper following hero outside shop');
+            if (monster.isshk)
+                unsupported('shopkeeper following hero outside shop');
+            // For a priest not in their temple, pri_move returns -1: fall
+            // through to normal movement below.
+        } else {
+            // xm === 0 or xm === 1: return through postmov().
+            return await postMonsterMove(
+                monster,
+                oldX,
+                oldY,
+                xm !== 1 ? MMOVE_NOTHING : MMOVE_MOVED,
+                env,
+            );
         }
-        // xm === 0 or xm === 1: return through postmov().
-        return await postMonsterMove(
-            monster,
-            oldX,
-            oldY,
-            xm !== 1 ? MMOVE_NOTHING : MMOVE_MOVED,
-            env,
-        );
     }
 
     let goalX = monster.mux;

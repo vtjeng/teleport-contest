@@ -487,11 +487,11 @@ test('stock_room rejects a row shtypes[] does not carry', () => {
     assert.throws(() => stock_room(12, room, { state }), RangeError);
 });
 
-test('do_mkroom supports Court and Beehive and refuses later special rooms',
+test('do_mkroom supports Court, Beehive, and Temple and refuses later special rooms',
     () => {
-        // COURT and BEEHIVE dispatch to mkzoo(). The other eight types remain
-        // named refusals until their complete population and entry effects are
-        // ported.
+        // COURT and BEEHIVE dispatch to mkzoo(). TEMPLE dispatches to
+        // mktemple(). The other seven types remain named refusals until
+        // their complete population and entry effects are ported.
         const state = initializedState();
         const room = shopCandidate(state, { hx: 13, hy: 8 });
 
@@ -509,8 +509,9 @@ test('do_mkroom supports Court and Beehive and refuses later special rooms',
         assert.equal(room.rtype, BEEHIVE);
         assert.equal(room.needfill, FILL_NORMAL);
 
-        // Remaining zoo families, swamp, and temple are still refused.
-        for (const roomtype of [3, 6, 7, 8, 10, 11, 12, 13]) {
+        // Remaining zoo families and swamp are still refused (TEMPLE=10 is
+        // now ported and omitted from this list).
+        for (const roomtype of [3, 6, 7, 8, 11, 12, 13]) {
             assert.throws(
                 () => do_mkroom(roomtype, state),
                 UnsupportedSpecialRoomError,

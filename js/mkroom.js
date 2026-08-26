@@ -1,11 +1,12 @@
 // Room-topology projections and the special room one level may receive.
 // C refs: mkroom.c cmap_to_type(), isbig(), do_mkroom(), mkshop(),
 // pick_room(), mkzoo(), fill_zoo(), courtmon(), has_dnstairs(),
-// has_upstairs() and invalid_shop_shape().
+// has_upstairs(), invalid_shop_shape(), shrine_pos(), and mktemple().
 
 import {
     AIR,
     ALTAR,
+    AM_SHRINE,
     BEEHIVE,
     BLCORNER,
     BRCORNER,
@@ -46,8 +47,9 @@ import {
     MM_ASLEEP,
     MM_NOGRP,
     SPACE_POS,
+    TEMPLE,
 } from './const.js';
-import { level_difficulty } from './dungeon.js';
+import { induced_align, level_difficulty } from './dungeon.js';
 import { game } from './gstate.js';
 import { add_to_container } from './invent.js';
 import { occupied, somexyspace, topologize } from './mklev.js';
@@ -79,6 +81,7 @@ import {
     WAND_CLASS,
 } from './objects.js';
 import { mksobj, mksobj_at, weight } from './obj.js';
+import { priestini } from './priest.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { inside_room } from './room_coordinates.js';
 import { SHTYPES } from './shtypes_data.js';
@@ -509,15 +512,49 @@ export function fill_zoo(sroom, env = {}) {
     }
 }
 
+// C ref: mkroom.c shrine_pos(). Returns the center of a room, adjusted
+// randomly when either dimension is even.
+function shrine_pos(roomno, state, random) {
+    const troom = state.level.rooms[roomno - ROOMOFFSET];
+    let deltaX = troom.hx - troom.lx;
+    let x = troom.lx + Math.trunc(deltaX / 2);
+    // When the width is even (delta is odd), the center lies between two
+    // columns. Pick one at random.
+    if ((deltaX % 2) && random.rn2(2)) x++;
+    let deltaY = troom.hy - troom.ly;
+    let y = troom.ly + Math.trunc(deltaY / 2);
+    if ((deltaY % 2) && random.rn2(2)) y++;
+    return { x, y };
+}
+
+// C ref: mkroom.c mktemple(). Picks an ordinary room, marks it as a temple,
+// places a blessed altar at its center, and creates an attending priest.
+function mktemple(state, random) {
+    const sroom = pick_room(true, state, random);
+    if (!sroom) return;
+
+    sroom.rtype = TEMPLE;
+
+    const roomIndex = state.level.rooms.indexOf(sroom) + ROOMOFFSET;
+    const spot = shrine_pos(roomIndex, state, random);
+    const lev = state.level.at(spot.x, spot.y);
+    lev.typ = ALTAR;
+    lev.altarmask = induced_align(80, state, random.rn2);
+    priestini(state.u.uz, sroom, spot.x, spot.y, false,
+        { state, random });
+    lev.altarmask |= AM_SHRINE;
+    state.level.flags.has_temple = true;
+}
+
 // C ref: mkroom.c do_mkroom(). mklev.c makelevel() calls it at most once per
 // level, with the type its depth selects.
-//
-// The ordinary boundary reaches shops, COURT, and BEEHIVE. Later zoo
-// families, swamps, and temples stay named refusals until their complete
-// population and entry effects are selected.
 export function do_mkroom(roomtype, state = game, random = SOURCE_RANDOM) {
     if (roomtype >= SHOPBASE) {
         mkshop(state, random);
+        return;
+    }
+    if (roomtype === TEMPLE) {
+        mktemple(state, random);
         return;
     }
     if (roomtype === COURT || roomtype === BEEHIVE) {
