@@ -4118,8 +4118,8 @@
         },
         {
           "name": "restore-welcome-back",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "16cb4fe6034dba639062b9d96512cc5d77517a08"
         }
       ],
       "openedAt": "db7bd9507ea25204eff719b842feda41dcee6b0d",
