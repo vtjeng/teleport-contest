@@ -71,10 +71,12 @@ pushing, add a follow-up commit that states the correction.
 
 ## Subagents
 
-Spawn subagents where they help, pinned to Sonnet: `Explore` with
-`model: sonnet` to locate code, call sites, and naming conventions, or
-`sonnet-worker` to classify against a rubric you supply. Verify each
-pointer a subagent returns by opening the file.
+Use `grep` to find a symbol whose name you know. Spawn a subagent only
+when the search is broader — the name is uncertain, you need to survey
+call sites across many files, or you need to classify results against a
+rubric. Pin subagents to Sonnet: `Explore` with `model: sonnet` for
+code searches, `sonnet-worker` for classification. Verify each pointer a
+subagent returns by opening the file.
 
 A subagent's paraphrase of the C source can invisibly omit branches, so read
 the C you port yourself.
