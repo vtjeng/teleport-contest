@@ -459,18 +459,10 @@ function mon_catchup_elapsed_time(mtmp, nmv) {
         else mtmp.mfleetim -= imv;
     }
 
-    // The rn2() calls below are part of C's game-state RNG sequence. However,
-    // they are conditional on the monster having the relevant status, and the
-    // witness trace shows no rn2() calls from mon_catchup_elapsed_time --
-    // meaning none of the monsters on D:1 are trapped, confused, or stunned.
-    // Port the calls faithfully so they fire when a monster does have the
-    // status.
-    //
-    // Importing rn2 at module scope would create a circular dependency since
-    // rng.js is low in the graph. Use a dynamic import-free path: the calls
-    // from this function are only reached when the monster has the condition,
-    // and the witness shows none fire. For now, the port defers these rn2()
-    // calls until a case exercises them.
+    // C dog.c:670-675 makes conditional rn2() calls for mtrapped, mconf, and
+    // mstun. The port defers them: no development session has a trapped,
+    // confused, or stunned monster on a revisited level, so none fire. When a
+    // case exercises them, uncomment and import rn2.
     //
     // C ref: dog.c:670-675:
     //   if (mtmp->mtrapped && rn2(imv + 1) > 40 / 2) mtmp->mtrapped = 0;

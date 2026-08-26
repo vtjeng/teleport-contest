@@ -23,7 +23,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import test from 'node:test';
 
@@ -68,7 +68,7 @@ test('eating garlic reaches garlic_breath and the give_feedback message', () => 
             { encoding: 'utf8', timeout: 120_000 },
         );
     } finally {
-        try { require('fs').unlinkSync(recipePath); } catch { /* ignore */ }
+        try { unlinkSync(recipePath); } catch { /* ignore */ }
     }
 
     // diff-fresh.mjs exits 0 on full parity and 1 on mismatch. The
@@ -109,7 +109,7 @@ test('garlic eating matches at a second seed', () => {
             { encoding: 'utf8', timeout: 120_000 },
         );
     } finally {
-        try { require('fs').unlinkSync(recipePath); } catch { /* ignore */ }
+        try { unlinkSync(recipePath); } catch { /* ignore */ }
     }
 
     assert.match(stdout, /RESULT: PASS/u,

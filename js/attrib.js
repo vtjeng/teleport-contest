@@ -1103,7 +1103,7 @@ export async function poisoned(
     reason, typ, pkiller, fatal, thrown_weapon,
     state = game, env = {},
 ) {
-    const random = env.random ?? { rn2, d, rnd };
+    const random = env.random ?? { rn2, d, rnd, rn1 };
     const message = requiredOperation(env, 'message');
     const losehp = requiredOperation(env, 'losehp');
     const done = requiredOperation(env, 'done');
@@ -1171,7 +1171,7 @@ export async function poisoned(
         }
     } else if (i > 5) {
         // HP damage; more likely but less severe with missiles.
-        let loss = thrown_weapon ? random.rnd(6) : rn1(10, 6);
+        let loss = thrown_weapon ? random.rnd(6) : random.rn1(10, 6);
         // Half_gas_damage (blast or cloud + worn towel) is not ported; the dart
         // trap caller passes thrown_weapon=true, so blast and cloud are
         // unreachable. Guard with a refusal rather than silently skipping.

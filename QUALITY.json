@@ -4807,6 +4807,83 @@
       "from": "e898003da9e3df987907e691863cd4ad2cface99",
       "detail": "fprefx CLOVE_OF_GARLIC when is_undead(youmonst.data) calls make_vomiting(rn1(reqtime,5),FALSE). make_vomiting is unported. Currently throws UnsupportedEatError.",
       "blockedOn": "make_vomiting"
+    },
+    {
+      "id": "catchup-rn2-mtrapped-mconf-mstun",
+      "area": null,
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "920d2b230fe6fa2f3130fce5c006858ff09854ac",
+      "detail": "mon_catchup_elapsed_time omits three conditional rn2() calls for mtrapped/mconf/mstun (C dog.c:670-675). Causes PRNG desync when a trapped/confused/stunned monster is on a revisited level.",
+      "blockedOn": "rn2"
+    },
+    {
+      "id": "catchup-tameness-reduction",
+      "area": null,
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "920d2b230fe6fa2f3130fce5c006858ff09854ac",
+      "detail": "mon_catchup_elapsed_time omits tameness-reduction code (C dog.c:689-698), including conditional rn2(wilder) PRNG draw.",
+      "blockedOn": "rn2"
+    },
+    {
+      "id": "set-mimic-sym-stub-in-getlev",
+      "area": null,
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "920d2b230fe6fa2f3130fce5c006858ff09854ac",
+      "detail": "deferredSetMimicSym in getlev is a no-op stub that skips set_mimic_sym rn2 calls, causing PRNG divergence when a mimic passes restrap guards during level restore.",
+      "blockedOn": "set_mimic_sym"
+    },
+    {
+      "id": "shk-move-onlineu-fallthrough",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "920d2b230fe6fa2f3130fce5c006858ff09854ac",
+      "detail": "shk_move returns 0 (stationary) where C falls through onlineu check to move_special. Requires porting move_special or adding the onlineu guard.",
+      "blockedOn": "move_special"
+    },
+    {
+      "id": "dodown-test-error-typing",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "920d2b230fe6fa2f3130fce5c006858ff09854ac",
+      "detail": "rejectsAtTheReload matches any Error with getlev text; should type-check for a specific error class or source property."
+    },
+    {
+      "id": "doup-savelev-roundtrip-depth",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "920d2b230fe6fa2f3130fce5c006858ff09854ac",
+      "detail": "savelev/getlev round-trip test uses reference identity (===) and omits timers, lights, engravings, smeq, updest, dndest assertions."
+    },
+    {
+      "id": "poisoned-attrib-loss-branch-test",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "920d2b230fe6fa2f3130fce5c006858ff09854ac",
+      "detail": "No test covers poisoned() attribute-loss branch (1 <= i <= 5, ~17% probability for dart traps)."
+    },
+    {
+      "id": "container-contents-doname-with-price",
+      "area": null,
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "920d2b230fe6fa2f3130fce5c006858ff09854ac",
+      "detail": "container_contents uses donameFresh instead of C doname_with_price. The JS doname_with_price handles only shop items and throws for others; C version conditionally adds price. Needs a flag-based doname approach.",
+      "blockedOn": "doname_with_price"
     }
   ],
   "areas": [

@@ -80,10 +80,12 @@ function thituEnv(rolls) {
     const exercises = [];
     const hpLosses = [];
     const queue = [...rolls];
+    const rndArgs = [];
     return {
         random: {
-            rnd: (n) => queue.shift() ?? 1,
+            rnd: (n) => { rndArgs.push(n); return queue.shift() ?? 1; },
         },
+        rndArgs,
         message: async (text) => messages.push(text),
         losehp: async (n, knam, k_format) => {
             hpLosses.push({ n, knam, k_format });
@@ -108,6 +110,7 @@ test('thitu miss: AC + tlev <= dieroll produces "almost hit" message',
         const env = thituEnv([11]); // rnd(20)=11
         const result = await thitu(7, 3, obj, 'little dart', state, env);
         assert.equal(result, 0, 'thitu returns 0 for a miss');
+        assert.deepStrictEqual(env.rndArgs, [20], 'thitu calls rnd(20)');
         assert.equal(env.messages.length, 1);
         assert.equal(
             env.messages[0],
@@ -224,8 +227,9 @@ test('poisoned() with thrown_weapon=true and i>5 deals rnd(6) HP damage',
         const hpLosses = [];
         // fatal=10, thrown_weapon=true: i = rn2(10 + 20) = rn2(30).
         // With rn2(30)=15 (>5), the HP damage branch runs. rnd(6)=3.
+        const rn2Args = [];
         const env = {
-            random: { rn2: () => 15, d: () => 1, rnd: () => 3 },
+            random: { rn2: (n) => { rn2Args.push(n); return 15; }, d: () => 1, rnd: () => 3 },
             message: async (text) => messages.push(text),
             losehp: async (n, knam, k_format) => hpLosses.push({ n }),
             done: async () => {},
@@ -235,6 +239,8 @@ test('poisoned() with thrown_weapon=true and i>5 deals rnd(6) HP damage',
         // The reason "dart" does not contain "poison", so "The dart was
         // poisoned!" is printed first.
         assert.ok(messages.some((m) => m === 'The dart was poisoned!'));
+        // thrown_weapon=true, fatal=10: i = rn2(fatal + 20) = rn2(30).
+        assert.deepStrictEqual(rn2Args, [30], 'rn2 called with fatal+20=30');
         // HP damage is rnd(6) = 3.
         assert.equal(hpLosses.length, 1);
         assert.equal(hpLosses[0].n, 3);

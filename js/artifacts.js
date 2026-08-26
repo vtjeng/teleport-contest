@@ -8,7 +8,7 @@ import {
     A_LAWFUL,
     A_NEUTRAL,
     ANTIMAGIC,
-    BLINDED,
+    BLND_RES,
     COLD_RES,
     CONFLICT,
     DISINT_RES,
@@ -846,7 +846,7 @@ export function set_artifact_intrinsic(otmp, on, wp_mask, state = game) {
 
     // artifact.c:887-892: Sunsword blindness resistance, guarded on W_WEP.
     if (wp_mask === W_WEP && otmp.oartifact === ART_SUNSWORD) {
-        extrinsicMaskToggle(normalized, BLINDED, wp_mask, on);
+        extrinsicMaskToggle(normalized, BLND_RES, wp_mask, on);
     }
 }
 
@@ -856,11 +856,6 @@ function extrinsicMaskToggle(state, property, wp_mask, on) {
         prop.extrinsic |= wp_mask;
     else
         prop.extrinsic &= ~wp_mask;
-}
-
-// Backward-compatible alias: the carried (W_ART, on=true) path only sets.
-function extrinsicMask(state, property, wp_mask) {
-    extrinsicMaskToggle(state, property, wp_mask, true);
 }
 
 // C ref: artifact.c artifact_name(). Answers the artifact whose name the

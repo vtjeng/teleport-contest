@@ -149,6 +149,8 @@ test('trapeffect_magic_trap: rn2(30)=0 refuses (explosion needs deltrap)',
             () => trapeffect_selector(state.youmonst, trap, 0, env),
             (error) => error.reason === 'magic trap explosion',
         );
+        assert.ok(env.rn2Called, 'rn2(30) explosion gate was called');
+        assert.ok(!env.rndCalled, 'rnd(20) fate roll not reached on explosion');
     });
 
 test('trapeffect_magic_trap: rn2(30) nonzero, fate 10 no-op', async () => {
@@ -162,6 +164,8 @@ test('trapeffect_magic_trap: rn2(30) nonzero, fate 10 no-op', async () => {
         state.youmonst, trap, 0, env,
     );
     assert.equal(result, Trap_Effect_Finished);
+    assert.ok(env.rn2Called, 'rn2(30) explosion gate was called');
+    assert.ok(env.rndCalled, 'rnd(20) fate roll was called');
     assert.equal(env.messages.length, 0, 'fate 10 produces no message');
     assert.equal(trap.tseen, true, 'seetrap sets tseen');
 });
