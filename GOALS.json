@@ -4446,8 +4446,8 @@
         },
         {
           "name": "meating-mflee-hostile",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "ffa95702fabae6bb0778bea9334c8b32e446b1aa"
         }
       ],
       "openedAt": "66ea45cd123510ebe75c75f5b928e7dec96550d1",
