@@ -46,10 +46,11 @@ import {
 } from '../js/do_wear.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
+import { carrying_stoning_corpse } from '../js/invent.js';
 import { Is_dragon_armor, is_boots, is_gloves } from '../js/obj.js';
 import { runSegment } from '../js/jsmain.js';
 import { monstunseesu } from '../js/mondata.js';
-import { M1_SEE_INVIS, PM_ACID_BLOB } from '../js/monsters.js';
+import { M1_SEE_INVIS, PM_ACID_BLOB, PM_COCKATRICE } from '../js/monsters.js';
 import { bimanual, setworn } from '../js/worn.js';
 import {
     AMULET_CLASS,
@@ -62,8 +63,10 @@ import {
     BLINDFOLD,
     CLOAK_OF_DISPLACEMENT,
     CLOAK_OF_MAGIC_RESISTANCE,
+    CORPSE,
     ELVEN_MITHRIL_COAT,
     FEDORA,
+    FOOD_CLASS,
     GRAY_DRAGON_SCALES,
     GRAY_DRAGON_SCALE_MAIL,
     HAWAIIAN_SHIRT,
@@ -738,6 +741,122 @@ test('a cursed outer layer keeps the layer under it on', async () => {
     game.uarmh = null;
 });
 
+test('select_off glove checks: welded, Glib, and uncursed pass-through',
+    async () => {
+    // do_wear.c:2729-2743 checks welded(uwep), Glib, and
+    // better_not_take_that_off() before letting gloves reach the basic
+    // curse check. Each sub-check is tested independently.
+    const segment = segmentFor(TAKEOFF_KEY);
+    await runSegment({ ...segment, moves: WAIT });
+
+    // Set up uncursed leather gloves in the uarmg slot.
+    const gloves = {
+        oclass: ARMOR_CLASS, otyp: LEATHER_GLOVES, owornmask: W_ARMG,
+        cursed: 0, quan: 1, bknown: 0, unpaid: 0,
+    };
+    game.uarmg = gloves;
+
+    // --- Sub-check 1: welded(uwep) blocks glove removal ---
+    // A cursed long sword is iron, so erodeable_wep() returns true and
+    // will_weld() makes it welded. do_wear.c:2731-2735 refuses the takeoff
+    // and reveals bknown on the weapon.
+    const sword = {
+        oclass: WEAPON_CLASS, otyp: LONG_SWORD, owornmask: W_WEP,
+        cursed: 1, bknown: 0, quan: 1,
+    };
+    game.uwep = sword;
+    reset_remarm(game);
+    await select_off(gloves, game);
+    // The refusal leaves the mask empty.
+    assert.equal(takeoffContext(game).mask, 0,
+        'welded weapon prevents glove removal');
+    assert.match(
+        takePendingTopLine(),
+        /^You are unable to take off your gloves while wielding that sword/,
+    );
+    // set_bknown reveals the curse on the weapon, not the gloves.
+    assert.equal(sword.bknown, 1, 'welded weapon bknown revealed');
+
+    // Remove the welded weapon to test the next sub-check.
+    game.uwep = null;
+
+    // --- Sub-check 2: Glib blocks glove removal ---
+    // do_wear.c:2736-2740 refuses when the hero has slippery fingers.
+    // The message uses "Your" for owned gloves and "The" for unpaid ones.
+    game.u.uprops[GLIB].intrinsic = 5;
+    reset_remarm(game);
+    await select_off(gloves, game);
+    assert.equal(takeoffContext(game).mask, 0,
+        'Glib prevents glove removal');
+    assert.match(
+        takePendingTopLine(),
+        /^Your gloves are too slippery to take off/,
+    );
+
+    // "The" for an unpaid item (simplified Shk_Your).
+    gloves.unpaid = 1;
+    reset_remarm(game);
+    await select_off(gloves, game);
+    assert.equal(takeoffContext(game).mask, 0);
+    assert.match(
+        takePendingTopLine(),
+        /^The gloves are too slippery to take off/,
+    );
+    gloves.unpaid = 0;
+    game.u.uprops[GLIB].intrinsic = 0;
+
+    // --- Sub-check 3 (pass-through): no blocking condition ---
+    // With no welded weapon, no Glib, and no cockatrice corpse,
+    // better_not_take_that_off() returns false and the gloves reach the
+    // basic curse check. Uncursed gloves set the WORN_GLOVES mask bit.
+    reset_remarm(game);
+    await select_off(gloves, game);
+    assert.equal(takeoffContext(game).mask, W_ARMG,
+        'uncursed gloves set the mask when no sub-check blocks');
+
+    // --- Cursed gloves are stopped by the basic curse check ---
+    // do_wear.c:2780-2784. The three sub-checks above all pass, and
+    // cursed() refuses on the BUC.
+    gloves.cursed = 1;
+    reset_remarm(game);
+    await select_off(gloves, game);
+    assert.equal(takeoffContext(game).mask, 0,
+        'cursed gloves are refused after glove sub-checks pass');
+    assert.match(
+        takePendingTopLine(),
+        /You can't.*They are cursed/,
+    );
+
+    // Clean up.
+    reset_remarm(game);
+    game.uarmg = null;
+});
+
+test('carrying_stoning_corpse finds the first petrifying corpse',
+    async () => {
+    // C ref: invent.c carrying_stoning_corpse() (1508-1516). Scans inventory
+    // for a CORPSE whose species touch_petrifies.
+    const segment = segmentFor(TAKEOFF_KEY);
+    await runSegment({ ...segment, moves: WAIT });
+
+    // No cockatrice corpse in inventory -> null.
+    assert.equal(carrying_stoning_corpse(game), null,
+        'no petrifying corpse in starting inventory');
+
+    // Add a cockatrice corpse to the inventory.
+    // PM_COCKATRICE (index 10) has touch_petrifies via M2_PSTONE.
+    const cockaCorpse = {
+        oclass: FOOD_CLASS, otyp: CORPSE, corpsenm: PM_COCKATRICE,
+        owornmask: 0, cursed: 0, quan: 1, nobj: game.invent,
+    };
+    game.invent = cockaCorpse;
+    assert.equal(carrying_stoning_corpse(game), cockaCorpse,
+        'finds the cockatrice corpse');
+
+    // Restore inventory.
+    game.invent = cockaCorpse.nobj;
+});
+
 test('setworn clears only the doffed slot from the take-off mask', async () => {
     // do_wear.c cancel_doff() (1642-1659), which worn.c:110 runs from inside
     // setworn() for the item leaving the slot. Its whole ported body is
@@ -1033,11 +1152,12 @@ test('the unported slots and armor types stop at their own frame',
         new RegExp(`Cloak_off\\(\\) for otyp ${CLOAK_OF_DISPLACEMENT}`),
     );
 
-    // A Monk's leather gloves, answered at the prompt: select_off() stops on
-    // better_not_take_that_off() before armoroff() sees the delay.
+    // A Monk's leather gloves: select_off()'s glove sub-checks (welded, Glib,
+    // cockatrice-corpse prompt) all pass, and the uncursed gloves reach
+    // armoroff()'s delayed branch, which stops on ARM_GLOVES (oc_delay 1).
     const monk = segmentFor(`${TAKEOFF_KEY}b`);
     boundary = await boundaryFor(monk, `${WAIT}${TAKEOFF_KEY}a`);
-    assert.match(boundary?.message ?? '', /select_off\(\) glove checks/);
+    assert.match(boundary?.message ?? '', /armoroff\(\) delayed branch/);
 
     // Nothing in the port puts boots on a hero, so the boot frame is only
     // reachable directly.

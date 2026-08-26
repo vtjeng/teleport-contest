@@ -22,8 +22,9 @@
 // do_wear.c find_ac() was ported earlier and lives in
 // js/u_init_inventory_attrs.js, beside the startup code that first calls it.
 //
-// The 'A' occupation spine -- do_takeoff(), take_off(),
-// better_not_take_that_off() and doddoremarm() -- is not ported. armoroff()'s
+// The 'A' occupation spine -- do_takeoff(), take_off(), and
+// doddoremarm() -- is not ported. better_not_take_that_off() is ported for
+// select_off()'s glove checks. armoroff()'s
 // delayed branch at do_wear.c:1930-1972 is ported for a suit only, while
 // accessory_or_armor_on() fills all seven armor slots. Every refusal below
 // names the C function it stops in front of.
@@ -54,6 +55,8 @@ import {
     RIGHT_RING,
     SLEEPY,
     STRANGLED,
+    st_corpse,
+    st_petrifies,
     TIMEOUT,
     TT_BEARTRAP,
     TT_BURIEDBALL,
@@ -78,19 +81,26 @@ import {
     WORN_ARMOR,
     WORN_BLINDF,
     WORN_CLOAK,
+    WORN_GLOVES,
     WORN_HELMET,
     WORN_SHIELD,
     WORN_SHIRT,
     plur,
 } from './const.js';
+import { obj_pmname } from './do_name.js';
 import { surface } from './dungeon.js';
 import { makeplural } from './fruit.js';
 import { effective_attribute } from './attrib.js';
-import { yn_function } from './cmd.js';
+import { paranoid_query, yn_function } from './cmd.js';
 import { artifact_light, set_artifact_intrinsic } from './artifacts.js';
 import { game } from './gstate.js';
 import { nomul, unmul } from './hack.js';
-import { getobj, prinv, update_inventory } from './invent.js';
+import {
+    carrying_stoning_corpse,
+    getobj,
+    prinv,
+    update_inventory,
+} from './invent.js';
 import { racial_exception } from './makemon_create.js';
 import {
     can_be_strangled,
@@ -237,6 +247,7 @@ import {
     Tobjnam,
     xnameFresh,
 } from './objnam.js';
+import { u_safe_from_fatal_corpse } from './pickup.js';
 import { body_part, float_vs_flight } from './polyself.js';
 import { toggle_blindness } from './potion.js';
 import { rnd } from './rng.js';
@@ -1821,11 +1832,13 @@ export function unchanger(state = game) {
 }
 
 // The slot-to-mask chain do_wear.c:2786-2812 spells out, restricted to the
-// slots that can reach it: select_off() stops on a ring, on gloves and on
-// boots above, so their labels would be dead here.
+// slots that can reach it: select_off() stops on a ring and on boots above,
+// so their labels would be dead here. Gloves pass through since the
+// glove-check branch is ported.
 function takeoffMaskFor(otmp, state) {
     if (otmp === state.uarm) return WORN_ARMOR;
     if (otmp === state.uarmc) return WORN_CLOAK;
+    if (otmp === state.uarmg) return WORN_GLOVES;
     if (otmp === state.uarmh) return WORN_HELMET;
     if (otmp === state.uarms) return WORN_SHIELD;
     if (otmp === state.uarmu) return WORN_SHIRT;
@@ -1834,6 +1847,22 @@ function takeoffMaskFor(otmp, state) {
     // C's remaining labels are uwep, uswapwep and uquiver, which only the 'A'
     // command reaches, and then impossible("select_off: %s???").
     throw new UnsupportedTakeOffError('select_off() for a wielded item');
+}
+
+// C ref: do_wear.c better_not_take_that_off() (2990-3010). Prompts the hero
+// before removing gloves while carrying a corpse that petrifies on touch.
+// Returns true when the hero declines or when the prompt itself would stop
+// execution (the spelled-out paranoid_ynq path is unported).
+async function better_not_take_that_off(otmp, state = game) {
+    const corpse = carrying_stoning_corpse(state);
+
+    if (corpse
+        && !u_safe_from_fatal_corpse(corpse, st_corpse | st_petrifies, state)) {
+        const buf = `Take off your ${gloves_simple_name(otmp, state)}`
+            + ` despite carrying a dead ${obj_pmname(corpse, state)}?`;
+        return !(await paranoid_query(true, buf, state));
+    }
+    return false;
 }
 
 // C ref: do_wear.c select_off() (2694-2821). C answers 0 always; what it
@@ -1850,9 +1879,28 @@ export async function select_off(otmp, state = game) {
     }
     /* special glove checks */
     if (otmp === state.uarmg) {
-        // do_wear.c:2727-2742, whose last test is
-        // better_not_take_that_off(), part of the unported 'A' spine.
-        throw new UnsupportedTakeOffError('select_off() glove checks');
+        if (welded(state.uwep, state)) {
+            // do_wear.c:2731-2735
+            await ttyPline(
+                `You are unable to take off your ${c_gloves} while wielding`
+                + ` that ${is_sword(state.uwep, state) ? c_sword : c_weapon}.`,
+                state,
+            );
+            set_bknown(state.uwep, 1, { state });
+            return 0;
+        } else if (Glib(state)) {
+            // do_wear.c:2736-2740. The inline comment in C says this is a
+            // simplified Shk_Your(): unpaid items say "The", own items "Your".
+            await ttyPline(
+                `${state.uarmg.unpaid ? 'The' : 'Your'}`
+                + ` ${gloves_simple_name(state.uarmg, state)}`
+                + ` are too slippery to take off.`,
+                state,
+            );
+            return 0;
+        }
+        if (await better_not_take_that_off(otmp, state))
+            return 0;
     }
     /* special boot checks */
     if (otmp === state.uarmf) {

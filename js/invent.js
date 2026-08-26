@@ -965,6 +965,16 @@ function heroIsBlind(state) {
     );
 }
 
+// C ref: invent.c carrying_stoning_corpse() (1508-1516). Scans the hero's
+// inventory for the first corpse whose species petrifies on touch.
+export function carrying_stoning_corpse(state = game) {
+    for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
+        if (otmp.otyp === CORPSE && touch_petrifies(state.mons[otmp.corpsenm]))
+            return otmp;
+    }
+    return null;
+}
+
 // C ref: invent.c will_feel_cockatrice(). A sighted hero without forced touch
 // never feels a corpse, whatever it is, so feel_cockatrice() is a no-op there.
 export function will_feel_cockatrice(otmp, force_touch, state = game) {
