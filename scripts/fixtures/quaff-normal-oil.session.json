@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 100,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:tester,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics",
+      "moves": " \u0017uncursed potion of oil\nqp"
+    }
+  ]
+}

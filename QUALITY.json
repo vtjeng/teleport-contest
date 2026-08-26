@@ -4884,6 +4884,15 @@
       "from": "920d2b230fe6fa2f3130fce5c006858ff09854ac",
       "detail": "container_contents uses donameFresh instead of C doname_with_price. The JS doname_with_price handles only shop items and throws for others; C version conditionally adds price. Needs a flag-based doname approach.",
       "blockedOn": "doname_with_price"
+    },
+    {
+      "id": "lit-oil-quaff",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "97cca1e9501dd6a4022c179918d32a2c65548798",
+      "detail": "peffect_oil lit-oil branch (potion.c:1264-1287) is ported but untested end-to-end: lighting the potion via the apply command produces a no-shopkeeper message the JS port does not handle, so the lit-oil fresh differential fails at step 19 before reaching peffect_oil."
     }
   ],
   "areas": [

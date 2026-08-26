@@ -1,7 +1,8 @@
 // potion.js -- quaffing and vapor effects for potions.
 // C ref: src/potion.c dodrink() (526-615), drink_ok() (505-521),
 //        dopotion() (618-641), peffects() (1333-1425),
-//        peffect_speed() (1052-1070), speed_up() (2918-2928),
+//        peffect_speed() (1052-1070), peffect_oil() (1259-1294),
+//        speed_up() (2918-2928),
 //        itimeout/itimeout_incr/set_itimeout/incr_itimeout (55-86),
 //        potionbreathe() (1931-2118), toggle_blindness() (336-364).
 //
@@ -9,17 +10,20 @@
 // fountain/sink, underwater, worn-potion, milky/smoky are fail-closed;
 // the common path calls getobj() -> dopotion() -> peffects().
 //
-// peffects() dispatches 23 potion types; only POT_SPEED (and spell alias
-// SPE_HASTE_SELF) is ported. The other 22 arms throw UnsupportedQuaffError.
+// peffects() dispatches 23 potion types; POT_SPEED (with spell alias
+// SPE_HASTE_SELF) and POT_OIL are ported. The other 21 arms throw
+// UnsupportedQuaffError.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
 // status changes. It forces a full vision rebuild and updates monster display.
 
 import {
     A_DEX,
+    A_WIS,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    FACE,
     FAST,
     FROMOUTSIDE,
     HALLUC,
@@ -32,6 +36,7 @@ import {
     INVIS,
     IS_FOUNTAIN,
     IS_SINK,
+    KILLED_BY,
     LEG,
     SEE_INVIS,
     STRANGLED,
@@ -47,12 +52,16 @@ import { heal_legs, trycall } from './do.js';
 import { more_experienced } from './exper.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
+import { losehp } from './hack.js';
 import { getobj, useup } from './invent.js';
+import { likes_fire } from './mondata.js';
 import { bcsign, objectType } from './obj.js';
 import { discover_object } from './o_init.js';
 import { body_part } from './polyself.js';
-import { rn1 } from './rng.js';
+import { d, rn1 } from './rng.js';
+import { burn_away_slime } from './timeout.js';
 import { vision_recalc } from './vision.js';
+import { Cold_resistance, Fire_resistance } from './zap.js';
 import {
     OBJ_DESCR,
     POTION_CLASS,
@@ -203,6 +212,44 @@ async function peffect_speed(otmp, state = game) {
 }
 
 // ---------------------------------------------------------------------------
+// peffect_oil
+// C ref: potion.c peffect_oil() (1259-1294).
+// ---------------------------------------------------------------------------
+
+// C ref: potion.c peffect_oil() (1259-1294). Handle the POT_OIL arm of
+// peffects(). Three branches: lit oil (fire damage or refreshing drink
+// depending on likes_fire()), cursed (castor oil), or normal (smooth).
+// All paths end with exercise(A_WIS, good_for_you).
+async function peffect_oil(otmp, state = game) {
+    let good_for_you = false;
+
+    if (otmp.lamplit) {
+        if (likes_fire(state.youmonst.data)) {
+            await ttyPline('Ahh, a refreshing drink.', state);
+            good_for_you = true;
+        } else {
+            // C ref: 1274. "You burn your face."
+            await ttyPline(
+                `You burn your ${body_part(FACE, state.youmonst)}.`, state);
+            // C ref: 1276. Fire damage; vulnerable = !Fire_resistance ||
+            // Cold_resistance (cold-blooded heroes take extra fire damage).
+            const vulnerable = !Fire_resistance(state)
+                || Cold_resistance(state);
+            await losehp(d(vulnerable ? 4 : 2, 4),
+                'quaffing a burning potion of oil',
+                KILLED_BY, state);
+        }
+        // C ref: 1287. burn_away_slime() cures green slime for fire contact.
+        burn_away_slime(state);
+    } else if (otmp.cursed) {
+        await ttyPline('This tastes like castor oil.', state);
+    } else {
+        await ttyPline('That was smooth!', state);
+    }
+    await exercise(A_WIS, good_for_you, state);
+}
+
+// ---------------------------------------------------------------------------
 // peffects / dopotion / dodrink
 // C ref: potion.c peffects() (1333-1425), dopotion() (618-641),
 //        drink_ok() (505-521), dodrink() (526-615).
@@ -266,7 +313,8 @@ async function peffects(otmp, state = game) {
     case POT_GAIN_ENERGY:
         throw new UnsupportedQuaffError('peffect_gain_energy()');
     case POT_OIL:
-        throw new UnsupportedQuaffError('peffect_oil()');
+        await peffect_oil(otmp, state);
+        break;
     case POT_ACID:
         throw new UnsupportedQuaffError('peffect_acid()');
     case POT_POLYMORPH:

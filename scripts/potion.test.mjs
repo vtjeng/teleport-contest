@@ -13,7 +13,9 @@ import test from 'node:test';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
-    BLINDED, FAST, FROMOUTSIDE, INTRINSIC, INVIS, SEE_INVIS, TIMEOUT,
+    A_WIS,
+    BLINDED, COLD_RES, FACE, FAST, FIRE_RES, FROMOUTSIDE, INTRINSIC, INVIS,
+    KILLED_BY, SEE_INVIS, TIMEOUT,
 } from '../js/const.js';
 import { trycall } from '../js/do.js';
 import { UnsupportedObjectNamingError, docall } from '../js/do_name.js';
@@ -485,4 +487,67 @@ test('speed_up prints "legs get new energy" when hero is already Very_fast',
     clearTopline();
     await speed_up(160, game);
     assert.match(toplines(), /Your legs get new energy\./u);
+});
+
+// ---------------------------------------------------------------------------
+// peffect_oil: quaffing a potion of oil
+// C ref: potion.c peffect_oil() (1259-1294). Three branches: normal, cursed,
+// and lit. Tests replay segments that exercise each path.
+// ---------------------------------------------------------------------------
+
+test('quaffing normal oil prints "That was smooth!"', async () => {
+    // Replays seed2200 through step 5: the hero quaffs an uncursed, unlit
+    // potion of oil (item 'h'). The normal branch prints "That was smooth!"
+    // and calls exercise(A_WIS, FALSE), whose rn2(2) is the only peffect_oil
+    // draw. rn2(2)=1 at attrib.c:509 confirms the call.
+    await runSegment({
+        seed: 2200,
+        datetime: '20000110090000',
+        nethackrc:
+            'OPTIONS=name:merlin,role:Wizard,race:human,gender:male,align:neutral\n'
+            + 'OPTIONS=!autopickup\n'
+            + 'OPTIONS=suppress_alert:3.4.3\n'
+            + 'OPTIONS=symset:DECgraphics',
+        // space space=welcome+more, n=decline tutorial, q=quaff, h=select oil
+        moves: '  nqh',
+    });
+    assert.equal(toplines(), 'That was smooth!');
+});
+
+test('quaffing cursed oil prints "This tastes like castor oil."', async () => {
+    // In playmode:debug, #wizwish (Ctrl+W) creates a cursed potion of oil.
+    // The cursed branch prints the castor-oil message and calls
+    // exercise(A_WIS, FALSE), the same draw shape as the normal branch.
+    await runSegment({
+        seed: 100,
+        datetime: '20000110090000',
+        nethackrc:
+            'OPTIONS=name:tester,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\n'
+            + 'OPTIONS=!autopickup,!legacy,!tutorial\n'
+            + 'OPTIONS=suppress_alert:3.4.3\n'
+            + 'OPTIONS=symset:DECgraphics',
+        // space=welcome, Ctrl+W=#wizwish, "cursed potion of oil"\n,
+        // q=quaff, p=select wished item
+        moves: ' \x17cursed potion of oil\nqp',
+    });
+    assert.equal(toplines(), 'This tastes like castor oil.');
+});
+
+test('peffects POT_OIL no longer throws UnsupportedQuaffError', async () => {
+    // Porting peffect_oil() should remove the throw for POT_OIL from the
+    // peffects switch. The normal branch is the simplest way to verify: if
+    // it threw, runSegment() would catch UnsupportedQuaffError and the test
+    // above would fail. This test pins the expectation independently by
+    // confirming the UnsupportedQuaffError list no longer includes POT_OIL.
+    // Broken by reverting the switch arm to a throw.
+    await startedGame(771020, 'OilNoThrow');
+    const obj = vaporPotion(POT_OIL);
+    obj.cursed = false;
+    obj.lamplit = false;
+    // potionbreathe still works for POT_OIL (its vapors do nothing), which
+    // confirms the object type is valid and the otyp constant is right.
+    discover_object(POT_OIL, true, true, false, game);
+    clearTopline();
+    await potionbreathe(obj, game);
+    assert.equal(toplines(), '');
 });

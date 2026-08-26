@@ -895,6 +895,13 @@ export function Fire_resistance(state) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
+// C ref: youprop.h:32 Cold_resistance = (HCold_resistance || ECold_resistance).
+// Exported because peffect_oil() in js/potion.js reads it.
+export function Cold_resistance(state) {
+    const property = state.u?.uprops?.[COLD_RES];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
 function Reflecting(state) {
     const property = state.u?.uprops?.[REFLECTING];
     return Boolean(property?.intrinsic || property?.extrinsic);
