@@ -1,4 +1,3 @@
-import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -14,7 +13,7 @@ import {
 import { readBaseline } from './score-baseline.mjs';
 
 test('the checkpoint surfaces the review gate without gating on it', () => {
-    const gate = checkpointCommands([]).find(
+    const gate = checkpointCommands().find(
         (entry) => entry.label.startsWith('review gate'));
     // Informational: .agents/review.md's gate stops implementation, and the
     // checkpoint only surfaces it, so a red gate must not fail a checkpoint.
@@ -49,7 +48,7 @@ test('the checkpoint surfaces the review gate without gating on it', () => {
 });
 
 test('the checkpoint reports duplicate symbols without gating on them', () => {
-    const index = checkpointCommands([]).find(
+    const index = checkpointCommands().find(
         (entry) => entry.label.startsWith('duplicate symbols'));
     // Informational: a second definition is sometimes a module-private helper
     // that genuinely differs, so a duplicate must not fail a checkpoint.
@@ -82,104 +81,30 @@ test('the checkpoint reports duplicate symbols without gating on them', () => {
     );
 });
 
-test('checkpoint runs focused, full, generated, static, and score', () => {
-        const commands = checkpointCommands([
-            'scripts/dogmove.test.mjs',
-            'scripts/monmove.test.mjs',
-        ]);
+test('checkpoint runs full, generated, static, and score', () => {
+    const commands = checkpointCommands();
 
-        assert.deepEqual(
-            commands.map(({ label }) => label),
-            [
-                'focused tests',
-                'full test suite',
-                'generated data (check:colors)',
-                'generated data (check:config-statements)',
-                'generated data (check:extcmds)',
-                'generated data (check:glyph-offsets)',
-                'generated data (check:monsters)',
-                'generated data (check:objects)',
-                'generated data (check:options)',
-                'generated data (check:shtypes)',
-                'generated data (check:symbols)',
-                'generated data (check:themerooms)',
-                'static sources (check:namespace-members)',
-                'static sources (check:relative-imports)',
-                'static sources (check:fixed-datetime)',
-                'duplicate symbols (check:duplicate-symbols)',
-                'review gate',
-                'development score',
-            ],
-        );
-        assert.deepEqual(commands[0].args, [
-            '--test',
-            'scripts/dogmove.test.mjs',
-            'scripts/monmove.test.mjs',
-        ]);
-    });
-
-test('the focused run this Node builds actually runs its tests', () => {
-    // Pinning an argument list proves nothing about whether Node will take it:
-    // --focus shipped for weeks passing `--test-isolation=none`, which Node 22
-    // rejects with `node: bad option` before starting a test process, and the
-    // assertion above passed throughout because it compared the broken string
-    // with itself. Only running the command tells an accepted option from a
-    // rejected one, so this spawns it over one small file -- 23 tests, about a
-    // third of a second -- and demands the tests it reports.
-    const focused = checkpointCommands(['scripts/dogmove-goal.test.mjs'])
-        .find(({ label }) => label === 'focused tests');
-    // Node sets NODE_TEST_CONTEXT for a test file's own process, and a runner
-    // that inherits it reports to its parent over the nested-runner protocol
-    // instead of writing TAP, which leaves stdout empty here. The checkpoint
-    // spawns this command from an ordinary process, so drop the variable.
-    const environment = { ...process.env };
-    delete environment.NODE_TEST_CONTEXT;
-    const probe = spawnSync(focused.command, focused.args, {
-        encoding: 'utf8',
-        env: environment,
-    });
-
-    assert.equal(probe.status, 0,
-        `${process.version} rejected ${focused.args.join(' ')}: `
-            + `${probe.stderr}`);
-    assert.match(probe.stdout, /^# fail 0$/mu);
-});
-
-test('the focused run isolates test files the way the full suite does', () => {
-    // The two commands must agree on a verdict, so they must agree on
-    // isolation. Under one shared process the whole suite reports 2,379 of
-    // 2,380: state that one file freezes or installs globally outlives it.
-    // `npm test` takes Node's default, one process per file, so the focused
-    // run passes no isolation flag either.
-    const [focused, full] = checkpointCommands(['scripts/dogmove.test.mjs']);
-
-    assert.deepEqual(full.args, ['test']);
-    assert.equal(
-        focused.args.some((argument) => argument.includes('isolation')),
-        false,
-    );
-});
-
-test('checkpoint options collect focus files and can skip scoring', () => {
-    const options = parseCheckpointArgs([
-        '--focus',
-        'scripts/dogmove.test.mjs',
-        '--focus',
-        'scripts/monmove.test.mjs',
-        '--skip-score',
-    ]);
-
-    assert.deepEqual(options, {
-        focusedTests: [
-            'scripts/dogmove.test.mjs',
-            'scripts/monmove.test.mjs',
+    assert.deepEqual(
+        commands.map(({ label }) => label),
+        [
+            'full test suite',
+            'generated data (check:colors)',
+            'generated data (check:config-statements)',
+            'generated data (check:extcmds)',
+            'generated data (check:glyph-offsets)',
+            'generated data (check:monsters)',
+            'generated data (check:objects)',
+            'generated data (check:options)',
+            'generated data (check:shtypes)',
+            'generated data (check:symbols)',
+            'generated data (check:themerooms)',
+            'static sources (check:namespace-members)',
+            'static sources (check:relative-imports)',
+            'static sources (check:fixed-datetime)',
+            'duplicate symbols (check:duplicate-symbols)',
+            'review gate',
+            'development score',
         ],
-        includeScore: false,
-    });
-    assert.equal(
-        checkpointCommands(options.focusedTests, options)
-            .some(({ label }) => label === 'development score'),
-        false,
     );
 });
 
@@ -403,11 +328,7 @@ test('a summarize verdict decides a check the command called green', () => {
     assert.equal(output.at(-1), 'FAIL  full test suite');
 });
 
-test('checkpoint parser rejects missing or unknown options', () => {
-    assert.throws(
-        () => parseCheckpointArgs(['--focus']),
-        /--focus requires a test path/,
-    );
+test('checkpoint parser rejects unknown options', () => {
     assert.throws(
         () => parseCheckpointArgs(['--wat']),
         /unknown checkpoint option/,

@@ -25,28 +25,8 @@ const GENERATED_CHECKS = [
     'check:themerooms',
 ];
 
-export function checkpointCommands(focusedTests = [], {
-    includeScore = true,
-} = {}) {
+export function checkpointCommands() {
     const commands = [];
-    if (focusedTests.length) {
-        commands.push({
-            label: 'focused tests',
-            command: process.execPath,
-            // No isolation flag: the focused run uses Node's default, one
-            // process per file, which is what `npm test` below uses too. A
-            // focused run whose verdict disagrees with the full suite is worse
-            // than a slow one, and `--experimental-test-isolation=none` buys
-            // that disagreement -- the whole suite in one shared process
-            // reports 2,379 of 2,380 where per-file isolation reports 2,380,
-            // because state one file freezes or installs globally outlives it.
-            // The flag was also spelled `--test-isolation=none` until db386f6,
-            // which Node 22 -- the floor in package.json's engines and the
-            // version .github/workflows/score.yml pins -- rejects outright with
-            // `node: bad option`, so --focus started no test process at all.
-            args: ['--test', ...focusedTests],
-        });
-    }
     commands.push({
         label: 'full test suite',
         command: 'npm',
@@ -109,38 +89,23 @@ export function checkpointCommands(focusedTests = [], {
         informational: true,
         summarize: summarizeReviewGate,
     });
-    if (includeScore) {
-        commands.push({
-            label: 'development score',
-            command: process.execPath,
-            args: ['scripts/score-development.mjs'],
-            capture: true,
-            summarize: (result) => ({
-                body: summarizeDevelopmentScore(result.stdout),
-                ...compareScoreToBaseline(result.stdout),
-            }),
-        });
-    }
+    commands.push({
+        label: 'development score',
+        command: process.execPath,
+        args: ['scripts/score-development.mjs'],
+        capture: true,
+        summarize: (result) => ({
+            body: summarizeDevelopmentScore(result.stdout),
+            ...compareScoreToBaseline(result.stdout),
+        }),
+    });
     return commands;
 }
 
 export function parseCheckpointArgs(args) {
-    const focusedTests = [];
-    let includeScore = true;
-    for (let index = 0; index < args.length; ++index) {
-        const arg = args[index];
-        if (arg === '--focus') {
-            const testPath = args[++index];
-            if (!testPath)
-                throw new Error('--focus requires a test path');
-            focusedTests.push(testPath);
-        } else if (arg === '--skip-score') {
-            includeScore = false;
-        } else {
-            throw new Error(`unknown checkpoint option: ${arg}`);
-        }
+    for (const arg of args) {
+        throw new Error(`unknown checkpoint option: ${arg}`);
     }
-    return { focusedTests, includeScore };
 }
 
 export function runCheckpointChecks(commands, {
@@ -305,30 +270,29 @@ export function summarizeDevelopmentScore(stdout) {
 const SUMMARY_PATH = new URL('../.cache/checkpoint-summary.json',
     import.meta.url);
 
-export function writeCheckpointSummary(results, { includeScore }) {
+export function writeCheckpointSummary(results) {
     const commit = spawnSync('git', ['rev-parse', 'HEAD'],
         { encoding: 'utf8' }).stdout.trim();
     const testEntry = results.find(({ label }) => label === 'full test suite');
+    const scoreEntry = results.find(
+        ({ label }) => label === 'development score');
     const summary = {
         commit,
         timestamp: new Date().toISOString(),
         allPassed: results.every(({ passed, informational, skipped }) =>
             passed || informational || skipped),
         tests: { passed: testEntry?.passed ?? false },
-    };
-    if (includeScore) {
-        const scoreEntry = results.find(
-            ({ label }) => label === 'development score');
-        summary.score = scoreEntry?.stdout
+        score: scoreEntry?.stdout
             ? developmentTotals(scoreEntry.stdout)
-            : null;
-    }
+            : null,
+    };
     const dest = fileURLToPath(SUMMARY_PATH);
     mkdirSync(dirname(dest), { recursive: true });
     writeFileSync(dest, JSON.stringify(summary, null, 2) + '\n');
 }
 
 function main(args) {
+    parseCheckpointArgs(args);
     const status = spawnSync('git', ['status', '--porcelain'],
         { encoding: 'utf8' }).stdout.trim();
     if (status) {
@@ -337,10 +301,9 @@ function main(args) {
             + ' Commit before running checkpoint.');
         process.exit(1);
     }
-    const options = parseCheckpointArgs(args);
-    const commands = checkpointCommands(options.focusedTests, options);
+    const commands = checkpointCommands();
     const { allPassed, results } = runCheckpointChecks(commands);
-    writeCheckpointSummary(results, options);
+    writeCheckpointSummary(results);
     if (!allPassed) process.exitCode = 1;
 }
 
