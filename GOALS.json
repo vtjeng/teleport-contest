@@ -4401,8 +4401,8 @@
       "slices": [
         {
           "name": "garlic-breath-iter-mons",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "7a0aa509d0d9a406a4150a939ca4139521b76b70"
         }
       ],
       "openedAt": "8e0404f283e8541dc8ace5775813668a532b0891",

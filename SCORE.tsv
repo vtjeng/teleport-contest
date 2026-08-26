@@ -373,3 +373,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-26	a7c26f9	goal	12	33	2228	7765	152536	610816	2257	7765	228	3640	32830	182022	simple-monster-special-movement closes. Development 2220->2228 screens (+8), 152383->152536 rng (+153). Holdout unchanged at 228/3640 screens, 32830/182022 rng, 1 replay error (from prior can-teleport widenings).
 2026-08-26	b970853e	slice	12	33	2235	7765	152712	610816	2265	7765					doup-level-save-restore closes. Development 2228→2235 of 7765 screens, 152536→152712 of 610816 rng. 12 of 33 sessions.
 2026-08-26	0c49e93	goal	12	33	2235	7765	152712	610816	2265	7765	228	3640	32830	182022	up-command closes. Development 2235 of 7765 screens, 152712 of 610816 rng. 12 of 33 sessions. Holdout 228/3640 screens, 32830/182022 rng.
+2026-08-26	7a0aa509	slice	12	33	2235	7765	152712	610816	2265	7765					garlic-breath-iter-mons closes. Development 2235 of 7765 screens, 152712 of 610816 rng. 12 of 33 sessions.
