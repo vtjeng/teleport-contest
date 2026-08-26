@@ -4591,6 +4591,43 @@
         "screens": 2,
         "rng": 10
       }
+    },
+    {
+      "id": "select-off-glove-checks",
+      "status": "open",
+      "boundary": "The hero types T (takeoff) and select_off() in do_wear.c encounters the unported glove-check branch at the W_ARMG slot.",
+      "upstreamOwners": [
+        "do_wear.c"
+      ],
+      "forecast": {
+        "steps": 4,
+        "basis": "Capped look-ahead: seed5006 cappedStretch=4 (cap-stable).",
+        "sessions": [
+          "seed5006-tourist-stress-disaster"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5006-tourist-stress-disaster",
+            "evidence": "Step 117: hero types T then m (takeoff via reqmenu). select_off() encounters uarmg (cursed leather gloves) and the W_ARMG slot check fails. C prints You cant. They are cursed."
+          }
+        ]
+      },
+      "detail": "select_off() in do_wear.c has glove-specific checks for W_ARMG at lines 2729-2743: welded(uwep), Glib, better_not_take_that_off(otmp). All pass in seed5006, cursed() catches the gloves.",
+      "slices": [
+        {
+          "name": "glove-check-branch",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "80b26139510b125533fabae649080a2aaf81939f",
+      "openStanding": {
+        "sha": "e0319ac",
+        "screens": 2325,
+        "rng": 155664
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
