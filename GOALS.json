@@ -4441,8 +4441,8 @@
       "slices": [
         {
           "name": "mconf-mstun-recovery",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "fd7b1e520d9e9c241f626b706e7a33f26a85fe38"
         }
       ],
       "openedAt": "66ea45cd123510ebe75c75f5b928e7dec96550d1",
