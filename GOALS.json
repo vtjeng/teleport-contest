@@ -4594,7 +4594,7 @@
     },
     {
       "id": "select-off-glove-checks",
-      "status": "open",
+      "status": "closed",
       "boundary": "The hero types T (takeoff) and select_off() in do_wear.c encounters the unported glove-check branch at the W_ARMG slot.",
       "upstreamOwners": [
         "do_wear.c"
@@ -4626,8 +4626,11 @@
         "screens": 2325,
         "rng": 155664
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "cae882b207fff02098a1a721a67fc8e1038d7090",
+      "delivered": {
+        "screens": 4,
+        "rng": 0
+      }
     }
   ]
 }
