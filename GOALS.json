@@ -4093,7 +4093,7 @@
     },
     {
       "id": "save-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "The hero types S (save), dispatching save.c dosave(). dosave() prompts 'Really save?', calls dosave0() to serialize game state to storage, prints 'Be seeing you...', and exits the segment. A subsequent segment restores the saved state through restore.c dorestore()/restgamestate(), and allmain.c welcome(FALSE) produces the welcome-back greeting.",
       "upstreamOwners": [],
       "forecast": {
@@ -4128,8 +4128,11 @@
         "screens": 2197,
         "rng": 151979
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "c68c7470d41d057e87bab32a34c93127cec5b492",
+      "delivered": {
+        "screens": 4,
+        "rng": 1
+      }
     }
   ]
 }
