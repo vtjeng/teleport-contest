@@ -4551,6 +4551,37 @@
         "screens": 1,
         "rng": 0
       }
+    },
+    {
+      "id": "quaff-peffect-oil",
+      "status": "open",
+      "boundary": "peffects() in potion.c dispatches POT_OIL to peffect_oil(). The JS port peffects() switch at js/potion.js:269 throws UnsupportedQuaffError for this case. The goal closes when quaffing a potion of oil runs to completion through dopotion() tail with matching screens and RNG calls.",
+      "upstreamOwners": [
+        "potion.c"
+      ],
+      "forecast": {
+        "steps": 4,
+        "basis": "Capped look-ahead: seed2200 cappedStretch=4. All 4 ahead steps are from ported behaviors (quaff oil effect, zap command, detection result).",
+        "sessions": [
+          "seed2200-wizard-quaff-zap-read"
+        ],
+        "witnesses": [
+          {
+            "session": "seed2200-wizard-quaff-zap-read",
+            "evidence": "Step 5: hero types h answering What do you want to drink prompt, selecting a non-cursed non-lit potion of oil. C dispatches to potion.c peffects():POT_OIL -> peffect_oil() at line 1259. Normal branch: pline(That was smooth!) at line 1291, exercise(A_WIS, FALSE). Port throws UnsupportedQuaffError at js/potion.js:269."
+          }
+        ]
+      },
+      "detail": "peffect_oil() (potion.c:1259-1294, 35 lines): POT_OIL case. Three branches: (1) lamplit lit oil, (2) cursed castor oil, (3) normal smooth. All major helpers already ported. One gap: Cold_resistance needs a one-line boolean check.",
+      "slices": [],
+      "openedAt": "3903314f9ce9c83011cfbd453abb8e77348b6cdf",
+      "openStanding": {
+        "sha": "6030326",
+        "screens": 2323,
+        "rng": 155654
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
