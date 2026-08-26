@@ -4184,7 +4184,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "armor-on-dsm-default-break",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "f725a5adc0420a1b8ee5e5c4a421664ae538f630",
       "openStanding": {
         "sha": "56a5570",
