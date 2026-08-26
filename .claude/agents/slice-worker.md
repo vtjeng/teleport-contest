@@ -80,19 +80,18 @@ the C you port yourself.
 Pass every restriction in this document to each subagent you spawn, including
 the ban on `scripts/score-holdout.mjs` and `sessions/holdout/`.
 
-## When the slice is done
+## Completion conditions
 
 - The ported code has a real caller that executes in the running game, per
   "Complete common gameplay first" in `AGENTS.md`.
 - A fresh case recorded with the C reference program and replayed with the port
   matches from the chosen starting point through the chosen result.
-- `npm run checkpoint` passes: every test passes and no session's development
-  score regressed.
-- The work is committed, the working tree is clean, and the commits are
-  pushed.
+- The work is committed, `npm run checkpoint` passes on the committed state,
+  and the commits are pushed.
 
-If you cannot reach that state, do not commit; report what blocked you. The
-next iteration then starts from a clean tree.
+Commit before running checkpoint so the summary describes the committed
+state. If checkpoint fails, fix and commit again. If you cannot reach a
+passing checkpoint, report what blocked you without pushing.
 
 ## What to report
 

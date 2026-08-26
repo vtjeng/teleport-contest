@@ -5788,6 +5788,25 @@ function count_apes(state) {
     return numapes;
 }
 
+// C ref: options.c dotogglepickup() (9256-9274), the '@' command.
+// Flips flags.pickup and prints "Autopickup: ON/OFF." with detail.
+export async function dotogglepickup(state) {
+    state.flags.pickup = !state.flags.pickup;
+    let buf;
+    if (state.flags.pickup) {
+        const ocl = oc_to_str(state.flags.pickup_types);
+        buf = `ON, for ${ocl.length ? ocl : 'all'} objects`
+            + (state.ga?.apelist
+                ? (count_apes(state) === 1
+                    ? ', with one exception'
+                    : ', with some exceptions')
+                : '');
+    } else {
+        buf = 'OFF';
+    }
+    await ttyPline(`Autopickup: ${buf}.`, state);
+}
+
 // A configuration statement cfgfiles.c dispatches and parseNethackrc() only
 // records.  The list each one appends to is the list a count below walks, so
 // the count stops here rather than reporting the empty list as the session's.

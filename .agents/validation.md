@@ -11,15 +11,11 @@ review window are defined in `.agents/workflow.md`.
 - Diagnose mismatches from the upstream C source, focused development
   recordings, and the full set of development recordings, never from the
   sealed holdout.
-- For each coherent implementation chunk, inspect the diff and run focused
-  tests plus the full test suite before committing.
-  `npm run checkpoint -- --focus <test-file>` runs focused tests, the full
-  test suite, the eight generated-data checks, the static-source checks, the
-  duplicate-symbol report, and the development score in one command. Repeat
-  `--focus` to add more test files. `--skip-score` omits the development
-  score; use it for intermediate chunks within a slice, where the test suite
-  catches regressions and the score adds ~20 seconds without changing the
-  commit decision. Run the score on the final chunk before closing the slice.
+- Before committing, run focused tests and the full test suite with
+  `npm test` or `node --test <file>` to catch regressions.
+- After committing, run `npm run checkpoint` on the committed state.
+  Checkpoint requires a clean tree and writes
+  `.cache/checkpoint-summary.json` with the commit SHA and results.
 - `npm run test:all` runs all registered test suites, including those excluded
   from the default `npm test`.
 - Redirect every checkpoint run to a log and read only its tail:

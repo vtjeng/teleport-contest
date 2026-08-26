@@ -101,7 +101,7 @@ import {
 import { doattributes, UnsupportedEnlightenmentError } from './insight.js';
 import { dodiscovered, UnsupportedDiscoveryDisplayError } from './o_init.js';
 import { UnsupportedObjectNameError } from './objnam.js';
-import { doset_simple, UnsupportedOptionMenuError } from './options.js';
+import { doset_simple, dotogglepickup, UnsupportedOptionMenuError } from './options.js';
 import { dopray, UnsupportedPrayerError } from './pray.js';
 import { UnsupportedHideError } from './mon.js';
 import { dosave } from './save.js';
@@ -994,8 +994,9 @@ export async function parseCommand(state = game) {
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'apply', 'close', 'down', 'up', 'drop', 'pickup', 'takeoff', 'wear',
-    'puton', 'zap', 'reqmenu', 'fight', 'options', 'wizwish', 'wizlevelport',
-    'wizgenesis', 'fire', 'throw', 'swap', 'kick', 'save', 'wield', '#',
+    'puton', 'zap', 'reqmenu', 'fight', 'options', 'autopickup', 'wizwish',
+    'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick', 'save',
+    'wield', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -2647,6 +2648,17 @@ export async function rhack(key, state = game) {
             // divert it: extcmdlist[]'s "options" row carries IFBURIED,
             // GENERALCMD and CMD_M_PREFIX and no movement flag.
             await runOptionsCommand(key, state);
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'autopickup') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818.
+            // dotogglepickup() ends `return ECMD_OK` (options.c:9273), so
+            // only reset_cmd_vars() runs. The MOVEMENTCMD and
+            // domove_attempting tests at 3773-3800 cannot divert it:
+            // extcmdlist[]'s "autopickup" row (cmd.c:1681) carries IFBURIED
+            // and GENERALCMD and no movement flag.
+            await dotogglepickup(state);
             resetCommandVars(state, state.multi < 0);
             return;
         }

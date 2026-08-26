@@ -329,6 +329,14 @@ export function writeCheckpointSummary(results, { includeScore }) {
 }
 
 function main(args) {
+    const status = spawnSync('git', ['status', '--porcelain'],
+        { encoding: 'utf8' }).stdout.trim();
+    if (status) {
+        console.error(
+            'npm run checkpoint: working tree is not clean.'
+            + ' Commit before running checkpoint.');
+        process.exit(1);
+    }
     const options = parseCheckpointArgs(args);
     const commands = checkpointCommands(options.focusedTests, options);
     const { allPassed, results } = runCheckpointChecks(commands);

@@ -49,12 +49,11 @@ The orchestrator repeats without returning to the user between steps:
    queue it with `node scripts/goal-log.mjs queue-slice`.
 3. Spawn a worker for that slice. When it returns, establish what landed:
    `git log --oneline` and `git status --short` for the commits and tree.
-   The worker's `npm run checkpoint` writes `.cache/checkpoint-summary.json`
-   with the commit SHA, test verdict, and development score. Read that file
-   and verify its `commit` matches `git rev-parse HEAD`; if it matches, use
-   its figures instead of re-running `npm run checkpoint`. If it does not
-   match (the worker did not commit, or another agent committed after it),
-   run `npm run checkpoint` yourself. Add `git log --oneline
+   The worker runs `npm run checkpoint` after committing, so
+   `.cache/checkpoint-summary.json` describes the committed state. Read
+   that file and use its figures. Re-run checkpoint only if the file is
+   missing or its `commit` does not match `git rev-parse HEAD` (another
+   agent committed after the worker). Add `git log --oneline
    origin/main..HEAD` for unpushed commits. Push whatever the worker left
    behind and every commit you landed, then watch the CI run from a
    background task as `.agents/workflow.md`, "Pushing and CI", states.
