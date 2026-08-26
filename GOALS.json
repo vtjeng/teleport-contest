@@ -4714,7 +4714,7 @@
     },
     {
       "id": "special-room-temple",
-      "status": "open",
+      "status": "closed",
       "boundary": "During level generation, makelevel() calls do_mkroom(TEMPLE) to populate a room with an altar attended by a priest. The port refuses at the special-room dispatch for room type 10 (TEMPLE, mkroom.h:62).",
       "upstreamOwners": [
         "mkroom.c"
@@ -4736,8 +4736,8 @@
       "slices": [
         {
           "name": "temple-room-generation",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "9d666cc545688128f12e3a02d743c60847cc0241"
         }
       ],
       "openedAt": "8aab48d34b2132807bfa7b85271de8f64e654255",
@@ -4746,8 +4746,11 @@
         "screens": 2365,
         "rng": 155729
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "9d666cc545688128f12e3a02d743c60847cc0241",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
