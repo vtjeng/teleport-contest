@@ -369,3 +369,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-26	0991191	slice	12	33	2215	7765	152329	610816	2244	7765					dart-trap-hero-arm closes. Development 2211->2215 of 7765 screens, 152253->152329 of 610816 rng. 12 of 33 sessions.
 2026-08-26	3da3578	slice	12	33	2220	7765	152383	610816	2249	7765					magic-trap-hero-arm closes. Development 2215->2220 of 7765 screens, 152329->152383 of 610816 rng. 12 of 33 sessions.
 2026-08-26	cc8c823	goal	12	33	2220	7765	152383	610816	2249	7765	228	3640	32830	182022	trap-dart-and-magic closes. Development 2211->2220 screens (+9), 152253->152383 rng (+130). Holdout REGRESSED 274->228 screens (-46), 36562->32830 rng (-3732), 1 replay error. Bug in newly-ported code affecting holdout sessions.
+2026-08-26	5cff4b5	slice	12	33	2228	7765	152536	610816	2257	7765					shopkeeper-stationary closes. Development 2220->2228 of 7765 screens, 152383->152536 of 610816 rng. 12 of 33 sessions.
