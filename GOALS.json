@@ -4671,6 +4671,43 @@
         "screens": 4,
         "rng": 77
       }
+    },
+    {
+      "id": "blindf-off",
+      "status": "open",
+      "boundary": "The hero takes off a blindfold or lenses. armoroff_or_accessory_off() at do_wear.c:1807-1827 dispatches to Blindf_off(obj) when obj == ublindf; the JS port throws UnsupportedTakeOffError at do_wear.js:2449.",
+      "upstreamOwners": [
+        "do_wear.c"
+      ],
+      "forecast": {
+        "steps": 32,
+        "basis": "Capped look-ahead: seed5006 cappedStretch=32. Cap at step 33 where peffect_confusion() fires on quaffing a cursed potion of confusion.",
+        "sessions": [
+          "seed5006-tourist-stress-disaster"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5006-tourist-stress-disaster",
+            "evidence": "Step 125: hero types o answering the takeoff prompt, selecting the worn blindfold. dotakeoff() -> armoroff_or_accessory_off(). obj->owornmask is W_TOOL (not W_ARMOR), obj == ublindf at do_wear.c:1820. C calls Blindf_off(obj). The !Blind && was_blind branch at line 1525 fires: gulp_blnd_check() returns false, You can see again, toggle_blindness()."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "blindf-off-dispatch",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "2ba15bed022a4a593893adc09f2d00bef438da55",
+      "openStanding": {
+        "sha": "db271cd",
+        "screens": 2333,
+        "rng": 155741
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
