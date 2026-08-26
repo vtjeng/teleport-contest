@@ -6,7 +6,7 @@ import {
     ROOMOFFSET,
     SHOPBASE,
 } from '../js/const.js';
-import { shk_move, inhishop, UnsupportedShopError } from '../js/shk.js';
+import { shk_move, UnsupportedShopError } from '../js/shk.js';
 import { m_move } from '../js/monmove.js';
 
 // A shopkeeper at its guard position in a shop it owns, with no bill,

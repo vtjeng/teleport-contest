@@ -4,24 +4,18 @@ import test from 'node:test';
 import {
     A_CON,
     A_STR,
-    BLINDED,
     DART_TRAP,
-    HALF_PHDAM,
     KILLED_BY_AN,
     POISON_RES,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { losehp } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { thitu } from '../js/mthrowu.js';
 import { DART, WEAPON_CLASS } from '../js/objects.js';
 import { rn2, rnd } from '../js/rng.js';
 import { t_at } from '../js/trap.js';
-import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
-    dotrap,
     preflight_dotrap,
-    wearing_iron_shoes,
 } from '../js/trap_effects.js';
 
 // Seed 4 with the same datetime as the witness session seed0004-feeding-pony.

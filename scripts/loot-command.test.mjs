@@ -6,7 +6,6 @@ import { SELL_NORMAL } from '../js/const.js';
 import {
     container_at,
     doloot,
-    UnsupportedPickupError,
 } from '../js/pickup.js';
 import { isContainer } from '../js/obj.js';
 import { game } from '../js/gstate.js';

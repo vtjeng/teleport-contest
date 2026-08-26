@@ -9,7 +9,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { A_CHAOTIC, A_CURRENT, A_ORIGINAL } from '../js/const.js';
+import { A_CHAOTIC } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { dorestore } from '../js/restore.js';

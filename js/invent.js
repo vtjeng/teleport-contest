@@ -140,7 +140,6 @@ import {
     LEASH,
     LOADSTONE,
     LUCKSTONE,
-    MINERAL,
     PIERCE,
     POT_OIL,
     ROCK,

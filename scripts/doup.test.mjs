@@ -10,11 +10,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    DIR_UP,
     ECMD_OK,
-    ECMD_TIME,
     LFILE_EXISTS,
-    STAIRS,
     TT_PIT,
 } from '../js/const.js';
 import { UnsupportedLevelChangeError, doup } from '../js/do.js';

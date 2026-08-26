@@ -18,7 +18,6 @@ import {
 import {
     FOOD_CLASS,
     RING_CLASS,
-    WEAPON_CLASS,
 } from '../js/objects.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { optionsMenuRecipe } from './run-options-menu.mjs';

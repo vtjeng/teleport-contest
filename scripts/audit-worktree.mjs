@@ -16,7 +16,6 @@ import {
     basename,
     dirname,
     join,
-    relative,
     resolve,
 } from 'node:path';
 import { fileURLToPath } from 'node:url';

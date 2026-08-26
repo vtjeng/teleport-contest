@@ -19,7 +19,6 @@ import {
     OBJ_MINVENT,
     PL_NSIZ,
     ROOMOFFSET,
-    SELL_NORMAL,
     SHOPBASE,
 } from './const.js';
 import { effective_attribute } from './attrib.js';

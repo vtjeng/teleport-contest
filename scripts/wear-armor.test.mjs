@@ -33,7 +33,6 @@ import {
     W_ARMS,
     W_ARMU,
     W_AMUL,
-    W_RING,
     W_RINGL,
     W_RINGR,
     W_SWAPWEP,

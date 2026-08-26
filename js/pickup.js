@@ -64,7 +64,6 @@ import {
     check_capacity,
     inv_cnt,
     inv_weight,
-    losehp,
     near_capacity,
     nomul,
     weight_cap,
@@ -94,7 +93,6 @@ import {
     safe_qbuf, the, The, xnameFresh, yname, ysimple_name,
 } from './objnam.js';
 import { body_part } from './polyself.js';
-import { rn2, rnd } from './rng.js';
 import { costly_spot, sellobj_state } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { menuTitleStyle } from './tty_menu.js';

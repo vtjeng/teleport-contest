@@ -7,18 +7,12 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    ALTAR,
-    AM_SHRINE,
-    Amask2align,
     OROOM,
     ROOM,
-    ROOMOFFSET,
-    TEMPLE,
-    W_ARMC,
 } from '../js/const.js';
 import { runSegment } from '../js/jsmain.js';
 import { GameMap } from '../js/game.js';
-import { game, resetGame } from '../js/gstate.js';
+import { resetGame } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
 import { PM_HUMAN } from '../js/monsters.js';
 import { monst_globals_init, reset_mvitals } from '../js/monsters.js';

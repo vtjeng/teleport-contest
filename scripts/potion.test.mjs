@@ -13,9 +13,7 @@ import test from 'node:test';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
-    A_WIS,
-    BLINDED, COLD_RES, FACE, FAST, FIRE_RES, FROMOUTSIDE, INTRINSIC, INVIS,
-    KILLED_BY, SEE_INVIS, TIMEOUT,
+    BLINDED, FAST, FROMOUTSIDE, INVIS, SEE_INVIS, TIMEOUT,
 } from '../js/const.js';
 import { trycall } from '../js/do.js';
 import { UnsupportedObjectNamingError, docall } from '../js/do_name.js';

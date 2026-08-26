@@ -7,14 +7,12 @@ import {
     MAGIC_TRAP,
     SPINE,
     Trap_Effect_Finished,
-    Upolyd,
     In_quest,
 } from '../js/const.js';
 import { at_dgn_entrance, on_level } from '../js/dungeon.js';
 import { game } from '../js/gstate.js';
 import { UnsupportedHeroMoveBoundaryError } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
-import { is_neuter } from '../js/mondata.js';
 import { body_part } from '../js/polyself.js';
 import {
     preflight_dotrap,
