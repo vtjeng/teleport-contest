@@ -19249,6 +19249,154 @@
         "deferrals": []
       },
       "recordedAt": "2026-08-25T16:38:45.594Z"
+    },
+    {
+      "kind": "review",
+      "head": "cf2d1ac36d887519f5d17d6765b152b7e3d98eb8",
+      "auditedRange": "d91521d10dbe8bdb47229a576da4c52248459e72..cf2d1ac36d887519f5d17d6765b152b7e3d98eb8",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 23 raw, 21 deduplicated, 11 confirmed, 8 applied, 3 deferred, 10 rejected, 0 unverified. correctness review (full mode): 23 raw, 21 deduped, 11 confirmed, 8 applied (756e895), 3 deferred.",
+      "auditMetrics": {
+        "mode": "full",
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace",
+          "performance"
+        ],
+        "counts": {
+          "raw": 23,
+          "deduplicated": 21,
+          "confirmed": 11,
+          "applied": 8,
+          "deferred": 3,
+          "rejected": 10,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 6,
+          "tests": 5,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "container_contents uses doname_with_price on OBJ_CONTAINED objects, which crashes in assertPricedObjectNameable",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "Dead variables emptymsg and result_obj in use_container are never read after assignment",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "doloot_core sentinel c uses -1 (number) then gets compared with null via ===, mixing types",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "loot_classify does not handle TOOL_CLASS instrument subclass (js/invent.js:410)",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "loot_xname omits field suppressions for certain object states (js/invent.js:458)",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "doloot_core_lootmon does not redirect when multiple containers are present (js/pickup.js:1342)",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "Strangulation timer set to magic number 6 without explanatory comment",
+            "counterEvidence": "C source at do_wear.c:1040 uses the same magic number Strangled=6L without comment. The JS faithfully mirrors the C idiom. This is a readability finding, not a correctness defect."
+          },
+          {
+            "summary": "sellobj_state uses raw literal 0 instead of named constant SELL_NORMAL",
+            "counterEvidence": "SELL_NORMAL is defined as 0 in both C (hack.h:72) and JS (const.js:1530). The expressions deliberate!==0 and deliberate!==SELL_NORMAL are semantically identical for every possible input."
+          },
+          {
+            "summary": "use_container ignores MENU_PARTIAL and MENU_FULL menu_style flags",
+            "counterEvidence": "Known scope limitation: the JS code explicitly throws UnsupportedPickupError for unported menu paths. The TRADITIONAL/COMBINATION path handles the development sessions."
+          },
+          {
+            "summary": "serializeIflags strips only window_inited but comment says display handles plural",
+            "counterEvidence": "restore.js:78-80 documents the merge; functions are separately stripped by safeStringify's replacer. The comment accurately describes the combined behavior of both stripping mechanisms."
+          },
+          {
+            "summary": "Variable c in use_container changes type from number to string via c=ch",
+            "counterEvidence": "Type change is documented in code comments and is structurally safe: the for(;;) loop has exactly three exit paths, all of which handle c correctly regardless of type."
+          },
+          {
+            "summary": "safeStringify global WeakSet cycle detector corrupts level grids",
+            "counterEvidence": "WeakSet tracks visited objects for cycle detection but does not modify them. The replacer function returns existing values or '[Circular]' strings; it never mutates the input object graph."
+          },
+          {
+            "summary": "Terminal-grid assertions in restore test are guarded by if(grid) and could skip silently",
+            "counterEvidence": "Grid IS present: save-command.test.mjs:92-93 accesses game.nhDisplay.terminal.grid without a guard and succeeds in the same test environment. The guarded assertions DO execute."
+          },
+          {
+            "summary": "Friday-13th luck-undo test pins to session-specific value instead of isolating the undo",
+            "counterEvidence": "Test is fully deterministic: seed 13, fixed datetime, fixed input sequence. The comment traces the derivation: starting luck 0, Friday-13th change_luck(-1), dosave0 undo change_luck(+1). No other luck event in this replay."
+          },
+          {
+            "summary": "doloot_core sentinel c initialized to -1 matches C but JavaScript === comparison differs",
+            "counterEvidence": "C source pickup.c:2181 also initializes c as int -1. The comparisons c!='y' and c!='n' produce the same boolean results in both C (int comparison) and JavaScript (strict equality with different types)."
+          },
+          {
+            "summary": "GUARDING test uses inequality assertion rather than pinning exact AC bonus magnitude",
+            "counterEvidence": "The test exercises the Amulet_on code path and verifies the direction of AC change. The exact magnitude comes from the objects table (a_ac=2), which was already ported. A wrong magnitude would also fail the differential score."
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "loot_classify does not handle TOOL_CLASS instrument subclass (js/invent.js:410)",
+            "trackedIn": "loot-classify-instrument",
+            "category": "production"
+          },
+          {
+            "summary": "loot_xname omits field suppressions for certain object states (js/invent.js:458)",
+            "trackedIn": "loot-xname-suppressions",
+            "category": "production"
+          },
+          {
+            "summary": "doloot_core_lootmon does not redirect when multiple containers are present (js/pickup.js:1342)",
+            "trackedIn": "doloot-core-lootmon-redirect",
+            "category": "production"
+          }
+        ],
+        "wallTimeSeconds": 600
+      },
+      "recordedAt": "2026-08-26T02:15:07.596Z"
     }
   ]
 }
