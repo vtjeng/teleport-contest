@@ -4270,7 +4270,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "dart-trap-hero-arm",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "a088ee607e1fa14bd0c816a16cdd57af919ad169",
       "openStanding": {
         "sha": "231b412",
