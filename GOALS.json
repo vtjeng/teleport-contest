@@ -4336,7 +4336,7 @@
     },
     {
       "id": "up-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "The hero types < (up), dispatching do.c doup(). The port has no handler for doup. doup() (do.c:1298-1344) checks preconditions and calls dungeon.c prev_level(TRUE) (dungeon.c:1518-1543) to transition up one level via goto_level().",
       "upstreamOwners": [
         "do.c",
@@ -4371,8 +4371,11 @@
         "screens": 2228,
         "rng": 152536
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "0c49e937b9f544dd8d5114d5c7ce5ffc5e7a7b1d",
+      "delivered": {
+        "screens": 7,
+        "rng": 176
+      }
     }
   ]
 }
