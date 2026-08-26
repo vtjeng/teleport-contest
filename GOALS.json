@@ -4293,6 +4293,37 @@
         "screens": 9,
         "rng": 130
       }
+    },
+    {
+      "id": "simple-monster-special-movement",
+      "status": "open",
+      "boundary": "A monster performs a special movement action that the port's runSimpleMonsterAction() does not handle: the monster opens, unlocks, or smashes a door during its movement turn (monmove.c:1548-1621).",
+      "upstreamOwners": [
+        "monmove.c"
+      ],
+      "forecast": {
+        "steps": 6,
+        "basis": "Capped look-ahead: seed0007 cappedStretch=6 (cap-stable). Alphabetical tiebreak over garlic-breath (also forecast 6, 1 session).",
+        "sessions": [
+          "seed0007-rogue-snake-swamp"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0007-rogue-snake-swamp",
+            "evidence": "Step 60: hero types j (movesouth). Port's runSimpleMonsterAction() encounters a monster needing special movement. C path: hack.c domove_core() triggers movemon() in mon.c, which reaches monmove.c m_move(). At monmove.c:1548-1621, the monster's special movement (door open/unlock/smash) is dispatched."
+          }
+        ]
+      },
+      "detail": "The port's monster movement in js/monmove.js handles basic movement but not door opening/smashing. The ahead stream shows You hear a door open messages (x4) confirming monsters exercising door operations. Debt beyond this 6-step window includes quaff, read, travel, up.",
+      "slices": [],
+      "openedAt": "64835acaa0f06e8249bcf49c9f171d312d5004e4",
+      "openStanding": {
+        "sha": "cc8c823",
+        "screens": 2220,
+        "rng": 152383
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
