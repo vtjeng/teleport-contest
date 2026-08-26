@@ -4438,7 +4438,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "mconf-mstun-recovery",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "66ea45cd123510ebe75c75f5b928e7dec96550d1",
       "openStanding": {
         "sha": "a16b7b7",
