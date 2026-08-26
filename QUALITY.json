@@ -4770,6 +4770,24 @@
       "status": "open",
       "from": "cf2d1ac36d887519f5d17d6765b152b7e3d98eb8",
       "detail": "doloot_core_lootmon multi-container redirect (js/pickup.js:1342): no session reaches this path yet"
+    },
+    {
+      "id": "tengu-teleport-in-nature",
+      "area": null,
+      "category": "scope",
+      "effort": "slice",
+      "status": "open",
+      "from": "0be5415fe317a7468a103d1449374f172a072197",
+      "detail": "PM_TENGU's teleport-in-nature code (monmove.c:1841-1849) is unported. The species guard blocks tengu before it enters dochug(). Porting requires translating the teleport-if-in-nature branch of m_move()."
+    },
+    {
+      "id": "leprechaun-leppie-avoidance",
+      "area": null,
+      "category": "scope",
+      "effort": "slice",
+      "status": "open",
+      "from": "0be5415fe317a7468a103d1449374f172a072197",
+      "detail": "PM_LEPRECHAUN's leppie_avoidance() (monmove.c:1874) is unported. The species guard blocks leprechaun before it enters dochug(). Porting requires translating the gold-distance avoidance term in m_move()."
     }
   ],
   "areas": [

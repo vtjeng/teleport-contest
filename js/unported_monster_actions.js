@@ -55,7 +55,6 @@ import {
 } from './mon.js';
 import {
     attacktype,
-    can_teleport,
     is_covetous,
     monsndx,
     nohands,
@@ -72,10 +71,12 @@ import {
     PM_GREMLIN,
     PM_KILLER_BEE,
     PM_KITTEN,
+    PM_LEPRECHAUN,
     PM_LITTLE_DOG,
     PM_MEDUSA,
     PM_PONY,
     PM_SHRIEKER,
+    PM_TENGU,
     S_EEL,
 } from './monsters.js';
 import {
@@ -289,7 +290,8 @@ function assertSimpleActionState(monster, state) {
         unsupported('special monster movement');
     }
     if (SPECIAL_RESPONDERS.has(monster.data?.pmidx)
-        || can_teleport(monster.data)
+        || monster.data?.pmidx === PM_TENGU
+        || monster.data?.pmidx === PM_LEPRECHAUN
         || monster.data?.pmidx === PM_KILLER_BEE
         || monster.data?.pmidx === PM_GELATINOUS_CUBE) {
         unsupported('a special monster action');

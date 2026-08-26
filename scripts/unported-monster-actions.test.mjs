@@ -68,20 +68,25 @@ import {
     PM_DISPLACER_BEAST,
     PM_FOG_CLOUD,
     PM_ACID_BLOB,
+    PM_GENETIC_ENGINEER,
     PM_GIANT_RAT,
     PM_GNOME,
     PM_GRID_BUG,
     PM_GREMLIN,
     PM_HEZROU,
     PM_KITTEN,
+    PM_LEPRECHAUN,
     PM_LITTLE_DOG,
     PM_ORC_SHAMAN,
     PM_PONY,
     PM_PURPLE_WORM,
+    PM_QUANTUM_MECHANIC,
     PM_ROCK_MOLE,
     PM_RUST_MONSTER,
     PM_SHRIEKER,
     PM_STEAM_VORTEX,
+    PM_TENGU,
+    PM_WOOD_NYMPH,
     S_HUMAN,
 } from '../js/monsters.js';
 import {
@@ -3887,3 +3892,52 @@ test('a planned monster blow writes nothing to frozen live state',
         assert.equal(game.u.uhp, uhpBefore);
         assert.equal(game.disp.botl, botlBefore);
     });
+
+// C ref: monmove.c dochug() processes every M1_TPORT monster through the
+// normal Phase Two path. The port narrows its species guard to PM_TENGU
+// (teleport-in-nature at monmove.c:1841-1849) and PM_LEPRECHAUN
+// (leppie_avoidance at monmove.c:1874), whose species-specific code is not
+// yet ported. Genetic engineer, quantum mechanic, and nymphs have no
+// species-specific branch in the movement path and enter dochug() normally.
+test('species guard admits M1_TPORT monsters without species-specific code',
+    async () => {
+        // Each of these species has M1_TPORT but no unported species-specific
+        // movement code: genetic engineer (AT_CLAW/AD_POLY), quantum mechanic
+        // (AT_CLAW/AD_TLPT), and wood nymph (AT_CLAW/AD_SITM+AD_SEDU). Their
+        // attack damage types are caught by later per-attack guards (mhitm or
+        // mhitu), not by assertSimpleActionState().
+        for (const pmidx of [
+            PM_GENETIC_ENGINEER,
+            PM_QUANTUM_MECHANIC,
+            PM_WOOD_NYMPH,
+        ]) {
+            const target = await prepareSelectedAction({ pmidx });
+            const before = preflightSnapshot();
+            await preflightSimpleMonsterActions(game);
+            assert.deepEqual(preflightSnapshot(), before, `pmidx ${pmidx}`);
+        }
+    });
+
+// PM_TENGU and PM_LEPRECHAUN remain blocked because they have unported
+// species-specific movement code in monmove.c m_move().
+test('species guard still blocks tengu and leprechaun', async () => {
+    for (const pmidx of [PM_TENGU, PM_LEPRECHAUN]) {
+        const target = await prepareSelectedAction({ pmidx });
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await assert.rejects(
+                preflightSimpleMonsterActions(game),
+                (error) => (
+                    error instanceof UnsupportedSimpleMonsterActionError
+                    && error.reason === 'a special monster action'
+                ),
+                `pmidx ${pmidx}, attempt ${attempt + 1}`,
+            );
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+                `pmidx ${pmidx}, attempt ${attempt + 1}`,
+            );
+        }
+    }
+});
