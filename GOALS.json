@@ -4573,7 +4573,13 @@
         ]
       },
       "detail": "peffect_oil() (potion.c:1259-1294, 35 lines): POT_OIL case. Three branches: (1) lamplit lit oil, (2) cursed castor oil, (3) normal smooth. All major helpers already ported. One gap: Cold_resistance needs a one-line boolean check.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "peffect-oil",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "3903314f9ce9c83011cfbd453abb8e77348b6cdf",
       "openStanding": {
         "sha": "6030326",
