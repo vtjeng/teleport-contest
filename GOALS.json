@@ -4554,7 +4554,7 @@
     },
     {
       "id": "quaff-peffect-oil",
-      "status": "open",
+      "status": "closed",
       "boundary": "peffects() in potion.c dispatches POT_OIL to peffect_oil(). The JS port peffects() switch at js/potion.js:269 throws UnsupportedQuaffError for this case. The goal closes when quaffing a potion of oil runs to completion through dopotion() tail with matching screens and RNG calls.",
       "upstreamOwners": [
         "potion.c"
@@ -4576,8 +4576,8 @@
       "slices": [
         {
           "name": "peffect-oil",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e0319aca1af3aad25b0896905eed1879e39ffe33"
         }
       ],
       "openedAt": "3903314f9ce9c83011cfbd453abb8e77348b6cdf",
@@ -4586,8 +4586,11 @@
         "screens": 2323,
         "rng": 155654
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "e0319aca1af3aad25b0896905eed1879e39ffe33",
+      "delivered": {
+        "screens": 2,
+        "rng": 10
+      }
     }
   ]
 }
