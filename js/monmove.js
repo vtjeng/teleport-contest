@@ -1735,8 +1735,6 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 // as in C.  Steps C runs that this does not are listed with the source
 // condition that keeps them unreachable behind the current action boundary:
 //   quest_stat_check(), quest_talk()      no quest monster is reachable
-//   mconf/mstun recovery draws            assertSimpleActionState() rejects
-//                                         mconf and mstun
 //   m_respond(), is_covetous() tactics    the boundary rejects both
 //   release_hero(), u.ustuck              no hero-grabbing monster is reachable
 //   Demonic Blackmail, watch_on_duty(),   the boundary rejects guards,
@@ -1805,6 +1803,15 @@ export async function dochug(monster, rawEnv = {}) {
     }
 
     wipeEngraving(monster.mx, monster.my, 1, false, env);
+
+    // confused monsters get unconfused with small probability (monmove.c:737-738)
+    if (monster.mconf && !random.rn2(50))
+        monster.mconf = 0;
+
+    // stunned monsters get un-stunned with larger probability (monmove.c:741-742)
+    if (monster.mstun && !random.rn2(10))
+        monster.mstun = 0;
+
     if (monster.mflee) {
         // C evaluates !rn2(40) before can_teleport(), so starting dogs, cats,
         // and ponies consume this draw even though they cannot teleport.

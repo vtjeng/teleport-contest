@@ -12,20 +12,14 @@ scheduling".
 Implementation and review alternate inside one goal. Four agents share the
 work, each performing exactly one role.
 
-- The **goal-selector** (`.claude/agents/goal-selector.md`) runs when no
-  goal is in progress. It applies `.agents/selection.md` to propose the next
-  goal without modifying files; the slice-selector divides the goal once it
-  is in progress.
-- The **slice-selector** (`.claude/agents/slice-selector.md`) runs while a
-  goal is in progress. It applies `.agents/selection.md` to identify the
-  next slice without modifying files.
-- The **worker** (`.claude/agents/slice-worker.md`) closes exactly one slice
-  in a single run: trace it to upstream source, implement it, record a fresh
-  case with the C reference program and replay it as `.agents/validation.md`
-  requires, and commit the result. A worker that cannot reach that state
-  reports what blocked it without committing, so the slice stays queued. It
-  does not run a formal review pass or check the review-debt gate, and
-  records only deferrals through `npm run quality -- defer`.
+- The **goal-selector** (`.claude/agents/goal-selector.md`) proposes the
+  next goal without modifying files.
+- The **slice-selector** (`.claude/agents/slice-selector.md`) identifies
+  the next slice without modifying files.
+- The **worker** (`.claude/agents/slice-worker.md`) closes exactly one
+  slice per run and commits the result. A worker that cannot close its
+  slice reports what blocked it without committing. The worker does not
+  run formal review passes or check the review-debt gate.
 - The **orchestrator** spawns the other three, independently measures what
   the worker landed, and owns every formal review pass.
 
@@ -64,12 +58,10 @@ The orchestrator repeats without returning to the user between steps:
    origin/main..HEAD` for unpushed commits. Push whatever the worker left
    behind and every commit you landed, then watch the CI run from a
    background task as `.agents/workflow.md`, "Pushing and CI", states.
-4. Run `npm run quality` yourself; no worker reports it. Its `Review since
-   <frontier>` line reports how much unreviewed code has accumulated. `DUE`
-   stops implementation until the required pass has run, its confirmed
-   findings are applied, and its entry is recorded. `WATCH` prints the
-   current counts against the gate. `.agents/review.md`, "When a
-   correctness pass is due", defines the gate.
+4. Run `npm run quality` yourself; no worker reports it. If the output
+   shows `DUE`, run the required review pass before continuing
+   implementation. `.agents/review.md`, "When a correctness pass is due",
+   defines the gate and the output format.
 5. When a slice closes, append its `SCORE.tsv` row as `.agents/scoring.md`
    requires, in the commit that records the closure in
    `GOALS.json`. The row's `sha` and figures come from step 3's measurement.
@@ -82,26 +74,19 @@ The orchestrator repeats without returning to the user between steps:
    `npm run quality -- defer`. A sequence of slices whose queue entry
    records that the development score will change within the next two
    slices is exempt from the census rerun and forecast restatement. When
-   the last slice of the goal closes, continue at step 6. A correctness
-   pass is not required at every goal close; it fires when the threshold
-   in `.agents/review.md`, "When a correctness pass is due", is met.
+   the last slice of the goal closes, continue at step 6.
 6. When a goal closes, run the authorized holdout evaluation and record its
    result with the goal's evidence. Resolve every open deferral the goal's
    commits closed, read from `npm run quality -- deferrals --area <id>` for
    the areas the goal touched; the rest stay open, and none becomes a
-   queued slice. Close the goal with `node scripts/goal-log.mjs close-goal`,
-   which records delivered figures beside the forecast. The closed entry
-   stays in `GOALS.json` for forecast-accuracy comparison. Continue at
-   step 1.
+   queued slice. Close the goal with `node scripts/goal-log.mjs close-goal`.
+   Continue at step 1.
 
 A formal review pass is a step of this loop, and the orchestrator runs it.
 
 Commits may land while a formal review pass reviews its fixed range. They
 belong to the next pass, and neither the pass nor the commits block the
-other. They do constrain readiness: `.agents/review.md` requires that all
-review debt at a batching threshold outside the frozen range is cleared or
-exempt. Clear that debt when declaring readiness; implementation may
-continue while it accumulates.
+other. `.agents/review.md` states the readiness constraint.
 
 `AGENTS.md` lists the three cases that stop this loop. Nothing else stops
 it; an iteration ending at a clean committed state is a reason to start the
