@@ -10,20 +10,14 @@ import {
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
-    GETOBJ_DOWNPLAY,
-    GETOBJ_EXCLUDE,
-    GETOBJ_SUGGEST,
     LAST_PROP,
     OBJ_INVENT,
     RIGHT_HANDED,
     W_ARM,
-    W_RING,
-    W_SADDLE,
     W_SWAPWEP,
     W_WEP,
 } from '../js/const.js';
 import {
-    ART_NONARTIFACT,
     arti_speak,
     init_artifacts,
     SPFX_SPEAK,
@@ -35,22 +29,12 @@ import {
 } from '../js/monsters.js';
 import {
     CLUB,
-    COIN_CLASS,
-    FOOD_CLASS,
-    GOLD_PIECE,
     KATANA,
-    RING_CLASS,
-    SHORT_SWORD,
     SILVER_SABER,
     SLING,
-    TOOL_CLASS,
-    TRIPE_RATION,
-    WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
 import {
-    UnsupportedWieldError,
-    cantwield,
     dowield,
 } from '../js/wield.js';
 import { GameDisplay } from '../js/game_display.js';

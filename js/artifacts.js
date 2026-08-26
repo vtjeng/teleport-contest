@@ -31,7 +31,6 @@ import {
     SEARCHING,
     SHOCK_RES,
     STEALTH,
-    TELEPAT,
     TELEPORT_CONTROL,
     ONAME_BONES,
     ONAME_GIFT,
