@@ -4161,8 +4161,8 @@
       "slices": [
         {
           "name": "dowield-simple-path",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "730b40b528fe8f0fd6b866b94fc43ab61dfd19f7"
         }
       ],
       "openedAt": "e1acf48be9d4453a6c49ad85dc360142320c0867",
