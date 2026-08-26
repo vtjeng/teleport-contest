@@ -76,6 +76,7 @@ import { game } from './gstate.js';
 import {
     check_capacity, endRunning, inv_cnt, losehp, rounddiv,
 } from './hack.js';
+import { dist2 } from './hacklib.js';
 import {
     INVLET_BASIC,
     addinv_nomerge,
@@ -84,6 +85,7 @@ import {
     useup,
     useupf,
 } from './invent.js';
+import { iter_mons_safe, mon_offmap } from './mon.js';
 import {
     acidic,
     attacktype,
@@ -104,7 +106,10 @@ import {
     telepathic,
     type_is_pname,
     your_race,
+    is_undead,
+    olfaction,
 } from './mondata.js';
+import { monflee } from './monmove.js';
 import {
     AD_HALU,
     AD_STUN,
@@ -1658,11 +1663,24 @@ async function fpostfx(otmp, state, env) {
     await Promise.resolve();
 }
 
+// C ref: eat.c garlic_breath() (2084-2089). Scare one nearby monster when it
+// has olfaction and is within squared distance 7 of the hero. Called for each
+// monster on the level via iter_mons(garlic_breath) in fprefx()'s
+// CLOVE_OF_GARLIC arm. The dead/offmap check reproduces C's iter_mons() filter,
+// since the JS caller uses iter_mons_safe() which does not filter.
+async function garlic_breath(monster, state) {
+    if (monster.mhp < 1 || mon_offmap(monster)) return;
+    if (olfaction(monster.data)
+        && dist2(monster.mx, monster.my, state.u.ux, state.u.uy) < 7) {
+        await monflee(monster, 0, false, false, { state });
+    }
+}
+
 // C ref: eat.c fprefx() (2091-2213), the message on the first bite of a
 // non-corpse, non-tin food. Answers false when eating must not proceed.
 //
-// The food ration arm and the default arm are ported. Every other arm needs an
-// unported effect.
+// The food ration arm, the CLOVE_OF_GARLIC arm (non-undead hero), and the
+// default arm are ported. Every other arm needs an unported effect.
 async function fprefx(otmp, state) {
     switch (otmp.otyp) {
     case EGG:
@@ -1708,9 +1726,17 @@ async function fprefx(otmp, state) {
         // every one of them is FLESH, which doeat() stops above.
         throw new UnsupportedEatError("fprefx()'s meat arms");
     case CLOVE_OF_GARLIC:
-        // iter_mons(garlic_breath) makes every nearby monster with a sense of
-        // smell flee.
-        throw new UnsupportedEatError('garlic_breath()');
+        if (is_undead(state.youmonst.data)) {
+            // C calls make_vomiting(rn1(reqtime, 5), FALSE), which is unported.
+            throw new UnsupportedEatError(
+                "fprefx()'s garlic undead-hero vomiting",
+            );
+        }
+        await iter_mons_safe(
+            (monster) => garlic_breath(monster, state),
+            state,
+        );
+        // FALLTHROUGH to default (C's give_feedback label)
     default:
         if (otmp.otyp === SLIME_MOLD && !otmp.cursed
             && otmp.spe === state.context.current_fruit) {

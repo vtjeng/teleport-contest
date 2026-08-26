@@ -4797,6 +4797,16 @@
       "status": "open",
       "from": "324254097a447f90924d668e3f1284b1f8caecaa",
       "detail": "domagictrap() complex branches: fate < 10 (monster creation, blindness, deafness), fate 11 (invisibility toggle), fate 12 (fire trap), fate 19 (tame monsters), fate 20 (uncurse), and the 1/30 explosion branch (deltrap). Each needs unported helpers."
+    },
+    {
+      "id": "garlic-undead-hero-vomiting",
+      "area": "commands",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "e898003da9e3df987907e691863cd4ad2cface99",
+      "detail": "fprefx CLOVE_OF_GARLIC when is_undead(youmonst.data) calls make_vomiting(rn1(reqtime,5),FALSE). make_vomiting is unported. Currently throws UnsupportedEatError.",
+      "blockedOn": "make_vomiting"
     }
   ],
   "areas": [
