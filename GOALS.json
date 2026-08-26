@@ -4631,6 +4631,46 @@
         "screens": 4,
         "rng": 0
       }
+    },
+    {
+      "id": "blind-hero-monster-hit",
+      "status": "closed",
+      "boundary": "The hero puts on a blindfold and an adjacent monster attacks via mattacku(). hitmu() in mhitu.c (line 1155) calls map_invisible() when canspotmon() returns false and continues the damage computation; the JS port refuses at mhitu.js:878 because canSpotMonster() returns false.",
+      "upstreamOwners": [
+        "mhitu.c"
+      ],
+      "forecast": {
+        "steps": 36,
+        "basis": "Capped look-ahead: seed5006 cappedStretch=36. Cap at step 37 where peffect_confusion() (potion.js:293) fires on quaffing a wished cursed potion of confusion.",
+        "sessions": [
+          "seed5006-tourist-stress-disaster"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5006-tourist-stress-disaster",
+            "evidence": "Step 118: hero wearing a blindfold is attacked by a monster. C hitmu() at mhitu.c:1155 calls map_invisible(mtmp) when canspotmon(mtmp) returns false, then continues damage computation. JS refuses at canSpotMonster guard in mhitu.js:878."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "map-invisible-hitmu-missmu",
+          "status": "closed",
+          "closedBy": "db271cd6566d6d3230898d3c3d626bbcecb4ee76"
+        }
+      ],
+      "openedAt": "db271cd6566d6d3230898d3c3d626bbcecb4ee76",
+      "openStanding": {
+        "sha": "cae882b",
+        "screens": 2329,
+        "rng": 155664
+      },
+      "closedAt": "db271cd6566d6d3230898d3c3d626bbcecb4ee76",
+      "delivered": {
+        "screens": 4,
+        "rng": 77
+      }
     }
   ]
 }
