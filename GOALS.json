@@ -4674,7 +4674,7 @@
     },
     {
       "id": "blindf-off",
-      "status": "open",
+      "status": "closed",
       "boundary": "The hero takes off a blindfold or lenses. armoroff_or_accessory_off() at do_wear.c:1807-1827 dispatches to Blindf_off(obj) when obj == ublindf; the JS port throws UnsupportedTakeOffError at do_wear.js:2449.",
       "upstreamOwners": [
         "do_wear.c"
@@ -4696,8 +4696,8 @@
       "slices": [
         {
           "name": "blindf-off-dispatch",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d2cf3a2e967e8011d3130ffae97d26c8963e4222"
         }
       ],
       "openedAt": "2ba15bed022a4a593893adc09f2d00bef438da55",
@@ -4706,8 +4706,11 @@
         "screens": 2333,
         "rng": 155741
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "d2cf3a2e967e8011d3130ffae97d26c8963e4222",
+      "delivered": {
+        "screens": 32,
+        "rng": -12
+      }
     }
   ]
 }
