@@ -103,6 +103,7 @@ import { UnsupportedObjectNameError } from './objnam.js';
 import { doset_simple, UnsupportedOptionMenuError } from './options.js';
 import { dopray, UnsupportedPrayerError } from './pray.js';
 import { UnsupportedHideError } from './mon.js';
+import { dosave } from './save.js';
 import { UnsupportedShopError } from './shk.js';
 import { dofire, dothrow, UnsupportedThrowError } from './dothrow.js';
 import { dosit, UnsupportedSitError } from './sit.js';
@@ -992,7 +993,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'apply', 'close', 'down', 'drop', 'pickup', 'takeoff', 'wear',
     'puton', 'zap', 'reqmenu', 'fight', 'options', 'wizwish', 'wizlevelport',
-    'wizgenesis', 'fire', 'throw', 'swap', 'kick', '#',
+    'wizgenesis', 'fire', 'throw', 'swap', 'kick', 'save', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -2095,6 +2096,9 @@ async function doextcmd(key, state) {
         return await runWishCommand(key, state);
     case 'wiz_genesis':
         return await runGenesisCommand(key, state);
+    case 'dosave':
+        // C ref: save.c dosave(), which always returns ECMD_OK.
+        return await dosave(state);
     default:
         resetCommandVars(state);
         throw new UnsupportedHeroCommandBoundaryError(
@@ -2636,6 +2640,19 @@ export async function rhack(key, state = game) {
             // 3774-3802 cannot divert it; it carries no CMD_M_PREFIX either,
             // so the prefix test at 3693-3695 refuses `m^G` and `F^G` above.
             await runGenesisCommand(key, state);
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'save') {
+            // C ref: save.c dosave():43-70. dosave() always returns ECMD_OK;
+            // on the success path C never returns at all (it calls
+            // nh_terminate), so only reset_cmd_vars() runs here. On the
+            // success path dosave() sets program_state.gameover, so the
+            // moveloop breaks after this rhack() returns. cmd.c:1846's "save"
+            // row carries IFBURIED | GENERALCMD | NOFUZZERCMD, no movement
+            // flag, so the MOVEMENTCMD and domove_attempting tests at
+            // 3773-3800 cannot divert it.
+            await dosave(state);
             resetCommandVars(state, state.multi < 0);
             return;
         }

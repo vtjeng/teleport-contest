@@ -1294,6 +1294,12 @@ export async function moveloop_core() {
     } else if ((g.multi ?? 0) === 0) {
         await rhack(0, g);
     }
+    // C ref: save.c dosave():65 calls nh_terminate(EXIT_SUCCESS) and never
+    // returns to moveloop_core(). The JS port returns normally with
+    // program_state.gameover set. Skip every post-command effect so the
+    // terminal stays on the exit_nhwindows farewell screen, matching the
+    // C recorder's final capture inside nh_terminate().
+    if (g.program_state?.gameover) return;
     if (g.u.utotype)
         await runDeferredGotoAtTurnBoundary(g);
     // C ref: allmain.c moveloop_core():541, the second of the function's two

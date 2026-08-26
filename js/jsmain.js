@@ -667,6 +667,24 @@ export async function runSegment(
             }
             throw e;
         }
+        // C ref: allmain.c moveloop() runs until program_state.gameover.
+        // dosave() sets gameover and returns normally from moveloop_core().
+        // Without this guard the next iteration's display updates (vision,
+        // bot, emitGlyphUpdateNotices) overwrite the farewell screen that
+        // tty_raw_print wrote. Matches the break in moveloop() at the
+        // same position.
+        if (game.program_state?.gameover) break;
+    }
+
+    // C ref: recorder patch 006, nh_terminate() in end.c. C's nh_terminate
+    // calls nomux_capture_write_input_boundary() once after the game loop
+    // exits, capturing the final screen (e.g. the "Be seeing you..." farewell
+    // after a save, or the topten display after death). The JS port's
+    // capture hook is _preNhgetchHook; during normal gameplay it fires at
+    // each nhgetch call, but after gameover no more keys are read. This
+    // explicit call after the loop mirrors nh_terminate's capture position.
+    if (game.program_state?.gameover && game._preNhgetchHook) {
+        await game._preNhgetchHook();
     }
 
     return nhGame;
