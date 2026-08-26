@@ -4616,8 +4616,8 @@
       "slices": [
         {
           "name": "glove-check-branch",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "a7c98787ec24e9fcc334771efa7ea24dc4992feb"
         }
       ],
       "openedAt": "80b26139510b125533fabae649080a2aaf81939f",
