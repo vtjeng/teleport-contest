@@ -87,7 +87,7 @@ import { surface } from './dungeon.js';
 import { makeplural } from './fruit.js';
 import { effective_attribute } from './attrib.js';
 import { yn_function } from './cmd.js';
-import { set_artifact_intrinsic } from './artifacts.js';
+import { artifact_light, set_artifact_intrinsic } from './artifacts.js';
 import { game } from './gstate.js';
 import { nomul, unmul } from './hack.js';
 import { getobj, prinv, update_inventory } from './invent.js';
@@ -146,7 +146,11 @@ import {
     ARM_CLOAK,
     ARM_HELM,
     BATTLE_AXE,
+    BLACK_DRAGON_SCALES,
+    BLACK_DRAGON_SCALE_MAIL,
     BLINDFOLD,
+    BLUE_DRAGON_SCALES,
+    BLUE_DRAGON_SCALE_MAIL,
     CLOAK_OF_MAGIC_RESISTANCE,
     CLOAK_OF_PROTECTION,
     DENTED_POT,
@@ -155,6 +159,12 @@ import {
     ELVEN_LEATHER_HELM,
     FAKE_AMULET_OF_YENDOR,
     FEDORA,
+    GOLD_DRAGON_SCALES,
+    GOLD_DRAGON_SCALE_MAIL,
+    GRAY_DRAGON_SCALES,
+    GRAY_DRAGON_SCALE_MAIL,
+    GREEN_DRAGON_SCALES,
+    GREEN_DRAGON_SCALE_MAIL,
     HAWAIIAN_SHIRT,
     HELMET,
     HELM_OF_OPPOSITE_ALIGNMENT,
@@ -169,8 +179,12 @@ import {
     MEAT_RING,
     MUMMY_WRAPPING,
     OILSKIN_CLOAK,
+    ORANGE_DRAGON_SCALES,
+    ORANGE_DRAGON_SCALE_MAIL,
     ORCISH_CLOAK,
     ORCISH_HELM,
+    RED_DRAGON_SCALES,
+    RED_DRAGON_SCALE_MAIL,
     RING_CLASS,
     RIN_ADORNMENT,
     RIN_AGGRAVATE_MONSTER,
@@ -201,8 +215,14 @@ import {
     RIN_TELEPORT_CONTROL,
     RIN_WARNING,
     ROBE,
+    SILVER_DRAGON_SCALES,
+    SILVER_DRAGON_SCALE_MAIL,
     TOWEL,
     T_SHIRT,
+    WHITE_DRAGON_SCALES,
+    WHITE_DRAGON_SCALE_MAIL,
+    YELLOW_DRAGON_SCALES,
+    YELLOW_DRAGON_SCALE_MAIL,
 } from './objects.js';
 import { discover_object, observe_object } from './o_init.js';
 import {
@@ -783,6 +803,42 @@ async function on_msg(otmp, state) {
     }
 }
 
+// C ref: do_wear.c dragon_armor_handling() (798-884). Handles extra
+// abilities when the hero puts on or takes off dragon scale armor. Grey
+// and silver dragon armor have no extra effect, taking the default break.
+// The other eight colors each set or clear an extrinsic property; those
+// arms are not yet ported and throw.
+function dragon_armor_handling(otmp, puton, _on_purpose) {
+    if (!otmp)
+        return;
+
+    switch (otmp.otyp) {
+    /* grey: no extra effect */
+    /* silver: no extra effect */
+    case BLACK_DRAGON_SCALES:
+    case BLACK_DRAGON_SCALE_MAIL:
+    case BLUE_DRAGON_SCALES:
+    case BLUE_DRAGON_SCALE_MAIL:
+    case GREEN_DRAGON_SCALES:
+    case GREEN_DRAGON_SCALE_MAIL:
+    case RED_DRAGON_SCALES:
+    case RED_DRAGON_SCALE_MAIL:
+    case GOLD_DRAGON_SCALES:
+    case GOLD_DRAGON_SCALE_MAIL:
+    case ORANGE_DRAGON_SCALES:
+    case ORANGE_DRAGON_SCALE_MAIL:
+    case YELLOW_DRAGON_SCALES:
+    case YELLOW_DRAGON_SCALE_MAIL:
+    case WHITE_DRAGON_SCALES:
+    case WHITE_DRAGON_SCALE_MAIL:
+        throw new (puton ? UnsupportedWearError : UnsupportedTakeOffError)(
+            `dragon_armor_handling() for otyp ${otmp.otyp}`,
+        );
+    default:
+        break;
+    }
+}
+
 // C ref: do_wear.c Armor_on() (886-906), the ga.afternmv callback
 // accessory_or_armor_on() installs for the suit slot. The leather jacket is
 // the one suit objects.h gives an oc_delay of 0, so it alone reaches this
@@ -790,22 +846,18 @@ async function on_msg(otmp, state) {
 // three to five helpless turns first and arrives through allmain.c
 // moveloop_core() instead.
 //
-// C's two tails at 895-904 both belong to dragon armor, so
-// accessory_or_armor_on() refuses Is_dragon_armor() above setworn() and
-// neither is ported -- the same pair Armor_off() below settles the same way,
-// and for the same reason: dragon_armor_handling() has an arm for eight of
-// the ten colors and artifact_light() answers TRUE for gold dragon scales and
-// mail alone. Refusing above setworn() rather than here is what keeps the
-// delayed arm honest, because by the time this runs the suit is worn and the
-// helpless turns are already spent.
+// dragon_armor_handling() is a no-op for grey and silver dragon armor (they
+// take `default: break;`). artifact_light() answers TRUE only for gold
+// dragon scales and mail, so the begin_burn block is dead for every other
+// suit.
 //
-// The `known` write is the whole of what the callback does. C's comment at
-// do_wear.c:2366-2372 says why it waits until here rather than running beside
-// setworn(): a nymph who steals the suit mid-donning must leave the hero
-// ignorant of its enchantment. As with Shield_on() below, only a suit the
-// game creates after startup witnesses the write, because mkobj.c mksobj()
-// (864) leaves obj->known 0 for armor where u_init.c ini_inv_adjust_obj()
-// (1215-1216) sets it to 1.
+// The `known` write is the whole of what the callback does for non-dragon
+// suits. C's comment at do_wear.c:2366-2372 says why it waits until here
+// rather than running beside setworn(): a nymph who steals the suit
+// mid-donning must leave the hero ignorant of its enchantment. As with
+// Shield_on() below, only a suit the game creates after startup witnesses
+// the write, because mkobj.c mksobj() (864) leaves obj->known 0 for armor
+// where u_init.c ini_inv_adjust_obj() (1215-1216) sets it to 1.
 function Armor_on(state) {
     if (!state.uarm) /* no known instances of !uarm here but play it safe */
         return 0;
@@ -814,6 +866,18 @@ function Armor_on(state) {
         state.uarm.known = true;
         update_inventory({ state });
     }
+    dragon_armor_handling(state.uarm, true, true);
+    /* gold DSM requires extra handling since it emits light when worn;
+       do that after the special armor handling */
+    if (artifact_light(state.uarm) && !state.uarm.lamplit) {
+        // begin_burn() and arti_light_description() are not yet ported for
+        // this call site. artifact_light() answers TRUE only for gold dragon
+        // scales/mail (otyp 102, 112) when worn as W_ARM, so this block is
+        // dead for every other suit.
+        throw new UnsupportedWearError(
+            `Armor_on() artifact_light for otyp ${state.uarm.otyp}`,
+        );
+    }
     return 0;
 }
 
@@ -821,16 +885,11 @@ function Armor_on(state) {
 // immediately, for the leather jacket that is the one suit with an oc_delay of
 // 0, and through hack.c unmul() several turns later for every other suit.
 //
-// Both of C's tails at 920-928 belong to dragon armor alone, so the guard
-// settles them without porting either. artifact_light() answers TRUE for no
-// other suit -- gold dragon scales and mail are its only armor -- which leaves
-// `was_arti_light` FALSE and C's end_burn() arm dead. dragon_armor_handling()
-// has an arm for eight of the ten colors, in scales and in mail, and takes
-// `default: break;` for everything else; grey and silver dragon armor takes
-// that default too but is refused with the rest of the block, because
-// js/obj.js Is_dragon_armor() answers for obj.h's whole disjunction and
-// separating those two would buy nothing that a ported
-// dragon_armor_handling() will not deliver anyway.
+// Both of C's tails at 920-928 belong to dragon armor alone. The guard
+// refuses all dragon armor because the dragon_armor_handling() call and the
+// artifact_light/end_burn block are not yet ported for the off path.
+// Armor_on() above ports both for putting on; the take-off path belongs to
+// a later slice.
 //
 // The guard is checked before the item leaves its slot, so tripping it changes
 // nothing. C's `svc.context.takeoff.cancelled_don = FALSE` between the two is
@@ -2156,8 +2215,16 @@ async function accessory_or_armor_on(obj, state = game) {
 
         switch (mask) {
         case W_ARM:
-            // Armor_on()'s two tails belong to dragon armor.
-            if (Is_dragon_armor(obj))
+            // dragon_armor_handling() has an arm for eight of the ten
+            // colors; grey and silver take its default break and are
+            // admitted. The other eight are refused above setworn(), so
+            // that the helpless donning turns are not spent on a path
+            // that will throw.
+            if (Is_dragon_armor(obj)
+                && obj.otyp !== GRAY_DRAGON_SCALE_MAIL
+                && obj.otyp !== GRAY_DRAGON_SCALES
+                && obj.otyp !== SILVER_DRAGON_SCALE_MAIL
+                && obj.otyp !== SILVER_DRAGON_SCALES)
                 throw new UnsupportedWearError(
                     `Armor_on() for otyp ${obj.otyp}`,
                 );

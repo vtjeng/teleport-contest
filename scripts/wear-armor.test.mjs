@@ -113,6 +113,7 @@ import {
     GAUNTLETS_OF_FUMBLING,
     GAUNTLETS_OF_POWER,
     GOLD_DRAGON_SCALE_MAIL,
+    GRAY_DRAGON_SCALE_MAIL,
     GRAY_DRAGON_SCALES,
     HAWAIIAN_SHIRT,
     HELMET,
@@ -151,6 +152,8 @@ import {
     ROBE,
     SHORT_SWORD,
     SILVER_SABER,
+    SILVER_DRAGON_SCALE_MAIL,
+    SILVER_DRAGON_SCALES,
     SMALL_SHIELD,
     SPEAR,
     SPEED_BOOTS,
@@ -1478,22 +1481,21 @@ test('the branches accessory_or_armor_on cannot run name themselves',
         ),
         refusal(UnsupportedWearError, 'remove_worn_item()'),
     );
-    // Armor_on()'s dragon-armor tails, refused above setworn() rather than
-    // inside the callback so that the suit never reaches a slot. Gray is one
-    // of the two colours dragon_armor_handling() has no arm for -- its switch
-    // at do_wear.c:806-883 names the other eight, in scales and in mail, and
-    // says so at 807-808 -- and
-    // artifact_light() answers TRUE for gold alone, so gray scales trip
-    // neither tail in C and are refused anyway, exactly as Armor_off() refuses
-    // them. Gold dragon scale mail is the one that trips both.
-    for (const otyp of [GRAY_DRAGON_SCALES, GOLD_DRAGON_SCALE_MAIL]) {
-        await assert.rejects(
-            () => accessory_or_armor_on(armor(otyp, { dknown: 1 }), game),
-            refusal(UnsupportedWearError, `Armor_on() for otyp ${otyp}`),
-        );
-        assert.equal(game.uarm ?? null, null, `otyp ${otyp}`);
-        assert.equal(game.multi ?? 0, 0, `otyp ${otyp}`);
-    }
+    // dragon_armor_handling() has arms for eight of the ten colours; grey
+    // and silver take `default: break;` (do_wear.c:807-808, 881-882) and are
+    // admitted through the narrowed guard. Gold dragon scale mail represents
+    // the eight colours whose arms are not yet ported; it is refused above
+    // setworn() so the suit never reaches a slot.
+    await assert.rejects(
+        () => accessory_or_armor_on(
+            armor(GOLD_DRAGON_SCALE_MAIL, { dknown: 1 }), game,
+        ),
+        refusal(UnsupportedWearError,
+            `Armor_on() for otyp ${GOLD_DRAGON_SCALE_MAIL}`),
+    );
+    assert.equal(game.uarm ?? null, null,
+        'gold DSM refusal left the slot empty');
+    assert.equal(game.multi ?? 0, 0, 'gold DSM refusal left multi at 0');
     assert.equal(game.uarms ?? null, null,
         'every refusal left the slot empty');
 });
@@ -1517,6 +1519,45 @@ test('Armor_on answers for an empty suit slot', async () => {
     suit.known = false;
     assert.equal(Armor_on(game), 0);
     assert.equal(suit.known, true);
+});
+
+test('dragon_armor_handling default-break path admits gray and silver DSM',
+    async () => {
+    // do_wear.c:798-884, dragon_armor_handling(). Grey and silver dragon
+    // armor have no special effect -- they take `default: break;` at
+    // line 881-882. Armor_on() calls dragon_armor_handling() at line 895,
+    // and artifact_light() answers FALSE for both (only gold dragon armor
+    // emits light), so neither tail changes anything beyond the `known`
+    // write that every suit shares.
+    //
+    // Dragon scale armor has a non-zero oc_delay, so
+    // accessory_or_armor_on() defers the callback with nomul() rather than
+    // running it immediately. The test calls Armor_on() directly after
+    // placing the suit in the slot, the same path moveloop_core()'s
+    // unmul() takes after the helpless turns expire.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+
+    // All four otyps that take the default break: gray scales/mail,
+    // silver scales/mail.
+    for (const otyp of [
+        GRAY_DRAGON_SCALE_MAIL,   // otyp 101
+        SILVER_DRAGON_SCALE_MAIL, // otyp 103
+        GRAY_DRAGON_SCALES,       // otyp 111
+        SILVER_DRAGON_SCALES,     // otyp 113
+    ]) {
+        const suit = armor(otyp, {
+            dknown: 1, known: false, owornmask: W_ARM,
+        });
+        game.uarm = suit;
+        assert.equal(Armor_on(game), 0,
+            `otyp ${otyp}: Armor_on() returns 0`);
+        assert.equal(suit.known, true,
+            `otyp ${otyp}: Armor_on() sets known`);
+
+        // Clean up for the next iteration.
+        game.uarm = null;
+    }
 });
 
 test('both of dowear\'s guards answer before the prompt', async () => {
