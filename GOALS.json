@@ -4379,7 +4379,7 @@
     },
     {
       "id": "garlic-breath",
-      "status": "open",
+      "status": "closed",
       "boundary": "The hero eats a clove of garlic, reaching the garlic_breath() call in eat.c. garlic_breath() repels undead and makes the hero smell of garlic.",
       "upstreamOwners": [
         "eat.c"
@@ -4411,8 +4411,11 @@
         "screens": 2235,
         "rng": 152712
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "a16b7b7a133bf8e6ea2c908cb4ccd878d713077f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
