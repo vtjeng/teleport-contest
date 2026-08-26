@@ -56,6 +56,10 @@ import {
 import {
     attacktype,
     is_covetous,
+    is_floater,
+    is_flyer,
+    is_swimmer,
+    likes_lava,
     monsndx,
     nohands,
     passes_walls,
@@ -66,6 +70,7 @@ import {
 import {
     AT_MAGC,
     PM_ERINYS,
+    PM_FLOATING_EYE,
     PM_FOG_CLOUD,
     PM_GELATINOUS_CUBE,
     PM_GREMLIN,
@@ -86,6 +91,7 @@ import {
     m_avoid_kicked_loc,
     m_avoid_soko_push_loc,
     m_everyturn_effect,
+    m_in_air,
     m_move,
 } from './monmove.js';
 import { select_fresh_monster_item_action } from './muse.js';
@@ -172,8 +178,14 @@ function assertSimpleScanState(monster, state) {
     // path -- they all describe branches mon.c only takes after the movement
     // debit -- so they are deliberately skipped rather than merely bypassed.
     if (monster.movement < NORMAL_SPEED) return true;
-    if (is_pool(monster.mx, monster.my, state)
-        || is_lava(monster.mx, monster.my, state)) {
+    // C ref: mon.c minliquid_core() :967-972. A flyer or floater is not "in"
+    // a pool or lava, so minliquid_core()'s drown/burn effects do not apply.
+    // On the Plane of Water, flyers ARE subject to pool effects
+    // (Is_waterlevel check at :970); that level is not yet reachable.
+    if ((is_pool(monster.mx, monster.my, state)
+            || is_lava(monster.mx, monster.my, state))
+        && !is_flyer(monster.data)
+        && !is_floater(monster.data)) {
         unsupported('monster liquid effects');
     }
     // mon.c restrap() is ported, so an M1_HIDE monster is scanned like any
@@ -195,10 +207,11 @@ function assertSimpleScanState(monster, state) {
 //
 // The square decides for every species but one. C derives `inpool` at :967 and
 // `inlava` at :971 to guard the drown and burn effects at :1068 and :1010,
-// neither ported. The first arm below is deliberately broader than those two
-// terms, which exempt a flyer or a floater: it refuses water and lava for every
-// species. Over-refusing costs the rest of a replay but cannot diverge, and
-// narrowing it would mean porting the arms it stands in for.
+// neither ported. A flyer or floater is exempt from both: C's `inpool` and
+// `inlava` are false for those species (outside the Plane of Water, where
+// Is_waterlevel at :970 re-includes flyers; that level is not yet reachable).
+// Non-flying, non-floating monsters on pool or lava are refused because
+// minliquid_core()'s burn and drown effects are not ported.
 //
 // The gremlin is the exception, and it is why a fountain appears here. C
 // derives `infountain` at :973 from IS_FOUNTAIN(levl[mx][my].typ) and reads it
@@ -213,9 +226,11 @@ function assertSimpleScanState(monster, state) {
 // the other order. That is only a labelling difference: a gremlin in water
 // matches both, and whichever arm claims it, the caller refuses.
 export function unportedMinliquidReason(monster, state) {
-    if (is_pool(monster.mx, monster.my, state)
-        || is_lava(monster.mx, monster.my, state))
-        return 'an immobile monster in liquid';
+    if ((is_pool(monster.mx, monster.my, state)
+            || is_lava(monster.mx, monster.my, state))
+        && !is_flyer(monster.data)
+        && !is_floater(monster.data))
+        return 'a non-flying monster in liquid';
     if (monsndx(monster.data) === PM_GREMLIN
         && IS_FOUNTAIN(state.level?.at?.(monster.mx, monster.my)?.typ))
         return 'a gremlin splitting in a fountain';
@@ -735,12 +750,27 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     const inertDoorway = location?.typ === DOOR
         && INERT_DOOR_MASKS.has(doorMask);
     const opensDoor = opensClosedDoor(monster, location, doorMask);
+    // C ref: mon.c mfndpos() :2166-2170. poolok and lavaok decide whether the
+    // monster can step onto pool and lava tiles. m_in_air() covers flyers,
+    // floaters, and ceiling-clinging clingers; is_swimmer() covers swimmers
+    // (but not eels that *want* pool -- assertSimpleScanState refuses eels
+    // before this point); likes_lava() covers fire elementals and salamanders.
+    // PM_FLOATING_EYE overrides lavaok to FALSE at :2169-2170 (prefers to
+    // avoid heat). On the Plane of Water, Is_waterlevel at :2166 suppresses
+    // m_in_air() for poolok; that level is not yet reachable.
+    const poolOkay = m_in_air(monster, state)
+        || (is_swimmer(monster.data) && monster.data.mlet !== S_EEL);
+    const lavaOkay = (m_in_air(monster, state) || likes_lava(monster.data))
+        && monsndx(monster.data) !== PM_FLOATING_EYE;
+    const liquidDestination = (is_pool(x, y, state) && poolOkay)
+        || (is_lava(x, y, state) && lavaOkay);
     const ordinaryDestination = location
         && (location.typ === ROOM
             || location.typ === CORR
             || IS_FURNITURE(location.typ)
             || inertDoorway
-            || opensDoor);
+            || opensDoor
+            || liquidDestination);
     if (!ordinaryDestination)
         unsupported('door or special terrain movement');
     // A trap on the destination is no longer refused here. C has no such gate:

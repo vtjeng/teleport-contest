@@ -87,6 +87,7 @@ import {
     PM_STEAM_VORTEX,
     PM_TENGU,
     PM_WOOD_NYMPH,
+    PM_YELLOW_LIGHT,
     S_HUMAN,
 } from '../js/monsters.js';
 import {
@@ -1117,7 +1118,7 @@ test('simple preflight stops a gremlin standing on a fountain', async () => {
 // liquid, but through js/allmain.js rather than through this module. A direct
 // call is what covers the arm either way.
 test('minliquid refusal reads the square before the species', async () => {
-    const LIQUID = 'an immobile monster in liquid';
+    const LIQUID = 'a non-flying monster in liquid';
     const GREMLIN_SPLIT = 'a gremlin splitting in a fountain';
     const cases = [
         // mon.c:1068 drowns a monster in a pool; nothing here ports it.
@@ -1132,6 +1133,11 @@ test('minliquid refusal reads the square before the species', async () => {
         // dry floor, so both of these are squares C walks straight past.
         { terrain: FOUNTAIN, pmidx: PM_GIANT_RAT, reason: null },
         { terrain: ROOM, pmidx: PM_GREMLIN, reason: null },
+        // mon.c minliquid_core() :967-972: a flyer or floater is not
+        // "in" pool or lava, so the drown/burn effects do not apply.
+        // PM_YELLOW_LIGHT is a floater (S_LIGHT); its is_floater() is true.
+        { terrain: POOL, pmidx: PM_YELLOW_LIGHT, reason: null },
+        { terrain: LAVAPOOL, pmidx: PM_YELLOW_LIGHT, reason: null },
     ];
 
     const target = await prepareSelectedAction();
@@ -1237,6 +1243,64 @@ test('simple movement admits every furniture square but not ice', async () => {
         );
     }
 });
+
+// C ref: mon.c mfndpos() :2166-2168 and minliquid_core() :967-972. A flyer or
+// floater can move over pool and lava tiles. mfndpos() computes poolok from
+// m_in_air() (outside Is_waterlevel) and lavaok from m_in_air()||likes_lava().
+// PM_FLOATING_EYE is excluded from lava at :2169-2170. A PM_YELLOW_LIGHT
+// (S_LIGHT, floater) exercises the pool path; PM_GIANT_RAT (grounded) is the
+// negative control.
+test('simple movement admits pool and lava destinations for a floater',
+    async () => {
+        for (const [label, terrain] of [
+            ['pool', POOL],
+            ['lava', LAVAPOOL],
+        ]) {
+            // Positive case: PM_YELLOW_LIGHT (floater) can step onto liquid.
+            const admitted = await prepareSelectedAction({
+                pmidx: PM_YELLOW_LIGHT,
+            });
+            // Also set the monster's current tile to pool so that
+            // assertSimpleScanState exercises the flyer/floater exemption.
+            game.level.at(
+                admitted.monsterX, admitted.heroY,
+            ).typ = terrain;
+            game.level.at(
+                admitted.destinationX, admitted.heroY,
+            ).typ = terrain;
+            const before = preflightSnapshot();
+
+            await preflightSimpleMonsterActions(game);
+            assert.deepEqual(preflightSnapshot(), before,
+                `${label} floater preflight`);
+            await runSimpleMonsterAction(admitted.monster, { state: game });
+            assert.deepEqual(
+                [admitted.monster.mx, admitted.monster.my],
+                [admitted.destinationX, admitted.heroY],
+                `${label} floater destination`,
+            );
+        }
+
+        // Negative case: PM_GIANT_RAT (grounded) on pool is still refused.
+        const refused = await prepareSelectedAction();
+        game.level.at(refused.monsterX, refused.heroY).typ = POOL;
+        game.level.at(refused.destinationX, refused.heroY).typ = POOL;
+        const refusedBefore = completeSecondTurnSnapshot(game, refused.replay);
+
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'monster liquid effects'
+            ),
+            'pool grounded refusal',
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, refused.replay),
+            refusedBefore,
+            'pool grounded snapshot',
+        );
+    });
 
 // C ref: monmove.c postmov()'s door block (1520-1622). A monster that ends its
 // move on a doorless, broken or open doorway reaches no arm of that block, so
