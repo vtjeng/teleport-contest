@@ -317,7 +317,7 @@ import {
 import { m_in_out_region, visible_region_at } from './region.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
-import { inhishop } from './shk.js';
+import { inhishop, shk_move } from './shk.js';
 import {
     canSpotMonster,
     collectMonsterMovementMessage,
@@ -1739,8 +1739,10 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 //                                         mconf and mstun
 //   m_respond(), is_covetous() tactics    the boundary rejects both
 //   release_hero(), u.ustuck              no hero-grabbing monster is reachable
-//   Demonic Blackmail, watch_on_duty(),   the boundary rejects shopkeepers,
-//   mind_blast()                          guards, priests, and AT_MAGC
+//   Demonic Blackmail, watch_on_duty(),   the boundary rejects guards,
+//   mind_blast()                          priests, and AT_MAGC; a shopkeeper
+//                                         reaches m_move()'s isshk dispatch
+//                                         before dochug() PHASE FOUR
 //   killer bee jelly, gelcube_digests()   the boundary rejects both species
 //   castmu() undirected spell             the boundary rejects AT_MAGC
 //   mon_offmap(), wormhitu()              unreachable on a fresh D:1 level
@@ -2243,8 +2245,10 @@ export const INERT_DOOR_MASKS = new Set([D_NODOOR, D_BROKEN, D_ISOPEN]);
 // doorbuster, IRONBARS, mdig_tunnel(), the engulfed-hero relocation, and
 // maybe_spin_web().  meatmetal(), meatobj() and meatcorpse() are refused
 // through select_postmove_object_action(), which selects them.  hideunder()
-// and after_shk_move() need a hider, an eel or a shopkeeper, each refused
-// before the scan by js/unported_monster_actions.js.
+// needs a hider or an eel, each refused before the scan.  after_shk_move()
+// (C:1700-1702) is guarded by its own unsupported() inside the MMOVE_MOVED /
+// MMOVE_DONE block; the stationary shopkeeper passes MMOVE_NOTHING and does
+// not reach it.
 export async function postmov(
     monster,
     omx,
@@ -2433,15 +2437,20 @@ export async function postmov(
         // skipped -- a divergence with no refusal and no stop.
         if (hides_under(species) || species?.mlet === S_EEL)
             unsupported('monster hiding under an object');
+        // C ref: monmove.c:1700-1702.  after_shk_move() re-enters the shop
+        // for a shopkeeper that moved.  The stationary shopkeeper passes
+        // MMOVE_NOTHING, so this block is not reached for the ported path.
+        if (monster.isshk) unsupported('after_shk_move');
     }
     return outcome;
 }
 
 // C ref: monmove.c m_move().  Covers the prologue, the tame dog_move()
-// dispatch, and the ordinary not_special path through postmov().  Not covered:
-// the hides_under() early return, the wormno branch, the is_covetous() tactics
-// branch, m_move_aggress(), displacement, and boulder breaking.  Those remain
-// explicit seams until their source owners connect.
+// dispatch, the isshk dispatch (stationary return-0 path), and the ordinary
+// not_special path through postmov().  Not covered: the hides_under() early
+// return, the wormno branch, the is_covetous() tactics branch, the isgd and
+// ispriest dispatches, m_move_aggress(), displacement, and boulder breaking.
+// Those remain explicit seams until their source owners connect.
 export async function m_move(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     // The full operation set, matching actionRandom()'s. mintrap() needs rnl
@@ -2526,6 +2535,33 @@ export async function m_move(monster, rawEnv = {}) {
         const petStatus = await movePet(monster, false, env);
         return await postMonsterMove(monster, oldX, oldY, petStatus, env);
     }
+
+    // C ref: monmove.c:1806-1827.  Shopkeepers, guards, and priests use
+    // dedicated movement functions instead of the normal AI.  When the
+    // dedicated function returns 0 (didn't move) or 1 (moved), m_move()
+    // returns through postmov().  -1 (let m_move do it) falls through to
+    // normal movement; -2 means the monster died.
+    if (monster.isshk || monster.isgd || monster.ispriest) {
+        if (monster.isgd) unsupported('guard movement');
+        if (monster.ispriest) unsupported('priest movement');
+        // shk_move returns: 1 moved, 0 didn't, -1 let m_move do it, -2 died.
+        const xm = shk_move(monster, state);
+        if (xm === -2) return MMOVE_DIED;
+        if (xm === -1) {
+            // shk following hero outside shop -- fall through to normal
+            // movement.  Not yet ported.
+            unsupported('shopkeeper following hero outside shop');
+        }
+        // xm === 0 or xm === 1: return through postmov().
+        return await postMonsterMove(
+            monster,
+            oldX,
+            oldY,
+            xm !== 1 ? MMOVE_NOTHING : MMOVE_MOVED,
+            env,
+        );
+    }
+
     let goalX = monster.mux;
     let goalY = monster.muy;
     let approach = monster.mflee ? -1 : 1;

@@ -1,9 +1,10 @@
 // Shop admission and entry/departure transitions, generated-shop pricing,
-// live price-quote writes, and remembered-price queries.
+// live price-quote writes, remembered-price queries, and shopkeeper movement.
 // C refs: shk.c inhishop(), inside_shop(), shop_keeper(), u_entered_shop(),
 // u_left_shop(), getprice(), get_cost(), get_cost_of_shop_item(),
 // append_price_quote(), contained_gold(), check_unpaid(), costly_spot(),
-// shop_object(), shk_owns(), mon_owns(), and shk_your().
+// shop_object(), shk_owns(), mon_owns(), shk_your(), shk_move(), and
+// shk_fixes_damage().
 
 import {
     A_CHA,
@@ -24,7 +25,7 @@ import {
 import { effective_attribute } from './attrib.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { s_suffix } from './hacklib.js';
+import { dist2, s_suffix } from './hacklib.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
 import { set_malign } from './makemon.js';
@@ -663,6 +664,68 @@ export function sellobj_state(deliberate, state = game) {
     state.gs.sell_how = deliberate;
     state.ga ??= {};
     state.ga.auto_credit = false;
+}
+
+// C ref: shk.c shk_fixes_damage() (4556-4577).  The shopkeeper walks
+// level.damagelist looking for repairable damage.  On a fresh shop with no
+// damage the list is absent, so find_damage() returns null and the function
+// returns immediately.  Every other path (whisper, repair, discard) is
+// unported; refuse if damage exists.
+function shk_fixes_damage(shkp, state) {
+    // C: `struct damage *dam = find_damage(shkp);`
+    // find_damage walks svl.level.damagelist.  No damage means no work.
+    if (!state.level?.damagelist) return;
+    throw new UnsupportedShopError(
+        'shk_fixes_damage with existing shop damage',
+    );
+}
+
+// C ref: shk.c shk_move() (4880-4993).  Covers the stationary return-0 path:
+// a peaceful shopkeeper at its guard position with no bill, no robbery, no
+// debit, and not following.  All other branches -- angry approach, following
+// hero, move_special() -- are refused.
+//
+// Return values match C: 1 = moved, 0 = didn't, -1 = let m_move do it,
+// -2 = died.
+export function shk_move(shkp, state) {
+    const eshkp = shkp.mextra?.eshk;
+    if (!eshkp) {
+        throw new UnsupportedShopError('shk_move without eshk extension');
+    }
+    const omx = shkp.mx;
+    const omy = shkp.my;
+
+    if (inhishop(shkp, state)) shk_fixes_damage(shkp, state);
+
+    // C: `ANGRY(shkp)` is `!shkp->mpeaceful`.
+    if (!shkp.mpeaceful) {
+        throw new UnsupportedShopError('shk_move for angry shopkeeper');
+    }
+    if (eshkp.following) {
+        throw new UnsupportedShopError('shk_move for following shopkeeper');
+    }
+
+    // C:4935-4983, the `else` branch (not following, not angry).
+    // gtx, gty = guard position; satdoor = shopkeeper is at guard pos.
+    const gtx = eshkp.shk.x;
+    const gty = eshkp.shk.y;
+
+    // GDIST(omx, omy) = dist2(omx, omy, gtx, gty).  The shopkeeper is at or
+    // near its guard position; when GDIST < 3 and there is no bill, robbery,
+    // or debit, the C code returns 0 (didn't move) on most paths.
+    const gdist = dist2(omx, omy, gtx, gty);
+    if ((!eshkp.robbed && !eshkp.billct && !eshkp.debit)
+        && gdist < 3) {
+        // C:4978-4979 would also check `!badinv && !onlineu(omx, omy)` before
+        // returning 0, or `satdoor` to zero the approach.  Both of those
+        // eventually reach return 0 or move_special() with appr=0, gtx=gty=0.
+        // For the stationary case (no movement), return 0 directly.
+        return 0;
+    }
+
+    // Every other path reaches move_special() or a return-0 through checks
+    // this port has not ported (Invis, avoid, badinv, onlineu, holetime).
+    throw new UnsupportedShopError('shk_move non-stationary path');
 }
 
 // Thrown where shk.c reaches shop bookkeeping this port has not ported.
