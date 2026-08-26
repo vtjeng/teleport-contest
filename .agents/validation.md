@@ -18,29 +18,10 @@ review window are defined in `.agents/workflow.md`.
   `.cache/checkpoint-summary.json` with the commit SHA and results.
 - `npm run test:all` runs all registered test suites, including those excluded
   from the default `npm test`.
-- Redirect every checkpoint run to a log and read only its tail:
-
-  ```
-  npm run checkpoint > /tmp/checkpoint.log 2>&1 && tail -40 /tmp/checkpoint.log
-  ```
-
-  A green checkpoint prints about 468,000 bytes over 14,491 lines (measured on
-  1 August 2026, development-score step skipped), and the total grows with the
-  test suite. Reading without redirecting loses most output to truncation and
-  spends thousands of tokens on passing test names. The tail is about 1,200
-  bytes and ends with the per-check `PASS`/`FAIL` summary.
-
-  When the checkpoint fails, `&&` suppresses the tail and the command exits
-  nonzero; run `tail -40 /tmp/checkpoint.log` separately. The summary still
-  appears because every check runs regardless of earlier failures.
-  `grep -n 'not ok' /tmp/checkpoint.log` prints each failing test's line
-  number. Without a TTY the runner uses the `tap` reporter, which prints each
-  failure's `error`, `stack`, and `location` directly under its `not ok` line.
-
-  Keep the default test reporter. `node --test --test-reporter=dot` prints no
-  summary on a green run, discards test-process stdout and stderr, and reduces
-  an import-time throw to `test failed` with no message or stack.
-  `npm test -- --test-reporter=dot` ignores the flag.
+- Checkpoint runs quietly by default: passing checks print only their
+  `PASS`/`FAIL` summary line. A failing check writes its full output to
+  `/tmp/checkpoint-<label>.log` and prints the last 20 lines.
+  `npm run checkpoint -- --verbose` restores full output for all checks.
 - For nontrivial behavior, differentially test against the C reference program
   using newly chosen seeds, datetimes, options, character configurations, and
   input sequences.

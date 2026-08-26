@@ -2,7 +2,7 @@
 
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import {
@@ -103,14 +103,21 @@ export function checkpointCommands() {
 }
 
 export function parseCheckpointArgs(args) {
+    let verbose = false;
     for (const arg of args) {
-        throw new Error(`unknown checkpoint option: ${arg}`);
+        if (arg === '--verbose') {
+            verbose = true;
+        } else {
+            throw new Error(`unknown checkpoint option: ${arg}`);
+        }
     }
+    return { verbose };
 }
 
 export function runCheckpointChecks(commands, {
     run = spawnSync,
     output = console.log,
+    verbose = false,
 } = {}) {
     const results = [];
     for (const {
@@ -122,13 +129,27 @@ export function runCheckpointChecks(commands, {
         summarize = null,
     } of commands) {
         output(`\n== ${label} ==`);
-        const result = run(command, args, capture
+        const useCapture = capture || !verbose;
+        const result = run(command, args, useCapture
             ? { encoding: 'utf8' }
             : { stdio: 'inherit' });
         const summary = summarize ? summarize(result) : {};
         if (summary.body) output(summary.body);
-        if (capture && result.stderr && result.status !== 0)
-            output(result.stderr.trimEnd());
+        if (useCapture && result.status !== 0) {
+            const full = [result.stdout, result.stderr]
+                .filter(Boolean).join('\n').trimEnd();
+            if (full) {
+                const lines = full.split('\n');
+                const slug = label.replace(/[^a-z0-9]+/gi, '-');
+                const logPath = join('/tmp', `checkpoint-${slug}.log`);
+                writeFileSync(logPath, full + '\n');
+                const TAIL = 20;
+                if (lines.length > TAIL) {
+                    output(`  (${lines.length} lines written to ${logPath})`);
+                }
+                output(lines.slice(-TAIL).join('\n'));
+            }
+        }
         // A summarize may decide the verdict. The score check reads its own
         // ratchet, so a run that exits 0 while a session matched fewer screens
         // than its baseline still fails.
@@ -292,7 +313,7 @@ export function writeCheckpointSummary(results) {
 }
 
 function main(args) {
-    parseCheckpointArgs(args);
+    const { verbose } = parseCheckpointArgs(args);
     const status = spawnSync('git', ['status', '--porcelain'],
         { encoding: 'utf8' }).stdout.trim();
     if (status) {
@@ -302,7 +323,7 @@ function main(args) {
         process.exit(1);
     }
     const commands = checkpointCommands();
-    const { allPassed, results } = runCheckpointChecks(commands);
+    const { allPassed, results } = runCheckpointChecks(commands, { verbose });
     writeCheckpointSummary(results);
     if (!allPassed) process.exitCode = 1;
 }

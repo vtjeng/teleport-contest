@@ -328,9 +328,39 @@ test('a summarize verdict decides a check the command called green', () => {
     assert.equal(output.at(-1), 'FAIL  full test suite');
 });
 
-test('checkpoint parser rejects unknown options', () => {
+test('checkpoint parser accepts --verbose and rejects unknown options', () => {
+    assert.deepEqual(parseCheckpointArgs([]), { verbose: false });
+    assert.deepEqual(parseCheckpointArgs(['--verbose']), { verbose: true });
     assert.throws(
         () => parseCheckpointArgs(['--wat']),
         /unknown checkpoint option/,
     );
+});
+
+test('quiet mode suppresses passing output and tails failures', () => {
+    const output = [];
+    const failStdout = Array.from({ length: 50 }, (_, i) => `line ${i}`).join('\n');
+    const { allPassed: passed } = runCheckpointChecks([
+        { label: 'full test suite', command: 'npm', args: ['test'] },
+        { label: 'static check', command: 'node', args: ['check'] },
+    ], {
+        run(command, args, opts) {
+            // quiet mode always passes encoding: 'utf8'
+            assert.equal(opts?.encoding, 'utf8');
+            return {
+                status: command === 'node' ? 1 : 0,
+                stdout: command === 'node' ? failStdout : 'all good',
+                stderr: '',
+            };
+        },
+        output: (line) => output.push(line),
+        verbose: false,
+    });
+
+    assert.equal(passed, false);
+    // Passing check: no stdout dumped
+    assert.equal(output.includes('all good'), false);
+    // Failing check: last 20 lines shown, full output written to file
+    assert.ok(output.some((line) => line.includes('lines written to')));
+    assert.ok(output.some((line) => line.includes('line 49')));
 });
