@@ -366,3 +366,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-26	efcc25a	slice	12	33	2211	7765	152253	610816	2240	7765					flying-floating-pool-lava closes. Development 2211 of 7765 screens, 152253 of 610816 rng. 12 of 33 sessions.
 2026-08-26	efcc25a	goal	12	33	2211	7765	152253	610816	2240	7765	274	3640	36562	182022	can-teleport-monster-action closes. Development 2211 of 7765 screens, 152253 of 610816 rng. 12 of 33 sessions. Holdout 274/3640 screens, 36562/182022 rng.
 2026-08-26	231b412	goal	12	33	2211	7765	152253	610816	2240	7765	274	3640	36562	182022	can-teleport-monster-action closes. Development 2211 of 7765 screens, 152253 of 610816 rng. 12 of 33 sessions. Holdout 274/3640 screens, 36562/182022 rng.
+2026-08-26	0991191	slice	12	33	2215	7765	152329	610816	2244	7765					dart-trap-hero-arm closes. Development 2211->2215 of 7765 screens, 152253->152329 of 610816 rng. 12 of 33 sessions.
