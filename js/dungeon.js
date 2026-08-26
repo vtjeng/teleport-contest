@@ -721,6 +721,44 @@ export async function next_level(at_stairs, state = game, env = {}) {
     );
 }
 
+// C ref: dungeon.c prev_level() (1518-1543), the '<' command's ascent.
+// Mirrors next_level() above. goto_level() is injected to keep the module
+// graph acyclic.
+export async function prev_level(at_stairs, state = game, env = {}) {
+    const gotoLevel = env.gotoLevel;
+    if (typeof gotoLevel !== 'function')
+        throw new TypeError('prev_level requires a gotoLevel operation');
+    const stway = stairway_at(state.u.ux, state.u.uy, state);
+
+    if (at_stairs && stway) stway.u_traversed = true;
+
+    if (at_stairs && stway && stway.tolev.dnum !== state.u.uz.dnum) {
+        // Taking an up dungeon branch.
+        if (!state.u.uz.dnum && state.u.uz.dlevel === 1
+            && !state.u.uhave?.amulet) {
+            // done(ESCAPED) -- escaping the dungeon. Not ported.
+            throw new Error('prev_level: escaping the dungeon is not ported');
+        } else {
+            return gotoLevel(
+                { dnum: stway.tolev.dnum, dlevel: stway.tolev.dlevel },
+                at_stairs,
+                false,
+                false,
+                state,
+            );
+        }
+    } else {
+        // Going up a stairs or rising through the ceiling.
+        return gotoLevel(
+            { dnum: state.u.uz.dnum, dlevel: state.u.uz.dlevel - 1 },
+            at_stairs,
+            false,
+            false,
+            state,
+        );
+    }
+}
+
 function deepest_lev_reached(state) {
     let deepest = 0;
     for (let dnum = 0; dnum < state.dungeons.length; ++dnum) {

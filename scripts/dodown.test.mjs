@@ -216,12 +216,14 @@ function destinationAlreadyVisited(state, destination = null) {
     return state;
 }
 
-// The refusal destinationAlreadyVisited() arranges.
+// The refusal destinationAlreadyVisited() arranges. getlev() now contains the
+// real restore logic and throws when no snapshot data exists; LFILE_EXISTS
+// tells goto_level() to take the reload branch, and the absence of snapshot
+// data produces the error.
 function rejectsAtTheReload(state) {
     return assert.rejects(
         dodown(state),
-        (error) => error instanceof UnsupportedLevelChangeError
-            && /returning to a level already visited/u.test(error.message),
+        (error) => /getlev: no saved level/u.test(error.message),
     );
 }
 
@@ -648,7 +650,7 @@ test('autodig with a wielded pick stops before use_pick_axe2()', async () => {
 // Marking the destination as a level that already exists makes the getlev()
 // reload the "nothing stopped earlier" answer, which is cheaper to assert
 // than a generated level.
-const DESTINATION_REFUSAL = /returning to a level already visited/u;
+const DESTINATION_REFUSAL = /getlev: no saved level/u;
 
 test('goto_level returns without a refusal when the destination is this level',
     async () => {

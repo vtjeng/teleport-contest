@@ -1,9 +1,10 @@
-// do.js -- Commands that drop, dig into, or descend through the floor.
+// do.js -- Commands that drop, dig into, or descend through the floor, and
+// the up command.
 // C refs: do.c -- dodrop(), flooreffects(), canletgo(), drop(), dropx(),
-// dropy(), dropz(), trycall(), u_stuck_cannot_go(), dodown(), goto_level(),
-// u_collide_m(), temperature_change_msg() and set_wounded_legs(); dokick.c
-// obj_delivery(); mon.c kill_genocided_monsters(); questpgr.c
-// deliver_splev_message().
+// dropy(), dropz(), trycall(), u_stuck_cannot_go(), dodown(), doup(),
+// goto_level(), u_collide_m(), temperature_change_msg() and
+// set_wounded_legs(); dokick.c obj_delivery(); mon.c
+// kill_genocided_monsters(); questpgr.c deliver_splev_message().
 
 import {
     ACH_BGRM,
@@ -11,6 +12,7 @@ import {
     BOTH_SIDES,
     CORR,
     DIR_DOWN,
+    DIR_UP,
     DOOR,
     ECMD_FAIL,
     ECMD_OK,
@@ -35,8 +37,11 @@ import {
     OBJ_FREE,
     ROOM,
     RLOC_NOMSG,
+    SLT_ENCUMBER,
+    STAIRS,
     TIMEOUT,
     TT_BURIEDBALL,
+    TT_PIT,
     UNENCUMBERED,
     UTOTYPE_NONE,
     UTOTYPE_ATSTAIRS,
@@ -83,6 +88,7 @@ import {
     level_info,
     next_level,
     on_level,
+    prev_level,
     set_dunlev_reached,
     u_on_newpos,
     u_on_rndspot,
@@ -98,6 +104,7 @@ import {
     notice_mon_on,
     set_uinwater,
     switch_terrain,
+    u_locomotion,
     u_rooted,
 } from './hack.js';
 import {
@@ -116,6 +123,7 @@ import { PM_ROGUE, PM_TOURIST } from './monsters.js';
 import {
     is_pick, objectType, place_object, remove_object, set_bknown,
 } from './obj.js';
+import { oinit } from './o_init.js';
 import { donameFresh, vtense } from './objnam.js';
 import {
     BOULDER,
@@ -135,6 +143,7 @@ import {
 } from './pickup.js';
 import { com_pager } from './questpgr.js';
 import { in_out_region, visible_region_at } from './region.js';
+import { getlev } from './restore.js';
 import { cloneIsaacContext, createCoreRandom, rn2 } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
@@ -143,6 +152,7 @@ import {
     stairway_at,
     stairway_find_from,
     stairway_free_all,
+    u_on_dnstairs,
     u_on_upstairs,
 } from './stairs.js';
 import { Punished, stucksteed } from './steed.js';
@@ -1000,6 +1010,65 @@ export async function dodown(state = game) {
     return ECMD_TIME;
 }
 
+// C ref: do.c doup() (1298-1344). The '<' command's staircase ascent.
+// Precondition checks mirror dodown(). The pit arm calls climb_pit(), which
+// is not ported; the witness hero is not in a pit.
+export async function doup(state = game) {
+    const u = state.u;
+    const stway = stairway_at(u.ux, u.uy, state);
+
+    set_move_cmd(DIR_UP, 0, state);
+
+    if (await u_rooted(state)) return ECMD_TIME;
+
+    // do.c:1308-1311. "up" to get out of a pit.
+    if (u.utrap && u.utraptype === TT_PIT) {
+        // climb_pit() is not ported. Defer.
+        throw new UnsupportedLevelChangeError(
+            'doup() climbing out of a pit',
+        );
+    }
+
+    if (!stway || (stway && !stway.up)) {
+        await ttyPline('You can\'t go up here.', state);
+        return ECMD_OK;
+    }
+    if (stucksteed(true, state)) {
+        return ECMD_OK;
+    }
+
+    if (u_stuck_cannot_go('up', state)) return ECMD_TIME;
+
+    if (near_capacity(state) > SLT_ENCUMBER) {
+        /* No levitation check; inv_weight() already allows for it */
+        await ttyPline(
+            `Your load is too heavy to climb the ${
+                state.level?.at(u.ux, u.uy)?.typ === STAIRS
+                    ? 'stairs' : 'ladder'
+            }.`,
+            state,
+        );
+        return ECMD_TIME;
+    }
+    if (ledger_no(u.uz, state) === 1) {
+        // do.c:1331-1335. Leaving the dungeon. y_n("Beware, there will be
+        // no return! Still climb?"). The debug fuzzer returns ECMD_OK; the
+        // y_n answer is unported.
+        throw new UnsupportedLevelChangeError(
+            'doup() at ledger 1 (leaving the dungeon)',
+        );
+    }
+    if (!next_to_u(state)) {
+        await ttyPline('You are held back by your pet!', state);
+        return ECMD_OK;
+    }
+    state.ga ??= {};
+    state.ga.at_ladder = state.level?.at(u.ux, u.uy)?.typ === LADDER;
+    await prev_level(true, state, { gotoLevel: goto_level });
+    state.ga.at_ladder = false;
+    return ECMD_TIME;
+}
+
 // C ref: do.c goto_level() (1478-1998), for first-time arrival on an ordinary
 // main-dungeon level through stairs or positive-decimal level teleport.
 //
@@ -1013,9 +1082,10 @@ export async function dodown(state = game) {
 // the arrival tail at 1967-1993.
 //
 // Not covered, each named at its site: the endgame, tutorial, portal, falling,
-// punished, Gehennom, Knox, Mines, Sokoban and Rogue-level arms, and the
-// getlev() reload at 1704-1711. Common Quest-entrance, shop-entry, object
-// pickup, and dwarf earth-sense arrival effects are included below.
+// punished, Gehennom, Knox, Mines, Sokoban and Rogue-level arms. The getlev()
+// reload at 1704-1711 and the ascending-at-stairs placement and message at
+// 1747-1764 are now ported. Common Quest-entrance, shop-entry, object pickup,
+// and dwarf earth-sense arrival effects are included below.
 //
 // One caution about `state`: In_endgame() and In_tutorial() are js/const.js's
 // renderings of the dungeon.h macros and read the module-level game. They
@@ -1201,10 +1271,15 @@ export async function goto_level(
         // svl.level.bonesinfo is empty and no name can match.
     } else {
         // do.c:1704-1711, the reload: open_levelfile(), two reseed_random()
-        // calls, getlev() and oinit(). None is ported.
-        throw new UnsupportedLevelChangeError(
-            'goto_level() returning to a level already visited',
-        );
+        // calls, getlev() and oinit().
+        //
+        // The two reseed_random() calls are no-ops in the patched C build
+        // (has_strong_rngseed is false), so they produce no RNG draws.
+        // getlev() restores the level from the in-memory snapshot that
+        // savelev() saved. oinit() reassigns gem probabilities for the new
+        // depth.
+        getlev(new_ledger, state);
+        oinit(state);
     }
 
     // do.c:1713 reglyph_darkroom() rewrites the remembered glyph of every
@@ -1225,14 +1300,42 @@ export async function goto_level(
             (up ? 1 : 0) | (was_in_W_tower ? 2 : 0),
             state,
         );
-    } else if (up) {
-        // The climbing arm at do.c:1767-1780 belongs with doup().
-        throw new UnsupportedLevelChangeError(
-            'goto_level() arriving from below',
-        );
-    }
-
-    if (at_stairs) {
+    } else if (at_stairs && up) {
+        // do.c:1747-1764. Ascending at stairs: place the hero on the
+        // downstair of the destination level (the stairway that connects
+        // back to the level she came from).
+        const stway = stairway_find_from(u.uz0, state.ga?.at_ladder, state);
+        if (stway) {
+            u_on_newpos(stway.sx, stway.sy, state);
+            stway.u_traversed = true;
+        } else if (newdungeon) {
+            // u_on_sstairs(1) places the hero on a branch staircase whose
+            // direction is "up" (ascending implies the branch connects
+            // upward).
+            throw new UnsupportedLevelChangeError(
+                'goto_level() ascending into a new dungeon',
+            );
+        } else {
+            u_on_dnstairs(state);
+        }
+        // do.c:1758-1764. Transit message for ascending at stairs.
+        // great_effort = (Punished && !Levitation) -- the punished arm is
+        // refused at do.c:1616 above, so great_effort is always false here.
+        if (Punished(state)) {
+            throw new UnsupportedLevelChangeError(
+                'goto_level() ascending while punished',
+            );
+        }
+        if (state.flags?.verbose) {
+            await ttyPline(
+                `You ${u_locomotion('climb', state)} up the ${
+                    state.ga?.at_ladder ? 'ladder' : 'stairs'
+                }.`,
+                state,
+            );
+        }
+    } else if (at_stairs) {
+        // do.c:1765-1800. Descending at stairs.
         const stway = stairway_find_from(u.uz0, state.ga?.at_ladder, state);
         if (stway) {
             u_on_newpos(stway.sx, stway.sy, state);
@@ -1246,38 +1349,35 @@ export async function goto_level(
         } else {
             u_on_upstairs(state);
         }
-    }
-
-    if (!at_stairs) {
-        /* random level-teleport placement has no stair transit message */
-    } else if (!u.dz) {
-        /* stayed on same level? (no transit effects) */
-    } else if (heroPropertyActive(u, FLYING)) {
-        // do.c:1776. "You fly down the stairs." This tests only Flying's
-        // (HFlying || EFlying) half: the steed term cannot fire because
-        // stucksteed() refuses a mounted hero above, and no port path writes
-        // BFlying. Widen it to the whole macro when either becomes reachable.
-        // No hero the port builds can fly.
-        throw new UnsupportedLevelChangeError(
-            'goto_level() with a flying hero',
-        );
-    } else if (near_capacity(state) > UNENCUMBERED
-               || Punished(state) || heroPropertyActive(u, FUMBLING)) {
-        // do.c:1783-1795, the fall. It calls rnd(3) through losehp() and
-        // drag_down()/ballrelease() for a punished hero. Ordinary pickup can
-        // now make the burdened arm reachable, but the complete stair-fall
-        // behavior remains excluded; the punished arm is already refused at
-        // do.c:1616 above.
-        throw new UnsupportedLevelChangeError(
-            'goto_level() falling down the stairs',
-        );
-    } else if (state.flags?.verbose) { /* ordinary descent */
-        await ttyPline(
-            state.ga?.at_ladder
-                ? 'You climb down the ladder.'
-                : 'You descend the stairs.',
-            state,
-        );
+        if (!u.dz) {
+            /* stayed on same level? (no transit effects) */
+        } else if (heroPropertyActive(u, FLYING)) {
+            // do.c:1776. "You fly down the stairs." This tests only Flying's
+            // (HFlying || EFlying) half: the steed term cannot fire because
+            // stucksteed() refuses a mounted hero above, and no port path
+            // writes BFlying. Widen it to the whole macro when either becomes
+            // reachable. No hero the port builds can fly.
+            throw new UnsupportedLevelChangeError(
+                'goto_level() with a flying hero',
+            );
+        } else if (near_capacity(state) > UNENCUMBERED
+                   || Punished(state) || heroPropertyActive(u, FUMBLING)) {
+            // do.c:1783-1795, the fall. It calls rnd(3) through losehp() and
+            // drag_down()/ballrelease() for a punished hero. Ordinary pickup
+            // can now make the burdened arm reachable, but the complete
+            // stair-fall behavior remains excluded; the punished arm is
+            // already refused at do.c:1616 above.
+            throw new UnsupportedLevelChangeError(
+                'goto_level() falling down the stairs',
+            );
+        } else if (state.flags?.verbose) { /* ordinary descent */
+            await ttyPline(
+                state.ga?.at_ladder
+                    ? 'You climb down the ladder.'
+                    : 'You descend the stairs.',
+                state,
+            );
+        }
     }
 
     // do.c:1812 placebc() puts a punished hero's ball and chain down; u.uball

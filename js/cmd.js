@@ -50,6 +50,7 @@ import {
 import {
     dodown,
     dodrop,
+    doup,
     UnsupportedDropError,
     UnsupportedLevelChangeError,
 } from './do.js';
@@ -992,7 +993,7 @@ export async function parseCommand(state = game) {
 // the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'apply', 'close', 'down', 'drop', 'pickup', 'takeoff', 'wear',
+    'eat', 'apply', 'close', 'down', 'up', 'drop', 'pickup', 'takeoff', 'wear',
     'puton', 'zap', 'reqmenu', 'fight', 'options', 'wizwish', 'wizlevelport',
     'wizgenesis', 'fire', 'throw', 'swap', 'kick', 'save', 'wield', '#',
 ]);
@@ -1712,6 +1713,13 @@ async function runDownCommand(key, state) {
     return failClosedCommand(key, state, () => dodown(state));
 }
 
+// C ref: do.c doup(), the '<' command. Like dodown() it returns its own ECMD_*
+// result, because doup() distinguishes the refusal that spends no turn from
+// the arms that spend one.
+async function runUpCommand(key, state) {
+    return failClosedCommand(key, state, () => doup(state));
+}
+
 // C ref: do.c dodrop(), the 'd' command. Like dosearch() and doeat() it
 // returns its own ECMD_* result, because drop() answers ECMD_FAIL for a
 // refusal that spends no turn and ECMD_TIME for the object that lands.
@@ -2057,6 +2065,8 @@ async function doextcmd(key, state) {
         return await runZapCommand(key, state);
     case 'dodown':
         return await runDownCommand(key, state);
+    case 'doup':
+        return await runUpCommand(key, state);
     case 'dodrop':
         return await runDropCommand(key, state);
     case 'dopickup':
@@ -2423,6 +2433,24 @@ export async function rhack(key, state = game) {
             // same reason it is in the arms above, because cmd.c:3805-3809
             // documents (ECMD_TIME|ECMD_CANCEL) as a real result.
             const res = await runDownCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'up') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the '#', `search`, `eat` and `down` arms apply. The
+            // MOVEMENTCMD and domove_attempting tests above them at 3773-3800
+            // cannot divert this command: extcmdlist[]'s "up" row carries
+            // CMD_M_PREFIX alone, and set_move_cmd(DIR_UP, 0) leaves
+            // domove_attempting at 0 because zdir[DIR_UP] is nonzero.
+            //
+            // doup() answers ECMD_OK for "can't go up here" and the pet
+            // holdback, ECMD_TIME for u_rooted/u_stuck_cannot_go/overloaded
+            // and for the successful ascent.
+            const res = await runUpCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

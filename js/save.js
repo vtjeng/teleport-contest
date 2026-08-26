@@ -36,7 +36,9 @@
 // module initialization; neither belongs in a module-scope value initializer
 // while the cycle remains.
 import { yn_function } from './cmd.js';
-import { ECMD_OK, FULL_MOON, RANGE_LEVEL, VISITED } from './const.js';
+import {
+    ECMD_OK, FULL_MOON, LFILE_EXISTS, RANGE_LEVEL, VISITED,
+} from './const.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { save_light_sources } from './light.js';
@@ -48,9 +50,60 @@ import { vfsWriteFile } from './storage.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
 import { tty_raw_print } from './tty_rawprint.js';
 
+// ── Level-local timer and light source capture ──
+//
+// save_timers(RANGE_LEVEL) and save_light_sources(RANGE_LEVEL) unlink the
+// level-local entries from the global chains. To restore a level later, the
+// port captures those entries into the level snapshot *before* the teardown
+// discards them. The capture walks the same linked list and collects the
+// entries that would match the `timer_is_local` / `obj_is_local` test the
+// real teardown uses.
+
+function captureLocalTimers(state) {
+    const base = state.gt?.timer_base;
+    if (!base) return null;
+    // timer_is_local checks whether the timer's target object lives on the
+    // level. Walk the chain and collect the local timers, which are the
+    // ones save_timers(RANGE_LEVEL) will unlink.
+    const captured = [];
+    for (let timer = base; timer; timer = timer.next) {
+        // timer_is_local is not exported from timeout.js, but its logic for
+        // RANGE_LEVEL is: the timer matches when its target obj is on the
+        // level (obj_is_local in timeout.c). The save_timers implementation
+        // tests `(range === RANGE_LEVEL) === timer_is_local(current, state)`.
+        // Rather than importing and duplicating the local-test, capture every
+        // timer that is present before save_timers runs, and let save_timers
+        // decide which to keep. We capture all and let getlev splice the
+        // level-local subset back in.
+        //
+        // Simpler: just take a snapshot of the whole timer chain. getlev()
+        // restores only the level-local ones, which are exactly the ones
+        // save_timers removed from the chain.
+        captured.push(timer);
+    }
+    return captured.length ? captured : null;
+}
+
+function captureLocalLights(state) {
+    const base = state.gl?.light_base;
+    if (!base) return null;
+    const captured = [];
+    for (let light = base; light; light = light.next) {
+        captured.push(light);
+    }
+    return captured.length ? captured : null;
+}
+
 // C ref: save.c savelev()/savelev_core(), called from do.c goto_level() with
 // mode `WRITING | FREEING`. `ledger` is C's `lev`, the ledger number of the
 // level being left.
+//
+// The port extends C's teardown-only savelev with in-memory level
+// serialization: before discarding timers and lights, the level's complete
+// state is captured into `state._savedLevels[ledger]` so that getlev() can
+// restore it when the hero returns. C writes each piece to a binary level
+// file; the port keeps the live objects in memory and captures a snapshot
+// before teardown removes them.
 export function savelev(ledger, state = game) {
     // savelev_core() purges the dead before it writes them. dobjsfree() has
     // no port counterpart: go.objs_deleted is written only by obj_extract_self
@@ -60,11 +113,57 @@ export function savelev(ledger, state = game) {
 
     level_info(ledger, state).flags |= VISITED;
 
+    // ── Capture level state before teardown ──
+    //
+    // C's savelev_core(WRITING|FREEING) serializes the level to a binary file,
+    // then frees the data structures. The port keeps the level objects in
+    // memory, so "serialize" means copying the references into a snapshot keyed
+    // by ledger number. getlev() reads the snapshot back when the hero returns.
+    //
+    // Capture timers and lights now, because save_timers(RANGE_LEVEL) and
+    // save_light_sources(RANGE_LEVEL) below will unlink the level-local entries
+    // from the global chains.
+    const allTimersBefore = captureLocalTimers(state);
+    const allLightsBefore = captureLocalLights(state);
+
     // "timers and lights must be saved before monsters and objects", says the
     // comment at the same point in C. Order matters there because the freed
     // monsters and objects are what the locality tests read.
     save_timers(RANGE_LEVEL, state);
     save_light_sources(RANGE_LEVEL, state);
+
+    // The timers/lights that save_timers/save_light_sources just unlinked are
+    // the level-local ones. Derive them by diffing the before and after chains.
+    const survivingTimers = new Set();
+    for (let t = state.gt?.timer_base; t; t = t.next) survivingTimers.add(t);
+    const levelTimers = allTimersBefore
+        ? allTimersBefore.filter((t) => !survivingTimers.has(t))
+        : [];
+
+    const survivingLights = new Set();
+    for (let l = state.gl?.light_base; l; l = l.next) survivingLights.add(l);
+    const levelLights = allLightsBefore
+        ? allLightsBefore.filter((l) => !survivingLights.has(l))
+        : [];
+
+    // Store the snapshot. The key is the ledger number of the level.
+    state._savedLevels ??= {};
+    state._savedLevels[ledger] = {
+        level: state.level,
+        stairs: state.stairs,
+        head_engr: state.head_engr,
+        smeq: state.smeq ? [...state.smeq] : null,
+        omoves: state.moves,         // C: svm.moves saved as svo.omoves
+        updest: state.updest ? { ...state.updest } : {},
+        dndest: state.dndest ? { ...state.dndest } : {},
+        timers: levelTimers,
+        lights: levelLights,
+    };
+
+    // Mark LFILE_EXISTS so goto_level knows a save exists for this level.
+    // C's create_levelfile() sets this flag; the port sets it here because
+    // there is no file system and the snapshot is the equivalent of the file.
+    level_info(ledger, state).flags |= LFILE_EXISTS;
 }
 
 // ── dosave / dosave0 — the #save command ──
