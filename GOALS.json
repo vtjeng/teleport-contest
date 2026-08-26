@@ -4278,8 +4278,8 @@
         },
         {
           "name": "magic-trap-hero-arm",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "3da3578bc024f33da1d4ceebe20dc6a71b42f40b"
         }
       ],
       "openedAt": "a088ee607e1fa14bd0c816a16cdd57af919ad169",
