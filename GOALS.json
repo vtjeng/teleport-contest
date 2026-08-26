@@ -4751,6 +4751,43 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "cast-command",
+      "status": "open",
+      "boundary": "The hero types Z (cast), dispatching spell.c docast(). docast() calls getspell() to select a spell and spelleffects() to cast it.",
+      "upstreamOwners": [
+        "spell.c"
+      ],
+      "forecast": {
+        "steps": 3,
+        "basis": "All 3 ahead steps are from the cast command (spell selection, direction, effect). No second independent behavior appears in the stream.",
+        "sessions": [
+          "seed0501-priest-cast-read-turn"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0501-priest-cast-read-turn",
+            "evidence": "Step 4: hero types Z (cast). C dispatches to spell.c docast():820. Hero selects healing spell a. spelleffects() asks direction, hero answers dot; the spell heals, producing You feel better."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "cast-healing-spell",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "5b483feaca861a7a83f786edb0e9de3cc634b380",
+      "openStanding": {
+        "sha": "9d666cc",
+        "screens": 2365,
+        "rng": 155729
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
