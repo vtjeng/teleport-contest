@@ -35,12 +35,14 @@ assigns the rest of the loop to the orchestrator and selectors. Read it to
 learn which steps belong to other agents. Report any gaps you find in its
 definition rather than editing the file.
 
-Two orchestrator steps appear in files you read. Skip both:
+Three orchestrator steps appear in files you read. Skip all three:
 
 - After each commit, "Per-chunk workflow" says to run `npm run quality`. The
   orchestrator runs it, so do not run it yourself.
 - `SCORE.tsv` event rows belong to the orchestrator. Put score and validation
   evidence in your report instead.
+- "Pushing and CI" says to watch the CI run after pushing. The orchestrator
+  watches CI from a background task, so push and return without polling.
 
 Beyond code and tests, you write two things. First, assign each new `js/`
 file to its `QUALITY.json` area with `npm run quality -- assign --file
@@ -86,9 +88,8 @@ the ban on `scripts/score-holdout.mjs` and `sessions/holdout/`.
   matches from the chosen starting point through the chosen result.
 - `npm run checkpoint` passes: every test passes and no session's development
   score regressed.
-- The work is committed, the working tree is clean, and the commits are pushed
-  with their CI run reporting `success`, as "Pushing and CI" in
-  `.agents/workflow.md` requires.
+- The work is committed, the working tree is clean, and the commits are
+  pushed.
 
 If you cannot reach that state, do not commit; report what blocked you. The
 next iteration then starts from a clean tree.
