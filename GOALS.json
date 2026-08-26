@@ -4533,7 +4533,13 @@
         ]
       },
       "detail": "dodrink() (potion.c:526-615, 90 lines): entry point. dopotion() (618-641, 24 lines): calls peffects(). peffects() (1333-1425, 93 lines): switch over 23 potion types. seed2200 path: dodrink()->getobj()->dopotion()->peffects()->peffect_speed()->speed_up(). speed_up() is 10 lines.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "dodrink-speed-potion",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "56bba516f4d967e2e30d95fd70026cb3b900ecaf",
       "openStanding": {
         "sha": "8f68d55",
