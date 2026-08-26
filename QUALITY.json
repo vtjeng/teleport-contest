@@ -4788,6 +4788,15 @@
       "status": "open",
       "from": "0be5415fe317a7468a103d1449374f172a072197",
       "detail": "PM_LEPRECHAUN's leppie_avoidance() (monmove.c:1874) is unported. The species guard blocks leprechaun before it enters dochug(). Porting requires translating the gold-distance avoidance term in m_move()."
+    },
+    {
+      "id": "magic-trap-complex-branches",
+      "area": "world-effects",
+      "category": "production",
+      "effort": "undecided",
+      "status": "open",
+      "from": "324254097a447f90924d668e3f1284b1f8caecaa",
+      "detail": "domagictrap() complex branches: fate < 10 (monster creation, blindness, deafness), fate 11 (invisibility toggle), fate 12 (fire trap), fate 19 (tame monsters), fate 20 (uncurse), and the 1/30 explosion branch (deltrap). Each needs unported helpers."
     }
   ],
   "areas": [
