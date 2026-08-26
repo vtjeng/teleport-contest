@@ -48,8 +48,14 @@ The orchestrator repeats without returning to the user between steps:
    (`.claude/agents/slice-selector.md`) to identify the next slice and
    queue it with `node scripts/goal-log.mjs queue-slice`. When the goal
    has only one slice remaining and the goal context names it completely,
-   the orchestrator may queue the slice directly and write
-   `.cache/slice-context.json` itself instead of spawning the selector.
+   the orchestrator may queue the slice directly instead of spawning the
+   selector.
+
+   Before spawning the worker, verify that `.cache/slice-context.json`
+   describes the queued slice. The slice-selector writes this file; when
+   the orchestrator queues the slice directly or a slice was already
+   queued when the loop started, write the file in the same format
+   (see `.claude/agents/slice-selector.md`).
 3. Spawn a worker for that slice. When it returns, establish what landed:
    `git log --oneline` and `git status --short` for the commits and tree.
    The worker runs `npm run checkpoint` after committing, so
