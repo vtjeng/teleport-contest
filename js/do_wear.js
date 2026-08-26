@@ -87,6 +87,7 @@ import { surface } from './dungeon.js';
 import { makeplural } from './fruit.js';
 import { effective_attribute } from './attrib.js';
 import { yn_function } from './cmd.js';
+import { set_artifact_intrinsic } from './artifacts.js';
 import { game } from './gstate.js';
 import { nomul, unmul } from './hack.js';
 import { getobj, prinv, update_inventory } from './invent.js';
@@ -359,10 +360,10 @@ export function setwornEnv(state = game) {
                 monstunseesu(cvt_prop_to_mseenres(propertyIndex), env.state);
             },
             // C ref: worn.c:105-106 set_artifact_intrinsic(). artifact.c owns
-            // it and no role starts with worn artifact armor, so a wished-for
-            // artifact suit is the only way in.
-            setArtifactIntrinsic: () => {
-                throw new UnsupportedTakeOffError('set_artifact_intrinsic()');
+            // the full implementation; the hook forwards with the caller's
+            // state so the right uprops array is updated.
+            setArtifactIntrinsic: (obj, on, mask, _env) => {
+                set_artifact_intrinsic(obj, on, mask, state);
             },
         },
     };

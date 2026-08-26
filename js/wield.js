@@ -8,14 +8,41 @@
 // each other.
 
 import {
-    A_DEX, ECMD_FAIL, ECMD_OK, ECMD_TIME, GLIB, HAND, plur, Upolyd, W_WEP,
+    A_DEX,
+    ECMD_CANCEL,
+    ECMD_FAIL,
+    ECMD_OK,
+    ECMD_TIME,
+    GETOBJ_ALLOWCNT,
+    GETOBJ_DOWNPLAY,
+    GETOBJ_EXCLUDE,
+    GETOBJ_PROMPT,
+    GETOBJ_SUGGEST,
+    GLIB,
+    HAND,
+    plur,
+    Upolyd,
+    W_ACCESSORY,
+    W_ARMOR,
+    W_SADDLE,
+    W_WEP,
 } from './const.js';
-import { artifact_light } from './artifacts.js';
-import { setwornEnv } from './do_wear.js';
+import {
+    artifact_light,
+    arti_speak,
+    touch_artifact,
+} from './artifacts.js';
+import { reset_remarm, setwornEnv } from './do_wear.js';
 import { effective_attribute } from './attrib.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
-import { prinv, update_inventory } from './invent.js';
+import {
+    addinv_nomerge,
+    freeinv,
+    getobj,
+    prinv,
+    update_inventory,
+} from './invent.js';
 import {
     could_twoweap,
     humanoid,
@@ -24,9 +51,11 @@ import {
     verysmall,
 } from './mondata.js';
 import {
+    clear_splitobjs,
     is_ammo,
     is_launcher,
     is_missile,
+    is_wet_towel,
     is_weptool,
     objectType,
     set_bknown,
@@ -35,6 +64,7 @@ import { is_plural, vtense, Yname2 } from './objnam.js';
 import {
     AKLYS,
     BELL_OF_OPENING,
+    COIN_CLASS,
     CORPSE,
     HEAVY_IRON_BALL,
     IRON_CHAIN,
@@ -287,19 +317,43 @@ export async function untwoweapon(state = game) {
     }
 }
 
-// C ref: artifact.c retouch_object() (2508-2591), reduced to the answer it
-// gives for an object the hero can handle. touch_artifact() returns 1 at once
-// for a non-artifact (artifact.c:914-915), and `ag` and `bane` are then both
-// false, so the function returns 1 without touching anything. Every other
-// object stops: the invocation bell, an artifact, and an item of silver in the
-// hands of a silver-hater each reach a branch that can blast the hero, drop
-// the item, or kill her.
+// C ref: artifact.c retouch_object() (2508-2591). touch_artifact() is the
+// first gate: it returns true at once for a non-artifact (artifact.c:914-915),
+// and can blast the hero or refuse an aligned artifact, both of which stop
+// here. When touch succeeds, the function checks `ag` (silver + Hate_silver)
+// and `bane` (bane_applies against the hero). Neither can hold for a hero who
+// does not Hate_silver and whom no artifact bane targets, so retouch_object
+// returns 1 without touching anything. The invocation bell has its own guard
+// at the top of C's function.
+//
+// Hate_silver is not ported as a predicate: no ported race hates silver and
+// nothing in the port grants the property. Objects whose material is silver
+// still stop if they are NOT artifacts, because then touch_artifact's early
+// return bypasses the ag/bane check, and retouch_object's own ag check would
+// be the next live code; it stays unported.
 function retouchOrdinaryObject(obj, state) {
-    if (obj.oartifact) throw new UnsupportedWieldError('touch_artifact()');
     if (obj.otyp === BELL_OF_OPENING)
         throw new UnsupportedWieldError('the invocation bell');
+    if (obj.oartifact) {
+        // For an artifact, touch_artifact() may spend rn2(4) and may throw
+        // on a blast. When it succeeds, the function checks ag (silver +
+        // Hate_silver) and bane (bane_applies against the hero). No ported
+        // race hates silver, and no artifact bane targets a human, so both
+        // are false and retouch_object returns 1.
+        if (!touch_artifact(obj, state.youmonst, state)) {
+            // C's retouch_object() removes the worn item and optionally
+            // drops it; both need remove_worn_item() and dropx().
+            throw new UnsupportedWieldError(
+                'retouch_object() after touch_artifact() refused',
+            );
+        }
+        return true;
+    }
+    // Non-artifact: touch_artifact() returns true at once for a non-artifact
+    // (artifact.c:914-915), and ag/bane are both false. The only remaining
+    // check is silver material and Hate_silver; no ported race hates silver.
     if (objectType(obj, state).oc_material === SILVER)
-        throw new UnsupportedWieldError('handling silver');
+        throw new UnsupportedWieldError('handling silver (non-artifact)');
     return true;
 }
 
@@ -307,13 +361,14 @@ function retouchOrdinaryObject(obj, state) {
 // works easily": puts `wep` in the hero's hand and reports what happened,
 // ECMD_TIME on every path that spends the turn.
 //
-// Four branches stop. A cockatrice corpse wielded bare-handed reaches
-// instapetrify(); a two-handed weapon under a shield, an artifact that speaks,
-// and an artifact that lights up each need a subsystem this port does not
-// have. The bottom-line test at 270-271 is C's, and its condition never
-// holds: condtests[bl_bareh] is an opt-in status condition that botl.c leaves
-// disabled, so a hero who goes from armed to empty-handed marks nothing here.
-// setworn(), which setuwep() calls, is what actually marks the status line.
+// Three branches stop. A cockatrice corpse wielded bare-handed reaches
+// instapetrify(); a two-handed weapon under a shield; and an artifact that
+// lights up (Sunsword). The arti_speak() path is ported for its early return
+// (no SPFX_SPEAK), and the speaking case stops. The bottom-line test at
+// 270-271 is C's, and its condition never holds: condtests[bl_bareh] is an
+// opt-in status condition that botl.c leaves disabled, so a hero who goes
+// from armed to empty-handed marks nothing here. setworn(), which setuwep()
+// calls, is what actually marks the status line.
 export async function ready_weapon(wep, state = game) {
     /* Separated function so swapping works easily */
     let res = ECMD_OK;
@@ -368,7 +423,7 @@ export async function ready_weapon(wep, state = game) {
 
         /* KMH -- Talking artifacts are finally implemented */
         if (wep.oartifact) {
-            throw new UnsupportedWieldError('arti_speak()');
+            res |= arti_speak(wep, state);
         }
 
         if (artifact_light(wep) && !wep.lamplit) {
@@ -391,6 +446,115 @@ function cant_wield_corpse(obj, state) {
     /* Stone_resistance, C's fourth disjunct, has no ported reader; a hero who
        has it would answer FALSE here too, so stopping is never wrong. */
     throw new UnsupportedWieldError('instapetrify()');
+}
+
+// C ref: wield.c wield_ok() (330-343), the getobj callback for #wield.
+// Coins are excluded, weapons and weapon-tools are suggested, and everything
+// else is downplayed (the hero can wield anything). Null (the "-" hands
+// choice) is suggested, because wielding nothing is a valid deliberate act.
+function wield_ok(obj, state) {
+    if (!obj)
+        return GETOBJ_SUGGEST;
+
+    if (obj.oclass === COIN_CLASS)
+        return GETOBJ_EXCLUDE;
+
+    if (obj.oclass === WEAPON_CLASS || is_weptool(obj, state))
+        return GETOBJ_SUGGEST;
+
+    return GETOBJ_DOWNPLAY;
+}
+
+// C ref: wield.c finish_splitting() (345-351). When getobj() answers a
+// partial stack (the hero typed a count), the child has no invlet of its own
+// yet. freeinv() removes it from the chain; addinv_nomerge() assigns a fresh
+// invlet and re-inserts without trying to merge it back.
+function finish_splitting(obj, state) {
+    freeinv(obj, { state });
+    addinv_nomerge(obj, { state });
+}
+
+// C ref: wield.c dowield() (354-457), the #wield command. Prompts the hero
+// for an object, handles conflicts with worn/quivered/swapped slots, and
+// calls ready_weapon() to put it in the hand.
+//
+// Several branches stop. Choosing '-' (empty hands) needs the &hands_obj
+// sentinel, which getobj() never returns. Choosing the quivered weapon when
+// the quiver holds a stack invokes ynq() and setuqwep(), both of which reach
+// unported subsystems. Choosing a worn item refuses with "You cannot wield
+// that!" only when the item is armor, an accessory or a saddle, which is the
+// full list of wornmasks the C function tests at 443. The objsplit arms that
+// handle a counted selection (the hero typed a digit at the getobj prompt)
+// stop because getobj() itself stops at the count path.
+export async function dowield(state = game) {
+    /* May we attempt this? */
+    state.multi = 0;
+    if (cantwield(state.youmonst?.data ?? state.mons[state.u.umonnum])) {
+        await ttyPline("Don't be ridiculous!", state);
+        return ECMD_FAIL;
+    }
+    /* Keep going even if inventory is completely empty, since wielding '-'
+       to wield nothing can be construed as a positive act even when done
+       so redundantly. */
+
+    /* Prompt for a new weapon */
+    clear_splitobjs(state);
+    const wep = await getobj(
+        'wield', (o) => wield_ok(o, state),
+        GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
+    );
+    if (!wep) {
+        /* Cancelled */
+        return ECMD_CANCEL;
+    }
+    if (wep === state.uwep) {
+        await ttyPline('You are already wielding that!', state);
+        if (is_weptool(wep, state) || is_wet_towel(wep))
+            state.unweapon = false; /* [see setuwep()] */
+        return ECMD_FAIL;
+    }
+    if (welded(state.uwep, state)) {
+        await weldmsg(state.uwep, state);
+        /* previously interrupted armor removal mustn't be resumed */
+        reset_remarm(state);
+        /* if player chose a partial stack but can't wield it, undo split */
+        const split = state.context?.objsplit;
+        if (wep.o_id && split && wep.o_id === split.child_oid)
+            throw new UnsupportedWieldError('unsplitobj() after welded');
+        return ECMD_FAIL;
+    }
+    if (wep.o_id && state.context?.objsplit
+        && wep.o_id === state.context.objsplit.child_oid) {
+        // The counted-selection path: getobj returned a partial stack.
+        // getobj() itself stops at the count path, so this is unreachable.
+        throw new UnsupportedWieldError('objsplit child in dowield');
+    }
+
+    /* Handle no object, or object in other slot */
+    // wep === &hands_obj: getobj() never returns the hands sentinel in this
+    // port (it stops at mime_action()); the null path that getobj() returns
+    // instead was caught as ECMD_CANCEL above.
+    if (wep === state.uswapwep) {
+        return doswapweapon(state);
+    }
+    if (wep === state.uquiver) {
+        // The quiver path offers to split stacked quivered ammo through
+        // ynq(), which is not ported in this form. Stop here.
+        throw new UnsupportedWieldError('wielding the quivered weapon');
+    }
+    if (wep.owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
+        await ttyPline('You cannot wield that!', state);
+        return ECMD_FAIL;
+    }
+
+    /* Set your new primary weapon */
+    const oldwep = state.uwep ?? null;
+    const result = await ready_weapon(wep, state);
+    if (state.flags.pushweapon && oldwep && (state.uwep ?? null) !== oldwep)
+        setuswapwep(oldwep, setwornEnv(state));
+    await untwoweapon(state);
+
+    return result;
 }
 
 // C ref: wield.c doswapweapon() (459-501), the #swap command. Exchanges the

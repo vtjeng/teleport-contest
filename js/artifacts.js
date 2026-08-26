@@ -8,24 +8,30 @@ import {
     A_LAWFUL,
     A_NEUTRAL,
     ANTIMAGIC,
+    BLINDED,
     COLD_RES,
     CONFLICT,
     DISINT_RES,
     DRAIN_RES,
+    ECMD_OK,
     ENERGY_REGENERATION,
     FIRE_RES,
     HALF_PHDAM,
     HALF_SPDAM,
+    HALLUC,
+    HALLUC_RES,
     INVIS,
     LAST_PROP,
     LEVITATION,
     NON_PM,
     POISON_RES,
     PROTECTION,
+    REFLECTING,
     REGENERATION,
     SEARCHING,
     SHOCK_RES,
     STEALTH,
+    TELEPAT,
     TELEPORT_CONTROL,
     ONAME_BONES,
     ONAME_GIFT,
@@ -39,6 +45,7 @@ import {
     Upolyd,
     W_ARM,
     W_ART,
+    W_WEP,
     ismnum,
 } from './const.js';
 import { game } from './gstate.js';
@@ -755,56 +762,106 @@ const ARTIFACT_SPFX_PROPERTY = [
     [SPFX_PROTECT, PROTECTION],
 ];
 
-// C ref: artifact.c set_artifact_intrinsic() (715-892), the `on` half of its
-// W_ART path -- what invent.c addinv_core1() runs when an artifact enters
-// inventory. That path reads the carried fields, cary and cspfx, and skips
-// both loops that survey the rest of inventory, because each is guarded on
-// `!on`. Three groups stop this port: the spfx bits that also drive display or
-// vision, the invoked-power shutdown, which is `!on` only, and the wielded
-// SUNSWORD arm, which needs W_WEP.
+// C ref: artifact.c set_artifact_intrinsic() (715-892). Toggles the extrinsic
+// properties an artifact confers when worn or carried.
+//
+// Paths:
+// - W_ART (carried): reads cary and cspfx; the "off" survey loops are not yet
+//   ported, so only the "on" half is handled.
+// - W_WEP and other worn masks: reads defn and spfx; handles both on and off.
+//   The "off" survey loops at 748-761 and 771-779 only fire for W_ART, so they
+//   do not apply here.
+//
+// Display-affecting spfx bits (ESP, WARN, XRAY) stop this port: they call
+// see_monsters() or set vision_full_recalc, neither of which is ported.
+// SPFX_HALRES is handled directly: the mask write that make_hallucinated()
+// performs is inlined, and the state-transition branch (hero is currently
+// hallucinating when the mask changes) is refused.
 export function set_artifact_intrinsic(otmp, on, wp_mask, state = game) {
     const normalized = artifactTables(state);
     const oart = get_artifact(otmp, normalized);
 
     if (oart === normalized.artilist[ART_NONARTIFACT]) return;
-    if (!on || wp_mask !== W_ART) {
+
+    if (wp_mask === W_ART && !on) {
+        // The "off" path for carried artifacts surveys inventory to avoid
+        // clearing a property another carried artifact also grants, and may
+        // shut down an invoked power. Neither is ported.
         throw new UnsupportedArtifactDisplayError(
-            'set_artifact_intrinsic() outside a carried artifact',
+            'set_artifact_intrinsic() removing a carried artifact',
         );
     }
 
-    /* intrinsics from the spfx field; there could be more than one */
-    // Read and refuse before the cary mask below, which is where C writes it.
-    // C completes both; the port stops on this group, so leaving the write in
-    // C's place would mean refusing after the hero's extrinsics had already
-    // moved -- a stop that has changed state, which ends the segment on a
-    // screen the port has diverged from. The remaining order is C's.
-    // 787-797 calls make_hallucinated(); 798-805 recalc_telepat_range() and
-    // see_monsters(); 824-840 see_monsters() and the svc.context.warntype.obj
-    // record; 859-866 the vision recalculation.
-    const spfx = oart.cspfx;
-    if (spfx & (SPFX_HALRES | SPFX_ESP | SPFX_WARN | SPFX_XRAY)) {
+    // Select fields: carried reads cary/cspfx, worn reads defn/spfx.
+    const dtyp = (wp_mask !== W_ART) ? oart.defn.adtyp : oart.cary.adtyp;
+    const spfx = (wp_mask !== W_ART) ? oart.spfx : oart.cspfx;
+
+    // ---- Display-affecting spfx: refuse before writing any mask ----
+    // Read these first so a refusal does not leave extrinsics half-changed.
+    // artifact.c:798-805 (SPFX_ESP) calls recalc_telepat_range + see_monsters.
+    // artifact.c:824-840 (SPFX_WARN) calls see_monsters and sets warntype.
+    // artifact.c:859-866 (SPFX_XRAY) sets xray_range and vision_full_recalc.
+    if (spfx & (SPFX_ESP | SPFX_WARN | SPFX_XRAY)) {
         throw new UnsupportedArtifactDisplayError(
-            'a carried artifact that changes what the hero sees',
+            'an artifact that changes what the hero sees (ESP/WARN/XRAY)',
         );
+    }
+
+    // artifact.c:787-797 (SPFX_HALRES): make_hallucinated((long) !on, ...,
+    // wp_mask). When mask != 0, make_hallucinated only toggles
+    // EHalluc_resistance, then checks HHallucination to decide whether the
+    // display changed. If the hero is currently hallucinating, the function
+    // would call see_monsters(), see_objects(), see_traps(), update_inventory(),
+    // and print a message, none of which is ported. When the hero is not
+    // hallucinating, make_hallucinated is just the mask write.
+    if (spfx & SPFX_HALRES) {
+        if (normalized.u.uprops[HALLUC].intrinsic) {
+            throw new UnsupportedArtifactDisplayError(
+                'toggling hallucination resistance while hallucinating',
+            );
+        }
+        // Inline make_hallucinated's mask-only path: when !xtime (on=true),
+        // set the resistance; when xtime (on=false), clear it.
+        if (on)
+            normalized.u.uprops[HALLUC_RES].extrinsic |= wp_mask;
+        else
+            normalized.u.uprops[HALLUC_RES].extrinsic &= ~wp_mask;
     }
 
     /* effects from the defn field */
-    const dtyp = oart.cary.adtyp;
     const property = ARTIFACT_RESISTANCE_PROPERTY.get(dtyp);
     if (property !== undefined)
-        extrinsicMask(normalized, property, wp_mask);
+        extrinsicMaskToggle(normalized, property, wp_mask, on);
 
     for (const [bit, prop] of ARTIFACT_SPFX_PROPERTY) {
-        if (spfx & bit) extrinsicMask(normalized, prop, wp_mask);
+        if (spfx & bit) extrinsicMaskToggle(normalized, prop, wp_mask, on);
     }
-    // 867-872's SPFX_REFLECT arm is guarded on `wp_mask & W_WEP`, which W_ART
-    // does not carry.
+
+    // artifact.c:867-872: SPFX_REFLECT is guarded on `wp_mask & W_WEP`.
+    if ((spfx & SPFX_REFLECT) && (wp_mask & W_WEP)) {
+        extrinsicMaskToggle(normalized, REFLECTING, wp_mask, on);
+    }
+
+    // artifact.c:880-885: invoked-power shutdown. Only for W_ART and !on,
+    // which is already refused above.
+
+    // artifact.c:887-892: Sunsword blindness resistance, guarded on W_WEP.
+    if (wp_mask === W_WEP && otmp.oartifact === ART_SUNSWORD) {
+        extrinsicMaskToggle(normalized, BLINDED, wp_mask, on);
+    }
 }
 
-function extrinsicMask(state, property, wp_mask) {
+function extrinsicMaskToggle(state, property, wp_mask, on) {
     const prop = state.u.uprops[property];
-    prop.extrinsic |= wp_mask;
+    if (on)
+        prop.extrinsic |= wp_mask;
+    else
+        prop.extrinsic &= ~wp_mask;
+}
+
+// Backward-compatible alias: the carried (W_ART, on=true) path only sets.
+function extrinsicMask(state, property, wp_mask) {
+    extrinsicMaskToggle(state, property, wp_mask, true);
 }
 
 // C ref: artifact.c artifact_name(). Answers the artifact whose name the
@@ -1059,6 +1116,24 @@ export function artifact_light(obj) {
         return true;
 
     return obj?.oartifact === ART_SUNSWORD;
+}
+
+// C ref: artifact.c arti_speak() (2279-2296). A speaking artifact (SPFX_SPEAK
+// set) whispers a rumor from the rumors file when wielded. The only two
+// speaking artifacts are Sting and Orcrist (both SPFX_WARN_OF_MON |
+// SPFX_SPEAK). This port handles the early return for non-speaking artifacts
+// and stops at the speaking path, which needs getrumor() and verbalize1().
+export function arti_speak(obj, state = game) {
+    const normalized = artifactTables(state);
+    const oart = get_artifact(obj, normalized);
+    /* Is this a speaking artifact? */
+    if (oart === normalized.artilist[ART_NONARTIFACT]
+        || !(oart.spfx & SPFX_SPEAK))
+        return ECMD_OK; /* nothing happened */
+
+    // The speaking path reads a rumor and verbalize1()s it. getrumor() and
+    // verbalize1() are not ported.
+    throw new UnsupportedArtifactDisplayError('a speaking artifact (arti_speak)');
 }
 
 /** Port of artifact.c:permapoisoned(); currently only Grimtooth qualifies. */

@@ -150,6 +150,7 @@ import {
 import {
     doswapweapon,
     dotwoweapon,
+    dowield,
     UnsupportedTwoWeaponError,
     UnsupportedWieldError,
 } from './wield.js';
@@ -993,7 +994,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'apply', 'close', 'down', 'drop', 'pickup', 'takeoff', 'wear',
     'puton', 'zap', 'reqmenu', 'fight', 'options', 'wizwish', 'wizlevelport',
-    'wizgenesis', 'fire', 'throw', 'swap', 'kick', 'save', '#',
+    'wizgenesis', 'fire', 'throw', 'swap', 'kick', 'save', 'wield', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -2551,6 +2552,23 @@ export async function rhack(key, state = game) {
             // it.
             const res = await failClosedCommand(
                 key, state, () => dothrow(state),
+            );
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'wield') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3825. dowield()
+            // answers ECMD_CANCEL when the object prompt is escaped,
+            // ECMD_FAIL for "already wielding" or "cannot wield", and
+            // ECMD_TIME for the wield that happens. cmd.c:1921's "wield"
+            // row carries no flags at all, so neither the prefix test at
+            // 3693-3695 nor the MOVEMENTCMD and domove_attempting tests at
+            // 3773-3800 can divert it.
+            const res = await failClosedCommand(
+                key, state, () => dowield(state),
             );
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)

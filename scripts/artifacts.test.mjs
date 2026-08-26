@@ -38,8 +38,9 @@ import {
     touch_artifact,
 } from '../js/artifacts.js';
 import {
-    A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, ENERGY_REGENERATION, HALF_PHDAM,
-    HALF_SPDAM, LAST_PROP, NON_PM, W_ARM, W_ARMC, W_ART, W_WEP,
+    A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, ANTIMAGIC, ENERGY_REGENERATION,
+    HALF_PHDAM, HALF_SPDAM, HALLUC, HALLUC_RES, LAST_PROP, NON_PM,
+    W_ARM, W_ARMC, W_ART, W_WEP,
 } from '../js/const.js';
 import {
     AD_FIRE,
@@ -747,7 +748,11 @@ test('a hero touches a self-willed artifact her role and kind match', () => {
     assert.deepEqual(draws, [4]);
 });
 
-test('set_artifact_intrinsic covers only a carried artifact being taken up', () => {
+test('set_artifact_intrinsic refuses removing a carried artifact', () => {
+    // artifact.c:748-779: the "off" path for carried (W_ART) artifacts surveys
+    // the rest of inventory to avoid clearing a property another carried
+    // artifact also grants, and may shut down an invoked power. Neither survey
+    // is ported, so the off half throws.
     const state = stateFor('Val', 'neutral');
     init_artifacts(state);
     state.u = { uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
@@ -755,12 +760,75 @@ test('set_artifact_intrinsic covers only a carried artifact being taken up', () 
     })) };
     const eye = { oartifact: ART_EYE_OF_THE_AETHIOPICA };
 
-    // Dropping an artifact runs the same function with `on` false, and
-    // wielding one runs it with W_WEP; both halves survey the rest of
-    // inventory or reach arms this port does not have.
     assert.throws(() => set_artifact_intrinsic(eye, false, W_ART, state),
                   UnsupportedArtifactDisplayError);
-    assert.throws(() => set_artifact_intrinsic(eye, true, W_WEP, state),
-                  UnsupportedArtifactDisplayError);
-    assert.equal(state.u.uprops[ENERGY_REGENERATION].extrinsic, 0);
+});
+
+test('set_artifact_intrinsic sets worn intrinsics from defn and spfx', () => {
+    // artifact.c:731: worn (W_WEP) reads defn.adtyp, not cary.adtyp.
+    // The Eye of the Aethiopica has defn AD_MAGM (ANTIMAGIC) and worn spfx
+    // SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL, none of which are property bits.
+    // Its cspfx (SPFX_EREGEN | SPFX_HSPDAM) applies only to W_ART, so
+    // ENERGY_REGENERATION should remain 0.
+    const state = stateFor('Val', 'neutral');
+    init_artifacts(state);
+    state.u = { uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+        blocked: 0, extrinsic: 0, intrinsic: 0,
+    })) };
+    const eye = { oartifact: ART_EYE_OF_THE_AETHIOPICA };
+
+    set_artifact_intrinsic(eye, true, W_WEP, state);
+    // defn AD_MAGM sets ANTIMAGIC for the wielded mask.
+    assert.notEqual(state.u.uprops[ANTIMAGIC].extrinsic & W_WEP, 0,
+        'ANTIMAGIC should be set from defn.adtyp AD_MAGM');
+    // cspfx bits are not applied to a worn mask, so ENERGY_REGENERATION stays 0.
+    assert.equal(state.u.uprops[ENERGY_REGENERATION].extrinsic, 0,
+        'ENERGY_REGENERATION is cspfx-only, not set for W_WEP');
+});
+
+test('wielding Grayswandir sets hallucination resistance (SPFX_HALRES)', () => {
+    // artifact.c:787-797: SPFX_HALRES calls make_hallucinated((long)!on, ...,
+    // wp_mask). For a non-hallucinating hero this is just a mask write:
+    // potion.c:389-390 sets EHalluc_resistance |= mask.
+    // artilist.h:170-172: Grayswandir has SPFX_HALRES; defn is NO_DFNS.
+    const state = stateFor('Val', 'neutral');
+    init_artifacts(state);
+    state.u = { uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+        blocked: 0, extrinsic: 0, intrinsic: 0,
+    })) };
+
+    // Wielding on: set the resistance.
+    set_artifact_intrinsic(
+        { oartifact: ART_GRAYSWANDIR }, true, W_WEP, state);
+    assert.notEqual(state.u.uprops[HALLUC_RES].extrinsic & W_WEP, 0,
+        'HALLUC_RES should be set when wielding Grayswandir');
+
+    // Unwielding off: clear the resistance.
+    set_artifact_intrinsic(
+        { oartifact: ART_GRAYSWANDIR }, false, W_WEP, state);
+    assert.equal(state.u.uprops[HALLUC_RES].extrinsic & W_WEP, 0,
+        'HALLUC_RES should be cleared when unwielding Grayswandir');
+});
+
+test('set_artifact_intrinsic refuses SPFX_HALRES while hallucinating', () => {
+    // artifact.c:787-797: if the hero IS hallucinating, make_hallucinated()
+    // sets changed=true and follows with see_monsters(), see_objects(),
+    // see_traps(), update_inventory(), and a pline, none of which is ported.
+    const state = stateFor('Val', 'neutral');
+    init_artifacts(state);
+    state.u = { uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+        blocked: 0, extrinsic: 0, intrinsic: 0,
+    })) };
+    // Simulate an active hallucination timer.
+    state.u.uprops[HALLUC].intrinsic = 100;
+
+    assert.throws(
+        () => set_artifact_intrinsic(
+            { oartifact: ART_GRAYSWANDIR }, true, W_WEP, state),
+        UnsupportedArtifactDisplayError,
+    );
+    // Extrinsic should remain unchanged because the refusal fires before
+    // the mask write.
+    assert.equal(state.u.uprops[HALLUC_RES].extrinsic, 0,
+        'HALLUC_RES should not be set when the refusal fires');
 });
