@@ -4318,8 +4318,8 @@
       "slices": [
         {
           "name": "shopkeeper movement dispatch stationary case",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "5cff4b581a500ce179cbaa43737558e7df57de4f"
         }
       ],
       "openedAt": "64835acaa0f06e8249bcf49c9f171d312d5004e4",
