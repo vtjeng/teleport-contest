@@ -59,6 +59,34 @@ browser validation.
 
 ## Fresh differentials
 
+### Quick reference
+
+Record a fresh C case and compare it with the JS port in one command:
+
+```
+node scripts/diff-fresh.mjs --seed 42 --moves 'jjj' \
+  --role Valkyrie --race human --gender female --align neutral
+```
+
+Replay a recipe file (recipe contains only inputs, no recorded steps):
+
+```
+node scripts/diff-fresh.mjs recipes/my-case.session.json
+```
+
+Exit codes: 0 = strict parity, 1 = mismatch, 2 = recorder or runner failure.
+
+All options: `node scripts/diff-fresh.mjs --help`
+
+To scan many cases at once, write a scan plan and run
+`node scripts/scan-fresh.mjs <plan.json>`. It groups failures by their
+first divergence type and retains one case per group.
+
+To record a C session without comparing (for manual inspection):
+`node scripts/record-session.mjs <input.session.json> [output.session.json]`
+
+### Recording rules
+
 - Record fresh cases in `America/New_York`.
   `nethack-c/patches/001-deterministic-runtime.patch` carries the recording-time
   `tm_isdst` bit into fixed-datetime parsing. Preserve the resulting `mktime()`
