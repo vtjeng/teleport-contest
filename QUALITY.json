@@ -19511,6 +19511,198 @@
         "wallTimeSeconds": 600
       },
       "recordedAt": "2026-08-26T02:15:07.596Z"
+    },
+    {
+      "kind": "review",
+      "head": "23e12ccad481995a2d64a85d12888a1d7181c504",
+      "auditedRange": "cf2d1ac36d887519f5d17d6765b152b7e3d98eb8..23e12ccad481995a2d64a85d12888a1d7181c504",
+      "level": "full",
+      "areas": [
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 26 raw, 23 deduplicated, 17 confirmed, 9 applied, 8 deferred, 6 rejected, 0 unverified. Full correctness pass: 4 finders (correctness, readability, tests, variable-trace), adversarial adjudication. 26 raw, 23 deduped, 17 confirmed. 9 applied (2 production defects: BLND_RES in artifacts.js, rn1 injection in attrib.js; 1 dead-code removal; 1 comment fix; 4 test improvements; 1 duplicate merged). 8 deferred with quality entries. 6 rejected with counter-evidence. Development score unchanged at 152712 RNG, 2235 screens.",
+      "auditMetrics": {
+        "mode": "full",
+        "foundBy": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace"
+        ],
+        "counts": {
+          "raw": 26,
+          "deduplicated": 23,
+          "confirmed": 17,
+          "applied": 9,
+          "deferred": 8,
+          "rejected": 6,
+          "unverified": 0
+        },
+        "wallTimeSeconds": 1227,
+        "categories": {
+          "production": 8,
+          "tests": 7,
+          "clarity": 1,
+          "simplification": 1,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "file": "js/artifacts.js",
+            "function": "arti_invoke set_artifact_intrinsic",
+            "summary": "Sunsword writes BLINDED (15) instead of BLND_RES (38)",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/attrib.js",
+            "function": "poisoned",
+            "summary": "rn1 not in random fallback; bare rn1 call bypasses injected PRNG",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/end.js",
+            "function": "container_contents",
+            "summary": "container_contents uses donameFresh instead of C doname_with_price",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/mon.js",
+            "function": "mon_catchup_elapsed_time",
+            "summary": "mon_catchup_elapsed_time omits rn2 calls for mtrapped/mconf/mstun",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/mon.js",
+            "function": "mon_catchup_elapsed_time",
+            "summary": "mon_catchup_elapsed_time omits tameness-reduction code with rn2(wilder)",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/restore.js",
+            "function": "getlev",
+            "summary": "deferredSetMimicSym no-op stub skips set_mimic_sym rn2 calls",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/shk.js",
+            "function": "shk_move",
+            "summary": "shk_move returns 0 where C falls through onlineu to move_special",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/attrib.js",
+            "function": "poisoned",
+            "summary": "Duplicate of BLND_RES finding: rn1 bypass identified by readability finder",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "readiness": {
+          "boundary": "Trap activation through hero dart/magic trap effects; shopkeeper stationary movement; doup dispatch through level save/restore and ascending placement; garlic breath through iter_mons callback.",
+          "sourceReview": "Every branch and helper in the ported range was traced against upstream C. PRNG order verified through fresh differentials. Stubs and explicit stops identified for unported paths.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Excluded branches (climb_pit, undead-hero vomiting, ledger-1 departure) throw before changing state or consuming randomness."
+        },
+        "rejections": [
+          {
+            "summary": "Comment header range (627-690) doesn't match ported scope in restore.js:439",
+            "counterEvidence": "Prose-only concern; belongs in clarity audit, not correctness."
+          },
+          {
+            "summary": "Comment says getlev caller supplies a stub but stub is file-local in restore.js:514",
+            "counterEvidence": "Prose-only concern; the stub's location does not affect behavior."
+          },
+          {
+            "summary": "captureLocalTimers captures ALL timers despite name in save.js:62",
+            "counterEvidence": "Naming/simplification concern, not a correctness defect."
+          },
+          {
+            "summary": "Comment claims skipped paths reach return-0 or no-op move_special in shk.js:2057",
+            "counterEvidence": "Duplicate of confirmed finding #7 (shk_move onlineu); the comment is prose."
+          },
+          {
+            "summary": "Latent coupling between dart trap misfire rn2(15) and preflight_dotrap seen-trap refusal in trap_effects.js:466",
+            "counterEvidence": "Self-described as not a current defect; comment suggestion is readability."
+          },
+          {
+            "summary": "retouchOrdinaryObject name misleading now that it handles artifacts in wield.js:334",
+            "counterEvidence": "Naming/readability concern, not a correctness defect."
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "mon_catchup_elapsed_time omits rn2 calls for mtrapped/mconf/mstun",
+            "trackedIn": "catchup-rn2-mtrapped-mconf-mstun",
+            "category": "production"
+          },
+          {
+            "summary": "mon_catchup_elapsed_time omits tameness-reduction code with rn2(wilder)",
+            "trackedIn": "catchup-tameness-reduction",
+            "category": "production"
+          },
+          {
+            "summary": "deferredSetMimicSym no-op stub skips set_mimic_sym rn2 calls",
+            "trackedIn": "set-mimic-sym-stub-in-getlev",
+            "category": "production"
+          },
+          {
+            "summary": "shk_move returns 0 where C falls through onlineu to move_special",
+            "trackedIn": "shk-move-onlineu-fallthrough",
+            "category": "production"
+          },
+          {
+            "summary": "container_contents uses donameFresh instead of C doname_with_price",
+            "trackedIn": "container-contents-doname-with-price",
+            "category": "production"
+          },
+          {
+            "summary": "rejectsAtTheReload matches any Error, should type-check",
+            "trackedIn": "dodown-test-error-typing",
+            "category": "tests"
+          },
+          {
+            "summary": "savelev/getlev round-trip test has shallow assertions",
+            "trackedIn": "doup-savelev-roundtrip-depth",
+            "category": "tests"
+          },
+          {
+            "summary": "No test covers poisoned() attribute-loss branch",
+            "trackedIn": "poisoned-attrib-loss-branch-test",
+            "category": "tests"
+          }
+        ]
+      },
+      "recordedAt": "2026-08-26T15:02:10.695Z"
     }
   ]
 }
