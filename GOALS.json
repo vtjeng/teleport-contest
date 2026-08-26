@@ -4179,7 +4179,7 @@
     },
     {
       "id": "armor-on-dragon-scale-mail",
-      "status": "open",
+      "status": "closed",
       "boundary": "Armor_on() in do_wear.c for dragon scale mail: dragon_armor_handling() default-break path for silver and gray DSM, artifact_light check",
       "upstreamOwners": [],
       "forecast": null,
@@ -4197,8 +4197,11 @@
         "screens": 2204,
         "rng": 152018
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "7ea7ba3486ac2b674724e67fc0efacfdac111622",
+      "delivered": {
+        "screens": 7,
+        "rng": 235
+      }
     }
   ]
 }
