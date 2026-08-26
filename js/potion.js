@@ -1,30 +1,61 @@
-// potion.js -- what a potion's vapors do to the hero.
-// C ref: src/potion.c potionbreathe() (1931-2118),
-//        toggle_blindness() (336-364).
+// potion.js -- quaffing and vapor effects for potions.
+// C ref: src/potion.c dodrink() (526-615), drink_ok() (505-521),
+//        dopotion() (618-641), peffects() (1333-1425),
+//        peffect_speed() (1052-1070), speed_up() (2918-2928),
+//        itimeout/itimeout_incr/set_itimeout/incr_itimeout (55-86),
+//        potionbreathe() (1931-2118), toggle_blindness() (336-364).
 //
-// zap.c maybe_destroy_item() is the only ported caller of potionbreathe(): a
-// potion in the hero's own pack that boils, explodes or shatters sends its
-// vapors up at zap.c:5917. potion.c dodip() and peffects(), dothrow.c
-// potionhit() and trap.c's shattered potions reach the same function and none
-// of those is ported.
+// dodrink() is the #quaff command entry point. Branches for strangled,
+// fountain/sink, underwater, worn-potion, milky/smoky are fail-closed;
+// the common path calls getobj() -> dopotion() -> peffects().
+//
+// peffects() dispatches 23 potion types; only POT_SPEED (and spell alias
+// SPE_HASTE_SELF) is ported. The other 22 arms throw UnsupportedQuaffError.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
 // status changes. It forces a full vision rebuild and updates monster display.
 
 import {
+    A_DEX,
+    ECMD_CANCEL,
+    ECMD_OK,
+    ECMD_TIME,
+    FAST,
+    FROMOUTSIDE,
+    HALLUC,
+    GETOBJ_EXCLUDE,
+    GETOBJ_EXCLUDE_NONINVENT,
+    GETOBJ_NOFLAGS,
+    GETOBJ_SUGGEST,
     INFRAVISION,
+    INTRINSIC,
     INVIS,
+    IS_FOUNTAIN,
+    IS_SINK,
+    LEG,
     SEE_INVIS,
+    STRANGLED,
     TELEPAT,
+    TIMEOUT,
     WARN_OF_MON,
+    WOUNDED_LEGS,
     W_WEP,
 } from './const.js';
+import { exercise } from './attrib.js';
 import { see_monsters } from './display.js';
-import { trycall } from './do.js';
+import { heal_legs, trycall } from './do.js';
+import { more_experienced } from './exper.js';
+import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
+import { getobj, useup } from './invent.js';
+import { bcsign, objectType } from './obj.js';
 import { discover_object } from './o_init.js';
+import { body_part } from './polyself.js';
+import { rn1 } from './rng.js';
 import { vision_recalc } from './vision.js';
 import {
+    OBJ_DESCR,
+    POTION_CLASS,
     POT_ACID,
     POT_BLINDNESS,
     POT_BOOZE,
@@ -51,6 +82,12 @@ import {
     POT_SLEEPING,
     POT_SPEED,
     POT_WATER,
+    SPE_DETECT_MONSTERS,
+    SPE_DETECT_TREASURE,
+    SPE_HASTE_SELF,
+    SPE_INVISIBILITY,
+    SPE_LEVITATION,
+    SPE_RESTORE_ABILITY,
     TOWEL,
 } from './objects.js';
 import { heroIsBlind } from './startup_a11y.js';
@@ -63,6 +100,299 @@ export class UnsupportedPotionError extends Error {
         this.name = 'UnsupportedPotionError';
         this.branch = branch;
     }
+}
+
+// Thrown where dodrink/dopotion/peffects reaches a branch this port has not
+// ported: the 22 potion types besides POT_SPEED, and the strangled, fountain,
+// sink, underwater, worn-potion, milky and smoky branches of dodrink().
+export class UnsupportedQuaffError extends Error {
+    constructor(reason) {
+        super(`quaffing requires ${reason}`);
+        this.name = 'UnsupportedQuaffError';
+        this.reason = reason;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Timeout utilities
+// C ref: potion.c:55-86. Clamp and increment the timeout field of an
+// intrinsic property, whose layout is (flags | timeout) packed into a single
+// integer with TIMEOUT masking the low 24 bits.
+// ---------------------------------------------------------------------------
+
+// C ref: potion.c itimeout() (55-64). Clamp val into [0, TIMEOUT].
+function itimeout(val) {
+    if (val >= TIMEOUT) return TIMEOUT;
+    if (val < 1) return 0;
+    return val;
+}
+
+// C ref: potion.c itimeout_incr() (67-71). Add incr to old's timeout field.
+function itimeout_incr(old, incr) {
+    return itimeout((old & TIMEOUT) + incr);
+}
+
+// C ref: potion.c set_itimeout() (74-79). Overwrite the timeout field of the
+// intrinsic value pointed to by `prop` (an object with a mutable `.intrinsic`
+// field), keeping the flag bits above TIMEOUT.
+export function set_itimeout(prop, val) {
+    prop.intrinsic = (prop.intrinsic & ~TIMEOUT) | itimeout(val);
+}
+
+// C ref: potion.c incr_itimeout() (82-86). Increment the timeout field.
+export function incr_itimeout(prop, incr) {
+    set_itimeout(prop, itimeout_incr(prop.intrinsic, incr));
+}
+
+// ---------------------------------------------------------------------------
+// speed_up / peffect_speed
+// C ref: potion.c speed_up() (2918-2928), peffect_speed() (1052-1070).
+// ---------------------------------------------------------------------------
+
+// C ref: potion.c speed_up() (2918-2928). Grant timed FAST intrinsic and
+// print the speed-change message.
+export async function speed_up(duration, state = game) {
+    const hero = state.u;
+    const prop = hero.uprops[FAST] ??= { intrinsic: 0, extrinsic: 0 };
+
+    // C ref: youprop.h:377 Very_fast = ((HFast & ~INTRINSIC) || EFast).
+    // True when the hero has a timed speed (non-intrinsic timeout bits) or
+    // extrinsic speed (speed boots, etc.).
+    const Very_fast = Boolean((prop.intrinsic & ~INTRINSIC) || prop.extrinsic);
+    // C ref: youprop.h:376 Fast = (HFast || EFast).
+    const Fast = Boolean(prop.intrinsic || prop.extrinsic);
+
+    if (!Very_fast)
+        await ttyPline(
+            `You are suddenly moving ${Fast ? '' : 'much '}faster.`, state);
+    else
+        await ttyPline(
+            `Your ${makeplural(body_part(LEG, state.youmonst))} get new energy.`,
+            state);
+
+    await exercise(A_DEX, true, state);
+    incr_itimeout(prop, duration);
+}
+
+// C ref: potion.c peffect_speed() (1052-1070). Handle the POT_SPEED and
+// SPE_HASTE_SELF arms of peffects().
+async function peffect_speed(otmp, state = game) {
+    const is_speed = (otmp.otyp === POT_SPEED);
+    const hero = state.u;
+    const prop = hero.uprops[FAST] ??= { intrinsic: 0, extrinsic: 0 };
+
+    // C ref: 1057-1061. Skip when mounted; heal_legs() would heal the steed's
+    // legs instead. Fail-closed: u.usteed is not ported.
+    if (is_speed
+        && Boolean((hero.uprops[WOUNDED_LEGS]?.intrinsic ?? 0)
+                   || (hero.uprops[WOUNDED_LEGS]?.extrinsic ?? 0))
+        && !otmp.cursed && !hero.usteed) {
+        await heal_legs(state);
+        state.gp.potion_unkn++;
+        return;
+    }
+
+    await speed_up(rn1(10, 100 + 60 * bcsign(otmp)), state);
+
+    // C ref: 1066-1069. Non-cursed potion grants permanent intrinsic speed.
+    if (is_speed && !otmp.cursed
+        && !(prop.intrinsic & INTRINSIC)) {
+        await ttyPline('Your quickness feels very natural.', state);
+        prop.intrinsic |= FROMOUTSIDE;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// peffects / dopotion / dodrink
+// C ref: potion.c peffects() (1333-1425), dopotion() (618-641),
+//        drink_ok() (505-521), dodrink() (526-615).
+// ---------------------------------------------------------------------------
+
+// C ref: potion.c peffects() (1333-1425). Dispatch the effect of a quaffed
+// potion or spell. Returns >=0 if the effect short-circuits dopotion()'s tail
+// (0 = no time, 1 = time), -1 to continue to the tail.
+async function peffects(otmp, state = game) {
+    switch (otmp.otyp) {
+    case POT_RESTORE_ABILITY:
+    case SPE_RESTORE_ABILITY:
+        throw new UnsupportedQuaffError('peffect_restore_ability()');
+    case POT_HALLUCINATION:
+        throw new UnsupportedQuaffError('peffect_hallucination()');
+    case POT_WATER:
+        throw new UnsupportedQuaffError('peffect_water()');
+    case POT_BOOZE:
+        throw new UnsupportedQuaffError('peffect_booze()');
+    case POT_ENLIGHTENMENT:
+        throw new UnsupportedQuaffError('peffect_enlightenment()');
+    case SPE_INVISIBILITY:
+    case POT_INVISIBILITY:
+        throw new UnsupportedQuaffError('peffect_invisibility()');
+    case POT_SEE_INVISIBLE:
+    case POT_FRUIT_JUICE:
+        throw new UnsupportedQuaffError('peffect_see_invisible()');
+    case POT_PARALYSIS:
+        throw new UnsupportedQuaffError('peffect_paralysis()');
+    case POT_SLEEPING:
+        throw new UnsupportedQuaffError('peffect_sleeping()');
+    case POT_MONSTER_DETECTION:
+    case SPE_DETECT_MONSTERS:
+        throw new UnsupportedQuaffError('peffect_monster_detection()');
+    case POT_OBJECT_DETECTION:
+    case SPE_DETECT_TREASURE:
+        throw new UnsupportedQuaffError('peffect_object_detection()');
+    case POT_SICKNESS:
+        throw new UnsupportedQuaffError('peffect_sickness()');
+    case POT_CONFUSION:
+        throw new UnsupportedQuaffError('peffect_confusion()');
+    case POT_GAIN_ABILITY:
+        throw new UnsupportedQuaffError('peffect_gain_ability()');
+    case POT_SPEED:
+    case SPE_HASTE_SELF:
+        await peffect_speed(otmp, state);
+        break;
+    case POT_BLINDNESS:
+        throw new UnsupportedQuaffError('peffect_blindness()');
+    case POT_GAIN_LEVEL:
+        throw new UnsupportedQuaffError('peffect_gain_level()');
+    case POT_HEALING:
+        throw new UnsupportedQuaffError('peffect_healing()');
+    case POT_EXTRA_HEALING:
+        throw new UnsupportedQuaffError('peffect_extra_healing()');
+    case POT_FULL_HEALING:
+        throw new UnsupportedQuaffError('peffect_full_healing()');
+    case POT_LEVITATION:
+    case SPE_LEVITATION:
+        throw new UnsupportedQuaffError('peffect_levitation()');
+    case POT_GAIN_ENERGY:
+        throw new UnsupportedQuaffError('peffect_gain_energy()');
+    case POT_OIL:
+        throw new UnsupportedQuaffError('peffect_oil()');
+    case POT_ACID:
+        throw new UnsupportedQuaffError('peffect_acid()');
+    case POT_POLYMORPH:
+        throw new UnsupportedQuaffError('peffect_polymorph()');
+    default:
+        throw new Error(`What a funny potion! (${otmp.otyp})`);
+    }
+    return -1;
+}
+
+// C ref: youprop.h:119-120 Hallucination, the bare HALLUC intrinsic minus
+// the blocked term. Local because each file that needs it defines its own.
+function Hallucination(state) {
+    const prop = state.u?.uprops?.[HALLUC];
+    return Boolean(prop?.intrinsic && !prop?.blocked);
+}
+
+// C ref: potion.c dopotion() (618-641). Called by dodrink() after the potion
+// has been selected and milky/smoky checks have passed.
+async function dopotion(otmp, state = game) {
+    otmp.in_use = true;
+    state.gp.potion_nothing = 0;
+    state.gp.potion_unkn = 0;
+
+    const retval = await peffects(otmp, state);
+    if (retval >= 0) return retval ? ECMD_TIME : ECMD_OK;
+
+    if (state.gp.potion_nothing) {
+        state.gp.potion_unkn++;
+        await ttyPline(
+            `You have a ${Hallucination(state) ? 'normal' : 'peculiar'}`
+            + ' feeling for a moment, then it passes.',
+            state);
+    }
+    if (otmp.dknown && !objectType(otmp, state).oc_name_known) {
+        if (!state.gp.potion_unkn) {
+            // hack.h:1530 makeknown(x) is discover_object(x, TRUE, TRUE, TRUE).
+            discover_object(otmp.otyp, true, true, true, state);
+            more_experienced(0, 10, state);
+        } else {
+            trycall(otmp, state);
+        }
+    }
+    useup(otmp);
+    return ECMD_TIME;
+}
+
+// C ref: potion.c dodrink() (526-615). The #quaff command entry point.
+//
+// Fail-closed branches:
+// - Strangled: the hero cannot drink while strangled.
+// - Fountain, sink, underwater: the hero is not near these features on the
+//   speed-potion path this slice ports.
+// - Worn-potion (owornmask): splitobj/remove_worn_item for worn potions.
+// - Milky potion: ghost_from_bottle().
+// - Smoky potion: djinni_from_bottle().
+export async function dodrink(state = game) {
+    const hero = state.u;
+
+    // C ref: potion.c:530-533. Strangled hero cannot drink.
+    if (hero.uprops[STRANGLED]?.intrinsic) {
+        await ttyPline(
+            "If you can't breathe air, how can you drink liquid?", state);
+        return ECMD_OK;
+    }
+
+    // C ref: potion.c drink_ok_extra is a file-scope static that drink_ok()
+    // reads. The closure below captures it.
+    let drink_ok_extra = 0;
+
+    // C ref: potion.c:540-569. Fountain, sink, and underwater checks are
+    // guarded by !iflags.menu_requested (i.e. no 'm' prefix). Fail-closed
+    // because the speed-potion validation path does not exercise any of them.
+    if (!state.iflags.menu_requested) {
+        // C ref: potion.c:542-544. Fountain on the hero's square.
+        const typ = state.level.at(hero.ux, hero.uy).typ;
+        if (IS_FOUNTAIN(typ)) {
+            throw new UnsupportedQuaffError(
+                'the fountain prompt in dodrink()');
+        }
+        // C ref: potion.c:552-554. Kitchen sink on the hero's square.
+        if (IS_SINK(typ)) {
+            throw new UnsupportedQuaffError('the sink prompt in dodrink()');
+        }
+        // C ref: potion.c:562-564. Surrounded by water.
+        if (hero.uinwater && !hero.uswallow) {
+            throw new UnsupportedQuaffError(
+                'the underwater prompt in dodrink()');
+        }
+    }
+
+    // C ref: potion.c drink_ok() (505-521). getobj() callback: potions are
+    // suggested, everything else is excluded. The hands/self check communicates
+    // that the hero has already declined a dungeon-feature prompt.
+    function drink_ok(obj) {
+        if (!obj)
+            return drink_ok_extra
+                ? GETOBJ_EXCLUDE_NONINVENT : GETOBJ_EXCLUDE;
+        if (obj.oclass === POTION_CLASS) return GETOBJ_SUGGEST;
+        return GETOBJ_EXCLUDE;
+    }
+
+    const otmp = await getobj('drink', drink_ok, GETOBJ_NOFLAGS, state);
+    if (!otmp) return ECMD_CANCEL;
+
+    // C ref: potion.c:591-598. If the potion is worn (owornmask nonzero),
+    // split it off or remove it. Fail-closed because no ported path wears a
+    // potion.
+    if (otmp.owornmask) {
+        throw new UnsupportedQuaffError(
+            'the worn-potion splitobj/remove_worn_item branch in dodrink()');
+    }
+    otmp.in_use = true; // you've opened the stopper
+
+    // C ref: potion.c:601-612. Milky and smoky potion occupant checks.
+    // objdescr_is(otmp, s) compares OBJ_DESCR(objects[otmp->otyp]) with s.
+    // Fail-closed: both call helpers this port has not reached.
+    const descr = OBJ_DESCR(objectType(otmp, state), state);
+    if (descr === 'milky') {
+        throw new UnsupportedQuaffError('ghost_from_bottle()');
+    }
+    if (descr === 'smoky') {
+        throw new UnsupportedQuaffError('djinni_from_bottle()');
+    }
+
+    return await dopotion(otmp, state);
 }
 
 // C ref: potion.c toggle_blindness() (336-364). Called by Blindf_on() and

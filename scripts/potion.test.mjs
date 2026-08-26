@@ -12,7 +12,9 @@ import test from 'node:test';
 
 import { failClosedCommandRefusals } from '../js/cmd.js';
 
-import { INVIS, SEE_INVIS, BLINDED, FROMOUTSIDE } from '../js/const.js';
+import {
+    BLINDED, FAST, FROMOUTSIDE, INTRINSIC, INVIS, SEE_INVIS, TIMEOUT,
+} from '../js/const.js';
 import { trycall } from '../js/do.js';
 import { UnsupportedObjectNamingError, docall } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
@@ -48,7 +50,14 @@ import {
     POT_WATER,
     TOWEL,
 } from '../js/objects.js';
-import { UnsupportedPotionError, potionbreathe } from '../js/potion.js';
+import {
+    UnsupportedPotionError,
+    UnsupportedQuaffError,
+    incr_itimeout,
+    potionbreathe,
+    set_itimeout,
+    speed_up,
+} from '../js/potion.js';
 
 const POTION_TYPES = Object.freeze({
     POT_GAIN_ABILITY,
@@ -371,4 +380,109 @@ test('the potion refusals are ones the command seam converts', () => {
     const listed = failClosedCommandRefusals();
     assert.ok(listed.includes(UnsupportedPotionError));
     assert.ok(listed.includes(UnsupportedObjectNamingError));
+    // UnsupportedQuaffError is raised by dodrink/dopotion/peffects for
+    // unported branches. Dropping it would lose every screen the quaff
+    // command earned before the refusal.
+    assert.ok(listed.includes(UnsupportedQuaffError));
+});
+
+// ---------------------------------------------------------------------------
+// Timeout utilities: set_itimeout and incr_itimeout
+// C ref: potion.c:55-86. These clamp and increment the timeout field of an
+// intrinsic property packed as (flags | timeout) in a single integer.
+// ---------------------------------------------------------------------------
+
+test('set_itimeout replaces only the low TIMEOUT bits', () => {
+    // The intrinsic integer carries flag bits above TIMEOUT and a timeout
+    // value in the low 24 bits. set_itimeout replaces the timeout while
+    // keeping the flags. FROMOUTSIDE (0x04000000) is a typical flag bit
+    // above the TIMEOUT mask.
+    const prop = { intrinsic: FROMOUTSIDE | 50 };
+    set_itimeout(prop, 200);
+    // Flag bits survive, timeout is replaced.
+    assert.equal(prop.intrinsic & ~TIMEOUT, FROMOUTSIDE);
+    assert.equal(prop.intrinsic & TIMEOUT, 200);
+});
+
+test('set_itimeout clamps negative values to zero', () => {
+    // itimeout(val) returns 0 for val < 1, so a negative set clears the
+    // timeout without touching the flag bits.
+    const prop = { intrinsic: FROMOUTSIDE | 100 };
+    set_itimeout(prop, -5);
+    assert.equal(prop.intrinsic & TIMEOUT, 0);
+    assert.equal(prop.intrinsic & ~TIMEOUT, FROMOUTSIDE);
+});
+
+test('set_itimeout clamps large values to TIMEOUT', () => {
+    // itimeout(val) returns TIMEOUT for val >= TIMEOUT, preventing overflow
+    // into the flag bits.
+    const prop = { intrinsic: 0 };
+    set_itimeout(prop, TIMEOUT + 1000);
+    assert.equal(prop.intrinsic & TIMEOUT, TIMEOUT);
+});
+
+test('incr_itimeout adds to the existing timeout field', () => {
+    // The existing timeout is (intrinsic & TIMEOUT), and the increment is
+    // added to it. The flag bits above TIMEOUT are untouched.
+    const prop = { intrinsic: FROMOUTSIDE | 100 };
+    incr_itimeout(prop, 50);
+    assert.equal(prop.intrinsic & TIMEOUT, 150);
+    assert.equal(prop.intrinsic & ~TIMEOUT, FROMOUTSIDE);
+});
+
+test('incr_itimeout saturates at TIMEOUT instead of overflowing', () => {
+    // Adding a large increment to an already-large timeout should not
+    // overflow into the flag bits or wrap around.
+    const prop = { intrinsic: TIMEOUT - 10 };
+    incr_itimeout(prop, 100);
+    assert.equal(prop.intrinsic & TIMEOUT, TIMEOUT);
+});
+
+// ---------------------------------------------------------------------------
+// speed_up()
+// C ref: potion.c speed_up() (2918-2928). Prints the speed-change message,
+// calls exercise(A_DEX, TRUE), and increments HFast's timeout.
+// ---------------------------------------------------------------------------
+
+test('speed_up prints "much faster" when hero has no speed at all', async () => {
+    // !Very_fast and !Fast: the hero starts without any FAST property, so
+    // the message includes "much ". exercise(A_DEX, TRUE) draws rn2(19).
+    await startedGame(771010, 'SpeedNone');
+    const hero = game.u;
+    hero.uprops[FAST] = { intrinsic: 0, extrinsic: 0 };
+    clearTopline();
+    // duration = 160, chosen to be the C result for bcsign(uncursed) = 0:
+    // rn1(10, 100 + 60*0) = rn1(10, 100), range 100-109.
+    await speed_up(160, game);
+    assert.equal(toplines(), 'You are suddenly moving much faster.');
+    // The timeout was 0 and is now 160.
+    assert.equal(hero.uprops[FAST].intrinsic & TIMEOUT, 160);
+});
+
+test('speed_up prints "faster" when hero already has intrinsic speed',
+    async () => {
+    // !Very_fast but Fast: the hero has FROMOUTSIDE (permanent intrinsic)
+    // but no timed speed. Very_fast = (HFast & ~INTRINSIC) || EFast, which
+    // is false because the intrinsic is entirely flag bits (FROMOUTSIDE is
+    // a flag bit inside INTRINSIC). Fast = (HFast || EFast), true because
+    // HFast is nonzero.
+    await startedGame(771011, 'SpeedIntrinsic');
+    const hero = game.u;
+    hero.uprops[FAST] = { intrinsic: FROMOUTSIDE, extrinsic: 0 };
+    clearTopline();
+    await speed_up(160, game);
+    assert.equal(toplines(), 'You are suddenly moving faster.');
+});
+
+test('speed_up prints "legs get new energy" when hero is already Very_fast',
+    async () => {
+    // Very_fast: the hero has both FROMOUTSIDE and a nonzero timeout, or
+    // extrinsic speed. Here we use a timed timeout (timeout = 50) which
+    // sets (HFast & ~INTRINSIC) nonzero.
+    await startedGame(771012, 'SpeedVeryFast');
+    const hero = game.u;
+    hero.uprops[FAST] = { intrinsic: FROMOUTSIDE | 50, extrinsic: 0 };
+    clearTopline();
+    await speed_up(160, game);
+    assert.match(toplines(), /Your legs get new energy\./u);
 });

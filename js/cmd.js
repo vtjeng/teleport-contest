@@ -65,7 +65,11 @@ import { UnsupportedRegionPlacementError } from './mkmaze.js';
 import { docallcmd, UnsupportedObjectNamingError } from './do_name.js';
 import { UnsupportedObjectOperationError } from './obj.js';
 import { doloot, UnsupportedPickupError } from './pickup.js';
-import { UnsupportedPotionError } from './potion.js';
+import {
+    dodrink,
+    UnsupportedPotionError,
+    UnsupportedQuaffError,
+} from './potion.js';
 import { UnsupportedItemDestructionError } from './zap_destroy_items.js';
 import { UnsupportedPositionCheckError } from './teleport.js';
 import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
@@ -994,7 +998,7 @@ export async function parseCommand(state = game) {
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'apply', 'close', 'down', 'up', 'drop', 'pickup', 'takeoff', 'wear',
-    'puton', 'zap', 'reqmenu', 'fight', 'options', 'autopickup', 'wizwish',
+    'puton', 'quaff', 'zap', 'reqmenu', 'fight', 'options', 'autopickup', 'wizwish',
     'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick', 'save',
     'wield', '#',
 ]);
@@ -1467,6 +1471,11 @@ export function failClosedCommandRefusals() {
         // nor already called something.
         UnsupportedItemDestructionError,
         UnsupportedPotionError,
+        // potion.c dodrink()/dopotion()/peffects() raises this for the 22
+        // potion types besides POT_SPEED and for the strangled, fountain,
+        // sink, underwater, worn-potion, milky and smoky branches of
+        // dodrink() that this port has not reached.
+        UnsupportedQuaffError,
         UnsupportedObjectNamingError,
         // Two paths raise this. invent.c hold_another_object(), which
         // makewish() calls unguarded, raises it from its drop, artifact,
@@ -1705,6 +1714,13 @@ async function runCloseCommand(key, state) {
 // or not it had a charge left to spend.
 async function runZapCommand(key, state) {
     return failClosedCommand(key, state, () => dozap(state));
+}
+
+// C ref: potion.c dodrink(). Like dosearch() and doeat() it returns its own
+// ECMD_* result: ECMD_OK for the strangled refusal, ECMD_CANCEL for a
+// cancelled object prompt, and ECMD_TIME for the quaff that happens.
+async function runQuaffCommand(key, state) {
+    return failClosedCommand(key, state, () => dodrink(state));
 }
 
 // C ref: do.c dodown(). Like dosearch() and doeat() it returns its own ECMD_*
@@ -2415,6 +2431,21 @@ export async function rhack(key, state = game) {
             // cmd.c:2004's "zap" row carries no flags at all -- which is also
             // why an 'm' or 'F' prefix is refused ahead of this arm.
             const res = await runZapCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'quaff') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the '#', `search`, `eat` and `zap` arms apply.
+            // dodrink() reaches all three: ECMD_OK for the strangled refusal,
+            // ECMD_CANCEL for an escaped object prompt, and ECMD_TIME for the
+            // quaff that happens. cmd.c:1809's "quaff" row carries
+            // CMD_M_PREFIX, so an 'm' prefix sets iflags.menu_requested and
+            // skips the fountain/sink/underwater prompts.
+            const res = await runQuaffCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

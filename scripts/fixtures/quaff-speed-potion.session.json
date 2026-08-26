@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5500,
+      "datetime": "20000115090000",
+      "nethackrc": "OPTIONS=name:FreshDiff,role:Wizard,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,playmode:debug",
+      "moves": "  n\u0017potion of speed\rqn"
+    }
+  ]
+}
