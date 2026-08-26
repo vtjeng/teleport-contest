@@ -80,11 +80,11 @@ import {
     S_WRAITH,
 } from './monsters.js';
 import { upstart } from './hacklib.js';
-import { currency, sortloot, update_inventory } from './invent.js';
+import { sortloot, update_inventory } from './invent.js';
 import { isContainer } from './obj.js';
 import { BAG_OF_TRICKS, LARGE_BOX, STATUE } from './objects.js';
 import {
-    an, doname_with_price, the, thesimpleoname, the_unique_pm, xnameFresh,
+    an, donameFresh, the, thesimpleoname, the_unique_pm, xnameFresh,
 } from './objnam.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { canSpotMonster } from './startup_a11y.js';
@@ -572,7 +572,7 @@ export async function container_contents(
                 | (state.flags?.sortpack ? SORTLOOT_PACK : 0));
             const sorted = sortloot(box.cobj, sortflags, false, null, state);
             for (const entry of sorted) {
-                lines.push(`  ${doname_with_price(entry.obj, state, { currencyName: currency })}`);
+                lines.push(`  ${donameFresh(entry.obj, state)}`);
             }
         } else if (cat) {
             lines.push("  Schroedinger's cat!");

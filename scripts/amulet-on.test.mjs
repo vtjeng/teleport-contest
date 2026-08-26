@@ -138,7 +138,7 @@ test('Amulet_on no-op types complete without throwing', async () => {
 test('Amulet_on GUARDING discovers the type and recalculates AC', async () => {
     // do_wear.c:1077-1080. Calls makeknown (= discover_object with all
     // flags TRUE) then find_ac(). find_ac reads uamul->otyp == GUARDING
-    // and adds the amulet's AC bonus (objects.c a_ac = 2).
+    // and subtracts 2 from AC (do_wear.c:2496-2497, hardcoded).
     await initGame('amulet of guarding');
     game.uamul = null;
 
@@ -148,8 +148,9 @@ test('Amulet_on GUARDING discovers the type and recalculates AC', async () => {
     const amul = syntheticAmulet(AMULET_OF_GUARDING);
     await Amulet_on(amul, game);
 
-    assert.ok(game.u.uac < acBefore,
-        `AC drops from ${acBefore} to ${game.u.uac} for amulet of guarding`);
+    // do_wear.c:2496-2497: uac -= 2 for AMULET_OF_GUARDING.
+    assert.equal(game.u.uac, acBefore - 2,
+        `AC drops by exactly 2 (from ${acBefore} to ${game.u.uac})`);
 });
 
 // ---- STRANGULATION ----
@@ -201,9 +202,11 @@ test('Amulet_on RESTFUL_SLEEP sets HSleepy from rnd(98)+2', async () => {
     await Amulet_on(amul, game);
 
     const nap = game.u.uprops[SLEEPY].intrinsic & TIMEOUT;
-    // rnd(98) returns [1, 98], + 2 => [3, 100].
-    assert.ok(nap >= 3 && nap <= 100,
-        `HSleepy timer ${nap} is in range [3, 100]`);
+    // rnd(98) returns 84 for this seed/PRNG state, + 2 = 86.
+    // Pinned to the exact value so that a formula change (e.g. rnd(97)+3)
+    // fails rather than hiding in the 98-wide range.
+    assert.equal(nap, 86,
+        `HSleepy timer ${nap} should be 86 (rnd(98)=84, +2)`);
 });
 
 test('Amulet_on RESTFUL_SLEEP does not lengthen a shorter existing nap',
@@ -246,6 +249,11 @@ test('Amulet_on FLYING grants flight when the hero has no other source',
     assert.equal(game.u.uprops[FLYING].extrinsic & W_AMUL, W_AMUL,
         'extrinsic flying carries the W_AMUL bit from the amulet');
     assert.equal(game.uamul, amul, 'amulet is worn');
+    // do_wear.c:1069 calls makeknown(AMULET_OF_FLYING) when flight is new.
+    // disp.botl is also set (do_wear.c:1072) but bot() consumes the flag
+    // during message output before this assertion can observe it.
+    assert.equal(game.objects[AMULET_OF_FLYING].oc_name_known, 1,
+        'amulet type is discovered via makeknown');
 });
 
 // ---- fail-closed arms ----

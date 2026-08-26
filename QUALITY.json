@@ -4743,6 +4743,33 @@
       "status": "closed",
       "from": "6603971e3f7106d13cf43a3bfe494bc1e8cdea26",
       "detail": "DECgraphics symset: C renders backtick with decgfx=1 while JS renders diamond at seed0383 screen 43 row 8 col 16. Game logic and RNG match through 9706 calls but screen comparison fails for DEC graphics characters on deep generated levels."
+    },
+    {
+      "id": "loot-classify-instrument",
+      "area": null,
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "cf2d1ac36d887519f5d17d6765b152b7e3d98eb8",
+      "detail": "loot_classify TOOL_CLASS instrument subclass (js/invent.js:410): no session reaches this path yet"
+    },
+    {
+      "id": "loot-xname-suppressions",
+      "area": null,
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "cf2d1ac36d887519f5d17d6765b152b7e3d98eb8",
+      "detail": "loot_xname field suppressions (js/invent.js:458): no session reaches this path yet"
+    },
+    {
+      "id": "doloot-core-lootmon-redirect",
+      "area": null,
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "cf2d1ac36d887519f5d17d6765b152b7e3d98eb8",
+      "detail": "doloot_core_lootmon multi-container redirect (js/pickup.js:1342): no session reaches this path yet"
     }
   ],
   "areas": [

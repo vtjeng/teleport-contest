@@ -36,7 +36,7 @@ function placeFloorObjects(state, specs) {
         const s = specs[i];
         head = {
             otyp: s.otyp,
-            oclass: 8, /* TOOL_CLASS */
+            oclass: 6, /* TOOL_CLASS */
             olocked: s.olocked ?? 0,
             lknown: s.lknown ?? 0,
             cknown: 0,
@@ -199,6 +199,7 @@ test('doloot with unlocked container enters use_container and quits',
         state.nhDisplay.pushKey('n'.charCodeAt(0));
 
         const result = await doloot(state);
+        assert.equal(result, 0, 'doloot returns ECMD_OK (0) when quit');
         // 'q' exits immediately with no action, so no time passed.
         // The container's lknown is set; cknown stays 0 because nothing
         // was viewed or transferred (used === ECMD_OK, so containerdone

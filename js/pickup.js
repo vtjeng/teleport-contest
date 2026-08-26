@@ -1074,11 +1074,6 @@ async function use_container(obj, held, more_containers, state) {
             || state.invent.nobj));
     // Might take something out if container is not empty.
     const outokay = hasContents(state.gc.current_container);
-    let emptymsg = '';
-    if (!outokay) {
-        emptymsg = `${Ysimple_name2(state.gc.current_container, state)} is empty.`;
-    }
-
     // The for(;;) prompt loop.
     let c;
     for (;;) {
@@ -1170,7 +1165,6 @@ async function use_container(obj, held, more_containers, state) {
     }
 
     sellobj_state(SELL_NORMAL, state);
-    const result_obj = state.gc.current_container;
     if (state.gc.current_container)
         state.gc.current_container = null;
     else
@@ -1206,7 +1200,7 @@ function StunnedProp(state) {
 // Not covered: Confusion/reverse_loot() (refuses), loot_mon() (refuses),
 // cockatrice blind-no-glove arm (refuses).
 async function doloot_core(state) {
-    let c = -1;
+    let c = null;
     let timepassed = 0;
     const cc = { x: state.u.ux, y: state.u.uy };
     let underfoot = true;
