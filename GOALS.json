@@ -4464,7 +4464,7 @@
     },
     {
       "id": "autopickup-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "The hero types @ (autopickup toggle), dispatching options.c dotogglepickup(). dotogglepickup() flips flags.pickup and prints Autopickup: ON/OFF.",
       "upstreamOwners": [
         "options.c"
@@ -4491,8 +4491,8 @@
       "slices": [
         {
           "name": "autopickup-toggle",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "8f68d55698efe6626880d13ebe8a481629ef5661"
         }
       ],
       "openedAt": "b0b196e456674da3cefc5041e8af3d7b57db5250",
@@ -4501,8 +4501,11 @@
         "screens": 2313,
         "rng": 152858
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "8f68d55698efe6626880d13ebe8a481629ef5661",
+      "delivered": {
+        "screens": 9,
+        "rng": 2796
+      }
     }
   ]
 }
