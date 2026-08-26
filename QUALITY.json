@@ -5028,6 +5028,7 @@
         "js/hacklib.js",
         "js/moveloop_preamble.js",
         "js/nethack.js",
+        "js/restore.js",
         "js/rng.js",
         "js/timeout.js",
         "js/version.js"

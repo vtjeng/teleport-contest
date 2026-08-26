@@ -2,7 +2,7 @@
 // C ref: src/role.c selection helpers, rigid_role_checks(), role_init(),
 // Hello(), and Goodbye(); src/allmain.c welcome().
 
-import { P_CLERIC_SPELL } from './const.js';
+import { A_CURRENT, A_ORIGINAL, P_CLERIC_SPELL } from './const.js';
 import {
     M2_FEMALE,
     M2_HOSTILE,
@@ -589,4 +589,52 @@ export function welcomeIdentity(state) {
 export function welcomeMessage(state) {
     return `${Hello(state)} ${state.plname}, welcome to NetHack!  `
         + `You are a ${welcomeIdentity(state)}.`;
+}
+
+// C ref: allmain.c welcome(FALSE). For a restored game, the identity string
+// uses "the" instead of "a" and omits alignment and gender unless they have
+// changed from their original values. Alignment is shown when
+// u.ualignbase[A_ORIGINAL] != u.ualignbase[A_CURRENT] or when the hero is
+// "adrift" (u.ualign.type != u.ualignbase[A_CURRENT]); gender is shown only
+// when currentgend != flags.initgend.
+export function welcomeBackMessage(state) {
+    const flags = state.flags;
+    // C: currentgend = Upolyd ? u.mfemale : flags.female
+    const currentgend = Boolean(flags.female);
+    // C: adrift = (u.ualign.type != u.ualignbase[A_CURRENT])
+    const adrift = state.u.ualign.type !== state.u.ualignbase[A_CURRENT];
+
+    const role = state.urole ?? roles[flags.initrole];
+    const race = state.urace ?? races[flags.initrace];
+
+    // Build buf following C's welcome() for the !new_game path.
+    let buf = '';
+    // C: if (new_game || u.ualignbase[A_ORIGINAL] != u.ualignbase[A_CURRENT]
+    //        || adrift)
+    if (state.u.ualignbase[A_ORIGINAL] !== state.u.ualignbase[A_CURRENT]
+        || adrift) {
+        if (adrift) {
+            buf += ` adrift ${aligns[alignIndex(state.u.ualign.type)].adj}`;
+        } else {
+            buf += ` ${aligns[alignIndex(state.u.ualignbase[A_CURRENT])].adj}`;
+        }
+    }
+    // C: if (!gu.urole.name.f && (currentgend != flags.initgend))
+    if (!role.name.f && currentgend !== Boolean(flags.initgend)) {
+        buf += ` ${genders[Number(currentgend)].adj}`;
+    }
+    // C: Sprintf(eos(buf), " %s %s", gu.urace.adj,
+    //            (currentgend && gu.urole.name.f) ? ... : gu.urole.name.m);
+    const roleName = (currentgend && role.name.f) ? role.name.f : role.name.m;
+    buf += ` ${race.adj} ${roleName}`;
+
+    return `${Hello(state)} ${state.plname}, the${buf}, welcome back to NetHack!`;
+}
+
+// Map an alignment value (-1, 0, 1) to its index in the aligns[] array.
+function alignIndex(value) {
+    for (let i = 0; i < aligns.length; i++) {
+        if (aligns[i].value === value) return i;
+    }
+    return 0;
 }

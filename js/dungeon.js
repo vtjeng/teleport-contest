@@ -1649,7 +1649,7 @@ export function induced_align(pct, state = game, random = rn2) {
     return Align2amask(random(3) - 1);
 }
 
-function fixup_level_locations(state, roleFilecode) {
+export function fixup_level_locations(state, roleFilecode) {
     const topology = {};
     for (const [, target] of LEVEL_MAP) {
         const location = { dnum: 0, dlevel: 0 };

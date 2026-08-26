@@ -63,9 +63,23 @@ import {
 import {
     initialize_symbols_from_options,
 } from './symbols.js';
-import { ttyPline } from './tty_message.js';
+import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
 import { tty_create_nhwindow } from './wintty.js';
 import { NHW_MESSAGE } from './const.js';
+import { dorestore } from './restore.js';
+import { welcomeBackMessage } from './role_init.js';
+import {
+    cls,
+    docrt,
+    bot,
+    flush_screen,
+    reglyph_darkroom,
+} from './display.js';
+import {
+    init_vision_globals,
+    vision_reset,
+    vision_recalc,
+} from './vision.js';
 
 const RECORDER_SYSTEM_OPTIONS = Object.freeze({
     // nethack-c/upstream/sys/unix/sysconf, which nethack-c/build-recorder.sh
@@ -441,6 +455,53 @@ export class NethackGame {
         // live message-history clamp.
         activate_chosen_soundlib(g);
         tty_create_nhwindow(NHW_MESSAGE, g);
+
+        // ── Branch: restore saved game or start new one ──
+        // C ref: unixmain.c nethack_main() checks for a save file between
+        // init_sound_disp_gamewindows() and player_selection(). If a save
+        // exists, it calls restgame() -> dorecover() (restore.c:789-951)
+        // which restores the game state, redraws the map, and prints
+        // welcome(FALSE). moveloop(TRUE) then follows with resuming=true.
+        if (dorestore(g)) {
+            // Restore succeeded. The new segment's datetime and recorder
+            // state override whatever the save carried, so moveloop_preamble
+            // picks up the current segment's calendar.
+            g.fixedDatetime = this._datetime;
+            g.recorderIsDst = this._recorderIsDst;
+
+            // C ref: dorecover():926-927 reglyph_darkroom(), vision_reset().
+            // Vision globals were not saved; rebuild them from the restored
+            // level data.
+            init_vision_globals();
+            reglyph_darkroom(g);
+            vision_reset();
+
+            // C ref: dorecover():931 program_state.restoring = 0 (before
+            // docrt). Set up display for the restored game.
+            g.program_state.restoring = 0;
+            g.program_state.beyond_savefile_load = 1;
+            g.program_state.in_moveloop = 1;
+
+            // C ref: dorecover():944-945 docrt() + clear_nhwindow(WIN_MSG).
+            vision_recalc(0);
+            await cls();
+            await docrt();
+            await flush_screen(1);
+            await bot({ initialTtyRefresh: true });
+            clearTtyMessageWindow(g);
+
+            // C ref: dorecover():948 welcome(FALSE).
+            await ttyPline(welcomeBackMessage(g), g);
+
+            // C ref: allmain.c moveloop(TRUE):589. The preamble with
+            // resuming=true applies new date-dependent effects (moon phase,
+            // Friday the 13th) but skips gear-equip, pickup, and seer_turn.
+            await runMoveloopPreambleAtStartupBoundary(true, g, {
+                hooks: TTY_WINDOW_HOOKS,
+            });
+            return true;
+        }
+
         if (!await ttyPlayerSelection(g)) {
             g.program_state.gameover = true;
             return false;

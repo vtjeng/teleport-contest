@@ -73,7 +73,7 @@ export function savelev(ledger, state = game) {
 // dorestore() reads from the same path. C uses gs.SAVEF, which encodes the
 // uid and plname; this port has one game at a time and no uid, so a fixed
 // path suffices.
-const SAVE_FILE_PATH = 'nhsave';
+export const SAVE_FILE_PATH = 'nhsave';
 
 // C ref: save.c dosave():43-70, the #save command. Prompts "Really save?";
 // on a yes answer, serializes the game state via dosave0(), prints "Be
@@ -187,14 +187,11 @@ function safeStringify(value) {
 // hero struct, flags, moves, context, inventory, level data, dungeon state,
 // and related subsystems. Non-serializable values (functions, display
 // handles) are excluded by safeStringify's replacer.
-//
-// This is a first-pass serializer covering the fields the contest's witness
-// session exercises. The restore slice will define which fields it reads;
-// any field present here and absent there is harmless ballast.
 function serializeGameState(state) {
     return {
         // C ref: savegamestate() fields in save.c:265-333 order
         moves: state.moves,
+        hero_seq: state.hero_seq,
         flags: state.flags,
         u: state.u,
         iflags: serializeIflags(state.iflags),
@@ -208,12 +205,46 @@ function serializeGameState(state) {
         dungeon_topology: state.dungeon_topology,
         n_dgns: state.n_dgns,
         dungeons: state.dungeons,
+        branches: serializeBranches(state.branches),
+        specialLevels: serializeSpecialLevels(state.specialLevels),
+        smeq: state.smeq,
+        tune: state.tune,
         // Inventory and objects
         invent: state.invent,
+        // Equipment state: setworn() sets these game-level pointers; the
+        // restore path scans owornmask to rebuild them, but unweapon has no
+        // per-object representation. lastinvnr is the next inventory letter
+        // counter; head_engr is the engraving chain on this level.
+        unweapon: state.unweapon,
+        lastinvnr: state.lastinvnr,
+        head_engr: state.head_engr,
+        // Artifact tracking: artidisco records which artifacts the hero has
+        // identified; artiexist records which exist in the game.
+        artidisco: state.artidisco,
+        artiexist: state.artiexist,
+        // Object catalog: init_objects() shuffles descriptions using RNG, so
+        // the shuffled state must be saved for discovery display to work.
+        // Each entry's oc_name_idx, oc_descr_idx, and oc_prob capture the
+        // per-game shuffle, while discovery bits record what the hero knows.
+        objects: state.objects,
+        // svb.bases maps each object class to its first object index.
+        bases: state.svb?.bases,
+        // Discovery log: which object types the hero has identified.
+        disco: state.svd?.disco,
+        // Fruit list: custom fruit names from option parsing and gameplay.
+        pl_fruit: state.svp?.pl_fruit,
         // Game subsystems
         spl_book: state.spl_book,
         mvitals: state.mvitals,
         quest_status: state.quest_status,
+        // Hero identity and timing
+        wizard: state.wizard,
+        discover: state.discover,
+        multi: state.multi,
+        multi_reason: state.multi_reason,
+        ubirthday: state.ubirthday,
+        urealtime: state.urealtime,
+        track: state.track,
         // Calendar state needed for restore's moveloop_preamble
         fixedDatetime: state.fixedDatetime,
         recorderIsDst: state.recorderIsDst,
@@ -228,4 +259,31 @@ function serializeIflags(iflags) {
     // tty display state is rebuilt at restore, not serialized.
     delete copy.window_inited;
     return copy;
+}
+
+// Serialize the special-level chain as a flat array of entries without
+// the linked-list `.next` pointers. safeStringify()'s cycle detector
+// would null-out subsequent array elements because the first element's
+// `.next` chain visits them all, so stripping `.next` before serialization
+// preserves every entry. Restore rebuilds the chain.
+function serializeSpecialLevels(levels) {
+    if (!levels) return null;
+    return levels.map((entry) => {
+        if (!entry) return null;
+        const { next: _, ...rest } = entry;
+        return rest;
+    });
+}
+
+// Serialize the branch array without linked-list pointers. C's branch
+// list uses `.next`; the JS port keeps an array and a `.next` overlay.
+// Like specialLevels, safeStringify()'s cycle detector would null
+// revisited entries, so strip `.next` here and rebuild on restore.
+function serializeBranches(branches) {
+    if (!branches) return null;
+    return branches.map((entry) => {
+        if (!entry) return null;
+        const { next: _, ...rest } = entry;
+        return rest;
+    });
 }
