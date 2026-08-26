@@ -4461,6 +4461,42 @@
         "screens": 78,
         "rng": 146
       }
+    },
+    {
+      "id": "autopickup-command",
+      "status": "open",
+      "boundary": "The hero types @ (autopickup toggle), dispatching options.c dotogglepickup(). dotogglepickup() flips flags.pickup and prints Autopickup: ON/OFF.",
+      "upstreamOwners": [
+        "options.c"
+      ],
+      "forecast": {
+        "steps": 5,
+        "basis": "Capped look-ahead: seed0014 cappedStretch=5 (cap-stable). seed0006 contribution zeroed (serialize-bug divergence at screen 49, before boundary at step 95). Effective forecast: 5 from seed0014 only.",
+        "sessions": [
+          "seed0006-wizard-water-demon",
+          "seed0014-dequa-fountain-explore"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0006-wizard-water-demon",
+            "evidence": "Step 95: hero types @ (autopickup). C dispatches to options.c dotogglepickup(). Serialize-bug divergence at screen 49 (before boundary at step 95) zeroes this session contribution."
+          },
+          {
+            "session": "seed0014-dequa-fountain-explore",
+            "evidence": "Step 17: hero types @ (autopickup). C dispatches to options.c dotogglepickup(). dotogglepickup() flips flags.pickup from false to true. oc_to_str() finds empty pickup_types, printing Autopickup: ON, for all objects."
+          }
+        ]
+      },
+      "detail": "dotogglepickup() is 18 lines. seed0006 zeroed by serialize-bug screen divergence.",
+      "slices": [],
+      "openedAt": "b0b196e456674da3cefc5041e8af3d7b57db5250",
+      "openStanding": {
+        "sha": "ea75c05",
+        "screens": 2313,
+        "rng": 152858
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
