@@ -4245,6 +4245,40 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "trap-dart-and-magic",
+      "status": "open",
+      "boundary": "A walking hero steps onto a dart trap or magic trap during movement. preflight_dotrap() refuses these trap types. dotrap() at trap.c:2995 wraps trapeffect_selector() which dispatches to trapeffect_dart_trap() (trap.c:1250) and trapeffect_magic_trap() (trap.c:3830).",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 6,
+        "basis": "Capped look-ahead: 2 sessions, both cap-stable. seed0004 cappedStretch=4 (DART_TRAP). seed0012 cappedStretch=2 (MAGIC). Combined: 4+2=6.",
+        "sessions": [
+          "seed0004-feeding-pony",
+          "seed0012-monk-vault-escort"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "Step 234, byte y (movenorthwest) onto unseen dart trap. C path: hack.c domove_core() -> spoteffects() -> dotrap() (trap.c:2995) -> trapeffect_dart_trap() (trap.c:1250)."
+          },
+          {
+            "session": "seed0012-monk-vault-escort",
+            "evidence": "Step 25, byte K (runnorth) onto magic trap. C path: hack.c domove_core() -> spoteffects() -> dotrap() -> trapeffect_magic_trap() (trap.c:3830)."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "a088ee607e1fa14bd0c816a16cdd57af919ad169",
+      "openStanding": {
+        "sha": "231b412",
+        "screens": 2211,
+        "rng": 152253
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
