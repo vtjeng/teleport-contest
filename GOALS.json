@@ -4376,6 +4376,37 @@
         "screens": 7,
         "rng": 176
       }
+    },
+    {
+      "id": "garlic-breath",
+      "status": "open",
+      "boundary": "The hero eats a clove of garlic, reaching the garlic_breath() call in eat.c. garlic_breath() repels undead and makes the hero smell of garlic.",
+      "upstreamOwners": [
+        "eat.c"
+      ],
+      "forecast": {
+        "steps": 6,
+        "basis": "Capped look-ahead: seed0367 cappedStretch=6 (cap-stable).",
+        "sessions": [
+          "seed0367-priest-quest-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0367-priest-quest-tour",
+            "evidence": "Step 61: hero types e (eat). C doeat() flow reaches eat.c fprefx() CLOVE_OF_GARLIC case, calling iter_mons(garlic_breath). Prints This clove of garlic is delicious. Hero is a debug Priest on a quest tour."
+          }
+        ]
+      },
+      "detail": "garlic_breath() is a small function in eat.c (4 lines). It checks olfaction(mtmp->data) and distu() < 7, then calls monflee(). Called from fprefx() at eat.c:2167 for CLOVE_OF_GARLIC. The port eat.js already handles most eating paths; the garlic case throws UnsupportedEatError at eat.js:1713. Debt beyond this window includes teleport.",
+      "slices": [],
+      "openedAt": "8e0404f283e8541dc8ace5775813668a532b0891",
+      "openStanding": {
+        "sha": "0c49e93",
+        "screens": 2235,
+        "rng": 152712
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
