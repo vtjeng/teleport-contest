@@ -4136,7 +4136,7 @@
     },
     {
       "id": "wield-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "dowield() in wield.c: the hero types w, the port prompts 'What do you want to wield?', and the selected weapon is set via ready_weapon()",
       "upstreamOwners": [
         "wield.c dowield()",
@@ -4171,8 +4171,11 @@
         "screens": 2201,
         "rng": 151980
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "56a5570cfa09e9c4815f66feec0f55abb701cdd2",
+      "delivered": {
+        "screens": 3,
+        "rng": 38
+      }
     }
   ]
 }
