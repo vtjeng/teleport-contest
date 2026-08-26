@@ -51,6 +51,11 @@ The orchestrator repeats without returning to the user between steps:
    the orchestrator may queue the slice directly instead of spawning the
    selector.
 
+   Before spawning the slice-selector, verify that
+   `.cache/goal-context.json` describes the current goal. The
+   goal-selector writes this file; when the loop resumes with a goal
+   already in progress, write the file from the goal's GOALS.json entry.
+
    Before spawning the worker, verify that `.cache/slice-context.json`
    describes the queued slice. The slice-selector writes this file; when
    the orchestrator queues the slice directly or a slice was already
