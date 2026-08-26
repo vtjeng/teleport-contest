@@ -1,8 +1,8 @@
 // mhitu.js -- Monsters attacking the hero.
 // C ref: mhitu.c -- hitmsg(), missmu(), mswings_verb(), mswings(), getmattk(),
 // calc_mattacku_vars(), mtrapped_in_pit(), mattacku(), magic_negation(),
-// could_seduce(), hitmu(), mdamageu(), ranged_attk_available() and
-// passiveum().
+// could_seduce(), hitmu(), mdamageu(), ranged_attk_available(),
+// passiveum(), and gulp_blnd_check().
 
 import {
     A_CON,
@@ -1115,4 +1115,18 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
 
     /* These affect the enemy only if you are still a monster */
     return unsupported("a polymorphed hero's passive counter-attack");
+}
+
+// C ref: mhitu.c gulp_blnd_check() (1273-1285). Called when removing
+// a blindfold or lenses to check whether an engulfing monster immediately
+// blinds the hero. The condition requires u.uswallow (hero is engulfed),
+// which no ported path sets, so this always returns false.
+export function gulp_blnd_check(state = game) {
+    if (state.u.uswallow) {
+        // The hero is engulfed. The full branch calls
+        // attacktype_fordmg(), can_blnd(), and gulpmu(), none of which
+        // are ported.
+        throw new Error('gulp_blnd_check(): engulfed hero not ported');
+    }
+    return false;
 }

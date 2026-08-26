@@ -53,7 +53,7 @@ import { more_experienced } from './exper.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { losehp } from './hack.js';
-import { getobj, useup } from './invent.js';
+import { getobj, learn_unseen_invent, useup } from './invent.js';
 import { likes_fire } from './mondata.js';
 import { bcsign, objectType } from './obj.js';
 import { discover_object } from './o_init.js';
@@ -453,10 +453,6 @@ export async function dodrink(state = game) {
 //   The Stinging local is checked for the see_monsters() gate (the condition
 //   is cheap and wrong to skip) but the Sting_effects() call itself is
 //   refused, since no ported session wields that artifact.
-// - learn_unseen_invent(): fires only when !Blind (hero just regained sight).
-//   The Blindf_on() caller that reaches here always leaves the hero blind, so
-//   the condition is false on the common path. A future Blindf_off() caller
-//   that restores sight will need this ported; until then, refused.
 export function toggle_blindness(state = game) {
     const hero = state.u;
 
@@ -491,7 +487,7 @@ export function toggle_blindness(state = game) {
     // C ref: potion.c:362-363. learn_unseen_invent() marks dknown on objects
     // the hero picked up while blind. Fires only when the hero regains sight.
     if (!heroIsBlind(state)) {
-        throw new UnsupportedPotionError('learn_unseen_invent()');
+        learn_unseen_invent(state);
     }
 }
 

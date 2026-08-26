@@ -119,6 +119,7 @@ import {
 } from './mondata.js';
 import { MZ_SMALL, PM_ARCHEOLOGIST, S_CENTAUR } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
+import { gulp_blnd_check } from './mhitu.js';
 import {
     Is_dragon_armor,
     WrappingAllowed,
@@ -765,6 +766,71 @@ async function Blindf_on(obj, state = game) {
         );
     }
 
+    if (changed) {
+        toggle_blindness(state);
+    }
+}
+
+// C ref: do_wear.c Blindf_off() (1495-1534). The take-off half of the
+// blindfold/lenses dispatch. armoroff_or_accessory_off() calls it when
+// obj == ublindf. Calls setworn() to clear the W_TOOL slot, off_msg(),
+// then detects whether blindness status changed and calls
+// toggle_blindness().
+//
+// Four branches on (Blind, was_blind):
+//   1. (!Blind &&  was_blind): hero regains sight. gulp_blnd_check() tests
+//      whether an engulfing monster re-blinds immediately; if not, prints
+//      "You can see again." and toggles. This is the common path for the
+//      seed5006 witness.
+//   2. ( Blind &&  was_blind): still blind after removal. Prints
+//      "still cannot see" for non-lenses items.
+//   3. ( Blind && !was_blind): lost sight on removal (Eyes of the Overworld).
+//      Prints "You can't see anything now!" and sets ball-and-chain if
+//      Punished. Not reachable in current port because artifacts are refused
+//      by accessory_or_armor_on().
+//   4. (!Blind && !was_blind): no change, no message.
+//
+// Fail-closed items:
+// - set_bc(0): fires only when Punished. No ported session is punished
+//   while removing a blindfold.
+// - The "losing sight" branch (Blind && !was_blind): applies only to the
+//   Eyes of the Overworld artifact; unreachable in the current port.
+async function Blindf_off(otmp, state = game) {
+    const was_blind = heroIsBlind(state);
+    let changed = false;
+    const nooffmsg = !otmp;
+
+    if (!otmp)
+        otmp = state.ublindf;
+    if (!otmp) {
+        throw new Error('Blindf_off without eyewear?');
+    }
+
+    takeoffContext(state).mask &= ~W_TOOL;
+    setworn(null, otmp.owornmask, setwornEnv(state));
+    if (!nooffmsg)
+        await off_msg(otmp, state);
+
+    if (heroIsBlind(state)) {
+        if (was_blind) {
+            /* "still cannot see" makes no sense when removing lenses
+               since they can't have been the cause of your blindness */
+            if (otmp.otyp !== LENSES)
+                await ttyPline('You still cannot see.', state);
+        } else {
+            // Lost sight on removal -- only Eyes of the Overworld does this.
+            // accessory_or_armor_on() refuses artifacts, so this branch is
+            // unreachable in the current port.
+            throw new UnsupportedTakeOffError(
+                'Blindf_off() lost sight (Eyes of the Overworld)',
+            );
+        }
+    } else if (was_blind) {
+        if (!gulp_blnd_check(state)) {
+            changed = true;
+            await ttyPline('You can see again.', state);
+        }
+    }
     if (changed) {
         toggle_blindness(state);
     }
@@ -2442,12 +2508,14 @@ export async function armor_or_accessory_off(obj, state = game) {
 
     if (obj.owornmask & W_ARMOR) {
         await armoroff(obj, state);
+    } else if (obj === state.ublindf) {
+        // do_wear.c:1820-1821. Blindf_off does its own off_msg.
+        await Blindf_off(obj, state);
     } else {
-        // do_wear.c:1806-1826 dispatches Ring_off(), Amulet_off() and
-        // Blindf_off(); an amulet or a blindfold reaches here, a ring stops
-        // one frame earlier inside select_off().
+        // do_wear.c:1809-1819 dispatches Ring_off() and Amulet_off();
+        // a ring stops one frame earlier inside select_off().
         throw new UnsupportedTakeOffError(
-            'Ring_off()/Amulet_off()/Blindf_off()',
+            'Ring_off()/Amulet_off()',
         );
     }
     return ECMD_TIME;

@@ -86,6 +86,7 @@ import { cmdq_clear, cmdq_pop, yn_function } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
 import { digit } from './hacklib.js';
+import { PM_ARCHEOLOGIST, PM_CLERIC } from './monsters.js';
 import { observe_object } from './o_init.js';
 import { ttyPline } from './tty_message.js';
 import {
@@ -181,6 +182,7 @@ import {
     donameFresh,
     doname_with_price,
     vtense,
+    xnameFresh,
 } from './objnam.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
@@ -1328,6 +1330,43 @@ export function preflight_update_inventory(env = {}) {
     const normalized = inventoryEnv(env);
     requireInventoryRefresh(normalized);
     return normalized;
+}
+
+// C ref: invent.c learn_unseen_invent() (2750-2775). Called when the hero
+// regains sight (e.g. removing a blindfold). Iterates inventory and marks
+// items that were picked up while blind as seen, by calling xnameFresh()
+// (which sets dknown via observe_object()) and triggering any reactions
+// that seeing the object for the first time produces (addinv_core2).
+//
+// addinv_core2() handles two effects: set_moreluck() for luckstones and
+// the Archeologist scroll-deciphering message. Neither fires in any ported
+// session's Blindf_off path (no luckstone in inventory, no Archeologist
+// role), so it is omitted here with a fail-closed comment.
+export function learn_unseen_invent(state = game) {
+    if (heroIsBlind(state))
+        return; /* sanity check */
+
+    let invupdated = false;
+    for (let otmp = inventoryHead(state); otmp; otmp = otmp.nobj) {
+        // C ref: invent.c:2759-2761. Skip items the hero has already seen.
+        // dknown is set by observe_object(); bknown matters only for clerics;
+        // scrolls matter only for Archeologists.
+        if (otmp.dknown
+            && (otmp.bknown || state.urole?.mnum !== PM_CLERIC)
+            && (otmp.oclass !== SCROLL_CLASS
+                || state.urole?.mnum !== PM_ARCHEOLOGIST))
+            continue; /* already seen */
+        invupdated = true;
+        // C ref: invent.c:2765. maybereleaseobuf(xname(otmp)) -- the call
+        // exists for its side effect: xname() calls observe_object() which
+        // sets dknown, and also sets bknown for clerics.
+        xnameFresh(otmp, state);
+        // C ref: invent.c:2766. addinv_core2(otmp) handles luckstones and
+        // Archeologist scroll deciphering. Neither branch fires in ported
+        // paths; omitted.
+    }
+    if (invupdated)
+        update_inventory({ state });
 }
 
 // C ref: invent.c update_inventory(). Calls before the move loop and while

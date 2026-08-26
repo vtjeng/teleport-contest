@@ -1004,7 +1004,7 @@ test('an accessory reaches the unported half of the command', async () => {
     game.uamul = amulet;
     await assert.rejects(
         () => armor_or_accessory_off(amulet, game),
-        /Ring_off\(\)\/Amulet_off\(\)\/Blindf_off\(\)/,
+        /Ring_off\(\)\/Amulet_off\(\)/,
     );
     game.uamul = null;
 
@@ -1018,6 +1018,90 @@ test('an accessory reaches the unported half of the command', async () => {
         /select_off\(\) ring checks/,
     );
     game.uleft = null;
+});
+
+test('Blindf_off clears the blindfold slot and toggles blindness', async () => {
+    // do_wear.c:1495-1534. The hero wears a blindfold, is blind from it, and
+    // takes it off. The common path: was_blind is true, heroIsBlind() becomes
+    // false after setworn() clears the slot, gulp_blnd_check() returns false
+    // (hero not engulfed), prints "You can see again.", and calls
+    // toggle_blindness().
+    const segment = segmentFor(TAKEOFF_KEY);
+    await runSegment({ ...segment, moves: WAIT });
+
+    // Put a blindfold on the hero by hand.
+    const blindfold = {
+        oclass: TOOL_CLASS, otyp: BLINDFOLD, owornmask: W_TOOL, cursed: 0,
+    };
+    setworn(blindfold, W_TOOL, { state: game, hooks: {} });
+    game.ublindf = blindfold;
+
+    // Confirm the hero is now blind (the blindfold extrinsic is set by setworn).
+    const { heroIsBlind } = await import('../js/startup_a11y.js');
+    assert.ok(heroIsBlind(game), 'hero should be blind with blindfold on');
+
+    // Take it off through the dispatch.
+    game._pending_message = '';
+    await armor_or_accessory_off(blindfold, game);
+
+    // The blindfold should be removed from the slot.
+    assert.equal(game.ublindf, null, 'ublindf should be null after Blindf_off');
+    assert.equal(blindfold.owornmask, 0, 'owornmask should be cleared');
+
+    // The hero should be able to see again.
+    assert.ok(!heroIsBlind(game), 'hero should see after removing blindfold');
+
+    // The messages should include "You were wearing" (off_msg, verbose) and
+    // "You can see again."
+    const msg = takePendingTopLine();
+    assert.ok(msg.includes('You were wearing'), `off_msg missing from: ${msg}`);
+    assert.ok(
+        msg.includes('You can see again.'),
+        `"You can see again." missing from: ${msg}`,
+    );
+});
+
+test('Blindf_off on lenses says "still cannot see" when blind from another source', async () => {
+    // do_wear.c:1511-1516. Hero is blind from a source other than the lenses
+    // (BLINDED intrinsic), wears lenses, takes them off. The hero remains
+    // blind; the otyp is LENSES, so the "still cannot see" message is
+    // suppressed.
+    const segment = segmentFor(TAKEOFF_KEY);
+    await runSegment({ ...segment, moves: WAIT });
+
+    const lenses = {
+        oclass: TOOL_CLASS, otyp: LENSES, owornmask: W_TOOL, cursed: 0,
+    };
+    setworn(lenses, W_TOOL, { state: game, hooks: {} });
+    game.ublindf = lenses;
+
+    // Make the hero blind from the BLINDED intrinsic (not from lenses).
+    // Lenses do not cause blindness, so the hero would need another source.
+    // Set the BLINDED timeout to make heroIsBlind() true regardless.
+    const { BLINDED: BLINDED_PROP } = await import('../js/const.js');
+    game.u.uprops ??= {};
+    game.u.uprops[BLINDED_PROP] ??= {};
+    game.u.uprops[BLINDED_PROP].intrinsic = 1;
+
+    const { heroIsBlind } = await import('../js/startup_a11y.js');
+    assert.ok(heroIsBlind(game), 'hero should be blind before removal');
+
+    game._pending_message = '';
+    await armor_or_accessory_off(lenses, game);
+
+    // Hero remains blind (BLINDED intrinsic still active).
+    assert.ok(heroIsBlind(game), 'hero should still be blind');
+    assert.equal(game.ublindf, null, 'ublindf should be null');
+
+    // Lenses suppress the "still cannot see" message.
+    const msg = takePendingTopLine();
+    assert.ok(
+        !msg.includes('still cannot see'),
+        `lenses should suppress "still cannot see": ${msg}`,
+    );
+
+    // Clean up the BLINDED intrinsic.
+    game.u.uprops[BLINDED_PROP].intrinsic = 0;
 });
 
 test('a delayed suit arranges the wait and removes nothing yet', async () => {
