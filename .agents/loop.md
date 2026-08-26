@@ -36,17 +36,20 @@ The orchestrator repeats without returning to the user between steps:
    - Goal in progress, a queued slice exists: start at step 3.
    - Goal in progress, no queued or in-progress slices: start at step 2.
 
-1. When no goal is in progress, select the next goal. If the Workflow
-   tool is available, run the `goal-selector` workflow
-   (`.claude/workflows/goal-selector.js`). Otherwise spawn the
-   goal-selector agent (`.claude/agents/goal-selector.md`). The selector
+1. When no goal is in progress, select the next goal. Run the
+   `goal-selector` workflow (`.claude/workflows/goal-selector.js`).
+   If the Workflow tool is not available, spawn the goal-selector agent
+   (`.claude/agents/goal-selector.md`) instead. The selector
    proposes one goal. Queue the proposed goal with
    `node scripts/goal-log.mjs queue-goal` and then `open-goal` (which
    captures the score the close will be measured against).
 2. If the goal has a queued slice, take it and continue at step 3.
    Otherwise spawn the slice-selector
    (`.claude/agents/slice-selector.md`) to identify the next slice and
-   queue it with `node scripts/goal-log.mjs queue-slice`.
+   queue it with `node scripts/goal-log.mjs queue-slice`. When the goal
+   has only one slice remaining and the goal context names it completely,
+   the orchestrator may queue the slice directly and write
+   `.cache/slice-context.json` itself instead of spawning the selector.
 3. Spawn a worker for that slice. When it returns, establish what landed:
    `git log --oneline` and `git status --short` for the commits and tree.
    The worker runs `npm run checkpoint` after committing, so

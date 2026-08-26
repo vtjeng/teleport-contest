@@ -35,8 +35,10 @@ assigns the rest of the loop to the orchestrator and selectors. Read it to
 learn which steps belong to other agents. Report any gaps you find in its
 definition rather than editing the file.
 
-Three orchestrator steps appear in files you read. Skip all three:
+Four orchestrator steps appear in files you read. Skip all four:
 
+- Slice and goal closure (`goal-log.mjs close-slice`, `close-goal`) and
+  `GOALS.json` updates belong to the orchestrator. Do not run them.
 - After each commit, "Per-chunk workflow" says to run `npm run quality`. The
   orchestrator runs it, so do not run it yourself.
 - `SCORE.tsv` event rows belong to the orchestrator. Put score and validation
