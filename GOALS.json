@@ -4273,8 +4273,8 @@
       "slices": [
         {
           "name": "dart-trap-hero-arm",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0991191ba9a6bd24c387ce590d538519371cab60"
         }
       ],
       "openedAt": "a088ee607e1fa14bd0c816a16cdd57af919ad169",
