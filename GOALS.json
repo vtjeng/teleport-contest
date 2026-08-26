@@ -4187,8 +4187,8 @@
       "slices": [
         {
           "name": "armor-on-dsm-default-break",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "66aa7500e9262a8fce3d8455aa5a1d9b7e58a9fd"
         }
       ],
       "openedAt": "f725a5adc0420a1b8ee5e5c4a421664ae538f630",
