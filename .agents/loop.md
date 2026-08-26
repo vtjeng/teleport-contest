@@ -43,23 +43,15 @@ The orchestrator repeats without returning to the user between steps:
    proposes one goal. Queue the proposed goal with
    `node scripts/goal-log.mjs queue-goal` and then `open-goal` (which
    captures the score the close will be measured against).
-2. If the goal has a queued slice, take it and continue at step 3.
-   Otherwise spawn the slice-selector
-   (`.claude/agents/slice-selector.md`) to identify the next slice and
-   queue it with `node scripts/goal-log.mjs queue-slice`. When the goal
-   has only one slice remaining and the goal context names it completely,
-   the orchestrator may queue the slice directly instead of spawning the
-   selector.
+2. Spawn the slice-selector (`.claude/agents/slice-selector.md`) to
+   identify the next slice, queue it with
+   `node scripts/goal-log.mjs queue-slice`, and write
+   `.cache/slice-context.json` for the worker.
 
    Before spawning the slice-selector, verify that
    `.cache/goal-context.json` describes the current goal. The
    goal-selector writes this file; update it only when it is missing or
    describes a different goal.
-
-   Before spawning the worker, verify that `.cache/slice-context.json`
-   describes the queued slice. The slice-selector writes this file;
-   update it only when it is missing or describes a different slice
-   (see `.claude/agents/slice-selector.md` for the format).
 3. Spawn a worker for that slice. When it returns, establish what landed:
    `git log --oneline` and `git status --short` for the commits and tree.
    The worker runs `npm run checkpoint` after committing, so
