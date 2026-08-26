@@ -749,6 +749,169 @@ test('dochug redraws a sleeping monster that stays asleep during hallucination',
         ]);
     });
 
+// ---- mconf/mstun recovery (monmove.c:737-742) ----
+
+test('dochug clears mconf when rn2(50) returns 0', async () => {
+    // C ref: monmove.c:737-738.  A confused monster has a 1/50 chance per
+    // turn of recovering.  The draw is conditional: it occurs only when
+    // mconf is truthy.
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({ mconf: 1, mpeaceful: true });
+    const draws = [];
+    const env = {
+        ...baseEnv(state, events),
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                // Return 0 for rn2(50) to trigger recovery.
+                return 0;
+            },
+        },
+        distanceAndFear: () => ({ nearby: false, scared: false }),
+        moveMonster: () => MMOVE_NOTHING,
+    };
+
+    await dochug(monster, env);
+    assert.equal(monster.mconf, 0, 'confusion should be cleared');
+    // The first rn2 call is rn2(50) for mconf recovery.
+    assert.equal(draws[0], 50, 'first draw should be rn2(50)');
+});
+
+test('dochug keeps mconf when rn2(50) returns nonzero', async () => {
+    // C ref: monmove.c:737-738.  When the 1/50 roll fails (nonzero), the
+    // monster stays confused.
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({ mconf: 1, mpeaceful: true });
+    const draws = [];
+    const env = {
+        ...baseEnv(state, events),
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                // Return 1 for rn2(50) so recovery does not fire.
+                return 1;
+            },
+        },
+        distanceAndFear: () => ({ nearby: false, scared: false }),
+        moveMonster: () => MMOVE_NOTHING,
+    };
+
+    await dochug(monster, env);
+    assert.equal(monster.mconf, 1, 'confusion should persist');
+    assert.equal(draws[0], 50, 'first draw should be rn2(50)');
+});
+
+test('dochug clears mstun when rn2(10) returns 0', async () => {
+    // C ref: monmove.c:741-742.  A stunned monster has a 1/10 chance per
+    // turn of recovering.  The draw is conditional on mstun.
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({ mstun: 1, mpeaceful: true });
+    const draws = [];
+    const env = {
+        ...baseEnv(state, events),
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                // Return 0 for rn2(10) to trigger recovery.
+                return 0;
+            },
+        },
+        distanceAndFear: () => ({ nearby: false, scared: false }),
+        moveMonster: () => MMOVE_NOTHING,
+    };
+
+    await dochug(monster, env);
+    assert.equal(monster.mstun, 0, 'stun should be cleared');
+    // The first rn2 call is rn2(10) for mstun recovery.
+    assert.equal(draws[0], 10, 'first draw should be rn2(10)');
+});
+
+test('dochug keeps mstun when rn2(10) returns nonzero', async () => {
+    // C ref: monmove.c:741-742.  When the 1/10 roll fails (nonzero), the
+    // monster stays stunned.
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({ mstun: 1, mpeaceful: true });
+    const draws = [];
+    const env = {
+        ...baseEnv(state, events),
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                // Return 1 for rn2(10) so recovery does not fire.
+                return 1;
+            },
+        },
+        distanceAndFear: () => ({ nearby: false, scared: false }),
+        moveMonster: () => MMOVE_NOTHING,
+    };
+
+    await dochug(monster, env);
+    assert.equal(monster.mstun, 1, 'stun should persist');
+    assert.equal(draws[0], 10, 'first draw should be rn2(10)');
+});
+
+test('dochug skips mconf draw when monster is not confused', async () => {
+    // C ref: monmove.c:737.  The rn2(50) call is guarded by `mtmp->mconf`,
+    // so an unconfused monster consumes no draw.
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({ mconf: 0, mstun: 0, mpeaceful: true });
+    const draws = [];
+    const env = {
+        ...baseEnv(state, events),
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                return 1;
+            },
+        },
+        distanceAndFear: () => ({ nearby: false, scared: false }),
+        moveMonster: () => MMOVE_NOTHING,
+    };
+
+    await dochug(monster, env);
+    // Neither mconf nor mstun is set, so the first draw is from the
+    // mayMove disjunction (rn2(3) for minvis, rn2(4) for wanderer, or
+    // rn2(4) for !mcansee), not from recovery.  None of the recovery
+    // bounds (50 or 10) should appear.
+    assert.ok(!draws.includes(50),
+        'rn2(50) should not be called when mconf is 0');
+    assert.ok(!draws.includes(10),
+        'rn2(10) should not be called when mstun is 0');
+});
+
+test('dochug processes both mconf and mstun recovery in order', async () => {
+    // C ref: monmove.c:737-742.  Both conditions can be set at once; C
+    // checks mconf first (rn2(50)), then mstun (rn2(10)).  Each draw is
+    // independent.  Here both rolls return 0, clearing both conditions.
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({ mconf: 1, mstun: 1, mpeaceful: true });
+    const draws = [];
+    const env = {
+        ...baseEnv(state, events),
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                return 0;
+            },
+        },
+        distanceAndFear: () => ({ nearby: false, scared: false }),
+        moveMonster: () => MMOVE_NOTHING,
+    };
+
+    await dochug(monster, env);
+    assert.equal(monster.mconf, 0, 'confusion should be cleared');
+    assert.equal(monster.mstun, 0, 'stun should be cleared');
+    // rn2(50) for mconf, then rn2(10) for mstun, in that order.
+    assert.equal(draws[0], 50, 'first draw should be rn2(50) for mconf');
+    assert.equal(draws[1], 10, 'second draw should be rn2(10) for mstun');
+});
+
 test('dochug does not attack after m_move spends the action', async () => {
     const state = makeState();
     const events = [];

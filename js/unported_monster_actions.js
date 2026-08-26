@@ -266,8 +266,6 @@ function assertSimpleActionState(monster, state) {
         if (heldBy && heldBy.ttyp !== BEAR_TRAP)
             unsupported('a trapped monster');
     }
-    if (monster.mconf || monster.mstun)
-        unsupported('altered monster movement state');
     if (monster.meating
         && !(monster.mtame && !monster.isminion
             && STARTING_PETS.has(monster.data?.pmidx))) {

@@ -2859,10 +2859,6 @@ test('a starting pony targets at range and later refusal stays retryable',
 test('simple preflight separates each altered monster state before movement',
     async () => {
         const cases = [
-            ['confused monster', prepareSelectedAction,
-                (monster) => { monster.mconf = true; }],
-            ['stunned monster', prepareSelectedAction,
-                (monster) => { monster.mstun = true; }],
             ['non-tame eating dog',
                 () => prepareStartingPetAction(PM_LITTLE_DOG),
                 (monster) => {
