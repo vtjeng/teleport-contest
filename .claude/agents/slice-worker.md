@@ -13,6 +13,9 @@ Read these sources:
 - `.cache/slice-context.json` — the current slice's C file, line range,
   JS location, call site, and contributing sessions, written by the
   slice-selector
+- `.cache/goal-context.json` — the current goal's boundary, witnesses,
+  and detail (C functions, unreached branches, session paths), written
+  by the goal-selector
 - `node scripts/goal-log.mjs --current --detail` — the goal in progress
   and its ordered slices
 - `.agents/validation.md` — what validating this slice requires
@@ -22,6 +25,9 @@ Read these sources:
 
 Then read the C source for every function you are porting, starting from
 the file and line range in the slice context, before you write anything.
+List all symbols the C function directly calls, then batch-grep for each
+in `js/` to identify which are already ported and which are missing.
+Read C source only for the missing ones.
 
 Do not open `.agents/review.md`, `.agents/selection.md`, or `ROADMAP.md`.
 Those belong to the orchestrator and selectors defined in `.agents/loop.md`.

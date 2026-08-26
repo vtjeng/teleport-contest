@@ -33,7 +33,10 @@ The orchestrator repeats without returning to the user between steps:
      interrupted. Run `git log --oneline` and check
      `.cache/checkpoint-summary.json` to establish what it landed, then
      continue from step 3's post-worker logic (measurement and push).
-   - Goal in progress, a queued slice exists: start at step 3.
+   - Goal in progress, a queued slice exists: verify that
+     `.cache/slice-context.json` describes the queued slice. If it
+     matches, start at step 3. If it is missing or describes a
+     different slice, start at step 2.
    - Goal in progress, no queued or in-progress slices: start at step 2.
 
 1. When no goal is in progress, select the next goal. Run the
