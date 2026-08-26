@@ -46,10 +46,9 @@ The orchestrator repeats without returning to the user between steps:
    tool is available, run the `goal-selector` workflow
    (`.claude/workflows/goal-selector.js`). Otherwise spawn the
    goal-selector agent (`.claude/agents/goal-selector.md`). The selector
-   runs the census, caps non-stable stretches, and proposes one goal.
-   Queue the proposed goal with `node scripts/goal-log.mjs queue-goal`
-   and then `open-goal` (which captures the score the close will be
-   measured against).
+   proposes one goal. Queue the proposed goal with
+   `node scripts/goal-log.mjs queue-goal` and then `open-goal` (which
+   captures the score the close will be measured against).
 2. If the goal has a queued slice, take it and continue at step 3.
    Otherwise spawn the slice-selector
    (`.claude/agents/slice-selector.md`) to identify the next slice and
