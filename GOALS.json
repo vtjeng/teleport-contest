@@ -4296,7 +4296,7 @@
     },
     {
       "id": "simple-monster-special-movement",
-      "status": "open",
+      "status": "closed",
       "boundary": "A monster performs a special movement action that the port's runSimpleMonsterAction() does not handle: the monster opens, unlocks, or smashes a door during its movement turn (monmove.c:1548-1621).",
       "upstreamOwners": [
         "monmove.c"
@@ -4328,8 +4328,11 @@
         "screens": 2220,
         "rng": 152383
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "a7c26f9ade6e7f40a2ec9a65ec51269ae0e4ca95",
+      "delivered": {
+        "screens": 8,
+        "rng": 153
+      }
     }
   ]
 }
