@@ -908,7 +908,18 @@ function createSpecialLevelApi(state) {
     const env = {
         state,
         random: SOURCE_THEMEROOM_RANDOM,
-        hooks: objectGenerationHooks(),
+        hooks: {
+            ...objectGenerationHooks(),
+            makeMonster(species, x, y, mmflags, monEnv) {
+                try {
+                    return makemon(species, x, y, mmflags, monEnv);
+                } catch (e) {
+                    if (e instanceof UnsupportedMonsterCreationError)
+                        return null;
+                    throw e;
+                }
+            },
+        },
         frame,
         spObjectContext,
     };
