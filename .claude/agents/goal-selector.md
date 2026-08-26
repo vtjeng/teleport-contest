@@ -77,5 +77,8 @@ The orchestrator queues the leader with
 
 State each candidate's boundary as a condition a reader can test against C
 source, matching existing `GOALS.json` entries. Put traced findings (unreached
-branches, prerequisites, already-ported helpers) in `detail`, and leave slicing
-to the slice-selector.
+branches, prerequisites, already-ported helpers) in `detail`. The
+slice-selector reads `detail` to identify slices without re-reading C
+source, so enumerate the C functions the goal would port and their major
+branches — enough that a reader can identify which subset is one unit of
+work. Leave slicing to the slice-selector.

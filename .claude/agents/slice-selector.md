@@ -22,10 +22,15 @@ slices; that is outside this agent's scope.
    slice, and identify only a slice that can produce that evidence.
 3. Run `node scripts/goal-log.mjs --current --detail` for the goal in progress,
    its queued slices, and the contents of its `detail` field.
-4. Read the C source the slice would port, far enough to confirm that the
-   slice is one unit of work with one call site in the running game and one
-   fresh C-vs-JavaScript comparison. If the reading shows several units,
-   identify a smaller slice and repeat this step.
+4. Read `.cache/selector-candidates.json` for the current goal's entry. Its
+   `detail` field describes the C functions, unreached branches,
+   prerequisites, and already-ported helpers the goal-selector traced. Its
+   `witnesses` array describes each contributing session's C path. Use the
+   cached detail to confirm that the slice is one unit of work with one
+   call site in the running game and one fresh C-vs-JavaScript comparison.
+   Read C source only when the cached detail does not cover the slice
+   boundary. If the reading shows several units, identify a smaller slice
+   and repeat this step.
 
 Select the slice without asking the user.
 
