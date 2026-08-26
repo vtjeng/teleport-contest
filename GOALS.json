@@ -4506,6 +4506,42 @@
         "screens": 9,
         "rng": 2796
       }
+    },
+    {
+      "id": "quaff-command",
+      "status": "open",
+      "boundary": "The hero types q (quaff), dispatching potion.c dodrink(). dodrink() prompts What do you want to drink, selects a potion via getobj(), and calls dopotion() which dispatches the potion effect through peffects().",
+      "upstreamOwners": [
+        "potion.c"
+      ],
+      "forecast": {
+        "steps": 5,
+        "basis": "Capped look-ahead: seed2200 cappedStretch=5. seed0006 contribution zeroed (serialize-bug divergence at screen 49, before boundary at step 101). Effective forecast: 5 from seed2200 only.",
+        "sessions": [
+          "seed0006-wizard-water-demon",
+          "seed2200-wizard-quaff-zap-read"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0006-wizard-water-demon",
+            "evidence": "Step 101: hero types q (quaff). C dispatches to potion.c dodrink():526. Hero is on a fountain; dodrink() asks Drink from the fountain? Serialize-bug divergence at screen 49 (before boundary at step 101) zeroes this session contribution."
+          },
+          {
+            "session": "seed2200-wizard-quaff-zap-read",
+            "evidence": "Step 4: hero types q (quaff). C dispatches to potion.c dodrink():526. Hero drinks a potion of speed; peffects() calls peffect_speed() which calls speed_up(), producing That was smooth!"
+          }
+        ]
+      },
+      "detail": "dodrink() (potion.c:526-615, 90 lines): entry point. dopotion() (618-641, 24 lines): calls peffects(). peffects() (1333-1425, 93 lines): switch over 23 potion types. seed2200 path: dodrink()->getobj()->dopotion()->peffects()->peffect_speed()->speed_up(). speed_up() is 10 lines.",
+      "slices": [],
+      "openedAt": "56bba516f4d967e2e30d95fd70026cb3b900ecaf",
+      "openStanding": {
+        "sha": "8f68d55",
+        "screens": 2322,
+        "rng": 155654
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
