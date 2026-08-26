@@ -4205,7 +4205,7 @@
     },
     {
       "id": "can-teleport-monster-action",
-      "status": "open",
+      "status": "closed",
       "boundary": "dochug() processes a monster whose species has M1_TPORT (can_teleport(mdat) is true). The port's assertSimpleActionState() refuses all such monsters before they enter dochug().",
       "upstreamOwners": [],
       "forecast": {
@@ -4240,8 +4240,11 @@
         "screens": 2211,
         "rng": 152253
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "231b412edbed475613bd17a4985a75f06d39c29a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
