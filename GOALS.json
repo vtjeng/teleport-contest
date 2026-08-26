@@ -4202,6 +4202,35 @@
         "screens": 7,
         "rng": 235
       }
+    },
+    {
+      "id": "can-teleport-monster-action",
+      "status": "open",
+      "boundary": "dochug() processes a monster whose species has M1_TPORT (can_teleport(mdat) is true). The port's assertSimpleActionState() refuses all such monsters before they enter dochug().",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 15,
+        "basis": "Capped look-ahead: seed0383-wizard-hallucinate cappedStretch=15 (cap-stable, capped before #wizintrinsic at step 16 of look-ahead)",
+        "sessions": [
+          "seed0383-wizard-hallucinate"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383-wizard-hallucinate",
+            "evidence": "Stop at step 138, byte o. After Armor_on() completes for gray dragon scale mail, movemon() encounters a genetic engineer (PM_GENETIC_ENGINEER) on D:20. assertSimpleActionState() fires because can_teleport() returns true. C dochug(): not fleeing (flee-teleport at monmove.c:744-749 skipped), m_respond() (mon.c:4122-4130) is a no-op (not SHRIEKER/MEDUSA/ERINYS). Monster proceeds through normal Phase Two movement, picks up a potion."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "b58894204a8736853a941bc515f08800df422fd1",
+      "openStanding": {
+        "sha": "7ea7ba3",
+        "screens": 2211,
+        "rng": 152253
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
