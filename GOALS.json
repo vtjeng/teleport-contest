@@ -4230,8 +4230,8 @@
         },
         {
           "name": "admit flying/floating monsters over pool and lava terrain",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "efcc25aaee2213d1641b1a5a9642e563c117846f"
         }
       ],
       "openedAt": "b58894204a8736853a941bc515f08800df422fd1",
