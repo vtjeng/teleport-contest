@@ -4248,7 +4248,7 @@
     },
     {
       "id": "trap-dart-and-magic",
-      "status": "open",
+      "status": "closed",
       "boundary": "A walking hero steps onto a dart trap or magic trap during movement. preflight_dotrap() refuses these trap types. dotrap() at trap.c:2995 wraps trapeffect_selector() which dispatches to trapeffect_dart_trap() (trap.c:1250) and trapeffect_magic_trap() (trap.c:3830).",
       "upstreamOwners": [],
       "forecast": {
@@ -4288,8 +4288,11 @@
         "screens": 2211,
         "rng": 152253
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "cc8c8233b32863b55c513a5b9fdee43fa320b557",
+      "delivered": {
+        "screens": 9,
+        "rng": 130
+      }
     }
   ]
 }
