@@ -4488,7 +4488,13 @@
         ]
       },
       "detail": "dotogglepickup() is 18 lines. seed0006 zeroed by serialize-bug screen divergence.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "autopickup-toggle",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "b0b196e456674da3cefc5041e8af3d7b57db5250",
       "openStanding": {
         "sha": "ea75c05",
