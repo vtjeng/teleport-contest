@@ -2858,30 +2858,18 @@ test('a starting pony targets at range and later refusal stays retryable',
 
 test('simple preflight separates each altered monster state before movement',
     async () => {
-        const cases = [
-            ['non-tame eating dog',
-                () => prepareStartingPetAction(PM_LITTLE_DOG),
-                (monster) => {
-                    monster.mtame = 0;
-                    monster.meating = 1;
-                }],
-            ['minion eating dog',
-                () => prepareStartingPetAction(PM_LITTLE_DOG),
-                (monster) => {
-                    monster.isminion = true;
-                    monster.meating = 1;
-                }],
-        ];
-        for (const [name, prepare, mutate] of cases) {
-            const target = await prepare();
-            mutate(target.monster);
-            await assert.rejects(
-                preflightSimpleMonsterActions(game),
-                (error) => error instanceof UnsupportedSimpleMonsterActionError
-                    && error.reason === 'altered monster movement state',
-                name,
-            );
-        }
+        // A minion eating dog still throws because the minion guard is
+        // separate from the removed meating guard.  With meating removed,
+        // the minion guard now catches it first as 'minion movement'.
+        const target = await prepareStartingPetAction(PM_LITTLE_DOG);
+        target.monster.isminion = true;
+        target.monster.meating = 1;
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'minion movement',
+            'minion eating dog',
+        );
     });
 
 test('simple preflight keeps starting-pet owner seams retryable',

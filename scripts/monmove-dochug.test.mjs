@@ -25,6 +25,7 @@ import {
     AT_SPIT,
     AT_WEAP,
     M1_ANIMAL,
+    M1_TPORT,
 } from '../js/monsters.js';
 
 function makeState() {
@@ -943,4 +944,173 @@ test('dochug does not attack after m_move spends the action', async () => {
         'move-done',
         'range-2',
     ]);
+});
+
+// ---- hostile mflee (monmove.c:745-760) ----
+
+test('dochug consumes rn2(40) for a fleeing hostile monster', async () => {
+    // C ref: monmove.c:745.  Every fleeing monster draws rn2(40) for the
+    // teleport conditional.  A monster without M1_TPORT short-circuits at
+    // can_teleport(), so only the rn2(40) draw is consumed.
+    const state = makeState();
+    const events = [];
+    // mfleetim > 0 bypasses the later courage-recovery draw at rn2(25).
+    const monster = makeMonster({ mflee: true, mfleetim: 3 });
+    const draws = [];
+    const env = {
+        ...baseEnv(state, events),
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                // Return 1 so the teleport conditional short-circuits.
+                return 1;
+            },
+        },
+        distanceAndFear: () => ({ nearby: false, scared: false }),
+        moveMonster: () => MMOVE_NOTHING,
+    };
+
+    await dochug(monster, env);
+    assert.equal(draws[0], 40,
+        'first draw should be rn2(40) for the teleport conditional');
+    assert.equal(monster.mflee, true, 'monster should still be fleeing');
+});
+
+test('dochug does not teleport a fleeing non-teleporter when rn2(40) is 0',
+    async () => {
+    // C ref: monmove.c:745-749.  rn2(40) returns 0 (1/40 chance), but
+    // can_teleport() is false because the species lacks M1_TPORT.  The
+    // teleport branch does not fire.  state.moves > 0 so that
+    // noteleport_level() returns false, making can_teleport() the decisive
+    // guard.
+    const state = makeState();
+    state.moves = 1;
+    const events = [];
+    const monster = makeMonster({
+        mflee: true,
+        mfleetim: 3,  // Nonzero timer prevents the courage-recovery draw.
+    });
+    const draws = [];
+    const env = {
+        ...baseEnv(state, events),
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                return 0;
+            },
+        },
+        distanceAndFear: () => ({ nearby: false, scared: false }),
+        moveMonster: () => MMOVE_NOTHING,
+    };
+
+    await dochug(monster, env);
+    assert.equal(draws[0], 40, 'first draw should be rn2(40)');
+    assert.equal(monster.mflee, true,
+        'monster should still be fleeing (no teleport)');
+});
+
+test('dochug throws unsupported for a fleeing teleporter', async () => {
+    // C ref: monmove.c:745-749.  rn2(40) returns 0, can_teleport() is true,
+    // iswiz is false, noteleport_level is false.  The teleport branch fires,
+    // but rloc(RLOC_MSG) is not yet ported, so the unsupported seam rejects.
+    const state = makeState();
+    // state.moves > 0 so noteleport_level's stasis_until (0) < moves, making
+    // noteleport_level() return false and allowing the teleport branch.
+    state.moves = 1;
+    const events = [];
+    const monster = makeMonster({
+        mflee: true,
+        mfleetim: 3,
+        data: {
+            // M1_TPORT makes can_teleport() return true.
+            mflags1: M1_TPORT,
+            mflags2: 0,
+            mflags3: 0,
+        },
+    });
+    const env = {
+        ...baseEnv(state, events),
+        random: {
+            rn2: (bound) => 0,
+        },
+        distanceAndFear: () => ({ nearby: false, scared: false }),
+        moveMonster: () => MMOVE_NOTHING,
+        unsupported: (what) => {
+            events.push(`unsupported:${what}`);
+            throw new Error(what);
+        },
+    };
+
+    await assert.rejects(
+        () => dochug(monster, env),
+        { message: 'fleeing monster teleport' },
+    );
+    assert.ok(events.includes('unsupported:fleeing monster teleport'),
+        'should have hit the unsupported seam');
+});
+
+test('dochug clears mflee for a hostile monster with expired timer and full hp',
+    async () => {
+    // C ref: monmove.c:758-760.  A fleeing monster with mfleetim 0 and full
+    // hit points has a 1/25 chance per turn of regaining courage.  The
+    // rn2(40) draw comes first; the rn2(25) draw follows.
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({
+        mflee: true,
+        mfleetim: 0,  // Timer expired, enabling the courage check.
+        mhp: 5,
+        mhpmax: 5,    // Full hp required.
+    });
+    const draws = [];
+    const env = {
+        ...baseEnv(state, events),
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                if (bound === 40) return 1; // Teleport conditional fails.
+                if (bound === 25) return 0; // Courage recovery succeeds.
+                return 1;
+            },
+        },
+        distanceAndFear: () => ({ nearby: false, scared: false }),
+        moveMonster: () => MMOVE_NOTHING,
+    };
+
+    await dochug(monster, env);
+    assert.deepEqual(draws.slice(0, 2), [40, 25],
+        'first two draws: rn2(40) for teleport, rn2(25) for courage');
+    assert.equal(monster.mflee, false,
+        'monster should have regained courage');
+});
+
+test('dochug keeps mflee when courage roll fails', async () => {
+    // C ref: monmove.c:758-760.  Same setup but rn2(25) returns nonzero,
+    // so the monster stays scared.
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({
+        mflee: true,
+        mfleetim: 0,
+        mhp: 5,
+        mhpmax: 5,
+    });
+    const draws = [];
+    const env = {
+        ...baseEnv(state, events),
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                // Both rolls return nonzero: monster stays scared.
+                return 1;
+            },
+        },
+        distanceAndFear: () => ({ nearby: false, scared: false }),
+        moveMonster: () => MMOVE_NOTHING,
+    };
+
+    await dochug(monster, env);
+    assert.deepEqual(draws.slice(0, 2), [40, 25],
+        'first two draws: rn2(40) for teleport, rn2(25) for courage');
+    assert.equal(monster.mflee, true, 'monster should still be fleeing');
 });

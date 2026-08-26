@@ -266,12 +266,6 @@ function assertSimpleActionState(monster, state) {
         if (heldBy && heldBy.ttyp !== BEAR_TRAP)
             unsupported('a trapped monster');
     }
-    if (monster.meating
-        && !(monster.mtame && !monster.isminion
-            && STARTING_PETS.has(monster.data?.pmidx))) {
-        unsupported('altered monster movement state');
-    }
-
     if (monster.mtame && !monster.isminion) {
         if (!STARTING_PETS.has(monster.data?.pmidx))
             unsupported('a non-starting pet');
@@ -280,24 +274,11 @@ function assertSimpleActionState(monster, state) {
         }
         if (!monster.mextra?.edog)
             unsupported('missing starting-pet state');
-        // uhitm.c:do_attack() can call monflee(rnd(6), FALSE, FALSE) when
-        // safe_pet refuses an attack. mon.c:m_calcdistress() decrements this
-        // seven-bit timer during once-per-turn distress, before the later
-        // dochug() action scan, so a live fleeing starting pet must retain a
-        // positive source-bounded timeout here.
-        if (monster.mflee
-            && (!Number.isInteger(monster.mfleetim)
-                || monster.mfleetim < 1
-                || monster.mfleetim > 127)) {
-            unsupported('altered monster movement state');
-        }
         return;
     }
 
     if (monster.mtame || monster.isminion)
         unsupported('minion movement');
-    if (monster.mflee)
-        unsupported('altered monster movement state');
     if (monster.wormno || monster.isgd
         || monster.ispriest || is_covetous(monster.data)) {
         unsupported('special monster movement');
