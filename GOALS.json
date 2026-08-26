@@ -4222,7 +4222,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "admit can_teleport monsters through the dochug normal path",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "b58894204a8736853a941bc515f08800df422fd1",
       "openStanding": {
         "sha": "7ea7ba3",
