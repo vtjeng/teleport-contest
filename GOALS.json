@@ -5080,7 +5080,13 @@
         ]
       },
       "detail": "Port only the negative find_defensive(FALSE) search through ordinary terrain and inventory, then fall through to existing select_misc_action. Preserve source guards and zero RNG. Every selected defensive or miscellaneous action and all use_defensive/use_misc effects remain outside.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "wounded-hostile-negative-defensive-search",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "6403c50b2092f8df0a04fae9b0168d4ab139d6e1",
       "openStanding": {
         "sha": "9b2dac0fe9cc67a8888bf0c97671625502778811",
