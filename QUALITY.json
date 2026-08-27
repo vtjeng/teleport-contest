@@ -5453,6 +5453,7 @@
       "id": "runtime",
       "label": "Core runtime",
       "paths": [
+        "js/bones.js",
         "js/const.js",
         "js/end.js",
         "js/game.js",

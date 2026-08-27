@@ -25,6 +25,7 @@ import {
     TRICKED,
     TURNED_SLIME,
 } from '../js/const.js';
+import { can_make_bones } from '../js/bones.js';
 import { UnsupportedEndOfGameError, deaths, done, done_in_by }
     from '../js/end.js';
 import { game } from '../js/gstate.js';
@@ -39,6 +40,11 @@ import {
     WIZARD_CASE,
     loadHeroDeathRecipe,
 } from './run-hero-death.mjs';
+import {
+    MOUNTED_DEATH_CASE,
+    loadMountedDeathRecipe,
+    verifyMountedDeathSegment,
+} from './run-mounted-death.mjs';
 
 const END_C = readFileSync(
     new URL('../nethack-c/upstream/src/end.c', import.meta.url), 'utf8',
@@ -482,17 +488,76 @@ test('losehp() waits for done() before it returns', async () => {
     assert.equal(game.u.umortality, 1);
 });
 
-test('an ordinary game reaches really_done() without drawing a query',
+test('an ordinary D:1 death reaches the possessions disclosure prompt',
      async () => {
     await dyingGame();
-    // No key is pushed. A query here would read one and fail the run with
-    // "Input queue empty" instead of refusing.
-    assert.equal(
-        await refusal(DIED),
-        `really_done(${DIED}) for killer "a falling rock trap"`
-        + ` in format ${KILLED_BY_AN}`,
+    // The slice begins after a Knight's second mount attempt. Set moves to 2
+    // so end.c:1186's first-move epitaph branch is not the behavior under test.
+    game.moves = 2;
+    game.killer = {
+        name: 'slipped while mounting a saddled pony',
+        format: NO_KILLER_PREFIX,
+    };
+    // The welcome line occupies the message window. This one space dismisses
+    // it when disclose() opens the inventory prompt; no second key answers
+    // that prompt, so the replay stops at the slice's observable boundary.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    const inventory = [];
+    for (let obj = game.invent; obj; obj = obj.nobj) inventory.push(obj);
+    await assert.rejects(
+        done(DIED, game),
+        /Input queue empty/u,
     );
+    assert.equal(
+        game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd(),
+        'Do you want your possessions identified? [ynq] (n)',
+    );
+    assert.equal(game.program_state.gameover, 1);
+    assert.equal(game.program_state.something_worth_saving, 0);
+    assert.equal(game.iflags.vision_inited, false);
+    assert.equal(game.iflags.perm_invent, false);
+    assert.equal(game.u.ugrave_arise, NON_PM);
+    assert.ok(inventory.every(
+        (obj) => obj.known && obj.bknown && obj.dknown && obj.rknown,
+    ));
 });
+
+test('can_make_bones spends the D:1 low-level rejection draw', () => {
+    // bones.c:377 uses 1 + (depth >> 2). D:1 therefore calls rn2(1), whose
+    // only result is zero, and rejects bones before the discover-mode test.
+    const state = {
+        flags: { bones: true },
+        u: { uz: { dnum: 0, dlevel: 1 }, uswallow: false },
+        dungeons: [{
+            boneid: 'D', depth_start: 1, ledger_start: 0, num_dunlevs: 5,
+            flags: { hellish: false },
+        }],
+        n_dgns: 1,
+        specialLevels: [],
+        branches: [],
+        level: { traps: [] },
+        wizard: false,
+        discover: false,
+    };
+    const calls = [];
+    assert.equal(can_make_bones(state, {
+        random: { rn2: (bound) => { calls.push(bound); return 0; } },
+    }), false);
+    assert.deepEqual(calls, [1]);
+});
+
+test('the mounted-death recipe reaches the ordinary disclosure boundary',
+    async () => {
+        const recipe = loadMountedDeathRecipe();
+        assert.equal(recipe.version, 5);
+        assert.equal(recipe.segments.length, 1);
+        assert.equal(Object.hasOwn(recipe.segments[0], 'steps'), false);
+        // This seed is the first qualifying case in the source-declared
+        // 9140000..9140049 search domain in run-mounted-death.mjs.
+        assert.equal(recipe.segments[0].seed, 9140000);
+        assert.equal(recipe.segments[0].moves, MOUNTED_DEATH_CASE.moves);
+        await verifyMountedDeathSegment(recipe.segments[0]);
+    });
 
 test('the query stops for a hung-up game and preflights ParanoidDie',
      async () => {

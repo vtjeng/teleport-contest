@@ -744,7 +744,9 @@ export async function runSegment(
     // capture hook is _preNhgetchHook; during normal gameplay it fires at
     // each nhgetch call, but after gameover no more keys are read. This
     // explicit call after the loop mirrors nh_terminate's capture position.
-    if (game.program_state?.gameover && game._preNhgetchHook) {
+    if (game.program_state?.gameover
+        && !game.program_state?.in_really_done
+        && game._preNhgetchHook) {
         await game._preNhgetchHook();
     }
 

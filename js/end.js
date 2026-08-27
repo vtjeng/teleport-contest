@@ -26,12 +26,21 @@
 // functions, after module initialization; neither belongs in a module-scope
 // value initializer while the cycle remains.
 import { effective_attribute, minuhpmax, setuhpmax } from './attrib.js';
-import { paranoid_query } from './cmd.js';
+import { getnow, midnight, night } from './calendar.js';
+import { can_make_bones } from './bones.js';
+import { paranoid_query, yn_function } from './cmd.js';
 import {
     A_CON,
     ASCENDED,
     BURNING,
     CHOKING,
+    DIED,
+    DISCLOSE_NO_WITHOUT_PROMPT,
+    DISCLOSE_PROMPT_DEFAULT_NO,
+    DISCLOSE_PROMPT_DEFAULT_SPECIAL,
+    DISCLOSE_PROMPT_DEFAULT_YES,
+    DISCLOSE_SPECIAL_WITHOUT_PROMPT,
+    DISCLOSE_YES_WITHOUT_PROMPT,
     G_GENOD,
     GENOCIDED,
     KILLED_BY,
@@ -82,7 +91,8 @@ import {
 import { upstart } from './hacklib.js';
 import { sortloot, update_inventory } from './invent.js';
 import { isContainer } from './obj.js';
-import { BAG_OF_TRICKS, LARGE_BOX, STATUE } from './objects.js';
+import { discover_object } from './o_init.js';
+import { BAG_OF_TRICKS, LARGE_BOX, STATUE, TIN } from './objects.js';
 import {
     an, donameFresh, the, thesimpleoname, the_unique_pm, xnameFresh,
 } from './objnam.js';
@@ -516,10 +526,194 @@ export async function done(how, state = game) {
             return;
         }
     }
+    if (how === DIED
+        && killer.name === 'slipped while mounting a saddled pony'
+        && killer.format === NO_KILLER_PREFIX) {
+        await really_done(how, state);
+        return;
+    }
     throw new UnsupportedEndOfGameError(
         `really_done(${how}) for killer "${killer.name ?? ''}"`
         + ` in format ${killer.format}`,
     );
+}
+
+const DISCLOSURE_OPTIONS = 'iavgco';
+const DEFAULT_END_DISCLOSE = 'nnnnnn';
+
+// C ref: end.c should_query_disclose_option() (475-515). The ordinary death
+// slice reaches category 'i' with the startup default. Other configured
+// values remain refused because they can skip or alter the disclosure flow.
+function should_query_disclose_option(category, state) {
+    const index = DISCLOSURE_OPTIONS.indexOf(category);
+    if (index < 0) {
+        throw new UnsupportedEndOfGameError(
+            `should_query_disclose_option() category ${category}`,
+        );
+    }
+    const disclose = state.flags.end_disclose[index];
+    if (disclose !== DISCLOSE_PROMPT_DEFAULT_NO) {
+        const recognized = [
+            DISCLOSE_PROMPT_DEFAULT_YES,
+            DISCLOSE_PROMPT_DEFAULT_SPECIAL,
+            DISCLOSE_YES_WITHOUT_PROMPT,
+            DISCLOSE_SPECIAL_WITHOUT_PROMPT,
+            DISCLOSE_NO_WITHOUT_PROMPT,
+        ].includes(disclose);
+        throw new UnsupportedEndOfGameError(
+            recognized
+                ? 'nondefault disclosure options'
+                : `invalid disclosure option ${String(disclose)}`,
+        );
+    }
+    return { ask: true, defquery: 'n' };
+}
+
+// C ref: end.c disclose() (619-699), through the first inventory question.
+// Every answer and every later category remain behind yn_function()'s
+// unsupported CQ_REPEAT write. A replay with no answer stops on the prompt.
+async function disclose(how, taken, state) {
+    if (!state.invent || state.program_state.stopprint) {
+        throw new UnsupportedEndOfGameError(
+            'disclose() without the ordinary inventory question',
+        );
+    }
+    if (taken) {
+        throw new UnsupportedEndOfGameError(
+            'disclose() after a shopkeeper takes the inventory',
+        );
+    }
+    const { ask, defquery } = should_query_disclose_option('i', state);
+    if (!ask) {
+        throw new UnsupportedEndOfGameError(
+            'disclose() without the possessions prompt',
+        );
+    }
+    await yn_function(
+        'Do you want your possessions identified?',
+        'ynq',
+        defquery,
+        true,
+        state,
+    );
+    throw new UnsupportedEndOfGameError(
+        `disclose(${how}) after the possessions answer`,
+    );
+}
+
+function hasEndCleanupMonster(state) {
+    for (let monster = state.level?.monlist ?? null;
+        monster;
+        monster = monster.nmon) {
+        if (monster.isshk || monster.isgd || monster.ispriest) return true;
+    }
+    return false;
+}
+
+function done_object_cleanup(state) {
+    for (let obj = state.invent; obj; obj = obj.nobj) {
+        if (obj.in_use) {
+            throw new UnsupportedEndOfGameError(
+                'done_object_cleanup() with an active inventory object',
+            );
+        }
+    }
+    if (state.gt?.thrownobj || state.thrownobj
+        || state.gk?.kickedobj || state.kickedobj
+        || state.uchain || state.uball) {
+        throw new UnsupportedEndOfGameError(
+            'done_object_cleanup() with an object in transit or punishment',
+        );
+    }
+    // perm_invent_toggled(TRUE) destroys the persistent inventory window.
+    // The port has no such window; its corresponding state is this flag.
+    state.iflags.perm_invent = false;
+}
+
+function identifyInventoryForDisclosure(state) {
+    for (let obj = state.invent; obj; obj = obj.nobj) {
+        discover_object(obj.otyp, true, true, false, state);
+        obj.known = obj.bknown = obj.dknown = obj.rknown = 1;
+        if (isContainer(obj) || obj.otyp === STATUE)
+            obj.cknown = obj.lknown = 1;
+        else if (obj.otyp === TIN)
+            obj.cknown = 1;
+        if (obj.otyp === LARGE_BOX && obj.spe === 1) {
+            throw new UnsupportedEndOfGameError(
+                "really_done() with Schroedinger's box",
+            );
+        }
+    }
+}
+
+// C ref: end.c really_done() (1130-1280), through disclose()'s first prompt.
+// This is the ordinary mounted-slip arm only. Every branch named by a guard
+// below remains fail-closed at the point C would enter it.
+async function really_done(how, state) {
+    const programState = state.program_state;
+    programState.gameover = 1;
+    // JS can unwind an exhausted replay queue out of this still-running C
+    // function. jsmain uses the marker to avoid treating that suspension as
+    // nh_terminate(), whose final recorder capture has not happened yet.
+    programState.in_really_done = true;
+    programState.something_worth_saving = 0;
+    if (programState.done_hup) {
+        throw new UnsupportedEndOfGameError('really_done() after hangup');
+    }
+    state.iflags.vision_inited = false;
+
+    if (programState.panicking) {
+        throw new UnsupportedEndOfGameError('really_done() while panicking');
+    }
+    done_object_cleanup(state);
+
+    const endtime = getnow(state);
+    state.urealtime.finish_time = endtime;
+    state.urealtime.realtime += endtime - state.urealtime.start_timing;
+    state.iflags.at_night = night(state);
+    state.iflags.at_midnight = midnight(state);
+
+    if ((state.u.uachieved?.[0] || !state.flags.beginner)
+        && (state.u.uroleplay?.blind || state.u.uroleplay?.nudist)) {
+        throw new UnsupportedEndOfGameError(
+            'really_done() final achievement tracking',
+        );
+    }
+    if (state.moves <= 1) {
+        throw new UnsupportedEndOfGameError(
+            'really_done() first-move death message',
+        );
+    }
+
+    const bonesOk = can_make_bones(state);
+    if (bonesOk) {
+        throw new UnsupportedEndOfGameError(
+            'really_done() positive bones creation',
+        );
+    }
+    if (how !== DIED || state.u.ugrave_arise !== NON_PM) {
+        throw new UnsupportedEndOfGameError(
+            'really_done() special death or grave-arise state',
+        );
+    }
+    if (hasEndCleanupMonster(state)) {
+        throw new UnsupportedEndOfGameError(
+            'really_done() shopkeeper, guard, or priest cleanup',
+        );
+    }
+
+    // paybill() initializes the repository record even when no shopkeeper is
+    // present, then returns FALSE. paygd(), clearpriests(), and clearlocks()
+    // have no state to change on this D:1 path.
+    state.gr ??= {};
+    state.gr.repo = { location: { x: 0, y: 0 }, shopkeeper: null };
+    const taken = false;
+
+    identifyInventoryForDisclosure(state);
+    if (state.flags.end_disclose.join('') !== DEFAULT_END_DISCLOSE) {
+        throw new UnsupportedEndOfGameError('nondefault disclosure options');
+    }
+    await disclose(how, taken, state);
 }
 
 // C ref: end.c container_contents() (1594-1670). Creates a NHW_MENU text

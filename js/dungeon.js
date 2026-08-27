@@ -1307,6 +1307,22 @@ export function Is_special(level, state = game) {
     return null;
 }
 
+// C ref: dungeon.c Is_branchlev() (1464-1474). Return the branch record when
+// either endpoint names the requested level, or null for an ordinary level.
+export function Is_branchlev(level, state = game) {
+    for (const branch of state.branches ?? []) {
+        if (on_level(level, branch.end1) || on_level(level, branch.end2))
+            return branch;
+    }
+    return null;
+}
+
+// C ref: dungeon.c Is_botlevel() (1643-1647). Dungeon level numbers are
+// one-based, and num_dunlevs is the bottom level's number.
+export function Is_botlevel(level, state = game) {
+    return level.dlevel === state.dungeons[level.dnum].num_dunlevs;
+}
+
 // ---------------------------------------------------------------------------
 // print_dungeon() and its helpers, ported for the bymenu=TRUE path only.
 // C ref: dungeon.c unplaced_floater(), unreachable_level(), tport_menu(),
