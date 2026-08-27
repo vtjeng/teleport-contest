@@ -5122,7 +5122,13 @@
         ]
       },
       "detail": "Scope the straight-through ordinary nonfatal AD_PHYS weapon hit through existing hitmu. Preserve corpse, gauntlets, artifact, silver, pudding, rust, poison, selected knockback, fatal, other damage types, misses, ranged, and unarmed branches fail-closed.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "ordinary-weapon-hit-through-hitmu",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "cd23d768e077fa0d1fb36bf616c58f9a7114310f",
       "openStanding": {
         "sha": "82e4f44b873d0c82e978aa1f3907266a6cda5ac6",
