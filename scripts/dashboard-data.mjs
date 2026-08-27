@@ -51,14 +51,8 @@ const scoreEvents = scoreLines.map(line => {
   const noteLower = note.toLowerCase();
   if (noteLower.includes('supersedes') || noteLower.includes('sha-correction')) return null;
 
-  let utc;
-  if (tsStr.includes('T')) {
-    utc = new Date(tsStr.replace('Z', '+00:00'));
-  } else if (/^\d{4}-\d{2}-\d{2}$/.test(tsStr)) {
-    utc = new Date(tsStr + 'T00:00:00Z');
-  } else {
-    utc = null;
-  }
+  const commit = commitBySha.get(sha) || commitBySha.get(sha.slice(0, 7));
+  const utc = commit?.time || null;
 
   return {
     utc, sha, event,

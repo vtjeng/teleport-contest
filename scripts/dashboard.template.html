@@ -409,6 +409,7 @@ canvas {
 
 <div class="section">
   <h2 class="section-title">Phase breakdown</h2>
+  <p class="subtitle" id="tableSubtitle"></p>
   <div class="legend" id="tableLegend"></div>
   <div class="chart-wrap">
     <div class="goal-table-wrap">
@@ -692,7 +693,10 @@ window.addEventListener('resize', drawProgressChart);
   ).join('');
 
   const table = document.getElementById('goalTable');
-  const goals = [...DATA.goals].reverse();
+  const allGoals = [...DATA.goals].reverse();
+  const goals = allGoals.filter(g => g.status === 'in-progress' || (g.totalMin > 0 && g.totalMin < 1440));
+  const hidden = allGoals.length - goals.length;
+  document.getElementById('tableSubtitle').textContent = goals.length + ' goals shown' + (hidden > 0 ? ' (' + hidden + ' milestones hidden)' : '');
 
   function fmtDate(iso) {
     if (!iso) return '-';
