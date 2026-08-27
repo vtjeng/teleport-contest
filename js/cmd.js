@@ -12,6 +12,7 @@ import {
     CMDQ_KEY,
     COLNO,
     CQ_CANNED,
+    CQ_REPEAT,
     DIR_ERR,
     ECMD_CANCEL,
     ECMD_FAIL,
@@ -452,12 +453,14 @@ function yn_menuable_resp(resp, state) {
     return resp !== null && Boolean(state.iflags?.query_menu);
 }
 
-// C ref: cmd.c yn_function() (5471-5578). Both queue arms sit behind
-// `addcmdq`, which the refusal below still rejects, so neither the
-// cmdq_pop() at 5496 nor the cmdq_add_key(CQ_REPEAT) at 5543 can run.
-// getdir() is the port's other caller and passes addcmdq FALSE, exactly as C
-// does at 3989. iflags.debug_fuzzer is never set, leaving the window port's
-// tty_yn_function() as the only reader.
+// C ref: cmd.c yn_function() (5471-5578). The ordinary user-input arm reads
+// through tty_yn_function() and, when addcmdq is true, records the answer in
+// CQ_REPEAT. This slice admits that write for an unrestricted prompt. The
+// restricted-response and queued-answer arms remain outside the running-game
+// boundary: nothing ported can set gi.in_doagain, and the current whatdoes
+// caller starts with an empty canned queue. getdir() passes addcmdq FALSE,
+// exactly as C does at 3989. iflags.debug_fuzzer is never set, leaving the
+// window port's reader as the only live input source.
 //
 // The `resp && *resp && res && !strchr(resp, res)` repair at 5567 has no work
 // to do for either caller. A null `resp` fails its first test. For a restricted
@@ -483,11 +486,12 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
         throw new UnsupportedDirectionBoundaryError('yn_function_menu()');
     }
     const res = await tty_yn_function(query, resp, def, state);
-    if (addcmdq) {
+    if (addcmdq && resp !== null) {
         throw new UnsupportedDirectionBoundaryError(
-            'cmdq_add_key(CQ_REPEAT) has no CQ_REPEAT queue',
+            'cmdq_add_key(CQ_REPEAT) for a restricted response set',
         );
     }
+    if (addcmdq) cmdq_add_key(CQ_REPEAT, res, state);
     // "in case we're called via getdir() which sets input_state".
     state.program_state.input_state = 'other';
     return res;
@@ -612,6 +616,53 @@ export function movecmd(sym, mode, state = game) {
     }
     state.u.dz = 0;
     return 0;
+}
+
+// C ref: cmd.c key2extcmddesc() (2561-2615). This keeps source evaluation
+// order: the three movecmd() probes precede the count, special-key, and
+// regular-command lookups. A failed probe clears u.dz, which is an observable
+// C side effect even for the ordinary inventory key used by dowhatdoes().
+export function key2extcmddesc(key, state = game) {
+    const byte = key & 0xFF;
+    const model = commandBindings(state);
+    let description = '';
+    if (movecmd(byte, MV_WALK, state)) description = 'move';
+    else if (movecmd(byte, MV_RUSH, state)) description = 'rush';
+    else if (movecmd(byte, MV_RUN, state)) description = 'run';
+    if (description) return description;
+
+    const unmeta = byte & 0x7F;
+    const isDigit = (value) => value >= 0x30 && value <= 0x39;
+    if (isDigit(byte) || (model.numPad && isDigit(unmeta))) {
+        if (!model.numPad) {
+            return 'start of, or continuation of, a count';
+        }
+        const metaFive = 0x35 | 0x80;
+        const metaZero = 0x30 | 0x80;
+        if (byte === 0x35 || byte === metaFive) {
+            const run = Boolean(model.pcHack) !== (byte === metaFive);
+            return `${run ? 'run' : 'rush'} prefix`;
+        }
+        if (byte === 0x30 || (model.pcHack && byte === metaZero))
+            return "synonym for 'i'";
+    }
+
+    if (byte === model.specialKeys.escape)
+        return 'cancel current prompt or pending prefix';
+    if (model.numPad && byte === model.specialKeys.count) {
+        return 'Prefix: for digits when preceding a command with a count';
+    }
+
+    const command = commandForKey(model, byte);
+    const entry = command === null ? null : EXTCMD_BY_NAME.get(command);
+    if (!entry?.ef_txt) return null;
+    let result = `${entry.ef_desc} (#${entry.ef_txt})`;
+    if (result.toLowerCase().startsWith('prefix:')
+        && entry.ef_txt.toLowerCase() === 'reqmenu') {
+        result = 'movement prefix: move without autopickup and without '
+            + 'attacking\nnon-movement prefix:' + result.slice(7);
+    }
+    return result.replace(' (##)', '');
 }
 
 // C ref: cmd.c xytodir() (3846-3856). Converts a unit offset into an index
@@ -819,7 +870,8 @@ export async function getdir(s, state = game) {
             "'^R' repaints the screen and reissues the direction prompt",
         );
     }
-    // cmdq_add_key(CQ_REPEAT, dirsym): no CQ_REPEAT queue is ported.
+    // cmdq_add_key(CQ_REPEAT, dirsym): getdir() repeat recording remains
+    // outside this caller's boundary; dowhatdoes() owns the admitted write.
 
     const spkeys = commandBindings(state).specialKeys;
     // cmd.c:4021-4090 tests NHKF_GETDIR_SELF first and evaluates movecmd()
@@ -1121,13 +1173,11 @@ export function reset_occupations(state = game) {
 // return; rhack() then runs one node per call, ahead of reading any key, so
 // "time passes normally when doing queued actions" (hack.h:172-173).
 //
-// Only CQ_CANNED is represented. C's other queue, CQ_REPEAT, is a
-// write-only recording buffer during ordinary play: cmdq_pop() reads it only
-// while gi.in_doagain is set, and cmd.c do_repeat() (1636-1660) is the sole
-// writer of that flag. #repeat and its ^A binding are unported, so every
-// CQ_REPEAT write C makes -- rhack():3735, getdir():4018, yn_function():5543,
-// getobj():2052-2053 -- would go into a list nothing can ever read. Each of
-// those sites says so where it stands.
+// CQ_REPEAT is a write-only recording buffer during ordinary play:
+// cmdq_pop() reads it only while gi.in_doagain is set, and cmd.c do_repeat()
+// (1636-1660) is the sole writer of that flag. #repeat and its ^A binding are
+// unported. yn_function() now records the whatdoes answer there; the other
+// source write sites remain outside their current callers' boundaries.
 //
 // CMDQ_EXTCMD and CMDQ_KEY nodes are produced. cmdq_add_dir(),
 // cmdq_add_int() and cmdq_add_userinput() have no ported caller.
@@ -1198,7 +1248,7 @@ export function resetCommandVars(state = game, resetCmdq = true) {
     state.iflags.menu_requested = false;
     if (resetCmdq) {
         cmdq_clear(CQ_CANNED, state);
-        // cmdq_clear(CQ_REPEAT): no CQ_REPEAT queue is ported.
+        cmdq_clear(CQ_REPEAT, state);
     }
 }
 
@@ -3064,10 +3114,10 @@ export async function rhack(key, state = game) {
         // C ref: cmd.c rhack()'s bad-command path. Its custompline() differs
         // from pline() only in SUPPRESS_HISTORY, which keeps the line out of
         // the message history that doprev_message() recalls; no message
-        // history is ported. Its cmdq_clear(CQ_REPEAT) has no ported queue to
-        // clear, and iflags.sanity_no_check suppresses only the debug sanity
-        // check.
+        // history is ported. iflags.sanity_no_check suppresses only the debug
+        // sanity check.
         cmdq_clear(CQ_CANNED, state);
+        cmdq_clear(CQ_REPEAT, state);
         await ttyPline(`Unknown command '${visibleCommandKey(key)}'.`, state);
         state.context.move = 0;
         state.multi = 0;

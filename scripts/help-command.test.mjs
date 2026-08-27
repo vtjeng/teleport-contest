@@ -1,13 +1,23 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { cmdq_peek, key2extcmddesc } from '../js/cmd.js';
+import { CMDQ_KEY, CQ_REPEAT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { helpMenuItems, setopt_cmd } from '../js/pager.js';
+import {
+    dowhatdoes_core,
+    helpMenuItems,
+    setopt_cmd,
+} from '../js/pager.js';
 import {
     HELP_MENU_WHATIS_MOVES,
     loadHelpMenuShellRecipe,
 } from './run-help-menu-shell.mjs';
+import {
+    HELP_WHATDOES_MOVES,
+    loadHelpWhatdoesRecipe,
+} from './run-help-dowhatdoes.mjs';
 import {
     HELP_VERSION_MOVES,
     loadHelpVersionRecipe,
@@ -44,6 +54,40 @@ test('the default help menu preserves pager.c rows and source selectors', () => 
     );
 });
 
+test('whatdoes formats the ordinary inventory binding from extcmdlist',
+    async () => {
+        const segment = loadHelpMenuShellRecipe().segments[0];
+        await runSegment({ ...segment, moves: '' });
+
+        // cmd.c extcmdlist[] binds byte 0x69 ('i') to the inventory row.
+        const inventoryKey = 0x69;
+        assert.equal(
+            key2extcmddesc(inventoryKey, game),
+            'show your inventory (#inventory)',
+        );
+        // pager.c uses a minimum width of eight for the key, then adds the
+        // sentence-ending period after the command description.
+        assert.equal(
+            dowhatdoes_core(inventoryKey, game),
+            'i       show your inventory (#inventory).',
+        );
+    });
+
+test('whatdoes records its unrestricted prompt answer for command repeat',
+    async () => {
+        const segment = loadHelpWhatdoesRecipe().segments[0];
+        // Removing the final wait leaves the repeat queue as dowhatdoes()
+        // wrote it, before a later command can replace the repeat sequence.
+        await runSegment({
+            ...segment,
+            moves: HELP_WHATDOES_MOVES.slice(0, -1),
+        });
+        const answer = cmdq_peek(CQ_REPEAT, game);
+        assert.equal(answer?.typ, CMDQ_KEY);
+        // cmd.c yn_function() records the byte that answered `What command?`.
+        assert.equal(answer?.key, 0x69);
+    });
+
 test('the help whatis target returns through the next command boundary',
     () => withSerializedGrids(async () => {
         const segment = loadHelpMenuShellRecipe().segments[0];
@@ -67,23 +111,30 @@ test('the help whatis target returns through the next command boundary',
         assert.equal(replay.getCursors().length, 5);
     }));
 
-test('an unported dynamic help target stops after its menu selection', async () => {
-    const segment = loadHelpMenuShellRecipe().segments[0];
-    let boundary;
-    const replay = await runSegment({
-        ...segment,
-        // `f` selects source table index 5, the later what-does target.
-        moves: '?f',
-    }, {
-        onBoundary: (error) => { boundary = error; },
-    });
+test('the help whatdoes target returns through the next command boundary',
+    () => withSerializedGrids(async () => {
+        const segment = loadHelpWhatdoesRecipe().segments[0];
+        assert.equal(segment.moves, HELP_WHATDOES_MOVES);
 
-    assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
-    assert.match(boundary.message, /unsupported help: menu target 6/u);
-    // The start screen and complete help menu remain available to scoring.
-    assert.equal(replay.getScreens().length, 2);
-    assert.equal(game.context.pendingCommand?.key, '?'.charCodeAt(0));
-});
+        // The final wait spends one turn, so compare against the same wait
+        // without the preceding help interaction.
+        const baseline = await runSegment({ ...segment, moves: '.' });
+        const baselineMoves = game.moves;
+        const baselineRng = baseline.getRngLog().length;
+
+        let boundary;
+        const replay = await runSegment(segment, {
+            onBoundary: (error) => { boundary = error; },
+        });
+        assert.equal(boundary, undefined);
+        assert.equal(game.context.pendingCommand, undefined);
+        assert.equal(game.moves, baselineMoves);
+        assert.equal(replay.getRngLog().length, baselineRng);
+        // Fresh C seed 642871 records startup, the help menu, the first-use
+        // explanation, the query, its result, and the restored map.
+        assert.equal(replay.getScreens().length, 6);
+        assert.equal(replay.getCursors().length, 6);
+    }));
 
 test('all static help files return through the restored command boundary',
     () => withSerializedGrids(async () => {

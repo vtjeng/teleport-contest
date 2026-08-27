@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    cmdq_peek,
     confdir,
     dxdy_moveok,
     key2txt,
@@ -12,6 +13,8 @@ import {
 } from '../js/cmd.js';
 import {
     CONFUSION,
+    CMDQ_KEY,
+    CQ_REPEAT,
     DIR_ERR,
     ECMD_CANCEL,
     ECMD_OK,
@@ -589,7 +592,7 @@ test('debug mode asks whether to force the mount', async () => {
     assert.equal(plain.result, ECMD_OK);
 });
 
-test('yn_function returns the key it read, and stops if asked to repeat it',
+test('yn_function returns its key and records an unrestricted repeat answer',
     async () => {
     await runSegment({ ...promptSegment(), moves: `.${RIDE_COMMAND}` });
     const display = game.nhDisplay;
@@ -602,14 +605,15 @@ test('yn_function returns the key it read, and stops if asked to repeat it',
             await yn_function('In what direction?', null, '\0', false, game),
             'l'.charCodeAt(0),
         );
-        // hack.h's y_n() and its siblings pass addcmdq TRUE, which reaches
-        // cmdq_add_key(CQ_REPEAT, res). No command queue is ported, and every
-        // one of those callers also passes a response set, so this guard is
-        // second in line for all of them.
-        await assert.rejects(
-            yn_function('In what direction?', null, '\0', true, game),
-            /cmdq_add_key\(CQ_REPEAT\)/u,
+        // pager.c dowhatdoes() uses this unrestricted, addcmdq-TRUE shape.
+        // cmd.c records the raw byte in CQ_REPEAT after the prompt answers.
+        assert.equal(
+            await yn_function('What command?', null, '\0', true, game),
+            'l'.charCodeAt(0),
         );
+        const repeated = cmdq_peek(CQ_REPEAT, game);
+        assert.equal(repeated?.typ, CMDQ_KEY);
+        assert.equal(repeated?.key, 'l'.charCodeAt(0));
     } finally {
         display.readKey = readKey;
     }
@@ -650,4 +654,3 @@ test('a pending --More-- is dismissed before the direction prompt paints',
         game._pending_message = '';
     }
 });
-

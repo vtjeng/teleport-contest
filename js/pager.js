@@ -94,6 +94,7 @@ import { doextversion } from './version.js';
 import { t_at, trapname } from './trap.js';
 import { couldsee } from './vision.js';
 import { getlin, select_menu } from './windows.js';
+import { key2extcmddesc, key2txt, yn_function } from './cmd.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
 
@@ -917,6 +918,40 @@ export async function dohistory(state = game) {
     return ECMD_OK;
 }
 
+// C ref: pager.c dowhatdoes_core() (2577-2654). The live slice reaches a
+// command-table description, which is the complete compiled branch above the
+// source's disabled legacy data-file implementation.
+export function dowhatdoes_core(q, state = game) {
+    const description = key2extcmddesc(q, state);
+    if (description === null) return null;
+    return `${key2txt(q).padEnd(8)}${description}.`;
+}
+
+// C ref: pager.c dowhatdoes() (2657-2719), through the ordinary one-line `i`
+// query exercised by the help menu. The alternate-meta, help expansion,
+// unknown-command, and embedded-newline output arms remain fail-closed.
+export async function dowhatdoes(state = game) {
+    if (!state._dowhatdoesAsked) {
+        await ttyPline("Ask about '&' or '?' to get more info.", state);
+        state._dowhatdoesAsked = true;
+    }
+    // introff()/intron() only change the native terminal's signal handling.
+    // The browser and replay input sources do not install that handler.
+    const q = await yn_function('What command?', null, '\0', true, state);
+    if (q !== 0x69) {
+        throw new UnsupportedHelpError(
+            `whatdoes query ${key2txt(q)} outside ordinary inventory lookup`,
+        );
+    }
+    const result = dowhatdoes_core(q, state);
+    await ttyPline(result, state);
+    return ECMD_OK;
+}
+
+async function hmenu_dowhatdoes(state) {
+    await dowhatdoes(state);
+}
+
 async function hmenu_dohistory(state) {
     await dohistory(state);
 }
@@ -989,6 +1024,10 @@ export async function dohelp(state = game) {
     }
     if (choice === 5) {
         await dowhatis(state);
+        return ECMD_OK;
+    }
+    if (choice === 6) {
+        await hmenu_dowhatdoes(state);
         return ECMD_OK;
     }
     if (choice === 8) {
