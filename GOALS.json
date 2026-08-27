@@ -5438,8 +5438,8 @@
       "slices": [
         {
           "name": "help-menu-shell-dowhatis",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0230f9f06693da75831fc6d36ab3fde0fa6e3917"
         }
       ],
       "openedAt": "2ff2a1b74d22e07ed41dd2a1f018cc842468d316",
