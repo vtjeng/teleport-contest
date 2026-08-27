@@ -102,6 +102,14 @@ export class UnsupportedWhatisError extends Error {
     }
 }
 
+export class UnsupportedHelpError extends Error {
+    constructor(reason) {
+        super(`unsupported help: ${reason}`);
+        this.name = 'UnsupportedHelpError';
+        this.reason = reason;
+    }
+}
+
 function propertyActive(state, index) {
     const property = state.u?.uprops?.[index];
     return Boolean(property?.intrinsic || property?.extrinsic)
@@ -856,4 +864,65 @@ export async function do_look(mode, clickCc = null, state = game) {
 
 export async function dowhatis(state = game) {
     return do_look(0, null, state);
+}
+
+// C ref: pager.c setopt_cmd() (2902-2957). The current help boundary has the
+// recorder's compiled-in bindings: #optionsfull has no key, reqmenu is `m`,
+// and the simple options command is `O`. Later binding work must replace this
+// bounded result with cmd_from_func()/cmdname_from_func() lookups.
+export function setopt_cmd() {
+    return "'#optionsfull' or 'm O'";
+}
+
+// C ref: pager.c help_menu_items[] (2829-2858). This build has no PORT_HELP
+// row, normal play omits dispfile_debughelp(), and hideusage is off. Keep the
+// numeric value from the source-table index so filtering a future row cannot
+// silently dispatch the wrong handler.
+export function helpMenuItems() {
+    return [
+        { value: 1, selector: 'a', label: 'About NetHack (version information).' },
+        { value: 2, selector: 'b', label: 'Long description of the game and commands.' },
+        { value: 3, selector: 'c', label: 'List of game commands.' },
+        { value: 4, selector: 'd', label: 'Concise history of NetHack.' },
+        { value: 5, selector: 'e', label: 'Info on a character in the game display.' },
+        { value: 6, selector: 'f', label: 'Info on what a given key does.' },
+        { value: 7, selector: 'g', label: 'List of game options.' },
+        { value: 8, selector: 'h', label: 'Longer explanation of game options.' },
+        {
+            value: 9,
+            selector: 'i',
+            label: `Using the ${setopt_cmd()} command to set options.`,
+        },
+        { value: 10, selector: 'j', label: 'Full list of keyboard commands.' },
+        { value: 11, selector: 'k', label: 'List of extended commands.' },
+        { value: 12, selector: 'l', label: 'List menu control keys.' },
+        { value: 13, selector: 'm', label: "Description of NetHack's command line." },
+        { value: 14, selector: 'n', label: 'The NetHack license.' },
+        { value: 15, selector: 'o', label: 'Support information.' },
+    ];
+}
+
+// C ref: pager.c hmenu_dowhatis() and dohelp() (2802-2805, 2860-2898).
+// This slice dispatches the already-ported whatis row. The other table rows
+// stop after their menu selection until their source owners are ported.
+export async function dohelp(state = game) {
+    if (state.wizard)
+        throw new UnsupportedHelpError('the wizard-mode help row');
+    if (state.sysopt?.hideusage)
+        throw new UnsupportedHelpError('a help menu with usage hidden');
+
+    const choice = await select_menu(state, {
+        how: PICK_ONE,
+        title: 'Select one item:',
+        ...menuTitleStyle(state),
+        items: helpMenuItems(),
+        overlay: state.iflags?.menu_overlay !== false,
+        cancelValue: null,
+    });
+    if (choice === null) return ECMD_OK;
+    if (choice === 5) {
+        await dowhatis(state);
+        return ECMD_OK;
+    }
+    throw new UnsupportedHelpError(`menu target ${choice}`);
 }

@@ -118,7 +118,12 @@ import { doset_simple, dotogglepickup, UnsupportedOptionMenuError } from './opti
 import { dopray, UnsupportedPrayerError } from './pray.js';
 import { UnsupportedHideError } from './mon.js';
 import { dosave } from './save.js';
-import { dowhatis, UnsupportedWhatisError } from './pager.js';
+import {
+    dohelp,
+    dowhatis,
+    UnsupportedHelpError,
+    UnsupportedWhatisError,
+} from './pager.js';
 import { UnsupportedShopError } from './shk.js';
 import { dofire, dothrow, UnsupportedThrowError } from './dothrow.js';
 import { dosit, UnsupportedSitError } from './sit.js';
@@ -1025,7 +1030,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'takeoff', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
     'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
-    'save', 'wield', 'quiver', 'whatis', '#',
+    'save', 'wield', 'quiver', 'help', 'whatis', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -1379,6 +1384,7 @@ export function failClosedCommandRefusals() {
         UnsupportedEatError,
         UnsupportedApplyError,
         UnsupportedEngraveError,
+        UnsupportedHelpError,
         UnsupportedWhatisError,
         // lock.c pick_lock() stops inside doapply()'s lock-pick arm, one
         // frame below UnsupportedApplyError rather than beside it.
@@ -1751,6 +1757,12 @@ async function runEngraveCommand(key, state) {
 
 async function runWhatisCommand(key, state) {
     return failClosedCommand(key, state, () => dowhatis(state));
+}
+
+// C ref: pager.c dohelp(). The handler returns ECMD_OK after either a menu
+// cancellation or a selected target completes, so it never spends a turn.
+async function runHelpCommand(key, state) {
+    return failClosedCommand(key, state, () => dohelp(state));
 }
 
 // C ref: apply.c doapply(). Like dosearch() and doeat() it returns its own
@@ -2187,6 +2199,8 @@ async function doextcmd(key, state) {
         return await runEatCommand(key, state);
     case 'doengrave':
         return await runEngraveCommand(key, state);
+    case 'dohelp':
+        return await runHelpCommand(key, state);
     case 'dowhatis':
         return await runWhatisCommand(key, state);
     case 'doread':
@@ -2536,6 +2550,11 @@ export async function rhack(key, state = game) {
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);
             if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'help') {
+            await runHelpCommand(key, state);
+            resetCommandVars(state, state.multi < 0);
             return;
         }
         if (command === 'whatis') {
