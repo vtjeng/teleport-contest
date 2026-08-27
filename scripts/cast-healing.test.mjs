@@ -272,7 +272,7 @@ test('healup keeps timed blindness behind the make_blinded boundary', () => {
         u: {
             uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
             uprops: {
-                [BLINDED]: { intrinsic: 1 & TIMEOUT, extrinsic: 0 },
+                [BLINDED]: { intrinsic: 37 & TIMEOUT, extrinsic: 0 },
             },
         },
         disp: {},
@@ -294,6 +294,20 @@ test('healup keeps timed blindness behind the make_blinded boundary', () => {
     };
     healup(0, 0, false, true, permanent);
     assert.equal(permanent.u.uprops[BLINDED].intrinsic, FROMOUTSIDE);
+
+    const mixed = {
+        u: {
+            uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
+            uprops: {
+                [BLINDED]: { intrinsic: FROMOUTSIDE | 37, extrinsic: 0 },
+            },
+        },
+        disp: {},
+    };
+    assert.throws(
+        () => healup(0, 0, false, true, mixed),
+        (error) => error instanceof UnsupportedPotionError,
+    );
 });
 
 // ── spelleffects_check uses A_INT, not A_DEX ────────────────────────────────

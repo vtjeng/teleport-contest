@@ -966,13 +966,17 @@ test('mattacku reveals an eel the moment it strikes', async () => {
     // non-eel: both terms are needed.
     const rat = meleeAttacker(state, PM_SEWER_RAT, -1, 0,
         { minvis: true, m_lev: 0 });
+    const marked = [];
     const quiet = meleeEnv(state, [20, 21], {
+        canSpotMonster: () => false,
+        markInvisible: (x, y) => marked.push([x, y]),
         redraw: () => assert.fail('a non-eel needs no reveal'),
     });
     // An invisible non-eel keeps its invisibility. missmu() marks its square,
     // prints the source's anonymous miss, and completes the attack.
     assert.equal(await mattacku(rat, quiet.env), false);
     assert.deepEqual(quiet.lines, ['It misses!']);
+    assert.deepEqual(marked, [[rat.mx, rat.my]]);
     assert.equal(rat.minvis, true);
 
     // See Invisible makes the monster spottable, but do_name.c Monnam() then

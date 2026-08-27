@@ -29,6 +29,7 @@ import {
     UnsupportedEatError,
     UnsupportedHungerTransitionError,
 } from '../js/eat.js';
+import { getobj } from '../js/invent.js';
 import { INTERNALCMD, extcmdlist } from '../js/extcmdlist_data.js';
 import {
     ALTAR,
@@ -48,6 +49,8 @@ import {
     DOOR,
     FAST,
     FOUNTAIN,
+    GETOBJ_EXCLUDE,
+    GETOBJ_SUGGEST,
     GRAVE,
     HALLUC,
     HWALL,
@@ -3498,16 +3501,18 @@ test('rhack consumes a queued key after the reqmenu prefix', async () => {
         datetime: COMMAND_DATETIME,
         nethackrc: 'OPTIONS=name:QueuePrefixKey,role:Valkyrie,race:human,'
             + 'gender:female,align:lawful,!legacy,!tutorial,'
-            + '!splash_screen,pettype:none',
+            + '!splash_screen,pettype:none\nBINDINGS=x:search',
         moves: ' ',
     });
     cmdq_add_ec(CQ_CANNED, extcmdRow('reqmenu'), game);
-    cmdq_add_key(CQ_CANNED, commandKeyCode('.'), game);
+    cmdq_add_key(CQ_CANNED, commandKeyCode('x'), game);
 
     await rhack(0, game);
 
     assert.equal(cmdq_peek(CQ_CANNED, game), null);
     assert.equal(game.context.move, 1);
+    assert.equal(game.already_found_flag, 0);
+    assert.equal(game.did_nothing_flag, undefined);
 });
 
 test('inventory preserves the action selected by itemactions', async () => {
@@ -3539,6 +3544,28 @@ test('inventory preserves the action selected by itemactions', async () => {
     for (let item = game.invent; item; item = item.nobj) {
         assert.notEqual(item, selected, 'the selected object left inventory');
     }
+});
+
+test('queued getobj awaits an asynchronous object filter', async () => {
+    await runSegment({
+        seed: 4210044,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:QueuedAsyncObject,role:Valkyrie,race:human,'
+            + 'gender:female,align:lawful,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        moves: ' ',
+    });
+    const selected = game.invent;
+    assert.ok(selected?.invlet);
+    cmdq_add_key(CQ_CANNED, selected.invlet, game);
+
+    const result = await getobj('wear', async (object) => {
+        await Promise.resolve();
+        return object === selected ? GETOBJ_SUGGEST : GETOBJ_EXCLUDE;
+    }, 0, game);
+
+    assert.equal(result, selected);
+    assert.equal(cmdq_peek(CQ_CANNED, game), null);
 });
 
 test('#autopickup dispatches dotogglepickup without taking time', async () => {

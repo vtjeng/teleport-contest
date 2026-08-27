@@ -5037,6 +5037,15 @@
       "status": "open",
       "from": "83bc35351ae8d946a3a44fdce8045f568ef79fbb",
       "detail": "The light audit of the goal-selector hardening confirmed that its required scan and rerank schema fields plus cap persistence and session-identity checks have no executable workflow harness. Add a stubbed agent and parallel runtime that accepts the workflow top-level return contract, then cover valid results, missing winner fields, persisted false, mismatched sessions, and missing cap results. Mutating either the schema requirement or persistence check must fail."
+    },
+    {
+      "id": "queued-hands-self-getobj",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "3bb21071b6d41e22508522d879ed5671e66b5afa",
+      "detail": "Port getobj's queued HANDS_SYM selection as the C hands_obj sentinel and connect it through iactions.c IA_UNWIELD to wield.c dowield; validate the end-to-end queued bare-hands choice against a fresh C recording."
     }
   ],
   "areas": [
