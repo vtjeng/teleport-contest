@@ -19866,6 +19866,337 @@
         ]
       },
       "recordedAt": "2026-08-26T15:02:10.695Z"
+    },
+    {
+      "kind": "review",
+      "head": "a3a4f1aff46f233ef788e9ccc224083ce53b84c4",
+      "auditedRange": "23e12ccad481995a2d64a85d12888a1d7181c504..a3a4f1aff46f233ef788e9ccc224083ce53b84c4",
+      "level": "full",
+      "areas": [
+        "runtime",
+        "commands",
+        "objects",
+        "hero",
+        "generation",
+        "monsters",
+        "world-effects"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 51 raw, 48 deduplicated, 47 confirmed, 29 applied, 18 deferred, 1 rejected, 0 unverified. Full four-finder correctness audit plus successive fresh light rechecks. The review confirmed 47 findings: 29 applied and mutation-validated, 18 tracked as out-of-boundary deferrals, 1 rejected with counter-evidence, and 0 unverified. Final closure delta was clean across correctness, test-quality, and variable-flow reviewers. Checkpoint at a3a4f1a reproduced 12/33 sessions, 2376/7765 screens, 155739/610816 RNG values, and 2409/7765 cursors; the five-screen gain from the reviewed base is attributable to corrected queued item-action progression and invisible-attacker handling.",
+      "auditMetrics": {
+        "mode": "full",
+        "foundBy": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace"
+        ],
+        "counts": {
+          "raw": 51,
+          "deduplicated": 48,
+          "confirmed": 47,
+          "applied": 29,
+          "deferred": 18,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "wallTimeSeconds": 10084,
+        "categories": {
+          "production": 20,
+          "tests": 19,
+          "clarity": 8,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "file": ".claude/workflows/goal-selector.js",
+            "function": "goal-selector scan validation",
+            "summary": "The scan schema leaves mandatory control-flow fields optional or nullable",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": ".claude/workflows/goal-selector.js",
+            "function": "goal-selector cap persistence validation",
+            "summary": "The capping phase discarded results instead of checking session identity and persisted status",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/cmd.js",
+            "function": "doextcmd",
+            "summary": "The extended-command dispatcher omitted dotogglepickup",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/cmd.js",
+            "function": "rhack",
+            "summary": "A queued reqmenu prefix read physical input instead of consuming the next queued command",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/cmd.js",
+            "function": "rhack",
+            "summary": "The direct inventory command cleared the item-action queue that itemactions populated",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/iactions.js",
+            "function": "itemactions",
+            "summary": "The full-ring-slots label used the hero's hands instead of fingers",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/invent.js",
+            "function": "learn_unseen_invent",
+            "summary": "learn_unseen_invent() omits the source-required addinv_core2() reactions",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/invent.js",
+            "function": "learn_unseen_invent",
+            "summary": "Regaining sight updates identification flags but omits addinv_core2() state changes",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/makemon_create.js",
+            "function": "makemon",
+            "summary": "Temple generation requests an aligned cleric that the monster-creation allowlist rejects",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/mhitu.js",
+            "function": "missmu",
+            "summary": "The newly opened unseen-miss path still refused every invisible attacker",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/potion.js",
+            "function": "peffects",
+            "summary": "The supported lit-oil path cannot consume its potion because the light-source lifecycle dependency is dropped",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/potion.js",
+            "function": "peffects and healup",
+            "summary": "New inventory-refreshing quaff, spell, and sight-restoration paths do not propagate the permanent-inventory hook",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/potion.js",
+            "function": "peffects",
+            "summary": "Milky and smoky potion descriptions always refuse quaffing instead of first applying the occupant conditions",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/potion.js",
+            "function": "healup",
+            "summary": "healup(..., cureblind=true) silently leaves temporary deafness active",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/potion.js",
+            "function": "healup",
+            "summary": "healup() mistakes extrinsic blindfold blindness for blindness that healing must clear",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/priest.js",
+            "function": "move_special",
+            "summary": "Priest movement writes through the live global display during the cloned preflight pass",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/spell.js",
+            "function": "spelleffects_check",
+            "summary": "The unknown-spell guard compares an object type to the spell-index sentinel",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/invent.js",
+            "function": "getobj",
+            "summary": "Queued object-letter selection was not consumed by getobj",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/mhitu.js",
+            "function": "missmu",
+            "summary": "The invisible-attacker boundary confused callback presence with whether the attacker was spotted",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/invent.js",
+            "function": "getobj",
+            "summary": "Queued hands/self selections still refuse instead of returning NetHack's hands_obj sentinel",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "readiness": {
+          "boundary": "The reviewed slices begin at live player commands, item-action menu choices, equipment changes, spell and potion use, monster attacks, or level-generation entries and end at the next observable menu, message, screen, cursor, random draw, state transition, or turn result; the real game reaches each completed path through recorded development play, fresh differentials, or live integration tests.",
+          "sourceReview": "Every branch and helper inside those observable slice boundaries was traced against the corresponding NetHack C function, including state ownership, expression and PRNG order, screen updates, input waits, explicit stops, partial implementations, and missing subsystem dependencies.",
+          "completeness": "No known unsupported behavior remains between the stated start and end events of a completed slice. Confirmed gaps that require a new function family, lifecycle owner, input boundary, or fresh end-to-end case are outside those completed boundaries and are tracked as explicit deferrals. The final audit-fix delta passed independent correctness, test-quality, and variable-flow rechecks with no findings."
+        },
+        "rejections": [
+          {
+            "summary": "The autopickup dispatch needed another focused test before the finding could be considered fixed",
+            "counterEvidence": "The proposed focused path bypassed the dispatcher under review, while the committed development-session ratchet executes the extended-command dispatch and failed when that dispatcher arm was removed. Do not reopen without a source-reachable path that distinguishes the live dispatch from the existing ratchet."
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "The role-summary contract incorrectly says both selectors modify no files",
+            "trackedIn": "selector-cap-write-contract",
+            "category": "clarity"
+          },
+          {
+            "summary": "learn_unseen_invent() omits the source-required addinv_core2() reactions",
+            "trackedIn": "learn-unseen-invent-archeologist-core2",
+            "category": "production"
+          },
+          {
+            "summary": "Regaining sight updates identification flags but omits addinv_core2() state changes",
+            "trackedIn": "learn-unseen-invent-luckstone-core2",
+            "category": "production"
+          },
+          {
+            "summary": "Temple generation requests an aligned cleric that the monster-creation allowlist rejects",
+            "trackedIn": "temple-aligned-cleric-creation",
+            "category": "production"
+          },
+          {
+            "summary": "The supported lit-oil path cannot consume its potion because the light-source lifecycle dependency is dropped",
+            "trackedIn": "lit-oil-useup-light-source",
+            "category": "production"
+          },
+          {
+            "summary": "New inventory-refreshing quaff, spell, and sight-restoration paths do not propagate the permanent-inventory hook",
+            "trackedIn": "permanent-inventory-command-refresh",
+            "category": "production"
+          },
+          {
+            "summary": "Milky and smoky potion descriptions always refuse quaffing instead of first applying the occupant conditions",
+            "trackedIn": "potion-occupant-cloned-preflight",
+            "category": "production"
+          },
+          {
+            "summary": "healup(..., cureblind=true) silently leaves temporary deafness active",
+            "trackedIn": "healup-temporary-deafness",
+            "category": "production"
+          },
+          {
+            "summary": "Priest movement writes through the live global display during the cloned preflight pass",
+            "trackedIn": "priest-planning-newsym-side-effect",
+            "category": "production"
+          },
+          {
+            "summary": "The A_INT regression test does not call spell casting",
+            "trackedIn": "wizard-hunger-intelligence-test",
+            "category": "tests"
+          },
+          {
+            "summary": "The cast differentials ignore all screen content",
+            "trackedIn": "cast-differential-screen-content",
+            "category": "tests"
+          },
+          {
+            "summary": "Several doopen branch tests assert only permissive return values",
+            "trackedIn": "doopen-command-branch-oracles",
+            "category": "tests"
+          },
+          {
+            "summary": "The temple integration test never reaches temple generation or a C differential",
+            "trackedIn": "temple-live-integration-test",
+            "category": "tests"
+          },
+          {
+            "summary": "No test exercises the newly admitted quaff-speed command path",
+            "trackedIn": "quaff-speed-command-test",
+            "category": "tests"
+          },
+          {
+            "summary": "The oil tests omit the lit-oil branch and peffects dispatch",
+            "trackedIn": "lit-oil-quaff",
+            "category": "tests"
+          },
+          {
+            "summary": "The select_off glove test never exercises better_not_take_that_off",
+            "trackedIn": "select-off-cockatrice-confirmation-test",
+            "category": "tests"
+          },
+          {
+            "summary": "The goal-selector hardening has no executable workflow harness",
+            "trackedIn": "goal-selector-workflow-regression-tests",
+            "category": "tests"
+          },
+          {
+            "summary": "Queued hands/self selections still refuse instead of returning NetHack's hands_obj sentinel",
+            "trackedIn": "queued-hands-self-getobj",
+            "category": "production"
+          }
+        ]
+      },
+      "recordedAt": "2026-08-27T05:22:19.142Z"
     }
   ]
 }
