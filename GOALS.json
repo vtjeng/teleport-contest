@@ -5160,7 +5160,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "ordinary-mounted-death-to-possessions-prompt",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "77f34b9fa26510ce5dff72ac0648b3e60ac750e9",
       "openStanding": {
         "sha": "ada5cce419a957282b947f2827898cda095066b9",
