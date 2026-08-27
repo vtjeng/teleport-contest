@@ -1,13 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import {
+    ADMITTED_COMMANDS,
+    UnsupportedHeroCommandBoundaryError,
+} from '../js/cmd.js';
 import { DUST } from '../js/const.js';
 import { engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     ENGRAVE_SETUP,
+    ENGRAVE_KEY,
+    FINGERTIP_KEY,
     loadEngraveFingertipDustRecipe,
 } from './run-engrave-fingertip-dust.mjs';
 
@@ -38,9 +43,40 @@ test('bare fingertips write a rate-10 dust engraving in one action',
         assert.equal(game.context.engraving.nextc, null);
         assert.equal(game.context.engraving.stylus, null);
         assert.equal(game.go.occupation, null);
-        // Eight rn2(25) corruption calls and make_engr_at()'s rn2(19)
-        // Wisdom exercise occur before the ordinary elapsed-turn draws.
-        assert.ok(replay.getRngLog().some(
-            (entry) => entry.includes('rn2(19)'),
-        ));
+        // The fresh C run at seed 42043 records eight source-ordered rn2(25)
+        // corruption calls and then make_engr_at()'s rn2(19) Wisdom draw.
+        // The six entries after this suffix belong to the ordinary turn tail.
+        assert.deepEqual(replay.getRngLog().slice(-15, -6), [
+            'rn2(25)=10',
+            'rn2(25)=12',
+            'rn2(25)=17',
+            'rn2(25)=11',
+            'rn2(25)=24',
+            'rn2(25)=11',
+            'rn2(25)=7',
+            'rn2(25)=23',
+            'rn2(19)=10',
+        ]);
     });
+
+test('a refused engraving line restores status redraw ownership', async () => {
+    const segment = loadEngraveFingertipDustRecipe().segments[0];
+    let boundary;
+    await runSegment({
+        ...segment,
+        // Ctrl-P is getline.c's first unsupported editing key. It throws
+        // while windows.c getlin() owns gb.bot_disabled.
+        moves: `${ENGRAVE_SETUP}${ENGRAVE_KEY}${FINGERTIP_KEY} \u0010`,
+    }, { onBoundary: (error) => { boundary = error; } });
+
+    assert.equal(
+        boundary instanceof UnsupportedHeroCommandBoundaryError,
+        true,
+    );
+    // cmdq stores command keys as character codes; 69 is uppercase E.
+    assert.equal(
+        game.context.pendingCommand?.key,
+        ENGRAVE_KEY.charCodeAt(0),
+    );
+    assert.equal(game.gb.bot_disabled, false);
+});

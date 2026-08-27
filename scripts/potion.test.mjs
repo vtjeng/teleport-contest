@@ -558,6 +558,7 @@ test('a hallucinating hero gets the trippy confusion feedback', async () => {
     assert.equal(game.gp.potion_nothing, 0);
     assert.equal(game.gp.potion_unkn, 1);
     // A blessed potion uses rn1(7, 8), the shortest of the three BUC bases.
+    assert.deepEqual(getRngLog(), [`rn2(7)=${draw}`]);
     assert.equal(confusion.intrinsic & TIMEOUT, 8 + draw);
 });
 
@@ -585,6 +586,7 @@ test('an already confused hero gets no direct feedback and a longer timeout',
     assert.equal(game.gp.potion_nothing, 1);
     assert.equal(game.gp.potion_unkn, 0);
     // A cursed potion adds rn1(7, 24) to the existing 20-turn timeout.
+    assert.deepEqual(getRngLog(), [`rn2(7)=${draw}`]);
     assert.equal(confusion.intrinsic & TIMEOUT, 20 + 24 + draw);
     assert.equal(game.disp.botl, false);
 });

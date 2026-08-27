@@ -153,9 +153,11 @@ export async function getlin(query, state = game) {
     const old_bot_disabled = bot_disabled_is_set(state);
 
     state.gb.bot_disabled = true;
-    const bufp = await tty_getlin(query, state);
-    state.gb.bot_disabled = old_bot_disabled;
-    return bufp;
+    try {
+        return await tty_getlin(query, state);
+    } finally {
+        state.gb.bot_disabled = old_bot_disabled;
+    }
 }
 
 // C ref: windows.c choose_classes_menu() (1644-1761).

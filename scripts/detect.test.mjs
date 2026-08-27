@@ -1620,13 +1620,23 @@ test('explicit search clears a remembered invisible monster', async () => {
 test('findit scans BOLT_LIM and reports an empty result', async () => {
     const state = emptyFinditState();
     const messages = [];
+    let visitedBoundary = false;
     assert.equal(await findit(state, {
         message(text) { messages.push(text); },
+        clearArea(x, y, radius, callback, arg) {
+            // detect.c:1815 passes BOLT_LIM (hack.h:87, value 8) to
+            // do_clear_area(). Calling the callback on the east edge proves
+            // the test observes that bound rather than an adjacent scan.
+            assert.equal(radius, BOLT_LIM);
+            callback(x + radius, y, arg);
+            visitedBoundary = true;
+        },
     }), 0);
     // detect.c:1883 prints this exact line after every scanned category stays
     // at zero. BOLT_LIM is eight in hack.h, so a secret door exactly eight
     // squares east proves the scan used the full source radius.
     assert.deepEqual(messages, ["You don't find anything."]);
+    assert.equal(visitedBoundary, true);
     assert.equal(state.level.at(state.u.ux + BOLT_LIM, state.u.uy).typ, ROOM);
 });
 

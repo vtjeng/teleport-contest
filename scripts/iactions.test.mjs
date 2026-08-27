@@ -191,6 +191,9 @@ test('remarm_swapwep validates the queued hands key before changing state',
         assert.equal(await remarm_swapwep(state), ECMD_FAIL);
         cmdq_add_key(CQ_CANNED, 'a', state);
         assert.equal(await remarm_swapwep(state), ECMD_FAIL);
+        // do_wear.c:3067-3075 pops and frees the invalid node before testing
+        // its key, so it cannot leak into the next command.
+        assert.equal(cmdq_pop(state), null);
         assert.equal(state.uswapwep, alternate);
         assert.equal(alternate.owornmask & W_SWAPWEP, W_SWAPWEP);
     });
@@ -207,6 +210,10 @@ test('remarm_swapwep removes even a cursed ordinary alternate weapon',
         assert.equal(state.uswapwep, null);
         assert.equal(alternate.owornmask & W_SWAPWEP, 0);
         assert.equal(alternate.bknown, false);
+        // do_takeoff() clears the W_SWAPWEP slot in cancel_doff(), then clears
+        // its transient I_SPECIAL guard before returning to remarm_swapwep().
+        assert.equal(state.context.takeoff.what, W_SWAPWEP);
+        assert.equal(state.context.takeoff.mask, 0);
         assert.equal(
             state._pending_message,
             'You no longer have a second weapon readied.',

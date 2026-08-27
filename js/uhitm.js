@@ -66,6 +66,7 @@ import {
     is_whirly,
     mon_hates_light,
     mon_hates_silver,
+    hates_silver,
     monsndx,
     monstunseesu,
     noncorporeal,
@@ -1525,7 +1526,8 @@ export async function mhitm_ad_phys(
                     unsupported('an artifact weapon hitting the hero');
 
                 const material = objectType(otmp, state).oc_material;
-                if (material === SILVER)
+                if (material === SILVER
+                    && (state.u.ulycn >= 0 || hates_silver(pd)))
                     unsupported('a silver weapon hitting the hero');
                 if ((material === IRON || material === METAL)
                     && (pd === state.mons[PM_BLACK_PUDDING]
@@ -1542,8 +1544,6 @@ export async function mhitm_ad_phys(
 
                 mhm.damage += dmgval(otmp, mdef, state, env);
                 if (mhm.damage <= 0) mhm.damage = 1;
-                if (mhm.damage >= state.u.uhp)
-                    unsupported('a potentially fatal weapon hit');
 
                 await hitmsg(magr, mattk, state, env);
                 mhm.hitflags |= M_ATTK_HIT;

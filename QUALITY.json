@@ -5189,6 +5189,15 @@
           "at": "59b594009d6c3e19047717bac7cd19aaa381e0dd"
         }
       ]
+    },
+    {
+      "id": "whatis-self-description-nonwizard",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "a6a281619c0f7d1f8fe29c832a291f8c34eb1a6c",
+      "detail": "Port pager.c self_lookat() hero descriptions for every non-Wizard role, race, gender, and polymorph form reachable by the whatis command. The current ordinary hero lookup returns the Wizard witness text unconditionally; no development session reaches another identity, so the wider source branch remains outside whatis-map-getpos-hero."
     }
   ],
   "areas": [

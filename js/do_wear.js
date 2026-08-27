@@ -355,6 +355,7 @@ async function do_takeoff(state) {
             : 'You no longer have a second weapon readied.',
         state,
     );
+    takeoff.mask &= ~I_SPECIAL;
 }
 
 // C ref: do_wear.c remarm_swapwep() (3059-3087). This internal command is
@@ -384,8 +385,10 @@ export async function remarm_swapwep(state = game) {
 // the fourteen `<X>_on`/`<X>_off` armor callbacks and nothing else, so any
 // other callback pending -- js/pray.js prayer_done() is the port's only other
 // one -- leaves both FALSE whatever the slot. doffing()'s remaining arms need
-// svc.context.takeoff.what, which nothing writes; only the unported 'A' spine
-// does.
+// svc.context.takeoff.what. The unported 'A' spine writes it for delayed armor
+// removal; remarm_swapwep() also writes it synchronously, but do_takeoff()
+// keeps I_SPECIAL set across its setworn() callback and clears the transient
+// flag before another command can run.
 //
 // Of the fourteen this port installs eight: the seven `<X>_on` callbacks, and
 // Armor_off in armoroff()'s delayed branch. Only four of them open a window,

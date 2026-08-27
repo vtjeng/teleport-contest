@@ -118,7 +118,7 @@ import { doset_simple, dotogglepickup, UnsupportedOptionMenuError } from './opti
 import { dopray, UnsupportedPrayerError } from './pray.js';
 import { UnsupportedHideError } from './mon.js';
 import { dosave } from './save.js';
-import { dowhatis } from './pager.js';
+import { dowhatis, UnsupportedWhatisError } from './pager.js';
 import { UnsupportedShopError } from './shk.js';
 import { dofire, dothrow, UnsupportedThrowError } from './dothrow.js';
 import { dosit, UnsupportedSitError } from './sit.js';
@@ -1379,6 +1379,7 @@ export function failClosedCommandRefusals() {
         UnsupportedEatError,
         UnsupportedApplyError,
         UnsupportedEngraveError,
+        UnsupportedWhatisError,
         // lock.c pick_lock() stops inside doapply()'s lock-pick arm, one
         // frame below UnsupportedApplyError rather than beside it.
         UnsupportedLockError,
@@ -1746,6 +1747,10 @@ async function runEngraveCommand(key, state) {
         ECMD_CANCEL,
         ECMD_OK,
     }));
+}
+
+async function runWhatisCommand(key, state) {
+    return failClosedCommand(key, state, () => dowhatis(state));
 }
 
 // C ref: apply.c doapply(). Like dosearch() and doeat() it returns its own
@@ -2523,7 +2528,7 @@ export async function rhack(key, state = game) {
             return;
         }
         if (command === 'whatis') {
-            await dowhatis(state);
+            await runWhatisCommand(key, state);
             resetCommandVars(state, state.multi < 0);
             return;
         }

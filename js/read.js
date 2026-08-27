@@ -1,7 +1,8 @@
 // read.js -- reading scrolls and spellbooks, plus monster-creation helpers.
 // C refs: src/read.c read_ok(), doread(), cant_revive(),
 // create_particular_parse(), create_particular_creation() and
-// create_particular(). doread() currently stops after object selection;
+// create_particular(). doread() completes a known ordinary magic-mapping
+// scroll; other selected readable objects stop before pickup_prev changes.
 // wizcmds.c wiz_genesis() calls the monster-creation helpers.
 
 import {
@@ -59,9 +60,10 @@ import { discover_object } from './o_init.js';
 import { rn2 } from './rng.js';
 import { ttyPline } from './tty_message.js';
 
-// A selected scroll or spellbook enters doread()'s effect arms, which later
-// slices port. Raising before pickup_prev changes keeps those objects and the
-// turn retryable while preserving the prompt screens already produced.
+// A selected scroll or spellbook enters doread()'s effect arms. The known,
+// uncursed magic-mapping scroll is supported; raising before pickup_prev
+// changes keeps every other object and the turn retryable while preserving
+// the prompt screens already produced.
 export class UnsupportedReadError extends Error {
     constructor(branch) {
         super(`reading requires ${branch}`);
@@ -80,9 +82,9 @@ export function read_ok(obj) {
     return GETOBJ_DOWNPLAY;
 }
 
-// C ref: read.c doread() (347-360), through the cancelled getobj() result.
-// The next C statement clears scroll->pickup_prev. A selected object stops
-// immediately before it because its effects belong to later slices.
+// C ref: read.c doread() (347-432), restricted after getobj() to the known,
+// uncursed magic-mapping scroll. Every other selected object stops before C's
+// scroll->pickup_prev write because its effects belong to later slices.
 export async function doread(state = game) {
     state.gk ??= {};
     state.gk.known = false;

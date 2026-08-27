@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { UnsupportedHeroCommandBoundaryError } from '../js/cmd.js';
 import { TIP_GETPOS } from '../js/const.js';
 import { GETPOS_TIP_LINES, handle_tip } from '../js/hack.js';
 import { UnsupportedGetposError } from '../js/getpos.js';
@@ -114,6 +115,29 @@ test('excluded cursor movement ends the replay on its supported prefix',
         }, { onBoundary: (error) => { boundary = error; } });
 
         assert.equal(boundary instanceof UnsupportedGetposError, true);
-        assert.equal(replay.getScreens().length > 0, true);
-        assert.equal(replay.getRngLog().length > 0, true);
+        // The fresh C case for seed 42044 reaches this first unsupported `h`
+        // after ten complete screen/cursor snapshots. Its 2,630 draws are the
+        // startup prefix; pager.c/getpos.c consume no randomness.
+        assert.equal(replay.getScreens().length, 10);
+        assert.equal(replay.getCursors().length, 10);
+        assert.equal(replay.getRngLog().length, 2630);
+    });
+
+test('unsupported whatis menu choices retain the drawn command prefix',
+    async () => {
+        const segment = loadWhatisMapHeroRecipe().segments[0];
+        let boundary;
+        const replay = await runSegment({
+            ...segment,
+            // `i` is the first deferred do_look() menu arm. The ordinary
+            // welcome dismissal and `/` command reach it without spending a
+            // turn or consuming randomness.
+            moves: `${WHATIS_SETUP}/i`,
+        }, { onBoundary: (error) => { boundary = error; } });
+
+        assert.equal(
+            boundary instanceof UnsupportedHeroCommandBoundaryError,
+            true,
+        );
+        assert.equal(replay.getScreens().length > 1, true);
     });

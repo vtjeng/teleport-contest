@@ -600,6 +600,37 @@ test('mattacku swings a wielded weapon and adds its to-hit bonus',
     assert.equal(state.u.uhp, 12);
 });
 
+test('a raw fatal weapon roll survives negative-AC mitigation', async () => {
+    // uhitm.c mhitm_ad_phys() adds the goblin's 1d4 attack and a dagger's
+    // 1d4 damage before mhitu.c hitmu() subtracts rnd(-u.uac). Two raw points
+    // equal the hero's two HP, but AC -1 removes one and leaves her alive.
+    const state = await meleeHero();
+    const goblin = meleeAttacker(state, PM_GOBLIN, 1, 0);
+    const dagger = mksobj(DAGGER, false, false, { state });
+    dagger.nobj = null;
+    dagger.spe = 0;
+    goblin.minvent = dagger;
+    goblin.mw = dagger;
+    goblin.weapon_check = NO_WEAPON_WANTED;
+    state.u.uac = -1;
+    state.u.uhp = 2;
+    state.u.uhpmax = 2;
+
+    // rnd(1) fixes AC_VALUE at -1; rnd(20)=8 lands below tmp 9; rnd(4)=1
+    // supplies dagger damage; the final rnd(1)=1 is hitmu()'s mitigation.
+    const survived = meleeEnv(state, [1, 8, 1, 1]);
+    assert.equal(await mattacku(goblin, survived.env), false);
+    assert.deepEqual(survived.lines, [
+        'The goblin thrusts his dagger.',
+        'The goblin hits!',
+    ]);
+    assert.deepEqual(survived.bounds, [
+        'rnd(1)', 'rnd(20)', 'd(1,4)', 'rnd(4)', 'rn2(3)', 'rn2(6)',
+        'rnd(1)',
+    ]);
+    assert.equal(state.u.uhp, 1);
+});
+
 // mhitu.c:801-804. An armed monster declines to touch a cockatrice, and
 // confusion or Conflict suspends that instinct. A plains centaur is the
 // shortest fixture that reaches the test the way C does: monsters.h gives it
@@ -1726,10 +1757,17 @@ test('mhitm_ad_phys keeps special and fatal weapon hits fail-closed',
     artifact.oartifact = 1;
     assert.equal(await stopped(artifact), 'an artifact weapon hitting the hero');
 
-    // objects.c declares the silver dagger separately from the iron dagger,
-    // so the real catalog entry selects the material branch.
+    // objects.c declares the silver dagger separately from the iron dagger.
+    // youprop.h Hate_silver also requires lycanthropy or a silver-hating hero
+    // form, so an ordinary human stays on the normal weapon path.
     const silver = mksobj(SILVER_DAGGER, false, false, { state });
-    assert.equal(await stopped(silver), 'a silver weapon hitting the hero');
+    assert.equal(await stopped(silver), undefined);
+    assert.equal(await stopped(silver, () => {
+        // LOW_PM is zero; any valid lycanthrope monster index makes the
+        // youprop.h macro true before it consults the current form.
+        state.u.ulycn = 0;
+    }), 'a silver weapon hitting the hero');
+    state.u.ulycn = NON_PM;
 
     const pudding = mksobj(DAGGER, false, false, { state });
     assert.equal(await stopped(pudding, () => {
@@ -1747,9 +1785,11 @@ test('mhitm_ad_phys keeps special and fatal weapon hits fail-closed',
 
     const fatal = mksobj(DAGGER, false, false, { state });
     assert.equal(await stopped(fatal, () => {
-        // Base damage 1 plus dmgval()'s fixed 1 reaches these two hit points.
+        // mhitm_ad_phys() reports the hit before hitmu() applies armor and
+        // half-damage mitigation; raw damage equal to HP is not itself a
+        // special weapon continuation.
         state.u.uhp = 2;
-    }), 'a potentially fatal weapon hit');
+    }), undefined);
 });
 
 test('mhitm_ad_phys stops on the two arms no ported path reaches',

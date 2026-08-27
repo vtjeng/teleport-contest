@@ -6,9 +6,11 @@
 // defaults, the mortality count and the hit-point force, the wizard-and-
 // explore-mode query at 1112 that asks whether the hero really dies, and
 // the survive path (1113-1122) that calls savelife() and returns when the
-// player declines death. The life-saving amulet's earlier reprieve and
-// really_done() (1130-1590) with its disclosure, tombstone, bones and
-// score file remain refused, in that source order.
+// player declines death. The life-saving amulet's earlier reprieve remains
+// refused. really_done() covers the mounted-slip prefix through cleanup, time
+// bookkeeping, the bones decision, inventory identification, and the first
+// disclosure prompt; later disclosure answers, tombstone, bones creation, and
+// the score file remain refused, in that source order.
 //
 // savelife() (end.c:704-756) restores the hero to a viable state after the
 // death is declined in wizard or explore mode. Three of its branches remain
