@@ -5365,8 +5365,8 @@
         },
         {
           "name": "whatis-monster-object-lists",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "cd6814c9cf108a42339dba041780f7ebf6017663"
         }
       ],
       "openedAt": "f17bfd832863f03946b1572f5e4ca2ecf5629b30",
