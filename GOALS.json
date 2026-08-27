@@ -5531,6 +5531,45 @@
         "screens": 3,
         "rng": 32
       }
+    },
+    {
+      "id": "read-selected-readable-object",
+      "status": "open",
+      "boundary": "doread() supports both C paths that reach the current generic selected-readable-object refusal: (1) a sighted, unconfused hero reads an unknown, unblessed, uncursed scroll of identify while carrying at least one other possession and every remaining possession is fully identified; the scroll is consumed, identified, and reports that the rest of the possessions are already identified before returning ECMD_TIME; and (2) a sighted hero selects an identified, non-dull spellbook of healing already present in svs.spl_book with sp_know > KEEN / 10, then declines the refresh prompt; the book remains intact and doread() returns ECMD_OK. All other readable-object and spellbook outcomes remain fail-closed.",
+      "upstreamOwners": [
+        "read.c",
+        "invent.c",
+        "objnam.c",
+        "spell.c"
+      ],
+      "forecast": {
+        "steps": 2,
+        "basis": "Capped look-ahead: seed0014-dequa-fountain-explore cappedStretch=2 (cap-stable); seed0501-priest-cast-read-turn cappedStretch=0 (not cap-stable; divergence zeroed).",
+        "sessions": [
+          "seed0014-dequa-fountain-explore",
+          "seed0501-priest-cast-read-turn"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0014-dequa-fountain-explore",
+            "evidence": "At segment 0, step 23, with no earlier divergence, raw `r` dispatches through `cmd.c` to `read.c:doread()`. Step 23’s `f` answers `What do you want to read? [f or ?*]`; it is not the ordinary `fire` binding. The selected item is a just-autopicked, visibly labeled identify scroll: `SCR_IDENTIFY`, `SCROLL_CLASS`, `pickup_prev=1`, `dknown=1`, `bknown=0`, uncursed, unblessed, and not name-known. Dequa is a normal-play lawful dwarven Valkyrie, sighted, not confused, able to chant, and below the capacity limit. The only configured options are `symset:DECgraphics` and `runmode:walk`, neither of which changes this read path. `doread()` clears `gk.known`, passes `check_capacity()`, obtains `f` through `getobj(\"read\", read_ok, GETOBJ_PROMPT)`, and clears `pickup_prev` (read.c:313-323, 354-362). It bypasses the special non-scroll branches and blindness refusal, records `Confusion` as false, increments literate conduct, sets `in_use`, and prints `As you read the scroll, it disappears.` (read.c:557-626). `seffects()` calls `exercise(A_WIS, TRUE)`, producing the recorded `rn2(19)=1` and `rn2(19)=9`, then dispatches `SCR_IDENTIFY` to `seffect_identify()` (read.c:2194-2200, 2256-2258). There, `is_scroll=TRUE`, `sblessed=FALSE`, `scursed=FALSE`, `confused=FALSE`, and `already_known=FALSE`. It consumes the scroll, nulls the caller’s pointer, prints `This is an identify scroll.`, and calls `learnscrolltyp(SCR_IDENTIFY)` (read.c:2055-2081). Inventory remains, so `cval` starts at 1; recorded `rn2(5)=2` makes the ordinary uncursed 1-in-5 enhancement false. `identify_pack(1, TRUE)` finds no other unidentified objects and prints `You have already identified the rest of your possessions.` after the `--More--` dismissal. Because the scroll pointer is null, `seffects()` updates inventory and returns 1; `doread()` avoids duplicate learning or consumption and returns `ECMD_TIME`. The JavaScript boundary occurs immediately after selection, before C clears `pickup_prev`, so the missing branch is this complete ordinary unknown, uncursed identify-scroll path."
+          },
+          {
+            "session": "seed0501-priest-cast-read-turn",
+            "evidence": "At segment 0, step 8, `r` dispatches through `cmd.c:rhack()` to `read.c:doread()`. `read_ok()` suggests both starting spellbooks, producing `[gh or ?*]`; `g` selects healing. C clears `pickup_prev`, increments literate conduct, and dispatches to `spell.c:study_book()`. Seed 501’s normal-play human neutral female Priestess starts with healing already learned by `u_init.c:ini_inv_use_obj()` and `spell.c:initialspell()` at `KEEN=20000`; the preceding healing cast ages it once to 19999, still above `KEEN/10`. The hero is sighted and unconfused, the healing book is non-dull and level 1, and there is no study occupation to resume. `study_book()` sets `svc.context.spbook.delay=-2`, prints `You know \"healing\" quite well already.`, calls `makeknown(SPE_HEALING)`, and asks `Refresh your memory anyway?`. The recorded input dismisses `--More--`, then Escape chooses the prompt’s default `n`. `study_book()` returns 0 and `doread()` returns `ECMD_OK`: no turn, RNG, occupation, consumption, or `in_use` change; `pickup_prev=0`, the conduct increment, discovery, and delay remain. Default `r` and inventory bindings govern dispatch; `role:Priest` and seed 501 govern the books. `!autopickup`, `suppress_alert:3.4.3`, `symset:DECgraphics`, race, gender, and alignment do not alter this branch."
+          }
+        ]
+      },
+      "detail": "The capped-ranking boundary has two source-valid witnesses and must retain both. seed0014-dequa-fountain-explore supplies the positive capped forecast of two screens. Its path is read.c:doread() through the scroll common prefix, seffects(), seffect_identify(), and learnscrolltyp(), followed by invent.c:identify_pack() and count_unidentified() using objnam.c:not_fully_identified(). C clears pickup_prev, increments literate conduct, marks the scroll in_use, emits As you read the scroll, it disappears., takes the magic-scroll Wisdom exercise draw, consumes the scroll before identification, emits This is an identify scroll., discovers its type and awards the more_experienced(0, 10) score credit, takes the discovery Wisdom exercise draw, rolls the ordinary-scroll rn2(5) identification count, finds zero unidentified remaining possessions, emits You have already identified the rest of your possessions., updates inventory, and returns ECMD_TIME. The witness therefore has three command-local RNG calls before ordinary elapsed-turn processing. seed0501-priest-cast-read-turn is divergence-zeroed for forecast value, but divergence zeroing removes its step contribution rather than its C-path witness, so the boundary still includes it. Its path is read.c:doread() into spell.c:study_book(): C clears pickup_prev, increments literate conduct, sets the level-1 healing-book delay to -2, finds fresh healing knowledge, emits You know \"healing\" quite well already., calls makeknown() for the already identified type, prompts Refresh your memory anyway?, and on decline returns false so doread() returns ECMD_OK with no RNG, consumption, occupation, or elapsed turn. Current js/read.js:doread() rejects both objects before these mutations; the required discovery, experience, exercise, inventory-update, and spell-knowledge helpers are otherwise present, while the zero-unidentified identify_pack() arm and fresh-known decline prefix of study_book() are missing. Exclude known, blessed, cursed, or confused identify scrolls; empty inventory; any unidentified remaining possession and its automatic or menu identification; other scroll effects; blind reading; dull-book sleep; blank paper, novels, and the Book of the Dead; interrupted study; unknown, stale, or forgotten spells; accepting refresh; cursed, confused, or difficult-book outcomes; learn() and occupation lifecycle; and other readable objects. This is a medium, coherent two-slice goal: one slice owns the identify-scroll/no-unidentified-rest arm and one owns the already-known healing-book decline arm. The selection rules allow a multi-slice goal and prohibit silently narrowing its stated witness boundary because of size.",
+      "slices": [],
+      "openedAt": "aae56a0187c7be16f0ea4ab665dd30f5f1d1a88f",
+      "openStanding": {
+        "sha": "916872bf071a1bffc299cedd1386993e95396365",
+        "screens": 2717,
+        "rng": 156774
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
