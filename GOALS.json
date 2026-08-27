@@ -4901,6 +4901,35 @@
         "screens": 0,
         "rng": 144
       }
+    },
+    {
+      "id": "quaff-peffect-confusion",
+      "status": "open",
+      "boundary": "unsupported hero command: an unported branch of this command: quaffing requires peffect_confusion()",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 3,
+        "basis": "Capped look-ahead: seed5006-tourist-stress-disaster cappedStretch=3 (cap-stable).",
+        "sessions": [
+          "seed5006-tourist-stress-disaster"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5006-tourist-stress-disaster",
+            "evidence": "At recorded steps 156-157, direct q reaches dodrink, selects a cursed puce potion, and follows dopotion to peffects POT_CONFUSION to peffect_confusion. HConfusion is zero and Hallucination false. The cursed potion uses rn1(7,24); recorded rn2(7)=0 yields 24, and make_confused(24,FALSE) establishes the timeout before the potion is consumed and ECMD_TIME returns."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "f3e825a2a1321a437db8b115f65727d056e2dad8",
+      "openStanding": {
+        "sha": "050d36053775ba49dbe137566ff8c331d6b4bd1e",
+        "screens": 2376,
+        "rng": 155883
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
