@@ -5134,7 +5134,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
       "detail": "Port read.c doread for the item-actions Read arm through the next observable result, with object-specific branches split only at explicit source boundaries."
     },

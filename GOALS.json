@@ -5219,7 +5219,7 @@
     },
     {
       "id": "read-magic-mapping",
-      "status": "open",
+      "status": "closed",
       "boundary": "A sighted, unconfused hero on a mappable ordinary level uses r to select an uncursed scroll of magic mapping; doread() consumes and identifies it, maps the level through do_mapping(), and returns ECMD_TIME. Other read and mapping branches remain fail-closed.",
       "upstreamOwners": [
         "cmd.c",
@@ -5260,8 +5260,8 @@
         },
         {
           "name": "read-ordinary-uncursed-magic-mapping-scroll",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "bcfc94c742aeed2876cb6d7f50d2e4eeb790ec11"
         }
       ],
       "openedAt": "de51b24f69acfc09b82a2a181e82517447ca84c0",
@@ -5270,8 +5270,11 @@
         "screens": 2391,
         "rng": 156066
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "bcfc94c742aeed2876cb6d7f50d2e4eeb790ec11",
+      "delivered": {
+        "screens": 126,
+        "rng": 583
+      }
     }
   ]
 }
