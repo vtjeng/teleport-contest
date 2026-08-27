@@ -2664,6 +2664,49 @@ export function map_background(x, y, show, state = game) {
     if (show) show_glyph_cell(x, y, glyph);
 }
 
+// C ref: display.c magic_map_background() (233-258). Magic mapping corrects
+// out-of-sight lit floor and corridor glyphs before storing terrain memory.
+export function magic_map_background(x, y, show, state = game) {
+    const location = state.level?.at(x, y);
+    if (!location) return;
+    let glyphNumber = back_to_glyph(x, y, state);
+    if (!cansee(x, y, state) && !location.waslit) {
+        if (location.typ === ROOM
+            && glyphNumber === cmap_to_glyph(S_room, state)) {
+            // The JS option owner stores C's effective iflags.use_color in
+            // wc_color; display.js uses the same field for every map glyph.
+            glyphNumber = state.flags?.dark_room && state.iflags?.wc_color
+                ? cmap_to_glyph(S_darkroom, state) : GLYPH_NOTHING_OFF;
+        } else if (location.typ === CORR
+                   && glyphNumber === cmap_to_glyph(S_litcorr, state)) {
+            glyphNumber = cmap_to_glyph(S_corr, state);
+        }
+    }
+    const oldNumber = location.remembered_glyph?.glyph;
+    const glyph = map_glyphinfo(glyphNumber, state);
+    if (state.level?.flags?.hero_memory
+        && (oldNumber === undefined || glyph_is_cmap(oldNumber))) {
+        location.remembered_glyph = remembered_glyph_from_presentation(glyph);
+    }
+    if (show) show_glyph_cell(x, y, glyph);
+    update_lastseentyp(x, y, state, {
+        canSeeMonster: (subject) => canSeeMonster(subject, state),
+    });
+}
+
+// C ref: display.c map_engraving() (318-325). Mapping reveals the engraving
+// glyph directly; it does not require the engraving to have been read first.
+export function map_engraving(engraving, show, state = game) {
+    const x = engraving.engr_x;
+    const y = engraving.engr_y;
+    const glyph = map_glyphinfo(engraving_to_glyph(engraving, state), state);
+    if (state.level?.flags?.hero_memory) {
+        state.level.at(x, y).remembered_glyph
+            = remembered_glyph_from_presentation(glyph);
+    }
+    if (show) show_glyph_cell(x, y, glyph);
+}
+
 // The refusal class for a map-memory rewrite this port cannot perform.
 // js/cmd.js failClosedCommandRefusals() lists it, so a command that reaches
 // one ends its segment on the last screen it matched.

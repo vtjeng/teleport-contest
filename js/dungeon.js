@@ -1652,6 +1652,16 @@ export function update_lastseentyp(
     return typ;
 }
 
+// C ref: dungeon.c room_discovered() (3282-3290). The overview mapseen chain
+// is not present on ordinary JS levels yet. Preserve the write when a caller
+// supplies the corresponding mapseen record, and otherwise retain C's no-op
+// result when find_mapseen() returns null.
+export function room_discovered(roomno, state = game) {
+    const mapseen = state.level?.mapseen ?? null;
+    const room = mapseen?.msrooms?.[roomno];
+    if (room && !room.seen) room.seen = 1;
+}
+
 // C ref: dungeon.c update_mapseen_for() (2942-2947), which recalculates the
 // whole level's #overview data and hands back svl.lastseentyp at one square.
 // lock.c pick_lock():580 is the caller, and it wants only the return value.

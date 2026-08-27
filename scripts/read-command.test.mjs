@@ -4,6 +4,7 @@ import test from 'node:test';
 import { ADMITTED_COMMANDS, failClosedCommandRefusals } from '../js/cmd.js';
 import {
     ECMD_CANCEL,
+    ECMD_TIME,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
@@ -15,6 +16,7 @@ import {
     POT_WATER,
     SCROLL_CLASS,
     SCR_IDENTIFY,
+    SCR_MAGIC_MAPPING,
     SPBOOK_CLASS,
     SPE_FORCE_BOLT,
 } from '../js/objects.js';
@@ -27,6 +29,12 @@ import {
     SPACE_KEY,
     WAIT,
 } from './run-read-command.mjs';
+import {
+    loadReadMagicMappingRecipe,
+    MAP_READ_LETTER,
+    MAP_READ_MORE,
+    MAP_READ_WAIT,
+} from './run-read-magic-mapping.mjs';
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -122,4 +130,65 @@ test('an invalid read letter retries and Escape cancels without taking time',
     game.gk.known = true;
     assert.equal(await doread(game), ECMD_CANCEL);
     assert.equal(game.gk.known, false);
+});
+
+test('an uncursed magic-mapping scroll maps the ordinary level and is used up',
+    async () => {
+    const segment = {
+        ...loadReadMagicMappingRecipe().segments[0], moves: MAP_READ_WAIT,
+    };
+    const replay = await runSegment(segment);
+    const scroll = inventorySnapshot().find(
+        (obj) => obj.otyp === SCR_MAGIC_MAPPING,
+    );
+    assert.equal(scroll?.invlet, 'j');
+    assert.equal(scroll?.blessed, false);
+    assert.equal(scroll?.cursed, false);
+    const movesBefore = game.moves;
+    const rngBefore = replay.getRngLog().length;
+    const literateBefore = game.u.uconduct.literate;
+
+    // j answers getobj(). Space dismisses the disappearance message before
+    // seffect_magic_mapping() prints the coalescing-map message.
+    game.nhDisplay.pushKey(MAP_READ_LETTER.charCodeAt(0));
+    game.nhDisplay.pushKey(MAP_READ_MORE.charCodeAt(0));
+    assert.equal(await doread(game), ECMD_TIME);
+
+    assert.equal(game.moves, movesBefore);
+    assert.equal(replay.getRngLog().length, rngBefore + 2);
+    assert.equal(game.u.uconduct.literate, literateBefore + 1);
+    assert.equal(game.gk.known, true);
+    assert.equal(game.objects[SCR_MAGIC_MAPPING].oc_name_known, 1);
+    assert.equal(
+        inventorySnapshot().some((obj) => obj.otyp === SCR_MAGIC_MAPPING),
+        false,
+    );
+    for (let x = 1; x < 80; ++x) {
+        for (let y = 0; y < 21; ++y)
+            assert.equal(game.level.at(x, y).seenv, 0xff);
+    }
+});
+
+test('magic mapping remains consumed and mapped through the next command',
+    async () => {
+    const recipe = loadReadMagicMappingRecipe();
+    const baselineSegment = {
+        ...recipe.segments[0], moves: MAP_READ_WAIT,
+    };
+    await runSegment(baselineSegment);
+    const baselineMoves = game.moves;
+
+    await runSegment(recipe.segments[0]);
+    // The complete input spends one read turn and one trailing wait beyond
+    // the baseline's settling wait.
+    assert.equal(game.moves, baselineMoves + 2);
+    assert.equal(game.objects[SCR_MAGIC_MAPPING].oc_name_known, 1);
+    assert.equal(
+        inventorySnapshot().some((obj) => obj.otyp === SCR_MAGIC_MAPPING),
+        false,
+    );
+    for (let x = 1; x < 80; ++x) {
+        for (let y = 0; y < 21; ++y)
+            assert.equal(game.level.at(x, y).seenv, 0xff);
+    }
 });

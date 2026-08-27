@@ -6,6 +6,7 @@ import {
     A_WIS,
     BLINDED,
     BOLT_LIM,
+    COLNO,
     CORR,
     DOOR,
     D_CLOSED,
@@ -23,10 +24,15 @@ import {
     HALLUC_RES,
     Is_airlevel,
     Is_waterlevel,
+    IS_FURNITURE,
+    MAXTCHARS,
     M_AP_TYPE,
+    ROOMOFFSET,
+    ROWNO,
     SCORR,
     SDOOR,
     STATUE_TRAP,
+    SVALL,
     WM_MASK,
     isok,
 } from './const.js';
@@ -35,11 +41,17 @@ import { exercise } from './attrib.js';
 import { cmdSafetyPrevention } from './cmd.js';
 import {
     back_to_glyph,
+    cmap_to_glyph,
     cls,
     docrt,
     glyph_is_invisible,
+    glyph_is_object,
+    glyph_at,
     hero_glyph_info,
     map_glyphinfo,
+    map_engraving,
+    magic_map_background,
+    map_trap,
     newsym,
     object_glyph_info,
     remembered_glyph_from_presentation,
@@ -48,7 +60,7 @@ import {
     trap_to_glyph,
     unmap_invisible,
 } from './display.js';
-import { on_level } from './dungeon.js';
+import { on_level, room_discovered } from './dungeon.js';
 import {
     can_reach_floor,
     engr_at,
@@ -63,13 +75,19 @@ import { isBox } from './obj.js';
 import { LENSES } from './objects.js';
 import { visible_region_at } from './region.js';
 import { rn2, rnl } from './rng.js';
+import { S_arrow_trap } from './symbols.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { t_at, trapname } from './trap.js';
 import {
     dismissPendingTtyMessage,
     ttyPline,
 } from './tty_message.js';
-import { do_clear_area, seenv_matrix, vision_reset } from './vision.js';
+import {
+    do_clear_area,
+    seenv_matrix,
+    unblock_point,
+    vision_reset,
+} from './vision.js';
 
 /** A branch of detect.c discovery which this port does not own yet. */
 export class UnsupportedSearchError extends Error {
@@ -77,6 +95,92 @@ export class UnsupportedSearchError extends Error {
         super(message);
         this.name = 'UnsupportedSearchError';
     }
+}
+
+// C refs: detect.c unconstrain_map()/reconstrain_map() (70-91). This slice
+// owns only an ordinary, unconstrained map. Save slots are still initialized
+// so reconstrain_map() follows the source-shaped no-op path.
+export function unconstrain_map(state = game) {
+    const constrained = Boolean(
+        state.u?.uinwater || state.u?.uburied || state.u?.uswallow,
+    );
+    if (constrained) {
+        throw new UnsupportedSearchError(
+            'magic mapping while underwater, buried, or swallowed',
+        );
+    }
+    state.iflags ??= {};
+    state.iflags.save_uinwater = state.u.uinwater ?? 0;
+    state.iflags.save_uburied = state.u.uburied ?? 0;
+    state.iflags.save_uswallow = state.u.uswallow ?? 0;
+    state.u.uinwater = 0;
+    state.u.uburied = 0;
+    state.u.uswallow = 0;
+    return false;
+}
+
+export function reconstrain_map(state = game) {
+    state.u.uinwater = state.iflags?.save_uinwater ?? 0;
+    state.u.uburied = state.iflags?.save_uburied ?? 0;
+    state.u.uswallow = state.iflags?.save_uswallow ?? 0;
+    state.iflags.save_uinwater = 0;
+    state.iflags.save_uburied = 0;
+    state.iflags.save_uswallow = 0;
+}
+
+function glyphIsTrap(glyph) {
+    if (!Number.isInteger(glyph)) return false;
+    // display.h GLYPH_TRAP_OFF is cmap_to_glyph(S_arrow_trap).
+    const first = cmap_to_glyph(S_arrow_trap, game);
+    return glyph >= first && glyph < first + MAXTCHARS;
+}
+
+// C ref: detect.c show_map_spot() (1372-1422), ordinary unconfused mapping.
+export function show_map_spot(x, y, cnf, state = game) {
+    if (state !== game)
+        throw new TypeError('show_map_spot() redraws the global game');
+    if (cnf) {
+        throw new UnsupportedSearchError('confused magic mapping');
+    }
+    const location = state.level.at(x, y);
+    location.seenv = SVALL;
+    if (location.typ === SCORR) {
+        location.typ = CORR;
+        unblock_point(x, y, state);
+    }
+    const oldglyph = glyph_at(x, y, state);
+    magic_map_background(x, y, 0, state);
+    newsym(x, y);
+    if (!IS_FURNITURE(location.typ)) {
+        const trap = t_at(x, y, state);
+        const engraving = engr_at(x, y, state);
+        if (trap?.tseen) {
+            map_trap(trap, 1, state);
+        } else if (engraving) {
+            map_engraving(engraving, 1, state);
+        } else if (glyphIsTrap(oldglyph) || glyph_is_object(oldglyph)) {
+            const glyph = map_glyphinfo(oldglyph, state);
+            show_glyph_cell(x, y, glyph);
+            location.remembered_glyph
+                = remembered_glyph_from_presentation(glyph);
+        }
+    }
+    if (location.roomno >= ROOMOFFSET)
+        room_discovered(location.roomno - ROOMOFFSET, state);
+}
+
+// C ref: detect.c do_mapping() (1424-1444), ordinary hero-memory arm.
+export async function do_mapping(state = game) {
+    if (!state.level?.flags?.hero_memory) {
+        throw new UnsupportedSearchError('magic mapping without hero memory');
+    }
+    unconstrain_map(state);
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y)
+            show_map_spot(x, y, false, state);
+    }
+    reconstrain_map(state);
+    await exercise(A_WIS, true, state, { rn2 });
 }
 
 function propertyActiveUnblocked(hero, propertyIndex) {
