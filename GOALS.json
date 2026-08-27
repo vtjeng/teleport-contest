@@ -5465,6 +5465,11 @@
           "name": "help-key-bindings-list",
           "status": "closed",
           "closedBy": "af0f143d7653b9d9d3bbbbc54e0f9892a94a12a8"
+        },
+        {
+          "name": "help-menu-controls",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "2ff2a1b74d22e07ed41dd2a1f018cc842468d316",
