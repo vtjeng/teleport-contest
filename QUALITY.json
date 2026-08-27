@@ -20472,6 +20472,151 @@
         "deferrals": []
       },
       "recordedAt": "2026-08-27T17:21:01.947Z"
+    },
+    {
+      "kind": "review",
+      "head": "6696f72d099118f8a7b629df075c041a98e6fb07",
+      "auditedRange": "f7bc9e802e1790d1152dc8e3cb1d9b3223b1f1b7..6696f72d099118f8a7b629df075c041a98e6fb07",
+      "level": "full",
+      "areas": [
+        "commands",
+        "display"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 21 raw, 14 deduplicated, 14 confirmed, 9 applied, 5 deferred, 0 rejected, 0 unverified. Full five-finder correctness audit with concurrency enabled for asynchronous TTY input and dismissal boundaries; performance was not triggered. Fourteen findings were confirmed: two production fixes and seven test-oracle improvements were applied and mutation-validated, while five broader function-family branches were recorded as explicit whatis slices. Three fresh final-delta rechecks were clean. Validation: 5,246 tests; fresh typed/inventory 15,094 RNG calls and 29 screens/cursors, cursor-terrain 5,497 RNG calls and 36 screens/cursors, hero lookup 5,081 RNG calls and 24 screens/cursors. Checkpoint reproduced 13/33 sessions, 156703/610816 RNG values, 2582/7765 screens, and 2628/7765 cursors. No holdout evaluation ran.",
+      "auditMetrics": {
+        "mode": "full",
+        "foundBy": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace",
+          "concurrency"
+        ],
+        "counts": {
+          "raw": 21,
+          "deduplicated": 14,
+          "confirmed": 14,
+          "applied": 9,
+          "deferred": 5,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "wallTimeSeconds": 2497,
+        "categories": {
+          "production": 7,
+          "tests": 7,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "file": "js/getpos.js",
+            "function": "auto_describe and do_look",
+            "summary": "Auto-descriptions and picked descriptions are incorrectly filtered by MSGTYPE",
+            "foundBy": [
+              "correctness",
+              "readability"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/pager.js",
+            "function": "do_look",
+            "summary": "Inventory dismissal repair assumes a two-row status window and ignores vertical menu geometry",
+            "foundBy": [
+              "correctness",
+              "readability",
+              "concurrency"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/tty_message.js",
+            "function": "ttyPlineCore",
+            "summary": "Appending a repeated-picker prompt discards the rendered DEC-glyph marker",
+            "foundBy": [
+              "correctness",
+              "readability",
+              "variable-trace",
+              "concurrency"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "js/pager.js",
+            "function": "lookatOrdinaryTerrain",
+            "summary": "Ordinary down-stair terrain aborts live cursor lookup",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/pager.js",
+            "function": "do_screen_description",
+            "summary": "Terrain ambiguity drops matching monster and object symbol families",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/pager.js",
+            "function": "visibleGlyphCharacter and do_look",
+            "summary": "IBMgraphics descriptions use browser glyphs instead of recorder TTY bytes",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/pager.js",
+            "function": "do_screen_description",
+            "summary": "Cmap candidates use raw index order and explanations instead of add_cmap_descr semantics",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "readiness": {
+          "boundary": "The reviewed whatis slices begin at the ordinary command menu, typed-name or carried-item choice, or map cursor input and end at the next observable message, text window, screen, cursor, state restoration, or explicit unsupported boundary.",
+          "sourceReview": "Every implemented branch in pager.c do_look, checkfile, do_screen_description, lookat, getpos.c getpos and auto_describe, and the affected TTY dismissal paths was traced against NetHack C, including input waits, message cells, status repair geometry, state restoration, and PRNG order.",
+          "completeness": "The two defects inside the completed boundaries were fixed and mutation-validated; seven test gaps received source-pinned or serialized-screen oracles. Five findings that require new message, symbol-family, symset, or terrain function-family boundaries are recorded as explicit slices. Fresh correctness, test-quality, and variable-flow rechecks of the final fix commit were clean."
+        },
+        "rejections": [],
+        "deferrals": [
+          {
+            "summary": "Auto-descriptions and picked descriptions are incorrectly filtered by MSGTYPE",
+            "trackedIn": "whatis-msgtype-bypass",
+            "category": "production"
+          },
+          {
+            "summary": "Ordinary down-stair terrain aborts live cursor lookup",
+            "trackedIn": "whatis-down-stair-terrain",
+            "category": "production"
+          },
+          {
+            "summary": "Terrain ambiguity drops matching monster and object symbol families",
+            "trackedIn": "whatis-symbol-family-ambiguity",
+            "category": "production"
+          },
+          {
+            "summary": "IBMgraphics descriptions use browser glyphs instead of recorder TTY bytes",
+            "trackedIn": "whatis-ibm-message-prefix",
+            "category": "production"
+          },
+          {
+            "summary": "Cmap candidates use raw index order and explanations instead of add_cmap_descr semantics",
+            "trackedIn": "whatis-custom-cmap-order",
+            "category": "production"
+          }
+        ]
+      },
+      "recordedAt": "2026-08-27T19:07:56.692Z"
     }
   ]
 }
