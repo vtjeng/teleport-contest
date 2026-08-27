@@ -4817,6 +4817,23 @@
         "screens": 4,
         "rng": 0
       }
+    },
+    {
+      "id": "itemactions",
+      "status": "open",
+      "boundary": "unsupported hero command: an unported branch of this command: feature description requires itemactions()",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "9a935a497b2bf9c9d9a5bc35556db4b2d071213d",
+      "openStanding": {
+        "sha": "1cf91f5",
+        "screens": 2371,
+        "rng": 155739
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
