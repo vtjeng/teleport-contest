@@ -209,6 +209,7 @@ import {
     encumber_msg,
     pickup,
     preflight_describe_decor_at,
+    preflight_projected_random_arrival_pickup,
     UnsupportedPickupError,
 } from './pickup.js';
 import { in_out_region, inside_region, visible_region_at } from './region.js';
@@ -1481,9 +1482,24 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
         );
     }
     if (state.level?.objects?.[x]?.[y]) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'combined pet and floor object interaction',
-        );
+        // pickup.c pickup() runs only after domove_swap_with_pet() has moved
+        // both actors and domove_core() has committed the hero position. A
+        // late refusal there would leave those writes behind, so dry-run the
+        // complete automatic-pickup transaction at the projected destination
+        // before do_attack() spends its source-ordered rn2(7). The pickup
+        // planner refreshes gw.wc; clone that write owner and the projected
+        // hero coordinates while sharing the read-only level and inventory.
+        const projected = {
+            ...state,
+            gw: { ...(state.gw ?? {}) },
+            u: { ...state.u, ux: x, uy: y },
+        };
+        try {
+            preflight_projected_random_arrival_pickup(projected);
+        } catch (error) {
+            if (!(error instanceof UnsupportedPickupError)) throw error;
+            throw new UnsupportedHeroMoveBoundaryError(error.reason);
+        }
     }
     if (state.level?.regions?.length) {
         throw new UnsupportedHeroMoveBoundaryError(
@@ -3253,8 +3269,9 @@ export async function lookaround(state = game) {
 
 // C ref: hack.c domove_swap_with_pet(), successful ordinary starting-pet
 // branch. domove() reaches this helper only after its admission seam has
-// accepted ordinary terrain, an object-free destination, no source or
-// destination trap, an accessible source square, and ordinary pet state.
+// accepted ordinary terrain, a preflighted automatic-pickup transaction, no
+// source or destination trap, an accessible source square, and ordinary pet
+// state.
 export async function domove_swap_with_pet(
     monster,
     x,

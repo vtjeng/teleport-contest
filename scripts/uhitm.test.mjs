@@ -9,6 +9,7 @@ import {
     ICE,
     LADDER,
     DOOR,
+    OBJ_INVENT,
     ROOM,
     SINK,
     STAIRS,
@@ -27,11 +28,22 @@ import {
     PM_SEWER_RAT,
     PM_SHADE,
 } from '../js/monsters.js';
-import { mksobj } from '../js/obj.js';
-import { ORCISH_DAGGER, SILVER_DAGGER } from '../js/objects.js';
+import { mksobj, mksobj_at } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import {
+    ORCISH_DAGGER,
+    SCR_ENCHANT_ARMOR,
+    SCR_SCARE_MONSTER,
+    SILVER_DAGGER,
+} from '../js/objects.js';
 import { dmgval } from '../js/weapon.js';
-import { initRng } from '../js/rng.js';
+import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { do_attack, shade_miss } from '../js/uhitm.js';
+import {
+    PET_SWAP_ARRIVAL_MOVES,
+    loadPetSwapArrivalRecipe,
+} from './run-pet-swap-arrival-autopickup.mjs';
 
 const DATETIME = '20300102030405';
 function petRc({
@@ -102,6 +114,17 @@ function standPetEastOf(pet, terrain) {
     return { destination, oldHero };
 }
 
+test('the pet-swap arrival recipe contains replay inputs only', () => {
+    const recipe = loadPetSwapArrivalRecipe();
+    assert.equal(recipe.version, 5);
+    assert.equal(recipe.segments.length, 1);
+    const segment = recipe.segments[0];
+    assert.equal(Object.hasOwn(segment, 'steps'), false);
+    assert.equal(segment.moves, PET_SWAP_ARRIVAL_MOVES);
+    assert.match(segment.moves, /nuK@,uu $/u);
+    assert.match(segment.nethackrc, /runmode:walk/u);
+});
+
 test('live movement swaps every starting-pet species through safe-pet attack',
     async () => {
         const cases = [
@@ -150,6 +173,109 @@ test('live movement swaps every starting-pet species through safe-pet attack',
             assert.equal(listCount, 1);
         }
     });
+
+// hack.c domove_swap_with_pet() leaves a non-boulder destination object in
+// place. domove_core() then commits the hero's position and spoteffects(TRUE)
+// reaches pickup(1), so automatic pickup must consume the floor object after
+// the swap message. The separate fresh recipe uses a longer shuffled scroll
+// label to pin the TTY --More-- prompt between those two messages.
+test('a pet swap performs automatic pickup on the arrival square', async () => {
+    const pet = await startingPet({
+        role: 'Wizard',
+        // Wizard's role pet is a kitten; pettype only selects for roles whose
+        // u_init.c role entry has no fixed pet species.
+        expectedPm: PM_KITTEN,
+    });
+    const { destination, oldHero } = standPetEastOf(pet, ROOM);
+    const scroll = mksobj_at(
+        // A Wizard starts with magic-mapping scrolls, so enchant armor
+        // exercises a new inventory slot rather than addinv()'s merge arm.
+        SCR_ENCHANT_ARMOR,
+        destination[0],
+        destination[1],
+        false,
+        false,
+        objectGenerationEnv({ state: game }),
+    );
+    game.flags.pickup = true;
+    clearTtyMessageWindow(game);
+    initRng(1); // The first rn2(7) is 5, so do_attack() permits the swap.
+    game.nhDisplay.pushKey('l'.charCodeAt(0));
+    // Two dismissal keys cover both TTY layouts: one is enough when the
+    // shuffled scroll label forces a --More-- prompt, and neither is consumed
+    // when both messages fit on the top line.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await moveloop_core();
+
+    assert.deepEqual([game.u.ux, game.u.uy], destination);
+    assert.deepEqual([pet.mx, pet.my], oldHero);
+    assert.equal(game.level.objects[destination[0]][destination[1]], null);
+    assert.equal(scroll.where, OBJ_INVENT);
+    assert.ok(
+        [...function* inventory() {
+            for (let obj = game.invent; obj; obj = obj.nobj) yield obj;
+        }()].includes(scroll),
+        'the picked-up scroll is linked into inventory',
+    );
+    assert.match(
+        game._pending_message,
+        /^You swap places with your kitten\.  [a-z] - a scroll labeled /u,
+    );
+});
+
+// pickup.c pickup_object() gives a scroll of scare monster a special floor
+// transaction. The existing pickup port refuses that branch, so pet-swap
+// admission must reject it before do_attack() consumes rn2(7) and before the
+// tentative hero and pet placements begin.
+test('pet-swap pickup refusal leaves movement and RNG state atomic', async () => {
+    const pet = await startingPet({ pettype: 'cat' });
+    const { destination, oldHero } = standPetEastOf(pet, ROOM);
+    const scroll = mksobj_at(
+        SCR_SCARE_MONSTER,
+        destination[0],
+        destination[1],
+        false,
+        false,
+        objectGenerationEnv({ state: game }),
+    );
+    game.flags.pickup = true;
+    initRng(1); // The first rn2(7) would be 5 if admission reached do_attack().
+    enableRngLog();
+    const before = {
+        core: structuredClone(game.coreCtx),
+        floor: game.level.objects[destination[0]][destination[1]],
+        inventory: game.invent,
+        object: structuredClone({
+            where: scroll.where,
+            nobj: scroll.nobj,
+            nexthere: scroll.nexthere,
+        }),
+    };
+    game.nhDisplay.pushKey('l'.charCodeAt(0));
+
+    await assert.rejects(
+        moveloop_core(),
+        (error) => (
+            error instanceof UnsupportedHeroMoveBoundaryError
+            && error.reason === 'pickup() of a scroll of scare monster'
+        ),
+    );
+
+    assert.deepEqual([game.u.ux, game.u.uy], oldHero);
+    assert.deepEqual([pet.mx, pet.my], destination);
+    assert.equal(game.level.objects[destination[0]][destination[1]],
+        before.floor);
+    assert.equal(game.invent, before.inventory);
+    assert.deepEqual({
+        where: scroll.where,
+        nobj: scroll.nobj,
+        nexthere: scroll.nexthere,
+    }, before.object);
+    assert.deepEqual(game.coreCtx, before.core);
+    assert.deepEqual(getRngLog(), []);
+});
 
 // hack.c domove_swap_with_pet() (2098-2180) never reads the square the hero
 // moves onto. Its six refusal arms test the pet's pit-and-boulder pin, NODIAG
