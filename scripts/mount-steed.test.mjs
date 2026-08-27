@@ -892,12 +892,11 @@ test('losehp takes the hit points, redraws the status line and stops at '
     clearTtyMessageWindow(game);
     game._ttyToplines = '';
     await assert.rejects(
-        losehp(game.u.uhp, 'slipped while mounting a saddled pony',
-               NO_KILLER_PREFIX, game),
+        losehp(game.u.uhp, 'a test', NO_KILLER_PREFIX, game),
         UnsupportedEndOfGameError,
     );
     assert.equal(game.u.uhp, 0);
-    assert.equal(game.killer.name, 'slipped while mounting a saddled pony');
+    assert.equal(game.killer.name, 'a test');
     assert.equal(game.killer.format, NO_KILLER_PREFIX);
     assert.equal(toplines(), 'You die...');
     // botl.c do_statusline2():141-142 shows a dead hero at zero rather than
@@ -1187,26 +1186,25 @@ test('test_move(TEST_MOVE) leaves a closed door shut and a doorway silent',
     }
 });
 
-test('a slip that kills the hero stops the command rather than the segment',
+test('a slip that kills the hero reaches the possessions prompt',
     async () => {
-    // cmd.c failClosedCommand() converts an UnsupportedEndOfGameError into
-    // the command boundary, which keeps the segment's matching prefix. A
-    // second #ride is what reaches it: rn1(5, 10) is at least 10 and a level 1
-    // Knight has 16 hit points, so a second slip always leaves too few. This
-    // is the female Knight's segment, whose second roll also fails.
+    // A second #ride reaches the end.c prefix: rn1(5, 10) is at least 10 and
+    // a level 1 Knight has 16 hit points, so a second slip always leaves too
+    // few. This is the female Knight's segment, whose second roll also fails.
     //
-    // The trailing space answers the --More-- that urgent_pline("You die...")
-    // raises on the slip message. Without it the segment runs out of input at
-    // that prompt and never reaches done(), which is exactly what the two
-    // recorded witnesses do.
+    // Two spaces dismiss the slip and death messages. The invalid x leaves
+    // tty_yn_function() at the possessions prompt without taking an answer.
     const segment = segmentFor(`${RIDE_COMMAND}l.`);
     let boundary = null;
-    await runSegment(
-        { ...segment, moves: `.${RIDE_COMMAND}l${RIDE_COMMAND}l ` },
+    const replay = await runSegment(
+        { ...segment, moves: `.${RIDE_COMMAND}l${RIDE_COMMAND}l  x` },
         { onBoundary: (error) => { boundary = error; } },
     );
-    assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
-    assert.match(boundary.message, /done\(0\) for killer "slipped while /u);
+    assert.equal(boundary, null);
+    assert.equal(game.program_state.gameover, 1);
+    assert.equal(topLine(),
+        'Do you want your possessions identified? [ynq] (n)');
+    assert.equal(replay.getRngLog().at(-1), 'rn2(1)=0');
 });
 
 test('an unsaddled fixture monster refuses a saddle, which is what keeps the '
