@@ -5299,7 +5299,13 @@
         ]
       },
       "detail": "Port command admission and typed hands selection, u_can_engrave/stylus/context, ordinary DUST text processing, owned engraving occupation state, one-action callback, and runtime Elbereth exercise. Object styli, existing engravings, exceptional terrain/forms/statuses, empty text, and multi-action text remain outside.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "engrave-fingertip-dust-one-action",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "48ce66145126129527106fd34858a4b80d8f861b",
       "openStanding": {
         "sha": "bcfc94c742aeed2876cb6d7f50d2e4eeb790ec11",
