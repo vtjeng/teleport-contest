@@ -4799,7 +4799,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "open-command-dispatch",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "d439e707044e018802c17fade992cd96df3f0437",
       "openStanding": {
         "sha": "dd579e4",
