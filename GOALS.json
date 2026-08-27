@@ -5101,7 +5101,7 @@
     },
     {
       "id": "monster-ordinary-weapon-hit-hero",
-      "status": "open",
+      "status": "closed",
       "boundary": "An adjacent monster whose mattacku() AT_WEAP attack finds the hero, has a non-null ordinary MON_WEP, wins the to-hit roll, and dispatches AD_PHYS carries the hit through mhitm_ad_phys() into the existing hitmu() damage tail.",
       "upstreamOwners": [
         "uhitm.c",
@@ -5125,8 +5125,8 @@
       "slices": [
         {
           "name": "ordinary-weapon-hit-through-hitmu",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "ada5cce419a957282b947f2827898cda095066b9"
         }
       ],
       "openedAt": "cd23d768e077fa0d1fb36bf616c58f9a7114310f",
@@ -5135,8 +5135,11 @@
         "screens": 2381,
         "rng": 155996
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "ada5cce419a957282b947f2827898cda095066b9",
+      "delivered": {
+        "screens": 6,
+        "rng": 31
+      }
     }
   ]
 }
