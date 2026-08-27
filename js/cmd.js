@@ -59,7 +59,7 @@ import {
     UnsupportedAccessoryOnError, UnsupportedRingOnError,
     UnsupportedTakeOffError, UnsupportedWearError,
 } from './do_wear.js';
-import { doclose, reset_pick, UnsupportedLockError } from './lock.js';
+import { doclose, doopen, reset_pick, UnsupportedLockError } from './lock.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
 import { UnsupportedRegionPlacementError } from './mkmaze.js';
 import { docallcmd, UnsupportedObjectNamingError } from './do_name.js';
@@ -1003,7 +1003,7 @@ export async function parseCommand(state = game) {
 // the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'apply', 'close', 'down', 'up', 'drop', 'pickup', 'takeoff', 'wear',
+    'eat', 'apply', 'open', 'close', 'down', 'up', 'drop', 'pickup', 'takeoff', 'wear',
     'puton', 'quaff', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
     'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
     'save', 'wield', '#',
@@ -1718,6 +1718,16 @@ async function runCloseCommand(key, state) {
     return failClosedCommand(key, state, () => doclose(state));
 }
 
+// C ref: lock.c doopen(). Like doclose() it returns its own ECMD_* result:
+// ECMD_OK for the nohands refusal, a cancelled direction prompt, and the pit
+// refusal, and ECMD_TIME for every path past the mimic/Confusion/Stunned
+// checks (including the drawbridge, container, no-door, doormask, verysmall
+// and open-attempt paths). The u_at delegation to doloot() answers doloot()'s
+// own result.
+async function runOpenCommand(key, state) {
+    return failClosedCommand(key, state, () => doopen(state));
+}
+
 // C ref: zap.c dozap(). Like dosearch() and doeat() it returns its own ECMD_*
 // result: ECMD_OK for the two guards above the object prompt, ECMD_CANCEL for
 // an escaped object prompt, and ECMD_TIME once a wand has been chosen, whether
@@ -2130,6 +2140,8 @@ async function doextcmd(key, state) {
         return await runPickupCommand(key, state);
     case 'doloot':
         return await runLootCommand(key, state);
+    case 'doopen':
+        return await runOpenCommand(key, state);
     case 'dotakeoff':
         return await runTakeOffCommand(key, state);
     case 'dowear':
@@ -2455,6 +2467,22 @@ export async function rhack(key, state = game) {
             // and domove_attempting tests at 3773-3800 cannot divert it,
             // because cmd.c:1545's "close" row carries no flags at all.
             const res = await runCloseCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'open') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the '#', `search`, `eat`, `apply` and `close` arms
+            // apply. doopen() reaches ECMD_OK for the nohands refusal, a
+            // cancelled direction prompt, and the pit refusal, and ECMD_TIME
+            // for every path past the mimic/Confusion/Stunned checks. The
+            // u_at delegation to doloot() answers doloot()'s own result. The
+            // MOVEMENTCMD and domove_attempting tests at 3773-3800 cannot
+            // divert it, because cmd.c:1785's "open" row carries no flags.
+            const res = await runOpenCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

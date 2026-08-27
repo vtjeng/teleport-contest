@@ -19,7 +19,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { autokey, doclose, doopen_indir } from '../js/lock.js';
+import { autokey, doclose, doopen, doopen_indir } from '../js/lock.js';
 import { M1_NOHANDS } from '../js/monsters.js';
 import { is_magic_key } from '../js/artifacts.js';
 import { ART_MASTER_KEY_OF_THIEVERY } from '../js/artifacts.js';
@@ -199,9 +199,14 @@ test('a door that is not closed is named instead of pulled at', async () => {
         assert.deepEqual(events, [`message(${line})`], `mask ${mask}`);
         assert.equal(door.flags, mask, `mask ${mask} unchanged`);
         // lock.c returns `res` here, which is ECMD_OK unless the newsym()
-        // block above learned something; this port does not model that bump,
-        // and hack.c:1104 discards the value on the walking path either way.
-        assert.equal(result, ECMD_OK, `mask ${mask} return`);
+        // block learned something. The test changes the mask without updating
+        // the display, so newsym() may find a glyph change and set
+        // res = ECMD_TIME. hack.c:1104 discards the value on the walking
+        // path either way; only the message matters for the auto-open caller.
+        assert.ok(
+            result === ECMD_OK || result === ECMD_TIME,
+            `mask ${mask} return is ECMD_OK or ECMD_TIME, got ${result}`,
+        );
     }
 });
 
@@ -211,6 +216,107 @@ test('doopen_indir rejects a substitution it would never read', async () => {
         () => doopen_indir(x, y, game, { messsage: () => {} }),
         /does not read env\.messsage/u,
     );
+});
+
+// --- doopen() command-path tests ---
+
+test('doopen nohands returns ECMD_OK without a direction prompt', async () => {
+    // C ref: lock.c:788-791. A hero with no hands cannot open anything, and
+    // this check runs before the direction prompt. M1_NOHANDS sets the flag
+    // on the hero's monster data.
+    await closedDoorBesideHero();
+    clearPendingMessages();
+    const saved = game.youmonst.data.mflags1;
+    game.youmonst.data.mflags1 |= M1_NOHANDS;
+
+    const result = await doopen(game);
+
+    assert.equal(result, ECMD_OK, 'nohands returns ECMD_OK');
+    game.youmonst.data.mflags1 = saved;
+});
+
+test('doopen cancelled direction returns ECMD_OK', async () => {
+    // C ref: lock.c:804-805. get_adjacent_loc() calls getdir(), which reads
+    // a key. ESC cancels the prompt. get_adjacent_loc() then prints
+    // "Never mind." and returns 0, so doopen_indir returns ECMD_OK.
+    await closedDoorBesideHero();
+    clearPendingMessages();
+    answer('\x1B'); // ESC cancels the direction prompt
+
+    const result = await doopen(game);
+
+    assert.equal(result, ECMD_OK, 'cancelled prompt returns ECMD_OK');
+});
+
+test('doopen toward a closed door attempts the open roll', async () => {
+    // C ref: lock.c:904-921. The hero types 'o' then 'h' to open the door
+    // to the west. The door is D_CLOSED, so the roll at lock.c:904 decides
+    // the outcome. With STR 68 (acurrstr 20), DEX 3, CON 3, threshold =
+    // (20+3+3)/3 = 8. The rnl(20) roll determines success; regardless of
+    // the outcome, the command costs a turn (ECMD_TIME).
+    const { door } = await closedDoorBesideHero();
+    clearPendingMessages();
+    answer('h'); // west, toward the door
+
+    const result = await doopen(game);
+
+    assert.equal(result, ECMD_TIME,
+        'opening a closed door costs a turn');
+});
+
+test('doopen toward a locked door prints the locked message', async () => {
+    // C ref: lock.c:855-875. A D_LOCKED door is not D_CLOSED, so the
+    // doormask switch runs and prints "This door is locked."
+    const { door } = await closedDoorBesideHero();
+    door.flags = D_LOCKED;
+    door.doormask = D_LOCKED;
+    clearPendingMessages();
+    answer('h');
+
+    const result = await doopen(game);
+
+    // The return value includes the glyph comparison bump, which may add
+    // ECMD_TIME; the important assertion is that the function returned
+    // without error and the door state is unchanged.
+    assert.ok(result === ECMD_OK || result === ECMD_TIME,
+        'locked door returns ECMD_OK or ECMD_TIME');
+    assert.equal(door.flags, D_LOCKED, 'locked door unchanged');
+});
+
+test('doopen verysmall returns res without pulling', async () => {
+    // C ref: lock.c:898-901. A verysmall hero cannot pull the door open
+    // and returns res (ECMD_OK for an unimpaired hero, or ECMD_TIME if the
+    // glyph comparison or confusion set it). verysmall() checks
+    // msize <= MZ_TINY (1); a normal hero is MZ_HUMAN (2).
+    const { door } = await closedDoorBesideHero();
+    clearPendingMessages();
+    const savedSize = game.youmonst.data.msize;
+    game.youmonst.data.msize = 0; // MZ_TINY
+    answer('h');
+
+    const result = await doopen(game);
+
+    assert.ok(result === ECMD_OK || result === ECMD_TIME,
+        'verysmall returns without pulling');
+    assert.equal(door.flags, D_CLOSED, 'door stays closed');
+    game.youmonst.data.msize = savedSize;
+});
+
+test('doopen pit refusal returns ECMD_OK', async () => {
+    // C ref: lock.c:815-818. A hero trapped in a pit cannot reach over the
+    // edge to open a door in an adjacent square. This check runs after the
+    // direction prompt, so a direction key must be provided.
+    await closedDoorBesideHero();
+    clearPendingMessages();
+    game.u.utrap = 1;
+    game.u.utraptype = TT_PIT;
+    answer('h');
+
+    const result = await doopen(game);
+
+    assert.equal(result, ECMD_OK, 'pit refusal returns ECMD_OK');
+    game.u.utrap = 0;
+    game.u.utraptype = 0;
 });
 
 // --- is_magic_key() tests ---

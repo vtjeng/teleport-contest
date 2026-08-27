@@ -6,6 +6,7 @@ import {
     A_DEX,
     A_STR,
     AUTOUNLOCK_APPLY_KEY,
+    AUTOUNLOCK_KICK,
     AUTOUNLOCK_UNTRAP,
     CONFUSION,
     D_BROKEN,
@@ -55,7 +56,8 @@ import {
     LOCK_PICK,
     SKELETON_KEY,
 } from './objects.js';
-import { encumber_msg } from './pickup.js';
+import { closed_door } from './monmove.js';
+import { container_at, doloot, encumber_msg } from './pickup.js';
 import { is_quest_artifact } from './questpgr.js';
 import { rn2, rnl } from './rng.js';
 import {
@@ -501,20 +503,28 @@ function notClosedMessage(door) {
     }
 }
 
-// C ref: lock.c doopen_indir(), the arm a hero reaches by walking into a
-// closed door with `autoopen` set. hack.c test_move() passes a nonzero <x,y>,
-// so the get_adjacent_loc() prompt, the doloot() redirect and the pit refusal
-// above it cannot run.
+// C ref: lock.c doopen() (773-776). The `o` command handler; delegates to
+// doopen_indir(0, 0).
+export async function doopen(state = game) {
+    return doopen_indir(0, 0, state);
+}
+
+// C ref: lock.c doopen_indir() (780-923), translated whole. Two callers reach
+// it: doopen() above passes (0, 0) and the hero chooses a direction; hack.c
+// test_move() passes a nonzero <x,y> when the hero walks into a closed door
+// with `autoopen` set, skipping the direction prompt and every precondition
+// hack.js already refused.
 //
-// Covered: the newsym() refresh, the `!(doormask & D_CLOSED)` message switch,
-// the autounlock apply-key path through pick_lock(), and the `door is known to
-// be CLOSED` roll with both of its outcomes.
+// Covered: nohands, the pit dirprompt, get_adjacent_loc, the u_at -> doloot()
+// redirect, the pit refusal, stumble_on_door_mimic, Confusion/Stunned,
+// the glyph-comparison block, the portcullis and non-door messages (drawbridge,
+// container_at, no-door), the doormask switch with the autounlock apply-key
+// path, verysmall, and the `door is known to be CLOSED` roll with both of its
+// outcomes.
 //
-// Not covered, because js/hack.js refuses each state before the walk is
-// admitted: nohands(), u.utrap, stumble_on_door_mimic(), the Confusion and
-// Stunned `res = ECMD_TIME`, drawbridges and portcullises, a square that is
-// not a door, the kick arm, verysmall(), and the D_TRAPPED half of the
-// success arm with its b_trapped() and shop add_damage() bookkeeping.
+// Not covered, each throwing: the D_TRAPPED half of the success arm with its
+// b_trapped() and shop add_damage() bookkeeping, and the AUTOUNLOCK_KICK path
+// that queues dokick with cmdq_add_dir().
 export async function doopen_indir(x, y, state = game, env = {}) {
     // Reject unknown keys so a test substitution cannot silently fall through
     // to the real operation.
@@ -524,55 +534,162 @@ export async function doopen_indir(x, y, state = game, env = {}) {
     }
     const message = env.message ?? ttyPline;
     const random = env.random ?? { rn2, rnl };
-    const door = state.level?.at(x, y);
+    const u = state.u;
+
+    // lock.c:788-791. nohands check.
+    if (nohands(state.youmonst.data)) {
+        await message("You can't open anything -- you have no hands!", state);
+        return ECMD_OK;
+    }
+
+    // lock.c:793-806. Direction: either passed or prompted.
+    let dirprompt = null;
+    if (u.utrap && u.utraptype === TT_PIT
+        && container_at(u.ux, u.uy, false, state))
+        dirprompt = 'Open where? [.>]';
+
+    const cc = { x: 0, y: 0 };
+    if (x > 0 && y >= 0) {
+        // Nonzero <x,y> from the auto-open path.
+        cc.x = x;
+        cc.y = y;
+    } else if (!await get_adjacent_loc(
+        dirprompt, null, u.ux, u.uy, cc, state,
+    )) {
+        return ECMD_OK;
+    }
+
+    // lock.c:810-811. Open at yourself/up/down: delegate to loot unless there
+    // is a closed door here (possible with Passes_walls) and direction is not
+    // 'down'.
+    if (u_at(cc.x, cc.y, state)
+        && (u.dz > 0 || !closed_door(u.ux, u.uy, state)))
+        return doloot(state);
+
+    // lock.c:815-818. Pit check after direction.
+    if (u.utrap && u.utraptype === TT_PIT) {
+        await message("You can't reach over the edge of the pit.", state);
+        return ECMD_OK;
+    }
+
+    // lock.c:820-821. Door mimic check.
+    if (stumble_on_door_mimic(cc.x, cc.y, state))
+        return ECMD_TIME;
+
+    // lock.c:825-826. When choosing a direction is impaired, use a turn
+    // regardless of whether a door is successfully targeted.
+    let res = ECMD_OK;
+    if (Confusion(state) || Stunned(state))
+        res = ECMD_TIME;
+
+    // lock.c:828-829.
+    const door = state.level?.at(cc.x, cc.y);
     if (!door) throw new TypeError('doopen_indir requires a door location');
+    const portcullis = is_drawbridge_wall(cc.x, cc.y, state);
 
-    newsym(x, y);
+    // lock.c:831-839. The glyph-comparison block: "this used to be 'if (Blind)'
+    // but using a key skips that so we do too". update_mapseen_for() and
+    // newsym() may change the remembered glyph; if so, the hero learned
+    // something and the attempt costs a turn.
+    {
+        const oldglyph = door.remembered_glyph;
+        const oldlastseentyp = update_mapseen_for(cc.x, cc.y, state);
+        newsym(cc.x, cc.y, state);
+        if (!same_remembered_glyph(oldglyph, door.remembered_glyph)
+            || state.level.lastseentyp[cc.x][cc.y] !== oldlastseentyp)
+            res = ECMD_TIME;
+    }
 
+    // lock.c:841-853. Portcullis or not a door.
+    if (portcullis || !IS_DOOR(door.typ)) {
+        if (is_db_wall(cc.x, cc.y, state) || door.typ === DRAWBRIDGE_UP)
+            await message(
+                'There is no obvious way to open the drawbridge.', state,
+            );
+        else if (portcullis || door.typ === DRAWBRIDGE_DOWN)
+            await message('The drawbridge is already open.', state);
+        else if (container_at(cc.x, cc.y, true, state))
+            await message(
+                `${heroIsBlind(state) ? 'Feels' : 'Seems'}`
+                + ' like something lootable over there.',
+                state,
+            );
+        else
+            await message(
+                `You ${heroIsBlind(state) ? 'feel' : 'see'} no door there.`,
+                state,
+            );
+        return res;
+    }
+
+    // lock.c:855-896. Door is not closed.
     if (!(doorMask(door) & D_CLOSED)) {
         await message(
-            messageAt(`This door${notClosedMessage(door)}.`, x, y, state),
+            messageAt(`This door${notClosedMessage(door)}.`, cc.x, cc.y,
+                state),
             state,
         );
         // lock.c:876-894. Offer a locked door to flags.autounlock.
-        let res = ECMD_OK;
         const locked = (doorMask(door) & D_LOCKED) !== 0;
         if (locked && state.flags?.autounlock) {
             const autounlockFlags = state.flags.autounlock;
-            state.u.dz = 0; /* should already be 0 since hero moved toward door */
+            u.dz = 0; /* should already be 0 since hero moved toward door */
             if ((autounlockFlags & AUTOUNLOCK_APPLY_KEY) !== 0) {
                 const unlocktool = autokey(true, state);
                 if (unlocktool) {
-                    res = (await pick_lock(unlocktool, x, y, null, state))
+                    res = (await pick_lock(unlocktool, cc.x, cc.y, null, state))
                         ? ECMD_TIME : ECMD_OK;
                 }
+            } else if ((autounlockFlags & AUTOUNLOCK_KICK) !== 0) {
+                // lock.c:884-893. AUTOUNLOCK_KICK asks "Kick it?" and queues
+                // dokick with cmdq_add_dir(), which is not ported.
+                throw new UnsupportedLockError(
+                    'AUTOUNLOCK_KICK in doopen_indir()',
+                );
             }
-            // lock.c:884-893. AUTOUNLOCK_KICK asks "Kick it?" and queues
-            // dokick. js/hack.js refuses that before the walk is admitted.
         }
         return res;
     }
 
-    // ACURRSTR folds Strength's 3..125 encoding down to 3..25 before the
-    // three attributes are averaged with C's truncating integer division.
+    // lock.c:898-901. Too small to pull the door.
+    if (verysmall(state.youmonst.data)) {
+        await message("You're too small to pull the door open.", state);
+        return res;
+    }
+
+    // lock.c:904-921. Door is known to be CLOSED. ACURRSTR folds Strength's
+    // 3..125 encoding down to 3..25 before the three attributes are averaged
+    // with C's truncating integer division.
     const threshold = Math.trunc((
         acurrstr(state)
         + effective_attribute(state, A_DEX)
         + effective_attribute(state, A_CON)
     ) / 3);
     if (random.rnl(20) < threshold) {
-        await message(messageAt('The door opens.', x, y, state), state);
+        await message(
+            messageAt('The door opens.', cc.x, cc.y, state), state,
+        );
+        if (doorMask(door) & D_TRAPPED) {
+            // lock.c:908-911. b_trapped() fires the door trap, then
+            // door->doormask = D_NODOOR and add_damage() for shops. This path
+            // needs b_trapped(), in_rooms(), and add_damage().
+            throw new UnsupportedLockError(
+                'D_TRAPPED door trap in doopen_indir()',
+            );
+        }
         // detect.c cvt_sdoor_to_door() sets both spellings of struct rm's
         // shared mask field; every reader in the port accepts either.
         door.flags = D_ISOPEN;
         door.doormask = D_ISOPEN;
-        feel_newsym(x, y, state);
-        recalc_block_point(x, y, state);
+        feel_newsym(cc.x, cc.y, state);
+        recalc_block_point(cc.x, cc.y, state);
     } else {
         await exercise(A_STR, true, state, random, {
             encumberMessage: encumber_msg,
         });
-        await message(messageAt('The door resists!', x, y, state), state);
+        await message(
+            messageAt('The door resists!', cc.x, cc.y, state), state,
+        );
     }
 
     return ECMD_TIME;
