@@ -558,7 +558,11 @@ function xnameBase(obj, type, state, ident) {
         unsupported(`object class ${obj.oclass}`, obj);
     }
 }
-function notFullyIdentified(obj, type, state) {
+// C ref: objnam.c not_fully_identified() (1787-1818). Callers which already
+// resolved the type use the private third argument; the public shape matches
+// C and resolves objects[obj->otyp] here.
+export function not_fully_identified(obj, state = game, resolvedType = null) {
+    const type = resolvedType ?? objectType(obj, state);
     if (obj.oclass === COIN_CLASS) return false;
     if (!obj.known || !obj.dknown
         || (!obj.bknown && obj.otyp !== SCR_MAIL)
@@ -599,7 +603,7 @@ export function obj_is_pname(obj, state = game) {
     // learned about it, which is why gameover suppresses the check rather than
     // only the wizard-mode override does.
     if (state.program_state?.gameover || state.iflags?.override_ID) return true;
-    return !notFullyIdentified(obj, objectType(obj, state), state);
+    return !not_fully_identified(obj, state, objectType(obj, state));
 }
 // C ref: objnam.c the_unique_obj() (1106-1117).
 // The public export resolves the type internally for callers that don't

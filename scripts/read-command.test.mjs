@@ -26,6 +26,7 @@ import {
     SPE_FORCE_BOLT,
 } from '../js/objects.js';
 import { doread, read_ok, UnsupportedReadError } from '../js/read.js';
+import { not_fully_identified } from '../js/objnam.js';
 import {
     ESCAPE_KEY,
     INVALID_LETTER,
@@ -211,6 +212,92 @@ test('an uncursed magic-mapping scroll maps the ordinary level and is used up',
         msalign: 0,
         shoptype: 0,
     });
+});
+
+test('an unknown identify scroll reports a fully identified remaining pack',
+    async () => {
+    const segment = firstSegment();
+    const replay = await runSegment({ ...segment, moves: WAIT });
+    let scroll = game.invent;
+    while (scroll && scroll.otyp !== SCR_IDENTIFY) scroll = scroll.nobj;
+    assert.ok(scroll, 'the fixed Wizard starts with an identify scroll');
+
+    // This constructed pack isolates read.c seffect_identify()'s zero-item
+    // identify_pack() arm. Quantity one makes useup() remove the selected
+    // scroll, and every remaining object has each objnam.c identification
+    // hallmark so count_unidentified() returns zero after that removal.
+    scroll.quan = 1;
+    scroll.blessed = false;
+    scroll.cursed = false;
+    scroll.dknown = true;
+    scroll.pickup_prev = true;
+    for (let obj = game.invent; obj; obj = obj.nobj) {
+        if (obj === scroll) continue;
+        obj.known = true;
+        obj.dknown = true;
+        obj.bknown = true;
+        obj.cknown = true;
+        obj.lknown = true;
+        obj.rknown = true;
+        game.objects[obj.otyp].oc_name_known = 1;
+        if (obj.oartifact) {
+            game.artiexist ??= [];
+            game.artiexist[obj.oartifact] ??= {};
+            game.artiexist[obj.oartifact].found = true;
+        }
+    }
+    // Unknown is the meaningful identify-scroll branch. Removing any stale
+    // discovery entry keeps the setup equivalent to read.c's
+    // `already_known = FALSE` arm rather than depending on this seed's pack.
+    game.objects[SCR_IDENTIFY].oc_name_known = 0;
+    for (let i = 0; i < game.svd.disco.length; ++i) {
+        if (game.svd.disco[i] === SCR_IDENTIFY) game.svd.disco[i] = 0;
+    }
+    assert.deepEqual(
+        inventorySnapshot()
+            .filter((obj) => obj.o_id !== scroll.o_id)
+            .filter((obj) => not_fully_identified(obj, game))
+            .map((obj) => obj.invlet),
+        [],
+    );
+
+    const movesBefore = game.moves;
+    const rngBefore = replay.getRngLog().length;
+    const literateBefore = game.u.uconduct.literate;
+    const scoreBefore = game.u.urexp;
+    const remainingIds = inventorySnapshot()
+        .filter((obj) => obj.o_id !== scroll.o_id)
+        .map((obj) => obj.o_id);
+
+    // The first Space advances from the disappearance line to the scroll's
+    // identity; the second advances to the already-identified-pack line.
+    game.nhDisplay.pushKey(scroll.invlet.charCodeAt(0));
+    game.nhDisplay.pushKey(SPACE_KEY.charCodeAt(0));
+    game.nhDisplay.pushKey(SPACE_KEY.charCodeAt(0));
+    assert.equal(await doread(game), ECMD_TIME);
+
+    // read.c spends one Wisdom exercise draw before seffect_identify().
+    // learnscrolltyp() spends the second when it credits discovery, and this
+    // seed's nonzero ordinary rn2(5) result avoids the optional fourth draw.
+    assert.equal(game.moves, movesBefore);
+    assert.equal(replay.getRngLog().length, rngBefore + 3);
+    assert.equal(game.u.uconduct.literate, literateBefore + 1);
+    // learnscrolltyp() awards 10 score-only points for a new scroll type.
+    assert.equal(game.u.urexp, scoreBefore + 10);
+    assert.equal(game.objects[SCR_IDENTIFY].oc_name_known, 1);
+    assert.equal(scroll.pickup_prev, false);
+    assert.equal(
+        inventorySnapshot().some((obj) => obj.o_id === scroll.o_id),
+        false,
+    );
+    assert.deepEqual(
+        inventorySnapshot().map((obj) => obj.o_id),
+        remainingIds,
+    );
+    assert.equal(
+        pendingTopLine(),
+        'You have already identified the rest of your possessions.',
+    );
 });
 
 test('magic mapping fails closed on an unsupported special level', async () => {

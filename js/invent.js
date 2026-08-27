@@ -183,6 +183,7 @@ import {
     cxname,
     donameFresh,
     doname_with_price,
+    not_fully_identified,
     vtense,
     xnameFresh,
 } from './objnam.js';
@@ -1360,6 +1361,33 @@ export function preflight_update_inventory(env = {}) {
     const normalized = inventoryEnv(env);
     requireInventoryRefresh(normalized);
     return normalized;
+}
+
+// C ref: invent.c count_unidentified() (2698-2708).
+export function count_unidentified(objchn, state = game) {
+    let unidCount = 0;
+    for (let obj = objchn; obj; obj = obj.nobj) {
+        if (not_fully_identified(obj, state)) ++unidCount;
+    }
+    return unidCount;
+}
+
+// C ref: invent.c identify_pack() (2710-2744), restricted to the branch
+// where no carried object still needs identification. The selection and
+// automatic-identification branches have no running-game owner in this slice.
+export async function identify_pack(idLimit, learningId, state = game) {
+    const unidCount = count_unidentified(inventoryHead(state), state);
+    if (unidCount) {
+        throw new UnsupportedObjectOperationError(
+            `identify_pack(${idLimit}) with ${unidCount} unidentified object(s)`,
+        );
+    }
+    await ttyPline(
+        `You have already identified ${learningId ? 'the rest' : 'all'} `
+        + 'of your possessions.',
+        state,
+    );
+    update_inventory({ state });
 }
 
 // C ref: invent.c learn_unseen_invent() (2750-2775). Called when the hero
