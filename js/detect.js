@@ -10,6 +10,8 @@ import {
     CORR,
     DOOR,
     D_CLOSED,
+    D_BROKEN,
+    D_ISOPEN,
     D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
@@ -32,9 +34,12 @@ import {
     SCORR,
     SDOOR,
     STATUE_TRAP,
+    TRAPPED_CHEST,
+    TRAPPED_DOOR,
     SVALL,
     WM_MASK,
     isok,
+    u_at,
 } from './const.js';
 import { SPFX_SEARCH } from './artifacts.js';
 import { exercise } from './attrib.js';
@@ -46,6 +51,7 @@ import {
     docrt,
     glyph_is_invisible,
     glyph_is_object,
+    glyph_is_trap,
     glyph_at,
     hero_glyph_info,
     map_glyphinfo,
@@ -71,8 +77,8 @@ import { nomul } from './hack.js';
 import { hides_under, is_hider } from './mondata.js';
 import { S_EEL } from './monsters.js';
 import { m_at } from './monst.js';
-import { isBox } from './obj.js';
-import { LENSES } from './objects.js';
+import { isBox, sobj_at } from './obj.js';
+import { CHEST, LARGE_BOX, LENSES } from './objects.js';
 import { visible_region_at } from './region.js';
 import { rn2, rnl } from './rng.js';
 import { S_arrow_trap } from './symbols.js';
@@ -779,6 +785,43 @@ function trappedBoxInChain(first, nextKey) {
         if (object.cobj && trappedBoxInChain(object.cobj, 'nobj')) return true;
     }
     return false;
+}
+
+function trappedBoxInDirectChain(first, nextKey) {
+    for (let object = first; object; object = object[nextKey] ?? null) {
+        if (isBox(object) && object.otrapped) return true;
+    }
+    return false;
+}
+
+// C ref: detect.c trapped_chest_at(), for the sighted, non-hallucinating
+// whatis caller. The hallucination disguise branch remains outside that
+// command boundary because it consumes display RNG.
+export function trapped_chest_at(ttyp, x, y, state = game) {
+    if (!glyph_is_trap(glyph_at(x, y, state))) return false;
+    if (ttyp !== TRAPPED_CHEST) return false;
+    if (sobj_at(CHEST, x, y, state) || sobj_at(LARGE_BOX, x, y, state))
+        return true;
+    if (u_at(x, y, state)) {
+        if (trappedBoxInDirectChain(state.invent, 'nobj')) return true;
+        if (trappedBoxInDirectChain(state.u?.usteed?.minvent, 'nobj'))
+            return true;
+    }
+    return trappedBoxInDirectChain(m_at(x, y, state)?.minvent, 'nobj');
+}
+
+// C ref: detect.c trapped_door_at(), for the same ordinary whatis caller.
+export function trapped_door_at(ttyp, x, y, state = game) {
+    if (!glyph_is_trap(glyph_at(x, y, state))) return false;
+    if (ttyp !== TRAPPED_DOOR) return false;
+    const location = state.level?.at(x, y);
+    if (location?.typ !== DOOR) return false;
+    const mask = location.flags ?? location.doormask ?? 0;
+    if (mask & (D_NODOOR | D_BROKEN | D_ISOPEN)
+        && trapped_chest_at(ttyp, x, y, state)) {
+        return false;
+    }
+    return true;
 }
 
 function trappedBuriedBoxAt(x, y, state) {

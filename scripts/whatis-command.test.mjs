@@ -1,13 +1,34 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { D_BROKEN, D_TRAPPED, TIP_GETPOS } from '../js/const.js';
+import {
+    ARROW_TRAP,
+    BEAR_TRAP,
+    D_BROKEN,
+    D_TRAPPED,
+    DOOR,
+    GRAVE,
+    HEADSTONE,
+    TRAPPED_CHEST,
+    TRAPPED_DOOR,
+    TRAPNUM,
+    TIP_GETPOS,
+} from '../js/const.js';
 import { GETPOS_TIP_LINES, handle_tip } from '../js/hack.js';
+import { GameMap } from '../js/game.js';
 import { getpos, truncate_to_map } from '../js/getpos.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
-import { cmap_to_glyph, glyph_is_monster } from '../js/display.js';
+import {
+    NO_GLYPH,
+    cmap_to_glyph,
+    glyph_is_monster,
+    glyph_is_trap,
+    glyph_to_trap,
+    map_glyphinfo,
+    trap_to_glyph,
+} from '../js/display.js';
 import {
     GLYPH_DETECT_FEM_OFF,
     GLYPH_DETECT_MALE_OFF,
@@ -19,10 +40,15 @@ import {
     GLYPH_RIDDEN_MALE_OFF,
 } from '../js/glyph_offsets.js';
 import { NUMMONS } from '../js/monsters.js';
+import { CHEST } from '../js/objects.js';
 import {
     do_screen_description,
+    add_quoted_engraving,
+    look_engrs,
+    look_traps,
     look_region_nearby,
     self_lookat,
+    trap_description,
     whatisMenuItems,
 } from '../js/pager.js';
 import {
@@ -54,6 +80,11 @@ import {
     MONSTER_OBJECT_LIST_MOVES,
     loadWhatisMonsterObjectListRecipe,
 } from './run-whatis-monster-object-lists.mjs';
+import {
+    EMPTY_TRAP_LIST_MOVES,
+    TRAP_ENGRAVING_LIST_MOVES,
+    loadWhatisTrapEngravingListRecipe,
+} from './run-whatis-trap-engraving-lists.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 test('the default whatis menu preserves pager.c order and accelerators', () => {
@@ -388,6 +419,176 @@ test('monster glyph recognition includes every display.h monster family', () => 
     }
 });
 
+test('trap glyph recognition covers exactly the source trap range', () => {
+    for (let ttyp = ARROW_TRAP; ttyp < TRAPNUM; ++ttyp) {
+        // ARROW_TRAP through TRAPNUM - 1 is display.h's MAXTCHARS-wide
+        // glyph range; the inverse must recover every endpoint and interior.
+        const glyph = trap_to_glyph({ ttyp });
+        assert.equal(glyph_is_trap(glyph), true);
+        assert.equal(glyph_to_trap(glyph), ttyp);
+    }
+    const first = trap_to_glyph({ ttyp: ARROW_TRAP });
+    const last = trap_to_glyph({ ttyp: TRAPNUM - 1 });
+    assert.equal(glyph_is_trap(first - 1), false);
+    assert.equal(glyph_to_trap(last + 1), NO_GLYPH);
+});
+
+test('trap descriptions preserve synthetic trapped chest and door names', () => {
+    // An interior coordinate keeps all three descriptions on an ordinary
+    // playable square; only its attached glyph, door, and chest vary.
+    const x = 7;
+    const y = 4;
+    const chest = { otyp: CHEST, otrapped: false, nexthere: null };
+    const level = new GameMap();
+    level.objects[x][y] = chest;
+    const location = level.at(x, y);
+    location.typ = DOOR;
+    location.flags = D_TRAPPED;
+    const state = {
+        u: { ux: 1, uy: 1 },
+        // D_TRAPPED is the remembered-door mask whose synthetic glyph
+        // pager.c refines to "trapped door".
+        level,
+    };
+    location.disp_glyph = {
+        glyph: trap_to_glyph({ ttyp: TRAPPED_CHEST }, state),
+    };
+    assert.equal(
+        trap_description(TRAPPED_CHEST, x, y, state), 'trapped chest',
+    );
+    location.disp_glyph.glyph = trap_to_glyph(
+        { ttyp: TRAPPED_DOOR }, state,
+    );
+    assert.equal(
+        trap_description(TRAPPED_DOOR, x, y, state), 'trapped door',
+    );
+    location.disp_glyph.glyph = trap_to_glyph({ ttyp: ARROW_TRAP }, state);
+    assert.equal(
+        trap_description(ARROW_TRAP, x, y, state), 'arrow trap',
+    );
+});
+
+test('quoted engraving text distinguishes memory, unread text, and graves',
+    () => {
+        // An interior coordinate gives engr_at() one unambiguous list match.
+        const x = 8;
+        const y = 5;
+        const engraving = {
+            engr_x: x,
+            engr_y: y,
+            engr_txt: ['current', 'remembered', 'pristine'],
+            eread: true,
+            nxt_engr: null,
+        };
+        const state = { head_engr: engraving };
+        assert.equal(
+            add_quoted_engraving(x, y, ' (engraving', true, state),
+            ' (engraving with remembered text: "remembered"',
+        );
+        assert.equal(
+            add_quoted_engraving(x, y, ' (grave', true, state),
+            ' (grave with headstone reading: "remembered"',
+        );
+        engraving.eread = false;
+        assert.equal(
+            add_quoted_engraving(x, y, ' (engraving', true, state),
+            " (engraving that you haven't read",
+        );
+        assert.equal(
+            add_quoted_engraving(x, y, ' (grave', true, state),
+            " (grave whose headstone you haven't read",
+        );
+    });
+
+test('trap lists keep visible and obscured traps in map order', async () => {
+    const segment = loadWhatisTrapEngravingListRecipe().segments[1];
+    await runSegment({ ...segment, moves: ' ' });
+    const y = game.u.uy;
+    const visibleX = game.u.ux + 1;
+    const obscuredX = game.u.ux + 2;
+    const visible = {
+        tx: visibleX, ty: y, ttyp: ARROW_TRAP, tseen: true,
+    };
+    const obscured = {
+        tx: obscuredX, ty: y, ttyp: BEAR_TRAP, tseen: true,
+    };
+    game.level.traps = [visible, obscured];
+
+    const installGlyph = (x, glyph) => {
+        const presentation = map_glyphinfo(glyph, game);
+        const location = game.level.at(x, y);
+        location.disp_glyph = { ...presentation, glyph };
+        location.disp_ch = presentation.ch;
+        location.disp_decgfx = presentation.dec;
+        location.disp_browser_ch = presentation.displayCh;
+    };
+    installGlyph(visibleX, trap_to_glyph(visible, game));
+    installGlyph(obscuredX, cmap_to_glyph(S_room, game));
+
+    let rows;
+    game._preNhgetchHook = () => {
+        rows = game.nhDisplay.grid.map(
+            (row) => row.map(({ ch }) => ch).join('').trimEnd(),
+        );
+    };
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await look_traps(true, game);
+
+    assert.deepEqual(rows.slice(0, 5), [
+        'Nearby seen or remembered traps:',
+        '',
+        `${`<${visibleX},${y}>`.padStart(8)}  ^  arrow trap`,
+        `${`<${obscuredX},${y}>`.padStart(8)}  ^  bear trap, obscured by ·`,
+        '',
+    ]);
+});
+
+test('engraving lists use remembered grave terrain for obscured headstones',
+    async () => {
+        const segment = loadWhatisTrapEngravingListRecipe().segments[1];
+        await runSegment({ ...segment, moves: ' ' });
+        const x = game.u.ux + 1;
+        const y = game.u.uy;
+        const location = game.level.at(x, y);
+        const floor = map_glyphinfo(cmap_to_glyph(S_room, game), game);
+        location.disp_glyph = {
+            ...floor, glyph: cmap_to_glyph(S_room, game),
+        };
+        location.disp_ch = floor.ch;
+        location.disp_decgfx = floor.dec;
+        location.disp_browser_ch = floor.displayCh;
+        // SVALL is 0xFF: C admits an engraving after any nonzero seenv bit;
+        // the full mask avoids making this test about one viewing direction.
+        location.seenv = 0xFF;
+        game.level.lastseentyp[x][y] = GRAVE;
+        game.head_engr = {
+            engr_x: x,
+            engr_y: y,
+            // These three entries model current, remembered, and pristine
+            // text; look_engrs() must choose the remembered middle entry.
+            engr_txt: ['weathered', 'Rest in peace', 'Rest in peace'],
+            engr_type: HEADSTONE,
+            eread: true,
+            nxt_engr: null,
+        };
+
+        let rows;
+        game._preNhgetchHook = () => {
+            rows = game.nhDisplay.grid.map(
+                (row) => row.map(({ ch }) => ch).join('').trimEnd(),
+            );
+        };
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await look_engrs(true, game);
+
+        assert.deepEqual(rows.slice(0, 4), [
+            'Nearby seen or remembered engravings:',
+            '',
+            `${`<${x},${y}>`.padStart(8)}  |  headstone reading: "Rest in peace", obscured by ·`,
+            '',
+        ]);
+    });
+
 test('monster and object lists preserve map order and text-window cells',
     () => withSerializedGrids(async () => {
         const [segment] = loadWhatisMonsterObjectListRecipe().segments;
@@ -456,4 +657,50 @@ test('monster and object lists report an empty shown-object set',
             .map(({ ch }) => ch).join('').trimEnd();
         assert.equal(topRow(9), 'No objects are currently shown nearby.');
         assert.equal(topRow(12), 'No objects are currently shown on the map.');
+    }));
+
+test('trap and engraving list choices return through the next boundary',
+    () => withSerializedGrids(async () => {
+        const [engraved, empty] = loadWhatisTrapEngravingListRecipe().segments;
+        assert.equal(engraved.moves, TRAP_ENGRAVING_LIST_MOVES);
+        assert.equal(empty.moves, EMPTY_TRAP_LIST_MOVES);
+        const expected = [
+            // Fresh C seed 42058 includes one read obscured engraving and one
+            // unread visible engraving through all four list dismissals.
+            { screens: 29, rng: 2295 },
+            // Fresh C seed 42059 reaches both empty-trap messages.
+            { screens: 9, rng: 3022 },
+        ];
+        for (let index = 0; index < 2; ++index) {
+            let boundary;
+            const replay = await runSegment([engraved, empty][index], {
+                onBoundary: (error) => { boundary = error; },
+            });
+            assert.equal(boundary, undefined);
+            assert.equal(replay.getScreens().length, expected[index].screens);
+            assert.equal(replay.getCursors().length, expected[index].screens);
+            assert.equal(replay.getRngLog().length, expected[index].rng);
+            assert.equal(game.context.pendingCommand, undefined);
+            if (index === 0) {
+                const rows = JSON.parse(replay.getScreens()[23]).map(
+                    (row) => row.map(({ ch }) => ch).join('').trimEnd(),
+                );
+                assert.deepEqual(rows.slice(0, 5), [
+                    'Nearby seen or remembered engravings:',
+                    '',
+                    '  <58,2>  `  remembered text: "Elbereth", obscured by @',
+                    "  <66,3>  `  engraving that you haven't read",
+                    '',
+                ]);
+            } else {
+                const topRows = [3, 6].map((screen) => (
+                    JSON.parse(replay.getScreens()[screen])[0]
+                        .map(({ ch }) => ch).join('').trimEnd()
+                ));
+                assert.deepEqual(topRows, [
+                    'No traps seen or remembered nearby.',
+                    'No traps seen or remembered.',
+                ]);
+            }
+        }
     }));

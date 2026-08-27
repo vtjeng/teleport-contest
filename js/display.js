@@ -199,6 +199,7 @@ import {
     S_cloud,
     S_water,
     SYM_OFF_X,
+    defsym_to_trap,
     trap_to_defsym,
 } from './symbols.js';
 import { numeric_glyph_customization } from './glyphs.js';
@@ -1411,6 +1412,25 @@ export function glyph_to_cmap(glyph) {
     if (glyph < GLYPH_CMAP_C_OFF)
         return ((glyph - GLYPH_ZAP_OFF) % 4) + S_vbeam;
     return (glyph - GLYPH_CMAP_C_OFF) + S_digbeam;
+}
+
+// C refs: display.h GLYPH_TRAP_OFF, glyph_is_trap(), and glyph_to_trap().
+// Trap glyphs occupy the MAXTCHARS entries beginning at S_arrow_trap in the
+// cmap-B range. glyph_to_trap() returns C's NO_GLYPH sentinel outside it.
+function trapGlyphOffset() {
+    return GLYPH_CMAP_B_OFF + (S_arrow_trap - S_grave);
+}
+
+export function glyph_is_trap(glyph) {
+    const offset = trapGlyphOffset();
+    return glyph >= offset && glyph < offset + MAXTCHARS;
+}
+
+export function glyph_to_trap(glyph) {
+    if (!glyph_is_trap(glyph)) return NO_GLYPH;
+    return defsym_to_trap(
+        (glyph - trapGlyphOffset()) + S_arrow_trap,
+    );
 }
 
 // ── display.h object glyph numbers ──

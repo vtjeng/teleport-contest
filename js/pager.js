@@ -1,8 +1,8 @@
 // pager.c -- What-is and farlook descriptions.
 // C refs: pager.c self_lookat(), checkfile(), do_screen_description(),
 // do_look(), and dowhatis(). The port covers ordinary hero and terrain map
-// lookups, typed encyclopedia names, carried-item lookups, repetition, and
-// Escape.
+// lookups, typed encyclopedia names, carried-item lookups, map lists,
+// repetition, and Escape.
 
 import {
     BLINDED,
@@ -11,10 +11,13 @@ import {
     D_BROKEN,
     D_TRAPPED,
     ECMD_OK,
+    GRAVE,
     GPCOORDS_MAP,
     GPCOORDS_NONE,
     HALLUC,
     HALLUC_RES,
+    Is_airlevel,
+    Is_waterlevel,
     NEUTRAL,
     OBJ_FLOOR,
     PICK_ONE,
@@ -24,16 +27,23 @@ import {
     u_at,
 } from './const.js';
 import { pmname } from './do_name.js';
+import { trapped_chest_at, trapped_door_at } from './detect.js';
 import {
     SCORER_DEC_MAP,
+    cmap_to_glyph,
     glyph_at,
     glyph_is_cmap,
     glyph_is_monster,
     glyph_is_object,
+    glyph_is_trap,
     glyph_to_cmap,
+    glyph_to_trap,
+    engraving_to_glyph,
     map_glyphinfo,
+    trap_to_glyph,
 } from './display.js';
 import { DATA_BASE_ENTRIES } from './data_base_data.js';
+import { engr_at } from './engrave.js';
 import { fruit_from_name, makesingular } from './fruit.js';
 import { LOOK_TRADITIONAL, getpos } from './getpos.js';
 import { game } from './gstate.js';
@@ -55,6 +65,9 @@ import {
     S_brupstair,
     S_corr,
     S_darkroom,
+    S_engrcorr,
+    S_engroom,
+    S_grave,
     S_hcdbridge,
     S_litcorr,
     S_ndoor,
@@ -75,6 +88,8 @@ import {
     ttyMenuLayout,
 } from './tty_menu.js';
 import { ttyPline, ttyPutmixed } from './tty_message.js';
+import { t_at, trapname } from './trap.js';
+import { couldsee } from './vision.js';
 import { getlin, select_menu } from './windows.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
@@ -204,6 +219,12 @@ function mapCoordinate(x, y) {
     return coordinate.padStart(8);
 }
 
+function trapOrEngravingMapCoordinate(x, y) {
+    // Unlike look_all(), pager.c look_traps() and look_engrs() do not append
+    // the single-digit-y alignment space before applying the width-eight pad.
+    return `<${x},${y}>`.padStart(8);
+}
+
 // C ref: pager.c look_all(), for live monster and floor-object glyphs under
 // the default map-coordinate mode. The scan is y-major, then x-minor.
 export async function look_all(nearby, doMons, state = game) {
@@ -256,6 +277,185 @@ export async function look_all(nearby, doMons, state = game) {
             `No ${doMons ? 'monsters' : 'objects'} are currently shown ${
                 nearby ? 'nearby' : 'on the map'
             }.`,
+            state,
+        );
+    }
+}
+
+// C ref: pager.c trap_description().
+export function trap_description(ttyp, x, y, state = game) {
+    if (trapped_chest_at(ttyp, x, y, state)) return 'trapped chest';
+    if (trapped_door_at(ttyp, x, y, state)) return 'trapped door';
+    return trapname(ttyp);
+}
+
+// C ref: pager.c add_quoted_engraving(). JavaScript returns the extended
+// string because strings are immutable; an ineligible engraving returns the
+// original string, matching C's untouched buffer.
+export function add_quoted_engraving(x, y, buffer, force, state = game) {
+    const engraving = engr_at(x, y, state);
+    const floorEngraving = buffer === ' (engraving';
+    const headstone = buffer === ' (grave';
+    if (!engraving || (!floorEngraving && !headstone && !force)) return buffer;
+    if (engraving.eread) {
+        const label = headstone ? 'headstone reading' : 'remembered text';
+        const text = engraving.engr_txt?.[1] ?? '';
+        return `${buffer} with ${label}: "${text}"`;
+    }
+    const unread = headstone ? 'whose headstone' : 'that';
+    return `${buffer} ${unread} you haven't read`;
+}
+
+function assertDefaultListCoordinates(state) {
+    const coordinateMode = state.iflags?.getpos_coords ?? GPCOORDS_NONE;
+    if (coordinateMode !== GPCOORDS_NONE
+        && coordinateMode !== GPCOORDS_MAP) {
+        throw new UnsupportedWhatisError('alternate list coordinates');
+    }
+}
+
+function encodedGlyphCharacter(glyph, state) {
+    return visibleGlyphCharacter(map_glyphinfo(glyph, state));
+}
+
+function displayedGlyphCharacter(glyph, x, y, state) {
+    const location = state.level?.at(x, y);
+    if (location?.disp_browser_ch) return location.disp_browser_ch;
+    if (location?.disp_decgfx) {
+        return SCORER_DEC_MAP[location.disp_ch] ?? location.disp_ch;
+    }
+    return location?.disp_ch ?? encodedGlyphCharacter(glyph, state);
+}
+
+// C ref: pager.c look_traps(). The scan is y-major, then x-minor.
+export async function look_traps(nearby, state = game) {
+    assertDefaultListCoordinates(state);
+    const { loX, loY, hiX, hiY } = look_region_nearby(nearby, state);
+    const lines = [];
+    for (let y = loY; y <= hiY; ++y) {
+        for (let x = loX; x <= hiX; ++x) {
+            let glyph = glyph_at(x, y, state);
+            let description = '';
+            let obscuring = '';
+            if (glyph_is_trap(glyph)) {
+                description = trap_description(
+                    glyph_to_trap(glyph), x, y, state,
+                );
+            } else {
+                const trap = t_at(x, y, state);
+                if (trap?.tseen
+                    && ((!Is_waterlevel(state.u?.uz)
+                        && !Is_airlevel(state.u?.uz))
+                        || couldsee(x, y, state))) {
+                    obscuring = displayedGlyphCharacter(
+                        glyph, x, y, state,
+                    );
+                    description = `${trapname(trap.ttyp)}, obscured by `
+                        + obscuring;
+                    glyph = trap_to_glyph(trap, state);
+                }
+            }
+            if (!description) continue;
+            if (!lines.length) {
+                lines.push({
+                    text: nearby
+                        ? 'Nearby seen or remembered traps:'
+                        : 'Seen or remembered traps on this level:',
+                });
+                lines.push({ text: '    ' });
+            }
+            const symbol = encodedGlyphCharacter(glyph, state);
+            const prefix = trapOrEngravingMapCoordinate(x, y);
+            const text = `${prefix}  ${symbol}  ${description}`;
+            const glyphCells = [{ column: 10, ch: symbol }];
+            if (obscuring) {
+                glyphCells.push({
+                    column: text.length - obscuring.length,
+                    ch: obscuring,
+                });
+            }
+            lines.push({ text, glyphCells });
+        }
+    }
+    if (lines.length) {
+        await displayTtyTextWindow(state, lines);
+    } else {
+        await ttyPline(
+            `No traps seen or remembered${nearby ? ' nearby' : ''}.`, state,
+        );
+    }
+}
+
+function isCmapEngraving(index) {
+    return index === S_engroom || index === S_engrcorr;
+}
+
+// C ref: pager.c look_engrs(). The scan is y-major, then x-minor.
+export async function look_engrs(nearby, state = game) {
+    assertDefaultListCoordinates(state);
+    const { loX, loY, hiX, hiY } = look_region_nearby(nearby, state);
+    const lines = [];
+    for (let y = loY; y <= hiY; ++y) {
+        for (let x = loX; x <= hiX; ++x) {
+            const location = state.level?.at(x, y);
+            if (!location?.seenv) continue;
+            const engraving = engr_at(x, y, state);
+            if (!engraving) continue;
+            const lastSeenType = state.level?.lastseentyp?.[x]?.[y]
+                ?? location.typ;
+            const headstone = lastSeenType === GRAVE;
+            let description = add_quoted_engraving(
+                x, y, ` (${headstone ? 'grave' : 'engraving'}`, true, state,
+            );
+            if (headstone) {
+                description = description
+                    .replace('(grave with ', '')
+                    .replace('(grave whose ', '');
+            } else {
+                description = description
+                    .replace('(engraving with ', '')
+                    .replace('(engraving ', 'engraving ');
+            }
+
+            let glyph = glyph_at(x, y, state);
+            const symbol = glyph_is_cmap(glyph)
+                ? glyph_to_cmap(glyph) : null;
+            let obscuring = '';
+            if (!isCmapEngraving(symbol) && symbol !== S_grave) {
+                obscuring = displayedGlyphCharacter(
+                    glyph, x, y, state,
+                );
+                description += `, obscured by ${obscuring}`;
+                glyph = headstone
+                    ? cmap_to_glyph(S_grave, state)
+                    : engraving_to_glyph(engraving, state);
+            }
+            if (!lines.length) {
+                lines.push({
+                    text: nearby
+                        ? 'Nearby seen or remembered engravings:'
+                        : 'Seen or remembered engravings on this level:',
+                });
+                lines.push({ text: '    ' });
+            }
+            const renderedSymbol = encodedGlyphCharacter(glyph, state);
+            const prefix = trapOrEngravingMapCoordinate(x, y);
+            const text = `${prefix}  ${renderedSymbol} ${description}`;
+            const glyphCells = [{ column: 10, ch: renderedSymbol }];
+            if (obscuring) {
+                glyphCells.push({
+                    column: text.length - obscuring.length,
+                    ch: obscuring,
+                });
+            }
+            lines.push({ text, glyphCells });
+        }
+    }
+    if (lines.length) {
+        await displayTtyTextWindow(state, lines);
+    } else {
+        await ttyPline(
+            `No engravings seen or remembered${nearby ? ' nearby' : ''}.`,
             state,
         );
     }
@@ -604,6 +804,14 @@ export async function do_look(mode, clickCc = null, state = game) {
         || choice === 'o' || choice === 'O') {
         await look_all(choice === choice.toLowerCase(),
             choice.toLowerCase() === 'm', state);
+        return ECMD_OK;
+    }
+    if (choice === 't' || choice === 'T') {
+        await look_traps(choice === 't', state);
+        return ECMD_OK;
+    }
+    if (choice === 'e' || choice === 'E') {
+        await look_engrs(choice === 'e', state);
         return ECMD_OK;
     }
     if (choice !== '/')
