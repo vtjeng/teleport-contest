@@ -5352,6 +5352,11 @@
           "name": "whatis-map-getpos-hero",
           "status": "closed",
           "closedBy": "6ba6c8f52c0f083652a0595876f7919f7df5a0c2"
+        },
+        {
+          "name": "whatis-map-cursor-terrain",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "f17bfd832863f03946b1572f5e4ca2ecf5629b30",
