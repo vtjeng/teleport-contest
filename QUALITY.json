@@ -5043,7 +5043,7 @@
       "area": "objects",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "3bb21071b6d41e22508522d879ed5671e66b5afa",
       "detail": "Port getobj's queued HANDS_SYM selection as the C hands_obj sentinel and connect it through iactions.c IA_UNWIELD to wield.c dowield; validate the end-to-end queued bare-hands choice against a fresh C recording."
     },
@@ -5056,6 +5056,114 @@
       "from": "c39e9d766c5b260cbba12c1f98c5427ffa9f7641",
       "detail": "Fresh recipe scripts/fixtures/itemactions-valkyrie-dwarf-primary-menu.session.json reaches iactions.c itemactions() for the starting dwarvish spear. C includes the '/' encyclopedia row through ia_checkfile(), while js/iactions.js omits it because NetHack data.base has not been generated into a filesystem-free JS table. Port ia_checkfile() and the IA_WHATIS_OBJ route from pager.c and iactions.c, then make this strict differential pass.",
       "blockedOn": "ia_checkfile"
+    },
+    {
+      "id": "itemactions-takeoff-selected",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
+      "detail": "Port do_wear.c ia_dotakeoff and the selected armor-slot paths reached when the item-actions menu queues alttakeoff; validate each supported worn slot through the next observable boundary."
+    },
+    {
+      "id": "itemactions-adjust-split",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
+      "detail": "Port invent.c adjust_split for the item-actions Adjust arm, including stack splitting, letter assignment, cancellation, and inventory refresh through a fresh end-to-end case."
+    },
+    {
+      "id": "itemactions-dip-into",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
+      "detail": "Port potion.c dip_into for the item-actions Dip arm through the next observable prompt and result, preserving object selection and random-call order."
+    },
+    {
+      "id": "itemactions-quiver-ordinary-selection",
+      "area": "hero",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
+      "detail": "Extend wield.c doquiver_core beyond the completed hands-object clear path to ordinary item selection, counted stacks, and weapon-slot interactions; keep the separately tracked empty-fire refill branch distinct."
+    },
+    {
+      "id": "itemactions-engrave",
+      "area": "world-effects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
+      "detail": "Port the doengrave command path queued by the item-actions Engrave arm through its next observable result, including tool/object handling and input waits."
+    },
+    {
+      "id": "itemactions-organize",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
+      "detail": "Port invent.c doorganize for the item-actions Adjust inventory-letter arm, including merge and split outcomes and inventory refresh."
+    },
+    {
+      "id": "itemactions-sacrifice",
+      "area": "hero",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
+      "detail": "Port pray.c dosacrifice for the item-actions Sacrifice arm through the next observable altar result, preserving alignment, messages, state, and PRNG order."
+    },
+    {
+      "id": "itemactions-pay",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
+      "detail": "Port shk.c dopay for the item-actions Pay arm through its next observable shop interaction, preserving billing state and prompts."
+    },
+    {
+      "id": "itemactions-read",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
+      "detail": "Port read.c doread for the item-actions Read arm through the next observable result, with object-specific branches split only at explicit source boundaries."
+    },
+    {
+      "id": "itemactions-rub",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
+      "detail": "Port apply.c dorub for the item-actions Rub arm and the independently key-bound rub command through the next observable result."
+    },
+    {
+      "id": "itemactions-tip",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
+      "detail": "Port tip.c dotip for the item-actions Tip arm through the next observable container or object result, preserving prompt and inventory state."
+    },
+    {
+      "id": "itemactions-invoke",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
+      "detail": "Port artifact invocation for the item-actions Invoke arm through the next observable result, preserving cooldown, state, and PRNG order."
     }
   ],
   "areas": [

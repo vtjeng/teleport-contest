@@ -4820,7 +4820,7 @@
     },
     {
       "id": "itemactions",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero command: an unported branch of this command: feature description requires itemactions()",
       "upstreamOwners": [],
       "forecast": null,
@@ -4845,6 +4845,11 @@
           "name": "itemactions-unwield-quiver",
           "status": "closed",
           "closedBy": "cf113d6398b82f49ff54c0879bc7881e4fc37489"
+        },
+        {
+          "name": "split-remaining-arms-to-deferrals-after-zero-census",
+          "status": "closed",
+          "closedBy": "1cdb0410e0eefefd023ed89698058118408bfd59"
         }
       ],
       "openedAt": "9a935a497b2bf9c9d9a5bc35556db4b2d071213d",
@@ -4853,8 +4858,11 @@
         "screens": 2371,
         "rng": 155739
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "1cdb0410e0eefefd023ed89698058118408bfd59",
+      "delivered": {
+        "screens": 5,
+        "rng": 0
+      }
     }
   ]
 }
