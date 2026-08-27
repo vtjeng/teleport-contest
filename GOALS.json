@@ -4802,8 +4802,8 @@
       "slices": [
         {
           "name": "open-command-dispatch",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d53790e7d510ff93c8e85f7e722c4da758d0cb26"
         }
       ],
       "openedAt": "d439e707044e018802c17fade992cd96df3f0437",
