@@ -5098,6 +5098,39 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "monster-ordinary-weapon-hit-hero",
+      "status": "open",
+      "boundary": "An adjacent monster whose mattacku() AT_WEAP attack finds the hero, has a non-null ordinary MON_WEP, wins the to-hit roll, and dispatches AD_PHYS carries the hit through mhitm_ad_phys() into the existing hitmu() damage tail.",
+      "upstreamOwners": [
+        "uhitm.c",
+        "mhitu.c",
+        "weapon.c"
+      ],
+      "forecast": {
+        "steps": 3,
+        "basis": "Capped look-ahead: seed0360-wizard-world-tour cappedStretch=3 (cap-stable).",
+        "sessions": [
+          "seed0360-wizard-world-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0360-wizard-world-tour",
+            "evidence": "A female goblin wields an ordinary unpoisoned nonartifact orcish dagger. Hit value 18 beats rnd(20)=4; base d(1,4)=1 plus dmgval rnd(3)=3 gives 4. Special weapon branches do not apply; hitmsg prints the hit, knockback rejects, and mdamageu lowers HP 136 to 132. JavaScript refuses in uhitm.js."
+          }
+        ]
+      },
+      "detail": "Scope the straight-through ordinary nonfatal AD_PHYS weapon hit through existing hitmu. Preserve corpse, gauntlets, artifact, silver, pudding, rust, poison, selected knockback, fatal, other damage types, misses, ranged, and unarmed branches fail-closed.",
+      "slices": [],
+      "openedAt": "cd23d768e077fa0d1fb36bf616c58f9a7114310f",
+      "openStanding": {
+        "sha": "82e4f44b873d0c82e978aa1f3907266a6cda5ac6",
+        "screens": 2381,
+        "rng": 155996
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
