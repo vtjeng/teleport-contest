@@ -5181,7 +5181,7 @@
     },
     {
       "id": "zapnodir-directionless-wand",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
       "upstreamOwners": [],
       "forecast": {
@@ -5201,8 +5201,8 @@
       "slices": [
         {
           "name": "secret-door-detection-empty-findit",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "aae62108d973b85dafa4094d957e0e68e03e6751"
         }
       ],
       "openedAt": "a04d2e3286361690e9975f22662504c2f7626adb",
@@ -5211,8 +5211,11 @@
         "screens": 2389,
         "rng": 156028
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "aae62108d973b85dafa4094d957e0e68e03e6751",
+      "delivered": {
+        "screens": 2,
+        "rng": 38
+      }
     }
   ]
 }
