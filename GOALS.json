@@ -4754,7 +4754,7 @@
     },
     {
       "id": "cast-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "The hero types Z (cast), dispatching spell.c docast(). docast() calls getspell() to select a spell and spelleffects() to cast it.",
       "upstreamOwners": [
         "spell.c"
@@ -4786,8 +4786,11 @@
         "screens": 2365,
         "rng": 155729
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "dd579e40ae1e11e70f925e4f489291154f439359",
+      "delivered": {
+        "screens": 2,
+        "rng": 10
+      }
     }
   ]
 }
