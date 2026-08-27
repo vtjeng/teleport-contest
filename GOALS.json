@@ -5140,6 +5140,35 @@
         "screens": 6,
         "rng": 31
       }
+    },
+    {
+      "id": "really-done-mount-death",
+      "status": "open",
+      "boundary": "unsupported hero command: an unported branch of this command: really_done(0) for killer \"slipped while mounting a saddled pony\" in format 2",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 2,
+        "basis": "Capped look-ahead: seed0103-knight-ride-pony cappedStretch=2 (cap-stable).",
+        "sessions": [
+          "seed0103-knight-ride-pony"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0103-knight-ride-pony",
+            "evidence": "#ride west attempts a tame saddled pony at HP 4. rnd(20)=16 triggers the slip and rn1(5,10) uses rn2(5)=3 for 13 damage. losehp sets the format-2 killer, done normalizes HP to zero, and really_done cleans up. can_make_bones draws rn2(1)=0; the death More prompt then leads to inventory disclosure."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "77f34b9fa26510ce5dff72ac0648b3e60ac750e9",
+      "openStanding": {
+        "sha": "ada5cce419a957282b947f2827898cda095066b9",
+        "screens": 2387,
+        "rng": 156027
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
