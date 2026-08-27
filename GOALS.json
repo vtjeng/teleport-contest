@@ -5460,6 +5460,11 @@
           "name": "help-option-help",
           "status": "closed",
           "closedBy": "565edebfa44372f2e82f8bdfff634a07e2d80a9c"
+        },
+        {
+          "name": "help-key-bindings-list",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "2ff2a1b74d22e07ed41dd2a1f018cc842468d316",
