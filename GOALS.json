@@ -5020,7 +5020,7 @@
     },
     {
       "id": "monster-wield-retaliation-turn",
-      "status": "open",
+      "status": "closed",
       "boundary": "When mattackm() reaches adjacent AT_WEAP for an empty-handed monster and mon_wield_item() selects a different ordinary hand-to-hand weapon, complete that wielding turn through its nonzero return and return M_ATTK_MISS before any swing.",
       "upstreamOwners": [
         "mhitm.c",
@@ -5043,8 +5043,8 @@
       "slices": [
         {
           "name": "adjacent-retaliator-wields-ordinary-melee-weapon",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "9b2dac0fe9cc67a8888bf0c97671625502778811"
         }
       ],
       "openedAt": "9b406af116cd781f014172cde97b582c0890f98c",
@@ -5053,8 +5053,11 @@
         "screens": 2378,
         "rng": 155976
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "9b2dac0fe9cc67a8888bf0c97671625502778811",
+      "delivered": {
+        "screens": 3,
+        "rng": 20
+      }
     }
   ]
 }
