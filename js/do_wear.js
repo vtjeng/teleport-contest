@@ -15,16 +15,18 @@
 //        armoroff() (1919-2008), already_wearing() (2010-2014), canwearobj()
 //        (2029-2206), accessory_or_armor_on() (2208-2428), dowear()
 //        (2430-2450), stuck_ring() (2656-2683), unchanger() (2685-2692),
-//        select_off() (2694-2821), reset_remarm() (3012-3018),
+//        select_off() (2694-2821), do_takeoff() W_SWAPWEP arm (2823-2843),
+//        reset_remarm() (3012-3018), remarm_swapwep() (3059-3087),
 //        inaccessible_equipment() (3338-3400), equip_ok() (3402-3447),
 //        wear_ok() (3463-3468) and takeoff_ok() (3470-3475).
 //
 // do_wear.c find_ac() was ported earlier and lives in
 // js/u_init_inventory_attrs.js, beside the startup code that first calls it.
 //
-// The 'A' occupation spine -- do_takeoff(), take_off(), and
-// doddoremarm() -- is not ported. better_not_take_that_off() is ported for
-// select_off()'s glove checks. armoroff()'s
+// The 'A' occupation spine -- the other do_takeoff() arms, take_off(), and
+// doddoremarm() -- is not ported. The W_SWAPWEP arm is reached separately by
+// remarm_swapwep(). better_not_take_that_off() is ported for select_off()'s
+// glove checks. armoroff()'s
 // delayed branch at do_wear.c:1930-1972 is ported for a suit only, while
 // accessory_or_armor_on() fills all seven armor slots. Every refusal below
 // names the C function it stops in front of.
@@ -34,7 +36,9 @@ import {
     A_CON,
     A_STR,
     ACID_RES,
+    CMDQ_KEY,
     ECMD_CANCEL,
+    ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
     FACE,
@@ -48,6 +52,7 @@ import {
     GETOBJ_SUGGEST,
     HAND,
     HEAD,
+    I_SPECIAL,
     LEFT_HANDED,
     LEFT_RING,
     LEG,
@@ -74,6 +79,7 @@ import {
     W_ARMS,
     W_ARMU,
     W_RING,
+    W_SWAPWEP,
     W_TOOL,
     W_WEAPONS,
     W_WEP,
@@ -91,7 +97,7 @@ import { obj_pmname } from './do_name.js';
 import { surface } from './dungeon.js';
 import { makeplural } from './fruit.js';
 import { effective_attribute } from './attrib.js';
-import { paranoid_query, yn_function } from './cmd.js';
+import { cmdq_pop, paranoid_query, yn_function } from './cmd.js';
 import { artifact_light, set_artifact_intrinsic } from './artifacts.js';
 import { game } from './gstate.js';
 import { nomul, unmul } from './hack.js';
@@ -256,7 +262,7 @@ import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { Glib, welded } from './wield.js';
-import { bimanual, setworn } from './worn.js';
+import { bimanual, setuswapwep, setworn } from './worn.js';
 
 // Raised where do_wear.c reaches a branch this port has not translated.
 // js/cmd.js failClosedCommandRefusals() lists it, so the segment keeps every
@@ -302,24 +308,69 @@ const c_axe = 'axe';
 const c_that_ = 'that';
 
 // C ref: context.h struct takeoff_info (51-57), reached through
-// svc.context.takeoff. Only `mask` is modelled: `what` and `delay` are written
-// by do_takeoff() and `disrobing` by take_off(), all in the unported 'A'
-// spine. `cancelled_don` is written by cancel_don(), which cancel_doff() below
+// svc.context.takeoff. `mask` is used by the ordinary remove-one path and
+// `what` by remarm_swapwep()'s W_SWAPWEP call to do_takeoff(). `delay` and
+// `disrobing` belong to the unported 'A' occupation spine. `cancelled_don` is
+// written by cancel_don(), which cancel_doff() below
 // cannot reach, and by Armor_off(), which leaves it out because
 // dragon_armor_handling()'s BLUE arm is its only reader and that arm is
 // refused. Nothing outside this file reads the field, and every path through
 // dotakeoff() leaves it at 0 again.
 function takeoffContext(state) {
     state.context ??= {};
-    state.context.takeoff ??= { mask: 0 };
+    state.context.takeoff ??= { mask: 0, what: 0 };
+    state.context.takeoff.what ??= 0;
     return state.context.takeoff;
 }
 
 // C ref: do_wear.c reset_remarm() (3012-3018). C clears takeoff.what and
-// takeoff.disrobing here as well; see takeoffContext() for why neither exists.
+// takeoff.disrobing here as well; see takeoffContext() for why the latter does
+// not exist.
 // Exported for cmd.c reset_occupations(), the first caller outside this file.
 export function reset_remarm(state = game) {
-    takeoffContext(state).mask = 0;
+    const takeoff = takeoffContext(state);
+    takeoff.what = 0;
+    takeoff.mask = 0;
+}
+
+// C ref: do_wear.c do_takeoff() (2823-2843), W_SWAPWEP arm only. The general
+// 'A' occupation reaches the other slot arms; remarm_swapwep() below fixes
+// `what` to W_SWAPWEP before this call, so no other arm is live here.
+async function do_takeoff(state) {
+    const wasTwoweap = Boolean(state.u.twoweap);
+    const takeoff = takeoffContext(state);
+
+    takeoff.mask |= I_SPECIAL;
+    if (takeoff.what !== W_SWAPWEP) {
+        throw new UnsupportedTakeOffError(
+            `do_takeoff() mask ${takeoff.what}`,
+        );
+    }
+    setuswapwep(null, setwornEnv(state));
+    await ttyPline(
+        wasTwoweap
+            ? 'You are no longer wielding two weapons at once.'
+            : 'You no longer have a second weapon readied.',
+        state,
+    );
+}
+
+// C ref: do_wear.c remarm_swapwep() (3059-3087). This internal command is
+// reachable only from itemactions_pushkeys(), which queues a CMDQ_KEY '-'
+// immediately after the command row. Unlike the ordinary take-off paths, C
+// deliberately removes a cursed alternate weapon without calling cursed().
+export async function remarm_swapwep(state = game) {
+    const queued = cmdq_pop(state);
+    if (queued?.typ !== CMDQ_KEY || queued.key !== '-' || !state.uswapwep)
+        return ECMD_FAIL;
+
+    const oldbknown = state.uswapwep.bknown;
+    reset_remarm(state);
+    const takeoff = takeoffContext(state);
+    takeoff.what = takeoff.mask = W_SWAPWEP;
+    await do_takeoff(state);
+    return !state.uswapwep || state.uswapwep.bknown !== oldbknown
+        ? ECMD_TIME : ECMD_OK;
 }
 
 // C ref: do_wear.c cancel_doff() (1642-1659), supplied to setworn() through

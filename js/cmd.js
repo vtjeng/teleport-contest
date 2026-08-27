@@ -55,7 +55,7 @@ import {
     UnsupportedLevelChangeError,
 } from './do.js';
 import {
-    doputon, dotakeoff, dowear, reset_remarm,
+    doputon, dotakeoff, dowear, remarm_swapwep, reset_remarm,
     UnsupportedAccessoryOnError, UnsupportedRingOnError,
     UnsupportedTakeOffError, UnsupportedWearError,
 } from './do_wear.js';
@@ -2736,6 +2736,19 @@ export async function rhack(key, state = game) {
             const res = await failClosedCommand(
                 key, state, () => dowield(state),
             );
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'altunwield') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3825. The
+            // internal row can arrive only from itemactions_pushkeys(), and
+            // remarm_swapwep() consumes the queued '-' itself. A valid
+            // alternate weapon always answers ECMD_TIME after removing it;
+            // a missing or malformed continuation answers ECMD_FAIL.
+            const res = await remarm_swapwep(state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

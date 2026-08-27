@@ -13,11 +13,14 @@ import {
     CQ_CANNED,
     CMDQ_EXTCMD,
     CMDQ_KEY,
+    ECMD_FAIL,
     ECMD_OK,
+    ECMD_TIME,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
     GOLD_SYM,
+    LAST_PROP,
     W_ARM,
     W_ARMC,
     W_ARMF,
@@ -25,12 +28,15 @@ import {
     W_ARMH,
     W_ARMS,
     W_ARMU,
+    W_SWAPWEP,
 } from '../js/const.js';
 import {
     cmdq_add_key,
     cmdq_pop,
+    rhack,
 } from '../js/cmd.js';
 import { itemactions } from '../js/iactions.js';
+import { remarm_swapwep } from '../js/do_wear.js';
 import {
     name_ok,
     call_ok,
@@ -73,6 +79,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { monst_globals_init, PM_HUMAN } from '../js/monsters.js';
+import { GameDisplay } from '../js/game_display.js';
 import {
     armor_simple_name,
     boots_simple_name,
@@ -121,6 +128,25 @@ function fakeObj(otyp, overrides = {}) {
     };
 }
 
+function alternateWeaponState({ twoweap = false, cursed = false } = {}) {
+    const state = catalogState();
+    state.u.uprops = Array.from(
+        { length: LAST_PROP + 1 },
+        () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 }),
+    );
+    const alternate = fakeObj(DAGGER, {
+        // W_SWAPWEP is the one do_takeoff() arm this slice ports.
+        invlet: 'a', owornmask: W_SWAPWEP, cursed,
+    });
+    state.invent = alternate;
+    state.uswapwep = alternate;
+    state.u.twoweap = twoweap;
+    state.context = {};
+    state.nhDisplay = new GameDisplay(null);
+    state.program_state = {};
+    return { state, alternate };
+}
+
 // ── cmdq_add_key ──
 
 test('cmdq_add_key pushes a CMDQ_KEY node that cmdq_pop retrieves', () => {
@@ -153,6 +179,65 @@ test('itemactions queues the selected action and inventory letter', async () => 
     assert.equal(key.typ, CMDQ_KEY);
     assert.equal(key.key, 'a');
 });
+
+test('remarm_swapwep validates the queued hands key before changing state',
+    async () => {
+        const { state, alternate } = alternateWeaponState();
+
+        // do_wear.c:3071-3076 synthesizes NUL when the queue is empty. Both
+        // that key and an ordinary inventory letter fail without touching the
+        // alternate slot.
+        assert.equal(await remarm_swapwep(state), ECMD_FAIL);
+        cmdq_add_key(CQ_CANNED, 'a', state);
+        assert.equal(await remarm_swapwep(state), ECMD_FAIL);
+        assert.equal(state.uswapwep, alternate);
+        assert.equal(alternate.owornmask & W_SWAPWEP, W_SWAPWEP);
+    });
+
+test('remarm_swapwep removes even a cursed ordinary alternate weapon',
+    async () => {
+        const { state, alternate } = alternateWeaponState({ cursed: true });
+        alternate.bknown = false;
+        cmdq_add_key(CQ_CANNED, '-', state);
+
+        // do_wear.c:3078-3086 records bknown before do_takeoff(), but the
+        // W_SWAPWEP arm does not call cursed() and removes the item anyway.
+        assert.equal(await remarm_swapwep(state), ECMD_TIME);
+        assert.equal(state.uswapwep, null);
+        assert.equal(alternate.owornmask & W_SWAPWEP, 0);
+        assert.equal(alternate.bknown, false);
+        assert.equal(
+            state._pending_message,
+            'You no longer have a second weapon readied.',
+        );
+    });
+
+test('the queued alternate item action ends two-weapon combat through rhack',
+    async () => {
+        const { state, alternate } = alternateWeaponState({ twoweap: true });
+        // Two nonzero coordinates prove rhack() cleared both fields rather
+        // than leaving the previously kicked square intact.
+        state.gk = { kickedloc: { x: 7, y: 11 } };
+
+        // iactions.c:148-153 queues #altunwield and HANDS_SYM. Selecting the
+        // '-' row here exercises itemactions() -> rhack() -> remarm_swapwep()
+        // through the same canned queue as the running inventory command.
+        await itemactions(alternate, state, {
+            selectMenu: async (_state, spec) =>
+                spec.items.find(item => item.selector === '-').value,
+        });
+        await rhack(0, state);
+
+        assert.equal(state.uswapwep, null);
+        assert.equal(state.u.twoweap, false);
+        assert.equal(state.context.move, 1);
+        assert.deepEqual(state.gk.kickedloc, { x: 0, y: 0 });
+        assert.equal(cmdq_pop(state), null);
+        assert.equal(
+            state._pending_message,
+            'You are no longer wielding two weapons at once.',
+        );
+    });
 
 test('itemactions names full ring slots as fingers', async () => {
     // iactions.c:507-512 uses body_part(FINGER), not HAND. Both ring slots
