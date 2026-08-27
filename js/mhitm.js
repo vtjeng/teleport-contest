@@ -12,6 +12,8 @@ import {
     M_ATTK_DEF_DIED,
     M_ATTK_HIT,
     M_ATTK_MISS,
+    NEED_HTH_WEAPON,
+    NEED_WEAPON,
     NATTK,
     helpless,
 } from './const.js';
@@ -259,10 +261,11 @@ async function missmm(magr, mdef, mattk, env) {
 // Six arms refuse, each at the `case` label so the stop sits where C's branch
 // begins:
 //
-//   AT_WEAP  both halves need work: the ranged half is mthrowu.c thrwmm(),
-//            and the melee half needs mon_wield_item(), possibly_unwield(),
-//            mswingsm() and hitval() before it falls through to the group
-//            below it.
+//   AT_WEAP  the adjacent empty-handed arm admits only a mon_wield_item()
+//            result that spends the turn. The distant half still needs
+//            mthrowu.c thrwmm(), and the zero-result adjacent half needs
+//            possibly_unwield(), mswingsm() and hitval() before it falls
+//            through to the group below it.
 //   AT_HUGS  both of the functions this arm calls, failed_grab() and hitmm(),
 //            are in this file. It stops because no species this port places
 //            as a pet carries the attack, so porting the arm would add code
@@ -347,6 +350,17 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
 
         switch (mattk.aatyp) {
         case AT_WEAP: /* "hand to hand" attacks */
+            if (distmin(magr.mx, magr.my, mdef.mx, mdef.my) > 1)
+                unsupported('an armed monster attacking another monster');
+            if (magr.weapon_check === NEED_WEAPON || !magr.mw) {
+                magr.weapon_check = NEED_HTH_WEAPON;
+                const wieldMonsterItem = requireAttackOperation(
+                    env,
+                    'wieldMonsterItemAgainstMonster',
+                );
+                if (await wieldMonsterItem(magr, env) !== 0)
+                    return M_ATTK_MISS;
+            }
             unsupported('an armed monster attacking another monster');
             break;
 

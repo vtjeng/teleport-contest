@@ -42,6 +42,7 @@ import {
     finish_meating,
     pet_ranged_attk,
 } from './dogmove.js';
+import { capitalizedMonsterName } from './do_name.js';
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { any_light_source } from './light.js';
@@ -96,6 +97,7 @@ import {
 } from './monmove.js';
 import { select_fresh_monster_item_action } from './muse.js';
 import { newObject } from './obj.js';
+import { donameFresh } from './objnam.js';
 import {
     create_gas_cloud,
     inside_region,
@@ -134,6 +136,7 @@ import {
     select_hwep,
     select_rwep,
 } from './weapon.js';
+import { will_weld } from './wield.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 const SPECIAL_RESPONDERS = new Set([PM_SHRIEKER, PM_MEDUSA, PM_ERINYS]);
@@ -950,6 +953,46 @@ function attackHeroWithMattacku(monster, env) {
     return mattacku(monster, { ...env, throwRangedWeapon, unsupported });
 }
 
+export async function wieldMonsterItemAgainstMonster(
+    weaponUser,
+    weaponEnv,
+) {
+    const selectionEnv = {
+        ...weaponEnv,
+        touchArtifact: () => unsupported('monster artifact weapon selection'),
+    };
+    const selected = select_hwep(weaponUser, selectionEnv);
+    // This boundary admits only the empty-handed ordinary wielding turn. A
+    // current weapon continues into possibly_unwield(), and a newly welded
+    // weapon adds the welded message and discovery writes; both remain with
+    // the armed-swing continuation.
+    if (selected && weaponUser.mw)
+        unsupported('monster wield action with a current weapon');
+    if (selected?.oartifact)
+        unsupported('monster artifact weapon selection');
+    if (selected && will_weld(selected, weaponEnv.state))
+        unsupported('monster wield action with a welded weapon');
+    return mon_wield_item(weaponUser, {
+        ...selectionEnv,
+        canSeeMonster: (subject) =>
+            canSeeMonster(subject, weaponEnv.state),
+        // The planning pass mutates its cloned monster and inventory, but
+        // leaves the live terminal and object discovery state untouched. The
+        // live replay performs doname() and writes the same pline_mon() text
+        // as C.
+        wieldMessage: async (subject, obj, detail) => {
+            if (weaponEnv.planning) return;
+            await ttyPline(
+                `${capitalizedMonsterName(subject,
+                    weaponEnv.state)} wields `
+                + `${donameFresh(obj, weaponEnv.state)}`
+                + `${detail.exclaim ? '!' : '.'}`,
+                weaponEnv.state,
+            );
+        },
+    });
+}
+
 // Execute one already-preflighted monster action. The same function is used
 // by the clone-only planning pass and the live movemon() adapter.
 export async function runSimpleMonsterAction(monster, rawEnv = {}) {
@@ -1006,6 +1049,7 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                     }
                     return mon_wield_item(weaponUser, selectionEnv);
                 },
+                wieldMonsterItemAgainstMonster,
                 wakeMessage: env.planning ? () => {} : wake_msg,
                 wipeEngraving: wipeSimpleEngraving,
                 finishEating: finish_meating,

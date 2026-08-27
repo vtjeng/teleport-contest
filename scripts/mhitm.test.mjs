@@ -7,6 +7,8 @@ import {
     M_ATTK_DEF_DIED,
     M_ATTK_HIT,
     M_ATTK_MISS,
+    NEED_HTH_WEAPON,
+    NEED_WEAPON,
     NATTK,
     PIT,
 } from '../js/const.js';
@@ -656,10 +658,102 @@ test('a grab that cannot hold its target stops the attack', async () => {
     pet.data = ordinary;
 });
 
-// mhitm.c mattackm()'s six refusing arms, each at the `case` label. The
-// attack records are fabricated because no species this port can place
-// carries one of them beside a pet's melee slot; mondata.h reads the list off
-// the species record, so replacing that record is enough.
+// mhitm.c mattackm():393-410. An adjacent AT_WEAP attacker with an empty hand
+// asks mon_wield_item() for a hand-to-hand weapon. A nonzero answer means the
+// wield took the turn, so mattackm() returns before the attack roll, damage,
+// or passive response.
+test('mattackm spends an adjacent empty-handed weapon attack on wielding',
+    async () => {
+        await hero();
+        const { ax, dx, y } = battlefield(1);
+        const goblin = fixture(PM_HILL_ORC, ax, y, {
+            weapon_check: NEED_WEAPON,
+            mw: null,
+        });
+        const kitten = fixture(PM_KITTEN, dx, y, { mhp: 4, mhpmax: 4 });
+        aim(kitten);
+        const ordinary = goblin.data;
+        goblin.data = {
+            ...ordinary,
+            mattk: [
+                { aatyp: AT_WEAP, adtyp: AD_PHYS, damn: 1, damd: 4 },
+                ...ordinary.mattk.slice(1),
+            ],
+        };
+        const env = attackEnv();
+        const dagger = { otyp: 1, owornmask: 0 };
+        let calls = 0;
+        env.wieldMonsterItemAgainstMonster = async (monster) => {
+            ++calls;
+            assert.equal(monster.weapon_check, NEED_HTH_WEAPON);
+            monster.mw = dagger;
+            monster.weapon_check = NEED_WEAPON;
+            return 1;
+        };
+
+        assert.equal(await mattackm(goblin, kitten, env), M_ATTK_MISS);
+        assert.equal(calls, 1);
+        assert.equal(goblin.mw, dagger);
+        assert.equal(kitten.mhp, 4);
+        assert.deepEqual(env.bounds, []);
+        assert.deepEqual(env.lines, []);
+        goblin.data = ordinary;
+    });
+
+test('mattackm keeps every continuation past the wield turn closed',
+    async () => {
+        const cases = [
+            { name: 'distant attack', gap: 2, mw: null, result: 1, calls: 0 },
+            {
+                name: 'armed swing', gap: 1,
+                mw: { otyp: 1, owornmask: 0 },
+                weaponCheck: NEED_HTH_WEAPON,
+                result: 1, calls: 0,
+            },
+            { name: 'empty selection and damage', gap: 1, mw: null,
+                result: 0, calls: 1 },
+        ];
+        for (const row of cases) {
+            await hero();
+            const { ax, dx, y } = battlefield(row.gap);
+            const goblin = fixture(PM_HILL_ORC, ax, y, {
+                weapon_check: row.weaponCheck ?? NEED_WEAPON,
+                mw: row.mw,
+            });
+            const kitten = fixture(PM_KITTEN, dx, y);
+            aim(kitten);
+            const ordinary = goblin.data;
+            goblin.data = {
+                ...ordinary,
+                mattk: [
+                    { aatyp: AT_WEAP, adtyp: AD_PHYS, damn: 1, damd: 4 },
+                    ...ordinary.mattk.slice(1),
+                ],
+            };
+            let calls = 0;
+            const env = attackEnv();
+            env.wieldMonsterItemAgainstMonster = async () => {
+                ++calls;
+                return row.result;
+            };
+
+            await assert.rejects(
+                mattackm(goblin, kitten, env),
+                /an armed monster attacking another monster/u,
+                row.name,
+            );
+            assert.equal(calls, row.calls, row.name);
+            assert.deepEqual(env.bounds, [], row.name);
+            goblin.data = ordinary;
+        }
+    });
+
+// mhitm.c mattackm()'s five wholly refusing arms, each at the `case` label.
+// AT_WEAP has a narrow wielding-turn arm above, but its distant and armed
+// continuations still refuse separately. The attack records are fabricated
+// because no species this port can place carries one of them beside a pet's
+// melee slot; mondata.h reads the list off the species record, so replacing
+// that record is enough.
 test('mattackm stops at every attack type outside the physical group',
     async () => {
         await hero();
@@ -668,7 +762,6 @@ test('mattackm stops at every attack type outside the physical group',
         const ant = fixture(PM_GIANT_ANT, dx, y);
         aim(ant);
         const rows = [
-            [AT_WEAP, 'an armed monster attacking another monster'],
             [AT_HUGS, 'a monster crushing another monster'],
             [AT_GAZE, 'a monster gazing at another monster'],
             [AT_EXPL, 'a monster exploding at another monster'],

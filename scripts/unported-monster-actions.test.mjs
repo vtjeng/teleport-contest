@@ -96,6 +96,7 @@ import {
     runSimpleMonsterAction,
     unportedMinliquidReason,
     UnsupportedSimpleMonsterActionError,
+    wieldMonsterItemAgainstMonster,
 } from '../js/unported_monster_actions.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
@@ -2336,6 +2337,57 @@ test('simple item search refuses an artifact it cannot touch', async () => {
         );
     }
 });
+
+test('monster retaliation keeps artifact and welded selections closed',
+    async () => {
+        await prepareSelectedAction();
+        const cases = [
+            {
+                name: 'artifact',
+                reason: 'monster artifact weapon selection',
+                object: () => {
+                    const sting = monsterObject(ELVEN_DAGGER);
+                    sting.oartifact = ART_STING;
+                    return sting;
+                },
+            },
+            {
+                name: 'welded',
+                reason: 'monster wield action with a welded weapon',
+                object: () => {
+                    const dagger = monsterObject(DAGGER);
+                    dagger.cursed = true;
+                    return dagger;
+                },
+            },
+        ];
+        for (const row of cases) {
+            const monster = ordinaryMonster(PM_GNOME, 10, 10, {
+                minvent: row.object(),
+                mw: null,
+                weapon_check: NEED_HTH_WEAPON,
+            });
+            const before = structuredClone({
+                minvent: monster.minvent,
+                mw: monster.mw,
+                weapon_check: monster.weapon_check,
+            });
+            await assert.rejects(
+                wieldMonsterItemAgainstMonster(monster, {
+                    planning: true,
+                    state: game,
+                }),
+                (error) => error instanceof UnsupportedSimpleMonsterActionError
+                    && error.reason === row.reason,
+                row.name,
+            );
+            assert.deepEqual({
+                minvent: monster.minvent,
+                mw: monster.mw,
+                weapon_check: monster.weapon_check,
+            }, before, row.name);
+        }
+    });
 
 test('a pet fetching an artifact refuses instead of crashing', async () => {
     // The same fixture as the planned-pickup case below, with the dagger made
