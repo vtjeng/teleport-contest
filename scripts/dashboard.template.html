@@ -185,6 +185,7 @@ h1 {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 16px;
+  overflow: hidden;
 }
 
 canvas {
@@ -341,22 +342,12 @@ canvas {
   vertical-align: middle;
 }
 
-.status-badge {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--phase-slice-sel);
-  border: 1px solid var(--phase-slice-sel);
-  border-radius: 3px;
-  padding: 0 4px;
-  line-height: 1.5;
-  vertical-align: middle;
+.goal-table tr.in-progress td {
+  background: color-mix(in srgb, var(--phase-slice-sel) 6%, transparent);
 }
 
-.goal-num {
-  color: var(--ink-muted);
-  font-size: 10px;
-  margin-right: 4px;
+.goal-table tr.in-progress td:first-child {
+  box-shadow: inset 3px 0 0 var(--phase-slice-sel);
 }
 
 /* --- Time axis --- */
@@ -379,8 +370,15 @@ canvas {
 }
 
 .timeline-scroll {
-  max-height: 600px;
+  max-height: 620px;
   overflow-y: auto;
+}
+
+.timeline-scroll .time-axis {
+  position: sticky;
+  top: 0;
+  background: var(--surface-card);
+  z-index: 1;
 }
 </style>
 
@@ -478,7 +476,7 @@ function drawProgressChart() {
   canvas.style.height = H + 'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
-  const pad = { t: 10, r: 50, b: 36, l: 50 };
+  const pad = { t: 10, r: 70, b: 36, l: 50 };
 
   const pts = DATA.progress.filter(p => p.screens != null && p.utc);
   if (!pts.length) return;
@@ -683,7 +681,7 @@ window.addEventListener('resize', drawProgressChart);
     rowsHtml += '<div class="timeline-row"><div class="timeline-label" title="' + g.name + '">' + g.name + '</div><div class="timeline-bar-area">' + segments + '</div></div>';
   });
 
-  container.innerHTML = '<div class="time-axis">' + axisHtml + '</div><div class="timeline-scroll">' + rowsHtml + '</div>';
+  container.innerHTML = '<div class="timeline-scroll"><div class="time-axis">' + axisHtml + '</div>' + rowsHtml + '</div>';
 })();
 
 // --- Phase breakdown table ---
@@ -722,11 +720,11 @@ window.addEventListener('resize', drawProgressChart);
     }).join('') + '</div>';
 
     const auditBadge = g.audits.length > 0 ? ' <span class="audit-badge" title="' + g.audits.map(a => a.message).join('\\n').replace(/"/g, '&quot;') + '">audit</span>' : '';
-    const statusBadge = g.status === 'in-progress' ? ' <span class="status-badge">in progress</span>' : '';
 
     const deltaCell = g.screensDelta !== null && g.screensDelta !== undefined ? '+' + g.screensDelta : '-';
+    const trClass = g.status === 'in-progress' ? ' class="in-progress"' : '';
 
-    html += '<tr><td>' + screensCell + '</td><td>' + deltaCell + '</td><td>' + g.name + auditBadge + statusBadge + '</td><td>' + fmtDate(g.openTime) + '</td><td>' + g.sliceCount + '</td><td>' + fmt(g.totalMin) + '</td><td>' + fmt(g.goalSelectionMin) + '</td><td>' + fmt(g.sliceSelectionMin || 0) + '</td><td>' + fmt(g.implementationMin) + '</td><td>' + fmt(g.verificationMin) + '</td><td>' + bar + '</td></tr>';
+    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td>' + g.name + auditBadge + '</td><td>' + fmtDate(g.openTime) + '</td><td>' + g.sliceCount + '</td><td>' + fmt(g.totalMin) + '</td><td>' + fmt(g.goalSelectionMin) + '</td><td>' + fmt(g.sliceSelectionMin || 0) + '</td><td>' + fmt(g.implementationMin) + '</td><td>' + fmt(g.verificationMin) + '</td><td>' + bar + '</td></tr>';
   });
 
   html += '</tbody>';
