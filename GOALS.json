@@ -5255,8 +5255,8 @@
       "slices": [
         {
           "name": "read-command-entry-and-cancel",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "4a34d52ee4e7b11a1072f5d309e96abc6b9da540"
         }
       ],
       "openedAt": "de51b24f69acfc09b82a2a181e82517447ca84c0",
