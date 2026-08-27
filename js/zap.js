@@ -101,6 +101,7 @@ import {
     unmap_object,
     zapdir_to_glyph,
 } from './display.js';
+import { findit } from './detect.js';
 import { dropx, preflight_dropx } from './do.js';
 import { more_experienced } from './exper.js';
 import { getlin } from './windows.js';
@@ -145,6 +146,7 @@ import {
     WAN_DIGGING,
     WAN_LIGHTNING,
     WAN_MAGIC_MISSILE,
+    WAN_SECRET_DOOR_DETECTION,
     WAN_SLEEP,
 } from './objects.js';
 import {
@@ -259,14 +261,15 @@ export function zap_ok(obj) {
 
 // C ref: zap.c dozap() (2625-2683), the `z` command, translated whole.
 //
-// Two of the five effect arms stop, and each one stops after everything C does
+// One of the five effect arms stops, and it stops after everything C does
 // ahead of it has run, so the charge, the prompts and the draws that select
 // the arm all happen first:
 //
 // - backfire() throws the cursed wand up in the hero's face. The rn2 that
 //   picks it is inside the condition, so a cursed wand that does not backfire
 //   spends the draw and carries on exactly as C does.
-// - weffects() is the whole of the aimed-zap machinery below it.
+// weffects() runs the aimed-zap machinery below it and the empty
+// secret-door-detection scan.
 //
 // The self-zap arm runs and returns ECMD_TIME for a wand or spell of sleep,
 // which is the arm the recorded Healer takes. It stops only inside
@@ -1550,14 +1553,37 @@ export async function ubuzz(
     );
 }
 
+// C ref: zap.c zapnodir() (2539-2596), restricted to the wand of secret door
+// detection. Its findit() call is observable even when it finds nothing, so a
+// seen wand goes through the shared discovery tail. Every other NODIR object
+// retains the previous fail-closed boundary.
+export async function zapnodir(obj, state = game) {
+    let known = false;
+    switch (obj.otyp) {
+    case WAN_SECRET_DOOR_DETECTION:
+        known = Boolean(obj.dknown);
+        await findit(state);
+        break;
+    default:
+        throw new UnsupportedZapError(
+            'zapnodir() for a directionless wand',
+        );
+    }
+
+    if (known) {
+        if (!objectType(obj, state).oc_name_known)
+            more_experienced(0, 10, state);
+        learnwand(obj, state);
+    }
+}
+
 // C ref: zap.c weffects() (3430-3476), "called for various wand and spell
 // effects - M. Stephenson". dozap()'s final else is its ported caller, so
 // `obj` is a wand the hero aimed or a wand with no direction at all.
 //
-// Only the ray arm at 3463-3465 runs. `disclose` is what turns the wand into
-// "a wand of fire" in the discoveries once its effect has been seen, and the
-// ray arm is the one that sets it, so the learnwand() below is reached only
-// after a bolt has resolved.
+// The ray arm at 3463-3465 and the secret-door-detection part of the NODIR arm
+// run. `disclose` turns a ray wand into "a wand of fire" after its effect has
+// been seen. zapnodir() owns the equivalent discovery tail for its wand.
 //
 // hack.h:1477 BZ_OFS_WAN(otyp) is `abs(otyp - WAN_MAGIC_MISSILE) % 10` and
 // :1480 BZ_U_WAND(bztyp) is `0 + bztyp`, so the six ray wands become dobuzz()
@@ -1587,7 +1613,7 @@ export async function weffects(
             'zapsetup() and the immediate-wand arm of weffects()',
         );
     } else if (oc_dir === NODIR) {
-        throw new UnsupportedZapError('zapnodir() for a directionless wand');
+        await zapnodir(obj, state);
     } else {
         /* neither immediate nor directionless */
 

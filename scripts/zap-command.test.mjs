@@ -29,6 +29,7 @@ import {
     WAND_CLASS,
     WAN_DIGGING,
     WAN_LIGHT,
+    WAN_SECRET_DOOR_DETECTION,
     WAN_SLEEP,
     objects_globals_init,
 } from '../js/objects.js';
@@ -481,6 +482,59 @@ test('a NODIR wand is never asked which way to point', async () => {
     assert.deepEqual(getRngLog(), ['rn2(19)=3']);
 });
 
+test('a secret-door-detection wand reports an empty findit result', async () => {
+    // The starting room on seed 7830001 has no findone() discovery within the
+    // visible BOLT_LIM area. Reusing its Healer inventory supplies the real
+    // getobj(), charge, weffects(), zapnodir(), and dozap() cleanup path.
+    const wand = await heroCarryingWand({
+        otyp: WAN_SECRET_DOOR_DETECTION,
+        spe: 4,
+        dknown: true,
+    });
+    // The selected development boundary already knows the wand type. Keeping
+    // this catalog row known makes zapnodir() take observe_object(), not the
+    // second exercise(A_WIS, TRUE) that a newly discovered type would spend.
+    game.objects[WAN_SECRET_DOOR_DETECTION].oc_name_known = 1;
+    typeAtPrompts(HEALER_WAND);
+    initRng(49);
+    enableRngLog();
+
+    assert.equal(await dozap(game), ECMD_TIME);
+    assert.equal(wand.spe, 3);
+    assert.equal(game.current_wand, null);
+    assert.equal(pendingTopLine(), "You don't find anything.");
+    // attrib.c exercise(A_WIS, TRUE) is the command's only draw. Seed 49 puts
+    // 3 under its rn2(19); findit() itself draws nothing on an empty scan.
+    assert.deepEqual(getRngLog(), ['rn2(19)=3']);
+});
+
+test('empty secret-door detection discovers a seen unknown wand', async () => {
+    // zapnodir() treats findit()'s feedback as observable even when its count
+    // is zero. A seen wand therefore takes the shared learnwand() tail after
+    // the scan and discovers its catalog row.
+    const wand = await heroCarryingWand({
+        otyp: WAN_SECRET_DOOR_DETECTION,
+        spe: 4,
+        dknown: true,
+    });
+    game.objects[WAN_SECRET_DOOR_DETECTION].oc_name_known = 0;
+    game.objects[WAN_SECRET_DOOR_DETECTION].oc_encountered = 0;
+    typeAtPrompts(HEALER_WAND);
+    initRng(49);
+    enableRngLog();
+
+    assert.equal(await dozap(game), ECMD_TIME);
+    assert.equal(wand.spe, 3);
+    assert.equal(game.objects[WAN_SECRET_DOOR_DETECTION].oc_name_known, 1);
+    assert.equal(game.objects[WAN_SECRET_DOOR_DETECTION].oc_encountered, 1);
+    assert.equal(game.current_wand, null);
+    assert.equal(pendingTopLine(), "You don't find anything.");
+    // weffects() exercises Wisdom first. learnwand() then reaches makeknown(),
+    // whose discover_object() exercises it again; seed 49 supplies both
+    // source-bounded rn2(19) results in that order.
+    assert.deepEqual(getRngLog(), ['rn2(19)=3', 'rn2(19)=16']);
+});
+
 test('a wand with no charge left says so and crumbles', async () => {
     // zap.c:2645-2646 and the tail at 2677-2679. zappable() answers 0 for a
     // wand already past its last charge, so the direction prompt never opens:
@@ -931,9 +985,10 @@ test('every zap refusal names a zap.c function the port has not ported',
             // the shop door.
             'dobuzz', 'rnd_hallublast', 'dobuzz', 'dobuzz', 'dobuzz',
             'ureflects', 'flashburn', 'Is_airlevel', 'pay_for_damage',
-            // weffects(): the steed, the immediate wand, the directionless
-            // wand, digging, a cast spell, and C's own impossible().
-            'zap_steed', 'zapsetup', 'zapnodir', 'zap_dig', 'ubuzz',
+            // zapnodir() retains its default for the other directionless
+            // types. weffects() then retains the steed, immediate wand,
+            // digging, cast spell, and C impossible() refusals.
+            'zapnodir', 'zap_steed', 'zapsetup', 'zap_dig', 'ubuzz',
             'weffects',
         ],
     );

@@ -1,15 +1,17 @@
 // detect.js — searching and discovery.
-// C ref: detect.c dosearch0(), dosearch(), mfind0(), cvt_sdoor_to_door(), and
-// find_trap().
+// C ref: detect.c dosearch0(), dosearch(), mfind0(), cvt_sdoor_to_door(),
+// find_trap(), and findit()'s empty-result path.
 
 import {
     A_WIS,
     BLINDED,
+    BOLT_LIM,
     CORR,
     DOOR,
     D_CLOSED,
     D_LOCKED,
     D_NODOOR,
+    D_TRAPPED,
     ECMD_OK,
     ECMD_TIME,
     GPCOORDS_COMFULL,
@@ -19,6 +21,8 @@ import {
     GPCOORDS_SCREEN,
     HALLUC,
     HALLUC_RES,
+    Is_airlevel,
+    Is_waterlevel,
     M_AP_TYPE,
     SCORR,
     SDOOR,
@@ -33,6 +37,7 @@ import {
     back_to_glyph,
     cls,
     docrt,
+    glyph_is_invisible,
     hero_glyph_info,
     map_glyphinfo,
     newsym,
@@ -54,6 +59,7 @@ import { nomul } from './hack.js';
 import { hides_under, is_hider } from './mondata.js';
 import { S_EEL } from './monsters.js';
 import { m_at } from './monst.js';
+import { isBox } from './obj.js';
 import { LENSES } from './objects.js';
 import { visible_region_at } from './region.js';
 import { rn2, rnl } from './rng.js';
@@ -63,14 +69,9 @@ import {
     dismissPendingTtyMessage,
     ttyPline,
 } from './tty_message.js';
-import { seenv_matrix, vision_reset } from './vision.js';
+import { do_clear_area, seenv_matrix, vision_reset } from './vision.js';
 
-/**
- * A branch of detect.c dosearch0() or mfind0() which this port does not own
- * yet.  js/cmd.js converts it into the retryable command boundary, which is
- * sound only because every one of these is decided before the search loop
- * draws its first rnl().
- */
+/** A branch of detect.c discovery which this port does not own yet. */
 export class UnsupportedSearchError extends Error {
     constructor(message) {
         super(message);
@@ -666,6 +667,101 @@ export function cvt_sdoor_to_door(location, state = game) {
     location.doormask = newmask;
     location.candig = false;
     return location;
+}
+
+function trappedBoxInChain(first, nextKey) {
+    for (let object = first; object; object = object[nextKey] ?? null) {
+        if (isBox(object) && object.otrapped) return true;
+        if (object.cobj && trappedBoxInChain(object.cobj, 'nobj')) return true;
+    }
+    return false;
+}
+
+function trappedBuriedBoxAt(x, y, state) {
+    for (let object = state.level?.buriedobjlist ?? null;
+        object;
+        object = object.nobj ?? null) {
+        if (object.ox !== x || object.oy !== y) continue;
+        if ((isBox(object) && object.otrapped)
+            || (object.cobj && trappedBoxInChain(object.cobj, 'nobj'))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// C ref: detect.c findone(), restricted to its no-discovery result. Any
+// square which would reveal terrain, a trap, an object, a monster, or stale
+// map memory stops before findone() performs the first mutation.
+function preflightEmptyFindone(x, y, state) {
+    const location = state.level.at(x, y);
+    let monster = m_at(x, y, state);
+    if (monster && (monster.mhp < 1 || (monster.isgd && !monster.mx)))
+        monster = null;
+
+    const trap = t_at(x, y, state);
+    const doorMask = location.flags || location.doormask || 0;
+    const floorObjects = state.level.objects?.[x]?.[y] ?? null;
+    const trappedObject = trappedBoxInChain(floorObjects, 'nexthere')
+        || trappedBuriedBoxAt(x, y, state)
+        || (monster && trappedBoxInChain(monster.minvent, 'nobj'))
+        || (x === state.u.ux && y === state.u.uy
+            && trappedBoxInChain(state.invent, 'nobj'));
+    const spottedMonster = monster && canSpotMonster(monster, state);
+    const appearance = M_AP_TYPE(monster);
+    const examineMonster = monster
+        && (!spottedMonster || monster.mundetected || appearance);
+    const invisibleRemembered = glyph_is_invisible(
+        location.remembered_glyph?.glyph,
+    );
+    const hiddenMonster = examineMonster
+        && (appearance
+            || (monster.mundetected
+                && (is_hider(monster.data) || hides_under(monster.data)
+                    || monster.data?.mlet === S_EEL))
+            || (!invisibleRemembered && !spottedMonster));
+    const staleInvisible = !examineMonster && invisibleRemembered;
+
+    if (location.typ === SDOOR || location.typ === SCORR
+        || (trap && !trap.tseen && trap.ttyp !== STATUE_TRAP)
+        || (closedDoor(location) && (doorMask & D_TRAPPED))
+        || trappedObject || hiddenMonster || staleInvisible) {
+        throw new UnsupportedSearchError(
+            'findone() discovery is not ported',
+        );
+    }
+}
+
+function closedDoor(location) {
+    const mask = location.flags || location.doormask || 0;
+    return location.typ === DOOR && Boolean(mask & (D_LOCKED | D_CLOSED));
+}
+
+// C ref: detect.c findit(), restricted to the result where findone() finds no
+// secret terrain, trap, trapped container, hidden monster, or stale invisible
+// marker anywhere in the BOLT_LIM scan.
+export async function findit(state = game, rawEnv = {}) {
+    if (state.u.uswallow) return 0;
+    if (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)) {
+        // vision.c do_clear_area() overrides normal visibility for magical
+        // detection on these two levels; the shared JS traversal does not.
+        throw new UnsupportedSearchError(
+            'findit() detection through air or water is not ported',
+        );
+    }
+    const clearArea = rawEnv.clearArea ?? do_clear_area;
+    clearArea(
+        state.u.ux,
+        state.u.uy,
+        BOLT_LIM,
+        (x, y) => preflightEmptyFindone(x, y, state),
+        null,
+        state,
+    );
+    const message = rawEnv.message
+        ?? ((text) => ttyPline(text, state));
+    await message("You don't find anything.");
+    return 0;
 }
 
 function indefinite(name) {
