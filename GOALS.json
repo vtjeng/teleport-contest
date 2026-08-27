@@ -5360,8 +5360,8 @@
         },
         {
           "name": "whatis-typed-inventory-lookup",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "4a7f0182d59ae8ae04c7756e2e6ab2011ec20fe0"
         }
       ],
       "openedAt": "f17bfd832863f03946b1572f5e4ca2ecf5629b30",
