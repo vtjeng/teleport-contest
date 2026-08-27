@@ -693,7 +693,7 @@ window.addEventListener('resize', drawProgressChart);
 (function() {
   document.getElementById('tableLegend').innerHTML = phases.map(p =>
     '<div class="legend-item"><div class="legend-swatch" style="background:var(' + p.cssVar + ')"></div>' + p.label + '</div>'
-  ).join('');
+  ).join('') + '<div class="legend-item"><span class="audit-badge">audit</span> code review during goal</div>';
 
   const table = document.getElementById('goalTable');
   const allGoals = [...DATA.goals].reverse();
