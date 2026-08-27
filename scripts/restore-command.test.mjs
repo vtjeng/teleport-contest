@@ -120,6 +120,19 @@ test('save-then-restore round trip produces welcome-back and full-moon messages'
         storage.getItem('vfs:nhsave') !== null,
         'save file must exist in storage after segment 0',
     );
+    // Give every substantive overview family a distinctive value before the
+    // restore. A coordinate-only assertion would pass if restoration dropped
+    // all of these fields.
+    const savedSnapshot = JSON.parse(storage.getItem('vfs:nhsave'));
+    const savedOverview = savedSnapshot.mapseenchn.find((entry) =>
+        entry.lev.dnum === savedSnapshot.u.uz.dnum
+        && entry.lev.dlevel === savedSnapshot.u.uz.dlevel);
+    savedOverview.feat.nfount = 2;
+    savedOverview.flags.bigroom = 1;
+    savedOverview.msrooms[0] = { seen: 1, untended: 1 };
+    savedOverview.custom = 'distinct overview';
+    savedOverview.custom_lth = savedOverview.custom.length;
+    storage.setItem('vfs:nhsave', JSON.stringify(savedSnapshot));
 
     // Segment 1: restore. The moves 'i ' are: 'i' to dismiss the
     // welcome --More-- prompt, then space to dismiss the full moon
@@ -149,12 +162,7 @@ test('save-then-restore round trip produces welcome-back and full-moon messages'
         'u.uy must be a positive number after restore',
     );
     // restoregamestate() restores the overview chain before gameplay resumes.
-    assert.equal(
-        game.svm.mapseenchn.some((entry) =>
-            entry.lev.dnum === game.u.uz.dnum
-            && entry.lev.dlevel === game.u.uz.dlevel),
-        true,
-    );
+    assert.deepEqual(game.svm.mapseenchn, savedSnapshot.mapseenchn);
 
     // Check that the save file was deleted after successful restore
     // (C ref: dorecover():904 delete_savefile).

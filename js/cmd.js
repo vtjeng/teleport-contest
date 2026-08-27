@@ -1826,7 +1826,8 @@ async function runQuaffCommand(key, state) {
 
 // C ref: read.c doread(). Like dodrink() it returns its own ECMD_* result:
 // ECMD_OK for the capacity refusal and ECMD_CANCEL for an escaped object
-// prompt. A selected object stops inside doread() until its effect is ported.
+// prompt. A known uncursed magic-mapping scroll completes; other selected
+// objects stop inside doread() until their effects are ported.
 async function runReadCommand(key, state) {
     return failClosedCommand(key, state, () => doread(state));
 }
@@ -2184,6 +2185,16 @@ async function doextcmd(key, state) {
         return await runSearchCommand(key, state);
     case 'doeat':
         return await runEatCommand(key, state);
+    case 'doengrave':
+        return await runEngraveCommand(key, state);
+    case 'dowhatis':
+        return await runWhatisCommand(key, state);
+    case 'doread':
+        return await runReadCommand(key, state);
+    case 'dowieldquiver':
+        return await failClosedCommand(
+            key, state, () => dowieldquiver(state),
+        );
     case 'doapply':
         return await runApplyCommand(key, state);
     case 'dozap':

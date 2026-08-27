@@ -56,6 +56,7 @@ import { SCROLL_CLASS, SCR_MAGIC_MAPPING, SPBOOK_CLASS } from './objects.js';
 import { objectType } from './obj.js';
 import { exercise } from './attrib.js';
 import { do_mapping } from './detect.js';
+import { Is_special } from './dungeon.js';
 import { discover_object } from './o_init.js';
 import { rn2 } from './rng.js';
 import { ttyPline } from './tty_message.js';
@@ -105,6 +106,7 @@ export async function doread(state = game) {
         || !can_chant(state.youmonst, state)
         || state.level?.flags?.nommap
         || !state.level?.flags?.hero_memory
+        || Is_special(state.u?.uz, state)
         || state.u?.uinwater || state.u?.uburied || state.u?.uswallow) {
         throw new UnsupportedReadError('the selected readable object branch');
     }

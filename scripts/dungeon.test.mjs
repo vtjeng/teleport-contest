@@ -17,11 +17,13 @@ import {
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
     FLYING,
+    FOUNTAIN,
     GRAVE,
     ICE,
     LAVAPOOL,
     LAVAWALL,
     LEVITATION,
+    M_AP_FURNITURE,
     MOAT,
     POOL,
     ROOM,
@@ -30,6 +32,7 @@ import {
     SHOPBASE,
     STAIRS,
     STONE,
+    SVALL,
     TEMPLE,
     VAULT,
     VWALL,
@@ -41,6 +44,7 @@ import {
     Invocation_lev,
     ceiling,
     depth,
+    find_mapseen,
     find_level,
     induced_align,
     init_mapseen,
@@ -51,6 +55,7 @@ import {
     level_range,
     maxledgerno,
     on_level,
+    recalc_mapseen,
     surface,
     u_on_newpos,
     UnsupportedEarthSenseError,
@@ -60,6 +65,7 @@ import {
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import { PM_DWARF, PM_GNOME } from '../js/monsters.js';
+import { S_altar } from '../js/symbols.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
     parseDungeonSource,
@@ -224,6 +230,64 @@ test('update_mapseen_for reads one square and refreshes the hero\'s own', () => 
     state.u.uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     update_mapseen_for(5, 4, state);
     assert.equal(state.level.lastseentyp[4][4], CORR);
+});
+
+test('init_mapseen sorts records without erasing the departing map', () => {
+    const state = resetGame();
+    state.level = new GameMap();
+    state.level.lastseentyp = [[FOUNTAIN]];
+
+    init_mapseen({ dnum: 1, dlevel: 2 }, state);
+    init_mapseen({ dnum: 0, dlevel: 3 }, state);
+    init_mapseen({ dnum: 0, dlevel: 1 }, state);
+
+    assert.deepEqual(
+        state.svm.mapseenchn.map(({ lev }) => lev),
+        [
+            { dnum: 0, dlevel: 1 },
+            { dnum: 0, dlevel: 3 },
+            { dnum: 1, dlevel: 2 },
+        ],
+    );
+    assert.equal(state.level.lastseentyp[0][0], FOUNTAIN);
+    assert.equal(new GameMap().lastseentyp, undefined,
+        'a separately allocated destination owns its clear remembered grid');
+});
+
+test('recalc_mapseen takes altar alignment from mimics and Astral sight', () => {
+    const state = resetGame();
+    state.level = new GameMap();
+    state.u = {
+        ux: 1,
+        uy: 1,
+        uz: { dnum: 0, dlevel: 1 },
+        uprops: [],
+        urooms: [0],
+    };
+    init_mapseen(state.u.uz, state);
+    state.level.lastseentyp = Array.from(
+        { length: 80 }, () => new Array(21).fill(STONE),
+    );
+    state.level.lastseentyp[5][5] = ALTAR;
+    state.level.at(5, 5).typ = ROOM;
+    state.level.at(5, 5).seenv = SVALL;
+    state.level.monsters[5][5] = {
+        m_ap_type: M_AP_FURNITURE,
+        mappearance: S_altar,
+        mextra: { mcorpsenm: AM_LAWFUL },
+    };
+
+    recalc_mapseen(state);
+    const mapseen = find_mapseen(state.u.uz, state);
+    assert.equal(mapseen.feat.naltar, 1);
+    assert.equal(mapseen.feat.msalign, 3,
+        'Amask2msa converts lawful mask 4 to packed value 3');
+
+    state.astral_level = { ...state.u.uz };
+    state.level.at(5, 5).seenv = 1;
+    recalc_mapseen(state);
+    assert.equal(mapseen.feat.msalign, 0,
+        'a partially seen Astral altar does not reveal alignment');
 });
 
 test('induced_align short-circuits special, dungeon, then random masks', () => {

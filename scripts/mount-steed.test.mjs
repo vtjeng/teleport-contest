@@ -542,7 +542,7 @@ test('a slip that kills carries the killer string x_monnam built', async () => {
         state.nhDisplay.pushKey(' '.charCodeAt(0));
         return pony;
     });
-    assert.ok(error instanceof UnsupportedEndOfGameError);
+    assert.match(error?.message ?? '', /Input queue empty/u);
     // hack.c:4284-4285 copies knam into svk.killer.name under the format the
     // caller chose; steed.c:354 passes NO_KILLER_PREFIX so the tombstone would
     // read the string exactly as x_monnam() built it.

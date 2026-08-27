@@ -528,9 +528,13 @@ export async function done(how, state = game) {
             return;
         }
     }
+    // steed.c constructs every failed-mount death from this fixed semantic
+    // prefix followed by x_monnam(), so the species and optional given name
+    // are deliberately variable. This slice owns that death source, not one
+    // recorded pony spelling.
     if (how === DIED
-        && killer.name === 'slipped while mounting a saddled pony'
-        && killer.format === NO_KILLER_PREFIX) {
+        && killer.format === NO_KILLER_PREFIX
+        && killer.name.startsWith('slipped while mounting ')) {
         await really_done(how, state);
         return;
     }

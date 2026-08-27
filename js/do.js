@@ -89,6 +89,7 @@ import {
     next_level,
     on_level,
     prev_level,
+    recalc_mapseen,
     set_dunlev_reached,
     u_on_newpos,
     u_on_rndspot,
@@ -1206,12 +1207,9 @@ export async function goto_level(
     u.uundetected = false;
     if (!state.iflags?.nofollowers) keepdogs(false, { state });
 
-    // do.c:1625 recalc_mapseen(), which refreshes the #overview annotation for
-    // the level being left. This port keeps no mapseen chain -- nothing
-    // creates one and nothing reads one -- so the whole function, including
-    // its update_lastseentyp() call for the hero's own square, has no
-    // counterpart here. It writes no message, draws no cell and draws no
-    // random number.
+    // do.c:1625 refreshes the departing level's overview before savelev()
+    // stores the level itself.
+    recalc_mapseen(state);
 
     vision_recalc(2, { state });
 
@@ -1472,10 +1470,9 @@ export async function goto_level(
     notice_mon_on(state);
     await notice_all_mons(true, state);
 
-    // do.c:1974 print_level_annotation() prints the hero's own #annotate note
-    // for this level. The port keeps no mapseen chain, so get_annotation()
-    // has nothing to answer with; js/do.js records the same gap for
-    // recalc_mapseen() above.
+    // do.c:1974 print_level_annotation() prints the hero's own #annotate note.
+    // The canonical mapseen chain exists, but annotation input and rendering
+    // remain outside this ordinary descent slice.
     await check_special_room(false, state); /* give room entrance message */
     obj_delivery(true, state); /* deliver objects traveling with player */
 

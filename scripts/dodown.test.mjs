@@ -18,6 +18,7 @@ import {
     DIR_W,
     ECMD_OK,
     ECMD_TIME,
+    FOUNTAIN,
     HOLE,
     LEVITATION,
     LFILE_EXISTS,
@@ -29,7 +30,7 @@ import {
 } from '../js/const.js';
 import { set_move_cmd } from '../js/cmd.js';
 import { UnsupportedLevelChangeError, dodown } from '../js/do.js';
-import { ledger_no, level_info } from '../js/dungeon.js';
+import { find_mapseen, ledger_no, level_info } from '../js/dungeon.js';
 import { u_rooted } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -319,6 +320,37 @@ test('goto_level() discards the context belonging to the level being left',
     assert.equal(state.u.uundetected, false);
     // move_update(TRUE) at the head of check_special_room().
     assert.deepEqual([...state.u.urooms], [0, 0, 0, 0, 0]);
+});
+
+test('goto_level refreshes and preserves the departing level overview',
+    async () => {
+    const state = await heroOnDownStairs();
+    const departed = { ...state.u.uz };
+    const departedLedger = ledger_no(departed, state);
+    const mapseen = find_mapseen(departed, state);
+    assert.ok(mapseen, 'the generated source level has an overview record');
+
+    // Model a remembered feature learned since the prior recalculation. C's
+    // source-ordered recalc_mapseen() must count it before savelev().
+    state.level.lastseentyp ??= [];
+    state.level.lastseentyp[1] ??= [];
+    state.level.lastseentyp[1][1] = FOUNTAIN;
+    mapseen.feat.nfount = 0;
+
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    await dodown(state);
+
+    assert.equal(mapseen.feat.nfount, 1);
+    assert.equal(
+        state._savedLevels[departedLedger].level.lastseentyp[1][1],
+        FOUNTAIN,
+        'initializing destination mapseen must not erase saved source memory',
+    );
+    assert.notEqual(
+        state.level.lastseentyp,
+        state._savedLevels[departedLedger].level.lastseentyp,
+        'the destination and saved source own separate remembered grids',
+    );
 });
 
 test('goto_level() settles a boulder into the pit it is leaving', async () => {

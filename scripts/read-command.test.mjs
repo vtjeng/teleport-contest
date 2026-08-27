@@ -196,10 +196,52 @@ test('an uncursed magic-mapping scroll maps the ordinary level and is used up',
         entry.lev.dnum === game.u.uz.dnum
         && entry.lev.dlevel === game.u.uz.dlevel);
     assert.equal(mapseen.msrooms[mappedRoom.index].seen, 1);
-    assert.deepEqual(Object.keys(mapseen.feat).sort(), [
-        'ice', 'lava', 'msalign', 'naltar', 'nfount', 'ngrave', 'nshop',
-        'nsink', 'ntemple', 'nthrone', 'ntree', 'shoptype', 'water',
-    ]);
+    assert.deepEqual(mapseen.feat, {
+        nfount: 0,
+        nsink: 0,
+        naltar: 0,
+        nthrone: 0,
+        ngrave: 0,
+        ntree: 0,
+        water: 0,
+        lava: 0,
+        ice: 0,
+        nshop: 0,
+        ntemple: 0,
+        msalign: 0,
+        shoptype: 0,
+    });
+});
+
+test('magic mapping fails closed on an unsupported special level', async () => {
+    const segment = {
+        ...loadReadMagicMappingRecipe().segments[0], moves: MAP_READ_WAIT,
+    };
+    await runSegment(segment);
+    let scroll = game.invent;
+    while (scroll && scroll.otyp !== SCR_MAGIC_MAPPING) scroll = scroll.nobj;
+    assert.ok(scroll, 'the fixed fixture carries its mapping scroll');
+    game.specialLevels.push({ dlevel: { ...game.u.uz }, flags: {} });
+    const before = {
+        pickup_prev: scroll.pickup_prev,
+        in_use: scroll.in_use,
+        literate: game.u.uconduct.literate,
+    };
+    game.nhDisplay.pushKey(MAP_READ_LETTER.charCodeAt(0));
+
+    await assert.rejects(
+        () => doread(game),
+        /selected readable object branch/u,
+    );
+    assert.deepEqual({
+        pickup_prev: scroll.pickup_prev,
+        in_use: scroll.in_use,
+        literate: game.u.uconduct.literate,
+    }, before);
+    assert.equal(
+        inventorySnapshot().some((obj) => obj.otyp === SCR_MAGIC_MAPPING),
+        true,
+    );
 });
 
 test('magic mapping remains consumed and mapped through the next command',

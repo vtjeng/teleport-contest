@@ -13,6 +13,7 @@ import {
     GETOBJ_SUGGEST,
     M_SEEN_SLEEP,
     ROOMOFFSET,
+    SDOOR,
     SLEEP_RES,
     W_ARMH,
 } from '../js/const.js';
@@ -506,6 +507,28 @@ test('a secret-door-detection wand reports an empty findit result', async () => 
     // attrib.c exercise(A_WIS, TRUE) is the command's only draw. Seed 49 puts
     // 3 under its rn2(19); findit() itself draws nothing on an empty scan.
     assert.deepEqual(getRngLog(), ['rn2(19)=3']);
+});
+
+test('a findit refusal clears the transient current wand', async () => {
+    const wand = await heroCarryingWand({
+        otyp: WAN_SECRET_DOOR_DETECTION,
+        spe: 4,
+        dknown: true,
+    });
+    game.objects[WAN_SECRET_DOOR_DETECTION].oc_name_known = 1;
+    const hidden = game.level.at(game.u.ux + 1, game.u.uy);
+    hidden.typ = SDOOR;
+    typeAtPrompts(HEALER_WAND);
+    initRng(49);
+    enableRngLog();
+
+    await assert.rejects(
+        () => dozap(game),
+        /findone\(\) discovery is not ported/u,
+    );
+    assert.equal(wand.spe, 3, 'zappable spent the charge before the effect');
+    assert.equal(game.current_wand, null);
+    assert.equal(hidden.typ, SDOOR, 'the fail-closed preflight changed nothing');
 });
 
 test('empty secret-door detection discovers a seen unknown wand', async () => {

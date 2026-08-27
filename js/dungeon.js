@@ -36,6 +36,7 @@ import {
     LEVITATION,
     LR_DOWNTELE,
     LR_UPTELE,
+    MCORPSENM,
     M_AP_FURNITURE,
     M_AP_TYPMASK,
     MAXNROFROOMS,
@@ -52,12 +53,14 @@ import {
     SHOPBASE,
     SINK,
     STONE,
+    SVALL,
     TEMPLE,
     THRONE,
     TREE,
     Upolyd,
     VAULT,
     VISITED,
+    has_mcorpsenm,
     isok,
 } from './const.js';
 import { PM_DWARF } from './monsters.js';
@@ -1744,14 +1747,31 @@ export function init_mapseen(lev, state = game) {
     if (after < 0) state.svm.mapseenchn.push(entry);
     else state.svm.mapseenchn.splice(after, 0, entry);
 
-    // svl.lastseentyp is reused between levels. Undefined is the port's lazy
-    // representation of C's all-STONE grid.
-    if (state.level) state.level.lastseentyp = undefined;
+    // C clears the separate live svl.lastseentyp grid for the destination.
+    // The port's destination GameMap is newly allocated and starts clear;
+    // mutating state.level here would instead erase the departing GameMap
+    // that savelev() has already retained by reference.
     return entry;
 }
 
 function incrementMapseenFeature(feat, key) {
     if (feat[key] < 3) feat[key] += 1;
+}
+
+// C ref: pray.c altarmask_at() (2490-2504). The remembered ALTAR type can
+// come from a visible furniture mimic even when the underlying terrain is not
+// an altar, so alignment must follow the mimic's mcorpsenm overlay too.
+function altarmask_at(x, y, state) {
+    const monster = state.level?.monsters?.[x]?.[y] ?? null;
+    if (monster
+        && (monster.m_ap_type & M_AP_TYPMASK) === M_AP_FURNITURE
+        && cmap_to_type(monster.mappearance) === ALTAR) {
+        return has_mcorpsenm(monster) ? MCORPSENM(monster) : 0;
+    }
+    const location = state.level?.at(x, y);
+    return IS_ALTAR(location?.typ)
+        ? location.altarmask ?? location.flags ?? 0
+        : 0;
 }
 
 function count_feat_lastseentyp(mapseen, x, y, state) {
@@ -1773,8 +1793,11 @@ function count_feat_lastseentyp(mapseen, x, y, state) {
         break;
     case ALTAR: {
         const location = state.level.at(x, y);
-        const mask = location?.altarmask ?? location?.flags ?? 0;
-        const alignment = (mask & AM_MASK) === 4 ? 3 : mask & AM_MASK;
+        const mask = altarmask_at(x, y, state);
+        const astral = on_level(state.u?.uz, state.astral_level);
+        const alignment = astral && (location?.seenv & SVALL) !== SVALL
+            ? MSA_NONE
+            : (mask & AM_MASK) === 4 ? 3 : mask & AM_MASK;
         if (!mapseen.feat.naltar) mapseen.feat.msalign = alignment;
         else if (mapseen.feat.msalign !== alignment)
             mapseen.feat.msalign = MSA_NONE;

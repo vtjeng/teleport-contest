@@ -60,6 +60,7 @@ import {
     builds_up,
     dungeon_branch,
     dunlev_reached,
+    init_mapseen,
     level_info,
     set_dunlev_reached,
 } from '../js/dungeon.js';
@@ -546,6 +547,7 @@ test('check_special_room handles Court and stops on later room families',
     );
     state.level.rooms[0].rtype = OROOM;
     state.level.flags.has_court = true;
+    const courtMapseen = init_mapseen(state.u.uz, state);
     // furniture_present() scans both inclusive bounds. Put the only throne at
     // the far corner so either `<` mutation loses the "throne" adjective.
     state.level.at(14, 9).typ = THRONE;
@@ -612,6 +614,7 @@ test('check_special_room handles Court and stops on later room families',
     ]);
     assert.equal(state.level.rooms[3].rtype, OROOM);
     assert.equal(state.level.flags.has_court, false);
+    assert.equal(courtMapseen.msrooms[3].seen, 1);
     assert.equal(sleeper.msleeping, false);
     assert.equal(dead.msleeping, true);
     assert.equal(courtSleeper.msleeping, true);

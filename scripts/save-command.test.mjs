@@ -86,12 +86,14 @@ test('dosave serializes state and ends the segment on Friday 13th', async () => 
     );
     // dungeon.c savegamestate() serializes svm.mapseenchn independently of
     // the live level. The current level's record must survive the segment.
-    assert.equal(
-        snapshot.mapseenchn.some((entry) =>
-            entry.lev.dnum === snapshot.u.uz.dnum
-            && entry.lev.dlevel === snapshot.u.uz.dlevel),
-        true,
-    );
+    assert.deepEqual(snapshot.mapseenchn, game.svm.mapseenchn);
+    const currentOverview = snapshot.mapseenchn.find((entry) =>
+        entry.lev.dnum === snapshot.u.uz.dnum
+        && entry.lev.dlevel === snapshot.u.uz.dlevel);
+    assert.ok(currentOverview);
+    assert.ok(currentOverview.feat && currentOverview.flags);
+    assert.ok(currentOverview.msrooms.length > 0,
+        'the saved overview retains its room-state vector');
 
     // Verify the terminal grid contains "Be seeing you..." -- the exit
     // message written by tty_raw_print. js/terminal.js has no serialize()

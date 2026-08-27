@@ -11,6 +11,10 @@ import { self_lookat, whatisMenuItems } from '../js/pager.js';
 import {
     NEXT_COMMAND,
     ESCAPE_KEY,
+    MORE_KEYS,
+    TRADITIONAL_PICK,
+    WHATIS_COMMAND,
+    WHATIS_MAP_CHOICE,
     WHATIS_MOVES,
     WHATIS_SETUP,
     loadWhatisMapHeroRecipe,
@@ -101,6 +105,20 @@ test('ordinary hero farlook returns to command mode without taking time',
         );
         assert.equal(replay.getRngLog().length > 0, true);
     });
+
+test('ordinary hero farlook renders the source-derived description',
+    async () => {
+    const segment = loadWhatisMapHeroRecipe().segments[0];
+    await runSegment({
+        ...segment,
+        moves: WHATIS_SETUP + WHATIS_COMMAND + WHATIS_MAP_CHOICE
+            + MORE_KEYS + TRADITIONAL_PICK,
+    });
+    assert.equal(
+        game._ttyToplines,
+        '@        a human or elf (human wizard called Farley)',
+    );
+});
 
 test('excluded cursor movement ends the replay on its supported prefix',
     async () => {

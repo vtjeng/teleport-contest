@@ -536,6 +536,33 @@ test('a named command with no ported handler stops the segment, not the key',
     assert.equal(replay.getScreens().length, moves.length);
 });
 
+test('extended spellings share the four newly ported direct handlers',
+    async () => {
+    const base = segmentFor(`${EXTCMD_KEY}wait${NEWLINE_KEY}`);
+    for (const [name, expected] of [
+        ['engrave', /engrave requires an accessible ordinary floor/u],
+        ['read', /What do you want to read\?/u],
+        ['whatis', /What do you want to look at:/u],
+        ['quiver', /ready_ok\(\) classification/u],
+    ]) {
+        let boundary = null;
+        await runSegment({
+            ...base,
+            moves: `.${EXTCMD_KEY}${name}${NEWLINE_KEY}`,
+        }, { onBoundary: (error) => { boundary = error; } });
+        const visible = [
+            boundary?.message ?? '',
+            game.nhDisplay.grid.flat().map(({ ch }) => ch).join(''),
+        ].join('\n');
+        assert.match(visible, expected, name);
+        assert.doesNotMatch(
+            visible,
+            new RegExp(`the extended command '${name}' is not ported`, 'u'),
+            name,
+        );
+    }
+});
+
 test('extmenu stops the prompt before it opens, through either spelling',
     async () => {
     // getline.c:300 makes iflags.extmenu tty_get_ext_cmd()'s first test:

@@ -15,6 +15,7 @@ import {
     KILLED_BY,
     KILLED_BY_AN,
     LIFESAVED,
+    MAGIC_PORTAL,
     NO_KILLER_PREFIX,
     PANICKED,
     PARANOID_DIE,
@@ -522,6 +523,24 @@ test('an ordinary D:1 death reaches the possessions disclosure prompt',
     ));
 });
 
+test('mounted-slip death continuation is independent of steed naming',
+    async () => {
+    for (const name of [
+        'slipped while mounting a saddled pony called Dobbin',
+        'slipped while mounting a saddled mumak',
+    ]) {
+        await dyingGame();
+        game.moves = 2;
+        game.killer = { name, format: NO_KILLER_PREFIX };
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await assert.rejects(done(DIED, game), /Input queue empty/u, name);
+        assert.equal(
+            game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd(),
+            'Do you want your possessions identified? [ynq] (n)',
+        );
+    }
+});
+
 test('can_make_bones spends the D:1 low-level rejection draw', () => {
     // bones.c:377 uses 1 + (depth >> 2). D:1 therefore calls rn2(1), whose
     // only result is zero, and rejects bones before the discover-mode test.
@@ -544,6 +563,42 @@ test('can_make_bones spends the D:1 low-level rejection draw', () => {
         random: { rn2: (bound) => { calls.push(bound); return 0; } },
     }), false);
     assert.deepEqual(calls, [1]);
+});
+
+test('can_make_bones accepts an eligible level and honors independent vetoes',
+    () => {
+    const eligible = {
+        flags: { bones: true },
+        u: { uz: { dnum: 0, dlevel: 5 }, uswallow: false },
+        dungeons: [{
+            boneid: 'D', depth_start: 1, ledger_start: 0, num_dunlevs: 10,
+            flags: { hellish: false },
+        }],
+        n_dgns: 1,
+        specialLevels: [],
+        branches: [],
+        level: { traps: [] },
+        wizard: false,
+        discover: false,
+    };
+    const acceptingRandom = { rn2: (bound) => {
+        assert.equal(bound, 2);
+        return 1;
+    } };
+    assert.equal(can_make_bones(eligible, { random: acceptingRandom }), true);
+
+    assert.equal(can_make_bones({
+        ...eligible, flags: { bones: false },
+    }, { random: { rn2: () => assert.fail('disabled bones draws no RNG') } }),
+    false);
+    assert.equal(can_make_bones({
+        ...eligible,
+        level: { traps: [{ ttyp: MAGIC_PORTAL }] },
+    }, { random: { rn2: () => assert.fail('portal veto precedes RNG') } }),
+    false);
+    assert.equal(can_make_bones({
+        ...eligible, discover: true,
+    }, { random: acceptingRandom }), false);
 });
 
 test('the mounted-death recipe reaches the ordinary disclosure boundary',

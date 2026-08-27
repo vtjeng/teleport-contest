@@ -29,6 +29,7 @@ import {
     ZOO,
 } from './const.js';
 import { wake_msg } from './mon.js';
+import { room_discovered } from './dungeon.js';
 import { rn2 } from './rng.js';
 import { u_entered_shop, u_left_shop } from './shk.js';
 import { ttyPline } from './tty_message.js';
@@ -249,6 +250,7 @@ export async function check_special_room(
             );
             // room_discovered() records the room before its live one-time
             // identity is cleared here.
+            room_discovered(roomIndex, state);
             room.rtype = OROOM;
             if (!state.level.rooms.some(
                 (candidate) => candidate?.rtype === COURT,

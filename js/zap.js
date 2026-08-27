@@ -343,8 +343,14 @@ export async function dozap(state = game) {
         // killer it builds. muse.c, music.c, priest.c and apply.c are C's
         // other writers, and none of them is ported.
         state.current_wand = obj;
-        await weffects(obj, state);
-        state.current_wand = null;
+        try {
+            await weffects(obj, state);
+        } finally {
+            // JavaScript's fail-closed boundaries unwind where C's call would
+            // complete. Do not let that artificial exit retain the transient
+            // attribution pointer.
+            state.current_wand = null;
+        }
     }
     if (obj.spe < 0) {
         await ttyPline(`${Tobjnam(obj, 'turn', state)} to dust.`, state);
