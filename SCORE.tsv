@@ -393,3 +393,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-27	a3a4f1aff46f233ef788e9ccc224083ce53b84c4	window	12	33	2376	7765	155739	610816	2409	7765					itemactions closes. Development 2372→2376 of 7765 screens, 155739 of 610816 rng. 12 of 33 sessions.
 2026-08-27	dda5e7962c4245cd009e29cff16057c21d83aa19	slice	12	33	2376	7765	155739	610816	2409	7765					itemactions-unwield-primary closes. Development 2376 of 7765 screens, 155739 of 610816 rng. 12 of 33 sessions.
 2026-08-27	7a2327eeeacda3d05ca83a3c2f2bfa1cab177a50	slice	12	33	2376	7765	155739	610816	2409	7765					itemactions-unwield-alternate closes. Development 2376 of 7765 screens, 155739 of 610816 rng. 12 of 33 sessions.
+2026-08-27	cf113d6398b82f49ff54c0879bc7881e4fc37489	slice	12	33	2376	7765	155739	610816	2409	7765					itemactions-unwield-quiver closes. Development 2376 of 7765 screens, 155739 of 610816 rng. 12 of 33 sessions.

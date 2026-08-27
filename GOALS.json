@@ -4843,8 +4843,8 @@
         },
         {
           "name": "itemactions-unwield-quiver",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "cf113d6398b82f49ff54c0879bc7881e4fc37489"
         }
       ],
       "openedAt": "9a935a497b2bf9c9d9a5bc35556db4b2d071213d",
