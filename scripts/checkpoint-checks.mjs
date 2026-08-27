@@ -18,6 +18,7 @@ const GENERATED_CHECKS = [
     'check:data-base',
     'check:extcmds',
     'check:glyph-offsets',
+    'check:help-data',
     'check:monsters',
     'check:objects',
     'check:options',

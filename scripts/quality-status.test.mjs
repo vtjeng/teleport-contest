@@ -85,6 +85,7 @@ test('the checked-in quality ledger has a valid schema', async () => {
       'js/config_statement_data.js',
       'js/dungeon_data.js',
       'js/extcmdlist_data.js',
+      'js/help_data.js',
       'js/monsters.js',
       'js/objects.js',
       'js/optlist_data.js',

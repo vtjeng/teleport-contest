@@ -48,6 +48,7 @@ import { fruit_from_name, makesingular } from './fruit.js';
 import { LOOK_TRADITIONAL, getpos } from './getpos.js';
 import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
+import { HELP_TEXT_FILES } from './help_data.js';
 import { display_inventory } from './invent.js';
 import { tty_yn_function } from './getline.js';
 import { m_at } from './monst.js';
@@ -876,6 +877,50 @@ export function setopt_cmd() {
     return "'#optionsfull' or 'm O'";
 }
 
+// C refs: pager.c dispfile_*(), hmenu_dohistory(), and dohistory(), plus
+// win/tty/wintty.c tty_display_file() (2424-2516). The generator has already
+// removed newlines and applied hacklib.c tabexpand(), so the runtime builds
+// the NHW_TEXT lines without filesystem access.
+async function display_file(filename, state) {
+    const text = HELP_TEXT_FILES[filename];
+    if (!text)
+        throw new UnsupportedHelpError(`missing static file ${filename}`);
+    await displayTtyTextWindow(state, text.map((line) => ({ text: line })));
+}
+
+async function dispfile_help(state) {
+    await display_file('help', state);
+}
+
+async function dispfile_shelp(state) {
+    await display_file('hh', state);
+}
+
+async function dispfile_optionfile(state) {
+    await display_file('opthelp', state);
+}
+
+async function dispfile_optmenu(state) {
+    await display_file('optmenu', state);
+}
+
+async function dispfile_license(state) {
+    await display_file('license', state);
+}
+
+async function dispfile_usagehelp(state) {
+    await display_file('usagehlp', state);
+}
+
+export async function dohistory(state = game) {
+    await display_file('history', state);
+    return ECMD_OK;
+}
+
+async function hmenu_dohistory(state) {
+    await dohistory(state);
+}
+
 // C ref: pager.c help_menu_items[] (2829-2858). This build has no PORT_HELP
 // row, normal play omits dispfile_debughelp(), and hideusage is off. Keep the
 // numeric value from the source-table index so filtering a future row cannot
@@ -905,8 +950,9 @@ export function helpMenuItems() {
 }
 
 // C ref: pager.c hmenu_dowhatis() and dohelp() (2802-2805, 2860-2898).
-// This slice dispatches the already-ported whatis row. The other table rows
-// stop after their menu selection until their source owners are ported.
+// The dispatch includes version information, the static display-file family,
+// history, and the already-ported whatis row. Dynamic rows stop after their
+// menu selection until their source owners are ported.
 export async function dohelp(state = game) {
     if (state.wizard)
         throw new UnsupportedHelpError('the wizard-mode help row');
@@ -929,8 +975,36 @@ export async function dohelp(state = game) {
         });
         return ECMD_OK;
     }
+    if (choice === 2) {
+        await dispfile_help(state);
+        return ECMD_OK;
+    }
+    if (choice === 3) {
+        await dispfile_shelp(state);
+        return ECMD_OK;
+    }
+    if (choice === 4) {
+        await hmenu_dohistory(state);
+        return ECMD_OK;
+    }
     if (choice === 5) {
         await dowhatis(state);
+        return ECMD_OK;
+    }
+    if (choice === 8) {
+        await dispfile_optionfile(state);
+        return ECMD_OK;
+    }
+    if (choice === 9) {
+        await dispfile_optmenu(state);
+        return ECMD_OK;
+    }
+    if (choice === 13) {
+        await dispfile_usagehelp(state);
+        return ECMD_OK;
+    }
+    if (choice === 14) {
+        await dispfile_license(state);
         return ECMD_OK;
     }
     throw new UnsupportedHelpError(`menu target ${choice}`);

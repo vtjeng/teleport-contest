@@ -12,6 +12,10 @@ import {
     HELP_VERSION_MOVES,
     loadHelpVersionRecipe,
 } from './run-help-version-information.mjs';
+import {
+    HELP_STATIC_CASES,
+    loadHelpStaticRecipe,
+} from './run-help-static-files.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 test('the default help menu preserves pager.c rows and source selectors', () => {
@@ -63,23 +67,54 @@ test('the help whatis target returns through the next command boundary',
         assert.equal(replay.getCursors().length, 5);
     }));
 
-test('an unported help target stops after its menu selection', async () => {
+test('an unported dynamic help target stops after its menu selection', async () => {
     const segment = loadHelpMenuShellRecipe().segments[0];
     let boundary;
     const replay = await runSegment({
         ...segment,
-        // `b` selects source table index 1, the unported long-help target.
-        moves: '?b',
+        // `f` selects source table index 5, the later what-does target.
+        moves: '?f',
     }, {
         onBoundary: (error) => { boundary = error; },
     });
 
     assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
-    assert.match(boundary.message, /unsupported help: menu target 2/u);
+    assert.match(boundary.message, /unsupported help: menu target 6/u);
     // The start screen and complete help menu remain available to scoring.
     assert.equal(replay.getScreens().length, 2);
     assert.equal(game.context.pendingCommand?.key, '?'.charCodeAt(0));
 });
+
+test('all static help files return through the restored command boundary',
+    () => withSerializedGrids(async () => {
+        for (const entry of HELP_STATIC_CASES) {
+            const segment = loadHelpStaticRecipe(entry).segments[0];
+            assert.equal(segment.moves, entry.moves);
+
+            let boundary;
+            const replay = await runSegment(segment, {
+                onBoundary: (error) => { boundary = error; },
+            });
+            assert.equal(boundary, undefined, entry.filename);
+            assert.equal(game.context.pendingCommand, undefined, entry.filename);
+            // A new game starts at move 1. C's dohelp() and display_file()
+            // return ECMD_OK without advancing it.
+            assert.equal(game.moves, 1, entry.filename);
+            // Startup, the help menu, every 23-line text page, and the repaired
+            // map each produce one captured screen and cursor position.
+            const expectedBoundaries = entry.dismissals + 3;
+            assert.equal(
+                replay.getScreens().length,
+                expectedBoundaries,
+                entry.filename,
+            );
+            assert.equal(
+                replay.getCursors().length,
+                expectedBoundaries,
+                entry.filename,
+            );
+        }
+    }));
 
 test('help version information returns through the next command boundary',
     () => withSerializedGrids(async () => {

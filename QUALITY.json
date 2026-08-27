@@ -5480,6 +5480,7 @@
         "js/getline.js",
         "js/getpos.js",
         "js/hack.js",
+        "js/help_data.js",
         "js/iactions.js",
         "js/input.js",
         "js/lock.js",
@@ -5497,6 +5498,11 @@
           "path": "js/extcmdlist_data.js",
           "generator": "scripts/generate-extcmds.mjs",
           "check": "node scripts/generate-extcmds.mjs --check"
+        },
+        {
+          "path": "js/help_data.js",
+          "generator": "scripts/generate-help-data.mjs",
+          "check": "node scripts/generate-help-data.mjs --check"
         }
       ]
     },
