@@ -19,6 +19,7 @@ import {
 } from './display.js';
 import { UnsupportedEarthSenseError } from './dungeon.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
+import { UnsupportedGetposError } from './getpos.js';
 import { UnsupportedSpecialRoomError } from './mkroom.js';
 import {
     activate_chosen_soundlib,
@@ -706,6 +707,10 @@ export async function runSegment(
             if (e instanceof UnsupportedTurnBoundaryError
                 || e instanceof UnsupportedHeroMoveBoundaryError
                 || e instanceof UnsupportedHeroCommandBoundaryError
+                // getpos() runs below a dispatched non-time command. Refusing
+                // an unported key keeps every screen and cursor captured up
+                // to that input boundary instead of zeroing the session.
+                || e instanceof UnsupportedGetposError
                 // Arrival placement supplies earth_sense() a source-ordered
                 // message collector. Other movement callers remain an
                 // explicit boundary until their async message path is ported.

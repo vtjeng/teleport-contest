@@ -3,11 +3,14 @@ import test from 'node:test';
 
 import { TIP_GETPOS } from '../js/const.js';
 import { GETPOS_TIP_LINES, handle_tip } from '../js/hack.js';
+import { UnsupportedGetposError } from '../js/getpos.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { self_lookat, whatisMenuItems } from '../js/pager.js';
 import {
     NEXT_COMMAND,
+    ESCAPE_KEY,
+    WHATIS_MOVES,
     WHATIS_SETUP,
     loadWhatisMapHeroRecipe,
 } from './run-whatis-map-getpos-hero.mjs';
@@ -95,5 +98,22 @@ test('ordinary hero farlook returns to command mode without taking time',
             { x: game.gg.getposx, y: game.gg.getposy },
             { x: 0, y: 0 },
         );
+        assert.equal(replay.getRngLog().length > 0, true);
+    });
+
+test('excluded cursor movement ends the replay on its supported prefix',
+    async () => {
+        const segment = loadWhatisMapHeroRecipe().segments[0];
+        let boundary;
+        const replay = await runSegment({
+            ...segment,
+            // Replace the repeated-picker Escape and following wait with the
+            // first excluded cursor-movement key. The scorer must retain all
+            // output this slice produced before that key.
+            moves: WHATIS_MOVES.replace(`${ESCAPE_KEY}${NEXT_COMMAND}`, 'h'),
+        }, { onBoundary: (error) => { boundary = error; } });
+
+        assert.equal(boundary instanceof UnsupportedGetposError, true);
+        assert.equal(replay.getScreens().length > 0, true);
         assert.equal(replay.getRngLog().length > 0, true);
     });
