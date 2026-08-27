@@ -5275,6 +5275,39 @@
         "screens": 126,
         "rng": 583
       }
+    },
+    {
+      "id": "engrave-fingertip-dust",
+      "status": "open",
+      "boundary": "A sighted, clear-minded, unencumbered hero who can wield and reach an accessible non-ice ordinary floor with no existing engraving invokes E, selects bare fingertips (-), and enters nonempty ASCII text of at most ten non-space bytes; doengrave creates the DUST engraving in one occupation action with source-order corruption, literacy, Elbereth exercise, state, display, RNG, screen, and cursor parity. Other branches remain fail-closed.",
+      "upstreamOwners": [
+        "cmd.c",
+        "invent.c",
+        "engrave.c"
+      ],
+      "forecast": {
+        "steps": 12,
+        "basis": "Capped look-ahead: seed2200-wizard-quaff-zap-read cappedStretch=12 (cap-stable).",
+        "sessions": [
+          "seed2200-wizard-quaff-zap-read"
+        ],
+        "witnesses": [
+          {
+            "session": "seed2200-wizard-quaff-zap-read",
+            "evidence": "E suggests bare fingertips; selecting hands_obj on an ordinary floor prints the fingertip message and asks for text. Elbereth takes eight rn2(25) draws with no corruption, increments literacy, then one rate-10 occupation action creates the DUST engraving. Exact Elbereth exercises Wisdom with rn2(19)=7 and refreshes the square; JavaScript currently refuses command admission."
+          }
+        ]
+      },
+      "detail": "Port command admission and typed hands selection, u_can_engrave/stylus/context, ordinary DUST text processing, owned engraving occupation state, one-action callback, and runtime Elbereth exercise. Object styli, existing engravings, exceptional terrain/forms/statuses, empty text, and multi-action text remain outside.",
+      "slices": [],
+      "openedAt": "48ce66145126129527106fd34858a4b80d8f861b",
+      "openStanding": {
+        "sha": "bcfc94c742aeed2876cb6d7f50d2e4eeb790ec11",
+        "screens": 2517,
+        "rng": 156649
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
