@@ -5317,6 +5317,45 @@
         "screens": 12,
         "rng": 54
       }
+    },
+    {
+      "id": "whatis",
+      "status": "open",
+      "boundary": "A sighted, non-hallucinating, unswallowed hero with the default lootabc, help, tips, whatis_coord, and getpos settings uses the non-quick / command; port pager.c do_look(0) through every menu choice exercised by seed2200: map cursor lookup with ordinary and fast cursor movement, repeated traditional picks and Escape; a complete typed name; a carried item; nearby and all monsters and objects; nearby and all traps; and nearby and all engravings.",
+      "upstreamOwners": [
+        "pager.c do_look()",
+        "do_screen_description()",
+        "lookat()",
+        "checkfile()",
+        "and look_*()",
+        "getpos.c getpos() and its ordinary cursor helpers",
+        "hack.c handle_tip()",
+        "dat/nhcore.lua show_getpos_tip()",
+        "dat/data.base"
+      ],
+      "forecast": {
+        "steps": 74,
+        "basis": "Capped look-ahead: seed2200-wizard-quaff-zap-read cappedStretch=74 (cap-stable).",
+        "sessions": [
+          "seed2200-wizard-quaff-zap-read"
+        ],
+        "witnesses": [
+          {
+            "session": "seed2200-wizard-quaff-zap-read",
+            "evidence": "In segment 0 with seed 2200, datetime 20000110090000, and a male human Wizard using DECgraphics with autopickup disabled, JavaScript first stops at step 34 on /. C dispatches dowhatis() to do_look(0), builds the default 11-choice menu, and exercises every choice across steps 34-107: /, i, ?, m, M, o, O, t, T, e, and E. The path shows the first-use getpos tip, ordinary and fast cursor movement, hero and terrain descriptions with More-info declined, a complete typed fountain lookup, the carried quarterstaff lookup, nearby and all monster and object lists, empty trap lists, and the remembered Elbereth lists. The 74 steps consume no RNG and no turn. Step 108 enters the independent command-mode help boundary."
+          }
+        ]
+      },
+      "detail": "Port pager.c do_look(0) and the complete command-family exercise in the witness. The common map path is do_look() through getpos() and do_screen_description(), including the first-use TIP_GETPOS path through hack.c handle_tip() and dat/nhcore.lua show_getpos_tip(). Pager helpers include append_str(), add_cmap_descr(), self_lookat(), look_at_monster(), look_at_object(), object_from_map(), trap_description(), add_quoted_engraving(), and the ordinary-terrain branches of lookat(). Direct lookups use checkfile() for human Wizard and branch-staircase More prompts, the complete typed fountain entry, and the carried quarterstaff entry; generate deterministic JavaScript data from dat/data.base and add a source check. List paths include look_region_nearby(), look_all(), look_traps(), and look_engrs(), preserving row-major ordering and observable TTY text windows. Consolidate existing extcmd binding, menu and text windows, getline, display_inventory, message and More flow, engr_at state, and startup_a11y source-derived description helpers into pager.js and getpos.js where applicable. Exclude quick, click, and queued variants; non-default lootabc; swallowed and hallucinating heroes; typed symbols; getpos help, mouse, quick-pick, autodescribe, filtering, menu toggling, cycling, jumps, highlighting, travel, and terrain modes; exceptional vision and fake or buried reconstruction; supplemental mythology; and the item-action slash path. Suggested slices are: menu, tip, base getpos, hero, More decline, and Escape; cursor movement and terrain descriptions; generated data plus typed and inventory lookup; monster and object lists; and trap and engraving lists.",
+      "slices": [],
+      "openedAt": "f17bfd832863f03946b1572f5e4ca2ecf5629b30",
+      "openStanding": {
+        "sha": "96de653075cf13bbc25e8196f66f99ce2d551429",
+        "screens": 2529,
+        "rng": 156703
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
