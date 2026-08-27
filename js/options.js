@@ -12,6 +12,7 @@ import {
     AUTOUNLOCK_KICK,
     AUTOUNLOCK_UNTRAP,
     CLR_MAX,
+    COLNO,
     DISCLOSE_PROMPT_DEFAULT_NO,
     DISCLOSE_PROMPT_DEFAULT_YES,
     DISCLOSE_PROMPT_DEFAULT_SPECIAL,
@@ -141,6 +142,7 @@ import {
     config_error_add,
     config_error_init,
     config_error_nextline,
+    get_configfile,
 } from './cfgfiles.js';
 import { count_menucolors } from './coloratt.js';
 import {
@@ -245,11 +247,14 @@ import {
 } from './symbols.js';
 import { apply_customizations, inspect_glyphrep } from './glyphs.js';
 import { choose_classes_menu } from './windows.js';
+import { displayTtyTextWindow } from './tty_menu.js';
 
 const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
 const PLAYER_NAME_BYTE_LIMIT = 31; // PL_NSIZ - 1
 const CONFIG_BUFFER_BYTE_CAPACITY = 4 * 256; // cfgfiles.c: 4 * BUFSZ
 const OPTION_ELEMENT_BYTE_LIMIT = 256 / 2; // options.c: BUFSZ / 2
+const SET_WIZONLY = 5; // global.h enum optset_restrictions
+const SET_WIZNOFUZ = 6; // global.h enum optset_restrictions
 
 // C ref: options.c:allopt[] and determine_ambiguities().  Matching is
 // case-insensitive, so the generated catalog is folded once here.  The full
@@ -5507,6 +5512,100 @@ function wc2_supported(name) {
 function unsupportedWindowOption(name) {
     return (is_wc_option(name) && !wc_supported(name))
         || (is_wc2_option(name) && !wc2_supported(name));
+}
+
+const OPT_INTRO_PREFIX = Object.freeze([
+    '',
+    '                 NetHack Options Help:',
+    '',
+]);
+
+const OPT_INTRO_SUFFIX = Object.freeze([
+    'or use `NETHACKOPTIONS="<options>"\' in your environment',
+    '(<options> is a list of options separated by commas)',
+    'or press "O" while playing and use the menu.',
+    '',
+    'Boolean options (which can be negated by prefixing them with \'!\' or "no"):',
+]);
+
+const OPT_EPILOG = Object.freeze([
+    '',
+    'Some of the options can only be set before the game is started;',
+    "those items will not be selectable in the 'O' command's menu.",
+    "Some options are stored in a game's save file, and will keep saved",
+    'values when restoring that game even if you have updated your config-',
+    'uration file to change them.  Such changes will matter for new games.',
+    'The "other settings" can be set with \'O\', but when set within the',
+    'configuration file they use their own directives rather than OPTIONS.',
+    'See NetHack\'s "Guidebook" for details.',
+]);
+
+function ordinaryOptionHelpRow(option, state) {
+    if (option.setwhere === SET_WIZONLY && !state.wizard) return false;
+    if (option.setwhere === SET_WIZNOFUZ
+        && (!state.wizard || state.iflags?.debug_fuzzer)) return false;
+    return !unsupportedWindowOption(option.name);
+}
+
+// C ref: options.c next_opt() (9750-9785). COLNO is 80, and the source
+// flushes before adding a name when that name and its trailing comma-space
+// would put the current buffer beyond COLNO - 2. The final empty string both
+// punctuates the last buffer and emits the section's blank line.
+export function next_opt(names) {
+    const lines = [];
+    let buffer = '';
+    for (const name of [...names, '']) {
+        const width = name
+            ? buffer.length + name.length + 2
+            : COLNO;
+        if (!name && buffer.endsWith(', '))
+            buffer = `${buffer.slice(0, -2)}.`;
+        if (width > COLNO - 2) {
+            lines.push(buffer);
+            buffer = '';
+        }
+        if (name) buffer += `${name}, `;
+        else lines.push('');
+    }
+    return lines;
+}
+
+// C ref: options.c option_help() (9428-9549), through the normal-play TTY
+// branch. The generated allopt table preserves the source order, description,
+// storage pointer, type, restriction, and window-capability identity that the
+// function reads. Wizard, fuzzer, and other window-port variants remain
+// outside this help goal's witness boundary.
+export function optionHelpLines(state = game) {
+    const lines = [
+        ...OPT_INTRO_PREFIX,
+        `Set options as OPTIONS=<options> in ${get_configfile(state)}`,
+        ...OPT_INTRO_SUFFIX,
+    ];
+    lines.push(...next_opt(allopt
+        .filter((option) => option.opttyp === 'BoolOpt'
+            && option.addr
+            && ordinaryOptionHelpRow(option, state))
+        .map((option) => option.name)));
+
+    lines.push('Compound options:');
+    for (let index = 0; index < allopt.length; ++index) {
+        const option = allopt[index];
+        if (option.opttyp !== 'CompOpt'
+            || !ordinaryOptionHelpRow(option, state)) continue;
+        const quoted = `\`${option.name}'`;
+        const punctuation = index + 1 < allopt.length ? ',' : '.';
+        lines.push(`${quoted.padEnd(20)} - ${option.descr}${punctuation}`);
+    }
+    lines.push('', 'Other settings:');
+    for (const option of allopt) {
+        if (option.opttyp === 'OthrOpt') lines.push(` ${option.name}`);
+    }
+    lines.push(...OPT_EPILOG);
+    return lines.map((text) => ({ text }));
+}
+
+export async function option_help(state = game) {
+    await displayTtyTextWindow(state, optionHelpLines(state));
 }
 
 // C ref: options.c initoptions_finish() (7366-7374).  The configuration file

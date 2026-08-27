@@ -1030,6 +1030,15 @@ export async function dohelp(state = game) {
         await hmenu_dowhatdoes(state);
         return ECMD_OK;
     }
+    if (choice === 7) {
+        // cmd.js already imports options.js for the live options command,
+        // while pager.js imports cmd.js for help-key descriptions. Delay this
+        // edge until dispatch so the source-file owners do not create a
+        // module-initialization cycle.
+        const { option_help } = await import('./options.js');
+        await option_help(state);
+        return ECMD_OK;
+    }
     if (choice === 8) {
         await dispfile_optionfile(state);
         return ECMD_OK;

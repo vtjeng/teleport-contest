@@ -5,6 +5,7 @@ import { cmdq_peek, key2extcmddesc } from '../js/cmd.js';
 import { CMDQ_KEY, CQ_REPEAT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { next_opt, optionHelpLines } from '../js/options.js';
 import {
     dowhatdoes_core,
     helpMenuItems,
@@ -22,6 +23,10 @@ import {
     HELP_VERSION_MOVES,
     loadHelpVersionRecipe,
 } from './run-help-version-information.mjs';
+import {
+    HELP_OPTION_MOVES,
+    loadHelpOptionRecipe,
+} from './run-help-option-help.mjs';
 import {
     HELP_STATIC_CASES,
     loadHelpStaticRecipe,
@@ -53,6 +58,74 @@ test('the default help menu preserves pager.c rows and source selectors', () => 
         ],
     );
 });
+
+test('option help wraps Boolean names at the source column limit', () => {
+    assert.deepEqual(
+        next_opt([
+            // These lengths put the comma-separated buffer exactly at and
+            // then beyond options.c's COLNO - 2 (78-column) threshold.
+            'a'.repeat(36),
+            'b'.repeat(38),
+            'c',
+        ]),
+        [
+            `${'a'.repeat(36)}, ${'b'.repeat(38)}, `,
+            'c.',
+            '',
+        ],
+    );
+});
+
+test('option help derives its ordinary TTY page from allopt source order',
+    async () => {
+        const segment = loadHelpOptionRecipe().segments[0];
+        await runSegment({ ...segment, moves: '' });
+        const lines = optionHelpLines(game).map(({ text }) => text);
+
+        // options.c opt_intro[] places the title at index 1 and reserves
+        // CONFIG_SLOT 3 for the get_configfile()-dependent sentence.
+        assert.equal(lines[1], '                 NetHack Options Help:');
+        assert.equal(
+            lines[3],
+            'Set options as OPTIONS=<options> in .nethackrc',
+        );
+        // TTY advertises color but not popup dialogs, so the source-order
+        // filters retain the former Boolean and omit the latter.
+        assert(lines.some((line) => line.includes('color')));
+        assert(!lines.some((line) => line.includes('popup_dialog')));
+        // Normal play omits the source's set_wizonly and set_wiznofuz rows.
+        assert(!lines.some((line) => line.includes('travel_debug')));
+        // option_help() prints these two source literals around its type loops.
+        assert(lines.includes('Compound options:'));
+        assert(lines.includes('Other settings:'));
+        // The final opt_epilog[] entry is the Guidebook reference.
+        assert.equal(lines.at(-1), 'See NetHack\'s "Guidebook" for details.');
+    });
+
+test('option help returns through the restored command boundary',
+    () => withSerializedGrids(async () => {
+        const segment = loadHelpOptionRecipe().segments[0];
+        assert.equal(segment.moves, HELP_OPTION_MOVES);
+
+        // Cancelling the help menu executes the same first command loop, whose
+        // preamble draws rnd(9000) and rnd(30), without spending a turn.
+        const baseline = await runSegment({ ...segment, moves: '?\x1b' });
+        const baselineMoves = game.moves;
+        const baselineRng = baseline.getRngLog().length;
+
+        let boundary;
+        const replay = await runSegment(segment, {
+            onBoundary: (error) => { boundary = error; },
+        });
+        assert.equal(boundary, undefined);
+        assert.equal(game.context.pendingCommand, undefined);
+        assert.equal(game.moves, baselineMoves);
+        assert.equal(replay.getRngLog().length, baselineRng);
+        // The fresh C case records startup, the help menu, five text pages,
+        // and the restored map through eight observable boundaries.
+        assert.equal(replay.getScreens().length, 8);
+        assert.equal(replay.getCursors().length, 8);
+    }));
 
 test('whatdoes formats the ordinary inventory binding from extcmdlist',
     async () => {

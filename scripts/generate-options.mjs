@@ -88,6 +88,7 @@ const FIELD = Object.freeze({
     addr: 13,
     optfn: 14,
     alias: 15,
+    descr: 16,
     initval: 18,
     has_handler: 19,
 });
@@ -134,6 +135,11 @@ function parseAlias(field) {
         return null;
     }
     return parseStringLiteral(field, 'option alias');
+}
+
+function parseDescription(field) {
+    if (/^\(char \*\)\s*0$/u.test(field)) return null;
+    return parseStringLiteral(field, 'option description');
 }
 
 function parseEnum(field, table, what) {
@@ -260,6 +266,7 @@ function parseEntries(expanded) {
             addr,
             optfn: parseOptfn(fields[FIELD.optfn], pfx),
             alias: parseAlias(fields[FIELD.alias]),
+            descr: parseDescription(fields[FIELD.descr]),
             initval: parseInitval(fields[FIELD.initval]),
             has_handler: parseHasHandler(fields[FIELD.has_handler]),
         });
@@ -293,6 +300,7 @@ function formatEntry(entry) {
         + ` valok: ${entry.valok},`
         + ` pfx: ${entry.pfx}, termpref: ${entry.termpref},`
         + ` addr: ${addr}, optfn: '${entry.optfn}',`
+        + ` descr: ${JSON.stringify(entry.descr)},`
         + ` initval: ${entry.initval},`
         + ` has_handler: ${entry.has_handler} },`;
 }
@@ -322,7 +330,7 @@ function formatModule(entries) {
 // whether optfn_boolean() lets a value it cannot read as true or false stand
 // instead of reporting it, has_handler whether doset() runs the option's
 // do_handler request instead of prompting, and initval is the compiled-in
-// default initoptions_init() stores.
+// default initoptions_init() stores. descr is the option_help() description.
 export const allopt = Object.freeze([
 ${entries.map(formatEntry).join('\n')}
 ].map(Object.freeze));
