@@ -5388,7 +5388,7 @@
     },
     {
       "id": "help",
-      "status": "open",
+      "status": "closed",
       "boundary": "A sighted human Wizard in normal play, using the recorder's default command and menu bindings, number_pad off, rest_on_space off, hideusage off, no compiled PORT_HELP, and no configured local support, invokes `?` repeatedly and selects every visible help-menu entry `a` through `o`; port `pager.c dohelp()` through each target exercised by `seed2200-wizard-quaff-zap-read`, including all text-window pages, prompts, dismissals, restored map screens, and cursors, without consuming a turn or RNG.",
       "upstreamOwners": [
         "pager.c: dohelp()",
@@ -5488,8 +5488,11 @@
         "screens": 2603,
         "rng": 156703
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "9179d1fc72820518aefa45f3d7e98b2193e58b34",
+      "delivered": {
+        "screens": 111,
+        "rng": 39
+      }
     }
   ]
 }
