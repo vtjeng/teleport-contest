@@ -3693,7 +3693,13 @@ test('sengr_at preserves strict, timing, headstone, and case rules', () => {
         'Elbereth',
         19, // Already complete on the current source turn.
         DUST,
-        { state },
+        {
+            state,
+            // Runtime make_engr_at() exercises Wisdom with rn2(19). Zero is
+            // an arbitrary legal result; this test concerns sengr_at(), not
+            // attribute exercise, and makeState() has no initialized PRNG.
+            random: { rn2: (bound) => (assert.equal(bound, 19), 0) },
+        },
     );
 
     assert.equal(sengr_at('elbereth', 10, 10, true, state), engraving);
@@ -3745,7 +3751,13 @@ test('onscary requires an active whole Elbereth and an eligible monster', () => 
         'Elbereth',
         19, // The engraving is complete before this movement phase.
         DUST,
-        { state },
+        {
+            state,
+            // Runtime make_engr_at() exercises Wisdom with rn2(19). Zero is
+            // an arbitrary legal result for this onscary() fixture's
+            // unseeded state.
+            random: { rn2: (bound) => (assert.equal(bound, 19), 0) },
+        },
     );
     const monster = ordinaryMonster(state, { mcansee: true });
 
@@ -3769,7 +3781,12 @@ test('onscary grants Elbereth to a displaced image or a guarded pile', () => {
     // the second and third disjuncts can answer.
     const x = state.u.ux + 2;
     const y = state.u.uy;
-    make_engr_at(x, y, 'Elbereth', 'Elbereth', 19, DUST, { state });
+    make_engr_at(x, y, 'Elbereth', 'Elbereth', 19, DUST, {
+        state,
+        // Runtime make_engr_at() exercises Wisdom with rn2(19). Zero is an
+        // arbitrary legal result for this onscary() fixture's unseeded state.
+        random: { rn2: (bound) => (assert.equal(bound, 19), 0) },
+    });
     const monster = ordinaryMonster(state, { mcansee: true });
 
     // Neither disjunct holds: no displaced image, and display.h vobj_at()

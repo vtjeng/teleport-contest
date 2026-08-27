@@ -17,6 +17,7 @@ import {
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
+    GETOBJ_PROMPT,
     MV_ANY,
     MV_RUN,
     MV_RUSH,
@@ -44,6 +45,7 @@ import { dosearch, UnsupportedSearchError } from './detect.js';
 import {
     bot,
     flush_screen,
+    newsym,
     UnsupportedMapMemoryError,
     UnsupportedTransientDisplayError,
 } from './display.js';
@@ -79,7 +81,12 @@ import {
     UnsupportedEatError,
     UnsupportedHungerTransitionError,
 } from './eat.js';
-import { can_reach_floor, read_engr_at } from './engrave.js';
+import {
+    can_reach_floor,
+    doengrave,
+    read_engr_at,
+    UnsupportedEngraveError,
+} from './engrave.js';
 import {
     CMD_M_PREFIX,
     CMD_gGF_PREFIX,
@@ -95,10 +102,12 @@ import {
     tty_yn_function,
 } from './getline.js';
 import { game } from './gstate.js';
-import { visctrl } from './hacklib.js';
+import { mungspaces, visctrl } from './hacklib.js';
 import {
     ddoinv,
     dolook,
+    getobj,
+    hands_obj,
     UnsupportedFeatureDescriptionError,
     UnsupportedObjectPromptError,
 } from './invent.js';
@@ -130,8 +139,9 @@ import {
 import {
     displayTtyTextWindow, menuTitleStyle,
 } from './tty_menu.js';
-import { select_menu } from './windows.js';
+import { getlin, select_menu } from './windows.js';
 import {
+    check_capacity,
     domove,
     dopickup,
     endRunning,
@@ -139,11 +149,11 @@ import {
     preflightDomoveDestination,
     u_maybe_impaired,
     NODIAG,
+    UnsupportedHitPointLossError,
     UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import { nhgetch } from './input.js';
 import { doride, UnsupportedSteedError } from './steed.js';
-import { UnsupportedHitPointLossError } from './hack.js';
 import { UnsupportedEndOfGameError } from './end.js';
 import { UnsupportedItemIgnitionError } from './apply_catch_lit.js';
 import { UnsupportedAbilityChangeError } from './attrib.js';
@@ -169,7 +179,9 @@ import {
     dowield,
     UnsupportedTwoWeaponError,
     UnsupportedWieldError,
+    cantwield,
 } from './wield.js';
+import { rn2, rnd } from './rng.js';
 import { dotalk, UnsupportedChatError } from './sounds.js';
 import {
     clearTtyMessageWindow,
@@ -1008,7 +1020,8 @@ export async function parseCommand(state = game) {
 // the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'apply', 'open', 'close', 'down', 'up', 'drop', 'pickup', 'takeoff', 'wear',
+    'eat', 'engrave', 'apply', 'open', 'close', 'down', 'up', 'drop', 'pickup',
+    'takeoff', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
     'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
     'save', 'wield', '#',
@@ -1364,6 +1377,7 @@ export function failClosedCommandRefusals() {
         UnsupportedDirectionBoundaryError,
         UnsupportedEatError,
         UnsupportedApplyError,
+        UnsupportedEngraveError,
         // lock.c pick_lock() stops inside doapply()'s lock-pick arm, one
         // frame below UnsupportedApplyError rather than beside it.
         UnsupportedLockError,
@@ -1712,6 +1726,24 @@ async function runEatCommand(key, state) {
         // soon as the hunger status changes rather than waiting for the
         // move loop.
         statusRefresh: () => bot(),
+    }));
+}
+
+async function runEngraveCommand(key, state) {
+    return failClosedCommand(key, state, () => doengrave(state, {
+        cantWield: cantwield,
+        checkCapacity: check_capacity,
+        getObject: getobj,
+        handsObject: hands_obj,
+        GETOBJ_PROMPT,
+        getLine: getlin,
+        mungspaces,
+        message: ttyPline,
+        redraw: newsym,
+        setOccupation: set_occupation,
+        random: { rn2, rnd },
+        ECMD_CANCEL,
+        ECMD_OK,
     }));
 }
 
@@ -2475,6 +2507,14 @@ export async function rhack(key, state = game) {
             // reason it is there, because cmd.c:3805-3809 documents
             // (ECMD_TIME|ECMD_CANCEL) as a real result.
             const res = await runEatCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'engrave') {
+            const res = await runEngraveCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

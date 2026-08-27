@@ -799,12 +799,10 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
             return null;
         }
         if (ilet === HANDS_SYM) { /* '-' */
-            // C answers mime_action(word) and returns 0 when allownone is
-            // clear, or &hands_obj when it is set. eat_ok(), the only ported
-            // callback, answers GETOBJ_EXCLUDE or GETOBJ_EXCLUDE_NONINVENT for
-            // the null object and neither sets allownone, so only the mime arm
-            // is reachable -- and mime_action() needs ing_suffix() over the
-            // caller's verb plus an rn2(2) on its " or " split.
+            // C answers &hands_obj without mime_action() when the callback
+            // admitted hands/self. Engraving is the first interactive caller
+            // to do so; callers that exclude hands keep the older refusal.
+            if (allownone) return hands_obj;
             throw new UnsupportedObjectPromptError('mime_action()');
         }
         if (ilet === '?' || ilet === '*') {

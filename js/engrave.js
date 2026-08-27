@@ -1,15 +1,22 @@
-// Engraving creation and erosion.
-// C ref: engrave.c make_engr_at(), wipe_engr_at(), wipeout_text(), and
-// freehand().
+// Engraving commands, creation, and erosion.
+// C ref: engrave.c doengrave(), engrave(), make_engr_at(), wipe_engr_at(),
+// wipeout_text(), and freehand().
 
 import {
+    A_WIS,
     BLINDED,
     BURN,
     BUFSZ,
+    CONFUSION,
+    CORR,
     DUST,
     ENGRAVE,
     ENGR_BLOOD,
     FLYING,
+    GETOBJ_DOWNPLAY,
+    GETOBJ_SUGGEST,
+    HALLUC,
+    HALLUC_RES,
     HEADSTONE,
     ICE,
     LEVITATION,
@@ -17,7 +24,10 @@ import {
     N_ENGRAVE,
     P_BASIC,
     P_RIDING,
+    ROOM,
+    STUNNED,
 } from './const.js';
+import { exercise_nonphysical } from './attrib.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
@@ -31,6 +41,15 @@ import {
     S_MIMIC,
 } from './monsters.js';
 import { rn2, rnd } from './rng.js';
+import {
+    GEM_CLASS,
+    MAGIC_MARKER,
+    RING_CLASS,
+    TOOL_CLASS,
+    TOWEL,
+    WAND_CLASS,
+    WEAPON_CLASS,
+} from './objects.js';
 import { t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
 import { welded } from './wield.js';
 import { bimanual } from './worn.js';
@@ -128,6 +147,9 @@ export function make_engr_at(
         encodeUtf8ByteString(sourceText).length,
         encodeUtf8ByteString(pristine).length,
     ) + 1;
+    const exactElbereth = sourceText === 'Elbereth';
+    if (exactElbereth && !state.in_mklev)
+        exercise_nonphysical(A_WIS, true, state, random);
     const engraving = {
         nxt_engr: state.head_engr ?? null,
         engr_x: x,
@@ -139,13 +161,158 @@ export function make_engr_at(
             : random.rnd(N_ENGRAVE - 1),
         engr_szeach: stringBytes,
         engr_alloc: stringBytes * 3,
-        guardobjects: sourceText === 'Elbereth' && Boolean(state.in_mklev),
+        guardobjects: exactElbereth && Boolean(state.in_mklev),
         nowipeout: false,
         eread: false,
         erevealed: false,
     };
     state.head_engr = engraving;
     return engraving;
+}
+
+export class UnsupportedEngraveError extends Error {
+    constructor(reason) {
+        super(`engrave requires ${reason}`);
+        this.name = 'UnsupportedEngraveError';
+        this.reason = reason;
+    }
+}
+
+function propertyIntrinsic(state, index) {
+    return Boolean(state.u?.uprops?.[index]?.intrinsic ?? 0);
+}
+
+// C ref: engrave.c stylus_ok(). Bare hands are a suggested getobj() choice;
+// object implements remain selectable but outside this slice.
+export function stylus_ok(obj) {
+    if (!obj) return GETOBJ_SUGGEST;
+    if ([WEAPON_CLASS, WAND_CLASS, GEM_CLASS, RING_CLASS].includes(obj.oclass))
+        return GETOBJ_SUGGEST;
+    if (obj.oclass === TOOL_CLASS
+        && [TOWEL, MAGIC_MARKER].includes(obj.otyp)) {
+        return GETOBJ_SUGGEST;
+    }
+    return GETOBJ_DOWNPLAY;
+}
+
+// C ref: engrave.c u_can_engrave(), narrowed to the goal's ordinary floor.
+// The caller supplies C's cantwield() and check_capacity() owners to avoid an
+// engrave.js -> hack.js import cycle.
+export async function u_can_engrave(state, { cantWield, checkCapacity }) {
+    const typ = state.level?.at?.(state.u.ux, state.u.uy)?.typ;
+    if (state.u.uswallow || ![ROOM, CORR].includes(typ)
+        || !can_reach_floor(true, state)) {
+        throw new UnsupportedEngraveError('an accessible ordinary floor');
+    }
+    if (cantWield(state.youmonst?.data ?? state.mons[state.u.umonnum])) {
+        throw new UnsupportedEngraveError('a form that can hold a stylus');
+    }
+    if (await checkCapacity(null, state))
+        throw new UnsupportedEngraveError('an unencumbered hero');
+    return true;
+}
+
+function engravingContext(state) {
+    state.context ??= {};
+    state.context.engraving ??= {};
+    return state.context.engraving;
+}
+
+// C ref: engrave.c engrave(). This slice owns the bare-fingertip DUST arm
+// whose at most ten non-space bytes finish in the first rate-10 action.
+export async function engrave(state, { redraw, handsObject }) {
+    const context = engravingContext(state);
+    if (context.pos?.x !== state.u.ux || context.pos?.y !== state.u.uy)
+        throw new UnsupportedEngraveError('the original engraving square');
+    if (context.stylus !== handsObject)
+        throw new UnsupportedEngraveError('bare fingertips');
+
+    context.actionct = (context.actionct ?? 0) + 1;
+    const text = String(context.text ?? '');
+    const nonspaces = [...text].filter((character) => character !== ' ').length;
+    if (nonspaces > 10)
+        throw new UnsupportedEngraveError('a one-action rate-10 string');
+
+    const engraving = make_engr_at(
+        state.u.ux,
+        state.u.uy,
+        text,
+        null,
+        (state.moves ?? 0) - (state.multi ?? 0),
+        DUST,
+        { state },
+    );
+    engraving.eread = true;
+    engraving.erevealed = true;
+    context.text = '';
+    context.nextc = null;
+    context.stylus = null;
+    redraw(context.pos.x, context.pos.y);
+    return 0;
+}
+
+// C ref: engrave.c doengrave(), narrowed to a sighted, clear-minded hero,
+// bare fingertips, no prior engraving, ordinary dust, and one action.
+export async function doengrave(state, env) {
+    await u_can_engrave(state, env);
+    const impaired = propertyActiveUnblocked(state.u, BLINDED)
+        || propertyIntrinsic(state, CONFUSION)
+        || propertyIntrinsic(state, STUNNED)
+        || (propertyIntrinsic(state, HALLUC)
+            && !propertyIntrinsic(state, HALLUC_RES));
+    if (impaired)
+        throw new UnsupportedEngraveError('a sighted, clear-minded hero');
+    if (engr_at(state.u.ux, state.u.uy, state))
+        throw new UnsupportedEngraveError('a square without an engraving');
+
+    state.multi = 0;
+    state.nomovemsg = null;
+    const selected = await env.getObject(
+        'write with', stylus_ok, env.GETOBJ_PROMPT, state,
+    );
+    if (!selected) return env.ECMD_CANCEL;
+    if (selected !== env.handsObject)
+        throw new UnsupportedEngraveError('bare fingertips');
+    if (!freehand(state))
+        throw new UnsupportedEngraveError('a free hand');
+
+    await env.message('You write in the dust with your fingertip.', state);
+    let text = await env.getLine(
+        'What do you want to write in the dust here?', state,
+    );
+    text = env.mungspaces(text);
+    const bytes = encodeUtf8ByteString(text);
+    const nonspaces = bytes.filter((byte) => byte !== 0x20).length;
+    if (!nonspaces || text.includes('\x1b'))
+        throw new UnsupportedEngraveError('nonempty engraving text');
+    if (bytes.some((byte) => byte < 0x20 || byte > 0x7e) || nonspaces > 10)
+        throw new UnsupportedEngraveError('at most ten printable ASCII bytes');
+
+    if (nonspaces !== 1 || (!text.includes('x') && !text.includes('X')))
+        state.u.uconduct.literate++;
+
+    const mixed = [];
+    for (const byte of bytes) {
+        if (byte === 0x20) {
+            mixed.push(byte);
+            continue;
+        }
+        if (!env.random.rn2(25)) mixed.push(0x20 + env.random.rnd(94));
+        else mixed.push(byte);
+    }
+    text = decodeUtf8ByteString(mixed);
+
+    const context = engravingContext(state);
+    context.text = text;
+    context.nextc = text;
+    context.stylus = env.handsObject;
+    context.type = DUST;
+    context.pos = { x: state.u.ux, y: state.u.uy };
+    context.actionct = 0;
+    env.setOccupation(
+        (current) => engrave(current, env), 'engraving', 0, state,
+    );
+    return env.ECMD_OK;
 }
 
 function propertyActiveUnblocked(hero, propertyIndex) {
