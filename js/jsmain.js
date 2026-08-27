@@ -130,6 +130,14 @@ export function set_playmode(state = game, { loginName } = {}) {
     const iflags = state.iflags ??= {};
     const sysopt = state.sysopt ??= {};
     sysopt.wizards ??= RECORDER_SYSTEM_OPTIONS.wizards;
+    // C ref: cfgfiles.c cnf_line_WIZARDS(). The recorder's committed sysconf
+    // preformats its nonempty, non-wildcard WIZARDS list for contact and panic
+    // paths. Keep that derived C state beside the one source list.
+    if (!Object.hasOwn(sysopt, 'fmtd_wizard_list')
+        && String(sysopt.wizards).length > 0
+        && sysopt.wizards !== '*') {
+        sysopt.fmtd_wizard_list = buildEnglishList(sysopt.wizards);
+    }
     sysopt.explorers ??= RECORDER_SYSTEM_OPTIONS.explorers;
 
     const username = String(loginName ?? RECORDER_ACCOUNT);

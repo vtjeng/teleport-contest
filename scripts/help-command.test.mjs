@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import * as pager from '../js/pager.js';
 import {
     cmdq_peek,
     extendedCommandListLines,
@@ -41,6 +42,10 @@ import {
     loadHelpMenuControlsRecipe,
 } from './run-help-menu-controls.mjs';
 import {
+    HELP_CONTACT_MOVES,
+    loadHelpContactRecipe,
+} from './run-help-contact.mjs';
+import {
     HELP_EXTENDED_COMMANDS_MOVES,
     loadHelpExtendedCommandsRecipe,
 } from './run-help-extended-commands.mjs';
@@ -74,6 +79,23 @@ test('the default help menu preserves pager.c rows and source selectors', () => 
             { value: 15, selector: 'o', label: 'Support information.' },
         ],
     );
+});
+
+test('contact help preserves the recorder contact lines', () => {
+    // The recorder's sysconf has no SUPPORT value, but cfgfiles.c formats its
+    // default WIZARDS list for pager.c docontact(). Each empty line separates
+    // the local-support and development-team paragraphs.
+    assert.deepEqual(pager.contactLines({
+        sysopt: { fmtd_wizard_list: 'root or games' },
+    }), [
+        'To contact local support, contact root or games.',
+        '',
+        'To contact the NetHack development team directly,',
+        "see the 'Contact' form on our website or email <devteam@nethack.org>.",
+        '',
+        'For more information on NetHack, or to report a bug,',
+        'visit our website "https://www.nethack.org/".',
+    ]);
 });
 
 test('option help wraps Boolean names at the source column limit', () => {
@@ -315,6 +337,31 @@ test('the standalone menu-controls target returns through the next command bound
         assert.equal(game.moves, baselineMoves);
         assert.equal(replay.getRngLog().length, baselineRng);
         // Fresh C seed 319427 records startup, the help menu, one text page,
+        // the repaired map, and the final wait through five boundaries.
+        assert.equal(replay.getScreens().length, 5);
+        assert.equal(replay.getCursors().length, 5);
+    }));
+
+test('contact help returns through the next command boundary',
+    () => withSerializedGrids(async () => {
+        const segment = loadHelpContactRecipe().segments[0];
+        assert.equal(segment.moves, HELP_CONTACT_MOVES);
+
+        // The final wait spends one turn, so compare against that command
+        // without the preceding help interaction.
+        const baseline = await runSegment({ ...segment, moves: '.' });
+        const baselineMoves = game.moves;
+        const baselineRng = baseline.getRngLog().length;
+
+        let boundary;
+        const replay = await runSegment(segment, {
+            onBoundary: (error) => { boundary = error; },
+        });
+        assert.equal(boundary, undefined);
+        assert.equal(game.context.pendingCommand, undefined);
+        assert.equal(game.moves, baselineMoves);
+        assert.equal(replay.getRngLog().length, baselineRng);
+        // The fresh C case records startup, the help menu, one contact page,
         // the repaired map, and the final wait through five boundaries.
         assert.equal(replay.getScreens().length, 5);
         assert.equal(replay.getCursors().length, 5);

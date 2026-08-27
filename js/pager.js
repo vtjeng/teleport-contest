@@ -967,6 +967,37 @@ export async function domenucontrols(state = game) {
     await displayTtyTextWindow(state, lines);
 }
 
+const DEVTEAM_EMAIL = 'devteam@nethack.org';
+const DEVTEAM_URL = 'https://www.nethack.org/';
+
+// C ref: pager.c docontact() (2721-2745), through the recorder's branch with
+// no sysopt.support value and a formatted default WIZARDS list. An explicit
+// SUPPORT value remains outside the current goal.
+export function contactLines(state = game) {
+    if (state.sysopt?.support)
+        throw new UnsupportedHelpError('configured SUPPORT text');
+    const lines = [];
+    if (state.sysopt?.fmtd_wizard_list) {
+        lines.push(
+            `To contact local support, contact ${state.sysopt.fmtd_wizard_list}.`,
+            '',
+        );
+    }
+    lines.push(
+        'To contact the NetHack development team directly,',
+        `see the 'Contact' form on our website or email <${DEVTEAM_EMAIL}>.`,
+        '',
+        'For more information on NetHack, or to report a bug,',
+        `visit our website "${DEVTEAM_URL}".`,
+    );
+    return lines;
+}
+
+export async function docontact(state = game) {
+    const lines = contactLines(state).map((text) => ({ text }));
+    await displayTtyTextWindow(state, lines);
+}
+
 // C ref: pager.c help_menu_items[] (2829-2858). This build has no PORT_HELP
 // row, normal play omits dispfile_debughelp(), and hideusage is off. Keep the
 // numeric value from the source-table index so filtering a future row cannot
@@ -1082,6 +1113,10 @@ export async function dohelp(state = game) {
     }
     if (choice === 14) {
         await dispfile_license(state);
+        return ECMD_OK;
+    }
+    if (choice === 15) {
+        await docontact(state);
         return ECMD_OK;
     }
     throw new UnsupportedHelpError(`menu target ${choice}`);
