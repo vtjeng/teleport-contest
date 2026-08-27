@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { UnsupportedHeroCommandBoundaryError } from '../js/cmd.js';
-import { TIP_GETPOS } from '../js/const.js';
+import { D_BROKEN, D_TRAPPED, TIP_GETPOS } from '../js/const.js';
 import { GETPOS_TIP_LINES, handle_tip } from '../js/hack.js';
-import { truncate_to_map } from '../js/getpos.js';
+import { getpos, truncate_to_map } from '../js/getpos.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
@@ -18,6 +18,7 @@ import {
     S_brupstair,
     S_corr,
     S_darkroom,
+    S_ndoor,
     S_room,
     initialize_symbols_from_options,
 } from '../js/symbols.js';
@@ -38,6 +39,7 @@ import {
     TYPED_FOUNTAIN_MOVES,
     loadWhatisTypedInventoryRecipe,
 } from './run-whatis-typed-inventory-lookup.mjs';
+import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 test('the default whatis menu preserves pager.c order and accelerators', () => {
     const state = {
@@ -139,7 +141,7 @@ test('ordinary hero farlook renders the source-derived description',
     );
 });
 
-function terrainDescription(cmap) {
+function terrainDescription(cmap, flags = 0) {
     // The separate hero coordinate keeps pager.c lookat() on its ordinary
     // glyph_is_cmap() branch. D:1 selects the main-dungeon glyph family.
     const state = {
@@ -154,7 +156,7 @@ function terrainDescription(cmap) {
     // active room symbol before pager.c scans gs.showsyms[].
     state.gs.showsyms[S_darkroom] = state.gs.showsyms[S_room];
     state.level.at = (x, y) => (x === 3 && y === 4
-        ? { disp_glyph: { glyph: cmap_to_glyph(cmap, state) } }
+        ? { flags, disp_glyph: { glyph: cmap_to_glyph(cmap, state) } }
         : undefined);
     return do_screen_description({ x: 3, y: 4 }, true, 0, state);
 }
@@ -189,6 +191,25 @@ test('corridor ambiguity uses pager.c many-things truncation', () => {
     });
 });
 
+test('doorway refinement distinguishes broken and trapped-broken masks', () => {
+    const prefix = '·        a doorway or the floor of a room or the dark part of a room or ice';
+    assert.deepEqual(terrainDescription(S_ndoor), {
+        found: 1,
+        out: `${prefix} (doorway)`,
+        firstmatch: 'doorway',
+    });
+    assert.deepEqual(terrainDescription(S_ndoor, D_BROKEN), {
+        found: 1,
+        out: `${prefix} (broken door)`,
+        firstmatch: 'broken door',
+    });
+    assert.deepEqual(terrainDescription(S_ndoor, D_BROKEN | D_TRAPPED), {
+        found: 1,
+        out: `${prefix} (broken door)`,
+        firstmatch: 'broken door',
+    });
+});
+
 test('truncate_to_map preserves diagonal travel along map edges', () => {
     // From <2,1>, an eight-cell northwest run reaches C's left edge first;
     // truncate_to_map() removes seven vertical cells and lands at <1,0>.
@@ -216,11 +237,34 @@ test('ordinary and fast cursor movement return through the next boundary',
             assert.equal(replay.getCursors().length, expected[index].screens);
             assert.equal(replay.getRngLog().length, expected[index].rng);
             assert.deepEqual(
+                replay.getCursors()[14],
+                index === 0 ? [30, 5, 1] : [27, 17, 1],
+            );
+            assert.deepEqual(
                 { x: game.gg.getposx, y: game.gg.getposy },
                 { x: 0, y: 0 },
             );
         }
     });
+
+test('getpos restores the caller direction after moving its cursor', async () => {
+    const segment = loadWhatisMapCursorTerrainRecipe().segments[0];
+    await runSegment({ ...segment, moves: WHATIS_SETUP });
+    game.flags.tips = false;
+    game.flags.verbose = false;
+    game.u.dx = 3;
+    game.u.dy = -4;
+    game.u.dz = 5;
+    game.nhDisplay.pushKey('h'.charCodeAt(0));
+    game.nhDisplay.pushKey(0x1B);
+
+    const coordinate = { x: game.u.ux, y: game.u.uy };
+    assert.equal(await getpos(coordinate, false, 'a target', game), -1);
+    assert.deepEqual(
+        [game.u.dx, game.u.dy, game.u.dz],
+        [3, -4, 5],
+    );
+});
 
 test('typed fountain lookup displays its entry through the next boundary',
     async () => {
@@ -248,6 +292,51 @@ test('carried quarterstaff lookup displays its wildcard entry', async () => {
     // Startup begins at move one; only the final dot advances it to two.
     assert.equal(game.moves, 2);
 });
+
+test('typed and carried lookups render their source encyclopedia text',
+    () => withSerializedGrids(async () => {
+        const [typed, carried] = loadWhatisTypedInventoryRecipe().segments;
+        const typedReplay = await runSegment(typed);
+        const carriedReplay = await runSegment(carried);
+        const screenText = (replay) => replay.getScreens()
+            .map((screen) => JSON.parse(screen))
+            .map((grid) => grid.map((row) => row.map(({ ch }) => ch).join(''))
+                .join('\n'));
+
+        assert.equal(screenText(typedReplay).some((screen) => (
+            screen.includes('Rest! This little Fountain runs')
+            && screen.includes('[ For a Fountain, by Bryan Waller Procter ]')
+        )), true);
+        assert.equal(screenText(carriedReplay).some((screen) => (
+            screen.includes('So they stood, each in his place')
+            && screen.includes('[ The Merry Adventures of Robin Hood, by Howard Pyle ]')
+        )), true);
+    }));
+
+test('three-line status repair matches the inventory docorner rectangle',
+    () => withSerializedGrids(async () => {
+        const segment = loadWhatisTypedInventoryRecipe().segments[2];
+        const replay = await runSegment(segment);
+        assert.equal(replay.getScreens().length, 7);
+        assert.equal(replay.getCursors().length, 7);
+        assert.equal(replay.getRngLog().length, 6271);
+
+        const grids = replay.getScreens().map((screen) => JSON.parse(screen));
+        const textRows = grids.map((grid) => grid.map(
+            (row) => row.map(({ ch }) => ch).join('').trimEnd(),
+        ));
+        const encyclopedia = textRows.find((rows) => rows.some(
+            (row) => row.includes('So they stood, each in his place'),
+        ));
+        assert.ok(encyclopedia);
+        // C docorner(offx, maxrow + 1, 0) reaches physical rows 21 and 22
+        // for this inventory, leaving only their pre-overlay status prefixes.
+        assert.deepEqual(encyclopedia.slice(21), [
+            'Hypatia the Evoker',
+            'Neutral $:0 HP:12(1',
+            'Dlvl:1',
+        ]);
+    }));
 
 test('deferred whatis list choices retain the drawn command prefix',
     async () => {

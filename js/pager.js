@@ -415,7 +415,7 @@ export async function do_look(mode, clickCc = null, state = game) {
     });
     if (choice === null) return ECMD_OK;
     if (choice === 'i') {
-        let inventoryRepairColumn = null;
+        let inventoryRepairLayout = null;
         const invlet = await display_inventory(null, true, state, {
             // invent.c display_pickinv() uses the same PICK_ONE menu and
             // heading style as the ordinary inventory command.
@@ -432,24 +432,27 @@ export async function do_look(mode, clickCc = null, state = game) {
                     cancelValue: null,
                     overlay: state.iflags?.menu_overlay !== false,
                 };
-                inventoryRepairColumn = ttyMenuLayout(
-                    state.nhDisplay, spec,
-                ).repairColumn;
+                inventoryRepairLayout = ttyMenuLayout(state.nhDisplay, spec);
                 return select_menu(state, spec);
             },
         });
         // wintty.c tty_dismiss_nhwindow() repairs the inventory menu with
-        // docorner(offx, maxrow + 1, 0). A full-height starting inventory
-        // reaches the first status row but not the second; the map redraw has
-        // no status cells to restore there, so the repaired suffix stays
-        // blank until the next bot() call. Snapshot restoration in the JS
-        // menu owner would otherwise retain that suffix behind the data
-        // window and differ at its next input boundary.
-        if (inventoryRepairColumn !== null) {
-            const statusRow = state.nhDisplay.rows - 2;
-            for (let column = inventoryRepairColumn;
-                column < state.nhDisplay.cols; ++column) {
-                state.nhDisplay.setCell(column, statusRow, ' ', NO_COLOR, 0);
+        // docorner(offx, maxrow + 1, 0). Clear exactly the suffixes where that
+        // vertical rectangle intersects the configured status window; a
+        // shorter overlay never reaches status, while a three-line status can
+        // intersect two rows. Full-screen menus own their complete redraw.
+        if (inventoryRepairLayout && !inventoryRepairLayout.fullScreen) {
+            const statusLines = state.iflags?.wc2_statuslines === 3 ? 3 : 2;
+            const firstStatusRow = state.nhDisplay.rows - statusLines;
+            const lastRepairRow = Math.min(
+                state.nhDisplay.rows - 1,
+                inventoryRepairLayout.maxrow,
+            );
+            for (let row = firstStatusRow; row <= lastRepairRow; ++row) {
+                for (let column = inventoryRepairLayout.repairColumn;
+                    column < state.nhDisplay.cols; ++column) {
+                    state.nhDisplay.setCell(column, row, ' ', NO_COLOR, 0);
+                }
             }
         }
         if (!invlet || invlet === '\x1b') return ECMD_OK;

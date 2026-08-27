@@ -20,6 +20,16 @@ test('generated data.base entries match the pinned source projection', () => {
     const source = readFileSync(SOURCE_URL, 'utf8');
     const parsed = parseDataBase(source);
 
+    // Independent source-pinned totals catch class-wide parser loss even
+    // when somebody regenerates the output with the same faulty parser.
+    assert.equal(parsed.length, 515);
+    assert.equal(parsed.reduce((sum, entry) => sum + entry.keys.length, 0), 951);
+    assert.equal(parsed.reduce((sum, entry) => sum + entry.lines.length, 0), 5409);
+    assert.equal(parsed.reduce(
+        (sum, entry) => sum + entry.lines.filter((line) => line === '').length,
+        0,
+    ), 133);
+
     assert.deepEqual(DATA_BASE_ENTRIES, parsed);
     assert.equal(
         readFileSync(
@@ -47,6 +57,26 @@ test('generated data.base entries match the pinned source projection', () => {
     // The last source description precedes a comment and the final newline;
     // neither is a blank encyclopedia line.
     assert.equal(finalEntry.lines.at(-1), "  The Shepherd's Crown");
+});
+
+test('data.base parser retains key groups, comments, blanks, tabs, and EOF', () => {
+    assert.deepEqual(parseDataBase([
+        'alpha*',
+        '~alpha excluded',
+        '# comment between keys and text',
+        '\tfirst line',
+        '',
+        '\t\tsecond tabbed line',
+        '# trailing comment',
+        'final',
+        '        final text without newline',
+    ].join('\n')), [
+        {
+            keys: ['alpha*', '~alpha excluded'],
+            lines: ['first line', '', '        second tabbed line'],
+        },
+        { keys: ['final'], lines: ['final text without newline'] },
+    ]);
 });
 
 test('data.base wildcard matching honors exclusions before later entries', () => {

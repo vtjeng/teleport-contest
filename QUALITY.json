@@ -5198,6 +5198,51 @@
       "status": "open",
       "from": "a6a281619c0f7d1f8fe29c832a291f8c34eb1a6c",
       "detail": "Port pager.c self_lookat() hero descriptions for every non-Wizard role, race, gender, and polymorph form reachable by the whatis command. The current ordinary hero lookup returns the Wizard witness text unconditionally; no development session reaches another identity, so the wider source branch remains outside whatis-map-getpos-hero."
+    },
+    {
+      "id": "whatis-msgtype-bypass",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "e5173cc46fa486787d58b68aac90972466b08fcf",
+      "detail": "Cursor auto-descriptions and picker descriptions still route through MSGTYPE. Port custompline SUPPRESS_HISTORY|OVERRIDE_MSGTYPE|NO_CURS_ON_U and putmixed bypass semantics with fresh hide, norep, and stop differentials."
+    },
+    {
+      "id": "whatis-down-stair-terrain",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "e5173cc46fa486787d58b68aac90972466b08fcf",
+      "detail": "Ordinary down and branch-down staircase terrain remain outside lookatOrdinaryTerrain. Port those pager.c cmap branches with source-pinned and fresh cursor cases."
+    },
+    {
+      "id": "whatis-symbol-family-ambiguity",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "e5173cc46fa486787d58b68aac90972466b08fcf",
+      "detail": "Whatis symbol ambiguity scans omit matching monster and object classes. Port pager.c source-order family scans, need_to_look, and duplicate suppression with collision differentials."
+    },
+    {
+      "id": "whatis-ibm-message-prefix",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "e5173cc46fa486787d58b68aac90972466b08fcf",
+      "detail": "IBMgraphics whatis descriptions need recorder TTY-byte prefixes rather than browser display glyphs. Separate recorder projection from browser presentation and validate IBM cursor cases."
+    },
+    {
+      "id": "whatis-custom-cmap-order",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "e5173cc46fa486787d58b68aac90972466b08fcf",
+      "detail": "Custom cmap collisions need pager.c alt_i and add_cmap_descr ordering, normalization, and article semantics. Port the function family with source-pinned collision cases."
     }
   ],
   "areas": [

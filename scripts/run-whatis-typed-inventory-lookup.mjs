@@ -15,11 +15,12 @@ const SCRIPT_PATH = fileURLToPath(import.meta.url);
 export const TYPED_FOUNTAIN_MOVES = ' /?fountain\n .';
 export const CARRIED_QUARTERSTAFF_MOVES = ' /ia .';
 
-function nethackrc(name, gender) {
+function nethackrc(name, gender, extraOptions = []) {
     return [
         `OPTIONS=name:${name},role:Wizard,race:human,gender:${gender},align:neutral`,
         'OPTIONS=!autopickup,!legacy,!tutorial,!splash_screen',
         'OPTIONS=pettype:none,!acoustics,symset:DECgraphics',
+        ...extraOptions.map((option) => `OPTIONS=${option}`),
         '',
     ].join('\n');
 }
@@ -44,6 +45,14 @@ export function loadWhatisTypedInventoryRecipe() {
                 nethackrc: nethackrc('Hypatia', 'female'),
                 moves: CARRIED_QUARTERSTAFF_MOVES,
             },
+            {
+                // The same independent inventory path with a three-row
+                // status window pins the vertical docorner repair boundary.
+                seed: 42052,
+                datetime: '20000210194107',
+                nethackrc: nethackrc('Hypatia', 'female', ['statuslines:3']),
+                moves: CARRIED_QUARTERSTAFF_MOVES,
+            },
         ],
     }, 'whatis typed-name and carried-item recipe');
 }
@@ -56,7 +65,7 @@ export async function runWhatisTypedInventoryMatrix() {
         }],
         summaryLabel: 'WHATIS TYPED INVENTORY LOOKUP',
     });
-    if (result.passed) assert.equal(result.totals.segments, 2);
+    if (result.passed) assert.equal(result.totals.segments, 3);
     return result;
 }
 

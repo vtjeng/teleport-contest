@@ -360,7 +360,14 @@ async function ttyPlineCore(message, state, pflags, mixedFirstCell = null) {
     if (current
         && !deathMessage
         && fitsOnTtyTopline(current, next, columns)) {
-        rememberPendingMessage(state, `${current}  ${next}`);
+        // C addtopl() appends after the existing bytes and does not repaint
+        // their cells. Preserve tty_putmixed()'s rendered DEC first cell
+        // while extending the pending raw-byte message.
+        rememberPendingMessage(
+            state,
+            `${current}  ${next}`,
+            state._ttyMixedFirstCell ?? null,
+        );
         state._ttyPreviousMessage = normalizedMessage;
         if (msgtype === MSGTYP_STOP)
             await displayPendingTtyMessageWindow(state);

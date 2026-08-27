@@ -34,12 +34,15 @@ import {
     UnsupportedPosixLocaleMatchError,
 } from '../js/posixregex.js';
 import {
+    dismissPendingTtyMessage,
     ttyCustomPline,
     ttyNorep,
     ttyPline,
+    ttyPutmixed,
     ttyUrgentPline,
     UnsupportedCustomPlineFlagsError,
 } from '../js/tty_message.js';
+import { NO_COLOR } from '../js/terminal.js';
 import {
     loadStartupMsgtypeRecipe,
     STARTUP_MSGTYPE_CASES,
@@ -715,6 +718,26 @@ test('a fitting same-line STOP waits once, preserves a key, and clears',
             [0, 0],
         );
     });
+
+test('a same-line append preserves a pending DEC mixed first cell', async () => {
+    const state = messageState('', ' ');
+    const boundaries = [];
+    state._preNhgetchHook = () => boundaries.push({
+        firstCell: { ...state.nhDisplay.grid[0][0] },
+        row: state.nhDisplay.grid[0].map((cell) => cell.ch)
+            .join('').trimEnd(),
+    });
+
+    await ttyPutmixed('q        a wall', '─', state);
+    await ttyPline('Pick a monster, object or location.', state);
+    await dismissPendingTtyMessage(state);
+
+    assert.deepEqual(boundaries, [{
+        firstCell: { ch: '─', color: NO_COLOR, attr: 0 },
+        row: '─        a wall  Pick a monster, object or location.--More--',
+    }]);
+    assert.equal(state._ttyMixedFirstCell, undefined);
+});
 
 test('STOP Space clears suppression set by a prior Escape', async () => {
     const state = messageState('MSGTYPE=stop "halt"\n', '\x1b X');
