@@ -288,6 +288,20 @@ test('healup keeps timed blindness behind the make_blinded boundary', () => {
         (error) => error instanceof UnsupportedPotionError,
     );
 
+    const ordinaryTimed = {
+        u: {
+            uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
+            uprops: {
+                [BLINDED]: { intrinsic: 37 & TIMEOUT, extrinsic: 0 },
+            },
+        },
+        disp: {},
+    };
+    assert.throws(
+        () => healup(0, 0, false, true, ordinaryTimed),
+        (error) => error instanceof UnsupportedPotionError,
+    );
+
     const permanent = {
         u: {
             uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
