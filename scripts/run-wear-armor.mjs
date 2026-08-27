@@ -498,6 +498,19 @@ export function loadWearWishRecipe() {
                 + `${INVENTORY_KEY}${ESCAPE_KEY}${WEAR_KEY}e`
                 + `${INVENTORY_KEY}${ESCAPE_KEY}`,
                 VALKYRIE, DEBUG),
+            // do_wear.c:219-227 SPEED_BOOTS, once with no previous FAST and
+            // once with permanent intrinsic FAST. The Valkyrie at level 1
+            // has neither source, so Boots_on() discovers the type and prints
+            // "You feel yourself speed up." The Monk starts with permanent
+            // intrinsic FAST from attrib.c mon_abil[]'s level-1 row, so the
+            // same arm appends " a bit more". Both pairs take the common
+            // two-turn boots delay and reveal their +0 enchantment.
+            //
+            // The Monk's generated spellbook and optional tool determine his
+            // last inventory letter. Seed 7720233 places the wished boots at
+            // `j`; the Valkyrie's fixed four stacks place hers at `e`.
+            wishSegment(7720231, '+0 speed boots', `${WEAR_KEY}e`),
+            wishSegment(7720233, '+0 speed boots', `${WEAR_KEY}j`, MONK),
             // canwearobj()'s is_boots filled-slot arm at do_wear.c:2103-2106,
             // which needs boots already on and so needs two wishes: the low
             // boots go on over the two helpless turns, and the iron shoes at

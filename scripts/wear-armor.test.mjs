@@ -13,6 +13,8 @@ import {
     ECMD_OK,
     ECMD_TIME,
     ENL_GAMEINPROGRESS,
+    FAST,
+    FROMEXPER,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_INACCESS,
@@ -33,6 +35,7 @@ import {
     W_ARMS,
     W_ARMU,
     W_AMUL,
+    W_ART,
     W_RINGL,
     W_RINGR,
     W_SWAPWEP,
@@ -974,19 +977,18 @@ test('the six helmets Helmet_on cannot run are refused unwritten',
     }
 });
 
-test('the five boots Boots_on cannot run are refused unwritten', async () => {
+test('the four boots Boots_on cannot run are refused unwritten', async () => {
     // do_wear.c:199-249. Five of Boots_on()'s ten labels fall to a bare break;
-    // the other five call spoteffects() and makeknown(), makeknown() and
-    // You_feel(), toggle_stealth(), incr_itimeout() over rnd(20), or float_up()
-    // -- all outside do_wear.c. Refusing above setworn() is what keeps the
-    // random-number log empty on this whole path: FUMBLE_BOOTS is the one arm
-    // anywhere on the 'W' spine that would draw.
+    // SPEED_BOOTS is ported separately below, and the other four call
+    // spoteffects(), toggle_stealth(), incr_itimeout() over rnd(20), or
+    // float_up(). Refusing above setworn() keeps the random-number log empty
+    // on FUMBLE_BOOTS, the one arm on the 'W' spine that would draw.
     //
-    // Two of the five are the cases just outside this goal's stated limit,
-    // recorded as the QUALITY.json deferral wear-magic-boots-stop.
+    // These four retained types remain outside this goal's stated limit and
+    // stay covered by the QUALITY.json deferral wear-magic-boots-stop.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
-    for (const otyp of [SPEED_BOOTS, WATER_WALKING_BOOTS, ELVEN_BOOTS,
-        FUMBLE_BOOTS, LEVITATION_BOOTS]) {
+    for (const otyp of [WATER_WALKING_BOOTS, ELVEN_BOOTS, FUMBLE_BOOTS,
+        LEVITATION_BOOTS]) {
         await setup(segment, OFF);
         const obj = armor(otyp, { dknown: 1, spe: 0 });
 
@@ -1003,7 +1005,7 @@ test('the five boots Boots_on cannot run are refused unwritten', async () => {
         // set_wear() reaches it with whatever u_init.c wore, and there is no
         // frame above that one to hoist a refusal into.
         game.uarmf = armor(otyp, { dknown: 1, spe: 0, known: false });
-        assert.throws(() => Boots_on(game),
+        await assert.rejects(() => Boots_on(game),
             refusal(UnsupportedWearError, `Boots_on() for otyp ${otyp}`));
         assert.equal(game.uarmf.known, false, `otyp ${otyp}`);
         game.uarmf = null;
@@ -1011,7 +1013,7 @@ test('the five boots Boots_on cannot run are refused unwritten', async () => {
     // The same direct call for a type it carries, which pins C's own
     // `return 0` at do_wear.c:258. Both callers discard the value.
     game.uarmf = armor(LOW_BOOTS, { dknown: 1, spe: 0, known: false });
-    assert.equal(Boots_on(game), 0);
+    assert.equal(await Boots_on(game), 0);
     assert.equal(game.uarmf.known, true);
     game.uarmf = null;
 
@@ -1031,6 +1033,66 @@ test('the five boots Boots_on cannot run are refused unwritten', async () => {
         assert.equal(game.multi, -2, `otyp ${otyp}`);
         assert.equal(obj.known ?? false, false,
             `the callback has not run yet for otyp ${otyp}`);
+    }
+});
+
+test('Boots_on distinguishes the four prior FAST states', async () => {
+    // do_wear.c:187-225 computes oldprop after setworn() has installed the
+    // boots. W_ARMF is therefore present in every case below and must be
+    // excluded. FROMEXPER is permanent intrinsic speed; 7 is a timed HFast
+    // value because TIMEOUT occupies the low 24 bits. W_ART represents a
+    // second extrinsic source. NetHack 5.0 has no artifact with FAST, so only
+    // a direct state can cover that source-independent branch.
+    const cases = [
+        {
+            label: 'no prior FAST',
+            intrinsic: 0,
+            extrinsic: W_ARMF,
+            message: 'You feel yourself speed up.',
+            discovered: true,
+        },
+        {
+            label: 'permanent intrinsic FAST',
+            intrinsic: FROMEXPER,
+            extrinsic: W_ARMF,
+            message: 'You feel yourself speed up a bit more.',
+            discovered: true,
+        },
+        {
+            label: 'another extrinsic FAST source',
+            intrinsic: 0,
+            extrinsic: W_ARMF | W_ART,
+            message: '',
+            discovered: false,
+        },
+        {
+            label: 'timed HFast',
+            intrinsic: 7,
+            extrinsic: W_ARMF,
+            message: '',
+            discovered: false,
+        },
+    ];
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+
+    for (const prior of cases) {
+        await setup(segment, WAIT);
+        const boots = armor(SPEED_BOOTS, {
+            dknown: true,
+            known: false,
+            spe: 0,
+        });
+        game.uarmf = boots;
+        game.u.uprops[FAST].intrinsic = prior.intrinsic;
+        game.u.uprops[FAST].extrinsic = prior.extrinsic;
+        game.objects[SPEED_BOOTS].oc_name_known = 0;
+        game.objects[SPEED_BOOTS].oc_encountered = 0;
+
+        assert.equal(await Boots_on(game), 0, prior.label);
+        assert.equal(takePendingTopLine(), prior.message, prior.label);
+        assert.equal(Boolean(game.objects[SPEED_BOOTS].oc_name_known),
+            prior.discovered, prior.label);
+        assert.equal(boots.known, true, `${prior.label}: common known tail`);
     }
 });
 
@@ -1190,9 +1252,10 @@ test('set_wear runs the startup callbacks and stops on the slots it cannot',
 
     // A boot type Boots_on() cannot run still stops set_wear(), which is the
     // one caller with no frame above it to hoist the question into.
-    game.uarmf = armor(SPEED_BOOTS, { known: false });
+    game.uarmf = armor(WATER_WALKING_BOOTS, { known: false });
     await assert.rejects(() => set_wear(game),
-        refusal(UnsupportedWearError, `Boots_on() for otyp ${SPEED_BOOTS}`));
+        refusal(UnsupportedWearError,
+            `Boots_on() for otyp ${WATER_WALKING_BOOTS}`));
     assert.equal(game.uarmf.known, false);
     game.uarmf = null;
 });

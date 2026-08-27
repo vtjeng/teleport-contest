@@ -42,6 +42,7 @@ import {
     ECMD_OK,
     ECMD_TIME,
     FACE,
+    FAST,
     FINGER,
     FLYING,
     FOOT,
@@ -234,6 +235,7 @@ import {
     ROBE,
     SILVER_DRAGON_SCALES,
     SILVER_DRAGON_SCALE_MAIL,
+    SPEED_BOOTS,
     TOWEL,
     T_SHIRT,
     WHITE_DRAGON_SCALES,
@@ -1075,29 +1077,37 @@ const PLAIN_BOOTS_ON = new Set([
 // on the turn the 'W' is typed: nomul(-2) spends two helpless turns first and
 // allmain.c moveloop_core() reaches the callback through unmul().
 //
-// The five types PLAIN_BOOTS_ON leaves out all reach outside do_wear.c.
-// WATER_WALKING_BOOTS calls spoteffects() and makeknown(); SPEED_BOOTS
-// makeknown() and You_feel(); ELVEN_BOOTS toggle_stealth(); FUMBLE_BOOTS
-// incr_itimeout(&HFumbling, rnd(20)), the one arm anywhere on this port's 'W'
-// spine that would draw a random number; and LEVITATION_BOOTS float_up(),
-// spoteffects() and float_vs_flight(). accessory_or_armor_on() hoists the
-// refusal above setworn() for the reason the cloak and helmet refusals give:
-// by the time this callback runs the boots are worn, AC has moved and the two
-// helpless turns are spent.
-//
-// C's `oldprop` at 189-190 is read only by those refused arms, so it is not
-// computed -- the reasoning Cloak_on() and Gloves_on() below already record
-// for their own copies.
+// The four types PLAIN_BOOTS_ON and SPEED_BOOTS leave out all reach outside
+// do_wear.c. WATER_WALKING_BOOTS calls spoteffects(); ELVEN_BOOTS calls
+// toggle_stealth(); FUMBLE_BOOTS calls incr_itimeout(&HFumbling, rnd(20)), the
+// one arm anywhere on this port's 'W' spine that would draw a random number;
+// and LEVITATION_BOOTS calls float_up(), spoteffects() and float_vs_flight().
+// accessory_or_armor_on() hoists their refusal above setworn() for the reason
+// the cloak and helmet refusals give: by the time this callback runs the boots
+// are worn, AC has moved and the two helpless turns are spent.
 //
 // C's `uarmf &&` at 254 is left out, as Helmet_on()'s equivalent guard is.
 // C's own comment at 253 says what it is for: float_up() inside the
 // LEVITATION_BOOTS arm can drop the boots down a sink. That arm is refused and
 // no arm here empties the slot, so port it and the guard comes back with it.
-function Boots_on(state) {
+async function Boots_on(state) {
     const otyp = state.uarmf.otyp;
 
-    if (!PLAIN_BOOTS_ON.has(otyp))
+    if (!PLAIN_BOOTS_ON.has(otyp) && otyp !== SPEED_BOOTS)
         throw new UnsupportedWearError(`Boots_on() for otyp ${otyp}`);
+    if (otyp === SPEED_BOOTS) {
+        const fast = state.u.uprops[FAST];
+        const oldprop = fast.extrinsic & ~W_ARMF;
+
+        if (!oldprop && !(fast.intrinsic & TIMEOUT)) {
+            discover_object(otyp, true, true, true, state);
+            await ttyPline(
+                `You feel yourself speed up${fast.intrinsic
+                    ? ' a bit more' : ''}.`,
+                state,
+            );
+        }
+    }
     if (!state.uarmf.known) {
         /* boots' +/- evident because of status line AC */
         state.uarmf.known = true;
@@ -2417,7 +2427,7 @@ async function accessory_or_armor_on(obj, state = game) {
             afternmv = Gloves_on;
             break;
         case W_ARMF:
-            if (!PLAIN_BOOTS_ON.has(obj.otyp))
+            if (!PLAIN_BOOTS_ON.has(obj.otyp) && obj.otyp !== SPEED_BOOTS)
                 throw new UnsupportedWearError(
                     `Boots_on() for otyp ${obj.otyp}`,
                 );
