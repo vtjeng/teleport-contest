@@ -148,7 +148,11 @@ import { UnsupportedEndOfGameError } from './end.js';
 import { UnsupportedItemIgnitionError } from './apply_catch_lit.js';
 import { UnsupportedAbilityChangeError } from './attrib.js';
 import { UnsupportedExperienceChangeError } from './exper.js';
-import { UnsupportedMonsterRequestError } from './read.js';
+import {
+    doread,
+    UnsupportedMonsterRequestError,
+    UnsupportedReadError,
+} from './read.js';
 import {
     wiz_genesis, wiz_level_change, wiz_level_tele, wiz_wish,
 } from './wizcmds.js';
@@ -1005,7 +1009,7 @@ export async function parseCommand(state = game) {
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'apply', 'open', 'close', 'down', 'up', 'drop', 'pickup', 'takeoff', 'wear',
-    'puton', 'quaff', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
+    'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
     'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
     'save', 'wield', '#',
 ]);
@@ -1388,6 +1392,10 @@ export function failClosedCommandRefusals() {
         // and done_eating() and lesshungry() call it from doeat().
         UnsupportedHungerTransitionError,
         UnsupportedObjectPromptError,
+        // read.c doread() raises this after getobj() returns an object and
+        // before pickup_prev or any reading effect changes state. Cancellation
+        // completes normally, so only selected objects reach this refusal.
+        UnsupportedReadError,
         UnsupportedSteedError,
         // wield.c can_twoweapon()'s artifact and slippery-or-cursed arms,
         // both of which stop before the command prints anything or draws its
@@ -1776,6 +1784,13 @@ async function runCastCommand(key, state) {
 // cancelled object prompt, and ECMD_TIME for the quaff that happens.
 async function runQuaffCommand(key, state) {
     return failClosedCommand(key, state, () => dodrink(state));
+}
+
+// C ref: read.c doread(). Like dodrink() it returns its own ECMD_* result:
+// ECMD_OK for the capacity refusal and ECMD_CANCEL for an escaped object
+// prompt. A selected object stops inside doread() until its effect is ported.
+async function runReadCommand(key, state) {
+    return failClosedCommand(key, state, () => doread(state));
 }
 
 // C ref: do.c dodown(). Like dosearch() and doeat() it returns its own ECMD_*
@@ -2553,6 +2568,19 @@ export async function rhack(key, state = game) {
             // CMD_M_PREFIX, so an 'm' prefix sets iflags.menu_requested and
             // skips the fountain/sink/underwater prompts.
             const res = await runQuaffCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'read') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818. The read
+            // row at cmd.c:1816 carries no flags, so prefix and movement arms
+            // cannot divert it. doread() answers ECMD_OK for an overloaded
+            // hero and ECMD_CANCEL when getobj() is escaped; a selected object
+            // remains fail-closed before it changes state.
+            const res = await runReadCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

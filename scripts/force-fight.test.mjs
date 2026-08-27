@@ -999,9 +999,8 @@ test('glyph_to_cmap reads the index a terrain glyph number was built from',
 test('the prefix check runs before the command it refuses', async () => {
     // cmd.c rhack():3693 is an else-if over the arm that runs the command, so
     // a refused prefix means the command never runs at all. `q` is bound to
-    // potion.c dodrink(), which this port does not dispatch: reaching it would
-    // end the segment on UnsupportedHeroCommandBoundaryError instead of
-    // printing the prefix line and carrying on.
+    // potion.c dodrink(), whose prefix-free route this port dispatches; this
+    // case proves that the rejected prefix prevents that dispatch.
     let boundary = null;
     await runSegment({
         seed: 8800004,
@@ -1023,9 +1022,8 @@ test('the prefix check runs before the command it refuses', async () => {
 
 test('the same key without the prefix still reaches its own refusal',
     async () => {
-        // The other side of the test above: `r` alone is what
-        // UnsupportedHeroCommandBoundaryError looks like here. `r` is bound
-        // to doread(), which the port does not own.
+        // `R` alone is what UnsupportedHeroCommandBoundaryError looks like
+        // here. `R` is bound to doremring(), which the port does not own.
         let boundary = null;
         await runSegment({
             seed: 8800004,
@@ -1033,7 +1031,7 @@ test('the same key without the prefix still reaches its own refusal',
             nethackrc: 'OPTIONS=name:Forcer,role:Valkyrie,race:human,'
                 + 'gender:female,align:neutral,!legacy,!tutorial,'
                 + '!splash_screen,pettype:none,!acoustics,!autopickup',
-            moves: 'r',
+            moves: 'R',
         }, { onBoundary: (error) => { boundary = error; } });
         assert.ok(boundary instanceof UnsupportedHeroCommandBoundaryError);
     });

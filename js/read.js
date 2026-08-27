@@ -1,12 +1,18 @@
-// read.js -- the scroll-reading file's monster-creation helpers.
-// C refs: src/read.c cant_revive(), create_particular_parse(),
-// create_particular_creation() and create_particular(), so far the only four
-// rows of that file this port needs. Nothing of doread() or its scroll effects
-// is here; wizcmds.c wiz_genesis() is the one caller.
+// read.js -- reading scrolls and spellbooks, plus monster-creation helpers.
+// C refs: src/read.c read_ok(), doread(), cant_revive(),
+// create_particular_parse(), create_particular_creation() and
+// create_particular(). doread() currently stops after object selection;
+// wizcmds.c wiz_genesis() calls the monster-creation helpers.
 
 import {
     COLNO,
+    ECMD_CANCEL,
+    ECMD_OK,
     FEMALE,
+    GETOBJ_DOWNPLAY,
+    GETOBJ_EXCLUDE,
+    GETOBJ_PROMPT,
+    GETOBJ_SUGGEST,
     MALE,
     MM_FEMALE,
     MM_MALE,
@@ -29,6 +35,8 @@ import {
 } from './monsters.js';
 import { digit, mungspaces, strstri } from './hacklib.js';
 import { game } from './gstate.js';
+import { check_capacity } from './hack.js';
+import { getobj } from './invent.js';
 import { getlin } from './windows.js';
 import {
     is_female,
@@ -38,6 +46,41 @@ import {
 } from './mondata.js';
 import { makemon_runtime } from './makemon_create.js';
 import { MAXMCLASSES } from './symbols.js';
+import { SCROLL_CLASS, SPBOOK_CLASS } from './objects.js';
+
+// A selected scroll or spellbook enters doread()'s effect arms, which later
+// slices port. Raising before pickup_prev changes keeps those objects and the
+// turn retryable while preserving the prompt screens already produced.
+export class UnsupportedReadError extends Error {
+    constructor(branch) {
+        super(`reading requires ${branch}`);
+        this.name = 'UnsupportedReadError';
+        this.branch = branch;
+    }
+}
+
+// C ref: read.c read_ok() (313-322). Scrolls and spellbooks appear as likely
+// choices. Other carried objects remain selectable but are omitted from the
+// suggested-letter set, and the hands/self sentinel is excluded.
+export function read_ok(obj) {
+    if (!obj) return GETOBJ_EXCLUDE;
+    if (obj.oclass === SCROLL_CLASS || obj.oclass === SPBOOK_CLASS)
+        return GETOBJ_SUGGEST;
+    return GETOBJ_DOWNPLAY;
+}
+
+// C ref: read.c doread() (347-360), through the cancelled getobj() result.
+// The next C statement clears scroll->pickup_prev. A selected object stops
+// immediately before it because its effects belong to later slices.
+export async function doread(state = game) {
+    state.gk ??= {};
+    state.gk.known = false;
+    if (await check_capacity(null, state)) return ECMD_OK;
+
+    const scroll = await getobj('read', read_ok, GETOBJ_PROMPT, state);
+    if (!scroll) return ECMD_CANCEL;
+    throw new UnsupportedReadError('the selected readable object branch');
+}
 
 // A request the player typed that read.c understands and this port does not.
 // Every raiser is a branch of one of the four functions below, named in the
