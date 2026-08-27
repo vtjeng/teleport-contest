@@ -20352,6 +20352,80 @@
         ]
       },
       "recordedAt": "2026-08-27T05:22:19.142Z"
+    },
+    {
+      "kind": "review",
+      "head": "f7bc9e802e1790d1152dc8e3cb1d9b3223b1f1b7",
+      "auditedRange": "a3a4f1aff46f233ef788e9ccc224083ce53b84c4..f7bc9e802e1790d1152dc8e3cb1d9b3223b1f1b7",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 8 raw, 8 deduplicated, 6 confirmed, 6 applied, 0 deferred, 2 rejected, 0 unverified. Full five-core-finder correctness audit with the concurrency finder enabled for changed asynchronous command, cleanup, retry, and persistence boundaries; performance was not triggered because changed traversal follows source-required work. The pass found one production defect in persisted subroom overview resolution and five test-oracle gaps; all six were applied in f7bc9e8 and proved with deliberate mutations. Validation: 5,231 tests passed; the fresh magic-mapping differential matched 3,187 PRNG calls, 6 screens, and 6 cursors; committed checkpoint preserved 13/33 sessions, 156703/610816 RNG values, 2541/7765 screens, and 2587/7765 cursors. No holdout evaluation ran.",
+      "auditMetrics": {
+        "mode": "full",
+        "foundBy": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace",
+          "concurrency"
+        ],
+        "counts": {
+          "raw": 8,
+          "deduplicated": 8,
+          "confirmed": 6,
+          "applied": 6,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "wallTimeSeconds": 2204,
+        "categories": {
+          "production": 1,
+          "tests": 5,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "file": "js/dungeon.js",
+            "function": "recalc_mapseen",
+            "summary": "recalc_mapseen skipped discovered shop and temple subrooms stored under the persisted parent-room graph",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "readiness": {
+          "boundary": "The reviewed boundaries start at the relevant player command or monster action and end at the next visible result or explicit refusal; the real game executes each implemented path. For quiver, selecting an ordinary inventory item remains outside the completed boundary, while direct and extended commands reach and may cancel the source item prompt.",
+          "sourceReview": "Every reachable branch and helper inside the implemented boundaries was traced against NetHack C for state, output, input waits, and PRNG order. Explicit stops, partial implementations, and missing subsystems were identified.",
+          "completeness": "No known unsupported behavior remains inside the implemented boundaries. Excluded branches stop before additional state, randomness, or output, and all six confirmed audit findings were applied and mutation-validated."
+        },
+        "rejections": [
+          {
+            "summary": "find_defensive returns lossy action-shaped sentinels that omit executable trap coordinates",
+            "counterEvidence": "The function documents these values as conservative refusal/planning sentinels, and the only production consumer checks truthiness before immediately raising the unsupported monster-item-use boundary. No admitted reader executes the kind or object fields or needs trap coordinates. Do not reopen without an executable consumer inside the supported boundary."
+          },
+          {
+            "summary": "Door-mask fallback readers can revive stale doormask state after flags becomes zero",
+            "counterEvidence": "The fallback convention predates the reviewed range and is required by live special and themed-room construction that deliberately writes doormask-only state. Audited transitions that clear or replace an established mask update both spellings, and no source-reachable stale transition was demonstrated. Do not reopen without a source-reachable conflicting writer and a diff-causal line in the reviewed range."
+          }
+        ],
+        "deferrals": []
+      },
+      "recordedAt": "2026-08-27T17:21:01.947Z"
     }
   ]
 }
