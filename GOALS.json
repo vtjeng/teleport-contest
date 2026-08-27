@@ -4833,8 +4833,8 @@
         },
         {
           "name": "itemactions-unwield-primary",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "dda5e7962c4245cd009e29cff16057c21d83aa19"
         }
       ],
       "openedAt": "9a935a497b2bf9c9d9a5bc35556db4b2d071213d",
