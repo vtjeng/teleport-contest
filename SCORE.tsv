@@ -388,3 +388,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-27	88ee43a	slice	12	33	2367	7765	155739	610816	2400	7765					cast-healing-spell closes. Development 2365→2367 of 7765 screens, 155729→155739 of 610816 rng. 12 of 33 sessions.
 2026-08-27	dd579e4	goal	12	33	2367	7765	155739	610816	2400	7765	228	3640	32830	182022	cast-command closes. Development 2367 of 7765 screens, 155739 of 610816 rng. 12 of 33 sessions. Holdout 228/3640 screens, 32830/182022 rng.
 2026-08-27	d53790e	slice	12	33	2371	7765	155739	610816	2404	7765					open-command-dispatch closes. Development 2367→2371 of 7765 screens, 155739 of 610816 rng. 12 of 33 sessions.
+2026-08-27	1cf91f5	goal	12	33	2371	7765	155739	610816	2404	7765	228	3640	32830	182022	open closes. Development 2371 of 7765 screens, 155739 of 610816 rng. 12 of 33 sessions. Holdout 228/3640 screens, 32830/182022 rng.
