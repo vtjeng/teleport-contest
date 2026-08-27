@@ -5347,7 +5347,13 @@
         ]
       },
       "detail": "Port pager.c do_look(0) and the complete command-family exercise in the witness. The common map path is do_look() through getpos() and do_screen_description(), including the first-use TIP_GETPOS path through hack.c handle_tip() and dat/nhcore.lua show_getpos_tip(). Pager helpers include append_str(), add_cmap_descr(), self_lookat(), look_at_monster(), look_at_object(), object_from_map(), trap_description(), add_quoted_engraving(), and the ordinary-terrain branches of lookat(). Direct lookups use checkfile() for human Wizard and branch-staircase More prompts, the complete typed fountain entry, and the carried quarterstaff entry; generate deterministic JavaScript data from dat/data.base and add a source check. List paths include look_region_nearby(), look_all(), look_traps(), and look_engrs(), preserving row-major ordering and observable TTY text windows. Consolidate existing extcmd binding, menu and text windows, getline, display_inventory, message and More flow, engr_at state, and startup_a11y source-derived description helpers into pager.js and getpos.js where applicable. Exclude quick, click, and queued variants; non-default lootabc; swallowed and hallucinating heroes; typed symbols; getpos help, mouse, quick-pick, autodescribe, filtering, menu toggling, cycling, jumps, highlighting, travel, and terrain modes; exceptional vision and fake or buried reconstruction; supplemental mythology; and the item-action slash path. Suggested slices are: menu, tip, base getpos, hero, More decline, and Escape; cursor movement and terrain descriptions; generated data plus typed and inventory lookup; monster and object lists; and trap and engraving lists.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "whatis-map-getpos-hero",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "f17bfd832863f03946b1572f5e4ca2ecf5629b30",
       "openStanding": {
         "sha": "96de653075cf13bbc25e8196f66f99ce2d551429",
