@@ -5493,6 +5493,35 @@
         "screens": 111,
         "rng": 39
       }
+    },
+    {
+      "id": "pet-floor-interaction",
+      "status": "open",
+      "boundary": "unsupported hero move: combined pet and floor object interaction",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 2,
+        "basis": "Capped look-ahead: seed0014-dequa-fountain-explore cappedStretch=2 (cap-stable).",
+        "sessions": [
+          "seed0014-dequa-fountain-explore"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0014-dequa-fountain-explore",
+            "evidence": "At segment 0, step 20, seed 14 and datetime 20260503050437, the raw `u` key is an ordinary northeast walk because `number_pad` retains its default Off setting. `cmd.c` binds it to `do_move_northeast()`, which calls `set_move_cmd(DIR_NE, 0)`, sets `u.dx/u.dy`, leaves `svc.context.run=0`, and marks `DOMOVE_WALK`; `rhack()` then calls `domove()` and `hack.c:domove_core()`. The destination contains Dequa's visible, tame, peaceful starting little dog and also a floor scroll hidden beneath that monster. `is_safemon()` is true because the default `safe_pet` option is On and Dequa is sighted, not confused, hallucinating, or stunned; this is not force-fight, travel, a run, or an m/#reqmenu no-pick move. `domove_attackmon_at()` therefore calls `uhitm.c:do_attack()`. Its displacement-refusal draw is exactly the step's sole pre-prompt RNG call, `rn2(7)=5 @ do_attack(uhitm.c:474)`, so `!rn2(7)` is false; Dequa is not Punished or in a tended shop, the little dog is not a long worm, is mobile, and can occupy the hero's old square. `do_attack()` returns FALSE without attacking, allowing movement to continue. After `test_move()` and region checks pass, `domove_core()` tentatively advances the hero and enters its `is_safemon(mtmp)` branch, calling `hack.c:domove_swap_with_pet()`. The pet is not trapped, a little dog permits the diagonal swap, no boulder pins it or occupies Dequa's source square, the old hero square passes `goodpos()` and has no trap, and the monster is not one of the mundisplaceable peacefuls. The function removes the dog from the destination, places it at Dequa's former square, redraws both positions, and emits `You swap places with your little dog.` Crucially, `domove_swap_with_pet()` never rejects or moves the non-boulder object on the destination square: its boulder test is against the hero's source square, so the scroll remains where the hero arrives. `domove_core()` finalizes the hero position, marks `u.umoved`, recalculates vision, and calls `spoteffects(TRUE)`. There is no pit at the destination, so `spoteffects()` calls `pickup(1)` before trap handling. Autopickup was initially Off but step 18's `@` printed `Autopickup: ON, for all objects.`; `pickup_types` is the default empty/all set, there is no configured exception, `svc.context.nopick=0`, the floor is reachable and non-liquid, and the scroll is eligible. `pickup.c:autopick()` therefore selects it and `pickup_object()` assigns inventory letter `f`, producing `f - a scroll labeled STRC PRST SKRZ KRK.` The recorder shows the swap at step 20 as `You swap places with your little dog.--More--`, then the pickup line after the step-21 space dismissal. That pause is the TTY composition boundary: the 37-character swap message plus two spaces plus the 40-character pickup message cannot satisfy `topl.c:update_topl()`'s same-line room test (`40 + 37 + 3 < CO - 8` is false for 80 columns), so `more()` blocks before displaying the pickup line. Thus the exact unported interaction is one northeast movement that safely swaps with a pet standing over a floor object and then performs arrival autopickup, including the intervening TTY `--More--`; `runmode:walk` and `symset:DECgraphics` affect display/delay only, while the governing behavioral options are default `number_pad` Off, default `safe_pet` On, autopickup toggled On, and no no-pick/force-fight prefix."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "08e07d09fbfe1c8f17a120bc48c094b3693343ef",
+      "openStanding": {
+        "sha": "9179d1fc72820518aefa45f3d7e98b2193e58b34",
+        "screens": 2714,
+        "rng": 156742
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
