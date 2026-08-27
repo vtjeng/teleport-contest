@@ -5478,8 +5478,8 @@
         },
         {
           "name": "help-contact-information",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "427915099eb468a80126663e08ab1bc1d985cdc6"
         }
       ],
       "openedAt": "2ff2a1b74d22e07ed41dd2a1f018cc842468d316",
