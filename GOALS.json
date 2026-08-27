@@ -5385,6 +5385,65 @@
         "screens": 74,
         "rng": 0
       }
+    },
+    {
+      "id": "help",
+      "status": "open",
+      "boundary": "A sighted human Wizard in normal play, using the recorder's default command and menu bindings, number_pad off, rest_on_space off, hideusage off, no compiled PORT_HELP, and no configured local support, invokes `?` repeatedly and selects every visible help-menu entry `a` through `o`; port `pager.c dohelp()` through each target exercised by `seed2200-wizard-quaff-zap-read`, including all text-window pages, prompts, dismissals, restored map screens, and cursors, without consuming a turn or RNG.",
+      "upstreamOwners": [
+        "pager.c: dohelp()",
+        "help_menu_items[]",
+        "its hmenu_*/dispfile_* wrappers",
+        "setopt_cmd()",
+        "dohistory()",
+        "dowhatdoes()",
+        "dowhatdoes_core()",
+        "and docontact()",
+        "version.c and mdlib.c: doextversion()",
+        "getversionstring()",
+        "runtime_info_init()",
+        "do_runtime_info()",
+        "and the recorder-specific runtime/build information",
+        "cmd.c: doextlist()",
+        "doc_extcmd_flagstr()",
+        "dokeylist()",
+        "keylist_putcmds()",
+        "key2extcmddesc()",
+        "and show_direction_keys()",
+        "options.c: option_help()",
+        "next_opt()",
+        "and show_menu_controls()",
+        "dat/help",
+        "dat/hh",
+        "dat/history",
+        "dat/opthelp",
+        "dat/optmenu",
+        "dat/usagehlp",
+        "and dat/license"
+      ],
+      "forecast": {
+        "steps": 122,
+        "basis": "Capped look-ahead: seed2200-wizard-quaff-zap-read cappedStretch=122 (cap-stable).",
+        "sessions": [
+          "seed2200-wizard-quaff-zap-read"
+        ],
+        "witnesses": [
+          {
+            "session": "seed2200-wizard-quaff-zap-read",
+            "evidence": "A fresh cached development scan (`node scripts/scan-sessions.mjs --json --read-cache`) reports the first stop after 108 emitted screens, with no prior screen or RNG divergence: segment 0, seed 2200, datetime 20000110090000, command-cursor byte `?`, binding `help`, expected message `Select one item:`, and no behavioral boundary raised inside the command. The session config is `name:merlin,role:Wizard,race:human,gender:male,align:neutral`, `!autopickup`, `suppress_alert:3.4.3`, and `symset:DECgraphics`; it has no custom binding, number-pad, debug-playmode, or fuzzer option. The character role is Wizard, but the C `wizard` debug-mode flag is false. `sysopt.hideusage` is 0, and the recorded build has no `PORT_HELP` menu row. At command step 108, `allmain.c:moveloop_core()` calls `cmd.c:rhack(0)`; `rhack()` calls `parse()` (`cmd.c:5096-5150`), which sets command input state, reads `?` with count 0, stores it in `gc.cmd_key`, and returns it. `rhack()` resolves the default binding through `cmdbind_get('?')` to extcmdlist's `{ '?', \"help\", ..., dohelp, IFBURIED | GENERALCMD }` (`cmd.c:1734-1735`). `can_do_extcmd()` admits it; the command is valid even if buried, is not wizard-only, has no prefix, and receives no callback veto. Before calling it, `rhack()` clears `CQ_REPEAT` and queues `dohelp` as the repeat command (`cmd.c:3732-3748`). `pager.c:dohelp()` (`pager.c:2860-2898`) creates an `NHW_MENU`, starts `MENU_BEHAVE_STANDARD`, iterates `help_menu_items`, skips only `dispfile_debughelp` because debug `wizard` is false, retains `dispfile_usagehelp` because `hideusage` is 0, formats the options row through `setopt_cmd()` as `Using the '#optionsfull' or 'm O' command to set options.`, adds 15 rows with automatic selectors `a` through `o`, ends the menu with `Select one item:`, and blocks in `select_menu(..., PICK_ONE, ...)`. The raw C recording at step 108 shows exactly those 15 rows and consumes no RNG at that step. Post-stop inputs confirm the exercised dispatch arms: help invocations at steps 108,112,124,133,153,157,179,183,196,199,208,215 select respectively `a,b,c,d,f,g,i,j,l,m,n,o`, reaching `hmenu_doextversion()->version.c:doextversion()`, `dispfile_help()->display_file(HELP)`, `dispfile_shelp()->display_file(SHELP)`, `hmenu_dohistory()->dohistory()`, `hmenu_dowhatdoes()->dowhatdoes()`, `option_help()`, `dispfile_optmenu()->display_file(OPTMENUHELP)`, `dokeylist()`, `domenucontrols()->show_menu_controls()`, `dispfile_usagehelp()->display_file(USAGEHELP)`, `dispfile_license()->display_file(LICENSE)`, and `docontact()`. Choices `e`, `h`, and `k` are not selected; bytes resembling those choices later in the recording are consumed by open text pagers, not by `dohelp`. Choice `a` subsequently consumes two recorded RNG calls in Lua runtime-information shuffling at step 109; the initial menu construction consumes none. After each selected arm finishes, `dohelp()` returns `ECMD_OK`, so `rhack()` resets command state without spending a turn."
+          }
+        ]
+      },
+      "detail": "The bounding property is the witness's complete non-debug help menu. Recorded steps 108 through 217 open the menu fifteen times and select `a` through `o` in order; step 218 begins the independent, already admitted inventory command. The visible rows are: `a` version information; `b` long help; `c` command list; `d` history; `e` the already-ported `dowhatis()` menu, cancelled with Escape; `f` `dowhatdoes()`'s first-use explanation, `What command?` prompt, and ordinary `i` lookup through `key2extcmddesc()`; `g` dynamically generated option help; `h` long option help; `i` option-menu help with `setopt_cmd()` producing `'#optionsfull' or 'm O'`; `j` the full current key-binding list; `k` the initial non-debug extended-command list; `l` menu-control keys; `m` command-line help; `n` the license; and `o` development-team contact information. The seven static files total 1,445 upstream lines and should be embedded through a deterministic source generator and source check because game code cannot read files. `doextversion()` must reproduce the canonical recorder's patched May 2, 2026 build identity and the compile/runtime option text assembled by `version.c` and `mdlib.c`. `option_help()` must traverse the existing generated `allopt` data in source order, apply wizard and tty capability filters, wrap Boolean names through `next_opt()`, and emit compound descriptions, other settings, and the epilog. `dokeylist()` and `show_menu_controls()` should reuse the existing command-binding model, special keys, menu aliases, `key2txt()`, direction diagram, and generated `extcmdlist_data.js`; `doextlist()` needs only its initial `menumode=0`, empty-search, non-wizard pass and final dismissal. Existing prerequisites are TTY menu/text-window pagination and repair, `select_menu()`, `displayTtyTextWindow()`, `pager.js dowhatis()`, `cfgfiles.js get_configfile()`, generated `optlist_data.js`, generated `extcmdlist_data.js`, and `command_bindings.js`. Suggested slice order is: help-menu shell plus the already-ported `e` target; generated static help corpus and file-display wrappers; version information; `dowhatdoes()` ordinary-key lookup; option help; key bindings plus menu controls; default extended-command list; and contact/integration. Exclude main-menu cancellation, debug-mode `wizhelp`, a compiled PORT_HELP row, hideusage and configured-support variants, altered number-pad/rest-on-space/key/menu bindings, unsupported tty capability variants, direct admission of history/version/whatdoes commands, `dowhatdoes()` queries for `&`, `?`, unknown, control, meta, or two-line `m`, missing-file failures, and `doextlist()` search, toggle, redisplay, and wizard-command modes.",
+      "slices": [],
+      "openedAt": "2ff2a1b74d22e07ed41dd2a1f018cc842468d316",
+      "openStanding": {
+        "sha": "84f100f10bf6e011a4bf67d26a2db0dec7a588fa",
+        "screens": 2603,
+        "rng": 156703
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
