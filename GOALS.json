@@ -5058,6 +5058,37 @@
         "screens": 3,
         "rng": 20
       }
+    },
+    {
+      "id": "monster-defensive-negative-search",
+      "status": "open",
+      "boundary": "A wounded ordinary hostile monster continues its turn when find_defensive(mtmp, FALSE) finds neither a physical escape nor a defensive item and find_misc(mtmp) finds no miscellaneous action.",
+      "upstreamOwners": [
+        "muse.c"
+      ],
+      "forecast": {
+        "steps": 196,
+        "basis": "Capped look-ahead: seed0360-wizard-world-tour cappedStretch=196 (cap-stable).",
+        "sessions": [
+          "seed0360-wizard-world-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0360-wizard-world-tour",
+            "evidence": "The hostile goblin is 3/4 HP and carries only its already-wielded orcish dagger. find_defensive(FALSE) passes the wound threshold but finds no stairs, ladder, usable trap, bugle, or defensive object; find_misc finds no action. Both return FALSE without RNG or item-use message, and C continues. JavaScript instead returns a wounded defensive state placeholder and refuses monster item use."
+          }
+        ]
+      },
+      "detail": "Port only the negative find_defensive(FALSE) search through ordinary terrain and inventory, then fall through to existing select_misc_action. Preserve source guards and zero RNG. Every selected defensive or miscellaneous action and all use_defensive/use_misc effects remain outside.",
+      "slices": [],
+      "openedAt": "6403c50b2092f8df0a04fae9b0168d4ab139d6e1",
+      "openStanding": {
+        "sha": "9b2dac0fe9cc67a8888bf0c97671625502778811",
+        "screens": 2381,
+        "rng": 155996
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
