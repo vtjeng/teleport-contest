@@ -5216,6 +5216,51 @@
         "screens": 2,
         "rng": 38
       }
+    },
+    {
+      "id": "read-magic-mapping",
+      "status": "open",
+      "boundary": "A sighted, unconfused hero on a mappable ordinary level uses r to select an uncursed scroll of magic mapping; doread() consumes and identifies it, maps the level through do_mapping(), and returns ECMD_TIME. Other read and mapping branches remain fail-closed.",
+      "upstreamOwners": [
+        "cmd.c",
+        "read.c",
+        "detect.c",
+        "display.c",
+        "dungeon.c"
+      ],
+      "forecast": {
+        "steps": 13,
+        "basis": "Capped look-ahead: seed2200-wizard-quaff-zap-read cappedStretch=13; the other two read sessions are divergence-zeroed at 0.",
+        "sessions": [
+          "seed0501-priest-cast-read-turn",
+          "seed2200-wizard-quaff-zap-read",
+          "seed5002-wizard-coverage-pair"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0501-priest-cast-read-turn",
+            "evidence": "The Priest selects an already-memorized healing spellbook. C prompts, increments literacy, discovers the book, prints that healing is already known, asks to refresh, and decline returns ECMD_OK with zero RNG. This is a separate spell.c path and contributes zero forecast."
+          },
+          {
+            "session": "seed2200-wizard-quaff-zap-read",
+            "evidence": "The Wizard selects a known uncursed magic-mapping scroll. doread increments literacy, prints the disappearance message, takes two Wisdom exercise draws, maps the ordinary level, consumes the scroll, and returns ECMD_TIME; this contributes 13 steps."
+          },
+          {
+            "session": "seed5002-wizard-coverage-pair",
+            "evidence": "The read prompt receives invalid inventory letters and then cancels. No object is selected, no RNG is drawn, and C returns ECMD_CANCEL; this contributes zero forecast but requires read command admission and read_ok/getobj support."
+          }
+        ]
+      },
+      "detail": "Implement command admission/read_ok/common doread, the ordinary uncursed magic-mapping effect, do_mapping/show_map_spot for ordinary hero memory, background mapping, and room discovery. Spellbooks, other scrolls, special feedback, nommap/blessed/cursed/confused mapping, no-memory browse, and special redisplay remain outside.",
+      "slices": [],
+      "openedAt": "de51b24f69acfc09b82a2a181e82517447ca84c0",
+      "openStanding": {
+        "sha": "aae62108d973b85dafa4094d957e0e68e03e6751",
+        "screens": 2391,
+        "rng": 156066
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
