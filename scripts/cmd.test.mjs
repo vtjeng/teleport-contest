@@ -13,6 +13,7 @@ import {
 } from '../js/allmain.js';
 import {
     cmdq_add_ec,
+    cmdq_add_key,
     cmdq_peek,
     cmdq_pop,
     extcmdRow,
@@ -3488,6 +3489,27 @@ test('rhack consumes a queued command after the reqmenu prefix', async () => {
     assert.equal(game.context.move, 1);
 });
 
+test('rhack consumes a queued key after the reqmenu prefix', async () => {
+    // got_prefix_input accepts both queue representations. The key form must
+    // be decoded through the active bindings instead of being mistaken for a
+    // missing command or physical input.
+    await runSegment({
+        seed: 4210042,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:QueuePrefixKey,role:Valkyrie,race:human,'
+            + 'gender:female,align:lawful,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        moves: ' ',
+    });
+    cmdq_add_ec(CQ_CANNED, extcmdRow('reqmenu'), game);
+    cmdq_add_key(CQ_CANNED, commandKeyCode('.'), game);
+
+    await rhack(0, game);
+
+    assert.equal(cmdq_peek(CQ_CANNED, game), null);
+    assert.equal(game.context.move, 1);
+});
+
 test('inventory preserves the action selected by itemactions', async () => {
     // Seed 4210043 is an arbitrary stable startup input. Valkyrie's fourth
     // inventory item occupies slot d; the two `d` menu choices select that
@@ -3500,14 +3522,23 @@ test('inventory preserves the action selected by itemactions', async () => {
             + '!splash_screen,pettype:none',
         moves: ' ',
     });
+    let selected = game.invent;
+    while (selected && selected.invlet !== 'd') selected = selected.nobj;
+    assert.ok(selected, 'the fixture has an item in slot d');
     for (const key of 'idd') game.nhDisplay.pushKey(commandKeyCode(key));
 
     await rhack(0, game);
+    assert.equal(cmdq_peek(CQ_CANNED, game).ec_entry.ef_txt, 'drop');
 
-    const action = cmdq_pop(game);
-    assert.equal(action.ec_entry.ef_txt, 'drop');
-    const inventoryLetter = cmdq_pop(game);
-    assert.equal(inventoryLetter.key, 'd');
+    // The next rhack() consumes the queued command, and getobj() consumes its
+    // queued inventory-letter argument without reading another physical key.
+    await rhack(0, game);
+
+    assert.equal(cmdq_peek(CQ_CANNED, game), null);
+    assert.equal(game.level.objects[game.u.ux][game.u.uy], selected);
+    for (let item = game.invent; item; item = item.nobj) {
+        assert.notEqual(item, selected, 'the selected object left inventory');
+    }
 });
 
 test('#autopickup dispatches dotogglepickup without taking time', async () => {

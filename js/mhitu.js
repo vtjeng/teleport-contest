@@ -280,6 +280,7 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
 // message. capitalizedMonsterName() produces "It" when canspotmon() is false.
 async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
+    const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
     const message = requireMattackuOperation(rawEnv, 'message');
     const markInvisible = requireMattackuOperation(rawEnv, 'markInvisible');
     const spotMonster = rawEnv.canSpotMonster ?? canSpotMonster;
@@ -290,8 +291,14 @@ async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
 
     // C ref: mhitu.c:90-91. Same pattern as hitmu(): mark the square as
     // containing an invisible monster when the hero cannot spot the attacker.
-    if (!spotMonster(mtmp, state))
+    const spotted = spotMonster(mtmp, state);
+    if (!spotted)
         markInvisible(mtmp.mx, mtmp.my);
+    // do_name.c x_monnam() adds the invisible adjective for a spotted
+    // invisible monster and can spend display RNG while hallucinating. Keep
+    // that naming branch fail-closed without blocking the unspotted "It" arm.
+    if (mtmp.minvis && spotted)
+        unsupported('a miss by an invisible monster the hero can see');
     if (could_seduce(mtmp, state.youmonst, mattk, rawEnv) && !mtmp.mcan) {
         await message(
             `${capitalizedMonsterName(mtmp, state)} pretends to be friendly.`,

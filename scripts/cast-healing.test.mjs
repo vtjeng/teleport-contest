@@ -26,6 +26,7 @@ import {
     BLINDED,
     ECMD_FAIL,
     ECMD_TIME,
+    FROMOUTSIDE,
     NO_SPELL,
     NUM_ATTRS,
     P_BASIC,
@@ -33,6 +34,7 @@ import {
     P_ISRESTRICTED,
     P_NUM_SKILLS,
     STRANGLED,
+    TIMEOUT,
     Upolyd,
 } from '../js/const.js';
 import { effective_attribute } from '../js/attrib.js';
@@ -260,6 +262,38 @@ test('healup leaves extrinsic blindfold blindness in place', () => {
 
     assert.equal(state.u.uprops[BLINDED].extrinsic, 1);
     assert.equal(state.disp.botl, true);
+});
+
+test('healup keeps timed blindness behind the make_blinded boundary', () => {
+    // potion.c healup() clears a BLINDED timeout through make_blinded(), which
+    // is not ported. Permanent intrinsic blindness uses FROMOUTSIDE rather
+    // than TIMEOUT and therefore does not enter this branch.
+    const timed = {
+        u: {
+            uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
+            uprops: {
+                [BLINDED]: { intrinsic: 1 & TIMEOUT, extrinsic: 0 },
+            },
+        },
+        disp: {},
+    };
+
+    assert.throws(
+        () => healup(0, 0, false, true, timed),
+        (error) => error instanceof UnsupportedPotionError,
+    );
+
+    const permanent = {
+        u: {
+            uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
+            uprops: {
+                [BLINDED]: { intrinsic: FROMOUTSIDE, extrinsic: 0 },
+            },
+        },
+        disp: {},
+    };
+    healup(0, 0, false, true, permanent);
+    assert.equal(permanent.u.uprops[BLINDED].intrinsic, FROMOUTSIDE);
 });
 
 // ── spelleffects_check uses A_INT, not A_DEX ────────────────────────────────

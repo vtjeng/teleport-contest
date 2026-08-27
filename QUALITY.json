@@ -5028,6 +5028,15 @@
       "status": "open",
       "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
       "detail": "The glove-removal tests never combine select_off() with a carried petrifying corpse. Add exact prompt and mask assertions for declining and accepting once the spelled-out paranoid confirmation reader is ported; until then also preserve the atomic fail-closed boundary."
+    },
+    {
+      "id": "goal-selector-workflow-regression-tests",
+      "area": "runtime",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "83bc35351ae8d946a3a44fdce8045f568ef79fbb",
+      "detail": "The light audit of the goal-selector hardening confirmed that its required scan and rerank schema fields plus cap persistence and session-identity checks have no executable workflow harness. Add a stubbed agent and parallel runtime that accepts the workflow top-level return contract, then cover valid results, missing winner fields, persisted false, mismatched sessions, and missing cap results. Mutating either the schema requirement or persistence check must fail."
     }
   ],
   "areas": [

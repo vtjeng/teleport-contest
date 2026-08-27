@@ -8,6 +8,7 @@ import {
     ACH_SOKO_PRIZE,
     BLINDED,
     BUFSZ,
+    CMDQ_KEY,
     CONTAINED_SYM,
     CQ_CANNED,
     ECMD_OK,
@@ -626,12 +627,10 @@ export function any_obj_ok(obj) {
 // arm. The '?' and '*' menu and the '-' hands answer stop too, each naming
 // what it would need.
 //
-// The fifth, C's cmdq_pop() at 1779, now has a queue to read. Nothing ported
-// pushes a node any caller of this function could meet -- dothrow.c dofire()
-// pushes two extended commands and rhack() runs both before either reaches
-// getobj() -- so a node found here is one this port cannot answer, and C's
-// own "didn't find what we were looking for" arm at 1817-1818, which discards
-// the rest of the canned sequence, is the shape of the refusal.
+// The fifth, C's cmdq_pop() at 1779, now has a queue to read. Itemactions
+// queues a command followed by the selected object's inventory letter, so
+// the CMDQ_KEY lookup arm is live. Count and user-input nodes still have no
+// ported producer; an unexpected node retains the fail-closed boundary.
 //
 // GETOBJ_PROMPT does not stop: its only effect is the `forceprompt` term that
 // steers the "You don't have anything to <foo>." return below. GETOBJ_ALLOWCNT
@@ -640,10 +639,35 @@ export function any_obj_ok(obj) {
 // selection's count -- and the first, third and fourth sit behind arms that
 // already stop, so the digit at :1940 is where this port's refusal sits.
 export async function getobj(word, obj_ok, ctrlflags, state = game) {
-    if (cmdq_pop(state)) {
+    const queued = cmdq_pop(state);
+    if (queued) {
+        if (queued.typ === CMDQ_KEY) {
+            if (queued.key === HANDS_SYM) {
+                const suitability = await obj_ok(null, state);
+                if (suitability === GETOBJ_SUGGEST
+                    || suitability === GETOBJ_DOWNPLAY) {
+                    throw new UnsupportedObjectPromptError(
+                        'the queued object prompt selected hands/self',
+                    );
+                }
+            } else {
+                for (let item = inventoryHead(state); item; item = item.nobj) {
+                    if (item.invlet !== queued.key) continue;
+                    const suitability = await obj_ok(item, state);
+                    if (suitability === GETOBJ_SUGGEST
+                        || suitability === GETOBJ_DOWNPLAY) {
+                        return item;
+                    }
+                }
+            }
+            // C invent.c getobj():1817-1818 discards the remaining canned
+            // sequence when its queued letter does not name a suitable item.
+            cmdq_clear(CQ_CANNED, state);
+            return null;
+        }
         cmdq_clear(CQ_CANNED, state);
         throw new UnsupportedObjectPromptError(
-            'the object prompt has a queued answer',
+            'the object prompt has an unsupported queued answer',
         );
     }
     let otmp = null;
