@@ -5278,7 +5278,7 @@
     },
     {
       "id": "engrave-fingertip-dust",
-      "status": "open",
+      "status": "closed",
       "boundary": "A sighted, clear-minded, unencumbered hero who can wield and reach an accessible non-ice ordinary floor with no existing engraving invokes E, selects bare fingertips (-), and enters nonempty ASCII text of at most ten non-space bytes; doengrave creates the DUST engraving in one occupation action with source-order corruption, literacy, Elbereth exercise, state, display, RNG, screen, and cursor parity. Other branches remain fail-closed.",
       "upstreamOwners": [
         "cmd.c",
@@ -5302,8 +5302,8 @@
       "slices": [
         {
           "name": "engrave-fingertip-dust-one-action",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "96de653075cf13bbc25e8196f66f99ce2d551429"
         }
       ],
       "openedAt": "48ce66145126129527106fd34858a4b80d8f861b",
@@ -5312,8 +5312,11 @@
         "screens": 2517,
         "rng": 156649
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "96de653075cf13bbc25e8196f66f99ce2d551429",
+      "delivered": {
+        "screens": 12,
+        "rng": 54
+      }
     }
   ]
 }
