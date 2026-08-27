@@ -5453,8 +5453,8 @@
         },
         {
           "name": "help-dowhatdoes-ordinary-key",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "4d355cd634001d96518c4126e72053867ed1e8bd"
         }
       ],
       "openedAt": "2ff2a1b74d22e07ed41dd2a1f018cc842468d316",
