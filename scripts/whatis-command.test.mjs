@@ -33,6 +33,11 @@ import {
 import {
     loadWhatisMapCursorTerrainRecipe,
 } from './run-whatis-map-cursor-terrain.mjs';
+import {
+    CARRIED_QUARTERSTAFF_MOVES,
+    TYPED_FOUNTAIN_MOVES,
+    loadWhatisTypedInventoryRecipe,
+} from './run-whatis-typed-inventory-lookup.mjs';
 
 test('the default whatis menu preserves pager.c order and accelerators', () => {
     const state = {
@@ -217,16 +222,43 @@ test('ordinary and fast cursor movement return through the next boundary',
         }
     });
 
-test('unsupported whatis menu choices retain the drawn command prefix',
+test('typed fountain lookup displays its entry through the next boundary',
+    async () => {
+        const [segment] = loadWhatisTypedInventoryRecipe().segments;
+        assert.equal(segment.moves, TYPED_FOUNTAIN_MOVES);
+        const replay = await runSegment(segment);
+
+        // Fresh C seed 42051 records these exact boundary and PRNG totals.
+        assert.equal(replay.getScreens().length, 15);
+        assert.equal(replay.getCursors().length, 15);
+        assert.equal(replay.getRngLog().length, 2552);
+        // Startup begins at move one; only the final dot advances it to two.
+        assert.equal(game.moves, 2);
+    });
+
+test('carried quarterstaff lookup displays its wildcard entry', async () => {
+    const [, segment] = loadWhatisTypedInventoryRecipe().segments;
+    assert.equal(segment.moves, CARRIED_QUARTERSTAFF_MOVES);
+    const replay = await runSegment(segment);
+
+    // Fresh C seed 42052 records these totals after selecting Wizard invlet a.
+    assert.equal(replay.getScreens().length, 7);
+    assert.equal(replay.getCursors().length, 7);
+    assert.equal(replay.getRngLog().length, 6271);
+    // Startup begins at move one; only the final dot advances it to two.
+    assert.equal(game.moves, 2);
+});
+
+test('deferred whatis list choices retain the drawn command prefix',
     async () => {
         const segment = loadWhatisMapHeroRecipe().segments[0];
         let boundary;
         const replay = await runSegment({
             ...segment,
-            // `i` is the first deferred do_look() menu arm. The ordinary
+            // `m` is the first deferred do_look() list arm. The ordinary
             // welcome dismissal and `/` command reach it without spending a
             // turn or consuming randomness.
-            moves: `${WHATIS_SETUP}/i`,
+            moves: `${WHATIS_SETUP}/m`,
         }, { onBoundary: (error) => { boundary = error; } });
 
         assert.equal(

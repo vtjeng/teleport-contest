@@ -5428,6 +5428,7 @@
         "js/cmd.js",
         "js/cmd_autocomplete.js",
         "js/command_bindings.js",
+        "js/data_base_data.js",
         "js/do.js",
         "js/dokick.js",
         "js/extcmdlist_data.js",

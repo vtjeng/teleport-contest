@@ -1,7 +1,8 @@
 // pager.c -- What-is and farlook descriptions.
 // C refs: pager.c self_lookat(), checkfile(), do_screen_description(),
 // do_look(), and dowhatis(). The port covers ordinary hero and terrain map
-// lookups, declined encyclopedia details, repetition, and Escape.
+// lookups, typed encyclopedia names, carried-item lookups, repetition, and
+// Escape.
 
 import {
     BLINDED,
@@ -10,6 +11,7 @@ import {
     ECMD_OK,
     HALLUC,
     HALLUC_RES,
+    NEUTRAL,
     PICK_ONE,
     Upolyd,
     Ugender,
@@ -22,10 +24,15 @@ import {
     glyph_to_cmap,
     map_glyphinfo,
 } from './display.js';
+import { DATA_BASE_ENTRIES } from './data_base_data.js';
+import { fruit_from_name, makesingular } from './fruit.js';
 import { LOOK_TRADITIONAL, getpos } from './getpos.js';
 import { game } from './gstate.js';
+import { mungspaces } from './hacklib.js';
+import { display_inventory } from './invent.js';
 import { tty_yn_function } from './getline.js';
-import { an } from './objnam.js';
+import { an, singular, xnameFresh } from './objnam.js';
+import { SLIME_MOLD } from './objects.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
     MAXPCHARS,
@@ -43,9 +50,14 @@ import {
     S_vodbridge,
     cmap_symbol_byte,
 } from './symbols.js';
-import { menuTitleStyle } from './tty_menu.js';
+import { NO_COLOR } from './terminal.js';
+import {
+    displayTtyMenuTextWindow,
+    menuTitleStyle,
+    ttyMenuLayout,
+} from './tty_menu.js';
 import { ttyPline, ttyPutmixed } from './tty_message.js';
-import { select_menu } from './windows.js';
+import { getlin, select_menu } from './windows.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
 
@@ -232,23 +244,161 @@ export function do_screen_description(cc, looked, sym, state = game) {
     return { found, out, firstmatch };
 }
 
-// C ref: pager.c checkfile(), for the data.base "human wizard" match and its
-// ordinary More-info question. This slice deliberately declines the entry;
-// displaying its contents belongs to the later generated-data slice.
-async function checkfileDeclined(input, state) {
-    const called = input.indexOf(' called ');
-    const lookup = called >= 0 ? input.slice(0, called) : input;
-    // The current full descriptions for room floor and corridor have no
-    // matching data.base record, so checkfile() returns without asking.
-    if (lookup === 'floor of a room' || lookup === 'corridor') return false;
-    if (lookup !== 'human wizard' && lookup !== 'branch staircase up')
-        throw new UnsupportedWhatisError(`checkfile(${JSON.stringify(input)})`);
-    const answer = await tty_yn_function(
-        `More info about "${lookup}"?`, 'yn', 'n', state,
-    );
-    if (answer === 'y'.charCodeAt(0))
-        throw new UnsupportedWhatisError('accepted encyclopedia details');
-    return false;
+export const CHKFIL_USR_TYPED = 1;
+export const CHKFIL_DONT_ASK = 2;
+export const CHKFIL_IA_CHECK = 4;
+
+function stripPrefix(value, prefix) {
+    return value.startsWith(prefix) ? value.slice(prefix.length) : value;
+}
+
+// C ref: pager.c checkfile() (830-964), through the two lookup strings used by
+// its ordered data.base passes. The returned `alt` is searched before `base`.
+export function normalizeDataBaseLookup(input, state = game) {
+    if (typeof input !== 'string' || input.length > 255)
+        throw new TypeError('checkfile input must be a BUFSZ-sized string');
+
+    let base = input.toLowerCase();
+    base = stripPrefix(base, 'interior of ');
+    if (base.startsWith('a ')) base = base.slice(2);
+    else if (base.startsWith('an ')) base = base.slice(3);
+    else if (base.startsWith('the ')) base = base.slice(4);
+    else if (base.startsWith('some ')) base = base.slice(5);
+    else if (/^[0-9]/u.test(base)) {
+        base = base.replace(/^[0-9]+ ?/u, '');
+    }
+    base = stripPrefix(base, 'pair of ');
+    if (base.startsWith('tame ')) base = base.slice(5);
+    else if (base.startsWith('peaceful ')) base = base.slice(9);
+    base = stripPrefix(base, 'invisible ');
+    base = stripPrefix(base, 'saddled ');
+    if (base.startsWith('blessed ')) base = base.slice(8);
+    else if (base.startsWith('uncursed ')) base = base.slice(9);
+    else if (base.startsWith('cursed ')) base = base.slice(7);
+    base = stripPrefix(base, 'empty ');
+    if (base.startsWith('partly used ')) base = base.slice(12);
+    else if (base.startsWith('partly eaten ')) base = base.slice(13);
+    if (base.startsWith('statue of ')) base = 'statue';
+    else if (base.startsWith('figurine of ')) base = 'figurine';
+    if (/^[+-][0-9]/u.test(base))
+        base = base.replace(/^[+-][0-9]+ ?/u, '');
+    if (base.startsWith('moist towel')) base = `wet${base.slice(5)}`;
+
+    let alt = null;
+    const named = base.indexOf(' named ');
+    const called = base.indexOf(' called ');
+    if (named >= 0) {
+        alt = base.slice(named + 7);
+        const cut = called >= 0 && called < named ? called : named;
+        base = base.slice(0, cut);
+    } else if (called >= 0) {
+        alt = base.slice(called + 8);
+        base = base.slice(0, called);
+    } else {
+        const comma = base.indexOf(', ');
+        if (comma > 0) base = base.slice(0, comma);
+    }
+    if (alt) {
+        if (alt.startsWith('a ')) alt = alt.slice(2);
+        else if (alt.startsWith('an ')) alt = alt.slice(3);
+        else if (alt.startsWith('the ')) alt = alt.slice(4);
+    }
+    const baseDetails = base.indexOf(' (');
+    if (baseDetails > 0) base = base.slice(0, baseDetails);
+    if (alt) {
+        const altDetails = alt.indexOf(' (');
+        if (altDetails > 0) alt = alt.slice(0, altDetails);
+    }
+    if (!alt && fruit_from_name(base, true, state)) {
+        alt = state.obj_descr?.[SLIME_MOLD]?.oc_name ?? 'slime mold';
+    } else if (!alt) {
+        alt = makesingular(base);
+    }
+    return { base, alt };
+}
+
+// C ref: strutil.c pmatch(). checkfile() lowercases the lookup term but keeps
+// data.base keys unchanged, so matching itself remains case-sensitive.
+function wildcardMatch(pattern, value) {
+    let previous = new Array(value.length + 1).fill(false);
+    previous[0] = true;
+    for (const character of pattern) {
+        const current = new Array(value.length + 1).fill(false);
+        if (character === '*') current[0] = previous[0];
+        for (let index = 1; index <= value.length; ++index) {
+            if (character === '*') {
+                current[index] = previous[index] || current[index - 1];
+            } else if (character === '?' || character === value[index - 1]) {
+                current[index] = previous[index - 1];
+            }
+        }
+        previous = current;
+    }
+    return previous[value.length];
+}
+
+// Preserve key order within each entry: a matching '~' key suppresses every
+// positive key after it, exactly like checkfile()'s skipping_entry flag.
+export function dataBaseEntry(term) {
+    for (const entry of DATA_BASE_ENTRIES) {
+        for (const key of entry.keys) {
+            const excluded = key.startsWith('~');
+            if (!wildcardMatch(excluded ? key.slice(1) : key, term)) continue;
+            if (excluded) break;
+            return entry;
+        }
+    }
+    return null;
+}
+
+// C ref: pager.c checkfile() (830-1129). This port covers every generated
+// key and text entry, the user-typed and no-question flags used by do_look(),
+// and the ordinary question used by map lookup.
+export async function checkfile(input, pm = null, chkflags = 0, state = game) {
+    const userTyped = (chkflags & CHKFIL_USR_TYPED) !== 0;
+    const dontAsk = (chkflags & CHKFIL_DONT_ASK) !== 0;
+    const iaChecking = (chkflags & CHKFIL_IA_CHECK) !== 0;
+    const source = pm && !userTyped
+        ? pm.pmnames?.[NEUTRAL] ?? input
+        : input;
+    const { base, alt } = normalizeDataBaseLookup(source, state);
+    if (!base) return false;
+
+    const terms = alt === base ? [base] : [alt, base];
+    let firstEntry = null;
+    let passOneFound = false;
+    let result = false;
+    for (let pass = 0; pass < terms.length; ++pass) {
+        const entry = dataBaseEntry(terms[pass]);
+        if (!entry) continue;
+        if (pass === 0 && terms.length === 2) {
+            firstEntry = entry;
+            passOneFound = true;
+        } else if (entry === firstEntry) {
+            return result;
+        }
+
+        let show = userTyped || dontAsk;
+        if (!show) {
+            const answer = await tty_yn_function(
+                `More info about "${terms[pass]}"?`, 'yn', 'n', state,
+            );
+            show = answer === 'y'.charCodeAt(0);
+        }
+        if (show) {
+            result = true;
+            if (iaChecking) return true;
+            await displayTtyMenuTextWindow(
+                state, entry.lines.map((text) => ({ text })),
+            );
+        }
+    }
+    if (userTyped && !result && !passOneFound) {
+        await ttyPline(
+            "You don't have any information on those things.", state,
+        );
+    }
+    return result;
 }
 
 export async function do_look(mode, clickCc = null, state = game) {
@@ -264,6 +414,66 @@ export async function do_look(mode, clickCc = null, state = game) {
         overlay: state.iflags?.menu_overlay !== false,
     });
     if (choice === null) return ECMD_OK;
+    if (choice === 'i') {
+        let inventoryRepairColumn = null;
+        const invlet = await display_inventory(null, true, state, {
+            // invent.c display_pickinv() uses the same PICK_ONE menu and
+            // heading style as the ordinary inventory command.
+            menu: (items) => {
+                const spec = {
+                    items: items.map((item) => (item.heading
+                        ? {
+                            ...item,
+                            attr: menuTitleStyle(state).titleAttr,
+                            color: menuTitleStyle(state).titleColor,
+                        }
+                        : item)),
+                    how: PICK_ONE,
+                    cancelValue: null,
+                    overlay: state.iflags?.menu_overlay !== false,
+                };
+                inventoryRepairColumn = ttyMenuLayout(
+                    state.nhDisplay, spec,
+                ).repairColumn;
+                return select_menu(state, spec);
+            },
+        });
+        // wintty.c tty_dismiss_nhwindow() repairs the inventory menu with
+        // docorner(offx, maxrow + 1, 0). A full-height starting inventory
+        // reaches the first status row but not the second; the map redraw has
+        // no status cells to restore there, so the repaired suffix stays
+        // blank until the next bot() call. Snapshot restoration in the JS
+        // menu owner would otherwise retain that suffix behind the data
+        // window and differ at its next input boundary.
+        if (inventoryRepairColumn !== null) {
+            const statusRow = state.nhDisplay.rows - 2;
+            for (let column = inventoryRepairColumn;
+                column < state.nhDisplay.cols; ++column) {
+                state.nhDisplay.setCell(column, statusRow, ' ', NO_COLOR, 0);
+            }
+        }
+        if (!invlet || invlet === '\x1b') return ECMD_OK;
+        for (let invobj = state.invent; invobj; invobj = invobj.nobj) {
+            if (invobj.invlet !== invlet) continue;
+            const name = singular(invobj, xnameFresh, state);
+            await checkfile(
+                name, null, CHKFIL_USR_TYPED | CHKFIL_DONT_ASK, state,
+            );
+            break;
+        }
+        return ECMD_OK;
+    }
+    if (choice === '?') {
+        let answer = await getlin('Specify what? (type the word)', state);
+        if (answer !== ' ') answer = mungspaces(answer);
+        if (!answer || answer.startsWith('\x1b')) return ECMD_OK;
+        if (answer.length === 1)
+            throw new UnsupportedWhatisError('a typed symbol');
+        await checkfile(
+            answer, null, CHKFIL_USR_TYPED | CHKFIL_DONT_ASK, state,
+        );
+        return ECMD_OK;
+    }
     if (choice !== '/')
         throw new UnsupportedWhatisError(`menu choice ${JSON.stringify(choice)}`);
 
@@ -295,7 +505,7 @@ export async function do_look(mode, clickCc = null, state = game) {
             if (description.found === 1
                 && answer === LOOK_TRADITIONAL
                 && state.flags.help) {
-                await checkfileDeclined(description.firstmatch, state);
+                await checkfile(description.firstmatch, null, 0, state);
             }
         }
     } finally {

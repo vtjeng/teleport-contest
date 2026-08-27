@@ -90,6 +90,7 @@ test('checkpoint runs full, generated, static, and score', () => {
             'full test suite',
             'generated data (check:colors)',
             'generated data (check:config-statements)',
+            'generated data (check:data-base)',
             'generated data (check:extcmds)',
             'generated data (check:glyph-offsets)',
             'generated data (check:monsters)',
