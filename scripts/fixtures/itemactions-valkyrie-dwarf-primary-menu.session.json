@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 29003,
+      "datetime": "20311107140731",
+      "nethackrc": "OPTIONS=name:FreshDiff,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen",
+      "moves": "ia-"
+    }
+  ]
+}

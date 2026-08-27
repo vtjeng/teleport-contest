@@ -15,7 +15,6 @@ import {
     cmdq_add_ec,
     cmdq_add_key,
     cmdq_peek,
-    cmdq_pop,
     extcmdRow,
     failClosedCommandRefusals,
     MAX_COMMAND_COUNT,

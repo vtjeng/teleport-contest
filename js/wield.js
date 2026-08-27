@@ -40,6 +40,7 @@ import {
     addinv_nomerge,
     freeinv,
     getobj,
+    hands_obj,
     prinv,
     update_inventory,
 } from './invent.js';
@@ -478,14 +479,13 @@ function finish_splitting(obj, state) {
 // for an object, handles conflicts with worn/quivered/swapped slots, and
 // calls ready_weapon() to put it in the hand.
 //
-// Several branches stop. Choosing '-' (empty hands) needs the &hands_obj
-// sentinel, which getobj() never returns. Choosing the quivered weapon when
-// the quiver holds a stack invokes ynq() and setuqwep(), both of which reach
-// unported subsystems. Choosing a worn item refuses with "You cannot wield
-// that!" only when the item is armor, an accessory or a saddle, which is the
-// full list of wornmasks the C function tests at 443. The objsplit arms that
-// handle a counted selection (the hero typed a digit at the getobj prompt)
-// stop because getobj() itself stops at the count path.
+// Several branches stop. Choosing the quivered weapon when the quiver holds a
+// stack invokes ynq() and setuqwep(), both of which reach unported subsystems.
+// Choosing a worn item refuses with "You cannot wield that!" only when the
+// item is armor, an accessory or a saddle, which is the full list of
+// wornmasks the C function tests at 443. The objsplit arms that handle a
+// counted selection (the hero typed a digit at the getobj prompt) stop because
+// getobj() itself stops at the count path.
 export async function dowield(state = game) {
     /* May we attempt this? */
     state.multi = 0;
@@ -499,7 +499,7 @@ export async function dowield(state = game) {
 
     /* Prompt for a new weapon */
     clear_splitobjs(state);
-    const wep = await getobj(
+    let wep = await getobj(
         'wield', (o) => wield_ok(o, state),
         GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
     );
@@ -531,18 +531,15 @@ export async function dowield(state = game) {
     }
 
     /* Handle no object, or object in other slot */
-    // wep === &hands_obj: getobj() never returns the hands sentinel in this
-    // port (it stops at mime_action()); the null path that getobj() returns
-    // instead was caught as ECMD_CANCEL above.
-    if (wep === state.uswapwep) {
+    if (wep === hands_obj) {
+        wep = null;
+    } else if (wep === state.uswapwep) {
         return doswapweapon(state);
-    }
-    if (wep === state.uquiver) {
+    } else if (wep === state.uquiver) {
         // The quiver path offers to split stacked quivered ammo through
         // ynq(), which is not ported in this form. Stop here.
         throw new UnsupportedWieldError('wielding the quivered weapon');
-    }
-    if (wep.owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
+    } else if (wep.owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
         await ttyPline('You cannot wield that!', state);
         return ECMD_FAIL;
     }

@@ -5046,6 +5046,16 @@
       "status": "open",
       "from": "3bb21071b6d41e22508522d879ed5671e66b5afa",
       "detail": "Port getobj's queued HANDS_SYM selection as the C hands_obj sentinel and connect it through iactions.c IA_UNWIELD to wield.c dowield; validate the end-to-end queued bare-hands choice against a fresh C recording."
+    },
+    {
+      "id": "itemactions-whatis-data-base",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "c39e9d766c5b260cbba12c1f98c5427ffa9f7641",
+      "detail": "Fresh recipe scripts/fixtures/itemactions-valkyrie-dwarf-primary-menu.session.json reaches iactions.c itemactions() for the starting dwarvish spear. C includes the '/' encyclopedia row through ia_checkfile(), while js/iactions.js omits it because NetHack data.base has not been generated into a filesystem-free JS table. Port ia_checkfile() and the IA_WHATIS_OBJ route from pager.c and iactions.c, then make this strict differential pass.",
+      "blockedOn": "ia_checkfile"
     }
   ],
   "areas": [

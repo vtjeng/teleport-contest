@@ -317,6 +317,12 @@ export class UnsupportedObjectPromptError extends Error {
     }
 }
 
+// C ref: invent.c hands_obj. getobj() returns this shared sentinel when the
+// player deliberately selects hands/self; null remains the cancellation and
+// invalid-answer result. Callers compare its identity and must not inspect it
+// as an ordinary object.
+export const hands_obj = Object.freeze({});
+
 // C ref: invent.c invletter_value() (390-399). Orders '$' first, then 'a'-'z',
 // then 'A'-'Z', then the '#' overflow letter. `invlet_basic` is INVLET_BASIC.
 function invletter_value(c) {
@@ -608,10 +614,7 @@ export function any_obj_ok(obj) {
 }
 
 // C ref: invent.c getobj() (1751-2088). Answers the object the player chose,
-// null where C returns 0, and never &hands_obj: the one arm that produces it
-// needs allownone, which only a GETOBJ_SUGGEST answer for the hands/self
-// choice sets, and no ported callback gives one -- any_obj_ok() above,
-// apply_ok(), eat_ok() and takeoff_ok() all answer an exclusion for null.
+// null where C returns 0, and hands_obj where C returns &hands_obj.
 //
 // Every `obj_ok` answer below is awaited. do_wear.c equip_ok() reaches
 // canwearobj(), whose refusals write messages, so equip_ok() is async and both
@@ -646,9 +649,7 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
                 const suitability = await obj_ok(null, state);
                 if (suitability === GETOBJ_SUGGEST
                     || suitability === GETOBJ_DOWNPLAY) {
-                    throw new UnsupportedObjectPromptError(
-                        'the queued object prompt selected hands/self',
-                    );
+                    return hands_obj;
                 }
             } else {
                 for (let item = inventoryHead(state); item; item = item.nobj) {

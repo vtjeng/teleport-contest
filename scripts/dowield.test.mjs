@@ -6,17 +6,28 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    CQ_CANNED,
     ECMD_CANCEL,
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
+    GETOBJ_DOWNPLAY,
+    GETOBJ_EXCLUDE,
+    GETOBJ_SUGGEST,
     LAST_PROP,
+    HANDS_SYM,
     OBJ_INVENT,
     RIGHT_HANDED,
     W_ARM,
     W_SWAPWEP,
     W_WEP,
 } from '../js/const.js';
+import {
+    cmdq_add_ec,
+    cmdq_add_key,
+    cmdq_peek,
+    extcmdRow,
+} from '../js/cmd.js';
 import {
     arti_speak,
     init_artifacts,
@@ -40,6 +51,7 @@ import {
 import { GameDisplay } from '../js/game_display.js';
 import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
+import { getobj, hands_obj } from '../js/invent.js';
 import { aligns, races, roles } from '../js/roles.js';
 
 // roles.js keeps role.c's order; the Samurai sits at :461.
@@ -186,6 +198,32 @@ test('arti_speak() stops for a speaking artifact', () => {
 
 // ── dowield ──
 
+test('queued getobj preserves the hands/self answer', async () => {
+    const state = withDisplay(makeState());
+
+    for (const suitability of [GETOBJ_SUGGEST, GETOBJ_DOWNPLAY]) {
+        // invent.c:1792-1797 accepts exactly the likely and downplayed
+        // classifications for HANDS_SYM and returns &hands_obj.
+        cmdq_add_key(CQ_CANNED, HANDS_SYM, state);
+        assert.equal(
+            await getobj('wield', (selected) => {
+                assert.equal(selected, null);
+                return suitability;
+            }, 0, state),
+            hands_obj,
+        );
+    }
+
+    // GETOBJ_EXCLUDE is one step outside the accepted pair. C clears the
+    // remaining canned sequence and returns NULL instead of the sentinel.
+    cmdq_add_key(CQ_CANNED, HANDS_SYM, state);
+    cmdq_add_ec(CQ_CANNED, extcmdRow('wait'), state);
+    assert.equal(await getobj(
+        'drop', () => GETOBJ_EXCLUDE, 0, state,
+    ), null);
+    assert.equal(cmdq_peek(CQ_CANNED, state), null);
+});
+
 test('dowield() wields an inventory weapon on the simple path', async () => {
     // wield.c:354-457. The simple path: hero types w, getobj prompts, hero
     // answers with an inventory letter, no welding, no quiver, no split, no
@@ -209,6 +247,24 @@ test('dowield() returns ECMD_CANCEL when the prompt is escaped', async () => {
     assert.equal(await dowield(state), ECMD_CANCEL);
     assert.equal(state.uwep, null);
 });
+
+test('dowield() unwields the primary weapon from a queued hands answer',
+    async () => {
+        // wield.c:403-406 converts &hands_obj to NULL after the cancellation
+        // check. ready_weapon(NULL) then empties the primary slot and spends
+        // one turn because the hero began armed (wield.c:174-180).
+        const state = withDisplay(makeState());
+        const katana = object(state, KATANA,
+            { invlet: 'a', owornmask: W_WEP });
+        addToInventory(state, katana);
+        state.uwep = katana;
+        cmdq_add_key(CQ_CANNED, HANDS_SYM, state);
+
+        assert.equal(await dowield(state), ECMD_TIME);
+        assert.equal(state.uwep, null);
+        assert.equal(katana.owornmask & W_WEP, 0);
+        assert.equal(drain(state), 'You are bare handed.');
+    });
 
 test('dowield() refuses with ECMD_FAIL when already wielding that item',
     async () => {
