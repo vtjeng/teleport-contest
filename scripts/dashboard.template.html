@@ -237,15 +237,6 @@ canvas {
   border-radius: 2px 4px 4px 2px;
 }
 
-.timeline-audit-marker {
-  position: absolute;
-  top: 2px;
-  width: 2px;
-  height: 24px;
-  background: var(--phase-audit);
-  opacity: 0.7;
-}
-
 /* --- Tooltip --- */
 .tooltip {
   position: fixed;
@@ -297,7 +288,7 @@ canvas {
   background: var(--surface-card);
 }
 
-.goal-table th:first-child {
+.goal-table th:nth-child(3) {
   text-align: left;
 }
 
@@ -308,7 +299,7 @@ canvas {
   white-space: nowrap;
 }
 
-.goal-table td:first-child {
+.goal-table td:nth-child(3) {
   text-align: left;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
@@ -350,13 +341,32 @@ canvas {
   vertical-align: middle;
 }
 
+.status-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--phase-slice-sel);
+  border: 1px solid var(--phase-slice-sel);
+  border-radius: 3px;
+  padding: 0 4px;
+  line-height: 1.5;
+  vertical-align: middle;
+}
+
+.goal-num {
+  color: var(--ink-muted);
+  font-size: 10px;
+  margin-right: 4px;
+}
+
 /* --- Time axis --- */
 .time-axis {
   display: flex;
   height: 20px;
   position: relative;
   margin-left: 180px;
-  border-top: 1px solid var(--baseline);
+  border-bottom: 1px solid var(--baseline);
+  overflow: hidden;
 }
 
 .time-tick {
@@ -366,6 +376,11 @@ canvas {
   color: var(--ink-muted);
   top: 4px;
   transform: translateX(-50%);
+}
+
+.timeline-scroll {
+  max-height: 600px;
+  overflow-y: auto;
 }
 </style>
 
@@ -394,6 +409,7 @@ canvas {
 
 <div class="section">
   <h2 class="section-title">Phase breakdown</h2>
+  <div class="legend" id="tableLegend"></div>
   <div class="chart-wrap">
     <div class="goal-table-wrap">
       <table class="goal-table" id="goalTable"></table>
@@ -432,7 +448,6 @@ const phases = [
   { key: 'sliceSel', label: 'Slice selection', cssVar: '--phase-slice-sel' },
   { key: 'impl', label: 'Implementation', cssVar: '--phase-impl' },
   { key: 'verif', label: 'Verification', cssVar: '--phase-verif' },
-  { key: 'audit', label: 'Audit', cssVar: '--phase-audit' },
 ];
 
 // --- Last updated ---
@@ -450,7 +465,7 @@ document.getElementById('stats').innerHTML = [
 ].map(t => '<div class="stat"><div class="stat-label">' + t.label + '</div><div class="stat-value">' + t.value + '</div><div class="stat-detail">' + t.detail + '</div></div>').join('');
 
 // --- Progress chart (step plot with x-axis) ---
-(function() {
+function drawProgressChart() {
   const canvas = document.getElementById('progressChart');
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.parentElement.getBoundingClientRect();
@@ -566,12 +581,14 @@ document.getElementById('stats').innerHTML = [
   ctx.font = '600 12px "JetBrains Mono", monospace';
   ctx.textAlign = 'left';
   ctx.fillText(last.screens.toLocaleString(), lastX + 10, yScale(last.screens) + 4);
-})();
+}
+drawProgressChart();
+window.addEventListener('resize', drawProgressChart);
 
-// --- Timeline (no scroll) ---
+// --- Timeline ---
 (function() {
   const container = document.getElementById('timeline');
-  const goals = DATA.goals.slice(-30);
+  const goals = [...DATA.goals].slice(-50).reverse();
   if (!goals.length) return;
 
   // Legend
@@ -583,14 +600,38 @@ document.getElementById('stats').innerHTML = [
     const prevClose = g.goalSelectionMin != null ? new Date(g.openTime).getTime() - g.goalSelectionMin * 60000 : new Date(g.openTime).getTime();
     return prevClose;
   })));
-  const latest = new Date(Math.max(...goals.map(g => new Date(g.closeTime).getTime())));
+  const latest = new Date(Math.max(...goals.map(g => new Date(g.closeTime || g.openTime).getTime())));
   const rangeMs = latest - earliest || 1;
 
   function toX(t) {
     return ((new Date(t) - earliest) / rangeMs) * 100;
   }
 
-  let html = '';
+  // Nice time axis ticks
+  const hrMs = 3600000;
+  const dayMs = 86400000;
+  const niceIntervals = [6 * hrMs, 12 * hrMs, dayMs, 2 * dayMs, 7 * dayMs];
+  let tickInterval = dayMs;
+  for (const iv of niceIntervals) {
+    if (rangeMs / iv >= 4 && rangeMs / iv <= 12) { tickInterval = iv; break; }
+  }
+  const firstTick = Math.ceil(earliest.getTime() / tickInterval) * tickInterval;
+  let axisHtml = '';
+  for (let t = firstTick; t <= latest.getTime(); t += tickInterval) {
+    const d = new Date(t);
+    let label;
+    if (tickInterval >= dayMs) {
+      label = (d.getMonth() + 1) + '/' + d.getDate();
+    } else {
+      label = (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+    const left = toX(t);
+    if (left >= 0 && left <= 100) {
+      axisHtml += '<div class="time-tick" style="left:' + left + '%">' + label + '</div>';
+    }
+  }
+
+  let rowsHtml = '';
 
   goals.forEach(g => {
     const openT = new Date(g.openTime).getTime();
@@ -638,31 +679,18 @@ document.getElementById('stats').innerHTML = [
       segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-verif)" title="Verification: ' + fmt(g.verificationMin) + '"></div>';
     }
 
-    // Audit markers
-    g.audits.forEach(a => {
-      const left = toX(a.time);
-      segments += '<div class="timeline-audit-marker" style="left:' + left + '%" title="Audit: ' + a.message.replace(/"/g, '&quot;') + '"></div>';
-    });
-
-    html += '<div class="timeline-row"><div class="timeline-label" title="' + g.name + '">' + g.name + '</div><div class="timeline-bar-area">' + segments + '</div></div>';
+    rowsHtml += '<div class="timeline-row"><div class="timeline-label" title="' + g.name + '">' + g.name + '</div><div class="timeline-bar-area">' + segments + '</div></div>';
   });
 
-  // Time axis
-  const tickCount = 8;
-  let axisHtml = '';
-  for (let i = 0; i <= tickCount; i++) {
-    const t = new Date(earliest.getTime() + (rangeMs * i / tickCount));
-    const dayLabel = (t.getMonth() + 1) + '/' + t.getDate();
-    const timeLabel = t.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-    const left = (i / tickCount) * 100;
-    axisHtml += '<div class="time-tick" style="left:' + left + '%">' + dayLabel + ' ' + timeLabel + '</div>';
-  }
-
-  container.innerHTML = html + '<div class="time-axis">' + axisHtml + '</div>';
+  container.innerHTML = '<div class="time-axis">' + axisHtml + '</div><div class="timeline-scroll">' + rowsHtml + '</div>';
 })();
 
 // --- Phase breakdown table ---
 (function() {
+  document.getElementById('tableLegend').innerHTML = phases.map(p =>
+    '<div class="legend-item"><div class="legend-swatch" style="background:var(' + p.cssVar + ')"></div>' + p.label + '</div>'
+  ).join('');
+
   const table = document.getElementById('goalTable');
   const goals = [...DATA.goals].reverse();
 
@@ -672,9 +700,10 @@ document.getElementById('stats').innerHTML = [
     return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
 
-  let html = '<thead><tr><th>Goal</th><th>Start</th><th>Slices</th><th>Total</th><th>Goal sel</th><th>Slice sel</th><th>Impl</th><th>Verif</th><th>Phases</th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Screens</th><th>Δ</th><th>Goal</th><th>Start</th><th>Slices</th><th>Total</th><th>Goal sel</th><th>Slice sel</th><th>Impl</th><th>Verif</th><th>Phases</th></tr></thead><tbody>';
 
-  goals.forEach(g => {
+  goals.forEach((g, i) => {
+    const screensCell = g.screens !== null ? g.screens : '-';
     const parts = [
       { min: g.goalSelectionMin || 0, var: '--phase-goal-sel' },
       { min: g.sliceSelectionMin || 0, var: '--phase-slice-sel' },
@@ -689,8 +718,11 @@ document.getElementById('stats').innerHTML = [
     }).join('') + '</div>';
 
     const auditBadge = g.audits.length > 0 ? ' <span class="audit-badge" title="' + g.audits.map(a => a.message).join('\\n').replace(/"/g, '&quot;') + '">audit</span>' : '';
+    const statusBadge = g.status === 'in-progress' ? ' <span class="status-badge">in progress</span>' : '';
 
-    html += '<tr><td>' + g.name + auditBadge + '</td><td>' + fmtDate(g.openTime) + '</td><td>' + g.sliceCount + '</td><td>' + fmt(g.totalMin) + '</td><td>' + fmt(g.goalSelectionMin) + '</td><td>' + fmt(g.sliceSelectionMin || 0) + '</td><td>' + fmt(g.implementationMin) + '</td><td>' + fmt(g.verificationMin) + '</td><td>' + bar + '</td></tr>';
+    const deltaCell = g.screensDelta !== null && g.screensDelta !== undefined ? '+' + g.screensDelta : '-';
+
+    html += '<tr><td>' + screensCell + '</td><td>' + deltaCell + '</td><td>' + g.name + auditBadge + statusBadge + '</td><td>' + fmtDate(g.openTime) + '</td><td>' + g.sliceCount + '</td><td>' + fmt(g.totalMin) + '</td><td>' + fmt(g.goalSelectionMin) + '</td><td>' + fmt(g.sliceSelectionMin || 0) + '</td><td>' + fmt(g.implementationMin) + '</td><td>' + fmt(g.verificationMin) + '</td><td>' + bar + '</td></tr>';
   });
 
   html += '</tbody>';
@@ -700,7 +732,7 @@ document.getElementById('stats').innerHTML = [
 // --- Tooltip for timeline segments ---
 (function() {
   const tooltip = document.getElementById('tooltip');
-  document.querySelectorAll('.timeline-segment, .timeline-audit-marker').forEach(el => {
+  document.querySelectorAll('.timeline-segment').forEach(el => {
     el.addEventListener('mouseenter', () => {
       const text = el.getAttribute('title');
       if (!text) return;

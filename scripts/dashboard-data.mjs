@@ -54,6 +54,8 @@ const scoreEvents = scoreLines.map(line => {
   let utc;
   if (tsStr.includes('T')) {
     utc = new Date(tsStr.replace('Z', '+00:00'));
+  } else if (/^\d{4}-\d{2}-\d{2}$/.test(tsStr)) {
+    utc = new Date(tsStr + 'T00:00:00Z');
   } else {
     utc = null;
   }
@@ -209,6 +211,87 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
   });
 }
 
+// --- Detect in-progress goals (opened after last closed goal) ---
+
+const lastCloseTime = goals.length > 0
+  ? new Date(goals[goals.length - 1].closeTime)
+  : new Date(0);
+
+const inProgressOpens = openCommits.filter(c => c.time > lastCloseTime);
+
+for (const open of inProgressOpens) {
+  let name = open.message;
+  const goalMatch = name.match(/^Open\s+(?:the\s+)?(.+?)(?:\s+goal)?$/i);
+  if (goalMatch) name = goalMatch[1];
+  name = name.replace(/\s*\(.*$/, '').replace(/,.*$/, '').trim();
+
+  const now = new Date();
+  const openTime = open.time;
+  const totalMin = (now - openTime) / 60000;
+
+  const goalQueues = queueCommits.filter(q => q.time >= openTime);
+  const slices = [];
+  for (let qi = 0; qi < goalQueues.length; qi++) {
+    const queue = goalQueues[qi];
+    const nextQueue = goalQueues[qi + 1];
+    const sliceScore = scoreSlices.find(e =>
+      e.utc && e.utc > queue.time && (!nextQueue || e.utc <= nextQueue.time)
+    );
+    const sliceCloseTime = sliceScore?.utc ?? now;
+    let sliceSelectionMin = null;
+    if (qi > 0 && slices[qi - 1]?.closeTime) {
+      sliceSelectionMin = (queue.time - new Date(slices[qi - 1].closeTime)) / 60000;
+    }
+    slices.push({
+      queueTime: queue.time.toISOString(),
+      closeTime: sliceCloseTime.toISOString(),
+      durationMin: Math.round((sliceCloseTime - queue.time) / 60000 * 10) / 10,
+      sliceSelectionMin: sliceSelectionMin !== null ? Math.round(sliceSelectionMin * 10) / 10 : null,
+      message: queue.message,
+    });
+  }
+
+  const firstSliceSelMin = goalQueues.length > 0 ? (goalQueues[0].time - openTime) / 60000 : null;
+  const totalSliceSelectionMin = (firstSliceSelMin || 0) + slices.reduce((sum, s) => sum + (s.sliceSelectionMin || 0), 0);
+  const totalSliceDurationMin = slices.reduce((sum, s) => sum + (s.durationMin || 0), 0);
+
+  const goalAudits = auditCommits.filter(c => c.time >= openTime).map(c => ({
+    time: c.time.toISOString(),
+    message: c.message,
+  }));
+
+  goals.push({
+    name,
+    status: 'in-progress',
+    openTime: openTime.toISOString(),
+    closeTime: null,
+    totalMin: Math.round(totalMin * 10) / 10,
+    goalSelectionMin: null,
+    sliceSelectionMin: Math.round(totalSliceSelectionMin * 10) / 10,
+    implementationMin: Math.round(totalSliceDurationMin * 10) / 10,
+    verificationMin: null,
+    sliceCount: slices.length,
+    slices,
+    audits: goalAudits,
+    screens: null,
+    screensTotal: null,
+    rng: null,
+    rngTotal: null,
+    sessions: null,
+    sessionsTotal: null,
+  });
+}
+
+// --- Compute per-goal screen deltas ---
+for (let i = 0; i < goals.length; i++) {
+  if (goals[i].screens !== null) {
+    const prevScreens = i > 0 && goals[i - 1].screens !== null ? goals[i - 1].screens : 0;
+    goals[i].screensDelta = goals[i].screens - prevScreens;
+  } else {
+    goals[i].screensDelta = null;
+  }
+}
+
 // --- Build progress timeline from SCORE goal events ---
 
 const progress = scoreEvents
@@ -259,7 +342,7 @@ const summary = {
   sessions: latest?.sessions,
   sessionsTotal: latest?.sessionsTotal,
   medianGoalSelectionMin: median(recentWithGoalSel.map(g => g.goalSelectionMin)),
-  medianImplementationMin: median(recentGoals.filter(g => g.implementationMin < 600).map(g => g.implementationMin)),
+  medianImplementationMin: median(recentGoals.filter(g => g.sliceCount > 0 && g.implementationMin < 600).map(g => g.implementationMin)),
   medianVerificationMin: median(recentWithVerif.map(g => g.verificationMin)),
   medianTotalMin: median(recentGoals.filter(g => g.totalMin < 600).map(g => g.totalMin)),
 };
