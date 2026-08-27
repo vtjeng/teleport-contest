@@ -4939,6 +4939,35 @@
         "screens": 0,
         "rng": 73
       }
+    },
+    {
+      "id": "doapply-otyp-101",
+      "status": "open",
+      "boundary": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 101",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 2,
+        "basis": "Capped look-ahead: seed0360-wizard-world-tour cappedStretch=2 (cap-stable).",
+        "sessions": [
+          "seed0360-wizard-world-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0360-wizard-world-tour",
+            "evidence": "At step 134, inventory o is gray dragon scale mail, otyp 101. apply_ok returns GETOBJ_EXCLUDE_SELECTABLE, but manual letter o is accepted. retouch_object succeeds; doapply has no matching switch arm and is_pole, is_pick, and is_axe are false, so C prints the unknown-use message and returns ECMD_FAIL. JavaScript reaches the fail-closed object-type-101 boundary."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "9695b4b17a658c54d0a9397127de4517e63aeb0d",
+      "openStanding": {
+        "sha": "2a7c7eef2e454318bebefe49e55ba3f280dca467",
+        "screens": 2376,
+        "rng": 155956
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
