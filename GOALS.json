@@ -4791,6 +4791,23 @@
         "screens": 2,
         "rng": 10
       }
+    },
+    {
+      "id": "open",
+      "status": "open",
+      "boundary": "The hero types o (open), dispatching lock.c doopen(). doopen() prompts for a direction and attempts to open a door or delegates to doloot() for containers.",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "d439e707044e018802c17fade992cd96df3f0437",
+      "openStanding": {
+        "sha": "dd579e4",
+        "screens": 2367,
+        "rng": 155739
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
