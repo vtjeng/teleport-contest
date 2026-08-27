@@ -185,7 +185,6 @@ h1 {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 16px;
-  overflow: hidden;
 }
 
 canvas {
@@ -204,8 +203,8 @@ canvas {
 }
 
 .timeline-label {
-  width: 180px;
-  min-width: 180px;
+  width: min(180px, 30vw);
+  min-width: min(180px, 30vw);
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   color: var(--ink-secondary);
@@ -355,7 +354,7 @@ canvas {
   display: flex;
   height: 20px;
   position: relative;
-  margin-left: 180px;
+  margin-left: min(180px, 30vw);
   border-bottom: 1px solid var(--baseline);
   overflow: hidden;
 }
@@ -372,6 +371,7 @@ canvas {
 .timeline-scroll {
   max-height: 620px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .timeline-scroll .time-axis {
@@ -606,17 +606,25 @@ window.addEventListener('resize', drawProgressChart);
     return ((new Date(t) - earliest) / rangeMs) * 100;
   }
 
-  // Nice time axis ticks
+  // Nice time axis ticks aligned to local midnight
   const hrMs = 3600000;
   const dayMs = 86400000;
+  const barAreaPx = container.getBoundingClientRect().width - Math.min(180, window.innerWidth * 0.3);
+  const minTickGapPx = 90;
+  const maxTicks = Math.max(2, Math.floor(barAreaPx / minTickGapPx));
   const niceIntervals = [6 * hrMs, 12 * hrMs, dayMs, 2 * dayMs, 7 * dayMs];
-  let tickInterval = dayMs;
+  let tickInterval = niceIntervals[niceIntervals.length - 1];
   for (const iv of niceIntervals) {
-    if (rangeMs / iv >= 4 && rangeMs / iv <= 12) { tickInterval = iv; break; }
+    if (rangeMs / iv <= maxTicks) { tickInterval = iv; break; }
   }
-  const firstTick = Math.ceil(earliest.getTime() / tickInterval) * tickInterval;
+
+  // Start from local midnight before earliest
+  const firstDay = new Date(earliest);
+  firstDay.setHours(0, 0, 0, 0);
   let axisHtml = '';
-  for (let t = firstTick; t <= latest.getTime(); t += tickInterval) {
+  for (let t = firstDay.getTime(); t <= latest.getTime() + tickInterval; t += tickInterval) {
+    const left = toX(t);
+    if (left < 2 || left > 98) continue;
     const d = new Date(t);
     let label;
     if (tickInterval >= dayMs) {
@@ -624,10 +632,7 @@ window.addEventListener('resize', drawProgressChart);
     } else {
       label = (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
     }
-    const left = toX(t);
-    if (left >= 0 && left <= 100) {
-      axisHtml += '<div class="time-tick" style="left:' + left + '%">' + label + '</div>';
-    }
+    axisHtml += '<div class="time-tick" style="left:' + left + '%">' + label + '</div>';
   }
 
   let rowsHtml = '';
