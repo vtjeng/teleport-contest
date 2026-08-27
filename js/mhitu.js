@@ -280,7 +280,6 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
 // message. capitalizedMonsterName() produces "It" when canspotmon() is false.
 async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
     const message = requireMattackuOperation(rawEnv, 'message');
     const markInvisible = requireMattackuOperation(rawEnv, 'markInvisible');
     const spotMonster = rawEnv.canSpotMonster ?? canSpotMonster;
@@ -293,9 +292,6 @@ async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     // containing an invisible monster when the hero cannot spot the attacker.
     if (!spotMonster(mtmp, state))
         markInvisible(mtmp.mx, mtmp.my);
-    if (mtmp.minvis)
-        unsupported('a miss by an invisible monster the hero can see');
-
     if (could_seduce(mtmp, state.youmonst, mattk, rawEnv) && !mtmp.mcan) {
         await message(
             `${capitalizedMonsterName(mtmp, state)} pretends to be friendly.`,
@@ -853,10 +849,10 @@ function Half_physical_damage(state) {
 // Ported: the base damage roll, mhitm_adtyping(), mhitm_knockback(), the
 // negative-armor-class reduction, mdamageu() and passiveum().
 //
-// Refused where C acts: the marker for an unspottable attacker, which missmu()
-// refuses for the same reason -- the machinery exists and the recorded case
-// does not; the block that reveals an attacker
-// hidden under an object, which needs doname(), Amonnam() and tp_sensemon();
+// Ported: the marker for an unspottable attacker in hitmu() and missmu().
+//
+// Refused where C acts: the block that reveals an attacker hidden under an
+// object, which needs doname(), Amonnam() and tp_sensemon();
 // and, inside mdamageu(), the hero's own death.
 //
 // One piece of C is absent rather than refused: mhm.permdmg's whole block

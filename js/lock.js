@@ -481,12 +481,9 @@ export async function pick_lock(pick, rx, ry, container, state = game) {
 //
 // The reason is the seam's own mask guard, not closed_door(). closed_door() is
 // a bit test (`doormask & (D_LOCKED | D_CLOSED)`), so it admits D_TRAPPED
-// combinations as well; what narrows the input here is
-// requireAutoopenClosedDoor() in js/hack.js, which admits D_CLOSED, D_LOCKED
-// and D_LOCKED | D_TRAPPED alone. The first takes lock.c:904's roll rather
-// than this switch, so this function sees the two locked masks, both of which
-// land on `default`. The three doorless masks arrive only through doopen(),
-// the unported `#open` command.
+// combinations as well. The auto-open caller narrows its input through
+// requireAutoopenClosedDoor() in js/hack.js, while explicit doopen() admits
+// the broken, missing, already-open, and locked masks named by this switch.
 //
 // C also sets a `locked` flag in the default arm; see the caller for why this
 // port has no reader for it.

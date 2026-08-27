@@ -4893,6 +4893,141 @@
       "status": "open",
       "from": "97cca1e9501dd6a4022c179918d32a2c65548798",
       "detail": "peffect_oil lit-oil branch (potion.c:1264-1287) is ported but untested end-to-end: lighting the potion via the apply command produces a no-shopkeeper message the JS port does not handle, so the lit-oil fresh differential fails at step 19 before reaching peffect_oil."
+    },
+    {
+      "id": "selector-cap-write-contract",
+      "area": "runtime",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "The selector workflow summary says selector roles do not modify files, but the capping role must write the named cache artifact and the orchestrator now verifies that write. Reconcile the role summary with the actual cache-write contract in .agents/loop.md after receiving the required approval for a policy-document edit."
+    },
+    {
+      "id": "learn-unseen-invent-archeologist-core2",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "invent.c learn_unseen_invent() calls addinv_core2() after observing each newly visible object. js/invent.js currently omits the Archeologist scroll-deciphering reaction, so sight restoration can update dknown without the source-required message and conduct bookkeeping. Port that reaction atomically with an Archeologist scroll differential."
+    },
+    {
+      "id": "learn-unseen-invent-luckstone-core2",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "invent.c learn_unseen_invent() calls addinv_core2() after observing each newly visible object. js/invent.js currently omits the luckstone set_moreluck() reaction, so sight restoration can update knowledge without recalculating luck. Port the core2-only reaction without re-running addinv_core1 effects and validate with a carried unseen luckstone."
+    },
+    {
+      "id": "temple-aligned-cleric-creation",
+      "area": "generation",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "makemon.c makemon() admits aligned clerics created for temples and initializes their inventory in source order. js/makemon_create.js rejects that species and omits the associated initialization. Port the complete temple creation path rather than only widening the species allowlist."
+    },
+    {
+      "id": "lit-oil-useup-light-source",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "potion.c peffect_oil() consumes a lit potion of oil through useup(), including its active light-source lifecycle. The current light environment cannot remove the source when the object is consumed, so js/potion.js refuses the branch. Port the lifecycle and validate object removal, light removal, messages, and turn state."
+    },
+    {
+      "id": "permanent-inventory-command-refresh",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "New quaff, spell, and sight-restoration paths mutate inventory or knowledge without all update_inventory hooks needed when permanent inventory is active. Trace each upstream refresh point, preserve mutation order, and validate both ordinary and permanent-inventory modes."
+    },
+    {
+      "id": "potion-occupant-cloned-preflight",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "potion.c dodrink() checks milky and smoky potion occupants probabilistically before ordinary effects. js/potion.js refuses these potions unconditionally. Add a cloned-RNG preflight that preserves retryable-boundary atomicity, or port the complete occupant behavior, then validate draw order and both outcomes."
+    },
+    {
+      "id": "healup-temporary-deafness",
+      "area": "objects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "potion.c healup() clears temporary deafness through make_deaf() when cureblind is true. js/potion.js currently refuses when timed DEAF is present because no live JavaScript writer reaches that state. Port the state transition when make_deaf or another source-reachable temporary-deafness path lands."
+    },
+    {
+      "id": "priest-planning-newsym-side-effect",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "priest.c move_special() can call newsym() while the monster planner is operating on a cloned state. The current port routes that display write through global game state, so a planning pass can mutate the live display. Separate or inject the display side effect and validate clone isolation plus the committed move."
+    },
+    {
+      "id": "wizard-hunger-intelligence-test",
+      "area": "hero",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "The cast-healing hunger test intended to distinguish the Wizard A_INT branch does not make intelligence affect the expected outcome. Add paired inputs around the upstream spell.c threshold so removing the A_INT role branch changes the result."
+    },
+    {
+      "id": "cast-differential-screen-content",
+      "area": "hero",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "The cast differential checks screen counts but not decoded cell contents. Compare every produced screen and cursor against the C recording so a same-count rendering divergence fails."
+    },
+    {
+      "id": "doopen-command-branch-oracles",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "The doopen command tests accept broad result sets and do not pin several source branches to exact ECMD results, messages, state changes, and elapsed-turn behavior. Tighten the branch matrix so changing a dispatch result or refusal condition fails."
+    },
+    {
+      "id": "temple-live-integration-test",
+      "area": "generation",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "The temple integration test does not generate a temple or exercise the aligned-cleric creation path. Add a source-recorded temple case after the production creation path is ported, asserting the priest, room state, inventory initialization, screens, cursors, and random draws."
+    },
+    {
+      "id": "quaff-speed-command-test",
+      "area": "objects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "POT_SPEED is covered below command dispatch but no test quaffs it through rhack and the live object-selection path. Add a command-level differential that pins selection, consumption, status, messages, elapsed turn, screens, cursors, and random calls."
+    },
+    {
+      "id": "select-off-cockatrice-confirmation-test",
+      "area": "objects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "7adafb4146cb4a590d5e506ed0b7213e289adfdf",
+      "detail": "The glove-removal tests never combine select_off() with a carried petrifying corpse. Add exact prompt and mask assertions for declining and accepting once the spelled-out paranoid confirmation reader is ported; until then also preserve the atomic fail-closed boundary."
     }
   ],
   "areas": [

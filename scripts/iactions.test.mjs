@@ -11,6 +11,7 @@ import test from 'node:test';
 
 import {
     CQ_CANNED,
+    CMDQ_EXTCMD,
     CMDQ_KEY,
     ECMD_OK,
     GETOBJ_DOWNPLAY,
@@ -30,6 +31,7 @@ import {
     cmdq_pop,
     extcmdRow,
 } from '../js/cmd.js';
+import { itemactions } from '../js/iactions.js';
 import {
     name_ok,
     call_ok,
@@ -80,6 +82,7 @@ import {
     WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
+import { monst_globals_init, PM_HUMAN } from '../js/monsters.js';
 import {
     armor_simple_name,
     boots_simple_name,
@@ -96,11 +99,13 @@ import {
 function catalogState() {
     const state = {};
     objects_globals_init(state);
+    monst_globals_init(state);
     init_objects(state, () => 0);
     state.u = { uprops: [], ux: 1, uy: 1, uswallow: false, twoweap: false };
     state.flags = { sortpack: true, invlet_constant: true, inv_order: '' };
     state.iflags = {};
     state.invent = null;
+    state.youmonst = { data: state.mons[PM_HUMAN] };
     state.level = { at(x, y) { return { typ: 0 }; } };
     return state;
 }
@@ -136,6 +141,46 @@ test('cmdq_add_key pushes a CMDQ_KEY node that cmdq_pop retrieves', () => {
     const node = cmdq_pop(state);
     assert.equal(node.typ, CMDQ_KEY);
     assert.equal(node.key, 'b');
+});
+
+test('itemactions queues the selected action and inventory letter', async () => {
+    // iactions.c:441-445 and :175-178. A carried dagger offers Drop on `d`;
+    // selecting it queues dodrop followed by the dagger's `a` inventory key.
+    const state = catalogState();
+    const dagger = fakeObj(DAGGER, { invlet: 'a' });
+    state.invent = dagger;
+
+    const result = await itemactions(dagger, state, {
+        selectMenu: async (_state, spec) =>
+            spec.items.find(item => item.selector === 'd').value,
+    });
+
+    assert.equal(result, ECMD_OK);
+    const command = cmdq_pop(state);
+    assert.equal(command.typ, CMDQ_EXTCMD);
+    assert.equal(command.ec_entry.ef_txt, 'drop');
+    const key = cmdq_pop(state);
+    assert.equal(key.typ, CMDQ_KEY);
+    assert.equal(key.key, 'a');
+});
+
+test('itemactions names full ring slots as fingers', async () => {
+    // iactions.c:507-512 uses body_part(FINGER), not HAND. Both ring slots
+    // are occupied, so an unworn ring's P row explains why it cannot go on.
+    const state = catalogState();
+    state.uleft = fakeObj(RIN_ADORNMENT, { oclass: RING_CLASS });
+    state.uright = fakeObj(RIN_ADORNMENT, { oclass: RING_CLASS });
+    const ring = fakeObj(RIN_ADORNMENT, { oclass: RING_CLASS });
+    let putOnRow;
+
+    await itemactions(ring, state, {
+        selectMenu: async (_state, spec) => {
+            putOnRow = spec.items.find(item => item.selector === 'P');
+            return null;
+        },
+    });
+
+    assert.equal(putOnRow.label, '[both ring fingers in use]');
 });
 
 // ── name_ok / call_ok / objtyp_is_callable ──

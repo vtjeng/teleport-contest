@@ -10,8 +10,8 @@
 // fountain/sink, underwater, worn-potion, milky/smoky are fail-closed;
 // the common path calls getobj() -> dopotion() -> peffects().
 //
-// peffects() dispatches 23 potion types; POT_SPEED (with spell alias
-// SPE_HASTE_SELF) and POT_OIL are ported. The other 21 arms throw
+// peffects() dispatches 26 potion types; POT_SPEED (with spell alias
+// SPE_HASTE_SELF) and POT_OIL are ported. The other 24 arms throw
 // UnsupportedQuaffError.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
@@ -20,6 +20,8 @@
 import {
     A_DEX,
     A_WIS,
+    BLINDED,
+    DEAF,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -113,8 +115,9 @@ export class UnsupportedPotionError extends Error {
 }
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
-// ported: the 22 potion types besides POT_SPEED, and the strangled, fountain,
-// sink, underwater, worn-potion, milky and smoky branches of dodrink().
+// ported: the 24 potion types besides POT_SPEED and POT_OIL, and the
+// strangled, fountain, sink, underwater, worn-potion, milky and smoky
+// branches of dodrink().
 export class UnsupportedQuaffError extends Error {
     constructor(reason) {
         super(`quaffing requires ${reason}`);
@@ -663,15 +666,16 @@ export function healup(nhp, nxtra, curesick, cureblind, state = game) {
     }
     if (cureblind) {
         // C clears u.ucreamed, calls make_blinded(0L, TRUE) and
-        // make_deaf(0L, TRUE). Neither is ported. The healing spell path
-        // sets cureblind when the pseudo object is blessed or the spell is
-        // SPE_EXTRA_HEALING; the hero is not expected to be blind or deaf
-        // in the common first-heal scenario.
-        if (u.ucreamed || heroIsBlind(state))
+        // make_deaf(0L, TRUE). Neither is ported. Refuse only mutable timed
+        // blindness, cream, or timed deafness; a worn blindfold is extrinsic
+        // and remains worn after C clears the intrinsic conditions.
+        const timedBlindness = (u.uprops?.[BLINDED]?.intrinsic ?? 0) & TIMEOUT;
+        const timedDeafness = (u.uprops?.[DEAF]?.intrinsic ?? 0) & TIMEOUT;
+        if (u.ucreamed || timedBlindness || timedDeafness)
             throw new UnsupportedPotionError(
                 'healup() cureblind arm over make_blinded() / make_deaf()',
             );
-        // No-op: hero is neither blind nor deaf.
+        // No-op: there is no intrinsic condition for C to clear.
     }
     if (curesick) {
         // C calls make_vomiting(0L, TRUE) and make_sick(0L, ...). Neither is

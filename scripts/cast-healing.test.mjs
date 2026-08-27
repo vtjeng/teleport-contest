@@ -23,6 +23,7 @@ import test from 'node:test';
 import {
     A_INT,
     A_WIS,
+    BLINDED,
     ECMD_FAIL,
     ECMD_TIME,
     NO_SPELL,
@@ -239,6 +240,25 @@ test('healup is a no-op for cureblind on a sighted hero', () => {
     };
     // Should not throw because neither ucreamed nor heroIsBlind is true.
     healup(0, 0, false, true, state);
+    assert.equal(state.disp.botl, true);
+});
+
+test('healup leaves extrinsic blindfold blindness in place', () => {
+    // potion.c:1444 calls make_blinded(0L), which clears timed blindness but
+    // does not remove a worn blindfold or its extrinsic BLINDED property.
+    const state = {
+        u: {
+            uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
+            uprops: {
+                [BLINDED]: { intrinsic: 0, extrinsic: 1 },
+            },
+        },
+        disp: {},
+    };
+
+    healup(0, 0, false, true, state);
+
+    assert.equal(state.u.uprops[BLINDED].extrinsic, 1);
     assert.equal(state.disp.botl, true);
 });
 

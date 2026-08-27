@@ -489,12 +489,12 @@ async function getspell(state, { message, menu }) {
 // C ref: spell.c spelleffects_check() (1220-1380). Validates that the hero can
 // cast spell `spell` (a spl_book[] index): checks that the spell is known, the
 // hero has enough energy, the hero is not too hungry or weak, and the cast
-// succeeds on a random roll. Deducts energy and hunger on success.
+// succeeds on a random roll. Hunger is charged before the success roll;
+// failed casts spend half energy.
 //
 // Returns { abort, res, energy } where `abort` is true when the cast should not
 // proceed (C returned TRUE). Only the common successful-cast path is fully
-// ported; the twisted-knowledge, amulet-draining, and confused-failure paths
-// throw fail-closed.
+// ported; the twisted-knowledge and amulet-draining paths throw fail-closed.
 async function spelleffects_check(spell, state, env) {
     const confused = Boolean(
         state.u?.uprops?.[CONFUSION]?.intrinsic,
@@ -502,7 +502,7 @@ async function spelleffects_check(spell, state, env) {
     let energy = 0;
 
     // Reject casting while stunned or with no free hands.
-    if (spellid(spell, state) === UNKNOWN_SPELL
+    if (spell === UNKNOWN_SPELL
         || await rejectcasting(state, env)) {
         return { abort: true, res: ECMD_OK, energy: 0 };
     }

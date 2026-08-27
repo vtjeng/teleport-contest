@@ -14,6 +14,7 @@ import {
 import {
     cmdq_add_ec,
     cmdq_peek,
+    cmdq_pop,
     extcmdRow,
     failClosedCommandRefusals,
     MAX_COMMAND_COUNT,
@@ -3463,6 +3464,64 @@ test('rhack runs a queued command even when it was given a key', async () => {
     assert.equal(state.context.move, 1, 'the queued wait spent the turn');
     assert.equal(state._pending_message ?? '', '');
     assert.equal(cmdq_peek(CQ_CANNED, state), null, 'the queue was drained');
+});
+
+test('rhack consumes a queued command after the reqmenu prefix', async () => {
+    // cmd.c:3637-3652 pops the command queue again at got_prefix_input. Wait
+    // accepts CMD_M_PREFIX and needs no further answer, so it isolates whether
+    // rhack consumes the queued successor instead of asking for physical input.
+    // Seed and datetime are arbitrary stable startup inputs.
+    await runSegment({
+        seed: 4210042,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:QueuePrefix,role:Valkyrie,race:human,'
+            + 'gender:female,align:lawful,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        moves: ' ',
+    });
+    cmdq_add_ec(CQ_CANNED, extcmdRow('reqmenu'), game);
+    cmdq_add_ec(CQ_CANNED, extcmdRow('wait'), game);
+
+    await rhack(0, game);
+
+    assert.equal(cmdq_peek(CQ_CANNED, game), null);
+    assert.equal(game.context.move, 1);
+});
+
+test('inventory preserves the action selected by itemactions', async () => {
+    // Seed 4210043 is an arbitrary stable startup input. Valkyrie's fourth
+    // inventory item occupies slot d; the two `d` menu choices select that
+    // item and its Drop action. cmd.c preserves the resulting canned queue.
+    await runSegment({
+        seed: 4210043,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:InventoryQueue,role:Valkyrie,race:human,'
+            + 'gender:female,align:lawful,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        moves: ' ',
+    });
+    for (const key of 'idd') game.nhDisplay.pushKey(commandKeyCode(key));
+
+    await rhack(0, game);
+
+    const action = cmdq_pop(game);
+    assert.equal(action.ec_entry.ef_txt, 'drop');
+    const inventoryLetter = cmdq_pop(game);
+    assert.equal(inventoryLetter.key, 'd');
+});
+
+test('#autopickup dispatches dotogglepickup without taking time', async () => {
+    // cmd.c's autopickup row and the @ binding share dotogglepickup(). The
+    // extended spelling reads the full command after the opening # key.
+    const state = resetParserTestGame('#autopickup\n');
+    state.flags.pickup = false;
+    state.flags.pickup_types = [];
+
+    await rhack(0, state);
+
+    assert.equal(state.flags.pickup, true);
+    assert.equal(state.context.move, 0);
+    assert.equal(state._pending_message, 'Autopickup: ON, for all objects.');
 });
 
 test('monster_nearby applies hostility, concealment, helplessness, and sensing', () => {

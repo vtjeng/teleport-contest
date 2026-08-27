@@ -5,6 +5,7 @@
 import {
     CQ_CANNED,
     ECMD_OK,
+    FINGER,
     GETOBJ_SUGGEST,
     HAND,
     HANDS_SYM,
@@ -598,7 +599,7 @@ export async function itemactions(otmp, state = game, hooks = {}) {
             if (!state.uleft || !state.uright)
                 buf = 'Put this ring on';
             else
-                buf = `[both ring ${makeplural(body_part(HAND, state.youmonst))} in use]`;
+                buf = `[both ring ${makeplural(body_part(FINGER, state.youmonst))} in use]`;
         } else if (otmp.otyp === BLINDFOLD || otmp.otyp === TOWEL
             || otmp.otyp === LENSES) {
             if (state.ublindf)
@@ -754,7 +755,8 @@ export async function itemactions(otmp, state = game, hooks = {}) {
     // C ref: iactions.c:701. PICK_ONE select_menu, separate from the
     // inventory menu that brought us here: the hooks.menu from the
     // caller handles the inventory listing and must not be reused.
-    const n = await select_menu(state, {
+    const chooseMenu = hooks.selectMenu ?? select_menu;
+    const n = await chooseMenu(state, {
         items,
         how: PICK_ONE,
         cancelValue: null,

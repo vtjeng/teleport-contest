@@ -24,12 +24,16 @@ const SCAN_SCHEMA = {
         sessions: { type: 'array' },
         tentative: { type: 'boolean' },
       },
+      required: ['member', 'cappedForecast', 'sessions', 'tentative'],
     },
     ranking: { type: ['array', 'null'] },
     needsCapping: { type: 'array', items: { type: 'string' } },
     allStable: { type: 'boolean' },
   },
-  required: ['hasQueuedGoal', 'allStable'],
+  required: [
+    'hasQueuedGoal', 'queuedGoalId', 'queuedGoalBoundary',
+    'queuedGoalForecast', 'winner', 'ranking', 'needsCapping', 'allStable',
+  ],
 }
 
 const CAP_SCHEMA = {
@@ -54,6 +58,7 @@ const RERANK_SCHEMA = {
         sessions: { type: 'array' },
         tentative: { type: 'boolean' },
       },
+      required: ['member', 'cappedForecast', 'sessions', 'tentative'],
     },
     ranking: { type: 'array' },
     allStable: { type: 'boolean' },
@@ -161,7 +166,7 @@ if (!scan.allStable && scan.needsCapping.length > 0) {
     }
   }
 
-  await parallel(scan.needsCapping.map(session => () =>
+  const capResults = await parallel(scan.needsCapping.map(session => () =>
     agent(`
 Cap the look-ahead stretch for session "${session}".
 
@@ -180,6 +185,13 @@ Return session, cappedStretch, reason, and persisted (true if --set-cap succeede
 Do NOT read C source files.
 `, { schema: CAP_SCHEMA, label: `cap:${session}`, model: 'sonnet' })
   ))
+  for (let index = 0; index < scan.needsCapping.length; ++index) {
+    const expectedSession = scan.needsCapping[index]
+    const result = capResults[index]
+    if (!result?.persisted || result.session !== expectedSession) {
+      throw new Error(`failed to persist cap for session "${expectedSession}"`)
+    }
+  }
 
   const rerank = await agent(`
 Run: node scripts/scan-sessions.mjs --capped-ranking --read-cache

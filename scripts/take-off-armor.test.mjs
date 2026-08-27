@@ -832,6 +832,39 @@ test('select_off glove checks: welded, Glib, and uncursed pass-through',
     game.uarmg = null;
 });
 
+test('select_off preserves the corpse-safety confirmation boundary',
+    async () => {
+    // do_wear.c better_not_take_that_off() asks for a spelled-out paranoid
+    // confirmation before exposing bare hands to a carried cockatrice corpse.
+    // That reader remains fail-closed, but this pins the call before the mask
+    // mutation so the safety check cannot silently disappear.
+    const segment = segmentFor(TAKEOFF_KEY);
+    await runSegment({ ...segment, moves: WAIT });
+
+    const gloves = {
+        oclass: ARMOR_CLASS, otyp: LEATHER_GLOVES, owornmask: W_ARMG,
+        cursed: 0, quan: 1, bknown: 0, unpaid: 0,
+    };
+    const cockaCorpse = {
+        oclass: FOOD_CLASS, otyp: CORPSE, corpsenm: PM_COCKATRICE,
+        owornmask: 0, cursed: 0, quan: 1, nobj: game.invent,
+    };
+    game.uarmg = gloves;
+    game.invent = cockaCorpse;
+    reset_remarm(game);
+
+    await assert.rejects(
+        () => select_off(gloves, game),
+        /paranoid_ynq\(\) reading "yes" or "no"/,
+    );
+    assert.equal(takeoffContext(game).mask, 0,
+        'confirmation boundary must precede the takeoff-mask mutation');
+
+    game.invent = cockaCorpse.nobj;
+    game.uarmg = null;
+    reset_remarm(game);
+});
+
 test('carrying_stoning_corpse finds the first petrifying corpse',
     async () => {
     // C ref: invent.c carrying_stoning_corpse() (1508-1516). Scans inventory
@@ -1036,6 +1069,15 @@ test('Blindf_off clears the blindfold slot and toggles blindness', async () => {
     setworn(blindfold, W_TOOL, { state: game, hooks: {} });
     game.ublindf = blindfold;
 
+    // An ordinary object picked up while blind is not yet known by sight.
+    // invent.c learn_unseen_invent() observes it when Blindf_off restores
+    // sight; keeping it at the inventory head also exercises the live refresh.
+    const unseen = {
+        oclass: FOOD_CLASS, otyp: CORPSE, corpsenm: PM_ACID_BLOB,
+        quan: 1, dknown: false, bknown: false, nobj: game.invent,
+    };
+    game.invent = unseen;
+
     // Confirm the hero is now blind (the blindfold extrinsic is set by setworn).
     const { heroIsBlind } = await import('../js/startup_a11y.js');
     assert.ok(heroIsBlind(game), 'hero should be blind with blindfold on');
@@ -1050,6 +1092,8 @@ test('Blindf_off clears the blindfold slot and toggles blindness', async () => {
 
     // The hero should be able to see again.
     assert.ok(!heroIsBlind(game), 'hero should see after removing blindfold');
+    assert.equal(unseen.dknown, true,
+        'inventory acquired while blind should become known by sight');
 
     // The messages should include "You were wearing" (off_msg, verbose) and
     // "You can see again."

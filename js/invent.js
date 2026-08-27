@@ -1345,10 +1345,10 @@ export function preflight_update_inventory(env = {}) {
 // (which sets dknown via observe_object()) and triggering any reactions
 // that seeing the object for the first time produces (addinv_core2).
 //
-// addinv_core2() handles two effects: set_moreluck() for luckstones and
-// the Archeologist scroll-deciphering message. Neither fires in any ported
-// session's Blindf_off path (no luckstone in inventory, no Archeologist
-// role), so it is omitted here with a fail-closed comment.
+// addinv_core2() handles two effects: set_moreluck() for luckstones and the
+// Archeologist scroll-deciphering message. Those reactions are not yet
+// ported here, so this function currently updates object knowledge without
+// reproducing either reaction.
 export function learn_unseen_invent(state = game) {
     if (heroIsBlind(state))
         return; /* sanity check */
@@ -1369,8 +1369,7 @@ export function learn_unseen_invent(state = game) {
         // sets dknown, and also sets bknown for clerics.
         xnameFresh(otmp, state);
         // C ref: invent.c:2766. addinv_core2(otmp) handles luckstones and
-        // Archeologist scroll deciphering. Neither branch fires in ported
-        // paths; omitted.
+        // Archeologist scroll deciphering; those reactions remain deferred.
     }
     if (invupdated)
         update_inventory({ state });

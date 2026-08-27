@@ -2148,6 +2148,9 @@ async function doextcmd(key, state) {
         return await runLootCommand(key, state);
     case 'doopen':
         return await runOpenCommand(key, state);
+    case 'dotogglepickup':
+        await dotogglepickup(state);
+        return ECMD_OK;
     case 'dotakeoff':
         return await runTakeOffCommand(key, state);
     case 'dowear':
@@ -2322,16 +2325,29 @@ export async function rhack(key, state = game) {
             // cleared, so `Fm` and `mF` both leave the CMD_M_PREFIX rule in
             // force for the command that follows.
             if (command === 'reqmenu') wasMPrefix = true;
-            key = await parseCommand(state);
-            if (firstTime) {
-                state.context.pendingCommand =
-                    captureParsedCommand(key, state);
+            const queuedAfterPrefix = cmdq_pop(state);
+            let commandAfterPrefix = null;
+            if (queuedAfterPrefix) {
+                if (queuedAfterPrefix.typ === CMDQ_EXTCMD
+                    && queuedAfterPrefix.ec_entry) {
+                    commandAfterPrefix = queuedAfterPrefix.ec_entry.ef_txt;
+                } else {
+                    key = queuedAfterPrefix.typ === CMDQ_KEY
+                        ? queuedAfterPrefix.key : 0;
+                }
+            } else {
+                key = await parseCommand(state);
+                if (firstTime) {
+                    state.context.pendingCommand =
+                        captureParsedCommand(key, state);
+                }
             }
-            if (!key || key === 0xFF || key === ESC) {
+            if (!commandAfterPrefix && (!key || key === 0xFF || key === ESC)) {
                 resetCommandVars(state);
                 return;
             }
-            command = commandForKey(commandBindings(state), key);
+            command = commandAfterPrefix
+                ?? commandForKey(commandBindings(state), key);
             // C loops back to do_cmdq_extcmd for the prefixed command, so the
             // next key gets its own can_do_extcmd() before anything else
             // looks at it.
@@ -2514,9 +2530,10 @@ export async function rhack(key, state = game) {
         if (command === 'cast') {
             // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
             // three tests the '#', `search`, `eat` and `zap` arms apply.
-            // docast() reaches all three: ECMD_OK for rejectcasting() and
-            // the empty-spellbook exit, ECMD_CANCEL for an escaped spell
-            // menu, and ECMD_TIME for a spell that fires. cmd.c:1689's
+            // docast() reaches ECMD_FAIL whenever getspell() answers false:
+            // an empty spellbook, rejectcasting(), an invalid queued key, or
+            // a cancelled spell menu. A cast attempt answers ECMD_TIME.
+            // cmd.c:1689's
             // "cast" row carries only IFBURIED -- no prefix flags at all --
             // so an 'm' or 'F' prefix is refused ahead of this arm.
             const res = await runCastCommand(key, state);
@@ -2834,12 +2851,11 @@ export async function rhack(key, state = game) {
             resetCommandVars(state, state.multi < 0);
             return;
         }
-        // These five wrappers answer a boolean rather than an ECMD code, so
-        // each folds C's two result arms into one unconditional reset. That
-        // predates the command queue and stays: every one of them is reachable
-        // only from a typed key, and rhack() has just drained the queue to
-        // read that key, so the clear the reset now performs has nothing to
-        // discard. The fold covers the reset argument alone; the ECMD_TIME
+        // These five wrappers answer a boolean rather than an ECMD code. The
+        // inventory wrapper's ECMD_OK-equivalent exit can leave a canned item
+        // action behind, so it preserves that queue. The other wrappers still
+        // fold C's two result arms into one unconditional reset. The fold
+        // covers the reset argument alone; the ECMD_TIME
         // tail at 3818-3825 is shared with every other arm through
         // commandTookTime(), so a wrapper that spends a turn forgets the
         // kicked square exactly as the ECMD arms do.
@@ -2851,12 +2867,15 @@ export async function rhack(key, state = game) {
         // that C leaves alone. Nothing reaches it today. dolook() is the only
         // one of the five whose own exits can answer ECMD_TIME (invent.c:4160,
         // :4248 and :4314, each for a blind hero), no ported code writes
-        // u.uprops[BLINDED], and ddoinv()'s other C exit, itemactions() at
-        // invent.c:2998, is refused in js/invent.js before it can answer.
+        // u.uprops[BLINDED].
         if (command === 'inventory') {
             const elapsed = await runInventoryCommand(key, state);
-            resetCommandVars(state);
-            if (elapsed) commandTookTime(state);
+            if (elapsed) {
+                resetCommandVars(state);
+                commandTookTime(state);
+            } else {
+                resetCommandVars(state, state.multi < 0);
+            }
             return;
         }
         if (command === 'showspells') {

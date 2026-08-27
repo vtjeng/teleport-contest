@@ -969,12 +969,10 @@ test('mattacku reveals an eel the moment it strikes', async () => {
     const quiet = meleeEnv(state, [20, 21], {
         redraw: () => assert.fail('a non-eel needs no reveal'),
     });
-    // An invisible non-eel keeps its invisibility. missmu() now calls
-    // markInvisible (the canSpotMonster guard is ported), then stops at the
-    // mtmp.minvis guard which has not been validated yet.
-    await assert.rejects(() => mattacku(rat, quiet.env),
-        (error) => error.reason
-            === 'a miss by an invisible monster the hero can see');
+    // An invisible non-eel keeps its invisibility. missmu() marks its square,
+    // prints the source's anonymous miss, and completes the attack.
+    assert.equal(await mattacku(rat, quiet.env), false);
+    assert.deepEqual(quiet.lines, ['It misses!']);
     assert.equal(rat.minvis, true);
 });
 
