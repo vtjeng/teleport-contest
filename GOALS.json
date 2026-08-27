@@ -5320,7 +5320,7 @@
     },
     {
       "id": "whatis",
-      "status": "open",
+      "status": "closed",
       "boundary": "A sighted, non-hallucinating, unswallowed hero with the default lootabc, help, tips, whatis_coord, and getpos settings uses the non-quick / command; port pager.c do_look(0) through every menu choice exercised by seed2200: map cursor lookup with ordinary and fast cursor movement, repeated traditional picks and Escape; a complete typed name; a carried item; nearby and all monsters and objects; nearby and all traps; and nearby and all engravings.",
       "upstreamOwners": [
         "pager.c do_look()",
@@ -5380,8 +5380,11 @@
         "screens": 2529,
         "rng": 156703
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "84f100f10bf6e011a4bf67d26a2db0dec7a588fa",
+      "delivered": {
+        "screens": 74,
+        "rng": 0
+      }
     }
   ]
 }
