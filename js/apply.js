@@ -2,11 +2,13 @@
 // C refs: src/apply.c apply_ok(), doapply(), use_stethoscope(), its_dead(),
 // and reset_trapset().
 //
-// doapply()'s switch has thirty-odd arms. Three are live: STETHOSCOPE, the
+// doapply()'s switch has thirty-odd named arms. Three are live: STETHOSCOPE, the
 // LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c pick_lock() serves, and
-// MAGIC_MARKER which delegates to write.c dowrite() in js/write.js. Every
-// other arm, and the wand, spellbook and coin shortcuts above the switch,
-// stops at a refusal naming the C function it needs. use_stethoscope() covers
+// MAGIC_MARKER which delegates to write.c dowrite() in js/write.js. Ordinary
+// armor reaches the switch's default unknown-use message. Every other named
+// arm, the default's weapon redirects, and the wand, spellbook and coin
+// shortcuts above the switch stop at a refusal naming the C function they need.
+// use_stethoscope() covers
 // the no-hands, Deaf and free-hand guards, the free-action rule, self and
 // off-map probes, the adjacent monster arm, both secret-terrain arms, an empty
 // adjacent square, ordinary sighted and blind corpses and statues, and a
@@ -18,6 +20,7 @@ import {
     CORR,
     DEAF,
     ECMD_CANCEL,
+    ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
     GETOBJ_DOWNPLAY,
@@ -90,6 +93,7 @@ import {
 } from './obj.js';
 import { simple_typename, simpleonames, The } from './objnam.js';
 import {
+    ARMOR_CLASS,
     BANANA,
     BULLWHIP,
     COIN_CLASS,
@@ -604,11 +608,18 @@ export async function doapply(state = game) {
         // apply.c:4361-4362. dowrite() handles the full magic marker flow.
         return dowrite(obj, state);
     default:
-        // Every other arm of C's switch, and its `default` -- which redirects
-        // a polearm to use_pole(), a pick or an axe to use_pick_axe(), and
-        // anything else to "Sorry, I don't know how to use that." and
-        // ECMD_FAIL. The refusal names the object type so a session that
-        // reaches one says which tool it wanted.
+        // apply.c:4407-4417. No named switch arm has ARMOR_CLASS, and armor
+        // cannot be a polearm, pick, or axe because those macros admit only
+        // WEAPON_CLASS and TOOL_CLASS. It therefore reaches C's exact
+        // unknown-use result without spending a turn or changing the object.
+        if (obj.oclass === ARMOR_CLASS) {
+            await ttyPline("Sorry, I don't know how to use that.", state);
+            return ECMD_FAIL;
+        }
+        // Every named arm this port has not implemented, plus the default's
+        // unported use_pole() and use_pick_axe() redirects, stays fail-closed.
+        // The refusal names the object type so a session says which path it
+        // wanted without accidentally executing a partial implementation.
         throw new UnsupportedApplyError(
             `doapply()'s arm for object type ${obj.otyp}`,
         );

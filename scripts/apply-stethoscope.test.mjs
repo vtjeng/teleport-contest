@@ -18,6 +18,7 @@ import {
     CORPSTAT_RANDOM,
     DEAF,
     ECMD_CANCEL,
+    ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
     FAST,
@@ -717,12 +718,81 @@ test('doapply refuses every class and arm this slice does not port',
     assert.match(sack?.message ?? '',
         new RegExp(`doapply\\(\\)'s arm for object type ${SACK}`, 'u'));
 
+    // C's default redirects a Knight's slot-b lance to use_pole() and the
+    // seed-fixed Barbarian's slot-b axe to use_pick_axe(). Those functions
+    // remain unported, so neither weapon may acquire armor's unknown-use
+    // answer merely because all three paths share C's default label.
+    for (const [role, letter, otyp] of [
+        ['Knight', 'b', LANCE],
+        ['Barbarian', 'b', AXE],
+    ]) {
+        const weaponSegment = loadApplyPromptRecipe().segments.find(
+            ({ nethackrc }) => nethackrc.includes(`role:${role}`),
+        );
+        assert.ok(weaponSegment, `the matrix carries a ${role} segment`);
+        const boundary = await boundaryFor(weaponSegment, `.a${letter}`);
+        assert.match(boundary?.message ?? '',
+            new RegExp(`doapply\\(\\)'s arm for object type ${otyp}`, 'u'),
+            role);
+    }
+
     // The one direction arm still above the port's reach: '>' names the floor,
     // which apply.c:363 answers before confdir() ever runs. 'j', the adjacent
     // square beside it, now answers rather than stopping, and the test below
     // covers where it stops instead.
     assert.match(await refusal('.ac>'),
         /applying a tool requires listening to the floor or ceiling/u);
+});
+
+test('doapply reports that ordinary armor has no use without changing it',
+    async () => {
+    const promptRecipe = loadApplyPromptRecipe();
+    // u_init.c gives the Healer leather gloves in slot b and the Rogue leather
+    // armor in slot c. Both are ordinary ARMOR_CLASS objects, which reach
+    // apply.c:4407-4417's default after failing is_pole(), is_pick(), and
+    // is_axe(). Two armor slots keep this test on the class-wide source arm
+    // rather than the development witness's gray dragon scale mail type.
+    for (const [role, letter] of [['Healer', 'b'], ['Rogue', 'c']]) {
+        const segment = promptRecipe.segments.find(
+            ({ nethackrc }) => nethackrc.includes(`role:${role}`),
+        );
+        assert.ok(segment, `the matrix carries a ${role} segment`);
+        await runSegment({ ...segment, moves: '.' });
+
+        const armor = (() => {
+            for (let obj = game.invent; obj; obj = obj.nobj)
+                if (obj.invlet === letter) return obj;
+            return null;
+        })();
+        assert.ok(armor, `${role} carries armor in slot ${letter}`);
+        assert.equal(armor.oclass, ARMOR_CLASS);
+        const before = {
+            otyp: armor.otyp,
+            quan: armor.quan,
+            spe: armor.spe,
+            blessed: armor.blessed,
+            cursed: armor.cursed,
+            owornmask: armor.owornmask,
+        };
+        const drawsBefore = (getRngLog() ?? []).length;
+
+        game.nhDisplay.pushKey(letter.charCodeAt(0));
+        assert.equal(await doapply(game), ECMD_FAIL, role);
+        assert.equal(
+            pendingTopLine(),
+            "Sorry, I don't know how to use that.",
+            role,
+        );
+        assert.deepEqual({
+            otyp: armor.otyp,
+            quan: armor.quan,
+            spe: armor.spe,
+            blessed: armor.blessed,
+            cursed: armor.cursed,
+            owornmask: armor.owornmask,
+        }, before, role);
+        assert.equal((getRngLog() ?? []).length, drawsBefore, role);
+    }
 });
 
 // The arms between the free-action write and confdir() that no key sequence
