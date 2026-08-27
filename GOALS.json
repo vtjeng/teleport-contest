@@ -5367,6 +5367,11 @@
           "name": "whatis-monster-object-lists",
           "status": "closed",
           "closedBy": "cd6814c9cf108a42339dba041780f7ebf6017663"
+        },
+        {
+          "name": "whatis-trap-engraving-lists",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "f17bfd832863f03946b1572f5e4ca2ecf5629b30",
