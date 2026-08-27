@@ -982,8 +982,10 @@ test('mattacku reveals an eel the moment it strikes', async () => {
     // See Invisible makes the monster spottable, but do_name.c Monnam() then
     // needs the unported invisible adjective (and hallucination can add display
     // RNG). The narrower boundary must stay ahead of the miss message.
+    const spottedMarks = [];
     const spotted = meleeEnv(state, [20], {
         canSpotMonster: () => true,
+        markInvisible: (x, y) => spottedMarks.push([x, y]),
     });
     await assert.rejects(
         () => mattacku(rat, spotted.env),
@@ -991,6 +993,7 @@ test('mattacku reveals an eel the moment it strikes', async () => {
             === 'a miss by an invisible monster the hero can see',
     );
     assert.deepEqual(spotted.lines, []);
+    assert.deepEqual(spottedMarks, []);
 });
 
 test('mattacku admits a hidden hero only where C already returned',

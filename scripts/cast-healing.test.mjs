@@ -267,12 +267,17 @@ test('healup leaves extrinsic blindfold blindness in place', () => {
 test('healup keeps timed blindness behind the make_blinded boundary', () => {
     // potion.c healup() clears a BLINDED timeout through make_blinded(), which
     // is not ported. Permanent intrinsic blindness uses FROMOUTSIDE rather
-    // than TIMEOUT and therefore does not enter this branch.
+    // than TIMEOUT and therefore does not enter this branch. Use TIMEOUT's
+    // highest bit so the test rejects a check that reads only the low bit.
+    const highTimeoutBit = 1 << 23;
     const timed = {
         u: {
             uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
             uprops: {
-                [BLINDED]: { intrinsic: 37 & TIMEOUT, extrinsic: 0 },
+                [BLINDED]: {
+                    intrinsic: highTimeoutBit & TIMEOUT,
+                    extrinsic: 0,
+                },
             },
         },
         disp: {},
@@ -299,7 +304,10 @@ test('healup keeps timed blindness behind the make_blinded boundary', () => {
         u: {
             uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
             uprops: {
-                [BLINDED]: { intrinsic: FROMOUTSIDE | 37, extrinsic: 0 },
+                [BLINDED]: {
+                    intrinsic: FROMOUTSIDE | highTimeoutBit,
+                    extrinsic: 0,
+                },
             },
         },
         disp: {},
