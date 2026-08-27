@@ -5143,7 +5143,7 @@
     },
     {
       "id": "really-done-mount-death",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero command: an unported branch of this command: really_done(0) for killer \"slipped while mounting a saddled pony\" in format 2",
       "upstreamOwners": [],
       "forecast": {
@@ -5163,8 +5163,8 @@
       "slices": [
         {
           "name": "ordinary-mounted-death-to-possessions-prompt",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "35c8e9f4d8cade1781b4a66ce61f75353829ec92"
         }
       ],
       "openedAt": "77f34b9fa26510ce5dff72ac0648b3e60ac750e9",
@@ -5173,8 +5173,11 @@
         "screens": 2387,
         "rng": 156027
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "35c8e9f4d8cade1781b4a66ce61f75353829ec92",
+      "delivered": {
+        "screens": 2,
+        "rng": 1
+      }
     }
   ]
 }
