@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { cmdq_peek, key2extcmddesc } from '../js/cmd.js';
+import { cmdq_peek, key2extcmddesc, keyBindingLines } from '../js/cmd.js';
 import { CMDQ_KEY, CQ_REPEAT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -27,6 +27,10 @@ import {
     HELP_OPTION_MOVES,
     loadHelpOptionRecipe,
 } from './run-help-option-help.mjs';
+import {
+    HELP_KEY_BINDINGS_MOVES,
+    loadHelpKeyBindingsRecipe,
+} from './run-help-key-bindings.mjs';
 import {
     HELP_STATIC_CASES,
     loadHelpStaticRecipe,
@@ -160,6 +164,57 @@ test('whatdoes records its unrestricted prompt answer for command repeat',
         // cmd.c yn_function() records the byte that answered `What command?`.
         assert.equal(answer?.key, 0x69);
     });
+
+test('the default key list preserves source sections and fixed-width rows',
+    async () => {
+        const segment = loadHelpKeyBindingsRecipe().segments[0];
+        await runSegment({ ...segment, moves: ' ' });
+        const lines = keyBindingLines(game).map(({ text }) => text);
+
+        // dokeylist() starts with one empty line. Its title combines the
+        // seven-column source field, one separator, and four leading spaces.
+        assert.deepEqual(lines.slice(0, 4), [
+            '',
+            '            Full Current Key Bindings List',
+            '        (also commands with no key assignment)',
+            '',
+        ]);
+        // The default non-debug list has 152 source-formatted rows, which the
+        // 23-line TTY pager divides across seven pages.
+        assert.equal(lines.length, 152);
+        assert(lines.includes('Directional keys:'));
+        assert(lines.includes('Menu control keys:'));
+        assert(lines.includes('General commands:'));
+        assert(lines.includes('Game commands:'));
+        // Normal play excludes cmd.c's WIZMODECMD group even for the Wizard
+        // role; state.wizard is the separate debug-play flag.
+        assert(!lines.includes('Debug mode commands:'));
+        // The source formats ordinary bindings in 7- and 13-character fields.
+        assert(lines.includes('i       inventory     show your inventory'));
+    });
+
+test('the help key-list target returns through the next command boundary',
+    () => withSerializedGrids(async () => {
+        const segment = loadHelpKeyBindingsRecipe().segments[0];
+        assert.equal(segment.moves, HELP_KEY_BINDINGS_MOVES);
+
+        const baseline = await runSegment({ ...segment, moves: ' .' });
+        const baselineMoves = game.moves;
+        const baselineRng = baseline.getRngLog().length;
+
+        let boundary;
+        const replay = await runSegment(segment, {
+            onBoundary: (error) => { boundary = error; },
+        });
+        assert.equal(boundary, undefined);
+        assert.equal(game.context.pendingCommand, undefined);
+        assert.equal(game.moves, baselineMoves);
+        assert.equal(replay.getRngLog().length, baselineRng);
+        // Fresh C seed 736491 records startup, the help menu, seven text
+        // pages, the repaired map, and the final wait through twelve screens.
+        assert.equal(replay.getScreens().length, 12);
+        assert.equal(replay.getCursors().length, 12);
+    }));
 
 test('the help whatis target returns through the next command boundary',
     () => withSerializedGrids(async () => {

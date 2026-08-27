@@ -91,7 +91,11 @@ import {
 import {
     CMD_M_PREFIX,
     CMD_gGF_PREFIX,
+    CMD_PARAM,
+    GENERALCMD,
     IFBURIED,
+    INTERNALCMD,
+    MOVEMENTCMD,
     PREFIXCMD,
     WIZMODECMD,
     extcmdlist,
@@ -115,7 +119,12 @@ import {
 import { doattributes, UnsupportedEnlightenmentError } from './insight.js';
 import { dodiscovered, UnsupportedDiscoveryDisplayError } from './o_init.js';
 import { UnsupportedObjectNameError } from './objnam.js';
-import { doset_simple, dotogglepickup, UnsupportedOptionMenuError } from './options.js';
+import {
+    doset_simple,
+    dotogglepickup,
+    show_menu_controls,
+    UnsupportedOptionMenuError,
+} from './options.js';
 import { dopray, UnsupportedPrayerError } from './pray.js';
 import { UnsupportedHideError } from './mon.js';
 import { dosave } from './save.js';
@@ -737,6 +746,173 @@ function show_direction_keys(lines, centerchar, nodiag, state = game) {
         lines.push({ text:
             `          ${k('movesouthwest')}  ${k('movesouth')}  ${k('movesoutheast')}` });
     }
+}
+
+// C ref: cmd.c keylist_func_has_key() (2784-2797). The source compares the
+// extcmdlist row stored in each binding, so this port compares its unique
+// ef_txt rather than the handler name shared by aliases such as call/name.
+function keylist_func_has_key(entry, skipKeysUsed, model) {
+    for (let key = 0; key < 256; ++key) {
+        if (skipKeysUsed[key]) continue;
+        if (commandForKey(model, key) === entry.ef_txt) return true;
+    }
+    return false;
+}
+
+// C ref: cmd.c keylist_putcmds() (2799-2857). In count mode this returns the
+// number of rows without changing keysUsed; display mode appends the same rows
+// and reserves each keyed byte for the later command categories.
+function keylist_putcmds(lines, docount, inclFlags, exclFlags, keysUsed,
+    model) {
+    const keysAlreadyUsed = Uint8Array.from(keysUsed);
+    const rowsByName = new Map(extcmdlist.map((entry) => [entry.ef_txt, entry]));
+    let count = 0;
+
+    for (let key = 0; key < 256; ++key) {
+        if (keysUsed[key]) continue;
+        if (key === 0x20 && !model.restOnSpace) continue;
+        const command = commandForKey(model, key);
+        const entry = command === null ? null : rowsByName.get(command);
+        if (!entry) continue;
+        if ((inclFlags && !(entry.flags & inclFlags))
+            || (exclFlags && (entry.flags & exclFlags))) {
+            continue;
+        }
+        if (docount) {
+            ++count;
+            continue;
+        }
+        // No compiled-in binding carries CMD_PARAM. Its quoted parameter is
+        // stored on C's Cmd_bind node, which the bounded default model does
+        // not need; reject that excluded custom-binding variant explicitly.
+        if (entry.flags & CMD_PARAM) {
+            throw new UnsupportedHelpError(
+                'a parameterized custom binding in the key list',
+            );
+        }
+        lines.push({ text:
+            `${key2txt(key).padEnd(7)} ${entry.ef_txt.padEnd(13)} ${entry.ef_desc}` });
+        keysUsed[key] = 1;
+    }
+
+    for (const entry of extcmdlist) {
+        if ((inclFlags && !(entry.flags & inclFlags))
+            || (exclFlags && (entry.flags & exclFlags))) {
+            continue;
+        }
+        if (keylist_func_has_key(entry, keysAlreadyUsed, model)) continue;
+        if (docount) {
+            ++count;
+            continue;
+        }
+        lines.push({
+            text: `#${entry.ef_txt.padEnd(20)} ${entry.ef_desc}`,
+        });
+    }
+    return count;
+}
+
+// C ref: cmd.c dokeylist() (2859-3013). This slice admits the recorder's
+// default non-number-pad, no-rest-on-space, non-debug binding set. The data
+// flow remains source-shaped so the complete 256-byte traversal and category
+// ordering stay visible beside extcmdlist_data.js.
+export function keyBindingLines(state = game) {
+    const model = commandBindings(state);
+    const lines = [];
+    const keysUsed = new Uint8Array(256);
+    const pfxSeen = new Uint16Array(256);
+
+    // This build has signal handling, so Ctrl-C is reserved before movement
+    // and miscellaneous keys are classified.
+    keysUsed[0x03] = 1;
+    const movSeen = Uint8Array.from(keysUsed);
+
+    const miscKeys = [
+        { index: 0, name: 'escape', desc: 'cancel current prompt or pending prefix', numpad: false },
+        { index: 5, name: 'count', desc: 'Prefix: for digits when preceding a command with a count', numpad: true },
+    ];
+    let spkeyGap = false;
+    for (const item of miscKeys) {
+        if (item.numpad && !model.numPad) continue;
+        const key = model.specialKeys[item.name] & 0xFF;
+        if (key && !movSeen[key] && !pfxSeen[key]) {
+            keysUsed[key] = 1;
+            pfxSeen[key] = item.index;
+        } else {
+            spkeyGap = true;
+        }
+    }
+
+    lines.push({ text: '' });
+    lines.push({ text: '            Full Current Key Bindings List' });
+    if (extcmdlist.some((entry) => (
+        spkeyGap || !keylist_func_has_key(entry, keysUsed, model)
+    ))) {
+        lines.push({ text: '        (also commands with no key assignment)' });
+    }
+
+    lines.push({ text: '' });
+    lines.push({ text: 'Directional keys:' });
+    show_direction_keys(lines, '.', false, state);
+    lines.push({ text: '' });
+    lines.push({
+        text: 'Ctrl+<direction> will run in specified direction until something very',
+    });
+    lines.push({ text: '        interesting is seen.' });
+    lines.push({
+        text: 'Shift+<direction> will run in specified direction until you encounter',
+    });
+    lines.push({ text: '        an obstacle.' });
+
+    lines.push({ text: '' });
+    lines.push({ text: 'Miscellaneous keys:' });
+    for (const item of miscKeys) {
+        if (item.numpad && !model.numPad) continue;
+        const key = model.specialKeys[item.name] & 0xFF;
+        if (key && !movSeen[key] && pfxSeen[key] === item.index) {
+            lines.push({ text: `${key2txt(key).padEnd(7)} ${item.desc}` });
+        }
+    }
+    lines.push({
+        text: `${key2txt(0x03).padEnd(7)} interrupt: break out of NetHack (SIGINT)`,
+    });
+
+    lines.push({ text: '' });
+    show_menu_controls(lines, true, state);
+
+    const ignoreCommands = WIZMODECMD | INTERNALCMD | MOVEMENTCMD;
+    if (keylist_putcmds(
+        lines, true, GENERALCMD, ignoreCommands, keysUsed, model,
+    )) {
+        lines.push({ text: '' });
+        lines.push({ text: 'General commands:' });
+        keylist_putcmds(
+            lines, false, GENERALCMD, ignoreCommands, keysUsed, model,
+        );
+    }
+    if (keylist_putcmds(
+        lines, true, 0, GENERALCMD | ignoreCommands, keysUsed, model,
+    )) {
+        lines.push({ text: '' });
+        lines.push({ text: 'Game commands:' });
+        keylist_putcmds(
+            lines, false, 0, GENERALCMD | ignoreCommands, keysUsed, model,
+        );
+    }
+    if (state.wizard && keylist_putcmds(
+        lines, true, WIZMODECMD, INTERNALCMD, keysUsed, model,
+    )) {
+        lines.push({ text: '' });
+        lines.push({ text: 'Debug mode commands:' });
+        keylist_putcmds(
+            lines, false, WIZMODECMD, INTERNALCMD, keysUsed, model,
+        );
+    }
+    return lines;
+}
+
+export async function dokeylist(state = game) {
+    await displayTtyTextWindow(state, keyBindingLines(state));
 }
 
 // C ref: cmd.c help_dir() (4170-4296). Displays direction help when cmdassist

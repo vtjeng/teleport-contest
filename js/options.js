@@ -2463,19 +2463,19 @@ function setPetAttribute(result, statement) {
 // C refs: options.c default_menu_cmd_info[], txt2key(),
 // illegal_menu_cmd_key(), and add_menu_cmd_alias().
 const MENU_COMMAND_OPTIONS = Object.freeze([
-    { name: 'menu_next_page', command: '>' },
-    { name: 'menu_previous_page', command: '<' },
-    { name: 'menu_first_page', command: '^' },
-    { name: 'menu_last_page', command: '|' },
-    { name: 'menu_select_all', command: '.' },
-    { name: 'menu_invert_all', command: '@' },
-    { name: 'menu_deselect_all', command: '-' },
-    { name: 'menu_select_page', command: ',' },
-    { name: 'menu_invert_page', command: '~' },
-    { name: 'menu_deselect_page', command: '\\' },
-    { name: 'menu_search', command: ':' },
-    { name: 'menu_shift_right', command: '}' },
-    { name: 'menu_shift_left', command: '{' },
+    { name: 'menu_next_page', command: '>', desc: 'Go to next page' },
+    { name: 'menu_previous_page', command: '<', desc: 'Go to previous page' },
+    { name: 'menu_first_page', command: '^', desc: 'Go to first page' },
+    { name: 'menu_last_page', command: '|', desc: 'Go to last page' },
+    { name: 'menu_select_all', command: '.', desc: 'Select all items in entire menu' },
+    { name: 'menu_invert_all', command: '@', desc: 'Invert selection for all items' },
+    { name: 'menu_deselect_all', command: '-', desc: 'Unselect all items in entire menu' },
+    { name: 'menu_select_page', command: ',', desc: 'Select all items on current page' },
+    { name: 'menu_invert_page', command: '~', desc: "Invert current page's selections" },
+    { name: 'menu_deselect_page', command: '\\', desc: 'Unselect all items on current page' },
+    { name: 'menu_search', command: ':', desc: 'Search and invert matching items' },
+    { name: 'menu_shift_right', command: '}', desc: 'Pan current page to right (perm_invent only)' },
+    { name: 'menu_shift_left', command: '{', desc: 'Pan current page to left (perm_invent only)' },
 ]);
 
 // C walks default_menu_cmd_info[] with strcmp(), so only the thirteen names
@@ -2485,6 +2485,51 @@ const MENU_COMMAND_OPTIONS = Object.freeze([
 const MENU_COMMAND_BY_NAME = new Map(
     MENU_COMMAND_OPTIONS.map(({ name, command }) => [name, command]),
 );
+
+// C ref: options.c get_menu_cmd_key() (8094-8105). A configured alias is
+// displayed in place of its source command byte; when several incoming keys
+// target the same command, the first mapping wins because strchr() does.
+function get_menu_cmd_key(command, state) {
+    const mappedCommands = state.iflags?.mapped_menu_op ?? '';
+    const mappedKeys = state.iflags?.mapped_menu_cmds ?? '';
+    const index = mappedCommands.indexOf(command);
+    return index >= 0 && index < mappedKeys.length
+        ? mappedKeys[index] : command;
+}
+
+// C ref: options.c show_menu_controls() (9068-9174), through the dolist=TRUE
+// call made by cmd.c dokeylist(). The standalone dolist=FALSE page is a
+// separate help-menu target and remains fail-closed until that call site is
+// ported.
+export function show_menu_controls(lines, dolist, state = game) {
+    if (!dolist) {
+        throw new UnsupportedOptionMenuError(
+            'standalone menu-control help is not ported',
+        );
+    }
+
+    lines.push({ text: 'Menu control keys:' });
+    for (const { name, command, desc } of MENU_COMMAND_OPTIONS) {
+        if ((name === 'menu_shift_right' || name === 'menu_shift_left')
+            && !wc2_supported('menu_shift')) {
+            continue;
+        }
+        const key = visctrl(get_menu_cmd_key(command, state));
+        lines.push({ text: `${key.padEnd(7)} ${desc}` });
+    }
+
+    for (const [key, desc] of [
+        ['Return', 'Accept current choice(s) and dismiss menu'],
+        ['Enter', 'Same as Return'],
+        ['Space', 'If not on last page, advance one page;'],
+        // The five-space source key is padded to seven columns before the
+        // format string adds its separator, yielding this continuation row.
+        ['     ', 'when on last page, treat like Return'],
+        ['Escape', 'Cancel menu without making any choice(s)'],
+    ]) {
+        lines.push({ text: `${key.padEnd(7)} ${desc}` });
+    }
+}
 
 // C ref: cmd.c spkeys_binds[]. These names update prompt/navigation keys,
 // not the extended-command binding list queried by nh.eckey().

@@ -1047,6 +1047,13 @@ export async function dohelp(state = game) {
         await dispfile_optmenu(state);
         return ECMD_OK;
     }
+    if (choice === 10) {
+        // pager.js already imports cmd.js for key descriptions, so delay the
+        // reverse edge until this help target dispatches.
+        const { dokeylist } = await import('./cmd.js');
+        await dokeylist(state);
+        return ECMD_OK;
+    }
     if (choice === 13) {
         await dispfile_usagehelp(state);
         return ECMD_OK;
