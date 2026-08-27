@@ -162,7 +162,12 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
     });
   }
 
-  const totalSliceSelectionMin = slices.reduce((sum, s) => sum + (s.sliceSelectionMin || 0), 0);
+  // First slice selection: open → first queue
+  const firstSliceSelMin = (goalQueues.length > 0)
+    ? (goalQueues[0].time - openTime) / 60000
+    : null;
+
+  const totalSliceSelectionMin = (firstSliceSelMin || 0) + slices.reduce((sum, s) => sum + (s.sliceSelectionMin || 0), 0);
   const totalSliceDurationMin = slices.reduce((sum, s) => sum + (s.durationMin || 0), 0);
 
   // Verification: last slice close → goal close

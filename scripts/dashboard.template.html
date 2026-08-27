@@ -606,6 +606,17 @@ document.getElementById('stats').innerHTML = [
       segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-goal-sel)" title="Goal selection: ' + fmt(g.goalSelectionMin) + '"></div>';
     }
 
+    // First slice selection: open → first queue
+    if (g.slices.length > 0) {
+      const firstQ = new Date(g.slices[0].queueTime).getTime();
+      if (firstQ > openT + 30000) {
+        const left = toX(openT);
+        const width = toX(firstQ) - left;
+        const mins = (firstQ - openT) / 60000;
+        segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-slice-sel)" title="First slice selection: ' + fmt(mins) + '"></div>';
+      }
+    }
+
     // Slices
     g.slices.forEach((sl, si) => {
       if (sl.sliceSelectionMin != null && sl.sliceSelectionMin > 0) {
@@ -655,7 +666,13 @@ document.getElementById('stats').innerHTML = [
   const table = document.getElementById('goalTable');
   const goals = [...DATA.goals].reverse();
 
-  let html = '<thead><tr><th>Goal</th><th>Slices</th><th>Total</th><th>Goal sel</th><th>Slice sel</th><th>Impl</th><th>Verif</th><th>Phases</th></tr></thead><tbody>';
+  function fmtDate(iso) {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  }
+
+  let html = '<thead><tr><th>Goal</th><th>Start</th><th>Slices</th><th>Total</th><th>Goal sel</th><th>Slice sel</th><th>Impl</th><th>Verif</th><th>Phases</th></tr></thead><tbody>';
 
   goals.forEach(g => {
     const parts = [
@@ -673,7 +690,7 @@ document.getElementById('stats').innerHTML = [
 
     const auditBadge = g.audits.length > 0 ? ' <span class="audit-badge" title="' + g.audits.map(a => a.message).join('\\n').replace(/"/g, '&quot;') + '">audit</span>' : '';
 
-    html += '<tr><td>' + g.name + auditBadge + '</td><td>' + g.sliceCount + '</td><td>' + fmt(g.totalMin) + '</td><td>' + fmt(g.goalSelectionMin) + '</td><td>' + fmt(g.sliceSelectionMin || 0) + '</td><td>' + fmt(g.implementationMin) + '</td><td>' + fmt(g.verificationMin) + '</td><td>' + bar + '</td></tr>';
+    html += '<tr><td>' + g.name + auditBadge + '</td><td>' + fmtDate(g.openTime) + '</td><td>' + g.sliceCount + '</td><td>' + fmt(g.totalMin) + '</td><td>' + fmt(g.goalSelectionMin) + '</td><td>' + fmt(g.sliceSelectionMin || 0) + '</td><td>' + fmt(g.implementationMin) + '</td><td>' + fmt(g.verificationMin) + '</td><td>' + bar + '</td></tr>';
   });
 
   html += '</tbody>';
