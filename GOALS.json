@@ -5370,8 +5370,8 @@
         },
         {
           "name": "whatis-trap-engraving-lists",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "dda23b7f14f3dee5d02cfe30bae6cfa5eeca69d0"
         }
       ],
       "openedAt": "f17bfd832863f03946b1572f5e4ca2ecf5629b30",
