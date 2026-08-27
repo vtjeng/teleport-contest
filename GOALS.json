@@ -5178,6 +5178,35 @@
         "screens": 2,
         "rng": 1
       }
+    },
+    {
+      "id": "zapnodir-directionless-wand",
+      "status": "open",
+      "boundary": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 2,
+        "basis": "Capped look-ahead: seed2200-wizard-quaff-zap-read cappedStretch=2 (cap-stable).",
+        "sessions": [
+          "seed2200-wizard-quaff-zap-read"
+        ],
+        "witnesses": [
+          {
+            "session": "seed2200-wizard-quaff-zap-read",
+            "evidence": "The known uncursed wand of secret door detection is NODIR with 14 charges. dozap decrements it to 13; weffects exercises Wisdom with rn2(19)=9, then zapnodir calls findit. No hidden feature is found and C prints You do not find anything. The type is already known, current_wand is cleared, and ECMD_TIME returns. JavaScript refuses after charge and exercise."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "a04d2e3286361690e9975f22662504c2f7626adb",
+      "openStanding": {
+        "sha": "35c8e9f4d8cade1781b4a66ce61f75353829ec92",
+        "screens": 2389,
+        "rng": 156028
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
