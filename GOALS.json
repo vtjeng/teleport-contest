@@ -4942,7 +4942,7 @@
     },
     {
       "id": "doapply-otyp-101",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 101",
       "upstreamOwners": [],
       "forecast": {
@@ -4962,8 +4962,8 @@
       "slices": [
         {
           "name": "doapply-default-unknown-use-for-ordinary-armor",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "778cadf3f429acbd723abe274a09c21c488f857c"
         }
       ],
       "openedAt": "9695b4b17a658c54d0a9397127de4517e63aeb0d",
@@ -4972,8 +4972,11 @@
         "screens": 2376,
         "rng": 155956
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "778cadf3f429acbd723abe274a09c21c488f857c",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      }
     }
   ]
 }
