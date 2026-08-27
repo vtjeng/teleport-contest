@@ -4866,7 +4866,7 @@
     },
     {
       "id": "monster-light-source-vision-recalculation",
-      "status": "open",
+      "status": "closed",
       "boundary": "simple monster action requires monster light-source vision recalculation",
       "upstreamOwners": [],
       "forecast": {
@@ -4883,15 +4883,24 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "planned-light-source-vision-recalculation",
+          "status": "closed",
+          "closedBy": "050d36053775ba49dbe137566ff8c331d6b4bd1e"
+        }
+      ],
       "openedAt": "642cdc6cdd7648e94a818fdd315c732ded98c423",
       "openStanding": {
         "sha": "1cdb0410e0eefefd023ed89698058118408bfd59",
         "screens": 2376,
         "rng": 155739
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "050d36053775ba49dbe137566ff8c331d6b4bd1e",
+      "delivered": {
+        "screens": 0,
+        "rng": 144
+      }
     }
   ]
 }
