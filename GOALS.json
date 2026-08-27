@@ -4999,7 +4999,13 @@
         ]
       },
       "detail": "Scope SPEED_BOOTS Boots_on and its common tail only. Existing canwearobj, setworn property effects, nomul/unmul, discovery, and plain-boots tail are ported. Pin no prior FAST, permanent intrinsic FAST, another extrinsic FAST, and timed HFast. Boots_off and other magical boot types remain outside.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "wear-speed-boots-on",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "cee2428a9c70173d673ed59c3f91478d101eb7d3",
       "openStanding": {
         "sha": "778cadf3f429acbd723abe274a09c21c488f857c",
