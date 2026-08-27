@@ -1,8 +1,18 @@
-// Runtime spell-memory upkeep and the known-spell display.
+// Runtime spell-memory upkeep, the known-spell display, and spell casting.
 // C ref: spell.c age_spells(), dovspell(), dospellmenu(), percent_success(),
-// spellretention(), and spelltypemnemonic().
+// spellretention(), spelltypemnemonic(), docast(), getspell(),
+// spelleffects_check(), spelleffects(), rejectcasting(), spell_let_to_idx(),
+// and spell_idx().
 
 import {
+    A_INT,
+    A_STR,
+    A_WIS,
+    CMDQ_KEY,
+    CONFUSION,
+    ECMD_FAIL,
+    ECMD_OK,
+    ECMD_TIME,
     NO_SPELL,
     P_ATTACK_SPELL,
     P_BASIC,
@@ -17,34 +27,48 @@ import {
     P_UNSKILLED,
     PICK_NONE,
     PICK_ONE,
+    STUNNED,
 } from './const.js';
-import { effective_attribute } from './attrib.js';
+import { effective_attribute, exercise } from './attrib.js';
+import { cmdq_pop, getdir } from './cmd.js';
+import { morehungry } from './eat.js';
+import { freehand } from './engrave.js';
 import { game } from './gstate.js';
+import { check_capacity } from './hack.js';
 import { isqrt } from './hacklib.js';
-import { PM_KNIGHT } from './monsters.js';
-import { isMetallic, objectType, weight } from './obj.js';
+import { obfree, update_inventory } from './invent.js';
+import { can_chant } from './mondata.js';
+import { PM_KNIGHT, PM_WIZARD } from './monsters.js';
+import { isMetallic, mksobj, objectType, weight } from './obj.js';
 import {
     MAXSPELL,
+    NODIR,
     OBJ_NAME,
     QUARTERSTAFF,
     ROBE,
     SMALL_SHIELD,
     SPE_CURE_BLINDNESS,
     SPE_CURE_SICKNESS,
+    SPE_DETECT_FOOD,
     SPE_EXTRA_HEALING,
     SPE_HEALING,
     SPE_REMOVE_CURSE,
     SPE_RESTORE_ABILITY,
 } from './objects.js';
+import { rnd } from './rng.js';
 import {
     P_SKILL,
     SPELL_KNOWLEDGE_KEEN,
+    num_spells,
     spell_skilltype,
 } from './startup_skills.js';
+import { use_skill } from './weapon.js';
+import { zapyourself, weffects } from './zap.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
-// indices while swapping two spells; SPELLMENU_CAST (-2) and SPELLMENU_DUMP
-// (-3) belong to getspell() and show_spells(), which are not ported.
+// indices while swapping two spells; SPELLMENU_DUMP (-3) belongs to
+// show_spells(), which is not ported.
+const SPELLMENU_CAST = -2;
 const SPELLMENU_VIEW = -1;
 const SPELLMENU_SORT = MAXSPELL;
 
@@ -262,8 +286,8 @@ export function spellretention(idx, state = game) {
     return `${percent - accuracy + 1}%-${percent}%`;
 }
 
-// C ref: spell.c dospellmenu(). Covers the branch `+` reaches: the
-// SPELLMENU_VIEW listing, which preselects no entry. The swap prompt and the
+// C ref: spell.c dospellmenu(). Covers SPELLMENU_VIEW (the `+` listing) and
+// SPELLMENU_CAST (the getspell() casting menu). The swap prompt and the
 // dumplog listing pass another splaction and stop.
 //
 // The whole menu is built before the window owner draws anything, the shape
@@ -271,7 +295,7 @@ export function spellretention(idx, state = game) {
 // untouched. Returns { ok, spell_no }: `ok` is C's boolean result and
 // `spell_no` is C's *spell_no out-parameter.
 async function dospellmenu(prompt, splaction, state, menu) {
-    if (splaction !== SPELLMENU_VIEW)
+    if (splaction !== SPELLMENU_VIEW && splaction !== SPELLMENU_CAST)
         throw new UnsupportedSpellDisplayError('a preselected spell menu');
     // The tab-separated column layout belongs to iflags.menu_tab_sep, whose
     // options.c boolean handler is not ported.
@@ -314,17 +338,20 @@ async function dospellmenu(prompt, splaction, state, menu) {
     }
 
     let how = PICK_ONE;
-    if (spellid(1, state) === NO_SPELL) {
-        /* only one spell => nothing to swap with */
-        how = PICK_NONE;
-    } else {
-        /* more than 1 spell, add an extra menu entry */
-        items.push({
-            selector: '+',
-            label: '[sort spells]',
-            value: SPELLMENU_SORT + 1,
-        });
+    if (splaction === SPELLMENU_VIEW) {
+        if (spellid(1, state) === NO_SPELL) {
+            /* only one spell => nothing to swap with */
+            how = PICK_NONE;
+        } else {
+            /* more than 1 spell, add an extra menu entry */
+            items.push({
+                selector: '+',
+                label: '[sort spells]',
+                value: SPELLMENU_SORT + 1,
+            });
+        }
     }
+    /* SPELLMENU_CAST: always PICK_ONE, no [sort spells] entry */
 
     const chosen = await menu(items, how, prompt, state);
     // C's `*spell_no == splaction` test detects that the hero left the
@@ -365,11 +392,287 @@ export async function dovspell(state = game, { message, menu } = {}) {
     return false;
 }
 
+// C ref: spell.c spell_let_to_idx() (115-126). Converts a letter ('a'..'z' or
+// 'A'..'Z') to a spl_book[] index (0..51), or -1 for anything else.
+function spell_let_to_idx(ilet) {
+    let indx = ilet.charCodeAt(0) - 'a'.charCodeAt(0);
+    if (indx >= 0 && indx < 26) return indx;
+    indx = ilet.charCodeAt(0) - 'A'.charCodeAt(0);
+    if (indx >= 0 && indx < 26) return indx + 26;
+    return -1;
+}
+
+// C ref: spell.c spell_idx() (2379-2387). Scans spl_book[] for the spell whose
+// object type matches otyp and returns its index, or UNKNOWN_SPELL (-1).
+const UNKNOWN_SPELL = -1;
+function spell_idx(otyp, state = game) {
+    for (let i = 0; i < MAXSPELL && spellid(i, state) !== NO_SPELL; ++i)
+        if (spellid(i, state) === otyp)
+            return i;
+    return UNKNOWN_SPELL;
+}
+
+// C ref: spell.c rejectcasting() (687-708). Checks that the hero can cast at
+// all: not stunned, can chant, has a free hand (or wields a quarterstaff).
+async function rejectcasting(state, { message }) {
+    if (Boolean(state.u?.uprops?.[STUNNED]?.intrinsic)) {
+        await message('You are too impaired to cast a spell.', state);
+        return true;
+    } else if (!can_chant(state.youmonst, state)) {
+        await message('You are unable to chant the incantation.', state);
+        return true;
+    } else if (!freehand(state)
+        && !(state.uwep && state.uwep.otyp === QUARTERSTAFF)) {
+        await message('Your arms are not free to cast!', state);
+        return true;
+    }
+    return false;
+}
+
+// C ref: spell.c getspell() (715-783). Selects a spell from the hero's known
+// spells. Returns { ok, spell_no }; ok is true when a spell was chosen.
+// The MENU_TRADITIONAL yn_function branch is not ported (the default menu
+// style is MENU_FULL, which goes through dospellmenu()).
+async function getspell(state, { message, menu }) {
+    const nspells = num_spells(state);
+    if (!nspells) {
+        await message("You don't know any spells right now.", state);
+        return { ok: false, spell_no: -1 };
+    }
+    if (await rejectcasting(state, { message }))
+        return { ok: false, spell_no: -1 };
+
+    // C checks cmdq_pop() for a queued key; this happens during repeats.
+    const cq = cmdq_pop(state);
+    if (cq != null) {
+        if (cq.typ === CMDQ_KEY) {
+            const idx = spell_let_to_idx(cq.key);
+            if (idx < 0 || idx >= nspells)
+                return { ok: false, spell_no: -1 };
+            return { ok: true, spell_no: idx };
+        }
+        return { ok: false, spell_no: -1 };
+    }
+
+    // Non-traditional menu: the menu style is MENU_FULL by default.
+    return dospellmenu('Choose which spell to cast', SPELLMENU_CAST,
+        state, menu);
+}
+
+// C ref: spell.c spelleffects_check() (1220-1380). Validates that the hero can
+// cast spell `spell` (a spl_book[] index): checks that the spell is known, the
+// hero has enough energy, the hero is not too hungry or weak, and the cast
+// succeeds on a random roll. Deducts energy and hunger on success.
+//
+// Returns { abort, res, energy } where `abort` is true when the cast should not
+// proceed (C returned TRUE). Only the common successful-cast path is fully
+// ported; the twisted-knowledge, amulet-draining, and confused-failure paths
+// throw fail-closed.
+async function spelleffects_check(spell, state, env) {
+    const confused = Boolean(
+        state.u?.uprops?.[CONFUSION]?.intrinsic,
+    );
+    let energy = 0;
+
+    // Reject casting while stunned or with no free hands.
+    if (spellid(spell, state) === UNKNOWN_SPELL
+        || await rejectcasting(state, env)) {
+        return { abort: true, res: ECMD_OK, energy: 0 };
+    }
+
+    // SPELL_LEV_PW(lvl) = lvl * 5
+    energy = spellev(spell, state) * 5; /* 5 <= energy <= 35 */
+
+    if (spellknow(spell, state) <= 0) {
+        // Twisted knowledge: spell_backfire() and random energy loss.
+        throw new UnsupportedSpellCastError(
+            'casting a forgotten spell (spell_backfire)',
+        );
+    } else if (spellknow(spell, state) <= Math.trunc(SPELL_KNOWLEDGE_KEEN / 200)) {
+        await env.message('You strain to recall the spell.', state);
+    } else if (spellknow(spell, state) <= Math.trunc(SPELL_KNOWLEDGE_KEEN / 40)) {
+        await env.message('You have difficulty remembering the spell.', state);
+    } else if (spellknow(spell, state) <= Math.trunc(SPELL_KNOWLEDGE_KEEN / 20)) {
+        await env.message('Your knowledge of this spell is growing faint.', state);
+    } else if (spellknow(spell, state) <= Math.trunc(SPELL_KNOWLEDGE_KEEN / 10)) {
+        await env.message('Your recall of this spell is gradually fading.', state);
+    }
+
+    if (state.u.uhunger <= 10
+        && spellid(spell, state) !== SPE_DETECT_FOOD) {
+        await env.message('You are too hungry to cast that spell.', state);
+        return { abort: true, res: ECMD_OK, energy: 0 };
+    } else if (effective_attribute(state, A_STR) < 4
+        && spellid(spell, state) !== SPE_RESTORE_ABILITY) {
+        await env.message('You lack the strength to cast spells.', state);
+        return { abort: true, res: ECMD_OK, energy: 0 };
+    } else if (await check_capacity(
+        'Your concentration falters while carrying so much stuff.', state)) {
+        return { abort: true, res: ECMD_TIME, energy: 0 };
+    }
+
+    // Amulet of Yendor energy drain
+    if (state.u.uhave?.amulet && state.u.uen >= energy) {
+        throw new UnsupportedSpellCastError(
+            'the Amulet of Yendor energy drain during casting',
+        );
+    }
+
+    if (energy > state.u.uen) {
+        const suffix = (state.u.uen < state.u.uenmax) ? ''
+            : (energy > state.u.uenpeak) ? ' yet'
+                : ' anymore';
+        await env.message(
+            `You don't have enough energy to cast that spell${suffix}.`,
+            state,
+        );
+        return { abort: true, res: ECMD_OK, energy: 0 };
+    }
+
+    // Deduct hunger for casting (detect food is exempt).
+    if (spellid(spell, state) !== SPE_DETECT_FOOD) {
+        let hungr = energy * 2;
+        let intell = effective_attribute(state, A_INT);
+        if (state.urole.mnum !== PM_WIZARD)
+            intell = 10;
+        switch (intell) {
+        case 25: case 24: case 23: case 22: case 21:
+        case 20: case 19: case 18: case 17:
+            hungr = 0;
+            break;
+        case 16:
+            hungr = Math.trunc(hungr / 4);
+            break;
+        case 15:
+            hungr = Math.trunc(hungr / 2);
+            break;
+        }
+        if (hungr > state.u.uhunger - 3)
+            hungr = state.u.uhunger - 3;
+        await morehungry(hungr, state, env);
+    }
+
+    const chance = percent_success(spell, state);
+    if (confused || (rnd(100) > chance)) {
+        await env.message(
+            'You fail to cast the spell correctly.',
+            state,
+        );
+        state.u.uen -= Math.trunc(energy / 2);
+        state.disp = state.disp || {};
+        state.disp.botl = true;
+        return { abort: true, res: ECMD_TIME, energy: 0 };
+    }
+    return { abort: false, res: ECMD_OK, energy };
+}
+
+// C ref: spell.c spelleffects() (1385-1603). Casts the spell identified by
+// spell_otyp (an object type such as SPE_HEALING). Only the healing-spell
+// directional path is ported; other spell types throw fail-closed.
+export async function spelleffects(spell_otyp, atme, force, state = game,
+    env = {}) {
+    const spell = force ? spell_otyp : spell_idx(spell_otyp, state);
+    let energy = 0;
+    let res = ECMD_OK;
+    let physical_damage = false;
+
+    if (!force) {
+        const check = await spelleffects_check(spell, state, env);
+        if (check.abort) return check.res;
+        energy = check.energy;
+    }
+
+    state.u.uen -= energy;
+    state.disp = state.disp || {};
+    state.disp.botl = true;
+    await exercise(A_WIS, true, state);
+
+    // pseudo is a temporary "false" object containing the spell stats.
+    const pseudo = mksobj(
+        force ? spell : spellid(spell, state), false, false, { state },
+    );
+    pseudo.blessed = 0;
+    pseudo.cursed = 0;
+    pseudo.quan = 20; /* do not let useup get it */
+
+    const otyp = pseudo.otyp;
+    const skill = spell_skilltype(otyp, state);
+    const role_skill = P_SKILL(skill, state);
+
+    switch (otyp) {
+    // Directional wand-like spells: SPE_HEALING and SPE_EXTRA_HEALING are the
+    // ported arm. Other wand-like spells fall through to the same directional
+    // block but throw fail-closed.
+    case SPE_HEALING:
+    case SPE_EXTRA_HEALING:
+        if (objectType(otyp, state).oc_dir !== NODIR) {
+            if (otyp === SPE_HEALING || otyp === SPE_EXTRA_HEALING) {
+                if (role_skill >= P_SKILLED)
+                    pseudo.blessed = 1;
+            }
+            if (atme) {
+                state.u.dx = state.u.dy = state.u.dz = 0;
+            } else if (!await getdir(null, state)) {
+                // getdir cancelled: re-use previous direction.
+                await env.message('The magical energy is released!', state);
+            }
+            if (!state.u.dx && !state.u.dy && !state.u.dz) {
+                const damage = await zapyourself(pseudo, true, state);
+                if (damage !== 0) {
+                    throw new UnsupportedSpellCastError(
+                        'losehp() from a self-zap spell',
+                    );
+                }
+            } else {
+                await weffects(pseudo, state);
+            }
+            update_inventory({ state });
+        }
+        break;
+
+    default:
+        obfree(pseudo, null, { state });
+        throw new UnsupportedSpellCastError(
+            `spell type ${otyp} is not ported`,
+        );
+    }
+
+    /* gain skill for successful cast */
+    if (!force)
+        use_skill(skill, spellev(spell, state), state);
+
+    obfree(pseudo, null, { state }); /* now, get rid of it */
+    return ECMD_TIME;
+}
+
+// C ref: spell.c docast() (820-829). The #cast command entry point. Calls
+// getspell() to pick a spell, then spelleffects() to cast it.
+export async function docast(state = game, env = {}) {
+    const { ok, spell_no } = await getspell(state, env);
+    if (ok) {
+        // cmdq_add_key(CQ_REPEAT, spellet(spell_no)): the CQ_REPEAT queue is
+        // not ported, so the repeat mechanism is skipped.
+        return spelleffects(
+            spellid(spell_no, state), false, false, state, env,
+        );
+    }
+    return ECMD_FAIL;
+}
+
 // Thrown where spell.c reads a display branch this port has not reached.
 export class UnsupportedSpellDisplayError extends Error {
     constructor(branch) {
         super(`spell display requires ${branch}`);
         this.name = 'UnsupportedSpellDisplayError';
+        this.branch = branch;
+    }
+}
+
+// Thrown where spell.c reaches a casting branch this port has not reached.
+export class UnsupportedSpellCastError extends Error {
+    constructor(branch) {
+        super(`spell casting requires ${branch}`);
+        this.name = 'UnsupportedSpellCastError';
         this.branch = branch;
     }
 }

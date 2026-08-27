@@ -1086,6 +1086,13 @@ function hungerTransitionMessage(newhs, incr, state) {
             : 'You are beginning to feel weak.';
 }
 
+// C ref: eat.c morehungry() (3281-3285). Subtracts hunger and lets newuhs()
+// comment on the result. Used by spell casting to charge for energy spent.
+export async function morehungry(num, state, env) {
+    state.u.uhunger -= num;
+    await newuhs(true, state, env);
+}
+
 // C ref: eat.c lesshungry() (3287-3334). Adds a bite's nutrition and lets
 // newuhs() comment on the result.
 export async function lesshungry(num, state, env) {

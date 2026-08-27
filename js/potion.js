@@ -42,6 +42,7 @@ import {
     STRANGLED,
     TELEPAT,
     TIMEOUT,
+    Upolyd,
     WARN_OF_MON,
     WOUNDED_LEGS,
     W_WEP,
@@ -638,4 +639,47 @@ export async function potionbreathe(obj, state = game, env = {}) {
         if (kn) discover_object(obj.otyp, true, true, true, state, env);
         else trycall(obj, state);
     }
+}
+
+// C ref: potion.c healup() (1428-1458). Heals the hero's hit points and
+// optionally cures sickness and blindness. nhp is the hit-point gain, nxtra
+// is an extra max-HP boost when the hero is already at full HP, curesick and
+// cureblind gate make_sick(0) and make_blinded(0) respectively.
+export function healup(nhp, nxtra, curesick, cureblind, state = game) {
+    const u = state.u;
+    if (nhp) {
+        if (Upolyd(u)) {
+            u.mh += nhp;
+            if (u.mh > u.mhmax)
+                u.mh = (u.mhmax += nxtra);
+        } else {
+            u.uhp += nhp;
+            if (u.uhp > u.uhpmax) {
+                u.uhp = (u.uhpmax += nxtra);
+                if (u.uhpmax > u.uhppeak)
+                    u.uhppeak = u.uhpmax;
+            }
+        }
+    }
+    if (cureblind) {
+        // C clears u.ucreamed, calls make_blinded(0L, TRUE) and
+        // make_deaf(0L, TRUE). Neither is ported. The healing spell path
+        // sets cureblind when the pseudo object is blessed or the spell is
+        // SPE_EXTRA_HEALING; the hero is not expected to be blind or deaf
+        // in the common first-heal scenario.
+        if (u.ucreamed || heroIsBlind(state))
+            throw new UnsupportedPotionError(
+                'healup() cureblind arm over make_blinded() / make_deaf()',
+            );
+        // No-op: hero is neither blind nor deaf.
+    }
+    if (curesick) {
+        // C calls make_vomiting(0L, TRUE) and make_sick(0L, ...). Neither is
+        // ported.
+        throw new UnsupportedPotionError(
+            'healup() curesick arm over make_vomiting() / make_sick()',
+        );
+    }
+    state.disp = state.disp || {};
+    state.disp.botl = true;
 }

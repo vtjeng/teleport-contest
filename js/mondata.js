@@ -27,7 +27,10 @@ import {
     M_SEEN_SLEEP,
     MAGICAL_BREATHING,
     MALE,
+    MS_BURBLE,
+    MS_BUZZ,
     MS_SILENT,
+    STRANGLED,
     NATTK,
     NEUTRAL,
     NO_TRAP,
@@ -1190,7 +1193,7 @@ export function dead_species(m_idx, egg = false, env = {}) {
 //   monstseesu             change monster or hero state.  monstunseesu() is
 //                           ported below rather than here, because it does
 //                           change monster state; setworn() calls it.
-//   can_blow, can_chant    their hero branches read Strangled, which callers
+//   can_blow               its hero branch reads Strangled, which callers
 //                           of the port do not exercise yet
 //   can_track               needs u_wield_art()
 //   name_to_monclass        needs def_monsyms[], makesingular(), strstri()
@@ -1239,6 +1242,20 @@ export function monsndx(species) { return species?.pmidx; }
 // truthiness test: every other msound value is a sound the species makes.
 export function is_silent(species) {
     return species?.msound === MS_SILENT;
+}
+
+// C ref: mondata.c can_chant() (580-587). A creature can chant a spell
+// incantation unless it is strangled (hero only), silent, headless, or
+// speaks by buzzing or burbling.
+export function can_chant(mon, state = game) {
+    if (mon === state.youmonst
+        && Boolean(state.u?.uprops?.[STRANGLED]?.intrinsic))
+        return false;
+    if (is_silent(mon.data) || !has_head(mon.data))
+        return false;
+    if (mon.data.msound === MS_BUZZ || mon.data.msound === MS_BURBLE)
+        return false;
+    return true;
 }
 
 // C ref: mondata.h is_shapeshifter().

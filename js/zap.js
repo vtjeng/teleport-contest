@@ -135,7 +135,9 @@ import {
     ROCK,
     SPBOOK_CLASS,
     SPE_DIG,
+    SPE_EXTRA_HEALING,
     SPE_FINGER_OF_DEATH,
+    SPE_HEALING,
     SPE_MAGIC_MISSILE,
     SPE_SLEEP,
     TOOL_CLASS,
@@ -156,6 +158,7 @@ import {
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
+import { healup } from './potion.js';
 import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
 import { m_at } from './monst.js';
 import { check_unpaid, inside_shop } from './shk.js';
@@ -396,6 +399,20 @@ export async function zapyourself(obj, ordinary, state = game) {
                 statusRefresh: () => bot(),
             });
         }
+        break;
+
+    // C ref: zap.c zapyourself() (2908-2914). SPE_HEALING and SPE_EXTRA_HEALING
+    // call healup() with the d(6,4) or d(6,8) roll and optionally cure blindness
+    // when the pseudo object is blessed or the spell is SPE_EXTRA_HEALING.
+    case SPE_HEALING:
+    case SPE_EXTRA_HEALING:
+        learn_it = true; /* (no effect for spells...) */
+        healup(d(6, obj.otyp === SPE_EXTRA_HEALING ? 8 : 4), 0, false,
+               (obj.blessed || obj.otyp === SPE_EXTRA_HEALING), state);
+        await ttyPline(
+            `You feel ${obj.otyp === SPE_EXTRA_HEALING ? 'much ' : ''}better.`,
+            state,
+        );
         break;
 
     default:

@@ -117,7 +117,12 @@ import {
     dokick,
     UnsupportedKickError,
 } from './dokick.js';
-import { dovspell, UnsupportedSpellDisplayError } from './spell.js';
+import {
+    docast,
+    dovspell,
+    UnsupportedSpellCastError,
+    UnsupportedSpellDisplayError,
+} from './spell.js';
 import {
     UnsupportedWeaponSkillError,
     enhance_weapon_skill,
@@ -129,6 +134,7 @@ import { select_menu } from './windows.js';
 import {
     domove,
     dopickup,
+    endRunning,
     monsterNearby,
     preflightDomoveDestination,
     u_maybe_impaired,
@@ -998,9 +1004,9 @@ export async function parseCommand(state = game) {
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'apply', 'close', 'down', 'up', 'drop', 'pickup', 'takeoff', 'wear',
-    'puton', 'quaff', 'zap', 'reqmenu', 'fight', 'options', 'autopickup', 'wizwish',
-    'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick', 'save',
-    'wield', '#',
+    'puton', 'quaff', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
+    'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
+    'save', 'wield', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -1334,6 +1340,10 @@ export function failClosedCommandRefusals() {
         UnsupportedFeatureDescriptionError,
         UnsupportedObjectNameError,
         UnsupportedSpellDisplayError,
+        // spell.c spelleffects_check() and spelleffects() raise this from
+        // the forgotten-spell, amulet-drain, and non-healing spell paths
+        // that this port has not reached.
+        UnsupportedSpellCastError,
         UnsupportedDiscoveryDisplayError,
         UnsupportedEnlightenmentError,
         UnsupportedShopError,
@@ -1716,6 +1726,34 @@ async function runZapCommand(key, state) {
     return failClosedCommand(key, state, () => dozap(state));
 }
 
+// C ref: spell.c docast(). Like dozap() and dodrink() it returns its own ECMD_*
+// result: ECMD_FAIL when no spell is selected, ECMD_TIME when a spell is cast.
+async function runCastCommand(key, state) {
+    return failClosedCommand(key, state, () => docast(state, {
+        message: ttyPline,
+        // spell.c dospellmenu() for SPELLMENU_CAST: PICK_ONE menu with the
+        // column heading styled by iflags.menu_headings.
+        menu: (items, how, prompt) => select_menu(state, {
+            items: items.map((item) => (item.heading
+                ? {
+                    ...item,
+                    attr: menuTitleStyle(state).titleAttr,
+                    color: menuTitleStyle(state).titleColor,
+                }
+                : item)),
+            how,
+            title: prompt,
+            ...menuTitleStyle(state),
+            cancelValue: null,
+            overlay: state.iflags?.menu_overlay !== false,
+        }),
+        // morehungry() -> newuhs() requires these hooks for hunger
+        // status-change messages and status-line redraws.
+        statusRefresh: () => bot(),
+        endRunning: (s) => endRunning(s),
+    }));
+}
+
 // C ref: potion.c dodrink(). Like dosearch() and doeat() it returns its own
 // ECMD_* result: ECMD_OK for the strangled refusal, ECMD_CANCEL for a
 // cancelled object prompt, and ECMD_TIME for the quaff that happens.
@@ -2080,6 +2118,8 @@ async function doextcmd(key, state) {
         return await runApplyCommand(key, state);
     case 'dozap':
         return await runZapCommand(key, state);
+    case 'docast':
+        return await runCastCommand(key, state);
     case 'dodown':
         return await runDownCommand(key, state);
     case 'doup':
@@ -2431,6 +2471,21 @@ export async function rhack(key, state = game) {
             // cmd.c:2004's "zap" row carries no flags at all -- which is also
             // why an 'm' or 'F' prefix is refused ahead of this arm.
             const res = await runZapCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'cast') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the '#', `search`, `eat` and `zap` arms apply.
+            // docast() reaches all three: ECMD_OK for rejectcasting() and
+            // the empty-spellbook exit, ECMD_CANCEL for an escaped spell
+            // menu, and ECMD_TIME for a spell that fires. cmd.c:1689's
+            // "cast" row carries only IFBURIED -- no prefix flags at all --
+            // so an 'm' or 'F' prefix is refused ahead of this arm.
+            const res = await runCastCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);
