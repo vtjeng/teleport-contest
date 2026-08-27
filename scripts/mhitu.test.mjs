@@ -23,6 +23,7 @@ import {
     TT_PIT,
     W_AMUL,
     W_ARM,
+    W_ARMG,
     W_ARMC,
     W_ARMU,
 } from '../js/const.js';
@@ -67,6 +68,7 @@ import {
     PM_ALIGNED_CLERIC,
     PM_AMOROUS_DEMON,
     PM_BARROW_WIGHT,
+    PM_BLACK_PUDDING,
     PM_BLACK_NAGA,
     PM_CHROMATIC_DRAGON,
     PM_CLERIC,
@@ -88,6 +90,7 @@ import {
     PM_PESTILENCE,
     PM_PLAINS_CENTAUR,
     PM_PYTHON,
+    PM_RUST_MONSTER,
     PM_SEWER_RAT,
     PM_SOLDIER_ANT,
     PM_VAMPIRE,
@@ -99,13 +102,16 @@ import {
     AMULET_OF_GUARDING,
     BULLWHIP,
     CLOAK_OF_PROTECTION,
+    CORPSE,
     DAGGER,
     ELVEN_MITHRIL_COAT,
     HALBERD,
     HAWAIIAN_SHIRT,
+    GAUNTLETS_OF_POWER,
     LEATHER_ARMOR,
     LONG_SWORD,
     ORCISH_DAGGER,
+    SILVER_DAGGER,
     objects_globals_init,
 } from '../js/objects.js';
 import { mhitm_ad_phys } from '../js/uhitm.js';
@@ -351,11 +357,6 @@ function physHit(said) {
     return { lines: [said], cost: 1 };
 }
 
-// uhitm.c mhitm_ad_phys():4041-4121, the armed blow. It is the one arm of the
-// hero's own that this slice leaves unported, so an attacker holding a weapon
-// stops where an unarmed one lands.
-const ARMED_HIT_STOP = "a monster's wielded weapon landing on the hero";
-
 // The draws one landed AD_PHYS blow makes, in order: the to-hit roll
 // (mhitu.c:806), hitmu()'s damage roll (mhitu.c:1187), and
 // mhitm_knockback()'s pair (uhitm.c:5258 and :5269).
@@ -584,17 +585,19 @@ test('mattacku swings a wielded weapon and adds its to-hit bonus',
         'The goblin just misses!',
     ]);
 
-    // mhitu.c:906-907 subtracts the bonus again, so a second attack in the
-    // same turn is not compounded. One attack is all a goblin has, so the
-    // observable half is that 17 now hits -- on uhitm.c:4041's `AT_WEAP &&
-    // otmp`, this slice's fail-closed edge, so the swing line is printed and
-    // the blow itself is not.
+    // A roll of 17 now hits. hitmu() rolls the goblin's 1d4 base for 1,
+    // dmgval() rolls the +2 long sword's 1d8 for 1 and adds its enchantment,
+    // and the knockback gate rejects the hit after its two draws. The four
+    // damage points leave this 16-hit-point Valkyrie at 12.
     const raised = meleeEnv(state, [17]);
-    await assert.rejects(
-        () => mattacku(goblin, raised.env),
-        (error) => error.reason === ARMED_HIT_STOP,
-    );
-    assert.deepEqual(raised.lines, ['The goblin swings his long sword.']);
+    assert.equal(await mattacku(goblin, raised.env), false);
+    assert.deepEqual(raised.lines, [
+        'The goblin swings his long sword.',
+        'The goblin hits!',
+    ]);
+    assert.deepEqual(raised.bounds,
+        ['rnd(20)', 'd(1,4)', 'rnd(8)', 'rn2(3)', 'rn2(6)']);
+    assert.equal(state.u.uhp, 12);
 });
 
 // mhitu.c:801-804. An armed monster declines to touch a cockatrice, and
@@ -1637,7 +1640,7 @@ test('mhitm_ad_phys silences only a held touch that costs nothing', async () => 
         { lines: ['The python bites!'], hitflags: M_ATTK_HIT });
 });
 
-test('mhitm_ad_phys stops on a wielded weapon and not on an empty hand',
+test('mhitm_ad_phys adds an ordinary wielded weapon and not an empty hand',
     async () => {
     // uhitm.c:4041, `mattk->aatyp == AT_WEAP && otmp`. Both terms have to
     // hold: mattacku()'s AT_WEAP arm reaches hitmu() with MON_WEP(mtmp) still
@@ -1653,6 +1656,10 @@ test('mhitm_ad_phys stops on a wielded weapon and not on an empty hand',
     const swing = async (mattk, wielded) => {
         goblin.mw = wielded;
         const { lines, env } = physEnv(state);
+        // weapon.c dmgval() rolls a long sword's 1d8 against the human hero.
+        // One makes the weapon's contribution distinguishable from the base
+        // point without making the result depend on the global RNG.
+        env.random = { rnd: () => 1 };
         const mhm = physMhm(1);
         const thrown = await mhitm_ad_phys(
             goblin, mattk, state.youmonst, mhm, state, env,
@@ -1662,7 +1669,8 @@ test('mhitm_ad_phys stops on a wielded weapon and not on an empty hand',
     };
 
     assert.deepEqual(await swing(weap, sword),
-        { lines: [], hitflags: M_ATTK_MISS, reason: ARMED_HIT_STOP });
+        { lines: ['The goblin hits!'], hitflags: M_ATTK_HIT,
+            reason: undefined });
     // hitmsg()'s default verb, :221-222, is what an AT_WEAP blow prints.
     assert.deepEqual(await swing(weap, null),
         { lines: ['The goblin hits!'], hitflags: M_ATTK_HIT, reason: undefined });
@@ -1671,6 +1679,77 @@ test('mhitm_ad_phys stops on a wielded weapon and not on an empty hand',
     const claw = { aatyp: AT_CLAW, adtyp: AD_PHYS, damn: 1, damd: 4 };
     assert.deepEqual(await swing(claw, sword),
         { lines: ['The goblin hits!'], hitflags: M_ATTK_HIT, reason: undefined });
+});
+
+test('mhitm_ad_phys keeps special and fatal weapon hits fail-closed',
+    async () => {
+    // uhitm.c:4041-4121 contains eight continuations beyond the ordinary
+    // weapon path. This slice excludes each one, so every fixture changes
+    // exactly the field that selects its continuation.
+    const state = await meleeHero();
+    const goblin = meleeAttacker(state, PM_GOBLIN, 1, 0);
+    const weap = goblin.data.mattk[0];
+
+    const stopped = async (weapon, configure = () => {}) => {
+        const savedData = state.youmonst.data;
+        const savedHp = state.u.uhp;
+        configure();
+        goblin.mw = weapon;
+        const { env } = physEnv(state);
+        // weapon.c dmgval() rolls one die for every weapon used below.
+        env.random = { rnd: () => 1 };
+        const error = await mhitm_ad_phys(
+            goblin, weap, state.youmonst, physMhm(1), state, env,
+        ).then(() => null, (caught) => caught);
+        goblin.mw = null;
+        goblin.minvent = null;
+        state.youmonst.data = savedData;
+        state.u.uhp = savedHp;
+        return error?.reason;
+    };
+
+    const corpse = mksobj(CORPSE, false, false, { state });
+    // Cockatrice flesh selects do_stone_u(), not ordinary weapon damage.
+    corpse.corpsenm = PM_COCKATRICE;
+    assert.equal(await stopped(corpse), 'a petrifying corpse weapon');
+
+    const powered = mksobj(DAGGER, false, false, { state });
+    assert.equal(await stopped(powered, () => {
+        const gloves = mksobj(GAUNTLETS_OF_POWER, false, false, { state });
+        // W_ARMG is the slot which which_armor() tests for the 3..6 bonus.
+        gloves.owornmask = W_ARMG;
+        goblin.minvent = gloves;
+    }), 'gauntlets of power adding weapon damage');
+
+    const artifact = mksobj(DAGGER, false, false, { state });
+    // Any nonzero oartifact selects artifact_hit().
+    artifact.oartifact = 1;
+    assert.equal(await stopped(artifact), 'an artifact weapon hitting the hero');
+
+    // objects.c declares the silver dagger separately from the iron dagger,
+    // so the real catalog entry selects the material branch.
+    const silver = mksobj(SILVER_DAGGER, false, false, { state });
+    assert.equal(await stopped(silver), 'a silver weapon hitting the hero');
+
+    const pudding = mksobj(DAGGER, false, false, { state });
+    assert.equal(await stopped(pudding, () => {
+        state.youmonst.data = state.mons[PM_BLACK_PUDDING];
+    }), 'an iron or metal weapon splitting the hero');
+
+    const rusty = mksobj(DAGGER, false, false, { state });
+    assert.equal(await stopped(rusty, () => {
+        state.youmonst.data = state.mons[PM_RUST_MONSTER];
+    }), 'the hero eroding a monster weapon');
+
+    const poisoned = mksobj(DAGGER, false, false, { state });
+    poisoned.opoisoned = true;
+    assert.equal(await stopped(poisoned), 'a poisoned weapon hitting the hero');
+
+    const fatal = mksobj(DAGGER, false, false, { state });
+    assert.equal(await stopped(fatal, () => {
+        // Base damage 1 plus dmgval()'s fixed 1 reaches these two hit points.
+        state.u.uhp = 2;
+    }), 'a potentially fatal weapon hit');
 });
 
 test('mhitm_ad_phys stops on the two arms no ported path reaches',

@@ -59,6 +59,7 @@ import {
     amorphous,
     attacktype,
     bigmonst,
+    dmgtype,
     is_orc,
     is_undead,
     is_watch,
@@ -70,6 +71,7 @@ import {
     noncorporeal,
     sticks,
     thick_skinned,
+    touch_petrifies,
 } from './mondata.js';
 import { monflee } from './monmove.js';
 import { m_at } from './monst.js';
@@ -136,6 +138,7 @@ import {
     PM_SAMURAI,
     PM_SHADE,
     PM_SHRIEKER,
+    PM_STEAM_VORTEX,
     S_BLOB,
     S_EYE,
     S_FUNGUS,
@@ -151,6 +154,8 @@ import {
 } from './obj.js';
 import { cxname } from './objnam.js';
 import {
+    CORPSE,
+    GAUNTLETS_OF_POWER,
     GEM_CLASS,
     IRON,
     KATANA,
@@ -181,6 +186,7 @@ import {
     bimanual,
     find_mac,
     is_pole,
+    which_armor,
 } from './worn.js';
 import { exclam } from './zap.js';
 
@@ -1451,12 +1457,12 @@ export async function mhitm_ad_elec(
 }
 
 // C ref: uhitm.c mhitm_ad_phys() (3980-4200), two of its three arms: the
-// `mdef == &gy.youmonst` one (4021-4127) as far as its hand-to-hand path
-// (4038-4040 and 4122-4126), and the mhitm one (4128-4200). An ordinary blow
-// landing on the hero prints its line and records the hit; the damage is the
-// roll hitmu() already made, which that arm leaves alone. One monster's blow
-// on another adjusts the damage mdamagem() rolled and prints nothing, because
-// mhitm.c hitmm() has already printed.
+// `mdef == &gy.youmonst` one (4021-4127), including an ordinary weapon hit,
+// and the mhitm one (4128-4200). An ordinary blow landing on the hero prints
+// its line and records the hit. A wielded ordinary weapon first adds dmgval()
+// to the damage hitmu() rolled. One monster's blow on another adjusts the
+// damage mdamagem() rolled and prints nothing, because mhitm.c hitmm() has
+// already printed.
 //
 // The third arm is the hero's own physical attack (uhitm). It has no caller
 // here, because js/uhitm.js damageum() is unported.
@@ -1467,20 +1473,20 @@ export async function mhitm_ad_elec(
 //     refuses its own AT_HUGS arm first, at js/mhitu.js:626, so no ported path
 //     spells this attack. C's whole condition is kept rather than a bare aatyp
 //     test, so the stop sits exactly where C's branch begins.
-//   AT_WEAP with something wielded (4041-4121) is the armed blow: dmgval(),
-//     the gauntlets of power, artifact_hit(), the silver and pudding-splitting
-//     arms, rustm() and the poison tail. That is this slice's fail-closed edge.
+//   AT_WEAP with something wielded (4041-4121) admits the ordinary nonfatal
+//     arm through dmgval() and hitmsg(). A petrifying corpse, gauntlets of
+//     power, artifact, silver, pudding split, effective rust, poison, or a
+//     potentially fatal total still stops before its unported continuation.
 //
 // An AT_WEAP attacker holding nothing is not that edge. It falls to the last
 // arm with everyone else and prints hitmsg()'s default verb, which is what
 // mattacku()'s AT_WEAP arm leaves behind when mon_wield_item() finds it no
 // weapon to wield.
 //
-// Neither mhm->specialdmg nor gm.mhitu_dieroll is read here, and js/mhitu.js
-// said otherwise until this landed. specialdmg's two readers, 3992 and 3995,
-// sit inside the `magr == &gy.youmonst` arm that opens at 3988; the dieroll's,
-// 4069 and 4107, sit inside the AT_WEAP block that opens at 4041. Both arrive
-// with work this slice does not do.
+// Neither mhm->specialdmg nor gm.mhitu_dieroll is read on the admitted path.
+// specialdmg's two readers, 3992 and 3995, sit inside the hero-attacker arm.
+// The dieroll's readers, 4069 and 4107, sit in the artifact and poison paths,
+// which remain refusal boundaries.
 export async function mhitm_ad_phys(
     magr,
     mattk,
@@ -1504,7 +1510,43 @@ export async function mhitm_ad_phys(
             const otmp = magr.mw; /* MON_WEP(magr) */
 
             if (mattk.aatyp === AT_WEAP && otmp) {
-                unsupported("a monster's wielded weapon landing on the hero");
+                if (otmp.otyp === CORPSE
+                    && touch_petrifies(state.mons?.[otmp.corpsenm])) {
+                    unsupported('a petrifying corpse weapon');
+                }
+                if (!(otmp.oclass === WEAPON_CLASS || is_weptool(otmp, state)))
+                    unsupported('a non-weapon object hitting the hero');
+
+                const gloves = which_armor(magr, W_ARMG, state);
+                if (gloves?.otyp === GAUNTLETS_OF_POWER) {
+                    unsupported('gauntlets of power adding weapon damage');
+                }
+                if (otmp.oartifact)
+                    unsupported('an artifact weapon hitting the hero');
+
+                const material = objectType(otmp, state).oc_material;
+                if (material === SILVER)
+                    unsupported('a silver weapon hitting the hero');
+                if ((material === IRON || material === METAL)
+                    && (pd === state.mons[PM_BLACK_PUDDING]
+                        || pd === state.mons[PM_BROWN_PUDDING])) {
+                    unsupported('an iron or metal weapon splitting the hero');
+                }
+                if (dmgtype(pd, AD_CORR) || dmgtype(pd, AD_RUST)
+                    || (dmgtype(pd, AD_FIRE)
+                        && pd !== state.mons[PM_STEAM_VORTEX])) {
+                    unsupported('the hero eroding a monster weapon');
+                }
+                if (otmp.opoisoned || permapoisoned(otmp))
+                    unsupported('a poisoned weapon hitting the hero');
+
+                mhm.damage += dmgval(otmp, mdef, state, env);
+                if (mhm.damage <= 0) mhm.damage = 1;
+                if (mhm.damage >= state.u.uhp)
+                    unsupported('a potentially fatal weapon hit');
+
+                await hitmsg(magr, mattk, state, env);
+                mhm.hitflags |= M_ATTK_HIT;
             } else if (mattk.aatyp !== AT_TUCH || mhm.damage !== 0
                        || magr !== state.u.ustuck) {
                 await hitmsg(magr, mattk, state, env);
