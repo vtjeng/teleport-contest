@@ -52,6 +52,7 @@ import {
     verysmall,
 } from './mondata.js';
 import {
+    ammo_and_launcher,
     clear_splitobjs,
     is_ammo,
     is_launcher,
@@ -450,16 +451,30 @@ function cant_wield_corpse(obj, state) {
     throw new UnsupportedWieldError('instapetrify()');
 }
 
-// C ref: wield.c ready_ok() (291-327), through its null-object branch at
-// 293-294. Null represents the '-' choice: clearing an occupied quiver is
-// suggested, while redundantly clearing an empty one remains selectable but
-// is downplayed. Ordinary-item classification belongs to later quiver slices.
-function ready_ok(obj, state) {
+// C ref: wield.c ready_ok() (291-327). Null represents the '-' choice.
+// Wielded singleton stacks, unmatched ammunition, launchers, and ordinary
+// nonweapons stay selectable but are downplayed; stacks that can split,
+// matched ammunition, other weapons, and coins are suggested.
+export function ready_ok(obj, state = game) {
     if (!obj)
         return state.uquiver ? GETOBJ_SUGGEST : GETOBJ_DOWNPLAY;
-    throw new UnsupportedWieldError(
-        'ready_ok() classification for an ordinary inventory item',
-    );
+
+    if (obj === state.uwep
+        || (obj === state.uswapwep && state.u?.twoweap)) {
+        return obj.quan === 1 ? GETOBJ_DOWNPLAY : GETOBJ_SUGGEST;
+    }
+    if (is_ammo(obj, state)) {
+        return ((state.uwep
+                && ammo_and_launcher(obj, state.uwep, state))
+            || (state.uswapwep
+                && ammo_and_launcher(obj, state.uswapwep, state)))
+            ? GETOBJ_SUGGEST
+            : GETOBJ_DOWNPLAY;
+    }
+    if (is_launcher(obj, state)) return GETOBJ_DOWNPLAY;
+    if (obj.oclass === WEAPON_CLASS || obj.oclass === COIN_CLASS)
+        return GETOBJ_SUGGEST;
+    return GETOBJ_DOWNPLAY;
 }
 
 // C ref: wield.c wield_ok() (330-343), the getobj callback for #wield.

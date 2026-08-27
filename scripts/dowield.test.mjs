@@ -39,7 +39,12 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import {
+    ARROW,
+    BOW,
     CLUB,
+    DAGGER,
+    FOOD_RATION,
+    GOLD_PIECE,
     KATANA,
     SILVER_SABER,
     SLING,
@@ -47,6 +52,7 @@ import {
 } from '../js/objects.js';
 import {
     dowield,
+    ready_ok,
 } from '../js/wield.js';
 import { GameDisplay } from '../js/game_display.js';
 import { init_objects } from '../js/o_init.js';
@@ -148,6 +154,49 @@ function addToInventory(state, item) {
 // wield_ok is not exported (it's a staticfn callback), so test it indirectly
 // through dowield()'s getobj prompt. The prompt letters reflect wield_ok's
 // answers: suggested items appear in the [brackets], excluded items do not.
+
+test('ready_ok classifies every source family used by the quiver prompt',
+    () => {
+        const state = makeState();
+        const arrow = object(state, ARROW);
+        const bow = object(state, BOW);
+        const dagger = object(state, DAGGER);
+
+        assert.equal(ready_ok(null, state), GETOBJ_DOWNPLAY,
+            'empty hands are downplayed while the quiver is already empty');
+        state.uquiver = arrow;
+        assert.equal(ready_ok(null, state), GETOBJ_SUGGEST,
+            'empty hands are suggested when they would clear the quiver');
+
+        state.uwep = dagger;
+        assert.equal(ready_ok(dagger, state), GETOBJ_DOWNPLAY,
+            'one wielded dagger is downplayed');
+        dagger.quan = 2;
+        assert.equal(ready_ok(dagger, state), GETOBJ_SUGGEST,
+            'a two-dagger wielded stack can be split');
+
+        state.uwep = bow;
+        assert.equal(ready_ok(arrow, state), GETOBJ_SUGGEST,
+            'an arrow matching the wielded bow is suggested');
+        state.uwep = dagger;
+        assert.equal(ready_ok(arrow, state), GETOBJ_DOWNPLAY,
+            'ammunition without a matching launcher is downplayed');
+        assert.equal(ready_ok(bow, state), GETOBJ_DOWNPLAY,
+            'a launcher is downplayed');
+        state.uwep = null;
+        assert.equal(ready_ok(dagger, state), GETOBJ_SUGGEST,
+            'an unwielded weapon is suggested');
+        assert.equal(
+            ready_ok(object(state, GOLD_PIECE), state),
+            GETOBJ_SUGGEST,
+            'coins are suggested',
+        );
+        assert.equal(
+            ready_ok(object(state, FOOD_RATION), state),
+            GETOBJ_DOWNPLAY,
+            'an ordinary nonweapon is downplayed',
+        );
+    });
 
 // ── arti_speak ──
 

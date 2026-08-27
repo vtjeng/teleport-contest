@@ -601,6 +601,81 @@ test('can_make_bones accepts an eligible level and honors independent vetoes',
     }, { random: acceptingRandom }), false);
 });
 
+test('can_make_bones applies every no_bones_level source predicate', () => {
+    const eligible = () => ({
+        flags: { bones: true },
+        u: { uz: { dnum: 0, dlevel: 5 }, uswallow: false },
+        dungeons: [{
+            boneid: 'D', depth_start: 1, ledger_start: 0, num_dunlevs: 10,
+            flags: { hellish: false },
+        }],
+        n_dgns: 1,
+        specialLevels: [],
+        branches: [],
+        level: { traps: [] },
+        wizard: false,
+        discover: false,
+    });
+    const rejectsWithoutRng = (state, label) => assert.equal(
+        can_make_bones(state, {
+            random: {
+                rn2: (bound) => assert.fail(
+                    `${label} unexpectedly drew rn2(${bound})`,
+                ),
+            },
+        }),
+        false,
+        label,
+    );
+
+    const special = eligible();
+    special.specialLevels = [{
+        dlevel: { ...special.u.uz },
+        boneid: '',
+    }];
+    rejectsWithoutRng(special, 'special level without a bones identifier');
+
+    const dungeon = eligible();
+    dungeon.dungeons[0].boneid = '';
+    rejectsWithoutRng(dungeon, 'dungeon without a bones identifier');
+
+    const bottom = eligible();
+    bottom.u.uz.dlevel = 10;
+    rejectsWithoutRng(bottom, 'bottom dungeon level');
+
+    const branch = eligible();
+    branch.branches = [{
+        end1: { ...branch.u.uz },
+        end2: { dnum: 1, dlevel: 1 },
+    }];
+    rejectsWithoutRng(branch, 'branch endpoint below its first level');
+
+    const invocation = eligible();
+    invocation.dungeons[0].flags.hellish = true;
+    invocation.u.uz.dlevel = 9;
+    rejectsWithoutRng(invocation, 'Gehennom invocation level');
+
+    const branchPortal = eligible();
+    branchPortal.u.uz.dlevel = 1;
+    branchPortal.branches = [{
+        end1: { ...branchPortal.u.uz },
+        end2: { dnum: 1, dlevel: 1 },
+    }];
+    branchPortal.level.traps = [{ ttyp: MAGIC_PORTAL }];
+    branchPortal.wizard = true;
+    const calls = [];
+    assert.equal(can_make_bones(branchPortal, {
+        random: {
+            rn2: (bound) => {
+                calls.push(bound);
+                return 0;
+            },
+        },
+    }), true, 'a first-level branch ignores its portal and remains eligible');
+    assert.deepEqual(calls, [1],
+        'D:1 still spends the source low-level eligibility draw');
+});
+
 test('the mounted-death recipe reaches the ordinary disclosure boundary',
     async () => {
         const recipe = loadMountedDeathRecipe();

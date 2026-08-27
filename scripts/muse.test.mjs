@@ -2,9 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    HOLE,
     MFAST,
     OBJ_FLOOR,
     POLY_TRAP,
+    TELEP_TRAP,
     W_ARMG,
     W_WEP,
 } from '../js/const.js';
@@ -45,6 +47,7 @@ import {
     PM_HUMAN,
     PM_JACKAL,
     PM_NURSE,
+    PM_SOLDIER,
     PM_KI_RIN,
     PM_LIZARD,
     PM_STONE_GOLEM,
@@ -58,6 +61,7 @@ import {
     AMULET_OF_GUARDING,
     AMULET_OF_LIFE_SAVING,
     BAG_OF_HOLDING,
+    BUGLE,
     CORPSE,
     DAGGER,
     EGG,
@@ -182,6 +186,80 @@ test('fresh monster item selection admits inert inventory at full health',
             'speed potion',
         );
     });
+
+test('find_defensive selects healing for a wounded hostile', () => {
+    const state = makeSelectionState();
+    const potion = makeObject(state, POT_HEALING);
+    const monster = makeMonster(state, PM_GOBLIN, {
+        // One of eight hit points is below the source's one-fifth threshold.
+        mhp: 1,
+        mhpmax: 8,
+        minvent: potion,
+        mux: state.u.ux,
+        muy: state.u.uy,
+    });
+
+    assert.deepEqual(find_defensive(monster, false, { state }), {
+        kind: 'healing',
+        object: potion,
+    });
+    assert.equal(
+        select_fresh_monster_item_action(monster, { state })?.kind,
+        'healing',
+    );
+});
+
+test('find_defensive gives a hole precedence over a teleport trap', () => {
+    const state = makeSelectionState();
+    state.u.uz = { dnum: 0, dlevel: 2 };
+    // Five levels make the second level eligible for falling through.
+    state.dungeons = [{
+        num_dunlevs: 5,
+        flags: { hellish: false },
+    }];
+    state.level.flags = { hardfloor: false };
+    // The teleport trap appears earlier in the source's 3-by-3 scan. The
+    // later hole must replace it and stop the scan.
+    state.level.traps = [
+        { tx: 9, ty: 9, ttyp: TELEP_TRAP },
+        { tx: 10, ty: 9, ttyp: HOLE },
+    ];
+    const monster = makeMonster(state, PM_GOBLIN, {
+        mhp: 1,
+        mhpmax: 8,
+        mux: state.u.ux,
+        muy: state.u.uy,
+    });
+
+    assert.equal(
+        find_defensive(monster, false, { state })?.kind,
+        'trapdoor',
+    );
+});
+
+test('find_defensive selects a bugle before carried healing', () => {
+    const state = makeSelectionState();
+    const potion = makeObject(state, POT_HEALING);
+    const bugle = makeObject(state, BUGLE, { nobj: potion });
+    const monster = makeMonster(state, PM_SOLDIER, {
+        mhp: 1,
+        mhpmax: 8,
+        minvent: bugle,
+        mux: state.u.ux,
+        muy: state.u.uy,
+    });
+    // One adjacent helpless mercenary is enough for muse.c's bugle gate.
+    state.level.monsters[9][10] = makeMonster(state, PM_SOLDIER, {
+        mx: 9,
+        my: 10,
+        mcanmove: false,
+    });
+
+    assert.deepEqual(find_defensive(monster, false, { state }), {
+        kind: 'bugle',
+        object: bugle,
+    });
+});
 
 test('find_misc selection covers initial miscellaneous item families',
     () => {

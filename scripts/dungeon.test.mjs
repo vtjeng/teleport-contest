@@ -10,6 +10,7 @@ import {
     AM_NEUTRAL,
     CLOUD,
     CORR,
+    DELPHI,
     DB_ICE,
     DB_LAVA,
     DB_MOAT,
@@ -25,6 +26,7 @@ import {
     LEVITATION,
     M_AP_FURNITURE,
     MOAT,
+    OROOM,
     POOL,
     ROOM,
     ROOMOFFSET,
@@ -288,6 +290,55 @@ test('recalc_mapseen takes altar alignment from mimics and Astral sight', () => 
     recalc_mapseen(state);
     assert.equal(mapseen.feat.msalign, 0,
         'a partially seen Astral altar does not reveal alignment');
+});
+
+test('recalc_mapseen rebuilds summaries for every seen room family', () => {
+    const state = resetGame();
+    state.level = new GameMap();
+    state.u = {
+        ux: 1,
+        uy: 1,
+        uz: { dnum: 0, dlevel: 1 },
+        uprops: [],
+        urooms: [0],
+    };
+    const mapseen = init_mapseen(state.u.uz, state);
+    state.level.lastseentyp = Array.from(
+        { length: 80 }, () => new Array(21).fill(STONE),
+    );
+    state.level.rooms = [
+        { rtype: SHOPBASE, orig_rtype: SHOPBASE },
+        { rtype: SHOPBASE + 1, orig_rtype: SHOPBASE + 1 },
+        { rtype: SHOPBASE + 1, orig_rtype: SHOPBASE + 1 },
+        { rtype: TEMPLE, orig_rtype: TEMPLE },
+        { rtype: OROOM, orig_rtype: DELPHI },
+    ];
+    for (let roomIndex = 0; roomIndex < state.level.rooms.length; ++roomIndex)
+        mapseen.msrooms[roomIndex].seen = 1;
+    // The third shop is unattended, which uses SHOPBASE-1 as the source's
+    // stronger summary even though the two attended shops have mixed types.
+    mapseen.msrooms[2].untended = 1;
+
+    recalc_mapseen(state);
+
+    assert.equal(mapseen.feat.nshop, 3,
+        'three is the packed feature-count saturation value');
+    assert.equal(mapseen.feat.shoptype, SHOPBASE - 1);
+    assert.equal(mapseen.feat.ntemple, 1);
+    assert.equal(mapseen.flags.oracle, 1);
+
+    state.level.rooms = state.level.rooms.map(() => ({
+        rtype: OROOM,
+        orig_rtype: OROOM,
+    }));
+    recalc_mapseen(state);
+
+    assert.equal(mapseen.feat.nshop, 0);
+    assert.equal(mapseen.feat.shoptype, 0);
+    assert.equal(mapseen.feat.ntemple, 0);
+    assert.equal(mapseen.flags.oracle, 0);
+    assert.ok(mapseen.msrooms.slice(0, 5).every(({ seen }) => seen === 1),
+        'recalculation preserves the five source discovery bits');
 });
 
 test('induced_align short-circuits special, dungeon, then random masks', () => {

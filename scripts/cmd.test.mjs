@@ -3453,6 +3453,32 @@ test('rhack clears menu and no-pickup prefix state on every entry', async () => 
     }
 });
 
+test('the direct quiver key reaches the empty-inventory result', async () => {
+    // This arbitrary stable startup supplies the command table and display.
+    // Clearing inventory then isolates cmd.c doquiver()'s early return: it
+    // prints one fixed line, spends no turn, and draws no random number.
+    const replay = await runSegment({
+        seed: 4210043,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:DirectQuiver,role:Valkyrie,race:human,'
+            + 'gender:female,align:lawful,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        moves: ' ',
+    });
+    game.invent = null;
+    clearTtyMessageWindow(game);
+    game._ttyToplines = '';
+    game.context.move = 0;
+    const drawsBefore = replay.getRngLog().length;
+    game.nhDisplay.pushKey(commandKeyCode('Q'));
+
+    await rhack(0, game);
+
+    assert.equal(game._ttyToplines, 'You have nothing to ready for firing.');
+    assert.equal(game.context.move, 0);
+    assert.equal(replay.getRngLog().length, drawsBefore);
+});
+
 test('rhack runs a queued command even when it was given a key', async () => {
     // cmd.c:3642 pops the queue before anything else on every rhack() call;
     // `firsttime` gates only the parse below it. allmain.c:530 is the one

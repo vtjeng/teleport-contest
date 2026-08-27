@@ -543,7 +543,7 @@ test('extended spellings share the four newly ported direct handlers',
         ['engrave', /engrave requires an accessible ordinary floor/u],
         ['read', /What do you want to read\?/u],
         ['whatis', /What do you want to look at:/u],
-        ['quiver', /ready_ok\(\) classification/u],
+        ['quiver', /What do you want to ready\?/u],
     ]) {
         let boundary = null;
         await runSegment({
