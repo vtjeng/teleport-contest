@@ -4838,7 +4838,12 @@ function _buildScreenOutput() {
                 const cell = skippedMessageCells[c];
                 display.setCell(c, 0, cell.ch, cell.color, cell.attr);
             } else {
-                display.setCell(c, 0, msg[c], NO_COLOR, 0);
+                display.setCell(
+                    c, 0,
+                    c === 0 && game._ttyMixedFirstCell
+                        ? game._ttyMixedFirstCell : msg[c],
+                    NO_COLOR, 0,
+                );
             }
         }
         // Map — write characters to grid (DEC → Unicode for browser display)

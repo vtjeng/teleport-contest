@@ -159,8 +159,10 @@ export function wrapTtyTopline(message, columns) {
     });
 }
 
-function rememberPendingMessage(state, message) {
+function rememberPendingMessage(state, message, mixedFirstCell = null) {
     state._pending_message = message;
+    if (mixedFirstCell) state._ttyMixedFirstCell = mixedFirstCell;
+    else delete state._ttyMixedFirstCell;
     state._ttyToplines = message;
     const display = state.nhDisplay;
     if (display) {
@@ -181,6 +183,7 @@ export function clearTtyMessageWindow(state = game) {
         display.setCursor(0, 0);
     }
     state._pending_message = '';
+    delete state._ttyMixedFirstCell;
     display.toplin = TOPLINE_EMPTY;
     display.topMessage = state._ttyToplines ?? display.toplines ?? '';
 }
@@ -221,6 +224,8 @@ export async function dismissPendingTtyMessage(
     // character, color, and attributes in the recorder shadow grid.
     for (let row = 0; row < lines.length; ++row)
         writeRecorderTtyLine(display, row, lines[row]);
+    if (state._ttyMixedFirstCell)
+        display.setCell(0, 0, state._ttyMixedFirstCell, NO_COLOR, 0);
     display.putstr(promptColumn, promptRow, MORE_PROMPT, NO_COLOR, 0);
     display.setCursor(promptColumn + MORE_PROMPT.length, promptRow);
 
@@ -236,6 +241,7 @@ export async function dismissPendingTtyMessage(
         display.setCursor(0, 0);
     }
     state._pending_message = '';
+    delete state._ttyMixedFirstCell;
     // more() leaves gt.toplines intact for message history. Escape also
     // sets WIN_STOP after tty_nhgetch() returns; subsequent plines update
     // that logical buffer without drawing until the next key wait.
@@ -288,7 +294,7 @@ function rememberSuppressedMessage(state, message, columns) {
 // share the top line only when both fit with two separating spaces and room
 // for a future --More--. PLINE_NOREPEAT compares the new individual message
 // against gp.prevmsg before the window port sees it.
-async function ttyPlineCore(message, state, pflags) {
+async function ttyPlineCore(message, state, pflags, mixedFirstCell = null) {
     // display.c show_glyph() calls pline_xy() synchronously. JS defers the
     // awaitable TTY work, so a later ordinary message must first drain every
     // source-earlier glyph notice. emitGlyphUpdateNotices marks its recursive
@@ -371,7 +377,7 @@ async function ttyPlineCore(message, state, pflags) {
     // When the comparison above was reached, update_topl() clears WIN_STOP
     // after more() has had the opportunity to set it from an Escape response.
     if (deathComparisonReached) state._ttyMessageStopped = false;
-    rememberPendingMessage(state, next);
+    rememberPendingMessage(state, next, mixedFirstCell);
     state._ttyPreviousMessage = normalizedMessage;
     // redotoplin() immediately invokes more() when update_topl() wrapped the
     // new message onto a second terminal row.
@@ -385,6 +391,15 @@ async function ttyPlineCore(message, state, pflags) {
 
 export async function ttyPline(message, state = game) {
     return ttyPlineCore(message, state, 0);
+}
+
+// C ref: win/tty/wintty.c tty_putmixed(), for pager.c do_look()'s encoded
+// leading glyph. The raw one-byte symbol preserves TTY wrapping, while the
+// rendered cell gives the scorer the same visual DEC glyph as C's SO/SI span.
+export async function ttyPutmixed(
+    message, renderedFirstCell, state = game,
+) {
+    return ttyPlineCore(message, state, 0, renderedFirstCell);
 }
 
 export async function ttyNorep(message, state = game) {

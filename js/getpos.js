@@ -1,12 +1,22 @@
 // getpos.c -- Ordinary farlook cursor selection.
-// C ref: getpos.c getpos() (771-1167), restricted to the traditional pick
-// and Escape paths used by the current whatis slice.
+// C refs: getpos.c auto_describe(), truncate_to_map(), and getpos(), covering
+// default ordinary and fast movement, the traditional pick, and Escape.
 
-import { TIP_GETPOS } from './const.js';
+import {
+    COLNO,
+    GPCOORDS_NONE,
+    MV_RUN,
+    MV_RUSH,
+    MV_WALK,
+    ROWNO,
+    TIP_GETPOS,
+} from './const.js';
+import { movecmd } from './cmd.js';
 import { flush_screen } from './display.js';
 import { game } from './gstate.js';
 import { handle_tip } from './hack.js';
 import { nhgetch } from './input.js';
+import { do_screen_description } from './pager.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
 
 export const LOOK_TRADITIONAL = 0;
@@ -25,11 +35,52 @@ function cursorAt(x, y, state) {
     state.nhDisplay?.setCursor(x - 1, y + 1);
 }
 
+function sign(value) {
+    return value < 0 ? -1 : value > 0 ? 1 : 0;
+}
+
+// C ref: getpos.c truncate_to_map() (729-748). JavaScript returns the two
+// pointer results as one coordinate while preserving C's update order.
+export function truncate_to_map(cx, cy, dx, dy) {
+    if (cx + dx < 1) {
+        dy -= sign(dy) * (1 - (cx + dx));
+        dx = 1 - cx;
+    } else if (cx + dx > COLNO - 1) {
+        dy += sign(dy) * ((COLNO - 1) - (cx + dx));
+        dx = (COLNO - 1) - cx;
+    }
+    if (cy + dy < 0) {
+        dx -= sign(dx) * (0 - (cy + dy));
+        dy = -cy;
+    } else if (cy + dy > ROWNO - 1) {
+        dx += sign(dx) * ((ROWNO - 1) - (cy + dy));
+        dy = (ROWNO - 1) - cy;
+    }
+    return { x: cx + dx, y: cy + dy };
+}
+
+// C ref: getpos.c auto_describe() (640-662), under default getpos_coords.
+// ttyPline() flushes with the cursor on the hero, so restore the selected map
+// coordinate after it writes the source firstmatch text.
+async function auto_describe(cx, cy, state) {
+    const description = do_screen_description(
+        { x: cx, y: cy }, true, 0, state,
+    );
+    if (description.found)
+        await ttyPline(description.firstmatch, state);
+    await flush_screen(0);
+    cursorAt(cx, cy, state);
+}
+
 export async function getpos(ccp, force, goal, state = game) {
     if (force)
         throw new UnsupportedGetposError('a forced or quick location pick');
     if (state.iflags?.remember_getpos
-        || state.iflags?.terrainmode) {
+        || state.iflags?.terrainmode
+        || state.iflags?.getloc_moveskip
+        || state.iflags?.autodescribe === false
+        || (state.iflags?.getpos_coords
+            && state.iflags.getpos_coords !== GPCOORDS_NONE)) {
         throw new UnsupportedGetposError('non-default location settings');
     }
 
@@ -73,6 +124,26 @@ export async function getpos(ccp, force, goal, state = game) {
                 ccp.y = cy;
                 result = LOOK_TRADITIONAL;
                 break;
+            }
+            let moved = null;
+            if (movecmd(key, MV_WALK, state)) {
+                moved = truncate_to_map(cx, cy, state.u.dx, state.u.dy);
+            } else if (movecmd(key, MV_RUSH, state)
+                || movecmd(key, MV_RUN, state)) {
+                // The default getloc_moveskip is false, so getpos.c moves
+                // exactly eight cells in the selected run direction.
+                moved = truncate_to_map(
+                    cx, cy, 8 * state.u.dx, 8 * state.u.dy,
+                );
+            }
+            if (moved) {
+                cx = moved.x;
+                cy = moved.y;
+                state.gg.getposx = cx;
+                state.gg.getposy = cy;
+                clearTtyMessageWindow(state);
+                await auto_describe(cx, cy, state);
+                continue;
             }
             throw new UnsupportedGetposError(
                 `key ${JSON.stringify(String.fromCharCode(key))}`,

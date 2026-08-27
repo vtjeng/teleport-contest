@@ -4,21 +4,35 @@ import test from 'node:test';
 import { UnsupportedHeroCommandBoundaryError } from '../js/cmd.js';
 import { TIP_GETPOS } from '../js/const.js';
 import { GETPOS_TIP_LINES, handle_tip } from '../js/hack.js';
-import { UnsupportedGetposError } from '../js/getpos.js';
+import { truncate_to_map } from '../js/getpos.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { self_lookat, whatisMenuItems } from '../js/pager.js';
+import { parseNethackrc } from '../js/options.js';
+import { cmap_to_glyph } from '../js/display.js';
+import {
+    do_screen_description,
+    self_lookat,
+    whatisMenuItems,
+} from '../js/pager.js';
+import {
+    S_brupstair,
+    S_corr,
+    S_darkroom,
+    S_room,
+    initialize_symbols_from_options,
+} from '../js/symbols.js';
 import {
     NEXT_COMMAND,
-    ESCAPE_KEY,
     MORE_KEYS,
     TRADITIONAL_PICK,
     WHATIS_COMMAND,
     WHATIS_MAP_CHOICE,
-    WHATIS_MOVES,
     WHATIS_SETUP,
     loadWhatisMapHeroRecipe,
 } from './run-whatis-map-getpos-hero.mjs';
+import {
+    loadWhatisMapCursorTerrainRecipe,
+} from './run-whatis-map-cursor-terrain.mjs';
 
 test('the default whatis menu preserves pager.c order and accelerators', () => {
     const state = {
@@ -120,25 +134,87 @@ test('ordinary hero farlook renders the source-derived description',
     );
 });
 
-test('excluded cursor movement ends the replay on its supported prefix',
-    async () => {
-        const segment = loadWhatisMapHeroRecipe().segments[0];
-        let boundary;
-        const replay = await runSegment({
-            ...segment,
-            // Replace the repeated-picker Escape and following wait with the
-            // first excluded cursor-movement key. The scorer must retain all
-            // output this slice produced before that key.
-            moves: WHATIS_MOVES.replace(`${ESCAPE_KEY}${NEXT_COMMAND}`, 'h'),
-        }, { onBoundary: (error) => { boundary = error; } });
+function terrainDescription(cmap) {
+    // The separate hero coordinate keeps pager.c lookat() on its ordinary
+    // glyph_is_cmap() branch. D:1 selects the main-dungeon glyph family.
+    const state = {
+        u: { ux: 40, uy: 10, uz: { dnum: 0, dlevel: 1 } },
+        level: {},
+        iflags: { terrainmode: 0 },
+    };
+    initialize_symbols_from_options(
+        parseNethackrc('OPTIONS=symset:DECgraphics\n'), state,
+    );
+    // display.c reglyph_darkroom() makes a sighted dark-room square use the
+    // active room symbol before pager.c scans gs.showsyms[].
+    state.gs.showsyms[S_darkroom] = state.gs.showsyms[S_room];
+    state.level.at = (x, y) => (x === 3 && y === 4
+        ? { disp_glyph: { glyph: cmap_to_glyph(cmap, state) } }
+        : undefined);
+    return do_screen_description({ x: 3, y: 4 }, true, 0, state);
+}
 
-        assert.equal(boundary instanceof UnsupportedGetposError, true);
-        // The fresh C case for seed 42044 reaches this first unsupported `h`
-        // after ten complete screen/cursor snapshots. Its 2,630 draws are the
-        // startup prefix; pager.c/getpos.c consume no randomness.
-        assert.equal(replay.getScreens().length, 10);
-        assert.equal(replay.getCursors().length, 10);
-        assert.equal(replay.getRngLog().length, 2630);
+test('branch stairs retain the symbol ambiguity and specific terrain', () => {
+    // DECgraphics gives S_upstair and S_brupstair the '<' byte while its
+    // ladders use '/', so pager.c lists these two before lookat() refines it.
+    assert.deepEqual(terrainDescription(S_brupstair), {
+        found: 1,
+        out: '<        a staircase up or a branch staircase up (branch staircase up)',
+        firstmatch: 'branch staircase up',
+    });
+});
+
+test('room floor retains every dot ambiguity before lookat refinement', () => {
+    // DECgraphics assigns its middle-dot byte to S_ndoor, S_room, S_darkroom,
+    // and S_ice, in defsym.h order.
+    assert.deepEqual(terrainDescription(S_room), {
+        found: 1,
+        out: '·        a doorway or the floor of a room or the dark part of a room or ice (floor of a room)',
+        firstmatch: 'floor of a room',
+    });
+});
+
+test('corridor ambiguity uses pager.c many-things truncation', () => {
+    // At least five defsym.h entries use '#'. pager.c replaces their list
+    // after the fifth match, then lookat() appends the actual S_corr detail.
+    assert.deepEqual(terrainDescription(S_corr), {
+        found: 1,
+        out: '#        can be many things (corridor)',
+        firstmatch: 'corridor',
+    });
+});
+
+test('truncate_to_map preserves diagonal travel along map edges', () => {
+    // From <2,1>, an eight-cell northwest run reaches C's left edge first;
+    // truncate_to_map() removes seven vertical cells and lands at <1,0>.
+    assert.deepEqual(truncate_to_map(2, 1, -8, -8), { x: 1, y: 0 });
+    // The mirror case reaches C's right edge first and lands at <79,20>.
+    assert.deepEqual(truncate_to_map(78, 19, 8, 8), { x: 79, y: 20 });
+});
+
+test('ordinary and fast cursor movement return through the next boundary',
+    async () => {
+        const expected = [
+            // Fresh C seed 42046: west, a traditional floor pick, then Escape.
+            { screens: 19, rng: 2748 },
+            // Fresh C seed 42050: an eight-cell H move, then Escape.
+            { screens: 17, rng: 2749 },
+        ];
+        const segments = loadWhatisMapCursorTerrainRecipe().segments;
+        for (let index = 0; index < segments.length; ++index) {
+            let boundary;
+            const replay = await runSegment(segments[index], {
+                onBoundary: (error) => { boundary = error; },
+            });
+            assert.equal(boundary, undefined);
+            assert.equal(replay.getScreens().length, expected[index].screens);
+            assert.equal(replay.getCursors().length, expected[index].screens);
+            assert.equal(replay.getRngLog().length, expected[index].rng);
+            assert.deepEqual(
+                { x: game.gg.getposx, y: game.gg.getposy },
+                { x: 0, y: 0 },
+            );
+        }
     });
 
 test('unsupported whatis menu choices retain the drawn command prefix',
