@@ -4863,6 +4863,35 @@
         "screens": 5,
         "rng": 0
       }
+    },
+    {
+      "id": "monster-light-source-vision-recalculation",
+      "status": "open",
+      "boundary": "simple monster action requires monster light-source vision recalculation",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 3,
+        "basis": "Capped look-ahead: seed0383-wizard-hallucinate cappedStretch=3 (cap-stable).",
+        "sessions": [
+          "seed0383-wizard-hallucinate"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383-wizard-hallucinate",
+            "evidence": "At recorded step 138, movemon leaves a jaguar with movement remaining, then any_light_source detects the PM_YELLOW_LIGHT and sets vision_full_recalc at mon.c:1332-1333. The second monster scan spends the jaguar remaining ration and mon.c:1258-1259 calls vision_recalc(0), which rebuilds vision and calls do_light_sources. The JavaScript planning clone lacks isolated vision buffers and stops in planSimpleMonsterScan at js/unported_monster_actions.js:1070-1073."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "642cdc6cdd7648e94a818fdd315c732ded98c423",
+      "openStanding": {
+        "sha": "1cdb0410e0eefefd023ed89698058118408bfd59",
+        "screens": 2376,
+        "rng": 155739
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
