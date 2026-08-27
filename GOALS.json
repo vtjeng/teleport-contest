@@ -5355,8 +5355,8 @@
         },
         {
           "name": "whatis-map-cursor-terrain",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "a280cc471a975efc68ac47619417051d0b891c7b"
         }
       ],
       "openedAt": "f17bfd832863f03946b1572f5e4ca2ecf5629b30",
