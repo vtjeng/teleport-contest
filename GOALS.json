@@ -5017,6 +5017,38 @@
         "screens": 0,
         "rng": 20
       }
+    },
+    {
+      "id": "monster-wield-retaliation-turn",
+      "status": "open",
+      "boundary": "When mattackm() reaches adjacent AT_WEAP for an empty-handed monster and mon_wield_item() selects a different ordinary hand-to-hand weapon, complete that wielding turn through its nonzero return and return M_ATTK_MISS before any swing.",
+      "upstreamOwners": [
+        "mhitm.c",
+        "weapon.c"
+      ],
+      "forecast": {
+        "steps": 249,
+        "basis": "Capped look-ahead: seed0360-wizard-world-tour cappedStretch=249 (cap-stable).",
+        "sessions": [
+          "seed0360-wizard-world-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0360-wizard-world-tour",
+            "evidence": "During the speed-boots dressing turn, a kitten bites an adjacent goblin. Retaliation calls mattackm for the empty-handed goblin AT_WEAP attack. select_hwep chooses its orcish dagger; mon_wield_item sets mw and W_WEP, prints the wield message, and returns 1. mattackm returns M_ATTK_MISS before attack damage. JavaScript refuses before selection and state change."
+          }
+        ]
+      },
+      "detail": "Scope adjacent ordinary-weapon wielding only. Port the mhitm.c adjacent AT_WEAP guard plus planning-safe mon_wield_item state and message operations. Exclude distant throws, armed swings, welded and artifact cases, hit and damage paths, passive effects, and other attack types.",
+      "slices": [],
+      "openedAt": "9b406af116cd781f014172cde97b582c0890f98c",
+      "openStanding": {
+        "sha": "d1d678fb6ff7f749dc75e1973458bd0fc37a3b2d",
+        "screens": 2378,
+        "rng": 155976
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
