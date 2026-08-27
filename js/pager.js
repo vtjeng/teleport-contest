@@ -956,6 +956,17 @@ async function hmenu_dohistory(state) {
     await dohistory(state);
 }
 
+// C ref: pager.c domenucontrols() (2820-2827). displayTtyTextWindow() owns the
+// NHW_TEXT create, display, dismissal, destruction, and map repair sequence.
+export async function domenucontrols(state = game) {
+    // cmd.js imports both pager.js and options.js, so delay this source-owner
+    // edge until the help target dispatches.
+    const { show_menu_controls } = await import('./options.js');
+    const lines = [];
+    show_menu_controls(lines, false, state);
+    await displayTtyTextWindow(state, lines);
+}
+
 // C ref: pager.c help_menu_items[] (2829-2858). This build has no PORT_HELP
 // row, normal play omits dispfile_debughelp(), and hideusage is off. Keep the
 // numeric value from the source-table index so filtering a future row cannot
@@ -1052,6 +1063,10 @@ export async function dohelp(state = game) {
         // reverse edge until this help target dispatches.
         const { dokeylist } = await import('./cmd.js');
         await dokeylist(state);
+        return ECMD_OK;
+    }
+    if (choice === 12) {
+        await domenucontrols(state);
         return ECMD_OK;
     }
     if (choice === 13) {

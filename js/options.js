@@ -2497,15 +2497,62 @@ function get_menu_cmd_key(command, state) {
         ? mappedKeys[index] : command;
 }
 
-// C ref: options.c show_menu_controls() (9068-9174), through the dolist=TRUE
-// call made by cmd.c dokeylist(). The standalone dolist=FALSE page is a
-// separate help-menu target and remains fail-closed until that call site is
-// ported.
+// C ref: options.c show_menu_controls() (9068-9174). cmd.c dokeylist() uses
+// the dolist=TRUE rows, while pager.c domenucontrols() uses the standalone
+// dolist=FALSE page.
 export function show_menu_controls(lines, dolist, state = game) {
     if (!dolist) {
-        throw new UnsupportedOptionMenuError(
-            'standalone menu-control help is not ported',
+        const key = (command) => visctrl(get_menu_cmd_key(command, state));
+        const columns = (label, whole, current) => (
+            `${label.padStart(8)}     ${whole.padEnd(6)} ${current}`
         );
+        const other = (label, command, description) => (
+            `${label.padStart(9)}  ${command.padEnd(8)} ${description}`
+        );
+
+        lines.push({ text: 'Menu control keys:' });
+        lines.push({ text: '' });
+        lines.push({ text: `${''.padStart(9)}  ${'Whole'.padEnd(6)} Current` });
+        lines.push({ text: `${''.padStart(9)}  ${' Menu'.padEnd(6)}  Page` });
+        lines.push({ text: columns('Select', key('.'), key(',')) });
+        lines.push({ text: columns('Invert', key('@'), key('~')) });
+        lines.push({ text: columns('Deselect', key('-'), key('\\')) });
+        lines.push({ text: '' });
+        lines.push({ text: columns('Go to', key('>'), 'Next page') });
+        lines.push({ text: columns('', key('<'), 'Previous page') });
+        lines.push({ text: columns('', key('^'), 'First page') });
+        lines.push({ text: columns('', key('|'), 'Last page') });
+        // TTY does not advertise WC2_MENU_SHIFT, so C omits both Pan view
+        // rows from this build's page.
+        lines.push({ text: '' });
+        lines.push({
+            text: columns(
+                'Search', key(':'),
+                'Exter a target string and invert all matching entries',
+            ),
+        });
+        lines.push({ text: '' });
+        lines.push({
+            text: other(
+                'Other ', 'Return',
+                'Accept current choice(s) and dismiss menu',
+            ),
+        });
+        lines.push({ text: other('', 'Enter', 'Same as Return') });
+        lines.push({
+            text: other(
+                '', 'Space', 'If not on last page, advance one page;',
+            ),
+        });
+        lines.push({
+            text: other('', '     ', 'when on last page, treat like Return'),
+        });
+        lines.push({
+            text: other(
+                '', 'Escape', 'Cancel menu without making any choice(s)',
+            ),
+        });
+        return;
     }
 
     lines.push({ text: 'Menu control keys:' });

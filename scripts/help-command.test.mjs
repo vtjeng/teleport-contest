@@ -5,7 +5,7 @@ import { cmdq_peek, key2extcmddesc, keyBindingLines } from '../js/cmd.js';
 import { CMDQ_KEY, CQ_REPEAT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { next_opt, optionHelpLines } from '../js/options.js';
+import { next_opt, optionHelpLines, show_menu_controls } from '../js/options.js';
 import {
     dowhatdoes_core,
     helpMenuItems,
@@ -31,6 +31,10 @@ import {
     HELP_KEY_BINDINGS_MOVES,
     loadHelpKeyBindingsRecipe,
 } from './run-help-key-bindings.mjs';
+import {
+    HELP_MENU_CONTROLS_MOVES,
+    loadHelpMenuControlsRecipe,
+} from './run-help-menu-controls.mjs';
 import {
     HELP_STATIC_CASES,
     loadHelpStaticRecipe,
@@ -192,6 +196,66 @@ test('the default key list preserves source sections and fixed-width rows',
         // The source formats ordinary bindings in 7- and 13-character fields.
         assert(lines.includes('i       inventory     show your inventory'));
     });
+
+test('standalone menu controls preserve the source columns and descriptions',
+    () => {
+        const lines = [];
+        show_menu_controls(lines, false, {
+            // The recorder has the default menu aliases, so each displayed
+            // key is the command byte from default_menu_cmd_info[].
+            iflags: { mapped_menu_op: '', mapped_menu_cmds: '' },
+        });
+
+        // options.c show_menu_controls() emits these 20 fixed-width rows when
+        // the TTY backend does not advertise WC2_MENU_SHIFT.
+        assert.deepEqual(lines.map(({ text }) => text), [
+            'Menu control keys:',
+            '',
+            '           Whole  Current',
+            '            Menu   Page',
+            '  Select     .      ,',
+            '  Invert     @      ~',
+            'Deselect     -      \\',
+            '',
+            '   Go to     >      Next page',
+            '             <      Previous page',
+            '             ^      First page',
+            '             |      Last page',
+            '',
+            '  Search     :      Exter a target string and invert all matching entries',
+            '',
+            '   Other   Return   Accept current choice(s) and dismiss menu',
+            '           Enter    Same as Return',
+            '           Space    If not on last page, advance one page;',
+            '                    when on last page, treat like Return',
+            '           Escape   Cancel menu without making any choice(s)',
+        ]);
+    });
+
+test('the standalone menu-controls target returns through the next command boundary',
+    () => withSerializedGrids(async () => {
+        const segment = loadHelpMenuControlsRecipe().segments[0];
+        assert.equal(segment.moves, HELP_MENU_CONTROLS_MOVES);
+
+        // The final wait spends one turn, so compare against that command
+        // without the preceding help interaction.
+        const baseline = await runSegment({ ...segment, moves: '.' });
+        const baselineMoves = game.moves;
+        const baselineRng = baseline.getRngLog().length;
+
+        let boundary;
+        const replay = await runSegment(segment, {
+            onBoundary: (error) => { boundary = error; },
+        });
+        assert.equal(boundary, undefined);
+        assert.equal(game.context.pendingCommand, undefined);
+        assert.equal(game.moves, baselineMoves);
+        assert.equal(replay.getRngLog().length, baselineRng);
+        // Fresh C seed 319427 records startup, the help menu, one text page,
+        // the repaired map, and the final wait through five boundaries.
+        assert.equal(replay.getScreens().length, 5);
+        assert.equal(replay.getCursors().length, 5);
+    }));
 
 test('the help key-list target returns through the next command boundary',
     () => withSerializedGrids(async () => {
