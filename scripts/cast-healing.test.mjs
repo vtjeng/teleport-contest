@@ -22,31 +22,16 @@ import test from 'node:test';
 
 import {
     A_INT,
-    A_WIS,
     BLINDED,
-    ECMD_FAIL,
-    ECMD_TIME,
     FROMOUTSIDE,
-    NO_SPELL,
     NUM_ATTRS,
-    P_BASIC,
-    P_HEALING_SPELL,
-    P_ISRESTRICTED,
-    P_NUM_SKILLS,
     STRANGLED,
     TIMEOUT,
-    Upolyd,
 } from '../js/const.js';
 import { effective_attribute } from '../js/attrib.js';
 import { morehungry } from '../js/eat.js';
 import { can_chant } from '../js/mondata.js';
-import { PM_KILLER_BEE, PM_JABBERWOCK } from '../js/monsters.js';
-import { init_objects } from '../js/o_init.js';
-import { MAXSPELL, SPE_HEALING, SPE_EXTRA_HEALING } from '../js/objects.js';
 import { healup, UnsupportedPotionError } from '../js/potion.js';
-import { roles } from '../js/roles.js';
-import { docast, spelleffects, UnsupportedSpellCastError } from '../js/spell.js';
-import { SPELL_KNOWLEDGE_KEEN } from '../js/startup_skills.js';
 import { formatReport } from './diff-fresh.mjs';
 import {
     createScoringWorkspace,

@@ -106,7 +106,6 @@ import {
     TINNING_KIT,
     TIN_OPENER,
     TIN_WHISTLE,
-    TOOL_CLASS,
     TOWEL,
     UNICORN_HORN,
     WAND_CLASS,
