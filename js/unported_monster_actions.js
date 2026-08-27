@@ -1061,16 +1061,13 @@ async function planSimpleMonsterScan(monster, env) {
         // no randomness, but it writes seenv and waslit on the map cells and
         // swaps the COULD_SEE pair.
         //
-        // A newly visible fog region sets vision_full_recalc before this same
-        // monster's movement-ration work. Its planning createGasCloud() call
-        // has already isolated the clone's COULD_SEE buffers and terrain, so
-        // that source-ordered recalculation is safe. An unrelated light source
-        // can reach this arm without any planned map change or isolation and
-        // remains fail-closed rather than writing through to the live buffers.
+        // A newly visible fog region has already isolated the clone before it
+        // reaches this call. A mobile light source can reach it without a map
+        // change, so isolate here too. The planned terrain still matches the
+        // live terrain in that case, which lets vision_recalc() read the shared
+        // transparency index without rebuilding or restoring it.
         visionRecalc: (control) => {
-            if (!env.state._visionBuffers) {
-                unsupported('monster light-source vision recalculation');
-            }
+            isolatePlannedVision(env.state);
             return planningVisionRecalc(env.state)(control);
         },
         clearBypasses: () => unsupported('monster bypass cleanup'),

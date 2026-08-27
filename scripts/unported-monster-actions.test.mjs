@@ -28,6 +28,7 @@ import {
     I_SPECIAL,
     LADDER,
     LAVAPOOL,
+    LS_MONSTER,
     LS_OBJECT,
     MMOVE_DONE,
     MMOVE_NOTHING,
@@ -696,50 +697,67 @@ test('multi-round planning isolates every monster-generation global',
 
 // mon.c movemon() sets vision_full_recalc whenever a light source is present,
 // and movemon_singlemon() rebuilds viz_array for the next ration-spending
-// monster. The scan after an allocation crosses that same tail, so a guard
-// that only covers a repeat of the inner scan leaves the burdened path this
-// preflight exists for planning against an index the live pass replaces.
-test('a scan after a planned allocation refuses the light-source rebuild',
+// monster. The scan after an allocation crosses that same tail, so this case
+// takes the source-ordered second scan and checks every vision owner that the
+// planning clone must isolate from the live game.
+test('a scan after a planned allocation isolates the light-source rebuild',
     async () => {
         const target = await prepareSelectedAction();
         game.gl.light_base = {
             flags: 0,
-            id: { o_id: 9802 },
+            id: target.monster,
             next: null,
+            // light.c do_light_sources() walks every square in this radius;
+            // one is the smallest nonzero range that exercises that loop.
             range: 1,
-            type: LS_OBJECT,
+            type: LS_MONSTER,
             x: target.monsterX,
             y: target.heroY,
         };
         game.u.umovement = 0;
         const before = completeSecondTurnSnapshot(game, target.replay);
+        const vision = visionSnapshot();
+        const guard = freezeLiveState(game);
+        assertDetectorReachedTheGraph(guard);
 
         let rounds = 0;
-        await assert.rejects(
-            preflightSimpleMonsterActions(game, {
-                advanceRound(planned) {
-                    // The second call ends the plan, so a build that never
-                    // refuses resolves instead of looping forever.
-                    if (++rounds > 1) return true;
-                    for (let monster = planned.level.monlist;
-                        monster;
-                        monster = monster.nmon) {
-                        monster.movement = NORMAL_SPEED;
-                    }
-                    return false;
-                },
-            }),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason
-                    === 'monster light-source vision recalculation'
-            ),
+        let planned = null;
+        await preflightSimpleMonsterActions(game, {
+            advanceRound(state) {
+                planned = state;
+                // The second allocation ends the fixture after the rebuilt
+                // scan. The first grants one normal movement ration so the
+                // next movemon_singlemon() consumes vision_full_recalc.
+                if (++rounds > 1) return true;
+                for (let monster = state.level.monlist;
+                    monster;
+                    monster = monster.nmon) {
+                    monster.movement = NORMAL_SPEED;
+                }
+                return false;
+            },
+        });
+        assert.equal(rounds, 2);
+        assert.ok(planned?._visionBuffers);
+        assert.strictEqual(
+            planned.viz_array,
+            planned._visionBuffers.rows[planned.active_buf],
         );
-        assert.equal(rounds, 1);
+        assert.notStrictEqual(planned.level.locations, game.level.locations);
+        assert.notStrictEqual(
+            planned.level.at(target.monsterX, target.heroY),
+            game.level.at(target.monsterX, target.heroY),
+        );
+        assert.notStrictEqual(planned.gl.light_base, game.gl.light_base);
+        assert.notStrictEqual(planned.gl.light_base.id, target.monster);
+        assert.equal(planned.gl.light_base.id, planned.level.monlist);
+        assert.notEqual(planned.gl.light_base.flags, 0);
+        guard.assertNoLeak(assert);
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
             before,
         );
+        assert.deepEqual(visionSnapshot(), vision);
     });
 
 test('fog upkeep is planned atomically before the movement-ration gate',
