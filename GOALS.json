@@ -5473,8 +5473,8 @@
         },
         {
           "name": "help-default-extended-command-list",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "6d1b4bbf500f2eed582017ab6294251aee7dc6ee"
         }
       ],
       "openedAt": "2ff2a1b74d22e07ed41dd2a1f018cc842468d316",
