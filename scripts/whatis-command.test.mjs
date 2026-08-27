@@ -1,16 +1,27 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { UnsupportedHeroCommandBoundaryError } from '../js/cmd.js';
 import { D_BROKEN, D_TRAPPED, TIP_GETPOS } from '../js/const.js';
 import { GETPOS_TIP_LINES, handle_tip } from '../js/hack.js';
 import { getpos, truncate_to_map } from '../js/getpos.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
-import { cmap_to_glyph } from '../js/display.js';
+import { cmap_to_glyph, glyph_is_monster } from '../js/display.js';
+import {
+    GLYPH_DETECT_FEM_OFF,
+    GLYPH_DETECT_MALE_OFF,
+    GLYPH_MON_FEM_OFF,
+    GLYPH_MON_MALE_OFF,
+    GLYPH_PET_FEM_OFF,
+    GLYPH_PET_MALE_OFF,
+    GLYPH_RIDDEN_FEM_OFF,
+    GLYPH_RIDDEN_MALE_OFF,
+} from '../js/glyph_offsets.js';
+import { NUMMONS } from '../js/monsters.js';
 import {
     do_screen_description,
+    look_region_nearby,
     self_lookat,
     whatisMenuItems,
 } from '../js/pager.js';
@@ -39,6 +50,10 @@ import {
     TYPED_FOUNTAIN_MOVES,
     loadWhatisTypedInventoryRecipe,
 } from './run-whatis-typed-inventory-lookup.mjs';
+import {
+    MONSTER_OBJECT_LIST_MOVES,
+    loadWhatisMonsterObjectListRecipe,
+} from './run-whatis-monster-object-lists.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 test('the default whatis menu preserves pager.c order and accelerators', () => {
@@ -338,21 +353,107 @@ test('three-line status repair matches the inventory docorner rectangle',
         ]);
     }));
 
-test('deferred whatis list choices retain the drawn command prefix',
-    async () => {
-        const segment = loadWhatisMapHeroRecipe().segments[0];
-        let boundary;
-        const replay = await runSegment({
-            ...segment,
-            // `m` is the first deferred do_look() list arm. The ordinary
-            // welcome dismissal and `/` command reach it without spending a
-            // turn or consuming randomness.
-            moves: `${WHATIS_SETUP}/m`,
-        }, { onBoundary: (error) => { boundary = error; } });
+test('nearby whatis bounds clamp to the playable map', () => {
+    // BOLT_LIM is eight. A hero at <20,3> reaches y=0 before the upper
+    // radius, while the ordinary x bounds remain eight columns away.
+    assert.deepEqual(look_region_nearby(true, {
+        u: { ux: 20, uy: 3 },
+    }), { loX: 12, loY: 0, hiX: 28, hiY: 11 });
+    // A hero at <2,19> reaches C's x=1 and y=20 playable edges.
+    assert.deepEqual(look_region_nearby(true, {
+        u: { ux: 2, uy: 19 },
+    }), { loX: 1, loY: 11, hiX: 10, hiY: 20 });
+    // The all-map arm includes every playable coordinate and excludes x=0.
+    assert.deepEqual(look_region_nearby(false, {
+        u: { ux: 20, uy: 3 },
+    }), { loX: 1, loY: 0, hiX: 79, hiY: 20 });
+});
 
-        assert.equal(
-            boundary instanceof UnsupportedHeroCommandBoundaryError,
-            true,
+test('monster glyph recognition includes every display.h monster family', () => {
+    const familyOffsets = [
+        GLYPH_MON_MALE_OFF,
+        GLYPH_MON_FEM_OFF,
+        GLYPH_PET_MALE_OFF,
+        GLYPH_PET_FEM_OFF,
+        GLYPH_DETECT_MALE_OFF,
+        GLYPH_DETECT_FEM_OFF,
+        GLYPH_RIDDEN_MALE_OFF,
+        GLYPH_RIDDEN_FEM_OFF,
+    ];
+    for (const offset of familyOffsets) {
+        // Each generated offset begins a source NUMMONS-wide range. Testing
+        // its first and last values pins both comparisons in the predicate.
+        assert.equal(glyph_is_monster(offset), true);
+        assert.equal(glyph_is_monster(offset + NUMMONS - 1), true);
+    }
+});
+
+test('monster and object lists preserve map order and text-window cells',
+    () => withSerializedGrids(async () => {
+        const [segment] = loadWhatisMonsterObjectListRecipe().segments;
+        assert.equal(segment.moves, MONSTER_OBJECT_LIST_MOVES);
+        const replay = await runSegment(segment);
+
+        // Fresh C seed 42057 records fifteen boundaries and 2,379 startup
+        // draws through the dot command after all four list dismissals.
+        assert.equal(replay.getScreens().length, 15);
+        assert.equal(replay.getCursors().length, 15);
+        assert.equal(replay.getRngLog().length, 2379);
+        assert.equal(game.moves, 2);
+
+        const grids = replay.getScreens().map((screen) => JSON.parse(screen));
+        const rows = (index) => grids[index].map(
+            (row) => row.map(({ ch }) => ch).join('').trimEnd(),
         );
-        assert.equal(replay.getScreens().length > 1, true);
-    });
+        assert.deepEqual(rows(3).slice(0, 6), [
+            'Monsters currently shown near <38,13>:',
+            '',
+            ' <36,12>  d  jackal',
+            ' <38,13>  @  human wizard called Euclid',
+            ' <39,13>  f  tame kitten',
+            '',
+        ]);
+        assert.deepEqual(rows(6).slice(0, 6), [
+            'All monsters currently shown on the map:',
+            '',
+            ' <36,12>  d  jackal',
+            ' <38,13>  @  human wizard called Euclid',
+            ' <39,13>  f  tame kitten',
+            '',
+        ]);
+        assert.deepEqual(rows(9).slice(0, 4), [
+            'Objects currently shown near <38,13>:',
+            '',
+            ' <39,12>  (  a chest',
+            '',
+        ]);
+        assert.deepEqual(rows(12).slice(0, 4), [
+            'All objects currently shown on the map:',
+            '',
+            ' <39,12>  (  a chest',
+            '',
+        ]);
+        // Each mixed-glyph list line places its glyph in physical column 10.
+        assert.deepEqual(
+            [grids[3][2][10].ch, grids[3][3][10].ch,
+                grids[3][4][10].ch, grids[9][2][10].ch],
+            ['d', '@', 'f', '('],
+        );
+    }));
+
+test('monster and object lists report an empty shown-object set',
+    () => withSerializedGrids(async () => {
+        const [, segment] = loadWhatisMonsterObjectListRecipe().segments;
+        const replay = await runSegment(segment);
+
+        // Fresh C seed 42056 records the same fifteen boundaries, no objects,
+        // and 2,725 startup draws through the next command boundary.
+        assert.equal(replay.getScreens().length, 15);
+        assert.equal(replay.getCursors().length, 15);
+        assert.equal(replay.getRngLog().length, 2725);
+        assert.equal(game.moves, 2);
+        const topRow = (index) => JSON.parse(replay.getScreens()[index])[0]
+            .map(({ ch }) => ch).join('').trimEnd();
+        assert.equal(topRow(9), 'No objects are currently shown nearby.');
+        assert.equal(topRow(12), 'No objects are currently shown on the map.');
+    }));

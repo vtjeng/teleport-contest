@@ -1568,6 +1568,23 @@ function assertGlyphNumber(glyph, caller) {
     }
 }
 
+// C refs: display.h glyph_is_normal_monster(), glyph_is_pet(),
+// glyph_is_detected_monster(), glyph_is_ridden_monster(), and their union
+// glyph_is_monster(). Each family has one male and one female NUMMONS range.
+export function glyph_is_monster(glyph) {
+    assertGlyphNumber(glyph, 'glyph_is_monster');
+    return [
+        GLYPH_MON_MALE_OFF,
+        GLYPH_MON_FEM_OFF,
+        GLYPH_PET_MALE_OFF,
+        GLYPH_PET_FEM_OFF,
+        GLYPH_DETECT_MALE_OFF,
+        GLYPH_DETECT_FEM_OFF,
+        GLYPH_RIDDEN_MALE_OFF,
+        GLYPH_RIDDEN_FEM_OFF,
+    ].some((offset) => glyph >= offset && glyph < offset + NUMMONS);
+}
+
 export function glyph_is_object(glyph) {
     assertGlyphNumber(glyph, 'glyph_is_object');
     return glyph_is_normal_object(glyph) || glyph_is_generic_object(glyph)
