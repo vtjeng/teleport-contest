@@ -4977,6 +4977,37 @@
         "screens": 2,
         "rng": 0
       }
+    },
+    {
+      "id": "wear-speed-boots-on",
+      "status": "open",
+      "boundary": "When #wear selects non-artifact SPEED_BOOTS (otyp 166) that can occupy an empty W_ARMF slot, complete the two-turn donning path through do_wear.c Boots_on()'s SPEED_BOOTS arm and common tail.",
+      "upstreamOwners": [
+        "do_wear.c"
+      ],
+      "forecast": {
+        "steps": 249,
+        "basis": "Capped look-ahead: seed0360-wizard-world-tour cappedStretch=249 (cap-stable).",
+        "sessions": [
+          "seed0360-wizard-world-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0360-wizard-world-tour",
+            "evidence": "At steps 135-137, doputon selects wished +3 speed boots. C setworn installs W_ARMF and FAST, changes AC, installs Boots_on as afternmv, and nomul(-2) starts two dressing turns. unmul prints the completion; Boots_on sees no other FAST or timed HFast, calls makeknown, prints the speed-up message, marks enchantment known, and refreshes inventory. JavaScript currently refuses before setworn and those effects."
+          }
+        ]
+      },
+      "detail": "Scope SPEED_BOOTS Boots_on and its common tail only. Existing canwearobj, setworn property effects, nomul/unmul, discovery, and plain-boots tail are ported. Pin no prior FAST, permanent intrinsic FAST, another extrinsic FAST, and timed HFast. Boots_off and other magical boot types remain outside.",
+      "slices": [],
+      "openedAt": "cee2428a9c70173d673ed59c3f91478d101eb7d3",
+      "openStanding": {
+        "sha": "778cadf3f429acbd723abe274a09c21c488f857c",
+        "screens": 2378,
+        "rng": 155956
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
