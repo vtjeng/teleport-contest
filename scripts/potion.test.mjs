@@ -13,7 +13,8 @@ import test from 'node:test';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
-    BLINDED, FAST, FROMOUTSIDE, INVIS, SEE_INVIS, TIMEOUT,
+    BLINDED, CONFUSION, FAST, FROMOUTSIDE, HALLUC, HALLUC_RES, INVIS,
+    SEE_INVIS, TIMEOUT,
 } from '../js/const.js';
 import { trycall } from '../js/do.js';
 import { UnsupportedObjectNamingError, docall } from '../js/do_name.js';
@@ -54,10 +55,13 @@ import {
     UnsupportedPotionError,
     UnsupportedQuaffError,
     incr_itimeout,
+    make_confused,
+    peffects,
     potionbreathe,
     set_itimeout,
     speed_up,
 } from '../js/potion.js';
+import { enableRngLog, getRngLog } from '../js/rng.js';
 
 const POTION_TYPES = Object.freeze({
     POT_GAIN_ABILITY,
@@ -436,6 +440,153 @@ test('incr_itimeout saturates at TIMEOUT instead of overflowing', () => {
     const prop = { intrinsic: TIMEOUT - 10 };
     incr_itimeout(prop, 100);
     assert.equal(prop.intrinsic & TIMEOUT, TIMEOUT);
+});
+
+// ---------------------------------------------------------------------------
+// make_confused() and peffect_confusion()
+// C ref: potion.c make_confused() (89-104) and peffect_confusion()
+// (1014-1027). The effect has distinct feedback for a newly confused sober
+// hero, a newly confused hallucinating hero, and an already confused hero.
+// ---------------------------------------------------------------------------
+
+test('make_confused updates only status transitions and clears with feedback',
+    async () => {
+    await startedGame(771006, 'ConfusionState');
+    const hero = game.u;
+    const confusion = hero.uprops[CONFUSION];
+    const hallucination = hero.uprops[HALLUC];
+    const resistance = hero.uprops[HALLUC_RES];
+
+    confusion.intrinsic = 0;
+    game.disp.botl = false;
+    // 25 is a positive timeout chosen to cross from no confusion to
+    // confusion; make_confused() marks the status line only at that boundary.
+    await make_confused(25, false, game);
+    assert.equal(confusion.intrinsic & TIMEOUT, 25);
+    assert.equal(game.disp.botl, true);
+
+    game.disp.botl = false;
+    // 40 keeps confusion active, so C changes the timeout without marking the
+    // status line for a condition transition.
+    await make_confused(40, false, game);
+    assert.equal(confusion.intrinsic & TIMEOUT, 40);
+    assert.equal(game.disp.botl, false);
+
+    clearTopline();
+    await make_confused(0, true, game);
+    assert.equal(confusion.intrinsic & TIMEOUT, 0);
+    assert.equal(toplines(), 'You feel less confused now.');
+    assert.equal(game.disp.botl, true);
+
+    // Start confusion again before checking Hallucination's alternate clear
+    // wording. The positive timeout crosses the same status boundary as 25.
+    await make_confused(12, false, game);
+    hallucination.intrinsic = 1;
+    resistance.intrinsic = 0;
+    resistance.extrinsic = 0;
+    game.disp.botl = false;
+    clearTopline();
+    // Zero clears confusion. With Hallucination active, potion.c says
+    // "less trippy" rather than "less confused" when talk is true.
+    await make_confused(0, true, game);
+    assert.equal(confusion.intrinsic & TIMEOUT, 0);
+    assert.equal(toplines(), 'You feel less trippy now.');
+    assert.equal(game.disp.botl, true);
+
+    // Unaware is gm.multi < 0 plus unconscious(). "You awake" is one of the
+    // three pending-message prefixes trap.c unconscious() recognizes. It
+    // suppresses feedback but does not suppress the state transition.
+    confusion.intrinsic = 15;
+    game.multi = -1;
+    game.nomovemsg = 'You awake.';
+    game.disp.botl = false;
+    clearTopline();
+    await make_confused(0, true, game);
+    assert.equal(confusion.intrinsic & TIMEOUT, 0);
+    assert.equal(toplines(), '');
+    assert.equal(game.disp.botl, true);
+});
+
+test('a sober confusion potion prints its message and draws its timeout',
+    async () => {
+    await startedGame(771007, 'ConfusionSober');
+    const potion = vaporPotion(POT_CONFUSION);
+    const confusion = game.u.uprops[CONFUSION];
+    confusion.intrinsic = 0;
+    game.u.uprops[HALLUC].intrinsic = 0;
+    game.gp.potion_nothing = 0;
+    game.gp.potion_unkn = 0;
+    game.disp.botl = false;
+    clearTopline();
+    enableRngLog();
+
+    const result = await peffects(potion, game);
+    const [call] = getRngLog();
+    const draw = Number(/^rn2\(7\)=([0-6])$/u.exec(call)?.[1]);
+
+    assert.equal(result, -1);
+    assert.equal(toplines(), 'Huh, What?  Where am I?');
+    assert.equal(game.gp.potion_nothing, 0);
+    assert.equal(game.gp.potion_unkn, 0);
+    assert.deepEqual(getRngLog(), [`rn2(7)=${draw}`]);
+    // An uncursed potion uses rn1(7, 16), so its timeout is 16 plus the
+    // recorded zero-to-six draw.
+    assert.equal(confusion.intrinsic & TIMEOUT, 16 + draw);
+    assert.equal(game.disp.botl, true);
+});
+
+test('a hallucinating hero gets the trippy confusion feedback', async () => {
+    await startedGame(771008, 'ConfusionHallu');
+    const potion = vaporPotion(POT_CONFUSION);
+    potion.blessed = true;
+    potion.cursed = false;
+    const confusion = game.u.uprops[CONFUSION];
+    confusion.intrinsic = 0;
+    game.u.uprops[HALLUC].intrinsic = 30;
+    game.u.uprops[HALLUC_RES].intrinsic = 0;
+    game.u.uprops[HALLUC_RES].extrinsic = 0;
+    game.gp.potion_nothing = 0;
+    game.gp.potion_unkn = 0;
+    clearTopline();
+    enableRngLog();
+
+    await peffects(potion, game);
+    const [call] = getRngLog();
+    const draw = Number(/^rn2\(7\)=([0-6])$/u.exec(call)?.[1]);
+
+    assert.equal(toplines(), 'What a trippy feeling!');
+    assert.equal(game.gp.potion_nothing, 0);
+    assert.equal(game.gp.potion_unkn, 1);
+    // A blessed potion uses rn1(7, 8), the shortest of the three BUC bases.
+    assert.equal(confusion.intrinsic & TIMEOUT, 8 + draw);
+});
+
+test('an already confused hero gets no direct feedback and a longer timeout',
+    async () => {
+    await startedGame(771009, 'ConfusionAgain');
+    const potion = vaporPotion(POT_CONFUSION);
+    potion.blessed = false;
+    potion.cursed = true;
+    const confusion = game.u.uprops[CONFUSION];
+    // 20 is an existing timeout chosen to take peffect_confusion()'s
+    // Confusion arm and make_confused()'s active-to-active transition.
+    confusion.intrinsic = 20;
+    game.gp.potion_nothing = 0;
+    game.gp.potion_unkn = 0;
+    game.disp.botl = false;
+    clearTopline();
+    enableRngLog();
+
+    await peffects(potion, game);
+    const [call] = getRngLog();
+    const draw = Number(/^rn2\(7\)=([0-6])$/u.exec(call)?.[1]);
+
+    assert.equal(toplines(), '');
+    assert.equal(game.gp.potion_nothing, 1);
+    assert.equal(game.gp.potion_unkn, 0);
+    // A cursed potion adds rn1(7, 24) to the existing 20-turn timeout.
+    assert.equal(confusion.intrinsic & TIMEOUT, 20 + 24 + draw);
+    assert.equal(game.disp.botl, false);
 });
 
 // ---------------------------------------------------------------------------

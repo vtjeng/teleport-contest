@@ -5164,6 +5164,16 @@
       "status": "open",
       "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
       "detail": "Port artifact invocation for the item-actions Invoke arm through the next observable result, preserving cooldown, state, and PRNG order."
+    },
+    {
+      "id": "quaff-confusion-hallucinating-feedback",
+      "area": "objects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "eba0afaf5f4f473572ab75ebb1b059907065fa0f",
+      "detail": "potion.c peffect_confusion():1016-1020 prints \"What a trippy feeling!\" and increments gp.potion_unkn when a hero who is not confused is hallucinating. js/potion.js implements that arm, and scripts/potion.test.mjs pins its message, counter, blessed rn1(7, 8) timeout, and status transition from direct state. It has no strict fresh differential because every input-level Hallucination setup stops before this effect: POT_HALLUCINATION needs peffect_hallucination(), a yellow-mold corpse needs make_hallucinated(), black-light attacks need the AD_HALU explosion arm, trapped-chest gas needs chest_trap(), and #wizintrinsic is not dispatched. A fresh C recording at seed 812302, datetime 20310203091500, with playmode:debug, pettype:none, !autopickup and !debug_mongen used moves `.\\x17blessed potion of confusion\\n#wizintrinsic\\nh\\n qn`; its final `n` recorded rn2(7)=6 at peffect_confusion() and \"What a trippy feeling!\". This case is outside quaff-peffect-confusion first-stop witness and common sober path. Closing condition: after peffect_hallucination() supplies a replayable Hallucination setup, add the setup before the blessed confusion potion and require strict PRNG, screen, cursor, attribute, and persisted-state parity through the next command boundary.",
+      "blockedOn": "peffect_hallucination"
     }
   ],
   "areas": [

@@ -1,6 +1,7 @@
 // potion.js -- quaffing and vapor effects for potions.
 // C ref: src/potion.c dodrink() (526-615), drink_ok() (505-521),
 //        dopotion() (618-641), peffects() (1333-1425),
+//        make_confused() (89-104), peffect_confusion() (1014-1027),
 //        peffect_speed() (1052-1070), peffect_oil() (1259-1294),
 //        speed_up() (2918-2928),
 //        itimeout/itimeout_incr/set_itimeout/incr_itimeout (55-86),
@@ -10,8 +11,8 @@
 // fountain/sink, underwater, worn-potion, milky/smoky are fail-closed;
 // the common path calls getobj() -> dopotion() -> peffects().
 //
-// peffects() dispatches 26 potion types; POT_SPEED (with spell alias
-// SPE_HASTE_SELF) and POT_OIL are ported. The other 24 arms throw
+// peffects() dispatches 26 potion types; POT_CONFUSION, POT_SPEED (with spell
+// alias SPE_HASTE_SELF), and POT_OIL are ported. The other 23 arms throw
 // UnsupportedQuaffError.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
@@ -21,12 +22,14 @@ import {
     A_DEX,
     A_WIS,
     BLINDED,
+    CONFUSION,
     DEAF,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
     FACE,
     FAST,
+    FAINTED,
     FROMOUTSIDE,
     HALLUC,
     GETOBJ_EXCLUDE,
@@ -63,6 +66,7 @@ import { discover_object } from './o_init.js';
 import { body_part } from './polyself.js';
 import { d, rn1 } from './rng.js';
 import { burn_away_slime } from './timeout.js';
+import { unconscious } from './trap.js';
 import { vision_recalc } from './vision.js';
 import { Cold_resistance, Fire_resistance } from './zap.js';
 import {
@@ -115,7 +119,8 @@ export class UnsupportedPotionError extends Error {
 }
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
-// ported: the 24 potion types besides POT_SPEED and POT_OIL, and the
+// ported: the 23 potion types besides POT_CONFUSION, POT_SPEED, and POT_OIL,
+// and the
 // strangled, fountain, sink, underwater, worn-potion, milky and smoky
 // branches of dodrink().
 export class UnsupportedQuaffError extends Error {
@@ -155,6 +160,68 @@ export function set_itimeout(prop, val) {
 // C ref: potion.c incr_itimeout() (82-86). Increment the timeout field.
 export function incr_itimeout(prop, incr) {
     set_itimeout(prop, itimeout_incr(prop.intrinsic, incr));
+}
+
+// C ref: youprop.h:399 Unaware. trap.c unconscious() owns the pending-message
+// half; eat.c is_fainted() is the `u.uhs == FAINTED` half.
+function Unaware(state) {
+    return Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || state.u?.uhs === FAINTED);
+}
+
+// C ref: potion.c make_confused() (89-104). Replace HConfusion's timeout,
+// report a cleared condition when requested, and mark the status line only
+// when confusion starts or ends.
+export async function make_confused(xtime, talk, state = game) {
+    const prop = state.u.uprops[CONFUSION] ??= {
+        intrinsic: 0,
+        extrinsic: 0,
+    };
+    const old = prop.intrinsic;
+
+    if (Unaware(state)) talk = false;
+
+    if (!xtime && old && talk) {
+        await ttyPline(
+            `You feel less ${Hallucination(state) ? 'trippy' : 'confused'} now.`,
+            state,
+        );
+    }
+    if ((xtime && !old) || (!xtime && old))
+        state.disp.botl = true;
+
+    set_itimeout(prop, xtime);
+}
+
+// ---------------------------------------------------------------------------
+// peffect_confusion
+// C ref: potion.c peffect_confusion() (1014-1027).
+// ---------------------------------------------------------------------------
+
+async function peffect_confusion(otmp, state = game) {
+    const prop = state.u.uprops[CONFUSION] ??= {
+        intrinsic: 0,
+        extrinsic: 0,
+    };
+
+    if (!prop.intrinsic) {
+        if (Hallucination(state)) {
+            await ttyPline('What a trippy feeling!', state);
+            state.gp.potion_unkn++;
+        } else {
+            await ttyPline('Huh, What?  Where am I?', state);
+        }
+    } else {
+        state.gp.potion_nothing++;
+    }
+    await make_confused(
+        itimeout_incr(
+            prop.intrinsic,
+            rn1(7, 16 - 8 * bcsign(otmp)),
+        ),
+        false,
+        state,
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -294,7 +361,8 @@ export async function peffects(otmp, state = game) {
     case POT_SICKNESS:
         throw new UnsupportedQuaffError('peffect_sickness()');
     case POT_CONFUSION:
-        throw new UnsupportedQuaffError('peffect_confusion()');
+        await peffect_confusion(otmp, state);
+        break;
     case POT_GAIN_ABILITY:
         throw new UnsupportedQuaffError('peffect_gain_ability()');
     case POT_SPEED:
