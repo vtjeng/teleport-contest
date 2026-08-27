@@ -5198,7 +5198,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "secret-door-detection-empty-findit",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "a04d2e3286361690e9975f22662504c2f7626adb",
       "openStanding": {
         "sha": "35c8e9f4d8cade1781b4a66ce61f75353829ec92",
