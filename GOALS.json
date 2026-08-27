@@ -5516,8 +5516,8 @@
       "slices": [
         {
           "name": "pet-swap-arrival-autopickup",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "6539044ccf40a394afbc67895a296d92a0ed3c4b"
         }
       ],
       "openedAt": "08e07d09fbfe1c8f17a120bc48c094b3693343ef",
