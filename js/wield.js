@@ -79,6 +79,7 @@ import { ttyPline } from './tty_message.js';
 import {
     bimanual,
     set_twoweap,
+    setuqwep,
     setuswapwep,
     setuwep,
 } from './worn.js';
@@ -449,6 +450,18 @@ function cant_wield_corpse(obj, state) {
     throw new UnsupportedWieldError('instapetrify()');
 }
 
+// C ref: wield.c ready_ok() (291-327), through its null-object branch at
+// 293-294. Null represents the '-' choice: clearing an occupied quiver is
+// suggested, while redundantly clearing an empty one remains selectable but
+// is downplayed. Ordinary-item classification belongs to later quiver slices.
+function ready_ok(obj, state) {
+    if (!obj)
+        return state.uquiver ? GETOBJ_SUGGEST : GETOBJ_DOWNPLAY;
+    throw new UnsupportedWieldError(
+        'ready_ok() classification for an ordinary inventory item',
+    );
+}
+
 // C ref: wield.c wield_ok() (330-343), the getobj callback for #wield.
 // Coins are excluded, weapons and weapon-tools are suggested, and everything
 // else is downplayed (the hero can wield anything). Null (the "-" hands
@@ -596,4 +609,42 @@ export async function doswapweapon(state = game) {
         await untwoweapon(state);
 
     return result;
+}
+
+// C ref: wield.c dowieldquiver() (503-506), the #quiver command.
+export async function dowieldquiver(state = game) {
+    return doquiver_core('ready', state);
+}
+
+// C ref: wield.c doquiver_core() (509-668), through the queued hands_obj arm
+// at 532-544. The ordinary-item branches remain fail-closed below: they split
+// stacks, negotiate weapon slots, or refill #fire and belong to later slices.
+export async function doquiver_core(verb, state = game) {
+    state.multi = 0;
+    if (!state.invent) {
+        await ttyPline('You have nothing to ready for firing.', state);
+        return ECMD_OK;
+    }
+
+    clear_splitobjs(state);
+    const newquiver = await getobj(
+        verb, (obj) => ready_ok(obj, state),
+        GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
+    );
+
+    if (!newquiver)
+        return ECMD_CANCEL;
+    if (newquiver === hands_obj) {
+        if (state.uquiver) {
+            await ttyPline('You now have no ammunition readied.', state);
+            setuqwep(null, setwornEnv(state));
+        } else {
+            await ttyPline('You already have no ammunition readied!', state);
+        }
+        return ECMD_OK;
+    }
+
+    throw new UnsupportedWieldError(
+        'doquiver_core() with an ordinary inventory item',
+    );
 }

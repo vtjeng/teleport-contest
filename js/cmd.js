@@ -161,6 +161,7 @@ import {
 import {
     doswapweapon,
     dotwoweapon,
+    dowieldquiver,
     dowield,
     UnsupportedTwoWeaponError,
     UnsupportedWieldError,
@@ -2735,6 +2736,21 @@ export async function rhack(key, state = game) {
             // 3773-3800 can divert it.
             const res = await failClosedCommand(
                 key, state, () => dowield(state),
+            );
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'quiver') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3825.
+            // doquiver_core() answers ECMD_CANCEL for a cancelled prompt and
+            // ECMD_OK when the queued '-' clears the quiver. Quiver changes
+            // consume no time unless a later ordinary-item branch unwields a
+            // weapon, so this slice reaches only the cost-free result.
+            const res = await failClosedCommand(
+                key, state, () => dowieldquiver(state),
             );
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)

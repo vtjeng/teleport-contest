@@ -28,6 +28,7 @@ import {
     W_ARMH,
     W_ARMS,
     W_ARMU,
+    W_QUIVER,
     W_SWAPWEP,
 } from '../js/const.js';
 import {
@@ -237,6 +238,44 @@ test('the queued alternate item action ends two-weapon combat through rhack',
             state._pending_message,
             'You are no longer wielding two weapons at once.',
         );
+    });
+
+test('the queued quiver item action clears the ammunition slot through rhack',
+    async () => {
+        const state = catalogState();
+        state.u.uprops = Array.from(
+            { length: LAST_PROP + 1 },
+            () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 }),
+        );
+        const ammunition = fakeObj(DAGGER, {
+            // W_QUIVER is the slot that IA_UNWIELD routes through #quiver.
+            invlet: 'a', owornmask: W_QUIVER,
+        });
+        state.invent = ammunition;
+        state.uquiver = ammunition;
+        state.context = {};
+        state.nhDisplay = new GameDisplay(null);
+        state.program_state = {};
+
+        // iactions.c:148-153 queues #quiver and HANDS_SYM. The '-' action
+        // executes doquiver_core("ready") through the same canned queue used
+        // by the running inventory command.
+        await itemactions(ammunition, state, {
+            selectMenu: async (_state, spec) =>
+                spec.items.find(item => item.selector === '-').value,
+        });
+        await rhack(0, state);
+
+        assert.equal(state.uquiver, null);
+        assert.equal(ammunition.owornmask & W_QUIVER, 0);
+        // cmd.c:3841 records a cost-free command as numeric false in the
+        // flattened context state.
+        assert.equal(state.context.move, 0);
+        assert.equal(
+            state._pending_message,
+            'You now have no ammunition readied.',
+        );
+        assert.equal(cmdq_pop(state), null);
     });
 
 test('itemactions names full ring slots as fingers', async () => {
