@@ -5513,7 +5513,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "pet-swap-arrival-autopickup",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "08e07d09fbfe1c8f17a120bc48c094b3693343ef",
       "openStanding": {
         "sha": "9179d1fc72820518aefa45f3d7e98b2193e58b34",
