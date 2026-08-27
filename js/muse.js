@@ -12,27 +12,35 @@ import {
     M_SEEN_MAGR,
     M_SEEN_REFL,
     M_SEEN_SLEEP,
+    LADDER,
     NON_PM,
     OBJ_FLOOR,
     P_DAGGER,
     P_KNIFE,
     POLY_TRAP,
+    STAIRS,
+    TELEP_TRAP,
     SEE_INVIS,
     W_ACCESSORY,
     W_ARMOR,
     W_ARMF,
     W_ARMG,
     W_SADDLE,
+    helpless,
+    is_hole,
     isok,
 } from './const.js';
+import { Can_fall_thru } from './dungeon.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
 import {
     acidic, attacktype, breathless, dmgtype, has_head, is_animal, is_floater,
-    is_unicorn, is_vampshifter, mindless, needspick, nohands, nonliving,
+    is_mercenary, is_unicorn, is_vampshifter, mindless, needspick, nohands,
+    nonliving,
     passes_walls, slimeproof, throws_rocks, touch_petrifies, verysmall,
 } from './mondata.js';
 import * as M from './monsters.js';
+import { m_at } from './monst.js';
 import {
     isContainer,
     objectType,
@@ -43,6 +51,7 @@ import { monnear, onscary } from './monmove.js';
 import { lined_up } from './mthrowu.js';
 import { in_your_sanctuary } from './priest.js';
 import { rn2 } from './rng.js';
+import { stairway_at } from './stairs.js';
 import { t_at } from './trap.js';
 import { mwelded } from './wield.js';
 import { which_armor } from './worn.js';
@@ -70,6 +79,23 @@ function healingAction(monster) {
         }
     }
     return null;
+}
+
+// C ref: muse.c m_sees_sleepy_soldier() (361-381).
+function m_sees_sleepy_soldier(monster, state) {
+    for (let x = monster.mx - 3; x <= monster.mx + 3; ++x) {
+        for (let y = monster.my - 3; y <= monster.my + 3; ++y) {
+            if (!isok(x, y) || (x === monster.mx && y === monster.my))
+                continue;
+            const soldier = m_at(x, y, state);
+            if (soldier && is_mercenary(soldier.data)
+                && soldier.data?.pmidx !== M.PM_GUARD
+                && helpless(soldier)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 function canLetGoWithoutDiscovery(obj, state) {
@@ -202,59 +228,183 @@ export function select_misc_action(monster, rawEnv = {}) {
     return selected;
 }
 
-// Complete source path for an ordinary, unaltered initial monster. The
-// full-health branch makes find_defensive(FALSE) inert before its escape and
-// inventory scan; all find_misc() selection gates then run in source order.
-export function select_fresh_monster_item_action(monster, rawEnv = {}) {
+// C ref: muse.c find_defensive() (441-750). This partial port returns the
+// selected action rather than C's Boolean because use_defensive() remains
+// outside the simple-turn boundary. Every action that would make C return
+// TRUE therefore reaches the caller's fail-closed monster-item boundary.
+//
+// The FALSE path is complete for an unaltered ordinary hostile: it preserves
+// the wound threshold, physical-escape search, nohands and bugle gates, and
+// inventory rejection order. Branches that need unported selection details
+// return a conservative action before spending selection RNG. The planning
+// pass discards that state when the caller refuses the action.
+export function find_defensive(monster, tryescape, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const species = monster.data;
-    if (!is_animal(species) && !mindless(species)
-        && dist2(
-            monster.mx,
-            monster.my,
-            monster.mux,
-            monster.muy,
-        ) <= 25) {
-        if (monster.mconf || monster.mstun) {
-            return { kind: 'altered defensive state', object: null };
-        }
-        if (!monster.mcansee) {
-            if (!nohands(species)) {
-                for (let obj = monster.minvent; obj; obj = obj.nobj) {
-                    if (obj.otyp === O.UNICORN_HORN && !obj.cursed)
-                        return { kind: 'unicorn horn', object: obj };
-                }
-            }
-            if (is_unicorn(species)
-                || species?.pmidx === M.PM_KI_RIN) {
-                return { kind: 'unicorn horn', object: null };
-            }
-            if (!nohands(species)
-                && species?.pmidx !== M.PM_PESTILENCE) {
-                const healing = healingAction(monster);
-                if (healing) return healing;
+    const hero = state.u;
+    const selected = (kind, object = null) => ({ kind, object });
+
+    // find_defensive(TRUE) serves fleeing monsters and has a Knox-specific
+    // adjacency guard. This slice owns only dochug()'s FALSE call.
+    if (tryescape) return selected('escape defensive search');
+    if (is_animal(species) || mindless(species)) return null;
+    if (dist2(monster.mx, monster.my, monster.mux, monster.muy) > 25)
+        return null;
+    if (hero?.uswallow && monster === hero.ustuck) return null;
+
+    // Confusion and stun can select a unicorn horn, lizard corpse, or lizard
+    // tin and may spend rn2(3). Keep the whole altered-state family closed.
+    if (monster.mconf || monster.mstun)
+        return selected('altered defensive state');
+
+    if (!monster.mcansee) {
+        if (!nohands(species)) {
+            for (let obj = monster.minvent; obj; obj = obj.nobj) {
+                if (obj.otyp === O.UNICORN_HORN && !obj.cursed)
+                    return selected('unicorn horn', obj);
             }
         }
-        if (!monster.mpeaceful && !nohands(species)
-            && state.uwep?.otyp === O.CORPSE) {
-            return { kind: 'corpse defense evaluation', object: null };
-        }
-        const fraction = (state.u?.ulevel ?? 1) < 10
-            ? 5
-            : (state.u?.ulevel ?? 1) < 14 ? 4 : 3;
-        if (monster.mhp < monster.mhpmax
-            && (monster.mhp < 10
-                || monster.mhp * fraction < monster.mhpmax)) {
-            if (monster.mpeaceful) {
-                if (!nohands(species)) {
-                    const healing = healingAction(monster);
-                    if (healing) return healing;
-                }
-                return select_misc_action(monster, rawEnv);
-            }
-            return { kind: 'wounded defensive state', object: null };
+        if (is_unicorn(species) || species?.pmidx === M.PM_KI_RIN)
+            return selected('unicorn horn');
+        if (!nohands(species) && species?.pmidx !== M.PM_PESTILENCE) {
+            const healing = healingAction(monster);
+            if (healing) return healing;
         }
     }
+
+    // The full corpse-wielding predicate also checks petrification,
+    // polymorph-on-stoning, resistance, and lined_up(). Refuse before those
+    // unported details whenever the arm could apply.
+    if (!monster.mpeaceful && !nohands(species)
+        && state.uwep?.otyp === O.CORPSE) {
+        return selected('corpse defense evaluation');
+    }
+
+    const fraction = (hero?.ulevel ?? 1) < 10
+        ? 5
+        : (hero?.ulevel ?? 1) < 14 ? 4 : 3;
+    if (monster.mhp >= monster.mhpmax
+        || (monster.mhp >= 10
+            && monster.mhp * fraction >= monster.mhpmax)) {
+        return null;
+    }
+    if (monster.mpeaceful) {
+        if (!nohands(species)) {
+            const healing = healingAction(monster);
+            if (healing) return healing;
+        }
+        return null;
+    }
+
+    const stuck = monster === hero?.ustuck;
+    const immobile = species?.mmove === 0;
+    let physicalEscape = null;
+    if (!stuck && !immobile && !monster.mtrapped) {
+        const terrain = state.level?.at?.(monster.mx, monster.my)?.typ;
+        if (terrain === STAIRS || terrain === LADDER) {
+            const stair = stairway_at(monster.mx, monster.my, state);
+            if (stair) {
+                const sameDungeon = stair.tolev?.dnum === hero?.uz?.dnum;
+                if (stair.up && sameDungeon) {
+                    physicalEscape = selected(
+                        terrain === STAIRS ? 'upstairs' : 'up ladder',
+                    );
+                } else if (!stair.up && sameDungeon
+                    && !is_floater(species)) {
+                    physicalEscape = selected(
+                        terrain === STAIRS ? 'downstairs' : 'down ladder',
+                    );
+                } else if (!sameDungeon
+                    && (stair.up || !is_floater(species))) {
+                    physicalEscape = selected('special stairs');
+                }
+            }
+        } else {
+            const ignoresBoulders = verysmall(species)
+                || throws_rocks(species)
+                || passes_walls(species);
+            const diagonal = species?.pmidx !== M.PM_GRID_BUG;
+            const spots = [[monster.mx, monster.my]];
+            for (let x = monster.mx - 1; x <= monster.mx + 1; ++x) {
+                for (let y = monster.my - 1; y <= monster.my + 1; ++y) {
+                    if (isok(x, y)
+                        && (x !== monster.mx || y !== monster.my)) {
+                        spots.push([x, y]);
+                    }
+                }
+            }
+            for (const [x, y] of spots) {
+                if ((hero?.ux === x && hero?.uy === y)
+                    || (!diagonal && x !== monster.mx && y !== monster.my)
+                    || ((x !== monster.mx || y !== monster.my)
+                        && state.level?.monsters?.[x]?.[y])) {
+                    continue;
+                }
+                const trap = t_at(x, y, state);
+                if (!trap
+                    || (!ignoresBoulders
+                        && sobj_at(O.BOULDER, x, y, state))
+                    || onscary(x, y, monster, state)) {
+                    continue;
+                }
+                if (is_hole(trap.ttyp)
+                    && !is_floater(species)
+                    && !monster.isshk && !monster.isgd
+                    && !monster.ispriest
+                    && Can_fall_thru(hero.uz, state)) {
+                    // A hole ends C's scan and takes precedence over a
+                    // teleport trap found earlier.
+                    physicalEscape = selected('trapdoor');
+                    break;
+                }
+                if (trap.ttyp === TELEP_TRAP)
+                    physicalEscape = selected('teleport trap');
+            }
+        }
+    }
+
+    if (nohands(species)) return physicalEscape;
+    if (is_mercenary(species) && m_sees_sleepy_soldier(monster, state)) {
+        for (let obj = monster.minvent; obj; obj = obj.nobj) {
+            if (obj.otyp === O.BUGLE) return selected('bugle', obj);
+        }
+    }
+    if (physicalEscape) return physicalEscape;
+
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        // These are find_defensive()'s complete object families. Conditions
+        // beyond object identity and charge are deliberately conservative:
+        // accepting a possible TRUE arm would skip use_defensive(), whereas
+        // refusing it preserves the fail-closed boundary.
+        if (obj.otyp === O.WAN_DIGGING && obj.spe > 0)
+            return selected('digging wand', obj);
+        if (obj.otyp === O.WAN_TELEPORTATION && obj.spe > 0)
+            return selected('teleportation wand', obj);
+        if (obj.otyp === O.SCR_TELEPORTATION)
+            return selected('teleportation scroll', obj);
+        if (obj.otyp === O.POT_FULL_HEALING)
+            return selected('full healing', obj);
+        if (obj.otyp === O.POT_EXTRA_HEALING)
+            return selected('extra healing', obj);
+        if (obj.otyp === O.WAN_CREATE_MONSTER && obj.spe > 0)
+            return selected('create monster wand', obj);
+        if (obj.otyp === O.POT_HEALING)
+            return selected('healing', obj);
+        if (obj.otyp === O.POT_SICKNESS
+            && species?.pmidx === M.PM_PESTILENCE) {
+            return selected('pestilence healing', obj);
+        }
+        if (obj.otyp === O.SCR_CREATE_MONSTER)
+            return selected('create monster scroll', obj);
+    }
+    return null;
+}
+
+// Complete source path through dochug()'s find_defensive(FALSE), followed by
+// find_misc(). Any selected action remains outside the simple-turn boundary.
+export function select_fresh_monster_item_action(monster, rawEnv = {}) {
+    const defensive = find_defensive(monster, false, rawEnv);
+    if (defensive) return defensive;
     return select_misc_action(monster, rawEnv);
 }
 

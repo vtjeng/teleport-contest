@@ -22,6 +22,7 @@ import {
     can_blow,
     cures_stoning,
     find_offensive,
+    find_defensive,
     mcould_eat_tin,
     searches_for_item,
     select_fresh_monster_item_action,
@@ -40,6 +41,7 @@ import {
     PM_FLOATING_EYE,
     PM_GHOST,
     PM_GNOME,
+    PM_GOBLIN,
     PM_HUMAN,
     PM_JACKAL,
     PM_NURSE,
@@ -66,6 +68,7 @@ import {
     GLOB_OF_GREEN_SLIME,
     LARGE_BOX,
     LONG_SWORD,
+    ORCISH_DAGGER,
     POT_ACID,
     POT_BLINDNESS,
     POT_CONFUSION,
@@ -250,6 +253,31 @@ test('find_misc preserves trap precedence and inert-container RNG', () => {
     );
     assert.deepEqual(bounds, [5]);
 });
+
+test('a wounded ordinary hostile with an inert weapon selects no item action',
+    () => {
+        const state = makeSelectionState();
+        const monster = makeMonster(state, PM_GOBLIN, {
+            cham: -1,
+            // Three of four hit points reaches find_defensive(FALSE)'s wounded
+            // search while staying below its level-1 healing threshold.
+            mhp: 3,
+            mhpmax: 4,
+            minvent: makeObject(state, ORCISH_DAGGER),
+            mspeed: 0,
+            mux: state.u.ux,
+            muy: state.u.uy,
+        });
+        const random = {
+            rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
+        };
+
+        assert.equal(find_defensive(monster, false, { state, random }), null);
+        assert.equal(
+            select_fresh_monster_item_action(monster, { state, random }),
+            null,
+        );
+    });
 
 test('can_blow preserves the silent-or-buzzing anatomy conjunction', () => {
     const state = makeState();
