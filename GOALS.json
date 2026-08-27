@@ -4921,7 +4921,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "quaff-confusion-effect",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "f3e825a2a1321a437db8b115f65727d056e2dad8",
       "openStanding": {
         "sha": "050d36053775ba49dbe137566ff8c331d6b4bd1e",
