@@ -29,7 +29,6 @@ import {
 import {
     cmdq_add_key,
     cmdq_pop,
-    extcmdRow,
 } from '../js/cmd.js';
 import { itemactions } from '../js/iactions.js';
 import {
@@ -40,7 +39,6 @@ import {
 import { check_invent_gold } from '../js/invent.js';
 import {
     is_blade,
-    objectType,
 } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import {
@@ -55,9 +53,7 @@ import {
     ARMOR_CLASS,
     COIN_CLASS,
     DAGGER,
-    DART,
     FAKE_AMULET_OF_YENDOR,
-    FOOD_CLASS,
     GOLD_DRAGON_SCALE_MAIL,
     KATANA,
     LEATHER_GLOVES,
@@ -68,17 +64,11 @@ import {
     POT_HEALING,
     RING_CLASS,
     RIN_ADORNMENT,
-    SCROLL_CLASS,
-    SCR_IDENTIFY,
     SHIELD_OF_REFLECTION,
-    SMALL_SHIELD,
     SPBOOK_CLASS,
-    SPE_DETECT_MONSTERS,
     SPE_NOVEL,
     T_SHIRT,
     TOOL_CLASS,
-    WAND_CLASS,
-    WAN_STRIKING,
     WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
