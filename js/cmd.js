@@ -89,6 +89,8 @@ import {
     UnsupportedEngraveError,
 } from './engrave.js';
 import {
+    AUTOCOMPLETE,
+    CMD_NOT_AVAILABLE,
     CMD_M_PREFIX,
     CMD_gGF_PREFIX,
     CMD_PARAM,
@@ -107,7 +109,7 @@ import {
     tty_yn_function,
 } from './getline.js';
 import { game } from './gstate.js';
-import { mungspaces, visctrl } from './hacklib.js';
+import { mungspaces, strstri, strsubst, visctrl } from './hacklib.js';
 import {
     ddoinv,
     dolook,
@@ -155,7 +157,7 @@ import {
 import {
     displayTtyTextWindow, menuTitleStyle,
 } from './tty_menu.js';
-import { getlin, select_menu } from './windows.js';
+import { add_menu_heading, getlin, select_menu } from './windows.js';
 import {
     check_capacity,
     domove,
@@ -913,6 +915,94 @@ export function keyBindingLines(state = game) {
 
 export async function dokeylist(state = game) {
     await displayTtyTextWindow(state, keyBindingLines(state));
+}
+
+// C ref: cmd.c doc_extcmd_flagstr() (524-558). The empty-entry call appends
+// its two source footnotes; an ordinary entry returns the four-character flag
+// field which doextlist() right-aligns below.
+function doc_extcmd_flagstr(entry, flags, state = game) {
+    if (!entry) {
+        const prefix = visibleCommandKey(
+            keyForCommand(commandBindings(state), 'reqmenu'),
+        );
+        return [
+            { text: '[A] Command autocompletes' },
+            { text: `[m] Command accepts '${prefix}' prefix` },
+        ];
+    }
+    const mprefix = Boolean(flags & CMD_M_PREFIX);
+    const autocomplete = Boolean(flags & AUTOCOMPLETE);
+    return mprefix || autocomplete
+        ? `[${mprefix ? 'm' : ''}${autocomplete ? 'A' : ''}]`
+        : '';
+}
+
+// C ref: cmd.c doextlist() (562-707), through its first non-debug,
+// empty-search pass. The controls remain selectable so doextlist() can stop
+// at the precise input which enters the excluded toggle and search modes.
+export function extendedCommandListLines(state = game) {
+    const lines = [
+        { text: 'Extended Commands List' },
+        { text: '' },
+        { text: "a - Switch to excluding commands that don't autocomplete" },
+        { text: ': - Search extended commands' },
+        { text: '' },
+    ];
+    let headingAdded = false;
+    let count = 0;
+    for (let index = 0; index < extcmdlist.length; ++index) {
+        const entry = extcmdlist[index];
+        const flags = state.extcmdFlags?.[index] ?? entry.flags;
+        if (flags & (CMD_NOT_AVAILABLE | INTERNALCMD)) continue;
+        if (flags & WIZMODECMD) continue;
+
+        if (!headingAdded) {
+            lines.push(add_menu_heading('Extended commands', state));
+            headingAdded = true;
+        }
+        let description = entry.ef_desc;
+        if (!state.wizard && !state.discover
+            && (flags & GENERALCMD)
+            && strstri(description, 'extinct') >= 0) {
+            description = strsubst(
+                description,
+                ' been genocided or become extinct',
+                ' been genocided',
+            );
+        }
+        const flagText = doc_extcmd_flagstr(entry, flags, state);
+        lines.push({
+            text: ` ${entry.ef_txt.padEnd(14)} ${flagText.padStart(4)} ${description}`,
+        });
+        ++count;
+    }
+    if (count) lines.push({ text: '' });
+    lines.push(...doc_extcmd_flagstr(null, 0, state));
+    return lines;
+}
+
+export async function doextlist(state = game) {
+    if (state.wizard) {
+        throw new UnsupportedHelpError(
+            'debug sections in the extended-command list',
+        );
+    }
+    const choice = await select_menu(state, {
+        how: PICK_ONE,
+        title: null,
+        lines: extendedCommandListLines(state),
+        choices: new Map([['a', 1], [':', 2]]),
+        overlay: state.iflags?.menu_overlay !== false,
+        cancelValue: null,
+    });
+    if (choice !== null) {
+        throw new UnsupportedHelpError(
+            choice === 1
+                ? 'the extended-command autocomplete toggle'
+                : 'extended-command list search',
+        );
+    }
+    return ECMD_OK;
 }
 
 // C ref: cmd.c help_dir() (4170-4296). Displays direction help when cmdassist

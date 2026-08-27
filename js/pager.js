@@ -1065,6 +1065,13 @@ export async function dohelp(state = game) {
         await dokeylist(state);
         return ECMD_OK;
     }
+    if (choice === 11) {
+        // cmd.js imports pager.js for the live help command, so delay the
+        // source-owner edge until this help target dispatches.
+        const { doextlist } = await import('./cmd.js');
+        await doextlist(state);
+        return ECMD_OK;
+    }
     if (choice === 12) {
         await domenucontrols(state);
         return ECMD_OK;

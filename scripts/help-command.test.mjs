@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { cmdq_peek, key2extcmddesc, keyBindingLines } from '../js/cmd.js';
+import {
+    cmdq_peek,
+    extendedCommandListLines,
+    key2extcmddesc,
+    keyBindingLines,
+} from '../js/cmd.js';
 import { CMDQ_KEY, CQ_REPEAT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -35,6 +40,10 @@ import {
     HELP_MENU_CONTROLS_MOVES,
     loadHelpMenuControlsRecipe,
 } from './run-help-menu-controls.mjs';
+import {
+    HELP_EXTENDED_COMMANDS_MOVES,
+    loadHelpExtendedCommandsRecipe,
+} from './run-help-extended-commands.mjs';
 import {
     HELP_STATIC_CASES,
     loadHelpStaticRecipe,
@@ -231,6 +240,60 @@ test('standalone menu controls preserve the source columns and descriptions',
             '           Escape   Cancel menu without making any choice(s)',
         ]);
     });
+
+test('the default extended-command list preserves source filtering and rows',
+    async () => {
+        const segment = loadHelpExtendedCommandsRecipe().segments[0];
+        await runSegment({ ...segment, moves: ' ' });
+        const lines = extendedCommandListLines(game).map(({ text }) => text);
+
+        // cmd.c doextlist() contributes two controls, one ordinary heading,
+        // 129 available non-debug rows, one separator, and two flag notes.
+        assert.equal(lines.length, 138);
+        assert.deepEqual(lines.slice(0, 6), [
+            'Extended Commands List',
+            '',
+            'a - Switch to excluding commands that don\'t autocomplete',
+            ': - Search extended commands',
+            '',
+            'Extended commands',
+        ]);
+        assert(lines.includes(
+            ' genocided      [mA] list monsters that have been genocided',
+        ));
+        assert(!lines.some((line) => line.includes('become extinct')));
+        assert(!lines.some((line) => line.includes('wizrumorcheck')));
+        assert.deepEqual(lines.slice(-3), [
+            '',
+            '[A] Command autocompletes',
+            "[m] Command accepts 'm' prefix",
+        ]);
+    });
+
+test('the extended-command help target returns through the next command boundary',
+    () => withSerializedGrids(async () => {
+        const segment = loadHelpExtendedCommandsRecipe().segments[0];
+        assert.equal(segment.moves, HELP_EXTENDED_COMMANDS_MOVES);
+
+        // The final wait spends one turn, so compare against that command
+        // without the preceding help interaction.
+        const baseline = await runSegment({ ...segment, moves: '.' });
+        const baselineMoves = game.moves;
+        const baselineRng = baseline.getRngLog().length;
+
+        let boundary;
+        const replay = await runSegment(segment, {
+            onBoundary: (error) => { boundary = error; },
+        });
+        assert.equal(boundary, undefined);
+        assert.equal(game.context.pendingCommand, undefined);
+        assert.equal(game.moves, baselineMoves);
+        assert.equal(replay.getRngLog().length, baselineRng);
+        // Fresh C seed 481516 records startup, the help menu, six extended-
+        // command pages, the repaired map, and the final wait.
+        assert.equal(replay.getScreens().length, 11);
+        assert.equal(replay.getCursors().length, 11);
+    }));
 
 test('the standalone menu-controls target returns through the next command boundary',
     () => withSerializedGrids(async () => {
