@@ -16,6 +16,9 @@ import {
     CORPSTAT_MALE,
     CORPSTAT_RANDOM,
     ECMD_OK,
+    GETOBJ_DOWNPLAY,
+    GETOBJ_EXCLUDE,
+    GETOBJ_SUGGEST,
     FEMALE,
     HALLUC,
     HALLUC_RES,
@@ -44,7 +47,7 @@ import {
 import { artifact_exists, artifact_name, exist_artifact } from './artifacts.js';
 import { fruit_from_name } from './fruit.js';
 import { game } from './gstate.js';
-import { UnsupportedObjectOperationError, carried } from './obj.js';
+import { UnsupportedObjectOperationError, carried, objectType } from './obj.js';
 import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
@@ -67,7 +70,12 @@ import {
     PM_WIZARD_OF_YENDOR,
     SPECIAL_PM,
 } from './monsters.js';
-import { CORPSE, FIGURINE, STATUE } from './objects.js';
+import {
+    AMULET_CLASS, AMULET_OF_YENDOR, ARMOR_CLASS, COIN_CLASS,
+    CORPSE, FAKE_AMULET_OF_YENDOR, FIGURINE,
+    GEM_CLASS, OBJ_DESCR, POTION_CLASS, RING_CLASS, SCROLL_CLASS,
+    SPBOOK_CLASS, SPE_NOVEL, STATUE, TOOL_CLASS, VENOM_CLASS, WAND_CLASS,
+} from './objects.js';
 import { just_an } from './objnam.js';
 import { get_rnd_text } from './random_text.js';
 import { HLIQUIDS } from './random_text_data.js';
@@ -227,6 +235,57 @@ export function christen_monst(monster, name, env = {}) {
 }
 
 // An object-naming prompt this port cannot open yet.
+// C ref: do_name.c objtyp_is_callable() (429-463). Returns true when the
+// object type can be given a type-name by the player.
+export function objtyp_is_callable(otyp, state = game) {
+    const type = state.objects[otyp];
+    if (type.oc_uname) return true;
+    switch (type.oc_class) {
+    case AMULET_CLASS:
+        // Real and fake Amulets of Yendor are excluded to prevent the player
+        // from using naming to distinguish them.
+        if (otyp === AMULET_OF_YENDOR || otyp === FAKE_AMULET_OF_YENDOR)
+            break;
+        // fall through
+    case SCROLL_CLASS:
+    case POTION_CLASS:
+    case WAND_CLASS:
+    case RING_CLASS:
+    case GEM_CLASS:
+    case SPBOOK_CLASS:
+    case ARMOR_CLASS:
+    case TOOL_CLASS:
+    case VENOM_CLASS:
+        if (OBJ_DESCR(type, state)) return true;
+        break;
+    default:
+        break;
+    }
+    return false;
+}
+
+// C ref: do_name.c name_ok() (466-476). getobj() callback for an object to
+// give an individual name. Anything but gold qualifies; artifacts and novels
+// are downplayed.
+export function name_ok(obj, state = game) {
+    if (!obj || obj.oclass === COIN_CLASS) return GETOBJ_EXCLUDE;
+    if (!obj.dknown || obj.oartifact || obj.otyp === SPE_NOVEL)
+        return GETOBJ_DOWNPLAY;
+    return GETOBJ_SUGGEST;
+}
+
+// C ref: do_name.c call_ok() (480-495). getobj() callback for naming an
+// object's type. The object's type must be callable (have a description or
+// already have a user-assigned name).
+export function call_ok(obj, state = game) {
+    if (!obj || !objtyp_is_callable(obj.otyp, state)) return GETOBJ_EXCLUDE;
+    if (!obj.dknown
+        || (objectType(obj, state).oc_name_known
+            && !state.objects[obj.otyp].oc_uname))
+        return GETOBJ_DOWNPLAY;
+    return GETOBJ_SUGGEST;
+}
+
 export class UnsupportedObjectNamingError extends Error {
     constructor(reason) {
         super(`naming an object type requires ${reason}`);

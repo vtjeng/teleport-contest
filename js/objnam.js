@@ -31,7 +31,7 @@ import { obj_pmname, pmname } from './do_name.js';
 import { tin_details } from './eat.js';
 import { game } from './gstate.js';
 import {
-    digit, dist2, highc, lowc, mungspaces, s_suffix, strcasecpy,
+    digit, dist2, highc, lowc, mungspaces, s_suffix, strcasecpy, strstri,
 } from './hacklib.js';
 import { get_obj_location } from './light.js';
 import { cansee } from './vision.js';
@@ -56,6 +56,7 @@ import { JAPANESE_ITEM_NAMES } from './objnam_data.js';
 import {
     AKLYS,
     ALCHEMY_SMOCK, AMULET_CLASS, AMULET_OF_YENDOR, ARMOR_CLASS, ARM_BOOTS,
+    ARM_CLOAK, ARM_SUIT, ARM_SHIRT,
     BAG_OF_TRICKS,
     ARM_GLOVES, ARM_HELM, ARM_SHIELD, BALL_CLASS,
     BLACK_OPAL, BOULDER, BRASS_LANTERN, CANDELABRUM_OF_INVOCATION, CHAIN_CLASS,
@@ -283,6 +284,50 @@ export function gloves_simple_name(gloves, state = game) {
     return name?.toLowerCase().includes('gauntlets')
         ? 'gauntlets'
         : 'gloves';
+}
+
+// C ref: objnam.c boots_simple_name() (5551-5566). Returns "shoes" when the
+// description or the discovered name contains that word; "boots" otherwise.
+export function boots_simple_name(boots, state = game) {
+    if (boots?.dknown) {
+        const type = objectType(boots, state);
+        const actualn = OBJ_NAME(type, state) ?? '';
+        const descrpn = OBJ_DESCR(type, state) ?? '';
+        if (strstri(descrpn, 'shoes')
+            || (type.oc_name_known && strstri(actualn, 'shoes')))
+            return 'shoes';
+    }
+    return 'boots';
+}
+
+// C ref: objnam.c shield_simple_name() (5570-5596).
+export function shield_simple_name(shield, _state = game) {
+    if (shield) {
+        if (shield.otyp === SHIELD_OF_REFLECTION)
+            return shield.dknown ? 'silver shield' : 'smooth shield';
+    }
+    return 'shield';
+}
+
+// C ref: objnam.c shirt_simple_name() (5600-5603).
+export function shirt_simple_name(_shirt, _state = game) {
+    return 'shirt';
+}
+
+// C ref: objnam.c armor_simple_name() (5435-5468). Dispatches to the
+// category-specific simple-name function for the armor's category.
+export function armor_simple_name(armor, state = game) {
+    const type = objectType(armor, state);
+    switch (type.oc_armcat) {
+    case ARM_SUIT:    return suit_simple_name(armor, state);
+    case ARM_CLOAK:   return cloak_simple_name(armor, state);
+    case ARM_HELM:    return helm_simple_name(armor, state);
+    case ARM_GLOVES:  return gloves_simple_name(armor, state);
+    case ARM_BOOTS:   return boots_simple_name(armor, state);
+    case ARM_SHIELD:  return shield_simple_name(armor, state);
+    case ARM_SHIRT:   return shirt_simple_name(armor, state);
+    default:          return simpleonames(armor, state);
+    }
 }
 // C refs: objnam.c xname_flags():632-639, doname_base():1254-1262,
 // the_unique_obj():1108-1110 and add_erosion_words():1148. Each of those four
@@ -557,6 +602,11 @@ export function obj_is_pname(obj, state = game) {
     return !notFullyIdentified(obj, objectType(obj, state), state);
 }
 // C ref: objnam.c the_unique_obj() (1106-1117).
+// The public export resolves the type internally for callers that don't
+// already have it, matching the C function's single-argument signature.
+export function the_unique_obj(obj, state = game) {
+    return theUniqueObject(obj, objectType(obj, state), state);
+}
 function theUniqueObject(obj, type, state) {
     const { known, dknown } = identificationFlags(obj, type, state);
     if (!dknown) return false;

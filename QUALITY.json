@@ -5128,6 +5128,7 @@
         "js/extcmdlist_data.js",
         "js/getline.js",
         "js/hack.js",
+        "js/iactions.js",
         "js/input.js",
         "js/lock.js",
         "js/sit.js",

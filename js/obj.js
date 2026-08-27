@@ -31,6 +31,7 @@ import {
     P_BOOMERANG,
     P_BOW,
     P_CROSSBOW,
+    P_DAGGER,
     P_DART,
     P_NONE,
     P_PICK_AXE,
@@ -886,6 +887,15 @@ export function is_sword(obj, state = game) {
     const skill = objectType(obj, state).oc_subtyp;
     return obj.oclass === WEAPON_CLASS
         && skill >= P_SHORT_SWORD && skill <= P_SABER;
+}
+
+// C ref: obj.h is_blade() (213-216). The contiguous run of bladed-weapon
+// skills spans P_DAGGER through P_SABER, which is a superset of the sword
+// range is_sword() above tests.
+export function is_blade(obj, state = game) {
+    const skill = objectType(obj, state).oc_subtyp;
+    return obj.oclass === WEAPON_CLASS
+        && skill >= P_DAGGER && skill <= P_SABER;
 }
 
 // C ref: obj.h Is_dragon_scales() (347-348), Is_dragon_mail() (349-351) and

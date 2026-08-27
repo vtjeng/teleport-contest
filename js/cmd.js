@@ -1105,14 +1105,13 @@ export function reset_occupations(state = game) {
 // getobj():2052-2053 -- would go into a list nothing can ever read. Each of
 // those sites says so where it stands.
 //
-// Only CMDQ_EXTCMD nodes are produced. cmdq_add_key(), cmdq_add_dir(),
-// cmdq_add_int() and cmdq_add_userinput() have no ported caller: of the four
-// call sites that reach a ported command, dothrow.c dofire()'s swap-and-retry
-// arm (568-570) pushes two extended commands and nothing else, and the three
-// arms that push keys or directions belong to click_to_cmd(), iactions.c and
-// dofire()'s own find_launcher() arm, all unported. rhack() below still
-// classifies a non-extcmd node the way C does, because the queue is state and
-// a future adder must not silently change what a stale node means.
+// CMDQ_EXTCMD and CMDQ_KEY nodes are produced. cmdq_add_dir(),
+// cmdq_add_int() and cmdq_add_userinput() have no ported caller.
+// cmdq_add_key() is called by itemactions_pushkeys() (iactions.c) to
+// queue the inventory letter for the command the player chose from the
+// item-actions menu. rhack() below classifies every node type the way C
+// does, because the queue is state and a future adder must not silently
+// change what a stale node means.
 function commandQueue(state) {
     state.command_queue ??= [[], []];
     return state.command_queue;
@@ -1125,6 +1124,13 @@ export function cmdq_add_ec(q, entry, state = game) {
         throw new TypeError('cmdq_add_ec() requires an extcmdlist row');
     }
     commandQueue(state)[q].push({ typ: CMDQ_EXTCMD, ec_entry: entry });
+}
+
+// C ref: cmd.c cmdq_add_key() (286-295). Pushes a single key onto the
+// command queue. itemactions_pushkeys() (iactions.c) uses this to queue
+// the inventory letter that identifies the object the player chose.
+export function cmdq_add_key(q, key, state = game) {
+    commandQueue(state)[q].push({ typ: CMDQ_KEY, key });
 }
 
 // C ref: cmd.c cmdq_pop(). It picks its own queue -- CQ_REPEAT while

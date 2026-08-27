@@ -10,6 +10,7 @@ import {
     BUFSZ,
     CONTAINED_SYM,
     CQ_CANNED,
+    ECMD_OK,
     FUMBLING,
     GOLD_SYM,
     HALLUC,
@@ -116,6 +117,7 @@ import { is_drawbridge_wall } from './startup_a11y.js';
 import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { game } from './gstate.js';
+import { itemactions } from './iactions.js';
 import { surface } from './dungeon.js';
 import { can_reach_floor, engr_at } from './engrave.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
@@ -938,16 +940,22 @@ export async function display_inventory(lets, want_reply, state, hooks) {
     );
 }
 
-// C ref: invent.c dispinv_with_action(). `i` supplies no letters, so menumode
-// is true; a selected letter would reach itemactions(), which stops.
+// C ref: invent.c dispinv_with_action() (2964-3002). `i` supplies no
+// letters and len is 0, so menumode is unconditionally true. When the
+// player selects a letter, the inventory is walked for the matching object
+// and itemactions() builds its action menu.
 export async function dispinv_with_action(lets, state = game, hooks = {}) {
     const menumode = true;
     // The menu owner answers null for Escape, which is C's '\033' reaching
     // dispinv_with_action() without matching any invlet.
     const chosen = await display_inventory(lets, menumode, state, hooks);
-    if (chosen != null)
-        throw new UnsupportedFeatureDescriptionError('itemactions()');
-    return false;
+    if (chosen != null) {
+        for (let otmp = inventoryHead(state); otmp; otmp = otmp.nobj) {
+            if (otmp.invlet === chosen)
+                return itemactions(otmp, state, hooks);
+        }
+    }
+    return ECMD_OK;
 }
 
 // C ref: invent.c ddoinv(). Returns whether the command consumed game time,
@@ -1416,6 +1424,27 @@ export function carrying(type, state = game) {
     for (let obj = inventoryHead(state); obj; obj = obj.nobj)
         if (obj.otyp === type) return obj;
     return null;
+}
+
+// C ref: invent.c check_invent_gold() (4889-4913). Returns true when the
+// inventory contains gold in an unexpected arrangement (multiple stacks or
+// a stack in a slot other than '$'), which means gold should be allowed as
+// a target for the #adjust command. In normal play this returns false.
+export function check_invent_gold(why, state = game) {
+    let goldstacks = 0;
+    let wrongslot = 0;
+    for (let otmp = inventoryHead(state); otmp; otmp = otmp.nobj) {
+        if (otmp.oclass === COIN_CLASS) {
+            goldstacks++;
+            if (otmp.invlet !== GOLD_SYM) wrongslot++;
+        }
+    }
+    if (goldstacks > 1 || wrongslot > 0) {
+        // C calls impossible() here. The condition indicates a bug
+        // elsewhere in inventory management, but the game continues.
+        return true;
+    }
+    return false;
 }
 
 export function initializeInventory(state = game) {

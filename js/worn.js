@@ -54,6 +54,13 @@ import {
 } from './obj.js';
 import {
     AMULET_OF_GUARDING,
+    ARM_BOOTS,
+    ARM_CLOAK,
+    ARM_GLOVES,
+    ARM_HELM,
+    ARM_SHIELD,
+    ARM_SHIRT,
+    ARM_SUIT,
     CORNUTHAUM,
     MUMMY_WRAPPING,
     TOOL_CLASS,
@@ -395,6 +402,30 @@ export function extract_from_minvent(
 export function bimanual(obj, state = game) {
     return (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
         && Boolean(objectType(obj, state).oc_bimanual);
+}
+
+// C ref: worn.c armcat_to_wornmask() (250-278). Converts an armor category
+// constant to the corresponding W_ARM* bitmask.
+export function armcat_to_wornmask(cat) {
+    switch (cat) {
+    case ARM_SUIT:    return W_ARM;
+    case ARM_CLOAK:   return W_ARMC;
+    case ARM_HELM:    return W_ARMH;
+    case ARM_SHIELD:  return W_ARMS;
+    case ARM_GLOVES:  return W_ARMG;
+    case ARM_BOOTS:   return W_ARMF;
+    case ARM_SHIRT:   return W_ARMU;
+    default:          return 0;
+    }
+}
+
+// C ref: worn.c wearmask_to_obj() (206-214). Returns the object currently
+// occupying the equipment slot identified by the given wornmask, or null.
+export function wearmask_to_obj(wornmask, state = game) {
+    for (const slot of WORN_SLOTS) {
+        if (slot.mask & wornmask) return state[slot.field] ?? null;
+    }
+    return null;
 }
 
 // C ref: obj.h:228 is_pole(). Snickersnee is not a polearm, but can hit from
