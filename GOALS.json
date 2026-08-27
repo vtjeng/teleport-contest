@@ -5470,6 +5470,11 @@
           "name": "help-menu-controls",
           "status": "closed",
           "closedBy": "8751830edd5e0027bcaddaf0ad63a5b41501646b"
+        },
+        {
+          "name": "help-default-extended-command-list",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "2ff2a1b74d22e07ed41dd2a1f018cc842468d316",
