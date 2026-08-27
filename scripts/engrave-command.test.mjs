@@ -12,6 +12,8 @@ import { runSegment } from '../js/jsmain.js';
 import {
     ENGRAVE_SETUP,
     ENGRAVE_KEY,
+    ENGRAVE_WAIT,
+    ENTER_KEY,
     FINGERTIP_KEY,
     loadEngraveFingertipDustRecipe,
 } from './run-engrave-fingertip-dust.mjs';
@@ -58,6 +60,24 @@ test('bare fingertips write a rate-10 dust engraving in one action',
             'rn2(19)=10',
         ]);
     });
+
+test('a one-x signature preserves illiterate conduct', async () => {
+    const segment = loadEngraveFingertipDustRecipe().segments[0];
+    for (const [text, expectedLiteracy] of [
+        // engrave.c exempts either case only when x is the sole nonspace.
+        ['x', 0],
+        ['X', 0],
+        // Two letters are the nearest non-exempt control.
+        ['xx', 1],
+    ]) {
+        await runSegment({
+            ...segment,
+            moves: `${ENGRAVE_SETUP}${ENGRAVE_KEY}${FINGERTIP_KEY}`
+                + ` ${text}${ENTER_KEY}${ENGRAVE_WAIT}`,
+        });
+        assert.equal(game.u.uconduct.literate, expectedLiteracy, text);
+    }
+});
 
 test('a refused engraving line restores status redraw ownership', async () => {
     const segment = loadEngraveFingertipDustRecipe().segments[0];

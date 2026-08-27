@@ -591,6 +591,40 @@ test('an already confused hero gets no direct feedback and a longer timeout',
     assert.equal(game.disp.botl, false);
 });
 
+test('confusion timeout bases depend on beatitude, not hero state',
+    async () => {
+        // potion.c uses 16 - 8*bcsign: blessed, uncursed, and cursed bases
+        // are 8, 16, and 24. Keeping the hero sober in all three cases makes
+        // beatitude the only input that can select the base.
+        for (const [label, seed, blessed, cursed, base] of [
+            ['blessed', 771030, true, false, 8],
+            ['uncursed', 771031, false, false, 16],
+            ['cursed', 771032, false, true, 24],
+        ]) {
+            await startedGame(seed, `Confusion${label}`);
+            const potion = vaporPotion(POT_CONFUSION);
+            potion.blessed = blessed;
+            potion.cursed = cursed;
+            const confusion = game.u.uprops[CONFUSION];
+            confusion.intrinsic = 0;
+            game.u.uprops[HALLUC].intrinsic = 0;
+            game.gp.potion_nothing = 0;
+            game.gp.potion_unkn = 0;
+            clearTopline();
+            enableRngLog();
+
+            await peffects(potion, game);
+            const [call] = getRngLog();
+            const draw = Number(/^rn2\(7\)=([0-6])$/u.exec(call)?.[1]);
+
+            assert.equal(
+                confusion.intrinsic & TIMEOUT,
+                base + draw,
+                label,
+            );
+        }
+    });
+
 // ---------------------------------------------------------------------------
 // speed_up()
 // C ref: potion.c speed_up() (2918-2928). Prints the speed-change message,

@@ -1740,6 +1740,56 @@ test('findit leaves every discovery family fail-closed and unchanged', async () 
     }
 });
 
+test('findit rejects trapped boxes through every source ownership root',
+    async () => {
+        const target = { x: 11, y: 10 };
+        const trappedChest = () => ({
+            otyp: CHEST,
+            otrapped: true,
+            tknown: false,
+            cobj: null,
+            nobj: null,
+            nexthere: null,
+        });
+        const cases = [
+            ['buried', (state, chest) => {
+                Object.assign(chest, { ox: target.x, oy: target.y });
+                state.level.buriedobjlist = chest;
+            }],
+            ['hero inventory', (state, chest) => {
+                state.invent = chest;
+            }],
+            ['monster inventory', (state, chest) => {
+                const monster = placeTestMonster(state, target.x, target.y);
+                monster.minvent = chest;
+            }],
+            ['nested floor container', (state, chest) => {
+                state.level.objects[target.x][target.y] = {
+                    otyp: CHEST,
+                    otrapped: false,
+                    cobj: chest,
+                    nobj: null,
+                    nexthere: null,
+                };
+            }],
+        ];
+
+        for (const [label, install] of cases) {
+            const state = emptyFinditState();
+            const chest = trappedChest();
+            install(state, chest);
+            const messages = [];
+
+            await assert.rejects(
+                findit(state, { message: (text) => messages.push(text) }),
+                (error) => error instanceof UnsupportedSearchError,
+                label,
+            );
+            assert.equal(chest.tknown, false, label);
+            assert.deepEqual(messages, [], label);
+        }
+    });
+
 // Both arms must raise UnsupportedSearchError, not a bare Error: js/cmd.js
 // failClosedCommand() converts only that class into the retryable command
 // boundary, and anything else escapes runSegment() and costs the segment every

@@ -1809,6 +1809,35 @@ function count_feat_lastseentyp(mapseen, x, y, state) {
     }
 }
 
+// C stores top-level rooms and subrooms in one contiguous rooms[] allocation.
+// JS keeps subrooms under their persisted parent room, but retains C's
+// roomnoidx values. Resolve that conceptual index through the parent graph so
+// mapseen's equally source-sized msrooms[] array reads either half correctly.
+function mapseen_room(roomIndex, state) {
+    const rooms = state.level?.rooms ?? [];
+    const direct = rooms[roomIndex];
+    if (direct && (direct.roomnoidx ?? roomIndex) === roomIndex)
+        return direct;
+
+    const findSubroom = (room) => {
+        for (let index = 0;
+            index < (room?.nsubrooms ?? room?.sbrooms?.length ?? 0);
+            ++index) {
+            const subroom = room.sbrooms?.[index];
+            if (!subroom) continue;
+            if (subroom.roomnoidx === roomIndex) return subroom;
+            const nested = findSubroom(subroom);
+            if (nested) return nested;
+        }
+        return null;
+    };
+    for (const room of rooms) {
+        const subroom = findSubroom(room);
+        if (subroom) return subroom;
+    }
+    return null;
+}
+
 // C ref: dungeon.c recalc_mapseen() (3073-3261), through the ordinary-level
 // room and remembered-feature branches used by magic mapping. Special-level
 // annotations, unattended shop ownership, and bones records remain outside
@@ -1832,7 +1861,7 @@ export function recalc_mapseen(state = game) {
 
     for (let roomIndex = 0; roomIndex < mapseen.msrooms.length; ++roomIndex) {
         if (!mapseen.msrooms[roomIndex].seen) continue;
-        const room = state.level?.rooms?.[roomIndex];
+        const room = mapseen_room(roomIndex, state);
         if (!room) continue;
         if (room.rtype >= SHOPBASE) {
             if (mapseen.msrooms[roomIndex].untended)

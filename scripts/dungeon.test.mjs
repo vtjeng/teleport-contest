@@ -25,6 +25,7 @@ import {
     LAVAWALL,
     LEVITATION,
     M_AP_FURNITURE,
+    MAXNROFROOMS,
     MOAT,
     OROOM,
     POOL,
@@ -32,10 +33,13 @@ import {
     ROOMOFFSET,
     SDOOR,
     SHOPBASE,
+    SINK,
     STAIRS,
     STONE,
     SVALL,
     TEMPLE,
+    THRONE,
+    TREE,
     VAULT,
     VWALL,
 } from '../js/const.js';
@@ -58,6 +62,7 @@ import {
     maxledgerno,
     on_level,
     recalc_mapseen,
+    room_discovered,
     surface,
     u_on_newpos,
     UnsupportedEarthSenseError,
@@ -340,6 +345,80 @@ test('recalc_mapseen rebuilds summaries for every seen room family', () => {
     assert.ok(mapseen.msrooms.slice(0, 5).every(({ seen }) => seen === 1),
         'recalculation preserves the five source discovery bits');
 });
+
+test('recalc_mapseen counts every remembered feature and saturates at three',
+    () => {
+        for (const [terrain, field] of [
+            [TREE, 'ntree'],
+            [THRONE, 'nthrone'],
+            [SINK, 'nsink'],
+            [GRAVE, 'ngrave'],
+        ]) {
+            const state = resetGame();
+            state.level = new GameMap();
+            state.u = {
+                ux: 1,
+                uy: 1,
+                uz: { dnum: 0, dlevel: 1 },
+                uprops: [],
+                urooms: [0],
+            };
+            const mapseen = init_mapseen(state.u.uz, state);
+            state.level.lastseentyp = Array.from(
+                { length: 80 }, () => new Array(21).fill(STONE),
+            );
+            // Four instances cross the three-value packed saturation bound.
+            for (let x = 2; x <= 5; ++x)
+                state.level.lastseentyp[x][2] = terrain;
+
+            recalc_mapseen(state);
+
+            assert.equal(mapseen.feat[field], 3, field);
+        }
+    });
+
+test('recalc_mapseen resolves encoded subrooms through their parent graph',
+    () => {
+        const state = resetGame();
+        state.level = new GameMap();
+        state.u = {
+            ux: 1,
+            uy: 1,
+            uz: { dnum: 0, dlevel: 1 },
+            uprops: [],
+            urooms: [0],
+        };
+        const mapseen = init_mapseen(state.u.uz, state);
+        state.level.lastseentyp = Array.from(
+            { length: 80 }, () => new Array(21).fill(STONE),
+        );
+        // C places the first subroom at MAXNROFROOMS + 1 in its contiguous
+        // rooms allocation. JS persists that same identity in roomnoidx on
+        // the parent room's sbrooms graph.
+        const subroomIndex = MAXNROFROOMS + 1;
+        state.level.rooms = [{
+            roomnoidx: 0,
+            rtype: OROOM,
+            orig_rtype: OROOM,
+            nsubrooms: 1,
+            sbrooms: [{
+                roomnoidx: subroomIndex,
+                rtype: SHOPBASE,
+                orig_rtype: SHOPBASE,
+                nsubrooms: 0,
+                sbrooms: [],
+            }],
+        }];
+        // A stale current-level convenience array must not own persisted room
+        // identity; savelev() retains level.rooms and its nested graph.
+        state.subrooms = [];
+
+        room_discovered(subroomIndex, state);
+
+        assert.equal(mapseen.msrooms[subroomIndex].seen, 1);
+        assert.equal(mapseen.feat.nshop, 1);
+        assert.equal(mapseen.feat.shoptype, SHOPBASE);
+    });
 
 test('induced_align short-circuits special, dungeon, then random masks', () => {
     const state = {

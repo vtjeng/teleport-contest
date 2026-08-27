@@ -175,7 +175,22 @@ test('ready_ok classifies every source family used by the quiver prompt',
         assert.equal(ready_ok(dagger, state), GETOBJ_SUGGEST,
             'a two-dagger wielded stack can be split');
 
+        const secondary = object(state, DAGGER);
+        state.uwep = null;
+        state.uswapwep = secondary;
+        state.u.twoweap = true;
+        assert.equal(ready_ok(secondary, state), GETOBJ_DOWNPLAY,
+            'one actively wielded secondary dagger is downplayed');
+        secondary.quan = 2;
+        assert.equal(ready_ok(secondary, state), GETOBJ_SUGGEST,
+            'an active secondary stack can be split');
+        secondary.quan = 1;
+        state.u.twoweap = false;
+        assert.equal(ready_ok(secondary, state), GETOBJ_SUGGEST,
+            'an inactive secondary weapon is an ordinary suggested weapon');
+
         state.uwep = bow;
+        state.uswapwep = null;
         assert.equal(ready_ok(arrow, state), GETOBJ_SUGGEST,
             'an arrow matching the wielded bow is suggested');
         state.uwep = dagger;
@@ -183,6 +198,10 @@ test('ready_ok classifies every source family used by the quiver prompt',
             'ammunition without a matching launcher is downplayed');
         assert.equal(ready_ok(bow, state), GETOBJ_DOWNPLAY,
             'a launcher is downplayed');
+        state.uswapwep = bow;
+        assert.equal(ready_ok(arrow, state), GETOBJ_SUGGEST,
+            'ammunition matching only the alternate launcher is suggested');
+        state.uswapwep = null;
         state.uwep = null;
         assert.equal(ready_ok(dagger, state), GETOBJ_SUGGEST,
             'an unwielded weapon is suggested');
