@@ -66,6 +66,7 @@ import {
     M_AP_OBJECT,
     M_AP_TYPMASK,
     PASSES_WALLS,
+    PICK_NONE,
     POISON_RES,
     RIGHT_SIDE,
     ROOM,
@@ -85,6 +86,7 @@ import {
     TELEPORT_CONTROL,
     TEST_TRAV,
     TIMER_OBJECT,
+    TIP_GETPOS,
     TT_BEARTRAP,
     Upolyd,
     VIBRATING_SQUARE,
@@ -245,10 +247,46 @@ import { dotrap, preflight_dotrap } from './trap_effects.js';
 import {
     ttyNorep, ttyPline, ttyUrgentPline,
 } from './tty_message.js';
+import { select_menu } from './windows.js';
 import { do_attack, is_safemon } from './uhitm.js';
 import { block_point, recalc_block_point, vision_recalc } from './vision.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
+
+// Lua ref: dat/nhcore.lua show_getpos_tip() (108-123). nh.text() preserves
+// blank lines in the literal and displays the result in an NHW_MENU window
+// with PICK_NONE (nhlua.c nhl_text()).
+export const GETPOS_TIP_LINES = Object.freeze([
+    'Tip: Farlooking or selecting a map location',
+    '',
+    'You are now in a "farlook" mode - the movement keys move the cursor,',
+    'not your character.  Game time does not advance.  This mode is used',
+    'to look around the map, or to select a location on it.',
+    '',
+    'When in this mode, you can press ESC to return to normal game mode,',
+    'and pressing ? will show the key help.',
+]);
+
+// C ref: hack.c handle_tip() (1852-1880), TIP_GETPOS arm. Other tip owners
+// retain their existing local implementations until a running caller needs
+// this shared dispatcher. The bit is set before the Lua callback runs.
+export async function handle_tip(tip, state = game, env = {}) {
+    if (!state.flags?.tips) return false;
+    state.context ??= {};
+    const tips = Math.trunc(state.context.tips ?? 0);
+    if (tip < 0 || tip >= 4 || (tips & (1 << tip))) return false;
+    state.context.tips = tips | (1 << tip);
+    if (tip !== TIP_GETPOS)
+        throw new UnsupportedHeroMoveBoundaryError(`handle_tip(${tip})`);
+    const textWindow = env.textWindow ?? (async (lines) => select_menu(state, {
+        how: PICK_NONE,
+        items: lines,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    }));
+    await textWindow(GETPOS_TIP_LINES.map((text) => ({ text })));
+    return true;
+}
 
 // C ref: hack.c weight_cap() (4293-4351), for the live unpolymorphed,
 // non-levitating repeated-command boundary. Unlike the former startup-only

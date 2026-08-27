@@ -118,6 +118,7 @@ import { doset_simple, dotogglepickup, UnsupportedOptionMenuError } from './opti
 import { dopray, UnsupportedPrayerError } from './pray.js';
 import { UnsupportedHideError } from './mon.js';
 import { dosave } from './save.js';
+import { dowhatis } from './pager.js';
 import { UnsupportedShopError } from './shk.js';
 import { dofire, dothrow, UnsupportedThrowError } from './dothrow.js';
 import { dosit, UnsupportedSitError } from './sit.js';
@@ -1024,7 +1025,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'takeoff', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
     'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
-    'save', 'wield', '#',
+    'save', 'wield', 'whatis', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -2519,6 +2520,11 @@ export async function rhack(key, state = game) {
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);
             if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'whatis') {
+            await dowhatis(state);
+            resetCommandVars(state, state.multi < 0);
             return;
         }
         if (command === 'apply') {
