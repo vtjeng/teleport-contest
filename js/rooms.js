@@ -247,8 +247,8 @@ export async function check_special_room(
                 `You enter an opulent${hasThrone ? ' throne' : ''} room!`,
                 state,
             );
-            // room_discovered() records mapseen data. This port has no mapseen
-            // chain; the room's one-time identity is the live state owner.
+            // room_discovered() records the room before its live one-time
+            // identity is cleared here.
             room.rtype = OROOM;
             if (!state.level.rooms.some(
                 (candidate) => candidate?.rtype === COURT,

@@ -148,6 +148,13 @@ test('save-then-restore round trip produces welcome-back and full-moon messages'
         typeof game.u.uy === 'number' && game.u.uy > 0,
         'u.uy must be a positive number after restore',
     );
+    // restoregamestate() restores the overview chain before gameplay resumes.
+    assert.equal(
+        game.svm.mapseenchn.some((entry) =>
+            entry.lev.dnum === game.u.uz.dnum
+            && entry.lev.dlevel === game.u.uz.dlevel),
+        true,
+    );
 
     // Check that the save file was deleted after successful restore
     // (C ref: dorecover():904 delete_savefile).

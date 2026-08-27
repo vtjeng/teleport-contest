@@ -335,6 +335,7 @@ function serializeGameState(state) {
         // Game subsystems
         spl_book: state.spl_book,
         mvitals: state.mvitals,
+        mapseenchn: state.svm?.mapseenchn,
         quest_status: state.quest_status,
         // Hero identity and timing
         wizard: state.wizard,

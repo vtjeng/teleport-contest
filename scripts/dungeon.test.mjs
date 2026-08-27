@@ -43,6 +43,7 @@ import {
     depth,
     find_level,
     induced_align,
+    init_mapseen,
     init_dungeons,
     ledger_no,
     ledger_to_dlev,
@@ -191,12 +192,20 @@ test('update_mapseen_for reads one square and refreshes the hero\'s own', () => 
     // whole observable effect is the hero's own square plus the read.
     const state = resetGame();
     state.level = new GameMap();
-    state.u = { ux: 4, uy: 4, uprops: [] };
+    // init_mapseen() owns the overview record before C permits a level-wide
+    // recalc. Level 1 of dungeon 0 is arbitrary ordinary-level identity.
+    state.u = {
+        ux: 4,
+        uy: 4,
+        uz: { dnum: 0, dlevel: 1 },
+        uprops: [],
+        urooms: [0],
+    };
+    init_mapseen(state.u.uz, state);
     state.level.at(4, 4).typ = ROOM;
     state.level.at(5, 4).typ = CORR;
 
-    // Nothing has been seen yet, so the array does not exist and C's zeroed
-    // svl.lastseentyp reads STONE.
+    // Nothing has been seen yet, so C's zeroed svl.lastseentyp reads STONE.
     assert.equal(update_mapseen_for(5, 4, state), STONE);
     assert.equal(state.level.lastseentyp[4][4], ROOM);
     // The read square itself is untouched: only the hero's own is refreshed.

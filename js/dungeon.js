@@ -7,6 +7,8 @@ import { rn2 } from './rng.js';
 import { DUNGEON_DATA } from './dungeon_data.js';
 import {
     AGGRAVATE_MONSTER,
+    ALTAR,
+    AM_MASK,
     Align2amask,
     BLINDED,
     CLOUD,
@@ -18,6 +20,7 @@ import {
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
     CORR,
+    DELPHI,
     FLYING,
     HALLUC,
     HALLUC_RES,
@@ -35,15 +38,23 @@ import {
     LR_UPTELE,
     M_AP_FURNITURE,
     M_AP_TYPMASK,
+    MAXNROFROOMS,
     MAX_TYPE,
+    MSA_NONE,
     MOAT,
     PICK_ONE,
+    FOUNTAIN,
+    GRAVE,
     ROWNO,
     ROOM,
+    ROOMOFFSET,
     SDOOR,
     SHOPBASE,
+    SINK,
     STONE,
     TEMPLE,
+    THRONE,
+    TREE,
     Upolyd,
     VAULT,
     VISITED,
@@ -1214,41 +1225,44 @@ function dlev_in_current_branch(dlev, state) {
 // answer runs the whole function and drops out with 0.
 //
 // C's first leg is find_mapseen_by_str(), which searches the player's own
-// #annotate notes. This port keeps no mapseen chain -- js/do.js records the
-// same gap for recalc_mapseen() -- so nothing can match and `mseen` is always
-// null here.
+// #annotate notes in the canonical mapseen chain.
 export function lev_by_name(nam, state = game) {
     let lev = 0;
     let slev = null;
     let dlev = null;
-    const mseen = null;
+    const mseen = find_mapseen_by_str(nam, state);
 
-    /* no matching annotation, check whether they used a name we know */
+    if (mseen) dlev = mseen.lev;
 
-    /* allow strings like "the oracle level" to find "oracle" */
-    if (nam.slice(0, 4).toLowerCase() === 'the ')
-        nam = nam.slice(4);
-    // C's `(p = strstri(nam, " level")) != 0 && p == eos(nam) - 6` accepts the
-    // suffix only where it ends the string, and strstri() answers the first
-    // occurrence, so "level level" keeps its second word. The `>= 0` stands
-    // for C's NULL test: without it a five-character name would match the
-    // no-match answer of -1 against its own length minus six.
-    const levelSuffix = strstri(nam, ' level');
-    if (levelSuffix >= 0 && levelSuffix === nam.length - 6)
-        nam = nam.slice(0, -6);
-    /* hell is the old name, and wouldn't match; gehennom would match its
-       branch, yielding the castle level instead of valley of the dead */
-    if (nam.toLowerCase() === 'gehennom' || nam.toLowerCase() === 'hell') {
-        nam = state.u.uz.dnum === state.tower_dnum
-            ? " to Vlad's tower" /* branch to... */
-            : 'valley';
-    } else if (nam.toLowerCase() === 'delphi') {
-        /* Oracle says "welcome to Delphi" so recognize that name too */
-        nam = 'oracle';
+    if (!mseen) {
+        /* no matching annotation, check whether they used a name we know */
+        /* allow strings like "the oracle level" to find "oracle" */
+        if (nam.slice(0, 4).toLowerCase() === 'the ')
+            nam = nam.slice(4);
+        // C's `(p = strstri(nam, " level")) != 0 && p == eos(nam) - 6`
+        // accepts the suffix only where it ends the string, and strstri()
+        // answers the first occurrence, so "level level" keeps its second
+        // word. The `>= 0` stands for C's NULL test: without it a five-
+        // character name would match the no-match answer of -1 against its
+        // own length minus six.
+        const levelSuffix = strstri(nam, ' level');
+        if (levelSuffix >= 0 && levelSuffix === nam.length - 6)
+            nam = nam.slice(0, -6);
+        /* hell is the old name, and wouldn't match; gehennom would match its
+           branch, yielding the castle level instead of valley of the dead */
+        if (nam.toLowerCase() === 'gehennom'
+            || nam.toLowerCase() === 'hell') {
+            nam = state.u.uz.dnum === state.tower_dnum
+                ? " to Vlad's tower" /* branch to... */
+                : 'valley';
+        } else if (nam.toLowerCase() === 'delphi') {
+            /* Oracle says "welcome to Delphi" so recognize that name too */
+            nam = 'oracle';
+        }
+
+        slev = find_level(nam, state);
+        if (slev) dlev = slev.dlevel;
     }
-
-    slev = find_level(nam, state);
-    if (slev) dlev = slev.dlevel;
 
     if (mseen || slev) {
         const idx = ledger_no(dlev, state);
@@ -1652,48 +1666,187 @@ export function update_lastseentyp(
     return typ;
 }
 
-// C ref: dungeon.c room_discovered() (3282-3290). The overview mapseen chain
-// is not present on ordinary JS levels yet. Preserve the write when a caller
-// supplies the corresponding mapseen record, and otherwise retain C's no-op
-// result when find_mapseen() returns null.
-export function room_discovered(roomno, state = game) {
-    const mapseen = state.level?.mapseen ?? null;
-    const room = mapseen?.msrooms?.[roomno];
-    if (room && !room.seen) room.seen = 1;
+function emptyMapseenFeat() {
+    return {
+        nfount: 0,
+        nsink: 0,
+        naltar: 0,
+        nthrone: 0,
+        ngrave: 0,
+        ntree: 0,
+        water: 0,
+        lava: 0,
+        ice: 0,
+        nshop: 0,
+        ntemple: 0,
+        msalign: 0,
+        shoptype: 0,
+    };
 }
 
-// C ref: dungeon.c update_mapseen_for() (2942-2947), which recalculates the
-// whole level's #overview data and hands back svl.lastseentyp at one square.
-// lock.c pick_lock():580 is the caller, and it wants only the return value.
-//
-// recalc_mapseen() runs from 3075 to its closing brace at 3261, and over that
-// whole body it writes svl.lastseentyp in exactly one place:
-// update_lastseentyp(u.ux, u.uy) at 3192, behind !Levitation and applied to
-// the hero's own square. Everything else it writes is mptr->feat.* and
-// mptr->flags, read only by the #overview annotation this port does not have.
-// Two parts of the body read svl.lastseentyp without writing it: the
-// per-square loop's count_feat_lastseentyp() at 3196, and the bones loop at
-// 3256-3260, which sets bp->bonesknown and mptr->flags.knownbones. So the
-// chain cannot change the value this function returns for any square except
-// the hero's own, and pick_lock() never asks about that one -- lock.c:429
-// sends cc == u.ux,u.uy down the container branch, which js/lock.js pick_lock()
-// refuses at its u_at() test.
-//
-// `sed -n '3075,3261p' nethack-c/upstream/src/dungeon.c` prints that body, and
-// `grep -n 'lastseentyp' nethack-c/upstream/src/dungeon.c` prints the three
-// lines above, which is how the claim is checked without reading all 187.
-//
-// One statement of C's is not reproduced: the early
-// `if (!(mptr = find_mapseen(&u.uz))) return;` at 3092-3093, which would skip
-// the update_lastseentyp() call. C's own comment at 3086-3091 records that a
-// null return "should now be impossible", so the port calls unconditionally.
-export function update_mapseen_for(x, y, state = game) {
-    // The default canseemon() is left in place: update_lastseentyp()'s monster
-    // arm needs a furniture mimic standing on the hero's own square, and the
-    // only monster that can share it is an engulfer, which is displaying its
-    // own insides rather than a piece of furniture.
+function emptyMapseenFlags() {
+    return {
+        notreachable: 0,
+        forgot: 0,
+        knownbones: 0,
+        oracle: 0,
+        sokosolved: 0,
+        bigroom: 0,
+        castle: 0,
+        castletune: 0,
+        valley: 0,
+        msanctum: 0,
+        ludios: 0,
+        roguelevel: 0,
+        quest_summons: 0,
+        questing: 0,
+        vibrating_square: 0,
+        spare1: 0,
+    };
+}
+
+// C ref: dungeon.c find_mapseen() (2638-2649).
+export function find_mapseen(lev, state = game) {
+    return state.svm?.mapseenchn?.find((entry) => on_level(entry.lev, lev))
+        ?? null;
+}
+
+// C ref: dungeon.c find_mapseen_by_str() (2651-2663).
+function find_mapseen_by_str(value, state = game) {
+    const folded = value.toLowerCase();
+    return state.svm?.mapseenchn?.find(
+        (entry) => entry.custom?.toLowerCase() === folded,
+    ) ?? null;
+}
+
+// C ref: dungeon.c init_mapseen() (2834-2872). An array represents C's linked
+// list while preserving its sorted dungeon-and-level order.
+export function init_mapseen(lev, state = game) {
+    state.svm ??= {};
+    state.svm.mapseenchn ??= [];
+    const entry = {
+        br: null,
+        lev: { dnum: lev.dnum, dlevel: lev.dlevel },
+        feat: emptyMapseenFeat(),
+        flags: emptyMapseenFlags(),
+        custom: null,
+        custom_lth: 0,
+        msrooms: Array.from(
+            { length: (MAXNROFROOMS + 1) * 2 },
+            () => ({ seen: 0, untended: 0 }),
+        ),
+        final_resting_place: null,
+    };
+    const after = state.svm.mapseenchn.findIndex((candidate) =>
+        candidate.lev.dnum > entry.lev.dnum
+        || (candidate.lev.dnum === entry.lev.dnum
+            && candidate.lev.dlevel > entry.lev.dlevel));
+    if (after < 0) state.svm.mapseenchn.push(entry);
+    else state.svm.mapseenchn.splice(after, 0, entry);
+
+    // svl.lastseentyp is reused between levels. Undefined is the port's lazy
+    // representation of C's all-STONE grid.
+    if (state.level) state.level.lastseentyp = undefined;
+    return entry;
+}
+
+function incrementMapseenFeature(feat, key) {
+    if (feat[key] < 3) feat[key] += 1;
+}
+
+function count_feat_lastseentyp(mapseen, x, y, state) {
+    switch (state.level?.lastseentyp?.[x]?.[y] ?? STONE) {
+    case TREE:
+        incrementMapseenFeature(mapseen.feat, 'ntree');
+        break;
+    case FOUNTAIN:
+        incrementMapseenFeature(mapseen.feat, 'nfount');
+        break;
+    case THRONE:
+        incrementMapseenFeature(mapseen.feat, 'nthrone');
+        break;
+    case SINK:
+        incrementMapseenFeature(mapseen.feat, 'nsink');
+        break;
+    case GRAVE:
+        incrementMapseenFeature(mapseen.feat, 'ngrave');
+        break;
+    case ALTAR: {
+        const location = state.level.at(x, y);
+        const mask = location?.altarmask ?? location?.flags ?? 0;
+        const alignment = (mask & AM_MASK) === 4 ? 3 : mask & AM_MASK;
+        if (!mapseen.feat.naltar) mapseen.feat.msalign = alignment;
+        else if (mapseen.feat.msalign !== alignment)
+            mapseen.feat.msalign = MSA_NONE;
+        incrementMapseenFeature(mapseen.feat, 'naltar');
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+// C ref: dungeon.c recalc_mapseen() (3073-3261), through the ordinary-level
+// room and remembered-feature branches used by magic mapping. Special-level
+// annotations, unattended shop ownership, and bones records remain outside
+// the current ordinary-level boundary.
+export function recalc_mapseen(state = game) {
+    const mapseen = find_mapseen(state.u?.uz, state);
+    if (!mapseen) return;
+
+    mapseen.feat = emptyMapseenFeat();
+    mapseen.flags.notreachable = 0;
+    mapseen.flags.knownbones = 0;
+    mapseen.flags.oracle = 0;
+    mapseen.flags.castletune = 0;
+    mapseen.flags.forgot = 0;
+
+    for (const roomno of state.u?.urooms ?? []) {
+        if (!roomno) break;
+        const roomIndex = roomno - ROOMOFFSET;
+        if (mapseen.msrooms[roomIndex]) mapseen.msrooms[roomIndex].seen = 1;
+    }
+
+    for (let roomIndex = 0; roomIndex < mapseen.msrooms.length; ++roomIndex) {
+        if (!mapseen.msrooms[roomIndex].seen) continue;
+        const room = state.level?.rooms?.[roomIndex];
+        if (!room) continue;
+        if (room.rtype >= SHOPBASE) {
+            if (mapseen.msrooms[roomIndex].untended)
+                mapseen.feat.shoptype = SHOPBASE - 1;
+            else if (!mapseen.feat.nshop)
+                mapseen.feat.shoptype = room.rtype;
+            else if (mapseen.feat.shoptype !== room.rtype)
+                mapseen.feat.shoptype = 0;
+            incrementMapseenFeature(mapseen.feat, 'nshop');
+        } else if (room.rtype === TEMPLE) {
+            incrementMapseenFeature(mapseen.feat, 'ntemple');
+        } else if (room.orig_rtype === DELPHI) {
+            mapseen.flags.oracle = 1;
+        }
+    }
+
     if (!heroLevitating(state))
         update_lastseentyp(state.u.ux, state.u.uy, state);
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y)
+            count_feat_lastseentyp(mapseen, x, y, state);
+    }
+}
+
+// C ref: dungeon.c room_discovered() (3282-3290).
+export function room_discovered(roomno, state = game) {
+    const mapseen = find_mapseen(state.u?.uz, state);
+    const room = mapseen?.msrooms?.[roomno];
+    if (room && !room.seen) {
+        room.seen = 1;
+        recalc_mapseen(state);
+    }
+}
+
+// C ref: dungeon.c update_mapseen_for() (2942-2947).
+export function update_mapseen_for(x, y, state = game) {
+    recalc_mapseen(state);
     return state.level?.lastseentyp?.[x]?.[y] ?? STONE;
 }
 

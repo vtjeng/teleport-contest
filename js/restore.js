@@ -143,6 +143,10 @@ export function dorestore(state = game) {
         state.svm ??= {};
         state.svm.mvitals = snapshot.mvitals;
     }
+    if (snapshot.mapseenchn) {
+        state.svm ??= {};
+        state.svm.mapseenchn = snapshot.mapseenchn;
+    }
     if (snapshot.quest_status != null) {
         state.quest_status = snapshot.quest_status;
         state.svq ??= {};

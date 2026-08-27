@@ -3,11 +3,16 @@ import test from 'node:test';
 
 import { ADMITTED_COMMANDS, failClosedCommandRefusals } from '../js/cmd.js';
 import {
+    COLNO,
+    CORR,
     ECMD_CANCEL,
     ECMD_TIME,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
+    ROOMOFFSET,
+    ROWNO,
+    SCORR,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -147,6 +152,19 @@ test('an uncursed magic-mapping scroll maps the ordinary level and is used up',
     const movesBefore = game.moves;
     const rngBefore = replay.getRngLog().length;
     const literateBefore = game.u.uconduct.literate;
+    let secretCorridor;
+    let mappedRoom;
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            const location = game.level.at(x, y);
+            if (!secretCorridor && location.typ === SCORR)
+                secretCorridor = { x, y };
+            if (!mappedRoom && location.roomno >= ROOMOFFSET)
+                mappedRoom = { index: location.roomno - ROOMOFFSET };
+        }
+    }
+    assert.ok(secretCorridor, 'the fixed seed has a secret corridor to map');
+    assert.ok(mappedRoom, 'the fixed seed has an ordinary room to remember');
 
     // j answers getobj(). Space dismisses the disappearance message before
     // seffect_magic_mapping() prints the coalescing-map message.
@@ -163,10 +181,25 @@ test('an uncursed magic-mapping scroll maps the ordinary level and is used up',
         inventorySnapshot().some((obj) => obj.otyp === SCR_MAGIC_MAPPING),
         false,
     );
-    for (let x = 1; x < 80; ++x) {
-        for (let y = 0; y < 21; ++y)
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y)
             assert.equal(game.level.at(x, y).seenv, 0xff);
     }
+    // detect.c show_map_spot() reveals secret corridors, and
+    // dungeon.c room_discovered() updates the canonical mapseen record before
+    // recalc_mapseen() derives overview state.
+    assert.equal(
+        game.level.at(secretCorridor.x, secretCorridor.y).typ,
+        CORR,
+    );
+    const mapseen = game.svm.mapseenchn.find((entry) =>
+        entry.lev.dnum === game.u.uz.dnum
+        && entry.lev.dlevel === game.u.uz.dlevel);
+    assert.equal(mapseen.msrooms[mappedRoom.index].seen, 1);
+    assert.deepEqual(Object.keys(mapseen.feat).sort(), [
+        'ice', 'lava', 'msalign', 'naltar', 'nfount', 'ngrave', 'nshop',
+        'nsink', 'ntemple', 'nthrone', 'ntree', 'shoptype', 'water',
+    ]);
 });
 
 test('magic mapping remains consumed and mapped through the next command',

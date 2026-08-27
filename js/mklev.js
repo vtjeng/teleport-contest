@@ -13,6 +13,7 @@ import {
     at_dgn_entrance,
     depth,
     dungeon_branch,
+    init_mapseen,
     level_difficulty,
     on_level,
 } from './dungeon.js';
@@ -227,6 +228,7 @@ export function l_nhcore_init(state = game, random = rn2) {
 // C ref: mklev.c mklev()
 export async function mklev({ specialLevelLoader = null } = {}) {
     const g = game;
+    init_mapseen(g.u.uz, g);
     if (getbones()) return;
     g.in_mklev = true;
     await makelevel(specialLevelLoader);

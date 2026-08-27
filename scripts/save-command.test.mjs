@@ -84,6 +84,14 @@ test('dosave serializes state and ends the segment on Friday 13th', async () => 
         typeof snapshot.moves === 'number' && snapshot.moves > 0,
         `snapshot.moves must be a positive number, got ${snapshot.moves}`,
     );
+    // dungeon.c savegamestate() serializes svm.mapseenchn independently of
+    // the live level. The current level's record must survive the segment.
+    assert.equal(
+        snapshot.mapseenchn.some((entry) =>
+            entry.lev.dnum === snapshot.u.uz.dnum
+            && entry.lev.dlevel === snapshot.u.uz.dlevel),
+        true,
+    );
 
     // Verify the terminal grid contains "Be seeing you..." -- the exit
     // message written by tty_raw_print. js/terminal.js has no serialize()
