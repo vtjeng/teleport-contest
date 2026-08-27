@@ -5496,7 +5496,7 @@
     },
     {
       "id": "pet-floor-interaction",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero move: combined pet and floor object interaction",
       "upstreamOwners": [],
       "forecast": {
@@ -5526,8 +5526,11 @@
         "screens": 2714,
         "rng": 156742
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "916872bf071a1bffc299cedd1386993e95396365",
+      "delivered": {
+        "screens": 3,
+        "rng": 32
+      }
     }
   ]
 }
