@@ -5252,7 +5252,13 @@
         ]
       },
       "detail": "Implement command admission/read_ok/common doread, the ordinary uncursed magic-mapping effect, do_mapping/show_map_spot for ordinary hero memory, background mapping, and room discovery. Spellbooks, other scrolls, special feedback, nommap/blessed/cursed/confused mapping, no-memory browse, and special redisplay remain outside.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "read-command-entry-and-cancel",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "de51b24f69acfc09b82a2a181e82517447ca84c0",
       "openStanding": {
         "sha": "aae62108d973b85dafa4094d957e0e68e03e6751",
