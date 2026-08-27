@@ -4959,7 +4959,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "doapply-default-unknown-use-for-ordinary-armor",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "9695b4b17a658c54d0a9397127de4517e63aeb0d",
       "openStanding": {
         "sha": "2a7c7eef2e454318bebefe49e55ba3f280dca467",
