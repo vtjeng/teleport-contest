@@ -259,7 +259,7 @@ async function peffect_oil(otmp, state = game) {
 // C ref: potion.c peffects() (1333-1425). Dispatch the effect of a quaffed
 // potion or spell. Returns >=0 if the effect short-circuits dopotion()'s tail
 // (0 = no time, 1 = time), -1 to continue to the tail.
-async function peffects(otmp, state = game) {
+export async function peffects(otmp, state = game) {
     switch (otmp.otyp) {
     case POT_RESTORE_ABILITY:
     case SPE_RESTORE_ABILITY:

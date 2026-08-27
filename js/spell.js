@@ -13,6 +13,8 @@ import {
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
+    HALF_PHDAM,
+    NO_KILLER_PREFIX,
     NO_SPELL,
     P_ATTACK_SPELL,
     P_BASIC,
@@ -28,13 +30,14 @@ import {
     PICK_NONE,
     PICK_ONE,
     STUNNED,
+    uhim,
 } from './const.js';
 import { effective_attribute, exercise } from './attrib.js';
 import { cmdq_pop, getdir } from './cmd.js';
 import { morehungry } from './eat.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { check_capacity } from './hack.js';
+import { check_capacity, losehp } from './hack.js';
 import { isqrt } from './hacklib.js';
 import { obfree, update_inventory } from './invent.js';
 import { can_chant } from './mondata.js';
@@ -47,13 +50,36 @@ import {
     QUARTERSTAFF,
     ROBE,
     SMALL_SHIELD,
+    SPE_CANCELLATION,
+    SPE_CONE_OF_COLD,
     SPE_CURE_BLINDNESS,
     SPE_CURE_SICKNESS,
     SPE_DETECT_FOOD,
+    SPE_DETECT_MONSTERS,
+    SPE_DETECT_TREASURE,
+    SPE_DETECT_UNSEEN,
+    SPE_DIG,
+    SPE_DRAIN_LIFE,
     SPE_EXTRA_HEALING,
+    SPE_FINGER_OF_DEATH,
+    SPE_FIREBALL,
+    SPE_FORCE_BOLT,
+    SPE_HASTE_SELF,
     SPE_HEALING,
+    SPE_INVISIBILITY,
+    SPE_KNOCK,
+    SPE_LEVITATION,
+    SPE_LIGHT,
+    SPE_MAGIC_MISSILE,
+    SPE_POLYMORPH,
     SPE_REMOVE_CURSE,
     SPE_RESTORE_ABILITY,
+    SPE_SLEEP,
+    SPE_SLOW_MONSTER,
+    SPE_STONE_TO_FLESH,
+    SPE_TELEPORT_AWAY,
+    SPE_TURN_UNDEAD,
+    SPE_WIZARD_LOCK,
 } from './objects.js';
 import { rnd } from './rng.js';
 import {
@@ -62,6 +88,7 @@ import {
     num_spells,
     spell_skilltype,
 } from './startup_skills.js';
+import { peffects } from './potion.js';
 import { use_skill } from './weapon.js';
 import { zapyourself, weffects } from './zap.js';
 
@@ -566,9 +593,18 @@ async function spelleffects_check(spell, state, env) {
     return { abort: false, res: ECMD_OK, energy };
 }
 
+// hack.h:1236 Maybe_Half_Phys(). youprop.h:341 defines Half_physical_damage
+// as the intrinsic or the extrinsic, with no blocking term.
+function Maybe_Half_Phys(dmg, state) {
+    const halved = state.u?.uprops?.[HALF_PHDAM];
+    return (halved?.intrinsic || halved?.extrinsic)
+        ? Math.trunc((dmg + 1) / 2) : dmg;
+}
+
 // C ref: spell.c spelleffects() (1385-1603). Casts the spell identified by
-// spell_otyp (an object type such as SPE_HEALING). Only the healing-spell
-// directional path is ported; other spell types throw fail-closed.
+// spell_otyp (an object type such as SPE_HEALING). The wand-duplicate and
+// potion-duplicate dispatch arms are open; scroll-duplicate spells (seffects)
+// and standalone spells (cure blindness, etc.) remain fail-closed.
 export async function spelleffects(spell_otyp, atme, force, state = game,
     env = {}) {
     const spell = force ? spell_otyp : spell_idx(spell_otyp, state);
@@ -600,13 +636,41 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
     const role_skill = P_SKILL(skill, state);
 
     switch (otyp) {
-    // Directional wand-like spells: SPE_HEALING and SPE_EXTRA_HEALING are the
-    // ported arm. Other wand-like spells fall through to the same directional
-    // block but throw fail-closed.
+    // Skilled fireball/cone-of-cold uses throwspell()/explode(), which are
+    // not ported. Unskilled falls through to the wand-duplicate path.
+    case SPE_FIREBALL:
+    case SPE_CONE_OF_COLD:
+        if (role_skill >= P_SKILLED) {
+            obfree(pseudo, null, { state });
+            throw new UnsupportedSpellCastError(
+                'throwspell()/explode() for skilled fireball/cone-of-cold',
+            );
+        }
+        // falls through
+    case SPE_FORCE_BOLT:
+        physical_damage = true;
+        // falls through
+    case SPE_SLEEP:
+    case SPE_MAGIC_MISSILE:
+    case SPE_KNOCK:
+    case SPE_SLOW_MONSTER:
+    case SPE_WIZARD_LOCK:
+    case SPE_DIG:
+    case SPE_TURN_UNDEAD:
+    case SPE_POLYMORPH:
+    case SPE_TELEPORT_AWAY:
+    case SPE_CANCELLATION:
+    case SPE_FINGER_OF_DEATH:
+    case SPE_LIGHT:
+    case SPE_DETECT_UNSEEN:
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
+    case SPE_DRAIN_LIFE:
+    case SPE_STONE_TO_FLESH:
         if (objectType(otyp, state).oc_dir !== NODIR) {
             if (otyp === SPE_HEALING || otyp === SPE_EXTRA_HEALING) {
+                // Healing and extra healing are actually potion effects,
+                // but they've been extended to take a direction like wands.
                 if (role_skill >= P_SKILLED)
                     pseudo.blessed = 1;
             }
@@ -617,17 +681,34 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
                 await env.message('The magical energy is released!', state);
             }
             if (!state.u.dx && !state.u.dy && !state.u.dz) {
-                const damage = await zapyourself(pseudo, true, state);
+                let damage = await zapyourself(pseudo, true, state);
                 if (damage !== 0) {
-                    throw new UnsupportedSpellCastError(
-                        'losehp() from a self-zap spell',
-                    );
+                    const buf =
+                        `zapped ${uhim(state)}self with a spell`;
+                    if (physical_damage)
+                        damage = Maybe_Half_Phys(damage, state);
+                    await losehp(damage, buf, NO_KILLER_PREFIX, state);
                 }
             } else {
                 await weffects(pseudo, state);
             }
-            update_inventory({ state });
+        } else {
+            await weffects(pseudo, state);
         }
+        update_inventory({ state });
+        break;
+
+    // Potion-duplicate spells.
+    case SPE_HASTE_SELF:
+    case SPE_DETECT_TREASURE:
+    case SPE_DETECT_MONSTERS:
+    case SPE_LEVITATION:
+    case SPE_RESTORE_ABILITY:
+        if (role_skill >= P_SKILLED)
+            pseudo.blessed = 1;
+        // falls through
+    case SPE_INVISIBILITY:
+        await peffects(pseudo, state);
         break;
 
     default:
