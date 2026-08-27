@@ -8,6 +8,10 @@ import {
     HELP_MENU_WHATIS_MOVES,
     loadHelpMenuShellRecipe,
 } from './run-help-menu-shell.mjs';
+import {
+    HELP_VERSION_MOVES,
+    loadHelpVersionRecipe,
+} from './run-help-version-information.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 test('the default help menu preserves pager.c rows and source selectors', () => {
@@ -64,15 +68,40 @@ test('an unported help target stops after its menu selection', async () => {
     let boundary;
     const replay = await runSegment({
         ...segment,
-        // `a` selects source table index 0, the version-information target.
-        moves: '?a',
+        // `b` selects source table index 1, the unported long-help target.
+        moves: '?b',
     }, {
         onBoundary: (error) => { boundary = error; },
     });
 
     assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
-    assert.match(boundary.message, /unsupported help: menu target 1/u);
+    assert.match(boundary.message, /unsupported help: menu target 2/u);
     // The start screen and complete help menu remain available to scoring.
     assert.equal(replay.getScreens().length, 2);
     assert.equal(game.context.pendingCommand?.key, '?'.charCodeAt(0));
 });
+
+test('help version information returns through the next command boundary',
+    () => withSerializedGrids(async () => {
+        const segment = loadHelpVersionRecipe().segments[0];
+        assert.equal(segment.moves, HELP_VERSION_MOVES);
+
+        const baseline = await runSegment({ ...segment, moves: '' });
+        const baselineMoves = game.moves;
+        const baselineRng = baseline.getRngLog().length;
+
+        let boundary;
+        const replay = await runSegment(segment, {
+            onBoundary: (error) => { boundary = error; },
+        });
+        assert.equal(boundary, undefined);
+        assert.equal(game.context.pendingCommand, undefined);
+        assert.equal(game.moves, baselineMoves);
+        // nhlua.c nhl_init() loads nhlib.lua, whose three-entry alignment
+        // shuffle adds the only two draws made by this command.
+        assert.equal(replay.getRngLog().length, baselineRng + 2);
+        // Fresh C seed 918273 records startup, the menu, two text pages, and
+        // the repaired map screen through five observable boundaries.
+        assert.equal(replay.getScreens().length, 5);
+        assert.equal(replay.getCursors().length, 5);
+    }));

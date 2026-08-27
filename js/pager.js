@@ -80,6 +80,7 @@ import {
     cmap_symbol_byte,
 } from './symbols.js';
 import { NO_COLOR } from './terminal.js';
+import { rn2 } from './rng.js';
 import { describeMonster } from './startup_a11y.js';
 import {
     displayTtyMenuTextWindow,
@@ -88,6 +89,7 @@ import {
     ttyMenuLayout,
 } from './tty_menu.js';
 import { ttyPline, ttyPutmixed } from './tty_message.js';
+import { doextversion } from './version.js';
 import { t_at, trapname } from './trap.js';
 import { couldsee } from './vision.js';
 import { getlin, select_menu } from './windows.js';
@@ -920,6 +922,13 @@ export async function dohelp(state = game) {
         cancelValue: null,
     });
     if (choice === null) return ECMD_OK;
+    if (choice === 1) {
+        await doextversion(state, {
+            displayTextWindow: displayTtyTextWindow,
+            random: rn2,
+        });
+        return ECMD_OK;
+    }
     if (choice === 5) {
         await dowhatis(state);
         return ECMD_OK;

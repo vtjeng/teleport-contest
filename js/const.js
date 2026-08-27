@@ -7,7 +7,8 @@ const MAXPCHARS = 105; // from symbols.js
 //   gstate.js (game state singleton, no imports from this DAG)
 //   terminal.js (leaf: ANSI color constants)
 //   hacklib.js (leaf: string utilities)
-//   version.js (leaf: build version)
+//   mdlib.js, nhlua.js (leaves: build text and Lua initialization)
+//   version.js (build version) <- imports: mdlib.js, nhlua.js
 //   const.js (this file) <- imports: terminal.js, hacklib.js, version.js, gstate.js
 //   objects.js <- imports: const.js
 //   monsters.js <- imports: const.js, objects.js

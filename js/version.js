@@ -1,4 +1,7 @@
 // version.js — Build version info
+
+import { do_runtime_info, runtime_info_init } from './mdlib.js';
+import { nhl_init } from './nhlua.js';
 export const VERSION = '0.1.0';
 export const BUILD_DATE = '2026-04-18';
 export const COMMIT = 'contest-skeleton';
@@ -9,6 +12,11 @@ export const VI_NUMBER = 1;
 export const VI_NAME = 2;
 export const VI_BRANCH = 4;
 export const NETHACK_VERSION = '5.0.0';
+
+const RECORDER_VERSION_ID =
+    'MacOS NetHack Version 5.0.0 - last build May  2 2026 12:00:00.';
+const LUA_VERSION = '5.4.8';
+const LUA_COPYRIGHT = 'Lua 5.4.8  Copyright (C) 1994-2025 Lua.org, PUC-Rio';
 
 const LONG_MAX = (1n << 63n) - 1n;
 const LONG_MIN = -(1n << 63n);
@@ -86,4 +94,57 @@ export function status_version(flags = {}, indent = false) {
     }
     const value = parts.join(' ');
     return indent ? ` ${value}` : value;
+}
+
+// C ref: version.c getversionstring(). The recorder is a release build, so
+// no git hash, branch, prefix, or runtime port suffix follows version_id.
+export function getversionstring() {
+    return RECORDER_VERSION_ID;
+}
+
+function get_lua_version(state, random) {
+    state.context ??= {};
+    if (!state.context.versionLuaInitialized) {
+        nhl_init(random);
+        state.context.versionLuaInitialized = true;
+    }
+    return LUA_VERSION;
+}
+
+// C ref: version.c insert_rtoption(). It initializes Lua for every first
+// colon-bearing line, even when that line only substitutes the regex token.
+function insert_rtoption(line, state, random) {
+    const luaVersion = get_lua_version(state, random);
+    return line
+        .replace(':PATMATCH:', 'posixregex')
+        .replace(':LUAVERSION:', luaVersion)
+        .replace(':LUACOPYRIGHT:', LUA_COPYRIGHT);
+}
+
+// C ref: version.c doextversion(). The injected renderer and RNG preserve
+// version.js as a leaf of const.js's initialization DAG.
+export async function doextversion(
+    state,
+    { displayTextWindow, random },
+) {
+    const lines = [{ text: getversionstring() }];
+    const runtimeLines = runtime_info_init();
+    const runtimeContext = { index: 0 };
+    let prolog = true;
+
+    for (;;) {
+        let line = do_runtime_info(runtimeLines, runtimeContext);
+        if (line === null) break;
+        line = line.replace(/[\r\n]+$/u, '').replaceAll('\t', '        ');
+        if (line && line[0] !== ' ') {
+            lines.push({ text: '' });
+            prolog = false;
+        }
+        if (prolog || !line) continue;
+        if (line.includes(':')) line = insert_rtoption(line, state, random);
+        lines.push({ text: line });
+    }
+
+    await displayTextWindow(state, lines);
+    return 0; // C: ECMD_OK.
 }
