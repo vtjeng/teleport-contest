@@ -5443,8 +5443,8 @@
         },
         {
           "name": "help-version-information",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "efdf32a61cd0127d3ae228950116c0e001cf02de"
         }
       ],
       "openedAt": "2ff2a1b74d22e07ed41dd2a1f018cc842468d316",
