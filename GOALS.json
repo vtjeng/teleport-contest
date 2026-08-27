@@ -4980,7 +4980,7 @@
     },
     {
       "id": "wear-speed-boots-on",
-      "status": "open",
+      "status": "closed",
       "boundary": "When #wear selects non-artifact SPEED_BOOTS (otyp 166) that can occupy an empty W_ARMF slot, complete the two-turn donning path through do_wear.c Boots_on()'s SPEED_BOOTS arm and common tail.",
       "upstreamOwners": [
         "do_wear.c"
@@ -5002,8 +5002,8 @@
       "slices": [
         {
           "name": "wear-speed-boots-on",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d1d678fb6ff7f749dc75e1973458bd0fc37a3b2d"
         }
       ],
       "openedAt": "cee2428a9c70173d673ed59c3f91478d101eb7d3",
@@ -5012,8 +5012,11 @@
         "screens": 2378,
         "rng": 155956
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "d1d678fb6ff7f749dc75e1973458bd0fc37a3b2d",
+      "delivered": {
+        "screens": 0,
+        "rng": 20
+      }
     }
   ]
 }
