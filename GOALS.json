@@ -4904,7 +4904,7 @@
     },
     {
       "id": "quaff-peffect-confusion",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero command: an unported branch of this command: quaffing requires peffect_confusion()",
       "upstreamOwners": [],
       "forecast": {
@@ -4924,8 +4924,8 @@
       "slices": [
         {
           "name": "quaff-confusion-effect",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "2a7c7eef2e454318bebefe49e55ba3f280dca467"
         }
       ],
       "openedAt": "f3e825a2a1321a437db8b115f65727d056e2dad8",
@@ -4934,8 +4934,11 @@
         "screens": 2376,
         "rng": 155883
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "2a7c7eef2e454318bebefe49e55ba3f280dca467",
+      "delivered": {
+        "screens": 0,
+        "rng": 73
+      }
     }
   ]
 }
