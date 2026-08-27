@@ -5061,7 +5061,7 @@
     },
     {
       "id": "monster-defensive-negative-search",
-      "status": "open",
+      "status": "closed",
       "boundary": "A wounded ordinary hostile monster continues its turn when find_defensive(mtmp, FALSE) finds neither a physical escape nor a defensive item and find_misc(mtmp) finds no miscellaneous action.",
       "upstreamOwners": [
         "muse.c"
@@ -5083,8 +5083,8 @@
       "slices": [
         {
           "name": "wounded-hostile-negative-defensive-search",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "82e4f44b873d0c82e978aa1f3907266a6cda5ac6"
         }
       ],
       "openedAt": "6403c50b2092f8df0a04fae9b0168d4ab139d6e1",
@@ -5093,8 +5093,11 @@
         "screens": 2381,
         "rng": 155996
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "82e4f44b873d0c82e978aa1f3907266a6cda5ac6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
