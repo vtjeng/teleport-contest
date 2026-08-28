@@ -5823,7 +5823,7 @@
     },
     {
       "id": "read-confused-teleport-scroll-to-level-tele",
-      "status": "open",
+      "status": "closed",
       "boundary": "A sighted, non-hallucinating wizard who can chant and selects a blessed SCR_TELEPORTATION while Confusion is nonzero follows read.c doread(), seffects(), and seffect_teleportation() through both reading messages and the magic-scroll Wisdom exercise, then fails closed immediately before teleport.c level_tele() opens its destination prompt.",
       "upstreamOwners": [
         "read.c"
@@ -5855,8 +5855,11 @@
         "screens": 2785,
         "rng": 156914
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "80e4dfae04ccd75ffc1e2c3c43585defde6580b8",
+      "delivered": {
+        "screens": 1,
+        "rng": 77
+      }
     }
   ]
 }
