@@ -8195,6 +8195,22 @@
       ],
       "outcome": "changed",
       "recordedAt": "2026-08-28T17:59:46.531Z"
+    },
+    {
+      "kind": "review",
+      "head": "29b3d054cfe4374c10a51b8719d2d57114d3f1db",
+      "auditedRange": "db87ab7f18743c155b9502d60129fe0635bfa378..29b3d054cfe4374c10a51b8719d2d57114d3f1db",
+      "level": "full",
+      "areas": [
+        "hero",
+        "generation",
+        "monsters",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "recordedAt": "2026-08-28T23:28:39.611Z"
     }
   ]
 }

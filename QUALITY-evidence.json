@@ -15427,5 +15427,101 @@
       "deferrals": []
     },
     "recordedAt": "2026-08-28T17:59:46.531Z"
+  },
+  {
+    "kind": "review",
+    "head": "29b3d054cfe4374c10a51b8719d2d57114d3f1db",
+    "auditedRange": "db87ab7f18743c155b9502d60129fe0635bfa378..29b3d054cfe4374c10a51b8719d2d57114d3f1db",
+    "level": "full",
+    "areas": [
+      "hero",
+      "generation",
+      "monsters",
+      "commands",
+      "display",
+      "runtime"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 13 raw, 13 deduplicated, 13 confirmed, 13 applied, 0 deferred, 0 rejected, 0 unverified. Fix commit bac0fc82: 5 production defects (Ugender arg, umoney ordering, v backpointer/WeakSet, resetobjs name-stripping, curse logic), 4 clarity (restore no-op comment, replacer comment, grid comment, magic numbers), 1 unused code (done_stopprint), 3 test improvements (PM constants, FROMFORM clearing, broader PROPSET coverage). Score: 2848 to 3046 screens (+198 from v backpointer fix unblocking seed5006 bones restoration), 162238 to 176041 RNG (+13803). 5369 tests pass (from 5368).",
+    "auditMetrics": {
+      "mode": "full",
+      "foundBy": [
+        "correctness",
+        "readability",
+        "tests",
+        "variable-trace"
+      ],
+      "counts": {
+        "raw": 13,
+        "deduplicated": 13,
+        "confirmed": 13,
+        "applied": 13,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "wallTimeSeconds": 900,
+      "categories": {
+        "production": 5,
+        "tests": 3,
+        "clarity": 4,
+        "simplification": 0,
+        "other": 1
+      },
+      "productionDefects": [
+        {
+          "file": "js/display.js",
+          "function": "_statusRoleText",
+          "summary": "Ugender(u) passes hero struct instead of game state, so polymorphed gender always resolves to MALE",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "file": "js/end.js",
+          "function": "really_done",
+          "summary": "umoney computed after savebones drains inventory (C computes it at end.c:1326 before savebones at 1363)",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "file": "js/bones.js",
+          "function": "savebones",
+          "summary": "WeakSet replacer nullifies legitimate shared mons[] references; v backpointer not stripped by cloneObjChain, causing circular-reference error in seed5006",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "file": "js/bones.js",
+          "function": "resetobjs",
+          "summary": "Name stripping exempts all CORPSE objects instead of only corpsenm >= SPECIAL_PM, and omits SPE_NOVEL exception",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "file": "js/bones.js",
+          "function": "drop_upon_death",
+          "summary": "Curse logic sets heavycurse on already-cursed items instead of C's unconditional blessed=0,cursed=1",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        }
+      ],
+      "readiness": {
+        "boundary": "The reviewed boundaries span bones creation (savebones, getbones, resetobjs, drop_upon_death), game termination (really_done tail with tombstone and farewell text), and polyself transformation (#polyself controlled-input through polymon for PM_GNOME, dropp hooks, weight_cap Upolyd adjustment, and status-line Upolyd selection).",
+        "sourceReview": "Every reachable branch and helper inside the implemented boundaries was traced against its upstream C source for state changes, PRNG order, rendering, and input waits. Stubs, explicit stops, and unported branches were identified at each boundary.",
+        "completeness": "No known unsupported behavior remains inside the completed boundaries. Excluded branches stop before changing state, consuming randomness, or producing output."
+      }
+    },
+    "recordedAt": "2026-08-28T23:28:39.611Z"
   }
 ]
