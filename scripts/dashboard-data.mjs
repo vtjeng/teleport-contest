@@ -52,10 +52,20 @@ const scoreEvents = scoreLines.map(line => {
   if (noteLower.includes('supersedes') || noteLower.includes('sha-correction')) return null;
 
   const commit = commitBySha.get(sha) || commitBySha.get(sha.slice(0, 7));
-  const utc = commit?.time || null;
+  const parsedUtc = tsStr ? new Date(tsStr) : null;
+  // Older ledger rows record a calendar date only. Midnight is not the event
+  // time, so retain the referenced commit time and label that fallback rather
+  // than fabricating intra-day ordering from the date.
+  const hasRecordedUtc = tsStr.includes('T')
+    && parsedUtc && !Number.isNaN(parsedUtc.getTime());
+  const utc = hasRecordedUtc ? parsedUtc : commit?.time || null;
 
   return {
-    utc, sha, event,
+    utc,
+    utcSource: hasRecordedUtc
+      ? 'score-utc'
+      : (tsStr ? 'score-date-commit-inferred' : 'score-commit-inferred'),
+    sha, event,
     sessionsPassed: cols[3] ? parseInt(cols[3]) : null,
     sessionsTotal: cols[4] ? parseInt(cols[4]) : null,
     screensMatched: cols[5] ? parseInt(cols[5]) : null,
@@ -149,7 +159,9 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
     const sliceCloseTime = sliceScore?.utc
       ?? (nextQueue ? new Date(nextQueue.time - 1) : closeTime);
     const closeTimeSource = sliceScore
-      ? 'score-slice'
+      ? (sliceScore.utcSource === 'score-utc'
+        ? 'score-slice'
+        : 'score-slice-commit-inferred')
       : nextQueue
         ? 'next-queue-inferred'
         : 'goal-close-inferred';
@@ -178,10 +190,11 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
   const totalSliceDurationMin = slices.reduce((sum, s) => sum + (s.durationMin || 0), 0);
 
   // Verification: last slice close → goal close
-  const lastSliceClose = goalSliceEvents.length > 0
-    ? goalSliceEvents[goalSliceEvents.length - 1].utc
+  const lastSlice = slices[slices.length - 1];
+  const lastSliceClose = lastSlice?.closeTimeSource === 'score-slice'
+    ? new Date(lastSlice.closeTime)
     : null;
-  const verificationMin = lastSliceClose
+  const verificationMin = lastSliceClose && sg.utcSource === 'score-utc'
     ? (closeTime - lastSliceClose) / 60000
     : null;
 
@@ -200,6 +213,7 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
     openTime: openTime.toISOString(),
     openTimeSource,
     closeTime: closeTime.toISOString(),
+    closeTimeSource: sg.utcSource,
     totalMin: Math.round(totalMin * 10) / 10,
     goalSelectionMin: goalSelectionMin !== null ? Math.round(goalSelectionMin * 10) / 10 : null,
     sliceSelectionMin: Math.round(totalSliceSelectionMin * 10) / 10,
@@ -207,8 +221,22 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
     verificationMin: verificationMin !== null ? Math.round(verificationMin * 10) / 10 : null,
     sliceCount: slices.length,
     slices,
-    timingObserved: openTimeSource === 'open-commit'
+    goalSelectionObserved: goalSelectionMin !== null
+      && scoreGoals[gi - 1]?.utcSource === 'score-utc',
+    sliceSelectionObserved: slices.length > 0
+      && openTimeSource === 'open-commit'
+      && slices.slice(0, -1).every(
+        (slice) => slice.closeTimeSource === 'score-slice',
+      ),
+    implementationObserved: slices.length > 0
       && slices.every((slice) => slice.closeTimeSource === 'score-slice'),
+    verificationObserved: verificationMin !== null,
+    totalObserved: openTimeSource === 'open-commit'
+      && sg.utcSource === 'score-utc',
+    timingObserved: openTimeSource === 'open-commit'
+      && slices.length > 0
+      && slices.every((slice) => slice.closeTimeSource === 'score-slice')
+      && sg.utcSource === 'score-utc',
     audits: goalAudits,
     screens: sg.screensMatched,
     screensTotal: sg.screensTotal,
@@ -246,6 +274,11 @@ for (const open of inProgressOpens) {
       e.utc && e.utc > queue.time && (!nextQueue || e.utc <= nextQueue.time)
     );
     const sliceCloseTime = sliceScore?.utc ?? now;
+    const closeTimeSource = sliceScore
+      ? (sliceScore.utcSource === 'score-utc'
+        ? 'score-slice'
+        : 'score-slice-commit-inferred')
+      : 'current-time-inferred';
     let sliceSelectionMin = null;
     if (qi > 0 && slices[qi - 1]?.closeTime) {
       sliceSelectionMin = (queue.time - new Date(slices[qi - 1].closeTime)) / 60000;
@@ -253,7 +286,7 @@ for (const open of inProgressOpens) {
     slices.push({
       queueTime: queue.time.toISOString(),
       closeTime: sliceCloseTime.toISOString(),
-      closeTimeSource: sliceScore ? 'score-slice' : 'current-time-inferred',
+      closeTimeSource,
       durationMin: Math.round((sliceCloseTime - queue.time) / 60000 * 10) / 10,
       sliceSelectionMin: sliceSelectionMin !== null ? Math.round(sliceSelectionMin * 10) / 10 : null,
       message: queue.message,
@@ -275,6 +308,7 @@ for (const open of inProgressOpens) {
     openTime: openTime.toISOString(),
     openTimeSource: 'open-commit',
     closeTime: null,
+    closeTimeSource: 'current-time-inferred',
     totalMin: Math.round(totalMin * 10) / 10,
     goalSelectionMin: null,
     sliceSelectionMin: Math.round(totalSliceSelectionMin * 10) / 10,
@@ -282,6 +316,11 @@ for (const open of inProgressOpens) {
     verificationMin: null,
     sliceCount: slices.length,
     slices,
+    goalSelectionObserved: false,
+    sliceSelectionObserved: false,
+    implementationObserved: false,
+    verificationObserved: false,
+    totalObserved: false,
     timingObserved: false,
     audits: goalAudits,
     screens: null,
@@ -330,7 +369,9 @@ const standaloneAudits = auditCommits
 const latest = progress[progress.length - 1];
 const closedGoals = goals.filter((goal) => goal.status !== 'in-progress');
 const recentGoals = closedGoals.slice(-20);
-const recentObservedGoals = recentGoals.filter((goal) => goal.timingObserved);
+const recentObservedGoals = recentGoals.filter(
+  (goal) => goal.implementationObserved,
+);
 
 function median(arr) {
   if (!arr.length) return null;
@@ -340,7 +381,9 @@ function median(arr) {
 }
 
 const recentWithGoalSel = recentGoals.filter(g => g.goalSelectionMin !== null && g.goalSelectionMin < 120);
-const recentWithVerif = recentGoals.filter(g => g.verificationMin !== null);
+const recentWithVerif = recentGoals.filter(
+  g => g.verificationObserved && g.verificationMin !== null,
+);
 
 const summary = {
   dataset: 'development',
@@ -358,7 +401,7 @@ const summary = {
   medianGoalSelectionMin: median(recentWithGoalSel.map(g => g.goalSelectionMin)),
   medianImplementationMin: median(recentObservedGoals.filter(g => g.sliceCount > 0 && g.implementationMin < 600).map(g => g.implementationMin)),
   medianVerificationMin: median(recentWithVerif.map(g => g.verificationMin)),
-  medianTotalMin: median(recentGoals.filter(g => g.openTimeSource === 'open-commit' && g.totalMin < 600).map(g => g.totalMin)),
+  medianTotalMin: median(recentGoals.filter(g => g.totalObserved && g.totalMin < 600).map(g => g.totalMin)),
 };
 
 const output = { goals, progress, standaloneAudits, summary };

@@ -10,10 +10,12 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { runInNewContext } from 'node:vm';
 
 const PROJECT_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_SCRIPT = join(PROJECT_ROOT, 'scripts', 'dashboard-data.mjs');
 const BUILD_SCRIPT = join(PROJECT_ROOT, 'scripts', 'build-dashboard.mjs');
+const TEMPLATE = join(PROJECT_ROOT, 'scripts', 'dashboard.template.html');
 const SCORE_HEADER = [
     'utc', 'sha', 'event', 'sessions_passed', 'sessions_total',
     'screens_matched', 'screens_total', 'rng_matched', 'rng_total',
@@ -38,9 +40,9 @@ function commit(cwd, message, time) {
     return git(cwd, ['rev-parse', 'HEAD']);
 }
 
-function scoreRow({ sha, event, screens, note }) {
+function scoreRow({ utc, sha, event, screens, note }) {
     const cells = Array(16).fill('');
-    cells[0] = '2026-01-01T00:00:00Z';
+    cells[0] = utc;
     cells[1] = sha;
     cells[2] = event;
     cells[3] = '1';
@@ -51,6 +53,53 @@ function scoreRow({ sha, event, screens, note }) {
     cells[8] = '1000';
     cells[15] = note;
     return cells.join('\t');
+}
+
+function renderDashboard(data) {
+    const elements = new Map();
+    const context2d = new Proxy({}, {
+        get(target, key) {
+            if (!(key in target)) target[key] = () => {};
+            return target[key];
+        },
+        set(target, key, value) {
+            target[key] = value;
+            return true;
+        },
+    });
+    const element = (id) => {
+        if (!elements.has(id)) {
+            elements.set(id, {
+                id,
+                innerHTML: '',
+                textContent: '',
+                style: {},
+                parentElement: { getBoundingClientRect: () => ({ width: 1000 }) },
+                getBoundingClientRect: () => ({ width: 1000 }),
+                getContext: () => context2d,
+            });
+        }
+        return elements.get(id);
+    };
+    const template = readFileSync(TEMPLATE, 'utf8');
+    const source = template.match(/<script>([\s\S]*?)<\/script>/u)[1]
+        .replace('/*DATA_PLACEHOLDER*/null', JSON.stringify(data));
+    const document = {
+        documentElement: {},
+        getElementById: element,
+        querySelectorAll: () => [],
+    };
+    const window = {
+        addEventListener: () => {},
+        devicePixelRatio: 1,
+        innerWidth: 1200,
+    };
+    runInNewContext(source, {
+        document,
+        window,
+        getComputedStyle: () => ({ getPropertyValue: () => '' }),
+    });
+    return elements;
 }
 
 test('dashboard separates closed goals and labels inferred timing', () => {
@@ -68,28 +117,42 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     const orphanClose = commit(
         fixture, 'Close orphan goal', '2026-01-01T00:50:00Z',
     );
-    commit(fixture, 'Open beta goal', '2026-01-01T01:00:00Z');
-    commit(fixture, 'Queue beta slice', '2026-01-01T01:10:00Z');
+    commit(fixture, 'Open empty goal', '2026-01-01T01:00:00Z');
+    const emptyClose = commit(
+        fixture, 'Close empty goal', '2026-01-01T01:10:00Z',
+    );
+    commit(fixture, 'Open beta goal', '2026-01-01T01:20:00Z');
+    commit(fixture, 'Queue beta slice', '2026-01-01T01:30:00Z');
 
     writeFileSync(join(fixture, 'SCORE.tsv'), [
         SCORE_HEADER,
         scoreRow({
+            utc: '2026-01-01T00:25:00Z',
             sha: alphaClose,
             event: 'slice',
             screens: 10,
             note: 'alpha slice closes.',
         }),
         scoreRow({
+            utc: '2026-01-01T00:30:00Z',
             sha: alphaClose,
             event: 'goal',
             screens: 10,
             note: 'alpha closes after one slice.',
         }),
         scoreRow({
+            utc: '2026-01-01T00:50:00Z',
             sha: orphanClose,
             event: 'goal',
             screens: 20,
             note: 'orphan closes after one slice.',
+        }),
+        scoreRow({
+            utc: '2026-01-01T01:10:00Z',
+            sha: emptyClose,
+            event: 'goal',
+            screens: 30,
+            note: 'empty closes without a slice.',
         }),
         '',
     ].join('\n'));
@@ -98,21 +161,100 @@ test('dashboard separates closed goals and labels inferred timing', () => {
         cwd: fixture,
         encoding: 'utf8',
     }));
-    assert.equal(data.goals.length, 3);
-    assert.equal(data.summary.totalGoals, 2);
+    assert.equal(data.goals.length, 4);
+    assert.equal(data.summary.totalGoals, 3);
     assert.equal(data.summary.inProgressGoals, 1);
 
-    const [alpha, orphan, beta] = data.goals;
+    const [alpha, orphan, empty, beta] = data.goals;
     assert.equal(alpha.openTimeSource, 'open-commit');
+    assert.equal(alpha.closeTimeSource, 'score-utc');
     assert.equal(alpha.slices[0].closeTimeSource, 'score-slice');
+    assert.equal(alpha.slices[0].closeTime, '2026-01-01T00:25:00.000Z');
+    assert.equal(alpha.slices[0].durationMin, 5);
     assert.equal(alpha.timingObserved, true);
     assert.equal(orphan.openTimeSource, 'previous-goal-close-inferred');
     assert.equal(orphan.slices[0].closeTimeSource, 'goal-close-inferred');
     assert.equal(orphan.timingObserved, false);
+    assert.equal(empty.sliceCount, 0);
+    assert.equal(empty.timingObserved, false);
     assert.equal(beta.status, 'in-progress');
     assert.equal(beta.slices[0].closeTimeSource, 'current-time-inferred');
-    assert.equal(data.summary.medianImplementationMin, 10);
-    assert.equal(data.summary.medianTotalMin, 20);
+    assert.equal(data.summary.medianImplementationMin, 5);
+    assert.equal(data.summary.medianVerificationMin, 5);
+    assert.equal(data.summary.medianTotalMin, 15);
+
+    const rendered = renderDashboard({
+        ...data,
+        goals: data.goals.filter((goal) => goal.status !== 'in-progress'),
+    });
+    const table = rendered.get('goalTable').innerHTML;
+    const orphanRow = table.split('</tr>').find((row) => row.includes('orphan'));
+    const alphaRow = table.split('</tr>').find((row) => row.includes('alpha'));
+    assert.match(orphanRow, /10m \(inferred\)/u);
+    assert.match(orphanRow, /Implementation: 10m \(inferred\)/u);
+    assert.match(alphaRow, /Implementation: 5m \(recorded\)/u);
+    assert.doesNotMatch(alphaRow, /5m \(inferred\)/u);
+
+    const timeline = rendered.get('timeline').innerHTML;
+    assert.match(
+        timeline,
+        /Implementation: 10m \(end inferred\) — Queue orphan slice/u,
+    );
+    assert.match(timeline, /Implementation: 5m — Queue alpha slice/u);
+});
+
+test('verification requires a recorded final slice closure', () => {
+    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-verif-'));
+    git(fixture, ['init', '--quiet']);
+    git(fixture, ['config', 'user.name', 'Dashboard Test']);
+    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
+    commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
+    commit(fixture, 'Open multi goal', '2026-01-01T00:05:00Z');
+    commit(fixture, 'Queue first slice', '2026-01-01T00:10:00Z');
+    const firstClose = commit(
+        fixture, 'Close first slice', '2026-01-01T00:20:00Z',
+    );
+    commit(fixture, 'Queue second slice', '2026-01-01T00:30:00Z');
+    const secondClose = commit(
+        fixture, 'Close second slice', '2026-01-01T00:40:00Z',
+    );
+    const goalClose = commit(
+        fixture, 'Close multi goal', '2026-01-01T01:00:00Z',
+    );
+    const rows = [
+        SCORE_HEADER,
+        scoreRow({
+            utc: '2026-01-01T00:20:00Z', sha: firstClose,
+            event: 'slice', screens: 10, note: 'first slice closes.',
+        }),
+        scoreRow({
+            utc: '2026-01-01T01:00:00Z', sha: goalClose,
+            event: 'goal', screens: 20, note: 'multi closes after two slices.',
+        }),
+        '',
+    ];
+    writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
+
+    const runData = () => JSON.parse(execFileSync(
+        process.execPath, [DATA_SCRIPT], { cwd: fixture, encoding: 'utf8' },
+    ));
+    const inferred = runData();
+    assert.equal(
+        inferred.goals[0].slices[1].closeTimeSource,
+        'goal-close-inferred',
+    );
+    assert.equal(inferred.goals[0].verificationMin, null);
+    assert.equal(inferred.summary.medianVerificationMin, null);
+
+    rows.splice(-1, 0, scoreRow({
+        utc: '2026-01-01T00:40:00Z', sha: secondClose,
+        event: 'slice', screens: 15, note: 'second slice closes.',
+    }));
+    writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
+    const observed = runData();
+    assert.equal(observed.goals[0].verificationMin, 20);
+    assert.equal(observed.goals[0].verificationObserved, true);
+    assert.equal(observed.summary.medianVerificationMin, 20);
 });
 
 test('dashboard builder injects data into a standalone HTML file', () => {

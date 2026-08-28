@@ -31,8 +31,10 @@ import {
     trap_to_glyph,
 } from '../js/display.js';
 import {
+    GLYPH_BODY_OFF,
     GLYPH_DETECT_FEM_OFF,
     GLYPH_DETECT_MALE_OFF,
+    GLYPH_INVIS_OFF,
     GLYPH_MON_FEM_OFF,
     GLYPH_MON_MALE_OFF,
     GLYPH_PET_FEM_OFF,
@@ -429,6 +431,9 @@ test('monster glyph recognition includes every display.h monster family', () => 
         false,
     );
     assert.equal(glyph_is_monster(NO_GLYPH), false);
+    assert.equal(glyph_is_monster(GLYPH_INVIS_OFF), false);
+    assert.equal(glyph_is_monster(GLYPH_BODY_OFF), false);
+    assert.equal(glyph_is_monster(GLYPH_BODY_OFF + NUMMONS - 1), false);
 });
 
 test('trapped_chest_at scans each direct inventory owner only', () => {

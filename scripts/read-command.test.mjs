@@ -1,10 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ADMITTED_COMMANDS, failClosedCommandRefusals } from '../js/cmd.js';
 import {
+    ADMITTED_COMMANDS,
+    cmdq_peek,
+    failClosedCommandRefusals,
+} from '../js/cmd.js';
+import {
+    CMDQ_KEY,
     COLNO,
     CORR,
+    CQ_REPEAT,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -389,6 +395,10 @@ test('declining a fresh known healing spellbook refresh takes no turn',
         game._pending_message,
         /^Refresh your memory anyway\? \[yn\] \(n\) /u,
     );
+    assert.deepEqual(cmdq_peek(CQ_REPEAT, game), {
+        typ: CMDQ_KEY,
+        key: 'n'.charCodeAt(0),
+    });
 });
 
 test('accepting a known healing refresh stops before study state', async () => {
@@ -419,6 +429,10 @@ test('accepting a known healing refresh stops before study state', async () => {
     assert.equal(game.context.spbook.book, null);
     assert.equal(book.in_use, false);
     assert.equal(game.go?.occupation ?? null, null);
+    assert.deepEqual(cmdq_peek(CQ_REPEAT, game), {
+        typ: CMDQ_KEY,
+        key: 'y'.charCodeAt(0),
+    });
 });
 
 test('the command wrapper retains an accepted refresh refusal for retry', async () => {
@@ -443,6 +457,10 @@ test('the command wrapper retains an accepted refresh refusal for retry', async 
     assert.equal(game.context.spbook.delay, -2);
     assert.equal(book?.in_use, false);
     assert.equal(game.go?.occupation ?? null, null);
+    // failClosedCommand() resets command variables before exposing a
+    // retryable boundary, so the parsed command is retained but its partial
+    // repeat answer is not.
+    assert.equal(cmdq_peek(CQ_REPEAT, game), null);
     // Startup and the accepted prompt branch add no command-local draw.
     const acceptedRngCalls = replay.getRngLog().length;
     const baseline = await runSegment({

@@ -536,6 +536,8 @@ test('help version information returns through the next command boundary',
         assertHelpReplay(replay, 'version');
 
         const rngAfterFirstDisplay = replay.getRngLog().length;
+        const screensBeforeSecondDisplay = replay.getScreens().length;
+        const cursorsBeforeSecondDisplay = replay.getCursors().length;
         game.nhDisplay.pushKey('a'.charCodeAt(0));
         game.nhDisplay.pushKey(' '.charCodeAt(0));
         game.nhDisplay.pushKey(' '.charCodeAt(0));
@@ -543,4 +545,15 @@ test('help version information returns through the next command boundary',
         // version.c caches gl.lua_ver within one process, so the second
         // display renders normally without another nhl_init() shuffle.
         assert.equal(replay.getRngLog().length, rngAfterFirstDisplay);
+        assert.equal(replay.getScreens().length, screensBeforeSecondDisplay + 3);
+        assert.equal(replay.getCursors().length, cursorsBeforeSecondDisplay + 3);
+        assert.equal(
+            digest(replay.getScreens().slice(screensBeforeSecondDisplay)),
+            '910222e3506d365814e62622f3b8e920d3048d371b241a440ac1824557ff4471',
+        );
+        assert.equal(
+            digest(replay.getCursors().slice(cursorsBeforeSecondDisplay)),
+            '2dccb1ea31568a5504146686a74d83d5b7aae0081e5be1b840d6121878d914c2',
+        );
+        assert.equal(game.nhDisplay.inputQueueLength, 0);
     }));

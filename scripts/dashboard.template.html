@@ -429,6 +429,9 @@ function fmt(n) {
 }
 function fmtN(n) { return n == null ? '-' : n.toLocaleString(); }
 function pct(a, b) { return b ? (a / b * 100).toFixed(1) + '%' : '-'; }
+function fmtTiming(n, observed) {
+  return n == null ? '-' : fmt(n) + (observed ? '' : ' (inferred)');
+}
 
 function relativeTime(iso) {
   const ms = Date.now() - new Date(iso).getTime();
@@ -713,16 +716,17 @@ window.addEventListener('resize', drawProgressChart);
   goals.forEach((g, i) => {
     const screensCell = g.screens !== null ? g.screens : '-';
     const parts = [
-      { min: g.goalSelectionMin || 0, var: '--phase-goal-sel' },
-      { min: g.sliceSelectionMin || 0, var: '--phase-slice-sel' },
-      { min: g.implementationMin || 0, var: '--phase-impl' },
-      { min: g.verificationMin || 0, var: '--phase-verif' },
+      { label: 'Goal selection', min: g.goalSelectionMin || 0, var: '--phase-goal-sel', observed: g.goalSelectionObserved },
+      { label: 'Slice selection', min: g.sliceSelectionMin || 0, var: '--phase-slice-sel', observed: g.sliceSelectionObserved },
+      { label: 'Implementation', min: g.implementationMin || 0, var: '--phase-impl', observed: g.implementationObserved },
+      { label: 'Verification', min: g.verificationMin || 0, var: '--phase-verif', observed: g.verificationObserved },
     ];
     const barTotal = parts.reduce((s, p) => s + p.min, 0) || 1;
 
     const bar = '<div class="phase-bar">' + parts.map(p => {
       const w = Math.max((p.min / barTotal) * 100, p.min > 0 ? 2 : 0);
-      return '<div class="phase-bar-seg" style="width:' + w + '%;background:var(' + p.var + ')"></div>';
+      const provenance = p.observed ? 'recorded' : 'inferred';
+      return '<div class="phase-bar-seg" style="width:' + w + '%;background:var(' + p.var + ')" title="' + p.label + ': ' + fmt(p.min) + ' (' + provenance + ')" aria-label="' + p.label + ': ' + fmt(p.min) + ' (' + provenance + ')"></div>';
     }).join('') + '</div>';
 
     const auditBadge = g.audits.length > 0 ? ' <span class="audit-badge" title="' + g.audits.map(a => a.message).join('\\n').replace(/"/g, '&quot;') + '">audit</span>' : '';
@@ -731,7 +735,7 @@ window.addEventListener('resize', drawProgressChart);
     const trClass = g.status === 'in-progress' ? ' class="in-progress"' : '';
 
     const startCell = fmtDate(g.openTime) + (g.openTimeSource === 'open-commit' ? '' : ' (inferred)');
-    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td>' + g.name + auditBadge + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmt(g.totalMin) + '</td><td>' + fmt(g.goalSelectionMin) + '</td><td>' + fmt(g.sliceSelectionMin || 0) + '</td><td>' + fmt(g.implementationMin) + '</td><td>' + fmt(g.verificationMin) + '</td><td>' + bar + '</td></tr>';
+    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td>' + g.name + auditBadge + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td><td>' + fmtTiming(g.goalSelectionMin, g.goalSelectionObserved) + '</td><td>' + fmtTiming(g.sliceSelectionMin || 0, g.sliceSelectionObserved) + '</td><td>' + fmtTiming(g.implementationMin, g.implementationObserved) + '</td><td>' + fmtTiming(g.verificationMin, g.verificationObserved) + '</td><td>' + bar + '</td></tr>';
   });
 
   html += '</tbody>';
