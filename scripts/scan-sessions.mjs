@@ -1658,18 +1658,19 @@ export async function main(args) {
             + '\n  --ahead-all              append every candidate\'s'
             + ' look-ahead streams and divergence\n'
             + '                           candidate stretches to the report.'
-            + '\n  --capped-ranking         emit a JSON capped ranking using'
-            + ' cached caps from\n'
-            + '                           .cache/session-frontiers.json.'
-            + ' Candidates with\n'
-            + '                           non-stable sessions are marked'
-            + ' tentative.'
+            + '\n  --winner                 emit the winner as JSON.'
+            + ' Prefers the top cap-stable\n'
+            + '                           candidate. Returns winner: null'
+            + ' when no cap-stable\n'
+            + '                           candidate has forecast > 0.'
+            + '\n  --needs-capping          list sessions that need'
+            + ' re-capping, each with\n'
+            + '                           its boundary.'
             + '\n  --json                   emit the same figures in'
             + ' machine-readable form.'
-            + '\n  --write-cache            write the replay rows to'
-            + ' .cache/scan-cache.json after the scan.'
-            + '\n  --read-cache             skip the replay when'
-            + ' .cache/scan-cache.json matches HEAD.'
+            + '\n  --debug-full-replay      force a fresh replay even when'
+            + ' .cache/scan-cache.json\n'
+            + '                           matches HEAD. For debugging only.'
             + '\n  --set-cap=<session>=<n>  store a capped stretch for one'
             + ' session in\n'
             + '                           .cache/session-frontiers.json.'
@@ -1681,17 +1682,18 @@ export async function main(args) {
     }
     const rejected = args.find((arg) => arg !== '--json'
         && arg !== '--ahead-all'
-        && arg !== '--capped-ranking'
-        && arg !== '--write-cache'
-        && arg !== '--read-cache'
+        && arg !== '--needs-capping'
+        && arg !== '--winner'
+        && arg !== '--debug-full-replay'
         && !orders.some((order) => arg === `--by=${order}`)
         && !arg.startsWith(AHEAD_PREFIX)
         && !arg.startsWith(SET_CAP_PREFIX));
     if (rejected !== undefined) {
         throw new Error(
             `only --json, --by=<${orders.join('|')}>, `
-            + `${AHEAD_PREFIX}<behavior>, --ahead-all, --write-cache, `
-            + `--read-cache and ${SET_CAP_PREFIX}<session>=<n> are accepted`,
+            + `${AHEAD_PREFIX}<behavior>, --ahead-all, --needs-capping, `
+            + `--debug-full-replay`
+            + ` and ${SET_CAP_PREFIX}<session>=<n> are accepted`,
         );
     }
     const json = args.includes('--json');
@@ -1700,7 +1702,7 @@ export async function main(args) {
     const ahead = args.find((arg) => arg.startsWith(AHEAD_PREFIX))
         ?.slice(AHEAD_PREFIX.length);
     const aheadAll = args.includes('--ahead-all');
-    const cappedRankingMode = args.includes('--capped-ranking');
+    const winnerMode = args.includes('--winner');
     if (aheadAll && ahead !== undefined) {
         throw new Error(
             '--ahead-all already prints every candidate; drop --ahead=<behavior>',
@@ -1710,11 +1712,10 @@ export async function main(args) {
         .filter((arg) => arg.startsWith(SET_CAP_PREFIX))
         .map((arg) => arg.slice(SET_CAP_PREFIX.length));
 
-    const useCache = args.includes('--read-cache');
-    const writeCache = args.includes('--write-cache');
+    const forceReplay = args.includes('--debug-full-replay');
 
     let rows;
-    const cached = useCache ? readScanCache() : null;
+    const cached = forceReplay ? null : readScanCache();
     if (cached) {
         rows = cached;
     } else {
@@ -1725,8 +1726,8 @@ export async function main(args) {
         const scanned = [];
         for (const file of files) scanned.push(await scanSession(file));
         rows = attachBehaviors(scanned);
+        writeScanCache(rows);
     }
-    if (writeCache && !cached) writeScanCache(rows);
 
     annotateFrontiers(rows, readFrontiers());
     annotateScorerData(rows);
@@ -1736,16 +1737,32 @@ export async function main(args) {
         return;
     }
 
-    if (cappedRankingMode) {
+    const needsCappingMode = args.includes('--needs-capping');
+    if (winnerMode || needsCappingMode) {
         const ranked = cappedRanking(rows);
-        const needsCapping = ranked.flatMap((c) =>
-            c.sessions.filter((s) => !s.capStable && !s.divergenceZeroed)
-                .map((s) => s.session));
+
+        if (needsCappingMode) {
+            const needsCappingList = ranked.flatMap((c) =>
+                c.sessions.filter((s) => !s.capStable && !s.divergenceZeroed)
+                    .map((s) => ({ session: s.session, boundary: c.member })));
+            console.log(JSON.stringify({
+                needsCapping: needsCappingList,
+            }, null, 2));
+            return;
+        }
+        const needsCappingCount = ranked.reduce((n, c) =>
+            n + c.sessions.filter((s) =>
+                !s.capStable && !s.divergenceZeroed).length, 0);
+        const allStable = needsCappingCount === 0;
+        const capStableWinner = allStable ? null
+            : ranked.find((c) => c.cappedForecast > 0
+                && c.sessions.every((s) => s.capStable || s.divergenceZeroed))
+            ?? null;
+        const winner = capStableWinner ?? (allStable ? ranked[0] : null) ?? null;
         console.log(JSON.stringify({
-            winner: ranked[0] ?? null,
-            ranking: ranked,
-            needsCapping,
-            allStable: needsCapping.length === 0,
+            winner,
+            allStable,
+            needsCapping: needsCappingCount,
         }, null, 2));
         return;
     }

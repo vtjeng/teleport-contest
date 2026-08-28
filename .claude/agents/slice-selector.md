@@ -11,9 +11,9 @@ slices; that is outside this agent's scope.
 
 ## Method
 
-1. Run `node scripts/scan-sessions.mjs --read-cache`, which prints a
-   development-session census. The `--read-cache` flag skips the replay when
-   the goal-selector already ran it at the same commit.
+1. Run `node scripts/scan-sessions.mjs`, which prints a development-session
+   census. The scan uses a cached replay when HEAD has not moved since the
+   last run.
 2. In `.agents/selection.md`, read "Reading the census" for the scan output
    and its two interpretation rules, and the closing paragraphs of "Choosing
    a goal" for how goals divide into slices and how large a slice may grow.

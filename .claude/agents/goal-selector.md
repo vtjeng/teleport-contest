@@ -18,35 +18,37 @@ slicing to that agent.
 1. Check `node scripts/goal-log.mjs --current --detail` for queued goals. If
    a goal is already queued, take it: report its boundary and forecast, and
    skip to "What to report." The queue is typically empty.
-2. Run `node scripts/scan-sessions.mjs --capped-ranking --write-cache`. The
-   script replays the development sessions, applies cached caps from
-   `.cache/session-frontiers.json`, and produces a capped ranking. It flags
-   sessions that need re-capping and marks candidates with non-stable
-   sessions as `tentative`.
-3. If every session is cap-stable (`allStable` is true), the script's winner
-   is the goal. Skip to step 5. Otherwise, for each session in
-   `needsCapping`, hand its `--ahead` stream to a `sonnet-worker` classifier
-   to produce a capped stretch. Persist each result with
-   `node scripts/scan-sessions.mjs --set-cap=<session>=<n>`. Then rerun
-   `node scripts/scan-sessions.mjs --capped-ranking --read-cache` to get the
-   final ranking with updated caps.
+2. Run `node scripts/scan-sessions.mjs --winner`. The script replays the
+   development sessions (or uses a cached replay when HEAD has not moved),
+   applies cached caps from `.cache/session-frontiers.json`, and returns the
+   top cap-stable candidate as the winner. If no cap-stable candidate has
+   forecast > 0, it returns `winner: null`.
+3. Take the cap-stable candidate with the highest capped forecast. Break
+   ties by session count. A cap-stable candidate is one whose sessions all
+   have `capStable: true` or `divergenceZeroed: true`. Tentative candidates
+   (sessions with null `cappedStretch`) are not eligible.
+
+   If no cap-stable candidate has forecast > 0, run
+   `node scripts/scan-sessions.mjs --needs-capping` to list the sessions
+   that need capping. For each session, hand its `--ahead` stream to a
+   `sonnet-worker` classifier to produce a capped stretch. Persist each
+   result with `node scripts/scan-sessions.mjs --set-cap=<session>=<n>`.
+   Then rerun `node scripts/scan-sessions.mjs --winner` and take
+   the winner.
 4. Read `.agents/selection.md` for the selection rules. Confirm that the
-   winner satisfies: ranked by capped forecast, ties broken by session count.
-   If the rerun changed the winner, verify the new winner's forecast.
+   winner satisfies the ranking rule.
 5. For every session in the winner's forecast, confirm that a C-path witness
-   exists. Read the previous `.cache/selector-candidates.json`: a cap-stable
-   session whose boundary matches a cached candidate's witness is
-   witness-stable — reuse its cached witness verbatim. For each non-stable
-   session, spawn a `sonnet-worker` to trace the exact C path at its first
-   stop from the scan's replay and report the governing state and option
-   preconditions.
-6. Determine the winning candidate's bounding property and size. If the
-   winner appeared in the previous `.cache/selector-candidates.json` with
-   the same `id`, `boundary`, and `sessions`, reuse its cached `detail`.
-   Otherwise spawn a `sonnet-worker` to read the C source the goal would
-   port, state its bounding property, and judge its size against
-   `.agents/selection.md`. The census supplies the counts; only the source
-   shows where the goal ends.
+   exists. Read `.cache/goal-context.json`: if its `boundary` and `sessions`
+   match the winner, reuse its cached witnesses verbatim. For each session
+   without a cached witness, spawn a `sonnet-worker` to trace the exact C
+   path at its first stop from the scan's replay and report the governing
+   state and option preconditions.
+6. Determine the winning candidate's bounding property and size. If
+   `.cache/goal-context.json` matches the winner's `boundary` and
+   `sessions`, reuse its cached `detail`. Otherwise spawn a `sonnet-worker`
+   to read the C source the goal would port, state its bounding property,
+   and judge its size against `.agents/selection.md`. The census supplies
+   the counts; only the source shows where the goal ends.
 
 Choose the goal without asking the user.
 
@@ -55,15 +57,11 @@ directory or any path inside it to another agent or tool.
 
 ## What to report
 
-Write every candidate you capped during the ranking to
-`.cache/selector-candidates.json` as a JSON array ordered by capped forecast
-(highest first).
-
 Write the winning candidate's entry to `.cache/goal-context.json` as a
-single object with the same fields. The slice-selector and worker read
-this file for the current goal's context.
+single object. The slice-selector and worker read this file for the
+current goal's context.
 
-Each candidate element has:
+The entry has:
 
 ```json
 {
