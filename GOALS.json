@@ -5720,8 +5720,8 @@
       "slices": [
         {
           "name": "non-expiring-confusion-timeout-countdown",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "6b3f2f95f35b5a552853c7d1bff05703a7ae1e73"
         }
       ],
       "openedAt": "4de5f51866818bbf9d7d194a4859960fe7d8f50f",
