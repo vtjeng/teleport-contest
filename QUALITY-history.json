@@ -15297,5 +15297,135 @@
       ]
     },
     "recordedAt": "2026-08-28T03:55:08.714Z"
+  },
+  {
+    "kind": "review",
+    "head": "db87ab7f18743c155b9502d60129fe0635bfa378",
+    "auditedRange": "0619ae8565a88676fb3e6cce6a6aa72993f8fdab..db87ab7f18743c155b9502d60129fe0635bfa378",
+    "level": "full",
+    "areas": [
+      "startup",
+      "hero",
+      "objects",
+      "generation",
+      "monsters",
+      "commands",
+      "runtime"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 16 raw, 15 deduplicated, 3 confirmed, 3 applied, 0 deferred, 12 rejected, 0 unverified. Counts: 16 raw, 15 deduplicated, 3 confirmed, 3 applied, 0 deferred, 12 rejected, 0 unverified. Full correctness audit with mandatory behavior, readability-risk, test-quality, and variable-flow finders; no optional finders triggered. Three production defects fixed in db87ab7: thrwmu retreat rn2 argument (mux/muy vs ux/uy), make_blinded probe (xtime ? 1 : 0 vs hardcoded 1), formatkiller switch fall-through order (default to NO_KILLER_PREFIX vs KILLED_BY_AN). Each regression test observed failing against the old code. Validation at db87ab7: full checkpoint passes; development score 2821/7765 screens (+10 from thrwmu fix), 159546/610816 RNG, 2880/7765 cursors.",
+    "auditMetrics": {
+      "mode": "full",
+      "foundBy": [
+        "correctness",
+        "readability",
+        "tests",
+        "variable-trace"
+      ],
+      "counts": {
+        "raw": 16,
+        "deduplicated": 15,
+        "confirmed": 3,
+        "applied": 3,
+        "deferred": 0,
+        "rejected": 12,
+        "unverified": 0
+      },
+      "wallTimeSeconds": 1158,
+      "categories": {
+        "production": 3,
+        "tests": 0,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "file": "js/mthrowu.js",
+          "function": "thrwmu",
+          "summary": "thrwmu() retreat rn2 uses hero-to-monster distance instead of monster-to-target distance",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "file": "js/potion.js",
+          "function": "make_blinded",
+          "summary": "make_blinded() probe hardcodes 1 instead of xtime ? 1 : 0, skipping toggle_blindness on sight restoration",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "file": "js/topten.js",
+          "function": "formatkiller",
+          "summary": "formatkiller() switch default falls through to KILLED_BY_AN instead of NO_KILLER_PREFIX",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        }
+      ],
+      "readiness": {
+        "boundary": "The reviewed gameplay boundaries span nine C-to-JS gameplay ports: lamp rub through djinni release, monster ranged weapon wield through missile settlement, confusion countdown, cream pie application, wipe occupation, confused teleport scroll reading through level_tele, zapyourself WAN_DEATH, and really_done bones prompt. Each path starts at a live player command or game event and ends at the next player-visible result or explicit refusal.",
+        "sourceReview": "Every reachable branch and helper inside the implemented boundaries was traced against its upstream C source for state changes, PRNG order, rendering, and input waits. Stubs, explicit stops, and unported branches were identified at each boundary.",
+        "completeness": "No known unsupported behavior remains inside the completed boundaries. Excluded branches stop before changing state, consuming randomness, or producing output."
+      },
+      "rejections": [
+        {
+          "summary": "ordinaryWipeState takes (state, timeout) but timeout's role is undocumented",
+          "counterEvidence": "The values 2 and 3 are correct for their lifecycle positions, and the function body directly shows timeout is compared against ucreamed and blinded.intrinsic. Readability polish belongs to a clarity audit. Do not reopen without an incorrect behavioral outcome."
+        },
+        {
+          "summary": "disclose() comment claims should_query_disclose_option can return defquery values it cannot",
+          "counterEvidence": "The dead guard at line 641 is correct defensive coding following the codebase's fail-closed pattern. The code correctly skips categories when ask=false and defquery='n'. A misleading comment is a clarity concern, not a correctness defect. Do not reopen without incorrect runtime behavior."
+        },
+        {
+          "summary": "File-private propertyActive has reversed parameter order and different semantics in mthrowu.js vs read.js",
+          "counterEvidence": "Both functions are file-private (not exported) and used correctly at their respective call sites. They implement different C code paths: mthrowu.c's Maybe_Half_Phys macro (no blocked check) vs read.c's effective property check. No runtime confusion is possible. Do not reopen without a runtime collision or incorrect behavioral outcome."
+        },
+        {
+          "summary": "const singleobj = obj introduces an alias for the parameter with no distinction",
+          "counterEvidence": "The alias preserves the C variable name so a reader comparing JS with C source can follow the correspondence. The alias is identity (singleobj === obj), costs nothing, and the C name is used throughout the function. Do not reopen without a behavioral consequence of the alias."
+        },
+        {
+          "summary": "decrement_property_timeouts calls heal_legs() without checking property index",
+          "counterEvidence": "The comment at the function header (lines 430-437) names the invariant, the C line, and explains why WOUNDED_LEGS is the only case that can reach the handler. The preflight enforces the contract. Do not reopen without a reachable path that violates the contract."
+        },
+        {
+          "summary": "throwRangedWeapon passes ~30 operation callbacks in a single flat object",
+          "counterEvidence": "The operations-object pattern is consistent with how the codebase passes environment bindings. All operations reach their intended consumers correctly. Documentation and structural reorganization belongs to a clarity or simplification pass. Do not reopen without a behavioral defect."
+        },
+        {
+          "summary": "plannedAnnouncementWaits couples message and throwMissile callbacks through a mutable closure",
+          "counterEvidence": "The ordering contract is enforced by the C source order preserved in monshoot(). The closure coupling is the intentional design for the planning path. Code produces correct behavior as confirmed by differential comparison. Do not reopen without an incorrect execution order."
+        },
+        {
+          "summary": "Cream pie timeout assertion uses range check instead of pinning exact rnd(25) result",
+          "counterEvidence": "The game code produces the correct rnd(25) result, verified by differential comparison. The differential scoring system catches any call-for-call mismatch. A less-precise assertion is a test quality decision, not a correctness defect. Do not reopen without an undetected incorrect value."
+        },
+        {
+          "summary": "djinni_from_bottle unit tests mock with argument-ignoring stubs",
+          "counterEvidence": "The game code passes the correct arguments, verified by differential comparison. The integration tests via runSegment validate the full behavioral chain. Stricter mocks are a test quality improvement, not a correctness fix. Do not reopen without an incorrect argument being passed undetected."
+        },
+        {
+          "summary": "random_teleport_level has no test for the In_hell max_depth reduction",
+          "counterEvidence": "The JS code matches the C source exactly at teleport.c:2233-2234. The differential scoring validates correctness for sessions that reach this path. Missing test coverage for a correct code path is not a correctness defect. Do not reopen without incorrect behavior in the In_hell path."
+        },
+        {
+          "summary": "random_teleport_level has no test for the nlev < min_depth correction branch",
+          "counterEvidence": "The JS code matches the C source exactly at teleport.c:2249-2256. The three existing tests cover the main path, skip path, and Is_botlevel clamping. Missing test coverage is a coverage gap, not a correctness defect. Do not reopen without incorrect behavior in the nlev < min_depth branch."
+        },
+        {
+          "summary": "Death ray survive-path test asserts uhp > 0 without pinning exact restored value",
+          "counterEvidence": "The game code correctly implements savelife()'s HP restoration, verified by differential comparison. The test validates the behavioral outcome (hero survives with positive HP). Pinning the exact value is a test precision improvement. Do not reopen without an undetected incorrect HP value."
+        }
+      ],
+      "deferrals": []
+    },
+    "recordedAt": "2026-08-28T17:59:46.531Z"
   }
 ]
