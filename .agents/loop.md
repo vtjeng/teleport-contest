@@ -68,7 +68,9 @@ The orchestrator repeats without returning to the user between steps:
    `.agents/workflow.md`, "Pushing and CI", states. After pushing, spawn
    a background agent to run
    `node scripts/pipeline-candidates.mjs --advance`, cap stale sessions,
-   and trace witnesses. It runs alongside the next slice.
+   trace witnesses, and store results with
+   `node scripts/pipeline-candidates.mjs --set-metadata` (pipe the JSON
+   into stdin). It runs alongside the next slice.
 
 4. Run `npm run quality` yourself; no worker reports it. If the output
    shows `DUE`, run the required review pass before continuing
