@@ -5995,8 +5995,8 @@
         },
         {
           "name": "polyself-dropp-hook-wiring",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "3e300336cb79ed6ed215f63279c26ecff93e3daa"
         }
       ],
       "openedAt": "e7f1cf4e10293eb0e935528be90dc68d1f6a73ff",
