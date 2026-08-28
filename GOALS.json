@@ -5614,6 +5614,11 @@
           "name": "rub-lamp-wield-requeue",
           "status": "closed",
           "closedBy": "02ccb2f95e76d0d114d42cee61ddf48c7bf1d7bc"
+        },
+        {
+          "name": "rub-magic-lamp-nonrelease",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "c8f865370fa99ce793e2776bc8ab6dd2cd5bd1b2",
