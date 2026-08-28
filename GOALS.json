@@ -5640,7 +5640,7 @@
     },
     {
       "id": "monster-ranged-weapon-single-shot-hit",
-      "status": "open",
+      "status": "closed",
       "boundary": "When mattacku() reaches a non-Rogue-level range2 AT_WEAP attack, thrwmu() selects an already-ready, single-shot ordinary non-polearm and non-returning weapon, lined_up() succeeds, the hero fails to catch it, and the thitu() roll hits, carry the attack through monshoot(), m_throw(), HP loss, and drop_throw() settlement instead of raising monster ranged weapon action; other ranged-weapon outcomes remain fail-closed.",
       "upstreamOwners": [
         "mthrowu.c",
@@ -5675,8 +5675,8 @@
         },
         {
           "name": "ordinary-missile-flight-hit",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "644b2ebca268cdf85d3456746c1bff62b46668f7"
         },
         {
           "name": "ordinary-missile-hit-settlement",
@@ -5690,8 +5690,11 @@
         "screens": 2749,
         "rng": 156824
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "644b2ebca268cdf85d3456746c1bff62b46668f7",
+      "delivered": {
+        "screens": 25,
+        "rng": 78
+      }
     }
   ]
 }
