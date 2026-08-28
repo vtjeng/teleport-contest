@@ -5860,6 +5860,41 @@
         "screens": 1,
         "rng": 77
       }
+    },
+    {
+      "id": "seffect-teleportation-into-level-tele",
+      "status": "open",
+      "boundary": "The confused-or-scursed path in seffect_teleportation() calls level_tele(), which the port already partially implements. For a confused wizard, level_tele() opens the destination prompt, the hero answers, rnl(5) fires, and the confused path reaches random_levtport. The port fails closed at random_levtport.",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 87,
+        "basis": "Uncapped look-ahead: seed5006-tourist-stress-disaster rawStretch=87 from the reading-requires-level_tele boundary. capStable=false; divergenceZeroed=false.",
+        "sessions": [
+          "seed5006-tourist-stress-disaster"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5006-tourist-stress-disaster",
+            "evidence": "At C step 161, command r opens the read prompt and answer p selects one blessed SCR_TELEPORTATION (otyp 333) while Confusion is 23. The sighted human Tourist is in wizard mode, can chant, and is not hallucinating. C read.c doread() through seffects() exercises Wisdom, and seffect_teleportation() takes confused || scursed to level_tele(). In level_tele(), wizard is true so the prompt path runs. After getlin returns space, Confusion && rnl(5) is truthy so C prints Oops... and goes to random_levtport. random_levtport selects a random level and calls schedule_goto with You materialize on a different level! JS throws UnsupportedReadError at read.js:201 before calling level_tele()."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "confused-random-levtport",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "afd777048c88662bb6585edc9008c59c032b1f53",
+      "openStanding": {
+        "sha": "80e4dfa",
+        "screens": 2786,
+        "rng": 156991
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
