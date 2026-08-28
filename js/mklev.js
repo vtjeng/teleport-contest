@@ -209,13 +209,55 @@ function shuffle_core_values(values, random) {
 // Core mklev functions (ported from main project's mklev.js)
 // ============================================================
 
-// C ref: bones.c getbones()
-function getbones() {
-    const flags = game.flags || {};
-    if (flags.explore) return false;
-    if (flags.bones === false) return false;
-    if (rn2(3) && !game.flags?.debug) return false;
-    return false;
+// C ref: bones.c getbones() (630-756). Checks whether a bones file exists
+// for the current level and, if found, loads it. In wizard mode, prompts
+// before loading ("Get bones?") and before deleting ("Unlink bones?").
+async function getbones() {
+    const state = game;
+    if (state.discover) return false;
+    if (state.flags.bones === false) return false;
+    // C: rn2(3) -- only once in three times do we find bones
+    if (rn2(3) && !state.wizard) return false;
+
+    const {
+        getbones: loadBones,
+        no_bones_level,
+        deleteBonesFile,
+    } = await import('./bones.js');
+
+    if (no_bones_level(state.u.uz, state)) return false;
+
+    const { yn_function } = await import('./cmd.js');
+
+    // Check if bones exist before any prompts. C opens the file here; the
+    // port checks VFS directly.
+    const { vfsReadFile } = await import('./storage.js');
+    const path = `bones_D${state.u.uz.dnum}.${state.u.uz.dlevel}`;
+    if (!vfsReadFile(path)) return false;
+
+    // Wizard mode: ask whether to load the bones.
+    if (state.wizard) {
+        const answer = await yn_function(
+            'Get bones?', 'yn', 'n', false, state,
+        );
+        if (answer === 'n'.charCodeAt(0)) return false;
+    }
+
+    const ok = loadBones(state);
+
+    // C ref: bones.c:739-744. Wizard mode: ask whether to delete the
+    // bones file. If 'n', keep it for next time.
+    if (state.wizard) {
+        const answer = await yn_function(
+            'Unlink bones?', 'yn', 'n', false, state,
+        );
+        if (answer === 'n'.charCodeAt(0)) {
+            return ok;
+        }
+    }
+
+    deleteBonesFile(state.u.uz);
+    return ok;
 }
 
 // C ref: allmain.c l_nhcore_init()
@@ -229,7 +271,7 @@ export function l_nhcore_init(state = game, random = rn2) {
 export async function mklev({ specialLevelLoader = null } = {}) {
     const g = game;
     init_mapseen(g.u.uz, g);
-    if (getbones()) return;
+    if (await getbones()) return;
     g.in_mklev = true;
     await makelevel(specialLevelLoader);
     level_finalize_topology();

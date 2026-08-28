@@ -39,6 +39,7 @@ import {
     MM_NOCOUNTBIRTH,
     MM_NOEXCLAM,
     MM_NOGRP,
+    MM_NONAME,
     MM_NOMSG,
     M_AP_NOTHING,
     M_AP_MONSTER,
@@ -465,6 +466,7 @@ const SUPPORTED_FLAGS = NO_MINVENT
     | MM_EPRI
     | MM_ESHK
     | MM_NOGRP
+    | MM_NONAME
     | MM_MALE
     | MM_FEMALE;
 const INITIAL_LEVEL_MONSTERS = new Set([
@@ -3019,9 +3021,13 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         monster.cham = naturalShape;
         if (newcham_initial(monster, normalized)) allowMinvent = false;
     } else if (mndx === PM_GHOST) {
-        christen_monst(monster, rndghostname(normalized), {
-            updateInventory: () => update_inventory(normalized),
-        });
+        // C ref: makemon.c -- MM_NONAME suppresses the random ghost name.
+        // savebones() passes MM_NONAME and then christen_monst separately.
+        if (!(mmflags & MM_NONAME)) {
+            christen_monst(monster, rndghostname(normalized), {
+                updateInventory: () => update_inventory(normalized),
+            });
+        }
     }
     if (state.in_mklev
         && mklevSleeperSpecies(ptr)

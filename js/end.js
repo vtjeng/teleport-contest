@@ -29,7 +29,8 @@
 // value initializer while the cycle remains.
 import { effective_attribute, minuhpmax, setuhpmax } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
-import { can_make_bones } from './bones.js';
+import { can_make_bones, savebones } from './bones.js';
+import { yyyymmdd } from './calendar.js';
 import { paranoid_query, yn_function } from './cmd.js';
 import {
     A_CON,
@@ -105,9 +106,13 @@ import { BAG_OF_TRICKS, CORPSE, LARGE_BOX, STATUE, TIN } from './objects.js';
 import {
     an, donameFresh, the, thesimpleoname, the_unique_pm, xnameFresh,
 } from './objnam.js';
-import { displayTtyMenuTextWindow } from './tty_menu.js';
+import { displayTtyMenuTextWindow, displayTtyTextWindow } from './tty_menu.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { formatkiller } from './topten.js';
+import { In_endgame, In_quest, Is_astralevel, plur } from './const.js';
+import { depth, dunlev, single_level_branch } from './dungeon.js';
+import { Goodbye } from './role_init.js';
+import { tty_raw_print } from './tty_rawprint.js';
 import { reset_utrap } from './trap.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { init_uhunger } from './u_init.js';
@@ -134,6 +139,16 @@ export const deaths = Object.freeze([
     'dissolving under the heat and pressure', 'crushed', 'turned to stone',
     'turned into slime', 'genocided', 'panic', 'trickery', 'quit',
     'escaped', 'ascended',
+]);
+
+// C ref: end.c ends[] (52-61), "when you %s". Separate from deaths[]: each
+// entry reads naturally after "You " or "when you ", e.g. "were poisoned"
+// instead of "poisoned". Indexed by game_end_types values.
+const ends = Object.freeze([
+    'died', 'choked', 'were poisoned', 'starved', 'drowned',
+    'burned', 'dissolved in the lava', 'were crushed',
+    'turned to stone', 'turned into slime', 'were genocided',
+    'panicked', 'were tricked', 'quit', 'escaped', 'ascended',
 ]);
 
 // C ref: include/integer.h nowrap_add() macro.  Caps a + b at LONG_MAX to
@@ -821,21 +836,184 @@ async function really_done(how, state) {
                 'Save bones?',
                 state,
             )) {
-            throw new UnsupportedEndOfGameError(
-                'savebones() bones file creation',
-            );
+            savebones(how, endtime, corpse, state);
         }
         corpse = null;
     }
 
     // C ref: end.c:1372-1373 done_money for RIP output.
+    let umoney = money_cnt(state.invent) + hidden_gold(true, state);
     state.gd ??= {};
-    state.gd.done_money = money_cnt(state.invent)
-        + hidden_gold(true, state);
+    state.gd.done_money = umoney;
 
-    throw new UnsupportedEndOfGameError(
-        'really_done() after bones decision',
-    );
+    // -- Window cleanup and tombstone (C ref: end.c:1376-1396) --
+    //
+    // C destroys the inventory, map, status, and message windows, then creates
+    // a NHW_TEXT window for the tombstone and farewell text. The port's text
+    // window is displayTtyTextWindow.
+
+    // C: display_nhwindow(WIN_MESSAGE, TRUE) -- show pending messages.
+    // The port clears the message window state; pending messages were already
+    // displayed during the bones prompt.
+
+    // C: if (how < GENOCIDED && flags.tombstone && endwin != WIN_ERR)
+    //        outrip(endwin, how, endtime);
+    const textLines = [];
+    const done_stopprint = 0;
+
+    if (how < GENOCIDED && state.flags.tombstone) {
+        genl_outrip(textLines, how, endtime, state);
+    }
+
+    // C ref: end.c:1418-1424. Farewell text.
+    const roleName = (how !== ASCENDED)
+        ? ((state.flags.female && state.urole?.name?.f)
+            ? state.urole.name.f : state.urole?.name?.m ?? 'Adventurer')
+        : (state.flags.female ? 'Demigoddess' : 'Demigod');
+    const goodbye = Goodbye(state.urole);
+    textLines.push({ text: `${goodbye} ${state.plname} the ${roleName}...` });
+    textLines.push({ text: '' });
+
+    // C ref: end.c:1521-1542. Death summary for non-escaped, non-ascended.
+    if (how !== 14 /* ESCAPED */ && how !== 15 /* ASCENDED */) {
+        const uz = state.u.uz;
+        let pbuf;
+        if (uz.dnum === 0 && uz.dlevel <= 0) {
+            pbuf = `You ${uz.dlevel < 0 ? 'passed away' : ends[how]}`
+                + ' beyond the confines of the dungeon';
+        } else {
+            let where = state.dungeons?.[uz.dnum]?.dname
+                ?? 'The Dungeons of Doom';
+            if (Is_astralevel(uz)) where = 'The Astral Plane';
+            pbuf = `You ${ends[how]} in ${where}`;
+            if (!In_endgame(uz) && !single_level_branch(uz, state)) {
+                const dlevel = In_quest(uz)
+                    ? dunlev(uz) : depth(uz, state);
+                pbuf += ` on dungeon level ${dlevel}`;
+            }
+        }
+        pbuf += ` with ${state.u.urexp} point${plur(state.u.urexp)},`;
+        textLines.push({ text: pbuf });
+    }
+
+    // C ref: end.c:1544-1551. Gold, moves, level, hit points.
+    textLines.push({
+        text: `and ${umoney} piece${plur(umoney)} of gold, `
+            + `after ${state.moves} move${plur(state.moves)}.`,
+    });
+    textLines.push({
+        text: `You were level ${state.u.ulevel} with a maximum of `
+            + `${state.u.uhpmax} hit point${plur(state.u.uhpmax)} `
+            + `when you ${ends[how]}.`,
+    });
+    textLines.push({ text: '' });
+
+    // C ref: end.c:1552-1555 display_nhwindow(endwin, TRUE).
+    await displayTtyTextWindow(state, textLines);
+
+    // C ref: end.c:1579-1583 exit_nhwindows + topten.
+    // exit_nhwindows clears the screen; topten prints to raw output.
+    // In wizard mode, topten just prints the wizard message.
+    if (state.wizard || state.discover) {
+        tty_raw_print(state, '');
+        const modeWord = state.wizard ? 'wizard' : 'discover';
+        tty_raw_print(
+            state,
+            `Since you were in ${modeWord} mode, `
+            + 'the score list will not be checked.',
+        );
+    }
+
+    // C ref: end.c:1589 nh_terminate(EXIT_SUCCESS).
+    // The JS port signals end of segment via gameover. The post-moveloop
+    // capture hook is gated on !in_really_done, so the final screen capture
+    // happens at the next _preNhgetchHook call (triggered by the moveloop
+    // break + the explicit hook call in jsmain.js for really_done).
+    state.program_state.gameover = true;
+    // Clear in_really_done so the post-loop capture hook runs.
+    state.program_state.in_really_done = false;
+}
+
+// C ref: rip.c genl_outrip() (86-163). Builds the tombstone as text lines
+// and pushes them into the lines array for the NHW_TEXT window. The
+// tombstone has a fixed ASCII-art frame with the hero's name, gold, death
+// description, and year centered on specific lines.
+const rip_txt = [
+    '                       ----------',
+    '                      /          \\',
+    '                     /    REST    \\',
+    '                    /      IN      \\',
+    '                   /     PEACE      \\',
+    '                  /                  \\',
+    '                  |                  |', // NAME_LINE  6
+    '                  |                  |', // GOLD_LINE  7
+    '                  |                  |', // DEATH_LINE 8
+    '                  |                  |', // 9
+    '                  |                  |', // 10
+    '                  |                  |', // 11
+    '                  |       1001       |', // YEAR_LINE 12
+    '                 *|     *  *  *      | *',
+    '        _________)/\\\\_//(\\/(/\\)/\\//\\/|_)_______',
+];
+const STONE_LINE_CENT = 28;
+const STONE_LINE_LEN = 16;
+const NAME_LINE = 6;
+const GOLD_LINE = 7;
+const DEATH_LINE = 8;
+const YEAR_LINE = 12;
+
+function center(lines, line, text) {
+    const row = [...lines[line]];
+    const start = STONE_LINE_CENT - ((text.length + 1) >> 1);
+    for (let i = 0; i < text.length; i++) {
+        row[start + i] = text[i];
+    }
+    lines[line] = row.join('');
+}
+
+function genl_outrip(textLines, how, when, state) {
+    const dp = rip_txt.map((line) => line);
+
+    // Put name on stone
+    const name = (state.plname ?? '').substring(0, STONE_LINE_LEN);
+    center(dp, NAME_LINE, name);
+
+    // Put gold on stone
+    let cash = Math.max(state.gd?.done_money ?? 0, 0);
+    if (cash > 999999999) cash = 999999999;
+    center(dp, GOLD_LINE, `${cash} Au`);
+
+    // Put death description on stone
+    const deathBuf = formatkiller(how, false, state);
+    let dpx = deathBuf;
+    for (let line = DEATH_LINE; line < YEAR_LINE; line++) {
+        let i0 = dpx.length;
+        if (i0 > STONE_LINE_LEN) {
+            for (let i = STONE_LINE_LEN; i > 0 && i0 > STONE_LINE_LEN; i--) {
+                if (dpx[i] === ' ') i0 = i;
+            }
+            if (i0 > STONE_LINE_LEN) i0 = STONE_LINE_LEN;
+        }
+        const chunk = dpx.substring(0, i0);
+        center(dp, line, chunk);
+        if (dpx[i0] !== ' ') {
+            dpx = dpx.substring(i0);
+        } else {
+            dpx = dpx.substring(i0 + 1);
+        }
+    }
+
+    // Put year on stone
+    const year = Math.trunc((yyyymmdd(state, when) / 10000) % 10000);
+    center(dp, YEAR_LINE, String(year).padStart(4, ' '));
+
+    // Add to output: blank line, tombstone lines, two trailing blanks.
+    textLines.push({ text: '' });
+    for (const line of dp) {
+        textLines.push({ text: line });
+    }
+    textLines.push({ text: '' });
+    textLines.push({ text: '' });
 }
 
 // C ref: end.c container_contents() (1594-1670). Creates a NHW_MENU text
