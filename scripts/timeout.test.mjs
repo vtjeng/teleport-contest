@@ -4,7 +4,9 @@ import test from 'node:test';
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
     BURN_OBJECT,
+    CONFUSION,
     FIG_TRANSFORM,
+    FROMOUTSIDE,
     HATCH_EGG,
     MELT_ICE_AWAY,
     NUM_TIME_FUNCS,
@@ -172,6 +174,41 @@ test('elapsed-turn timeout upkeep preserves invulnerability short circuit',
         uprops[WOUNDED_LEGS].intrinsic = 5;
         await nh_timeout_elapsed_turn(state);
         assert.equal(uprops[WOUNDED_LEGS].intrinsic, 4);
+    });
+
+test('elapsed-turn timeout upkeep decrements non-expiring confusion',
+    async () => {
+        const state = timerState();
+        const uprops = [];
+        // Twenty-four is the smallest source-produced duration for an
+        // uncursed or cursed potion of confusion (potion.c:1025). The
+        // FROMOUTSIDE flag proves that decrementing its TIMEOUT field does
+        // not disturb the other intrinsic bits in the same C long.
+        uprops[CONFUSION] = { intrinsic: FROMOUTSIDE | 24 };
+        state.u = {
+            uinvulnerable: false,
+            mtimedone: 0,
+            ucreamed: 0,
+            usptime: 0,
+            ugallop: 0,
+            uprops,
+        };
+
+        await nh_timeout_elapsed_turn(state);
+
+        // timeout.c:670-671 decrements 24 to 23 without entering the expiry
+        // switch, so this turn writes no message and needs no expiry seam.
+        assert.equal(uprops[CONFUSION].intrinsic, FROMOUTSIDE | 23);
+
+        // One is the last TIMEOUT value: decrementing it reaches
+        // make_confused(0, TRUE), which this slice deliberately leaves
+        // fail-closed before mutating the property.
+        uprops[CONFUSION].intrinsic = FROMOUTSIDE | 1;
+        await assert.rejects(
+            nh_timeout_elapsed_turn(state),
+            new RegExp(`no active property timeout at index ${CONFUSION}`, 'u'),
+        );
+        assert.equal(uprops[CONFUSION].intrinsic, FROMOUTSIDE | 1);
     });
 
 test('move-600 timeout luck uses basal role and luckstone gates', async () => {
