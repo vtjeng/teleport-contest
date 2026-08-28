@@ -5717,7 +5717,13 @@
         ]
       },
       "detail": "Current JS already matches the state-producing potion.c path. The bounded implementation belongs to timeout.c nh_timeout(): add the index-aware non-expiry CONFUSION countdown while preserving other intrinsic bits. The contributing session exercises only 24-to-23. CONFUSION expiry, including make_confused(0, TRUE) and occupation handling, is a neighboring branch outside this witnessed boundary.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "non-expiring-confusion-timeout-countdown",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "4de5f51866818bbf9d7d194a4859960fe7d8f50f",
       "openStanding": {
         "sha": "644b2ebca268cdf85d3456746c1bff62b46668f7",
