@@ -5617,8 +5617,8 @@
         },
         {
           "name": "rub-magic-lamp-nonrelease",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "f65899c6383a7c2c57942ebe9b18b5b8d4b3933f"
         }
       ],
       "openedAt": "c8f865370fa99ce793e2776bc8ab6dd2cd5bd1b2",
