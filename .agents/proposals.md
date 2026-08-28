@@ -221,3 +221,154 @@ figures above, not measured).
 `js/` graph per session. `NODE_COMPILE_CACHE` was measured at 6% faster on the
 test suite but 33% slower under high parallelism (I/O contention across ~10
 parallel test processes), so it is not viable on this host.
+
+## Run formal review passes concurrently with implementation
+
+**What it changes.** The orchestrator would run correctness, clarity, and
+simplification passes in a second worktree while the next slice worker runs in
+the main checkout. Review passes read code and propose changes but do not need
+the C recorder (`nethack-c/recorder`), which is the blocker that rules out
+parallel implementation workers. The review worktree rebases onto main after the
+pass completes. Implementation stays serial in the main checkout.
+
+**Scope.** The orchestrator's step 3 in `.agents/loop.md` would spawn the
+review pass as a background agent in a worktree (using `audit-worktree.mjs
+prepare`) alongside the next slice worker. Three prerequisites: each worktree
+needs its own checkpoint log instead of the fixed `/tmp/checkpoint.log`; the
+review branch must rebase rather than merge (QUALITY.json's coverage frontier
+check fails on non-linear history); and the submodule checkout
+(`git submodule update --init`) must run in each new worktree.
+
+**What prompted it.** The 2026-08-01 meta-analysis measured 21.59 hours of
+review-agent wall time serialized behind implementation across 8 loop sessions,
+with zero overlap between the two phases. Running them concurrently recovers
+most of that time.
+
+**Cost.** Medium. The worktree infrastructure exists (`audit-worktree.mjs`), but
+coordinating the review branch's rebase against the moving main requires care to
+avoid merge conflicts when the review pass proposes fixes to files the worker is
+also editing.
+
+**What it leaves unfixed.** Implementation slices remain serial. The 2026-07-30
+probe measured that two concurrent checkpoints contend on I/O (36 s each versus
+25 s solo), and the C recorder is not available in worktrees, so parallel
+workers remain blocked on those two constraints.
+
+## Build a per-boundary C state-dump divergence oracle
+
+**What it changes.** A C recorder patch would dump hero and monster state
+(position, HP, tameness, flee/frozen/sleeping flags) at each input boundary, and
+a matching JS dump (gated by an environment variable, no-op during scoring)
+would enable a diff tool to report the first boundary where game state diverges,
+whether the RNG stream is still aligned there, and which entity and field
+diverged. This is the one diagnostic signal the port lacks: "state diverged
+while the RNG stream is still aligned."
+
+**Scope.** A C recorder patch (hero + monster fields only, not full game state),
+a JS state dump behind an env gate in `js/jsmain.js`, and a diff script under
+`scripts/`. The C patch requires maintaining our own recorder addition alongside
+the existing patches in `nethack-c/patches/`.
+
+**What prompted it.** The 2026-08-01 meta-analysis verified that the lockwo
+competitor has this capability (`scripts/oracle.mjs`, 536 lines) and uses it to
+localize divergences to a specific C function and field. Our repository
+localizes divergences from RNG logs and screens only, which cannot distinguish
+state drift from RNG drift.
+
+**Cost.** One goal's budget. The C patch is small (hero + monster fields), but
+maintaining it across upstream changes and ensuring the JS dump stays in sync
+with the C dump is ongoing work.
+
+**What it leaves unfixed.** The oracle covers hero and monster state only, not
+items, traps, level geometry, or other game objects. Extending it to full game
+state would require substantially more C instrumentation.
+
+## Append machine-readable score history per scoring run
+
+**What it changes.** `scripts/score-development.mjs` and `npm run checkpoint`
+would append one row per scoring run to a `docs/score-history.tsv`: timestamp,
+commit SHA, screens matched/total, RNG matched/total, cursors matched/total, and
+sessions passed. The orchestrator and the user would read per-change yield and
+measurement frequency from this file instead of from hand-written SCORE.md
+paragraphs.
+
+**Scope.** One append call in `scripts/score-development.mjs` after it computes
+results, plus a header row if the file does not exist. No change to the scoring
+logic itself.
+
+**What prompted it.** The 2026-08-01 meta-analysis found the competitor holds
+1,641 machine-readable measurements tied to commits, while this project holds 67
+prose rows in SCORE.md over 13 days. Per-change yield is reconstructable only
+from hand-written paragraphs.
+
+**Cost.** Small. One file append per scoring run.
+
+**What it leaves unfixed.** SCORE.md prose rows remain the human-readable
+record. This adds a machine-readable companion, not a replacement.
+
+## Move evidence and auditMetrics out of QUALITY.json
+
+**What it changes.** Each pass's `evidence` and `auditMetrics` would move from
+QUALITY.json into a sibling `QUALITY-history.json` that only the recorder and a
+later review pass read. QUALITY.json would retain `kind`, `areas`, `bases`,
+`head`, and the thresholds that `scripts/quality-status.mjs` consumes. At
+2026-08-01, `evidence` (113,585 bytes) and `auditMetrics` (143,479 bytes)
+accounted for 73% of QUALITY.json's 350,373 bytes.
+
+**Scope.** `scripts/quality-status.mjs` writes both files; every agent that
+reads QUALITY.json gets a smaller file. The `record-pass` verb writes to the
+history file; the `npm run quality` read path stays on QUALITY.json.
+
+**What prompted it.** The 2026-08-01 meta-analysis measured QUALITY.json at
+~110,000 tokens of required reading, of which 73% is historical pass data no
+implementer acts on. AGENTS.md requires reading it before implementing game
+behavior, and `.claude/agents/slice-worker.md` contradicts this by omitting it
+from the worker's read list.
+
+**Cost.** Small. One split in the recorder, one extra file on disk.
+
+**What it leaves unfixed.** ROADMAP.md's deferred-findings section (`##
+Unresolved`) is a separate source of reading bloat (71% of ROADMAP.md at
+2026-08-01) and would need its own move to a DEFERRED.md file.
+
+## Investigate overnight stalls
+
+**What it changes.** An investigation, not a code change. The 2026-08-01
+meta-analysis identified 15 gaps longer than 2 hours totalling 81.2 hours of
+idle time across the loop sessions. Four of the six largest end between 08:10
+and 08:53 local time, the signature of an overnight stop. The cause is unknown:
+it could be quota exhaustion, a host sleep, a network interruption, or a bug in
+the loop's wakeup scheduling.
+
+**Scope.** Read the loop transcripts around the 15 gaps, correlate with system
+logs or quota records, and identify whether a single cause explains most of the
+idle time.
+
+**What prompted it.** 81 hours is roughly 38% of the 216-hour measurement
+window. If even half of it is recoverable, it would be the largest single
+throughput improvement available.
+
+**Cost.** Small to investigate. The fix depends on what the investigation finds.
+
+**What it leaves unfixed.** The 17 hours of no-agent-running time within active
+sessions (orchestrator bookkeeping turns and scheduled-wakeup sleeps) is a
+separate drag.
+
+## Cap SCORE.md closure rows and drop per-slice rows
+
+**What it changes.** SCORE.md closure rows would be capped at about 120 words
+each. Per-slice SCORE.md rows would be dropped entirely (they restate their own
+commit messages). The detail would stay in the commit message, where `git log`
+can find it.
+
+**Scope.** An edit to `.agents/scoring.md` to cap the row format and remove the
+per-slice row requirement.
+
+**What prompted it.** The 2026-08-01 meta-analysis measured SCORE.md at 18,165
+words in 89 lines, roughly 440 words per closure row. The orchestrator and every
+agent that reads SCORE.md pays this token cost on every turn.
+
+**Cost.** Small. One instruction edit.
+
+**What it leaves unfixed.** Existing rows stay at their current length. A
+one-time trim of historical rows is a separate task.
