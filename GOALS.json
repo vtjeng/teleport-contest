@@ -5738,7 +5738,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-command-",
-      "status": "open",
+      "status": "closed",
       "boundary": "When a non-hallucinating, sighted, unblindfolded human applies one carried, paid, non-artifact cream pie and can_blnd(NULL, &youmonst, AT_WEAP, obj) is true, doapply() follows use_cream_pie(): it prints the immersion message, draws rnd(25), adds the result to u.ucreamed and the BLINDED timeout, performs the sighted-to-blind transition, prints the sticky-goop message, consumes that pie, and returns ECMD_OK; other cream-pie states remain fail-closed.",
       "upstreamOwners": [
         "apply.c",
@@ -5772,8 +5772,11 @@
         "screens": 2778,
         "rng": 156857
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "15af45cee21c8d11cdf8704f703b942c8680a9e0",
+      "delivered": {
+        "screens": 7,
+        "rng": 2
+      }
     }
   ]
 }
