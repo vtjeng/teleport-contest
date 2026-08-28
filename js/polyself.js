@@ -122,7 +122,7 @@ import { make_blinded } from './potion.js';
 import { spoteffects } from './hack.js';
 import { cantwield, untwoweapon } from './wield.js';
 import { _doWearInternals } from './do_wear.js';
-import { Is_dragon_armor } from './obj.js';
+import { Is_dragon_armor, remove_object } from './obj.js';
 import {
     AMULET_OF_STRANGULATION,
     CORPSE,
@@ -407,7 +407,18 @@ async function dropp(obj, state) {
     let otmp = state.invent;
     while (otmp) {
         if (otmp === obj) {
-            await dropx(obj, { state });
+            // C's dropp() calls dropx() unconditionally; dropx()/dropz()
+            // requires three hooks that its callers inject: newsym (do.c:840),
+            // encumber_msg (do.c:842), and remove_object (via stackobj ->
+            // merged -> obj_extract_self). Match do.js dropCommandEnv().
+            await dropx(obj, {
+                state,
+                hooks: {
+                    newsym,
+                    encumberMessage: encumber_msg,
+                    extractExternalObject: remove_object,
+                },
+            });
             break;
         }
         otmp = otmp.nobj;

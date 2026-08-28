@@ -96,6 +96,7 @@ import {
     W_NONPASSWALL,
     WT_ELF,
     WT_SQUEEZABLE_INV,
+    WT_HUMAN,
     WT_WEIGHTCAP_SPARE,
     WT_WEIGHTCAP_STRCON,
     WT_TOOMUCH_DIAGONAL,
@@ -195,6 +196,8 @@ import {
     PM_VALKYRIE,
     PM_WIZARD,
     PM_WIZARD_OF_YENDOR,
+    MZ_MEDIUM,
+    S_NYMPH,
 } from './monsters.js';
 import { curr_mon_load, maybe_unhide_at } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
@@ -294,11 +297,18 @@ export async function handle_tip(tip, state = game, env = {}) {
 // helper, this reads effective Strength on every call, so hunger weakness can
 // change carrying capacity before the next monster/allocation cycle.
 //
-// Two of C's branches are absent because nothing reaches them: the
-// Boots_on/ELevitation deferral and its restore at 4337-4341, and the Upolyd
-// adjustment. The steed arm at 4325-4327 is live, because riding a strong
-// monster is one of the three ways C reaches MAX_CARR_CAP -- the other two,
-// Levitation and the air level, remain out of reach.
+// The Boots_on/ELevitation deferral and its restore at 4337-4341 are absent
+// because nothing reaches them.
+//
+// The Upolyd adjustment at 4313-4323 scales carrying capacity by the
+// polymorphed form's corpse weight (cwt) relative to WT_HUMAN, matching
+// mon.c can_carry(). A nymph gets MAX_CARR_CAP; a form with cwt 0 scales
+// by msize/MZ_HUMAN; a non-strong form (or a strong form heavier than human)
+// scales by cwt/WT_HUMAN.
+//
+// The steed arm at 4325-4327 is live, because riding a strong monster is one
+// of the three ways C reaches MAX_CARR_CAP -- the other two, Levitation and
+// the air level, remain out of reach.
 //
 // The EWounded_legs reduction at 4331-4336 is live too, and it is what turns a
 // bear trap's set_wounded_legs() into the "Burdened" the status line shows: one
@@ -308,6 +318,19 @@ export function weight_cap(state = game) {
     let capacity = WT_WEIGHTCAP_STRCON * (
         acurrstr(state) + effective_attribute(state, A_CON)
     ) + WT_WEIGHTCAP_SPARE;
+    // C ref: hack.c weight_cap() 4313-4323. Polymorphed carrying capacity
+    // scales by the new form's corpse weight, consistent with can_carry().
+    if (Upolyd(state.u) && state.youmonst?.data) {
+        const mdat = state.youmonst.data;
+        if (mdat.mlet === S_NYMPH) {
+            capacity = MAX_CARR_CAP;
+        } else if (!mdat.cwt) {
+            capacity = Math.trunc(capacity * mdat.msize / MZ_MEDIUM);
+        } else if (!strongmonst(mdat)
+                   || (strongmonst(mdat) && mdat.cwt > WT_HUMAN)) {
+            capacity = Math.trunc(capacity * mdat.cwt / WT_HUMAN);
+        }
+    }
     if (state.u.usteed && strongmonst(state.u.usteed.data)) {
         capacity = MAX_CARR_CAP;
     } else {

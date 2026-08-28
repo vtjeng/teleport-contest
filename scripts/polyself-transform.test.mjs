@@ -34,6 +34,7 @@ import {
 } from '../js/mondata.js';
 import { character_race } from '../js/roles.js';
 import { uasmon_maxStr, set_uasmon } from '../js/polyself.js';
+import { weight_cap } from '../js/hack.js';
 
 // Build a mons array once; all tests share it read-only.
 let _mons;
@@ -239,4 +240,31 @@ test('resists_drli returns true for an undead form', () => {
     // PM_ZOMBIE is undead; use it to test the undead branch
     const state = minimalState(PM_HUMAN_ZOMBIE);
     assert.equal(resists_drli(state.youmonst, state), true);
+});
+
+// -- weight_cap Upolyd adjustment (hack.c:4313-4323) --
+// When polymorphed (Upolyd true: umonnum !== umonster), carrying capacity
+// scales by the new form's corpse weight.
+// Gnome: cwt=650, not strongmonst.  The non-strong branch fires:
+//   capacity = trunc(base * cwt / WT_HUMAN) = trunc(550 * 650 / 1450) = 246.
+// Base capacity: 25 * (STR + CON) + 50 = 25 * (10 + 12) + 50 = 600.
+// But minimalState sets acurr.a = [10,10,10,10,10,10], so STR=10, CON=10 gives
+// base = 25 * (10 + 10) + 50 = 550.  Gnome adjustment: trunc(550 * 650 / 1450)
+// = trunc(246.55) = 246.
+test('weight_cap scales by cwt/WT_HUMAN for a gnome polymorph', () => {
+    // minimalState(PM_GNOME) sets umonnum=PM_GNOME (165), umonster=PM_HUMAN
+    // (260), making Upolyd true; youmonst.data points to the gnome permonst.
+    const state = minimalState(PM_GNOME);
+    // The gnome is not strongmonst and has cwt=650, so the port evaluates
+    // trunc(550 * 650 / 1450) = 246, matching C's integer arithmetic.
+    assert.equal(weight_cap(state), 246);
+});
+
+// When umonnum === umonster (not polymorphed), the Upolyd block is skipped
+// and the base capacity stands.
+test('weight_cap returns the base formula when not polymorphed', () => {
+    // Set umonnum to PM_HUMAN so it equals umonster -- Upolyd is false.
+    const state = minimalState(PM_HUMAN);
+    // base = 25 * (10 + 10) + 50 = 550
+    assert.equal(weight_cap(state), 550);
 });
