@@ -1136,7 +1136,8 @@ export async function getdir(s, state = game) {
         );
     }
     // cmdq_add_key(CQ_REPEAT, dirsym): getdir() repeat recording remains
-    // outside this caller's boundary; dowhatdoes() owns the admitted write.
+    // outside this caller's boundary. yn_function() owns the generic admitted
+    // write for dowhatdoes() and y_n() callers such as doride().
 
     const spkeys = commandBindings(state).specialKeys;
     // cmd.c:4021-4090 tests NHKF_GETDIR_SELF first and evaluates movecmd()
@@ -1441,8 +1442,9 @@ export function reset_occupations(state = game) {
 // CQ_REPEAT is a write-only recording buffer during ordinary play:
 // cmdq_pop() reads it only while gi.in_doagain is set, and cmd.c do_repeat()
 // (1636-1660) is the sole writer of that flag. #repeat and its ^A binding are
-// unported. yn_function() now records the whatdoes answer there; the other
-// source write sites remain outside their current callers' boundaries.
+// unported. yn_function() records answers for dowhatdoes() and admitted y_n()
+// callers such as doride(); getdir()'s separate source write remains outside
+// its current boundary.
 //
 // CMDQ_EXTCMD and CMDQ_KEY nodes are produced. cmdq_add_dir(),
 // cmdq_add_int() and cmdq_add_userinput() have no ported caller.

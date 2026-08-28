@@ -15,6 +15,7 @@ import {
     TIP_GETPOS,
 } from '../js/const.js';
 import { GETPOS_TIP_LINES, handle_tip } from '../js/hack.js';
+import { trapped_chest_at } from '../js/detect.js';
 import { GameMap } from '../js/game.js';
 import { getpos, truncate_to_map } from '../js/getpos.js';
 import { game } from '../js/gstate.js';
@@ -40,7 +41,7 @@ import {
     GLYPH_RIDDEN_MALE_OFF,
 } from '../js/glyph_offsets.js';
 import { NUMMONS } from '../js/monsters.js';
-import { CHEST } from '../js/objects.js';
+import { CHEST, POT_WATER } from '../js/objects.js';
 import {
     do_screen_description,
     add_quoted_engraving,
@@ -417,6 +418,75 @@ test('monster glyph recognition includes every display.h monster family', () => 
         assert.equal(glyph_is_monster(offset), true);
         assert.equal(glyph_is_monster(offset + NUMMONS - 1), true);
     }
+    assert.equal(glyph_is_monster(Math.min(...familyOffsets) - 1), false);
+    assert.equal(
+        glyph_is_monster(Math.max(...familyOffsets) + NUMMONS),
+        false,
+    );
+    assert.equal(glyph_is_monster(cmap_to_glyph(S_room)), false);
+    assert.equal(
+        glyph_is_monster(trap_to_glyph({ ttyp: ARROW_TRAP })),
+        false,
+    );
+    assert.equal(glyph_is_monster(NO_GLYPH), false);
+});
+
+test('trapped_chest_at scans each direct inventory owner only', () => {
+    const x = 7;
+    const y = 4;
+    const trapped = () => ({
+        otyp: CHEST,
+        otrapped: true,
+        nobj: null,
+    });
+    const makeState = () => {
+        const level = new GameMap();
+        level.at(x, y).disp_glyph = {
+            glyph: trap_to_glyph({ ttyp: TRAPPED_CHEST }),
+        };
+        return {
+            invent: null,
+            u: { ux: x, uy: y, usteed: null },
+            level,
+        };
+    };
+
+    const heroState = makeState();
+    heroState.invent = trapped();
+    assert.equal(trapped_chest_at(TRAPPED_CHEST, x, y, heroState), true);
+
+    const steedState = makeState();
+    steedState.u.usteed = { minvent: trapped() };
+    assert.equal(trapped_chest_at(TRAPPED_CHEST, x, y, steedState), true);
+
+    const monsterState = makeState();
+    const monster = {
+        mx: x,
+        my: y,
+        minvent: trapped(),
+        nmon: null,
+    };
+    monsterState.level.monlist = monster;
+    monsterState.level.monsters[x][y] = monster;
+    assert.equal(trapped_chest_at(
+        TRAPPED_CHEST, x, y, monsterState,
+    ), true);
+
+    const untrappedState = makeState();
+    untrappedState.invent = { ...trapped(), otrapped: false };
+    assert.equal(trapped_chest_at(
+        TRAPPED_CHEST, x, y, untrappedState,
+    ), false);
+
+    const nestedState = makeState();
+    nestedState.invent = {
+        otyp: POT_WATER,
+        nobj: null,
+        cobj: trapped(),
+    };
+    assert.equal(trapped_chest_at(
+        TRAPPED_CHEST, x, y, nestedState,
+    ), false);
 });
 
 test('trap glyph recognition covers exactly the source trap range', () => {

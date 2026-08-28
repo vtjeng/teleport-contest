@@ -5243,6 +5243,42 @@
       "status": "open",
       "from": "e5173cc46fa486787d58b68aac90972466b08fcf",
       "detail": "Custom cmap collisions need pager.c alt_i and add_cmap_descr ordering, normalization, and article semantics. Port the function family with source-pinned collision cases."
+    },
+    {
+      "id": "whatis-monster-list-invisible",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "03239c422bb82018e726612b122ba5a714d249f1",
+      "detail": "js/pager.js look_all() omits pager.c remembered invisible-creature rows from /m and /M; no development session exercises that glyph arm, and closing it needs its own fresh end-to-end C differential."
+    },
+    {
+      "id": "help-custom-option-bindings",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "03239c422bb82018e726612b122ba5a714d249f1",
+      "detail": "js/pager.js setopt_cmd() hardcodes the default optionsfull and reqmenu/options keys instead of pager.c cmd_from_func() behavior; no development session exercises a rebound help row, and closing it needs fresh configuration differentials."
+    },
+    {
+      "id": "known-spellbook-second-decline",
+      "area": "hero",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "03239c422bb82018e726612b122ba5a714d249f1",
+      "detail": "js/spell.js study_book_preflight() rejects the retained negative delay after one declined known-spell refresh even when no interrupted book is stored; development play reaches one decline only, and the repeated-read arm needs a fresh differential."
+    },
+    {
+      "id": "version-lua-cache-save-restore",
+      "area": "runtime",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "03239c422bb82018e726612b122ba5a714d249f1",
+      "detail": "js/version.js get_lua_version() stores a process-local Lua initialization cache in serialized context, suppressing source-required nhl_init() draws after a later-segment restore; no development session combines version help with save/restore, and closure needs a two-segment fresh differential."
     }
   ],
   "areas": [

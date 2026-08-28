@@ -672,7 +672,8 @@ window.addEventListener('resize', drawProgressChart);
       }
       const left = toX(sl.queueTime);
       const width = toX(sl.closeTime) - left;
-      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-impl)" title="Implementation: ' + fmt(sl.durationMin) + ' — ' + sl.message + '"></div>';
+      const timingNote = sl.closeTimeSource === 'score-slice' ? '' : ' (end inferred)';
+      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-impl)" title="Implementation: ' + fmt(sl.durationMin) + timingNote + ' — ' + sl.message + '"></div>';
     });
 
     // Verification
@@ -729,7 +730,8 @@ window.addEventListener('resize', drawProgressChart);
     const deltaCell = g.screensDelta !== null && g.screensDelta !== undefined ? '+' + g.screensDelta : '-';
     const trClass = g.status === 'in-progress' ? ' class="in-progress"' : '';
 
-    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td>' + g.name + auditBadge + '</td><td>' + fmtDate(g.openTime) + '</td><td>' + g.sliceCount + '</td><td>' + fmt(g.totalMin) + '</td><td>' + fmt(g.goalSelectionMin) + '</td><td>' + fmt(g.sliceSelectionMin || 0) + '</td><td>' + fmt(g.implementationMin) + '</td><td>' + fmt(g.verificationMin) + '</td><td>' + bar + '</td></tr>';
+    const startCell = fmtDate(g.openTime) + (g.openTimeSource === 'open-commit' ? '' : ' (inferred)');
+    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td>' + g.name + auditBadge + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmt(g.totalMin) + '</td><td>' + fmt(g.goalSelectionMin) + '</td><td>' + fmt(g.sliceSelectionMin || 0) + '</td><td>' + fmt(g.implementationMin) + '</td><td>' + fmt(g.verificationMin) + '</td><td>' + bar + '</td></tr>';
   });
 
   html += '</tbody>';

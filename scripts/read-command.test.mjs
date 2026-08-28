@@ -29,6 +29,8 @@ import {
 } from '../js/objects.js';
 import { doread, read_ok, UnsupportedReadError } from '../js/read.js';
 import { not_fully_identified } from '../js/objnam.js';
+import { initRng } from '../js/rng.js';
+import { UnsupportedSpellStudyError } from '../js/spell.js';
 import {
     ESCAPE_KEY,
     INVALID_LETTER,
@@ -46,6 +48,7 @@ import {
 import {
     HEALING_BOOK_LETTER,
     HEALING_MESSAGE_MORE,
+    HEALING_READ_COMMAND,
     HEALING_READ_WAIT,
     HEALING_REFRESH_DECLINE,
     loadReadKnownHealingRecipe,
@@ -69,6 +72,47 @@ function inventorySnapshot(state = game) {
         objects.push(structuredClone({ ...obj, nobj: null }));
     }
     return objects;
+}
+
+async function prepareUnknownIdentifyScroll() {
+    const segment = firstSegment();
+    const replay = await runSegment({ ...segment, moves: WAIT });
+    let scroll = game.invent;
+    while (scroll && scroll.otyp !== SCR_IDENTIFY) scroll = scroll.nobj;
+    assert.ok(scroll, 'the fixed Wizard starts with an identify scroll');
+
+    scroll.quan = 1;
+    scroll.blessed = false;
+    scroll.cursed = false;
+    scroll.dknown = true;
+    scroll.pickup_prev = true;
+    for (let obj = game.invent; obj; obj = obj.nobj) {
+        if (obj === scroll) continue;
+        obj.known = true;
+        obj.dknown = true;
+        obj.bknown = true;
+        obj.cknown = true;
+        obj.lknown = true;
+        obj.rknown = true;
+        game.objects[obj.otyp].oc_name_known = 1;
+        if (obj.oartifact) {
+            game.artiexist ??= [];
+            game.artiexist[obj.oartifact] ??= {};
+            game.artiexist[obj.oartifact].found = true;
+        }
+    }
+    game.objects[SCR_IDENTIFY].oc_name_known = 0;
+    for (let i = 0; i < game.svd.disco.length; ++i) {
+        if (game.svd.disco[i] === SCR_IDENTIFY) game.svd.disco[i] = 0;
+    }
+    assert.deepEqual(
+        inventorySnapshot()
+            .filter((obj) => obj.o_id !== scroll.o_id)
+            .filter((obj) => not_fully_identified(obj, game))
+            .map((obj) => obj.invlet),
+        [],
+    );
+    return { replay, scroll };
 }
 
 test('read_ok suggests scrolls and spellbooks and downplays other objects',
@@ -225,50 +269,15 @@ test('an uncursed magic-mapping scroll maps the ordinary level and is used up',
 
 test('an unknown identify scroll reports a fully identified remaining pack',
     async () => {
-    const segment = firstSegment();
-    const replay = await runSegment({ ...segment, moves: WAIT });
-    let scroll = game.invent;
-    while (scroll && scroll.otyp !== SCR_IDENTIFY) scroll = scroll.nobj;
-    assert.ok(scroll, 'the fixed Wizard starts with an identify scroll');
+    const { replay, scroll } = await prepareUnknownIdentifyScroll();
 
     // This constructed pack isolates read.c seffect_identify()'s zero-item
     // identify_pack() arm. Quantity one makes useup() remove the selected
     // scroll, and every remaining object has each objnam.c identification
     // hallmark so count_unidentified() returns zero after that removal.
-    scroll.quan = 1;
-    scroll.blessed = false;
-    scroll.cursed = false;
-    scroll.dknown = true;
-    scroll.pickup_prev = true;
-    for (let obj = game.invent; obj; obj = obj.nobj) {
-        if (obj === scroll) continue;
-        obj.known = true;
-        obj.dknown = true;
-        obj.bknown = true;
-        obj.cknown = true;
-        obj.lknown = true;
-        obj.rknown = true;
-        game.objects[obj.otyp].oc_name_known = 1;
-        if (obj.oartifact) {
-            game.artiexist ??= [];
-            game.artiexist[obj.oartifact] ??= {};
-            game.artiexist[obj.oartifact].found = true;
-        }
-    }
     // Unknown is the meaningful identify-scroll branch. Removing any stale
     // discovery entry keeps the setup equivalent to read.c's
     // `already_known = FALSE` arm rather than depending on this seed's pack.
-    game.objects[SCR_IDENTIFY].oc_name_known = 0;
-    for (let i = 0; i < game.svd.disco.length; ++i) {
-        if (game.svd.disco[i] === SCR_IDENTIFY) game.svd.disco[i] = 0;
-    }
-    assert.deepEqual(
-        inventorySnapshot()
-            .filter((obj) => obj.o_id !== scroll.o_id)
-            .filter((obj) => not_fully_identified(obj, game))
-            .map((obj) => obj.invlet),
-        [],
-    );
 
     const movesBefore = game.moves;
     const rngBefore = replay.getRngLog().length;
@@ -303,6 +312,30 @@ test('an unknown identify scroll reports a fully identified remaining pack',
         inventorySnapshot().map((obj) => obj.o_id),
         remainingIds,
     );
+    assert.equal(
+        pendingTopLine(),
+        'You have already identified the rest of your possessions.',
+    );
+});
+
+test('ordinary identify preserves the conditional second rn2(5)', async () => {
+    const { replay, scroll } = await prepareUnknownIdentifyScroll();
+    // ISAAC seed 1 gives the two Wisdom-exercise draws 4 and 11, then makes
+    // the first ordinary identify rn2(5) zero and the source-required second
+    // rn2(5) four.
+    initRng(1);
+    const movesBefore = game.moves;
+    game.nhDisplay.pushKey(scroll.invlet.charCodeAt(0));
+    game.nhDisplay.pushKey(SPACE_KEY.charCodeAt(0));
+    game.nhDisplay.pushKey(SPACE_KEY.charCodeAt(0));
+    assert.equal(await doread(game), ECMD_TIME);
+    assert.equal(game.moves, movesBefore);
+    assert.deepEqual(replay.getRngLog(), [
+        'rn2(19)=4',
+        'rn2(19)=11',
+        'rn2(5)=0',
+        'rn2(5)=4',
+    ]);
     assert.equal(
         pendingTopLine(),
         'You have already identified the rest of your possessions.',
@@ -356,6 +389,67 @@ test('declining a fresh known healing spellbook refresh takes no turn',
         game._pending_message,
         /^Refresh your memory anyway\? \[yn\] \(n\) /u,
     );
+});
+
+test('accepting a known healing refresh stops before study state', async () => {
+    const segment = loadReadKnownHealingRecipe().segments[0];
+    const replay = await runSegment({
+        ...segment,
+        moves: HEALING_READ_WAIT,
+    });
+    let book = game.invent;
+    while (book && book.otyp !== SPE_HEALING) book = book.nobj;
+    assert.ok(book);
+    const movesBefore = game.moves;
+    const rngBefore = replay.getRngLog().length;
+    const literateBefore = game.u.uconduct.literate;
+
+    game.nhDisplay.pushKey(HEALING_BOOK_LETTER.charCodeAt(0));
+    game.nhDisplay.pushKey(HEALING_MESSAGE_MORE.charCodeAt(0));
+    game.nhDisplay.pushKey('y'.charCodeAt(0));
+    await assert.rejects(
+        () => doread(game),
+        (error) => error instanceof UnsupportedSpellStudyError
+            && error.branch === 'refreshing the known spell',
+    );
+    assert.equal(game.moves, movesBefore);
+    assert.equal(replay.getRngLog().length, rngBefore);
+    assert.equal(game.u.uconduct.literate, literateBefore + 1);
+    assert.equal(game.context.spbook.delay, -2);
+    assert.equal(game.context.spbook.book, null);
+    assert.equal(book.in_use, false);
+    assert.equal(game.go?.occupation ?? null, null);
+});
+
+test('the command wrapper retains an accepted refresh refusal for retry', async () => {
+    const segment = loadReadKnownHealingRecipe().segments[0];
+    let boundary = null;
+    const replay = await runSegment({
+        ...segment,
+        moves: `${HEALING_READ_WAIT}${HEALING_READ_COMMAND}`
+            + `${HEALING_BOOK_LETTER}${HEALING_MESSAGE_MORE}y`,
+    }, { onBoundary: (error) => { boundary = error; } });
+    let book = game.invent;
+    while (book && book.otyp !== SPE_HEALING) book = book.nobj;
+
+    assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
+    assert.match(boundary?.message ?? '', /refreshing the known spell/u);
+    assert.deepEqual(game.context.pendingCommand, {
+        key: HEALING_READ_COMMAND.charCodeAt(0),
+        commandCount: 0,
+        lastCommandCount: 0,
+        multi: 0,
+    });
+    assert.equal(game.context.spbook.delay, -2);
+    assert.equal(book?.in_use, false);
+    assert.equal(game.go?.occupation ?? null, null);
+    // Startup and the accepted prompt branch add no command-local draw.
+    const acceptedRngCalls = replay.getRngLog().length;
+    const baseline = await runSegment({
+        ...segment,
+        moves: HEALING_READ_WAIT,
+    });
+    assert.equal(acceptedRngCalls, baseline.getRngLog().length);
 });
 
 test('magic mapping fails closed on an unsupported special level', async () => {

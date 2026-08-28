@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import { failClosedCommandRefusals } from '../js/cmd.js';
 import {
     ECMD_CANCEL,
     ECMD_OK,
+    CQ_REPEAT,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
 } from '../js/const.js';
@@ -32,6 +34,7 @@ import {
     START,
     WIZWISH_KEY,
 } from './run-rub-command.mjs';
+import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 function inventorySnapshot() {
     const objects = [];
@@ -42,6 +45,10 @@ function inventorySnapshot() {
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
+}
+
+function digest(values) {
+    return createHash('sha256').update(JSON.stringify(values)).digest('hex');
 }
 
 function segmentThroughWish() {
@@ -140,3 +147,34 @@ test('#rub dispatch reaches getobj instead of the command boundary',
     assert.equal(boundary, null);
     assert.match(topLine(), /^What do you want to rub\?/u);
 });
+
+test('the complete #rub cancellation recipe preserves the command boundary',
+    () => withSerializedGrids(async () => {
+        let boundary = null;
+        const replay = await runSegment(
+            loadRubCommandRecipe().segments[0],
+            { onBoundary: (error) => { boundary = error; } },
+        );
+        const lamp = inventorySnapshot().find(({ otyp }) => otyp === MAGIC_LAMP);
+
+        assert.equal(boundary, null);
+        assert.equal(game.moves, 2);
+        assert.equal(replay.getRngLog().length, 2777);
+        assert.equal(replay.getScreens().length, 23);
+        assert.equal(replay.getCursors().length, 23);
+        // Digests come from the fresh C-matched seed-108 cancellation run and
+        // cover every serialized cell attribute and cursor triple.
+        assert.equal(
+            digest(replay.getScreens()),
+            '058ba68d0c8183a4d92210c60c57927ff70c936970abc04df0e9a9a1bd92220a',
+        );
+        assert.equal(
+            digest(replay.getCursors()),
+            '109b8b9a86fead5a6883a789bafacb441746d8e6bb14ebff148413d8984ce187',
+        );
+        assert.equal(game.context.pendingCommand, undefined);
+        assert.equal(game.command_queue?.[CQ_REPEAT]?.length ?? 0, 0);
+        assert.ok(lamp);
+        assert.notEqual(game.uwep?.o_id, lamp.o_id);
+        assert.equal(lamp.in_use, false);
+    }));

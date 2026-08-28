@@ -1027,9 +1027,8 @@ export function helpMenuItems() {
 }
 
 // C ref: pager.c hmenu_dowhatis() and dohelp() (2802-2805, 2860-2898).
-// The dispatch includes version information, the static display-file family,
-// history, and the already-ported whatis row. Dynamic rows stop after their
-// menu selection until their source owners are ported.
+// Every ordinary help_menu_items[] row dispatches here. The wizard-only row
+// and a menu with sysopt.hideusage set remain excluded before menu creation.
 export async function dohelp(state = game) {
     if (state.wizard)
         throw new UnsupportedHelpError('the wizard-mode help row');

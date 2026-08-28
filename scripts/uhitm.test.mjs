@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import { moveloop_core } from '../js/allmain.js';
@@ -44,6 +45,7 @@ import {
     PET_SWAP_ARRIVAL_MOVES,
     loadPetSwapArrivalRecipe,
 } from './run-pet-swap-arrival-autopickup.mjs';
+import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 const DATETIME = '20300102030405';
 function petRc({
@@ -125,6 +127,36 @@ test('the pet-swap arrival recipe contains replay inputs only', () => {
     assert.match(segment.nethackrc, /runmode:walk/u);
 });
 
+test('the natural pet-swap arrival replay pins the TTY handoff',
+    () => withSerializedGrids(async () => {
+        let boundary = null;
+        const replay = await runSegment(
+            loadPetSwapArrivalRecipe().segments[0],
+            { onBoundary: (error) => { boundary = error; } },
+        );
+        const digest = (values) => createHash('sha256')
+            .update(JSON.stringify(values)).digest('hex');
+
+        assert.equal(boundary, null);
+        assert.equal(game.moves, 7);
+        assert.equal(replay.getRngLog().length, 3113);
+        assert.equal(replay.getScreens().length, 26);
+        assert.equal(replay.getCursors().length, 26);
+        assert.equal(
+            digest(replay.getScreens()),
+            '09fd58f0c661ff1028b4fa4202d349d956c36dcfed27dcba5ffbbc0a12006ad4',
+        );
+        assert.equal(
+            digest(replay.getCursors()),
+            '573a9a1d095c819403be4888c228fdd1dc799485f53282d1f4de846887c3907d',
+        );
+        assert.equal(game.nhDisplay.inputQueueLength, 0);
+        assert.equal(
+            game._pending_message,
+            'f - a scroll labeled STRC PRST SKRZ KRK.',
+        );
+    }));
+
 test('live movement swaps every starting-pet species through safe-pet attack',
     async () => {
         const cases = [
@@ -201,11 +233,9 @@ test('a pet swap performs automatic pickup on the arrival square', async () => {
     clearTtyMessageWindow(game);
     initRng(1); // The first rn2(7) is 5, so do_attack() permits the swap.
     game.nhDisplay.pushKey('l'.charCodeAt(0));
-    // Two dismissal keys cover both TTY layouts: one is enough when the
-    // shuffled scroll label forces a --More-- prompt, and neither is consumed
-    // when both messages fit on the top line.
-    game.nhDisplay.pushKey(' '.charCodeAt(0));
-    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    // This fixed constructed case fits both messages on the top line, so it
+    // must not hide a layout change behind spare dismissal input. The natural
+    // replay above pins the distinct --More-- layout.
 
     await moveloop_core();
 
