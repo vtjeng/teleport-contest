@@ -5677,6 +5677,11 @@
           "name": "ordinary-missile-flight-hit",
           "status": "queued",
           "closedBy": null
+        },
+        {
+          "name": "ordinary-missile-hit-settlement",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "9ae8c4f42aa0d8f4674f0b641a5078a0c607819d",
