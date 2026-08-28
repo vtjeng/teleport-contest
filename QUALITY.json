@@ -20661,6 +20661,237 @@
         ]
       },
       "recordedAt": "2026-08-27T19:07:56.692Z"
+    },
+    {
+      "kind": "review",
+      "head": "0619ae8565a88676fb3e6cce6a6aa72993f8fdab",
+      "auditedRange": "6696f72d099118f8a7b629df075c041a98e6fb07..0619ae8565a88676fb3e6cce6a6aa72993f8fdab",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 52 raw, 43 deduplicated, 40 confirmed, 36 applied, 4 deferred, 3 rejected, 0 unverified. Full correctness audit with mandatory behavior, readability-risk, test-quality, and variable-flow finders; concurrency ran because the range includes asynchronous command and persistence paths, while performance was not triggered. Repeated light fix-delta rechecks ended clean. Thirty-six confirmed fixes landed through 6062ec3, 90f6f27, 5dbbc8c, 6d61238, 7996bbe, and 0619ae8; four source-reachable production gaps outside the completed boundaries remain tracked as behavior slices. Validation at 0619ae8: full checkpoint and generated/static checks pass; focused dashboard tests pass and targeted mutations kill the active-domain, marker-style, endpoint-family, and mixed-provenance consumer regressions. Development remains 2,749/7,765 screens, 2,808/7,765 cursors, and 156,824/610,816 random-number values. No holdout evaluation or access occurred. Reviewers ran in batches because the agent concurrency limit retained completed threads; every required finder and adjudication result completed.",
+      "auditMetrics": {
+        "mode": "full",
+        "foundBy": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace",
+          "concurrency"
+        ],
+        "counts": {
+          "raw": 52,
+          "deduplicated": 43,
+          "confirmed": 40,
+          "applied": 36,
+          "deferred": 4,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "wallTimeSeconds": 10961,
+        "categories": {
+          "production": 15,
+          "tests": 23,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "file": "js/pager.js",
+            "function": "look_all",
+            "summary": "Monster lists silently omit remembered invisible creatures",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/pager.js",
+            "function": "setopt_cmd",
+            "summary": "Help hardcodes default option-command bindings after custom bindings are accepted",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/spell.js",
+            "function": "study_book_preflight",
+            "summary": "Allow a second declined refresh after the retained study delay",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/version.js",
+            "function": "get_lua_version",
+            "summary": "Do not persist the process-local Lua-version cache in saved game context",
+            "foundBy": [
+              "variable-trace",
+              "concurrency"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "scripts/dashboard-data.mjs",
+            "function": "goal timeline aggregation",
+            "summary": "Timeline fields erase whether timestamps are observed or inferred",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "scripts/dashboard-data.mjs",
+            "function": "summary aggregation",
+            "summary": "The dashboard counts an in-progress goal as closed",
+            "foundBy": [
+              "correctness",
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "scripts/dashboard-data.mjs",
+            "function": "score slice parsing",
+            "summary": "Score-slice provenance used the referenced commit timestamp instead of the recorded ledger timestamp",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "scripts/dashboard-data.mjs",
+            "function": "verification aggregation",
+            "summary": "A missing final slice event was counted as observed verification timing",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "scripts/dashboard.template.html",
+            "function": "phase breakdown rendering",
+            "summary": "The phase table and bar presented inferred implementation timing without qualification",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "scripts/dashboard-data.mjs",
+            "function": "closed goal timing aggregation",
+            "summary": "A closed goal with zero slices was vacuously marked as having fully observed timing",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "scripts/dashboard-data.mjs",
+            "function": "summary median aggregation",
+            "summary": "The goal-selection median included intervals whose start time was inferred",
+            "foundBy": [
+              "correctness",
+              "tests",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "scripts/dashboard-data.mjs",
+            "function": "progress aggregation",
+            "summary": "Progress points dropped timestamp provenance before chart rendering",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "scripts/dashboard.template.html",
+            "function": "timeline rendering",
+            "summary": "Timeline selection tooltips omitted whether their timing was recorded or inferred",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "scripts/dashboard-data.mjs",
+            "function": "in-progress goal aggregation",
+            "summary": "Exact in-progress selection timing was discarded and marked inferred",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "file": "scripts/dashboard.template.html",
+            "function": "timeline rendering",
+            "summary": "The timeline domain ended at an in-progress goal's open time and clipped its queued and active slice segments",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "readiness": {
+          "boundary": "The reviewed gameplay boundaries start at live commands or actions and end at the next player-visible result or explicit refusal. The real game reaches each completed path; the rub slice ends after object selection and before wielding or object effects.",
+          "sourceReview": "Every reachable branch and helper inside the implemented boundaries was traced against NetHack C for state changes, rendering, input waits, persistence, and PRNG order. Explicit stops and unsupported branches were identified.",
+          "completeness": "No known unsupported behavior remains inside the completed boundaries. Excluded branches stop before additional state, randomness, or output; all confirmed in-boundary findings were applied, and four source-reachable branches outside development-session coverage were recorded as separate slices."
+        },
+        "rejections": [
+          {
+            "summary": "remainingPackIsFullyIdentified hides a required nonempty-pack condition",
+            "counterEvidence": "The helper is module-private, has only two colocated callers, and its preceding comments explicitly define the nonempty-remainder contract both callers require. The proposed selected-only, identified-remainder, and unidentified-remainder cases already pass without a rename. Do not reopen without a new caller for which the documented contract is misleading or incorrect."
+          },
+          {
+            "summary": "UnsupportedSpellStudyError's comment conflates pre-mutation and post-prompt failures",
+            "counterEvidence": "The nominal preflight throw is unreachable from the live doread caller because doread performs the same study_book_preflight check synchronously before study_book. The only live instance is the post-prompt affirmative-refresh refusal described by the comment. Do not reopen without a source-reachable caller that can raise the preflight instance through the command boundary."
+          },
+          {
+            "summary": "Multiple in-progress Open commits can reuse the same prior-goal baseline and corrupt selection timing",
+            "counterEvidence": "GOALS.json is the authoritative goal model and scripts/goal-log.mjs validateGoals() rejects more than one open goal. Commit subjects matching /^Open/ are only a dashboard history heuristic and may describe implementation work rather than authoritative open goals. Do not reopen without a valid GOALS.json history containing two actual open goals or another authoritative source that permits that state."
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "Monster lists silently omit remembered invisible creatures",
+            "trackedIn": "whatis-monster-list-invisible",
+            "category": "production"
+          },
+          {
+            "summary": "Help hardcodes default option-command bindings after custom bindings are accepted",
+            "trackedIn": "help-custom-option-bindings",
+            "category": "production"
+          },
+          {
+            "summary": "Allow a second declined refresh after the retained study delay",
+            "trackedIn": "known-spellbook-second-decline",
+            "category": "production"
+          },
+          {
+            "summary": "Do not persist the process-local Lua-version cache in saved game context",
+            "trackedIn": "version-lua-cache-save-restore",
+            "category": "production"
+          }
+        ]
+      },
+      "recordedAt": "2026-08-28T03:55:08.714Z"
     }
   ]
 }
