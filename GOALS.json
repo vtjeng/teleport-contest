@@ -5898,6 +5898,41 @@
         "screens": 21,
         "rng": 2403
       }
+    },
+    {
+      "id": "zapyourself-wand-of-death",
+      "status": "open",
+      "boundary": "A non-demon, living hero who zaps a wand of death (WAN_DEATH, otyp 433) at their own square reaches the unported WAN_DEATH arm of zapyourself() in zap.c. The port throws UnsupportedZapError at the default case in js/zap.js zapyourself().",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 66,
+        "basis": "Uncapped look-ahead: seed5006-tourist-stress-disaster rawStretch=66 from the zapyourself boundary at step 183. capStable=false; divergenceZeroed=false.",
+        "sessions": [
+          "seed5006-tourist-stress-disaster"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5006-tourist-stress-disaster",
+            "evidence": "At C step 183, inside dozap(), the hero answers the direction prompt with '.' (self), routing through zap_die_once to zapyourself(). The hero is a human Tourist (living, not demon), carrying a wished-for wand of death (WAN_DEATH, otyp 433). C zapyourself WAN_DEATH arm at zap.c:2885-2902 sets the killer, prints You irradiate yourself with pure energy! and You die., then calls done(DIED). JS throws UnsupportedZapError at zap.js:428 before reaching the WAN_DEATH arm."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "zapyourself-death-ray",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "358058cc4ddc5a97ba2e906bb63c3d6c49ef7e2d",
+      "openStanding": {
+        "sha": "7de65e5",
+        "screens": 2807,
+        "rng": 159394
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
