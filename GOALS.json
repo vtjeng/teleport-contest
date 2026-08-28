@@ -5987,7 +5987,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "polyself-controlled-gnome",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "e7f1cf4e10293eb0e935528be90dc68d1f6a73ff",
       "openStanding": {
         "sha": "8d22406",
