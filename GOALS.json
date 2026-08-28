@@ -5901,7 +5901,7 @@
     },
     {
       "id": "zapyourself-wand-of-death",
-      "status": "open",
+      "status": "closed",
       "boundary": "A non-demon, living hero who zaps a wand of death (WAN_DEATH, otyp 433) at their own square reaches the unported WAN_DEATH arm of zapyourself() in zap.c. The port throws UnsupportedZapError at the default case in js/zap.js zapyourself().",
       "upstreamOwners": [],
       "forecast": {
@@ -5921,8 +5921,8 @@
       "slices": [
         {
           "name": "zapyourself-death-ray",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e4192cccd4b0c8a2c4712af7b296b2fc47b3a272"
         }
       ],
       "openedAt": "358058cc4ddc5a97ba2e906bb63c3d6c49ef7e2d",
@@ -5931,8 +5931,11 @@
         "screens": 2807,
         "rng": 159394
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "e4192cccd4b0c8a2c4712af7b296b2fc47b3a272",
+      "delivered": {
+        "screens": 3,
+        "rng": 123
+      }
     }
   ]
 }
