@@ -194,11 +194,22 @@ async function advance() {
         }
     }
 
+    const activeMembers = new Set(candidates.map((c) => c.member));
+    let purged = 0;
+    for (const key of Object.keys(metadata)) {
+        if (!activeMembers.has(key)) {
+            delete metadata[key];
+            purged++;
+        }
+    }
+    if (purged > 0) writeMetadata(metadata);
+
     console.log(JSON.stringify({
         total: candidates.length,
         ready: readyCount,
         needsCapping: needsCappingList,
         needsWitness: needsWitnessList,
+        purged,
     }, null, 2));
 }
 
