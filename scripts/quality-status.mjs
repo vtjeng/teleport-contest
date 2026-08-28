@@ -27,6 +27,7 @@ import { sourceFilesIn } from './check-namespace-members.mjs';
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 const QUALITY_PATH = resolve(REPO_ROOT, 'QUALITY.json');
+const QUALITY_HISTORY_PATH = resolve(REPO_ROOT, 'QUALITY-history.json');
 const UPSTREAM_SRC = resolve(REPO_ROOT, 'nethack-c', 'upstream', 'src');
 const PORT_ROOT = resolve(REPO_ROOT, 'js');
 // ROADMAP.md holds each deferred finding as prose. The ledger stores a
@@ -940,8 +941,9 @@ export function validateConfigShape(config, mentionsSymbol = upstreamMentions) {
     if (pass.kind === 'simplification' && pass.level !== undefined) {
       fail('simplification passes do not have a review level');
     }
-    if (typeof pass.evidence !== 'string' || pass.evidence.trim().length === 0) {
-      fail('every pass needs evidence');
+    if (pass.evidence !== undefined
+        && (typeof pass.evidence !== 'string' || pass.evidence.trim().length === 0)) {
+      fail('pass evidence, when present, must be a nonempty string');
     }
     if (typeof pass.recordedAt !== 'string' || Number.isNaN(Date.parse(pass.recordedAt))) {
       fail('every pass needs an ISO recordedAt timestamp');
@@ -959,9 +961,6 @@ export function validateConfigShape(config, mentionsSymbol = upstreamMentions) {
       }
     }
     if (pass.auditMetrics !== undefined) validateAuditMetrics(pass.auditMetrics);
-    if (passIndex >= config.legacyPassCount && pass.auditMetrics === undefined) {
-      fail('new quality passes require structured auditMetrics');
-    }
   }
 
 }
@@ -1246,11 +1245,35 @@ function rejectUnknownOptions(options, allowed) {
   }
 }
 
+function stripPassHistory(pass) {
+  const { evidence, auditMetrics, ...rest } = pass;
+  return rest;
+}
+
 function writeConfig(config) {
+  const stripped = {
+    ...config,
+    passes: config.passes.map(stripPassHistory),
+  };
   const temporaryPath = `${QUALITY_PATH}.tmp`;
   try {
-    writeFileSync(temporaryPath, `${JSON.stringify(config, null, 2)}\n`, 'utf8');
+    writeFileSync(temporaryPath, `${JSON.stringify(stripped, null, 2)}\n`, 'utf8');
     renameSync(temporaryPath, QUALITY_PATH);
+  } finally {
+    if (existsSync(temporaryPath)) unlinkSync(temporaryPath);
+  }
+}
+
+function loadHistory() {
+  if (!existsSync(QUALITY_HISTORY_PATH)) return [];
+  return JSON.parse(readFileSync(QUALITY_HISTORY_PATH, 'utf8'));
+}
+
+function writeHistory(passes) {
+  const temporaryPath = `${QUALITY_HISTORY_PATH}.tmp`;
+  try {
+    writeFileSync(temporaryPath, `${JSON.stringify(passes, null, 2)}\n`, 'utf8');
+    renameSync(temporaryPath, QUALITY_HISTORY_PATH);
   } finally {
     if (existsSync(temporaryPath)) unlinkSync(temporaryPath);
   }
@@ -1414,6 +1437,9 @@ function preparePass(kind, options) {
       const entry = config.deferred.find((d) => d.id === trackedIn.trim());
       if (entry) entry.status = 'open';
     }
+    const history = loadHistory();
+    history.push(pass);
+    writeHistory(history);
     writeConfig(config);
   }
 
@@ -1551,7 +1577,9 @@ function queryLedger(command, options, config) {
   if (command === 'pass') {
     rejectUnknownOptions(options, new Set(['head']));
     if (!options.head) fail('pass needs --head <sha or prefix>');
-    const matches = config.passes.filter(
+    const history = loadHistory();
+    const source = history.length > 0 ? history : config.passes;
+    const matches = source.filter(
       (pass) => pass.head.startsWith(options.head),
     );
     if (matches.length === 0) fail(`no recorded pass has head ${options.head}`);
@@ -1560,7 +1588,9 @@ function queryLedger(command, options, config) {
   }
   if (command === 'rejections') {
     rejectUnknownOptions(options, new Set());
-    const rows = collectRejections(config.passes);
+    const history = loadHistory();
+    const source = history.length > 0 ? history : config.passes;
+    const rows = collectRejections(source);
     for (const row of rows) {
       console.log(`${shortSha(row.head)} ${row.summary}`);
       console.log(`    counter: ${row.counterEvidence}`);

@@ -283,28 +283,4 @@ with the C dump is ongoing work.
 items, traps, level geometry, or other game objects. Extending it to full game
 state would require substantially more C instrumentation.
 
-## Move evidence and auditMetrics out of QUALITY.json
-
-**What it changes.** Each pass's `evidence` and `auditMetrics` would move from
-QUALITY.json into a sibling `QUALITY-history.json` that only the recorder and a
-later review pass read. QUALITY.json would retain `kind`, `areas`, `bases`,
-`head`, and the thresholds that `scripts/quality-status.mjs` consumes. At
-2026-08-01, `evidence` (113,585 bytes) and `auditMetrics` (143,479 bytes)
-accounted for 73% of QUALITY.json's 350,373 bytes.
-
-**Scope.** `scripts/quality-status.mjs` writes both files; every agent that
-reads QUALITY.json gets a smaller file. The `record-pass` verb writes to the
-history file; the `npm run quality` read path stays on QUALITY.json.
-
-**What prompted it.** The 2026-08-01 meta-analysis measured QUALITY.json at
-~110,000 tokens of required reading, of which 73% is historical pass data no
-implementer acts on. AGENTS.md requires reading it before implementing game
-behavior, and `.claude/agents/slice-worker.md` contradicts this by omitting it
-from the worker's read list.
-
-**Cost.** Small. One split in the recorder, one extra file on disk.
-
-**What it leaves unfixed.** ROADMAP.md's deferred-findings section (`##
-Unresolved`) is a separate source of reading bloat (71% of ROADMAP.md at
-2026-08-01) and would need its own move to a DEFERRED.md file.
 

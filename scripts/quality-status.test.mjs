@@ -67,10 +67,15 @@ test('the checked-in quality ledger has a valid schema', async () => {
   assert.doesNotThrow(() => validateConfigShape(config));
   assert.equal(config.version, 4);
   assert.equal(config.legacyPassCount, 21);
+  // evidence and auditMetrics live in QUALITY-history.json
+  const history = JSON.parse(
+    await readFile(new URL('../QUALITY-history.json', import.meta.url), 'utf8'),
+  );
   assert.equal(
-    config.passes.slice(config.legacyPassCount).every((pass) => pass.auditMetrics),
+    history.slice(config.legacyPassCount).every((pass) => pass.auditMetrics),
     true,
   );
+  assert.equal(history.length, config.passes.length);
   assert.deepEqual(config.thresholds, {
     reviewCommits: 20,
     reviewChangedLines: 2000,
@@ -1106,7 +1111,10 @@ test('note-deferral is reachable as a command and refuses an unknown id', () => 
   );
 });
 
-test('new ledger passes require structured audit metrics', () => {
+// evidence and auditMetrics live in QUALITY-history.json, so QUALITY.json
+// passes validate without them. The recording path still requires both
+// via --evidence and --audit-metrics options.
+test('QUALITY.json passes validate without evidence and auditMetrics', () => {
   const sha = '1'.repeat(40);
   const pass = {
     kind: 'review',
@@ -1114,7 +1122,6 @@ test('new ledger passes require structured audit metrics', () => {
     areas: ['first'],
     level: 'light',
     outcome: 'no-change',
-    evidence: 'No findings.',
     recordedAt: '2026-07-23T00:00:00.000Z',
   };
   const config = {
@@ -1131,11 +1138,6 @@ test('new ledger passes require structured audit metrics', () => {
     passes: [pass],
   };
 
-  assert.throws(
-    () => validateConfigShape(config),
-    /new quality passes require structured auditMetrics/,
-  );
-  pass.auditMetrics = EMPTY_AUDIT_METRICS;
   assert.doesNotThrow(() => validateConfigShape(config));
 });
 
