@@ -74,7 +74,16 @@ The orchestrator repeats without returning to the user between steps:
    `.cache/goal-context.json` describes the current goal. The
    goal-selector writes this file; update it only when it is missing or
    describes a different goal.
-3. Spawn a worker for that slice. When it returns, establish what landed:
+3. Spawn a worker for that slice. Alongside the worker, spawn a
+   background agent to run
+   `node scripts/pipeline-candidates.mjs --advance`, cap stale sessions,
+   trace witnesses, and store results with
+   `node scripts/pipeline-candidates.mjs --set-metadata` (pipe the JSON
+   into stdin). The advance agent computes metadata for other pipeline
+   candidates while the worker implements the current slice, so the
+   cache is warm by the next goal transition.
+
+   When the worker returns, establish what landed:
    `git log --oneline origin/main..HEAD` and `git status --short` for the
    unpushed commits and tree. The worker runs `npm run checkpoint` after
    committing, so `.cache/checkpoint-summary.json` describes the committed
@@ -82,12 +91,7 @@ The orchestrator repeats without returning to the user between steps:
    the file is missing or its `commit` does not match
    `git rev-parse HEAD`. Push whatever the worker left behind and every
    commit you landed, then watch the CI run from a background task as
-   `.agents/workflow.md`, "Pushing and CI", states. After pushing, spawn
-   a background agent to run
-   `node scripts/pipeline-candidates.mjs --advance`, cap stale sessions,
-   trace witnesses, and store results with
-   `node scripts/pipeline-candidates.mjs --set-metadata` (pipe the JSON
-   into stdin). It runs alongside the next slice.
+   `.agents/workflow.md`, "Pushing and CI", states.
 
 4. Run `npm run quality` yourself; no worker reports it. If the output
    shows `DUE`, run the required review pass before continuing
