@@ -5979,6 +5979,23 @@
         "screens": 22,
         "rng": 2716
       }
+    },
+    {
+      "id": "polyself",
+      "status": "open",
+      "boundary": "In wizard mode, dispatching the '#polyself' extended command reaches wizcmds.c wiz_polyself(), which calls polyself.c polyself(). The port's doextcmd() switch has no case for 'wiz_polyself', so every attempt throws UnsupportedHeroCommandBoundaryError before the 'Become what kind of monster?' prompt or any transformation runs.",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "e7f1cf4e10293eb0e935528be90dc68d1f6a73ff",
+      "openStanding": {
+        "sha": "8d22406",
+        "screens": 2832,
+        "rng": 162233
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
