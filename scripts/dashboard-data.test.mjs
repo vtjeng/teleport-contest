@@ -108,6 +108,9 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     git(fixture, ['config', 'user.name', 'Dashboard Test']);
     git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
     commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
+    const legacyClose = commit(
+        fixture, 'Close legacy goal', '2026-01-01T00:05:00Z',
+    );
     commit(fixture, 'Open alpha goal', '2026-01-01T00:10:00Z');
     commit(fixture, 'Queue alpha slice', '2026-01-01T00:20:00Z');
     const alphaClose = commit(
@@ -126,6 +129,13 @@ test('dashboard separates closed goals and labels inferred timing', () => {
 
     writeFileSync(join(fixture, 'SCORE.tsv'), [
         SCORE_HEADER,
+        scoreRow({
+            utc: '2026-01-01',
+            sha: legacyClose,
+            event: 'goal',
+            screens: 5,
+            note: 'legacy closes without precise time.',
+        }),
         scoreRow({
             utc: '2026-01-01T00:25:00Z',
             sha: alphaClose,
@@ -161,12 +171,17 @@ test('dashboard separates closed goals and labels inferred timing', () => {
         cwd: fixture,
         encoding: 'utf8',
     }));
-    assert.equal(data.goals.length, 4);
-    assert.equal(data.summary.totalGoals, 3);
+    assert.equal(data.goals.length, 5);
+    assert.equal(data.summary.totalGoals, 4);
     assert.equal(data.summary.inProgressGoals, 1);
 
-    const [alpha, orphan, empty, beta] = data.goals;
+    const [legacy, alpha, orphan, empty, beta] = data.goals;
+    assert.equal(legacy.closeTimeSource, 'score-date-commit-inferred');
+    assert.equal(data.progress[0].utcSource, 'score-date-commit-inferred');
+    assert.equal(data.progress[1].utcSource, 'score-utc');
     assert.equal(alpha.openTimeSource, 'open-commit');
+    assert.equal(alpha.goalSelectionMin, 5);
+    assert.equal(alpha.goalSelectionObserved, false);
     assert.equal(alpha.closeTimeSource, 'score-utc');
     assert.equal(alpha.slices[0].closeTimeSource, 'score-slice');
     assert.equal(alpha.slices[0].closeTime, '2026-01-01T00:25:00.000Z');
@@ -178,29 +193,41 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     assert.equal(empty.sliceCount, 0);
     assert.equal(empty.timingObserved, false);
     assert.equal(beta.status, 'in-progress');
+    assert.equal(beta.goalSelectionMin, 10);
+    assert.equal(beta.goalSelectionObserved, true);
+    assert.equal(beta.sliceSelectionMin, 10);
+    assert.equal(beta.sliceSelectionObserved, true);
     assert.equal(beta.slices[0].closeTimeSource, 'current-time-inferred');
+    assert.equal(data.summary.medianGoalSelectionMin, 10);
     assert.equal(data.summary.medianImplementationMin, 5);
     assert.equal(data.summary.medianVerificationMin, 5);
     assert.equal(data.summary.medianTotalMin, 15);
 
-    const rendered = renderDashboard({
-        ...data,
-        goals: data.goals.filter((goal) => goal.status !== 'in-progress'),
-    });
+    const rendered = renderDashboard(data);
     const table = rendered.get('goalTable').innerHTML;
     const orphanRow = table.split('</tr>').find((row) => row.includes('orphan'));
     const alphaRow = table.split('</tr>').find((row) => row.includes('alpha'));
+    const betaRow = table.split('</tr>').find((row) => row.includes('beta'));
     assert.match(orphanRow, /10m \(inferred\)/u);
     assert.match(orphanRow, /Implementation: 10m \(inferred\)/u);
     assert.match(alphaRow, /Implementation: 5m \(recorded\)/u);
-    assert.doesNotMatch(alphaRow, /5m \(inferred\)/u);
+    assert.doesNotMatch(alphaRow, /Implementation: 5m \(inferred\)/u);
+    assert.match(betaRow, /<td>10m<\/td><td>10m<\/td>/u);
+    assert.match(betaRow, /Goal selection: 10m \(recorded\)/u);
+    assert.match(betaRow, /Slice selection: 10m \(recorded\)/u);
 
     const timeline = rendered.get('timeline').innerHTML;
+    assert.match(timeline, /Goal selection: 5m \(inferred\)/u);
+    assert.match(timeline, /Goal selection: 10m"/u);
     assert.match(
         timeline,
         /Implementation: 10m \(end inferred\) — Queue orphan slice/u,
     );
     assert.match(timeline, /Implementation: 5m — Queue alpha slice/u);
+    assert.equal(
+        rendered.get('progressProvenance').textContent,
+        '1 hollow marker uses commit time where SCORE records only a date.',
+    );
 });
 
 test('verification requires a recorded final slice closure', () => {

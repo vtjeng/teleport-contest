@@ -254,6 +254,7 @@ const lastCloseTime = goals.length > 0
   : new Date(0);
 
 const inProgressOpens = openCommits.filter(c => c.time > lastCloseTime);
+const lastClosedGoal = goals[goals.length - 1] ?? null;
 
 for (const open of inProgressOpens) {
   let name = open.message;
@@ -264,6 +265,9 @@ for (const open of inProgressOpens) {
   const now = new Date();
   const openTime = open.time;
   const totalMin = (now - openTime) / 60000;
+  const goalSelectionMin = lastClosedGoal
+    ? (openTime - lastCloseTime) / 60000
+    : null;
 
   const goalQueues = queueCommits.filter(q => q.time >= openTime);
   const slices = [];
@@ -310,15 +314,22 @@ for (const open of inProgressOpens) {
     closeTime: null,
     closeTimeSource: 'current-time-inferred',
     totalMin: Math.round(totalMin * 10) / 10,
-    goalSelectionMin: null,
+    goalSelectionMin: goalSelectionMin !== null
+      ? Math.round(goalSelectionMin * 10) / 10
+      : null,
     sliceSelectionMin: Math.round(totalSliceSelectionMin * 10) / 10,
     implementationMin: Math.round(totalSliceDurationMin * 10) / 10,
     verificationMin: null,
     sliceCount: slices.length,
     slices,
-    goalSelectionObserved: false,
-    sliceSelectionObserved: false,
-    implementationObserved: false,
+    goalSelectionObserved: goalSelectionMin !== null
+      && lastClosedGoal?.closeTimeSource === 'score-utc',
+    sliceSelectionObserved: slices.length > 0
+      && slices.slice(0, -1).every(
+        (slice) => slice.closeTimeSource === 'score-slice',
+      ),
+    implementationObserved: slices.length > 0
+      && slices.every((slice) => slice.closeTimeSource === 'score-slice'),
     verificationObserved: false,
     totalObserved: false,
     timingObserved: false,
@@ -348,6 +359,7 @@ const progress = scoreEvents
   .filter(e => e.event === 'goal' && e.screensMatched !== null)
   .map(e => ({
     utc: e.utc?.toISOString() ?? null,
+    utcSource: e.utcSource,
     screens: e.screensMatched,
     screensTotal: e.screensTotal,
     rng: e.rngMatched,
@@ -380,7 +392,11 @@ function median(arr) {
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
-const recentWithGoalSel = recentGoals.filter(g => g.goalSelectionMin !== null && g.goalSelectionMin < 120);
+const recentWithGoalSel = recentGoals.filter(
+  g => g.goalSelectionObserved
+    && g.goalSelectionMin !== null
+    && g.goalSelectionMin < 120,
+);
 const recentWithVerif = recentGoals.filter(
   g => g.verificationObserved && g.verificationMin !== null,
 );

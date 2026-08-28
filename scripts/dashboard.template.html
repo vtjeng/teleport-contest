@@ -392,6 +392,7 @@ canvas {
 
 <div class="section">
   <h2 class="section-title">Screens matched over time</h2>
+  <p class="subtitle" id="progressProvenance"></p>
   <div class="chart-wrap">
     <canvas id="progressChart" height="200"></canvas>
   </div>
@@ -465,6 +466,12 @@ document.getElementById('stats').innerHTML = [
   { label: 'Goal selection', value: fmt(s.medianGoalSelectionMin), detail: 'median, last 20' },
   { label: 'Implementation', value: fmt(s.medianImplementationMin), detail: 'median, last 20' },
 ].map(t => '<div class="stat"><div class="stat-label">' + t.label + '</div><div class="stat-value">' + t.value + '</div><div class="stat-detail">' + t.detail + '</div></div>').join('');
+const inferredProgressCount = DATA.progress.filter(
+  p => p.utcSource !== 'score-utc',
+).length;
+document.getElementById('progressProvenance').textContent = inferredProgressCount
+  ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' commit time where SCORE records only a date.'
+  : 'All plotted times come from recorded SCORE timestamps.';
 
 // --- Progress chart (step plot with x-axis) ---
 function drawProgressChart() {
@@ -578,6 +585,20 @@ function drawProgressChart() {
   ctx.lineWidth = 2;
   ctx.stroke();
 
+  // Date-only SCORE rows have no recorded time-of-day. Their x-coordinate
+  // uses the referenced commit time and a hollow marker makes that fallback
+  // visible instead of presenting it as equivalent to a recorded timestamp.
+  pts.forEach((point, index) => {
+    if (point.utcSource === 'score-utc') return;
+    ctx.beginPath();
+    ctx.arc(xScale(times[index]), yScale(point.screens), 3, 0, Math.PI * 2);
+    ctx.fillStyle = style.getPropertyValue('--surface-chart').trim();
+    ctx.fill();
+    ctx.strokeStyle = fillColor;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  });
+
   // End label
   ctx.fillStyle = style.getPropertyValue('--ink-primary').trim();
   ctx.font = '600 12px "JetBrains Mono", monospace';
@@ -651,7 +672,8 @@ window.addEventListener('resize', drawProgressChart);
     if (g.goalSelectionMin != null && g.goalSelectionMin > 0 && g.goalSelectionMin < 120) {
       const left = toX(selStart);
       const width = toX(openT) - left;
-      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-goal-sel)" title="Goal selection: ' + fmt(g.goalSelectionMin) + '"></div>';
+      const timingNote = g.goalSelectionObserved ? '' : ' (inferred)';
+      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-goal-sel)" title="Goal selection: ' + fmt(g.goalSelectionMin) + timingNote + '"></div>';
     }
 
     // First slice selection: open → first queue
@@ -661,7 +683,9 @@ window.addEventListener('resize', drawProgressChart);
         const left = toX(openT);
         const width = toX(firstQ) - left;
         const mins = (firstQ - openT) / 60000;
-        segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-slice-sel)" title="First slice selection: ' + fmt(mins) + '"></div>';
+        const timingNote = g.openTimeSource === 'open-commit'
+          ? '' : ' (inferred)';
+        segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-slice-sel)" title="First slice selection: ' + fmt(mins) + timingNote + '"></div>';
       }
     }
 
@@ -671,7 +695,9 @@ window.addEventListener('resize', drawProgressChart);
         const prevClose = new Date(g.slices[si - 1].closeTime).getTime();
         const left = toX(prevClose);
         const width = toX(sl.queueTime) - left;
-        segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-slice-sel)" title="Slice selection: ' + fmt(sl.sliceSelectionMin) + '"></div>';
+        const timingNote = g.slices[si - 1].closeTimeSource === 'score-slice'
+          ? '' : ' (inferred)';
+        segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-slice-sel)" title="Slice selection: ' + fmt(sl.sliceSelectionMin) + timingNote + '"></div>';
       }
       const left = toX(sl.queueTime);
       const width = toX(sl.closeTime) - left;
