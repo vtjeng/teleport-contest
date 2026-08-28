@@ -5587,7 +5587,7 @@
     },
     {
       "id": "rub",
-      "status": "open",
+      "status": "closed",
       "boundary": "#rub",
       "upstreamOwners": [],
       "forecast": {
@@ -5632,8 +5632,11 @@
         "screens": 2748,
         "rng": 156824
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "9cd197a8a448451dcd48f282eba8e069d13a7727",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      }
     }
   ]
 }
