@@ -149,6 +149,11 @@ Do NOT read any source files.
 
 let winner = pipelineCheck.winner
 
+if (!winner && !pipelineCheck.topCandidate) {
+  log('all remaining candidates are blocked by session divergences')
+  return { exhausted: true }
+}
+
 // ── Phase 2: Inline fallback (cap → reconcile → witness) ──────────────
 
 if (!winner) {

@@ -39,15 +39,13 @@ The orchestrator repeats without returning to the user between steps:
      different slice, start at step 2.
    - Goal in progress, no queued or in-progress slices: start at step 2.
 
-1. When no goal is in progress, select the next goal. First run
-   `node scripts/pipeline-candidates.mjs --ready-winner`. If both
-   `winner` and `topCandidate` are null, stop the loop and notify the
-   user: all remaining candidates are blocked by session divergences
-   and need human direction. Otherwise run the `goal-selector` workflow
-   (`.claude/workflows/goal-selector.js`). If the Workflow tool is not
-   available, spawn the goal-selector agent
-   (`.claude/agents/goal-selector.md`) instead. The selector proposes
-   one goal. Queue the proposed goal with
+1. When no goal is in progress, select the next goal. Run the
+   `goal-selector` workflow (`.claude/workflows/goal-selector.js`).
+   If the Workflow tool is not available, spawn the goal-selector agent
+   (`.claude/agents/goal-selector.md`) instead. If the result contains
+   `exhausted: true`, stop the loop and notify the user: all remaining
+   candidates are blocked by session divergences and need human
+   direction. Otherwise queue the proposed goal with
    `node scripts/goal-log.mjs queue-goal` and then `open-goal` (which
    captures the score the close will be measured against).
 2. Spawn the slice-selector (`.claude/agents/slice-selector.md`) to
@@ -60,23 +58,17 @@ The orchestrator repeats without returning to the user between steps:
    goal-selector writes this file; update it only when it is missing or
    describes a different goal.
 3. Spawn a worker for that slice. When it returns, establish what landed:
-   `git log --oneline` and `git status --short` for the commits and tree.
-   The worker runs `npm run checkpoint` after committing, so
-   `.cache/checkpoint-summary.json` describes the committed state. Read
-   that file and use its figures. Re-run checkpoint only if the file is
-   missing or its `commit` does not match `git rev-parse HEAD` (another
-   agent committed after the worker). Add `git log --oneline
-   origin/main..HEAD` for unpushed commits. Push whatever the worker left
-   behind and every commit you landed, then watch the CI run from a
-   background task as `.agents/workflow.md`, "Pushing and CI", states.
-   After pushing, spawn a background agent (worktree-isolated) to advance
-   the candidate pipeline:
-   `node scripts/pipeline-candidates.mjs --advance`. The agent caps stale
-   sessions and traces witnesses for the top candidates. It runs alongside
-   the next slice and does not block step 4. If the Workflow tool is
-   available for `--advance`, the background agent can use it to parallelize
-   capping and witness tracing; otherwise it runs the script directly and
-   reports what still needs work.
+   `git log --oneline origin/main..HEAD` and `git status --short` for the
+   unpushed commits and tree. The worker runs `npm run checkpoint` after
+   committing, so `.cache/checkpoint-summary.json` describes the committed
+   state. Read that file and use its figures. Re-run checkpoint only if
+   the file is missing or its `commit` does not match
+   `git rev-parse HEAD`. Push whatever the worker left behind and every
+   commit you landed, then watch the CI run from a background task as
+   `.agents/workflow.md`, "Pushing and CI", states. After pushing, spawn
+   a background agent (worktree-isolated) to run
+   `node scripts/pipeline-candidates.mjs --advance`, cap stale sessions,
+   and trace witnesses. It runs alongside the next slice.
 
 4. Run `npm run quality` yourself; no worker reports it. If the output
    shows `DUE`, run the required review pass before continuing
