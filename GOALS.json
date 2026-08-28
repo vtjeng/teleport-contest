@@ -5622,8 +5622,8 @@
         },
         {
           "name": "rub-magic-lamp-djinni-release",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "44f15bc614a6639a8040a4538e1cbaecc751d4e1"
         }
       ],
       "openedAt": "c8f865370fa99ce793e2776bc8ab6dd2cd5bd1b2",
