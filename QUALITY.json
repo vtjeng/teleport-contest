@@ -5143,9 +5143,15 @@
       "area": "commands",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "1cdb0410e0eefefd023ed89698058118408bfd59",
-      "detail": "Port apply.c dorub for the item-actions Rub arm and the independently key-bound rub command through the next observable result."
+      "detail": "Port apply.c dorub for the item-actions Rub arm and the independently key-bound rub command through the next observable result.",
+      "notes": [
+        {
+          "text": "The rub goal now covers command selection and cancellation, ordinary magic-lamp wield/requeue, charged sighted retained-lamp results, lamp conversion, and all djinni-release outcomes. The three-zero-delta census split retires this broad entry; narrower deferrals now own the remaining gray-stone, royal-jelly, other-lamp, wield-conflict, shop-billing, and lit-release validation paths.",
+          "at": "feb17b6a7df033ada3ab8d34d07339deacd51ef0"
+        }
+      ]
     },
     {
       "id": "itemactions-tip",
@@ -5279,6 +5285,62 @@
       "status": "open",
       "from": "03239c422bb82018e726612b122ba5a714d249f1",
       "detail": "js/version.js get_lua_version() stores a process-local Lua initialization cache in serialized context, suppressing source-required nhl_init() draws after a later-segment restore; no development session combines version help with save/restore, and closure needs a two-segment fresh differential."
+    },
+    {
+      "id": "rub-gray-stone-use-stone",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "feb17b6a7df033ada3ab8d34d07339deacd51ef0",
+      "detail": "Port apply.c use_stone() from dorub() for all four selectable gray stones, including the secondary-object prompt, known touchstone filtering, cursed shattering, blind and hallucination messages, identification, material streaks, and exact PRNG and inventory effects. The completed rub goal still stops before this call.",
+      "blockedOn": "use_stone"
+    },
+    {
+      "id": "rub-royal-jelly-egg-effects",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "feb17b6a7df033ada3ab8d34d07339deacd51ef0",
+      "detail": "Port apply.c use_royal_jelly() from dorub(), including stack splitting and restoration on cancellation, the egg-only secondary prompt, killer-bee conversion, cursed timeout removal, blessed parent marking, hatch timeout creation, inventory ownership, messages, and jelly consumption.",
+      "blockedOn": "use_royal_jelly"
+    },
+    {
+      "id": "rub-other-lamp-outcomes",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "feb17b6a7df033ada3ab8d34d07339deacd51ef0",
+      "detail": "Complete apply.c dorub() for selectable oil lamps, brass lanterns, empty magic lamps, and blind magic-lamp smoke. This includes ordinary non-magic-lamp wield/requeue, brass lanterns two-line message, oil-lamp and empty-lamp Nothing happens results, and Blind choosing smell rather than sight while preserving rn2(3) and rn2(2) short-circuit order."
+    },
+    {
+      "id": "rub-lamp-wield-tool-conflicts",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "feb17b6a7df033ada3ab8d34d07339deacd51ef0",
+      "detail": "Complete wield.c wield_tool() for every state a selectable rub lamp can reach beyond the ordinary unworn, unwelded magic-lamp path: worn items, welded current weapon, inability to wield, shield/two-handed conflict, quiver and swap-weapon slots, self-welding tools, pushweapon, and active two-weapon combat. Preserve each message, equipment write, and command result before dorub() requeues."
+    },
+    {
+      "id": "rub-unpaid-magic-lamp-billing",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "feb17b6a7df033ada3ab8d34d07339deacd51ef0",
+      "detail": "Complete shk.c check_unpaid_usage() billing for dorub()s unusual release of an unpaid magic lamp in a tended shop, including zero-cost and absent-shopkeeper exits, randomized shopkeeper lead-ins, voice and wisdom effects, and debit ordering before lamp transformation and djinni creation."
+    },
+    {
+      "id": "rub-lit-magic-lamp-release-case",
+      "area": "commands",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "feb17b6a7df033ada3ab8d34d07339deacd51ef0",
+      "detail": "Record and replay a fresh already-lit magic-lamp djinni release. The port calls begin_burn() after converting the lamp and assigning new age, but the completed seven-case release matrix never exercises lamplit adjustment; compare exact age, timer, light state, PRNG, screens, cursors, and persistence through the outcome before treating this valid dorub() branch as covered."
     }
   ],
   "areas": [
