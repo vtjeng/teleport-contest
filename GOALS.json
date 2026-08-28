@@ -5534,7 +5534,7 @@
     },
     {
       "id": "read-selected-readable-object",
-      "status": "open",
+      "status": "closed",
       "boundary": "doread() supports both C paths that reach the current generic selected-readable-object refusal: (1) a sighted, unconfused hero reads an unknown, unblessed, uncursed scroll of identify while carrying at least one other possession and every remaining possession is fully identified; the scroll is consumed, identified, and reports that the rest of the possessions are already identified before returning ECMD_TIME; and (2) a sighted hero selects an identified, non-dull spellbook of healing already present in svs.spl_book with sp_know > KEEN / 10, then declines the refresh prompt; the book remains intact and doread() returns ECMD_OK. All other readable-object and spellbook outcomes remain fail-closed.",
       "upstreamOwners": [
         "read.c",
@@ -5579,8 +5579,11 @@
         "screens": 2717,
         "rng": 156774
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "82e6a12d6450ed4b0cd97a3ef82fd7ed2d119926",
+      "delivered": {
+        "screens": 31,
+        "rng": 50
+      }
     }
   ]
 }
