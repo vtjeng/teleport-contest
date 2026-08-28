@@ -5759,7 +5759,13 @@
         ]
       },
       "detail": "Port the witnessed quantity-one, non-hallucinating, initially sighted, unblindfolded-human CREAM_PIE path through apply.c doapply()/use_cream_pie(), the narrowly required mondata.c can_blnd() result, and potion.c make_blinded() sighted-to-blind transition. Preserve source-ordered rnd(25), u.ucreamed/BLINDED timeout updates, vision/status transition, messages, paid ordinary inventory extraction/deletion, the ordinary delobj obj_resists rn2(100) draw, and ECMD_OK. Existing prerequisites include apply_ok, CREAM_PIE, haseyes, timeout helpers, object lifecycle helpers, and toggle_blindness. Keep fail-closed before output or mutation for pie stacks/plural wording, hallucination, eyeless/blindfolded/already-blind or otherwise protected states, unpaid/shop paths, other make_blinded/can_blnd branches, and all other doapply arms.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "ordinary-cream-pie-application",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "1a269e5a29918325289b817b4b2f921a47884c24",
       "openStanding": {
         "sha": "887e6b6",
