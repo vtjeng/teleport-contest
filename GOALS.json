@@ -6000,8 +6000,8 @@
         },
         {
           "name": "polyself-status-line-upolyd",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "fbf50aa74dbace0a6418b748e16898810bc97310"
         }
       ],
       "openedAt": "e7f1cf4e10293eb0e935528be90dc68d1f6a73ff",

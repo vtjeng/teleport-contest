@@ -468,3 +468,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-28	8d22406	goal	13	33	2832	7765	162233	610816	2901	7765	229	3640	32830	182022	really-done-bones-creation closes. Development 2832 of 7765 screens, 162233 of 610816 rng. 13 of 33 sessions. Holdout 229/3640 screens, 32830/182022 rng.
 2026-08-28	90449ee	slice	13	33	2838	7765	162238	610816	2907	7765					polyself-controlled-gnome closes. Development 2832→2838 of 7765 screens, 162233→162238 of 610816 rng. 13 of 33 sessions.
 2026-08-28	3e30033	slice	13	33	2838	7765	162238	610816	2917	7765					polyself-dropp-hook-wiring closes. Development 2838 of 7765 screens, 162238 of 610816 rng. 13 of 33 sessions.
+2026-08-28	fbf50aa	slice	13	33	2848	7765	162238	610816	2917	7765					polyself-status-line-upolyd closes. Development 2838→2848 of 7765 screens, 162238 of 610816 rng. 13 of 33 sessions.
