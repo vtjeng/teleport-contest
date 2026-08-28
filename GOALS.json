@@ -5845,8 +5845,8 @@
       "slices": [
         {
           "name": "confused-teleport-scroll-reading",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "675afd3b758ffcf7e396be034ad886e064361dd4"
         }
       ],
       "openedAt": "3a0c7b6a1f27c827e2e6790f2451c72a8b0c3542",
