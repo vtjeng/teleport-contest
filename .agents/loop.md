@@ -65,6 +65,15 @@ The orchestrator repeats without returning to the user between steps:
    origin/main..HEAD` for unpushed commits. Push whatever the worker left
    behind and every commit you landed, then watch the CI run from a
    background task as `.agents/workflow.md`, "Pushing and CI", states.
+   After pushing, spawn a background agent (worktree-isolated) to advance
+   the candidate pipeline:
+   `node scripts/pipeline-candidates.mjs --advance`. The agent caps stale
+   sessions and traces witnesses for the top candidates. It runs alongside
+   the next slice and does not block step 4. If the Workflow tool is
+   available for `--advance`, the background agent can use it to parallelize
+   capping and witness tracing; otherwise it runs the script directly and
+   reports what still needs work.
+
 4. Run `npm run quality` yourself; no worker reports it. If the output
    shows `DUE`, run the required review pass before continuing
    implementation. `.agents/review.md`, "When a correctness pass is due",
