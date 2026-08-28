@@ -39,15 +39,32 @@ The orchestrator repeats without returning to the user between steps:
      different slice, start at step 2.
    - Goal in progress, no queued or in-progress slices: start at step 2.
 
-1. When no goal is in progress, select the next goal. Run the
-   `goal-selector` workflow (`.claude/workflows/goal-selector.js`).
-   If the Workflow tool is not available, spawn the goal-selector agent
-   (`.claude/agents/goal-selector.md`) instead. If the result contains
-   `exhausted: true`, stop the loop and notify the user: all remaining
-   candidates are blocked by session divergences and need human
-   direction. Otherwise queue the proposed goal with
-   `node scripts/goal-log.mjs queue-goal` and then `open-goal` (which
-   captures the score the close will be measured against).
+1. When no goal is in progress, select the next goal.
+
+   a. Check the queue: run `node scripts/goal-log.mjs --current --detail`.
+      If a goal is already queued, take it and skip to step 1e.
+   b. Check the pipeline: run
+      `node scripts/pipeline-candidates.mjs --ready-winner` and parse
+      its JSON output.
+   c. If `winner` is non-null, write `.cache/goal-context.json` with the
+      winner's data (see `.claude/agents/goal-selector.md`, "What to
+      report," for the schema). Map `cappedForecast` to `forecastSteps`
+      and summarize the sessions as `forecastBasis`. Extract session
+      names from the sessions array. Continue to step 1e.
+   d. If `winner` is null and `topCandidate` is non-null, run the
+      `goal-selector` workflow (`.claude/workflows/goal-selector.js`)
+      for inline capping and witnessing. If the Workflow tool is not
+      available, spawn the goal-selector agent
+      (`.claude/agents/goal-selector.md`) instead. If the result
+      contains `exhausted: true`, stop the loop and notify the user:
+      all remaining candidates are blocked by session divergences and
+      need human direction. The workflow writes
+      `.cache/goal-context.json`. Continue to step 1e. If both `winner`
+      and `topCandidate` are null, all candidates are exhausted; stop
+      the loop and notify the user.
+   e. Queue the proposed goal with
+      `node scripts/goal-log.mjs queue-goal` and then `open-goal`
+      (which captures the score the close will be measured against).
 2. Spawn the slice-selector (`.claude/agents/slice-selector.md`) to
    identify the next slice, queue it with
    `node scripts/goal-log.mjs queue-slice`, and write
