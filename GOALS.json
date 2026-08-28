@@ -5780,7 +5780,7 @@
     },
     {
       "id": "wipe",
-      "status": "open",
+      "status": "closed",
       "boundary": "When an ordinary human hero has exactly three turns of unblocked cream-pie blindness (u.ucreamed == BlindedTimeout == 3) and selects #wipe, match C through the command turn and occupation turn: dispatch dowipe(), install wipeoff, preserve the two elapsed turns and their 55 ambient RNG draws, decrement both counters to 2 in nh_timeout(), clear them in wipeoff(), print You've got the glop off. and You can see again., restore vision and status, clear the occupation, and return to input; neighboring wipe states remain fail-closed.",
       "upstreamOwners": [
         "cmd.c",
@@ -5815,8 +5815,11 @@
         "screens": 2785,
         "rng": 156859
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "6ab494197a2918a298e8eddb8669bfa01bec6a08",
+      "delivered": {
+        "screens": 0,
+        "rng": 55
+      }
     }
   ]
 }
