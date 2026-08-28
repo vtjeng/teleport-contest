@@ -283,29 +283,6 @@ with the C dump is ongoing work.
 items, traps, level geometry, or other game objects. Extending it to full game
 state would require substantially more C instrumentation.
 
-## Append machine-readable score history per scoring run
-
-**What it changes.** `scripts/score-development.mjs` and `npm run checkpoint`
-would append one row per scoring run to a `docs/score-history.tsv`: timestamp,
-commit SHA, screens matched/total, RNG matched/total, cursors matched/total, and
-sessions passed. The orchestrator and the user would read per-change yield and
-measurement frequency from this file instead of from hand-written SCORE.md
-paragraphs.
-
-**Scope.** One append call in `scripts/score-development.mjs` after it computes
-results, plus a header row if the file does not exist. No change to the scoring
-logic itself.
-
-**What prompted it.** The 2026-08-01 meta-analysis found the competitor holds
-1,641 machine-readable measurements tied to commits, while this project holds 67
-prose rows in SCORE.md over 13 days. Per-change yield is reconstructable only
-from hand-written paragraphs.
-
-**Cost.** Small. One file append per scoring run.
-
-**What it leaves unfixed.** SCORE.md prose rows remain the human-readable
-record. This adds a machine-readable companion, not a replacement.
-
 ## Move evidence and auditMetrics out of QUALITY.json
 
 **What it changes.** Each pass's `evidence` and `auditMetrics` would move from
@@ -331,44 +308,3 @@ from the worker's read list.
 Unresolved`) is a separate source of reading bloat (71% of ROADMAP.md at
 2026-08-01) and would need its own move to a DEFERRED.md file.
 
-## Investigate overnight stalls
-
-**What it changes.** An investigation, not a code change. The 2026-08-01
-meta-analysis identified 15 gaps longer than 2 hours totalling 81.2 hours of
-idle time across the loop sessions. Four of the six largest end between 08:10
-and 08:53 local time, the signature of an overnight stop. The cause is unknown:
-it could be quota exhaustion, a host sleep, a network interruption, or a bug in
-the loop's wakeup scheduling.
-
-**Scope.** Read the loop transcripts around the 15 gaps, correlate with system
-logs or quota records, and identify whether a single cause explains most of the
-idle time.
-
-**What prompted it.** 81 hours is roughly 38% of the 216-hour measurement
-window. If even half of it is recoverable, it would be the largest single
-throughput improvement available.
-
-**Cost.** Small to investigate. The fix depends on what the investigation finds.
-
-**What it leaves unfixed.** The 17 hours of no-agent-running time within active
-sessions (orchestrator bookkeeping turns and scheduled-wakeup sleeps) is a
-separate drag.
-
-## Cap SCORE.md closure rows and drop per-slice rows
-
-**What it changes.** SCORE.md closure rows would be capped at about 120 words
-each. Per-slice SCORE.md rows would be dropped entirely (they restate their own
-commit messages). The detail would stay in the commit message, where `git log`
-can find it.
-
-**Scope.** An edit to `.agents/scoring.md` to cap the row format and remove the
-per-slice row requirement.
-
-**What prompted it.** The 2026-08-01 meta-analysis measured SCORE.md at 18,165
-words in 89 lines, roughly 440 words per closure row. The orchestrator and every
-agent that reads SCORE.md pays this token cost on every turn.
-
-**Cost.** Small. One instruction edit.
-
-**What it leaves unfixed.** Existing rows stay at their current length. A
-one-time trim of historical rows is a separate task.
