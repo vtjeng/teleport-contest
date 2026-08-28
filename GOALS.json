@@ -5680,8 +5680,8 @@
         },
         {
           "name": "ordinary-missile-hit-settlement",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d11bb12725b0ca8557186fc0694fbfe9caffbcda"
         }
       ],
       "openedAt": "9ae8c4f42aa0d8f4674f0b641a5078a0c607819d",
