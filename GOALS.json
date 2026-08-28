@@ -5670,8 +5670,8 @@
         },
         {
           "name": "ranged-weapon-wield-turn",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "82e2893d8cd06314dfc6cc4a026e3938d1d4d983"
         }
       ],
       "openedAt": "9ae8c4f42aa0d8f4674f0b641a5078a0c607819d",
