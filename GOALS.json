@@ -5609,6 +5609,11 @@
           "name": "rub-object-selection",
           "status": "closed",
           "closedBy": "53dae9d138d1ea0012a2cedc6a158c74c598a40e"
+        },
+        {
+          "name": "rub-lamp-wield-requeue",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "c8f865370fa99ce793e2776bc8ab6dd2cd5bd1b2",
