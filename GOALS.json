@@ -5820,6 +5820,37 @@
         "screens": 0,
         "rng": 55
       }
+    },
+    {
+      "id": "read-confused-teleport-scroll-to-level-tele",
+      "status": "open",
+      "boundary": "A sighted, non-hallucinating wizard who can chant and selects a blessed SCR_TELEPORTATION while Confusion is nonzero follows read.c doread(), seffects(), and seffect_teleportation() through both reading messages and the magic-scroll Wisdom exercise, then fails closed immediately before teleport.c level_tele() opens its destination prompt.",
+      "upstreamOwners": [
+        "read.c"
+      ],
+      "forecast": {
+        "steps": 2,
+        "basis": "Capped look-ahead: seed5006-tourist-stress-disaster cappedStretch=2; capStable=true; divergenceZeroed=false.",
+        "sessions": [
+          "seed5006-tourist-stress-disaster"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5006-tourist-stress-disaster",
+            "evidence": "At C step 161, command r opens the read prompt and answer p selects one blessed SCR_TELEPORTATION (otyp 333, scroll labeled YUM YUM) while Confusion is 23. The sighted human Tourist is in wizard mode, can chant, and is not hallucinating. C read.c doread() clears pickup_prev, increments literacy, marks the scroll in_use, prints the disappearance message, then the confused-mispronunciation message. seffects() exercises Wisdom with recorded rn2(19)=5, and seffect_teleportation() takes confused || scursed to level_tele(); the next independent behavior is its destination prompt. JS selects the same object but refuses before mutation, output, RNG, effect, consumption, or time cost. The scan has no earlier screen or RNG divergence."
+          }
+        ]
+      },
+      "detail": "Preflight the exact selected-object branch: blessed noncursed SCR_TELEPORTATION, sighted, Confusion nonzero, Hallucination false, can_chant true, wizard mode. In read.c doread(), preserve source order and live local state across the two ttyPline waits: snapshot otyp/confused, clear pickup_prev, increment literate conduct, set in_use, emit disappearance and confused-mispronunciation messages. Then seffects() exercises Wisdom with its source RNG/state effect, and seffect_teleportation() rechecks live Confusion and fails closed immediately before level_tele(). At that boundary gk.known is false, the scroll remains inventoried/in_use and unconsumed, and no turn has elapsed. Keep level_tele prompt/answers, post-return learning/consumption/time cost, calm or cursed variants, blindness/can't-chant/hallucination wording, non-blessed confused scrolls, and other readable objects fail-closed.",
+      "slices": [],
+      "openedAt": "3a0c7b6a1f27c827e2e6790f2451c72a8b0c3542",
+      "openStanding": {
+        "sha": "6ab4941",
+        "screens": 2785,
+        "rng": 156914
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
