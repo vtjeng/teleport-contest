@@ -5662,7 +5662,13 @@
         ]
       },
       "detail": "Port the witnessed ordinary single-shot crude-dagger hit through mthrowu.c thrwmu(), monmulti()/monshoot(), m_throw(), and drop_throw(). Add only the supporting ordinary arms of objnam.c mshot_xname()/killer_xname(), dothrow.c should_mulch_missile(), and uhitm.c passive_obj(). Existing JS reaches the ranged AT_WEAP dispatch and already has weapon selection, line checks, object placement, damage, HP loss, exercise, and cloned preflight. Keep named refusals for wield-turn, polearm/autoreturn, line failure, launchers/multishot, cursed/greased flight, special terrain, monster interception, catches, special missiles, death, miss, mulching, and passive object damage.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "ranged-weapon-throw-announcement",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "9ae8c4f42aa0d8f4674f0b641a5078a0c607819d",
       "openStanding": {
         "sha": "9cd197a8a448451dcd48f282eba8e069d13a7727",
