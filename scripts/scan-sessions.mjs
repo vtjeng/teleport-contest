@@ -259,6 +259,29 @@ function setCapEntries(setCaps, rows) {
     writeFrontiers(frontiers);
 }
 
+/**
+ * Load scan rows with frontier and scorer annotations applied.  Uses the scan
+ * cache when HEAD has not changed; replays and writes the cache on a miss.
+ */
+export async function loadAnnotatedRows() {
+    let rows;
+    const cached = readScanCache();
+    if (cached) {
+        rows = cached;
+    } else {
+        const files = listSessionFiles(DEVELOPMENT_DIR);
+        if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
+            throw new Error('development count changed');
+        const scanned = [];
+        for (const file of files) scanned.push(await scanSession(file));
+        rows = attachBehaviors(scanned);
+        writeScanCache(rows);
+    }
+    annotateFrontiers(rows, readFrontiers());
+    annotateScorerData(rows);
+    return rows;
+}
+
 // ---------------------------------------------------------------------------
 // Scorer-cache integration
 // ---------------------------------------------------------------------------
@@ -1658,14 +1681,6 @@ export async function main(args) {
             + '\n  --ahead-all              append every candidate\'s'
             + ' look-ahead streams and divergence\n'
             + '                           candidate stretches to the report.'
-            + '\n  --winner                 emit the winner as JSON.'
-            + ' Prefers the top cap-stable\n'
-            + '                           candidate. Returns winner: null'
-            + ' when no cap-stable\n'
-            + '                           candidate has forecast > 0.'
-            + '\n  --needs-capping          list sessions that need'
-            + ' re-capping, each with\n'
-            + '                           its boundary.'
             + '\n  --json                   emit the same figures in'
             + ' machine-readable form.'
             + '\n  --debug-full-replay      force a fresh replay even when'
@@ -1682,8 +1697,6 @@ export async function main(args) {
     }
     const rejected = args.find((arg) => arg !== '--json'
         && arg !== '--ahead-all'
-        && arg !== '--needs-capping'
-        && arg !== '--winner'
         && arg !== '--debug-full-replay'
         && !orders.some((order) => arg === `--by=${order}`)
         && !arg.startsWith(AHEAD_PREFIX)
@@ -1691,7 +1704,7 @@ export async function main(args) {
     if (rejected !== undefined) {
         throw new Error(
             `only --json, --by=<${orders.join('|')}>, `
-            + `${AHEAD_PREFIX}<behavior>, --ahead-all, --needs-capping, `
+            + `${AHEAD_PREFIX}<behavior>, --ahead-all, `
             + `--debug-full-replay`
             + ` and ${SET_CAP_PREFIX}<session>=<n> are accepted`,
         );
@@ -1702,7 +1715,6 @@ export async function main(args) {
     const ahead = args.find((arg) => arg.startsWith(AHEAD_PREFIX))
         ?.slice(AHEAD_PREFIX.length);
     const aheadAll = args.includes('--ahead-all');
-    const winnerMode = args.includes('--winner');
     if (aheadAll && ahead !== undefined) {
         throw new Error(
             '--ahead-all already prints every candidate; drop --ahead=<behavior>',
@@ -1715,55 +1727,22 @@ export async function main(args) {
     const forceReplay = args.includes('--debug-full-replay');
 
     let rows;
-    const cached = forceReplay ? null : readScanCache();
-    if (cached) {
-        rows = cached;
-    } else {
+    if (forceReplay) {
         const files = listSessionFiles(DEVELOPMENT_DIR);
         if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
             throw new Error('development count changed');
-
         const scanned = [];
         for (const file of files) scanned.push(await scanSession(file));
         rows = attachBehaviors(scanned);
         writeScanCache(rows);
+        annotateFrontiers(rows, readFrontiers());
+        annotateScorerData(rows);
+    } else {
+        rows = await loadAnnotatedRows();
     }
-
-    annotateFrontiers(rows, readFrontiers());
-    annotateScorerData(rows);
 
     if (setCaps.length > 0) {
         setCapEntries(setCaps, rows);
-        return;
-    }
-
-    const needsCappingMode = args.includes('--needs-capping');
-    if (winnerMode || needsCappingMode) {
-        const ranked = cappedRanking(rows);
-
-        if (needsCappingMode) {
-            const needsCappingList = ranked.flatMap((c) =>
-                c.sessions.filter((s) => !s.capStable && !s.divergenceZeroed)
-                    .map((s) => ({ session: s.session, boundary: c.member })));
-            console.log(JSON.stringify({
-                needsCapping: needsCappingList,
-            }, null, 2));
-            return;
-        }
-        const needsCappingCount = ranked.reduce((n, c) =>
-            n + c.sessions.filter((s) =>
-                !s.capStable && !s.divergenceZeroed).length, 0);
-        const allStable = needsCappingCount === 0;
-        const capStableWinner = allStable ? null
-            : ranked.find((c) => c.cappedForecast > 0
-                && c.sessions.every((s) => s.capStable || s.divergenceZeroed))
-            ?? null;
-        const winner = capStableWinner ?? (allStable ? ranked[0] : null) ?? null;
-        console.log(JSON.stringify({
-            winner,
-            allStable,
-            needsCapping: needsCappingCount,
-        }, null, 2));
         return;
     }
 

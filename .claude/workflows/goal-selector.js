@@ -1,63 +1,57 @@
 export const meta = {
   name: 'goal-selector',
-  description: 'Select the next goal with cap-stable preference and witness tracing',
+  description: 'Select the next goal from the candidate pipeline',
   phases: [
-    { title: 'Scan', detail: 'Census and winner selection' },
-    { title: 'Cap', detail: 'Classify non-stable sessions', model: 'sonnet' },
-    { title: 'Witness', detail: 'C-path witnesses and bounding analysis', model: 'sonnet' },
-    { title: 'Report', detail: 'Write candidates file and report winner', model: 'sonnet' },
+    { title: 'Pipeline', detail: 'Look up a ready candidate' },
+    { title: 'Inline', detail: 'Cap and witness when the pipeline missed' },
+    { title: 'Report', detail: 'Write goal-context.json', model: 'sonnet' },
   ],
 }
 
-const SCAN_SCHEMA = {
+const QUEUED_SCHEMA = {
   type: 'object',
   properties: {
     hasQueuedGoal: { type: 'boolean' },
     queuedGoalId: { type: ['string', 'null'] },
     queuedGoalBoundary: { type: ['string', 'null'] },
     queuedGoalForecast: { type: ['number', 'null'] },
+  },
+  required: ['hasQueuedGoal', 'queuedGoalId', 'queuedGoalBoundary',
+    'queuedGoalForecast'],
+}
+
+const PIPELINE_RESULT_SCHEMA = {
+  type: 'object',
+  properties: {
     winner: {
       type: ['object', 'null'],
       properties: {
         member: { type: 'string' },
+        id: { type: 'string' },
         cappedForecast: { type: 'number' },
         sessions: { type: 'array' },
-        tentative: { type: 'boolean' },
+        witnesses: { type: 'array' },
+        detail: { type: ['string', 'null'] },
+        owners: { type: ['array', 'null'] },
+        boundary: { type: ['string', 'null'] },
+        readiness: { type: 'string' },
       },
-      required: ['member', 'cappedForecast', 'sessions', 'tentative'],
+      required: ['member', 'id', 'cappedForecast', 'sessions'],
     },
-    allStable: { type: 'boolean' },
-    needsCapping: { type: 'number' },
-  },
-  required: [
-    'hasQueuedGoal', 'queuedGoalId', 'queuedGoalBoundary',
-    'queuedGoalForecast', 'winner', 'allStable', 'needsCapping',
-  ],
-}
-
-const CAP_SCHEMA = {
-  type: 'object',
-  properties: {
-    session: { type: 'string' },
-    cappedStretch: { type: 'number' },
-    reason: { type: 'string' },
-    persisted: { type: 'boolean' },
-  },
-  required: ['session', 'cappedStretch', 'reason', 'persisted'],
-}
-
-const WINNER_SCHEMA = {
-  type: 'object',
-  properties: {
-    winner: {
+    topCandidate: {
       type: ['object', 'null'],
       properties: {
         member: { type: 'string' },
+        id: { type: 'string' },
         cappedForecast: { type: 'number' },
         sessions: { type: 'array' },
-        tentative: { type: 'boolean' },
+        witnesses: { type: 'array' },
+        detail: { type: ['string', 'null'] },
+        owners: { type: ['array', 'null'] },
+        boundary: { type: ['string', 'null'] },
+        readiness: { type: 'string' },
       },
-      required: ['member', 'cappedForecast', 'sessions', 'tentative'],
+      required: ['member', 'id', 'cappedForecast', 'sessions'],
     },
   },
   required: ['winner'],
@@ -77,31 +71,19 @@ const NEEDS_CAPPING_SCHEMA = {
         required: ['session', 'boundary'],
       },
     },
-    allStable: { type: 'boolean' },
   },
-  required: ['needsCapping', 'allStable'],
+  required: ['needsCapping'],
 }
 
-const CACHE_CHECK_SCHEMA = {
+const CAP_SCHEMA = {
   type: 'object',
   properties: {
-    winnerCached: { type: 'boolean' },
-    cachedWitnesses: {
-      type: 'object',
-      additionalProperties: { type: 'string' },
-    },
-    sessionsNeedingWitness: {
-      type: 'array',
-      items: { type: 'string' },
-    },
-    cachedDetail: { type: ['string', 'null'] },
-    cachedOwners: {
-      type: ['array', 'null'],
-      items: { type: 'string' },
-    },
-    cachedBoundary: { type: ['string', 'null'] },
+    session: { type: 'string' },
+    cappedStretch: { type: 'number' },
+    reason: { type: 'string' },
+    persisted: { type: 'boolean' },
   },
-  required: ['winnerCached', 'cachedWitnesses', 'sessionsNeedingWitness'],
+  required: ['session', 'cappedStretch', 'reason', 'persisted'],
 }
 
 const WITNESS_SCHEMA = {
@@ -132,59 +114,61 @@ const REPORT_SCHEMA = {
     sessions: { type: 'array', items: { type: 'string' } },
     candidatesWritten: { type: 'boolean' },
   },
-  required: ['winnerId', 'winnerBoundary', 'forecast', 'sessions', 'candidatesWritten'],
+  required: ['winnerId', 'winnerBoundary', 'forecast', 'sessions',
+    'candidatesWritten'],
 }
 
-// ── Phase 1: Scan ──────────────────────────────────────────────────────
+// ── Phase 1: Pipeline ─────────────────────────────────────────────────
 
-phase('Scan')
-const scan = await agent(`
-Run two commands and return structured results.
+phase('Pipeline')
 
-Step 1: Run \`node scripts/goal-log.mjs --current --detail\`
+const queue = await agent(`
+Run: \`node scripts/goal-log.mjs --current --detail\`
 If this shows a goal with status "queued" in the goals array, set hasQueuedGoal
-to true and fill queuedGoalId, queuedGoalBoundary, queuedGoalForecast from
-that goal. Set winner to null, needsCapping to 0, allStable to true.
+to true and fill queuedGoalId, queuedGoalBoundary, queuedGoalForecast.
+Otherwise set hasQueuedGoal to false and all fields to null.
+Do NOT read any source files.
+`, { schema: QUEUED_SCHEMA, label: 'queue-check', model: 'sonnet' })
 
-Step 2: If no queued goal, run:
-\`node scripts/scan-sessions.mjs --winner\`
-Parse its JSON stdout. Set hasQueuedGoal to false and fill winner, allStable,
-needsCapping from the parsed output.
-
-Do NOT read any source files. Only run the two commands above.
-`, { schema: SCAN_SCHEMA, label: 'scan', model: 'sonnet' })
-
-if (scan.hasQueuedGoal) {
-  log(`Queued goal: ${scan.queuedGoalId}`)
+if (queue.hasQueuedGoal) {
+  log(`Queued goal: ${queue.queuedGoalId}`)
   return {
-    winnerId: scan.queuedGoalId,
-    boundary: scan.queuedGoalBoundary,
-    forecast: scan.queuedGoalForecast,
+    winnerId: queue.queuedGoalId,
+    boundary: queue.queuedGoalBoundary,
+    forecast: queue.queuedGoalForecast,
     source: 'queue',
   }
 }
 
-let winner = scan.winner
+const pipelineCheck = await agent(`
+Run: \`node scripts/pipeline-candidates.mjs --ready-winner\`
+Parse its JSON stdout. If "winner" is non-null, return it.
+If "winner" is null, also return "topCandidate" from the output.
+Do NOT read any source files.
+`, { schema: PIPELINE_RESULT_SCHEMA, label: 'pipeline-check', model: 'sonnet' })
 
-// ── Phase 2: Cap (conditional) ─────────────────────────────────────────
-// The scan already prefers the top cap-stable candidate as the winner.
-// Re-cap inline only when no cap-stable candidate has forecast > 0 (the
-// winner is tentative).  The orchestrator runs background re-capping after
-// the selector returns to refresh stale caps for the next selection.
+let winner = pipelineCheck.winner
 
-if (!winner && scan.needsCapping > 0) {
-  phase('Cap')
-  log(`No cap-stable candidate with forecast > 0; `
-    + `re-capping ${scan.needsCapping} session(s) inline`)
+// ── Phase 2: Inline fallback (cap → reconcile → witness) ──────────────
 
-  const ncScan = await agent(`
-Run: node scripts/scan-sessions.mjs --needs-capping
-Parse its JSON stdout. Return needsCapping (array of {session, boundary}).
+if (!winner) {
+  phase('Inline')
+  log('pipeline miss: no witnessed candidate, falling back to inline work')
+
+  // Reconcile pipeline and find sessions needing caps.
+  const nc = await agent(`
+Run these two commands in order:
+1. \`node scripts/pipeline-candidates.mjs --status\`
+2. \`node scripts/pipeline-candidates.mjs --needs-capping\`
+Return the needsCapping array from step 2.
 Do NOT read source files.
-`, { schema: NEEDS_CAPPING_SCHEMA, label: 'needs-capping', model: 'sonnet' })
+`, { schema: NEEDS_CAPPING_SCHEMA, label: 'reconcile', model: 'sonnet' })
 
-  const capResults = await parallel(ncScan.needsCapping.map(entry => () =>
-    agent(`
+  // Cap any stale sessions.
+  if (nc.needsCapping.length > 0) {
+    log(`Capping ${nc.needsCapping.length} session(s) inline`)
+    const capResults = await parallel(nc.needsCapping.map(entry => () =>
+      agent(`
 Cap the look-ahead stretch for session "${entry.session}".
 
 Read \`.claude/agents/goal-selector.md\` step 3 for the capping method.
@@ -201,107 +185,95 @@ Persist the result:
 Return session, cappedStretch, reason, and persisted (true if --set-cap succeeded).
 Do NOT read C source files.
 `, { schema: CAP_SCHEMA, label: `cap:${entry.session}`, model: 'sonnet' })
-  ))
-  for (let index = 0; index < ncScan.needsCapping.length; ++index) {
-    const expectedSession = ncScan.needsCapping[index].session
-    const result = capResults[index]
-    if (!result?.persisted || result.session !== expectedSession) {
-      throw new Error(`failed to persist cap for session "${expectedSession}"`)
+    ))
+    for (let i = 0; i < nc.needsCapping.length; ++i) {
+      const expected = nc.needsCapping[i].session
+      const result = capResults[i]
+      if (!result?.persisted || result.session !== expected)
+        throw new Error(`failed to persist cap for "${expected}"`)
     }
   }
 
-  const rerank = await agent(`
-Run: node scripts/scan-sessions.mjs --winner
-Parse the JSON stdout. Return the winner object.
+  // Reconcile again after capping, then check for a winner.
+  const retry = await agent(`
+Run these two commands in order:
+1. \`node scripts/pipeline-candidates.mjs --status\`
+2. \`node scripts/pipeline-candidates.mjs --ready-winner\`
+Return the full JSON from step 2: both "winner" and "topCandidate" fields.
 Do NOT read source files.
-`, { schema: WINNER_SCHEMA, label: 'rerank', model: 'sonnet' })
+`, { schema: PIPELINE_RESULT_SCHEMA, label: 'post-cap-check', model: 'sonnet' })
 
-  winner = rerank.winner
-  log(`After capping: winner is "${winner.member}" (forecast ${winner.cappedForecast})`)
-} else if (!scan.allStable) {
-  log(`Skipped re-capping: ${scan.needsCapping} stale session(s); `
-    + `taking cap-stable "${winner.member}" (forecast ${winner.cappedForecast})`)
-}
+  // Use the witnessed winner if available; otherwise take the top candidate
+  // (which is capped but not yet witnessed) and witness it inline.
+  winner = retry.winner ?? retry.topCandidate
 
-log(`Winner: "${winner.member}" (forecast ${winner.cappedForecast})`)
+  if (!winner)
+    throw new Error('no candidate with nonzero forecast after inline capping')
 
-// ── Phase 3: Witnesses and detail ──────────────────────────────────────
+  // Trace witnesses for the winner if it is not yet witnessed.
+  if (winner.readiness !== 'witnessed') {
+    log(`Winner "${winner.id}" needs witness tracing`)
 
-phase('Witness')
+    const winnerSessions = winner.sessions.map(s =>
+      typeof s === 'string' ? s : s.session)
+    const witnessedSet = new Set(
+      (winner.witnesses ?? []).map(w => w.session))
+    const needWitness = winnerSessions.filter(s => !witnessedSet.has(s))
 
-const winnerSessions = winner.sessions.map(s =>
-  typeof s === 'string' ? s : s.session
-)
-const winnerMember = winner.member
-
-const cache = await agent(`
-Check the cache for reusable witnesses and detail for the winning candidate.
-
-Read \`.claude/agents/goal-selector.md\` steps 5–6 for the cache-reuse rules.
-
-Winner member string: "${winnerMember}"
-Winner sessions: ${JSON.stringify(winnerSessions)}
-
-Check .cache/goal-context.json. If its boundary and sessions match the
-winner, return its cached witnesses, detail, owners, and boundary.
-Return winnerCached, cachedWitnesses, sessionsNeedingWitness, cachedDetail,
-cachedOwners, cachedBoundary.
-
-Do NOT read C source files.
-`, { schema: CACHE_CHECK_SCHEMA, label: 'cache-check', model: 'sonnet' })
-
-const witnessWork = []
-
-for (const session of (cache.sessionsNeedingWitness || [])) {
-  witnessWork.push(() => agent(`
+    const witnessWork = needWitness.map(session => () => agent(`
 Trace the C-path witness for session "${session}" at its first stop.
 
 Read \`.claude/agents/goal-selector.md\` step 5 for the witness method.
 
-The session stops at boundary: "${winnerMember}"
+The session stops at boundary: "${winner.member}"
 
 Return session name and a detailed evidence string describing the C path.
 `, { schema: WITNESS_SCHEMA, label: `witness:${session}`, model: 'sonnet' }))
-}
 
-if (!cache.winnerCached) {
-  witnessWork.push(() => agent(`
+    if (!winner.detail) {
+      witnessWork.push(() => agent(`
 Analyze the bounding property and size for a goal candidate.
 
 Read \`.claude/agents/goal-selector.md\` step 6 for the bounding-analysis method.
 
-Boundary: "${winnerMember}"
+Boundary: "${winner.member}"
 
 Return a boundary description, the C file owners array, and a detail string
 with traced findings.
 `, { schema: DETAIL_SCHEMA, label: 'bounding-analysis', model: 'sonnet' }))
+    }
+
+    const results = witnessWork.length > 0
+      ? (await parallel(witnessWork)).filter(Boolean)
+      : []
+
+    const allWitnesses = {}
+    for (const w of (winner.witnesses ?? [])) allWitnesses[w.session] = w.evidence
+    for (const r of results) {
+      if (r.session) allWitnesses[r.session] = r.evidence
+    }
+    winner.witnesses = Object.entries(allWitnesses)
+      .map(([session, evidence]) => ({ session, evidence }))
+    winner.detail = winner.detail
+      || results.find(r => r.detail)?.detail || ''
+    winner.owners = winner.owners
+      || results.find(r => r.owners)?.owners || []
+    winner.boundary = winner.boundary
+      || results.find(r => r.boundary)?.boundary || winner.member
+    winner.readiness = 'witnessed'
+  }
 }
 
-const witnessResults = witnessWork.length > 0
-  ? (await parallel(witnessWork)).filter(Boolean)
-  : []
+log(`Winner: "${winner.id}" (forecast ${winner.cappedForecast})`)
 
-const allWitnesses = Object.assign({}, cache.cachedWitnesses || {})
-for (const r of witnessResults) {
-  if (r.session) allWitnesses[r.session] = r.evidence
-}
-
-const detail = cache.cachedDetail
-  || witnessResults.find(r => r.detail)?.detail
-  || ''
-const owners = cache.cachedOwners
-  || witnessResults.find(r => r.owners)?.owners
-  || []
-const boundary = cache.cachedBoundary
-  || witnessResults.find(r => r.boundary)?.boundary
-  || winnerMember
-
-// ── Phase 4: Report ────────────────────────────────────────────────────
+// ── Phase 3: Report ───────────────────────────────────────────────────
 
 phase('Report')
 
-const witnessEntries = Object.entries(allWitnesses)
-  .map(([s, e]) => `    {"session": ${JSON.stringify(s)}, "evidence": ${JSON.stringify(e)}}`)
+const winnerSessions = winner.sessions.map(s =>
+  typeof s === 'string' ? s : s.session)
+const witnessEntries = (winner.witnesses ?? [])
+  .map(w => `    {"session": ${JSON.stringify(w.session)}, "evidence": ${JSON.stringify(w.evidence)}}`)
   .join(',\n')
 
 const report = await agent(`
@@ -311,21 +283,22 @@ Read .claude/agents/goal-selector.md "What to report" section for the JSON
 format of the entry to write to .cache/goal-context.json.
 
 Winner:
-  member: ${JSON.stringify(winnerMember)}
-  boundary: ${JSON.stringify(boundary)}
-  owners: ${JSON.stringify(owners)}
+  member: ${JSON.stringify(winner.member)}
+  id: ${JSON.stringify(winner.id)}
+  boundary: ${JSON.stringify(winner.boundary)}
+  owners: ${JSON.stringify(winner.owners)}
   forecast: ${winner.cappedForecast}
   sessions: ${JSON.stringify(winnerSessions)}
   witnesses:
 ${witnessEntries}
-  detail: ${JSON.stringify(detail)}
+  detail: ${JSON.stringify(winner.detail)}
 
 Steps:
 1. Read .claude/agents/goal-selector.md "What to report" for the JSON schema
    (id, boundary, owners, forecastSteps, forecastBasis, sessions, witnesses,
    detail).
 2. Write .cache/goal-context.json with the winner's entry as a single object.
-3. Return winnerId (kebab-case), winnerBoundary, forecast, sessions, and
+3. Return winnerId, winnerBoundary, forecast, sessions, and
    candidatesWritten=true.
 
 Do NOT modify any game files. Only write to .cache/.
