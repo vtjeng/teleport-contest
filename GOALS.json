@@ -5939,7 +5939,7 @@
     },
     {
       "id": "really-done-bones-creation",
-      "status": "open",
+      "status": "closed",
       "boundary": "A hero who dies on a bones-eligible level reaches really_done() where can_make_bones() returns true. The port throws UnsupportedEndOfGameError at js/end.js:697 before handling the bones decision, disclosure continuation, and game termination.",
       "upstreamOwners": [],
       "forecast": {
@@ -5974,8 +5974,11 @@
         "screens": 2810,
         "rng": 159517
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "8d224063500576794a5b264dbf05b76cec3707e6",
+      "delivered": {
+        "screens": 22,
+        "rng": 2716
+      }
     }
   ]
 }
