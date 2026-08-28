@@ -57,10 +57,11 @@ function scoreRow({ utc, sha, event, screens, note }) {
 
 function renderDashboard(data) {
     const elements = new Map();
+    const canvasOps = [];
     const context2d = new Proxy({}, {
         get(target, key) {
-            if (!(key in target)) target[key] = () => {};
-            return target[key];
+            if (key in target) return target[key];
+            return (...args) => canvasOps.push([String(key), ...args]);
         },
         set(target, key, value) {
             target[key] = value;
@@ -99,6 +100,7 @@ function renderDashboard(data) {
         window,
         getComputedStyle: () => ({ getPropertyValue: () => '' }),
     });
+    elements.canvasOps = canvasOps;
     return elements;
 }
 
@@ -219,6 +221,8 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     const timeline = rendered.get('timeline').innerHTML;
     assert.match(timeline, /Goal selection: 5m \(inferred\)/u);
     assert.match(timeline, /Goal selection: 10m"/u);
+    assert.match(timeline, /First slice selection: 10m \(inferred\)/u);
+    assert.match(timeline, /First slice selection: 10m"/u);
     assert.match(
         timeline,
         /Implementation: 10m \(end inferred\) — Queue orphan slice/u,
@@ -228,6 +232,83 @@ test('dashboard separates closed goals and labels inferred timing', () => {
         rendered.get('progressProvenance').textContent,
         '1 hollow marker uses commit time where SCORE records only a date.',
     );
+    assert.equal(
+        rendered.canvasOps.filter(
+            ([operation, , , radius]) => operation === 'arc' && radius === 3,
+        ).length,
+        1,
+    );
+});
+
+test('in-progress phase provenance follows each recorded boundary', () => {
+    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-open-'));
+    git(fixture, ['init', '--quiet']);
+    git(fixture, ['config', 'user.name', 'Dashboard Test']);
+    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
+    commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
+    const closed = commit(
+        fixture, 'Close prior goal', '2026-01-01T00:05:00Z',
+    );
+    commit(fixture, 'Open running goal', '2026-01-01T00:10:00Z');
+    commit(fixture, 'Queue first running slice', '2026-01-01T00:20:00Z');
+    const firstClose = commit(
+        fixture, 'Close first running slice', '2026-01-01T00:30:00Z',
+    );
+    const rows = [
+        SCORE_HEADER,
+        scoreRow({
+            utc: '2026-01-01T00:05:00Z', sha: closed,
+            event: 'goal', screens: 10, note: 'prior closes.',
+        }),
+        scoreRow({
+            utc: '2026-01-01T00:30:00Z', sha: firstClose,
+            event: 'slice', screens: 15, note: 'first running slice closes.',
+        }),
+        '',
+    ];
+    writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
+    const runData = () => JSON.parse(execFileSync(
+        process.execPath, [DATA_SCRIPT], { cwd: fixture, encoding: 'utf8' },
+    ));
+
+    const completed = runData().goals.at(-1);
+    assert.equal(completed.status, 'in-progress');
+    assert.equal(completed.goalSelectionObserved, true);
+    assert.equal(completed.sliceSelectionObserved, true);
+    assert.equal(completed.implementationObserved, true);
+
+    commit(fixture, 'Queue second running slice', '2026-01-01T00:40:00Z');
+    const activeData = runData();
+    const active = activeData.goals.at(-1);
+    assert.equal(active.sliceSelectionMin, 20);
+    assert.equal(active.sliceSelectionObserved, true);
+    assert.equal(active.implementationObserved, false);
+    let timeline = renderDashboard(activeData).get('timeline').innerHTML;
+    assert.match(timeline, /Slice selection: 10m"/u);
+    assert.doesNotMatch(timeline, /Slice selection: 10m \(inferred\)/u);
+
+    rows[1] = scoreRow({
+        utc: '2026-01-01', sha: closed,
+        event: 'goal', screens: 10, note: 'prior closes.',
+    });
+    rows[2] = scoreRow({
+        utc: '2026-01-01', sha: firstClose,
+        event: 'slice', screens: 15, note: 'first running slice closes.',
+    });
+    writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
+    const inferredData = runData();
+    const inferred = inferredData.goals.at(-1);
+    assert.equal(inferred.goalSelectionMin, 5);
+    assert.equal(inferred.goalSelectionObserved, false);
+    assert.equal(inferred.sliceSelectionObserved, false);
+    assert.equal(inferred.implementationObserved, false);
+    const rendered = renderDashboard(inferredData);
+    const row = rendered.get('goalTable').innerHTML.split('</tr>')
+        .find((candidate) => candidate.includes('running'));
+    assert.match(row, /5m \(inferred\)/u);
+    timeline = rendered.get('timeline').innerHTML;
+    assert.match(timeline, /Goal selection: 5m \(inferred\)/u);
+    assert.match(timeline, /Slice selection: 10m \(inferred\)/u);
 });
 
 test('verification requires a recorded final slice closure', () => {
