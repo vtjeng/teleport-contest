@@ -40,13 +40,10 @@ The orchestrator repeats without returning to the user between steps:
    - Goal in progress, no queued or in-progress slices: start at step 2.
 
 1. When no goal is in progress, select the next goal. First run
-   `node scripts/pipeline-candidates.mjs --status` to reconcile the
-   pipeline against fresh scan data, then run
-   `node scripts/pipeline-candidates.mjs --ready-winner`. If the
-   reconciled pipeline has zero candidates (both `winner` and
-   `topCandidate` are null), stop the loop and notify the user: all
-   remaining candidates are blocked by session divergences and need
-   human direction. Otherwise run the `goal-selector` workflow
+   `node scripts/pipeline-candidates.mjs --ready-winner`. If both
+   `winner` and `topCandidate` are null, stop the loop and notify the
+   user: all remaining candidates are blocked by session divergences
+   and need human direction. Otherwise run the `goal-selector` workflow
    (`.claude/workflows/goal-selector.js`). If the Workflow tool is not
    available, spawn the goal-selector agent
    (`.claude/agents/goal-selector.md`) instead. The selector proposes

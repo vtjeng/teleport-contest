@@ -22,14 +22,13 @@ slicing to that agent.
    tracks candidates through readiness stages (uncapped, capped, witnessed).
    If `winner` is non-null, take it and skip to "What to report."
 3. If the pipeline returns `winner: null`, the pipeline missed. Log a warning.
-   Run `node scripts/pipeline-candidates.mjs --status` to reconcile the
-   pipeline, then `node scripts/pipeline-candidates.mjs --needs-capping` to
-   list sessions with stale caps. For each session, hand its `--ahead` stream
+   Run `node scripts/pipeline-candidates.mjs --needs-capping` to list
+   sessions with stale caps. For each session, hand its `--ahead` stream
    to a `sonnet-worker` classifier to produce a capped stretch. Persist each
    result with `node scripts/scan-sessions.mjs --set-cap=<session>=<n>`.
-   Then run `--status` again to reconcile and `--ready-winner` to check.
-   If `winner` is non-null, take it. Otherwise take `topCandidate` (the top
-   candidate regardless of readiness). If both are null, error.
+   Then run `--ready-winner` again. If `winner` is non-null, take it.
+   Otherwise take `topCandidate` (the top candidate regardless of
+   readiness). If both are null, error.
 4. Read `.agents/selection.md` for the selection rules. Confirm that the
    winner satisfies the ranking rule.
 5. If the winner's readiness is `"witnessed"` and its witnesses and detail

@@ -155,14 +155,12 @@ if (!winner) {
   phase('Inline')
   log('pipeline miss: no witnessed candidate, falling back to inline work')
 
-  // Reconcile pipeline and find sessions needing caps.
+  // Find sessions needing caps.
   const nc = await agent(`
-Run these two commands in order:
-1. \`node scripts/pipeline-candidates.mjs --status\`
-2. \`node scripts/pipeline-candidates.mjs --needs-capping\`
-Return the needsCapping array from step 2.
+Run: \`node scripts/pipeline-candidates.mjs --needs-capping\`
+Return the needsCapping array from the output.
 Do NOT read source files.
-`, { schema: NEEDS_CAPPING_SCHEMA, label: 'reconcile', model: 'sonnet' })
+`, { schema: NEEDS_CAPPING_SCHEMA, label: 'needs-capping', model: 'sonnet' })
 
   // Cap any stale sessions.
   if (nc.needsCapping.length > 0) {
@@ -194,12 +192,10 @@ Do NOT read C source files.
     }
   }
 
-  // Reconcile again after capping, then check for a winner.
+  // Check for a winner after capping.
   const retry = await agent(`
-Run these two commands in order:
-1. \`node scripts/pipeline-candidates.mjs --status\`
-2. \`node scripts/pipeline-candidates.mjs --ready-winner\`
-Return the full JSON from step 2: both "winner" and "topCandidate" fields.
+Run: \`node scripts/pipeline-candidates.mjs --ready-winner\`
+Return the full JSON: both "winner" and "topCandidate" fields.
 Do NOT read source files.
 `, { schema: PIPELINE_RESULT_SCHEMA, label: 'post-cap-check', model: 'sonnet' })
 

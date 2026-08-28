@@ -71,12 +71,13 @@ function reconcile(ranked, existing) {
     for (const entry of existing) byMember.set(entry.member, entry);
 
     const goalCtx = readGoalContext();
+    const goalSessions = (goalCtx?.sessions ?? []).sort().join(',');
+
     if (goalCtx?.witnesses?.length > 0) {
-        const goalSessions = (goalCtx.sessions ?? []).sort();
         for (const candidate of ranked) {
             const candidateSessions = candidate.sessions
                 .map((s) => s.session).sort();
-            if (candidateSessions.join(',') !== goalSessions.join(','))
+            if (candidateSessions.join(',') !== goalSessions)
                 continue;
             const prev = byMember.get(candidate.member);
             if (prev?.readiness === 'witnessed') continue;
@@ -100,6 +101,17 @@ function reconcile(ranked, existing) {
         if (candidate.cappedForecast <= 0) continue;
 
         const prev = byMember.get(candidate.member);
+
+        // The current goal matches goal-context.json; preserve its
+        // readiness regardless of cap stability.
+        const candidateSessions = candidate.sessions
+            .map((s) => s.session).sort().join(',');
+        if (goalSessions && candidateSessions === goalSessions
+            && prev?.readiness === 'witnessed') {
+            updated.push(prev);
+            continue;
+        }
+
         const sessionNames = candidate.sessions.map((s) => s.session).sort();
         const allCapStable = candidate.sessions.every(
             (s) => s.capStable || s.divergenceZeroed,
@@ -173,7 +185,11 @@ function reconcile(ranked, existing) {
 }
 
 async function readyWinner() {
-    const pipeline = readPipeline();
+    const rows = await loadAnnotatedRows();
+    const ranked = cappedRanking(rows);
+    const pipeline = reconcile(ranked, readPipeline());
+    writePipeline(pipeline);
+
     const winner = pipeline.find(
         (e) => e.readiness === 'witnessed' && e.cappedForecast > 0,
     ) ?? null;
