@@ -3687,7 +3687,7 @@ function _statusRoleText() {
     const u = game.u;
     if (u && Upolyd(u)) {
         const species = game.mons?.[u.umonnum];
-        if (species) return pmname(species, Ugender(u));
+        if (species) return pmname(species, Ugender(game));
     }
     return rankOf(game.urole, game.u?.ulevel ?? 1, game.flags?.female)
         || game.urole?.rank?.m || game.urole?.name?.m || 'Adventurer';

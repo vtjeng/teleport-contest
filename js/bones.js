@@ -57,6 +57,7 @@ import {
     CORPSE,
     EGG,
     SLIME_MOLD,
+    SPE_NOVEL,
     STATUE,
     TIN,
 } from './objects.js';
@@ -64,6 +65,7 @@ import {
     PM_GHOST,
     PM_ORACLE,
     S_MUMMY,
+    SPECIAL_PM,
 } from './monsters.js';
 import { rn2, rnd } from './rng.js';
 import { vfsWriteFile, vfsReadFile, vfsDeleteFile } from './storage.js';
@@ -159,6 +161,10 @@ function set_ghostly_objlist(objchain) {
 }
 
 // C ref: bones.c resetobjs() (51-193), save path only (restore=false).
+// The restore=true path (bones.c:67-100) processes artifact migration,
+// gold-to-object conversion, and cancel-worn effects. Lines 702-706 call
+// resetobjs with restore=true, but those paths are no-ops here because the
+// restore logic is not ported.
 // Strips player knowledge and names from objects being saved as bones.
 function resetobjs(ochain, restore, state) {
     for (let otmp = ochain; otmp; otmp = otmp.nobj) {
@@ -180,11 +186,14 @@ function resetobjs(ochain, restore, state) {
             otmp.no_charge = 0;
             otmp.how_lost = LOST_NONE;
 
-            // Strip user-supplied names. Keep artifact, statue, novel, and
-            // special corpse names.
+            // C ref: bones.c:123-128. Strip user-supplied names. Keep
+            // artifact, statue, novel, and special-PM corpse names.
             if (has_oname(otmp)
                 && !(otmp.oartifact || otmp.otyp === STATUE
-                     || otmp.otyp === CORPSE)) {
+                     || otmp.otyp === SPE_NOVEL
+                     || (otmp.otyp === CORPSE
+                         && ismnum(otmp.corpsenm)
+                         && otmp.corpsenm >= SPECIAL_PM))) {
                 otmp.oname = null;
                 otmp.onamelth = 0;
             }
@@ -248,15 +257,13 @@ export function drop_upon_death(mtmp, cont, x, y, state) {
 
         if (otmp.otyp === SLIME_MOLD) goodfruit(otmp.spe, state);
 
-        // C ref: bones.c:290 -- rn2(5) curse check
+        // C ref: bones.c:290-291 — rn2(5) then curse(otmp).
+        // C's curse() (mkobj.c:1783) unconditionally sets blessed=0, cursed=1
+        // for non-coins; it does not set heavycurse.
         if (rn2(5)) {
             if (otmp.oclass !== COIN_CLASS) {
-                if (otmp.cursed) {
-                    otmp.heavycurse = 1;
-                } else {
-                    otmp.blessed = false;
-                    otmp.cursed = true;
-                }
+                otmp.blessed = false;
+                otmp.cursed = true;
             }
         }
         if (mtmp) {
@@ -507,16 +514,12 @@ export function savebones(how, when, corpse, state) {
     // The port writes a JSON snapshot.
     const bonesData = serializeBonesLevel(state);
     const path = bonesFilePath(state.u.uz);
-    // Use a cycle-aware replacer for the final serialization: the level's
-    // object graph can contain back-pointers (v, ocontainer, ocarry) that the
-    // per-chain cloning above did not strip.
-    const seen = new WeakSet();
+    // Strip functions from the serialized output. The cloneObjChain and
+    // cloneMon helpers above already break object-graph cycles (ocontainer,
+    // ocarry, nmon); shared references (e.g. mons[] data entries) are
+    // legitimate duplicates that JSON.stringify handles by value.
     const safeReplacer = (_key, val) => {
         if (typeof val === 'function') return undefined;
-        if (val !== null && typeof val === 'object') {
-            if (seen.has(val)) return null;
-            seen.add(val);
-        }
         return val;
     };
     vfsWriteFile(path, JSON.stringify(bonesData, safeReplacer));
@@ -524,20 +527,21 @@ export function savebones(how, when, corpse, state) {
 
 // Serialize the current level state into a JSON-safe object for bones
 // storage. Each entity (monster, object) is cloned without circular
-// references. The linked-list chains (monlist, objlist) are redundant with
-// the per-square grids (monsters[x][y], objects[x][y]), so only the grids
-// are preserved; getbones rebuilds the linked lists on restoration.
+// references. Monsters come from the per-square grid; floor and buried
+// objects come from the linked lists (objlist, buriedobjlist).
+// getbones rebuilds all linked lists on restoration.
 function serializeBonesLevel(state) {
     const level = state.level;
 
     // Clone an object chain (nobj-linked), recursing into container contents.
-    // Removes back-pointers (ocontainer, ocarry) that create cycles.
+    // Removes back-pointers (ocontainer, ocarry, v) that create cycles.
     function cloneObjChain(obj) {
         const result = [];
         while (obj) {
             const o = { ...obj };
             delete o.ocontainer;
             delete o.ocarry;
+            delete o.v;
             // nobj and nexthere are rebuilt during restoration
             o.nobj = null;
             o.nexthere = null;

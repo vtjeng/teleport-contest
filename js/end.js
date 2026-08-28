@@ -44,6 +44,7 @@ import {
     DISCLOSE_PROMPT_DEFAULT_YES,
     DISCLOSE_SPECIAL_WITHOUT_PROMPT,
     DISCLOSE_YES_WITHOUT_PROMPT,
+    ESCAPED,
     G_GENOD,
     GENOCIDED,
     IS_GRAVE,
@@ -828,6 +829,11 @@ async function really_done(how, state) {
     // C ref: end.c:1351-1361 ugrave_arise message.
     // ugrave_arise === NON_PM in the supported path, so ismnum() is false.
 
+    // C ref: end.c:1326 — compute done_money before savebones drains
+    // the inventory. C stores done_money at end.c:1373 but reads the
+    // inventory at end.c:1326, before the savebones call at 1363.
+    let umoney = money_cnt(state.invent) + hidden_gold(true, state);
+
     // -- Bones saving (C ref: end.c:1363-1369) --
     if (bonesOk) {
         if (!state.wizard
@@ -841,8 +847,7 @@ async function really_done(how, state) {
         corpse = null;
     }
 
-    // C ref: end.c:1372-1373 done_money for RIP output.
-    let umoney = money_cnt(state.invent) + hidden_gold(true, state);
+    // C ref: end.c:1373.
     state.gd ??= {};
     state.gd.done_money = umoney;
 
@@ -859,7 +864,6 @@ async function really_done(how, state) {
     // C: if (how < GENOCIDED && flags.tombstone && endwin != WIN_ERR)
     //        outrip(endwin, how, endtime);
     const textLines = [];
-    const done_stopprint = 0;
 
     if (how < GENOCIDED && state.flags.tombstone) {
         genl_outrip(textLines, how, endtime, state);
@@ -875,7 +879,7 @@ async function really_done(how, state) {
     textLines.push({ text: '' });
 
     // C ref: end.c:1521-1542. Death summary for non-escaped, non-ascended.
-    if (how !== 14 /* ESCAPED */ && how !== 15 /* ASCENDED */) {
+    if (how !== ESCAPED && how !== ASCENDED) {
         const uz = state.u.uz;
         let pbuf;
         if (uz.dnum === 0 && uz.dlevel <= 0) {

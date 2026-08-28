@@ -175,16 +175,13 @@ test('valid_vampshiftform accepts bat/fog/wolf for vampire base', () => {
 
 // -- character_race (role.c:2162-2171) --
 test('character_race maps player race PM indices to their race entries', () => {
-    // PM_HUMAN = 260 in this port
-    const human = character_race(260);
+    const human = character_race(PM_HUMAN);
     assert.ok(human);
     assert.equal(human.noun, 'human');
-    // PM_GNOME = 165
-    const gnome = character_race(165);
+    const gnome = character_race(PM_GNOME);
     assert.ok(gnome);
     assert.equal(gnome.noun, 'gnome');
-    // PM_DWARF = 44
-    const dwarf = character_race(44);
+    const dwarf = character_race(PM_DWARF);
     assert.ok(dwarf);
     assert.equal(dwarf.noun, 'dwarf');
     // A non-race PM returns null
@@ -209,23 +206,56 @@ test('uasmon_maxStr returns 18 for a generic non-strong monster', () => {
 });
 
 // -- set_uasmon (polyself.c:38-126): PROPSET block --
+// Property indices from const.js; FROMFORM = 0x10000000.
+const FROMFORM = 0x10000000;
+const PROP = {
+    FIRE_RES: 1, COLD_RES: 2, SLEEP_RES: 3, DISINT_RES: 4,
+    SHOCK_RES: 5, POISON_RES: 6, ACID_RES: 7, STONE_RES: 8,
+    DRAIN_RES: 9, SICK_RES: 14, SEE_INVIS: 29, TELEPAT: 30,
+    INFRAVISION: 36, INVIS: 40, TELEPORT: 42, TELEPORT_CONTROL: 43,
+    LEVITATION: 44, FLYING: 45, SWIMMING: 51, PASSES_WALLS: 52,
+    REGENERATION: 53, ANTIMAGIC: 10, STUNNED: 16, HALLUC_RES: 18,
+    REFLECTING: 55, BLINDED: 62, BLND_RES: 63,
+};
+
 test('set_uasmon sets FROMFORM properties for the gnome form', () => {
     const state = minimalState(PM_GNOME);
     set_uasmon(state);
-    // Gnome has infravision via M3_INFRAVISION, so INFRAVISION should have
-    // FROMFORM set. C ref: polyself.c:91
-    // INFRAVISION = 36, FROMFORM = 0x10000000
-    const FROMFORM = 0x10000000;
-    const INFRAVISION_IDX = 36;
+    // Gnome has M3_INFRAVISION, so INFRAVISION should have FROMFORM set.
+    // C ref: polyself.c:91
     assert.ok(
-        (state.u.uprops[INFRAVISION_IDX].intrinsic & FROMFORM) !== 0,
+        (state.u.uprops[PROP.INFRAVISION].intrinsic & FROMFORM) !== 0,
         'INFRAVISION FROMFORM should be set for gnome',
     );
-    // Gnome does not have fire resistance, so FIRE_RES should NOT have FROMFORM
-    const FIRE_RES_IDX = 1;
+    // Gnome has none of these; all should be clear.
+    for (const name of [
+        'FIRE_RES', 'COLD_RES', 'SLEEP_RES', 'DISINT_RES',
+        'SHOCK_RES', 'POISON_RES', 'ACID_RES', 'STONE_RES',
+        'DRAIN_RES', 'SEE_INVIS', 'TELEPAT', 'INVIS',
+        'TELEPORT', 'TELEPORT_CONTROL', 'LEVITATION', 'FLYING',
+        'SWIMMING', 'PASSES_WALLS', 'REGENERATION', 'REFLECTING',
+    ]) {
+        assert.equal(
+            state.u.uprops[PROP[name]].intrinsic & FROMFORM, 0,
+            `${name} FROMFORM should not be set for gnome`,
+        );
+    }
+});
+
+test('set_uasmon clears FROMFORM when the new form lacks the property', () => {
+    const state = minimalState(PM_GNOME);
+    // Pre-set FIRE_RES FROMFORM as if the previous form had fire resistance.
+    state.u.uprops[PROP.FIRE_RES].intrinsic |= FROMFORM;
+    set_uasmon(state);
+    // Gnome has no fire resistance, so FROMFORM must be cleared.
     assert.equal(
-        state.u.uprops[FIRE_RES_IDX].intrinsic & FROMFORM, 0,
-        'FIRE_RES FROMFORM should not be set for gnome',
+        state.u.uprops[PROP.FIRE_RES].intrinsic & FROMFORM, 0,
+        'FIRE_RES FROMFORM should be cleared after polymorphing to gnome',
+    );
+    // INFRAVISION should still be set (gnome has it).
+    assert.ok(
+        (state.u.uprops[PROP.INFRAVISION].intrinsic & FROMFORM) !== 0,
+        'INFRAVISION FROMFORM should still be set for gnome',
     );
 });
 
