@@ -6,6 +6,7 @@ import { BLINDED, HALLUC, TIMEOUT } from '../js/const.js';
 import { UnsupportedWipeError, dowipe } from '../js/do.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { make_blinded } from '../js/potion.js';
 
 const WITNESS_PATH = new URL(
     '../sessions/seed0108-wizard-extcmd-wishlist.session.json',
@@ -112,4 +113,37 @@ test('dowipe keeps neighboring face and blindness states fail-closed',
                 occupation: game.go?.occupation ?? null,
             }, before, label);
         }
+    });
+
+test('make_blinded(0, true) fires toggle_blindness on sight restoration',
+    async () => {
+        // C potion.c:270: set_itimeout(&HBlinded, xtime ? 1L : 0L). When
+        // xtime=0 the probe sets HBlinded to 0, Blind becomes false, and
+        // toggle_blindness fires (u_could_see=false XOR can_see_now=true).
+        // The old bug hardcoded 1, which kept the hero blind during the probe
+        // and skipped toggle_blindness entirely.
+        const segment = await witnessSegment();
+        const wipeAt = segment.moves.indexOf('#wipe\n');
+        // Run through the wipe occupation so ucreamed reaches 0 and blinded
+        // reaches 1, the state wipeoff() has before calling make_blinded(0).
+        await runSegment({
+            ...segment,
+            moves: segment.moves.slice(0, wipeAt + '#wipe\n'.length),
+        });
+
+        // Reset to the pre-make_blinded state: blinded=1, ucreamed=0, and
+        // the hero is currently blind.
+        game.u.uprops[BLINDED].intrinsic = 1;
+        game.disp.botl = false;
+        game.vision_full_recalc = 0;
+
+        await make_blinded(0, true, game);
+
+        // toggle_blindness sets botl=true and calls vision_recalc(0), which
+        // consumes vision_full_recalc. botl persists as the observable proof
+        // that toggle_blindness ran.
+        assert.equal(game.disp.botl, true,
+            'toggle_blindness sets botl for status-line refresh');
+        assert.equal(game.u.uprops[BLINDED].intrinsic & TIMEOUT, 0,
+            'blindness timeout is cleared');
     });

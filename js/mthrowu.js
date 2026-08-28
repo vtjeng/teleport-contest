@@ -563,8 +563,15 @@ export async function thrwmu(monster, rawEnv = {}) {
         monster.mx,
         monster.my,
     );
+    // C: rn2(BOLT_LIM - distmin(x, y, mtmp->mux, mtmp->muy))
+    const targetDistance = distmin(
+        monster.mx,
+        monster.my,
+        monster.mux,
+        monster.muy,
+    );
     if (currentDistance > previousDistance
-        && env.random.rn2(BOLT_LIM - currentDistance)) {
+        && env.random.rn2(BOLT_LIM - targetDistance)) {
         return 0;
     }
     if (selected.oclass !== WEAPON_CLASS)

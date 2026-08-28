@@ -112,3 +112,14 @@ test('formatkiller omits helpless when incl_helpless is false', () => {
     const result = formatkiller(DIED, false, state);
     assert.equal(result, 'killed by a troll');
 });
+
+test('formatkiller default case falls through to NO_KILLER_PREFIX', () => {
+    // C topten.c:110-116: default: impossible(...); FALLTHROUGH;
+    // case NO_KILLER_PREFIX: break;
+    // An invalid format value produces just the killer name, no prefix.
+    const state = {
+        killer: { name: 'mysterious force', format: 99 },
+    };
+    const result = formatkiller(DIED, false, state);
+    assert.equal(result, 'mysterious force');
+});

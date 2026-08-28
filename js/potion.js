@@ -330,7 +330,7 @@ export async function make_blinded(xtime, talk, state = game) {
     // Probe the status with one timed turn, then restore the old timeout,
     // exactly as C does in case blocked blindness overrides the property.
     const uCouldSee = !heroIsBlind(state);
-    set_itimeout(prop, 1);
+    set_itimeout(prop, xtime ? 1 : 0);
     const canSeeNow = !heroIsBlind(state);
     set_itimeout(prop, old);
 

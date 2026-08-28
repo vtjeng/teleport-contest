@@ -699,6 +699,54 @@ test('m_lined_up gives a monster target no boulder allowance', async () => {
     );
 });
 
+test('thrwmu retreat rn2 uses monster-to-target distance, not hero-to-monster',
+    async () => {
+        // C mthrowu.c:1258: rn2(BOLT_LIM - distmin(x, y, mtmp->mux, mtmp->muy))
+        // where x,y = monster position and mux,muy = monster's tracked hero
+        // position.  When the monster's target diverges from the hero's real
+        // position, the two distances differ.
+        const state = await hero();
+        const y = state.u.uy;
+        const monsterX = state.u.ux + 5;
+        clearRow(state, state.u.ux, monsterX, y);
+        setCouldSee(state, monsterX, y, true);
+        // Hero moved away: ux0 is closer to the monster than ux.
+        state.u.ux0 = state.u.ux + 1;
+        // Monster believes the hero is at ux + 2, not the real ux.
+        // distmin(monster, target) = distmin(ux+5, y, ux+2, y) = 3
+        // distmin(hero, monster)   = distmin(ux,   y, ux+5, y) = 5
+        // BOLT_LIM = 8, so C uses rn2(8-3)=rn2(5), not rn2(8-5)=rn2(3).
+        const believedHeroX = state.u.ux + 2;
+        const subject = attacker(
+            state, monsterX, y, believedHeroX, y,
+        );
+        const dagger = mksobj(ORCISH_DAGGER, false, false, { state });
+        dagger.quan = 1;
+        add_to_minv(subject, dagger, { state });
+        subject.weapon_check = NO_WEAPON_WANTED;
+
+        let rn2Bound;
+        await thrwmu(subject, {
+            state,
+            canSeeMonster: () => false,
+            wieldMessage: () => {},
+            continueRangedAttack: async () => {
+                await assert.rejects(
+                    Promise.reject(new Error('stop after rn2')),
+                );
+            },
+            random: {
+                rn2(bound) {
+                    rn2Bound = bound;
+                    // Return nonzero so thrwmu returns 0 (retreat).
+                    return 1;
+                },
+            },
+        });
+        // 8 - distmin(ux+5, y, ux+2, y) = 8 - 3 = 5
+        assert.equal(rn2Bound, 5, 'rn2 argument is BOLT_LIM minus monster-to-target distance');
+    });
+
 test('lined_up aims at the believed hero square, not the real one',
     async () => {
         const state = await hero();

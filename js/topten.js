@@ -34,13 +34,13 @@ export function formatkiller(how, incl_helpless, state = game) {
     default:
         // C: impossible("bad killer format? (%d)", killer.format);
         // fall through
+    case NO_KILLER_PREFIX:
+        break;
     case KILLED_BY_AN:
         kname = an(kname);
         // fall through
     case KILLED_BY:
         parts.push(killed_by_prefix[how] ?? '');
-        break;
-    case NO_KILLER_PREFIX:
         break;
     }
 
