@@ -5665,8 +5665,8 @@
       "slices": [
         {
           "name": "ranged-weapon-throw-announcement",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "9585ab6d3df310c1a8fb9d40bfe86dd3479bedf1"
         },
         {
           "name": "ranged-weapon-wield-turn",
