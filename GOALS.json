@@ -5762,8 +5762,8 @@
       "slices": [
         {
           "name": "ordinary-cream-pie-application",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "2977f990000df1b38cebb882dae98ead4a50f754"
         }
       ],
       "openedAt": "1a269e5a29918325289b817b4b2f921a47884c24",
