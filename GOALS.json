@@ -5863,7 +5863,7 @@
     },
     {
       "id": "seffect-teleportation-into-level-tele",
-      "status": "open",
+      "status": "closed",
       "boundary": "The confused-or-scursed path in seffect_teleportation() calls level_tele(), which the port already partially implements. For a confused wizard, level_tele() opens the destination prompt, the hero answers, rnl(5) fires, and the confused path reaches random_levtport. The port fails closed at random_levtport.",
       "upstreamOwners": [],
       "forecast": {
@@ -5883,8 +5883,8 @@
       "slices": [
         {
           "name": "confused-random-levtport",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "7de65e5b1d3666b61ce34f2416494b825e56229c"
         }
       ],
       "openedAt": "afd777048c88662bb6585edc9008c59c032b1f53",
@@ -5893,8 +5893,11 @@
         "screens": 2786,
         "rng": 156991
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "7de65e5b1d3666b61ce34f2416494b825e56229c",
+      "delivered": {
+        "screens": 21,
+        "rng": 2403
+      }
     }
   ]
 }
