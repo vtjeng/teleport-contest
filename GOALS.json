@@ -5637,6 +5637,40 @@
         "screens": 1,
         "rng": 0
       }
+    },
+    {
+      "id": "monster-ranged-weapon-single-shot-hit",
+      "status": "open",
+      "boundary": "When mattacku() reaches a non-Rogue-level range2 AT_WEAP attack, thrwmu() selects an already-ready, single-shot ordinary non-polearm and non-returning weapon, lined_up() succeeds, the hero fails to catch it, and the thitu() roll hits, carry the attack through monshoot(), m_throw(), HP loss, and drop_throw() settlement instead of raising monster ranged weapon action; other ranged-weapon outcomes remain fail-closed.",
+      "upstreamOwners": [
+        "mthrowu.c",
+        "objnam.c",
+        "dothrow.c",
+        "uhitm.c"
+      ],
+      "forecast": {
+        "steps": 32,
+        "basis": "Capped look-ahead: seed0108-wizard-extcmd-wishlist cappedStretch=32.",
+        "sessions": [
+          "seed0108-wizard-extcmd-wishlist"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0108-wizard-extcmd-wishlist",
+            "evidence": "At step 30, dorub() wields the selected magic lamp and gives monsters a turn. A hostile nonadjacent AT_WEAP goblin carrying an ORCISH_DAGGER moves into line; dochug() Phase Four calls mattacku() range2 AT_WEAP, then thrwmu(), and select_rwep() chooses the ready launcher-free dagger. JavaScript stops at throwRangedWeapon(); C continues through monshoot(), m_throw(), dmgval(), and thitu(), prints the throw and hit messages, and removes 2 HP."
+          }
+        ]
+      },
+      "detail": "Port the witnessed ordinary single-shot crude-dagger hit through mthrowu.c thrwmu(), monmulti()/monshoot(), m_throw(), and drop_throw(). Add only the supporting ordinary arms of objnam.c mshot_xname()/killer_xname(), dothrow.c should_mulch_missile(), and uhitm.c passive_obj(). Existing JS reaches the ranged AT_WEAP dispatch and already has weapon selection, line checks, object placement, damage, HP loss, exercise, and cloned preflight. Keep named refusals for wield-turn, polearm/autoreturn, line failure, launchers/multishot, cursed/greased flight, special terrain, monster interception, catches, special missiles, death, miss, mulching, and passive object damage.",
+      "slices": [],
+      "openedAt": "9ae8c4f42aa0d8f4674f0b641a5078a0c607819d",
+      "openStanding": {
+        "sha": "9cd197a8a448451dcd48f282eba8e069d13a7727",
+        "screens": 2749,
+        "rng": 156824
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
