@@ -331,7 +331,7 @@ test('an unknown identify scroll reports a fully identified remaining pack',
     );
 });
 
-test('a confused blessed teleport scroll stops after its reading messages',
+test('a confused blessed teleport scroll reaches level_tele and schedules goto',
     async () => {
     const segment = loadReadConfusedTeleportRecipe().segments[0];
     const replay = await runSegment({
@@ -344,38 +344,36 @@ test('a confused blessed teleport scroll stops after its reading messages',
     assert.equal(scroll.blessed, true);
     assert.equal(scroll.cursed, false);
 
-    const movesBefore = game.moves;
-    const rngBefore = replay.getRngLog().length;
+    const scrollId = scroll.o_id;
     const literateBefore = game.u.uconduct.literate;
     const wisdomExerciseBefore = game.u.aexe[A_WIS];
 
     // The first Space clears the wished-object line still pending from the
-    // setup. The inventory letter then selects the one wished scroll. The
-    // next two Spaces dismiss the disappearance and confused-reading lines
-    // and reach the fail-closed level_tele() boundary.
+    // setup. The inventory letter selects the one wished scroll. The next
+    // two Spaces dismiss the disappearance and confused-reading lines. The
+    // Enter submits an empty response to level_tele()'s getlin prompt; the
+    // confused path fires (rnl(5) truthy) before the buffer is examined, so
+    // random_teleport_level() picks the destination. Two trailing Spaces
+    // cover potential --More-- prompts from "Oops..." and the discovery
+    // message ("This is a scroll of teleportation!").
     game.nhDisplay.pushKey(CONFUSED_TELEPORT_MORE.charCodeAt(0));
     game.nhDisplay.pushKey(scroll.invlet.charCodeAt(0));
     game.nhDisplay.pushKey(CONFUSED_TELEPORT_MORE.charCodeAt(0));
     game.nhDisplay.pushKey(CONFUSED_TELEPORT_MORE.charCodeAt(0));
-    await assert.rejects(
-        () => doread(game),
-        /level_tele\(\)/u,
-    );
+    game.nhDisplay.pushKey(10); // Enter for getlin
+    game.nhDisplay.pushKey(CONFUSED_TELEPORT_MORE.charCodeAt(0));
+    game.nhDisplay.pushKey(CONFUSED_TELEPORT_MORE.charCodeAt(0));
+    assert.equal(await doread(game), ECMD_TIME);
 
-    assert.equal(game.moves, movesBefore);
-    assert.equal(replay.getRngLog().length, rngBefore + 1);
     assert.equal(game.u.uconduct.literate, literateBefore + 1);
-    assert.equal(game.gk.known, false);
-    assert.equal(scroll.pickup_prev, false);
-    assert.equal(scroll.in_use, true);
-    assert.ok(inventorySnapshot().some((obj) => obj.o_id === scroll.o_id));
-    assert.equal(
-        pendingTopLine(),
-        'Being confused, you mispronounce the magic words...',
-    );
-    // attrib.c exercise() changes AEXE only when rn2(19) beats current Wisdom;
-    // this seed's draw does, so the one source-required exercise point lands.
-    assert.equal(game.u.aexe[A_WIS], wisdomExerciseBefore + 1);
+    // seffect_teleportation() sets gk.known = true after level_tele() returns.
+    assert.equal(game.gk.known, true);
+    // doread() consumed the scroll with useup() because seffects() returned 0.
+    assert.ok(!inventorySnapshot().some((obj) => obj.o_id === scrollId));
+    // Two Wisdom exercises land: seffects() exercises for reading a magical
+    // scroll (rn2(19) beats Wisdom), and discover_object() exercises again
+    // because gk.known is true and the scroll type was not yet identified.
+    assert.equal(game.u.aexe[A_WIS], wisdomExerciseBefore + 2);
 });
 
 test('ordinary identify preserves the conditional second rn2(5)', async () => {

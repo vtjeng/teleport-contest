@@ -4,9 +4,10 @@
 // create_particular(). doread() completes a known ordinary magic-mapping
 // scroll, the ordinary unknown identify-scroll path whose remaining pack is
 // fully identified, and declining a fresh known healing-spell refresh. It
-// also takes one blessed confused teleportation scroll through seffects() and
-// stops immediately before level_tele(); other selected readable objects stop
-// before pickup_prev changes.
+// also takes a blessed confused teleportation scroll through seffects() and
+// seffect_teleportation() into level_tele(), which handles the confused
+// random_levtport path through random_teleport_level(); other selected
+// readable objects stop before pickup_prev changes.
 // wizcmds.c wiz_genesis() calls the monster-creation helpers.
 
 import {
@@ -69,6 +70,7 @@ import { not_fully_identified } from './objnam.js';
 import { exercise } from './attrib.js';
 import { do_mapping } from './detect.js';
 import { Is_special } from './dungeon.js';
+import { level_tele } from './teleport.js';
 import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
 import { rn2 } from './rng.js';
@@ -120,7 +122,8 @@ function propertyActive(property, state) {
 // remaining inventory is already fully identified, and the fresh-known
 // healing-book refresh decline. The other admitted path is a sighted,
 // non-hallucinating wizard reading a blessed teleportation scroll while
-// confused; that path stops inside seffect_teleportation() before level_tele().
+// confused; that path proceeds through seffect_teleportation() into
+// level_tele(), which handles the confused random_levtport path.
 // Every other selected object stops before C's scroll->pickup_prev write.
 export async function doread(state = game) {
     state.gk ??= {};
@@ -194,11 +197,15 @@ export async function doread(state = game) {
 // path is confused and reaches level_tele(). Re-read the live property here,
 // after both reading messages, as C does. The calm scrolltele() branch remains
 // outside this slice.
-export function seffect_teleportation(scroll, state = game) {
+export async function seffect_teleportation(scroll, state = game) {
     const scursed = Boolean(scroll.cursed);
     const confused = propertyActive(CONFUSION, state);
     if (confused || scursed) {
-        throw new UnsupportedReadError('teleport.c level_tele()');
+        await level_tele(state);
+        /* gives "materialize on different/same level!" message, must
+           be a teleport scroll */
+        state.gk.known = true;
+        return;
     }
     throw new UnsupportedReadError('the calm teleportation-scroll effect');
 }
@@ -256,8 +263,10 @@ export async function seffect_magic_mapping(scroll, state = game) {
 }
 
 // C ref: read.c seffects() (2194-2290), restricted to SCR_IDENTIFY,
-// SCR_MAGIC_MAPPING, and the confused SCR_TELEPORTATION path that stops at
-// level_tele().
+// SCR_MAGIC_MAPPING, and SCR_TELEPORTATION. C returns `sobj ? 0 : 1`:
+// 0 when the scroll still exists (caller handles useup), 1 when the effect
+// consumed it.  seffect_teleportation() and seffect_magic_mapping() never
+// consume the scroll, so both paths return 0.
 export async function seffects(scroll, state = game) {
     if (scroll.otyp !== SCR_MAGIC_MAPPING && scroll.otyp !== SCR_IDENTIFY
         && scroll.otyp !== SCR_TELEPORTATION) {
@@ -271,7 +280,8 @@ export async function seffects(scroll, state = game) {
         return 1;
     }
     if (scroll.otyp === SCR_TELEPORTATION) {
-        seffect_teleportation(scroll, state);
+        await seffect_teleportation(scroll, state);
+        return 0;
     }
     await seffect_magic_mapping(scroll, state);
     return 0;

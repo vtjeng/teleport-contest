@@ -1,7 +1,7 @@
 // Monster destination selection and short-range relocation, plus the hero's
 // own level teleport.
 // C ref: teleport.c goodpos(), enexto(), enexto_core(), collect_coords(),
-// level_tele(); mon.c mnexto().
+// level_tele(), random_teleport_level(); mon.c mnexto().
 
 import {
     ACCESSIBLE,
@@ -55,11 +55,16 @@ import {
     WATER,
     W_NONPASSWALL,
     ZAP_POS,
+    In_quest,
+    Is_botlevel,
     isok,
 } from './const.js';
 import {
+    In_hell,
     Is_special,
     depth,
+    dunlev_reached,
+    dunlevs_in_dungeon,
     get_level,
     ledger_no,
     lev_by_name,
@@ -1205,10 +1210,67 @@ export function cAtoi(text) {
     return Number(BigInt.asIntN(32, wide));
 }
 
+// C ref: teleport.c random_teleport_level() (2191-2257). Selects a random
+// destination depth relative to the current dungeon. The 1-in-5 early return,
+// the single-level-branch early return, and the endgame early return all hand
+// back cur_depth, which makes the caller's same-level shudder check fire
+// whenever no other level is reachable.
+export function random_teleport_level(state = game) {
+    const cur_depth = depth(state.u.uz, state);
+
+    /* [the endgame case can only occur in wizard mode] */
+    if (!rn2(5) || single_level_branch(state.u.uz, state)
+        || inEndgame(state)) {
+        return cur_depth;
+    }
+
+    let min_depth, max_depth;
+    if (In_quest(state.u.uz)) {
+        let bottom = dunlevs_in_dungeon(state.u.uz, state);
+        const qlocate_depth = state.qlocate_level?.dlevel ?? 0;
+
+        /* if hero hasn't reached the middle locate level yet,
+           no one can randomly teleport past it */
+        if (dunlev_reached(state.u.uz, state) < qlocate_depth)
+            bottom = qlocate_depth;
+        min_depth = state.dungeons[state.u.uz.dnum].depth_start;
+        max_depth = bottom + (state.dungeons[state.u.uz.dnum].depth_start - 1);
+    } else {
+        min_depth = 1;
+        max_depth = dunlevs_in_dungeon(state.u.uz, state)
+            + (state.dungeons[state.u.uz.dnum].depth_start - 1);
+        /* can't reach Sanctum if the invocation hasn't been performed */
+        if (In_hell(state.u.uz, state) && !state.u?.uevent?.invoked)
+            max_depth -= 1;
+    }
+
+    /* Get a random value relative to the current dungeon */
+    /* Range is 1 to current+3, current not counting */
+    let nlev = rn2(cur_depth + 3 - min_depth) + min_depth;
+    if (nlev >= cur_depth) nlev++;
+
+    if (nlev > max_depth) {
+        nlev = max_depth;
+        /* teleport up if already on bottom */
+        if (Is_botlevel(state.u.uz))
+            nlev -= rnd(3);
+    }
+    if (nlev < min_depth) {
+        nlev = min_depth;
+        if (nlev === cur_depth) {
+            nlev += rnd(3);
+            if (nlev > max_depth)
+                nlev = max_depth;
+        }
+    }
+    return nlev;
+}
+
 // C ref: teleport.c level_tele() (1164-1424). Covered here: the prompt and
 // literal-answer classification, recorder-ABI decimal conversion, topology
 // resolution for an ordinary positive main-dungeon destination, its guards,
-// and schedule_goto(). Named, random, non-positive, special-level and other
+// schedule_goto(), and the confused random_levtport path through
+// random_teleport_level(). Named, non-positive, special-level and other
 // explicitly unsupported destinations stop at their source branch.
 //
 // teleport.c:1174-1184's iflags.debug_fuzzer arm is omitted rather than
@@ -1227,6 +1289,10 @@ export async function level_tele(state = game) {
             'level_tele() for a hero who is not in wizard mode',
         );
     }
+
+    let newlev;
+    let randomPath = false;
+
     const qbuf = 'To what level do you want to teleport?';
     // C counts prompts in `trycnt` and appends
     // " [type a number, name, or ? for a menu]" when `++trycnt == 2`. Only
@@ -1255,73 +1321,91 @@ export async function level_tele(state = game) {
     // confused hero can be sent elsewhere by a keystroke meant to cancel.
     if (Confusion(state) && rnl(5)) {
         await ttyPline('Oops...', state);
-        throw new UnsupportedLevelChangeError(
-            'level_tele() random_levtport for a confused hero',
-        );
+        randomPath = true;
     }
-    if (buf === '\x1B') return; /* cancelled */
-    // 1221: `wizard && !strcmp(buf, "?")`, whose first operand this function
-    // has already established.
-    if (buf === '?') {
-        // C: levTport_menu label (1225-1247). print_dungeon(TRUE) shows a
-        // selectable dungeon overview; force_dest = TRUE skips all the
-        // numeric-answer validation below and goes straight to schedule_goto.
-        const dest = await print_dungeon(state);
-        if (!dest) return;  // C: `if (!newlev) return;`
 
-        const newlevel = { dnum: dest.dnum, dlevel: dest.dlevel };
-        // C:1234-1246 endgame-amulet branch: when the selected level is in
-        // the endgame and the hero is not, wizard mode conjures the Amulet
-        // of Yendor. No witness session exercises this path.
-        const inEndgame = newlevel.dnum === state.astral_level?.dnum;
-        const heroInEndgame = state.u.uz.dnum === state.astral_level?.dnum;
-        if (inEndgame && !heroInEndgame) {
+    if (randomPath) {
+        // C label: random_levtport (teleport.c:1293-1298). Picks a random
+        // level and returns early if it matches the current depth.
+        newlev = random_teleport_level(state);
+        if (newlev === depth(state.u.uz, state)) {
+            await ttyPline('You shudder for a moment.', state);
+            return;
+        }
+    } else {
+        // Prompt-path validation (inside C's `if ((Teleport_control &&
+        // !Stunned) || wizard)` block, lines 1218-1291).
+        if (buf === '\x1B') return; /* cancelled */
+        // 1221: `wizard && !strcmp(buf, "?")`, whose first operand this
+        // function has already established.
+        if (buf === '?') {
+            // C: levTport_menu label (1225-1247). print_dungeon(TRUE) shows
+            // a selectable dungeon overview; force_dest = TRUE skips all the
+            // numeric-answer validation below and goes straight to
+            // schedule_goto.
+            const dest = await print_dungeon(state);
+            if (!dest) return;  // C: `if (!newlev) return;`
+
+            const newlevel = { dnum: dest.dnum, dlevel: dest.dlevel };
+            // C:1234-1246 endgame-amulet branch: when the selected level is
+            // in the endgame and the hero is not, wizard mode conjures the
+            // Amulet of Yendor. No witness session exercises this path.
+            const inEndgame = newlevel.dnum === state.astral_level?.dnum;
+            const heroInEndgame =
+                state.u.uz.dnum === state.astral_level?.dnum;
+            if (inEndgame && !heroInEndgame) {
+                throw new UnsupportedLevelChangeError(
+                    'level_tele() endgame-amulet branch '
+                    + 'via print_dungeon menu',
+                );
+            }
+            // C:1301-1302 buried_ball_to_punishment() runs unconditionally,
+            // outside any !force_dest guard.
+            if (state.u.utrap && state.u.utraptype === TT_BURIEDBALL) {
+                throw new UnsupportedLevelChangeError(
+                    'level_tele() with the hero tethered to a buried ball',
+                );
+            }
+            // force_dest = TRUE: skip single_level_branch, In_quest,
+            // next_to_u, In_endgame, negative-level heaven, find_hell, and
+            // get_level.
+            schedule_goto(
+                newlevel,
+                UTOTYPE_NONE,
+                null,
+                state.flags?.verbose
+                    ? 'You materialize on a different level!'
+                    : null,
+                state,
+            );
+            return;
+        }
+        const namedLevel = lev_by_name(buf, state);
+        newlev = namedLevel || cAtoi(buf);
+
+        // The prompt path begins with a positive decimal answer. Retain the
+        // previous fail-closed boundary for invalid retries, named/special
+        // levels, Nowhere, and the negative-level heaven and escape paths.
+        if (namedLevel || newlev <= 0) {
             throw new UnsupportedLevelChangeError(
-                'level_tele() endgame-amulet branch via print_dungeon menu',
+                'level_tele() resolving a non-positive or named destination',
             );
         }
-        // C:1301-1302 buried_ball_to_punishment() runs unconditionally,
-        // outside any !force_dest guard.
-        if (state.u.utrap && state.u.utraptype === TT_BURIEDBALL) {
+
+        if (single_level_branch(state.u.uz, state)) {
+            await ttyPline('You shudder for a moment.', state);
+            return;
+        }
+        if (Number.isInteger(state.quest_dnum)
+            && state.u.uz.dnum === state.quest_dnum) {
             throw new UnsupportedLevelChangeError(
-                'level_tele() with the hero tethered to a buried ball',
+                'level_tele() resolving a Quest-relative destination',
             );
         }
-        // force_dest = TRUE: skip single_level_branch, In_quest, next_to_u,
-        // In_endgame, negative-level heaven, find_hell, and get_level.
-        schedule_goto(
-            newlevel,
-            UTOTYPE_NONE,
-            null,
-            state.flags?.verbose
-                ? 'You materialize on a different level!'
-                : null,
-            state,
-        );
-        return;
-    }
-    const namedLevel = lev_by_name(buf, state);
-    let newlev = namedLevel || cAtoi(buf);
-
-    // The current slice begins with a positive decimal answer. Retain the
-    // previous fail-closed boundary for invalid retries, named/special levels,
-    // Nowhere, and the negative-level heaven and escape paths.
-    if (namedLevel || newlev <= 0) {
-        throw new UnsupportedLevelChangeError(
-            'level_tele() resolving a non-positive or named destination',
-        );
     }
 
-    if (single_level_branch(state.u.uz, state)) {
-        await ttyPline('You shudder for a moment.', state);
-        return;
-    }
-    if (Number.isInteger(state.quest_dnum)
-        && state.u.uz.dnum === state.quest_dnum) {
-        throw new UnsupportedLevelChangeError(
-            'level_tele() resolving a Quest-relative destination',
-        );
-    }
+    // Common tail (teleport.c:1301-1428): both the prompt path and the
+    // random_levtport path reach here.  force_dest is FALSE for both.
     if (state.u.utrap && state.u.utraptype === TT_BURIEDBALL) {
         throw new UnsupportedLevelChangeError(
             'level_tele() with the hero tethered to a buried ball',
@@ -1367,8 +1451,11 @@ export async function level_tele(state = game) {
     // A numeric depth can be occupied by a special level even though
     // lev_by_name() returned zero. Loading those .lua levels is outside this
     // boundary, so refuse before schedule_goto() writes u.utolev/utotype or
-    // a later turn consumes generation randomness.
-    if (Is_special(newlevel, state)) {
+    // a later turn consumes generation randomness. The random_levtport path
+    // skips this guard: C applies no Is_special() check after
+    // random_teleport_level(), because the random destination is already
+    // constrained by the dungeon's own range.
+    if (!randomPath && Is_special(newlevel, state)) {
         throw new UnsupportedLevelChangeError(
             'level_tele() resolving a numeric special-level destination',
         );

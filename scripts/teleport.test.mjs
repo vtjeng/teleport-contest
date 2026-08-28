@@ -39,9 +39,12 @@ import {
     goodpos,
     mnexto,
     noteleport_level,
+    random_teleport_level,
     rloc,
     rloc_to,
 } from '../js/teleport.js';
+import { game, resetGame } from '../js/gstate.js';
+import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { BOULDER, SCR_SCARE_MONSTER } from '../js/objects.js';
 
 function positionState() {
@@ -777,4 +780,70 @@ test('mnexto fails before relocation when wizard control is unavailable', () => 
     );
     assert.deepEqual([monster.mx, monster.my], [10, 10]);
     assert.equal(state.level.monsters[10][10], monster);
+});
+
+// ── random_teleport_level ──
+
+// Minimal state for random_teleport_level(). The function reads dungeon
+// topology, the hero's current level, and the PRNG, but makes no screen or
+// state changes itself. Is_botlevel() and In_quest() in const.js access the
+// global `game` object, so this helper writes dungeon topology there too.
+function randomTeleportState({
+    dnum = 0,
+    dlevel = 1,
+    depth_start = 1,
+    num_dunlevs = 10,
+    hellish = false,
+    invoked = false,
+} = {}) {
+    const state = resetGame();
+    state.astral_level = { dnum: 9, dlevel: 1 };
+    state.dungeons = [{
+        depth_start,
+        num_dunlevs,
+        ledger_start: 0,
+        flags: { hellish },
+    }];
+    state.u = {
+        uz: { dnum, dlevel },
+        uevent: { invoked },
+    };
+    state.branches = [];
+    state.quest_dnum = 99; // not reachable from dnum 0
+    return state;
+}
+
+test('random_teleport_level returns cur_depth when rn2(5) is 0', () => {
+    // C ref: teleport.c:2196, `!rn2(5)`. Seed 1 gives rn2(5)=0 on the
+    // first draw, so the function returns without picking a destination.
+    const state = randomTeleportState({ dlevel: 3 });
+    initRng(1);
+    enableRngLog();
+    // depth(u.uz) = depth_start + dlevel - 1 = 1 + 3 - 1 = 3
+    assert.equal(random_teleport_level(state), 3);
+    assert.deepEqual(getRngLog(), ['rn2(5)=0']);
+});
+
+test('random_teleport_level picks a different level when rn2(5) is nonzero',
+    () => {
+    // C ref: teleport.c:2239. Seed 2 on D:1 (depth 1) of a 10-level main
+    // dungeon: rn2(5)=3 (continues), rn2(3)=0 (nlev = 0+1 = 1, then 1>=1
+    // so nlev++ = 2). The result is depth 2, one level below the hero.
+    const state = randomTeleportState({ dlevel: 1, num_dunlevs: 10 });
+    initRng(2);
+    enableRngLog();
+    assert.equal(random_teleport_level(state), 2);
+    assert.deepEqual(getRngLog(), ['rn2(5)=3', 'rn2(3)=0']);
+});
+
+test('random_teleport_level clamps and adjusts at the bottom level', () => {
+    // C ref: teleport.c:2243-2248. Seed 6 on D:10 (depth 10, the bottom):
+    // rn2(5)=4 (continues), rn2(12)=9, nlev = 9+1 = 10, 10>=10 so nlev=11,
+    // 11 > max_depth (10) so nlev = 10, then Is_botlevel so nlev -= rnd(3)=3,
+    // final nlev = 7. The hero teleports three levels up.
+    const state = randomTeleportState({ dlevel: 10, num_dunlevs: 10 });
+    initRng(6);
+    enableRngLog();
+    assert.equal(random_teleport_level(state), 7);
+    assert.deepEqual(getRngLog(), ['rn2(5)=4', 'rn2(12)=9', 'rnd(3)=3']);
 });

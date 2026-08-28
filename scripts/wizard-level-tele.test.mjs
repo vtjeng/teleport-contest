@@ -391,20 +391,38 @@ test('the same-level clamp uses here when requested depth equals deepest',
 test('a confused hero spends one rnl(5) before the Escape test', async () => {
     // teleport.c:1215. Seed 2 is the smallest seed whose first rnl(5) is
     // nonzero (3), which sends the hero to random_levtport even though the
-    // key typed was an Escape.
+    // key typed was an Escape. random_teleport_level() picks a different
+    // depth and schedule_goto stores the destination.
     const { state } = levelTeleState(ESCAPE_KEY, { confused: true, seed: 2 });
-    await assert.rejects(
-        () => level_tele(state),
-        (error) => {
-            assert.equal(
-                error.reason,
-                'level_tele() random_levtport for a confused hero',
-            );
-            return true;
-        },
-    );
-    assert.deepEqual(getRngLog(), ['rnl(5)=3']);
+    // random_teleport_level and the common tail need dungeon topology.
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    state.u.uz0 = { dnum: 0, dlevel: 1 };
+    state.u.utolev = { dnum: 0, dlevel: 1 };
+    state.u.utotype = UTOTYPE_NONE;
+    state.u.utrap = 0;
+    state.u.usteed = null;
+    state.dungeons = [{
+        depth_start: 1,
+        num_dunlevs: 10,
+        ledger_start: 0,
+        flags: { hellish: false },
+    }];
+    state.branches = [];
+    state.specialLevels = [];
+    state.quest_dnum = 1;
+    state.astral_level = { dnum: 2, dlevel: 1 };
+    state.medusa_level = { dnum: 0, dlevel: 8 };
+    state.sanctum_level = { dnum: 0, dlevel: 10 };
+    state.flags = { verbose: true };
+    assert.equal(await level_tele(state), undefined);
+    // rnl(5)=3 triggers random_levtport. random_teleport_level() draws
+    // rn2(5)=2 (not zero, so it continues) then rn2(3)=2 (picks depth 4).
+    assert.deepEqual(getRngLog(), ['rnl(5)=3', 'rn2(5)=2', 'rn2(3)=2']);
     assert.equal(game.nhDisplay.topMessage, 'Oops...');
+    // schedule_goto stored the random destination.
+    assert.equal(state.u.utolev.dnum, 0);
+    assert.equal(state.u.utolev.dlevel, 4);
+    assert.notEqual(state.u.utotype & UTOTYPE_DEFERRED, 0);
 
     // Seed 1's first rnl(5) is 0, the one in five that lets the Escape
     // through. The draw still happens, and no "Oops..." is printed.
