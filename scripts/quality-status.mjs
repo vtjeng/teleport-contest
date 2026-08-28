@@ -27,7 +27,7 @@ import { sourceFilesIn } from './check-namespace-members.mjs';
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 const QUALITY_PATH = resolve(REPO_ROOT, 'QUALITY.json');
-const QUALITY_HISTORY_PATH = resolve(REPO_ROOT, 'QUALITY-history.json');
+const QUALITY_EVIDENCE_PATH = resolve(REPO_ROOT, 'QUALITY-evidence.json');
 const UPSTREAM_SRC = resolve(REPO_ROOT, 'nethack-c', 'upstream', 'src');
 const PORT_ROOT = resolve(REPO_ROOT, 'js');
 // ROADMAP.md holds each deferred finding as prose. The ledger stores a
@@ -1265,15 +1265,15 @@ function writeConfig(config) {
 }
 
 function loadHistory() {
-  if (!existsSync(QUALITY_HISTORY_PATH)) return [];
-  return JSON.parse(readFileSync(QUALITY_HISTORY_PATH, 'utf8'));
+  if (!existsSync(QUALITY_EVIDENCE_PATH)) return [];
+  return JSON.parse(readFileSync(QUALITY_EVIDENCE_PATH, 'utf8'));
 }
 
 function writeHistory(passes) {
-  const temporaryPath = `${QUALITY_HISTORY_PATH}.tmp`;
+  const temporaryPath = `${QUALITY_EVIDENCE_PATH}.tmp`;
   try {
     writeFileSync(temporaryPath, `${JSON.stringify(passes, null, 2)}\n`, 'utf8');
-    renameSync(temporaryPath, QUALITY_HISTORY_PATH);
+    renameSync(temporaryPath, QUALITY_EVIDENCE_PATH);
   } finally {
     if (existsSync(temporaryPath)) unlinkSync(temporaryPath);
   }

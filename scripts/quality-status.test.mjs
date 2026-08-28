@@ -67,9 +67,9 @@ test('the checked-in quality ledger has a valid schema', async () => {
   assert.doesNotThrow(() => validateConfigShape(config));
   assert.equal(config.version, 4);
   assert.equal(config.legacyPassCount, 21);
-  // evidence and auditMetrics live in QUALITY-history.json
+  // evidence and auditMetrics live in QUALITY-evidence.json
   const history = JSON.parse(
-    await readFile(new URL('../QUALITY-history.json', import.meta.url), 'utf8'),
+    await readFile(new URL('../QUALITY-evidence.json', import.meta.url), 'utf8'),
   );
   assert.equal(
     history.slice(config.legacyPassCount).every((pass) => pass.auditMetrics),
@@ -1111,7 +1111,7 @@ test('note-deferral is reachable as a command and refuses an unknown id', () => 
   );
 });
 
-// evidence and auditMetrics live in QUALITY-history.json, so QUALITY.json
+// evidence and auditMetrics live in QUALITY-evidence.json, so QUALITY.json
 // passes validate without them. The recording path still requires both
 // via --evidence and --audit-metrics options.
 test('QUALITY.json passes validate without evidence and auditMetrics', () => {
