@@ -20,6 +20,7 @@ import {
     MON_STILL_ARRIVING,
     MM_EDOG,
     NO_MINVENT,
+    NEED_HTH_WEAPON,
     RLOC_NOMSG,
     STRAT_ARRIVE,
     STRAT_WAITFORU,
@@ -35,18 +36,19 @@ import {
     ledger_to_dnum,
 } from './dungeon.js';
 import { newsym } from './display.js';
-import { christen_monst } from './do_name.js';
+import { capitalizedMonsterName, christen_monst } from './do_name.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { game } from './gstate.js';
 import { add_to_minv, update_inventory } from './invent.js';
 import { discover_object, observe_object } from './o_init.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
-import { levl_follower } from './mondata.js';
+import { attacktype, levl_follower } from './mondata.js';
 import { monnear } from './monmove.js';
 import { restore_cham } from './mon.js';
 import { m_at, mon_track_clear, remove_monster } from './monst.js';
 import {
+    AT_WEAP,
     M1_AMORPHOUS,
     M1_HUMANOID,
     M1_UNSOLID,
@@ -57,6 +59,7 @@ import {
     PM_BABY_GOLD_DRAGON,
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
+    PM_DJINNI,
     PM_FIRE_ELEMENTAL,
     PM_FIRE_VORTEX,
     PM_FLAMING_SPHERE,
@@ -79,6 +82,7 @@ import {
     S_UNICORN,
     S_VORTEX,
 } from './monsters.js';
+import { donameFresh } from './objnam.js';
 import { mksobj, unknow_object } from './obj.js';
 import {
     BOULDER,
@@ -94,7 +98,9 @@ import {
 import { effective_attribute } from './attrib.js';
 import { mnexto, rloc_to } from './teleport.js';
 import { vision_recalc } from './vision.js';
+import { mon_wield_item } from './weapon.js';
 import { mon_has_amulet } from './wizard.js';
+import { ttyPline } from './tty_message.js';
 
 export { christen_monst } from './do_name.js';
 
@@ -180,6 +186,56 @@ export function initedog(monster, everything = true, env = {}) {
     state.u.uconduct ??= {};
     state.u.uconduct.pets = Math.trunc(state.u.uconduct.pets ?? 0) + 1;
     return monster;
+}
+
+// C ref: dog.c tamedog() (1143-1282), for the objectless, message-free
+// djinni that potion.c djinni_from_bottle() has just created. The new monster
+// cannot be asleep, frozen, tame, engulfing the hero, or carry another mextra
+// role, so the source path reaches newedog(), initedog(), newsym(), and its
+// optional hand-to-hand weapon selection without taking an earlier branch.
+export async function tamedog(
+    monster,
+    obj = null,
+    giveMessage = false,
+    env = {},
+) {
+    const normalized = dogEnv(env);
+    const { state } = normalized;
+    if (!monster?.data || monster.data.pmidx !== PM_DJINNI
+        || obj !== null || giveMessage || monster.mfrozen
+        || monster.msleeping || monster.mtame || monster.mextra?.edog
+        || monster.iswiz || monster.isshk || monster.isgd
+        || monster.ispriest || monster.isminion
+        || state.u?.ustuck === monster) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'dog.c tamedog() outside a newly released djinni',
+        );
+    }
+
+    monster.mpeaceful = true;
+    set_malign(monster, state);
+    monster.mflee = false;
+    monster.mfleetim = 0;
+    newedog(monster);
+    initedog(monster, true, normalized);
+    newsym(monster.mx, monster.my, state);
+
+    if (attacktype(monster.data, AT_WEAP)) {
+        monster.weapon_check = NEED_HTH_WEAPON;
+        await mon_wield_item(monster, {
+            ...normalized,
+            canSeeMonster: (subject) => canSeeMonster(subject, state),
+            wieldMessage: async (subject, weapon, detail) => {
+                await ttyPline(
+                    `${capitalizedMonsterName(subject, state)} wields `
+                    + `${donameFresh(weapon, state)}`
+                    + `${detail.exclaim ? '!' : '.'}`,
+                    state,
+                );
+            },
+        });
+    }
+    return true;
 }
 
 // C ref: dog.c pet_type(). A configured horse preference intentionally falls

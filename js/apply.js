@@ -72,7 +72,7 @@ import { game } from './gstate.js';
 import { check_capacity } from './hack.js';
 import { highc } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
-import { getobj, nxtobj } from './invent.js';
+import { getobj, nxtobj, update_inventory } from './invent.js';
 import { pick_lock } from './lock.js';
 import { seemimic } from './mon.js';
 import {
@@ -87,6 +87,7 @@ import {
 import { youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import { get_mtraits } from './corpstat.js';
+import { discover_object } from './o_init.js';
 import {
     init_dummyobj,
     is_axe,
@@ -132,6 +133,7 @@ import {
 } from './objects.js';
 import { MZ_TINY, PM_HEALER } from './monsters.js';
 import { body_part } from './polyself.js';
+import { djinni_from_bottle } from './potion.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { obj_has_timer } from './timeout.js';
@@ -141,7 +143,9 @@ import { recalc_block_point, unblock_point } from './vision.js';
 import { is_pole } from './worn.js';
 import { dowrite } from './write.js';
 import { genders } from './roles.js';
-import { rn2 } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { check_unpaid_usage } from './shk.js';
+import { begin_burn } from './timeout.js';
 import { wield_tool } from './wield.js';
 
 // Thrown where apply.c reaches a tool or a branch this port has not ported.
@@ -265,10 +269,8 @@ export function rub_ok(obj) {
 }
 
 // C ref: apply.c dorub() (1785-1838), through the sighted, charged magic
-// lamp's non-release outcomes at 1817-1835. The release result stops after
-// rn2(3), before billing or changing the lamp. Gray stones, royal jelly,
-// empty lamps, blind smoke, and every other already-wielded lamp remain
-// outside this port.
+// lamp outcomes at 1817-1835. Gray stones, royal jelly, empty lamps, blind
+// smoke, and every other already-wielded lamp remain outside this port.
 export async function dorub(state = game, env = {}) {
     if (nohands(state.youmonst.data)) {
         await ttyPline(
@@ -296,11 +298,29 @@ export async function dorub(state = game, env = {}) {
     }
 
     if (state.uwep.otyp === MAGIC_LAMP && state.uwep.spe > 0) {
-        const random = env.random ?? { rn2 };
+        const random = env.random ?? { d, rn1, rn2, rnd, rne, rnz };
         if (!random.rn2(3)) {
-            throw new UnsupportedApplyError(
-                'dorub() releasing a djinni from a magic lamp',
+            check_unpaid_usage(state.uwep, true, state);
+            state.uwep.otyp = OIL_LAMP;
+            state.uwep.spe = 0;
+            state.uwep.age = random.rn1(500, 1000);
+            if (state.uwep.lamplit)
+                begin_burn(state.uwep, true, { ...env, state });
+            await (env.djinniFromBottle ?? djinni_from_bottle)(
+                state.uwep,
+                state,
+                { ...env, random },
             );
+            discover_object(
+                MAGIC_LAMP,
+                true,
+                true,
+                true,
+                state,
+                { ...env, random },
+            );
+            update_inventory({ ...env, state });
+            return ECMD_TIME;
         }
         if (random.rn2(2)) {
             if (heroIsBlind(state)) {

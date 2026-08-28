@@ -86,6 +86,7 @@ import {
     ydir,
 } from './const.js';
 import { artifact_exists } from './artifacts.js';
+import { obj_resists } from './bury.js';
 import {
     can_saddle,
     newedog,
@@ -171,6 +172,7 @@ import {
     PM_COCKATRICE,
     PM_DEMILICH,
     PM_DWARF_RULER,
+    PM_DJINNI,
     PM_ELF,
     PM_ETTIN,
     PM_FOG_CLOUD,
@@ -235,6 +237,7 @@ import {
     PM_YELLOW_MOLD,
     SPECIAL_PM,
     S_CENTAUR,
+    S_DEMON,
     S_ELEMENTAL,
     S_EYE,
     S_GHOST,
@@ -1084,6 +1087,7 @@ function assertSupportedSpecies(species) {
             && !isMausoleumSpecies(species)
             && !courtSpecies
             && !beehiveSpecies
+            && species.pmidx !== PM_DJINNI
             && species.pmidx !== PM_UMBER_HULK)) {
         throw new UnsupportedMonsterCreationError(
             `monster ${species?.pmidx ?? 'null'}`,
@@ -1138,6 +1142,11 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === (MM_EDOG | NO_MINVENT);
+    const djinniBottleCall = !state.in_mklev
+        && ptr?.pmidx === PM_DJINNI
+        && x === state.u?.ux
+        && y === state.u?.uy
+        && mmflags === MM_NOMSG;
     // read.c create_particular_creation():3315 names the species the player
     // typed and places it on the hero's own square, so makemon() reaches the
     // enexto() arm below. Its mmflags is MM_NOEXCLAM plus at most one gender
@@ -1151,8 +1160,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && (mmflags === MM_NOEXCLAM
             || mmflags === (MM_NOEXCLAM | MM_MALE)
             || mmflags === (MM_NOEXCLAM | MM_FEMALE));
-    const runtimeCall = startingPetCall || runtimeRandomCall || runtimeGroupCall
-        || createParticularCall;
+    const runtimeCall = startingPetCall || djinniBottleCall
+        || runtimeRandomCall || runtimeGroupCall || createParticularCall;
     if (runtimeCall
         && (!normalized.runtimeContinuation
             || typeof normalized.runtimeContinuation !== 'object')) {
@@ -1443,6 +1452,11 @@ function m_initweap(monster, normalized) {
     if (!isArmed(ptr)) return;
 
     switch (ptr.mlet) {
+    case S_DEMON:
+        // C ref: makemon.c:502-523. The only admitted demon-class species is
+        // a djinni, whose data does not carry M2_DEMON; it leaves this arm
+        // before the general weapon roll so a later vanish drops no object.
+        break;
     case S_GIANT:
         // C ref: makemon.c:180-185. Ettins get clubs, other giants get
         // boulders. Only non-ettins roll for a two-handed weapon.
@@ -2338,6 +2352,17 @@ export function mongone(monster, env = {}) {
     }
 
     monster.mhp = 0;
+    // C ref: steal.c mdrop_special_objs(). Even with both resistance
+    // percentages set to zero, obj_resists() consumes rn2(100) for each
+    // ordinary inventory object before mongone() discards it. The admitted
+    // temporary-monster callers cannot create protected or quest objects.
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (obj_resists(obj, 0, 0, normalized)) {
+            throw new UnsupportedMonsterCreationError(
+                'temporary monster carrying a protected object',
+            );
+        }
+    }
     discard_minvent(monster, false, normalized);
 
     if (monster.mx > 0 && emits_light(monster.data))

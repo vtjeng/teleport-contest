@@ -1441,7 +1441,11 @@ test('mongone marks a monster dead before discarding worn wrapping', () => {
     assert.equal(monster.invis_blkd, true);
     assert.equal(monster.minvis, false);
 
-    const random = scriptedRandom([]);
+    const random = scriptedRandom([
+        // steal.c mdrop_special_objs() checks every carried object before
+        // mongone() discards it, even when ordinary resistance is zero.
+        step('rn2', [100], 99),
+    ]);
     mongone(monster, { state, random: random.random });
     random.assertExhausted();
 

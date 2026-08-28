@@ -16,6 +16,7 @@ import {
     CQ_REPEAT,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
+    MON_DETACH,
     W_WEP,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -31,12 +32,20 @@ import {
     POT_WATER,
     TOUCHSTONE,
 } from '../js/objects.js';
-import { PM_FLOATING_EYE } from '../js/monsters.js';
+import { PM_DJINNI, PM_FLOATING_EYE } from '../js/monsters.js';
+import { djinni_from_bottle } from '../js/potion.js';
 import { dorub, rub_ok, UnsupportedApplyError } from '../js/apply.js';
 import { wield_tool } from '../js/wield.js';
 import {
     ESCAPE_KEY,
     EXTCMD_KEY,
+    loadRubBlessedLampConditionalRecipe,
+    loadRubCursedLampConditionalRecipe,
+    loadRubLampDjinniHostileRecipe,
+    loadRubLampDjinniPeacefulRecipe,
+    loadRubLampDjinniTameRecipe,
+    loadRubLampDjinniVanishRecipe,
+    loadRubLampDjinniWishRecipe,
     loadRubLampNothingRecipe,
     loadRubLampSmokeRecipe,
     loadRubCommandRecipe,
@@ -57,6 +66,16 @@ function inventorySnapshot() {
 function inventoryObject(otyp) {
     for (let obj = game.invent; obj; obj = obj.nobj) {
         if (obj.otyp === otyp) return obj;
+    }
+    return null;
+}
+
+function levelMonster(pmidx) {
+    for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+        // C keeps mongone() victims linked until dmonsfree() at the next
+        // command-loop pass; MON_DETACH already makes them absent from play.
+        if (monster.data?.pmidx === pmidx
+            && !(monster.mstate & MON_DETACH)) return monster;
     }
     return null;
 }
@@ -214,25 +233,121 @@ for (const { label, rolls, message } of [
     });
 }
 
-test('dorub keeps the magic-lamp release outcome fail-closed after its draw',
+test('dorub transforms a releasing magic lamp before creating the djinni',
     async () => {
-    await prepareAlreadyWieldedMagicLamp();
+    const lamp = await prepareAlreadyWieldedMagicLamp();
     const bounds = [];
+    let released = false;
     const random = {
-        // apply.c:1817 interprets rn2(3) == 0 as the djinni-release arm. This
-        // slice records that draw but must not enter its billing or mutations.
+        // apply.c:1817 interprets rn2(3) == 0 as the djinni-release arm.
         rn2: (bound) => {
             bounds.push(bound);
             return 0;
         },
+        // apply.c:1826 stores rn1(500, 1000) as the transformed oil lamp's
+        // fuel. The selected 1234 is an interior value in that 1000-1499 span.
+        rn1: (bound, base) => {
+            assert.deepEqual([bound, base], [500, 1000]);
+            return 1234;
+        },
     };
 
-    await assert.rejects(
-        () => dorub(game, { random }),
-        /releasing a djinni from a magic lamp/u,
-    );
-    assert.deepEqual(bounds, [3]);
+    assert.equal(await dorub(game, {
+        random,
+        async djinniFromBottle(releasedLamp) {
+            released = true;
+            assert.equal(releasedLamp, lamp);
+            assert.equal(releasedLamp.otyp, OIL_LAMP);
+            assert.equal(releasedLamp.spe, 0);
+            assert.equal(releasedLamp.age, 1234);
+        },
+    }), ECMD_TIME);
+    assert.equal(bounds[0], 3);
+    assert.equal(released, true);
+    assert.equal(game.uwep, lamp);
+    assert.equal(lamp.otyp, OIL_LAMP);
+    assert.equal(lamp.spe, 0);
 });
+
+for (const {
+    chance, speech, disposition,
+} of [
+    {
+        // potion.c:2842-2846 removes the chance-zero djinni before the wish.
+        chance: 0,
+        speech: '"I am in your debt.  I will grant one wish!"',
+        disposition: 'wish',
+    },
+    {
+        // potion.c:2847-2850 passes chance one to objectless tamedog().
+        chance: 1,
+        speech: '"Thank you for freeing me!"',
+        disposition: 'tame',
+    },
+    {
+        // potion.c:2851-2855 makes the chance-two djinni peaceful in place.
+        chance: 2,
+        speech: '"You freed me!"',
+        disposition: 'peaceful',
+    },
+    {
+        // potion.c:2856-2861 removes the chance-three djinni after its line.
+        chance: 3,
+        speech: '"It is about time!"',
+        disposition: 'vanish',
+    },
+    {
+        // potion.c:2862-2866 leaves every other result hostile on the map.
+        chance: 4,
+        speech: '"You disturbed me, fool!"',
+        disposition: 'hostile',
+    },
+]) {
+    test(`djinni_from_bottle resolves the ${disposition} outcome`, async () => {
+        await runSegment(segmentThroughWish());
+        const monster = {
+            data: game.mons[PM_DJINNI],
+            mx: game.u.ux + 1,
+            my: game.u.uy,
+            mpeaceful: false,
+            malign: 0,
+        };
+        const messages = [];
+        const events = [];
+        const result = await djinni_from_bottle(
+            { blessed: false, cursed: false },
+            game,
+            {
+                random: { rn2: () => chance },
+                makeMonster: async () => monster,
+                message: async (text) => { messages.push(text); },
+                removeMonster: () => { events.push('remove'); },
+                tameMonster: async () => {
+                    monster.mtame = 5;
+                    events.push('tame');
+                },
+                transient: async () => {},
+                grantWish: async () => { events.push('wish'); },
+            },
+        );
+
+        assert.ok(messages.includes(speech));
+        if (disposition === 'wish') {
+            assert.deepEqual(events, ['remove', 'wish']);
+            assert.equal(result, null);
+        } else if (disposition === 'tame') {
+            assert.deepEqual(events, ['tame']);
+            assert.equal(monster.mtame, 5);
+        } else if (disposition === 'peaceful') {
+            assert.equal(monster.mpeaceful, true);
+        } else if (disposition === 'vanish') {
+            assert.deepEqual(events, ['remove']);
+            assert.equal(result, null);
+        } else {
+            assert.equal(monster.mpeaceful, false);
+        }
+    });
+}
 
 test('wield_tool keeps other lamp types outside this slice', async () => {
     await runSegment(segmentThroughWish());
@@ -343,6 +458,68 @@ for (const {
         assert.equal(game.context.pendingCommand, undefined);
         assert.equal(game.command_queue[CQ_CANNED].length, 0);
     }));
+}
+
+for (const { label, loadRecipe, disposition } of [
+    {
+        label: 'wish',
+        loadRecipe: loadRubLampDjinniWishRecipe,
+        disposition: 'gone',
+    },
+    {
+        label: 'tame',
+        loadRecipe: loadRubLampDjinniTameRecipe,
+        disposition: 'tame',
+    },
+    {
+        label: 'peaceful',
+        loadRecipe: loadRubLampDjinniPeacefulRecipe,
+        disposition: 'peaceful',
+    },
+    {
+        label: 'vanish',
+        loadRecipe: loadRubLampDjinniVanishRecipe,
+        disposition: 'gone',
+    },
+    {
+        label: 'hostile',
+        loadRecipe: loadRubLampDjinniHostileRecipe,
+        disposition: 'hostile',
+    },
+    {
+        label: 'blessed conditional draw',
+        loadRecipe: loadRubBlessedLampConditionalRecipe,
+        disposition: 'gone',
+    },
+    {
+        label: 'cursed conditional draw',
+        loadRecipe: loadRubCursedLampConditionalRecipe,
+        disposition: 'gone',
+    },
+]) {
+    test(`the complete #rub recipe reaches the djinni ${label} result`,
+        async () => {
+        let boundary = null;
+        await runSegment(loadRecipe().segments[0], {
+            onBoundary: (error) => { boundary = error; },
+        });
+
+        assert.equal(boundary, null);
+        assert.equal(game.uwep?.otyp, OIL_LAMP);
+        assert.equal(game.uwep?.spe, 0);
+        assert.equal(game.uwep?.owornmask & W_WEP, W_WEP);
+        assert.equal(game.command_queue[CQ_CANNED].length, 0);
+
+        const djinni = levelMonster(PM_DJINNI);
+        if (disposition === 'gone') {
+            assert.equal(djinni, null);
+        } else {
+            assert.ok(djinni);
+            assert.equal(djinni.mpeaceful, disposition !== 'hostile');
+            assert.equal(djinni.mtame, disposition === 'tame' ? 5 : 0);
+            assert.equal(Boolean(djinni.mextra?.edog), disposition === 'tame');
+        }
+    });
 }
 
 test('the complete #rub cancellation recipe preserves the command boundary',

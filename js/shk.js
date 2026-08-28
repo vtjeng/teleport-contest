@@ -497,11 +497,17 @@ export function contained_gold(obj, even_if_unknown) {
 // The `*u.ushops` term is the first entry of hack.c move_update()'s room list;
 // js/rooms.js stores it as a fixed five-entry array, so an empty list reads as
 // a zero here exactly as an empty string does in C.
-export function check_unpaid(otmp, state = game) {
+export function check_unpaid_usage(otmp, altusage, state = game) {
     if (!otmp.unpaid || !state.u?.ushops?.[0]
         || (otmp.spe <= 0 && objectType(otmp, state).oc_charged))
         return;
-    throw new UnsupportedShopError('check_unpaid_usage() billing a use fee');
+    throw new UnsupportedShopError(
+        `check_unpaid_usage() billing a${altusage ? 'n unusual' : ''} use fee`,
+    );
+}
+
+export function check_unpaid(otmp, state = game) {
+    check_unpaid_usage(otmp, false, state);
 }
 
 // C ref: shk.c costly_spot().

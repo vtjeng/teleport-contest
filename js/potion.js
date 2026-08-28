@@ -24,6 +24,8 @@ import {
     BLINDED,
     CONFUSION,
     DEAF,
+    DISP_ALWAYS,
+    DISP_END,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -43,6 +45,7 @@ import {
     IS_SINK,
     KILLED_BY,
     LEG,
+    MM_NOMSG,
     SEE_INVIS,
     STRANGLED,
     TELEPAT,
@@ -53,22 +56,28 @@ import {
     W_WEP,
 } from './const.js';
 import { exercise } from './attrib.js';
-import { see_monsters } from './display.js';
+import { see_monsters, tmp_at } from './display.js';
 import { heal_legs, trycall } from './do.js';
+import { Amonnam, capitalizedMonsterName } from './do_name.js';
+import { tamedog } from './dog.js';
 import { more_experienced } from './exper.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { losehp } from './hack.js';
 import { getobj, learn_unseen_invent, useup } from './invent.js';
+import { set_malign } from './makemon.js';
+import { makemon_runtime, mongone } from './makemon_create.js';
 import { likes_fire } from './mondata.js';
+import { PM_DJINNI } from './monsters.js';
 import { bcsign, objectType } from './obj.js';
 import { discover_object } from './o_init.js';
 import { body_part } from './polyself.js';
-import { d, rn1 } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { canSpotMonster } from './startup_a11y.js';
 import { burn_away_slime } from './timeout.js';
 import { unconscious } from './trap.js';
 import { vision_recalc } from './vision.js';
-import { Cold_resistance, Fire_resistance } from './zap.js';
+import { Cold_resistance, Fire_resistance, makewish } from './zap.js';
 import {
     OBJ_DESCR,
     POTION_CLASS,
@@ -129,6 +138,116 @@ export class UnsupportedQuaffError extends Error {
         this.name = 'UnsupportedQuaffError';
         this.reason = reason;
     }
+}
+
+function djinniRandom(env = {}) {
+    return env.random ?? { d, rn1, rn2, rnd, rne, rnz };
+}
+
+// C ref: potion.c mongrantswish() (2794-2812). Remove the djinni before the
+// wish can kill the hero, keep its old glyph visible while the prompt is up,
+// and erase that transient glyph after the wish returns.
+export async function mongrantswish(monster, state = game, env = {}) {
+    const x = monster.mx;
+    const y = monster.my;
+    // C caches glyph_at(), an integer. The JS display buffer retains that
+    // integer on its full presentation record, which tmp_at() needs in order
+    // to redraw the same monster glyph after mongone() replaces the square.
+    const glyph = state.level?.at(x, y)?.disp_glyph;
+    if (!glyph) throw new Error('mongrantswish requires a displayed djinni');
+    const removeMonster = env.removeMonster ?? mongone;
+    const transient = env.transient ?? tmp_at;
+    const grantWish = env.grantWish ?? makewish;
+
+    removeMonster(monster, { ...env, state, random: djinniRandom(env) });
+    await transient(DISP_ALWAYS, glyph, state);
+    await transient(x, y, state);
+    try {
+        await grantWish(state);
+    } finally {
+        await transient(DISP_END, 0, state);
+    }
+    return null;
+}
+
+// C ref: potion.c djinni_from_bottle() (2814-2868). This source-ordered
+// outcome family is shared by a rubbed magic lamp and a smoky potion. The
+// latter caller remains fail-closed in dodrink(); dorub() is the live owner.
+export async function djinni_from_bottle(obj, state = game, env = {}) {
+    const random = djinniRandom(env);
+    const message = env.message ?? ttyPline;
+    const makeMonster = env.makeMonster ?? makemon_runtime;
+    let monster = await makeMonster(
+        state.mons[PM_DJINNI],
+        state.u.ux,
+        state.u.uy,
+        MM_NOMSG,
+        { ...env, state, random },
+    );
+    if (!monster) {
+        await message('It turns out to be empty.', state);
+        return null;
+    }
+
+    if (!heroIsBlind(state)) {
+        const indefinite = Amonnam(monster, { state });
+        await message(
+            `In a cloud of smoke, ${indefinite.charAt(0).toLowerCase()}${
+                indefinite.slice(1)} emerges!`,
+            state,
+        );
+        await message(`${capitalizedMonsterName(monster, state)} speaks.`, state);
+    } else {
+        await message('You smell acrid fumes.', state);
+        await message('Something speaks.', state);
+    }
+
+    let chance = random.rn2(5);
+    if (obj.blessed)
+        chance = chance === 4 ? random.rnd(4) : 0;
+    else if (obj.cursed)
+        chance = chance === 0 ? random.rn2(4) : 4;
+
+    switch (chance) {
+    case 0:
+        await message('"I am in your debt.  I will grant one wish!"', state);
+        monster = await mongrantswish(monster, state, { ...env, random });
+        break;
+    case 1:
+        await message('"Thank you for freeing me!"', state);
+        await (env.tameMonster ?? tamedog)(
+            monster,
+            null,
+            false,
+            { ...env, state, random },
+        );
+        break;
+    case 2:
+        await message('"You freed me!"', state);
+        monster.mpeaceful = true;
+        set_malign(monster, state);
+        break;
+    case 3:
+        await message('"It is about time!"', state);
+        if (canSpotMonster(monster, state)) {
+            await message(
+                `${capitalizedMonsterName(monster, state)} vanishes.`,
+                state,
+            );
+        }
+        (env.removeMonster ?? mongone)(
+            monster,
+            { ...env, state, random },
+        );
+        monster = null;
+        break;
+    default:
+        await message('"You disturbed me, fool!"', state);
+        monster.mpeaceful = false;
+        set_malign(monster, state);
+        break;
+    }
+    return monster;
 }
 
 // ---------------------------------------------------------------------------
