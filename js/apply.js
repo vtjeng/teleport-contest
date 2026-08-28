@@ -39,6 +39,7 @@ import {
     M_AP_MONSTER,
     M_AP_OBJECT,
     M_AP_TYPE,
+    nothing_happens,
     PRONOUN_NO_IT,
     REVIVE_MON,
     SCORR,
@@ -140,6 +141,7 @@ import { recalc_block_point, unblock_point } from './vision.js';
 import { is_pole } from './worn.js';
 import { dowrite } from './write.js';
 import { genders } from './roles.js';
+import { rn2 } from './rng.js';
 import { wield_tool } from './wield.js';
 
 // Thrown where apply.c reaches a tool or a branch this port has not ported.
@@ -262,10 +264,12 @@ export function rub_ok(obj) {
     return GETOBJ_EXCLUDE;
 }
 
-// C ref: apply.c dorub() (1785-1838), through the selected unwielded lamp arm
-// at 1806-1813. Gray stones, royal jelly, and every already-wielded lamp
-// effect remain outside this slice.
-export async function dorub(state = game) {
+// C ref: apply.c dorub() (1785-1838), through the sighted, charged magic
+// lamp's non-release outcomes at 1817-1835. The release result stops after
+// rn2(3), before billing or changing the lamp. Gray stones, royal jelly,
+// empty lamps, blind smoke, and every other already-wielded lamp remain
+// outside this port.
+export async function dorub(state = game, env = {}) {
     if (nohands(state.youmonst.data)) {
         await ttyPline(
             "You aren't able to rub anything without hands.",
@@ -291,7 +295,29 @@ export async function dorub(state = game) {
         return ECMD_OK;
     }
 
-    throw new UnsupportedApplyError('dorub() with an already-wielded lamp');
+    if (state.uwep.otyp === MAGIC_LAMP && state.uwep.spe > 0) {
+        const random = env.random ?? { rn2 };
+        if (!random.rn2(3)) {
+            throw new UnsupportedApplyError(
+                'dorub() releasing a djinni from a magic lamp',
+            );
+        }
+        if (random.rn2(2)) {
+            if (heroIsBlind(state)) {
+                throw new UnsupportedApplyError(
+                    'dorub() blind magic-lamp smoke',
+                );
+            }
+            await ttyPline('You see a puff of smoke.', state);
+        } else {
+            await ttyPline(nothing_happens, state);
+        }
+        return ECMD_TIME;
+    }
+
+    throw new UnsupportedApplyError(
+        'dorub() with an empty or non-magic already-wielded lamp',
+    );
 }
 
 // C ref: apply.c its_dead() (196-309), the floor-object half of a listen.

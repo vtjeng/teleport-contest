@@ -37,7 +37,8 @@ import { wield_tool } from '../js/wield.js';
 import {
     ESCAPE_KEY,
     EXTCMD_KEY,
-    loadRubLampWieldRecipe,
+    loadRubLampNothingRecipe,
+    loadRubLampSmokeRecipe,
     loadRubCommandRecipe,
     NEWLINE,
     SPACE_KEY,
@@ -74,6 +75,24 @@ function segmentThroughWish() {
         ...segment,
         moves: `${START}${WIZWISH_KEY}magic lamp${NEWLINE}`,
     };
+}
+
+async function prepareAlreadyWieldedMagicLamp() {
+    await runSegment(segmentThroughWish());
+    const lamp = inventoryObject(MAGIC_LAMP);
+    assert.ok(lamp, 'the debug wish created a magic lamp');
+    assert.ok(lamp.spe > 0, 'a wished-for magic lamp has a charge');
+
+    // apply.c:1814 identifies the selected object and uwep by pointer. Setting
+    // both references to this one inventory object reaches that source arm
+    // without spending the preceding wield turn, which the integration case
+    // below covers. Space dismisses the pending wish result before getobj()
+    // consumes the lamp's existing inventory letter.
+    game.uwep = lamp;
+    lamp.owornmask |= W_WEP;
+    game.nhDisplay.pushKey(SPACE_KEY.charCodeAt(0));
+    game.nhDisplay.pushKey(lamp.invlet.charCodeAt(0));
+    return lamp;
 }
 
 test('rub_ok suggests lamps, gray stones, and royal jelly', () => {
@@ -154,6 +173,67 @@ test('dorub wields an unwielded lamp and queues its continuation', async () => {
     assert.ok(failClosedCommandRefusals().includes(UnsupportedApplyError));
 });
 
+for (const { label, rolls, message } of [
+    {
+        label: 'smoke',
+        // apply.c:1817 needs a nonzero result to retain the lamp. The following
+        // rn2(2) result of 1 selects the sighted puff-of-smoke message.
+        rolls: [2, 1],
+        message: 'You see a puff of smoke.',
+    },
+    {
+        label: 'nothing',
+        // A different nonzero rn2(3) result reaches the same retained-lamp
+        // branch. The following rn2(2) result of 0 selects nothing_happens.
+        rolls: [1, 0],
+        message: 'Nothing happens.',
+    },
+]) {
+    test(`dorub's charged magic-lamp ${label} outcome retains the lamp`,
+        async () => {
+        const lamp = await prepareAlreadyWieldedMagicLamp();
+        const originalLamp = structuredClone({ ...lamp, nobj: null });
+        const bounds = [];
+        const remainingRolls = [...rolls];
+        const random = {
+            rn2: (bound) => {
+                bounds.push(bound);
+                return remainingRolls.shift();
+            },
+        };
+
+        assert.equal(await dorub(game, { random }), ECMD_TIME);
+        assert.deepEqual(bounds, [3, 2]);
+        assert.deepEqual(remainingRolls, []);
+        assert.equal(game._pending_message, message);
+        assert.deepEqual(
+            structuredClone({ ...lamp, nobj: null }),
+            originalLamp,
+        );
+        assert.equal(game.uwep, lamp);
+    });
+}
+
+test('dorub keeps the magic-lamp release outcome fail-closed after its draw',
+    async () => {
+    await prepareAlreadyWieldedMagicLamp();
+    const bounds = [];
+    const random = {
+        // apply.c:1817 interprets rn2(3) == 0 as the djinni-release arm. This
+        // slice records that draw but must not enter its billing or mutations.
+        rn2: (bound) => {
+            bounds.push(bound);
+            return 0;
+        },
+    };
+
+    await assert.rejects(
+        () => dorub(game, { random }),
+        /releasing a djinni from a magic lamp/u,
+    );
+    assert.deepEqual(bounds, [3]);
+});
+
 test('wield_tool keeps other lamp types outside this slice', async () => {
     await runSegment(segmentThroughWish());
     const lamp = inventoryObject(MAGIC_LAMP);
@@ -203,43 +283,67 @@ test('rub is admitted when dorub queues its own continuation', () => {
     assert.ok(ADMITTED_COMMANDS.includes('rub'));
 });
 
-test('the complete #rub wield recipe stops before the lamp effect',
-    () => withSerializedGrids(async () => {
+for (const {
+    label, loadRecipe, message, moves, rngCalls, screenDigest, cursorDigest,
+} of [
+    {
+        label: 'smoke',
+        loadRecipe: loadRubLampSmokeRecipe,
+        message: 'You now wield a lamp.  You see a puff of smoke.',
+        // Seed 731 spends the wield turn, the rub-effect turn, and one
+        // following monster turn before the input recipe ends.
+        moves: 3,
+        // These counts and digests cover the complete seed-731 fresh case.
+        rngCalls: 2149,
+        screenDigest:
+            '3d35a4ade0c38299c65e20a17f3088d6a2f0dc04a1fb42d7fb788a17f0cdcde9',
+        cursorDigest:
+            'a4c601d01644b4b2a7ce982ed1ed4c282d083dd0029e77335af6dc40ebb8e80a',
+    },
+    {
+        label: 'nothing happens',
+        loadRecipe: loadRubLampNothingRecipe,
+        message: 'You now wield a lamp.  Nothing happens.',
+        // Seed 743 has one more intervening monster action than seed 731
+        // before the recorder reaches the same post-effect input boundary.
+        moves: 4,
+        // These counts and digests cover the complete seed-743 fresh case.
+        rngCalls: 2723,
+        screenDigest:
+            '6f595f6979aca8c0f4d0143e440bd26fc3e6d6007e0b7928862d47061bd34c1f',
+        cursorDigest:
+            '4d236e1e538e65dfe4debf475f9ce9fccc6e77d67a5c09e75092f5edc52d912f',
+    },
+]) {
+    test(`the complete #rub recipe reaches the ${label} result`,
+        () => withSerializedGrids(async () => {
         let boundary = null;
         const replay = await runSegment(
-            loadRubLampWieldRecipe().segments[0],
+            loadRecipe().segments[0],
             { onBoundary: (error) => { boundary = error; } },
         );
 
-        // apply.c:1806-1813 spends one turn after wielding, then the queued
-        // dorub consumes the canned `o` and reaches apply.c:1817. The first
-        // unported effect would be rn2(3), so the refusal must identify the
-        // already-wielded lamp and leave the matched 2,128-call prefix intact.
-        // The branch subclass intentionally retains its parent's public
-        // `name`; cmd.js documents the distinction as constructor identity.
-        assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
-        assert.match(boundary?.message ?? '', /already-wielded lamp/u);
-        assert.equal(game.moves, 2);
-        assert.equal(replay.getRngLog().length, 2128);
-        assert.equal(replay.getScreens().length, 22);
-        assert.equal(replay.getCursors().length, 22);
-        // Digests cover every serialized cell attribute and cursor triple in
-        // the independently chosen seed-731 prefix through the wield turn.
-        assert.equal(
-            digest(replay.getScreens()),
-            'bc4082ded29c99eefbdfa577efbed1afedc47e27562da6e25cc859494e90dd3d',
-        );
-        assert.equal(
-            digest(replay.getCursors()),
-            'b53ca793b9d2201bcac07499740bcd3d08087211d4510343f4f69e23244d31b0',
-        );
+        // apply.c:1806-1835 spends the wield turn, drains the canned rub and
+        // lamp letter, preserves both RNG calls, and retains the charged lamp.
+        assert.equal(boundary, null);
+        assert.equal(game.moves, moves);
+        assert.equal(replay.getRngLog().length, rngCalls);
+        // Both fresh cases finish with 23 complete screens and cursors. Their
+        // digests cover every serialized cell attribute and cursor triple.
+        assert.equal(replay.getScreens().length, 23);
+        assert.equal(replay.getCursors().length, 23);
+        assert.equal(digest(replay.getScreens()), screenDigest);
+        assert.equal(digest(replay.getCursors()), cursorDigest);
+        assert.equal(game.nhDisplay.toplines, message);
         assert.equal(game.uwep?.otyp, MAGIC_LAMP);
+        assert.equal(game.uwep?.spe, 1);
         assert.equal(game.uwep?.invlet, 'o');
         assert.equal(game.uwep?.owornmask & W_WEP, W_WEP);
         assert.equal(game.unweapon, true);
         assert.equal(game.context.pendingCommand, undefined);
         assert.equal(game.command_queue[CQ_CANNED].length, 0);
     }));
+}
 
 test('the complete #rub cancellation recipe preserves the command boundary',
     () => withSerializedGrids(async () => {

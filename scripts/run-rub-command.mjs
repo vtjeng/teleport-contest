@@ -11,10 +11,7 @@ import { CQ_CANNED, W_WEP } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { MAGIC_LAMP } from '../js/objects.js';
-import {
-    runDifferential,
-    validateCleanRecipe,
-} from './diff-fresh.mjs';
+import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
@@ -48,7 +45,7 @@ export function loadRubCommandRecipe() {
     }, 'rub command recipe');
 }
 
-export function loadRubLampWieldRecipe() {
+export function loadRubLampSmokeRecipe() {
     return validateCleanRecipe({
         version: 5,
         segments: [{
@@ -66,54 +63,56 @@ export function loadRubLampWieldRecipe() {
             ].join('\n'),
             // u_init.c assigns the wished-for lamp inventory letter `o` for
             // this starting Wizard. Selecting it makes dorub wield and queue
-            // the second invocation; the JavaScript port then stops before
-            // the already-wielded lamp's first rn2(3).
+            // the second invocation. At apply.c:1817 this seed draws
+            // rn2(3) == 2, then rn2(2) == 1 for the sighted smoke message.
             moves: `${START}${WIZWISH_KEY}magic lamp${NEWLINE}`
                 + `${EXTCMD_KEY}rub${NEWLINE}o`,
         }],
-    }, 'rub lamp wield recipe');
+    }, 'rub lamp smoke recipe');
 }
 
-async function verifyRubLampWieldBoundary(segment) {
+export function loadRubLampNothingRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [{
+            // The bounded seed scan 732-750 selected seed 743 independently
+            // of the seed-108 development witness and seed-731 smoke case.
+            // The direct Wizard setup keeps dungeon generation outside this
+            // behavior. C draws rn2(3) == 2, then rn2(2) == 0 at dorub().
+            seed: 743,
+            datetime: '20040203040506',
+            nethackrc: [
+                'OPTIONS=name:rubber,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=playmode:debug',
+                '',
+            ].join('\n'),
+            // This Wizard also receives the wished-for lamp at inventory
+            // letter `o`, so the same input reaches the retained-lamp branch.
+            moves: `${START}${WIZWISH_KEY}magic lamp${NEWLINE}`
+                + `${EXTCMD_KEY}rub${NEWLINE}o`,
+        }],
+    }, 'rub lamp nothing recipe');
+}
+
+async function verifyRubLampNonrelease(segment) {
     let boundary = null;
     const replay = await runSegment(segment, {
         onBoundary: (error) => { boundary = error; },
     });
-    if (!boundary?.message.includes('dorub() with an already-wielded lamp')) {
-        throw boundary ?? new Error('rub lamp continuation reached no boundary');
-    }
-    // The game starts at move 1. apply.c:1812's ECMD_TIME spends exactly one
-    // turn before the canned dorub reaches the refusal, so the counter is 2.
-    assert.equal(game.moves, 2);
+    if (boundary) throw boundary;
+    const expected = new Map([
+        // The fixed values come from the two source-selected rn2(2) outcomes.
+        [731, 'You now wield a lamp.  You see a puff of smoke.'],
+        [743, 'You now wield a lamp.  Nothing happens.'],
+    ]).get(segment.seed);
+    assert.ok(expected, `unexpected rub non-release seed ${segment.seed}`);
+    assert.equal(game.nhDisplay.toplines, expected);
     assert.equal(game.uwep?.otyp, MAGIC_LAMP);
+    assert.equal(game.uwep?.spe, 1);
     assert.equal(game.uwep?.owornmask & W_WEP, W_WEP);
     assert.equal(game.unweapon, true);
     assert.equal(game.command_queue[CQ_CANNED].length, 0);
     return replay;
-}
-
-function verifyRubLampWieldDifferential(result) {
-    assert.equal(result.passed, false);
-    assert.equal(result.error, null);
-    assert.equal(result.segmentMismatch, null);
-    assert.equal(result.animMismatch, null);
-
-    // C's first unmatched operation is apply.c:1817's first random lamp
-    // effect. A missing JS entry proves that every prior random call matched.
-    assert.equal(result.rngMismatch?.cCaller, 'dorub(apply.c:1817)');
-    assert.match(result.rngMismatch?.cEntry ?? '', /^rn2\(3\)=\d+$/u);
-    assert.equal(result.rngMismatch?.jsEntry, undefined);
-    assert.equal(result.rngMismatch?.index, result.lengths.rng.js);
-
-    // The port stops during C's final input boundary. `js-missing` at the JS
-    // lengths proves that every complete screen and cursor before it matched.
-    assert.equal(result.screenMismatch?.kind, 'js-missing');
-    assert.equal(result.screenMismatch?.index, result.lengths.screens.js);
-    assert.equal(result.cursorMismatch?.jsCursor, undefined);
-    assert.equal(result.cursorMismatch?.index, result.lengths.cursors.js);
-    assert.equal(result.rngMismatch?.location?.key, 'o');
-    assert.equal(result.screenMismatch?.location?.key, 'o');
-    assert.equal(result.cursorMismatch?.location?.key, 'o');
 }
 
 export async function runRubCommandMatrix() {
@@ -130,24 +129,33 @@ export async function runRubCommandMatrix() {
     if (!cancellation.passed) return cancellation;
     assert.equal(cancellation.totals.segments, 1);
 
-    const wieldRecipe = loadRubLampWieldRecipe();
-    const replay = await verifyRubLampWieldBoundary(wieldRecipe.segments[0]);
-    process.stdout.write('[rub unwielded lamp prefix 1/1] 1 segments\n');
-    const wield = await runDifferential(wieldRecipe);
-    verifyRubLampWieldDifferential(wield);
-    process.stdout.write(
-        `RUB LAMP WIELD PREFIX: PASS: ${replay.getRngLog().length} PRNG calls, `
-        + `${replay.getScreens().length} screens, `
-        + `${replay.getCursors().length} cursors before apply.c:1817\n`,
-    );
+    const nonrelease = await runFreshMatrix({
+        entries: [
+            {
+                label: 'rub charged magic lamp: smoke',
+                recipe: loadRubLampSmokeRecipe(),
+            },
+            {
+                label: 'rub charged magic lamp: nothing happens',
+                recipe: loadRubLampNothingRecipe(),
+            },
+        ],
+        summaryLabel: 'RUB MAGIC LAMP NON-RELEASE',
+        verifySegment: verifyRubLampNonrelease,
+        // Each debug segment can leave a save file. Record it in an isolated
+        // install so the following case cannot restore that game.
+        chunkLimit: 1,
+    });
+    if (!nonrelease.passed) return nonrelease;
     return {
         passed: true,
         totals: {
-            segments: 2,
-            rng: cancellation.totals.rng + replay.getRngLog().length,
-            screens: cancellation.totals.screens + replay.getScreens().length,
-            cursors: cancellation.totals.cursors + replay.getCursors().length,
-            animFrames: cancellation.totals.animFrames,
+            segments: cancellation.totals.segments + nonrelease.totals.segments,
+            rng: cancellation.totals.rng + nonrelease.totals.rng,
+            screens: cancellation.totals.screens + nonrelease.totals.screens,
+            cursors: cancellation.totals.cursors + nonrelease.totals.cursors,
+            animFrames: cancellation.totals.animFrames
+                + nonrelease.totals.animFrames,
         },
     };
 }
