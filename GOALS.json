@@ -5698,7 +5698,7 @@
     },
     {
       "id": "elapsed-turn-nh-timeout-requires-no-active-property-timeout-",
-      "status": "open",
+      "status": "closed",
       "boundary": "An elapsed turn with a nonzero CONFUSION timeout at u.uprops[14] that remains nonzero after decrement runs timeout.c nh_timeout()'s property countdown, decrementing the TIMEOUT field once while preserving other intrinsic bits, instead of refusing the turn; CONFUSION expiry remains fail-closed.",
       "upstreamOwners": [
         "timeout.c"
@@ -5730,8 +5730,11 @@
         "screens": 2774,
         "rng": 156902
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "887e6b6ba2844896f0809a5cdd749c5e2ae953fe",
+      "delivered": {
+        "screens": 4,
+        "rng": -45
+      }
     }
   ]
 }
