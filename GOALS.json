@@ -5936,6 +5936,41 @@
         "screens": 3,
         "rng": 123
       }
+    },
+    {
+      "id": "really-done-bones-creation",
+      "status": "open",
+      "boundary": "A hero who dies on a bones-eligible level reaches really_done() where can_make_bones() returns true. The port throws UnsupportedEndOfGameError at js/end.js:697 before handling the bones decision, disclosure continuation, and game termination.",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 63,
+        "basis": "Uncapped look-ahead: seed5006-tourist-stress-disaster rawStretch=63 from the really_done() positive bones creation boundary at step 186. capStable=false; divergenceZeroed=false.",
+        "sessions": [
+          "seed5006-tourist-stress-disaster"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5006-tourist-stress-disaster",
+            "evidence": "At C step 186, the hero died from zapping a wand of death. done(DIED) called really_done(). can_make_bones() returns true on this bones-eligible level. C prints Save bones? [yn] (n) and waits for input. The hero answers n. JS throws UnsupportedEndOfGameError at end.js:697 before the bones prompt."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "really-done-bones-prompt",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "a011d8b2f1b1106a6522c269535ea424135f5a4e",
+      "openStanding": {
+        "sha": "e4192cc",
+        "screens": 2810,
+        "rng": 159517
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
