@@ -502,6 +502,25 @@ export async function dofire(state = game) {
     return obj ? await throw_obj(obj, shotlimit, state) : ECMD_CANCEL;
 }
 
+// C ref: dothrow.c endmultishot() (590-601). If a multi-shot volley is in
+// progress, stop it after the current shot. With verbose=false (the only
+// call from end.c savelife()), the message is suppressed and only m_shot.n
+// is clamped to m_shot.i.
+export function endmultishot(verbose, state = game) {
+    state.m_shot ??= {};
+    if ((state.m_shot.i ?? 0) < (state.m_shot.n ?? 0)) {
+        if (verbose && !state.context?.mon_moving) {
+            // The verbose branch prints "You stop firing/throwing after the
+            // Nth shot/toss." using ordin(). Only savelife() calls this port,
+            // and it passes verbose=false, so the message is unreachable.
+            throw new UnsupportedThrowError(
+                'endmultishot() verbose message with ordin()',
+            );
+        }
+        state.m_shot.n = state.m_shot.i;
+    }
+}
+
 // C ref: dothrow.c throw_obj() (85-286), "throw the selected object, asking
 // for direction". Decides the volley size, announces it, and hands each
 // missile to throwit().

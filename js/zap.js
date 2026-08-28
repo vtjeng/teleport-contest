@@ -14,9 +14,10 @@
 // UnsupportedShopError there for merchandise the hero has not paid for, so a
 // zap in a shop ends the segment before an effect arm is chosen at all.
 //
-// The self-zap arm runs, through zapyourself(), for a wand or spell of sleep
-// alone. Every other object type zapyourself() can be handed stops in the one
-// refusal that stands where C puts `default: impossible()`.
+// The self-zap arm runs through zapyourself() for sleep, death/finger-of-death,
+// and the two healing spells. Every other object type zapyourself() can be
+// handed stops in the single refusal that stands where C puts
+// `default: impossible()`.
 //
 // wizcmds.c wiz_wish() calls makewish(); potion.c, sit.c and zap.c's own
 // wand code reach it too, and none of those callers is ported.
@@ -56,7 +57,9 @@ import {
     IS_WALL,
     IS_WATERWALL,
     In_mines,
+    DIED,
     KILLED_BY_AN,
+    NO_KILLER_PREFIX,
     Is_airlevel,
     Is_waterlevel,
     LAVAWALL,
@@ -103,6 +106,7 @@ import {
 } from './display.js';
 import { findit } from './detect.js';
 import { dropx, preflight_dropx } from './do.js';
+import { done } from './end.js';
 import { more_experienced } from './exper.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
@@ -117,7 +121,7 @@ import {
     update_inventory,
     useupall,
 } from './invent.js';
-import { monstunseesu, nohands } from './mondata.js';
+import { is_demon, monstunseesu, nonliving, nohands } from './mondata.js';
 import {
     AD_ACID,
     AD_COLD,
@@ -143,6 +147,7 @@ import {
     SPE_SLEEP,
     TOOL_CLASS,
     WAND_CLASS,
+    WAN_DEATH,
     WAN_DIGGING,
     WAN_LIGHTNING,
     WAN_MAGIC_MISSILE,
@@ -172,7 +177,7 @@ import { burnarmor } from './trap_erode_obj.js';
 import { shade_miss } from './uhitm.js';
 import { cansee } from './vision.js';
 import { burn_away_slime, fall_asleep } from './timeout.js';
-import { ttyPline } from './tty_message.js';
+import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 
@@ -370,8 +375,9 @@ function heroResistsSleep(state) {
 
 // C ref: zap.c zapyourself() (2704-3013), the effect of a wand or spell the
 // hero aimed at their own square. The frame is here whole; of its thirty-odd
-// object arms only WAN_SLEEP and SPE_SLEEP are ported, and everything else
-// falls into the single refusal below.
+// object arms WAN_SLEEP/SPE_SLEEP, WAN_DEATH/SPE_FINGER_OF_DEATH, and the
+// two healing spells are ported, and everything else falls into the single
+// refusal below.
 //
 // C's own `default:` is `impossible("zapyourself: object %d used?")`, so one
 // arm naming the object type is the shape C already uses for a type that has
@@ -422,6 +428,34 @@ export async function zapyourself(obj, ordinary, state = game) {
             `You feel ${obj.otyp === SPE_EXTRA_HEALING ? 'much ' : ''}better.`,
             state,
         );
+        break;
+
+    // C ref: zap.c zapyourself() (2885-2902). Living, non-demon heroes die;
+    // nonliving or demon heroes get a harmless-beam message.
+    case WAN_DEATH:
+    case SPE_FINGER_OF_DEATH:
+        if (nonliving(state.youmonst?.data)
+            || is_demon(state.youmonst?.data)) {
+            await ttyPline(
+                obj.otyp === WAN_DEATH
+                    ? 'The wand shoots an apparently harmless beam at you.'
+                    : 'You seem no deader than before.',
+                state,
+            );
+            break;
+        }
+        learn_it = true;
+        state.killer ??= {};
+        state.killer.name = `shot ${uhim(state)}self with a death ray`;
+        state.killer.format = NO_KILLER_PREFIX;
+        /* probably don't need these to be urgent; player just gave input
+           without subsequent opportunity to dismiss --More-- with ESC */
+        await ttyUrgentPline(
+            'You irradiate yourself with pure energy!', state,
+        );
+        await ttyUrgentPline('You die.', state);
+        /* They might survive with an amulet of life saving */
+        await done(DIED, state);
         break;
 
     default:

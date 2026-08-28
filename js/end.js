@@ -13,9 +13,9 @@
 // the score file remain refused, in that source order.
 //
 // savelife() (end.c:704-756) restores the hero to a viable state after the
-// death is declined in wizard or explore mode. Three of its branches remain
-// refused: endmultishot() (not ported), expels() (not ported), and
-// make_sick() (not ported).
+// death is declined in wizard or explore mode. Two of its branches remain
+// refused: expels() (not ported) and make_sick() (not ported).
+// endmultishot(FALSE) is now ported.
 //
 // done_in_by() (end.c:185-344) sets up the killer string from a monster
 // that dealt lethal damage and calls done(). losehp()'s death branch in
@@ -90,6 +90,7 @@ import {
     S_VAMPIRE,
     S_WRAITH,
 } from './monsters.js';
+import { endmultishot } from './dothrow.js';
 import { upstart } from './hacklib.js';
 import { sortloot, update_inventory } from './invent.js';
 import { isContainer } from './obj.js';
@@ -149,13 +150,11 @@ function ParanoidDie(state) {
 // after being killed, when wizard or explore mode lets the player decline
 // death (or when the amulet of life saving fires, which is not yet ported).
 //
-// Three branches remain refused because their targets are not ported:
-//   endmultishot(FALSE)  -- only when !context.mon_moving (hero turn)
+// Two branches remain refused because their targets are not ported:
 //   expels()             -- only when u.uswallow (hero is engulfed)
 //   make_sick(0L, ...)   -- only when (Sick & TIMEOUT) == 1L (one-turn sick)
-// seed5002's death occurs on a monster turn (context.mon_moving is true), the
-// hero is not polymorphed, not swallowed, not stuck, not in a lava trap, and
-// not sick, so all three branches are unreachable for that session.
+// endmultishot(FALSE) is now ported: it stops a multi-shot volley in progress
+// when the hero dies on their own turn (context.mon_moving is false).
 //
 // js/hack.js imports done() from this file; this file imports curs_on_u()
 // from js/hack.js. Both bindings are consumed only inside function bodies,
@@ -209,11 +208,9 @@ async function savelife(how, state = game) {
     await curs_on_u(state);
 
     if (!state.context.mon_moving) {
-        // endmultishot() stops a multi-shot action in progress. It is not
-        // ported; this path fires only on the hero's own turn.
-        throw new UnsupportedEndOfGameError(
-            'savelife() needs endmultishot() on the hero turn',
-        );
+        // endmultishot(FALSE) stops a multi-shot volley in progress. With
+        // verbose=false it suppresses the message and only clamps m_shot.n.
+        endmultishot(false, state);
     }
     if (u.uswallow) {
         // might drop hero onto a trap that kills her all over again
@@ -532,9 +529,13 @@ export async function done(how, state = game) {
     // prefix followed by x_monnam(), so the species and optional given name
     // are deliberately variable. This slice owns that death source, not one
     // recorded pony spelling.
+    //
+    // zapyourself() constructs the death-ray killer from uhim(), so the
+    // pronoun varies by gender but the surrounding text is fixed.
     if (how === DIED
         && killer.format === NO_KILLER_PREFIX
-        && killer.name.startsWith('slipped while mounting ')) {
+        && (killer.name.startsWith('slipped while mounting ')
+            || killer.name.endsWith('self with a death ray'))) {
         await really_done(how, state);
         return;
     }

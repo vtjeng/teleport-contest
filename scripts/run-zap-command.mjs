@@ -227,6 +227,43 @@ export function loadZapChargeRecipe() {
     }, 'zap charge recipe');
 }
 
+// The WAN_DEATH arm of zapyourself(): the hero zaps a wand of death at
+// their own square. A living, non-demon hero dies unless the wizard-mode
+// query saves them. The survive path (answer 'n' to "Die?") is the one
+// this recipe covers, because really_done() throws at bones creation for
+// games whose board state triggers can_make_bones().
+//
+// Two segments: 'n' survives and resumes play; 'y' accepts death, entering
+// really_done() which throws at the bones-creation boundary. Each uses
+// chunkLimit: 1 because wizard-mode debug segments leave saves behind.
+export const DEATH_RAY_SURVIVE = 'survive';
+export const DEATH_RAY_DIE = 'die';
+
+export function loadZapDeathRayRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [
+            // Survive path: wish for a wand of death, zap self, answer 'n' to
+            // "Die?", confirm the hero is alive by waiting. Two --More--
+            // prompts appear (irradiation message and death message) before the
+            // Die? query.
+            segment(7830003,
+                `${WIZWISH_KEY}wand of death\n`
+                + `${ZAP_KEY}${WISHED_WAND}${SELF_KEY}`
+                + `${SPACE_KEY}${SPACE_KEY}n`,
+                { ...VALKYRIE, options: DEBUG }),
+            // Accept-death path: answer 'y' to "Die?", which enters
+            // really_done(). The segment stops when really_done() throws
+            // at the bones boundary.
+            segment(7830003,
+                `${WIZWISH_KEY}wand of death\n`
+                + `${ZAP_KEY}${WISHED_WAND}${SELF_KEY}`
+                + `${SPACE_KEY}${SPACE_KEY}y`,
+                { ...VALKYRIE, options: DEBUG }),
+        ],
+    }, 'zap death ray recipe');
+}
+
 export async function runZapCommandMatrix() {
     const ordinary = await runFreshMatrix({
         entries: [{
@@ -251,12 +288,21 @@ export async function runZapCommandMatrix() {
         chunkLimit: 1,
     });
     if (!charges.passed) return charges;
-    return runFreshMatrix({
+    const discovery = await runFreshMatrix({
         entries: [{
             label: 'zap command (wand discovery)',
             recipe: loadZapDiscoveryRecipe(),
         }],
         summaryLabel: 'ZAP COMMAND (WAND DISCOVERY)',
+        chunkLimit: 1, /* debug mode, as above */
+    });
+    if (!discovery.passed) return discovery;
+    return runFreshMatrix({
+        entries: [{
+            label: 'zap command (death ray)',
+            recipe: loadZapDeathRayRecipe(),
+        }],
+        summaryLabel: 'ZAP COMMAND (DEATH RAY)',
         chunkLimit: 1, /* debug mode, as above */
     });
 }

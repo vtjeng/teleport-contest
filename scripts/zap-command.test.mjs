@@ -5,6 +5,7 @@ import test from 'node:test';
 import { ART_EXCALIBUR } from '../js/artifacts.js';
 import { ADMITTED_COMMANDS, failClosedCommandRefusals } from '../js/cmd.js';
 import {
+    DIED,
     ECMD_OK,
     ECMD_TIME,
     EXT_ENCUMBER,
@@ -12,11 +13,13 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
     M_SEEN_SLEEP,
+    NO_KILLER_PREFIX,
     ROOMOFFSET,
     SDOOR,
     SLEEP_RES,
     W_ARMH,
 } from '../js/const.js';
+import { UnsupportedEndOfGameError } from '../js/end.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
@@ -28,6 +31,7 @@ import {
     POTION_CLASS,
     POT_WATER,
     WAND_CLASS,
+    WAN_DEATH,
     WAN_DIGGING,
     WAN_LIGHT,
     WAN_SECRET_DOOR_DETECTION,
@@ -50,6 +54,7 @@ import {
     ZAP_KEY,
     loadZapChargeRecipe,
     loadZapCommandRecipe,
+    loadZapDeathRayRecipe,
     loadZapDiscoveryRecipe,
 } from './run-zap-command.mjs';
 
@@ -855,6 +860,60 @@ test('a zap under perm_invent stops at the inventory window', async () => {
     } finally {
         game.iflags.perm_invent = false;
     }
+});
+
+// -- Death ray self-zap tests ------------------------------------------------
+
+test('the death ray survive path restores the hero after declining death',
+    async () => {
+    // zapyourself() WAN_DEATH arm sets killer.name and format, prints the
+    // irradiation and death messages, then calls done(DIED). In wizard mode,
+    // done() asks "Die? [yn]". Answering 'n' calls savelife() which restores
+    // the hero to a viable state and returns normally. The segment covers the
+    // full survive path: wish for a wand of death, zap self, answer 'n', then
+    // a trailing wait that resumes normal play.
+    const recipe = loadZapDeathRayRecipe();
+    // First segment is the survive path (answers 'n' to Die?).
+    const segment = recipe.segments[0];
+    await runSegment(segment);
+    // After surviving and resuming play, the hero is alive with restored HP.
+    // savelife() uses effective_attribute(CON) to compute givehp; on a Valkyrie
+    // with 16 CON: givehp = 50 + 10 * floor(16/2) = 130, but uhpmax on this
+    // seed is lower, capping the result.
+    assert.ok(game.u.uhp > 0, 'hero HP positive after surviving death ray');
+    // The killer is cleared by done()'s survive return path (end.c:1120-1121).
+    assert.equal(game.killer.name, '', 'killer name cleared after survival');
+    // umortality tracks that a death occurred.
+    assert.equal(game.u.umortality, 1, 'mortality counter incremented');
+});
+
+test('the death ray accept-death path reaches really_done()',
+    async () => {
+    // Second segment: answer 'y' to Die?, which enters really_done(). On this
+    // seed (D:1, low level) can_make_bones() returns false, so really_done()
+    // proceeds through disclosure. The segment completes normally because all
+    // the input is consumed and the game ends.
+    const recipe = loadZapDeathRayRecipe();
+    const segment = recipe.segments[1];
+    await runSegment(segment);
+    assert.equal(game.program_state.gameover, 1,
+        'gameover flag set by really_done()');
+    assert.equal(game.u.uhp, 0, 'hero HP is zero after accepting death');
+    assert.equal(game.u.umortality, 1, 'mortality counter incremented');
+});
+
+test('the death ray recipe covers both paths', () => {
+    const recipe = loadZapDeathRayRecipe();
+    assert.equal(recipe.version, 5, 'version 5 recipe');
+    assert.equal(recipe.segments.length, 2,
+        'two segments: survive and die');
+    assert.ok(recipe.segments.every(
+        (segment) => !Object.hasOwn(segment, 'steps'),
+    ), 'no recorded steps (replay inputs only)');
+    // Both segments use wizard mode.
+    assert.ok(recipe.segments.every(
+        ({ nethackrc }) => nethackrc.includes('playmode:debug'),
+    ), 'both segments are wizard-mode');
 });
 
 test('the zap matrix covers both prompts, both dispatch routes and no wand',
