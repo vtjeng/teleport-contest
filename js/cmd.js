@@ -34,6 +34,7 @@ import {
     SLIMED,
     STONED,
     STRANGLED,
+    Upolyd,
     isok,
     quitchars,
     xdir,
@@ -70,6 +71,25 @@ import {
     UnsupportedTakeOffError, UnsupportedWearError,
 } from './do_wear.js';
 import { doclose, doopen, reset_pick, UnsupportedLockError } from './lock.js';
+import {
+    attacktype,
+    can_breathe,
+    hides_under,
+    is_hider,
+    is_mind_flayer,
+    is_unicorn,
+    is_vampire,
+    is_vampshifter,
+    is_were,
+    webmaker,
+} from './mondata.js';
+import {
+    AT_GAZE,
+    AT_SPIT,
+    MS_SHRIEK,
+    PM_GREMLIN,
+    S_NYMPH,
+} from './monsters.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
 import { UnsupportedRegionPlacementError } from './mkmaze.js';
 import { docallcmd, UnsupportedObjectNamingError } from './do_name.js';
@@ -189,6 +209,7 @@ import {
     UnsupportedMonsterRequestError,
     UnsupportedReadError,
 } from './read.js';
+import { UnsupportedPolyselfError } from './polyself.js';
 import {
     wiz_genesis, wiz_level_change, wiz_level_tele, wiz_polyself, wiz_wish,
 } from './wizcmds.js';
@@ -1887,6 +1908,14 @@ export function failClosedCommandRefusals() {
         // mon.c maybe_unhide_at() raises this from inside invent.c
         // delobj_core(), which sit.c's cream-pie arm reaches through useupf().
         UnsupportedHideError,
+        // polyself.c polymon(), break_armor(), drop_weapon(), and polyself()
+        // raise this for every form whose species-specific branches are not
+        // ported: dragon HP, golem HP, breakarm armor paths, horned/headless
+        // gear, forced weapon drops, iswere/isvamp/draconian gotos, random
+        // selection, and newman(). Each guard fires after getlin() has echoed
+        // the typed monster name and after the controlled-input loop has
+        // committed the species.
+        UnsupportedPolyselfError,
     ];
 }
 
@@ -2268,6 +2297,105 @@ async function runPolyselfCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_polyself(state));
 }
 
+// C ref: cmd.c domonability() (888-949). #monster command: use a special
+// monster ability while polymorphed. For the gnome form (PM_GNOME), every
+// ability-test condition is false -- can_breathe, attacktype(AT_SPIT),
+// S_NYMPH, AT_GAZE, is_were, is_hider/hides_under, webmaker, is_mind_flayer,
+// PM_GREMLIN, is_unicorn, MS_SHRIEK, is_vampire/is_vampshifter, and the
+// steed-breathe check -- so the function reaches the `else if (Upolyd)`
+// catch-all at line 943, prints "Any special ability you may have is purely
+// reflexive.", and returns ECMD_OK. No RNG calls, no state changes.
+async function domonability(state) {
+    const uptr = state.youmonst?.data;
+    const might_hide = is_hider(uptr) || hides_under(uptr);
+
+    // cmd.c:896-901: combined hider+webmaker prompt. Every branch below that
+    // acts on the prompt answer is unreachable for gnome, but the prompt
+    // itself is unreachable too because gnome is neither a hider nor a
+    // webmaker. C initializes c to '\0'; null preserves the same falsiness
+    // for the ternary conditions at lines 912 and 914.
+    let c = null;
+    if (might_hide && webmaker(uptr)) {
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability hide-or-web prompt for a hider+webmaker form',
+        );
+    }
+
+    if (can_breathe(uptr)) {
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability dobreathe() for a breath-weapon form',
+        );
+    } else if (attacktype(uptr, AT_SPIT)) {
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability dospit() for a spitting form',
+        );
+    } else if (uptr?.mlet === S_NYMPH) {
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability doremove() for a nymph form',
+        );
+    } else if (attacktype(uptr, AT_GAZE)) {
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability dogaze() for a gaze-attack form',
+        );
+    } else if (is_were(uptr)) {
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability dosummon() for a were form',
+        );
+    } else if (c ? c === 'h' : might_hide) {
+        // cmd.c:912. When the prompt was not shown (c is null), this tests
+        // might_hide alone; when it was shown, it tests the answer.
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability dohide() for a hider form',
+        );
+    } else if (c ? c === 's' : webmaker(uptr)) {
+        // cmd.c:914. Same ternary pattern as the hider branch above.
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability dospinweb() for a webmaker form',
+        );
+    } else if (is_mind_flayer(uptr)) {
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability domindblast() for a mind flayer form',
+        );
+    } else if (state.u.umonnum === PM_GREMLIN) {
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability gremlin-split for gremlin form',
+        );
+    } else if (is_unicorn(uptr)) {
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability unicorn-horn for unicorn form',
+        );
+    } else if (uptr?.msound === MS_SHRIEK) {
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability shriek for a shrieking form',
+        );
+    } else if (is_vampire(uptr) || is_vampshifter(state.youmonst)) {
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability dopoly() for a vampire form',
+        );
+    } else if (state.u.usteed && can_breathe(state.u.usteed?.data)) {
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'domonability steed-breathe for a breath-weapon steed',
+        );
+    } else if (Upolyd(state.u)) {
+        // cmd.c:943-944: polymorphed but no special ability.
+        await ttyPline(
+            'Any special ability you may have is purely reflexive.',
+            state,
+        );
+    } else {
+        // cmd.c:945-946: not polymorphed at all.
+        await ttyPline(
+            "You don't have a special ability in your normal form!",
+            state,
+        );
+    }
+    return ECMD_OK;
+}
+
+async function runMonsterCommand(key, state) {
+    return failClosedCommand(key, state, () => domonability(state));
+}
+
 // C ref: wield.c dotwoweapon(). Like dosearch() and doeat() it returns its own
 // ECMD_* result, and it is the only ported command whose result a random draw
 // decides: wield.c:861 answers ECMD_TIME when rnd(20) beats the hero's current
@@ -2608,6 +2736,8 @@ async function doextcmd(key, state) {
         return await runGenesisCommand(key, state);
     case 'wiz_polyself':
         return await runPolyselfCommand(key, state);
+    case 'domonability':
+        return await runMonsterCommand(key, state);
     case 'dosave':
         // C ref: save.c dosave(), which always returns ECMD_OK.
         return await dosave(state);

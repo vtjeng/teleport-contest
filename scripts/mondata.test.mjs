@@ -21,6 +21,7 @@ import {
     attacktype_fordmg,
     big_to_little,
     bigmonst,
+    can_breathe,
     can_teleport,
     can_be_hatched,
     dmgtype,
@@ -48,6 +49,7 @@ import {
     is_hider,
     is_human,
     is_golem,
+    is_mind_flayer,
     is_lord,
     is_male,
     is_minion,
@@ -898,6 +900,25 @@ test('movement attack, life-state, web, and trap queries match source tables', (
     assert.equal(webmaker(species(M.PM_CAVE_SPIDER)), true);
     assert.equal(webmaker(species(M.PM_GIANT_SPIDER)), true);
     assert.equal(webmaker(species(M.PM_HUMAN)), false);
+
+    // C ref: mondata.h:122 can_breathe(). True for species carrying AT_BREA.
+    // Red dragon has a breath attack; gnome does not.
+    assert.equal(can_breathe(species(M.PM_RED_DRAGON)), true,
+        'red dragon has AT_BREA: its primary attack is breath');
+    assert.equal(can_breathe(species(M.PM_GNOME)), false,
+        'gnome has no breath attack');
+    assert.equal(can_breathe(species(M.PM_HUMAN)), false,
+        'human has no breath attack');
+
+    // C ref: mondata.h:210-211 is_mind_flayer(). Two species by identity.
+    assert.equal(is_mind_flayer(species(M.PM_MIND_FLAYER)), true,
+        'PM_MIND_FLAYER matches the first alternative');
+    assert.equal(is_mind_flayer(species(M.PM_MASTER_MIND_FLAYER)), true,
+        'PM_MASTER_MIND_FLAYER matches the second alternative');
+    assert.equal(is_mind_flayer(species(M.PM_GNOME)), false,
+        'gnome is not a mind flayer');
+    assert.equal(is_mind_flayer(species(M.PM_HUMAN)), false,
+        'human is not a mind flayer');
 
     const monster = { mtrapseen: 1 << (ARROW_TRAP - 1) };
     assert.equal(mon_knows_traps(monster, ARROW_TRAP), true);

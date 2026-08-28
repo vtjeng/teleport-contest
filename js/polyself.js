@@ -131,6 +131,17 @@ import {
 import * as M from './monsters.js';
 import { rn1, rn2, rnd, d } from './rng.js';
 
+// Boundary error for polyself branches that fall outside the current goal.
+// failClosedCommand() in cmd.js converts this to an
+// UnsupportedHeroCommandBranchBoundaryError, which the scorer keeps as a
+// graceful stop rather than a session crash.
+export class UnsupportedPolyselfError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'UnsupportedPolyselfError';
+    }
+}
+
 function uprop(state, index) {
     const property = state.u?.uprops?.[index];
     if (!property)
@@ -353,7 +364,7 @@ function haseyes(mdat) {
 // reaches this because uskin is null. The full implementation belongs in a
 // later slice that ports dragon-armor merging.
 function armor_to_dragon(_otyp) {
-    throw new Error('armor_to_dragon is not ported');
+    throw new UnsupportedPolyselfError('armor_to_dragon is not ported');
 }
 
 // ---------- uasmon_maxStr ----------------------------------------------
@@ -440,13 +451,13 @@ async function break_armor(state) {
             // end_burn, Armor_gone, useup — the armor destruction path
             // is not exercised by the gnome case (gnome is sliparm, not
             // breakarm). Throw if reached.
-            throw new Error('break_armor: breakarm body armor path not ported');
+            throw new UnsupportedPolyselfError('break_armor: breakarm body armor path not ported');
         }
         if ((otmp = state.uarmc) != null) {
-            throw new Error('break_armor: breakarm cloak path not ported');
+            throw new UnsupportedPolyselfError('break_armor: breakarm cloak path not ported');
         }
         if (state.uarmu) {
-            throw new Error('break_armor: breakarm shirt path not ported');
+            throw new UnsupportedPolyselfError('break_armor: breakarm shirt path not ported');
         }
     } else if (sliparm(uptr)) {
         if ((otmp = state.uarm) != null) {
@@ -485,23 +496,23 @@ async function break_armor(state) {
     if (has_horns(uptr)) {
         if ((otmp = state.uarmh) != null) {
             // cancel_don, Helmet_off, dropp — not exercised for gnome
-            throw new Error('break_armor: horned helmet removal not ported');
+            throw new UnsupportedPolyselfError('break_armor: horned helmet removal not ported');
         }
     }
     // nohands or verysmall — gloves, shield, helmet
     if (nohands(uptr) || verysmall(uptr)) {
         if ((otmp = state.uarmg) != null) {
-            throw new Error(
+            throw new UnsupportedPolyselfError(
                 'break_armor: nohands/verysmall gloves removal not ported',
             );
         }
         if ((otmp = state.uarms) != null) {
-            throw new Error(
+            throw new UnsupportedPolyselfError(
                 'break_armor: nohands/verysmall shield removal not ported',
             );
         }
         if ((otmp = state.uarmh) != null) {
-            throw new Error(
+            throw new UnsupportedPolyselfError(
                 'break_armor: nohands/verysmall helmet removal not ported',
             );
         }
@@ -511,7 +522,7 @@ async function break_armor(state) {
         || slithy(uptr) || uptr.mlet === M.S_CENTAUR) {
         if ((otmp = state.uarmf) != null) {
             // cancel_don, Boots_off, dropp — not exercised for gnome
-            throw new Error('break_armor: boots removal not ported');
+            throw new UnsupportedPolyselfError('break_armor: boots removal not ported');
         }
     }
     // headless — eyewear
@@ -519,7 +530,7 @@ async function break_armor(state) {
     // skip for gnome; throw if hit
     const has_head = !((uptr?.mflags1 ?? 0) & M.M1_NOHEAD);
     if ((otmp = state.ublindf) != null && !has_head) {
-        throw new Error('break_armor: headless eyewear removal not ported');
+        throw new UnsupportedPolyselfError('break_armor: headless eyewear removal not ported');
     }
 }
 
@@ -534,7 +545,7 @@ async function drop_weapon(alone, state) {
             // The "You find you must drop your weapon!" path.
             // Gnome has humanoid hands; cantwield is false.
             // This path needs uwepgone/uswapwepgone which are unported.
-            throw new Error('drop_weapon: forced weapon drop not ported');
+            throw new UnsupportedPolyselfError('drop_weapon: forced weapon drop not ported');
         } else if (!could_twoweap(state.youmonst.data)) {
             await untwoweapon(state);
         }
@@ -671,9 +682,9 @@ export async function polymon(mntmp, state = game) {
     const mlvl = mdat.mlevel;
     if (mdat.mlet === M.S_DRAGON && mntmp >= M.PM_GRAY_DRAGON) {
         // dragon HP formula — not exercised for gnome
-        throw new Error('polymon: dragon HP not ported');
+        throw new UnsupportedPolyselfError('polymon: dragon HP not ported');
     } else if (mdat.mlet === M.S_GOLEM) {
-        throw new Error('polymon: golem HP not ported');
+        throw new UnsupportedPolyselfError('polymon: golem HP not ported');
     } else {
         if (!mlvl)
             u.mhmax = rnd(4);
@@ -797,7 +808,7 @@ export async function polyself(psflags, state = game) {
                 // name_to_mon, so this path is not taken.
                 monclass = 0; // placeholder
                 if (monclass && mntmp === NON_PM) {
-                    throw new Error(
+                    throw new UnsupportedPolyselfError(
                         'polyself: name_to_monclass/mkclass_poly not ported',
                     );
                 }
@@ -826,7 +837,7 @@ export async function polyself(psflags, state = game) {
                         "You can't polymorph into any of those.", state,
                     );
             } else if (iswere /* && were_beastie etc */) {
-                throw new Error('polyself: iswere path not ported');
+                throw new UnsupportedPolyselfError('polyself: iswere path not ported');
             } else if (!polyok(state.mons[mntmp])
                        && !(mntmp === M.PM_HUMAN
                             || (your_race(state.mons[mntmp], state)
@@ -847,12 +858,12 @@ export async function polyself(psflags, state = game) {
         // draconian merge — not exercised for gnome
         // isvamp do_vampyr — not exercised for gnome
     } else if (draconian || iswere || isvamp) {
-        throw new Error('polyself: draconian/iswere/isvamp path not ported');
+        throw new UnsupportedPolyselfError('polyself: draconian/iswere/isvamp path not ported');
     }
 
     if (mntmp < M.LOW_PM) {
         // random monster selection
-        throw new Error('polyself: random monster selection not ported');
+        throw new UnsupportedPolyselfError('polyself: random monster selection not ported');
     }
 
     // sex_change_ok++ / polyok / rn2(5) / your_race gate
@@ -861,7 +872,7 @@ export async function polyself(psflags, state = game) {
     if (!polyok(state.mons[mntmp]) || (!forcecontrol && !rn2(5))
         || your_race(state.mons[mntmp], state)) {
         // newman() — not ported
-        throw new Error('polyself: newman() not ported');
+        throw new UnsupportedPolyselfError('polyself: newman() not ported');
     } else {
         await polymon(mntmp, state);
     }
