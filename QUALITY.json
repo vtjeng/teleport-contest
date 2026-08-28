@@ -5584,6 +5584,7 @@
         "js/lock.js",
         "js/pager.js",
         "js/sit.js",
+        "js/topten.js",
         "js/tty_menu.js",
         "js/tty_message.js",
         "js/uhitm.js",

@@ -773,7 +773,7 @@ export async function prev_level(at_stairs, state = game, env = {}) {
     }
 }
 
-function deepest_lev_reached(state) {
+export function deepest_lev_reached(state) {
     let deepest = 0;
     for (let dnum = 0; dnum < state.dungeons.length; ++dnum) {
         const dlevel = Math.trunc(state.dungeons[dnum].dunlev_ureached ?? 0);

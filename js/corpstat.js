@@ -1,11 +1,15 @@
 // corpstat.js -- Corpse and statue construction.
-// C ref: mkobj.c mkcorpstat(), save_mtraits(), and get_mtraits().
+// C ref: mkobj.c mkcorpstat(), save_mtraits(), get_mtraits(), and
+// mk_named_object().
 
 import {
     CORPSTAT_INIT,
+    CORPSTAT_NONE,
     CORPSTAT_SPE_VAL,
     MON_DETACH,
+    ONAME_NO_FLAGS,
 } from './const.js';
+import { oname } from './do_name.js';
 import { game } from './gstate.js';
 // js/mon.js make_corpse() imports mkcorpstat() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
@@ -197,4 +201,16 @@ export function mkcorpstat(
         }
     }
     return obj;
+}
+
+// C ref: mkobj.c mk_named_object() (2253-2267).  Creates a new corpse or
+// statue at (x, y) with a given name.  The returned object is never null.
+export function mk_named_object(objtype, species, x, y, nm, rawEnv = {}) {
+    const corpstatflags = (objtype !== STATUE) ? CORPSTAT_INIT
+        : CORPSTAT_NONE;
+    let otmp = mkcorpstat(objtype, null, species, x, y, corpstatflags, rawEnv);
+    if (nm) {
+        otmp = oname(otmp, nm, ONAME_NO_FLAGS, rawEnv);
+    }
+    return otmp;
 }
