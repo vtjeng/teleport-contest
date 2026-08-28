@@ -66,7 +66,7 @@ The orchestrator repeats without returning to the user between steps:
    `git rev-parse HEAD`. Push whatever the worker left behind and every
    commit you landed, then watch the CI run from a background task as
    `.agents/workflow.md`, "Pushing and CI", states. After pushing, spawn
-   a background agent (worktree-isolated) to run
+   a background agent to run
    `node scripts/pipeline-candidates.mjs --advance`, cap stale sessions,
    and trace witnesses. It runs alongside the next slice.
 

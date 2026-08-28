@@ -18,9 +18,8 @@ slicing to that agent.
 1. Check `node scripts/goal-log.mjs --current --detail` for queued goals. If
    a goal is already queued, take it: report its boundary and forecast, and
    skip to "What to report." The queue is typically empty.
-2. Run `node scripts/pipeline-candidates.mjs --ready-winner`. The pipeline
-   tracks candidates through readiness stages (uncapped, capped, witnessed).
-   If `winner` is non-null, take it and skip to "What to report."
+2. Run `node scripts/pipeline-candidates.mjs --ready-winner`. If `winner`
+   is non-null, take it and skip to "What to report."
 3. If the pipeline returns `winner: null`, the pipeline missed. Log a warning.
    Run `node scripts/pipeline-candidates.mjs --needs-capping` to list
    sessions with stale caps. For each session, hand its `--ahead` stream
@@ -31,9 +30,9 @@ slicing to that agent.
    readiness). If both are null, error.
 4. Read `.agents/selection.md` for the selection rules. Confirm that the
    winner satisfies the ranking rule.
-5. If the winner's readiness is `"witnessed"` and its witnesses and detail
-   are populated, skip to "What to report." Otherwise, for every session in
-   the winner's forecast without a witness, spawn a `sonnet-worker` to trace
+5. If the winner's witnesses and detail are populated, skip to "What to
+   report." Otherwise, for every session in the winner's forecast without a
+   witness, spawn a `sonnet-worker` to trace
    the exact C path at its first stop from the scan's replay and report the
    governing state and option preconditions.
 6. If the winner has no `detail`, spawn a `sonnet-worker` to read the C

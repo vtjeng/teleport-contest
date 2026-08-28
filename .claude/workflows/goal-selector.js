@@ -34,7 +34,6 @@ const PIPELINE_RESULT_SCHEMA = {
         detail: { type: ['string', 'null'] },
         owners: { type: ['array', 'null'] },
         boundary: { type: ['string', 'null'] },
-        readiness: { type: 'string' },
       },
       required: ['member', 'id', 'cappedForecast', 'sessions'],
     },
@@ -49,7 +48,6 @@ const PIPELINE_RESULT_SCHEMA = {
         detail: { type: ['string', 'null'] },
         owners: { type: ['array', 'null'] },
         boundary: { type: ['string', 'null'] },
-        readiness: { type: 'string' },
       },
       required: ['member', 'id', 'cappedForecast', 'sessions'],
     },
@@ -211,8 +209,8 @@ Do NOT read source files.
   if (!winner)
     throw new Error('no candidate with nonzero forecast after inline capping')
 
-  // Trace witnesses for the winner if it is not yet witnessed.
-  if (winner.readiness !== 'witnessed') {
+  // Trace witnesses for the winner if it lacks witnesses or detail.
+  if (!winner.witnesses?.length || !winner.detail) {
     log(`Winner "${winner.id}" needs witness tracing`)
 
     const winnerSessions = winner.sessions.map(s =>
@@ -261,7 +259,24 @@ with traced findings.
       || results.find(r => r.owners)?.owners || []
     winner.boundary = winner.boundary
       || results.find(r => r.boundary)?.boundary || winner.member
-    winner.readiness = 'witnessed'
+    // Persist the inline-produced metadata so the next --ready-winner finds it.
+    const metaPayload = JSON.stringify({
+      member: winner.member,
+      id: winner.id,
+      witnesses: winner.witnesses,
+      detail: winner.detail,
+      owners: winner.owners,
+      boundary: winner.boundary,
+    }, null, 2)
+    await agent(`
+Store candidate metadata by running this command:
+\`\`\`bash
+node scripts/pipeline-candidates.mjs --set-metadata << 'ENDJSON'
+${metaPayload}
+ENDJSON
+\`\`\`
+Return the JSON output.
+`, { label: 'store-metadata', model: 'sonnet' })
   }
 }
 

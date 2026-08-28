@@ -5,7 +5,7 @@ producer runs; none is committed.
 
 | File | Written by | Read by | Contents |
 |---|---|---|---|
-| `candidate-pipeline.json` | pipeline-candidates | goal-selector, orchestrator | Candidates ranked by capped forecast, with readiness stage, witnesses, and detail |
+| `candidate-metadata.json` | pipeline-candidates | goal-selector, orchestrator | Agent-produced metadata (witnesses, detail, owners, boundary) keyed by member string |
 | `goal-context.json` | goal-selector | slice-selector, worker | Current goal: boundary, owners, detail, witnesses |
 | `slice-context.json` | slice-selector | worker | Current slice: C file, line range, JS location, call site |
 | `session-frontiers.json` | scan-sessions | goal-selector, scan-sessions | Per-session cap cache and stability tuples |

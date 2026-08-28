@@ -1,19 +1,18 @@
 #!/usr/bin/env node
 /**
- * Candidate pipeline: tracks goal candidates through readiness stages.
+ * Candidate pipeline: ranks goal candidates and looks up cached metadata.
  *
- * Readiness levels:
- *   "uncapped"  — at least one session has a stale or missing cap
- *   "capped"    — all sessions capped, no witnesses yet
- *   "witnessed" — all sessions capped and witnessed, detail traced
+ * The ranking is computed fresh from scan data + caps on every call.
+ * Agent-produced metadata (witnesses, detail, owners, boundary description)
+ * is cached in candidate-metadata.json, keyed by member string (the scan's
+ * divergence boundary).
  *
  * Modes:
- *   --ready-winner     deterministic: print the top witnessed candidate or null
- *   --needs-capping    deterministic: list sessions with stale caps
- *   --status           deterministic: print readiness summary for all candidates
- *   --advance          spawn agents to cap and witness (not yet implemented)
- *
- * Ported from scan-sessions.mjs --winner and --needs-capping.
+ *   --ready-winner     print the top candidate with metadata, or null
+ *   --needs-capping    list sessions with stale caps
+ *   --status           print readiness summary
+ *   --advance          report what needs capping and witnessing
+ *   --set-metadata     read JSON from stdin, store metadata for its member
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
@@ -24,32 +23,23 @@ import { loadAnnotatedRows, cappedRanking } from './scan-sessions.mjs';
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = join(SCRIPT_DIR, '..');
 const CACHE_DIR = join(PROJECT_ROOT, '.cache');
-const PIPELINE_PATH = join(CACHE_DIR, 'candidate-pipeline.json');
-const GOAL_CONTEXT_PATH = join(CACHE_DIR, 'goal-context.json');
+const METADATA_PATH = join(CACHE_DIR, 'candidate-metadata.json');
+const GOALS_PATH = join(PROJECT_ROOT, 'GOALS.json');
 
-function readPipeline() {
-    if (!existsSync(PIPELINE_PATH)) return [];
+function readMetadata() {
+    if (!existsSync(METADATA_PATH)) return {};
     try {
-        return JSON.parse(readFileSync(PIPELINE_PATH, 'utf8'));
+        return JSON.parse(readFileSync(METADATA_PATH, 'utf8'));
     } catch {
-        return [];
+        return {};
     }
 }
 
-function readGoalContext() {
-    if (!existsSync(GOAL_CONTEXT_PATH)) return null;
-    try {
-        return JSON.parse(readFileSync(GOAL_CONTEXT_PATH, 'utf8'));
-    } catch {
-        return null;
-    }
-}
-
-function writePipeline(entries) {
+function writeMetadata(metadata) {
     if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR, { recursive: true });
     writeFileSync(
-        PIPELINE_PATH,
-        JSON.stringify(entries, null, 2) + '\n',
+        METADATA_PATH,
+        JSON.stringify(metadata, null, 2) + '\n',
     );
 }
 
@@ -61,145 +51,72 @@ function toKebab(member) {
         .slice(0, 60);
 }
 
-/**
- * Reconcile the pipeline file against a fresh capped ranking.  Seeds
- * from goal-context.json when a candidate matches its boundary and
- * sessions.  Returns the updated pipeline entries (not yet written).
- */
-function reconcile(ranked, existing) {
-    const byMember = new Map();
-    for (const entry of existing) byMember.set(entry.member, entry);
-
-    const goalCtx = readGoalContext();
-    const goalSessions = (goalCtx?.sessions ?? []).sort().join(',');
-
-    if (goalCtx?.witnesses?.length > 0) {
-        for (const candidate of ranked) {
-            const candidateSessions = candidate.sessions
-                .map((s) => s.session).sort();
-            if (candidateSessions.join(',') !== goalSessions)
-                continue;
-            const prev = byMember.get(candidate.member);
-            if (prev?.readiness === 'witnessed') continue;
-            byMember.set(candidate.member, {
-                member: candidate.member,
-                id: goalCtx.id ?? prev?.id ?? toKebab(candidate.member),
-                cappedForecast: candidate.cappedForecast,
-                sessions: candidate.sessions,
-                witnesses: goalCtx.witnesses,
-                detail: goalCtx.detail ?? prev?.detail ?? null,
-                owners: goalCtx.owners ?? prev?.owners ?? null,
-                boundary: goalCtx.boundary ?? prev?.boundary ?? null,
-                readiness: 'witnessed',
-                lastUpdatedSha: prev?.lastUpdatedSha ?? null,
-            });
-        }
+function readClosedGoalIds() {
+    if (!existsSync(GOALS_PATH)) return new Set();
+    try {
+        const data = JSON.parse(readFileSync(GOALS_PATH, 'utf8'));
+        const goals = data.goals ?? data;
+        return new Set(
+            goals.filter((g) => g.status === 'closed').map((g) => g.id),
+        );
+    } catch {
+        return new Set();
     }
+}
 
-    const updated = [];
-    for (const candidate of ranked) {
-        if (candidate.cappedForecast <= 0) continue;
+function generateId(member, metadata) {
+    const existing = metadata?.[member]?.id;
+    if (existing) return existing;
+    const base = toKebab(member);
+    const closed = readClosedGoalIds();
+    if (!closed.has(base)) return base;
+    for (let i = 2; i <= 100; i++) {
+        const suffixed = `${base.slice(0, 56)}-${i}`;
+        if (!closed.has(suffixed)) return suffixed;
+    }
+    return base;
+}
 
-        const prev = byMember.get(candidate.member);
+function annotateWithMetadata(candidate, metadata) {
+    const meta = metadata[candidate.member];
+    return {
+        member: candidate.member,
+        id: generateId(candidate.member, metadata),
+        cappedForecast: candidate.cappedForecast,
+        sessions: candidate.sessions,
+        witnesses: meta?.witnesses ?? [],
+        detail: meta?.detail ?? null,
+        owners: meta?.owners ?? null,
+        boundary: meta?.boundary ?? null,
+    };
+}
 
-        // The current goal matches goal-context.json; preserve its
-        // readiness regardless of cap stability.
-        const candidateSessions = candidate.sessions
-            .map((s) => s.session).sort().join(',');
-        if (goalSessions && candidateSessions === goalSessions
-            && prev?.readiness === 'witnessed') {
-            updated.push(prev);
-            continue;
-        }
-
-        const sessionNames = candidate.sessions.map((s) => s.session).sort();
-        const allCapStable = candidate.sessions.every(
+function isReady(annotated) {
+    return annotated.witnesses.length > 0
+        && annotated.detail
+        && annotated.sessions.every(
             (s) => s.capStable || s.divergenceZeroed,
         );
-
-        if (!prev) {
-            updated.push({
-                member: candidate.member,
-                id: toKebab(candidate.member),
-                cappedForecast: candidate.cappedForecast,
-                sessions: candidate.sessions,
-                witnesses: [],
-                detail: null,
-                owners: null,
-                boundary: null,
-                readiness: allCapStable ? 'capped' : 'uncapped',
-                lastUpdatedSha: null,
-            });
-            continue;
-        }
-
-        const prevSessionNames = (prev.sessions ?? [])
-            .map((s) => (typeof s === 'string' ? s : s.session))
-            .sort();
-        const sessionsChanged = sessionNames.join(',')
-            !== prevSessionNames.join(',');
-
-        let readiness = prev.readiness;
-        let witnesses = prev.witnesses ?? [];
-        let detail = prev.detail;
-        let owners = prev.owners;
-        let boundary = prev.boundary;
-
-        if (!allCapStable) {
-            readiness = 'uncapped';
-            witnesses = [];
-            detail = null;
-            owners = null;
-            boundary = null;
-        } else if (sessionsChanged) {
-            const witnessedSessions = new Set(
-                witnesses.map((w) => w.session),
-            );
-            const allWitnessed = sessionNames.every((s) =>
-                witnessedSessions.has(s),
-            );
-            if (!allWitnessed || !detail) {
-                readiness = 'capped';
-            }
-        }
-
-        updated.push({
-            member: candidate.member,
-            id: prev.id ?? toKebab(candidate.member),
-            cappedForecast: candidate.cappedForecast,
-            sessions: candidate.sessions,
-            witnesses,
-            detail,
-            owners,
-            boundary,
-            readiness,
-            lastUpdatedSha: prev.lastUpdatedSha,
-        });
-    }
-
-    return updated.sort(
-        (a, b) => b.cappedForecast - a.cappedForecast
-            || b.sessions.length - a.sessions.length
-            || a.member.localeCompare(b.member),
-    );
 }
 
 async function readyWinner() {
     const rows = await loadAnnotatedRows();
     const ranked = cappedRanking(rows);
-    const pipeline = reconcile(ranked, readPipeline());
-    writePipeline(pipeline);
+    const metadata = readMetadata();
 
-    const winner = pipeline.find(
-        (e) => e.readiness === 'witnessed' && e.cappedForecast > 0,
-    ) ?? null;
-    if (winner) {
-        console.log(JSON.stringify({ winner }, null, 2));
-        return;
+    for (const candidate of ranked) {
+        if (candidate.cappedForecast <= 0) continue;
+        const annotated = annotateWithMetadata(candidate, metadata);
+        if (isReady(annotated)) {
+            console.log(JSON.stringify({ winner: annotated }, null, 2));
+            return;
+        }
     }
-    const topCandidate = pipeline.find(
-        (e) => e.cappedForecast > 0,
-    ) ?? null;
+
+    const top = ranked.find((c) => c.cappedForecast > 0);
+    const topCandidate = top
+        ? annotateWithMetadata(top, metadata)
+        : null;
     console.log(JSON.stringify({ winner: null, topCandidate }, null, 2));
 }
 
@@ -217,24 +134,29 @@ async function needsCapping() {
 async function status() {
     const rows = await loadAnnotatedRows();
     const ranked = cappedRanking(rows);
-    const pipeline = reconcile(ranked, readPipeline());
-    writePipeline(pipeline);
+    const metadata = readMetadata();
 
-    if (pipeline.length === 0) {
+    const candidates = ranked.filter((c) => c.cappedForecast > 0);
+    if (candidates.length === 0) {
         console.log('No candidates with nonzero forecast.');
         return;
     }
 
-    const label = { witnessed: 'ready', capped: 'needs witnesses', uncapped: 'needs capping' };
-    for (const entry of pipeline) {
-        const sessCount = entry.sessions.length;
-        const witCount = (entry.witnesses ?? []).length;
+    for (const candidate of candidates) {
+        const annotated = annotateWithMetadata(candidate, metadata);
+        const ready = isReady(annotated);
+        const allCapped = candidate.sessions.every(
+            (s) => s.capStable || s.divergenceZeroed,
+        );
+        const label = ready ? 'ready'
+            : allCapped ? 'needs witnesses'
+            : 'needs capping';
         console.log(
-            `  ${entry.id}`
-            + `  fc=${entry.cappedForecast}`
-            + `  sess=${sessCount}`
-            + `  wit=${witCount}`
-            + `  [${label[entry.readiness] ?? entry.readiness}]`,
+            `  ${annotated.id}`
+            + `  fc=${candidate.cappedForecast}`
+            + `  sess=${candidate.sessions.length}`
+            + `  wit=${annotated.witnesses.length}`
+            + `  [${label}]`,
         );
     }
 }
@@ -242,47 +164,92 @@ async function status() {
 async function advance() {
     const rows = await loadAnnotatedRows();
     const ranked = cappedRanking(rows);
-    const pipeline = reconcile(ranked, readPipeline());
-    writePipeline(pipeline);
+    const metadata = readMetadata();
 
-    const uncapped = pipeline.filter((e) => e.readiness === 'uncapped');
-    const capped = pipeline.filter((e) => e.readiness === 'capped');
+    const candidates = ranked.filter((c) => c.cappedForecast > 0);
+    const needsCappingList = [];
+    const needsWitnessList = [];
+    let readyCount = 0;
+
+    for (const candidate of candidates) {
+        const annotated = annotateWithMetadata(candidate, metadata);
+        if (isReady(annotated)) {
+            readyCount++;
+            continue;
+        }
+        const allCapped = candidate.sessions.every(
+            (s) => s.capStable || s.divergenceZeroed,
+        );
+        if (!allCapped) {
+            for (const s of candidate.sessions) {
+                if (!s.capStable && !s.divergenceZeroed) {
+                    needsCappingList.push({
+                        session: s.session,
+                        boundary: candidate.member,
+                    });
+                }
+            }
+        } else if (needsWitnessList.length < 3) {
+            needsWitnessList.push(candidate.member);
+        }
+    }
 
     console.log(JSON.stringify({
-        total: pipeline.length,
-        uncapped: uncapped.length,
-        capped: capped.length,
-        witnessed: pipeline.length - uncapped.length - capped.length,
-        needsCapping: uncapped.flatMap((e) =>
-            e.sessions
-                .filter((s) => !s.capStable && !s.divergenceZeroed)
-                .map((s) => ({ session: s.session, boundary: e.member })),
-        ),
-        needsWitness: capped.slice(0, 3).map((e) => e.member),
+        total: candidates.length,
+        ready: readyCount,
+        needsCapping: needsCappingList,
+        needsWitness: needsWitnessList,
     }, null, 2));
+}
+
+async function setMetadata() {
+    const chunks = [];
+    for await (const chunk of process.stdin) chunks.push(chunk);
+    const input = JSON.parse(Buffer.concat(chunks).toString());
+
+    if (!input.member) throw new Error('metadata must include "member"');
+
+    const metadata = readMetadata();
+    metadata[input.member] = {
+        id: input.id ?? generateId(input.member, metadata),
+        witnesses: input.witnesses ?? [],
+        detail: input.detail ?? null,
+        owners: input.owners ?? null,
+        boundary: input.boundary ?? null,
+        producedAt: input.producedAt ?? null,
+    };
+    writeMetadata(metadata);
+    console.log(JSON.stringify({
+        stored: input.member,
+        id: metadata[input.member].id,
+    }));
 }
 
 async function main(args) {
     if (args.includes('--help') || args.includes('-h')) {
         console.log(
             'Usage: node scripts/pipeline-candidates.mjs <mode>\n'
-            + '\n  --ready-winner     print the top witnessed candidate'
-            + ' or {"winner": null}'
+            + '\n  --ready-winner     print the top candidate with'
+            + ' metadata or {"winner": null}'
             + '\n  --needs-capping    list sessions with stale caps'
-            + '\n  --status           print readiness summary and'
-            + ' reconcile the pipeline file'
-            + '\n  --advance          reconcile, report what needs'
-            + ' capping and witnessing',
+            + '\n  --status           print readiness summary'
+            + '\n  --advance          report what needs capping'
+            + ' and witnessing'
+            + '\n  --set-metadata     read JSON from stdin, store'
+            + ' metadata for its member',
         );
         return;
     }
 
-    const modes = ['--ready-winner', '--needs-capping', '--status', '--advance'];
+    const modes = [
+        '--ready-winner', '--needs-capping', '--status',
+        '--advance', '--set-metadata',
+    ];
     const selected = modes.filter((m) => args.includes(m));
     if (selected.length === 0) {
         throw new Error(
             'specify one mode: --ready-winner, --needs-capping,'
-            + ' --status, or --advance',
+            + ' --status, --advance, or --set-metadata',
         );
     }
     if (selected.length > 1) {
@@ -294,6 +261,7 @@ async function main(args) {
     case '--needs-capping': return needsCapping();
     case '--status': return status();
     case '--advance': return advance();
+    case '--set-metadata': return setMetadata();
     }
 }
 
