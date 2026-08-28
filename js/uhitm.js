@@ -147,6 +147,7 @@ import {
     S_TROLL,
 } from './monsters.js';
 import {
+    carried,
     is_ammo,
     is_launcher,
     is_missile,
@@ -1875,4 +1876,36 @@ export function passive(
        do-nothing default arm left. The draw happens exactly where C makes it
        and its value decides nothing. */
     if (maliveb && !mon.mcan) random.rn2(3);
+}
+
+// C ref: uhitm.c passive_obj() (6122-6190), the no-passive-attack arm used
+// when a monster-thrown ordinary weapon lands on the unpolymorphed hero. The
+// first AT_NONE slot is C's passive-attack slot; ordinary human form leaves its
+// damage type at AD_PHYS, whose switch arm changes neither object nor state.
+export function passive_obj(mon, obj, mattk, state = game, env = {}) {
+    if (!obj)
+        return requireAttackOperation(env, 'unsupported')(
+            'passive object lookup without an object',
+        );
+    if (!mattk) {
+        for (let i = 0; i < NATTK; ++i) {
+            if (mon.data.mattk[i].aatyp === AT_NONE) {
+                mattk = mon.data.mattk[i];
+                break;
+            }
+        }
+        if (!mattk) return;
+    }
+    if (mattk.adtyp !== AD_PHYS) {
+        return requireAttackOperation(env, 'unsupported')(
+            'passive object damage',
+        );
+    }
+    // C calls update_inventory() only when the affected object is carried.
+    // The ranged-settlement caller has just placed it on the floor.
+    if (carried(obj)) {
+        return requireAttackOperation(env, 'unsupported')(
+            'carried passive object inventory update',
+        );
+    }
 }

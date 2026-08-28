@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    A_DEX,
     COULD_SEE,
     D_CLOSED,
     DOOR,
@@ -11,16 +12,25 @@ import {
     M_AP_NOTHING,
     M_AP_OBJECT,
     NO_WEAPON_WANTED,
+    OBJ_FLOOR,
     ROOM,
     STONE,
     NEED_WEAPON,
     W_WEP,
 } from '../js/const.js';
+import { effective_attribute, exercise } from '../js/attrib.js';
+import { flooreffects } from '../js/do.js';
+import { should_mulch_missile } from '../js/dothrow.js';
 import { game } from '../js/gstate.js';
+import { losehp } from '../js/hack.js';
+import { add_to_minv, obj_extract_self, stackobj } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_GIANT_RAT, PM_STONE_GIANT } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
-import { mksobj, mksobj_at } from '../js/obj.js';
+import { clear_dknown, mksobj, mksobj_at, place_object, remove_object }
+    from '../js/obj.js';
+import { observe_object } from '../js/o_init.js';
+import { killer_xname, mshot_xname } from '../js/objnam.js';
 import {
     ARROW,
     BOULDER,
@@ -28,9 +38,11 @@ import {
     ORCISH_DAGGER,
     WAN_STRIKING,
 } from '../js/objects.js';
-import { blocking_terrain, lined_up, linedup, m_lined_up, thrwmu }
+import { blocking_terrain, lined_up, linedup, m_lined_up, m_throw, thitu, thrwmu }
     from '../js/mthrowu.js';
+import { passive_obj } from '../js/uhitm.js';
 import { block_point, vision_reset } from '../js/vision.js';
+import { dmgval, setmnotwielded } from '../js/weapon.js';
 
 // The same Valkyrie several other suites replay: a lit starting room on
 // dungeon level one, with the hero standing in it.
@@ -143,6 +155,7 @@ test('thrwmu announces one visible ordinary throw before missile flight',
             canSeeMonster: () => true,
             monsterName: () => 'The giant rat',
             message: (text) => { messages.push(text); },
+            endMulti: () => {},
             throwMissile: (monster, x, originY, dx, dy, range, obj) => {
                 assert.equal(monster, subject);
                 assert.deepEqual(
@@ -164,6 +177,165 @@ test('thrwmu announces one visible ordinary throw before missile flight',
             // objects.c identifies an unknown orcish dagger as "crude dagger".
             'The giant rat throws a crude dagger!',
         ]);
+    });
+
+test('thrwmu carries an ordinary dagger hit through floor settlement',
+    async () => {
+        const state = await hero();
+        const y = state.u.uy;
+        // Four squares produces three rn2(5) flight checks before the fourth
+        // step reaches the hero. It is also inside mthrowu.c's BOLT_LIM.
+        const subject = attacker(state, state.u.ux + 4, y, state.u.ux, y);
+        const dagger = mksobj(ORCISH_DAGGER, false, false, { state });
+        // The witness uses one unidentified, ordinary orcish dagger. Quantity
+        // one selects monmulti()'s no-draw arm and extraction of the whole item.
+        state.objects[ORCISH_DAGGER].oc_name_known = 0;
+        dagger.quan = 1;
+        add_to_minv(subject, dagger, { state });
+        dagger.owornmask = W_WEP;
+        subject.mw = dagger;
+        subject.weapon_check = NO_WEAPON_WANTED;
+        clearRow(state, state.u.ux, subject.mx, y);
+        setCouldSee(state, subject.mx, y, true);
+        state.u.ux0 = state.u.ux;
+        state.u.uy0 = state.u.uy;
+        state.gt ??= {};
+        const hpBefore = state.u.uhp;
+        const messages = [];
+        const draws = [];
+        const temporaryDisplay = [];
+        let stoppedOccupation = 0;
+        let endedMulti = 0;
+        const catchBound = 100 - effective_attribute(state, A_DEX);
+        const random = {
+            rn2: (bound) => {
+                draws.push(['rn2', bound]);
+                // A nonzero catch roll makes the hero fail to catch the dagger;
+                // the flight and exercise values do not change this chosen arm.
+                return bound === catchBound ? 1 : 0;
+            },
+            rnd: (bound) => {
+                draws.push(['rnd', bound]);
+                // ORCISH_DAGGER rolls d3 damage; 2 pins the witnessed damage.
+                // rnd(20)=1 then makes u.uac + hitv exceed the attack roll.
+                return bound === 3 ? 2 : 1;
+            },
+            d: () => assert.fail('ordinary dagger damage does not roll d()'),
+        };
+
+        await thrwmu(subject, {
+            state,
+            random,
+            canSeeMonster: () => true,
+            canSeeSquare: () => true,
+            // This constructed ray contains no intervening monster; m_at() is
+            // covered on live level grids by the end-to-end differential.
+            monsterAt: () => null,
+            monsterName: () => 'The giant rat',
+            message: (text) => { messages.push(text); },
+            objectToGlyph: () => 777,
+            temporaryDisplay: async (x, atY) => {
+                temporaryDisplay.push([x, atY]);
+            },
+            throwMissile: m_throw,
+            delayOutput: async () => {},
+            clearObjectKnowledge: (obj) => clear_dknown(obj, state),
+            observeObject: (obj) => observe_object(obj, state),
+            extractObject: (obj) => obj_extract_self(obj, { state }),
+            setMonsterNotWielded: (monster, obj) =>
+                setmnotwielded(monster, obj, { state }),
+            damageValue: (obj, target) =>
+                dmgval(obj, target, state, { random }),
+            hitHero: (hitv, damage, obj) => thitu(
+                hitv,
+                damage,
+                obj,
+                null,
+                state,
+                {
+                    random,
+                    message: (text) => { messages.push(text); },
+                    losehp,
+                    exercise: (index, increase, exerciseState) => exercise(
+                        index,
+                        increase,
+                        exerciseState,
+                        random,
+                        { encumberMessage: async () => {} },
+                    ),
+                    unsupported: (reason) => assert.fail(reason),
+                    requireHit: true,
+                },
+            ),
+            stopOccupation: async () => { stoppedOccupation++; },
+            shouldMulch: (obj) => should_mulch_missile(obj, state, {
+                unsupported: (reason) => assert.fail(reason),
+            }),
+            shipsAway: () => false,
+            floorEffects: (obj, x, atY, verb) => flooreffects(
+                obj,
+                x,
+                atY,
+                verb,
+                { state, unsupported: (reason) => assert.fail(reason) },
+            ),
+            placeObject: (obj, x, atY) => place_object(obj, x, atY, { state }),
+            passiveObject: (monster, obj, attack) => passive_obj(
+                monster,
+                obj,
+                attack,
+                state,
+                { unsupported: (reason) => assert.fail(reason) },
+            ),
+            stackObject: (obj) => stackobj(obj, {
+                state,
+                hooks: { extractExternalObject: remove_object },
+            }),
+            endMulti: () => { endedMulti++; },
+            unsupported: (reason) => assert.fail(reason),
+        });
+
+        assert.deepEqual(messages, [
+            'The giant rat throws a crude dagger!',
+            'You are hit by a crude dagger.',
+        ]);
+        assert.equal(state.u.uhp, hpBefore - 2);
+        assert.equal(subject.mw, null);
+        assert.equal(subject.minvent, null);
+        assert.equal(dagger.where, OBJ_FLOOR);
+        assert.equal(dagger.ocarry, null);
+        assert.equal(state.level.objects[state.u.ux][y], dagger);
+        assert.equal(state.gt.thrownobj, null);
+        assert.equal(stoppedOccupation, 1);
+        assert.equal(endedMulti, 1);
+        assert.deepEqual(state.m_shot, { s: false, o: 0, n: 0, i: 0 });
+        assert.deepEqual(draws, [
+            // Three unobstructed intermediate squares each spend forcehit.
+            ['rn2', 5], ['rn2', 5], ['rn2', 5],
+            // The eligible Valkyrie fails the one-in-catchBound catch roll.
+            ['rn2', catchBound],
+            // Damage, hit, then exercise(A_STR, FALSE), in source order.
+            ['rnd', 3], ['rnd', 20], ['rn2', 2],
+        ]);
+        assert.equal(temporaryDisplay.at(-1)?.[0], -7);
+    });
+
+test('ordinary dagger naming and settlement helpers take their no-effect arms',
+    async () => {
+        const state = await hero();
+        const dagger = mksobj(ORCISH_DAGGER, false, false, { state });
+        // Unknown type knowledge produces the visible description, while a
+        // killer name temporarily identifies the same type and adds an article.
+        state.objects[ORCISH_DAGGER].oc_name_known = 0;
+        assert.equal(mshot_xname(dagger, state), 'crude dagger');
+        assert.equal(killer_xname(dagger, state), 'an orcish dagger');
+        assert.equal(state.objects[ORCISH_DAGGER].oc_name_known, 0);
+        assert.equal(should_mulch_missile(dagger, state, {
+            unsupported: (reason) => assert.fail(reason),
+        }), false);
+        assert.equal(passive_obj(state.youmonst, dagger, null, state, {
+            unsupported: (reason) => assert.fail(reason),
+        }), undefined);
     });
 
 test('blocking_terrain answers for each terrain mthrowu.c names', async () => {

@@ -109,9 +109,11 @@ import {
 } from './monsters.js';
 import {
     ammo_and_launcher,
+    greatest_erosion,
     isFlammable,
     is_ammo,
     is_flimsy,
+    is_missile,
     is_wet_towel,
     matching_launcher,
     obj_no_longer_held,
@@ -191,6 +193,26 @@ export class UnsupportedThrowError extends Error {
         this.name = 'UnsupportedThrowError';
         this.what = what;
     }
+}
+
+// C ref: dothrow.c should_mulch_missile() (1974-2002), leading immediate-false
+// arm. Ordinary weapons such as daggers are neither ammo nor missiles, so they
+// survive a hit without a random draw. Breakable ammunition and missiles stay
+// behind the caller's named boundary until their erosion, blessing, and tough-
+// gem draws are part of a selected behavior slice.
+export function should_mulch_missile(obj, state = game, env = {}) {
+    if (!obj || (!(is_ammo(obj, state) || is_missile(obj, state))
+        || obj.otyp === BOOMERANG
+        || objectType(obj, state).oc_magic)) {
+        return false;
+    }
+    // Resolve this read before refusing so callers and tests pin the complete
+    // source predicate rather than a type-specific dagger exception.
+    greatest_erosion(obj);
+    const unsupported = env.unsupported;
+    if (typeof unsupported !== 'function')
+        throw new TypeError('should_mulch_missile requires unsupported');
+    return unsupported('missile mulching');
 }
 
 // C ref: dothrow.c:30-34 AutoReturn(). A weapon that comes back to the hand
@@ -878,7 +900,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
 // ship_object() asks it first: is there anywhere below this square for a
 // falling object to go? Everything ship_object() then does is unported, so
 // the caller stops when the answer is yes.
-function shipsAway(x, y, state) {
+export function shipsAway(x, y, state) {
     const stway = stairway_at(x, y, state);
     if (stway && !stway.up) return true;
     const ttmp = t_at(x, y, state);

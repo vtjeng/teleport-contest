@@ -784,6 +784,14 @@ export function xnameFresh(obj, state) {
     return base.replace(/^the /iu, '');
 }
 
+// C ref: objnam.c mshot_xname() (1088-1102), quantity-one arm. The multishot
+// prefix belongs to a volley this port still refuses before naming a missile.
+export function mshot_xname(obj, state = game) {
+    if ((state.m_shot?.n ?? 0) > 1 && state.m_shot.o === obj.otyp)
+        unsupported('multishot missile ordinal', obj);
+    return xnameFresh(obj, state);
+}
+
 // C ref: objnam.c minimal_xname() (1038-1086). Builds a bare object with
 // only otyp, oclass, dknown, known, and quan=1, suppresses oc_uname and
 // conditionally oc_name_known on the type, formats through
@@ -1200,6 +1208,57 @@ export function cxname(obj, state = game) {
     if (obj.otyp === CORPSE)
         return corpse_xname(obj, null, CXN_NORMAL, state);
     return xnameFresh(obj, state);
+}
+
+// C ref: objnam.c killer_xname() (1940-2005), ordinary non-artifact object
+// arm. Death reasons identify the object type but suppress BUC, erosion-proof,
+// grease, poison, and player-assigned names. All temporary identification is
+// restored before returning, so calculating a nonfatal hit's killer string
+// does not teach the hero anything.
+export function killer_xname(obj, state = game) {
+    if (obj.oartifact)
+        unsupported('artifact killer name', obj);
+    if (obj.otyp === CORPSE || obj.otyp === SLIME_MOLD)
+        unsupported('corpse or slime-mold killer name', obj);
+
+    const type = objectType(obj, state);
+    const savedObject = { ...obj };
+    const savedExtra = obj.oextra;
+    const savedNameKnown = type.oc_name_known;
+    const savedUserName = type.oc_uname;
+    state.gd ??= {};
+    state.gd.distantname = (state.gd.distantname ?? 0) + 1;
+    try {
+        obj.known = true;
+        obj.dknown = true;
+        obj.bknown = false;
+        obj.rknown = false;
+        obj.greased = false;
+        obj.blessed = false;
+        obj.cursed = false;
+        obj.opoisoned = false;
+        if (savedExtra?.oname) {
+            obj.oextra = { ...savedExtra };
+            delete obj.oextra.oname;
+        }
+        type.oc_name_known = true;
+        type.oc_uname = null;
+
+        let name = xnameFresh(obj, state);
+        const possessive = name.toLowerCase().includes("'s ")
+            || name.toLowerCase().includes("s' ");
+        if (obj.quan === 1 && !possessive) {
+            name = (obj_is_pname(obj, state) || the_unique_obj(obj, state))
+                ? the(name, state) : an(name);
+        }
+        return name;
+    } finally {
+        Object.assign(obj, savedObject);
+        obj.oextra = savedExtra;
+        type.oc_name_known = savedNameKnown;
+        type.oc_uname = savedUserName;
+        state.gd.distantname -= 1;
+    }
 }
 
 // C ref: objnam.c singular() (2087-2105). Names one item of a stack by
