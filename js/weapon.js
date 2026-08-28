@@ -59,6 +59,7 @@ import {
 } from './const.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
+import { hands_obj } from './invent.js';
 import { m_carrying } from './mon.js';
 import {
     bigmonst,
@@ -625,22 +626,29 @@ function launcherFor(monster, skill, env) {
     }
 }
 
-// C ref: weapon.c select_rwep(). The C propellor global is deliberately not
-// copied here: current callers only need the selected object, and launcher
-// choice remains a local prerequisite of that selection.
+// C ref: weapon.c select_rwep(). The return value remains C's missile. When a
+// caller supplies propellorResult, its value receives C's gp.propellor side
+// channel: hands_obj for a thrown weapon, a launcher or reusable weapon object
+// when one must be wielded, and null when ammunition has no launcher.
 export function select_rwep(monster, env = {}) {
     const normalized = weaponEnv(env);
     const state = normalized.state;
     const canSeeSquare = normalized.couldSee ?? couldsee;
+    const propellorResult = normalized.propellorResult;
+    let propellor = hands_obj;
+    const answer = (selected) => {
+        if (propellorResult) propellorResult.value = propellor;
+        return selected;
+    };
     let selected = selectObject(monster, EGG, normalized);
-    if (selected) return selected;
+    if (selected) return answer(selected);
     if (monster.data?.mlet === S_KOP) {
         selected = selectObject(monster, CREAM_PIE, normalized);
-        if (selected) return selected;
+        if (selected) return answer(selected);
     }
     if (throws_rocks(monster.data)) {
         selected = selectObject(monster, BOULDER, normalized);
-        if (selected) return selected;
+        if (selected) return answer(selected);
     }
 
     const current = monster.mw;
@@ -657,7 +665,10 @@ export function select_rwep(monster, env = {}) {
         monster.mux,
         monster.muy,
     ) <= 13 && seesHeroLine()) {
-        if (current?.oartifact === ART_SNICKERSNEE) return current;
+        if (current?.oartifact === ART_SNICKERSNEE) {
+            propellor = current;
+            return answer(current);
+        }
         const strong = strongmonst(monster.data);
         const wearingShield = Boolean(monster.misc_worn_check & W_ARMS);
         for (const type of POLEARMS) {
@@ -668,8 +679,10 @@ export function select_rwep(monster, env = {}) {
                 continue;
             }
             selected = selectObject(monster, type, normalized);
-            if (selected && (selected === current || !wieldedOnly))
-                return selected;
+            if (selected && (selected === current || !wieldedOnly)) {
+                propellor = selected;
+                return answer(selected);
+            }
         }
     }
 
@@ -689,8 +702,10 @@ export function select_rwep(monster, env = {}) {
             if (aklysData.oc_material !== SILVER
                 || !mon_hates_silver(monster)) {
                 selected = selectObject(monster, AKLYS, normalized);
-                if (selected && (selected === current || !wieldedOnly))
-                    return selected;
+                if (selected && (selected === current || !wieldedOnly)) {
+                    propellor = selected;
+                    return answer(selected);
+                }
             }
         }
     }
@@ -702,15 +717,17 @@ export function select_rwep(monster, env = {}) {
             for (let obj = monster.minvent; obj; obj = obj.nobj) {
                 if (obj.oclass === GEM_CLASS
                     && (obj.otyp !== LOADSTONE || !obj.cursed)) {
-                    return obj;
+                    propellor = m_carrying(monster, SLING, state);
+                    return answer(obj);
                 }
             }
         }
 
         const skill = objectType(type, state).oc_skill;
+        propellor = hands_obj;
         let launcher = skill < 0
             ? launcherFor(monster, -skill, normalized)
-            : true;
+            : hands_obj;
         if (skill < 0
             && current
             && mwelded(current, state)
@@ -718,11 +735,13 @@ export function select_rwep(monster, env = {}) {
             && monster.weapon_check === NO_WEAPON_WANTED) {
             launcher = null;
         }
+        propellor = launcher;
         if (!launcher) continue;
 
         if (type === LOADSTONE) {
             for (let obj = monster.minvent; obj; obj = obj.nobj) {
-                if (obj.otyp === LOADSTONE && !obj.cursed) return obj;
+                if (obj.otyp === LOADSTONE && !obj.cursed)
+                    return answer(obj);
             }
             continue;
         }
@@ -730,10 +749,10 @@ export function select_rwep(monster, env = {}) {
         if (selected
             && !selected.oartifact
             && !(selected === current && mwelded(selected, state))) {
-            return selected;
+            return answer(selected);
         }
     }
-    return null;
+    return answer(null);
 }
 
 // C ref: weapon.c select_hwep().

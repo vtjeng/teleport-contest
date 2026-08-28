@@ -10,6 +10,7 @@
 //
 // Delete this file once ported coverage makes the boundary unnecessary.
 
+import { artifact_light } from './artifacts.js';
 import {
     BEAR_TRAP,
     BURN,
@@ -45,9 +46,12 @@ import {
 import { capitalizedMonsterName } from './do_name.js';
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
+import { hands_obj } from './invent.js';
 import { any_light_source } from './light.js';
 import { m_dowear, set_mimic_sym } from './makemon_create.js';
 import { mattacku } from './mhitu.js';
+import { thrwmu } from './mthrowu.js';
+import { AKLYS } from './objects.js';
 import {
     adaptMonsterActionToDochugwSignature,
     movemon_singlemon,
@@ -137,6 +141,7 @@ import {
     select_rwep,
 } from './weapon.js';
 import { will_weld } from './wield.js';
+import { is_pole } from './worn.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 const SPECIAL_RESPONDERS = new Set([PM_SHRIEKER, PM_MEDUSA, PM_ERINYS]);
@@ -934,14 +939,46 @@ async function moveSimplePet(monster, after, env) {
 // runSimpleMonsterAction() binds mon_wield_item()'s selectRangedWeapon
 // operation to a refusal and going through it would stop every monster C
 // leaves alone.
-function throwRangedWeapon(monster, env) {
-    const selected = select_rwep(monster, {
+async function throwRangedWeapon(monster, env) {
+    const selectionEnv = {
         ...env,
         touchArtifact: () => unsupported('monster artifact weapon selection'),
+    };
+    if (monster.weapon_check === NEED_WEAPON || !monster.mw) {
+        const propellorResult = {};
+        const selected = select_rwep(monster, {
+            ...selectionEnv,
+            propellorResult,
+        });
+        const propellor = propellorResult.value;
+        if (selected && (is_pole(selected, env.state)
+            || selected.otyp === AKLYS)) {
+            unsupported('monster polearm or returning-weapon action');
+        }
+        if (propellor && propellor !== hands_obj) {
+            if (monster.mw)
+                unsupported('monster ranged wield with a current weapon');
+            if (propellor.oartifact || artifact_light(propellor))
+                unsupported('monster ranged artifact wield');
+            if (will_weld(propellor, env.state))
+                unsupported('monster ranged wield with a welded weapon');
+        }
+    }
+    return thrwmu(monster, {
+        ...selectionEnv,
+        canSeeMonster: (subject) => canSeeMonster(subject, env.state),
+        wieldMessage: async (subject, obj, detail) => {
+            if (env.planning) return;
+            await ttyPline(
+                `${capitalizedMonsterName(subject, env.state)} wields `
+                + `${donameFresh(obj, env.state)}`
+                + `${detail.exclaim ? '!' : '.'}`,
+                env.state,
+            );
+        },
+        continueRangedAttack: () =>
+            unsupported('monster ranged weapon action'),
     });
-    if (selected) unsupported('monster ranged weapon action');
-    if (monster.weapon_check === NEED_WEAPON || !monster.mw)
-        monster.weapon_check = NEED_WEAPON;
 }
 
 // The dochug() operation that mhitu.c mattacku() sits behind. Everything it

@@ -102,6 +102,8 @@ import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
 import { ART_STING } from '../js/artifacts.js';
 import {
+    ARROW,
+    BOW,
     DAGGER,
     ELVEN_DAGGER,
     FOOD_RATION,
@@ -883,6 +885,44 @@ test('a later ranged refusal discards a planned fog-region leave', async () => {
     assert.deepEqual(rngSnapshot(), beforeRandom);
     assert.deepEqual(game.level.regions, []);
 });
+
+test('a ranged attacker preflights and then spends its turn wielding a bow',
+    async () => {
+        const target = await prepareSelectedAction({ pmidx: PM_GNOME });
+        const arrow = monsterObject(ARROW);
+        // 9202 differs from monsterObject()'s default 9201 arrow identity, as
+        // C's inventory chain requires distinct object IDs for distinct items.
+        const bow = monsterObject(BOW, 9202);
+        arrow.nobj = bow;
+        target.monster.minvent = arrow;
+        target.monster.mw = null;
+        target.monster.weapon_check = NEED_WEAPON;
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        game.viz_array[target.heroY][target.destinationX] |= IN_SIGHT;
+        // The constructed action starts after the command loop has already
+        // dismissed startup output. Clearing that inherited line prevents the
+        // wield message from asking this direct caller for an unrelated key.
+        game._pending_message = '';
+        game.nhDisplay.toplines = '';
+        game.nhDisplay.toplin = 0;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        const beforeRandom = rngSnapshot();
+
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
+        assert.deepEqual(rngSnapshot(), beforeRandom);
+        assert.equal(target.monster.mw, null);
+        assert.equal(bow.owornmask ?? 0, 0);
+
+        await runSimpleMonsterAction(target.monster, { state: game });
+        assert.equal(target.monster.mw, bow);
+        assert.equal(bow.owornmask, W_WEP);
+        assert.equal(target.monster.weapon_check, NEED_WEAPON);
+        assert.match(game.nhDisplay.toplines, /The gnome wields a bow!/u);
+    });
 
 test('fog-region transition callbacks remain fail-closed and inert',
     async () => {

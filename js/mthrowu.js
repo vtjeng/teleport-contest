@@ -1,12 +1,12 @@
 // mthrowu.js -- Monster ranged attacks and hero-is-hit-by-missile logic.
 //
 // C ref: mthrowu.c. This file holds thitu() (75-155, hero hit by non-monster
-// missile), the line-of-fire tests every ranged monster action asks before it
-// acts: blocking_terrain() (1281-1288), linedup() (1330-1372),
+// missile), thrwmu()'s ranged-weapon wield-turn head (1172-1194), and the
+// line-of-fire tests every ranged monster action asks before it acts:
+// blocking_terrain() (1281-1288), linedup() (1330-1372),
 // m_lined_up() (1375-1394) and lined_up() (1397-1401).
-// The functions that act on their answer -- thrwmu(), m_throw(), breamu() and
-// spitmu() -- are not ported, and js/unported_monster_actions.js stops the
-// monsters that would reach them.
+// The rest of thrwmu(), plus m_throw(), breamu() and spitmu(), remains behind
+// js/unported_monster_actions.js.
 
 import {
     A_CON,
@@ -22,11 +22,14 @@ import {
     M_AP_NOTHING,
     M_AP_TYPE,
     Upolyd,
+    NEED_RANGED_WEAPON,
+    NEED_WEAPON,
     isok,
     u_at,
 } from './const.js';
 import { game } from './gstate.js';
 import { distmin, sgn, upstart } from './hacklib.js';
+import { hands_obj } from './invent.js';
 import { m_carrying } from './mon.js';
 import { throws_rocks } from './mondata.js';
 // closed_door() belongs to monmove.c, and js/monmove.js imports lined_up()
@@ -39,6 +42,7 @@ import { ACID_VENOM, BOULDER, SILVER, WAN_STRIKING } from './objects.js';
 import { an, vtense } from './objnam.js';
 import { rn2, rnd } from './rng.js';
 import { clear_path, couldsee } from './vision.js';
+import { mon_wield_item, select_rwep } from './weapon.js';
 import { exclam } from './zap.js';
 
 // C ref: mthrowu.c blocking_terrain() (1281-1288). "return TRUE if terrain at
@@ -151,6 +155,41 @@ function heroIsBlind(state) {
         (blindness?.intrinsic || blindness?.extrinsic)
         && !blindness?.blocked,
     );
+}
+
+// C ref: mthrowu.c thrwmu() (1172-1194), through the source-ordered wield
+// turn and the first selected missile. The attack continuation remains an
+// injected boundary until monshoot() and m_throw() are ported.
+export async function thrwmu(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const env = { ...rawEnv, state };
+
+    if (monster.weapon_check === NEED_WEAPON || !monster.mw) {
+        monster.weapon_check = NEED_RANGED_WEAPON;
+        const selectRangedWeapon = (subject, selectionEnv) => {
+            const propellorResult = {};
+            select_rwep(subject, {
+                ...selectionEnv,
+                propellorResult,
+            });
+            return propellorResult.value;
+        };
+        if (await mon_wield_item(monster, {
+            ...env,
+            handsObject: hands_obj,
+            selectRangedWeapon,
+        }) !== 0) {
+            return 1;
+        }
+    }
+
+    const selected = select_rwep(monster, env);
+    if (!selected) return 0;
+    const continueRangedAttack = env.continueRangedAttack;
+    if (typeof continueRangedAttack !== 'function') {
+        throw new TypeError('thrwmu requires a continueRangedAttack operation');
+    }
+    return continueRangedAttack(monster, selected, env);
 }
 
 // C ref: mthrowu.c thitu() (75-155). "hero is hit by something other than a

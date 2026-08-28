@@ -43,6 +43,7 @@ import {
     W_WEP,
 } from '../js/const.js';
 import { newMonster } from '../js/monst.js';
+import { hands_obj } from '../js/invent.js';
 import {
     M2_STRONG,
     PM_ARCHEOLOGIST,
@@ -328,6 +329,40 @@ test('select_rwep requires launchers and only selects petrifying eggs', () => {
     });
     subject.minvent = inventory(ordinaryEgg, dagger, cockatriceEgg);
     assert.equal(select_rwep(subject, { state }), cockatriceEgg);
+});
+
+test('select_rwep reports the propellor separately from the missile', () => {
+    const state = makeState();
+    const subject = monster(state, PM_NEWT, {
+        // Five squares keeps weapon.c:560's polearm preference irrelevant while
+        // leaving every ordinary ranged-weapon lookup available.
+        mx: 4,
+        my: 4,
+        mux: 9,
+        muy: 4,
+    });
+    const arrow = object(state, ARROW);
+    const bow = object(state, BOW);
+    subject.minvent = inventory(arrow, bow);
+    const launched = {};
+
+    assert.equal(select_rwep(subject, {
+        state,
+        propellorResult: launched,
+    }), arrow);
+    assert.equal(launched.value, bow);
+
+    // A dagger needs no launcher. C represents that answer with &hands_obj,
+    // distinct from NULL, so mon_wield_item() leaves the monster empty-handed
+    // and thrwmu() proceeds to the missile on the same turn.
+    const dagger = object(state, DAGGER);
+    subject.minvent = dagger;
+    const thrown = {};
+    assert.equal(select_rwep(subject, {
+        state,
+        propellorResult: thrown,
+    }), dagger);
+    assert.equal(thrown.value, hands_obj);
 });
 
 test('mon_wield_item selects hand-to-hand weapons and reports welded state', async () => {

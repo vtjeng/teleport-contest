@@ -12,14 +12,16 @@ import {
     M_AP_OBJECT,
     ROOM,
     STONE,
+    NEED_WEAPON,
+    W_WEP,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_GIANT_RAT, PM_STONE_GIANT } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { mksobj, mksobj_at } from '../js/obj.js';
-import { BOULDER, WAN_STRIKING } from '../js/objects.js';
-import { blocking_terrain, lined_up, linedup, m_lined_up }
+import { ARROW, BOULDER, BOW, WAN_STRIKING } from '../js/objects.js';
+import { blocking_terrain, lined_up, linedup, m_lined_up, thrwmu }
     from '../js/mthrowu.js';
 import { block_point, vision_reset } from '../js/vision.js';
 
@@ -75,6 +77,33 @@ function setCouldSee(state, x, y, visible) {
     if (visible) state.viz_array[y][x] |= COULD_SEE;
     else state.viz_array[y][x] &= ~COULD_SEE;
 }
+
+test('thrwmu spends an empty-handed launcher wield turn', async () => {
+    const state = await hero();
+    const y = state.u.uy;
+    const subject = attacker(state, state.u.ux + 5, y, state.u.ux, y);
+    subject.weapon_check = NEED_WEAPON;
+    subject.mw = null;
+    const arrow = mksobj(ARROW, false, false, { state });
+    const bow = mksobj(BOW, false, false, { state });
+    arrow.nobj = bow;
+    bow.nobj = null;
+    subject.minvent = arrow;
+    const messages = [];
+
+    assert.equal(await thrwmu(subject, {
+        state,
+        canSeeMonster: () => true,
+        wieldMessage: (_monster, obj, detail) => {
+            messages.push([obj.otyp, detail.exclaim]);
+        },
+        continueRangedAttack: () => assert.fail('wield turn continued'),
+    }), 1);
+    assert.equal(subject.mw, bow);
+    assert.equal(subject.weapon_check, NEED_WEAPON);
+    assert.equal(bow.owornmask, W_WEP);
+    assert.deepEqual(messages, [[BOW, true]]);
+});
 
 test('blocking_terrain answers for each terrain mthrowu.c names', async () => {
     const state = await hero();
