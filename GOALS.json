@@ -5584,6 +5584,41 @@
         "screens": 31,
         "rng": 50
       }
+    },
+    {
+      "id": "rub",
+      "status": "open",
+      "boundary": "#rub",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 1,
+        "basis": "Capped look-ahead: seed0108-wizard-extcmd-wishlist cappedStretch=1.",
+        "sessions": [
+          "seed0108-wizard-extcmd-wishlist"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0108-wizard-extcmd-wishlist",
+            "evidence": "The development replay’s sole segment uses seed 108 at 2000-01-10 09:00:00 with a male human Wizard in playmode:debug. Before the stop it waits/searches, invokes #wizwish, and enters ‘magic lamp’; recorded C step 24 creates inventory slot n and prints ‘n - a lamp.’ At steps 25-29 it enters #rub plus newline. Because extmenu and force_invmenu are not enabled by the session options, tty_get_ext_cmd() uses the line prompt, mungspaces ‘rub’, and extcmds_match(..., ECM_IGNOREAC|ECM_EXACTMATCH) selects cmd.c extcmdlist[]’s unique rub row (cmd.c:1835-1836), whose handler is dorub. can_do_extcmd() passes: the row is not WIZMODECMD/NOFUZZERCMD, and the newly started, unburied hero does not trigger the missing-IFBURIED refusal. dorub() (apply.c:1785-1813) passes nohands() because the hero is still human, then calls getobj(‘rub’, rub_ok, GETOBJ_NOFLAGS). rub_ok() excludes null/hands and all inventory except oil lamps, magic lamps, brass lanterns, gray stones, and royal jelly; in this replay the wished-for magic lamp at n is the only suggested object. With force_invmenu false, getobj() builds the single-letter choice and C step 29 emits exactly ‘What do you want to rub? [n or ?*]’ with no RNG call. The JavaScript reaches tty_get_ext_cmd(), resolves the same extcmd row, and then js/cmd.js:2581-2586 takes its default fail-closed branch because dorub has no dispatch case, raising ‘the extended command rub is not ported’ before that prompt. The following recorded key n confirms the downstream branch: n is not uwep, so dorub calls wield_tool(); the lamp is not worn, the current weapon is not welded, the human can wield, and no shield/two-handed restriction applies. wield_tool() prints ‘You now wield a lamp.’ and sets uwep; dorub queues itself plus key n and returns ECMD_TIME, so monsters act before the queued second dorub performs the magic-lamp random effect. Thus the first-stop witness is specifically the selectable, unwielded magic-lamp path, not the already-wielded lamp’s rn2/djinni path."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "rub-object-selection",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "c8f865370fa99ce793e2776bc8ab6dd2cd5bd1b2",
+      "openStanding": {
+        "sha": "82e6a12d6450ed4b0cd97a3ef82fd7ed2d119926",
+        "screens": 2748,
+        "rng": 156824
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
