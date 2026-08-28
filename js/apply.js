@@ -95,6 +95,7 @@ import { simple_typename, simpleonames, The } from './objnam.js';
 import {
     ARMOR_CLASS,
     BANANA,
+    BRASS_LANTERN,
     BULLWHIP,
     COIN_CLASS,
     CORPSE,
@@ -105,6 +106,8 @@ import {
     LOCK_PICK,
     LUMP_OF_ROYAL_JELLY,
     MAGIC_MARKER,
+    MAGIC_LAMP,
+    OIL_LAMP,
     POT_OIL,
     POTION_CLASS,
     SKELETON_KEY,
@@ -232,6 +235,39 @@ export function apply_ok(obj, state = game) {
        _EXCLUDE would yield "That is a silly thing to apply.",
        _EXCLUDE_SELECTABLE yields "Sorry, I don't know how to use that." */
     return GETOBJ_EXCLUDE_SELECTABLE;
+}
+
+// C ref: apply.c rub_ok() (1770-1781), the getobj() callback for #rub.
+// Hands are excluded along with every carried object except the three lamps,
+// the four gray stones, and royal jelly.
+export function rub_ok(obj) {
+    if (!obj)
+        return GETOBJ_EXCLUDE;
+
+    if (obj.otyp === OIL_LAMP || obj.otyp === MAGIC_LAMP
+        || obj.otyp === BRASS_LANTERN || is_graystone(obj)
+        || obj.otyp === LUMP_OF_ROYAL_JELLY)
+        return GETOBJ_SUGGEST;
+
+    return GETOBJ_EXCLUDE;
+}
+
+// C ref: apply.c dorub() (1785-1838), through getobj() selection. The object
+// class effects and wield_tool() continuation remain outside this slice, so a
+// selected object stops before dorub() reads its class or changes equipment.
+export async function dorub(state = game) {
+    if (nohands(state.youmonst.data)) {
+        await ttyPline(
+            "You aren't able to rub anything without hands.",
+            state,
+        );
+        return ECMD_OK;
+    }
+    const obj = await getobj('rub', rub_ok, GETOBJ_NOFLAGS, state);
+    if (!obj)
+        return ECMD_CANCEL;
+
+    throw new UnsupportedApplyError('dorub() after object selection');
 }
 
 // C ref: apply.c its_dead() (196-309), the floor-object half of a listen.

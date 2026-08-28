@@ -40,7 +40,12 @@ import {
     ydir,
     zdir,
 } from './const.js';
-import { doapply, reset_trapset, UnsupportedApplyError } from './apply.js';
+import {
+    doapply,
+    dorub,
+    reset_trapset,
+    UnsupportedApplyError,
+} from './apply.js';
 import { UnsupportedArtifactDisplayError } from './artifacts.js';
 import { dosearch, UnsupportedSearchError } from './detect.js';
 import {
@@ -2084,6 +2089,13 @@ async function runApplyCommand(key, state) {
     return failClosedCommand(key, state, () => doapply(state));
 }
 
+// C ref: apply.c dorub(). Cancellation and the nohands refusal return the
+// function's own result; selecting an object reaches apply.js's explicit
+// boundary before the unported wielding and rubbing effects.
+async function runRubCommand(key, state) {
+    return failClosedCommand(key, state, () => dorub(state));
+}
+
 // C ref: lock.c doclose(). Like dosearch() and doeat() it returns its own
 // ECMD_* result: ECMD_OK for the nohands/pit refusals, ECMD_CANCEL for a
 // cancelled direction prompt, and ECMD_TIME for every path past the direction
@@ -2522,6 +2534,8 @@ async function doextcmd(key, state) {
         );
     case 'doapply':
         return await runApplyCommand(key, state);
+    case 'dorub':
+        return await runRubCommand(key, state);
     case 'dozap':
         return await runZapCommand(key, state);
     case 'docast':
