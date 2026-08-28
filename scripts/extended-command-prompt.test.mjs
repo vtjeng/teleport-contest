@@ -502,20 +502,22 @@ test('an unknown extended command answers with the initiator and the text',
 test('a named command with no ported handler stops the segment, not the key',
     async () => {
     // cmd.c doextcmd()'s switch dispatches the handlers this port owns and
-    // throws on the rest. '#wipe' is an ordinary non-WIZMODECMD row, so
+    // throws on the rest. '#adjust' is an ordinary non-WIZMODECMD row, so
     // extcmds_match() finds it and can_do_extcmd() admits it; only the switch
-    // refuses. Borrow an existing segment's seed and options, because no
-    // matrix segment can hold these keys: C wipes its face and the port does
-    // not.
+    // refuses. Borrow an existing segment's seed and options because this
+    // check exercises dispatch refusal, not the command's option menu.
     const base = segmentFor(`${EXTCMD_KEY}xyzzy${NEWLINE_KEY}`);
-    const moves = `.${EXTCMD_KEY}wipe${NEWLINE_KEY}`;
+    const moves = `.${EXTCMD_KEY}adjust${NEWLINE_KEY}`;
     let boundary = null;
     const replay = await runSegment(
         { ...base, moves }, { onBoundary: (error) => { boundary = error; } },
     );
 
     assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
-    assert.match(boundary.message, /the extended command 'wipe' is not ported/u);
+    assert.match(
+        boundary.message,
+        /the extended command 'adjust' is not ported/u,
+    );
 
     // resetCommandVars() runs before the throw, so the turn is given up
     // rather than half-spent.
@@ -527,7 +529,7 @@ test('a named command with no ported handler stops the segment, not the key',
     // What the pre-dispatch boundaries promise does not hold here. They stop
     // before the command runs, so restoring the parsed command reproduces the
     // same refusal; this one stops after hooked_tty_getlin() has already eaten
-    // "pray\n". pendingCommand therefore names '#' alone, which on a retry
+    // "adjust\n". pendingCommand therefore names '#' alone, which on a retry
     // would reopen an empty prompt rather than repeat the command.
     assert.equal(game.context.pendingCommand?.key, EXTCMD_KEY.charCodeAt(0));
     // A segment that runs to the end records one screen per key plus the one

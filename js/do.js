@@ -10,6 +10,7 @@ import {
     ACH_BGRM,
     A_DEX,
     BOTH_SIDES,
+    BLINDED,
     CORR,
     DIR_DOWN,
     DIR_UP,
@@ -17,6 +18,7 @@ import {
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
+    FACE,
     FLYING,
     FUMBLING,
     GETOBJ_ALLOWCNT,
@@ -65,7 +67,7 @@ import {
 } from './const.js';
 import { reset_trapset } from './apply.js';
 import { next_to_u } from './apply_next_to_u.js';
-import { reset_occupations, set_move_cmd } from './cmd.js';
+import { reset_occupations, set_move_cmd, set_occupation } from './cmd.js';
 import { docrt, flush_screen, newsym } from './display.js';
 import { docall } from './do_name.js';
 import { setwornEnv } from './do_wear.js';
@@ -120,6 +122,7 @@ import { maybe_reset_pick } from './lock.js';
 import { mklev } from './mklev.js';
 import { set_ustuck } from './mon.js';
 import { m_at } from './monst.js';
+import { gulp_blnd_check } from './mhitu.js';
 import { PM_ROGUE, PM_TOURIST } from './monsters.js';
 import {
     is_pick, objectType, place_object, remove_object, set_bknown,
@@ -136,6 +139,7 @@ import {
     RING_CLASS,
 } from './objects.js';
 import { body_part } from './polyself.js';
+import { incr_itimeout, make_blinded, set_itimeout } from './potion.js';
 import {
     encumber_msg,
     pickup,
@@ -181,6 +185,77 @@ export class UnsupportedLevelChangeError extends Error {
         this.name = 'UnsupportedLevelChangeError';
         this.reason = reason;
     }
+}
+
+// Thrown when do.c dowipe() or wipeoff() reaches a face or blindness state
+// outside the ordinary three-turn cream-pie occupation selected for this port.
+export class UnsupportedWipeError extends Error {
+    constructor(reason) {
+        super(`wiping the hero's face requires ${reason}`);
+        this.name = 'UnsupportedWipeError';
+        this.reason = reason;
+    }
+}
+
+function ordinaryWipeState(state, timeout) {
+    const hero = state.u;
+    const blinded = hero?.uprops?.[BLINDED];
+    return Boolean(
+        hero
+        && blinded
+        && hero.ucreamed === timeout
+        && blinded.intrinsic === timeout
+        && !blinded.extrinsic
+        && !blinded.blocked
+        && !hero.uprops?.[HALLUC]?.intrinsic
+        && !hero.uprops?.[HALLUC]?.extrinsic
+        && !hero.uswallow
+        && !Upolyd(hero)
+        && state.urace?.noun === 'human',
+    );
+}
+
+// C ref: do.c wipeoff() (2361-2384), restricted to the occupation turn after
+// the selected three-turn ordinary cream blindness has counted down to two.
+export async function wipeoff(state = game) {
+    if (!ordinaryWipeState(state, 2)
+        || state.go?.occupation !== wipeoff) {
+        throw new UnsupportedWipeError(
+            'the installed occupation with matching two-turn blindness',
+        );
+    }
+
+    const blinded = state.u.uprops[BLINDED];
+    state.u.ucreamed -= 2;
+    incr_itimeout(blinded, -2);
+
+    await ttyPline("You've got the glop off.", state);
+    state.u.ucreamed = 0;
+    // ordinaryWipeState() rejected engulfment before either counter changed,
+    // so gulp_blnd_check() takes its source false arm here.
+    if (!gulp_blnd_check(state)) {
+        set_itimeout(blinded, 1);
+        await make_blinded(0, true, state);
+    }
+    return 0;
+}
+
+// C ref: do.c dowipe() (2387-2404), restricted to the selected ordinary
+// human state. The command spends a turn and installs wipeoff() without
+// printing; all other face and blindness states remain fail-closed.
+export async function dowipe(state = game) {
+    if (!ordinaryWipeState(state, 3) || state.go?.occupation) {
+        throw new UnsupportedWipeError(
+            'a clean occupation slot and matching three-turn blindness',
+        );
+    }
+    set_occupation(
+        wipeoff,
+        `wiping off your ${body_part(FACE, state.youmonst)}`,
+        0,
+        state,
+    );
+    return ECMD_TIME;
 }
 
 // do.c goto_level() receives earth_sense()'s synchronous pline before

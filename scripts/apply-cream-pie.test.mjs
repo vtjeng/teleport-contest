@@ -74,7 +74,7 @@ test('make_blinded performs the talk-false sighted-to-blind transition',
 
     // Seven is an interior timeout that exercises replacement without either
     // itimeout() clamp. potion.c:261-331 sets it and toggles vision once.
-    make_blinded(7, false, game);
+    await make_blinded(7, false, game);
 
     assert.equal(game.u.uprops[BLINDED].intrinsic & TIMEOUT, 7);
     assert.equal(game.u.uprops[BLINDED].extrinsic, 0);

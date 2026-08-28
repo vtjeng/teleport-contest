@@ -9,6 +9,7 @@
 import {
     BURN_OBJECT,
     BURIED_TOO,
+    BLINDED,
     CONFUSION,
     CONTAINED_TOO,
     FIG_TRANSFORM,
@@ -45,7 +46,7 @@ import { stop_occupation } from './allmain.js';
 import { artifact_light } from './artifacts.js';
 import { stone_luck } from './attrib.js';
 import { rot_corpse, unportedRotCorpseReason } from './dig.js';
-import { heal_legs } from './do.js';
+import { heal_legs, wipeoff } from './do.js';
 import { carrying } from './invent.js';
 import { game } from './gstate.js';
 import { You_can_move_again, nomul } from './hack.js';
@@ -343,15 +344,24 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
     // state is read on such a turn and none of it needs to be admitted.
     // nh_timeout_elapsed_turn() makes the same return, in C's position.
     if (u.uinvulnerable) return;
+    const wipeOccupation = state.go?.occupation === wipeoff;
+    const ordinaryWipe = u.ucreamed === 3
+        && u.uprops?.[BLINDED]?.intrinsic === 3
+        && !u.uprops[BLINDED].extrinsic
+        && !u.uprops[BLINDED].blocked
+        && wipeOccupation;
     for (const [name, value] of [
         ['mtimedone', u.mtimedone],
         ['ucreamed', u.ucreamed],
         ['usptime', u.usptime],
         ['ugallop', u.ugallop],
     ]) {
+        if (name === 'ucreamed' && ordinaryWipe) continue;
         if (Math.trunc(value ?? 0) !== 0) {
             throw new UnsupportedHeroTimeoutBoundaryError(
-                `zero ${name}`,
+                name === 'ucreamed' && wipeOccupation
+                    ? 'ordinary wipe occupation with matching three-turn blindness'
+                    : `zero ${name}`,
             );
         }
     }
@@ -363,6 +373,7 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
         // timeout 1 would reach make_confused(), which remains unported here.
         if (index === WOUNDED_LEGS) continue;
         if (index === CONFUSION && timeout > 1) continue;
+        if (index === BLINDED && ordinaryWipe) continue;
         throw new UnsupportedHeroTimeoutBoundaryError(
             `no active property timeout at index ${index}`,
         );
@@ -450,6 +461,7 @@ export async function nh_timeout_elapsed_turn(state = game, env = {}) {
     /* "things past this point could kill you" -- timeout.c:621-622, below the
        basal-luck block and above every branch nh_timeout() has left. */
     if (state.u?.uinvulnerable) return;
+    if (state.u.ucreamed) --state.u.ucreamed;
     await decrement_property_timeouts(state, env);
     /* timeout.c:947, nh_timeout()'s last statement. */
     run_timers(state, { ...env, site: "nh_timeout()'s run_timers()" });

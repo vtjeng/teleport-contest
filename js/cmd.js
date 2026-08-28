@@ -58,7 +58,9 @@ import {
 import {
     dodown,
     dodrop,
+    dowipe,
     doup,
+    UnsupportedWipeError,
     UnsupportedDropError,
     UnsupportedLevelChangeError,
 } from './do.js';
@@ -1868,6 +1870,11 @@ export function failClosedCommandRefusals() {
         // have stopped raising the class, because dropping it early costs the
         // turn-boundary conversion too.
         UnsupportedPrayerError,
+        // do.c dowipe() and wipeoff() raise this for every face or blindness
+        // state outside the selected ordinary three-turn cream occupation.
+        // wipeoff() runs at the turn boundary, so allmain.js consumes this
+        // same list when the installed callback refuses a changed state.
+        UnsupportedWipeError,
         // sit.c dosit() raises this from the eleven terrain and trap arms it
         // leaves unported, each at its own condition and so before that arm
         // has printed anything or changed the hero.
@@ -2572,6 +2579,8 @@ async function doextcmd(key, state) {
     case 'dosit':
         // C ref: sit.c dosit(), which returns its own ECMD_* result.
         return await dosit(state);
+    case 'dowipe':
+        return await failClosedCommand(key, state, () => dowipe(state));
     case 'dokick':
         return await runKickCommand(key, state);
     case 'dotwoweapon':

@@ -282,21 +282,48 @@ export function incr_itimeout(prop, incr) {
     set_itimeout(prop, itimeout_incr(prop.intrinsic, incr));
 }
 
-// C ref: potion.c make_blinded() (261-331), restricted to use_cream_pie()'s
-// talk-FALSE transition from ordinary sight to timed blindness. Other callers
-// need the regaining-sight, already-blind, Eyes of the Overworld, Punished,
-// and talk-message arms, so they remain fail-closed here.
-export function make_blinded(xtime, talk, state = game) {
+// C ref: potion.c make_blinded() (261-331), restricted to two ordinary cream
+// paths: use_cream_pie()'s silent sighted-to-blind transition and wipeoff()'s
+// one-turn timed-blindness probe back to sight. Other callers need the
+// already-blind, Eyes of the Overworld, Punished, and alternate message arms,
+// so they remain fail-closed here.
+export async function make_blinded(xtime, talk, state = game) {
     const prop = state.u?.uprops?.[BLINDED];
     if (!prop)
         throw new Error('make_blinded requires initialized BLINDED state');
     const old = prop.intrinsic & TIMEOUT;
     const punished = Boolean(state.uball ?? state.go?.uball);
-    if (talk !== false || old || heroIsBlind(state) || punished
-        || prop.extrinsic || prop.blocked
-        || !Number.isInteger(xtime) || xtime < 1 || xtime > TIMEOUT) {
+    const stinging = Boolean(
+        state.uwep
+        && ((state.u.uprops?.[WARN_OF_MON]?.extrinsic ?? 0) & W_WEP),
+    );
+    const startsCreamBlindness = talk === false
+        && old === 0
+        && !heroIsBlind(state)
+        && !punished
+        && !prop.extrinsic
+        && !prop.blocked
+        && Number.isInteger(xtime)
+        && xtime >= 1
+        && xtime <= TIMEOUT;
+    const restoresWipedSight = talk === true
+        && xtime === 0
+        && old === 1
+        && prop.intrinsic === 1
+        && !prop.extrinsic
+        && !prop.blocked
+        && heroIsBlind(state)
+        && state.u.ucreamed === 0
+        && !punished
+        && !stinging
+        && !Unaware(state)
+        && !Upolyd(state.u)
+        && state.urace?.noun === 'human'
+        && !(state.u.uprops?.[HALLUC]?.intrinsic
+            || state.u.uprops?.[HALLUC]?.extrinsic);
+    if (!startsCreamBlindness && !restoresWipedSight) {
         throw new UnsupportedPotionError(
-            'make_blinded() outside the talk-false sighted-to-blind path',
+            'make_blinded() outside the ordinary cream-pie transitions',
         );
     }
 
@@ -306,6 +333,9 @@ export function make_blinded(xtime, talk, state = game) {
     set_itimeout(prop, 1);
     const canSeeNow = !heroIsBlind(state);
     set_itimeout(prop, old);
+
+    if (restoresWipedSight)
+        await ttyPline('You can see again.', state);
 
     set_itimeout(prop, xtime);
     if (uCouldSee !== canSeeNow)

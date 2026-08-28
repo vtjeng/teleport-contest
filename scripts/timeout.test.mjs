@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
+    BLINDED,
     BURN_OBJECT,
     CONFUSION,
     FIG_TRANSFORM,
@@ -26,6 +27,7 @@ import {
     WOUNDED_LEGS,
     ZOMBIFY_MON,
 } from '../js/const.js';
+import { wipeoff } from '../js/do.js';
 import {
     PM_DEATH,
     PM_ARCHEOLOGIST,
@@ -250,6 +252,48 @@ test('move-600 timeout luck uses basal role and luckstone gates', async () => {
     await nh_timeout_elapsed_turn(state);
     assert.equal(state.u.uluck, 2, 'cursed luckstone lets good luck time out');
 });
+
+test('elapsed-turn timeout upkeep advances the ordinary wipe occupation',
+    async () => {
+        const state = timerState(2);
+        const uprops = [];
+        // Three is the selected slice's exact pre-turn cream and BLINDED
+        // timeout. timeout.c:649-650 and :669-671 decrement both to two while
+        // do.c wipeoff() remains installed for the following occupation turn.
+        uprops[BLINDED] = { intrinsic: 3, extrinsic: 0, blocked: 0 };
+        state.flags = { moonphase: 0, friday13: false };
+        state.svq = { quest_status: {} };
+        state.invent = null;
+        state.go = { occupation: wipeoff };
+        state.u = {
+            uinvulnerable: false,
+            mtimedone: 0,
+            ucreamed: 3,
+            usptime: 0,
+            ugallop: 0,
+            uprops,
+            uhave: { amulet: false },
+            ugangr: 0,
+            uluck: 0,
+        };
+
+        await nh_timeout_elapsed_turn(state);
+
+        assert.equal(state.u.ucreamed, 2);
+        assert.equal(uprops[BLINDED].intrinsic & 0x00ffffff, 2);
+
+        // Four is the nearest longer cream timeout. The current goal admits
+        // only the exact three-turn state, so this neighbor must stop before
+        // either counter changes.
+        state.u.ucreamed = 4;
+        uprops[BLINDED].intrinsic = 4;
+        await assert.rejects(
+            nh_timeout_elapsed_turn(state),
+            /ordinary wipe occupation with matching three-turn blindness/u,
+        );
+        assert.equal(state.u.ucreamed, 4);
+        assert.equal(uprops[BLINDED].intrinsic & 0x00ffffff, 4);
+    });
 
 test('fedora basal luck requires both the role and worn helmet', async () => {
     const state = timerState(600);

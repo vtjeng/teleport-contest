@@ -262,7 +262,11 @@ async function use_cream_pie(obj, state = game, rawEnv = {}) {
     const blindinc = random.rnd(25);
     state.u.ucreamed += blindinc;
     const blindness = state.u.uprops[BLINDED];
-    make_blinded((blindness.intrinsic & TIMEOUT) + blindinc, false, state);
+    await make_blinded(
+        (blindness.intrinsic & TIMEOUT) + blindinc,
+        false,
+        state,
+    );
     await ttyPline(
         `You can't see through all the sticky goop on your ${
             body_part(FACE, state.youmonst)}.`,
