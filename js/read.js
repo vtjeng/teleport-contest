@@ -3,8 +3,10 @@
 // create_particular_parse(), create_particular_creation() and
 // create_particular(). doread() completes a known ordinary magic-mapping
 // scroll, the ordinary unknown identify-scroll path whose remaining pack is
-// fully identified, and declining a fresh known healing-spell refresh; other
-// selected readable objects stop before pickup_prev changes.
+// fully identified, and declining a fresh known healing-spell refresh. It
+// also takes one blessed confused teleportation scroll through seffects() and
+// stops immediately before level_tele(); other selected readable objects stop
+// before pickup_prev changes.
 // wizcmds.c wiz_genesis() calls the monster-creation helpers.
 
 import {
@@ -20,6 +22,7 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
+    HALLUC,
     MALE,
     MM_FEMALE,
     MM_MALE,
@@ -55,7 +58,11 @@ import {
 import { makemon_runtime } from './makemon_create.js';
 import { MAXMCLASSES } from './symbols.js';
 import {
-    SCROLL_CLASS, SCR_IDENTIFY, SCR_MAGIC_MAPPING, SPBOOK_CLASS,
+    SCROLL_CLASS,
+    SCR_IDENTIFY,
+    SCR_MAGIC_MAPPING,
+    SCR_TELEPORTATION,
+    SPBOOK_CLASS,
 } from './objects.js';
 import { objectType } from './obj.js';
 import { not_fully_identified } from './objnam.js';
@@ -103,11 +110,18 @@ function remainingPackIsFullyIdentified(selected, state) {
     return remaining > 0;
 }
 
+function propertyActive(property, state) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
+}
+
 // C ref: read.c doread() (347-646), restricted after getobj() to the known,
 // uncursed magic-mapping scroll, an ordinary unknown identify scroll whose
 // remaining inventory is already fully identified, and the fresh-known
-// healing-book refresh decline. Every other selected object stops before C's
-// scroll->pickup_prev write.
+// healing-book refresh decline. The other admitted path is a sighted,
+// non-hallucinating wizard reading a blessed teleportation scroll while
+// confused; that path stops inside seffect_teleportation() before level_tele().
+// Every other selected object stops before C's scroll->pickup_prev write.
 export async function doread(state = game) {
     state.gk ??= {};
     state.gk.known = false;
@@ -115,13 +129,10 @@ export async function doread(state = game) {
 
     const scroll = await getobj('read', read_ok, GETOBJ_PROMPT, state);
     if (!scroll) return ECMD_CANCEL;
-    const active = (property) => {
-        const value = state.u?.uprops?.[property];
-        return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
-    };
+    const confused = propertyActive(CONFUSION, state);
     const ordinaryScroll = scroll.oclass === SCROLL_CLASS
         && !scroll.blessed && !scroll.cursed && scroll.dknown
-        && !active(BLINDED) && !active(CONFUSION)
+        && !propertyActive(BLINDED, state) && !confused
         && can_chant(state.youmonst, state);
     const mapping = ordinaryScroll
         && scroll.otyp === SCR_MAGIC_MAPPING
@@ -136,9 +147,15 @@ export async function doread(state = game) {
         && scroll.quan === 1
         && remainingPackIsFullyIdentified(scroll, state);
     const knownHealing = scroll.oclass === SPBOOK_CLASS
-        && !active(BLINDED) && !active(CONFUSION)
+        && !propertyActive(BLINDED, state) && !confused
         && study_book_preflight(scroll, state);
-    if (!mapping && !identify && !knownHealing) {
+    const confusedTeleport = scroll.oclass === SCROLL_CLASS
+        && scroll.otyp === SCR_TELEPORTATION
+        && scroll.blessed && !scroll.cursed
+        && !propertyActive(BLINDED, state)
+        && confused && !propertyActive(HALLUC, state)
+        && can_chant(state.youmonst, state) && state.wizard;
+    if (!mapping && !identify && !knownHealing && !confusedTeleport) {
         throw new UnsupportedReadError('the selected readable object branch');
     }
 
@@ -154,6 +171,12 @@ export async function doread(state = game) {
     }
     scroll.in_use = true;
     await ttyPline('As you read the scroll, it disappears.', state);
+    if (confused) {
+        await ttyPline(
+            'Being confused, you mispronounce the magic words...',
+            state,
+        );
+    }
     const consumedByEffect = await seffects(scroll, state);
     if (!consumedByEffect) {
         if (state.gk.known && !objectType(scroll, state).oc_name_known) {
@@ -165,6 +188,19 @@ export async function doread(state = game) {
         useup(scroll, { state, hooks: {} });
     }
     return ECMD_TIME;
+}
+
+// C ref: read.c seffect_teleportation() (2015-2032). The admitted doread()
+// path is confused and reaches level_tele(). Re-read the live property here,
+// after both reading messages, as C does. The calm scrolltele() branch remains
+// outside this slice.
+export function seffect_teleportation(scroll, state = game) {
+    const scursed = Boolean(scroll.cursed);
+    const confused = propertyActive(CONFUSION, state);
+    if (confused || scursed) {
+        throw new UnsupportedReadError('teleport.c level_tele()');
+    }
+    throw new UnsupportedReadError('the calm teleportation-scroll effect');
 }
 
 // C ref: read.c learnscrolltyp() (58-68).
@@ -219,10 +255,12 @@ export async function seffect_magic_mapping(scroll, state = game) {
     }
 }
 
-// C ref: read.c seffects() (2194-2290), restricted to SCR_IDENTIFY and
-// SCR_MAGIC_MAPPING.
+// C ref: read.c seffects() (2194-2290), restricted to SCR_IDENTIFY,
+// SCR_MAGIC_MAPPING, and the confused SCR_TELEPORTATION path that stops at
+// level_tele().
 export async function seffects(scroll, state = game) {
-    if (scroll.otyp !== SCR_MAGIC_MAPPING && scroll.otyp !== SCR_IDENTIFY) {
+    if (scroll.otyp !== SCR_MAGIC_MAPPING && scroll.otyp !== SCR_IDENTIFY
+        && scroll.otyp !== SCR_TELEPORTATION) {
         throw new UnsupportedReadError('the selected scroll effect');
     }
     if (objectType(scroll, state).oc_magic)
@@ -231,6 +269,9 @@ export async function seffects(scroll, state = game) {
         await seffect_identify(scroll, state);
         update_inventory({ state });
         return 1;
+    }
+    if (scroll.otyp === SCR_TELEPORTATION) {
+        seffect_teleportation(scroll, state);
     }
     await seffect_magic_mapping(scroll, state);
     return 0;

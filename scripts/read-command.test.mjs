@@ -7,6 +7,7 @@ import {
     failClosedCommandRefusals,
 } from '../js/cmd.js';
 import {
+    A_WIS,
     CMDQ_KEY,
     COLNO,
     CORR,
@@ -29,6 +30,7 @@ import {
     SCROLL_CLASS,
     SCR_IDENTIFY,
     SCR_MAGIC_MAPPING,
+    SCR_TELEPORTATION,
     SPBOOK_CLASS,
     SPE_FORCE_BOLT,
     SPE_HEALING,
@@ -37,6 +39,11 @@ import { doread, read_ok, UnsupportedReadError } from '../js/read.js';
 import { not_fully_identified } from '../js/objnam.js';
 import { initRng } from '../js/rng.js';
 import { UnsupportedSpellStudyError } from '../js/spell.js';
+import {
+    READ_MORE as CONFUSED_TELEPORT_MORE,
+    confusedTeleportSetupMoves,
+    loadReadConfusedTeleportRecipe,
+} from './run-read-confused-teleport.mjs';
 import {
     ESCAPE_KEY,
     INVALID_LETTER,
@@ -322,6 +329,53 @@ test('an unknown identify scroll reports a fully identified remaining pack',
         pendingTopLine(),
         'You have already identified the rest of your possessions.',
     );
+});
+
+test('a confused blessed teleport scroll stops after its reading messages',
+    async () => {
+    const segment = loadReadConfusedTeleportRecipe().segments[0];
+    const replay = await runSegment({
+        ...segment,
+        moves: confusedTeleportSetupMoves(),
+    });
+    let scroll = game.invent;
+    while (scroll && scroll.otyp !== SCR_TELEPORTATION) scroll = scroll.nobj;
+    assert.ok(scroll, 'the debug wish creates a teleportation scroll');
+    assert.equal(scroll.blessed, true);
+    assert.equal(scroll.cursed, false);
+
+    const movesBefore = game.moves;
+    const rngBefore = replay.getRngLog().length;
+    const literateBefore = game.u.uconduct.literate;
+    const wisdomExerciseBefore = game.u.aexe[A_WIS];
+
+    // The first Space clears the wished-object line still pending from the
+    // setup. The inventory letter then selects the one wished scroll. The
+    // next two Spaces dismiss the disappearance and confused-reading lines
+    // and reach the fail-closed level_tele() boundary.
+    game.nhDisplay.pushKey(CONFUSED_TELEPORT_MORE.charCodeAt(0));
+    game.nhDisplay.pushKey(scroll.invlet.charCodeAt(0));
+    game.nhDisplay.pushKey(CONFUSED_TELEPORT_MORE.charCodeAt(0));
+    game.nhDisplay.pushKey(CONFUSED_TELEPORT_MORE.charCodeAt(0));
+    await assert.rejects(
+        () => doread(game),
+        /level_tele\(\)/u,
+    );
+
+    assert.equal(game.moves, movesBefore);
+    assert.equal(replay.getRngLog().length, rngBefore + 1);
+    assert.equal(game.u.uconduct.literate, literateBefore + 1);
+    assert.equal(game.gk.known, false);
+    assert.equal(scroll.pickup_prev, false);
+    assert.equal(scroll.in_use, true);
+    assert.ok(inventorySnapshot().some((obj) => obj.o_id === scroll.o_id));
+    assert.equal(
+        pendingTopLine(),
+        'Being confused, you mispronounce the magic words...',
+    );
+    // attrib.c exercise() changes AEXE only when rn2(19) beats current Wisdom;
+    // this seed's draw does, so the one source-required exercise point lands.
+    assert.equal(game.u.aexe[A_WIS], wisdomExerciseBefore + 1);
 });
 
 test('ordinary identify preserves the conditional second rn2(5)', async () => {
