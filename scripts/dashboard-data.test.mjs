@@ -121,6 +121,15 @@ function timelineSegments(row) {
     }));
 }
 
+function assertTimelineSegmentsBounded(row) {
+    const segments = timelineSegments(row);
+    assert.ok(segments.length > 0);
+    for (const { left, width } of segments) {
+        assert.ok(left >= 0);
+        assert.ok(left + width <= 100);
+    }
+}
+
 test('dashboard separates closed goals and labels inferred timing', () => {
     const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-data-'));
     git(fixture, ['init', '--quiet']);
@@ -273,6 +282,25 @@ test('dashboard separates closed goals and labels inferred timing', () => {
         ['set', 'lineWidth', 1.5],
         ['stroke'],
     ]);
+
+    const queueLessBeta = {
+        ...beta,
+        slices: [],
+        sliceCount: 0,
+        sliceSelectionMin: 0,
+        implementationMin: 0,
+    };
+    let endpointTimeline = renderDashboard({
+        ...data,
+        goals: [queueLessBeta],
+    }).get('timeline').innerHTML;
+    assertTimelineSegmentsBounded(timelineRow(endpointTimeline, 'beta'));
+
+    endpointTimeline = renderDashboard({
+        ...data,
+        goals: [alpha],
+    }).get('timeline').innerHTML;
+    assertTimelineSegmentsBounded(timelineRow(endpointTimeline, 'alpha'));
 });
 
 test('in-progress phase provenance follows each recorded boundary', () => {
@@ -322,12 +350,7 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     assert.match(timeline, /Slice selection: 10m"/u);
     assert.doesNotMatch(timeline, /Slice selection: 10m \(inferred\)/u);
     const activeRow = timelineRow(timeline, 'running');
-    const activeSegments = timelineSegments(activeRow);
-    assert.ok(activeSegments.length > 0);
-    for (const { left, width } of activeSegments) {
-        assert.ok(left >= 0);
-        assert.ok(left + width <= 100);
-    }
+    assertTimelineSegmentsBounded(activeRow);
 
     rows[1] = scoreRow({
         utc: '2026-01-01', sha: closed,
@@ -343,6 +366,21 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     );
     assert.match(mixedRow, /Goal selection: 5m \(inferred\)/u);
     assert.match(mixedRow, /Slice selection: 10m"/u);
+    let mixedTableRow = renderDashboard(inferredGoal).get('goalTable')
+        .innerHTML.split('</tr>')
+        .find((candidate) => candidate.includes('running'));
+    assert.match(
+        mixedTableRow,
+        /<td>5m \(inferred\)<\/td><td>20m<\/td>/u,
+    );
+    assert.match(
+        mixedTableRow,
+        /title="Goal selection: 5m \(inferred\)" aria-label="Goal selection: 5m \(inferred\)"/u,
+    );
+    assert.match(
+        mixedTableRow,
+        /title="Slice selection: 20m \(recorded\)" aria-label="Slice selection: 20m \(recorded\)"/u,
+    );
 
     rows[1] = scoreRow({
         utc: '2026-01-01T00:05:00Z', sha: closed,
@@ -362,6 +400,21 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     );
     assert.match(mixedRow, /Goal selection: 5m"/u);
     assert.match(mixedRow, /Slice selection: 10m \(inferred\)/u);
+    mixedTableRow = renderDashboard(inferredSlice).get('goalTable')
+        .innerHTML.split('</tr>')
+        .find((candidate) => candidate.includes('running'));
+    assert.match(
+        mixedTableRow,
+        /<td>5m<\/td><td>20m \(inferred\)<\/td>/u,
+    );
+    assert.match(
+        mixedTableRow,
+        /title="Goal selection: 5m \(recorded\)" aria-label="Goal selection: 5m \(recorded\)"/u,
+    );
+    assert.match(
+        mixedTableRow,
+        /title="Slice selection: 20m \(inferred\)" aria-label="Slice selection: 20m \(inferred\)"/u,
+    );
 
     rows[1] = scoreRow({
         utc: '2026-01-01', sha: closed,
