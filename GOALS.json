@@ -5992,6 +5992,11 @@
           "name": "polyself-controlled-gnome",
           "status": "closed",
           "closedBy": "90449ee0f48bb0a978f6157f0d57e59b641566d5"
+        },
+        {
+          "name": "polyself-dropp-hook-wiring",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "e7f1cf4e10293eb0e935528be90dc68d1f6a73ff",
