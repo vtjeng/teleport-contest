@@ -5569,8 +5569,8 @@
         },
         {
           "name": "read-known-healing-book-decline",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "32a524b4e55c5e95884339cc3b5ca5ba09016a87"
         }
       ],
       "openedAt": "aae56a0187c7be16f0ea4ab665dd30f5f1d1a88f",
