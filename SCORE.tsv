@@ -462,3 +462,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-28	7de65e5	goal	13	33	2807	7765	159394	610816	2877	7765	229	3640	32830	182022	seffect-teleportation-into-level-tele closes. Development 2807 of 7765 screens, 159394 of 610816 rng. 13 of 33 sessions. Holdout 229/3640 screens, 32830/182022 rng.
 2026-08-28	9e39988	slice	13	33	2810	7765	159517	610816	2879	7765					zapyourself-death-ray closes. Development 2807→2810 of 7765 screens, 159394→159517 of 610816 rng. 13 of 33 sessions.
 2026-08-28	e4192cc	goal	13	33	2810	7765	159517	610816	2879	7765	229	3640	32830	182022	zapyourself-wand-of-death closes. Development 2810 of 7765 screens, 159517 of 610816 rng. 13 of 33 sessions. Holdout 229/3640 screens, 32830/182022 rng.
+2026-08-28	c5e68b3	slice	13	33	2811	7765	159546	610816	2880	7765					really-done-bones-prompt closes. Development 2810→2811 of 7765 screens, 159517→159546 of 610816 rng. 13 of 33 sessions.

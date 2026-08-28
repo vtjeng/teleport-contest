@@ -5959,8 +5959,8 @@
       "slices": [
         {
           "name": "really-done-bones-prompt",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0b9cf370afcb5d1813e18e138ab555960bf344c8"
         }
       ],
       "openedAt": "a011d8b2f1b1106a6522c269535ea424135f5a4e",
