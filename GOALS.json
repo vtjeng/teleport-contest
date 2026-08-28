@@ -5961,6 +5961,11 @@
           "name": "really-done-bones-prompt",
           "status": "closed",
           "closedBy": "0b9cf370afcb5d1813e18e138ab555960bf344c8"
+        },
+        {
+          "name": "savebones-and-game-termination",
+          "status": "closed",
+          "closedBy": "02a3277d7328268387b23f58095d7880e673ab80"
         }
       ],
       "openedAt": "a011d8b2f1b1106a6522c269535ea424135f5a4e",
