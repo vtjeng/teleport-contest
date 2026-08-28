@@ -5805,8 +5805,8 @@
       "slices": [
         {
           "name": "ordinary-wipe-occupation",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "794d9e0a368cbe4dc3152a332071a411bc434f1d"
         }
       ],
       "openedAt": "18e9805e3d1d8654381234ab1eb58689d469736f",
