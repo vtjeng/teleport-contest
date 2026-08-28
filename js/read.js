@@ -2,9 +2,9 @@
 // C refs: src/read.c read_ok(), doread(), cant_revive(),
 // create_particular_parse(), create_particular_creation() and
 // create_particular(). doread() completes a known ordinary magic-mapping
-// scroll and the ordinary unknown identify-scroll path whose remaining pack
-// is fully identified; other selected readable objects stop before
-// pickup_prev changes.
+// scroll, the ordinary unknown identify-scroll path whose remaining pack is
+// fully identified, and declining a fresh known healing-spell refresh; other
+// selected readable objects stop before pickup_prev changes.
 // wizcmds.c wiz_genesis() calls the monster-creation helpers.
 
 import {
@@ -66,6 +66,11 @@ import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
 import { rn2 } from './rng.js';
 import { ttyPline } from './tty_message.js';
+import { y_n } from './cmd.js';
+import {
+    study_book,
+    study_book_preflight,
+} from './spell.js';
 
 // A selected scroll or spellbook enters doread()'s effect arms. Raising before
 // pickup_prev changes keeps every unsupported object and the turn retryable
@@ -99,9 +104,10 @@ function remainingPackIsFullyIdentified(selected, state) {
 }
 
 // C ref: read.c doread() (347-646), restricted after getobj() to the known,
-// uncursed magic-mapping scroll and an ordinary unknown identify scroll whose
-// remaining inventory is already fully identified. Every other selected
-// object stops before C's scroll->pickup_prev write.
+// uncursed magic-mapping scroll, an ordinary unknown identify scroll whose
+// remaining inventory is already fully identified, and the fresh-known
+// healing-book refresh decline. Every other selected object stops before C's
+// scroll->pickup_prev write.
 export async function doread(state = game) {
     state.gk ??= {};
     state.gk.known = false;
@@ -129,7 +135,10 @@ export async function doread(state = game) {
         && !objectType(scroll, state).oc_name_known
         && scroll.quan === 1
         && remainingPackIsFullyIdentified(scroll, state);
-    if (!mapping && !identify) {
+    const knownHealing = scroll.oclass === SPBOOK_CLASS
+        && !active(BLINDED) && !active(CONFUSION)
+        && study_book_preflight(scroll, state);
+    if (!mapping && !identify && !knownHealing) {
         throw new UnsupportedReadError('the selected readable object branch');
     }
 
@@ -137,6 +146,12 @@ export async function doread(state = game) {
     state.u.uconduct ??= {};
     state.u.uconduct.literate
         = Math.trunc(state.u.uconduct.literate ?? 0) + 1;
+    if (knownHealing) {
+        return await study_book(scroll, state, {
+            message: ttyPline,
+            prompt: y_n,
+        }) ? ECMD_TIME : ECMD_OK;
+    }
     scroll.in_use = true;
     await ttyPline('As you read the scroll, it disappears.', state);
     const consumedByEffect = await seffects(scroll, state);

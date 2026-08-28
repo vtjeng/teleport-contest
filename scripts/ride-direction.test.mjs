@@ -519,13 +519,14 @@ test('the response sets tty_yn_function still refuses stop before it paints',
         yn_function('Force the mount to succeed?', 'yn', 'n', false, game),
         /Input queue empty/u,
     );
-    // y_n() adds addcmdq TRUE on top, which cmdq_add_key(CQ_REPEAT) refuses;
-    // that guard sits after the read, so it needs an answer first.
+    // y_n() adds addcmdq TRUE and records the restricted response exactly as
+    // it records the unrestricted whatdoes response.
     game.nhDisplay.pushKey('y'.charCodeAt(0));
-    await assert.rejects(
-        y_n('Force the mount to succeed?', game),
-        /cmdq_add_key\(CQ_REPEAT\)/u,
+    assert.equal(
+        await y_n('Force the mount to succeed?', game),
+        'y'.charCodeAt(0),
     );
+    assert.equal(cmdq_peek(CQ_REPEAT, game)?.key, 'y'.charCodeAt(0));
 });
 
 // Drive doride() once against the game a segment left behind, answering the
@@ -576,13 +577,12 @@ test('a direction that leaves the map cancels instead of mounting',
 test('debug mode asks whether to force the mount', async () => {
     // doride()'s `wizard && y_n("Force the mount to succeed?")`. The question
     // is asked and answered -- 'l' takes getdir(), 'y' takes the question --
-    // and then y_n()'s addcmdq TRUE stops at cmdq_add_key(CQ_REPEAT), so the
-    // command still never reaches mount_steed() with forcemount set. No
-    // recording can reach it either: ROADMAP.md records that a playmode:debug
-    // recording needs a sysconf naming the running user, which is
-    // uncommitted.
+    // before mount_steed() receives forcemount. Debug recording still needs
+    // a sysconf naming the running user, so this constructed case owns it.
     const forced = await rideOnce('ly', (state) => { state.wizard = true; });
-    assert.match(forced.error?.message ?? '', /cmdq_add_key\(CQ_REPEAT\)/u);
+    assert.equal(forced.error, null);
+    assert.equal(forced.result, ECMD_OK);
+    assert.equal(cmdq_peek(CQ_REPEAT, game)?.key, 'y'.charCodeAt(0));
     game.wizard = false;
 
     // Without debug mode the same keystroke skips the question entirely and

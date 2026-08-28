@@ -181,9 +181,8 @@ export async function dosave(state = game) {
     clearTtyMessageWindow(state);
     // C ref: save.c:46, y_n("Really save?"). C's y_n() macro passes
     // addcmdq TRUE to yn_function(), which queues the answer for #repeat.
-    // The repeat queue (CQ_REPEAT) is unported, so y_n() would throw; pass
-    // addcmdq FALSE instead, which is safe because the game exits on 'y'
-    // and the 'n' path never repeats the save command.
+    // This terminal prompt does not need a repeat record: the game exits on
+    // 'y', and #repeat is unported on the declining path. Pass addcmdq FALSE.
     if ((await yn_function('Really save?', 'yn', 'n', false, state))
         === 'n'.charCodeAt(0)) {
         clearTtyMessageWindow(state);

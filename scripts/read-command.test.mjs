@@ -6,6 +6,7 @@ import {
     COLNO,
     CORR,
     ECMD_CANCEL,
+    ECMD_OK,
     ECMD_TIME,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
@@ -24,6 +25,7 @@ import {
     SCR_MAGIC_MAPPING,
     SPBOOK_CLASS,
     SPE_FORCE_BOLT,
+    SPE_HEALING,
 } from '../js/objects.js';
 import { doread, read_ok, UnsupportedReadError } from '../js/read.js';
 import { not_fully_identified } from '../js/objnam.js';
@@ -41,6 +43,13 @@ import {
     MAP_READ_MORE,
     MAP_READ_WAIT,
 } from './run-read-magic-mapping.mjs';
+import {
+    HEALING_BOOK_LETTER,
+    HEALING_MESSAGE_MORE,
+    HEALING_READ_WAIT,
+    HEALING_REFRESH_DECLINE,
+    loadReadKnownHealingRecipe,
+} from './run-read-known-healing.mjs';
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -297,6 +306,55 @@ test('an unknown identify scroll reports a fully identified remaining pack',
     assert.equal(
         pendingTopLine(),
         'You have already identified the rest of your possessions.',
+    );
+});
+
+test('declining a fresh known healing spellbook refresh takes no turn',
+    async () => {
+    const segment = loadReadKnownHealingRecipe().segments[0];
+    const replay = await runSegment({
+        ...segment,
+        moves: HEALING_READ_WAIT,
+    });
+    let book = game.invent;
+    while (book && book.otyp !== SPE_HEALING) book = book.nobj;
+    assert.ok(book, 'the fixed Priestess starts with healing');
+    // u_init.c gives the known healing book inventory letter g. initialspell()
+    // records 20,000 turns of retention; the leading wait ages it once to the
+    // 19,999 asserted here while leaving it above KEEN / 10.
+    assert.equal(book.invlet, HEALING_BOOK_LETTER);
+    assert.ok(game.svs.spl_book.some(
+        ({ sp_id, sp_know }) => sp_id === SPE_HEALING && sp_know === 19_999,
+    ));
+
+    book.pickup_prev = true;
+    const inventoryBefore = inventorySnapshot();
+    const movesBefore = game.moves;
+    const rngBefore = replay.getRngLog().length;
+    const literateBefore = game.u.uconduct.literate;
+
+    // The inventory letter selects healing. Space dismisses the knowledge
+    // message, and Escape selects the refresh question's default no answer.
+    game.nhDisplay.pushKey(HEALING_BOOK_LETTER.charCodeAt(0));
+    game.nhDisplay.pushKey(HEALING_MESSAGE_MORE.charCodeAt(0));
+    game.nhDisplay.pushKey(HEALING_REFRESH_DECLINE.charCodeAt(0));
+    assert.equal(await doread(game), ECMD_OK);
+
+    assert.equal(game.moves, movesBefore);
+    assert.equal(replay.getRngLog().length, rngBefore);
+    assert.equal(game.u.uconduct.literate, literateBefore + 1);
+    assert.equal(book.pickup_prev, false);
+    assert.equal(book.in_use, false);
+    // objects.h gives the level-1 healing spellbook oc_delay 2, so
+    // study_book() stores its negation before asking about a refresh.
+    assert.equal(game.context.spbook.delay, -2);
+    assert.equal(game.objects[SPE_HEALING].oc_name_known, 1);
+    assert.deepEqual(inventorySnapshot(), inventoryBefore.map((obj) => (
+        obj.o_id === book.o_id ? { ...obj, pickup_prev: false } : obj
+    )));
+    assert.match(
+        game._pending_message,
+        /^Refresh your memory anyway\? \[yn\] \(n\) /u,
     );
 });
 

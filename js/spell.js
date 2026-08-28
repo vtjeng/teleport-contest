@@ -1,6 +1,6 @@
 // Runtime spell-memory upkeep, the known-spell display, and spell casting.
 // C ref: spell.c age_spells(), dovspell(), dospellmenu(), percent_success(),
-// spellretention(), spelltypemnemonic(), docast(), getspell(),
+// spellretention(), spelltypemnemonic(), study_book(), docast(), getspell(),
 // spelleffects_check(), spelleffects(), rejectcasting(), spell_let_to_idx(),
 // and spell_idx().
 
@@ -46,6 +46,7 @@ import { isMetallic, mksobj, objectType, weight } from './obj.js';
 import {
     MAXSPELL,
     NODIR,
+    OBJ_DESCR,
     OBJ_NAME,
     QUARTERSTAFF,
     ROBE,
@@ -89,6 +90,7 @@ import {
     spell_skilltype,
 } from './startup_skills.js';
 import { peffects } from './potion.js';
+import { discover_object } from './o_init.js';
 import { use_skill } from './weapon.js';
 import { zapyourself, weffects } from './zap.js';
 
@@ -152,6 +154,71 @@ export function spellid(spell, state = game) {
 // C ref: spell.h spellknow(). Turns of retention left for slot `spell`.
 export function spellknow(spell, state = game) {
     return state.svs?.spl_book?.[spell]?.sp_know ?? 0;
+}
+
+// study_book() has already changed the delay and displayed the refresh
+// question when an affirmative answer reaches an unported study path.
+export class UnsupportedSpellStudyError extends Error {
+    constructor(branch) {
+        super(`spellbook study requires ${branch}`);
+        this.name = 'UnsupportedSpellStudyError';
+        this.branch = branch;
+    }
+}
+
+// This preflight lets doread() retain its fail-closed boundary above C's
+// pickup_prev and conduct writes. It admits only the selected source branch:
+// an identified, ordinary healing book with fresh existing knowledge and no
+// interrupted study. study_book() repeats the check before changing delay.
+export function study_book_preflight(
+    spellbook,
+    state = game,
+) {
+    if (!spellbook || spellbook.otyp !== SPE_HEALING
+        || spellbook.cursed || spellbook.in_use) return false;
+    const type = objectType(spellbook, state);
+    if (!type.oc_name_known || OBJ_DESCR(type, state) === 'dull') return false;
+    if (state.context?.spbook?.delay) return false;
+    for (let i = 0; i < MAXSPELL && spellid(i, state) !== NO_SPELL; ++i) {
+        if (spellid(i, state) === spellbook.otyp) {
+            return spellknow(i, state)
+                > Math.trunc(SPELL_KNOWLEDGE_KEEN / 10);
+        }
+    }
+    return false;
+}
+
+// C ref: spell.c study_book() (468-659), restricted to the fresh-known
+// healing spell prefix and the default-no refresh response. The accepted
+// response stops after the source-defined prompt and before in_use or an
+// occupation changes; every other book stops in doread() above its mutations.
+export async function study_book(spellbook, state = game, env = {}) {
+    if (!study_book_preflight(spellbook, state)) {
+        throw new UnsupportedSpellStudyError(
+            'the selected spellbook branch',
+        );
+    }
+    if (typeof env.message !== 'function'
+        || typeof env.prompt !== 'function') {
+        throw new TypeError('study_book requires message and prompt owners');
+    }
+
+    const booktype = spellbook.otyp;
+    const type = objectType(booktype, state);
+    state.context ??= {};
+    state.context.spbook ??= { delay: 0, book: null, o_id: 0 };
+    // SPE_HEALING is level 1, so C stores -oc_delay directly.
+    state.context.spbook.delay = -type.oc_delay;
+    await env.message(
+        `You know "${OBJ_NAME(type, state)}" quite well already.`,
+        state,
+    );
+    discover_object(booktype, true, true, true, state);
+    const answer = await env.prompt('Refresh your memory anyway?', state);
+    if (answer === 'n'.charCodeAt(0)) return 0;
+    throw new UnsupportedSpellStudyError(
+        'refreshing the known spell',
+    );
 }
 
 // C ref: spell.c spellev(). The spell's level, copied from the book's

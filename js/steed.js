@@ -839,10 +839,8 @@ export function stucksteed(checkfeeding, state = game) {
 // stand and dismount_steed() returned without releasing the steed.
 //
 // The `wizard && y_n(...)` question sits between getdir() and mount_steed().
-// A hero who is not in debug mode skips it and reaches mount_steed() with
-// forcemount FALSE. A debug-mode hero stops inside y_n() instead, because the
-// port's tty_yn_function() covers only the arm that accepts any single
-// keystroke.
+// A normal hero reaches mount_steed() with forcemount FALSE; a debug hero's
+// accepted response selects the force flag and is recorded for #repeat.
 export async function doride(state = game) {
     const u = state.u;
     let forcemount = false;

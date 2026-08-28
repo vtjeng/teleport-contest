@@ -149,6 +149,7 @@ import {
     dovspell,
     UnsupportedSpellCastError,
     UnsupportedSpellDisplayError,
+    UnsupportedSpellStudyError,
 } from './spell.js';
 import {
     UnsupportedWeaponSkillError,
@@ -466,12 +467,11 @@ function yn_menuable_resp(resp, state) {
 
 // C ref: cmd.c yn_function() (5471-5578). The ordinary user-input arm reads
 // through tty_yn_function() and, when addcmdq is true, records the answer in
-// CQ_REPEAT. This slice admits that write for an unrestricted prompt. The
-// restricted-response and queued-answer arms remain outside the running-game
-// boundary: nothing ported can set gi.in_doagain, and the current whatdoes
-// caller starts with an empty canned queue. getdir() passes addcmdq FALSE,
-// exactly as C does at 3989. iflags.debug_fuzzer is never set, leaving the
-// window port's reader as the only live input source.
+// CQ_REPEAT. Both unrestricted whatdoes input and restricted y_n input reach
+// that write. The queued-answer arm remains outside the running-game boundary:
+// nothing ported can set gi.in_doagain. getdir() passes addcmdq FALSE, exactly
+// as C does at 3989. iflags.debug_fuzzer is never set, leaving the window
+// port's reader as the only live input source.
 //
 // The `resp && *resp && res && !strchr(resp, res)` repair at 5567 has no work
 // to do for either caller. A null `resp` fails its first test. For a restricted
@@ -497,20 +497,14 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
         throw new UnsupportedDirectionBoundaryError('yn_function_menu()');
     }
     const res = await tty_yn_function(query, resp, def, state);
-    if (addcmdq && resp !== null) {
-        throw new UnsupportedDirectionBoundaryError(
-            'cmdq_add_key(CQ_REPEAT) for a restricted response set',
-        );
-    }
     if (addcmdq) cmdq_add_key(CQ_REPEAT, res, state);
     // "in case we're called via getdir() which sets input_state".
     state.program_state.input_state = 'other';
     return res;
 }
 
-// C ref: hack.h:1329 y_n(), over decl.c ynchars[]. Its one ported caller,
-// steed.c doride()'s debug-mode question, still stops: y_n() passes
-// addcmdq TRUE and yn_function() refuses that above.
+// C ref: hack.h:1329 y_n(), over decl.c ynchars[]. The accepted byte is saved
+// in CQ_REPEAT so a future #repeat implementation can replay the same answer.
 const ynchars = 'yn';
 export async function y_n(query, state = game) {
     return yn_function(query, ynchars, 'n', true, state);
@@ -1686,6 +1680,7 @@ export function failClosedCommandRefusals() {
         UnsupportedFeatureDescriptionError,
         UnsupportedObjectNameError,
         UnsupportedSpellDisplayError,
+        UnsupportedSpellStudyError,
         // spell.c spelleffects_check() and spelleffects() raise this from
         // the forgotten-spell, amulet-drain, and non-healing spell paths
         // that this port has not reached.
