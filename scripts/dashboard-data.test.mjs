@@ -64,6 +64,7 @@ function renderDashboard(data) {
             return (...args) => canvasOps.push([String(key), ...args]);
         },
         set(target, key, value) {
+            canvasOps.push(['set', String(key), value]);
             target[key] = value;
             return true;
         },
@@ -98,10 +99,26 @@ function renderDashboard(data) {
     runInNewContext(source, {
         document,
         window,
-        getComputedStyle: () => ({ getPropertyValue: () => '' }),
+        getComputedStyle: () => ({
+            getPropertyValue: (property) => property,
+        }),
     });
     elements.canvasOps = canvasOps;
     return elements;
+}
+
+function timelineRow(timeline, goalName) {
+    return timeline.split('<div class="timeline-row">')
+        .find((row) => row.includes(`title="${goalName}"`));
+}
+
+function timelineSegments(row) {
+    return [...row.matchAll(
+        /class="timeline-segment" style="left:([\d.-]+)%;width:([\d.-]+)%/gu,
+    )].map((match) => ({
+        left: Number(match[1]),
+        width: Number(match[2]),
+    }));
 }
 
 test('dashboard separates closed goals and labels inferred timing', () => {
@@ -221,8 +238,14 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     const timeline = rendered.get('timeline').innerHTML;
     assert.match(timeline, /Goal selection: 5m \(inferred\)/u);
     assert.match(timeline, /Goal selection: 10m"/u);
-    assert.match(timeline, /First slice selection: 10m \(inferred\)/u);
-    assert.match(timeline, /First slice selection: 10m"/u);
+    assert.match(
+        timelineRow(timeline, 'orphan'),
+        /First slice selection: 10m \(inferred\)/u,
+    );
+    assert.match(
+        timelineRow(timeline, 'alpha'),
+        /First slice selection: 10m"/u,
+    );
     assert.match(
         timeline,
         /Implementation: 10m \(end inferred\) — Queue orphan slice/u,
@@ -232,12 +255,24 @@ test('dashboard separates closed goals and labels inferred timing', () => {
         rendered.get('progressProvenance').textContent,
         '1 hollow marker uses commit time where SCORE records only a date.',
     );
+    const markerIndex = rendered.canvasOps.findIndex(
+        ([operation, , , radius]) => operation === 'arc' && radius === 3,
+    );
+    assert.notEqual(markerIndex, -1);
     assert.equal(
         rendered.canvasOps.filter(
             ([operation, , , radius]) => operation === 'arc' && radius === 3,
         ).length,
         1,
     );
+    assert.deepEqual(rendered.canvasOps.slice(markerIndex, markerIndex + 6), [
+        ['arc', 50, 10 + (1 - 5 / 100) * (200 - 10 - 36), 3, 0, Math.PI * 2],
+        ['set', 'fillStyle', '--surface-chart'],
+        ['fill'],
+        ['set', 'strokeStyle', '--progress-fill'],
+        ['set', 'lineWidth', 1.5],
+        ['stroke'],
+    ]);
 });
 
 test('in-progress phase provenance follows each recorded boundary', () => {
@@ -286,14 +321,51 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     let timeline = renderDashboard(activeData).get('timeline').innerHTML;
     assert.match(timeline, /Slice selection: 10m"/u);
     assert.doesNotMatch(timeline, /Slice selection: 10m \(inferred\)/u);
+    const activeRow = timelineRow(timeline, 'running');
+    const activeSegments = timelineSegments(activeRow);
+    assert.ok(activeSegments.length > 0);
+    for (const { left, width } of activeSegments) {
+        assert.ok(left >= 0);
+        assert.ok(left + width <= 100);
+    }
 
     rows[1] = scoreRow({
         utc: '2026-01-01', sha: closed,
         event: 'goal', screens: 10, note: 'prior closes.',
     });
+    writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
+    const inferredGoal = runData();
+    assert.equal(inferredGoal.goals.at(-1).goalSelectionObserved, false);
+    assert.equal(inferredGoal.goals.at(-1).sliceSelectionObserved, true);
+    let mixedRow = timelineRow(
+        renderDashboard(inferredGoal).get('timeline').innerHTML,
+        'running',
+    );
+    assert.match(mixedRow, /Goal selection: 5m \(inferred\)/u);
+    assert.match(mixedRow, /Slice selection: 10m"/u);
+
+    rows[1] = scoreRow({
+        utc: '2026-01-01T00:05:00Z', sha: closed,
+        event: 'goal', screens: 10, note: 'prior closes.',
+    });
     rows[2] = scoreRow({
         utc: '2026-01-01', sha: firstClose,
         event: 'slice', screens: 15, note: 'first running slice closes.',
+    });
+    writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
+    const inferredSlice = runData();
+    assert.equal(inferredSlice.goals.at(-1).goalSelectionObserved, true);
+    assert.equal(inferredSlice.goals.at(-1).sliceSelectionObserved, false);
+    mixedRow = timelineRow(
+        renderDashboard(inferredSlice).get('timeline').innerHTML,
+        'running',
+    );
+    assert.match(mixedRow, /Goal selection: 5m"/u);
+    assert.match(mixedRow, /Slice selection: 10m \(inferred\)/u);
+
+    rows[1] = scoreRow({
+        utc: '2026-01-01', sha: closed,
+        event: 'goal', screens: 10, note: 'prior closes.',
     });
     writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
     const inferredData = runData();

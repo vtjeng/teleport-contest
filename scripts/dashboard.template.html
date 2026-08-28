@@ -623,7 +623,11 @@ window.addEventListener('resize', drawProgressChart);
     const prevClose = g.goalSelectionMin != null ? new Date(g.openTime).getTime() - g.goalSelectionMin * 60000 : new Date(g.openTime).getTime();
     return prevClose;
   })));
-  const latest = new Date(Math.max(...goals.map(g => new Date(g.closeTime || g.openTime).getTime())));
+  const latest = new Date(Math.max(...goals.flatMap(g => [
+    g.openTime,
+    g.closeTime,
+    ...g.slices.flatMap(sl => [sl.queueTime, sl.closeTime]),
+  ].filter(Boolean).map(t => new Date(t).getTime()))));
   const rangeMs = latest - earliest || 1;
 
   function toX(t) {
