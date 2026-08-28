@@ -858,7 +858,7 @@ test('planned fog leaves its cloned vapor without changing live state',
         ), pathBefore);
     });
 
-test('a later ranged refusal discards a planned fog-region leave', async () => {
+test('a planned ranged announcement discards a fog-region leave', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
     target.monster.movement = NORMAL_SPEED;
     // Preserve fog identity for m_everyturn_effect(), but borrow the gnome's
@@ -872,18 +872,20 @@ test('a later ranged refusal discards a planned fog-region leave', async () => {
     target.monster.minvent = dagger;
     target.monster.mw = dagger;
     target.monster.weapon_check = NEED_WEAPON;
+    // The sentinel proves that monshoot() writes only the planning clone's
+    // m_shot record before the injected missile-flight refusal.
+    const liveShot = { marker: 'live m_shot sentinel' };
+    game.m_shot = liveShot;
     const before = completeSecondTurnSnapshot(game, target.replay);
     const beforeRandom = rngSnapshot();
 
-    await assert.rejects(
-        preflightSimpleMonsterActions(game),
-        (error) => error instanceof UnsupportedSimpleMonsterActionError
-            && error.reason === 'monster ranged weapon action',
-    );
+    await preflightSimpleMonsterActions(game);
 
     assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
     assert.deepEqual(rngSnapshot(), beforeRandom);
     assert.deepEqual(game.level.regions, []);
+    assert.equal(game.m_shot, liveShot);
+    assert.deepEqual(game.m_shot, { marker: 'live m_shot sentinel' });
 });
 
 test('a ranged attacker preflights and then spends its turn wielding a bow',
@@ -1890,7 +1892,7 @@ test('simple preflight rejects every selected excluded action atomically',
             },
             {
                 name: 'post-move ranged weapon',
-                reason: 'monster ranged weapon action',
+                reason: 'unseen monster ranged feedback',
                 prepare: async () => {
                     const target = await prepareSelectedAction({
                         pmidx: PM_GNOME,

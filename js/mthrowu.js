@@ -1,11 +1,14 @@
 // mthrowu.js -- Monster ranged attacks and hero-is-hit-by-missile logic.
 //
 // C ref: mthrowu.c. This file holds thitu() (75-155, hero hit by non-monster
-// missile), thrwmu()'s ranged-weapon wield-turn head (1172-1194), and the
+// missile), thrwmu()'s ordinary single-shot path (1174-1263), monmulti()'s
+// quantity-one result (201-259), monshoot()'s visible announcement head
+// (262-300), and the
 // line-of-fire tests every ranged monster action asks before it acts:
 // blocking_terrain() (1281-1288), linedup() (1330-1372),
 // m_lined_up() (1375-1394) and lined_up() (1397-1401).
-// The rest of thrwmu(), plus m_throw(), breamu() and spitmu(), remains behind
+// Polearm and returning-weapon attacks, multishot, unseen feedback, the rest
+// of monshoot(), m_throw(), breamu() and spitmu() remain behind
 // js/unported_monster_actions.js.
 
 import {
@@ -37,12 +40,20 @@ import { throws_rocks } from './mondata.js';
 // function declarations, which an ES module cycle initializes before either
 // module body runs; nothing here reads the import at module scope.
 import { closed_door } from './monmove.js';
-import { sobj_at } from './obj.js';
-import { ACID_VENOM, BOULDER, SILVER, WAN_STRIKING } from './objects.js';
-import { an, vtense } from './objnam.js';
+import { ammo_and_launcher, sobj_at } from './obj.js';
+import {
+    ACID_VENOM,
+    AKLYS,
+    BOULDER,
+    SILVER,
+    WAN_STRIKING,
+    WEAPON_CLASS,
+} from './objects.js';
+import { an, obj_is_pname, singular, vtense, xnameFresh } from './objnam.js';
 import { rn2, rnd } from './rng.js';
 import { clear_path, couldsee } from './vision.js';
 import { mon_wield_item, select_rwep } from './weapon.js';
+import { is_pole } from './worn.js';
 import { exclam } from './zap.js';
 
 // C ref: mthrowu.c blocking_terrain() (1281-1288). "return TRUE if terrain at
@@ -157,12 +168,86 @@ function heroIsBlind(state) {
     );
 }
 
-// C ref: mthrowu.c thrwmu() (1172-1194), through the source-ordered wield
-// turn and the first selected missile. The attack continuation remains an
-// injected boundary until monshoot() and m_throw() are ported.
-export async function thrwmu(monster, rawEnv = {}) {
+function requireRangedOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function')
+        throw new TypeError(`monster ranged attack requires a ${name} operation`);
+    return operation;
+}
+
+function refuseRanged(env, reason) {
+    return requireRangedOperation(env, 'unsupported')(reason);
+}
+
+// C ref: mthrowu.c monmulti() (201-259), quantity-one arm. The source skips
+// every skill, race, launcher and random adjustment when quan is one.
+export function monmulti(monster, missile, launcher, env = {}) {
+    if (Math.trunc(missile.quan ?? 1) !== 1)
+        return refuseRanged(env, 'monster multishot');
+    return 1;
+}
+
+// C ref: mthrowu.c monshoot() (262-300), through the first m_throw() call for
+// a visible quantity-one thrown weapon. Missile flight remains an injected
+// boundary. The planning pass supplies a no-op so the live pass can reach the
+// source-ordered announcement before its flight operation refuses.
+export async function monshoot(monster, missile, launcher, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
+    const target = env.monsterTarget ?? null;
+    if (target)
+        return refuseRanged(env, 'monster ranged attack on another monster');
+
+    const range = distmin(
+        monster.mx,
+        monster.my,
+        monster.mux,
+        monster.muy,
+    );
+    const multishot = monmulti(monster, missile, launcher, env);
+    const seesMonster = requireRangedOperation(env, 'canSeeMonster');
+    if (!seesMonster(monster, state))
+        return refuseRanged(env, 'unseen monster ranged feedback');
+
+    if (ammo_and_launcher(missile, launcher, state))
+        return refuseRanged(env, 'monster ranged launcher action');
+    if (obj_is_pname(missile, state))
+        return refuseRanged(env, 'named monster missile announcement');
+
+    const singleName = singular(missile, xnameFresh, state);
+    const objectName = an(singleName);
+    state.m_shot ??= {};
+    state.m_shot.s = false;
+    const monsterName = requireRangedOperation(env, 'monsterName');
+    const message = requireRangedOperation(env, 'message');
+    await message(
+        `${monsterName(monster, state)} throws ${objectName}!`,
+        state,
+    );
+    state.m_shot.o = missile.otyp;
+    state.m_shot.n = multishot;
+    state.m_shot.i = 1;
+
+    const throwMissile = requireRangedOperation(env, 'throwMissile');
+    await throwMissile(
+        monster,
+        monster.mx,
+        monster.my,
+        sgn(monster.mux - monster.mx),
+        sgn(monster.muy - monster.my),
+        range,
+        missile,
+        env,
+    );
+    return 0;
+}
+
+// C ref: mthrowu.c thrwmu() (1174-1263), through the source-ordered wield
+// turn, ordinary line and retreat checks, and monshoot()'s first m_throw().
+export async function thrwmu(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const env = { ...rawEnv, state, random };
 
     if (monster.weapon_check === NEED_WEAPON || !monster.mw) {
         monster.weapon_check = NEED_RANGED_WEAPON;
@@ -185,11 +270,35 @@ export async function thrwmu(monster, rawEnv = {}) {
 
     const selected = select_rwep(monster, env);
     if (!selected) return 0;
-    const continueRangedAttack = env.continueRangedAttack;
-    if (typeof continueRangedAttack !== 'function') {
-        throw new TypeError('thrwmu requires a continueRangedAttack operation');
+
+    if (is_pole(selected, state) || selected.otyp === AKLYS) {
+        return refuseRanged(
+            env,
+            'monster polearm or returning-weapon action',
+        );
     }
-    return continueRangedAttack(monster, selected, env);
+    if (!lined_up(monster, env)) return 0;
+
+    const currentDistance = distmin(
+        state.u.ux,
+        state.u.uy,
+        monster.mx,
+        monster.my,
+    );
+    const previousDistance = distmin(
+        state.u.ux0,
+        state.u.uy0,
+        monster.mx,
+        monster.my,
+    );
+    if (currentDistance > previousDistance
+        && env.random.rn2(BOLT_LIM - currentDistance)) {
+        return 0;
+    }
+    if (selected.oclass !== WEAPON_CLASS)
+        return refuseRanged(env, 'monster special missile action');
+
+    return monshoot(monster, selected, monster.mw, env);
 }
 
 // C ref: mthrowu.c thitu() (75-155). "hero is hit by something other than a

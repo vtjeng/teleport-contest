@@ -274,6 +274,39 @@ function fitsOnTtyTopline(prior, next, columns) {
             < columns - MORE_PROMPT.length;
 }
 
+// Whether an ordinary pline() will reach xwaitforspace() before it returns.
+// Monster-action planning uses this to distinguish a message which itself is
+// the next supported input boundary from one which would run straight into an
+// unported source operation. Keep the predicates in the same order as
+// ttyPlineCore() below so the dry run does not guess from rendered output.
+export function ttyPlineWillWait(message, state = game) {
+    const normalizedMessage = normalizeVplineMessage(message);
+    const next = ttyByteText(normalizedMessage);
+    const msgtype = msgtype_type(normalizedMessage, false, state);
+    if (msgtype === MSGTYP_NOSHOW) return false;
+
+    const columns = state.nhDisplay?.cols ?? 80;
+    const stoppedAtEntry = Boolean(state._ttyMessageStopped);
+    const occupied = state._pending_message ?? '';
+    const current = state.nhDisplay?.toplin === TOPLINE_NON_EMPTY
+        ? '' : occupied;
+    const priorTopline = state._ttyToplines ?? current;
+    const deathMessage = next.startsWith('You die');
+    const deathComparisonReached = deathMessage
+        && (Boolean(current) || stoppedAtEntry)
+        && fitsOnTtyTopline(priorTopline, next, columns);
+
+    if (stoppedAtEntry && !deathComparisonReached) return false;
+    if (current
+        && !deathMessage
+        && fitsOnTtyTopline(current, next, columns)) {
+        return msgtype === MSGTYP_STOP;
+    }
+    if (current) return true;
+    return wrapTtyTopline(next, columns).length > 1
+        || msgtype === MSGTYP_STOP;
+}
+
 function rememberSuppressedMessage(state, message, columns) {
     const next = String(message);
     const current = state._ttyToplines ?? '';

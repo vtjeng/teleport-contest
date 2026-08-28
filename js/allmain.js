@@ -1119,6 +1119,16 @@ async function advanceElapsedTurn(state) {
                 });
                 if (state.u.umovement >= NORMAL_SPEED) break;
             } while (monstersCanMove);
+        } catch (error) {
+            // A supported monster prefix can print before its next operation
+            // refuses. Preserve that output through the gameplay boundary,
+            // just as the preflight conversion above preserves an atomic
+            // refusal before the live pass starts.
+            if (!(error instanceof UnsupportedSimpleMonsterActionError))
+                throw error;
+            const boundary = new UnsupportedTurnBoundaryError(error.message);
+            boundary.reason = error.reason;
+            throw boundary;
         } finally {
             state.context.mon_moving = false;
         }

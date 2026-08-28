@@ -10,6 +10,7 @@ import {
     M_AP_MONSTER,
     M_AP_NOTHING,
     M_AP_OBJECT,
+    NO_WEAPON_WANTED,
     ROOM,
     STONE,
     NEED_WEAPON,
@@ -20,7 +21,13 @@ import { runSegment } from '../js/jsmain.js';
 import { PM_GIANT_RAT, PM_STONE_GIANT } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { mksobj, mksobj_at } from '../js/obj.js';
-import { ARROW, BOULDER, BOW, WAN_STRIKING } from '../js/objects.js';
+import {
+    ARROW,
+    BOULDER,
+    BOW,
+    ORCISH_DAGGER,
+    WAN_STRIKING,
+} from '../js/objects.js';
 import { blocking_terrain, lined_up, linedup, m_lined_up, thrwmu }
     from '../js/mthrowu.js';
 import { block_point, vision_reset } from '../js/vision.js';
@@ -104,6 +111,60 @@ test('thrwmu spends an empty-handed launcher wield turn', async () => {
     assert.equal(bow.owornmask, W_WEP);
     assert.deepEqual(messages, [[BOW, true]]);
 });
+
+test('thrwmu announces one visible ordinary throw before missile flight',
+    async () => {
+        const state = await hero();
+        const y = state.u.uy;
+        // Five squares is inside mthrowu.c's strict BOLT_LIM limit of eight,
+        // and the equal y coordinates select its horizontal line-of-fire arm.
+        const subject = attacker(state, state.u.ux + 5, y, state.u.ux, y);
+        const dagger = mksobj(ORCISH_DAGGER, false, false, { state });
+        // The witness has not identified ORCISH_DAGGER, so objnam.c selects
+        // objects.c's "crude dagger" description for the announcement.
+        state.objects[ORCISH_DAGGER].oc_name_known = 0;
+        // Quantity one keeps monmulti() on its source-leading no-draw path.
+        dagger.quan = 1;
+        dagger.owornmask = W_WEP;
+        dagger.nobj = null;
+        subject.minvent = dagger;
+        subject.mw = dagger;
+        subject.weapon_check = NO_WEAPON_WANTED;
+        clearRow(state, state.u.ux, subject.mx, y);
+        setCouldSee(state, subject.mx, y, true);
+        state.u.ux0 = state.u.ux;
+        state.u.uy0 = state.u.uy;
+        const messages = [];
+        const flight = new Error('expected m_throw boundary');
+
+        await assert.rejects(thrwmu(subject, {
+            state,
+            random: noDraw(),
+            canSeeMonster: () => true,
+            monsterName: () => 'The giant rat',
+            message: (text) => { messages.push(text); },
+            throwMissile: (monster, x, originY, dx, dy, range, obj) => {
+                assert.equal(monster, subject);
+                assert.deepEqual(
+                    [x, originY, dx, dy, range, obj],
+                    // The hero is five squares west on the same row.
+                    [subject.mx, y, -1, 0, 5, dagger],
+                );
+                assert.deepEqual(state.m_shot, {
+                    // An orcish dagger is thrown rather than shot.
+                    s: false,
+                    o: ORCISH_DAGGER,
+                    n: 1,
+                    i: 1,
+                });
+                throw flight;
+            },
+        }), flight);
+        assert.deepEqual(messages, [
+            // objects.c identifies an unknown orcish dagger as "crude dagger".
+            'The giant rat throws a crude dagger!',
+        ]);
+    });
 
 test('blocking_terrain answers for each terrain mthrowu.c names', async () => {
     const state = await hero();

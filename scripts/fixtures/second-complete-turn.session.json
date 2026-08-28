@@ -469,7 +469,7 @@
     },
     {
       "name": "WeaponInventory",
-      "reason": "monster ranged weapon action",
+      "reason": "monster missile flight",
       "input": {
         "seed": 2026073002,
         "datetime": "20260724100000",

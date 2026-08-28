@@ -125,7 +125,7 @@ import {
 } from './startup_a11y.js';
 import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import { ttyPline, ttyPlineWillWait } from './tty_message.js';
 import {
     block_point,
     cansee,
@@ -542,6 +542,9 @@ function planningState(state) {
         // extcmdlist entries and need no deepening.
         command_queue: state.command_queue?.map((queue) => [...queue]),
         gd: { ...(state.gd ?? {}) },
+        // mthrowu.c monshoot() fills this record before entering m_throw(). A
+        // rejected planned flight must not leave those values in live state.
+        m_shot: { ...(state.m_shot ?? {}) },
         // decl.h:457-458's hitmsg_mid and hitmsg_prev, which mhitu.c hitmsg()
         // writes and missmu() clears on every monster attack the scan replays.
         // The two answer whether a monster's next blow says "again", and the
@@ -964,9 +967,23 @@ async function throwRangedWeapon(monster, env) {
                 unsupported('monster ranged wield with a welded weapon');
         }
     }
+    let plannedAnnouncementWaits = false;
     return thrwmu(monster, {
         ...selectionEnv,
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
+        message: env.planning
+            ? async (text, state) => {
+                plannedAnnouncementWaits = ttyPlineWillWait(text, state);
+            }
+            : ttyPline,
+        monsterName: (subject) => capitalizedMonsterName(subject, env.state),
+        throwMissile: env.planning
+            ? () => {
+                if (!plannedAnnouncementWaits)
+                    unsupported('monster missile flight');
+            }
+            : () => unsupported('monster missile flight'),
+        unsupported,
         wieldMessage: async (subject, obj, detail) => {
             if (env.planning) return;
             await ttyPline(
@@ -976,8 +993,6 @@ async function throwRangedWeapon(monster, env) {
                 env.state,
             );
         },
-        continueRangedAttack: () =>
-            unsupported('monster ranged weapon action'),
     });
 }
 
