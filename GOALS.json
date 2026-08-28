@@ -5735,6 +5735,39 @@
         "screens": 4,
         "rng": -45
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-command-",
+      "status": "open",
+      "boundary": "When a non-hallucinating, sighted, unblindfolded human applies one carried, paid, non-artifact cream pie and can_blnd(NULL, &youmonst, AT_WEAP, obj) is true, doapply() follows use_cream_pie(): it prints the immersion message, draws rnd(25), adds the result to u.ucreamed and the BLINDED timeout, performs the sighted-to-blind transition, prints the sticky-goop message, consumes that pie, and returns ECMD_OK; other cream-pie states remain fail-closed.",
+      "upstreamOwners": [
+        "apply.c",
+        "mondata.c",
+        "potion.c"
+      ],
+      "forecast": {
+        "steps": 5,
+        "basis": "Capped look-ahead: seed0108-wizard-extcmd-wishlist cappedStretch=5; capStable=true; divergenceZeroed=false.",
+        "sessions": [
+          "seed0108-wizard-extcmd-wishlist"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0108-wizard-extcmd-wishlist",
+            "evidence": "At step 54, key a opens doapply() and displays the apply prompt; at step 55, key o selects the ordinary carried CREAM_PIE (otyp 287) wished for at step 50. C runs cmd.c doapply -> apply.c apply_ok/doapply case CREAM_PIE -> use_cream_pie(). Quantity one avoids splitobj; the non-hallucinating human has eyes and is not blindfolded, so can_blnd(NULL, &youmonst, AT_WEAP, obj) is true. The recorded rnd(25)=3 at apply.c:3585 increments u.ucreamed and blindness by 3, prints the immersion and sticky-goop messages, deletes the pie, and returns ECMD_OK. JS apply_ok already suggests CREAM_PIE, but js/apply.js has no otyp 287 switch arm and raises the exact boundary before effect. The C RNG caller at this exact key confirms the branch with no prior screen or RNG divergence."
+          }
+        ]
+      },
+      "detail": "Port the witnessed quantity-one, non-hallucinating, initially sighted, unblindfolded-human CREAM_PIE path through apply.c doapply()/use_cream_pie(), the narrowly required mondata.c can_blnd() result, and potion.c make_blinded() sighted-to-blind transition. Preserve source-ordered rnd(25), u.ucreamed/BLINDED timeout updates, vision/status transition, messages, paid ordinary inventory extraction/deletion, the ordinary delobj obj_resists rn2(100) draw, and ECMD_OK. Existing prerequisites include apply_ok, CREAM_PIE, haseyes, timeout helpers, object lifecycle helpers, and toggle_blindness. Keep fail-closed before output or mutation for pie stacks/plural wording, hallucination, eyeless/blindfolded/already-blind or otherwise protected states, unpaid/shop paths, other make_blinded/can_blnd branches, and all other doapply arms.",
+      "slices": [],
+      "openedAt": "1a269e5a29918325289b817b4b2f921a47884c24",
+      "openStanding": {
+        "sha": "887e6b6",
+        "screens": 2778,
+        "rng": 156857
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
