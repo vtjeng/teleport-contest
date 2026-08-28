@@ -540,6 +540,15 @@ export function raceIndex(race) {
     return str2race(race?.noun ?? race?.name ?? race);
 }
 
+// C ref: role.c character_race() (2162-2171). If pmindex matches any player
+// race's mnum, return that race entry; otherwise null.
+export function character_race(pmindex) {
+    for (const r of races) {
+        if (r.mnum === pmindex) return r;
+    }
+    return null;
+}
+
 export function roleName(role, female = false) {
     const index = roleIndex(role);
     if (!validrole(index)) return null;

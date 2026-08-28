@@ -190,7 +190,7 @@ import {
     UnsupportedReadError,
 } from './read.js';
 import {
-    wiz_genesis, wiz_level_change, wiz_level_tele, wiz_wish,
+    wiz_genesis, wiz_level_change, wiz_level_tele, wiz_polyself, wiz_wish,
 } from './wizcmds.js';
 import {
     dozap,
@@ -2262,6 +2262,12 @@ async function runGenesisCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_genesis(state));
 }
 
+// C ref: wizcmds.c wiz_polyself(). Unconditionally calls
+// polyself(POLY_CONTROLLED) and returns ECMD_OK, so #polyself spends no turn.
+async function runPolyselfCommand(key, state) {
+    return failClosedCommand(key, state, () => wiz_polyself(state));
+}
+
 // C ref: wield.c dotwoweapon(). Like dosearch() and doeat() it returns its own
 // ECMD_* result, and it is the only ported command whose result a random draw
 // decides: wield.c:861 answers ECMD_TIME when rnd(20) beats the hero's current
@@ -2600,6 +2606,8 @@ async function doextcmd(key, state) {
         return await runWishCommand(key, state);
     case 'wiz_genesis':
         return await runGenesisCommand(key, state);
+    case 'wiz_polyself':
+        return await runPolyselfCommand(key, state);
     case 'dosave':
         // C ref: save.c dosave(), which always returns ECMD_OK.
         return await dosave(state);

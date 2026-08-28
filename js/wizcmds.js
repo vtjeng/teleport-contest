@@ -1,10 +1,11 @@
 // wizcmds.js -- the wizard-mode extended commands.
-// C refs: src/wizcmds.c wiz_genesis(), wiz_level_change(), wiz_level_tele()
-// and wiz_wish(), so far the only four rows of that file cmd.c dispatches
-// here.
+// C refs: src/wizcmds.c wiz_genesis(), wiz_level_change(), wiz_level_tele(),
+// wiz_wish() and wiz_polyself(), so far the five rows of that file cmd.c
+// dispatches here.
 
-import { ECMD_OK, MAXULEV } from './const.js';
+import { ECMD_OK, MAXULEV, POLY_CONTROLLED } from './const.js';
 import { pluslvl, UnsupportedExperienceChangeError } from './exper.js';
+import { polyself } from './polyself.js';
 import { create_particular } from './read.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
@@ -169,5 +170,12 @@ export async function wiz_level_change(state = game) {
     }
     /* blessed full healing or restore ability won't fix any lost levels */
     u.ulevelmax = u.ulevel;
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_polyself() (566-572), the #polyself command.
+// Unconditionally calls polyself(POLY_CONTROLLED) and returns ECMD_OK.
+export async function wiz_polyself(state = game) {
+    await polyself(POLY_CONTROLLED, state);
     return ECMD_OK;
 }

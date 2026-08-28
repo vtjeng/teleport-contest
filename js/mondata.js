@@ -309,6 +309,41 @@ export function likes_objs(species) {
 }
 export function likes_magic(species) { return flag2(species, M.M2_MAGIC); }
 export function extra_nasty(species) { return flag2(species, M.M2_NASTY); }
+
+// C ref: mondata.h polyok() (93). TRUE when the species accepts polymorph.
+export function polyok(species) { return !flag2(species, M.M2_NOPOLY); }
+
+// C ref: mondata.h is_placeholder() (166-168). Four placeholder species exist
+// only for corpse forms; they are reasonable polymorph targets but need
+// substitution.
+export function is_placeholder(species) {
+    return species?.pmidx === M.PM_ORC
+        || species?.pmidx === M.PM_GIANT
+        || species?.pmidx === M.PM_ELF
+        || species?.pmidx === M.PM_HUMAN;
+}
+
+// C ref: mondata.h is_vampire() (213). S_VAMPIRE by mlet.
+export function is_vampire(species) {
+    return species?.mlet === M.S_VAMPIRE;
+}
+
+// C ref: mondata.h is_bat() (103-105). Three individual species.
+export function is_bat(species) {
+    return species?.pmidx === M.PM_BAT
+        || species?.pmidx === M.PM_GIANT_BAT
+        || species?.pmidx === M.PM_VAMPIRE_BAT;
+}
+
+// C ref: mondata.h infravision() (154). M3_INFRAVISION flag.
+export function infravision(species) { return flag3(species, M.M3_INFRAVISION); }
+
+// C ref: mondata.h pm_invisible() (192-193). Two species are permanently
+// invisible.
+export function pm_invisible(species) {
+    return species?.pmidx === M.PM_STALKER
+        || species?.pmidx === M.PM_BLACK_LIGHT;
+}
 export function always_hostile(species) {
     return flag2(species, M.M2_HOSTILE);
 }
@@ -405,6 +440,18 @@ export function is_vampshifter(monster) {
     return monster?.cham === M.PM_VAMPIRE
         || monster?.cham === M.PM_VAMPIRE_LEADER
         || monster?.cham === M.PM_VLAD_THE_IMPALER;
+}
+
+// C ref: mon.c valid_vampshiftform() (5015-5023). Used by set_uasmon() to
+// detect when the hero's current cham field represents a vampire shifted form.
+// The state parameter supplies the mons array that C accesses globally.
+export function valid_vampshiftform(base, form, state = game) {
+    if (base >= M.LOW_PM && is_vampire(state.mons[base])) {
+        if (form === M.PM_VAMPIRE_BAT || form === M.PM_FOG_CLOUD
+            || (form === M.PM_WOLF && base !== M.PM_VAMPIRE))
+            return true;
+    }
+    return false;
 }
 
 export function hates_silver(species) {
@@ -1762,6 +1809,33 @@ export function get_atkdam_type(adtyp, random = { rn2 }) {
     if (adtyp === M.AD_RBRE)
         return rnd_breath_typ[random.rn2(rnd_breath_typ.length)];
     return adtyp;
+}
+
+// C ref: mondata.c defended() (90-124). Checks whether a monster has artifact
+// or dragon-armor defense against a damage type. The port checks only wielded
+// artifact defense, which is the branch resists_drli() exercises. The full
+// dragon-armor branch is left for a later slice that ports the dragon armor
+// defense system.
+export function defended(mon, adtyp, state = game) {
+    const is_you = (mon === state.youmonst);
+    // wielded artifact that defends against adtyp
+    const wep = is_you ? state.uwep : mon?.mw;
+    if (wep && wep.oartifact && artifact_defends(wep, adtyp, state))
+        return true;
+    // dragon armor defense omitted here; add when dragon armor effects are ported
+    return false;
+}
+
+// C ref: mondata.c resists_drli() (200-211). Returns true when a monster
+// resists drain-life attacks.
+export function resists_drli(mon, state = game) {
+    const ptr = mon.data;
+    if (is_undead(ptr) || is_demon(ptr) || is_were(ptr)
+        // is_were() does not handle hero in human form
+        || (mon === state.youmonst && state.u.ulycn >= M.LOW_PM)
+        || ptr?.pmidx === M.PM_DEATH || is_vampshifter(mon))
+        return true;
+    return defended(mon, M.AD_DRLI, state);
 }
 
 export const _mondataInternals = Object.freeze({
