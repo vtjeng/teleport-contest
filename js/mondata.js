@@ -1,4 +1,4 @@
-// Monster name parsing, growth, and species relationships.
+// Monster name parsing, growth, species relationships, and blindness checks.
 // C refs: src/mondata.c name_to_monplus(), name_to_mon(), grownups[],
 // little_to_big(), big_to_little(); src/botl.c title_to_mon();
 // src/mon.c undead_to_corpse(), can_be_hatched(), dead_species().
@@ -8,6 +8,7 @@ import {
     ALL_TRAPS,
     ACID_RES,
     ANTIMAGIC,
+    BLINDED,
     COLD_RES,
     DISINT_RES,
     FEMALE,
@@ -57,7 +58,11 @@ import { has_ceiling } from './dungeon.js';
 import { game } from './gstate.js';
 import { dist2, highc } from './hacklib.js';
 import * as M from './monsters.js';
-import { ALCHEMY_SMOCK, AMULET_OF_MAGICAL_BREATHING } from './objects.js';
+import {
+    ALCHEMY_SMOCK,
+    AMULET_OF_MAGICAL_BREATHING,
+    CREAM_PIE,
+} from './objects.js';
 import { rn2, rnd } from './rng.js';
 import { genders, roles } from './roles.js';
 import { is_fshk } from './shk.js';
@@ -173,6 +178,26 @@ export function ceiling_hider(species) {
             || is_flyer(species));
 }
 export function haseyes(species) { return !flag1(species, M.M1_NOEYES); }
+
+// C ref: mondata.c can_blnd() (305-398), restricted to the live
+// use_cream_pie() call: no aggressor, the hero as defender, AT_WEAP, and a
+// cream pie. The no-eyes guard precedes the attack switch in C, and a worn
+// blindfold is the cream pie's only defense inside that switch.
+export function can_blnd(magr, mdef, aatyp, obj, state = game) {
+    if (!haseyes(mdef?.data)) return false;
+
+    const isYou = mdef === state.youmonst;
+    if (magr !== null || !isYou || aatyp !== M.AT_WEAP
+        || obj?.otyp !== CREAM_PIE) {
+        throw new Error(
+            'can_blnd requires the hero AT_WEAP cream-pie path',
+        );
+    }
+
+    // youprop.h Blindfolded is EBlinded. apply.js preflights every other
+    // blindness state before this narrowly ported source branch executes.
+    return !state.u.uprops?.[BLINDED]?.extrinsic;
+}
 export function nohands(species) { return flag1(species, M.M1_NOHANDS); }
 export function nolimbs(species) {
     return species != null
@@ -1185,9 +1210,11 @@ export function dead_species(m_idx, egg = false, env = {}) {
 // Left for later, with the reason each one is not pure or not yet portable:
 //   Resists_Elem            already ported above as monster_resists_element
 //   resists_blnd            calls impossible()
-//   defended, resists_drli, resists_blnd_by_arti, can_blnd
+//   defended, resists_drli, resists_blnd_by_arti
 //                           need artifact and inventory support that the port
 //                           does not have yet
+//   can_blnd                the hero AT_WEAP cream-pie arm is ported above;
+//                           the remaining arms need those same dependencies
 //   pronoun_gender          calls rn2()
 //   set_mon_data, give_u_to_m_resistances, mon_learns_traps, mons_see_trap,
 //   monstseesu             change monster or hero state.  monstunseesu() is

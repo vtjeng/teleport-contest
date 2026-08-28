@@ -1,13 +1,14 @@
 // apply.js -- the `a` command: using a tool.
-// C refs: src/apply.c apply_ok(), doapply(), use_stethoscope(), its_dead(),
-// and reset_trapset().
+// C refs: src/apply.c apply_ok(), doapply(), use_cream_pie(),
+// use_stethoscope(), its_dead(), and reset_trapset().
 //
-// doapply()'s switch has thirty-odd named arms. Three are live: STETHOSCOPE, the
-// LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c pick_lock() serves, and
-// MAGIC_MARKER which delegates to write.c dowrite() in js/write.js. Ordinary
-// armor reaches the switch's default unknown-use message. Every other named
-// arm, the default's weapon redirects, and the wand, spellbook and coin
-// shortcuts above the switch stop at a refusal naming the C function they need.
+// doapply()'s switch has thirty-odd named arms. Four are live: CREAM_PIE,
+// STETHOSCOPE, the LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c
+// pick_lock() serves, and MAGIC_MARKER which delegates to write.c dowrite() in
+// js/write.js. Ordinary armor reaches the switch's default unknown-use
+// message. Every other named arm, the default's weapon redirects, and the
+// wand, spellbook and coin shortcuts above the switch stop at a refusal naming
+// the C function they need.
 // use_stethoscope() covers
 // the no-hands, Deaf and free-hand guards, the free-action rule, self and
 // off-map probes, the adjacent monster arm, both secret-terrain arms, an empty
@@ -17,13 +18,16 @@
 
 import {
     ARTICLE_A,
+    BLINDED,
     CQ_CANNED,
     CORR,
+    COST_SPLAT,
     DEAF,
     ECMD_CANCEL,
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
+    FACE,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE,
@@ -40,6 +44,7 @@ import {
     M_AP_OBJECT,
     M_AP_TYPE,
     nothing_happens,
+    OBJ_INVENT,
     PRONOUN_NO_IT,
     REVIVE_MON,
     SCORR,
@@ -47,6 +52,8 @@ import {
     STATUE_TRAP,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
+    TIMEOUT,
+    Upolyd,
     u_at,
 } from './const.js';
 import {
@@ -72,10 +79,19 @@ import { game } from './gstate.js';
 import { check_capacity } from './hack.js';
 import { highc } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
-import { getobj, nxtobj, update_inventory } from './invent.js';
+import {
+    delobj,
+    getobj,
+    nxtobj,
+    obj_extract_self,
+    preflight_obfree,
+    preflight_update_inventory,
+    update_inventory,
+} from './invent.js';
 import { pick_lock } from './lock.js';
 import { seemimic } from './mon.js';
 import {
+    can_blnd,
     gender,
     humanoid,
     is_female,
@@ -89,6 +105,7 @@ import { m_at } from './monst.js';
 import { get_mtraits } from './corpstat.js';
 import { discover_object } from './o_init.js';
 import {
+    costly_alteration,
     init_dummyobj,
     is_axe,
     is_boots,
@@ -100,7 +117,13 @@ import {
     objectType,
     sobj_at,
 } from './obj.js';
-import { simple_typename, simpleonames, The } from './objnam.js';
+import {
+    simple_typename,
+    simpleonames,
+    the,
+    The,
+    xnameFresh,
+} from './objnam.js';
 import {
     ARMOR_CLASS,
     BANANA,
@@ -131,16 +154,16 @@ import {
     WAND_CLASS,
     WEAPON_CLASS,
 } from './objects.js';
-import { MZ_TINY, PM_HEALER } from './monsters.js';
+import { AT_WEAP, MZ_TINY, PM_HEALER } from './monsters.js';
 import { body_part } from './polyself.js';
-import { djinni_from_bottle } from './potion.js';
+import { djinni_from_bottle, make_blinded } from './potion.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { obj_has_timer } from './timeout.js';
 import { t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { recalc_block_point, unblock_point } from './vision.js';
-import { is_pole } from './worn.js';
+import { is_pole, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
 import { genders } from './roles.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
@@ -174,6 +197,83 @@ function heroDeaf(state) {
     const deafness = state.u?.uprops?.[DEAF] ?? {};
     return Boolean(deafness.intrinsic || deafness.extrinsic
         || state.u?.uroleplay?.deaf);
+}
+
+// Keep every state outside the selected use_cream_pie() boundary ahead of
+// its first message and mutation. The source branches still exist in C, but
+// their plural wording, hallucination, protection, polymorph, shop, and
+// lifecycle effects belong to later slices.
+function preflightCreamPie(obj, state, env) {
+    const blindness = state.u?.uprops?.[BLINDED];
+    if (!blindness)
+        throw new Error('cream-pie application requires BLINDED state');
+    if (obj.quan !== 1)
+        throw new UnsupportedApplyError('a cream pie stack');
+    if (heroHallucinating(state))
+        throw new UnsupportedApplyError('a hallucinating cream pie user');
+    if (Upolyd(state.u) || state.urace?.noun !== 'human')
+        throw new UnsupportedApplyError('a non-human cream pie user');
+    if (blindness.intrinsic || blindness.extrinsic || blindness.blocked
+        || state.u.ucreamed) {
+        throw new UnsupportedApplyError(
+            'cream pie with protected or blind eyes',
+        );
+    }
+    if (!can_blnd(null, state.youmonst, AT_WEAP, obj, state)) {
+        throw new UnsupportedApplyError(
+            'cream pie against eyes it cannot blind',
+        );
+    }
+    if (obj.unpaid)
+        throw new UnsupportedApplyError('an unpaid cream pie');
+    if (obj.owornmask || obj.timed || obj.lamplit || obj.cobj) {
+        throw new UnsupportedApplyError(
+            'a cream pie with unported lifecycle state',
+        );
+    }
+    if (obj.where !== OBJ_INVENT)
+        throw new UnsupportedApplyError('a cream pie outside inventory');
+    let carried = false;
+    for (let current = state.invent; current; current = current.nobj) {
+        if (current === obj) {
+            carried = true;
+            break;
+        }
+    }
+    if (!carried)
+        throw new UnsupportedApplyError('a cream pie outside inventory');
+
+    preflight_update_inventory(env);
+    preflight_obfree(obj, null, env);
+}
+
+// C ref: apply.c use_cream_pie() (3568-3603), restricted to one paid,
+// ordinary pie and the sighted human state preflightCreamPie() admits.
+async function use_cream_pie(obj, state = game, rawEnv = {}) {
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const env = { ...rawEnv, state, random };
+    preflightCreamPie(obj, state, env);
+
+    await ttyPline(
+        `You immerse your ${body_part(FACE, state.youmonst)} in ${
+            the(xnameFresh(obj, state), state)}.`,
+        state,
+    );
+    const blindinc = random.rnd(25);
+    state.u.ucreamed += blindinc;
+    const blindness = state.u.uprops[BLINDED];
+    make_blinded((blindness.intrinsic & TIMEOUT) + blindinc, false, state);
+    await ttyPline(
+        `You can't see through all the sticky goop on your ${
+            body_part(FACE, state.youmonst)}.`,
+        state,
+    );
+
+    setnotworn(obj, env);
+    costly_alteration(obj, COST_SPLAT, env);
+    obj_extract_self(obj, env);
+    delobj(obj, env);
+    return ECMD_OK;
 }
 
 // C ref: apply.c reset_trapset() (2812-2817), the third of the three clears
@@ -674,7 +774,7 @@ async function use_stethoscope(obj, state = game) {
 // top of retouch_object() answers 1 as well, so it changes nothing either.
 // Porting the artifact arm needs touch_artifact()'s blast, bane_applies(),
 // losehp() and remove_worn_item().
-export async function doapply(state = game) {
+export async function doapply(state = game, env = {}) {
     if (nohands(state.youmonst.data)) {
         await ttyPline(
             "You aren't able to use or apply tools in your current form.",
@@ -700,6 +800,8 @@ export async function doapply(state = game) {
         throw new UnsupportedApplyError('flip_coin()');
 
     switch (obj.otyp) {
+    case CREAM_PIE:
+        return use_cream_pie(obj, state, env);
     case STETHOSCOPE:
         return use_stethoscope(obj, state);
     case LOCK_PICK:

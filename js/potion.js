@@ -5,7 +5,8 @@
 //        peffect_speed() (1052-1070), peffect_oil() (1259-1294),
 //        speed_up() (2918-2928),
 //        itimeout/itimeout_incr/set_itimeout/incr_itimeout (55-86),
-//        potionbreathe() (1931-2118), toggle_blindness() (336-364).
+//        potionbreathe() (1931-2118), make_blinded() (261-331),
+//        toggle_blindness() (336-364).
 //
 // dodrink() is the #quaff command entry point. Branches for strangled,
 // fountain/sink, underwater, worn-potion, milky/smoky are fail-closed;
@@ -279,6 +280,36 @@ export function set_itimeout(prop, val) {
 // C ref: potion.c incr_itimeout() (82-86). Increment the timeout field.
 export function incr_itimeout(prop, incr) {
     set_itimeout(prop, itimeout_incr(prop.intrinsic, incr));
+}
+
+// C ref: potion.c make_blinded() (261-331), restricted to use_cream_pie()'s
+// talk-FALSE transition from ordinary sight to timed blindness. Other callers
+// need the regaining-sight, already-blind, Eyes of the Overworld, Punished,
+// and talk-message arms, so they remain fail-closed here.
+export function make_blinded(xtime, talk, state = game) {
+    const prop = state.u?.uprops?.[BLINDED];
+    if (!prop)
+        throw new Error('make_blinded requires initialized BLINDED state');
+    const old = prop.intrinsic & TIMEOUT;
+    const punished = Boolean(state.uball ?? state.go?.uball);
+    if (talk !== false || old || heroIsBlind(state) || punished
+        || prop.extrinsic || prop.blocked
+        || !Number.isInteger(xtime) || xtime < 1 || xtime > TIMEOUT) {
+        throw new UnsupportedPotionError(
+            'make_blinded() outside the talk-false sighted-to-blind path',
+        );
+    }
+
+    // Probe the status with one timed turn, then restore the old timeout,
+    // exactly as C does in case blocked blindness overrides the property.
+    const uCouldSee = !heroIsBlind(state);
+    set_itimeout(prop, 1);
+    const canSeeNow = !heroIsBlind(state);
+    set_itimeout(prop, old);
+
+    set_itimeout(prop, xtime);
+    if (uCouldSee !== canSeeNow)
+        toggle_blindness(state);
 }
 
 // C ref: youprop.h:399 Unaware. trap.c unconscious() owns the pending-message
