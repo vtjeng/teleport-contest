@@ -5802,7 +5802,13 @@
         ]
       },
       "detail": "Port cmd.c doextcmd dispatch to do.c dowipe(), the witnessed u.ucreamed arm, and wipeoff() through its terminal !HBlinded branch. Admit the exact timeout.c nh_timeout() decrement from u.ucreamed/HBlinded 3 to 2 on the first turn, then clear both in wipeoff(), call the ordinary potion.c make_blinded(0, TRUE) timed-blind-to-sighted branch, update vision/status, and clear occupation. Existing prerequisites include set_occupation, the elapsed-turn occupation loop, timeout helpers, gulp_blnd_check for a non-swallowed hero, toggle_blindness, and vision/status rendering. Keep clean-face, longer/mismatched counters, repeated wiping, automatic timeout expiry, blocked/permanent/nonordinary blindness, engulfment, hallucination/Sting, interruption, and other make_blinded transitions fail-closed.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "ordinary-wipe-occupation",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "18e9805e3d1d8654381234ab1eb58689d469736f",
       "openStanding": {
         "sha": "15af45c",
