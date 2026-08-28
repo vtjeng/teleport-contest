@@ -5842,7 +5842,13 @@
         ]
       },
       "detail": "Preflight the exact selected-object branch: blessed noncursed SCR_TELEPORTATION, sighted, Confusion nonzero, Hallucination false, can_chant true, wizard mode. In read.c doread(), preserve source order and live local state across the two ttyPline waits: snapshot otyp/confused, clear pickup_prev, increment literate conduct, set in_use, emit disappearance and confused-mispronunciation messages. Then seffects() exercises Wisdom with its source RNG/state effect, and seffect_teleportation() rechecks live Confusion and fails closed immediately before level_tele(). At that boundary gk.known is false, the scroll remains inventoried/in_use and unconsumed, and no turn has elapsed. Keep level_tele prompt/answers, post-return learning/consumption/time cost, calm or cursed variants, blindness/can't-chant/hallucination wording, non-blessed confused scrolls, and other readable objects fail-closed.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "confused-teleport-scroll-reading",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "3a0c7b6a1f27c827e2e6790f2451c72a8b0c3542",
       "openStanding": {
         "sha": "6ab4941",
