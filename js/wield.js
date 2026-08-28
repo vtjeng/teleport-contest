@@ -1,7 +1,8 @@
 // wield.js -- what the hero's hands are doing, plus the one question wield.c
 // asks about a monster's hands.
 // C refs: src/wield.c erodeable_wep(), will_weld(), TWOWEAPOK(), welded(),
-// empty_handed(), mwelded(), can_twoweapon(), and dotwoweapon().
+// empty_handed(), mwelded(), wield_tool(), can_twoweapon(), and
+// dotwoweapon().
 //
 // wield.c set_twoweap() lives in js/worn.js beside setworn() and setnotworn(),
 // the two callers that would otherwise make js/worn.js and this file import
@@ -36,6 +37,7 @@ import { reset_remarm, setwornEnv } from './do_wear.js';
 import { effective_attribute } from './attrib.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
+import { strstri } from './hacklib.js';
 import {
     addinv_nomerge,
     freeinv,
@@ -62,7 +64,13 @@ import {
     objectType,
     set_bknown,
 } from './obj.js';
-import { is_plural, vtense, Yname2 } from './objnam.js';
+import {
+    donameFresh,
+    is_plural,
+    vtense,
+    xnameFresh,
+    Yname2,
+} from './objnam.js';
 import {
     AKLYS,
     BELL_OF_OPENING,
@@ -70,6 +78,7 @@ import {
     CORPSE,
     HEAVY_IRON_BALL,
     IRON_CHAIN,
+    MAGIC_LAMP,
     SILVER,
     TIN_OPENER,
     WEAPON_CLASS,
@@ -662,4 +671,58 @@ export async function doquiver_core(verb, state = game) {
     throw new UnsupportedWieldError(
         'doquiver_core() with an ordinary inventory item',
     );
+}
+
+// C ref: wield.c wield_tool() (683-758), restricted to the ordinary unworn,
+// unwelded lamp path reached by apply.c dorub(). The guards below keep the
+// worn, welded, unable-to-wield, shield, quiver, alternate-weapon,
+// self-welding, pushweapon, and two-weapon arms fail-closed before they print
+// or change an equipment slot.
+export async function wield_tool(obj, verb, state = game) {
+    if (state.uwep && obj === state.uwep)
+        throw new UnsupportedWieldError('wield_tool() with uwep');
+    if (obj.otyp !== MAGIC_LAMP) {
+        throw new UnsupportedWieldError(
+            'wield_tool() with a non-magic lamp',
+        );
+    }
+
+    if (!verb) verb = 'wield';
+    const what = xnameFresh(obj, state);
+    const moreThanOne = obj.quan > 1
+        || strstri(what, 'pair of ') >= 0
+        || strstri(what, 's of ') >= 0;
+
+    if (obj.owornmask & (W_ARMOR | W_ACCESSORY)) {
+        throw new UnsupportedWieldError(
+            `wield_tool() ${verb} with a worn ${moreThanOne ? 'stack' : 'item'}`,
+        );
+    }
+    if (state.uwep && will_weld(state.uwep, state))
+        throw new UnsupportedWieldError('wield_tool() with welded uwep');
+    if (cantwield(state.youmonst?.data ?? state.mons[state.u.umonnum]))
+        throw new UnsupportedWieldError('wield_tool() without wielding hands');
+    if (state.uarms && bimanual(obj, state)) {
+        throw new UnsupportedWieldError(
+            'wield_tool() with a two-handed object and shield',
+        );
+    }
+    if (state.uquiver === obj)
+        throw new UnsupportedWieldError('wield_tool() with uquiver');
+    if (state.uswapwep === obj)
+        throw new UnsupportedWieldError('wield_tool() with uswapwep');
+    if (will_weld(obj, state))
+        throw new UnsupportedWieldError('wield_tool() with a welding object');
+
+    const oldwep = state.uwep ?? null;
+    if (state.flags.pushweapon && oldwep)
+        throw new UnsupportedWieldError('wield_tool() with pushweapon');
+    if (state.u.twoweap)
+        throw new UnsupportedWieldError('wield_tool() during two-weapon combat');
+
+    await ttyPline(`You now wield ${donameFresh(obj, state)}.`, state);
+    setuwep(obj, setwornEnv(state));
+    if (obj.oclass !== WEAPON_CLASS)
+        state.unweapon = true;
+    return true;
 }

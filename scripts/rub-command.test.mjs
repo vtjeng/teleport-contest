@@ -2,13 +2,21 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import test from 'node:test';
 
-import { failClosedCommandRefusals } from '../js/cmd.js';
 import {
+    ADMITTED_COMMANDS,
+    failClosedCommandRefusals,
+} from '../js/cmd.js';
+import {
+    CMDQ_EXTCMD,
+    CMDQ_KEY,
+    CQ_CANNED,
     ECMD_CANCEL,
     ECMD_OK,
+    ECMD_TIME,
     CQ_REPEAT,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
+    W_WEP,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -25,9 +33,11 @@ import {
 } from '../js/objects.js';
 import { PM_FLOATING_EYE } from '../js/monsters.js';
 import { dorub, rub_ok, UnsupportedApplyError } from '../js/apply.js';
+import { wield_tool } from '../js/wield.js';
 import {
     ESCAPE_KEY,
     EXTCMD_KEY,
+    loadRubLampWieldRecipe,
     loadRubCommandRecipe,
     NEWLINE,
     SPACE_KEY,
@@ -41,6 +51,13 @@ function inventorySnapshot() {
     for (let obj = game.invent; obj; obj = obj.nobj)
         objects.push(structuredClone({ ...obj, nobj: null }));
     return objects;
+}
+
+function inventoryObject(otyp) {
+    for (let obj = game.invent; obj; obj = obj.nobj) {
+        if (obj.otyp === otyp) return obj;
+    }
+    return null;
 }
 
 function topLine() {
@@ -99,27 +116,58 @@ test('dorub cancellation preserves the wished-for lamp and command time',
     assert.deepEqual(inventorySnapshot(), inventory);
 });
 
-test('dorub stops after selecting an unwielded lamp', async () => {
-    await runSegment(segmentThroughWish());
-    const lamp = inventorySnapshot().find(({ otyp }) => otyp === MAGIC_LAMP);
+test('dorub wields an unwielded lamp and queues its continuation', async () => {
+    const replay = await runSegment(segmentThroughWish());
+    const lamp = inventoryObject(MAGIC_LAMP);
     assert.ok(lamp, 'the debug wish created a magic lamp');
     const weapon = game.uwep;
+    const rngCalls = replay.getRngLog().length;
 
-    // apply.c:1796 branches on the selected object's class, then compares the
-    // lamp with uwep before wield_tool(). This slice stops immediately after
-    // selection, so neither the weapon slot nor the lamp may change.
+    // apply.c:1806-1812 calls wield_tool(), then appends dorub followed by the
+    // selected letter to CQ_CANNED and answers ECMD_TIME. wield.c:730-752's
+    // ordinary-tool arm prints the wield message, replaces uwep, and marks a
+    // non-weapon lamp through gu.unweapon.
     game.nhDisplay.pushKey(SPACE_KEY.charCodeAt(0));
     game.nhDisplay.pushKey(lamp.invlet.charCodeAt(0));
-    await assert.rejects(
-        () => dorub(game),
-        { name: 'UnsupportedApplyError', branch: 'dorub() after object selection' },
-    );
-    assert.equal(game.uwep, weapon);
+    assert.equal(await dorub(game), ECMD_TIME);
+    assert.equal(game.uwep, lamp);
+    assert.equal(lamp.owornmask & W_WEP, W_WEP);
+    assert.equal(weapon.owornmask & W_WEP, 0);
+    assert.equal(game.unweapon, true);
+    assert.equal(game._pending_message, 'You now wield a lamp.');
+    assert.equal(replay.getRngLog().length, rngCalls);
     assert.deepEqual(
-        inventorySnapshot().find(({ o_id }) => o_id === lamp.o_id),
-        lamp,
+        game.command_queue[CQ_CANNED].map((node) => ({
+            typ: node.typ,
+            command: node.ec_entry?.ef_txt,
+            key: node.key,
+        })),
+        [
+            // cmdq_add_ec() stores dorub's extcmdlist row, whose public
+            // command spelling is "rub".
+            { typ: CMDQ_EXTCMD, command: 'rub', key: undefined },
+            // cmdq_add_key() stores the selected lamp's existing inventory
+            // letter so the continuation does not prompt the player again.
+            { typ: CMDQ_KEY, command: undefined, key: lamp.invlet },
+        ],
     );
     assert.ok(failClosedCommandRefusals().includes(UnsupportedApplyError));
+});
+
+test('wield_tool keeps other lamp types outside this slice', async () => {
+    await runSegment(segmentThroughWish());
+    const lamp = inventoryObject(MAGIC_LAMP);
+    assert.ok(lamp, 'the debug wish created the lamp used for this boundary');
+    // apply.c routes oil lamps through the same wield_tool() call, but the
+    // queued slice explicitly leaves oil and brass lamp behavior unported.
+    // Reusing the wished tool with OIL_LAMP's source type selects that case
+    // without adding a second debug wish or another input sequence.
+    lamp.otyp = OIL_LAMP;
+    await assert.rejects(
+        () => wield_tool(lamp, 'rub', game),
+        /wield_tool\(\) with a non-magic lamp/u,
+    );
+    assert.notEqual(game.uwep, lamp);
 });
 
 test('dorub refuses a form without hands before prompting', async () => {
@@ -147,6 +195,51 @@ test('#rub dispatch reaches getobj instead of the command boundary',
     assert.equal(boundary, null);
     assert.match(topLine(), /^What do you want to rub\?/u);
 });
+
+test('rub is admitted when dorub queues its own continuation', () => {
+    // apply.c:1808 queues dorub itself rather than a command key. rhack()
+    // dispatches that extcmdlist row on the following turn, so the temporary
+    // JS command-admission boundary must admit the row's public name.
+    assert.ok(ADMITTED_COMMANDS.includes('rub'));
+});
+
+test('the complete #rub wield recipe stops before the lamp effect',
+    () => withSerializedGrids(async () => {
+        let boundary = null;
+        const replay = await runSegment(
+            loadRubLampWieldRecipe().segments[0],
+            { onBoundary: (error) => { boundary = error; } },
+        );
+
+        // apply.c:1806-1813 spends one turn after wielding, then the queued
+        // dorub consumes the canned `o` and reaches apply.c:1817. The first
+        // unported effect would be rn2(3), so the refusal must identify the
+        // already-wielded lamp and leave the matched 2,128-call prefix intact.
+        // The branch subclass intentionally retains its parent's public
+        // `name`; cmd.js documents the distinction as constructor identity.
+        assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
+        assert.match(boundary?.message ?? '', /already-wielded lamp/u);
+        assert.equal(game.moves, 2);
+        assert.equal(replay.getRngLog().length, 2128);
+        assert.equal(replay.getScreens().length, 22);
+        assert.equal(replay.getCursors().length, 22);
+        // Digests cover every serialized cell attribute and cursor triple in
+        // the independently chosen seed-731 prefix through the wield turn.
+        assert.equal(
+            digest(replay.getScreens()),
+            'bc4082ded29c99eefbdfa577efbed1afedc47e27562da6e25cc859494e90dd3d',
+        );
+        assert.equal(
+            digest(replay.getCursors()),
+            'b53ca793b9d2201bcac07499740bcd3d08087211d4510343f4f69e23244d31b0',
+        );
+        assert.equal(game.uwep?.otyp, MAGIC_LAMP);
+        assert.equal(game.uwep?.invlet, 'o');
+        assert.equal(game.uwep?.owornmask & W_WEP, W_WEP);
+        assert.equal(game.unweapon, true);
+        assert.equal(game.context.pendingCommand, undefined);
+        assert.equal(game.command_queue[CQ_CANNED].length, 0);
+    }));
 
 test('the complete #rub cancellation recipe preserves the command boundary',
     () => withSerializedGrids(async () => {

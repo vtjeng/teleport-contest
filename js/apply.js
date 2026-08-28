@@ -17,6 +17,7 @@
 
 import {
     ARTICLE_A,
+    CQ_CANNED,
     CORR,
     DEAF,
     ECMD_CANCEL,
@@ -47,7 +48,13 @@ import {
     SUPPRESS_IT,
     u_at,
 } from './const.js';
-import { confdir, getdir } from './cmd.js';
+import {
+    cmdq_add_ec,
+    cmdq_add_key,
+    confdir,
+    extcmdRow,
+    getdir,
+} from './cmd.js';
 import { cvt_sdoor_to_door } from './detect.js';
 import {
     feel_newsym,
@@ -102,6 +109,8 @@ import {
     CREAM_PIE,
     CREDIT_CARD,
     EUCALYPTUS_LEAF,
+    FOOD_CLASS,
+    GEM_CLASS,
     LENSES,
     LOCK_PICK,
     LUMP_OF_ROYAL_JELLY,
@@ -131,6 +140,7 @@ import { recalc_block_point, unblock_point } from './vision.js';
 import { is_pole } from './worn.js';
 import { dowrite } from './write.js';
 import { genders } from './roles.js';
+import { wield_tool } from './wield.js';
 
 // Thrown where apply.c reaches a tool or a branch this port has not ported.
 export class UnsupportedApplyError extends Error {
@@ -252,9 +262,9 @@ export function rub_ok(obj) {
     return GETOBJ_EXCLUDE;
 }
 
-// C ref: apply.c dorub() (1785-1838), through getobj() selection. The object
-// class effects and wield_tool() continuation remain outside this slice, so a
-// selected object stops before dorub() reads its class or changes equipment.
+// C ref: apply.c dorub() (1785-1838), through the selected unwielded lamp arm
+// at 1806-1813. Gray stones, royal jelly, and every already-wielded lamp
+// effect remain outside this slice.
 export async function dorub(state = game) {
     if (nohands(state.youmonst.data)) {
         await ttyPline(
@@ -267,7 +277,21 @@ export async function dorub(state = game) {
     if (!obj)
         return ECMD_CANCEL;
 
-    throw new UnsupportedApplyError('dorub() after object selection');
+    if (obj.oclass === GEM_CLASS || obj.oclass === FOOD_CLASS) {
+        throw new UnsupportedApplyError(
+            'dorub() with a gray stone or royal jelly',
+        );
+    }
+    if (obj !== state.uwep) {
+        if (await wield_tool(obj, 'rub', state)) {
+            cmdq_add_ec(CQ_CANNED, extcmdRow('rub'), state);
+            cmdq_add_key(CQ_CANNED, obj.invlet, state);
+            return ECMD_TIME;
+        }
+        return ECMD_OK;
+    }
+
+    throw new UnsupportedApplyError('dorub() with an already-wielded lamp');
 }
 
 // C ref: apply.c its_dead() (196-309), the floor-object half of a listen.

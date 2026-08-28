@@ -1344,7 +1344,7 @@ export async function parseCommand(state = game) {
 // the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'engrave', 'apply', 'open', 'close', 'down', 'up', 'drop', 'pickup',
+    'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'pickup',
     'takeoff', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
     'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
@@ -2897,6 +2897,18 @@ export async function rhack(key, state = game) {
             // and for the three use_stethoscope() guards, and ECMD_TIME for a
             // second listen in the same move.
             const res = await runApplyCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'rub') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818. The
+            // ordinary unwielded-lamp arm answers ECMD_TIME after queueing
+            // this same command and the lamp letter, so this direct handler
+            // must preserve CQ_CANNED while marking the elapsed turn.
+            const res = await runRubCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);
