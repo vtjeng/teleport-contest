@@ -1,0 +1,756 @@
+<title>NetHack Port</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root {
+  --surface: #f8f7f4;
+  --surface-card: #ffffff;
+  --surface-chart: #fcfcfb;
+  --ink-primary: #1a1917;
+  --ink-secondary: #52514e;
+  --ink-muted: #898781;
+  --border: rgba(11,11,11,0.08);
+  --gridline: #e1e0d9;
+  --baseline: #c3c2b7;
+
+  --phase-goal-sel: #2a78d6;
+  --phase-impl: #eb6834;
+  --phase-slice-sel: #1baf7a;
+  --phase-verif: #eda100;
+  --phase-audit: #e87ba4;
+
+  --progress-fill: #2a78d6;
+  --progress-area: rgba(42,120,214,0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface: #0e1117;
+    --surface-card: #161b22;
+    --surface-chart: #1a1a19;
+    --ink-primary: #e6e4df;
+    --ink-secondary: #c3c2b7;
+    --ink-muted: #898781;
+    --border: rgba(255,255,255,0.08);
+    --gridline: #2c2c2a;
+    --baseline: #383835;
+
+    --phase-goal-sel: #3987e5;
+    --phase-impl: #d95926;
+    --phase-slice-sel: #199e70;
+    --phase-verif: #c98500;
+    --phase-audit: #d55181;
+
+    --progress-fill: #3987e5;
+    --progress-area: rgba(57,135,229,0.12);
+  }
+}
+:root[data-theme="dark"] {
+  --surface: #0e1117;
+  --surface-card: #161b22;
+  --surface-chart: #1a1a19;
+  --ink-primary: #e6e4df;
+  --ink-secondary: #c3c2b7;
+  --ink-muted: #898781;
+  --border: rgba(255,255,255,0.08);
+  --gridline: #2c2c2a;
+  --baseline: #383835;
+
+  --phase-goal-sel: #3987e5;
+  --phase-impl: #d95926;
+  --phase-slice-sel: #199e70;
+  --phase-verif: #c98500;
+  --phase-audit: #d55181;
+
+  --progress-fill: #3987e5;
+  --progress-area: rgba(57,135,229,0.12);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--surface);
+  color: var(--ink-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.updated {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.subtitle {
+  color: var(--ink-muted);
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+/* --- Stat tiles --- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.stat {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.stat-detail {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--ink-secondary);
+  margin-top: 2px;
+}
+
+/* --- Sections --- */
+.section {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+
+/* --- Legend --- */
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--ink-secondary);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* --- Chart containers --- */
+.chart-wrap {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+}
+
+/* --- Timeline --- */
+.timeline-row {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.timeline-label {
+  width: min(180px, 30vw);
+  min-width: min(180px, 30vw);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-secondary);
+  padding-right: 8px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-bar-area {
+  flex: 1;
+  position: relative;
+  height: 100%;
+}
+
+.timeline-segment {
+  position: absolute;
+  height: 16px;
+  top: 6px;
+  border-radius: 2px;
+  min-width: 2px;
+}
+
+.timeline-segment:first-child {
+  border-radius: 4px 2px 2px 4px;
+}
+
+.timeline-segment:last-child {
+  border-radius: 2px 4px 4px 2px;
+}
+
+/* --- Tooltip --- */
+.tooltip {
+  position: fixed;
+  pointer-events: none;
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  z-index: 100;
+  max-width: 320px;
+  display: none;
+}
+
+.tooltip-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* --- Table --- */
+.goal-table-wrap {
+  overflow-x: auto;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.goal-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.goal-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: right;
+  padding: 6px 10px;
+  border-bottom: 2px solid var(--baseline);
+  position: sticky;
+  top: 0;
+  background: var(--surface-card);
+}
+
+.goal-table th:nth-child(3) {
+  text-align: left;
+}
+
+.goal-table td {
+  padding: 5px 10px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.goal-table td:nth-child(3) {
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-secondary);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.goal-table tr:hover td {
+  background: var(--border);
+}
+
+.phase-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 2px;
+  overflow: hidden;
+  min-width: 60px;
+  gap: 2px;
+  background: var(--surface-chart);
+}
+
+.phase-bar-seg {
+  height: 100%;
+  min-width: 2px;
+  border-radius: 1px;
+}
+
+.audit-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--phase-audit);
+  border: 1px solid var(--phase-audit);
+  border-radius: 3px;
+  padding: 0 4px;
+  line-height: 1.5;
+  vertical-align: middle;
+}
+
+.goal-table tr.in-progress td {
+  background: color-mix(in srgb, var(--phase-slice-sel) 6%, transparent);
+}
+
+.goal-table tr.in-progress td:first-child {
+  box-shadow: inset 3px 0 0 var(--phase-slice-sel);
+}
+
+/* --- Time axis --- */
+.time-axis {
+  display: flex;
+  height: 20px;
+  position: relative;
+  margin-left: min(180px, 30vw);
+  border-bottom: 1px solid var(--baseline);
+  overflow: hidden;
+}
+
+.time-tick {
+  position: absolute;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-muted);
+  top: 4px;
+  transform: translateX(-50%);
+}
+
+.timeline-scroll {
+  max-height: 620px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.timeline-scroll .time-axis {
+  position: sticky;
+  top: 0;
+  background: var(--surface-card);
+  z-index: 1;
+}
+</style>
+
+<div class="header">
+  <h1>NetHack Port Progress</h1>
+  <span class="updated" id="updated"></span>
+</div>
+<p class="subtitle">Development session set</p>
+
+<div class="stats" id="stats"></div>
+
+<div class="section">
+  <h2 class="section-title">Screens matched over time</h2>
+  <div class="chart-wrap">
+    <canvas id="progressChart" height="200"></canvas>
+  </div>
+</div>
+
+<div class="section">
+  <h2 class="section-title">Goal timeline</h2>
+  <div class="legend" id="timelineLegend"></div>
+  <div class="chart-wrap">
+    <div id="timeline"></div>
+  </div>
+</div>
+
+<div class="section">
+  <h2 class="section-title">Phase breakdown</h2>
+  <p class="subtitle" id="tableSubtitle"></p>
+  <div class="legend" id="tableLegend"></div>
+  <div class="chart-wrap">
+    <div class="goal-table-wrap">
+      <table class="goal-table" id="goalTable"></table>
+    </div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const DATA = /*DATA_PLACEHOLDER*/null;
+
+// --- Helpers ---
+function fmt(n) {
+  if (n == null) return '-';
+  if (n >= 60) return Math.floor(n / 60) + 'h ' + Math.round(n % 60) + 'm';
+  return Math.round(n) + 'm';
+}
+function fmtN(n) { return n == null ? '-' : n.toLocaleString(); }
+function pct(a, b) { return b ? (a / b * 100).toFixed(1) + '%' : '-'; }
+
+function relativeTime(iso) {
+  const ms = Date.now() - new Date(iso).getTime();
+  const sec = Math.floor(ms / 1000);
+  if (sec < 60) return 'just now';
+  const min = Math.floor(sec / 60);
+  if (min < 60) return min + 'm ago';
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return hr + 'h ' + (min % 60) + 'm ago';
+  const days = Math.floor(hr / 24);
+  return days + 'd ' + (hr % 24) + 'h ago';
+}
+
+const phases = [
+  { key: 'goalSel', label: 'Goal selection', cssVar: '--phase-goal-sel' },
+  { key: 'sliceSel', label: 'Slice selection', cssVar: '--phase-slice-sel' },
+  { key: 'impl', label: 'Implementation', cssVar: '--phase-impl' },
+  { key: 'verif', label: 'Verification', cssVar: '--phase-verif' },
+];
+
+// --- Last updated ---
+document.getElementById('updated').textContent = 'Updated ' + relativeTime(DATA.summary.generatedAt);
+
+// --- Stat tiles ---
+const s = DATA.summary;
+document.getElementById('stats').innerHTML = [
+  { label: 'Screens', value: pct(s.screens, s.screensTotal), detail: fmtN(s.screens) + ' / ' + fmtN(s.screensTotal) },
+  { label: 'RNG calls', value: pct(s.rng, s.rngTotal), detail: fmtN(s.rng) + ' / ' + fmtN(s.rngTotal) },
+  { label: 'Sessions', value: s.sessions + ' / ' + s.sessionsTotal, detail: pct(s.sessions, s.sessionsTotal) },
+  { label: 'Goals closed', value: s.totalGoals, detail: 'median ' + fmt(s.medianTotalMin) },
+  { label: 'Goal selection', value: fmt(s.medianGoalSelectionMin), detail: 'median, last 20' },
+  { label: 'Implementation', value: fmt(s.medianImplementationMin), detail: 'median, last 20' },
+].map(t => '<div class="stat"><div class="stat-label">' + t.label + '</div><div class="stat-value">' + t.value + '</div><div class="stat-detail">' + t.detail + '</div></div>').join('');
+
+// --- Progress chart (step plot with x-axis) ---
+function drawProgressChart() {
+  const canvas = document.getElementById('progressChart');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const W = rect.width;
+  const H = 200;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const pad = { t: 10, r: 70, b: 36, l: 50 };
+
+  const pts = DATA.progress.filter(p => p.screens != null && p.utc);
+  if (!pts.length) return;
+
+  const maxScreens = pts[pts.length - 1].screensTotal;
+  const times = pts.map(p => new Date(p.utc).getTime());
+  const minT = times[0];
+  const maxT = times[times.length - 1];
+  const rangeT = maxT - minT || 1;
+
+  const xScale = (t) => pad.l + ((t - minT) / rangeT) * (W - pad.l - pad.r);
+  const yScale = (v) => pad.t + (1 - v / maxScreens) * (H - pad.t - pad.b);
+
+  const style = getComputedStyle(document.documentElement);
+  const gridColor = style.getPropertyValue('--gridline').trim();
+  const baselineColor = style.getPropertyValue('--baseline').trim();
+  const inkMuted = style.getPropertyValue('--ink-muted').trim();
+  const fillColor = style.getPropertyValue('--progress-fill').trim();
+  const areaColor = style.getPropertyValue('--progress-area').trim();
+
+  // Y grid
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  const yTicks = [0, 2000, 4000, 6000, maxScreens];
+  for (const v of yTicks) {
+    const y = Math.round(yScale(v)) + 0.5;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+    ctx.fillStyle = inkMuted;
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(v.toLocaleString(), pad.l - 6, y + 4);
+  }
+
+  // Baseline
+  ctx.strokeStyle = baselineColor;
+  ctx.beginPath(); ctx.moveTo(pad.l, yScale(0)); ctx.lineTo(W - pad.r, yScale(0)); ctx.stroke();
+
+  // X-axis ticks
+  const dayMs = 86400000;
+  const firstDay = new Date(minT);
+  firstDay.setUTCHours(0, 0, 0, 0);
+  const xTickStart = firstDay.getTime();
+  ctx.fillStyle = inkMuted;
+  ctx.font = '10px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  const rangeDays = (maxT - minT) / dayMs;
+  const xTickStep = rangeDays > 20 ? 7 : rangeDays > 10 ? 3 : 1;
+  for (let t = xTickStart; t <= maxT + dayMs; t += dayMs * xTickStep) {
+    if (t < minT) continue;
+    const x = xScale(t);
+    if (x < pad.l || x > W - pad.r) continue;
+    const d = new Date(t);
+    const label = (d.getUTCMonth() + 1) + '/' + d.getUTCDate();
+    ctx.fillText(label, x, H - pad.b + 14);
+    ctx.strokeStyle = gridColor;
+    ctx.beginPath();
+    ctx.moveTo(Math.round(x) + 0.5, pad.t);
+    ctx.lineTo(Math.round(x) + 0.5, H - pad.b);
+    ctx.stroke();
+  }
+
+  // Step area fill
+  ctx.beginPath();
+  ctx.moveTo(xScale(times[0]), yScale(0));
+  ctx.lineTo(xScale(times[0]), yScale(pts[0].screens));
+  for (let i = 1; i < pts.length; i++) {
+    ctx.lineTo(xScale(times[i]), yScale(pts[i - 1].screens));
+    ctx.lineTo(xScale(times[i]), yScale(pts[i].screens));
+  }
+  ctx.lineTo(xScale(times[times.length - 1]), yScale(0));
+  ctx.closePath();
+  ctx.fillStyle = areaColor;
+  ctx.fill();
+
+  // Step line
+  ctx.beginPath();
+  ctx.moveTo(xScale(times[0]), yScale(pts[0].screens));
+  for (let i = 1; i < pts.length; i++) {
+    ctx.lineTo(xScale(times[i]), yScale(pts[i - 1].screens));
+    ctx.lineTo(xScale(times[i]), yScale(pts[i].screens));
+  }
+  ctx.strokeStyle = fillColor;
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // End dot
+  const last = pts[pts.length - 1];
+  const lastX = xScale(times[times.length - 1]);
+  ctx.beginPath();
+  ctx.arc(lastX, yScale(last.screens), 4, 0, Math.PI * 2);
+  ctx.fillStyle = fillColor;
+  ctx.fill();
+  ctx.strokeStyle = style.getPropertyValue('--surface-chart').trim();
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // End label
+  ctx.fillStyle = style.getPropertyValue('--ink-primary').trim();
+  ctx.font = '600 12px "JetBrains Mono", monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText(last.screens.toLocaleString(), lastX + 10, yScale(last.screens) + 4);
+}
+drawProgressChart();
+window.addEventListener('resize', drawProgressChart);
+
+// --- Timeline ---
+(function() {
+  const container = document.getElementById('timeline');
+  const goals = [...DATA.goals].slice(-50).reverse();
+  if (!goals.length) return;
+
+  // Legend
+  document.getElementById('timelineLegend').innerHTML = phases.map(p =>
+    '<div class="legend-item"><div class="legend-swatch" style="background:var(' + p.cssVar + ')"></div>' + p.label + '</div>'
+  ).join('');
+
+  const earliest = new Date(Math.min(...goals.map(g => {
+    const prevClose = g.goalSelectionMin != null ? new Date(g.openTime).getTime() - g.goalSelectionMin * 60000 : new Date(g.openTime).getTime();
+    return prevClose;
+  })));
+  const latest = new Date(Math.max(...goals.map(g => new Date(g.closeTime || g.openTime).getTime())));
+  const rangeMs = latest - earliest || 1;
+
+  function toX(t) {
+    return ((new Date(t) - earliest) / rangeMs) * 100;
+  }
+
+  // Nice time axis ticks aligned to local midnight
+  const hrMs = 3600000;
+  const dayMs = 86400000;
+  const barAreaPx = container.getBoundingClientRect().width - Math.min(180, window.innerWidth * 0.3);
+  const minTickGapPx = 90;
+  const maxTicks = Math.max(2, Math.floor(barAreaPx / minTickGapPx));
+  const niceIntervals = [6 * hrMs, 12 * hrMs, dayMs, 2 * dayMs, 7 * dayMs];
+  let tickInterval = niceIntervals[niceIntervals.length - 1];
+  for (const iv of niceIntervals) {
+    if (rangeMs / iv <= maxTicks) { tickInterval = iv; break; }
+  }
+
+  // Start from local midnight before earliest
+  const firstDay = new Date(earliest);
+  firstDay.setHours(0, 0, 0, 0);
+  let axisHtml = '';
+  for (let t = firstDay.getTime(); t <= latest.getTime() + tickInterval; t += tickInterval) {
+    const left = toX(t);
+    if (left < 2 || left > 98) continue;
+    const d = new Date(t);
+    let label;
+    if (tickInterval >= dayMs) {
+      label = (d.getMonth() + 1) + '/' + d.getDate();
+    } else {
+      label = (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+    axisHtml += '<div class="time-tick" style="left:' + left + '%">' + label + '</div>';
+  }
+
+  let rowsHtml = '';
+
+  goals.forEach(g => {
+    const openT = new Date(g.openTime).getTime();
+    const closeT = new Date(g.closeTime).getTime();
+    const selStart = g.goalSelectionMin != null ? openT - g.goalSelectionMin * 60000 : openT;
+
+    let segments = '';
+
+    // Goal selection
+    if (g.goalSelectionMin != null && g.goalSelectionMin > 0 && g.goalSelectionMin < 120) {
+      const left = toX(selStart);
+      const width = toX(openT) - left;
+      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-goal-sel)" title="Goal selection: ' + fmt(g.goalSelectionMin) + '"></div>';
+    }
+
+    // First slice selection: open → first queue
+    if (g.slices.length > 0) {
+      const firstQ = new Date(g.slices[0].queueTime).getTime();
+      if (firstQ > openT + 30000) {
+        const left = toX(openT);
+        const width = toX(firstQ) - left;
+        const mins = (firstQ - openT) / 60000;
+        segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-slice-sel)" title="First slice selection: ' + fmt(mins) + '"></div>';
+      }
+    }
+
+    // Slices
+    g.slices.forEach((sl, si) => {
+      if (sl.sliceSelectionMin != null && sl.sliceSelectionMin > 0) {
+        const prevClose = new Date(g.slices[si - 1].closeTime).getTime();
+        const left = toX(prevClose);
+        const width = toX(sl.queueTime) - left;
+        segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-slice-sel)" title="Slice selection: ' + fmt(sl.sliceSelectionMin) + '"></div>';
+      }
+      const left = toX(sl.queueTime);
+      const width = toX(sl.closeTime) - left;
+      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-impl)" title="Implementation: ' + fmt(sl.durationMin) + ' — ' + sl.message + '"></div>';
+    });
+
+    // Verification
+    if (g.verificationMin != null && g.verificationMin > 0.1) {
+      const verifStart = g.slices.length > 0 ? new Date(g.slices[g.slices.length - 1].closeTime).getTime() : openT;
+      const left = toX(verifStart);
+      const width = toX(closeT) - left;
+      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-verif)" title="Verification: ' + fmt(g.verificationMin) + '"></div>';
+    }
+
+    rowsHtml += '<div class="timeline-row"><div class="timeline-label" title="' + g.name + '">' + g.name + '</div><div class="timeline-bar-area">' + segments + '</div></div>';
+  });
+
+  container.innerHTML = '<div class="timeline-scroll"><div class="time-axis">' + axisHtml + '</div>' + rowsHtml + '</div>';
+})();
+
+// --- Phase breakdown table ---
+(function() {
+  document.getElementById('tableLegend').innerHTML = phases.map(p =>
+    '<div class="legend-item"><div class="legend-swatch" style="background:var(' + p.cssVar + ')"></div>' + p.label + '</div>'
+  ).join('') + '<div class="legend-item"><span class="audit-badge">audit</span> code review during goal</div>';
+
+  const table = document.getElementById('goalTable');
+  const allGoals = [...DATA.goals].reverse();
+  const goals = allGoals.filter(g => g.status === 'in-progress' || (g.totalMin > 0 && g.totalMin < 1440));
+  const hidden = allGoals.length - goals.length;
+  document.getElementById('tableSubtitle').textContent = goals.length + ' goals shown' + (hidden > 0 ? ' (' + hidden + ' milestones hidden)' : '');
+
+  function fmtDate(iso) {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  }
+
+  let html = '<thead><tr><th>Screens</th><th>Δ</th><th>Goal</th><th>Start</th><th>Slices</th><th>Total</th><th>Goal sel</th><th>Slice sel</th><th>Impl</th><th>Verif</th><th>Phases</th></tr></thead><tbody>';
+
+  goals.forEach((g, i) => {
+    const screensCell = g.screens !== null ? g.screens : '-';
+    const parts = [
+      { min: g.goalSelectionMin || 0, var: '--phase-goal-sel' },
+      { min: g.sliceSelectionMin || 0, var: '--phase-slice-sel' },
+      { min: g.implementationMin || 0, var: '--phase-impl' },
+      { min: g.verificationMin || 0, var: '--phase-verif' },
+    ];
+    const barTotal = parts.reduce((s, p) => s + p.min, 0) || 1;
+
+    const bar = '<div class="phase-bar">' + parts.map(p => {
+      const w = Math.max((p.min / barTotal) * 100, p.min > 0 ? 2 : 0);
+      return '<div class="phase-bar-seg" style="width:' + w + '%;background:var(' + p.var + ')"></div>';
+    }).join('') + '</div>';
+
+    const auditBadge = g.audits.length > 0 ? ' <span class="audit-badge" title="' + g.audits.map(a => a.message).join('\\n').replace(/"/g, '&quot;') + '">audit</span>' : '';
+
+    const deltaCell = g.screensDelta !== null && g.screensDelta !== undefined ? '+' + g.screensDelta : '-';
+    const trClass = g.status === 'in-progress' ? ' class="in-progress"' : '';
+
+    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td>' + g.name + auditBadge + '</td><td>' + fmtDate(g.openTime) + '</td><td>' + g.sliceCount + '</td><td>' + fmt(g.totalMin) + '</td><td>' + fmt(g.goalSelectionMin) + '</td><td>' + fmt(g.sliceSelectionMin || 0) + '</td><td>' + fmt(g.implementationMin) + '</td><td>' + fmt(g.verificationMin) + '</td><td>' + bar + '</td></tr>';
+  });
+
+  html += '</tbody>';
+  table.innerHTML = html;
+})();
+
+// --- Tooltip for timeline segments ---
+(function() {
+  const tooltip = document.getElementById('tooltip');
+  document.querySelectorAll('.timeline-segment').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      const text = el.getAttribute('title');
+      if (!text) return;
+      tooltip.innerHTML = '<div class="tooltip-title">' + text.replace(/</g, '&lt;') + '</div>';
+      tooltip.style.display = 'block';
+    });
+    el.addEventListener('mousemove', (e) => {
+      tooltip.style.left = Math.min(e.clientX + 12, window.innerWidth - 340) + 'px';
+      tooltip.style.top = (e.clientY - 40) + 'px';
+    });
+    el.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+  });
+})();
+</script>
