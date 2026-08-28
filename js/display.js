@@ -89,6 +89,7 @@ import {
     DEC_TO_UNICODE,
 } from './terminal.js';
 import { rankOf } from './roles.js';
+import { pmname } from './do_name.js';
 import { is_flyer } from './mondata.js';
 import { m_at } from './monst.js';
 import {
@@ -3679,12 +3680,24 @@ function _optionalStatusFields() {
     return fields.length ? ` ${fields.map(({ text }) => text).join(' ')}` : '';
 }
 
+// C ref: botl.c bot_via_windowport() lines 991-1006. When Upolyd the title
+// part is pmname(&mons[u.umonnum], Ugender) with each word capitalized;
+// otherwise it is rank().
+function _statusRoleText() {
+    const u = game.u;
+    if (u && Upolyd(u)) {
+        const species = game.mons?.[u.umonnum];
+        if (species) return pmname(species, Ugender(u));
+    }
+    return rankOf(game.urole, game.u?.ulevel ?? 1, game.flags?.female)
+        || game.urole?.rank?.m || game.urole?.name?.m || 'Adventurer';
+}
+
 function _statusPlayerName() {
     // C ref: botl.c bot_via_windowport(). Capitalize only the initial ASCII
     // byte, then truncate only when the complete title exceeds 30 bytes.
     const rawName = game.plname || 'Hero';
-    const role = rankOf(game.urole, game.u?.ulevel ?? 1, game.flags?.female)
-        || game.urole?.rank?.m || game.urole?.name?.m || 'Adventurer';
+    const role = _statusRoleText();
     const nameBytes = encodeUtf8ByteString(rawName);
     const roleBytes = encodeUtf8ByteString(role);
     if (nameBytes[0] >= 0x61 && nameBytes[0] <= 0x7A) {
@@ -3708,8 +3721,13 @@ function _statusTitle() {
     const u = game.u;
     if (!u) return '';
     const name = _statusPlayerName();
-    const role = rankOf(game.urole, u.ulevel ?? 1, game.flags?.female)
-        || game.urole?.rank?.m || game.urole?.name?.m || 'Adventurer';
+    let role = _statusRoleText();
+    // C ref: botl.c lines 1002-1006. When polymorphed, capitalize each word
+    // of the monster name so the title reads "Name the Gnome" not "Name the
+    // gnome".
+    if (Upolyd(u)) {
+        role = role.replace(/(?:^|\s)\S/g, (ch) => ch.toUpperCase());
+    }
     return `${name} the ${role}`;
 }
 
@@ -3890,12 +3908,6 @@ function _statusConditions(u, shrinkLevel = 0) {
         ? ` ${conditions.map(({ text }) => text).join(' ')}` : '';
 }
 
-function _statusExperience(u) {
-    return game.flags?.showexp
-        ? `${u.ulevel || 1}/${u.uexp || 0}`
-        : `${u.ulevel || 1}`;
-}
-
 // C ref: botl.c describe_level(). The tutorial uses its branch label in the
 // compact status field; ordinary startup retains the traditional Dlvl label.
 function _statusLevelDescription(u, short = false) {
@@ -3917,19 +3929,32 @@ function _statusLevelDescription(u, short = false) {
 // Both C sites clamp before their min(hp, 9999) cap; that cap is left out
 // because no ported path can lift a hero above 9999 hit points.
 //
-// They also select `Upolyd ? u.mh : u.uhp` on the line above the clamp, and
-// that is left out for the same kind of reason: no ported path leaves the hero
-// polymorphed while a status line is drawn, because hack.c losehp()'s own
-// Upolyd arm still raises UnsupportedHitPointLossError. A polyself port adds
-// the selection here, and here only, since this is the one owner all three
-// renderers read.
+// C ref: botl.c bot_via_windowport() line 1037: `i = Upolyd ? u.mh : u.uhp`.
+// When polymorphed the hero's monster-form HP are shown instead of the base HP.
 function _statusHitPoints(u) {
-    const hp = u?.uhp ?? 0;
+    const hp = (u && Upolyd(u)) ? (u.mh ?? 0) : (u?.uhp ?? 0);
     return hp < 0 ? 0 : hp;
 }
 
+// C ref: botl.c bot_via_windowport() line 1042: `i = Upolyd ? u.mhmax : u.uhpmax`.
+function _statusMaxHitPoints(u) {
+    return (u && Upolyd(u)) ? (u.mhmax ?? 0) : (u?.uhpmax ?? 0);
+}
+
+// C ref: botl.c bot_via_windowport() line 1086 and evaluate_and_notify_windowport()
+// lines 1635-1636: when Upolyd, the status line shows HD:mlevel instead of
+// Xp:ulevel, and hides Xp/Exp.
+function _statusExperienceOrHD(u) {
+    if (u && Upolyd(u)) {
+        return `HD:${game.mons?.[u.umonnum]?.mlevel ?? 0}`;
+    }
+    return game.flags?.showexp
+        ? `Xp:${u?.ulevel || 1}/${u?.uexp || 0}`
+        : `Xp:${u?.ulevel || 1}`;
+}
+
 function _statusVitals(u) {
-    return `$:${money_cnt(game.invent)} HP:${_statusHitPoints(u)}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${_statusExperience(u)}`;
+    return `$:${money_cnt(game.invent)} HP:${_statusHitPoints(u)}(${_statusMaxHitPoints(u)}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} ${_statusExperienceOrHD(u)}`;
 }
 
 // C ref: botl.c initblstats[]'s BL_TIME entry, whose "%ld" is filled from
@@ -4140,25 +4165,38 @@ function _optionalStatusFieldList() {
     ]);
 }
 
+// C ref: botl.c evaluate_and_notify_windowport() lines 1635-1636. When Upolyd,
+// BL_HD is shown instead of BL_XP and BL_EXP; when not Upolyd, BL_HD is hidden.
 function _vitalStatusFields(u) {
+    const poly = u && Upolyd(u);
     const fields = [
         _statusField(`$:${money_cnt(game.invent)}`, _fieldOwner('gold')),
         _statusField(' '),
         _statusField(`HP:${_statusHitPoints(u)}`, _fieldOwner('hitpoints')),
-        _statusField(`(${u.uhpmax || 0})`, _fieldOwner('hitpoints-max')),
+        _statusField(`(${_statusMaxHitPoints(u)})`, _fieldOwner('hitpoints-max')),
         _statusField(' '),
         _statusField(`Pw:${u.uen || 0}`, _fieldOwner('power')),
         _statusField(`(${u.uenmax || 0})`, _fieldOwner('power-max')),
         _statusField(' '),
         _statusField(`AC:${u.uac ?? 10}`, _fieldOwner('armor-class')),
         _statusField(' '),
-        _statusField(`Xp:${u.ulevel || 1}`, _fieldOwner('experience-level')),
     ];
-    if (game.flags?.showexp) {
+    if (poly) {
+        // C ref: botl.c line 1086 and initblstats[] BL_HD entry " HD:%s".
         fields.push(
-            _statusField('/'),
-            _statusField(`${u.uexp || 0}`, _fieldOwner('experience')),
+            _statusField(`HD:${game.mons?.[u.umonnum]?.mlevel ?? 0}`,
+                _fieldOwner('hd')),
         );
+    } else {
+        fields.push(
+            _statusField(`Xp:${u.ulevel || 1}`, _fieldOwner('experience-level')),
+        );
+        if (game.flags?.showexp) {
+            fields.push(
+                _statusField('/'),
+                _statusField(`${u.uexp || 0}`, _fieldOwner('experience')),
+            );
+        }
     }
     return fields;
 }
@@ -4577,7 +4615,10 @@ function _statusFieldData(field, valueSnapshot = null) {
             percent: _statusExperiencePercentage(u),
         };
     case 'armor-class': return { value: u?.uac ?? 10 };
-    case 'hd': return { value: 0 };
+    // C ref: botl.c line 1086: `Upolyd ? (int) mons[u.umonnum].mlevel : 0`.
+    case 'hd': return {
+        value: (u && Upolyd(u)) ? (game.mons?.[u.umonnum]?.mlevel ?? 0) : 0,
+    };
     case 'time': return { value: game.moves ?? 1 };
     case 'hunger':
         return {
@@ -4587,9 +4628,9 @@ function _statusFieldData(field, valueSnapshot = null) {
     case 'hitpoints':
         return {
             value: _statusHitPoints(u),
-            percent: _statusPercentage(_statusHitPoints(u), u?.uhpmax ?? 0),
+            percent: _statusPercentage(_statusHitPoints(u), _statusMaxHitPoints(u)),
         };
-    case 'hitpoints-max': return { value: u?.uhpmax ?? 0 };
+    case 'hitpoints-max': return { value: _statusMaxHitPoints(u) };
     case 'dungeon-level': return { text: _statusLevelDescription(u) };
     case 'experience':
         return {

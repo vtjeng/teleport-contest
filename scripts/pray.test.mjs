@@ -443,7 +443,10 @@ test('critically_low_hp() reads a polymorphed hero as the status line does',
         const title = () => game.nhDisplay.grid[22]
             .map(({ ch }) => ch).join('').slice(0, 32);
         await bot();
-        assert.equal(title(), '[Orison the Stripling - - - - -]');
+        // When Upolyd, the title shows the monster name (pmname) with each
+        // word capitalized, not the hero's class rank. "acid blob" becomes
+        // "Acid Blob". C ref: botl.c lines 991-1006.
+        assert.equal(title(), '[Orison the Acid Blob - - - - -]');
 
         // The two status-line call sites differ only in the argument, so an
         // undamaged form is where they part: pray.c:123 returns FALSE before
@@ -454,7 +457,7 @@ test('critically_low_hp() reads a polymorphed hero as the status line does',
         assert.equal(critically_low_hp(true, game), false);
         assert.equal(critically_low_hp(false, game), true);
         await bot();
-        assert.equal(title(), '[Orison the Stripling          ]');
+        assert.equal(title(), '[Orison the Acid Blob          ]');
     });
 
 // pray.c stuck_in_wall() counts the eight neighbours and answers TRUE only for

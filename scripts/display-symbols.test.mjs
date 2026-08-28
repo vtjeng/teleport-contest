@@ -595,6 +595,7 @@ function statusRenderingState() {
         uy: 4,
         uz: { dnum: 0, dlevel: 1 },
         umonnum: 0,
+        umonster: 0, // same as umonnum: hero is not polymorphed
         ulevel: 1,
         uexp: 42,
         uhp: 16,
@@ -6916,6 +6917,7 @@ test('optional status fields preserve tty placement and overflow shrinking', asy
         uy: 4,
         uz: { dnum: 0, dlevel: 1 },
         umonnum: 0,
+        umonster: 0, // same as umonnum: hero is not polymorphed
         ulevel: 1,
         uexp: 0,
         uhp: 18,
@@ -7538,6 +7540,78 @@ test('the vitals row prints the hero experience level, not a constant',
         await bot();
 
         assert.match(terminalRow(state, 23), /\bXp:3\b/u);
+    });
+
+// botl.c bot_via_windowport() lines 991-1006, 1037-1042, 1086, and
+// evaluate_and_notify_windowport() lines 1635-1636: when Upolyd the status
+// line shows the monster name (each word capitalized) instead of the class
+// rank, u.mh/u.mhmax instead of u.uhp/u.uhpmax, and HD:mlevel instead of
+// Xp:ulevel.
+test('a polymorphed hero status title shows the monster name, not the rank',
+    async () => {
+        // Set umonnum != umonster so Upolyd(u) returns true.
+        const state = statusRenderingState();
+        state.flags.showexp = false;
+        state.flags.showvers = false;
+        state.flags.weaponstatus = false;
+        state.flags.armorstatus = false;
+        state.flags.terrainstatus = false;
+        // PM 5 is an arbitrary index; only pmnames matters for the title.
+        state.u.umonnum = 5;
+        // The gnome's NEUTRAL name is "gnome"; pmname returns it and the
+        // title capitalizes each word. C ref: botl.c lines 1002-1006.
+        state.mons[5] = { pmnames: [null, null, 'gnome'], mlevel: 1 };
+
+        await bot();
+
+        assert.match(terminalRow(state, 22), /Hero the Gnome/u);
+    });
+
+test('a polymorphed hero status line shows monster hit points',
+    async () => {
+        // C ref: botl.c lines 1037 and 1042 select u.mh/u.mhmax when Upolyd.
+        // u.uhp and u.uhpmax are the hero's own stats, hidden while poly'd.
+        const state = statusRenderingState();
+        state.flags.showexp = false;
+        state.flags.showvers = false;
+        state.flags.weaponstatus = false;
+        state.flags.armorstatus = false;
+        state.flags.terrainstatus = false;
+        state.u.umonnum = 5;
+        state.mons[5] = { pmnames: [null, null, 'gnome'], mlevel: 1 };
+        state.u.mh = 7;
+        state.u.mhmax = 8;
+        // Hero's own HP differ so a reader that ignores Upolyd would show 16.
+        state.u.uhp = 16;
+        state.u.uhpmax = 16;
+
+        await bot();
+
+        // The two-line status row shows "HP:7(8)" not "HP:16(16)".
+        assert.match(terminalRow(state, 23), /HP:7\(8\)/u);
+        assert.doesNotMatch(terminalRow(state, 23), /HP:16/u);
+    });
+
+test('a polymorphed hero status line shows HD instead of Xp',
+    async () => {
+        // C ref: botl.c line 1086 fills BL_HD with mons[u.umonnum].mlevel,
+        // and evaluate_and_notify_windowport() lines 1635-1636 hide BL_XP
+        // and BL_EXP when Upolyd while showing BL_HD.
+        const state = statusRenderingState();
+        state.flags.showexp = false;
+        state.flags.showvers = false;
+        state.flags.weaponstatus = false;
+        state.flags.armorstatus = false;
+        state.flags.terrainstatus = false;
+        state.u.umonnum = 5;
+        state.mons[5] = { pmnames: [null, null, 'gnome'], mlevel: 3 };
+        state.u.ulevel = 7;
+
+        await bot();
+
+        // Shows HD:3 (monster level), not Xp:7 (hero level).
+        assert.match(terminalRow(state, 23), /HD:3\b/u);
+        assert.doesNotMatch(terminalRow(state, 23), /Xp:/u);
     });
 
 test('conditions right justify once lining up with hunger would overrun',
