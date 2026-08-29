@@ -1371,7 +1371,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'takeoff', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
     'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
-    'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force',
+    'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
