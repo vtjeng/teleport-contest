@@ -6131,7 +6131,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "doforce-forcelock-blunt-common",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "2f1bc069b61b1c6bf94220d67a0c95175b507948",
       "openStanding": {
         "sha": "d506c76",
