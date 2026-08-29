@@ -15523,5 +15523,112 @@
       }
     },
     "recordedAt": "2026-08-28T23:28:39.611Z"
+  },
+  {
+    "kind": "review",
+    "head": "ac11759239fdbdb6860c5c075b8d5000d08d50bc",
+    "auditedRange": "29b3d054cfe4374c10a51b8719d2d57114d3f1db..ac11759239fdbdb6860c5c075b8d5000d08d50bc",
+    "level": "full",
+    "areas": [
+      "hero",
+      "objects",
+      "monsters",
+      "world-effects",
+      "commands",
+      "display",
+      "runtime"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 15 raw, 15 deduplicated, 8 confirmed, 6 applied, 2 deferred, 7 rejected, 0 unverified. Full correctness audit (audit-diff-correctness skill). 6 fixes applied in audit-fix commit ac11759. 2 production defects (query_classes early return, askchain fallthrough), 2 clarity (in_container null guard, bot arg), 2 test fixes (damn pin, invlet type). 2 test deferrals tracked.",
+    "auditMetrics": {
+      "wallTimeSeconds": 1500,
+      "counts": {
+        "raw": 15,
+        "deduplicated": 15,
+        "confirmed": 8,
+        "applied": 6,
+        "deferred": 2,
+        "rejected": 7,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 2,
+        "tests": 4,
+        "clarity": 2,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "query_classes early return skips filter-character append for single-class containers",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "askchain missing FALLTHROUGH from y to n case omits dud counting",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        }
+      ],
+      "finders": [
+        "correctness",
+        "readability",
+        "tests",
+        "variable-trace"
+      ],
+      "mode": "full",
+      "readiness": {
+        "boundary": "#loot/#force/#tip extended commands through doextcmd. Each slice has a fresh C differential.",
+        "sourceReview": "Every branch and helper traced against upstream C. Stubs and explicit stops identified.",
+        "completeness": "No unsupported behavior inside boundary. Excluded branches throw before state change."
+      },
+      "rejections": [
+        {
+          "summary": "domonability ternary dead arms",
+          "counterEvidence": "Faithfully preserves C cmd.c:912/914. Comments document c is always null. Project rules require matching C branches."
+        },
+        {
+          "summary": "cant_reach_floor boolean positional parameters",
+          "counterEvidence": "C uses same positional params (engrave.c:217-228). Project rules require matching C structure."
+        },
+        {
+          "summary": "ynq() duplicated in lock.js and pickup.js",
+          "counterEvidence": "C ynq is a hack.h macro. Both six-line copies are private wrappers."
+        },
+        {
+          "summary": "isMainDungeonLevel comment placement",
+          "counterEvidence": "preflightCreation already has its own policy comment."
+        },
+        {
+          "summary": "ubreatheu hardcodes formula instead of BZ_U_BREATH",
+          "counterEvidence": "C zap.c:3019 uses the literal formula. JS matches C verbatim."
+        },
+        {
+          "summary": "blade-force PRNG assertions use includes",
+          "counterEvidence": "Deterministic PRNG means specific values encode call order."
+        },
+        {
+          "summary": "set_uasmon PROPSET tests only exercise gnome",
+          "counterEvidence": "PROPSET mechanism is uniform. INFRAVISION set + FIRE_RES clear exercises both branches."
+        }
+      ],
+      "deferrals": [
+        {
+          "summary": "strangled message assertion unreliable on direct call grid",
+          "trackedIn": "strangled-message-assertion",
+          "category": "tests"
+        },
+        {
+          "summary": "dragon HP formula test lacks explicit constant pinning",
+          "trackedIn": "dragon-hp-formula-test",
+          "category": "tests"
+        }
+      ]
+    },
+    "recordedAt": "2026-08-29T09:06:09.496Z"
   }
 ]
