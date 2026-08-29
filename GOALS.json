@@ -6061,6 +6061,32 @@
         "screens": 0,
         "rng": 276
       }
+    },
+    {
+      "id": "unsupported-initial-level-monster-creation-outside-the-main-",
+      "status": "closed",
+      "boundary": "preflightCreation() in makemon_create.js:1122 throws when isMainDungeonLevel() (dnum === 0) returns false and isTutorialLevel() also returns false.",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [
+        {
+          "name": "mklev-non-main-dungeon-monster-creation",
+          "status": "closed",
+          "closedBy": "af821fd2aed99a560b318aef256809232000fc44"
+        }
+      ],
+      "openedAt": "4763c87ec6de0b1456bb9b9a73ded41fe38325b4",
+      "openStanding": {
+        "sha": "14bcb260",
+        "screens": 2907,
+        "rng": 162603
+      },
+      "closedAt": "af821fd2aed99a560b318aef256809232000fc44",
+      "delivered": {
+        "screens": 1,
+        "rng": 2
+      }
     }
   ]
 }
