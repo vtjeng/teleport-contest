@@ -1315,12 +1315,11 @@ export async function goto_level(
         if (dunlev(u.uz) > dunlev_reached(u.uz, state))
             set_dunlev_reached(u.uz, dunlev(u.uz), state);
     } else {
-        // The up-building arm serves Sokoban and the endgame, which a
-        // staircase from D:1 cannot reach; taking it would need a dungeon
-        // whose entry level is its deepest.
-        throw new UnsupportedLevelChangeError(
-            'goto_level() into an up-building dungeon',
-        );
+        // do.c:1682-1684 — up-building dungeons (Sokoban, Vlad's Tower)
+        // track the shallowest level reached rather than the deepest.
+        if (dunlev_reached(u.uz, state) === 0
+            || dunlev(u.uz) < dunlev_reached(u.uz, state))
+            set_dunlev_reached(u.uz, dunlev(u.uz), state);
     }
 
     stairway_free_all(state);

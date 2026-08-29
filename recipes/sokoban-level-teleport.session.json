@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:FreshDiff,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug",
+      "moves": "   ny \u0016?\n B"
+    }
+  ]
+}
