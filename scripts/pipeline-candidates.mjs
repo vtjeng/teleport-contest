@@ -189,8 +189,13 @@ async function advance() {
                     });
                 }
             }
-        } else if (needsWitnessList.length < 3) {
-            needsWitnessList.push(candidate.member);
+        } else {
+            needsWitnessList.push({
+                member: candidate.member,
+                id: annotated.id,
+                sessions: candidate.sessions.map((s) => s.session),
+                cappedForecast: candidate.cappedForecast,
+            });
         }
     }
 
