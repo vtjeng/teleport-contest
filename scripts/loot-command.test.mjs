@@ -453,3 +453,122 @@ test("'i' puts an inventory item into an unlocked floor container",
         assert.ok(toplines.includes('You put'),
             `expected "You put" in "${toplines}"`);
     });
+
+// -- stash_one ('s') tests --
+// These exercise the stash_one path: use_container 's' answer -> getobj
+// (stash_ok callback) -> in_container.
+
+test("'s' with no inventory prints nothing-to-stash",
+    async () => {
+        const state = await heroOnCleanSquare();
+        const { ux, uy } = state.u;
+
+        // Place an unlocked large box under the hero.
+        placeFloorObjects(state, [
+            { otyp: LARGE_BOX, olocked: 0 },
+        ]);
+
+        clearTtyMessageWindow(state);
+
+        // Clear inventory so inokay is false. The guard at C:3157-3161
+        // prints "You don't have anything to stash." and clears stash_one
+        // before the getobj prompt is reached.
+        state.invent = null;
+
+        // 's' triggers the stash path; the nothing-to-stash message
+        // dismisses with a space, then 'n' for directional loot.
+        state.nhDisplay.pushKey('s'.charCodeAt(0));
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+        state.nhDisplay.pushKey('n'.charCodeAt(0));
+
+        const result = await doloot(state);
+        const toplines = state.nhDisplay?.toplines ?? '';
+        // C: "You don't have anything to stash."
+        assert.ok(toplines.includes("don't have anything to stash"),
+            `expected "don't have anything to stash" in "${toplines}"`);
+    });
+
+test("'s' stashes a single inventory item into a floor container",
+    async () => {
+        const state = await heroOnCleanSquare();
+        const { ux, uy } = state.u;
+
+        // Place an unlocked large box under the hero. C ref: pickup.c:3174-3186.
+        // The 's' answer enters the stash_one path, which calls getobj with
+        // stash_ok as the callback, then passes the chosen item to
+        // in_container. stash_ok (C: 2957-2969) excludes the container
+        // itself via ck_bag and suggests everything else.
+        const box = placeFloorObjects(state, [
+            { otyp: LARGE_BOX, olocked: 0 },
+        ]);
+
+        state.flags.menu_style = 0; /* MENU_TRADITIONAL */
+
+        clearTtyMessageWindow(state);
+
+        // Replace inventory with a single leash (TOOL_CLASS, quan=1, not
+        // worn). A single suggested item makes getobj show the prompt
+        // "What do you want to stash? [z or ?*]". invlet is a string
+        // character, matching the JS port's convention (inventoryLetter
+        // returns String.fromCharCode).
+        const synthItem = {
+            otyp: LEASH,
+            oclass: TOOL_CLASS,
+            quan: 1,
+            owt: 12,
+            invlet: 'z',
+            where: 3, /* OBJ_INVENT */
+            nobj: null,
+            nexthere: null,
+            ocontainer: null,
+            o_id: 80002,
+            dknown: 1,
+            bknown: 1,
+            rknown: 0,
+            known: 0,
+            oartifact: 0,
+            no_charge: false,
+            cursed: 0,
+            blessed: 0,
+            spe: 0,
+            corpsenm: 0,
+            oeroded: 0,
+            oeroded2: 0,
+            oerodeproof: 0,
+            owornmask: 0,
+            lamplit: 0,
+            leashmon: 0,
+            unpaid: 0,
+            age: 0,
+            globby: 0,
+            onamelth: 0,
+            oextra: null,
+            recharged: 0,
+            pickup_prev: false,
+        };
+        state.invent = synthItem;
+        state.uwep = null;
+        state.uswapwep = null;
+        state.uquiver = null;
+
+        // 's' enters stash_one. getobj prompts; answer 'z' to pick the
+        // leash. in_container transfers it. Then dismiss messages and
+        // answer 'n' for directional loot.
+        state.nhDisplay.pushKey('s'.charCodeAt(0));
+        state.nhDisplay.pushKey('z'.charCodeAt(0)); // getobj: pick leash
+        for (let i = 0; i < 5; i++)
+            state.nhDisplay.pushKey(' '.charCodeAt(0)); // dismiss messages
+        state.nhDisplay.pushKey('n'.charCodeAt(0)); // directional loot
+
+        const result = await doloot(state);
+
+        // The stash took time.
+        assert.equal(result, ECMD_TIME,
+            'stashing an item should return ECMD_TIME');
+        // The container should now have contents.
+        assert.ok(box.cobj !== null,
+            'container should have contents after stash');
+        const toplines = state.nhDisplay?.toplines ?? '';
+        assert.ok(toplines.includes('You put'),
+            `expected "You put" in "${toplines}"`);
+    });

@@ -18,6 +18,11 @@ import {
     ECMD_OK,
     ECMD_TIME,
     EXT_ENCUMBER,
+    GETOBJ_ALLOWCNT,
+    GETOBJ_EXCLUDE,
+    GETOBJ_EXCLUDE_SELECTABLE,
+    GETOBJ_PROMPT,
+    GETOBJ_SUGGEST,
     OVERLOADED,
     FEEL_COCKATRICE,
     FUMBLING,
@@ -90,6 +95,7 @@ import {
     carrying,
     count_unpaid,
     dfeature_at,
+    getobj,
     look_here,
     money_cnt,
     nxtobj,
@@ -1243,10 +1249,19 @@ async function use_container(obj, held, more_containers, state) {
             }
             add_valid_menu_class(0, state);
         } else if (stash_one) {
-            // C: 3174-3186. stash_one path remains fail-closed.
-            throw new UnsupportedPickupError(
-                'use_container: stash_one',
-            );
+            // C: 3174-3186. Put one item into container via getobj prompt.
+            const otmp = await getobj('stash', stash_ok,
+                GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state);
+            if (otmp) {
+                if (await in_container(otmp, state)) {
+                    used = 1;
+                } else {
+                    // in_container rejected the item; C calls unsplitobj()
+                    // here to undo a count-based split, but getobj throws
+                    // on count entry (get_count not ported), so no split
+                    // can have occurred.
+                }
+            }
         }
 
         // Putting something in might have triggered magic bag explosion
@@ -1883,6 +1898,21 @@ async function in_container(obj, state) {
 function ck_bag(obj, state) {
     return Boolean(state.gc?.current_container
         && obj !== state.gc.current_container);
+}
+
+// C ref: pickup.c:2957-2969. stash_ok().
+// getobj callback for the stash-one ('s') answer in use_container().
+// Excludes the container being stashed into via ck_bag(); suggests everything
+// else.
+function stash_ok(obj, state) {
+    if (!obj)
+        return GETOBJ_EXCLUDE;
+
+    // Downplay the container being stashed into.
+    if (!ck_bag(obj, state))
+        return GETOBJ_EXCLUDE_SELECTABLE;
+
+    return GETOBJ_SUGGEST;
 }
 
 // C ref: pickup.c:2902-2908. container_gone().
