@@ -2409,3 +2409,78 @@ export async function doloot(state = game) {
     }
     return res;
 }
+
+// C ref: hack.h:1330.  ynq(query) = yn_function(query, ynqchars, 'q', TRUE).
+// The addcmdq TRUE tells C to push the answer onto CQ_REPEAT so that a
+// repeated command replays it; CQ_REPEAT is not ported, so passing false is
+// safe. Used by dotip() below; lock.js carries its own copy for doforce().
+const YNQCHARS = 'ynq';
+async function ynq(query, state) {
+    const KEY_Q = 'q'.charCodeAt(0);
+    const KEY_Y = 'y'.charCodeAt(0);
+    const c = await yn_function(query, YNQCHARS, 'q', false, state);
+    if (c === KEY_Y) return 'y';
+    if (c === KEY_Q) return 'q';
+    return 'n';
+}
+
+// C ref: pickup.c dotip() (3562-3677). The #tip extended command.
+// This slice covers the single-floor-container quit branch (~40 lines,
+// pickup.c:3582-3620). The hero stands over exactly one container, the port
+// prompts with ynq(), and the player answers 'q' or 'n' to cancel without
+// tipping. Answering 'y' would call tipcontainer(), which is not yet ported.
+// The inventory-item tipping path (getobj -> tip_ok, pickup.c:3624-3677) and
+// the multi-container menu path (choose_tip_container_menu) are also unported.
+export async function dotip(state = game) {
+    const cc = { x: state.u.ux, y: state.u.uy };
+
+    // pickup.c:3586. Count floor containers.
+    const boxes = container_at(cc.x, cc.y, true, state);
+
+    // pickup.c:3589-3619. Floor-container block.
+    if (boxes > 0
+        && (!state.iflags?.menu_requested
+            || (state.flags?.menu_style === MENU_TRADITIONAL && boxes > 1))
+    ) {
+        const buf = "You can't tip "
+            + (!state.flags?.verbose ? 'a container'
+                : (boxes > 1) ? 'one' : 'it')
+            + ' while carrying so much.';
+        if (!(await check_capacity(buf, state))
+            && (await able_to_loot(cc.x, cc.y, false, state))
+        ) {
+            if (boxes > 1) {
+                // pickup.c:3596-3599. Multi-container menu (unported).
+                throw new UnsupportedPickupError(
+                    'dotip: multi-container choose_tip_container_menu',
+                );
+            } else {
+                // pickup.c:3601-3617. Single-container for-loop.
+                for (let cobj = state.level.objects[cc.x][cc.y]; cobj;
+                    cobj = cobj.nexthere) {
+                    if (!isContainer(cobj))
+                        continue;
+                    const qbuf = safe_qbuf(
+                        'There is ', ' here, tip it?', cobj,
+                        (o, s) => donameFresh(o, s), null, 'container',
+                        state,
+                    );
+                    const c = await ynq(qbuf, state);
+                    if (c === 'q')
+                        return ECMD_OK;
+                    if (c === 'n')
+                        continue;
+                    // tipcontainer() is not yet ported.
+                    throw new UnsupportedPickupError(
+                        'dotip: tipcontainer',
+                    );
+                }
+            }
+        }
+    }
+
+    // pickup.c:3624-3677. Inventory-item tipping (unported).
+    throw new UnsupportedPickupError(
+        'dotip: inventory tipping path (getobj -> tip_ok)',
+    );
+}

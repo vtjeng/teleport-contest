@@ -94,7 +94,7 @@ import { UnsupportedMonsterCreationError } from './makemon_create.js';
 import { UnsupportedRegionPlacementError } from './mkmaze.js';
 import { docallcmd, UnsupportedObjectNamingError } from './do_name.js';
 import { UnsupportedObjectOperationError } from './obj.js';
-import { doloot, UnsupportedPickupError } from './pickup.js';
+import { doloot, dotip, UnsupportedPickupError } from './pickup.js';
 import {
     dodrink,
     UnsupportedPotionError,
@@ -2740,6 +2740,9 @@ async function doextcmd(key, state) {
     case 'doforce':
         // C ref: lock.c doforce(), which returns ECMD_OK or ECMD_TIME.
         return await doforce(state);
+    case 'dotip':
+        // C ref: pickup.c dotip(), which returns its own ECMD_* result.
+        return await failClosedCommand(key, state, () => dotip(state));
     default:
         resetCommandVars(state);
         throw new UnsupportedHeroCommandBoundaryError(
