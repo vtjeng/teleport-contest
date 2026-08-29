@@ -113,7 +113,7 @@ test('elapsed-turn timeout upkeep admits only source-inert timeout state',
         // Each scalar the guard names must stop the turn on its own. The
         // guard returns early when uinvulnerable is set, so these all run
         // with it false.
-        for (const field of ['mtimedone', 'ucreamed', 'usptime', 'ugallop']) {
+        for (const field of ['ucreamed', 'usptime', 'ugallop']) {
             state.u[field] = 1;
             await assert.rejects(
                 nh_timeout_elapsed_turn(state),
@@ -122,11 +122,30 @@ test('elapsed-turn timeout upkeep admits only source-inert timeout state',
             );
             state.u[field] = 0;
         }
-        // Invulnerability precedes every scalar, so the same state passes
-        // with it.
+        // mtimedone=1 decrements to 0, hitting the boundary for the
+        // unported rehumanize/you_unwere/Unchanging-extension code path
+        // (timeout.c:641-648).
+        state.u.mtimedone = 1;
+        await assert.rejects(
+            nh_timeout_elapsed_turn(state),
+            /mtimedone reaches zero/u,
+            'mtimedone reaching zero',
+        );
+        state.u.mtimedone = 0;
+        // mtimedone > 1 decrements without error; the countdown runs but
+        // does not reach zero.
+        state.u.mtimedone = 5;
+        await assert.doesNotReject(nh_timeout_elapsed_turn(state));
+        // Verify it actually decremented.
+        assert.equal(state.u.mtimedone, 4, 'mtimedone decrements each turn');
+        state.u.mtimedone = 0;
+        // Invulnerability precedes the mtimedone decrement, so mtimedone=1
+        // passes when uinvulnerable is set.
         state.u.mtimedone = 1;
         state.u.uinvulnerable = true;
         await assert.doesNotReject(nh_timeout_elapsed_turn(state));
+        // Invulnerability skips the decrement, so mtimedone stays 1.
+        assert.equal(state.u.mtimedone, 1, 'uinvulnerable skips mtimedone');
         state.u.uinvulnerable = false;
         state.u.mtimedone = 0;
 

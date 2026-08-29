@@ -351,7 +351,6 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
         && !u.uprops[BLINDED].blocked
         && wipeOccupation;
     for (const [name, value] of [
-        ['mtimedone', u.mtimedone],
         ['ucreamed', u.ucreamed],
         ['usptime', u.usptime],
         ['ugallop', u.ugallop],
@@ -461,6 +460,19 @@ export async function nh_timeout_elapsed_turn(state = game, env = {}) {
     /* "things past this point could kill you" -- timeout.c:621-622, below the
        basal-luck block and above every branch nh_timeout() has left. */
     if (state.u?.uinvulnerable) return;
+    // C ref: timeout.c:641-648. Decrement the polymorph timer each turn.
+    // When it reaches zero, the hero reverts: Unchanging extends it,
+    // is_were() calls you_unwere(), otherwise rehumanize(). None of those
+    // are ported, so reaching zero is a boundary error. In the current
+    // witness session mtimedone starts at 500-999 with ~180 steps left,
+    // so the zero case is unreachable.
+    if (state.u.mtimedone) {
+        if (--state.u.mtimedone === 0) {
+            throw new UnsupportedHeroTimeoutBoundaryError(
+                'rehumanize/you_unwere/Unchanging extension when mtimedone reaches zero',
+            );
+        }
+    }
     if (state.u.ucreamed) --state.u.ucreamed;
     await decrement_property_timeouts(state, env);
     /* timeout.c:947, nh_timeout()'s last statement. */
