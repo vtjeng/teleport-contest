@@ -5368,6 +5368,24 @@
       "status": "closed",
       "from": "f518d1cffa2acbf86fa13534dd166a1b0bff6f6d",
       "detail": "lock.c:230-245. When picktyp=true (blade weapon), the weapon can break on rn2(1000 - uwep->spe). Currently guarded with throw in js/lock.js forcelock()."
+    },
+    {
+      "id": "strangled-message-assertion",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "ac11759239fdbdb6860c5c075b8d5000d08d50bc",
+      "detail": "dobreathe Strangled-guard test checks return value and energy but not the You_cant message. The display grid retains the prior replay state, making a direct grid read unreliable without display integration work."
+    },
+    {
+      "id": "dragon-hp-formula-test",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "ac11759239fdbdb6860c5c075b8d5000d08d50bc",
+      "detail": "polyself-transform.test dragon HP formula test pins monst.c constants (mlevel=15, mlet=S_DRAGON) and the deterministic component (4*mlvl=60) but does not call the production HP-calculation code. The formula is embedded in polymon() and not separately callable. The recipe polyself-dragon-hp-dropweapon validates the full formula via differential."
     }
   ],
   "areas": [
@@ -8238,6 +8256,23 @@
       ],
       "outcome": "changed",
       "recordedAt": "2026-08-28T23:28:39.611Z"
+    },
+    {
+      "kind": "review",
+      "head": "ac11759239fdbdb6860c5c075b8d5000d08d50bc",
+      "auditedRange": "29b3d054cfe4374c10a51b8719d2d57114d3f1db..ac11759239fdbdb6860c5c075b8d5000d08d50bc",
+      "level": "full",
+      "areas": [
+        "hero",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "recordedAt": "2026-08-29T09:06:09.496Z"
     }
   ]
 }
