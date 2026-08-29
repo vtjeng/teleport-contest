@@ -467,11 +467,11 @@ document.getElementById('stats').innerHTML = [
   { label: 'Implementation', value: fmt(s.medianImplementationMin), detail: 'median, last 20' },
 ].map(t => '<div class="stat"><div class="stat-label">' + t.label + '</div><div class="stat-value">' + t.value + '</div><div class="stat-detail">' + t.detail + '</div></div>').join('');
 const inferredProgressCount = DATA.progress.filter(
-  p => p.utcSource !== 'score-utc',
+  p => p.utcSource !== 'commit',
 ).length;
 document.getElementById('progressProvenance').textContent = inferredProgressCount
-  ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' commit time where SCORE records only a date.'
-  : 'All plotted times come from recorded SCORE timestamps.';
+  ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' SCORE timestamp where the commit SHA was not found.'
+  : 'All plotted times come from commit timestamps.';
 
 // --- Progress chart (step plot with x-axis) ---
 function drawProgressChart() {
@@ -585,11 +585,10 @@ function drawProgressChart() {
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Date-only SCORE rows have no recorded time-of-day. Their x-coordinate
-  // uses the referenced commit time and a hollow marker makes that fallback
-  // visible instead of presenting it as equivalent to a recorded timestamp.
+  // When a commit SHA was not found, the SCORE timestamp is used as a fallback.
+  // A hollow marker makes that visible.
   pts.forEach((point, index) => {
-    if (point.utcSource === 'score-utc') return;
+    if (point.utcSource === 'commit') return;
     ctx.beginPath();
     ctx.arc(xScale(times[index]), yScale(point.screens), 3, 0, Math.PI * 2);
     ctx.fillStyle = style.getPropertyValue('--surface-chart').trim();
@@ -751,9 +750,9 @@ window.addEventListener('resize', drawProgressChart);
       { label: 'Implementation', min: g.implementationMin || 0, var: '--phase-impl', observed: g.implementationObserved },
       { label: 'Verification', min: g.verificationMin || 0, var: '--phase-verif', observed: g.verificationObserved },
     ];
-    const barTotal = parts.reduce((s, p) => s + p.min, 0) || 1;
+    const barTotal = parts.reduce((s, p) => s + p.min, 0);
 
-    const bar = '<div class="phase-bar">' + parts.map(p => {
+    const bar = barTotal === 0 ? '' : '<div class="phase-bar">' + parts.map(p => {
       const w = Math.max((p.min / barTotal) * 100, p.min > 0 ? 2 : 0);
       const provenance = p.observed ? '' : ' †';
       return '<div class="phase-bar-seg" style="width:' + w + '%;background:var(' + p.var + ')" title="' + p.label + ': ' + fmt(p.min) + provenance + '" aria-label="' + p.label + ': ' + fmt(p.min) + provenance + '"></div>';

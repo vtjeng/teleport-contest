@@ -26,15 +26,16 @@ for (const c of commits) {
 }
 
 // Classify commits
-const openCommits = commits.filter(c => /^Open\b/i.test(c.message));
+const openCommits = commits.filter(c => /^(Open|Register)\b/i.test(c.message));
 const queueCommits = commits.filter(c => /^Queue\b/i.test(c.message));
 const auditCommits = commits.filter(c =>
   /audit|review/i.test(c.message) && !/^Open|^Queue/i.test(c.message)
 );
 
-// Some Open commits also queue a slice — synthesize queue events for those
+// Some Open/Register commits also queue a slice — synthesize queue events
 for (const c of openCommits) {
-  if (/queue/i.test(c.message)) {
+  if (/queue/i.test(c.message)
+    || (/^Register\b/i.test(c.message) && /\bslice\b/i.test(c.message))) {
     queueCommits.push(c);
   }
 }
@@ -52,19 +53,11 @@ const scoreEvents = scoreLines.map(line => {
   if (noteLower.includes('supersedes') || noteLower.includes('sha-correction')) return null;
 
   const commit = commitBySha.get(sha) || commitBySha.get(sha.slice(0, 7));
-  const parsedUtc = tsStr ? new Date(tsStr) : null;
-  // Older ledger rows record a calendar date only. Midnight is not the event
-  // time, so retain the referenced commit time and label that fallback rather
-  // than fabricating intra-day ordering from the date.
-  const hasRecordedUtc = tsStr.includes('T')
-    && parsedUtc && !Number.isNaN(parsedUtc.getTime());
-  const utc = hasRecordedUtc ? parsedUtc : commit?.time || null;
+  const utc = commit?.time || (tsStr ? new Date(tsStr) : null);
 
   return {
     utc,
-    utcSource: hasRecordedUtc
-      ? 'score-utc'
-      : (tsStr ? 'score-date-commit-inferred' : 'score-commit-inferred'),
+    utcSource: commit ? 'commit' : 'score-utc-fallback',
     sha, event,
     sessionsPassed: cols[3] ? parseInt(cols[3]) : null,
     sessionsTotal: cols[4] ? parseInt(cols[4]) : null,
@@ -122,7 +115,7 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
 
   // Find the Open commit: most recent Open before this close, after previous close
   const openCommit = openCommits.filter(c =>
-    c.time < closeTime && (!prevCloseTime || c.time > prevCloseTime)
+    c.time <= closeTime && (!prevCloseTime || c.time > prevCloseTime)
   ).pop();
 
   const openTime = openCommit?.time || prevCloseTime || closeTime;
@@ -161,9 +154,9 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
     const sliceCloseTime = sliceScore?.utc
       ?? (nextQueue ? new Date(nextQueue.time - 1) : closeTime);
     const closeTimeSource = sliceScore
-      ? (sliceScore.utcSource === 'score-utc'
+      ? (sliceScore.utcSource === 'commit'
         ? 'score-slice'
-        : 'score-slice-commit-inferred')
+        : 'score-slice-fallback')
       : nextQueue
         ? 'next-queue-inferred'
         : 'goal-close-inferred';
@@ -196,7 +189,7 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
   const lastSliceClose = lastSlice?.closeTimeSource === 'score-slice'
     ? new Date(lastSlice.closeTime)
     : null;
-  const verificationMin = lastSliceClose && sg.utcSource === 'score-utc'
+  const verificationMin = lastSliceClose && sg.utcSource === 'commit'
     ? (closeTime - lastSliceClose) / 60000
     : null;
 
@@ -224,7 +217,7 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
     sliceCount: slices.length,
     slices,
     goalSelectionObserved: goalSelectionMin !== null
-      && scoreGoals[gi - 1]?.utcSource === 'score-utc',
+      && scoreGoals[gi - 1]?.utcSource === 'commit',
     sliceSelectionObserved: slices.length > 0
       && openTimeSource === 'open-commit'
       && slices.slice(0, -1).every(
@@ -234,11 +227,11 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
       && slices.every((slice) => slice.closeTimeSource === 'score-slice'),
     verificationObserved: verificationMin !== null,
     totalObserved: openTimeSource === 'open-commit'
-      && sg.utcSource === 'score-utc',
+      && sg.utcSource === 'commit',
     timingObserved: openTimeSource === 'open-commit'
       && slices.length > 0
       && slices.every((slice) => slice.closeTimeSource === 'score-slice')
-      && sg.utcSource === 'score-utc',
+      && sg.utcSource === 'commit',
     audits: goalAudits,
     screens: sg.screensMatched,
     screensTotal: sg.screensTotal,
@@ -281,9 +274,9 @@ for (const open of inProgressOpens) {
     );
     const sliceCloseTime = sliceScore?.utc ?? now;
     const closeTimeSource = sliceScore
-      ? (sliceScore.utcSource === 'score-utc'
+      ? (sliceScore.utcSource === 'commit'
         ? 'score-slice'
-        : 'score-slice-commit-inferred')
+        : 'score-slice-fallback')
       : 'current-time-inferred';
     let sliceSelectionMin = null;
     if (qi > 0 && slices[qi - 1]?.closeTime) {
@@ -325,7 +318,7 @@ for (const open of inProgressOpens) {
     sliceCount: slices.length,
     slices,
     goalSelectionObserved: goalSelectionMin !== null
-      && lastClosedGoal?.closeTimeSource === 'score-utc',
+      && lastClosedGoal?.closeTimeSource === 'commit',
     sliceSelectionObserved: slices.length > 0
       && slices.slice(0, -1).every(
         (slice) => slice.closeTimeSource === 'score-slice',
