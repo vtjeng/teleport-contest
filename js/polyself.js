@@ -34,6 +34,7 @@ import {
     HANDED,
     HEAD,
     I_SPECIAL,
+    In_endgame,
     INVIS,
     INFRAVISION,
     LEG,
@@ -74,6 +75,7 @@ import {
     attacktype,
     breakarm,
     can_be_strangled,
+    can_breathe,
     could_twoweap,
     dmgtype,
     dmgtype_fromattack,
@@ -118,11 +120,13 @@ import { useup } from './invent.js';
 import { getlin } from './windows.js';
 import { ttyPline } from './tty_message.js';
 import { set_utrap, reset_utrap } from './trap.js';
-import { make_blinded } from './potion.js';
+import { make_blinded, make_glib } from './potion.js';
 import { spoteffects } from './hack.js';
-import { cantwield, untwoweapon } from './wield.js';
+import { cantwield, untwoweapon, uwepgone, uswapwepgone } from './wield.js';
 import { _doWearInternals } from './do_wear.js';
-import { Is_dragon_armor, remove_object } from './obj.js';
+import { Is_dragon_armor, is_sword, remove_object } from './obj.js';
+import { makeplural } from './fruit.js';
+import { weapon_descr } from './weapon.js';
 import {
     AMULET_OF_STRANGULATION,
     CORPSE,
@@ -536,16 +540,72 @@ async function break_armor(state) {
 
 // ---------- drop_weapon ------------------------------------------------
 // C ref: polyself.c drop_weapon() (1304-1361). Force the hero to drop
-// weapons if the new form cannot wield them. For the gnome case with
-// alone=1, cantwield is false for a gnome (humanoid hands), so this is a
-// no-op except for the untwoweapon check.
+// weapons if the new form cannot wield them.  For the dragon case with
+// alone=1, cantwield(dragon) is true (nohands), so the hero drops the
+// wielded weapon.  For the gnome case, cantwield is false (humanoid
+// hands), so this falls through to the untwoweapon check.
 async function drop_weapon(alone, state) {
     if (state.uwep) {
+        // alone=0 when called from break_armor alongside glove removal;
+        // alone=1 when called directly from polymon.
         if (!alone || cantwield(state.youmonst.data)) {
-            // The "You find you must drop your weapon!" path.
-            // Gnome has humanoid hands; cantwield is false.
-            // This path needs uwepgone/uswapwepgone which are unported.
-            throw new UnsupportedPolyselfError('drop_weapon: forced weapon drop not ported');
+            const candropwep = await canletgo(state.uwep, '', state);
+            const candropswapwep = !state.u.twoweap
+                || await canletgo(state.uswapwep, '', state);
+            let updateinv = true;
+
+            if (alone) {
+                // Build the "You find you must drop your <weapon>!" message.
+                const what = (candropwep && candropswapwep) ? 'drop' : 'release';
+                let which = is_sword(state.uwep, state)
+                    ? 'sword' : weapon_descr(state.uwep, state);
+                if (state.u.twoweap) {
+                    const whichtoo = is_sword(state.uswapwep, state)
+                        ? 'sword' : weapon_descr(state.uswapwep, state);
+                    if (which !== whichtoo)
+                        which = 'weapon';
+                }
+                if (state.uwep.quan !== 1 || state.u.twoweap)
+                    which = makeplural(which);
+                // C: the_your[!!strncmp(which, "corpse", 6)] — "your" unless
+                // the descriptor starts with "corpse".
+                const theYour = which.startsWith('corpse') ? 'the' : 'your';
+                await ttyPline(
+                    `You find you must ${what} ${theYour} ${which}!`, state,
+                );
+            }
+            // Drop swap weapon first (if twoweap).
+            if (state.u.twoweap) {
+                const otmp = state.uswapwep;
+                uswapwepgone({ state });
+                if (otmp.in_use)
+                    updateinv = false;
+                else if (candropswapwep)
+                    await dropx(otmp, {
+                        state,
+                        hooks: {
+                            newsym,
+                            encumberMessage: encumber_msg,
+                            extractExternalObject: remove_object,
+                        },
+                    });
+            }
+            // Drop primary weapon.
+            const otmp = state.uwep;
+            uwepgone({ state });
+            if (otmp.in_use)
+                updateinv = false;
+            else if (candropwep)
+                await dropx(otmp, {
+                    state,
+                    hooks: {
+                        newsym,
+                        encumberMessage: encumber_msg,
+                        extractExternalObject: remove_object,
+                    },
+                });
+            if (updateinv)
+                update_inventory({ state });
         } else if (!could_twoweap(state.youmonst.data)) {
             await untwoweapon(state);
         }
@@ -674,15 +734,18 @@ export async function polymon(mntmp, state = game) {
 
     await check_strangling(false, state); // maybe stop strangling
 
-    if (nohands(state.youmonst.data)) {
-        // make_glib(0) — not exercised for gnome (gnome has hands)
-    }
+    if (nohands(state.youmonst.data))
+        make_glib(0, state);
 
-    // HP for new form
+    // HP for new form.  C ref: polyself.c:858-871.
+    // Dragon (adult, mntmp >= PM_GRAY_DRAGON): endgame 8*mlvl, else 4*mlvl+d(mlvl,4).
+    // Golem: golemhp(). Other: d(mlvl,8) or rnd(4) if mlvl==0, tripled
+    // for a home elemental.
     const mlvl = mdat.mlevel;
     if (mdat.mlet === M.S_DRAGON && mntmp >= M.PM_GRAY_DRAGON) {
-        // dragon HP formula — not exercised for gnome
-        throw new UnsupportedPolyselfError('polymon: dragon HP not ported');
+        u.mhmax = In_endgame(u.uz)
+            ? (8 * mlvl)
+            : (4 * mlvl + d(mlvl, 4));
     } else if (mdat.mlet === M.S_GOLEM) {
         throw new UnsupportedPolyselfError('polymon: golem HP not ported');
     } else {
@@ -690,7 +753,7 @@ export async function polymon(mntmp, state = game) {
             u.mhmax = rnd(4);
         else
             u.mhmax = d(mlvl, 8);
-        // is_home_elemental — not exercised for gnome
+        // is_home_elemental — not exercised for gnome or dragon
     }
     u.mh = u.mhmax;
 
@@ -736,12 +799,35 @@ export async function polymon(mntmp, state = game) {
     if (!state.uarmg)
         await selftouch('No longer petrify-resistant, you', state);
 
-    // verbose hints — which #monster commands to use
+    // verbose hints — which #monster commands to use.
+    // C ref: polyself.c:1031-1069.  Each hint is a separate pline(); the
+    // checks are independent (a form can match several).  The dragon case
+    // reaches only the can_breathe() hint.  Remaining checks (is_were,
+    // gremlin, unicorn, mind_flayer, shriek, vampire, eggs) are included
+    // only when the predicate is already imported; forms that satisfy an
+    // unported predicate simply skip that hint.
     if (state.flags.verbose) {
-        // Use the command #monster to ... — these hints tell the player
-        // what special actions the new form can do. For gnome, none of
-        // these apply (no breath, spit, nymph, gaze, hide, web, were,
-        // gremlin, unicorn, mind flayer, shriek, vampire, or egg).
+        // C uses static format: "Use the command #%s to %s."
+        const hint = (cmd, action) =>
+            `Use the command #${cmd} to ${action}.`;
+        const uptr = state.youmonst.data;
+
+        if (can_breathe(uptr))
+            await ttyPline(hint('monster', 'use your breath weapon'), state);
+        if (attacktype(uptr, M.AT_SPIT))
+            await ttyPline(hint('monster', 'spit venom'), state);
+        if (uptr.mlet === M.S_NYMPH)
+            await ttyPline(hint('monster', 'remove an iron ball'), state);
+        if (attacktype(uptr, M.AT_GAZE))
+            await ttyPline(hint('monster', 'gaze at monsters'), state);
+        // is_hider/hides_under + webmaker: not imported (gnome/dragon skip)
+        // is_were: not imported (gnome/dragon skip)
+        // PM_GREMLIN: no match for gnome or dragon
+        // is_unicorn: not imported (gnome/dragon skip)
+        // is_mind_flayer: not imported (gnome/dragon skip)
+        // MS_SHRIEK: not imported (gnome/dragon skip)
+        // is_vampire/is_vampshifter: dragon is neither
+        // lays_eggs: not imported for this path (gnome/dragon skip)
     }
 
     return 1;

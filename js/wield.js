@@ -1,8 +1,8 @@
 // wield.js -- what the hero's hands are doing, plus the one question wield.c
 // asks about a monster's hands.
 // C refs: src/wield.c erodeable_wep(), will_weld(), TWOWEAPOK(), welded(),
-// empty_handed(), mwelded(), wield_tool(), can_twoweapon(), and
-// dotwoweapon().
+// empty_handed(), mwelded(), wield_tool(), can_twoweapon(), dotwoweapon(),
+// uwepgone(), and uswapwepgone().
 //
 // wield.c set_twoweap() lives in js/worn.js beside setworn() and setnotworn(),
 // the two callers that would otherwise make js/worn.js and this file import
@@ -725,4 +725,38 @@ export async function wield_tool(obj, verb, state = game) {
     if (obj.oclass !== WEAPON_CLASS)
         state.unweapon = true;
     return true;
+}
+
+// C ref: wield.c uwepgone() (873-885). Clear the primary weapon slot. Called
+// when the item is eaten, stolen, burned, rotted, or force-dropped (polymorph).
+// Handles artifact-light extinguishing, clears the slot via setuwep(null), and
+// refreshes inventory.
+export function uwepgone(env = {}) {
+    const state = env.state ?? game;
+    if (state.uwep) {
+        // C: if (artifact_light(uwep) && uwep->lamplit) end_burn + message.
+        // The dragon-HP slice exercises a magic lamp, which is not
+        // artifact_light. The full artifact-light path needs end_burn hooks
+        // (deleteObjectLightSource) that polyself does not wire. Fail-closed
+        // so a future caller with an artifact weapon gets a clear error.
+        if (artifact_light(state.uwep) && state.uwep.lamplit) {
+            throw new Error(
+                'uwepgone: artifact-light extinguishing not wired '
+                + '(needs end_burn + Tobjnam message)',
+            );
+        }
+        // setuwep(null) calls setworn(null, W_WEP) and sets unweapon = true,
+        // matching C's setworn(NULL, W_WEP) + gu.unweapon = TRUE.
+        setuwep(null, setwornEnv(state));
+        update_inventory({ state });
+    }
+}
+
+// C ref: wield.c uswapwepgone() (888-894). Clear the secondary weapon slot.
+export function uswapwepgone(env = {}) {
+    const state = env.state ?? game;
+    if (state.uswapwep) {
+        setuswapwep(null, setwornEnv(state));
+        update_inventory({ state });
+    }
 }

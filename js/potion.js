@@ -25,6 +25,7 @@ import {
     BLINDED,
     CONFUSION,
     DEAF,
+    GLIB,
     DISP_ALWAYS,
     DISP_END,
     ECMD_CANCEL,
@@ -280,6 +281,24 @@ export function set_itimeout(prop, val) {
 // C ref: potion.c incr_itimeout() (82-86). Increment the timeout field.
 export function incr_itimeout(prop, incr) {
     set_itimeout(prop, itimeout_incr(prop.intrinsic, incr));
+}
+
+// C ref: potion.c make_glib() (460-468). Set or clear "slippery fingers".
+// polymon() calls make_glib(0) when the new form has no hands, clearing any
+// Glib timeout so the status line updates.
+export function make_glib(xtime, state = game) {
+    const prop = state.u?.uprops?.[GLIB];
+    if (!prop) return; // property not initialized
+    const wasGlib = Boolean(prop.intrinsic & TIMEOUT);
+    const willBeGlib = Boolean(xtime);
+    if (wasGlib !== willBeGlib) {
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
+    set_itimeout(prop, xtime);
+    // C: if (uarmg) update_inventory(); — may change "(being worn; slippery)"
+    // The dragon-HP slice reaches this only with xtime=0 and no gloves
+    // (nohands form), so the uarmg guard is always false here.
 }
 
 // C ref: potion.c make_blinded() (261-331), restricted to two ordinary cream

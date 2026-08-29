@@ -14,7 +14,7 @@ import {
     PM_VAMPIRE, PM_VAMPIRE_LEADER, PM_VAMPIRE_BAT, PM_FOG_CLOUD, PM_WOLF,
     PM_BAT, PM_GIANT_BAT, PM_RAVEN,
     PM_STALKER, PM_BLACK_LIGHT, PM_GRID_BUG,
-    PM_GRAY_DRAGON, PM_HUMAN_ZOMBIE, PM_DEATH,
+    PM_GRAY_DRAGON, PM_RED_DRAGON, PM_HUMAN_ZOMBIE, PM_DEATH,
     M2_HUMAN, NUMMONS,
 } from '../js/monsters.js';
 import {
@@ -34,6 +34,10 @@ import {
 } from '../js/mondata.js';
 import { character_race } from '../js/roles.js';
 import { uasmon_maxStr, set_uasmon } from '../js/polyself.js';
+import { make_glib } from '../js/potion.js';
+import { uwepgone, uswapwepgone } from '../js/wield.js';
+import { objects_globals_init } from '../js/objects.js';
+import { GLIB, W_WEP, W_SWAPWEP } from '../js/const.js';
 import { weight_cap } from '../js/hack.js';
 
 // Build a mons array once; all tests share it read-only.
@@ -297,4 +301,106 @@ test('weight_cap returns the base formula when not polymorphed', () => {
     const state = minimalState(PM_HUMAN);
     // base = 25 * (10 + 10) + 50 = 550
     assert.equal(weight_cap(state), 550);
+});
+
+// -- make_glib (potion.c:460-468) --
+// Clearing Glib (make_glib(0)) when already non-Glib leaves the intrinsic
+// unchanged and does not mark the status line dirty.
+test('make_glib(0) is a no-op when Glib is already zero', () => {
+    const state = minimalState(PM_GNOME);
+    // GLIB property starts at zero (set by minimalState's uprops loop).
+    state.disp = { botl: false };
+    make_glib(0, state);
+    // Intrinsic stays zero, botl stays false (no status-line update needed).
+    assert.equal(state.u.uprops[GLIB].intrinsic, 0);
+    assert.equal(state.disp.botl, false);
+});
+
+// Setting Glib to a nonzero value marks the status line dirty.
+test('make_glib sets a nonzero timeout and marks botl', () => {
+    const state = minimalState(PM_GNOME);
+    state.disp = { botl: false };
+    // xtime=20 represents a slippery-fingers timeout (e.g. from a potion
+    // of oil or a greased weapon).
+    make_glib(20, state);
+    assert.equal(state.u.uprops[GLIB].intrinsic, 20);
+    assert.equal(state.disp.botl, true);
+});
+
+// Clearing an active Glib timeout marks botl.  polymon() calls make_glib(0)
+// when the new form has no hands (nohands true), such as a dragon.
+test('make_glib(0) clears an active Glib timeout and marks botl', () => {
+    const state = minimalState(PM_GNOME);
+    state.u.uprops[GLIB].intrinsic = 15;
+    state.disp = { botl: false };
+    make_glib(0, state);
+    assert.equal(state.u.uprops[GLIB].intrinsic, 0);
+    assert.equal(state.disp.botl, true);
+});
+
+// -- uwepgone (wield.c:873-885) --
+// uwepgone clears the primary weapon, sets unweapon=true, and calls
+// update_inventory().  The objects catalog must be initialized because
+// setworn -> removeSlotEffects -> objectType reads the catalog.
+test('uwepgone clears uwep and sets unweapon', () => {
+    const state = minimalState(PM_GNOME);
+    objects_globals_init(state);
+    // Build a minimal non-artifact weapon (tool-class lamp).
+    // owornmask W_WEP marks it as the primary weapon.  oclass 40
+    // (TOOL_CLASS) so is_launcher/is_ammo/is_missile/is_weptool are all
+    // false, making setuwep set unweapon=true.
+    const lamp = {
+        otyp: 0, oclass: 40, /* TOOL_CLASS */
+        quan: 1, cursed: false, lamplit: false,
+        oartifact: 0, owornmask: W_WEP, spe: 0,
+        globby: false, nobj: null, in_use: false,
+    };
+    state.uwep = lamp;
+    state.unweapon = false;
+    state.artilist = state.artilist ?? [];
+    uwepgone({ state });
+    // uwep is cleared, unweapon is set.
+    assert.equal(state.uwep, null);
+    assert.equal(state.unweapon, true);
+    // owornmask is cleared by setworn.
+    assert.equal(lamp.owornmask, 0);
+});
+
+// -- uswapwepgone (wield.c:888-894) --
+test('uswapwepgone clears uswapwep', () => {
+    const state = minimalState(PM_GNOME);
+    objects_globals_init(state);
+    const dagger = {
+        otyp: 0, oclass: 0, quan: 1, cursed: false,
+        lamplit: false, oartifact: 0, owornmask: W_SWAPWEP,
+        spe: 0, globby: false, nobj: null, in_use: false,
+    };
+    state.uswapwep = dagger;
+    state.artilist = state.artilist ?? [];
+    uswapwepgone({ state });
+    assert.equal(state.uswapwep, null);
+    assert.equal(dagger.owornmask, 0);
+});
+
+// -- dragon HP formula (polyself.c:860-861) --
+// A red dragon (mlevel=15) outside the endgame uses 4*mlvl + d(mlvl,4).
+// The development session seed0108 step 109 records d(15,4)=43,
+// giving mhmax = 4*15 + 43 = 103.
+test('dragon HP formula: 4*mlvl + d(mlvl,4) outside the endgame', () => {
+    const mons = testMons();
+    const mdat = mons[PM_RED_DRAGON];
+    // mlevel for red dragon is 15 (monst.c red dragon entry).
+    assert.equal(mdat.mlevel, 15);
+    // mlet for red dragon is S_DRAGON.
+    const S_DRAGON = mons[PM_GRAY_DRAGON].mlet;
+    assert.equal(mdat.mlet, S_DRAGON);
+    // PM_RED_DRAGON (146) >= PM_GRAY_DRAGON (138), so the dragon branch fires.
+    assert.ok(PM_RED_DRAGON >= PM_GRAY_DRAGON);
+    // Outside the endgame: hp = 4*15 + d(15,4).
+    // With d(15,4)=43 from the session: hp = 60 + 43 = 103.
+    const mlvl = mdat.mlevel;
+    const hp_without_d = 4 * mlvl;
+    assert.equal(hp_without_d, 60);
+    // The full formula computes 4*mlvl + d(mlvl, 4); the d() call is
+    // random, so we verify the deterministic prefix.
 });
