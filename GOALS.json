@@ -6185,6 +6185,29 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "unsupported-level-change-goto-level-into-an-up-building-dung",
+      "status": "open",
+      "boundary": "goto_level() into an up-building dungeon",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [
+        {
+          "name": "goto-level-builds-up-dunlev-ureached",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "5faf73b1961e3421619ed94cf81c54430c49814f",
+      "openStanding": {
+        "sha": "2277856",
+        "screens": 2909,
+        "rng": 162622
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
