@@ -75,6 +75,7 @@ import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
 import { rn2 } from './rng.js';
 import { ttyPline } from './tty_message.js';
+import { trycall } from './do.js';
 import { y_n } from './cmd.js';
 import {
     study_book,
@@ -182,10 +183,12 @@ export async function doread(state = game) {
     }
     const consumedByEffect = await seffects(scroll, state);
     if (!consumedByEffect) {
-        if (state.gk.known && !objectType(scroll, state).oc_name_known) {
-            discover_object(scroll.otyp, true, true, true, state, {
-                random: { rn2 }, hooks: {},
-            });
+        if (!objectType(scroll, state).oc_name_known) {
+            if (state.gk.known) {
+                learnscrolltyp(scroll.otyp, state);
+            } else {
+                trycall(scroll, state);
+            }
         }
         scroll.in_use = false;
         useup(scroll, { state, hooks: {} });
