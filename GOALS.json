@@ -6108,8 +6108,8 @@
         },
         {
           "name": "loot-stash-one",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "fd56d30a2381c8a5b6522fe86b3b8098f4f3605a"
         }
       ],
       "openedAt": "26d034a7c5769b8b6d232a807b48245c59190e41",
