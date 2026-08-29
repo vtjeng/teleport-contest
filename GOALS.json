@@ -6105,6 +6105,11 @@
           "name": "loot-put-in-traditional",
           "status": "closed",
           "closedBy": "f48f6050067e659c50342efb0911e7cf57e0e9b4"
+        },
+        {
+          "name": "loot-stash-one",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "26d034a7c5769b8b6d232a807b48245c59190e41",
