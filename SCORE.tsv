@@ -487,3 +487,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-29T07:37:09.043Z	f3cd929	slice	13	33	2909	7765	162622	610816	2979	7765					forcelock-blade-path closes. Development 2909 of 7765 screens, 162622 of 610816 rng. 13 of 33 sessions.
 2026-08-29T07:42:21.464Z	ea04763	goal	13	33	2909	7765	162622	610816	2979	7765	229	3640	32830	182022	force closes. Development 2909 of 7765 screens, 162622 of 610816 rng. 13 of 33 sessions. Holdout 229/3640 screens, 32830/182022 rng.
 2026-08-29T08:17:11.020Z	6ed30803	slice	13	33	2909	7765	162622	610816	2979	7765					dotip-single-container-quit closes. Development 2909 of 7765 screens, 162622 of 610816 rng. 13 of 33 sessions.
+2026-08-29T10:38:42.697Z	c3a76c4	slice	13	33	2909	7765	162622	610816	2979	7765					dotip-tipcontainer-floor-spill closes. Development 2909 of 7765 screens, 162622 of 610816 rng. 13 of 33 sessions.

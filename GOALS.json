@@ -6170,8 +6170,8 @@
         },
         {
           "name": "dotip-tipcontainer-floor-spill",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "c9a2d073a8336366338177ea82b6d70f272134fc"
         }
       ],
       "openedAt": "1141c48222d24942a32f2c044b598e1379a4cb5b",
