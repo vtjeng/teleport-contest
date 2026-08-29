@@ -3,22 +3,9 @@ export const meta = {
   description: 'Prepare all pipeline candidates and select the next goal',
   phases: [
     { title: 'Prepare', detail: 'Cap stale sessions and trace witnesses for all candidates' },
-    { title: 'Pipeline', detail: 'Look up a ready candidate' },
-    { title: 'Inline', detail: 'Cap and witness when the pipeline missed' },
+    { title: 'Inline', detail: 'Cap, witness, and select when the cache is cold' },
     { title: 'Report', detail: 'Write goal-context.json', model: 'sonnet' },
   ],
-}
-
-const QUEUED_SCHEMA = {
-  type: 'object',
-  properties: {
-    hasQueuedGoal: { type: 'boolean' },
-    queuedGoalId: { type: ['string', 'null'] },
-    queuedGoalBoundary: { type: ['string', 'null'] },
-    queuedGoalForecast: { type: ['number', 'null'] },
-  },
-  required: ['hasQueuedGoal', 'queuedGoalId', 'queuedGoalBoundary',
-    'queuedGoalForecast'],
 }
 
 const PIPELINE_RESULT_SCHEMA = {
@@ -262,82 +249,43 @@ Return the JSON output.
   }
 }
 
-// ── Phase 1: Pipeline ─────────────────────────────────────────────────
+// ── Inline: cap → reconcile → witness ────────────────────────────────
+// The orchestrator calls this workflow only after --ready-winner returned
+// null, so no queue or pipeline check here — go straight to inline work.
 
-phase('Pipeline')
+phase('Inline')
 
-const queue = await agent(`
-Run: \`node scripts/goal-log.mjs --current --detail\`
-If this shows a goal with status "queued" in the goals array, set hasQueuedGoal
-to true and fill queuedGoalId, queuedGoalBoundary, queuedGoalForecast.
-Otherwise set hasQueuedGoal to false and all fields to null.
-Do NOT read any source files.
-`, { schema: QUEUED_SCHEMA, label: 'queue-check', model: 'sonnet' })
+log('no witnessed candidate in cache, running inline preparation')
 
-if (queue.hasQueuedGoal) {
-  log(`Queued goal: ${queue.queuedGoalId}`)
-  return {
-    winnerId: queue.queuedGoalId,
-    boundary: queue.queuedGoalBoundary,
-    forecast: queue.queuedGoalForecast,
-    source: 'queue',
-  }
-}
-
-const pipelineCheck = await agent(`
-Run: \`node scripts/pipeline-candidates.mjs --ready-winner\`
-Parse its JSON stdout. If "winner" is non-null, return it.
-If "winner" is null, also return "topCandidate" from the output.
-Do NOT read any source files.
-`, { schema: PIPELINE_RESULT_SCHEMA, label: 'pipeline-check', model: 'sonnet' })
-
-let winner = pipelineCheck.winner
-
-if (!winner && !pipelineCheck.topCandidate) {
-  log('all remaining candidates are blocked by session divergences')
-  return { exhausted: true }
-}
-
-// ── Phase 2: Inline fallback (cap → reconcile → witness) ──────────────
-
-if (!winner) {
-  phase('Inline')
-  log('pipeline miss: no witnessed candidate, falling back to inline work')
-
-  // Find sessions needing caps.
-  const nc = await agent(`
+const nc = await agent(`
 Run: \`node scripts/pipeline-candidates.mjs --needs-capping\`
 Return the needsCapping array from the output.
 Do NOT read source files.
 `, { schema: NEEDS_CAPPING_SCHEMA, label: 'needs-capping', model: 'sonnet' })
 
-  await capStaleSessions(nc.needsCapping, 'Inline')
+await capStaleSessions(nc.needsCapping, 'Inline')
 
-  // Check for a winner after capping.
-  const retry = await agent(`
+const retry = await agent(`
 Run: \`node scripts/pipeline-candidates.mjs --ready-winner\`
 Return the full JSON: both "winner" and "topCandidate" fields.
 Do NOT read source files.
 `, { schema: PIPELINE_RESULT_SCHEMA, label: 'post-cap-check', model: 'sonnet' })
 
-  // Use the witnessed winner if available; otherwise take the top candidate
-  // (which is capped but not yet witnessed) and witness it inline.
-  winner = retry.winner ?? retry.topCandidate
+let winner = retry.winner ?? retry.topCandidate
 
-  if (!winner)
-    throw new Error('no candidate with nonzero forecast after inline capping')
+if (!winner)
+  throw new Error('no candidate with nonzero forecast after inline capping')
 
-  // Trace witnesses for the winner if it lacks witnesses or detail.
-  if (!winner.witnesses?.length || !winner.detail) {
-    log(`Winner "${winner.id}" needs witness tracing`)
+if (!winner.witnesses?.length || !winner.detail) {
+  log(`Winner "${winner.id}" needs witness tracing`)
 
-    const winnerSessions = winner.sessions.map(s =>
-      typeof s === 'string' ? s : s.session)
-    const witnessedSet = new Set(
-      (winner.witnesses ?? []).map(w => w.session))
-    const needWitness = winnerSessions.filter(s => !witnessedSet.has(s))
+  const winnerSessions = winner.sessions.map(s =>
+    typeof s === 'string' ? s : s.session)
+  const witnessedSet = new Set(
+    (winner.witnesses ?? []).map(w => w.session))
+  const needWitness = winnerSessions.filter(s => !witnessedSet.has(s))
 
-    const witnessWork = needWitness.map(session => () => agent(`
+  const witnessWork = needWitness.map(session => () => agent(`
 Trace the C-path witness for session "${session}" at its first stop.
 
 Read \`.claude/agents/goal-selector.md\` step 5 for the witness method.
@@ -347,8 +295,8 @@ The session stops at boundary: "${winner.member}"
 Return session name and a detailed evidence string describing the C path.
 `, { schema: WITNESS_SCHEMA, label: `witness:${session}`, model: 'sonnet' }))
 
-    if (!winner.detail) {
-      witnessWork.push(() => agent(`
+  if (!winner.detail) {
+    witnessWork.push(() => agent(`
 Analyze the bounding property and size for a goal candidate.
 
 Read \`.claude/agents/goal-selector.md\` step 6 for the bounding-analysis method.
@@ -358,35 +306,34 @@ Boundary: "${winner.member}"
 Return a boundary description, the C file owners array, and a detail string
 with traced findings.
 `, { schema: DETAIL_SCHEMA, label: 'bounding-analysis', model: 'sonnet' }))
-    }
+  }
 
-    const results = witnessWork.length > 0
-      ? (await parallel(witnessWork)).filter(Boolean)
-      : []
+  const results = witnessWork.length > 0
+    ? (await parallel(witnessWork)).filter(Boolean)
+    : []
 
-    const allWitnesses = {}
-    for (const w of (winner.witnesses ?? [])) allWitnesses[w.session] = w.evidence
-    for (const r of results) {
-      if (r.session) allWitnesses[r.session] = r.evidence
-    }
-    winner.witnesses = Object.entries(allWitnesses)
-      .map(([session, evidence]) => ({ session, evidence }))
-    winner.detail = winner.detail
-      || results.find(r => r.detail)?.detail || ''
-    winner.owners = winner.owners
-      || results.find(r => r.owners)?.owners || []
-    winner.boundary = winner.boundary
-      || results.find(r => r.boundary)?.boundary || winner.member
-    // Persist the inline-produced metadata so the next --ready-winner finds it.
-    const metaPayload = JSON.stringify({
-      member: winner.member,
-      id: winner.id,
-      witnesses: winner.witnesses,
-      detail: winner.detail,
-      owners: winner.owners,
-      boundary: winner.boundary,
-    }, null, 2)
-    await agent(`
+  const allWitnesses = {}
+  for (const w of (winner.witnesses ?? [])) allWitnesses[w.session] = w.evidence
+  for (const r of results) {
+    if (r.session) allWitnesses[r.session] = r.evidence
+  }
+  winner.witnesses = Object.entries(allWitnesses)
+    .map(([session, evidence]) => ({ session, evidence }))
+  winner.detail = winner.detail
+    || results.find(r => r.detail)?.detail || ''
+  winner.owners = winner.owners
+    || results.find(r => r.owners)?.owners || []
+  winner.boundary = winner.boundary
+    || results.find(r => r.boundary)?.boundary || winner.member
+  const metaPayload = JSON.stringify({
+    member: winner.member,
+    id: winner.id,
+    witnesses: winner.witnesses,
+    detail: winner.detail,
+    owners: winner.owners,
+    boundary: winner.boundary,
+  }, null, 2)
+  await agent(`
 Store candidate metadata by running this command:
 \`\`\`bash
 node scripts/pipeline-candidates.mjs --set-metadata << 'ENDJSON'
@@ -395,7 +342,6 @@ ENDJSON
 \`\`\`
 Return the JSON output.
 `, { label: 'store-metadata', model: 'sonnet' })
-  }
 }
 
 log(`Winner: "${winner.id}" (forecast ${winner.cappedForecast})`)
