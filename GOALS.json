@@ -6100,6 +6100,11 @@
           "name": "loot-take-out-traditional",
           "status": "closed",
           "closedBy": "a16322b7b5c2ab95eb199d07cfb2a5c2e8fe155f"
+        },
+        {
+          "name": "loot-put-in-traditional",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "26d034a7c5769b8b6d232a807b48245c59190e41",
