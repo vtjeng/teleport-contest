@@ -6090,7 +6090,7 @@
     },
     {
       "id": "loot",
-      "status": "open",
+      "status": "closed",
       "boundary": "use_container()'s item-transfer answers ('o','i','b','r','s') throw UnsupportedPickupError at js/pickup.js:1153-1155 because traditional_loot(), menu_loot(), in_container(), and out_container() (pickup.c:2558-3504) are unported.",
       "upstreamOwners": [],
       "forecast": null,
@@ -6118,8 +6118,11 @@
         "screens": 2908,
         "rng": 162605
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "d506c76f6b708620a8bfc88eb9e10963a80e47b7",
+      "delivered": {
+        "screens": 1,
+        "rng": 17
+      }
     }
   ]
 }
