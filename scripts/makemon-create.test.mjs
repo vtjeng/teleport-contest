@@ -2,12 +2,14 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ALL_TRAPS,
     BURN_OBJECT,
     COLNO,
     COULD_SEE,
     DUST,
     G_GENOD,
     G_GONE,
+    HOLE,
     I_SPECIAL,
     IN_SIGHT,
     MAX_NUM_WORMS,
@@ -26,12 +28,14 @@ import {
     OBJ_MINVENT,
     OROOM,
     P_POLEARMS,
+    PIT,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
     ROOMOFFSET,
     ROWNO,
     SHOPBASE,
     STONE,
+    TRAPDOOR,
     WEB,
     W_AMUL,
     W_ARM,
@@ -44,6 +48,7 @@ import {
     W_SADDLE,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
 import { add_to_minv } from '../js/invent.js';
 import { light_globals_init } from '../js/light.js';
 import {
@@ -4737,11 +4742,12 @@ test('Mausoleum preflight admits every reachable species and rejects its boundar
     }
 });
 
-test('creation outside the main dungeon fails before RNG or state', () => {
-    // No level of the main dungeon is a case here, the Stronghold included:
-    // mklev() now generates D:2 and below, and makemon()'s species allowlist
-    // is what bounds the port there. What still refuses is a level of another
-    // dungeon, whose generation this port does not do.
+test('runtime creation on a non-main-dungeon level fails before RNG or state', () => {
+    // During mklev, monster creation works on any dungeon branch -- Quest,
+    // Mines, Sokoban, etc. -- because the level template and rndmonst()
+    // place whatever species the level definition requests.  Outside mklev
+    // (runtime creation), non-main-dungeon levels still fail because the
+    // runtime call shapes require mainDungeonLevel.
     const cases = [
         {
             name: 'another dungeon at local level one',
@@ -4755,9 +4761,8 @@ test('creation outside the main dungeon fails before RNG or state', () => {
 
     for (const scenario of cases) {
         const state = initialLevelState();
+        state.in_mklev = false;
         state.u.uz = scenario.level;
-        if (scenario.stronghold)
-            state.stronghold_level = { ...scenario.level };
         const random = scriptedRandom([]);
 
         assert.throws(
@@ -5234,4 +5239,135 @@ test('umber hulk creation proceeds through the species gate and full '
     // No inventory: no AT_WEAP, and both item gates failed.
     assert.equal(monster.minvent, null);
     assert.equal(state.mvitals[PM_UMBER_HULK].born, 1);
+});
+
+// C ref: makemon.c:1281-1293.  Monsters created on certain special levels
+// start knowing about traps and/or have wand experience.  Verified by
+// reading the C source: In_sokoban sets PIT and HOLE bits, Is_stronghold
+// sets TRAPDOOR, MS_LEADER/MS_NEMESIS set ALL_TRAPS, and several branch
+// predicates set mwandexp.  Each assertion checks the monster field after
+// makemon returns with the global game dnum fields pointing at the level.
+test('makemon sets mon_learns_traps and mwandexp on branch levels', () => {
+    // Save the global game's dungeon fields so the test can restore them.
+    const saved = {
+        quest_dnum: game.quest_dnum,
+        sokoban_dnum: game.sokoban_dnum,
+        stronghold_level: game.stronghold_level,
+        tower_dnum: game.tower_dnum,
+        knox_level: game.knox_level,
+        astral_level: game.astral_level,
+    };
+    try {
+        // Assign dungeon numbers the const.js branch predicates will read.
+        game.quest_dnum = 3;
+        game.sokoban_dnum = 4;
+        game.stronghold_level = { dnum: 0, dlevel: 10 };
+        game.tower_dnum = 5;
+        game.knox_level = { dnum: 0, dlevel: 12 };
+        game.astral_level = { dnum: 9, dlevel: 1 };
+
+        // --- Quest level: mwandexp should be true --------------------------
+        {
+            const state = initialLevelState();
+            state.u.uz = { dnum: 3, dlevel: 1 };
+            // Add a dungeon entry for dnum 3 so depth() does not crash.
+            state.dungeons[3] = {
+                depth_start: 1, dunlev_ureached: 1, entry_lev: 1,
+                flags: { align: 0, hellish: false }, num_dunlevs: 5,
+            };
+            const random = recordingRandom();
+            const monster = makemon(
+                state.mons[PM_NEWT],
+                MON_X, MON_Y,
+                MM_NOGRP | NO_MINVENT,
+                { state, random: random.random },
+            );
+            assert.ok(monster, 'quest makemon returned a monster');
+            // PM_NEWT is mindless, so it should not learn traps.
+            // But In_quest should set mwandexp.
+            assert.equal(monster.mwandexp, true, 'quest level sets mwandexp');
+            // Mindless creature: no trap knowledge.
+            assert.equal(monster.mtrapseen, 0, 'mindless newt has no trapseen');
+        }
+
+        // --- Sokoban level: PIT and HOLE bits on non-mindless species ------
+        {
+            const state = initialLevelState();
+            state.u.uz = { dnum: 4, dlevel: 1 };
+            state.dungeons[4] = {
+                depth_start: 6, dunlev_ureached: 1, entry_lev: 1,
+                flags: { align: 0, hellish: false }, num_dunlevs: 4,
+            };
+            const random = recordingRandom();
+            // PM_GOBLIN is not mindless (S_ORC), so it should learn traps.
+            const monster = makemon(
+                state.mons[PM_GOBLIN],
+                MON_X, MON_Y,
+                MM_NOGRP | NO_MINVENT,
+                { state, random: random.random },
+            );
+            assert.ok(monster, 'sokoban makemon returned a monster');
+            const pitBit = 1 << (PIT - 1);
+            const holeBit = 1 << (HOLE - 1);
+            assert.equal(
+                monster.mtrapseen & pitBit, pitBit,
+                'sokoban non-mindless learns PIT',
+            );
+            assert.equal(
+                monster.mtrapseen & holeBit, holeBit,
+                'sokoban non-mindless learns HOLE',
+            );
+            // Sokoban is not in the mwandexp list.
+            assert.equal(monster.mwandexp, false, 'sokoban does not set mwandexp');
+        }
+
+        // --- Stronghold: TRAPDOOR bit on non-mindless species --------------
+        {
+            const state = initialLevelState();
+            state.u.uz = { dnum: 0, dlevel: 10 };
+            state.dungeons[0] = {
+                depth_start: 1, dunlev_ureached: 10, entry_lev: 1,
+                flags: { align: 0, hellish: false }, num_dunlevs: 20,
+            };
+            const random = recordingRandom();
+            const monster = makemon(
+                state.mons[PM_GOBLIN],
+                MON_X, MON_Y,
+                MM_NOGRP | NO_MINVENT,
+                { state, random: random.random },
+            );
+            assert.ok(monster, 'stronghold makemon returned a monster');
+            const trapdoorBit = 1 << (TRAPDOOR - 1);
+            assert.equal(
+                monster.mtrapseen & trapdoorBit, trapdoorBit,
+                'stronghold non-mindless learns TRAPDOOR',
+            );
+            // Stronghold is in the mwandexp list.
+            assert.equal(monster.mwandexp, true, 'stronghold sets mwandexp');
+        }
+
+        // --- Main dungeon ordinary level: nothing extra --------------------
+        {
+            const state = initialLevelState();
+            // dnum=0, dlevel=1: not stronghold, not any branch.
+            const random = recordingRandom();
+            const monster = makemon(
+                state.mons[PM_GOBLIN],
+                MON_X, MON_Y,
+                MM_NOGRP | NO_MINVENT,
+                { state, random: random.random },
+            );
+            assert.ok(monster, 'main dungeon makemon returned a monster');
+            assert.equal(monster.mtrapseen, 0, 'ordinary level: no trapseen');
+            assert.equal(monster.mwandexp, false, 'ordinary level: no mwandexp');
+        }
+    } finally {
+        // Restore the global game's dungeon fields.
+        game.quest_dnum = saved.quest_dnum;
+        game.sokoban_dnum = saved.sokoban_dnum;
+        game.stronghold_level = saved.stronghold_level;
+        game.tower_dnum = saved.tower_dnum;
+        game.knox_level = saved.knox_level;
+        game.astral_level = saved.astral_level;
+    }
 });

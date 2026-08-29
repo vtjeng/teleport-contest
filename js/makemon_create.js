@@ -1,13 +1,16 @@
-// Initial-level monster creation for ordinary rooms, themed-room fills
-// including Mausoleum, starting pets, and Statuary's temporary monsters.
+// Monster creation for initial levels and special-level templates across all
+// dungeon branches (main dungeon, Quest, Mines, Sokoban, etc.).  Covers
+// ordinary rooms, themed-room fills including Mausoleum, starting pets, and
+// Statuary's temporary monsters.
 // C ref: makemon.c makemon(), m_initthrow(), m_initweap(), m_initinv(), and
-// mongets(); worn.c m_dowear(). The implementation fails closed outside the
-// currently ported species and call shapes. Expanding that closed set means
-// porting the corresponding complete source branches, not approximating their
-// PRNG effects.
+// mongets(); worn.c m_dowear(). Outside level generation the implementation
+// fails closed on species and call shapes that have not been ported.
+// Expanding that closed set means porting the corresponding complete source
+// branches, not approximating their PRNG effects.
 
 import {
     ACCESSIBLE,
+    ALL_TRAPS,
     AM_CHAOTIC,
     AM_LAWFUL,
     AM_NEUTRAL,
@@ -21,10 +24,17 @@ import {
     G_GENOD,
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
+    HOLE,
     HWALL,
     I_SPECIAL,
+    In_endgame,
+    In_quest,
+    In_sokoban,
+    In_V_tower,
     IS_LAVA,
     IS_POOL,
+    Is_knox_level,
+    Is_stronghold,
     isok,
     is_pit,
     LS_MONSTER,
@@ -64,6 +74,7 @@ import {
     SEE_INVIS,
     SHOPBASE,
     P_POLEARMS,
+    PIT,
     PROT_FROM_SHAPE_CHANGERS,
     STRAT_APPEARMSG,
     STRAT_CLOSE,
@@ -73,6 +84,7 @@ import {
     TRWALL,
     TUWALL,
     THEMEROOM,
+    TRAPDOOR,
     W_AMUL,
     W_ARM,
     W_ARMC,
@@ -99,7 +111,7 @@ import {
     rndghostname,
 } from './do_name.js';
 import { newsym } from './display.js';
-import { depth, level_difficulty, on_level } from './dungeon.js';
+import { depth, In_hell, level_difficulty, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { upstart } from './hacklib.js';
 import {
@@ -129,6 +141,8 @@ import {
     is_ndemon,
     is_neuter,
     is_unicorn,
+    mindless,
+    mon_learns_traps,
 } from './mondata.js';
 import { dochugw } from './monmove.js';
 import {
@@ -158,6 +172,8 @@ import {
     M3_COVETOUS,
     M3_WAITFORU,
     M2_UNDEAD,
+    MS_LEADER,
+    MS_NEMESIS,
     MZ_MEDIUM,
     MZ_SMALL,
     NON_PM,
@@ -596,14 +612,15 @@ function isRogueLevel(state) {
 }
 
 // dat/dungeon.lua names dungeon zero "The Dungeons of Doom", the main dungeon
-// the hero starts in and descends through. It is the only dungeon whose levels
-// this port generates: every branch off it -- the Gnomish Mines, Sokoban, the
-// quest, Gehennom and the endgame -- has generation code of its own.
+// the hero starts in and descends through.  During level generation (in_mklev)
+// monster creation works on any dungeon branch; the level template and
+// rndmonst() place whatever species the level definition requests.
 //
-// Within it, the species allowlist below is what actually bounds the port, and
-// it applies to every created monster whether the caller names the species or
-// rndmonst() chooses it, so a level deep enough to roll something the port has
-// not verified stops on that species rather than on its depth.
+// Outside mklev, runtime creation still uses the species allowlist below as a
+// safety net.  It applies to every runtime-created monster whether the caller
+// names the species or rndmonst() chooses it, so a runtime event that tries
+// to roll something the port has not verified stops on that species rather
+// than on its depth.
 function isMainDungeonLevel(state) {
     return state.u?.uz?.dnum === 0;
 }
@@ -1121,11 +1138,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !randomCoordinates
         && Boolean(ptr)
         && mmflags === MM_NOGRP;
-    if (!mainDungeonLevel && !tutorialLevel) {
-        throw new UnsupportedMonsterCreationError(
-            'outside the main dungeon',
-        );
-    }
     if (tutorialLevel
         && (!state.in_mklev
             || randomCoordinates
@@ -1201,7 +1213,10 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'edog creation during mklev',
         );
     }
-    if (!startingPetCall && !randomCoordinates
+    // C makemon does not check ACCESSIBLE for explicitly placed mklev
+    // monsters; level templates position eels on water and other species on
+    // terrain the template chose.  Restrict the guard to runtime creation.
+    if (!state.in_mklev && !startingPetCall && !randomCoordinates
         && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
         throw new UnsupportedMonsterCreationError(
             `non-accessible location <${x},${y}>`,
@@ -1238,11 +1253,17 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         throw new UnsupportedMonsterCreationError('migrating object delivery');
     }
     if (ptr) {
-        // When makemon is called with a null ptr during mklev, the rndmonst
-        // loop selects a species that may be outside the allowlist. The
-        // _rndmonMklev flag, set in the rndmonst loop and inherited by
-        // m_initgrp recursive calls, bypasses the allowlist for that lineage.
-        if (!normalized._rndmonMklev) assertSupportedSpecies(ptr);
+        // C makemon has no species allowlist.  On non-main-dungeon levels
+        // (Quest, Mines, etc.) during mklev, skip the allowlist entirely
+        // because level templates place branch-native species the main
+        // dungeon never sees.  On the main dungeon during mklev, keep the
+        // allowlist for explicitly placed species but bypass it for
+        // rndmonst selections (the _rndmonMklev flag, set in the rndmonst
+        // loop).  Outside mklev the allowlist always applies.
+        if (!state.in_mklev
+            || (isMainDungeonLevel(state) && !normalized._rndmonMklev)) {
+            assertSupportedSpecies(ptr);
+        }
         if (state.mons[ptr.pmidx] !== ptr) {
             throw new UnsupportedMonsterCreationError(
                 'monster record outside the mutable catalog',
@@ -2930,9 +2951,10 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     if (anymon) {
         let attempts = 0;
         // During mklev, rndmonst draws from the full reservoir, which includes
-        // species outside the allowlist.  Mark the env so preflightCreation
-        // skips assertSupportedSpecies for this lineage (group members created
-        // by m_initgrp inherit the same env via creationEnv spread).
+        // species outside the allowlist.  On non-main-dungeon levels
+        // preflightCreation already skips the allowlist; on the main dungeon
+        // this flag bypasses it for rndmonst-selected species and their
+        // m_initgrp group members (which inherit the same env).
         if (state.in_mklev) normalized._rndmonMklev = true;
         do {
             ptr = rndmonst(normalized);
@@ -2972,6 +2994,27 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     monster.mnum = mndx;
     newmonhp(monster, mndx, normalized);
     initializeGender(monster, ptr, mmflags, random);
+
+    // C ref: makemon.c:1281-1293.  Monsters created on certain levels
+    // start knowing about traps there, and locations where monsters are
+    // already experienced with wands set mwandexp.
+    if (In_sokoban(state.u.uz) && !mindless(ptr)) {
+        mon_learns_traps(monster, PIT);
+        mon_learns_traps(monster, HOLE);
+    }
+    if (Is_stronghold(state.u.uz) && !mindless(ptr)) {
+        mon_learns_traps(monster, TRAPDOOR);
+    }
+    // Quest leader and nemesis both know about all trap types.
+    if (ptr.msound === MS_LEADER || ptr.msound === MS_NEMESIS) {
+        mon_learns_traps(monster, ALL_TRAPS);
+    }
+    // Locations where monsters are already experienced with wands.
+    if (Is_stronghold(state.u.uz) || Is_knox_level(state.u.uz)
+        || In_endgame(state.u.uz) || In_hell(state.u.uz, state)
+        || In_V_tower(state.u.uz) || In_quest(state.u.uz)) {
+        monster.mwandexp = true;
+    }
 
     place_monster(monster, x, y, state);
     monster.mcansee = true;
