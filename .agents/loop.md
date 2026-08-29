@@ -65,6 +65,11 @@ The orchestrator repeats without returning to the user between steps:
    e. Queue the proposed goal with
       `node scripts/goal-log.mjs queue-goal` and then `open-goal`
       (which captures the score the close will be measured against).
+   f. Spawn a non-blocking background agent to run the `goal-selector`
+      workflow (`.claude/workflows/goal-selector.js`) with
+      `{prepareOnly: true}`. It caps stale sessions, traces witnesses,
+      and stores metadata for all pipeline candidates while the goal's
+      slices run.
 2. Spawn the slice-selector (`.claude/agents/slice-selector.md`) to
    identify the next slice, queue it with
    `node scripts/goal-log.mjs queue-slice`, and write
@@ -74,16 +79,8 @@ The orchestrator repeats without returning to the user between steps:
    `.cache/goal-context.json` describes the current goal. The
    goal-selector writes this file; update it only when it is missing or
    describes a different goal.
-3. Spawn a worker for that slice. Alongside the worker, spawn a
-   background agent to run
-   `node scripts/pipeline-candidates.mjs --advance`, cap stale sessions,
-   trace witnesses, and store results with
-   `node scripts/pipeline-candidates.mjs --set-metadata` (pipe the JSON
-   into stdin). The advance agent computes metadata for other pipeline
-   candidates while the worker implements the current slice, so the
-   cache is warm by the next goal transition.
-
-   When the worker returns, establish what landed:
+3. Spawn a worker for that slice. When the worker returns, establish
+   what landed:
    `git log --oneline origin/main..HEAD` and `git status --short` for the
    unpushed commits and tree. The worker runs `npm run checkpoint` after
    committing, so `.cache/checkpoint-summary.json` describes the committed
