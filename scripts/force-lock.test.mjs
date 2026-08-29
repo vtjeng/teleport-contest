@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
@@ -8,6 +9,7 @@ import { u_have_forceable_weapon } from '../js/lock.js';
 import {
     DAGGER,
     FLAIL,
+    LONG_SWORD,
     WAR_HAMMER,
     BULLWHIP,
     WEAPON_CLASS,
@@ -75,4 +77,70 @@ test('u_have_forceable_weapon rejects a bullwhip', async () => {
     await initGameState();
     game.uwep = { otyp: BULLWHIP, oclass: WEAPON_CLASS };
     assert.equal(u_have_forceable_weapon(game), false);
+});
+
+// ---------- forcelock blade path ----------
+
+// C ref: lock.c:228-240. A blade weapon (picktyp=true) forces a locked chest.
+// Each occupation turn, rn2(1000-spe) is rolled against (992-greatest_erosion*10);
+// if the roll exceeds the threshold AND the weapon is not cursed AND obj_resists
+// returns false, the blade breaks. Otherwise the rn2(100) chance roll proceeds.
+// For destroyit, !picktyp is false for blades, so rn2(3) is never called and
+// breakchestlock always receives false.
+//
+// Seed 44, long sword, plain "chest" wish: the chest is locked (rn2(5)=2 > 0),
+// the blade survives both occupation turns (rn2(1000)=338 and 242 are both
+// <= 992), and the chance roll succeeds on turn 2 (rn2(100)=20 < 24 = wldam*2).
+// Validated against C recording: diff-fresh passes with moves ending at 'y'.
+//
+// The test appends a trailing space to dismiss the --More-- prompt that
+// appears after "You succeed in forcing the lock.".  Without it, the game
+// blocks before breakchestlock() and exercise() run.  The space lets the
+// success path complete so the test can inspect the final game state.
+test('blade weapon forces a locked chest open without breaking', async () => {
+    const recipe = JSON.parse(readFileSync(
+        'recipes/force-blade-chest.session.json', 'utf-8',
+    ));
+    const seg = recipe.segments[0];
+    const result = await runSegment({
+        seed: seg.seed,
+        datetime: seg.datetime,
+        nethackrc: seg.nethackrc,
+        // Append a space to dismiss the --More-- after the success message,
+        // allowing breakchestlock() and reset_pick() to complete.
+        moves: seg.moves + ' ',
+    });
+    const log = result.getRngLog();
+
+    // The occupation calls rn2(1000) for the blade-break check on each turn.
+    // Verify that the two blade-break checks appear consecutively in the PRNG
+    // log near the end, each followed by the rn2(100) chance roll. Turn 1:
+    // rn2(1000)=338 (blade survives, 338 <= 992), rn2(100)=51 (still busy,
+    // 51 >= 24). Turn 2: rn2(1000)=242 (blade survives), rn2(100)=20 (success,
+    // 20 < 24 = oc_wldam*2 for a long sword with wldam=12).
+    const tail = log.slice(-30);
+    assert.ok(tail.includes('rn2(1000)=338'),
+        'turn 1 blade check: roll 338, blade survives (338 <= 992)');
+    assert.ok(tail.includes('rn2(1000)=242'),
+        'turn 2 blade check: roll 242, blade survives (242 <= 992)');
+
+    // exercise(A_DEX, TRUE) runs after the success message is dismissed;
+    // the rn2(19) call from A_DEX attribute gain appears in the log tail.
+    // Array.includes checks exact equality, so match the full log entry.
+    assert.ok(tail.some(e => e.startsWith('rn2(19)=')),
+        'exercise(A_DEX) ran after success (rn2(19) from attribute gain)');
+
+    // The hero still wields the long sword after forcing.
+    assert.equal(game.uwep?.otyp, LONG_SWORD,
+        'long sword survives and stays wielded');
+
+    // The chest on the floor is now broken-lock (olocked=0, obroken=1).
+    const floorObjs = game.level?.objects?.[game.u.ux]?.[game.u.uy];
+    let chest = null;
+    for (let obj = floorObjs; obj; obj = obj.nexthere) {
+        if (obj.otyp === 215 /* CHEST */) { chest = obj; break; }
+    }
+    assert.ok(chest, 'chest is on the floor');
+    assert.equal(chest.olocked, 0, 'chest is no longer locked');
+    assert.equal(chest.obroken, 1, 'chest lock is broken');
 });

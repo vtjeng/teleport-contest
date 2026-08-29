@@ -53,12 +53,15 @@ import {
 import { update_mapseen_for } from './dungeon.js';
 import { can_reach_floor, cant_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
+import { useup } from './invent.js';
 import { m_at } from './monst.js';
 import { wake_nearby } from './mon.js';
 import { nohands, verysmall } from './mondata.js';
 import { PM_ROGUE } from './monsters.js';
+import { obj_resists } from './bury.js';
 import {
     costly_alteration,
+    greatest_erosion,
     is_blade,
     is_pick,
     is_weptool,
@@ -74,10 +77,11 @@ import {
     WEAPON_CLASS,
 } from './objects.js';
 import { closed_door } from './monmove.js';
-import { donameFresh, safe_qbuf, yname } from './objnam.js';
+import { donameFresh, safe_qbuf, xnameFresh, yname } from './objnam.js';
 import { container_at, doloot, encumber_msg } from './pickup.js';
 import { is_quest_artifact } from './questpgr.js';
 import { rn2, rnl } from './rng.js';
+import { costly_spot } from './shk.js';
 import {
     heroIsBlind,
     is_db_wall,
@@ -86,6 +90,7 @@ import {
 } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { block_point, recalc_block_point } from './vision.js';
+import { setnotworn } from './worn.js';
 
 // Thrown where lock.c reaches a branch this port has not ported.
 export class UnsupportedLockError extends Error {
@@ -152,7 +157,23 @@ function breakchestlock(box, destroyit, state = game) {
     /* bill for the box but not for its contents */
     const hideContents = box.cobj;
     box.cobj = null;
-    costly_alteration(box, COST_BRKLCK, { state });
+    // C ref: mkobj.c costly_alteration() checks costly_spot() and returns
+    // early when the object is not on a shop tile.  The JS port's
+    // costly_alteration() delegates to a hook; provide one that mirrors the
+    // C early-return for non-shop tiles and flags shop tiles as unported.
+    costly_alteration(box, COST_BRKLCK, {
+        state,
+        hooks: {
+            costlyAlteration(obj, alterType, env) {
+                const ox = obj.ox ?? state.u.ux;
+                const oy = obj.oy ?? state.u.uy;
+                if (!costly_spot(ox, oy, state)) return;
+                throw new UnsupportedLockError(
+                    'breakchestlock() shop billing (costly_alteration in shop)',
+                );
+            },
+        },
+    });
     box.cobj = hideContents;
     box.olocked = 0;
     box.obroken = 1;
@@ -165,12 +186,10 @@ function breakchestlock(box, destroyit, state = game) {
 // computed in doforce(). On success it prints the message and calls
 // breakchestlock().
 //
-// Covered: the blunt-weapon path (picktyp=false) with wake_nearby(), the
-// rn2(100) chance roll, the success message, and breakchestlock(destroyit)
+// Covered: the blade path (picktyp=true) where the weapon can break on
+// rn2(1000-spe), the blunt-weapon path (picktyp=false) with wake_nearby(),
+// the rn2(100) chance roll, the success message, and breakchestlock(destroyit)
 // where destroyit = !picktyp && !rn2(3).
-//
-// Not covered: the blade path (picktyp=true) where the weapon can break on
-// rn2(1000-spe).
 async function forcelock(state = game) {
     const xlock = xlockContext(state);
     const u = state.u;
@@ -193,9 +212,40 @@ async function forcelock(state = game) {
 
     // lock.c:228-240. Blade path: the weapon can break.
     if (xlock.picktyp) {
-        throw new UnsupportedLockError(
-            'forcelock() blade path (picktyp=true)',
-        );
+        const uwep = state.uwep;
+        // C: rn2(1000 - (int) uwep->spe) > (992 - greatest_erosion(uwep) * 10)
+        // For a +0 weapon, probability that it survives an unsuccessful
+        // attempt to force the lock is (.992)^50 = .67
+        if (rn2(1000 - Math.trunc(uwep.spe ?? 0))
+            > (992 - greatest_erosion(uwep) * 10)
+            && !uwep.cursed
+            && !obj_resists(uwep, 0, 99, { state, random: { rn2 } })) {
+            const prefix = (uwep.quan > 1) ? 'One of y' : 'Y';
+            await ttyPline(
+                `${prefix}our ${xnameFresh(uwep, state)} broke!`, state,
+            );
+            // useup() removes one from the stack or the whole object if
+            // quan == 1. A wielded weapon has owornmask = W_WEP, so
+            // useupall() needs the setNotWorn hook to clear it. cancelDoff
+            // and monsterUnseesProperty are no-ops: no doff is active for a
+            // weapon mid-force, and a normal blade's oc_oprop is 0.
+            useup(uwep, {
+                state,
+                hooks: {
+                    setNotWorn: (obj, env) => setnotworn(obj, env),
+                    cancelDoff() {},
+                    monsterUnseesProperty() {},
+                },
+            });
+            await ttyPline(
+                'You give up your attempt to force the lock.', state,
+            );
+            await exercise(
+                A_DEX, true, state, { rn2 },
+                { encumberMessage: encumber_msg },
+            );
+            return (xlock.usedtime = 0);
+        }
     } else {
         // lock.c:241-242. Blunt: wake nearby monsters due to hammering.
         await wake_nearby({ state });
