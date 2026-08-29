@@ -10,7 +10,7 @@ report. The holdout rules in `AGENTS.md` always apply.
 
 | Column | What it holds |
 | --- | --- |
-| `utc` | The date, or date and time, recorded for the snapshot, as written. |
+| `utc` | ISO 8601 date and time of the snapshot. Omit `utc=` when calling `--append` so the script records the current time; a date-only value is upgraded to a full timestamp. |
 | `sha` | The commit the figures were measured at, full or abbreviated as recorded. |
 | `event` | What prompted the snapshot: `slice` (behavior slice closure), `window` (review window closure), `goal` (goal closure), `holdout` (standalone holdout evaluation), `publish` (published leaderboard result), `candidate` (validated handoff for an open slice). Where triggers coincide, the row records the most important one. |
 | `sessions_passed`, `sessions_total` | Development sessions matching completely, out of the development set. |

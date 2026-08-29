@@ -64,6 +64,10 @@ export function appendRow(fields, path = DEFAULT_PATH) {
     if (!fields.sha) throw new Error('a SCORE.tsv row needs a sha');
     if (!EVENTS.includes(fields.event))
         throw new Error(`event must be one of ${EVENTS.join(', ')}`);
+    const callerUtc = fields.utc;
+    if (callerUtc && !callerUtc.includes('T')) {
+        fields = { ...fields, utc: new Date().toISOString() };
+    }
     const row = { utc: new Date().toISOString(), ...fields };
     const cells = COLUMNS.map((column) => {
         const value = String(row[column] ?? '');
