@@ -581,3 +581,48 @@ move it is ordinary. Do not re-derive the calibration above, do not re-rank
 candidates on expected carry-over, and do not read a flat holdout as a defect.
 The figures are recorded here so the question is not reopened by someone
 noticing the pattern afresh.
+
+## Divergence investigation (29 August 2026)
+
+Twelve divergence candidates affect 12 of 33 development sessions and block
+268 screens in aggregate. This investigation traced the root causes for the
+five RNG-fix candidates and one screen-fix candidate.
+
+### m_move game-state drift (seed0007, seed0012, seed0030)
+
+Three RNG-fix divergences trace to `monmove.c`. The m_move code itself is
+correctly translated. The drift originates in `makemon`: `rndmonst()` can
+select species outside the `INITIAL_LEVEL_MONSTERS` allowlist
+(`js/makemon_create.js:489`), and those species are skipped by
+`UnsupportedMonsterCreationError`. C creates the monster normally. The
+different monster populations cause every subsequent `m_move` call to receive
+different `mfndpos` candidate counts, producing the RNG divergence.
+
+The fork that traced seed0007 identified `PM_GIANT_ANT` as a species C creates
+that JS skips. Expanding the allowlist and porting each new species's creation
+path eliminates the drift. This is the natural progression of the port — each
+goal that expands monster support also shrinks these divergences — so no
+targeted fix is needed.
+
+### Lua shuffle (seed0360, seed0361)
+
+RNG diverges at `random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)`. The
+Lua `shuffle()` function consumes `random()` calls in a different order from
+C's Lua runtime. This is a Lua runtime interpretation issue, separate from
+m_move drift.
+
+### seed2600 big room lighting
+
+Steps 20-22 on Dlvl:12 (a big room level) show 244 cell differences per
+screen. The dungeon layout is identical (RNG prefix is perfect through all
+7,067 JS calls), but `loc.lit` covers rows 2-14 in JS and rows 5-17 in C.
+Root cause: the big room (`bigrm`) level generation interprets room boundaries
+differently when assigning lighting. The vision system is correct; the input
+to it is wrong.
+
+### seed2600 missing screens (steps 25-37)
+
+After the second level teleport to Dlvl:5, JS processes all remaining moves
+without error but emits no screens. The remaining moves exercise inventory,
+spells, discoveries, attributes, search, and look — display-intensive commands
+that are not yet ported. Not tractable as a targeted fix.
