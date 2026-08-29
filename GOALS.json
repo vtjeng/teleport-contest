@@ -6035,6 +6035,32 @@
         "screens": 75,
         "rng": 94
       }
+    },
+    {
+      "id": "unsupported-initial-level-monster-creation-monster-279",
+      "status": "closed",
+      "boundary": "assertSupportedSpecies() in makemon_create.js:1094 throws when pmidx 279 (PM_NURSE) is not in INITIAL_LEVEL_MONSTERS or any other supported-species set.",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [
+        {
+          "name": "add-pm-nurse-to-initial-level-monsters",
+          "status": "closed",
+          "closedBy": "14bcb26050276cbe12904dd56b91299605d1d70d"
+        }
+      ],
+      "openedAt": "14bcb26050276cbe12904dd56b91299605d1d70d",
+      "openStanding": {
+        "sha": "b180372",
+        "screens": 2907,
+        "rng": 162327
+      },
+      "closedAt": "14bcb26050276cbe12904dd56b91299605d1d70d",
+      "delivered": {
+        "screens": 0,
+        "rng": 276
+      }
     }
   ]
 }
