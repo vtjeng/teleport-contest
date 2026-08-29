@@ -6154,6 +6154,29 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "tip",
+      "status": "open",
+      "boundary": "Dispatching '#tip' throws UnsupportedHeroCommandBoundaryError before dotip() runs",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [
+        {
+          "name": "dotip-single-container-quit",
+          "status": "closed",
+          "closedBy": "6ed30803a0a32f3416ad690057524d86bca96e9d"
+        }
+      ],
+      "openedAt": "1141c48222d24942a32f2c044b598e1379a4cb5b",
+      "openStanding": {
+        "sha": "ea04763",
+        "screens": 2909,
+        "rng": 162622
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
