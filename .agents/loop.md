@@ -53,10 +53,11 @@ The orchestrator repeats without returning to the user between steps:
       sessions array. Continue to step 1d.
    c. If `winner` is null, run the `candidate-pipeline` workflow
       (`.claude/workflows/candidate-pipeline.js`) and wait for it to
-      finish. If the Workflow tool is not available, spawn the
-      goal-selector agent (`.claude/agents/goal-selector.md`) instead.
-      The workflow prepares all candidates (caps stale sessions, traces
-      witnesses, stores metadata). When it returns, rerun
+      finish. The workflow prepares all candidates (caps stale sessions,
+      traces witnesses, stores metadata). If the Workflow tool is not
+      available, spawn the goal-selector agent
+      (`.claude/agents/goal-selector.md`) to do the same preparation.
+      When it returns, rerun
       `node scripts/pipeline-candidates.mjs --ready-winner`. If `winner`
       is now non-null, write `.cache/goal-context.json` as in step 1b
       and continue to step 1d. If `winner` is still null after
