@@ -164,6 +164,7 @@ import {
     dealloc_obj,
     erosionMatters,
     greatest_erosion,
+    hasContents,
     isCandle,
     isContainer,
     isPudding,
@@ -176,6 +177,7 @@ import {
     splitobj,
     weight,
 } from './obj.js';
+import { get_obj_location } from './light.js';
 import {
     an,
     assertObjectNameable,
@@ -1361,6 +1363,39 @@ export function preflight_update_inventory(env = {}) {
     const normalized = inventoryEnv(env);
     requireInventoryRefresh(normalized);
     return normalized;
+}
+
+// C ref: invent.c count_contents() (3620-3651). Counts the items inside a
+// container. With everything=true the function counts every stack; with
+// everything=false it counts only unpaid items (checking costly_spot for
+// shop pricing). quantity selects between counting stacks (false) and
+// counting individual items by quan (true). nested recurses into nested
+// containers.
+export function count_contents(container, nested, quantity, everything,
+    newdrop, state = game) {
+    let shoppy = false;
+    let count = 0;
+
+    // invent.c:3634-3642. Shop-pricing flag, only when filtering.
+    if (!everything && !newdrop) {
+        let topc = container;
+        while (topc.where === OBJ_CONTAINED) topc = topc.ocontainer;
+        if (topc.where === OBJ_FLOOR) {
+            const loc = get_obj_location(topc, 0, state);
+            if (loc) shoppy = costly_spot(loc.x, loc.y, state);
+        }
+    }
+
+    for (let otmp = container.cobj; otmp; otmp = otmp.nobj) {
+        if (nested && hasContents(otmp)) {
+            count += count_contents(otmp, nested, quantity, everything,
+                newdrop, state);
+        }
+        if (everything || otmp.unpaid || (shoppy && !otmp.no_charge)) {
+            count += quantity ? otmp.quan : 1;
+        }
+    }
+    return count;
 }
 
 // C ref: invent.c count_unidentified() (2698-2708).

@@ -1289,21 +1289,18 @@ test('override_ID forces the container and lock flags doname() reads', () => {
     );
     state.iflags.override_ID = 0;
 
-    // The two refusals that read cknown answer the forced flag too, so a
-    // counted container and a bag of tricks stop under override_ID even
-    // though their own cknown is clear. doname_base():1373 counts contents
-    // through pickup.c count_contents(), and :1310-1311 judges those two
-    // types' emptiness by charges.
+    // override_ID forces cknown, so a container with contents shows its
+    // count. doname_base():1373 counts contents through pickup.c
+    // count_contents(). A bag of tricks still stops because :1310-1311
+    // judges its emptiness by charges rather than contents.
     const stuffed = objectOf(state, SACK, { bknown: true });
     stuffed.cobj = objectOf(state, DART);
     assert.equal(donameFresh(stuffed, state), 'an uncursed bag');
     const tricks = objectOf(state, BAG_OF_TRICKS, { bknown: true });
     assert.equal(donameFresh(tricks, state), 'an uncursed bag');
     state.iflags.override_ID = 1;
-    assert.throws(
-        () => donameFresh(stuffed, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'container contents count',
+    assert.equal(
+        donameFresh(stuffed, state), 'an uncursed sack containing 1 item',
     );
     assert.throws(
         () => donameFresh(tricks, state),
@@ -1883,19 +1880,6 @@ test('unsupported naming branches fail before discovery or state changes', () =>
             && error.branch === 'user-assigned type name',
     );
     assert.equal(calledWand.dknown, false);
-
-    // A container whose contents are known and present still stops, because
-    // naming them needs pickup.c count_contents().
-    const fullChest = objectOf(state, CHEST, {
-        cknown: true,
-        cobj: objectOf(state, DART),
-    });
-    assert.throws(
-        () => donameFresh(fullChest, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'container contents count',
-    );
-    assert.equal(fullChest.dknown, false);
 
     const litCandle = objectOf(state, TALLOW_CANDLE, {
         lamplit: true,

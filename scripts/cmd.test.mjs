@@ -105,6 +105,7 @@ import {
     IRON_SHOES,
     objects_globals_init,
     PICK_AXE,
+    BAG_OF_TRICKS,
     SACK,
     TOOL_CLASS,
     WEAPON_CLASS,
@@ -3958,10 +3959,10 @@ test('a sighted hero looks at an ordinary corpse without stopping',
 
 test('the inventory command stops before drawing an unformattable item',
     async () => {
-    // Every starting pack formats, so this puts an object inside the Rogue's
-    // sack: naming a container's contents needs pickup.c count_contents(),
-    // which is not ported. The stop has to leave the screen and the keystroke
-    // exactly as the admission seam would.
+    // Every starting pack formats, so this turns the Rogue's sack into a bag
+    // of tricks: with cknown already set, the charge-based emptiness branch
+    // fires. The stop has to leave the screen and the keystroke exactly as
+    // the admission seam would.
     const replay = await runSegment({
         seed: 840022,
         datetime: COMMAND_DATETIME,
@@ -3975,7 +3976,8 @@ test('the inventory command stops before drawing an unformattable item',
         if (obj.otyp === SACK) sack = obj;
     }
     assert.ok(sack, 'the Rogue carries a sack');
-    sack.cobj = { otyp: DART, oclass: WEAPON_CLASS, quan: 1, nobj: null };
+    assert.ok(sack.cknown, 'the Rogue knows the sack is empty');
+    sack.otyp = BAG_OF_TRICKS;
     const key = commandKeyCode('i');
     const screens = replay.getScreens().length;
     const startingMoves = game.moves;
@@ -3989,7 +3991,7 @@ test('the inventory command stops before drawing an unformattable item',
         moveloop_core(),
         (error) => error instanceof UnsupportedHeroCommandBoundaryError
             && error.key === key
-            && /container contents count/u.test(error.message),
+            && /charge-based emptiness/u.test(error.message),
     );
 
     assert.equal(game.context.move, 0);

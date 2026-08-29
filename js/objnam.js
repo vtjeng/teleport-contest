@@ -409,10 +409,6 @@ function preflightDoname(obj, type, state, allowLiveShopPrice) {
         unsupported('skin-embedded armor suffix', obj);
     if (obj.owornmask && obj.lamplit)
         unsupported('lit worn-object suffix', obj);
-    // C names a container's contents only when it holds some; counting them
-    // is pickup.c count_contents(), which is not ported.
-    if (cknown && hasContents(obj))
-        unsupported('container contents count', obj);
     // These two judge emptiness by charges rather than contents, and the
     // charge suffix that makes the prefix redundant is a separate branch.
     if (cknown
@@ -1447,6 +1443,15 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
         );
     }
     if (obj.greased) modifiers.push('greased');
+    // C ref: objnam.c doname_base():1373-1380. Append " containing N items"
+    // when the container's contents are known and non-empty. The inline count
+    // is count_contents(obj, FALSE, FALSE, TRUE, FALSE) -- every stack counted
+    // once, no nesting -- avoiding a circular import from invent.js.
+    if (ident.cknown && hasContents(obj)) {
+        let itemcount = 0;
+        for (let o = obj.cobj; o; o = o.nobj) itemcount++;
+        base += ` containing ${itemcount} item${itemcount !== 1 ? 's' : ''}`;
+    }
     // C ref: objnam.c doname_base():1382. One switch on
     // `is_weptool(obj) ? WEAPON_CLASS : obj->oclass` picks both the prefix
     // words below and the parenthesized suffix further down, so a weapon-tool

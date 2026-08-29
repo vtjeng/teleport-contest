@@ -1431,15 +1431,25 @@ async function selectAnyTtyMenu(state, spec) {
 // cancelValue.
 export async function selectTtyMenu(state = game, spec) {
     // wintty.c tty_display_nhwindow()'s NHW_MENU arm (1921-1922) flushes an
-    // unacknowledged top line before the menu covers it.  Its NHW_MESSAGE arm
-    // (1874-1877) is `more(); ttyDisplay->toplin = TOPLINE_NEED_MORE;
-    // tty_clear_nhwindow(window);`, and that restore is what makes the clear
-    // take its home()/cl_end() branch: without it this port's dismissal has
-    // already zeroed both fields clearTtyMessageWindow() tests, so row 0 would
-    // keep the acknowledged message for the full-screen menus that do not
-    // clear it again below.
-    if (await dismissPendingTtyMessage(state)) {
+    // unacknowledged top line before the menu covers it, guarded by
+    // `ttyDisplay->toplin == TOPLINE_NEED_MORE`. A message already
+    // acknowledged (TOPLINE_NON_EMPTY, set by yn_function after the player
+    // answers a prompt) is not flushed; the menu overlay clears row 0 itself.
+    // Its NHW_MESSAGE arm (1874-1877) is `more(); ttyDisplay->toplin =
+    // TOPLINE_NEED_MORE; tty_clear_nhwindow(window);`, and that restore is
+    // what makes the clear take its home()/cl_end() branch: without it this
+    // port's dismissal has already zeroed both fields clearTtyMessageWindow()
+    // tests, so row 0 would keep the acknowledged message for the full-screen
+    // menus that do not clear it again below.
+    if (state.nhDisplay?.toplin === TOPLINE_NEED_MORE
+        && await dismissPendingTtyMessage(state)) {
         if (state.nhDisplay) state.nhDisplay.toplin = TOPLINE_NEED_MORE;
+        clearTtyMessageWindow(state);
+    } else if (state._pending_message) {
+        // The message was already acknowledged (toplin is NON_EMPTY or
+        // EMPTY), but _pending_message is still set. The overlay menu's
+        // renderTtyMenu clears row 0 physically; clear the message state
+        // here so it does not resurface after the menu is dismissed.
         clearTtyMessageWindow(state);
     }
     const how = spec.how ?? PICK_ONE;
