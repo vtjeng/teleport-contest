@@ -1,0 +1,9 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 108,
+    "datetime": "20000110090000",
+    "nethackrc": "OPTIONS=name:wizard,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,menustyle:traditional,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics",
+    "moves": "  s#wizwish\nlarge box\ndo#loot\ni a\ny n n n n n n n n n n n n nq n"
+  }]
+}

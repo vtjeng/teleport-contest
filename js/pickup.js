@@ -43,10 +43,16 @@ import {
     STONE_RES,
     STUNNED,
     ROOM,
+    SELL_DELIBERATE,
+    SELL_DONTSELL,
     SELL_NORMAL,
     SORTLOOT_INVLET,
     CORR,
+    W_ACCESSORY,
+    W_ARMOR,
     W_WEP,
+    plur,
+    something,
     is_pit,
     isok,
     st_all,
@@ -78,7 +84,9 @@ import {
 import {
     INVLET_BASIC,
     NOINVSYM,
+    add_to_container,
     addinv_runtime,
+    freeinv,
     carrying,
     count_unpaid,
     dfeature_at,
@@ -94,17 +102,21 @@ import {
     xprname,
 } from './invent.js';
 import {
-    is_rider, nohands, nolimbs, notake, throws_rocks, touch_petrifies,
+    bigmonst, is_rider, nohands, nolimbs, notake, throws_rocks,
+    touch_petrifies,
 } from './mondata.js';
 import { m_at } from './monst.js';
 import {
-    carried, hasContents, isContainer, is_pick, splitobj, weight,
+    carried, hasContents, isBox, isContainer, is_pick, obj_no_longer_held,
+    set_bknown, splitobj, weight,
 } from './obj.js';
 import { observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
-    BAG_OF_HOLDING, BAG_OF_TRICKS, BOULDER, COIN_CLASS, CORPSE, GOLD_PIECE,
-    LARGE_BOX, LOADSTONE, SCR_SCARE_MONSTER,
+    AMULET_OF_YENDOR, BAG_OF_HOLDING, BAG_OF_TRICKS, BELL_OF_OPENING, BOULDER,
+    CANDELABRUM_OF_INVOCATION, CHEST, COIN_CLASS, CORPSE, GOLD_PIECE,
+    ICE_BOX, LARGE_BOX, LEASH, LOADSTONE, SCR_SCARE_MONSTER,
+    SPE_BOOK_OF_THE_DEAD, STATUE,
 } from './objects.js';
 import {
     Tobjnam, Yname2, Ysimple_name2, assertObjectNameable, donameFresh,
@@ -115,9 +127,12 @@ import { costly_spot, sellobj_state } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { is_lava, is_pool, t_at } from './trap.js';
-import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
+import { clearTtyMessageWindow, ttyNorep, ttyPline } from './tty_message.js';
 import { getlin } from './windows.js';
 import { touch_artifact } from './artifacts.js';
+import { setwornEnv } from './do_wear.js';
+import { welded } from './wield.js';
+import { setuqwep, setuswapwep, setuwep } from './worn.js';
 import { select_menu } from './windows.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
@@ -1176,10 +1191,10 @@ async function use_container(obj, held, more_containers, state) {
         // goto containerdone
     } else {
         // C ref: pickup.c:3131-3206.  Item transfer dispatch.
-        const loot_out = (c === 'o' || c === 'b' || c === 'r');
-        const loot_in  = (c === 'i' || c === 'b' || c === 'r');
+        let loot_out = (c === 'o' || c === 'b' || c === 'r');
+        let loot_in  = (c === 'i' || c === 'b' || c === 'r');
         const loot_in_first = (c === 'r');
-        const stash_one = (c === 's');
+        let stash_one = (c === 's');
 
         // out-only or out before in (C: 3137-3155)
         if (loot_out && !loot_in_first) {
@@ -1212,25 +1227,51 @@ async function use_container(obj, held, more_containers, state) {
                 + `${stash_one ? 'stash' : 'put in'}.`,
                 state,
             );
+            loot_in = false;
+            stash_one = false;
         }
 
-        // put-in and stash paths remain fail-closed (C: 3167-3186).
+        // C: 3167-3173. put-in path.
         if (loot_in) {
-            throw new UnsupportedPickupError(
-                `use_container: loot_in '${c}'`,
-            );
+            add_valid_menu_class(0, state);
+            if (state.flags?.menu_style === MENU_TRADITIONAL) {
+                used |= await traditional_loot(true, state);
+            } else {
+                throw new UnsupportedPickupError(
+                    'use_container: menu_loot(0, true)',
+                );
+            }
+            add_valid_menu_class(0, state);
         } else if (stash_one) {
+            // C: 3174-3186. stash_one path remains fail-closed.
             throw new UnsupportedPickupError(
                 'use_container: stash_one',
             );
         }
 
+        // Putting something in might have triggered magic bag explosion
+        // (C: 3188-3189).
+        if (!state.gc.current_container)
+            loot_out = false;
+
         // out after in (C: 3192-3206)
         if (loot_out && loot_in_first) {
-            // Unreachable: loot_in_first would have thrown above.
-            throw new UnsupportedPickupError(
-                'use_container: loot_in_first out-after-in',
-            );
+            if (!hasContents(state.gc.current_container)) {
+                await ttyPline(emptymsg, state);
+                if (!state.gc.current_container.cknown)
+                    used = ECMD_TIME;
+                state.gc.current_container.cknown = 1;
+            } else {
+                add_valid_menu_class(0, state);
+                if (state.flags?.menu_style === MENU_TRADITIONAL) {
+                    used |= await traditional_loot(false, state);
+                } else {
+                    throw new UnsupportedPickupError(
+                        'use_container: menu_loot(0, false) out-after-in',
+                    );
+                }
+                add_valid_menu_class(0, state);
+            }
         }
     }
 
@@ -1711,8 +1752,132 @@ async function lift_object(obj, container, cnt_p, telekinesis, state) {
 }
 
 // ---------------------------------------------------------------
-// out_container / pickup_prinv / container_gone / ck_bag
+// in_container / out_container / pickup_prinv / container_gone / ck_bag
 // ---------------------------------------------------------------
+
+// C ref: pickup.c:2558-2712. in_container().
+// Returns: 1 item was put in, 0 item was not put in, -1 stop.
+// Unported sub-paths guarded fail-closed: obj_is_burning/snuff_lit,
+// shop-floor billing (sellobj), icebox age handling, bag-of-holding
+// explosion (mbag_explodes/do_boh_explosion).
+async function in_container(obj, state) {
+    const floor_container = !carried(state.gc.current_container);
+    const Icebox = state.gc.current_container.otyp === ICE_BOX;
+
+    if (!state.gc.current_container) {
+        throw new Error('<in> no gc.current_container?');
+    } else if (obj === state.uball || obj === state.uchain) {
+        await ttyPline('You must be kidding.', state);
+        return 0;
+    } else if (obj === state.gc.current_container) {
+        await ttyPline(
+            'That would be an interesting topological exercise.', state);
+        return 0;
+    } else if ((obj.owornmask ?? 0) & (W_ARMOR | W_ACCESSORY)) {
+        await ttyNorep(
+            `You cannot ${Icebox ? 'refrigerate' : 'stash'} ${something}`
+            + ' you are wearing.', state);
+        return 0;
+    } else if (obj.otyp === LOADSTONE && obj.cursed) {
+        set_bknown(obj, 1, { state });
+        await ttyPline(
+            `The stone${plur(obj.quan)} won't leave your person.`, state);
+        return 0;
+    } else if (obj.otyp === AMULET_OF_YENDOR
+            || obj.otyp === CANDELABRUM_OF_INVOCATION
+            || obj.otyp === BELL_OF_OPENING
+            || obj.otyp === SPE_BOOK_OF_THE_DEAD) {
+        // Prohibit Amulets in containers; if you allow it, monsters can't
+        // steal them.  Ditto for the Candelabrum, the Bell and the Book.
+        await ttyPline(
+            `${The(xnameFresh(obj, state))} cannot be confined in such`
+            + ' trappings.', state);
+        return 0;
+    } else if (obj.otyp === LEASH && obj.leashmon !== 0) {
+        await ttyPline(
+            `${Tobjnam(obj, 'are', state)} attached to your pet.`, state);
+        return 0;
+    } else if (obj === state.uwep) {
+        if (welded(obj, state)) {
+            // weldmsg() is not ported; refuse the welded weapon.
+            throw new UnsupportedPickupError(
+                'in_container: welded weapon (weldmsg)');
+        }
+        setuwep(null, setwornEnv(state));
+        // Obsolete uwep check from 3.0: life-saving could rewield.
+        if (state.uwep)
+            return 0; /* unwielded, died, rewielded */
+    } else if (obj === state.uswapwep) {
+        setuswapwep(null, setwornEnv(state));
+    } else if (obj === state.uquiver) {
+        setuqwep(null, setwornEnv(state));
+    }
+
+    if (fatal_corpse_mistake(obj, false, state))
+        return -1;
+
+    // boxes, boulders, and big statues can't fit into any container
+    if (obj.otyp === ICE_BOX || isBox(obj) || obj.otyp === BOULDER
+        || (obj.otyp === STATUE
+            && bigmonst(state.mons[obj.corpsenm]))) {
+        const objName = the(xnameFresh(obj, state));
+        const contName = the(xnameFresh(state.gc.current_container, state));
+        await ttyPline(
+            `You cannot fit ${objName} into ${contName}.`, state);
+        return 0;
+    }
+
+    // --- Fail-closed guards for unported sub-paths ---
+    // These guards are placed before freeinv() so the item stays in
+    // inventory on an unported path.
+    if (obj.lamplit) {
+        // obj_is_burning / snuff_lit (C: 2626-2627).
+        throw new UnsupportedPickupError(
+            'in_container: obj_is_burning/snuff_lit');
+    }
+    if (floor_container && costly_spot(state.u.ux, state.u.uy, state)) {
+        // Shop-floor billing via sellobj (C: 2629-2643).
+        throw new UnsupportedPickupError(
+            'in_container: shop floor billing (sellobj)');
+    }
+    if (Icebox) {
+        // Icebox age handling (C: 2644-2657).
+        throw new UnsupportedPickupError(
+            'in_container: icebox age handling');
+    }
+    if (isMbag(state.gc.current_container)) {
+        // Bag-of-holding explosion (C: 2658-2694).
+        throw new UnsupportedPickupError(
+            'in_container: bag of holding (mbag_explodes)');
+    }
+
+    freeinv(obj, { state });
+
+    // gc.current_container is always intact here: the bag-of-holding
+    // explosion path (the only one that clears it) is guarded above.
+    const contName = the(xnameFresh(state.gc.current_container, state));
+    await ttyPline(
+        `You put ${donameFresh(obj, state)} into ${contName}.`, state);
+
+    // Gold in container always needs to be added to credit (C: 2701-2702).
+    if (floor_container && obj.oclass === COIN_CLASS) {
+        // sellobj for gold on container's square; guarded above for
+        // non-gold items in shops, but gold is handled after the message.
+        throw new UnsupportedPickupError(
+            'in_container: gold in floor container (sellobj)');
+    }
+    add_to_container(state.gc.current_container, obj, {
+        state,
+        hooks: { objectNoLongerHeld: obj_no_longer_held },
+    });
+    state.gc.current_container.owt = weight(
+        state.gc.current_container, { state });
+
+    // Gold needs this, and freeinv() may cause the encumbrance to disappear
+    // from the status, so always update immediately (C: 2710).
+    await bot({ state });
+    return state.gc.current_container ? 1 : -1;
+}
 
 // C ref: pickup.c:2719-2723. ck_bag().
 function ck_bag(obj, state) {
@@ -1722,14 +1887,8 @@ function ck_bag(obj, state) {
 
 // C ref: pickup.c:2902-2908. container_gone().
 function container_gone(fn, state) {
-    return ((fn === out_container || fn === in_container_stub)
+    return ((fn === out_container || fn === in_container)
         && !state.gc?.current_container);
-}
-
-// Stub for in_container (not yet ported).  Exists so container_gone() can
-// reference it without importing a real function.
-function in_container_stub() {
-    throw new UnsupportedPickupError('in_container()');
 }
 
 // C ref: pickup.c:1948-1972. pickup_prinv().
@@ -1965,30 +2124,39 @@ async function askchain(objchn, olets, allflag, fn, ckfn, mx, word, state) {
 // ---------------------------------------------------------------
 
 async function traditional_loot(put_in, state) {
+    let action, actionfunc, checkfunc;
+
     if (put_in) {
-        throw new UnsupportedPickupError(
-            'traditional_loot: put_in (in_container)');
+        // C: 3239-3243. put_in arm.
+        action = 'put in';
+        actionfunc = in_container;
+        checkfunc = ck_bag;
+    } else {
+        // C: 3244-3249. take-out arm.
+        action = 'take out';
+        actionfunc = out_container;
+        checkfunc = null;
+        state.gp ??= {};
+        state.gp.pickup_encumbrance = 0;
     }
 
-    const action = 'take out';
-    // objlist for take-out is current_container->cobj.
-    // askchain receives 'cobj' as the accessor key.
-    const actionfunc = out_container;
-    const checkfunc = null;
-    state.gp ??= {};
-    state.gp.pickup_encumbrance = 0;
+    // C: 3251-3254. For take-out the object list is the container's
+    // contents; for put-in it is the hero's inventory.
+    const objlist_head = put_in
+        ? state.invent
+        : state.gc.current_container.cobj;
+    const objchn_key = put_in ? 'invent' : 'cobj';
 
-    const qc = await query_classes(
-        action, state.gc.current_container.cobj, false, state);
+    const qc = await query_classes(action, objlist_head, false, state);
     if (qc.ok) {
         const olets = qc.one_by_one ? null : (qc.selection || null);
         const cnt = await askchain(
-            'cobj', olets, qc.allflag ? 1 : 0,
+            objchn_key, olets, qc.allflag ? 1 : 0,
             actionfunc, checkfunc, 0, action, state);
         if (cnt) return ECMD_TIME;
     } else if (qc.menu_on_request < 0) {
         throw new UnsupportedPickupError(
-            'traditional_loot: menu_loot(menu_on_request, false)');
+            'traditional_loot: menu_loot(menu_on_request, put_in)');
     }
     return ECMD_OK;
 }

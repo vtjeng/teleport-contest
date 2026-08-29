@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { BAG_OF_HOLDING, CHEST, ICE_BOX, LARGE_BOX } from '../js/objects.js';
-import { ECMD_TIME, SELL_NORMAL } from '../js/const.js';
+import {
+    AMULET_OF_YENDOR, BAG_OF_HOLDING, CHEST, ICE_BOX, LARGE_BOX, LEASH,
+    LOADSTONE, TOOL_CLASS, WEAPON_CLASS,
+} from '../js/objects.js';
+import { ECMD_TIME, SELL_NORMAL, W_ARM } from '../js/const.js';
 import {
     container_at,
     doloot,
@@ -325,4 +328,128 @@ test("'o' on an empty container prints empty message and sets cknown",
         const toplines = state.nhDisplay?.toplines ?? '';
         assert.ok(toplines.includes('is empty'),
             `expected "is empty" in top line but got "${toplines}"`);
+    });
+
+// -- in_container rejection tests --
+// These use doloot on an unlocked floor container and answer 'i' to trigger
+// the put-in path through traditional_loot -> askchain -> in_container.
+
+test("'i' on empty container with no inventory prints nothing-to-put-in",
+    async () => {
+        const state = await heroOnCleanSquare();
+        const { ux, uy } = state.u;
+
+        // Place an unlocked large box under the hero.
+        placeFloorObjects(state, [
+            { otyp: LARGE_BOX, olocked: 0 },
+        ]);
+
+        clearTtyMessageWindow(state);
+
+        // Remove all inventory except the container (which is on the floor,
+        // not carried, so invent is independent). Null the invent chain so
+        // inokay is false.
+        state.invent = null;
+
+        // 'i' attempts put-in, but with no inventory, the "nothing to put
+        // in" message prints and loot_in is cleared (C: 3157-3161).
+        // ' ' dismisses the "is empty" message that prints from the outmaybe
+        // path. Then 'n' for directional loot.
+        state.nhDisplay.pushKey('i'.charCodeAt(0));
+        state.nhDisplay.pushKey(' '.charCodeAt(0)); // dismiss message
+        state.nhDisplay.pushKey('n'.charCodeAt(0));
+
+        const result = await doloot(state);
+        const toplines = state.nhDisplay?.toplines ?? '';
+        // C: "You don't have anything to put in." when invent is null.
+        assert.ok(toplines.includes("don't have anything to put in"),
+            `expected "don't have anything to put in" in "${toplines}"`);
+    });
+
+test("'i' puts an inventory item into an unlocked floor container",
+    async () => {
+        const state = await heroOnCleanSquare();
+        const { ux, uy } = state.u;
+
+        // Place an unlocked large box under the hero.
+        const box = placeFloorObjects(state, [
+            { otyp: LARGE_BOX, olocked: 0 },
+        ]);
+
+        // Set menu_style to MENU_TRADITIONAL (0) so the loot path uses
+        // traditional_loot() instead of the unported menu_loot().
+        // C default is MENU_FULL, but the development sessions use
+        // menustyle:traditional via the nethackrc.
+        state.flags.menu_style = 0; /* MENU_TRADITIONAL */
+
+        clearTtyMessageWindow(state);
+
+        // Replace the hero's inventory with a single synthetic tool item
+        // (quan=1, not worn, not wielded). This avoids askchain's uppercase
+        // 'N' count prompt (unsupported for quan >= 2) and rejection
+        // messages for worn or quest items.
+        const synthItem = {
+            otyp: LEASH, // leashmon=0 so in_container won't reject it
+            oclass: TOOL_CLASS,
+            quan: 1,
+            owt: 12,
+            invlet: 'z'.charCodeAt(0),
+            where: 3, /* OBJ_INVENT */
+            nobj: null,
+            nexthere: null,
+            ocontainer: null,
+            o_id: 80001,
+            dknown: 1,
+            bknown: 1,
+            rknown: 0,
+            known: 0,
+            oartifact: 0,
+            no_charge: false,
+            cursed: 0,
+            blessed: 0,
+            spe: 0,
+            corpsenm: 0,
+            oeroded: 0,
+            oeroded2: 0,
+            oerodeproof: 0,
+            owornmask: 0,
+            lamplit: 0,
+            leashmon: 0, // not leashed, so in_container allows it
+            unpaid: 0,
+            age: 0,
+            globby: 0,
+            onamelth: 0,
+            oextra: null,
+            recharged: 0,
+            pickup_prev: false,
+        };
+        state.invent = synthItem;
+        // Clear wielded weapon and accessories so they don't interfere.
+        state.uwep = null;
+        state.uswapwep = null;
+        state.uquiver = null;
+
+        // Answer 'i' to enter the put-in path. With a single inventory
+        // item of one class, query_classes auto-selects it (iletct_base=1,
+        // no getlin prompt). askchain then prompts "Put in: <item>? [ynaq]"
+        // for the single item (quan=1, so no uppercase 'N'). Answer 'y'.
+        state.nhDisplay.pushKey('i'.charCodeAt(0));
+        // askchain prompt: 'y' to put in.
+        state.nhDisplay.pushKey('y'.charCodeAt(0));
+        // askchain prints "That was all." after the single item.
+        // Dismiss messages: "You put X into Y" and "That was all.".
+        for (let i = 0; i < 5; i++)
+            state.nhDisplay.pushKey(' '.charCodeAt(0));
+        state.nhDisplay.pushKey('n'.charCodeAt(0)); // directional loot
+
+        const result = await doloot(state);
+        // The transfer should take time.
+        assert.equal(result, ECMD_TIME,
+            'putting an item in should return ECMD_TIME');
+        // The container should now have contents.
+        assert.ok(box.cobj !== null,
+            'container should have contents after put-in');
+        const toplines = state.nhDisplay?.toplines ?? '';
+        assert.ok(toplines.includes('You put'),
+            `expected "You put" in "${toplines}"`);
     });
