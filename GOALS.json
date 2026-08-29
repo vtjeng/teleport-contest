@@ -6007,6 +6007,11 @@
           "name": "polyself-domonability-catchall",
           "status": "closed",
           "closedBy": "fc0576afd8dca52fa560550b85dd6ef4c78d5ab1"
+        },
+        {
+          "name": "polyself-dragon-hp-dropweapon",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "e7f1cf4e10293eb0e935528be90dc68d1f6a73ff",
