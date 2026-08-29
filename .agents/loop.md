@@ -109,13 +109,7 @@ The orchestrator repeats without returning to the user between steps:
 5. When a slice closes, append its `SCORE.tsv` row as `.agents/scoring.md`
    requires, in the commit that records the closure in
    `GOALS.json`. The row's `sha` and figures come from step 3's measurement.
-   Continue at step 2. When three consecutive slice closes leave the
-   development score unchanged in `SCORE.tsv`, take no further slice until
-   you rerun the census and restate the goal's remaining capped forecast.
-   Record in the goal entry either why the remaining slices outrank the
-   census leader, or the split: close the delivered part and move each
-   remaining obligation to the deferral ledger with
-   `npm run quality -- defer`. When the last slice of the goal closes,
+   Continue at step 2. When the last slice of the goal closes,
    continue at step 6.
 6. When a goal closes, run the authorized holdout evaluation and record its
    result with the goal's evidence. Resolve every open deferral the goal's
