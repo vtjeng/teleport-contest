@@ -209,7 +209,7 @@ import {
     UnsupportedMonsterRequestError,
     UnsupportedReadError,
 } from './read.js';
-import { UnsupportedPolyselfError } from './polyself.js';
+import { UnsupportedPolyselfError, dobreathe } from './polyself.js';
 import {
     wiz_genesis, wiz_level_change, wiz_level_tele, wiz_polyself, wiz_wish,
 } from './wizcmds.js';
@@ -2298,13 +2298,10 @@ async function runPolyselfCommand(key, state) {
 }
 
 // C ref: cmd.c domonability() (888-949). #monster command: use a special
-// monster ability while polymorphed. For the gnome form (PM_GNOME), every
-// ability-test condition is false -- can_breathe, attacktype(AT_SPIT),
-// S_NYMPH, AT_GAZE, is_were, is_hider/hides_under, webmaker, is_mind_flayer,
-// PM_GREMLIN, is_unicorn, MS_SHRIEK, is_vampire/is_vampshifter, and the
-// steed-breathe check -- so the function reaches the `else if (Upolyd)`
-// catch-all at line 943, prints "Any special ability you may have is purely
-// reflexive.", and returns ECMD_OK. No RNG calls, no state changes.
+// monster ability while polymorphed. The can_breathe() arm delegates to
+// dobreathe() (polyself.c:1420); all other special abilities still refuse.
+// For a gnome form every test is false and the Upolyd catch-all prints
+// "Any special ability you may have is purely reflexive."
 async function domonability(state) {
     const uptr = state.youmonst?.data;
     const might_hide = is_hider(uptr) || hides_under(uptr);
@@ -2322,9 +2319,8 @@ async function domonability(state) {
     }
 
     if (can_breathe(uptr)) {
-        throw new UnsupportedHeroCommandBranchBoundaryError(
-            'domonability dobreathe() for a breath-weapon form',
-        );
+        // cmd.c:902-903: return dobreathe();
+        return dobreathe(state);
     } else if (attacktype(uptr, AT_SPIT)) {
         throw new UnsupportedHeroCommandBranchBoundaryError(
             'domonability dospit() for a spitting form',

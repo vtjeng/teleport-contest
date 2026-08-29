@@ -13,10 +13,14 @@ import {
     ARM,
     BLINDED,
     BLND_RES,
+    BZ_OFS_AD,
+    BZ_U_BREATH,
     COLD_RES,
     DISINT_RES,
     DRAIN_RES,
+    ECMD_CANCEL,
     ECMD_OK,
+    ECMD_TIME,
     EYE,
     FEMALE,
     FINGER,
@@ -73,6 +77,7 @@ import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
 import {
     attacktype,
+    attacktype_fordmg,
     breakarm,
     can_be_strangled,
     can_breathe,
@@ -133,7 +138,9 @@ import {
     MUMMY_WRAPPING,
 } from './objects.js';
 import * as M from './monsters.js';
-import { rn1, rn2, rnd, d } from './rng.js';
+import { rn1, rn2, rnd, rne, rnl, d } from './rng.js';
+import { getdir } from './cmd.js';
+import { ubuzz, ubreatheu } from './zap.js';
 
 // Boundary error for polyself branches that fall outside the current goal.
 // failClosedCommand() in cmd.js converts this to an
@@ -1156,4 +1163,42 @@ export function mbodypart(monster, part) {
     if (species.mlet === M.S_FUNGUS) return FUNGUS_PARTS[part];
     if (humanoid(species)) return HUMANOID_PARTS[part];
     return ANIMAL_PARTS[part];
+}
+
+// C ref: polyself.c dobreathe() (1420-1447). The poly'd hero's breath weapon,
+// reached from domonability() when can_breathe(youmonst.data) is true.
+// Checks Strangled and energy, spends 15 Pw, calls getdir(), then either
+// ubreatheu() (self-targeted) or ubuzz() (directional breath).
+export async function dobreathe(state = game) {
+    // polyself.c:1425-1428 Strangled guard
+    if (state.u.uprops[STRANGLED].intrinsic) {
+        await ttyPline("You can't breathe.  Sorry.", state);
+        return ECMD_OK;
+    }
+    // polyself.c:1429-1432 energy guard
+    if (state.u.uen < 15) {
+        await ttyPline("You don't have enough energy to breathe!", state);
+        return ECMD_OK;
+    }
+    state.u.uen -= 15;
+    state.disp.botl = true;
+
+    if (!await getdir(null, state))
+        return ECMD_CANCEL;
+
+    const mattk = attacktype_fordmg(
+        state.youmonst.data, M.AT_BREA, M.AD_ANY,
+    );
+    if (!mattk) {
+        // C: impossible("bad breath attack?");
+        throw new Error('impossible: bad breath attack?');
+    } else if (!state.u.dx && !state.u.dy && !state.u.dz) {
+        await ubreatheu(mattk, state, { d, rn1, rn2, rnd, rne, rnl });
+    } else {
+        await ubuzz(
+            BZ_U_BREATH(BZ_OFS_AD(mattk.adtyp)), mattk.damn,
+            state, { d, rn1, rn2, rnd, rne, rnl },
+        );
+    }
+    return ECMD_TIME;
 }

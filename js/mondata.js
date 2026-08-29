@@ -92,11 +92,15 @@ export function attacktype(species, attackType) {
     return hasAttackType(species, attackType);
 }
 
+// C ref: mondata.c attacktype_fordmg() (42-50). Returns the first matching
+// attack entry, or undefined when no match exists. C returns a struct pointer
+// (or NULL); callers that need only a boolean test work unchanged because the
+// returned object is truthy.
 export function attacktype_fordmg(species, attackType, damageType) {
-    return Boolean(species?.mattk?.some(
+    return species?.mattk?.find(
         (attack) => attack.aatyp === attackType
             && (damageType === M.AD_ANY || attack.adtyp === damageType),
-    ));
+    );
 }
 
 export function noattacks(species) {

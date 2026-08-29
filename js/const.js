@@ -256,6 +256,9 @@ export function STR19(x) { return 100 + x; } // 19 and above
 // C ref: zap.h — BZ_OFS_AD(x) = (x) - 1
 export function BZ_OFS_AD(adtyp) { return adtyp - 1; }
 
+// C ref: hack.h:1484 — BZ_U_BREATH(bztyp) = 20 + (bztyp), types 20..29
+export function BZ_U_BREATH(bztyp) { return 20 + bztyp; }
+
 // Room types (mkroom.h)
 export const OROOM = 0;
 export const THEMEROOM = 1;

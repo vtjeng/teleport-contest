@@ -880,17 +880,25 @@ test('movement attack, life-state, web, and trap queries match source tables', (
         mattk: [{ aatyp: AT_BREA, adtyp: AD_DRST }],
     };
 
-    assert.equal(
+    // attacktype_fordmg returns the matching attack entry (truthy) or
+    // undefined (falsy), matching C's struct-pointer-or-NULL return.
+    assert.ok(
         attacktype_fordmg(poisonBreath, AT_BREA, AD_DRST),
-        true,
+        'matching AT_BREA + AD_DRST should return a truthy attack entry',
     );
     assert.equal(
+        attacktype_fordmg(poisonBreath, AT_BREA, AD_DRST).adtyp,
+        AD_DRST,
+        'the returned attack carries the matched damage type',
+    );
+    assert.ok(
         attacktype_fordmg(poisonBreath, AT_BREA, AD_ANY),
-        true,
+        'AD_ANY matches any damage type',
     );
     assert.equal(
         attacktype_fordmg(poisonBreath, AT_BREA, AD_RBRE),
-        false,
+        undefined,
+        'non-matching damage type returns undefined',
     );
 
     assert.equal(is_golem(species(M.PM_IRON_GOLEM)), true);

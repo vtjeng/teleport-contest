@@ -1593,6 +1593,18 @@ export async function ubuzz(
     );
 }
 
+// C ref: zap.c ubreatheu() (3017-3022). Called when the poly'd hero uses a
+// breath attack against self (direction '.').  Delegates to zhitu() with the
+// hero-breath type offset and the hero's own coordinates.
+export async function ubreatheu(
+    mattk, state = game, random = { d, rn1, rn2, rnd, rne, rnl },
+) {
+    // C: int dtyp = 20 + mattk->adtyp - 1;  /* breath by hero */
+    const dtyp = 20 + mattk.adtyp - 1;
+    await zhitu(dtyp, mattk.damn, flash_str(dtyp, true, state),
+        state.u.ux, state.u.uy, state, random);
+}
+
 // C ref: zap.c zapnodir() (2539-2596), restricted to the wand of secret door
 // detection. Its findit() call is observable even when it finds nothing, so a
 // seen wand goes through the shared discovery tail. Every other NODIR object
