@@ -6139,8 +6139,8 @@
         },
         {
           "name": "forcelock-blade-path",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "f3cd9296e2196033ef99e70575f03e7059b53e31"
         }
       ],
       "openedAt": "2f1bc069b61b1c6bf94220d67a0c95175b507948",
