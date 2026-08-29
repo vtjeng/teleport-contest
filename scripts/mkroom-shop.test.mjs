@@ -12,6 +12,7 @@ import {
     FILL_NORMAL,
     COURT,
     LOW_PM,
+    MORGUE,
     M_AP_OBJECT,
     OROOM,
     ROOM,
@@ -509,9 +510,16 @@ test('do_mkroom supports Court, Beehive, and Temple and refuses later special ro
         assert.equal(room.rtype, BEEHIVE);
         assert.equal(room.needfill, FILL_NORMAL);
 
+        // MORGUE (roomtype 6): same pick_room path as COURT.
+        room.rtype = OROOM;
+        room.needfill = FILL_NONE;
+        do_mkroom(MORGUE, state, { rn2: () => 0 });
+        assert.equal(room.rtype, MORGUE);
+        assert.equal(room.needfill, FILL_NORMAL);
+
         // Remaining zoo families and swamp are still refused (TEMPLE=10 is
         // now ported and omitted from this list).
-        for (const roomtype of [3, 6, 7, 8, 11, 12, 13]) {
+        for (const roomtype of [3, 7, 8, 11, 12, 13]) {
             assert.throws(
                 () => do_mkroom(roomtype, state),
                 UnsupportedSpecialRoomError,

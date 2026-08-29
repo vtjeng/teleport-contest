@@ -249,6 +249,7 @@ import {
     PM_WHITE_UNICORN,
     PM_WOLF,
     PM_WOOD_NYMPH,
+    PM_WRAITH,
     PM_WUMPUS,
     PM_WIZARD,
     PM_YELLOW_LIGHT,
@@ -1100,6 +1101,8 @@ function assertSupportedSpecies(species) {
     const beehiveSpecies = species
         && (species.pmidx === PM_QUEEN_BEE
             || species.pmidx === PM_KILLER_BEE);
+    const morgueSpecies = species
+        && species.pmidx === PM_WRAITH;
     if (!species
         || (!INITIAL_LEVEL_MONSTERS.has(species.pmidx)
             && !TUTORIAL_LEVEL_MONSTERS.has(species.pmidx)
@@ -1108,6 +1111,7 @@ function assertSupportedSpecies(species) {
             && !isMausoleumSpecies(species)
             && !courtSpecies
             && !beehiveSpecies
+            && !morgueSpecies
             && species.pmidx !== PM_DJINNI
             && species.pmidx !== PM_UMBER_HULK)) {
         throw new UnsupportedMonsterCreationError(

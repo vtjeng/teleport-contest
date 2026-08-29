@@ -26,6 +26,8 @@ import {
     LADDER,
     LAVAPOOL,
     LAVAWALL,
+    MORGUE,
+    NON_PM,
     OROOM,
     POOL,
     ROOM,
@@ -49,38 +51,50 @@ import {
     SPACE_POS,
     TEMPLE,
 } from './const.js';
-import { induced_align, level_difficulty } from './dungeon.js';
+import { In_hell, induced_align, level_difficulty } from './dungeon.js';
 import { game } from './gstate.js';
 import { add_to_container } from './invent.js';
 import { occupied, somexyspace, topologize } from './mklev.js';
 import { makemon, mongets } from './makemon_create.js';
 import { mkclass, set_malign } from './makemon.js';
+import { is_ndemon } from './mondata.js';
 import {
+    PM_ARCHEOLOGIST,
     PM_BUGBEAR,
     PM_DWARF_RULER,
     PM_ELVEN_MONARCH,
+    PM_GHOST,
     PM_GNOME_RULER,
     PM_HOBGOBLIN,
     PM_KILLER_BEE,
     PM_OGRE_TYRANT,
     PM_QUEEN_BEE,
+    PM_WIZARD,
+    PM_WRAITH,
     S_CENTAUR,
+    S_DEMON,
     S_DRAGON,
     S_GIANT,
     S_GNOME,
     S_KOBOLD,
     S_ORC,
     S_TROLL,
+    S_VAMPIRE,
+    S_ZOMBIE,
 } from './monsters.js';
 import {
     CHEST,
+    CORPSE,
     GOLD_PIECE,
+    LARGE_BOX,
     LUMP_OF_ROYAL_JELLY,
     MACE,
     SPBOOK_CLASS,
+    STATUE,
     WAND_CLASS,
 } from './objects.js';
-import { mksobj, mksobj_at, weight } from './obj.js';
+import { make_grave } from './grave.js';
+import { mksobj, mksobj_at, set_corpsenm, weight } from './obj.js';
 import { priestini } from './priest.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { inside_room } from './room_coordinates.js';
@@ -373,6 +387,48 @@ export function courtmon(state = game, random = SOURCE_RANDOM) {
     return mkclass(S_KOBOLD, 0, { state, random });
 }
 
+// C ref: mkroom.c morguemon().
+export function morguemon(state = game, random = SOURCE_RANDOM) {
+    const i = random.rn2(100);
+    const hd = random.rn2(level_difficulty(state));
+
+    if (hd > 10 && i < 10) {
+        if (In_hell(state.u.uz, state)
+            || (state.u.uz.dnum != null
+                && state.u.uz.dnum === state.astral_level?.dnum)) {
+            return mkclass(S_DEMON, 0, { state, random });
+        }
+        const ndemonResult = ndemon(A_NONE, state, random);
+        if (ndemonResult !== NON_PM) return state.mons[ndemonResult];
+    }
+
+    if (hd > 8 && i > 85)
+        return mkclass(S_VAMPIRE, 0, { state, random });
+
+    return (i < 20) ? state.mons[PM_GHOST]
+        : (i < 40) ? state.mons[PM_WRAITH]
+            : mkclass(S_ZOMBIE, 0, { state, random });
+}
+
+// C ref: minion.c ndemon(). A_NONE means any alignment.
+function ndemon(atyp, state, random) {
+    const ptr = mkclass(S_DEMON, 0, { state, random });
+    return (ptr && is_ndemon(ptr)) ? ptr.pmidx : NON_PM;
+}
+
+// C ref: mkobj.c mk_tt_object(). Creates a corpse or statue named after a
+// random player class. The scoreboard name (tt_oname) is always empty in this
+// port, so the fallback path fires every time.
+export function mk_tt_object(objtype, x, y, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? SOURCE_RANDOM;
+    const normalized = { ...env, state, random };
+    const otmp = mksobj_at(objtype, x, y, objtype !== STATUE, false, normalized);
+    const pm = random.rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
+    set_corpsenm(otmp, pm, normalized);
+    return otmp;
+}
+
 function mk_zoo_thronemon(x, y, normalized) {
     const { random, state } = normalized;
     const roll = random.rnd(level_difficulty(state));
@@ -411,16 +467,16 @@ export function courtCellIsFillable(sroom, x, y, state) {
         || (y === sroom.hy && door.y === y + 1));
 }
 
-// C ref: mkroom.c fill_zoo(). The COURT and BEEHIVE arms are ported;
-// remaining zoo families retain their named generation boundary.
+// C ref: mkroom.c fill_zoo(). The COURT, BEEHIVE, and MORGUE arms are
+// ported; remaining zoo families retain their named generation boundary.
 export function fill_zoo(sroom, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? SOURCE_RANDOM;
     const normalized = { ...env, state, random };
     const type = sroom.rtype;
-    if (type !== COURT && type !== BEEHIVE) {
+    if (type !== COURT && type !== BEEHIVE && type !== MORGUE) {
         throw new UnsupportedSpecialRoomError(
-            `fill_zoo(${type}) beyond the Beehive boundary`,
+            `fill_zoo(${type}) beyond the Morgue boundary`,
         );
     }
 
@@ -465,9 +521,11 @@ export function fill_zoo(sroom, env = {}) {
             // C ref: lines 344-361 — type-specific monster selection.
             const species = type === COURT
                 ? courtmon(state, random)
-                : (x === tx && y === ty
-                    ? state.mons[PM_QUEEN_BEE]
-                    : state.mons[PM_KILLER_BEE]);
+                : type === MORGUE
+                    ? morguemon(state, random)
+                    : (x === tx && y === ty
+                        ? state.mons[PM_QUEEN_BEE]
+                        : state.mons[PM_KILLER_BEE]);
             const monster = makemon(
                 species,
                 x,
@@ -481,7 +539,15 @@ export function fill_zoo(sroom, env = {}) {
             }
 
             // C ref: lines 369-418 — type-specific post-monster items.
-            if (type === BEEHIVE && !random.rn2(3)) {
+            if (type === MORGUE) {
+                if (!random.rn2(5))
+                    mk_tt_object(CORPSE, x, y, normalized);
+                if (!random.rn2(10))
+                    mksobj_at(random.rn2(3) ? LARGE_BOX : CHEST,
+                        x, y, true, false, normalized);
+                if (!random.rn2(5))
+                    make_grave(x, y, null, normalized);
+            } else if (type === BEEHIVE && !random.rn2(3)) {
                 mksobj_at(LUMP_OF_ROYAL_JELLY, x, y, true, false, normalized);
             }
         }
@@ -507,6 +573,8 @@ export function fill_zoo(sroom, env = {}) {
         chest.owt = weight(chest, normalized);
         chest.spe = 2;
         state.level.flags.has_court = true;
+    } else if (type === MORGUE) {
+        state.level.flags.has_morgue = true;
     } else if (type === BEEHIVE) {
         state.level.flags.has_beehive = true;
     }
@@ -557,7 +625,7 @@ export function do_mkroom(roomtype, state = game, random = SOURCE_RANDOM) {
         mktemple(state, random);
         return;
     }
-    if (roomtype === COURT || roomtype === BEEHIVE) {
+    if (roomtype === COURT || roomtype === BEEHIVE || roomtype === MORGUE) {
         mkzoo(roomtype, state, random);
         return;
     }

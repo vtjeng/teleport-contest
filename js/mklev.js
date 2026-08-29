@@ -372,16 +372,16 @@ export function fill_special_room(croom, env = {}) {
         }
         case COURT:
         case BEEHIVE:
+        case MORGUE:
             fill_zoo(croom, normalized);
             break;
         case ZOO:
         case ANTHOLE:
         case COCKNEST:
         case LEPREHALL:
-        case MORGUE:
         case BARRACKS:
             throw new UnsupportedSpecialRoomError(
-                `fill_special_room(${croom.rtype}) beyond the Beehive boundary`,
+                `fill_special_room(${croom.rtype}) beyond the Morgue boundary`,
             );
         default:
             break;
@@ -457,7 +457,13 @@ async function makelevel(specialLevelLoader = null) {
         if (slev && slev.proto) {
             if (!SPECIAL_LEVEL_LOADERS) {
                 const { BIGRM_LOADERS } = await import('./bigrm.js');
-                SPECIAL_LEVEL_LOADERS = { ...BIGRM_LOADERS };
+                const { QUEST_LEVEL_LOADERS } = await import(
+                    './quest_levels.js'
+                );
+                SPECIAL_LEVEL_LOADERS = {
+                    ...BIGRM_LOADERS,
+                    ...QUEST_LEVEL_LOADERS,
+                };
             }
             // Determine the resolved protofile the same way makemaz() will.
             // For bigrm, slev.rndlevs is 13, so the proto is
@@ -970,6 +976,7 @@ function createSpecialLevelApi(state) {
 
     return {
         random: SOURCE_THEMEROOM_RANDOM,
+        get frame() { return frame; },
 
         level_init(specification) {
             if (specification?.style !== 'solidfill') {
@@ -1004,6 +1011,8 @@ function createSpecialLevelApi(state) {
                     state.specialLevelAllowFlips
                         = (state.specialLevelAllowFlips ?? 3) & ~2;
                     break;
+                case 'noteleport': state.level.flags.noteleport = true; break;
+                case 'hardfloor': state.level.flags.hardfloor = true; break;
                 case 'nomongen': state.level.flags.rndmongen = false; break;
                 case 'nodeathdrops': state.level.flags.deathdrops = false; break;
                 case 'noautosearch': state.level.flags.noautosearch = true; break;
@@ -1048,9 +1057,11 @@ function createSpecialLevelApi(state) {
                 const lit = litStr === 'lit';
                 const sel = lit ? selectionOrSpec.grow() : selectionOrSpec.clone();
                 sel.iterate((x, y) => {
-                    const loc = state.level.at(x, y);
+                    const loc = state.level.at(
+                        frame.xstart + x, frame.ystart + y,
+                    );
                     if (loc) loc.lit = lit;
-                }, { x: frame.xstart, y: frame.ystart });
+                });
                 return;
             }
             const specification = selectionOrSpec;
@@ -1313,8 +1324,10 @@ function createSpecialLevelApi(state) {
                 const typ = splev_chr2typ(charOrY);
                 if (typ >= MAX_TYPE) return;
                 selOrX.iterate((x, y) => {
-                    set_levltyp(x, y, typ, { state });
-                }, { x: frame.xstart, y: frame.ystart });
+                    set_levltyp(
+                        frame.xstart + x, frame.ystart + y, typ, { state },
+                    );
+                });
             }
         },
 
