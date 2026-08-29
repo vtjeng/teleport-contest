@@ -55,6 +55,12 @@ rng_matched=<n> rng_total=<n> [sessions_passed=<n> sessions_total=<n>]
 from SCORE.tsv, computes deltas, and prints a one-line note. Pipe the output
 into the `note=` column of `--append` rather than composing the note by hand.
 
+The local `frozen/terminal.js` fixes the `serialize()` leading-space bug (see
+"Local serialize fix" in `AGENTS.md`). Local scores therefore exceed the
+leaderboard score. The first `SCORE.tsv` row after this fix must include
+"serialize fix applied" in its note so later readers know when the methodology
+changed.
+
 Prefer improvements that translate the C source faithfully over changes that
 raise the score without matching the source's behavior. Run the generalization
 failure protocol below when a review of the source, implementation diff, and
