@@ -304,7 +304,7 @@ canvas {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   color: var(--ink-secondary);
-  max-width: 200px;
+  max-width: 320px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -431,7 +431,7 @@ function fmt(n) {
 function fmtN(n) { return n == null ? '-' : n.toLocaleString(); }
 function pct(a, b) { return b ? (a / b * 100).toFixed(1) + '%' : '-'; }
 function fmtTiming(n, observed) {
-  return n == null ? '-' : fmt(n) + (observed ? '' : ' (inferred)');
+  return n == null ? '-' : fmt(n) + (observed ? '' : ' †');
 }
 
 function relativeTime(iso) {
@@ -676,7 +676,7 @@ window.addEventListener('resize', drawProgressChart);
     if (g.goalSelectionMin != null && g.goalSelectionMin > 0 && g.goalSelectionMin < 120) {
       const left = toX(selStart);
       const width = toX(openT) - left;
-      const timingNote = g.goalSelectionObserved ? '' : ' (inferred)';
+      const timingNote = g.goalSelectionObserved ? '' : ' †';
       segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-goal-sel)" title="Goal selection: ' + fmt(g.goalSelectionMin) + timingNote + '"></div>';
     }
 
@@ -688,7 +688,7 @@ window.addEventListener('resize', drawProgressChart);
         const width = toX(firstQ) - left;
         const mins = (firstQ - openT) / 60000;
         const timingNote = g.openTimeSource === 'open-commit'
-          ? '' : ' (inferred)';
+          ? '' : ' †';
         segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-slice-sel)" title="First slice selection: ' + fmt(mins) + timingNote + '"></div>';
       }
     }
@@ -700,12 +700,12 @@ window.addEventListener('resize', drawProgressChart);
         const left = toX(prevClose);
         const width = toX(sl.queueTime) - left;
         const timingNote = g.slices[si - 1].closeTimeSource === 'score-slice'
-          ? '' : ' (inferred)';
+          ? '' : ' †';
         segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-slice-sel)" title="Slice selection: ' + fmt(sl.sliceSelectionMin) + timingNote + '"></div>';
       }
       const left = toX(sl.queueTime);
       const width = toX(sl.closeTime) - left;
-      const timingNote = sl.closeTimeSource === 'score-slice' ? '' : ' (end inferred)';
+      const timingNote = sl.closeTimeSource === 'score-slice' ? '' : ' †';
       segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-impl)" title="Implementation: ' + fmt(sl.durationMin) + timingNote + ' — ' + sl.message + '"></div>';
     });
 
@@ -733,7 +733,7 @@ window.addEventListener('resize', drawProgressChart);
   const allGoals = [...DATA.goals].reverse();
   const goals = allGoals.filter(g => g.status === 'in-progress' || (g.totalMin > 0 && g.totalMin < 1440));
   const hidden = allGoals.length - goals.length;
-  document.getElementById('tableSubtitle').textContent = goals.length + ' goals shown' + (hidden > 0 ? ' (' + hidden + ' milestones hidden)' : '');
+  document.getElementById('tableSubtitle').textContent = goals.length + ' goals shown' + (hidden > 0 ? ' (' + hidden + ' milestones hidden)' : '') + '. † = inferred from commit time.';
 
   function fmtDate(iso) {
     if (!iso) return '-';
@@ -755,8 +755,8 @@ window.addEventListener('resize', drawProgressChart);
 
     const bar = '<div class="phase-bar">' + parts.map(p => {
       const w = Math.max((p.min / barTotal) * 100, p.min > 0 ? 2 : 0);
-      const provenance = p.observed ? 'recorded' : 'inferred';
-      return '<div class="phase-bar-seg" style="width:' + w + '%;background:var(' + p.var + ')" title="' + p.label + ': ' + fmt(p.min) + ' (' + provenance + ')" aria-label="' + p.label + ': ' + fmt(p.min) + ' (' + provenance + ')"></div>';
+      const provenance = p.observed ? '' : ' †';
+      return '<div class="phase-bar-seg" style="width:' + w + '%;background:var(' + p.var + ')" title="' + p.label + ': ' + fmt(p.min) + provenance + '" aria-label="' + p.label + ': ' + fmt(p.min) + provenance + '"></div>';
     }).join('') + '</div>';
 
     const auditBadge = g.audits.length > 0 ? ' <span class="audit-badge" title="' + g.audits.map(a => a.message).join('\\n').replace(/"/g, '&quot;') + '">audit</span>' : '';
@@ -764,8 +764,8 @@ window.addEventListener('resize', drawProgressChart);
     const deltaCell = g.screensDelta !== null && g.screensDelta !== undefined ? '+' + g.screensDelta : '-';
     const trClass = g.status === 'in-progress' ? ' class="in-progress"' : '';
 
-    const startCell = fmtDate(g.openTime) + (g.openTimeSource === 'open-commit' ? '' : ' (inferred)');
-    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td>' + g.name + auditBadge + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td><td>' + fmtTiming(g.goalSelectionMin, g.goalSelectionObserved) + '</td><td>' + fmtTiming(g.sliceSelectionMin || 0, g.sliceSelectionObserved) + '</td><td>' + fmtTiming(g.implementationMin, g.implementationObserved) + '</td><td>' + fmtTiming(g.verificationMin, g.verificationObserved) + '</td><td>' + bar + '</td></tr>';
+    const startCell = fmtDate(g.openTime) + (g.openTimeSource === 'open-commit' ? '' : ' †');
+    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td title="' + g.name.replace(/"/g, '&quot;') + '">' + g.name + auditBadge + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td><td>' + fmtTiming(g.goalSelectionMin, g.goalSelectionObserved) + '</td><td>' + fmtTiming(g.sliceSelectionMin || 0, g.sliceSelectionObserved) + '</td><td>' + fmtTiming(g.implementationMin, g.implementationObserved) + '</td><td>' + fmtTiming(g.verificationMin, g.verificationObserved) + '</td><td>' + bar + '</td></tr>';
   });
 
   html += '</tbody>';
