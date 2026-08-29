@@ -45,32 +45,43 @@ The orchestrator repeats without returning to the user between steps:
       If a goal is already queued, take it and skip to step 1e.
    b. Check the pipeline: run
       `node scripts/pipeline-candidates.mjs --ready-winner` and parse
-      its JSON output. If `winner` is non-null, write
-      `.cache/goal-context.json` with the winner's data (see
-      `.claude/agents/candidate-pipeline.md`, "What to report," for the
-      schema). Map `cappedForecast` to `forecastSteps` and summarize the
-      sessions as `forecastBasis`. Extract session names from the
-      sessions array.
+      its JSON output. If `winner` is non-null, continue to step 1d.
    c. If `winner` is null, run the `candidate-pipeline` workflow
       (`.claude/workflows/candidate-pipeline.js`) and wait for it to
-      finish. The workflow prepares all candidates (caps stale sessions,
-      traces witnesses, stores metadata). If the Workflow tool is not
-      available, spawn the candidate-pipeline agent
-      (`.claude/agents/candidate-pipeline.md`) to do the same preparation.
+      finish. If the Workflow tool is not available, spawn the
+      candidate-pipeline agent
+      (`.claude/agents/candidate-pipeline.md`) instead.
       When preparation finishes, rerun
       `node scripts/pipeline-candidates.mjs --ready-winner`. If `winner`
-      is now non-null, write `.cache/goal-context.json` as in step 1b.
-      If `winner` is still null after preparation, all candidates are
-      exhausted — stop the loop and notify the user.
-   d. Queue the proposed goal with
+      is now non-null, continue to step 1d. If `winner` is still null
+      after preparation, all candidates are exhausted — stop the loop
+      and notify the user.
+   d. Write `.cache/goal-context.json` from the winner's data:
+
+      ```json
+      {
+        "id":            "<winner.id>",
+        "boundary":      "<winner.boundary>",
+        "owners":        ["<winner.owners>"],
+        "forecastSteps": "<winner.cappedForecast>",
+        "forecastBasis": "Capped look-ahead at <winner.member>",
+        "sessions":      ["<winner.sessions[].session>"],
+        "witnesses":     [{"session": "...", "evidence": "..."}],
+        "detail":        "<winner.detail>"
+      }
+      ```
+
+      Map `cappedForecast` to `forecastSteps`. Summarize the capping
+      basis as `forecastBasis`. Extract session names from the sessions
+      array. Copy `witnesses` and `detail` from the winner's metadata.
+      Queue the proposed goal with
       `node scripts/goal-log.mjs queue-goal`.
    e. Open the goal with `node scripts/goal-log.mjs open-goal` (which
       captures the score the close will be measured against).
-   f. Unless step 1c ran the workflow, spawn a non-blocking background
-      agent to run the `candidate-pipeline` workflow
-      (`.claude/workflows/candidate-pipeline.js`). It caps stale
-      sessions, traces witnesses, and stores metadata for all pipeline
-      candidates while the goal's slices run.
+   f. Unless step 1c ran the candidate-pipeline, spawn a non-blocking
+      background agent to run the `candidate-pipeline` workflow
+      (`.claude/workflows/candidate-pipeline.js`) while the goal's
+      slices run.
 2. Spawn the slice-selector (`.claude/agents/slice-selector.md`) to
    identify the next slice, queue it with
    `node scripts/goal-log.mjs queue-slice`, and write
