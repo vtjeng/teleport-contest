@@ -78,7 +78,7 @@ const capStaleSessions = async (cappingEntries) => {
     agent(`
 Cap the look-ahead stretch for session "${entry.session}".
 
-Read \`.claude/agents/goal-selector.md\` step 3 for the capping method.
+Read \`.claude/agents/candidate-pipeline.md\` step 3 for the capping method.
 
 The session stops at boundary: "${entry.boundary}"
 
@@ -125,7 +125,7 @@ if (adv.needsWitness.length > 0) {
     const witnessWork = candidate.sessions.map(session => () => agent(`
 Trace the C-path witness for session "${session}" at its first stop.
 
-Read \`.claude/agents/goal-selector.md\` step 5 for the witness method.
+Read \`.claude/agents/candidate-pipeline.md\` step 5 for the witness method.
 
 The session stops at boundary: "${candidate.member}"
 
@@ -135,7 +135,7 @@ Return session name and a detailed evidence string describing the C path.
     witnessWork.push(() => agent(`
 Analyze the bounding property and size for a goal candidate.
 
-Read \`.claude/agents/goal-selector.md\` step 6 for the bounding-analysis method.
+Read \`.claude/agents/candidate-pipeline.md\` step 6 for the bounding-analysis method.
 
 Boundary: "${candidate.member}"
 

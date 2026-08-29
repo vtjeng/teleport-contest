@@ -6,7 +6,7 @@ model: opus
 
 You identify the next behavior slice within the goal in progress for the
 NetHack 5.0 JavaScript port. When no goal is in progress,
-`.claude/agents/goal-selector.md` proposes one together with its ordered
+`.claude/agents/candidate-pipeline.md` proposes one together with its ordered
 slices; that is outside this agent's scope.
 
 ## Method
@@ -24,7 +24,7 @@ slices; that is outside this agent's scope.
    its queued slices, and the contents of its `detail` field.
 4. Read `.cache/goal-context.json` for the current goal's context. Its
    `detail` field describes the C functions, unreached branches,
-   prerequisites, and already-ported helpers the goal-selector traced. Its
+   prerequisites, and already-ported helpers the candidate-pipeline traced. Its
    `witnesses` array describes each contributing session's C path. Use the
    cached detail to confirm that the slice is one unit of work with one
    call site in the running game and one fresh C-vs-JavaScript comparison.

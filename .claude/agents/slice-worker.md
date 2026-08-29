@@ -15,7 +15,7 @@ Read these sources:
   slice-selector
 - `.cache/goal-context.json` — the current goal's boundary, witnesses,
   and detail (C functions, unreached branches, session paths), written
-  by the goal-selector
+  by the candidate-pipeline
 - `node scripts/goal-log.mjs --current --detail` — the goal in progress
   and its ordered slices
 - `.agents/validation.md` — what validating this slice requires

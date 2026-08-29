@@ -12,8 +12,8 @@ scheduling".
 Implementation and review alternate inside one goal. Four agents share the
 work, each performing exactly one role.
 
-- The **goal-selector** (`.claude/agents/goal-selector.md`) proposes the
-  next goal without modifying files.
+- The **candidate-pipeline** (`.claude/agents/candidate-pipeline.md`)
+  prepares all pipeline candidates without modifying files.
 - The **slice-selector** (`.claude/agents/slice-selector.md`) identifies
   the next slice without modifying files.
 - The **worker** (`.claude/agents/slice-worker.md`) closes exactly one
@@ -47,7 +47,7 @@ The orchestrator repeats without returning to the user between steps:
       `node scripts/pipeline-candidates.mjs --ready-winner` and parse
       its JSON output. If `winner` is non-null, write
       `.cache/goal-context.json` with the winner's data (see
-      `.claude/agents/goal-selector.md`, "What to report," for the
+      `.claude/agents/candidate-pipeline.md`, "What to report," for the
       schema). Map `cappedForecast` to `forecastSteps` and summarize the
       sessions as `forecastBasis`. Extract session names from the
       sessions array. Continue to step 1d.
@@ -55,8 +55,8 @@ The orchestrator repeats without returning to the user between steps:
       (`.claude/workflows/candidate-pipeline.js`) and wait for it to
       finish. The workflow prepares all candidates (caps stale sessions,
       traces witnesses, stores metadata). If the Workflow tool is not
-      available, spawn the goal-selector agent
-      (`.claude/agents/goal-selector.md`) to do the same preparation.
+      available, spawn the candidate-pipeline agent
+      (`.claude/agents/candidate-pipeline.md`) to do the same preparation.
       When it returns, rerun
       `node scripts/pipeline-candidates.mjs --ready-winner`. If `winner`
       is now non-null, write `.cache/goal-context.json` as in step 1b
@@ -78,7 +78,7 @@ The orchestrator repeats without returning to the user between steps:
 
    Before spawning the slice-selector, verify that
    `.cache/goal-context.json` describes the current goal. The
-   goal-selector writes this file; update it only when it is missing or
+   candidate-pipeline writes this file; update it only when it is missing or
    describes a different goal.
 3. Spawn a worker for that slice. When the worker returns, establish
    what landed:

@@ -9,7 +9,7 @@ You are the orchestrator of the continuous-operation loop. Read
 slices. Spawn a fresh background subagent only at the step that calls for
 one: a `slice-worker` to take the next queued slice
 from queued to closed, a `slice-selector` when the goal in progress has no
-queued slice left, a `goal-selector` when no goal is queued. To prepare
+queued slice left, a `candidate-pipeline` when no goal is queued. To prepare
 pipeline candidates (cap stale sessions, trace witnesses, store metadata),
 use the `candidate-pipeline` workflow
 (`.claude/workflows/candidate-pipeline.js`). Spawn each agent by its

@@ -1,17 +1,17 @@
 ---
-name: goal-selector
-description: Proposes the next goal when the goal in progress closes. Reads and reports without making edits.
+name: candidate-pipeline
+description: Prepares all pipeline candidates (caps stale sessions, traces witnesses, stores metadata). Reads and reports without making edits.
 model: opus
 ---
 
-You propose the next goal for the NetHack 5.0 JavaScript port without editing
-or committing files. The orchestrator records your proposal with
-`node scripts/goal-log.mjs queue-goal`.
+You prepare pipeline candidates for the NetHack 5.0 JavaScript port without
+editing or committing files. The orchestrator spawns this agent as a fallback
+when the Workflow tool is not available to run the `candidate-pipeline`
+workflow (`.claude/workflows/candidate-pipeline.js`).
 
-The orchestrator runs this agent when no goal is in progress. The
-slice-selector (`.claude/agents/slice-selector.md`) divides the chosen goal
-into slices, so propose a goal whose boundary a reader can test and leave the
-slicing to that agent.
+Cap stale sessions, trace witnesses, and store metadata for all candidates so
+that `node scripts/pipeline-candidates.mjs --ready-winner` can find a ready
+winner.
 
 ## Method
 
