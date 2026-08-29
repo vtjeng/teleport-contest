@@ -5350,6 +5350,24 @@
       "status": "open",
       "from": "0132b6abb4f799386aea924b28c4cbb5e56267d9",
       "detail": "in_container: shop-floor billing via sellobj (C: 2629-2643), icebox age handling (C: 2644-2657), bag-of-holding explosion (C: 2658-2694), and obj_is_burning/snuff_lit (C: 2626-2627) are guarded fail-closed before freeinv. Require porting sellobj, age_is_relative, stop_timer, mbag_explodes, do_boh_explosion, obj_is_burning, and snuff_lit."
+    },
+    {
+      "id": "breakchestlock destroyit=true branch",
+      "area": null,
+      "category": "production",
+      "effort": "undecided",
+      "status": "open",
+      "from": "f518d1cffa2acbf86fa13534dd166a1b0bff6f6d",
+      "detail": "lock.c:167-193. Needs stolen_value() from steal.c, chest_shatter_msg() from lock.c, and the item-scatter loop. Currently guarded with throw in js/lock.js breakchestlock()."
+    },
+    {
+      "id": "forcelock blade path (picktyp=true)",
+      "area": null,
+      "category": "production",
+      "effort": "undecided",
+      "status": "open",
+      "from": "f518d1cffa2acbf86fa13534dd166a1b0bff6f6d",
+      "detail": "lock.c:230-245. When picktyp=true (blade weapon), the weapon can break on rn2(1000 - uwep->spe). Currently guarded with throw in js/lock.js forcelock()."
     }
   ],
   "areas": [

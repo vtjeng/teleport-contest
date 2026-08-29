@@ -70,7 +70,7 @@ import {
     UnsupportedAccessoryOnError, UnsupportedRingOnError,
     UnsupportedTakeOffError, UnsupportedWearError,
 } from './do_wear.js';
-import { doclose, doopen, reset_pick, UnsupportedLockError } from './lock.js';
+import { doclose, doforce, doopen, reset_pick, UnsupportedLockError } from './lock.js';
 import {
     attacktype,
     can_breathe,
@@ -2737,6 +2737,9 @@ async function doextcmd(key, state) {
     case 'dosave':
         // C ref: save.c dosave(), which always returns ECMD_OK.
         return await dosave(state);
+    case 'doforce':
+        // C ref: lock.c doforce(), which returns ECMD_OK or ECMD_TIME.
+        return await doforce(state);
     default:
         resetCommandVars(state);
         throw new UnsupportedHeroCommandBoundaryError(

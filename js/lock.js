@@ -9,6 +9,7 @@ import {
     AUTOUNLOCK_KICK,
     AUTOUNLOCK_UNTRAP,
     CONFUSION,
+    COST_BRKLCK,
     D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
@@ -26,6 +27,9 @@ import {
     M_AP_TYPE,
     OBJ_AT,
     OBJ_INVENT,
+    P_DAGGER,
+    P_FLAIL,
+    P_LANCE,
     PASSES_WALLS,
     STUNNED,
     TT_PIT,
@@ -47,16 +51,30 @@ import {
     same_remembered_glyph,
 } from './display.js';
 import { update_mapseen_for } from './dungeon.js';
+import { can_reach_floor, cant_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
 import { m_at } from './monst.js';
+import { wake_nearby } from './mon.js';
 import { nohands, verysmall } from './mondata.js';
 import { PM_ROGUE } from './monsters.js';
 import {
+    costly_alteration,
+    is_blade,
+    is_pick,
+    is_weptool,
+    objectType,
+} from './obj.js';
+import {
+    CHEST,
     CREDIT_CARD,
+    LARGE_BOX,
     LOCK_PICK,
+    ROCK_CLASS,
     SKELETON_KEY,
+    WEAPON_CLASS,
 } from './objects.js';
 import { closed_door } from './monmove.js';
+import { donameFresh, safe_qbuf, yname } from './objnam.js';
 import { container_at, doloot, encumber_msg } from './pickup.js';
 import { is_quest_artifact } from './questpgr.js';
 import { rn2, rnl } from './rng.js';
@@ -68,7 +86,6 @@ import {
 } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { block_point, recalc_block_point } from './vision.js';
-import { yname } from './objnam.js';
 
 // Thrown where lock.c reaches a branch this port has not ported.
 export class UnsupportedLockError extends Error {
@@ -116,6 +133,92 @@ export function maybe_reset_pick(container, state = game) {
         // obj.h:332 carried().
         : (!xlock.box || xlock.box.where !== OBJ_INVENT))
         reset_pick(state);
+}
+
+// C ref: lock.c breakchestlock() (162-212). Called after the hero forces a
+// chest lock open. When destroyit is false, the box is billed via
+// costly_alteration() and its lock flags are toggled. When destroyit is true,
+// the box is destroyed entirely and its contents scatter -- that path requires
+// stolen_value() and chest_shatter_msg(), both unported.
+//
+// Covered: the destroyit=false arm (costly_alteration, olocked/obroken/lknown).
+// Not covered: the destroyit=true arm (full destruction).
+function breakchestlock(box, destroyit, state = game) {
+    if (destroyit) {
+        throw new UnsupportedLockError(
+            'breakchestlock() destroyit=true (chest destruction)',
+        );
+    }
+    /* bill for the box but not for its contents */
+    const hideContents = box.cobj;
+    box.cobj = null;
+    costly_alteration(box, COST_BRKLCK, { state });
+    box.cobj = hideContents;
+    box.olocked = 0;
+    box.obroken = 1;
+    box.lknown = 1;
+}
+
+// C ref: lock.c forcelock() (216-256), the occupation callback that runs once
+// per turn while the hero forces a chest lock. It checks whether the box has
+// moved, enforces the 50-turn timeout, and rolls rn2(100) against the chance
+// computed in doforce(). On success it prints the message and calls
+// breakchestlock().
+//
+// Covered: the blunt-weapon path (picktyp=false) with wake_nearby(), the
+// rn2(100) chance roll, the success message, and breakchestlock(destroyit)
+// where destroyit = !picktyp && !rn2(3).
+//
+// Not covered: the blade path (picktyp=true) where the weapon can break on
+// rn2(1000-spe).
+async function forcelock(state = game) {
+    const xlock = xlockContext(state);
+    const u = state.u;
+
+    // lock.c:218-219. Box or hero moved.
+    if (xlock.box.ox !== u.ux || xlock.box.oy !== u.uy)
+        return (xlock.usedtime = 0);
+
+    // lock.c:221-226. 50-turn timeout or lost weapon/hands.
+    if (xlock.usedtime++ >= 50 || !state.uwep
+        || nohands(state.youmonst.data)) {
+        await ttyPline('You give up your attempt to force the lock.', state);
+        if (xlock.usedtime >= 50) /* you made the effort */
+            await exercise(
+                xlock.picktyp ? A_DEX : A_STR, true, state, { rn2 },
+                { encumberMessage: encumber_msg },
+            );
+        return (xlock.usedtime = 0);
+    }
+
+    // lock.c:228-240. Blade path: the weapon can break.
+    if (xlock.picktyp) {
+        throw new UnsupportedLockError(
+            'forcelock() blade path (picktyp=true)',
+        );
+    } else {
+        // lock.c:241-242. Blunt: wake nearby monsters due to hammering.
+        await wake_nearby({ state });
+    }
+
+    // lock.c:244-245. Still busy.
+    if (rn2(100) >= xlock.chance)
+        return 1;
+
+    // lock.c:247-254. Success.
+    await ttyPline('You succeed in forcing the lock.', state);
+    await exercise(
+        xlock.picktyp ? A_DEX : A_STR, true, state, { rn2 },
+        { encumberMessage: encumber_msg },
+    );
+    // breakchestlock() might destroy xlock.box; if so, xlock context will
+    // be cleared (delobj -> obfree -> maybe_reset_pick); but it might not,
+    // so explicitly clear that manually.
+    const destroyit = !xlock.picktyp && !rn2(3);
+    breakchestlock(xlock.box, destroyit, state);
+    reset_pick(state);
+
+    return 0;
 }
 
 // C ref: lock.c lock_action() (37-64). Returns a string describing the
@@ -473,6 +576,144 @@ export async function pick_lock(pick, rx, ry, container, state = game) {
     xlock.usedtime = 0;
     set_occupation(picklock, lock_action(state), 0, state);
     return PICKLOCK_DID_SOMETHING;
+}
+
+// C ref: lock.c u_have_forceable_weapon() (659-670). Pure: no RNG, no output,
+// no state change. Returns true when the hero wields a weapon that can #force
+// a lock. Weapons whose skill is in [P_DAGGER..P_LANCE] excluding P_FLAIL are
+// accepted; rocks (gray stones, etc.) are also accepted, but tools that are
+// not weptools and non-weapon-class items other than rocks are rejected.
+export function u_have_forceable_weapon(state = game) {
+    const uwep = state.uwep;
+    if (!uwep) return false;
+    if (uwep.oclass === WEAPON_CLASS || is_weptool(uwep, state)) {
+        const skill = objectType(uwep, state).oc_subtyp;
+        if (skill < P_DAGGER || skill === P_FLAIL || skill > P_LANCE)
+            return false;
+    } else if (uwep.oclass !== ROCK_CLASS) {
+        return false;
+    }
+    return true;
+}
+
+// C ref: obj.h Is_box() (195-196). True for chests and large boxes.
+function Is_box(obj) {
+    return obj.otyp === CHEST || obj.otyp === LARGE_BOX;
+}
+
+// C ref: lock.c doforce() (676-756), the #force command handler. Scans the
+// floor for locked boxes, prompts the hero with ynq(), and sets up the
+// forcelock() occupation.
+//
+// Covered: the uswallow guard, u_have_forceable_weapon() refusal with all
+// three message variants, can_reach_floor() refusal, the blunt-weapon path
+// (picktyp=false), the box-scan loop with already-broken/unlocked messages,
+// the ynq prompt, the "start bashing" message, and the set_occupation() tail.
+//
+// Not covered: the blade path (picktyp=true) is computed but reaches the same
+// set_occupation() call. The resume path (xlock.usedtime nonzero) is wired.
+export async function doforce(state = game) {
+    const u = state.u;
+
+    // lock.c:687-690.
+    if (u.uswallow) {
+        await ttyPline("You can't force anything from inside here.", state);
+        return ECMD_OK;
+    }
+    // lock.c:691-700.
+    if (!u_have_forceable_weapon(state)) {
+        const uwep = state.uwep;
+        const usePlural = uwep && uwep.quan > 1;
+        let adj;
+        if (!uwep) {
+            adj = 'when not wielding a';
+        } else if (uwep.oclass !== WEAPON_CLASS
+            && !is_weptool(uwep, state)) {
+            adj = usePlural ? 'without proper' : 'without a proper';
+        } else {
+            adj = usePlural ? 'with those' : 'with that';
+        }
+        await ttyPline(
+            `You can't force anything ${adj} weapon${usePlural ? 's' : ''}.`,
+            state,
+        );
+        return ECMD_OK;
+    }
+    // lock.c:702-704.
+    if (!can_reach_floor(true, state)) {
+        await cant_reach_floor(u.ux, u.uy, false, true, false, state, {
+            pline: ttyPline,
+        });
+        return ECMD_OK;
+    }
+
+    const xlock = xlockContext(state);
+    const uwep = state.uwep;
+    const picktyp = is_blade(uwep, state) && !is_pick(uwep, state) ? 1 : 0;
+
+    // lock.c:708-712. Resume an interrupted attempt.
+    if (xlock.usedtime && xlock.box && picktyp === xlock.picktyp) {
+        await ttyPline(
+            'You resume your attempt to force the lock.', state,
+        );
+        set_occupation(forcelock, 'forcing the lock', 0, state);
+        return ECMD_TIME;
+    }
+
+    // lock.c:715-748. Scan floor objects for a lockable box.
+    xlock.box = null;
+    const floorObjs = state.level?.objects?.[u.ux]?.[u.uy];
+    for (let otmp = floorObjs ?? null; otmp; otmp = otmp.nexthere) {
+        if (!Is_box(otmp)) continue;
+
+        if (otmp.obroken || !otmp.olocked) {
+            // lock.c:719-727. Already broken or unlocked.
+            otmp.lknown = 0;
+            await ttyPline(
+                `There is ${donameFresh(otmp, state)} here, but its lock`
+                + ` is already ${otmp.obroken ? 'broken' : 'unlocked'}.`,
+                state,
+            );
+            otmp.lknown = 1;
+            continue;
+        }
+
+        // lock.c:729-730.
+        const qbuf = safe_qbuf(
+            'There is ', ' here; force its lock?',
+            otmp, donameFresh, donameFresh, 'a box', state,
+        );
+        otmp.lknown = 1;
+
+        // lock.c:733-737.
+        const c = await ynq(qbuf, state);
+        if (c === 'q') return ECMD_OK;
+        if (c === 'n') continue;
+
+        // lock.c:739-748. Accepted.
+        if (picktyp)
+            await ttyPline(
+                `You force ${yname(uwep, state)} into a crack and pry.`,
+                state,
+            );
+        else
+            await ttyPline(
+                `You start bashing it with ${yname(uwep, state)}.`, state,
+            );
+        xlock.box = otmp;
+        xlock.chance = objectType(uwep, state).oc_wldam * 2;
+        xlock.picktyp = picktyp;
+        xlock.magic_key = false;
+        xlock.usedtime = 0;
+        break;
+    }
+
+    // lock.c:751-755.
+    if (xlock.box)
+        set_occupation(forcelock, 'forcing the lock', 0, state);
+    else
+        await ttyPline('You decide not to force the issue.', state);
+    return ECMD_TIME;
 }
 
 // C ref: lock.c:859-873, the switch that names a door doopen_indir() cannot

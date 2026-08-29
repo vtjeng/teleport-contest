@@ -28,7 +28,7 @@ import {
     STUNNED,
 } from './const.js';
 import { exercise_nonphysical } from './attrib.js';
-import { on_level } from './dungeon.js';
+import { on_level, surface } from './dungeon.js';
 import { game } from './gstate.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
 import { sticks } from './mondata.js';
@@ -378,6 +378,31 @@ export function can_reach_floor(checkPit = true, state = game) {
             return false;
     }
     return true;
+}
+
+// C ref: engrave.c cant_reach_floor() (217-228). Emits the refusal message
+// after the caller has already determined that can_reach_floor() is false.
+// The pline callback is injected so this module need not depend on the tty
+// display layer.
+export async function cant_reach_floor(
+    x, y, up, checkPit, wandEngraving, state = game, { pline } = {},
+) {
+    if (typeof pline !== 'function')
+        throw new TypeError('cant_reach_floor requires a pline callback');
+    const who = wandEngraving
+        ? 'The wand does nothing more, and the tip of the wand'
+        : 'You';
+    let what;
+    if (up) {
+        // ceiling() imported from dungeon.js is not needed in this port's
+        // callers yet; the only live call passes up=false.
+        throw new Error('cant_reach_floor up=true not ported');
+    } else {
+        what = (checkPit && can_reach_floor(false, state))
+            ? 'bottom of the pit'
+            : surface(x, y, state);
+    }
+    await pline(`${who} can't reach the ${what}.`, state);
 }
 
 // C ref: engrave.c freehand() (469-477). Answers whether the hero has a hand
