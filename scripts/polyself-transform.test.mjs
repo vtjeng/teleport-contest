@@ -396,11 +396,19 @@ test('dragon HP formula: 4*mlvl + d(mlvl,4) outside the endgame', () => {
     assert.equal(mdat.mlet, S_DRAGON);
     // PM_RED_DRAGON (146) >= PM_GRAY_DRAGON (138), so the dragon branch fires.
     assert.ok(PM_RED_DRAGON >= PM_GRAY_DRAGON);
-    // Outside the endgame: hp = 4*15 + d(15,4).
-    // With d(15,4)=43 from the session: hp = 60 + 43 = 103.
+
+    // Verify the production code's dragon branch guard matches.
+    // polyself.js:752: mdat.mlet === M.S_DRAGON && mntmp >= M.PM_GRAY_DRAGON
+    // The guard depends on mlet and the PM_ ordering, both pinned above.
+
+    // The formula is 4*mlvl + d(mlvl, 4) (polyself.c:860-861).
+    // d(15, 4) yields 15..60 (each of 15 dice rolls 1..4).
+    // So mhmax ranges from 4*15 + 15 = 75 to 4*15 + 60 = 120.
+    // The recipe polyself-dragon-hp-dropweapon.session.json verifies the
+    // full formula via differential (d(15,4)=43, mhmax=103).
     const mlvl = mdat.mlevel;
-    const hp_without_d = 4 * mlvl;
-    assert.equal(hp_without_d, 60);
-    // The full formula computes 4*mlvl + d(mlvl, 4); the d() call is
-    // random, so we verify the deterministic prefix.
+    assert.equal(4 * mlvl, 60,
+        'deterministic component 4*mlvl = 60 (polyself.c:861)');
+    assert.equal(mlvl, 15,
+        'd() uses mlvl=15 dice (polyself.c:861)');
 });

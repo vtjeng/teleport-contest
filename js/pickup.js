@@ -1467,15 +1467,12 @@ async function query_classes(action, objs, here, state) {
         // Single class: auto-select it (C: 166-168).
         result.selection =
             String.fromCharCode(def_char_to_objclass(iletArr[0]));
-        result.ok = true;
-        return result;
+    } else {
+        // More than one base choice: append fixed letters (C: 170-174).
+        iletArr.push(' ', 'a', 'A');
+        iletArr.push(objs === state.invent ? 'i' : ':');
     }
-
-    // More than one choice: build the prompt (C: 170-192).
-    iletArr.push(' ', 'a', 'A');
-    // objs == invent => 'i', otherwise ':' (viewing container contents).
-    iletArr.push(objs === state.invent ? 'i' : ':');
-    // 'm' for menu-on-demand.
+    // Filter characters appended regardless of iletct_base (C: 176-191).
     if (itemcount) iletArr.push('m');
     if (count_unpaid(objs) > 0) iletArr.push('u');
     const bucx = tally_BUCX(objs, here, state);
@@ -1487,7 +1484,8 @@ async function query_classes(action, objs, here, state) {
 
     const ilets = iletArr.join('');
 
-    // C: 194-260. Prompt loop.
+    // C: 194-260. Prompt loop — entered when iletct > 1.
+    if (iletArr.length > 1) {
     for (;;) {
         let oclasses = '';
         result.one_by_one = false;
@@ -1554,6 +1552,10 @@ async function query_classes(action, objs, here, state) {
             continue;
         }
     }
+    }
+    // C: 261. Return TRUE when selection is set (single class or prompt).
+    result.ok = true;
+    return result;
 }
 
 // ---------------------------------------------------------------
@@ -1776,12 +1778,14 @@ async function lift_object(obj, container, cnt_p, telekinesis, state) {
 // shop-floor billing (sellobj), icebox age handling, bag-of-holding
 // explosion (mbag_explodes/do_boh_explosion).
 async function in_container(obj, state) {
+    if (!state.gc.current_container) {
+        throw new Error('<in> no gc.current_container?');
+    }
+
     const floor_container = !carried(state.gc.current_container);
     const Icebox = state.gc.current_container.otyp === ICE_BOX;
 
-    if (!state.gc.current_container) {
-        throw new Error('<in> no gc.current_container?');
-    } else if (obj === state.uball || obj === state.uchain) {
+    if (obj === state.uball || obj === state.uchain) {
         await ttyPline('You must be kidding.', state);
         return 0;
     } else if (obj === state.gc.current_container) {
@@ -1890,7 +1894,7 @@ async function in_container(obj, state) {
 
     // Gold needs this, and freeinv() may cause the encumbrance to disappear
     // from the status, so always update immediately (C: 2710).
-    await bot({ state });
+    await bot();
     return state.gc.current_container ? 1 : -1;
 }
 
@@ -2120,8 +2124,9 @@ async function askchain(objchn, olets, allflag, fn, ckfn, mx, word, state) {
                 }
                 cnt += tmp;
                 if (mx > 0 && --mx === 0) return cnt;
-                break;
+                // C FALLTHROUGH to 'n' — dud counts items offered.
             }
+            // falls through
             case 'n':
                 if (nodot) dud++;
                 break;

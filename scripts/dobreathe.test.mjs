@@ -142,8 +142,9 @@ test('attacktype_fordmg returns the attack entry for a red dragon breath',
             'the returned entry has AT_BREA attack type');
         assert.equal(mattk.adtyp, AD_FIRE,
             'red dragon breath is AD_FIRE (monst.c red dragon entry)');
-        // damn (number of damage dice) is set by monst.c; the exact value
-        // comes from the source, not a runtime observation.
-        assert.equal(typeof mattk.damn, 'number',
-            'the returned entry carries the damage dice count');
+        // ATTK(AT_BREA, AD_FIRE, 6, 6) in monst.c red dragon entry.
+        assert.equal(mattk.damn, 6,
+            'red dragon breath uses 6 damage dice (monst.c)');
+        assert.equal(mattk.damd, 6,
+            'red dragon breath uses d6 (monst.c)');
     });

@@ -393,7 +393,7 @@ test("'i' puts an inventory item into an unlocked floor container",
             oclass: TOOL_CLASS,
             quan: 1,
             owt: 12,
-            invlet: 'z'.charCodeAt(0),
+            invlet: 'z',
             where: 3, /* OBJ_INVENT */
             nobj: null,
             nexthere: null,
@@ -429,11 +429,15 @@ test("'i' puts an inventory item into an unlocked floor container",
         state.uswapwep = null;
         state.uquiver = null;
 
-        // Answer 'i' to enter the put-in path. With a single inventory
-        // item of one class, query_classes auto-selects it (iletct_base=1,
-        // no getlin prompt). askchain then prompts "Put in: <item>? [ynaq]"
-        // for the single item (quan=1, so no uppercase 'N'). Answer 'y'.
+        // Answer 'i' to enter the put-in path. query_classes prompts
+        // "What kinds of thing do you want to stash? [)m]" even for a
+        // single class because 'm' makes iletct > 1 (C: 176-177).
+        // Answer 'a' (all) + Enter, then askchain prompts
+        // "Put in: <item>? [ynaq]" for the single item. Answer 'y'.
         state.nhDisplay.pushKey('i'.charCodeAt(0));
+        // getlin response: 'a' for all, then Enter.
+        state.nhDisplay.pushKey('a'.charCodeAt(0));
+        state.nhDisplay.pushKey('\r'.charCodeAt(0));
         // askchain prompt: 'y' to put in.
         state.nhDisplay.pushKey('y'.charCodeAt(0));
         // askchain prints "That was all." after the single item.
