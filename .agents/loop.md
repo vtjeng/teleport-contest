@@ -32,12 +32,12 @@ The orchestrator repeats without returning to the user between steps:
    - Goal in progress, a slice is in-progress: the worker may have been
      interrupted. Run `git log --oneline` and check
      `.cache/checkpoint-summary.json` to establish what it landed, then
-     continue from step 3's post-worker logic (measurement and push).
+     continue from step 4's post-worker logic (measurement and push).
    - Goal in progress, a queued slice exists: verify that
      `.cache/slice-context.json` describes the queued slice. If it
-     matches, start at step 3. If it is missing or describes a
-     different slice, start at step 2.
-   - Goal in progress, no queued or in-progress slices: start at step 2.
+     matches, start at step 4. If it is missing or describes a
+     different slice, start at step 3.
+   - Goal in progress, no queued or in-progress slices: start at step 3.
 
 1. When no goal is in progress, select the next goal.
 
@@ -78,11 +78,11 @@ The orchestrator repeats without returning to the user between steps:
       `node scripts/goal-log.mjs queue-goal`.
    e. Open the goal with `node scripts/goal-log.mjs open-goal` (which
       captures the score the close will be measured against).
-   f. Unless step 1c ran the candidate-pipeline, spawn a non-blocking
-      background agent to run the `candidate-pipeline` workflow
-      (`.claude/workflows/candidate-pipeline.js`) while the goal's
-      slices run.
-2. Spawn the slice-selector (`.claude/agents/slice-selector.md`) to
+2. Spawn a non-blocking background agent to run the
+   `candidate-pipeline` workflow
+   (`.claude/workflows/candidate-pipeline.js`). Do not wait for it to
+   finish.
+3. Spawn the slice-selector (`.claude/agents/slice-selector.md`) to
    identify the next slice, queue it with
    `node scripts/goal-log.mjs queue-slice`, and write
    `.cache/slice-context.json` for the worker.
@@ -91,7 +91,7 @@ The orchestrator repeats without returning to the user between steps:
    `.cache/goal-context.json` describes the current goal. The
    candidate-pipeline writes this file; update it only when it is missing or
    describes a different goal.
-3. Spawn a worker for that slice. When the worker returns, establish
+4. Spawn a worker for that slice. When the worker returns, establish
    what landed:
    `git log --oneline origin/main..HEAD` and `git status --short` for the
    unpushed commits and tree. The worker runs `npm run checkpoint` after
@@ -102,16 +102,16 @@ The orchestrator repeats without returning to the user between steps:
    commit you landed, then watch the CI run from a background task as
    `.agents/workflow.md`, "Pushing and CI", states.
 
-4. Run `npm run quality` yourself; no worker reports it. If the output
+5. Run `npm run quality` yourself; no worker reports it. If the output
    shows `DUE`, run the required review pass before continuing
    implementation. `.agents/review.md`, "When a correctness pass is due",
    defines the gate and the output format.
-5. When a slice closes, append its `SCORE.tsv` row as `.agents/scoring.md`
+6. When a slice closes, append its `SCORE.tsv` row as `.agents/scoring.md`
    requires, in the commit that records the closure in
-   `GOALS.json`. The row's `sha` and figures come from step 3's measurement.
-   Continue at step 2. When the last slice of the goal closes,
-   continue at step 6.
-6. When a goal closes, run the authorized holdout evaluation and record its
+   `GOALS.json`. The row's `sha` and figures come from step 4's measurement.
+   Continue at step 3. When the last slice of the goal closes,
+   continue at step 7.
+7. When a goal closes, run the authorized holdout evaluation and record its
    result with the goal's evidence. Resolve every open deferral the goal's
    commits closed, read from `npm run quality -- deferrals --area <id>` for
    the areas the goal touched; the rest stay open, and none becomes a
@@ -159,4 +159,4 @@ reason to stop.
 Under `/loop`, relay one report per worker iteration: the slice that
 closed, the development score before and after, any bug the worker hit, and
 which slice or goal the loop takes next. Every figure comes from your own
-measurement in step 3. Do not use figures the worker reports.
+measurement in step 4. Do not use figures the worker reports.
