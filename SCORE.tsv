@@ -473,3 +473,5 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-29	a142f79a	slice	13	33	2880	7765	162242	610816	2949	7765					polyself-dragon-hp-dropweapon closes. Development 2869→2880 of 7765 screens, 162241→162242 of 610816 rng. 13 of 33 sessions.
 2026-08-29	2f6aa6d6	slice	13	33	2881	7765	162242	610816	2950	7765					polyself-dobreathe closes. Development 2880→2881 of 7765 screens, 162242 of 610816 rng. 13 of 33 sessions.
 2026-08-29	3cf930fe	slice	13	33	2907	7765	162327	610816	2976	7765					polyself-mtimedone-countdown closes. Development 2881→2907 of 7765 screens, 162242→162327 of 610816 rng. 13 of 33 sessions.
+2026-08-29	3cf930fe	goal	13	33	2907	7765	162327	610816	2976	7765	229	3640	32830	182022	polyself closes. Development 2907 of 7765 screens, 162327 of 610816 rng. 13 of 33 sessions. Holdout 229/3640 screens, 32830/182022 rng.
+2026-08-29	b180372	goal	13	33	2907	7765	162327	610816	2976	7765	229	3640	32830	182022	polyself closes. Development 2907 of 7765 screens, 162327 of 610816 rng. 13 of 33 sessions. Holdout 229/3640 screens, 32830/182022 rng.

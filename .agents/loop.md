@@ -42,7 +42,7 @@ The orchestrator repeats without returning to the user between steps:
 1. When no goal is in progress, select the next goal.
 
    a. Check the queue: run `node scripts/goal-log.mjs --current --detail`.
-      If a goal is already queued, take it and skip to step 1d.
+      If a goal is already queued, take it and skip to step 1e.
    b. Check the pipeline: run
       `node scripts/pipeline-candidates.mjs --ready-winner` and parse
       its JSON output. If `winner` is non-null, write
@@ -50,23 +50,23 @@ The orchestrator repeats without returning to the user between steps:
       `.claude/agents/candidate-pipeline.md`, "What to report," for the
       schema). Map `cappedForecast` to `forecastSteps` and summarize the
       sessions as `forecastBasis`. Extract session names from the
-      sessions array. Continue to step 1d.
+      sessions array.
    c. If `winner` is null, run the `candidate-pipeline` workflow
       (`.claude/workflows/candidate-pipeline.js`) and wait for it to
       finish. The workflow prepares all candidates (caps stale sessions,
       traces witnesses, stores metadata). If the Workflow tool is not
       available, spawn the candidate-pipeline agent
       (`.claude/agents/candidate-pipeline.md`) to do the same preparation.
-      When it returns, rerun
+      When preparation finishes, rerun
       `node scripts/pipeline-candidates.mjs --ready-winner`. If `winner`
-      is now non-null, write `.cache/goal-context.json` as in step 1b
-      and continue to step 1d. If `winner` is still null after
-      preparation, all candidates are exhausted — stop the loop and
-      notify the user.
+      is now non-null, write `.cache/goal-context.json` as in step 1b.
+      If `winner` is still null after preparation, all candidates are
+      exhausted — stop the loop and notify the user.
    d. Queue the proposed goal with
-      `node scripts/goal-log.mjs queue-goal` and then `open-goal`
-      (which captures the score the close will be measured against).
-   e. Unless step 1c ran the workflow, spawn a non-blocking background
+      `node scripts/goal-log.mjs queue-goal`.
+   e. Open the goal with `node scripts/goal-log.mjs open-goal` (which
+      captures the score the close will be measured against).
+   f. Unless step 1c ran the workflow, spawn a non-blocking background
       agent to run the `candidate-pipeline` workflow
       (`.claude/workflows/candidate-pipeline.js`). It caps stale
       sessions, traces witnesses, and stores metadata for all pipeline
@@ -104,10 +104,8 @@ The orchestrator repeats without returning to the user between steps:
    Record in the goal entry either why the remaining slices outrank the
    census leader, or the split: close the delivered part and move each
    remaining obligation to the deferral ledger with
-   `npm run quality -- defer`. A sequence of slices whose queue entry
-   records that the development score will change within the next two
-   slices is exempt from the census rerun and forecast restatement. When
-   the last slice of the goal closes, continue at step 6.
+   `npm run quality -- defer`. When the last slice of the goal closes,
+   continue at step 6.
 6. When a goal closes, run the authorized holdout evaluation and record its
    result with the goal's evidence. Resolve every open deferral the goal's
    commits closed, read from `npm run quality -- deferrals --area <id>` for
