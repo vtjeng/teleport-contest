@@ -65,10 +65,10 @@ function readClosedGoalIds() {
 }
 
 function generateId(member, metadata) {
-    const existing = metadata?.[member]?.id;
-    if (existing) return existing;
-    const base = toKebab(member);
     const closed = readClosedGoalIds();
+    const existing = metadata?.[member]?.id;
+    if (existing && !closed.has(existing)) return existing;
+    const base = toKebab(member);
     if (!closed.has(base)) return base;
     for (let i = 2; i <= 100; i++) {
         const suffixed = `${base.slice(0, 56)}-${i}`;
