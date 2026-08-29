@@ -82,7 +82,9 @@ const scoreEvents = scoreLines.map(line => {
 
 // --- Build goal timeline from SCORE goal events ---
 
-const scoreGoals = scoreEvents.filter(e => e.event === 'goal');
+const rawScoreGoals = scoreEvents.filter(e => e.event === 'goal');
+const scoreGoals = rawScoreGoals.filter((sg, i) =>
+  i === rawScoreGoals.length - 1 || rawScoreGoals[i + 1].note !== sg.note);
 const scoreSlices = scoreEvents.filter(e => e.event === 'slice');
 
 const goals = [];
