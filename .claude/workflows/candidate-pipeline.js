@@ -1,64 +1,9 @@
 export const meta = {
   name: 'candidate-pipeline',
-  description: 'Prepare all pipeline candidates and select the next goal',
+  description: 'Prepare all pipeline candidates: cap stale sessions, trace witnesses, store metadata',
   phases: [
     { title: 'Prepare', detail: 'Cap stale sessions and trace witnesses for all candidates' },
-    { title: 'Inline', detail: 'Cap, witness, and select when the cache is cold' },
-    { title: 'Report', detail: 'Write goal-context.json', model: 'sonnet' },
   ],
-}
-
-const PIPELINE_RESULT_SCHEMA = {
-  type: 'object',
-  properties: {
-    winner: {
-      type: ['object', 'null'],
-      properties: {
-        member: { type: 'string' },
-        id: { type: 'string' },
-        cappedForecast: { type: 'number' },
-        sessions: { type: 'array' },
-        witnesses: { type: 'array' },
-        detail: { type: ['string', 'null'] },
-        owners: { type: ['array', 'null'] },
-        boundary: { type: ['string', 'null'] },
-      },
-      required: ['member', 'id', 'cappedForecast', 'sessions'],
-    },
-    topCandidate: {
-      type: ['object', 'null'],
-      properties: {
-        member: { type: 'string' },
-        id: { type: 'string' },
-        cappedForecast: { type: 'number' },
-        sessions: { type: 'array' },
-        witnesses: { type: 'array' },
-        detail: { type: ['string', 'null'] },
-        owners: { type: ['array', 'null'] },
-        boundary: { type: ['string', 'null'] },
-      },
-      required: ['member', 'id', 'cappedForecast', 'sessions'],
-    },
-  },
-  required: ['winner'],
-}
-
-const NEEDS_CAPPING_SCHEMA = {
-  type: 'object',
-  properties: {
-    needsCapping: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          session: { type: 'string' },
-          boundary: { type: 'string' },
-        },
-        required: ['session', 'boundary'],
-      },
-    },
-  },
-  required: ['needsCapping'],
 }
 
 const CAP_SCHEMA = {
@@ -124,22 +69,9 @@ const ADVANCE_SCHEMA = {
   required: ['total', 'ready', 'needsCapping', 'needsWitness'],
 }
 
-const REPORT_SCHEMA = {
-  type: 'object',
-  properties: {
-    winnerId: { type: 'string' },
-    winnerBoundary: { type: 'string' },
-    forecast: { type: 'number' },
-    sessions: { type: 'array', items: { type: 'string' } },
-    candidatesWritten: { type: 'boolean' },
-  },
-  required: ['winnerId', 'winnerBoundary', 'forecast', 'sessions',
-    'candidatesWritten'],
-}
+// ── Cap stale sessions ───────────────────────────────────────────────
 
-// ── Shared: cap stale sessions ────────────────────────────────────────
-
-const capStaleSessions = async (cappingEntries, phaseLabel) => {
+const capStaleSessions = async (cappingEntries) => {
   if (cappingEntries.length === 0) return
   log(`Capping ${cappingEntries.length} session(s)`)
   const capResults = await parallel(cappingEntries.map(entry => () =>
@@ -159,7 +91,7 @@ Persist the result:
 
 Return session, cappedStretch, reason, and persisted (true if --set-cap succeeded).
 Do NOT read C source files.
-`, { schema: CAP_SCHEMA, label: `cap:${entry.session}`, phase: phaseLabel, model: 'sonnet' })
+`, { schema: CAP_SCHEMA, label: `cap:${entry.session}`, phase: 'Prepare', model: 'sonnet' })
   ))
   for (let i = 0; i < cappingEntries.length; ++i) {
     const expected = cappingEntries[i].session
@@ -169,29 +101,28 @@ Do NOT read C source files.
   }
 }
 
-// ── Prepare mode: cap and witness all candidates ─────────────────────
+// ── Prepare: cap and witness all candidates ──────────────────────────
 
-if (args?.prepareOnly) {
-  phase('Prepare')
+phase('Prepare')
 
-  const adv = await agent(`
+const adv = await agent(`
 Run: \`node scripts/pipeline-candidates.mjs --needs-preparation\`
 Return the full JSON output.
 Do NOT read source files.
 `, { schema: ADVANCE_SCHEMA, label: 'advance-report', model: 'sonnet' })
 
-  if (adv.needsCapping.length === 0 && adv.needsWitness.length === 0) {
-    log(`All ${adv.ready} candidates are ready`)
-    return { prepared: true, ready: adv.ready, capped: 0, witnessed: 0 }
-  }
+if (adv.needsCapping.length === 0 && adv.needsWitness.length === 0) {
+  log(`All ${adv.ready} candidates are ready`)
+  return { prepared: true, ready: adv.ready, capped: 0, witnessed: 0 }
+}
 
-  await capStaleSessions(adv.needsCapping, 'Prepare')
+await capStaleSessions(adv.needsCapping)
 
-  let witnessed = 0
-  if (adv.needsWitness.length > 0) {
-    log(`Witnessing ${adv.needsWitness.length} candidate(s)`)
-    await pipeline(adv.needsWitness, async (candidate) => {
-      const witnessWork = candidate.sessions.map(session => () => agent(`
+let witnessed = 0
+if (adv.needsWitness.length > 0) {
+  log(`Witnessing ${adv.needsWitness.length} candidate(s)`)
+  await pipeline(adv.needsWitness, async (candidate) => {
+    const witnessWork = candidate.sessions.map(session => () => agent(`
 Trace the C-path witness for session "${session}" at its first stop.
 
 Read \`.claude/agents/goal-selector.md\` step 5 for the witness method.
@@ -201,7 +132,7 @@ The session stops at boundary: "${candidate.member}"
 Return session name and a detailed evidence string describing the C path.
 `, { schema: WITNESS_SCHEMA, label: `witness:${session}`, phase: 'Prepare', model: 'sonnet' }))
 
-      witnessWork.push(() => agent(`
+    witnessWork.push(() => agent(`
 Analyze the bounding property and size for a goal candidate.
 
 Read \`.claude/agents/goal-selector.md\` step 6 for the bounding-analysis method.
@@ -212,22 +143,22 @@ Return a boundary description, the C file owners array, and a detail string
 with traced findings.
 `, { schema: DETAIL_SCHEMA, label: `detail:${candidate.id}`, phase: 'Prepare', model: 'sonnet' }))
 
-      const results = (await parallel(witnessWork)).filter(Boolean)
+    const results = (await parallel(witnessWork)).filter(Boolean)
 
-      const witnesses = results
-        .filter(r => r.session)
-        .map(r => ({ session: r.session, evidence: r.evidence }))
-      const detailResult = results.find(r => r.detail)
+    const witnesses = results
+      .filter(r => r.session)
+      .map(r => ({ session: r.session, evidence: r.evidence }))
+    const detailResult = results.find(r => r.detail)
 
-      const metaPayload = JSON.stringify({
-        member: candidate.member,
-        id: candidate.id,
-        witnesses,
-        detail: detailResult?.detail ?? '',
-        owners: detailResult?.owners ?? [],
-        boundary: detailResult?.boundary ?? candidate.member,
-      }, null, 2)
-      await agent(`
+    const metaPayload = JSON.stringify({
+      member: candidate.member,
+      id: candidate.id,
+      witnesses,
+      detail: detailResult?.detail ?? '',
+      owners: detailResult?.owners ?? [],
+      boundary: detailResult?.boundary ?? candidate.member,
+    }, null, 2)
+    await agent(`
 Store candidate metadata by running this command:
 \`\`\`bash
 node scripts/pipeline-candidates.mjs --set-metadata << 'ENDJSON'
@@ -236,152 +167,14 @@ ENDJSON
 \`\`\`
 Return the JSON output.
 `, { label: `store:${candidate.id}`, phase: 'Prepare', model: 'sonnet' })
-      witnessed++
-    })
-  }
-
-  log(`Prepared: ${adv.needsCapping.length} capped, ${witnessed} witnessed`)
-  return {
-    prepared: true,
-    ready: adv.ready,
-    capped: adv.needsCapping.length,
-    witnessed,
-  }
+    witnessed++
+  })
 }
 
-// ── Inline: cap → reconcile → witness ────────────────────────────────
-// The orchestrator calls this workflow only after --ready-winner returned
-// null, so no queue or pipeline check here — go straight to inline work.
-
-phase('Inline')
-
-log('no witnessed candidate in cache, running inline preparation')
-
-const nc = await agent(`
-Run: \`node scripts/pipeline-candidates.mjs --needs-capping\`
-Return the needsCapping array from the output.
-Do NOT read source files.
-`, { schema: NEEDS_CAPPING_SCHEMA, label: 'needs-capping', model: 'sonnet' })
-
-await capStaleSessions(nc.needsCapping, 'Inline')
-
-const retry = await agent(`
-Run: \`node scripts/pipeline-candidates.mjs --ready-winner\`
-Return the full JSON: both "winner" and "topCandidate" fields.
-Do NOT read source files.
-`, { schema: PIPELINE_RESULT_SCHEMA, label: 'post-cap-check', model: 'sonnet' })
-
-let winner = retry.winner ?? retry.topCandidate
-
-if (!winner)
-  throw new Error('no candidate with nonzero forecast after inline capping')
-
-if (!winner.witnesses?.length || !winner.detail) {
-  log(`Winner "${winner.id}" needs witness tracing`)
-
-  const winnerSessions = winner.sessions.map(s =>
-    typeof s === 'string' ? s : s.session)
-  const witnessedSet = new Set(
-    (winner.witnesses ?? []).map(w => w.session))
-  const needWitness = winnerSessions.filter(s => !witnessedSet.has(s))
-
-  const witnessWork = needWitness.map(session => () => agent(`
-Trace the C-path witness for session "${session}" at its first stop.
-
-Read \`.claude/agents/goal-selector.md\` step 5 for the witness method.
-
-The session stops at boundary: "${winner.member}"
-
-Return session name and a detailed evidence string describing the C path.
-`, { schema: WITNESS_SCHEMA, label: `witness:${session}`, model: 'sonnet' }))
-
-  if (!winner.detail) {
-    witnessWork.push(() => agent(`
-Analyze the bounding property and size for a goal candidate.
-
-Read \`.claude/agents/goal-selector.md\` step 6 for the bounding-analysis method.
-
-Boundary: "${winner.member}"
-
-Return a boundary description, the C file owners array, and a detail string
-with traced findings.
-`, { schema: DETAIL_SCHEMA, label: 'bounding-analysis', model: 'sonnet' }))
-  }
-
-  const results = witnessWork.length > 0
-    ? (await parallel(witnessWork)).filter(Boolean)
-    : []
-
-  const allWitnesses = {}
-  for (const w of (winner.witnesses ?? [])) allWitnesses[w.session] = w.evidence
-  for (const r of results) {
-    if (r.session) allWitnesses[r.session] = r.evidence
-  }
-  winner.witnesses = Object.entries(allWitnesses)
-    .map(([session, evidence]) => ({ session, evidence }))
-  winner.detail = winner.detail
-    || results.find(r => r.detail)?.detail || ''
-  winner.owners = winner.owners
-    || results.find(r => r.owners)?.owners || []
-  winner.boundary = winner.boundary
-    || results.find(r => r.boundary)?.boundary || winner.member
-  const metaPayload = JSON.stringify({
-    member: winner.member,
-    id: winner.id,
-    witnesses: winner.witnesses,
-    detail: winner.detail,
-    owners: winner.owners,
-    boundary: winner.boundary,
-  }, null, 2)
-  await agent(`
-Store candidate metadata by running this command:
-\`\`\`bash
-node scripts/pipeline-candidates.mjs --set-metadata << 'ENDJSON'
-${metaPayload}
-ENDJSON
-\`\`\`
-Return the JSON output.
-`, { label: 'store-metadata', model: 'sonnet' })
+log(`Prepared: ${adv.needsCapping.length} capped, ${witnessed} witnessed`)
+return {
+  prepared: true,
+  ready: adv.ready,
+  capped: adv.needsCapping.length,
+  witnessed,
 }
-
-log(`Winner: "${winner.id}" (forecast ${winner.cappedForecast})`)
-
-// ── Phase 3: Report ───────────────────────────────────────────────────
-
-phase('Report')
-
-const winnerSessions = winner.sessions.map(s =>
-  typeof s === 'string' ? s : s.session)
-const witnessEntries = (winner.witnesses ?? [])
-  .map(w => `    {"session": ${JSON.stringify(w.session)}, "evidence": ${JSON.stringify(w.evidence)}}`)
-  .join(',\n')
-
-const report = await agent(`
-Write the goal context file and report the winning goal.
-
-Read .claude/agents/goal-selector.md "What to report" section for the JSON
-format of the entry to write to .cache/goal-context.json.
-
-Winner:
-  member: ${JSON.stringify(winner.member)}
-  id: ${JSON.stringify(winner.id)}
-  boundary: ${JSON.stringify(winner.boundary)}
-  owners: ${JSON.stringify(winner.owners)}
-  forecast: ${winner.cappedForecast}
-  sessions: ${JSON.stringify(winnerSessions)}
-  witnesses:
-${witnessEntries}
-  detail: ${JSON.stringify(winner.detail)}
-
-Steps:
-1. Read .claude/agents/goal-selector.md "What to report" for the JSON schema
-   (id, boundary, owners, forecastSteps, forecastBasis, sessions, witnesses,
-   detail).
-2. Write .cache/goal-context.json with the winner's entry as a single object.
-3. Return winnerId, winnerBoundary, forecast, sessions, and
-   candidatesWritten=true.
-
-Do NOT modify any game files. Only write to .cache/.
-`, { schema: REPORT_SCHEMA, label: 'report', model: 'sonnet' })
-
-return report

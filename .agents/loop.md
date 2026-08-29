@@ -52,22 +52,24 @@ The orchestrator repeats without returning to the user between steps:
       sessions as `forecastBasis`. Extract session names from the
       sessions array. Continue to step 1d.
    c. If `winner` is null, run the `candidate-pipeline` workflow
-      (`.claude/workflows/candidate-pipeline.js`). If the Workflow tool
-      is not available, spawn the goal-selector agent
-      (`.claude/agents/goal-selector.md`) instead. If the result
-      contains `exhausted: true`, stop the loop and notify the user.
-      The workflow writes `.cache/goal-context.json`. Continue to
-      step 1d.
+      (`.claude/workflows/candidate-pipeline.js`) and wait for it to
+      finish. If the Workflow tool is not available, spawn the
+      goal-selector agent (`.claude/agents/goal-selector.md`) instead.
+      The workflow prepares all candidates (caps stale sessions, traces
+      witnesses, stores metadata). When it returns, rerun
+      `node scripts/pipeline-candidates.mjs --ready-winner`. If `winner`
+      is now non-null, write `.cache/goal-context.json` as in step 1b
+      and continue to step 1d. If `winner` is still null after
+      preparation, all candidates are exhausted — stop the loop and
+      notify the user.
    d. Queue the proposed goal with
       `node scripts/goal-log.mjs queue-goal` and then `open-goal`
       (which captures the score the close will be measured against).
-   e. If step 1b found the winner (fast path), spawn a non-blocking
-      background agent to run the `candidate-pipeline` workflow
-      (`.claude/workflows/candidate-pipeline.js`) with
-      `{prepareOnly: true}`. It caps stale sessions, traces witnesses,
-      and stores metadata for all pipeline candidates while the goal's
-      slices run. If step 1c ran the workflow, skip this step — it
-      already prepared the candidates.
+   e. Unless step 1c ran the workflow, spawn a non-blocking background
+      agent to run the `candidate-pipeline` workflow
+      (`.claude/workflows/candidate-pipeline.js`). It caps stale
+      sessions, traces witnesses, and stores metadata for all pipeline
+      candidates while the goal's slices run.
 2. Spawn the slice-selector (`.claude/agents/slice-selector.md`) to
    identify the next slice, queue it with
    `node scripts/goal-log.mjs queue-slice`, and write
