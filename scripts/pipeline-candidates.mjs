@@ -11,7 +11,7 @@
  *   --ready-winner     print the top candidate with metadata, or null
  *   --needs-capping    list sessions with stale caps
  *   --status           print readiness summary
- *   --advance          report what needs capping and witnessing
+ *   --needs-preparation report what needs capping and witnessing
  *   --set-metadata     read JSON from stdin, store metadata for its member
  */
 
@@ -161,7 +161,7 @@ async function status() {
     }
 }
 
-async function advance() {
+async function needsPreparation() {
     const rows = await loadAnnotatedRows();
     const ranked = cappedRanking(rows);
     const metadata = readMetadata();
@@ -249,7 +249,7 @@ async function main(args) {
             + ' metadata or {"winner": null}'
             + '\n  --needs-capping    list sessions with stale caps'
             + '\n  --status           print readiness summary'
-            + '\n  --advance          report what needs capping'
+            + '\n  --needs-preparation report what needs capping'
             + ' and witnessing'
             + '\n  --set-metadata     read JSON from stdin, store'
             + ' metadata for its member',
@@ -259,13 +259,13 @@ async function main(args) {
 
     const modes = [
         '--ready-winner', '--needs-capping', '--status',
-        '--advance', '--set-metadata',
+        '--needs-preparation', '--set-metadata',
     ];
     const selected = modes.filter((m) => args.includes(m));
     if (selected.length === 0) {
         throw new Error(
             'specify one mode: --ready-winner, --needs-capping,'
-            + ' --status, --advance, or --set-metadata',
+            + ' --status, --needs-preparation, or --set-metadata',
         );
     }
     if (selected.length > 1) {
@@ -276,7 +276,7 @@ async function main(args) {
     case '--ready-winner': return readyWinner();
     case '--needs-capping': return needsCapping();
     case '--status': return status();
-    case '--advance': return advance();
+    case '--needs-preparation': return needsPreparation();
     case '--set-metadata': return setMetadata();
     }
 }

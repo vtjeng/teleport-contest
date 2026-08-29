@@ -1,6 +1,6 @@
 export const meta = {
-  name: 'goal-selector',
-  description: 'Select the next goal from the candidate pipeline',
+  name: 'candidate-pipeline',
+  description: 'Prepare all pipeline candidates and select the next goal',
   phases: [
     { title: 'Prepare', detail: 'Cap stale sessions and trace witnesses for all candidates' },
     { title: 'Pipeline', detail: 'Look up a ready candidate' },
@@ -188,7 +188,7 @@ if (args?.prepareOnly) {
   phase('Prepare')
 
   const adv = await agent(`
-Run: \`node scripts/pipeline-candidates.mjs --advance\`
+Run: \`node scripts/pipeline-candidates.mjs --needs-preparation\`
 Return the full JSON output.
 Do NOT read source files.
 `, { schema: ADVANCE_SCHEMA, label: 'advance-report', model: 'sonnet' })

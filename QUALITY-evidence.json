@@ -14835,8 +14835,8 @@
           "category": "tests"
         },
         {
-          "summary": "The goal-selector hardening has no executable workflow harness",
-          "trackedIn": "goal-selector-workflow-regression-tests",
+          "summary": "The candidate-pipeline hardening has no executable workflow harness",
+          "trackedIn": "candidate-pipeline-workflow-regression-tests",
           "category": "tests"
         },
         {

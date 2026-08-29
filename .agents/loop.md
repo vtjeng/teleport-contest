@@ -52,9 +52,10 @@ The orchestrator repeats without returning to the user between steps:
       and summarize the sessions as `forecastBasis`. Extract session
       names from the sessions array. Continue to step 1e.
    d. If `winner` is null and `topCandidate` is non-null, run the
-      `goal-selector` workflow (`.claude/workflows/goal-selector.js`)
-      for inline capping and witnessing. If the Workflow tool is not
-      available, spawn the goal-selector agent
+      `candidate-pipeline` workflow
+      (`.claude/workflows/candidate-pipeline.js`) for inline capping
+      and witnessing. If the Workflow tool is not available, spawn the
+      goal-selector agent
       (`.claude/agents/goal-selector.md`) instead. If the result
       contains `exhausted: true`, stop the loop and notify the user:
       all remaining candidates are blocked by session divergences and
@@ -65,8 +66,9 @@ The orchestrator repeats without returning to the user between steps:
    e. Queue the proposed goal with
       `node scripts/goal-log.mjs queue-goal` and then `open-goal`
       (which captures the score the close will be measured against).
-   f. Spawn a non-blocking background agent to run the `goal-selector`
-      workflow (`.claude/workflows/goal-selector.js`) with
+   f. Spawn a non-blocking background agent to run the
+      `candidate-pipeline` workflow
+      (`.claude/workflows/candidate-pipeline.js`) with
       `{prepareOnly: true}`. It caps stale sessions, traces witnesses,
       and stores metadata for all pipeline candidates while the goal's
       slices run.
