@@ -5365,7 +5365,7 @@
       "area": null,
       "category": "production",
       "effort": "undecided",
-      "status": "open",
+      "status": "closed",
       "from": "f518d1cffa2acbf86fa13534dd166a1b0bff6f6d",
       "detail": "lock.c:230-245. When picktyp=true (blade weapon), the weapon can break on rn2(1000 - uwep->spe). Currently guarded with throw in js/lock.js forcelock()."
     }

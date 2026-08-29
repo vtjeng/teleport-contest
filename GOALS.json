@@ -6126,7 +6126,7 @@
     },
     {
       "id": "force",
-      "status": "open",
+      "status": "closed",
       "boundary": "Dispatching the '#force' extended command reaches doextcmd()'s ef_funct switch in js/cmd.js, which has no 'doforce' case; every invocation falls to the default arm and throws UnsupportedHeroCommandBoundaryError.",
       "upstreamOwners": [],
       "forecast": null,
@@ -6149,8 +6149,11 @@
         "screens": 2909,
         "rng": 162622
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "ea0476311ba4980f482d0937087a374c3a210b7d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
