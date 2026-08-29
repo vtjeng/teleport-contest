@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { CHEST, ICE_BOX, LARGE_BOX } from '../js/objects.js';
-import { SELL_NORMAL } from '../js/const.js';
+import { BAG_OF_HOLDING, CHEST, ICE_BOX, LARGE_BOX } from '../js/objects.js';
+import { ECMD_TIME, SELL_NORMAL } from '../js/const.js';
 import {
     container_at,
     doloot,
@@ -292,3 +292,37 @@ test('viewing an empty container via : sets cknown and takes time',
 // object whose doname_with_price does not trigger the shop-pricing
 // boundary (OBJ_CONTAINED items fail assertPricedObjectNameable), so
 // the differential serves as its validation.
+
+test("'o' on an empty container prints empty message and sets cknown",
+    async () => {
+        const state = await heroOnCleanSquare();
+        const { ux, uy } = state.u;
+
+        // Place an empty, unlocked bag of holding under the hero.
+        // C ref: pickup.c:3137-3143.  The 'o' answer on an empty container
+        // prints the emptymsg, sets cknown=1, and counts as ECMD_TIME when
+        // cknown was initially false (the hero gained information).
+        placeFloorObjects(state, [
+            { otyp: BAG_OF_HOLDING, olocked: 0 },
+        ]);
+
+        clearTtyMessageWindow(state);
+
+        // 'o' attempts take-out on the empty bag.
+        // 'n' answers the directional loot question afterward.
+        state.nhDisplay.pushKey('o'.charCodeAt(0));
+        state.nhDisplay.pushKey(' '.charCodeAt(0)); // dismiss pending msg
+        state.nhDisplay.pushKey('n'.charCodeAt(0));
+
+        const result = await doloot(state);
+
+        const cobj = state.level.objects[ux][uy];
+        assert.equal(cobj.cknown, 1,
+            'cknown should be 1 after observing the bag is empty');
+        assert.equal(result, ECMD_TIME,
+            // ECMD_TIME because the hero learned the bag is empty.
+            'should return ECMD_TIME for discovering empty bag');
+        const toplines = state.nhDisplay?.toplines ?? '';
+        assert.ok(toplines.includes('is empty'),
+            `expected "is empty" in top line but got "${toplines}"`);
+    });

@@ -3,7 +3,9 @@
 // pickup.c encumber_msg(), pickup(), check_here(), query_objlist(),
 // all_but_uchain(), pickup_object(), the three corpse-handling helpers at
 // 272-313, doloot(), doloot_core(), container_at(), able_to_loot(),
-// mon_beside(), and do_loot_cont().
+// mon_beside(), do_loot_cont(), use_container(), traditional_loot(),
+// query_classes(), collect_obj_classes(), out_container(), lift_object(),
+// carry_count(), pickup_prinv(), container_gone(), ck_bag(), and delta_cwt().
 
 import {
     AUTOSELECT_SINGLE,
@@ -16,6 +18,7 @@ import {
     ECMD_OK,
     ECMD_TIME,
     EXT_ENCUMBER,
+    OVERLOADED,
     FEEL_COCKATRICE,
     FUMBLING,
     HAND,
@@ -29,6 +32,7 @@ import {
     LOST_NONE,
     MENU_TRADITIONAL,
     MOD_ENCUMBER,
+    OBJ_CONTAINED,
     OBJ_FLOOR,
     OBJ_MINVENT,
     PICK_ANY,
@@ -40,6 +44,7 @@ import {
     STUNNED,
     ROOM,
     SELL_NORMAL,
+    SORTLOOT_INVLET,
     CORR,
     W_WEP,
     is_pit,
@@ -52,9 +57,11 @@ import {
     u_at,
 } from './const.js';
 import { get_adjacent_loc, yn_function } from './cmd.js';
+import { def_char_to_objclass } from './drawing.js';
+import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
 import { container_contents } from './end.js';
 import { autokey } from './lock.js';
-import { flush_screen, newsym } from './display.js';
+import { bot, flush_screen, newsym } from './display.js';
 import { hliquid } from './do_name.js';
 import { ceiling } from './dungeon.js';
 import { can_reach_floor, freehand, read_engr_at } from './engrave.js';
@@ -69,35 +76,48 @@ import {
     weight_cap,
 } from './hack.js';
 import {
+    INVLET_BASIC,
+    NOINVSYM,
     addinv_runtime,
+    carrying,
+    count_unpaid,
     dfeature_at,
     look_here,
     money_cnt,
+    nxtobj,
     obj_extract_self,
     preflight_addinv_sequence,
     preflight_look_here,
     prinv,
+    sortloot,
     update_inventory,
+    xprname,
 } from './invent.js';
-import { is_rider, nohands, nolimbs, notake, touch_petrifies } from './mondata.js';
+import {
+    is_rider, nohands, nolimbs, notake, throws_rocks, touch_petrifies,
+} from './mondata.js';
 import { m_at } from './monst.js';
-import { hasContents, isContainer } from './obj.js';
+import {
+    carried, hasContents, isContainer, is_pick, splitobj, weight,
+} from './obj.js';
 import { observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
-    BAG_OF_HOLDING, BAG_OF_TRICKS, COIN_CLASS, CORPSE, LARGE_BOX,
-    SCR_SCARE_MONSTER,
+    BAG_OF_HOLDING, BAG_OF_TRICKS, BOULDER, COIN_CLASS, CORPSE, GOLD_PIECE,
+    LARGE_BOX, LOADSTONE, SCR_SCARE_MONSTER,
 } from './objects.js';
 import {
     Tobjnam, Yname2, Ysimple_name2, assertObjectNameable, donameFresh,
-    safe_qbuf, the, The, xnameFresh, yname, ysimple_name,
+    otense, safe_qbuf, the, The, xnameFresh, yname, ysimple_name,
 } from './objnam.js';
 import { body_part } from './polyself.js';
 import { costly_spot, sellobj_state } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { is_lava, is_pool, t_at } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
+import { getlin } from './windows.js';
+import { touch_artifact } from './artifacts.js';
 import { select_menu } from './windows.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
@@ -1067,11 +1087,17 @@ async function use_container(obj, held, more_containers, state) {
     }
 
     // Might put something in if carrying anything besides the container.
-    const inokay = Boolean(state.invent
+    let inokay = Boolean(state.invent
         && (state.invent !== state.gc.current_container
             || state.invent.nobj));
     // Might take something out if container is not empty.
     const outokay = hasContents(state.gc.current_container);
+    // C ref: pickup.c:3042-3045.  Preformat the empty-container message when
+    // the container has nothing inside.  quantum_cat and cursed_mbag have
+    // already thrown, so the "now " qualifier never applies here.
+    const emptymsg = !outokay
+        ? `${Ysimple_name2(state.gc.current_container, state)} is empty.`
+        : '';
     // The for(;;) prompt loop.
     let c;
     for (;;) {
@@ -1149,13 +1175,66 @@ async function use_container(obj, held, more_containers, state) {
     if (c === 'n' || c === 'q') {
         // goto containerdone
     } else {
-        // Item transfer paths: o, i, b, r, s.
-        throw new UnsupportedPickupError(
-            `use_container: item transfer '${c}'`,
-        );
+        // C ref: pickup.c:3131-3206.  Item transfer dispatch.
+        const loot_out = (c === 'o' || c === 'b' || c === 'r');
+        const loot_in  = (c === 'i' || c === 'b' || c === 'r');
+        const loot_in_first = (c === 'r');
+        const stash_one = (c === 's');
+
+        // out-only or out before in (C: 3137-3155)
+        if (loot_out && !loot_in_first) {
+            if (!hasContents(state.gc.current_container)) {
+                await ttyPline(emptymsg, state);
+                if (!state.gc.current_container.cknown)
+                    used = ECMD_TIME;
+                state.gc.current_container.cknown = 1;
+            } else {
+                add_valid_menu_class(0, state);
+                if (state.flags?.menu_style === MENU_TRADITIONAL) {
+                    used |= await traditional_loot(false, state);
+                } else {
+                    throw new UnsupportedPickupError(
+                        'use_container: menu_loot(0, false)',
+                    );
+                }
+                add_valid_menu_class(0, state);
+            }
+            // Recalculate inokay (C: 3153-3155).
+            inokay = Boolean(state.invent
+                && (state.invent !== state.gc.current_container
+                    || state.invent.nobj));
+        }
+
+        // C: 3157-3161.
+        if ((loot_in || stash_one) && !inokay) {
+            await ttyPline(
+                `You don't have anything${state.invent ? ' else' : ''} to `
+                + `${stash_one ? 'stash' : 'put in'}.`,
+                state,
+            );
+        }
+
+        // put-in and stash paths remain fail-closed (C: 3167-3186).
+        if (loot_in) {
+            throw new UnsupportedPickupError(
+                `use_container: loot_in '${c}'`,
+            );
+        } else if (stash_one) {
+            throw new UnsupportedPickupError(
+                'use_container: stash_one',
+            );
+        }
+
+        // out after in (C: 3192-3206)
+        if (loot_out && loot_in_first) {
+            // Unreachable: loot_in_first would have thrown above.
+            throw new UnsupportedPickupError(
+                'use_container: loot_in_first out-after-in',
+            );
+        }
     }
 
-    // containerdone:
+    // containerdone: (C: 3208-3222)
     if (used) {
         if (state.gc.current_container)
             state.gc.current_container.cknown = 1;
@@ -1183,6 +1262,735 @@ function ConfusionProp(state) {
 }
 function StunnedProp(state) {
     return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
+}
+
+// C ref: pickup.c:67-70.  Encumbrance feedback prefixes used by
+// lift_object() and pickup_prinv().
+const slightloadpfx = 'You have a little trouble';
+const moderateloadpfx = 'You have trouble';
+const nearloadpfx = 'You have much trouble';
+const overloadpfx = 'You have extreme difficulty';
+
+// ---------------------------------------------------------------
+// Menu class filter state
+// C ref: pickup.c:467-504. query_classes() writes these filters and
+// askchain() reads them through menu_class_present() and ckvalidcat().
+// ---------------------------------------------------------------
+
+// C ref: pickup.c:469-471. menu_class_present().
+function menu_class_present(c, state) {
+    return Boolean(c && state.gv?.valid_menu_classes?.includes(String(c)));
+}
+
+// C ref: pickup.c:475-504. add_valid_menu_class().
+function add_valid_menu_class(c, state) {
+    state.gv ??= {};
+    state.gc ??= {};
+    state.gb ??= {};
+    state.gs ??= {};
+    state.gp ??= {};
+    if (c === 0) {
+        state.gv.valid_menu_classes = '';
+        state.gc.class_filter = false;
+        state.gb.bucx_filter = false;
+        state.gs.shop_filter = false;
+        state.gp.picked_filter = false;
+    } else {
+        const ch = String(c);
+        if (!menu_class_present(c, state)) {
+            state.gv.valid_menu_classes =
+                (state.gv.valid_menu_classes ?? '') + ch;
+            if ('BUCX'.includes(ch)) {
+                state.gb.bucx_filter = true;
+            } else if (ch === 'P') {
+                state.gp.picked_filter = true;
+            } else if (ch === 'u') {
+                state.gs.shop_filter = true;
+            } else {
+                state.gc.class_filter = true;
+            }
+        }
+    }
+}
+
+// C ref: invent.c:2136-2139.  ckvalidcat() delegates to pickup.c
+// allow_category() (522-592).  For the take-out path the filter state is
+// set by query_classes(); askchain() checks it when bycat is true.
+function ckvalidcat(otmp, state) {
+    // allow_category(): if no filters are active, reject (the
+    // ParanoidAutoAll arm is not ported).
+    if (!state.gc?.class_filter && !state.gs?.shop_filter
+        && !state.gb?.bucx_filter && !state.gp?.picked_filter)
+        return false;
+    // Coins with an explicit class filter (C: 535-536).
+    if (otmp.oclass === COIN_CLASS && state.gc?.class_filter)
+        return (state.gv?.valid_menu_classes ?? '').includes(
+            String.fromCharCode(COIN_CLASS));
+    // BUC: class filter (C: 560-562).
+    if (state.gc?.class_filter
+        && !(state.gv?.valid_menu_classes ?? '').includes(
+            String.fromCharCode(otmp.oclass)))
+        return false;
+    // Unpaid filter (C: 565-567).
+    if (state.gs?.shop_filter && !otmp.unpaid
+        && !(hasContents(otmp) && count_unpaid(otmp.cobj) > 0))
+        return false;
+    // BUC filter (C: 569-586).
+    if (state.gb?.bucx_filter) {
+        let bucx;
+        if (otmp.oclass === COIN_CLASS) {
+            bucx = state.flags?.goldX ? 'X' : 'U';
+        } else {
+            bucx = !otmp.bknown ? 'X'
+                : otmp.blessed ? 'B'
+                    : otmp.cursed ? 'C'
+                        : 'U';
+        }
+        if (!(state.gv?.valid_menu_classes ?? '').includes(bucx))
+            return false;
+    }
+    // Picked filter (C: 588-589).
+    if (state.gp?.picked_filter && !otmp.pickup_prev)
+        return false;
+    return true;
+}
+
+// ---------------------------------------------------------------
+// collect_obj_classes / query_classes / tally_BUCX
+// ---------------------------------------------------------------
+
+// C ref: pickup.c:100-118. collect_obj_classes().
+function collect_obj_classes(objs, here, filter) {
+    const ilets = [];
+    let itemcount = 0;
+    let otmp = objs;
+    while (otmp) {
+        const c = String.fromCharCode(
+            DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + otmp.oclass]);
+        if (!ilets.includes(c) && (!filter || filter(otmp)))
+            ilets.push(c);
+        itemcount++;
+        otmp = here ? otmp.nexthere : otmp.nobj;
+    }
+    return { ilets, itemcount };
+}
+
+// C ref: invent.c:3580-3616. tally_BUCX().
+function tally_BUCX(list, by_nexthere, state) {
+    let bcnt = 0, ucnt = 0, ccnt = 0, xcnt = 0, ocnt = 0, jcnt = 0;
+    for (let obj = list; obj; obj = by_nexthere ? obj.nexthere : obj.nobj) {
+        // Role_if(PM_CLERIC) bknown assignment is not ported.
+        if (obj.pickup_prev) jcnt++;
+        if (obj.oclass === COIN_CLASS) {
+            if (state.flags?.goldX) xcnt++;
+            else ucnt++;
+            continue;
+        }
+        if (!obj.bknown) xcnt++;
+        else if (obj.blessed) bcnt++;
+        else if (obj.cursed) ccnt++;
+        else ucnt++;
+    }
+    return { bcnt, ucnt, ccnt, xcnt, ocnt, jcnt };
+}
+
+// C ref: pickup.c:140-261. query_classes().
+// Returns { ok, selection, one_by_one, allflag } where ok indicates
+// whether the caller should proceed with askchain().
+async function query_classes(action, objs, here, state) {
+    const result = { ok: false, selection: '', one_by_one: false,
+        allflag: false, menu_on_request: 0 };
+
+    const { ilets: iletArr, itemcount } =
+        collect_obj_classes(objs, here, null);
+    const iletct_base = iletArr.length;
+    if (iletct_base === 0)
+        return result;
+
+    if (iletct_base === 1) {
+        // Single class: auto-select it (C: 166-168).
+        result.selection =
+            String.fromCharCode(def_char_to_objclass(iletArr[0]));
+        result.ok = true;
+        return result;
+    }
+
+    // More than one choice: build the prompt (C: 170-192).
+    iletArr.push(' ', 'a', 'A');
+    // objs == invent => 'i', otherwise ':' (viewing container contents).
+    iletArr.push(objs === state.invent ? 'i' : ':');
+    // 'm' for menu-on-demand.
+    if (itemcount) iletArr.push('m');
+    if (count_unpaid(objs) > 0) iletArr.push('u');
+    const bucx = tally_BUCX(objs, here, state);
+    if (bucx.bcnt) iletArr.push('B');
+    if (bucx.ucnt) iletArr.push('U');
+    if (bucx.ccnt) iletArr.push('C');
+    if (bucx.xcnt) iletArr.push('X');
+    if (bucx.jcnt) iletArr.push('P');
+
+    const ilets = iletArr.join('');
+
+    // C: 194-260. Prompt loop.
+    for (;;) {
+        let oclasses = '';
+        result.one_by_one = false;
+        result.allflag = false;
+        let not_everything = false;
+        let filtered = false;
+        let m_seen = false;
+
+        const qbuf =
+            `What kinds of thing do you want to ${action}? [${ilets}]`;
+        const inbuf = await getlin(qbuf, state);
+        if (inbuf.startsWith('\x1b'))
+            return result;
+
+        let where_msg = null;
+        for (const sym of inbuf) {
+            if (sym === ' ') continue;
+            else if (sym === 'A') result.one_by_one = true;
+            else if (sym === 'a') result.allflag = true;
+            else if (sym === ':') {
+                // simple_look is not ported; ':' inside the container
+                // shows container contents in C.  Refuse for now.
+                throw new UnsupportedPickupError(
+                    'query_classes: simple_look (:)');
+            } else if (sym === 'i') {
+                // display_inventory inside query_classes.
+                throw new UnsupportedPickupError(
+                    'query_classes: display_inventory (i)');
+            } else if (sym === 'm') {
+                m_seen = true;
+            } else if ('uBUCXP'.includes(sym)) {
+                add_valid_menu_class(sym, state);
+                filtered = true;
+            } else {
+                const oc_of_sym = def_char_to_objclass(sym);
+                if (ilets.includes(sym)) {
+                    add_valid_menu_class(oc_of_sym, state);
+                    oclasses += String.fromCharCode(oc_of_sym);
+                } else {
+                    if (where_msg === null) {
+                        where_msg = action === 'pick up' ? 'here'
+                            : action === 'take out' ? 'inside' : '';
+                    }
+                    if (where_msg)
+                        await ttyPline(
+                            `There are no ${sym}'s ${where_msg}.`, state);
+                    else
+                        await ttyPline(`You have no ${sym}'s.`, state);
+                    not_everything = true;
+                }
+            }
+        }
+
+        if (m_seen) {
+            result.menu_on_request = -2;
+            return result;
+        } else if (result.one_by_one || result.allflag || oclasses.length
+            || filtered) {
+            result.selection = oclasses;
+            result.ok = !not_everything || oclasses.length;
+            return result;
+        } else {
+            // No valid input -- re-prompt (goto ask_again in C).
+            continue;
+        }
+    }
+}
+
+// ---------------------------------------------------------------
+// delta_cwt / carry_count / lift_object
+// ---------------------------------------------------------------
+
+// C ref: pickup.c:1544-1566. delta_cwt().
+// Calculates the change in a container's weight when obj is removed.
+// For a bag of holding, temporarily removes the object and recalculates.
+function delta_cwt(container, obj, state) {
+    if (container.otyp !== BAG_OF_HOLDING)
+        return obj.owt;
+    const owt = container.owt;
+    // Temporarily remove obj from container's content chain.
+    let prev = null;
+    for (let cur = container.cobj; cur; cur = cur.nobj) {
+        if (cur === obj) break;
+        prev = cur;
+    }
+    if (prev) prev.nobj = obj.nobj;
+    else container.cobj = obj.nobj;
+    const nwt = weight(container, { state });
+    // Restore the chain.
+    if (prev) prev.nobj = obj;
+    else container.cobj = obj;
+    return owt - nwt;
+}
+
+// C ref: pickup.c:1568-1701. carry_count().
+// Returns how many of obj can be picked up.  Writes wt_before and
+// wt_after through the returned object.
+function carry_count(obj, container, count, telekinesis, state) {
+    const adjust_wt = Boolean(container && carried(container));
+    const is_gold = obj.oclass === COIN_CLASS;
+    const savequan = obj.quan;
+    const saveowt = obj.owt;
+    const umoney = money_cnt(state.invent);
+    const iw_base = inv_weight(state) - 2 * (state.gw?.wc ?? 0);
+
+    let wt;
+    if (count !== savequan) {
+        obj.quan = count;
+        obj.owt = weight(obj, { state });
+    }
+    wt = iw_base + obj.owt;
+    if (adjust_wt)
+        wt -= delta_cwt(container, obj, state);
+    if (is_gold)
+        wt -= (pickupGoldWeight(umoney) + pickupGoldWeight(count)
+            - pickupGoldWeight(umoney + count));
+    if (count !== savequan) {
+        obj.quan = savequan;
+        obj.owt = saveowt;
+    }
+    const result = { wt_before: iw_base, wt_after: wt, count };
+
+    if (wt < 0)
+        return result;
+
+    // Determine how many we can lift (C: 1610-1657).
+    let iw = iw_base;
+    let qq;
+    if (is_gold) {
+        iw -= pickupGoldWeight(umoney);
+        if (!adjust_wt) {
+            qq = Math.trunc((-iw * 100) - (umoney + 50) - 1);
+        } else {
+            let oow = 0;
+            qq = 50 - ((umoney % 100) || 0) - 1;
+            if (qq < 0) qq += 100;
+            for (; qq <= count; qq += 100) {
+                obj.quan = qq;
+                obj.owt = pickupGoldWeight(qq);
+                let ow = pickupGoldWeight(umoney + qq);
+                ow -= delta_cwt(container, obj, state);
+                if (iw + ow >= 0) break;
+                oow = ow;
+            }
+            iw -= oow;
+            qq -= 100;
+        }
+        if (qq < 0) qq = 0;
+        else if (qq > count) qq = count;
+        wt = iw + pickupGoldWeight(umoney + qq);
+    } else if (count > 1 || count < obj.quan) {
+        for (qq = 1; qq <= count; qq++) {
+            obj.quan = qq;
+            let ow;
+            obj.owt = ow = weight(obj, { state });
+            if (adjust_wt)
+                ow -= delta_cwt(container, obj, state);
+            if (iw + ow >= 0) break;
+            wt = iw + ow;
+        }
+        qq--;
+    } else {
+        qq = 0;
+    }
+    obj.quan = savequan;
+    obj.owt = saveowt;
+
+    // C: 1661-1700.  Messages when qq < count.
+    if (qq < count) {
+        const obj_nambuf = donameFresh(obj, state);
+        const where_str = container
+            ? `in ${the(xnameFresh(container, state), state)}`
+            : 'lying here';
+        const verb = container ? 'carry'
+            : telekinesis ? 'acquire' : 'lift';
+        if (qq > 0) {
+            // "You can only carry some of the ..." -- not printed yet,
+            // but counted.
+            result.wt_after = wt;
+            result.count = qq;
+            return result;
+        }
+        // Cannot lift any (C: 1685-1700).
+        const where2 = container ? where_str : 'here';
+        let prefx1, prefx2, suffx;
+        if (state.invent || umoney) {
+            prefx1 = 'you cannot ';
+            prefx2 = '';
+            suffx = ' any more';
+        } else {
+            prefx1 = obj.quan === 1 ? 'it ' : 'even one ';
+            prefx2 = 'is too heavy for you to ';
+            suffx = '';
+        }
+        // "There are ... lying here, but you cannot lift any more."
+        // This is a pline(); the caller interprets cnt_p < 1 as failure.
+    }
+    result.wt_after = wt;
+    result.count = qq;
+    return result;
+}
+
+// C ref: pickup.c:1704-1794. lift_object().
+// Returns > 0 to lift, 0 to skip, < 0 to stop.
+async function lift_object(obj, container, cnt_p, telekinesis, state) {
+    if (obj.otyp === BOULDER && state.Sokoban) {
+        await ttyPline(
+            `You cannot get your ${body_part(HAND, state)} around this `
+            + `${xnameFresh(obj, state)}.`,
+            state,
+        );
+        return { result: -1, count: cnt_p };
+    }
+    // Loadstone and boulder-by-giant override (C: 1721-1734).
+    if (obj.otyp === LOADSTONE
+        || (obj.otyp === BOULDER && throws_rocks(state.youmonst?.data))) {
+        if (inv_cnt(false, state) < INVLET_BASIC || !carrying(obj.otyp, state))
+            return { result: 1, count: cnt_p };
+        await ttyPline(
+            `You are carrying too much stuff to pick up `
+            + `${obj.quan === 1 ? 'another' : 'more'} ${xnameFresh(obj, state)}.`,
+            state,
+        );
+        return { result: -1, count: cnt_p };
+    }
+
+    const cc = carry_count(obj, container, cnt_p, telekinesis, state);
+    let count = cc.count;
+
+    let result;
+    if (count < 1) {
+        result = -1;
+    } else if (obj.oclass !== COIN_CLASS
+        && inv_cnt(false, state) >= INVLET_BASIC) {
+        // Knapsack full (C: 1740-1753).
+        const goldHint = nxtobj(obj, GOLD_PIECE,
+            obj.where === OBJ_FLOOR);
+        await ttyPline(
+            `Your knapsack cannot accommodate any more items`
+            + `${goldHint ? ' (except gold)' : ''}.`,
+            state,
+        );
+        result = -1;
+    } else {
+        result = 1;
+        const prev_encumbr = Math.max(
+            near_capacity(state), state.flags?.pickup_burden ?? MOD_ENCUMBER);
+        const next_encumbr = calc_capacity(cc.wt_after - cc.wt_before, state);
+        if (next_encumbr > prev_encumbr) {
+            if (telekinesis) {
+                result = 0;
+            } else {
+                // Encumbrance prompt (C: 1764-1787).
+                const pfx = next_encumbr >= EXT_ENCUMBER ? overloadpfx
+                    : next_encumbr >= HVY_ENCUMBER ? nearloadpfx
+                        : next_encumbr >= MOD_ENCUMBER ? moderateloadpfx
+                            : slightloadpfx;
+                const savequan = obj.quan;
+                obj.quan = count;
+                const qbuf = `${pfx} `
+                    + `${!container ? 'lifting' : 'removing'} `
+                    + `${donameFresh(obj, state)}.  Continue?`;
+                obj.quan = savequan;
+                const sym = await yn_function(
+                    qbuf, 'ynq', 'n', false, state);
+                const ch = String.fromCharCode(sym);
+                if (ch === 'q') result = -1;
+                else if (ch === 'n') result = 0;
+                clearTtyMessageWindow(state);
+            }
+        }
+    }
+
+    if (obj.otyp === SCR_SCARE_MONSTER && result <= 0 && !container)
+        obj.spe = 0;
+    return { result, count };
+}
+
+// ---------------------------------------------------------------
+// out_container / pickup_prinv / container_gone / ck_bag
+// ---------------------------------------------------------------
+
+// C ref: pickup.c:2719-2723. ck_bag().
+function ck_bag(obj, state) {
+    return Boolean(state.gc?.current_container
+        && obj !== state.gc.current_container);
+}
+
+// C ref: pickup.c:2902-2908. container_gone().
+function container_gone(fn, state) {
+    return ((fn === out_container || fn === in_container_stub)
+        && !state.gc?.current_container);
+}
+
+// Stub for in_container (not yet ported).  Exists so container_gone() can
+// reference it without importing a real function.
+function in_container_stub() {
+    throw new UnsupportedPickupError('in_container()');
+}
+
+// C ref: pickup.c:1948-1972. pickup_prinv().
+async function pickup_prinv(otmp, count, verb, state) {
+    let pbuf = '';
+    const nearload = near_capacity(state);
+    let prefix = null;
+    if (nearload === (state.gp?.pickup_encumbrance ?? 0)) {
+        prefix = null;
+    } else {
+        prefix = nearload >= EXT_ENCUMBER ? overloadpfx
+            : nearload >= HVY_ENCUMBER ? nearloadpfx
+                : nearload >= MOD_ENCUMBER ? moderateloadpfx
+                    : nearload >= SLT_ENCUMBER ? slightloadpfx
+                        : null;
+        state.gp ??= {};
+        state.gp.pickup_encumbrance = nearload;
+    }
+    if (prefix)
+        pbuf = `${prefix} ${verb}`;
+    await prinv(pbuf || null, otmp, count, { state });
+}
+
+// C ref: pickup.c:2725-2777. out_container().
+// Returns: -1 to stop, 1 item was removed, 0 item was not removed.
+async function out_container(obj, state) {
+    if (!state.gc?.current_container) {
+        throw new Error('<out> no gc.current_container?');
+    }
+    const is_gold = obj.oclass === COIN_CLASS;
+    if (is_gold) {
+        obj.owt = weight(obj, { state });
+    }
+
+    if (obj.oartifact && !touch_artifact(obj, state.youmonst, { state }))
+        return 0;
+
+    if (fatal_corpse_mistake(obj, false, state))
+        return -1;
+
+    let count = obj.quan;
+    const lo = await lift_object(
+        obj, state.gc.current_container, count, false, state);
+    if (lo.result <= 0) return lo.result;
+    count = lo.count;
+
+    let otmp = obj;
+    if (obj.quan !== count && obj.otyp !== LOADSTONE)
+        otmp = splitobj(obj, count, { state });
+
+    // Remove the object from the container.
+    obj_extract_self(otmp, { state });
+    state.gc.current_container.owt =
+        weight(state.gc.current_container, { state });
+
+    // Icebox removal is not ported (age_is_relative, removed_from_icebox).
+    // Shop billing for floor containers is not ported (addtobill).
+    // pick_pick() shopkeeper feedback is not ported.
+
+    const result = await addinv_runtime(otmp, { state });
+    await pickup_prinv(result, count, 'removing', state);
+
+    if (is_gold) {
+        await bot();
+    }
+    return 1;
+}
+
+// ---------------------------------------------------------------
+// askchain
+// C ref: invent.c:2377-2541.
+// ---------------------------------------------------------------
+
+async function askchain(objchn, olets, allflag, fn, ckfn, mx, word, state) {
+    const take_out = (word === 'take out');
+    const put_in   = (word === 'put in');
+    const nodot    = (word === 'nodot' || word === 'drop'
+        || word === 'identify' || word === 'take out' || word === 'put in');
+    const ininv    = (objchn === 'invent'); // see caller convention below
+    const bycat    = menu_class_present('u', state)
+        || menu_class_present('B', state) || menu_class_present('U', state)
+        || menu_class_present('C', state) || menu_class_present('X', state)
+        || menu_class_present('P', state);
+
+    // C uses objchn as a pointer to the list head; we pass an accessor
+    // string ('invent' or 'cobj') and read the live head each iteration
+    // because the list can change under us (e.g., addinv moves items).
+    function getListHead() {
+        if (ininv) return state.invent;
+        return state.gc?.current_container?.cobj ?? null;
+    }
+
+    // sortloot() on the list (C: 2407-2408).
+    const sorted = sortloot(
+        getListHead(), SORTLOOT_INVLET, false, null, state);
+
+    let cnt = 0, dud = 0;
+    let first = true;
+    let oletIdx = 0; // index into olets string
+    const oletStr = olets ?? '';
+
+    // nextclass loop (C: 2416-2528).
+    for (;;) {
+        let ilet = 'a'.charCodeAt(0) - 1;
+        const listHead = getListHead();
+        if (listHead && listHead.oclass === COIN_CLASS)
+            ilet--;
+
+        // Walk sorted array, skip already-processed objects.
+        // C uses bypass bits; JS uses a Set of processed object identities.
+        const processed = new Set();
+
+        for (const entry of sorted) {
+            const otmp_candidate = entry.obj;
+            if (processed.has(otmp_candidate)) continue;
+            // Verify the object is still in the list.
+            let found = false;
+            for (let cur = getListHead(); cur; cur = cur.nobj) {
+                if (cur === otmp_candidate) { found = true; break; }
+            }
+            if (!found) continue;
+
+            processed.add(otmp_candidate);
+            let otmp = otmp_candidate;
+
+            if (ilet === 'z'.charCodeAt(0))
+                ilet = 'A'.charCodeAt(0);
+            else if (ilet === 'Z'.charCodeAt(0))
+                ilet = NOINVSYM.charCodeAt(0);
+            else
+                ilet++;
+
+            // Class filter (C: 2440-2441).
+            if (oletStr.length > 0 && oletIdx < oletStr.length
+                && otmp.oclass !== oletStr.charCodeAt(oletIdx))
+                continue;
+            // Takeoff/identify filters are not relevant for take-out.
+            // ckfn filter (C: 2446-2447).
+            if (ckfn && !ckfn(otmp, state))
+                continue;
+            // BUC/category filter (C: 2448-2449).
+            if (bycat && !ckvalidcat(otmp, state))
+                continue;
+
+            let sym;
+            if (!allflag) {
+                // Build prompt (C: 2450-2470).
+                let qpfx = '';
+                if (first) {
+                    if (take_out || put_in) {
+                        qpfx = word.charAt(0).toUpperCase()
+                            + word.slice(1) + ': ';
+                    }
+                    first = false;
+                }
+                const namefn = ininv
+                    ? (o) => xprname(
+                        o, null, String.fromCharCode(ilet), !nodot,
+                        0, 0, state)
+                    : (o) => donameFresh(o, state);
+                const qbuf = safe_qbuf(
+                    qpfx, '?', otmp, namefn,
+                    (o) => donameFresh(o, state), 'item', state);
+                // Prompt: yn with possible count ('#') (C: 2467-2470).
+                const resp = await yn_function(
+                    qbuf,
+                    otmp.quan < 2 ? 'ynaq' : 'ynNaq',
+                    'n', false, state,
+                );
+                sym = String.fromCharCode(resp);
+            } else {
+                sym = 'y';
+            }
+
+            const otmpo = otmp;
+            if (sym === '#') {
+                // Count entry not ported for this slice.
+                throw new UnsupportedPickupError(
+                    'askchain: count (#) entry');
+            }
+
+            switch (sym) {
+            case 'a':
+                allflag = 1;
+                // fall through
+            case 'y': {
+                const tmp = await fn(otmp, state);
+                if (tmp <= 0) {
+                    if (container_gone(fn, state)) {
+                        otmp = null;
+                    } else if (otmp && otmp !== otmpo) {
+                        // splitobj happened but action rejected; unsplitobj
+                        // is not ported for this path.
+                    }
+                    if (tmp < 0) {
+                        // goto ret
+                        return cnt;
+                    }
+                }
+                cnt += tmp;
+                if (mx > 0 && --mx === 0) return cnt;
+                break;
+            }
+            case 'n':
+                if (nodot) dud++;
+                break;
+            case 'q':
+                return cnt;
+            default:
+                break;
+            }
+        }
+
+        // Advance to next class letter (C: 2527-2528).
+        if (oletStr.length > 0 && oletIdx < oletStr.length) {
+            oletIdx++;
+            if (oletIdx < oletStr.length) continue;
+        }
+        break;
+    }
+
+    if (dud || cnt)
+        await ttyPline('That was all.', state);
+    else if (!dud && !cnt)
+        await ttyPline('No applicable objects.', state);
+
+    return cnt;
+}
+
+// ---------------------------------------------------------------
+// traditional_loot
+// C ref: pickup.c:3228-3261.
+// ---------------------------------------------------------------
+
+async function traditional_loot(put_in, state) {
+    if (put_in) {
+        throw new UnsupportedPickupError(
+            'traditional_loot: put_in (in_container)');
+    }
+
+    const action = 'take out';
+    // objlist for take-out is current_container->cobj.
+    // askchain receives 'cobj' as the accessor key.
+    const actionfunc = out_container;
+    const checkfunc = null;
+    state.gp ??= {};
+    state.gp.pickup_encumbrance = 0;
+
+    const qc = await query_classes(
+        action, state.gc.current_container.cobj, false, state);
+    if (qc.ok) {
+        const olets = qc.one_by_one ? null : (qc.selection || null);
+        const cnt = await askchain(
+            'cobj', olets, qc.allflag ? 1 : 0,
+            actionfunc, checkfunc, 0, action, state);
+        if (cnt) return ECMD_TIME;
+    } else if (qc.menu_on_request < 0) {
+        throw new UnsupportedPickupError(
+            'traditional_loot: menu_loot(menu_on_request, false)');
+    }
+    return ECMD_OK;
 }
 
 // C ref: pickup.c doloot_core() (2178-2346). The main body of the #loot
