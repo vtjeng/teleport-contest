@@ -537,27 +537,17 @@ test('Storeroom scripts class selection and preserves pre-override mimic metadat
     assert.equal(mimic.mextra.mcorpsenm, AM_CHAOTIC);
 });
 
-test('automatic mimic setup accepts only ordinary and themed room types', () => {
-    for (const roomType of [OROOM, THEMEROOM]) {
+test('automatic mimic setup handles all room types', () => {
+    for (const roomType of [OROOM, THEMEROOM, COURT]) {
         const { level, room, state } = monsterDescriptorFixture();
         level.rooms[0] = { ...room, rtype: roomType };
         const mimic = create_monster({
             class: S_MIMIC,
             appearAs: { type: M_AP_OBJECT, id: CHEST },
         }, room, { state, random: quietObjectRandom() });
-        assert.ok(mimic, `${roomType}`);
-        assert.equal(mimic.mappearance, CHEST);
+        assert.ok(mimic, `room type ${roomType}`);
+        assert.equal(mimic.mappearance, CHEST, `room type ${roomType}`);
     }
-
-    const { level, room, state } = monsterDescriptorFixture();
-    level.rooms[0] = { ...room, rtype: COURT };
-    assert.throws(
-        () => create_monster({
-            class: S_MIMIC,
-            appearAs: { type: M_AP_OBJECT, id: CHEST },
-        }, room, { state, random: quietObjectRandom() }),
-        /mimic room type/u,
-    );
 });
 
 test('unsupported appearance pairs fail before hooks, RNG, or level mutation', () => {

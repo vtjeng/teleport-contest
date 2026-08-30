@@ -19,6 +19,7 @@ import {
     BOLT_LIM,
     COLNO,
     CROSSWALL,
+    DELPHI,
     DOOR,
     FODDERSHOP,
     G_GENOD,
@@ -29,6 +30,7 @@ import {
     I_SPECIAL,
     In_endgame,
     In_quest,
+    In_mines,
     In_sokoban,
     In_V_tower,
     IS_LAVA,
@@ -81,11 +83,13 @@ import {
     STRAT_CLOSE,
     STRAT_WAITFORU,
     TDWALL,
+    TEMPLE,
     TLCORNER,
     TRWALL,
     TUWALL,
     THEMEROOM,
     TRAPDOOR,
+    VAULT,
     W_AMUL,
     W_ARM,
     W_ARMC,
@@ -96,6 +100,7 @@ import {
     W_ARMU,
     W_SADDLE,
     IS_WALL,
+    ZOO,
     xdir,
     ydir,
 } from './const.js';
@@ -493,6 +498,7 @@ import { get_shop_item } from './shknam.js';
 import {
     S_altar,
     S_dnstair,
+    S_fountain,
     S_grave,
     S_hcdoor,
     S_hwall,
@@ -909,8 +915,9 @@ function hideunder(monster, state) {
     return hidden;
 }
 
-// C ref: makemon.c set_mimic_sym(), restricted to the ordinary and themed
-// initial-room arms and the `rt >= SHOPBASE` shop arm.
+// C ref: makemon.c set_mimic_sym(). Covers all location-based branches:
+// objects on floor, doors/walls, maze levels, corridors, ZOO/VAULT, DELPHI,
+// TEMPLE, shops, and ordinary/themed rooms.
 // The descriptor which requested the Storeroom mimic overwrites m_ap_type and
 // mappearance only. All RNG, temporary-object allocation, fruit state, and any
 // mcorpsenm overlay established here remain intact.
@@ -943,16 +950,39 @@ export function set_mimic_sym(monster, normalized) {
         appearance = isRogueLevel(state)
             ? horizontal ? S_hwall : S_vwall
             : horizontal ? S_hcdoor : S_vcdoor;
+    } else if (state.level.flags.is_maze_lev
+               // C also checks !(In_mines && in_town); in_town is unported,
+               // and no maze level contains a town, so the check is inert.
+               && !In_sokoban(state.u.uz) && random.rn2(2)) {
+        appearanceType = M_AP_OBJECT;
+        appearance = STATUE;
     } else {
         const roomIndex = (state.level.at(x, y)?.roomno ?? 0) - ROOMOFFSET;
         const roomType = roomIndex >= 0
             ? state.level.rooms?.[roomIndex]?.rtype ?? 0
-            : null;
+            : 0;
         // C's s_sym. The two shop arms that set ap_type and appear straight
         // from the shop's stock leave it undefined, which is how this port
         // spells C's two `goto assign_sym` jumps being skipped.
         let symbol;
-        if (roomType >= SHOPBASE) {
+        if (roomIndex < 0 && !t_at(x, y, state)) {
+            appearanceType = M_AP_OBJECT;
+            appearance = BOULDER;
+        } else if (roomType === ZOO || roomType === VAULT) {
+            appearanceType = M_AP_OBJECT;
+            appearance = GOLD_PIECE;
+        } else if (roomType === DELPHI) {
+            if (random.rn2(2)) {
+                appearanceType = M_AP_OBJECT;
+                appearance = STATUE;
+            } else {
+                appearanceType = M_AP_FURNITURE;
+                appearance = S_fountain;
+            }
+        } else if (roomType === TEMPLE) {
+            appearanceType = M_AP_FURNITURE;
+            appearance = S_altar;
+        } else if (roomType >= SHOPBASE) {
             // C ref: makemon.c:2467-2486. Deeper shops disguise their mimics
             // as stock more often: the strange object wins on rn2(10) >= 2 at
             // depth two, so four shop mimics in five are one.
@@ -1002,10 +1032,6 @@ export function set_mimic_sym(monster, normalized) {
                         : stock;
                 }
             }
-        } else if (roomType !== OROOM && roomType !== THEMEROOM) {
-            throw new UnsupportedMonsterCreationError(
-                `mimic room type ${roomType ?? 'none'}`,
-            );
         } else {
             symbol = MIMIC_SYMBOLS[random.rn2(MIMIC_SYMBOLS.length)];
         }

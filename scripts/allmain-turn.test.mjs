@@ -2044,64 +2044,6 @@ test('a planned finished meal refreshes no status line', async () => {
     assert.equal(game.u.uprops[WOUNDED_LEGS].intrinsic, 0);
 });
 
-// The cloned round reaches makemon() through maybe_generate_rnd_mon(), so
-// UnsupportedMonsterCreationError is one of the classes it can raise. Unlike
-// the boundary classes, js/jsmain.js does not break the segment for it, so a
-// conversion that misses it discards every matching screen the segment had
-// already produced instead of stopping on the last one.
-test('a refused planned monster becomes a turn boundary, not a hard failure',
-    async () => {
-        const replay = await runSegment({
-            // First qualifying seed in an independently selected fresh scan.
-            // The shortened unburdened plan enters rn2(25), selects a mimic,
-            // and reaches the still-unported roomless set_mimic_sym() arm
-            // before live birth.
-            seed: 2026123986,
-            datetime: '20260804120000',
-            nethackrc: 'OPTIONS=name:PlannedMimic,role:Healer,race:human,'
-                + 'gender:female,align:neutral,!legacy,!tutorial,'
-                + '!splash_screen,pettype:none,!acoustics',
-            moves: '',
-        });
-        for (const column of game.level.monsters) column.fill(null);
-        game.level.monlist = null;
-        game.level.regions = [];
-        game.head_engr = null;
-        assert.equal(projected_capacity(game), 0);
-        // Keep the generated D:1 map and topology coherent.  A returning
-        // demigod carrying the Amulet raises the generation cadence while
-        // level difficulty one keeps the random reservoir at difficulty 8,
-        // where this draw selects a small mimic.
-        game.u.ulevel = 15;
-        game.u.uevent.udemigod = true;
-        game.u.uhave.amulet = true;
-        game.context.seer_turn = 100000;
-        game.context.next_attrib_check = 100000;
-        game.u.umovement = 0;
-        game.context.move = 1;
-        game.nhDisplay.pushKey('.'.charCodeAt(0));
-
-        const before = completeSecondTurnSnapshot(game, replay);
-        const beforeRng = getRngLog().length;
-        for (let attempt = 0; attempt < 3; ++attempt) {
-            game.context.move = 1;
-            await assert.rejects(
-                () => moveloop_core(),
-                (error) => (
-                    error instanceof UnsupportedTurnBoundaryError
-                    && /mimic room type none/u.test(error.message)
-                ),
-                `rejects attempt ${attempt}`,
-            );
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, replay),
-                before,
-                `snapshot attempt ${attempt}`,
-            );
-            assert.equal(getRngLog().length, beforeRng, `rng attempt ${attempt}`);
-        }
-    });
-
 test('a planned blocking mimic birth restores live vision on every exit',
     async () => {
         for (const refuseAfterConsumer of [false, true]) {
