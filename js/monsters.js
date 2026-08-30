@@ -164,6 +164,7 @@ export const MS_SHRIEK = 18;
 export const MS_LEADER = 36;
 export const MS_NEMESIS = 37;
 export const MS_GUARDIAN = 38;
+export const MS_PRIEST = 41;
 export const MR_FIRE = 1;
 export const MR_COLD = 2;
 export const MR_SLEEP = 4;

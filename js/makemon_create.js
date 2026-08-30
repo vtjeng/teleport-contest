@@ -33,6 +33,7 @@ import {
     In_V_tower,
     IS_LAVA,
     IS_POOL,
+    Is_earthlevel,
     Is_knox_level,
     Is_stronghold,
     isok,
@@ -176,6 +177,7 @@ import {
     MS_GUARDIAN,
     MS_LEADER,
     MS_NEMESIS,
+    MS_PRIEST,
     MZ_MEDIUM,
     MZ_SMALL,
     NON_PM,
@@ -193,11 +195,13 @@ import {
     PM_CHAMELEON,
     PM_CHICKATRICE,
     PM_CHIEFTAIN,
+    PM_CLERIC,
     PM_COCKATRICE,
     PM_DEMILICH,
     PM_DWARF_RULER,
     PM_DJINNI,
     PM_ELF,
+    PM_ELVEN_MONARCH,
     PM_ETTIN,
     PM_FOG_CLOUD,
     PM_FOX,
@@ -236,6 +240,7 @@ import {
     PM_SMALL_MIMIC,
     PM_NEANDERTHAL,
     PM_NEWT,
+    PM_NINJA,
     PM_NURSE,
     PM_ORC,
     PM_ORC_CAPTAIN,
@@ -305,6 +310,7 @@ import {
 import {
     ARM_BONUS,
     WrappingAllowed,
+    curseFreeObject,
     mkobj,
     mkobj_at,
     mksobj,
@@ -340,6 +346,7 @@ import {
     COIN_CLASS,
     CORPSE,
     CROSSBOW,
+    CRYSTAL_BALL,
     CROSSBOW_BOLT,
     DAGGER,
     DART,
@@ -392,6 +399,7 @@ import {
     LUCERN_HAMMER,
     LUCKSTONE,
     LUMP_OF_ROYAL_JELLY,
+    MACE,
     MAXOCLASSES,
     MIRROR,
     MUMMY_WRAPPING,
@@ -429,6 +437,7 @@ import {
     SCIMITAR,
     SKELETON_KEY,
     SHORT_SWORD,
+    SHURIKEN,
     SMALL_SHIELD,
     SPEAR,
     SCR_CREATE_MONSTER,
@@ -1585,6 +1594,30 @@ function m_initweap(monster, normalized) {
                 }
                 break;
             }
+            // C ref: makemon.c:257-262. Elven Monarchs may receive a
+            // pick-axe and rarely a crystal ball.
+            if (ptr.pmidx === PM_ELVEN_MONARCH) {
+                if (random.rn2(3)
+                    || (state.in_mklev && Is_earthlevel(state.u?.uz)))
+                    mongets(monster, PICK_AXE, normalized);
+                if (!random.rn2(50))
+                    mongets(monster, CRYSTAL_BALL, normalized);
+            }
+        } else if (ptr.msound === MS_PRIEST
+                   || (state.urole?.mnum === PM_CLERIC
+                       && (ptr.msound === MS_LEADER
+                           || ptr.msound === MS_NEMESIS))) {
+            // C ref: makemon.c:263-269. Priests and Cleric quest
+            // representatives receive a mace with rnd(3) enchantment,
+            // 50% cursed. Bypasses mongets to skip normal mksobj_init.
+            const obj = mksobj(MACE, false, false, normalized);
+            obj.spe = random.rnd(3);
+            if (!random.rn2(2)) curseFreeObject(obj, normalized);
+            addFreshMonsterObject(monster, obj, normalized);
+        } else if (ptr.pmidx === PM_NINJA) {
+            // C ref: makemon.c:270-272.
+            mongets(monster, random.rn2(4) ? SHURIKEN : DART, normalized);
+            mongets(monster, random.rn2(4) ? SHORT_SWORD : AXE, normalized);
         } else if (ptr.msound === MS_GUARDIAN) {
             // C ref: makemon.c:273-326. Quest "guardians" receive role-
             // specific gear. Each case makes its own rn2 calls for weapon
