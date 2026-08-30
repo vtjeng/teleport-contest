@@ -1,7 +1,8 @@
 // Monster destination selection and short-range relocation, plus the hero's
-// own level teleport.
+// own level teleport and within-level teleport.
 // C ref: teleport.c goodpos(), enexto(), enexto_core(), collect_coords(),
-// level_tele(), random_teleport_level(); mon.c mnexto().
+// teleok(), scrolltele(), tele(), level_tele(), random_teleport_level();
+// mon.c mnexto().
 
 import {
     ACCESSIBLE,
@@ -47,21 +48,32 @@ import {
     SLT_ENCUMBER,
     STONE,
     STRAT_APPEARMSG,
+    FLYING,
+    LEVITATION,
+    PIT,
+    SPIKED_PIT,
+    STUNNED,
+    TELEPORT,
     TELEDS_ALLOW_DRAG,
     TELEDS_TELEPORT,
+    TELEPORT_CONTROL,
     TRAPDOOR,
     TT_BURIEDBALL,
     UTOTYPE_NONE,
+    VIBRATING_SQUARE,
     WATER,
     W_NONPASSWALL,
     ZAP_POS,
     In_quest,
     Is_botlevel,
+    is_pit,
+    is_hole,
     isok,
 } from './const.js';
 import {
     In_hell,
     Is_special,
+    On_W_tower_level,
     depth,
     dunlev_reached,
     dunlevs_in_dungeon,
@@ -141,7 +153,10 @@ import {
     canSpotMonster,
     sensesMonster,
 } from './startup_a11y.js';
-import { fill_pit, reset_utrap } from './trap.js';
+import { getpos } from './getpos.js';
+import { in_out_region } from './region.js';
+import { make_blinded } from './potion.js';
+import { fill_pit, reset_utrap, t_at, unconscious } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { vault_occupied } from './vault.js';
 import { couldsee, vision_recalc } from './vision.js';
@@ -1073,18 +1088,122 @@ export function mnexto(monster, _rlocflags = 0, env = {}) {
     return relocated;
 }
 
+// ── Hero within-level teleport (C ref: teleport.c teleok/scrolltele/tele) ──
+
+// C ref: teleport.c teleok() (420-445).
+export async function teleok(x, y, trapok, state = game) {
+    if (!trapok) {
+        const trap = t_at(x, y, state);
+        if (!trap)
+            trapok = true;
+        else if (trap.ttyp === VIBRATING_SQUARE)
+            trapok = true;
+        else if ((is_pit(trap.ttyp) || is_hole(trap.ttyp))
+            && (Levitation_prop(state) || Flying_prop(state)))
+            trapok = true;
+        if (!trapok)
+            return false;
+    }
+    if (!goodpos(x, y, state.youmonst, 0, { state }))
+        return false;
+    if (!teleJumpOk(state.u.ux, state.u.uy, x, y, state))
+        return false;
+    if (!await in_out_region(x, y, { state }))
+        return false;
+    return true;
+}
+
+function Levitation_prop(state) {
+    const p = state.u?.uprops?.[LEVITATION];
+    return Boolean((p?.intrinsic || p?.extrinsic) && !p?.blocked);
+}
+
+function Flying_prop(state) {
+    const p = state.u?.uprops?.[FLYING];
+    return Boolean((p?.intrinsic || p?.extrinsic) && !p?.blocked);
+}
+
+function Teleport_control_prop(state) {
+    const p = state.u?.uprops?.[TELEPORT_CONTROL];
+    return Boolean((p?.intrinsic || p?.extrinsic) && !p?.blocked);
+}
+
+function Stunned_prop(state) {
+    return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
+}
+
+// C ref: teleport.c scrolltele() (849-915). Controlled teleport path only;
+// the uncontrolled fallback (safe_teleds) is left for a future slice.
+async function scrolltele(scroll, state = game) {
+    const message = ttyPline;
+
+    if (noteleport_level(state.youmonst, state)) {
+        await message("A mysterious force prevents you from teleporting!", state);
+        return;
+    }
+
+    if (!heroBlind(state))
+        await make_blinded(0, false, state);
+
+    if ((state.u?.uhave?.amulet || On_W_tower_level(state.u.uz, state))
+        && !rn2(3)) {
+        await message("You feel disoriented for a moment.", state);
+        return;
+    }
+
+    if (Teleport_control_prop(state) && !Stunned_prop(state)) {
+        if (unconscious(state)) {
+            await message(
+                "Being unconscious, you cannot control your teleport.",
+                state,
+            );
+        } else {
+            const whobuf = state.u?.usteed
+                ? `you and ${monsterCommonName(state.u.usteed, state)}`
+                : 'you';
+            await message(
+                `Where do ${whobuf} want to be teleported?`,
+                state,
+            );
+            const cc = { x: state.u.ux, y: state.u.uy };
+            const tcc = state.iflags?.travelcc;
+            if (tcc && isok(tcc.x, tcc.y)) {
+                cc.x = tcc.x;
+                cc.y = tcc.y;
+            }
+            if (await getpos(cc, true, 'the desired position', state) < 0)
+                return;
+            if (await teleok(cc.x, cc.y, false, state)) {
+                await teleds(cc.x, cc.y, TELEDS_TELEPORT, state);
+                if (state.iflags?.travelcc
+                    && state.u.ux === state.iflags.travelcc.x
+                    && state.u.uy === state.iflags.travelcc.y) {
+                    state.iflags.travelcc.x = 0;
+                    state.iflags.travelcc.y = 0;
+                }
+                return;
+            }
+            await message('Sorry...', state);
+        }
+    }
+
+    throw new UnsupportedHeroMoveBoundaryError(
+        'scrolltele: uncontrolled teleport (safe_teleds) unported',
+    );
+}
+
+// C ref: teleport.c tele() (842-845).
+export async function tele(state = game) {
+    await scrolltele(null, state);
+}
+
 // ── Hero relocation (C ref: teleport.c teleds()) ──
 
 // C ref: teleport.c teleds() (448-573). Puts the hero on <nux,nuy> and runs
 // everything a changed hero square implies: ball and chain, vision, terrain,
-// regions and spoteffects(). steed.c mount_steed() and dismount_steed() are
-// its only ported callers and both pass TELEDS_ALLOW_DRAG.
-//
-// Four families of arm refuse rather than run, each named at its site: the
-// punishing ball, an engulfed hero, a hero disguised as a mimic, and the vault
-// guard. The `is_teleport` message at 545-547 refuses too, because no ported
-// caller passes TELEDS_TELEPORT and its "You materialize in ..." line has
-// never been recorded.
+// regions and spoteffects(). scrolltele() (controlled teleport) is the newest
+// caller; steed.c mount_steed() and dismount_steed() also call it with
+// TELEDS_ALLOW_DRAG.
 export async function teleds(nux, nuy, teleds_flags, state = game) {
     const u = state.u;
     let allow_drag = (teleds_flags & TELEDS_ALLOW_DRAG) !== 0;
@@ -1172,9 +1291,12 @@ export async function teleds(nux, nuy, teleds_flags, state = game) {
     notice_mon_off(state);
     vision_recalc(0, { state }); /* vision before effects */
 
+    // C ref: teleport.c:545-547.
     if (is_teleport && state.flags?.verbose) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'teleds() announcing a teleport',
+        const same = (nux === u.ux0 && nuy === u.uy0);
+        await ttyPline(
+            `You materialize in ${same ? 'the same' : 'a different'} location!`,
+            state,
         );
     }
     /* if terrain type changes, levitation or flying might become blocked or

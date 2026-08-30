@@ -77,6 +77,8 @@ import {
     ONAME_KNOW_ARTI,
     ONAME_WISH,
     SLEEP_RES,
+    STUNNED,
+    TELEPORT_CONTROL,
     THROWN_WEAPON,
     WAND_BACKFIRE_CHANCE,
     WAND_WREST_CHANCE,
@@ -153,6 +155,8 @@ import {
     WAN_MAGIC_MISSILE,
     WAN_SECRET_DOOR_DETECTION,
     WAN_SLEEP,
+    WAN_TELEPORTATION,
+    SPE_TELEPORT_AWAY,
 } from './objects.js';
 import {
     The,
@@ -175,7 +179,8 @@ import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { burnarmor } from './trap_erode_obj.js';
 import { shade_miss } from './uhitm.js';
-import { cansee } from './vision.js';
+import { tele } from './teleport.js';
+import { cansee, couldsee } from './vision.js';
 import { burn_away_slime, fall_asleep } from './timeout.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
@@ -456,6 +461,20 @@ export async function zapyourself(obj, ordinary, state = game) {
         await ttyUrgentPline('You die.', state);
         /* They might survive with an amulet of life saving */
         await done(DIED, state);
+        break;
+
+    // C ref: zap.c zapyourself() (2876-2883).
+    case WAN_TELEPORTATION:
+    case SPE_TELEPORT_AWAY:
+        await tele(state);
+        if ((Boolean((state.u?.uprops?.[TELEPORT_CONTROL]?.intrinsic
+                || state.u?.uprops?.[TELEPORT_CONTROL]?.extrinsic)
+                && !state.u?.uprops?.[TELEPORT_CONTROL]?.blocked)
+                && !state.u?.uprops?.[STUNNED]?.intrinsic)
+            || !couldsee(state.u.ux0, state.u.uy0, state)
+            || ((state.u.ux0 - state.u.ux) ** 2
+                + (state.u.uy0 - state.u.uy) ** 2) >= 16)
+            learn_it = true;
         break;
 
     default:

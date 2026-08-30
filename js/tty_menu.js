@@ -739,6 +739,15 @@ export async function displayTtyTextWindow(state = game, lines) {
     const maxrow = lines.length;
     const lastRow = display.rows - 1;
 
+    // C ref: wintty.c tty_display_nhwindow() NHW_TEXT arm (1921-1922).
+    // Flush an unacknowledged top-line message before the text window
+    // covers it, the same guard selectTtyMenu() applies for menus.
+    if (display.toplin === TOPLINE_NEED_MORE
+        && await dismissPendingTtyMessage(state)) {
+        if (state.nhDisplay) state.nhDisplay.toplin = TOPLINE_NEED_MORE;
+        clearTtyMessageWindow(state);
+    }
+
     // tty_dismiss_nhwindow() repairs a column-zero text window with
     // docrt()+flush_screen(), the same repair dismissTtyMenu() models for a
     // full-screen menu.

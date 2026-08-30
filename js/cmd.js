@@ -11,6 +11,8 @@ import {
     CMDQ_EXTCMD,
     CMDQ_KEY,
     COLNO,
+    A_STR,
+    A_WIS,
     CONFUSION,
     CQ_CANNED,
     CQ_REPEAT,
@@ -109,12 +111,14 @@ import {
 import { UnsupportedFountainError } from './fountain.js';
 import { UnsupportedItemDestructionError } from './zap_destroy_items.js';
 import { SPE_TELEPORT_AWAY } from './objects.js';
-import { UnsupportedPositionCheckError } from './teleport.js';
+import { next_to_u } from './apply_next_to_u.js';
+import { UnsupportedPositionCheckError, tele } from './teleport.js';
 import { t_at } from './trap.js';
 import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
 import { UnsupportedErosionError } from './trap_erode_obj.js';
 import {
     doeat,
+    morehungry,
     UnsupportedEatError,
     UnsupportedHungerTransitionError,
 } from './eat.js';
@@ -186,6 +190,7 @@ import {
     known_spell,
     spe_Fresh,
     spe_Unknown,
+    spelleffects,
     UnsupportedSpellCastError,
     UnsupportedSpellDisplayError,
     UnsupportedSpellStudyError,
@@ -214,7 +219,11 @@ import { nhgetch } from './input.js';
 import { doride, UnsupportedSteedError } from './steed.js';
 import { UnsupportedEndOfGameError } from './end.js';
 import { UnsupportedItemIgnitionError } from './apply_catch_lit.js';
-import { UnsupportedAbilityChangeError } from './attrib.js';
+import {
+    effective_attribute,
+    exercise,
+    UnsupportedAbilityChangeError,
+} from './attrib.js';
 import { UnsupportedExperienceChangeError } from './exper.js';
 import {
     doread,
@@ -3484,10 +3493,7 @@ export async function rhack(key, state = game) {
             return;
         }
         if (command === 'teleport') {
-            // C ref: teleport.c dotelecmd() → dotele(FALSE). For non-wizard
-            // mode, dotele checks for a visible teleport trap, then for
-            // Teleportation intrinsic / level / polyform, then for the
-            // teleport-away spell. The common case: hero cannot teleport.
+            // C ref: teleport.c dotelecmd() → dotele(FALSE).
             const trap = t_at(state.u.ux, state.u.uy, state);
             if (trap?.tseen
                 && (trap.ttyp === TELEP_TRAP || trap.ttyp === LEVEL_TELEP)) {
@@ -3504,10 +3510,32 @@ export async function rhack(key, state = game) {
                 >= (state.urole?.mnum === PM_WIZARD ? 8 : 12);
             const formOk = can_teleport(state.youmonst?.data);
             if (hasTeleportation && (levelOk || formOk)) {
-                throw new UnsupportedHeroCommandBranchBoundaryError(
-                    'dotelecmd: actual teleportation unported',
-                    key,
+                // C ref: teleport.c dotele() intrinsic teleport path.
+                // energy = 5 * objects[SPE_TELEPORT_AWAY].oc_level
+                const spellLevel = Math.trunc(
+                    state.objects?.[SPE_TELEPORT_AWAY]?.oc_level ?? 6,
                 );
+                const energy = 5 * spellLevel;
+                state.u.uen -= energy;
+                state.disp = state.disp || {};
+                state.disp.botl = true;
+                if (next_to_u(state)) {
+                    if (state.iflags)
+                        state.iflags.travelcc = { x: 0, y: 0 };
+                    await tele(state);
+                    next_to_u(state);
+                } else {
+                    await ttyPline(
+                        'You shudder for a moment.',
+                        state,
+                    );
+                    resetCommandVars(state);
+                    return;
+                }
+                await morehungry(100, state);
+                resetCommandVars(state);
+                state.occupation = null;
+                return;
             }
             const knownsp = known_spell(SPE_TELEPORT_AWAY, state);
             const confusion = Boolean(
@@ -3515,10 +3543,45 @@ export async function rhack(key, state = game) {
                 || state.u?.uprops?.[CONFUSION]?.extrinsic,
             );
             if (knownsp >= spe_Fresh && !confusion) {
-                throw new UnsupportedHeroCommandBranchBoundaryError(
-                    'dotelecmd: teleport-away spell casting unported',
-                    key,
+                // C ref: teleport.c dotele() (1090-1137), spell-casting path.
+                const spellLevel = Math.trunc(
+                    state.objects?.[SPE_TELEPORT_AWAY]?.oc_level ?? 6,
                 );
+                const energy = 5 * spellLevel;
+                let cantdoit = null;
+                if ((state.u?.uhunger ?? 901) <= 10)
+                    cantdoit = 'are too weak from hunger';
+                else if (effective_attribute(state, A_STR) < 4)
+                    cantdoit = 'lack the strength';
+                else if (energy > state.u.uen)
+                    cantdoit = 'lack the energy';
+                if (cantdoit) {
+                    await ttyPline(
+                        `You ${cantdoit} for a teleport spell.`, state,
+                    );
+                    resetCommandVars(state);
+                    return;
+                }
+                if (await check_capacity(
+                    'Your concentration falters from carrying so much.',
+                    state,
+                )) {
+                    commandTookTime(state);
+                    resetCommandVars(state);
+                    state.occupation = null;
+                    return;
+                }
+                await exercise(A_WIS, true, state);
+                if (await spelleffects(
+                    SPE_TELEPORT_AWAY, true, false, state,
+                ) & ECMD_TIME) {
+                    commandTookTime(state);
+                    resetCommandVars(state);
+                    state.occupation = null;
+                    return;
+                }
+                resetCommandVars(state);
+                return;
             }
             if (!hasTeleportation) {
                 if (knownsp !== spe_Unknown)
