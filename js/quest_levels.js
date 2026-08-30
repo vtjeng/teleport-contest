@@ -1,11 +1,12 @@
-// quest_levels.js — Quest special level definitions.
-// C refs: dat/Bar-strt.lua and related quest level files.
+// quest_levels.js — Quest and special level definitions.
+// C refs: dat/Bar-strt.lua, dat/tower1.lua, and related level files.
 
-import { COLNO, ROWNO } from './const.js';
+import { COLNO, FEMALE, G_GENOD, ROWNO } from './const.js';
 import {
     PM_CHIEFTAIN, PM_GIANT_EEL, PM_OGRE, PM_PELIAS,
+    PM_VAMPIRE, PM_VAMPIRE_LEADER, PM_VLAD_THE_IMPALER, S_VAMPIRE,
 } from './monsters.js';
-import { CHAIN_MAIL, CHEST, RUNESWORD } from './objects.js';
+import { CHAIN_MAIL, CHEST, RUNESWORD, TALLOW_CANDLE, WAX_CANDLE } from './objects.js';
 import { rn2 } from './rng.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 
@@ -227,6 +228,92 @@ async function barStrt(des, state) {
     }
 }
 
+// C ref: dat/tower1.lua — Upper stage of Vlad's tower.
+function tower1(des, state) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'solidify');
+    des.map({
+        halign: 'half-left',
+        valign: 'center',
+        map: [
+            '  --- --- ---  ',
+            '  |.| |.| |.|  ',
+            '---S---S---S---',
+            '|.......+.+...|',
+            '---+-----.-----',
+            '  |...\\.|.+.|  ',
+            '---+-----.-----',
+            '|.......+.+...|',
+            '---S---S---S---',
+            '  |.| |.| |.|  ',
+            '  --- --- ---  ',
+        ].join('\n'),
+    });
+
+    const niches = [[3, 1], [3, 9], [7, 1], [7, 9], [11, 1], [11, 9]];
+    des.shuffle(niches);
+
+    des.ladder({ dir: 'down', coord: [11, 5] });
+
+    // The lord and his court
+    des.monster({ id: PM_VLAD_THE_IMPALER, coord: [6, 5] });
+    des.monster({ class: S_VAMPIRE, coord: niches[0] });
+    des.monster({ class: S_VAMPIRE, coord: niches[1] });
+    des.monster({ class: S_VAMPIRE, coord: niches[2] });
+
+    // The brides, named unless vampires are genocided.
+    // C ref: tower1.lua nh.is_genocided("vampire") check.
+    const vgenod = (state.mvitals?.[PM_VAMPIRE]?.mvflags ?? 0) & G_GENOD;
+    const vnames = vgenod ? [null, null, null]
+        : ['Madame', 'Marquise', 'Countess'];
+    des.monster({
+        id: PM_VAMPIRE_LEADER, coord: niches[3],
+        name: vnames[0], waiting: 1, parsedGender: FEMALE,
+    });
+    des.monster({
+        id: PM_VAMPIRE_LEADER, coord: niches[4],
+        name: vnames[1], waiting: 1, parsedGender: FEMALE,
+    });
+    des.monster({
+        id: PM_VAMPIRE_LEADER, coord: niches[5],
+        name: vnames[2], waiting: 1, parsedGender: FEMALE,
+    });
+
+    // Doors
+    des.door({ state: 'closed', coord: [8, 3] });
+    des.door({ state: 'closed', coord: [10, 3] });
+    des.door({ state: 'closed', coord: [3, 4] });
+    des.door({ state: 'locked', coord: [10, 5] });
+    des.door({ state: 'locked', coord: [8, 7] });
+    des.door({ state: 'locked', coord: [10, 7] });
+    des.door({ state: 'closed', coord: [3, 6] });
+
+    // Treasures
+    des.object({ id: CHEST, coord: [7, 5] });
+    des.object({ id: CHEST, coord: niches[5] });
+    des.object({ id: CHEST, coord: niches[0] });
+    des.object({ id: CHEST, coord: niches[1] });
+    des.object({ id: CHEST, coord: niches[2] });
+    des.object({
+        id: CHEST,
+        coord: niches[3],
+        contents() {
+            des.object({ id: WAX_CANDLE, quantity: 4 + rn2(5) });
+        },
+    });
+    des.object({
+        id: CHEST,
+        coord: niches[4],
+        contents() {
+            des.object({ id: TALLOW_CANDLE, quantity: 4 + rn2(5) });
+        },
+    });
+
+    // Protect the tower against outside attacks
+    des.non_diggable();
+}
+
 export const QUEST_LEVEL_LOADERS = {
     'Bar-strt': barStrt,
+    tower1,
 };
