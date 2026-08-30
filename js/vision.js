@@ -11,7 +11,8 @@ import { m_at } from './monst.js';
 import { perceives } from './mondata.js';
 import {
     BLINDED, CLOUD, COLNO, COULD_SEE, DB_MOAT, DB_UNDER, DRAWBRIDGE_UP,
-    IN_SIGHT, INVIS, LAVAWALL, MOAT, ROWNO, DOOR, SDOOR, POOL, WATER,
+    IN_SIGHT, INFRAVISION, INVIS, LAVAWALL, MOAT, ROWNO, DOOR, SDOOR,
+    POOL, WATER,
     D_CLOSED, D_LOCKED, D_TRAPPED,
     MAX_RADIUS,
     M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK, SEE_INVIS,
@@ -854,6 +855,34 @@ export function m_canseeu(mon, state = game) {
     return (!Invis || perceives(mon.data))
         && !state.u?.uinwater
         && couldsee(mon.mx, mon.my, state);
+}
+
+// C ref: display.h _mon_visible(mon). True when the monster is not invisible
+// (or the hero has See_invisible) and not an undetected hider.
+function mon_visible(mon, state = game) {
+    const seeInvis = state.u?.uprops?.[SEE_INVIS];
+    const hasSeeInvis = Boolean(seeInvis?.intrinsic || seeInvis?.extrinsic);
+    return (!mon.minvis || hasSeeInvis) && !mon.mundetected;
+}
+
+// C ref: display.h _see_with_infrared(mon).
+function see_with_infrared(mon, state = game) {
+    if (heroIsBlind(state.u)) return false;
+    const infra = state.u?.uprops?.[INFRAVISION];
+    if (!Boolean(infra?.intrinsic || infra?.extrinsic)) return false;
+    if (!(mon.data?.mflags3 & 0x0200)) return false; // M3_INFRAVISIBLE
+    return couldsee(mon.mx, mon.my, state);
+}
+
+// C ref: display.h _canseemon(mon) / display.c canseemon().
+// True when the hero can see the monster at its position.
+// Worms use worm_known() instead of cansee/infrared; that function is
+// unported, so worms fall back to the head-segment cansee check.
+export function canseemon(mon, state = game) {
+    const locationVisible = mon.wormno
+        ? cansee(mon.mx, mon.my, state)
+        : (cansee(mon.mx, mon.my, state) || see_with_infrared(mon, state));
+    return locationVisible && mon_visible(mon, state);
 }
 
 export function init_vision_globals() {

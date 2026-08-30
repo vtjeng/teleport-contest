@@ -678,6 +678,14 @@ export function align_gname(alignment, state = game) {
     return gnam.startsWith('_') ? gnam.slice(1) : gnam;
 }
 
+// C ref: pray.c halu_gname(). Returns a hallucinated deity name when the hero
+// is hallucinating, otherwise falls back to align_gname(). The hallucinated
+// path uses rn2_on_display_rng and randrole, which are unported.
+export function halu_gname(alignment, state = game) {
+    // Hallucination branch uses display RNG — unported.
+    return align_gname(alignment, state);
+}
+
 // C ref: pray.c u_gname(). The name of the hero's own deity.
 export function u_gname(state = game) {
     return align_gname(state.u.ualign.type, state);

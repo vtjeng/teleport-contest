@@ -6,16 +6,26 @@
 
 import {
     A_NONE,
+    ACH_TMPL,
     ALL_TRAPS,
     ALLOW_M,
     ALLOW_ROCK,
     AM_SHRINE,
     Amask2align,
+    ARTICLE_A,
+    ARTICLE_NONE,
+    ARTICLE_THE,
+    ARTICLE_YOUR,
+    DEAF,
     DRY,
+    EPRI,
+    HALLUC,
+    helpless,
     HOT,
     INVIS,
     IS_ALTAR,
     IS_ROOM,
+    Is_astralevel,
     MM_EPRI,
     MM_NOMSG,
     N_DIRS,
@@ -32,12 +42,15 @@ import {
     ydir,
 } from './const.js';
 import { newsym } from './display.js';
-import { assign_level, on_level } from './dungeon.js';
+import { mon_pmname } from './do_name.js';
+import { assign_level, find_mapseen, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul, UnsupportedHeroMoveBoundaryError } from './hack.js';
-import { dist2 } from './hacklib.js';
+import { dist2, highc } from './hacklib.js';
+import { record_achievement } from './insight.js';
 import { makemon } from './makemon_create.js';
 import { set_malign } from './makemon.js';
+import { m_next2u } from './mhitu.js';
 import { mon_allowflags } from './mon.js';
 import {
     amphibious,
@@ -54,18 +67,22 @@ import {
 import { mfndpos } from './monmove.js';
 import { PM_ALIGNED_CLERIC, PM_GHOST, PM_HIGH_CLERIC, S_EEL } from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
+import { just_an } from './objnam.js';
 import { mkobj, SPBOOK_NO_NOVEL } from './obj.js';
 import { body_part } from './polyself.js';
+import { halu_gname } from './pray.js';
 import { is_ok_location } from './room_coordinates.js';
 import { in_rooms } from './rooms.js';
-import { rn1, rn2 } from './rng.js';
+import { d, rn1, rn2 } from './rng.js';
 import { mpickobj } from './steal.js';
 import { ttyPline } from './tty_message.js';
+import { canseemon } from './vision.js';
 import { rloc } from './teleport.js';
 import { which_armor } from './worn.js';
 
-// C ref: align.h ALGN_SINNED.
+// C ref: priest.c local constants.
 const ALGN_SINNED = -4;
+const ALGN_DEVOUT = 14;
 // C ref: you.h `char urooms[5]`.
 const ROOM_STRING_SIZE = 5;
 
@@ -409,24 +426,178 @@ export function pri_move(priest, env = {}) {
     );
 }
 
+// C ref: priest.c priestname(). Produces the name string for a priest or
+// minion monster: "the priest of Shan Lai Ching", "an Angel of Anhur", etc.
+export function priestname(mon, article, reveal_high_priest, state = game) {
+    const aligned_priest = mon.data === state.mons[PM_ALIGNED_CLERIC];
+    const high_priest = mon.data === state.mons[PM_HIGH_CLERIC];
+    let what = mon_pmname(mon);
+
+    if (mon.ispriest || aligned_priest || high_priest)
+        what = mon.female ? 'priestess' : 'priest';
+
+    let pname = '';
+    if (article !== ARTICLE_NONE) {
+        let effectiveArticle = article;
+        if (effectiveArticle === ARTICLE_YOUR
+            || (effectiveArticle === ARTICLE_A && high_priest))
+            effectiveArticle = ARTICLE_THE;
+        if (effectiveArticle === ARTICLE_THE) {
+            pname = 'the ';
+        } else if (what === 'Angel') {
+            pname = 'an ';
+        } else {
+            pname = just_an(what);
+        }
+    }
+    if (mon.minvis) {
+        if (pname === 'a ') pname = 'an ';
+        pname += 'invisible ';
+    }
+    if (mon.isminion && mon.mextra?.emin?.renegade) {
+        if (pname === 'an ' && !mon.minvis) pname = 'a ';
+        pname += 'renegade ';
+    }
+
+    if (mon.ispriest || aligned_priest) {
+        if (high_priest)
+            pname += 'high ';
+    } else {
+        if (mon.mtame && what.toLowerCase() === 'angel')
+            pname += 'guardian ';
+    }
+
+    pname += what;
+    if (!high_priest || reveal_high_priest
+        || !Is_astralevel(state.u?.uz)
+        || m_next2u(mon, state) || state.program_state?.gameover) {
+        pname += ' of ';
+        pname += halu_gname(mon_aligntyp(mon), state);
+    }
+    return pname;
+}
+
+// C ref: youprop.h:125 Deaf. HDeaf || EDeaf || u.uroleplay.deaf.
+function heroDeaf(state) {
+    const prop = state.u?.uprops?.[DEAF];
+    return Boolean(prop?.intrinsic || prop?.extrinsic)
+        || Boolean(state.u?.uroleplay?.deaf);
+}
+
+// C ref: youprop.h:157 Hallucination.
+function heroHallucinating(state) {
+    const prop = state.u?.uprops?.[HALLUC];
+    return Boolean(prop?.intrinsic || prop?.extrinsic) && !prop?.blocked;
+}
+
+// C ref: dungeon.c mapseen_temple(). Sets mapseen flags for valley/sanctum.
+function mapseen_temple(priest, state) {
+    const mptr = find_mapseen(state.u?.uz, state);
+    if (!mptr) return;
+    if (state.valley_level
+        && on_level(state.u.uz, state.valley_level))
+        mptr.flags.valley = 1;
+    else if (state.sanctum_level
+        && on_level(state.u.uz, state.sanctum_level))
+        mptr.flags.msanctum = 1;
+}
+
 // C ref: priest.c intemple(int roomno). Called when the hero enters a TEMPLE
-// room. The tended path (priest alive) requires canseemon/Monnam/verbalize1;
-// the untended path (no priest) is self-contained.
+// room.
 export async function intemple(roomno, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2 };
     const message = env.message ?? ttyPline;
+    const u = state.u;
 
-    if (temple_occupied(state.u.urooms0, state))
+    if (temple_occupied(u.urooms0, state))
         return;
 
     const priest = findpriest(roomno, state);
     if (priest) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'intemple() tended path (canseemon/Monnam/verbalize1 unported)',
-        );
+        // Tended temple path.
+        record_achievement(ACH_TMPL, state);
+
+        const epri_p = EPRI(priest);
+        const shrined = has_shrine(priest, state);
+        const sanctum = (priest.data === state.mons[PM_HIGH_CLERIC]
+            && (state.sanctum_level
+                    && on_level(u.uz, state.sanctum_level))
+                || (state.astral_level
+                    && u.uz?.dnum === state.astral_level.dnum));
+        const can_speak = !helpless(priest);
+        if (can_speak && !heroDeaf(state)
+            && state.moves >= (epri_p.intone_time ?? 0)) {
+            const save_priest = priest.ispriest;
+            if (sanctum && !heroHallucinating(state))
+                priest.ispriest = 0;
+            // C: Monnam(priest) = capitalize(mon_nam(priest))
+            //    = capitalize(x_monnam(priest, ARTICLE_THE, ...))
+            //    = capitalize(priestname(priest, ARTICLE_THE, false))
+            const pname = priestname(priest, ARTICLE_THE, false, state);
+            const who = canseemon(priest, state)
+                ? highc(pname[0]) + pname.slice(1)
+                : 'A nearby voice';
+            await message(`${who} intones:`, state);
+            priest.ispriest = save_priest;
+            epri_p.intone_time = state.moves + d(10, 500);
+            epri_p.enter_time = 0;
+        }
+        let msg1 = null;
+        let msg2 = null;
+        if (sanctum && state.sanctum_level
+            && on_level(u.uz, state.sanctum_level)) {
+            if (priest.mpeaceful) {
+                msg1 = "Infidel, you have entered Moloch's Sanctum!";
+                msg2 = 'Be gone!';
+                priest.mpeaceful = 0;
+                set_malign(priest, state);
+            } else {
+                msg1 = 'You desecrate this place by your presence!';
+            }
+        } else if (state.moves >= (epri_p.enter_time ?? 0)) {
+            msg1 = `Pilgrim, you enter a ${!shrined ? 'desecrated' : 'sacred'} place!`;
+        }
+        if (msg1 && can_speak && !heroDeaf(state)) {
+            await message(`"${msg1}"`, state);
+            if (msg2)
+                await message(`"${msg2}"`, state);
+            epri_p.enter_time = state.moves + d(10, 100);
+        }
+        if (!sanctum) {
+            let this_time_key, other_time_key;
+            let msgFmt, msgArg;
+            if (!shrined || !p_coaligned(priest, state)
+                || u.ualign.record <= ALGN_SINNED) {
+                msgFmt = 'have a%s forbidding feeling...';
+                msgArg = (!shrined || !p_coaligned(priest, state))
+                    ? '' : ' strange';
+                this_time_key = 'hostile_time';
+                other_time_key = 'peaceful_time';
+            } else {
+                msgFmt = 'experience %s sense of peace.';
+                msgArg = u.ualign.record >= ALGN_DEVOUT
+                    ? 'a' : 'an unusual';
+                this_time_key = 'peaceful_time';
+                other_time_key = 'hostile_time';
+            }
+            const this_time = epri_p[this_time_key] ?? 0;
+            const other_time = epri_p[other_time_key] ?? 0;
+            if (state.moves >= this_time || other_time >= this_time) {
+                await message(
+                    `You ${msgFmt.replace('%s', msgArg)}`, state,
+                );
+                const newTime = state.moves + d(10, 20);
+                epri_p[this_time_key] = newTime;
+                if (newTime <= (epri_p[other_time_key] ?? 0))
+                    epri_p[other_time_key] = newTime - 1;
+            }
+        }
+        mapseen_temple(priest, state);
+        return;
     }
 
+    // Untended temple path.
     switch (random.rn2(4)) {
     case 0:
         await message('You have an eerie feeling...', state);
@@ -445,12 +616,10 @@ export async function intemple(roomno, env = {}) {
     }
     if (!random.rn2(5)) {
         const mtmp = makemon(
-            state.mons[PM_GHOST], state.u.ux, state.u.uy, MM_NOMSG, env,
+            state.mons[PM_GHOST], u.ux, u.uy, MM_NOMSG, env,
         );
         if (mtmp) {
             const ngen = state.mvitals[PM_GHOST].born;
-            // canspotmon: ghost is at the hero's position and not inherently
-            // invisible, so the common case is visible.
             const visible = !mtmp.minvis;
             if (visible) {
                 await message(
