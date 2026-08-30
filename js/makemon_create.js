@@ -242,6 +242,7 @@ import {
     PM_LONG_WORM,
     PM_MANES,
     PM_GIANT_EEL,
+    PM_GUARD,
     PM_MORDOR_ORC,
     PM_SMALL_MIMIC,
     PM_NEANDERTHAL,
@@ -273,6 +274,8 @@ import {
     PM_VAMPIRE_LEADER,
     PM_VLAD_THE_IMPALER,
     PM_WARRIOR,
+    PM_WATCH_CAPTAIN,
+    PM_WATCHMAN,
     PM_WATER_DEMON,
     PM_WHITE_UNICORN,
     PM_WOLF,
@@ -346,6 +349,7 @@ import {
     BEC_DE_CORBIN,
     BOULDER,
     BOW,
+    BUGLE,
     CANDELABRUM_OF_INVOCATION,
     CHAIN_MAIL,
     CLOAK_OF_MAGIC_RESISTANCE,
@@ -463,6 +467,7 @@ import {
     STRANGE_OBJECT,
     TALLOW_CANDLE,
     TIN,
+    TIN_WHISTLE,
     TOOL_CLASS,
     TWO_HANDED_SWORD,
     URUK_HAI_SHIELD,
@@ -2121,8 +2126,22 @@ function m_initinv(monster, normalized) {
         }
         addArmorClass();
 
-        if (!random.rn2(3)) mongets(monster, K_RATION, normalized);
-        if (!random.rn2(2)) mongets(monster, C_RATION, normalized);
+        // C ref: makemon.c:682-701.
+        if (ptr.pmidx === PM_WATCH_CAPTAIN) {
+            // better weapon rather than extra gear
+        } else if (ptr.pmidx === PM_WATCHMAN) {
+            if (random.rn2(3))
+                mongets(monster, TIN_WHISTLE, normalized);
+        } else if (ptr.pmidx === PM_GUARD) {
+            const whistle = mksobj(TIN_WHISTLE, true, false, normalized);
+            curseFreeObject(whistle, normalized);
+            addFreshMonsterObject(monster, whistle, normalized);
+        } else {
+            if (!random.rn2(3)) mongets(monster, K_RATION, normalized);
+            if (!random.rn2(2)) mongets(monster, C_RATION, normalized);
+            if (ptr.pmidx !== PM_SOLDIER && !random.rn2(3))
+                mongets(monster, BUGLE, normalized);
+        }
     } else if (ptr.mlet === S_HUMAN
                && (ptr.msound === MS_PRIEST
                    || (state.urole?.mnum === PM_CLERIC
