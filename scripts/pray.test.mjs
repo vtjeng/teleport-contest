@@ -6,6 +6,7 @@ import {
     ALTAR,
     A_CHAOTIC,
     COLNO,
+    ECMD_TIME,
     A_LAWFUL,
     A_MAX,
     A_NEUTRAL,
@@ -1198,19 +1199,25 @@ test('can_pray(FALSE) answers whether praying would be safe', async () => {
     assert.equal(await can_pray(true, game), true);
 });
 
-test('dopray() stops at the debug-mode force-success prompt', async () => {
+test('dopray() wizard force-success sets p_type 3 and starts wait', async () => {
+    // pray.c:2233-2258. When wizard && p_type >= 0, the prompt asks "Force
+    // the gods to be pleased?" and on 'y' rewrites p_type to 3.
     await startedGame('.#pray\n');
     game.wizard = true;
+    // 'y' confirms the ParanoidPray "Are you sure?", space dismisses the
+    // "You begin praying" message can_pray() prints, 'y' answers the
+    // wizard "Force the gods to be pleased?" prompt.
+    game.nhDisplay.pushKey('y'.charCodeAt(0));
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
     game.nhDisplay.pushKey('y'.charCodeAt(0));
     try {
-        // pray.c:2235's `wizard && gp.p_type >= 0`. p_type is 0 here, so the
-        // `>=` is what admits it; the prompt itself is unported.
-        await assert.rejects(
-            dopray(game),
-            (error) => error instanceof UnsupportedPrayerError
-                && /wizard force-success prompt/u.test(error.message),
-        );
-        assert.equal(game.gp.p_type, 0);
+        const result = await dopray(game);
+        assert.equal(result, ECMD_TIME);
+        // Force-success rewrote p_type from 0 to 3.
+        assert.equal(game.gp.p_type, 3);
+        assert.equal(game.multi, -3);
+        assert.equal(game.nomovemsg, 'You finish your prayer.');
+        assert.equal(game.u.uinvulnerable, true);
     } finally {
         game.wizard = false;
     }
@@ -1221,24 +1228,25 @@ test('dopray() stops at the debug-mode force-success prompt', async () => {
 // and told so. u.ublesscnt is what keeps can_pray() off gp.p_type 3 for every
 // prayer a fresh hero can make, so a game long enough to spend it down is what
 // this stands in for.
-test('dopray() stops at the shimmering light with the wait already set',
+test('dopray() shimmering light sets invulnerability with the wait',
     async () => {
         await startedGame('.#pray\n');
         // u_init.c:1005 leaves this at 300 and allmain.c:328 spends one a
         // turn; at 0, pray.c:2152's `u.ublesscnt > 0` fails and a hero with no
         // trouble, no bad luck and no angry god reaches p_type 3.
         game.u.ublesscnt = 0;
+        // 'y' confirms the ParanoidPray "Are you sure?" prompt.
         game.nhDisplay.pushKey('y'.charCodeAt(0));
-        await assert.rejects(
-            dopray(game),
-            (error) => error instanceof UnsupportedPrayerError
-                && /pre-prayer invulnerability/u.test(error.message),
-        );
+        const result = await dopray(game);
+        assert.equal(result, ECMD_TIME);
         assert.equal(game.gp.p_type, 3);
-        // C runs nomul(-3) and the three assignments before this test, so the
-        // wait is already scheduled when the stop happens.
         assert.equal(game.multi, -3);
         assert.equal(game.nomovemsg, 'You finish your prayer.');
+        assert.equal(game.u.uinvulnerable, true);
+        // The shimmering light message shares the top line with the
+        // "You begin praying" message. addtopl() stores both in toplines
+        // without repainting the grid, so check toplines directly.
+        assert.match(game.nhDisplay.toplines, /shimmering light/u);
     });
 
 // cmd.c paranoid_query() and win/tty/topl.c tty_yn_function()'s restricted

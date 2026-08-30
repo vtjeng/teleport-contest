@@ -57,7 +57,7 @@ import {
     ismnum,
 } from './const.js';
 import { confers_luck } from './artifacts.js';
-import { paranoid_query } from './cmd.js';
+import { paranoid_query, y_n } from './cmd.js';
 import { xlev_to_rank } from './display.js';
 import { stuck_ring, unchanger } from './do_wear.js';
 import { In_hell } from './dungeon.js';
@@ -89,6 +89,7 @@ import { rn2, rnz } from './rng.js';
 import { Punished } from './steed.js';
 import { is_pool_or_lava } from './trap.js';
 import { ttyPline } from './tty_message.js';
+import { heroIsBlind } from './startup_a11y.js';
 import { welded } from './wield.js';
 import { bimanual, which_armor } from './worn.js';
 
@@ -480,11 +481,18 @@ export async function dopray(state = game) {
     if (!await can_pray(true, state)) return ECMD_OK;
 
     if (state.wizard && state.gp.p_type >= 0) {
-        // dopray():2235-2263 asks "Force the gods to be pleased?" and, on a
-        // yes, rewrites u.ublesscnt, u.uluck, u.ualign.record, u.ugangr and
-        // p_type. The stop precedes the prompt, so nothing is drawn or
-        // written.
-        throw new UnsupportedPrayerError('the wizard force-success prompt');
+        // C ref: dopray():2233-2258. Wizard-mode shortcut that forces the
+        // gods to be pleased. in_doagain is always false in JS, so the
+        // ParanoidPray arm that clears it is a no-op; both paths use y_n.
+        const ok = (await y_n('Force the gods to be pleased?', state))
+            === 'y'.charCodeAt(0);
+        if (ok) {
+            state.u.ublesscnt = 0;
+            if (state.u.uluck < 0) state.u.uluck = 0;
+            if (state.u.ualign.record <= 0) state.u.ualign.record = 1;
+            state.u.ugangr = 0;
+            if (state.gp.p_type < 2) state.gp.p_type = 3;
+        }
     }
     // The prayer itself is a three-turn wait. nomul() writes gm.multi, and
     // allmain.c moveloop_core() counts it back up one turn at a time and calls
@@ -503,14 +511,13 @@ export async function dopray(state = game) {
     state.afternmv = prayer_done;
 
     if (state.gp.p_type === 3 && !In_hell(state.u.uz, state)) {
-        // dopray():2265-2270 prints "You are surrounded by a shimmering
-        // light." for an unblinded hero and sets u.uinvulnerable, which
-        // prayer_done() then clears before taking pleased(). Nothing on this
-        // arm is ported, so it stops before the message; the four statements
-        // above have already run, which is where C runs them.
-        throw new UnsupportedPrayerError(
-            "dopray()'s pre-prayer invulnerability",
-        );
+        // C ref: dopray():2265-2270. A coaligned hero in good standing is
+        // invulnerable while praying. prayer_done() clears the flag.
+        if (!heroIsBlind(state))
+            await ttyPline(
+                'You are surrounded by a shimmering light.', state,
+            );
+        state.u.uinvulnerable = true;
     }
 
     return ECMD_TIME;
