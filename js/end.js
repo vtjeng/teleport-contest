@@ -115,7 +115,7 @@ import { depth, dunlev, single_level_branch } from './dungeon.js';
 import { Goodbye } from './role_init.js';
 import { tty_raw_print } from './tty_rawprint.js';
 import { reset_utrap } from './trap.js';
-import { ttyPline, ttyUrgentPline } from './tty_message.js';
+import { ttyPline } from './tty_message.js';
 import { init_uhunger } from './u_init.js';
 import { hidden_gold } from './u_init_inventory_attrs.js';
 
@@ -286,7 +286,8 @@ export async function done_in_by(mtmp, how, state = game) {
     const mimicker = M_AP_TYPE(mtmp) === M_AP_MONSTER;
     const imitator = mptr !== champtr || mimicker;
 
-    await ttyUrgentPline(
+    // C end.c:195 You("die...") is a regular pline, not urgent_pline.
+    await ttyPline(
         how === STONING ? 'You turn to stone...' : 'You die...',
         state,
     );
