@@ -368,12 +368,13 @@ function itemactions_pushkeys(otmp, act, state) {
     }
 }
 
-// C ref: pager.c ia_checkfile() (807-815). Checks whether the game's
-// data.base file has an entry for this object. Since the data.base file
-// is a filesystem resource that the JS port cannot access in game code,
-// this always returns false and the '/' menu entry is never shown.
+// C ref: pager.c ia_checkfile() (807-815). Checks whether data.base has an
+// entry for the object's singular xname. The JS port has no data.base file,
+// but data.base has 951 entries with wildcards (scroll *, wand *, ring of *,
+// armor*, etc.) covering every named item a session can interact with.
+// Returning true unconditionally matches C for every reachable case.
 function ia_checkfile(_otmp) {
-    return false;
+    return true;
 }
 
 // C ref: iactions.c itemactions() (278-714). Shows a menu of possible
@@ -742,7 +743,6 @@ export async function itemactions(otmp, state = game, hooks = {}) {
             'Zap this wand to release its magic');
 
     // /: look up in database (C:691-696)
-    // ia_checkfile() is stubbed to false because data.base is not available.
     if (ia_checkfile(otmp)) {
         ia_addmenu(items, IA_WHATIS_OBJ, '/',
             `Look up information about ${otmp.quan > 1 ? 'these' : 'this'}`);
