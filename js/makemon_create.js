@@ -172,13 +172,18 @@ import {
     M3_COVETOUS,
     M3_WAITFORU,
     M2_UNDEAD,
+    MS_GUARDIAN,
     MS_LEADER,
     MS_NEMESIS,
     MZ_MEDIUM,
     MZ_SMALL,
     NON_PM,
     LOW_PM,
+    PM_ABBOT,
+    PM_ACOLYTE,
+    PM_APPRENTICE,
     PM_ARCHEOLOGIST,
+    PM_ATTENDANT,
     PM_BLACK_LIGHT,
     PM_BLACK_UNICORN,
     PM_CAVE_SPIDER,
@@ -186,6 +191,7 @@ import {
     PM_CENTIPEDE,
     PM_CHAMELEON,
     PM_CHICKATRICE,
+    PM_CHIEFTAIN,
     PM_COCKATRICE,
     PM_DEMILICH,
     PM_DWARF_RULER,
@@ -206,9 +212,11 @@ import {
     PM_GOBLIN,
     PM_GRAY_UNICORN,
     PM_GRID_BUG,
+    PM_GUIDE,
     PM_HOBBIT,
     PM_HOUSECAT,
     PM_HUMAN,
+    PM_HUNTER,
     PM_HOBGOBLIN,
     PM_JACKAL,
     PM_KOBOLD,
@@ -225,6 +233,7 @@ import {
     PM_GIANT_EEL,
     PM_MORDOR_ORC,
     PM_SMALL_MIMIC,
+    PM_NEANDERTHAL,
     PM_NEWT,
     PM_NURSE,
     PM_ORC,
@@ -232,20 +241,25 @@ import {
     PM_ORC_SHAMAN,
     PM_OGRE_LEADER,
     PM_OGRE_TYRANT,
+    PM_PAGE,
     PM_PONY,
     PM_QUANTUM_MECHANIC,
     PM_QUEEN_BEE,
+    PM_ROSHI,
     PM_SEWER_RAT,
     PM_SHOPKEEPER,
     PM_SOLDIER,
     PM_SKELETON,
     PM_SNAKE,
     PM_STALKER,
+    PM_STUDENT,
+    PM_THUG,
     PM_UMBER_HULK,
     PM_URUK_HAI,
     PM_VAMPIRE,
     PM_VAMPIRE_BAT,
     PM_VAMPIRE_LEADER,
+    PM_WARRIOR,
     PM_WHITE_UNICORN,
     PM_WOLF,
     PM_WOOD_NYMPH,
@@ -317,6 +331,7 @@ import {
     BEC_DE_CORBIN,
     BOULDER,
     BOW,
+    CHAIN_MAIL,
     CLUB,
     COIN_CLASS,
     CORPSE,
@@ -366,6 +381,7 @@ import {
     LEATHER_ARMOR,
     LEATHER_CLOAK,
     LEATHER_GLOVES,
+    LEATHER_JACKET,
     LARGE_SHIELD,
     LOW_BOOTS,
     LONG_SWORD,
@@ -1561,10 +1577,77 @@ function m_initweap(monster, normalized) {
                 }
                 break;
             }
+        } else if (ptr.msound === MS_GUARDIAN) {
+            // C ref: makemon.c:273-326. Quest "guardians" receive role-
+            // specific gear. Each case makes its own rn2 calls for weapon
+            // and armor selection.
+            switch (ptr.pmidx) {
+            case PM_STUDENT:
+            case PM_ATTENDANT:
+            case PM_ABBOT:
+            case PM_ACOLYTE:
+            case PM_GUIDE:
+            case PM_APPRENTICE:
+                if (random.rn2(2))
+                    mongets(monster,
+                        random.rn2(3) ? DAGGER : KNIFE, normalized);
+                if (random.rn2(5))
+                    mongets(monster,
+                        random.rn2(3) ? LEATHER_JACKET
+                                      : LEATHER_CLOAK, normalized);
+                if (random.rn2(3))
+                    mongets(monster,
+                        random.rn2(3) ? LOW_BOOTS : HIGH_BOOTS, normalized);
+                if (random.rn2(3))
+                    mongets(monster, POT_HEALING, normalized);
+                break;
+            case PM_CHIEFTAIN:
+            case PM_PAGE:
+            case PM_ROSHI:
+            case PM_WARRIOR:
+                mongets(monster,
+                    random.rn2(3) ? LONG_SWORD : SHORT_SWORD, normalized);
+                mongets(monster,
+                    random.rn2(3) ? CHAIN_MAIL : LEATHER_ARMOR, normalized);
+                if (random.rn2(2))
+                    mongets(monster,
+                        random.rn2(2) ? LOW_BOOTS : HIGH_BOOTS, normalized);
+                if (!random.rn2(3))
+                    mongets(monster, LEATHER_CLOAK, normalized);
+                if (!random.rn2(3)) {
+                    mongets(monster, BOW, normalized);
+                    m_initthrow(monster, ARROW, 12, normalized);
+                }
+                break;
+            case PM_HUNTER:
+                mongets(monster,
+                    random.rn2(3) ? SHORT_SWORD : DAGGER, normalized);
+                if (random.rn2(2))
+                    mongets(monster,
+                        random.rn2(2) ? LEATHER_JACKET
+                                      : LEATHER_ARMOR, normalized);
+                mongets(monster, BOW, normalized);
+                m_initthrow(monster, ARROW, 12, normalized);
+                break;
+            case PM_THUG:
+                mongets(monster, CLUB, normalized);
+                mongets(monster,
+                    random.rn2(3) ? DAGGER : KNIFE, normalized);
+                if (random.rn2(2))
+                    mongets(monster, LEATHER_GLOVES, normalized);
+                mongets(monster,
+                    random.rn2(2) ? LEATHER_JACKET
+                                  : LEATHER_ARMOR, normalized);
+                break;
+            case PM_NEANDERTHAL:
+                mongets(monster, CLUB, normalized);
+                mongets(monster, LEATHER_ARMOR, normalized);
+                break;
+            }
         }
-        // Shopkeepers, were-creatures, and other non-elf, non-mercenary
-        // humans (priests, quest guardians, all G_NOGEN) receive no weapons
-        // from m_initweap. C breaks here without an else arm.
+        // Shopkeepers, were-creatures, and other non-elf, non-mercenary,
+        // non-priest, non-guardian humans (all G_NOGEN) receive no weapons
+        // from m_initweap. C breaks here without a further else arm.
         break;
     case S_HUMANOID:
         if (ptr.pmidx === PM_HOBBIT) {
