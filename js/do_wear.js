@@ -7,7 +7,7 @@
 //        (382-431), Helmet_on() (433-515), Helmet_off() (517-564),
 //        Gloves_on() (575-603), Shield_on() (704-730),
 //        Shield_off() (732-756), Shirt_on() (758-775), Shirt_off() (777-794),
-//        Armor_on() (886-906),
+//        dragon_armor_handling() (798-884), Armor_on() (886-906),
 //        Armor_off() (908-930), fingers_or_gloves() (59-65),
 //        set_wear() (1537-1568), cancel_doff() (1642-1659),
 //        count_worn_stuff() (1731-1766), armor_or_accessory_off()
@@ -37,6 +37,7 @@ import {
     A_STR,
     ACID_RES,
     CMDQ_KEY,
+    DRAIN_RES,
     ECMD_CANCEL,
     ECMD_FAIL,
     ECMD_OK,
@@ -46,6 +47,7 @@ import {
     FINGER,
     FLYING,
     FOOT,
+    FREE_ACTION,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_INACCESS,
@@ -54,12 +56,17 @@ import {
     HAND,
     HEAD,
     I_SPECIAL,
+    INFRAVISION,
+    INTRINSIC,
     LEFT_HANDED,
     LEFT_RING,
     LEG,
     PARANOID_REMOVE,
     RIGHT_RING,
+    SICK_RES,
     SLEEPY,
+    SLOW_DIGESTION,
+    STONE_RES,
     STRANGLED,
     st_corpse,
     st_petrifies,
@@ -94,6 +101,7 @@ import {
     WORN_SHIRT,
     plur,
 } from './const.js';
+import { see_monsters } from './display.js';
 import { obj_pmname } from './do_name.js';
 import { surface } from './dungeon.js';
 import { makeplural } from './fruit.js';
@@ -939,9 +947,10 @@ async function on_msg(otmp, state) {
 // C ref: do_wear.c dragon_armor_handling() (798-884). Handles extra
 // abilities when the hero puts on or takes off dragon scale armor. Grey
 // and silver dragon armor have no extra effect, taking the default break.
-// The other eight colors each set or clear an extrinsic property; those
-// arms are not yet ported and throw.
-function dragon_armor_handling(otmp, puton, _on_purpose) {
+// Seven put-on arms are ported; gold needs make_hallucinated() and is
+// refused. The take-off path (puton=false) is unported for all eight
+// colored arms.
+async function dragon_armor_handling(otmp, puton, _on_purpose, state) {
     if (!otmp)
         return;
 
@@ -950,23 +959,92 @@ function dragon_armor_handling(otmp, puton, _on_purpose) {
     /* silver: no extra effect */
     case BLACK_DRAGON_SCALES:
     case BLACK_DRAGON_SCALE_MAIL:
+        if (puton) {
+            state.u.uprops[DRAIN_RES].extrinsic |= W_ARM;
+        } else {
+            throw new UnsupportedTakeOffError(
+                `dragon_armor_handling() take-off for otyp ${otmp.otyp}`,
+            );
+        }
+        break;
     case BLUE_DRAGON_SCALES:
     case BLUE_DRAGON_SCALE_MAIL:
+        if (puton) {
+            // C ref: youprop.h:377 Very_fast = ((HFast & ~INTRINSIC) || EFast).
+            const fast = state.u.uprops[FAST];
+            const Very_fast = Boolean(
+                (fast.intrinsic & ~INTRINSIC) || fast.extrinsic);
+            // C ref: youprop.h:376 Fast = (HFast || EFast).
+            const Fast = Boolean(fast.intrinsic || fast.extrinsic);
+            if (!Very_fast)
+                await ttyPline(
+                    `You speed up${Fast ? ' a bit more' : ''}.`, state);
+            fast.extrinsic |= W_ARM;
+        } else {
+            throw new UnsupportedTakeOffError(
+                `dragon_armor_handling() take-off for otyp ${otmp.otyp}`,
+            );
+        }
+        break;
     case GREEN_DRAGON_SCALES:
     case GREEN_DRAGON_SCALE_MAIL:
+        if (puton) {
+            state.u.uprops[SICK_RES].extrinsic |= W_ARM;
+        } else {
+            throw new UnsupportedTakeOffError(
+                `dragon_armor_handling() take-off for otyp ${otmp.otyp}`,
+            );
+        }
+        break;
     case RED_DRAGON_SCALES:
     case RED_DRAGON_SCALE_MAIL:
+        if (puton) {
+            state.u.uprops[INFRAVISION].extrinsic |= W_ARM;
+        } else {
+            throw new UnsupportedTakeOffError(
+                `dragon_armor_handling() take-off for otyp ${otmp.otyp}`,
+            );
+        }
+        // C calls see_monsters() unconditionally for both put-on and take-off
+        see_monsters(state);
+        break;
     case GOLD_DRAGON_SCALES:
     case GOLD_DRAGON_SCALE_MAIL:
-    case ORANGE_DRAGON_SCALES:
-    case ORANGE_DRAGON_SCALE_MAIL:
-    case YELLOW_DRAGON_SCALES:
-    case YELLOW_DRAGON_SCALE_MAIL:
-    case WHITE_DRAGON_SCALES:
-    case WHITE_DRAGON_SCALE_MAIL:
+        // Needs make_hallucinated() which is not yet ported.
         throw new (puton ? UnsupportedWearError : UnsupportedTakeOffError)(
             `dragon_armor_handling() for otyp ${otmp.otyp}`,
         );
+    case ORANGE_DRAGON_SCALES:
+    case ORANGE_DRAGON_SCALE_MAIL:
+        if (puton) {
+            state.u.uprops[FREE_ACTION].extrinsic |= W_ARM;
+        } else {
+            throw new UnsupportedTakeOffError(
+                `dragon_armor_handling() take-off for otyp ${otmp.otyp}`,
+            );
+        }
+        break;
+    case YELLOW_DRAGON_SCALES:
+    case YELLOW_DRAGON_SCALE_MAIL:
+        if (puton) {
+            state.u.uprops[STONE_RES].extrinsic |= W_ARM;
+        } else {
+            // Take-off also calls wielding_corpse() for cockatrice check.
+            throw new UnsupportedTakeOffError(
+                `dragon_armor_handling() take-off for otyp ${otmp.otyp}`,
+            );
+        }
+        break;
+    case WHITE_DRAGON_SCALES:
+    case WHITE_DRAGON_SCALE_MAIL:
+        if (puton) {
+            state.u.uprops[SLOW_DIGESTION].extrinsic |= W_ARM;
+        } else {
+            throw new UnsupportedTakeOffError(
+                `dragon_armor_handling() take-off for otyp ${otmp.otyp}`,
+            );
+        }
+        break;
     default:
         break;
     }
@@ -991,7 +1069,7 @@ function dragon_armor_handling(otmp, puton, _on_purpose) {
 // Shield_on() below, only a suit the game creates after startup witnesses
 // the write, because mkobj.c mksobj() (864) leaves obj->known 0 for armor
 // where u_init.c ini_inv_adjust_obj() (1215-1216) sets it to 1.
-function Armor_on(state) {
+async function Armor_on(state) {
     if (!state.uarm) /* no known instances of !uarm here but play it safe */
         return 0;
     if (!state.uarm.known) {
@@ -999,7 +1077,7 @@ function Armor_on(state) {
         state.uarm.known = true;
         update_inventory({ state });
     }
-    dragon_armor_handling(state.uarm, true, true);
+    await dragon_armor_handling(state.uarm, true, true, state);
     /* gold DSM requires extra handling since it emits light when worn;
        do that after the special armor handling */
     if (artifact_light(state.uarm) && !state.uarm.lamplit) {
@@ -2395,14 +2473,10 @@ async function accessory_or_armor_on(obj, state = game) {
         case W_ARM:
             // dragon_armor_handling() has an arm for eight of the ten
             // colors; grey and silver take its default break and are
-            // admitted. The other eight are refused above setworn(), so
-            // that the helpless donning turns are not spent on a path
-            // that will throw.
-            if (Is_dragon_armor(obj)
-                && obj.otyp !== GRAY_DRAGON_SCALE_MAIL
-                && obj.otyp !== GRAY_DRAGON_SCALES
-                && obj.otyp !== SILVER_DRAGON_SCALE_MAIL
-                && obj.otyp !== SILVER_DRAGON_SCALES)
+            // admitted. Seven colored put-on arms are ported. Gold is
+            // refused above setworn() because it needs make_hallucinated.
+            if (obj.otyp === GOLD_DRAGON_SCALES
+                || obj.otyp === GOLD_DRAGON_SCALE_MAIL)
                 throw new UnsupportedWearError(
                     `Armor_on() for otyp ${obj.otyp}`,
                 );

@@ -9,20 +9,27 @@ import {
     A_CON,
     A_STR,
     BASICENLIGHTENMENT,
+    DRAIN_RES,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
     ENL_GAMEINPROGRESS,
     FAST,
+    FREE_ACTION,
     FROMEXPER,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_INACCESS,
     GETOBJ_SUGGEST,
     GLIB,
+    INFRAVISION,
+    INTRINSIC,
     JUMPING,
     MAGICENLIGHTENMENT,
     POISON_RES,
+    SICK_RES,
+    SLOW_DIGESTION,
+    STONE_RES,
     TT_BEARTRAP,
     TT_BURIEDBALL,
     TT_INFLOOR,
@@ -114,9 +121,15 @@ import {
     GAUNTLETS_OF_DEXTERITY,
     GAUNTLETS_OF_FUMBLING,
     GAUNTLETS_OF_POWER,
+    BLACK_DRAGON_SCALES,
+    BLACK_DRAGON_SCALE_MAIL,
+    BLUE_DRAGON_SCALES,
+    BLUE_DRAGON_SCALE_MAIL,
     GOLD_DRAGON_SCALE_MAIL,
     GRAY_DRAGON_SCALE_MAIL,
     GRAY_DRAGON_SCALES,
+    GREEN_DRAGON_SCALES,
+    GREEN_DRAGON_SCALE_MAIL,
     HAWAIIAN_SHIRT,
     HELMET,
     HELM_OF_BRILLIANCE,
@@ -136,6 +149,8 @@ import {
     LOW_BOOTS,
     MUMMY_WRAPPING,
     OILSKIN_CLOAK,
+    ORANGE_DRAGON_SCALES,
+    ORANGE_DRAGON_SCALE_MAIL,
     ORCISH_CLOAK,
     ORCISH_HELM,
     ORCISH_RING_MAIL,
@@ -151,6 +166,8 @@ import {
     RIN_REGENERATION,
     RIN_STEALTH,
     RIN_TELEPORTATION,
+    RED_DRAGON_SCALES,
+    RED_DRAGON_SCALE_MAIL,
     ROBE,
     SHORT_SWORD,
     SILVER_SABER,
@@ -165,6 +182,10 @@ import {
     T_SHIRT,
     WATER_WALKING_BOOTS,
     WEAPON_CLASS,
+    WHITE_DRAGON_SCALES,
+    WHITE_DRAGON_SCALE_MAIL,
+    YELLOW_DRAGON_SCALES,
+    YELLOW_DRAGON_SCALE_MAIL,
 } from '../js/objects.js';
 import { obj_is_pname } from '../js/objnam.js';
 import { find_ac } from '../js/u_init_inventory_attrs.js';
@@ -1572,14 +1593,14 @@ test('Armor_on answers for an empty suit slot', async () => {
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
     assert.equal(game.uarm ?? null, null, 'a Valkyrie starts without a suit');
-    assert.equal(Armor_on(game), 0);
+    assert.equal(await Armor_on(game), 0);
 
     // With a suit in the slot the same call sets obj->known instead.
     const suit = armor(LEATHER_JACKET, { dknown: 1, spe: 2, known: false });
     await accessory_or_armor_on(suit, game);
     assert.equal(suit.known, true, 'the oc_delay 0 arm ran the callback');
     suit.known = false;
-    assert.equal(Armor_on(game), 0);
+    assert.equal(await Armor_on(game), 0);
     assert.equal(suit.known, true);
 });
 
@@ -1612,7 +1633,7 @@ test('dragon_armor_handling default-break path admits gray and silver DSM',
             dknown: 1, known: false, owornmask: W_ARM,
         });
         game.uarm = suit;
-        assert.equal(Armor_on(game), 0,
+        assert.equal(await Armor_on(game), 0,
             `otyp ${otyp}: Armor_on() returns 0`);
         assert.equal(suit.known, true,
             `otyp ${otyp}: Armor_on() sets known`);
@@ -1620,6 +1641,146 @@ test('dragon_armor_handling default-break path admits gray and silver DSM',
         // Clean up for the next iteration.
         game.uarm = null;
     }
+});
+
+test('dragon_armor_handling put-on arms set the correct extrinsic', async () => {
+    // do_wear.c:806-880. Each non-neutral, non-gold dragon armor color sets
+    // one extrinsic property bit via W_ARM. The test calls Armor_on()
+    // directly for each color and checks that the property changes.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+
+    // [otyp-scales, otyp-mail, property-index, label]
+    const cases = [
+        // BLACK: drain resistance (do_wear.c:809-816)
+        [BLACK_DRAGON_SCALES, BLACK_DRAGON_SCALE_MAIL, DRAIN_RES, 'DRAIN_RES'],
+        // GREEN: sickness resistance (do_wear.c:829-836)
+        [GREEN_DRAGON_SCALES, GREEN_DRAGON_SCALE_MAIL, SICK_RES, 'SICK_RES'],
+        // RED: infravision (do_wear.c:837-845)
+        [RED_DRAGON_SCALES, RED_DRAGON_SCALE_MAIL, INFRAVISION, 'INFRAVISION'],
+        // ORANGE: free action (do_wear.c:852-859)
+        [ORANGE_DRAGON_SCALES, ORANGE_DRAGON_SCALE_MAIL, FREE_ACTION, 'FREE_ACTION'],
+        // YELLOW: stoning resistance (do_wear.c:860-872)
+        [YELLOW_DRAGON_SCALES, YELLOW_DRAGON_SCALE_MAIL, STONE_RES, 'STONE_RES'],
+        // WHITE: slow digestion (do_wear.c:873-880)
+        [WHITE_DRAGON_SCALES, WHITE_DRAGON_SCALE_MAIL, SLOW_DIGESTION, 'SLOW_DIGESTION'],
+    ];
+
+    for (const [scales, mail, prop, label] of cases) {
+        for (const otyp of [scales, mail]) {
+            const suit = armor(otyp, {
+                dknown: 1, known: false, owornmask: W_ARM,
+            });
+            game.uarm = suit;
+            // Property should be clear before donning.
+            assert.equal(game.u.uprops[prop].extrinsic & W_ARM, 0,
+                `otyp ${otyp} (${label}): extrinsic clear before Armor_on`);
+
+            assert.equal(await Armor_on(game), 0,
+                `otyp ${otyp} (${label}): Armor_on() returns 0`);
+            assert.equal(suit.known, true,
+                `otyp ${otyp} (${label}): Armor_on() sets known`);
+            assert.notEqual(game.u.uprops[prop].extrinsic & W_ARM, 0,
+                `otyp ${otyp} (${label}): extrinsic set after Armor_on`);
+
+            // Clean up for the next iteration.
+            game.u.uprops[prop].extrinsic &= ~W_ARM;
+            game.uarm = null;
+        }
+    }
+});
+
+test('dragon_armor_handling BLUE arm prints speed message and sets EFast',
+    async () => {
+    // do_wear.c:817-828. BLUE dragon armor sets EFast via W_ARM and prints
+    // "You speed up." when the hero has no prior fast source.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+
+    // With no prior fast source, the message is "You speed up."
+    const fast = game.u.uprops[FAST];
+    fast.intrinsic = 0;
+    fast.extrinsic = 0;
+
+    const suit = armor(BLUE_DRAGON_SCALES, {
+        dknown: 1, known: false, owornmask: W_ARM,
+    });
+    game.uarm = suit;
+    assert.equal(await Armor_on(game), 0);
+    assert.equal(takePendingTopLine(), 'You speed up.');
+    assert.notEqual(fast.extrinsic & W_ARM, 0,
+        'EFast W_ARM bit set after donning blue DSA');
+    // Clean up.
+    fast.extrinsic &= ~W_ARM;
+    game.uarm = null;
+
+    // With an intrinsic-only Fast (timed), the message adds "a bit more".
+    // C ref: youprop.h:376 Fast = (HFast || EFast). A non-zero intrinsic
+    // means Fast is true, but Very_fast depends on whether the intrinsic
+    // is timed (non-INTRINSIC bits set) vs permanent (INTRINSIC bits set).
+    // A permanent-only intrinsic makes Fast true but Very_fast false,
+    // triggering "You speed up a bit more."
+    fast.intrinsic = INTRINSIC;  // permanent speed, Fast=true, Very_fast=false
+    fast.extrinsic = 0;
+    const suit2 = armor(BLUE_DRAGON_SCALE_MAIL, {
+        dknown: 1, known: false, owornmask: W_ARM,
+    });
+    game.uarm = suit2;
+    assert.equal(await Armor_on(game), 0);
+    assert.equal(takePendingTopLine(), 'You speed up a bit more.');
+    // Clean up.
+    fast.extrinsic &= ~W_ARM;
+    fast.intrinsic = 0;
+    game.uarm = null;
+});
+
+test('dragon_armor_handling BLUE arm suppresses message when Very_fast',
+    async () => {
+    // do_wear.c:820. When Very_fast is true (hero has timed speed or
+    // extrinsic speed from another source), the "You speed up" message is
+    // suppressed, but EFast W_ARM is still set.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+
+    const fast = game.u.uprops[FAST];
+    // Set timed speed (non-INTRINSIC bit). This makes Very_fast true.
+    fast.intrinsic = 100;  // timed speed
+    fast.extrinsic = 0;
+
+    const suit = armor(BLUE_DRAGON_SCALES, {
+        dknown: 1, known: false, owornmask: W_ARM,
+    });
+    game.uarm = suit;
+    assert.equal(await Armor_on(game), 0);
+    assert.equal(takePendingTopLine(), '',
+        'no speed message when Very_fast');
+    assert.notEqual(fast.extrinsic & W_ARM, 0,
+        'EFast W_ARM bit set despite suppressed message');
+    // Clean up.
+    fast.extrinsic &= ~W_ARM;
+    fast.intrinsic = 0;
+    game.uarm = null;
+});
+
+test('dragon_armor_handling GOLD arm still throws UnsupportedWearError',
+    async () => {
+    // do_wear.c:846-851. Gold dragon armor calls make_hallucinated() which
+    // is not yet ported. The guard in accessory_or_armor_on() and the arm
+    // in dragon_armor_handling() both refuse it.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+
+    const suit = armor(GOLD_DRAGON_SCALE_MAIL, {
+        dknown: 1, known: false, owornmask: W_ARM,
+    });
+    game.uarm = suit;
+    await assert.rejects(() => Armor_on(game), (err) => {
+        assert.equal(err.name, 'UnsupportedWearError');
+        assert.match(err.message,
+            /dragon_armor_handling\(\) for otyp 102/);
+        return true;
+    });
+    game.uarm = null;
 });
 
 test('both of dowear\'s guards answer before the prompt', async () => {
