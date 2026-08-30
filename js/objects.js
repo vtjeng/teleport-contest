@@ -1531,7 +1531,7 @@ export const OBJECT_TEMPLATES = Object.freeze([
 // serializable.
 const UNSEEN_OBJECT_PRICE = Number.MAX_SAFE_INTEGER;
 
-function defineObjclassAliases(object) {
+export function defineObjclassAliases(object) {
     const aliases = {
         oc_bimanual: 'oc_big',
         oc_bulky: 'oc_big',

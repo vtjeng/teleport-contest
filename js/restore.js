@@ -38,6 +38,7 @@ import { restrap, restore_cham } from './mon.js';
 import { hides_under, is_hider } from './mondata.js';
 import { S_EEL, S_MIMIC } from './monsters.js';
 import { init_oclass_probs } from './o_init.js';
+import { defineObjclassAliases } from './objects.js';
 import { rnd } from './rng.js';
 import { SAVE_FILE_PATH } from './save.js';
 import { vfsReadFile, vfsDeleteFile } from './storage.js';
@@ -118,7 +119,14 @@ export function dorestore(state = game) {
 
     // Object catalog: replace the static objects table with the saved one
     // that carries the per-game description shuffle and discovery bits.
-    if (snapshot.objects) state.objects = snapshot.objects;
+    // Re-apply non-enumerable getter/setter aliases (e.g. a_ac for
+    // oc_oc1) that JSON serialization stripped.
+    if (snapshot.objects) {
+        state.objects = snapshot.objects;
+        for (const entry of state.objects) {
+            if (entry) defineObjclassAliases(entry);
+        }
+    }
     if (snapshot.bases) {
         state.svb ??= {};
         state.svb.bases = snapshot.bases;
