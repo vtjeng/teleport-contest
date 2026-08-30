@@ -351,15 +351,14 @@ test('dosounds refuses each unported branch by name, in source order',
         assert.deepEqual(refusal.messages, []);
         assert.deepEqual(vaultBeehive.level.flags, refusal.flagsBefore);
 
+        // Oracle branch is ported: sink gate misses, Oracle rn2(400) gate
+        // misses (non-zero), function completes normally with no message.
         const sinkOracle = soundState();
         sinkOracle.level.flags.nsinks = 1;
         sinkOracle.oracle_level = { ...sinkOracle.u.uz };
-        // One misses the earlier sink gate before the final Oracle boundary.
-        refusal = await refusedSounds(sinkOracle, [1]);
-        assert.ok(refusal.error instanceof UnsupportedAmbientSoundError);
-        assert.equal(refusal.error.message,
-            'dosounds() needs the Oracle level-sound branch');
-        refusal.script.assertBounds([300]);
+        refusal = await refusedSounds(sinkOracle, [1, 1]);
+        assert.equal(refusal.error, null);
+        refusal.script.assertBounds([300, 400]);
         assert.deepEqual(refusal.messages, []);
         assert.deepEqual(sinkOracle.level.flags, refusal.flagsBefore);
     });

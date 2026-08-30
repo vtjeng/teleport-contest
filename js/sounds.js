@@ -27,11 +27,13 @@ import { pmname, rndmonnam } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { is_silent } from './mondata.js';
+import { PM_ORACLE } from './monsters.js';
 import { m_at } from './monst.js';
 import { g_at } from './obj.js';
 import { an } from './objnam.js';
 import { STATUE } from './objects.js';
 import { rn2 } from './rng.js';
+import { canSeeMonster } from './startup_a11y.js';
 import { noisy_shop, shop_object, tended_shop } from './shk.js';
 import { ttyPline } from './tty_message.js';
 
@@ -180,13 +182,6 @@ function rejectUnportedSpecialSound(state, flagNames) {
     }
 }
 
-function rejectUnportedOracleSound(state) {
-    if (on_level(state.u?.uz, state.oracle_level)) {
-        throw new UnsupportedAmbientSoundError(
-            'the Oracle level-sound branch',
-        );
-    }
-}
 
 async function hear(message, state, pline) {
     await pline(`You hear ${message}`, state);
@@ -278,7 +273,25 @@ export async function dosoundsInitialLevel(
         return;
     }
     rejectUnportedSpecialSound(state, POST_SHOP_SPECIAL_SOUND_FLAGS);
-    rejectUnportedOracleSound(state);
+    // C ref: sounds.c:335-338 Oracle level sound branch.
+    if (on_level(state.u?.uz, state.oracle_level) && random(400) === 0) {
+        for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
+            if (mtmp.data !== state.mons?.[PM_ORACLE]) continue;
+            if (Hallucination(state) || !canSeeMonster(mtmp, state)) {
+                const oracleMessages = [
+                    'a strange wind.',
+                    'convulsive ravings.',
+                    'snoring snakes.',
+                    'someone say "No more woodchucks!"',
+                    'a loud ZOT!',
+                ];
+                await hear(
+                    oracleMessages[random(3) + hallu * 2], state, pline,
+                );
+            }
+            return;
+        }
+    }
 }
 
 export class UnsupportedChatError extends Error {
