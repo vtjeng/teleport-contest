@@ -42,6 +42,7 @@ import {
     is_pit,
     LS_MONSTER,
     MFAST,
+    MM_ADJACENTOK,
     MM_ANGRY,
     MM_ASLEEP,
     MM_EDOG,
@@ -3097,6 +3098,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         return null;
     }
     const byHero = x === state.u.ux && y === state.u.uy;
+    const allowtail = (x === 0 && y === 0) || Boolean(mmflags & MM_ADJACENTOK);
     const gpflags = GP_CHECKSCARY | GP_AVOID_MONPOS;
     if (x === 0 && y === 0) {
         const coordinate = makemon_rnd_goodpos(ptr, gpflags, normalized);
@@ -3271,6 +3273,16 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         // visible and undisplaced, so the source result is exact and drawless.
         monster.mux = state.u.ux;
         monster.muy = state.u.uy;
+    }
+    // C ref: makemon.c:1405-1408.
+    if (mndx === PM_LONG_WORM) {
+        monster.wormno = get_wormno(state);
+        if (monster.wormno) {
+            initworm(monster, allowtail ? random.rn2(5) : 0, state);
+            const record = wormSlots(state)[monster.wormno];
+            if (record && record.segments.length > 1)
+                place_worm_tail_randomly(monster, x, y, normalized);
+        }
     }
     set_malign(monster, state);
 
