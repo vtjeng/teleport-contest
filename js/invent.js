@@ -898,10 +898,8 @@ export async function display_pickinv(
     state = game,
     { menu } = {},
 ) {
-    if (xtra_choice || allowxtra || !want_reply)
+    if (xtra_choice || allowxtra)
         throw new UnsupportedFeatureDescriptionError('a partial inventory');
-    if (typeof menu !== 'function')
-        throw new TypeError('display_pickinv needs a menu owner');
     if (!lets && (state.iflags.force_invmenu || state.iflags.menu_requested))
         throw new UnsupportedFeatureDescriptionError('a forced inventory menu');
     if (state.flags.sortloot === 'i' || state.flags.sortloot === 'f')
@@ -927,7 +925,8 @@ export async function display_pickinv(
 
     // C ref: invent.c display_pickinv() single-item message-line path.
     // When only one item matches and no menu is forced, show it with
-    // xprname on the message line and return its invlet.
+    // xprname on the message line. C returns the invlet when want_reply
+    // is true; otherwise 0, which the caller reads as "no selection."
     if (n === 1 && !state.iflags.force_invmenu && !state.iflags.menu_requested) {
         let match = null;
         for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
@@ -938,10 +937,16 @@ export async function display_pickinv(
                 xprname(match, null, lets ? lets[0] : match.invlet, true, 0, 0, state),
                 state,
             );
-            return match.invlet;
+            return want_reply ? match.invlet : null;
         }
         return null;
     }
+
+    // The multi-item menu path requires both a menu owner and want_reply.
+    if (!want_reply)
+        throw new UnsupportedFeatureDescriptionError('a partial inventory');
+    if (typeof menu !== 'function')
+        throw new TypeError('display_pickinv needs a menu owner');
 
     // Formatting a name marks its type discovered, so every object is checked
     // for an unported naming branch before any of them is formatted. Without
@@ -997,12 +1002,13 @@ export async function display_inventory(lets, want_reply, state, hooks) {
     );
 }
 
-// C ref: invent.c dispinv_with_action() (2964-3002). `i` supplies no
-// letters and len is 0, so menumode is unconditionally true. When the
-// player selects a letter, the inventory is walked for the matching object
-// and itemactions() builds its action menu.
+// C ref: invent.c dispinv_with_action() (2964-3002). When lets has
+// exactly one letter and menu_requested is off, menumode is false:
+// display_pickinv() shows the item on the message line and returns 0,
+// so itemactions() is never called.
 export async function dispinv_with_action(lets, state = game, hooks = {}) {
-    const menumode = true;
+    const len = lets ? lets.length : 0;
+    const menumode = (len !== 1 || state.iflags.menu_requested);
     // The menu owner answers null for Escape, which is C's '\033' reaching
     // dispinv_with_action() without matching any invlet.
     const chosen = await display_inventory(lets, menumode, state, hooks);
