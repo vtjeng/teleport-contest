@@ -342,6 +342,8 @@ import {
     BOW,
     CANDELABRUM_OF_INVOCATION,
     CHAIN_MAIL,
+    CLOAK_OF_MAGIC_RESISTANCE,
+    CLOAK_OF_PROTECTION,
     CLUB,
     COIN_CLASS,
     CORPSE,
@@ -433,6 +435,7 @@ import {
     RING_MAIL,
     RING_CLASS,
     ROCK,
+    ROBE,
     ROCK_CLASS,
     SCIMITAR,
     SKELETON_KEY,
@@ -2093,6 +2096,22 @@ function m_initinv(monster, normalized) {
 
         if (!random.rn2(3)) mongets(monster, K_RATION, normalized);
         if (!random.rn2(2)) mongets(monster, C_RATION, normalized);
+    } else if (ptr.mlet === S_HUMAN
+               && (ptr.msound === MS_PRIEST
+                   || (state.urole?.mnum === PM_CLERIC
+                       && (ptr.msound === MS_LEADER
+                           || ptr.msound === MS_NEMESIS)))) {
+        // C ref: makemon.c:721-727. Priests and Cleric quest
+        // representatives receive a robe or cloak, small shield, and gold.
+        mongets(
+            monster,
+            random.rn2(7) ? ROBE
+                : random.rn2(3) ? CLOAK_OF_PROTECTION
+                    : CLOAK_OF_MAGIC_RESISTANCE,
+            normalized,
+        );
+        mongets(monster, SMALL_SHIELD, normalized);
+        mkmonmoney(monster, random.rn1(10, 20), normalized);
     } else if (ptr.mlet === S_NYMPH) {
         if (!random.rn2(2)) mongets(monster, MIRROR, normalized);
         if (!random.rn2(2))
