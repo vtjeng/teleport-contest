@@ -1,6 +1,7 @@
 // quest_levels.js — Quest and special level definitions.
-// C refs: dat/Bar-strt.lua, dat/Arc-strt.lua, dat/Pri-strt.lua,
-//         dat/oracle.lua, dat/tower1.lua, and related level files.
+// C refs: dat/Bar-strt.lua, dat/Bar-fila.lua, dat/Bar-filb.lua,
+//         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
+//         dat/Pri-strt.lua, dat/oracle.lua, dat/tower1.lua.
 
 import { COLNO, FEMALE, G_GENOD, ROWNO } from './const.js';
 import { mkclass } from './makemon.js';
@@ -17,18 +18,22 @@ import {
     PM_OGRE,
     PM_ORACLE,
     PM_PELIAS,
+    PM_ROCK_TROLL,
     PM_STUDENT,
+    PM_THOTH_AMON,
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
     PM_VLAD_THE_IMPALER,
     PM_WATCHMAN,
     S_CENTAUR,
     S_MUMMY,
+    S_OGRE,
     S_SNAKE,
+    S_TROLL,
     S_VAMPIRE,
 } from './monsters.js';
 import {
-    BULLWHIP, CHAIN_MAIL, CHEST, FEDORA, MACE, ROBE,
+    BULLWHIP, CHAIN_MAIL, CHEST, FEDORA, LUCKSTONE, MACE, ROBE,
     RUNESWORD, STATUE, TALLOW_CANDLE, WAX_CANDLE,
 } from './objects.js';
 import { rn2, rnd } from './rng.js';
@@ -250,6 +255,231 @@ async function barStrt(des, state) {
             peaceful: 0,
         });
     }
+}
+
+// C ref: dat/Bar-fila.lua. Mines-style filler level for quest levels above
+// Bar-loca: cave terrain with stairs, random objects, traps, and a few
+// ogres and a rock troll.
+async function barFila(des) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel', 'noflip');
+    des.level_init({
+        style: 'mines', fg: '.', bg: '.',
+        smoothed: true, joined: true, lit: 0, walled: false,
+    });
+
+    des.stair('up');
+    des.stair('down');
+
+    for (let i = 0; i < 8; i++) des.object();
+    for (let i = 0; i < 4; i++) des.trap();
+
+    des.monster({ id: PM_OGRE, peaceful: 0 });
+    des.monster({ id: PM_OGRE, peaceful: 0 });
+    des.monster({ class: S_OGRE, peaceful: 0 });
+    des.monster({ id: PM_ROCK_TROLL, peaceful: 0 });
+}
+
+// C ref: dat/Bar-filb.lua. Mines-style filler level for quest levels at or
+// below Bar-loca: walled cave terrain with more ogres and trolls.
+async function barFilb(des) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel', 'noflip');
+    des.level_init({
+        style: 'mines', fg: '.', bg: ' ',
+        smoothed: true, joined: true, lit: 0, walled: true,
+    });
+
+    des.stair('up');
+    des.stair('down');
+
+    for (let i = 0; i < 11; i++) des.object();
+    for (let i = 0; i < 4; i++) des.trap();
+
+    for (let i = 0; i < 7; i++)
+        des.monster({ id: PM_OGRE, peaceful: 0 });
+    des.monster({ class: S_OGRE, peaceful: 0 });
+    des.monster({ id: PM_ROCK_TROLL, peaceful: 0 });
+    des.monster({ id: PM_ROCK_TROLL, peaceful: 0 });
+    des.monster({ id: PM_ROCK_TROLL, peaceful: 0 });
+    des.monster({ class: S_TROLL, peaceful: 0 });
+}
+
+// C ref: dat/Bar-goal.lua. Map-based barbarian quest goal level: irregular
+// cave with Thoth Amon guarding the Heart of Ahriman on an altar, many
+// ogres and rock trolls.
+async function barGoal(des) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel');
+    des.map([
+        '                                                                            ',
+        '                               .............                                ',
+        '                             ..................                             ',
+        '        ....              .........................          ....           ',
+        '      .......          ..........................           .......         ',
+        '      ......             ........................          .......          ',
+        '      ..  ......................................             ..             ',
+        '       ..                 .....................             ..              ',
+        '        ..                 ..................              ..               ',
+        '         ..         ..S...S..............   ................                ',
+        '          ..                   ........                ...                  ',
+        '       .........                                         ..                 ',
+        '       ......  ..                                         ...  ....         ',
+        '      .. ...    ..                             ......       ........        ',
+        '   ....          .. ..................        ........       ......         ',
+        '  ......          ......................       ......         ..            ',
+        '   ....             ..................              ...........             ',
+        '                      ..............                                        ',
+        '                        ...........                                         ',
+        '                                                                            ',
+    ]);
+
+    // Dungeon Description
+    des.region(selection_area(0, 0, 75, 19), 'unlit');
+
+    // Secret doors
+    des.door({ state: 'locked', coord: [22, 9] });
+    des.door({ state: 'locked', coord: [26, 9] });
+
+    // Stairs
+    des.stair({ dir: 'up', coord: [36, 5] });
+
+    // The altar. Unattended.
+    des.altar({ x: 63, y: 4, align: 'noncoaligned', type: 'altar' });
+
+    des.non_diggable(selection_area(0, 0, 75, 19));
+
+    // Objects — The Heart of Ahriman and 14 random
+    des.object({
+        id: LUCKSTONE, coord: [63, 4],
+        buc: 'blessed', spe: 0, name: 'The Heart of Ahriman',
+    });
+    for (let i = 0; i < 14; i++) des.object();
+
+    // Random traps
+    for (let i = 0; i < 6; i++) des.trap();
+
+    // Random monsters
+    des.monster({ id: PM_THOTH_AMON, coord: [63, 4], peaceful: 0 });
+    for (let i = 0; i < 16; i++)
+        des.monster({ id: PM_OGRE, peaceful: 0 });
+    des.monster({ class: S_OGRE, peaceful: 0 });
+    des.monster({ class: S_OGRE, peaceful: 0 });
+    for (let i = 0; i < 8; i++)
+        des.monster({ id: PM_ROCK_TROLL, peaceful: 0 });
+    des.monster({ class: S_TROLL, peaceful: 0 });
+
+    des.wallify();
+}
+
+// C ref: dat/Bar-loca.lua. Map-based barbarian quest locate level: a swamp
+// path with pools, buildings, and many ogres and trolls.
+async function barLoca(des) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel', 'hardfloor');
+    des.map([
+        '..........PPP.........................................                      ',
+        '...........PP..........................................        .......      ',
+        '..........PP...........-----..........------------------     ..........     ',
+        '...........PP..........+...|..........|....S...........|..  ............    ',
+        '..........PPP..........|...|..........|-----...........|...  .............  ',
+        '...........PPP.........-----..........+....+...........|...  .............  ',
+        '..........PPPPPPPPP...................+....+...........S.................   ',
+        '........PPPPPPPPPPPPP.........-----...|-----...........|................    ',
+        '......PPPPPPPPPPPPPP..P.......+...|...|....S...........|          ...       ',
+        '.....PPPPPPP......P..PPPP.....|...|...------------------..         ...      ',
+        '....PPPPPPP.........PPPPPP....-----........................      ........   ',
+        '...PPPPPPP..........PPPPPPP..................................   ..........  ',
+        '....PPPPPPP........PPPPPPP....................................  ..........  ',
+        '.....PPPPP........PPPPPPP.........-----........................   ........  ',
+        '......PPP..PPPPPPPPPPPP...........+...|.........................    .....   ',
+        '..........PPPPPPPPPPP.............|...|.........................     ....   ',
+        '..........PPPPPPPPP...............-----.........................       .    ',
+        '..............PPP.................................................          ',
+        '...............PP....................................................       ',
+        '................PPP...................................................      ',
+    ]);
+
+    // Dungeon Description
+    des.region(selection_area(0, 0, 75, 19), 'lit');
+    des.region(selection_area(24, 3, 26, 4), 'unlit');
+    des.region(selection_area(31, 8, 33, 9), 'unlit');
+    des.region(selection_area(35, 14, 37, 15), 'unlit');
+    des.region(selection_area(39, 3, 54, 8), 'lit');
+    des.region(selection_area(56, 0, 75, 8), 'unlit');
+    des.region(selection_area(64, 9, 75, 16), 'unlit');
+
+    // Doors
+    des.door({ state: 'open', coord: [23, 3] });
+    des.door({ state: 'open', coord: [30, 8] });
+    des.door({ state: 'open', coord: [34, 14] });
+    des.door({ state: 'locked', coord: [38, 5] });
+    des.door({ state: 'locked', coord: [38, 6] });
+    des.door({ state: 'closed', coord: [43, 3] });
+    des.door({ state: 'closed', coord: [43, 5] });
+    des.door({ state: 'closed', coord: [43, 6] });
+    des.door({ state: 'closed', coord: [43, 8] });
+    des.door({ state: 'locked', coord: [55, 6] });
+
+    // Stairs
+    des.stair({ dir: 'up', coord: [5, 2] });
+    des.stair({ dir: 'down', coord: [70, 13] });
+
+    // Objects — positioned items in the rooms
+    des.object({ coord: [42, 3] });
+    des.object({ coord: [42, 3] });
+    des.object({ coord: [42, 3] });
+    des.object({ coord: [41, 3] });
+    des.object({ coord: [41, 3] });
+    des.object({ coord: [41, 3] });
+    des.object({ coord: [41, 3] });
+    des.object({ coord: [41, 8] });
+    des.object({ coord: [41, 8] });
+    des.object({ coord: [42, 8] });
+    des.object({ coord: [42, 8] });
+    des.object({ coord: [42, 8] });
+    des.object({ coord: [71, 13] });
+    des.object({ coord: [71, 13] });
+    des.object({ coord: [71, 13] });
+
+    // Random traps — 4 spiked pits at fixed positions, 4 random
+    des.trap({ type: 'spiked pit', coord: [10, 13] });
+    des.trap({ type: 'spiked pit', coord: [21, 7] });
+    des.trap({ type: 'spiked pit', coord: [67, 8] });
+    des.trap({ type: 'spiked pit', coord: [68, 9] });
+    des.trap();
+    des.trap();
+    des.trap();
+    des.trap();
+
+    // Random monsters — positioned ogres, trolls, and a few random
+    des.monster({ id: PM_OGRE, coord: [12, 9], peaceful: 0 });
+    des.monster({ id: PM_OGRE, coord: [18, 11], peaceful: 0 });
+    des.monster({ id: PM_OGRE, coord: [45, 5], peaceful: 0 });
+    des.monster({ id: PM_OGRE, coord: [45, 6], peaceful: 0 });
+    des.monster({ id: PM_OGRE, coord: [47, 5], peaceful: 0 });
+    des.monster({ id: PM_OGRE, coord: [46, 5], peaceful: 0 });
+    des.monster({ id: PM_OGRE, coord: [56, 3], peaceful: 0 });
+    des.monster({ id: PM_OGRE, coord: [56, 4], peaceful: 0 });
+    des.monster({ id: PM_OGRE, coord: [56, 5], peaceful: 0 });
+    des.monster({ id: PM_OGRE, coord: [56, 6], peaceful: 0 });
+    des.monster({ id: PM_OGRE, coord: [57, 3], peaceful: 0 });
+    des.monster({ id: PM_OGRE, coord: [57, 4], peaceful: 0 });
+    des.monster({ id: PM_OGRE, coord: [57, 5], peaceful: 0 });
+    des.monster({ id: PM_OGRE, coord: [57, 6], peaceful: 0 });
+    des.monster({ id: PM_OGRE, peaceful: 0 });
+    des.monster({ id: PM_OGRE, peaceful: 0 });
+    des.monster({ id: PM_OGRE, peaceful: 0 });
+    des.monster({ class: S_OGRE, peaceful: 0 });
+    des.monster({ class: S_TROLL, peaceful: 0 });
+    des.monster({ id: PM_ROCK_TROLL, coord: [46, 6], peaceful: 0 });
+    des.monster({ id: PM_ROCK_TROLL, coord: [47, 6], peaceful: 0 });
+    des.monster({ id: PM_ROCK_TROLL, coord: [56, 7], peaceful: 0 });
+    des.monster({ id: PM_ROCK_TROLL, coord: [57, 7], peaceful: 0 });
+    des.monster({ id: PM_ROCK_TROLL, coord: [70, 13], peaceful: 0 });
+    des.monster({ id: PM_ROCK_TROLL, peaceful: 0 });
+    des.monster({ id: PM_ROCK_TROLL, peaceful: 0 });
+    des.monster({ class: S_TROLL, peaceful: 0 });
 }
 
 // C ref: dat/oracle.lua. Room-based special level: six rooms connected by
@@ -659,6 +889,10 @@ function tower1(des, state) {
 
 export const QUEST_LEVEL_LOADERS = {
     'Bar-strt': barStrt,
+    'Bar-fila': barFila,
+    'Bar-filb': barFilb,
+    'Bar-goal': barGoal,
+    'Bar-loca': barLoca,
     'Arc-strt': arcStrt,
     'Pri-strt': priStrt,
     oracle,
