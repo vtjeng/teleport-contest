@@ -6237,6 +6237,32 @@
         "screens": 8,
         "rng": 62
       }
+    },
+    {
+      "id": "dragon-armor-puton-seven-colors",
+      "status": "closed",
+      "boundary": "wear Armor_on() for non-neutral dragon armor",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [
+        {
+          "name": "dragon-armor-handling-puton-seven-colors",
+          "status": "closed",
+          "closedBy": "6621857a7d23f87e34e73121e550626c71a4c702"
+        }
+      ],
+      "openedAt": "6621857a7d23f87e34e73121e550626c71a4c702",
+      "openStanding": {
+        "sha": "6621857",
+        "screens": 2955,
+        "rng": 163630
+      },
+      "closedAt": "6621857a7d23f87e34e73121e550626c71a4c702",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
