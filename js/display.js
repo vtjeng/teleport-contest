@@ -3027,6 +3027,15 @@ export function newsym(x, y) {
         return;
     }
 
+    // display.c:1046-1056, not-visible path: a monster the hero cannot see
+    // but senses through the WARNING property.
+    const outOfSightMon = !visible ? m_at(x, y, game) : null;
+    const outOfSightWarning = Boolean(
+        outOfSightMon
+        && outOfSightMon.mx === x && outOfSightMon.my === y
+        && monsterWarnsHero(outOfSightMon, game),
+    );
+
     // Only update display/memory if cell is IN_SIGHT (lit and visible)
     if (visible) {
         const mimicAppearanceType = monster?.m_ap_type & M_AP_TYPMASK;
@@ -3105,6 +3114,9 @@ export function newsym(x, y) {
                 = remembered_glyph_from_presentation(remembered);
         }
         show_glyph_cell(x, y, shown);
+    } else if (outOfSightWarning) {
+        // display.c:1055-1056, display_warning() for out-of-sight monster
+        show_glyph_cell(x, y, warningGlyphInfo(outOfSightMon, game));
     } else if (loc.remembered_glyph) {
         // display.c:1077-1097, the tail of newsym()'s "can't see the
         // location" arm. A square remembered as lit that the hero cannot see

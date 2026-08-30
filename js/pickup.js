@@ -37,6 +37,8 @@ import {
     LOOKHERE_SKIP_DFEATURE,
     LOST_DROPPED,
     LOST_NONE,
+    MENU_FULL,
+    MENU_PARTIAL,
     MENU_TRADITIONAL,
     MOD_ENCUMBER,
     OBJ_CONTAINED,
@@ -142,12 +144,11 @@ import { stairway_at } from './stairs.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { clearTtyMessageWindow, ttyNorep, ttyPline } from './tty_message.js';
-import { getlin } from './windows.js';
+import { add_menu, getlin, select_menu } from './windows.js';
 import { touch_artifact } from './artifacts.js';
 import { setwornEnv } from './do_wear.js';
 import { welded } from './wield.js';
 import { setuqwep, setuswapwep, setuwep } from './worn.js';
-import { select_menu } from './windows.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
     null,
@@ -1065,6 +1066,81 @@ async function u_handsy(state) {
 //
 // Covered: the ':' (view) and 'q'/'n' (quit/next) paths, the
 // SchroedingersBox FALSE stub for ordinary containers, the cknown and
+// C ref: pickup.c in_or_out_menu() (3397-3476). Builds a PICK_ONE menu for
+// the MENU_PARTIAL/MENU_FULL container-action prompt.
+async function in_or_out_menu(
+    prompt, obj, outokay, inokay, alreadyused, more_containers, state,
+) {
+    const lootchars = '_:oibrsnq';
+    const abc_chars = '_:abcdenq';
+    const sel = state.flags?.lootabc ? abc_chars : lootchars;
+    const items = [];
+    items.push(add_menu(state, {
+        selector: sel[1],
+        label: `Look inside ${thesimpleoname(obj, state)}`,
+        value: ':',
+    }));
+    if (outokay) {
+        items.push(add_menu(state, {
+            selector: sel[2],
+            label: `take ${something} out`,
+            value: 'o',
+        }));
+    }
+    if (inokay) {
+        items.push(add_menu(state, {
+            selector: sel[3],
+            label: `put ${something} in`,
+            value: 'i',
+        }));
+    }
+    if (outokay) {
+        items.push(add_menu(state, {
+            selector: sel[4],
+            label: `${inokay ? 'both; ' : ''}take out, then put in`,
+            value: 'b',
+        }));
+    }
+    if (inokay) {
+        items.push(add_menu(state, {
+            selector: sel[5],
+            label: `${outokay ? 'both reversed; ' : ''}put in, then take out`,
+            value: 'r',
+        }));
+        items.push(add_menu(state, {
+            selector: sel[6],
+            label: `stash one item into ${thesimpleoname(obj, state)}`,
+            value: 's',
+        }));
+    }
+    items.push({ text: '' });
+    if (more_containers) {
+        items.push(add_menu(state, {
+            selector: sel[7],
+            label: 'loot next container',
+            value: 'n',
+            selected: true,
+        }));
+    }
+    items.push(add_menu(state, {
+        selector: sel[8],
+        label: alreadyused ? 'done' : 'do nothing',
+        value: 'q',
+        selected: !more_containers,
+    }));
+    const defaultChoice = more_containers ? 'n' : 'q';
+    const choice = await select_menu(state, {
+        title: prompt,
+        ...menuTitleStyle(state),
+        items,
+        how: PICK_ONE,
+        preselected: defaultChoice,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+    return choice ?? defaultChoice;
+}
+
 // sellobj_state containerdone cleanup.
 //
 // Not covered: 'o'/'i'/'b'/'r'/'s' (item transfer), otrapped/chest_trap,
@@ -1155,32 +1231,44 @@ async function use_container(obj, held, more_containers, state) {
                 state,
             );
         }
-        // Build the response string and call yn_function.
-        // C builds pbuf with allowed and hidden characters. The JS port
-        // builds the visible prompt and accepted characters similarly.
-        const xbuf = [];
-        let pbuf = ':';
-        if (outmaybe) pbuf += 'o'; else xbuf.push('o');
-        if (inokay) pbuf += 'i'; else xbuf.push('i');
-        if (outmaybe) pbuf += 'b'; else xbuf.push('b');
-        if (inokay) { pbuf += 'rs'; } else { xbuf.push('r'); xbuf.push('s'); }
-        pbuf += ' ';
-        if (more_containers) pbuf += 'n'; else xbuf.push('n');
-        pbuf += 'q';
-        if (state.iflags?.cmdassist) {
-            pbuf += ' or ?';
+        // C ref: pickup.c:3084-3115. MENU_PARTIAL and MENU_FULL show a
+        // popup menu; TRADITIONAL and COMBINATION use yn_function().
+        let ch;
+        if (state.flags?.menu_style === MENU_PARTIAL
+            || state.flags?.menu_style === MENU_FULL) {
+            if (!inokay && !outmaybe) {
+                ch = 'b';
+            } else {
+                ch = await in_or_out_menu(
+                    qbuf, state.gc.current_container,
+                    outmaybe, inokay,
+                    used !== ECMD_OK,
+                    more_containers, state,
+                );
+            }
         } else {
-            xbuf.push('?');
-        }
-        if (xbuf.length > 0)
-            pbuf += '\x1b' + xbuf.join('');
+            const xbuf = [];
+            let pbuf = ':';
+            if (outmaybe) pbuf += 'o'; else xbuf.push('o');
+            if (inokay) pbuf += 'i'; else xbuf.push('i');
+            if (outmaybe) pbuf += 'b'; else xbuf.push('b');
+            if (inokay) { pbuf += 'rs'; } else { xbuf.push('r'); xbuf.push('s'); }
+            pbuf += ' ';
+            if (more_containers) pbuf += 'n'; else xbuf.push('n');
+            pbuf += 'q';
+            if (state.iflags?.cmdassist) {
+                pbuf += ' or ?';
+            } else {
+                xbuf.push('?');
+            }
+            if (xbuf.length > 0)
+                pbuf += '\x1b' + xbuf.join('');
 
-        c = await yn_function(
-            qbuf, pbuf, more_containers ? 'n' : 'q', false, state,
-        );
-        // yn_function returns a key code (number). Convert to character
-        // for the comparisons below.
-        const ch = String.fromCharCode(c);
+            c = await yn_function(
+                qbuf, pbuf, more_containers ? 'n' : 'q', false, state,
+            );
+            ch = String.fromCharCode(c);
+        }
 
         if (ch === '?') {
             // explain_container_prompt is a text window listing actions.
