@@ -823,3 +823,16 @@ function restoreBonesLevel(bonesData, state) {
         state.ffruit = fHead;
     }
 }
+
+// C ref: bones.c bones_include_name() (762-780). Checks whether the current
+// level's cemetery list contains bones from a particular player. The 'who'
+// field has the format "name-Rol-Rac-Gen-Ali"; appending a hyphen to the
+// search name prevents partial matches.
+export function bones_include_name(name, state) {
+    const needle = name + '-';
+    for (let bp = state.level?.bonesinfo; bp; bp = bp.next) {
+        if (bp.who && bp.who.startsWith(needle))
+            return true;
+    }
+    return false;
+}
