@@ -100,6 +100,7 @@ import {
     UnsupportedPotionError,
     UnsupportedQuaffError,
 } from './potion.js';
+import { UnsupportedFountainError } from './fountain.js';
 import { UnsupportedItemDestructionError } from './zap_destroy_items.js';
 import { UnsupportedPositionCheckError } from './teleport.js';
 import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
@@ -1860,10 +1861,13 @@ export function failClosedCommandRefusals() {
         UnsupportedItemDestructionError,
         UnsupportedPotionError,
         // potion.c dodrink()/dopotion()/peffects() raises this for the 22
-        // potion types besides POT_SPEED and for the strangled, fountain,
-        // sink, underwater, worn-potion, milky and smoky branches of
-        // dodrink() that this port has not reached.
+        // potion types besides POT_SPEED and for the strangled, sink,
+        // underwater, worn-potion, milky and smoky branches of dodrink()
+        // that this port has not reached.
         UnsupportedQuaffError,
+        // fountain.c drinkfountain(), dowaterdemon(), and dryup() raise
+        // this for the fountain-effect arms this port leaves unported.
+        UnsupportedFountainError,
         UnsupportedObjectNamingError,
         // Two paths raise this. invent.c hold_another_object(), which
         // makewish() calls unguarded, raises it from its drop, artifact,

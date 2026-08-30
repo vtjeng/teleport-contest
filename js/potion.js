@@ -62,6 +62,8 @@ import { see_monsters, tmp_at } from './display.js';
 import { heal_legs, trycall } from './do.js';
 import { Amonnam, capitalizedMonsterName } from './do_name.js';
 import { tamedog } from './dog.js';
+import { can_reach_floor } from './engrave.js';
+import { drinkfountain } from './fountain.js';
 import { more_experienced } from './exper.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
@@ -660,11 +662,21 @@ export async function dodrink(state = game) {
     // guarded by !iflags.menu_requested (i.e. no 'm' prefix). Fail-closed
     // because the speed-potion validation path does not exercise any of them.
     if (!state.iflags.menu_requested) {
-        // C ref: potion.c:542-544. Fountain on the hero's square.
+        // C ref: potion.c:542-549. Fountain on the hero's square.
         const typ = state.level.at(hero.ux, hero.uy).typ;
-        if (IS_FOUNTAIN(typ)) {
-            throw new UnsupportedQuaffError(
-                'the fountain prompt in dodrink()');
+        if (IS_FOUNTAIN(typ) && can_reach_floor(false, state)) {
+            // Dynamic import: y_n lives in cmd.js, which imports
+            // potion.js. A static import would create a circular
+            // dependency that changes module initialization order.
+            const { y_n } = await import('./cmd.js');
+            // yn_function() returns the raw keystroke byte, so the
+            // comparison is against 'y'.charCodeAt(0), not 'y'.
+            if (await y_n('Drink from the fountain?', state)
+                === 'y'.charCodeAt(0)) {
+                await drinkfountain(state);
+                return ECMD_TIME;
+            }
+            ++drink_ok_extra;
         }
         // C ref: potion.c:552-554. Kitchen sink on the hero's square.
         if (IS_SINK(typ)) {

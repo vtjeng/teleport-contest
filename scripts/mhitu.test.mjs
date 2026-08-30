@@ -530,13 +530,13 @@ test('mattacku refuses each arm the slice leaves unported', async () => {
     );
     rat.mux = state.u.ux;
 
-    // mhitu.c:729-741, summonmu(). A were-creature next to the hero summons
-    // before it strikes.
+    // mhitu.c:955-993, summonmu(). A were-creature next to the hero
+    // triggers the were-creature summoning arm before it strikes.
     const were = meleeAttacker(state, PM_WERERAT, 0, 1);
     await assert.rejects(
         () => mattacku(were, meleeEnv(state, [17]).env),
         (error) => error.reason
-            === 'a monster summoning help against the hero',
+            === 'a were creature summoning critters',
     );
 
     // mhitu.c:826-830, AT_HUGS. An owlbear next to the hero reaches the arm
