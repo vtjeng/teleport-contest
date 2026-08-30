@@ -28,6 +28,7 @@ import {
     LAVAWALL,
     MORGUE,
     NON_PM,
+    ZOO,
     OROOM,
     POOL,
     ROOM,
@@ -52,6 +53,7 @@ import {
     TEMPLE,
 } from './const.js';
 import { In_hell, induced_align, level_difficulty } from './dungeon.js';
+import { dist2 } from './hacklib.js';
 import { game } from './gstate.js';
 import { add_to_container } from './invent.js';
 import { occupied, somexyspace, topologize } from './mklev.js';
@@ -94,7 +96,7 @@ import {
     WAND_CLASS,
 } from './objects.js';
 import { make_grave } from './grave.js';
-import { mksobj, mksobj_at, set_corpsenm, weight } from './obj.js';
+import { mkgold, mksobj, mksobj_at, set_corpsenm, weight } from './obj.js';
 import { priestini } from './priest.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { inside_room } from './room_coordinates.js';
@@ -467,24 +469,29 @@ export function courtCellIsFillable(sroom, x, y, state) {
         || (y === sroom.hy && door.y === y + 1));
 }
 
-// C ref: mkroom.c fill_zoo(). The COURT, BEEHIVE, and MORGUE arms are
-// ported; remaining zoo families retain their named generation boundary.
+// C ref: mkroom.c fill_zoo(). The COURT, BEEHIVE, MORGUE, and ZOO arms
+// are ported; remaining zoo families retain their named generation boundary.
 export function fill_zoo(sroom, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? SOURCE_RANDOM;
     const normalized = { ...env, state, random };
     const type = sroom.rtype;
-    if (type !== COURT && type !== BEEHIVE && type !== MORGUE) {
+    if (type !== COURT && type !== BEEHIVE && type !== MORGUE
+        && type !== ZOO) {
         throw new UnsupportedSpecialRoomError(
-            `fill_zoo(${type}) beyond the Morgue boundary`,
+            `fill_zoo(${type}) beyond the Zoo boundary`,
         );
     }
 
     // C ref: fill_zoo() lines 288-321 — pre-loop, type-specific setup.
     // tx/ty hold the throne position (COURT) or the queen-bee center (BEEHIVE).
+    // goldlim is the total gold budget for ZOO rooms.
     let tx = 0;
     let ty = 0;
-    if (type === COURT) {
+    let goldlim = 0;
+    if (type === ZOO) {
+        goldlim = 500 * level_difficulty(state);
+    } else if (type === COURT) {
         const throne = { x: 0, y: 0 };
         let remaining = 100;
         do {
@@ -519,13 +526,16 @@ export function fill_zoo(sroom, env = {}) {
             if (type === COURT && state.level.at(x, y).typ === THRONE) continue;
 
             // C ref: lines 344-361 — type-specific monster selection.
+            // ZOO passes null: makemon picks a random monster.
             const species = type === COURT
                 ? courtmon(state, random)
                 : type === MORGUE
                     ? morguemon(state, random)
-                    : (x === tx && y === ty
-                        ? state.mons[PM_QUEEN_BEE]
-                        : state.mons[PM_KILLER_BEE]);
+                    : type === BEEHIVE
+                        ? (x === tx && y === ty
+                            ? state.mons[PM_QUEEN_BEE]
+                            : state.mons[PM_KILLER_BEE])
+                        : null;
             const monster = makemon(
                 species,
                 x,
@@ -539,7 +549,21 @@ export function fill_zoo(sroom, env = {}) {
             }
 
             // C ref: lines 369-418 — type-specific post-monster items.
-            if (type === MORGUE) {
+            if (type === ZOO) {
+                const sh = sroom.fdoor;
+                const door = state.level.doors[sh];
+                let i;
+                if (sroom.doorct) {
+                    const distval = dist2(x, y, door.x, door.y);
+                    i = distval * distval;
+                } else {
+                    i = goldlim;
+                }
+                if (i >= goldlim)
+                    i = 5 * level_difficulty(state);
+                goldlim -= i;
+                mkgold(random.rn1(i, 10), x, y, normalized);
+            } else if (type === MORGUE) {
                 if (!random.rn2(5))
                     mk_tt_object(CORPSE, x, y, normalized);
                 if (!random.rn2(10))
@@ -573,6 +597,8 @@ export function fill_zoo(sroom, env = {}) {
         chest.owt = weight(chest, normalized);
         chest.spe = 2;
         state.level.flags.has_court = true;
+    } else if (type === ZOO) {
+        state.level.flags.has_zoo = true;
     } else if (type === MORGUE) {
         state.level.flags.has_morgue = true;
     } else if (type === BEEHIVE) {
