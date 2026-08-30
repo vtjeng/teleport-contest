@@ -8,6 +8,7 @@
 import { game } from './gstate.js';
 import { GameMap } from './game.js';
 import {
+    Can_dig_down,
     Can_fall_thru,
     Is_branchlev,
     Is_special,
@@ -56,6 +57,7 @@ import {
     mkobj_at,
     mksobj,
     mksobj_at,
+    sobj_at,
     objectType,
     weight,
 } from './obj.js';
@@ -90,7 +92,7 @@ import {
     WAN_TELEPORTATION,
     WEAPON_CLASS,
 } from './objects.js';
-import { maketrap } from './trap.js';
+import { maketrap, t_at } from './trap.js';
 import {
     mktrap as make_level_trap,
     occupied,
@@ -127,6 +129,7 @@ import {
     PM_GIANT_SPIDER,
     PM_KILLER_BEE,
     PM_LEPRECHAUN,
+    PM_MINOTAUR,
     PM_SOLDIER,
     PM_GIANT_ZOMBIE,
     PM_ETTIN_ZOMBIE,
@@ -160,7 +163,9 @@ import {
     FILL_NONE, FILL_NORMAL,
     G_GONE,
     ICE, MOAT, POOL, WATER, LAVAPOOL, LAVAWALL,
-    DBWALL, AIR, CLOUD,
+    DBWALL, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN,
+    DB_NORTH, DB_SOUTH, DB_EAST, DB_WEST, DB_LAVA,
+    AIR, CLOUD,
     MAX_TYPE, MATCH_WALL,
     A_LAWFUL, A_NEUTRAL, A_CHAOTIC, A_NONE,
     Align2amask,
@@ -177,8 +182,10 @@ import {
     POLY_TRAP, VIBRATING_SQUARE,
     MKTRAP_NOFLAGS, MKTRAP_MAZEFLAG, MKTRAP_NOSPIDERONWEB,
     MKTRAP_NOVICTIM, MKTRAP_SEEN,
-    CORPSTAT_INIT, MARK, MM_NOGRP,
+    CORPSTAT_INIT, MARK, MM_NOGRP, NO_MM_FLAGS,
     In_quest, NO_ROOM,
+    TRAPNUM,
+    In_endgame,
     is_hole,
     is_pit,
 } from './const.js';
@@ -513,10 +520,14 @@ async function makelevel(specialLevelLoader = null) {
                 const { SOKOBAN_LEVEL_LOADERS } = await import(
                     './sokoban_levels.js'
                 );
+                const { CASTLE_LEVEL_LOADERS } = await import(
+                    './castle_levels.js'
+                );
                 SPECIAL_LEVEL_LOADERS = {
                     ...BIGRM_LOADERS,
                     ...QUEST_LEVEL_LOADERS,
                     ...SOKOBAN_LEVEL_LOADERS,
+                    ...CASTLE_LEVEL_LOADERS,
                 };
             }
             // Determine the resolved protofile the same way makemaz() will.
@@ -1010,10 +1021,14 @@ async function makemaz(proto, slev, state) {
             const { SOKOBAN_LEVEL_LOADERS } = await import(
                 './sokoban_levels.js'
             );
+            const { CASTLE_LEVEL_LOADERS } = await import(
+                './castle_levels.js'
+            );
             SPECIAL_LEVEL_LOADERS = {
                 ...BIGRM_LOADERS,
                 ...QUEST_LEVEL_LOADERS,
                 ...SOKOBAN_LEVEL_LOADERS,
+                ...CASTLE_LEVEL_LOADERS,
             };
         }
         const loader = SPECIAL_LEVEL_LOADERS[protofile];
@@ -1072,6 +1087,12 @@ function createSpecialLevelApi(state) {
     // before any level creation code runs. des.map() overrides these with
     // the map's placement; mines-style level_init and other map-less levels
     // keep these defaults, so get_location() covers the whole playable area.
+    // C ref: sp_lev.c SpLev_Map[COLNO][ROWNO]. Tracks which cells were
+    // placed by lspo_map, lspo_door, lspo_stair, or lspo_drawbridge.
+    // maze1xy avoids these cells when placing fill objects.
+    const splevMap = Array.from({ length: COLNO }, () =>
+        new Uint8Array(ROWNO),
+    );
     const frame = {
         xstart: 1,
         ystart: 0,
@@ -1079,6 +1100,7 @@ function createSpecialLevelApi(state) {
         ysize: ROWNO,
         xMazeMax: (COLNO - 1) & ~1,
         yMazeMax: (ROWNO - 1) & ~1,
+        splevMap,
     };
     const spObjectContext = new_sp_lev_object_context();
     const env = {
@@ -1114,8 +1136,8 @@ function createSpecialLevelApi(state) {
         random: SOURCE_THEMEROOM_RANDOM,
         get frame() { return frame; },
 
-        // C ref: sp_lev.c lspo_level_init(). Supports solidfill and
-        // mines styles. Mines uses mkmap() cellular-automata generation.
+        // C ref: sp_lev.c lspo_level_init(). Supports solidfill, mazegrid,
+        // and mines styles. Mines uses mkmap() cellular-automata generation.
         level_init(specification) {
             const style = specification?.style;
             if (style === 'solidfill') {
@@ -1127,6 +1149,25 @@ function createSpecialLevelApi(state) {
                     for (let y = 0; y <= frame.yMazeMax; ++y) {
                         set_themeroom_map_terrain(x, y, filling, state);
                         state.level.at(x, y).lit = lit;
+                    }
+                }
+            } else if (style === 'mazegrid') {
+                // C ref: sp_lev.c splev_initlev() LVLINIT_MAZEGRID case.
+                // lvlfill_maze_grid(2, 0, x_maze_max, y_maze_max, bg).
+                // Non-corrmaze: STONE where y < 2 or both x and y are odd;
+                // bg (the filling) everywhere else.
+                const bgRaw = specification.bg != null
+                    ? splev_chr2typ(specification.bg) : STONE;
+                const filling = bgRaw >= 0 ? bgRaw : STONE;
+                for (let x = 2; x <= frame.xMazeMax; ++x) {
+                    for (let y = 0; y <= frame.yMazeMax; ++y) {
+                        if (state.level.flags.corrmaze) {
+                            set_themeroom_map_terrain(x, y, STONE, state);
+                        } else {
+                            const typ = (y < 2 || ((x % 2) && (y % 2)))
+                                ? STONE : filling;
+                            set_themeroom_map_terrain(x, y, typ, state);
+                        }
                     }
                 }
             } else if (style === 'mines') {
@@ -1247,7 +1288,10 @@ function createSpecialLevelApi(state) {
                 for (let x = 0; x < width; ++x) {
                     const typ = splev_chr2typ(rows[y][x]);
                     if (typ >= MAX_TYPE) continue;
-                    set_themeroom_map_terrain(ox + x, oy + y, typ, state);
+                    const ax = ox + x;
+                    const ay = oy + y;
+                    set_themeroom_map_terrain(ax, ay, typ, state);
+                    if (frame.splevMap) frame.splevMap[ax][ay] = 1;
                 }
             }
             if (typeof spec.contents === 'function') spec.contents();
@@ -1305,7 +1349,7 @@ function createSpecialLevelApi(state) {
                 // C ref: sp_lev.c lspo_region() table form with region coords.
                 const ROOM_TYPE_MAP = {
                     ordinary: OROOM, delphi: DELPHI, temple: TEMPLE,
-                    zoo: ZOO,
+                    zoo: ZOO, throne: COURT, barracks: BARRACKS,
                 };
                 const [rx1, ry1, rx2, ry2] = specification.region;
                 const rtype = ROOM_TYPE_MAP[specification.type] ?? OROOM;
@@ -1450,25 +1494,34 @@ function createSpecialLevelApi(state) {
         },
 
         // C ref: sp_lev.c lspo_teleport_region(). bigrm-10 uses the
-        // extended form with exclude and dir.
+        // extended form with exclude and dir. When region_islev is true,
+        // coordinates are absolute level coordinates (not frame-relative).
         teleport_region(specification) {
+            const islev = Boolean(specification.region_islev);
+            const ox = islev ? 0 : frame.xstart;
+            const oy = islev ? 0 : frame.ystart;
             const [x1, y1, x2, y2] = specification.region;
             const destination = {
-                lx: frame.xstart + x1,
-                ly: frame.ystart + y1,
-                hx: frame.xstart + x2,
-                hy: frame.ystart + y2,
+                lx: ox + x1,
+                ly: oy + y1,
+                hx: ox + x2,
+                hy: oy + y2,
                 nlx: -1,
                 nly: -1,
                 nhx: -1,
                 nhy: -1,
             };
             if (specification.exclude) {
+                const exIslev = Boolean(
+                    specification.exclude_islev ?? islev,
+                );
+                const eox = exIslev ? 0 : frame.xstart;
+                const eoy = exIslev ? 0 : frame.ystart;
                 const [ex1, ey1, ex2, ey2] = specification.exclude;
-                destination.nlx = frame.xstart + ex1;
-                destination.nly = frame.ystart + ey1;
-                destination.nhx = frame.xstart + ex2;
-                destination.nhy = frame.ystart + ey2;
+                destination.nlx = eox + ex1;
+                destination.nly = eoy + ey1;
+                destination.nhx = eox + ex2;
+                destination.nhy = eoy + ey2;
             }
             if (specification.dir === 'up' || specification.dir == null) {
                 state.updest = { ...destination };
@@ -1557,6 +1610,10 @@ function createSpecialLevelApi(state) {
                     (msk & D_SECRET) ? SDOOR : DOOR, { state });
             setSpecialDoorOrientation(coordinate.x, coordinate.y, state);
             location.doormask = msk & 0x1f;
+            // C ref: sp_lev.c:4661. Mark door cells in SpLev_Map.
+            if (frame.splevMap) {
+                frame.splevMap[coordinate.x][coordinate.y] = 1;
+            }
             return location;
         },
 
@@ -1617,6 +1674,61 @@ function createSpecialLevelApi(state) {
                 coordinate,
                 env,
             );
+        },
+
+        // C ref: sp_lev.c lspo_drawbridge() -> dbridge.c create_drawbridge().
+        // Creates a drawbridge at the given coordinates with the specified
+        // direction and open/closed state.
+        drawbridge(specification) {
+            const dirMap = {
+                north: DB_NORTH,
+                south: DB_SOUTH,
+                east: DB_EAST,
+                west: DB_WEST,
+            };
+            const coordinate = specialCoordinate(frame, [
+                specification.x,
+                specification.y,
+            ]);
+            const x = coordinate.x;
+            const y = coordinate.y;
+            let dir = dirMap[specification.dir];
+            if (dir == null) dir = DB_WEST;
+            let dbOpen;
+            if (specification.state === 'open') dbOpen = true;
+            else if (specification.state === 'closed') dbOpen = false;
+            else dbOpen = !rn2(2); // random
+            // C ref: dbridge.c create_drawbridge(). Compute the wall cell
+            // adjacent to the drawbridge position.
+            let x2 = x, y2 = y;
+            let horiz;
+            switch (dir) {
+            case DB_NORTH: horiz = true; y2--; break;
+            case DB_SOUTH: horiz = true; y2++; break;
+            case DB_EAST: horiz = false; x2++; break;
+            default: /* DB_WEST */ horiz = false; x2--; break;
+            }
+            const loc2 = state.level.at(x2, y2);
+            if (!loc2 || !IS_WALL(loc2.typ)) return;
+            const loc = state.level.at(x, y);
+            const lava = loc.typ === LAVAPOOL;
+            if (dbOpen) {
+                loc.typ = DRAWBRIDGE_DOWN;
+                loc2.typ = DOOR;
+                loc2.doormask = D_NODOOR;
+            } else {
+                loc.typ = DRAWBRIDGE_UP;
+                loc2.typ = DBWALL;
+                loc2.wall_info = W_NONDIGGABLE;
+            }
+            loc.horizontal = !horiz;
+            loc2.horizontal = horiz;
+            loc.drawbridgemask = dir;
+            if (lava) loc.drawbridgemask |= DB_LAVA;
+            // C ref: sp_lev.c:5760. Mark drawbridge cell in SpLev_Map.
+            if (frame.splevMap) {
+                frame.splevMap[coordinate.x][coordinate.y] = 1;
+            }
         },
 
         object(specification) {
@@ -1932,23 +2044,50 @@ function createSpecialLevelApi(state) {
         // C ref: sp_lev.c lspo_mazewalk(). Carves a maze starting from the
         // given coordinates. bigrm-10 uses this with stocked=0.
         mazewalk(spec) {
-            const dirMap = { north: 0, south: 2, east: 1, west: 3 };
             let x = frame.xstart + spec.x;
             let y = frame.ystart + spec.y;
-            const dir = dirMap[spec.dir] ?? 0;
-            const typ = spec.typ != null ? splev_chr2typ(spec.typ) : 0;
-            // Step one cell in the specified direction before walking.
-            // C ref: sp_lev.c lspo_mazewalk() dx/dy adjustment.
-            const dx = [0, 1, 0, -1];
-            const dy = [-1, 0, 1, 0];
-            x += dx[dir];
-            y += dy[dir];
-            // Ensure odd parity for maze grid.
-            if (!(x % 2)) ++x;
-            if (!(y % 2)) ++y;
-            walkfrom(x, y, typ, state);
+            const dirStr = spec.dir ?? 'random';
+            let dir;
+            if (dirStr === 'random') {
+                // C ref: mkmaze.c random_wdir(). Pick a random cardinal.
+                const dirs = [W_NORTH, W_SOUTH, W_EAST, W_WEST];
+                dir = dirs[rn2(4)];
+            } else {
+                const dirMap = {
+                    north: W_NORTH, south: W_SOUTH,
+                    east: W_EAST, west: W_WEST,
+                };
+                dir = dirMap[dirStr] ?? W_NORTH;
+            }
+            let ftyp = spec.typ != null ? splev_chr2typ(spec.typ) : ROOM;
+            if (ftyp < 1) {
+                ftyp = state.level.flags.corrmaze ? CORR : ROOM;
+            }
+            // C ref: sp_lev.c lspo_mazewalk() step one cell in the
+            // specified direction and set its type.
+            switch (dir) {
+            case W_NORTH: --y; break;
+            case W_SOUTH: ++y; break;
+            case W_EAST: ++x; break;
+            case W_WEST: --x; break;
+            }
+            if (!IS_DOOR(state.level.at(x, y).typ)) {
+                state.level.at(x, y).typ = ftyp;
+                state.level.at(x, y).flags = 0;
+            }
+            // C ref: sp_lev.c lspo_mazewalk() parity adjustment.
+            // Direction-dependent: adjusts toward the walk direction.
+            if (!(x % 2)) {
+                if (dir === W_EAST) ++x; else --x;
+                state.level.at(x, y).typ = ftyp;
+                state.level.at(x, y).flags = 0;
+            }
+            if (!(y % 2)) {
+                if (dir === W_SOUTH) ++y; else --y;
+            }
+            walkfrom(x, y, ftyp, state);
             if (spec.stocked !== 0) {
-                fill_empty_maze(state);
+                fill_empty_maze(frame, state);
             }
         },
 
@@ -1956,20 +2095,26 @@ function createSpecialLevelApi(state) {
         // stair, portal, branch, or teleport placement that place_lregion
         // resolves when fixup_special runs.
         levregion(spec) {
+            const islev = Boolean(spec.region_islev);
+            const ox = islev ? 0 : frame.xstart;
+            const oy = islev ? 0 : frame.ystart;
             const [rx1, ry1, rx2, ry2] = spec.region;
             const region = {
-                lx: frame.xstart + rx1,
-                ly: frame.ystart + ry1,
-                hx: frame.xstart + rx2,
-                hy: frame.ystart + ry2,
+                lx: ox + rx1,
+                ly: oy + ry1,
+                hx: ox + rx2,
+                hy: oy + ry2,
                 nlx: -1, nly: -1, nhx: -1, nhy: -1,
             };
             if (spec.exclude) {
+                const exIslev = Boolean(spec.exclude_islev ?? islev);
+                const eox = exIslev ? 0 : frame.xstart;
+                const eoy = exIslev ? 0 : frame.ystart;
                 const [ex1, ey1, ex2, ey2] = spec.exclude;
-                region.nlx = frame.xstart + ex1;
-                region.nly = frame.ystart + ey1;
-                region.nhx = frame.xstart + ex2;
-                region.nhy = frame.ystart + ey2;
+                region.nlx = eox + ex1;
+                region.nly = eoy + ey1;
+                region.nhx = eox + ex2;
+                region.nhy = eoy + ey2;
             }
             // C ref: the type string maps to LR_* constants.
             const LREGION_TYPE_MAP = {
@@ -2070,12 +2215,14 @@ function mapFromRows(rows, frame, state) {
     state.ysize = frame.ysize;
     for (let y = 0; y < height; ++y) {
         for (let x = 0; x < width; ++x) {
-            set_themeroom_map_terrain(
-                frame.xstart + x,
-                frame.ystart + y,
-                splev_chr2typ(rows[y][x]),
-                state,
-            );
+            const ax = frame.xstart + x;
+            const ay = frame.ystart + y;
+            const mptyp = splev_chr2typ(rows[y][x]);
+            if (mptyp >= MAX_TYPE) continue;
+            set_themeroom_map_terrain(ax, ay, mptyp, state);
+            // C ref: sp_lev.c:6292. Mark cells placed by the map fragment
+            // so fill_empty_maze and maze1xy avoid them.
+            if (frame.splevMap) frame.splevMap[ax][ay] = 1;
         }
     }
     return { ...frame };
@@ -2719,56 +2866,64 @@ function flip_level_rnd(flp) {
     if (c) flip_level(c);
 }
 
-// C ref: mkmaze.c walkfrom() iterative version. Carves a maze using
-// depth-first wall removal, used by des.mazewalk() in bigrm-10.
+// C ref: mkmaze.c walkfrom() (non-MICRO recursive version). Carves a
+// maze by picking a random viable direction, setting the intermediate
+// cell, then recursing into the destination. The C code modifies x,y
+// in place via mz_move before the recursive call, so after the call
+// returns the while loop continues from the DESTINATION, not the
+// original cell. This produces a different carving order from a
+// standard iterative DFS, so an iterative stack-based version would
+// NOT match the C. The Castle level's maze wings are small enough
+// (about 8x17 cells) that recursion depth stays well within limits.
 function walkfrom(x, y, typ, state) {
     if (!typ) {
         typ = state.level.flags.corrmaze ? CORR : ROOM;
     }
-    const CELLS = Math.trunc((ROWNO * COLNO) / 4);
-    const mazex = new Int8Array(CELLS + 1);
-    const mazey = new Int8Array(CELLS + 1);
-    let pos = 1;
-    mazex[pos] = x;
-    mazey[pos] = y;
-    while (pos) {
-        x = mazex[pos];
-        y = mazey[pos];
-        if (!IS_DOOR(state.level.at(x, y).typ)) {
-            state.level.at(x, y).typ = typ;
-            state.level.at(x, y).flags = 0;
-        }
+    if (!IS_DOOR(state.level.at(x, y).typ)) {
+        state.level.at(x, y).typ = typ;
+        state.level.at(x, y).flags = 0;
+    }
+    // C ref: mkmaze.c mz_move(). Direction mapping:
+    // 0=north(y--), 1=east(x++), 2=south(y++), 3=west(x--).
+    const dx = [0, 1, 0, -1];
+    const dy = [-1, 0, 1, 0];
+    for (;;) {
         let q = 0;
         const dirs = [0, 0, 0, 0];
         for (let a = 0; a < 4; ++a) {
             if (maze_okay(x, y, a, state)) dirs[q++] = a;
         }
-        if (!q) { --pos; continue; }
-        if (q > 1) {
-            const swap = rn2(q);
-            const tmp = dirs[0];
-            dirs[0] = dirs[swap];
-            dirs[swap] = tmp;
+        if (!q) return;
+        const dir = dirs[rn2(q)];
+        // mz_move step 1: advance to intermediate cell and set it.
+        x += dx[dir];
+        y += dy[dir];
+        if (!IS_DOOR(state.level.at(x, y).typ)) {
+            state.level.at(x, y).typ = typ;
+            state.level.at(x, y).flags = 0;
         }
-        const dir = dirs[0];
-        const dx = [0, 0, 1, -1];
-        const dy = [-1, 1, 0, 0];
-        maze_move(x + dx[dir], y + dy[dir], typ, state);
-        mazex[++pos] = x + 2 * dx[dir];
-        mazey[pos] = y + 2 * dy[dir];
+        // mz_move step 2: advance to destination cell.
+        x += dx[dir];
+        y += dy[dir];
+        // Recurse; after it returns, x,y still point to the destination
+        // (matching the C behavior where mz_move modifies x,y in place).
+        walkfrom(x, y, typ, state);
     }
 }
 
 // C ref: mkmaze.c okay(). Checks whether maze carving can extend two
-// cells from (x,y) in direction a.
+// cells from (x,y) in direction a. Uses x_maze_max/y_maze_max which
+// default to (COLNO-1)&~1 and (ROWNO-1)&~1 for special levels.
 function maze_okay(x, y, a, state) {
-    const dx = [0, 0, 1, -1];
-    const dy = [-1, 1, 0, 0];
+    // C ref: mkmaze.c mz_move(). Direction mapping must match walkfrom():
+    // 0=north(y--), 1=east(x++), 2=south(y++), 3=west(x--).
+    const dx = [0, 1, 0, -1];
+    const dy = [-1, 0, 1, 0];
     const nx = x + 2 * dx[a];
     const ny = y + 2 * dy[a];
     if (nx < 3 || ny < 3) return false;
-    if (nx > ((COLNO - 1) & ~1) - 3) return false;
-    if (ny > ((ROWNO - 1) & ~1) - 3) return false;
+    if (nx > ((COLNO - 1) & ~1)) return false;
+    if (ny > ((ROWNO - 1) & ~1)) return false;
     if (state.level.at(nx, ny).typ !== STONE) return false;
     return true;
 }
@@ -2782,10 +2937,114 @@ function maze_move(x, y, typ, state) {
     }
 }
 
-// C ref: mkmaze.c fill_empty_maze(). Unused by bigrm-10 (stocked=0), but
-// included for completeness. Currently a no-op stub.
-function fill_empty_maze(state) {
-    // bigrm-10 passes stocked=0, so this is never called for big rooms.
+// C ref: sp_lev.c rndtrap(). Picks a random trap type, excluding holes,
+// vibrating squares, magic portals, and conditionally trapdoors and
+// teleport traps.
+function rndtrap(state) {
+    let rtrap;
+    do {
+        rtrap = rnd(TRAPNUM - 1);
+        switch (rtrap) {
+        case HOLE:
+        case VIBRATING_SQUARE:
+        case MAGIC_PORTAL:
+            rtrap = NO_TRAP;
+            break;
+        case TRAPDOOR:
+            if (!Can_dig_down(state.u?.uz, state))
+                rtrap = NO_TRAP;
+            break;
+        case LEVEL_TELEP:
+        case TELEP_TRAP:
+            if (state.level.flags.noteleport)
+                rtrap = NO_TRAP;
+            break;
+        case ROLLING_BOULDER_TRAP:
+        case ROCKTRAP:
+            if (In_endgame(state.u?.uz))
+                rtrap = NO_TRAP;
+            break;
+        }
+    } while (rtrap === NO_TRAP);
+    return rtrap;
+}
+
+// C ref: sp_lev.c maze1xy(). Finds a random odd-parity location in the
+// maze area that is not covered by SpLev_Map and satisfies the humidity
+// check. Uses rn1 for x and y, burning RNG calls on each attempt.
+function maze1xy(humidity, frame, state) {
+    let x, y, tryct = 2000;
+    do {
+        x = rn1(frame.xMazeMax - 3, 3);
+        y = rn1(frame.yMazeMax - 3, 3);
+        if (--tryct < 0) break;
+    } while (
+        !(x % 2) || !(y % 2)
+        || (frame.splevMap && frame.splevMap[x][y])
+        || !is_ok_location(x, y, humidity, { state })
+    );
+    return { x, y };
+}
+
+// C ref: sp_lev.c fill_empty_maze(). Fills unused maze area with random
+// objects, boulders, minotaurs, monsters, gold, and traps proportional
+// to how much of the maze the special-level map did not cover.
+function fill_empty_maze(frame, state) {
+    let mapcountmax, mapcount;
+    mapcountmax = mapcount =
+        (frame.xMazeMax - 2) * (frame.yMazeMax - 2);
+    mapcountmax = Math.trunc(mapcountmax / 2);
+
+    for (let x = 2; x < frame.xMazeMax; x++) {
+        for (let y = 0; y < frame.yMazeMax; y++) {
+            if (frame.splevMap && frame.splevMap[x][y])
+                mapcount--;
+        }
+    }
+
+    if (mapcount > Math.trunc(mapcountmax / 10)) {
+        const mapfact = Math.trunc((mapcount * 100) / mapcountmax);
+        const env = { state };
+        // Objects: gems or random class
+        for (let i = rnd(Math.trunc((20 * mapfact) / 100)); i > 0; i--) {
+            const mm = maze1xy(DRY, frame, state);
+            mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS,
+                mm.x, mm.y, true, env);
+        }
+        // Boulders
+        for (let i = rnd(Math.trunc((12 * mapfact) / 100)); i > 0; i--) {
+            const mm = maze1xy(DRY, frame, state);
+            const ttmp = t_at(mm.x, mm.y, state);
+            if (ttmp && (is_pit(ttmp.ttyp) || is_hole(ttmp.ttyp)))
+                continue;
+            mksobj_at(BOULDER, mm.x, mm.y, true, false, env);
+        }
+        // Minotaurs
+        for (let i = rn2(2); i > 0; i--) {
+            const mm = maze1xy(DRY, frame, state);
+            makemon(state.mons[PM_MINOTAUR], mm.x, mm.y, NO_MM_FLAGS, env);
+        }
+        // Random monsters
+        for (let i = rnd(Math.trunc((12 * mapfact) / 100)); i > 0; i--) {
+            const mm = maze1xy(DRY, frame, state);
+            makemon(null, mm.x, mm.y, NO_MM_FLAGS, env);
+        }
+        // Gold
+        for (let i = rn2(Math.trunc((15 * mapfact) / 100)); i > 0; i--) {
+            const mm = maze1xy(DRY, frame, state);
+            mkgold(0, mm.x, mm.y, env);
+        }
+        // Traps
+        for (let i = rn2(Math.trunc((15 * mapfact) / 100)); i > 0; i--) {
+            const mm = maze1xy(DRY, frame, state);
+            let trytrap = rndtrap(state);
+            if (sobj_at(BOULDER, mm.x, mm.y, state)) {
+                while (is_pit(trytrap) || is_hole(trytrap))
+                    trytrap = rndtrap(state);
+            }
+            maketrap(mm.x, mm.y, trytrap, env);
+        }
+    }
 }
 
 // C ref: sp_lev.c lspo_map(). The themed-room form chooses an unconstrained

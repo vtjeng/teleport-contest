@@ -247,6 +247,8 @@ import {
     PM_SMALL_MIMIC,
     PM_NEANDERTHAL,
     PM_NEWT,
+    PM_CAPTAIN,
+    PM_LIEUTENANT,
     PM_NINJA,
     PM_NURSE,
     PM_ORC,
@@ -260,6 +262,7 @@ import {
     PM_QUEEN_BEE,
     PM_ROSHI,
     PM_SEWER_RAT,
+    PM_SERGEANT,
     PM_SHOPKEEPER,
     PM_SOLDIER,
     PM_SKELETON,
@@ -345,10 +348,12 @@ import {
     ARMOR_CLASS,
     ARROW,
     AXE,
+    BANDED_MAIL,
     BATTLE_AXE,
     BEC_DE_CORBIN,
     BOULDER,
     BOW,
+    BROADSWORD,
     BUGLE,
     CANDELABRUM_OF_INVOCATION,
     CHAIN_MAIL,
@@ -359,6 +364,7 @@ import {
     CORPSE,
     CROSSBOW,
     CRYSTAL_BALL,
+    CRYSTAL_PLATE_MAIL,
     CROSSBOW_BOLT,
     DAGGER,
     DART,
@@ -385,6 +391,7 @@ import {
     ELVEN_SHORT_SWORD,
     ELVEN_SPEAR,
     FIGURINE,
+    FLAIL,
     FLINT,
     FOOD_CLASS,
     GEM_CLASS,
@@ -426,6 +433,7 @@ import {
     ORCISH_SHORT_SWORD,
     PARTISAN,
     PICK_AXE,
+    PLATE_MAIL,
     POT_ACID,
     POT_BLINDNESS,
     POT_CONFUSION,
@@ -451,8 +459,10 @@ import {
     SKELETON_KEY,
     SHORT_SWORD,
     SHURIKEN,
+    SILVER_SABER,
     SMALL_SHIELD,
     SPEAR,
+    SPLINT_MAIL,
     SCR_CREATE_MONSTER,
     SCR_EARTH,
     SCR_TELEPORTATION,
@@ -1574,22 +1584,39 @@ function m_initweap(monster, normalized) {
         break;
     case S_HUMAN:
         if (is_mercenary(ptr)) {
-            // C ref: makemon.c:188-225. Soldiers and watchmen share one arm;
-            // other mercenary types (sergeant, lieutenant, captain) have
-            // distinct weapons but are all G_NOGEN, so they cannot appear
-            // from rndmonst. Use the soldier/watchman arm for all types.
+            // C ref: makemon.c:188-225. Each mercenary rank gets distinct
+            // weapons; the default covers miscellaneous mercenaries.
             let w1 = 0;
             let w2 = 0;
-            if (!random.rn2(3)) {
-                do {
-                    w1 = random.rn1(
-                        BEC_DE_CORBIN - PARTISAN + 1,
-                        PARTISAN,
-                    );
-                } while (state.objects[w1].oc_skill !== P_POLEARMS);
-                w2 = random.rn2(2) ? DAGGER : KNIFE;
-            } else {
-                w1 = random.rn2(2) ? SPEAR : SHORT_SWORD;
+            switch (ptr.pmidx) {
+            case PM_WATCHMAN:
+            case PM_SOLDIER:
+                if (!random.rn2(3)) {
+                    do {
+                        w1 = random.rn1(
+                            BEC_DE_CORBIN - PARTISAN + 1,
+                            PARTISAN,
+                        );
+                    } while (state.objects[w1].oc_skill !== P_POLEARMS);
+                    w2 = random.rn2(2) ? DAGGER : KNIFE;
+                } else {
+                    w1 = random.rn2(2) ? SPEAR : SHORT_SWORD;
+                }
+                break;
+            case PM_SERGEANT:
+                w1 = random.rn2(2) ? FLAIL : MACE;
+                break;
+            case PM_LIEUTENANT:
+                w1 = random.rn2(2) ? BROADSWORD : LONG_SWORD;
+                break;
+            case PM_CAPTAIN:
+            case PM_WATCH_CAPTAIN:
+                w1 = random.rn2(2) ? LONG_SWORD : SILVER_SABER;
+                break;
+            default:
+                if (!random.rn2(4)) w1 = DAGGER;
+                if (!random.rn2(7)) w2 = SPEAR;
+                break;
             }
             if (w1) mongets(monster, w1, normalized);
             if (!w2 && w1 !== DAGGER && !random.rn2(4)) w2 = KNIFE;
@@ -2077,17 +2104,39 @@ function m_initinv(monster, normalized) {
     if (isRogueLevel(state)) return;
 
     if (ptr.mlet === S_HUMAN && is_mercenary(ptr)) {
-        // C ref: makemon.c:602-701. All mercenary types are G_NOGEN; only
-        // PM_SOLDIER is reachable from rndmonst. Use mac=3 (soldier value)
-        // for all types, matching the ported armor rounds.
-        let mac = 3;
+        // C ref: makemon.c:602-701. Each mercenary rank starts at a
+        // different mac; the body armor branch depends on it.
+        let mac;
+        switch (ptr.pmidx) {
+        case PM_GUARD:        mac = -1; break;
+        case PM_SOLDIER:      mac =  3; break;
+        case PM_SERGEANT:     mac =  0; break;
+        case PM_LIEUTENANT:   mac = -2; break;
+        case PM_CAPTAIN:      mac = -3; break;
+        case PM_WATCHMAN:     mac =  3; break;
+        case PM_WATCH_CAPTAIN: mac = -2; break;
+        default:              mac =  0; break;
+        }
         let obj;
         const addArmorClass = () => {
             if (obj) mac += ARM_BONUS(obj, state);
             obj = null;
         };
 
-        if (random.rn2(5)) {
+        // C ref: makemon.c:638-648. Body armor depends on mac.
+        if (mac < -1 && random.rn2(5)) {
+            obj = mongets(
+                monster,
+                random.rn2(5) ? PLATE_MAIL : CRYSTAL_PLATE_MAIL,
+                normalized,
+            );
+        } else if (mac < 3 && random.rn2(5)) {
+            obj = mongets(
+                monster,
+                random.rn2(3) ? SPLINT_MAIL : BANDED_MAIL,
+                normalized,
+            );
+        } else if (random.rn2(5)) {
             obj = mongets(
                 monster,
                 random.rn2(3) ? RING_MAIL : STUDDED_LEATHER_ARMOR,
