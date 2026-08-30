@@ -590,10 +590,6 @@ test('unsupported appearance pairs fail before hooks, RNG, or level mutation', (
         },
         {
             class: S_MIMIC,
-            appearAs: { type: M_AP_OBJECT, id: BOULDER },
-        },
-        {
-            class: S_MIMIC,
             appearAs: { type: M_AP_OBJECT, id: -1 },
         },
         {

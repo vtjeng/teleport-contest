@@ -5522,6 +5522,7 @@
         "js/save.js",
         "js/shknam.js",
         "js/shtypes_data.js",
+        "js/sokoban_levels.js",
         "js/sp_lev_object.js",
         "js/stairs.js",
         "js/themeroom_data.js",

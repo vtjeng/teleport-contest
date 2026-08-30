@@ -423,9 +423,9 @@ export function fill_special_room(croom, env = {}) {
         case COURT:
         case BEEHIVE:
         case MORGUE:
+        case ZOO:
             fill_zoo(croom, normalized);
             break;
-        case ZOO:
         case ANTHOLE:
         case COCKNEST:
         case LEPREHALL:
@@ -510,9 +510,13 @@ async function makelevel(specialLevelLoader = null) {
                 const { QUEST_LEVEL_LOADERS } = await import(
                     './quest_levels.js'
                 );
+                const { SOKOBAN_LEVEL_LOADERS } = await import(
+                    './sokoban_levels.js'
+                );
                 SPECIAL_LEVEL_LOADERS = {
                     ...BIGRM_LOADERS,
                     ...QUEST_LEVEL_LOADERS,
+                    ...SOKOBAN_LEVEL_LOADERS,
                 };
             }
             // Determine the resolved protofile the same way makemaz() will.
@@ -561,9 +565,13 @@ async function makelevel(specialLevelLoader = null) {
             const { QUEST_LEVEL_LOADERS } = await import(
                 './quest_levels.js'
             );
+            const { SOKOBAN_LEVEL_LOADERS } = await import(
+                './sokoban_levels.js'
+            );
             SPECIAL_LEVEL_LOADERS = {
                 ...BIGRM_LOADERS,
                 ...QUEST_LEVEL_LOADERS,
+                ...SOKOBAN_LEVEL_LOADERS,
             };
         }
         if (SPECIAL_LEVEL_LOADERS[fillName]) {
@@ -996,7 +1004,17 @@ async function makemaz(proto, slev, state) {
             // Lazy initialization breaks the circular import between
             // mklev.js and bigrm.js.
             const { BIGRM_LOADERS } = await import('./bigrm.js');
-            SPECIAL_LEVEL_LOADERS = { ...BIGRM_LOADERS };
+            const { QUEST_LEVEL_LOADERS } = await import(
+                './quest_levels.js'
+            );
+            const { SOKOBAN_LEVEL_LOADERS } = await import(
+                './sokoban_levels.js'
+            );
+            SPECIAL_LEVEL_LOADERS = {
+                ...BIGRM_LOADERS,
+                ...QUEST_LEVEL_LOADERS,
+                ...SOKOBAN_LEVEL_LOADERS,
+            };
         }
         const loader = SPECIAL_LEVEL_LOADERS[protofile];
         if (!loader) {
@@ -1169,6 +1187,13 @@ function createSpecialLevelApi(state) {
                 // STONE walls not part of the map as non-diggable and
                 // non-passwall during post-processing.
                 case 'solidify': state._specialLevelSolidify = true; break;
+                // C ref: sp_lev.c lspo_level_flags(). premapped is a
+                // coder-only flag (gc.coder->premapped); no level flag
+                // is set. Accept it as a no-op so loaders can pass it.
+                case 'premapped': break;
+                // C ref: sp_lev.c lspo_level_flags(). "sokoban" sets
+                // Sokoban = 1, which is svl.level.flags.sokoban_rules.
+                case 'sokoban': state.level.flags.sokoban_rules = true; break;
                 default: throw new Error(`unsupported special-level flag ${name}`);
                 }
             }
@@ -1275,10 +1300,12 @@ function createSpecialLevelApi(state) {
                 // C ref: sp_lev.c lspo_region() table form with region coords.
                 const ROOM_TYPE_MAP = {
                     ordinary: OROOM, delphi: DELPHI, temple: TEMPLE,
+                    zoo: ZOO,
                 };
                 const [rx1, ry1, rx2, ry2] = specification.region;
                 const rtype = ROOM_TYPE_MAP[specification.type] ?? OROOM;
                 const needfill = specification.filled ?? 0;
+                const irregular = Boolean(specification.irregular);
                 const joined = specification.joined ?? true;
                 let rlit = specification.lit ?? -1;
                 rlit = litstate_rnd(rlit);
@@ -1286,7 +1313,10 @@ function createSpecialLevelApi(state) {
                 const dy1 = frame.ystart + ry1;
                 const dx2 = frame.xstart + rx2;
                 const dy2 = frame.ystart + ry2;
-                const roomNotNeeded = (rtype === OROOM);
+                // C ref: sp_lev.c lspo_region():5652-5654.
+                // A room is needed for special room types, irregular
+                // regions, and themed room contexts.
+                const roomNotNeeded = (rtype === OROOM && !irregular);
                 if (roomNotNeeded || game.level.nroom >= MAXNROFROOMS) {
                     // Just set lighting.
                     for (let x = dx1; x <= dx2; ++x)
@@ -1294,6 +1324,36 @@ function createSpecialLevelApi(state) {
                             const loc = state.level.at(x, y);
                             if (loc) loc.lit = rlit;
                         }
+                } else if (irregular) {
+                    // C ref: sp_lev.c:5675-5683. Flood-fill from (dx1,dy1)
+                    // to discover the room's true bounds.
+                    state._mkmap_min_rx = dx1;
+                    state._mkmap_max_rx = dx1;
+                    state._mkmap_min_ry = dy1;
+                    state._mkmap_max_ry = dy1;
+                    state.smeq[state.level.nroom] = state.level.nroom;
+                    flood_fill_rm(
+                        dx1, dy1,
+                        state.level.nroom + ROOMOFFSET,
+                        rlit, true, state,
+                    );
+                    add_room(
+                        state._mkmap_min_rx, state._mkmap_min_ry,
+                        state._mkmap_max_rx, state._mkmap_max_ry,
+                        false, rtype, true,
+                    );
+                    const troom = game.level.rooms[game.level.nroom - 1];
+                    troom.rlit = rlit;
+                    troom.irregular = true;
+                    troom.needfill = needfill;
+                    troom.needjoining = joined;
+                    if (typeof specification.contents === 'function') {
+                        croomStack.push(currentCroom);
+                        currentCroom = troom;
+                        specification.contents(troom);
+                        currentCroom = croomStack.pop();
+                        add_doors_to_room(troom);
+                    }
                 } else {
                     add_room(dx1, dy1, dx2, dy2, rlit, rtype, true);
                     const troom = game.level.rooms[game.level.nroom - 1];
@@ -1335,6 +1395,53 @@ function createSpecialLevelApi(state) {
                     for (let y = 0; y < ROWNO; ++y)
                         mark(x, y);
             }
+        },
+
+        non_passwall(sel) {
+            // C ref: sp_lev.c lspo_non_passwall(). Same structure as
+            // non_diggable but marks W_NONPASSWALL instead.
+            const mark = (x, y) => {
+                const location = state.level.at(x, y);
+                if (IS_STWALL(location.typ)
+                    || location.typ === TREE
+                    || location.typ === IRONBARS) {
+                    location.wall_info |= W_NONPASSWALL;
+                }
+            };
+            if (sel) {
+                const b = sel.bounds();
+                for (let x = b.lx; x <= b.hx; ++x)
+                    for (let y = b.ly; y <= b.hy; ++y)
+                        if (sel.get(x, y))
+                            mark(frame.xstart + x, frame.ystart + y);
+            } else {
+                for (let x = 0; x < COLNO; ++x)
+                    for (let y = 0; y < ROWNO; ++y)
+                        mark(x, y);
+            }
+        },
+
+        exclusion(specification) {
+            // C ref: sp_lev.c lspo_exclusion(). Stores a rectangular zone
+            // where random monster generation (or teleportation) is
+            // suppressed. Uses get_location_coord to resolve coordinates
+            // with the frame offset.
+            const LR_MONGEN = 4; // C: LR_MONGEN in sp_lev.c
+            const typeMap = {
+                teleport: LR_TELE,
+                'monster-generation': LR_MONGEN,
+            };
+            const zonetype = typeMap[specification.type] ?? LR_TELE;
+            const [x1, y1, x2, y2] = specification.region;
+            const ez = {
+                zonetype,
+                lx: frame.xstart + x1,
+                ly: frame.ystart + y1,
+                hx: frame.xstart + x2,
+                hy: frame.ystart + y2,
+                next: state.exclusion_zones ?? null,
+            };
+            state.exclusion_zones = ez;
         },
 
         // C ref: sp_lev.c lspo_teleport_region(). bigrm-10 uses the

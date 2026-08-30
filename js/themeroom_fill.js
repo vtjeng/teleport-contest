@@ -626,7 +626,7 @@ function assertSupportedMonsterAppearance(specification, state) {
             `special-level mimic appearance type ${appearance.type}`,
         );
     }
-    if (appearance.id !== CHEST) {
+    if (appearance.id !== CHEST && appearance.id !== BOULDER) {
         throw new UnsupportedMonsterCreationError(
             `special-level mimic object appearance ${appearance.id}`,
         );
