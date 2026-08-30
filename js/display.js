@@ -5075,12 +5075,27 @@ export async function cls() {
 // bot() still paints it.  js/windows.js select_menu() and getlin() are the two
 // writers of the flag.
 //
-// C's remaining guards -- u.uhp != -1, gy.youmonst.data and
-// suppress_map_output() -- cover dosave(), pre-initialization and the
-// save/restore/hangup states this port does not enter.
+// C's remaining guards -- gy.youmonst.data and suppress_map_output() -- cover
+// pre-initialization and the save/restore/hangup states this port does not
+// enter.  The u.uhp != -1 guard is ported below: the C comment attributes it
+// to dosave(), but it also fires during normal gameplay when mdamageu reduces
+// HP to exactly -1 (e.g. HP 1 minus 2 damage).  Without it, bot() would
+// render HP:0 (clamped) before done() sets u.uhp = 0, and screens captured
+// during the "You die..." --More-- sequence would show HP:0 instead of the
+// pre-damage value that C's incremental terminal leaves on screen.
 export async function bot({ initialTtyRefresh = false } = {}) {
     if (game.gb?.bot_disabled === true)
         return;
+    // C botl.c bot() line 259: skip the status update when u.uhp == -1 but
+    // still clear the display flags (line 270).
+    if (game.u?.uhp === -1) {
+        if (game.disp) {
+            game.disp.botl = false;
+            game.disp.botlx = false;
+            game.disp.time_botl = false;
+        }
+        return;
+    }
     const optionalSnapshot = status_window_rows() === 3
         ? JSON.stringify(_optionalStatusEntries().map(
             ({ field, text }) => [field, text],
