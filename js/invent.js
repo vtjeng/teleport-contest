@@ -117,6 +117,7 @@ import { stairs_description, stairway_at } from './stairs.js';
 import { is_drawbridge_wall } from './startup_a11y.js';
 import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at } from './trap.js';
+import { hidden_gold } from './vault.js';
 import { game } from './gstate.js';
 import { itemactions } from './iactions.js';
 import { surface } from './dungeon.js';
@@ -3345,4 +3346,70 @@ export function count_unpaid(list) {
         if (obj.cobj) count += count_unpaid(obj.cobj);
     }
     return count;
+}
+
+// C ref: invent.c doprgold().
+export async function doprgold(state = game) {
+    const umoney = money_cnt(inventoryHead(state));
+    const hmoney = hidden_gold(false, state);
+
+    if (state.flags.verbose) {
+        let buf;
+        if (!umoney) {
+            buf = 'Your wallet is empty';
+        } else {
+            buf = `Your wallet contains ${umoney} ${currency(umoney, state)}`;
+        }
+        if (hmoney) {
+            buf += `, ${umoney ? 'and' : 'but'} you have ${hmoney} `
+                + `${umoney ? 'more' : currency(hmoney, state)}`
+                + ' stashed away in your pack';
+        }
+        await ttyPline(`${buf}.`, state);
+    } else {
+        const total = umoney + hmoney;
+        if (total) {
+            await ttyPline(
+                `You are carrying a total of ${total} ${currency(total, state)}.`,
+                state,
+            );
+        } else {
+            await ttyPline('You have no money.', state);
+        }
+    }
+    await shopper_financial_report(state);
+}
+
+// C ref: shk.c shopper_financial_report(). Reports shop credit and debt.
+async function shopper_financial_report(state) {
+    const { inside_shop, shop_keeper } = await import('./shk.js');
+    const thisShkp = shop_keeper(inside_shop(state.u.ux, state.u.uy, state), state);
+    if (thisShkp && !thisShkp.eshk?.credit && !thisShkp.eshk?.debit
+        && !thisShkp.eshk?.robbed) {
+        await ttyPline('You have no credit or debt in here.', state);
+        return;
+    }
+    if (!thisShkp) {
+        for (let mtmp = state.fmon; mtmp; mtmp = mtmp.nmon) {
+            if (mtmp.deadMonster) continue;
+            if (!mtmp.isshk) continue;
+            const eshk = mtmp.eshk;
+            if (!eshk) continue;
+            if (eshk.credit) {
+                await ttyPline(
+                    `You have ${eshk.credit} ${currency(eshk.credit, state)} `
+                    + `credit at ${mtmp.mname || 'the shopkeeper'}'s `
+                    + `${eshk.shopName || 'shop'}.`,
+                    state,
+                );
+            }
+            if (eshk.debit) {
+                await ttyPline(
+                    `You owe ${mtmp.mname || 'the shopkeeper'} `
+                    + `${eshk.debit} ${currency(eshk.debit, state)}.`,
+                    state,
+                );
+            }
+        }
+    }
 }

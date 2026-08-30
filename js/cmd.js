@@ -1373,6 +1373,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
     'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
+    'showgold',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -2669,6 +2670,9 @@ async function doextcmd(key, state) {
         return await runHelpCommand(key, state);
     case 'dowhatis':
         return await runWhatisCommand(key, state);
+    case 'doprgold':
+        await failClosedCommand(key, state, () => doprgold(state));
+        return ECMD_OK;
     case 'doread':
         return await runReadCommand(key, state);
     case 'dowieldquiver':
