@@ -1704,9 +1704,10 @@ export const ALTAR_CUSTOMIZATION_NAMES = Object.freeze([
 // clear_level_structures() (852) is what fills map memory with it; display.c
 // clear_glyph_buffer() (2107) fills the glyph buffer, which is a separate
 // array. This port encodes "nothing remembered here" as
-// `remembered_glyph === undefined` instead, and newsym()'s
-// `else if (loc.remembered_glyph)` guard stands in for C's show_mem of the
-// unexplored glyph, so no path produces the number and this refuses it.
+// `remembered_glyph === undefined` instead. newsym()'s not-visible path has
+// a final `else` clause that writes a blank cell (space, NO_COLOR) when
+// remembered_glyph is undefined, matching C's show_mem of the unexplored
+// glyph. No path produces the GLYPH_UNEXPLORED number, so this refuses it.
 function mapGlyphinfoResolves(glyph) {
     return glyph === GLYPH_NOTHING_OFF
         || glyph === GLYPH_INVISIBLE
@@ -3155,6 +3156,19 @@ export function newsym(x, y) {
         show_glyph_cell(
             x, y, remembered_glyph_presentation(loc.remembered_glyph, game),
         );
+    } else if (loc.disp_glyph) {
+        // display.c:1094-1097, show_mem with lev->glyph == GLYPH_UNEXPLORED.
+        // The cell has no remembered glyph (unexplored). C reaches
+        // show_glyph(x, y, lev->glyph) with GLYPH_UNEXPLORED, which is a
+        // no-op when the glyph buffer already holds GLYPH_UNEXPLORED (old ==
+        // new, gnew stays 0). In JS the uninitialized state is
+        // disp_glyph === undefined rather than GLYPH_UNEXPLORED, so the
+        // equivalent no-op is to skip the write entirely. But when a transient
+        // glyph was previously written here (e.g. a warning digit for a
+        // monster that has since moved away), disp_glyph is set and stale. C's
+        // show_glyph overwrites it with GLYPH_UNEXPLORED (space, NO_COLOR);
+        // this clause does the same.
+        show_glyph_cell(x, y, { ch: ' ', color: NO_COLOR, dec: false });
     }
 }
 

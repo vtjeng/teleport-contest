@@ -709,7 +709,15 @@ test('default trap comparison preserves injected mapping contracts', async () =>
             state: game,
             random,
             feelNewSym() {
-                if (descriptor) return descriptor(trap);
+                if (descriptor) {
+                    // The default path (defaultFeelSearchLocation) calls
+                    // map_trap which sets remembered_glyph before returning
+                    // the layer descriptor. The hook must do the same so
+                    // that docrt()'s newsym redraw finds the trap in memory.
+                    location.remembered_glyph
+                        = remembered_glyph_from_presentation(expected);
+                    return descriptor(trap);
+                }
                 location.disp_ch = expected.ch;
                 location.disp_color = expected.color;
                 location.disp_decgfx = expected.dec;
