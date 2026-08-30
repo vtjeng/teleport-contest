@@ -171,7 +171,6 @@ import {
     Align2amask,
     ALTAR,
     DELPHI,
-    FILL_LVFLAGS,
     LR_BRANCH, LR_DOWNSTAIR, LR_UPSTAIR,
     LR_TELE, MALE,
     NO_TRAP,

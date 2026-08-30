@@ -69,7 +69,6 @@ import {
     ONAME_NO_FLAGS,
     OBJ_FLOOR,
     OBJ_MINVENT,
-    OROOM,
     ROOMOFFSET,
     ROT_CORPSE,
     ROWNO,
@@ -88,7 +87,6 @@ import {
     TLCORNER,
     TRWALL,
     TUWALL,
-    THEMEROOM,
     TRAPDOOR,
     VAULT,
     W_AMUL,
@@ -1894,7 +1892,7 @@ function m_initweap(monster, normalized) {
         // fall through to the default general-weapon roll.
         if (!is_demon(ptr))
             break;
-        // eslint-disable-next-line no-fallthrough -- C FALLTHROUGH
+         
     default:
         // C ref: makemon.c:526-567. The general case applies to gnomes and
         // every other armed species not handled by a specific case above.

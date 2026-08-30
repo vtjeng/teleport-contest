@@ -45,7 +45,7 @@ import { newsym } from './display.js';
 import { mon_pmname } from './do_name.js';
 import { assign_level, find_mapseen, on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { nomul, UnsupportedHeroMoveBoundaryError } from './hack.js';
+import { nomul } from './hack.js';
 import { dist2, highc } from './hacklib.js';
 import { record_achievement } from './insight.js';
 import { makemon } from './makemon_create.js';

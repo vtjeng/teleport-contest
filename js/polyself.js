@@ -70,7 +70,6 @@ import {
     TT_PIT,
     Upolyd,
     WARN_OF_MON,
-    W_ARMC,
 } from './const.js';
 import { exercise } from './attrib.js';
 import { game } from './gstate.js';
@@ -115,18 +114,16 @@ import {
 import { character_race } from './roles.js';
 import { pmname } from './do_name.js';
 import { set_mon_data } from './makemon_create.js';
-import { cloak_simple_name, helm_simple_name, simpleonames, an } from './objnam.js';
+import { cloak_simple_name, simpleonames, an } from './objnam.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { newsym, see_monsters } from './display.js';
 import { encumber_msg } from './pickup.js';
 import { update_inventory } from './invent.js';
 import { dropx, canletgo } from './do.js';
-import { useup } from './invent.js';
 import { getlin } from './windows.js';
 import { ttyPline } from './tty_message.js';
-import { set_utrap, reset_utrap } from './trap.js';
-import { make_blinded, make_glib } from './potion.js';
-import { spoteffects } from './hack.js';
+import { set_utrap } from './trap.js';
+import { make_glib } from './potion.js';
 import { cantwield, untwoweapon, uwepgone, uswapwepgone } from './wield.js';
 import { _doWearInternals } from './do_wear.js';
 import { Is_dragon_armor, is_sword, remove_object } from './obj.js';

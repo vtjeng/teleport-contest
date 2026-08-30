@@ -24,7 +24,6 @@ import {
     GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
-    OVERLOADED,
     FEEL_COCKATRICE,
     FUMBLING,
     HAND,
@@ -41,7 +40,6 @@ import {
     MENU_PARTIAL,
     MENU_TRADITIONAL,
     MOD_ENCUMBER,
-    OBJ_CONTAINED,
     OBJ_FLOOR,
     OBJ_MINVENT,
     PICK_ANY,
@@ -54,8 +52,6 @@ import {
     STONE_RES,
     STUNNED,
     ROOM,
-    SELL_DELIBERATE,
-    SELL_DONTSELL,
     SELL_NORMAL,
     SORTLOOT_INVLET,
     CORR,
@@ -121,7 +117,7 @@ import {
 } from './mondata.js';
 import { m_at } from './monst.js';
 import {
-    carried, hasContents, isBox, isContainer, is_pick, obj_no_longer_held,
+    carried, hasContents, isBox, isContainer, obj_no_longer_held,
     remove_object, set_bknown, splitobj, weight,
 } from './obj.js';
 import { get_obj_location } from './light.js';
@@ -129,7 +125,7 @@ import { observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     AMULET_OF_YENDOR, BAG_OF_HOLDING, BAG_OF_TRICKS, BELL_OF_OPENING, BOULDER,
-    CANDELABRUM_OF_INVOCATION, CHEST, COIN_CLASS, CORPSE, GOLD_PIECE,
+    CANDELABRUM_OF_INVOCATION, COIN_CLASS, CORPSE, GOLD_PIECE,
     HORN_OF_PLENTY, ICE_BOX, LARGE_BOX, LEASH, LOADSTONE,
     SCR_SCARE_MONSTER, SPE_BOOK_OF_THE_DEAD, STATUE,
 } from './objects.js';

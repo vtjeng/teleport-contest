@@ -14,7 +14,6 @@ import {
     has_oname,
     isok,
     ismnum,
-    plur,
 } from './const.js';
 import { christen_monst } from './do_name.js';
 import {
@@ -38,7 +37,6 @@ import {
     add_to_container,
 } from './invent.js';
 import { makemon } from './makemon_create.js';
-import { newsym } from './display.js';
 import {
     likes_gold, likes_gems, likes_objs, likes_magic,
 } from './mondata.js';
@@ -63,11 +61,9 @@ import {
 } from './objects.js';
 import {
     PM_GHOST,
-    PM_ORACLE,
-    S_MUMMY,
     SPECIAL_PM,
 } from './monsters.js';
-import { rn2, rnd } from './rng.js';
+import { rn2 } from './rng.js';
 import { vfsWriteFile, vfsReadFile, vfsDeleteFile } from './storage.js';
 import { roles, races, genders, aligns } from './roles.js';
 
