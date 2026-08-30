@@ -146,6 +146,7 @@ import {
     preflight_projected_random_arrival_pickup,
     u_safe_from_fatal_corpse,
 } from './pickup.js';
+import { onquest } from './quest.js';
 import { com_pager } from './questpgr.js';
 import { in_out_region, visible_region_at } from './region.js';
 import { getlev } from './restore.js';
@@ -1497,30 +1498,37 @@ export async function goto_level(
     // dat/dungeon.lua puts the Valley below depth 25.
     // do.c:1874-1875 familiar_level_msg() needs a bones file.
 
-    // The arrival arms at do.c:1877-1932 are keyed on the destination
-    // dungeon. In_endgame, In_quest, Is_knox, In_mines and In_sokoban are all
-    // false for D:2 of the main dungeon, so the `else` arm runs.
-    if (isNew && state.bigroom_level
-        && on_level(u.uz, state.bigroom_level)) {
-        // C ref: do.c:1907. dat/dungeon.lua puts the big room between
-        // depths 10 and 12.
-        record_achievement(ACH_BGRM, state);
-    }
-    if (!In_quest(u.uz0)
-        && at_dgn_entrance('The Quest', state)
-        && !(u.uevent?.qcompleted || u.uevent?.qexpelled
-             || state.svq?.quest_status?.leader_is_dead)) {
-        u.uevent ??= {};
-        if (!u.uevent.qcalled) {
-            u.uevent.qcalled = 1;
-            await com_pager('quest_portal', state);
-        } else {
-            await com_pager(
-                state.urole?.mnum === PM_ROGUE
-                    ? 'quest_portal_demand'
-                    : 'quest_portal_again',
-                state,
-            );
+    // C ref: do.c:1882-1932.  Arrival arms keyed on the destination
+    // dungeon.  The if/else-if chain is mutually exclusive: exactly one
+    // arm fires.  In_endgame, Is_knox, In_mines, and In_sokoban are not
+    // yet ported; those dungeons are unreachable.
+    if (In_quest(u.uz)) {
+        // C ref: do.c:1891-1892.
+        await onquest(state);
+    } else {
+        if (isNew && state.bigroom_level
+            && on_level(u.uz, state.bigroom_level)) {
+            // C ref: do.c:1907. dat/dungeon.lua puts the big room between
+            // depths 10 and 12.
+            record_achievement(ACH_BGRM, state);
+        }
+        // C ref: do.c:1918-1931.  Main-dungeon quest portal message.
+        if (!In_quest(u.uz0)
+            && at_dgn_entrance('The Quest', state)
+            && !(u.uevent?.qcompleted || u.uevent?.qexpelled
+                 || state.svq?.quest_status?.leader_is_dead)) {
+            u.uevent ??= {};
+            if (!u.uevent.qcalled) {
+                u.uevent.qcalled = 1;
+                await com_pager('quest_portal', state);
+            } else {
+                await com_pager(
+                    state.urole?.mnum === PM_ROGUE
+                        ? 'quest_portal_demand'
+                        : 'quest_portal_again',
+                    state,
+                );
+            }
         }
     }
 
