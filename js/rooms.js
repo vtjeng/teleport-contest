@@ -283,10 +283,17 @@ export async function check_special_room(
             }
             continue;
         }
+        if (rt === TEMPLE) {
+            // C: intemple(roomno + ROOMOFFSET) then FALLTHRU to default
+            // where msg_given = TRUE and rt = 0. The room stays TEMPLE.
+            const { intemple } = await import('./priest.js');
+            await intemple(roomno, { state, random: { rn2: random }, message });
+            room_discovered(roomIndex, state);
+            continue;
+        }
         if (rt === ZOO || rt === SWAMP || rt === LEPREHALL
             || rt === MORGUE || rt === BEEHIVE || rt === COCKNEST
-            || rt === ANTHOLE || rt === BARRACKS || rt === DELPHI
-            || rt === TEMPLE) {
+            || rt === ANTHOLE || rt === BARRACKS || rt === DELPHI) {
             throw new UnsupportedHeroMoveBoundaryError(
                 `check_special_room() entering room type ${rt}`,
             );

@@ -11,6 +11,7 @@ import {
     CMDQ_EXTCMD,
     CMDQ_KEY,
     COLNO,
+    CONFUSION,
     CQ_CANNED,
     CQ_REPEAT,
     DIR_ERR,
@@ -30,10 +31,13 @@ import {
     PICK_ONE,
     PLNMSG_UNKNOWN,
     QBUFSZ,
+    LEVEL_TELEP,
     SICK,
     SLIMED,
     STONED,
     STRANGLED,
+    TELEP_TRAP,
+    TELEPORT,
     Upolyd,
     isok,
     quitchars,
@@ -74,6 +78,7 @@ import { doclose, doforce, doopen, reset_pick, UnsupportedLockError } from './lo
 import {
     attacktype,
     can_breathe,
+    can_teleport,
     hides_under,
     is_hider,
     is_mind_flayer,
@@ -88,6 +93,7 @@ import {
     AT_SPIT,
     MS_SHRIEK,
     PM_GREMLIN,
+    PM_WIZARD,
     S_NYMPH,
 } from './monsters.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
@@ -102,7 +108,9 @@ import {
 } from './potion.js';
 import { UnsupportedFountainError } from './fountain.js';
 import { UnsupportedItemDestructionError } from './zap_destroy_items.js';
+import { SPE_TELEPORT_AWAY } from './objects.js';
 import { UnsupportedPositionCheckError } from './teleport.js';
+import { t_at } from './trap.js';
 import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
 import { UnsupportedErosionError } from './trap_erode_obj.js';
 import {
@@ -175,6 +183,9 @@ import {
 import {
     docast,
     dovspell,
+    known_spell,
+    spe_Fresh,
+    spe_Unknown,
     UnsupportedSpellCastError,
     UnsupportedSpellDisplayError,
     UnsupportedSpellStudyError,
@@ -1373,7 +1384,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
     'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
-    'showgold',
+    'showgold', 'teleport',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -3470,6 +3481,57 @@ export async function rhack(key, state = game) {
             // so the prefix test at 3693-3695 refuses `m^G` and `F^G` above.
             await runGenesisCommand(key, state);
             resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'teleport') {
+            // C ref: teleport.c dotelecmd() → dotele(FALSE). For non-wizard
+            // mode, dotele checks for a visible teleport trap, then for
+            // Teleportation intrinsic / level / polyform, then for the
+            // teleport-away spell. The common case: hero cannot teleport.
+            const trap = t_at(state.u.ux, state.u.uy, state);
+            if (trap?.tseen
+                && (trap.ttyp === TELEP_TRAP || trap.ttyp === LEVEL_TELEP)) {
+                throw new UnsupportedHeroCommandBranchBoundaryError(
+                    'dotelecmd: teleport trap interaction unported',
+                    key,
+                );
+            }
+            const prop = state.u?.uprops?.[TELEPORT];
+            const hasTeleportation = Boolean(
+                (prop?.intrinsic || prop?.extrinsic) && !prop?.blocked,
+            );
+            const levelOk = state.u.ulevel
+                >= (state.urole?.mnum === PM_WIZARD ? 8 : 12);
+            const formOk = can_teleport(state.youmonst?.data);
+            if (hasTeleportation && (levelOk || formOk)) {
+                throw new UnsupportedHeroCommandBranchBoundaryError(
+                    'dotelecmd: actual teleportation unported',
+                    key,
+                );
+            }
+            const knownsp = known_spell(SPE_TELEPORT_AWAY, state);
+            const confusion = Boolean(
+                state.u?.uprops?.[CONFUSION]?.intrinsic
+                || state.u?.uprops?.[CONFUSION]?.extrinsic,
+            );
+            if (knownsp >= spe_Fresh && !confusion) {
+                throw new UnsupportedHeroCommandBranchBoundaryError(
+                    'dotelecmd: teleport-away spell casting unported',
+                    key,
+                );
+            }
+            if (!hasTeleportation) {
+                if (knownsp !== spe_Unknown)
+                    await ttyPline("You can't cast that spell.", state);
+                else
+                    await ttyPline("You don't know that spell.", state);
+            } else {
+                await ttyPline(
+                    'You are not able to teleport at will.',
+                    state,
+                );
+            }
+            resetCommandVars(state);
             return;
         }
         if (command === 'save') {

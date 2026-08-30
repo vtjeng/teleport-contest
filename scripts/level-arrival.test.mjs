@@ -520,7 +520,7 @@ test('check_special_room handles Court and stops on later room families',
     // `default` arm answers for the rest, so THEMEROOM and VAULT stay silent
     // beside them.
     for (const rt of [ZOO, SWAMP, LEPREHALL, MORGUE, BEEHIVE,
-        COCKNEST, ANTHOLE, BARRACKS, DELPHI, TEMPLE]) {
+        COCKNEST, ANTHOLE, BARRACKS, DELPHI]) {
         state.u.urooms = [0, 0, 0, 0, 0];
         state.u.urooms0 = [0, 0, 0, 0, 0];
         state.level.rooms[0].rtype = rt;

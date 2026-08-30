@@ -1,7 +1,8 @@
 // Temple, shrine, and priest creation, movement, and queries.
 // C ref: priest.c newepri(), priestini(), pri_move(), move_special(),
 // mon_aligntyp(), p_coaligned(), temple_occupied(), histemple_at(),
-// inhistemple(), has_shrine(), findpriest(), and in_your_sanctuary().
+// inhistemple(), has_shrine(), findpriest(), in_your_sanctuary(),
+// and intemple().
 
 import {
     A_NONE,
@@ -16,11 +17,13 @@ import {
     IS_ALTAR,
     IS_ROOM,
     MM_EPRI,
+    MM_NOMSG,
     N_DIRS,
     NOTONL,
     RLOC_NOMSG,
     ROOMOFFSET,
     SOLID,
+    SPINE,
     TEMPLE,
     u_at,
     W_ARMC,
@@ -31,6 +34,7 @@ import {
 import { newsym } from './display.js';
 import { assign_level, on_level } from './dungeon.js';
 import { game } from './gstate.js';
+import { nomul, UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { dist2 } from './hacklib.js';
 import { makemon } from './makemon_create.js';
 import { set_malign } from './makemon.js';
@@ -48,13 +52,15 @@ import {
     passes_walls,
 } from './mondata.js';
 import { mfndpos } from './monmove.js';
-import { PM_ALIGNED_CLERIC, PM_HIGH_CLERIC, S_EEL } from './monsters.js';
+import { PM_ALIGNED_CLERIC, PM_GHOST, PM_HIGH_CLERIC, S_EEL } from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import { mkobj, SPBOOK_NO_NOVEL } from './obj.js';
+import { body_part } from './polyself.js';
 import { is_ok_location } from './room_coordinates.js';
 import { in_rooms } from './rooms.js';
 import { rn1, rn2 } from './rng.js';
 import { mpickobj } from './steal.js';
+import { ttyPline } from './tty_message.js';
 import { rloc } from './teleport.js';
 import { which_armor } from './worn.js';
 
@@ -401,4 +407,69 @@ export function pri_move(priest, env = {}) {
         priest, false, 1, false, avoid,
         omx, omy, ggx, ggy, env,
     );
+}
+
+// C ref: priest.c intemple(int roomno). Called when the hero enters a TEMPLE
+// room. The tended path (priest alive) requires canseemon/Monnam/verbalize1;
+// the untended path (no priest) is self-contained.
+export async function intemple(roomno, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2 };
+    const message = env.message ?? ttyPline;
+
+    if (temple_occupied(state.u.urooms0, state))
+        return;
+
+    const priest = findpriest(roomno, state);
+    if (priest) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'intemple() tended path (canseemon/Monnam/verbalize1 unported)',
+        );
+    }
+
+    switch (random.rn2(4)) {
+    case 0:
+        await message('You have an eerie feeling...', state);
+        break;
+    case 1:
+        await message('You feel like you are being watched.', state);
+        break;
+    case 2:
+        await message(
+            `A shiver runs down your ${body_part(SPINE, state.youmonst)}.`,
+            state,
+        );
+        break;
+    default:
+        break;
+    }
+    if (!random.rn2(5)) {
+        const mtmp = makemon(
+            state.mons[PM_GHOST], state.u.ux, state.u.uy, MM_NOMSG, env,
+        );
+        if (mtmp) {
+            const ngen = state.mvitals[PM_GHOST].born;
+            // canspotmon: ghost is at the hero's position and not inherently
+            // invisible, so the common case is visible.
+            const visible = !mtmp.minvis;
+            if (visible) {
+                await message(
+                    `A${ngen < 5 ? 'n enormous' : ''} ghost appears next to you${ngen < 10 ? '!' : '.'}`,
+                    state,
+                );
+            } else {
+                await message('You sense a presence close by!', state);
+            }
+            mtmp.mpeaceful = 0;
+            set_malign(mtmp, state);
+            if (state.flags.verbose)
+                await message(
+                    'You are frightened to death, and unable to move.',
+                    state,
+                );
+            nomul(-3, state);
+            state.multi_reason = 'being terrified of a ghost';
+            state.nomovemsg = 'You regain your composure.';
+        }
+    }
 }
