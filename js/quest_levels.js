@@ -1,12 +1,33 @@
 // quest_levels.js — Quest special level definitions.
-// C refs: dat/Bar-strt.lua and related quest level files.
+// C refs: dat/Bar-strt.lua, dat/Arc-strt.lua, dat/Pri-strt.lua,
+//         dat/oracle.lua, and related quest level files.
 
 import { COLNO, ROWNO } from './const.js';
+import { mkclass } from './makemon.js';
 import {
-    PM_CHIEFTAIN, PM_GIANT_EEL, PM_OGRE, PM_PELIAS,
+    G_IGNORE,
+    G_NOGEN,
+    NON_PM,
+    PM_ACOLYTE,
+    PM_ARCH_PRIEST,
+    PM_CHIEFTAIN,
+    PM_GIANT_EEL,
+    PM_HUMAN_ZOMBIE,
+    PM_LORD_CARNARVON,
+    PM_OGRE,
+    PM_ORACLE,
+    PM_PELIAS,
+    PM_STUDENT,
+    PM_WATCHMAN,
+    S_CENTAUR,
+    S_MUMMY,
+    S_SNAKE,
 } from './monsters.js';
-import { CHAIN_MAIL, CHEST, RUNESWORD } from './objects.js';
-import { rn2 } from './rng.js';
+import {
+    BULLWHIP, CHAIN_MAIL, CHEST, FEDORA, MACE, ROBE,
+    RUNESWORD, STATUE,
+} from './objects.js';
+import { rn2, rnd } from './rng.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
@@ -227,6 +248,329 @@ async function barStrt(des, state) {
     }
 }
 
+// C ref: dat/oracle.lua. Room-based special level: six rooms connected by
+// random corridors. The first room is the Oracle's chamber with 8 centaur
+// statues and a delphi sub-room containing 4 fountains.
+async function oracle(des, state) {
+    des.level_flags('noflip');
+
+    des.room({
+        type: 'ordinary', lit: 1, x: 3, y: 3,
+        xalign: 'center', yalign: 'center', w: 11, h: 9,
+        contents() {
+            // 8 centaur statues at corners, edges, and midsections.
+            // C ref: lspo_object() resolves montype "C" via
+            // mkclass(def_char_to_monclass('C'), G_NOGEN|G_IGNORE).
+            for (const [sx, sy] of [
+                [0, 0], [0, 8], [10, 0], [10, 8],
+                [5, 1], [5, 7], [2, 4], [8, 4],
+            ]) {
+                const species = mkclass(S_CENTAUR, G_NOGEN | G_IGNORE, {
+                    state, random: { rn2, rnd },
+                });
+                des.object({
+                    id: STATUE, coord: [sx, sy],
+                    montype: species ? species.pmidx : NON_PM,
+                    historic: true,
+                });
+            }
+
+            // Delphi sub-room with 4 fountains and the Oracle
+            des.room({
+                type: 'delphi', lit: 1, x: 4, y: 3, w: 3, h: 3,
+                contents() {
+                    des.feature('fountain', 0, 1);
+                    des.feature('fountain', 1, 0);
+                    des.feature('fountain', 1, 2);
+                    des.feature('fountain', 2, 1);
+                    des.monster({ id: PM_ORACLE, coord: [1, 1] });
+                    des.door({ state: 'nodoor', wall: 'all' });
+                },
+            });
+
+            des.monster();
+            des.monster();
+        },
+    });
+
+    des.room({ contents() {
+        des.stair('up');
+        des.object();
+    }});
+
+    des.room({ contents() {
+        des.stair('down');
+        des.object();
+        des.trap();
+        des.monster();
+        des.monster();
+    }});
+
+    des.room({ contents() {
+        des.object();
+        des.object();
+        des.monster();
+    }});
+
+    des.room({ contents() {
+        des.object();
+        des.trap();
+        des.monster();
+    }});
+
+    des.room({ contents() {
+        des.object();
+        des.trap();
+        des.monster();
+    }});
+
+    des.random_corridors();
+}
+
+// C ref: dat/Arc-strt.lua. Map-based quest start level for the Archeologist.
+// Lord Carnarvon's besieged compound behind a moat, with snakes and mummies.
+async function arcStrt(des, state) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    des.map([
+        '............................................................................',
+        '............................................................................',
+        '............................................................................',
+        '............................................................................',
+        '....................}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}.................', // eslint-disable-line no-useless-escape
+        '....................}-------------------------------------}.................', // eslint-disable-line no-useless-escape
+        '....................}|..S......+.................+.......|}.................', // eslint-disable-line no-useless-escape
+        '....................}-S---------------+----------|.......|}.................', // eslint-disable-line no-useless-escape
+        '....................}|.|...............|.......+.|.......|}.................', // eslint-disable-line no-useless-escape
+        '....................}|.|...............---------.---------}.................', // eslint-disable-line no-useless-escape
+        '....................}|.S.\\.............+.................+..................', // eslint-disable-line no-useless-escape
+        '....................}|.|...............---------.---------}.................', // eslint-disable-line no-useless-escape
+        '....................}|.|...............|.......+.|.......|}.................', // eslint-disable-line no-useless-escape
+        '....................}-S---------------+----------|.......|}.................', // eslint-disable-line no-useless-escape
+        '....................}|..S......+.................+.......|}.................', // eslint-disable-line no-useless-escape
+        '....................}-------------------------------------}.................', // eslint-disable-line no-useless-escape
+        '....................}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}.................', // eslint-disable-line no-useless-escape
+        '............................................................................',
+        '............................................................................',
+        '............................................................................',
+    ]);
+
+    // Dungeon Description
+    des.region(selection_area(0, 0, 75, 19), 'lit');
+    des.region(selection_area(22, 6, 23, 6), 'unlit');
+    des.region(selection_area(25, 6, 30, 6), 'unlit');
+    des.region(selection_area(32, 6, 48, 6), 'unlit');
+    des.region(selection_area(50, 6, 56, 8), 'lit');
+    des.region(selection_area(40, 8, 46, 8), 'unlit');
+    des.region(selection_area(22, 8, 22, 12), 'unlit');
+    des.region(selection_area(24, 8, 38, 12), 'unlit');
+    des.region(selection_area(48, 8, 48, 8), 'lit');
+    des.region(selection_area(40, 10, 56, 10), 'lit');
+    des.region(selection_area(48, 12, 48, 12), 'lit');
+    des.region(selection_area(40, 12, 46, 12), 'unlit');
+    des.region(selection_area(50, 12, 56, 14), 'lit');
+    des.region(selection_area(22, 14, 23, 14), 'unlit');
+    des.region(selection_area(25, 14, 30, 14), 'unlit');
+    des.region(selection_area(32, 14, 48, 14), 'unlit');
+
+    // Stairs
+    des.stair({ dir: 'down', coord: [55, 7] });
+
+    // Portal arrival point
+    des.levregion({ region: [63, 6, 63, 6], type: 'branch' });
+
+    // Doors
+    des.door({ state: 'closed', coord: [22, 7] });
+    des.door({ state: 'closed', coord: [38, 7] });
+    des.door({ state: 'locked', coord: [47, 8] });
+    des.door({ state: 'locked', coord: [23, 10] });
+    des.door({ state: 'locked', coord: [39, 10] });
+    des.door({ state: 'locked', coord: [57, 10] });
+    des.door({ state: 'locked', coord: [47, 12] });
+    des.door({ state: 'closed', coord: [22, 13] });
+    des.door({ state: 'closed', coord: [38, 13] });
+    des.door({ state: 'locked', coord: [24, 14] });
+    des.door({ state: 'closed', coord: [31, 14] });
+    des.door({ state: 'locked', coord: [49, 14] });
+
+    // Lord Carnarvon
+    des.monster({
+        id: PM_LORD_CARNARVON,
+        coord: [25, 10],
+        inventory() {
+            des.object({ id: FEDORA, spe: 5 });
+            des.object({ id: BULLWHIP, spe: 4 });
+        },
+    });
+
+    // The treasure of Lord Carnarvon
+    des.object({ id: CHEST, coord: [25, 10] });
+
+    // student guards for the audience chamber
+    des.monster({ id: PM_STUDENT, coord: [26, 9] });
+    des.monster({ id: PM_STUDENT, coord: [27, 9] });
+    des.monster({ id: PM_STUDENT, coord: [28, 9] });
+    des.monster({ id: PM_STUDENT, coord: [26, 10] });
+    des.monster({ id: PM_STUDENT, coord: [28, 10] });
+    des.monster({ id: PM_STUDENT, coord: [26, 11] });
+    des.monster({ id: PM_STUDENT, coord: [27, 11] });
+    des.monster({ id: PM_STUDENT, coord: [28, 11] });
+
+    // city watch guards in the antechambers
+    des.monster({ id: PM_WATCHMAN, coord: [50, 6] });
+    des.monster({ id: PM_WATCHMAN, coord: [50, 14] });
+
+    // Eels in the moat
+    des.monster({ id: PM_GIANT_EEL, coord: [20, 10] });
+    des.monster({ id: PM_GIANT_EEL, coord: [45, 4] });
+    des.monster({ id: PM_GIANT_EEL, coord: [33, 16] });
+
+    // Non diggable walls
+    des.non_diggable(selection_area(0, 0, 75, 19));
+
+    // Random traps
+    des.trap();
+    des.trap();
+    des.trap();
+    des.trap();
+    des.trap();
+    des.trap();
+
+    // Monsters on siege duty (S = snake class, M = mummy class)
+    des.monster({ class: S_SNAKE, coord: [60, 9] });
+    des.monster({ class: S_MUMMY, coord: [60, 10] });
+    des.monster({ class: S_SNAKE, coord: [60, 11] });
+    des.monster({ class: S_SNAKE, coord: [60, 12] });
+    des.monster({ class: S_MUMMY, coord: [60, 13] });
+    des.monster({ class: S_SNAKE, coord: [61, 10] });
+    des.monster({ class: S_SNAKE, coord: [61, 11] });
+    des.monster({ class: S_SNAKE, coord: [61, 12] });
+    des.monster({ class: S_SNAKE, coord: [30, 3] });
+    des.monster({ class: S_MUMMY, coord: [20, 17] });
+    des.monster({ class: S_SNAKE, coord: [67, 2] });
+    des.monster({ class: S_SNAKE, coord: [10, 19] });
+}
+
+// C ref: dat/Pri-strt.lua. Map-based quest start level for the Priest.
+// The Arch Priest's besieged temple with corridors, human zombies outside.
+async function priStrt(des, state) {
+    const { frame } = des;
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    des.map([
+        '............................................................................',
+        '............................................................................',
+        '............................................................................',
+        '....................------------------------------------....................', // eslint-disable-line no-useless-escape
+        '....................|................|.....|.....|.....|....................', // eslint-disable-line no-useless-escape
+        '....................|..------------..|--+-----+-----+--|....................', // eslint-disable-line no-useless-escape
+        '....................|..|..........|..|.................|....................', // eslint-disable-line no-useless-escape
+        '....................|..|..........|..|+---+---+-----+--|....................', // eslint-disable-line no-useless-escape
+        '..................---..|..........|......|...|...|.....|....................', // eslint-disable-line no-useless-escape
+        '..................+....|..........+......|...|...|.....|....................', // eslint-disable-line no-useless-escape
+        '..................+....|..........+......|...|...|.....|....................', // eslint-disable-line no-useless-escape
+        '..................---..|..........|......|...|...|.....|....................', // eslint-disable-line no-useless-escape
+        '....................|..|..........|..|+-----+---+---+--|....................', // eslint-disable-line no-useless-escape
+        '....................|..|..........|..|.................|....................', // eslint-disable-line no-useless-escape
+        '....................|..------------..|--+-----+-----+--|....................', // eslint-disable-line no-useless-escape
+        '....................|................|.....|.....|.....|....................', // eslint-disable-line no-useless-escape
+        '....................------------------------------------....................', // eslint-disable-line no-useless-escape
+        '............................................................................',
+        '............................................................................',
+        '............................................................................',
+    ]);
+
+    // Dungeon Description
+    des.region(selection_area(0, 0, 75, 19), 'lit');
+    des.region({ region: [24, 6, 33, 13], lit: 1, type: 'temple', filled: 2 });
+
+    des.replace_terrain({
+        region: [0, 0, 10, 19],
+        fromterrain: '.', toterrain: 'T', chance: 10,
+    });
+    des.replace_terrain({
+        region: [65, 0, 75, 19],
+        fromterrain: '.', toterrain: 'T', chance: 10,
+    });
+    des.terrain(5, 4, '.');
+
+    const spacelocs = selection_floodfill(5, 4, state, frame);
+
+    // Portal arrival point
+    des.levregion({ region: [5, 4, 5, 4], type: 'branch' });
+
+    // Stairs
+    des.stair({ dir: 'down', coord: [52, 9] });
+
+    // Doors
+    des.door({ state: 'locked', coord: [18, 9] });
+    des.door({ state: 'locked', coord: [18, 10] });
+    des.door({ state: 'closed', coord: [34, 9] });
+    des.door({ state: 'closed', coord: [34, 10] });
+    des.door({ state: 'closed', coord: [40, 5] });
+    des.door({ state: 'closed', coord: [46, 5] });
+    des.door({ state: 'closed', coord: [52, 5] });
+    des.door({ state: 'locked', coord: [38, 7] });
+    des.door({ state: 'closed', coord: [42, 7] });
+    des.door({ state: 'closed', coord: [46, 7] });
+    des.door({ state: 'closed', coord: [52, 7] });
+    des.door({ state: 'locked', coord: [38, 12] });
+    des.door({ state: 'closed', coord: [44, 12] });
+    des.door({ state: 'closed', coord: [48, 12] });
+    des.door({ state: 'closed', coord: [52, 12] });
+    des.door({ state: 'closed', coord: [40, 14] });
+    des.door({ state: 'closed', coord: [46, 14] });
+    des.door({ state: 'closed', coord: [52, 14] });
+
+    // Unattended Altar - unaligned due to conflict
+    des.altar({ x: 28, y: 9, align: 'noalign', type: 'altar' });
+
+    // Arch Priest
+    des.monster({
+        id: PM_ARCH_PRIEST,
+        coord: [28, 10],
+        inventory() {
+            des.object({ id: ROBE, spe: 4 });
+            des.object({ id: MACE, spe: 4 });
+        },
+    });
+
+    // The treasure of Arch Priest
+    des.object({ id: CHEST, coord: [27, 10] });
+
+    // acolyte guards for the audience chamber
+    des.monster({ id: PM_ACOLYTE, coord: [32, 7] });
+    des.monster({ id: PM_ACOLYTE, coord: [32, 8] });
+    des.monster({ id: PM_ACOLYTE, coord: [32, 11] });
+    des.monster({ id: PM_ACOLYTE, coord: [32, 12] });
+    des.monster({ id: PM_ACOLYTE, coord: [33, 7] });
+    des.monster({ id: PM_ACOLYTE, coord: [33, 8] });
+    des.monster({ id: PM_ACOLYTE, coord: [33, 11] });
+    des.monster({ id: PM_ACOLYTE, coord: [33, 12] });
+
+    // Non diggable walls
+    des.non_diggable(selection_area(18, 3, 55, 16));
+
+    // Random traps — 2 dart traps in the open area, 4 random
+    for (let i = 0; i < 2; i++) {
+        const pos = spacelocs.rndcoord(true);
+        des.trap({ type: 'dart', coord: [pos.x, pos.y] });
+    }
+    des.trap();
+    des.trap();
+    des.trap();
+    des.trap();
+
+    // Monsters on siege duty — human zombies in the open area
+    for (let i = 0; i < 12; i++) {
+        const pos = spacelocs.rndcoord(true);
+        des.monster({ id: PM_HUMAN_ZOMBIE, coord: [pos.x, pos.y] });
+    }
+}
+
 export const QUEST_LEVEL_LOADERS = {
     'Bar-strt': barStrt,
+    'Arc-strt': arcStrt,
+    'Pri-strt': priStrt,
+    oracle,
 };

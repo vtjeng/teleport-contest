@@ -9,6 +9,7 @@ import { game } from './gstate.js';
 import { GameMap } from './game.js';
 import {
     Can_fall_thru,
+    Is_branchlev,
     Is_special,
     at_dgn_entrance,
     depth,
@@ -26,10 +27,12 @@ import {
 import { mkcorpstat } from './corpstat.js';
 import { del_engr_at, make_engr_at, wipe_engr_at } from './engrave.js';
 import { set_wall_state } from './display.js';
+import { def_char_to_monclass } from './drawing.js';
 import { add_to_container } from './invent.js';
 import { UnsupportedMonsterCreationError, makemon } from './makemon_create.js';
 import { mkclass } from './makemon.js';
 import { mineralize } from './mineralize.js';
+import { place_lregion } from './mkmaze.js';
 import { d, rn2, rnd, rn1, rne, rnz } from './rng.js';
 import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
 import {
@@ -157,7 +160,12 @@ import {
     ICE, MOAT, POOL, WATER, LAVAPOOL, LAVAWALL,
     DBWALL, AIR, CLOUD,
     MAX_TYPE, MATCH_WALL,
-    A_LAWFUL, A_NEUTRAL, A_CHAOTIC,
+    A_LAWFUL, A_NEUTRAL, A_CHAOTIC, A_NONE,
+    Align2amask,
+    ALTAR,
+    DELPHI,
+    FILL_LVFLAGS,
+    LR_BRANCH, LR_DOWNSTAIR, LR_UPSTAIR,
     LR_TELE, MALE,
     NO_TRAP,
     ARROW_TRAP, DART_TRAP, ROCKTRAP, SQKY_BOARD, BEAR_TRAP,
@@ -1012,6 +1020,16 @@ function createSpecialLevelApi(state) {
         spObjectContext,
     };
 
+    // C ref: sp_lev.c coder->tmproomlist / coder->croom. Tracks which room
+    // des.room() or des.region() callbacks are executing inside, so that
+    // coordinate-bearing methods offset from the room instead of the frame.
+    const croomStack = [];
+    let currentCroom = null;
+
+    // C ref: sp_lev.c levregion_add() / mkmaze.c fixup_special(). Branch and
+    // stair levregions are stored here and resolved in finish().
+    const storedLregions = [];
+
     return {
         random: SOURCE_THEMEROOM_RANDOM,
         get frame() { return frame; },
@@ -1131,21 +1149,69 @@ function createSpecialLevelApi(state) {
                     specification.lit,
                     state,
                 );
+            } else if (specification.region) {
+                // C ref: sp_lev.c lspo_region() table form with region coords.
+                const ROOM_TYPE_MAP = {
+                    ordinary: OROOM, delphi: DELPHI, temple: TEMPLE,
+                };
+                const [rx1, ry1, rx2, ry2] = specification.region;
+                const rtype = ROOM_TYPE_MAP[specification.type] ?? OROOM;
+                const needfill = specification.filled ?? 0;
+                const joined = specification.joined ?? true;
+                let rlit = specification.lit ?? -1;
+                rlit = litstate_rnd(rlit);
+                const dx1 = frame.xstart + rx1;
+                const dy1 = frame.ystart + ry1;
+                const dx2 = frame.xstart + rx2;
+                const dy2 = frame.ystart + ry2;
+                const roomNotNeeded = (rtype === OROOM);
+                if (roomNotNeeded || game.level.nroom >= MAXNROFROOMS) {
+                    // Just set lighting.
+                    for (let x = dx1; x <= dx2; ++x)
+                        for (let y = dy1; y <= dy2; ++y) {
+                            const loc = state.level.at(x, y);
+                            if (loc) loc.lit = rlit;
+                        }
+                } else {
+                    add_room(dx1, dy1, dx2, dy2, rlit, rtype, true);
+                    const troom = game.level.rooms[game.level.nroom - 1];
+                    topologize(troom);
+                    troom.needfill = needfill;
+                    troom.needjoining = joined;
+                    if (typeof specification.contents === 'function') {
+                        croomStack.push(currentCroom);
+                        currentCroom = troom;
+                        specification.contents(troom);
+                        currentCroom = croomStack.pop();
+                        add_doors_to_room(troom);
+                    }
+                }
             } else {
-                throw new Error('special-level region requires area or match');
+                throw new Error('special-level region requires area, match, or region');
             }
         },
 
-        non_diggable() {
-            for (let x = 0; x < COLNO; ++x) {
-                for (let y = 0; y < ROWNO; ++y) {
-                    const location = state.level.at(x, y);
-                    if (IS_STWALL(location.typ)
-                        || location.typ === TREE
-                        || location.typ === IRONBARS) {
-                        location.wall_info |= W_NONDIGGABLE;
-                    }
+        non_diggable(sel) {
+            // C ref: sp_lev.c lspo_non_diggable(). With a selection argument,
+            // marks only the selected wall tiles; without, marks the whole map.
+            const mark = (x, y) => {
+                const location = state.level.at(x, y);
+                if (IS_STWALL(location.typ)
+                    || location.typ === TREE
+                    || location.typ === IRONBARS) {
+                    location.wall_info |= W_NONDIGGABLE;
                 }
+            };
+            if (sel) {
+                const b = sel.bounds();
+                for (let x = b.lx; x <= b.hx; ++x)
+                    for (let y = b.ly; y <= b.hy; ++y)
+                        if (sel.get(x, y))
+                            mark(frame.xstart + x, frame.ystart + y);
+            } else {
+                for (let x = 0; x < COLNO; ++x)
+                    for (let y = 0; y < ROWNO; ++y)
+                        mark(x, y);
             }
         },
 
@@ -1198,20 +1264,57 @@ function createSpecialLevelApi(state) {
             return engraving;
         },
 
-        door(specification) {
-            const coordinate = specialCoordinate(frame, specification.coord);
-            const mask = specification.state === 'random'
+        // C ref: sp_lev.c lspo_door(). Supports three forms:
+        // - Table with coord: door({ state, coord })
+        // - Table with wall (inside a room): door({ state, wall })
+        // - 3-arg: door("state", x, y)
+        door(specOrState, xOpt, yOpt) {
+            // 3-arg form: door("state", x, y)
+            if (typeof specOrState === 'string' && xOpt !== undefined) {
+                return this.door({ state: specOrState, coord: [xOpt, yOpt] });
+            }
+            const specification = specOrState;
+            // Wall form: door({ state, wall }) — C ref: sp_lev.c:4714-4720
+            if (specification.wall != null && specification.coord == null) {
+                if (!currentCroom) return null;
+                const msk = specification.state === 'random'
+                    ? -1
+                    : SPECIAL_DOOR_STATES[specification.state];
+                const dd = {
+                    secret: (msk === D_SECRET) ? 1 : 0,
+                    mask: msk ?? D_NODOOR,
+                    pos: specification.pos ?? -1,
+                    wall: ROOM_DOOR_WALL_MASKS[specification.wall]
+                        ?? W_ANY,
+                };
+                create_door(dd, currentCroom, rn2);
+                return null;
+            }
+            // Coord form: door({ state, coord })
+            let coordinate;
+            if (currentCroom && specification.coord) {
+                // C ref: sp_lev.c:4723 get_location_coord with croom
+                coordinate = {
+                    x: currentCroom.lx + specification.coord[0],
+                    y: currentCroom.ly + specification.coord[1],
+                };
+            } else {
+                coordinate = specialCoordinate(frame, specification.coord);
+            }
+            // C ref: sp_lev.c sel_set_door()
+            const msk = specification.state === 'random'
                 ? RANDOM_SPECIAL_DOOR_STATES[rn2(
                     RANDOM_SPECIAL_DOOR_STATES.length,
                 )]
                 : SPECIAL_DOOR_STATES[specification.state];
-            if (mask == null)
+            if (msk == null)
                 throw new Error(`unsupported special-level door state ${specification.state}`);
             const location = state.level.at(coordinate.x, coordinate.y);
             if (!IS_DOOR(location.typ) && location.typ !== SDOOR)
-                set_levltyp(coordinate.x, coordinate.y, DOOR, { state });
+                set_levltyp(coordinate.x, coordinate.y,
+                    (msk & D_SECRET) ? SDOOR : DOOR, { state });
             setSpecialDoorOrientation(coordinate.x, coordinate.y, state);
-            location.doormask = mask;
+            location.doormask = msk & 0x1f;
             return location;
         },
 
@@ -1223,7 +1326,14 @@ function createSpecialLevelApi(state) {
             let coordinate;
             let trapType;
             if (spec.coord) {
-                coordinate = specialCoordinate(frame, spec.coord);
+                if (currentCroom) {
+                    coordinate = {
+                        x: currentCroom.lx + spec.coord[0],
+                        y: currentCroom.ly + spec.coord[1],
+                    };
+                } else {
+                    coordinate = specialCoordinate(frame, spec.coord);
+                }
             } else if (typeof specification === 'string') {
                 trapType = specification;
                 coordinate = { x: -1, y: -1 };
@@ -1237,7 +1347,7 @@ function createSpecialLevelApi(state) {
                 let trycnt = 0;
                 do {
                     get_location_coord(
-                        coordinate, DRY, null,
+                        coordinate, DRY, currentCroom,
                         SP_COORD_IS_RANDOM, { frame, state },
                     );
                 } while ((state.level.at(coordinate.x, coordinate.y)?.typ
@@ -1273,14 +1383,28 @@ function createSpecialLevelApi(state) {
             // Terrain, doors, traps, engravings, and stairs convert eagerly
             // above, so applying specialCoordinate() here would offset twice.
             const spec = specification ?? {};
+            // C ref: sp_lev.c lspo_object(). When montype is a single
+            // character, resolve it as a monster class letter to a PM_ index
+            // the same way C does: mkclass(def_char_to_monclass(ch), flags).
+            let corpsenm = spec.montype;
+            if (typeof corpsenm === 'string' && corpsenm.length === 1) {
+                const cls = def_char_to_monclass(corpsenm);
+                const species = mkclass(cls, G_NOGEN | G_IGNORE, {
+                    state,
+                    random: SOURCE_THEMEROOM_RANDOM,
+                });
+                corpsenm = species
+                    ? state.mons.indexOf(species)
+                    : undefined;
+            }
             const normalized = {
                 ...spec,
                 coordinate: spec.coord
                     ? { x: spec.coord[0], y: spec.coord[1] }
                     : undefined,
-                corpsenm: spec.montype,
+                corpsenm,
             };
-            return lspo_object(normalized, null, env);
+            return lspo_object(normalized, currentCroom, env);
         },
 
         monster(specification) {
@@ -1292,7 +1416,7 @@ function createSpecialLevelApi(state) {
                     : undefined,
             };
             try {
-                return create_monster(normalized, null, env);
+                return create_monster(normalized, currentCroom, env);
             } catch (e) {
                 if (e instanceof UnsupportedMonsterCreationError) return null;
                 throw e;
@@ -1303,22 +1427,29 @@ function createSpecialLevelApi(state) {
             // C ref: sp_lev.c l_create_stairway(). Accepts a table with
             // .coord and .dir, or a bare "up"/"down" string with no
             // coordinates (in which case get_location picks a random DRY
-            // spot inside the map frame).
+            // spot inside the current room or map frame).
             let up, x, y;
             if (typeof specification === 'string') {
                 up = specification === 'up';
                 const coord = { x: -1, y: -1 };
                 get_location_coord(
-                    coord, DRY, null, SP_COORD_IS_RANDOM,
+                    coord, DRY, currentCroom, SP_COORD_IS_RANDOM,
                     { frame, state },
                 );
                 x = coord.x;
                 y = coord.y;
             } else {
                 up = specification.dir === 'up';
-                const coord = specialCoordinate(frame, specification.coord);
-                x = coord.x;
-                y = coord.y;
+                if (currentCroom && specification.coord) {
+                    x = currentCroom.lx + specification.coord[0];
+                    y = currentCroom.ly + specification.coord[1];
+                } else {
+                    const coord = specialCoordinate(
+                        frame, specification.coord,
+                    );
+                    x = coord.x;
+                    y = coord.y;
+                }
             }
             mkstairs(x, y, up, null);
         },
@@ -1326,6 +1457,77 @@ function createSpecialLevelApi(state) {
         shuffle(values) {
             shuffle_core_values(values, rn2);
             return values;
+        },
+
+        // C ref: sp_lev.c lspo_room(). Creates a room (or subroom when
+        // called inside another room's contents callback), invokes the
+        // contents callback with croom set, then registers doors.
+        room(spec) {
+            const SPLEV_ALIGN_MAP = {
+                left: 0, 'half-left': 1, center: 3,
+                'half-right': 4, right: 5,
+                none: -1, random: -1,
+            };
+            const SPLEV_VALIGN_MAP = {
+                top: 0, center: 3, bottom: 2, none: -1, random: -1,
+            };
+            const ROOM_TYPE_MAP = {
+                ordinary: OROOM, delphi: DELPHI, temple: TEMPLE,
+            };
+            const roomSpec = {
+                x: spec.x ?? -1,
+                y: spec.y ?? -1,
+                w: spec.w ?? -1,
+                h: spec.h ?? -1,
+                xalign: SPLEV_ALIGN_MAP[spec.xalign] ?? -1,
+                yalign: SPLEV_VALIGN_MAP[spec.yalign] ?? -1,
+                rtype: ROOM_TYPE_MAP[spec.type] ?? OROOM,
+                chance: spec.chance ?? 100,
+                rlit: spec.lit ?? -1,
+                needfill: spec.filled ?? FILL_NORMAL,
+                joined: spec.joined ?? true,
+            };
+            const parent = currentCroom;
+            const room = build_room(roomSpec, parent, rn2, rnd);
+            if (!room) return null;
+            if (parent) parent.irregular = true;
+            croomStack.push(currentCroom);
+            currentCroom = room;
+            if (typeof spec.contents === 'function') {
+                spec.contents(room);
+            }
+            currentCroom = croomStack.pop();
+            add_doors_to_room(room);
+            return room;
+        },
+
+        // C ref: sp_lev.c lspo_random_corridors(). Connects all rooms on
+        // the level with corridors, using the same algorithm as regular
+        // level generation.
+        random_corridors() {
+            makecorridors();
+        },
+
+        // C ref: sp_lev.c lspo_feature() for altars. Sets a tile to ALTAR
+        // and stores the alignment mask.
+        altar(spec) {
+            const ALIGN_STR_MAP = {
+                noalign: A_NONE, law: A_LAWFUL, neutral: A_NEUTRAL,
+                chaos: A_CHAOTIC, none: A_NONE, random: A_NONE,
+                coaligned: A_NONE, noncoaligned: A_NONE,
+            };
+            let x, y;
+            if (currentCroom) {
+                x = currentCroom.lx + spec.x;
+                y = currentCroom.ly + spec.y;
+            } else {
+                x = frame.xstart + spec.x;
+                y = frame.ystart + spec.y;
+            }
+            set_levltyp(x, y, ALTAR, { state });
+            const alignment = ALIGN_STR_MAP[spec.align] ?? A_NONE;
+            const loc = state.level.at(x, y);
+            if (loc) loc.flags = Align2amask(alignment);
         },
 
         // C ref: sp_lev.c lspo_replace_terrain(). Replaces all cells of
@@ -1374,12 +1576,26 @@ function createSpecialLevelApi(state) {
 
         // C ref: sp_lev.c lspo_terrain(). Sets terrain on a selection or
         // at a single coordinate. Accepts (selection, char), (x, y, char),
-        // or a table { selection, typ, lit }.
+        // ([x, y], char), or a table { selection, typ, lit }.
         terrain(selOrX, charOrY, charOpt) {
-            if (typeof selOrX === 'number') {
+            if (Array.isArray(selOrX)) {
+                // terrain([x, y], char) — array coord form
+                const ox = currentCroom
+                    ? currentCroom.lx : frame.xstart;
+                const oy = currentCroom
+                    ? currentCroom.ly : frame.ystart;
+                const tx = ox + selOrX[0];
+                const ty = oy + selOrX[1];
+                const typ = splev_chr2typ(charOrY);
+                if (typ < MAX_TYPE) set_levltyp(tx, ty, typ, { state });
+            } else if (typeof selOrX === 'number') {
                 // terrain(x, y, char)
-                const tx = frame.xstart + selOrX;
-                const ty = frame.ystart + charOrY;
+                const ox = currentCroom
+                    ? currentCroom.lx : frame.xstart;
+                const oy = currentCroom
+                    ? currentCroom.ly : frame.ystart;
+                const tx = ox + selOrX;
+                const ty = oy + charOrY;
                 const typ = splev_chr2typ(charOpt);
                 if (typ < MAX_TYPE) set_levltyp(tx, ty, typ, { state });
             } else {
@@ -1419,13 +1635,15 @@ function createSpecialLevelApi(state) {
         // or throne at the given coordinates. Accepts ("fountain", x, y) or
         // ("fountain", {x, y}).
         feature(name, xOrSpec, yOpt) {
+            const ox = currentCroom ? currentCroom.lx : frame.xstart;
+            const oy = currentCroom ? currentCroom.ly : frame.ystart;
             let tx, ty;
             if (typeof xOrSpec === 'number') {
-                tx = frame.xstart + xOrSpec;
-                ty = frame.ystart + yOpt;
+                tx = ox + xOrSpec;
+                ty = oy + yOpt;
             } else {
-                tx = frame.xstart + (xOrSpec?.x ?? xOrSpec?.[0] ?? -1);
-                ty = frame.ystart + (xOrSpec?.y ?? xOrSpec?.[1] ?? -1);
+                tx = ox + (xOrSpec?.x ?? xOrSpec?.[0] ?? -1);
+                ty = oy + (xOrSpec?.y ?? xOrSpec?.[1] ?? -1);
             }
             const featureTypes = {
                 fountain: FOUNTAIN,
@@ -1481,10 +1699,19 @@ function createSpecialLevelApi(state) {
                 region.nhy = frame.ystart + ey2;
             }
             // C ref: the type string maps to LR_* constants.
+            const LREGION_TYPE_MAP = {
+                'stair-up': LR_UPSTAIR,
+                'stair-down': LR_DOWNSTAIR,
+                branch: LR_BRANCH,
+            };
+            const rtype = LREGION_TYPE_MAP[spec.type];
             if (spec.type === 'stair-up') {
                 state.upstair = region;
             } else if (spec.type === 'stair-down') {
                 state.dnstair = region;
+            } else if (rtype != null) {
+                // C ref: sp_lev.c levregion_add(). Store for fixup_special.
+                storedLregions.push({ region, rtype });
             }
         },
 
@@ -1504,6 +1731,36 @@ function createSpecialLevelApi(state) {
             // only the horizontal axis flip.
             flip_level_rnd(state.specialLevelAllowFlips ?? 3);
             count_level_features(state);
+
+            // C ref: mkmaze.c fixup_special(). Process stored levregions
+            // after wallification and flipping.
+            let addedBranch = false;
+            for (const lr of storedLregions) {
+                const r = lr.region;
+                if (lr.rtype === LR_BRANCH) addedBranch = true;
+                place_lregion(
+                    r.lx, r.ly, r.hx, r.hy,
+                    r.nlx, r.nly, r.nhx, r.nhy,
+                    lr.rtype, null, state,
+                );
+            }
+            if (!addedBranch && Is_branchlev(state.u.uz, state)) {
+                place_lregion(
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    LR_BRANCH, null, state,
+                );
+            }
+
+            // C ref: sp_lev.c load_special() calls fill_special_room for
+            // every room after fixup_special. For rooms created by
+            // des.room() or des.region(table), this sets level flags
+            // (has_temple etc.) and fills shops/zoos when needfill is
+            // FILL_NORMAL.
+            const nroom = state.level?.nroom ?? 0;
+            const rooms = state.level?.rooms ?? [];
+            for (let i = 0; i < nroom; i++) {
+                fill_special_room(rooms[i], { state });
+            }
         },
     };
 }
@@ -3525,6 +3782,7 @@ export {
     inside_room,
     is_ok_location,
     occupied,
+    place_branch,
     somex,
     somey,
     somexy,
@@ -3773,24 +4031,30 @@ function find_branch_room(mp) {
     return croom;
 }
 
-function place_branch(branchp) {
+// C ref: mklev.c place_branch(). When x is nonzero the branch is placed at
+// (x, y) directly; otherwise find_branch_room picks a random location.
+function place_branch(branchp, x = 0, y = 0) {
     const g = game;
-    const mp = { x: 0, y: 0 };
-    const croom = find_branch_room(mp);
-    if (croom && mp.x > 0) {
-        const on_end1 = (branchp.end1?.dnum === g.u?.uz?.dnum
-            && branchp.end1?.dlevel === g.u?.uz?.dlevel);
-        const dest = on_end1 ? branchp.end2 : branchp.end1;
-        const goes_up = on_end1 ? !!branchp.end1_up : !branchp.end1_up;
-        const loc = g.level?.at(mp.x, mp.y);
-        if (loc) {
-            loc.typ = STAIRS;
-            loc.ladder = goes_up ? 1 : 2;
-        }
-        stairway_add(mp.x, mp.y, goes_up, false, dest || { dnum: 0, dlevel: 0 });
-        if (goes_up) g.level.upstair = { x: mp.x, y: mp.y };
-        else g.level.dnstair = { x: mp.x, y: mp.y };
+    if (!branchp || g.made_branch) return;
+    if (!x) {
+        const mp = { x: 0, y: 0 };
+        const croom = find_branch_room(mp);
+        if (!croom || mp.x <= 0) { g.made_branch = true; return; }
+        x = mp.x;
+        y = mp.y;
     }
+    const on_end1 = (branchp.end1?.dnum === g.u?.uz?.dnum
+        && branchp.end1?.dlevel === g.u?.uz?.dlevel);
+    const dest = on_end1 ? branchp.end2 : branchp.end1;
+    const goes_up = on_end1 ? !!branchp.end1_up : !branchp.end1_up;
+    const loc = g.level?.at(x, y);
+    if (loc) {
+        loc.typ = STAIRS;
+        loc.ladder = goes_up ? 1 : 2;
+    }
+    stairway_add(x, y, goes_up, false, dest || { dnum: 0, dlevel: 0 });
+    if (goes_up) g.level.upstair = { x, y };
+    else g.level.dnstair = { x, y };
     g.made_branch = true;
 }
 

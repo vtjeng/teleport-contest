@@ -22,8 +22,9 @@ import {
     ROWNO,
     undestroyable_trap,
 } from './const.js';
-import { u_on_newpos } from './dungeon.js';
+import { Is_branchlev, u_on_newpos } from './dungeon.js';
 import { game } from './gstate.js';
+import { place_branch } from './mklev.js';
 import { occupied } from './mktrap.js';
 import { m_at } from './monst.js';
 import { within_bounded_area } from './rect.js';
@@ -108,14 +109,11 @@ export function place_lregion(
     nhy ??= 0;
 
     if (!lx) { /* default to whole level */
-        // mkmaze.c:365-371 hands an unbounded LR_BRANCH to place_branch()
-        // instead, so that a branch staircase does not land in a corridor.
-        // js/mklev.js place_branch() has its own caller and nothing routes a
-        // branch through here, so the arm is named rather than ported.
+        // C ref: mkmaze.c:371-374. When defaulting to whole level and rooms
+        // exist, let place_branch choose the location to avoid corridors.
         if (rtype === LR_BRANCH && state.level?.nroom) {
-            throw new UnsupportedRegionPlacementError(
-                'place_lregion() choosing a branch location',
-            );
+            place_branch(Is_branchlev(state.u.uz, state), 0, 0);
+            return;
         }
         lx = 1; /* column 0 is not used */
         hx = COLNO - 1;
@@ -219,10 +217,14 @@ function put_lregion_here(
         }
         break;
     }
+    case LR_BRANCH:
+        // C ref: mkmaze.c:464-465. place_branch(Is_branchlev(&u.uz), x, y).
+        place_branch(Is_branchlev(state.u.uz, state), x, y);
+        break;
     default:
-        // LR_PORTAL, LR_DOWNSTAIR, LR_UPSTAIR and LR_BRANCH reach mkportal(),
-        // mkstairs() and place_branch(). Special-level construction is their
-        // only caller and none of it routes through this function yet.
+        // LR_PORTAL, LR_DOWNSTAIR, LR_UPSTAIR reach mkportal() and
+        // mkstairs(). Special-level construction is their only caller and
+        // neither is routed through this function yet.
         throw new UnsupportedRegionPlacementError(
             `put_lregion_here() for region type ${rtype}`,
         );
