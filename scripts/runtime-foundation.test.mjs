@@ -775,9 +775,8 @@ test('set_playmode applies recorder authorization before new-game state', () => 
     assert.equal(authorized.iflags.wiz_error_flag, undefined);
     assert.deepEqual(authorized.sysopt, {
         wizards: 'root games',
-        // cfgfiles.c cnf_line_WIZARDS() preformats the two-word system list
-        // because panic and contact paths must not allocate while using it.
-        fmtd_wizard_list: 'root or games',
+        // The recorder's linux-minimal hints omit SYSCF, so cnf_line_WIZARDS()
+        // never runs and fmtd_wizard_list stays unset.
         explorers: '*',
     });
 
