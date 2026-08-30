@@ -159,8 +159,12 @@ import {
     MAX_TYPE, MATCH_WALL,
     A_LAWFUL, A_NEUTRAL, A_CHAOTIC,
     LR_TELE, MALE,
-    NO_TRAP, ROCKTRAP,
-    TRAPDOOR, TELEP_TRAP, LEVEL_TELEP, WEB,
+    NO_TRAP,
+    ARROW_TRAP, DART_TRAP, ROCKTRAP, SQKY_BOARD, BEAR_TRAP,
+    LANDMINE, ROLLING_BOULDER_TRAP, SLP_GAS_TRAP, RUST_TRAP, FIRE_TRAP,
+    PIT, SPIKED_PIT, HOLE, TRAPDOOR, TELEP_TRAP, LEVEL_TELEP,
+    MAGIC_PORTAL, WEB, STATUE_TRAP, MAGIC_TRAP, ANTI_MAGIC,
+    POLY_TRAP, VIBRATING_SQUARE,
     MKTRAP_NOFLAGS, MKTRAP_MAZEFLAG, MKTRAP_NOSPIDERONWEB,
     MKTRAP_NOVICTIM, MKTRAP_SEEN,
     CORPSTAT_INIT, MARK, MM_NOGRP,
@@ -191,6 +195,40 @@ const TRAP_ENGRAVINGS = new Map([
     [TELEP_TRAP, 'ad aerarium'],
     [LEVEL_TELEP, 'ad aerarium'],
 ]);
+
+// C ref: sp_lev.c trap_types[]. Maps Lua trap-name strings used in .des files
+// to the numeric trap-type constants mktrap() expects.
+const TRAP_TYPES_BY_NAME = new Map([
+    ['arrow', ARROW_TRAP],
+    ['dart', DART_TRAP],
+    ['falling rock', ROCKTRAP],
+    ['board', SQKY_BOARD],
+    ['bear', BEAR_TRAP],
+    ['land mine', LANDMINE],
+    ['rolling boulder', ROLLING_BOULDER_TRAP],
+    ['sleep gas', SLP_GAS_TRAP],
+    ['rust', RUST_TRAP],
+    ['fire', FIRE_TRAP],
+    ['pit', PIT],
+    ['spiked pit', SPIKED_PIT],
+    ['hole', HOLE],
+    ['trap door', TRAPDOOR],
+    ['teleport', TELEP_TRAP],
+    ['level teleport', LEVEL_TELEP],
+    ['magic portal', MAGIC_PORTAL],
+    ['web', WEB],
+    ['statue', STATUE_TRAP],
+    ['magic', MAGIC_TRAP],
+    ['anti magic', ANTI_MAGIC],
+    ['polymorph', POLY_TRAP],
+    ['vibrating square', VIBRATING_SQUARE],
+]);
+
+// C ref: sp_lev.c get_traptype_byname(). Resolves a Lua trap-name string to
+// its numeric constant. Returns NO_TRAP when the name is unrecognized.
+function get_traptype_byname(name) {
+    return TRAP_TYPES_BY_NAME.get(name?.toLowerCase()) ?? NO_TRAP;
+}
 
 function levelObjectEnv(overrides = {}) {
     return objectGenerationEnv({ state: game, ...overrides });
@@ -1214,8 +1252,14 @@ function createSpecialLevelApi(state) {
                 flags |= MKTRAP_NOSPIDERONWEB;
             if (spec.seen) flags |= MKTRAP_SEEN;
             if (spec.victim === false) flags |= MKTRAP_NOVICTIM;
+            // C ref: sp_lev.c create_trap() passes the numeric trap type
+            // from get_traptype_byname() to mktrap(). Resolve string names
+            // the same way; leave numbers and undefined (random) as-is.
+            let rawType = trapType ?? spec.type;
+            if (typeof rawType === 'string')
+                rawType = get_traptype_byname(rawType);
             return make_level_trap(
-                trapType ?? spec.type,
+                rawType,
                 flags,
                 null,
                 coordinate,
