@@ -53,6 +53,7 @@ import {
     WEB,
     ZOMBIFY_MON,
 } from './const.js';
+import { obj_resists } from './bury.js';
 import { make_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { induced_align } from './dungeon.js';
@@ -677,8 +678,15 @@ export function create_monster(specification, room, rawEnv = {}) {
     const keepDefaultInventory = hasCustomInventory
         ? specification.keepDefaultInventory === true
         : specification.keepDefaultInventory !== false;
-    if (monster && !keepDefaultInventory)
+    if (monster && !keepDefaultInventory) {
+        // C ref: sp_lev.c:2180. mdrop_special_objs (steal.c:852)
+        // calls obj_resists(obj, 0, 0) for each inventory item before
+        // discard_minvent discards them. The rn2(100) calls always
+        // return false for ordinary items but still consume the RNG.
+        for (let obj = monster.minvent; obj; obj = obj.nobj)
+            obj_resists(obj, 0, 0, env);
         discard_minvent(monster, true, env);
+    }
     if (!hasCustomInventory) return monster;
 
     const context = env.spObjectContext;
