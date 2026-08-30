@@ -2,6 +2,7 @@
 
 import { KEY_ESC } from './const.js';
 import { game } from './gstate.js';
+import { TOPLINE_NEED_MORE, TOPLINE_NON_EMPTY } from './tty_message.js';
 import { KEY_BINDINGS } from './terminal.js';
 
 // C ref: tty_nhgetch — read one key.
@@ -33,6 +34,11 @@ export async function nhgetch(state = game) {
         // The EOF arm beside it, which also substitutes ESC and sets
         // iflags.term_gone, has nothing to fire on: readKey() resolves with a
         // key code or waits, and represents no end of input.
+        // C ref: wintty.c:4099-4101. The user pressed a key, so they saw the
+        // topline; demote NEED_MORE to NON_EMPTY so later plines do not
+        // re-prompt for a message already acknowledged.
+        if (display.toplin === TOPLINE_NEED_MORE)
+            display.toplin = TOPLINE_NON_EMPTY;
         return key === 0 ? KEY_ESC : key;
     }
 
