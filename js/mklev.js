@@ -523,11 +523,15 @@ async function makelevel(specialLevelLoader = null) {
                 const { CASTLE_LEVEL_LOADERS } = await import(
                     './castle_levels.js'
                 );
+                const { MINES_LEVEL_LOADERS } = await import(
+                    './mines_levels.js'
+                );
                 SPECIAL_LEVEL_LOADERS = {
                     ...BIGRM_LOADERS,
                     ...QUEST_LEVEL_LOADERS,
                     ...SOKOBAN_LEVEL_LOADERS,
                     ...CASTLE_LEVEL_LOADERS,
+                    ...MINES_LEVEL_LOADERS,
                 };
             }
             // Determine the resolved protofile the same way makemaz() will.
@@ -558,6 +562,17 @@ async function makelevel(specialLevelLoader = null) {
         const specialLevelApi = createSpecialLevelApi(g);
         await specialLevelLoader(specialLevelApi, g);
         specialLevelApi.finish();
+        return;
+    }
+
+    // C ref: mklev.c:1271-1274. Dungeon-wide prototype or fill level.
+    const dungeonRecord = g.dungeons[g.u.uz.dnum];
+    if (dungeonRecord.proto) {
+        await makemaz('', null, g);
+        return;
+    }
+    if (dungeonRecord.fill_lvl) {
+        await makemaz(dungeonRecord.fill_lvl, null, g);
         return;
     }
 
@@ -1024,11 +1039,15 @@ async function makemaz(proto, slev, state) {
             const { CASTLE_LEVEL_LOADERS } = await import(
                 './castle_levels.js'
             );
+            const { MINES_LEVEL_LOADERS } = await import(
+                './mines_levels.js'
+            );
             SPECIAL_LEVEL_LOADERS = {
                 ...BIGRM_LOADERS,
                 ...QUEST_LEVEL_LOADERS,
                 ...SOKOBAN_LEVEL_LOADERS,
                 ...CASTLE_LEVEL_LOADERS,
+                ...MINES_LEVEL_LOADERS,
             };
         }
         const loader = SPECIAL_LEVEL_LOADERS[protofile];

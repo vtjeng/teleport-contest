@@ -2256,7 +2256,9 @@ function m_initinv(monster, normalized) {
             break;
         }
     } else if (ptr.mlet === S_GNOME
-        && !random.rn2(60)) {
+        && !random.rn2(
+            (In_mines(state.u.uz, state) && state.in_mklev) ? 20 : 60,
+        )) {
         const candle = mksobj(
             random.rn2(4) ? TALLOW_CANDLE : WAX_CANDLE,
             true,
