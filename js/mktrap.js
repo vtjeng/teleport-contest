@@ -59,6 +59,7 @@ import {
     Invocation_lev,
     level_difficulty,
     on_level,
+    single_level_branch,
 } from './dungeon.js';
 import { game } from './gstate.js';
 import { add_to_container, obj_extract_self } from './invent.js';
@@ -184,7 +185,7 @@ export function traptype_rnd(mktrapflags = MKTRAP_NOFLAGS, rawEnv = {}) {
         break;
     case LEVEL_TELEP:
         if (lvl < 5 || state.level.flags.noteleport
-            || on_level(state.u.uz, state.knox_level)) {
+            || single_level_branch(state.u.uz, state)) {
             kind = NO_TRAP;
         }
         break;
