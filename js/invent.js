@@ -885,9 +885,10 @@ export const _getobjInternals = Object.freeze({
     invletter_value,
 });
 
-// C ref: invent.c display_pickinv(). Covers the branch `i` reaches: the full
-// inventory, no letter subset, no extra choice, want_reply true, and the
-// default sort. Everything else stops.
+// C ref: invent.c display_pickinv(). Covers the full-inventory branch (`i`
+// reaches it) and the partial-inventory branch (equipment display commands
+// pass a `lets` filter). Extra-choice, non-reply, and non-default sort
+// branches remain unported.
 export async function display_pickinv(
     lets,
     xtra_choice,
@@ -897,11 +898,11 @@ export async function display_pickinv(
     state = game,
     { menu } = {},
 ) {
-    if (lets || xtra_choice || allowxtra || !want_reply)
+    if (xtra_choice || allowxtra || !want_reply)
         throw new UnsupportedFeatureDescriptionError('a partial inventory');
     if (typeof menu !== 'function')
         throw new TypeError('display_pickinv needs a menu owner');
-    if (state.iflags.force_invmenu || state.iflags.menu_requested)
+    if (!lets && (state.iflags.force_invmenu || state.iflags.menu_requested))
         throw new UnsupportedFeatureDescriptionError('a forced inventory menu');
     if (state.flags.sortloot === 'i' || state.flags.sortloot === 'f')
         throw new UnsupportedFeatureDescriptionError('a reordered inventory');
@@ -909,19 +910,47 @@ export async function display_pickinv(
         throw new UnsupportedFeatureDescriptionError('reassign()');
     if (!state.flags.sortpack)
         throw new UnsupportedFeatureDescriptionError('an unpacked inventory');
-    // C's n counts 0, 1, or "more than 1"; with no letter subset it then adds
-    // one, so the single-item message-line shortcut cannot apply here.
-    // C answers "Not carrying anything." here. Every starting character
-    // carries items, and nothing the port runs can empty the pack.
     if (!state.invent)
         throw new UnsupportedFeatureDescriptionError('an empty inventory');
+
+    // C ref: invent.c display_pickinv() n-count.  With a lets filter, n is
+    // the number of matching letters; without, n is 0/1/2+ of the full pack.
+    let n;
+    if (lets) {
+        n = lets.length;
+    } else {
+        n = !state.invent ? 0 : !state.invent.nobj ? 1 : 2;
+        // Without lets and without wizid, C increments n to skip the
+        // single-item message-line shortcut.
+        if (n === 1) n++;
+    }
+
+    // C ref: invent.c display_pickinv() single-item message-line path.
+    // When only one item matches and no menu is forced, show it with
+    // xprname on the message line and return its invlet.
+    if (n === 1 && !state.iflags.force_invmenu && !state.iflags.menu_requested) {
+        let match = null;
+        for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
+            if (!lets || lets.includes(otmp.invlet)) { match = otmp; break; }
+        }
+        if (match) {
+            await ttyPline(
+                xprname(match, null, lets ? lets[0] : match.invlet, true, 0, 0, state),
+                state,
+            );
+            return match.invlet;
+        }
+        return null;
+    }
 
     // Formatting a name marks its type discovered, so every object is checked
     // for an unported naming branch before any of them is formatted. Without
     // this, a pack whose fifth item cannot be named would leave the first
     // four discovered and still refuse the command.
-    for (let otmp = state.invent; otmp; otmp = otmp.nobj)
+    for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
+        if (lets && !lets.includes(otmp.invlet)) continue;
         assertObjectNameable(otmp, state);
+    }
 
     // sortloot() with SORTLOOT_INVLET|SORTLOOT_PACK keeps invent order, and
     // the class walk below is what groups it, exactly as C's nextclass loop
@@ -931,6 +960,7 @@ export async function display_pickinv(
         let classcount = 0;
         for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
             if (otmp.oclass !== oclass) continue;
+            if (lets && !lets.includes(otmp.invlet)) continue;
             if (!classcount) {
                 items.push({
                     text: let_to_name(
@@ -3421,7 +3451,7 @@ export function wearing_armor(state = game) {
 }
 
 // C ref: invent.c doprwep(). The ')' / #seeweapon command.
-export async function doprwep(state = game) {
+export async function doprwep(state = game, hooks = {}) {
     if (!state.uwep) {
         const { empty_handed } = await import('./wield.js');
         await ttyPline(`You are ${empty_handed(state)}.`, state);
@@ -3436,7 +3466,7 @@ export async function doprwep(state = game) {
             lets += state.uswapwep.invlet;
         if (state.uquiver)
             lets += state.uquiver.invlet;
-        await dispinv_with_action(lets, state);
+        await dispinv_with_action(lets, state, hooks);
     }
     return ECMD_OK;
 }
@@ -3461,7 +3491,7 @@ async function noarmor(report_uskin, state) {
 }
 
 // C ref: invent.c doprarm(). The '[' / #seearmor command.
-export async function doprarm(state = game) {
+export async function doprarm(state = game, hooks = {}) {
     if (!wearing_armor(state)) {
         await noarmor(true, state);
     } else {
@@ -3480,13 +3510,13 @@ export async function doprarm(state = game) {
             lets += obj_to_let(state.uarmf, state);
         if (state.uarmu)
             lets += obj_to_let(state.uarmu, state);
-        await dispinv_with_action(lets, state);
+        await dispinv_with_action(lets, state, hooks);
     }
     return ECMD_OK;
 }
 
 // C ref: invent.c doprring(). The '=' / #seerings command.
-export async function doprring(state = game) {
+export async function doprring(state = game, hooks = {}) {
     if (!state.uleft && !state.uright) {
         await ttyPline('You are not wearing any rings.', state);
     } else {
@@ -3495,19 +3525,19 @@ export async function doprring(state = game) {
             lets += obj_to_let(state.uright, state);
         if (state.uleft)
             lets += obj_to_let(state.uleft, state);
-        await dispinv_with_action(lets, state);
+        await dispinv_with_action(lets, state, hooks);
     }
     return ECMD_OK;
 }
 
 // C ref: invent.c dopramulet(). The '"' / #seeamulet command.
-export async function dopramulet(state = game) {
+export async function dopramulet(state = game, hooks = {}) {
     if (!state.uamul) {
         await ttyPline('You are not wearing an amulet.', state);
     } else {
         let lets = '';
         lets += obj_to_let(state.uamul, state);
-        await dispinv_with_action(lets, state);
+        await dispinv_with_action(lets, state, hooks);
     }
     return ECMD_OK;
 }

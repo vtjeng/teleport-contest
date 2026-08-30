@@ -2009,16 +2009,11 @@ async function failClosedCommand(key, state, run) {
 // replaying '#' alone would not reproduce them; there the boundary preserves
 // the segment's matching prefix rather than the keystroke.
 
-// C ref: invent.c ddoinv(). Every entry is formatted before the menu draws
-// anything, so an unported object name or display branch stops before ddoinv()
-// itself writes to the screen.
-async function runInventoryCommand(key, state) {
-    return failClosedCommand(key, state, () => ddoinv(state, {
-        // invent.c display_pickinv() ends its menu with no prompt and asks
-        // select_menu() for PICK_ONE; Escape answers null.
+// C ref: invent.c display_pickinv() menu hooks. Used by ddoinv() and the
+// equipment display commands (doprwep, doprarm, doprring, dopramulet).
+function inventoryMenuHooks(state) {
+    return {
         menu: (items) => select_menu(state, {
-            // add_menu_heading() draws a class heading with
-            // iflags.menu_headings, which menuTitleStyle() reads.
             items: items.map((item) => (item.heading
                 ? {
                     ...item,
@@ -2030,7 +2025,15 @@ async function runInventoryCommand(key, state) {
             cancelValue: null,
             overlay: state.iflags?.menu_overlay !== false,
         }),
-    }));
+    };
+}
+
+// C ref: invent.c ddoinv(). Every entry is formatted before the menu draws
+// anything, so an unported object name or display branch stops before ddoinv()
+// itself writes to the screen.
+async function runInventoryCommand(key, state) {
+    return failClosedCommand(key, state, () => ddoinv(state,
+        inventoryMenuHooks(state)));
 }
 
 // C ref: spell.c dovspell().
@@ -2699,16 +2702,16 @@ async function doextcmd(key, state) {
         await failClosedCommand(key, state, () => doprgold(state));
         return ECMD_OK;
     case 'doprwep':
-        await failClosedCommand(key, state, () => doprwep(state));
+        await failClosedCommand(key, state, () => doprwep(state, inventoryMenuHooks(state)));
         return ECMD_OK;
     case 'doprarm':
-        await failClosedCommand(key, state, () => doprarm(state));
+        await failClosedCommand(key, state, () => doprarm(state, inventoryMenuHooks(state)));
         return ECMD_OK;
     case 'doprring':
-        await failClosedCommand(key, state, () => doprring(state));
+        await failClosedCommand(key, state, () => doprring(state, inventoryMenuHooks(state)));
         return ECMD_OK;
     case 'dopramulet':
-        await failClosedCommand(key, state, () => dopramulet(state));
+        await failClosedCommand(key, state, () => dopramulet(state, inventoryMenuHooks(state)));
         return ECMD_OK;
     case 'doread':
         return await runReadCommand(key, state);
@@ -3687,22 +3690,22 @@ export async function rhack(key, state = game) {
             return;
         }
         if (command === 'seeweapon') {
-            await failClosedCommand(key, state, () => doprwep(state));
+            await failClosedCommand(key, state, () => doprwep(state, inventoryMenuHooks(state)));
             resetCommandVars(state, state.multi < 0);
             return;
         }
         if (command === 'seearmor') {
-            await failClosedCommand(key, state, () => doprarm(state));
+            await failClosedCommand(key, state, () => doprarm(state, inventoryMenuHooks(state)));
             resetCommandVars(state, state.multi < 0);
             return;
         }
         if (command === 'seerings') {
-            await failClosedCommand(key, state, () => doprring(state));
+            await failClosedCommand(key, state, () => doprring(state, inventoryMenuHooks(state)));
             resetCommandVars(state, state.multi < 0);
             return;
         }
         if (command === 'seeamulet') {
-            await failClosedCommand(key, state, () => dopramulet(state));
+            await failClosedCommand(key, state, () => dopramulet(state, inventoryMenuHooks(state)));
             resetCommandVars(state, state.multi < 0);
             return;
         }
