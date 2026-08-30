@@ -561,6 +561,12 @@ function createMonsterBody(specification, room, env) {
         return null;
     }
     const monsterEnv = themedCreationEnv(env);
+    // C makemon has no species allowlist.  Special-level scripts place
+    // branch-native species that fall outside the JS allowlist (the Oracle on
+    // its eponymous main-dungeon level, for instance).  Bypass the allowlist
+    // for script-placed monsters during mklev, the same way rndmonst-selected
+    // species bypass it.
+    if (env.state?.in_mklev) monsterEnv._rndmonMklev = true;
     // C ref: sp_lev.c lspo_monster() initializes mm_flags = NO_MM_FLAGS.
     // create_monster passes m->mm_flags (initialized to NO_MM_FLAGS = 0), so
     // group creation proceeds normally for random species. makemon handles
