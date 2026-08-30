@@ -42,7 +42,7 @@ import {
     is_pit,
     LS_MONSTER,
     MFAST,
-    MM_ADJACENTOK,
+    MM_NOTAIL,
     MM_ANGRY,
     MM_ASLEEP,
     MM_EDOG,
@@ -3098,7 +3098,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         return null;
     }
     const byHero = x === state.u.ux && y === state.u.uy;
-    const allowtail = (x === 0 && y === 0) || Boolean(mmflags & MM_ADJACENTOK);
+    const allowtail = !(mmflags & MM_NOTAIL);
     const gpflags = GP_CHECKSCARY | GP_AVOID_MONPOS;
     if (x === 0 && y === 0) {
         const coordinate = makemon_rnd_goodpos(ptr, gpflags, normalized);
