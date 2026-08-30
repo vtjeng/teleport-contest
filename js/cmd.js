@@ -153,6 +153,11 @@ import { mungspaces, strstri, strsubst, visctrl } from './hacklib.js';
 import {
     ddoinv,
     dolook,
+    dopramulet,
+    doprarm,
+    doprgold,
+    doprring,
+    doprwep,
     getobj,
     hands_obj,
     UnsupportedFeatureDescriptionError,
@@ -1393,7 +1398,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
     'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
-    'showgold', 'teleport',
+    'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -2693,6 +2698,18 @@ async function doextcmd(key, state) {
     case 'doprgold':
         await failClosedCommand(key, state, () => doprgold(state));
         return ECMD_OK;
+    case 'doprwep':
+        await failClosedCommand(key, state, () => doprwep(state));
+        return ECMD_OK;
+    case 'doprarm':
+        await failClosedCommand(key, state, () => doprarm(state));
+        return ECMD_OK;
+    case 'doprring':
+        await failClosedCommand(key, state, () => doprring(state));
+        return ECMD_OK;
+    case 'dopramulet':
+        await failClosedCommand(key, state, () => dopramulet(state));
+        return ECMD_OK;
     case 'doread':
         return await runReadCommand(key, state);
     case 'dowieldquiver':
@@ -3662,6 +3679,31 @@ export async function rhack(key, state = game) {
             // puts context.move back to TRUE.
             resetCommandVars(state);
             if (elapsed) commandTookTime(state);
+            return;
+        }
+        if (command === 'showgold') {
+            await failClosedCommand(key, state, () => doprgold(state));
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'seeweapon') {
+            await failClosedCommand(key, state, () => doprwep(state));
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'seearmor') {
+            await failClosedCommand(key, state, () => doprarm(state));
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'seerings') {
+            await failClosedCommand(key, state, () => doprring(state));
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'seeamulet') {
+            await failClosedCommand(key, state, () => dopramulet(state));
+            resetCommandVars(state, state.multi < 0);
             return;
         }
         if (Object.hasOwn(MOVEMENT_INTENTS, command)) {

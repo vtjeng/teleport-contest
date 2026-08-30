@@ -3413,3 +3413,101 @@ async function shopper_financial_report(state) {
         }
     }
 }
+
+// C ref: invent.c wearing_armor().
+export function wearing_armor(state = game) {
+    return Boolean(state.uarm || state.uarmc || state.uarmf || state.uarmg
+        || state.uarmh || state.uarms || state.uarmu);
+}
+
+// C ref: invent.c doprwep(). The ')' / #seeweapon command.
+export async function doprwep(state = game) {
+    if (!state.uwep) {
+        const { empty_handed } = await import('./wield.js');
+        await ttyPline(`You are ${empty_handed(state)}.`, state);
+    } else if (!state.iflags.menu_requested) {
+        await prinv(null, state.uwep, 0);
+        if (state.u.twoweap)
+            await prinv(null, state.uswapwep, 0);
+    } else {
+        let lets = '';
+        lets += obj_to_let(state.uwep, state);
+        if (state.uswapwep)
+            lets += state.uswapwep.invlet;
+        if (state.uquiver)
+            lets += state.uquiver.invlet;
+        await dispinv_with_action(lets, state);
+    }
+    return ECMD_OK;
+}
+
+// C ref: invent.c noarmor(). Called when not wearing_armor().
+async function noarmor(report_uskin, state) {
+    if (!state.uskin || !report_uskin) {
+        await ttyPline('You are not wearing any armor.', state);
+    } else {
+        const { simpleonames } = await import('./objnam.js');
+        let uskinname = simpleonames(state.uskin, state);
+        if (uskinname.startsWith('set of '))
+            uskinname = uskinname.slice(7);
+        const dragonIdx = uskinname.indexOf(' dragon ');
+        if (dragonIdx >= 0)
+            uskinname = uskinname.slice(0, dragonIdx) + uskinname.slice(dragonIdx + 7);
+        await ttyPline(
+            `You are not wearing armor but have ${uskinname} embedded in your skin.`,
+            state,
+        );
+    }
+}
+
+// C ref: invent.c doprarm(). The '[' / #seearmor command.
+export async function doprarm(state = game) {
+    if (!wearing_armor(state)) {
+        await noarmor(true, state);
+    } else {
+        let lets = '';
+        if (state.uarm)
+            lets += obj_to_let(state.uarm, state);
+        if (state.uarmc)
+            lets += obj_to_let(state.uarmc, state);
+        if (state.uarms)
+            lets += obj_to_let(state.uarms, state);
+        if (state.uarmh)
+            lets += obj_to_let(state.uarmh, state);
+        if (state.uarmg)
+            lets += obj_to_let(state.uarmg, state);
+        if (state.uarmf)
+            lets += obj_to_let(state.uarmf, state);
+        if (state.uarmu)
+            lets += obj_to_let(state.uarmu, state);
+        await dispinv_with_action(lets, state);
+    }
+    return ECMD_OK;
+}
+
+// C ref: invent.c doprring(). The '=' / #seerings command.
+export async function doprring(state = game) {
+    if (!state.uleft && !state.uright) {
+        await ttyPline('You are not wearing any rings.', state);
+    } else {
+        let lets = '';
+        if (state.uright)
+            lets += obj_to_let(state.uright, state);
+        if (state.uleft)
+            lets += obj_to_let(state.uleft, state);
+        await dispinv_with_action(lets, state);
+    }
+    return ECMD_OK;
+}
+
+// C ref: invent.c dopramulet(). The '"' / #seeamulet command.
+export async function dopramulet(state = game) {
+    if (!state.uamul) {
+        await ttyPline('You are not wearing an amulet.', state);
+    } else {
+        let lets = '';
+        lets += obj_to_let(state.uamul, state);
+        await dispinv_with_action(lets, state);
+    }
+    return ECMD_OK;
+}

@@ -39,6 +39,7 @@ import { hides_under, is_hider } from './mondata.js';
 import { S_EEL, S_MIMIC } from './monsters.js';
 import { init_oclass_probs } from './o_init.js';
 import { defineObjclassAliases } from './objects.js';
+import { getnow } from './calendar.js';
 import { rnd } from './rng.js';
 import { SAVE_FILE_PATH } from './save.js';
 import { vfsReadFile, vfsDeleteFile } from './storage.js';
@@ -168,6 +169,9 @@ export function dorestore(state = game) {
     state.multi_reason = snapshot.multi_reason ?? null;
     if (snapshot.ubirthday != null) state.ubirthday = snapshot.ubirthday;
     if (snapshot.urealtime != null) state.urealtime = snapshot.urealtime;
+    // C ref: restore.c:625. Reset the timing epoch to the current clock so
+    // fmt_elapsed_time counts from restore, not from the original session.
+    state.urealtime.start_timing = getnow(state);
     if (snapshot.track != null) state.track = snapshot.track;
 
     // ---- Reconstruct computed state ----
