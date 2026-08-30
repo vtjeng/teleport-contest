@@ -1396,11 +1396,15 @@ export async function level_tele(state = game) {
             await ttyPline('You shudder for a moment.', state);
             return;
         }
+        // C ref: teleport.c:1282-1291. In the Quest the status line shows
+        // "Home 1", "Home 2", etc., relative depths, so a controlled-teleport
+        // answer is relative too. Convert it to the absolute depth the common
+        // tail expects by adding depth_start - 1.
         if (Number.isInteger(state.quest_dnum)
-            && state.u.uz.dnum === state.quest_dnum) {
-            throw new UnsupportedLevelChangeError(
-                'level_tele() resolving a Quest-relative destination',
-            );
+            && state.u.uz.dnum === state.quest_dnum
+            && newlev > 0) {
+            newlev = newlev
+                + state.dungeons[state.u.uz.dnum].depth_start - 1;
         }
     }
 
@@ -1449,13 +1453,13 @@ export async function level_tele(state = game) {
     }
 
     // A numeric depth can be occupied by a special level even though
-    // lev_by_name() returned zero. Loading those .lua levels is outside this
-    // boundary, so refuse before schedule_goto() writes u.utolev/utotype or
-    // a later turn consumes generation randomness. The random_levtport path
-    // skips this guard: C applies no Is_special() check after
-    // random_teleport_level(), because the random destination is already
-    // constrained by the dungeon's own range.
-    if (!randomPath && Is_special(newlevel, state)) {
+    // lev_by_name() returned zero. C has no guard here; it proceeds to
+    // schedule_goto() unconditionally. This JS guard refuses only special
+    // levels whose loaders are not yet ported: quest special levels now
+    // have loaders, and the random_levtport path skips this guard because
+    // C applies no Is_special() check after random_teleport_level().
+    if (!randomPath && Is_special(newlevel, state)
+        && !In_quest(newlevel)) {
         throw new UnsupportedLevelChangeError(
             'level_tele() resolving a numeric special-level destination',
         );

@@ -14,6 +14,7 @@ import {
     at_dgn_entrance,
     depth,
     dungeon_branch,
+    find_level,
     init_mapseen,
     level_difficulty,
     on_level,
@@ -177,6 +178,7 @@ import {
     MKTRAP_NOFLAGS, MKTRAP_MAZEFLAG, MKTRAP_NOSPIDERONWEB,
     MKTRAP_NOVICTIM, MKTRAP_SEEN,
     CORPSTAT_INIT, MARK, MM_NOGRP,
+    In_quest, NO_ROOM,
     is_hole,
     is_pit,
 } from './const.js';
@@ -542,6 +544,32 @@ async function makelevel(specialLevelLoader = null) {
         await specialLevelLoader(specialLevelApi, g);
         specialLevelApi.finish();
         return;
+    }
+
+    // C ref: mklev.c:1275-1285. Quest filler levels (those not named
+    // in the dungeon definition) are generated via makemaz() with a
+    // role-specific proto: Bar-fila (above the locate level) or
+    // Bar-filb (at or below it).
+    if (In_quest(g.u.uz)) {
+        const filecode = g.urole?.filecode;
+        const locaName = `${filecode}-loca`;
+        const loc_lev = find_level(locaName, g);
+        const fillName = `${filecode}-fil`
+            + (g.u.uz.dlevel < loc_lev.dlevel.dlevel ? 'a' : 'b');
+        if (!SPECIAL_LEVEL_LOADERS) {
+            const { BIGRM_LOADERS } = await import('./bigrm.js');
+            const { QUEST_LEVEL_LOADERS } = await import(
+                './quest_levels.js'
+            );
+            SPECIAL_LEVEL_LOADERS = {
+                ...BIGRM_LOADERS,
+                ...QUEST_LEVEL_LOADERS,
+            };
+        }
+        if (SPECIAL_LEVEL_LOADERS[fillName]) {
+            await makemaz(fillName, null, g);
+            return;
+        }
     }
 
     // C ref: mklev.c:1295 — check for below-Medusa maze level
@@ -1017,11 +1045,15 @@ function mapAlignY(valign, height, frame) {
 }
 
 function createSpecialLevelApi(state) {
+    // C ref: sp_lev.c reset_xystart_size(), called by sp_level_coder_init()
+    // before any level creation code runs. des.map() overrides these with
+    // the map's placement; mines-style level_init and other map-less levels
+    // keep these defaults, so get_location() covers the whole playable area.
     const frame = {
-        xstart: 0,
+        xstart: 1,
         ystart: 0,
-        xsize: 0,
-        ysize: 0,
+        xsize: COLNO - 1,
+        ysize: ROWNO,
         xMazeMax: (COLNO - 1) & ~1,
         yMazeMax: (ROWNO - 1) & ~1,
     };
@@ -1059,21 +1091,57 @@ function createSpecialLevelApi(state) {
         random: SOURCE_THEMEROOM_RANDOM,
         get frame() { return frame; },
 
+        // C ref: sp_lev.c lspo_level_init(). Supports solidfill and
+        // mines styles. Mines uses mkmap() cellular-automata generation.
         level_init(specification) {
-            if (specification?.style !== 'solidfill') {
-                throw new Error(
-                    `unsupported special-level init style ${specification?.style}`,
-                );
-            }
-            const filling = splev_chr2typ(specification.fg ?? ' ');
-            const lit = specification.lit == null
-                ? Boolean(rn2(2))
-                : Boolean(specification.lit);
-            for (let x = 2; x <= frame.xMazeMax; ++x) {
-                for (let y = 0; y <= frame.yMazeMax; ++y) {
-                    set_themeroom_map_terrain(x, y, filling, state);
-                    state.level.at(x, y).lit = lit;
+            const style = specification?.style;
+            if (style === 'solidfill') {
+                const filling = splev_chr2typ(specification.fg ?? ' ');
+                const lit = specification.lit == null
+                    ? Boolean(rn2(2))
+                    : Boolean(specification.lit);
+                for (let x = 2; x <= frame.xMazeMax; ++x) {
+                    for (let y = 0; y <= frame.yMazeMax; ++y) {
+                        set_themeroom_map_terrain(x, y, filling, state);
+                        state.level.at(x, y).lit = lit;
+                    }
                 }
+            } else if (style === 'mines') {
+                // C ref: sp_lev.c splev_initlev() LVLINIT_MINES case.
+                const fg = splev_chr2typ(specification.fg ?? '.');
+                const bg_raw = specification.bg != null
+                    ? splev_chr2typ(specification.bg) : -1;
+                const bg = bg_raw >= 0 ? bg_raw : STONE;
+                // C ref: get_table_boolean_opt defaults to BOOL_RANDOM.
+                // Lua passes lit=0 or lit=1; null means BOOL_RANDOM (-1).
+                let lit = specification.lit ?? -1;
+                const filling = specification.filling != null
+                    ? splev_chr2typ(specification.filling) : fg;
+                // C ref: splev_initlev MINES: if lit==BOOL_RANDOM, rn2(2).
+                if (lit === -1) lit = rn2(2);
+                // C ref: if (linit->filling > -1) lvlfill_solid(filling, 0)
+                if (filling >= 0) {
+                    for (let x = 2; x <= frame.xMazeMax; ++x)
+                        for (let y = 0; y <= frame.yMazeMax; ++y) {
+                            set_themeroom_map_terrain(
+                                x, y, filling, state,
+                            );
+                            state.level.at(x, y).lit = false;
+                        }
+                }
+                mkmap({
+                    fg,
+                    bg,
+                    smoothed: specification.smoothed ?? false,
+                    joined: specification.joined ?? false,
+                    lit,
+                    walled: specification.walled ?? false,
+                    icedpools: false,
+                }, state);
+            } else {
+                throw new Error(
+                    `unsupported special-level init style ${style}`,
+                );
             }
         },
 
@@ -1927,6 +1995,388 @@ function wallify_map(x1, y1, x2, y2, state) {
                 }
             }
         }
+    }
+}
+
+// =========================================================================
+// C ref: mkmap.c — Cellular-automata cave generation (mines-style levels).
+// =========================================================================
+
+const HEIGHT = ROWNO - 1;
+const WIDTH = COLNO - 2;
+
+const N_P1_ITER = 1;
+const N_P2_ITER = 1;
+const N_P3_ITER = 2;
+
+const mkmap_dirs = [
+    -1, -1, -1, 0, -1, 1, 0, -1,
+    0, 1, 1, -1, 1, 0, 1, 1,
+];
+
+// C ref: mkmap.c init_map(). Fill every map cell with bg_typ.
+function mkmap_init_map(bg_typ, state) {
+    for (let x = 1; x < COLNO; x++) {
+        for (let y = 0; y < ROWNO; y++) {
+            const loc = state.level.at(x, y);
+            loc.roomno = NO_ROOM;
+            loc.typ = bg_typ;
+            loc.lit = false;
+        }
+    }
+}
+
+// C ref: mkmap.c init_fill(). Randomly place fg_typ cells until 40% of
+// the interior is filled.
+function mkmap_init_fill(bg_typ, fg_typ, state) {
+    const limit = Math.trunc((WIDTH * HEIGHT * 2) / 5);
+    let count = 0;
+    while (count < limit) {
+        const x = rn1(WIDTH - 1, 2);
+        const y = rnd(HEIGHT - 1);
+        if (state.level.at(x, y).typ === bg_typ) {
+            state.level.at(x, y).typ = fg_typ;
+            count++;
+        }
+    }
+}
+
+// C ref: mkmap.c get_map(). Return the terrain at (col,row), or bg_typ
+// if out of bounds.
+function mkmap_get_map(col, row, bg_typ, state) {
+    if (col <= 0 || row < 0 || col > WIDTH || row >= HEIGHT)
+        return bg_typ;
+    return state.level.at(col, row).typ;
+}
+
+// C ref: mkmap.c pass_one(). Cellular automata: cells with <= 2 fg
+// neighbors die; cells with >= 5 fg neighbors are born.
+function mkmap_pass_one(bg_typ, fg_typ, state) {
+    for (let x = 2; x <= WIDTH; x++) {
+        for (let y = 1; y < HEIGHT; y++) {
+            let count = 0;
+            for (let dr = 0; dr < 8; dr++) {
+                if (mkmap_get_map(
+                    x + mkmap_dirs[dr * 2],
+                    y + mkmap_dirs[dr * 2 + 1],
+                    bg_typ, state,
+                ) === fg_typ)
+                    count++;
+            }
+            switch (count) {
+            case 0: case 1: case 2:
+                state.level.at(x, y).typ = bg_typ;
+                break;
+            case 5: case 6: case 7: case 8:
+                state.level.at(x, y).typ = fg_typ;
+                break;
+            default:
+                break;
+            }
+        }
+    }
+}
+
+// C ref: mkmap.c pass_two(). Cells with exactly 5 fg neighbors become bg.
+function mkmap_pass_two(bg_typ, fg_typ, state) {
+    const newLocs = new Array((WIDTH + 1) * HEIGHT);
+    for (let x = 2; x <= WIDTH; x++) {
+        for (let y = 1; y < HEIGHT; y++) {
+            let count = 0;
+            for (let dr = 0; dr < 8; dr++) {
+                if (mkmap_get_map(
+                    x + mkmap_dirs[dr * 2],
+                    y + mkmap_dirs[dr * 2 + 1],
+                    bg_typ, state,
+                ) === fg_typ)
+                    count++;
+            }
+            if (count === 5)
+                newLocs[y * (WIDTH + 1) + x] = bg_typ;
+            else
+                newLocs[y * (WIDTH + 1) + x]
+                    = mkmap_get_map(x, y, bg_typ, state);
+        }
+    }
+    for (let x = 2; x <= WIDTH; x++)
+        for (let y = 1; y < HEIGHT; y++)
+            state.level.at(x, y).typ = newLocs[y * (WIDTH + 1) + x];
+}
+
+// C ref: mkmap.c pass_three(). Smoothing: cells with < 3 fg neighbors
+// become bg.
+function mkmap_pass_three(bg_typ, fg_typ, state) {
+    const newLocs = new Array((WIDTH + 1) * HEIGHT);
+    for (let x = 2; x <= WIDTH; x++) {
+        for (let y = 1; y < HEIGHT; y++) {
+            let count = 0;
+            for (let dr = 0; dr < 8; dr++) {
+                if (mkmap_get_map(
+                    x + mkmap_dirs[dr * 2],
+                    y + mkmap_dirs[dr * 2 + 1],
+                    bg_typ, state,
+                ) === fg_typ)
+                    count++;
+            }
+            if (count < 3)
+                newLocs[y * (WIDTH + 1) + x] = bg_typ;
+            else
+                newLocs[y * (WIDTH + 1) + x]
+                    = mkmap_get_map(x, y, bg_typ, state);
+        }
+    }
+    for (let x = 2; x <= WIDTH; x++)
+        for (let y = 1; y < HEIGHT; y++)
+            state.level.at(x, y).typ = newLocs[y * (WIDTH + 1) + x];
+}
+
+// C ref: mkmap.c flood_fill_rm(). Flood-fill from (sx,sy) marking all
+// contiguous cells of the same terrain type with roomno. Tracks bounding
+// box in state._mkmap_min/max. When anyroom is true, IS_ROOM terrain
+// matches and adjacent walls receive the roomno as well.
+function flood_fill_rm(sx, sy, rmno, lit, anyroom, state) {
+    const fg_typ = state.level.at(sx, sy).typ;
+
+    // Back up to leftmost uninitialized location.
+    while (sx > 0
+        && (anyroom
+            ? IS_ROOM(state.level.at(sx, sy).typ)
+            : state.level.at(sx, sy).typ === fg_typ)
+        && state.level.at(sx, sy).roomno !== rmno)
+        sx--;
+    sx++;
+
+    if (sx < state._mkmap_min_rx) state._mkmap_min_rx = sx;
+    if (sy < state._mkmap_min_ry) state._mkmap_min_ry = sy;
+
+    let i;
+    for (i = sx;
+        i <= WIDTH && state.level.at(i, sy).typ === fg_typ;
+        i++) {
+        state.level.at(i, sy).roomno = rmno;
+        state.level.at(i, sy).lit = lit;
+        if (anyroom) {
+            for (let ii = (i === sx ? i - 1 : i); ii <= i + 1; ii++) {
+                for (let jj = sy - 1; jj <= sy + 1; jj++) {
+                    if (isok(ii, jj)
+                        && (IS_WALL(state.level.at(ii, jj).typ)
+                            || IS_DOOR(state.level.at(ii, jj).typ)
+                            || state.level.at(ii, jj).typ === SDOOR)) {
+                        state.level.at(ii, jj).edge = true;
+                        if (lit)
+                            state.level.at(ii, jj).lit = lit;
+                        if (state.level.at(ii, jj).roomno === NO_ROOM)
+                            state.level.at(ii, jj).roomno = rmno;
+                        else if (state.level.at(ii, jj).roomno !== rmno)
+                            state.level.at(ii, jj).roomno = SHARED;
+                    }
+                }
+            }
+        }
+        state._mkmap_n_loc_filled++;
+    }
+    const nx = i;
+
+    if (isok(sx, sy - 1)) {
+        for (i = sx; i < nx; i++) {
+            if (state.level.at(i, sy - 1).typ === fg_typ) {
+                if (state.level.at(i, sy - 1).roomno !== rmno)
+                    flood_fill_rm(i, sy - 1, rmno, lit, anyroom, state);
+            } else {
+                if ((i > sx || isok(i - 1, sy - 1))
+                    && state.level.at(i - 1, sy - 1).typ === fg_typ) {
+                    if (state.level.at(i - 1, sy - 1).roomno !== rmno)
+                        flood_fill_rm(
+                            i - 1, sy - 1, rmno, lit, anyroom, state,
+                        );
+                }
+                if ((i < nx - 1 || isok(i + 1, sy - 1))
+                    && state.level.at(i + 1, sy - 1).typ === fg_typ) {
+                    if (state.level.at(i + 1, sy - 1).roomno !== rmno)
+                        flood_fill_rm(
+                            i + 1, sy - 1, rmno, lit, anyroom, state,
+                        );
+                }
+            }
+        }
+    }
+    if (isok(sx, sy + 1)) {
+        for (i = sx; i < nx; i++) {
+            if (state.level.at(i, sy + 1).typ === fg_typ) {
+                if (state.level.at(i, sy + 1).roomno !== rmno)
+                    flood_fill_rm(i, sy + 1, rmno, lit, anyroom, state);
+            } else {
+                if ((i > sx || isok(i - 1, sy + 1))
+                    && state.level.at(i - 1, sy + 1).typ === fg_typ) {
+                    if (state.level.at(i - 1, sy + 1).roomno !== rmno)
+                        flood_fill_rm(
+                            i - 1, sy + 1, rmno, lit, anyroom, state,
+                        );
+                }
+                if ((i < nx - 1 || isok(i + 1, sy + 1))
+                    && state.level.at(i + 1, sy + 1).typ === fg_typ) {
+                    if (state.level.at(i + 1, sy + 1).roomno !== rmno)
+                        flood_fill_rm(
+                            i + 1, sy + 1, rmno, lit, anyroom, state,
+                        );
+                }
+            }
+        }
+    }
+
+    if (nx > state._mkmap_max_rx) state._mkmap_max_rx = nx - 1;
+    if (sy > state._mkmap_max_ry) state._mkmap_max_ry = sy;
+}
+
+// C ref: mkmap.c join_map_cleanup(). Clear room assignments after joining.
+function mkmap_join_map_cleanup(state) {
+    for (let x = 1; x < COLNO; x++)
+        for (let y = 0; y < ROWNO; y++)
+            state.level.at(x, y).roomno = NO_ROOM;
+    state.level.nroom = 0;
+    state.nsubroom = 0;
+    if (state.level.rooms[0]) state.level.rooms[0].hx = -1;
+    if (state.subrooms?.[0]) state.subrooms[0].hx = -1;
+}
+
+// C ref: mkmap.c join_map(). Flood-fill to find fg_typ regions, create
+// temporary rooms for them, then dig corridors to connect adjacent regions.
+function mkmap_join_map(bg_typ, fg_typ, state) {
+    // Find all regions via flood fill and create rooms for them.
+    for (let x = 2; x <= WIDTH; x++) {
+        for (let y = 1; y < HEIGHT; y++) {
+            if (state.level.at(x, y).typ === fg_typ
+                && state.level.at(x, y).roomno === NO_ROOM) {
+                state._mkmap_min_rx = x;
+                state._mkmap_max_rx = x;
+                state._mkmap_min_ry = y;
+                state._mkmap_max_ry = y;
+                state._mkmap_n_loc_filled = 0;
+                flood_fill_rm(
+                    x, y,
+                    state.level.nroom + ROOMOFFSET,
+                    false, false, state,
+                );
+                if (state._mkmap_n_loc_filled > 3) {
+                    add_room(
+                        state._mkmap_min_rx, state._mkmap_min_ry,
+                        state._mkmap_max_rx, state._mkmap_max_ry,
+                        false, OROOM, true,
+                    );
+                    state.level.rooms[state.level.nroom - 1].irregular
+                        = true;
+                    if (state.level.nroom >= MAXNROFROOMS * 2)
+                        break; // goto joinm
+                } else {
+                    // Tiny hole: erase it.
+                    for (let sx = state._mkmap_min_rx;
+                        sx <= state._mkmap_max_rx; sx++) {
+                        for (let sy = state._mkmap_min_ry;
+                            sy <= state._mkmap_max_ry; sy++) {
+                            if (state.level.at(sx, sy).roomno
+                                === state.level.nroom + ROOMOFFSET) {
+                                state.level.at(sx, sy).typ = bg_typ;
+                                state.level.at(sx, sy).roomno = NO_ROOM;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Connect adjacent regions with corridors.
+    const rooms = state.level.rooms;
+    let ci = 0;
+    let ci2 = 1;
+    while (ci2 < state.level.nroom) {
+        const croom = rooms[ci];
+        const croom2 = rooms[ci2];
+        const sm = {};
+        const em = {};
+        if (!somexy(croom, sm) || !somexy(croom2, em)) {
+            sm.x = croom.lx + Math.trunc((croom.hx - croom.lx) / 2);
+            sm.y = croom.ly + Math.trunc((croom.hy - croom.ly) / 2);
+            em.x = croom2.lx + Math.trunc((croom2.hx - croom2.lx) / 2);
+            em.y = croom2.ly + Math.trunc((croom2.hy - croom2.ly) / 2);
+        }
+        dig_corridor(sm, em, null, false, fg_typ, bg_typ);
+        if (croom2.lx > croom.hx
+            || ((croom2.ly > croom.hy || croom2.hy < croom.ly)
+                && rn2(3))) {
+            ci = ci2;
+        }
+        ci2++;
+    }
+    mkmap_join_map_cleanup(state);
+}
+
+// C ref: mkmap.c finish_map(). Apply wallification and lighting.
+function mkmap_finish_map(fg_typ, bg_typ, lit, walled, icedpools, state) {
+    if (walled)
+        wallify_map(1, 0, COLNO - 1, ROWNO - 1, state);
+
+    if (lit) {
+        for (let x = 1; x < COLNO; x++) {
+            for (let y = 0; y < ROWNO; y++) {
+                const loc = state.level.at(x, y);
+                if ((!IS_OBSTRUCTED(fg_typ) && loc.typ === fg_typ)
+                    || (!IS_OBSTRUCTED(bg_typ) && loc.typ === bg_typ)
+                    || (bg_typ === TREE && loc.typ === bg_typ)
+                    || (walled && IS_WALL(loc.typ)))
+                    loc.lit = true;
+            }
+        }
+        for (let i = 0; i < state.level.nroom; i++)
+            state.level.rooms[i].rlit = 1;
+    }
+    // Light lava; tag ice as frozen pool or moat.
+    for (let x = 1; x < COLNO; x++) {
+        for (let y = 0; y < ROWNO; y++) {
+            const loc = state.level.at(x, y);
+            if (loc.typ === LAVAPOOL) loc.lit = true;
+            else if (loc.typ === ICE)
+                loc.icedpool = icedpools ? 1 /* ICED_POOL */ : 2;
+        }
+    }
+}
+
+// C ref: mkmap.c mkmap(). Top-level cave generator: fill, automata passes,
+// optional smoothing and joining, then finish with walls and lighting.
+function mkmap(init_lev, state) {
+    const bg_typ = init_lev.bg;
+    const fg_typ = init_lev.fg;
+    const smooth = init_lev.smoothed;
+    const join = init_lev.joined;
+    let lit = init_lev.lit;
+    const walled = init_lev.walled;
+
+    lit = litstate_rnd(lit);
+
+    mkmap_init_map(bg_typ, state);
+    mkmap_init_fill(bg_typ, fg_typ, state);
+
+    for (let i = 0; i < N_P1_ITER; i++)
+        mkmap_pass_one(bg_typ, fg_typ, state);
+
+    for (let i = 0; i < N_P2_ITER; i++)
+        mkmap_pass_two(bg_typ, fg_typ, state);
+
+    if (smooth)
+        for (let i = 0; i < N_P3_ITER; i++)
+            mkmap_pass_three(bg_typ, fg_typ, state);
+
+    if (join)
+        mkmap_join_map(bg_typ, fg_typ, state);
+
+    mkmap_finish_map(
+        fg_typ, bg_typ, lit, walled,
+        init_lev.icedpools ?? false, state,
+    );
+    // A walled, joined level is cavernous, not mazelike.
+    if (walled && join) {
+        state.level.flags.is_maze_lev = false;
+        state.level.flags.is_cavernous_lev = true;
     }
 }
 
