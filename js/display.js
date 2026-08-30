@@ -24,7 +24,7 @@ import { game } from './gstate.js';
 import { known_branch_stairs, stairway_at } from './stairs.js';
 import { effective_attribute } from './attrib.js';
 import { near_capacity } from './hack.js';
-import { In_hell, depth, on_level, update_lastseentyp } from './dungeon.js';
+import { In_hell, depth, dunlev, on_level, update_lastseentyp } from './dungeon.js';
 import { money_cnt } from './invent.js';
 import { cansee, seenv_matrix } from './vision.js';
 // js/tty_message.js imports flush_screen() from this file; both sides use the
@@ -57,7 +57,7 @@ import {
     D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED, D_TRAPPED, LA_DOWN,
     IS_STWALL, isok, u_at, Ugender, Upolyd,
     BEAR_TRAP, NO_TRAP, WEB, is_pit,
-    In_mines, In_sokoban, Is_knox_level, MAXTCHARS,
+    In_endgame, In_mines, In_quest, In_sokoban, Is_knox_level, MAXTCHARS,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
     WM_MASK, WM_C_OUTER, WM_C_INNER,
     WM_W_LEFT, WM_W_RIGHT, WM_W_TOP, WM_W_BOTTOM,
@@ -3962,13 +3962,24 @@ function _statusConditions(u, shrinkLevel = 0) {
         ? ` ${conditions.map(({ text }) => text).join(' ')}` : '';
 }
 
-// C ref: botl.c describe_level(). The tutorial uses its branch label in the
-// compact status field; ordinary startup retains the traditional Dlvl label.
+// C ref: botl.c describe_level() with dflgs=0 (status line, no branch name).
+// Knox shows the dungeon name, quest shows "Home N", endgame shows the plane
+// name, and the default shows "Dlvl:N" or "Tutorial:N".
+// wintty.c shrink_dlvl() replaces text before the colon with "Dl"; quest,
+// Knox, and endgame descriptions have no colon and are never shrunk.
 function _statusLevelDescription(u, short = false) {
+    if (Is_knox_level(u.uz))
+        return game.dungeons[u.uz.dnum].dname;
+    if (In_quest(u.uz))
+        return `Home ${dunlev(u.uz)}`;
+    if (In_endgame(u.uz)) {
+        const d = depth(u.uz);
+        if (d === -5) return 'Astral Plane';
+        const planes = { [-4]: 'Water', [-3]: 'Fire', [-2]: 'Air', [-1]: 'Earth' };
+        return planes[d] ?? `unknown plane #${d}`;
+    }
     const tutorial = Number.isInteger(game.tutorial_dnum)
         && u.uz?.dnum === game.tutorial_dnum;
-    // wintty.c shrink_dlvl() replaces everything before the colon, including
-    // special-level descriptions such as "Tutorial", with the short label.
     const label = short ? 'Dl' : tutorial ? 'Tutorial' : 'Dlvl';
     return `${label}:${depth(u.uz)}`;
 }
