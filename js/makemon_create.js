@@ -467,7 +467,7 @@ import {
 } from './objects.js';
 import { newepri } from './priest.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
-import { enexto_core, goodpos } from './teleport.js';
+import { enexto_core, goodpos, noteleport_level } from './teleport.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -1855,13 +1855,6 @@ function rejectsRandomUseItems(species) {
         || species.mlet === S_KOP;
 }
 
-function noTeleportLevel(state) {
-    if (state.level.flags.noteleport) return true;
-    const stasisUntil = state.level.flags.stasis_until;
-    return Number.isInteger(stasisUntil)
-        && stasisUntil >= Math.trunc(state.moves ?? 0);
-}
-
 function isNonliving(species) {
     return Boolean(species.mflags2 & M2_UNDEAD)
         || species.pmidx === PM_MANES
@@ -1929,7 +1922,7 @@ function rnd_defensive_item(monster, normalized) {
         )) {
         case 6:
         case 9:
-            if (noTeleportLevel(state) && ++trycnt < 2) continue;
+            if (noteleport_level(monster, state) && ++trycnt < 2) continue;
             if (!random.rn2(3)) return WAN_TELEPORTATION;
             return SCR_TELEPORTATION;
         case 0:
