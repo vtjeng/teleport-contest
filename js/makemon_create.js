@@ -134,6 +134,7 @@ import {
     can_be_hatched,
     cantweararm,
     emits_light,
+    is_demon,
     is_female,
     is_giant,
     is_male,
@@ -260,6 +261,7 @@ import {
     PM_VAMPIRE_BAT,
     PM_VAMPIRE_LEADER,
     PM_WARRIOR,
+    PM_WATER_DEMON,
     PM_WHITE_UNICORN,
     PM_WOLF,
     PM_WOOD_NYMPH,
@@ -1129,6 +1131,7 @@ function assertSupportedSpecies(species) {
             && !beehiveSpecies
             && !morgueSpecies
             && species.pmidx !== PM_DJINNI
+            && species.pmidx !== PM_WATER_DEMON
             && species.pmidx !== PM_UMBER_HULK)) {
         throw new UnsupportedMonsterCreationError(
             `monster ${species?.pmidx ?? 'null'}`,
@@ -1183,6 +1186,13 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === MM_NOMSG;
+    // fountain.c dowaterdemon() creates a water demon on the hero's square
+    // with MM_NOMSG, the same shape as the djinni bottle call.
+    const fountainCreatureCall = !state.in_mklev
+        && ptr?.pmidx === PM_WATER_DEMON
+        && x === state.u?.ux
+        && y === state.u?.uy
+        && mmflags === MM_NOMSG;
     // read.c create_particular_creation():3315 names the species the player
     // typed and places it on the hero's own square, so makemon() reaches the
     // enexto() arm below. Its mmflags is MM_NOEXCLAM plus at most one gender
@@ -1197,6 +1207,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             || mmflags === (MM_NOEXCLAM | MM_MALE)
             || mmflags === (MM_NOEXCLAM | MM_FEMALE));
     const runtimeCall = startingPetCall || djinniBottleCall
+        || fountainCreatureCall
         || runtimeRandomCall || runtimeGroupCall || createParticularCall;
     if (runtimeCall
         && (!normalized.runtimeContinuation
@@ -1497,11 +1508,6 @@ function m_initweap(monster, normalized) {
     if (!isArmed(ptr)) return;
 
     switch (ptr.mlet) {
-    case S_DEMON:
-        // C ref: makemon.c:502-523. The only admitted demon-class species is
-        // a djinni, whose data does not carry M2_DEMON; it leaves this arm
-        // before the general weapon roll so a later vanish drops no object.
-        break;
     case S_GIANT:
         // C ref: makemon.c:180-185. Ettins get clubs, other giants get
         // boulders. Only non-ettins roll for a two-handed weapon.
@@ -1782,6 +1788,16 @@ function m_initweap(monster, normalized) {
         mongets(monster, KNIFE, normalized);
         mongets(monster, LONG_SWORD, normalized);
         break;
+    case S_DEMON:
+        // C ref: makemon.c:500-524. Specific named demons (Balrog, Orcus,
+        // Horned Devil, Dispater, Yeenoghu) receive special weapons; the
+        // port does not create those species so their arms are omitted.
+        // Non-demons in class S_DEMON (djinni, mail daemon) break here so
+        // a later vanish drops no object. Actual demons (water demon, etc.)
+        // fall through to the default general-weapon roll.
+        if (!is_demon(ptr))
+            break;
+        // eslint-disable-next-line no-fallthrough -- C FALLTHROUGH
     default:
         // C ref: makemon.c:526-567. The general case applies to gnomes and
         // every other armed species not handled by a specific case above.

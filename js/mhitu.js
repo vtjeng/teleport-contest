@@ -39,7 +39,7 @@ import { effective_attribute, minuhpmax, setuhpmax } from './attrib.js';
 import { midnight } from './calendar.js';
 import { bot, map_invisible, newsym } from './display.js';
 import { capitalizedMonsterName, monsterPossessive } from './do_name.js';
-import { on_level } from './dungeon.js';
+import { In_hell, on_level } from './dungeon.js';
 import { done_in_by, UnsupportedEndOfGameError } from './end.js';
 import { game } from './gstate.js';
 import { nomul, showdamage } from './hack.js';
@@ -585,9 +585,23 @@ export async function mattacku(monster, rawEnv = {}) {
 
     /* when not cancelled and not in current form due to shapechange, many
        demons can summon more demons and were creatures can summon critters */
+    // C ref: mhitu.c:955-993, summonmu(). Extracted from mattacku() in C.
     if (monster.cham === M.NON_PM && !monster.mcan && !range2
         && (is_demon(mdat) || is_were(mdat))) {
-        unsupported('a monster summoning help against the hero');
+        if (is_demon(mdat)) {
+            // C ref: mhitu.c:966-971. Non-balrog, non-amorous demons
+            // roll rn2(Inhell ? 10 : 16); only a 0 calls msummon().
+            if (mdat.pmidx !== M.PM_BALROG
+                && mdat.pmidx !== M.PM_AMOROUS_DEMON) {
+                if (!random.rn2(In_hell(u.uz, state) ? 10 : 16)) {
+                    unsupported('a demon summoning help via msummon()');
+                }
+            }
+            // C returns after the demon arm (no demon were-creatures).
+        } else {
+            // Were-creature summoning is not ported.
+            unsupported('a were creature summoning critters');
+        }
     }
 
     if (u.uinvulnerable) { /* in the midst of successful prayer */
