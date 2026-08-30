@@ -3027,11 +3027,29 @@ export function newsym(x, y) {
         return;
     }
 
-    // display.c:1046-1056, not-visible path: a monster the hero cannot see
-    // but senses through the WARNING property.
+    // display.c:1046-1056, not-visible path. C checks for monsters even
+    // when the cell is NOT in sight and displays them when the hero senses
+    // them through infravision, telepathy, warning-of-mon, or monster
+    // detection. The remaining arm handles the general WARNING property.
     const outOfSightMon = !visible ? m_at(x, y, game) : null;
+    // C ref: display.c newsym() (1047-1049). see_it covers tp_sensemon,
+    // MATCH_WARN_OF_MON, and see_with_infrared (via canSeeMonster, which
+    // checks infravision when cansee is false). The broader sensed test
+    // adds Detect_monsters.
+    const outOfSightSeeIt = Boolean(
+        outOfSightMon
+        && (sensesMonsterWithoutDetection(outOfSightMon, game)
+            || canSeeMonster(outOfSightMon, game)),
+    );
+    const outOfSightSensed = Boolean(
+        outOfSightSeeIt
+        || (outOfSightMon && sensesMonster(outOfSightMon, game)),
+    );
+    // C ref: display.c newsym() (1055-1056). mon_warning fires only when
+    // the monster was not already handled by the sensed path above.
     const outOfSightWarning = Boolean(
         outOfSightMon
+        && !outOfSightSensed
         && outOfSightMon.mx === x && outOfSightMon.my === y
         && monsterWarnsHero(outOfSightMon, game),
     );
@@ -3114,6 +3132,16 @@ export function newsym(x, y) {
                 = remembered_glyph_from_presentation(remembered);
         }
         show_glyph_cell(x, y, shown);
+    } else if (outOfSightSensed) {
+        // display.c:1046-1054, not-visible path: the hero senses or detects
+        // the monster through infravision, telepathy, warning-of-mon, or
+        // monster detection. C calls display_monster(x, y, mon,
+        // see_it ? 0 : DETECTED, ...) without _map_location, so memory
+        // is not updated. see_it chooses the real monster glyph; DETECTED
+        // chooses the detected glyph family.
+        show_glyph_cell(x, y, outOfSightSeeIt
+            ? presentedMonsterGlyphInfo(outOfSightMon, game, false)
+            : detectedMonsterGlyphInfo(outOfSightMon, game));
     } else if (outOfSightWarning) {
         // display.c:1055-1056, display_warning() for out-of-sight monster
         show_glyph_cell(x, y, warningGlyphInfo(outOfSightMon, game));
