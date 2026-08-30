@@ -344,6 +344,11 @@ test("'i' on empty container with no inventory prints nothing-to-put-in",
             { otyp: LARGE_BOX, olocked: 0 },
         ]);
 
+        // MENU_TRADITIONAL so yn_function accepts 'i' as a hidden char.
+        // In MENU_FULL (default), in_or_out_menu omits 'i' when inokay is
+        // false and this path is unreachable.
+        state.flags.menu_style = 0; /* MENU_TRADITIONAL */
+
         clearTtyMessageWindow(state);
 
         // Remove all inventory except the container (which is on the floor,
@@ -471,6 +476,11 @@ test("'s' with no inventory prints nothing-to-stash",
         placeFloorObjects(state, [
             { otyp: LARGE_BOX, olocked: 0 },
         ]);
+
+        // MENU_TRADITIONAL so yn_function accepts 's' as a hidden char.
+        // In MENU_FULL (default), in_or_out_menu omits 's' when inokay is
+        // false and this path is unreachable.
+        state.flags.menu_style = 0; /* MENU_TRADITIONAL */
 
         clearTtyMessageWindow(state);
 
