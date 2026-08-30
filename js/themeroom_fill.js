@@ -543,7 +543,9 @@ function createMonsterBody(specification, room, env) {
         species,
         env,
     );
-    if (species && m_at(coordinate.x, coordinate.y, env.state)) {
+    // C ref: sp_lev.c create_monster() line 1977 calls enexto regardless of
+    // whether pm is NULL.  enexto_core defaults NULL to the player species.
+    if (m_at(coordinate.x, coordinate.y, env.state)) {
         const nearby = enexto(
             coordinate.x,
             coordinate.y,
