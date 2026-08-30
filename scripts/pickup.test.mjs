@@ -78,6 +78,7 @@ import {
     SCR_IDENTIFY,
     SCR_SCARE_MONSTER,
     TOOL_CLASS,
+    WEAPON_CLASS,
 } from '../js/objects.js';
 
 function inventoryOfSize(state, count, { withCoins = false } = {}) {
@@ -1179,6 +1180,61 @@ test('autopickup lifts a corpse that cannot petrify on touch', async () => {
     assert.equal(state.level.objects[state.u.ux][state.u.uy], null);
     assert.equal(state._ttyToplines, `${corpse.invlet} - a lichen corpse.`);
 });
+
+// C ref: pickup.c autopick_testobj():956-957.  When pickup_types is non-empty,
+// objects whose oclass is not in the list go to remaining instead of being
+// selected for autopickup.  check_here() then prints "You see here ...".
+test('autopickup excludes objects whose class is not in pickup_types',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        // An elven dagger is WEAPON_CLASS.  Set pickup_types to COIN_CLASS
+        // only, which excludes WEAPON_CLASS.
+        const dagger = objectUnderHero(state);
+        state.flags.pickup = true;
+        state.flags.pickup_types = [COIN_CLASS];
+        // The hero stands on the D:1 upstairs, whose dfeature_at() line
+        // would precede the object message and ask for a --More--.
+        state.stairs = null;
+        quiet(state);
+
+        assert.equal(await pickup(1, state), 0);
+        // The dagger remains on the floor because autopick_testobj() excluded
+        // it.
+        assert.equal(dagger.where, OBJ_FLOOR);
+        assert.equal(
+            state.level.objects[state.u.ux][state.u.uy],
+            dagger,
+        );
+        // check_here(false) printed the look_here message.
+        assert.match(state._ttyToplines ?? '', /elven dagger/u);
+    });
+
+test('autopickup includes objects whose class is in pickup_types',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        // An elven dagger is WEAPON_CLASS.  Set pickup_types to include it.
+        const dagger = objectUnderHero(state);
+        state.flags.pickup = true;
+        state.flags.pickup_types = [WEAPON_CLASS];
+
+        assert.equal(await pickup(1, state), 1);
+        // The dagger was picked up.
+        assert.equal(dagger.where, OBJ_INVENT);
+        assert.equal(state.level.objects[state.u.ux][state.u.uy], null);
+    });
+
+test('autopickup picks up everything when pickup_types is empty',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        // Empty pickup_types means all classes are eligible.
+        const dagger = objectUnderHero(state);
+        state.flags.pickup = true;
+        state.flags.pickup_types = [];
+
+        assert.equal(await pickup(1, state), 1);
+        assert.equal(dagger.where, OBJ_INVENT);
+        assert.equal(state.level.objects[state.u.ux][state.u.uy], null);
+    });
 
 // pickup.c u_safe_from_fatal_corpse() (272-281). Each row names the term
 // that answers TRUE, or the state in which every term is FALSE. The species

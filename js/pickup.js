@@ -543,12 +543,13 @@ function preflightPickupObjects(selected, state) {
 }
 
 // C ref: pickup.c autopick() (975-1003) reduced to the option settings
-// pickup() admits, fused with the preflight above. flags.pickup_types and the
-// autopickup exception list are refused by the caller, so autopick_testobj()
-// keeps every object that is not shop stock.
+// pickup() admits, fused with the preflight above. The autopickup exception
+// list is refused by the caller, so autopick_testobj() applies only the
+// costly-spot and pickup_types filters.
 function planAutomaticFloorPickupAndRefreshCapacityCache(state) {
     const { u } = state;
     const costly = costly_spot(u.ux, u.uy, state);
+    const pickupTypes = state.flags?.pickup_types ?? [];
     const selected = [];
     const remaining = [];
     for (let obj = state.level.objects[u.ux][u.uy];
@@ -562,6 +563,12 @@ function planAutomaticFloorPickupAndRefreshCapacityCache(state) {
             throw new UnsupportedPickupError(
                 'pickup() with a lost-object option override',
             );
+        }
+        // C ref: pickup.c autopick_testobj():956-957.  When pickup_types is
+        // non-empty, objects whose oclass is not listed go to remaining.
+        if (pickupTypes.length && !pickupTypes.includes(obj.oclass)) {
+            remaining.push(obj);
+            continue;
         }
         selected.push({ obj, count: obj.quan });
     }
@@ -625,8 +632,6 @@ export function preflight_projected_random_arrival_pickup(state) {
                 'pickup() with autopickup exceptions',
             );
         }
-        if (state.flags?.pickup_types?.length)
-            throw new UnsupportedPickupError('pickup() with pickup_types');
         const plan = planAutomaticFloorPickupAndRefreshCapacityCache(state);
         remaining = plan.remaining;
         pickedSome = Boolean(plan.selected.length);
@@ -792,9 +797,6 @@ export async function pickup(what, state = game) {
             throw new UnsupportedPickupError(
                 'pickup() with autopickup exceptions',
             );
-        }
-        if (state.flags?.pickup_types?.length) {
-            throw new UnsupportedPickupError('pickup() with pickup_types');
         }
         ({ addPlans, env, selected }
             = planAutomaticFloorPickupAndRefreshCapacityCache(state));

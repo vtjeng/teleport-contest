@@ -978,18 +978,8 @@ test('random arrival refuses every unsupported ordinary pickup guard atomically'
                     game.ga.apelist = null;
                 },
             },
-            {
-                name: 'pickup type filter',
-                pattern: /pickup_types/u,
-                apply: () => {
-                    // optfn_pickup_types() writes object-class indices, so
-                    // "pick up gold only" is [COIN_CLASS], not '$'.
-                    game.flags.pickup_types = [COIN_CLASS];
-                },
-                restore: () => {
-                    game.flags.pickup_types = [];
-                },
-            },
+            // pickup_types filtering is now handled: objects whose oclass is
+            // not in pickup_types go to remaining instead of throwing.
         ];
         for (const guard of cases) {
             guard.apply();

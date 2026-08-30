@@ -1045,8 +1045,23 @@ export function requireSimpleHeroDestination(
             );
         }
     }
-    if (floorObject && state.flags?.pickup && !noPickMove)
-        throw new UnsupportedHeroMoveBoundaryError('automatic pickup');
+    if (floorObject && state.flags?.pickup && !noPickMove) {
+        // pickup.c pickup() runs after domove_core() commits the hero
+        // position. A late refusal there would leave room-entry writes
+        // behind, so dry-run the complete automatic-pickup transaction at
+        // the projected destination before the move spends its rng calls.
+        const projected = {
+            ...state,
+            gw: { ...(state.gw ?? {}) },
+            u: { ...state.u, ux: x, uy: y },
+        };
+        try {
+            preflight_projected_random_arrival_pickup(projected);
+        } catch (error) {
+            if (!(error instanceof UnsupportedPickupError)) throw error;
+            throw new UnsupportedHeroMoveBoundaryError(error.reason);
+        }
+    }
     if (floorObject && !noPickMove && !floorObject.nexthere
         && state.flags?.pile_limit > 0
         && state.flags.pile_limit <= 1) {

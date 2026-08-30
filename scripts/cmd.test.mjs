@@ -1125,14 +1125,6 @@ test('pile_limit zero leaves a single object on the naming path', async () => {
 test('simple hero movement rejects spot effects before mutation', async () => {
     const cases = [
         {
-            name: 'automatic pickup',
-            reason: 'automatic pickup',
-            setup: ({ x, y }) => {
-                game.flags.pickup = true;
-                game.level.objects[x][y] = { o_id: 1, nexthere: null };
-            },
-        },
-        {
             name: 'single-object pile-limit count',
             reason: 'single-object skipped-pile count',
             setup: ({ x, y }) => {
@@ -1429,21 +1421,6 @@ test('live !safe_pet collision is a zero-PRNG retryable boundary',
 
 test('runtime hero refusals do not become phantom elapsed turns', async () => {
     const cases = [
-        {
-            name: 'automatic pickup',
-            reason: 'automatic pickup',
-            install: ({ x, y }) => {
-                game.flags.pickup = true;
-                game.level.objects[x][y] = {
-                    o_id: 7001,
-                    nexthere: null,
-                };
-            },
-            remove: ({ x, y }) => {
-                game.level.objects[x][y] = null;
-                game.flags.pickup = false;
-            },
-        },
         {
             name: 'hidden trap',
             reason: 'trap activation',
