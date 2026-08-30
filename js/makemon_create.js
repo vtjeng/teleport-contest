@@ -260,6 +260,7 @@ import {
     PM_VAMPIRE,
     PM_VAMPIRE_BAT,
     PM_VAMPIRE_LEADER,
+    PM_VLAD_THE_IMPALER,
     PM_WARRIOR,
     PM_WATER_DEMON,
     PM_WHITE_UNICORN,
@@ -333,6 +334,7 @@ import {
     BEC_DE_CORBIN,
     BOULDER,
     BOW,
+    CANDELABRUM_OF_INVOCATION,
     CHAIN_MAIL,
     CLUB,
     COIN_CLASS,
@@ -465,7 +467,7 @@ import {
 } from './objects.js';
 import { newepri } from './priest.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
-import { enexto_core, goodpos } from './teleport.js';
+import { enexto_core, goodpos, noteleport_level } from './teleport.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -1853,13 +1855,6 @@ function rejectsRandomUseItems(species) {
         || species.mlet === S_KOP;
 }
 
-function noTeleportLevel(state) {
-    if (state.level.flags.noteleport) return true;
-    const stasisUntil = state.level.flags.stasis_until;
-    return Number.isInteger(stasisUntil)
-        && stasisUntil >= Math.trunc(state.moves ?? 0);
-}
-
 function isNonliving(species) {
     return Boolean(species.mflags2 & M2_UNDEAD)
         || species.pmidx === PM_MANES
@@ -1927,7 +1922,7 @@ function rnd_defensive_item(monster, normalized) {
         )) {
         case 6:
         case 9:
-            if (noTeleportLevel(state) && ++trycnt < 2) continue;
+            if (noteleport_level(monster, state) && ++trycnt < 2) continue;
             if (!random.rn2(3)) return WAN_TELEPORTATION;
             return SCR_TELEPORTATION;
         case 0:
@@ -3162,12 +3157,20 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             state,
         );
     }
+    // C ref: makemon.c:1351-1384. Special inventory item for specific
+    // monsters, given via mongets after the shapechanger and ghost blocks.
+    let mitem = STRANGE_OBJECT;
+    if (mndx === PM_VLAD_THE_IMPALER) mitem = CANDELABRUM_OF_INVOCATION;
     monster.cham = NON_PM;
     const naturalShape = pm_to_cham(mndx, state);
     if (!heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)
         && naturalShape !== NON_PM) {
         monster.cham = naturalShape;
-        if (newcham_initial(monster, normalized)) allowMinvent = false;
+        // C ref: makemon.c:1361. Vlad stays in his normal form so he
+        // can carry the Candelabrum of Invocation.
+        if (mndx !== PM_VLAD_THE_IMPALER
+            && newcham_initial(monster, normalized))
+            allowMinvent = false;
     } else if (mndx === PM_GHOST) {
         // C ref: makemon.c -- MM_NONAME suppresses the random ghost name.
         // savebones() passes MM_NONAME and then christen_monst separately.
@@ -3177,6 +3180,8 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             });
         }
     }
+    if (mitem !== STRANGE_OBJECT && allowMinvent)
+        mongets(monster, mitem, normalized);
     if (state.in_mklev
         && mklevSleeperSpecies(ptr)
         && !state.u.uhave.amulet

@@ -134,8 +134,9 @@ export function place_lregion(
         const x = randomOneBased((hx - lx) + 1, lx);
         const y = randomOneBased((hy - ly) + 1, ly);
         if (put_lregion_here(x, y, nlx, nly, nhx, nhy, rtype, oneshot, lev,
-                             state, options))
+                             state, options)) {
             return;
+        }
     }
 
     /* then a deterministic one */

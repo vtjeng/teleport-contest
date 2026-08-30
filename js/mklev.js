@@ -140,7 +140,8 @@ import { stairway_add } from './stairs.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import {
-    COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS, LADDER, DRY, SP_COORD_IS_RANDOM,
+    COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS, LADDER,
+    LA_UP, LA_DOWN, DRY, SP_COORD_IS_RANDOM,
     HWALL, VWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
     CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,
     D_NODOOR, D_BROKEN, D_CLOSED, D_ISOPEN, D_LOCKED, D_TRAPPED, D_SECRET,
@@ -153,7 +154,7 @@ import {
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
     IS_WALL, IS_STWALL, IS_DOOR, IS_ROOM, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
     IS_LAVA,
-    isok, W_NONDIGGABLE,
+    isok, W_NONDIGGABLE, W_NONPASSWALL,
     W_RANDOM, W_NORTH, W_SOUTH, W_EAST, W_WEST, W_ANY,
     FILL_NONE, FILL_NORMAL,
     G_GONE,
@@ -177,6 +178,7 @@ import {
     MKTRAP_NOVICTIM, MKTRAP_SEEN,
     CORPSTAT_INIT, MARK, MM_NOGRP,
     is_hole,
+    is_pit,
 } from './const.js';
 
 const XLIM = 4;
@@ -991,6 +993,29 @@ async function makemaz(proto, slev, state) {
     throw new UnsupportedLevelChangeError('makemaz: procedural maze generation not ported');
 }
 
+// C ref: sp_lev.c lspo_map() halign/valign positioning. Translates
+// alignment names to x/y offsets within the maze area.
+function mapAlignX(halign, width, frame) {
+    switch (halign) {
+    case 'left': return 3;
+    case 'half-left': return 2 + Math.trunc((frame.xMazeMax - 2 - width) / 4);
+    case 'center': return 2 + Math.trunc((frame.xMazeMax - 2 - width) / 2);
+    case 'half-right':
+        return 2 + Math.trunc(((frame.xMazeMax - 2 - width) * 3) / 4);
+    case 'right': return frame.xMazeMax - width - 1;
+    default: return 2 + Math.trunc((frame.xMazeMax - 2 - width) / 2);
+    }
+}
+
+function mapAlignY(valign, height, frame) {
+    switch (valign) {
+    case 'top': return 3;
+    case 'center': return 2 + Math.trunc((frame.yMazeMax - 2 - height) / 2);
+    case 'bottom': return frame.yMazeMax - height - 1;
+    default: return 2 + Math.trunc((frame.yMazeMax - 2 - height) / 2);
+    }
+}
+
 function createSpecialLevelApi(state) {
     const frame = {
         xstart: 0,
@@ -1072,6 +1097,10 @@ function createSpecialLevelApi(state) {
                 case 'nomongen': state.level.flags.rndmongen = false; break;
                 case 'nodeathdrops': state.level.flags.deathdrops = false; break;
                 case 'noautosearch': state.level.flags.noautosearch = true; break;
+                // C ref: sp_lev.c lspo_level_flags(). solidify marks all
+                // STONE walls not part of the map as non-diggable and
+                // non-passwall during post-processing.
+                case 'solidify': state._specialLevelSolidify = true; break;
                 default: throw new Error(`unsupported special-level flag ${name}`);
                 }
             }
@@ -1081,16 +1110,41 @@ function createSpecialLevelApi(state) {
             if (Array.isArray(rowsOrSpec)) {
                 return mapFromRows(rowsOrSpec, frame, state);
             }
-            // Table form: { coord: [x,y], map: string, contents: fn }
-            // C ref: sp_lev.c lspo_map() table form, used by bigrm-13 to
-            // stamp small sub-maps at specific offsets inside the main map.
             const spec = rowsOrSpec;
             const mapStr = spec.map;
             const rows = mapStr.split('\n').filter((r) => r.length > 0);
             const height = rows.length;
             const width = rows[0]?.length ?? 0;
-            const ox = frame.xstart + spec.coord[0];
-            const oy = frame.ystart + spec.coord[1];
+            let ox, oy;
+            if (spec.halign != null || spec.valign != null) {
+                // C ref: sp_lev.c lspo_map() halign/valign placement.
+                // Aligns the map fragment within the maze area.
+                ox = mapAlignX(spec.halign ?? 'center', width, frame);
+                oy = mapAlignY(spec.valign ?? 'center', height, frame);
+                if (!(ox % 2)) ox++;
+                if (!(oy % 2)) oy++;
+                // C ref: sp_lev.c:6227-6238 overflow adjustment.
+                if (oy < 0 || oy + height > ROWNO) {
+                    oy += (oy > 0) ? -2 : 2;
+                    if (height === ROWNO) oy = 0;
+                    if (oy < 0 || oy + height > ROWNO) oy = 0;
+                }
+                frame.xstart = ox;
+                frame.ystart = oy;
+                frame.xsize = width;
+                frame.ysize = height;
+                state.xstart = ox;
+                state.ystart = oy;
+                state.xsize = width;
+                state.ysize = height;
+            } else {
+                // Table form: { coord: [x,y], map: string, contents: fn }
+                // C ref: sp_lev.c lspo_map() table form, used by bigrm-13
+                // to stamp small sub-maps at specific offsets inside the
+                // main map.
+                ox = frame.xstart + spec.coord[0];
+                oy = frame.ystart + spec.coord[1];
+            }
             for (let y = 0; y < height; ++y) {
                 for (let x = 0; x < width; ++x) {
                     const typ = splev_chr2typ(rows[y][x]);
@@ -1454,6 +1508,37 @@ function createSpecialLevelApi(state) {
             mkstairs(x, y, up, null);
         },
 
+        // C ref: sp_lev.c l_create_stairway() with using_ladder=TRUE.
+        // Sets the square to LADDER and registers it as a stairway.
+        ladder(specification) {
+            let up, x, y;
+            if (typeof specification === 'string') {
+                up = specification === 'up';
+                const coord = { x: -1, y: -1 };
+                get_location_coord(
+                    coord, DRY, null, SP_COORD_IS_RANDOM,
+                    { frame, state },
+                );
+                x = coord.x;
+                y = coord.y;
+            } else {
+                up = specification.dir === 'up';
+                const coord = specialCoordinate(frame, specification.coord);
+                x = coord.x;
+                y = coord.y;
+            }
+            const loc = state.level.at(x, y);
+            if (loc) {
+                loc.typ = LADDER;
+                loc.ladder = up ? LA_UP : LA_DOWN;
+            }
+            const dest = {
+                dnum: state.u?.uz?.dnum ?? 0,
+                dlevel: (state.u?.uz?.dlevel ?? 1) + (up ? -1 : 1),
+            };
+            stairway_add(x, y, !!up, true, dest);
+        },
+
         shuffle(values) {
             shuffle_core_values(values, rn2);
             return values;
@@ -1732,6 +1817,13 @@ function createSpecialLevelApi(state) {
             flip_level_rnd(state.specialLevelAllowFlips ?? 3);
             count_level_features(state);
 
+            // C ref: sp_lev.c solidify_map(). Marks non-map STONE walls as
+            // non-diggable and non-passwall.
+            if (state._specialLevelSolidify) {
+                solidify_map(state);
+                delete state._specialLevelSolidify;
+            }
+
             // C ref: mkmaze.c fixup_special(). Process stored levregions
             // after wallification and flipping.
             let addedBranch = false;
@@ -1838,19 +1930,229 @@ function wallify_map(x1, y1, x2, y2, state) {
     }
 }
 
-// C ref: sp_lev.c flip_level_rnd(). Each bit of flp enables one axis;
-// each enabled axis consumes rn2(2). When the combined result is nonzero
-// the actual flip_level() call would mirror the map, but the port does not
-// yet implement the mirror because no development session reaches a flipped
-// big room. The RNG consumption must match for scoring parity.
+// C ref: sp_lev.c flip_level() (533-922). Transposes the level horizontally
+// (flp & 2, left↔right) or vertically (flp & 1, top↔bottom) or both. Called
+// during level creation (extras=false), so hero position, migrating monsters,
+// timed effects, ball & chain, and visual state are not flipped.
+function flip_level(flp) {
+    if ((flp & 3) === 0) return;
+
+    let { xmin: minx, xmax: maxx, ymin: miny, ymax: maxy } = get_level_extends();
+    if (miny < 0) miny = 0;
+    if (minx < 1) minx = 1;
+    if (maxx >= COLNO) maxx = COLNO - 1;
+    if (maxy >= ROWNO) maxy = ROWNO - 1;
+
+    const FlipX = (val) => (maxx - val) + minx;
+    const FlipY = (val) => (maxy - val) + miny;
+    const inFlipArea = (x, y) => x >= minx && x <= maxx && y >= miny && y <= maxy;
+
+    const level = game.level;
+
+    // C ref: sp_lev.c:587-592. Stairs and ladders.
+    for (let stway = game.stairs; stway; stway = stway.next) {
+        if (flp & 1) stway.sy = FlipY(stway.sy);
+        if (flp & 2) stway.sx = FlipX(stway.sx);
+    }
+
+    // C ref: sp_lev.c:594-616. Traps.
+    for (const trap of level.traps) {
+        if (!inFlipArea(trap.tx, trap.ty)) continue;
+        if (flp & 1) {
+            trap.ty = FlipY(trap.ty);
+            if (trap.ttyp === ROLLING_BOULDER_TRAP) {
+                trap.launch.y = FlipY(trap.launch.y);
+                trap.launch2.y = FlipY(trap.launch2.y);
+            }
+            // C ref: conjoined pits use flip_encoded_dir_bits(); not yet
+            // ported because no development session reaches conjoined pits
+            // during level creation.
+        }
+        if (flp & 2) {
+            trap.tx = FlipX(trap.tx);
+            if (trap.ttyp === ROLLING_BOULDER_TRAP) {
+                trap.launch.x = FlipX(trap.launch.x);
+                trap.launch2.x = FlipX(trap.launch2.x);
+            }
+        }
+    }
+
+    // C ref: sp_lev.c:618-626. Floor objects.
+    for (let otmp = level.objlist; otmp; otmp = otmp.nobj) {
+        if (!inFlipArea(otmp.ox, otmp.oy)) continue;
+        if (flp & 1) otmp.oy = FlipY(otmp.oy);
+        if (flp & 2) otmp.ox = FlipX(otmp.ox);
+    }
+
+    // C ref: sp_lev.c:628-636. Buried objects.
+    for (let otmp = level.buriedobjlist; otmp; otmp = otmp.nobj) {
+        if (!inFlipArea(otmp.ox, otmp.oy)) continue;
+        if (flp & 1) otmp.oy = FlipY(otmp.oy);
+        if (flp & 2) otmp.ox = FlipX(otmp.ox);
+    }
+
+    // C ref: sp_lev.c:638-673. Monsters.
+    for (let mtmp = level.monlist; mtmp; mtmp = mtmp.nmon) {
+        if (!inFlipArea(mtmp.mx, mtmp.my)) continue;
+        if (flp & 1) mtmp.my = FlipY(mtmp.my);
+        if (flp & 2) mtmp.mx = FlipX(mtmp.mx);
+        // C ref: sp_lev.c:654 Flip_coord(mtmp->mgoal)
+        if (mtmp.mgoal) {
+            if (flp & 1 && mtmp.mgoal.y !== undefined) mtmp.mgoal.y = FlipY(mtmp.mgoal.y);
+            if (flp & 2 && mtmp.mgoal.x !== undefined) mtmp.mgoal.x = FlipX(mtmp.mgoal.x);
+        }
+        // C ref: sp_lev.c:656-666. Priest/shopkeeper/worm special coords are
+        // not yet ported; skip for level creation.
+    }
+
+    // C ref: sp_lev.c:689-695. Engravings.
+    for (let etmp = game.head_engr; etmp; etmp = etmp.nxt_engr) {
+        if (flp & 1) etmp.engr_y = FlipY(etmp.engr_y);
+        if (flp & 2) etmp.engr_x = FlipX(etmp.engr_x);
+    }
+
+    // C ref: sp_lev.c:697-733. Level regions (lregions). The JS port stores
+    // the two level-creation regions on game.upstair and game.dnstair rather
+    // than in a separate array. Flip their inarea and delarea bounds.
+    for (const lr of [game.upstair, game.dnstair]) {
+        if (!lr) continue;
+        if (flp & 1) {
+            lr.ly = FlipY(lr.ly);
+            lr.hy = FlipY(lr.hy);
+            if (lr.ly > lr.hy) { const t = lr.ly; lr.ly = lr.hy; lr.hy = t; }
+            if (lr.nly >= 0) {
+                lr.nly = FlipY(lr.nly);
+                lr.nhy = FlipY(lr.nhy);
+                if (lr.nly > lr.nhy) { const t = lr.nly; lr.nly = lr.nhy; lr.nhy = t; }
+            }
+        }
+        if (flp & 2) {
+            lr.lx = FlipX(lr.lx);
+            lr.hx = FlipX(lr.hx);
+            if (lr.lx > lr.hx) { const t = lr.lx; lr.lx = lr.hx; lr.hx = t; }
+            if (lr.nlx >= 0) {
+                lr.nlx = FlipX(lr.nlx);
+                lr.nhx = FlipX(lr.nhx);
+                if (lr.nlx > lr.nhx) { const t = lr.nlx; lr.nlx = lr.nhx; lr.nhx = t; }
+            }
+        }
+    }
+
+    // C ref: sp_lev.c:735-762. Active regions (poison clouds, etc.).
+    for (const region of level.regions) {
+        const bb = region.bounding_box;
+        if (flp & 1) {
+            const t1 = FlipY(bb.ly), t2 = FlipY(bb.hy);
+            bb.ly = Math.min(t1, t2); bb.hy = Math.max(t1, t2);
+            for (const rect of region.rects) {
+                const r1 = FlipY(rect.ly), r2 = FlipY(rect.hy);
+                rect.ly = Math.min(r1, r2); rect.hy = Math.max(r1, r2);
+            }
+        }
+        if (flp & 2) {
+            const t1 = FlipX(bb.lx), t2 = FlipX(bb.hx);
+            bb.lx = Math.min(t1, t2); bb.hx = Math.max(t1, t2);
+            for (const rect of region.rects) {
+                const r1 = FlipX(rect.lx), r2 = FlipX(rect.hx);
+                rect.lx = Math.min(r1, r2); rect.hx = Math.max(r1, r2);
+            }
+        }
+    }
+
+    // C ref: sp_lev.c:764-811. Rooms and subrooms.
+    for (const sroom of level.rooms) {
+        if (sroom.hx < 0) break;
+        if (flp & 1) {
+            sroom.ly = FlipY(sroom.ly); sroom.hy = FlipY(sroom.hy);
+            if (sroom.ly > sroom.hy) { const t = sroom.ly; sroom.ly = sroom.hy; sroom.hy = t; }
+        }
+        if (flp & 2) {
+            sroom.lx = FlipX(sroom.lx); sroom.hx = FlipX(sroom.hx);
+            if (sroom.lx > sroom.hx) { const t = sroom.lx; sroom.lx = sroom.hx; sroom.hx = t; }
+        }
+        if (sroom.sbrooms) {
+            for (const sub of sroom.sbrooms) {
+                if (flp & 1) {
+                    sub.ly = FlipY(sub.ly); sub.hy = FlipY(sub.hy);
+                    if (sub.ly > sub.hy) { const t = sub.ly; sub.ly = sub.hy; sub.hy = t; }
+                }
+                if (flp & 2) {
+                    sub.lx = FlipX(sub.lx); sub.hx = FlipX(sub.hx);
+                    if (sub.lx > sub.hx) { const t = sub.lx; sub.lx = sub.hx; sub.hx = t; }
+                }
+            }
+        }
+    }
+
+    // C ref: sp_lev.c:813-816. Doors.
+    for (let i = 0; i < level.doorindex; i++) {
+        const door = level.doors[i];
+        if (flp & 1) door.y = FlipY(door.y);
+        if (flp & 2) door.x = FlipX(door.x);
+    }
+
+    // C ref: sp_lev.c:818-860. The map: swap terrain, object grid, and
+    // monster grid. Drawbridge orientation flipping (flip_dbridge_vertical/
+    // horizontal) is omitted; no development session flips a drawbridge level.
+    if (flp & 1) {
+        for (let x = minx; x <= maxx; x++) {
+            const half = miny + Math.trunc((maxy - miny + 1) / 2);
+            for (let y = miny; y < half; y++) {
+                const ny = FlipY(y);
+                const trm = level.locations[x][y];
+                level.locations[x][y] = level.locations[x][ny];
+                level.locations[x][ny] = trm;
+                const otmp = level.objects[x][y];
+                level.objects[x][y] = level.objects[x][ny];
+                level.objects[x][ny] = otmp;
+                const mtmp = level.monsters[x][y];
+                level.monsters[x][y] = level.monsters[x][ny];
+                level.monsters[x][ny] = mtmp;
+            }
+        }
+    }
+    if (flp & 2) {
+        const half = minx + Math.trunc((maxx - minx + 1) / 2);
+        for (let x = minx; x < half; x++) {
+            for (let y = miny; y <= maxy; y++) {
+                const nx = FlipX(x);
+                const trm = level.locations[x][y];
+                level.locations[x][y] = level.locations[nx][y];
+                level.locations[nx][y] = trm;
+                const otmp = level.objects[x][y];
+                level.objects[x][y] = level.objects[nx][y];
+                level.objects[nx][y] = otmp;
+                const mtmp = level.monsters[x][y];
+                level.monsters[x][y] = level.monsters[nx][y];
+                level.monsters[nx][y] = mtmp;
+            }
+        }
+    }
+
+    // C ref: sp_lev.c:877-896. Exclusion zones.
+    for (let ez = game.exclusion_zones; ez; ez = ez.next) {
+        if (flp & 1) {
+            ez.ly = FlipY(ez.ly); ez.hy = FlipY(ez.hy);
+            if (ez.ly > ez.hy) { const t = ez.ly; ez.ly = ez.hy; ez.hy = t; }
+        }
+        if (flp & 2) {
+            ez.lx = FlipX(ez.lx); ez.hx = FlipX(ez.hx);
+            if (ez.lx > ez.hx) { const t = ez.lx; ez.lx = ez.hx; ez.hx = t; }
+        }
+    }
+
+    // C ref: sp_lev.c:915. Recalculate wall junction types after the swap.
+    fix_wall_spines(1, 0, COLNO - 1, ROWNO - 1);
+}
+
+// C ref: sp_lev.c flip_level_rnd() (967-982). Each bit of flp enables one
+// axis; each enabled axis consumes rn2(2). When the combined result is
+// nonzero, flip_level() mirrors the map.
 function flip_level_rnd(flp) {
     let c = 0;
     if ((flp & 1) && rn2(2)) c |= 1;
     if ((flp & 2) && rn2(2)) c |= 2;
-    // flip_level(c) is a no-op stub: the scoring system compares screens
-    // and RNG logs, and a flip that changes every coordinate without a
-    // matching screen transform would fail the comparison. The RNG
-    // consumption above keeps the PRNG in sync.
+    if (c) flip_level(c);
 }
 
 // C ref: mkmaze.c walkfrom() iterative version. Carves a maze using
@@ -4128,6 +4430,22 @@ function fix_wall_spines(x1, y1, x2, y2) {
 function wallification(x1, y1, x2, y2) {
     wall_cleanup(x1, y1, x2, y2);
     fix_wall_spines(x1, y1, x2, y2);
+}
+
+// C ref: sp_lev.c solidify_map(). Marks STONE wall tiles that are outside the
+// map fragment as non-diggable and non-passwall. SpLev_Map is the C-side
+// bitmap tracking which tiles the special level actually placed; because the
+// JS port does not maintain that bitmap, every STONE tile receives the flags.
+// This is equivalent to the C behavior for levels whose map covers all walls
+// (tower1-3, for example, fill every non-STONE tile explicitly).
+function solidify_map(state) {
+    for (let x = 0; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            const loc = state.level.at(x, y);
+            if (IS_STWALL(loc.typ))
+                loc.wall_info |= (W_NONDIGGABLE | W_NONPASSWALL);
+        }
+    }
 }
 
 // ============================================================
