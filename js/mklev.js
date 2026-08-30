@@ -1357,8 +1357,8 @@ function createSpecialLevelApi(state) {
                         currentCroom = troom;
                         specification.contents(troom);
                         currentCroom = croomStack.pop();
-                        add_doors_to_room(troom);
                     }
+                    add_doors_to_room(troom);
                 } else {
                     add_room(dx1, dy1, dx2, dy2, rlit, rtype, true);
                     const troom = game.level.rooms[game.level.nroom - 1];
@@ -1370,8 +1370,8 @@ function createSpecialLevelApi(state) {
                         currentCroom = troom;
                         specification.contents(troom);
                         currentCroom = croomStack.pop();
-                        add_doors_to_room(troom);
                     }
+                    add_doors_to_room(troom);
                 }
             } else {
                 throw new Error('special-level region requires area, match, or region');
@@ -1989,13 +1989,7 @@ function createSpecialLevelApi(state) {
         },
 
         finish() {
-            for (let x = 0; x < COLNO; ++x) {
-                for (let y = 0; y < ROWNO; ++y) {
-                    const typ = state.level.at(x, y).typ;
-                    if (IS_DOOR(typ) || typ === SDOOR)
-                        setSpecialDoorOrientation(x, y, state);
-                }
-            }
+            link_doors_rooms();
             // C ref: sp_lev.c load_special() post-processing.
             if (!state.level.flags.corrmaze)
                 wallification(1, 0, COLNO - 1, ROWNO - 1);
@@ -4551,6 +4545,28 @@ function maybe_add_door(x, y, droom) {
             || loc.roomno === rmno
             || shared_with_room(x, y, droom))) {
         add_door(x, y, droom);
+    }
+}
+
+// C ref: sp_lev.c link_doors_rooms(). Scans every tile for doors and links
+// each to its adjacent room. Called from finish() after special level creation.
+function link_doors_rooms() {
+    const nroom = game.level?.nroom ?? 0;
+    const rooms = game.level?.rooms ?? [];
+    for (let y = 0; y < ROWNO; ++y) {
+        for (let x = 0; x < COLNO; ++x) {
+            const typ = game.level.at(x, y).typ;
+            if (IS_DOOR(typ) || typ === SDOOR) {
+                setSpecialDoorOrientation(x, y, game);
+                for (let i = 0; i < nroom; ++i) {
+                    maybe_add_door(x, y, rooms[i]);
+                    const subrooms = rooms[i].sbrooms ?? [];
+                    const nsub = rooms[i].nsubrooms ?? subrooms.length;
+                    for (let m = 0; m < nsub; ++m)
+                        maybe_add_door(x, y, subrooms[m]);
+                }
+            }
+        }
     }
 }
 
