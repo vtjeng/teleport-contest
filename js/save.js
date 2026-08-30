@@ -256,6 +256,14 @@ function dosave0(state = game) {
     // Game objects form circular reference chains (e.g., a carried object's
     // `.v` field points to the carrying monster, whose `.minvent` points
     // back). safeStringify() replaces cycles with null rather than throwing.
+    // Record the monlist order so that dorecover's rebuildMonsterList can
+    // restore the same linked-list order that C's restmonchn() preserves.
+    // safeStringify()'s cycle detector severs the .nmon chain; the grid is
+    // the surviving source of truth for which monsters exist, but its
+    // column-major scan order differs from the original creation-time order.
+    // Storing m_id values in chain order lets the rebuild sort correctly.
+    captureMonlistOrder(state.level);
+
     const snapshot = serializeGameState(state);
     vfsWriteFile(SAVE_FILE_PATH, safeStringify(snapshot));
 
@@ -372,6 +380,19 @@ function serializeSpecialLevels(levels) {
         const { next: _, ...rest } = entry;
         return rest;
     });
+}
+
+// Save the monlist traversal order on the level object as an array of m_id
+// values. rebuildMonsterList() reads this after a JSON round-trip to restore
+// the same linked-list order that C's restmonchn() preserves. Without this,
+// the grid scan produces a position-dependent order that diverges from C.
+function captureMonlistOrder(level) {
+    if (!level) return;
+    const order = [];
+    for (let m = level.monlist; m; m = m.nmon) {
+        if (m.m_id != null) order.push(m.m_id);
+    }
+    if (order.length) level._monlistOrder = order;
 }
 
 // Serialize the branch array without linked-list pointers. C's branch

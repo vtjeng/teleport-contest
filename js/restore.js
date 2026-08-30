@@ -252,11 +252,18 @@ export function dorestore(state = game) {
 // maps (x, y) to the monster occupying that square; the linked list
 // threads them together via .nmon. C's place_monster() keeps both in sync;
 // safeStringify() drops the list pointers as cycles.
+//
+// C's restmonchn() preserves the original linked-list order (creation time,
+// newest first). A naive grid scan produces column-major positional order,
+// which differs from C and causes mcalcmove / movemon to consume RNG values
+// in the wrong monster order. When dosave0() saved a _monlistOrder array of
+// m_id values on the level, sort the rebuilt list to match that order.
 function rebuildMonsterList(state) {
     const grid = state.level?.monsters;
     if (!grid) return;
 
-    let head = null;
+    // Collect all monsters from the grid.
+    const monsters = [];
     for (let x = 0; x < grid.length; x++) {
         if (!grid[x]) continue;
         for (let y = 0; y < grid[x].length; y++) {
@@ -269,9 +276,32 @@ function rebuildMonsterList(state) {
             if (state.mons && monster.mnum != null) {
                 monster.data = state.mons[monster.mnum] ?? monster.data;
             }
-            monster.nmon = head;
-            head = monster;
+            monsters.push(monster);
         }
+    }
+
+    // Restore the original linked-list order if dosave0() saved it.
+    const savedOrder = state.level._monlistOrder;
+    if (savedOrder) {
+        const orderMap = new Map();
+        for (let i = 0; i < savedOrder.length; i++) {
+            orderMap.set(savedOrder[i], i);
+        }
+        // Monsters whose m_id is in the saved order sort by that order;
+        // any new monsters (not in the saved list) go to the end.
+        monsters.sort((a, b) => {
+            const ai = orderMap.has(a.m_id) ? orderMap.get(a.m_id) : savedOrder.length;
+            const bi = orderMap.has(b.m_id) ? orderMap.get(b.m_id) : savedOrder.length;
+            return ai - bi;
+        });
+        delete state.level._monlistOrder;
+    }
+
+    // Build the chain in reverse so the first element becomes the head.
+    let head = null;
+    for (let i = monsters.length - 1; i >= 0; i--) {
+        monsters[i].nmon = head;
+        head = monsters[i];
     }
     state.level.monlist = head;
 }
@@ -402,11 +432,12 @@ export function getlev(ledger, state = game) {
     //   4. If elapsed > 0 and elapsed > rnd(10), calls hide_monst(mtmp) (1219)
     //
     // The level.monsters grid was saved intact, so step 1 is unnecessary.
-    // The monlist chain may need rebuilding since savelev's teardown path
-    // (clear_level_structures in C) would have destroyed it; the JS port
-    // saved the live level object, so monlist is still set. Rebuild it anyway
-    // for robustness.
-    rebuildMonsterList(state);
+    // savelev() stores the level as a live reference, so the .nmon chain is
+    // still valid and preserves the original linked-list order that C's
+    // restmonchn() would restore. Do NOT rebuild the monlist from the grid
+    // here: the grid scan produces a position-dependent order (column-major)
+    // that differs from C's creation-time order, causing mcalcmove and
+    // movemon to consume RNG values in the wrong monster order.
     rebuildObjectList(state);
 
     for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon) {
