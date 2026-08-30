@@ -260,6 +260,7 @@ import {
     PM_VAMPIRE,
     PM_VAMPIRE_BAT,
     PM_VAMPIRE_LEADER,
+    PM_VLAD_THE_IMPALER,
     PM_WARRIOR,
     PM_WATER_DEMON,
     PM_WHITE_UNICORN,
@@ -333,6 +334,7 @@ import {
     BEC_DE_CORBIN,
     BOULDER,
     BOW,
+    CANDELABRUM_OF_INVOCATION,
     CHAIN_MAIL,
     CLUB,
     COIN_CLASS,
@@ -3162,12 +3164,20 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             state,
         );
     }
+    // C ref: makemon.c:1351-1384. Special inventory item for specific
+    // monsters, given via mongets after the shapechanger and ghost blocks.
+    let mitem = STRANGE_OBJECT;
+    if (mndx === PM_VLAD_THE_IMPALER) mitem = CANDELABRUM_OF_INVOCATION;
     monster.cham = NON_PM;
     const naturalShape = pm_to_cham(mndx, state);
     if (!heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)
         && naturalShape !== NON_PM) {
         monster.cham = naturalShape;
-        if (newcham_initial(monster, normalized)) allowMinvent = false;
+        // C ref: makemon.c:1361. Vlad stays in his normal form so he
+        // can carry the Candelabrum of Invocation.
+        if (mndx !== PM_VLAD_THE_IMPALER
+            && newcham_initial(monster, normalized))
+            allowMinvent = false;
     } else if (mndx === PM_GHOST) {
         // C ref: makemon.c -- MM_NONAME suppresses the random ghost name.
         // savebones() passes MM_NONAME and then christen_monst separately.
@@ -3177,6 +3187,8 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             });
         }
     }
+    if (mitem !== STRANGE_OBJECT && allowMinvent)
+        mongets(monster, mitem, normalized);
     if (state.in_mklev
         && mklevSleeperSpecies(ptr)
         && !state.u.uhave.amulet
