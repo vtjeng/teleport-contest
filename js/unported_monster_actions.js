@@ -155,7 +155,7 @@ import {
     select_rwep,
     setmnotwielded,
 } from './weapon.js';
-import { will_weld } from './wield.js';
+import { mwelded, will_weld } from './wield.js';
 import { is_pole } from './worn.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
@@ -1181,11 +1181,34 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                         weaponUser,
                         selectionEnv,
                     );
+                    if (selected?.oartifact)
+                        unsupported('monster artifact weapon selection');
                     if (selected
-                        && weaponUser.mw?.otyp !== selected.otyp) {
-                        unsupported('monster wield action');
-                    }
-                    return mon_wield_item(weaponUser, selectionEnv);
+                        && weaponUser.mw
+                        && mwelded(weaponUser.mw, weaponEnv.state))
+                        unsupported(
+                            'monster wield with a welded current weapon',
+                        );
+                    if (selected
+                        && will_weld(selected, weaponEnv.state))
+                        unsupported(
+                            'monster wield action with a welded weapon',
+                        );
+                    return mon_wield_item(weaponUser, {
+                        ...selectionEnv,
+                        canSeeMonster: (subject) =>
+                            canSeeMonster(subject, weaponEnv.state),
+                        wieldMessage: async (subject, obj, detail) => {
+                            if (weaponEnv.planning) return;
+                            await ttyPline(
+                                `${capitalizedMonsterName(subject,
+                                    weaponEnv.state)} wields `
+                                + `${donameFresh(obj, weaponEnv.state)}`
+                                + `${detail.exclaim ? '!' : '.'}`,
+                                weaponEnv.state,
+                            );
+                        },
+                    });
                 },
                 wieldMonsterItemAgainstMonster,
                 wakeMessage: env.planning ? () => {} : wake_msg,
