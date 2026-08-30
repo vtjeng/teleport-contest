@@ -151,7 +151,7 @@ import {
     ARMORSHOP, WEAPONSHOP,
     ROOMOFFSET, MAXNROFROOMS, MAX_SUBROOMS, SHARED,
     SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, THRONE, TREE,
-    DUST,
+    DUST, ENGRAVE, BURN, ENGR_BLOOD,
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
     IS_WALL, IS_STWALL, IS_DOOR, IS_ROOM, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
     IS_LAVA,
@@ -1063,6 +1063,11 @@ function mapAlignY(valign, height, frame) {
 }
 
 function createSpecialLevelApi(state) {
+    // C ref: sp_lev.c sp_level_coder_init(). Each special level gets a fresh
+    // coder with allow_flips = 3; reset state fields that correspond to
+    // per-coder fields so a previous level's noflip does not leak.
+    delete state.specialLevelAllowFlips;
+
     // C ref: sp_lev.c reset_xystart_size(), called by sp_level_coder_init()
     // before any level creation code runs. des.map() overrides these with
     // the map's placement; mines-style level_init and other map-less levels
@@ -1479,14 +1484,22 @@ function createSpecialLevelApi(state) {
         },
 
         engraving(specification) {
+            const ENGR_TYPE_MAP = {
+                dust: DUST, engrave: ENGRAVE, burn: BURN,
+                mark: MARK, blood: ENGR_BLOOD,
+            };
             const coordinate = specialCoordinate(frame, specification.coord);
+            const rawType = specification.type ?? 'dust';
+            const etyp = typeof rawType === 'string'
+                ? (ENGR_TYPE_MAP[rawType] ?? DUST)
+                : rawType;
             const engraving = make_engr_at(
                 coordinate.x,
                 coordinate.y,
                 specification.text,
                 null,
                 0,
-                specification.type ?? DUST,
+                etyp,
                 env,
             );
             engraving.nowipeout = specification.degrade === false;
