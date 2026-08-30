@@ -6211,6 +6211,29 @@
         "screens": 31,
         "rng": 721
       }
+    },
+    {
+      "id": "unsupported-hero-move-automatic-pickup",
+      "status": "open",
+      "boundary": "automatic pickup on hero move",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [
+        {
+          "name": "autopickup-preflight-pickup-types",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "9903956701f30347abe79940fbb149478a827a56",
+      "openStanding": {
+        "sha": "7b95457",
+        "screens": 2940,
+        "rng": 163343
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
