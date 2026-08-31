@@ -6351,7 +6351,13 @@
         ]
       },
       "detail": "Medium, tightly bounded goal covering the missing query_objlist() full-menu branch from post-autoselect sorting through menu construction, PICK_ANY selection, count normalization, and return to pickup()'s existing loop. One behavior slice is suitable. Do not widen to counted PICK_ONE pickup, traditional/category interfaces, menu-prefix variants, swallowed inventory, INCLUDE_HERO, petrifying-corpse aborts, punished ball-and-chain filtering, shop billing, partial-stack counts, or other callers.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "manual-floor-pickup-query-objlist-full-menu",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "7ad4af013af3e69dc47cd56eb7b0b796785f211f",
       "openStanding": {
         "sha": "978d6ea10fbe63b88c2eb711f1f2710a660e1fda",
