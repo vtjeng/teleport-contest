@@ -6300,8 +6300,8 @@
       "slices": [
         {
           "name": "stocked-maze-boulder-block-point",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "bc3aff381ca25122ef10686428723406e7b0a5c3"
         }
       ],
       "openedAt": "d21668ce5204e173714928291775749c0ee28bce",

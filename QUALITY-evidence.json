@@ -15630,5 +15630,339 @@
       ]
     },
     "recordedAt": "2026-08-29T09:06:09.496Z"
+  },
+  {
+    "kind": "review",
+    "head": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+    "auditedRange": "ac11759239fdbdb6860c5c075b8d5000d08d50bc..bc3aff381ca25122ef10686428723406e7b0a5c3",
+    "level": "full",
+    "areas": [
+      "startup",
+      "hero",
+      "objects",
+      "generation",
+      "monsters",
+      "world-effects",
+      "commands",
+      "display",
+      "runtime"
+    ],
+    "outcome": "no-change",
+    "evidence": "Counts: 38 raw, 29 deduplicated, 28 confirmed, 0 applied, 28 deferred, 1 rejected, 0 unverified. Full correctness pass over the fixed range used four independent finders and four adjudicators. 38 raw candidates deduplicated to 29; 28 were confirmed and deferred as dedicated future slices or test work outside the current Castle boundary, while one unreachable state-API candidate was rejected. Checkpoint, generated-data checks, full tests, development scoring, and development census passed at the reviewed head.",
+    "auditMetrics": {
+      "wallTimeSeconds": 900,
+      "counts": {
+        "raw": 38,
+        "deduplicated": 29,
+        "confirmed": 28,
+        "applied": 0,
+        "deferred": 28,
+        "rejected": 1,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 19,
+        "tests": 9,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "SPECIAL_LEVEL_LOADERS has incomplete lazy initialization",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Converted quest synopsis is discarded",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Artifact pronouns are always neuter",
+          "foundBy": [
+            "correctness",
+            "readability"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "in_town_stub silently disables fountain town behavior",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "priestname ignores hallucination naming and random draw",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Equipment displays omit temporary in-use ordering and alternate labels",
+          "foundBy": [
+            "correctness",
+            "readability"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Selection coordinate semantics are contradictory",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Async temple sound result is not awaited",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Quest rank substitutions are hardcoded",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Nemesis revisit always selects goal_next",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "ZOO room creation omitted from do_mkroom",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Monk quest representatives receive no inventory",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "tipcontainer extracts before unsupported checks",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Wizard m^T bypasses teleport-mode menu",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Wizard disorientation cannot be overridden",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Controlled teleport treats vault occupancy as proof of guard",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Untended-temple ghost visibility ignores blindness",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "doprgold omits post-report dollar inventory menu",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "shopper_financial_report omits current-shop and bill debt",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        }
+      ],
+      "rejections": [
+        {
+          "summary": "State-parameterized special-level API mixes state with global singleton",
+          "counterEvidence": "The private API is called only with the global game state by current production callers, and no source-reachable development input supplies a distinct state. Do not reopen without a source-reachable distinct-state caller and a diff-causal line."
+        }
+      ],
+      "deferrals": [
+        {
+          "summary": "SPECIAL_LEVEL_LOADERS has incomplete lazy initialization",
+          "category": "production",
+          "trackedIn": "audit-special-level-loader-init"
+        },
+        {
+          "summary": "Converted quest synopsis is discarded",
+          "category": "production",
+          "trackedIn": "audit-quest-synopsis-history"
+        },
+        {
+          "summary": "Artifact pronouns are always neuter",
+          "category": "production",
+          "trackedIn": "audit-quest-artifact-pronouns"
+        },
+        {
+          "summary": "in_town_stub silently disables fountain town behavior",
+          "category": "production",
+          "trackedIn": "audit-fountain-town-behavior"
+        },
+        {
+          "summary": "priestname ignores hallucination naming and random draw",
+          "category": "production",
+          "trackedIn": "audit-priestname-hallucination"
+        },
+        {
+          "summary": "Equipment displays omit temporary in-use ordering and alternate labels",
+          "category": "production",
+          "trackedIn": "audit-equipment-inuse-ordering"
+        },
+        {
+          "summary": "Selection coordinate semantics are contradictory",
+          "category": "production",
+          "trackedIn": "audit-selection-coordinate-convention"
+        },
+        {
+          "summary": "New quest-arrival handlers lack meaningful tests",
+          "category": "tests",
+          "trackedIn": "audit-quest-arrival-tests"
+        },
+        {
+          "summary": "Generated quest text has no regeneration/check test",
+          "category": "tests",
+          "trackedIn": "audit-quest-text-regeneration-check"
+        },
+        {
+          "summary": "Dog nutrition widened paths lack positive tests",
+          "category": "tests",
+          "trackedIn": "audit-dog-food-branch-tests"
+        },
+        {
+          "summary": "Tip spill test does not verify objects reach floor",
+          "category": "tests",
+          "trackedIn": "audit-tip-spill-floor-test"
+        },
+        {
+          "summary": "count_contents tests bypass filtering and nesting",
+          "category": "tests",
+          "trackedIn": "audit-count-contents-filter-tests"
+        },
+        {
+          "summary": "Castle boulder test does not observe vision hook",
+          "category": "tests",
+          "trackedIn": "audit-castle-boulder-vision-test"
+        },
+        {
+          "summary": "goto_level up-building test covers only first arrival",
+          "category": "tests",
+          "trackedIn": "audit-goto-level-reached-branches"
+        },
+        {
+          "summary": "Wizard force-success test omits source-state mutations",
+          "category": "tests",
+          "trackedIn": "audit-pray-force-success-tests"
+        },
+        {
+          "summary": "New fountain drinking behavior lacks focused tests",
+          "category": "tests",
+          "trackedIn": "audit-fountain-drinking-tests"
+        },
+        {
+          "summary": "Async temple sound result is not awaited",
+          "category": "production",
+          "trackedIn": "audit-temple-sound-await"
+        },
+        {
+          "summary": "Quest rank substitutions are hardcoded",
+          "category": "production",
+          "trackedIn": "audit-quest-rank-substitution"
+        },
+        {
+          "summary": "Nemesis revisit always selects goal_next",
+          "category": "production",
+          "trackedIn": "audit-quest-goal-artifact-search"
+        },
+        {
+          "summary": "ZOO room creation omitted from do_mkroom",
+          "category": "production",
+          "trackedIn": "audit-zoo-room-dispatch"
+        },
+        {
+          "summary": "Monk quest representatives receive no inventory",
+          "category": "production",
+          "trackedIn": "audit-monk-quest-inventory"
+        },
+        {
+          "summary": "tipcontainer extracts before unsupported checks",
+          "category": "production",
+          "trackedIn": "audit-tipcontainer-atomic-refusal"
+        },
+        {
+          "summary": "Wizard m^T bypasses teleport-mode menu",
+          "category": "production",
+          "trackedIn": "audit-wizard-teleport-menu"
+        },
+        {
+          "summary": "Wizard disorientation cannot be overridden",
+          "category": "production",
+          "trackedIn": "audit-wizard-disorientation-override"
+        },
+        {
+          "summary": "Controlled teleport treats vault occupancy as proof of guard",
+          "category": "production",
+          "trackedIn": "audit-vault-guard-resolution"
+        },
+        {
+          "summary": "Untended-temple ghost visibility ignores blindness",
+          "category": "production",
+          "trackedIn": "audit-ghost-visibility-predicate"
+        },
+        {
+          "summary": "doprgold omits post-report dollar inventory menu",
+          "category": "production",
+          "trackedIn": "audit-showgold-action-menu"
+        },
+        {
+          "summary": "shopper_financial_report omits current-shop and bill debt",
+          "category": "production",
+          "trackedIn": "audit-shopper-debt-report"
+        }
+      ]
+    },
+    "recordedAt": "2026-08-31T07:39:23.114Z"
   }
 ]

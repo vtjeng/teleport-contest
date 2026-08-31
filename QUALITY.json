@@ -5395,6 +5395,258 @@
       "status": "open",
       "from": "e8f4bd3e3e51a030a0a1ed65c99960402c373124",
       "detail": "autopick_testobj how_lost overrides (pickup_thrown/LOST_THROWN, pickup_stolen/LOST_STOLEN, nopick_dropped/LOST_DROPPED, LOST_EXPLODING) remain behind their throw at planAutomaticFloorPickupAndRefreshCapacityCache. No witness session exercises them."
+    },
+    {
+      "id": "audit-special-level-loader-init",
+      "area": "generation",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "SPECIAL_LEVEL_LOADERS initialization in js/mklev.js omits Castle and Mines when quest filler initializes the registry. Confirmed by the full correctness pass; deferred to a dedicated level-loader slice outside the current stocked Castle boulder boundary. Close with an order-sensitive development differential."
+    },
+    {
+      "id": "audit-quest-synopsis-history",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/questpgr.js quest pager conversion discards converted synopsis text instead of storing it through message history as questpgr.c does. Confirmed by the full correctness pass; deferred to a dedicated quest-pager slice outside the current goal. Close with a pager and message-recall differential."
+    },
+    {
+      "id": "audit-quest-artifact-pronouns",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/questpgr.js quest artifact pronoun conversion lacks the plural Eyes rule from questpgr.c. Confirmed by the full correctness pass; deferred to the quest-text behavior slice. Close with source-derived artifact pronoun cases."
+    },
+    {
+      "id": "audit-fountain-town-behavior",
+      "area": "world-effects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/fountain.js in_town_stub disables the town warning and angry-guards branches in fountain.c. Confirmed by the full correctness pass; deferred to a fountain town-effects slice outside the current goal. Close with town and non-town fresh differentials."
+    },
+    {
+      "id": "audit-priestname-hallucination",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/priest.js priestname omits the hallucination naming, article, label, and random-selection branches from priest.c. Confirmed by the full correctness pass; deferred to a priest naming slice. Close with controlled hallucination temple-entry cases."
+    },
+    {
+      "id": "audit-equipment-inuse-ordering",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/invent.js dispinv_with_action omits C temporary in-use ordering and alternate equipment labels. Confirmed by the full correctness pass; deferred to the equipment-display slice. Close with mixed worn-item menu differentials."
+    },
+    {
+      "id": "audit-selection-coordinate-convention",
+      "area": "generation",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/mklev.js terrain selection conversion mixes absolute and frame-relative coordinate conventions. Confirmed by the full correctness pass; deferred to a terrain-selection slice. Close with nonzero-frame C-vs-JavaScript cases."
+    },
+    {
+      "id": "audit-quest-arrival-tests",
+      "area": "hero",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "Quest arrival handlers on_start, on_locate, on_goal, and onquest lack meaningful integration coverage. Confirmed by the full correctness pass; deferred to quest-arrival test work outside the current goal."
+    },
+    {
+      "id": "audit-quest-text-regeneration-check",
+      "area": "hero",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "scripts/generate-quest-text.mjs has no non-mutating regeneration check or registered generated-output invariant. Confirmed by the full correctness pass; deferred to generated quest-text maintenance."
+    },
+    {
+      "id": "audit-dog-food-branch-tests",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "Dog nutrition and eating tests do not positively cover ordinary food, partially eaten food, or stacked food branches from dogmove.c. Confirmed by the full correctness pass; deferred to focused monster test coverage."
+    },
+    {
+      "id": "audit-tip-spill-floor-test",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "scripts/tip-command.test.mjs does not assert that tipped contents are placed on the floor through dropy. Confirmed by the full correctness pass; deferred to focused tip-command coverage."
+    },
+    {
+      "id": "audit-count-contents-filter-tests",
+      "area": "objects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "scripts/tip-command.test.mjs count_contents tests bypass shop filtering, newdrop, quantity, and nested-container branches. Confirmed by the full correctness pass; deferred to focused inventory coverage."
+    },
+    {
+      "id": "audit-castle-boulder-vision-test",
+      "area": "generation",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "scripts/castle-stocked-maze-boulder.test.mjs does not observe the vision block_point effect required by mkobj.c and vision.c. Confirmed by the full correctness pass; deferred to a discriminating Castle vision test."
+    },
+    {
+      "id": "audit-goto-level-reached-branches",
+      "area": "generation",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "scripts/goto-level-builds-up.test.mjs covers only the zero dunlev_reached arm and not shallower, equal, or deeper arrivals. Confirmed by the full correctness pass; deferred to focused level-arrival coverage."
+    },
+    {
+      "id": "audit-pray-force-success-tests",
+      "area": "hero",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "scripts/pray.test.mjs does not assert wizard force-success mutations or the blinded shimmer suppression branch from pray.c. Confirmed by the full correctness pass; deferred to focused prayer coverage."
+    },
+    {
+      "id": "audit-fountain-drinking-tests",
+      "area": "world-effects",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "New drinkfountain, dowaterdemon, and dryup behavior in js/fountain.js lacks focused state, message, terrain, and RNG coverage. Confirmed by the full correctness pass; deferred to the fountain behavior slice."
+    },
+    {
+      "id": "audit-temple-sound-await",
+      "area": "world-effects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/sounds.js temple sound handling tests an async Promise instead of the completed boolean result required by sounds.c. Confirmed by the full correctness pass; deferred to a sound-effects slice with ordered output and RNG validation."
+    },
+    {
+      "id": "audit-quest-rank-substitution",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/questpgr.js hardcodes adventurer for rank substitutions instead of using rank_of from questpgr.c. Confirmed by the full correctness pass; deferred to the quest-text slice."
+    },
+    {
+      "id": "audit-quest-goal-artifact-search",
+      "area": "hero",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/quest.js on_goal always selects goal_next and omits the floor, monster-inventory, and buried artifact search from quest.c. Confirmed by the full correctness pass; deferred to quest progression."
+    },
+    {
+      "id": "audit-zoo-room-dispatch",
+      "area": "generation",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/mkroom.js do_mkroom omits the ZOO dispatch even though mklev.js can request it and mkroom.c routes it to mkzoo. Confirmed by the full correctness pass; deferred to room-generation dispatch."
+    },
+    {
+      "id": "audit-monk-quest-inventory",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/makemon_create.js omits the PM_MONK quest-representative robe or magic-resistance-cloak branch and rn2 choice from makemon.c. Confirmed by the full correctness pass; deferred to quest monster creation."
+    },
+    {
+      "id": "audit-tipcontainer-atomic-refusal",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/pickup.js tipcontainer extracts contents before fail-closed unsupported branches throw, leaving partial mutation unlike a completed C transfer. Confirmed by the full correctness pass; deferred to the tip command slice."
+    },
+    {
+      "id": "audit-wizard-teleport-menu",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/cmd.js wizard m-prefix teleport handling omits the menu_requested n/s/t/w mode menu and temporary state restoration from teleport.c. Confirmed by the full correctness pass; deferred to wizard teleport commands."
+    },
+    {
+      "id": "audit-wizard-disorientation-override",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/teleport.js wizard disorientation returns without the Override prompt and continuation permitted by teleport.c. Confirmed by the full correctness pass; deferred to wizard teleport edge cases."
+    },
+    {
+      "id": "audit-vault-guard-resolution",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/teleport.js treats vault occupancy as proof of a guard instead of resolving an actual guard as teleport.c does. Confirmed by the full correctness pass; deferred to controlled teleport guard handling."
+    },
+    {
+      "id": "audit-ghost-visibility-predicate",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/priest.js untended-temple ghost messaging checks only minvis instead of the canspotmon perception predicate from priest.c. Confirmed by the full correctness pass; deferred to priest and visibility behavior."
+    },
+    {
+      "id": "audit-showgold-action-menu",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/invent.js doprgold omits the post-report dollar action menu for menu-requested showgold. Confirmed by the full correctness pass; deferred to the inventory action-display slice."
+    },
+    {
+      "id": "audit-shopper-debt-report",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "detail": "js/invent.js shopper_financial_report omits current-shop reporting and bill-based shop_debt totals from shk.c. Confirmed by the full correctness pass; deferred to shop billing and inventory reporting."
     }
   ],
   "areas": [
@@ -8289,6 +8541,25 @@
       ],
       "outcome": "changed",
       "recordedAt": "2026-08-29T09:06:09.496Z"
+    },
+    {
+      "kind": "review",
+      "head": "bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "auditedRange": "ac11759239fdbdb6860c5c075b8d5000d08d50bc..bc3aff381ca25122ef10686428723406e7b0a5c3",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "no-change",
+      "recordedAt": "2026-08-31T07:39:23.114Z"
     }
   ]
 }
