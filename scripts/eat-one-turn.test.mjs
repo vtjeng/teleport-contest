@@ -965,10 +965,10 @@ test('a comestible with an unported effect stops after doeat has committed',
     async () => {
         const knight = segmentFor('eg.eg.eg');
         // u_init.c gives the Knight ten carrots beside the apples. fpostfx()
-        // clears cream from the hero's face with make_blinded(), which has no
-        // port.
+        // calls make_blinded(ucreamed, TRUE), which is a sighted-noop when
+        // the hero has no cream on their face. Eating completes without error.
         const carrot = await boundaryFor(knight, '.eh');
-        assert.match(carrot.message, /make_blinded\(\) for a carrot/u);
+        assert.equal(carrot, null);
 
         // A Monk's fortune cookie reaches fprefx()'s give_feedback label and
         // then fpostfx()'s outrumor(). doeat() has already raised the unvegan

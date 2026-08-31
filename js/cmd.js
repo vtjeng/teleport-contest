@@ -3540,7 +3540,7 @@ export async function rhack(key, state = game) {
                 }
                 await morehungry(100, state);
                 resetCommandVars(state);
-                state.occupation = null;
+                state.go.occupation = null;
                 return;
             }
             const prop = state.u?.uprops?.[TELEPORT];
@@ -3575,7 +3575,7 @@ export async function rhack(key, state = game) {
                 }
                 await morehungry(100, state);
                 resetCommandVars(state);
-                state.occupation = null;
+                state.go.occupation = null;
                 return;
             }
             const knownsp = known_spell(SPE_TELEPORT_AWAY, state);
@@ -3609,7 +3609,7 @@ export async function rhack(key, state = game) {
                 )) {
                     commandTookTime(state);
                     resetCommandVars(state);
-                    state.occupation = null;
+                    state.go.occupation = null;
                     return;
                 }
                 await exercise(A_WIS, true, state);
@@ -3618,7 +3618,7 @@ export async function rhack(key, state = game) {
                 ) & ECMD_TIME) {
                     commandTookTime(state);
                     resetCommandVars(state);
-                    state.occupation = null;
+                    state.go.occupation = null;
                     return;
                 }
                 resetCommandVars(state);

@@ -448,15 +448,18 @@ test('floorfood stops before the questions it cannot ask', async () => {
     const segment = segmentFor('ea');
 
     // An edible object on the hero's square: C asks "There is <object> here;
-    // eat it?" through yn_function(), which needs otense() and safe_qbuf().
+    // eat it?" through yn_function().  Answering 'y' returns the object;
+    // answering 'q' returns null.
     await runSegment({ ...segment, moves: '.' });
-    game.level.objects[game.u.ux][game.u.uy] = {
+    const floorFood = {
         otyp: FOOD_RATION, oclass: 7, quan: 1, nexthere: null,
     };
-    await assert.rejects(
-        () => floorfood('eat', 0, game),
-        /floorfood\(\) offering an object on the floor/,
-    );
+    game.level.objects[game.u.ux][game.u.uy] = floorFood;
+    game.nhDisplay.pushKey('y'.charCodeAt(0));
+    assert.equal(await floorfood('eat', 0, game), floorFood);
+
+    game.nhDisplay.pushKey('q'.charCodeAt(0));
+    assert.equal(await floorfood('eat', 0, game), null);
 
     // A metallivorous hero is asked about a bear trap, iron bars and gold
     // first, and the iron-bars answer returns &hands_obj. The test reads the
