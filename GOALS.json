@@ -6802,7 +6802,13 @@
         ]
       },
       "detail": "Small-to-medium coherent single slice, forecast 17. Decisive predicates: one locked underfoot container, apply-key only, mundane lock pick, hands/reachable floor, Rogue DEX17, uncursed untrapped box, yes response and two witnessed rolls. Exclude later enchant-armor gap, other keys/cards/artifacts, cursed halving, traps, other autounlock modes, multiple containers, resume, reachability refusals, and destruction.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "#loot locked floor box: apply-key lock-pick occupation",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "b2da54a95442139d2d06a2ec33c426cec70e3037",
       "openStanding": {
         "sha": "c852f40b997d5e529eddfc2f46fb9e81e2ef6cfe",
