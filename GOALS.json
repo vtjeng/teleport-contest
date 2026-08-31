@@ -6770,6 +6770,47 @@
         "screens": 17,
         "rng": 12
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-4",
+      "status": "open",
+      "boundary": "When #loot finds one locked untrapped floor container and default apply-key autounlock selects a mundane lock pick, prompt for that container, accept yes, establish the Rogue picking occupation with source chance, preserve failed attempts, then unlock/identify the box, exercise Dexterity, reset context, and end with source turn/RNG order.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/cmd.c: loot binding/occupation",
+        "nethack-c/upstream/src/pickup.c: doloot()",
+        "do_loot_cont()",
+        "nethack-c/upstream/src/lock.c: autokey()",
+        "pick_lock()",
+        "picklock()",
+        "reset_pick()",
+        "nethack-c/upstream/src/allmain.c: occupation dispatch",
+        "nethack-c/upstream/src/artifact.c: tool checks",
+        "nethack-c/upstream/src/attrib.c: acurr()",
+        "exercise()"
+      ],
+      "forecast": {
+        "steps": 17,
+        "basis": "Capped look-ahead at unsupported hero command: an unported branch of this command: unsupported pickup: do_loot_cont: autounlock apply-key on container",
+        "sessions": [
+          "seed0007-rogue-snake-swamp"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0007-rogue-snake-swamp",
+            "evidence": "Seed 7, 2026-05-03 02:54:36, default options except DECgraphics; default autounlock is AUTOUNLOCK_APPLY_KEY. Chaotic male orc Rogue Septor stands on one locked, unbroken, untrapped large box with a mundane lock pick and no skeleton key. #loot -> doloot()->doloot_core()->do_loot_cont() identifies the lock, autokey(TRUE) selects the pick, and pick_lock() prompts for the supplied underfoot container. Yes establishes xlock/picklock with chance 4*DEX17+25 Rogue=93. Occupation rn2(100)=96 fails, then 53 succeeds, toggles olocked false, exercises Dexterity with rn2(19)=7, resets context and advances T:90 to T:93. JS stops after locked message/lknown update before pick_lock()."
+          }
+        ]
+      },
+      "detail": "Small-to-medium coherent single slice, forecast 17. Decisive predicates: one locked underfoot container, apply-key only, mundane lock pick, hands/reachable floor, Rogue DEX17, uncursed untrapped box, yes response and two witnessed rolls. Exclude later enchant-armor gap, other keys/cards/artifacts, cursed halving, traps, other autounlock modes, multiple containers, resume, reachability refusals, and destruction.",
+      "slices": [],
+      "openedAt": "b2da54a95442139d2d06a2ec33c426cec70e3037",
+      "openStanding": {
+        "sha": "c852f40b997d5e529eddfc2f46fb9e81e2ef6cfe",
+        "screens": 3472,
+        "rng": 225501
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
