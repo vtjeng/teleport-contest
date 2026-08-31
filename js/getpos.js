@@ -149,6 +149,17 @@ export async function getpos(ccp, force, goal, state = game) {
                 await auto_describe(cx, cy, state);
                 continue;
             }
+            // C ref: getpos.c:1039-1141. Unrecognized keys that are
+            // quitchars (" \r\n") exit when force is false; all other
+            // unrecognized keys print an error. In both cases force=true
+            // falls through to `goto nxtc`, ignoring the key.
+            if (force) continue;
+            if (key === 0x20 || key === 0x0D || key === 0x0A) {
+                ccp.x = -1;
+                ccp.y = 0;
+                result = LOOK_TRADITIONAL;
+                break;
+            }
             throw new UnsupportedGetposError(
                 `key ${JSON.stringify(String.fromCharCode(key))}`,
             );

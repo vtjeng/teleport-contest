@@ -523,7 +523,7 @@ import {
     S_vwall,
 } from './symbols.js';
 import { begin_burn, stop_timer } from './timeout.js';
-import { t_at } from './trap.js';
+import { is_pool, t_at } from './trap.js';
 import { which_armor } from './worn.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
@@ -901,28 +901,34 @@ function canHideUnderObject(obj) {
     return Boolean(current);
 }
 
-// C ref: mon.c hideunder(), restricted to the object-concealing spiders and
-// snakes reachable from the Statuary D:1 reservoir.
+// C ref: mon.c hideunder(). Covers the S_EEL aquatic-hide and M1_CONCEAL
+// object-concealing branches.
 function hideunder(monster, state) {
     const { mx: x, my: y } = monster;
     let hidden = false;
     const trap = t_at(x, y, state);
     if (monster !== state.u?.ustuck
         && !monster.mtrapped
-        && (!trap || is_pit(trap.ttyp))
-        && (monster.data.mflags1 & M1_CONCEAL)
-        && !IS_POOL(state.level.at(x, y).typ)
-        && !IS_LAVA(state.level.at(x, y).typ)) {
-        let obj = state.level.objects[x][y];
-        if (canHideUnderObject(obj)) {
-            if (!(monster.data.mresists & MR_STONE)) {
-                while (obj?.otyp === CORPSE
-                    && (obj.corpsenm === PM_COCKATRICE
-                        || obj.corpsenm === PM_CHICKATRICE)) {
-                    obj = obj.nexthere;
+        && (!trap || is_pit(trap.ttyp))) {
+        if (monster.data.mlet === S_EEL) {
+            // C ref: mon.c:4742-4747. Eels hide in water, not under objects.
+            hidden = is_pool(x, y, state)
+                && !on_level(state.u?.uz, state.water_level)
+                && (!state.u?.uinwater || !couldsee(x, y, state));
+        } else if ((monster.data.mflags1 & M1_CONCEAL)
+            && !IS_POOL(state.level.at(x, y).typ)
+            && !IS_LAVA(state.level.at(x, y).typ)) {
+            let obj = state.level.objects[x][y];
+            if (canHideUnderObject(obj)) {
+                if (!(monster.data.mresists & MR_STONE)) {
+                    while (obj?.otyp === CORPSE
+                        && (obj.corpsenm === PM_COCKATRICE
+                            || obj.corpsenm === PM_CHICKATRICE)) {
+                        obj = obj.nexthere;
+                    }
                 }
+                hidden = Boolean(obj);
             }
-            hidden = Boolean(obj);
         }
     }
     monster.mundetected = hidden;
