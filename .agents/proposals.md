@@ -46,7 +46,7 @@ Two related checks have landed: `node scripts/goal-log.mjs calibration` on
 12 August.
 
 - A turn-end warning prints `git log --oneline origin/main..HEAD` when
-  commits sit unpushed, the push rule in `.agents/loop.md`, step 4.
+  commits sit unpushed, the push rule in `.agents/loop.md`.
 
 **Scope.** Each item is a small addition to an existing script and its test
 file; the first adds one subcommand.
@@ -230,7 +230,7 @@ the C recorder (`nethack-c/recorder`), which is the blocker that rules out
 parallel implementation workers. The review worktree rebases onto main after the
 pass completes. Implementation stays serial in the main checkout.
 
-**Scope.** The orchestrator's step 4 in `.agents/loop.md` would spawn the
+**Scope.** The orchestrator's measurement step in `.agents/loop.md` would spawn the
 review pass as a background agent in a worktree (using `audit-worktree.mjs
 prepare`) alongside the next slice worker. Three prerequisites: each worktree
 needs its own checkpoint log instead of the fixed `/tmp/checkpoint.log`; the
