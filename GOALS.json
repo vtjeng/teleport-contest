@@ -7258,7 +7258,7 @@
     },
     {
       "id": "simple-monster-action-requires-a-special-monster-action",
-      "status": "open",
+      "status": "closed",
       "boundary": "For the witnessed sleeping, non-tame leprechaun that is outside the hero's line of sight, let movemon_singlemon() call dochug() and take C's disturb() no-op instead of rejecting the species as a special monster action.",
       "upstreamOwners": [
         "nethack-c/upstream/src/mon.c: movemon_singlemon()",
@@ -7292,8 +7292,11 @@
         "screens": 3623,
         "rng": 232119
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "6e5ce30ca65952c0c01fcd2808f06a2710665437",
+      "delivered": {
+        "screens": 2,
+        "rng": 121
+      }
     }
   ]
 }
