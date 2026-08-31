@@ -7088,7 +7088,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-8",
-      "status": "open",
+      "status": "closed",
       "boundary": "When the witnessed one-armor read selects the unknown FOOBIE BLETCH scroll and C reaches SCR_DESTROY_ARMOR's destroy_arm() fallback, apply the two source-ordered flammable-armor erosion hits, messages, inventory updates, and scroll consumption through the next independent command boundary.",
       "upstreamOwners": [
         "nethack-c/upstream/src/read.c: doread(); seffect_destroy_armor(); seffects()",
@@ -7122,8 +7122,11 @@
         "screens": 3500,
         "rng": 225911
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "27ff7afdd6ab4a6ded3f3ce06efd840408711a3a",
+      "delivered": {
+        "screens": 12,
+        "rng": 617
+      }
     }
   ]
 }
