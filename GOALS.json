@@ -6850,8 +6850,8 @@
       "slices": [
         {
           "name": "debug in-progress Ctrl-X attributes enlightenment menu",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "7680d698a9ffcb490274ef90c29f8d59449f89d4"
         }
       ],
       "openedAt": "a1b4a5458a3e6b4cab8e270e237947f095732fae",
