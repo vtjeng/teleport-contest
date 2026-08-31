@@ -3047,7 +3047,13 @@ function fill_empty_maze(frame, state, env) {
         // Minotaurs
         for (let i = rn2(2); i > 0; i--) {
             const mm = maze1xy(DRY, frame, state);
-            makemon(state.mons[PM_MINOTAUR], mm.x, mm.y, NO_MM_FLAGS, env);
+            makemon(
+                state.mons[PM_MINOTAUR],
+                mm.x,
+                mm.y,
+                NO_MM_FLAGS,
+                { ...env, _fillEmptyMazeMinotaur: true },
+            );
         }
         // Random monsters
         for (let i = rnd(Math.trunc((12 * mapfact) / 100)); i > 0; i--) {

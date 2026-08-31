@@ -5,16 +5,20 @@ import test from 'node:test';
 import { OBJ_FLOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { PM_MINOTAUR } from '../js/monsters.js';
 import { sobj_at } from '../js/obj.js';
 import { BOULDER } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 
-function loadRecipe() {
+function loadRecipe(
+    path = 'recipes/castle-stocked-maze-boulder.session.json',
+    label = 'Castle stocked-maze boulder recipe',
+) {
     const data = JSON.parse(readFileSync(
-        'recipes/castle-stocked-maze-boulder.session.json',
+        path,
         'utf8',
     ));
-    return validateCleanRecipe(data, 'Castle stocked-maze boulder recipe');
+    return validateCleanRecipe(data, label);
 }
 
 test('Castle stocked mazewalk links boulders through the vision hook',
@@ -27,13 +31,13 @@ test('Castle stocked mazewalk links boulders through the vision hook',
             onBoundary: (error) => { boundary = error; },
         });
 
-        // The optional minotaur is the next independent fill_empty_maze()
-        // boundary for this seed. place_object() resolves blockPoint before it
-        // links a boulder, so reaching this boundary with floor boulders proves
-        // that the stocked mazewalk supplied and ran the vision owner.
+        // The next independent boundary is a later special-room family.
+        // place_object() resolves blockPoint before it links a boulder, so
+        // reaching that boundary with floor boulders proves that the stocked
+        // mazewalk supplied and ran the vision owner.
         assert.equal(
             boundary?.message,
-            'unsupported initial-level monster creation: monster 177',
+            'unsupported special room: fill_special_room(7) beyond the Morgue boundary',
         );
 
         const boulders = [];
@@ -57,3 +61,29 @@ test('Castle stocked mazewalk links boulders through the vision hook',
             'the fresh case should keep the no-existing-boulder precondition',
         );
     });
+
+test('Castle stocked mazes place their explicit minotaur pair', async () => {
+    const recipe = loadRecipe(
+        'recipes/seed0360-wizard-world-tour-castle-minotaur.session.json',
+        'Castle minotaur recipe',
+    );
+    assert.equal(recipe.segments.length, 1);
+
+    let boundary;
+    await runSegment(recipe.segments[0], {
+        onBoundary: (error) => { boundary = error; },
+    });
+
+    assert.equal(game.u.uz.dnum, 0);
+    assert.equal(game.u.uz.dlevel, 25);
+    assert.notEqual(
+        boundary?.message,
+        'unsupported initial-level monster creation: monster 177',
+    );
+
+    const minotaurs = [];
+    for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+        if (monster.data?.pmidx === PM_MINOTAUR) minotaurs.push(monster);
+    }
+    assert.equal(minotaurs.length, 2);
+});

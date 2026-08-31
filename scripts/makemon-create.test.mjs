@@ -3972,6 +3972,82 @@ test('stone giant NO_MINVENT and later giant families stop before inventory RNG'
         }
     });
 
+test('minotaurs use their source inventory arm before generic giant items',
+    () => {
+        const state = initialLevelState();
+        const random = scriptedRandom([
+            step('rnd', [2], 1), // next_ident()
+            step('d', [14, 8], 14), // adj_lev() at D:1
+            step('rn2', [2], 1), // random corpse gender
+            step('rn2', [8], 7), // no wand of digging
+            step('rn2', [50], 49), // no defensive item
+            step('rn2', [100], 99), // no miscellaneous item
+            step('rn2', [100], 99), // no saddle
+        ]);
+
+        const monster = makemon(
+            state.mons[PM_MINOTAUR],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+            {
+                state,
+                random: random.random,
+                _fillEmptyMazeMinotaur: true,
+            },
+        );
+        random.assertExhausted();
+
+        assert.equal(monster.data.pmidx, PM_MINOTAUR);
+        assert.deepEqual(
+            monsterInventory(monster),
+            [],
+            'minotaurs must not take the generic gemstone arm',
+        );
+    });
+
+test('minotaurs receive a wand of digging from either source gate', () => {
+    const savedEarthLevel = game.earth_level;
+    try {
+        for (const earthLevel of [false, true]) {
+            const state = initialLevelState();
+            game.earth_level = earthLevel
+                ? { dnum: 0, dlevel: 1 }
+                : null;
+            const random = recordingRandom({
+                rn2Result: (bound) => bound === 8
+                    ? earthLevel ? 7 : 0
+                    : Math.max(0, bound - 1),
+            });
+
+            const monster = makemon(
+                state.mons[PM_MINOTAUR],
+                MON_X,
+                MON_Y,
+                MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+                {
+                    state,
+                    random: random.random,
+                    _fillEmptyMazeMinotaur: true,
+                },
+            );
+
+            assert.equal(monster.minvent.otyp, WAN_DIGGING, earthLevel);
+            const wandGate = random.calls.findIndex(
+                (call) => call.kind === 'rn2' && call.args[0] === 8,
+            );
+            assert.ok(wandGate >= 0, earthLevel);
+            assert.equal(
+                random.calls[wandGate].result,
+                earthLevel ? 7 : 0,
+                earthLevel,
+            );
+        }
+    } finally {
+        game.earth_level = savedEarthLevel;
+    }
+});
+
 test('runtime random stone giant groups finish members before parent inventory',
     async () => {
         const state = initialLevelState();
