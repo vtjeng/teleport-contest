@@ -6661,7 +6661,7 @@
     },
     {
       "id": "terrain",
-      "status": "open",
+      "status": "closed",
       "boundary": "In the witnessed restored normal game, DEL runs the no-time terrain command, shows the normal menu, accepts preselected known-map choice, renders TER_MAP without monsters/objects/traps, allows first-use getpos tip and immediate exit, prints Done, and restores the live map and browse settings without changing time or saved gameplay state.",
       "upstreamOwners": [
         "nethack-c/upstream/src/save.c and restore.c: persistence",
@@ -6706,8 +6706,11 @@
         "screens": 3427,
         "rng": 225489
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "b91280172d5a7403e35ef589ed242b39d311a30f",
+      "delivered": {
+        "screens": 28,
+        "rng": 0
+      }
     }
   ]
 }
