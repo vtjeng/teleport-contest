@@ -6550,7 +6550,13 @@
         ]
       },
       "detail": "Small-to-medium coherent single slice, forecast 139. Witness bounds it to non-shop ordinary chest, blunt weapon, no potions or ice-box handling, quantity-one PAPER contents, and both destroyed/surviving content outcomes. Exclude shop billing, potion breathing, other material messages, ice-box timers, and multi-quantity useup.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "breakchestlock-force-destroy-ordinary-chest",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "5ec464aafa6d71f1e59b3a6c3039328aa755619f",
       "openStanding": {
         "sha": "7a22d1507c15a679240d80e0a83e38b1d0bf734d",
