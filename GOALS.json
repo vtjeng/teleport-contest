@@ -6658,6 +6658,45 @@
         "screens": 33,
         "rng": 601
       }
+    },
+    {
+      "id": "terrain",
+      "status": "open",
+      "boundary": "In the witnessed restored normal game, DEL runs the no-time terrain command, shows the normal menu, accepts preselected known-map choice, renders TER_MAP without monsters/objects/traps, allows first-use getpos tip and immediate exit, prints Done, and restores the live map and browse settings without changing time or saved gameplay state.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/save.c and restore.c: persistence",
+        "nethack-c/upstream/src/allmain.c and calendar.c: restore/date preamble",
+        "nethack-c/upstream/src/cmd.c: doterrain()",
+        "nethack-c/upstream/src/dungeon.c: recalc_mapseen()",
+        "nethack-c/upstream/src/detect.c: reveal_terrain()",
+        "browse_map()",
+        "map_redisplay()",
+        "nethack-c/upstream/src/getpos.c: getpos()",
+        "nethack-c/upstream/src/hack.c: TIP_GETPOS"
+      ],
+      "forecast": {
+        "steps": 29,
+        "basis": "Capped look-ahead at terrain",
+        "sessions": [
+          "seed0013-friday13-save-then-fullmoon-restore"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0013-friday13-save-then-fullmoon-restore",
+            "evidence": "Two-segment witness through shared save storage. Segment 0 seed 13 at 2000-10-13 09:00 saves a chaotic female human Rogue under !tutorial, suppress_alert, DECgraphics and disclosure options; save removes Friday-13/full-moon luck adjustments before serialization. Segment 1 seed 99999 at 2000-11-11 12:00 restores the saved D:1 map/hero and applies current full moon. At global screen 70/local step 21, DEL dispatches cmd.c terrain/doterrain() with an ordinary unconstrained remembered level. Space accepts preselected known-map choice, reveal_terrain(TER_MAP) strips monsters/objects/traps, browse_map() enters temporary terrainmode/autodescribe getpos, shows the first-use getpos tip, immediate space exits with Done, and map_redisplay() restores live map without advancing turn 46. JS refuses DEL before the menu."
+          }
+        ]
+      },
+      "detail": "Medium coherent goal, plausibly two slices for TER_MAP projection and command/browse integration, forecast 29. Multi-segment state matters. Exclude other menu choices, debug/explore full map, impaired/constrained heroes, cursor movement/autodescription, and nonordinary levels. Later bytes are paging/getpos input, not commands.",
+      "slices": [],
+      "openedAt": "54db9cfba643e7aabcafde542a37a7cc7574de80",
+      "openStanding": {
+        "sha": "aeb0b469f0cf62851e87719d0da9c888450a8a34",
+        "screens": 3427,
+        "rng": 225489
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
