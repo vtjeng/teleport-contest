@@ -6868,7 +6868,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-6",
-      "status": "open",
+      "status": "closed",
       "boundary": "Support C's remembered price-quote suffix when naming an unidentified object with price_quotes enabled, including the container-contents doname_with_price() path, while preserving quote-range formatting and no-quote/overflow behavior.",
       "upstreamOwners": [
         "nethack-c/upstream/src/objnam.c: doname_base()",
@@ -6907,8 +6907,11 @@
         "screens": 3481,
         "rng": 225666
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "72ba51e0c7752a42782e20ca8424298bda8f8c6d",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      }
     }
   ]
 }
