@@ -6750,8 +6750,8 @@
       "slices": [
         {
           "name": "monster-death-planning-live-died-propagation",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "b63ea4d919e0ba2ef1fd60f687d27d5e6c8055bf"
         }
       ],
       "openedAt": "dd19bc9dee6db73f2422be88693ee15e2de94b31",
