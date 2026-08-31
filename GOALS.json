@@ -7003,7 +7003,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-7",
-      "status": "open",
+      "status": "closed",
       "boundary": "When #loot opens an unlocked, untrapped floor large box in the full menu style and the player chooses take out, carry C pickup.c use_container() into menu_loot(0, FALSE), preserve the category and item menus, then transfer the selected ordinary contents through out_container() into inventory.",
       "upstreamOwners": [
         "nethack-c/upstream/src/pickup.c: use_container(); menu_loot(); query_category(); query_objlist(); out_container(); pickup_prinv()",
@@ -7036,8 +7036,11 @@
         "screens": 3484,
         "rng": 225669
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "6e2b07be0c820724fc7626a1b17ed9f04dbf3377",
+      "delivered": {
+        "screens": 13,
+        "rng": 44
+      }
     }
   ]
 }
