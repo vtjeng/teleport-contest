@@ -42,6 +42,7 @@ import {
     hitmsg,
     magic_negation,
     mattacku,
+    MonsterDeathPlanningError,
     mswings_verb,
     mtrapped_in_pit,
     ranged_attk_available,
@@ -115,7 +116,6 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { mhitm_ad_phys } from '../js/uhitm.js';
-import { UnsupportedEndOfGameError } from '../js/end.js';
 import { UnsupportedSimpleMonsterActionError }
     from '../js/unported_monster_actions.js';
 
@@ -1951,7 +1951,7 @@ test('mdamageu stops at the hero\'s death and not one hit point above it',
     // mhitu.c:1922-1925. done_in_by() sets up the killer and calls done();
     // done() calls bot() on the module-level game and paranoid_query() reads
     // input, so it cannot run on the planning pass's clone. The planning pass
-    // throws UnsupportedEndOfGameError here.
+    // raises its internal death signal here, carrying the attacker identity.
     const state = await meleeHero();
     const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0);
     state.u.uhp = 2;
@@ -1961,8 +1961,9 @@ test('mdamageu stops at the hero\'s death and not one hit point above it',
 
     await assert.rejects(
         () => mattacku(bug, meleeEnv(state, [1], { planning: true }).env),
-        (error) => error instanceof UnsupportedEndOfGameError
-            && error.message === 'the hero dying of a monster attack',
+        (error) => error instanceof MonsterDeathPlanningError
+            && error.message === 'the hero dying of a monster attack'
+            && error.monsterId === bug.m_id,
     );
 
     // mhitu.c:1199-1202 asks the same question before the blow lands, and one
@@ -2017,13 +2018,14 @@ test('planning pass simulates wizard-mode survival instead of throwing',
     assert.equal(state.u.uhp, 140, 'explore mode also restores HP to givehp');
     assert.equal(state.u.umortality, before + 2, 'mortality incremented again');
 
-    // Non-wizard, non-discover: the throw is correct (hero dies for real).
+    // Non-wizard, non-discover: the internal planning death signal is correct.
     state.discover = false;
     state.u.uhp = 1;
     await assert.rejects(
         () => mattacku(bug, meleeEnv(state, [1], { planning: true }).env),
-        (error) => error instanceof UnsupportedEndOfGameError
-            && error.message === 'the hero dying of a monster attack',
+        (error) => error instanceof MonsterDeathPlanningError
+            && error.message === 'the hero dying of a monster attack'
+            && error.monsterId === bug.m_id,
     );
 });
 

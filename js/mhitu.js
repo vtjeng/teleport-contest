@@ -40,7 +40,7 @@ import { midnight } from './calendar.js';
 import { bot, map_invisible, newsym } from './display.js';
 import { capitalizedMonsterName, monsterPossessive } from './do_name.js';
 import { In_hell, on_level } from './dungeon.js';
-import { done_in_by, UnsupportedEndOfGameError } from './end.js';
+import { done_in_by } from './end.js';
 import { game } from './gstate.js';
 import { nomul, showdamage } from './hack.js';
 import { dist2 } from './hacklib.js';
@@ -87,6 +87,19 @@ import { mhitm_adtyping, mhitm_knockback } from './uhitm.js';
 import { cansee } from './vision.js';
 import { hitval } from './weapon.js';
 import { is_pole } from './worn.js';
+
+// Planning cannot call end.c done_in_by() on its cloned state: the ordinary
+// death entry updates the live terminal and then asks for input. This signal
+// carries the source DIED result across the atomic planning/live seam; it is
+// consumed by unported_monster_actions.js and is never a gameplay boundary.
+export class MonsterDeathPlanningError extends Error {
+    constructor(monster) {
+        super('the hero dying of a monster attack');
+        this.name = 'MonsterDeathPlanningError';
+        this.monsterId = monster.m_id;
+        this.how = DIED;
+    }
+}
 
 function requireMattackuOperation(env, name) {
     const operation = env[name];
@@ -862,10 +875,10 @@ function Half_physical_damage(state) {
 
 // C ref: mhitu.c hitmu() (1143-1267). "monster hits you; returns MM_ flags".
 //
-// Every reachable exit answers M_ATTK_HIT. The damage path ends in passiveum(),
-// which returns M_ATTK_HIT for an unpolymorphed hero, and the no-damage path
-// assigns it outright, so mattacku()'s `sum[i]` never carries M_ATTK_AGR_DIED
-// or M_ATTK_AGR_DONE and mattacku() still answers false.
+// Every reachable surviving exit answers M_ATTK_HIT. A lethal unpolymorphed
+// planning exit raises MonsterDeathPlanningError so the cloned turn can stop
+// at the same point that the live exit calls done_in_by(); the live end-game
+// boundary then unwinds the monster pass after the real death entry.
 //
 // Ported: the base damage roll, mhitm_adtyping(), mhitm_knockback(), the
 // negative-armor-class reduction, mdamageu() and passiveum().
@@ -874,7 +887,7 @@ function Half_physical_damage(state) {
 //
 // Refused where C acts: the block that reveals an attacker hidden under an
 // object, which needs doname(), Amonnam() and tp_sensemon();
-// and, inside mdamageu(), the hero's own death.
+// and the alternate mdamageu() death branches.
 //
 // One piece of C is absent rather than refused: mhm.permdmg's whole block
 // (1229-1259), which drains permanent hit points. Death's life-force drain is
@@ -968,10 +981,10 @@ async function hitmu(mtmp, mattk, env) {
 //
 // C ref: mhitu.c mdamageu() (1901-1927). "mtmp hits you for n points damage".
 //
-// done_in_by() is ported in js/end.js and wired below. The live pass calls
-// it when uhp drops below 1; the planning pass throws
-// UnsupportedEndOfGameError instead, because done() calls bot() on the
-// module-level game and paranoid_query() reads input.
+// done_in_by() is ported in js/end.js and wired below. The live pass calls it
+// when uhp drops below 1; the normal planning pass raises the internal signal
+// above because done() calls bot() on the module-level game and
+// paranoid_query() reads input.
 async function mdamageu(mtmp, n, state, env) {
     const unsupported = requireMattackuOperation(env, 'unsupported');
     const message = requireMattackuOperation(env, 'message');
@@ -1024,9 +1037,7 @@ async function mdamageu(mtmp, n, state, env) {
                 state.context.move = 0;
                 state.multi = -1;
             } else {
-                throw new UnsupportedEndOfGameError(
-                    'the hero dying of a monster attack',
-                );
+                throw new MonsterDeathPlanningError(mtmp);
             }
         } else {
             // Live pass: done_in_by() calls done(), which in wizard/discover

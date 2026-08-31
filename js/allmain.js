@@ -946,13 +946,6 @@ function elapsedTurnPlanningRefusals() {
         // from inside the monster scan, where the previous code raised the
         // injected refusal of the first class above.
         UnsupportedMapMemoryError,
-        // mhitu.c mdamageu() calls done_in_by() when the hero takes lethal
-        // damage from a monster. done() calls bot() on the module-level game
-        // and paranoid_query() reads input, so neither can run on the
-        // planning clone. mdamageu() throws this class during planning;
-        // the live pass calls done_in_by() and propagates done()'s own
-        // UnsupportedEndOfGameError from savelife() or really_done().
-        UnsupportedEndOfGameError,
     ];
 }
 
@@ -1047,6 +1040,10 @@ async function advanceElapsedTurn(state) {
         boundary.reason = error.reason;
         throw boundary;
     }
+    // A planned MonsterDeathPlanningError is returned as heroDeath rather
+    // than caught above. Its presence is the atomic handoff: the live scan
+    // below intentionally replays the selected monster action, where the
+    // real state enters done_in_by() with the same DIED result.
     // C reaches hunger and timeout work only after the current monster scans
     // leave both sides without a movement ration.  The cloned scan above
     // determines that gate without changing live state, so unsupported upkeep
@@ -1123,8 +1120,11 @@ async function advanceElapsedTurn(state) {
             // A supported monster prefix can print before its next operation
             // refuses. Preserve that output through the gameplay boundary,
             // just as the preflight conversion above preserves an atomic
-            // refusal before the live pass starts.
-            if (!(error instanceof UnsupportedSimpleMonsterActionError))
+            // refusal before the live pass starts. The normal lethal monster
+            // arm reaches done_in_by() here; its existing end.c boundary is
+            // converted only after the real killer and death entry are set.
+            if (!(error instanceof UnsupportedSimpleMonsterActionError)
+                && !(error instanceof UnsupportedEndOfGameError))
                 throw error;
             const boundary = new UnsupportedTurnBoundaryError(error.message);
             boundary.reason = error.reason;

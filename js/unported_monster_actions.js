@@ -53,7 +53,7 @@ import { losehp, nh_delay_output, nomul } from './hack.js';
 import { hands_obj, obj_extract_self, stackobj } from './invent.js';
 import { any_light_source } from './light.js';
 import { m_dowear, set_mimic_sym } from './makemon_create.js';
-import { mattacku } from './mhitu.js';
+import { mattacku, MonsterDeathPlanningError } from './mhitu.js';
 import { m_throw, thitu, thrwmu } from './mthrowu.js';
 import { AKLYS } from './objects.js';
 import {
@@ -1335,8 +1335,25 @@ export async function preflightSimpleMonsterActions(
     const random = clonedRandom(planned);
     planned.u.umovement -= NORMAL_SPEED;
     let upkeepCount = 0;
+    let heroDeath = null;
     try {
-        upkeepCount = await planSimpleMonsterTurn(planned, random, advanceRound);
+        try {
+            upkeepCount = await planSimpleMonsterTurn(
+                planned,
+                random,
+                advanceRound,
+            );
+        } catch (error) {
+            if (!(error instanceof MonsterDeathPlanningError)) throw error;
+            // The live pass must replay the same monster turn against the real
+            // state. Keep the source result and attacker identity in the
+            // preflight result rather than treating this as an unsupported
+            // branch and discarding the matching prefix.
+            heroDeath = {
+                monsterId: error.monsterId,
+                how: error.how,
+            };
+        }
     } finally {
         // A planned door opening or blocking mimic disguise rebuilt
         // js/vision.js's shared transparency index from the planned map.
@@ -1360,6 +1377,7 @@ export async function preflightSimpleMonsterActions(
     return {
         runsOncePerTurnUpkeep: upkeepCount > 0,
         upkeepCount,
+        heroDeath,
     };
 }
 
