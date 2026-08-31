@@ -156,7 +156,7 @@ import {
     WWALKING,
 } from './const.js';
 import { timet_delta } from './allmain.js';
-import { effective_attribute } from './attrib.js';
+import { effective_attribute, stone_luck } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
 import { enc_stat } from './display.js';
 import { depth, dunlev } from './dungeon.js';
@@ -165,7 +165,7 @@ import { game } from './gstate.js';
 import { newuexp } from './exper.js';
 import { near_capacity } from './hack.js';
 import { lcase, lowc, highc, mungspaces, strsubst } from './hacklib.js';
-import { currency, money_cnt } from './invent.js';
+import { carrying, currency, money_cnt } from './invent.js';
 import { makeplural } from './fruit.js';
 import { an } from './objnam.js';
 import { oc_to_str } from './options.js';
@@ -175,6 +175,7 @@ import {
     GAUNTLETS_OF_POWER,
     GREEN_DRAGON_SCALE_MAIL,
     GREEN_DRAGON_SCALES,
+    LUCKSTONE,
     RIN_SUSTAIN_ABILITY,
     ROBE,
     SHIELD_OF_REFLECTION,
@@ -1253,6 +1254,25 @@ async function attributes_enlightenment(final, state, lines) {
             : Math.abs(luck) >= 5 ? 'very ' : '';
         you_are(lines, final,
             `${prefix}${luck < 0 ? 'un' : ''}lucky`, '');
+    }
+
+    // C ref: insight.c:1919-1928. The permanent luck adjustment and the
+    // luckstone timeout message are separate from the aggregate Luck line.
+    // The carrying() term deliberately keeps an uncursed carried luckstone in
+    // this branch even though stone_luck(FALSE) returns zero; C emits both
+    // messages for that exact zero case.
+    if (u.moreluck > 0)
+        you_have(lines, final, 'extra luck', '');
+    else if (u.moreluck < 0)
+        you_have(lines, final, 'reduced luck', '');
+    if (carrying(LUCKSTONE, state) || stone_luck(true, state)) {
+        const timedLuck = stone_luck(false, state);
+        if (timedLuck <= 0)
+            enl_msg(lines, final, 'Bad luck ', 'does', 'did',
+                ' not time out for you', '');
+        if (timedLuck >= 0)
+            enl_msg(lines, final, 'Good luck ', 'does', 'did',
+                ' not time out for you', '');
     }
 
     if (final === ENL_GAMEOVERDEAD)

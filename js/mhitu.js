@@ -945,6 +945,11 @@ async function hitmu(mtmp, mattk, env) {
     if ((Upolyd(state.u) ? state.u.mh : state.u.uhp) < 1) {
         /* already dead? call rehumanize() or done_in_by() as appropriate */
         await mdamageu(mtmp, 1, state, env);
+        // C's done_in_by() is NORETURN on the ordinary death path. The JS
+        // end-game display returns after setting gameover so replay can
+        // capture its final window; do not resume hitmu() in that case.
+        if (state.program_state?.gameover)
+            return;
         mhm.damage = 0;
     }
 
@@ -967,6 +972,10 @@ async function hitmu(mtmp, mattk, env) {
             mhm.damage = Math.trunc((mhm.damage + 1) / 2);
 
         await mdamageu(mtmp, mhm.damage, state, env);
+        // A completed really_done() must not continue into passiveum() or the
+        // attack-loop cleanup that follows this C NORETURN call.
+        if (state.program_state?.gameover)
+            return;
     }
 
     if (mhm.damage)

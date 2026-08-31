@@ -45,6 +45,14 @@ export async function verifyMonsterDeathDisclosureSegment(segment) {
     assert.equal(game.killer?.name, 'water demon');
     assert.equal(game.u?.umortality, 1);
     assert.equal(replay.getScreens().length, 123);
+    assert.equal(replay.getCursors().length, 123);
+    assert.equal(replay.getRngLog().length, 6736);
+    assert.equal(
+        replay.getAnimationFramesByStep().reduce(
+            (total, frames) => total + frames.length, 0,
+        ),
+        8,
+    );
 }
 
 export async function runMonsterDeathDisclosureMatrix() {

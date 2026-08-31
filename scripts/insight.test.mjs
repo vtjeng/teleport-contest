@@ -22,6 +22,7 @@ import {
 import {
     BASICENLIGHTENMENT,
     ENL_GAMEINPROGRESS,
+    ENL_GAMEOVERDEAD,
     EXT_ENCUMBER,
     FIRE_RES,
     FIXED_ABIL,
@@ -933,6 +934,31 @@ test('the prayer line drops "not" when a prayer would be safe', async () => {
     // pray.c:2160 reaches p_type 3 only through the "not in trouble" arm, so
     // the line above is the safe-prayer answer and not a coincidence.
     assert.equal(state.gp.p_type, 3);
+});
+
+// insight.c:1909-1928 keeps the permanent adjustment and luckstone timeout
+// lines separate from the aggregate Luck line. The carrying() guard also
+// means an uncursed carried stone reaches both zero-sign arms, as C writes it.
+test('final dead enlightenment reports permanent and stone luck', async () => {
+    const state = await readyExploreGame('Tourist');
+    state.u.moreluck = 1;
+    state.u.umortality = 1;
+    state.invent = {
+        otyp: LUCKSTONE,
+        quan: 1,
+        cursed: false,
+        blessed: false,
+        nobj: state.invent,
+    };
+
+    const allLines = await enlightenment(
+        MAGIC, ENL_GAMEOVERDEAD, state,
+    );
+    const start = allLines.indexOf('Final Attributes:');
+    const lines = allLines.slice(start + 1, allLines.indexOf('', start));
+    assert.ok(lines.includes(' You had extra luck.'));
+    assert.ok(lines.includes(' Bad luck did not time out for you.'));
+    assert.ok(lines.includes(' Good luck did not time out for you.'));
 });
 
 // insight.c:416-421 gates the two halves of the window on separate mode bits,

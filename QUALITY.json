@@ -5675,6 +5675,24 @@
       "status": "open",
       "from": "55ae3f579839ed8df99d1d3f9a71a32ebc5ced5c",
       "detail": "The ordinary TER_MAP browse path now covers the first-use tip, immediate exit, Done. message, temporary terrain/autodescribe flags, cursor cleanup, and live-map restoration. Cursor movement/autodescription, other getpos controls, constrained underwater/buried/swallowed redraws, and nonordinary terrain levels remain outside this slice."
+    },
+    {
+      "id": "show-overview-print-mapseen-details",
+      "area": "runtime",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "6c9c85ffb5c415245beb6d3a3bdb9e0b5091230a",
+      "detail": "js/end.js show_overview() emits only ordinary visited-level rows; C dungeon.c print_mapseen() also emits remembered features, special annotations, branches, and endgame labels. No development session reaches those output families, and the current death score remains correct; queue a dedicated source-faithful overview slice."
+    },
+    {
+      "id": "xname-endgame-garment-text",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "6c9c85ffb5c415245beb6d3a3bdb9e0b5091230a",
+      "detail": "js/objnam.js xnameFresh() omits C objnam.c's gameover T_SHIRT, ALCHEMY_SMOCK, CANDY_BAR, and HAWAIIAN_SHIRT text suffixes, whose helpers live in read.c. No development session reaches those inventory objects at end of game, and the current death score remains correct; queue a dedicated read/object-naming slice."
     }
   ],
   "areas": [

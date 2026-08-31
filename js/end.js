@@ -718,7 +718,10 @@ async function list_vanquished(defquery, ask, state) {
         } else if (count === 1) {
             text = an(name);
         } else {
-            text = `${count} ${makeplural(name)}`;
+            // insight.c list_vanquished() uses Sprintf("%3d %s", ...).
+            // Keep the three-column count before applying the article prefix
+            // used to align singular and unique names.
+            text = `${String(count).padStart(3, ' ')} ${makeplural(name)}`;
         }
         lines.push(`${' '.repeat(vanquishedPrefix(text))}${text}`);
     }
