@@ -558,11 +558,12 @@ export const PICKLOCK_DID_SOMETHING = 1;
 // `!IS_DOOR(door->typ)` arm, three arms of the doormask switch, and the
 // switch's default arm with the tail that sets up the picklock() occupation.
 // The autounlock door path (rx nonzero, container null) is also covered for
-// the AUTOUNLOCK_APPLY_KEY case.
+// the AUTOUNLOCK_APPLY_KEY case. The ordinary autounlock floor-box path with
+// a supplied container is covered for a mundane lock pick.
 //
 // Not covered, each stopping by name: do_loot_cont()'s Null `pick`; resuming
 // an interrupted attempt; the monster and
-// door-mimic arms; AUTOUNLOCK_UNTRAP; autounlock on containers; the
+// door-mimic arms; AUTOUNLOCK_UNTRAP; other tool types; and the
 // touch_artifact() guard for autounlock.
 //
 // The monster refusal is deliberately wider than C's two arms: C falls
@@ -571,11 +572,9 @@ export const PICKLOCK_DID_SOMETHING = 1;
 // that separate them lead nowhere else yet.
 export async function pick_lock(pick, rx, ry, container, state = game) {
     const u = state.u;
-    // lock.c:370. A non-null container is the autounlock container path, which
-    // is not ported.
-    if (container)
-        throw new UnsupportedLockError('autounlock on a container');
-    const autounlock = (rx !== 0);
+    // lock.c:370. Either supplied coordinate or container state marks this as
+    // an autounlock call. do_loot_cont() supplies both for a floor box.
+    const autounlock = (rx !== 0 || container != null);
 
     // lock.c:373-376.
     if (!pick)
@@ -607,8 +606,8 @@ export async function pick_lock(pick, rx, ry, container, state = game) {
 
     // lock.c:429-550. The self keys and the two vertical keys all leave u.dx
     // and u.dy zero, so cc names the hero's own square and C looks for a
-    // container there instead of a door. This is the ordinary floor-box arm;
-    // autounlock containers and exceptional terrain remain outside it.
+    // container there instead of a door. The autounlock container call uses
+    // the same arm, but filters the object list to its supplied container.
     if (u_at(cc.x, cc.y, state)) {
         if (u.dz < 0 && !autounlock)
             throw new UnsupportedLockError(
@@ -644,14 +643,30 @@ export async function pick_lock(pick, rx, ry, container, state = game) {
                 it = true;
             } else verb = 'pick';
 
-            const qbuf = safe_qbuf(
-                'There is ', ` here; ${verb} ${it ? 'it' : 'its lock'}?`,
-                otmp, donameFresh, ansimpleoname, 'a box', state,
-            );
             otmp.lknown = 1;
-            answer = await ynq(qbuf, state);
-            if (answer === 'q') return PICKLOCK_DID_NOTHING;
-            if (answer === 'n') continue;
+            if (autounlock
+                && (state.flags?.autounlock & AUTOUNLOCK_UNTRAP) !== 0) {
+                throw new UnsupportedLockError(
+                    'AUTOUNLOCK_UNTRAP container path',
+                );
+            } else if (autounlock
+                       && (state.flags?.autounlock & AUTOUNLOCK_APPLY_KEY) !== 0) {
+                // lock.c:526-533. Autounlock has already identified the box,
+                // so it asks only whether to use the selected tool rather
+                // than repeating the ordinary manual "There is ..." query.
+                answer = await ynq(
+                    `Unlock it with ${yname(pick, state)}?`, state,
+                );
+                if (answer !== 'y') return PICKLOCK_DID_NOTHING;
+            } else {
+                const qbuf = safe_qbuf(
+                    'There is ', ` here; ${verb} ${it ? 'it' : 'its lock'}?`,
+                    otmp, donameFresh, ansimpleoname, 'a box', state,
+                );
+                answer = await ynq(qbuf, state);
+                if (answer === 'q') return PICKLOCK_DID_NOTHING;
+                if (answer === 'n') continue;
+            }
             selected = otmp;
             break;
         }

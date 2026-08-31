@@ -468,21 +468,11 @@ test('a monster on the chosen square stops before the door is read',
 });
 
 test('pick_lock stops on every entry doapply() does not use', async () => {
-    await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
-    const pick = lockPick();
-
-    // lock.c:370. A nonzero container makes the call an autounlock container
-    // attempt, which is not ported.
-    await assert.rejects(
-        () => pick_lock(pick, 0, 0, { otyp: LOCK_PICK }, game),
-        (error) => error instanceof UnsupportedLockError
-            && error.branch === 'autounlock on a container',
-        'container set',
-    );
-
     // lock.c:421. A nonzero rx with null container is the autounlock door
     // path, now ported. The test setup leaves the door at D_ISOPEN, so
     // pick_lock reports "You cannot lock an open door." without prompting.
+    await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
+    const pick = lockPick();
     assert.equal(
         await pick_lock(pick, game.u.ux, game.u.uy - 1, null, game),
         PICKLOCK_LEARNED_SOMETHING,

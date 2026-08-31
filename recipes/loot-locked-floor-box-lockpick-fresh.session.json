@@ -1,0 +1,9 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 7300439,
+    "datetime": "20340718112233",
+    "nethackrc": "OPTIONS=name:Lockbox,role:Rogue,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+    "moves": " #wizwish\nlarge box\ndi#loot\n y  "
+  }]
+}

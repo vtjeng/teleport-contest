@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -13,6 +14,13 @@ import { isContainer } from '../js/obj.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
+
+function loadLockedFloorBoxRecipe() {
+    return JSON.parse(readFileSync(
+        'recipes/loot-locked-floor-box-lockpick-fresh.session.json',
+        'utf8',
+    ));
+}
 
 // A fresh state placed by runSegment with the hero on a known square.
 async function heroOnCleanSquare() {
@@ -157,6 +165,25 @@ test('doloot with a single locked chest (lknown=0) prints "Hmmm" message',
         assert.ok(toplines.includes('turns out to be locked'),
             `expected "turns out to be locked" in "${toplines}"`);
     });
+
+test('#loot applies a lock pick to an ordinary locked floor box', async () => {
+    // pickup.c:2128-2135 passes the floor box and its coordinates to
+    // lock.c:pick_lock(), whose successful occupation is lock.c:picklock().
+    // This is the committed fresh differential witness for that caller path.
+    const recipe = loadLockedFloorBoxRecipe();
+    assert.equal(recipe.segments.length, 1);
+    await runSegment(recipe.segments[0]);
+    const state = game;
+    const { ux, uy } = state.u;
+    const box = state.level.objects[ux][uy];
+
+    assert.equal(box?.otyp, LARGE_BOX, 'the witness leaves the box underfoot');
+    assert.equal(box.olocked, false, 'the lock-pick occupation unlocks the box');
+    assert.equal(box.lknown, 1, 'successful picking records the known lock');
+    assert.equal(state.u.dz, 0, 'do_loot_cont clears vertical direction');
+    assert.equal(state.go?.occupation ?? null, null,
+        'occupation ends after success');
+});
 
 test('doloot with a single locked chest (lknown=1) prints "is locked"',
     async () => {

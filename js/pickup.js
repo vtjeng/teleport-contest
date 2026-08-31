@@ -79,7 +79,7 @@ import { get_adjacent_loc, yn_function } from './cmd.js';
 import { def_char_to_objclass } from './drawing.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
 import { container_contents } from './end.js';
-import { autokey } from './lock.js';
+import { autokey, pick_lock } from './lock.js';
 import { bot, flush_screen, newsym, obj_to_glyph } from './display.js';
 import { hliquid } from './do_name.js';
 import { ceiling, surface } from './dungeon.js';
@@ -1093,12 +1093,15 @@ function mon_beside(x, y, state) {
 // Covered: the locked-container message arm (both lknown true and false),
 // the lknown=1 assignment, and the delegation to use_container().
 //
-// Not covered: flags.autounlock (key, untrap, force arms), BAG_OF_TRICKS
-// bite. Both refuse with UnsupportedPickupError.
+// Covered: the ordinary AUTOUNLOCK_APPLY_KEY lock-pick arm, which delegates
+// the box to lock.c pick_lock().
+//
+// Not covered: AUTOUNLOCK_UNTRAP, AUTOUNLOCK_FORCE, and BAG_OF_TRICKS bite.
 async function do_loot_cont(cobj, cindex, ccount, state) {
     if (!cobj) return ECMD_OK;
 
     if (cobj.olocked) {
+        let res = ECMD_OK;
         // pickup.c:2106-2109. The #if 0 block at 2100-2105 is dead code.
         if (cobj.lknown) {
             await ttyPline(
@@ -1120,19 +1123,20 @@ async function do_loot_cont(cobj, cindex, ccount, state) {
         // ECMD_OK, matching a hero without lockpicking tools.
         if (state.flags?.autounlock) {
             const autounlock = state.flags.autounlock;
+            state.u.dz = 0;
             let unlocktool = null;
-            if ((autounlock & AUTOUNLOCK_APPLY_KEY)
-                && (unlocktool = autokey(true, state))) {
-                // The hero has a key or lock pick. pick_lock() is the
-                // handler, which is not ported for the container path.
-                throw new UnsupportedPickupError(
-                    'do_loot_cont: autounlock apply-key on container',
+            if (((autounlock & AUTOUNLOCK_APPLY_KEY)
+                && (unlocktool = autokey(true, state)))
+                || (autounlock & AUTOUNLOCK_UNTRAP)) {
+                // pickup.c:2128-2135. Passing ox, oy and cobj makes this the
+                // autounlock container path, so pick_lock() does not ask for
+                // a direction and only considers the discovered container.
+                const pickResult = await pick_lock(
+                    unlocktool, cobj.ox, cobj.oy, cobj, state,
                 );
-            }
-            if (autounlock & AUTOUNLOCK_UNTRAP) {
-                throw new UnsupportedPickupError(
-                    'do_loot_cont: autounlock untrap on container',
-                );
+                if (pickResult) res = ECMD_TIME;
+
+                return res;
             }
             if ((autounlock & AUTOUNLOCK_FORCE) && ccount === 1) {
                 throw new UnsupportedPickupError(
