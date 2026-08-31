@@ -6473,6 +6473,40 @@
         "screens": 8,
         "rng": 0
       }
+    },
+    {
+      "id": "unsupported-special-room-fill-special-room-7-beyond-the-morg",
+      "status": "open",
+      "boundary": "Add BARRACKS support to fill_zoo in js/mkroom.js: iterate fillable cells, call makemon(squadmon(), x, y, MM_ASLEEP|MM_NOGRP) per cell, then with 1/20 probability place a LARGE_BOX or CHEST chosen via rn2(3), and set has_barracks=1 on svl.level.flags. No other fill_special_room arms or special-room families are in scope.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/mklev.c",
+        "nethack-c/upstream/src/sp_lev.c",
+        "nethack-c/upstream/src/mkroom.c",
+        "nethack-c/upstream/include/mkroom.h"
+      ],
+      "forecast": {
+        "steps": 226,
+        "basis": "Capped look-ahead at unsupported special room: fill_special_room(7) beyond the Morgue boundary",
+        "sessions": [
+          "seed0360-wizard-world-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0360-wizard-world-tour",
+            "evidence": "makelevel (mklev.c) loops over all rooms after depth-gated special-room placement and calls fill_special_room(&svr.rooms[i]) for each; do_mkroom only sets rtype, leaving fill deferred to this tail loop. fill_special_room (sp_lev.c) recurses into subrooms, then returns early only for null, OROOM, THEMEROOM, or needfill==FILL_NONE. For needfill==FILL_NORMAL it first handles SHOPBASE and VAULT, then a switch groups COURT, ZOO, BEEHIVE, ANTHOLE, COCKNEST, LEPREHALL, MORGUE, and BARRACKS together, calling fill_zoo(croom) for all of them. mkroom.h assigns MORGUE=6 and BARRACKS=7, adjacent enum values in the same switch group. The seed-360 Wizard replay reaches step 159 filling a room with rtype 7 — BARRACKS, the value immediately after MORGUE, not MORGUE itself — and stops because BARRACKS fill_zoo path is unimplemented. Since BARRACKS shares fill_zoo with the already-implemented MORGUE case in the same switch arm, porting fill_zoo remaining monster-population logic for this shared group is a small, bounded extension of existing work."
+          }
+        ]
+      },
+      "detail": "The candidate is bounded to the BARRACKS arm of fill_zoo in mkroom.c: makemon(squadmon(), x, y, MM_ASLEEP|MM_NOGRP) for each fillable cell, a 1/20-probability LARGE_BOX/CHEST placement selected by rn2(3), and setting svl.level.flags.has_barracks=1. This is one arm of an already-partially-ported dispatch function, reusing existing MORGUE/COURT/BEEHIVE/ZOO scaffolding rather than introducing new special-room families or touching fill_special_room recursion/skip logic. No other room types are included. squadmon is a direct dependency and is in scope as a helper. The seed-360 development session is the only development witness, with capped forecast 226 screens/RNG calls.",
+      "slices": [],
+      "openedAt": "93a461b28e530b1b6ce164ced27f4afb9a028c93",
+      "openStanding": {
+        "sha": "466d9af90df0c417cb66ed568fbe8c86a277a9f4",
+        "screens": 3282,
+        "rng": 221732
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
