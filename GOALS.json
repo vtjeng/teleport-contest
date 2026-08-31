@@ -6912,6 +6912,38 @@
         "screens": 2,
         "rng": 0
       }
+    },
+    {
+      "id": "dosounds-needs-the-has-zoo-level-sound-branch",
+      "status": "open",
+      "boundary": "On an acoustically active level with has_zoo, evaluate C's 1/200 zoo-sound gate and, when it fires, scan monsters for a sleeping or animal monster in the ZOO room, then emit the hallucination-aware zoo sound and return; preserve the no-sound path when no qualifying monster is found.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/sounds.c: zoo_mon_sound()",
+        "dosounds()"
+      ],
+      "forecast": {
+        "steps": 3,
+        "basis": "Capped look-ahead at dosounds() needs the has_zoo level-sound branch",
+        "sessions": [
+          "seed2600-wizard-custom-binds"
+        ],
+        "witnesses": [
+          {
+            "session": "seed2600-wizard-custom-binds",
+            "evidence": "Seed 2600 at datetime 20000110090000, Binder, debug neutral male human Wizard, DECgraphics, showexp/time/color/lit_corridor, with BIND=v:inventory. The scan's first stop is at step 35 on the search command. The recorded C replay reaches allmain.c:moveloop_core() -> sounds.c:dosounds(); its early Deaf/acoustics/swallowed/Underwater return does not fire, and the RNG log records rn2(200)=175 @ dosounds(sounds.c:309), proving svl.level.flags.has_zoo is set and that the C zoo gate is evaluated. Because 175 is nonzero, C does not enter get_iter_mons(zoo_mon_sound) or the zoo_mon_sound() body on this turn; this session witnesses the exact fail-closed zoo-gate admission path, not an emitted zoo sound. The governing inner preconditions from sounds.c are the 1/200 gate plus a live monster that is sleeping or an animal and is in a ZOO room; hallucination only offsets the three-message selection."
+          }
+        ]
+      },
+      "detail": "A small, coherent sounds.c slice: preserve dosounds()'s has_zoo 1/200 gate and, when it fires, get_iter_mons(zoo_mon_sound), whose qualifying monster is sleeping or an animal in a ZOO room; preserve the hallucination offset, three zoo messages, and return/no-message behavior. The witnessed session reaches the gate with normal acoustics and has_zoo set but its recorded roll is 175, so it proves the boundary's governing state and gate path while leaving the inner message arm for the branch's own preconditions. The capped forecast is 3 recorded steps and ends at the next independent unmet behavior. Under the selection rules this is one bounded goal-sized source slice; exclude adjacent beehive, morgue, barracks, shop, temple, Oracle, and room-generation work.",
+      "slices": [],
+      "openedAt": "b9aa497a277f6c9c552dadd3a11f22a5c88e1c7e",
+      "openStanding": {
+        "sha": "72ba51e",
+        "screens": 3483,
+        "rng": 225666
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
