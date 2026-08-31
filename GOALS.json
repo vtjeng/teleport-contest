@@ -6266,7 +6266,7 @@
     },
     {
       "id": "blockpoint-is-not-available-for-otyp-475",
-      "status": "open",
+      "status": "closed",
       "boundary": "For the first stocked Castle mazewalk, fill_empty_maze() must place its generated BOULDER through mksobj_at()/place_object(), and with no existing boulder at the target pile head execute vision.c block_point(x,y) as part of placement.",
       "upstreamOwners": [
         "nethack-c/upstream/src/wizcmds.c: wiz_level_tele()",
@@ -6310,8 +6310,11 @@
         "screens": 2955,
         "rng": 163630
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "978d6ea10fbe63b88c2eb711f1f2710a660e1fda",
+      "delivered": {
+        "screens": 232,
+        "rng": 50585
+      }
     }
   ]
 }
