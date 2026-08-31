@@ -6421,7 +6421,7 @@
     },
     {
       "id": "unsupported-hero-move-invocation-message-outside-the-dungeon",
-      "status": "open",
+      "status": "closed",
       "boundary": "At the end of teleds() on witnessed Quest Home 1 levels, invocation_message() returns silently whenever Invocation_lev(current_level) is false, preserving teleport/spoteffects sequencing; exclude the actual Gehennom vibrating-square clue branch.",
       "upstreamOwners": [
         "nethack-c/upstream/src/cmd.c: teleport binding",
@@ -6468,8 +6468,11 @@
         "screens": 3274,
         "rng": 221732
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "466d9af90df0c417cb66ed568fbe8c86a277a9f4",
+      "delivered": {
+        "screens": 8,
+        "rng": 0
+      }
     }
   ]
 }
