@@ -6315,6 +6315,51 @@
         "screens": 232,
         "rng": 50585
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-2",
+      "status": "open",
+      "boundary": "Manual, zero-count pickup from a reachable non-shop floor pile containing at least two ordinary all_but_uchain-eligible objects, under default full-menu and sorted-pack settings: render the class-headed PICK_ANY pickup menu, accept whole-stack selections, and pass them to pickup()'s pickup_object() loop.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/cmd.c: extcmdlist[] pickup binding",
+        "nethack-c/upstream/src/hack.c: pickup_checks()",
+        "dopickup()",
+        "nethack-c/upstream/src/pickup.c: pickup()",
+        "all_but_uchain()",
+        "query_objlist()",
+        "nethack-c/upstream/src/invent.c: loot_classify()",
+        "sortloot()",
+        "sortloot_cmp()",
+        "unsortloot()"
+      ],
+      "forecast": {
+        "steps": 318,
+        "basis": "Capped look-ahead at unsupported hero command: an unported branch of this command: unsupported pickup: query_objlist() menu",
+        "sessions": [
+          "seed0004-feeding-pony",
+          "seed0012-monk-vault-escort"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "Seed 4, datetime 20260414173108, OPTIONS=symset:DECgraphics. At recorded step 240, uncounted comma dispatches extcmdlist to dopickup(); pickup_checks() returns -1 and pickup(0) reaches query_objlist() for four reachable floor objects. Default MENU_FULL and no menu prefix take the sorted PICK_ANY branch with BY_NEXTHERE|AUTOSELECT_SINGLE|INVORDER_SORT|FEEL_COCKATRICE; multiple eligible objects prevent autoselection, and the recorded menu selections choose the bag and lamp."
+          },
+          {
+            "session": "seed0012-monk-vault-escort",
+            "evidence": "Seed 12, datetime 20260503045501, OPTIONS=symset:DECgraphics. At recorded step 43, uncounted comma follows cmd.c -> hack.c dopickup()/pickup_checks() -> pickup.c pickup(0). Two reachable eligible floor objects (newt corpse and bag) reach query_objlist() with default MENU_FULL, sortpack, PICK_ANY, and BY_NEXTHERE|AUTOSELECT_SINGLE|INVORDER_SORT|FEEL_COCKATRICE; the non-petrifying corpse does not abort, and the recorded selection chooses the bag."
+          }
+        ]
+      },
+      "detail": "Medium, tightly bounded goal covering the missing query_objlist() full-menu branch from post-autoselect sorting through menu construction, PICK_ANY selection, count normalization, and return to pickup()'s existing loop. One behavior slice is suitable. Do not widen to counted PICK_ONE pickup, traditional/category interfaces, menu-prefix variants, swallowed inventory, INCLUDE_HERO, petrifying-corpse aborts, punished ball-and-chain filtering, shop billing, partial-stack counts, or other callers.",
+      "slices": [],
+      "openedAt": "7ad4af013af3e69dc47cd56eb7b0b796785f211f",
+      "openStanding": {
+        "sha": "978d6ea10fbe63b88c2eb711f1f2710a660e1fda",
+        "screens": 3187,
+        "rng": 214215
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
