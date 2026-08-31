@@ -6640,7 +6640,13 @@
         ]
       },
       "detail": "Small, tightly bounded single slice with capped forecast 44. The sole witness exercises dogmove.c dog_move()'s ordinary adjacent pet-vs-monster attack and its rn2(4)-gated return attack, then mhitm.c mattackm()'s adjacent AT_WEAP/AD_PHYS arm for a level-0 goblin that has no selectable weapon: mon_wield_item() returns without an item, possibly_unwield() is inert, and the arm falls through to the already-ported physical attack/passive path. Port only this common empty-handed adjacent fall-through and the state/continuation needed by the witness; exclude distant thrwmm(), actual weapon selection/wield messaging and hitval/mswingsm effects, artifact/welded weapons, substituted/non-physical AT_WEAP attacks, ranged or special monster actions, and other dogmove target/retaliation branches. One C function arm plus its single running caller is small enough for the selection limit and should be one behavior slice; do not count later travel/glance/#hat bytes, which are the next unmet boundaries.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "empty-handed-goblin-weap-retaliation",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "67be53ea85e43b387576f0d750042369cec38dae",
       "openStanding": {
         "sha": "bab7da900e95ae452338d5438dffa80adc0f0376",
