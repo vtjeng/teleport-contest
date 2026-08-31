@@ -3556,36 +3556,27 @@ test('planning rescans while a monster outruns the hero', async () => {
     assert.equal(target.monster.movement, NORMAL_SPEED * 2);
 });
 
-test('planning refuses an active conflict before the scan begins',
+test('planning reaches Conflict resistance before monster combat',
     async () => {
         const target = await prepareSelectedAction();
-        // This pins where conflict is refused, not which visibility owner the
-        // conflict arm would use: assertSimpleScanState() rejects an active
-        // CONFLICT before movemon_singlemon() is entered, so that arm and its
-        // canSeeSquare injection are unreachable from the planning pass.
+        // This enters movemon_singlemon()'s final Conflict arm rather than
+        // stopping in assertSimpleScanState(). A level this high makes
+        // mondata.c resist_conflict()'s `min(19, ...)` result negative, so
+        // every rnd(20) resists and the test stays on this slice's side of
+        // fightm()'s next monster-versus-monster boundary.
+        target.monster.m_lev = 100;
         game.level.regions = [];
-        // assertSimpleScanState refuses conflict before movemon_singlemon is
-        // reached, so the plan stops without touching live state or the PRNG.
         game.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0 };
         const before = completeSecondTurnSnapshot(game, target.replay);
         const beforeRandom = rngSnapshot();
         try {
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                await assert.rejects(
-                    preflightSimpleMonsterActions(game),
-                    (error) => (
-                        error instanceof UnsupportedSimpleMonsterActionError
-                        && error.reason === 'conflict combat'
-                    ),
-                    `attempt ${attempt}`,
-                );
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, target.replay),
-                    before,
-                    `attempt ${attempt}`,
-                );
-                assert.deepEqual(rngSnapshot(), beforeRandom);
-            }
+            const result = await preflightSimpleMonsterActions(game);
+            assert.equal(result.heroDeath, null);
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+            );
+            assert.deepEqual(rngSnapshot(), beforeRandom);
         } finally {
             game.u.uprops[CONFLICT] = { intrinsic: 0, extrinsic: 0 };
         }

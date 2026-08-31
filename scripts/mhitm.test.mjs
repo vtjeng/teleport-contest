@@ -19,7 +19,7 @@ import {
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { engulf_target, mattackm } from '../js/mhitm.js';
+import { engulf_target, fightm, mattackm } from '../js/mhitm.js';
 import {
     is_elf,
     is_orc,
@@ -226,6 +226,50 @@ test('helpless reads sleep and immobility and nothing else', () => {
         }),
         false,
     );
+});
+
+// mhitm.c fightm():114-115 and mondata.c resist_conflict():1607-1612. The
+// first branch is the bounded Conflict slice: a resisting monster spends its
+// one rnd(20) draw, returns zero, and leaves the caller free to continue with
+// ordinary movement. The following branch pins the fail-closed boundary
+// before fightm() would reach monster-versus-monster mattackm().
+test('fightm resolves Conflict resistance before monster combat', () => {
+    const state = {
+        u: {
+            acurr: { a: [0, 0, 0, 0, 0, 10] },
+            abon: { a: [0, 0, 0, 0, 0, 0] },
+            atemp: { a: [0, 0, 0, 0, 0, 0] },
+            ulevel: 1,
+        },
+    };
+    const monster = { m_lev: 1 };
+    const resistingBounds = [];
+    assert.equal(fightm(monster, {
+        state,
+        random: {
+            rnd: (bound) => {
+                resistingBounds.push(bound);
+                return 20;
+            },
+        },
+        unsupported: () => assert.fail('resistance should return first'),
+    }), 0);
+    assert.deepEqual(resistingBounds, [20]);
+
+    const attackingBounds = [];
+    const unsupported = [];
+    assert.equal(fightm(monster, {
+        state,
+        random: {
+            rnd: (bound) => {
+                attackingBounds.push(bound);
+                return 1;
+            },
+        },
+        unsupported: (reason) => unsupported.push(reason),
+    }), 0);
+    assert.deepEqual(attackingBounds, [20]);
+    assert.deepEqual(unsupported, ['monster-vs-monster attack']);
 });
 
 // mhitm.c mattackm():321-370, the head every call runs before the attack loop.

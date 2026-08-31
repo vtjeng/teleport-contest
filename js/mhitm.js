@@ -37,6 +37,7 @@ import {
     is_orc,
     mon_hates_silver,
     passes_walls,
+    resist_conflict,
     touch_petrifies,
     unsolid,
     zombie_form,
@@ -246,6 +247,31 @@ async function missmm(magr, mdef, mattk, env) {
     } else {
         await noises(magr, mattk, env);
     }
+}
+
+// C ref: mhitm.c fightm() (106-169).
+//
+// This slice reaches the source function's resistance preflight. A monster
+// which resists Conflict does nothing and lets movemon_singlemon() continue
+// into dochugw(), so that path owns exactly one source-ordered rnd(20) draw.
+// The non-resisting branch remains fail-closed at the first unported
+// monster-versus-monster attack rather than approximating mattackm(), its
+// retaliation, or any of fightm()'s swallowed/stuck handling.
+export function fightm(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rnd };
+    if (typeof random.rnd !== 'function')
+        throw new TypeError('fightm random injection requires rnd');
+
+    /* perhaps the monster will resist Conflict */
+    if (resist_conflict(mtmp, state, random))
+        return 0;
+
+    const unsupported = rawEnv.unsupported;
+    if (typeof unsupported !== 'function')
+        throw new TypeError('fightm requires an unsupported operation');
+    unsupported('monster-vs-monster attack');
+    return 0;
 }
 
 /*

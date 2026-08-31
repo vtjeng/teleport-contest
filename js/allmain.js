@@ -133,6 +133,7 @@ import {
     UnsupportedHungerTransitionError,
 } from './eat.js';
 import { UnsupportedEndOfGameError } from './end.js';
+import { fightm } from './mhitm.js';
 import { m_everyturn_effect } from './monmove.js';
 import {
     admitPlannedVisionChange,
@@ -1000,7 +1001,10 @@ async function moveElapsedTurnMonster(monster, env) {
         hideUnder: unavailableElapsedTurnOperation('eel concealment'),
         canSeeHero: () => true,
         canSeeSquare: (x, y) => cansee(x, y, env.state),
-        fightMonster: unavailableElapsedTurnOperation('conflict combat'),
+        fightMonster: (subject, subjectEnv) => fightm(subject, {
+            ...subjectEnv,
+            unsupported: unavailableElapsedTurnOperation('conflict combat'),
+        }),
         dochugwAction: runElapsedTurnMonsterAction,
     });
 }
