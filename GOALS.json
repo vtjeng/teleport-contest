@@ -7216,7 +7216,7 @@
     },
     {
       "id": "simple-monster-action-requires-conflict-combat",
-      "status": "open",
+      "status": "closed",
       "boundary": "When Conflict is active during the witnessed monster scan, carry movemon_singlemon() through fightm() for the visible in-range monsters, spend the source-ordered resist_conflict() draws, and continue with no attack when both resist.",
       "upstreamOwners": [
         "nethack-c/upstream/src/mon.c: movemon_singlemon()",
@@ -7250,8 +7250,11 @@
         "screens": 3621,
         "rng": 232101
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "711955af954a4fb594be4e3259cf522b359e35c8",
+      "delivered": {
+        "screens": 2,
+        "rng": 18
+      }
     }
   ]
 }
