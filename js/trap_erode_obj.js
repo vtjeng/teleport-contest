@@ -20,6 +20,11 @@ import {
     EF_GREASE,
     EF_PAY,
     EF_VERBOSE,
+    COST_BURN,
+    COST_CORRODE,
+    COST_CRACK,
+    COST_ROT,
+    COST_RUST,
     ERODE_BURN,
     ERODE_CORRODE,
     ERODE_CRACK,
@@ -37,6 +42,7 @@ import { carrying, update_inventory } from './invent.js';
 import { AD_ACID, AD_FIRE } from './monsters.js';
 import {
     carried,
+    costly_alteration,
     erosionMatters,
     isCorrodeable,
     isCrackable,
@@ -69,6 +75,7 @@ const EROSION = Object.freeze({
         primary: true,
         resistanceDamageType: AD_FIRE,
         result: 'burnt',
+        costType: COST_BURN,
         vulnerable: isFlammable,
     },
     [ERODE_RUST]: {
@@ -78,6 +85,7 @@ const EROSION = Object.freeze({
         primary: true,
         resistanceDamageType: 0,
         result: 'rusted',
+        costType: COST_RUST,
         vulnerable: isRustprone,
     },
     [ERODE_ROT]: {
@@ -87,6 +95,7 @@ const EROSION = Object.freeze({
         primary: false,
         resistanceDamageType: 0,
         result: 'rotten',
+        costType: COST_ROT,
         vulnerable: isRottable,
     },
     [ERODE_CORRODE]: {
@@ -96,6 +105,7 @@ const EROSION = Object.freeze({
         primary: false,
         resistanceDamageType: AD_ACID,
         result: 'corroded',
+        costType: COST_CORRODE,
         vulnerable: isCorrodeable,
     },
     [ERODE_CRACK]: {
@@ -105,6 +115,7 @@ const EROSION = Object.freeze({
         primary: true,
         resistanceDamageType: 0,
         result: 'cracked',
+        costType: COST_CRACK,
         vulnerable: isCrackable,
     },
 });
@@ -158,16 +169,11 @@ export class UnsupportedErosionError extends Error {
 // rather than guessing at that coordinate. With visobj false, C's four
 // message subjects collapse to two, which is what `possessive` holds.
 //
-// EF_PAY (costly_alteration()) and EF_DESTROY (remove_worn_item(), delobj()
-// and the whole ER_DESTROYED arm at 301-341) are refused for the same reason:
-// no ported caller sets either bit.
+// EF_PAY (costly_alteration()) is live for do_wear.c destroy_arm(). Its
+// EF_DESTROY arm remains fail-closed at maximum erosion until the inventory
+// lifetime hooks for removing a worn object are ported.
 export async function erode_obj(obj, description, type, flags, env) {
     if (!obj) return ER_NOTHING;
-    if (flags & (EF_PAY | EF_DESTROY)) {
-        throw new RangeError(
-            'item erosion does not own payment or object destruction',
-        );
-    }
     // C's `uvictim`; `vismon` follows once the message operations resolve.
     const uvictim = carried(obj);
     if (!uvictim && (obj.where !== OBJ_MINVENT || !obj.ocarry)) {
@@ -278,9 +284,17 @@ export async function erode_obj(obj, description, type, flags, env) {
                 state,
             );
         }
+        if (flags & EF_PAY)
+            costly_alteration(obj, details.costType, env);
         setErosion(obj, details.primary, next);
         if (uvictim) update_inventory({ state });
         return ER_DAMAGED;
+    }
+
+    if (flags & EF_DESTROY) {
+        throw new UnsupportedErosionError(
+            'removing a maximally eroded worn item',
+        );
     }
 
     if (verbose && print) {

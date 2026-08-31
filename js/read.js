@@ -60,12 +60,13 @@ import { makemon_runtime } from './makemon_create.js';
 import { MAXMCLASSES } from './symbols.js';
 import {
     SCROLL_CLASS,
+    SCR_DESTROY_ARMOR,
     SCR_IDENTIFY,
     SCR_MAGIC_MAPPING,
     SCR_TELEPORTATION,
     SPBOOK_CLASS,
 } from './objects.js';
-import { objectType } from './obj.js';
+import { isFlammable, objectType } from './obj.js';
 import { not_fully_identified } from './objnam.js';
 import { exercise } from './attrib.js';
 import { do_mapping } from './detect.js';
@@ -73,7 +74,7 @@ import { Is_special } from './dungeon.js';
 import { level_tele } from './teleport.js';
 import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
-import { rn2 } from './rng.js';
+import { rn2, rnl } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { trycall } from './do.js';
 import { y_n } from './cmd.js';
@@ -81,6 +82,7 @@ import {
     study_book,
     study_book_preflight,
 } from './spell.js';
+import { destroy_arm, some_armor } from './do_wear.js';
 
 // A selected scroll or spellbook enters doread()'s effect arms. Raising before
 // pickup_prev changes keeps every unsupported object and the turn retryable
@@ -118,6 +120,23 @@ function propertyActive(property, state) {
     return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
 }
 
+// The queued slice admits only the ordinary, unknown destroy-armor scroll
+// fallback with exactly one worn, flammable armor object. The full
+// seffect_destroy_armor() family (cursed, blessed-selection, confused and
+// no-effective-armor branches) remains behind the selected-read boundary.
+function oneWornFlammableArmor(state) {
+    const worn = [
+        state.uarm,
+        state.uarmc,
+        state.uarmh,
+        state.uarms,
+        state.uarmg,
+        state.uarmf,
+        state.uarmu,
+    ].filter(Boolean);
+    return worn.length === 1 && isFlammable(worn[0], state);
+}
+
 // C ref: read.c doread() (347-646), restricted after getobj() to the known,
 // uncursed magic-mapping scroll, an ordinary unknown identify scroll whose
 // remaining inventory is already fully identified, and the fresh-known
@@ -150,6 +169,10 @@ export async function doread(state = game) {
         && !objectType(scroll, state).oc_name_known
         && scroll.quan === 1
         && remainingPackIsFullyIdentified(scroll, state);
+    const destroyArmor = ordinaryScroll
+        && scroll.otyp === SCR_DESTROY_ARMOR
+        && !objectType(scroll, state).oc_name_known
+        && oneWornFlammableArmor(state);
     const knownHealing = scroll.oclass === SPBOOK_CLASS
         && !propertyActive(BLINDED, state) && !confused
         && study_book_preflight(scroll, state);
@@ -159,7 +182,8 @@ export async function doread(state = game) {
         && !propertyActive(BLINDED, state)
         && confused && !propertyActive(HALLUC, state)
         && can_chant(state.youmonst, state) && state.wizard;
-    if (!mapping && !identify && !knownHealing && !confusedTeleport) {
+    if (!mapping && !identify && !destroyArmor
+        && !knownHealing && !confusedTeleport) {
         throw new UnsupportedReadError('the selected readable object branch');
     }
 
@@ -194,6 +218,36 @@ export async function doread(state = game) {
         useup(scroll, { state, hooks: {} });
     }
     return ECMD_TIME;
+}
+
+// C ref: read.c seffect_destroy_armor() (1324-1396). Covers the ordinary,
+// uncursed and unblessed fallback that calls do_wear.c destroy_arm().
+// some_armor() is deliberately called before destroy_arm(), as in C; the
+// single worn suit in this slice means that selection has no random draw.
+export async function seffect_destroy_armor(scroll, state = game) {
+    if (scroll.otyp !== SCR_DESTROY_ARMOR
+        || scroll.oclass !== SCROLL_CLASS
+        || scroll.blessed || scroll.cursed
+        || objectType(scroll, state).oc_name_known
+        || propertyActive(CONFUSION, state)
+        || propertyActive(BLINDED, state)
+        || !can_chant(state.youmonst, state)
+        || !oneWornFlammableArmor(state)) {
+        throw new UnsupportedReadError(
+            'the selected destroy-armor fallback branch',
+        );
+    }
+    if (!some_armor(state.youmonst, state, { rn2 })) {
+        throw new UnsupportedReadError(
+            'destroy-armor with no selected armor',
+        );
+    }
+    if (!await destroy_arm(state, { rn2, rnl })) {
+        throw new UnsupportedReadError(
+            'destroy-armor with no effective erosion',
+        );
+    }
+    state.gk.known = true;
 }
 
 // C ref: read.c seffect_teleportation() (2015-2032). The admitted doread()
@@ -266,12 +320,14 @@ export async function seffect_magic_mapping(scroll, state = game) {
 }
 
 // C ref: read.c seffects() (2194-2290), restricted to SCR_IDENTIFY,
-// SCR_MAGIC_MAPPING, and SCR_TELEPORTATION. C returns `sobj ? 0 : 1`:
+// SCR_DESTROY_ARMOR, SCR_MAGIC_MAPPING, and SCR_TELEPORTATION. C returns
+// `sobj ? 0 : 1`:
 // 0 when the scroll still exists (caller handles useup), 1 when the effect
 // consumed it.  seffect_teleportation() and seffect_magic_mapping() never
 // consume the scroll, so both paths return 0.
 export async function seffects(scroll, state = game) {
     if (scroll.otyp !== SCR_MAGIC_MAPPING && scroll.otyp !== SCR_IDENTIFY
+        && scroll.otyp !== SCR_DESTROY_ARMOR
         && scroll.otyp !== SCR_TELEPORTATION) {
         throw new UnsupportedReadError('the selected scroll effect');
     }
@@ -281,6 +337,10 @@ export async function seffects(scroll, state = game) {
         await seffect_identify(scroll, state);
         update_inventory({ state });
         return 1;
+    }
+    if (scroll.otyp === SCR_DESTROY_ARMOR) {
+        await seffect_destroy_armor(scroll, state);
+        return 0;
     }
     if (scroll.otyp === SCR_TELEPORTATION) {
         await seffect_teleportation(scroll, state);

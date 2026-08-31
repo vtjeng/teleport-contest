@@ -15,6 +15,8 @@
 //        armoroff() (1919-2008), already_wearing() (2010-2014), canwearobj()
 //        (2029-2206), accessory_or_armor_on() (2208-2428), dowear()
 //        (2430-2450), stuck_ring() (2656-2683), unchanger() (2685-2692),
+//        some_armor() (2630-2652), obj_erode_type() (3258-3273),
+//        destroy_arm() (3278-3316),
 //        select_off() (2694-2821), do_takeoff() W_SWAPWEP arm (2823-2843),
 //        reset_remarm() (3012-3018), remarm_swapwep() (3059-3087),
 //        inaccessible_equipment() (3338-3400), equip_ok() (3402-3447),
@@ -37,6 +39,16 @@ import {
     A_STR,
     ACID_RES,
     CMDQ_KEY,
+    EF_DESTROY,
+    EF_PAY,
+    ERODE_BURN,
+    ERODE_CORRODE,
+    ERODE_CRACK,
+    ERODE_NONE,
+    ERODE_ROT,
+    ERODE_RUST,
+    ER_DESTROYED,
+    ER_NOTHING,
     DRAIN_RES,
     ECMD_CANCEL,
     ECMD_FAIL,
@@ -148,6 +160,13 @@ import {
     is_suit,
     is_sword,
     objectType,
+    erosionMatters,
+    isCorrodeable,
+    isCrackable,
+    isDamageable,
+    isFlammable,
+    isRottable,
+    isRustprone,
     set_bknown,
 } from './obj.js';
 import {
@@ -263,7 +282,7 @@ import {
 import { u_safe_from_fatal_corpse } from './pickup.js';
 import { body_part, float_vs_flight } from './polyself.js';
 import { toggle_blindness } from './potion.js';
-import { rnd } from './rng.js';
+import { rn2, rnl, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
@@ -2688,6 +2707,83 @@ export async function dotakeoff(state = game) {
     return armor_or_accessory_off(otmp, state);
 }
 
+// C ref: do_wear.c some_armor() (2630-2652). The hero's seven armor globals are
+// kept in the same order as
+// C's uarm, uarmc, uarmu, uarmh, uarmg, uarmf and uarms selection. This slice
+// reaches only the hero arm; monster minvent selection belongs to its callers.
+export function some_armor(victim, state = game, random = { rn2 }) {
+    if (victim !== state.youmonst) {
+        throw new Error('some_armor() requires the hero victim');
+    }
+
+    let selected = state.uarmc ?? state.uarm ?? state.uarmu ?? null;
+    for (const field of ['uarmh', 'uarmg', 'uarmf', 'uarms']) {
+        const armor = state[field];
+        if (armor && (!selected || !random.rn2(4))) selected = armor;
+    }
+    return selected;
+}
+
+// C ref: do_wear.c obj_erode_type() (3258-3273). The order is observable for
+// materials that satisfy more than one predicate, so keep the source order
+// instead of delegating to isDamageable().
+export function obj_erode_type(obj, state = game) {
+    if (isFlammable(obj, state)) return ERODE_BURN;
+    if (isRustprone(obj, state)) return ERODE_RUST;
+    if (isCrackable(obj, state)) return ERODE_CRACK;
+    if (isRottable(obj, state)) return ERODE_ROT;
+    if (isCorrodeable(obj, state)) return ERODE_CORRODE;
+    return ERODE_NONE;
+}
+
+// C ref: do_wear.c destroy_arm() (3278-3316). The caller supplies a hero
+// object from some_armor(); erode_obj() owns the source-ordered messages,
+// erosion fields, inventory refreshes and EF_PAY/EF_DESTROY handling.
+export async function destroy_arm(state = game, random = { rn2, rnl }) {
+    const hits = random.rn2(4) + 1;
+    const armors = [
+        state.uarm,
+        state.uarmc,
+        state.uarmh,
+        state.uarms,
+        state.uarmg,
+        state.uarmf,
+        state.uarmu,
+    ].filter(Boolean);
+    if (!armors.length) return false;
+
+    // Dynamic import keeps do_wear.js's existing command-loop dependency graph
+    // acyclic: trap_erode_obj.js reaches zap.js, which reaches do_wear.js.
+    const { erode_obj } = await import('./trap_erode_obj.js');
+    let ret = false;
+    for (let i = 0; i < hits; ++i) {
+        const armor = armors[random.rn2(armors.length)];
+        if (erosionMatters(armor, state)
+            && isDamageable(armor, state) && !armor.oerodeproof) {
+            const erosion = obj_erode_type(armor, state);
+            if (erosion !== ERODE_NONE) {
+                const result = await erode_obj(
+                    armor,
+                    xnameFresh(armor, state),
+                    erosion,
+                    EF_PAY | EF_DESTROY,
+                    { state, random },
+                );
+                if (result !== ER_NOTHING) ret = true;
+                if (result === ER_DESTROYED) break;
+            }
+        }
+    }
+
+    if (ret) {
+        // stop_occupation() has no visible work in the ordinary command case,
+        // but it also clears an active occupation exactly where C does.
+        const { stop_occupation } = await import('./allmain.js');
+        await stop_occupation(state, { message: ttyPline });
+    }
+    return ret;
+}
+
 export const _doWearInternals = Object.freeze({
     Amulet_on,
     Blindf_on,
@@ -2711,6 +2807,9 @@ export const _doWearInternals = Object.freeze({
     off_msg,
     on_msg,
     reset_remarm,
+    some_armor,
+    obj_erode_type,
+    destroy_arm,
     takeoffContext,
     setwornEnv,
 });
