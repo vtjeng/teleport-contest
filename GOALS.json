@@ -6318,7 +6318,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-2",
-      "status": "open",
+      "status": "closed",
       "boundary": "Manual, zero-count pickup from a reachable non-shop floor pile containing at least two ordinary all_but_uchain-eligible objects, under default full-menu and sorted-pack settings: render the class-headed PICK_ANY pickup menu, accept whole-stack selections, and pass them to pickup()'s pickup_object() loop.",
       "upstreamOwners": [
         "nethack-c/upstream/src/cmd.c: extcmdlist[] pickup binding",
@@ -6364,8 +6364,11 @@
         "screens": 3187,
         "rng": 214215
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "b2c808662fce3dbac35ffaa4aaa949200a8158ca",
+      "delivered": {
+        "screens": 87,
+        "rng": 3905
+      }
     }
   ]
 }
