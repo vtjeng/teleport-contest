@@ -4880,7 +4880,7 @@
       "area": null,
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "920d2b230fe6fa2f3130fce5c006858ff09854ac",
       "detail": "container_contents uses donameFresh instead of C doname_with_price. The JS doname_with_price handles only shop items and throws for others; C version conditionally adds price. Needs a flag-based doname approach.",
       "blockedOn": "doname_with_price"
