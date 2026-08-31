@@ -7171,7 +7171,7 @@
     },
     {
       "id": "unsupported-hero-move-a-boulder-that-will-not-move",
-      "status": "open",
+      "status": "closed",
       "boundary": "For the witnessed ordinary, visible, unmounted, normal-sized Rogue/orc on non-Sokoban terrain, when a run reaches a boulder whose destination is obstructed, execute hack.c moverock_core()'s failed-destination path: emit the failed-push message, follow cannot_push()'s no-squeeze result, leave the boulder in place, and return -1.",
       "upstreamOwners": [
         "nethack-c/upstream/src/hack.c: test_move()",
@@ -7208,8 +7208,11 @@
         "screens": 3512,
         "rng": 226634
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "ea1602daddf87a7b80425eaa57a0b50ab09e6dce",
+      "delivered": {
+        "screens": 109,
+        "rng": 5467
+      }
     }
   ]
 }
