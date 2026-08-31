@@ -6915,7 +6915,7 @@
     },
     {
       "id": "dosounds-needs-the-has-zoo-level-sound-branch",
-      "status": "open",
+      "status": "closed",
       "boundary": "On an acoustically active level with has_zoo, evaluate C's 1/200 zoo-sound gate and, when it fires, scan monsters for a sleeping or animal monster in the ZOO room, then emit the hallucination-aware zoo sound and return; preserve the no-sound path when no qualifying monster is found.",
       "upstreamOwners": [
         "nethack-c/upstream/src/sounds.c: zoo_mon_sound()",
@@ -6948,8 +6948,11 @@
         "screens": 3483,
         "rng": 225666
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "250684f0ae883c77ed39bd7ab2998417494578c4",
+      "delivered": {
+        "screens": 1,
+        "rng": 3
+      }
     }
   ]
 }
