@@ -6516,6 +6516,49 @@
         "screens": 0,
         "rng": 48
       }
+    },
+    {
+      "id": "an-occupation-reached-picking-a-lock-requires-breakchestlock",
+      "status": "open",
+      "boundary": "When a blunt weapon successfully forces and destroys an ordinary locked chest outside a shop, breakchestlock(true) announces destruction, applies per-content rn2(3) to quantity-one PAPER contents, shreds/frees the selected item, places/stacks the survivor at the hero's feet, deletes the chest, and clears occupation and lock context.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/cmd.c: force binding and set_occupation()",
+        "nethack-c/upstream/src/allmain.c: occupation dispatch",
+        "nethack-c/upstream/src/lock.c: doforce()",
+        "forcelock()",
+        "breakchestlock()",
+        "chest_shatter_msg()",
+        "reset_pick()",
+        "nethack-c/upstream/src/invent.c: extraction",
+        "freeing",
+        "deletion",
+        "stacking",
+        "nethack-c/upstream/src/mkobj.c: place_object()",
+        "nethack-c/upstream/src/zap.c: obj_resists()"
+      ],
+      "forecast": {
+        "steps": 139,
+        "basis": "Capped look-ahead at an occupation reached picking a lock requires breakchestlock() destroyit=true (chest destruction)",
+        "sessions": [
+          "seed0014-dequa-fountain-explore"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0014-dequa-fountain-explore",
+            "evidence": "Seed 14, 2026-05-03 05:04:37, DECgraphics, runmode:walk, lawful female dwarf Valkyrie Dequa. On D:1 at <47,2>, a locked ordinary chest with two quantity-one PAPER spellbooks is under the reachable hero outside a shop, and she wields a +1 dwarvish spear. #force -> doforce() installs forcelock; the first occupation tick has rn2(100)=4 < chance 16, then rn2(3)=0 chooses destroyit=true. C breakchestlock() announces total destruction; one spellbook is destroyed by rn2(3)=0 with PAPER's shred message, one survives via rn2(3)=2 and is placed/stacked at the hero's feet, then delobj() removes the chest and clears lock context. JS stops before reset_pick()."
+          }
+        ]
+      },
+      "detail": "Small-to-medium coherent single slice, forecast 139. Witness bounds it to non-shop ordinary chest, blunt weapon, no potions or ice-box handling, quantity-one PAPER contents, and both destroyed/surviving content outcomes. Exclude shop billing, potion breathing, other material messages, ice-box timers, and multi-quantity useup.",
+      "slices": [],
+      "openedAt": "5ec464aafa6d71f1e59b3a6c3039328aa755619f",
+      "openStanding": {
+        "sha": "7a22d1507c15a679240d80e0a83e38b1d0bf734d",
+        "screens": 3282,
+        "rng": 221780
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
