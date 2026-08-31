@@ -6847,7 +6847,13 @@
         ]
       },
       "detail": "Medium self-contained insight-command slice, forecast 6. Existing dispatch/menu/ordinary sections remain; add witnessed debug-gated next-XP, raw hunger/weight, numeric alignment, zero luck, prayer timeout and debug marker, then remove blanket refusal. Exclude unexercised debug-only property/status lines, alternate Ctrl-X binding, explore/end-game enlightenment, and polymorph states.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "debug in-progress Ctrl-X attributes enlightenment menu",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "a1b4a5458a3e6b4cab8e270e237947f095732fae",
       "openStanding": {
         "sha": "72eb68e",
