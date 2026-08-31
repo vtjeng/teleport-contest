@@ -1,4 +1,5 @@
-// Tests for mkroom.c mkshop()'s tail and the shknam.c shtypes[] table it
+// Tests for mkroom.c mkshop()'s tail, special-room filling, and the
+// shknam.c shtypes[] table it
 // rolls against. Every expected value below was read from
 // nethack-c/upstream/src/mkroom.c:179-215 and
 // nethack-c/upstream/src/shknam.c:206-350, not from a recorded session.
@@ -7,10 +8,12 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BARRACKS,
     BEEHIVE,
     FILL_NONE,
     FILL_NORMAL,
     COURT,
+    G_GONE,
     LOW_PM,
     MORGUE,
     M_AP_OBJECT,
@@ -33,6 +36,7 @@ import {
     do_mkroom,
     fill_zoo,
     pick_room,
+    squadmon,
 } from '../js/mkroom.js';
 import { m_at } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
@@ -48,6 +52,10 @@ import {
     PM_KILLER_BEE,
     PM_LICHEN,
     PM_QUEEN_BEE,
+    PM_SOLDIER,
+    PM_SERGEANT,
+    PM_LIEUTENANT,
+    PM_CAPTAIN,
     M2_GNOME,
     S_MIMIC,
     S_GNOME,
@@ -73,6 +81,7 @@ import {
     ICE_BOX,
     LEATHER_GLOVES,
     LUMP_OF_ROYAL_JELLY,
+    LARGE_BOX,
     MEATBALL,
     NUM_OBJECTS,
     POTION_CLASS,
@@ -488,10 +497,11 @@ test('stock_room rejects a row shtypes[] does not carry', () => {
     assert.throws(() => stock_room(12, room, { state }), RangeError);
 });
 
-test('do_mkroom supports Court, Beehive, and Temple and refuses later special rooms',
+test('do_mkroom supports zoo families through Barracks and refuses later rooms',
     () => {
         // COURT and BEEHIVE dispatch to mkzoo(). TEMPLE dispatches to
-        // mktemple(). The other seven types remain named refusals until
+        // mktemple(). BARRACKS now shares mkzoo() with the earlier families;
+        // the remaining later types stay named refusals until
         // their complete population and entry effects are ported.
         const state = initializedState();
         const room = shopCandidate(state, { hx: 13, hy: 8 });
@@ -517,9 +527,16 @@ test('do_mkroom supports Court, Beehive, and Temple and refuses later special ro
         assert.equal(room.rtype, MORGUE);
         assert.equal(room.needfill, FILL_NORMAL);
 
+        // BARRACKS (roomtype 7): the same pick_room path as MORGUE.
+        room.rtype = OROOM;
+        room.needfill = FILL_NONE;
+        do_mkroom(BARRACKS, state, { rn2: () => 0 });
+        assert.equal(room.rtype, BARRACKS);
+        assert.equal(room.needfill, FILL_NORMAL);
+
         // Remaining zoo families and swamp are still refused (TEMPLE=10 is
         // now ported and omitted from this list).
-        for (const roomtype of [3, 7, 8, 11, 12, 13]) {
+        for (const roomtype of [3, 8, 11, 12, 13]) {
             assert.throws(
                 () => do_mkroom(roomtype, state),
                 UnsupportedSpecialRoomError,
@@ -657,6 +674,89 @@ test('D:5 courtmon uses strict source thresholds for each reachable class',
             }
         }
     });
+
+test('squadmon follows its cumulative table and fallback draw', () => {
+    // mkroom.c:809-837. At D:20, rnd(80 + level_difficulty()) is rnd(100),
+    // so every cumulative boundary and the cpro==100 fallback is reachable.
+    const state = initializedCourtState();
+    state.u.uz.dlevel = 20;
+    const cases = [
+        [1, PM_SOLDIER],
+        [80, PM_SERGEANT],
+        [95, PM_LIEUTENANT],
+        [99, PM_CAPTAIN],
+    ];
+    for (const [roll, expected] of cases) {
+        let bound = null;
+        const species = squadmon(state, {
+            rnd: (limit) => { bound = limit; return roll; },
+            rn2: () => { throw new Error('fallback draw was not expected'); },
+        });
+        assert.equal(bound, 100, `roll ${roll} bound`);
+        assert.equal(species.pmidx, expected, `roll ${roll}`);
+    }
+
+    const fallbackDraws = [];
+    const fallback = squadmon(state, {
+        rnd: (limit) => { fallbackDraws.push(['rnd', limit]); return 100; },
+        rn2: (limit) => {
+            fallbackDraws.push(['rn2', limit]);
+            return 2;
+        },
+    });
+    assert.equal(fallback.pmidx, PM_LIEUTENANT);
+    assert.deepEqual(fallbackDraws, [['rnd', 100], ['rn2', 4]]);
+
+    state.mvitals[PM_SOLDIER].mvflags |= G_GONE;
+    assert.equal(
+        squadmon(state, { rnd: () => 1, rn2: () => 0 }),
+        null,
+        'a gone soldier type is not returned',
+    );
+});
+
+test('Barracks fill populates soldiers, payroll, and the level flag', () => {
+    // mkroom.c fill_zoo():344-361, 397-400, and 436-437. A 3x3 room with no
+    // door has nine fillable cells; force every payroll roll to succeed and
+    // rn2(3)==1 to select LARGE_BOX.
+    const state = initializedCourtState();
+    const room = shopCandidate(state, {
+        lx: 10, ly: 5, hx: 12, hy: 7,
+    });
+    room.rtype = BARRACKS;
+    room.doorct = 0;
+    const random = {
+        d: (count) => count,
+        rn1: (_bound, base) => base,
+        rn2(bound) {
+            if (bound === 20) return 0;
+            if (bound === 3) return 1;
+            return 0;
+        },
+        rnd: () => 1,
+        rne: () => 1,
+        rnz: (value) => value,
+    };
+    fill_zoo(room, objectGenerationEnv({
+        state,
+        random,
+        hooks: { populateContainer: () => {} },
+    }));
+
+    for (let x = room.lx; x <= room.hx; ++x) {
+        for (let y = room.ly; y <= room.hy; ++y) {
+            const monster = m_at(x, y, state);
+            assert.ok(monster, `soldier at (${x},${y})`);
+            assert.equal(monster.mnum, PM_SOLDIER);
+            assert.equal(monster.msleeping, true);
+        }
+    }
+    let payroll = 0;
+    for (let obj = state.level.objlist; obj; obj = obj.nobj)
+        if (obj.otyp === LARGE_BOX) payroll++;
+    assert.equal(payroll, 9, 'one initialized payroll box per cell');
+    assert.equal(state.level.flags.has_barracks, true);
+});
 
 test('Court fill geometry excludes exactly the door-facing boundary', () => {
     const state = initializedState();

@@ -1,12 +1,13 @@
 // Room-topology projections and the special room one level may receive.
 // C refs: mkroom.c cmap_to_type(), isbig(), do_mkroom(), mkshop(),
-// pick_room(), mkzoo(), fill_zoo(), courtmon(), has_dnstairs(),
+// pick_room(), mkzoo(), fill_zoo(), courtmon(), squadmon(), has_dnstairs(),
 // has_upstairs(), invalid_shop_shape(), shrine_pos(), and mktemple().
 
 import {
     AIR,
     ALTAR,
     AM_SHRINE,
+    BARRACKS,
     BEEHIVE,
     BLCORNER,
     BRCORNER,
@@ -18,6 +19,7 @@ import {
     DOOR,
     DRAWBRIDGE_DOWN,
     FILL_NORMAL,
+    G_GONE,
     FOUNTAIN,
     GRAVE,
     HWALL,
@@ -71,6 +73,10 @@ import {
     PM_KILLER_BEE,
     PM_OGRE_TYRANT,
     PM_QUEEN_BEE,
+    PM_SOLDIER,
+    PM_SERGEANT,
+    PM_LIEUTENANT,
+    PM_CAPTAIN,
     PM_WIZARD,
     PM_WRAITH,
     S_CENTAUR,
@@ -412,6 +418,33 @@ export function morguemon(state = game, random = SOURCE_RANDOM) {
             : mkclass(S_ZOMBIE, 0, { state, random });
 }
 
+const squadprob = Object.freeze([
+    { pm: PM_SOLDIER, prob: 80 },
+    { pm: PM_SERGEANT, prob: 15 },
+    { pm: PM_LIEUTENANT, prob: 4 },
+    { pm: PM_CAPTAIN, prob: 1 },
+]);
+
+// C ref: mkroom.c squadmon(). Return a soldier type selected by the source's
+// cumulative table, including its uniform fallback draw when the difficulty
+// makes the first roll exceed the table's 80-point common range.
+export function squadmon(state = game, random = SOURCE_RANDOM) {
+    const selectedProbability = random.rnd(80 + level_difficulty(state));
+    let cumulativeProbability = 0;
+    let monsterIndex;
+    for (const entry of squadprob) {
+        cumulativeProbability += entry.prob;
+        if (cumulativeProbability > selectedProbability) {
+            monsterIndex = entry.pm;
+            break;
+        }
+    }
+    if (monsterIndex === undefined)
+        monsterIndex = squadprob[random.rn2(squadprob.length)].pm;
+    if (state.mvitals[monsterIndex].mvflags & G_GONE) return null;
+    return state.mons[monsterIndex];
+}
+
 // C ref: minion.c ndemon(). A_NONE means any alignment.
 function ndemon(atyp, state, random) {
     const ptr = mkclass(S_DEMON, 0, { state, random });
@@ -469,14 +502,16 @@ export function courtCellIsFillable(sroom, x, y, state) {
         || (y === sroom.hy && door.y === y + 1));
 }
 
-// C ref: mkroom.c fill_zoo(). The COURT, BEEHIVE, MORGUE, and ZOO arms
-// are ported; remaining zoo families retain their named generation boundary.
+// C ref: mkroom.c fill_zoo(). The COURT, BEEHIVE, MORGUE, BARRACKS, and ZOO
+// arms are ported; remaining zoo families retain their named generation
+// boundary.
 export function fill_zoo(sroom, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? SOURCE_RANDOM;
     const normalized = { ...env, state, random };
     const type = sroom.rtype;
     if (type !== COURT && type !== BEEHIVE && type !== MORGUE
+        && type !== BARRACKS
         && type !== ZOO) {
         throw new UnsupportedSpecialRoomError(
             `fill_zoo(${type}) beyond the Zoo boundary`,
@@ -531,11 +566,13 @@ export function fill_zoo(sroom, env = {}) {
                 ? courtmon(state, random)
                 : type === MORGUE
                     ? morguemon(state, random)
-                    : type === BEEHIVE
-                        ? (x === tx && y === ty
-                            ? state.mons[PM_QUEEN_BEE]
-                            : state.mons[PM_KILLER_BEE])
-                        : null;
+                    : type === BARRACKS
+                        ? squadmon(state, random)
+                        : type === BEEHIVE
+                            ? (x === tx && y === ty
+                                ? state.mons[PM_QUEEN_BEE]
+                                : state.mons[PM_KILLER_BEE])
+                            : null;
             const monster = makemon(
                 species,
                 x,
@@ -573,6 +610,9 @@ export function fill_zoo(sroom, env = {}) {
                     make_grave(x, y, null, normalized);
             } else if (type === BEEHIVE && !random.rn2(3)) {
                 mksobj_at(LUMP_OF_ROYAL_JELLY, x, y, true, false, normalized);
+            } else if (type === BARRACKS && !random.rn2(20)) {
+                mksobj_at(random.rn2(3) ? LARGE_BOX : CHEST,
+                    x, y, true, false, normalized);
             }
         }
     }
@@ -603,6 +643,8 @@ export function fill_zoo(sroom, env = {}) {
         state.level.flags.has_morgue = true;
     } else if (type === BEEHIVE) {
         state.level.flags.has_beehive = true;
+    } else if (type === BARRACKS) {
+        state.level.flags.has_barracks = true;
     }
 }
 
@@ -651,7 +693,8 @@ export function do_mkroom(roomtype, state = game, random = SOURCE_RANDOM) {
         mktemple(state, random);
         return;
     }
-    if (roomtype === COURT || roomtype === BEEHIVE || roomtype === MORGUE) {
+    if (roomtype === COURT || roomtype === BEEHIVE || roomtype === MORGUE
+        || roomtype === BARRACKS) {
         mkzoo(roomtype, state, random);
         return;
     }

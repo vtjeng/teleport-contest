@@ -430,13 +430,13 @@ export function fill_special_room(croom, env = {}) {
         case COURT:
         case BEEHIVE:
         case MORGUE:
+        case BARRACKS:
         case ZOO:
             fill_zoo(croom, normalized);
             break;
         case ANTHOLE:
         case COCKNEST:
         case LEPREHALL:
-        case BARRACKS:
             throw new UnsupportedSpecialRoomError(
                 `fill_special_room(${croom.rtype}) beyond the Morgue boundary`,
             );
@@ -663,7 +663,8 @@ async function makelevel(specialLevelLoader = null) {
 
     // C ref: mklev.c makelevel() (1344-1375). At most one special room per
     // level, chosen by depth. Shops and the first depth-gated family, COURT,
-    // are selected here; later families remain source-labelled refusals.
+    // are selected here; later families retain their source-labelled
+    // selection branches.
     // `room_threshold` counts the rooms a level must have before it can spare
     // one: four when the level carries a dungeon branch, three otherwise, plus
     // one more when a vault was placed above.
@@ -2204,7 +2205,7 @@ function createSpecialLevelApi(state) {
             const nroom = state.level?.nroom ?? 0;
             const rooms = state.level?.rooms ?? [];
             for (let i = 0; i < nroom; i++) {
-                fill_special_room(rooms[i], { state });
+                fill_special_room(rooms[i], levelObjectEnv());
             }
         },
     };

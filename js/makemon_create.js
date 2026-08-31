@@ -1180,6 +1180,11 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
     const beehiveSpecies = species
         && (species.pmidx === PM_QUEEN_BEE
             || species.pmidx === PM_KILLER_BEE);
+    const barracksSpecies = species
+        && (species.pmidx === PM_SOLDIER
+            || species.pmidx === PM_SERGEANT
+            || species.pmidx === PM_LIEUTENANT
+            || species.pmidx === PM_CAPTAIN);
     const morgueSpecies = species
         && species.pmidx === PM_WRAITH;
     if (!species
@@ -1190,6 +1195,7 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
             && !isMausoleumSpecies(species)
             && !courtSpecies
             && !beehiveSpecies
+            && !barracksSpecies
             && !morgueSpecies
             && species.pmidx !== PM_DJINNI
             && species.pmidx !== PM_WATER_DEMON
