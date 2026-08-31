@@ -6688,7 +6688,13 @@
         ]
       },
       "detail": "Medium coherent goal, plausibly two slices for TER_MAP projection and command/browse integration, forecast 29. Multi-segment state matters. Exclude other menu choices, debug/explore full map, impaired/constrained heroes, cursor movement/autodescription, and nonordinary levels. Later bytes are paging/getpos input, not commands.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "terrain-known-map-projection",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "54db9cfba643e7aabcafde542a37a7cc7574de80",
       "openStanding": {
         "sha": "aeb0b469f0cf62851e87719d0da9c888450a8a34",
