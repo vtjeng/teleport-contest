@@ -28,7 +28,7 @@ import {
 } from './mkroom.js';
 import { mkcorpstat } from './corpstat.js';
 import { del_engr_at, make_engr_at, wipe_engr_at } from './engrave.js';
-import { set_wall_state } from './display.js';
+import { map_background, map_object, map_trap, set_wall_state } from './display.js';
 import { def_char_to_monclass } from './drawing.js';
 import { add_to_container } from './invent.js';
 import { UnsupportedMonsterCreationError, makemon } from './makemon_create.js';
@@ -181,7 +181,7 @@ import {
     POLY_TRAP, VIBRATING_SQUARE,
     MKTRAP_NOFLAGS, MKTRAP_MAZEFLAG, MKTRAP_NOSPIDERONWEB,
     MKTRAP_NOVICTIM, MKTRAP_SEEN,
-    BR_PORTAL, BR_NO_END1, BR_NO_END2,
+    BR_PORTAL, BR_NO_END1, BR_NO_END2, SVALL,
     CORPSTAT_INIT, MARK, MM_NOGRP, NO_MM_FLAGS,
     In_quest, NO_ROOM,
     TRAPNUM,
@@ -1255,7 +1255,7 @@ function createSpecialLevelApi(state) {
                 // C ref: sp_lev.c lspo_level_flags(). premapped is a
                 // coder-only flag (gc.coder->premapped); no level flag
                 // is set. Accept it as a no-op so loaders can pass it.
-                case 'premapped': break;
+                case 'premapped': state._specialLevelPremapped = true; break;
                 // C ref: sp_lev.c lspo_level_flags(). "sokoban" sets
                 // Sokoban = 1, which is svl.level.flags.sokoban_rules.
                 case 'sokoban': state.level.flags.sokoban_rules = true; break;
@@ -2187,6 +2187,13 @@ function createSpecialLevelApi(state) {
                     0, 0, 0, 0, 0, 0, 0, 0,
                     LR_BRANCH, null, state,
                 );
+            }
+
+            // C ref: sp_lev.c:6052-6053. Reveal the entire map for
+            // premapped levels (Sokoban).
+            if (state._specialLevelPremapped) {
+                premap_detect(state);
+                delete state._specialLevelPremapped;
             }
 
             // C ref: sp_lev.c load_special() calls fill_special_room for
@@ -5233,6 +5240,30 @@ function place_branch(branchp, x = 0, y = 0) {
         }
     }
     g.made_branch = true;
+}
+
+// C ref: detect.c premap_detect() (2134-2159). Reveals the full map for
+// premapped levels (Sokoban). Called after fixup_special so branch stairs
+// are included.
+function premap_detect(state) {
+    for (let x = 1; x < COLNO; x++) {
+        for (let y = 0; y < ROWNO; y++) {
+            const loc = state.level.at(x, y);
+            if (loc.typ === STONE
+                && (loc.wall_info & (W_NONDIGGABLE | W_NONPASSWALL)) !== 0)
+                continue;
+            loc.seenv = SVALL;
+            loc.waslit = true;
+            if (loc.typ === SDOOR) loc.wall_info = 0;
+            map_background(x, y, 1, state);
+            const obj = sobj_at(BOULDER, x, y, state);
+            if (obj) map_object(obj, 1, state);
+        }
+    }
+    for (const trap of state.level.traps) {
+        trap.tseen = 1;
+        map_trap(trap, 1, state);
+    }
 }
 
 // ============================================================
