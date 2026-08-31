@@ -32,6 +32,7 @@ import {
     SHOCK_RES,
     STRAT_WAITMASK,
     STUNNED,
+    TEST_MOVE,
     W_ARMG,
     W_RINGL,
     W_RINGR,
@@ -46,7 +47,7 @@ import {
 } from './do_name.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
-import { doorless_door } from './hack.js';
+import { doorless_door, test_move } from './hack.js';
 import { sgn } from './hacklib.js';
 // js/mhitu.js imports mhitm_adtyping() and mhitm_knockback() from this file,
 // so this edge closes an import cycle, exactly as mhitu.c and uhitm.c call
@@ -1379,7 +1380,7 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
            needs a TRUE return, which only the arm that knocks the target
            back gives. */
         if (maybe_knockback) {
-            mhitm_knockback(
+            await mhitm_knockback(
                 state.youmonst,
                 mon,
                 state.youmonst.data.mattk[0],
@@ -1725,18 +1726,19 @@ export async function missum(
     if (!helpless(mdef)) await wakeup(mdef, true, { ...env, state });
 }
 
-// C ref: uhitm.c mhitm_knockback() (5245-5372). Whether a solid blow sends the
-// target staggering backwards.
+// C ref: uhitm.c mhitm_knockback() (5247-5326 for this slice). Whether a solid
+// blow is eligible to send the target staggering backwards.
 //
 // Both of its draws happen before anything is decided: rn2(3) picks a distance
 // the caller may never use, and rn2(chance) rejects five hits in six. The two
 // are why hmon_hitmon() defers the call until it knows the target survived,
 // while mhitu.c hitmu() makes the call unconditionally.
 //
-// C reaches the size test at 5324-5326 only for a target two size classes
-// smaller than the attacker -- for an unpolymorphed hero that means MZ_TINY --
-// and everything past it stops here: is_blunt_weapon(), unsolid(),
-// m_is_steadfast() and the mhurtle() that does the knocking back have no port.
+// The hero-defender path now calls hack.c test_move(TEST_MOVE), then reaches
+// the shared alive and size guards. The size test at 5324-5326 rejects a
+// target that is not two size classes smaller; everything after a passing size
+// test stops here: is_blunt_weapon(), unsolid(), m_is_steadfast() and the
+// mhurtle() that does the knocking back have no port.
 //
 // Three ported callers reach this: uhitm.c hmon_hitmon():1928, where the hero
 // is the attacker; mhitu.c hitmu():1193, where the hero is the defender; and
@@ -1746,13 +1748,13 @@ export async function missum(
 // at 5399, both past the stop below; it is left off the signature rather than
 // accepted and ignored.
 //
-// The hero as defender reaches the `u_def` refusal below whenever an AD_PHYS
-// AT_CLAW, AT_KICK, AT_BUTT or AT_WEAP blow lands on him and rn2(6) answers 0,
-// so roughly one such hit in six stops there. QUALITY.json's
-// monster-melee-knockback-on-the-hero-stops records that case and the seed that
-// reaches it. An AT_BITE, AT_STNG, AT_TUCH or AT_TENT blow never does: the gate
-// at 5273-5277 excludes all four.
-export function mhitm_knockback(
+// The hero as defender reaches test_move() whenever an AD_PHYS AT_CLAW,
+// AT_KICK, AT_BUTT or AT_WEAP blow lands on him and rn2(6) answers 0, so
+// roughly one such hit in six probes the destination. On ordinary floor the
+// probe succeeds, and the human hero then fails the size guard for the large
+// ape in the fresh case. An AT_BITE, AT_STNG, AT_TUCH or AT_TENT blow never
+// reaches test_move(): the gate at 5273-5277 excludes all four.
+export async function mhitm_knockback(
     magr,
     mdef,
     mattk,
@@ -1797,11 +1799,11 @@ export function mhitm_knockback(
 
     /* can't move most targets into or out of a doorway diagonally */
     if (u_def) {
-        // C tests hack.c test_move(..., TEST_MOVE) here, and everything past
-        // it knocks the hero across the map through dothrow.c hurtle(). None
-        // of that is ported, and no ported path reaches this line: see the
-        // damage-type note above.
-        unsupported('knocking the hero back');
+        // C tests hack.c test_move(..., TEST_MOVE) here. The actual hurtle is
+        // still outside this slice, but a failed probe must return FALSE so
+        // the caller continues the ordinary hit path.
+        if (!await test_move(defx, defy, dx, dy, TEST_MOVE, state, env))
+            return false;
     }
     /* subset of test_move() */
     if (!isok(defx + dx, defy + dy)) return false;

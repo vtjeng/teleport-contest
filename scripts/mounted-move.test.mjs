@@ -355,21 +355,18 @@ test('mattacku() spends no draw on the steed itself or on a hero on foot',
     const onFoot = fixedRandom(0);
     const attacker = attackerAt(state, PM_GOBLIN, 1, 0);
     // A hero on foot skips the steed draw entirely and falls straight through
-    // to the melee arm. The blow lands, and this random source then answers
-    // uhitm.c:5269's rn2(6) with the one value in six that lets
-    // mhitm_knockback() past its chance gate, so the turn stops at the u_def
-    // arm that would push the hero across the map. QUALITY.json's
-    // monster-melee-knockback-on-the-hero-stops carries that gap.
-    const stopped = steedTestEnv(state, onFoot);
-    await assert.rejects(
-        () => mattacku(attacker, stopped),
-        (error) => error instanceof UnsupportedSimpleMonsterActionError
-            && error.reason === 'knocking the hero back',
-    );
+    // to the melee arm. This random source answers uhitm.c:5269's rn2(6)
+    // with the one value in six that lets mhitm_knockback() past its chance
+    // gate. test_move() admits the ordinary floor step, and the goblin's
+    // small size then fails the size guard, so the hit continues normally.
+    const continued = steedTestEnv(state, onFoot);
+    const uhpBefore = state.u.uhp;
+    assert.equal(await mattacku(attacker, continued), false);
     // No rn2(2): the steed arm is what a hero on foot skips. The pair that
     // remains is mhitm_knockback()'s own, and the blow's line came first.
     assert.deepEqual(onFoot.bounds, [3, 6]);
-    assert.deepEqual(stopped.lines, ['The goblin hits!']);
+    assert.deepEqual(continued.lines, ['The goblin hits!']);
+    assert.equal(state.u.uhp, uhpBefore - 1);
 });
 
 test('mattacku() ends a multi-turn action for an adjacent attacker only',

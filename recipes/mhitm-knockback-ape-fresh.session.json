@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 24681001,
+      "datetime": "20260214031500",
+      "nethackrc": "OPTIONS=name:Knock,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u0007ape\nFlm."
+    }
+  ]
+}

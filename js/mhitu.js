@@ -936,8 +936,8 @@ async function hitmu(mtmp, mattk, env) {
 
     await mhitm_adtyping(mtmp, mattk, state.youmonst, mhm, state, env);
 
-    mhitm_knockback(mtmp, state.youmonst, mattk, Boolean(mtmp.mw) /* MON_WEP */,
-        state, env, random);
+    await mhitm_knockback(mtmp, state.youmonst,
+        mattk, Boolean(mtmp.mw) /* MON_WEP */, state, env, random);
 
     if (mhm.done)
         return mhm.hitflags;
