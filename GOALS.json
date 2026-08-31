@@ -6982,7 +6982,13 @@
         ]
       },
       "detail": "Exact C trace disproves the named displacement property; session contributes zero to actual knockback. Corrected non-displacing eligibility goal is small: reach test_move/alive/size guards and ordinary false return. Exclude steadfastness, messages, hurtle, collision damage and stun.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "mhitm-knockback-hero-size-eligibility",
+          "status": "closed",
+          "closedBy": "3005fdd56f4808b58487d910cb0d079b56509b91"
+        }
+      ],
       "openedAt": "4db5d4f0e76a0ee67baaf20cafe2b2a1f6bd9c76",
       "openStanding": {
         "sha": "250684f",
