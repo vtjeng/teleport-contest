@@ -7041,6 +7041,47 @@
         "screens": 13,
         "rng": 44
       }
+    },
+    {
+      "id": "simple-monster-action-requires-a-monster-engulfing-the-hero",
+      "status": "open",
+      "boundary": "When the witnessed ordinary Wizard is adjacent to a live uncancelled ice vortex, carry C's monster movement through mattacku()'s AT_ENGL arm into gulpmu(), set the swallow state and preserve the vortex's repeated AD_COLD damage and output through the next independent command boundary.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/allmain.c: moveloop_core()",
+        "nethack-c/upstream/src/mon.c: movemon_singlemon(); movemon()",
+        "nethack-c/upstream/src/monmove.c: dochug(); m_move(); postmov()",
+        "nethack-c/upstream/src/mhitu.c: mattacku(); gulpmu()",
+        "nethack-c/upstream/include/monsters.h: ICE_VORTEX"
+      ],
+      "forecast": {
+        "steps": 23,
+        "basis": "Capped look-ahead at simple monster action requires a monster engulfing the hero",
+        "sessions": [
+          "seed0383-wizard-hallucinate"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383-wizard-hallucinate",
+            "evidence": "Seed 383, datetime 2000-01-10 09:00:00, debug neutral male human Wizard Dazz, OPTIONS=symset:DECgraphics and !autopickup. The replay reaches the first stop at recorded step 139 after the P/o setup sequence on Dlvl:12; the last matching turn has ordinary kitten-versus-gnome combat and the ape's ordinary physical attacks. C's allmain.c moveloop_core() enters the monster loop (203-215), mon.c movemon_singlemon() debits and dispatches each live monster (1214-1321), and monmove.c dochug() reaches standard attacks (961-973). The ice vortex is live, hostile, adjacent and uncancelled; monsters.h defines it as a level-5 AT_ENGL/AD_COLD 1d6 monster with M1_FLY|M1_BREATHLESS|M1_NOEYES|M1_NOLIMBS|M1_NOHEAD|M1_MINDLESS (1071-1080). With the ordinary unpolymorphed hero found at melee range and not already swallowed, mhitu.c mattacku() selects the AT_ENGL arm and calls gulpmu() after its hit gate (768-855). gulpmu() moves the vortex onto the hero, sets ustuck/uswallow and emits the engulf message (1287-1403); on the following engulfing attack, its AD_COLD arm rolls the damage and emits the freezing message because Cold_resistance is absent (1415-1516). The session RNG log records the preceding mhitm/mhitu actions and gulpmu calls. Bound to this adjacent ice-vortex cold-engulf path and its ordinary Wizard preconditions; exclude other engulfers, digestion, fire/electric/acid variants, moving while swallowed, gulp blindness, steed, petrification, resistance branches, and death/end handling. The first independent later behavior is #wizintrinsic at recorded step 162, outside the capped 23-step stretch."
+          }
+        ]
+      },
+      "detail": "Small single-session slice, capped forecast 23. Port the concrete monmove.c to mhitu.c path that lets an adjacent live ice vortex engulf an ordinary Wizard and apply its repeated AD_COLD attack, preserving monster-loop order, message/screens, hero swallow state and source-order RNG. The C ownership is allmain.c moveloop_core(), mon.c movemon_singlemon(), monmove.c dochug()/m_move(), mhitu.c mattacku()/gulpmu(), with the ice-vortex attack definition in include/monsters.h. Bound the goal to the witnessed non-polymorphed, non-resistant hero and initial adjacent ice vortex; do not expand it to other engulfers, damage types, swallowed movement, gulp blindness, steed or resistance branches, or death/end behavior. The first independent later command is #wizintrinsic at step 162, so it is outside the 23-step cap.",
+      "slices": [
+        {
+          "name": "an ordinary Wizard is engulfed by an adjacent ice vortex and takes repeated cold damage",
+          "status": "closed",
+          "closedBy": "f790f64f35ed2bbd7934a725ec04215200aa45a6"
+        }
+      ],
+      "openedAt": "8b04f2ec3b97aaea36b6d5ba0de11b837b64affc",
+      "openStanding": {
+        "sha": "6e2b07b",
+        "screens": 3497,
+        "rng": 225713
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
