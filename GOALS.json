@@ -6498,7 +6498,13 @@
         ]
       },
       "detail": "The candidate is bounded to the BARRACKS arm of fill_zoo in mkroom.c: makemon(squadmon(), x, y, MM_ASLEEP|MM_NOGRP) for each fillable cell, a 1/20-probability LARGE_BOX/CHEST placement selected by rn2(3), and setting svl.level.flags.has_barracks=1. This is one arm of an already-partially-ported dispatch function, reusing existing MORGUE/COURT/BEEHIVE/ZOO scaffolding rather than introducing new special-room families or touching fill_special_room recursion/skip logic. No other room types are included. squadmon is a direct dependency and is in scope as a helper. The seed-360 development session is the only development witness, with capped forecast 226 screens/RNG calls.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "barracks-fill-zoo-squad-payroll",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "93a461b28e530b1b6ce164ced27f4afb9a028c93",
       "openStanding": {
         "sha": "466d9af90df0c417cb66ed568fbe8c86a277a9f4",
