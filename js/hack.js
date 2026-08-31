@@ -130,7 +130,7 @@ import { cmdq_clear } from './cmd.js';
 import { clear_kickedloc } from './dokick.js';
 import { dig_typ } from './dig.js';
 import { alwaysVisibleMonsterName, hliquid } from './do_name.js';
-import { u_on_newpos } from './dungeon.js';
+import { Invocation_lev, u_on_newpos } from './dungeon.js';
 import { gethungry } from './eat.js';
 import { done } from './end.js';
 import { dist2, highc } from './hacklib.js';
@@ -3521,19 +3521,15 @@ export function u_locomotion(def, state = game) {
     return locomotion(state.youmonst.data, def);
 }
 
-// C ref: hack.c invocation_message() (3064-3085). Its whole body sits behind
-// invocation_pos(), which is Invocation_lev() and the level's fixed vibrating
-// square. Invocation_lev() (dungeon.h:47) is In_hell() and the level above
-// the bottom of Gehennom, and this port generates no level outside the
-// Dungeons of Doom, so the clue message and u.uevent.uvibrated are dead. The
-// guard is kept so that the first caller which does reach Gehennom stops here
-// rather than skipping the clue in silence.
+// C ref: hack.c invocation_message() (3064-3085). invocation_pos() first
+// checks Invocation_lev(), so non-Invocation levels return without touching
+// movement or message state. The clue-producing Invocation-level branch stays
+// fail-closed until its fixed vibrating-square behavior is ported.
 export function invocation_message(state = game) {
-    if (state.u.uz.dnum !== 0) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'invocation_message() outside the Dungeons of Doom',
-        );
-    }
+    if (!Invocation_lev(state.u.uz, state)) return;
+    throw new UnsupportedHeroMoveBoundaryError(
+        'invocation_message() on the Invocation level',
+    );
 }
 
 // C ref: hack.c maybe_smudge_engr(). Each eligible engraving consumes rnd(5)

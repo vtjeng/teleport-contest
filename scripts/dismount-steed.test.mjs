@@ -744,15 +744,22 @@ test('notice_mon_off and notice_mon_on nest and reject an unpaired resume',
     if (before === 0) assert.throws(() => notice_mon_on(state), /blocked<0/u);
 });
 
-test('invocation_message admits only the Dungeons of Doom', async () => {
-    // hack.c:3064-3085 behind invocation_pos(), which needs Invocation_lev().
-    const state = await mounted();
-    assert.equal(state.u.uz.dnum, 0);
-    invocation_message(state);
-    state.u.uz.dnum = 1;
+test('invocation_message returns off the Invocation level and fails closed on it', () => {
+    // hack.c:3064-3085 calls invocation_pos(), whose first predicate is
+    // dungeon.c:2017-2021 Invocation_lev(). Quest is non-hellish even at the
+    // level immediately above its bottom, while the corresponding Gehennom
+    // level reaches the clue branch that this port still rejects.
+    const state = {
+        u: { uz: { dnum: 1, dlevel: 4 } },
+        dungeons: [
+            { flags: { hellish: false }, num_dunlevs: 5 },
+            { flags: { hellish: false }, num_dunlevs: 5 },
+        ],
+    };
+    assert.doesNotThrow(() => invocation_message(state));
+    state.dungeons[1].flags.hellish = true;
     assert.throws(() => invocation_message(state),
                   UnsupportedHeroMoveBoundaryError);
-    state.u.uz.dnum = 0;
 });
 
 test('vault_occupied answers the first vault in a room string', async () => {
