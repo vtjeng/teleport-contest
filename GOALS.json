@@ -6458,8 +6458,8 @@
       "slices": [
         {
           "name": "invocation-message-false-invocation-level",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "04a6a82cfaf4abb39b6cd07fb5fa62e17b50a196"
         }
       ],
       "openedAt": "485001a80dc9d09890507b2be63c6ae189fa9bcc",
