@@ -14,7 +14,7 @@ import {
     PM_VAMPIRE, PM_VAMPIRE_LEADER, PM_VAMPIRE_BAT, PM_FOG_CLOUD, PM_WOLF,
     PM_BAT, PM_GIANT_BAT, PM_RAVEN,
     PM_STALKER, PM_BLACK_LIGHT, PM_GRID_BUG,
-    PM_GRAY_DRAGON, PM_RED_DRAGON, PM_HUMAN_ZOMBIE, PM_DEATH,
+    PM_GRAY_DRAGON, PM_RED_DRAGON, PM_HUMAN_ZOMBIE,
     M2_HUMAN, NUMMONS,
 } from '../js/monsters.js';
 import {
@@ -26,11 +26,6 @@ import {
     pm_invisible,
     valid_vampshiftform,
     resists_drli,
-    defended,
-    is_undead,
-    is_demon,
-    is_were,
-    is_vampshifter,
 } from '../js/mondata.js';
 import { character_race } from '../js/roles.js';
 import { uasmon_maxStr, set_uasmon } from '../js/polyself.js';

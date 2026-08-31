@@ -21,7 +21,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-import { ECMD_OK, STRANGLED, TIMEOUT } from '../js/const.js';
+import { ECMD_OK, STRANGLED } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { dobreathe } from '../js/polyself.js';

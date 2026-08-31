@@ -61,7 +61,7 @@ import { m_at } from '../js/monst.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
-    APPLE, COIN_CLASS, CORPSE, ELVEN_DAGGER, TIN,
+    APPLE, CORPSE, ELVEN_DAGGER, TIN,
 } from '../js/objects.js';
 import {
     pickup,

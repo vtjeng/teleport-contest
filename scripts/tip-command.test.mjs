@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    CHEST, DAGGER, ICE_BOX, LARGE_BOX, WEAPON_CLASS,
+    CHEST, DAGGER, LARGE_BOX, WEAPON_CLASS,
 } from '../js/objects.js';
 import { ECMD_OK, ECMD_TIME, OBJ_CONTAINED } from '../js/const.js';
-import { container_at, dotip } from '../js/pickup.js';
+import { dotip } from '../js/pickup.js';
 import { count_contents } from '../js/invent.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';

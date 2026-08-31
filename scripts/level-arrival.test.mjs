@@ -41,7 +41,6 @@ import {
     STEALTH,
     STONE,
     SWAMP,
-    TEMPLE,
     THEMEROOM,
     THRONE,
     VAULT,

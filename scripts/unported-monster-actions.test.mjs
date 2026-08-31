@@ -111,7 +111,6 @@ import {
     POT_HEALING,
     POT_SPEED,
     ROCK,
-    TRIPE_RATION,
     WAX_CANDLE,
 } from '../js/objects.js';
 import { m_move } from '../js/monmove.js';

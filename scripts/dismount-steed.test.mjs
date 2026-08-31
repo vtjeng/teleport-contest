@@ -42,7 +42,6 @@ import {
     TT_NONE,
     TT_PIT,
     TT_WEB,
-    TELEDS_TELEPORT,
     VAULT,
     VIBRATING_SQUARE,
     W_SADDLE,

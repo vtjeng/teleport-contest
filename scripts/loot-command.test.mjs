@@ -2,10 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    AMULET_OF_YENDOR, BAG_OF_HOLDING, CHEST, ICE_BOX, LARGE_BOX, LEASH,
-    LOADSTONE, TOOL_CLASS, WEAPON_CLASS,
+    BAG_OF_HOLDING, CHEST, ICE_BOX, LARGE_BOX, LEASH, TOOL_CLASS,
 } from '../js/objects.js';
-import { ECMD_TIME, SELL_NORMAL, W_ARM } from '../js/const.js';
+import { ECMD_TIME, SELL_NORMAL } from '../js/const.js';
 import {
     container_at,
     doloot,

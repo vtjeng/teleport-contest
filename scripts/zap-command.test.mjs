@@ -5,7 +5,6 @@ import test from 'node:test';
 import { ART_EXCALIBUR } from '../js/artifacts.js';
 import { ADMITTED_COMMANDS, failClosedCommandRefusals } from '../js/cmd.js';
 import {
-    DIED,
     ECMD_OK,
     ECMD_TIME,
     EXT_ENCUMBER,
@@ -13,13 +12,11 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
     M_SEEN_SLEEP,
-    NO_KILLER_PREFIX,
     ROOMOFFSET,
     SDOOR,
     SLEEP_RES,
     W_ARMH,
 } from '../js/const.js';
-import { UnsupportedEndOfGameError } from '../js/end.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
@@ -31,7 +28,6 @@ import {
     POTION_CLASS,
     POT_WATER,
     WAND_CLASS,
-    WAN_DEATH,
     WAN_DIGGING,
     WAN_LIGHT,
     WAN_SECRET_DOOR_DETECTION,

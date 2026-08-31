@@ -43,7 +43,7 @@ import {
     rloc,
     rloc_to,
 } from '../js/teleport.js';
-import { game, resetGame } from '../js/gstate.js';
+import { resetGame } from '../js/gstate.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { BOULDER, SCR_SCARE_MONSTER } from '../js/objects.js';
 
