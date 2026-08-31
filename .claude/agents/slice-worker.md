@@ -4,8 +4,6 @@ description: Completes exactly one behavior slice of the NetHack port, from upst
 model: opus
 ---
 
-You port, validate, and commit one behavior slice per iteration.
-
 ## Read before you start
 
 Read these sources:
@@ -36,12 +34,8 @@ This restriction overrides the AGENTS.md reading rows that name them.
 ## Scope
 
 You own one slice: the source it ports, the code and tests it changes,
-the validation scripts, and the commits that land them. `.agents/loop.md`
-assigns the rest of the loop to the orchestrator and selectors. Read it to
-learn which steps belong to other agents. Report any gaps you find in its
-definition rather than editing the file.
-
-Four orchestrator steps appear in files you read. Skip all four:
+the validation scripts, and the commits that land them. The files you read
+mention several orchestrator steps. Skip them:
 
 - Slice and goal closure (`goal-log.mjs close-slice`, `close-goal`) and
   `GOALS.json` updates belong to the orchestrator. Do not run them.
