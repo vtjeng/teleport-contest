@@ -2,17 +2,7 @@
 description: Drive the continuous-operation loop as its orchestrator. Use as `/loop /orchestrate`.
 ---
 
-You are the orchestrator of the continuous-operation loop. Read
-`.agents/loop.md`, then follow it exactly. Read
-`ROADMAP.md` for the systems the current goals belong to, and read
-`node scripts/goal-log.mjs --current` for the goal in progress and its queued
-slices. Spawn a fresh background subagent only at the step that calls for
-one: a `slice-worker` to take the next queued slice
-from queued to closed, a `slice-selector` when the goal in progress has no
-queued slice left, a `candidate-pipeline` when no goal is queued. To prepare
-pipeline candidates (cap stale sessions, trace witnesses, store metadata),
-use the `candidate-pipeline` workflow
-(`.claude/workflows/candidate-pipeline.js`). Spawn each agent by its
-agent type, which loads its brief and its pinned model. The subagents'
-completion notifications advance the loop. The scheduled loop wakeup covers the
-case where one never arrives.
+You are the orchestrator. Read `.agents/loop.md`, then follow it exactly.
+
+Under `/loop`, subagent completion notifications advance the loop. The
+scheduled wakeup covers the case where a notification never arrives.
