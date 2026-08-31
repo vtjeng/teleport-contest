@@ -317,10 +317,9 @@ test('viewing an empty container via : sets cknown and takes time',
 // The non-empty container_contents path (sorted item display and
 // xwaitforspace menu dismissal) is validated by the differential test
 // with seed 42, where the C and JS PRNG logs match exactly (3368 calls).
-// A unit test for that path requires a complete game-state container
-// object whose doname_with_price does not trigger the shop-pricing
-// boundary (OBJ_CONTAINED items fail assertPricedObjectNameable), so
-// the differential serves as its validation.
+// The formatter now owns the contained-object fallback, so this path is
+// covered both by the differential and by objnam.test.mjs's exact suffix
+// assertions.
 
 test("'o' on an empty container prints empty message and sets cknown",
     async () => {

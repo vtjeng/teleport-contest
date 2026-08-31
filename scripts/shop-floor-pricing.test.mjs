@@ -544,18 +544,16 @@ test('positive shop prices take precedence over remembered-price display',
         assert.doesNotMatch(menu, /potion \{buy /u);
     });
 
-test('movement keeps the non-shop remembered-price fallback excluded',
+test('movement displays the non-shop remembered-price fallback',
     async () => {
         const { state, target, upper } = await generatedShopPile();
         state.level.flags.has_shop = false;
         state.iflags.pricequotes = true;
         state.objects[upper.otyp].oc_name_known = 0;
-        // Without a shop, doname_base() would reach append_price_quote() for
-        // this unidentified type. That separate display mode remains outside
-        // the selected floor-price transaction.
-        assert.throws(
+        state.objects[upper.otyp].oc_buy_minseen = 10;
+        state.objects[upper.otyp].oc_buy_maxseen = 20;
+        assert.doesNotThrow(
             () => requireSimpleHeroDestination(target.x, target.y, state),
-            /price quote suffix/u,
         );
         assert.equal(upper.dknown, false);
     });

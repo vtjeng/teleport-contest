@@ -1,0 +1,9 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 7633019,
+    "datetime": "20320618113000",
+    "nethackrc": "OPTIONS=name:QuoteBox,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+    "moves": ".\u00165\n h\u00161\n\u0017empty unlocked chest\n\u0017clear potion\ndo#loot\n:"
+  }]
+}

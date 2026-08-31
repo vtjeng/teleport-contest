@@ -20,6 +20,7 @@ import {
     CORPSTAT_MALE, CORPSTAT_RANDOM, CXN_ARTICLE, CXN_NOCORPSE, CXN_NORMAL,
     CXN_NO_PFX, CXN_PFX_THE, CXN_SINGULAR, FEMALE, HALLUC, HALLUC_RES, HAND,
     MALE, NEUTRAL, NON_PM,
+    OBJ_CONTAINED, OBJ_FLOOR,
     P_BOW, W_AMUL, W_ARMOR, W_QUIVER, W_RING, W_RINGR, W_SADDLE,
     W_SWAPWEP, W_TOOL, W_WEP,
 } from './const.js';
@@ -74,6 +75,7 @@ import {
     HORN_OF_PLENTY,
 } from './objects.js';
 import {
+    append_price_quote,
     get_cost_of_shop_item,
     record_price_quote,
     shk_your,
@@ -390,13 +392,11 @@ function preflightXname(obj, type, state) {
         unsupported('user-assigned type name', obj);
 }
 
-function preflightDoname(obj, type, state, allowLiveShopPrice) {
+function preflightDoname(obj, type, state) {
     preflightXname(obj, type, state);
     const { cknown } = identificationFlags(obj, type, state);
     if (obj.unpaid)
         unsupported('shop price suffix', obj);
-    if (!allowLiveShopPrice && state.iflags?.pricequotes && !type.oc_name_known)
-        unsupported('price quote suffix', obj);
     // objnam.c:1563 and :1592. wornSuffix() below ports the "wielded in" and
     // "weapon in" arms of that word choice; "tethered to" would also have to
     // follow the aklys back to the hand it is attached to, so it still stops.
@@ -985,7 +985,7 @@ function corpseDoname(obj, modifiers, state) {
 // observe_object() as it formats, so a caller that must not change discovery
 // state until every object is nameable runs this over all of them first.
 export function assertObjectNameable(obj, state = game) {
-    preflightDoname(obj, objectType(obj, state), state, false);
+    preflightDoname(obj, objectType(obj, state), state);
 }
 
 // C refs: objnam.c doname_base(DONAME_WITH_PRICE) and invent.c currency().
@@ -993,7 +993,7 @@ export function assertObjectNameable(obj, state = game) {
 // the hero, discovery catalog, quote catalog, or display changes.
 export function assertPricedObjectNameable(obj, state = game) {
     const type = objectType(obj, state);
-    preflightDoname(obj, type, state, true);
+    preflightDoname(obj, type, state);
     const hallucination = state.u?.uprops?.[HALLUC];
     const resistance = state.u?.uprops?.[HALLUC_RES];
     if (hallucination?.intrinsic
@@ -1429,11 +1429,16 @@ export function Yname2(obj, state = game) {
 
 // C ref: objnam.c doname(). Shop, known-container, worn-item, end-game, and
 // lit-candle branches stop before xname() can mutate discovery state. The
-// private allowLiveShopPrice seam is owned only by doname_with_price(), which
-// appends and records that price after this ordinary name is complete.
-function donameFreshInternal(obj, state, allowLiveShopPrice) {
+// private pricing flags are owned by doname_with_price(). The remembered
+// quote is part of ordinary doname(), while a live price is appended by the
+// caller after this ordinary name is complete.
+function donameFreshInternal(
+    obj,
+    state,
+    { allowLiveShopPrice = false, includeRememberedPriceQuote = false } = {},
+) {
     const type = objectType(obj, state);
-    preflightDoname(obj, type, state, allowLiveShopPrice);
+    preflightDoname(obj, type, state);
     let base = xnameFresh(obj, state);
     // C ref: objnam.c doname_base():1254-1262, which reads these after its own
     // `bp = xname(obj)` at :1247. xnameFresh() above can clear obj.known for
@@ -1540,6 +1545,15 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
     // return above took.
     base += wizmgenderSuffix(obj, state);
     base += wornSuffix(obj, type, state);
+    // C ref: objnam.c doname_base():1750-1752. This runs after the worn
+    // suffixes but before the article prefix is prepended. The live-price
+    // caller enables the same remembered fallback for contained objects;
+    // when a positive live price exists, its caller appends that suffix after
+    // this ordinary name and does not request the remembered one.
+    if (includeRememberedPriceQuote && state.iflags?.pricequotes
+        && !type.oc_name_known) {
+        base += append_price_quote(base, obj.otyp, state);
+    }
     const words = [...modifiers, base].join(' ');
     if (quantity !== 1)
         return `${quantity} ${words}`;
@@ -1555,21 +1569,37 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
 }
 
 export function donameFresh(obj, state) {
-    return donameFreshInternal(obj, state, false);
+    return donameFreshInternal(obj, state, {
+        includeRememberedPriceQuote: true,
+    });
 }
 
 // C ref: objnam.c doname_base(DONAME_WITH_PRICE), through its ordinary floor
-// item branch. xname() observes first, the suffix uses the resulting price,
-// and record_price_quote() is the final durable write.
+// item branch and its container-contents caller. xname() observes first, the
+// suffix uses the resulting price, and record_price_quote() is the final
+// durable write. For an ordinary contained item outside a shop, C's helper
+// returns no live price and doname_base() falls through to the remembered
+// quote branch.
 export function doname_with_price(
     obj,
     state,
     { currencyName } = {},
 ) {
+    if (obj.where !== OBJ_FLOOR) {
+        if (obj.where !== OBJ_CONTAINED)
+            unsupported('non-floor price suffix', obj);
+        preflightDoname(obj, objectType(obj, state), state);
+        return donameFreshInternal(obj, state, {
+            allowLiveShopPrice: true,
+            includeRememberedPriceQuote: true,
+        });
+    }
     if (typeof currencyName !== 'function')
         throw new TypeError('doname_with_price needs the currency owner');
     assertPricedObjectNameable(obj, state);
-    const name = donameFreshInternal(obj, state, true);
+    const name = donameFreshInternal(obj, state, {
+        allowLiveShopPrice: true,
+    });
     const quote = get_cost_of_shop_item(obj, state);
     const suffix = `${quote.cost} ${currencyName(quote.cost, state)}`;
     const result = `${name} (for sale, ${suffix})`;

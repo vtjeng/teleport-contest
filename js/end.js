@@ -114,7 +114,8 @@ import { isContainer } from './obj.js';
 import { discover_object } from './o_init.js';
 import { BAG_OF_TRICKS, CORPSE, LARGE_BOX, STATUE, TIN } from './objects.js';
 import {
-    an, donameFresh, the, thesimpleoname, the_unique_pm, xnameFresh,
+    an, doname_with_price, the, thesimpleoname, the_unique_pm,
+    xnameFresh,
 } from './objnam.js';
 import { enlightenment } from './insight.js';
 import { add_menu_heading, select_menu } from './windows.js';
@@ -1381,7 +1382,7 @@ export async function container_contents(
                 | (state.flags?.sortpack ? SORTLOOT_PACK : 0));
             const sorted = sortloot(box.cobj, sortflags, false, null, state);
             for (const entry of sorted) {
-                lines.push(`  ${donameFresh(entry.obj, state)}`);
+                lines.push(`  ${doname_with_price(entry.obj, state)}`);
             }
         } else if (cat) {
             lines.push("  Schroedinger's cat!");

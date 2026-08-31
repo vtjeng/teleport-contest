@@ -20,6 +20,7 @@ import {
     LOOKHERE_NOFLAGS,
     LOOKHERE_PICKED_SOME,
     OBJ_FLOOR,
+    OBJ_CONTAINED,
     OBJ_FREE,
     OBJ_INVENT,
     NON_PM,
@@ -54,6 +55,7 @@ import {
     gloves_simple_name,
     helm_simple_name,
     distant_name,
+    doname_with_price,
     isPoisonable,
     just_an,
     obj_typename,
@@ -1845,30 +1847,41 @@ test('weapon-tools take the enchantment and no charge count', () => {
     );
 });
 
-test('unsupported naming branches fail before discovery or state changes', () => {
+test('doname appends remembered price quotes after the object name', () => {
     const state = namingState();
     state.iflags.pricequotes = true;
+    const type = state.objects[POT_HEALING];
+    type.oc_buy_minseen = 10;
+    type.oc_buy_maxseen = 20;
+
+    const quoted = objectOf(state, POT_HEALING);
+    assert.equal(
+        donameFresh(quoted, state),
+        'a purple-red potion {buy 10-20}',
+    );
+    assert.equal(quoted.dknown, true);
+
+    type.oc_buy_minseen = Number.MAX_SAFE_INTEGER;
+    type.oc_buy_maxseen = 0;
+    const unquoted = objectOf(state, POT_HEALING);
+    assert.equal(donameFresh(unquoted, state), 'a purple-red potion');
+
+    type.oc_buy_minseen = 10;
+    type.oc_buy_maxseen = 20;
+    const contained = objectOf(state, POT_HEALING, {
+        where: OBJ_CONTAINED,
+    });
+    assert.equal(
+        doname_with_price(contained, state),
+        'a purple-red potion {buy 10-20}',
+    );
+});
+
+test('unsupported naming branches fail before discovery or state changes', () => {
+    const state = namingState();
     const wieldedForXname = objectOf(state, DART, { owornmask: W_WEP });
     assert.equal(xnameFresh(wieldedForXname, state), 'dart');
     assert.equal(wieldedForXname.dknown, true);
-
-    const quoted = objectOf(state, POT_HEALING);
-    assert.throws(
-        () => donameFresh(quoted, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'price quote suffix',
-    );
-    assert.equal(quoted.dknown, false);
-    assert.equal(state.objects[POT_HEALING].oc_encountered, 0);
-
-    const optionBypass = objectOf(state, POT_HEALING);
-    assert.throws(
-        () => donameFresh(optionBypass, state, { withPrice: true }),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'price quote suffix',
-    );
-    assert.equal(optionBypass.dknown, false);
-
 
     state.iflags.pricequotes = false;
 
@@ -2086,15 +2099,17 @@ test('distant_name widens the near square with the hero xray range', () => {
     assert.equal(potion.dknown, true);
 });
 
-test('distant_name lowers its counter when the formatter refuses', () => {
+test('distant_name lowers its counter after remembered-price formatting', () => {
     const state = distantNamingState(10, 5);
     const potion = floorPotion(state, 10, 5);
     state.viz_array[5][10] = 0; // Force the counted branch.
-    state.iflags.pricequotes = true; // donameFresh() refuses this object.
+    state.iflags.pricequotes = true;
+    state.objects[POT_HEALING].oc_buy_minseen = 10;
+    state.objects[POT_HEALING].oc_buy_maxseen = 20;
 
-    assert.throws(
-        () => distant_name(potion, donameFresh, state),
-        (error) => error instanceof UnsupportedObjectNameError,
+    assert.equal(
+        distant_name(potion, donameFresh, state),
+        'a potion {buy 10-20}',
     );
     assert.equal(state.gd.distantname, 0);
 });
