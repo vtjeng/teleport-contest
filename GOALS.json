@@ -6597,8 +6597,8 @@
       "slices": [
         {
           "name": "quest-leader-first-meeting-alignment-adjust",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e591bc6081bca5139262552dc30d64ee5d092797"
         }
       ],
       "openedAt": "acb9345d2c9f13915766238b2f919cba759f9624",
