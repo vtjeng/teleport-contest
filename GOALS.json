@@ -7085,6 +7085,45 @@
         "screens": 3,
         "rng": 198
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-8",
+      "status": "open",
+      "boundary": "When the witnessed one-armor read selects the unknown FOOBIE BLETCH scroll and C reaches SCR_DESTROY_ARMOR's destroy_arm() fallback, apply the two source-ordered flammable-armor erosion hits, messages, inventory updates, and scroll consumption through the next independent command boundary.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/read.c: doread(); seffect_destroy_armor(); seffects()",
+        "nethack-c/upstream/src/do_wear.c: obj_erode_type(); destroy_arm()",
+        "nethack-c/upstream/src/trap.c: erode_obj()"
+      ],
+      "forecast": {
+        "steps": 123,
+        "basis": "Capped look-ahead at selected readable object branch",
+        "sessions": [
+          "seed0007-rogue-snake-swamp"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0007-rogue-snake-swamp",
+            "evidence": "Seed 7, 2026-05-03 02:54:36, OPTIONS=symset:DECgraphics. At recorded step 123, the chaotic level-1 Footpad Septor enters read.c doread() with input r and selects inventory i, an unknown scroll labeled FOOBIE BLETCH; the only worn armor shown is an uncursed +1 leather armor. C clears scroll->pickup_prev, marks the read, emits \"As you read the scroll, it disappears.\", and reaches the SCR_DESTROY_ARMOR seffect_destroy_armor() fallback: the recorded RNG has rn2(19)=13 for the magic-scroll exercise, rn2(4)=1 for destroy_arm()'s two hits, then rn2(1)=0 twice to choose the sole worn suit. trap.c erode_obj() applies ERODE_BURN to the flammable leather armor, producing \"Your leather armor smoulders!\" and, after the More dismissal, \"Your leather armor smoulders further!\" while increasing its erosion twice. This is the one-armor destroy_arm() arm, not cursed-scroll disintegration or blessed multi-armor selection. The next independent recorded behavior is travel at step 246; the 123-step look-ahead contains no second unsupported or partial branch before that boundary."
+          }
+        ]
+      },
+      "detail": "Small coherent read-effect slice, capped forecast 123. Carry the witnessed selected readable object through read.c doread() into seffects()'s SCR_DESTROY_ARMOR case, seffect_destroy_armor()'s fallback destroy_arm() path, and the resulting ERODE_BURN/erode_obj() updates and screens for one worn flammable leather suit. Preserve scroll consumption, literate/in_use state, source-order RNG, erosion increments, inventory/status refresh, and --More-- timing. Bound this candidate to the witnessed one-armor fallback; do not include cursed-scroll disintegration, blessed multi-armor choice, other readable objects, or unrelated scroll effects. The first independent later behavior is travel at step 246, outside the capped look-ahead.",
+      "slices": [
+        {
+          "name": "read-destroy-armor-one-worn-flammable-fallback",
+          "status": "closed",
+          "closedBy": "eb880b7aa90e68806c98c1fc28855b373a70116f"
+        }
+      ],
+      "openedAt": "2cd87f1e55700d0c6078fb8db585a27cbfdeeb91",
+      "openStanding": {
+        "sha": "5b8634c",
+        "screens": 3500,
+        "rng": 225911
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
