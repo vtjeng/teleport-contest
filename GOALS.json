@@ -6400,7 +6400,13 @@
         ]
       },
       "detail": "Small, tightly bounded single slice, forecast 226. Bound to the explicit PM_MINOTAUR branch of sp_lev.c:fill_empty_maze() reached by Castle’s default-stocked mazewalks, reusing the existing generic makemon initialization, map placement, inventory, and post-level flow. Do not include fill_empty_maze()’s random-monster, gold, or trap loops, mkmaze.c:populate_maze(), special-level class descriptors, or other explicit species; this witness has one optional minotaur and the next recorded unmet behavior is travel at step 385. The scope is small enough for the ranking and matches one behavior slice.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "explicit PM_MINOTAUR placement in Castle fill_empty_maze()",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "82ac7bd39427361d853a01055a6976bc361dbd5e",
       "openStanding": {
         "sha": "b2c808662fce3dbac35ffaa4aaa949200a8158ca",
