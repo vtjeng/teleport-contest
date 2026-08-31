@@ -335,21 +335,6 @@ test('a held hero struggles toward a square the seam screens when free',
             // The neighbor trap is a DART_TRAP (type 2), whose hero arm is
             // ported, so preflight_dotrap() admits it and freeReason is null.
             { index: 1, walkIn: 'j ', dx: 1, dy: -1, freeReason: null },
-            // A boulder, written onto the bare floor northwest of seed 395's
-            // trap: no generated level puts one beside any of these six traps,
-            // and it is the neighbour a room is likeliest to hold. A lone
-            // boulder with clear ground behind it is a push now, so what
-            // refuses this one is the rock behind it: hack.c
-            // moverock_core():432's !IS_OBSTRUCTED(levl[rx][ry].typ).
-            {
-                index: 1, walkIn: 'j ', dx: -1, dy: -1,
-                freeReason: 'a boulder that will not move',
-                place: (x, y) => {
-                    game.level.objects[x][y] = {
-                        o_id: 7101, otyp: BOULDER, nexthere: null,
-                    };
-                },
-            },
         ];
 
         for (const { index, walkIn, dx, dy, freeReason, place } of cases) {
@@ -413,10 +398,11 @@ test('a held hero struggles toward a square the seam screens when free',
             o_id: 7103, otyp: BOULDER, nexthere: null,
         };
         game.u.utraptype = TT_BURIEDBALL;
-        assert.throws(
+        // trapmove() returns before test_move(), so the held hero's seam does
+        // not need to reject this boulder. The failed-destination arm itself
+        // is covered by hero-boulder-push.test.mjs once the hero is free.
+        assert.doesNotThrow(
             () => preflightDomoveDestination(bx, by, game, 0),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'a boulder that will not move',
         );
     });
 

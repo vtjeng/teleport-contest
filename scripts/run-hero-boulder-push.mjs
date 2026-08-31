@@ -30,6 +30,7 @@ import { runFreshMatrix } from './fresh-matrix.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310203040506';
+const BLOCKED_PUSH_DATETIME = '20330405060708';
 // js/command_bindings.js:227 derives each direction's rush key as
 // `key & 0x1F`, so ctrl-L is `rusheast`. It is spelled here rather than
 // inline because a literal control character in a move string is invisible.
@@ -50,8 +51,8 @@ function nethackrc() {
     ].join('\n');
 }
 
-function walk({ seed, moves }) {
-    return { seed, datetime: DATETIME, nethackrc: nethackrc(), moves };
+function walk({ seed, moves, datetime = DATETIME }) {
+    return { seed, datetime, nethackrc: nethackrc(), moves };
 }
 
 export function loadHeroBoulderPushRecipe() {
@@ -102,6 +103,14 @@ export function loadHeroBoulderPushRecipe() {
             walk({ seed: 153, moves: 'ukkhhhhhhh' }),
             walk({ seed: 74, moves: 'llllkulll' }),
             walk({ seed: 113, moves: 'llnjjbjbhhh' }),
+            // A fresh failed-destination case: seed 41 puts a boulder at
+            // <9,16>, five eastward steps from the hero's start. The sixth
+            // key approaches from the south and finds stone at <9,15>.
+            walk({
+                seed: 41,
+                datetime: BLOCKED_PUSH_DATETIME,
+                moves: 'lllllk',
+            }),
         ],
     }, 'hero boulder push recipe');
 }

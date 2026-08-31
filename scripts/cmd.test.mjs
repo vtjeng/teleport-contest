@@ -133,7 +133,6 @@ import {
     PM_NEWT,
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
-import { BOULDER } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
 import { create_region } from '../js/region.js';
 import {
@@ -1483,28 +1482,6 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             remove: ({ destination }) => {
                 destination.typ = ROOM;
                 destination.flags = destination.doormask = 0;
-            },
-        })),
-        ...[ROOM, CORR].map((typ) => ({
-            name: `${typ === ROOM ? 'room' : 'corridor'} boulder`,
-            // A lone boulder with clear ground behind it is a push now, so
-            // the boulder that still refuses is one that cannot move. What
-            // refuses this one is the wall these fixtures already stand in
-            // front of: hack.c moverock_core():432's
-            // !IS_OBSTRUCTED(levl[rx][ry].typ), the second term of the
-            // conjunction rather than its last.
-            reason: 'a boulder that will not move',
-            install: ({ destination, x, y }) => {
-                game.flags.pickup = false;
-                destination.typ = typ;
-                game.level.objects[x][y] = {
-                    o_id: 7002,
-                    otyp: BOULDER,
-                    nexthere: null,
-                };
-            },
-            remove: ({ x, y }) => {
-                game.level.objects[x][y] = null;
             },
         })),
         // pickup.c describe_decor() owns the line an arrival on a decorated

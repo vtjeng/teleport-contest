@@ -8,7 +8,6 @@ import {
     D_CLOSED,
     D_ISOPEN,
     D_NODOOR,
-    IRONBARS,
     LEVITATION,
     PASSES_WALLS,
     PIT,
@@ -58,10 +57,18 @@ const SEGMENT_KEYS = new Set([
 // rather than assumed.
 const PUSH_SEED = 110;
 const APPROACH = 'lllll'; /* leaves the hero adjacent, having pushed nothing */
+const FAILED_DESTINATION_SEED = 41;
+const FAILED_DESTINATION_APPROACH = 'lllll';
 
 function boulderRecipeSegment() {
     return loadHeroBoulderPushRecipe().segments.find(
         (segment) => segment.seed === PUSH_SEED,
+    );
+}
+
+function failedDestinationRecipeSegment() {
+    return loadHeroBoulderPushRecipe().segments.find(
+        (segment) => segment.seed === FAILED_DESTINATION_SEED,
     );
 }
 
@@ -91,6 +98,19 @@ async function stepEast(state = game, run = 0) {
     return state._ttyToplines;
 }
 
+async function stepNorth(state = game) {
+    state.u.dx = 0;
+    state.u.dy = -1;
+    state.u.umoved = false;
+    state.context.run = 0;
+    state.context.move = 1;
+    state.domoveAttempting = 1;
+    clearTtyMessageWindow(state);
+    state._ttyToplines = '';
+    await domove(state);
+    return state._ttyToplines;
+}
+
 function refusalReason(x, y, run = 0) {
     try {
         preflightDomoveDestination(x, y, game, run);
@@ -105,7 +125,7 @@ function refusalReason(x, y, run = 0) {
 test('hero-boulder-push matrix contains only source-selected inputs', () => {
     const recipe = loadHeroBoulderPushRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 12);
+    assert.equal(recipe.segments.length, 13);
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
@@ -118,8 +138,8 @@ test('hero-boulder-push matrix contains only source-selected inputs', () => {
             'every segment walks, runs, or lets a turn pass',
         );
     }
-    // Five levels, so that no single map carries the matrix.
-    assert.equal(new Set(recipe.segments.map(({ seed }) => seed)).size, 5);
+    // Six levels, so that no single map carries the matrix.
+    assert.equal(new Set(recipe.segments.map(({ seed }) => seed)).size, 6);
     // One diagonal push: hack.c:432-435 lets a boulder roll diagonally
     // everywhere but Sokoban, and 'n' is the only diagonal key that pushes.
     assert.equal(
@@ -166,7 +186,10 @@ test('every matrix segment replays to its last key and moves its boulder',
             // The ctrl-L segment that refuses where it stands is the one
             // segment that ends with nothing moved; every other one pushes.
             const moved = after.some((spot) => !before.includes(spot));
-            assert.equal(moved, segment.moves !== `llll${RUSH_EAST}`,
+            const failedDestination = segment.seed === FAILED_DESTINATION_SEED;
+            assert.equal(
+                moved,
+                segment.moves !== `llll${RUSH_EAST}` && !failedDestination,
                          `segment ${index} push outcome`);
         }
     });
@@ -312,19 +335,6 @@ test('preflight_moverock refuses each arm moverock_core does not push on',
                 },
                 remove: () => { game.youmonst.data = game.mons[game.umonnum]; },
             },
-            // 432, isok(rx, ry) and !IS_OBSTRUCTED(levl[rx][ry].typ).
-            {
-                reason: 'a boulder that will not move',
-                install: () => { destination.typ = STONE; },
-                remove: () => { destination.typ = CORR; },
-            },
-            // 433, the separate IRONBARS test, which IS_OBSTRUCTED() does not
-            // cover because rm.h puts IRONBARS above POOL.
-            {
-                reason: 'a boulder that will not move',
-                install: () => { destination.typ = IRONBARS; },
-                remove: () => { destination.typ = CORR; },
-            },
             // 435, a second boulder already on the destination.
             {
                 reason: 'a boulder that will not move',
@@ -437,6 +447,31 @@ test('preflight_moverock refuses each arm moverock_core does not push on',
             assert.equal(refusalReason(sx, sy), null,
                          `the level is restored after "${reason}"`);
         }
+    });
+
+// hack.c moverock_core():432-487, cannot_push_msg() and cannot_push(). The
+// boulder is named and the failed-push line is emitted after nomul(0), while
+// the obstructed destination leaves the boulder in place and returns -1.
+test('a boulder with an obstructed destination fails without moving',
+    async () => {
+        const segment = failedDestinationRecipeSegment();
+        const replay = await runSegment({
+            ...segment,
+            moves: FAILED_DESTINATION_APPROACH,
+        });
+        const boulder = sobj_at(BOULDER, game.u.ux, game.u.uy - 1, game);
+        assert.ok(boulder, 'the boulder stands north of the hero');
+        const beforePosition = [boulder.ox, boulder.oy];
+        const beforeRng = replay.getRngLog().length;
+
+        assert.equal(await stepNorth(),
+                     'You try to move the boulder, but in vain.');
+        assert.deepEqual([boulder.ox, boulder.oy], beforePosition);
+        assert.deepEqual([game.u.ux, game.u.uy], [9, 17]);
+        assert.equal(replay.getRngLog().length, beforeRng,
+                     'the failed push adds no random-number calls');
+        assert.equal(boulder.next_boulder, 0,
+                     'moverock_done clears temporary boulder naming');
     });
 
 // hack.c:434, `!IS_DOOR(levl[rx][ry].typ) || !(u.dx && u.dy)

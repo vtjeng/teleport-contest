@@ -1856,10 +1856,19 @@ function preflight_moverock(sx, sy, noPickMove, state) {
     if (u.usteed) refuse('a mounted boulder push');
 
     // 428-435, the conjunction that separates a push from a refusal. Its FALSE
-    // arm prints through cannot_push_msg() (243-256) and then chooses between
-    // a squeeze and a lost move in cannot_push() (258-310); both halves need
-    // could_move_onto_boulder()'s message siblings and sokoban_guilt().
+    // arm is ported for an ordinary obstructed destination below. The other
+    // FALSE arms still stop here because their later cannot_push() outcomes
+    // are outside this slice.
     const destination = isok(rx, ry) ? state.level?.at(rx, ry) : null;
+    if (destination && (IS_OBSTRUCTED(destination.typ)
+        || destination.typ === IRONBARS)
+        && !throws_rocks(species)
+        && !could_move_onto_boulder(sx, sy, dx, dy, state)) {
+        // The selected ordinary, normal-sized hero has no way to squeeze onto
+        // the boulder square. moverock_core() owns the source-ordered message
+        // and -1 result, so admit that path instead of ending the command here.
+        return;
+    }
     if (!destination
         || IS_OBSTRUCTED(destination.typ)
         || destination.typ === IRONBARS
@@ -1934,6 +1943,41 @@ function preflight_moverock(sx, sy, noPickMove, state) {
     // landing between the message and the move.
     if (glyph_is_invisible(destination.remembered_glyph?.glyph))
         refuse('a remembered invisible monster behind the boulder');
+}
+
+// C ref: hack.c cannot_push_msg() (247-256). This is the ordinary unmounted
+// arm: name the boulder, report the failed push, and feel its square only when
+// blind. The mounted and blind branches remain behind preflight_moverock().
+async function cannot_push_msg(otmp, sx, sy, state, env) {
+    const what = the(xnameFresh(otmp, state), state);
+    if (state.u.usteed) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'mounted boulder push failure',
+        );
+    }
+    const message = requiredMessageOperation(env, 'failed boulder push');
+    await message(`You try to move ${what}, but in vain.`, state);
+    if (heroIsBlind(state)) feel_location(sx, sy, state);
+}
+
+// C ref: hack.c cannot_push() (262-310). The selected normal-sized, unmounted
+// hero is not a giant and cannot squeeze onto the boulder square, so C returns
+// -1 without a message, movement, or randomness. Other result-producing arms
+// remain deferred with the boundaries that predate this slice.
+function cannot_push(otmp, sx, sy, state) {
+    if (throws_rocks(state.youmonst?.data)) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'giant boulder push failure',
+        );
+    }
+    if (could_move_onto_boulder(
+        sx, sy, state.u.dx, state.u.dy, state,
+    )) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'boulder squeeze after failed push',
+        );
+    }
+    return -1;
 }
 
 // C ref: hack.c movobj() (824-833). Unlink the object, tell the square it
@@ -2029,8 +2073,7 @@ async function moverock(state, env) {
 // so the body runs once and the second test finds the square empty.
 //
 // The return value is C's: 0 lets the hero advance onto <sx,sy>, -1 refuses
-// the step. Only 0 is reachable here, because every arm that answers -1 is
-// refused ahead of the move.
+// the step. The selected failed-destination arm returns -1 after its message.
 async function moverock_core(sx, sy, state, env) {
     const u = state.u;
     let firstboulder = true;
@@ -2052,10 +2095,25 @@ async function moverock_core(sx, sy, state, env) {
         nomul(0, state);
 
         // 384-427 -- the 'm' prefix, Levitation and the air level, and a tiny
-        // hero -- and the FALSE arm of the conjunction at 432-435 are refused
-        // by preflight_moverock(), as are the Sokoban diagonal rule at
-        // 437-443, revive_nasty() at 445-448, the monster behind the boulder
-        // at 450-476, closed_door() at 478-481, the trap switch at 490-616 and
+        // hero -- remain refused by preflight_moverock().
+        const destination = isok(rx, ry) ? state.level?.at(rx, ry) : null;
+        if (!destination
+            || IS_OBSTRUCTED(destination.typ)
+            || destination.typ === IRONBARS
+            || (IS_DOOR(destination.typ) && u.dx && u.dy
+                && !doorless_door(destination))
+            || sobj_at(BOULDER, rx, ry, state)) {
+            // hack.c:486-487. nomul(0) and next_boulder bookkeeping precede
+            // this failed-destination check. No trap, monster, or push-side
+            // effect is reached when the boulder's destination is blocked.
+            await cannot_push_msg(otmp, sx, sy, state, env);
+            return cannot_push(otmp, sx, sy, state);
+        }
+
+        // The remaining valid-destination branches stay behind
+        // preflight_moverock(): Sokoban's diagonal rule at 437-443,
+        // revive_nasty() at 445-448, the monster behind the boulder at
+        // 450-476, closed_door() at 478-481, the trap switch at 490-616 and
         // boulder_hits_pool() at 618-619.
 
         /* rumbling disturbs buried zombies */
