@@ -57,14 +57,20 @@ function scoreRow({ utc, sha, event, screens, note }) {
 
 function renderDashboard(data) {
     const elements = new Map();
+    // Every canvas call lands in canvasOps, and also in the drawn element's
+    // own ops, so a test can ask what one canvas drew.
     const canvasOps = [];
-    const context2d = new Proxy({}, {
+    const context = (ops) => new Proxy({}, {
         get(target, key) {
             if (key in target) return target[key];
-            return (...args) => canvasOps.push([String(key), ...args]);
+            return (...args) => {
+                canvasOps.push([String(key), ...args]);
+                ops.push([String(key), ...args]);
+            };
         },
         set(target, key, value) {
             canvasOps.push(['set', String(key), value]);
+            ops.push(['set', String(key), value]);
             target[key] = value;
             return true;
         },
@@ -72,22 +78,26 @@ function renderDashboard(data) {
     // Enough of an element for the template's first render. The chart's
     // pointer and keyboard handlers never fire here, so their DOM calls only
     // need to exist, not to record anything.
-    const makeElement = (id) => ({
-        id,
-        innerHTML: '',
-        textContent: '',
-        className: '',
-        disabled: false,
-        style: {},
-        classList: { add() {}, remove() {} },
-        children: [],
-        parentElement: { getBoundingClientRect: () => ({ width: 1000 }) },
-        getBoundingClientRect: () => ({ width: 1000, left: 0, top: 0, height: 0 }),
-        getContext: () => context2d,
-        addEventListener() {},
-        appendChild(child) { this.children.push(child); return child; },
-        replaceChildren(...nodes) { this.children = nodes; },
-    });
+    const makeElement = (id) => {
+        const ops = [];
+        return {
+            id,
+            innerHTML: '',
+            textContent: '',
+            className: '',
+            disabled: false,
+            style: {},
+            classList: { add() {}, remove() {} },
+            children: [],
+            ops,
+            parentElement: { getBoundingClientRect: () => ({ width: 1000 }) },
+            getBoundingClientRect: () => ({ width: 1000, left: 0, top: 0, height: 0 }),
+            getContext: () => context(ops),
+            addEventListener() {},
+            appendChild(child) { this.children.push(child); return child; },
+            replaceChildren(...nodes) { this.children = nodes; },
+        };
+    };
     const element = (id) => {
         if (!elements.has(id)) elements.set(id, makeElement(id));
         return elements.get(id);
@@ -561,6 +571,16 @@ test('progress points carry what the chart readout shows', () => {
         rendered.get('progressRange').textContent,
         '1 Jan 2026 00:10 – 1 Jan 2026 00:30 UTC · 3 goals',
     );
+
+    // The minimap's window is the only rectangle it strokes. On the whole
+    // range it covers the whole track: the stub canvas is 1000 wide, and the
+    // chart's 56px left and 74px right margins are shared with the plot above.
+    const [, x, y, width, height] = rendered.get('progressMinimap').ops
+        .find(([operation]) => operation === 'strokeRect');
+    assert.deepEqual([x, y, width], [56.5, 0.5, 1000 - 56 - 74]);
+    // One pixel short of the 54px strip, so both edges of the outline land
+    // inside it.
+    assert.equal(height, 53);
 });
 
 test('dashboard builder injects data into a standalone HTML file', () => {

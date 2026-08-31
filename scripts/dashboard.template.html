@@ -260,6 +260,17 @@ canvas {
   outline-offset: 2px;
 }
 
+/* The minimap covers the whole recorded span; its window picks what the chart
+   above shows. */
+#progressMinimap {
+  margin-top: 6px;
+  touch-action: none;
+}
+
+#progressMinimap.is-sliding {
+  cursor: grabbing;
+}
+
 /* --- Timeline --- */
 .timeline-row {
   display: flex;
@@ -523,11 +534,13 @@ canvas {
   <div class="chart-wrap">
     <div class="chart-toolbar">
       <span class="chart-range" id="progressRange"></span>
-      <span class="chart-hint">Scroll to zoom, drag to pan, arrow keys to step</span>
+      <span class="chart-hint">Scroll to zoom time, or drag the window below</span>
       <button type="button" class="chart-reset" id="progressReset" disabled>Reset zoom</button>
     </div>
     <canvas id="progressChart" height="220" tabindex="0"
       aria-label="Screens matched over time. Arrow keys step through goals and report each one."></canvas>
+    <canvas id="progressMinimap" height="54"
+      aria-label="Time range selector covering every goal. Drag its window or edges to choose what the chart above shows."></canvas>
   </div>
 </div>
 
@@ -606,9 +619,10 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' SCORE timestamp where the commit SHA was not found.'
   : 'All plotted times come from commit timestamps.';
 
-// --- Progress chart (zoomable step plot with a hover readout) ---
+// --- Progress chart (time-zoomable step plot, minimap, and hover readout) ---
 (function() {
   const canvas = document.getElementById('progressChart');
+  const minimap = document.getElementById('progressMinimap');
   const rangeLabel = document.getElementById('progressRange');
   const resetButton = document.getElementById('progressReset');
   const tooltip = document.getElementById('tooltip');
@@ -619,10 +633,17 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   if (!points.length) return;
 
   const H = 220;
+  const MINI_H = 54;
+  // Left and right margins are shared, so the minimap's window lines up with
+  // the plot above it.
   const pad = { t: 12, r: 74, b: 36, l: 56 };
   const DAY_MS = 86400000;
+  const HOUR_MS = 3600000;
   // Goals close minutes apart, so a window narrower than this shows no more detail.
   const MIN_SPAN_MS = 20 * 60000;
+  // The window can shrink to a fraction of a pixel on the minimap. Below this
+  // it stops shrinking, so that it stays visible and grabbable.
+  const MIN_WINDOW_PX = 18;
   const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -630,13 +651,18 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     ? { t0: points[0].time, t1: points[points.length - 1].time }
     : { t0: points[0].time - DAY_MS, t1: points[0].time + DAY_MS };
   const domainSpan = domain.t1 - domain.t0 || 1;
-  const screensTotal = points[points.length - 1].screensTotal
-    || Math.max(...points.map(p => p.screens));
+
+  // The y-axis never changes: only time zooms, so every window is read against
+  // the same screens-matched scale, up to the target from the newest SCORE row.
+  const peak = Math.max(...points.map(p => p.screens));
+  const yMax = Math.max(points[points.length - 1].screensTotal || 0, peak);
+  const yStep = Math.max(1, niceStep(yMax / 4));
 
   let view = { t0: domain.t0, t1: domain.t1 };
-  let hover = null;  // index into points, or null when nothing is selected
-  let plot = null;   // scales and window from the last draw, for hit testing
-  let panning = null;
+  let hover = null;   // index into points, or null when nothing is selected
+  let plot = null;    // scales and window from the last draw, for hit testing
+  let panning = null; // pan in progress on the main chart
+  let sliding = null; // drag in progress on the minimap
 
   // --- View window ---
 
@@ -692,21 +718,77 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     return (scaled <= 1 ? 1 : scaled <= 2 ? 2 : scaled <= 5 ? 5 : 10) * magnitude;
   }
 
-  // --- Draw ---
+  function palette() {
+    const style = getComputedStyle(document.documentElement);
+    const read = (name) => style.getPropertyValue(name).trim();
+    return {
+      grid: read('--gridline'),
+      baseline: read('--baseline'),
+      muted: read('--ink-muted'),
+      primary: read('--ink-primary'),
+      fill: read('--progress-fill'),
+      area: read('--progress-area'),
+      surface: read('--surface-chart'),
+      card: read('--surface-card'),
+    };
+  }
+
+  // Sizes a canvas to its CSS width at device resolution and returns its
+  // drawing context and that width.
+  function prepare(target, height) {
+    const width = target.getBoundingClientRect().width
+      || target.parentElement.getBoundingClientRect().width;
+    const dpr = window.devicePixelRatio || 1;
+    target.width = width * dpr;
+    target.height = height * dpr;
+    target.style.height = height + 'px';
+    const ctx = target.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, width, height);
+    return { ctx, width };
+  }
+
+  // The step line as [x, screens] vertices between two point indices: each goal
+  // rises at its own time from the level the goal before it left.
+  function stepVertices(from, to, xScale) {
+    const vertices = [[xScale(points[from].time), points[from].screens]];
+    for (let i = from + 1; i <= to; i++) {
+      const x = xScale(points[i].time);
+      vertices.push([x, points[i - 1].screens], [x, points[i].screens]);
+    }
+    return vertices;
+  }
+
+  function strokeSteps(ctx, vertices, yScale, color, width) {
+    ctx.beginPath();
+    ctx.moveTo(vertices[0][0], yScale(vertices[0][1]));
+    for (const [x, v] of vertices) ctx.lineTo(x, yScale(v));
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  }
+
+  function fillSteps(ctx, vertices, yScale, color) {
+    ctx.beginPath();
+    ctx.moveTo(vertices[0][0], yScale(0));
+    for (const [x, v] of vertices) ctx.lineTo(x, yScale(v));
+    ctx.lineTo(vertices[vertices.length - 1][0], yScale(0));
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  // --- Main chart ---
 
   function draw() {
-    const W = canvas.getBoundingClientRect().width
-      || canvas.parentElement.getBoundingClientRect().width;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    canvas.style.height = H + 'px';
-    const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
+    const { ctx, width: W } = prepare(canvas, H);
+    const ink = palette();
 
-    const full = isFullRange();
     const spanT = view.t1 - view.t0 || 1;
     const xScale = (t) => pad.l + ((t - view.t0) / spanT) * (W - pad.l - pad.r);
+    const yScale = (v) => pad.t + (1 - v / yMax) * (H - pad.t - pad.b);
 
     // The goal before the window carries the level into it, so the line is
     // unbroken even when the window sits in a gap between goals.
@@ -714,56 +796,26 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     while (lo < points.length - 1 && points[lo + 1].time < view.t0) lo++;
     let hi = points.length - 1;
     while (hi > 0 && points[hi - 1].time > view.t1) hi--;
-    // The newest goal whose step lands inside the window. Steps past the right
-    // edge are clipped away, so they must not stretch the axis.
+    // The newest goal whose step lands inside the window.
     let last = hi;
     while (last > lo && points[last].time > view.t1) last--;
-
-    // The whole range is read against the target and fills to zero. A zoomed
-    // window is read for the change inside it, so it fits the window and drops
-    // the fill: an area needs a zero baseline, a line does not.
-    const levels = points.slice(lo, last + 1).map(p => p.screens);
-    const windowMin = Math.min(...levels);
-    const windowMax = Math.max(...levels);
-    // Never below one: screens are counted, so half a screen labels nothing.
-    const step = Math.max(1, full
-      ? niceStep(Math.max(screensTotal, windowMax) / 4)
-      : niceStep(Math.max(windowMax - windowMin, 1) / 4));
-    const yMin = full ? 0 : Math.floor(windowMin / step) * step;
-    const yMax = full
-      ? Math.max(screensTotal, windowMax)
-      : Math.max(Math.ceil(windowMax / step) * step, yMin + step);
-    const yScale = (v) => pad.t + (1 - (v - yMin) / (yMax - yMin)) * (H - pad.t - pad.b);
     plot = { W, xScale, yScale, lo, hi };
 
-    const style = getComputedStyle(document.documentElement);
-    const gridColor = style.getPropertyValue('--gridline').trim();
-    const baselineColor = style.getPropertyValue('--baseline').trim();
-    const inkMuted = style.getPropertyValue('--ink-muted').trim();
-    const fillColor = style.getPropertyValue('--progress-fill').trim();
-    const areaColor = style.getPropertyValue('--progress-area').trim();
-    const surfaceColor = style.getPropertyValue('--surface-chart').trim();
-
-    ctx.clearRect(0, 0, W, H);
-
     // Y grid
-    const yTicks = [];
-    for (let v = yMin; v < yMax; v += step) yTicks.push(v);
-    yTicks.push(yMax);
     ctx.lineWidth = 1;
     ctx.font = '10px "JetBrains Mono", monospace';
-    for (const v of yTicks) {
+    for (let v = 0; v <= yMax; v = v + yStep > yMax ? yMax : v + yStep) {
       const y = Math.round(yScale(v)) + 0.5;
-      ctx.strokeStyle = v === yMin && full ? baselineColor : gridColor;
+      ctx.strokeStyle = v === 0 ? ink.baseline : ink.grid;
       ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
-      ctx.fillStyle = inkMuted;
+      ctx.fillStyle = ink.muted;
       ctx.textAlign = 'right';
       ctx.fillText(v.toLocaleString(), pad.l - 6, y + 4);
+      if (v === yMax) break;
     }
 
     // X-axis ticks, spaced so that labels never crowd
     const spanDays = spanT / DAY_MS;
-    const HOUR_MS = 3600000;
     const xStep = spanDays > 60 ? 14 * DAY_MS
       : spanDays > 20 ? 7 * DAY_MS
         : spanDays > 8 ? 2 * DAY_MS
@@ -773,7 +825,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
                 : spanDays > 0.15 ? HOUR_MS
                   : spanDays > 0.05 ? HOUR_MS / 2
                     : HOUR_MS / 6;
-    ctx.fillStyle = inkMuted;
+    ctx.fillStyle = ink.muted;
     ctx.textAlign = 'center';
     for (let t = Math.ceil(view.t0 / xStep) * xStep; t <= view.t1; t += xStep) {
       const x = xScale(t);
@@ -784,20 +836,15 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
         ? (d.getUTCMonth() + 1) + '/' + d.getUTCDate()
         : fmtClock(t);
       ctx.fillText(label, x, H - pad.b + 14);
-      ctx.strokeStyle = gridColor;
+      ctx.strokeStyle = ink.grid;
       ctx.beginPath();
       ctx.moveTo(Math.round(x) + 0.5, pad.t);
       ctx.lineTo(Math.round(x) + 0.5, H - pad.b);
       ctx.stroke();
     }
 
-    // The step line as [x, screens] vertices: each goal rises at its own time
-    // from the level the goal before it left.
-    const vertices = [[xScale(points[lo].time), points[lo].screens]];
-    for (let i = lo + 1; i <= hi; i++) {
-      const x = xScale(points[i].time);
-      vertices.push([x, points[i - 1].screens], [x, points[i].screens]);
-    }
+    // Carry the last level to the right edge when no later goal is on screen.
+    const vertices = stepVertices(lo, hi, xScale);
     const rightEdge = xScale(view.t1);
     const lastVertex = vertices[vertices.length - 1];
     if (lastVertex[0] < rightEdge) vertices.push([rightEdge, lastVertex[1]]);
@@ -807,25 +854,8 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     ctx.beginPath();
     ctx.rect(pad.l, pad.t, W - pad.l - pad.r, H - pad.t - pad.b);
     ctx.clip();
-
-    if (full) {
-      ctx.beginPath();
-      ctx.moveTo(vertices[0][0], yScale(0));
-      for (const [x, v] of vertices) ctx.lineTo(x, yScale(v));
-      ctx.lineTo(vertices[vertices.length - 1][0], yScale(0));
-      ctx.closePath();
-      ctx.fillStyle = areaColor;
-      ctx.fill();
-    }
-
-    ctx.beginPath();
-    ctx.moveTo(vertices[0][0], yScale(vertices[0][1]));
-    for (const [x, v] of vertices) ctx.lineTo(x, yScale(v));
-    ctx.strokeStyle = fillColor;
-    ctx.lineWidth = 2;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-    ctx.stroke();
+    fillSteps(ctx, vertices, yScale, ink.area);
+    strokeSteps(ctx, vertices, yScale, ink.fill, 2);
     ctx.restore();
 
     // When a commit SHA was not found, the SCORE timestamp is used as a fallback.
@@ -837,9 +867,9 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       if (x < pad.l || x > W - pad.r) continue;
       ctx.beginPath();
       ctx.arc(x, yScale(point.screens), 3, 0, Math.PI * 2);
-      ctx.fillStyle = surfaceColor;
+      ctx.fillStyle = ink.surface;
       ctx.fill();
-      ctx.strokeStyle = fillColor;
+      ctx.strokeStyle = ink.fill;
       ctx.lineWidth = 1.5;
       ctx.stroke();
     }
@@ -851,12 +881,12 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       const y = yScale(endPoint.screens);
       ctx.beginPath();
       ctx.arc(x, y, 4, 0, Math.PI * 2);
-      ctx.fillStyle = fillColor;
+      ctx.fillStyle = ink.fill;
       ctx.fill();
-      ctx.strokeStyle = surfaceColor;
+      ctx.strokeStyle = ink.surface;
       ctx.lineWidth = 2;
       ctx.stroke();
-      ctx.fillStyle = style.getPropertyValue('--ink-primary').trim();
+      ctx.fillStyle = ink.primary;
       ctx.font = '600 12px "JetBrains Mono", monospace';
       ctx.textAlign = 'left';
       ctx.fillText(
@@ -872,7 +902,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       const x = xScale(points[hover].time);
       ctx.save();
       ctx.setLineDash([3, 3]);
-      ctx.strokeStyle = inkMuted;
+      ctx.strokeStyle = ink.muted;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(Math.round(x) + 0.5, pad.t);
@@ -881,10 +911,73 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       ctx.restore();
       ctx.beginPath();
       ctx.arc(x, yScale(points[hover].screens), 5, 0, Math.PI * 2);
-      ctx.fillStyle = fillColor;
+      ctx.fillStyle = ink.fill;
       ctx.fill();
-      ctx.strokeStyle = surfaceColor;
+      ctx.strokeStyle = ink.surface;
       ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
+  // --- Minimap ---
+
+  // Where the view window sits on the minimap. The drawn window stops
+  // shrinking at MIN_WINDOW_PX so that a deep zoom leaves something to grab;
+  // it then covers slightly more time than the view does.
+  function windowRect(W) {
+    const scale = (t) => pad.l + ((t - domain.t0) / domainSpan) * (W - pad.l - pad.r);
+    const left = scale(view.t0);
+    const right = scale(view.t1);
+    if (right - left >= MIN_WINDOW_PX) return { left, right };
+    const middle = (left + right) / 2;
+    const half = MIN_WINDOW_PX / 2;
+    const shift = Math.max(0, pad.l - (middle - half))
+      - Math.max(0, (middle + half) - (W - pad.r));
+    return { left: middle - half + shift, right: middle + half + shift };
+  }
+
+  function drawMinimap() {
+    const { ctx, width: W } = prepare(minimap, MINI_H);
+    const ink = palette();
+    const inner = { t: 6, b: 5 };
+    const xScale = (t) => pad.l + ((t - domain.t0) / domainSpan) * (W - pad.l - pad.r);
+    // Scaled to the highest goal rather than to the target, so the shape fills
+    // the strip. This is a navigation control, not a second reading of the data.
+    const yScale = (v) => inner.t + (1 - v / peak) * (MINI_H - inner.t - inner.b);
+
+    // The whole series, muted, with the selected window drawn over it in the
+    // series color: the contrast is the selection, so no scrim is needed.
+    const vertices = stepVertices(0, points.length - 1, xScale);
+    fillSteps(ctx, vertices, yScale, ink.grid);
+    strokeSteps(ctx, vertices, yScale, ink.baseline, 1);
+
+    const { left, right } = windowRect(W);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(left, 0, right - left, MINI_H);
+    ctx.clip();
+    fillSteps(ctx, vertices, yScale, ink.area);
+    strokeSteps(ctx, vertices, yScale, ink.fill, 1.5);
+    ctx.restore();
+
+    // Window outline and its two grab handles
+    ctx.strokeStyle = ink.muted;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(
+      Math.round(left) + 0.5, 0.5,
+      Math.round(right - left), MINI_H - 1,
+    );
+    for (const x of [left, right]) {
+      ctx.beginPath();
+      ctx.roundRect(Math.round(x) - 3.5, 6.5, 7, MINI_H - 13, 3);
+      ctx.fillStyle = ink.card;
+      ctx.fill();
+      ctx.strokeStyle = ink.muted;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(Math.round(x) + 0.5, 11);
+      ctx.lineTo(Math.round(x) + 0.5, MINI_H - 11);
+      ctx.strokeStyle = ink.muted;
       ctx.stroke();
     }
   }
@@ -903,6 +996,12 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       : fmtDay(view.t0) + ' – ' + fmtDay(view.t1);
     rangeLabel.textContent = bounds + ' · ' + inWindow
       + ' goal' + (inWindow === 1 ? '' : 's');
+  }
+
+  function render() {
+    draw();
+    drawMinimap();
+    updateChrome();
   }
 
   // --- Readout ---
@@ -1001,7 +1100,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     return best;
   }
 
-  // --- Events ---
+  // --- Main chart events ---
 
   canvas.addEventListener('pointermove', (e) => {
     if (panning) {
@@ -1009,8 +1108,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       const perPixel = (panning.t1 - panning.t0) / (width || 1);
       const shift = (e.clientX - panning.clientX) * perPixel;
       setView(panning.t0 - shift, panning.t1 - shift);
-      draw();
-      updateChrome();
+      render();
       return;
     }
     const index = nearestIndex(e.clientX);
@@ -1055,15 +1153,13 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     const fraction = Math.min(Math.max((e.clientX - rect.left - pad.l) / (width || 1), 0), 1);
     zoomAt(view.t0 + fraction * (view.t1 - view.t0), Math.exp(steps * 0.002));
     clearHover();
-    draw();
-    updateChrome();
+    render();
   }, { passive: false });
 
   canvas.addEventListener('dblclick', () => {
     setView(domain.t0, domain.t1);
     clearHover();
-    draw();
-    updateChrome();
+    render();
   });
 
   canvas.addEventListener('keydown', (e) => {
@@ -1074,29 +1170,90 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     else if (e.key === 'Home') next = 0;
     else if (e.key === 'End') next = points.length - 1;
     else if (e.key === 'Escape') { clearHover(); return; }
-    else if (e.key === '+' || e.key === '=') { zoomAt(middle, 1 / 1.5); clearHover(); draw(); updateChrome(); return; }
-    else if (e.key === '-') { zoomAt(middle, 1.5); clearHover(); draw(); updateChrome(); return; }
-    else if (e.key === '0') { setView(domain.t0, domain.t1); clearHover(); draw(); updateChrome(); return; }
+    else if (e.key === '+' || e.key === '=') { zoomAt(middle, 1 / 1.5); clearHover(); render(); return; }
+    else if (e.key === '-') { zoomAt(middle, 1.5); clearHover(); render(); return; }
+    else if (e.key === '0') { setView(domain.t0, domain.t1); clearHover(); render(); return; }
     else return;
     e.preventDefault();
     hover = next;
     ensureVisible(next);
-    draw();
-    updateChrome();
+    render();
     showReadoutAtPoint(next);
   });
+
+  // --- Minimap events ---
+
+  // Which part of the minimap is under x: an edge handle, the window itself,
+  // or the track outside it.
+  function minimapTarget(x, W) {
+    const { left, right } = windowRect(W);
+    if (Math.abs(x - left) <= 6) return 'start';
+    if (Math.abs(x - right) <= 6) return 'end';
+    return x > left && x < right ? 'window' : 'track';
+  }
+
+  function minimapTime(x, W) {
+    const usable = W - pad.l - pad.r;
+    const fraction = Math.min(Math.max((x - pad.l) / (usable || 1), 0), 1);
+    return domain.t0 + fraction * domainSpan;
+  }
+
+  minimap.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    const rect = minimap.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const mode = minimapTarget(x, rect.width);
+    // Pressing the track starts a fresh selection from that instant.
+    const anchor = minimapTime(x, rect.width);
+    sliding = { mode, anchor, t0: view.t0, t1: view.t1, clientX: e.clientX };
+    minimap.setPointerCapture(e.pointerId);
+    minimap.classList.add('is-sliding');
+    clearHover();
+    if (mode === 'track') { setView(anchor, anchor); render(); }
+  });
+
+  minimap.addEventListener('pointermove', (e) => {
+    const rect = minimap.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if (!sliding) {
+      const mode = minimapTarget(x, rect.width);
+      minimap.style.cursor = mode === 'window' ? 'grab'
+        : mode === 'track' ? 'crosshair' : 'ew-resize';
+      return;
+    }
+    const usable = rect.width - pad.l - pad.r;
+    if (sliding.mode === 'window') {
+      const shift = ((e.clientX - sliding.clientX) / (usable || 1)) * domainSpan;
+      setView(sliding.t0 + shift, sliding.t1 + shift);
+    } else if (sliding.mode === 'start') {
+      setView(Math.min(minimapTime(x, rect.width), sliding.t1), sliding.t1);
+    } else if (sliding.mode === 'end') {
+      setView(sliding.t0, Math.max(minimapTime(x, rect.width), sliding.t0));
+    } else {
+      const other = minimapTime(x, rect.width);
+      setView(Math.min(sliding.anchor, other), Math.max(sliding.anchor, other));
+    }
+    render();
+  });
+
+  function endSlide(e) {
+    if (!sliding) return;
+    sliding = null;
+    minimap.classList.remove('is-sliding');
+    if (minimap.hasPointerCapture(e.pointerId)) minimap.releasePointerCapture(e.pointerId);
+  }
+  minimap.addEventListener('pointerup', endSlide);
+  minimap.addEventListener('pointercancel', endSlide);
 
   resetButton.addEventListener('click', () => {
     setView(domain.t0, domain.t1);
     clearHover();
-    draw();
-    updateChrome();
+    render();
   });
 
-  window.addEventListener('resize', () => { clearHover(); draw(); });
+  window.addEventListener('resize', () => { clearHover(); render(); });
 
-  draw();
-  updateChrome();
+  render();
 })();
 
 // --- Timeline ---
