@@ -301,6 +301,23 @@ function monsterWithHelm(state, mndx, { spe = 0, cursed = false } = {}) {
     return { helm, monster };
 }
 
+function monsterWithBoots(state, mndx, { spe = -2, cursed = true } = {}) {
+    const monster = newMonster({
+        data: state.mons[mndx],
+        mnum: mndx,
+        m_id: 9000 + mndx,
+        mcanmove: true,
+    });
+    const boots = mksobj(ELVEN_BOOTS, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    boots.spe = spe;
+    boots.cursed = cursed;
+    add_to_minv(monster, boots, { state });
+    return { boots, monster };
+}
+
 function basicCreationSteps({ gender = true } = {}) {
     const steps = [
         // Shared context.ident advances by a source rnd(2).
@@ -1144,11 +1161,31 @@ test('m_dowear creation exception applies to mummies and skeletons only', () => 
     }
 });
 
-test('m_dowear outside creation hands a real change to its caller', () => {
+test('m_dowear outside creation applies a new pair of boots', () => {
+    // C ref: worn.c m_dowear_type():951-960. A new W_ARMF item assigns its
+    // oc_delay to mfrozen, clears mcanmove, and sets the monster and object
+    // worn masks. The cursed -2 mud boots match the queued runtime witness.
+    const state = initialLevelState();
+    const { boots, monster } = monsterWithBoots(state, PM_GNOME);
+
+    m_dowear(monster, false, {
+        state,
+        wearArmor: () => assert.fail('new boots bypass the runtime owner'),
+    });
+
+    assert.equal(boots.spe, -2);
+    assert.equal(boots.cursed, true);
+    assert.equal(boots.owornmask, W_ARMF);
+    assert.equal(monster.misc_worn_check, W_ARMF);
+    assert.equal(monster.mfrozen, 2);
+    assert.equal(monster.mcanmove, false);
+});
+
+test('m_dowear outside creation hands non-boots changes to its caller', () => {
     // C ref: worn.c m_dowear_type():912-960. Outside creation the same choice
     // prints a line, charges oc_delay turns of mfrozen and stops the monster
-    // moving; only the creation-time effect is ported, so a live wearer has to
-    // reach the caller's boundary instead of quietly putting the helm on.
+    // moving; runtime replacement and other armor categories still reach the
+    // caller's boundary instead of quietly putting the helm on.
     const state = initialLevelState();
     const { helm, monster } = monsterWithHelm(state, PM_GNOME);
     const offered = [];

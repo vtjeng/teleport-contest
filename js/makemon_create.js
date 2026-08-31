@@ -2489,13 +2489,20 @@ function m_dowear_type(
 
     if (!best || best === old) return;
     if (!creation) {
-        // C ref: worn.c m_dowear_type():912-960. Outside creation the same
-        // choice costs a turn and is announced: C prints "<Mon> [removes
-        // <old> and ]puts on <new>." through pline_mon(), adds both pieces'
-        // oc_delay to mfrozen and clears mcanmove, and may print an artifact
-        // light or a sudden-invisibility line. None of that is ported, and
-        // the creation-time effect below is not a substitute for it, so a
-        // live wearer goes to its caller's boundary instead.
+        // C ref: worn.c m_dowear_type():951-960. The witnessed runtime arm
+        // has no old boots, so its whole observable effect is the boot's
+        // oc_delay, the frozen/cannot-move transition, and the two W_ARMF
+        // writes below. It is deliberately limited to this new W_ARMF case:
+        // runtime replacement and every other armor category still belong to
+        // the caller-owned boundary, along with their messages and effects.
+        if (mask === W_ARMF && !old) {
+            const mDelay = Math.trunc(state.objects[best.otyp].oc_delay ?? 0);
+            monster.mfrozen = mDelay;
+            if (monster.mfrozen) monster.mcanmove = false;
+            monster.misc_worn_check |= mask;
+            best.owornmask |= mask;
+            return;
+        }
         wearArmorOperation(env)(monster, best, old, env);
         return;
     }
@@ -2528,8 +2535,9 @@ function wearArmorOperation(env) {
 }
 
 // C ref: worn.c m_dowear()/m_dowear_type(). The selection is complete for the
-// species and equipment reachable from initial generation; only the
-// creation-time effect is ported, and wearArmorOperation() owns the rest.
+// species and equipment reachable from initial generation. The runtime arm is
+// complete only for a new W_ARMF item; wearArmorOperation() owns every other
+// non-creation change.
 export function m_dowear(monster, creation = false, env = {}) {
     const state = env.state ?? game;
     const wearEnv = { ...env, state };

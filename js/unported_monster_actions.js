@@ -1287,8 +1287,9 @@ async function planSimpleMonsterScan(monster, env) {
             return false;
         },
         // C ref: mon.c movemon_singlemon():1268-1281. m_dowear() reassesses
-        // the monster's gear; only a monster that would actually put
-        // something on stops the scan.
+        // the monster's gear. Its new W_ARMF/no-old-item arm applies the
+        // source delay and worn masks on the planning clone; other runtime
+        // equipment changes remain a fail-closed boundary.
         dowear: (subject, creation, subjectEnv) => m_dowear(subject, creation, {
             ...subjectEnv,
             wearArmor: () => unsupported('monster equipment changes'),

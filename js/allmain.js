@@ -962,8 +962,9 @@ async function moveElapsedTurnMonster(monster, env) {
         ),
         minLiquid: elapsedTurnMinLiquid,
         // C ref: mon.c movemon_singlemon():1268-1281. A monster whose gear
-        // was flagged for reassessment reruns worn.c m_dowear(); only a
-        // monster that would actually put something on stops the turn.
+        // was flagged for reassessment reruns worn.c m_dowear(); the new
+        // W_ARMF case applies its delay and masks in m_dowear_type(), while
+        // every other runtime armor change remains fail-closed here.
         dowear: (subject, creation, subjectEnv) => m_dowear(subject, creation, {
             ...subjectEnv,
             wearArmor: unavailableElapsedTurnOperation(
