@@ -6501,8 +6501,8 @@
       "slices": [
         {
           "name": "barracks-fill-zoo-squad-payroll",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "41a87c5a4ecb6ccc53369bf8834f827282f92893"
         }
       ],
       "openedAt": "93a461b28e530b1b6ce164ced27f4afb9a028c93",
