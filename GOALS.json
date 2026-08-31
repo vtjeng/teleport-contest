@@ -6755,8 +6755,8 @@
         },
         {
           "name": "monster-death-ordinary-default-yes-disclosures",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "ceab6966ff5424f1338acce2b24d4a948c13c2c6"
         }
       ],
       "openedAt": "dd19bc9dee6db73f2422be88693ee15e2de94b31",
