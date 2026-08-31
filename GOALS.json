@@ -6372,7 +6372,7 @@
     },
     {
       "id": "unsupported-initial-level-monster-creation-monster-177",
-      "status": "open",
+      "status": "closed",
       "boundary": "On first-time Castle level generation, when a default-stocked maze’s fill_empty_maze() selects its optional minotaur, admit the explicit PM_MINOTAUR (index 177) through makemon() at maze1xy(DRY)’s untouched odd coordinate, preserving source RNG/order/state and subsequent level generation; exclude the later random-monster, gold, and trap arms.",
       "upstreamOwners": [
         "nethack-c/upstream/src/wizcmds.c: wiz_level_tele()",
@@ -6413,8 +6413,11 @@
         "screens": 3274,
         "rng": 218120
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "716c1a5a4214e66f4329f2c1795497f10ffab98e",
+      "delivered": {
+        "screens": 0,
+        "rng": 3612
+      }
     }
   ]
 }
