@@ -6935,7 +6935,13 @@
         ]
       },
       "detail": "A small, coherent sounds.c slice: preserve dosounds()'s has_zoo 1/200 gate and, when it fires, get_iter_mons(zoo_mon_sound), whose qualifying monster is sleeping or an animal in a ZOO room; preserve the hallucination offset, three zoo messages, and return/no-message behavior. The witnessed session reaches the gate with normal acoustics and has_zoo set but its recorded roll is 175, so it proves the boundary's governing state and gate path while leaving the inner message arm for the branch's own preconditions. The capped forecast is 3 recorded steps and ends at the next independent unmet behavior. Under the selection rules this is one bounded goal-sized source slice; exclude adjacent beehive, morgue, barracks, shop, temple, Oracle, and room-generation work.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "has-zoo-dosounds-sound-gate",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "b9aa497a277f6c9c552dadd3a11f22a5c88e1c7e",
       "openStanding": {
         "sha": "72ba51e",
