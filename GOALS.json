@@ -6711,6 +6711,51 @@
         "screens": 28,
         "rng": 0
       }
+    },
+    {
+      "id": "the-hero-dying-of-a-monster-attack",
+      "status": "open",
+      "boundary": "Support the witnessed ordinary adjacent water-demon physical attack killing an unpolymorphed normal-mode hero without life saving, preserve damage/message/RNG order, carry DIED atomically through monster-turn planning/live execution, and complete the witnessed default-yes inventory/attributes/vanquished/conduct/overview disclosures, ordinary bones/grave, tombstone, score summary, and termination.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/mon.c: movemon()",
+        "nethack-c/upstream/src/monmove.c: dochug()",
+        "distfleeck()",
+        "nethack-c/upstream/src/mhitu.c: mattacku()",
+        "hitmu()",
+        "mdamageu()",
+        "nethack-c/upstream/src/uhitm.c: physical damage and knockback",
+        "nethack-c/upstream/src/end.c: done_in_by()",
+        "done()",
+        "really_done()",
+        "disclose()",
+        "nethack-c/upstream/src/insight.c: disclosures",
+        "nethack-c/upstream/src/dungeon.c: show_overview()",
+        "nethack-c/upstream/src/bones.c: bones",
+        "nethack-c/upstream/src/rip.c: tombstone"
+      ],
+      "forecast": {
+        "steps": 17,
+        "basis": "Capped look-ahead at the hero dying of a monster attack",
+        "sessions": [
+          "seed0006-wizard-water-demon"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0006-wizard-water-demon",
+            "evidence": "Seed 6, 2026-05-03 02:43:27, DECgraphics, neutral female gnomish level-1 Wizard Hextra, normal mode. After ascending to D:1 she has HP 6/11 and is adjacent to a hostile visible water demon with no life saving or half physical damage. movemon()->dochug()->mattacku() gives a dagger hit reducing HP to 1, then a claw hit with knockback RNG reduces HP to 0. mdamageu() calls done_in_by(water demon,DIED); no polymorph/debug/discover reprieve applies. C records the ordinary killer, runs done()/really_done(), bones, default yes disclosures, grave/tombstone and score summary. JS planning reproduces lethal arithmetic but throws UnsupportedEndOfGameError before live end-game flow."
+          }
+        ]
+      },
+      "detail": "Large naturally multi-slice goal with forecast 17: terminal result across monster-turn preflight/live seam, ordinary killer acceptance, and several disclosure/final-output owners. Size is not grounds to narrow. Exclude special killer naming, polymorph/life saving/debug survival, hangup/panic, other death types, alternate disclosure policies/answers, and special containers.",
+      "slices": [],
+      "openedAt": "dd19bc9dee6db73f2422be88693ee15e2de94b31",
+      "openStanding": {
+        "sha": "b91280172d5a7403e35ef589ed242b39d311a30f",
+        "screens": 3455,
+        "rng": 225489
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
