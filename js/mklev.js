@@ -181,6 +181,7 @@ import {
     POLY_TRAP, VIBRATING_SQUARE,
     MKTRAP_NOFLAGS, MKTRAP_MAZEFLAG, MKTRAP_NOSPIDERONWEB,
     MKTRAP_NOVICTIM, MKTRAP_SEEN,
+    BR_PORTAL, BR_NO_END1, BR_NO_END2,
     CORPSTAT_INIT, MARK, MM_NOGRP, NO_MM_FLAGS,
     In_quest, NO_ROOM,
     TRAPNUM,
@@ -5211,15 +5212,26 @@ function place_branch(branchp, x = 0, y = 0) {
     const on_end1 = (branchp.end1?.dnum === g.u?.uz?.dnum
         && branchp.end1?.dlevel === g.u?.uz?.dlevel);
     const dest = on_end1 ? branchp.end2 : branchp.end1;
-    const goes_up = on_end1 ? !!branchp.end1_up : !branchp.end1_up;
-    const loc = g.level?.at(x, y);
-    if (loc) {
-        loc.typ = STAIRS;
-        loc.ladder = goes_up ? 1 : 2;
+    // C ref: mklev.c:1727-1739
+    if (branchp.type === BR_PORTAL) {
+        const trap = maketrap(x, y, MAGIC_PORTAL);
+        if (trap) {
+            trap.dst = { dnum: dest.dnum, dlevel: dest.dlevel };
+        }
+    } else {
+        const make_stairs = on_end1
+            ? branchp.type !== BR_NO_END1
+            : branchp.type !== BR_NO_END2;
+        if (make_stairs) {
+            const goes_up = on_end1 ? !!branchp.end1_up : !branchp.end1_up;
+            stairway_add(x, y, goes_up, false, dest || { dnum: 0, dlevel: 0 });
+            const loc = g.level?.at(x, y);
+            if (loc) {
+                loc.typ = STAIRS;
+                loc.ladder = goes_up ? LA_UP : LA_DOWN;
+            }
+        }
     }
-    stairway_add(x, y, goes_up, false, dest || { dnum: 0, dlevel: 0 });
-    if (goes_up) g.level.upstair = { x, y };
-    else g.level.dnstair = { x, y };
     g.made_branch = true;
 }
 
