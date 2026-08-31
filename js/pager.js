@@ -586,7 +586,7 @@ export function do_screen_description(cc, looked, sym, state = game) {
         return {
             found: 1,
             out: '         unexplored',
-            firstmatch: 'unexplored',
+            firstmatch: 'unexplored area',
         };
     }
     if (!glyph_is_cmap(glyph))
