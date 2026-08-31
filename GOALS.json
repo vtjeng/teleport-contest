@@ -6615,7 +6615,7 @@
     },
     {
       "id": "simple-monster-action-requires-an-armed-monster-attacking-an",
-      "status": "open",
+      "status": "closed",
       "boundary": "For the witnessed normal-mode starting pony, when dog_move() lands an adjacent kick/bite on a hostile goblin and its rn2(4) return-attack gate fires, admit the goblin's adjacent AT_WEAP/AD_PHYS attack with no selectable or wielded weapon through mon_wield_item()/possibly_unwield(), preserve the mwep-null fall-through to the physical hit/passive sequence and source RNG/order, then return through dog_move(); exclude distant, genuinely wielded, substituted, ranged, and special attacks.",
       "upstreamOwners": [
         "nethack-c/upstream/src/mon.c: movemon_singlemon()",
@@ -6653,8 +6653,11 @@
         "screens": 3394,
         "rng": 224888
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "aeb0b469f0cf62851e87719d0da9c888450a8a34",
+      "delivered": {
+        "screens": 33,
+        "rng": 601
+      }
     }
   ]
 }
