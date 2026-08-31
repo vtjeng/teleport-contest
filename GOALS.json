@@ -6714,7 +6714,7 @@
     },
     {
       "id": "the-hero-dying-of-a-monster-attack",
-      "status": "open",
+      "status": "closed",
       "boundary": "Support the witnessed ordinary adjacent water-demon physical attack killing an unpolymorphed normal-mode hero without life saving, preserve damage/message/RNG order, carry DIED atomically through monster-turn planning/live execution, and complete the witnessed default-yes inventory/attributes/vanquished/conduct/overview disclosures, ordinary bones/grave, tombstone, score summary, and termination.",
       "upstreamOwners": [
         "nethack-c/upstream/src/mon.c: movemon()",
@@ -6765,8 +6765,11 @@
         "screens": 3455,
         "rng": 225489
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "c852f40b997d5e529eddfc2f46fb9e81e2ef6cfe",
+      "delivered": {
+        "screens": 17,
+        "rng": 12
+      }
     }
   ]
 }
