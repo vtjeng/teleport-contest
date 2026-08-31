@@ -7,11 +7,14 @@ import {
     DEAF,
     ECMD_CANCEL,
     ECMD_OK,
+    EPRI,
     FEMALE,
     HALLUC,
     HALLUC_RES,
     IS_WALL,
+    Is_astralevel,
     MALE,
+    MS_ANIMAL,
     ROOMOFFSET,
     SDOOR,
     SHOPBASE,
@@ -19,6 +22,7 @@ import {
     STRANGLED,
     VAULT,
     WINTYPELEN,
+    helpless,
     isok,
 } from './const.js';
 import { getdir } from './cmd.js';
@@ -32,10 +36,13 @@ import { m_at } from './monst.js';
 import { g_at } from './obj.js';
 import { an } from './objnam.js';
 import { STATUE } from './objects.js';
+import { halu_gname } from './pray.js';
+import { inhistemple, temple_occupied } from './priest.js';
 import { rn2 } from './rng.js';
 import { canSeeMonster } from './startup_a11y.js';
 import { noisy_shop, shop_object, tended_shop } from './shk.js';
 import { ttyPline } from './tty_message.js';
+import { cansee, canseemon } from './vision.js';
 
 const FOUNTAIN_MESSAGES = Object.freeze([
     'bubbling water.',
@@ -66,7 +73,6 @@ const PRE_SHOP_SPECIAL_SOUND_FLAGS = Object.freeze([
 ]);
 
 const POST_SHOP_SPECIAL_SOUND_FLAGS = Object.freeze([
-    'has_temple',
 ]);
 
 function propertyActive(hero, propertyIndex) {
@@ -187,6 +193,48 @@ async function hear(message, state, pline) {
     await pline(`You hear ${message}`, state);
 }
 
+const TEMPLE_MESSAGES = Object.freeze([
+    '*someone praising %s.',
+    '*someone beseeching %s.',
+    '#an animal carcass being offered in sacrifice.',
+    '*a strident plea for donations.',
+]);
+
+// C ref: sounds.c:131-178 temple_priest_sound(). Iterates monlist for a
+// priest inside their own temple while the hero is outside it.
+async function templePriestSound(state, hallu, { random, pline }) {
+    for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
+        if (!mtmp.ispriest || !inhistemple(mtmp, state)
+            || helpless(mtmp)
+            || temple_occupied(state.u?.urooms, state) === EPRI(mtmp)?.shroom)
+            continue;
+        const epri = EPRI(mtmp);
+        const ax = epri.shrpos.x;
+        const ay = epri.shrpos.y;
+        const speechless = (mtmp.data?.msound ?? 0) <= MS_ANIMAL;
+        const in_sight = canseemon(mtmp, state) || cansee(ax, ay, state);
+        let msg;
+        let trycount = 0;
+        do {
+            msg = TEMPLE_MESSAGES[random(TEMPLE_MESSAGES.length - 1 + hallu)];
+            if (msg.includes('*') && speechless) continue;
+            if (msg.includes('#') && in_sight) continue;
+            break;
+        } while (++trycount < 50);
+        const text = msg.replace(/^[*#]+/, '');
+        if (text.includes('%s')) {
+            await hear(
+                text.replace('%s', halu_gname(epri.shralign, state)),
+                state, pline,
+            );
+        } else {
+            await hear(text, state, pline);
+        }
+        return true;
+    }
+    return false;
+}
+
 /**
  * Run every sounds.c:dosounds() branch reachable on an ordinary initial level.
  *
@@ -273,6 +321,14 @@ export async function dosoundsInitialLevel(
         return;
     }
     rejectUnportedSpecialSound(state, POST_SHOP_SPECIAL_SOUND_FLAGS);
+    // C ref: sounds.c:330-334 temple ambient sound.
+    if (flags.has_temple && random(200) === 0
+        && !(Is_astralevel(state.u?.uz)
+            || (state.sanctum_level
+                && on_level(state.u?.uz, state.sanctum_level)))) {
+        if (templePriestSound(state, hallu, { random, pline }))
+            return;
+    }
     // C ref: sounds.c:335-338 Oracle level sound branch.
     if (on_level(state.u?.uz, state.oracle_level) && random(400) === 0) {
         for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
