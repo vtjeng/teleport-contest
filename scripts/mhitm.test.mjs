@@ -19,7 +19,7 @@ import {
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { mattackm } from '../js/mhitm.js';
+import { engulf_target, mattackm } from '../js/mhitm.js';
 import {
     is_elf,
     is_orc,
@@ -54,7 +54,9 @@ import {
     PM_FOG_CLOUD,
     PM_GIANT_ANT,
     PM_GRID_BUG,
+    PM_ICE_VORTEX,
     PM_HILL_ORC,
+    MZ_HUGE,
     PM_KITTEN,
     PM_KOBOLD,
     PM_KOBOLD_ZOMBIE,
@@ -657,6 +659,24 @@ test('a grab that cannot hold its target stops the attack', async () => {
     );
     game.gn.notonhead = false;
     pet.data = ordinary;
+});
+
+test('engulf_target admits a fitting vortex and rejects a huge defender',
+    async () => {
+    // mhitm.c:805-845. A whirly vortex can cross ordinary terrain, but the
+    // target-size guard still rejects a defender larger than medium.
+    const state = await hero();
+    const vortex = newMonster({
+        data: state.mons[PM_ICE_VORTEX],
+        mx: state.u.ux + 1,
+        my: state.u.uy,
+    });
+    assert.equal(engulf_target(vortex, state.youmonst, state), true);
+
+    const ordinaryForm = state.youmonst.data;
+    state.youmonst.data = { ...ordinaryForm, msize: MZ_HUGE };
+    assert.equal(engulf_target(vortex, state.youmonst, state), false);
+    state.youmonst.data = ordinaryForm;
 });
 
 // mhitm.c mattackm():393-425. An adjacent empty-handed AT_WEAP attacker asks

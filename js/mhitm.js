@@ -6,6 +6,9 @@
 import {
     CONFLICT,
     DEAF,
+    IRONBARS,
+    IS_OBSTRUCTED,
+    IS_TREE,
     M_AP_TYPE,
     M_ATTK_AGR_DIED,
     M_ATTK_AGR_DONE,
@@ -15,6 +18,7 @@ import {
     NEED_HTH_WEAPON,
     NEED_WEAPON,
     NATTK,
+    PASSES_WALLS,
     helpless,
 } from './const.js';
 import {
@@ -29,13 +33,15 @@ import { could_seduce, getmattk, mtrapped_in_pit } from './mhitu.js';
 import { mon_offmap, monkilled, zombie_maker } from './mon.js';
 import {
     is_elf,
+    is_whirly,
     is_orc,
     mon_hates_silver,
+    passes_walls,
     touch_petrifies,
     unsolid,
     zombie_form,
 } from './mondata.js';
-import { youHear } from './monmove.js';
+import { closed_door, youHear } from './monmove.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
     AD_ACID,
@@ -64,6 +70,7 @@ import {
     AD_FIRE,
     AD_PLYS,
     AD_STUN,
+    MZ_HUGE,
     NON_PM,
     PM_GRID_BUG,
     PM_MEDUSA,
@@ -491,9 +498,9 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
 // function. The disjunct is written because C writes it.
 //
 // C declares this one non-static for mhitu.c:808, :827 and :1305 and
-// uhitm.c:5652, :5735 and :5779. All six are unported, so it stays
-// module-local until one of them arrives.
-function failed_grab(magr, mdef, mattk, env) {
+// uhitm.c:5652, :5735 and :5779. mhitu.c's AT_ENGL arm now reaches the
+// ordinary solid-hero result; the unsolid/grab refusal remains fail-closed.
+export function failed_grab(magr, mdef, mattk, env) {
     const { state } = env;
     const unsupported = requireAttackOperation(env, 'unsupported');
 
@@ -508,6 +515,60 @@ function failed_grab(magr, mdef, mattk, env) {
         return true;
     }
     return false;
+}
+
+// C ref: mhitm.c engulf_target() (805-845). The target must fit inside the
+// engulfer, neither combatant may be trapped, and the two occupied squares
+// must be places from which both combatants can later be separated. The hero
+// half is the only one used by mhitu.c gulpmu() here; the monster half stays
+// source-faithful because gulpmm() will eventually share this predicate.
+export function engulf_target(magr, mdef, state = game) {
+    const defenderIsHero = mdef === state.youmonst;
+    const attackerIsHero = magr === state.youmonst;
+    const defenderSize = mdef?.data?.msize;
+    const attackerSize = magr?.data?.msize;
+
+    if (defenderSize >= MZ_HUGE
+        || (attackerSize < defenderSize && !is_whirly(magr?.data))) {
+        return false;
+    }
+    if (mdef?.mtrapped || magr?.mtrapped) return false;
+
+    const dx = defenderIsHero ? state.u?.ux : mdef?.mx;
+    const dy = defenderIsHero ? state.u?.uy : mdef?.my;
+    const defenderLocation = state.level?.at(dx, dy);
+    const defenderPassesWalls = defenderIsHero
+        ? Boolean(state.u?.uprops?.[PASSES_WALLS]?.intrinsic
+            || state.u?.uprops?.[PASSES_WALLS]?.extrinsic)
+        : passes_walls(mdef?.data);
+    if (!defenderPassesWalls
+        && (!defenderLocation
+            || IS_OBSTRUCTED(defenderLocation.typ)
+            || closed_door(dx, dy, state)
+            || IS_TREE(defenderLocation.typ, state)
+            || (defenderLocation.typ === IRONBARS
+                && !is_whirly(magr?.data)))) {
+        return false;
+    }
+
+    const ax = attackerIsHero ? state.u?.ux : magr?.mx;
+    const ay = attackerIsHero ? state.u?.uy : magr?.my;
+    const attackerLocation = state.level?.at(ax, ay);
+    const attackerPassesWalls = attackerIsHero
+        ? Boolean(state.u?.uprops?.[PASSES_WALLS]?.intrinsic
+            || state.u?.uprops?.[PASSES_WALLS]?.extrinsic)
+        : passes_walls(magr?.data);
+    if (!attackerPassesWalls
+        && (!attackerLocation
+            || IS_OBSTRUCTED(attackerLocation.typ)
+            || closed_door(ax, ay, state)
+            || IS_TREE(attackerLocation.typ, state)
+            || (attackerLocation.typ === IRONBARS
+                && !is_whirly(mdef?.data)))) {
+        return false;
+    }
+
+    return true;
 }
 
 // C ref: mhitm.c hitmm() (642-731). "Returns the result of mdamagem()."

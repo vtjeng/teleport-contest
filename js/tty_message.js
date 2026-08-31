@@ -258,7 +258,10 @@ export async function dismissPendingTtyMessage(
 // display calls more(), temporarily restores NEED_MORE, and clears the message
 // window. A wrapped message has already called more(); the second source call
 // sees an empty top line and consumes no input.
-async function displayPendingTtyMessageWindow(state) {
+// C ref: wintty.c tty_display_nhwindow(WIN_MESSAGE, FALSE). The message
+// window is always blocking on the TTY, so a pending --More-- is dismissed
+// before the caller continues with its source-ordered state changes.
+export async function displayPendingTtyMessageWindow(state) {
     const waited = await dismissPendingTtyMessage(state);
     if (waited) {
         state.nhDisplay.toplin = TOPLINE_NEED_MORE;

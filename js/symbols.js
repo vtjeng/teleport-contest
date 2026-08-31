@@ -126,6 +126,14 @@ export const S_arrow_trap = requiredCmapSymbol('s_arrow_trap');
 // are inputs to js/glyph_offsets.js.
 export const S_digbeam = requiredCmapSymbol('s_digbeam');
 export const S_goodpos = requiredCmapSymbol('s_goodpos');
+export const S_sw_tl = requiredCmapSymbol('s_sw_tl');
+export const S_sw_tc = requiredCmapSymbol('s_sw_tc');
+export const S_sw_tr = requiredCmapSymbol('s_sw_tr');
+export const S_sw_ml = requiredCmapSymbol('s_sw_ml');
+export const S_sw_mr = requiredCmapSymbol('s_sw_mr');
+export const S_sw_bl = requiredCmapSymbol('s_sw_bl');
+export const S_sw_bc = requiredCmapSymbol('s_sw_bc');
+export const S_sw_br = requiredCmapSymbol('s_sw_br');
 // The base of the four beam directions a zap glyph carries, which
 // glyphs.c glyph_to_cmap() (1003-1004) adds its remainder to.
 export const S_vbeam = requiredCmapSymbol('s_vbeam');

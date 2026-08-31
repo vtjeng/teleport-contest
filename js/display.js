@@ -90,7 +90,7 @@ import {
 } from './terminal.js';
 import { rankOf } from './roles.js';
 import { pmname } from './do_name.js';
-import { is_flyer } from './mondata.js';
+import { is_flyer, monsndx } from './mondata.js';
 import { m_at } from './monst.js';
 import {
     dist2,
@@ -199,6 +199,14 @@ import {
     S_air,
     S_cloud,
     S_water,
+    S_sw_tl,
+    S_sw_tc,
+    S_sw_tr,
+    S_sw_ml,
+    S_sw_mr,
+    S_sw_bl,
+    S_sw_bc,
+    S_sw_br,
     SYM_OFF_X,
     defsym_to_trap,
     trap_to_defsym,
@@ -233,6 +241,7 @@ import {
     GLYPH_STATUE_FEM_PILETOP_OFF,
     GLYPH_STATUE_MALE_OFF,
     GLYPH_STATUE_MALE_PILETOP_OFF,
+    GLYPH_SWALLOW_OFF,
     GLYPH_UNEXPLORED_OFF,
     GLYPH_WARNING_OFF,
     GLYPH_ZAP_OFF,
@@ -1375,6 +1384,13 @@ export function glyph_is_cmap(glyph) {
         && glyph < GLYPH_CMAP_C_OFF + ((S_goodpos - S_digbeam) + 1);
 }
 
+// C ref: display.h glyph_is_swallow() (705-707). Swallow graphics occupy
+// eight positions for every monster in the same glyph space as map cells.
+export function glyph_is_swallow(glyph) {
+    return glyph >= GLYPH_SWALLOW_OFF
+        && glyph < GLYPH_SWALLOW_OFF + (NUMMONS << 3);
+}
+
 // C ref: display.h glyph_is_cmap_zap() (699-700), one of the ten per-range
 // predicates. It names the sub-range glyph_is_cmap() above admits along with
 // every other cmap glyph, which zapdir_to_glyph() produces and
@@ -1712,7 +1728,8 @@ function mapGlyphinfoResolves(glyph) {
     return glyph === GLYPH_NOTHING_OFF
         || glyph === GLYPH_INVISIBLE
         || glyph_is_object(glyph)
-        || glyph_is_cmap(glyph);
+        || glyph_is_cmap(glyph)
+        || glyph_is_swallow(glyph);
 }
 
 /**
@@ -1791,6 +1808,12 @@ export function map_glyphinfo(glyph, state = game) {
         symbol = statueSymbol(offset, state);
         color = statueColor(state);
         glyphflags = MG_STATUE | MG_MALE;
+    } else if ((offset = glyph - GLYPH_SWALLOW_OFF) >= 0) {
+        // display.c:2864-2872. The low three bits select one of the eight
+        // stomach-wall symbols; the remaining bits select the engulfer's
+        // monster colour.
+        cmap = S_sw_tl + (offset & 0x7);
+        color = state.mons?.[offset >> 3]?.mcolor ?? NO_COLOR;
     } else if ((offset = glyph - GLYPH_CMAP_C_OFF) >= 0) {
         // display.c:2884-2890. region.c's gas clouds are the ported producer.
         cmap = S_digbeam + offset;
@@ -2256,6 +2279,78 @@ export function show_glyph_cell(x, y, glyph) {
         previousGnew,
         game,
     );
+}
+
+// C ref: display.c swallow_to_glyph() (2429-2446). The monster number is
+// packed above the eight stomach-wall positions; Hallucination changes only
+// the displayed monster and consumes the display RNG, just like what_mon().
+export function swallow_to_glyph(
+    mnum,
+    loc,
+    state = game,
+    displayRandom = rn2_on_display_rng,
+) {
+    const displayedMnum = heroHallucinating(state)
+        ? displayDraw(displayRandom, NUMMONS) : mnum;
+    const clampedLoc = loc < S_sw_tl || loc > S_sw_br ? S_sw_br : loc;
+    return ((displayedMnum << 3) | (clampedLoc - S_sw_tl))
+        + GLYPH_SWALLOW_OFF;
+}
+
+// C ref: display.c swallowed() (1330-1382). This is the initial swallow arm
+// reached by mhitu.c gulpmu(); the continuing-position redraw is outside this
+// slice because gulpmu() does not call swallowed(FALSE) for repeated damage.
+export async function swallowed(first, state = game) {
+    if (!first) {
+        throw new Error('swallowed(FALSE) is outside the current port boundary');
+    }
+    if (state !== game) {
+        throw new TypeError('swallowed() requires the live game state');
+    }
+
+    await cls();
+    await bot();
+
+    const swallower = monsndx(state.u?.ustuck?.data);
+    const leftOk = isok(state.u.ux - 1, state.u.uy);
+    const rightOk = isok(state.u.ux + 1, state.u.uy);
+    const stomachGlyph = (loc) => map_glyphinfo(
+        swallow_to_glyph(swallower, loc, state), state,
+    );
+
+    if (isok(state.u.ux, state.u.uy - 1)) {
+        if (leftOk)
+            show_glyph_cell(
+                state.u.ux - 1, state.u.uy - 1,
+                stomachGlyph(S_sw_tl),
+            );
+        show_glyph_cell(state.u.ux, state.u.uy - 1, stomachGlyph(S_sw_tc));
+        if (rightOk)
+            show_glyph_cell(
+                state.u.ux + 1, state.u.uy - 1,
+                stomachGlyph(S_sw_tr),
+            );
+    }
+
+    if (leftOk)
+        show_glyph_cell(state.u.ux - 1, state.u.uy, stomachGlyph(S_sw_ml));
+    show_glyph_cell(state.u.ux, state.u.uy, hero_glyph_info(state));
+    if (rightOk)
+        show_glyph_cell(state.u.ux + 1, state.u.uy, stomachGlyph(S_sw_mr));
+
+    if (isok(state.u.ux, state.u.uy + 1)) {
+        if (leftOk)
+            show_glyph_cell(
+                state.u.ux - 1, state.u.uy + 1,
+                stomachGlyph(S_sw_bl),
+            );
+        show_glyph_cell(state.u.ux, state.u.uy + 1, stomachGlyph(S_sw_bc));
+        if (rightOk)
+            show_glyph_cell(
+                state.u.ux + 1, state.u.uy + 1,
+                stomachGlyph(S_sw_br),
+            );
+    }
 }
 
 // C ref: display.c glyph_at() (2478-2482). Read the logical number from the

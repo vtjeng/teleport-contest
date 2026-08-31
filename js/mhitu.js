@@ -17,6 +17,7 @@ import {
     M_AP_TYPE,
     M_ATTK_HIT,
     M_ATTK_MISS,
+    M_SEEN_COLD,
     NATTK,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
@@ -37,7 +38,14 @@ import { stop_occupation } from './allmain.js';
 import { ART_SNICKERSNEE } from './artifacts.js';
 import { effective_attribute, minuhpmax, setuhpmax } from './attrib.js';
 import { midnight } from './calendar.js';
-import { bot, map_invisible, newsym } from './display.js';
+import {
+    bot,
+    flush_screen,
+    map_invisible,
+    newsym,
+    swallowed,
+} from './display.js';
+import { reset_occupations } from './cmd.js';
 import { capitalizedMonsterName, monsterPossessive } from './do_name.js';
 import { In_hell, on_level } from './dungeon.js';
 import { done_in_by } from './end.js';
@@ -45,6 +53,8 @@ import { game } from './gstate.js';
 import { nomul, showdamage } from './hack.js';
 import { dist2 } from './hacklib.js';
 import { is_home_elemental } from './makemon.js';
+import { engulf_target, failed_grab } from './mhitm.js';
+import { set_ustuck } from './mon.js';
 import {
     DISTANCE_ATTK_TYPE,
     cvt_adtyp_to_mseenres,
@@ -58,6 +68,7 @@ import {
     is_vampshifter,
     is_were,
     mhis,
+    monstunseesu,
     mon_hates_blessings,
     perceives,
     thick_skinned,
@@ -67,9 +78,11 @@ import {
 import { monnear } from './monmove.js';
 import * as M from './monsters.js';
 import { find_offensive } from './muse.js';
-import { is_wet_towel, objectType } from './obj.js';
+import { is_wet_towel, objectType, sobj_at } from './obj.js';
+import { place_monster, remove_monster } from './monst.js';
 import {
     AMULET_OF_GUARDING,
+    BOULDER,
     PIERCE,
     getObjects,
 } from './objects.js';
@@ -82,9 +95,14 @@ import {
     monsterVisible,
 } from './startup_a11y.js';
 import { t_at } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow,
+    ttyPline,
+    ttyUrgentPline,
+} from './tty_message.js';
 import { mhitm_adtyping, mhitm_knockback } from './uhitm.js';
-import { cansee } from './vision.js';
+import { Cold_resistance } from './zap.js';
+import { cansee, vision_recalc } from './vision.js';
 import { hitval } from './weapon.js';
 import { is_pole } from './worn.js';
 
@@ -487,22 +505,22 @@ export function mtrapped_in_pit(mtmp, state = game) {
 //
 // Ported: the preamble, the u.usteed arm, the armor-class differential, the
 // eel-reveal, find_offensive()'s FALSE answer, the NATTK loop, and, inside it,
-// the AT_CLAW/AT_KICK/AT_BITE/AT_STNG/AT_TUCH/AT_BUTT/AT_TENT arm and the
-// non-range2 AT_WEAP arm, each through hitmu() or missmu().
+// the AT_CLAW/AT_KICK/AT_BITE/AT_STNG/AT_TUCH/AT_BUTT/AT_TENT arm, the
+// non-range2 AT_WEAP arm, and the ordinary ice-vortex AT_ENGL arm. Those
+// attacks run through hitmu(), missmu() or gulpmu().
 //
 // Refused where C acts: the hero-concealment blocks (u.uundetected, the
 // S_MIMIC and M_AP_OBJECT arms), summonmu(), u.uinvulnerable, use_offensive(),
 // wildmiss() for a monster that guessed wrong, and every other aatyp arm.
 //
-// Three lines of the preamble are deliberately absent:
+// Two lines of the preamble are deliberately absent:
 //   DEADMONSTER(mtmp) cannot answer TRUE, because mon.c movemon() drops a
 //     monster with mhp < 1 before dochug() runs and nothing between there and
 //     here damages it;
 //   Underwater needs u.uinwater, whose sole writer is hack.c set_uinwater()
 //     and whose only ported callers, in js/do.js, both pass FALSE;
-//   C's `if (u.uswallow)` arm is absent for the same kind of reason: js/mon.js
-//     clears u.uswallow and no ported path sets it, so only the steed arm of
-//     that if/else chain can be taken.
+// The swallowed-state arm now belongs to the ordinary ice-vortex slice below;
+// other swallowed attackers still stop in their own AT_ENGL branches.
 //
 // Two seams still owe the steed draw and stop before it, named by symbol
 // because line numbers rot and both citations here were already wrong once:
@@ -547,6 +565,18 @@ export async function mattacku(monster, rawEnv = {}) {
 
     if (!initial.ranged)
         nomul(0, state);
+
+    // C ref: mhitu.c mattacku() (522-533). Once engulfed, only the current
+    // holder may attack; its remembered target is refreshed to the hero's
+    // current square before the attack loop starts.
+    if (u.uswallow) {
+        if (monster !== u.ustuck) return false;
+        monster.mux = u.ux;
+        monster.muy = u.uy;
+        if (u.uinvulnerable) return false;
+        range2 = false;
+        foundyou = true;
+    }
 
     if (u.usteed) {
         if (monster === u.usteed)
@@ -713,7 +743,31 @@ export async function mattacku(monster, rawEnv = {}) {
             break;
 
         case M.AT_ENGL:
-            if (!range2) unsupported('a monster engulfing the hero');
+            if (!range2) {
+                // This slice admits only the witnessed live ice vortex. The
+                // other engulfers, polymorphed heroes, cold resistance and a
+                // cancelled vortex remain outside the selected boundary.
+                if (mdat?.pmidx !== M.PM_ICE_VORTEX
+                    || Upolyd(state.u)
+                    || Cold_resistance(state)
+                    || monster.mcan) {
+                    unsupported('a monster engulfing the hero');
+                }
+                if (foundyou) {
+                    let j = 0;
+                    const engulfing = u.uswallow
+                        || (!monster.mspec_used
+                            && ((j = random.rnd(20 + i)), tmp > j));
+                    if (engulfing) {
+                        if (!env.planning) await flush_screen(1);
+                        sum[i] = await gulpmu(monster, mattk, env);
+                    } else {
+                        await missmu(monster, tmp === j, mattk, env);
+                    }
+                } else {
+                    unsupported('a monster engulfing where the hero is not');
+                }
+            }
             break;
 
         case M.AT_BREA:
@@ -803,6 +857,125 @@ export async function mattacku(monster, rawEnv = {}) {
         // gazemu(), castmu() and buzzmu() all refuse above.
     }
     return false;
+}
+
+// C ref: mhitu.c gulpmu() (1287-1577). This slice covers an ordinary human
+// Wizard being swallowed by an uncancelled ice vortex, and the same vortex's
+// repeated AD_COLD arm while the hero remains inside. The other engulfers,
+// digestion, elemental variants, traps, leash/steed handling, petrification,
+// expulsion and death continuation remain fail-closed at their source gates.
+async function gulpmu(mtmp, mattk, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const u = state.u;
+    const random = rawEnv.random;
+    const message = requireMattackuOperation(rawEnv, 'message');
+    const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
+    if (typeof random?.d !== 'function' || typeof random?.rn2 !== 'function') {
+        throw new TypeError('gulpmu requires d and rn2 random sources');
+    }
+
+    // C evaluates the damage roll before any initial-swallow checks.
+    let tmp = random.d(mattk.damn, mattk.damd);
+
+    if (!u.uswallow) {
+        const omx = mtmp.mx;
+        const omy = mtmp.my;
+        const trap = t_at(u.ux, u.uy, state);
+
+        if (!engulf_target(mtmp, state.youmonst, state))
+            return M_ATTK_MISS;
+        if (trap && is_pit(trap.ttyp)
+            && sobj_at(BOULDER, u.ux, u.uy, state)) {
+            return M_ATTK_MISS;
+        }
+        if (failed_grab(mtmp, state.youmonst, mattk, rawEnv))
+            return M_ATTK_MISS;
+
+        // These source branches are outside this exact ordinary, untrapped,
+        // unpunished, non-steed witness. Refuse before changing placement if
+        // a caller ever presents one to this narrow port.
+        if (u.usteed || u.utrap)
+            unsupported('engulfing a steed or trapped hero');
+
+        remove_monster(omx, omy, state);
+        mtmp.mtrapped = false;
+        place_monster(mtmp, u.ux, u.uy, state);
+        set_ustuck(mtmp, state);
+        if (!rawEnv.planning) rawEnv.redraw(mtmp.mx, mtmp.my);
+
+        if (u.usteed) {
+            unsupported('dismounting a steed during engulfing');
+        } else {
+            await (rawEnv.planning ? async () => {}
+                : (rawEnv.urgentMessage ?? ttyUrgentPline))(
+                `${capitalizedMonsterName(mtmp, state)} engulfs you!`, state,
+            );
+        }
+        await mattackuStopOccupation(rawEnv);
+        reset_occupations(state);
+
+        if (u.utrap)
+            unsupported('releasing the hero from a trap while engulfed');
+        if (touch_petrifies(state.youmonst.data))
+            unsupported('petrification during engulfing');
+
+        // display_nhwindow(WIN_MESSAGE, FALSE) waits for and clears any
+        // pending --More-- before the timer and damage arm below. The
+        // planning clone cannot consume the live input queue, so its message
+        // window is deliberately silent while it preserves state/RNG order.
+        if (!rawEnv.planning) {
+            await displayPendingTtyMessageWindow(state);
+            vision_recalc(2, { state, redraw: rawEnv.redraw });
+            u.uswallow = 1;
+        } else {
+            vision_recalc(2, { state, redraw: () => {} });
+            u.uswallow = 1;
+        }
+
+        // C's AD_DGST timer calculation is outside this slice. Every admitted
+        // non-digestion engulfing attack uses rnd(m_lev + 10 / 2).
+        const timTmp = random.rnd(mtmp.m_lev + 10 / 2);
+        u.uswldtim = timTmp < 2 ? 2 : timTmp;
+        if (!rawEnv.planning) await swallowed(1, state);
+        // An ice vortex is not flaming, so its inventory snuff loop has no
+        // effect on this path and is deliberately not entered.
+    }
+
+    if (mtmp !== u.ustuck) return M_ATTK_MISS;
+    if (u.uswldtim > 0) u.uswldtim -= 1;
+
+    switch (mattk.adtyp) {
+    case M.AD_COLD:
+        if (!mtmp.mcan && random.rn2(2)) {
+            if (Cold_resistance(state)) {
+                // The resistant branch is outside this slice and requires
+                // shieldeff()/monstseesu()/ugolemeffects().
+                unsupported('cold-resistant engulfing');
+            } else {
+                await message('You are freezing to death!', state);
+                monstunseesu(M_SEEN_COLD, state);
+            }
+        } else {
+            tmp = 0;
+        }
+        break;
+    default:
+        unsupported('non-cold engulfing damage');
+    }
+
+    state.gm ??= {};
+    state.gm.mswallower = mtmp;
+    await mdamageu(mtmp, tmp, state, rawEnv);
+    state.gm.mswallower = null;
+    if (tmp) await stop_occupation(state, {
+        message,
+        statusRefresh: rawEnv.statusRefresh,
+    });
+
+    // Reaching timer exhaustion would enter the unported expulsion branch.
+    if (u.uswallow && !u.uswldtim)
+        unsupported('expulsion after engulfing');
+    return M_ATTK_HIT;
 }
 
 // C ref: mhitu.c magic_negation() (1088-1137). "armor that sufficiently covers

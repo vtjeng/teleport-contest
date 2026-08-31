@@ -82,6 +82,7 @@ import {
     PM_SHRIEKER,
     PM_GRID_BUG,
     PM_HUMAN,
+    PM_ICE_VORTEX,
     PM_JACKAL,
     PM_KI_RIN,
     PM_LICH,
@@ -258,11 +259,11 @@ const MELEE_RC = [
 // hour is not the one spelled here; the test asserts midnight() itself rather
 // than trusting the string.
 
-async function meleeHero(datetime = MELEE_DATETIME) {
+async function meleeHero(datetime = MELEE_DATETIME, role = 'Valkyrie') {
     await runSegment({
         seed: 7710044,
         datetime,
-        nethackrc: MELEE_RC,
+        nethackrc: MELEE_RC.replace('role:Valkyrie', `role:${role}`),
         moves: '',
     });
     game.level.traps = [];
@@ -398,6 +399,49 @@ test('mattacku prints the miss its to-hit test loses and the hit it wins',
     assert.deepEqual(hit.lines, bite.lines);
     assert.deepEqual(hit.bounds, physHitBounds(20, 1, 3));
     assert.equal(state.u.uhp, before - bite.cost);
+});
+
+test('an ice vortex swallows and repeatedly freezes an ordinary hero',
+    async () => {
+    // mhitu.c:848-850 and gulpmu():1292, 1392-1393, 1502-1508. The first
+    // attack rolls its hit, damage, and non-digestion swallow timer before
+    // the cold gate; the already-swallowed attack skips the hit roll and
+    // repeats only the damage and cold gate.
+    const state = await meleeHero(MELEE_DATETIME, 'Wizard');
+    const vortex = meleeAttacker(state, PM_ICE_VORTEX, 1, 0, {
+        m_lev: 5,
+        mhp: 20,
+        mhpmax: 20,
+    });
+    // meleeHero() deliberately stops startup at its first empty input
+    // boundary, leaving that message to the same display_nhwindow(FALSE)
+    // dismissal that gulpmu() performs before setting uswallow.
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    const first = meleeEnv(state, [1, 9], {
+        urgentMessage: async (text) => first.lines.push(text),
+    });
+    const before = state.u.uhp;
+    assert.equal(await mattacku(vortex, first.env), false);
+    assert.deepEqual(first.lines, [
+        'The ice vortex engulfs you!',
+        'You are freezing to death!',
+    ]);
+    assert.deepEqual(first.bounds, [
+        'rnd(20)', 'd(1,6)', 'rnd(10)', 'rn2(2)',
+    ]);
+    assert.equal(state.u.uswallow, 1);
+    assert.equal(state.u.ustuck, vortex);
+    assert.equal(state.u.uswldtim, 8);
+    assert.equal(state.u.uhp, before - 1);
+
+    const second = meleeEnv(state, [], {
+        urgentMessage: async (text) => second.lines.push(text),
+    });
+    assert.equal(await mattacku(vortex, second.env), false);
+    assert.deepEqual(second.lines, ['You are freezing to death!']);
+    assert.deepEqual(second.bounds, ['d(1,6)', 'rn2(2)']);
+    assert.equal(state.u.uswldtim, 7);
+    assert.equal(state.u.uhp, before - 2);
 });
 
 test('mattacku widens the to-hit die for each later attack', async () => {
