@@ -7130,7 +7130,7 @@
     },
     {
       "id": "simple-monster-action-requires-monster-equipment-changes",
-      "status": "open",
+      "status": "closed",
       "boundary": "For the witnessed unseen hostile gnome with I_SPECIAL and a cursed -2 pair of mud boots, let movemon_singlemon() execute worn.c m_dowear()/m_dowear_type()'s non-creation W_ARMF selection, preserving the equipment reassessment flag, turn cost, frozen/cannot-move state, worn-mask updates, and the following monster-loop boundary.",
       "upstreamOwners": [
         "nethack-c/upstream/src/mon.c: movemon_singlemon()",
@@ -7163,8 +7163,11 @@
         "screens": 3512,
         "rng": 226528
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "92994fc506a35ed79fd591b6c37b60bd7c15396b",
+      "delivered": {
+        "screens": 0,
+        "rng": 106
+      }
     }
   ]
 }
