@@ -29,6 +29,7 @@ import {
     HAND,
     HVY_ENCUMBER,
     INCLUDE_HERO,
+    INCLUDE_VENOM,
     INVORDER_SORT,
     IS_GRAVE,
     LOOKHERE_NOFLAGS,
@@ -46,6 +47,7 @@ import {
     PICK_ONE,
     PLNMSG_OBJNAM_ONLY,
     SIGNAL_NOMENU,
+    SIGNAL_ESCAPE,
     SLT_ENCUMBER,
     STAIRS,
     STONE,
@@ -54,6 +56,10 @@ import {
     ROOM,
     SELL_NORMAL,
     SORTLOOT_INVLET,
+    SORTLOOT_LOOT,
+    SORTLOOT_PACK,
+    SORTLOOT_PETRIFY,
+    USE_INVLET,
     CORR,
     W_ACCESSORY,
     W_ARMOR,
@@ -74,7 +80,7 @@ import { def_char_to_objclass } from './drawing.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
 import { container_contents } from './end.js';
 import { autokey } from './lock.js';
-import { bot, flush_screen, newsym } from './display.js';
+import { bot, flush_screen, newsym, obj_to_glyph } from './display.js';
 import { hliquid } from './do_name.js';
 import { ceiling, surface } from './dungeon.js';
 import { dropy } from './do.js';
@@ -100,6 +106,7 @@ import {
     count_unpaid,
     dfeature_at,
     getobj,
+    let_to_name,
     look_here,
     money_cnt,
     nxtobj,
@@ -109,6 +116,7 @@ import {
     prinv,
     sortloot,
     update_inventory,
+    will_feel_cockatrice,
     xprname,
 } from './invent.js';
 import {
@@ -127,7 +135,7 @@ import {
     AMULET_OF_YENDOR, BAG_OF_HOLDING, BAG_OF_TRICKS, BELL_OF_OPENING, BOULDER,
     CANDELABRUM_OF_INVOCATION, COIN_CLASS, CORPSE, GOLD_PIECE,
     HORN_OF_PLENTY, ICE_BOX, LARGE_BOX, LEASH, LOADSTONE,
-    SCR_SCARE_MONSTER, SPE_BOOK_OF_THE_DEAD, STATUE,
+    SCR_SCARE_MONSTER, SPE_BOOK_OF_THE_DEAD, STATUE, VENOM_CLASS,
 } from './objects.js';
 import {
     Tobjnam, Yname2, Ysimple_name2, assertObjectNameable, donameFresh,
@@ -140,7 +148,9 @@ import { stairway_at } from './stairs.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { clearTtyMessageWindow, ttyNorep, ttyPline } from './tty_message.js';
-import { add_menu, getlin, select_menu } from './windows.js';
+import {
+    add_menu, add_menu_heading, getlin, select_menu,
+} from './windows.js';
 import { touch_artifact } from './artifacts.js';
 import { setwornEnv } from './do_wear.js';
 import { welded } from './wield.js';
@@ -399,16 +409,16 @@ function all_but_uchain(obj, state) {
     return obj !== (state.uchain ?? null);
 }
 
-// C ref: pickup.c query_objlist() (1046-1077): the counting loop and both of
-// its early returns. Everything from sortloot() at 1079 onwards -- the sort,
-// the FEEL_COCKATRICE loop and the menu window itself -- is refused, so this
-// answers only the two questions a square holding one object asks: is anything
-// allowed here, and is there exactly one of it.
+// C ref: pickup.c query_objlist() (1025-1215). The counting loop and both of
+// its early returns are followed by the bounded full-menu branch: sort the
+// floor pile, group rows by inventory order, and return whole-stack choices
+// from the TTY PICK_ANY menu. The INCLUDE_HERO and engulfer-inventory lists
+// remain refused above because this slice owns only pickup()'s floor caller.
 //
 // C's `qstr`, `pick_list` and `how` arguments are not parameters. The prompt
 // string and the PICK_ONE/PICK_ANY mode are read only by the menu, and the
 // caller receives the selection as this function's result instead.
-export function query_objlist(olist, qflags, allow, state = game) {
+export async function query_objlist(olist, qflags, allow, state = game) {
     if (qflags & INCLUDE_HERO) {
         // 1063-1067 adds the swallowed hero as a fake extra entry.
         throw new UnsupportedPickupError(
@@ -441,7 +451,115 @@ export function query_objlist(olist, qflags, allow, state = game) {
         pick_list.push({ obj: last, count: last.quan });
         return { n: 1, pick_list };
     }
-    throw new UnsupportedPickupError('query_objlist() menu');
+
+    const sorted = (qflags & INVORDER_SORT) !== 0;
+    const sortflags = (
+        (state.flags.sortloot === 'f'
+            || (state.flags.sortloot === 'l' && !(qflags & USE_INVLET)))
+            ? SORTLOOT_LOOT
+            : ((qflags & USE_INVLET) ? SORTLOOT_INVLET : 0)
+    )
+        | (state.flags.sortpack ? SORTLOOT_PACK : 0)
+        | ((qflags & FEEL_COCKATRICE) ? SORTLOOT_PETRIFY : 0);
+    // C's sortloot() calls allow() while it builds the temporary Loot array.
+    // Bind the state here because the running caller's all_but_uchain() reads
+    // state.uchain, while invent.js keeps the callback's source signature to
+    // one object argument.
+    const sortedObjects = sortloot(
+        olist,
+        sortflags,
+        Boolean(qflags & BY_NEXTHERE),
+        (obj) => allow(obj, state),
+        state,
+    );
+
+    const items = [];
+    const packOrder = [...(state.flags.inv_order ?? [])];
+    if (qflags & INCLUDE_VENOM) packOrder.push(VENOM_CLASS);
+    const menuOrder = sorted ? packOrder : [null];
+    let first = true;
+    for (const packClass of menuOrder) {
+        let printedTypeName = false;
+        for (const entry of sortedObjects) {
+            const curr = entry.obj;
+            if (sorted && curr.oclass !== packClass) continue;
+            if ((qflags & FEEL_COCKATRICE)
+                && curr.otyp === CORPSE
+                && will_feel_cockatrice(curr, false, state)) {
+                // pickup.c destroys the partially built menu, redraws the
+                // square through look_here(), and returns before selection.
+                // The resulting petrifying-corpse path is outside this
+                // ordinary floor-pile slice, so preserve its fail-closed
+                // boundary rather than selecting a dangerous corpse.
+                throw new UnsupportedPickupError(
+                    'query_objlist() touching a petrifying corpse',
+                );
+            }
+            if (!allow(curr, state)) continue;
+
+            const objectClass = state.objects[curr.otyp].oc_class;
+            if (sorted && !printedTypeName) {
+                items.push(add_menu_heading(
+                    let_to_name(
+                        packClass,
+                        false,
+                        Boolean(state.iflags?.menu_head_objsym),
+                    ),
+                    state,
+                ));
+                printedTypeName = true;
+            }
+
+            // C computes obj_to_glyph() before doname_with_price(). This
+            // order matters when a future caller enables hallucination, since
+            // both operations can consume display-RNG draws.
+            const glyphInfo = obj_to_glyph(curr, state);
+            const groupSelector = (qflags & USE_INVLET)
+                ? curr.invlet
+                : (first && curr.oclass === COIN_CLASS)
+                    ? '$'
+                    : String.fromCharCode(
+                        DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + objectClass],
+                    );
+            items.push({
+                groupSelector,
+                // pickup() rejects live shop squares before this branch, so
+                // the source's doname_with_price() has the same text as
+                // doname() here under the default pricequotes setting. The
+                // price-quote and shop-price variants remain outside scope.
+                label: donameFresh(curr, state),
+                value: curr,
+                glyphInfo,
+            });
+            first = false;
+        }
+    }
+
+    const selected = await select_menu(state, {
+        title: 'Pick up what?',
+        ...menuTitleStyle(state),
+        items,
+        how: PICK_ANY,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+    if (selected === null) {
+        // select_menu() uses null for C's select_menu() == -1. The caller
+        // currently omits SIGNAL_ESCAPE, but query_objlist() preserves the
+        // source's -2 answer for any future caller that supplies that flag.
+        return {
+            n: (qflags & SIGNAL_ESCAPE) ? -2 : 0,
+            pick_list,
+        };
+    }
+
+    for (const choice of selected) {
+        const curr = choice.value;
+        const count = choice.count === -1 || choice.count > curr.quan
+            ? curr.quan : choice.count;
+        pick_list.push({ obj: curr, count });
+    }
+    return { n: pick_list.length, pick_list };
 }
 
 // Everything C decides inside pickup_object(), lift_object(), pick_obj() and
@@ -822,7 +940,7 @@ export async function pickup(what, state = game) {
         }
         const traverse_how = BY_NEXTHERE | AUTOSELECT_SINGLE
             | (state.flags?.sortpack ? INVORDER_SORT : 0);
-        ({ pick_list: selected } = query_objlist(
+        ({ pick_list: selected } = await query_objlist(
             state.level.objects[u.ux][u.uy],
             traverse_how | FEEL_COCKATRICE,
             all_but_uchain,

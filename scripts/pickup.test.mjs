@@ -10,6 +10,7 @@ import {
     FUMBLING,
     HVY_ENCUMBER,
     INCLUDE_HERO,
+    INVORDER_SORT,
     MOAT,
     MOD_ENCUMBER,
     OBJ_FLOOR,
@@ -1367,45 +1368,84 @@ test('query_objlist counts what the callback allows', async () => {
     const flags = BY_NEXTHERE | AUTOSELECT_SINGLE;
     const head = state.level.objects[state.u.ux][state.u.uy];
 
-    // Two allowed objects fall past both early returns into the menu.
-    assert.throws(
-        () => query_objlist(head, flags, () => true, state),
-        (error) => error instanceof UnsupportedPickupError
-            && /query_objlist\(\) menu/u.test(error.message),
+    // Two allowed objects fall past both early returns into the full menu.
+    state.nhDisplay.pushKey(27);
+    assert.deepEqual(
+        await query_objlist(head, flags, () => true, state),
+        { n: 0, pick_list: [] },
     );
     // One allowed object returns through pickup.c:1072 with its own quantity.
-    const single = query_objlist(head, flags, (obj) => obj === first, state);
+    const single = await query_objlist(
+        head, flags, (obj) => obj === first, state,
+    );
     assert.equal(single.n, 1);
     assert.deepEqual(single.pick_list, [{ obj: first, count: first.quan }]);
     // Without AUTOSELECT_SINGLE the same list reaches the menu instead.
-    assert.throws(
-        () => query_objlist(head, BY_NEXTHERE, (obj) => obj === second, state),
-        (error) => error instanceof UnsupportedPickupError
-            && /query_objlist\(\) menu/u.test(error.message),
+    state.nhDisplay.pushKey(27);
+    assert.deepEqual(
+        await query_objlist(
+            head, BY_NEXTHERE, (obj) => obj === second, state,
+        ),
+        { n: 0, pick_list: [] },
     );
     // pickup.c:1069, where SIGNAL_NOMENU picks -1 over 0. dopickup() never
     // sets it, so only this test separates the two returns.
     assert.deepEqual(
-        query_objlist(head, flags, () => false, state),
+        await query_objlist(head, flags, () => false, state),
         { n: 0, pick_list: [] },
     );
     assert.deepEqual(
-        query_objlist(head, flags | SIGNAL_NOMENU, () => false, state),
+        await query_objlist(
+            head, flags | SIGNAL_NOMENU, () => false, state,
+        ),
         { n: -1, pick_list: [] },
     );
     // An empty square answers before the counting loop runs.
     assert.deepEqual(
-        query_objlist(null, flags | SIGNAL_NOMENU, () => true, state),
+        await query_objlist(
+            null, flags | SIGNAL_NOMENU, () => true, state,
+        ),
         { n: 0, pick_list: [] },
     );
 });
+
+test('query_objlist returns a whole stack selected from the sorted menu',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        const first = objectUnderHero(state);
+        const second = objectUnderHero(state);
+        first.quan = 3;
+        second.quan = 4;
+        const head = state.level.objects[state.u.ux][state.u.uy];
+        // Both objects share the Weapons heading; the first row's accelerator
+        // exercises the menu-to-pick_list path and count normalization.
+        state.nhDisplay.pushKey('a'.charCodeAt(0));
+        state.nhDisplay.pushKey('\r'.charCodeAt(0));
+
+        const result = await query_objlist(
+            head,
+            BY_NEXTHERE | AUTOSELECT_SINGLE | INVORDER_SORT,
+            () => true,
+            state,
+        );
+        assert.equal(result.n, 1);
+        assert.equal(result.pick_list.length, 1);
+        assert.ok(
+            result.pick_list[0].obj === first
+            || result.pick_list[0].obj === second,
+        );
+        assert.equal(
+            result.pick_list[0].count,
+            result.pick_list[0].obj === first ? 3 : 4,
+        );
+    });
 
 test('query_objlist refuses the lists this port does not walk', async () => {
     const state = await heroOnAnEmptySquare();
     const object = objectUnderHero(state);
     const flags = BY_NEXTHERE | AUTOSELECT_SINGLE;
     // INCLUDE_HERO adds the swallowed hero as a fake extra entry.
-    assert.throws(
+    await assert.rejects(
         () => query_objlist(object, flags | INCLUDE_HERO, () => true, state),
         (error) => error instanceof UnsupportedPickupError
             && /engulfed hero/u.test(error.message),
@@ -1413,7 +1453,7 @@ test('query_objlist refuses the lists this port does not walk', async () => {
     // An engulfer's inventory is walked by nobj and can clear
     // AUTOSELECT_SINGLE for a worn item.
     object.where = OBJ_MINVENT;
-    assert.throws(
+    await assert.rejects(
         () => query_objlist(object, flags, () => true, state),
         (error) => error instanceof UnsupportedPickupError
             && /engulfer's inventory/u.test(error.message),

@@ -17,6 +17,7 @@ import {
     LAVAPOOL,
     MENU_TRADITIONAL,
     MOAT,
+    OBJ_FLOOR,
     PIT,
     POOL,
     ROOM,
@@ -24,7 +25,6 @@ import {
     STAIRS,
     THRONE,
 } from '../js/const.js';
-import { UnsupportedHeroCommandBoundaryError } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
 import { dopickup, pickup_checks } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
@@ -293,24 +293,28 @@ test('dopickup takes the whole stack the square holds', async () => {
     assert.equal(toplines(state), `${object.invlet} - 4 elven daggers.`);
 });
 
-test('the interactive arm stops before a second object on the square',
+test('the interactive arm selects from a second-object menu',
     async () => {
         const state = await heroOnAnEmptySquare();
         const first = objectUnderHero(state);
         const second = objectUnderHero(state);
-        // Two allowed objects fall past query_objlist():1072 into sortloot()
-        // and the menu, which this port refuses. The refusal has to land
-        // before reset_justpicked(), so nothing on either chain moves.
-        first.pickup_prev = true;
-        await assert.rejects(
-            () => dopickup(state),
-            (error) => error instanceof UnsupportedPickupError
-                && /query_objlist\(\) menu/u.test(error.message),
-        );
-        assert.equal(state.level.objects[state.u.ux][state.u.uy], second);
-        assert.equal(second.nexthere, first);
-        assert.equal(first.pickup_prev, true);
-        assert.equal(toplines(state), '');
+        first.quan = 3;
+        second.quan = 4;
+        // query_objlist() renders a PICK_ANY menu with two weapon rows. The
+        // first accelerator selects one whole stack and pickup_object() then
+        // moves only that object to inventory.
+        state.nhDisplay.pushKey('a'.charCodeAt(0));
+        state.nhDisplay.pushKey('\r'.charCodeAt(0));
+        assert.equal(await dopickup(state), ECMD_TIME);
+        const selected = [first, second].find((object) => carried(state, object));
+        const remaining = selected === first ? second : first;
+        assert.ok(selected);
+        assert.equal(selected.quan, selected === first ? 3 : 4);
+        assert.equal(remaining.where, OBJ_FLOOR);
+        assert.equal(state.level.objects[state.u.ux][state.u.uy], remaining);
+        assert.equal(toplines(state), `${selected.invlet} - ${
+            selected.quan === 1 ? 'an elven dagger' : `${selected.quan} elven daggers`
+        }.`);
     });
 
 test('the interactive arm refuses the settings it cannot answer for',
@@ -395,17 +399,14 @@ test('the , command lifts the one object on the square', async () => {
     assert.equal(game.moves, moves + 1);
 });
 
-test('the , command stops on a square holding two objects', async () => {
-    // A second drop onto the same square is the first case past this slice:
-    // query_objlist() falls through to sortloot() and the menu.
-    const { boundary, replay } = await play(' dadb,');
-    assert.ok(boundary instanceof UnsupportedHeroCommandBoundaryError);
-    assert.match(boundary.message, /query_objlist\(\) menu/u);
-    // The second drop's own line is the last thing drawn, and the screen it
-    // drew is the last frame: the boundary stops before pickup() prints,
-    // lifts anything or spends the turn.
-    assert.equal(toplines(game), 'You drop a +0 dagger.');
-    const screens = replay.getScreens();
-    assert.deepEqual(screens.at(-1), screens.at(-2));
-    assert.equal(game.context.move, 0);
+test('the , command selects one of two objects on the square', async () => {
+    // A second drop onto the same square reaches query_objlist()'s sorted
+    // PICK_ANY menu. The first menu accelerator selects one whole stack.
+    const { boundary } = await play(' dadb,a\r');
+    assert.equal(boundary, null);
+    // The command's time is already consumed by allmain.c before it asks for
+    // the next command, so context.move has been reset by this point. The
+    // menu result is observable in the remaining pile and pickup message.
+    assert.ok(game.level.objects[game.u.ux][game.u.uy]);
+    assert.equal(toplines(game), 'b - a +0 dagger.');
 });
