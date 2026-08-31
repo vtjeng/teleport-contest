@@ -6418,6 +6418,52 @@
         "screens": 0,
         "rng": 3612
       }
+    },
+    {
+      "id": "unsupported-hero-move-invocation-message-outside-the-dungeon",
+      "status": "open",
+      "boundary": "At the end of teleds() on witnessed Quest Home 1 levels, invocation_message() returns silently whenever Invocation_lev(current_level) is false, preserving teleport/spoteffects sequencing; exclude the actual Gehennom vibrating-square clue branch.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/cmd.c: teleport binding",
+        "nethack-c/upstream/src/teleport.c: dotelecmd()",
+        "dotele()",
+        "tele()",
+        "scrolltele()",
+        "teleok()",
+        "teleds()",
+        "nethack-c/upstream/src/dungeon.c: In_hell()",
+        "Invocation_lev()",
+        "nethack-c/upstream/src/hack.c: invocation_pos()",
+        "invocation_message()"
+      ],
+      "forecast": {
+        "steps": 140,
+        "basis": "Capped look-ahead at unsupported hero move: invocation_message() outside the Dungeons of Doom",
+        "sessions": [
+          "seed0361-archeologist-tour",
+          "seed0367-priest-quest-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0361-archeologist-tour",
+            "evidence": "Seed 361, 20000110090000, human male neutral Archeologist Magellan, debug, DECgraphics, !autopickup. Wizard level teleport reaches Quest Home 1; Ctrl-T follows dotelecmd()->dotele(TRUE)->tele()->scrolltele()->teleok()->teleds(), with controlled getpos. After materialization and spoteffects(TRUE), invocation_message() evaluates invocation_pos(); Invocation_lev(&u.uz) is false because Quest Home 1 is in a non-hellish Quest dungeon, so C returns silently. JS instead rejects based only on nonzero dnum."
+          },
+          {
+            "session": "seed0367-priest-quest-tour",
+            "evidence": "Seed 367, 20000110090000, human female chaotic Priest Cardinal, debug, DECgraphics, !autopickup. Wizard level teleport reaches Priest Quest Home 1; Ctrl-T follows dotelecmd()->dotele(TRUE)->tele()->scrolltele()->teleds(). After verbose materialization, spoteffects(TRUE) includes intemple() and then invocation_message(); Quest Home 1 is not hellish, so Invocation_lev()/invocation_pos() are false and C returns silently. JS throws after the temple message due to its nonzero-dnum guard."
+          }
+        ]
+      },
+      "detail": "Very small self-contained slice. Both sessions witness controlled horizontal teleport on non-hellish Quest Home 1 and then the false Invocation_lev branch. JS should use the already ported source predicate and no-op on false instead of rejecting every nonzero dnum. Exclude the true Invocation-level vibrating-square branch and its coordinate, stairs, run, uvibrated, movement-state, and Candelabrum behavior.",
+      "slices": [],
+      "openedAt": "485001a80dc9d09890507b2be63c6ae189fa9bcc",
+      "openStanding": {
+        "sha": "716c1a5a4214e66f4329f2c1795497f10ffab98e",
+        "screens": 3274,
+        "rng": 221732
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
