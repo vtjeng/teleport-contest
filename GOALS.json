@@ -6696,8 +6696,8 @@
         },
         {
           "name": "terrain-browse-map-getpos-tip-redisplay",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "b4bd9d32c3a992be395bfb01cd123afe93f81823"
         }
       ],
       "openedAt": "54db9cfba643e7aabcafde542a37a7cc7574de80",
