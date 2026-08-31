@@ -6263,6 +6263,55 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "blockpoint-is-not-available-for-otyp-475",
+      "status": "open",
+      "boundary": "For the first stocked Castle mazewalk, fill_empty_maze() must place its generated BOULDER through mksobj_at()/place_object(), and with no existing boulder at the target pile head execute vision.c block_point(x,y) as part of placement.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/wizcmds.c: wiz_level_tele()",
+        "nethack-c/upstream/src/teleport.c: level_tele()",
+        "nethack-c/upstream/src/do.c: deferred_goto()",
+        "goto_level()",
+        "nethack-c/upstream/src/mklev.c: mklev()",
+        "makelevel()",
+        "nethack-c/upstream/src/mkmaze.c: makemaz()",
+        "nethack-c/upstream/src/sp_lev.c: lspo_mazewalk()",
+        "fill_empty_maze()",
+        "nethack-c/upstream/dat/castle.lua",
+        "nethack-c/upstream/src/mkobj.c: mksobj_at()",
+        "place_object()",
+        "nethack-c/upstream/src/vision.c: block_point()"
+      ],
+      "forecast": {
+        "steps": 465,
+        "basis": "Capped look-ahead at blockPoint is not available for otyp 475",
+        "sessions": [
+          "seed0360-wizard-world-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0360-wizard-world-tour",
+            "evidence": "Seed 360, 2000-01-10 09:00, debug human male neutral Wizard, DECgraphics, !autopickup. Ctrl-V plus dungeon selection reaches unvisited Castle via wiz_level_tele()->level_tele()->deferred_goto()->goto_level()->mklev()/makelevel()->makemaz(). The stocked three-argument castle.lua des.mazewalk reaches lspo_mazewalk()->fill_empty_maze(); the recorded RNG path generates a BOULDER (otyp 475) on a dry non-pit/hole coordinate. mksobj_at()->place_object() sees no existing boulder at the pile head and must call vision.c block_point(x,y), where JS lacks the lifecycle hook and stops before linking the boulder."
+          }
+        ]
+      },
+      "detail": "Small coherent one-slice boundary with forecast 465. Preconditions: wizard Castle selection, first special-level entry, stocked mazewalk, enough unused maze area, positive boulder count, dry non-pit/hole coordinate, and no existing boulder at pile head. Bound closure to the witnessed stocked Castle fill path, not every special-level option or boulder caller.",
+      "slices": [
+        {
+          "name": "stocked-maze-boulder-block-point",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "d21668ce5204e173714928291775749c0ee28bce",
+      "openStanding": {
+        "sha": "6621857",
+        "screens": 2955,
+        "rng": 163630
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
