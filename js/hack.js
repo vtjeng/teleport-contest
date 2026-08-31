@@ -234,7 +234,7 @@ import {
 } from './startup_a11y.js';
 import { exercise_steed, stucksteed } from './steed.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
-import { S_hcdoor, S_stone, S_vcdoor } from './symbols.js';
+import { S_hcdoor, S_stone, S_tree, S_vcdoor } from './symbols.js';
 import {
     peek_timer,
     start_timer,
@@ -868,7 +868,8 @@ function heroIsBlind(state) {
 // blocksMove()'s TRUE answer for a missing location.
 function blocksMove(x, y, state) {
     const loc = state.level?.at(x, y);
-    return !loc || loc.typ === STONE || IS_WALL(loc.typ);
+    return !loc || loc.typ === STONE || IS_WALL(loc.typ)
+        || IS_TREE(loc.typ, state);
 }
 
 // C ref: hack.c:1140-1141, the condition on test_move()'s testdiag arm. A
@@ -2126,7 +2127,8 @@ export async function test_move(
     // one report the same boundary: requireOrdinaryStartingPetSwap() throws it
     // for the same four.
     if (IS_OBSTRUCTED(location.typ) || location.typ === IRONBARS) {
-        if (location.typ !== STONE && !IS_WALL(location.typ)) {
+        if (location.typ !== STONE && !IS_WALL(location.typ)
+            && !IS_TREE(location.typ, state)) {
             throw new UnsupportedHeroMoveBoundaryError(
                 'door or special terrain movement',
             );
@@ -2162,8 +2164,11 @@ export async function test_move(
                 await message('That drawbridge is up!', state);
             } else if (state.flags?.mention_walls) {
                 const symbol = location.typ === STONE
-                    ? S_stone : wall_angle(location);
-                const description = symbol === S_stone ? 'solid stone' : 'a wall';
+                    ? S_stone
+                    : IS_TREE(location.typ, state)
+                        ? S_tree : wall_angle(location);
+                const description = symbol === S_stone ? 'solid stone'
+                    : symbol === S_tree ? 'a tree' : 'a wall';
                 const message = requiredMessageOperation(env, 'wall refusal');
                 await message(
                     messageAt(`It's ${description}.`, x, y, state),
