@@ -31,13 +31,13 @@ test('Castle stocked mazewalk links boulders through the vision hook',
             onBoundary: (error) => { boundary = error; },
         });
 
-        // The next independent boundary is a later special-room family.
+        // The next independent boundary is the later level-sound branch.
         // place_object() resolves blockPoint before it links a boulder, so
         // reaching that boundary with floor boulders proves that the stocked
         // mazewalk supplied and ran the vision owner.
         assert.equal(
             boundary?.message,
-            'unsupported special room: fill_special_room(7) beyond the Morgue boundary',
+            'dosounds() needs the has_court level-sound branch',
         );
 
         const boulders = [];
