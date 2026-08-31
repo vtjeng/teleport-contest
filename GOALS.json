@@ -6476,7 +6476,7 @@
     },
     {
       "id": "unsupported-special-room-fill-special-room-7-beyond-the-morg",
-      "status": "open",
+      "status": "closed",
       "boundary": "Add BARRACKS support to fill_zoo in js/mkroom.js: iterate fillable cells, call makemon(squadmon(), x, y, MM_ASLEEP|MM_NOGRP) per cell, then with 1/20 probability place a LARGE_BOX or CHEST chosen via rn2(3), and set has_barracks=1 on svl.level.flags. No other fill_special_room arms or special-room families are in scope.",
       "upstreamOwners": [
         "nethack-c/upstream/src/mklev.c",
@@ -6511,8 +6511,11 @@
         "screens": 3282,
         "rng": 221732
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "7a22d1507c15a679240d80e0a83e38b1d0bf734d",
+      "delivered": {
+        "screens": 0,
+        "rng": 48
+      }
     }
   ]
 }
