@@ -6865,6 +6865,44 @@
         "screens": 3,
         "rng": 77
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-6",
+      "status": "open",
+      "boundary": "Support C's remembered price-quote suffix when naming an unidentified object with price_quotes enabled, including the container-contents doname_with_price() path, while preserving quote-range formatting and no-quote/overflow behavior.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/objnam.c: doname_base()",
+        "doname()",
+        "doname_with_price()",
+        "nethack-c/upstream/src/shk.c: append_price_quote()",
+        "record_price_quote()",
+        "nethack-c/upstream/src/end.c: container_contents()",
+        "nethack-c/upstream/src/pickup.c: doloot_core()",
+        "use_container()"
+      ],
+      "forecast": {
+        "steps": 11,
+        "basis": "Capped look-ahead at unsupported hero command: an unported branch of this command: unsupported object name branch: price quote suffix",
+        "sessions": [
+          "seed0007-rogue-snake-swamp"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0007-rogue-snake-swamp",
+            "evidence": "Seed 7 at datetime 20260503025436 with OPTIONS=symset:DECgraphics reaches flat step 112 after #loot selects the large box and : enters its contents. The C path is pickup.c:doloot_core -> pickup.c:use_container -> end.c:container_contents(box, FALSE, FALSE, TRUE). It emits the header Contents of the large box: and formats each content row with objnam.c:doname_with_price(). For the unidentified scroll, with iflags.pricequotes active, objnam.c:doname_base() takes the unknown-object price-quote branch and calls shk.c:append_price_quote(); the JavaScript replay stops in objnam.js preflight before that contents screen is emitted. The first independent unmet behavior after this formatter branch is the selected-readable-object read at flat step 123, so the exclusive capped distance is 123 - 112 = 11 recorded steps."
+          }
+        ]
+      },
+      "detail": "C-path witness: the development session reaches end.c:container_contents through #loot on a large box, and the unidentified scroll is named through objnam.c:doname_with_price -> doname_base with iflags.pricequotes enabled -> shk.c:append_price_quote. The boundary is a small, self-contained object-naming/formatter slice: support the remembered price-quote suffix for unidentified objects in doname()/doname_with_price(), preserving quote-range formatting and no-quote/overflow behavior, so the container-contents path can continue. Its bounded look-ahead is 11 steps from the recorded stop at 112 to the next independent read branch at 123; this fits one coherent goal under the selection rules. Shop billing/unpaid-object behavior and other unsupported object-name branches are outside this witness.",
+      "slices": [],
+      "openedAt": "b4c7ee1f4613e97ae941c2bb8e97c7a5bbfdf409",
+      "openStanding": {
+        "sha": "3718426",
+        "screens": 3481,
+        "rng": 225666
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
