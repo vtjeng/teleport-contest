@@ -849,6 +849,22 @@ export function simpleonames(obj, state = game) {
     return name;
 }
 
+// C ref: objnam.c ansimpleoname() (2446-2470). "a scroll" or "scrolls";
+// "the Bell of Opening" for unique items whose actual name was used.
+export function ansimpleoname(obj, state = game) {
+    const simpleoname = simpleonames(obj, state);
+    let otyp = obj.otyp;
+    if (otyp === FAKE_AMULET_OF_YENDOR)
+        otyp = AMULET_OF_YENDOR;
+    const type = state.objects?.[otyp];
+    if (type?.oc_unique && OBJ_NAME(type, state)
+        && simpleoname === OBJ_NAME(type, state))
+        return the(simpleoname, state);
+    if ((obj.quan ?? 1) === 1)
+        return an(simpleoname);
+    return simpleoname;
+}
+
 // C ref: objnam.c thesimpleoname() (2474-2483). "the scroll" or "the scrolls".
 export function thesimpleoname(obj, state = game) {
     return the(simpleonames(obj, state), state);

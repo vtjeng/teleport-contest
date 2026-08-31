@@ -70,7 +70,7 @@ import {
     NEUTRAL,
 } from './const.js';
 import { adjalign } from './attrib.js';
-import { set_occupation } from './cmd.js';
+import { set_occupation, yn_function } from './cmd.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
 import {
@@ -84,6 +84,7 @@ import {
     getobj,
     useup,
     useupf,
+    will_feel_cockatrice,
 } from './invent.js';
 import { iter_mons_safe, mon_offmap } from './mon.js';
 import {
@@ -200,7 +201,8 @@ import {
     weight,
 } from './obj.js';
 import {
-    corpse_xname, singular, the, the_unique_pm, xnameFresh,
+    ansimpleoname, corpse_xname, donameFresh, otense, safe_qbuf,
+    singular, the, the_unique_pm, xnameFresh,
 } from './objnam.js';
 import {
     APPLE,
@@ -2008,15 +2010,9 @@ function eat_ok(obj, state = game) {
 }
 
 // C ref: eat.c floorfood() (3577-3730). Covers the `verb === "eat"` call
-// doeat() makes with corpsecheck 0, as far as the getobj() prompt.
-//
-// C reaches getobj() either by skipping the floor outright or by walking the
-// square's object chain and offering each candidate through yn_function().
-// Everything on the second route stops here: the metallivore's bear-trap,
-// iron-bars and gold questions, and the "There is <object> here; eat it?"
-// prompt, which needs otense(), safe_qbuf() and ansimpleoname(). Each would
-// consume a keystroke and paint a line, so answering the inventory prompt
-// instead would diverge rather than fail closed.
+// doeat() makes with corpsecheck 0. Walks the floor object chain and offers
+// each edible candidate through yn_function(). The metallivore's bear-trap,
+// iron-bars and gold questions remain unported.
 //
 // corpsecheck is the sacrifice and tinning selector; #offer and #tin are
 // unported, so only doeat()'s 0 arrives and the tail that rejects a non-corpse
@@ -2059,9 +2055,25 @@ export async function floorfood(verb, corpsecheck, state = game) {
             otmp;
             otmp = otmp.nexthere) {
             if (otmp.oclass !== COIN_CLASS && is_edible(otmp, state)) {
-                throw new UnsupportedEatError(
-                    'floorfood() offering an object on the floor',
+                if (otmp.otyp === CORPSE
+                    && will_feel_cockatrice(otmp, false, state)) {
+                    throw new UnsupportedEatError(
+                        'floorfood() cockatrice corpse on the floor',
+                    );
+                }
+                const one = (otmp.quan ?? 1) === 1;
+                const prefix = `There ${otense(otmp, 'are')} `;
+                const suffix = ` here; eat ${one ? 'it' : 'one'}?`;
+                const qbuf = safe_qbuf(
+                    prefix, suffix, otmp, donameFresh, ansimpleoname,
+                    one ? 'something' : 'things', state,
                 );
+                const c = await yn_function(
+                    qbuf, 'ynq', 'n', true, state,
+                );
+                if (c === 'y') return otmp;
+                if (c === 'q') return null;
+                ++getobj_else;
             }
         }
     }
