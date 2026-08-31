@@ -6612,6 +6612,43 @@
         "screens": 6,
         "rng": 16
       }
+    },
+    {
+      "id": "simple-monster-action-requires-an-armed-monster-attacking-an",
+      "status": "open",
+      "boundary": "For the witnessed normal-mode starting pony, when dog_move() lands an adjacent kick/bite on a hostile goblin and its rn2(4) return-attack gate fires, admit the goblin's adjacent AT_WEAP/AD_PHYS attack with no selectable or wielded weapon through mon_wield_item()/possibly_unwield(), preserve the mwep-null fall-through to the physical hit/passive sequence and source RNG/order, then return through dog_move(); exclude distant, genuinely wielded, substituted, ranged, and special attacks.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/mon.c: movemon_singlemon()",
+        "nethack-c/upstream/src/monmove.c: dochug()",
+        "nethack-c/upstream/src/dogmove.c: dog_move()",
+        "nethack-c/upstream/src/mhitm.c: mattackm()",
+        "nethack-c/upstream/src/weapon.c: mon_wield_item()",
+        "possibly_unwield()",
+        "nethack-c/upstream/include/monsters.h: goblin and pony attack definitions"
+      ],
+      "forecast": {
+        "steps": 44,
+        "basis": "Capped look-ahead at simple monster action requires an armed monster attacking another monster",
+        "sessions": [
+          "seed0004-feeding-pony"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "Seed 4, datetime 20260414173108, OPTIONS=symset:DECgraphics; manually named Tetra, with random character selection producing a lawful female human Knight and its starting tame pony. At recorded step 249 (key n, southeast move), C's movemon_singlemon()->dochug()->dog_move() has the pony at (64,8) and an adjacent hostile PM_GOBLIN at (65,9). dog_move()'s ALLOW_M branch calls mattackm(pony,goblin): the pony's kick/bite sequence spends rnd(20)=18 and rnd(21)=5, the bite lands for d(1,2)=1, and rn2(4)=3 admits the goblin's return attack. PM_GOBLIN's first attack is AT_WEAP/AD_PHYS 1d4; the goblin is awake, has NEED_WEAPON/no MON_WEP, and no inventory, so mhitm.c mattackm() calls mon_wield_item() without selecting an item, possibly_unwield() leaves mwep null, then falls through to the adjacent physical group and spends rnd(20)=12. The JS boundary is raised at this AT_WEAP arm before those C effects. The hero is alive (15 HP), unmounted, normal mode, with no Conflict; this is the pet melee retaliation path, not ranged thrwmm() or m_move_aggress."
+          }
+        ]
+      },
+      "detail": "Small, tightly bounded single slice with capped forecast 44. The sole witness exercises dogmove.c dog_move()'s ordinary adjacent pet-vs-monster attack and its rn2(4)-gated return attack, then mhitm.c mattackm()'s adjacent AT_WEAP/AD_PHYS arm for a level-0 goblin that has no selectable weapon: mon_wield_item() returns without an item, possibly_unwield() is inert, and the arm falls through to the already-ported physical attack/passive path. Port only this common empty-handed adjacent fall-through and the state/continuation needed by the witness; exclude distant thrwmm(), actual weapon selection/wield messaging and hitval/mswingsm effects, artifact/welded weapons, substituted/non-physical AT_WEAP attacks, ranged or special monster actions, and other dogmove target/retaliation branches. One C function arm plus its single running caller is small enough for the selection limit and should be one behavior slice; do not count later travel/glance/#hat bytes, which are the next unmet boundaries.",
+      "slices": [],
+      "openedAt": "67be53ea85e43b387576f0d750042369cec38dae",
+      "openStanding": {
+        "sha": "bab7da900e95ae452338d5438dffa80adc0f0376",
+        "screens": 3394,
+        "rng": 224888
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
