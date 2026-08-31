@@ -2,8 +2,9 @@
 
 Read this file before scheduling, running, or recording a formal review pass.
 Only the orchestrator does this work. `.agents/loop.md` defines the loop that
-includes these passes. `.agents/workflow.md` defines the terms this file uses:
-coherent implementation chunk, behavior slice, goal, and review window.
+includes these passes. `.agents/glossary.md` defines the terms this file
+uses: coherent implementation chunk, behavior slice, goal, and review
+window.
 
 A **formal review pass** reviews a frozen committed range for one of four
 concerns: correctness, clarity, simplification, or copyediting. The

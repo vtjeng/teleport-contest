@@ -4,7 +4,7 @@ Read this file when implementing gameplay or running recordings, differentials,
 scans, scoring, browser checks, or an authorized holdout evaluation. The access
 rules in `AGENTS.md` for `sessions/holdout/` always apply; this file calls it
 the sealed holdout. Terms: coherent implementation chunk, behavior slice, and
-review window are defined in `.agents/workflow.md`.
+review window are defined in `.agents/glossary.md`.
 
 ## Routine validation
 

@@ -17,9 +17,7 @@ Read these sources:
 - `node scripts/goal-log.mjs --current --detail` — the goal in progress
   and its ordered slices
 - `.agents/validation.md` — what validating this slice requires
-- `.agents/workflow.md`, "Terms", "Per-chunk workflow" and "Pushing and CI" —
-  the work vocabulary, the commit sequence, and what happens to a closed
-  slice's commits
+- `.agents/glossary.md` — the work vocabulary
 
 Then read the C source for every function you are porting, starting from
 the file and line range in the slice context, before you write anything.
@@ -34,17 +32,10 @@ This restriction overrides the AGENTS.md reading rows that name them.
 ## Scope
 
 You own one slice: the source it ports, the code and tests it changes,
-the validation scripts, and the commits that land them. The files you read
-mention several orchestrator steps. Skip them:
-
-- Slice and goal closure (`goal-log.mjs close-slice`, `close-goal`) and
-  `GOALS.json` updates belong to the orchestrator. Do not run them.
-- After each commit, "Per-chunk workflow" says to run `npm run quality`. The
-  orchestrator runs it, so do not run it yourself.
-- `SCORE.tsv` event rows belong to the orchestrator. Put score and validation
-  evidence in your report instead.
-- "Pushing and CI" says to watch the CI run after pushing. The orchestrator
-  watches CI from a background task, so push and return without polling.
+the validation scripts, and the commits that land them. After the last
+commit, run `npm run checkpoint` and push. Include score and validation
+evidence in your report; the orchestrator uses it to close the slice,
+append the `SCORE.tsv` row, run `npm run quality`, and watch CI.
 
 Beyond code and tests, you write two things. First, assign each new `js/`
 file to its `QUALITY.json` area with `npm run quality -- assign --file
@@ -96,6 +87,12 @@ the ban on `scripts/score-holdout.mjs` and `sessions/holdout/`.
 Commit before running checkpoint so the summary describes the committed
 state. If checkpoint fails, fix and commit again. If you cannot reach a
 passing checkpoint, report what blocked you without pushing.
+
+A final integration runner, fixture, or test may remain uncommitted while
+it is changing. Commit completed production behavior and focused tests as
+soon as they are done, and commit each final integration artifact once it
+stops changing, together with any code it validates that is not yet
+committed.
 
 ## What to report
 

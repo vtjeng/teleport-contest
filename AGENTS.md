@@ -77,11 +77,11 @@ slice worker (`.claude/agents/slice-worker.md`) completes one slice per run.
 | Before you... | Read... |
 | --- | --- |
 | Choose which goal or behavior slice to implement next | `.agents/selection.md` and `ROADMAP.md` |
-| Implement game behavior | `ROADMAP.md`, `.agents/workflow.md`, and `.agents/validation.md` |
+| Implement game behavior | `ROADMAP.md`, `.agents/glossary.md`, and `.agents/validation.md` |
 | Validate game behavior | `ROADMAP.md` and `.agents/validation.md` |
 | Propose a change to tooling or process | `.agents/proposals.md` |
 | Complete one behavior slice as a loop worker | `.claude/agents/slice-worker.md` |
-| Commit game implementation | `.agents/workflow.md` and `.agents/validation.md` |
+| Commit game implementation | `.agents/validation.md` |
 | Append a `SCORE.tsv` event row or respond to a holdout result (orchestrator only) | `.agents/scoring.md` |
 | Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run an authorized holdout evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
 | Check how much unreviewed code has accumulated, or schedule a review (orchestrator only) | `.agents/review.md` and `QUALITY.json` |
@@ -228,11 +228,11 @@ When choosing new cases:
 
 `.agents/scoring.md` states when and how to append a `SCORE.tsv` row.
 
-Keep progress updates short; `.agents/workflow.md`, "Progress reports," states
+Keep progress updates short; `.agents/loop.md`, "Progress reports," states
 their required shape.
 
 Create or update a note, report, or permanent record only when
-`.agents/workflow.md` or `.agents/review.md` requires it.
+`.agents/loop.md` or `.agents/review.md` requires it.
 
 ### Check out the C source in a new worktree
 

@@ -3,7 +3,7 @@
 This file defines the orchestrator's loop: goal selection, slice iteration,
 measurement, and review scheduling.
 
-`.agents/workflow.md` defines the terms this file uses, and
+`.agents/glossary.md` defines the terms this file uses, and
 `.agents/review.md` states when a formal review pass is due and how to run
 one.
 
@@ -83,8 +83,19 @@ The orchestrator repeats without returning to the user between steps:
    state. Read that file and use its figures. Re-run checkpoint only if
    the file is missing or its `commit` does not match
    `git rev-parse HEAD`. Push whatever the worker left behind and every
-   commit you landed, then watch the CI run from a background task as
-   `.agents/workflow.md`, "Pushing and CI", states.
+   commit you landed before the turn ends.
+
+   Watch the CI run from a background task (`gh run list --limit 1`,
+   then `gh run watch <id> --exit-status`). CI can fail where a local
+   checkpoint passes because it runs from a fresh checkout. CI runs take
+   about 1 minute 45 seconds (measured 1 August 2026); start the next
+   step without waiting. When a run fails, diagnose, fix, push, and
+   watch the new run before the current slice closes.
+
+   The `gh` commands use the default repo set by `gh repo set-default
+   vtjeng/teleport-contest`. Without it, `gh` queries
+   `davidbau/teleport-contest` (the `upstream` remote). If
+   `gh run list` shows unrecognized runs, run `set-default` again.
 
 5. Run `npm run quality` yourself; no worker reports it. If the output
    shows `DUE`, run the required review pass before continuing
@@ -145,3 +156,13 @@ Under `/loop`, relay one report per worker iteration: the slice that
 closed, the development score before and after, any bug the worker hit, and
 which slice or goal the loop takes next. Every figure comes from your own
 measurement in step 4. Do not use figures the worker reports.
+
+## Progress reports
+
+Keep updates brief and specific: report changed behavior, remaining work,
+and the next check when useful. Do not repeat unchanged status. Explain
+specialized terms on first use.
+
+When switching between implementation, validation, and review, state the
+switch once and explain why. Readiness checks and review-pass reports follow
+`.agents/review.md`.

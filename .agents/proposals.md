@@ -46,8 +46,7 @@ Two related checks have landed: `node scripts/goal-log.mjs calibration` on
 12 August.
 
 - A turn-end warning prints `git log --oneline origin/main..HEAD` when
-  commits sit unpushed, the push rule in `.agents/workflow.md`,
-  "Pushing and CI".
+  commits sit unpushed, the push rule in `.agents/loop.md`, step 4.
 
 **Scope.** Each item is a small addition to an existing script and its test
 file; the first adds one subcommand.

@@ -1,8 +1,8 @@
 # Choosing what to implement next
 
 Read this file when deciding which behavior to port next: which goal to open
-and which slice comes first. `.agents/workflow.md` defines "goal" and "behavior
-slice".
+and which slice comes first. `.agents/glossary.md` defines "goal" and
+"behavior slice".
 
 ## Choosing a goal
 

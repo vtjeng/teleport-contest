@@ -18,7 +18,7 @@ slices; that is outside this agent's scope.
    and its two interpretation rules, and the closing paragraphs of "Choosing
    a goal" for how goals divide into slices and how large a slice may grow.
    Skip the ranking and forecasting rules, which apply to goal choice. Read
-   "Terms" in `.agents/workflow.md` for the evidence that closes a behavior
+   "Behavior slice" in `.agents/glossary.md` for the evidence that closes a
    slice, and identify only a slice that can produce that evidence.
 3. Run `node scripts/goal-log.mjs --current --detail` for the goal in progress,
    its queued slices, and the contents of its `detail` field.
