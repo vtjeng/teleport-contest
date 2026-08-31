@@ -338,9 +338,11 @@ export async function displayTtyMenuTextWindow(
     if (!display)
         throw new Error('tty menu text window requires an initialized display');
 
-    // look_here() displays WIN_MESSAGE before it creates the menu. Its only
-    // input-bearing arm dismisses a pending topline before the menu appears.
-    await dismissPendingTtyMessage(state);
+    // tty_display_nhwindow(NHW_MENU) flushes an unacknowledged message, but
+    // an acknowledged query (TOPLINE_NON_EMPTY) is simply covered by the
+    // menu. The latter is the state left by end.c's disclosure questions.
+    if (display.toplin === TOPLINE_NEED_MORE)
+        await dismissPendingTtyMessage(state);
     clearTtyMessageWindow(state);
     display.clearRow(0);
 
@@ -349,12 +351,8 @@ export async function displayTtyMenuTextWindow(
         rawLines,
         state.iflags?.menu_overlay !== false,
     );
-    if (layout.maxrow >= display.rows) {
-        // process_text_window() pagination remains a named unsupported
-        // boundary. BUFSZ bounds each source line, but repeated wrapping can
-        // still make even a four-object window taller than the terminal.
-        throw new RangeError('paged tty menu text window is not supported');
-    }
+    const pageSize = Math.max(1, display.rows - 1);
+    const pageCount = Math.max(1, Math.ceil(layout.lines.length / pageSize));
 
     const restoredRows = Math.min(display.rows, layout.maxrow + 1);
     const snapshot = layout.fullRepair
@@ -362,31 +360,46 @@ export async function displayTtyMenuTextWindow(
         : copyRegion(display, layout.repairColumn, restoredRows);
     const baseCursor = [display.cursorCol, display.cursorRow];
 
-    if (layout.clearsScreen) display.clearScreen();
-    for (let row = 0; row < layout.lines.length; ++row) {
-        clearRowFrom(display, layout.firstColumn, row);
-        writeRecorderTtyWindowLine(
-            display,
-            layout.lineColumn,
-            row,
-            layout.lines[row],
-        );
-    }
-    clearRowFrom(display, layout.firstColumn, layout.promptRow);
-    writeStyledText(
-        display,
-        layout.promptColumn,
-        layout.promptRow,
-        MORE_PROMPT,
-        NO_COLOR,
-        0,
-    );
-    display.setCursor(
-        layout.promptColumn + MORE_PROMPT.length,
-        layout.promptRow,
-    );
+    // process_text_window() paginates only when offx is zero. Its page holds
+    // every row except the footer occupied by dmore(), and it clears the
+    // terminal between pages. Keep the page loop here rather than teaching
+    // individual callers about terminal height: enlightenment(), inventory,
+    // and every other NHW_MENU text consumer share this boundary.
+    let response = null;
+    for (let pageIndex = 0; pageIndex < pageCount; ++pageIndex) {
+        const firstLine = pageIndex * pageSize;
+        const pageLines = layout.lines.slice(firstLine, firstLine + pageSize);
+        const promptRow = pageLines.length;
 
-    const response = await xwaitforspace(state);
+        if (layout.clearsScreen || pageIndex > 0) display.clearScreen();
+        for (let row = 0; row < pageLines.length; ++row) {
+            clearRowFrom(display, layout.firstColumn, row);
+            writeRecorderTtyWindowLine(
+                display,
+                layout.lineColumn,
+                row,
+                pageLines[row],
+            );
+        }
+        clearRowFrom(display, layout.firstColumn, promptRow);
+        writeStyledText(
+            display,
+            layout.promptColumn,
+            promptRow,
+            MORE_PROMPT,
+            NO_COLOR,
+            0,
+        );
+        display.setCursor(
+            layout.promptColumn + MORE_PROMPT.length,
+            promptRow,
+        );
+
+        response = await xwaitforspace(state);
+        if (isEscapeResponse(response)) {
+            break;
+        }
+    }
 
     if (layout.fullRepair) {
         await erase_menu_or_text(state, display, snapshot, baseCursor);

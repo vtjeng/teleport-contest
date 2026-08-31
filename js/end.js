@@ -35,6 +35,7 @@ import { paranoid_query, yn_function } from './cmd.js';
 import {
     A_CON,
     ASCENDED,
+    BASICENLIGHTENMENT,
     BURNING,
     CHOKING,
     DIED,
@@ -45,16 +46,22 @@ import {
     DISCLOSE_SPECIAL_WITHOUT_PROMPT,
     DISCLOSE_YES_WITHOUT_PROMPT,
     ESCAPED,
+    ENL_GAMEOVERDEAD,
+    G_EXTINCT,
     G_GENOD,
+    G_GONE,
     GENOCIDED,
     IS_GRAVE,
     KILLED_BY,
     KILLED_BY_AN,
     LIFESAVED,
+    MAGICENLIGHTENMENT,
     M_AP_MONSTER,
     M_AP_TYPE,
     NO_KILLER_PREFIX,
+    PICK_ONE,
     PANICKED,
+    PICK_NONE,
     PARANOID_BONES,
     PARANOID_DIE,
     PLNMSG_OK_DONT_DIE,
@@ -100,18 +107,27 @@ import {
 } from './monsters.js';
 import { endmultishot } from './dothrow.js';
 import { upstart } from './hacklib.js';
-import { money_cnt, sortloot, update_inventory } from './invent.js';
+import {
+    display_inventory, money_cnt, sortloot, update_inventory,
+} from './invent.js';
 import { isContainer } from './obj.js';
 import { discover_object } from './o_init.js';
 import { BAG_OF_TRICKS, CORPSE, LARGE_BOX, STATUE, TIN } from './objects.js';
 import {
     an, donameFresh, the, thesimpleoname, the_unique_pm, xnameFresh,
 } from './objnam.js';
-import { displayTtyMenuTextWindow, displayTtyTextWindow } from './tty_menu.js';
+import { enlightenment } from './insight.js';
+import { add_menu_heading, select_menu } from './windows.js';
+import {
+    displayTtyMenuTextWindow, displayTtyTextWindow,
+} from './tty_menu.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { formatkiller } from './topten.js';
 import { In_endgame, In_quest, Is_astralevel, plur } from './const.js';
-import { depth, dunlev, single_level_branch } from './dungeon.js';
+import {
+    depth, dunlev, on_level, recalc_mapseen, single_level_branch,
+} from './dungeon.js';
+import { makeplural } from './fruit.js';
 import { Goodbye } from './role_init.js';
 import { tty_raw_print } from './tty_rawprint.js';
 import { reset_utrap } from './trap.js';
@@ -421,7 +437,7 @@ export async function done_in_by(mtmp, how, state = game) {
         && (state.mvitals?.[state.u.ugrave_arise]?.mvflags & G_GENOD))
         state.u.ugrave_arise = NON_PM;
 
-    await done(how, state);
+    await done(how, state, { fromMonster: true });
 }
 
 // C ref: end.c done() (1019-1126), "Be careful not to call panic from here!".
@@ -445,7 +461,7 @@ export async function done_in_by(mtmp, how, state = game) {
 // When the player declines death in wizard or explore mode, done() calls
 // savelife() and returns normally. When the player accepts death or there is
 // no query, done() throws UnsupportedEndOfGameError at really_done().
-export async function done(how, state = game) {
+export async function done(how, state = game, source = {}) {
     if (how === TRICKED) {
         // 1024-1034. The arm paniclogs the killer and, in wizard mode, prints
         // "You are a very tricky wizard, it seems." and returns without
@@ -573,6 +589,11 @@ export async function done(how, state = game) {
         await really_done(how, state);
         return;
     }
+    if (how === DIED && source.fromMonster
+        && killer.format === KILLED_BY_AN && killer.name) {
+        await really_done(how, state);
+        return;
+    }
     throw new UnsupportedEndOfGameError(
         `really_done(${how}) for killer "${killer.name ?? ''}"`
         + ` in format ${killer.format}`,
@@ -580,8 +601,13 @@ export async function done(how, state = game) {
 }
 
 const DISCLOSURE_OPTIONS = 'iavgco';
+const KEY_Y = 'y'.charCodeAt(0);
+const KEY_Q = 'q'.charCodeAt(0);
+const KEY_A = 'a'.charCodeAt(0);
 
-// C ref: end.c should_query_disclose_option() (475-515).
+// C ref: end.c should_query_disclose_option() (475-515). The returned
+// `defquery` is the answer used when the option suppresses the prompt and the
+// default passed to yn_function() when it does not.
 function should_query_disclose_option(category, state) {
     const index = DISCLOSURE_OPTIONS.indexOf(category);
     if (index < 0) {
@@ -591,75 +617,356 @@ function should_query_disclose_option(category, state) {
     }
     const disclose = state.flags.end_disclose[index];
     switch (disclose) {
+    case DISCLOSE_YES_WITHOUT_PROMPT:
+        return { ask: false, defquery: 'y' };
+    case DISCLOSE_SPECIAL_WITHOUT_PROMPT:
+        return { ask: false, defquery: 'a' };
     case DISCLOSE_NO_WITHOUT_PROMPT:
         return { ask: false, defquery: 'n' };
+    case DISCLOSE_PROMPT_DEFAULT_YES:
+        return { ask: true, defquery: 'y' };
+    case DISCLOSE_PROMPT_DEFAULT_SPECIAL:
+        return { ask: true, defquery: 'a' };
     case DISCLOSE_PROMPT_DEFAULT_NO:
         return { ask: true, defquery: 'n' };
-    case DISCLOSE_YES_WITHOUT_PROMPT:
-    case DISCLOSE_SPECIAL_WITHOUT_PROMPT:
-    case DISCLOSE_PROMPT_DEFAULT_YES:
-    case DISCLOSE_PROMPT_DEFAULT_SPECIAL:
-        throw new UnsupportedEndOfGameError(
-            `disclosure option ${disclose} for category ${category}`,
-        );
     default:
-        throw new UnsupportedEndOfGameError(
-            `invalid disclosure option ${String(disclose)}`,
-        );
+        return { ask: true, defquery: 'n' };
     }
 }
 
-// C ref: end.c disclose() (619-699).  Walks each disclosure category.
-// When a category is configured as DISCLOSE_NO_WITHOUT_PROMPT ('-'), the
-// C code sets c = defquery = 'n' without asking, and the category is skipped.
-// When a category is DISCLOSE_PROMPT_DEFAULT_NO ('n'), the player is asked.
-// Other settings (yes-without-prompt, default-yes, special) are refused.
+function disclosureStopprint(state) {
+    return Boolean(state.program_state?.stopprint);
+}
+
+function discloseStop(state) {
+    state.program_state.stopprint = (state.program_state.stopprint ?? 0) + 1;
+}
+
+function menuLines(texts) {
+    return texts.map((text) => ({ text }));
+}
+
+function monsterVitals(state) {
+    return state.svm?.mvitals ?? state.mvitals ?? [];
+}
+
+function ordinaryMonsterEntries(state, flags = 0) {
+    return monsterVitals(state).flatMap((vital, index) => {
+        const monster = state.mons?.[index];
+        if (!monster || (flags && (vital.mvflags & flags) === 0)) return [];
+        return [{ index, monster, vital }];
+    });
+}
+
+function isUniqueMonster(index, monster) {
+    return (monster.geno & G_UNIQ) !== 0 && index !== PM_HIGH_CLERIC;
+}
+
+function vanquishedName(entry) {
+    return entry.monster.pmnames?.[2]
+        ?? entry.monster.pmnames?.find(Boolean) ?? 'monster';
+}
+
+function vanquishedPrefix(text) {
+    const lower = text.toLowerCase();
+    if (lower.startsWith('the ')) return 0;
+    if (lower.startsWith('an ')) return 1;
+    if (lower.startsWith('a ')) return 2;
+    return /\d/u.test(text[2] ?? '') ? 0 : 4;
+}
+
+// C ref: insight.c list_vanquished(). The ordinary final disclosure uses the
+// default traditional order: monster level descending, then internal index.
+async function list_vanquished(defquery, ask, state) {
+    const entries = ordinaryMonsterEntries(state).filter((entry) => (
+        Number(entry.vital.died) > 0
+    ));
+    if (!entries.length) return;
+
+    const answer = ask ? await yn_function(
+            'Do you want an account of creatures vanquished?',
+            entries.length > 1 ? 'ynaq' : 'ynq',
+            defquery,
+            true,
+            state,
+        ) : defquery.charCodeAt(0);
+    if (answer === KEY_Q) {
+        discloseStop(state);
+        return;
+    }
+    if (answer === KEY_A) {
+        throw new UnsupportedEndOfGameError(
+            'list_vanquished() sort-order selection',
+        );
+    }
+    if (answer !== KEY_Y) return;
+
+    entries.sort((left, right) => (
+        (right.monster.mlevel ?? 0) - (left.monster.mlevel ?? 0)
+        || left.index - right.index
+    ));
+    const lines = ['Vanquished creatures:', ''];
+    let total = 0;
+    for (const entry of entries) {
+        const count = Math.trunc(entry.vital.died);
+        total += count;
+        const name = vanquishedName(entry);
+        let text;
+        if (isUniqueMonster(entry.index, entry.monster)) {
+            text = `${type_is_pname(entry.monster) ? '' : 'the '}${name}`;
+            if (count > 1) text += ` (${count} times)`;
+        } else if (count === 1) {
+            text = an(name);
+        } else {
+            text = `${count} ${makeplural(name)}`;
+        }
+        lines.push(`${' '.repeat(vanquishedPrefix(text))}${text}`);
+    }
+    if (entries.length > 1) {
+        lines.push('');
+        lines.push(`${total} creatures vanquished.`);
+    }
+    await displayTtyMenuTextWindow(state, menuLines(lines));
+}
+
+// C ref: insight.c list_genocided(). No menu or prompt is produced when the
+// ordinary final state has no genocided or extinct species; that is the only
+// common branch in this slice. The positive list is kept source-shaped for a
+// fresh case that happens to cross it, while its alternate sort choice stays
+// outside the bounded default-order path.
+async function list_genocided(defquery, ask, state) {
+    const entries = ordinaryMonsterEntries(state, G_GENOD | G_EXTINCT)
+        .filter((entry) => !isUniqueMonster(entry.index, entry.monster));
+    if (!entries.length) return;
+
+    const answer = ask ? await yn_function(
+            'Do you want a list of genocided species?',
+            entries.length > 1 ? 'ynaq' : 'ynq',
+            defquery,
+            true,
+            state,
+        ) : defquery.charCodeAt(0);
+    if (answer === KEY_Q) {
+        discloseStop(state);
+        return;
+    }
+    if (answer === KEY_A) {
+        throw new UnsupportedEndOfGameError(
+            'list_genocided() sort-order selection',
+        );
+    }
+    if (answer !== KEY_Y) return;
+
+    entries.sort((left, right) => (
+        vanquishedName(left).localeCompare(vanquishedName(right), 'en', {
+            sensitivity: 'base',
+        }) || left.index - right.index
+    ));
+    const genocided = entries.filter((entry) => (
+        (entry.vital.mvflags & G_GENOD) !== 0
+    )).length;
+    const extinct = entries.filter((entry) => (
+        (entry.vital.mvflags & G_EXTINCT) !== 0
+        && (entry.vital.mvflags & G_GENOD) === 0
+    )).length;
+    const title = `${genocided ? 'Genocided' : 'Extinct'} species:`;
+    const lines = [title, ''];
+    for (const entry of entries) {
+        let text = ` ${makeplural(vanquishedName(entry))}`;
+        if ((entry.vital.mvflags & G_GONE) === G_EXTINCT)
+            text += ' (extinct)';
+        lines.push(text);
+    }
+    lines.push('');
+    if (genocided) lines.push(`${genocided} species genocided.`);
+    if (extinct) lines.push(`${extinct} species extinct.`);
+    await displayTtyMenuTextWindow(state, menuLines(lines));
+}
+
+function conductValue(state, key) {
+    return Math.trunc(state.u.uconduct?.[key] ?? 0);
+}
+
+// C ref: insight.c show_conduct(). The normal, non-wizard final path includes
+// the challenge lines whose counters are zero and omits the wizard-only
+// positive counters. Achievements and Sokoban are deliberately left at the
+// boundary because this slice covers an ordinary early death.
+async function show_conduct(final, state) {
+    if (state.wizard || state.discover)
+        throw new UnsupportedEndOfGameError('show_conduct() alternate mode');
+    if (state.u.uachieved?.some(Boolean))
+        throw new UnsupportedEndOfGameError('show_conduct() achievements');
+
+    const lines = ['Voluntary challenges:'];
+    const roleplay = state.u.uroleplay ?? {};
+    if (!roleplay.reroll) lines.push(' Character rerolling was not enabled.');
+    else if (!roleplay.numrerolls) lines.push(' Your character was not rerolled.');
+    else {
+        throw new UnsupportedEndOfGameError(
+            'show_conduct() character-reroll count',
+        );
+    }
+    if (roleplay.blind || roleplay.deaf || roleplay.pauper || roleplay.nudist)
+        throw new UnsupportedEndOfGameError('show_conduct() roleplay challenge');
+
+    if (!conductValue(state, 'food')) lines.push(' You went without food.');
+    else if (!conductValue(state, 'unvegan'))
+        lines.push(' You followed a strict vegan diet.');
+    else if (!conductValue(state, 'unvegetarian'))
+        lines.push(' You were vegetarian.');
+    if (!conductValue(state, 'gnostic')) lines.push(' You were an atheist.');
+    if (!conductValue(state, 'weaphit'))
+        lines.push(' You never hit with a wielded weapon.');
+    if (!conductValue(state, 'killer')) lines.push(' You were a pacifist.');
+    if (!conductValue(state, 'literate')) lines.push(' You were illiterate.');
+    if (!conductValue(state, 'pets')) lines.push(' You never had a pet.');
+
+    const genocided = ordinaryMonsterEntries(state, G_GENOD).length;
+    if (!genocided) lines.push(' You never genocided any monsters.');
+    else throw new UnsupportedEndOfGameError('show_conduct() genocide count');
+    if (!conductValue(state, 'polypiles'))
+        lines.push(' You never polymorphed an object.');
+    if (!conductValue(state, 'polyselfs')) lines.push(' You never changed form.');
+    if (!conductValue(state, 'wishes')) lines.push(' You used no wishes.');
+
+    await displayTtyMenuTextWindow(state, menuLines(lines));
+}
+
+// C ref: dungeon.c show_overview()/print_mapseen(). The ordinary final death
+// disclosure needs only the visited ordinary levels and the current level's
+// not-yet-created final resting place. Branches, annotations, and endgame
+// levels remain outside this bounded slice.
+async function show_overview(how, state) {
+    recalc_mapseen(state);
+    const entries = (state.svm?.mapseenchn ?? []).filter((entry) => (
+        !In_endgame(entry.lev, state)
+    ));
+    const lines = [];
+    let lastDungeon = null;
+    for (const entry of entries) {
+        const dnum = entry.lev.dnum;
+        if (dnum !== lastDungeon) {
+            const dungeon = state.dungeons?.[dnum];
+            if (!dungeon)
+                throw new UnsupportedEndOfGameError('overview unknown dungeon');
+            const reached = Math.trunc(dungeon.dunlev_ureached ?? 0);
+            const first = dungeon.depth_start;
+            const header = reached === dungeon.entry_lev
+                ? `${dungeon.dname}:`
+                : `${dungeon.dname}: levels ${first} to `
+                    + `${first + reached - 1}`;
+            lines.push(add_menu_heading(header, state));
+            lastDungeon = dnum;
+        }
+
+        const level = depth(entry.lev, state);
+        let text = `   Level ${level}:`;
+        if (on_level(state.u.uz, entry.lev)) text += ' <- You were here.';
+        lines.push({ text });
+
+        if (how === DIED && on_level(state.u.uz, entry.lev)) {
+            lines.push({ text: '      Final resting place for' });
+            lines.push({
+                text: `         you, ${formatkiller(how, true, state)}.`,
+            });
+        }
+    }
+    await select_menu(state, {
+        lines,
+        how: PICK_NONE,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+}
+
+// C ref: end.c disclose() (619-699). Walks each disclosure category in order.
 async function disclose(how, taken, state) {
-    // Category 'i': inventory.
-    if (state.invent && !state.program_state.stopprint) {
+    if (state.invent && !disclosureStopprint(state)) {
         if (taken) {
             throw new UnsupportedEndOfGameError(
                 'disclose() after a shopkeeper takes the inventory',
             );
         }
         const { ask, defquery } = should_query_disclose_option('i', state);
-        if (ask) {
-            const c = await yn_function(
-                'Do you want your possessions identified?',
-                'ynq',
-                defquery,
-                true,
-                state,
-            );
-            if (c === 'y') {
-                throw new UnsupportedEndOfGameError(
-                    'disclose() inventory display',
-                );
-            }
-            if (c === 'q') {
-                state.program_state.stopprint
-                    = (state.program_state.stopprint ?? 0) + 1;
+        const c = ask ? await yn_function(
+            'Do you want your possessions identified?',
+            'ynq',
+            defquery,
+            true,
+            state,
+        ) : defquery;
+        if (c === KEY_Y) {
+            state.iflags.force_invmenu = false;
+            await display_inventory(null, true, state, {
+                menu: (items) => select_menu(state, {
+                        items,
+                        how: PICK_ONE,
+                        cancelValue: null,
+                        overlay: state.iflags?.menu_overlay !== false,
+                    }),
+            });
+            for (let obj = state.invent; obj; obj = obj.nobj) {
+                if (isContainer(obj) || obj.otyp === STATUE) {
+                    throw new UnsupportedEndOfGameError(
+                        'disclose() identified container contents',
+                    );
+                }
             }
         }
-        // ask=false, defquery='n': skip inventory disclosure.
+        if (c === KEY_Q) discloseStop(state);
     }
 
-    // Categories 'a', 'v', 'g', 'c', 'o': when asked, their display handlers
-    // are not ported; when suppressed, they are skipped.
-    for (const cat of ['a', 'v', 'g', 'c', 'o']) {
-        if (state.program_state.stopprint) break;
-        const { ask, defquery } = should_query_disclose_option(cat, state);
-        if (ask) {
-            throw new UnsupportedEndOfGameError(
-                `disclose() prompted category '${cat}'`,
+    if (!disclosureStopprint(state)) {
+        const { ask, defquery } = should_query_disclose_option('a', state);
+        const c = ask ? await yn_function(
+            'Do you want to see your attributes?',
+            'ynq',
+            defquery,
+            true,
+            state,
+        ) : defquery;
+        if (c === KEY_Y) {
+            const lines = await enlightenment(
+                BASICENLIGHTENMENT | MAGICENLIGHTENMENT,
+                ENL_GAMEOVERDEAD,
+                state,
             );
+            await displayTtyMenuTextWindow(state, lines);
         }
-        // ask=false with defquery='n' or 'a': check for auto-yes.
-        if (defquery === 'y' || defquery === 'a') {
-            throw new UnsupportedEndOfGameError(
-                `disclose() auto-yes category '${cat}'`,
-            );
-        }
+        if (c === KEY_Q) discloseStop(state);
+    }
+
+    if (!disclosureStopprint(state)) {
+        const { ask, defquery } = should_query_disclose_option('v', state);
+        await list_vanquished(defquery, ask, state);
+    }
+    if (!disclosureStopprint(state)) {
+        const { ask, defquery } = should_query_disclose_option('g', state);
+        await list_genocided(defquery, ask, state);
+    }
+    if (!disclosureStopprint(state)) {
+        const { ask, defquery } = should_query_disclose_option('c', state);
+        const c = ask ? await yn_function(
+            'Do you want to see your conduct?',
+            'ynq',
+            defquery,
+            true,
+            state,
+        ) : defquery;
+        if (c === KEY_Y) await show_conduct(2, state);
+        if (c === KEY_Q) discloseStop(state);
+    }
+    if (!disclosureStopprint(state)) {
+        const { ask, defquery } = should_query_disclose_option('o', state);
+        const c = ask ? await yn_function(
+            'Do you want to see the dungeon overview?',
+            'ynq',
+            defquery,
+            true,
+            state,
+        ) : defquery;
+        if (c === KEY_Y) await show_overview(how, state);
+        if (c === KEY_Q) discloseStop(state);
     }
 }
 

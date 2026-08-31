@@ -68,15 +68,19 @@ export function add_menu(state, item) {
 // C ref: windows.c add_menu_heading() (1816-1828). Inserts a non-selectable,
 // highlighted heading into a menu, using iflags.menu_headings for attr and
 // color. C suppresses highlighting during end-of-game disclosure
-// (program_state.gameover), which this port cannot reach.
+// (program_state.gameover).
 //
 // Returns a menu item object with `heading: true` so that windows.js
 // add_menu() skips menu coloring (MENU_ITEMFLAGS_SKIPMENUCOLORS), and with
-// the attr/color fields set from iflags.menu_headings.
+// the attr/color fields set from iflags.menu_headings unless gameover has
+// suppressed heading highlighting.
 export function add_menu_heading(text, state = game) {
     const style = state.iflags?.menu_headings;
-    const attr = Number.isInteger(style?.attr) ? style.attr : ATR_INVERSE;
-    const color = Number.isInteger(style?.color) ? style.color : NO_COLOR;
+    const gameover = state.program_state?.gameover;
+    const attr = gameover ? ATR_NONE
+        : Number.isInteger(style?.attr) ? style.attr : ATR_INVERSE;
+    const color = gameover ? NO_COLOR
+        : Number.isInteger(style?.color) ? style.color : NO_COLOR;
     return {
         text,
         heading: true,

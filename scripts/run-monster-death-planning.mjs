@@ -2,10 +2,9 @@
 
 // Record and replay the normal-mode, unpolymorphed lethal adjacent water
 // demon attack from mhitu.c mattacku() -> hitmu() -> mdamageu(). The checked
-// in recipe ends at the strict pre-endgame boundary: the next key dismisses
-// the death message and lets end.c continue into bones.c, which belongs to a
-// later slice. The port-side verifier appends that one key to prove that the
-// live replay reaches done_in_by() and preserves the ordinary killer state.
+// in recipe ends at the strict pre-endgame boundary. The port-side verifier
+// appends one key to prove that the live replay reaches the ordinary disclosure
+// entry and preserves the killer state.
 
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
@@ -76,23 +75,17 @@ function caseFor(segment) {
 
 // runFreshMatrix() uses the strict recipe above for the C/JS differential.
 // This extra key is intentionally not part of that recipe: C spends it
-// dismissing "You die..." and then calls bones.c can_make_bones(), one source
-// boundary beyond the ordinary done_in_by() entry covered here.
+// dismissing "You die..." and enters end.c disclosure, one source boundary
+// beyond the original planning slice.
 export async function verifyMonsterDeathPlanningSegment(segment) {
     const entry = caseFor(segment);
-    let boundary = null;
     await runSegment({
         ...segment,
         moves: `${segment.moves}${MORE}`,
-    }, {
-        onBoundary: (error) => { boundary = error; },
     });
 
-    assert.ok(boundary, 'death replay must reach the end-game boundary');
-    assert.match(
-        boundary.message,
-        /really_done\(0\) for killer "water demon" in format 0/u,
-    );
+    assert.equal(game.program_state?.gameover, 1);
+    assert.equal(game.program_state?.in_really_done, true);
     assert.equal(game.u.uhp, 0, 'done_in_by() must leave HP at zero');
     assert.equal(game.u.umortality, 1,
                  'done() must increment mortality exactly once');

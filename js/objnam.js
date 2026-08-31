@@ -381,7 +381,10 @@ function identificationFlags(obj, type, state) {
 }
 
 function preflightXname(obj, type, state) {
-    if (state.program_state?.gameover)
+    // really_done() identifies inventory while it is still assembling the
+    // disclosure windows; other gameover callers remain outside this port.
+    if (state.program_state?.gameover
+        && !state.program_state?.in_really_done)
         unsupported('end-of-game object text', obj);
     if (type.oc_uname)
         unsupported('user-assigned type name', obj);

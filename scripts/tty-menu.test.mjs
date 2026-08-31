@@ -246,7 +246,7 @@ test('NHW_MENU text emits ASCII at recorder-byte columns', async () => {
     assert.equal(boundary.leadingHighRow[start + 2], 'X');
 });
 
-test('NHW_MENU text honors disabled overlays and refuses a paged boundary',
+test('NHW_MENU text honors disabled overlays and paginates full-screen text',
     async () => {
         const state = menuState(' ');
         state.iflags = { ...state.iflags, menu_overlay: false };
@@ -267,14 +267,47 @@ test('NHW_MENU text honors disabled overlays and refuses a paged boundary',
             cursor: [9, 2],
         }]);
 
-        const paged = menuState(' ');
-        await assert.rejects(
-            displayTtyMenuTextWindow(
-                paged,
-                Array.from({ length: 24 }, (_, index) => `line ${index}`),
-            ),
-            /paged tty menu text window is not supported/u,
+        const paged = menuState('  ');
+        paged.nhDisplay.clearRow(0);
+        paged.nhDisplay.setCell(17, 5, 'Z', 2, 1);
+        paged.nhDisplay.setCursor(13, 7);
+        const before = structuredClone(paged.nhDisplay.grid);
+        const cursorBefore = [
+            paged.nhDisplay.cursorCol,
+            paged.nhDisplay.cursorRow,
+        ];
+        const pagedBoundaries = [];
+        paged._preNhgetchHook = () => pagedBoundaries.push({
+            first: rowText(paged, 0),
+            lastContent: rowText(paged, 22),
+            footer: rowText(paged, 23),
+            cursor: [paged.nhDisplay.cursorCol, paged.nhDisplay.cursorRow],
+        });
+
+        await displayTtyMenuTextWindow(
+            paged,
+            Array.from({ length: 42 }, (_, index) => `line ${index}`),
         );
+
+        assert.equal(pagedBoundaries.length, 2);
+        assert.deepEqual(pagedBoundaries[0], {
+            first: 'line 0',
+            lastContent: 'line 22',
+            footer: ' --More--',
+            cursor: [9, 23],
+        });
+        assert.deepEqual(pagedBoundaries[1], {
+            first: 'line 23',
+            lastContent: '',
+            footer: '',
+            cursor: [9, 19],
+        });
+        assert.deepEqual(paged.nhDisplay.grid, before);
+        assert.deepEqual(
+            [paged.nhDisplay.cursorCol, paged.nhDisplay.cursorRow],
+            cursorBefore,
+        );
+        assert.equal(paged.nhDisplay.inputQueueLength, 0);
     });
 
 test('NHW_MENU text dismisses a pending topline before drawing the window',
