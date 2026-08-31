@@ -7213,6 +7213,45 @@
         "screens": 109,
         "rng": 5467
       }
+    },
+    {
+      "id": "simple-monster-action-requires-conflict-combat",
+      "status": "open",
+      "boundary": "When Conflict is active during the witnessed monster scan, carry movemon_singlemon() through fightm() for the visible in-range monsters, spend the source-ordered resist_conflict() draws, and continue with no attack when both resist.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/mon.c: movemon_singlemon()",
+        "nethack-c/upstream/src/mhitm.c: fightm()",
+        "nethack-c/upstream/src/mondata.c: resist_conflict()"
+      ],
+      "forecast": {
+        "steps": 7,
+        "basis": "Capped look-ahead at simple monster action requires conflict combat",
+        "sessions": [
+          "seed0004-feeding-pony"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "Seed 4, 2026-04-14 17:31:08, OPTIONS=symset:DECgraphics; the replay identifies lawful female human Knight Tetra. At recorded step 286, input r completes putting the engagement-ring appearance on the right hand, activating Conflict. During that elapsed turn C's mon.c movemon_singlemon() reaches its final Conflict check for live visible monsters in range and calls mhitm.c fightm(). The C RNG at this stop records rnd(20)=5 and rnd(20)=12 at mondata.c resist_conflict(); both monsters resist under the witnessed hero level/charisma and monster levels, so fightm() returns 0 without reaching mattackm(), and ordinary dochugw() movement continues. JavaScript currently raises at allmain.js fightMonster() before these resistance draws. The seven recorded steps through 292 contain no second unsupported or partial behavior; the next independent boundary is travel at step 293."
+          }
+        ]
+      },
+      "detail": "Small coherent monster-turn slice, capped forecast 7. Replace the fail-closed conflict-combat operation in the witnessed movemon_singlemon() path with C's fightm() preflight and resistance behavior: preserve the Conflict visibility/range gates, monster-list traversal, resist_conflict() rnd(20) calls, no-attack result, and continuation into dochugw() and the following input/screens. Bound this candidate to the recorded right-hand engagement ring/Conflict state and the two resisting monsters; do not claim monster-vs-monster attack coverage, mattackm() damage/passives, retaliation, swallowed/stuck handling, or other Conflict/ring branches not exercised here. The first independent later behavior is travel at step 293, outside the capped stretch.",
+      "slices": [
+        {
+          "name": "Conflict resistance falls through to ordinary monster movement",
+          "status": "closed",
+          "closedBy": "706844aec836362c6fe58d3e4f5b8c40c637a33c"
+        }
+      ],
+      "openedAt": "0fc7809086c4b523ebacd2b250f2d5f6b438abf3",
+      "openStanding": {
+        "sha": "ea1602d",
+        "screens": 3621,
+        "rng": 232101
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
