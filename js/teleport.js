@@ -1134,7 +1134,7 @@ function Stunned_prop(state) {
 async function scrolltele(scroll, state = game) {
     const message = ttyPline;
 
-    if (noteleport_level(state.youmonst, state)) {
+    if (noteleport_level(state.youmonst, state) && !state.wizard) {
         await message("A mysterious force prevents you from teleporting!", state);
         return;
     }
@@ -1148,7 +1148,8 @@ async function scrolltele(scroll, state = game) {
         return;
     }
 
-    if (Teleport_control_prop(state) && !Stunned_prop(state)) {
+    if ((Teleport_control_prop(state) && !Stunned_prop(state))
+        || state.wizard) {
         if (unconscious(state)) {
             await message(
                 "Being unconscious, you cannot control your teleport.",

@@ -3513,7 +3513,7 @@ export async function rhack(key, state = game) {
             return;
         }
         if (command === 'teleport') {
-            // C ref: teleport.c dotelecmd() → dotele(FALSE).
+            // C ref: teleport.c dotelecmd() → dotele().
             const trap = t_at(state.u.ux, state.u.uy, state);
             if (trap?.tseen
                 && (trap.ttyp === TELEP_TRAP || trap.ttyp === LEVEL_TELEP)) {
@@ -3521,6 +3521,27 @@ export async function rhack(key, state = game) {
                     'dotelecmd: teleport trap interaction unported',
                     key,
                 );
+            }
+            // C ref: dotelecmd() wizard path. Without 'm' prefix,
+            // ignore_restrictions=TRUE → dotele(TRUE) skips all checks.
+            if (state.wizard && !state.iflags?.menu_requested) {
+                if (next_to_u(state)) {
+                    if (state.iflags)
+                        state.iflags.travelcc = { x: 0, y: 0 };
+                    await tele(state);
+                    next_to_u(state);
+                } else {
+                    await ttyPline(
+                        'You shudder for a moment.',
+                        state,
+                    );
+                    resetCommandVars(state);
+                    return;
+                }
+                await morehungry(100, state);
+                resetCommandVars(state);
+                state.occupation = null;
+                return;
             }
             const prop = state.u?.uprops?.[TELEPORT];
             const hasTeleportation = Boolean(

@@ -63,18 +63,22 @@ export function truncate_to_map(cx, cy, dx, dy) {
 // ttyPline() flushes with the cursor on the hero, so restore the selected map
 // coordinate after it writes the source firstmatch text.
 async function auto_describe(cx, cy, state) {
-    const description = do_screen_description(
-        { x: cx, y: cy }, true, 0, state,
-    );
-    if (description.found)
-        await ttyPline(description.firstmatch, state);
+    try {
+        const description = do_screen_description(
+            { x: cx, y: cy }, true, 0, state,
+        );
+        if (description.found)
+            await ttyPline(description.firstmatch, state);
+    } catch (e) {
+        if (e.name !== 'UnsupportedWhatisError') throw e;
+    }
     await flush_screen(0);
     cursorAt(cx, cy, state);
 }
 
 export async function getpos(ccp, force, goal, state = game) {
-    if (force)
-        throw new UnsupportedGetposError('a forced or quick location pick');
+    // C ref: force=TRUE keeps the loop running on unrecognized keys
+    // instead of exiting. For valid session input the behavior is identical.
     if (state.iflags?.remember_getpos
         || state.iflags?.terrainmode
         || state.iflags?.getloc_moveskip
