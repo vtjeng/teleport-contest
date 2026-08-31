@@ -6747,7 +6747,13 @@
         ]
       },
       "detail": "Large naturally multi-slice goal with forecast 17: terminal result across monster-turn preflight/live seam, ordinary killer acceptance, and several disclosure/final-output owners. Size is not grounds to narrow. Exclude special killer naming, polymorph/life saving/debug survival, hangup/panic, other death types, alternate disclosure policies/answers, and special containers.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "monster-death-planning-live-died-propagation",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "dd19bc9dee6db73f2422be88693ee15e2de94b31",
       "openStanding": {
         "sha": "b91280172d5a7403e35ef589ed242b39d311a30f",
