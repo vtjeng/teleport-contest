@@ -20,6 +20,7 @@ import { lookup_novel, oname } from './do_name.js';
 import { makeplural, makesingular } from './fruit.js';
 import { game } from './gstate.js';
 import { digit, fuzzymatch, lcase, lowc, mungspaces, strstri } from './hacklib.js';
+import { delete_contents } from './invent.js';
 import {
     is_female, is_male, is_neuter, name_to_monplus,
 } from './mondata.js';
@@ -1397,18 +1398,50 @@ const UNSUPPORTED_WISH_FIELDS = Object.freeze({
     mgend: -1, contents: TIN_UNDEFINED,
 });
 
-// The wish boundary, checked before the parse chain can spend a random number.
-// A guard placed after the chain would let a wish outside the boundary draw
-// first and stop afterwards.
+// The wish boundary for qualifiers that do not belong to the current port.
+// Chest lock/content words are admitted provisionally because the object type
+// is not known until readobjnam_postparse3() has made its lookup draw.  The
+// resolved type and exact combinations are checked immediately after that
+// lookup, before mksobj() can draw or mutate state.
 //
 // The count is not tested here.  readobjnam_postparse1()'s makesingular() block
 // raises d.cnt to 2 after this runs, so a count refused here would still let
 // "daggers" through.  readobjnam() tests it once postparse1 has settled it.
 function requireSimpleWishQualifiers(d) {
-    for (const [field, value] of Object.entries(UNSUPPORTED_WISH_FIELDS))
-        if (d[field] !== value)
+    const chestSetupFields = new Set(['contents', 'locked', 'unlocked', 'closed']);
+    for (const [field, value] of Object.entries(UNSUPPORTED_WISH_FIELDS)) {
+        if (d[field] !== value && !chestSetupFields.has(field))
             throw new UnsupportedWishError(`a wish that sets ${field}`,
                                            origbp(d));
+    }
+}
+
+function requireSupportedChestSetup(d) {
+    if (d.typ !== CHEST) {
+        // Keep non-chest qualifiers on their original fail-closed paths. In
+        // particular, `tin of spinach` must reach the named-carrier refusal
+        // below rather than being relabelled as a chest setup error.
+        for (const field of ['locked', 'unlocked', 'closed']) {
+            if (d[field] !== UNSUPPORTED_WISH_FIELDS[field])
+                throw new UnsupportedWishError(`a wish that sets ${field}`,
+                                               origbp(d));
+        }
+        return;
+    }
+    const lockedChest = d.typ === CHEST
+        && d.contents === TIN_UNDEFINED
+        && d.locked === 1
+        && d.unlocked === 0
+        && d.closed === 1;
+    const emptyUnlockedChest = d.typ === CHEST
+        && d.contents === TIN_EMPTY
+        && d.locked === 0
+        && d.unlocked === 1
+        && d.closed === 1;
+    const hasChestSetup = d.contents !== TIN_UNDEFINED
+        || d.locked !== 0 || d.unlocked !== 0 || d.closed !== 0;
+    if (hasChestSetup && !(lockedChest || emptyUnlockedChest))
+        throw new UnsupportedWishError('a chest setup qualifier', origbp(d));
 }
 
 // The types the typfnd: tail cannot finish.  Each names the fine-tuning block
@@ -1590,12 +1623,18 @@ function readobjnam_lookup(d, normalized) {
 
     let action = readobjnam_postparse1(d, normalized);
     // This refusal stands here rather than at typfnd:, because
-    // readobjnam_postparse3() would otherwise draw first -- "gnome corpse"
-    // spends rn2(1) on CORPSE before its monster becomes visible again.  The
-    // three mimic corpses are the one live carrier path implemented below.
+    // readobjnam_postparse3() would otherwise draw first for a named monster
+    // carrier -- "gnome corpse" spends rn2(1) on CORPSE before its monster
+    // becomes visible again.  A monster prefix can also precede an ordinary
+    // object name, as in "skeleton key"; that remainder must reach the normal
+    // objects[] lookup instead of being refused as a monster carrier.
+    const carrierRemainder = d.bp === ''
+        || ['corpse', 'statue', 'figurine', 'egg', 'tin'].some((name) =>
+            strcmpiEqual(d.bp, name) || strncmpiIsPrefix(d.bp, `${name} `));
     if (d.mntmp >= LOW_PM
         && !isMimicCorpseSpecies(d.mntmp)
-        && !(d.mntmp >= PM_GRAY_DRAGON && d.mntmp <= PM_YELLOW_DRAGON)) {
+        && !(d.mntmp >= PM_GRAY_DRAGON && d.mntmp <= PM_YELLOW_DRAGON)
+        && carrierRemainder) {
         // objnam.c:5026-5030 turns a wished-for pudding corpse into a glob,
         // and 5206-5245 sets corpsenm for a tin, corpse, egg, figurine or
         // statue.  The ten dragons pass because the one arm of that block this
@@ -1644,6 +1683,7 @@ function readobjnam_lookup(d, normalized) {
         throw new UnsupportedWishError(`readobjnam action ${action}`,
                                        origbp(d));
     }
+    requireSupportedChestSetup(d);
     return 'typfnd';
 }
 
@@ -1878,11 +1918,29 @@ function readobjnam_typfnd(d, normalized) {
     }
 
     // objnam.c:5292-5341: poisoned, [un]trapped, empty containers, box lock
-    // states, greased and diluted all need a qualifier
-    // requireSimpleWishQualifiers() refuses.  5343's tin variety needs
+    // states, greased and diluted all need a qualifier. The two source paths
+    // admitted by requireSupportedChestSetup() are the named `locked chest`
+    // and `empty unlocked chest` setup wishes used by the forced-chest
+    // witnesses below; all other qualifier combinations remain outside this
+    // wish boundary. 5343's tin variety needs
     // `d.tvariety >= 0`, and the only line that raises it above RANDOM_TIN is
     // objnam.c:4381-4387's "tin of ", which sets d.typ to TIN and so meets the
     // named-tin refusal instead; the test short-circuits before its rn2(4).
+
+    // C ref: objnam.c:5312-5321. mksobj() has already populated a named chest
+    // before the empty qualifier removes those generated contents, and the
+    // container weight is then recomputed from its now-empty cobj chain.
+    if (d.contents === TIN_EMPTY && d.otmp.otyp === CHEST
+        && d.otmp.cobj) {
+        delete_contents(d.otmp, normalized);
+        d.otmp.owt = weight(d.otmp, normalized);
+    }
+    // C ref: objnam.c:5324-5333. This is the unlocked arm of the same named
+    // chest witness; a broken or locked qualifier is still refused above.
+    if (d.otmp.otyp === CHEST && d.unlocked) {
+        d.otmp.olocked = 0;
+        d.otmp.obroken = 0;
+    }
 
     if (d.name) {
         let aname;

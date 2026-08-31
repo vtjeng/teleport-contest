@@ -1,0 +1,9 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 32,
+    "datetime": "20000111090000",
+    "nethackrc": "OPTIONS=name:wizard,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+    "moves": "  s#wizwish\nmace\nwo#wizwish\nempty unlocked chest\ndp#wizwish\nspellbook of force bolt\n#wizwish\nspellbook of healing\n#loot\ni+\nnny y#wizwish\nskeleton key\nas.y.#force\ny  ........................."
+  }]
+}

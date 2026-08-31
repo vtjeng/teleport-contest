@@ -265,15 +265,16 @@ test('a hero in a pit cannot reach over its edge', async () => {
     assert.equal(pendingTopLine(), 'You cannot lock an open door.');
 });
 
-test('the hero\'s own square stops', async () => {
-    // lock.c:429, the container branch: the self key zeroes u.dx and u.dy, so
-    // get_adjacent_loc() answers the hero's own position.
+test('the hero\'s own square reports no lock when it has no box', async () => {
+    // lock.c:429-550, the container branch: the self key zeroes u.dx and u.dy,
+    // so get_adjacent_loc() answers the hero's own position. With no floor box
+    // the source reports that no lock is present and spends the command turn.
     await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
     answer(LOCK_PICK_SLOT, '.');
-    await assert.rejects(
-        () => doapply(game),
-        (error) => error instanceof UnsupportedLockError
-            && error.branch === "a lock at the hero's own square",
+    assert.equal(await doapply(game), ECMD_TIME);
+    assert.equal(
+        pendingTopLine(),
+        "There doesn't seem to be any sort of lock here.",
     );
 });
 

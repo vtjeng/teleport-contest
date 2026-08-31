@@ -26,6 +26,7 @@ import {
     M_AP_OBJECT,
     M_AP_TYPE,
     OBJ_AT,
+    OBJ_FLOOR,
     OBJ_INVENT,
     P_DAGGER,
     P_FLAIL,
@@ -53,7 +54,13 @@ import {
 import { update_mapseen_for } from './dungeon.js';
 import { can_reach_floor, cant_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
-import { useup } from './invent.js';
+import {
+    delobj,
+    obj_extract_self,
+    obfree,
+    stackobj,
+    useup,
+} from './invent.js';
 import { m_at } from './monst.js';
 import { wake_nearby } from './mon.js';
 import { nohands, verysmall } from './mondata.js';
@@ -66,22 +73,36 @@ import {
     is_pick,
     is_weptool,
     objectType,
+    place_object,
+    remove_object,
 } from './obj.js';
 import {
     CHEST,
     CREDIT_CARD,
     LARGE_BOX,
+    PAPER,
     LOCK_PICK,
     ROCK_CLASS,
     SKELETON_KEY,
     WEAPON_CLASS,
 } from './objects.js';
 import { closed_door } from './monmove.js';
-import { donameFresh, safe_qbuf, xnameFresh, yname } from './objnam.js';
+import {
+    an,
+    ansimpleoname,
+    donameFresh,
+    safe_qbuf,
+    simple_typename,
+    singular,
+    the,
+    xnameFresh,
+    yname,
+} from './objnam.js';
 import { container_at, doloot, encumber_msg } from './pickup.js';
 import { is_quest_artifact } from './questpgr.js';
 import { rn2, rnl } from './rng.js';
 import { costly_spot } from './shk.js';
+import { is_lava, is_pool } from './trap.js';
 import {
     heroIsBlind,
     is_db_wall,
@@ -140,19 +161,80 @@ export function maybe_reset_pick(container, state = game) {
         reset_pick(state);
 }
 
+// C ref: lock.c chest_shatter_msg() (1275-1318). This slice reaches the PAPER
+// arm only; the remaining material messages and potion breathing stay at the
+// source boundary until their owning slices are selected.
+async function chest_shatter_msg(otmp, state = game) {
+    if (objectType(otmp, state).oc_material !== PAPER) {
+        throw new UnsupportedLockError(
+            'chest_shatter_msg() for a non-PAPER object',
+        );
+    }
+    // C temporarily blinds the naming code so xname() does not reveal details
+    // while composing this message. The JS xname path has no such global side
+    // effect, so singular() is the complete equivalent for this object arm.
+    const thing = singular(otmp, xnameFresh, state);
+    const subject = an(thing);
+    await ttyPline(`${subject[0].toUpperCase()}${subject.slice(1)} is torn to shreds!`, state);
+}
+
 // C ref: lock.c breakchestlock() (162-212). Called after the hero forces a
 // chest lock open. When destroyit is false, the box is billed via
 // costly_alteration() and its lock flags are toggled. When destroyit is true,
-// the box is destroyed entirely and its contents scatter -- that path requires
-// stolen_value() and chest_shatter_msg(), both unported.
+// this slice destroys an ordinary non-shop chest, scatters its contents, and
+// cleans up the lock-picking context.
 //
-// Covered: the destroyit=false arm (costly_alteration, olocked/obroken/lknown).
-// Not covered: the destroyit=true arm (full destruction).
-function breakchestlock(box, destroyit, state = game) {
+// Covered: the destroyit=false arm and the destroyit=true arm for an ordinary
+// non-shop CHEST with PAPER contents, including quantity-one obfree(), the
+// survivor placement/stacking path, chest deletion, and lock cleanup.
+// Deferred: shop billing, potion breathing, other material messages, ICE_BOX
+// corpse timers, and the multi-quantity useup branch.
+async function breakchestlock(box, destroyit, state = game) {
     if (destroyit) {
-        throw new UnsupportedLockError(
-            'breakchestlock() destroyit=true (chest destruction)',
+        // The shopkeeper lookup and stolen_value() accounting in C are outside
+        // this ordinary-chest slice. Reject that branch before mutating the
+        // container or spending any content randomness.
+        if (costly_spot(state.u.ux, state.u.uy, state)) {
+            throw new UnsupportedLockError(
+                'breakchestlock() shop billing (destroyit=true)',
+            );
+        }
+
+        await ttyPline(
+            `In fact, you've totally destroyed ${the(xnameFresh(box, state), state)}.`,
+            state,
         );
+        while (box.cobj) {
+            const otmp = box.cobj;
+            // C extracts each child before deciding whether it shatters, so a
+            // destroyed object is free for obfree() and a survivor is ready
+            // for place_object().
+            obj_extract_self(otmp, { state });
+            if (!rn2(3)) {
+                await chest_shatter_msg(otmp, state);
+                if (otmp.quan === 1) {
+                    obfree(otmp, null, { state });
+                    continue;
+                }
+                // This is source-faithful for completeness, but the selected
+                // slice does not admit multi-quantity witnesses yet.
+                useup(otmp, { state });
+            }
+            place_object(otmp, state.u.ux, state.u.uy, { state });
+            stackobj(otmp, {
+                state,
+                hooks: { extractExternalObject: remove_object },
+            });
+        }
+        delobj(box, {
+            state,
+            random: { rn2 },
+            hooks: {
+                extractExternalObject: remove_object,
+                resetPick: (_obj, env) => reset_pick(env.state),
+            },
+        });
+        return;
     }
     /* bill for the box but not for its contents */
     const hideContents = box.cobj;
@@ -265,7 +347,7 @@ async function forcelock(state = game) {
     // be cleared (delobj -> obfree -> maybe_reset_pick); but it might not,
     // so explicitly clear that manually.
     const destroyit = !xlock.picktyp && !rn2(3);
-    breakchestlock(xlock.box, destroyit, state);
+    await breakchestlock(xlock.box, destroyit, state);
     reset_pick(state);
 
     return 0;
@@ -280,7 +362,8 @@ function lock_action(state = game) {
     if (xlock.door && !(doorMask(xlock.door) & D_LOCKED))
         return 'locking the door';
     if (xlock.box && !xlock.box.olocked)
-        throw new UnsupportedLockError('lock_action() for a box');
+        return xlock.box.otyp === CHEST
+            ? 'locking the chest' : 'locking the box';
     /* otherwise we're trying to unlock it */
     if (xlock.picktyp === LOCK_PICK)
         return 'picking the lock';
@@ -289,7 +372,8 @@ function lock_action(state = game) {
     if (xlock.door)
         return 'unlocking the door';
     if (xlock.box)
-        throw new UnsupportedLockError('lock_action() for a box');
+        return xlock.box.otyp === CHEST
+            ? 'unlocking the chest' : 'unlocking the box';
     return 'picking the lock';
 }
 
@@ -302,30 +386,35 @@ function lock_action(state = game) {
 // the success roll, the plain-success path that flips D_LOCKED to D_CLOSED or
 // D_CLOSED to D_LOCKED, and the exercise() calls.
 //
-// Not covered, each throwing: the box arm (box paths), the magic-key trap
-// detection arm (lock.c:101-136), and the door-trap arm (lock.c:140-146) that
-// fires b_trapped() and destroys the door.
+// Not covered, each throwing: the magic-key trap detection arm
+// (lock.c:101-136), and the door-trap arm (lock.c:140-146) that fires
+// b_trapped() and destroys the door.
 async function picklock(state = game) {
     const xlock = xlockContext(state);
     const u = state.u;
 
     if (xlock.box) {
-        throw new UnsupportedLockError('picklock() box arm');
-    }
-    /* door */
-    if (xlock.door !== state.level.at(u.ux + u.dx, u.uy + u.dy)) {
-        return (xlock.usedtime = 0); /* you moved */
-    }
-    switch (doorMask(xlock.door)) {
-    case D_NODOOR:
-        await ttyPline('This doorway has no door.', state);
-        return (xlock.usedtime = 0);
-    case D_ISOPEN:
-        await ttyPline('You cannot lock an open door.', state);
-        return (xlock.usedtime = 0);
-    case D_BROKEN:
-        await ttyPline('This door is broken.', state);
-        return (xlock.usedtime = 0);
+        // lock.c:69-74. A box is picked on the hero's square, not at the
+        // direction retained in u.dx/u.dy.
+        if (xlock.box.where !== OBJ_FLOOR
+            || xlock.box.ox !== u.ux || xlock.box.oy !== u.uy)
+            return (xlock.usedtime = 0);
+    } else {
+        /* door */
+        if (xlock.door !== state.level.at(u.ux + u.dx, u.uy + u.dy)) {
+            return (xlock.usedtime = 0); /* you moved */
+        }
+        switch (doorMask(xlock.door)) {
+        case D_NODOOR:
+            await ttyPline('This doorway has no door.', state);
+            return (xlock.usedtime = 0);
+        case D_ISOPEN:
+            await ttyPline('You cannot lock an open door.', state);
+            return (xlock.usedtime = 0);
+        case D_BROKEN:
+            await ttyPline('This door is broken.', state);
+            return (xlock.usedtime = 0);
+        }
     }
 
     if (xlock.usedtime++ >= 50 || nohands(state.youmonst.data)) {
@@ -344,8 +433,8 @@ async function picklock(state = game) {
     // lock.c:101-136. The magic-key trap detection arm fires when the target
     // is trapped and xlock.magic_key is set. That combination requires the
     // Master Key of Thievery, which no development session carries.
-    // xlock.box is refused at line 140; only xlock.door reaches here.
-    if ((doorMask(xlock.door) & D_TRAPPED) !== 0 && xlock.magic_key) {
+    if ((xlock.box ? xlock.box.otrapped
+        : (doorMask(xlock.door) & D_TRAPPED) !== 0) && xlock.magic_key) {
         throw new UnsupportedLockError('magic-key trap detection in picklock()');
     }
 
@@ -363,8 +452,15 @@ async function picklock(state = game) {
             xlock.door.flags = D_LOCKED;
             xlock.door.doormask = D_LOCKED;
         }
+    } else if (xlock.box) {
+        // lock.c:148-153. The selected ordinary box simply changes lock
+        // state; trap handling is deliberately outside this witness.
+        if (xlock.box.otrapped)
+            throw new UnsupportedLockError('picklock() trapped box');
+        xlock.box.olocked = xlock.box.olocked ? 0 : 1;
+        xlock.box.lknown = 1;
     } else {
-        throw new UnsupportedLockError('picklock() box toggle');
+        throw new UnsupportedLockError('picklock() without a door or box');
     }
     await exercise(A_DEX, true, state, { rn2 }, {
         encumberMessage: encumber_msg,
@@ -457,14 +553,15 @@ export const PICKLOCK_DID_SOMETHING = 1;
 // apply-key path.
 //
 // Covered: the entry with autounlock FALSE, the interrupted-attempt test,
-// get_adjacent_loc()'s prompt and both of its refusals, the pit refusal that
-// opens the adjacent-square branch, the whole `!IS_DOOR(door->typ)` arm, three
-// arms of the doormask switch, and the switch's default arm with the tail that
-// sets up the picklock() occupation. The autounlock door path (rx nonzero,
-// container null) is also covered for the AUTOUNLOCK_APPLY_KEY case.
+// get_adjacent_loc()'s prompt and both of its refusals, the ordinary floor-box
+// arm, the pit refusal that opens the adjacent-square branch, the whole
+// `!IS_DOOR(door->typ)` arm, three arms of the doormask switch, and the
+// switch's default arm with the tail that sets up the picklock() occupation.
+// The autounlock door path (rx nonzero, container null) is also covered for
+// the AUTOUNLOCK_APPLY_KEY case.
 //
 // Not covered, each stopping by name: do_loot_cont()'s Null `pick`; resuming
-// an interrupted attempt; the container branch (u_at); the monster and
+// an interrupted attempt; the monster and
 // door-mimic arms; AUTOUNLOCK_UNTRAP; autounlock on containers; the
 // touch_artifact() guard for autounlock.
 //
@@ -508,12 +605,100 @@ export async function pick_lock(pick, rx, ry, container, state = game) {
         return PICKLOCK_DID_NOTHING;
     }
 
-    // lock.c:429. The self keys and the two vertical keys all leave u.dx and
-    // u.dy zero, so cc names the hero's own square and C looks for a container
-    // there instead of a door.
-    if (u_at(cc.x, cc.y, state))
-        throw new UnsupportedLockError("a lock at the hero's own square");
+    // lock.c:429-550. The self keys and the two vertical keys all leave u.dx
+    // and u.dy zero, so cc names the hero's own square and C looks for a
+    // container there instead of a door. This is the ordinary floor-box arm;
+    // autounlock containers and exceptional terrain remain outside it.
+    if (u_at(cc.x, cc.y, state)) {
+        if (u.dz < 0 && !autounlock)
+            throw new UnsupportedLockError(
+                'pick_lock() stale upward container direction',
+            );
+        if (is_lava(u.ux, u.uy, state) || is_pool(u.ux, u.uy, state))
+            throw new UnsupportedLockError(
+                'pick_lock() container on lava or water',
+            );
 
+        let count = 0;
+        let selected = null;
+        let answer = 'n';
+        for (let otmp = state.level.objects[cc.x][cc.y] ?? null;
+            otmp;
+            otmp = otmp.nexthere) {
+            if (autounlock && otmp !== container) continue;
+            if (!Is_box(otmp)) continue;
+            count++;
+            if (!can_reach_floor(true, state))
+                throw new UnsupportedLockError(
+                    'pick_lock() container beyond reachable floor',
+                );
+
+            let verb;
+            let it = false;
+            if (otmp.obroken) verb = 'fix';
+            else if (!otmp.olocked) {
+                verb = 'lock';
+                it = true;
+            } else if (picktyp !== LOCK_PICK) {
+                verb = 'unlock';
+                it = true;
+            } else verb = 'pick';
+
+            const qbuf = safe_qbuf(
+                'There is ', ` here; ${verb} ${it ? 'it' : 'its lock'}?`,
+                otmp, donameFresh, ansimpleoname, 'a box', state,
+            );
+            otmp.lknown = 1;
+            answer = await ynq(qbuf, state);
+            if (answer === 'q') return PICKLOCK_DID_NOTHING;
+            if (answer === 'n') continue;
+            selected = otmp;
+            break;
+        }
+
+        if (answer !== 'y') {
+            if (!count)
+                await ttyPline(
+                    "There doesn't seem to be any sort of lock here.",
+                    state,
+                );
+            return PICKLOCK_LEARNED_SOMETHING;
+        }
+
+        if (selected.obroken) {
+            await ttyPline(
+                `You can't fix its broken lock with ${ansimpleoname(pick, state)}.`,
+                state,
+            );
+            return PICKLOCK_LEARNED_SOMETHING;
+        }
+        if (picktyp === CREDIT_CARD && !selected.olocked) {
+            await ttyPline(
+                `You can't do that with ${an(simple_typename(picktyp, state))}.`,
+                state,
+            );
+            return PICKLOCK_LEARNED_SOMETHING;
+        }
+
+        switch (picktyp) {
+        case CREDIT_CARD:
+            ch = effective_attribute(state, A_DEX)
+                + 20 * ((state.urole?.mnum === PM_ROGUE) ? 1 : 0);
+            break;
+        case LOCK_PICK:
+            ch = 4 * effective_attribute(state, A_DEX)
+                + 25 * ((state.urole?.mnum === PM_ROGUE) ? 1 : 0);
+            break;
+        case SKELETON_KEY:
+            ch = 75 + effective_attribute(state, A_DEX);
+            break;
+        default:
+            ch = 0;
+        }
+        if (selected.cursed) ch = Math.trunc(ch / 2);
+        xlock.box = selected;
+        xlock.door = null;
+    } else {
     /* not the hero's location; pick the lock in an adjacent door */
     // lock.c:551-556. C's comment records why this one costs no time: the
     // '#open' command does not spend a turn on the same situation.
@@ -616,6 +801,7 @@ export async function pick_lock(pick, rx, ry, container, state = game) {
         }
         xlock.door = door;
         xlock.box = null;
+    }
     }
     }
     // lock.c:649-655. Set up the occupation.

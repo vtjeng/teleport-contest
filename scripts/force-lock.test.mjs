@@ -10,8 +10,10 @@ import {
     DAGGER,
     FLAIL,
     LONG_SWORD,
+    SPE_HEALING,
     WAR_HAMMER,
     BULLWHIP,
+    CHEST,
     WEAPON_CLASS,
 } from '../js/objects.js';
 
@@ -138,9 +140,44 @@ test('blade weapon forces a locked chest open without breaking', async () => {
     const floorObjs = game.level?.objects?.[game.u.ux]?.[game.u.uy];
     let chest = null;
     for (let obj = floorObjs; obj; obj = obj.nexthere) {
-        if (obj.otyp === 215 /* CHEST */) { chest = obj; break; }
+        if (obj.otyp === CHEST) { chest = obj; break; }
     }
     assert.ok(chest, 'chest is on the floor');
     assert.equal(chest.olocked, 0, 'chest is no longer locked');
     assert.equal(chest.obroken, 1, 'chest lock is broken');
+});
+
+// C refs: objnam.c readobjnam() wish lookup, lock.c pick_lock()/picklock(),
+// forcelock(), breakchestlock(), and chest_shatter_msg().  This independent
+// witness uses an empty unlocked chest, two PAPER spellbooks, and a skeleton
+// key to reach the destroyit=true path.  The C replay and JavaScript replay
+// are compared screen-for-screen by diff-fresh; these assertions pin the
+// resulting object state for the focused unit run as well.
+test('skeleton key locks then force-destroys an empty unlocked PAPER chest', async () => {
+    const recipe = JSON.parse(readFileSync(
+        'recipes/force-destroy-chest-paper.session.json', 'utf-8',
+    ));
+    const seg = recipe.segments[0];
+    const result = await runSegment({
+        seed: seg.seed,
+        datetime: seg.datetime,
+        nethackrc: seg.nethackrc,
+        moves: seg.moves,
+    });
+    const log = result.getRngLog();
+
+    assert.ok(log.includes('rn2(36)=17'),
+        'chest wish consumed rnd_otyp_by_namedesc() randomness');
+    assert.ok(log.includes('rn2(81)=18'),
+        'skeleton-key wish consumed rnd_otyp_by_namedesc() randomness');
+
+    const floorObjs = game.level?.objects?.[game.u.ux]?.[game.u.uy];
+    const floor = [];
+    for (let obj = floorObjs; obj; obj = obj.nexthere) floor.push(obj);
+    assert.equal(floor.some(obj => obj.otyp === CHEST), false,
+        'destroyit=true removes the chest');
+    assert.equal(floor.filter(obj => obj.otyp === SPE_HEALING).length, 1,
+        'one surviving PAPER spellbook is placed on the floor');
+    assert.equal(game.xlock?.box ?? null, null,
+        'deleting the chest clears the lock occupation context');
 });
