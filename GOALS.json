@@ -6938,8 +6938,8 @@
       "slices": [
         {
           "name": "has-zoo-dosounds-sound-gate",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0bd600b7ee974d2cf469905e79ce263289e18811"
         }
       ],
       "openedAt": "b9aa497a277f6c9c552dadd3a11f22a5c88e1c7e",
