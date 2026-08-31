@@ -6693,6 +6693,11 @@
           "name": "terrain-known-map-projection",
           "status": "closed",
           "closedBy": "d5b9ee0031084a02a187915f132c51995bcac1eb"
+        },
+        {
+          "name": "terrain-browse-map-getpos-tip-redisplay",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "54db9cfba643e7aabcafde542a37a7cc7574de80",
