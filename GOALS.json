@@ -7000,6 +7000,44 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-7",
+      "status": "open",
+      "boundary": "When #loot opens an unlocked, untrapped floor large box in the full menu style and the player chooses take out, carry C pickup.c use_container() into menu_loot(0, FALSE), preserve the category and item menus, then transfer the selected ordinary contents through out_container() into inventory.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/pickup.c: use_container(); menu_loot(); query_category(); query_objlist(); out_container(); pickup_prinv()",
+        "nethack-c/upstream/src/pickup.c: do_loot_cont()"
+      ],
+      "forecast": {
+        "steps": 9,
+        "basis": "Capped look-ahead at menu_loot(0, false) out-only floor box path",
+        "sessions": [
+          "seed0007-rogue-snake-swamp"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0007-rogue-snake-swamp",
+            "evidence": "Seed 7, datetime 2026-05-03 02:54:36, DECgraphics only. At recorded step 114, after #loot has selected an unlocked, untrapped large box on the floor, C is in pickup.c use_container(): the hero has free hands, the box is non-empty (118 gold pieces, a labeled scroll, a wrinkled spellbook, and a yellow gem), and the full menu frontend selects the out-only path. C use_container() sets gc.current_container, resets menu filters, and calls menu_loot(0, FALSE), whose query_category() prompt is the recorded Take out what type of objects? screen; the next query_objlist() prompt follows at the item-list step. No quantum cat, cursed bag, trapped-container, held-container, put-in, stash, reversed, or autounlock branch is involved. The later step 123 scroll read is outside this capped witness."
+          }
+        ]
+      },
+      "detail": "Small coherent single-session slice, capped forecast 9. Port pickup.c use_container() through the full-menu out-only menu_loot(0, FALSE) path, including query_category/query_objlist selection, out_container() transfer, inventory/container state, messages, screens, cursors, and source-order RNG. Bound it to this unlocked, untrapped floor large box and its ordinary contents. Exclude quantum cats, cursed bags, traps, held containers, put-in, stash, reversed/both ordering, autounlock, and unrelated pickup branches. The first independent later behavior is read.c doread()/seffects() for the destroy-armor scroll at recorded step 123, so it is outside the nine-step cap.",
+      "slices": [
+        {
+          "name": "pickup.c floor box menu_loot out-only",
+          "status": "closed",
+          "closedBy": "5cc806f4fe55ad7fa9914a6b9073ccdb1c2792d2"
+        }
+      ],
+      "openedAt": "b074ad30908699aad011daa485f28c879191a5de",
+      "openStanding": {
+        "sha": "e3ad981",
+        "screens": 3484,
+        "rng": 225669
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
