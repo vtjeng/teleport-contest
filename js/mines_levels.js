@@ -2,6 +2,7 @@
 // C ref: dat/minefill.lua.
 
 import { def_char_to_monclass } from './drawing.js';
+import { MALE } from './const.js';
 import {
     PM_DWARF,
     PM_GNOME,
@@ -59,7 +60,9 @@ async function minefill(des) {
         des.monster({ id: PM_GNOME });
     }
     // C ref: minefill.lua:39-44. gnome lord, 2 dwarves, 2 G-class, 1 G or h.
-    des.monster({ id: PM_GNOME_LEADER });
+    // C: des.monster("gnome lord") — name_to_monplus matches
+    // pmnames[MALE], so find_montype sets mgend = MALE without rn2(2).
+    des.monster({ id: PM_GNOME_LEADER, parsedGender: MALE });
     des.monster({ id: PM_DWARF });
     des.monster({ id: PM_DWARF });
     des.monster({ class: def_char_to_monclass('G') });
