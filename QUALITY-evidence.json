@@ -15964,5 +15964,114 @@
       ]
     },
     "recordedAt": "2026-08-31T07:39:23.114Z"
+  },
+  {
+    "kind": "review",
+    "head": "e52fac762d303fc1631321da078dd0d2267bd0e9",
+    "auditedRange": "bc3aff381ca25122ef10686428723406e7b0a5c3..e52fac762d303fc1631321da078dd0d2267bd0e9",
+    "level": "full",
+    "areas": [
+      "startup",
+      "hero",
+      "objects",
+      "generation",
+      "monsters",
+      "world-effects",
+      "commands",
+      "runtime"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 14 raw, 9 deduplicated, 6 confirmed, 4 applied, 2 deferred, 3 rejected, 0 unverified. Audit-fix re-verification covers the four applied findings and preserves the exact fresh C/JavaScript differential; two source-reachable production branches remain explicitly deferred for dedicated slices.",
+    "auditMetrics": {
+      "wallTimeSeconds": 420,
+      "counts": {
+        "raw": 14,
+        "deduplicated": 9,
+        "confirmed": 6,
+        "applied": 4,
+        "deferred": 2,
+        "rejected": 3,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 5,
+        "tests": 1,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "js/mhitu.js hitmu() resumes combat after lethal mdamageu() instead of unwinding done_in_by().",
+          "foundBy": [
+            "behavior",
+            "variable-flow"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "js/end.js show_overview() omits remembered features, annotations, branches, and endgame labels emitted by dungeon.c print_mapseen().",
+          "foundBy": [
+            "behavior",
+            "readability"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "js/end.js list_vanquished() omits the C %3d padding on repeated monster counts.",
+          "foundBy": [
+            "behavior",
+            "readability"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "js/insight.js final-dead enlightenment omits moreluck and luckstone timeout disclosures.",
+          "foundBy": [
+            "behavior"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "js/objnam.js xnameFresh() omits gameover garment and candy-wrapper naming suffixes from objnam.c.",
+          "foundBy": [
+            "behavior"
+          ],
+          "resolution": "deferred"
+        }
+      ],
+      "rejections": [
+        {
+          "summary": "The fresh differential witness was insufficient because an isolated C recorder replay was unavailable.",
+          "counterEvidence": "The committed fresh recipe is the repository's available end-to-end C/JavaScript witness and matches PRNG calls, screens, cursors, and animation frames; the missing isolated recorder is an audit limitation, not a production mismatch. Do not reopen without a source-reachable differential failure."
+        },
+        {
+          "summary": "The ordinary disclosure implementation was complete because the witness matched its observed final-death path.",
+          "counterEvidence": "Source review found additional reachable formatting branches in dungeon.c print_mapseen() and objnam.c gameover naming that the witness does not exercise; those claims were retained as confirmed deferred production findings rather than accepted as complete."
+        },
+        {
+          "summary": "The disclosure regression test was adequate because it checked the final game state and screen count.",
+          "counterEvidence": "The test omitted cursor, PRNG, animation, screen-content/order, and completion assertions; the confirmed test finding was applied by strengthening scripts/run-monster-death-disclosure.mjs."
+        }
+      ],
+      "deferrals": [
+        {
+          "summary": "js/end.js show_overview() omits remembered features, annotations, branches, and endgame labels emitted by dungeon.c print_mapseen().",
+          "category": "production",
+          "trackedIn": "show-overview-print-mapseen-details"
+        },
+        {
+          "summary": "js/objnam.js xnameFresh() omits gameover garment and candy-wrapper naming suffixes from objnam.c.",
+          "category": "production",
+          "trackedIn": "xname-endgame-garment-text"
+        }
+      ],
+      "readiness": {
+        "boundary": "The user-visible start is a normal adjacent water-demon attack that reduces the unpolymorphed hero to zero HP; the end is return from ordinary end.c disclosure after possessions, final attributes, vanquished creatures, conduct, and dungeon overview. The real game executes this path in the committed fresh recipe and the differential passes end to end.",
+        "sourceReview": "Every branch and helper reachable before that ending event was traced against upstream C, including lethal mdamageu/done_in_by propagation, done/really_done/disclose ordering, insight final-dead output, inventory naming, vanquished/conduct/overview formatting, and tty text-window paging. Rare alternate disclosure policies, sorted-list selection, special death causes, polymorph, wizard/explore mode, containers/statues, bones/grave generation, and post-disclosure scoring remain explicit later boundaries.",
+        "completeness": "Within the selected ordinary normal-mode/default-disclosure boundary, no known reachable branch remains unsupported without either matching the fresh differential or being explicitly recorded as one of the two deferred source branches above. Fresh replay and focused tests cover the supported witness and TTY page boundary."
+      }
+    },
+    "recordedAt": "2026-08-31T15:42:00.486Z"
   }
 ]
