@@ -85,6 +85,7 @@ import {
     engr_can_be_felt,
 } from './engrave.js';
 import { game } from './gstate.js';
+import { getpos } from './getpos.js';
 import { nomul } from './hack.js';
 import { hides_under, is_hider } from './mondata.js';
 import { NUMMONS, S_EEL } from './monsters.js';
@@ -285,9 +286,51 @@ export function reveal_terrain_getglyph(
     return glyph;
 }
 
-// C ref: detect.c reveal_terrain() (2356-2413), through its projection and
-// status message.  browse_map()/getpos() and map_redisplay() are the next
-// boundary and deliberately remain fail-closed.
+// C ref: detect.c browse_map() (94-106). The temporary presentation is a
+// getpos() concern: TER_MAP has already replaced the visible glyphs, so this
+// function only supplies getpos() with the source's terrainmode and automatic
+// description flags, then restores both after it returns.
+export async function browse_map(
+    terTyp, terExplain, state = game,
+) {
+    if (terTyp !== TER_MAP)
+        throw new UnsupportedSearchError('terrain browse subset');
+    if (state !== game)
+        throw new TypeError('browse_map() redraws the global game');
+
+    const dummyPos = { x: state.u.ux, y: state.u.uy };
+    state.iflags ??= {};
+    const saveAutodescribe = state.iflags.autodescribe;
+    state.iflags.autodescribe = true;
+    state.iflags.terrainmode = terTyp;
+    try {
+        await getpos(dummyPos, false, terExplain, state);
+    } finally {
+        // C unconditionally clears terrainmode, while autodescribe is the
+        // caller's option and must return to its pre-browse value.
+        state.iflags.terrainmode = 0;
+        state.iflags.autodescribe = saveAutodescribe;
+    }
+}
+
+// C ref: detect.c map_redisplay() (96-106). The current slice reaches the
+// ordinary unconstrained arm only; the underwater, buried, and swallowed
+// redraws remain fail-closed in unconstrain_map().
+export async function map_redisplay(state = game) {
+    if (state !== game)
+        throw new TypeError('map_redisplay() redraws the global game');
+    reconstrain_map(state);
+    if (state.u.uinwater || state.u.uburied || state.u.uswallow) {
+        throw new UnsupportedSearchError(
+            'terrain redisplay while underwater, buried, or swallowed',
+        );
+    }
+    await docrt();
+}
+
+// C ref: detect.c reveal_terrain() (2356-2413), now through its ordinary
+// browse_map()/getpos()/map_redisplay path. Other menu choices and
+// disoriented or constrained heroes remain deliberately fail-closed above.
 export async function reveal_terrain(whichSubset, state = game) {
     if (whichSubset !== TER_MAP) {
         throw new UnsupportedSearchError(
@@ -320,9 +363,8 @@ export async function reveal_terrain(whichSubset, state = game) {
 
     await flush_screen(1);
     await ttyPline('Showing known terrain only...', state);
-    throw new UnsupportedSearchError(
-        'terrain browse_map/getpos integration',
-    );
+    await browse_map(whichSubset, 'anything of interest', state);
+    await map_redisplay(state);
 }
 
 function glyphIsTrap(glyph) {

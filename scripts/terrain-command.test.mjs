@@ -3,62 +3,43 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
-import { COLNO, ROWNO } from '../js/const.js';
-import {
-    glyph_is_invisible,
-    glyph_is_monster,
-    glyph_is_object,
-    glyph_is_trap,
-} from '../js/display.js';
+import { TIP_GETPOS } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
 
 const recipe = JSON.parse(readFileSync(
-    'recipes/terrain-known-map-projection-fresh.session.json',
+    'recipes/terrain-browse-map-getpos-tip-redisplay-fresh.session.json',
     'utf8',
 ));
 
-test('terrain recipe is a fresh save/restore witness with no answers', () => {
+test('terrain recipe is a fresh witness with no recorded answers', () => {
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 2);
-    assert.equal(recipe.segments[0].moves.at(-2), 'S');
-    assert.equal(recipe.segments[0].moves.at(-1), 'y');
-    assert.equal(recipe.segments[1].moves, '\x7f ');
+    assert.equal(recipe.segments.length, 1);
+    assert.equal(recipe.segments[0].moves, '   \x7f : \n ');
     for (const segment of recipe.segments)
         assert.equal(Object.hasOwn(segment, 'steps'), false);
 });
 
-test('DEL opens terrain and TER_MAP strips live display layers without time', async () => {
+test('DEL browses TER_MAP and restores the live map without time', async () => {
     assert.ok(ADMITTED_COMMANDS.includes('terrain'));
     const storage = new InMemoryStorage();
-    await runSegment({ ...recipe.segments[0], storage });
-    const savedMoves = game.moves;
     let boundary = null;
-    await runSegment({ ...recipe.segments[1], storage }, {
+    const result = await runSegment({ ...recipe.segments[0], storage }, {
         onBoundary: (error) => { boundary = error; },
     });
 
-    assert.match(
-        boundary?.reason ?? '',
-        /browse_map\/getpos integration/u,
-    );
-    assert.equal(game.moves, savedMoves);
-    assert.equal(game.context.move, 0);
-    assert.equal(game.u.uinwater, 0);
-    assert.equal(game.u.uburied, 0);
-    assert.equal(game.u.uswallow, 0);
-    assert.equal(game.nhDisplay.topMessage, 'Showing known terrain only...');
-
-    for (let x = 1; x < COLNO; ++x) {
-        for (let y = 0; y < ROWNO; ++y) {
-            const glyph = game.level.at(x, y).disp_glyph?.glyph;
-            assert.equal(glyph_is_monster(glyph), false, `${x},${y}`);
-            assert.equal(glyph_is_object(glyph), false, `${x},${y}`);
-            assert.equal(glyph_is_trap(glyph), false, `${x},${y}`);
-            assert.equal(glyph_is_invisible(glyph), false, `${x},${y}`);
-        }
-    }
+    assert.equal(boundary, null);
+    assert.equal(game.context.move, 1);
+    assert.equal(game.iflags.terrainmode, 0);
+    assert.equal(game.iflags.autodescribe, true);
+    assert.equal(game.context.tips & (1 << TIP_GETPOS), 1 << TIP_GETPOS);
+    assert.equal(game.nhDisplay.topMessage, 'Done.');
+    assert.equal(result.getScreens().length, 10);
+    assert.equal(Boolean(game.u.uinwater), false);
+    assert.equal(Boolean(game.u.uburied), false);
+    assert.equal(Boolean(game.u.uswallow), false);
+    assert.ok(game.level.at(game.u.ux, game.u.uy).disp_glyph);
 });
 
 test('a non-default terrain choice remains fail-closed', async () => {

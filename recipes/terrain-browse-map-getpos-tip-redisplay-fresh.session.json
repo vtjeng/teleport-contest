@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 314159,
+      "datetime": "20010203090000",
+      "nethackrc": "OPTIONS=name:TerrainBrowseFresh,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": "   \u007f : \n "
+    }
+  ]
+}

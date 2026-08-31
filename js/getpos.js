@@ -15,6 +15,7 @@ import { movecmd } from './cmd.js';
 import { flush_screen } from './display.js';
 import { game } from './gstate.js';
 import { handle_tip } from './hack.js';
+import { visctrl } from './hacklib.js';
 import { nhgetch } from './input.js';
 import { do_screen_description } from './pager.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
@@ -80,7 +81,6 @@ export async function getpos(ccp, force, goal, state = game) {
     // C ref: force=TRUE keeps the loop running on unrecognized keys
     // instead of exiting. For valid session input the behavior is identical.
     if (state.iflags?.remember_getpos
-        || state.iflags?.terrainmode
         || state.iflags?.getloc_moveskip
         || state.iflags?.autodescribe === false
         || (state.iflags?.getpos_coords
@@ -97,6 +97,7 @@ export async function getpos(ccp, force, goal, state = game) {
     let cx = ccp.x;
     let cy = ccp.y;
     let showGoalMessage = await handle_tip(TIP_GETPOS, state);
+    let messageGiven = true;
 
     if (state.flags.verbose)
         await ttyPline("(For instructions type a '?')", state);
@@ -118,8 +119,12 @@ export async function getpos(ccp, force, goal, state = game) {
             }
 
             const key = (await nhgetch(state)) & 0xFF;
+            if (state.iflags?.autodescribe)
+                messageGiven = false;
+
             if (key === 0x1B) {
                 ccp.x = ccp.y = -10;
+                messageGiven = true;
                 result = -1;
                 break;
             }
@@ -147,6 +152,22 @@ export async function getpos(ccp, force, goal, state = game) {
                 state.gg.getposy = cy;
                 clearTtyMessageWindow(state);
                 await auto_describe(cx, cy, state);
+                messageGiven = false;
+                continue;
+            }
+            if (key === '#') {
+                state.iflags.autodescribe = !state.iflags.autodescribe;
+                await ttyPline(
+                    `Automatic description is ${state.iflags.autodescribe
+                        ? 'on' : 'off'}.`,
+                    state,
+                );
+                if (!state.iflags.autodescribe)
+                    showGoalMessage = true;
+                messageGiven = true;
+                state.gg.getposx = cx;
+                state.gg.getposy = cy;
+                cursorAt(cx, cy, state);
                 continue;
             }
             // C ref: getpos.c:1039-1141. Unrecognized keys that are
@@ -154,27 +175,37 @@ export async function getpos(ccp, force, goal, state = game) {
             // unrecognized keys print an error. In both cases force=true
             // falls through to `goto nxtc`, ignoring the key.
             if (force) {
-                await auto_describe(cx, cy, state);
+                state.gg.getposx = cx;
+                state.gg.getposy = cy;
+                cursorAt(cx, cy, state);
                 continue;
             }
             if (key === 0x20 || key === 0x0D || key === 0x0A) {
+                await ttyPline('Done.', state);
+                messageGiven = false;
                 ccp.x = -1;
                 ccp.y = 0;
                 result = LOOK_TRADITIONAL;
                 break;
             }
-            throw new UnsupportedGetposError(
-                `key ${JSON.stringify(String.fromCharCode(key))}`,
+            await ttyPline(
+                `Unknown direction: '${visctrl(String.fromCharCode(key))}' `
+                + '(aborted).',
+                state,
             );
+            messageGiven = true;
+            state.gg.getposx = cx;
+            state.gg.getposy = cy;
+            cursorAt(cx, cy, state);
         }
     } finally {
-        clearTtyMessageWindow(state);
+        if (messageGiven)
+            clearTtyMessageWindow(state);
         state.gg.getposx = 0;
         state.gg.getposy = 0;
         state.u.dx = savedDirection.dx;
         state.u.dy = savedDirection.dy;
         state.u.dz = savedDirection.dz;
-        cursorAt(state.u.ux, state.u.uy, state);
     }
     return result;
 }

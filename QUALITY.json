@@ -5662,10 +5662,19 @@
       "area": "commands",
       "category": "scope",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "d96761da620f19250669af6e6c025dadcd031bc7",
       "detail": "The fresh restored-level differential reaches the TER_MAP projection and then stops at the C reveal_terrain browse_map/getpos integration. Close by porting browse_map(), its first-use getpos tip and cursor/autodescribe behavior, and the following map_redisplay frame, with a fresh differential.",
       "blockedOn": "browse_map"
+    },
+    {
+      "id": "terrain-browse-getpos-nonordinary-branches",
+      "area": "commands",
+      "category": "scope",
+      "effort": "slice",
+      "status": "open",
+      "from": "55ae3f579839ed8df99d1d3f9a71a32ebc5ced5c",
+      "detail": "The ordinary TER_MAP browse path now covers the first-use tip, immediate exit, Done. message, temporary terrain/autodescribe flags, cursor cleanup, and live-map restoration. Cursor movement/autodescription, other getpos controls, constrained underwater/buried/swallowed redraws, and nonordinary terrain levels remain outside this slice."
     }
   ],
   "areas": [
