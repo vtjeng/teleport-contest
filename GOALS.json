@@ -6568,6 +6568,41 @@
         "screens": 106,
         "rng": 3092
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-3",
+      "status": "open",
+      "boundary": "Add the monster-occupying #chat branch for the witnessed peaceful quest leader path through dochat, domonnoise, and quest_chat; preserve other unported chat arms and unrelated command families.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/cmd.c",
+        "nethack-c/upstream/src/sounds.c",
+        "nethack-c/upstream/src/quest.c",
+        "nethack-c/upstream/src/questpgr.c",
+        "nethack-c/upstream/dat/quest.lua"
+      ],
+      "forecast": {
+        "steps": 130,
+        "basis": "Capped look-ahead at unsupported hero command: an unported branch of this command: #chat needs a monster occupying the target square",
+        "sessions": [
+          "seed0367-priest-quest-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0367-priest-quest-tour",
+            "evidence": "At recorded step 194, seed 367 (20000110090000), female chaotic Wizard-mode Priest uses #chat then direction l. The C path is cmd.c:1691-1692 M(c) -> dotalk(), sounds.c:1248-1253 -> dochat(); after getdir at sounds.c:1292, u.dx/u.dy select a valid adjacent square and m_at() at sounds.c:1325-1331 finds the peaceful quest leader. The leader reaches sounds.c:695-697 MS_LEADER -> sounds.c:729-731 quest_chat(), quest.c:473-480 chat_with_leader(), and quest.c:321-327 qt_pager(leader_first) because met_leader is false. The recording message at the boundary is the quest.lua leader_first text (quest.lua:1452-1458), followed by quest.c:165-168 printing alignment 0/20 and accepting adjust? with y, then quest.c:354-357 assignquest text. This proves the session exercises the monster-occupying #chat branch, not an empty, wall, statue, or undetected-monster arm."
+          }
+        ]
+      },
+      "detail": "Bound the candidate to the monster-occupying #chat path exercised by seed0367: complete the common sounds.c dochat tail through sounds.c:1374-1408, then the quest-leader domonnoise path at sounds.c:695-731 and quest.c:473-480, including the leader_first and alignment-adjust continuation witnessed in quest.c:321-357. The visible first result is the leader_first quest pager from dat/quest.lua; later monster chatter families, shop price_quote, steed-down chat, nemesis or guardian chat, and unrelated special rooms are outside this candidate. The current JavaScript stop is js/sounds.js at the m_at target-monster guard, so the running game reaches this path from runChatCommand in js/cmd.js.",
+      "slices": [],
+      "openedAt": "acb9345d2c9f13915766238b2f919cba759f9624",
+      "openStanding": {
+        "sha": "2f9e02929bdd38475843b957a78eb5dc9d01116e",
+        "screens": 3388,
+        "rng": 224872
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
