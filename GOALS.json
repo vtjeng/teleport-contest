@@ -6897,8 +6897,8 @@
       "slices": [
         {
           "name": "remembered-price-quote-suffix-in-doname",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0d1c432bd62fcc6c4081da256713b50d54b118e1"
         }
       ],
       "openedAt": "b4c7ee1f4613e97ae941c2bb8e97c7a5bbfdf409",
