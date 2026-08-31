@@ -6805,8 +6805,8 @@
       "slices": [
         {
           "name": "#loot locked floor box: apply-key lock-pick occupation",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "f9ecb0aa089647ee7ad24afcf006d1712310f9dd"
         }
       ],
       "openedAt": "b2da54a95442139d2d06a2ec33c426cec70e3037",
