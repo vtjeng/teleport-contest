@@ -7127,6 +7127,44 @@
         "screens": 12,
         "rng": 617
       }
+    },
+    {
+      "id": "simple-monster-action-requires-monster-equipment-changes",
+      "status": "open",
+      "boundary": "For the witnessed unseen hostile gnome with I_SPECIAL and a cursed -2 pair of mud boots, let movemon_singlemon() execute worn.c m_dowear()/m_dowear_type()'s non-creation W_ARMF selection, preserving the equipment reassessment flag, turn cost, frozen/cannot-move state, worn-mask updates, and the following monster-loop boundary.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/mon.c: movemon_singlemon()",
+        "nethack-c/upstream/src/worn.c: m_dowear(); m_dowear_type()"
+      ],
+      "forecast": {
+        "steps": 20,
+        "basis": "Capped look-ahead at simple monster action requires monster equipment changes",
+        "sessions": [
+          "seed0383-wizard-hallucinate"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383-wizard-hallucinate",
+            "evidence": "Seed 383, 2000-01-10 09:00:00, debug human male neutral Wizard Dazz, with OPTIONS=symset:DECgraphics and !autopickup. After the #levelchange 20 and wizard setup, the first stop is recorded at step 142 on Dlvl:12. C allmain.c moveloop_core() enters mon.c movemon_singlemon() for live monsters. The contributing target is the hostile, non-tame PM_GNOME (m_id 144) at (46,2): it can move, is not sleeping/frozen, has movement remaining after the NORMAL_SPEED debit, stands on ordinary terrain, carries misc_worn_check=I_SPECIAL, and remembers the hero at (27,5), giving dist2=370 > 3*3. C therefore clears I_SPECIAL and calls worn.c m_dowear(mtmp,FALSE). The gnome passes m_dowear's body filters and has no worn armor; its inventory contains a cursed -2 pair of mud boots and blessed daggers, so m_dowear_type's W_ARMF pass selects the boots. The non-creation arm spends the boots' oc_delay=2, sets mfrozen=2 and mcanmove=0, marks the monster and boots with W_ARMF, and returns from movemon_singlemon before dochugw(). canseemon() is false here, so the visible pline_mon() branch is not exercised. A second I_SPECIAL monster (a genetic engineer) has only a potion and m_dowear() finds no wearable replacement, so it is not the stopping path."
+          }
+        ]
+      },
+      "detail": "Small coherent single-session slice. The source reach is mon.c movemon_singlemon():1214-1321 into worn.c m_dowear():757-797 and m_dowear_type():799-985, but this witness bounds the port to one normal gnome's no-old-armor W_ARMF arm: I_SPECIAL is set, the hero is believed distant, the gnome is not very small, nohands, animal, mindless, trapped, or frozen, and the only eligible replacement is the cursed -2 mud boots. Include the source-ordered equipment selection, oc_delay turn debit, mfrozen/mcanmove transition, W_ARMF writes, and retry boundary; exclude worn-item replacement, other armor categories, visible wear messages, artifact-light effects, auto-curse, special species, and other I_SPECIAL causes. The next independent behavior is #wizintrinsic at step 162, outside the capped 20-step stretch.",
+      "slices": [
+        {
+          "name": "unseen gnome equips cursed mud boots during movemon_singlemon",
+          "status": "closed",
+          "closedBy": "5da9764f22df11a0bc3f8e6031f2008e29c61948"
+        }
+      ],
+      "openedAt": "978596d1b195ea97293e292dcb2477c277ebe23a",
+      "openStanding": {
+        "sha": "27ff7af",
+        "screens": 3512,
+        "rng": 226528
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
