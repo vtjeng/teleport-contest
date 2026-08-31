@@ -6823,7 +6823,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-5",
-      "status": "open",
+      "status": "closed",
       "boundary": "Support the witnessed in-progress Ctrl-X attributes menu for the authorized debug hero: preserve custom v:inventory and Ctrl-X attributes bindings, include BASIC plus MAGIC enlightenment and reached debug numeric annotations, render both pages, accept space and Escape, consume no RNG and no turn.",
       "upstreamOwners": [
         "nethack-c/upstream/src/options.c: playmode and bindings",
@@ -6860,8 +6860,11 @@
         "screens": 3478,
         "rng": 225589
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "37184260597987728db3bf7cb192f79f7d697b8f",
+      "delivered": {
+        "screens": 3,
+        "rng": 77
+      }
     }
   ]
 }
