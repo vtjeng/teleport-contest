@@ -7044,7 +7044,7 @@
     },
     {
       "id": "simple-monster-action-requires-a-monster-engulfing-the-hero",
-      "status": "open",
+      "status": "closed",
       "boundary": "When the witnessed ordinary Wizard is adjacent to a live uncancelled ice vortex, carry C's monster movement through mattacku()'s AT_ENGL arm into gulpmu(), set the swallow state and preserve the vortex's repeated AD_COLD damage and output through the next independent command boundary.",
       "upstreamOwners": [
         "nethack-c/upstream/src/allmain.c: moveloop_core()",
@@ -7080,8 +7080,11 @@
         "screens": 3497,
         "rng": 225713
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "5b8634c01c01ccab2bcfebdb97ea4a0bfa505792",
+      "delivered": {
+        "screens": 3,
+        "rng": 198
+      }
     }
   ]
 }
