@@ -7168,6 +7168,48 @@
         "screens": 0,
         "rng": 106
       }
+    },
+    {
+      "id": "unsupported-hero-move-a-boulder-that-will-not-move",
+      "status": "open",
+      "boundary": "For the witnessed ordinary, visible, unmounted, normal-sized Rogue/orc on non-Sokoban terrain, when a run reaches a boulder whose destination is obstructed, execute hack.c moverock_core()'s failed-destination path: emit the failed-push message, follow cannot_push()'s no-squeeze result, leave the boulder in place, and return -1.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/hack.c: test_move()",
+        "nethack-c/upstream/src/hack.c: moverock()",
+        "nethack-c/upstream/src/hack.c: moverock_core()",
+        "nethack-c/upstream/src/hack.c: cannot_push_msg()",
+        "nethack-c/upstream/src/hack.c: cannot_push()",
+        "nethack-c/upstream/src/hack.c: could_move_onto_boulder()"
+      ],
+      "forecast": {
+        "steps": 111,
+        "basis": "Capped look-ahead at unsupported hero move: a boulder that will not move",
+        "sessions": [
+          "seed0007-rogue-snake-swamp"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0007-rogue-snake-swamp",
+            "evidence": "Seed 7, 2026-05-03 02:54:36, OPTIONS=symset:DECgraphics; the replay selects Septor, a chaotic male orcish Rogue. At recorded step 135, key L (the east run) reaches a boulder whose destination is obstructed on ordinary Dlvl:1 terrain. C hack.c test_move() enters the boulder arm and, because this is the run value used by L rather than the higher travel-stop mode, calls moverock(); moverock_core() sets the boulder's temporary naming state, spends nomul(0), rejects the destination obstruction, and calls cannot_push_msg(), producing the failed-push message. cannot_push() then follows the normal-sized, unmounted, non-giant/non-tiny hero path: could_move_onto_boulder() is false because the hero cannot pass walls and is not light enough to squeeze, so it returns -1. No RNG call or boulder movement occurs. The later k/l input reaches the separate successful-push arm, confirming the stop is specifically the failed-destination path rather than ordinary boulder movement."
+          }
+        ]
+      },
+      "detail": "Small coherent single-session candidate, with a capped forecast of 111. Port the witnessed hack.c test_move() boulder admission into moverock(), moverock_core()'s invalid-destination branch, cannot_push_msg(), cannot_push(), and could_move_onto_boulder() false-squeeze result, preserving source order, the failed-push message, temporary boulder naming cleanup, no movement, and the -1 return. Bound the goal to this ordinary, visible, unmounted, normal-sized Rogue/orc on non-Sokoban terrain whose boulder destination is obstructed. Exclude giant/tiny/pass-walls/mounted heroes, blindness, Sokoban rules, monster-behind-boulder, closed-door, trap, pool/lava, successful pushes, and travel; those are separate branches or the next independent boundary at step 246. This is a small goal-sized slice under .agents/selection.md: one witnessed C branch with one bounded source owner and one development session.",
+      "slices": [
+        {
+          "name": "failed obstructed-destination boulder push",
+          "status": "closed",
+          "closedBy": "d8daf8d81ea4efc650a5ae44a4d3eab2810ef7fa"
+        }
+      ],
+      "openedAt": "f68fd0e0fae82a1283a319ee48d87da0e4099a2b",
+      "openStanding": {
+        "sha": "92994fc",
+        "screens": 3512,
+        "rng": 226634
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
