@@ -6643,8 +6643,8 @@
       "slices": [
         {
           "name": "empty-handed-goblin-weap-retaliation",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "77831dd7244b7df88375d10737ec3f25828126ab"
         }
       ],
       "openedAt": "67be53ea85e43b387576f0d750042369cec38dae",
