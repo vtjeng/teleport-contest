@@ -6403,8 +6403,8 @@
       "slices": [
         {
           "name": "explicit PM_MINOTAUR placement in Castle fill_empty_maze()",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "1c8123c7f9332b09fca60462f09442bb93f1bb99"
         }
       ],
       "openedAt": "82ac7bd39427361d853a01055a6976bc361dbd5e",
