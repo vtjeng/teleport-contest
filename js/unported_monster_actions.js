@@ -306,9 +306,22 @@ function assertSimpleActionState(monster, state) {
     // isshk and ispriest are admitted: m_move() dispatches to shk_move()
     // and pri_move() respectively, which handle the stationary and milling
     // paths and refuse the rest.
+    //
+    // monmove.c dochug() checks msleeping before m_move()'s leppie_avoidance()
+    // arm. For a non-tame, non-minion leprechaun outside couldsee(),
+    // disturb() returns 0 without a draw, so this exact case returns from
+    // dochug() before any leprechaun-specific movement. Keep every other
+    // leprechaun state behind the special-action boundary.
+    const sleepingOutOfSightLeprechaun =
+        monster.data?.pmidx === PM_LEPRECHAUN
+        && monster.msleeping
+        && !monster.mtame
+        && !monster.isminion
+        && !couldsee(monster.mx, monster.my, state);
     if (SPECIAL_RESPONDERS.has(monster.data?.pmidx)
         || monster.data?.pmidx === PM_TENGU
-        || monster.data?.pmidx === PM_LEPRECHAUN
+        || (monster.data?.pmidx === PM_LEPRECHAUN
+            && !sleepingOutOfSightLeprechaun)
         || monster.data?.pmidx === PM_KILLER_BEE
         || monster.data?.pmidx === PM_GELATINOUS_CUBE) {
         unsupported('a special monster action');

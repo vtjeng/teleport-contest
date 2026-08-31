@@ -114,6 +114,7 @@ import {
     WAX_CANDLE,
 } from '../js/objects.js';
 import { m_move } from '../js/monmove.js';
+import { movemon_singlemon } from '../js/mon.js';
 import {
     create_region,
 } from '../js/region.js';
@@ -4042,26 +4043,82 @@ test('species guard admits M1_TPORT monsters without species-specific code',
         }
     });
 
-// PM_TENGU and PM_LEPRECHAUN remain blocked because they have unported
-// species-specific movement code in monmove.c m_move().
-test('species guard still blocks tengu and leprechaun', async () => {
-    for (const pmidx of [PM_TENGU, PM_LEPRECHAUN]) {
-        const target = await prepareSelectedAction({ pmidx });
-        const before = completeSecondTurnSnapshot(game, target.replay);
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await assert.rejects(
-                preflightSimpleMonsterActions(game),
-                (error) => (
-                    error instanceof UnsupportedSimpleMonsterActionError
-                    && error.reason === 'a special monster action'
-                ),
-                `pmidx ${pmidx}, attempt ${attempt + 1}`,
-            );
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                `pmidx ${pmidx}, attempt ${attempt + 1}`,
-            );
-        }
-    }
+// C ref: monmove.c dochug():726-731. A sleeping leprechaun outside
+// couldsee() returns from disturb() before m_move() reaches leppie_avoidance(),
+// so this one branch needs no leprechaun-specific port. Awake leprechauns and
+// Tengu still reach unported species actions and remain fail-closed.
+test('sleeping out-of-sight leprechaun takes the disturb no-op', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_LEPRECHAUN });
+    target.monster.msleeping = true;
+    game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    const rngBefore = target.replay.getRngLog().length;
+    const screensBefore = target.replay.getScreens().length;
+    const events = [];
+
+    await preflightSimpleMonsterActions(game, {
+        advanceRound(planned) {
+            const leprechaun = planned.level.monlist;
+            assert.equal(leprechaun.movement, 0);
+            assert.equal(leprechaun.msleeping, true);
+            return true;
+        },
+    });
+    assert.deepEqual(
+        completeSecondTurnSnapshot(game, target.replay),
+        before,
+    );
+
+    await movemon_singlemon(target.monster, {
+        state: game,
+        everyTurnEffect: () => events.push('every-turn'),
+        visionRecalc: () => events.push('vision'),
+        clearBypasses: () => events.push('bypasses'),
+        minLiquid: () => {
+            events.push('liquid');
+            return false;
+        },
+        dowear: () => events.push('wear'),
+        restrap: () => false,
+        canSeeMonster: () => true,
+        hideUnder: () => false,
+        canSeeHero: () => false,
+        canSeeSquare: () => false,
+        fightMonster: () => false,
+        dochugwAction: (monster, chug, env) => {
+            events.push(`dochugw:${chug}`);
+            return runSimpleMonsterAction(monster, env);
+        },
+    });
+
+    assert.deepEqual(events, ['every-turn', 'liquid', 'dochugw:true']);
+    assert.equal(target.monster.movement, 0);
+    assert.equal(target.monster.msleeping, true);
+    assert.equal(target.replay.getRngLog().length, rngBefore);
+    assert.equal(target.replay.getScreens().length, screensBefore);
 });
+
+test('species guard still blocks Tengu and other leprechaun actions',
+    async () => {
+        for (const pmidx of [PM_TENGU, PM_LEPRECHAUN]) {
+            const target = await prepareSelectedAction({ pmidx });
+            if (pmidx === PM_LEPRECHAUN)
+                target.monster.msleeping = false;
+            const before = completeSecondTurnSnapshot(game, target.replay);
+            for (let attempt = 0; attempt < 2; ++attempt) {
+                await assert.rejects(
+                    preflightSimpleMonsterActions(game),
+                    (error) => (
+                        error instanceof UnsupportedSimpleMonsterActionError
+                        && error.reason === 'a special monster action'
+                    ),
+                    `pmidx ${pmidx}, attempt ${attempt + 1}`,
+                );
+                assert.deepEqual(
+                    completeSecondTurnSnapshot(game, target.replay),
+                    before,
+                    `pmidx ${pmidx}, attempt ${attempt + 1}`,
+                );
+            }
+        }
+    });
