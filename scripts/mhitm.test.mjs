@@ -65,6 +65,7 @@ import {
 } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { cansee } from '../js/vision.js';
+import { mon_wield_item } from '../js/weapon.js';
 import { find_mac } from '../js/worn.js';
 import {
     loadUnseenPetFightRecipe,
@@ -658,11 +659,11 @@ test('a grab that cannot hold its target stops the attack', async () => {
     pet.data = ordinary;
 });
 
-// mhitm.c mattackm():393-410. An adjacent AT_WEAP attacker with an empty hand
-// asks mon_wield_item() for a hand-to-hand weapon. A nonzero answer means the
-// wield took the turn, so mattackm() returns before the attack roll, damage,
-// or passive response.
-test('mattackm spends an adjacent empty-handed weapon attack on wielding',
+// mhitm.c mattackm():393-425. An adjacent empty-handed AT_WEAP attacker asks
+// mon_wield_item() for a hand-to-hand weapon. With no selectable item it
+// returns 0, possibly_unwield() sees null MON_WEP(), and the arm falls through
+// into the physical attack and passive response.
+test('mattackm falls through an adjacent empty-handed weapon attack',
     async () => {
         await hero();
         const { ax, dx, y } = battlefield(1);
@@ -680,23 +681,21 @@ test('mattackm spends an adjacent empty-handed weapon attack on wielding',
                 ...ordinary.mattk.slice(1),
             ],
         };
-        const env = attackEnv();
-        const dagger = { otyp: 1, owornmask: 0 };
+        const env = attackEnv([], 20);
         let calls = 0;
         env.wieldMonsterItemAgainstMonster = async (monster) => {
             ++calls;
             assert.equal(monster.weapon_check, NEED_HTH_WEAPON);
-            monster.mw = dagger;
-            monster.weapon_check = NEED_WEAPON;
-            return 1;
+            return mon_wield_item(monster, env);
         };
 
         assert.equal(await mattackm(goblin, kitten, env), M_ATTK_MISS);
         assert.equal(calls, 1);
-        assert.equal(goblin.mw, dagger);
+        assert.equal(goblin.mw, null);
+        assert.equal(goblin.weapon_check, NEED_WEAPON);
         assert.equal(kitten.mhp, 4);
-        assert.deepEqual(env.bounds, []);
-        assert.deepEqual(env.lines, []);
+        assert.deepEqual(env.bounds, ['rnd(20)', 'rn2(3)']);
+        assert.deepEqual(env.lines, ['The hill orc misses the kitten.']);
         goblin.data = ordinary;
     });
 
@@ -732,18 +731,26 @@ test('mattackm keeps every continuation past the wield turn closed',
             };
             let calls = 0;
             const env = attackEnv();
-            env.wieldMonsterItemAgainstMonster = async () => {
+            env.wieldMonsterItemAgainstMonster = async (monster) => {
                 ++calls;
+                monster.weapon_check = NEED_WEAPON;
                 return row.result;
             };
 
-            await assert.rejects(
-                mattackm(goblin, kitten, env),
-                /an armed monster attacking another monster/u,
-                row.name,
-            );
+            if (row.name === 'empty selection and damage') {
+                assert.equal(await mattackm(goblin, kitten, env), M_ATTK_HIT,
+                             row.name);
+                assert.equal(goblin.mw, null, row.name);
+            } else {
+                await assert.rejects(
+                    mattackm(goblin, kitten, env),
+                    /an armed monster attacking another monster/u,
+                    row.name,
+                );
+            }
             assert.equal(calls, row.calls, row.name);
-            assert.deepEqual(env.bounds, [], row.name);
+            if (row.name !== 'empty selection and damage')
+                assert.deepEqual(env.bounds, [], row.name);
             goblin.data = ordinary;
         }
     });

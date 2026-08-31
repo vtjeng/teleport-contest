@@ -76,6 +76,7 @@ import { d, rn2, rnd } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { mhitm_adtyping, mhitm_knockback, shade_miss } from './uhitm.js';
 import { cansee } from './vision.js';
+import { possibly_unwield } from './weapon.js';
 import { find_mac } from './worn.js';
 
 // The operations mhitm.c reaches that this file cannot import: the caller owns
@@ -261,11 +262,11 @@ async function missmm(magr, mdef, mattk, env) {
 // Six arms refuse, each at the `case` label so the stop sits where C's branch
 // begins:
 //
-//   AT_WEAP  the adjacent empty-handed arm admits only a mon_wield_item()
-//            result that spends the turn. The distant half still needs
-//            mthrowu.c thrwmm(), and the zero-result adjacent half needs
-//            possibly_unwield(), mswingsm() and hitval() before it falls
-//            through to the group below it.
+//   AT_WEAP  the adjacent empty-handed arm ports mon_wield_item()'s zero-result
+//            path and possibly_unwield()'s null-MON_WEP return before falling
+//            through to the physical group below it. The distant half still
+//            needs mthrowu.c thrwmm(), and a selected/current weapon still
+//            needs mswingsm() and hitval().
 //   AT_HUGS  both of the functions this arm calls, failed_grab() and hitmm(),
 //            are in this file. It stops because no species this port places
 //            as a pet carries the attack, so porting the arm would add code
@@ -345,7 +346,7 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
         if (state.gs.skipdrin && mattk.aatyp === AT_TENT
             && mattk.adtyp === AD_DRIN)
             continue;
-        const mwep = null; /* MON_WEP() is read only under AT_WEAP */
+        let mwep = null; /* MON_WEP() is read only under AT_WEAP */
         let attk = 1;
 
         switch (mattk.aatyp) {
@@ -361,8 +362,15 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
                 if (await wieldMonsterItem(magr, env) !== 0)
                     return M_ATTK_MISS;
             }
-            unsupported('an armed monster attacking another monster');
-            break;
+            // weapon.c mon_wield_item() returns 0 for the goblin's empty
+            // inventory after setting NEED_WEAPON. C then calls
+            // possibly_unwield() even though MON_WEP() is null; that is an
+            // intentional no-op and the AT_WEAP arm falls through.
+            possibly_unwield(magr, false, env);
+            mwep = magr.mw ?? null;
+            if (mwep)
+                unsupported('an armed monster attacking another monster');
+            /* FALLTHRU: C's empty-handed AT_WEAP arm joins the physical group. */
 
         case AT_CLAW:
         case AT_KICK:

@@ -1018,6 +1018,21 @@ export async function mon_wield_item(monster, env = {}) {
     return 0;
 }
 
+// C ref: weapon.c possibly_unwield() (747-795). The empty-handed
+// mattackm() path calls this after mon_wield_item() even when MON_WEP(mon) is
+// null; C returns immediately, with no state change, message, or RNG call.
+// The remaining current-weapon and polymorph branches belong to the excluded
+// armed AT_WEAP continuation, so keep that boundary fail-closed.
+export function possibly_unwield(monster, polyspot = false, env = {}) {
+    if (!monster.mw) return;
+    const unsupported = env.unsupported;
+    if (typeof unsupported === 'function')
+        unsupported('an armed monster attacking another monster');
+    throw new RangeError(
+        'possibly_unwield requires an unported armed-monster operation',
+    );
+}
+
 // C ref: weapon.c's PN_* pseudo-indices. skill_names_indices[] stores an
 // object type for a skill named after a representative item and one of these
 // negative codes for every other skill.
