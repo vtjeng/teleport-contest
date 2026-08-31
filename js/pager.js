@@ -16,8 +16,14 @@ import {
     GPCOORDS_NONE,
     HALLUC,
     HALLUC_RES,
+    ICE,
     Is_airlevel,
     Is_waterlevel,
+    LAVAPOOL,
+    LAVAWALL,
+    MOAT,
+    POOL,
+    WATER,
     NEUTRAL,
     OBJ_FLOOR,
     PICK_ONE,
@@ -26,8 +32,12 @@ import {
     Ugender,
     u_at,
 } from './const.js';
-import { pmname } from './do_name.js';
+import { hliquid, pmname } from './do_name.js';
 import { trapped_chest_at, trapped_door_at } from './detect.js';
+import {
+    GLYPH_NOTHING_OFF,
+    GLYPH_UNEXPLORED_OFF,
+} from './glyph_offsets.js';
 import {
     SCORER_DEC_MAP,
     cmap_to_glyph,
@@ -69,15 +79,20 @@ import {
     S_engrcorr,
     S_engroom,
     S_grave,
+    S_ice,
+    S_lava,
+    S_lavawall,
     S_hcdbridge,
     S_litcorr,
     S_ndoor,
+    S_pool,
     S_room,
     S_stone,
     S_trwall,
     S_upstair,
     S_vwall,
     S_vodbridge,
+    S_water,
     cmap_symbol_byte,
 } from './symbols.js';
 import { NO_COLOR } from './terminal.js';
@@ -496,6 +511,21 @@ function visibleGlyphCharacter(glyphinfo) {
     return glyphinfo.ch;
 }
 
+// C ref: pager.c waterbody_name() (560-612). Returns the terrain name for
+// water, lava, and ice tiles.
+function waterbody_name(x, y, state) {
+    const loc = state.level?.at(x, y);
+    const typ = loc?.typ;
+    const liquid = (pref) => hliquid(pref, { state });
+    if (typ === LAVAPOOL) return `molten ${liquid('lava')}`;
+    if (typ === ICE) return 'ice';
+    if (typ === POOL) return `pool of ${liquid('water')}`;
+    if (typ === MOAT) return 'moat';
+    if (typ === WATER) return `wall of ${liquid('water')}`;
+    if (typ === LAVAWALL) return `wall of ${liquid('lava')}`;
+    return 'water';
+}
+
 // C ref: pager.c lookat() (657-801), ordinary cmap branches reached by the
 // whatis cursor-terrain witness. Other glyph families remain later slices.
 function lookatOrdinaryTerrain(x, y, glyph, state) {
@@ -505,7 +535,9 @@ function lookatOrdinaryTerrain(x, y, glyph, state) {
         || index === S_ndoor
         || index === S_room || index === S_darkroom
         || index === S_corr || index === S_litcorr
-        || index === S_upstair || index === S_brupstair;
+        || index === S_upstair || index === S_brupstair
+        || index === S_pool || index === S_water
+        || index === S_lava || index === S_lavawall || index === S_ice;
     if (!supported) {
         throw new UnsupportedWhatisError(
             `terrain ${CMAP_EXPLANATIONS[index] ?? index}`,
@@ -516,6 +548,9 @@ function lookatOrdinaryTerrain(x, y, glyph, state) {
         const mask = location?.flags ?? location?.doormask ?? 0;
         return (mask & ~D_TRAPPED) === D_BROKEN ? 'broken door' : 'doorway';
     }
+    if (index === S_pool || index === S_water
+        || index === S_lava || index === S_lavawall || index === S_ice)
+        return waterbody_name(x, y, state);
     return CMAP_EXPLANATIONS[index];
 }
 
@@ -539,6 +574,21 @@ export function do_screen_description(cc, looked, sym, state = game) {
     }
 
     const glyph = glyph_at(cc.x, cc.y, state);
+    // C ref: pager.c:1420-1443. These glyphs are not cmap glyphs.
+    if (glyph === GLYPH_NOTHING_OFF) {
+        return {
+            found: 1,
+            out: '         the dark part of a room',
+            firstmatch: 'dark part of a room',
+        };
+    }
+    if (glyph === GLYPH_UNEXPLORED_OFF) {
+        return {
+            found: 1,
+            out: '         unexplored',
+            firstmatch: 'unexplored',
+        };
+    }
     if (!glyph_is_cmap(glyph))
         throw new UnsupportedWhatisError('a non-terrain map glyph');
     const glyphinfo = map_glyphinfo(glyph, state);
