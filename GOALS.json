@@ -7255,6 +7255,45 @@
         "screens": 2,
         "rng": 18
       }
+    },
+    {
+      "id": "simple-monster-action-requires-a-special-monster-action",
+      "status": "open",
+      "boundary": "For the witnessed sleeping, non-tame leprechaun that is outside the hero's line of sight, let movemon_singlemon() call dochug() and take C's disturb() no-op instead of rejecting the species as a special monster action.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/mon.c: movemon_singlemon()",
+        "nethack-c/upstream/src/monmove.c: disturb()",
+        "dochug()"
+      ],
+      "forecast": {
+        "steps": 2,
+        "basis": "Capped look-ahead at simple monster action requires a special monster action",
+        "sessions": [
+          "seed2600-wizard-custom-binds"
+        ],
+        "witnesses": [
+          {
+            "session": "seed2600-wizard-custom-binds",
+            "evidence": "Seed 2600, datetime 2000-01-10 09:00, debug neutral male human Wizard named Binder, with showexp/time/color/lit_corridor, DECgraphics, custom pool/fountain symbols, and BIND=v:inventory. At recorded step 36, after the level transition to Sokoban Dlvl:5, C movemon_singlemon() reaches a live non-tame leprechaun at (45,18) while the hero is at (51,14): mcanmove is true, movement is due, the leprechaun is still asleep, couldsee() is false, and dist2 is 52; the hero has neither Stealth nor Aggravate_monster. C monmove.c dochug() therefore enters its msleeping && !disturb() early return before m_respond(), leppie_avoidance(), m_move(), or any leprechaun special action, with no wake RNG. JS assertSimpleActionState() rejects the species before that source no-op. The two shriekers on the level have movement below NORMAL_SPEED and are not the rejecting scan target; the tame kitten is an admitted starting pet."
+          }
+        ]
+      },
+      "detail": "Small coherent single-session slice, capped forecast 2. Replace the species-only refusal for this witnessed sleeping, out-of-sight leprechaun with C's movemon_singlemon() -> dochug() -> disturb() early return, preserving the monster scan, movement debit/order, no-op state, and the following input boundary. The source witness does not justify porting m_respond(), leppie_avoidance(), leppie_stash(), Tengu teleportation, killer-bee jelly, gelatinous-cube digestion, or other special species; keep those outside the slice. The next colon input is only the recorded two-step look-ahead.",
+      "slices": [
+        {
+          "name": "sleeping out-of-sight leprechaun takes dochug() disturb() no-op",
+          "status": "closed",
+          "closedBy": "b6f2ceb9f3fb271464c61a6c40b8542066903291"
+        }
+      ],
+      "openedAt": "def3f84fdf1b9486bbddd23ce6cdd983f902d17e",
+      "openStanding": {
+        "sha": "711955a",
+        "screens": 3623,
+        "rng": 232119
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
