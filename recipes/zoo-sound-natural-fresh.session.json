@@ -1,0 +1,9 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 2600,
+    "datetime": "20000111090000",
+    "nethackrc": "OPTIONS=name:ZooProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\nBIND=v:inventory\n",
+    "moves": "   ny v hjlhh...\u0016?\ne\u0016?\n Bi\u001b+\u001b\\\u001b\u0018 \u001bssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+  }]
+}

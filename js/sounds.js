@@ -27,6 +27,7 @@ import {
     STRAT_WAITMASK,
     VAULT,
     WINTYPELEN,
+    ZOO,
     helpless,
     isok,
 } from './const.js';
@@ -40,7 +41,8 @@ import {
 } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { humanoid, is_silent } from './mondata.js';
+import { get_iter_mons } from './mon.js';
+import { humanoid, is_animal, is_silent } from './mondata.js';
 import { MS_LEADER, PM_ORACLE } from './monsters.js';
 import { m_at } from './monst.js';
 import { g_at } from './obj.js';
@@ -74,13 +76,13 @@ const PRE_VAULT_SPECIAL_SOUND_FLAGS = Object.freeze([
 ]);
 
 // C's dosounds() checks special-room flags in this order after the vault:
-// beehive, morgue, barracks, zoo, shop, temple. The shop branch is ported;
-// the rest are rejected before their gate draws.
+// beehive, morgue, barracks, zoo, shop, temple. The shop and zoo branches are
+// ported; the remaining special-room branches are rejected before their gate
+// draws.
 const PRE_SHOP_SPECIAL_SOUND_FLAGS = Object.freeze([
     'has_beehive',
     'has_morgue',
     'has_barracks',
-    'has_zoo',
 ]);
 
 const POST_SHOP_SPECIAL_SOUND_FLAGS = Object.freeze([
@@ -177,6 +179,33 @@ function vaultContainsGold(room, state) {
         }
     }
     return false;
+}
+
+// C ref: sounds.c:20-26 mon_in_room(). A monster is in a room only when its
+// map location carries a real room number whose room type matches the query;
+// room edges and corridors therefore do not count.
+function mon_in_room(monster, roomType, state) {
+    const roomno = state.level?.at(monster.mx, monster.my)?.roomno ?? 0;
+    return roomno >= ROOMOFFSET
+        && state.level?.rooms?.[roomno - ROOMOFFSET]?.rtype === roomType;
+}
+
+// C ref: sounds.c:115-129 zoo_mon_sound(). The callback's selection draw is
+// made only after get_iter_mons() finds the first live qualifying monster.
+async function zoo_mon_sound(_monster, state, hallu, { random, pline }) {
+    const selection = random(2) + hallu;
+    const zooMessages = [
+        'a sound reminiscent of an elephant stepping on a peanut.',
+        'a sound reminiscent of a seal barking.',
+        'Doctor Dolittle!',
+    ];
+    await hear(zooMessages[selection], state, pline);
+    return true;
+}
+
+function zoo_mon_sound_qualifies(monster, state) {
+    return (monster.msleeping || is_animal(monster.data))
+        && mon_in_room(monster, ZOO, state);
 }
 
 // A sounds.c dosounds() branch this port cannot run yet. dosounds() runs once
@@ -310,6 +339,18 @@ export async function dosoundsInitialLevel(
         return;
     }
     rejectUnportedSpecialSound(state, PRE_SHOP_SPECIAL_SOUND_FLAGS);
+    // C ref: sounds.c:309-312. If the gate fires but no live monster meets
+    // zoo_mon_sound()'s predicate, dosounds() continues to the shop branch.
+    if (flags.has_zoo && random(200) === 0) {
+        const monster = get_iter_mons(
+            (candidate) => zoo_mon_sound_qualifies(candidate, state),
+            state,
+        );
+        if (monster) {
+            await zoo_mon_sound(monster, state, hallu, { random, pline });
+            return;
+        }
+    }
     if (flags.has_shop && random(200) === 0) {
         const sroom = searchSpecial(ANY_SHOP, state);
         if (!sroom) {

@@ -8,9 +8,11 @@ import {
     ROOMOFFSET,
     SHOPBASE,
     VAULT,
+    ZOO,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { COIN_CLASS } from '../js/objects.js';
+import { M1_ANIMAL } from '../js/monsters.js';
 import { parseNethackrc } from '../js/options.js';
 import {
     dosoundsInitialLevel,
@@ -205,6 +207,83 @@ test('dosounds applies hallucination only when it is not resisted', async () => 
         'You hear the splashing of a naiad.',
     ]);
 });
+
+function zooState({ sleeping = false, animal = false, dead = false,
+    inZoo = true } = {}) {
+    const state = soundState();
+    state.level.rooms = [{
+        lx: 3,
+        hx: 7,
+        ly: 3,
+        hy: 7,
+        roomnoidx: 0,
+        rtype: ZOO,
+    }];
+    state.level.nroom = 1;
+    state.level.flags.has_zoo = true;
+    const monster = {
+        mx: 5,
+        my: 5,
+        mhp: dead ? 0 : 10,
+        msleeping: sleeping,
+        data: { mflags1: animal ? M1_ANIMAL : 0 },
+        nmon: null,
+    };
+    state.level.monlist = monster;
+    if (inZoo) state.level.locations[5][5].roomno = ROOMOFFSET;
+    return state;
+}
+
+test('dosounds emits the source zoo messages for sleeping or animal monsters',
+    async () => {
+        let result = await runSounds(zooState({ sleeping: true }), [0, 0]);
+        result.script.assertBounds([200, 2]);
+        assert.deepEqual(result.messages, [
+            'You hear a sound reminiscent of an elephant stepping on a peanut.',
+        ]);
+
+        result = await runSounds(zooState({ animal: true }), [0, 1]);
+        result.script.assertBounds([200, 2]);
+        assert.deepEqual(result.messages, [
+            'You hear a sound reminiscent of a seal barking.',
+        ]);
+
+        const hallucinating = zooState({ sleeping: true });
+        hallucinating.u.uprops[HALLUC].intrinsic = 1;
+        result = await runSounds(hallucinating, [0, 1]);
+        result.script.assertBounds([200, 2]);
+        assert.deepEqual(result.messages, ['You hear Doctor Dolittle!']);
+    });
+
+test('dosounds skips dead, out-of-room, and nonqualifying zoo monsters',
+    async () => {
+        for (const state of [
+            zooState(),
+            zooState({ dead: true, sleeping: true }),
+            zooState({ inZoo: false, sleeping: true }),
+        ]) {
+            const result = await runSounds(state, [0]);
+            result.script.assertBounds([200]);
+            assert.deepEqual(result.messages, []);
+        }
+    });
+
+test('dosounds continues to the shop gate when zoo has no qualifying monster',
+    async () => {
+        const state = shopState({ tended: false });
+        state.level.flags.has_zoo = true;
+        state.level.monlist = {
+            mx: 5,
+            my: 5,
+            mhp: 10,
+            msleeping: false,
+            data: { mflags1: 0 },
+            nmon: null,
+        };
+        const result = await runSounds(state, [0, 0]);
+        result.script.assertBounds([200, 200]);
+        assert.deepEqual(result.messages, []);
+    });
 
 function vaultState({ gold = false, subroom = false } = {}) {
     const state = soundState();
