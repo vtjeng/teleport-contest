@@ -2106,7 +2106,7 @@ function createSpecialLevelApi(state) {
             }
             walkfrom(x, y, ftyp, state);
             if (spec.stocked !== 0) {
-                fill_empty_maze(frame, state);
+                fill_empty_maze(frame, state, env);
             }
         },
 
@@ -3015,7 +3015,7 @@ function maze1xy(humidity, frame, state) {
 // C ref: sp_lev.c fill_empty_maze(). Fills unused maze area with random
 // objects, boulders, minotaurs, monsters, gold, and traps proportional
 // to how much of the maze the special-level map did not cover.
-function fill_empty_maze(frame, state) {
+function fill_empty_maze(frame, state, env) {
     let mapcountmax, mapcount;
     mapcountmax = mapcount =
         (frame.xMazeMax - 2) * (frame.yMazeMax - 2);
@@ -3030,7 +3030,6 @@ function fill_empty_maze(frame, state) {
 
     if (mapcount > Math.trunc(mapcountmax / 10)) {
         const mapfact = Math.trunc((mapcount * 100) / mapcountmax);
-        const env = { state };
         // Objects: gems or random class
         for (let i = rnd(Math.trunc((20 * mapfact) / 100)); i > 0; i--) {
             const mm = maze1xy(DRY, frame, state);
