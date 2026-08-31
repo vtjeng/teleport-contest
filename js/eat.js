@@ -191,6 +191,7 @@ import {
     S_VORTEX,
 } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
+import { make_blinded } from './potion.js';
 import {
     carried,
     costly_alteration,
@@ -1638,9 +1639,11 @@ async function fpostfx(otmp, state, env) {
             throw new UnsupportedEatError('you_unwere()');
         break;
     case CARROT:
-        // make_blinded(u.ucreamed, TRUE) clears cream from the hero's face and
-        // repairs vision; neither make_blinded() nor u.ucreamed is ported.
-        throw new UnsupportedEatError('make_blinded() for a carrot');
+        // C ref: eat.c:2518-2520. Clears cream from the hero's face. The
+        // swallow/engulf guard is unreachable: uswallow stops the eat command.
+        if (!state.u.uswallow)
+            await make_blinded(state.u.ucreamed ?? 0, true, state);
+        break;
     case FORTUNE_COOKIE:
         // outrumor() reads dat/rumors and sets the literate conduct.
         throw new UnsupportedEatError('outrumor()');

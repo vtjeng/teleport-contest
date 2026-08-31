@@ -342,7 +342,14 @@ export async function make_blinded(xtime, talk, state = game) {
         && state.urace?.noun === 'human'
         && !(state.u.uprops?.[HALLUC]?.intrinsic
             || state.u.uprops?.[HALLUC]?.extrinsic);
-    if (!startsCreamBlindness && !restoresWipedSight) {
+    // C no-op: xtime=0 on a sighted hero with no blindness timeout.
+    // Carrot eating calls make_blinded(ucreamed, TRUE); when ucreamed=0
+    // and the hero is sighted, C probes u_could_see=true, can_see_now=true
+    // and returns immediately.
+    const sightedNoop = xtime === 0
+        && old === 0
+        && !heroIsBlind(state);
+    if (!startsCreamBlindness && !restoresWipedSight && !sightedNoop) {
         throw new UnsupportedPotionError(
             'make_blinded() outside the ordinary cream-pie transitions',
         );
