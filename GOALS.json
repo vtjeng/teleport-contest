@@ -6773,7 +6773,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-4",
-      "status": "open",
+      "status": "closed",
       "boundary": "When #loot finds one locked untrapped floor container and default apply-key autounlock selects a mundane lock pick, prompt for that container, accept yes, establish the Rogue picking occupation with source chance, preserve failed attempts, then unlock/identify the box, exercise Dexterity, reset context, and end with source turn/RNG order.",
       "upstreamOwners": [
         "nethack-c/upstream/src/cmd.c: loot binding/occupation",
@@ -6815,8 +6815,11 @@
         "screens": 3472,
         "rng": 225501
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "72eb68ec6115e869efc25b87136381fdf0b21c37",
+      "delivered": {
+        "screens": 6,
+        "rng": 88
+      }
     }
   ]
 }
