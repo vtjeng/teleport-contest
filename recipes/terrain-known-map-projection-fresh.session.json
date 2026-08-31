@@ -1,0 +1,17 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 97,
+      "datetime": "20001017090000",
+      "nethackrc": "OPTIONS=name:MapViewer,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": "   Sy"
+    },
+    {
+      "seed": 123457,
+      "datetime": "20001118120000",
+      "nethackrc": "OPTIONS=name:MapViewer,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u007f "
+    }
+  ]
+}

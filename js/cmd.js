@@ -40,6 +40,7 @@ import {
     STRANGLED,
     TELEP_TRAP,
     TELEPORT,
+    TER_MAP,
     Upolyd,
     isok,
     quitchars,
@@ -54,7 +55,11 @@ import {
     UnsupportedApplyError,
 } from './apply.js';
 import { UnsupportedArtifactDisplayError } from './artifacts.js';
-import { dosearch, UnsupportedSearchError } from './detect.js';
+import {
+    dosearch,
+    reveal_terrain,
+    UnsupportedSearchError,
+} from './detect.js';
 import {
     bot,
     flush_screen,
@@ -149,6 +154,7 @@ import {
     tty_yn_function,
 } from './getline.js';
 import { game } from './gstate.js';
+import { recalc_mapseen } from './dungeon.js';
 import { mungspaces, strstri, strsubst, visctrl } from './hacklib.js';
 import {
     ddoinv,
@@ -1399,6 +1405,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
+    'terrain',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -2112,6 +2119,67 @@ async function runSearchCommand(key, state) {
     return failClosedCommand(key, state, () => dosearch(state));
 }
 
+// C ref: cmd.c doterrain() (1098-1170). The menu is source-shaped for every
+// normal/explore/wizard entry, but only the normal preselected TER_MAP choice
+// is owned by this slice. reveal_terrain() stops after its projection and
+// message, before browse_map()/getpos(); the wrapper keeps that later branch
+// and every other menu choice fail-closed.
+async function runTerrainCommand(key, state) {
+    return failClosedCommand(key, state, () => doterrain(state));
+}
+
+export async function doterrain(state = game) {
+    recalc_mapseen(state);
+    const items = [
+        {
+            value: 1,
+            selected: true,
+            label: 'known map without monsters, objects, and traps',
+        },
+        {
+            value: 2,
+            label: 'known map without monsters and objects',
+        },
+        {
+            value: 3,
+            label: 'known map without monsters',
+        },
+    ];
+    if (state.discover || state.wizard) {
+        items.push({
+            value: 4,
+            label: 'full map without monsters, objects, and traps',
+        });
+        if (state.wizard) {
+            items.push({
+                value: 5,
+                label: 'internal levl[][].typ codes in base-36',
+            });
+            items.push({
+                value: 6,
+                label: 'legend of base-36 levl[][].typ codes',
+            });
+        }
+    }
+
+    const which = await select_menu(state, {
+        items,
+        how: PICK_ONE,
+        title: 'View which?',
+        preselected: 1,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+    if (which === null) return ECMD_OK;
+    if (which !== 1) {
+        throw new UnsupportedSearchError(
+            `terrain menu choice ${which} is not ported`,
+        );
+    }
+    await reveal_terrain(TER_MAP, state);
+    return ECMD_OK;
+}
+
 // C ref: eat.c doeat(). Like dosearch() and doride() it returns its own ECMD_*
 // result, because doeat() distinguishes a refusal that spends no turn from the
 // meal that spends one.
@@ -2690,6 +2758,8 @@ async function doextcmd(key, state) {
         return await runKnownCommand(key, state) ? ECMD_TIME : ECMD_OK;
     case 'dosearch':
         return await runSearchCommand(key, state);
+    case 'doterrain':
+        return await runTerrainCommand(key, state);
     case 'doeat':
         return await runEatCommand(key, state);
     case 'doengrave':
@@ -3048,6 +3118,17 @@ export async function rhack(key, state = game) {
             // (ECMD_TIME|ECMD_CANCEL) as a real result, and dropping the test
             // would make this arm disagree with C for it.
             const res = await runSearchCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'terrain') {
+            // C ref: cmd.c rhack()'s result handling at 3810-3818. doterrain()
+            // is a no-time command; its TER_MAP implementation ends at the
+            // browse_map()/getpos() boundary with a fail-closed refusal.
+            const res = await runTerrainCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

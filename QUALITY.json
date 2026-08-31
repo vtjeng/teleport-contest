@@ -5656,6 +5656,16 @@
       "status": "open",
       "from": "28556250221b510a249eb8a1f2d0f7b2e72c03f7",
       "detail": "Fresh independent prefix for witness seed 361 (20000110090000, Archeologist Magellan, debug DECgraphics, !autopickup) reaches Quest Home 1 and the false Invocation_lev return on the final controlled-teleport step. Seed 367 reaches the same false branch and matches completely through its post-teleport result. Seed 361 then diverges at the next boundary: C has 4365 RNG calls versus JS 4246, first missing rn2(5)=4 in distfleeck(monmove.c:538); the final screen differs at row 1 column 41 (C '-' versus JS space) and the cursor is C [48,0,1] versus JS [26,10,1]. This is the next post-teleport turn and screen/cursor boundary, outside this invocation_message false-branch slice."
+    },
+    {
+      "id": "terrain-known-map-browse-integration",
+      "area": "commands",
+      "category": "scope",
+      "effort": "slice",
+      "status": "open",
+      "from": "d96761da620f19250669af6e6c025dadcd031bc7",
+      "detail": "The fresh restored-level differential reaches the TER_MAP projection and then stops at the C reveal_terrain browse_map/getpos integration. Close by porting browse_map(), its first-use getpos tip and cursor/autodescribe behavior, and the following map_redisplay frame, with a fresh differential.",
+      "blockedOn": "browse_map"
     }
   ],
   "areas": [
