@@ -1826,13 +1826,17 @@ function eatOperations(state, statusRefresh, message = ttyPline) {
         // No other hook is reachable: a food carries no light, no shop bill
         // and no worn mask, so freeinv(), addinv_nomerge() and splitobj() take
         // their hookless path, and a hook this meal did need would stop the
-        // command rather than be skipped.
+        // command rather than be skipped.  costlyAlteration covers
+        // touchfood()'s COST_BITE: C returns early from costly_alteration()
+        // when the object is not in a shop (the common case for a floor
+        // corpse), so a no-op is correct for non-shop items.
         hooks: {
             eatenStat: eaten_stat,
             extractExternalObject: remove_object,
             stopObjectTimers: (obj, hookEnv) => {
                 obj_stop_timers(obj, hookEnv.state, hookEnv);
             },
+            costlyAlteration: () => {},
         },
         message,
         endRunning,
@@ -1851,14 +1855,18 @@ function eatOperations(state, statusRefresh, message = ttyPline) {
 export async function eatfood(state = game, env = {}) {
     const meal = victual(state);
     const eatEnv = eatOperations(state, env.statusRefresh, env.message);
-    const food = meal.piece;
+    let food = meal.piece;
 
     // C ref: `if (food && !carried(food) && !obj_here(food, u.ux, u.uy))
-    // food = 0;`. floorfood() refuses a floor object, so a meal always starts
-    // on a carried food, and no ported path takes one out of inventory while
-    // the meal runs. obj_here() therefore has no reachable input.
+    // food = 0;`. A floor corpse stays on the floor during a multi-turn
+    // meal; obj_here checks that it is still at the hero's feet.
     if (food && !carried(food)) {
-        throw new UnsupportedEatError("eatfood()'s food outside inventory");
+        let here = false;
+        for (let o = state.level.objects[state.u.ux]?.[state.u.uy];
+            o; o = o.nexthere) {
+            if (o === food) { here = true; break; }
+        }
+        if (!here) food = null;
     }
     if (!food) {
         /* maybe it was stolen? */
@@ -2074,8 +2082,8 @@ export async function floorfood(verb, corpsecheck, state = game) {
                 const c = await yn_function(
                     qbuf, 'ynq', 'n', true, state,
                 );
-                if (c === 'y') return otmp;
-                if (c === 'q') return null;
+                if (c === 'y'.charCodeAt(0)) return otmp;
+                if (c === 'q'.charCodeAt(0)) return null;
                 ++getobj_else;
             }
         }
