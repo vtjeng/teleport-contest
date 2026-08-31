@@ -6553,8 +6553,8 @@
       "slices": [
         {
           "name": "breakchestlock-force-destroy-ordinary-chest",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "b5ecfaf71227ef95bea6dbdefcb20d23fb52490c"
         }
       ],
       "openedAt": "5ec464aafa6d71f1e59b3a6c3039328aa755619f",
