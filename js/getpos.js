@@ -153,7 +153,10 @@ export async function getpos(ccp, force, goal, state = game) {
             // quitchars (" \r\n") exit when force is false; all other
             // unrecognized keys print an error. In both cases force=true
             // falls through to `goto nxtc`, ignoring the key.
-            if (force) continue;
+            if (force) {
+                await auto_describe(cx, cy, state);
+                continue;
+            }
             if (key === 0x20 || key === 0x0D || key === 0x0A) {
                 ccp.x = -1;
                 ccp.y = 0;
