@@ -6953,6 +6953,44 @@
         "screens": 1,
         "rng": 3
       }
+    },
+    {
+      "id": "simple-monster-action-requires-knocking-the-hero-back",
+      "status": "open",
+      "boundary": "For the witnessed unarmed large ape claw against an alive unmounted unpolymorphed human hero, preserve knockback RNG and evaluate destination/size eligibility, return false at size, emit no knockback message, do not move/stun, and continue attacks. No contributing session witnesses actual knockback.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/mon.c: movemon()",
+        "nethack-c/upstream/src/monmove.c: dochug()",
+        "nethack-c/upstream/src/mhitu.c: mattacku()",
+        "hitmu()",
+        "nethack-c/upstream/src/uhitm.c: mhitm_ad_phys()",
+        "mhitm_knockback()",
+        "nethack-c/upstream/src/hack.c: test_move()",
+        "nethack-c/upstream/include/monsters.h: ape size/attacks"
+      ],
+      "forecast": {
+        "steps": 2,
+        "basis": "Capped look-ahead at simple monster action requires knocking the hero back",
+        "sessions": [
+          "seed0383-wizard-hallucinate"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383-wizard-hallucinate",
+            "evidence": "This is not a C witness for actual displacement. Seed 383, 2000-01-10 09:00, debug human male neutral Wizard, DECgraphics, !autopickup. A level-20 human hero is adjacent to an unarmed ape. On the second physical claw mhitm_knockback() passes RNG gates, computes destination and hero-defender guards, but rejects because MZ_LARGE ape is not more than one category larger than MZ_HUMAN hero. C emits no knockback message, movement or stun and continues to the bite; JS throws at an early u_def refusal before this false return."
+          }
+        ]
+      },
+      "detail": "Exact C trace disproves the named displacement property; session contributes zero to actual knockback. Corrected non-displacing eligibility goal is small: reach test_move/alive/size guards and ordinary false return. Exclude steadfastness, messages, hurtle, collision damage and stun.",
+      "slices": [],
+      "openedAt": "4db5d4f0e76a0ee67baaf20cafe2b2a1f6bd9c76",
+      "openStanding": {
+        "sha": "250684f",
+        "screens": 3484,
+        "rng": 225669
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
