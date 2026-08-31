@@ -6354,8 +6354,8 @@
       "slices": [
         {
           "name": "manual-floor-pickup-query-objlist-full-menu",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "8e43388e40745be4e272be1074bf3a1a8534c63f"
         }
       ],
       "openedAt": "7ad4af013af3e69dc47cd56eb7b0b796785f211f",
