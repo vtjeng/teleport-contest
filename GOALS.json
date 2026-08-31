@@ -6369,6 +6369,46 @@
         "screens": 87,
         "rng": 3905
       }
+    },
+    {
+      "id": "unsupported-initial-level-monster-creation-monster-177",
+      "status": "open",
+      "boundary": "On first-time Castle level generation, when a default-stocked maze’s fill_empty_maze() selects its optional minotaur, admit the explicit PM_MINOTAUR (index 177) through makemon() at maze1xy(DRY)’s untouched odd coordinate, preserving source RNG/order/state and subsequent level generation; exclude the later random-monster, gold, and trap arms.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/wizcmds.c: wiz_level_tele()",
+        "nethack-c/upstream/src/teleport.c: level_tele()",
+        "nethack-c/upstream/src/do.c: goto_level()",
+        "nethack-c/upstream/src/sp_lev.c: lspo_mazewalk()",
+        "maze1xy()",
+        "fill_empty_maze()",
+        "nethack-c/upstream/src/makemon.c: makemon()",
+        "nethack-c/upstream/dat/castle.lua: default-stocked mazewalks",
+        "js/mklev.js: fill_empty_maze() adapter",
+        "js/makemon_create.js: explicit-species preflight"
+      ],
+      "forecast": {
+        "steps": 226,
+        "basis": "Capped look-ahead at unsupported initial-level monster creation: monster 177",
+        "sessions": [
+          "seed0360-wizard-world-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0360-wizard-world-tour",
+            "evidence": "Seed 360, datetime 20000110090000, OPTIONS=name:Magellan,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics and !autopickup. At recorded step 159, j selects castle:25 in the wizard ^V level-teleport menu. C wiz_level_tele()->level_tele() selects the destination, goto_level() makes the first level, and the castle special-level script’s two default-stocked mazewalks reach sp_lev.c fill_empty_maze(). After the already-matching map/object/boulder work, the explicit minotaur arm’s rn2(2) admits one minotaur and calls maze1xy(DRY) then makemon(&mons[PM_MINOTAUR], ..., NO_MM_FLAGS); PM_MINOTAUR is 177. The JS run stops at that explicit initial-level species guard before emitting the level’s post-arrival screen. The governing preconditions are wizard mode for ^V/menu selection, first-time Castle generation, a stocked unused maze area, and the random minotaur-count branch; this is not the generic random-monster loop."
+          }
+        ]
+      },
+      "detail": "Small, tightly bounded single slice, forecast 226. Bound to the explicit PM_MINOTAUR branch of sp_lev.c:fill_empty_maze() reached by Castle’s default-stocked mazewalks, reusing the existing generic makemon initialization, map placement, inventory, and post-level flow. Do not include fill_empty_maze()’s random-monster, gold, or trap loops, mkmaze.c:populate_maze(), special-level class descriptors, or other explicit species; this witness has one optional minotaur and the next recorded unmet behavior is travel at step 385. The scope is small enough for the ranking and matches one behavior slice.",
+      "slices": [],
+      "openedAt": "82ac7bd39427361d853a01055a6976bc361dbd5e",
+      "openStanding": {
+        "sha": "b2c808662fce3dbac35ffaa4aaa949200a8158ca",
+        "screens": 3274,
+        "rng": 218120
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
