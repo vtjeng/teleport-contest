@@ -6519,7 +6519,7 @@
     },
     {
       "id": "an-occupation-reached-picking-a-lock-requires-breakchestlock",
-      "status": "open",
+      "status": "closed",
       "boundary": "When a blunt weapon successfully forces and destroys an ordinary locked chest outside a shop, breakchestlock(true) announces destruction, applies per-content rn2(3) to quantity-one PAPER contents, shreds/frees the selected item, places/stacks the survivor at the hero's feet, deletes the chest, and clears occupation and lock context.",
       "upstreamOwners": [
         "nethack-c/upstream/src/cmd.c: force binding and set_occupation()",
@@ -6563,8 +6563,11 @@
         "screens": 3282,
         "rng": 221780
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "2f9e02929bdd38475843b957a78eb5dc9d01116e",
+      "delivered": {
+        "screens": 106,
+        "rng": 3092
+      }
     }
   ]
 }
