@@ -6956,7 +6956,7 @@
     },
     {
       "id": "simple-monster-action-requires-knocking-the-hero-back",
-      "status": "open",
+      "status": "closed",
       "boundary": "For the witnessed unarmed large ape claw against an alive unmounted unpolymorphed human hero, preserve knockback RNG and evaluate destination/size eligibility, return false at size, emit no knockback message, do not move/stun, and continue attacks. No contributing session witnesses actual knockback.",
       "upstreamOwners": [
         "nethack-c/upstream/src/mon.c: movemon()",
@@ -6995,8 +6995,11 @@
         "screens": 3484,
         "rng": 225669
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "e3ad981b48f254ee1c3df49840b3bffd68946d05",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
