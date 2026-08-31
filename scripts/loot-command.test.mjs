@@ -3,14 +3,16 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
-    BAG_OF_HOLDING, CHEST, ICE_BOX, LARGE_BOX, LEASH, TOOL_CLASS,
+    BAG_OF_HOLDING, CHEST, GOLD_PIECE, ICE_BOX, LARGE_BOX, LEASH,
+    SCR_IDENTIFY, TOOL_CLASS,
 } from '../js/objects.js';
-import { ECMD_TIME, SELL_NORMAL } from '../js/const.js';
+import { ECMD_TIME, OBJ_INVENT, SELL_NORMAL } from '../js/const.js';
+import { add_to_container } from '../js/invent.js';
 import {
     container_at,
     doloot,
 } from '../js/pickup.js';
-import { isContainer } from '../js/obj.js';
+import { isContainer, mksobj } from '../js/obj.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
@@ -353,6 +355,55 @@ test("'o' on an empty container prints empty message and sets cknown",
         const toplines = state.nhDisplay?.toplines ?? '';
         assert.ok(toplines.includes('is empty'),
             `expected "is empty" in top line but got "${toplines}"`);
+    });
+
+test("'o' full-menu takes selected floor-box contents out",
+    async () => {
+        const state = await heroOnCleanSquare();
+        const { ux, uy } = state.u;
+        const box = placeFloorObjects(state, [
+            { otyp: LARGE_BOX, olocked: 0 },
+        ]);
+        const gold = mksobj(GOLD_PIECE, false, false, { state });
+        gold.quan = 118;
+        const scroll = mksobj(SCR_IDENTIFY, false, false, { state });
+        add_to_container(box, gold, {
+            state,
+            hooks: { objectNoLongerHeld() {} },
+        });
+        add_to_container(box, scroll, {
+            state,
+            hooks: { objectNoLongerHeld() {} },
+        });
+
+        clearTtyMessageWindow(state);
+        // Full-menu 'o': select all relevant categories with '@', accept the
+        // category menu, select every displayed item with '@', and accept.
+        state.nhDisplay.pushKey('o'.charCodeAt(0));
+        state.nhDisplay.pushKey('@'.charCodeAt(0));
+        state.nhDisplay.pushKey('\r'.charCodeAt(0));
+        state.nhDisplay.pushKey('@'.charCodeAt(0));
+        state.nhDisplay.pushKey('\r'.charCodeAt(0));
+
+        const result = await doloot(state);
+        assert.equal(result, ECMD_TIME,
+            'taking contents out should consume a turn');
+        assert.equal(box.cobj, null,
+            'selected contents should leave the box');
+        assert.equal(box.cknown, 1,
+            'taking contents should establish known box contents');
+        assert.equal(state.gc.current_container, null,
+            'containerdone should clear the active container');
+        const inventory = [];
+        for (let obj = state.invent; obj; obj = obj.nobj) {
+            if (obj.where === OBJ_INVENT) inventory.push(obj);
+        }
+        assert.equal(inventory.find((obj) => obj.otyp === GOLD_PIECE)?.quan,
+            118, 'all selected gold should enter inventory');
+        assert.ok(inventory.some((obj) => obj.otyp === SCR_IDENTIFY),
+            'all selected scrolls should enter inventory');
+        assert.equal(state.level.objects[ux][uy], box,
+            'the floor box should remain under the hero');
     });
 
 // -- in_container rejection tests --

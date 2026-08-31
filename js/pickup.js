@@ -9,11 +9,19 @@
 
 import {
     AUTOSELECT_SINGLE,
+    ALL_TYPES,
+    ALL_TYPES_SELECTED,
     AUTOUNLOCK_APPLY_KEY,
     AUTOUNLOCK_FORCE,
     AUTOUNLOCK_UNTRAP,
+    BUC_BLESSED,
+    BUC_CURSED,
+    BUC_UNCURSED,
+    BUC_UNKNOWN,
+    BUCX_TYPES,
     BLINDED,
     BY_NEXTHERE,
+    CHOOSE_ALL,
     CONFUSION,
     ECMD_OK,
     ECMD_TIME,
@@ -45,6 +53,8 @@ import {
     OBJ_MINVENT,
     PICK_ANY,
     PICK_ONE,
+    JUSTPICKED,
+    PARANOID_AUTOALL,
     PLNMSG_OBJNAM_ONLY,
     SIGNAL_NOMENU,
     SIGNAL_ESCAPE,
@@ -60,6 +70,7 @@ import {
     SORTLOOT_PACK,
     SORTLOOT_PETRIFY,
     USE_INVLET,
+    UNPAID_TYPES,
     CORR,
     W_ACCESSORY,
     W_ARMOR,
@@ -415,10 +426,13 @@ function all_but_uchain(obj, state) {
 // from the TTY PICK_ANY menu. The INCLUDE_HERO and engulfer-inventory lists
 // remain refused above because this slice owns only pickup()'s floor caller.
 //
-// C's `qstr`, `pick_list` and `how` arguments are not parameters. The prompt
-// string and the PICK_ONE/PICK_ANY mode are read only by the menu, and the
-// caller receives the selection as this function's result instead.
-export async function query_objlist(olist, qflags, allow, state = game) {
+// C's `pick_list` and `how` arguments are not parameters. The caller receives
+// the selection as this function's result instead. `title` preserves the
+// source qstr for the two full-menu callers while retaining pickup()'s
+// established default.
+export async function query_objlist(
+    olist, qflags, allow, state = game, title = 'Pick up what?',
+) {
     if (qflags & INCLUDE_HERO) {
         // 1063-1067 adds the swallowed hero as a fake extra entry.
         throw new UnsupportedPickupError(
@@ -522,6 +536,12 @@ export async function query_objlist(olist, qflags, allow, state = game) {
                         DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + objectClass],
                     );
             items.push({
+                // C passes a zero selector for ordinary rows, allowing the
+                // TTY menu to assign a,b,c... after headings; gold is the
+                // one non-inventory-letter row with its explicit '$'.
+                selector: (qflags & USE_INVLET)
+                    ? curr.invlet
+                    : (first && curr.oclass === COIN_CLASS ? '$' : undefined),
                 groupSelector,
                 // pickup() rejects live shop squares before this branch, so
                 // the source's doname_with_price() has the same text as
@@ -536,7 +556,7 @@ export async function query_objlist(olist, qflags, allow, state = game) {
     }
 
     const selected = await select_menu(state, {
-        title: 'Pick up what?',
+        title,
         ...menuTitleStyle(state),
         items,
         how: PICK_ANY,
@@ -560,6 +580,167 @@ export async function query_objlist(olist, qflags, allow, state = game) {
         pick_list.push({ obj: curr, count });
     }
     return { n: pick_list.length, pick_list };
+}
+
+// C ref: pickup.c:1510-1541. count_categories().  The menu-loot category
+// query only supplies a container list, so FOLLOW() traverses nobj here just
+// as it does in the source.
+function count_categories(olist, qflags, state = game) {
+    let count = 0;
+    for (const objectClass of state.flags?.inv_order ?? []) {
+        for (let obj = olist; obj; obj = FOLLOW(obj, qflags)) {
+            if (obj.oclass === objectClass) {
+                count++;
+                break;
+            }
+        }
+    }
+    return count;
+}
+
+// C ref: pickup.c:1225-1508. This is the PICK_ANY category menu used by
+// menu_loot() for an unlocked, untrapped container. Worn, billed, and
+// paranoid-confirmation variants are outside this out-only slice; ordinary
+// class and BUC filters are source-shaped because the next item menu reads
+// the filter state through allow_category().
+export async function query_category(
+    title, olist, qflags, state = game,
+) {
+    if (!olist) return { n: 0, pick_list: [] };
+
+    const do_unpaid = Boolean((qflags & UNPAID_TYPES)
+        && count_unpaid(olist));
+    const bucx = tally_BUCX(olist, Boolean(qflags & BY_NEXTHERE), state);
+    const do_blessed = Boolean((qflags & BUC_BLESSED) && bucx.bcnt);
+    const do_cursed = Boolean((qflags & BUC_CURSED) && bucx.ccnt);
+    const do_uncursed = Boolean((qflags & BUC_UNCURSED) && bucx.ucnt);
+    const do_buc_unknown = Boolean((qflags & BUC_UNKNOWN) && bucx.xcnt);
+    const num_buc_types = [
+        do_blessed, do_cursed, do_uncursed, do_buc_unknown,
+    ].filter(Boolean).length;
+    const num_justpicked = (qflags & JUSTPICKED) ? bucx.jcnt : 0;
+    const categoryCount = count_categories(olist, qflags, state);
+
+    // C's single-category early return is observable when a caller requests
+    // one class and at most one BUC category; no menu is drawn in that case.
+    if (categoryCount === 1 && !do_unpaid && num_buc_types <= 1) {
+        for (let obj = olist; obj; obj = FOLLOW(obj, qflags))
+            return { n: 1, pick_list: [{ value: obj.oclass, count: -1 }] };
+        return { n: 0, pick_list: [] };
+    }
+
+    const items = [];
+    if (qflags & CHOOSE_ALL) {
+        items.push({
+            selector: 'A',
+            value: 'A',
+            label: 'Auto-select every relevant item',
+            skipinvert: true,
+        });
+        if (!(state.flags?.paranoia_bits & PARANOID_AUTOALL)) {
+            items.push({
+                text: '    (ignored unless some other choices are also picked)',
+            });
+        }
+        items.push({ text: '' });
+    }
+
+    const showAll = Boolean((qflags & ALL_TYPES) && categoryCount > 1);
+    let selectorCode = 'a'.charCodeAt(0);
+    if (showAll) {
+        items.push({
+            selector: 'a',
+            value: ALL_TYPES_SELECTED,
+            label: 'All types',
+            skipinvert: true,
+        });
+        selectorCode++;
+    }
+
+    const invOrder = [...(state.flags?.inv_order ?? [])];
+    if (qflags & INCLUDE_VENOM) invOrder.push(VENOM_CLASS);
+    for (const objectClass of invOrder) {
+        let hasClass = false;
+        for (let obj = olist; obj; obj = FOLLOW(obj, qflags)) {
+            if (obj.oclass !== objectClass) continue;
+            hasClass = true;
+            break;
+        }
+        if (!hasClass) continue;
+        const selector = String.fromCharCode(selectorCode++);
+        items.push({
+            selector,
+            value: objectClass,
+            groupSelector: String.fromCharCode(
+                DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + objectClass],
+            ),
+            label: let_to_name(
+                objectClass,
+                false,
+                Boolean(state.iflags?.menu_head_objsym),
+            ),
+        });
+    }
+
+    if (do_unpaid || do_blessed || do_cursed || do_uncursed
+        || do_buc_unknown || num_justpicked) {
+        items.push({ text: '' });
+    }
+    if (do_unpaid) {
+        items.push({ selector: 'u', value: 'u',
+            label: 'Unpaid items', skipinvert: true });
+    }
+    if (do_blessed) {
+        items.push({ selector: 'B', value: 'B',
+            label: 'Items known to be Blessed', skipinvert: true });
+    }
+    if (do_cursed) {
+        items.push({ selector: 'C', value: 'C',
+            label: 'Items known to be Cursed', skipinvert: true });
+    }
+    if (do_uncursed) {
+        items.push({ selector: 'U', value: 'U',
+            label: 'Items known to be Uncursed', skipinvert: true });
+    }
+    if (do_buc_unknown) {
+        items.push({ selector: 'X', value: 'X',
+            label: 'Items of unknown Bless/Curse status', skipinvert: true });
+    }
+    if (num_justpicked) {
+        let label = 'Items you just picked up';
+        if (num_justpicked === 1) {
+            for (let obj = olist; obj; obj = FOLLOW(obj, qflags)) {
+                if (obj.pickup_prev) {
+                    label = `Just picked up: ${donameFresh(obj, state)}`;
+                    break;
+                }
+            }
+        }
+        items.push({ selector: 'P', value: 'P',
+            label, skipinvert: true });
+    }
+
+    const selected = await select_menu(state, {
+        title,
+        ...menuTitleStyle(state),
+        items,
+        how: PICK_ANY,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+    if (selected === null) return { n: 0, pick_list: [] };
+    if (selected.length === 1 && selected[0].value === 'A'
+        && !(state.flags?.paranoia_bits & PARANOID_AUTOALL)) {
+        await ttyPline('No relevant items selected.', state);
+        return { n: 0, pick_list: [] };
+    }
+    return {
+        n: selected.length,
+        pick_list: selected.map((choice) => ({
+            value: choice.value,
+            count: choice.count,
+        })),
+    };
 }
 
 // Everything C decides inside pickup_object(), lift_object(), pick_obj() and
@@ -1430,9 +1611,7 @@ async function use_container(obj, held, more_containers, state) {
                 if (state.flags?.menu_style === MENU_TRADITIONAL) {
                     used |= await traditional_loot(false, state);
                 } else {
-                    throw new UnsupportedPickupError(
-                        'use_container: menu_loot(0, false)',
-                    );
+                    used |= (await menu_loot(0, false, state)) > 0;
                 }
                 add_valid_menu_class(0, state);
             }
@@ -1549,9 +1728,18 @@ const overloadpfx = 'You have extreme difficulty';
 // askchain() reads them through menu_class_present() and ckvalidcat().
 // ---------------------------------------------------------------
 
+// C stores object classes as bytes in valid_menu_classes, not as decimal
+// strings.  Category rows pass numeric oclass values, while BUC rows pass
+// their literal selectors, so normalize both forms at this boundary.
+function menuClassCharacter(c) {
+    return typeof c === 'number' ? String.fromCharCode(c) : String(c);
+}
+
 // C ref: pickup.c:469-471. menu_class_present().
 function menu_class_present(c, state) {
-    return Boolean(c && state.gv?.valid_menu_classes?.includes(String(c)));
+    return Boolean(c && state.gv?.valid_menu_classes?.includes(
+        menuClassCharacter(c),
+    ));
 }
 
 // C ref: pickup.c:475-504. add_valid_menu_class().
@@ -1568,7 +1756,7 @@ function add_valid_menu_class(c, state) {
         state.gs.shop_filter = false;
         state.gp.picked_filter = false;
     } else {
-        const ch = String(c);
+        const ch = menuClassCharacter(c);
         if (!menu_class_present(c, state)) {
             state.gv.valid_menu_classes =
                 (state.gv.valid_menu_classes ?? '') + ch;
@@ -1624,6 +1812,16 @@ function ckvalidcat(otmp, state) {
     // Picked filter (C: 588-589).
     if (state.gp?.picked_filter && !otmp.pickup_prev)
         return false;
+    return true;
+}
+
+// C ref: pickup.c:522-592. Kept as a named callback because query_objlist()
+// accepts the same source-shaped predicate as menu_loot().
+function allow_category(otmp, state) {
+    return ckvalidcat(otmp, state);
+}
+
+function allow_all() {
     return true;
 }
 
@@ -2410,6 +2608,90 @@ async function traditional_loot(put_in, state) {
             'traditional_loot: menu_loot(menu_on_request, put_in)');
     }
     return ECMD_OK;
+}
+
+// C ref: pickup.c:3265-3394. Full-menu take-out from the current floor
+// container: choose category filters, choose objects, then remove the chosen
+// stacks in menu order.  The put-in, retry, and just-picked special arms are
+// intentionally left at their existing fail-closed callers; this slice is
+// only the ordinary out-only path.
+export async function menu_loot(retry, put_in, state = game) {
+    if (put_in) {
+        throw new UnsupportedPickupError('menu_loot(0, true)');
+    }
+    if (!state.gc?.current_container) {
+        throw new Error('<menu_loot> no gc.current_container?');
+    }
+
+    state.gp ??= {};
+    state.gp.pickup_encumbrance = 0;
+    let all_categories = true;
+    let loot_everything = false;
+    let autopick = false;
+    let n_looted = 0;
+
+    if (retry) {
+        all_categories = retry === ALL_TYPES_SELECTED;
+    } else if (state.flags?.menu_style === MENU_FULL) {
+        all_categories = false;
+        const title = 'Take out what type of objects?';
+        const category = await query_category(
+            title,
+            state.gc.current_container.cobj,
+            ALL_TYPES | UNPAID_TYPES | BUCX_TYPES | CHOOSE_ALL | JUSTPICKED,
+            state,
+        );
+        if (!category.n) return 0;
+
+        for (const choice of category.pick_list) {
+            if (choice.value === 'A') {
+                loot_everything = true;
+                autopick = true;
+            } else if (choice.value === ALL_TYPES_SELECTED) {
+                all_categories = true;
+            } else {
+                add_valid_menu_class(choice.value, state);
+                loot_everything = false;
+            }
+        }
+    }
+
+    if (autopick) {
+        state.gc.current_container.cknown = 1;
+        let obj = state.gc.current_container.cobj;
+        while (obj && state.gc.current_container) {
+            const next = obj.nobj;
+            if (loot_everything || all_categories || allow_category(obj, state)) {
+                const result = await out_container(obj, state);
+                if (result < 0) break;
+                // C counts a successful removal, including each stack.
+                if (result > 0) n_looted++;
+            }
+            obj = next;
+        }
+    } else {
+        state.gc.current_container.cknown = 1;
+        const result = await query_objlist(
+            state.gc.current_container.cobj,
+            INVORDER_SORT | INCLUDE_VENOM,
+            all_categories ? allow_all : allow_category,
+            state,
+            'Take out what?',
+        );
+        if (result.n) {
+            n_looted = result.n;
+            for (const choice of result.pick_list) {
+                let obj = choice.obj;
+                const count = choice.count;
+                if (count > 0 && count < obj.quan)
+                    obj = splitobj(obj, count, { state });
+                const removed = await out_container(obj, state);
+                if (removed < 0) break;
+            }
+        }
+    }
+
+    return n_looted;
 }
 
 // C ref: pickup.c doloot_core() (2178-2346). The main body of the #loot

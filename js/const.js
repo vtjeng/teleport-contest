@@ -1990,14 +1990,13 @@ export const BC_CHAIN = 0x02;
 export const XLIM = 4;
 export const YLIM = 3;
 
-// Bless/curse/unknown categories and getobj prompt policy flags (src/invent.c)
-// Runtime fields:
-// - inventory BUC classification and filters
-// - getobj callback return categories and option flags
-export const BUC_BLESSED = 1;
-export const BUC_UNCURSED = 2;
-export const BUC_CURSED = 3;
-export const BUC_UNKNOWN = 4;
+// Bless/curse/unknown category filter flags (include/hack.h:1262-1268).
+// These are bitmasks used by query_category()/count_buc(); the resulting
+// object status is represented separately by bknown/blessed/cursed fields.
+export const BUC_BLESSED = 0x0100;
+export const BUC_CURSED = 0x0200;
+export const BUC_UNCURSED = 0x0400;
+export const BUC_UNKNOWN = 0x0800;
 // C ref: hack.h:513-539. The six values are ordered, not just distinct:
 // getobj() writes `obj_ok(otmp) <= GETOBJ_EXCLUDE` at invent.c:2011, which
 // relies on GETOBJ_EXCLUDE being the smallest of them.
