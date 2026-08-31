@@ -6455,7 +6455,13 @@
         ]
       },
       "detail": "Very small self-contained slice. Both sessions witness controlled horizontal teleport on non-hellish Quest Home 1 and then the false Invocation_lev branch. JS should use the already ported source predicate and no-op on false instead of rejecting every nonzero dnum. Exclude the true Invocation-level vibrating-square branch and its coordinate, stairs, run, uvibrated, movement-state, and Candelabrum behavior.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "invocation-message-false-invocation-level",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "485001a80dc9d09890507b2be63c6ae189fa9bcc",
       "openStanding": {
         "sha": "716c1a5a4214e66f4329f2c1795497f10ffab98e",
