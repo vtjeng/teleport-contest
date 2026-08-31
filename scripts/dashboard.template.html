@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>NetHack Port</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap">
 <style>
@@ -192,6 +193,73 @@ canvas {
   width: 100%;
 }
 
+/* --- Chart toolbar (zoom readout and reset) --- */
+.chart-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 26px;
+  margin-bottom: 10px;
+}
+
+.chart-range {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chart-hint {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+/* Below this width the hint would crowd out the range it sits beside, and a
+   half-shown instruction helps nobody. The pointer gestures still work. */
+@media (max-width: 720px) {
+  .chart-hint { display: none; }
+}
+
+.chart-reset {
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--ink-secondary);
+  background: var(--surface-chart);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.chart-reset:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.chart-reset:not(:disabled):hover {
+  border-color: var(--progress-fill);
+  color: var(--ink-primary);
+}
+
+#progressChart {
+  cursor: grab;
+  touch-action: none;
+}
+
+#progressChart.is-panning {
+  cursor: grabbing;
+}
+
+#progressChart:focus-visible {
+  outline: 2px solid var(--progress-fill);
+  outline-offset: 2px;
+}
+
 /* --- Timeline --- */
 .timeline-row {
   display: flex;
@@ -256,6 +324,65 @@ canvas {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 600;
   margin-bottom: 6px;
+}
+
+.tooltip-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ink-primary);
+}
+
+.tooltip-delta {
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-bottom: 8px;
+}
+
+.tooltip-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--ink-primary);
+  overflow-wrap: anywhere;
+}
+
+.tooltip-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-bottom: 8px;
+}
+
+.tooltip-stats {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  font-size: 11px;
+  color: var(--ink-secondary);
+  margin-bottom: 8px;
+}
+
+.tooltip-stats b {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--ink-primary);
+}
+
+/* A holdout-evaluation note runs to several hundred words. Clamping keeps the
+   readout shorter than the viewport; the note itself is in SCORE.tsv. */
+.tooltip-note {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+  border-top: 1px solid var(--border);
+  padding-top: 6px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+  overflow: hidden;
 }
 
 /* --- Table --- */
@@ -394,7 +521,13 @@ canvas {
   <h2 class="section-title">Screens matched over time</h2>
   <p class="subtitle" id="progressProvenance"></p>
   <div class="chart-wrap">
-    <canvas id="progressChart" height="200"></canvas>
+    <div class="chart-toolbar">
+      <span class="chart-range" id="progressRange"></span>
+      <span class="chart-hint">Scroll to zoom, drag to pan, arrow keys to step</span>
+      <button type="button" class="chart-reset" id="progressReset" disabled>Reset zoom</button>
+    </div>
+    <canvas id="progressChart" height="220" tabindex="0"
+      aria-label="Screens matched over time. Arrow keys step through goals and report each one."></canvas>
   </div>
 </div>
 
@@ -473,139 +606,498 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' SCORE timestamp where the commit SHA was not found.'
   : 'All plotted times come from commit timestamps.';
 
-// --- Progress chart (step plot with x-axis) ---
-function drawProgressChart() {
+// --- Progress chart (zoomable step plot with a hover readout) ---
+(function() {
   const canvas = document.getElementById('progressChart');
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.parentElement.getBoundingClientRect();
-  const W = rect.width;
-  const H = 200;
-  canvas.width = W * dpr;
-  canvas.height = H * dpr;
-  canvas.style.width = W + 'px';
-  canvas.style.height = H + 'px';
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  const pad = { t: 10, r: 70, b: 36, l: 50 };
+  const rangeLabel = document.getElementById('progressRange');
+  const resetButton = document.getElementById('progressReset');
+  const tooltip = document.getElementById('tooltip');
 
-  const pts = DATA.progress.filter(p => p.screens != null && p.utc);
-  if (!pts.length) return;
+  const points = DATA.progress
+    .filter(p => p.screens != null && p.utc)
+    .map(p => ({ ...p, time: new Date(p.utc).getTime() }));
+  if (!points.length) return;
 
-  const maxScreens = pts[pts.length - 1].screensTotal;
-  const times = pts.map(p => new Date(p.utc).getTime());
-  const minT = times[0];
-  const maxT = times[times.length - 1];
-  const rangeT = maxT - minT || 1;
+  const H = 220;
+  const pad = { t: 12, r: 74, b: 36, l: 56 };
+  const DAY_MS = 86400000;
+  // Goals close minutes apart, so a window narrower than this shows no more detail.
+  const MIN_SPAN_MS = 20 * 60000;
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-  const xScale = (t) => pad.l + ((t - minT) / rangeT) * (W - pad.l - pad.r);
-  const yScale = (v) => pad.t + (1 - v / maxScreens) * (H - pad.t - pad.b);
+  const domain = points.length > 1
+    ? { t0: points[0].time, t1: points[points.length - 1].time }
+    : { t0: points[0].time - DAY_MS, t1: points[0].time + DAY_MS };
+  const domainSpan = domain.t1 - domain.t0 || 1;
+  const screensTotal = points[points.length - 1].screensTotal
+    || Math.max(...points.map(p => p.screens));
 
-  const style = getComputedStyle(document.documentElement);
-  const gridColor = style.getPropertyValue('--gridline').trim();
-  const baselineColor = style.getPropertyValue('--baseline').trim();
-  const inkMuted = style.getPropertyValue('--ink-muted').trim();
-  const fillColor = style.getPropertyValue('--progress-fill').trim();
-  const areaColor = style.getPropertyValue('--progress-area').trim();
+  let view = { t0: domain.t0, t1: domain.t1 };
+  let hover = null;  // index into points, or null when nothing is selected
+  let plot = null;   // scales and window from the last draw, for hit testing
+  let panning = null;
 
-  // Y grid
-  ctx.strokeStyle = gridColor;
-  ctx.lineWidth = 1;
-  const yTicks = [0, 2000, 4000, 6000, maxScreens];
-  for (const v of yTicks) {
-    const y = Math.round(yScale(v)) + 0.5;
-    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
-    ctx.fillStyle = inkMuted;
-    ctx.font = '10px "JetBrains Mono", monospace';
-    ctx.textAlign = 'right';
-    ctx.fillText(v.toLocaleString(), pad.l - 6, y + 4);
+  // --- View window ---
+
+  function isFullRange() {
+    return view.t0 === domain.t0 && view.t1 === domain.t1;
   }
 
-  // Baseline
-  ctx.strokeStyle = baselineColor;
-  ctx.beginPath(); ctx.moveTo(pad.l, yScale(0)); ctx.lineTo(W - pad.r, yScale(0)); ctx.stroke();
+  // Holds the window inside the recorded time span and no narrower than MIN_SPAN_MS.
+  function setView(t0, t1) {
+    const span = Math.min(
+      Math.max(t1 - t0, Math.min(MIN_SPAN_MS, domainSpan)),
+      domainSpan,
+    );
+    const start = Math.min(Math.max(t0, domain.t0), domain.t1 - span);
+    view = { t0: start, t1: start + span };
+  }
 
-  // X-axis ticks
-  const dayMs = 86400000;
-  const firstDay = new Date(minT);
-  firstDay.setUTCHours(0, 0, 0, 0);
-  const xTickStart = firstDay.getTime();
-  ctx.fillStyle = inkMuted;
-  ctx.font = '10px "JetBrains Mono", monospace';
-  ctx.textAlign = 'center';
-  const rangeDays = (maxT - minT) / dayMs;
-  const xTickStep = rangeDays > 20 ? 7 : rangeDays > 10 ? 3 : 1;
-  for (let t = xTickStart; t <= maxT + dayMs; t += dayMs * xTickStep) {
-    if (t < minT) continue;
-    const x = xScale(t);
-    if (x < pad.l || x > W - pad.r) continue;
+  // Scales the window by factor while the time under anchorTime stays put.
+  function zoomAt(anchorTime, factor) {
+    const span = view.t1 - view.t0;
+    const nextSpan = span * factor;
+    const fraction = span ? (anchorTime - view.t0) / span : 0.5;
+    const start = anchorTime - fraction * nextSpan;
+    setView(start, start + nextSpan);
+  }
+
+  function ensureVisible(index) {
+    const t = points[index].time;
+    const span = view.t1 - view.t0;
+    if (t < view.t0) setView(t - span * 0.1, t + span * 0.9);
+    else if (t > view.t1) setView(t - span * 0.9, t + span * 0.1);
+  }
+
+  // --- Formatting ---
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+  function fmtDay(t) {
     const d = new Date(t);
-    const label = (d.getUTCMonth() + 1) + '/' + d.getUTCDate();
-    ctx.fillText(label, x, H - pad.b + 14);
-    ctx.strokeStyle = gridColor;
+    return d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+  }
+
+  function fmtClock(t) {
+    const d = new Date(t);
+    return pad2(d.getUTCHours()) + ':' + pad2(d.getUTCMinutes());
+  }
+
+  // Rounds up to the next 1, 2, or 5 times a power of ten.
+  function niceStep(rough) {
+    if (!(rough > 0)) return 1;
+    const magnitude = Math.pow(10, Math.floor(Math.log10(rough)));
+    const scaled = rough / magnitude;
+    return (scaled <= 1 ? 1 : scaled <= 2 ? 2 : scaled <= 5 ? 5 : 10) * magnitude;
+  }
+
+  // --- Draw ---
+
+  function draw() {
+    const W = canvas.getBoundingClientRect().width
+      || canvas.parentElement.getBoundingClientRect().width;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.height = H + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    const full = isFullRange();
+    const spanT = view.t1 - view.t0 || 1;
+    const xScale = (t) => pad.l + ((t - view.t0) / spanT) * (W - pad.l - pad.r);
+
+    // The goal before the window carries the level into it, so the line is
+    // unbroken even when the window sits in a gap between goals.
+    let lo = 0;
+    while (lo < points.length - 1 && points[lo + 1].time < view.t0) lo++;
+    let hi = points.length - 1;
+    while (hi > 0 && points[hi - 1].time > view.t1) hi--;
+    // The newest goal whose step lands inside the window. Steps past the right
+    // edge are clipped away, so they must not stretch the axis.
+    let last = hi;
+    while (last > lo && points[last].time > view.t1) last--;
+
+    // The whole range is read against the target and fills to zero. A zoomed
+    // window is read for the change inside it, so it fits the window and drops
+    // the fill: an area needs a zero baseline, a line does not.
+    const levels = points.slice(lo, last + 1).map(p => p.screens);
+    const windowMin = Math.min(...levels);
+    const windowMax = Math.max(...levels);
+    // Never below one: screens are counted, so half a screen labels nothing.
+    const step = Math.max(1, full
+      ? niceStep(Math.max(screensTotal, windowMax) / 4)
+      : niceStep(Math.max(windowMax - windowMin, 1) / 4));
+    const yMin = full ? 0 : Math.floor(windowMin / step) * step;
+    const yMax = full
+      ? Math.max(screensTotal, windowMax)
+      : Math.max(Math.ceil(windowMax / step) * step, yMin + step);
+    const yScale = (v) => pad.t + (1 - (v - yMin) / (yMax - yMin)) * (H - pad.t - pad.b);
+    plot = { W, xScale, yScale, lo, hi };
+
+    const style = getComputedStyle(document.documentElement);
+    const gridColor = style.getPropertyValue('--gridline').trim();
+    const baselineColor = style.getPropertyValue('--baseline').trim();
+    const inkMuted = style.getPropertyValue('--ink-muted').trim();
+    const fillColor = style.getPropertyValue('--progress-fill').trim();
+    const areaColor = style.getPropertyValue('--progress-area').trim();
+    const surfaceColor = style.getPropertyValue('--surface-chart').trim();
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Y grid
+    const yTicks = [];
+    for (let v = yMin; v < yMax; v += step) yTicks.push(v);
+    yTicks.push(yMax);
+    ctx.lineWidth = 1;
+    ctx.font = '10px "JetBrains Mono", monospace';
+    for (const v of yTicks) {
+      const y = Math.round(yScale(v)) + 0.5;
+      ctx.strokeStyle = v === yMin && full ? baselineColor : gridColor;
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+      ctx.fillStyle = inkMuted;
+      ctx.textAlign = 'right';
+      ctx.fillText(v.toLocaleString(), pad.l - 6, y + 4);
+    }
+
+    // X-axis ticks, spaced so that labels never crowd
+    const spanDays = spanT / DAY_MS;
+    const HOUR_MS = 3600000;
+    const xStep = spanDays > 60 ? 14 * DAY_MS
+      : spanDays > 20 ? 7 * DAY_MS
+        : spanDays > 8 ? 2 * DAY_MS
+          : spanDays > 3 ? DAY_MS
+            : spanDays > 1 ? 6 * HOUR_MS
+              : spanDays > 0.4 ? 3 * HOUR_MS
+                : spanDays > 0.15 ? HOUR_MS
+                  : spanDays > 0.05 ? HOUR_MS / 2
+                    : HOUR_MS / 6;
+    ctx.fillStyle = inkMuted;
+    ctx.textAlign = 'center';
+    for (let t = Math.ceil(view.t0 / xStep) * xStep; t <= view.t1; t += xStep) {
+      const x = xScale(t);
+      if (x < pad.l || x > W - pad.r) continue;
+      const d = new Date(t);
+      const atMidnight = d.getUTCHours() === 0 && d.getUTCMinutes() === 0;
+      const label = (xStep >= DAY_MS || atMidnight)
+        ? (d.getUTCMonth() + 1) + '/' + d.getUTCDate()
+        : fmtClock(t);
+      ctx.fillText(label, x, H - pad.b + 14);
+      ctx.strokeStyle = gridColor;
+      ctx.beginPath();
+      ctx.moveTo(Math.round(x) + 0.5, pad.t);
+      ctx.lineTo(Math.round(x) + 0.5, H - pad.b);
+      ctx.stroke();
+    }
+
+    // The step line as [x, screens] vertices: each goal rises at its own time
+    // from the level the goal before it left.
+    const vertices = [[xScale(points[lo].time), points[lo].screens]];
+    for (let i = lo + 1; i <= hi; i++) {
+      const x = xScale(points[i].time);
+      vertices.push([x, points[i - 1].screens], [x, points[i].screens]);
+    }
+    const rightEdge = xScale(view.t1);
+    const lastVertex = vertices[vertices.length - 1];
+    if (lastVertex[0] < rightEdge) vertices.push([rightEdge, lastVertex[1]]);
+
+    // Clipped, so that the goals bracketing the window stay off the axes
+    ctx.save();
     ctx.beginPath();
-    ctx.moveTo(Math.round(x) + 0.5, pad.t);
-    ctx.lineTo(Math.round(x) + 0.5, H - pad.b);
-    ctx.stroke();
-  }
+    ctx.rect(pad.l, pad.t, W - pad.l - pad.r, H - pad.t - pad.b);
+    ctx.clip();
 
-  // Step area fill
-  ctx.beginPath();
-  ctx.moveTo(xScale(times[0]), yScale(0));
-  ctx.lineTo(xScale(times[0]), yScale(pts[0].screens));
-  for (let i = 1; i < pts.length; i++) {
-    ctx.lineTo(xScale(times[i]), yScale(pts[i - 1].screens));
-    ctx.lineTo(xScale(times[i]), yScale(pts[i].screens));
-  }
-  ctx.lineTo(xScale(times[times.length - 1]), yScale(0));
-  ctx.closePath();
-  ctx.fillStyle = areaColor;
-  ctx.fill();
+    if (full) {
+      ctx.beginPath();
+      ctx.moveTo(vertices[0][0], yScale(0));
+      for (const [x, v] of vertices) ctx.lineTo(x, yScale(v));
+      ctx.lineTo(vertices[vertices.length - 1][0], yScale(0));
+      ctx.closePath();
+      ctx.fillStyle = areaColor;
+      ctx.fill();
+    }
 
-  // Step line
-  ctx.beginPath();
-  ctx.moveTo(xScale(times[0]), yScale(pts[0].screens));
-  for (let i = 1; i < pts.length; i++) {
-    ctx.lineTo(xScale(times[i]), yScale(pts[i - 1].screens));
-    ctx.lineTo(xScale(times[i]), yScale(pts[i].screens));
-  }
-  ctx.strokeStyle = fillColor;
-  ctx.lineWidth = 2;
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
-  ctx.stroke();
-
-  // End dot
-  const last = pts[pts.length - 1];
-  const lastX = xScale(times[times.length - 1]);
-  ctx.beginPath();
-  ctx.arc(lastX, yScale(last.screens), 4, 0, Math.PI * 2);
-  ctx.fillStyle = fillColor;
-  ctx.fill();
-  ctx.strokeStyle = style.getPropertyValue('--surface-chart').trim();
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // When a commit SHA was not found, the SCORE timestamp is used as a fallback.
-  // A hollow marker makes that visible.
-  pts.forEach((point, index) => {
-    if (point.utcSource === 'commit') return;
     ctx.beginPath();
-    ctx.arc(xScale(times[index]), yScale(point.screens), 3, 0, Math.PI * 2);
-    ctx.fillStyle = style.getPropertyValue('--surface-chart').trim();
-    ctx.fill();
+    ctx.moveTo(vertices[0][0], yScale(vertices[0][1]));
+    for (const [x, v] of vertices) ctx.lineTo(x, yScale(v));
     ctx.strokeStyle = fillColor;
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
     ctx.stroke();
+    ctx.restore();
+
+    // When a commit SHA was not found, the SCORE timestamp is used as a fallback.
+    // A hollow marker makes that visible.
+    for (let i = lo; i <= hi; i++) {
+      const point = points[i];
+      if (point.utcSource === 'commit') continue;
+      const x = xScale(point.time);
+      if (x < pad.l || x > W - pad.r) continue;
+      ctx.beginPath();
+      ctx.arc(x, yScale(point.screens), 3, 0, Math.PI * 2);
+      ctx.fillStyle = surfaceColor;
+      ctx.fill();
+      ctx.strokeStyle = fillColor;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // Direct label on the newest goal inside the window
+    const endPoint = points[last];
+    if (endPoint.time >= view.t0 && endPoint.time <= view.t1) {
+      const x = xScale(endPoint.time);
+      const y = yScale(endPoint.screens);
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+      ctx.strokeStyle = surfaceColor;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = style.getPropertyValue('--ink-primary').trim();
+      ctx.font = '600 12px "JetBrains Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(
+        endPoint.screens.toLocaleString(),
+        x + 8,
+        Math.max(pad.t + 10, y - 8),
+      );
+    }
+
+    // Crosshair on the selected goal
+    if (hover !== null
+      && points[hover].time >= view.t0 && points[hover].time <= view.t1) {
+      const x = xScale(points[hover].time);
+      ctx.save();
+      ctx.setLineDash([3, 3]);
+      ctx.strokeStyle = inkMuted;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(Math.round(x) + 0.5, pad.t);
+      ctx.lineTo(Math.round(x) + 0.5, H - pad.b);
+      ctx.stroke();
+      ctx.restore();
+      ctx.beginPath();
+      ctx.arc(x, yScale(points[hover].screens), 5, 0, Math.PI * 2);
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+      ctx.strokeStyle = surfaceColor;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
+  // --- Toolbar ---
+
+  function updateChrome() {
+    resetButton.disabled = isFullRange();
+    const inWindow = points.filter(
+      p => p.time >= view.t0 && p.time <= view.t1,
+    ).length;
+    const withClock = view.t1 - view.t0 < 3 * DAY_MS;
+    const bounds = withClock
+      ? fmtDay(view.t0) + ' ' + fmtClock(view.t0) + ' – '
+        + fmtDay(view.t1) + ' ' + fmtClock(view.t1) + ' UTC'
+      : fmtDay(view.t0) + ' – ' + fmtDay(view.t1);
+    rangeLabel.textContent = bounds + ' · ' + inWindow
+      + ' goal' + (inWindow === 1 ? '' : 's');
+  }
+
+  // --- Readout ---
+
+  // Notes and goal names come from SCORE.tsv, so they go in as text, never markup.
+  function node(tag, className, text) {
+    const created = document.createElement(tag);
+    if (className) created.className = className;
+    created.textContent = text;
+    return created;
+  }
+
+  function deltaText(point) {
+    if (point.screensDelta === null) return 'first recorded score';
+    if (point.screensDelta === 0) return 'no change from the previous goal';
+    const sign = point.screensDelta > 0 ? '+' : '−';
+    return sign + fmtN(Math.abs(point.screensDelta)) + ' from the previous goal';
+  }
+
+  function positionTooltip(clientX, clientY) {
+    const box = tooltip.getBoundingClientRect();
+    // Right of the pointer, or left of it when the right will not fit, so that
+    // the readout never slides across the point it describes.
+    const right = clientX + 14;
+    const left = right + box.width <= window.innerWidth - 12
+      ? right
+      : Math.max(12, clientX - 14 - box.width);
+    tooltip.style.left = left + 'px';
+    tooltip.style.top =
+      Math.max(12, Math.min(clientY - box.height / 2, window.innerHeight - box.height - 12)) + 'px';
+  }
+
+  function showReadout(index, clientX, clientY) {
+    const point = points[index];
+    const parts = [
+      node('div', 'tooltip-value', fmtN(point.screens) + ' screens'),
+      node('div', 'tooltip-delta', deltaText(point)),
+      node('div', 'tooltip-name', point.name),
+      node('div', 'tooltip-meta', fmtDay(point.time) + ' ' + fmtClock(point.time)
+        + ' UTC · ' + point.sha.slice(0, 7)
+        + (point.utcSource === 'commit' ? '' : ' †')),
+    ];
+    const stats = [];
+    if (point.rng !== null) {
+      stats.push(['RNG calls', fmtN(point.rng)
+        + (point.rngTotal ? ' / ' + fmtN(point.rngTotal) : '')]);
+    }
+    if (point.sessions !== null) {
+      stats.push(['Sessions', point.sessions
+        + (point.sessionsTotal ? ' / ' + point.sessionsTotal : '')]);
+    }
+    if (stats.length) {
+      const grid = document.createElement('div');
+      grid.className = 'tooltip-stats';
+      for (const [label, value] of stats) {
+        grid.appendChild(node('span', '', label));
+        grid.appendChild(node('b', '', value));
+      }
+      parts.push(grid);
+    }
+    if (point.note) parts.push(node('div', 'tooltip-note', point.note));
+    tooltip.replaceChildren(...parts);
+    tooltip.style.display = 'block';
+    positionTooltip(clientX, clientY);
+  }
+
+  function showReadoutAtPoint(index) {
+    const rect = canvas.getBoundingClientRect();
+    showReadout(
+      index,
+      rect.left + plot.xScale(points[index].time),
+      rect.top + plot.yScale(points[index].screens),
+    );
+  }
+
+  function clearHover() {
+    tooltip.style.display = 'none';
+    if (hover === null) return;
+    hover = null;
+    draw();
+  }
+
+  // The pointer only has to be closest to a goal, not on it. The right margin
+  // counts, because the newest goal's label sits in it; the left margin does
+  // not, because it holds the axis labels.
+  function nearestIndex(clientX) {
+    if (!plot) return null;
+    const x = clientX - canvas.getBoundingClientRect().left;
+    if (x < pad.l - 10 || x > plot.W) return null;
+    let best = null;
+    let bestDistance = Infinity;
+    for (let i = plot.lo; i <= plot.hi; i++) {
+      const distance = Math.abs(plot.xScale(points[i].time) - x);
+      if (distance < bestDistance) { bestDistance = distance; best = i; }
+    }
+    return best;
+  }
+
+  // --- Events ---
+
+  canvas.addEventListener('pointermove', (e) => {
+    if (panning) {
+      const width = canvas.getBoundingClientRect().width - pad.l - pad.r;
+      const perPixel = (panning.t1 - panning.t0) / (width || 1);
+      const shift = (e.clientX - panning.clientX) * perPixel;
+      setView(panning.t0 - shift, panning.t1 - shift);
+      draw();
+      updateChrome();
+      return;
+    }
+    const index = nearestIndex(e.clientX);
+    if (index === null) { clearHover(); return; }
+    if (index !== hover) {
+      hover = index;
+      draw();
+      showReadout(index, e.clientX, e.clientY);
+    } else {
+      positionTooltip(e.clientX, e.clientY);
+    }
   });
 
-  // End label
-  ctx.fillStyle = style.getPropertyValue('--ink-primary').trim();
-  ctx.font = '600 12px "JetBrains Mono", monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText(last.screens.toLocaleString(), lastX + 10, yScale(last.screens) + 4);
-}
-drawProgressChart();
-window.addEventListener('resize', drawProgressChart);
+  canvas.addEventListener('pointerleave', clearHover);
+  canvas.addEventListener('blur', clearHover);
+
+  canvas.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    panning = { clientX: e.clientX, t0: view.t0, t1: view.t1 };
+    canvas.setPointerCapture(e.pointerId);
+    canvas.classList.add('is-panning');
+    clearHover();
+  });
+
+  function endPan(e) {
+    if (!panning) return;
+    panning = null;
+    canvas.classList.remove('is-panning');
+    if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+  }
+  canvas.addEventListener('pointerup', endPan);
+  canvas.addEventListener('pointercancel', endPan);
+
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    // Wheels report pixels, lines, or pages; scale the last two to pixels.
+    const steps = e.deltaMode === 1 ? e.deltaY * 16
+      : e.deltaMode === 2 ? e.deltaY * 400
+        : e.deltaY;
+    const rect = canvas.getBoundingClientRect();
+    const width = rect.width - pad.l - pad.r;
+    const fraction = Math.min(Math.max((e.clientX - rect.left - pad.l) / (width || 1), 0), 1);
+    zoomAt(view.t0 + fraction * (view.t1 - view.t0), Math.exp(steps * 0.002));
+    clearHover();
+    draw();
+    updateChrome();
+  }, { passive: false });
+
+  canvas.addEventListener('dblclick', () => {
+    setView(domain.t0, domain.t1);
+    clearHover();
+    draw();
+    updateChrome();
+  });
+
+  canvas.addEventListener('keydown', (e) => {
+    const middle = (view.t0 + view.t1) / 2;
+    let next = hover;
+    if (e.key === 'ArrowRight') next = hover === null ? plot.lo : Math.min(points.length - 1, hover + 1);
+    else if (e.key === 'ArrowLeft') next = hover === null ? plot.hi : Math.max(0, hover - 1);
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = points.length - 1;
+    else if (e.key === 'Escape') { clearHover(); return; }
+    else if (e.key === '+' || e.key === '=') { zoomAt(middle, 1 / 1.5); clearHover(); draw(); updateChrome(); return; }
+    else if (e.key === '-') { zoomAt(middle, 1.5); clearHover(); draw(); updateChrome(); return; }
+    else if (e.key === '0') { setView(domain.t0, domain.t1); clearHover(); draw(); updateChrome(); return; }
+    else return;
+    e.preventDefault();
+    hover = next;
+    ensureVisible(next);
+    draw();
+    updateChrome();
+    showReadoutAtPoint(next);
+  });
+
+  resetButton.addEventListener('click', () => {
+    setView(domain.t0, domain.t1);
+    clearHover();
+    draw();
+    updateChrome();
+  });
+
+  window.addEventListener('resize', () => { clearHover(); draw(); });
+
+  draw();
+  updateChrome();
+})();
 
 // --- Timeline ---
 (function() {

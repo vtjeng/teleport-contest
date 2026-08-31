@@ -69,18 +69,27 @@ function renderDashboard(data) {
             return true;
         },
     });
+    // Enough of an element for the template's first render. The chart's
+    // pointer and keyboard handlers never fire here, so their DOM calls only
+    // need to exist, not to record anything.
+    const makeElement = (id) => ({
+        id,
+        innerHTML: '',
+        textContent: '',
+        className: '',
+        disabled: false,
+        style: {},
+        classList: { add() {}, remove() {} },
+        children: [],
+        parentElement: { getBoundingClientRect: () => ({ width: 1000 }) },
+        getBoundingClientRect: () => ({ width: 1000, left: 0, top: 0, height: 0 }),
+        getContext: () => context2d,
+        addEventListener() {},
+        appendChild(child) { this.children.push(child); return child; },
+        replaceChildren(...nodes) { this.children = nodes; },
+    });
     const element = (id) => {
-        if (!elements.has(id)) {
-            elements.set(id, {
-                id,
-                innerHTML: '',
-                textContent: '',
-                style: {},
-                parentElement: { getBoundingClientRect: () => ({ width: 1000 }) },
-                getBoundingClientRect: () => ({ width: 1000 }),
-                getContext: () => context2d,
-            });
-        }
+        if (!elements.has(id)) elements.set(id, makeElement(id));
         return elements.get(id);
     };
     const template = readFileSync(TEMPLATE, 'utf8');
@@ -89,6 +98,7 @@ function renderDashboard(data) {
     const document = {
         documentElement: {},
         getElementById: element,
+        createElement: (tag) => makeElement(tag),
         querySelectorAll: () => [],
     };
     const window = {
@@ -490,6 +500,67 @@ test('verification requires a recorded final slice closure', () => {
     assert.equal(observed.goals[0].verificationMin, 20);
     assert.equal(observed.goals[0].verificationObserved, true);
     assert.equal(observed.summary.medianVerificationMin, 20);
+});
+
+test('progress points carry what the chart readout shows', () => {
+    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-chart-'));
+    git(fixture, ['init', '--quiet']);
+    git(fixture, ['config', 'user.name', 'Dashboard Test']);
+    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
+    commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
+    // Three goals, ten minutes apart, so the whole range is under a day and
+    // the readout has to print clock times as well as dates.
+    const first = commit(fixture, 'Close alpha goal', '2026-01-01T00:10:00Z');
+    const second = commit(fixture, 'Close beta goal', '2026-01-01T00:20:00Z');
+    const third = commit(fixture, 'Close gamma goal', '2026-01-01T00:30:00Z');
+
+    writeFileSync(join(fixture, 'SCORE.tsv'), [
+        SCORE_HEADER,
+        scoreRow({
+            utc: '2026-01-01T00:10:00Z', sha: first, event: 'goal',
+            screens: 40, note: 'alpha closes. Second sentence.',
+        }),
+        scoreRow({
+            utc: '2026-01-01T00:20:00Z', sha: second, event: 'goal',
+            screens: 55, note: 'beta closes. Second sentence.',
+        }),
+        scoreRow({
+            utc: '2026-01-01T00:30:00Z', sha: third, event: 'goal',
+            screens: 55, note: 'gamma closes. Second sentence.',
+        }),
+        '',
+    ].join('\n'));
+
+    const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
+        cwd: fixture,
+        encoding: 'utf8',
+    }));
+
+    // Each point names its goal the same way the goal table does.
+    assert.deepEqual(
+        data.progress.map((point) => point.name),
+        data.goals.map((goal) => goal.name),
+    );
+    assert.deepEqual(
+        data.progress.map((point) => point.name),
+        ['alpha', 'beta', 'gamma'],
+    );
+    // The step the reader hovers: nothing before the first, +15, then flat.
+    assert.deepEqual(
+        data.progress.map((point) => point.screensDelta),
+        [null, 15, 0],
+    );
+    // The whole note reaches the readout, not just its first sentence.
+    assert.equal(data.progress[0].note, 'alpha closes. Second sentence.');
+
+    const rendered = renderDashboard(data);
+    // The chart opens on the whole range, so its reset control has nothing
+    // to undo.
+    assert.equal(rendered.get('progressReset').disabled, true);
+    assert.equal(
+        rendered.get('progressRange').textContent,
+        '1 Jan 2026 00:10 – 1 Jan 2026 00:30 UTC · 3 goals',
+    );
 });
 
 test('dashboard builder injects data into a standalone HTML file', () => {
