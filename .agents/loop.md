@@ -1,27 +1,11 @@
 # Continuous operation
 
-Only the orchestrator follows this file. It defines the loop, the four agent
-roles, and question triage. `.agents/workflow.md` defines the terms it uses,
-and `.agents/review.md` states when a formal review pass is due and how to
-run one.
+This file defines the orchestrator's loop: goal selection, slice iteration,
+measurement, and review scheduling.
 
-The orchestrator keeps a goal active while completing small, coherent slices
-that follow the C source, within the limits in `.agents/review.md`, "Review
-scheduling".
-
-Implementation and review alternate inside one goal. Four agents share the
-work, each performing exactly one role.
-
-- The **candidate-pipeline** (`.claude/agents/candidate-pipeline.md`)
-  prepares all pipeline candidates without modifying files.
-- The **slice-selector** (`.claude/agents/slice-selector.md`) identifies
-  the next slice without modifying files.
-- The **worker** (`.claude/agents/slice-worker.md`) closes exactly one
-  slice per run and commits the result. A worker that cannot close its
-  slice reports what blocked it without committing. The worker does not
-  run formal review passes or check the review-debt gate.
-- The **orchestrator** spawns the other three, independently measures what
-  the worker landed, and owns every formal review pass.
+`.agents/workflow.md` defines the terms this file uses, and
+`.agents/review.md` states when a formal review pass is due and how to run
+one.
 
 The orchestrator repeats without returning to the user between steps:
 
@@ -124,7 +108,8 @@ Commits may land while a formal review pass reviews its fixed range. They
 belong to the next pass, and neither the pass nor the commits block the
 other. `.agents/review.md` states the readiness constraint.
 
-`AGENTS.md` lists the three cases that stop this loop. Nothing else stops
+`AGENTS.md`, "When to stop and ask the user", lists the cases that stop
+this loop. Nothing else stops
 it; an iteration ending at a clean committed state is a reason to start the
 next. End each turn with a subagent or a pass running, or with the next
 step started.
@@ -139,7 +124,7 @@ every other question by what it blocks:
   what blocked it without committing, so it stays queued), append the entry
   to `.agents/questions.md`, fire a push notification to the user, and take
   the next slice or goal.
-- If it blocks every next step, this is the fourth stop case in `AGENTS.md`
+- If it blocks every next step, it falls under `AGENTS.md`'s stop cases
   and stops the loop.
 
 Entries stay open until the user answers them. Open each progress report
@@ -151,7 +136,7 @@ instructions into a prompt.
 
 When the loop runs under `/loop`, set a long wakeup interval while work is
 in flight and a short one when idle. End the loop with `ScheduleWakeup stop`
-only for one of those three stop cases; running low on context is not a
+only for the stop cases `AGENTS.md` lists; running low on context is not a
 reason to stop.
 
 ## The report per worker iteration
