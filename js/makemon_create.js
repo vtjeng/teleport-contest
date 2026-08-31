@@ -3268,6 +3268,15 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     monster.m_id = next_ident(normalized);
     monster.data = ptr;
     monster.mnum = mndx;
+    // C ref: makemon.c:1253-1255. Quest chat identifies a leader by this
+    // persistent id, so record it immediately after next_ident() just as C
+    // does, before later monster initialization can observe the new monster.
+    if (ptr.msound === MS_LEADER
+        && state.urole?.ldrnum === mndx) {
+        state.svq ??= {};
+        state.svq.quest_status ??= {};
+        state.svq.quest_status.leader_m_id = monster.m_id;
+    }
     newmonhp(monster, mndx, normalized);
     initializeGender(monster, ptr, mmflags, random);
 

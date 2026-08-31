@@ -21,6 +21,7 @@ const NEEDED_MESSAGES = [
     'firsttime', 'nexttime', 'othertime',
     'locate_first', 'locate_next',
     'goal_first', 'goal_next', 'goal_alt',
+    'leader_first', 'assignquest',
 ];
 
 // All role filecodes, in the order they appear in quest.lua.

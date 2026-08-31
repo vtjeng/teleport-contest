@@ -7,6 +7,7 @@ import {
     DEAF,
     ECMD_CANCEL,
     ECMD_OK,
+    ECMD_TIME,
     EPRI,
     FEMALE,
     HALLUC,
@@ -14,32 +15,42 @@ import {
     IS_WALL,
     Is_astralevel,
     MALE,
+    M_AP_FURNITURE,
+    M_AP_OBJECT,
+    M_AP_TYPE,
     MS_ANIMAL,
     ROOMOFFSET,
     SDOOR,
     SHOPBASE,
     STONE,
     STRANGLED,
+    STRAT_WAITMASK,
     VAULT,
     WINTYPELEN,
     helpless,
     isok,
 } from './const.js';
 import { getdir } from './cmd.js';
-import { vobj_at } from './display.js';
-import { pmname, rndmonnam } from './do_name.js';
+import { map_invisible, vobj_at } from './display.js';
+import {
+    capitalizedMonsterName,
+    monsterCommonName,
+    pmname,
+    rndmonnam,
+} from './do_name.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { is_silent } from './mondata.js';
-import { PM_ORACLE } from './monsters.js';
+import { humanoid, is_silent } from './mondata.js';
+import { MS_LEADER, PM_ORACLE } from './monsters.js';
 import { m_at } from './monst.js';
 import { g_at } from './obj.js';
 import { an } from './objnam.js';
 import { STATUE } from './objects.js';
 import { halu_gname } from './pray.js';
+import { quest_chat } from './quest.js';
 import { inhistemple, temple_occupied } from './priest.js';
 import { rn2 } from './rng.js';
-import { canSeeMonster } from './startup_a11y.js';
+import { canSeeMonster, canSpotMonster } from './startup_a11y.js';
 import { noisy_shop, shop_object, tended_shop } from './shk.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, canseemon } from './vision.js';
@@ -357,6 +368,33 @@ export class UnsupportedChatError extends Error {
     }
 }
 
+// C ref: sounds.c domonnoise() (679-731). The leader is identified by its
+// persistent m_id rather than by its current species, because the leader can
+// be polymorphed and still speaks with quest-leader dialogue. Other sound
+// families remain fail-closed at this boundary until their own slices land.
+async function domonnoise(mtmp, state) {
+    if (Deaf(state)) return ECMD_OK;
+    if (is_silent(mtmp.data) && !mtmp.isshk) return ECMD_OK;
+
+    let msound = mtmp.data?.msound;
+    const leaderId = state.svq?.quest_status?.leader_m_id;
+    if (mtmp.m_id === leaderId && msound > MS_ANIMAL)
+        msound = MS_LEADER;
+
+    if (msound === MS_LEADER) {
+        if (!await quest_chat(mtmp, state))
+            throw new UnsupportedChatError('a quest leader conversation');
+    } else {
+        // Preserve the existing public boundary for every ordinary monster;
+        // only the quest-leader arm is admitted by this slice.
+        throw new UnsupportedChatError('a monster occupying the target square');
+    }
+
+    // C's quest_chat() is void; domonnoise() returns ECMD_TIME after the
+    // selected sound arm has completed.
+    return ECMD_TIME;
+}
+
 // C ref: sounds.c:1355-1362, the eight replies a hallucinating hero hears out
 // of a wall. sounds.c:1364-1367 draws rn2(10) and clamps it to the last slot,
 // so that reply answers three times as often as the others.
@@ -483,13 +521,50 @@ async function dochat(state) {
         }
     }
 
-    // sounds.c:1374-1377 answers ECMD_OK for an empty square and for a monster
-    // the hero has not detected, which is where this port stops: every arm
-    // below it needs the monster naming and mimic-appearance reads that lead
-    // into domonnoise().
-    if (!mtmp || mtmp.mundetected)
+    // sounds.c:1374-1377. Empty, undetected, and furniture/object mimics do
+    // not reach domonnoise(); the real monster tail starts after this guard.
+    if (!mtmp || mtmp.mundetected
+        || M_AP_TYPE(mtmp) === M_AP_FURNITURE
+        || M_AP_TYPE(mtmp) === M_AP_OBJECT)
         return ECMD_OK;
-    throw new UnsupportedChatError('a monster occupying the target square');
+
+    // sounds.c:1379-1385. A helpless non-priest is not woken by #chat; the
+    // message is omitted when the hero cannot spot that monster.
+    if (helpless(mtmp) && !mtmp.ispriest) {
+        if (canSpotMonster(mtmp, state)) {
+            await ttyPline(
+                `${capitalizedMonsterName(mtmp, state)} seems not to notice you.`,
+                state,
+            );
+        }
+        return ECMD_OK;
+    }
+
+    // sounds.c:1388-1395. Chat prods a waiting monster, and an eating tame
+    // monster makes noise instead of entering its sound-specific arm.
+    mtmp.mstrategy &= ~STRAT_WAITMASK;
+    if (!Deaf(state) && mtmp.mtame && mtmp.meating) {
+        if (!canSpotMonster(mtmp, state))
+            map_invisible(mtmp.mx, mtmp.my, state);
+        await ttyPline(
+            `${capitalizedMonsterName(mtmp, state)} is eating noisily.`,
+            state,
+        );
+        return ECMD_OK;
+    }
+
+    // sounds.c:1397-1406. This remains a complete common tail even though the
+    // witnessed quest leader is audible and therefore skips it.
+    if (Deaf(state)) {
+        const xresponse = humanoid(state.youmonst.data)
+            ? 'falls on deaf ears' : 'is inaudible';
+        const name = canSpotMonster(mtmp, state)
+            ? ` from ${monsterCommonName(mtmp, state)}` : '';
+        await ttyPline(`Any response${name} ${xresponse}.`, state);
+        return ECMD_OK;
+    }
+
+    return domonnoise(mtmp, state);
 }
 
 // C ref: sounds.c dotalk() (1247-1254), the #chat command.
