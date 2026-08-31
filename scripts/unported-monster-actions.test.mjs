@@ -1878,19 +1878,6 @@ test('simple preflight rejects every selected excluded action atomically',
                 },
             },
             {
-                name: 'pre-move wield',
-                reason: 'monster wield action',
-                prepare: async () => {
-                    const target = await prepareSelectedAction({
-                        adjacentHero: true,
-                        pmidx: PM_GNOME,
-                    });
-                    target.monster.minvent = monsterObject(DAGGER);
-                    target.monster.weapon_check = NEED_WEAPON;
-                    return target;
-                },
-            },
-            {
                 name: 'post-move ranged weapon',
                 reason: 'unseen monster ranged feedback',
                 prepare: async () => {
@@ -3034,43 +3021,6 @@ test('simple preflight keeps starting-pet owner seams retryable',
                     const target = await prepareStartingPetAction(PM_PONY);
                     // AT_KICK and AT_BITE double the balk to 16.
                     installPetDefender(target, 20);
-                    return target;
-                },
-            },
-            {
-                // Kitten tries to eat TRIPE_RATION; dog_eat rejects because
-                // the port admits only whole corpses (otyp !== CORPSE).
-                name: 'kitten eating',
-                reason: 'one whole corpse',
-                prepare: async () => {
-                    const target = await prepareStartingPetAction(PM_KITTEN);
-                    installObject(
-                        target,
-                        floorObject(
-                            target.monsterX,
-                            target.heroY,
-                            9101,
-                            TRIPE_RATION,
-                        ),
-                    );
-                    return target;
-                },
-            },
-            {
-                // Kitten moves onto adjacent TRIPE_RATION; same rejection.
-                name: 'kitten moving onto adjacent food',
-                reason: 'one whole corpse',
-                prepare: async () => {
-                    const target = await prepareStartingPetAction(PM_KITTEN);
-                    installObject(
-                        target,
-                        floorObject(
-                            target.destinationX,
-                            target.heroY,
-                            9101,
-                            TRIPE_RATION,
-                        ),
-                    );
                     return target;
                 },
             },

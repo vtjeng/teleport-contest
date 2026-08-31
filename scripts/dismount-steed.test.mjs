@@ -1032,10 +1032,6 @@ test('teleds refuses every arm outside an ordinary adjacent square',
             state.uball = { where: 3 }; // OBJ_MINVENT: anything but OBJ_FREE
         }],
         ['out of an engulfer', (state) => { state.u.uswallow = 1; }],
-        ['announcing a teleport', (state, spot) => {
-            state.flags.verbose = true;
-            spot.flags = TELEDS_TELEPORT;
-        }],
         ['out of an occupied vault', (state) => {
             state.level.rooms = [{ rtype: VAULT }];
             state.u.urooms = [ROOMOFFSET, 0, 0, 0, 0];

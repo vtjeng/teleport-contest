@@ -233,7 +233,7 @@ test('dog_nutrition scales a whole mimic corpse for every pet size', () => {
     }
 });
 
-test('dog_nutrition requires both the food class and corpse type', () => {
+test('dog_nutrition requires FOOD_CLASS', () => {
     const { monster, state } = quickState(false);
     const corpse = {
         corpsenm: PM_SMALL_MIMIC,
@@ -243,11 +243,7 @@ test('dog_nutrition requires both the food class and corpse type', () => {
     };
     assert.throws(
         () => dog_nutrition(monster, { ...corpse, oclass: WEAPON_CLASS }, state),
-        /requires a corpse/u,
-    );
-    assert.throws(
-        () => dog_nutrition(monster, { ...corpse, otyp: TRIPE_RATION }, state),
-        /requires a corpse/u,
+        /requires FOOD_CLASS/u,
     );
 });
 
@@ -344,32 +340,19 @@ test('dog_eat validates every excluded corpse-meal state before mutation',
             ['missing pet state', ({ monster }) => {
                 delete monster.mextra.edog;
             }, /tame pet with edog/u],
-            // Non-CORPSE food: the port gates non-corpse food types because
-            // dog_nutrition's coin and odd-object branches are unported.
-            ['wrong object type', ({ corpse }) => {
-                corpse.otyp = TRIPE_RATION;
-            }, /whole corpse/u],
-            // Wrong oclass with CORPSE otyp: exercises the oclass guard.
+            // Wrong oclass: exercises the food-class guard.
             ['wrong object class', ({ corpse }) => {
                 corpse.oclass = WEAPON_CLASS;
-            }, /whole corpse/u],
-            // Partly eaten: oeaten != 0 triggers eaten_stat in C, which the
-            // port does not yet cover.
-            ['partly eaten corpse', ({ corpse }) => {
-                corpse.oeaten = 1;
-            }, /whole corpse/u],
-            ['stacked corpse', ({ corpse }) => {
-                corpse.quan = 2;
-            }, /ordinary floor corpse/u],
-            ['unpaid corpse', ({ corpse }) => {
+            }, /a food item/u],
+            ['unpaid food', ({ corpse }) => {
                 corpse.unpaid = true;
-            }, /ordinary floor corpse/u],
-            ['artifact corpse', ({ corpse }) => {
+            }, /ordinary floor food/u],
+            ['artifact food', ({ corpse }) => {
                 corpse.oartifact = 1;
-            }, /ordinary floor corpse/u],
-            ['corpse with contents', ({ corpse }) => {
+            }, /ordinary floor food/u],
+            ['food with contents', ({ corpse }) => {
                 corpse.cobj = {};
-            }, /ordinary floor corpse/u],
+            }, /ordinary floor food/u],
             ['devoured meal', ({ call }) => {
                 call.devour = true;
             }, /ordinary eat path/u],
@@ -441,19 +424,15 @@ test('dog_eat prints no meal line for a pet sensed outside line of sight',
         assert.match(messages[0], /feels rather kitten-ish/u);
     });
 
-test('m_consume_obj rejects non-corpses and both punishment objects',
+test('m_consume_obj rejects both punishment objects',
     async () => {
         const cases = [
-            // Non-corpse food: m_consume_obj requires otyp === CORPSE.
-            ['wrong object type', ({ corpse }) => {
-                corpse.otyp = TRIPE_RATION;
-            }, /corpse object/u],
             ['punishment ball', ({ corpse, state }) => {
                 state.uball = corpse;
-            }, /unpunished corpse/u],
+            }, /unpunished object/u],
             ['punishment chain', ({ corpse, state }) => {
                 state.uchain = corpse;
-            }, /unpunished corpse/u],
+            }, /unpunished object/u],
         ];
         for (const [name, mutate, reason] of cases) {
             const { monster, state } = quickState(false);

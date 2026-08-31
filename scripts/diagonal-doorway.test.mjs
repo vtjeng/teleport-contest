@@ -434,21 +434,21 @@ test('the seam consults its destination checks only where the rules allow',
         game.level.traps = [];
 
         // The obstacle arm claims an obstructed destination before either
-        // diagonal rule, whichever square the hero is standing on. TREE and
-        // IRONBARS are the two halves of hack.c:1011's test -- IRONBARS is
-        // 22 and POOL is 16, so IS_OBSTRUCTED() answers FALSE for it and the
-        // second term is the only thing that catches it.
+        // diagonal rule, whichever square the hero is standing on. IRONBARS
+        // is 22 and POOL is 16, so IS_OBSTRUCTED() answers FALSE for it and
+        // the second term is the only thing that catches it.
+        // TREE is handled by blocksMove() and returns silently.
         for (const source of [ROOM, DOOR]) {
             here.typ = source;
             here.flags = here.doormask = source === DOOR ? D_ISOPEN : 0;
-            for (const typ of [TREE, IRONBARS]) {
-                destination.typ = typ;
-                assert.throws(
-                    () => preflightDomoveDestination(ux + 1, uy + 1, game),
-                    (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                        && error.reason === 'door or special terrain movement',
-                    `${typ} from ${source}`,
-                );
-            }
+            destination.typ = IRONBARS;
+            assert.throws(
+                () => preflightDomoveDestination(ux + 1, uy + 1, game),
+                (error) => error instanceof UnsupportedHeroMoveBoundaryError
+                    && error.reason === 'door or special terrain movement',
+                `${IRONBARS} from ${source}`,
+            );
+            destination.typ = TREE;
+            preflightDomoveDestination(ux + 1, uy + 1, game);
         }
     });

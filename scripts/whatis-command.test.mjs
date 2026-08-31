@@ -607,6 +607,7 @@ test('trap lists keep visible and obscured traps in map order', async () => {
         );
     };
     game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
     await look_traps(true, game);
 
     assert.deepEqual(rows.slice(0, 5), [
@@ -653,6 +654,7 @@ test('engraving lists use remembered grave terrain for obscured headstones',
                 (row) => row.map(({ ch }) => ch).join('').trimEnd(),
             );
         };
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
         game.nhDisplay.pushKey(' '.charCodeAt(0));
         await look_engrs(true, game);
 
