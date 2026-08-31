@@ -1122,15 +1122,58 @@ test('the magic half stops on conditions no property records', async () => {
     assert.equal(await branchOf(), null, 'a spell with no armor to blame');
 });
 
-// insight.c takes a different shape in debug mode at eleven sites across three
-// sections, and doattributes():2014-2015 routes a wizard through the same
-// MAGICENLIGHTENMENT door explore mode uses.
-test('debug mode stops the magic half', async () => {
-    const state = await readyExploreGame();
-    state.wizard = true;
-    await assert.rejects(
-        () => enlightenment(MAGIC, ENL_GAMEINPROGRESS, state),
-        (error) => error instanceof UnsupportedEnlightenmentError
-            && error.branch === 'debug mode',
-    );
+// insight.c adds numeric annotations in debug mode at eleven sites across
+// three sections, and doattributes():2014-2015 routes a wizard through the
+// same MAGICENLIGHTENMENT door explore mode uses. This is the real Ctrl-X
+// caller path, including the custom v:inventory binding beside it.
+test('debug Ctrl-X attributes includes numeric enlightenment details', async () => {
+    const rc = 'OPTIONS=name:Binder,role:Wizard,race:human,gender:male,'
+        + 'align:neutral\n'
+        + 'OPTIONS=playmode:debug,showexp,time,color,lit_corridor\n'
+        + 'BIND=v:inventory\n';
+    const command = await runSegment({
+        seed: 2601,
+        datetime: '20000110090000',
+        nethackrc: rc,
+        moves: '\x1B\x18 \x1B',
+        storage: null,
+    });
+    assert.equal(game.wizard, true);
+    assert.equal(game.discover, false);
+    assert.equal(game.moves, 1, 'Ctrl-X spends no turn');
+
+    // Compare with the same startup prefix stopping before Ctrl-X: the menu
+    // itself must not add random draws. The strict fresh differential also
+    // checks every screen and cursor boundary for this same recipe.
+    const startup = await runSegment({
+        seed: 2601,
+        datetime: '20000110090000',
+        nethackrc: rc,
+        moves: '\x1B',
+        storage: null,
+    });
+    assert.equal(command.getRngLog().length, startup.getRngLog().length);
+
+    // runSegment() has set the live timer while processing the command; keep
+    // the direct call below focused on enlightenment lines rather than clock
+    // setup.
+    game.urealtime.start_timing = getnow(game);
+    const lines = await enlightenment(MAGIC, ENL_GAMEINPROGRESS, game);
+    assert.ok(lines.includes(' You have 0 experience points, 20 needed'
+        + ' to attain level 2.'));
+    assert.ok(lines.includes(" You aren't hungry <900>."));
+    assert.ok(lines.includes(' You are unencumbered <-308>.'));
+    assert.ok(lines.includes(' Your alignment is 0.'));
+    assert.ok(lines.includes(
+        ' You are magic-protected because of your cloak of magic resistance.',
+    ));
+    assert.ok(lines.includes(' Your luck is zero.'));
+    assert.ok(lines.includes(" You can't safely pray (300)."));
+    assert.ok(lines.includes(' You are running in debug mode.'));
+
+    // insight.c:1909-1916 appends the aggregate Luck value only in debug
+    // mode. Keep this branch on the same real state after checking zero luck.
+    game.u.uluck = 1;
+    const luckyLines = await enlightenment(MAGIC, ENL_GAMEINPROGRESS, game);
+    assert.ok(luckyLines.includes(' You are lucky (1).'));
 });

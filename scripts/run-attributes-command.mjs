@@ -66,8 +66,8 @@ const CAVEWOMAN = 'role:Caveman,race:human,gender:female,align:neutral';
 const TOURIST = 'role:Tourist,race:human,gender:male,align:neutral';
 const EXPLORE = 'OPTIONS=playmode:explore';
 
-// Four seeds, so a level layout that happened to hide a divergence in one
-// cannot hide it in the whole matrix.
+// Four ordinary seeds plus one authorized debug seed, so a level layout that
+// happened to hide a divergence in one cannot hide it in the whole matrix.
 export const ATTRIBUTE_CASES = [
     {
         label: 'explore Caveman, magic cancellation 1',
@@ -104,6 +104,21 @@ export const ATTRIBUTE_CASES = [
         mc: 1,
         bones: true,
     },
+    {
+        label: 'debug Wizard, numeric enlightenment details',
+        seed: 2601,
+        nethackrc: nethackrc(
+            'role:Wizard,race:human,gender:male,align:neutral',
+            'OPTIONS=playmode:debug,showexp,time,color,lit_corridor',
+            'BIND=v:inventory',
+        ),
+        discover: false,
+        wizard: true,
+        // The Wizard starts with a cloak of magic resistance, whose armor
+        // category gives magic_negation() factor 1, "warded".
+        mc: 1,
+        bones: true,
+    },
 ];
 
 // Each segment dismisses the welcome message, opens the window, turns to its
@@ -126,7 +141,7 @@ const CASE_BY_SEED = new Map(
 );
 
 // The screens show that a window appeared, not that the port chose its
-// contents the way C does. These four pieces of state are what separate them:
+// contents the way C does. These pieces of state are what separate them:
 // the mode bit doattributes() reads, the magic-cancellation factor the
 // "warded" line reports, the bones flag the reminder block branches on, and
 // whether can_pray() ran at all and answered from the "too soon" arm.
@@ -139,6 +154,10 @@ export async function verifyAttributesSegment(recipeSegment) {
     if (game.discover !== expected.discover) {
         throw new Error(`${expected.label}: discover is ${game.discover},`
             + ` not ${expected.discover}`);
+    }
+    if (game.wizard !== Boolean(expected.wizard)) {
+        throw new Error(`${expected.label}: wizard is ${game.wizard},`
+            + ` not ${Boolean(expected.wizard)}`);
     }
     const armpro = magic_negation(game.youmonst, game);
     if (armpro !== expected.mc) {
@@ -158,7 +177,7 @@ export async function verifyAttributesSegment(recipeSegment) {
             + ` ${game.u.ublesscnt}, not 300`);
     }
     const p_type = game.gp?.p_type;
-    const expected_p_type = expected.discover ? 0 : undefined;
+    const expected_p_type = expected.discover || expected.wizard ? 0 : undefined;
     if (p_type !== expected_p_type) {
         throw new Error(`${expected.label}: gp.p_type is ${p_type},`
             + ` not ${expected_p_type}`);
@@ -172,6 +191,9 @@ export async function runAttributesCommandMatrix() {
         ],
         summaryLabel: 'ATTRIBUTES COMMAND',
         verifySegment: verifyAttributesSegment,
+        // record-session leaves a debug save behind when it stops at the
+        // command boundary; isolate that segment from the ordinary cases.
+        chunkLimit: 1,
     });
 }
 

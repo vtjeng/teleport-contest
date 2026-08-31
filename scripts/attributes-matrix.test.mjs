@@ -28,7 +28,7 @@ test('the attributes matrix carries replay inputs only', () => {
     // The seed list is the tripwire for a silent re-recording.
     assert.deepEqual(
         recipe.segments.map(({ seed }) => seed),
-        [8151001, 8151002, 8151004, 8151005],
+        [8151001, 8151002, 8151004, 8151005, 2601],
     );
 });
 
@@ -39,6 +39,12 @@ test('the attributes matrix moves every term its rows claim to move', () => {
     const values = (key) => new Set(ATTRIBUTE_CASES.map((entry) => entry[key]));
     // insight.c:420-423, the MAGICENLIGHTENMENT gate.
     assert.deepEqual(values('discover'), new Set([true, false]));
+    // insight.c:2014-2015 gives the same magic half to authorized wizard mode
+    // while keeping it separate from explore mode.
+    assert.deepEqual(
+        new Set(ATTRIBUTE_CASES.map((entry) => Boolean(entry.wizard))),
+        new Set([true, false]),
+    );
     // insight.c:1800, magic_negation() answering 0 and 1.
     assert.deepEqual(values('mc'), new Set([0, 1]));
     // insight.c:435-437 against :439-441, the two reachable bones arms.
