@@ -6571,7 +6571,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-3",
-      "status": "open",
+      "status": "closed",
       "boundary": "Add the monster-occupying #chat branch for the witnessed peaceful quest leader path through dochat, domonnoise, and quest_chat; preserve other unported chat arms and unrelated command families.",
       "upstreamOwners": [
         "nethack-c/upstream/src/cmd.c",
@@ -6607,8 +6607,11 @@
         "screens": 3388,
         "rng": 224872
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "bab7da900e95ae452338d5438dffa80adc0f0376",
+      "delivered": {
+        "screens": 6,
+        "rng": 16
+      }
     }
   ]
 }
