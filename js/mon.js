@@ -285,11 +285,15 @@ import { objectGenerationEnv } from './object_generation.js';
 import {
     AMULET_OF_LIFE_SAVING,
     BOULDER,
+    CARROT,
     CORPSE,
+    EGG,
     FIGURINE,
     FOOD_CLASS,
+    GLOB_OF_GREEN_SLIME,
     POTION_CLASS,
     RANDOM_CLASS,
+    TIN,
 } from './objects.js';
 import { distant_name, donameFresh } from './objnam.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
@@ -619,7 +623,7 @@ export function m_carrying(monster, type, state = game) {
 // Has_contents arms are gated before entry.  After delobj, corpses that
 // trigger polyfood, mlevelgain, mhealup, mstoning, sliming, pyrolisk
 // explosion, or mon_givit effects are refused fail-closed; only inert
-// corpses and the mimic-quickmimic branch pass through.
+// corpses, ordinary food items, and the mimic-quickmimic branch pass through.
 export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const unsupported = rawEnv.unsupported;
@@ -629,13 +633,30 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     };
 
     if (!mtmp?.mtame) stop('a tame monster');
-    if (otmp?.otyp !== CORPSE) stop('a corpse object');
-    if (otmp.cobj) stop('an empty corpse object');
     if (otmp === state.uball || otmp === state.uchain)
-        stop('an unpunished corpse object');
-    if (otmp.oartifact) stop('an ordinary corpse object');
+        stop('an unpunished object');
+    if (otmp?.oartifact) stop('an ordinary object');
 
-    const corpsenm = otmp.corpsenm;
+    // C line 1410: corpsenm is NON_PM for non-CORPSE objects.
+    const corpsenm = otmp.otyp === CORPSE ? otmp.corpsenm : NON_PM;
+
+    // Non-corpse food items: the C special-effect macros (ofood, polyfood,
+    // mlevelgain, mhealup, mstoning) all require CORPSE, EGG, or TIN; the
+    // CARROT eye-cure check is by otyp.  Ordinary food triggers none of
+    // these, so delobj is the only effect.  Guard the special otypes.
+    if (otmp.otyp !== CORPSE) {
+        if (otmp.otyp === EGG) stop('a non-EGG food item');
+        if (otmp.otyp === TIN) stop('a non-TIN food item');
+        if (otmp.otyp === CARROT) stop('a non-CARROT food item');
+        if (otmp.otyp === GLOB_OF_GREEN_SLIME)
+            stop('a non-slime food item');
+        if (otmp.cobj) stop('an empty food container');
+        delobj(otmp, objectGenerationEnv({ ...rawEnv, state }));
+        return;
+    }
+
+    if (otmp.cobj) stop('an empty corpse object');
+
     const corpseSpecies = ismnum(corpsenm) ? state.mons?.[corpsenm] : null;
 
     // Gate every post-delobj effect branch.  Each check mirrors the C macro
@@ -649,7 +670,7 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
         && (pm_to_cham(corpsenm, state) !== NON_PM
             || dmgtype(corpseSpecies, AD_POLY)))
         stop('a non-polymorphing corpse');
-    // GLOB_OF_GREEN_SLIME is caught by the CORPSE otyp check above.
+    // GLOB_OF_GREEN_SLIME is caught by the non-CORPSE branch above.
     // mlevelgain: PM_WRAITH
     if (corpsenm === PM_WRAITH) stop('a non-wraith corpse');
     // mhealup: PM_NURSE
@@ -657,8 +678,7 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     // mstoning: flesh_petrifies
     if (corpseSpecies && flesh_petrifies(corpseSpecies))
         stop('a non-petrifying corpse');
-    // eyes: CARROT is not a corpse, so this branch never fires here.
-    // pyrolisk egg: EGG is not a corpse, so this branch never fires here.
+    // pyrolisk egg: EGG is not a corpse, handled in the non-CORPSE branch.
     // mon_givit: fires when corpsenm != NON_PM.  For corpses whose species
     // conveys no intrinsic and is not a stalker, corpse_intrinsic returns 0
     // and mon_givit returns immediately with no random draw or state change.

@@ -58,6 +58,7 @@ import {
 } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { dogfood as classifyDogFood } from './dogfood.js';
+import { eaten_stat } from './eat.js';
 import { game } from './gstate.js';
 import { obj_extract_self } from './invent.js';
 import { On_stairs } from './stairs.js';
@@ -104,6 +105,7 @@ import {
     PM_DOG,
     PM_GIANT_RAT,
     PM_HOUSECAT,
+    PM_KILLER_BEE,
     PM_LARGE_CAT,
     PM_LARGE_DOG,
     PM_LITTLE_DOG,
@@ -146,6 +148,7 @@ import {
     DWARVISH_MATTOCK,
     FOOD_CLASS,
     GOLD_PIECE,
+    LUMP_OF_ROYAL_JELLY,
     LOCK_PICK,
     PICK_AXE,
     ROCK_CLASS,
@@ -453,20 +456,26 @@ export async function dog_hunger(monster, edog, rawEnv = {}) {
     return false;
 }
 
-// C ref: dogmove.c dog_nutrition() (156-215), the corpse arm used when a pet
-// eats a mimic.  Other food and the coin/odd-object branches have no caller in
-// this slice and remain outside this function's admitted boundary.
+// C ref: dogmove.c dog_nutrition() (156-215), the FOOD_CLASS arm.  The
+// coin and odd-object branches have no caller in this slice and remain
+// outside this function's admitted boundary.
 export function dog_nutrition(mtmp, obj, state = game) {
-    if (obj?.oclass !== FOOD_CLASS || obj.otyp !== CORPSE)
-        throw new TypeError('dog_nutrition requires a corpse');
-    if (obj.oeaten)
-        throw new TypeError('dog_nutrition requires a whole corpse');
-    const corpse = state.mons?.[obj.corpsenm];
-    if (!corpse)
-        throw new RangeError(`dog_nutrition requires monster ${obj.corpsenm}`);
-
-    mtmp.meating = 3 + (corpse.cwt >> 6);
-    let nutrit = corpse.cnutrit;
+    if (obj?.oclass !== FOOD_CLASS)
+        throw new TypeError('dog_nutrition requires FOOD_CLASS');
+    let nutrit;
+    if (obj.otyp === CORPSE) {
+        const corpse = state.mons?.[obj.corpsenm];
+        if (!corpse)
+            throw new RangeError(
+                `dog_nutrition requires monster ${obj.corpsenm}`,
+            );
+        mtmp.meating = 3 + (corpse.cwt >> 6);
+        nutrit = corpse.cnutrit;
+    } else {
+        const odata = state.objects[obj.otyp];
+        mtmp.meating = odata.oc_delay;
+        nutrit = odata.oc_nutrition;
+    }
     switch (mtmp.data.msize) {
     case MZ_TINY: nutrit *= 8; break;
     case MZ_SMALL: nutrit *= 6; break;
@@ -476,13 +485,16 @@ export function dog_nutrition(mtmp, obj, state = game) {
     case MZ_HUGE: nutrit *= 3; break;
     case MZ_GIGANTIC: nutrit *= 2; break;
     }
+    if (obj.oeaten) {
+        mtmp.meating = eaten_stat(mtmp.meating, obj, { state });
+        nutrit = eaten_stat(nutrit, obj, { state });
+    }
     return nutrit;
 }
 
-// C ref: dogmove.c dog_eat() (218-345), for a tame pet eating one whole
-// corpse from the floor.  The validation is ahead of hungrytime and meating
-// so stacks, shops, pools, special eaters, partly eaten food, and other food
-// types remain atomic fail-closed paths.
+// C ref: dogmove.c dog_eat() (218-345), for a tame pet eating food from the
+// floor.  Shops, pools, special eaters, and non-food objects remain atomic
+// fail-closed paths.
 export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const edog = mtmp?.mextra?.edog;
@@ -492,13 +504,18 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
         throw new TypeError(`dog_eat requires ${reason}`);
     };
     if (!edog) stop('a tame pet with edog');
-    if (obj?.oclass !== FOOD_CLASS || obj.otyp !== CORPSE || obj.oeaten)
-        stop('one whole corpse');
-    if (obj.quan !== 1 || obj.unpaid || obj.oartifact || obj.cobj)
-        stop('one ordinary floor corpse');
+    if (obj?.oclass !== FOOD_CLASS)
+        stop('a food item');
+    if (obj.unpaid || obj.oartifact || obj.cobj)
+        stop('one ordinary floor food');
     if (devour) stop('the ordinary eat path');
     if (is_pool(mtmp.mx, mtmp.my, state) && !state.u?.uinwater)
         stop('a dry eating square');
+    if (mtmp.data?.pmidx === PM_KILLER_BEE
+        && obj.otyp === LUMP_OF_ROYAL_JELLY)
+        stop('bee_eat_jelly');
+    if (obj.quan > 1)
+        obj = splitobj(obj, 1, objectGenerationEnv(rawEnv));
 
     if (edog.hungrytime < state.moves) edog.hungrytime = state.moves;
     const nutrit = dog_nutrition(mtmp, obj, state);
