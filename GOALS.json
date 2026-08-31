@@ -6594,7 +6594,13 @@
         ]
       },
       "detail": "Bound the candidate to the monster-occupying #chat path exercised by seed0367: complete the common sounds.c dochat tail through sounds.c:1374-1408, then the quest-leader domonnoise path at sounds.c:695-731 and quest.c:473-480, including the leader_first and alignment-adjust continuation witnessed in quest.c:321-357. The visible first result is the leader_first quest pager from dat/quest.lua; later monster chatter families, shop price_quote, steed-down chat, nemesis or guardian chat, and unrelated special rooms are outside this candidate. The current JavaScript stop is js/sounds.js at the m_at target-monster guard, so the running game reaches this path from runChatCommand in js/cmd.js.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "quest-leader-first-meeting-alignment-adjust",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "acb9345d2c9f13915766238b2f919cba759f9624",
       "openStanding": {
         "sha": "2f9e02929bdd38475843b957a78eb5dc9d01116e",
