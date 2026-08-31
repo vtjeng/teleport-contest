@@ -6820,6 +6820,42 @@
         "screens": 6,
         "rng": 88
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-5",
+      "status": "open",
+      "boundary": "Support the witnessed in-progress Ctrl-X attributes menu for the authorized debug hero: preserve custom v:inventory and Ctrl-X attributes bindings, include BASIC plus MAGIC enlightenment and reached debug numeric annotations, render both pages, accept space and Escape, consume no RNG and no turn.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/options.c: playmode and bindings",
+        "nethack-c/upstream/src/cmd.c: binding and doattributes dispatch",
+        "nethack-c/upstream/src/insight.c: doattributes() and enlightenment helper family",
+        "nethack-c/upstream/src/exper.c: newuexp()",
+        "nethack-c/upstream/src/invent.c: inv_weight()",
+        "nethack-c/upstream/src/pray.c: can_pray()"
+      ],
+      "forecast": {
+        "steps": 6,
+        "basis": "Capped look-ahead at unsupported hero command: an unported branch of this command: the attributes window requires debug mode",
+        "sessions": [
+          "seed2600-wizard-custom-binds"
+        ],
+        "witnesses": [
+          {
+            "session": "seed2600-wizard-custom-binds",
+            "evidence": "Seed 2600, 2000-01-10 09:00, configured human male neutral Wizard Binder with playmode:debug, showexp/time/color/lit_corridor, DECgraphics, custom symbols, and BIND=v:inventory. Authorized debug mode changes effective name to wizard; v and i both dispatch inventory while unmodified Ctrl-X retains doattributes. On Sokoban 5 after six turns, C doattributes() requests BASICENLIGHTENMENT|MAGICENLIGHTENMENT and renders the two-page in-progress menu, including debug numeric next-XP, hunger, weight, alignment, luck, prayer timeout and debug-mode lines, with no RNG or turn. JS dispatches correctly but blanket-refuses debug in attributes_enlightenment() before emitting the built window."
+          }
+        ]
+      },
+      "detail": "Medium self-contained insight-command slice, forecast 6. Existing dispatch/menu/ordinary sections remain; add witnessed debug-gated next-XP, raw hunger/weight, numeric alignment, zero luck, prayer timeout and debug marker, then remove blanket refusal. Exclude unexercised debug-only property/status lines, alternate Ctrl-X binding, explore/end-game enlightenment, and polymorph states.",
+      "slices": [],
+      "openedAt": "a1b4a5458a3e6b4cab8e270e237947f095732fae",
+      "openStanding": {
+        "sha": "72eb68e",
+        "screens": 3478,
+        "rng": 225589
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
