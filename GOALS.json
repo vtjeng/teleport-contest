@@ -7653,6 +7653,44 @@
         "screens": 7,
         "rng": 67
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-12",
+      "status": "open",
+      "boundary": "ordinary hero application of CARROT (otyp 282) through doapply()'s unknown-use default",
+      "upstreamOwners": [
+        "apply.c: apply_ok()",
+        "doapply()"
+      ],
+      "forecast": {
+        "steps": 75,
+        "basis": "Capped look-ahead at unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 282",
+        "sessions": [
+          "seed0004-feeding-pony"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "Development witness: seed 4, datetime 20260414173108, OPTIONS=symset:DECgraphics, step 334. The preceding a command selects inventory item h, whose C object type is CARROT (otyp 282). C apply.c apply_ok() returns GETOBJ_EXCLUDE_SELECTABLE for ordinary food not among CREAM_PIE, EUCALYPTUS_LEAF, or LUMP_OF_ROYAL_JELLY; getobj() permits the explicitly selected item, then doapply() reaches the default arm after the switch. Since CARROT is not a polearm, pick, or axe, C emits pline(\"Sorry, I don\\x27t know how to use that.\") and returns ECMD_FAIL without spending a turn. This is the exact branch represented by the JS refusal at step 334; the subsequent 75 recorded steps are the bounded development look-ahead."
+          }
+        ]
+      },
+      "detail": "C-path witness confirms one ordinary, sighted hero applying an inventory carrot: apply_ok() excludes selectable CARROT (otyp 282), doapply() takes the default unknown-use branch, and the non-weapon/non-tool object cannot redirect to use_pole() or use_pick_axe(). The bounded forecast is 75 steps to the end of the contributing development stream; no second independent unported behavior is observed in that bounded stream.",
+      "slices": [
+        {
+          "name": "ordinary CARROT application through doapply unknown-use result",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "787f17b5e10e5030a4e5dbed986419ea53206711",
+      "openStanding": {
+        "sha": "82d5e28",
+        "screens": 3713,
+        "rng": 238545
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
