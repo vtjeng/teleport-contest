@@ -7553,8 +7553,8 @@
       "slices": [
         {
           "name": "direct semicolon glance dispatch and ordinary cursor map description",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "803aa87cf20900080445abe3c3efc8fa1204fe7f"
         }
       ],
       "openedAt": "a77a83fea126cf3546a15bfa09591e7423760b89",
