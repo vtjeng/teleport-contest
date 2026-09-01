@@ -57,30 +57,49 @@ function scoreRow({ utc, sha, event, screens, note }) {
 
 function renderDashboard(data) {
     const elements = new Map();
+    // Every canvas call lands in canvasOps, and also in the drawn element's
+    // own ops, so a test can ask what one canvas drew.
     const canvasOps = [];
-    const context2d = new Proxy({}, {
+    const context = (ops) => new Proxy({}, {
         get(target, key) {
             if (key in target) return target[key];
-            return (...args) => canvasOps.push([String(key), ...args]);
+            return (...args) => {
+                canvasOps.push([String(key), ...args]);
+                ops.push([String(key), ...args]);
+            };
         },
         set(target, key, value) {
             canvasOps.push(['set', String(key), value]);
+            ops.push(['set', String(key), value]);
             target[key] = value;
             return true;
         },
     });
+    // Enough of an element for the template's first render. The chart's
+    // pointer and keyboard handlers never fire here, so their DOM calls only
+    // need to exist, not to record anything.
+    const makeElement = (id) => {
+        const ops = [];
+        return {
+            id,
+            innerHTML: '',
+            textContent: '',
+            className: '',
+            disabled: false,
+            style: {},
+            classList: { add() {}, remove() {} },
+            children: [],
+            ops,
+            parentElement: { getBoundingClientRect: () => ({ width: 1000 }) },
+            getBoundingClientRect: () => ({ width: 1000, left: 0, top: 0, height: 0 }),
+            getContext: () => context(ops),
+            addEventListener() {},
+            appendChild(child) { this.children.push(child); return child; },
+            replaceChildren(...nodes) { this.children = nodes; },
+        };
+    };
     const element = (id) => {
-        if (!elements.has(id)) {
-            elements.set(id, {
-                id,
-                innerHTML: '',
-                textContent: '',
-                style: {},
-                parentElement: { getBoundingClientRect: () => ({ width: 1000 }) },
-                getBoundingClientRect: () => ({ width: 1000 }),
-                getContext: () => context2d,
-            });
-        }
+        if (!elements.has(id)) elements.set(id, makeElement(id));
         return elements.get(id);
     };
     const template = readFileSync(TEMPLATE, 'utf8');
@@ -89,6 +108,7 @@ function renderDashboard(data) {
     const document = {
         documentElement: {},
         getElementById: element,
+        createElement: (tag) => makeElement(tag),
         querySelectorAll: () => [],
     };
     const window = {
@@ -490,6 +510,128 @@ test('verification requires a recorded final slice closure', () => {
     assert.equal(observed.goals[0].verificationMin, 20);
     assert.equal(observed.goals[0].verificationObserved, true);
     assert.equal(observed.summary.medianVerificationMin, 20);
+});
+
+test('progress points carry what the chart readout shows', () => {
+    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-chart-'));
+    git(fixture, ['init', '--quiet']);
+    git(fixture, ['config', 'user.name', 'Dashboard Test']);
+    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
+    commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
+    // Three goals, ten minutes apart, so the whole range is under a day and
+    // the readout has to print clock times as well as dates.
+    const first = commit(fixture, 'Close alpha goal', '2026-01-01T00:10:00Z');
+    const second = commit(fixture, 'Close beta goal', '2026-01-01T00:20:00Z');
+    const third = commit(fixture, 'Close gamma goal', '2026-01-01T00:30:00Z');
+
+    writeFileSync(join(fixture, 'SCORE.tsv'), [
+        SCORE_HEADER,
+        scoreRow({
+            utc: '2026-01-01T00:10:00Z', sha: first, event: 'goal',
+            screens: 40, note: 'alpha closes. Second sentence.',
+        }),
+        scoreRow({
+            utc: '2026-01-01T00:20:00Z', sha: second, event: 'goal',
+            screens: 55, note: 'beta closes. Second sentence.',
+        }),
+        scoreRow({
+            utc: '2026-01-01T00:30:00Z', sha: third, event: 'goal',
+            screens: 55, note: 'gamma closes. Second sentence.',
+        }),
+        '',
+    ].join('\n'));
+
+    const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
+        cwd: fixture,
+        encoding: 'utf8',
+    }));
+
+    // Each point names its goal the same way the goal table does.
+    assert.deepEqual(
+        data.progress.map((point) => point.name),
+        data.goals.map((goal) => goal.name),
+    );
+    assert.deepEqual(
+        data.progress.map((point) => point.name),
+        ['alpha', 'beta', 'gamma'],
+    );
+    // The step the reader hovers: nothing before the first, +15, then flat.
+    assert.deepEqual(
+        data.progress.map((point) => point.screensDelta),
+        [null, 15, 0],
+    );
+    // The whole note reaches the readout, not just its first sentence.
+    assert.equal(data.progress[0].note, 'alpha closes. Second sentence.');
+
+    const rendered = renderDashboard(data);
+    // Twenty minutes of goals is less than the week the chart opens on, so it
+    // shows all three and Show all has nothing left to reveal.
+    assert.equal(rendered.get('progressReset').disabled, true);
+    assert.equal(
+        rendered.get('progressRange').textContent,
+        '1 Jan 2026 00:10 – 1 Jan 2026 00:30 UTC · 3 goals',
+    );
+
+    // The minimap's window is the only rectangle it strokes. On the whole
+    // range it covers the whole track: the stub canvas is 1000 wide, and the
+    // chart's 56px left and 74px right margins are shared with the plot above.
+    const [, x, y, width, height] = rendered.get('progressMinimap').ops
+        .find(([operation]) => operation === 'strokeRect');
+    assert.deepEqual([x, y, width], [56.5, 0.5, 1000 - 56 - 74]);
+    // One pixel short of the 54px strip, so both edges of the outline land
+    // inside it.
+    assert.equal(height, 53);
+});
+
+test('the chart opens on the last week of goals', () => {
+    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-week-'));
+    git(fixture, ['init', '--quiet']);
+    git(fixture, ['config', 'user.name', 'Dashboard Test']);
+    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
+    commit(fixture, 'Baseline', '2025-12-31T00:00:00Z');
+    // Goals across 24 days. Only the last two fall in the week before the
+    // newest one, which is what the chart opens on.
+    const days = ['2026-01-01', '2026-01-10', '2026-01-20', '2026-01-25'];
+    const shas = days.map(
+        (day, i) => commit(fixture, `Close goal ${i} goal`, `${day}T00:00:00Z`),
+    );
+
+    writeFileSync(join(fixture, 'SCORE.tsv'), [
+        SCORE_HEADER,
+        ...shas.map((sha, i) => scoreRow({
+            utc: `${days[i]}T00:00:00Z`,
+            sha,
+            event: 'goal',
+            screens: 10 * (i + 1),
+            note: `goal${i} closes.`,
+        })),
+        '',
+    ].join('\n'));
+
+    const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
+        cwd: fixture,
+        encoding: 'utf8',
+    }));
+    assert.equal(data.progress.length, 4);
+
+    const rendered = renderDashboard(data);
+    // 25 Jan is the newest goal, so the opening window runs back to 18 Jan and
+    // holds the goals of 20 and 25 Jan.
+    assert.equal(
+        rendered.get('progressRange').textContent,
+        '18 Jan 2026 – 25 Jan 2026 · 2 goals',
+    );
+    // The two older goals are off-window, so Show all has something to reveal.
+    assert.equal(rendered.get('progressReset').disabled, false);
+
+    // The minimap still covers the whole 24 days, so its window is now a
+    // fraction of the track: 7 of 24 days across the 870px between the
+    // chart's 56px left and 74px right margins.
+    const [, x, , width] = rendered.get('progressMinimap').ops
+        .find(([operation]) => operation === 'strokeRect');
+    const track = 1000 - 56 - 74;
+    assert.equal(width, Math.round(track * 7 / 24));
+    assert.equal(x, Math.round(56 + track * 17 / 24) + 0.5);
 });
 
 test('dashboard builder injects data into a standalone HTML file', () => {

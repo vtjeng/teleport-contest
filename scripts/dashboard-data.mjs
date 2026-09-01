@@ -73,6 +73,21 @@ const scoreEvents = scoreLines.map(line => {
   };
 }).filter(Boolean);
 
+// Extracts the goal name from a SCORE note. Both the goal timeline and the
+// progress chart label their entries with it.
+function goalNameFromNote(note) {
+  const closesMatch = note.match(/^(.+?)\s+closes\b/i);
+  const closesTheGoal = note.match(/^Closes\s+(?:the\s+(?:goal\s+(?:for\s+)?)?)?(.+?)(?:\s+at\b|\s+with\b|\s+having\b|;|\.)/i);
+  const colonMatch = note.match(/^([a-z0-9_-]+(?:-[a-z0-9_]+)*):/i);
+  const milestoneMatch = note.match(/^(.+?milestone)\b/i);
+  if (closesMatch && !closesMatch[1].match(/^(Closes|The|Per|First|Second|Third|Above|Dart|Fifth|Largest)/i))
+    return closesMatch[1];
+  if (closesTheGoal) return closesTheGoal[1];
+  if (colonMatch) return colonMatch[1];
+  if (milestoneMatch) return milestoneMatch[1];
+  return note.split(/[.;]/)[0].slice(0, 50);
+}
+
 // --- Build goal timeline from SCORE goal events ---
 
 const rawScoreGoals = scoreEvents.filter(e => e.event === 'goal');
@@ -85,23 +100,7 @@ const goals = [];
 for (let gi = 0; gi < scoreGoals.length; gi++) {
   const sg = scoreGoals[gi];
 
-  // Extract goal name from SCORE note
-  let name;
-  const closesMatch = sg.note.match(/^(.+?)\s+closes\b/i);
-  const closesTheGoal = sg.note.match(/^Closes\s+(?:the\s+(?:goal\s+(?:for\s+)?)?)?(.+?)(?:\s+at\b|\s+with\b|\s+having\b|;|\.)/i);
-  const colonMatch = sg.note.match(/^([a-z0-9_-]+(?:-[a-z0-9_]+)*):/i);
-  const milestoneMatch = sg.note.match(/^(.+?milestone)\b/i);
-  if (closesMatch && !closesMatch[1].match(/^(Closes|The|Per|First|Second|Third|Above|Dart|Fifth|Largest)/i)) {
-    name = closesMatch[1];
-  } else if (closesTheGoal) {
-    name = closesTheGoal[1];
-  } else if (colonMatch) {
-    name = colonMatch[1];
-  } else if (milestoneMatch) {
-    name = milestoneMatch[1];
-  } else {
-    name = sg.note.split(/[.;]/)[0].slice(0, 50);
-  }
+  const name = goalNameFromNote(sg.note);
 
   // Find close commit by SHA
   const closeCommit = commitBySha.get(sg.sha) || commitBySha.get(sg.sha.slice(0, 7));
@@ -355,14 +354,23 @@ const progress = scoreEvents
   .map(e => ({
     utc: e.utc?.toISOString() ?? null,
     utcSource: e.utcSource,
+    sha: e.sha,
+    name: goalNameFromNote(e.note),
     screens: e.screensMatched,
     screensTotal: e.screensTotal,
     rng: e.rngMatched,
     rngTotal: e.rngTotal,
     sessions: e.sessionsPassed,
     sessionsTotal: e.sessionsTotal,
-    note: e.note.split('.')[0],
+    note: e.note,
   }));
+
+// How many screens each goal added, for the chart's hover readout. The first
+// point has no predecessor to subtract, so it carries no delta.
+for (let i = 1; i < progress.length; i++) {
+  progress[i].screensDelta = progress[i].screens - progress[i - 1].screens;
+}
+if (progress.length) progress[0].screensDelta = null;
 
 // --- Standalone audit events (outside goals) ---
 
