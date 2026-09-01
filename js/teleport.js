@@ -99,6 +99,7 @@ import { game } from './gstate.js';
 import { addinv, prinv } from './invent.js';
 import { record_achievement } from './insight.js';
 import { objectGenerationEnv } from './object_generation.js';
+import { learnscroll } from './read.js';
 import {
     invocation_message,
     near_capacity,
@@ -1147,9 +1148,28 @@ function Stunned_prop(state) {
     return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
 }
 
-// C ref: teleport.c scrolltele() (849-915). Controlled teleport path only;
-// the uncontrolled fallback (safe_teleds) is left for a future slice.
-async function scrolltele(scroll, state = game) {
+// C ref: teleport.c safe_teleds() (717-770). The ordinary random-candidate
+// path used by the calm scroll read is bounded here; the whole-map candidate
+// fallback remains a later boundary.
+export async function safe_teleds(teleds_flags, state = game) {
+    for (let tcnt = 0; tcnt < 40; ++tcnt) {
+        const nux = rnd(COLNO - 1);
+        const nuy = rn2(ROWNO);
+        if (await teleok(nux, nuy, false, state)) {
+            await teleds(nux, nuy, teleds_flags, state);
+            return true;
+        }
+    }
+
+    throw new UnsupportedHeroMoveBoundaryError(
+        'safe_teleds() whole-map candidate fallback',
+    );
+}
+
+// C ref: teleport.c scrolltele() (849-915). The calm uncontrolled scroll
+// branch reaches safe_teleds(); controlled, level-restricted, and direct
+// teleport-command branches remain bounded to their existing callers.
+export async function scrolltele(scroll, state = game) {
     const message = ttyPline;
 
     if (noteleport_level(state.youmonst, state) && !state.wizard) {
@@ -1203,9 +1223,13 @@ async function scrolltele(scroll, state = game) {
         }
     }
 
-    throw new UnsupportedHeroMoveBoundaryError(
-        'scrolltele: uncontrolled teleport (safe_teleds) unported',
-    );
+    if (!scroll) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'scrolltele: uncontrolled teleport (safe_teleds) unported',
+        );
+    }
+    learnscroll(scroll, state);
+    await safe_teleds(TELEDS_TELEPORT, state);
 }
 
 // C ref: teleport.c tele() (842-845).

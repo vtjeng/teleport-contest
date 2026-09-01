@@ -4,10 +4,12 @@
 // create_particular(). doread() completes a known ordinary magic-mapping
 // scroll, the ordinary unknown identify-scroll path whose remaining pack is
 // fully identified, and declining a fresh known healing-spell refresh. It
-// also takes a blessed confused teleportation scroll through seffects() and
-// seffect_teleportation() into level_tele(), which handles the confused
-// random_levtport path through random_teleport_level(); other selected
-// readable objects stop before pickup_prev changes.
+// also takes a calm ordinary teleportation scroll through seffects() and
+// seffect_teleportation() into scrolltele(), which handles the uncontrolled
+// safe_teleds path; a blessed confused teleportation scroll goes through
+// level_tele(), which handles the confused random_levtport path through
+// random_teleport_level(); other selected readable objects stop before
+// pickup_prev changes.
 // wizcmds.c wiz_genesis() calls the monster-creation helpers.
 
 import {
@@ -71,7 +73,7 @@ import { not_fully_identified } from './objnam.js';
 import { exercise } from './attrib.js';
 import { do_mapping } from './detect.js';
 import { Is_special } from './dungeon.js';
-import { level_tele } from './teleport.js';
+import { level_tele, scrolltele } from './teleport.js';
 import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
 import { rn2, rnl } from './rng.js';
@@ -140,10 +142,11 @@ function oneWornFlammableArmor(state) {
 // C ref: read.c doread() (347-646), restricted after getobj() to the known,
 // uncursed magic-mapping scroll, an ordinary unknown identify scroll whose
 // remaining inventory is already fully identified, and the fresh-known
-// healing-book refresh decline. The other admitted path is a sighted,
+// healing-book refresh decline. The other admitted paths are a sighted,
 // non-hallucinating wizard reading a blessed teleportation scroll while
-// confused; that path proceeds through seffect_teleportation() into
-// level_tele(), which handles the confused random_levtport path.
+// confused, and the calm ordinary teleportation-scroll path. The former
+// proceeds through seffect_teleportation() into level_tele(), which handles
+// the confused random_levtport path; the latter reaches teleport.c:scrolltele().
 // Every other selected object stops before C's scroll->pickup_prev write.
 export async function doread(state = game) {
     state.gk ??= {};
@@ -182,8 +185,10 @@ export async function doread(state = game) {
         && !propertyActive(BLINDED, state)
         && confused && !propertyActive(HALLUC, state)
         && can_chant(state.youmonst, state) && state.wizard;
+    const calmTeleport = ordinaryScroll
+        && scroll.otyp === SCR_TELEPORTATION;
     if (!mapping && !identify && !destroyArmor
-        && !knownHealing && !confusedTeleport) {
+        && !knownHealing && !confusedTeleport && !calmTeleport) {
         throw new UnsupportedReadError('the selected readable object branch');
     }
 
@@ -250,10 +255,10 @@ export async function seffect_destroy_armor(scroll, state = game) {
     state.gk.known = true;
 }
 
-// C ref: read.c seffect_teleportation() (2015-2032). The admitted doread()
-// path is confused and reaches level_tele(). Re-read the live property here,
-// after both reading messages, as C does. The calm scrolltele() branch remains
-// outside this slice.
+// C ref: read.c seffect_teleportation() (2015-2032). Re-read the live
+// confusion property here, after both reading messages, as C does. The calm
+// ordinary scrolltele() branch reaches teleport.c's uncontrolled safe_teleds
+// path; confused or cursed scrolls retain the level_tele() branch.
 export async function seffect_teleportation(scroll, state = game) {
     const scursed = Boolean(scroll.cursed);
     const confused = propertyActive(CONFUSION, state);
@@ -264,7 +269,15 @@ export async function seffect_teleportation(scroll, state = game) {
         state.gk.known = true;
         return;
     }
-    throw new UnsupportedReadError('the calm teleportation-scroll effect');
+    await scrolltele(scroll, state);
+}
+
+// C ref: read.c learnscroll() (68-76). teleport.c:scrolltele() calls this
+// immediately before its uncontrolled teleport attempt; spellbooks are not
+// scrolls and are deliberately ignored here.
+export function learnscroll(scroll, state = game) {
+    if (scroll.oclass !== SPBOOK_CLASS)
+        learnscrolltyp(scroll.otyp, state);
 }
 
 // C ref: read.c learnscrolltyp() (58-68).
