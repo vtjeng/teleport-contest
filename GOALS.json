@@ -7592,7 +7592,13 @@
         ]
       },
       "detail": "Port the Conflict monster-versus-monster action reached from an ordinary elapsed monster scan. Cover the nearby-monster scan, helpless and stuck/swallowed guards, target bookkeeping, attack result bitmask, and conditional return attack with exact movement and randomness ordering. Keep special Wizard, visibility, range, hero-command refusal, special-level, and unrelated extended-command branches outside this goal unless a fresh development differential reaches them.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "ordinary Conflict target scan and physical monster attack result",
+          "status": "closed",
+          "closedBy": "5b3f3e8b5f3ba450df9cf8c8e85cb770f8cb7aa8"
+        }
+      ],
       "openedAt": "c8df48c1b4e6bf434f340031f462a6d1e5a6c65d",
       "openStanding": {
         "sha": "1f0e116",
