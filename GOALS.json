@@ -7501,6 +7501,11 @@
           "name": "travel command admission and default downstairs target selection",
           "status": "closed",
           "closedBy": "1b5ebf74b642d11fe60cdb19e69df9ae7c883d20"
+        },
+        {
+          "name": "ordinary travel path search, travel-map bookkeeping, and the first path-directed step",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "34b90e722937e7a6f869f93e1ebfa73720020af1",
