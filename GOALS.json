@@ -7656,7 +7656,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-12",
-      "status": "open",
+      "status": "closed",
       "boundary": "ordinary hero application of CARROT (otyp 282) through doapply()'s unknown-use default",
       "upstreamOwners": [
         "apply.c: apply_ok()",
@@ -7689,8 +7689,11 @@
         "screens": 3713,
         "rng": 238545
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "e7d23433c735e00354f5e5dab0fa4868f50f0a7e",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      }
     }
   ]
 }
