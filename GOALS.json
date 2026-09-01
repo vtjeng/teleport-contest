@@ -7386,6 +7386,43 @@
         "screens": 1,
         "rng": 0
       }
+    },
+    {
+      "id": "an-occupation-reached-eating-requires-eye-of-newt-buzz",
+      "status": "open",
+      "boundary": "When eating a PM_NEWT corpse completes its occupation, cpostfx() calls eye_of_newt_buzz() and applies the source energy change, optional message, and status refresh before the meal is consumed.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/eat.c"
+      ],
+      "forecast": {
+        "steps": 2,
+        "basis": "Capped look-ahead at an occupation reached eating requires eye_of_newt_buzz()",
+        "sessions": [
+          "seed0007-rogue-snake-swamp"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0007-rogue-snake-swamp",
+            "evidence": "The development witness is seed 7, fixed datetime 20260503025436, OPTIONS=symset:DECgraphics. Character setup resolves to Septor, a chaotic male orcish Rogue, with no earlier screen or RNG divergence. At C step 243, input e starts eating the newt corpse and C prompts for confirmation; step 244 input y begins the eating occupation. When done_eating() completes the CORPSE meal, eat.c:cpostfx(PM_NEWT) reaches the PM_NEWT arm in its intrinsic-check tail and calls eye_of_newt_buzz(). That function consumes rn2(3), may consume rnd(3) and another rn2(3), updates u.uen/u.uenmax/u.uenpeak, possibly emits You feel a mild buzz., and marks the status line for redraw. JavaScript stops at js/eat.js:1445 before this call. The C ahead message is This newt corpse is tough.  You finish eating the newt corpse."
+          }
+        ]
+      },
+      "detail": "This is a bounded newt-corpse occupation post-effect: after done_eating() finishes a PM_NEWT corpse, execute cpostfx() PM_NEWT path through eye_of_newt_buzz(), preserving its source-ordered energy RNG, u.uen/u.uenmax/u.uenpeak changes, optional mild-buzz message, and status redraw. The candidate is cap-stable at two recorded steps for seed0007-rogue-snake-swamp. Keep other magical-monster corpses, cpostfx() intrinsic arms, corpse hazards, and unrelated eating occupations outside this goal unless a later measured boundary reaches them.",
+      "slices": [
+        {
+          "name": "a PM_NEWT corpse completes its eating occupation and eye_of_newt_buzz() applies the magical energy effect",
+          "status": "closed",
+          "closedBy": "46da89b5acd07d0375cb93537aea754458eef0f3"
+        }
+      ],
+      "openedAt": "5c9623ad03ecd4002db025d1ada613bb50e620b3",
+      "openStanding": {
+        "sha": "620ec68",
+        "screens": 3627,
+        "rng": 234598
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
