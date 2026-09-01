@@ -7429,7 +7429,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-11",
-      "status": "open",
+      "status": "closed",
       "boundary": "When the witnessed ordinary, unblessed, uncursed teleportation scroll is selected through read.c:doread(), execute its calm seffect_teleportation() -> scrolltele() -> safe_teleds() path through the materialization message and relocation result, stopping before the following travel command.",
       "upstreamOwners": [
         "nethack-c/upstream/src/read.c",
@@ -7462,8 +7462,11 @@
         "screens": 3629,
         "rng": 234685
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "a11db8cd550d10da3c9cbb9da805f2b3660dfb20",
+      "delivered": {
+        "screens": 4,
+        "rng": 77
+      }
     }
   ]
 }
