@@ -877,7 +877,11 @@ async function moveSimpleOrdinary(monster, env) {
 async function moveSimplePet(monster, after, env) {
     return dog_move(monster, after, {
         ...env,
-        attackHero: () => unsupported('pet attack on the hero'),
+        // dogmove.c:1280-1287 hands an ALLOW_U landing directly to
+        // mattacku().  Starting pets are constrained by assertSimpleActionState
+        // above; mattacku() itself keeps every attack family outside this
+        // ordinary visible physical boundary fail-closed.
+        attackHero: attackHeroWithMattacku,
         avoidKicked: (subject, x, y) =>
             m_avoid_kicked_loc(subject, x, y, env.state),
         avoidSokobanPush: (subject, x, y) =>

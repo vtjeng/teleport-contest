@@ -988,6 +988,18 @@ test('mattacku carries a landed kick to hitmu for an ordinary hero',
     //
     // hitmsg():199-201 also chooses the punctuation from the same test, so
     // this pins the exclamation mark a thick-skinned defender would lose.
+    const missState = await meleeHero();
+    const missPony = meleeAttacker(
+        missState, PM_PONY, 1, 0, { m_lev: 0 },
+    );
+    // The pony still tests its existing second bite after a missed kick;
+    // feed that wider roll too so this pins both the AT_KICK miss and the
+    // already-supported following-slot miss.
+    const missed = meleeEnv(missState, [20, 20]);
+    assert.equal(await mattacku(missPony, missed.env), false);
+    assert.deepEqual(missed.bounds, ['rnd(20)', 'rnd(21)']);
+    assert.deepEqual(missed.lines, ['The pony misses!', 'The pony misses!']);
+
     const state = await meleeHero();
     const pony = meleeAttacker(state, PM_PONY, 1, 0, { m_lev: 0 });
     const kicked = meleeEnv(state, [1]);

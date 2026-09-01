@@ -7635,7 +7635,13 @@
         ]
       },
       "detail": "Port the ordinary tame, visible, adjacent pet-to-hero physical melee attack reached from dog_move() when mfndpos() selects ALLOW_U. Cover mattacku() target calculation, attack selection, per-slot to-hit rolls, hitmu()/missmu() feedback, and the ordinary physical AT_KICK damage/knockback seam through uhitm.c, preserving exact state, messages, screens, cursors, turns, and RNG. Keep ranged, engulfing, steed-special-case, petrification, death, nonphysical, and other special-response branches outside this goal unless a fresh development differential reaches them.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "ordinary pet AT_KICK hit resolution through hero damage and knockback",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "eb1accc9524a474063cb4dc975ba49a71f13c522",
       "openStanding": {
         "sha": "7944e3f",
