@@ -7719,7 +7719,13 @@
         ]
       },
       "detail": "Bound this candidate to the ordinary throw object-selection menu: support dothrow.c ok_to_throw(), throw_ok(), and dothrow() through invent.c getobj() redo_menu and display_pickinv() with the full inventory selection triggered by *. Preserve the two-page menu, selected object, count state, prompt input, cursor, and return to throw_obj(). Keep ?, count prefixes, hands, forced menus, alternate inventory sorting, and thrown-object effects outside this candidate unless a fresh development differential reaches them.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "ordinary throw full-inventory menu selection from getobj()",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "e9f90d514919f204a5f4245e9434ce7d7c350091",
       "openStanding": {
         "sha": "e7d2343",
