@@ -7389,7 +7389,7 @@
     },
     {
       "id": "an-occupation-reached-eating-requires-eye-of-newt-buzz",
-      "status": "open",
+      "status": "closed",
       "boundary": "When eating a PM_NEWT corpse completes its occupation, cpostfx() calls eye_of_newt_buzz() and applies the source energy change, optional message, and status refresh before the meal is consumed.",
       "upstreamOwners": [
         "nethack-c/upstream/src/eat.c"
@@ -7421,8 +7421,11 @@
         "screens": 3627,
         "rng": 234598
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "884407cec9380e0b90ed025f7a33daabfb6ead9f",
+      "delivered": {
+        "screens": 2,
+        "rng": 87
+      }
     }
   ]
 }
