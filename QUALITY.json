@@ -5693,6 +5693,159 @@
       "status": "open",
       "from": "6c9c85ffb5c415245beb6d3a3bdb9e0b5091230a",
       "detail": "js/objnam.js xnameFresh() omits C objnam.c's gameover T_SHIRT, ALCHEMY_SMOCK, CANDY_BAR, and HAWAIIAN_SHIRT text suffixes, whose helpers live in read.c. No development session reaches those inventory objects at end of game, and the current death score remains correct; queue a dedicated read/object-naming slice."
+    },
+    {
+      "id": "audit-scroll-discovery-early-returns",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed that teleport.c scrolltele() learns before the no-teleport return and before controlled getpos(). The active goal is only the ordinary uncontrolled relocation; no development witness reaches these excluded options. Close with fresh C differentials for unknown-scroll no-teleport and controlled cancellation."
+    },
+    {
+      "id": "audit-wizard-scroll-override",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed the wizard Override? branch after scroll disorientation. Wizard/special-destination behavior is outside the active ordinary-scroll boundary and has no current development witness. Close with wizard Amulet/Vlad cases covering yes and no."
+    },
+    {
+      "id": "audit-paranoid-autoall",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed missing ParanoidAutoAll confirmation in full-menu loot. The active goal does not exercise paranoid option variants. Close with y, n, q, and Escape fresh differentials before admitting the option."
+    },
+    {
+      "id": "audit-cleric-bknown-filter",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed the Cleric bknown mutation before BUC category filtering. The active teleport goal does not reach Cleric full-menu inventory filtering. Close with a Cleric unknown-BUC category differential and persisted bknown checks."
+    },
+    {
+      "id": "audit-partial-stack-unsplit",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed a missing unsplit after failed partial out_container removal. No current development witness reaches a refused partial-stack container removal. Close with an encumbrance or zero-result fresh differential that checks quantities and links."
+    },
+    {
+      "id": "audit-engulf-punished-leash-cleanup",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed that the ice-vortex engulf boundary lacks Punished and leash cleanup. The active witness is unpunished and unleaded, and the required unplacebc/unleash_all behavior is outside it. Close with punished and leashed fresh differentials."
+    },
+    {
+      "id": "audit-engulf-inventory-snuff",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed the non-flaming gulpmu inventory snuff_lit pass is omitted. No current development witness has a lit hero-inventory source at engulfing. Close with a lit lamp/candle ice-vortex differential including light state and messages."
+    },
+    {
+      "id": "audit-fire-arrival-resurrect",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed resurrect() is missing after Plane-of-Fire endgame arrival. This is post-materialization arrival processing outside the active ordinary teleport goal and requires a new wizard.c function family. Close with a Fire arrival differential covering Wizard creation/migration."
+    },
+    {
+      "id": "audit-antimagic-provenance",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed enlightenment provenance is narrowed to one cloak instead of C from_what() sources. No current witness reaches non-cloak antimagic explanation. Close with artifact, scale-mail, and worn-source differentials."
+    },
+    {
+      "id": "audit-inventory-menu-escape",
+      "area": null,
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed Escape from the one-item suggested inventory menu is passed as an inventory letter. The active recipe accepts the suggested item and does not exercise cancellation. Close with a fresh ? then Escape differential."
+    },
+    {
+      "id": "audit-read-menu-filter-test",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed the suggested-inventory test does not assert the filtered menu contents. Add multi-item or captured-menu assertions when the next read-menu test slice records the corresponding C output."
+    },
+    {
+      "id": "audit-loot-category-test",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed the full-menu floor-box test selects all categories and cannot catch category filtering errors. Add a single-category fresh case when category filtering is admitted."
+    },
+    {
+      "id": "audit-mounted-ape-test",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed the committed ape knockback witness is not wired into the mounted-move test. Add the positive ape matrix/test when that knockback boundary is next extended."
+    },
+    {
+      "id": "audit-shop-remembered-price-test",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed the remembered-price movement test asserts only non-throwing behavior. Add an output-capturing fresh differential before closing the shop pricing evidence."
+    },
+    {
+      "id": "audit-monster-wear-integration-test",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed m_dowear is tested directly rather than through live and planning monster-turn callers. Add an I_SPECIAL integration differential when runtime monster equipment is next extended."
+    },
+    {
+      "id": "audit-conflict-integration-test",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed the Conflict test does not assert fightm-before-dochugw integration and does not invoke its matrix. Add call-order and source-ordered RNG/output assertions in the next Conflict test slice."
+    },
+    {
+      "id": "audit-fire-generator-checkpoint",
+      "area": null,
+      "category": "other",
+      "effort": "small",
+      "status": "open",
+      "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "detail": "The correctness audit confirmed the Fire generator check is not included in the standard checkpoint. Register the normalized generator check and generated-output metadata in a tooling/process slice."
     }
   ],
   "areas": [
@@ -8626,6 +8779,25 @@
       ],
       "outcome": "changed",
       "recordedAt": "2026-08-31T15:42:00.486Z"
+    },
+    {
+      "kind": "review",
+      "head": "dadc04d2af363333df32f95917666f6c3e73f32a",
+      "auditedRange": "e52fac762d303fc1631321da078dd0d2267bd0e9..dadc04d2af363333df32f95917666f6c3e73f32a",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "no-change",
+      "recordedAt": "2026-09-01T02:59:03.511Z"
     }
   ]
 }

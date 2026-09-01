@@ -16073,5 +16073,236 @@
       }
     },
     "recordedAt": "2026-08-31T15:42:00.486Z"
+  },
+  {
+    "kind": "review",
+    "head": "dadc04d2af363333df32f95917666f6c3e73f32a",
+    "auditedRange": "e52fac762d303fc1631321da078dd0d2267bd0e9..dadc04d2af363333df32f95917666f6c3e73f32a",
+    "level": "full",
+    "areas": [
+      "startup",
+      "hero",
+      "objects",
+      "generation",
+      "monsters",
+      "world-effects",
+      "commands",
+      "display",
+      "runtime"
+    ],
+    "outcome": "no-change",
+    "evidence": "Counts: 27 raw, 21 deduplicated, 17 confirmed, 0 applied, 17 deferred, 4 rejected, 0 unverified. The full correctness audit found 27 raw and 21 deduplicated findings; all 17 confirmed findings are explicitly tracked as deferred because they are outside the active boundary or require later fresh differentials. No code changes were made by the read-only audit.",
+    "auditMetrics": {
+      "wallTimeSeconds": 1800,
+      "counts": {
+        "raw": 27,
+        "deduplicated": 21,
+        "confirmed": 17,
+        "applied": 0,
+        "deferred": 17,
+        "rejected": 4,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 10,
+        "tests": 6,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 1
+      },
+      "productionDefects": [
+        {
+          "summary": "Teleport scroll discovery is missing on no-teleport and cancelled controlled exits.",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Wizard teleport-scroll disorientation omits the Override? decision.",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "ParanoidAutoAll confirmation is missing before full-menu auto-selection.",
+          "foundBy": [
+            "correctness",
+            "tests"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Cleric BUC filtering omits the source bknown mutation.",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Failed partial container removal does not restore the split stack.",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Ice-vortex engulfing lacks punished and leash cleanup.",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Ice-vortex engulfing skips the non-flaming inventory snuff_lit pass.",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Plane-of-Fire endgame arrival omits resurrect().",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Enlightenment antimagic provenance recognizes only the magic-resistance cloak.",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Escape from the one-item inventory message menu is treated as an inventory letter.",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "deferred"
+        }
+      ],
+      "rejections": [
+        {
+          "summary": "The blessed-scroll controlled predicate is missing.",
+          "counterEvidence": "The active ordinary-scroll boundary excludes blessed scrolls; the selected reader admits only an ordinary unblessed uncursed scroll, so this candidate is outside the reviewed observable path."
+        },
+        {
+          "summary": "A one-letter nonempty lets subset must avoid the message shortcut.",
+          "counterEvidence": "C increments n only for usextra or for n == 1 with !lets or wizid; ordinary nonempty lets therefore keeps the one-item message-menu shortcut used by the port."
+        },
+        {
+          "summary": "The locked-box lknown assignment is source-order incorrect before AUTOUNLOCK_UNTRAP.",
+          "counterEvidence": "The admitted autounlock container caller assigns lknown before pick_lock(), while the direct apply caller does not enter the supplied-container branch; the local order causes no additional reachable effect in this range."
+        },
+        {
+          "summary": "The non-resisting Conflict branch must continue to dochugw().",
+          "counterEvidence": "The reviewed Conflict slice intentionally stops at the first unported monster-versus-monster attack; no-resistance behavior is outside its selected boundary and is explicitly fail-closed."
+        }
+      ],
+      "deferrals": [
+        {
+          "summary": "Teleport scroll discovery is missing on no-teleport and cancelled controlled exits.",
+          "category": "production",
+          "trackedIn": "audit-scroll-discovery-early-returns"
+        },
+        {
+          "summary": "Wizard teleport-scroll disorientation omits the Override? decision.",
+          "category": "production",
+          "trackedIn": "audit-wizard-scroll-override"
+        },
+        {
+          "summary": "ParanoidAutoAll confirmation is missing before full-menu auto-selection.",
+          "category": "production",
+          "trackedIn": "audit-paranoid-autoall"
+        },
+        {
+          "summary": "Cleric BUC filtering omits the source bknown mutation.",
+          "category": "production",
+          "trackedIn": "audit-cleric-bknown-filter"
+        },
+        {
+          "summary": "Failed partial container removal does not restore the split stack.",
+          "category": "production",
+          "trackedIn": "audit-partial-stack-unsplit"
+        },
+        {
+          "summary": "Ice-vortex engulfing lacks punished and leash cleanup.",
+          "category": "production",
+          "trackedIn": "audit-engulf-punished-leash-cleanup"
+        },
+        {
+          "summary": "Ice-vortex engulfing skips the non-flaming inventory snuff_lit pass.",
+          "category": "production",
+          "trackedIn": "audit-engulf-inventory-snuff"
+        },
+        {
+          "summary": "Plane-of-Fire endgame arrival omits resurrect().",
+          "category": "production",
+          "trackedIn": "audit-fire-arrival-resurrect"
+        },
+        {
+          "summary": "Enlightenment antimagic provenance recognizes only the magic-resistance cloak.",
+          "category": "production",
+          "trackedIn": "audit-antimagic-provenance"
+        },
+        {
+          "summary": "Escape from the one-item inventory message menu is treated as an inventory letter.",
+          "category": "production",
+          "trackedIn": "audit-inventory-menu-escape"
+        },
+        {
+          "summary": "Suggested-inventory test coverage does not assert filtered menu contents.",
+          "category": "tests",
+          "trackedIn": "audit-read-menu-filter-test"
+        },
+        {
+          "summary": "Full-menu loot test does not exercise category exclusion.",
+          "category": "tests",
+          "trackedIn": "audit-loot-category-test"
+        },
+        {
+          "summary": "Mounted-move tests do not load the positive ape knockback witness.",
+          "category": "tests",
+          "trackedIn": "audit-mounted-ape-test"
+        },
+        {
+          "summary": "Remembered-price movement test does not assert its output.",
+          "category": "tests",
+          "trackedIn": "audit-shop-remembered-price-test"
+        },
+        {
+          "summary": "Monster-wear tests do not exercise live and planning callers.",
+          "category": "tests",
+          "trackedIn": "audit-monster-wear-integration-test"
+        },
+        {
+          "summary": "Conflict integration test does not assert fightm-before-dochugw wiring.",
+          "category": "tests",
+          "trackedIn": "audit-conflict-integration-test"
+        },
+        {
+          "summary": "Fire generator freshness check is absent from the standard checkpoint.",
+          "category": "other",
+          "trackedIn": "audit-fire-generator-checkpoint"
+        }
+      ],
+      "readiness": {
+        "boundary": "The audited range covers committed implementation through the ordinary teleport-scroll materialization and relocation boundary; the real game executes the reviewed paths through runSegment and the focused fresh differential.",
+        "sourceReview": "The frozen review traced reachable branches, state updates, input waits, messages, and PRNG order against the cited NetHack C sources and patches, and recorded explicit unsupported and deferred branches.",
+        "completeness": "The ordinary selected boundary has no known unhandled branch that mutates state before its stop; excluded options and later arrival behavior are explicitly fail-closed or tracked in durable deferrals."
+      }
+    },
+    "recordedAt": "2026-09-01T02:59:03.511Z"
   }
 ]
