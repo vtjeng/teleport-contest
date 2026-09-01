@@ -7348,7 +7348,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-10",
-      "status": "open",
+      "status": "closed",
       "boundary": "When a read prompt receives ? and read_ok() has produced a nonempty suggested inventory-letter subset, display the filtered inventory choice through the source display_pickinv() path and return the selected object, preserving its message-menu output and input boundary.",
       "upstreamOwners": [
         "nethack-c/upstream/src/read.c",
@@ -7381,8 +7381,11 @@
         "screens": 3626,
         "rng": 234598
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "620ec6873c3f980e6180b18ef1c638fe213f613b",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      }
     }
   ]
 }
