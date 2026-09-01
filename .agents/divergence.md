@@ -230,6 +230,14 @@ resolved. The human decides when that candidate or goal is ready to close.
 
 - Run each development session in a fresh Node process. Segments within one
   session must still share their intended storage.
+- Before treating a screen or saved-state mismatch as a game bug, check
+  whether the protected `js/isaac64.js`, `js/terminal.js`, or `js/storage.js`
+  files have local edits. The scorer replaces these files with its own
+  versions, so it is important to test the game with the same setup. If the
+  mismatch comes from the test setup rather than the game, mark it `excluded`
+  and record why. If the setup prevents you from checking a real game
+  mismatch, mark it `blocked` until the setup is fixed. Never edit the
+  protected files as a gameplay fix.
 - Treat `node scripts/scan-sessions.mjs` as an inventory and triage tool because
   its complete scan is not isolated per session.
 - If a mismatch appears only after another session runs, reproduce it in a
