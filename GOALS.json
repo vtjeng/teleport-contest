@@ -7745,7 +7745,7 @@
     },
     {
       "id": "simple-monster-action-requires-a-non-carrot-food-item",
-      "status": "open",
+      "status": "closed",
       "boundary": "ordinary tame pony carrot consumption through dog_eat() and m_consume_obj()",
       "upstreamOwners": [
         "mon.c:m_consume_obj()",
@@ -7780,8 +7780,11 @@
         "screens": 3717,
         "rng": 238547
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "3e9c15afad37a72d8c945e576f8fcfeb6e3ee16e",
+      "delivered": {
+        "screens": 71,
+        "rng": 360
+      }
     }
   ]
 }
