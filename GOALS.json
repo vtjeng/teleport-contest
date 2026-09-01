@@ -7297,6 +7297,51 @@
         "screens": 2,
         "rng": 121
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-9",
+      "status": "open",
+      "boundary": "When a wizard outside Endgame selects Plane of Fire through the level-teleport dungeon menu without an Amulet, create a real Amulet with source RNG, add it and update u.uhave/achievement, print Endgame prerequisite, then force/defer the selected arrival so materialization follows.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/wizcmds.c: wiz_level_tele()",
+        "nethack-c/upstream/src/teleport.c: level_tele()",
+        "nethack-c/upstream/src/dungeon.c: print_dungeon()",
+        "nethack-c/upstream/src/mkobj.c: Amulet construction",
+        "nethack-c/upstream/src/invent.c: addinv()",
+        "prinv()",
+        "nethack-c/upstream/src/insight.c: achievement",
+        "nethack-c/upstream/src/do.c: scheduling/deferred goto",
+        "nethack-c/upstream/dat/fire.lua"
+      ],
+      "forecast": {
+        "steps": 2,
+        "basis": "Capped look-ahead at unsupported hero command: an unported branch of this command: unsupported level change: level_tele() endgame-amulet branch via print_dungeon menu",
+        "sessions": [
+          "seed0373-barbarian-quest-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0373-barbarian-quest-tour",
+            "evidence": "Seed 373, 2000-01-10 09:00, debug neutral male human Barbarian, DECgraphics, !autopickup, level raised to 20. On Sokoban 4 with no Amulet, Ctrl-V -> wiz_level_tele()->level_tele(), ? -> print_dungeon(TRUE), menu L selects Plane of Fire. Since destination is Endgame and current level is not, and u.uhave.amulet is false, C mksobj(AMULET_OF_YENDOR) with recorded initialization RNG, addinv() assigns e and updates u.uhave/achievement, prinv emits Endgame prerequisite, force_dest schedules deferred Fire arrival and then materialization. JS stops on L before creation/mutation/message/scheduling."
+          }
+        ]
+      },
+      "detail": "Small coherent single slice, forecast 2. Preconditions: wizard menu selection of Fire from outside Endgame, no Amulet, successful unmerged construction, available letter e, verbose and force_dest. Cap before independent Wizard arrival. Exclude already-carried Amulet, already-in-Endgame, other choices, nonwizard invocation, overflow and buried-ball cases.",
+      "slices": [
+        {
+          "name": "a wizard outside Endgame selects Plane of Fire and level_tele() conjures the Amulet prerequisite before scheduling arrival",
+          "status": "closed",
+          "closedBy": "92cde7b994a9e5efb0b83d3c0db6f42640e8246f"
+        }
+      ],
+      "openedAt": "e82dfd3aee38e3b70347c8fdc3bcc20934d1dfaf",
+      "openStanding": {
+        "sha": "6e5ce30",
+        "screens": 3625,
+        "rng": 232240
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
