@@ -7742,6 +7742,40 @@
         "screens": 2,
         "rng": 2
       }
+    },
+    {
+      "id": "simple-monster-action-requires-a-non-carrot-food-item",
+      "status": "open",
+      "boundary": "ordinary tame pony carrot consumption through dog_eat() and m_consume_obj()",
+      "upstreamOwners": [
+        "mon.c:m_consume_obj()",
+        "dogmove.c:dog_move()",
+        "dogmove.c:dog_invent()",
+        "dogmove.c:dog_eat()"
+      ],
+      "forecast": {
+        "steps": 71,
+        "basis": "Capped look-ahead at simple monster action requires a non-CARROT food item",
+        "sessions": [
+          "seed0004-feeding-pony"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "Seed 4, datetime 20260414173108, OPTIONS=symset:DECgraphics; Tetra is a lawful human Knight with a starting saddled pony. The development replay reaches the simple pet-action boundary at step 338 during a move-east command, after the pony eats an uncursed carrot. The C path is dogmove.c dog_move() -> dog_invent() -> dog_eat() -> mon.c m_consume_obj(); mon.c sets eyes = (otmp->otyp == CARROT), deletes the food, and conditionally calls mcureblindness() when the pet cannot see. JavaScript reaches js/mon.js m_consume_obj() and refuses at its non-CARROT food guard before reproducing the carrot-specific arm."
+          }
+        ]
+      },
+      "detail": "Port the ordinary tame-pet carrot-consumption branch in mon.c m_consume_obj() (1392-1453), reached from dogmove.c dog_move() -> dog_invent() -> dog_eat(). Preserve source order: pet/non-pet handling and object extraction, the CARROT eyes flag, and conditional mcureblindness() for a blind pet, including visibility-dependent message and screen updates. Keep corpse transformation, level gain, healing-food, petrification, slime, pyrolisk-egg, mimic, and intrinsic-conveyance branches outside this candidate unless a fresh development differential reaches them.",
+      "slices": [],
+      "openedAt": "b25ba765439c4c2eacf202c295ffd1a4daa1213e",
+      "openStanding": {
+        "sha": "1ffe65d",
+        "screens": 3717,
+        "rng": 238547
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
