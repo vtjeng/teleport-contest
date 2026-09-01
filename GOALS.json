@@ -7568,6 +7568,39 @@
         "screens": 11,
         "rng": 192
       }
+    },
+    {
+      "id": "simple-monster-action-requires-monster-vs-monster-attack",
+      "status": "open",
+      "boundary": "ordinary Conflict monster-versus-monster combat during the elapsed monster scan",
+      "upstreamOwners": [
+        "mon.c:movemon_singlemon",
+        "mhitm.c:fightm",
+        "mhitm.c:mattackm"
+      ],
+      "forecast": {
+        "steps": 7,
+        "basis": "Capped look-ahead at simple monster action requires monster-vs-monster attack",
+        "sessions": [
+          "seed0004-feeding-pony"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "Seed 4, datetime 20260414173108, OPTIONS=symset:DECgraphics; Tetra the Gallant is a lawful human Knight. At step 319, ordinary movenortheast reaches mon.c movemon_singlemon():1308-1320 Conflict fightm() after the hero move. mhitm.c fightm():106-169 scans living monsters within monnear(), calls mattackm(), and may spend the source-ordered retaliation rn2(4) plus movement check. Conflict is active; the acting monster is not the Wizard, can see the hero, is within BOLT_LIM, and a distinct living monster is near enough. The next seven capped screens include the saddled pony kick before independent #hat."
+          }
+        ]
+      },
+      "detail": "Port the Conflict monster-versus-monster action reached from an ordinary elapsed monster scan. Cover the nearby-monster scan, helpless and stuck/swallowed guards, target bookkeeping, attack result bitmask, and conditional return attack with exact movement and randomness ordering. Keep special Wizard, visibility, range, hero-command refusal, special-level, and unrelated extended-command branches outside this goal unless a fresh development differential reaches them.",
+      "slices": [],
+      "openedAt": "c8df48c1b4e6bf434f340031f462a6d1e5a6c65d",
+      "openStanding": {
+        "sha": "1f0e116",
+        "screens": 3698,
+        "rng": 238380
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
