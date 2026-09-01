@@ -17,6 +17,7 @@ import {
     IN_SIGHT,
     INFRAVISION,
     LAVAPOOL,
+    M_AP_MONSTER,
     M_AP_FURNITURE,
     M_AP_OBJECT,
     POOL,
@@ -48,6 +49,7 @@ import {
     collectMonsterMovementMessage,
     collectMonsterNoticeMessage,
     collectMonsterNoticeMessages,
+    describeMonster,
     emitStartupA11yNotices,
     sensesMonster,
     sensesMonsterWithoutDetection,
@@ -512,6 +514,39 @@ test('monster notices retain saddle adjectives except for given names', () => {
     assert.deepEqual(collectMonsterNoticeMessages(state), [
         'You see your pony.',
     ]);
+});
+
+test('monster descriptions use the stored C shopkeeper name', () => {
+    const state = startupState();
+    const shopkeeper = {
+        data: { pmnames: [null, null, 'shopkeeper'] },
+        mextra: { eshk: { shknam: 'Adjama' } },
+        isshk: true,
+        mpeaceful: true,
+        m_ap_type: 0,
+        mx: 21,
+        my: 10,
+    };
+
+    assert.equal(describeMonster(shopkeeper, { state }), 'peaceful Adjama');
+
+    // C names with a leading marker are returned without that marker by
+    // shkname(); an apparent monster bypasses this shopkeeper arm.
+    shopkeeper.mextra.eshk.shknam = '-Lucrezia';
+    assert.equal(describeMonster(shopkeeper, { state }), 'peaceful Lucrezia');
+
+    const apparent = {
+        ...shopkeeper,
+        data: { pmnames: [null, null, 'shopkeeper'] },
+        m_ap_type: M_AP_MONSTER,
+    };
+    assert.equal(
+        describeMonster(apparent, {
+            state,
+            species: { pmnames: [null, null, 'newt'] },
+        }),
+        'peaceful newt',
+    );
 });
 
 test('lookaround treats an adjacent object mimic as seen up close', () => {
