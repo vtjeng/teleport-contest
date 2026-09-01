@@ -7506,6 +7506,11 @@
           "name": "ordinary travel path search, travel-map bookkeeping, and the first path-directed step",
           "status": "closed",
           "closedBy": "18d6e1b72af72fd49976fe695699842afd5ea203"
+        },
+        {
+          "name": "travel destination completion, interruption, and cached resumption",
+          "status": "closed",
+          "closedBy": "9321c913773ff01e9dfcb25815f0a27abee773e1"
         }
       ],
       "openedAt": "34b90e722937e7a6f869f93e1ebfa73720020af1",
