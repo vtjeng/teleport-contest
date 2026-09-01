@@ -7300,7 +7300,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-9",
-      "status": "open",
+      "status": "closed",
       "boundary": "When a wizard outside Endgame selects Plane of Fire through the level-teleport dungeon menu without an Amulet, create a real Amulet with source RNG, add it and update u.uhave/achievement, print Endgame prerequisite, then force/defer the selected arrival so materialization follows.",
       "upstreamOwners": [
         "nethack-c/upstream/src/wizcmds.c: wiz_level_tele()",
@@ -7340,8 +7340,11 @@
         "screens": 3625,
         "rng": 232240
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "816c47a7a028d78bec0e07b96a056399ce57bf25",
+      "delivered": {
+        "screens": 1,
+        "rng": 2358
+      }
     }
   ]
 }
