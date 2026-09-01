@@ -34,7 +34,7 @@ import { add_to_container } from './invent.js';
 import { UnsupportedMonsterCreationError, makemon } from './makemon_create.js';
 import { mkclass } from './makemon.js';
 import { mineralize } from './mineralize.js';
-import { place_lregion } from './mkmaze.js';
+import { place_lregion, setup_waterlevel } from './mkmaze.js';
 import { d, rn2, rnd, rn1, rne, rnz } from './rng.js';
 import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
 import {
@@ -300,21 +300,31 @@ async function getbones() {
         if (answer === 'n'.charCodeAt(0)) return false;
     }
 
-    const ok = loadBones(state);
+    // getlev() suppresses map output while it rebuilds the level. The C TTY
+    // still has the departing level's map when custompline() prints the
+    // following Unlink prompt; the restored level is first painted by the
+    // arrival redraw after this prompt. JS's full-screen flush would
+    // otherwise rebuild the terminal from the restored level too early.
+    if (state.wizard) state._bonesRestorePrompt = true;
+    let ok;
+    try {
+        ok = loadBones(state);
 
-    // C ref: bones.c:739-744. Wizard mode: ask whether to delete the
-    // bones file. If 'n', keep it for next time.
-    if (state.wizard) {
-        const answer = await yn_function(
-            'Unlink bones?', 'yn', 'n', false, state,
-        );
-        if (answer === 'n'.charCodeAt(0)) {
-            return ok;
+        // C ref: bones.c:739-744. Wizard mode: ask whether to delete the
+        // bones file. If 'n', keep it for next time.
+        if (state.wizard) {
+            const answer = await yn_function(
+                'Unlink bones?', 'yn', 'n', false, state,
+            );
+            if (answer === 'n'.charCodeAt(0)) {
+                return ok;
+            }
         }
+    } finally {
+        delete state._bonesRestorePrompt;
     }
 
-    deleteBonesFile(state.u.uz);
-    return ok;
+    return deleteBonesFile(state.u.uz) ? ok : false;
 }
 
 // C ref: allmain.c l_nhcore_init()
@@ -375,6 +385,10 @@ function clear_level_structures() {
     lf.fumaroles = false;
     lf.stormy = false;
     lf.stasis_until = 0;
+    // C ref: mklev.c clear_level_structures() frees gl.lev_message before
+    // evaluating the next special-level description.
+    g.gl ??= {};
+    g.gl.lev_message = null;
     init_rect();
 }
 
@@ -529,6 +543,9 @@ async function makelevel(specialLevelLoader = null) {
                 const { FIRE_LEVEL_LOADERS } = await import(
                     './fire_levels.js'
                 );
+                const { AIR_LEVEL_LOADERS } = await import(
+                    './air_levels.js'
+                );
                 SPECIAL_LEVEL_LOADERS = {
                     ...BIGRM_LOADERS,
                     ...QUEST_LEVEL_LOADERS,
@@ -536,6 +553,7 @@ async function makelevel(specialLevelLoader = null) {
                     ...CASTLE_LEVEL_LOADERS,
                     ...MINES_LEVEL_LOADERS,
                     ...FIRE_LEVEL_LOADERS,
+                    ...AIR_LEVEL_LOADERS,
                 };
             }
             // Determine the resolved protofile the same way makemaz() will.
@@ -1047,12 +1065,20 @@ async function makemaz(proto, slev, state) {
             const { MINES_LEVEL_LOADERS } = await import(
                 './mines_levels.js'
             );
+            const { FIRE_LEVEL_LOADERS } = await import(
+                './fire_levels.js'
+            );
+            const { AIR_LEVEL_LOADERS } = await import(
+                './air_levels.js'
+            );
             SPECIAL_LEVEL_LOADERS = {
                 ...BIGRM_LOADERS,
                 ...QUEST_LEVEL_LOADERS,
                 ...SOKOBAN_LEVEL_LOADERS,
                 ...CASTLE_LEVEL_LOADERS,
                 ...MINES_LEVEL_LOADERS,
+                ...FIRE_LEVEL_LOADERS,
+                ...AIR_LEVEL_LOADERS,
             };
         }
         const loader = SPECIAL_LEVEL_LOADERS[protofile];
@@ -1233,6 +1259,17 @@ function createSpecialLevelApi(state) {
             }
         },
 
+        // C ref: sp_lev.c lspo_message(). Special-level messages are held
+        // until do.c delivers them after the destination map is drawn.
+        message(text) {
+            if (typeof text !== 'string')
+                throw new TypeError('special-level message requires a string');
+            state.gl ??= {};
+            state.gl.lev_message = state.gl.lev_message
+                ? `${state.gl.lev_message}\n${text}`
+                : text;
+        },
+
         level_flags(...names) {
             for (const name of names) {
                 switch (name) {
@@ -1252,6 +1289,9 @@ function createSpecialLevelApi(state) {
                 case 'hardfloor': state.level.flags.hardfloor = true; break;
                 case 'shortsighted': state.level.flags.shortsighted = true; break;
                 case 'hot': state.level.flags.temperature = 1; break;
+                // C ref: rm.h stormy bit and timeout.c do_storms(). The
+                // level flag enables periodic lightning strikes on clouds.
+                case 'stormy': state.level.flags.stormy = true; break;
                 case 'fumaroles': state.level.flags.fumaroles = true; break;
                 case 'nomongen': state.level.flags.rndmongen = false; break;
                 case 'nodeathdrops': state.level.flags.deathdrops = false; break;
@@ -1539,9 +1579,7 @@ function createSpecialLevelApi(state) {
                 nhy: -1,
             };
             if (specification.exclude) {
-                const exIslev = Boolean(
-                    specification.exclude_islev ?? islev,
-                );
+                const exIslev = Boolean(specification.exclude_islev);
                 const eox = exIslev ? 0 : frame.xstart;
                 const eoy = exIslev ? 0 : frame.ystart;
                 const [ex1, ey1, ex2, ey2] = specification.exclude;
@@ -2134,7 +2172,7 @@ function createSpecialLevelApi(state) {
                 nlx: -1, nly: -1, nhx: -1, nhy: -1,
             };
             if (spec.exclude) {
-                const exIslev = Boolean(spec.exclude_islev ?? islev);
+                const exIslev = Boolean(spec.exclude_islev);
                 const eox = exIslev ? 0 : frame.xstart;
                 const eoy = exIslev ? 0 : frame.ystart;
                 const [ex1, ey1, ex2, ey2] = spec.exclude;
@@ -2155,8 +2193,11 @@ function createSpecialLevelApi(state) {
                 state.upstair = region;
             } else if (spec.type === 'stair-down') {
                 state.dnstair = region;
-            } else if (rtype != null) {
-                // C ref: sp_lev.c levregion_add(). Store for fixup_special.
+            }
+            if (rtype != null) {
+                // C ref: sp_lev.c levregion_add(). Store every placement for
+                // fixup_special, including stair regions. Keeping the region
+                // fields above preserves flip_level()'s pre-placement update.
                 const destination = spec.name == null
                     ? null : find_level(spec.name, state)?.dlevel;
                 storedLregions.push({ region, rtype, destination });
@@ -2180,6 +2221,11 @@ function createSpecialLevelApi(state) {
                 solidify_map(state);
                 delete state._specialLevelSolidify;
             }
+
+            // C ref: mkmaze.c fixup_special(). Plane of Air levels replace
+            // the special-level map cells with the shared air base terrain
+            // and initialize their cloud bubbles before placing levregions.
+            setup_waterlevel(state);
 
             // C ref: mkmaze.c fixup_special(). Process stored levregions
             // after wallification and flipping.
@@ -5062,7 +5108,7 @@ function generate_stairs_find_room() {
     return g.level.rooms[rn2(g.level.nroom)];
 }
 
-function mkstairs(x, y, up, croom) {
+export function mkstairs(x, y, up, croom) {
     const g = game;
     const loc = g.level.at(x, y);
     if (loc) {

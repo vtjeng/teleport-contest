@@ -91,7 +91,6 @@ async function castle(des) {
         region: [1, 0, 10, 20],
         region_islev: 1,
         exclude: [0, 0, 62, 16],
-        exclude_islev: 1,
         type: 'stair-up',
     });
 

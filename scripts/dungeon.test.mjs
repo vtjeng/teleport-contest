@@ -50,6 +50,7 @@ import {
     Invocation_lev,
     ceiling,
     depth,
+    endgamelevelname,
     find_mapseen,
     find_level,
     induced_align,
@@ -452,6 +453,20 @@ test('induced_align short-circuits special, dungeon, then random masks', () => {
         bounds: [100, 100, 3],
         result: AM_CHAOTIC,
     });
+});
+
+test('endgamelevelname matches dungeon.c plane names and fallback', () => {
+    assert.deepEqual(
+        [-5, -4, -3, -2, -1, 0].map(endgamelevelname),
+        [
+            'Astral Plane',
+            'Plane of Water',
+            'Plane of Fire',
+            'Plane of Air',
+            'Plane of Earth',
+            'unknown plane #0',
+        ],
+    );
 });
 
 test('generated dungeon data exactly matches the pinned Lua table', () => {

@@ -554,6 +554,21 @@ export function depth(level, state = game) {
     return state.dungeons[level.dnum].depth_start + level.dlevel - 1;
 }
 
+// C ref: dungeon.c endgamelevelname(). Translate the observable depth used by
+// status and disclosure windows into the stable name NetHack gives each plane.
+// The caller supplies the external depth, so this remains pure and keeps the
+// unknown-plane fallback visible instead of assuming a valid endgame.
+export function endgamelevelname(indx) {
+    const names = {
+        [-5]: 'Astral Plane',
+        [-4]: 'Plane of Water',
+        [-3]: 'Plane of Fire',
+        [-2]: 'Plane of Air',
+        [-1]: 'Plane of Earth',
+    };
+    return names[indx] ?? `unknown plane #${indx}`;
+}
+
 // C ref: dungeon.c dunlev(). The level number within its own dungeon branch.
 export function dunlev(level) {
     return level.dlevel;

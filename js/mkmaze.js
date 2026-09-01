@@ -12,15 +12,18 @@
 
 import {
     AIR,
+    CLOUD,
     COLNO,
     CORR,
     DEAF,
     LAVAPOOL,
     LR_BRANCH,
+    LR_DOWNSTAIR,
     LR_DOWNTELE,
     LR_PORTAL,
     LR_TELE,
     LR_UPTELE,
+    LR_UPSTAIR,
     MAGIC_PORTAL,
     ROOM,
     ROWNO,
@@ -29,7 +32,7 @@ import {
 import { Is_branchlev, on_level, u_on_newpos } from './dungeon.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
-import { place_branch } from './mklev.js';
+import { mkstairs, place_branch } from './mklev.js';
 import { occupied } from './mktrap.js';
 import { m_at } from './monst.js';
 import { create_gas_cloud } from './region.js';
@@ -37,8 +40,13 @@ import { within_bounded_area } from './rect.js';
 import { rn1, rn2 } from './rng.js';
 import { maketrap, t_at } from './trap.js';
 import { ttyNorep } from './tty_message.js';
-import { block_point, cansee } from './vision.js';
-import { newsym } from './display.js';
+import {
+    block_point,
+    cansee,
+    recalc_block_point,
+} from './vision.js';
+import { cmap_to_glyph, newsym } from './display.js';
+import { S_air, S_cloud } from './symbols.js';
 
 // C ref: youprop.h Deaf (125). The roleplay term is kept beside this
 // endgame-only caller because the source macro is evaluated after fumaroles
@@ -94,6 +102,196 @@ export async function fumaroles(state = game) {
     }
     if (sound && !Deaf(state))
         await ttyNorep(`You hear a ${loud ? 'loud ' : ''}whoosh!`, state);
+}
+
+// C ref: mkmaze.c setup_waterlevel() (1812-1858), for the Plane of Air arm.
+// The C implementation keeps these as file-scope bubble lists. This port
+// keeps the same mutable records on the game state so the arrival pass can
+// consume the exact masks and directions setup created.
+const AIR_BUBBLE_MASKS = Object.freeze([
+    Object.freeze({ width: 2, height: 1, rows: [0x3] }),
+    Object.freeze({ width: 3, height: 2, rows: [0x7, 0x7] }),
+    Object.freeze({ width: 4, height: 3, rows: [0x6, 0xf, 0x6] }),
+    Object.freeze({ width: 5, height: 3, rows: [0xe, 0x1f, 0xe] }),
+    Object.freeze({ width: 6, height: 4, rows: [0x1e, 0x3f, 0x3f, 0x1e] }),
+    Object.freeze({ width: 7, height: 4, rows: [0x3e, 0x7f, 0x7f, 0x3e] }),
+    Object.freeze({ width: 8, height: 4, rows: [0x7e, 0xff, 0xff, 0x7e] }),
+]);
+
+function airBubbleBounds() {
+    // C's svx/svy are initialized by setup_waterlevel().
+    return { xmin: 4, ymin: 2, xmax: 77, ymax: 19 };
+}
+
+function resetAirLocation(location, typ = AIR) {
+    // C's assignment from the static air_pos rm record resets the terrain
+    // fields but does not touch objects, traps, or the level-wide indices.
+    location.typ = typ;
+    location.lit = true;
+    location.flags = 0;
+    location.doormask = 0;
+    location.seenv = 0;
+    location.horizontal = false;
+    location.edge = false;
+    location.wall_info = 0;
+    location.roomno = 0;
+}
+
+function moveAirBubble(bubble, dx, dy, initial, state, random = rn2) {
+    const bounds = airBubbleBounds();
+    let collision = 0;
+    // mkmaze.c:1702-1704. Clouds move only when the one-in-six test passes.
+    if (!random(6)) {
+        if (dx < -1 || dx > 1 || dy < -1 || dy > 1) {
+            dx = Math.sign(dx);
+            dy = Math.sign(dy);
+        }
+
+        if (bubble.x <= bounds.xmin) collision |= 2;
+        if (bubble.y <= bounds.ymin) collision |= 1;
+        if (bubble.x + bubble.mask.width - 1 >= bounds.xmax) collision |= 2;
+        if (bubble.y + bubble.mask.height - 1 >= bounds.ymax) collision |= 1;
+
+        if (bubble.x < bounds.xmin) bubble.x = bounds.xmin;
+        if (bubble.y < bounds.ymin) bubble.y = bounds.ymin;
+        if (bubble.x + bubble.mask.width - 1 > bounds.xmax)
+            bubble.x = bounds.xmax - bubble.mask.width + 1;
+        if (bubble.y + bubble.mask.height - 1 > bounds.ymax)
+            bubble.y = bounds.ymax - bubble.mask.height + 1;
+
+        if (bubble.x === bounds.xmin && dx < 0) dx = -dx;
+        if (bubble.x + bubble.mask.width - 1 === bounds.xmax && dx > 0)
+            dx = -dx;
+        if (bubble.y === bounds.ymin && dy < 0) dy = -dy;
+        if (bubble.y + bubble.mask.height - 1 === bounds.ymax && dy > 0)
+            dy = -dy;
+
+        bubble.x += dx;
+        bubble.y += dy;
+
+    }
+
+    // mkmaze.c:1757-1772. Each set bit is a cloud cell and blocks vision.
+    for (let i = 0; i < bubble.mask.width; ++i) {
+        for (let j = 0; j < bubble.mask.height; ++j) {
+            if (!(bubble.mask.rows[j] & (1 << i))) continue;
+            const location = state.level.at(bubble.x + i, bubble.y + j);
+            if (!location) continue;
+            location.typ = CLOUD;
+            location.lit = true;
+            block_point(bubble.x + i, bubble.y + j, state);
+        }
+    }
+
+    // mkmaze.c:2087-2105. Bounce or occasionally reroll a bubble's
+    // direction after it has been drawn. There are no contents on Air's
+    // newly-created bubbles, so the Water-only container loop is absent.
+    if (collision === 1) {
+        bubble.dy = -bubble.dy;
+    } else if (collision === 3) {
+        bubble.dy = -bubble.dy;
+        bubble.dx = -bubble.dx;
+    } else if (collision === 2) {
+        bubble.dx = -bubble.dx;
+    } else if (!initial && (bubble.dx || bubble.dy
+        ? !random(20) : !random(5))) {
+        bubble.dx = 1 - random(3);
+        bubble.dy = 1 - random(3);
+    }
+}
+
+function makeAirBubble(x, y, mask, state, random = rn2) {
+    if (x >= 77 || y >= 19) return;
+    if (x + mask.width - 1 > 77) x = 77 - mask.width + 1;
+    if (y + mask.height - 1 > 19) y = 19 - mask.height + 1;
+    const bubble = {
+        x,
+        y,
+        dx: 1 - random(3),
+        dy: 1 - random(3),
+        mask,
+    };
+    state.air_bubbles.push(bubble);
+    // mv_bubble(..., TRUE) still performs the Air one-in-six draw and draws
+    // the mask, but does not reroll the direction afterward.
+    moveAirBubble(bubble, 0, 0, true, state, random);
+}
+
+// C ref: mkmaze.c setup_waterlevel() (1812-1858). Only the Air arm is
+// reachable in the current port; Water retains its explicit boundary.
+export function setup_waterlevel(state = game, random = rn2) {
+    if (!on_level(state.u?.uz, state.air_level)) return;
+
+    state.level.flags.hero_memory = false;
+    state.air_bubbles = [];
+    for (let x = 1; x <= COLNO - 1; ++x) {
+        for (let y = 0; y <= ROWNO - 1; ++y) {
+            resetAirLocation(state.level.at(x, y));
+            // C setup_waterlevel() stores the base element's glyph in every
+            // level cell. movebubbles() later replaces the live glyph with
+            // S_cloud; the initial level memory is S_air, so unexplored Air
+            // cells display as blank rather than as cloud markers.
+            state.level.at(x, y).remembered_glyph = {
+                glyph: cmap_to_glyph(S_air, state),
+            };
+        }
+    }
+
+    const xskip = 6 + random(4);
+    const yskip = 3 + random(3);
+    const bounds = airBubbleBounds();
+    for (let x = bounds.xmin; x <= bounds.xmax; x += xskip) {
+        for (let y = bounds.ymin; y <= bounds.ymax; y += yskip)
+            makeAirBubble(x, y, AIR_BUBBLE_MASKS[random(7)], state, random);
+    }
+}
+
+// C ref: mkmaze.c movebubbles() (1539-1646, 1660-1727), Air-level arm.
+// Called once when arriving on Air; the per-turn caller remains outside this
+// candidate until a development session exercises cloud movement after an
+// action on the plane.
+export function movebubbles(state = game, random = rn2) {
+    if (!on_level(state.u?.uz, state.air_level)) return;
+    const bounds = airBubbleBounds();
+
+    for (let x = 1; x <= COLNO - 1; ++x) {
+        for (let y = 0; y <= ROWNO - 1; ++y) {
+            const location = state.level.at(x, y);
+            resetAirLocation(location);
+            // C movebubbles() assigns air_pos, whose live glyph is
+            // S_cloud. The remembered glyph is the port's stored equivalent
+            // of C's levl[x][y].glyph and must change with that assignment.
+            location.remembered_glyph = {
+                glyph: cmap_to_glyph(S_cloud, state),
+            };
+            recalc_block_point(x, y, state);
+
+            // C breaks up the all-air perimeter. Note that the edge test is
+            // intentionally evaluated for column 1 and row 0 as well.
+            const xedge = x < bounds.xmin || x > bounds.xmax;
+            const yedge = y < bounds.ymin || y > bounds.ymax;
+            if ((xedge || yedge) && !random(xedge ? 3 : 5)) {
+                location.typ = CLOUD;
+                block_point(x, y, state);
+            }
+        }
+    }
+
+    // C's static `up` toggles before traversing the lists. New levels start
+    // false, so the first arrival walks the setup list in creation order.
+    state.air_bubbles_up = !state.air_bubbles_up;
+    if (state.air_bubbles_up) {
+        for (const bubble of state.air_bubbles) {
+            const rx = random(3);
+            const ry = random(3);
+            const dx = bubble.dx + 1
+                - (!bubble.dx ? rx : (rx ? 1 : 0));
+            const dy = bubble.dy + 1
+                - (!bubble.dy ? ry : (ry ? 1 : 0));
+            moveAirBubble(bubble, dx, dy, false, state, random);
+        }
+    }
+    state.vision_full_recalc = 1;
 }
 
 // A region placement that needs an unported operation. Both arms below sit
@@ -294,6 +492,13 @@ function put_lregion_here(
         if (portal && lev) portal.dst = { ...lev };
         break;
     }
+    case LR_DOWNSTAIR:
+    case LR_UPSTAIR:
+        // C ref: mkmaze.c:456-459. Special-level stair regions are resolved
+        // before generate_stairs(), so the latter must see the stair already
+        // present and avoid consuming its fallback room-selection draws.
+        mkstairs(x, y, rtype === LR_UPSTAIR ? 1 : 0, null);
+        break;
     default:
         // LR_DOWNSTAIR and LR_UPSTAIR reach mkstairs(). Special-level
         // construction is their only caller and neither is routed through

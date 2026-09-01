@@ -122,7 +122,8 @@ import {
 } from './invent.js';
 import { maybe_reset_pick } from './lock.js';
 import { mklev } from './mklev.js';
-import { fumaroles } from './mkmaze.js';
+import { makemon } from './makemon_create.js';
+import { fumaroles, movebubbles } from './mkmaze.js';
 import { set_ustuck } from './mon.js';
 import { m_at } from './monst.js';
 import { gulp_blnd_check } from './mhitu.js';
@@ -181,6 +182,7 @@ import { ttyNorep, ttyPline } from './tty_message.js';
 import { cansee, vision_recalc, vision_reset } from './vision.js';
 import { welded } from './wield.js';
 import { bimanual, setuqwep, setuswapwep, setuwep } from './worn.js';
+import { resurrect } from './wizard.js';
 
 // A fail-closed boundary for goto_level() branches outside the ordinary
 // staircase descent and positive-decimal level teleport ports.
@@ -1511,9 +1513,11 @@ export async function goto_level(
     const arrivalOccupant = m_at(u.ux, u.uy, state);
     if (arrivalOccupant) u_collide_m(arrivalOccupant, state);
 
-    // do.c:1829-1832. The Fire level's Lua flag causes fumaroles immediately
-    // after arrival, before vision_reset() and the first map redraw.
-    if (state.level.flags.fumaroles) await fumaroles(state);
+    // do.c:1829-1832. The Elemental Planes move their bubbles/clouds
+    // immediately after arrival, before vision_reset() and the first map
+    // redraw; Fire instead creates fumaroles from its level flag.
+    if (on_level(u.uz, state.air_level)) movebubbles(state);
+    else if (state.level.flags.fumaroles) await fumaroles(state);
 
     /* Reset the screen. */
     vision_reset(state);
@@ -1527,13 +1531,17 @@ export async function goto_level(
     // allmain.c newgame() and moveloop() already do here. This is the pair
     // that gives the hero a map of a level she has never seen.
     vision_recalc(2, { state });
-    vision_recalc(0, { state });
     await docrt(); /* does a full vision recalc */
+    // docrt() has painted the destination's remembered glyphs and overlaid
+    // monsters. Recalculate afterward so visible Air cells are redrawn from
+    // their live AIR/CLOUD terrain, matching display.c docrt_flags(), which
+    // calls vision_recalc(0) between those two phases.
+    vision_recalc(0, { state });
     await flush_screen(-1);
 
     if (state.gd?.dfr_post_msg)
         await maybe_lvltport_feedback(state);
-    deliver_splev_message(state);
+    await deliver_splev_message(state);
 
     // do.c:1858-1872, entering Gehennom. Both arms need In_hell, and
     // dat/dungeon.lua puts the Valley below depth 25.
@@ -1543,14 +1551,19 @@ export async function goto_level(
     if (familiar)
         await familiar_level_msg(state);
 
-    // C ref: do.c:1882-1932.  Arrival arms keyed on the destination
-    // dungeon.  The if/else-if chain is mutually exclusive: exactly one
-    // arm fires.  In_endgame, Is_knox, In_mines, and In_sokoban are not
-    // yet ported; those dungeons are unreachable.
+    // C ref: do.c:1882-1932. Arrival arms keyed on the destination dungeon.
+    // The if/else-if chain is mutually exclusive: exactly one arm fires. The
+    // other endgame branches remain outside this level-change slice.
     if (In_endgame(u.uz)) {
-        // do.c:1884-1890. Fire is a new endgame dungeon branch here, not
-        // Astral, so final_level() is not reachable on this bounded path.
+        // C ref: do.c:1884-1890. A first arrival in an endgame dungeon
+        // forces the Wizard's confrontation when the hero carries the
+        // Amulet; this is the source of the intervening message and RNG
+        // sequence before temperature_change_msg().
         if (newdungeon) record_achievement(ACH_ENDG, state);
+        if (!(isNew && on_level(u.uz, state.astral_level))
+            && newdungeon && u.uhave?.amulet) {
+            await resurrect(state, { makemon, redraw: newsym });
+        }
     } else if (In_quest(u.uz)) {
         // C ref: do.c:1891-1892.
         await onquest(state);
@@ -1678,15 +1691,16 @@ function u_collide_m(mtmp, state = game) {
     }
 }
 
-// C ref: questpgr.c deliver_splev_message(), the custom arrival message a
-// special level may carry. gl.lev_message is written by sp_lev.c alone, from a
-// Lua level description; no level the port generates sets one.
-function deliver_splev_message(state = game) {
-    if (state.gl?.lev_message) {
-        throw new UnsupportedLevelChangeError(
-            'deliver_splev_message() on a level with an arrival message',
-        );
-    }
+// C ref: questpgr.c deliver_splev_message() and deliver_by_pline(). A special
+// level's Lua des.message() calls are joined with newlines, then delivered as
+// separate ordinary plines during arrival. Keeping the split here preserves
+// the source's message-history and top-line handling for each line.
+async function deliver_splev_message(state = game) {
+    const message = state.gl?.lev_message;
+    if (!message) return;
+    for (const line of message.split('\n'))
+        await ttyPline(line, state);
+    state.gl.lev_message = null;
 }
 
 // C ref: do.c hellish_smoke_mesg() and temperature_change_msg(). The Fire
