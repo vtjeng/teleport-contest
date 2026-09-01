@@ -7613,7 +7613,7 @@
     },
     {
       "id": "simple-monster-action-requires-pet-attack-on-the-hero",
-      "status": "open",
+      "status": "closed",
       "boundary": "simple monster action requires pet attack on the hero",
       "upstreamOwners": [
         "src/dogmove.c",
@@ -7638,8 +7638,8 @@
       "slices": [
         {
           "name": "ordinary pet AT_KICK hit resolution through hero damage and knockback",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "82d5e286c3b25e5bd04f6f6c1a75efde34a05f56"
         }
       ],
       "openedAt": "eb1accc9524a474063cb4dc975ba49a71f13c522",
@@ -7648,8 +7648,11 @@
         "screens": 3706,
         "rng": 238478
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "82d5e286c3b25e5bd04f6f6c1a75efde34a05f56",
+      "delivered": {
+        "screens": 7,
+        "rng": 67
+      }
     }
   ]
 }
