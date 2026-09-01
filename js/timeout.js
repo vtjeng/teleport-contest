@@ -15,6 +15,7 @@ import {
     FIG_TRANSFORM,
     FULL_MOON,
     HATCH_EGG,
+    HALLUC,
     MAX_EGG_HATCH_TIME,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
@@ -31,6 +32,7 @@ import {
     ROT_CORPSE,
     SHRINK_GLOB,
     SLIMED,
+    SLEEPY,
     TAINT_AGE,
     TIMEOUT,
     TIMER_NONE,
@@ -75,6 +77,7 @@ import {
     WAX_CANDLE,
 } from './objects.js';
 import { rn1, rn2, rnd, rnz } from './rng.js';
+import { ttyPline } from './tty_message.js';
 
 const NO_CLEANUP_ERROR = Symbol('no cleanup error');
 
@@ -372,6 +375,19 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
         // timeout 1 would reach make_confused(), which remains unported here.
         if (index === WOUNDED_LEGS) continue;
         if (index === CONFUSION && timeout > 1) continue;
+        // HALLUC's timeout expiry still needs make_hallucinated(), but its
+        // ordinary decrement is source-inert while more than one turn remains.
+        if (index === HALLUC && timeout > 1) continue;
+        // timeout.c:784's SLEEPY case has no effect while its timeout remains
+        // above one, regardless of whether the source is a worn amulet or an
+        // intrinsic flag.  At expiry, the source-bearing and extrinsic cases
+        // can fall asleep or extend the timeout, so only a plain worn-amulet
+        // timeout may enter that final no-op arm.
+        if (index === SLEEPY
+            && (timeout > 1
+                || ((Math.trunc(u.uprops[index]?.intrinsic ?? 0) & ~TIMEOUT)
+                    === 0
+                    && !(u.uprops[index]?.extrinsic ?? 0)))) continue;
         if (index === BLINDED && ordinaryWipe) continue;
         throw new UnsupportedHeroTimeoutBoundaryError(
             `no active property timeout at index ${index}`,
@@ -426,21 +442,40 @@ export function adjust_timeout_luck(state = game) {
     return true;
 }
 
+// C ref: timeout.c sleep_dialogue() (268-274). This is before nh_timeout()'s
+// per-property decrement, so a four-turn SLEEPY timeout says "You yawn."
+// before its countdown changes. The live elapsed-turn owner supplies the
+// message seam; the planning clone supplies a silent one.
+async function sleep_dialogue(state, env = {}) {
+    const timeout = Math.trunc(
+        state.u?.uprops?.[SLEEPY]?.intrinsic ?? 0,
+    ) & TIMEOUT;
+    if (timeout === 4)
+        await (env.message ?? ttyPline)('You yawn.', state);
+}
+
 // C ref: timeout.c nh_timeout() (669-945), the per-property countdown and the
 // expiry switch under it. C decrements every property whose TIMEOUT field is
 // nonzero and runs the switch on each one that reaches zero. An invulnerable
 // hero never arrives, because the caller returns first exactly as
-// timeout.c:621 does; every other hero has been through the preflight, which
-// admits WOUNDED_LEGS at any count and CONFUSION only while its decrement
-// remains nonzero. timeout.c:774 is therefore still the only switch case this
-// loop can enter.
+// timeout.c:621 does; every other hero has been through the preflight. The
+// admitted rows here are WOUNDED_LEGS, source-inert SLEEPY, and the
+// non-expiring CONFUSION/HALLUC countdowns.
 //
 // C reads find_delayed_killer() at 672 before switching, but only its STONED,
 // SLIMED and SICK cases use the result and none of the three is admitted here.
 async function decrement_property_timeouts(state, env) {
-    for (const property of state.u?.uprops ?? []) {
+    for (let index = 0; index < (state.u?.uprops?.length ?? 0); ++index) {
+        const property = state.u.uprops[index];
         if ((Math.trunc(property?.intrinsic ?? 0) & TIMEOUT) === 0) continue;
         if ((--property.intrinsic & TIMEOUT) !== 0) continue;
+        if (index === SLEEPY) {
+            // C's case SLEEPY (timeout.c:784-793) sees Sleepy as false here
+            // when the property had only the worn amulet's timeout bit. The
+            // other source-bearing forms were rejected by preflight because
+            // their expiry can consume RNG or make the hero fall asleep.
+            continue;
+        }
         // C ref: timeout.c:774-777.
         await heal_legs(state, env);
         await stop_occupation(state, env);
@@ -460,6 +495,7 @@ export async function nh_timeout_elapsed_turn(state = game, env = {}) {
     /* "things past this point could kill you" -- timeout.c:621-622, below the
        basal-luck block and above every branch nh_timeout() has left. */
     if (state.u?.uinvulnerable) return;
+    await sleep_dialogue(state, env);
     // C ref: timeout.c:641-648. Decrement the polymorph timer each turn.
     // When it reaches zero, the hero reverts: Unchanging extends it,
     // is_were() calls you_unwere(), otherwise rehumanize(). None of those

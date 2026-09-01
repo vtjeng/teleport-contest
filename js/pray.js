@@ -21,6 +21,7 @@ import {
     A_NEUTRAL,
     A_NONE,
     A_STR,
+    A_WIS,
     AM_MASK,
     Amask2align,
     BLINDED,
@@ -57,6 +58,7 @@ import {
     ismnum,
 } from './const.js';
 import { confers_luck } from './artifacts.js';
+import { adjattrib } from './attrib.js';
 import { paranoid_query, y_n } from './cmd.js';
 import { xlev_to_rank } from './display.js';
 import { stuck_ring, unchanger } from './do_wear.js';
@@ -68,6 +70,7 @@ import { change_luck } from './moveloop_preamble.js';
 import {
     attacktype_fordmg,
     is_demon,
+    is_human,
     is_undead,
     nohands,
     throws_rocks,
@@ -85,6 +88,7 @@ import {
     SADDLE,
 } from './objects.js';
 import { region_danger } from './region.js';
+import { losexp } from './exper.js';
 import { rn2, rnz } from './rng.js';
 import { Punished } from './steed.js';
 import { is_pool_or_lava } from './trap.js';
@@ -599,10 +603,26 @@ function Hallucination(state) {
 // bad luck, so the first prayer of a game -- one point of anger and the three
 // points of luck prayer_done() has just taken -- lands on rn2(4).
 //
-// Only cases 0 and 1, the pair that merely tells the hero the god is
-// displeased, are ported. Cases 2 through 8 and the default reach adjattrib(),
-// losexp(), rndcurse(), attrcurse(), punish(), summon_minion() and
-// god_zaps_you(); each stops by name below.
+// Cases 0 and 1 merely report displeasure. Cases 2 and 3 are also live for a
+// level-1 hero: godvoice(), the two verbal messages, Wisdom loss, and losexp()
+// all run before the shared prayer timer. The remaining cases reach
+// rndcurse(), attrcurse(), punish(), summon_minion(), or god_zaps_you() and
+// still stop by name below.
+const GOD_VOICES = ['booms out', 'thunders', 'rings out', 'booms'];
+
+// C ref: pray.c godvoice() (1414-1426). `words == NULL` leaves a trailing
+// space after the colon, which is observable before a TTY --More-- prompt.
+async function godvoice(g_align, words, state) {
+    const quote = words === null ? '' : '"';
+    const text = words === null ? '' : words;
+    const voice = GOD_VOICES[rn2(GOD_VOICES.length)];
+    await ttyPline(
+        `The voice of ${align_gname(g_align, state)} ${voice}: `
+            + `${quote}${text}${quote}`,
+        state,
+    );
+}
+
 export async function angrygods(resp_god, state = game) {
     let maxanger;
     const { u } = state;
@@ -636,9 +656,18 @@ export async function angrygods(resp_god, state = game) {
         break;
     case 2:
     case 3:
-        throw new UnsupportedPrayerError(
-            "angrygods()'s \"Thou must relearn thy lessons!\"",
+        await godvoice(resp_god, null, state);
+        await ttyPline(
+            `"Thou ${u.ualign.record < 0 && resp_god === u.ualign.type
+                ? 'hast strayed from the path'
+                : 'art arrogant'}, ${is_human(state.youmonst?.data)
+                ? 'mortal' : 'creature'}."`,
+            state,
         );
+        await ttyPline('"Thou must relearn thy lessons!"', state);
+        await adjattrib(A_WIS, -1, 0, state, { message: ttyPline });
+        await losexp(null, state);
+        break;
     case 6:
         // C punishes an unpunished hero here and falls through to the curse
         // arm below when the hero already carries a ball and chain.

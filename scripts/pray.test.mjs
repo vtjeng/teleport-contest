@@ -753,8 +753,8 @@ test('#pray runs its three turns and the god takes offence', async () => {
 // pray.c:725 decides how badly the god reacts, and every term of maxanger
 // comes from state a live prayer sets. Driving angrygods() directly is the
 // only way to reach the combinations one seed cannot, and the bound of the
-// rn2() it draws reports maxanger exactly. Cases the port refuses still draw
-// first, so the bound is readable either way.
+// rn2() it draws reports maxanger exactly. Cases that remain outside the port
+// still draw first, so the bound is readable either way.
 test('angrygods() sizes rn2(maxanger) from anger, luck and alignment',
     async () => {
         await startedGame();
@@ -802,14 +802,15 @@ test('angrygods() sizes rn2(maxanger) from anger, luck and alignment',
             // A row that lands on case 0 or 1 leaves its line on the top row,
             // and the next row's would stop for a --More-- no key answers.
             clearTtyMessageWindow(game);
+            for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
             const before = getRngLog().length;
-            await angrygods(
-                coaligned ? A_LAWFUL : A_CHAOTIC, game,
-            ).catch((error) => {
-                // Cases 2 through 8 and the default are refused by name, and
-                // every one of them draws rn2(maxanger) first.
-                assert.ok(error instanceof UnsupportedPrayerError, label);
-            });
+            await angrygods(coaligned ? A_LAWFUL : A_CHAOTIC, game)
+                .catch((error) => {
+                    // Cases 4 through 8 and the default remain refused by
+                    // name, and every one draws rn2(maxanger) first. Cases 2
+                    // and 3 now run their source-backed punishment arm.
+                    assert.ok(error instanceof UnsupportedPrayerError, label);
+                });
             assert.match(
                 getRngLog()[before],
                 new RegExp(`^rn2\\(${bound}\\)=`, 'u'),
@@ -832,7 +833,11 @@ test('gods_upset() moves u.ugangr toward the god it names', async () => {
         // angrygods() runs on every call; clear the line it may leave so the
         // next call's message does not stop for a --More-- no key answers.
         clearTtyMessageWindow(game);
+        for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
         return gods_upset(align, game).catch((error) => {
+            // The anger bookkeeping occurs before angrygods(). Some random
+            // outcomes still reach intentionally deferred punishment arms,
+            // while cases 0 through 3 now complete source-backed behavior.
             assert.ok(error instanceof UnsupportedPrayerError);
         });
     };

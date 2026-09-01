@@ -43,6 +43,23 @@ export function newuexp(level) {
     return 10_000_000 * (level - 19);
 }
 
+// C ref: exper.c losexp() (207-291). The divine-anger consumer currently
+// reaches the level-1, no-drainer arm: C suppresses the level-loss message and
+// resets u.uexp to zero without changing u.ulevel. Keep the other source arms
+// fail-closed until a live caller supplies their life-drain resistance, death,
+// level-ability, HP, and polymorph contracts.
+export async function losexp(drainer = null, state = game, env = {}) {
+    const u = state.u;
+    if (drainer !== null || u.ulevel > 1) {
+        throw new UnsupportedExperienceChangeError(
+            'losexp() outside the level-1 divine-anger arm',
+        );
+    }
+    u.uexp = 0;
+    state.disp ??= {};
+    state.disp.botl = true;
+}
+
 function enermod(energy, role) {
     switch (role?.filecode) {
     case 'Pri':

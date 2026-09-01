@@ -18,6 +18,7 @@ import {
     D_TRAPPED,
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
+    BLINDED,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -170,10 +171,24 @@ async function chest_shatter_msg(otmp, state = game) {
             'chest_shatter_msg() for a non-PAPER object',
         );
     }
-    // C temporarily blinds the naming code so xname() does not reveal details
-    // while composing this message. The JS xname path has no such global side
-    // effect, so singular() is the complete equivalent for this object arm.
-    const thing = singular(otmp, xnameFresh, state);
+    // C temporarily sets HBlinded while naming the item so xname() neither
+    // observes it nor includes a visual description such as "white".
+    const blindness = state.u.uprops[BLINDED] ??= {
+        intrinsic: 0,
+        extrinsic: 0,
+    };
+    const oldIntrinsic = blindness.intrinsic;
+    const oldBlocked = blindness.blocked;
+    blindness.intrinsic = 1;
+    blindness.blocked = false;
+    let thing;
+    try {
+        thing = singular(otmp, xnameFresh, state);
+    } finally {
+        blindness.intrinsic = oldIntrinsic;
+        if (oldBlocked === undefined) delete blindness.blocked;
+        else blindness.blocked = oldBlocked;
+    }
     const subject = an(thing);
     await ttyPline(`${subject[0].toUpperCase()}${subject.slice(1)} is torn to shreds!`, state);
 }

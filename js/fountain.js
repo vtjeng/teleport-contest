@@ -1,21 +1,26 @@
 // fountain.js -- drinking from fountains.
 // C ref: src/fountain.c drinkfountain() (243-390), dowaterdemon() (64-90),
-//        dryup() (201-239).
+//        dowatersnakes() (38-60), dryup() (201-239).
 //
 // drinkfountain() is the entry point when a hero quaffs from a fountain.
 // It rolls rnd(30) for a random fate. This port covers the water-demon
-// outcome (fate 23) and the refreshing-draught early return (fate < 10),
-// which are the two paths the development sessions exercise. Every other
-// fate arm throws UnsupportedFountainError so the scorer stops cleanly
-// at the first unported branch.
+// outcome (fate 23), the ordinary visible water-snake outcome (fate 22), and
+// the refreshing-draught early return (fate < 10). Every other fate arm throws
+// UnsupportedFountainError so the scorer stops cleanly at the first unported
+// branch.
 
 import {
+    A_WIS,
     G_GONE,
+    HALLUC,
+    HALLUC_RES,
     IS_FOUNTAIN,
     LEVITATION,
     MM_NOMSG,
     ROOM,
 } from './const.js';
+import { exercise } from './attrib.js';
+import { monster_detect } from './detect.js';
 import { newsym, glyph_at, glyph_is_cmap, glyph_to_cmap } from './display.js';
 import { Amonnam } from './do_name.js';
 import { level_difficulty } from './dungeon.js';
@@ -23,7 +28,7 @@ import { game } from './gstate.js';
 import { makemon_runtime } from './makemon_create.js';
 import { mhis, mhe } from './mondata.js';
 import { heroIsBlind } from './startup_a11y.js';
-import { PM_WATER_DEMON } from './monsters.js';
+import { PM_WATER_DEMON, PM_WATER_MOCCASIN } from './monsters.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { cansee } from './vision.js';
 import { S_cloud } from './symbols.js';
@@ -98,6 +103,51 @@ async function dowaterdemon(state = game, env = {}) {
             'The fountain bubbles furiously for a moment, then calms.',
             state,
         );
+    }
+}
+
+// C ref: fountain.c dowatersnakes() (38-60). This admits only the ordinary
+// sighted, non-hallucinating branch. The blind branch needs Soundeffect() and
+// You_hear(), while the hallucinating branch needs rndmonnam(); both remain
+// explicit boundaries rather than consuming a partial effect.
+async function dowatersnakes(state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const makeMonster = env.makeMonster ?? makemon_runtime;
+    const hallucination = state.u?.uprops?.[HALLUC];
+    const hallucinationResistance = state.u?.uprops?.[HALLUC_RES];
+
+    if (state.mvitals[PM_WATER_MOCCASIN].mvflags & G_GONE) {
+        throw new UnsupportedFountainError(
+            'the extinct water-snake fountain effect (fate 22)',
+        );
+    }
+    if (heroIsBlind(state)) {
+        throw new UnsupportedFountainError(
+            'the blind water-snake fountain effect (fate 22)',
+        );
+    }
+    if (hallucination?.intrinsic
+        && !(hallucinationResistance?.intrinsic
+            || hallucinationResistance?.extrinsic)) {
+        throw new UnsupportedFountainError(
+            'the hallucinating water-snake fountain effect (fate 22)',
+        );
+    }
+
+    const num = random.rn1(5, 2);
+    await message('An endless stream of snakes pours forth!', state);
+    for (let remaining = num; remaining > 0; --remaining) {
+        const monster = await makeMonster(
+            state.mons[PM_WATER_MOCCASIN],
+            state.u.ux,
+            state.u.uy,
+            MM_NOMSG,
+            { ...env, state, random },
+        );
+        if (monster && t_at(monster.mx, monster.my, state)) {
+            await mintrap(monster, 0, { ...env, state, random });
+        }
     }
 }
 
@@ -208,8 +258,8 @@ export async function drinkfountain(state = game, env = {}) {
             throw new UnsupportedFountainError(
                 'poisonous-water fountain effect (fate 21)');
         case 22: // Fountain of snakes!
-            throw new UnsupportedFountainError(
-                'dowatersnakes fountain effect (fate 22)');
+            await dowatersnakes(state, env);
+            break;
         case 23: // Water demon
             await dowaterdemon(state, env);
             break;
@@ -220,8 +270,13 @@ export async function drinkfountain(state = game, env = {}) {
             throw new UnsupportedFountainError(
                 'see-invisible fountain effect (fate 25)');
         case 26: // See Monsters
-            throw new UnsupportedFountainError(
-                'see-monsters fountain effect (fate 26)');
+            if (await monster_detect(null, 0, state, env)) {
+                await message('The water tastes like nothing.', state);
+            }
+            await exercise(A_WIS, true, state, random, {
+                encumberMessage: env.encumberMessage,
+            });
+            break;
         case 27: // Find a gem
             throw new UnsupportedFountainError(
                 'find-gem fountain effect (fate 27)');

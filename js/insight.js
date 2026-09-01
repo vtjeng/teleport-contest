@@ -73,6 +73,10 @@ import {
     FAST,
     FIRE_RES,
     FIXED_ABIL,
+    FROMEXPER,
+    FROMOUTSIDE,
+    FROM_RACE,
+    FROM_FORM,
     FLYING,
     FREE_ACTION,
     FULL_MOON,
@@ -156,10 +160,10 @@ import {
     WWALKING,
 } from './const.js';
 import { timet_delta } from './allmain.js';
-import { effective_attribute, stone_luck } from './attrib.js';
+import { effective_attribute, role_abil, stone_luck } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
 import { enc_stat } from './display.js';
-import { depth, dunlev } from './dungeon.js';
+import { depth, dunlev, endgamelevelname } from './dungeon.js';
 import { hu_stat } from './eat.js';
 import { game } from './gstate.js';
 import { newuexp } from './exper.js';
@@ -303,6 +307,39 @@ function propertyInPlay(state, propidx) {
     const property = state.u.uprops?.[propidx];
     return Boolean(property?.intrinsic || property?.extrinsic
         || property?.blocked);
+}
+
+// C ref: attrib.c is_innate() and from_what(). Keep the source wording used by
+// the debug enlightenment window for innate abilities whose role/race tables
+// are available here. An unrecognized extrinsic source remains a boundary so
+// an equipment-specific explanation is never silently replaced with the wrong
+// text.
+function attributeSource(propidx, state) {
+    if (!state.wizard) return '';
+    const property = state.u.uprops?.[propidx] ?? {};
+    const roleEntry = role_abil(state.urole?.mnum)?.find(
+        (entry) => entry.ability === propidx
+            && state.u.ulevel >= entry.ulevel,
+    );
+    if (roleEntry)
+        return roleEntry.ulevel === 1
+            ? ' innately' : ' because of your experience';
+    if (property.intrinsic & FROM_RACE)
+        return ' innately';
+    if (property.intrinsic & FROMOUTSIDE)
+        return ' intrinsically';
+    if (property.intrinsic & FROM_FORM)
+        return ' from your creature form';
+    if (property.extrinsic)
+        throw new UnsupportedEnlightenmentError(
+            `the source of ${propidx} resistance`,
+        );
+    // A timeout without a source is what C's from_what() reports as empty.
+    if (property.intrinsic & (FROMEXPER | FROM_RACE))
+        throw new UnsupportedEnlightenmentError(
+            `the innate source of property ${propidx}`,
+        );
+    return '';
 }
 
 // C ref: insight.c enlght_out(). ge.en_via_menu is TRUE for every ^X, so each
@@ -524,7 +561,11 @@ function background_enlightenment(final, state, lines) {
 
     /* dungeon level; ^X reveals more than the status line does */
     if (In_endgame(u.uz)) {
-        throw new UnsupportedEnlightenmentError('endgamelevelname()');
+        const egdepth = depth(u.uz, state);
+        const levelName = endgamelevelname(egdepth);
+        buf = `in the endgame, on the `
+            + `${levelName.startsWith('Plane') ? 'Elemental ' : ''}`
+            + levelName;
     } else if (Is_knox_level(u.uz)) {
         /* this gives away the fact that the knox branch is only 1 level */
         buf = `on the ${state.dungeons[u.uz.dnum].dname} level`;
@@ -1081,7 +1122,6 @@ const UNPORTED_ATTRIBUTE_PROPERTIES = Object.freeze([
     [SLEEP_RES, 'Sleep_resistance'],
     [DISINT_RES, 'Disint_resistance'],
     [SHOCK_RES, 'Shock_resistance'],
-    [POISON_RES, 'Poison_resistance'],
     [ACID_RES, 'Acid_resistance'],
     [DRAIN_RES, 'Drain_resistance'],
     [SICK_RES, 'Sick_resistance',
@@ -1102,7 +1142,7 @@ const UNPORTED_ATTRIBUTE_PROPERTIES = Object.freeze([
     [ADORNED, 'Adornment'],
     [INVIS, 'Invisible'],
     [DISPLACED, 'Displaced'],
-    [STEALTH, 'Stealth'],
+    // Poison resistance, stealth, and speed have source-backed output below.
     [AGGRAVATE_MONSTER, 'Aggravate_monster'],
     [CONFLICT, 'Conflict'],
     [JUMPING, 'Jumping'],
@@ -1128,7 +1168,7 @@ const UNPORTED_ATTRIBUTE_PROPERTIES = Object.freeze([
     [UNCHANGING, 'Unchanging'],
     [POLYMORPH, 'Polymorph'],
     [POLYMORPH_CONTROL, 'Polymorph_control'],
-    [FAST, 'Fast'],
+
     [REFLECTING, 'Reflecting'],
     [FREE_ACTION, 'Free_action'],
     [FIXED_ABIL, 'Fixed_abil'],
@@ -1247,8 +1287,16 @@ async function attributes_enlightenment(final, state, lines) {
         you_are(lines, final, `magic-protected${source}`, '');
     }
 
+    if (hasProperty(state, POISON_RES))
+        you_are(lines, final, 'poison resistant',
+            attributeSource(POISON_RES, state));
+
     if (hasProperty(state, INFRAVISION))
         you_have(lines, final, 'infravision', '');
+
+    if (hasProperty(state, STEALTH))
+        you_are(lines, final, 'stealthy',
+            attributeSource(STEALTH, state));
 
     let armpro = magic_negation(state.youmonst, state);
     if (armpro > 0) {
@@ -1259,6 +1307,9 @@ async function attributes_enlightenment(final, state, lines) {
             armpro = mc_types.length - 1;
         you_are(lines, final, mc_types[armpro], '');
     }
+
+    if (hasProperty(state, FAST))
+        you_are(lines, final, 'fast', attributeSource(FAST, state));
 
     if (luck) {
         const prefix = Math.abs(luck) >= 10 ? 'extremely '

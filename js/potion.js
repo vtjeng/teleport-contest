@@ -6,21 +6,24 @@
 //        speed_up() (2918-2928),
 //        itimeout/itimeout_incr/set_itimeout/incr_itimeout (55-86),
 //        potionbreathe() (1931-2118), make_blinded() (261-331),
-//        toggle_blindness() (336-364).
+//        make_hallucinated() (387-442), toggle_blindness() (336-364).
 //
 // dodrink() is the #quaff command entry point. Branches for strangled,
 // fountain/sink, underwater, worn-potion, milky/smoky are fail-closed;
 // the common path calls getobj() -> dopotion() -> peffects().
 //
-// peffects() dispatches 26 potion types; POT_CONFUSION, POT_SPEED (with spell
-// alias SPE_HASTE_SELF), and POT_OIL are ported. The other 23 arms throw
+// peffects() dispatches 26 potion types; POT_CONFUSION, POT_SICKNESS,
+// POT_SPEED (with spell alias SPE_HASTE_SELF), and POT_OIL are ported. The
+// other 22 arms throw
 // UnsupportedQuaffError.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
 // status changes. It forces a full vision rebuild and updates monster display.
 
 import {
+    A_CON,
     A_DEX,
+    A_MAX,
     A_WIS,
     BLINDED,
     CONFUSION,
@@ -36,6 +39,7 @@ import {
     FAINTED,
     FROMOUTSIDE,
     HALLUC,
+    HALLUC_RES,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_NONINVENT,
     GETOBJ_NOFLAGS,
@@ -46,8 +50,11 @@ import {
     IS_FOUNTAIN,
     IS_SINK,
     KILLED_BY,
+    KILLED_BY_AN,
+    FIXED_ABIL,
     LEG,
     MM_NOMSG,
+    POISON_RES,
     SEE_INVIS,
     STRANGLED,
     TELEPAT,
@@ -57,22 +64,26 @@ import {
     WOUNDED_LEGS,
     W_WEP,
 } from './const.js';
-import { exercise } from './attrib.js';
-import { see_monsters, tmp_at } from './display.js';
+import { adjattrib, exercise, poisontell } from './attrib.js';
+import {
+    see_monsters, see_objects, see_traps, swallowed, tmp_at,
+} from './display.js';
 import { heal_legs, trycall } from './do.js';
 import { Amonnam, capitalizedMonsterName } from './do_name.js';
 import { tamedog } from './dog.js';
 import { can_reach_floor } from './engrave.js';
 import { drinkfountain } from './fountain.js';
 import { more_experienced } from './exper.js';
-import { makeplural } from './fruit.js';
+import { makeplural, makesingular } from './fruit.js';
 import { game } from './gstate.js';
 import { losehp } from './hack.js';
-import { getobj, learn_unseen_invent, useup } from './invent.js';
+import {
+    getobj, learn_unseen_invent, update_inventory, useup,
+} from './invent.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime, mongone } from './makemon_create.js';
 import { likes_fire } from './mondata.js';
-import { PM_DJINNI } from './monsters.js';
+import { PM_DJINNI, PM_HEALER } from './monsters.js';
 import { bcsign, objectType } from './obj.js';
 import { discover_object } from './o_init.js';
 import { body_part } from './polyself.js';
@@ -401,6 +412,54 @@ export async function make_confused(xtime, talk, state = game) {
     set_itimeout(prop, xtime);
 }
 
+// C ref: potion.c make_hallucinated() (387-442). The ordinary transition
+// updates the display before its optional feedback, including the special
+// stomach redraw used when the hero is swallowed.
+export async function make_hallucinated(
+    xtime, talk, mask = 0, state = game,
+) {
+    const hallucination = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    if (!hallucination || !resistance)
+        throw new Error('make_hallucinated requires initialized HALLUC state');
+
+    if (Unaware(state)) talk = false;
+    const old = hallucination.intrinsic & TIMEOUT;
+    let changed = false;
+
+    if (mask) {
+        changed = Boolean(hallucination.intrinsic);
+        if (!xtime) resistance.extrinsic |= mask;
+        else resistance.extrinsic &= ~mask;
+    } else {
+        changed = !resistance.intrinsic && !resistance.extrinsic
+            && Boolean(old) !== Boolean(xtime);
+        set_itimeout(hallucination, xtime);
+    }
+
+    if (!changed) return false;
+
+    if (state.u.uswallow) {
+        await swallowed(false, state);
+    } else {
+        // potion.c calls all three display helpers before it emits the
+        // message, so each newsym() sees the new Hallucination property.
+        see_monsters(state);
+        see_objects(state);
+        see_traps(state);
+    }
+    update_inventory({ state });
+    state.disp.botl = true;
+    if (talk) {
+        const verb = heroIsBlind(state) ? 'feels' : 'looks';
+        const message = xtime
+            ? `Oh wow!  Everything ${verb} so cosmic!`
+            : `Everything ${verb} SO boring now.`;
+        await ttyPline(message, state);
+    }
+    return true;
+}
+
 // ---------------------------------------------------------------------------
 // peffect_confusion
 // C ref: potion.c peffect_confusion() (1014-1027).
@@ -491,6 +550,101 @@ async function peffect_speed(otmp, state = game) {
 }
 
 // ---------------------------------------------------------------------------
+// peffect_sickness
+// C ref: potion.c peffect_sickness() (964-1012).
+// ---------------------------------------------------------------------------
+
+function fruitname(juice, state) {
+    const configured = state.svp?.pl_fruit ?? 'slime mold';
+    const marker = configured.toLowerCase().indexOf(' of ');
+    const base = marker >= 0 ? configured.slice(marker + 4) : configured;
+    return makesingular(base) + (juice ? ' juice' : '');
+}
+
+function poisonResistance(state) {
+    const property = state.u?.uprops?.[POISON_RES];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+function fixedAbilities(state) {
+    return Boolean(state.u?.uprops?.[FIXED_ABIL]?.extrinsic);
+}
+
+// C ref: potion.c peffect_sickness() (964-1012). This covers the ordinary
+// blessed and unblessed potion paths, including the source-ordered attribute
+// loss, hit-point loss, and constitution exercise. The healer immunity and
+// hallucination cleanup arms are retained here because the active divergence
+// is the blessed potion path; the cleanup call still stops if its separate
+// vision owner is reached.
+async function peffect_sickness(otmp, state = game) {
+    await ttyPline('Yecch!  This stuff tastes like poison.', state);
+
+    if (otmp.blessed) {
+        await ttyPline(
+            `(But in fact it was mildly stale ${fruitname(true, state)}.)`,
+            state,
+        );
+        if (state.urole?.mnum !== PM_HEALER) {
+            await losehp(
+                1,
+                'mildly contaminated potion',
+                KILLED_BY_AN,
+                state,
+            );
+        }
+    } else {
+        const resistant = poisonResistance(state);
+        if (resistant) {
+            await ttyPline(
+                `(But in fact it was biologically contaminated ${fruitname(
+                    true, state)}.)`,
+                state,
+            );
+        }
+        if (state.urole?.mnum === PM_HEALER) {
+            await ttyPline('Fortunately, you have been immunized.', state);
+        } else {
+            const typ = rn2(A_MAX);
+            const contaminant = `${resistant ? 'mildly ' : ''}`
+                + (otmp.fromsink
+                    ? 'contaminated tap water'
+                    : 'contaminated potion');
+            if (!fixedAbilities(state)) {
+                await poisontell(typ, false, state);
+                await adjattrib(
+                    typ,
+                    resistant ? -1 : -rn1(4, 3),
+                    1,
+                    state,
+                );
+            }
+            if (!resistant) {
+                await losehp(
+                    rnd(10) + 5 * Number(Boolean(otmp.cursed)),
+                    contaminant,
+                    otmp.fromsink ? KILLED_BY : KILLED_BY_AN,
+                    state,
+                );
+            } else {
+                await losehp(
+                    1 + rn2(2),
+                    contaminant,
+                    otmp.fromsink ? KILLED_BY : KILLED_BY_AN,
+                    state,
+                );
+            }
+            await exercise(A_CON, false, state);
+        }
+    }
+
+    if (Hallucination(state)) {
+        throw new UnsupportedQuaffError(
+            'make_hallucinated() after peffect_sickness()',
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
 // peffect_oil
 // C ref: potion.c peffect_oil() (1259-1294).
 // ---------------------------------------------------------------------------
@@ -567,7 +721,8 @@ export async function peffects(otmp, state = game) {
     case SPE_DETECT_TREASURE:
         throw new UnsupportedQuaffError('peffect_object_detection()');
     case POT_SICKNESS:
-        throw new UnsupportedQuaffError('peffect_sickness()');
+        await peffect_sickness(otmp, state);
+        break;
     case POT_CONFUSION:
         await peffect_confusion(otmp, state);
         break;

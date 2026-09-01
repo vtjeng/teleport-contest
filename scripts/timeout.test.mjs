@@ -21,6 +21,7 @@ import {
     ROT_CORPSE,
     ROT_ORGANIC,
     SHRINK_GLOB,
+    SLEEPY,
     TIMER_NONE,
     TIMER_LEVEL,
     TIMER_OBJECT,
@@ -231,6 +232,69 @@ test('elapsed-turn timeout upkeep decrements non-expiring confusion',
         );
         assert.equal(uprops[CONFUSION].intrinsic, FROMOUTSIDE | 1);
     });
+
+test('elapsed-turn timeout upkeep counts down a worn restful-sleep amulet',
+    async () => {
+        // do_wear.c:1047-1054 gives a worn amulet of restful sleep only the
+        // TIMEOUT portion of HSleepy. timeout.c:639-640 may say "You yawn."
+        // at four, then timeout.c:670-671 decrements it. With no FROMOUTSIDE
+        // or extrinsic source, timeout.c:784-793 does nothing when it reaches
+        // zero, which is the exact source state created by Amulet_on().
+        const state = timerState();
+        const uprops = [];
+        uprops[SLEEPY] = { intrinsic: 4, extrinsic: 0 };
+        state.u = {
+            uinvulnerable: false,
+            mtimedone: 0,
+            ucreamed: 0,
+            usptime: 0,
+            ugallop: 0,
+            uprops,
+        };
+        const messages = [];
+
+        await nh_timeout_elapsed_turn(state, {
+            message: async (text) => messages.push(text),
+        });
+        assert.deepEqual(messages, ['You yawn.']);
+        assert.equal(uprops[SLEEPY].intrinsic, 3);
+
+        await nh_timeout_elapsed_turn(state, {
+            message: async (text) => messages.push(text),
+        });
+        assert.deepEqual(messages, ['You yawn.']);
+        assert.equal(uprops[SLEEPY].intrinsic, 2);
+
+        uprops[SLEEPY].intrinsic = 1;
+        await nh_timeout_elapsed_turn(state, {
+            message: async (text) => messages.push(text),
+        });
+        assert.deepEqual(messages, ['You yawn.']);
+        assert.equal(uprops[SLEEPY].intrinsic, 0);
+    });
+
+test('source-bearing sleepy timeout remains fail-closed at expiry', async () => {
+    // timeout.c:784-792 can extend or initiate sleep when Sleepy remains true
+    // through FROMOUTSIDE or an extrinsic source. The narrow worn-amulet path
+    // must not silently skip those RNG- and state-changing branches.
+    const state = timerState();
+    const uprops = [];
+    uprops[SLEEPY] = { intrinsic: FROMOUTSIDE | 1, extrinsic: 0 };
+    state.u = {
+        uinvulnerable: false,
+        mtimedone: 0,
+        ucreamed: 0,
+        usptime: 0,
+        ugallop: 0,
+        uprops,
+    };
+
+    await assert.rejects(
+        nh_timeout_elapsed_turn(state),
+        new RegExp(`no active property timeout at index ${SLEEPY}`, 'u'),
+    );
+    assert.equal(uprops[SLEEPY].intrinsic, FROMOUTSIDE | 1);
+});
 
 test('move-600 timeout luck uses basal role and luckstone gates', async () => {
     const state = timerState(600);
