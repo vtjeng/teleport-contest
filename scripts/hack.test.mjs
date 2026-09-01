@@ -572,6 +572,23 @@ test('end_running frees the travel map whether or not a run was going', () => {
     }
 });
 
+test('end_running(FALSE) preserves travel intent for the adjacent fast path',
+    () => {
+    // hack.c:1276 calls end_running(FALSE): the old selection is discarded,
+    // but findtravelpath() must leave context.travel, travel1, and mv set so
+    // domove_core() continues with the direction it is about to establish.
+    const state = runState({
+        context: { run: 8, travel: 1, travel1: 1, mv: 1 },
+    });
+    state.travelmap = new Uint8Array(COLNO * ROWNO);
+    endRunning(state, false);
+    assert.equal(state.context.run, 0);
+    assert.equal(state.context.travel, 1);
+    assert.equal(state.context.travel1, 1);
+    assert.equal(state.context.mv, 1);
+    assert.equal(state.travelmap, null);
+});
+
 test('nomul returns early when multi is already lower than the request', () => {
     // hack.c nomul()'s "bug fix by ab@unido": a paralysis of -5 outlasts a
     // later request for -2, so nothing is written.
@@ -874,10 +891,12 @@ test('runmode_delay_output stays silent with no run and no multi', async () => {
 function interruptibleRunState(overrides = {}) {
     const state = runState(overrides);
     // hack.c nomul() clears both, and end_running() clears the travel pair.
+    // These tests exercise ordinary run interruption, not the travel command;
+    // leave travel unset so domove() does not enter findtravelpath().
     state.u.uinvulnerable = true;
     state.u.usleep = 5;
-    state.context.travel = 1;
-    state.context.travel1 = 1;
+    state.context.travel = 0;
+    state.context.travel1 = 0;
     state.disp.botl = false;
     return state;
 }

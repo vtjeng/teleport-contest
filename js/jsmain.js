@@ -679,7 +679,13 @@ export async function runSegment(
     display.onEmptyQueue = () => { throw new Error('Input queue empty - test may be missing keystrokes'); };
     nhGame._pendingDisplay = display;
 
-    for (const ch of moves) display.pushKey(ch.charCodeAt(0));
+    // The recorder drives NetHack through a terminal whose ICRNL line
+    // discipline translates carriage return to newline before the game reads
+    // it. Replay input is already the recorder's raw key stream, so mirror
+    // that terminal boundary here rather than making command bindings accept
+    // a second, non-source key code.
+    for (const ch of moves)
+        display.pushKey((ch === '\r' ? '\n' : ch).charCodeAt(0));
 
     let started;
     try {
