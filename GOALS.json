@@ -7345,6 +7345,44 @@
         "screens": 1,
         "rng": 2358
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-10",
+      "status": "open",
+      "boundary": "When a read prompt receives ? and read_ok() has produced a nonempty suggested inventory-letter subset, display the filtered inventory choice through the source display_pickinv() path and return the selected object, preserving its message-menu output and input boundary.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/read.c",
+        "nethack-c/upstream/src/invent.c"
+      ],
+      "forecast": {
+        "steps": 5,
+        "basis": "Capped look-ahead at unsupported hero command: an unported branch of this command: the object prompt requires display_pickinv() with a letter subset",
+        "sessions": [
+          "seed0004-feeding-pony"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "The development witness is seed 4, fixed datetime 20260414173108, OPTIONS=symset:DECgraphics. Character setup resolves to Tetra, a lawful female human Knight, with no earlier screen or RNG divergence. At C step 287, input r dispatches to read.c:doread(), which calls getobj(read, read_ok, GETOBJ_PROMPT). read_ok() returns GETOBJ_SUGGEST for scrolls and spellbooks and GETOBJ_DOWNPLAY for other inventory objects. At step 288, input ? enters invent.c:getobj() redo_menu and passes the suggested-letter string lets to display_pickinv(allowed_choices, ..., TRUE, ...). C one-item message-menu branch emits o - a scroll labeled STRC PRST SKRZ KRK.--More--; JavaScript getobj() raises UnsupportedObjectPromptError at this exact display_pickinv() letter-subset boundary before drawing it. The next selected o and C subsequent scroll messages are in the cap-5 look-ahead."
+          }
+        ]
+      },
+      "detail": "This is a bounded read-command object-selection goal: support getobj() receiving ? at a read prompt and route its suggested inventory-letter subset through display_pickinv(), including the one-item message-menu result and return of the selected item. The source boundary is read.c:doread()/read_ok() (read.c:313-362) into invent.c:getobj() redo_menu (read.c:1964-1998) and display_pickinv() filtered one-item path (read.c:3057-3140). The candidate is cap-stable at five recorded steps for seed0004-feeding-pony; the ahead stream is the suggested scroll line, scroll consumption/read feedback, and teleport materialization. Keep * selection, hands/self choices, count prefixes, forced inventory menus, multi-item menu selection, and unrelated selected-object effects outside this goal unless a later measured boundary requires them.",
+      "slices": [
+        {
+          "name": "read-suggested-inventory-subset",
+          "status": "closed",
+          "closedBy": "acbe8e95cdce5d3f8a1cf172fb555b351ca4398e"
+        }
+      ],
+      "openedAt": "67f3c9c9bc7775a0bd619be4c3875953c9ffd16e",
+      "openStanding": {
+        "sha": "816c47a",
+        "screens": 3626,
+        "rng": 234598
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
