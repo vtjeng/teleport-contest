@@ -7722,8 +7722,8 @@
       "slices": [
         {
           "name": "ordinary throw full-inventory menu selection from getobj()",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d6d091787dcfe4d4a3ea5170ed856c7006cdb612"
         }
       ],
       "openedAt": "e9f90d514919f204a5f4245e9434ce7d7c350091",
