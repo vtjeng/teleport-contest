@@ -7426,6 +7426,44 @@
         "screens": 2,
         "rng": 87
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-11",
+      "status": "open",
+      "boundary": "When the witnessed ordinary, unblessed, uncursed teleportation scroll is selected through read.c:doread(), execute its calm seffect_teleportation() -> scrolltele() -> safe_teleds() path through the materialization message and relocation result, stopping before the following travel command.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/read.c",
+        "nethack-c/upstream/src/teleport.c"
+      ],
+      "forecast": {
+        "steps": 4,
+        "basis": "Capped look-ahead at seed0004-feeding-pony",
+        "sessions": [
+          "seed0004-feeding-pony"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "The development witness is seed 4 with fixed datetime 20260414173108 and OPTIONS=symset:DECgraphics. Character setup resolves to Tetra, a lawful female human Knight; the current scan reports 289 emitted screens out of 409 recorded steps and no earlier screen or RNG divergence. At the first stop, input r dispatches to read.c:doread(), read_ok() suggests the scroll, and input ? enters invent.c:getobj() redo_menu with the nonempty suggested-letter set; display_pickinv() returns the sole o item through its message-line menu. The next o selects an ordinary, unblessed, uncursed scroll of teleportation. C then runs doread()'s scroll->in_use and disappearance message, seffects()'s A_WIS exercise, seffect_teleportation()'s !confused && !scursed else arm, and teleport.c:scrolltele()'s uncontrolled safe_teleds() path. The recorded RNG calls at that read are exercise(attrib.c:509), followed by rnd(79)/rn2(21) pairs from safe_teleds(teleport.c:737-738); the observable continuation is the disappearance --More-- response, You materialize in a different location!, and the following blank screen updates. JavaScript currently reaches js/read.js:doread() only after the selection and raises UnsupportedReadError('the selected readable object branch') before pickup_prev changes, so none of that read-effect state, RNG, teleport relocation, or message sequence is executed. The four recorded steps end at the next independent travel behavior."
+          }
+        ]
+      },
+      "detail": "This is a bounded ordinary teleportation-scroll read effect. Close the candidate by admitting the witnessed selected readable object in read.c:doread(), preserving source order for literate conduct, scroll in_use, the disappearance message, seffects()'s magic-scroll wisdom exercise, and seffect_teleportation()'s !confused/uncursed scrolltele branch; then port the reachable teleport.c scrolltele() uncontrolled safe_teleds() and teleds() path needed for the relocation message, map/state update, RNG calls, cursor, and input waits. The candidate is cap-stable at four recorded steps for seed0004-feeding-pony: the ahead stream is the selected read's disappearance message, its --More-- dismissal, the materialization message, and the two trailing screen updates before travel. Keep confused or cursed level teleport, blessed or controlled teleport prompts, no-teleport and special-destination branches, occupied or trapped destinations, other scroll effects, and unrelated later movement outside this goal unless a later measured boundary reaches them.",
+      "slices": [
+        {
+          "name": "ordinary-teleport-scroll-read-relocation",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "9de7bc4c2718a13b78fa8f311dfa5567e5406e3e",
+      "openStanding": {
+        "sha": "884407c",
+        "screens": 3629,
+        "rng": 234685
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
