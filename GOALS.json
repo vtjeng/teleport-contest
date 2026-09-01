@@ -7527,7 +7527,7 @@
     },
     {
       "id": "glance",
-      "status": "open",
+      "status": "closed",
       "boundary": "The direct semicolon glance command enters pager.c doquickwhatis() and completes one ordinary cursor-based map description, including getpos cursor movement and the quick single-description return, for an ordinary visible hero on a non-special map glyph.",
       "upstreamOwners": [
         "cmd.c extcmdlist[] and doextcmd()",
@@ -7563,8 +7563,11 @@
         "screens": 3687,
         "rng": 238188
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "1f0e1165de32f91b168dfe6b07a36de4cc8f7687",
+      "delivered": {
+        "screens": 11,
+        "rng": 192
+      }
     }
   ]
 }
