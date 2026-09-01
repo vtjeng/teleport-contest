@@ -10,7 +10,9 @@ import {
     A_CHA,
     ACH_SHOP,
     BUFSZ,
+    CONFLICT,
     DEAF,
+    FAST,
     helpless,
     HUNGRY,
     INVIS,
@@ -24,33 +26,38 @@ import {
 import { effective_attribute } from './attrib.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { dist2, s_suffix } from './hacklib.js';
+import { dist2, online2, s_suffix } from './hacklib.js';
+import { carrying } from './invent.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
 import { set_malign } from './makemon.js';
 import { wake_nearto } from './mon.js';
 import {
-    carried, hasContents, isCandle, isContainer, objectType,
+    carried, hasContents, isCandle, isContainer, objectType, sobj_at,
 } from './obj.js';
 import {
     ARMOR_CLASS,
     COIN_CLASS,
     CORPSE,
     DUNCE_CAP,
+    DWARVISH_MATTOCK,
     EGG,
     FOOD_CLASS,
     GEM_CLASS,
     GLASS,
     POTION_CLASS,
     POT_WATER,
+    PICK_AXE,
     TIN,
     TOOL_CLASS,
     WAND_CLASS,
     WEAPON_CLASS,
 } from './objects.js';
 import { PM_TOURIST } from './monsters.js';
+import { resist_conflict } from './mondata.js';
 import { Hello } from './role_init.js';
 import { in_rooms } from './rooms.js';
+import { move_special } from './priest.js';
 import { SHTYPES } from './shtypes_data.js';
 import { ttyPline } from './tty_message.js';
 
@@ -210,6 +217,20 @@ export function u_left_shop(leavestring, _newlev, state = game) {
             ? 'u_left_shop() leaving a shop with debt'
             : 'u_left_shop() reaching a shop boundary with debt',
     );
+}
+
+// C ref: shk.c after_shk_move(). A sentinel is installed only when a hero
+// enters a shop whose keeper is temporarily not on the level; an ordinary
+// shopkeeper move has no visible or random side effect here.
+export function after_shk_move(shopkeeper, state = game) {
+    const extension = shopkeeper?.mextra?.eshk;
+    if (!extension || extension.bill_p !== -1000
+        || !inhishop(shopkeeper, state)) return;
+
+    extension.bill_p = extension.bill ?? [];
+    // check_special_room(FALSE) is already the caller's movement boundary in
+    // this port. The sentinel reset is the only state change in this helper's
+    // supported path.
 }
 
 // C ref: shk.c is_fshk() (5010-5015), which exists for mondata.c
@@ -685,14 +706,15 @@ function shk_fixes_damage(shkp, state) {
     );
 }
 
-// C ref: shk.c shk_move() (4880-4993).  Covers the stationary return-0 path:
-// a peaceful shopkeeper at its guard position with no bill, no robbery, no
-// debit, and not following.  All other branches -- angry approach, following
-// hero, move_special() -- are refused.
+// C ref: shk.c shk_move() (4880-4993). Covers the ordinary peaceful path and
+// hands candidate selection to priest.c move_special(), which is shared by
+// both special movers. Combat, following speech, and repair still stop at
+// their source branches.
 //
 // Return values match C: 1 = moved, 0 = didn't, -1 = let m_move do it,
 // -2 = died.
-export function shk_move(shkp, state) {
+export function shk_move(shkp, state, rawEnv = {}) {
+    const env = { ...rawEnv, state };
     const eshkp = shkp.mextra?.eshk;
     if (!eshkp) {
         throw new UnsupportedShopError('shk_move without eshk extension');
@@ -702,35 +724,97 @@ export function shk_move(shkp, state) {
 
     if (inhishop(shkp, state)) shk_fixes_damage(shkp, state);
 
-    // C: `ANGRY(shkp)` is `!shkp->mpeaceful`.
-    if (!shkp.mpeaceful) {
-        throw new UnsupportedShopError('shk_move for angry shopkeeper');
-    }
-    if (eshkp.following) {
-        throw new UnsupportedShopError('shk_move for following shopkeeper');
-    }
-
-    // C:4935-4983, the `else` branch (not following, not angry).
-    // gtx, gty = guard position; satdoor = shopkeeper is at guard pos.
-    const gtx = eshkp.shk.x;
-    const gty = eshkp.shk.y;
-
-    // GDIST(omx, omy) = dist2(omx, omy, gtx, gty).  The shopkeeper is at or
-    // near its guard position; when GDIST < 3 and there is no bill, robbery,
-    // or debit, the C code returns 0 (didn't move) on most paths.
-    const gdist = dist2(omx, omy, gtx, gty);
-    if ((!eshkp.robbed && !eshkp.billct && !eshkp.debit)
-        && gdist < 3) {
-        // C:4978-4979 would also check `!badinv && !onlineu(omx, omy)` before
-        // returning 0, or `satdoor` to zero the approach.  Both of those
-        // eventually reach return 0 or move_special() with appr=0, gtx=gty=0.
-        // For the stationary case (no movement), return 0 directly.
-        return 0;
+    const hero = state.u;
+    const udist = dist2(omx, omy, hero?.ux ?? 0, hero?.uy ?? 0);
+    if (udist < 3) {
+        const conflict = state.u?.uprops?.[CONFLICT];
+        const conflictActive = Boolean(
+            conflict?.intrinsic || conflict?.extrinsic,
+        );
+        const random = env.random ?? { rnd: () => 0 };
+        if (!shkp.mpeaceful
+            || (conflictActive
+                && !resist_conflict(shkp, state, random))) {
+            if (typeof env.attackHero !== 'function')
+                throw new UnsupportedShopError('shk_move close combat');
+            env.attackHero(shkp, env);
+            return 0;
+        }
+        if (eshkp.following)
+            throw new UnsupportedShopError('shk_move following speech');
     }
 
-    // Every other path reaches move_special() or a return-0 through checks
-    // this port has not ported (Invis, avoid, badinv, onlineu, holetime).
-    throw new UnsupportedShopError('shk_move non-stationary path');
+    let appr = 1;
+    let gtx = eshkp.shk?.x ?? omx;
+    let gty = eshkp.shk?.y ?? omy;
+    const satdoor = gtx === omx && gty === omy;
+    const holeTime = typeof env.holeTime === 'function'
+        ? env.holeTime(shkp, state) : -1;
+
+    if (eshkp.following || (holeTime >= 0 && holeTime * holeTime <= udist)) {
+        if (udist > 4 && eshkp.following && !eshkp.billct)
+            return -1;
+        gtx = hero.ux;
+        gty = hero.uy;
+    } else if (!shkp.mpeaceful) {
+        if (shkp.mcansee && (env.canSeeHero?.(shkp) ?? true)) {
+            gtx = hero.ux;
+            gty = hero.uy;
+        }
+    } else {
+        const invis = hero.uprops?.[INVIS];
+        const invisible = Boolean((invis?.intrinsic || invis?.extrinsic)
+            && !invis.blocked);
+        if (invisible || hero.usteed) {
+            appr = 0;
+        } else {
+            const door = eshkp.shd ?? {};
+            const uondoor = hero.ux === door.x && hero.uy === door.y;
+            let badinv = Boolean(
+                carrying(PICK_AXE, state)
+                || carrying(DWARVISH_MATTOCK, state),
+            );
+            const fast = hero.uprops?.[FAST];
+            if (fast?.intrinsic || fast?.extrinsic) {
+                badinv = badinv || Boolean(
+                    sobj_at(PICK_AXE, hero.ux, hero.uy, state)
+                    || sobj_at(DWARVISH_MATTOCK, hero.ux, hero.uy, state),
+                );
+            }
+            if (satdoor && badinv) return 0;
+            env._shopAvoid = uondoor
+                ? !badinv
+                : Boolean((hero.ushops ?? []).some(Boolean)
+                    && dist2(gtx, gty, hero.ux, hero.uy) > 64);
+            const gdist = dist2(omx, omy, gtx, gty);
+            if (((!eshkp.robbed && !eshkp.billct && !eshkp.debit)
+                || env._shopAvoid) && gdist < 3) {
+                if (!badinv && !online2(omx, omy, hero.ux, hero.uy))
+                    return 0;
+                if (satdoor) {
+                    appr = 0;
+                    gtx = 0;
+                    gty = 0;
+                }
+            }
+        }
+    }
+
+    const result = move_special(
+        shkp,
+        inhishop(shkp, state),
+        appr,
+        hero.ux === (eshkp.shd?.x ?? -1)
+            && hero.uy === (eshkp.shd?.y ?? -1),
+        Boolean(env._shopAvoid),
+        omx,
+        omy,
+        gtx,
+        gty,
+        env,
+    );
+    if (result > 0) after_shk_move(shkp, state);
+    return result;
 }
 
 // Thrown where shk.c reaches shop bookkeeping this port has not ported.

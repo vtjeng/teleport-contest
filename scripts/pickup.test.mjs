@@ -61,6 +61,7 @@ import {
     pickup,
     preflight_describe_decor_at,
     preflight_initial_pickup,
+    preflight_projected_random_arrival_pickup,
     query_objlist,
     rider_corpse_revival,
     u_safe_from_fatal_corpse,
@@ -1103,8 +1104,16 @@ test('pickup stops on each state it has no answer for', async () => {
     const state = await heroOnAnEmptySquare();
 
     state.u.uswallow = 1;
-    await assert.rejects(() => pickup(1, state), /inside a monster/u);
+    state.u.ustuck = { data: state.youmonst.data, minvent: null };
+    state.gp.pickup_encumbrance = 3;
+    assert.equal(await pickup(1, state), 0);
+    assert.equal(state.gp.pickup_encumbrance, 0);
+    assert.doesNotThrow(() => preflight_projected_random_arrival_pickup({
+        ...state,
+        u: { ...state.u, ustuck: { ...state.u.ustuck, minvent: null } },
+    }));
     state.u.uswallow = 0;
+    state.u.ustuck = null;
 
     // multi < 0 is a helpless hero, and only autopickup checks it.
     state.multi = -3;
@@ -1116,10 +1125,12 @@ test('pickup stops on each state it has no answer for', async () => {
     await assert.rejects(() => pickup(1, state), /unowned prior terrain/u);
     state.flags.mention_decor = false;
 
-    // can_reach_floor() answers FALSE for a swallowed hero, which is the one
-    // of its arms this fixture can set without an unported property.
+    // A nonempty engulfer inventory remains outside this no-op branch.
     state.u.uswallow = 1;
-    state.u.ustuck = { data: state.youmonst.data };
+    state.u.ustuck = {
+        data: state.youmonst.data,
+        minvent: { where: OBJ_MINVENT },
+    };
     await assert.rejects(() => pickup(1, state), /inside a monster/u);
     state.u.uswallow = 0;
     state.u.ustuck = null;

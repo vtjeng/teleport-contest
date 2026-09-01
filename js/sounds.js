@@ -3,7 +3,9 @@
 
 import {
     ANY_SHOP,
+    BARRACKS,
     BLINDED,
+    COURT,
     DEAF,
     ECMD_CANCEL,
     ECMD_OK,
@@ -42,7 +44,14 @@ import {
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { get_iter_mons } from './mon.js';
-import { humanoid, is_animal, is_silent } from './mondata.js';
+import {
+    humanoid,
+    is_animal,
+    is_lord,
+    is_mercenary,
+    is_prince,
+    is_silent,
+} from './mondata.js';
 import { MS_LEADER, PM_ORACLE } from './monsters.js';
 import { m_at } from './monst.js';
 import { g_at } from './obj.js';
@@ -52,6 +61,7 @@ import { halu_gname } from './pray.js';
 import { quest_chat } from './quest.js';
 import { inhistemple, temple_occupied } from './priest.js';
 import { rn2 } from './rng.js';
+import { genders } from './roles.js';
 import { canSeeMonster, canSpotMonster } from './startup_a11y.js';
 import { noisy_shop, shop_object, tended_shop } from './shk.js';
 import { ttyPline } from './tty_message.js';
@@ -71,7 +81,6 @@ const SINK_MESSAGES = Object.freeze([
 ]);
 
 const PRE_VAULT_SPECIAL_SOUND_FLAGS = Object.freeze([
-    'has_court',
     'has_swamp',
 ]);
 
@@ -82,7 +91,6 @@ const PRE_VAULT_SPECIAL_SOUND_FLAGS = Object.freeze([
 const PRE_SHOP_SPECIAL_SOUND_FLAGS = Object.freeze([
     'has_beehive',
     'has_morgue',
-    'has_barracks',
 ]);
 
 const POST_SHOP_SPECIAL_SOUND_FLAGS = Object.freeze([
@@ -208,6 +216,58 @@ function zoo_mon_sound_qualifies(monster, state) {
         && mon_in_room(monster, ZOO, state);
 }
 
+// C ref: sounds.c:29-61 throne_mon_sound(). The room gate is the callback's
+// responsibility, so get_iter_mons() can continue to the next sound branch
+// when a court exists but has no eligible living monster.
+async function throneMonSound(_monster, state, hallu, { random, pline }) {
+    const selection = random(3) + hallu;
+    const messages = [
+        'the tones of courtly conversation.',
+        'a sceptre pounded in judgment.',
+        null,
+        "Queen Beruthiel's cats!",
+    ];
+    if (selection === 2) {
+        const gender = genders[state.flags?.female ? 1 : 0];
+        await pline(
+            `Someone shouts "Off with ${gender?.his ?? 'his'} head!"`,
+            state,
+        );
+    } else {
+        await hear(messages[selection], state, pline);
+    }
+    return true;
+}
+
+function throneMonSoundQualifies(monster, state) {
+    return (monster.msleeping
+        || is_lord(monster.data)
+        || is_prince(monster.data))
+        && !is_animal(monster.data)
+        && mon_in_room(monster, COURT, state);
+}
+
+const BARRACKS_MESSAGES = Object.freeze([
+    'blades being honed.',
+    'loud snoring.',
+    'dice being thrown.',
+    'General MacArthur!',
+]);
+
+// C ref: sounds.c:280-305 barracks ambient sound. The sixth awake
+// mercenary is enough; sleeping mercenaries qualify immediately.
+async function barracksMonSound(state, hallu, { random, pline }) {
+    let awakeMercenaries = 0;
+    const monster = get_iter_mons((candidate) => {
+        if (!is_mercenary(candidate.data)
+            || !mon_in_room(candidate, BARRACKS, state)) return false;
+        return candidate.msleeping || ++awakeMercenaries > 5;
+    }, state);
+    if (!monster) return false;
+    await hear(BARRACKS_MESSAGES[random(3) + hallu], state, pline);
+    return true;
+}
+
 // A sounds.c dosounds() branch this port cannot run yet. dosounds() runs once
 // per turn from allmain.c moveloop_core(), so the refusal has to end the
 // segment on its last matching screen rather than crash the caller.
@@ -278,9 +338,9 @@ async function templePriestSound(state, hallu, { random, pline }) {
 /**
  * Run every sounds.c:dosounds() branch reachable on an ordinary initial level.
  *
- * Fountain, sink, secret-vault, and shop behavior is complete.  Special rooms
- * which require a deeper level, plus the Oracle level, are rejected before any
- * draw until their owning gameplay goals make them reachable.
+ * Fountain, sink, court, secret-vault, and shop behavior is complete. Special
+ * rooms which require a deeper level, plus the Oracle level, are rejected
+ * before their owning gameplay goals make them reachable.
  */
 export async function dosoundsInitialLevel(
     state = game,
@@ -301,7 +361,19 @@ export async function dosoundsInitialLevel(
     if (flags.nsinks && random(300) === 0) {
         await hear(SINK_MESSAGES[random(2) + hallu], state, pline);
     }
-    // Stop at the first unowned source branch, after all earlier owned work.
+    // C ref: sounds.c:226-229. If the gate fires but no court monster
+    // qualifies, dosounds() continues to the swamp branch.
+    if (flags.has_court && random(200) === 0) {
+        const monster = get_iter_mons(
+            (candidate) => throneMonSoundQualifies(candidate, state),
+            state,
+        );
+        if (monster) {
+            await throneMonSound(monster, state, hallu, { random, pline });
+            return;
+        }
+    }
+    // Stop at the first unowned source branch, after all earlier work.
     rejectUnportedSpecialSound(state, PRE_VAULT_SPECIAL_SOUND_FLAGS);
     if (flags.has_vault && random(200) === 0) {
         const room = searchSpecial(VAULT, state);
@@ -339,6 +411,12 @@ export async function dosoundsInitialLevel(
         return;
     }
     rejectUnportedSpecialSound(state, PRE_SHOP_SPECIAL_SOUND_FLAGS);
+    // C ref: sounds.c:280-305. If the barracks gate fires but fewer than six
+    // awake mercenaries (and no sleeping mercenary) qualify, continue on.
+    if (flags.has_barracks && random(200) === 0
+        && await barracksMonSound(state, hallu, { random, pline })) {
+        return;
+    }
     // C ref: sounds.c:309-312. If the gate fires but no live monster meets
     // zoo_mon_sound()'s predicate, dosounds() continues to the shop branch.
     if (flags.has_zoo && random(200) === 0) {

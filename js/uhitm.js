@@ -29,6 +29,7 @@ import {
     P_NONE,
     P_SKILLED,
     P_WHIP,
+    POISON_RES,
     SHOCK_RES,
     STRAT_WAITMASK,
     STUNNED,
@@ -44,6 +45,7 @@ import {
 import {
     capitalizedAlwaysVisibleMonsterName,
     monsterCommonName,
+    monsterPossessive,
 } from './do_name.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
@@ -120,9 +122,11 @@ import {
     AD_TLPT,
     AD_WERE,
     AD_WRAP,
+    AT_BITE,
     AT_BUTT,
     AT_CLAW,
     AT_ENGL,
+    AT_GAZE,
     AT_HUGS,
     AT_KICK,
     AT_NONE,
@@ -287,7 +291,9 @@ export async function mhitm_mgc_atk_negated(
 //
 // Four arms stop instead of porting, and each is the whole of one C branch:
 //
-//   198-199  engulfing_u(): the hero is inside the target.
+//   198-199  engulfing_u(): the hero is inside the target. C explicitly
+//            returns FALSE here, allowing the swallowed attack to continue;
+//            the ordinary visibility and concealment tests below do not apply.
 //   230-252  a target the hero cannot spot, whose arm prints "Wait!  There's
 //            something there you can't see!", marks the square and calls
 //            mon.c wakeup(mtmp, TRUE) before returning TRUE. The line and the
@@ -310,7 +316,7 @@ export function attack_checks(mtmp, wep, state = game, env = {}) {
 
     mtmp.mstrategy &= ~STRAT_WAITMASK;
 
-    if (engulfing_u(mtmp, state)) unsupported('attacking the engulfer');
+    if (engulfing_u(mtmp, state)) return false;
 
     if (state.context?.forcefight) {
         // C's own canspotmon() test here is inside the commented-out block,
@@ -1459,6 +1465,64 @@ export async function mhitm_ad_elec(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_drst() (3122-3163), the bounded monster-versus-
+// hero arm. The shared magic-cancellation roll is made first, then a landed
+// poison attack prints hitmsg() and spends the 1/8 poison-effect roll. The
+// current development boundary has a poison-resistant hero, so the
+// resistance response is complete. The non-resistant continuation calls
+// attrib.c poisoned(), whose lethal, hit-point, and attribute-loss branches
+// still need a monster-turn planning owner; it remains fail-closed after its
+// source-side poison trigger.
+function monsterPoisonSubject(monster, attack) {
+    if (attack.aatyp === AT_WEAP)
+        return monster.mw?.opoisoned ? 'weapon' : 'attack';
+    if (attack.aatyp === AT_TUCH) return 'contact';
+    if (attack.aatyp === AT_GAZE) return 'gaze';
+    if (attack.aatyp === AT_BITE) return 'bite';
+    return 'sting';
+}
+
+export async function mhitm_ad_drst(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2 };
+    const unsupported = requireAttackOperation(env, 'unsupported');
+    const negated = await mhitm_mgc_atk_negated(
+        magr, mdef, false, state, env,
+    );
+
+    if (magr === state.youmonst) {
+        /* uhitm */
+        if (!negated && !random.rn2(8))
+            unsupported('the hero poisoning a monster');
+    } else if (mdef === state.youmonst) {
+        /* mhitu */
+        await hitmsg(magr, mattk, state, env);
+        if (!negated && !random.rn2(8)) {
+            const message = requireAttackOperation(env, 'message');
+            const reason = `${monsterPossessive(magr, state, true)} `
+                + `${monsterPoisonSubject(magr, mattk)}`;
+            const resistance = state.u?.uprops?.[POISON_RES];
+            if (!(resistance?.intrinsic || resistance?.extrinsic)) {
+                unsupported('a non-resistant hero poisoned by a monster');
+            }
+            // attrib.c poisoned() prints this before checking
+            // Poison_resistance, and then reports that the poison had no
+            // effect. No further random draw or state change occurs here.
+            await message(`${reason} was poisoned!`, state);
+            await message("The poison doesn't seem to affect you.", state);
+        }
+    } else {
+        /* mhitm */
+        unsupported('one monster poisoning another');
+    }
+}
+
 // C ref: uhitm.c mhitm_ad_phys() (3980-4200), two of its three arms: the
 // `mdef == &gy.youmonst` one (4021-4127), including an ordinary weapon hit,
 // and the mhitm one (4128-4200). An ordinary blow landing on the hero prints
@@ -1676,7 +1740,9 @@ export async function mhitm_adtyping(
     case AD_DREN: unported('mhitm_ad_dren'); break;
     case AD_DRST:
     case AD_DRDX:
-    case AD_DRCO: unported('mhitm_ad_drst'); break;
+    case AD_DRCO:
+        await mhitm_ad_drst(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_DRIN: unported('mhitm_ad_drin'); break;
     case AD_STCK: unported('mhitm_ad_stck'); break;
     case AD_WRAP: unported('mhitm_ad_wrap'); break;

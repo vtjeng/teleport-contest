@@ -13,6 +13,7 @@
 // wizcmds.c wiz_genesis() calls the monster-creation helpers.
 
 import {
+    A_INT,
     A_WIS,
     BLINDED,
     COLNO,
@@ -33,6 +34,8 @@ import {
     NEUTRAL,
     NO_MM_FLAGS,
     ROWNO,
+    STRAT_APPEARMSG,
+    STRAT_WAITFORU,
     ismnum,
 } from './const.js';
 import {
@@ -45,10 +48,16 @@ import {
     PM_LONG_WORM,
     PM_LONG_WORM_TAIL,
     PM_SHOPKEEPER,
+    PM_WIZARD,
 } from './monsters.js';
 import { digit, mungspaces, strstri } from './hacklib.js';
 import { game } from './gstate.js';
-import { check_capacity, notice_mon_off, notice_mon_on } from './hack.js';
+import {
+    check_capacity,
+    nomul,
+    notice_mon_off,
+    notice_mon_on,
+} from './hack.js';
 import { getobj, identify_pack, update_inventory, useup } from './invent.js';
 import { getlin } from './windows.js';
 import {
@@ -66,17 +75,23 @@ import {
     SCR_IDENTIFY,
     SCR_MAGIC_MAPPING,
     SCR_TELEPORTATION,
+    DUNCE_CAP,
+    LENSES,
+    OBJ_DESCR,
+    SPE_BLANK_PAPER,
+    SPE_BOOK_OF_THE_DEAD,
+    SPE_NOVEL,
     SPBOOK_CLASS,
 } from './objects.js';
 import { isFlammable, objectType } from './obj.js';
 import { not_fully_identified } from './objnam.js';
-import { exercise } from './attrib.js';
+import { effective_attribute, exercise } from './attrib.js';
 import { do_mapping } from './detect.js';
-import { Is_special } from './dungeon.js';
+import { In_W_tower, Is_special } from './dungeon.js';
 import { level_tele, scrolltele } from './teleport.js';
 import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
-import { rn2, rnl } from './rng.js';
+import { rn2, rnl, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { trycall } from './do.js';
 import { y_n } from './cmd.js';
@@ -139,6 +154,122 @@ function oneWornFlammableArmor(state) {
     return worn.length === 1 && isFlammable(worn[0], state);
 }
 
+// C ref: spell.c study_book() (537-584).  This helper names the small
+// portion of spellbook study that can be admitted without the occupation
+// installed by learn(): an ordinary, non-wizard reader can find an uncursed
+// book too difficult, then take cursed_book()'s aggravation result and keep
+// the book when its final crumble roll is nonzero.
+function spellbookLevel(type) {
+    return Math.trunc(type.oc_level ?? type.oc_oc2 ?? 0);
+}
+
+function hasKnownSpell(otyp, state) {
+    return (state.svs?.spl_book ?? []).some((spell) => spell?.sp_id === otyp);
+}
+
+function tooHardSpellbookPreflight(spellbook, state) {
+    if (!spellbook || spellbook.oclass !== SPBOOK_CLASS
+        || spellbook.blessed || spellbook.cursed || spellbook.in_use
+        || spellbook.otyp === SPE_BLANK_PAPER
+        || spellbook.otyp === SPE_BOOK_OF_THE_DEAD
+        || spellbook.otyp === SPE_NOVEL
+        || state.urole?.mnum === PM_WIZARD
+        || state.uarmh?.otyp === DUNCE_CAP
+        || propertyActive(BLINDED, state)
+        || propertyActive(CONFUSION, state)
+        || state.context?.spbook?.delay
+        || state.context?.spbook?.book
+        || hasKnownSpell(spellbook.otyp, state)) return false;
+
+    const type = objectType(spellbook, state);
+    const level = spellbookLevel(type);
+    if (OBJ_DESCR(type, state) === 'dull' || level < 1 || level > 7) {
+        return false;
+    }
+
+    const readAbility = effective_attribute(state, A_INT)
+        + 4 + Math.trunc(state.u.ulevel / 2) - 2 * level
+        + ((state.ublindf?.otyp === LENSES) ? 2 : 0);
+    return readAbility < 20;
+}
+
+// C ref: wizard.c aggravate() (493-511).  It has no messages.  The tower
+// comparison is retained even though the selected witness is on Dlvl:1: it
+// is part of the state contract for every monster the helper may visit.
+function aggravateMonsters(state) {
+    const heroInTower = In_W_tower(
+        state.u.ux, state.u.uy, state.u.uz, state,
+    );
+    for (let monster = state.level?.monlist ?? null;
+        monster;
+        monster = monster.nmon) {
+        if ((monster.mhp ?? 0) < 1) continue;
+        if (In_W_tower(monster.mx, monster.my, state.u.uz, state)
+            !== heroInTower) continue;
+        monster.mstrategy &= ~(STRAT_WAITFORU | STRAT_APPEARMSG);
+        monster.msleeping = false;
+        if (!monster.mcanmove && !rn2(5)) {
+            monster.mfrozen = 0;
+            monster.mcanmove = true;
+        }
+    }
+}
+
+// C ref: spell.c study_book() (575-619) and cursed_book() (130-183).
+// Only cursed_book()'s case 1 and its nonzero crumble result are open here;
+// the random draw is still consumed before a different outcome refuses, so
+// the boundary remains source-ordered without pretending to implement the
+// teleport, blindness, gold, poison, explosion, or rndcurse arms.
+async function studyTooHardSpellbook(spellbook, state) {
+    if (!tooHardSpellbookPreflight(spellbook, state)) {
+        throw new UnsupportedReadError('the selected spellbook branch');
+    }
+
+    const type = objectType(spellbook, state);
+    const level = spellbookLevel(type);
+    const readAbility = effective_attribute(state, A_INT)
+        + 4 + Math.trunc(state.u.ulevel / 2) - 2 * level
+        + ((state.ublindf?.otyp === LENSES) ? 2 : 0);
+
+    // C's rnd(20) is the ordinary uncursed-book difficulty roll.  A
+    // successful study reaches learn(), which remains a separate boundary.
+    if (rnd(20) <= readAbility) {
+        throw new UnsupportedReadError('successful spellbook study');
+    }
+
+    state.context ??= {};
+    state.context.spbook ??= { delay: 0, book: null, o_id: 0 };
+    state.context.spbook.delay = level <= 2
+        ? -type.oc_delay
+        : level <= 4
+            ? -(level - 1) * type.oc_delay
+            : level <= 6
+                ? -level * type.oc_delay
+                : level === 7 ? -8 * type.oc_delay : 0;
+    spellbook.in_use = true;
+
+    // cursed_book() chooses one of `objects[booktype].oc_level` effects.
+    // Case 1 is the witness branch: it only calls aggravate() after speaking.
+    if (rn2(level) !== 1) {
+        throw new UnsupportedReadError('cursed_book() outcome');
+    }
+    await ttyPline('You feel threatened.', state);
+    aggravateMonsters(state);
+
+    nomul(state.context.spbook.delay, state);
+    state.multi_reason = 'reading a book';
+    state.nomovemsg = null;
+    state.context.spbook.delay = 0;
+
+    // C uses the book only when this draw is nonzero; the zero arm also
+    // needs trycall() and useup(), so it remains fail-closed.
+    if (!rn2(3)) {
+        throw new UnsupportedReadError('cursed_book() spellbook crumble');
+    }
+    spellbook.in_use = false;
+    return true;
+}
+
 // C ref: read.c doread() (347-646), restricted after getobj() to the known,
 // uncursed magic-mapping scroll, an ordinary unknown identify scroll whose
 // remaining inventory is already fully identified, and the fresh-known
@@ -179,6 +310,7 @@ export async function doread(state = game) {
     const knownHealing = scroll.oclass === SPBOOK_CLASS
         && !propertyActive(BLINDED, state) && !confused
         && study_book_preflight(scroll, state);
+    const tooHardBook = tooHardSpellbookPreflight(scroll, state);
     const confusedTeleport = scroll.oclass === SCROLL_CLASS
         && scroll.otyp === SCR_TELEPORTATION
         && scroll.blessed && !scroll.cursed
@@ -188,7 +320,8 @@ export async function doread(state = game) {
     const calmTeleport = ordinaryScroll
         && scroll.otyp === SCR_TELEPORTATION;
     if (!mapping && !identify && !destroyArmor
-        && !knownHealing && !confusedTeleport && !calmTeleport) {
+        && !knownHealing && !tooHardBook
+        && !confusedTeleport && !calmTeleport) {
         throw new UnsupportedReadError('the selected readable object branch');
     }
 
@@ -201,6 +334,10 @@ export async function doread(state = game) {
             message: ttyPline,
             prompt: y_n,
         }) ? ECMD_TIME : ECMD_OK;
+    }
+    if (tooHardBook) {
+        return await studyTooHardSpellbook(scroll, state)
+            ? ECMD_TIME : ECMD_OK;
     }
     scroll.in_use = true;
     await ttyPline('As you read the scroll, it disappears.', state);

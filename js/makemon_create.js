@@ -281,6 +281,7 @@ import {
     PM_WATCH_CAPTAIN,
     PM_WATCHMAN,
     PM_WATER_DEMON,
+    PM_WATER_MOCCASIN,
     PM_WHITE_UNICORN,
     PM_WOLF,
     PM_WOOD_NYMPH,
@@ -1205,6 +1206,7 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
             && !morgueSpecies
             && species.pmidx !== PM_DJINNI
             && species.pmidx !== PM_WATER_DEMON
+            && species.pmidx !== PM_WATER_MOCCASIN
             && species.pmidx !== PM_UMBER_HULK
             && (!allowMinotaur || species.pmidx !== PM_MINOTAUR))) {
         throw new UnsupportedMonsterCreationError(
@@ -1260,10 +1262,11 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === MM_NOMSG;
-    // fountain.c dowaterdemon() creates a water demon on the hero's square
-    // with MM_NOMSG, the same shape as the djinni bottle call.
+    // fountain.c dowaterdemon() and dowatersnakes() create one of these
+    // species near the hero with MM_NOMSG, the same runtime shape.
     const fountainCreatureCall = !state.in_mklev
-        && ptr?.pmidx === PM_WATER_DEMON
+        && (ptr?.pmidx === PM_WATER_DEMON
+            || ptr?.pmidx === PM_WATER_MOCCASIN)
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === MM_NOMSG;

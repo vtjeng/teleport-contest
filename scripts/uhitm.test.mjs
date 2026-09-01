@@ -11,6 +11,7 @@ import {
     LADDER,
     DOOR,
     OBJ_INVENT,
+    POISON_RES,
     ROOM,
     SINK,
     STAIRS,
@@ -28,6 +29,7 @@ import {
     PM_PONY,
     PM_SEWER_RAT,
     PM_SHADE,
+    PM_WATER_MOCCASIN,
 } from '../js/monsters.js';
 import { mksobj, mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
@@ -40,7 +42,11 @@ import {
 import { dmgval } from '../js/weapon.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
-import { do_attack, shade_miss } from '../js/uhitm.js';
+import {
+    do_attack,
+    mhitm_ad_drst,
+    shade_miss,
+} from '../js/uhitm.js';
 import {
     PET_SWAP_ARRIVAL_MOVES,
     loadPetSwapArrivalRecipe,
@@ -615,3 +621,63 @@ test('shade_miss answers only for a shade and stops there', async () => {
         /an attack passing through a shade/u,
     );
 });
+
+test('mhitm_ad_drst preserves the poison guard and resistance arm',
+    async () => {
+        // uhitm.c:3126-3158. This fixture follows the mhitu arm: the shared
+        // cancellation roll precedes the poison roll, and a nonzero rn2(8)
+        // leaves already-rolled damage unchanged. The moccasin's AT_BITE is
+        // AD_DRST, so hitmsg() supplies the same visible verb as the session.
+        await runSegment({
+            seed: 7710051, datetime: DATETIME, nethackrc: RC, moves: '',
+        });
+        // Removing inventory forces armpro 0 for this direct fixture;
+        // production computes magic cancellation from real worn inventory.
+        game.invent = null;
+        game.gh = { hitmsg_mid: 0, hitmsg_prev: null };
+        const monster = {
+            data: game.mons[PM_WATER_MOCCASIN],
+            m_id: 91001,
+            mcan: false,
+            mx: game.u.ux + 1,
+            my: game.u.uy,
+        };
+        const attack = monster.data.mattk[0];
+
+        const run = async (rolls) => {
+            const bounds = [];
+            const lines = [];
+            const next = [...rolls];
+            const mhm = { damage: 5 };
+            await mhitm_ad_drst(
+                monster, attack, game.youmonst, mhm, game,
+                {
+                    random: {
+                        rn2: (bound) => {
+                            bounds.push(`rn2(${bound})`);
+                            return next.shift();
+                        },
+                    },
+                    message: async (text) => { lines.push(text); },
+                    unsupported: (reason) => { throw new Error(reason); },
+                },
+            );
+            return { bounds, lines, mhm };
+        };
+
+        const unaffected = await run([9, 7]);
+        assert.deepEqual(unaffected.bounds, ['rn2(10)', 'rn2(8)']);
+        assert.deepEqual(unaffected.lines, ['The water moccasin bites!']);
+        assert.equal(unaffected.mhm.damage, 5);
+
+        game.gh = { hitmsg_mid: 0, hitmsg_prev: null };
+        game.u.uprops[POISON_RES] = { intrinsic: 1, extrinsic: 0 };
+        const resisted = await run([9, 0]);
+        assert.deepEqual(resisted.bounds, ['rn2(10)', 'rn2(8)']);
+        assert.deepEqual(resisted.lines, [
+            'The water moccasin bites!',
+            "The water moccasin's bite was poisoned!",
+            "The poison doesn't seem to affect you.",
+        ]);
+        assert.equal(resisted.mhm.damage, 5);
+    });

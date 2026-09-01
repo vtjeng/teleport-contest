@@ -319,7 +319,7 @@ import {
 import { m_in_out_region, visible_region_at } from './region.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
-import { inhishop, shk_move } from './shk.js';
+import { after_shk_move, inhishop, shk_move } from './shk.js';
 import {
     canSpotMonster,
     collectMonsterMovementMessage,
@@ -2265,11 +2265,12 @@ export const INERT_DOOR_MASKS = new Set([D_NODOOR, D_BROKEN, D_ISOPEN]);
 // every door arm that needs a door trap, amorphous(), can_unlock or a
 // doorbuster, IRONBARS, mdig_tunnel(), the engulfed-hero relocation, and
 // maybe_spin_web().  meatmetal(), meatobj() and meatcorpse() are refused
-// through select_postmove_object_action(), which selects them.  hideunder()
-// needs a hider or an eel, each refused before the scan.  after_shk_move()
-// (C:1700-1702) is guarded by its own unsupported() inside the MMOVE_MOVED /
-// MMOVE_DONE block; the stationary shopkeeper passes MMOVE_NOTHING and does
-// not reach it.
+// through select_postmove_object_action(), which selects them.  The ordinary
+// no-object arm of hideunder() is admitted below; object-backed hiders and
+// eels remain refused because their hideunder() branches have different
+// terrain and message behavior.  after_shk_move() (C:1700-1702) is guarded by
+// its own unsupported() inside the MMOVE_MOVED / MMOVE_DONE block; the
+// stationary shopkeeper passes MMOVE_NOTHING and does not reach it.
 export async function postmov(
     monster,
     omx,
@@ -2282,6 +2283,7 @@ export async function postmov(
 ) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
+    const random = rawEnv.random ?? { rn2 };
     const unsupported = requireMoveOperation(rawEnv, 'unsupported');
     // pline() and newsym().  The planning scan replays the same turn against
     // the live display afterwards, so a dry run must produce neither.
@@ -2394,8 +2396,19 @@ export async function postmov(
         } else if (here?.typ === IRONBARS) {
             unsupported('monster iron-bar movement');
         }
-        if (canTunnel && may_dig(monster.mx, monster.my, state))
-            unsupported('monster tunneling');
+        if (canTunnel && may_dig(monster.mx, monster.my, state)) {
+            const mdigTunnel = rawEnv.mdigTunnel;
+            if (typeof mdigTunnel !== 'function')
+                unsupported('monster tunneling');
+            const died = await mdigTunnel(monster, {
+                ...env,
+                message,
+                redraw,
+                recalcBlockPoint,
+                unblockPoint: rawEnv.unblockPoint,
+            });
+            if (died) return MMOVE_DIED;
+        }
         // C ref: monmove.c:1649-1656.  A monster that has swallowed the hero
         // drags them to its new square instead of repainting the old one, and
         // only when the move changed its square.
@@ -2456,12 +2469,24 @@ export async function postmov(
         // a different flag from hides_under() (M1_CONCEAL), so a garter snake,
         // centipede or scorpion reached this point and the draw was simply
         // skipped -- a divergence with no refusal and no stop.
-        if (hides_under(species) || species?.mlet === S_EEL)
+        const emptyHideSquare = hides_under(species)
+            && species?.mlet !== S_EEL
+            && !state.level?.objects?.[monster.mx]?.[monster.my]
+            && !t_at(monster.mx, monster.my, state)
+            && !monster.mtrapped;
+        if (emptyHideSquare) {
+            if (monster.mundetected
+                || (!helpless(monster) && random.rn2(5))) {
+                // mon.c hideunder(): no object means undetected remains clear.
+                monster.mundetected = 0;
+            }
+            redraw(monster.mx, monster.my);
+        } else if (hides_under(species) || species?.mlet === S_EEL) {
             unsupported('monster hiding under an object');
+        }
         // C ref: monmove.c:1700-1702.  after_shk_move() re-enters the shop
-        // for a shopkeeper that moved.  The stationary shopkeeper passes
-        // MMOVE_NOTHING, so this block is not reached for the ported path.
-        if (monster.isshk) unsupported('after_shk_move');
+        // for a shopkeeper that moved.
+        if (monster.isshk) after_shk_move(monster, state);
     }
     return outcome;
 }
@@ -2568,7 +2593,7 @@ export async function m_move(monster, rawEnv = {}) {
         // do it, -2 died.
         const xm = monster.ispriest
             ? pri_move(monster, env)
-            : shk_move(monster, state);
+            : shk_move(monster, state, env);
         if (xm === -2) return MMOVE_DIED;
         if (xm === -1) {
             if (monster.isshk)
@@ -2585,6 +2610,15 @@ export async function m_move(monster, rawEnv = {}) {
                 env,
             );
         }
+    }
+
+    // C ref: monmove.c:1850-1851. While the hero is swallowed, ordinary
+    // monsters other than the engulfer do not run their normal movement AI;
+    // the direct MMOVE_MOVED result lets dochug() recalculate their range.
+    if (state.u?.uswallow
+        && !monster.mflee
+        && state.u?.ustuck !== monster) {
+        return MMOVE_MOVED;
     }
 
     let goalX = monster.mux;

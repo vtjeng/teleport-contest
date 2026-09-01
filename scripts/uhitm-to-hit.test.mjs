@@ -163,10 +163,6 @@ test('attack_checks admits an ordinary hostile and clears its wait strategy',
 test('attack_checks stops on each state it cannot report', async () => {
     await hero();
     const cases = [
-        ['attacking the engulfer', (mtmp) => {
-            game.u.uswallow = 1;
-            game.u.ustuck = mtmp;
-        }],
         // A forced blow at a target the hero cannot spot is the one case that
         // would reach do_attack()'s unported atk_done tail, so it stops in the
         // arm above rather than in the unseen-monster arm below.
@@ -265,10 +261,8 @@ test('attack_checks reads the engulfer from the state it was given',
             ...game,
             u: { ...game.u, uswallow: 1, ustuck: mtmp },
         };
-        refuses(
-            () => attack_checks(mtmp, game.uwep, swallowed, REFUSING),
-            'attacking the engulfer',
-        );
+        assert.equal(attack_checks(mtmp, game.uwep, swallowed, REFUSING),
+                     false);
 
         // The macro is a conjunction, and each half decides on its own: a
         // monster that merely holds the hero is not engulfing her, and being

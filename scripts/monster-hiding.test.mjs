@@ -20,6 +20,7 @@ import {
     LS_MONSTER,
     M_AP_OBJECT,
     M_AP_TYPMASK,
+    MMOVE_DONE,
     NORMAL_SPEED,
     NON_PM,
     PIT,
@@ -31,6 +32,7 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { new_light_source } from '../js/light.js';
 import { set_mimic_sym } from '../js/makemon_create.js';
+import { postmov } from '../js/monmove.js';
 import { restrap } from '../js/mon.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import {
@@ -38,6 +40,7 @@ import {
     PM_JACKAL,
     PM_SMALL_MIMIC,
     PM_TRAPPER,
+    PM_WATER_MOCCASIN,
 } from '../js/monsters.js';
 import { BOULDER, GOLD_PIECE, STRANGE_OBJECT } from '../js/objects.js';
 import { initRng } from '../js/rng.js';
@@ -178,6 +181,43 @@ test('restrap answers the first four guard terms without drawing', async () => {
     const unlucky = hiderAt(PM_ROCK_PIERCER, far());
     assert.deepEqual(listenToRestrap(unlucky, [1]),
         { answer: false, bounds: [3] });
+});
+
+test('postmov resets an empty-square concealment with its rn2(5)', async () => {
+    await hero();
+
+    const [x, y] = far();
+    const monster = hiderAt(PM_WATER_MOCCASIN, [x, y]);
+    game.level.objects[x][y] = null;
+    game.level.traps = [];
+    const bounds = [];
+    const redrawn = [];
+
+    const outcome = await postmov(
+        monster,
+        x,
+        y,
+        MMOVE_DONE,
+        false,
+        false,
+        false,
+        {
+            state: game,
+            random: {
+                rn2(bound) {
+                    bounds.push(bound);
+                    return 4;
+                },
+            },
+            redraw: (rx, ry) => redrawn.push([rx, ry]),
+            unsupported: (reason) => assert.fail(reason),
+        },
+    );
+
+    assert.equal(outcome, MMOVE_DONE);
+    assert.deepEqual(bounds, [5]);
+    assert.deepEqual(redrawn, [[x, y]]);
+    assert.equal(monster.mundetected, 0);
 });
 
 test('restrap answers the four guard terms below the roll', async () => {

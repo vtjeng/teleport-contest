@@ -17,6 +17,7 @@ import {
     CORR,
     DOOR,
     D_CLOSED,
+    FIRE_RES,
     HEADSTONE,
     INVIS,
     IS_FOUNTAIN,
@@ -28,6 +29,10 @@ import {
     OBJ_MINVENT,
     ROOM,
     STRAT_CLOSE,
+    SLEEP_RES,
+    SLP_GAS_TRAP,
+    FIRE_TRAP,
+    ANTI_MAGIC,
 } from './const.js';
 import { exercise } from './attrib.js';
 // js/allmain.js imports this file's action runners, so this edge closes an
@@ -36,6 +41,7 @@ import { exercise } from './attrib.js';
 // reads it at module scope.
 import { stop_occupation } from './allmain.js';
 import { bot, map_invisible, newsym, obj_to_glyph, tmp_at } from './display.js';
+import { mdig_tunnel } from './dig.js';
 import { flooreffects } from './do.js';
 import { should_mulch_missile, shipsAway } from './dothrow.js';
 import {
@@ -46,7 +52,7 @@ import {
     pet_ranged_attk,
 } from './dogmove.js';
 import { capitalizedMonsterName } from './do_name.js';
-import { engr_at } from './engrave.js';
+import { engr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { losehp, nh_delay_output, nomul } from './hack.js';
 import { hands_obj, obj_extract_self, stackobj } from './invent.js';
@@ -64,19 +70,25 @@ import {
 } from './mon.js';
 import {
     attacktype,
+    defended,
     is_covetous,
     is_floater,
     is_flyer,
     is_swimmer,
     likes_lava,
     monsndx,
+    monster_resists_element,
     nohands,
     passes_walls,
     perceives,
+    resists_magm,
     tunnels,
     verysmall,
 } from './mondata.js';
 import {
+    AD_FIRE,
+    AD_MAGM,
+    AD_SLEE,
     AT_MAGC,
     PM_ERINYS,
     PM_FLOATING_EYE,
@@ -144,6 +156,7 @@ import {
     cansee,
     couldsee,
     does_block,
+    m_canseeu,
     makeVisionBuffers,
     recalc_block_point,
     vision_recalc,
@@ -307,6 +320,11 @@ function assertSimpleActionState(monster, state) {
     // and pri_move() respectively, which handle the stationary and milling
     // paths and refuse the rest.
     //
+    // mon.c m_respond() is a no-op unless its source predicates hold: a
+    // shrieker must be adjacent, Medusa must be in couldsee(), and Erinys
+    // must be hostile, able to see, and able to see the hero. Refuse only
+    // those active response branches; a distant shrieker, for example, falls
+    // through dochug() without any special-action work.
     // monmove.c dochug() checks msleeping before m_move()'s leppie_avoidance()
     // arm. For a non-tame, non-minion leprechaun outside couldsee(),
     // disturb() returns 0 without a draw, so this exact case returns from
@@ -318,7 +336,18 @@ function assertSimpleActionState(monster, state) {
         && !monster.mtame
         && !monster.isminion
         && !couldsee(monster.mx, monster.my, state);
-    if (SPECIAL_RESPONDERS.has(monster.data?.pmidx)
+    const specialResponseNeeded = monster.data?.pmidx === PM_SHRIEKER
+        ? Math.abs(monster.mx - state.u.ux) <= 1
+            && Math.abs(monster.my - state.u.uy) <= 1
+        : monster.data?.pmidx === PM_MEDUSA
+            ? couldsee(monster.mx, monster.my, state)
+            : monster.data?.pmidx === PM_ERINYS
+                ? !monster.mpeaceful
+                    && monster.mcansee
+                    && m_canseeu(monster, state)
+                : false;
+    if ((SPECIAL_RESPONDERS.has(monster.data?.pmidx)
+            && specialResponseNeeded)
         || monster.data?.pmidx === PM_TENGU
         || (monster.data?.pmidx === PM_LEPRECHAUN
             && !sleepingOutOfSightLeprechaun)
@@ -540,6 +569,19 @@ function planningState(state) {
         ...state,
         ...topLevelObjectPointers,
         context,
+        // track.c settrack() advances the ring during every planned elapsed
+        // turn. The clone must own both counters and coordinates; sharing the
+        // ring makes the live pass see the planning footprint a second time.
+        track: state.track
+            ? {
+                utcnt: state.track.utcnt,
+                utpnt: state.track.utpnt,
+                utrack: state.track.utrack.map((coordinate) => ({
+                    x: coordinate.x,
+                    y: coordinate.y,
+                })),
+            }
+            : state.track,
         // Hallucinatory runtime creation names use rnd.c's independent
         // display stream.  A planned appearance must advance only this copy;
         // otherwise a dry run changes later live glyphs even though every
@@ -653,8 +695,24 @@ function ordinaryMonsterCanSeeHero(monster, state) {
         && couldsee(monster.mx, monster.my, state);
 }
 
-function resistsTrapEffect() {
-    unsupported('monster trap-resistance evaluation');
+// C ref: trap.c m_harmless_trap() (1133-1175). Only these three traps ask
+// for resistance; the surrounding trap cases are decided by
+// monmove.js m_harmless_trap() without a callback.
+function resistsTrapEffect(monster, trapType, env) {
+    const state = env.state ?? game;
+    if (trapType === SLP_GAS_TRAP) {
+        return monster_resists_element(monster, SLEEP_RES, state)
+            || defended(monster, AD_SLEE, state);
+    }
+    if (trapType === FIRE_TRAP) {
+        return monster_resists_element(monster, FIRE_RES, state)
+            || defended(monster, AD_FIRE, state);
+    }
+    if (trapType === ANTI_MAGIC) {
+        return resists_magm(monster, state)
+            || defended(monster, AD_MAGM, state);
+    }
+    return false;
 }
 
 // C ref: monmove.c postmov()'s `here->doormask == D_CLOSED && can_open` arm
@@ -832,7 +890,7 @@ function wipeSimpleEngraving(x, y, _count, _magical, env) {
         || (engraving.engr_type === BURN && !is_ice(x, y, env.state))) {
         return;
     }
-    unsupported('monster engraving wear');
+    return wipe_engr_at(x, y, _count, _magical, env);
 }
 
 // UnblockDoor's second rebuild, vision_recalc(0). The cloned scan runs the
@@ -857,6 +915,7 @@ async function moveSimpleOrdinary(monster, env) {
     return m_move(monster, {
         ...env,
         ...doorVisionOperations(env),
+        mdigTunnel: mdig_tunnel,
         mayCrossRegion: admitSimpleDestinationAndRegion,
         resistsTrapEffect,
         // mon.c can_touch_safely() asks artifact.c touch_artifact() about

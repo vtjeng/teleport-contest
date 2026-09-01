@@ -401,12 +401,14 @@ test('mattacku prints the miss its to-hit test loses and the hit it wins',
     assert.equal(state.u.uhp, before - bite.cost);
 });
 
-test('an ice vortex swallows and repeatedly freezes an ordinary hero',
+test('an ice vortex swallows, freezes, and expels an ordinary hero',
     async () => {
     // mhitu.c:848-850 and gulpmu():1292, 1392-1393, 1502-1508. The first
     // attack rolls its hit, damage, and non-digestion swallow timer before
     // the cold gate; the already-swallowed attack skips the hit roll and
-    // repeats only the damage and cold gate.
+    // repeats only the damage and cold gate. When the timer expires,
+    // gulpmu():1461-1465 calls expels(), which releases the hero, relocates
+    // the vortex, and applies the landing square's effects.
     const state = await meleeHero(MELEE_DATETIME, 'Wizard');
     const vortex = meleeAttacker(state, PM_ICE_VORTEX, 1, 0, {
         m_lev: 5,
@@ -442,6 +444,29 @@ test('an ice vortex swallows and repeatedly freezes an ordinary hero',
     assert.deepEqual(second.bounds, ['d(1,6)', 'rn2(2)']);
     assert.equal(state.u.uswldtim, 7);
     assert.equal(state.u.uhp, before - 2);
+
+    // The timer is normally eight turns here; setting it to one isolates the
+    // expiry branch without replaying seven identical turns. expels() also
+    // calls unstuck(), whose rehold-prevention check is the final rnd(2).
+    state.u.uswldtim = 1;
+    const expelled = meleeEnv(state, []);
+    assert.equal(await mattacku(vortex, expelled.env), false);
+    assert.deepEqual(expelled.lines, [
+        'You are freezing to death!',
+        'You get expelled!',
+    ]);
+    // The relocation itself enters mnexto()/enexto(), whose map-dependent
+    // candidate scan is covered by teleport tests; pin the expulsion-local
+    // draws before that scan instead of duplicating its coordinate fixture.
+    assert.deepEqual(expelled.bounds.slice(0, 3), [
+        'd(1,6)', 'rn2(2)', 'rnd(2)',
+    ]);
+    assert.equal(state.u.uswallow, 0);
+    assert.equal(state.u.uswldtim, 0);
+    assert.equal(state.u.ustuck, null);
+    // mon.c:unstuck() raises the flag before docrt(), whose
+    // vision_recalc(0) clears it again (vision.c:532).
+    assert.equal(state.vision_full_recalc, 0);
 });
 
 test('mattacku widens the to-hit die for each later attack', async () => {
@@ -460,10 +485,16 @@ test('mattacku widens the to-hit die for each later attack', async () => {
     // first attack could not lose to still loses on the second. The ant's
     // AT_STNG does AD_DRST, so the landed sting stops on its own damage type
     // rather than on the AD_PHYS one its bite would have used.
-    const widened = meleeEnv(state, [20, 18]);
+    const widened = meleeEnv(state, [20, 18], {
+        // mhitm_ad_drst() first spends the magic-cancellation roll, then
+        // spends the 1/8 poison-effect roll. Keep the former from negating
+        // the sting and force the latter into its still-unported continuation.
+        rn2: (bound) => bound === 8 ? 0 : 9,
+    });
     await assert.rejects(
         () => mattacku(ant, widened.env),
-        (error) => error.reason === 'uhitm.c mhitm_ad_drst()',
+        (error) => error.reason
+            === 'a non-resistant hero poisoned by a monster',
     );
 });
 

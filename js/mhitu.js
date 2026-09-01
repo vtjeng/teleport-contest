@@ -23,6 +23,7 @@ import {
     NEED_WEAPON,
     PROTECTION,
     P_WHIP,
+    RLOC_NOMSG,
     TT_PIT,
     W_AMUL,
     W_ARMOR,
@@ -40,9 +41,11 @@ import { effective_attribute, minuhpmax, setuhpmax } from './attrib.js';
 import { midnight } from './calendar.js';
 import {
     bot,
+    docrt,
     flush_screen,
     map_invisible,
     newsym,
+    see_monsters,
     swallowed,
 } from './display.js';
 import { reset_occupations } from './cmd.js';
@@ -50,11 +53,11 @@ import { capitalizedMonsterName, monsterPossessive } from './do_name.js';
 import { In_hell, on_level } from './dungeon.js';
 import { done_in_by } from './end.js';
 import { game } from './gstate.js';
-import { nomul, showdamage } from './hack.js';
+import { nomul, showdamage, spoteffects } from './hack.js';
 import { dist2 } from './hacklib.js';
 import { is_home_elemental } from './makemon.js';
 import { engulf_target, failed_grab } from './mhitm.js';
-import { set_ustuck } from './mon.js';
+import { set_ustuck, unstuck } from './mon.js';
 import {
     DISTANCE_ATTK_TYPE,
     cvt_adtyp_to_mseenres,
@@ -105,6 +108,7 @@ import { Cold_resistance } from './zap.js';
 import { cansee, vision_recalc } from './vision.js';
 import { hitval } from './weapon.js';
 import { is_pole } from './worn.js';
+import { mnexto } from './teleport.js';
 
 // Planning cannot call end.c done_in_by() on its cloned state: the ordinary
 // death entry updates the live terminal and then asks for input. This signal
@@ -859,11 +863,81 @@ export async function mattacku(monster, rawEnv = {}) {
     return false;
 }
 
+// C ref: mhitu.c expels() (264-306). This is the non-digestive expulsion arm
+// reached by the ordinary ice-vortex slice below. mnexto()'s overcrowding and
+// monster-telecontrol outcomes remain outside the boundary; the caller binds
+// the overcrowding hook so either pass stops before silently losing the
+// engulfer.
+async function expels(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
+    if (rawEnv.message !== undefined && typeof rawEnv.message !== 'function') {
+        throw new TypeError('expels requires a message operation');
+    }
+
+    // The current caller passes FALSE, so C emits the user-facing line in
+    // gulpmu() immediately before this helper. The TRUE arm needs digests(),
+    // enfolds(), attacktype_fordmg() and the corresponding name formatters;
+    // none is reachable from the admitted ice-vortex attack.
+    if (rawEnv.expulsionMessage) {
+        unsupported('the named expulsion message');
+    }
+
+    state.disp ??= {};
+    state.disp.botl = true;
+    const unstuckEnv = {
+        ...rawEnv,
+        allowSwallowedExpulsion: true,
+    };
+    const cooldown = unstuck(mtmp, state, {
+        ...unstuckEnv,
+        deferCooldown: true,
+    });
+    // mon.c unstuck() calls docrt() after clearing the swallow state. The
+    // planning clone must not paint the live terminal; the live call uses the
+    // same full swallowed redraw that C performs.
+    // display.c docrt_flags() shuts vision down, repaints remembered map
+    // glyphs, then recalculates vision before overlaying monsters. Keep that
+    // bracket here because unstuck() has just moved the hero out of the
+    // engulfer and raised vision_full_recalc; merely sweeping newsym() with
+    // the old bitmap leaves hallucinated monster glyphs in the redraw.
+    vision_recalc(2, {
+        state,
+        redraw: rawEnv.planning ? () => {} : undefined,
+    });
+    if (!rawEnv.planning) await docrt({ overlayMonsters: false });
+    vision_recalc(0, {
+        state,
+        redraw: rawEnv.planning ? () => {} : undefined,
+    });
+    if (!rawEnv.planning) see_monsters(state);
+    if (cooldown) cooldown.mtmp.mspec_used = cooldown.random.rnd(2);
+
+    const relocated = mnexto(mtmp, RLOC_NOMSG, {
+        ...rawEnv,
+        state,
+        dealWithOvercrowding: () =>
+            unsupported('expulsion with no adjacent monster square'),
+    });
+    if (!relocated) return;
+
+    // teleport.c rloc_to_core() paints the new monster square, and expels()
+    // then repaints the hero's former stomach square. mnexto()'s shared
+    // relocation core intentionally has no display side effects, so spell
+    // those two source redraws here; the planning pass keeps both silent.
+    if (!rawEnv.planning) {
+        newsym(mtmp.mx, mtmp.my);
+        newsym(state.u.ux, state.u.uy);
+    }
+    await spoteffects(true, state);
+}
+
 // C ref: mhitu.c gulpmu() (1287-1577). This slice covers an ordinary human
-// Wizard being swallowed by an uncancelled ice vortex, and the same vortex's
-// repeated AD_COLD arm while the hero remains inside. The other engulfers,
-// digestion, elemental variants, traps, leash/steed handling, petrification,
-// expulsion and death continuation remain fail-closed at their source gates.
+// Wizard being swallowed by an uncancelled ice vortex, the same vortex's
+// repeated AD_COLD arm while the hero remains inside, and its ordinary
+// non-digestive expulsion when the timer expires. The other engulfers,
+// polymorphed heroes, cold resistance and a cancelled vortex remain outside
+// the selected boundary.
 async function gulpmu(mtmp, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const u = state.u;
@@ -905,9 +979,12 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
 
         if (u.usteed) {
             unsupported('dismounting a steed during engulfing');
+        } else if (rawEnv.planning) {
+            // The planning clone has no display RNG context. Keep the
+            // message branch silent without evaluating its monster name:
+            // do_name.c's hallucinated rndmonnam() is a display-stream draw.
         } else {
-            await (rawEnv.planning ? async () => {}
-                : (rawEnv.urgentMessage ?? ttyUrgentPline))(
+            await (rawEnv.urgentMessage ?? ttyUrgentPline)(
                 `${capitalizedMonsterName(mtmp, state)} engulfs you!`, state,
             );
         }
@@ -972,9 +1049,17 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         statusRefresh: rawEnv.statusRefresh,
     });
 
-    // Reaching timer exhaustion would enter the unported expulsion branch.
-    if (u.uswallow && !u.uswldtim)
-        unsupported('expulsion after engulfing');
+    if (u.uswallow && !u.uswldtim) {
+        // mhitu.c:1558-1567. The admitted vortex is neither digestive nor
+        // enfolding, so the source's message is this fixed non-digestive arm.
+        await message('You get expelled!', state);
+        await expels(mtmp, {
+            ...rawEnv,
+            state,
+            message,
+            unsupported,
+        });
+    }
     return M_ATTK_HIT;
 }
 

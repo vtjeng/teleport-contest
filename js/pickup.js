@@ -888,8 +888,17 @@ export function preflight_projected_random_arrival_pickup(state) {
         );
     }
     const { u } = state;
-    if (u.uswallow)
+    if (u.uswallow) {
+        // pickup.c:741-747 and :754-789.  A swallowed hero walks the
+        // engulfer's minvent chain instead of the floor.  With no objects,
+        // autopick()/query_objlist() select nothing, the post-pickup floor
+        // work is skipped by the still-true u.uswallow, and pickup() returns
+        // 0 without a message or random draw.  A nonempty stomach remains
+        // refused below because its selection and object effects are a
+        // separate behavior slice.
+        if (u.ustuck && !u.ustuck.minvent) return;
         throw new UnsupportedPickupError('pickup() inside a monster');
+    }
     if (Math.trunc(state.multi) < 0)
         throw new UnsupportedPickupError('pickup() while helpless');
 
@@ -1014,7 +1023,16 @@ export async function pickup(what, state = game) {
     const autopickup = what > 0;
 
     if (u.uswallow) {
-        // The engulfed arm picks from u.ustuck->minvent rather than the floor.
+        // pickup.c:741-747.  The empty engulfer inventory is a complete
+        // no-op: the source walks a null minvent chain, selects nothing, and
+        // returns 0 without output or RNG.  Keep the reset that C performs at
+        // pickup.c:690 before the swallowed-chain selection.
+        state.gp ??= {};
+        state.gp.pickup_encumbrance = 0;
+        if (u.ustuck && !u.ustuck.minvent) return 0;
+        // A nonempty chain reaches autopick()/query_objlist(), then
+        // pickup_object() and pick_obj(); those branches are not floor-only
+        // substitutes and remain fail-closed here.
         throw new UnsupportedPickupError('pickup() inside a monster');
     }
     if (autopickup && Math.trunc(state.multi ?? 0) < 0) {

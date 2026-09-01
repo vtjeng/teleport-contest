@@ -79,7 +79,11 @@ import {
 } from './const.js';
 import { artifact_exists } from './artifacts.js';
 import { night } from './calendar.js';
-import { glyph_is_invisible, newsym, unmap_object } from './display.js';
+import {
+    glyph_is_invisible,
+    newsym,
+    unmap_object,
+} from './display.js';
 import { capitalizedMonsterName, monsterCommonName } from './do_name.js';
 import { flooreffects } from './do.js';
 import { finish_meating } from './dogmove.js';
@@ -1618,31 +1622,59 @@ export function zombie_maker(mon) {
 // C ref: mon.c unstuck() (3437-3467). Releases a monster that is holding the
 // hero, and re-arms its holding attack so it cannot grab again immediately.
 //
-// 3448-3456's swallow arm stops. Putting the hero back on the engulfer's
-// square needs do.c placebc() for the ball and chain and display.c docrt() for
-// the redraw, neither ported. The refusal sits above set_ustuck() so nothing
-// is cleared before it, and its guard is C's own `swallowed`, which reads
-// u.uswallow before that call clears it.
+// 3448-3456's swallowed arm is admitted only for mhitu.c expels(), which
+// supplies allowSwallowedExpulsion after its own source checks. The ball and
+// chain path remains refused because do.c placebc() is not ported; expels()
+// owns the display.c docrt() call after this synchronous state update.
 export function unstuck(mtmp, state = game, env = {}) {
     if (state.u.ustuck !== mtmp) return;
     const random = env.random ?? { rnd };
     const ptr = mtmp.data;
 
-    if (state.u.uswallow)
-        requiredKillOperation(env, 'unsupported')('releasing an engulfer');
+    if (state.u.uswallow) {
+        if (!env.allowSwallowedExpulsion) {
+            requiredKillOperation(env, 'unsupported')(
+                'releasing an engulfer',
+            );
+        }
+        if (state.uball || state.uchain) {
+            requiredKillOperation(env, 'unsupported')(
+                'releasing a punished swallowed hero',
+            );
+        }
+        const swallowed = state.u.uswallow;
 
-    /* "do this first so that docrt()'s botl update is accurate;
-       clears u.uswallow as well as setting u.ustuck to Null" */
-    set_ustuck(null, state);
+        /* set_ustuck(NULL) clears u.uswallow and u.uswldtim. */
+        set_ustuck(null, state);
+        state.gm ??= {};
+        state.gm.mswallower = null;
+        state.u.ux = mtmp.mx;
+        state.u.uy = mtmp.my;
+        if (swallowed) {
+            // C sets vision_full_recalc before docrt() restores the visible
+            // map around the newly freed hero. The caller performs docrt()
+            // because it is asynchronous in this port.
+            state.vision_full_recalc = 1;
+        }
+    } else {
+        /* "do this first so that docrt()'s botl update is accurate;
+           clears u.uswallow as well as setting u.ustuck to Null" */
+        set_ustuck(null, state);
+    }
 
     /* "prevent holder/engulfer from immediately re-holding/re-engulfing
        [note: this call to unstuck() might be because u.ustuck has just
        changed shape and doesn't have a holding attack any more, hence
        don't set mspec_used unconditionally]" */
-    if (!mtmp.mspec_used
+    const needsCooldown = !mtmp.mspec_used
         && (dmgtype(ptr, AD_STCK) || attacktype(ptr, AT_ENGL)
-            || attacktype(ptr, AT_HUGS)))
+            || attacktype(ptr, AT_HUGS));
+    // mhitu.c expels() reaches docrt() from unstuck() before this draw. The
+    // synchronous callers keep the ordinary source order; expels() defers
+    // only this final assignment while it awaits the redraw.
+    if (needsCooldown && !env.deferCooldown)
         mtmp.mspec_used = random.rnd(2);
+    return needsCooldown ? { mtmp, random } : null;
 }
 
 // C ref: mon.c copy_mextra() (2596-2646). Copies whichever of the eight

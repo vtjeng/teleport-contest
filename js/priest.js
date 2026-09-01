@@ -303,14 +303,16 @@ function onlineu(xx, yy, state) {
     return online2(xx, yy, state.u.ux, state.u.uy);
 }
 
-// C ref: priest.c move_special(). Handles pathfinding for priests (and
-// shopkeepers in C, but only priests use this JS port). Returns 1 (moved),
-// 0 (didn't move), or -2 (died during aggression).
-function move_special(
+// C ref: priest.c move_special(). Handles pathfinding for priests and
+// shopkeepers. Returns 1 (moved), 0 (didn't move), or -2 (died during
+// aggression).
+export function move_special(
     mtmp, inHisShop, appr, uondoor, avoid,
     omx, omy, ggx, ggy, env = {},
 ) {
     const state = env.state ?? game;
+    const random = env.random ?? { rn2 };
+    const redraw = env.planning ? () => {} : (env.redraw ?? newsym);
 
     if (omx === ggx && omy === ggy) return 0;
     if (mtmp.mconf) {
@@ -324,7 +326,16 @@ function move_special(
     const data = { poss: [], info: [], cnt: 0 };
     const cnt = mfndpos(mtmp, data, allowflags, env);
 
-    // The isshk-specific avoid-uondoor loop does not apply to priests.
+    if (mtmp.isshk && avoid && uondoor) {
+        let canAvoid = true;
+        for (let i = 0; i < cnt; ++i) {
+            if (!(data.info[i] & NOTONL)) {
+                canAvoid = false;
+                break;
+            }
+        }
+        if (canAvoid) avoid = false;
+    }
 
     let chcnt = 0;
     let ninfo = 0;
@@ -336,13 +347,15 @@ function move_special(
         for (let i = 0; i < cnt; i++) {
             const nx = data.poss[i].x;
             const ny = data.poss[i].y;
-            // For priests, only consider room squares (IS_ROOM). The
-            // isshk-specific check for following-outside-shop is omitted.
-            if (IS_ROOM(state.level.at(nx, ny).typ)) {
+            // C admits room squares for priests, and also admits a
+            // shopkeeper outside its shop while it is not following.
+            if (IS_ROOM(state.level.at(nx, ny).typ)
+                || (mtmp.isshk
+                    && (!inHisShop || mtmp.mextra?.eshk?.following))) {
                 if (avoid && (data.info[i] & NOTONL)
                     && !(data.info[i] & ALLOW_M))
                     continue;
-                if ((!appr && !(env.random ?? { rn2 }).rn2(++chcnt))
+                if ((!appr && !random.rn2(++chcnt))
                     || (appr && gdist(nx, ny) < gdist(nix, niy))
                     || (data.info[i] & ALLOW_M)) {
                     nix = nx;
@@ -351,8 +364,7 @@ function move_special(
                 }
             }
         }
-        // C: if priest, avoid, and did not find a move, and hero is on the
-        // same line, disable avoid and retry.
+        // C: a priest that stayed lined up retries without avoid.
         if (mtmp.ispriest && avoid && nix === omx && niy === omy
             && onlineu(omx, omy, state) && !retry) {
             avoid = false;
@@ -364,19 +376,22 @@ function move_special(
 
     if (nix !== omx || niy !== omy) {
         if (ninfo & ALLOW_ROCK) {
-            // Boulder breaking by a priest is extremely rare; refuse it.
-            throw new Error('move_special: priest boulder breaking unported');
+            if (typeof env.breakBoulder !== 'function')
+                throw new Error('move_special: boulder breaking requires breakBoulder');
+            env.breakBoulder(mtmp, nix, niy, env);
+            return 1;
         }
         if (ninfo & ALLOW_M) {
-            // Monster aggression during special movement is unported.
-            throw new Error('move_special: aggression unported');
+            if (typeof env.aggress !== 'function')
+                throw new Error('move_special: aggression requires aggress');
+            return env.aggress(mtmp, nix, niy, env);
         }
 
         if (m_at(nix, niy, state) || u_at(nix, niy, state))
             return 0;
         remove_monster(omx, omy, state);
         place_monster(mtmp, nix, niy, state);
-        newsym(nix, niy);
+        redraw(nix, niy);
         return 1;
     }
     return 0;

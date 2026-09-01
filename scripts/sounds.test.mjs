@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BARRACKS,
+    COURT,
     DEAF,
     HALLUC,
     HALLUC_RES,
@@ -12,7 +14,7 @@ import {
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { COIN_CLASS } from '../js/objects.js';
-import { M1_ANIMAL } from '../js/monsters.js';
+import { M1_ANIMAL, M2_LORD, M2_MERC } from '../js/monsters.js';
 import { parseNethackrc } from '../js/options.js';
 import {
     dosoundsInitialLevel,
@@ -207,6 +209,98 @@ test('dosounds applies hallucination only when it is not resisted', async () => 
         'You hear the splashing of a naiad.',
     ]);
 });
+
+function courtState({ sleeping = false, lord = false, animal = false } = {}) {
+    const state = soundState();
+    state.level.rooms = [{
+        lx: 3,
+        hx: 7,
+        ly: 3,
+        hy: 7,
+        roomnoidx: 0,
+        rtype: COURT,
+    }];
+    state.level.nroom = 1;
+    state.level.flags.has_court = true;
+    state.level.locations[5][5].roomno = ROOMOFFSET;
+    state.level.monlist = {
+        mx: 5,
+        my: 5,
+        mhp: 10,
+        msleeping: sleeping,
+        data: {
+            mflags1: animal ? M1_ANIMAL : 0,
+            mflags2: lord ? M2_LORD : 0,
+        },
+        nmon: null,
+    };
+    return state;
+}
+
+test('dosounds emits court conversation in source selection order',
+    async () => {
+        let result = await runSounds(courtState({ lord: true }), [0, 1]);
+        result.script.assertBounds([200, 3]);
+        assert.deepEqual(result.messages, [
+            'You hear a sceptre pounded in judgment.',
+        ]);
+
+        const female = courtState({ sleeping: true });
+        female.flags.female = true;
+        result = await runSounds(female, [0, 2]);
+        result.script.assertBounds([200, 3]);
+        assert.deepEqual(result.messages, [
+            'Someone shouts "Off with her head!"',
+        ]);
+    });
+
+test('dosounds continues after an empty or ineligible court', async () => {
+    let result = await runSounds(courtState(), [0]);
+    result.script.assertBounds([200]);
+    assert.deepEqual(result.messages, []);
+
+    result = await runSounds(courtState({ animal: true }), [0]);
+    result.script.assertBounds([200]);
+    assert.deepEqual(result.messages, []);
+});
+
+function barracksState({ sleeping = false, mercenary = false } = {}) {
+    const state = soundState();
+    state.level.rooms = [{
+        lx: 3,
+        hx: 7,
+        ly: 3,
+        hy: 7,
+        roomnoidx: 0,
+        rtype: BARRACKS,
+    }];
+    state.level.nroom = 1;
+    state.level.flags.has_barracks = true;
+    state.level.locations[5][5].roomno = ROOMOFFSET;
+    state.level.monlist = {
+        mx: 5,
+        my: 5,
+        mhp: 10,
+        msleeping: sleeping,
+        data: { mflags2: mercenary ? M2_MERC : 0 },
+        nmon: null,
+    };
+    return state;
+}
+
+test('dosounds emits the barracks sound for an eligible mercenary',
+    async () => {
+        let result = await runSounds(
+            barracksState({ sleeping: true, mercenary: true }),
+            [0, 2],
+        );
+        result.script.assertBounds([200, 3]);
+        assert.deepEqual(result.messages, ['You hear dice being thrown.']);
+
+        result = await runSounds(barracksState({ sleeping: true }), [0]);
+        result.script.assertBounds([200]);
+        assert.deepEqual(result.messages, []);
+    });
 
 function zooState({ sleeping = false, animal = false, dead = false,
     inZoo = true } = {}) {
@@ -403,21 +497,22 @@ async function refusedSounds(state, results) {
 
 test('dosounds refuses each unported branch by name, in source order',
     async () => {
-        const fountainCourt = soundState();
-        fountainCourt.level.flags.nfountains = 1;
-        fountainCourt.level.flags.has_court = true;
-        // One misses the earlier fountain gate before the court boundary.
-        let refusal = await refusedSounds(fountainCourt, [1]);
+        const fountainSwamp = soundState();
+        fountainSwamp.level.flags.nfountains = 1;
+        fountainSwamp.level.flags.has_swamp = true;
+        // One misses the earlier fountain gate before the swamp boundary.
+        let refusal = await refusedSounds(fountainSwamp, [1]);
         assert.ok(refusal.error instanceof UnsupportedAmbientSoundError);
         assert.equal(refusal.error.name, 'UnsupportedAmbientSoundError');
         assert.equal(refusal.error.message,
-            'dosounds() needs the has_court level-sound branch');
-        // The refusal precedes sounds.c:226's own rn2(200) court gate, so the
+            'dosounds() needs the has_swamp level-sound branch');
+        // The refusal follows sounds.c:226's own rn2(200) court gate, which
+        // is absent here, so
         // fountain draw is the only one taken, nothing is printed, and the
         // level flags are as they were.
         refusal.script.assertBounds([400]);
         assert.deepEqual(refusal.messages, []);
-        assert.deepEqual(fountainCourt.level.flags, refusal.flagsBefore);
+        assert.deepEqual(fountainSwamp.level.flags, refusal.flagsBefore);
 
         const vaultBeehive = vaultState();
         vaultBeehive.level.flags.has_beehive = true;
