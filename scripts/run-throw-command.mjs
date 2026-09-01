@@ -39,10 +39,10 @@
 // Valkyrie's spare dagger, the most ordinary `t` there is: u_init.c makes the
 // second weapon of every two-weapon role the alternate weapon.
 //
-// Answering the prompt with '?' or '*' reaches invent.c display_pickinv() with
-// a letter subset, which js/invent.js refuses for every object prompt, `d`,
-// `W`, `T`, `a` and `e` included -- see the deferral
-// throw-prompt-answered-with-a-menu-request.
+// Answering the prompt with '?' reaches invent.c display_pickinv() with the
+// nonempty suggested-letter subset. The ordinary throw arm is now covered by
+// its own slice; '*' remains the full-inventory path covered below, while
+// other object prompts still refuse their menu branches.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

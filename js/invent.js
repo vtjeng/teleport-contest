@@ -759,8 +759,9 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
     // C's two letter subsets, kept here in the shape C builds them in. `lets`
     // is the suggested set snapshotted before compactify() rewrites `letters`,
     // and `altletsStr` below is the downplayed set. The bounded nonempty `?`
-    // arm below hands `lets` to display_pickinv(); the `*` and empty/alternate
-    // subset arms remain fail-closed until their own slices are reached.
+    // arm below hands a nonempty `lets` set to display_pickinv() for the
+    // source-live read and throw callers; empty/alternate subset arms remain
+    // fail-closed until their own slices are reached.
     const lets = letters.join(''); /* necessary since we destroy buf */
     if (suggested > 5) { /* compactify string */
         letters.push('\0');
@@ -811,11 +812,12 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
             throw new UnsupportedObjectPromptError('mime_action()');
         }
         if (ilet === '?') {
-            // C ref: invent.c getobj() redo_menu (1966-1970). For this slice
-            // read_ok() has produced a nonempty suggested set, so the TTY
-            // single-item display_pickinv() path is source-live. Empty lets
-            // and the alternate '*' menu remain outside this boundary.
-            if (word !== 'read')
+            // C ref: invent.c getobj() redo_menu (1966-1970). The ordinary
+            // read and throw callbacks can produce a nonempty suggested set,
+            // so display_pickinv() is source-live for those two callers.
+            // Empty lets and the alternate '*' menu remain outside this
+            // boundary.
+            if (word !== 'read' && word !== 'throw')
                 throw new UnsupportedObjectPromptError(
                     'display_pickinv() with a letter subset',
                 );

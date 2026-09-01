@@ -180,6 +180,29 @@ test('the full inventory menu selects a downplayed throw object', async () => {
     assert.equal(slotAt('j').quan, scroll.quan);
 });
 
+test('the suggested throw menu filters to throw_ok() candidates', async () => {
+    const segment = segmentFor(3140358);
+    await runSegment({ ...segment, moves: '.' });
+    const yumi = slotAt('c');
+    assert.equal(yumi.otyp, YUMI);
+    const beforeMoves = game.moves;
+
+    // invent.c:getobj() redo_menu (1966-1998) passes `lets`, the nonempty
+    // GETOBJ_SUGGEST set from throw_ok(), to display_pickinv(). The Samurai's
+    // b/c/d weapon choices make this the multi-item filtered menu path;
+    // selecting c must return to throw_obj()'s direction question without
+    // spending a turn or changing the object before the direction is read.
+    await runSegment({ ...segment, moves: '.t?c' });
+    assert.equal(topLine(), 'In what direction?');
+    assert.equal(game.moves, beforeMoves);
+    assert.equal(slotAt('c').otyp, yumi.otyp);
+
+    await runSegment({ ...segment, moves: '.t?cl' });
+    assert.equal(slotAt('c'), null);
+    assert.equal(countOnFloor(YUMI), 1);
+    assert.equal(game.moves, beforeMoves + 1);
+});
+
 test('a suggested weapon leaves the pack and lands east of the hero',
     async () => {
         const segment = segmentFor(3140358);
