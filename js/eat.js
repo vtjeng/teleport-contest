@@ -1359,6 +1359,31 @@ export function corpse_intrinsic(ptr) {
     return prop;
 }
 
+/*
+ * C ref: eat.c eye_of_newt_buzz() (1103-1123).
+ * Eating an eye of newt can give the player a small magical energy boost.
+ */
+async function eye_of_newt_buzz(state) {
+    if (rn2(3) || 3 * state.u.uen <= 2 * state.u.uenmax) {
+        const old_uen = state.u.uen;
+
+        state.u.uen += rnd(3);
+        if (state.u.uen > state.u.uenmax) {
+            if (!rn2(3)) {
+                state.u.uenmax++;
+                if (state.u.uenmax > state.u.uenpeak)
+                    state.u.uenpeak = state.u.uenmax;
+            }
+            state.u.uen = state.u.uenmax;
+        }
+        if (old_uen !== state.u.uen) {
+            await ttyPline('You feel a mild buzz.', state);
+            state.disp ??= {};
+            state.disp.botl = true;
+        }
+    }
+}
+
 // C ref: eat.c cpostfx() (1127-1319), "called after a corpse is eaten".
 //
 // The `default` arm and the intrinsic check that follows it are ported; every
@@ -1442,7 +1467,10 @@ async function cpostfx(pm, state) {
 
         /* Eating magical monsters can give you some magical energy. */
         if (attacktype(ptr, AT_MAGC) || pm === PM_NEWT) {
-            throw new UnsupportedEatError('eye_of_newt_buzz()');
+            if (pm === PM_NEWT)
+                await eye_of_newt_buzz(state);
+            else
+                throw new UnsupportedEatError('eye_of_newt_buzz()');
         }
 
         const tmp = corpse_intrinsic(ptr);
