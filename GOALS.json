@@ -7724,6 +7724,11 @@
           "name": "ordinary throw full-inventory menu selection from getobj()",
           "status": "closed",
           "closedBy": "d6d091787dcfe4d4a3ea5170ed856c7006cdb612"
+        },
+        {
+          "name": "ordinary throw suggested-letter subset menu selection from getobj()",
+          "status": "closed",
+          "closedBy": "2dd2a3bee260893c57c22ce9b212567ae1f98dd0"
         }
       ],
       "openedAt": "e9f90d514919f204a5f4245e9434ce7d7c350091",
