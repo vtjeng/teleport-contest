@@ -2,13 +2,13 @@
 // C refs: src/apply.c apply_ok(), doapply(), use_cream_pie(),
 // use_stethoscope(), its_dead(), and reset_trapset().
 //
-// doapply()'s switch has thirty-odd named arms. Four are live: CREAM_PIE,
+// doapply()'s switch has thirty-odd named arms. Five are live: CREAM_PIE,
 // STETHOSCOPE, the LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c
-// pick_lock() serves, and MAGIC_MARKER which delegates to write.c dowrite() in
-// js/write.js. Ordinary armor reaches the switch's default unknown-use
-// message. Every other named arm, the default's weapon redirects, and the
-// wand, spellbook and coin shortcuts above the switch stop at a refusal naming
-// the C function they need.
+// pick_lock() serves, MAGIC_MARKER which delegates to write.c dowrite() in
+// js/write.js, and the ordinary CARROT unknown-use result. Ordinary armor
+// reaches the same switch-default refusal. Every other named arm, the
+// default's weapon redirects, and the wand, spellbook and coin shortcuts above
+// the switch stop at a refusal naming the C function they need.
 // use_stethoscope() covers
 // the no-hands, Deaf and free-hand guards, the free-action rule, self and
 // off-map probes, the adjacent monster arm, both secret-terrain arms, an empty
@@ -153,6 +153,7 @@ import {
     TOUCHSTONE,
     WAND_CLASS,
     WEAPON_CLASS,
+    CARROT,
 } from './objects.js';
 import { AT_WEAP, MZ_TINY, PM_HEALER } from './monsters.js';
 import { body_part } from './polyself.js';
@@ -820,10 +821,16 @@ export async function doapply(state = game, env = {}) {
         // apply.c:4361-4362. dowrite() handles the full magic marker flow.
         return dowrite(obj, state);
     default:
-        // apply.c:4407-4417. No named switch arm has ARMOR_CLASS, and armor
-        // cannot be a polearm, pick, or axe because those macros admit only
+        // apply.c:4407-4417. CARROT is not a named switch arm, and it cannot
+        // be a polearm, pick, or axe because those macros admit only
         // WEAPON_CLASS and TOOL_CLASS. It therefore reaches C's exact
         // unknown-use result without spending a turn or changing the object.
+        if (obj.otyp === CARROT) {
+            await ttyPline("Sorry, I don't know how to use that.", state);
+            return ECMD_FAIL;
+        }
+        // The same already-ported default result applies to ordinary armor;
+        // keep the class-wide behavior separate from this CARROT slice.
         if (obj.oclass === ARMOR_CLASS) {
             await ttyPline("Sorry, I don't know how to use that.", state);
             return ECMD_FAIL;

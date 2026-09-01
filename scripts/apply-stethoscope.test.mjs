@@ -114,6 +114,7 @@ import {
     BANANA,
     BATTLE_AXE,
     BULLWHIP,
+    CARROT,
     COIN_CLASS,
     CORPSE,
     CREAM_PIE,
@@ -258,6 +259,11 @@ test('apply_ok answers on object class before it answers on type', () => {
 
     // Anything reaching the end of the callback: a Healer's leather gloves.
     assert.equal(apply_ok(item(ARMOR_CLASS, LEATHER_GLOVES), state),
+        GETOBJ_EXCLUDE_SELECTABLE);
+    // apply.c:4188-4194 names only the three useful foods; ordinary CARROT
+    // falls through to GETOBJ_EXCLUDE_SELECTABLE and is still accepted when
+    // explicitly typed into getobj().
+    assert.equal(apply_ok(item(FOOD_CLASS, CARROT), state),
         GETOBJ_EXCLUDE_SELECTABLE);
 });
 
@@ -793,6 +799,49 @@ test('doapply reports that ordinary armor has no use without changing it',
         }, before, role);
         assert.equal((getRngLog() ?? []).length, drawsBefore, role);
     }
+});
+
+test('doapply reports that an ordinary carrot has no use without a turn',
+    async () => {
+    const segment = loadApplyPromptRecipe().segments.find(
+        ({ nethackrc }) => nethackrc.includes('role:Knight'),
+    );
+    assert.ok(segment, 'the matrix carries a Knight segment');
+    await runSegment({ ...segment, moves: '.' });
+
+    const carrot = (() => {
+        for (let obj = game.invent; obj; obj = obj.nobj)
+            if (obj.otyp === CARROT) return obj;
+        return null;
+    })();
+    assert.ok(carrot, 'Knight carries a carrot');
+    assert.equal(carrot.oclass, FOOD_CLASS);
+    const before = {
+        otyp: carrot.otyp,
+        quan: carrot.quan,
+        spe: carrot.spe,
+        blessed: carrot.blessed,
+        cursed: carrot.cursed,
+        owornmask: carrot.owornmask,
+    };
+    const drawsBefore = (getRngLog() ?? []).length;
+    const movesBefore = game.moves;
+    const turnBefore = game.context.move;
+
+    game.nhDisplay.pushKey(carrot.invlet.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_FAIL);
+    assert.equal(pendingTopLine(), "Sorry, I don't know how to use that.");
+    assert.deepEqual({
+        otyp: carrot.otyp,
+        quan: carrot.quan,
+        spe: carrot.spe,
+        blessed: carrot.blessed,
+        cursed: carrot.cursed,
+        owornmask: carrot.owornmask,
+    }, before);
+    assert.equal((getRngLog() ?? []).length, drawsBefore);
+    assert.equal(game.moves, movesBefore);
+    assert.equal(game.context.move, turnBefore);
 });
 
 // The arms between the free-action write and confdir() that no key sequence
