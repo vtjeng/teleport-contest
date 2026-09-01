@@ -10,8 +10,28 @@ function run(cmd) {
   return execSync(cmd, { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }).trim();
 }
 
+function ensureFullHistory() {
+  const shallow = run('git rev-parse --is-shallow-repository');
+  if (shallow === 'false') return;
+
+  console.error('Shallow clone detected — running git fetch --unshallow');
+  try {
+    execSync('git fetch --unshallow', { stdio: 'inherit' });
+  } catch {
+    console.error('git fetch --unshallow failed; cannot produce accurate dashboard data');
+    process.exit(1);
+  }
+
+  const stillShallow = run('git rev-parse --is-shallow-repository');
+  if (stillShallow !== 'false') {
+    console.error('Repository is still shallow after unshallow attempt; aborting');
+    process.exit(1);
+  }
+}
+
 // --- Parse git log ---
 
+ensureFullHistory();
 const gitLog = run(`git log --format="%H %aI %s" --reverse`);
 
 const commits = gitLog.split('\n').map(line => {
