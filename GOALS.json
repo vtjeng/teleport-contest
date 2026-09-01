@@ -7610,6 +7610,40 @@
         "screens": 8,
         "rng": 98
       }
+    },
+    {
+      "id": "simple-monster-action-requires-pet-attack-on-the-hero",
+      "status": "open",
+      "boundary": "simple monster action requires pet attack on the hero",
+      "upstreamOwners": [
+        "src/dogmove.c",
+        "src/mhitu.c",
+        "src/uhitm.c",
+        "src/monmove.c"
+      ],
+      "forecast": {
+        "steps": 82,
+        "basis": "Capped look-ahead at simple monster action requires pet attack on the hero",
+        "sessions": [
+          "seed0004-feeding-pony"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "Seed 4, datetime 20260414173108, OPTIONS=symset:DECgraphics; Tetra is the lawful human Knight with the saddled pony. The first stop is segment 0 step 327 on hero input l. The C turn reaches monmove.c ordinary pet dispatch into dogmove.c dog_move(); after mfndpos candidate scan selects the hero square through ALLOW_U, dogmove.c:1286 calls mattacku(mtmp) and returns MMOVE_DONE. mhitu.c mattacku() enters the ordinary non-ranged physical attack loop: the pony AT_KICK tests rnd(20)=13, hitmu() records d(1,6)=2, mhitm_knockback() records rn2(3)=2 and rn2(6)=4, then the next attack slot records rnd(21)=21 before visible miss continuation at step 328. The JS seam at unported_monster_actions.js:877-880 currently refuses this boundary."
+          }
+        ]
+      },
+      "detail": "Port the ordinary tame, visible, adjacent pet-to-hero physical melee attack reached from dog_move() when mfndpos() selects ALLOW_U. Cover mattacku() target calculation, attack selection, per-slot to-hit rolls, hitmu()/missmu() feedback, and the ordinary physical AT_KICK damage/knockback seam through uhitm.c, preserving exact state, messages, screens, cursors, turns, and RNG. Keep ranged, engulfing, steed-special-case, petrification, death, nonphysical, and other special-response branches outside this goal unless a fresh development differential reaches them.",
+      "slices": [],
+      "openedAt": "eb1accc9524a474063cb4dc975ba49a71f13c522",
+      "openStanding": {
+        "sha": "7944e3f",
+        "screens": 3706,
+        "rng": 238478
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
