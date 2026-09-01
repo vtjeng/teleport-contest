@@ -464,7 +464,12 @@ function x_monnam_it(suppress) {
 // "the dog".
 const MONSTER_COMMON_NAME_FLAGS = SUPPRESS_IT | AUGMENT_IT;
 
-export function monsterCommonName(monster, state = game, suppress = 0) {
+export function monsterCommonName(
+    monster,
+    state = game,
+    suppress = 0,
+    env = {},
+) {
     if (suppress & ~MONSTER_COMMON_NAME_FLAGS) {
         throw new UnsupportedMonsterNameError(
             `mon_nam() suppress flags 0x${suppress.toString(16)}`,
@@ -474,6 +479,18 @@ export function monsterCommonName(monster, state = game, suppress = 0) {
     // true here and SUPPRESS_IT is the only term a wrapper can move.
     if (x_monnam_do_it(monster, ARTICLE_THE, suppress, state))
         return x_monnam_it(suppress);
+    const hallucinating = namingPropertyActive(state, HALLUC)
+        && !namingPropertyActive(state, HALLUC_RES);
+    if (hallucinating) {
+        // do_name.c:950-955. mon_nam() does not suppress hallucination, so
+        // the species is replaced after the "it" decision and before given
+        // names or saddle adjectives are considered. rndmonnam() consumes
+        // the display RNG, not the gameplay RNG.
+        return `the ${rndmonnam({
+            state,
+            random: env.displayRandom ?? rn2_on_display_rng,
+        })}`;
+    }
     const speciesName = monster.data?.pmnames?.[2]
         ?? monster.data?.pmnames?.find(Boolean)
         ?? 'monster';
@@ -483,8 +500,6 @@ export function monsterCommonName(monster, state = game, suppress = 0) {
     if (givenName) return givenName;
     const blind = namingPropertyActive(state, BLINDED)
         || Boolean(state.u?.uroleplay?.blind);
-    const hallucinating = namingPropertyActive(state, HALLUC)
-        && !namingPropertyActive(state, HALLUC_RES);
     const saddled = !blind && !hallucinating
         && Boolean(monster.misc_worn_check & W_SADDLE);
     return `the ${saddled ? 'saddled ' : ''}${speciesName}`;
@@ -551,9 +566,9 @@ export function obj_pmname(obj, state = game) {
 // once more for the gender, so admitting it without a differential that
 // measures those draws would put unspent calls in the port.
 //
-// monsterCommonName() and capitalizedMonsterName() above are the port's older
-// partial mon_nam() and Monnam(); they answer a different article and are not
-// yet expressed in terms of this function.
+// monsterCommonName() and capitalizedMonsterName() above are the port's
+// mon_nam() and Monnam() subset; they answer ARTICLE_THE and now share the
+// hallucination name branch with this function.
 export function x_monnam(
     monster,
     article,

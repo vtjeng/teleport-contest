@@ -3,17 +3,93 @@
 // wiz_wish() and wiz_polyself(), so far the five rows of that file cmd.c
 // dispatches here.
 
-import { ECMD_OK, MAXULEV, POLY_CONTROLLED } from './const.js';
+import {
+    ACID_RES,
+    ADORNED,
+    AGGRAVATE_MONSTER,
+    ANTIMAGIC,
+    BLINDED,
+    BLND_RES,
+    CLAIRVOYANT,
+    COLD_RES,
+    CONFUSION,
+    CONFLICT,
+    DEAF,
+    DETECT_MONSTERS,
+    DISINT_RES,
+    DISPLACED,
+    DRAIN_RES,
+    ECMD_OK,
+    ENERGY_REGENERATION,
+    FAST,
+    FIRE_RES,
+    FIXED_ABIL,
+    FLYING,
+    FREE_ACTION,
+    FUMBLING,
+    GLIB,
+    HALLUC,
+    HALLUC_RES,
+    HALF_PHDAM,
+    HALF_SPDAM,
+    HUNGER,
+    INFRAVISION,
+    INVIS,
+    INVULNERABLE,
+    JUMPING,
+    LEVITATION,
+    LIFESAVED,
+    MAGICAL_BREATHING,
+    MAXULEV,
+    PASSES_WALLS,
+    PICK_ANY,
+    POLY_CONTROLLED,
+    POLYMORPH,
+    POLYMORPH_CONTROL,
+    POISON_RES,
+    PROTECTION,
+    PROT_FROM_SHAPE_CHANGERS,
+    REGENERATION,
+    REFLECTING,
+    SEARCHING,
+    SEE_INVIS,
+    SICK,
+    SICK_RES,
+    SHOCK_RES,
+    SLEEP_RES,
+    SLEEPY,
+    SLIMED,
+    SLOW_DIGESTION,
+    STONED,
+    STONE_RES,
+    STEALTH,
+    STRANGLED,
+    STUNNED,
+    SWIMMING,
+    TELEPAT,
+    TELEPORT,
+    TELEPORT_CONTROL,
+    TIMEOUT,
+    UNCHANGING,
+    VOMITING,
+    WARN_OF_MON,
+    WARN_UNDEAD,
+    WARNING,
+    WOUNDED_LEGS,
+    WWALKING,
+} from './const.js';
 import { pluslvl, UnsupportedExperienceChangeError } from './exper.js';
 import { polyself } from './polyself.js';
 import { create_particular } from './read.js';
-import { getlin } from './windows.js';
+import { getlin, select_menu } from './windows.js';
 import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { makewish } from './zap.js';
+import { docrt } from './display.js';
+import { incr_itimeout, make_glib, make_hallucinated } from './potion.js';
 
 // C ref: wizcmds.c wiz_wish() (31-44), the #wizwish command.
 //
@@ -82,6 +158,161 @@ export async function wiz_genesis(state = game) {
     } else {
         await ttyPline("Unavailable command 'wizgenesis'.", state);
     }
+    return ECMD_OK;
+}
+
+// timeout.c propertynames[] (30-114), kept in source order because the TTY
+// menu assigns selectors by position and wizcmds.c uses the same index to
+// recover the property after selection.
+const WIZ_INTRINSIC_PROPERTIES = Object.freeze([
+    [INVULNERABLE, 'invulnerable'],
+    [STONED, 'petrifying'],
+    [SLIMED, 'becoming slime'],
+    [STRANGLED, 'strangling'],
+    [SICK, 'fatally sick'],
+    [STUNNED, 'stunned'],
+    [CONFUSION, 'confused'],
+    [HALLUC, 'hallucinating'],
+    [BLINDED, 'blinded'],
+    [DEAF, 'deafness'],
+    [VOMITING, 'vomiting'],
+    [GLIB, 'slippery fingers'],
+    [WOUNDED_LEGS, 'wounded legs'],
+    [SLEEPY, 'sleepy'],
+    [TELEPORT, 'teleporting'],
+    [POLYMORPH, 'polymorphing'],
+    [LEVITATION, 'levitating'],
+    [FAST, 'very fast'],
+    [CLAIRVOYANT, 'clairvoyant'],
+    [DETECT_MONSTERS, 'monster detection'],
+    [SEE_INVIS, 'see invisible'],
+    [INVIS, 'invisible'],
+    [ACID_RES, 'acid resistance'],
+    [STONE_RES, 'stoning resistance'],
+    [DISPLACED, 'displaced'],
+    [PASSES_WALLS, 'pass thru walls'],
+    [MAGICAL_BREATHING, 'magical breathing'],
+    [WWALKING, 'water walking'],
+    [FIRE_RES, 'fire resistance'],
+    [COLD_RES, 'cold resistance'],
+    [SLEEP_RES, 'sleep resistance'],
+    [DISINT_RES, 'disintegration resistance'],
+    [SHOCK_RES, 'shock resistance'],
+    [POISON_RES, 'poison resistance'],
+    [DRAIN_RES, 'drain resistance'],
+    [SICK_RES, 'sickness resistance'],
+    [ANTIMAGIC, 'magic resistance'],
+    [HALLUC_RES, 'hallucination resistance'],
+    [BLND_RES, 'light-induced blindness resistance'],
+    [FUMBLING, 'fumbling'],
+    [HUNGER, 'voracious hunger'],
+    [TELEPAT, 'telepathic'],
+    [WARNING, 'warning'],
+    [WARN_OF_MON, 'warn: monster type or class'],
+    [WARN_UNDEAD, 'warn: undead'],
+    [SEARCHING, 'searching'],
+    [INFRAVISION, 'infravision'],
+    [ADORNED, 'adorned (+/- Cha)'],
+    [STEALTH, 'stealthy'],
+    [AGGRAVATE_MONSTER, 'monster aggravation'],
+    [CONFLICT, 'conflict'],
+    [JUMPING, 'jumping'],
+    [TELEPORT_CONTROL, 'teleport control'],
+    [FLYING, 'flying'],
+    [SWIMMING, 'swimming'],
+    [SLOW_DIGESTION, 'slow digestion'],
+    [HALF_SPDAM, 'half spell damage'],
+    [HALF_PHDAM, 'half physical damage'],
+    [REGENERATION, 'HP regeneration'],
+    [ENERGY_REGENERATION, 'energy regeneration'],
+    [PROTECTION, 'extra protection'],
+    [PROT_FROM_SHAPE_CHANGERS, 'protection from shape changers'],
+    [POLYMORPH_CONTROL, 'polymorph control'],
+    [UNCHANGING, 'unchanging'],
+    [REFLECTING, 'reflecting'],
+    [FREE_ACTION, 'free action'],
+    [FIXED_ABIL, 'fixed abilities'],
+    [LIFESAVED, 'life will be saved'],
+]);
+
+function wizardIntrinsicMenuSpec(state) {
+    const items = [];
+    if (state.iflags?.cmdassist) {
+        items.push({
+            text: '[Precede any selection with a count to increment by other '
+                + 'than 30.]',
+        });
+    }
+    for (const [index, [property, name]]
+        of WIZ_INTRINSIC_PROPERTIES.entries()) {
+        if (property === HALLUC_RES) continue;
+        if (property === FIRE_RES) items.push({ text: '--' });
+        const prop = state.u.uprops[property] ??= {
+            intrinsic: 0,
+            extrinsic: 0,
+        };
+        const timeout = prop.intrinsic & TIMEOUT;
+        items.push({
+            // wizcmds.c stores i + 1 so that a zero menu value remains
+            // reserved for a non-selection.
+            value: index + 1,
+            label: timeout ? `${name.padEnd(27)} [${timeout}]` : name,
+        });
+    }
+    return {
+        title: 'Which intrinsics?',
+        items,
+        how: PICK_ANY,
+        cancelValue: null,
+    };
+}
+
+// C ref: wizcmds.c wiz_intrinsic() (949-1098), covering the menu, ordinary
+// timeout increments, and the hallucination transition used by the current
+// wizard session boundary.
+export async function wiz_intrinsic(state = game) {
+    if (!state.wizard) {
+        await ttyPline("Unavailable command 'wizintrinsic'.", state);
+        return ECMD_OK;
+    }
+
+    const selected = await select_menu(state, wizardIntrinsicMenuSpec(state));
+    for (const entry of selected ?? []) {
+        const propertyEntry = WIZ_INTRINSIC_PROPERTIES[entry.value - 1];
+        if (!propertyEntry) continue;
+        const [property, name] = propertyEntry;
+        const prop = state.u.uprops[property] ??= {
+            intrinsic: 0,
+            extrinsic: 0,
+        };
+        const oldTimeout = prop.intrinsic & TIMEOUT;
+        const amount = entry.count === -1 ? 30 : entry.count;
+        if (amount <= 0) continue;
+        const newTimeout = oldTimeout + amount;
+
+        if (property === HALLUC) {
+            await make_hallucinated(newTimeout, true, 0, state);
+        } else if (property === GLIB) {
+            make_glib(newTimeout, state);
+            state.disp.botl = true;
+            await ttyPline(
+                `Timeout for ${name} ${oldTimeout ? 'increased by' : 'set to'} `
+                + `${amount}.`,
+                state,
+            );
+        } else {
+            // wizcmds.c's default arm: simple properties are timed directly
+            // and announce through the status-line refresh.
+            incr_itimeout(prop, amount);
+            state.disp.botl = true;
+            await ttyPline(
+                `Timeout for ${name} ${oldTimeout ? 'increased by' : 'set to'} `
+                + `${amount}.`,
+                state,
+            );
+        }
+    }
+    await docrt();
     return ECMD_OK;
 }
 

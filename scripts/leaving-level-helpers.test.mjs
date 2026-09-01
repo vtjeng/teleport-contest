@@ -1,5 +1,5 @@
 // The helpers do.c goto_level()'s opening phase reaches, each pinned against
-// the C function it comes from: wizard.c mon_has_amulet(), mon.c
+// the C function it comes from: wizard.c mon_has_amulet()/resurrect(), mon.c
 // get_iter_mons(), mondata.c levl_follower(), apply.c next_to_u(), lock.c
 // reset_pick()/maybe_reset_pick(), hack.c set_uinwater()/check_special_room(),
 // and dungeon.c dunlevs_in_dungeon()/In_hell()/next_level().
@@ -12,7 +12,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { In_tutorial, OBJ_FLOOR, OBJ_INVENT } from '../js/const.js';
+import {
+    IN_SIGHT,
+    In_tutorial,
+    OBJ_FLOOR,
+    OBJ_INVENT,
+    ROOM,
+} from '../js/const.js';
 import { next_to_u } from '../js/apply_next_to_u.js';
 import {
     In_hell,
@@ -30,13 +36,14 @@ import {
     PM_HOUSECAT,
     PM_SEWER_RAT,
     PM_STALKER,
+    PM_WIZARD_OF_YENDOR,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
 import { AMULET_OF_YENDOR, ELVEN_DAGGER } from '../js/objects.js';
 import { check_special_room } from '../js/rooms.js';
 import { is_fshk } from '../js/shk.js';
-import { mon_has_amulet } from '../js/wizard.js';
+import { mon_has_amulet, resurrect } from '../js/wizard.js';
 
 const ROOM_BUFFER_SIZE = 5;
 const HERO_X = 20;
@@ -99,6 +106,73 @@ test('mon_has_amulet finds the Amulet anywhere in a monster inventory', () => {
         mon_has_amulet({ minvent: { ...dagger, nobj: amulet } }),
         true,
     );
+});
+
+test('resurrect creates the first Wizard and emits its source-order threat',
+    async () => {
+    // wizard.c:721-728 creates the Wizard at the first valid enexto_core
+    // square, and wizard.c:770-778 clears its wait strategy before emitting
+    // the appearance, voice, and verbalize messages.
+    const state = heroState();
+    state.u.ualign = { type: 0, record: 0 };
+    state.viz_array = Array.from(
+        { length: 24 },
+        () => new Array(80).fill(IN_SIGHT),
+    );
+    for (let x = HERO_X - 2; x <= HERO_X + 2; ++x) {
+        for (let y = HERO_Y - 2; y <= HERO_Y + 2; ++y)
+            state.level.at(x, y).typ = ROOM;
+    }
+
+    const constructorCalls = [];
+    const redraws = [];
+    const messages = [];
+    const monster = await resurrect(state, {
+        random: { rn2: () => 0 },
+        makemon: (species, x, y, flags) => {
+            constructorCalls.push({
+                species: species.pmidx,
+                x,
+                y,
+                flags,
+                inMklev: state.in_mklev,
+            });
+            return newMonster({
+                data: species,
+                mhp: 20,
+                mhpmax: 20,
+                mcanmove: true,
+                mx: x,
+                my: y,
+            });
+        },
+        redraw: (x, y) => redraws.push([x, y]),
+        norepMessage: async (message) => messages.push(message),
+        message: async (message) => messages.push(message),
+    });
+
+    assert.deepEqual(constructorCalls, [{
+        species: PM_WIZARD_OF_YENDOR,
+        x: HERO_X - 1,
+        y: HERO_Y - 1,
+        flags: 0,
+        inMklev: true,
+    }]);
+    assert.deepEqual(redraws, [[HERO_X - 1, HERO_Y - 1]]);
+    assert.deepEqual(messages, [
+        'The Wizard of Yendor suddenly appears next to you!',
+        'A voice booms out...',
+        '"So thou thought thou couldst kill me, fool."',
+    ]);
+    assert.equal(state.in_mklev, false);
+    assert.equal(state.context.no_of_wizards, 1);
+    assert.equal(monster.iswiz, true);
+    assert.equal(monster.mrevived, true);
+    assert.equal(monster.mtame, 0);
+    assert.equal(monster.mpeaceful, false);
+    assert.equal(monster.mstrategy, 0);
+    assert.equal(monster.mgenmklev, false);
+    assert.deepEqual([monster.mux, monster.muy], [HERO_X, HERO_Y]);
 });
 
 test('get_iter_mons skips the dead and the off-map', () => {

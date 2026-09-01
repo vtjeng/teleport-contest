@@ -247,7 +247,8 @@ import {
 } from './read.js';
 import { UnsupportedPolyselfError, dobreathe } from './polyself.js';
 import {
-    wiz_genesis, wiz_level_change, wiz_level_tele, wiz_polyself, wiz_wish,
+    wiz_genesis, wiz_intrinsic, wiz_level_change, wiz_level_tele,
+    wiz_polyself, wiz_wish,
 } from './wizcmds.js';
 import {
     dozap,
@@ -1406,7 +1407,8 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'pickup',
     'takeoff', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
-    'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
+    'wizwish', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'fire', 'throw',
+    'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
     'terrain', 'travel',
@@ -2473,6 +2475,12 @@ async function runGenesisCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_genesis(state));
 }
 
+// C ref: wizcmds.c wiz_intrinsic(). Its menu and all selected property
+// changes complete with ECMD_OK, so a wizard intrinsic never spends a turn.
+async function runIntrinsicCommand(key, state) {
+    return failClosedCommand(key, state, () => wiz_intrinsic(state));
+}
+
 // C ref: wizcmds.c wiz_polyself(). Unconditionally calls
 // polyself(POLY_CONTROLLED) and returns ECMD_OK, so #polyself spends no turn.
 async function runPolyselfCommand(key, state) {
@@ -2931,6 +2939,8 @@ async function doextcmd(key, state) {
         return await runWishCommand(key, state);
     case 'wiz_genesis':
         return await runGenesisCommand(key, state);
+    case 'wiz_intrinsic':
+        return await runIntrinsicCommand(key, state);
     case 'wiz_polyself':
         return await runPolyselfCommand(key, state);
     case 'domonability':
@@ -3692,6 +3702,14 @@ export async function rhack(key, state = game) {
             resetCommandVars(state, state.multi < 0);
             return;
         }
+        if (command === 'wizintrinsic') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818.
+            // wiz_intrinsic() ends with ECMD_OK and never consumes a turn;
+            // the command row carries IFBURIED and WIZMODECMD only.
+            await runIntrinsicCommand(key, state);
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
         if (command === 'teleport') {
             // C ref: teleport.c dotelecmd() → dotele().
             const trap = t_at(state.u.ux, state.u.uy, state);
@@ -3720,6 +3738,10 @@ export async function rhack(key, state = game) {
                 }
                 await morehungry(100, state);
                 resetCommandVars(state);
+                // C ref: teleport.c dotelecmd() returns ECMD_TIME after
+                // dotele(TRUE) succeeds; rhack() restores context.move
+                // after reset_cmd_vars().
+                commandTookTime(state);
                 state.go.occupation = null;
                 return;
             }
@@ -3755,6 +3777,9 @@ export async function rhack(key, state = game) {
                 }
                 await morehungry(100, state);
                 resetCommandVars(state);
+                // C ref: dotele(FALSE) returns 1 after an intrinsic
+                // teleport, which dotelecmd() turns into ECMD_TIME.
+                commandTookTime(state);
                 state.go.occupation = null;
                 return;
             }

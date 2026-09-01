@@ -160,6 +160,48 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
         );
     });
 
+test('monsterCommonName uses C hallucinated names and display RNG', () => {
+    const state = {
+        u: { uprops: [], uroleplay: { blind: false } },
+    };
+    monst_globals_init(state);
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.u.uprops[DETECT_MONSTERS] = {
+        intrinsic: 1,
+        extrinsic: 0,
+        blocked: 0,
+    };
+    const ordinary = state.mons.findIndex((species, index) => (
+        index >= LOW_PM
+        && index < SPECIAL_PM
+        && !(species.mflags2 & M2_PNAME)
+        && !(species.geno & G_NOGEN)
+        && species.pmnames[1]
+    ));
+    assert.ok(ordinary >= LOW_PM);
+    const script = [
+        { bound: SPECIAL_PM + 100 - LOW_PM, result: ordinary },
+        { bound: 2, result: 1 },
+    ];
+    const monster = {
+        data: state.mons[PM_NEWT],
+        mextra: {},
+        mx: 0,
+        my: 0,
+    };
+    assert.equal(
+        monsterCommonName(monster, state, 0, {
+            displayRandom(bound) {
+                const next = script.shift();
+                assert.deepEqual(next?.bound, bound);
+                return next.result;
+            },
+        }),
+        `the ${state.mons[ordinary].pmnames[1]}`,
+    );
+    assert.deepEqual(script, []);
+});
+
 test('obj_pmname reads every corpse-statue gender and cleric substitution',
     () => {
         const state = {};

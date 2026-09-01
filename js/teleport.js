@@ -1576,10 +1576,10 @@ export async function level_tele(state = game) {
         const namedLevel = lev_by_name(buf, state);
         newlev = namedLevel || cAtoi(buf);
 
-        // The prompt path begins with a positive decimal answer. Retain the
-        // previous fail-closed boundary for invalid retries, named/special
-        // levels, Nowhere, and the negative-level heaven and escape paths.
-        if (namedLevel || newlev <= 0) {
+        // C keeps negative answers for the common tail, where endgame
+        // destinations are resolved as offsets. Only the zero/Nowhere arm
+        // and named destinations remain outside this bounded port.
+        if (namedLevel || newlev === 0) {
             throw new UnsupportedLevelChangeError(
                 'level_tele() resolving a non-positive or named destination',
             );
@@ -1614,9 +1614,30 @@ export async function level_tele(state = game) {
     }
     if (state.astral_level
         && state.u.uz.dnum === state.astral_level.dnum) {
-        throw new UnsupportedLevelChangeError(
-            'level_tele() from the endgame',
+        // C ref: teleport.c:1308-1320. Endgame level numbers are entered as
+        // negative offsets from the bottom of the endgame dungeon: -1 is the
+        // level immediately above the bottom, -2 the next one, and so on.
+        // Unlike the ordinary negative-level path below, this stays inside
+        // the current dungeon and schedules the destination normally.
+        const llimit = dunlevs_in_dungeon(state.u.uz, state);
+        if (newlev >= 0 || newlev <= -llimit) {
+            await ttyPline("You can't get there from here.", state);
+            return;
+        }
+        const newlevel = {
+            dnum: state.u.uz.dnum,
+            dlevel: llimit + newlev,
+        };
+        schedule_goto(
+            newlevel,
+            UTOTYPE_NONE,
+            null,
+            // C's endgame arm schedules with no deferred materialization
+            // message; the ordinary tail supplies that optional message.
+            null,
+            state,
         );
+        return;
     }
 
     const newlevel = { dnum: 0, dlevel: 0 };

@@ -20,7 +20,7 @@ import {
     glyph_to_cmap,
 } from './display.js';
 import { game } from './gstate.js';
-import { handle_tip } from './hack.js';
+import { handle_tip, is_valid_travelpt } from './hack.js';
 import { visctrl } from './hacklib.js';
 import { nhgetch } from './input.js';
 import { do_screen_description } from './pager.js';
@@ -72,12 +72,19 @@ export function truncate_to_map(cx, cy, dx, dy) {
 // ttyPline() flushes with the cursor on the hero, so restore the selected map
 // coordinate after it writes the source firstmatch text.
 async function auto_describe(cx, cy, state) {
+    const noTravelPath = state.iflags?.getloc_travelmode
+        && !await is_valid_travelpt(cx, cy, state);
     try {
         const description = do_screen_description(
             { x: cx, y: cy }, true, 0, state,
         );
-        if (description.found)
-            await ttyPline(description.firstmatch, state);
+        if (description.found) {
+            await ttyPline(
+                description.firstmatch
+                + (noTravelPath ? ' (no travel path)' : ''),
+                state,
+            );
+        }
     } catch (e) {
         if (e.name !== 'UnsupportedWhatisError') throw e;
     }
@@ -178,6 +185,12 @@ export async function getpos(ccp, force, goal, state = game) {
                 await flush_screen(0);
                 cursorAt(cx, cy, state);
                 showGoalMessage = false;
+            } else if (state.iflags?.autodescribe && !messageGiven) {
+                // C getpos.c checks msg_given at the top of the loop, before
+                // reading the next key.  In particular, an ignored key while
+                // force=true leaves the cursor in place and lets this pass
+                // describe that starting square before the next input.
+                await auto_describe(cx, cy, state);
             }
 
             const key = (await nhgetch(state)) & 0xFF;
@@ -210,8 +223,6 @@ export async function getpos(ccp, force, goal, state = game) {
                     // with the new cursor, then the next loop iteration runs
                     // auto_describe(). Keep that two-step order here.
                     await flush_screen(0);
-                    if (state.iflags?.autodescribe)
-                        await auto_describe(cx, cy, state);
                     continue;
                 }
                 await ttyPline("Can't find dungeon feature '>'.", state);
@@ -239,7 +250,6 @@ export async function getpos(ccp, force, goal, state = game) {
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
                 clearTtyMessageWindow(state);
-                await auto_describe(cx, cy, state);
                 messageGiven = false;
                 continue;
             }
