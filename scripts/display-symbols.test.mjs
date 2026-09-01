@@ -5577,6 +5577,57 @@ test('newsym is side-effect-only for ordinary, hero, and gas updates', () => {
     assert.equal(state.level.at(x, y).disp_ch, '#');
 });
 
+test('newsym preserves the swallowed display except for the hero', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    state.u.uswallow = 1;
+
+    const location = state.level.at(x, y);
+    show_glyph_cell(x, y, {
+        ch: 'S',
+        color: CLR_RED,
+        dec: true,
+        attr: ATR_BOLD,
+    });
+    const swallowedCell = {
+        ch: location.disp_ch,
+        color: location.disp_color,
+        dec: location.disp_decgfx,
+        attr: location.disp_attr,
+        glyph: location.disp_glyph,
+    };
+
+    // display.c newsym() must not let an ordinary terrain redraw overwrite
+    // any of the transient stomach cells.
+    newsym(x, y);
+    assert.deepEqual(
+        {
+            ch: location.disp_ch,
+            color: location.disp_color,
+            dec: location.disp_decgfx,
+            attr: location.disp_attr,
+            glyph: location.disp_glyph,
+        },
+        swallowedCell,
+    );
+
+    // The swallowed exception still permits newsym(u.ux, u.uy) to repaint
+    // the hero through display_self().
+    state.u.ux = x;
+    state.u.uy = y;
+    show_glyph_cell(x, y, {
+        ch: '?',
+        color: CLR_RED,
+        dec: false,
+    });
+    newsym(x, y);
+    const hero = hero_glyph_info(state);
+    assert.equal(location.disp_ch, hero.ch);
+    assert.equal(location.disp_color, hero.color);
+    assert.equal(location.disp_glyph.glyph, hero.glyph);
+});
+
 test('newsym reveals visible engravings beneath higher-priority layers', () => {
     const state = resetGame();
     const x = 7;

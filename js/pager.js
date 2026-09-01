@@ -28,6 +28,7 @@ import {
     OBJ_FLOOR,
     PICK_ONE,
     ROWNO,
+    TER_MON,
     Upolyd,
     Ugender,
     u_at,
@@ -50,6 +51,7 @@ import {
     glyph_to_trap,
     engraving_to_glyph,
     map_glyphinfo,
+    monster_glyph_info,
     trap_to_glyph,
 } from './display.js';
 import { DATA_BASE_ENTRIES } from './data_base_data.js';
@@ -594,6 +596,30 @@ export function do_screen_description(cc, looked, sym, state = game) {
             found: 1,
             out: '         unexplored',
             firstmatch: 'unexplored area',
+        };
+    }
+    // C ref: pager.c lookat()'s monster arm under TER_DETECT|TER_MON. The
+    // detector has painted live monsters into the temporary glyph buffer, so
+    // describe the live monster at the coordinate rather than treating its
+    // non-cmap glyph as an unsupported ordinary map symbol.
+    if (glyph_is_monster(glyph)) {
+        if (state.iflags?.terrainmode
+            && !(state.iflags.terrainmode & TER_MON)) {
+            throw new UnsupportedWhatisError(
+                'monster excluded by terrain browse subset',
+            );
+        }
+        const monster = m_at(cc.x, cc.y, state);
+        if (!monster)
+            throw new UnsupportedWhatisError('a reconstructed monster glyph');
+        const detail = look_at_monster(monster, cc.x, cc.y, state);
+        const location = state.level?.at(cc.x, cc.y);
+        const displayCharacter = location?.disp_ch
+            ?? monster_glyph_info(monster, state).ch;
+        return {
+            found: 1,
+            out: `${displayCharacter}        ${detail}`,
+            firstmatch: detail,
         };
     }
     if (!glyph_is_cmap(glyph))

@@ -758,6 +758,21 @@ function speciesName(monster) {
 }
 
 function monsterBaseName(monster, called) {
+    // C ref: do_name.c:x_monnam() shopkeeper arm, reached by
+    // distant_monnam() with no article.  nameshk() stores a leading marker
+    // for some names' gender/proper-name metadata; shkname() strips it before
+    // returning the name to the player.  A monster-shaped appearance bypasses
+    // this arm and is described from its apparent species instead.
+    const appearance = (monster.m_ap_type ?? 0) & M_AP_TYPMASK;
+    const storedShopkeeperName = monster.mextra?.eshk?.shknam;
+    if (monster.isshk
+        && !appearance
+        && typeof storedShopkeeperName === 'string'
+        && storedShopkeeperName.length) {
+        return /^[A-Za-z]/u.test(storedShopkeeperName)
+            ? storedShopkeeperName
+            : storedShopkeeperName.slice(1);
+    }
     const given = monster.mextra?.mgivenname ?? monster.mgivenname;
     if (given) return called ? `${speciesName(monster)} called ${given}` : given;
     return speciesName(monster);
@@ -809,6 +824,7 @@ function bufferedGlyphSubjectAt(monster, state) {
     const glyph = state.level?.flags?.hero_memory === false
         ? location?.disp_glyph : location?.remembered_glyph;
     return {
+        hasGlyph: Boolean(glyph),
         hasSubject: Boolean(glyph)
             && Object.hasOwn(glyph, 'a11ySubject'),
         subject: glyph?.a11ySubject ?? null,
@@ -820,6 +836,11 @@ function bufferedObjectSubjectAt(monster, state) {
     const buffered = bufferedGlyph.subject;
     if (buffered?.type === 'object') return buffered;
     if (bufferedGlyph.hasSubject) return null;
+    // pager.c:mhidden_description() only enters object_from_map() when the
+    // remembered glyph is an object. An unexplored square is represented by
+    // no remembered glyph in this port, so its source fallback is literally
+    // `something`, not an object synthesized from mappearance.
+    if (!bufferedGlyph.hasGlyph) return null;
     if (state.level?.flags?.hero_memory === false) return null;
 
     // display_monster() sends a zeroobj through obj_to_glyph(). Gems and

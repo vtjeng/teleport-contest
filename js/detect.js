@@ -40,6 +40,8 @@ import {
     STUNNED,
     STATUE_TRAP,
     TER_MAP,
+    TER_MON,
+    TER_DETECT,
     TRAPPED_CHEST,
     TRAPPED_DOOR,
     SVALL,
@@ -56,6 +58,7 @@ import {
     cmap_to_glyph,
     cls,
     docrt,
+    display_self,
     glyph_is_invisible,
     glyph_is_cmap,
     glyph_is_monster,
@@ -65,6 +68,7 @@ import {
     glyph_to_cmap,
     hero_glyph_info,
     map_glyphinfo,
+    map_monster_glyph_info,
     map_engraving,
     magic_map_background,
     map_trap,
@@ -293,7 +297,7 @@ export function reveal_terrain_getglyph(
 export async function browse_map(
     terTyp, terExplain, state = game,
 ) {
-    if (terTyp !== TER_MAP)
+    if (terTyp !== TER_MAP && terTyp !== (TER_DETECT | TER_MON))
         throw new UnsupportedSearchError('terrain browse subset');
     if (state !== game)
         throw new TypeError('browse_map() redraws the global game');
@@ -311,6 +315,75 @@ export async function browse_map(
         state.iflags.terrainmode = 0;
         state.iflags.autodescribe = saveAutodescribe;
     }
+}
+
+// C ref: detect.c map_monst() (122-133). The temporary detector display is
+// not newsym(): it must show every live monster regardless of current sight,
+// and it must not replace remembered map glyphs. The display producer handles
+// pet highlighting and the display-RNG hallucination branch just as the C
+// mon_to_glyph()/pet_to_glyph() macros do.
+function map_monst(monster, state = game, env = {}) {
+    const showMonster = env.mapMonster ?? ((subject) => show_glyph_cell(
+        subject.mx,
+        subject.my,
+        map_monster_glyph_info(subject, state),
+    ));
+    showMonster(monster, state);
+}
+
+function liveMonsters(state) {
+    const result = [];
+    for (let monster = state.level?.monlist ?? null;
+        monster;
+        monster = monster.nmon) {
+        // C DEADMONSTER() is mhp < 1; the guard also excludes a dungeon
+        // guardian that has not entered the level (isgd && !mx).
+        if (monster.mhp < 1 || (monster.isgd && !monster.mx)) continue;
+        result.push(monster);
+    }
+    return result;
+}
+
+// C ref: detect.c monster_detect() (797-860), restricted to the fountain and
+// other ordinary no-object, all-monster call. Potion/object-specific waking,
+// monster-class filtering, constrained maps, and long-worm tails remain
+// fail-closed rather than silently changing the detection result.
+export async function monster_detect(
+    otmp = null,
+    mclass = 0,
+    state = game,
+    env = {},
+) {
+    if (otmp !== null)
+        throw new UnsupportedSearchError(
+            'monster detection with a detecting object',
+        );
+    if (mclass !== 0)
+        throw new UnsupportedSearchError('monster-class detection');
+
+    const monsters = liveMonsters(state);
+    if (!monsters.length) return 1;
+
+    const clearScreen = env.cls ?? cls;
+    const unconstraint = env.unconstrainMap ?? unconstrain_map;
+    const showSelf = env.displaySelf ?? display_self;
+    const message = env.message ?? ttyPline;
+    const browse = env.browseMap ?? browse_map;
+    const redisplay = env.mapRedisplay ?? map_redisplay;
+
+    // C saves u.uswallow before unconstrain_map(). The current supported arm
+    // is ordinary, unconstrained play; retaining the value keeps the source
+    // order visible and lets a future swallowed implementation use it.
+    const swallowed = Boolean(state.u?.uswallow);
+    await clearScreen();
+    unconstraint(state);
+    for (const monster of monsters)
+        map_monst(monster, state, env);
+    if (!swallowed) showSelf(state);
+    await message('You sense the presence of monsters.', state);
+    await browse(TER_DETECT | TER_MON, 'monster of interest', state);
+    await redisplay(state);
+    return 0;
 }
 
 // C ref: detect.c map_redisplay() (96-106). The current slice reaches the

@@ -9,11 +9,13 @@ import { getnow } from './calendar.js';
 import { game } from './gstate.js';
 import {
     A_DEX,
+    BLINDED,
     CLAIRVOYANT,
     COLNO,
     CQ_CANNED,
     EXT_ENCUMBER,
     FAST,
+    HALLUC,
     HVY_ENCUMBER,
     INTRINSIC,
     MOD_ENCUMBER,
@@ -90,13 +92,19 @@ import {
     flush_screen,
     map_invisible,
     newsym,
+    see_monsters,
+    see_objects,
+    see_traps,
+    swallowed,
     timebot,
     UnsupportedMapMemoryError,
 } from './display.js';
 import {
     dismissPendingTtyMessage,
+    displayPendingTtyMessageWindow,
     ttyNorep,
     ttyPline,
+    ttyUrgentPline,
 } from './tty_message.js';
 import {
     canSeeMonster,
@@ -158,6 +166,7 @@ import { automatic_search } from './detect.js';
 import { age_spells } from './spell.js';
 import { settrack } from './track.js';
 import { clear_splitobjs } from './obj.js';
+import { makewish } from './zap.js';
 
 // PRNG-owning initializer seam corresponding to the point immediately before
 // allmain.c:newgame() calls mklev(). Asynchronous only because u_init_misc()
@@ -1207,6 +1216,22 @@ export async function moveloop_core() {
     // time.
     clear_splitobjs(g);
 
+    // C ref: allmain.c moveloop_core() (445-450). Picking up the Amulet
+    // schedules exactly one wish at the next once-per-input boundary. The
+    // urgent message must be emitted before makewish() reads the next key;
+    // otherwise the pending arrival --More-- consumes that key instead and
+    // shifts every later wish prompt and screen.
+    if (g.u.uhave?.amulet && !g.u.uevent?.amulet_wish) {
+        g.u.uevent ??= {};
+        g.u.uevent.amulet_wish = 1;
+        await displayPendingTtyMessageWindow(g);
+        await ttyUrgentPline(
+            'The Amulet is bestowing a wish upon you!',
+            g,
+        );
+        await makewish(g);
+    }
+
     // Vision + display
     if (g.vision_full_recalc) {
         vision_recalc(0);
@@ -1216,6 +1241,26 @@ export async function moveloop_core() {
     // flushing can expose the completed frame.
     await emitGlyphUpdateNotices(g, { pline: ttyPline });
     find_ac(g);
+    // C ref: allmain.c moveloop_core() (474-485). When the hero cannot move
+    // this input, hallucination repaints the visible monster/object/trap
+    // layers and redraws the swallowed stomach. The latter bypasses newsym(),
+    // so the swallowed guard alone is not enough: omitting this branch leaves
+    // the stale pre-hallucination DEC/Unicode stomach on the terminal.
+    const hallucination = g.u.uprops?.[HALLUC];
+    const hallucinating = Boolean(
+        hallucination?.intrinsic && !hallucination?.blocked,
+    );
+    const blind = Boolean(g.u.uprops?.[BLINDED]?.intrinsic
+        || g.u.uprops?.[BLINDED]?.extrinsic)
+        && !g.u.uprops?.[BLINDED]?.blocked;
+    if (!g.context?.mv || blind) {
+        if (hallucinating) {
+            see_monsters(g);
+            see_objects(g);
+            see_traps(g);
+            if (g.u.uswallow) await swallowed(false, g);
+        }
+    }
     // C ref: allmain.c moveloop_core() (473-478). The status line repaints
     // only when a writer marked it dirty, and a turn on which only the counter
     // moved refreshes that one field. curs_on_u() is display.c's

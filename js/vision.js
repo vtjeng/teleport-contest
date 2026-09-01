@@ -677,7 +677,11 @@ export function vision_recalc(control = 0, env = {}) {
         next_rmax[y] = 0;
     }
 
-    if (control !== 2) {
+    // vision.c:557-560. A swallowed hero has no line of sight; the fresh
+    // buffer remains empty until the swallowed display is drawn by the
+    // caller. Keeping the guard here also makes couldsee() agree with the C
+    // bitmap while monster movement runs inside the engulfment.
+    if (control !== 2 && !state.u?.uswallow) {
         view_from(u.uy, u.ux, next, next_rmin, next_rmax);
     }
 
