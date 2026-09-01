@@ -7767,7 +7767,13 @@
         ]
       },
       "detail": "Port the ordinary tame-pet carrot-consumption branch in mon.c m_consume_obj() (1392-1453), reached from dogmove.c dog_move() -> dog_invent() -> dog_eat(). Preserve source order: pet/non-pet handling and object extraction, the CARROT eyes flag, and conditional mcureblindness() for a blind pet, including visibility-dependent message and screen updates. Keep corpse transformation, level gain, healing-food, petrification, slime, pyrolisk-egg, mimic, and intrinsic-conveyance branches outside this candidate unless a fresh development differential reaches them.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "ordinary tame pony carrot consumption through dog_eat() and m_consume_obj()",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "b25ba765439c4c2eacf202c295ffd1a4daa1213e",
       "openStanding": {
         "sha": "1ffe65d",
