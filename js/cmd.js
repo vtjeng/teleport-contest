@@ -1673,9 +1673,11 @@ async function dotravel(key, state = game) {
     return dotravel_target(state);
 }
 
-// C ref: cmd.c dotravel_target() (5348-5379). The state setup and the first
-// domove() call are source-faithful; hack.c's travel path search chooses the
-// direction before the ordinary movement pipeline runs.
+// C ref: cmd.c dotravel_target() (5348-5379). The state setup is source
+// faithful through the call into domove(), where the next slice begins at
+// hack.c's ordinary travel path search. Leaving that call as a boundary is
+// deliberate: moving one ordinary step here would use the stale u.dx/u.dy
+// instead of C's findtravelpath() direction.
 async function dotravel_target(state = game) {
     const travelcc = state.iflags?.travelcc;
     if (!isok(travelcc?.x, travelcc?.y)) {
@@ -1703,8 +1705,9 @@ async function dotravel_target(state = game) {
     state.u.last_str_turn = 0;
     state.context.mv = 1;
 
-    await domove(state);
-    return ECMD_TIME;
+    throw new UnsupportedHeroMoveBoundaryError(
+        'travel path selection in findtravelpath()',
+    );
 }
 
 // C ref: cmd.c set_move_cmd() and rhack()'s DOMOVE_WALK/DOMOVE_RUSH paths.

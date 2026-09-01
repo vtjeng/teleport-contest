@@ -11,7 +11,6 @@ import {
     BLINDED,
     COLD_RES,
     CONFUSION,
-    COLNO,
     CORR,
     DIED,
     DISINT_RES,
@@ -66,12 +65,10 @@ import {
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_AP_TYPMASK,
-    N_DIRS,
     PASSES_WALLS,
     PICK_NONE,
     POISON_RES,
     RIGHT_SIDE,
-    ROWNO,
     ROOM,
     RUN_CRAWL,
     RUN_LEAP,
@@ -88,9 +85,6 @@ import {
     TELEPORT,
     TELEPORT_CONTROL,
     TEST_TRAV,
-    TEST_TRAP,
-    TEST_MOVE,
-    TRAVP_TRAVEL,
     TIMER_OBJECT,
     TIP_GETPOS,
     TT_BEARTRAP,
@@ -113,8 +107,6 @@ import {
     helpless,
     is_pit,
     isok,
-    xdir,
-    ydir,
 } from './const.js';
 import { acurrstr, effective_attribute, exercise } from './attrib.js';
 import {
@@ -261,12 +253,7 @@ import {
 } from './tty_message.js';
 import { select_menu } from './windows.js';
 import { do_attack, is_safemon } from './uhitm.js';
-import {
-    block_point,
-    couldsee,
-    recalc_block_point,
-    vision_recalc,
-} from './vision.js';
+import { block_point, recalc_block_point, vision_recalc } from './vision.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 
@@ -2366,36 +2353,10 @@ export async function test_move(
         throw new UnsupportedHeroMoveBoundaryError('long worm body crossing');
     }
 
-    // C ref: hack.c:1181-1205. Travel probes avoid remembered traps and
-    // known liquid hazards when running with run == 8. TEST_TRAP reports the
-    // hazard to findtravelpath(); TEST_TRAV falls through to the ordinary
-    // movement checks below.
-    if (state.context.run === 8 && mode !== DO_MOVE && !u_at(x, y, state)) {
-        const trap = t_at(x, y, state);
-        if (trap && trap.tseen && trap.ttyp !== VIBRATING_SQUARE)
-            return mode === TEST_TRAP;
-
-        const locationSeen = Boolean(location.seenv);
-        const knownLiquid = locationSeen && is_pool_or_lava(x, y, state);
-        const inAir = propertyActiveUnblocked(state, LEVITATION)
-            || heroIsFlying(state);
-        const safeLiquid = is_pool(x, y, state)
-            ? known_wwalking(state)
-            : (known_lwalking(state)
-                && is_lava(state.u.ux, state.u.uy, state));
-        if (knownLiquid
-            && ((IS_WATERWALL(location.typ) || location.typ === LAVAWALL)
-                || !(inAir || safeLiquid))) {
-            return mode === TEST_TRAP;
-        }
-    }
-
-    // C's TEST_TRAP path never proceeds to the source-square or boulder
-    // checks. A non-hazardous candidate is therefore rejected here.
-    if (mode === TEST_TRAP)
-        return false;
-
-    // C ref: hack.c:1207-1209. The source doorway restriction remains below.
+    // C ref: hack.c:1181-1205. The run == 8 travel filter and the TEST_TRAP
+    // return above `ust` have no ported caller: findtravelpath() is what sets
+    // run to 8, and it passes TEST_TRAV or TEST_TRAP, neither of which any
+    // ported caller asks for.
     if (blocksDiagonalDoorwayExit(ux, uy, x, y, state)) {
         // C ref: hack.c:1208-1214. No feel_location() here, and mention_walls
         // is the whole gate.
@@ -2455,207 +2416,6 @@ export async function test_move(
         /* assume you'll be able to push it when you get there... */
     }
     return true;
-}
-
-// C ref: hack.c crawl_destination() (4079-4099). Travel's adjacent fast path
-// uses the ordinary hero placement test, then applies the extra diagonal
-// restrictions that crawling out of water uses. The current travel boundary
-// reaches ordinary D:1 floors and stairs; the terrain and special-mobility
-// branches below are represented by the same local movement predicates so a
-// non-ordinary candidate is rejected rather than silently admitted.
-export function crawl_destination(x, y, state = game) {
-    if (!isok(x, y)) return false;
-    const destination = state.level?.at(x, y);
-    if (!destination || !accessible(x, y, state)
-        || m_at(x, y, state)
-        || sobj_at(BOULDER, x, y, state)) {
-        return false;
-    }
-
-    /* orthogonal movement is unrestricted when destination is ok */
-    if (x === state.u.ux || y === state.u.uy) return true;
-    if (NODIAG(state.u.umonnum)) return false;
-    if (propertyPresent(state, PASSES_WALLS)) return true;
-    if (IS_DOOR(destination.typ)
-        && blocksDiagonalDoorwayEntry(state.u.ux, state.u.uy, x, y, state)) {
-        return false;
-    }
-    return !(bad_rock(state.youmonst?.data, state.u.ux, y, state)
-        && bad_rock(state.youmonst?.data, x, state.u.uy, state)
-        && cant_squeeze_thru(state.youmonst, state));
-}
-
-function travelMapIndex(x, y) {
-    return y * COLNO + x;
-}
-
-function travelMapGet(state, x, y) {
-    return state.travelmap instanceof Uint8Array
-        && state.travelmap[travelMapIndex(x, y)] !== 0;
-}
-
-function travelMapSet(state, x, y) {
-    if (state.travelmap instanceof Uint8Array)
-        state.travelmap[travelMapIndex(x, y)] = 1;
-}
-
-function travelSquareVisible(x, y, state) {
-    const location = state.level?.at(x, y);
-    return Boolean(location?.seenv
-        || (!heroIsBlind(state) && couldsee(x, y, state)));
-}
-
-// C ref: hack.c findtravelpath() (1266-1459), ordinary TRAVP_TRAVEL arm.
-// The search grows a shortest path backwards from the selected destination.
-// Its frontier order is source-defined: cardinal directions first in W, N,
-// E, S order, then NW, NE, SE, SW. That order is observable when two paths
-// have the same length, so it is kept explicitly instead of relying on a
-// generic path-finding helper.
-export async function findtravelpath(mode = TRAVP_TRAVEL, state = game) {
-    if (mode !== TRAVP_TRAVEL) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'non-ordinary travel path selection',
-        );
-    }
-
-    if (!state.travelmap)
-        state.travelmap = new Uint8Array(COLNO * ROWNO);
-
-    // C ref: hack.c:1271-1290. A one-step target is handed back to normal
-    // movement, after which end_running() has already disposed of travel-map
-    // state and the caller continues through domove_core().
-    if (state.context.travel1
-        && dist2(state.u.ux, state.u.uy, state.u.tx, state.u.ty) <= 2
-        && crawl_destination(state.u.tx, state.u.ty, state)) {
-        endRunning(state);
-        if (await test_move(
-            state.u.ux,
-            state.u.uy,
-            state.u.tx - state.u.ux,
-            state.u.ty - state.u.uy,
-            TEST_MOVE,
-            state,
-        )) {
-            state.u.dx = state.u.tx - state.u.ux;
-            state.u.dy = state.u.ty - state.u.uy;
-            nomul(0, state);
-            state.iflags.travelcc.x = 0;
-            state.iflags.travelcc.y = 0;
-            return true;
-        }
-        state.context.run = 8;
-    }
-
-    if (state.u.tx === state.u.ux && state.u.ty === state.u.uy)
-        return false;
-
-    const travel = new Uint16Array(COLNO * ROWNO);
-    const travelStepX = [[], []];
-    const travelStepY = [[], []];
-    const directionOrder = [0, 2, 4, 6, 1, 3, 5, 7];
-    let n = 1;
-    let set = 0;
-    let radius = 1;
-    travelStepX[0][0] = state.u.tx;
-    travelStepY[0][0] = state.u.ty;
-
-    while (n !== 0) {
-        let nn = 0;
-        const currentX = travelStepX[set];
-        const currentY = travelStepY[set];
-        const nextX = travelStepX[1 - set];
-        const nextY = travelStepY[1 - set];
-        nextX.length = 0;
-        nextY.length = 0;
-
-        for (let i = 0; i < n; ++i) {
-            const x = currentX[i];
-            const y = currentY[i];
-            const dirmax = NODIAG(state.u.umonnum) ? 4 : N_DIRS;
-            let alreadyRepeated = false;
-
-            for (let dir = 0; dir < dirmax; ++dir) {
-                const direction = directionOrder[dir];
-                const nx = x + xdir[direction];
-                const ny = y + ydir[direction];
-                if (!isok(nx, ny)) continue;
-
-                const delayed = Boolean(
-                    (!propertyPresent(state, PASSES_WALLS)
-                        && !amorphous(state.youmonst?.data)
-                        && closed_door(x, y, state))
-                    || (sobj_at(BOULDER, x, y, state)
-                        && !could_move_onto_boulder(x, y, 0, 0, state))
-                    || await test_move(
-                        x,
-                        y,
-                        nx - x,
-                        ny - y,
-                        TEST_TRAP,
-                        state,
-                    )
-                );
-                if (delayed) {
-                    if (travel[travelMapIndex(x, y)] > radius - 3) {
-                        if (!alreadyRepeated) {
-                            nextX[nn] = x;
-                            nextY[nn] = y;
-                            ++nn;
-                            alreadyRepeated = true;
-                        }
-                    }
-                    continue;
-                }
-
-                if (await test_move(
-                    x,
-                    y,
-                    nx - x,
-                    ny - y,
-                    TEST_TRAV,
-                    state,
-                ) && travelSquareVisible(nx, ny, state)) {
-                    if (nx === state.u.ux && ny === state.u.uy) {
-                        const visited = travelMapGet(state, x, y);
-                        state.u.dx = x - state.u.ux;
-                        state.u.dy = y - state.u.uy;
-                        if ((x === state.u.tx && y === state.u.ty)
-                            || visited) {
-                            nomul(0, state);
-                            state.context.run = 8;
-                            if (visited) {
-                                await ttyPline(
-                                    'You stop, unsure which way to go.',
-                                    state,
-                                );
-                            } else {
-                                state.iflags.travelcc.x = 0;
-                                state.iflags.travelcc.y = 0;
-                            }
-                        }
-                        travelMapSet(state, state.u.ux, state.u.uy);
-                        return true;
-                    }
-
-                    if (!travel[travelMapIndex(nx, ny)]) {
-                        nextX[nn] = nx;
-                        nextY[nn] = ny;
-                        travel[travelMapIndex(nx, ny)] = radius;
-                        ++nn;
-                    }
-                }
-            }
-        }
-
-        n = nn;
-        set = 1 - set;
-        radius += 1;
-    }
-
-    state.u.dx = 0;
-    state.u.dy = 0;
-    nomul(0, state);
-    return false;
 }
 
 // C ref: hack.c move_out_of_bounds() (2584-2612). domove_core() calls this
@@ -3035,21 +2795,6 @@ export async function domove(state = game) {
 // position sets u.umoved for the subsequent turn effects.
 async function domove_core(state = game) {
     const u = state.u;
-
-    // C ref: hack.c domove_core():2724-2728. Travel chooses the direction
-    // immediately before the ordinary movement pipeline. The selected
-    // boundary reaches only a known reachable target, so TRAVP_GUESS remains
-    // deliberately outside this slice if the ordinary search cannot find a
-    // path.
-    if (state.context.travel) {
-        if (!await findtravelpath(TRAVP_TRAVEL, state)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'unreachable travel target guessing',
-            );
-        }
-        state.context.travel1 = 0;
-    }
-
     const newx = u.ux + u.dx;
     const newy = u.uy + u.dy;
 
