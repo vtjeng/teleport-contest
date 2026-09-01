@@ -7571,7 +7571,7 @@
     },
     {
       "id": "simple-monster-action-requires-monster-vs-monster-attack",
-      "status": "open",
+      "status": "closed",
       "boundary": "ordinary Conflict monster-versus-monster combat during the elapsed monster scan",
       "upstreamOwners": [
         "mon.c:movemon_singlemon",
@@ -7605,8 +7605,11 @@
         "screens": 3698,
         "rng": 238380
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "7944e3feff0efaa3a5e1a8c23c6cde15c64d5c68",
+      "delivered": {
+        "screens": 8,
+        "rng": 98
+      }
     }
   ]
 }
