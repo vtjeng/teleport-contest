@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     ARROW_TRAP,
     BEAR_TRAP,
+    DART_TRAP,
     D_BROKEN,
     D_TRAPPED,
     DOOR,
@@ -47,6 +48,7 @@ import { CHEST, POT_WATER } from '../js/objects.js';
 import {
     do_screen_description,
     add_quoted_engraving,
+    doquickwhatis,
     look_engrs,
     look_traps,
     look_region_nearby,
@@ -190,6 +192,23 @@ test('ordinary hero farlook renders the source-derived description',
     );
 });
 
+test('direct glance dispatches the quick cursor lookup without a turn',
+    async () => {
+        const replay = await runSegment({
+            seed: 42053,
+            datetime: '20300601090000',
+            nethackrc: [
+                'OPTIONS=name:Glancer,role:Knight,race:human,gender:female,align:lawful',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+            ].join('\n') + '\n',
+            moves: ';.',
+        });
+        assert.equal(replay.getScreens().length, 3);
+        assert.equal(replay.getCursors().length, 3);
+        assert.equal(game.moves, 1);
+        assert.equal(game.context.pendingCommand, undefined);
+    });
+
 function terrainDescription(cmap, flags = 0) {
     // The separate hero coordinate keeps pager.c lookat() on its ordinary
     // glyph_is_cmap() branch. D:1 selects the main-dungeon glyph family.
@@ -257,6 +276,26 @@ test('doorway refinement distinguishes broken and trapped-broken masks', () => {
         out: `${prefix} (broken door)`,
         firstmatch: 'broken door',
     });
+});
+
+test('visible dart traps refine the overloaded trap symbol', () => {
+    const state = {
+        u: { ux: 40, uy: 10, uz: { dnum: 0, dlevel: 1 } },
+        level: {},
+        iflags: { terrainmode: 0 },
+    };
+    initialize_symbols_from_options(
+        parseNethackrc('OPTIONS=symset:DECgraphics\n'), state,
+    );
+    state.level.at = (x, y) => (x === 3 && y === 4
+        ? { disp_glyph: { glyph: trap_to_glyph({ ttyp: DART_TRAP }) } }
+        : undefined);
+    assert.deepEqual(do_screen_description({ x: 3, y: 4 }, true, 0, state), {
+        found: 1,
+        out: '^        can be many things (dart trap)',
+        firstmatch: 'dart trap',
+    });
+    assert.equal(typeof doquickwhatis, 'function');
 });
 
 test('truncate_to_map preserves diagonal travel along map edges', () => {

@@ -186,6 +186,7 @@ import { UnsupportedHideError } from './mon.js';
 import { dosave } from './save.js';
 import {
     dohelp,
+    doquickwhatis,
     dowhatis,
     UnsupportedHelpError,
     UnsupportedWhatisError,
@@ -1407,7 +1408,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
     'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
-    'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
+    'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
     'terrain', 'travel',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
@@ -2287,6 +2288,13 @@ async function runWhatisCommand(key, state) {
     return failClosedCommand(key, state, () => dowhatis(state));
 }
 
+// C ref: pager.c doquickwhatis(). The glance command is the cursor-based
+// quick form of do_look(): it returns ECMD_OK, never spends a turn, and its
+// ordinary map path is complete for the current glance goal.
+async function runGlanceCommand(key, state) {
+    return failClosedCommand(key, state, () => doquickwhatis(state));
+}
+
 // C ref: pager.c dohelp(). The handler returns ECMD_OK after either a menu
 // cancellation or a selected target completes, so it never spends a turn.
 async function runHelpCommand(key, state) {
@@ -2841,6 +2849,8 @@ async function doextcmd(key, state) {
         return await runHelpCommand(key, state);
     case 'dowhatis':
         return await runWhatisCommand(key, state);
+    case 'doquickwhatis':
+        return await runGlanceCommand(key, state);
     case 'doprgold':
         await failClosedCommand(key, state, () => doprgold(state));
         return ECMD_OK;
@@ -3248,6 +3258,11 @@ export async function rhack(key, state = game) {
         }
         if (command === 'whatis') {
             await runWhatisCommand(key, state);
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'glance') {
+            await runGlanceCommand(key, state);
             resetCommandVars(state, state.multi < 0);
             return;
         }

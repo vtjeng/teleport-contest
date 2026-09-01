@@ -94,6 +94,8 @@ import {
     S_vwall,
     S_vodbridge,
     S_water,
+    S_sw_tl,
+    S_sw_br,
     cmap_symbol_byte,
 } from './symbols.js';
 import { NO_COLOR } from './terminal.js';
@@ -530,6 +532,9 @@ function waterbody_name(x, y, state) {
 // C ref: pager.c lookat() (657-801), ordinary cmap branches reached by the
 // whatis cursor-terrain witness. Other glyph families remain later slices.
 function lookatOrdinaryTerrain(x, y, glyph, state) {
+    if (glyph_is_trap(glyph)) {
+        return trap_description(glyph_to_trap(glyph), x, y, state);
+    }
     const index = glyph_to_cmap(glyph);
     const supported = index === S_stone
         || (index >= S_vwall && index <= S_trwall)
@@ -598,6 +603,17 @@ export function do_screen_description(cc, looked, sym, state = game) {
     let found = 0;
     let firstmatch = 'unknown';
     let out = `${visibleGlyphCharacter(glyphinfo)}        `;
+    // C ref: pager.c is_swallow_sym(). A DEC graphics wall can share its
+    // active display byte with a swallow boundary; retain that generic
+    // possibility before the cmap explanations, then let lookat() refine it
+    // to the actual wall below.
+    for (let index = S_sw_tl; index <= S_sw_br; ++index) {
+        if (cmap_symbol_byte(index, state) !== symbolByte) continue;
+        out += 'the interior of a monster';
+        firstmatch = 'the interior of a monster';
+        found = 1;
+        break;
+    }
     for (let index = 0; index < MAXPCHARS; ++index) {
         const explanation = CMAP_EXPLANATIONS[index];
         if (!explanation || cmap_symbol_byte(index, state) !== symbolByte)
@@ -789,11 +805,14 @@ export async function checkfile(input, pm = null, chkflags = 0, state = game) {
 }
 
 export async function do_look(mode, clickCc = null, state = game) {
-    if (mode !== 0 || clickCc)
-        throw new UnsupportedWhatisError('quick, click, or queued look mode');
+    const quick = mode === 1;
+    if ((mode !== 0 && !quick) || clickCc)
+        throw new UnsupportedWhatisError('click or queued look mode');
     assertOrdinaryWhatisState(state);
 
-    const choice = await select_menu(state, {
+    // C ref: pager.c do_look() sets i='y' for quick mode, bypassing the
+    // #whatis selection menu and entering the screen-coordinate path.
+    const choice = quick ? '/' : await select_menu(state, {
         how: PICK_ONE,
         title: 'What do you want to look at:',
         ...menuTitleStyle(state),
@@ -882,7 +901,7 @@ export async function do_look(mode, clickCc = null, state = game) {
         throw new UnsupportedWhatisError(`menu choice ${JSON.stringify(choice)}`);
 
     const savedVerbose = state.flags.verbose;
-    state.flags.verbose = Boolean(savedVerbose);
+    state.flags.verbose = Boolean(savedVerbose && !quick);
     const cc = { x: state.u.ux, y: state.u.uy };
     try {
         for (;;) {
@@ -891,7 +910,7 @@ export async function do_look(mode, clickCc = null, state = game) {
                 state,
             );
             const answer = await getpos(
-                cc, false, WHAT_IS_A_LOCATION, state,
+                cc, quick, WHAT_IS_A_LOCATION, state,
             );
             if (answer < 0 || cc.x < 0) break;
             state.flags.verbose = false;
@@ -911,6 +930,7 @@ export async function do_look(mode, clickCc = null, state = game) {
                 && state.flags.help) {
                 await checkfile(description.firstmatch, null, 0, state);
             }
+            if (quick) break;
         }
     } finally {
         state.flags.verbose = savedVerbose;
@@ -920,6 +940,13 @@ export async function do_look(mode, clickCc = null, state = game) {
 
 export async function dowhatis(state = game) {
     return do_look(0, null, state);
+}
+
+// C ref: pager.c doquickwhatis(). The semicolon binding calls the same
+// do_look() implementation with quick mode and therefore skips #whatis's
+// choice menu.
+export async function doquickwhatis(state = game) {
+    return do_look(1, null, state);
 }
 
 // C ref: pager.c setopt_cmd() (2902-2957). The current help boundary has the
