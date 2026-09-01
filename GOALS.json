@@ -7694,6 +7694,40 @@
         "screens": 2,
         "rng": 0
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-13",
+      "status": "open",
+      "boundary": "ordinary throw object-selection menu via display_pickinv() with a letter subset",
+      "upstreamOwners": [
+        "dothrow.c: ok_to_throw()",
+        "throw_ok()",
+        "dothrow()",
+        "invent.c: getobj() redo_menu and display_pickinv()"
+      ],
+      "forecast": {
+        "steps": 73,
+        "basis": "Capped look-ahead at unsupported hero command: the object prompt requires display_pickinv() with a letter subset",
+        "sessions": [
+          "seed0004-feeding-pony"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "Seed 4, datetime 20260414173108, OPTIONS=symset:DECgraphics; Tetra is a lawful human Knight. The development replay reaches the throw prompt at step 335 and answers it with * at step 336. C dothrow.c dothrow() calls getobj(throw, throw_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT); invent.c getobj() enters redo_menu for * with allowed_choices unset and calls display_pickinv(allowed_choices, handsbuf, menuquery, allownone, TRUE, &ctmp). C emits the full two-page inventory beginning with Coins at step 336, then accepts h as the carrot and l as the direction. JavaScript raises the exact display_pickinv() with a letter subset boundary before drawing this menu."
+          }
+        ]
+      },
+      "detail": "Bound this candidate to the ordinary throw object-selection menu: support dothrow.c ok_to_throw(), throw_ok(), and dothrow() through invent.c getobj() redo_menu and display_pickinv() with the full inventory selection triggered by *. Preserve the two-page menu, selected object, count state, prompt input, cursor, and return to throw_obj(). Keep ?, count prefixes, hands, forced menus, alternate inventory sorting, and thrown-object effects outside this candidate unless a fresh development differential reaches them.",
+      "slices": [],
+      "openedAt": "e9f90d514919f204a5f4245e9434ce7d7c350091",
+      "openStanding": {
+        "sha": "e7d2343",
+        "screens": 3715,
+        "rng": 238545
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
