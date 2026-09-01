@@ -7524,6 +7524,41 @@
         "screens": 54,
         "rng": 3426
       }
+    },
+    {
+      "id": "glance",
+      "status": "open",
+      "boundary": "The direct semicolon glance command enters pager.c doquickwhatis() and completes one ordinary cursor-based map description, including getpos cursor movement and the quick single-description return, for an ordinary visible hero on a non-special map glyph.",
+      "upstreamOwners": [
+        "cmd.c extcmdlist[] and doextcmd()",
+        "pager.c doquickwhatis() and do_look()",
+        "getpos.c getpos()",
+        "pager.c do_screen_description() and lookat()",
+        "win/tty/wintty.c cursor and message rendering"
+      ],
+      "forecast": {
+        "steps": 18,
+        "basis": "Capped look-ahead at glance",
+        "sessions": [
+          "seed0004-feeding-pony"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "The development witness uses OPTIONS=symset:DECgraphics, seed 4, datetime 20260414173108, and an ordinary lawful-human Knight who is neither swallowed, hallucinating, nor blind at step 308. The semicolon binding is the extcmdlist row in cmd.c:1732-1733 and dispatches to pager.c doquickwhatis() at 2331, which calls do_look(1). In do_look(), mode 1 sets quick=true, selects the implicit y compatibility branch, sets from_screen=true, and emits Pick a monster, object or location. It then calls getpos(&cc, quick, what_is_a_location) from getpos.c, describes the selected ordinary room floor, dart trap, wall, or interior-of-wall glyph through pager.c do_screen_description() and lookat() and emits the result with putmixed(). Because quick is true, the loop does not request more information and returns ECMD_OK without spending a turn."
+          }
+        ]
+      },
+      "detail": "The development witness uses the direct semicolon glance command after ordinary D:1 play. Port only ordinary non-swallowed, non-hallucinating, non-blind cursor lookup through cmd.c extcmdlist[]/doextcmd(), pager.c doquickwhatis()/do_look(), getpos.c getpos(), and pager.c do_screen_description()/lookat(), preserving cursor movement, prompt, selected map description, messages, RNG, turn count, and quick single-description return. Exclude typed-symbol lookup, inventory/name lookup, monster/object/trap/engraving list modes, special glyph families, verbose #whatis, and supplemental data.base information.",
+      "slices": [],
+      "openedAt": "a77a83fea126cf3546a15bfa09591e7423760b89",
+      "openStanding": {
+        "sha": "87c8830",
+        "screens": 3687,
+        "rng": 238188
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
