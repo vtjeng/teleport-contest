@@ -1322,6 +1322,12 @@ async function planSimpleMonsterScan(monster, env) {
         canSeeSquare: (x, y) => cansee(x, y, env.state),
         fightMonster: (subject, subjectEnv) => fightm(subject, {
             ...subjectEnv,
+            // mhitm.c owns these effects, but the clone must remain silent and
+            // must not mutate the live display while preflighting a turn.
+            message: async () => {},
+            markInvisible: () => {},
+            redraw: () => {},
+            wieldMonsterItemAgainstMonster,
             unsupported,
         }),
         dochugwAction:

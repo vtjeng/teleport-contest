@@ -233,7 +233,7 @@ test('helpless reads sleep and immobility and nothing else', () => {
 // one rnd(20) draw, returns zero, and leaves the caller free to continue with
 // ordinary movement. The following branch pins the fail-closed boundary
 // before fightm() would reach monster-versus-monster mattackm().
-test('fightm resolves Conflict resistance before monster combat', () => {
+test('fightm resolves Conflict resistance before monster combat', async () => {
     const state = {
         u: {
             acurr: { a: [0, 0, 0, 0, 0, 10] },
@@ -244,7 +244,7 @@ test('fightm resolves Conflict resistance before monster combat', () => {
     };
     const monster = { m_lev: 1 };
     const resistingBounds = [];
-    assert.equal(fightm(monster, {
+    assert.equal(await fightm(monster, {
         state,
         random: {
             rnd: (bound) => {
@@ -256,20 +256,18 @@ test('fightm resolves Conflict resistance before monster combat', () => {
     }), 0);
     assert.deepEqual(resistingBounds, [20]);
 
-    const attackingBounds = [];
-    const unsupported = [];
-    assert.equal(fightm(monster, {
-        state,
-        random: {
-            rnd: (bound) => {
-                attackingBounds.push(bound);
-                return 1;
-            },
-        },
-        unsupported: (reason) => unsupported.push(reason),
-    }), 0);
-    assert.deepEqual(attackingBounds, [20]);
-    assert.deepEqual(unsupported, ['monster-vs-monster attack']);
+    await hero();
+    const { ax, dx, y } = battlefield(1);
+    const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
+    const ant = fixture(PM_GIANT_ANT, dx, y);
+    aim(ant);
+    const env = attackEnv([1, 1, 3, 1, 1, 1, 0]);
+    assert.equal(await fightm(pet, env), 1);
+    assert.deepEqual(env.bounds, [
+        'rnd(20)', 'rnd(20)', 'd(1,6)', 'rn2(3)', 'rn2(6)',
+        'rn2(3)', 'rn2(4)',
+    ]);
+    assert.equal(ant.mhp, 5);
 });
 
 // mhitm.c mattackm():321-370, the head every call runs before the attack loop.

@@ -88,6 +88,7 @@ import {
     cls,
     bot,
     flush_screen,
+    map_invisible,
     newsym,
     timebot,
     UnsupportedMapMemoryError,
@@ -141,6 +142,7 @@ import {
     runSimpleMonsterAction,
     unportedMinliquidReason,
     UnsupportedSimpleMonsterActionError,
+    wieldMonsterItemAgainstMonster,
 } from './unported_monster_actions.js';
 import {
     create_gas_cloud,
@@ -1003,6 +1005,10 @@ async function moveElapsedTurnMonster(monster, env) {
         canSeeSquare: (x, y) => cansee(x, y, env.state),
         fightMonster: (subject, subjectEnv) => fightm(subject, {
             ...subjectEnv,
+            message: ttyPline,
+            markInvisible: (x, y) => map_invisible(x, y, env.state),
+            redraw: (x, y) => newsym(x, y),
+            wieldMonsterItemAgainstMonster,
             unsupported: unavailableElapsedTurnOperation('conflict combat'),
         }),
         dochugwAction: runElapsedTurnMonsterAction,

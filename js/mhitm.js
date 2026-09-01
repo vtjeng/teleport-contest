@@ -6,6 +6,7 @@
 import {
     CONFLICT,
     DEAF,
+    engulfing_u,
     IRONBARS,
     IS_OBSTRUCTED,
     IS_TREE,
@@ -18,6 +19,7 @@ import {
     NEED_HTH_WEAPON,
     NEED_WEAPON,
     NATTK,
+    NORMAL_SPEED,
     PASSES_WALLS,
     helpless,
 } from './const.js';
@@ -30,7 +32,7 @@ import { game } from './gstate.js';
 import { dist2, distmin } from './hacklib.js';
 import { grow_up } from './makemon.js';
 import { could_seduce, getmattk, mtrapped_in_pit } from './mhitu.js';
-import { mon_offmap, monkilled, zombie_maker } from './mon.js';
+import { mon_offmap, monkilled, set_ustuck, zombie_maker } from './mon.js';
 import {
     is_elf,
     is_whirly,
@@ -38,11 +40,12 @@ import {
     mon_hates_silver,
     passes_walls,
     resist_conflict,
+    sticks,
     touch_petrifies,
     unsolid,
     zombie_form,
 } from './mondata.js';
-import { closed_door, youHear } from './monmove.js';
+import { closed_door, monnear, youHear } from './monmove.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
     AD_ACID,
@@ -251,26 +254,91 @@ async function missmm(magr, mdef, mattk, env) {
 
 // C ref: mhitm.c fightm() (106-169).
 //
-// This slice reaches the source function's resistance preflight. A monster
-// which resists Conflict does nothing and lets movemon_singlemon() continue
-// into dochugw(), so that path owns exactly one source-ordered rnd(20) draw.
-// The non-resisting branch remains fail-closed at the first unported
-// monster-versus-monster attack rather than approximating mattackm(), its
-// retaliation, or any of fightm()'s swallowed/stuck handling.
-export function fightm(mtmp, rawEnv = {}) {
+// C ref: monmove.c itsstuck() (1053-1061). The hero's sticky form keeps a
+// holding monster from taking the Conflict turn unless the hero is swallowed;
+// the message is the only observable effect of this guard.
+async function itsstuck(mtmp, env) {
+    const { state } = env;
+    if (sticks(state.youmonst?.data)
+        && mtmp === state.u?.ustuck
+        && !state.u?.uswallow) {
+        const message = requireAttackOperation(env, 'message');
+        await message(
+            `${capitalizedMonsterName(mtmp, state)} cannot escape from you!`,
+            state,
+        );
+        return true;
+    }
+    return false;
+}
+
+// C ref: mhitm.c fightm() (106-169). Walk the live monster list in source
+// order, selecting the first living adjacent target. mattackm() owns the
+// ordinary physical attack and returns C's result bitmask; this function owns
+// the Conflict bookkeeping and the source-ordered retaliation draws.
+export async function fightm(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rnd };
     if (typeof random.rnd !== 'function')
         throw new TypeError('fightm random injection requires rnd');
+    const env = { ...rawEnv, state, random };
 
     /* perhaps the monster will resist Conflict */
     if (resist_conflict(mtmp, state, random))
         return 0;
 
-    const unsupported = rawEnv.unsupported;
-    if (typeof unsupported !== 'function')
-        throw new TypeError('fightm requires an unsupported operation');
-    unsupported('monster-vs-monster attack');
+    if (state.u?.ustuck === mtmp) {
+        /* perhaps we're holding it... */
+        if (await itsstuck(mtmp, env)) return 0;
+    }
+    const hasUSwallowed = engulfing_u(mtmp, state);
+
+    for (let mon = state.level?.monlist ?? null; mon;) {
+        let next = mon.nmon;
+        if (next === mtmp) next = mtmp.nmon;
+
+        /* DEADMONSTER() is tested before the list is cleaned up. */
+        if (mon !== mtmp && mon.mhp >= 1
+            && monnear(mtmp, mon.mx, mon.my, state)) {
+            if (!state.u?.uswallow && mtmp === state.u?.ustuck) {
+                if (!random.rn2(4)) {
+                    set_ustuck(null, state);
+                    const message = requireAttackOperation(env, 'message');
+                    await message(
+                        `${capitalizedMonsterName(mtmp, state)} releases you!`,
+                        state,
+                    );
+                } else {
+                    break;
+                }
+            }
+
+            state.gb ??= {};
+            state.gb.bhitpos = { x: mon.mx, y: mon.my };
+            state.gn ??= {};
+            state.gn.notonhead = false;
+            const result = await mattackm(mtmp, mon, env);
+
+            if (result & M_ATTK_AGR_DIED) return 1;
+            if (hasUSwallowed) return 0;
+
+            /* Allow the attacked monster a chance to hit back. */
+            if ((result & (M_ATTK_HIT | M_ATTK_DEF_DIED)) === M_ATTK_HIT
+                && random.rn2(4)
+                && mon.movement > random.rn2(NORMAL_SPEED)) {
+                if (mon.movement > NORMAL_SPEED)
+                    mon.movement -= NORMAL_SPEED;
+                else
+                    mon.movement = 0;
+                state.gb.bhitpos = { x: mtmp.mx, y: mtmp.my };
+                state.gn.notonhead = false;
+                await mattackm(mon, mtmp, env);
+            }
+
+            return (result & M_ATTK_HIT) ? 1 : 0;
+        }
+        mon = next;
+    }
     return 0;
 }
 
