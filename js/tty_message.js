@@ -10,6 +10,8 @@ import {
     MSGTYP_NOSHOW,
     MSGTYP_STOP,
     OVERRIDE_MSGTYPE,
+    PICK_NONE,
+    PICK_ONE,
     PLINE_NOREPEAT,
     URGENT_MESSAGE,
 } from './const.js';
@@ -109,7 +111,11 @@ const QUITCHARS = ' \r\n\u001B';
 // the wait.  ttyDisplay->dismiss_more starts at 0, which matches no key a
 // session can send, so only `s` and the unconditional CR and LF dismiss the
 // prompt.
-export async function xwaitforspace(state = game, s = QUITCHARS) {
+export async function xwaitforspace(
+    state = game,
+    s = QUITCHARS,
+    dismissMore = 0,
+) {
     for (;;) {
         const code = await nhgetch(state);
         if (code === 10 || code === 13) return code;
@@ -122,7 +128,8 @@ export async function xwaitforspace(state = game, s = QUITCHARS) {
         // the prompt whatever `s` holds.  tty_nhgetch() already substituted it
         // for NUL.  All other keys ring the bell and leave this boundary
         // unchanged.
-        if (code === 27 || s.includes(String.fromCharCode(code)))
+        if (code === 27 || s.includes(String.fromCharCode(code))
+            || (dismissMore !== 0 && code === dismissMore))
             return code;
     }
 }
@@ -193,7 +200,11 @@ export function clearTtyMessageWindow(state = game) {
 // ordinary dismissal; Escape alone clears that physical top line.
 export async function dismissPendingTtyMessage(
     state = game,
-    { preventEscapeStop = false } = {},
+    {
+        dismissMore = 0,
+        preventEscapeStop = false,
+        returnResponse = false,
+    } = {},
 ) {
     if (!state._pending_message) return false;
     const display = state.nhDisplay;
@@ -231,7 +242,7 @@ export async function dismissPendingTtyMessage(
 
     // wintty.c tty_nhgetch() clears WIN_STOP before every key. more() restores
     // it only when this prompt's final response is Escape without WIN_NOSTOP.
-    const response = await xwaitforspace(state);
+    const response = await xwaitforspace(state, QUITCHARS, dismissMore);
 
     if (snapshot) {
         restoreRows(display, snapshot);
@@ -251,7 +262,47 @@ export async function dismissPendingTtyMessage(
     display.topMessage = state._ttyToplines;
     display.toplines = state._ttyToplines;
     display.toplin = TOPLINE_EMPTY;
-    return true;
+    return returnResponse ? response : true;
+}
+
+// C ref: win/tty/wintty.c tty_message_menu(). The one-item inventory
+// shortcut uses the selected inventory letter as ttyDisplay->dismiss_more,
+// so the message line itself is the menu and the matching key is the result.
+// The caller has just answered a prompt, which is why the normal pline path
+// is safe here; tty_message_menu() then forces its own More boundary and
+// clears WIN_MESSAGE before returning to invent.c.
+export async function tty_message_menu(
+    invletter,
+    how,
+    mesg,
+    state = game,
+) {
+    if (how === PICK_NONE) {
+        await ttyPline(mesg, state);
+        return 0;
+    }
+    if (how !== PICK_ONE)
+        throw new Error(`unsupported tty_message_menu mode ${how}`);
+
+    await ttyPline(mesg, state);
+    const response = await dismissPendingTtyMessage(state, {
+        dismissMore: typeof invletter === 'number'
+            ? invletter
+            : String(invletter ?? '').charCodeAt(0),
+        returnResponse: true,
+    });
+    if (state.nhDisplay) {
+        // wintty.c restores NEED_MORE before tty_clear_nhwindow(), because
+        // more() has already reset the top-line state to EMPTY.
+        state.nhDisplay.toplin = TOPLINE_NEED_MORE;
+        clearTtyMessageWindow(state);
+    }
+    const selected = typeof invletter === 'number'
+        ? invletter
+        : String(invletter ?? '').charCodeAt(0);
+    return response && (response === selected || response === 27)
+        ? response
+        : 0;
 }
 
 // C ref: wintty.c tty_display_nhwindow(WIN_MESSAGE, TRUE). An explicit STOP

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -18,6 +19,7 @@ import {
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
+    GETOBJ_PROMPT,
     ROOMOFFSET,
     ROWNO,
     SCORR,
@@ -36,6 +38,7 @@ import {
     SPE_HEALING,
 } from '../js/objects.js';
 import { doread, read_ok, UnsupportedReadError } from '../js/read.js';
+import { getobj } from '../js/invent.js';
 import { not_fully_identified } from '../js/objnam.js';
 import { initRng } from '../js/rng.js';
 import { UnsupportedSpellStudyError } from '../js/spell.js';
@@ -146,6 +149,43 @@ test('read_ok suggests scrolls and spellbooks and downplays other objects',
         read_ok({ otyp: POT_WATER, oclass: POTION_CLASS }),
         GETOBJ_DOWNPLAY,
     );
+});
+
+test('read ? returns the sole suggested object through the message menu',
+    async () => {
+    const recipe = JSON.parse(readFileSync(new URL(
+        '../recipes/read-suggested-inventory-subset-fresh.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    const segment = recipe.segments[0];
+    const readMoves = 'r?i ';
+    assert.ok(segment.moves.endsWith(readMoves));
+    await runSegment({
+        ...segment,
+        moves: segment.moves.slice(0, -readMoves.length),
+    });
+    let expected;
+    for (let obj = game.invent; obj; obj = obj.nobj) {
+        if (obj.oclass === SCROLL_CLASS) {
+            expected = obj;
+            break;
+        }
+    }
+    assert.ok(expected, 'the debug setup creates one readable scroll');
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey('?'.charCodeAt(0));
+    game.nhDisplay.pushKey(expected.invlet.charCodeAt(0));
+
+    const selected = await getobj(
+        'read',
+        read_ok,
+        GETOBJ_PROMPT,
+        game,
+    );
+
+    assert.equal(selected, expected);
+    assert.equal(game._pending_message, '');
+    assert.equal(game.nhDisplay.toplin, 0);
 });
 
 test('read is admitted and selected objects stop before pickup_prev changes',

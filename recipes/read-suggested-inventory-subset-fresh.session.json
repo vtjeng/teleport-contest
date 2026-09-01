@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9048123,
+      "datetime": "20370809101112",
+      "nethackrc": "OPTIONS=name:FreshRead,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017cursed potion of confusion\nqi\u0017blessed scroll of teleportation\nr?i "
+    }
+  ]
+}

@@ -73,6 +73,8 @@ import {
     silly_thing_to,
     STONE_RES,
     PLNMSG_ONE_ITEM_HERE,
+    PICK_NONE,
+    PICK_ONE,
     P_SABER,
     P_SHORT_SWORD,
     Upolyd,
@@ -90,7 +92,7 @@ import { makeplural } from './fruit.js';
 import { digit } from './hacklib.js';
 import { PM_ARCHEOLOGIST, PM_CLERIC } from './monsters.js';
 import { observe_object } from './o_init.js';
-import { ttyPline } from './tty_message.js';
+import { ttyPline, tty_message_menu } from './tty_message.js';
 import {
     CMAP_EXPLANATIONS,
     DEFAULT_PRIMARY_SYMBOLS,
@@ -754,12 +756,9 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
         prefix.pop();
     // C's two letter subsets, kept here in the shape C builds them in. `lets`
     // is the suggested set snapshotted before compactify() rewrites `letters`,
-    // and `altletsStr` below is the downplayed set. Neither is read in this
-    // port: their only two C consumers are the arms that stop below --
-    // invent.c:1925's force_invmenu choice between '?' and '*', and
-    // invent.c:1964-1970, which hands one subset or the other to
-    // display_pickinv(). Both become live together, when display_pickinv()
-    // gains its letter-subset support.
+    // and `altletsStr` below is the downplayed set. The bounded nonempty `?`
+    // arm below hands `lets` to display_pickinv(); the `*` and empty/alternate
+    // subset arms remain fail-closed until their own slices are reached.
     const lets = letters.join(''); /* necessary since we destroy buf */
     if (suggested > 5) { /* compactify string */
         letters.push('\0');
@@ -809,12 +808,28 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
             if (allownone) return hands_obj;
             throw new UnsupportedObjectPromptError('mime_action()');
         }
-        if (ilet === '?' || ilet === '*') {
-            // C ref: getobj()'s redo_menu block (1966-1998). '?' reaches
-            // display_pickinv() with the suggested-letter subset and '*' with
-            // the hands/self extra choice getobj_hands_txt() builds; this
-            // port's display_pickinv() covers neither, so both stop here
-            // rather than draw a menu that lists the wrong items.
+        if (ilet === '?') {
+            // C ref: invent.c getobj() redo_menu (1966-1970). For this slice
+            // read_ok() has produced a nonempty suggested set, so the TTY
+            // single-item display_pickinv() path is source-live. Empty lets
+            // and the alternate '*' menu remain outside this boundary.
+            if (word !== 'read')
+                throw new UnsupportedObjectPromptError(
+                    'display_pickinv() with a letter subset',
+                );
+            if (!lets)
+                throw new UnsupportedObjectPromptError(
+                    'display_pickinv() with an empty letter subset',
+                );
+            const picked = await display_pickinv(
+                lets, null, null, false, true, state,
+            );
+            if (!picked) continue;
+            ilet = picked;
+        } else if (ilet === '*') {
+            // C ref: getobj()'s redo_menu block (1966-1998). '*' includes
+            // the hands/self extra choice and the alternate-letter subset;
+            // that menu remains outside this bounded suggested-'?' slice.
             throw new UnsupportedObjectPromptError(
                 'display_pickinv() with a letter subset',
             );
@@ -886,9 +901,10 @@ export const _getobjInternals = Object.freeze({
 });
 
 // C ref: invent.c display_pickinv(). Covers the full-inventory branch (`i`
-// reaches it) and the partial-inventory branch (equipment display commands
-// pass a `lets` filter). Extra-choice, non-reply, and non-default sort
-// branches remain unported.
+// reaches it), the bounded one-item suggested subset from getobj() (`?`),
+// and the partial-inventory branch (equipment display commands pass a `lets`
+// filter). Extra-choice, non-reply, and non-default sort branches remain
+// unported.
 export async function display_pickinv(
     lets,
     xtra_choice,
@@ -933,11 +949,22 @@ export async function display_pickinv(
             if (!lets || lets.includes(otmp.invlet)) { match = otmp; break; }
         }
         if (match) {
-            await ttyPline(
-                xprname(match, null, lets ? lets[0] : match.invlet, true, 0, 0, state),
+            const mesg = xprname(
+                match,
+                null,
+                lets ? lets[0] : match.invlet,
+                true,
+                0,
+                0,
                 state,
             );
-            return want_reply ? match.invlet : null;
+            const response = await tty_message_menu(
+                match.invlet.charCodeAt(0),
+                want_reply ? PICK_ONE : PICK_NONE,
+                mesg,
+                state,
+            );
+            return want_reply && response ? String.fromCharCode(response) : null;
         }
         return null;
     }
