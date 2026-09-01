@@ -33,6 +33,7 @@ import {
     PICK_ONE,
     PLNMSG_UNKNOWN,
     QBUFSZ,
+    ROWNO,
     LEVEL_TELEP,
     SICK,
     SLIMED,
@@ -44,6 +45,7 @@ import {
     Upolyd,
     isok,
     quitchars,
+    u_at,
     xdir,
     ydir,
     zdir,
@@ -154,6 +156,7 @@ import {
     tty_yn_function,
 } from './getline.js';
 import { game } from './gstate.js';
+import { getpos } from './getpos.js';
 import { recalc_mapseen } from './dungeon.js';
 import { mungspaces, strstri, strsubst, visctrl } from './hacklib.js';
 import {
@@ -1405,7 +1408,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'wizwish', 'wizlevelport', 'wizgenesis', 'fire', 'throw', 'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
-    'terrain',
+    'terrain', 'travel',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -1632,6 +1635,79 @@ export async function do_fight(state = game) {
     state.context.forcefight = 1;
     state.domoveAttempting |= DOMOVE_WALK;
     return ECMD_OK;
+}
+
+// C ref: cmd.c dotravel() (5299-5343). This owns the ordinary keyboard route
+// only. Menu travel and the cancellation/selection settings outside the
+// default getpos configuration remain later slices.
+async function dotravel(key, state = game) {
+    state.iflags ??= {};
+    const cached = state.iflags.travelcc ?? { x: 0, y: 0 };
+    const cc = { x: cached.x, y: cached.y };
+    if (cc.x === 0 && cc.y === 0) {
+        cc.x = state.u.ux;
+        cc.y = state.u.uy;
+    }
+
+    state.iflags.getloc_travelmode = true;
+    if (state.iflags.menu_requested) {
+        state.iflags.getloc_travelmode = false;
+        throw new UnsupportedHeroCommandBranchBoundaryError(
+            'dotravel menu target selection is not ported',
+            key,
+        );
+    }
+
+    await ttyPline('Where do you want to travel to?', state);
+    const getposResult = await getpos(
+        cc, true, 'the desired destination', state,
+    );
+    if (getposResult < 0) {
+        state.iflags.getloc_travelmode = false;
+        return ECMD_CANCEL;
+    }
+
+    state.iflags.travelcc = { x: cc.x, y: cc.y };
+    state.u.tx = cc.x;
+    state.u.ty = cc.y;
+    return dotravel_target(state);
+}
+
+// C ref: cmd.c dotravel_target() (5348-5379). The state setup is source
+// faithful through the call into domove(), where the next slice begins at
+// hack.c's ordinary travel path search. Leaving that call as a boundary is
+// deliberate: moving one ordinary step here would use the stale u.dx/u.dy
+// instead of C's findtravelpath() direction.
+async function dotravel_target(state = game) {
+    const travelcc = state.iflags?.travelcc;
+    if (!isok(travelcc?.x, travelcc?.y)) {
+        // C treats an unset destination as a harmless retravel no-op.
+        await ttyPline('No travel destination set.', state);
+        return ECMD_OK;
+    }
+    if (u_at(travelcc.x, travelcc.y, state)) {
+        // C's You() call is asynchronous in the JS terminal owner.
+        await ttyPline('You are already here.', state);
+        state.iflags.travelcc.x = 0;
+        state.iflags.travelcc.y = 0;
+        state.iflags.getloc_travelmode = false;
+        return ECMD_OK;
+    }
+
+    state.iflags.getloc_travelmode = false;
+    state.context.travel = 1;
+    state.context.travel1 = 1;
+    state.context.run = 8;
+    state.context.nopick = 1;
+    state.domoveAttempting |= DOMOVE_RUSH;
+    if (!state.multi)
+        state.multi = Math.max(COLNO, ROWNO);
+    state.u.last_str_turn = 0;
+    state.context.mv = 1;
+
+    throw new UnsupportedHeroMoveBoundaryError(
+        'travel path selection in findtravelpath()',
+    );
 }
 
 // C ref: cmd.c set_move_cmd() and rhack()'s DOMOVE_WALK/DOMOVE_RUSH paths.
@@ -3129,6 +3205,17 @@ export async function rhack(key, state = game) {
             // is a no-time command; its TER_MAP implementation ends at the
             // browse_map()/getpos() boundary with a fail-closed refusal.
             const res = await runTerrainCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'travel') {
+            // C ref: cmd.c dotravel() and dotravel_target(). The target
+            // selection and cached destination state are ported here; the
+            // call into hack.c findtravelpath() is the next boundary.
+            const res = await dotravel(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

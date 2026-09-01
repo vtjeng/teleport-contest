@@ -75,6 +75,7 @@ import {
     MAXPCHARS,
     S_brupstair,
     S_corr,
+    S_dnstair,
     S_darkroom,
     S_engrcorr,
     S_engroom,
@@ -535,7 +536,8 @@ function lookatOrdinaryTerrain(x, y, glyph, state) {
         || index === S_ndoor
         || index === S_room || index === S_darkroom
         || index === S_corr || index === S_litcorr
-        || index === S_upstair || index === S_brupstair
+        || index === S_upstair || index === S_dnstair
+        || index === S_brupstair
         || index === S_pool || index === S_water
         || index === S_lava || index === S_lavawall || index === S_ice;
     if (!supported) {

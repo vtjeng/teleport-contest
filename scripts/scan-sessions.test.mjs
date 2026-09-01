@@ -323,9 +323,10 @@ test('the supported set is every command the port dispatches', () => {
     // asserts the count instead of a filtered subset.
     assert.equal(Object.keys(MOVEMENT_INTENTS).length, 24);
     assert.equal(supported.size, ADMITTED_COMMANDS.length + 24);
-    // `travel` is bound and recorded by several sessions and is not ported, so
-    // it must be absent or every travel session would show no debt.
-    assert.equal(supported.has('travel'), false);
+    // `travel` is now admitted through its ordinary keyboard route. Its
+    // target-selection slice stops at findtravelpath(), so the command is
+    // supported here even though later travel steps still carry debt.
+    assert.equal(supported.has('travel'), true);
 });
 
 // isCommandRefusal() reads the class js/cmd.js raised and never the message,

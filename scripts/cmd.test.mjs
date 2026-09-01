@@ -3740,14 +3740,9 @@ test('dangerous hero properties reject waiting and success resets its counter', 
     assert.equal(state.did_nothing_flag, 0);
 });
 
-test('travel and prefix bytes remain atomic boundaries',
+test('prefix bytes remain atomic boundaries',
     async () => {
     const cases = [
-        // cmd.c dotravel() reaches dotravel_target(), which sets
-        // svc.context.run to 8. Travel is not one of the movement commands
-        // this boundary dispatches, unlike the ctrl-direction rush commands
-        // the same binding table names, which sit at run 3.
-        { name: 'travel', key: 'x', binding: 'BINDINGS=x:travel' },
         // The `g` and `G` prefixes are refused by the command lookup, not by
         // ADMITTED_RUN_MODES: do_run() behind `G` sets run 3, the same value
         // the admitted ctrl-direction rush sets, so the value list cannot tell
