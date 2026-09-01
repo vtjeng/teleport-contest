@@ -564,8 +564,8 @@ test('progress points carry what the chart readout shows', () => {
     assert.equal(data.progress[0].note, 'alpha closes. Second sentence.');
 
     const rendered = renderDashboard(data);
-    // The chart opens on the whole range, so its reset control has nothing
-    // to undo.
+    // Twenty minutes of goals is less than the week the chart opens on, so it
+    // shows all three and Show all has nothing left to reveal.
     assert.equal(rendered.get('progressReset').disabled, true);
     assert.equal(
         rendered.get('progressRange').textContent,
@@ -581,6 +581,57 @@ test('progress points carry what the chart readout shows', () => {
     // One pixel short of the 54px strip, so both edges of the outline land
     // inside it.
     assert.equal(height, 53);
+});
+
+test('the chart opens on the last week of goals', () => {
+    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-week-'));
+    git(fixture, ['init', '--quiet']);
+    git(fixture, ['config', 'user.name', 'Dashboard Test']);
+    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
+    commit(fixture, 'Baseline', '2025-12-31T00:00:00Z');
+    // Goals across 24 days. Only the last two fall in the week before the
+    // newest one, which is what the chart opens on.
+    const days = ['2026-01-01', '2026-01-10', '2026-01-20', '2026-01-25'];
+    const shas = days.map(
+        (day, i) => commit(fixture, `Close goal ${i} goal`, `${day}T00:00:00Z`),
+    );
+
+    writeFileSync(join(fixture, 'SCORE.tsv'), [
+        SCORE_HEADER,
+        ...shas.map((sha, i) => scoreRow({
+            utc: `${days[i]}T00:00:00Z`,
+            sha,
+            event: 'goal',
+            screens: 10 * (i + 1),
+            note: `goal${i} closes.`,
+        })),
+        '',
+    ].join('\n'));
+
+    const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
+        cwd: fixture,
+        encoding: 'utf8',
+    }));
+    assert.equal(data.progress.length, 4);
+
+    const rendered = renderDashboard(data);
+    // 25 Jan is the newest goal, so the opening window runs back to 18 Jan and
+    // holds the goals of 20 and 25 Jan.
+    assert.equal(
+        rendered.get('progressRange').textContent,
+        '18 Jan 2026 – 25 Jan 2026 · 2 goals',
+    );
+    // The two older goals are off-window, so Show all has something to reveal.
+    assert.equal(rendered.get('progressReset').disabled, false);
+
+    // The minimap still covers the whole 24 days, so its window is now a
+    // fraction of the track: 7 of 24 days across the 870px between the
+    // chart's 56px left and 74px right margins.
+    const [, x, , width] = rendered.get('progressMinimap').ops
+        .find(([operation]) => operation === 'strokeRect');
+    const track = 1000 - 56 - 74;
+    assert.equal(width, Math.round(track * 7 / 24));
+    assert.equal(x, Math.round(56 + track * 17 / 24) + 0.5);
 });
 
 test('dashboard builder injects data into a standalone HTML file', () => {

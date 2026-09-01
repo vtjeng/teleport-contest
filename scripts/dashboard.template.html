@@ -535,7 +535,7 @@ canvas {
     <div class="chart-toolbar">
       <span class="chart-range" id="progressRange"></span>
       <span class="chart-hint">Scroll to zoom time, or drag the window below</span>
-      <button type="button" class="chart-reset" id="progressReset" disabled>Reset zoom</button>
+      <button type="button" class="chart-reset" id="progressReset" disabled>Show all</button>
     </div>
     <canvas id="progressChart" height="220" tabindex="0"
       aria-label="Screens matched over time. Arrow keys step through goals and report each one."></canvas>
@@ -641,6 +641,9 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   const HOUR_MS = 3600000;
   // Goals close minutes apart, so a window narrower than this shows no more detail.
   const MIN_SPAN_MS = 20 * 60000;
+  // The chart opens on the last week of recorded goals, which is the stretch a
+  // reader checks first. Show all and the minimap reach everything before it.
+  const DEFAULT_SPAN_MS = 7 * DAY_MS;
   // The window can shrink to a fraction of a pixel on the minimap. Below this
   // it stops shrinking, so that it stays visible and grabbable.
   const MIN_WINDOW_PX = 18;
@@ -1253,6 +1256,9 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
 
   window.addEventListener('resize', () => { clearHover(); render(); });
 
+  // Under a week of recorded goals leaves nothing to trim, and setView clamps
+  // the opening window back to the whole range.
+  setView(domain.t1 - DEFAULT_SPAN_MS, domain.t1);
   render();
 })();
 
