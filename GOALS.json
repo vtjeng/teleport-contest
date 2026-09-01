@@ -7467,6 +7467,44 @@
         "screens": 4,
         "rng": 77
       }
+    },
+    {
+      "id": "travel",
+      "status": "open",
+      "boundary": "For the two witnessed ordinary D:1 games, dispatch unprefixed '_' through dotravel(), select the known downstairs with default getpos '>' and '.', and run or resume findtravelpath travel until the destination or a nearby-monster interruption, preserving prompts, cursor, cached destination, run state, turns, RNG order, and screens.",
+      "upstreamOwners": [
+        "nethack-c/upstream/src/cmd.c",
+        "nethack-c/upstream/src/getpos.c",
+        "nethack-c/upstream/src/hack.c"
+      ],
+      "forecast": {
+        "steps": 58,
+        "basis": "Capped look-ahead at travel",
+        "sessions": [
+          "seed0004-feeding-pony",
+          "seed0007-rogue-snake-swamp"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "Seed 4, datetime 20260414173108, OPTIONS=symset:DECgraphics; Tetra is a lawful female human Knight. The scan reaches 293 screens with no prior screen or RNG divergence, then '_' resolves to travel and C shows \"Where do you want to travel to?--More--\". It is the first travel, so travelcc is unset; rhack() clears menu_requested and dispatches cmd.c:dotravel(). The direct getpos(TRUE) branch shows the first TIP_GETPOS and verbose prompt; '>' runs getpos.c's background-symbol scan to the known downstairs and '.' picks it. dotravel_target() takes the valid non-hero arm, sets travel/travel1/run=8/nopick/DOMOVE_RUSH/multi/mv, and domove_core() enters findtravelpath(TRAVP_TRAVEL). allmain.c repeats lookaround()/domove() until a lichen interrupts; after combat and eating, the second '_' resumes toward the cached stair. JavaScript stops before the prompt because admitParsedCommand() omits travel. The 15-step cap covers both uses and ends before farlook."
+          },
+          {
+            "session": "seed0007-rogue-snake-swamp",
+            "evidence": "Seed 7, datetime 20260503025436, OPTIONS=symset:DECgraphics; Septor is a chaotic male orcish Rogue. The scan reaches 246 screens with no prior screen or RNG divergence, then '_' resolves to travel and C shows \"Where do you want to travel to?--More--\". This is also the first travel: rhack() clears menu_requested and dispatches cmd.c:dotravel() through its unset-cache direct getpos(TRUE) arm with default tips, verbose output, autodescribe, and hero memory. '>' selects the known downstairs through getpos.c's feature-symbol scan and '.' confirms it. dotravel_target() commits the target and run state, then domove_core()/findtravelpath(TRAVP_TRAVEL) advances until a newt interrupts. After combat and eating, a second '_' starts at the cached stair; '.' accepts it and travel resumes. JavaScript refuses travel before dispatch. The 43-step cap includes travel, descent, and supported play, ending before the independent fountain-snake effect."
+          }
+        ]
+      },
+      "detail": "Bound this candidate to the route both witnesses execute: allmain.c:rhack -> cmd.c:dotravel -> getpos.c:getpos -> cmd.c:dotravel_target -> hack.c:domove_core/findtravelpath(TRAVP_TRAVEL), followed by allmain.c's positive-multi loop. Admit uncounted, unprefixed '_'; port dotravel() and dotravel_target() for a valid non-hero target; add getpos()'s default background-symbol scan for '>' plus the existing '.' pick; and port the ordinary path search, TEST_TRAV/TEST_TRAP probes, and travel-map bookkeeping these maps need. Preserve TIP_GETPOS, prompts, autodescription, travelcc and u.tx/u.ty, run=8, nopick, destination clearing, nearby-monster interruption, and cached resumption. Both heroes are sighted, unburied, unpolymorphed, unswallowed, untrapped, on non-Sokoban D:1, with default location settings and a known reachable downstairs. Exclude menu travel, Escape, invalid/self targets, retravel, alternate selectors/settings, special mobility, Sokoban/boulder/closed-door/trap cases, visited-path uncertainty, and unreachable-target guessing unless a fresh differential reaches them. The three-owner change can use multiple slices under .agents/selection.md. Forecast: 58 steps (15 + 43), capped before seed0007's fountain snakes.",
+      "slices": [],
+      "openedAt": "34b90e722937e7a6f869f93e1ebfa73720020af1",
+      "openStanding": {
+        "sha": "a11db8cd550d10da3c9cbb9da805f2b3660dfb20",
+        "screens": 3633,
+        "rng": 234762
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
