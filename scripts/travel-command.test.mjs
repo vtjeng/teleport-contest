@@ -1,30 +1,20 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { UnsupportedHeroMoveBoundaryError } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { stairway_at } from '../js/stairs.js';
 import { loadTravelAdmissionRecipe } from './run-travel-admission.mjs';
 
-test('ordinary travel selects downstairs and reaches findtravelpath boundary',
+test('ordinary travel selects downstairs and follows the shortest path',
     async () => {
     const expected = [
-        { rng: 2530, screens: 13, x: 68, y: 12 },
-        { rng: 2783, screens: 18, x: 45, y: 7 },
+        { rng: 2539, screens: 14, x: 68, y: 12 },
+        { rng: 2788, screens: 19, x: 45, y: 7 },
     ];
     for (const [index, segment]
         of loadTravelAdmissionRecipe({ acceptTarget: true }).segments.entries()) {
-        let boundary = null;
-        const replay = await runSegment(segment, {
-            onBoundary: (error) => { boundary = error; },
-        });
-
-        assert.ok(
-            boundary instanceof UnsupportedHeroMoveBoundaryError,
-            `${segment.seed} boundary type`,
-        );
-        assert.match(boundary.message, /findtravelpath/u);
+        const replay = await runSegment(segment);
         assert.equal(
             replay.getScreens().length,
             expected[index].screens,
@@ -50,18 +40,16 @@ test('ordinary travel selects downstairs and reaches findtravelpath boundary',
             false,
             `${segment.seed} selects downstairs`,
         );
-        assert.deepEqual(game.u.tx, game.iflags.travelcc.x);
-        assert.deepEqual(game.u.ty, game.iflags.travelcc.y);
-        assert.notDeepEqual(
-            { x: game.u.tx, y: game.u.ty },
-            { x: game.u.ux, y: game.u.uy },
-        );
         assert.equal(game.iflags.getloc_travelmode, false);
-        assert.equal(game.context.travel, 1);
-        assert.equal(game.context.travel1, 1);
-        assert.equal(game.context.run, 8);
-        assert.equal(game.context.nopick, 1);
-        assert.equal(game.context.mv, 1);
-        assert.equal(game.multi, 80);
+        assert.deepEqual(
+            { x: game.u.ux, y: game.u.uy },
+            { x: expected[index].x, y: expected[index].y },
+        );
+        assert.deepEqual(game.iflags.travelcc, { x: 0, y: 0 });
+        assert.equal(game.context.travel, 0);
+        assert.equal(game.context.travel1, 0);
+        assert.equal(game.context.run, 0);
+        assert.equal(game.multi, 0);
+        assert.equal(game.travelmap, null);
     }
 });

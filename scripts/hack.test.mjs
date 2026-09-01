@@ -874,10 +874,12 @@ test('runmode_delay_output stays silent with no run and no multi', async () => {
 function interruptibleRunState(overrides = {}) {
     const state = runState(overrides);
     // hack.c nomul() clears both, and end_running() clears the travel pair.
+    // These tests exercise ordinary run interruption, not the travel command;
+    // leave travel unset so domove() does not enter findtravelpath().
     state.u.uinvulnerable = true;
     state.u.usleep = 5;
-    state.context.travel = 1;
-    state.context.travel1 = 1;
+    state.context.travel = 0;
+    state.context.travel1 = 0;
     state.disp.botl = false;
     return state;
 }

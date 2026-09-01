@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-// Record and replay cmd.c's ordinary keyboard travel target-selection path.
-// The recipe stops when dotravel_target() reaches hack.c's unported
-// findtravelpath() boundary, after C and JavaScript have matched the prompt,
-// feature scan, cursor movement, and travel-state setup.
+// Record and replay cmd.c's ordinary keyboard travel path through the first
+// destination. The matrix exercises both target selection and hack.c's
+// source-ordered findtravelpath() movement.
 
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
@@ -69,7 +68,7 @@ export async function runTravelAdmissionMatrix() {
     const result = await runFreshMatrix({
         entries: [{
             label: 'ordinary travel target selection',
-            recipe: loadTravelAdmissionRecipe(),
+            recipe: loadTravelAdmissionRecipe({ acceptTarget: true }),
         }],
         summaryLabel: 'TRAVEL TARGET SELECTION',
         chunkLimit: 1,
