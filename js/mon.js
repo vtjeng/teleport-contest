@@ -119,6 +119,7 @@ import {
     dmgtype,
     emits_light,
     flesh_petrifies,
+    haseyes,
     is_female,
     is_giant,
     is_golem,
@@ -310,6 +311,7 @@ import { fill_pit, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import {
     cansee,
+    canseemon,
     does_block,
     is_lightblocker_mappear,
     unblock_point,
@@ -642,16 +644,35 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
 
     // Non-corpse food items: the C special-effect macros (ofood, polyfood,
     // mlevelgain, mhealup, mstoning) all require CORPSE, EGG, or TIN; the
-    // CARROT eye-cure check is by otyp.  Ordinary food triggers none of
-    // these, so delobj is the only effect.  Guard the special otypes.
+    // CARROT eye-cure check is by otyp.  Keep every other food arm guarded
+    // until its downstream effect is ported.
     if (otmp.otyp !== CORPSE) {
         if (otmp.otyp === EGG) stop('a non-EGG food item');
         if (otmp.otyp === TIN) stop('a non-TIN food item');
-        if (otmp.otyp === CARROT) stop('a non-CARROT food item');
         if (otmp.otyp === GLOB_OF_GREEN_SLIME)
             stop('a non-slime food item');
         if (otmp.cobj) stop('an empty food container');
         delobj(otmp, objectGenerationEnv({ ...rawEnv, state }));
+        if (otmp.otyp === CARROT && !mtmp.mcansee) {
+            // C ref: muse.c mcureblindness() (2872-2881), reached by
+            // mon.c m_consume_obj() after the CARROT arm's delobj().
+            mtmp.mcansee = true;
+            mtmp.mblinded = 0;
+            const canSeeMonster = rawEnv.canSeeMonster
+                ?? ((subject) => canseemon(subject, state));
+            if (canSeeMonster(mtmp) && haseyes(mtmp.data)) {
+                const message = rawEnv.message ?? ttyPline;
+                await message(
+                    messageAt(
+                        `${capitalizedMonsterName(mtmp, state)} can see again.`,
+                        mtmp.mx,
+                        mtmp.my,
+                        state,
+                    ),
+                    state,
+                );
+            }
+        }
         return;
     }
 

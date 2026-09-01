@@ -52,6 +52,7 @@ import { init_objects } from '../js/o_init.js';
 import { parseNethackrc } from '../js/options.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
+    CARROT,
     CORPSE,
     FOOD_CLASS,
     objects_globals_init,
@@ -189,6 +190,20 @@ function floorMimicCorpse(state, corpsenm = PM_SMALL_MIMIC, overrides = {}) {
     });
     place_object(corpse, 5, 5, { state });
     return corpse;
+}
+
+function floorCarrot(state, overrides = {}) {
+    const carrot = newObject({
+        age: state.moves,
+        o_id: 7002,
+        oclass: FOOD_CLASS,
+        otyp: CARROT,
+        owt: state.objects[CARROT].oc_weight,
+        quan: 1,
+        ...overrides,
+    });
+    place_object(carrot, 5, 5, { state });
+    return carrot;
 }
 
 function eatingEnv(state, messages = [], redraws = []) {
@@ -330,6 +345,55 @@ test('dog_eat lets a kitten eat an inert non-mimic corpse',
         assert.equal(monster.mextra.edog.mhpmax_penalty, 0);
         // Tameness incremented by 1.
         assert.equal(monster.mtame, 11);
+    });
+
+test('dog_eat consumes a visible carrot and cures a blind pet', async () => {
+    const { monster, state } = quickState(true);
+    monster.mcansee = false;
+    monster.mblinded = 4;
+    const carrot = floorCarrot(state);
+    const messages = [];
+
+    assert.equal(
+        await dog_eat(
+            monster,
+            carrot,
+            5,
+            5,
+            false,
+            eatingEnv(state, messages),
+        ),
+        MMOVE_MOVED,
+    );
+    assert.equal(state.level.objects[5][5], null);
+    assert.equal(monster.mcansee, true);
+    assert.equal(monster.mblinded, 0);
+    assert.equal(messages.length, 2);
+    assert.match(messages[0], /eats a carrot\./u);
+    assert.match(messages[1], /can see again\./u);
+});
+
+test('dog_eat consumes a visible carrot without a cure message for sighted pets',
+    async () => {
+        const { monster, state } = quickState(true);
+        monster.mcansee = true;
+        monster.mblinded = 0;
+        const carrot = floorCarrot(state);
+        const messages = [];
+
+        await dog_eat(
+            monster,
+            carrot,
+            5,
+            5,
+            false,
+            eatingEnv(state, messages),
+        );
+        assert.equal(state.level.objects[5][5], null);
+        assert.equal(monster.mcansee, true);
+        assert.equal(monster.mblinded, 0);
+        assert.equal(messages.length, 1);
+        assert.match(messages[0], /eats a carrot\./u);
     });
 
 test('dog_eat validates every excluded corpse-meal state before mutation',
