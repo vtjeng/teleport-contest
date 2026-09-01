@@ -7697,7 +7697,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-13",
-      "status": "open",
+      "status": "closed",
       "boundary": "ordinary throw object-selection menu via display_pickinv() with a letter subset",
       "upstreamOwners": [
         "dothrow.c: ok_to_throw()",
@@ -7737,8 +7737,11 @@
         "screens": 3715,
         "rng": 238545
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "1ffe65dd5a9eacc97a464abf7de8a2a9468bf9fb",
+      "delivered": {
+        "screens": 2,
+        "rng": 2
+      }
     }
   ]
 }
