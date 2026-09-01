@@ -3,6 +3,7 @@
 
 import {
     COLNO,
+    DEFUNCT_MONSTER,
     EBONES,
     LEAVESTATUE,
     LOST_NONE,
@@ -36,9 +37,10 @@ import {
     add_to_minv,
     add_to_container,
 } from './invent.js';
-import { makemon } from './makemon_create.js';
+import { y_n } from './cmd.js';
+import { dmonsfree, makemon, mongone } from './makemon_create.js';
 import {
-    likes_gold, likes_gems, likes_objs, likes_magic,
+    likes_gold, likes_gems, likes_objs, likes_magic, monsndx,
 } from './mondata.js';
 import { m_at } from './monst.js';
 import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
@@ -63,9 +65,12 @@ import {
     PM_GHOST,
     SPECIAL_PM,
 } from './monsters.js';
+import { propagate } from './makemon.js';
 import { rn2 } from './rng.js';
 import { vfsWriteFile, vfsReadFile, vfsDeleteFile } from './storage.js';
 import { roles, races, genders, aligns } from './roles.js';
+import { initrack } from './track.js';
+import { ttyPline } from './tty_message.js';
 
 export function no_bones_level(level, state) {
     // gs.save_dlevel is nonzero only while savebones() temporarily evaluates
@@ -133,8 +138,7 @@ function openBonesFile(uz) {
 
 export function deleteBonesFile(uz) {
     const path = bonesFilePath(uz);
-    vfsDeleteFile(path);
-    return true;
+    return vfsDeleteFile(path);
 }
 
 // ── Bones helper functions ──
@@ -154,6 +158,20 @@ function set_ghostly_objlist(objchain) {
         obj.ghostly = 1;
         obj = obj.nobj;
     }
+}
+
+// C savelev() stores the level's persistent map fields, not the terminal's
+// glyph buffer.  The disp_* fields are the JS owner of that transient buffer;
+// retaining them in a bones file would make a later arrival repaint the
+// deceased hero's old map before the new level redraws it.
+function cloneBonesLocation(location) {
+    if (!location) return null;
+    const clone = { ...location };
+    delete clone.objects;
+    for (const key of Object.keys(clone)) {
+        if (key.startsWith('disp_')) delete clone[key];
+    }
+    return clone;
 }
 
 // C ref: bones.c resetobjs() (51-193), save path only (restore=false).
@@ -310,7 +328,7 @@ function newebones(mtmp) {
 // C ref: bones.c savebones() (403-625). Prepares the current level as a
 // bones file: drops hero inventory, creates a ghost, strips player knowledge,
 // records cemetery information, and serializes the level to VFS storage.
-export function savebones(how, when, corpse, state) {
+export async function savebones(how, when, corpse, state) {
     // caller has already checked can_make_bones()
 
     // C: clear_bypasses() -- bypass flags have no gameplay effect in the port.
@@ -318,10 +336,20 @@ export function savebones(how, when, corpse, state) {
     // Check for existing bones file
     const existing = openBonesFile(state.u.uz);
     if (existing) {
-        // In wizard mode, the prompt to replace was already handled by the
-        // caller. For non-wizard, just compress and return.
+        // C ref: bones.c:419-430. The prompt belongs to savebones(), after
+        // it opens the current level's bones file. A declined replacement
+        // leaves that file available for a later game.
         if (state.wizard) {
-            deleteBonesFile(state.u.uz);
+            if (await y_n(
+                'Bones file already exists.  Replace it?', state,
+            ) === 'y'.charCodeAt(0)) {
+                if (!deleteBonesFile(state.u.uz)) {
+                    await ttyPline('Cannot unlink old bones.', state);
+                    return;
+                }
+            } else {
+                return;
+            }
             // fall through to make_bones
         } else {
             return;
@@ -480,6 +508,7 @@ export function savebones(how, when, corpse, state) {
                     loc.seenv = 0;
                     loc.waslit = 0;
                     loc.glyph = GLYPH_UNEXPLORED_OFF;
+                    loc.remembered_glyph = undefined;
                     if (state.lastseentyp?.[x])
                         state.lastseentyp[x][y] = 0;
                 }
@@ -523,11 +552,39 @@ export function savebones(how, when, corpse, state) {
 
 // Serialize the current level state into a JSON-safe object for bones
 // storage. Each entity (monster, object) is cloned without circular
-// references. Monsters come from the per-square grid; floor and buried
-// objects come from the linked lists (objlist, buriedobjlist).
+// references. C savelev() writes fmon in linked-list order, while floor and
+// buried objects come from their linked lists (objlist, buriedobjlist).
 // getbones rebuilds all linked lists on restoration.
 function serializeBonesLevel(state) {
     const level = state.level;
+
+    // C save_track() writes the populated prefix of the hero's circular
+    // tracking ring, along with its insertion point.  The ring is level-local
+    // state: restored monsters use it before the hero has taken a new step.
+    const track = state.track
+        ? {
+            utcnt: state.track.utcnt,
+            utpnt: state.track.utpnt,
+            utrack: state.track.utrack
+                .slice(0, state.track.utcnt)
+                .map(({ x, y }) => ({ x, y })),
+        }
+        : null;
+
+    // C savelev() writes gs.stairs separately from the level terrain. Keep
+    // the complete linked list because newgame() calls u_on_upstairs() after
+    // getbones(), and that lookup reads gs.stairs rather than level.upstair.
+    const stairs = [];
+    for (let stair = state.stairs; stair; stair = stair.next) {
+        stairs.push({
+            sx: stair.sx,
+            sy: stair.sy,
+            up: stair.up,
+            isladder: stair.isladder,
+            tolev: stair.tolev ? { ...stair.tolev } : null,
+            u_traversed: stair.u_traversed,
+        });
+    }
 
     // Clone an object chain (nobj-linked), recursing into container contents.
     // Removes back-pointers (ocontainer, ocarry, v) that create cycles.
@@ -566,17 +623,12 @@ function serializeBonesLevel(state) {
         return m;
     }
 
-    // Build monster array from the grid
+    // Build monsters in fmon order. C save.c:savemonchn() preserves this
+    // traversal order in a bones file; scanning the position grid instead
+    // would change the order of the next movemon() pass after restoration.
     const monsters = [];
-    if (level.monsters) {
-        for (let x = 0; x < COLNO; x++) {
-            for (let y = 0; y < ROWNO; y++) {
-                const mon = level.monsters[x]?.[y];
-                if (mon && mon.mhp > 0) {
-                    monsters.push(cloneMon(mon));
-                }
-            }
-        }
+    for (let mon = level.monlist; mon; mon = mon.nmon) {
+        if (mon.mhp > 0) monsters.push(cloneMon(mon));
     }
 
     // Build floor object array from the objlist chain (nobj-linked).
@@ -593,13 +645,7 @@ function serializeBonesLevel(state) {
             const col = [];
             for (let y = 0; y < ROWNO; y++) {
                 const loc = level.locations[x]?.[y];
-                if (loc) {
-                    const l = { ...loc };
-                    delete l.objects;
-                    col.push(l);
-                } else {
-                    col.push(null);
-                }
+                col.push(cloneBonesLocation(loc));
             }
             locations.push(col);
         }
@@ -632,10 +678,12 @@ function serializeBonesLevel(state) {
         flags: level.flags,
         dnstair: level.dnstair,
         upstair: level.upstair,
+        stairs,
         lastseentyp: level.lastseentyp,
         bonesinfo: level.bonesinfo,
         regions: level.regions,
         traps,
+        track,
         monsters,
         floorObjects,
         buriedObjects,
@@ -659,15 +707,32 @@ function reassignObjIds(ochain, state) {
 }
 
 function reassignBonesIds(state) {
-    // Monsters first, each with inline inventory (C: restmonchn → restobjchn)
-    for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
-        mtmp.m_id = next_ident({ state });
-        if (mtmp.minvent) reassignObjIds(mtmp.minvent, state);
-    }
+    // Monster identities and inline inventories are assigned while
+    // restmonchn() rebuilds each monster. These are the remaining object
+    // chains in C getlev().
     // Floor objects (C: restobjchn for fobj)
     reassignObjIds(state.level?.objlist, state);
     // Buried objects (C: restobjchn for buriedobjlist)
     reassignObjIds(state.level?.buriedobjlist, state);
+}
+
+// C ref: bones.c getbones() (716-730), mongone() leaves dead monsters on the
+// fmon chain and dmonsfree() unlinks them. Complete that lifecycle here so
+// the restored level's chain and coordinate grid are consistent before the
+// arrival code begins iterating monsters.
+function purgeDefunctBonesMonsters(state) {
+    for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.mhpmax === DEFUNCT_MONSTER) {
+            mongone(mtmp, { state });
+        } else {
+            // C resets named-artifact bookkeeping only for survivors.
+            resetobjs(mtmp.minvent, true, state);
+        }
+    }
+    // C normally performs this at the next lifecycle boundary; doing it at
+    // the end of this restore pass preserves the same detached grid while
+    // preventing later arrival code from seeing dead chain nodes.
+    dmonsfree(state);
 }
 
 // C ref: bones.c getbones() (630-756). Reads a bones file from VFS storage,
@@ -691,17 +756,13 @@ export function getbones(state = game) {
     restoreBonesLevel(bonesData, state);
 
     // C ref: restore.c getlev() -- during ghostly (bones) restoration, each
-    // monster and object gets a fresh identity via next_ident(). The C code
-    // processes them in this order: monsters (each with inline inventory),
-    // floor objects, buried objects. Each next_ident call draws rnd(2) from
-    // the game PRNG, so matching the count is essential for RNG parity.
+    // monster and object gets a fresh identity via next_ident(). Monster
+    // identities and inline inventories were assigned by restmonchn-shaped
+    // reconstruction above; this covers the floor and buried chains.
     reassignBonesIds(state);
 
-    // Process monsters and objects for the restore path.
-    // C: resetobjs(mtmp->minvent, TRUE) for each monster.
-    for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
-        resetobjs(mtmp.minvent, true, state);
-    }
+    // Process defunct monsters and surviving inventories for the restore path.
+    purgeDefunctBonesMonsters(state);
     resetobjs(state.level?.objlist, true, state);
     resetobjs(state.level?.buriedobjlist, true, state);
 
@@ -718,9 +779,18 @@ export function getbones(state = game) {
 function restoreBonesLevel(bonesData, state) {
     if (!bonesData?.locations) return;
 
+    // Older bones snapshots may contain the JS terminal buffer. Re-clone the
+    // map cells through cloneBonesLocation() so those transient fields never
+    // become part of the restored level again.
+    const locations = bonesData.locations.map((column) =>
+        Array.isArray(column)
+            ? column.map(cloneBonesLocation)
+            : column,
+    );
+
     // Rebuild the level object from the snapshot.
     const level = {
-        locations: bonesData.locations,
+        locations,
         rooms: bonesData.rooms,
         nroom: bonesData.nroom,
         doors: bonesData.doors,
@@ -765,9 +835,18 @@ function restoreBonesLevel(bonesData, state) {
     let monHead = null;
     let monTail = null;
     for (const m of bonesData.monsters ?? []) {
+        // C restmonchn() assigns a fresh identity, resolves mtmp->data from
+        // the serialized species number, and then calls propagate() for the
+        // ghostly birth before restoring inline inventory.
+        m.m_id = next_ident({ state });
+        m.data = state.mons?.[m.mnum] ?? m.data;
+        const mndx = m.cham === NON_PM ? monsndx(m.data) : m.cham;
+        if (!propagate(mndx, true, true, { state }))
+            m.mhpmax = DEFUNCT_MONSTER;
         // Rebuild inventory from array to nobj-chain
         if (Array.isArray(m.minvent) && m.minvent.length) {
             m.minvent = rebuildObjChain(m.minvent);
+            reassignObjIds(m.minvent, state);
         } else {
             m.minvent = null;
         }
@@ -778,6 +857,28 @@ function restoreBonesLevel(bonesData, state) {
     }
     level.monsters = monsGrid;
     level.monlist = monHead;
+
+    // C restore.c:rest_stairs() rebuilds gs.stairs before the caller places
+    // the hero. Rebuild the chain separately from level.upstair/dnstair;
+    // those coordinates describe terrain, while stairway_find_dir() needs
+    // the destination-bearing nodes.
+    let stairHead = null;
+    let stairTail = null;
+    for (const saved of bonesData.stairs ?? []) {
+        const stair = {
+            sx: saved.sx,
+            sy: saved.sy,
+            up: saved.up,
+            isladder: saved.isladder,
+            tolev: saved.tolev ? { ...saved.tolev } : null,
+            u_traversed: saved.u_traversed,
+            next: null,
+        };
+        if (stairTail) stairTail.next = stair;
+        else stairHead = stair;
+        stairTail = stair;
+    }
+    state.stairs = stairHead;
 
     // Rebuild floor objects: place in the per-location .objects chains, the
     // per-location grid (level.objects), and the flat objlist chain.
@@ -806,6 +907,25 @@ function restoreBonesLevel(bonesData, state) {
     level.buriedobjlist = rebuildObjChain(bonesData.buriedObjects ?? []);
 
     state.level = level;
+
+    // C restore.c rest_track() restores this after the level's other
+    // level-local structures and before ghostly arrival.  initrack() first
+    // establishes the full zero-filled ring; rest_track() then overwrites
+    // only the saved populated prefix.
+    if (bonesData.track) {
+        const restoredTrack = initrack(state);
+        restoredTrack.utcnt = bonesData.track.utcnt;
+        restoredTrack.utpnt = bonesData.track.utpnt;
+        for (let i = 0; i < restoredTrack.utcnt; i++) {
+            const coordinate = bonesData.track.utrack?.[i];
+            if (coordinate) restoredTrack.utrack[i] = {
+                x: coordinate.x,
+                y: coordinate.y,
+            };
+        }
+    } else {
+        initrack(state);
+    }
 
     // Restore fruit chain.
     if (bonesData.fruitChain) {

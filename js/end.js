@@ -1154,7 +1154,7 @@ async function really_done(how, state) {
                 'Save bones?',
                 state,
             )) {
-            savebones(how, endtime, corpse, state);
+            await savebones(how, endtime, corpse, state);
         }
         corpse = null;
     }

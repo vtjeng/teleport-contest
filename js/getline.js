@@ -336,7 +336,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
     } else {
         prompt = `${query} `;
     }
-    if (state.u?.ux) await flush_screen(1);
+    if (state.u?.ux && !state._bonesRestorePrompt) await flush_screen(1);
     // remember_topl() moves whatever the top line held into history and
     // empties gt.toplines; show_topl() then repaints from column zero.
     state._ttyToplines = '';

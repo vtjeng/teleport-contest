@@ -43,6 +43,7 @@ import { getnow } from './calendar.js';
 import { rnd } from './rng.js';
 import { SAVE_FILE_PATH } from './save.js';
 import { vfsReadFile, vfsDeleteFile } from './storage.js';
+import { initrack } from './track.js';
 import { _uInitInternals } from './u_init.js';
 
 // The worn-slot table mirrors js/worn.js WORN_SLOTS so that restore can
@@ -312,22 +313,45 @@ function rebuildMonsterList(state) {
 
 // Rebuild state.level.objlist from the level.objects grid. Each grid cell
 // holds an object chain (via .nexthere); the level-wide list threads them
-// all via .nobj.
+// all via .nobj. When save.c captured the original fobj order, retain it:
+// C's restobjchn() preserves that order rather than deriving it from map
+// coordinates.
 function rebuildObjectList(state) {
     const grid = state.level?.objects;
     if (!grid) return;
 
-    let head = null;
+    const objects = [];
     for (let x = 0; x < grid.length; x++) {
         if (!grid[x]) continue;
         for (let y = 0; y < grid[x].length; y++) {
             let obj = grid[x][y];
             while (obj) {
-                obj.nobj = head;
-                head = obj;
+                objects.push(obj);
                 obj = obj.nexthere;
             }
         }
+    }
+
+    const savedOrder = state.level._objlistOrder;
+    if (savedOrder) {
+        const orderMap = new Map();
+        for (let i = 0; i < savedOrder.length; i++) {
+            orderMap.set(savedOrder[i], i);
+        }
+        objects.sort((a, b) => {
+            const ai = orderMap.has(a.o_id) ? orderMap.get(a.o_id)
+                : savedOrder.length;
+            const bi = orderMap.has(b.o_id) ? orderMap.get(b.o_id)
+                : savedOrder.length;
+            return ai - bi;
+        });
+        delete state.level._objlistOrder;
+    }
+
+    let head = null;
+    for (let i = objects.length - 1; i >= 0; i--) {
+        objects[i].nobj = head;
+        head = objects[i];
     }
     state.level.objlist = head;
 }
@@ -467,6 +491,19 @@ export function getlev(ledger, state = game) {
         if (elapsed > 0 && elapsed > rnd(10)) {
             hide_monst(mtmp, state);
         }
+    }
+
+    // C restore.c rest_track() restores the track ring after the elapsed-time
+    // catch-up. A missing ring is the equivalent of a freshly initialized
+    // level, which is also what initrack() establishes for new arrivals.
+    if (snapshot.track) {
+        state.track = {
+            utcnt: snapshot.track.utcnt,
+            utpnt: snapshot.track.utpnt,
+            utrack: snapshot.track.utrack.map(({ x, y }) => ({ x, y })),
+        };
+    } else {
+        initrack(state);
     }
 
     // Drop the snapshot from the store; it's been restored. A future savelev()

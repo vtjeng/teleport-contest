@@ -46,6 +46,7 @@ import { dmonsfree } from './makemon_create.js';
 import { change_luck } from './moveloop_preamble.js';
 import { level_info } from './dungeon.js';
 import { save_timers } from './timeout.js';
+import { initrack } from './track.js';
 import { vfsWriteFile } from './storage.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
 import { tty_raw_print } from './tty_rawprint.js';
@@ -112,6 +113,7 @@ export function savelev(ledger, state = game) {
     if (state.iflags?.purge_monsters) dmonsfree(state);
 
     level_info(ledger, state).flags |= VISITED;
+    captureObjlistOrder(state.level);
 
     // ── Capture level state before teardown ──
     //
@@ -154,6 +156,15 @@ export function savelev(ledger, state = game) {
         head_engr: state.head_engr,
         smeq: state.smeq ? [...state.smeq] : null,
         omoves: state.moves,         // C: svm.moves saved as svo.omoves
+        // track.c save_track() writes the current level's populated track
+        // entries before release_data() clears the process-global ring.
+        track: state.track
+            ? {
+                utcnt: state.track.utcnt,
+                utpnt: state.track.utpnt,
+                utrack: state.track.utrack.map(({ x, y }) => ({ x, y })),
+            }
+            : null,
         updest: state.updest ? { ...state.updest } : {},
         dndest: state.dndest ? { ...state.dndest } : {},
         timers: levelTimers,
@@ -164,6 +175,11 @@ export function savelev(ledger, state = game) {
     // C's create_levelfile() sets this flag; the port sets it here because
     // there is no file system and the snapshot is the equivalent of the file.
     level_info(ledger, state).flags |= LFILE_EXISTS;
+
+    // track.c save_track() calls initrack() when savelev() is freeing the
+    // level. A newly generated destination therefore starts with no tracks;
+    // getlev() restores the saved ring when the hero returns.
+    initrack(state);
 }
 
 // ── dosave / dosave0 — the #save command ──
@@ -256,13 +272,15 @@ function dosave0(state = game) {
     // Game objects form circular reference chains (e.g., a carried object's
     // `.v` field points to the carrying monster, whose `.minvent` points
     // back). safeStringify() replaces cycles with null rather than throwing.
-    // Record the monlist order so that dorecover's rebuildMonsterList can
-    // restore the same linked-list order that C's restmonchn() preserves.
+    // Record the monlist and object-list orders so that restore can restore
+    // the same linked-list orders that C's restmonchn() and restobjchn()
+    // preserve.
     // safeStringify()'s cycle detector severs the .nmon chain; the grid is
     // the surviving source of truth for which monsters exist, but its
     // column-major scan order differs from the original creation-time order.
     // Storing m_id values in chain order lets the rebuild sort correctly.
     captureMonlistOrder(state.level);
+    captureObjlistOrder(state.level);
 
     const snapshot = serializeGameState(state);
     vfsWriteFile(SAVE_FILE_PATH, safeStringify(snapshot));
@@ -393,6 +411,19 @@ function captureMonlistOrder(level) {
         if (m.m_id != null) order.push(m.m_id);
     }
     if (order.length) level._monlistOrder = order;
+}
+
+// Save the fobj traversal order on the level object. A JSON round-trip keeps
+// the per-square nexthere piles but severs the level-wide nobj chain; restoring
+// from the grid alone changes C's object traversal order and can move RNG
+// calls in routines such as dog_goal().
+function captureObjlistOrder(level) {
+    if (!level) return;
+    const order = [];
+    for (let obj = level.objlist; obj; obj = obj.nobj) {
+        if (obj.o_id != null) order.push(obj.o_id);
+    }
+    if (order.length) level._objlistOrder = order;
 }
 
 // Serialize the branch array without linked-list pointers. C's branch
