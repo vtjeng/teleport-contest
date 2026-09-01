@@ -7496,7 +7496,13 @@
         ]
       },
       "detail": "Bound this candidate to the route both witnesses execute: allmain.c:rhack -> cmd.c:dotravel -> getpos.c:getpos -> cmd.c:dotravel_target -> hack.c:domove_core/findtravelpath(TRAVP_TRAVEL), followed by allmain.c's positive-multi loop. Admit uncounted, unprefixed '_'; port dotravel() and dotravel_target() for a valid non-hero target; add getpos()'s default background-symbol scan for '>' plus the existing '.' pick; and port the ordinary path search, TEST_TRAV/TEST_TRAP probes, and travel-map bookkeeping these maps need. Preserve TIP_GETPOS, prompts, autodescription, travelcc and u.tx/u.ty, run=8, nopick, destination clearing, nearby-monster interruption, and cached resumption. Both heroes are sighted, unburied, unpolymorphed, unswallowed, untrapped, on non-Sokoban D:1, with default location settings and a known reachable downstairs. Exclude menu travel, Escape, invalid/self targets, retravel, alternate selectors/settings, special mobility, Sokoban/boulder/closed-door/trap cases, visited-path uncertainty, and unreachable-target guessing unless a fresh differential reaches them. The three-owner change can use multiple slices under .agents/selection.md. Forecast: 58 steps (15 + 43), capped before seed0007's fountain snakes.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "travel command admission and default downstairs target selection",
+          "status": "closed",
+          "closedBy": "1b5ebf74b642d11fe60cdb19e69df9ae7c883d20"
+        }
+      ],
       "openedAt": "34b90e722937e7a6f869f93e1ebfa73720020af1",
       "openStanding": {
         "sha": "a11db8cd550d10da3c9cbb9da805f2b3660dfb20",
