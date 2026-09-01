@@ -7679,8 +7679,8 @@
       "slices": [
         {
           "name": "ordinary CARROT application through doapply unknown-use result",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e9057ba10a0e3d3eeadb89553609e62a615710ed"
         }
       ],
       "openedAt": "787f17b5e10e5030a4e5dbed986419ea53206711",
