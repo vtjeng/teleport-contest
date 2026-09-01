@@ -5811,6 +5811,8 @@
         "js/castle_levels.js",
         "js/dungeon.js",
         "js/dungeon_data.js",
+        "js/fire_level_data.js",
+        "js/fire_levels.js",
         "js/mineralize.js",
         "js/mines_levels.js",
         "js/mklev.js",

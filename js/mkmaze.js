@@ -14,22 +14,87 @@ import {
     AIR,
     COLNO,
     CORR,
+    DEAF,
+    LAVAPOOL,
     LR_BRANCH,
     LR_DOWNTELE,
+    LR_PORTAL,
     LR_TELE,
     LR_UPTELE,
+    MAGIC_PORTAL,
     ROOM,
     ROWNO,
     undestroyable_trap,
 } from './const.js';
-import { Is_branchlev, u_on_newpos } from './dungeon.js';
+import { Is_branchlev, on_level, u_on_newpos } from './dungeon.js';
 import { game } from './gstate.js';
+import { dist2 } from './hacklib.js';
 import { place_branch } from './mklev.js';
 import { occupied } from './mktrap.js';
 import { m_at } from './monst.js';
+import { create_gas_cloud } from './region.js';
 import { within_bounded_area } from './rect.js';
-import { rn1 } from './rng.js';
-import { t_at } from './trap.js';
+import { rn1, rn2 } from './rng.js';
+import { maketrap, t_at } from './trap.js';
+import { ttyNorep } from './tty_message.js';
+import { block_point, cansee } from './vision.js';
+import { newsym } from './display.js';
+
+// C ref: youprop.h Deaf (125). The roleplay term is kept beside this
+// endgame-only caller because the source macro is evaluated after fumaroles
+// has consumed every coordinate and cloud-size random number.
+function Deaf(state) {
+    const deafness = state.u?.uprops?.[DEAF];
+    return Boolean(deafness?.intrinsic || deafness?.extrinsic)
+        || Boolean(state.u?.uroleplay?.deaf);
+}
+
+// C ref: mkmaze.c fumaroles(). The Plane of Fire calls create_gas_cloud()
+// immediately after arrival, before vision_reset() and the first map redraw.
+export async function fumaroles(state = game) {
+    let nmax = rn2(3);
+    let sizemin = 5;
+    let sound = false;
+    let loud = false;
+
+    if (on_level(state.u?.uz, state.fire_level)) {
+        ++nmax;
+        sizemin += 5;
+    }
+    if ((state.level?.flags?.temperature ?? 0) > 0) {
+        ++nmax;
+        sizemin += 5;
+    }
+
+    for (let count = nmax; count; --count) {
+        const x = rn1(COLNO - 4, 3);
+        const y = rn1(ROWNO - 4, 3);
+        if (state.level.at(x, y).typ !== LAVAPOOL) continue;
+
+        const cloud = await create_gas_cloud(
+            x,
+            y,
+            rn1(10, sizemin),
+            rn1(10, 5),
+            {
+                state,
+                random: { rn2 },
+                allowPositiveDamage: true,
+                blockPoint: (bx, by) => block_point(bx, by, state),
+                canSee: (bx, by) => cansee(bx, by, state),
+                newsym: (bx, by) => newsym(bx, by),
+                message: (line) => ttyNorep(line, state),
+            },
+        );
+        // C clear_heros_fault(r) makes this natural cloud harmless to the
+        // hero's temporary fault bookkeeping even though its damage is real.
+        cloud.heros_fault = false;
+        sound = true;
+        if (dist2(x, y, state.u.ux, state.u.uy) < 15) loud = true;
+    }
+    if (sound && !Deaf(state))
+        await ttyNorep(`You hear a ${loud ? 'loud ' : ''}whoosh!`, state);
+}
 
 // A region placement that needs an unported operation. Both arms below sit
 // inside put_lregion_here()'s `oneshot` handling, which place_lregion() reaches
@@ -222,10 +287,17 @@ function put_lregion_here(
         // C ref: mkmaze.c:464-465. place_branch(Is_branchlev(&u.uz), x, y).
         place_branch(Is_branchlev(state.u.uz, state), x, y);
         break;
+    case LR_PORTAL: {
+        // C ref: mkmaze.c:450-454 mkportal(). A portal is a magic portal
+        // trap whose destination is the level region's resolved d_level.
+        const portal = maketrap(x, y, MAGIC_PORTAL, { state });
+        if (portal && lev) portal.dst = { ...lev };
+        break;
+    }
     default:
-        // LR_PORTAL, LR_DOWNSTAIR, LR_UPSTAIR reach mkportal() and
-        // mkstairs(). Special-level construction is their only caller and
-        // neither is routed through this function yet.
+        // LR_DOWNSTAIR and LR_UPSTAIR reach mkstairs(). Special-level
+        // construction is their only caller and neither is routed through
+        // this function yet.
         throw new UnsupportedRegionPlacementError(
             `put_lregion_here() for region type ${rtype}`,
         );

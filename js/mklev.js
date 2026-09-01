@@ -171,7 +171,7 @@ import {
     Align2amask,
     ALTAR,
     DELPHI,
-    LR_BRANCH, LR_DOWNSTAIR, LR_UPSTAIR,
+    LR_BRANCH, LR_DOWNSTAIR, LR_PORTAL, LR_UPSTAIR,
     LR_TELE, MALE,
     NO_TRAP,
     ARROW_TRAP, DART_TRAP, ROCKTRAP, SQKY_BOARD, BEAR_TRAP,
@@ -526,12 +526,16 @@ async function makelevel(specialLevelLoader = null) {
                 const { MINES_LEVEL_LOADERS } = await import(
                     './mines_levels.js'
                 );
+                const { FIRE_LEVEL_LOADERS } = await import(
+                    './fire_levels.js'
+                );
                 SPECIAL_LEVEL_LOADERS = {
                     ...BIGRM_LOADERS,
                     ...QUEST_LEVEL_LOADERS,
                     ...SOKOBAN_LEVEL_LOADERS,
                     ...CASTLE_LEVEL_LOADERS,
                     ...MINES_LEVEL_LOADERS,
+                    ...FIRE_LEVEL_LOADERS,
                 };
             }
             // Determine the resolved protofile the same way makemaz() will.
@@ -1246,6 +1250,9 @@ function createSpecialLevelApi(state) {
                     break;
                 case 'noteleport': state.level.flags.noteleport = true; break;
                 case 'hardfloor': state.level.flags.hardfloor = true; break;
+                case 'shortsighted': state.level.flags.shortsighted = true; break;
+                case 'hot': state.level.flags.temperature = 1; break;
+                case 'fumaroles': state.level.flags.fumaroles = true; break;
                 case 'nomongen': state.level.flags.rndmongen = false; break;
                 case 'nodeathdrops': state.level.flags.deathdrops = false; break;
                 case 'noautosearch': state.level.flags.noautosearch = true; break;
@@ -2141,6 +2148,7 @@ function createSpecialLevelApi(state) {
                 'stair-up': LR_UPSTAIR,
                 'stair-down': LR_DOWNSTAIR,
                 branch: LR_BRANCH,
+                portal: LR_PORTAL,
             };
             const rtype = LREGION_TYPE_MAP[spec.type];
             if (spec.type === 'stair-up') {
@@ -2149,7 +2157,9 @@ function createSpecialLevelApi(state) {
                 state.dnstair = region;
             } else if (rtype != null) {
                 // C ref: sp_lev.c levregion_add(). Store for fixup_special.
-                storedLregions.push({ region, rtype });
+                const destination = spec.name == null
+                    ? null : find_level(spec.name, state)?.dlevel;
+                storedLregions.push({ region, rtype, destination });
             }
         },
 
@@ -2180,7 +2190,7 @@ function createSpecialLevelApi(state) {
                 place_lregion(
                     r.lx, r.ly, r.hx, r.hy,
                     r.nlx, r.nly, r.nhx, r.nhy,
-                    lr.rtype, null, state,
+                    lr.rtype, lr.destination, state,
                 );
             }
             if (!addedBranch && Is_branchlev(state.u.uz, state)) {
@@ -2772,6 +2782,37 @@ function flip_level(flp) {
                 lr.nlx = FlipX(lr.nlx);
                 lr.nhx = FlipX(lr.nhx);
                 if (lr.nlx > lr.nhx) { const t = lr.nlx; lr.nlx = lr.nhx; lr.nhx = t; }
+            }
+        }
+    }
+
+    // C ref: sp_lev.c:697-733. The teleport-region records are kept in
+    // updest/dndest rather than the stair fields above, but flip_level() must
+    // mirror their input and exclusion bounds before goto_level() uses them.
+    for (const lr of [game.updest, game.dndest]) {
+        if (!lr) continue;
+        if (flp & 1) {
+            lr.ly = FlipY(lr.ly);
+            lr.hy = FlipY(lr.hy);
+            if (lr.ly > lr.hy) { const t = lr.ly; lr.ly = lr.hy; lr.hy = t; }
+            if (lr.nly >= 0) {
+                lr.nly = FlipY(lr.nly);
+                lr.nhy = FlipY(lr.nhy);
+                if (lr.nly > lr.nhy) {
+                    const t = lr.nly; lr.nly = lr.nhy; lr.nhy = t;
+                }
+            }
+        }
+        if (flp & 2) {
+            lr.lx = FlipX(lr.lx);
+            lr.hx = FlipX(lr.hx);
+            if (lr.lx > lr.hx) { const t = lr.lx; lr.lx = lr.hx; lr.hx = t; }
+            if (lr.nlx >= 0) {
+                lr.nlx = FlipX(lr.nlx);
+                lr.nhx = FlipX(lr.nhx);
+                if (lr.nlx > lr.nhx) {
+                    const t = lr.nlx; lr.nlx = lr.nhx; lr.nhx = t;
+                }
             }
         }
     }

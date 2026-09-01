@@ -769,7 +769,7 @@ function heroInsideGasCloud(state) {
 function preflightGasCreation(env, damage) {
     if (!Number.isInteger(damage) || damage < 0)
         throw new RangeError(`invalid gas-cloud damage ${damage}`);
-    if (damage > 0) {
+    if (damage > 0 && !env.allowPositiveDamage) {
         throw new UnsupportedRegionCallbackError(
             INSIDE_GAS_CLOUD,
             ' with positive damage',

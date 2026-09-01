@@ -6,6 +6,7 @@
 
 import {
     ACCESSIBLE,
+    ACH_AMUL,
     ALTAR,
     BLINDED,
     BOLT_LIM,
@@ -95,6 +96,9 @@ import { next_to_u } from './apply_next_to_u.js';
 import { engr_at } from './engrave.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
+import { addinv, prinv } from './invent.js';
+import { record_achievement } from './insight.js';
+import { objectGenerationEnv } from './object_generation.js';
 import {
     invocation_message,
     near_capacity,
@@ -140,8 +144,12 @@ import {
     S_VAMPIRE,
 } from './monsters.js';
 import { set_ustuck } from './mon.js';
-import { sobj_at } from './obj.js';
-import { BOULDER, SCR_SCARE_MONSTER } from './objects.js';
+import { mksobj, sobj_at } from './obj.js';
+import {
+    AMULET_OF_YENDOR,
+    BOULDER,
+    SCR_SCARE_MONSTER,
+} from './objects.js';
 import { within_bounded_area } from './rect.js';
 import { update_monster_region, update_player_regions } from './region.js';
 import { rn2, rnd, rnl } from './rng.js';
@@ -178,6 +186,16 @@ function teleportEnv(env = {}) {
     if (typeof random.rn2 !== 'function')
         throw new TypeError('teleport random injection requires rn2');
     return { ...env, random, state: env.state ?? game };
+}
+
+// C ref: invent.c addinv_core1() (976-980).  level_tele() supplies the
+// special-object effect hook because its generated Amulet is the only
+// addinv() caller in this module; the hook keeps the source mutation order
+// beside the mksobj()/addinv() call at teleport.c:1234-1246.
+function addinvAmuletEffects(obj, env) {
+    if (obj.otyp !== AMULET_OF_YENDOR) return;
+    env.state.u.uhave.amulet = 1;
+    record_achievement(ACH_AMUL, env.state);
 }
 
 function teleJumpOk(x1, y1, x2, y2, state) {
@@ -1469,15 +1487,46 @@ export async function level_tele(state = game) {
             const newlevel = { dnum: dest.dnum, dlevel: dest.dlevel };
             // C:1234-1246 endgame-amulet branch: when the selected level is
             // in the endgame and the hero is not, wizard mode conjures the
-            // Amulet of Yendor. No witness session exercises this path.
+            // Amulet of Yendor. This bounded port takes the Plane-of-Fire
+            // destination; other endgame selections remain fail-closed.
             const inEndgame = newlevel.dnum === state.astral_level?.dnum;
             const heroInEndgame =
                 state.u.uz.dnum === state.astral_level?.dnum;
-            if (inEndgame && !heroInEndgame) {
+            const enteringFire = on_level(newlevel, state.fire_level);
+            if (inEndgame && !heroInEndgame && !enteringFire) {
                 throw new UnsupportedLevelChangeError(
-                    'level_tele() endgame-amulet branch '
-                    + 'via print_dungeon menu',
+                    'level_tele() endgame destination outside Plane of Fire',
                 );
+            }
+            if (inEndgame && !heroInEndgame && enteringFire) {
+                // C:1234-1246. A wizard leaving the ordinary dungeon for
+                // Endgame receives the Amulet when it is not already held.
+                // addinv() owns the inventory letter and OBJ_INVENT state;
+                // its hook supplies addinv_core1()'s uhave/achievement arm.
+                if (!state.u.uhave.amulet) {
+                    let amu = mksobj(
+                        AMULET_OF_YENDOR,
+                        true,
+                        false,
+                        objectGenerationEnv({ state }),
+                    );
+                    if (amu) {
+                        amu = addinv(amu, {
+                            state,
+                            hooks: {
+                                addSpecialInventoryEffects:
+                                    addinvAmuletEffects,
+                                updateInventory: () => {},
+                            },
+                        });
+                        await prinv(
+                            'Endgame prerequisite:',
+                            amu,
+                            0,
+                            { state },
+                        );
+                    }
+                }
             }
             // C:1301-1302 buried_ball_to_punishment() runs unconditionally,
             // outside any !force_dest guard.

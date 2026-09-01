@@ -191,6 +191,7 @@ import {
     PM_APPRENTICE,
     PM_ARCHEOLOGIST,
     PM_ATTENDANT,
+    PM_BALROG,
     PM_BLACK_LIGHT,
     PM_BLACK_UNICORN,
     PM_CAVE_SPIDER,
@@ -265,6 +266,7 @@ import {
     PM_SHOPKEEPER,
     PM_SOLDIER,
     PM_SKELETON,
+    PM_SALAMANDER,
     PM_SNAKE,
     PM_STALKER,
     PM_STUDENT,
@@ -303,6 +305,7 @@ import {
     S_KOBOLD,
     S_KOP,
     S_LEPRECHAUN,
+    S_LIZARD,
     S_LIGHT,
     S_MIMIC,
     S_MIMIC_DEF,
@@ -353,6 +356,7 @@ import {
     BOULDER,
     BOW,
     BROADSWORD,
+    BULLWHIP,
     BUGLE,
     CANDELABRUM_OF_INVOCATION,
     CHAIN_MAIL,
@@ -472,6 +476,7 @@ import {
     SPETUM,
     SPEED_BOOTS,
     STATUE,
+    STILETTO,
     STUDDED_LEATHER_ARMOR,
     STRANGE_OBJECT,
     TALLOW_CANDLE,
@@ -479,6 +484,7 @@ import {
     TIN_WHISTLE,
     TOOL_CLASS,
     TWO_HANDED_SWORD,
+    TRIDENT,
     URUK_HAI_SHIELD,
     WAN_COLD,
     WAN_CREATE_MONSTER,
@@ -1904,10 +1910,27 @@ function m_initweap(monster, normalized) {
         mongets(monster, KNIFE, normalized);
         mongets(monster, LONG_SWORD, normalized);
         break;
+    case S_LIZARD:
+        // C ref: makemon.c:495-499. Salamanders choose one weapon from
+        // their three-way spear/trident/stiletto distribution.
+        if (ptr.pmidx === PM_SALAMANDER) {
+            mongets(
+                monster,
+                random.rn2(7) ? SPEAR
+                    : random.rn2(3) ? TRIDENT : STILETTO,
+                normalized,
+            );
+        }
+        break;
     case S_DEMON:
         // C ref: makemon.c:500-524. Specific named demons (Balrog, Orcus,
-        // Horned Devil, Dispater, Yeenoghu) receive special weapons; the
-        // port does not create those species so their arms are omitted.
+        // Horned Devil, Dispater, Yeenoghu) receive special weapons.
+        switch (ptr.pmidx) {
+        case PM_BALROG:
+            mongets(monster, BULLWHIP, normalized);
+            mongets(monster, BROADSWORD, normalized);
+            break;
+        }
         // Non-demons in class S_DEMON (djinni, mail daemon) break here so
         // a later vanish drops no object. Actual demons (water demon, etc.)
         // fall through to the default general-weapon roll.

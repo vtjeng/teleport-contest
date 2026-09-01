@@ -8,6 +8,7 @@
 
 import {
     ACH_BGRM,
+    ACH_ENDG,
     A_DEX,
     BOTH_SIDES,
     BLINDED,
@@ -121,9 +122,11 @@ import {
 } from './invent.js';
 import { maybe_reset_pick } from './lock.js';
 import { mklev } from './mklev.js';
+import { fumaroles } from './mkmaze.js';
 import { set_ustuck } from './mon.js';
 import { m_at } from './monst.js';
 import { gulp_blnd_check } from './mhitu.js';
+import { olfaction } from './mondata.js';
 import { PM_ROGUE, PM_TOURIST } from './monsters.js';
 import {
     is_pick, objectType, place_object, remove_object, set_bknown,
@@ -1219,13 +1222,18 @@ export async function goto_level(
         // arms need the tutorial dungeon, which js/tutorial_startup.js can
         // enter only from the startup menu. Each of the three would rewrite
         // `newlevel`, `up` or the tutorial flag before the rest runs.
-        if (In_endgame(newlevel)
+        const enteringFire = state.wizard
+            && on_level(newlevel, state.fire_level);
+        if ((In_endgame(newlevel) && !enteringFire)
             || In_tutorial(newlevel)
             || In_tutorial(u.uz)) {
             throw new UnsupportedLevelChangeError(
                 'goto_level() entering the endgame or the tutorial',
             );
         }
+        // do.c:1505-1508. A wizard level teleport can bypass the Earth
+        // plane, but every other endgame entry still requires the Amulet.
+        if (enteringFire && !u.uhave?.amulet) return;
     }
     if (ledger_no(newlevel, state) <= 0) {
         // do.c:1518-1519, done(ESCAPED). C's comment says a negative ledger
@@ -1503,9 +1511,9 @@ export async function goto_level(
     const arrivalOccupant = m_at(u.ux, u.uy, state);
     if (arrivalOccupant) u_collide_m(arrivalOccupant, state);
 
-    // do.c:1829-1832 moves the water level's bubbles and the fumaroles of a
-    // level whose Lua sets that flag. Neither exists in the main dungeon above
-    // the Plane of Water.
+    // do.c:1829-1832. The Fire level's Lua flag causes fumaroles immediately
+    // after arrival, before vision_reset() and the first map redraw.
+    if (state.level.flags.fumaroles) await fumaroles(state);
 
     /* Reset the screen. */
     vision_reset(state);
@@ -1539,7 +1547,11 @@ export async function goto_level(
     // dungeon.  The if/else-if chain is mutually exclusive: exactly one
     // arm fires.  In_endgame, Is_knox, In_mines, and In_sokoban are not
     // yet ported; those dungeons are unreachable.
-    if (In_quest(u.uz)) {
+    if (In_endgame(u.uz)) {
+        // do.c:1884-1890. Fire is a new endgame dungeon branch here, not
+        // Astral, so final_level() is not reachable on this bounded path.
+        if (newdungeon) record_achievement(ACH_ENDG, state);
+    } else if (In_quest(u.uz)) {
         // C ref: do.c:1891-1892.
         await onquest(state);
     } else {
@@ -1569,7 +1581,7 @@ export async function goto_level(
         }
     }
 
-    temperature_change_msg(prev_temperature, state);
+    await temperature_change_msg(prev_temperature, state);
 
     if (isNew) {
         // do.c:1944-1953 describe_level() and livelog_printf(). The livelog is
@@ -1677,14 +1689,31 @@ function deliver_splev_message(state = game) {
     }
 }
 
-// C ref: do.c temperature_change_msg(). Its three arms report entering or
-// leaving a hot or cold level; svl.level.flags.temperature is set by a Lua
-// level description, and every level the port generates leaves it zero.
-function temperature_change_msg(prev_temperature, state = game) {
-    if (prev_temperature !== state.level.flags.temperature) {
-        throw new UnsupportedLevelChangeError(
-            'temperature_change_msg() for a change of level temperature',
+// C ref: do.c hellish_smoke_mesg() and temperature_change_msg(). The Fire
+// level is the first loaded level in this port whose Lua temperature flag is
+// nonzero, so keep the message boundary source-shaped as well.
+async function temperature_change_msg(prev_temperature, state = game) {
+    const temperature = state.level.flags.temperature;
+    if (prev_temperature === temperature) return;
+    if (temperature) {
+        await ttyPline(
+            `It is ${temperature > 0 ? 'hot' : 'cold'} here.`,
+            state,
         );
+        if (In_hell(state.u.uz, state)
+            && temperature > 0) {
+            await ttyPline(
+                `You ${olfaction(state.youmonst?.data) ? 'smell' : 'sense'} smoke...`,
+                state,
+            );
+        }
+    } else if (prev_temperature > 0) {
+        await ttyPline(
+            `The heat ${In_hell(state.u.uz0, state) ? 'and smoke are' : 'is'} gone.`,
+            state,
+        );
+    } else if (prev_temperature < 0) {
+        await ttyPline('You are out of the cold.', state);
     }
 }
 
