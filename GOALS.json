@@ -7452,8 +7452,8 @@
       "slices": [
         {
           "name": "ordinary-teleport-scroll-read-relocation",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "94b2195ab0a87ab3767d472dd07dc615117da0e2"
         }
       ],
       "openedAt": "9de7bc4c2718a13b78fa8f311dfa5567e5406e3e",
