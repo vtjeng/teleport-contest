@@ -7470,7 +7470,7 @@
     },
     {
       "id": "travel",
-      "status": "open",
+      "status": "closed",
       "boundary": "For the two witnessed ordinary D:1 games, dispatch unprefixed '_' through dotravel(), select the known downstairs with default getpos '>' and '.', and run or resume findtravelpath travel until the destination or a nearby-monster interruption, preserving prompts, cursor, cached destination, run state, turns, RNG order, and screens.",
       "upstreamOwners": [
         "nethack-c/upstream/src/cmd.c",
@@ -7519,8 +7519,11 @@
         "screens": 3633,
         "rng": 234762
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "87c8830c9e40b5d3c222c4ee82fcab30c314b8eb",
+      "delivered": {
+        "screens": 54,
+        "rng": 3426
+      }
     }
   ]
 }
