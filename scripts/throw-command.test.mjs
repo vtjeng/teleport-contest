@@ -161,6 +161,25 @@ test('the prompt lists exactly what throw_ok() suggests', async () => {
     assert.equal(topLine(), 'What do you want to throw? [*]');
 });
 
+test('the full inventory menu selects a downplayed throw object', async () => {
+    const segment = segmentFor(3140224);
+    await runSegment({ ...segment, moves: '.' });
+    const scroll = slotAt('j');
+    assert.equal(scroll.otyp, SCR_IDENTIFY);
+    const beforeMoves = game.moves;
+
+    // invent.c:getobj() redo_menu (1966-1998) sends '*' through
+    // display_pickinv(NULL, ..., TRUE, ...).  The Wizard has no suggested
+    // throwables, so this exercises the full two-page menu rather than the
+    // prompt's direct-letter path; selecting j must return to throw_obj()'s
+    // direction question without consuming a turn or changing the object.
+    await runSegment({ ...segment, moves: '.t*j' });
+    assert.equal(topLine(), 'In what direction?');
+    assert.equal(game.moves, beforeMoves);
+    assert.equal(slotAt('j').otyp, scroll.otyp);
+    assert.equal(slotAt('j').quan, scroll.quan);
+});
+
 test('a suggested weapon leaves the pack and lands east of the hero',
     async () => {
         const segment = segmentFor(3140358);
