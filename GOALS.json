@@ -7550,7 +7550,13 @@
         ]
       },
       "detail": "The development witness uses the direct semicolon glance command after ordinary D:1 play. Port only ordinary non-swallowed, non-hallucinating, non-blind cursor lookup through cmd.c extcmdlist[]/doextcmd(), pager.c doquickwhatis()/do_look(), getpos.c getpos(), and pager.c do_screen_description()/lookat(), preserving cursor movement, prompt, selected map description, messages, RNG, turn count, and quick single-description return. Exclude typed-symbol lookup, inventory/name lookup, monster/object/trap/engraving list modes, special glyph families, verbose #whatis, and supplemental data.base information.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "direct semicolon glance dispatch and ordinary cursor map description",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "a77a83fea126cf3546a15bfa09591e7423760b89",
       "openStanding": {
         "sha": "87c8830",
