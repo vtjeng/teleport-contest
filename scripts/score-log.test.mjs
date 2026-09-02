@@ -16,8 +16,8 @@ import {
 
 const dir = mkdtempSync(join(tmpdir(), 'score-log-'));
 
-// Three rows, one per event, in the shape SCORE.tsv holds after the 2026-08-01
-// conversion. The goal row carries holdout figures because its own event ran an
+// Three rows in the shape SCORE.tsv holds after the 2026-08-01 conversion. The
+// first goal row carries holdout figures because its own event ran an
 // evaluation (139/3640 screens and 30048/182022 rng are the recorded fifth-zero
 // values); the two later rows leave the holdout cells empty, the encoding for
 // "no new holdout evidence", so standing() must reach back past both of them.
@@ -28,7 +28,7 @@ const fixture = [
         .join('\t'),
     ['2026-08-01', 'bbbb222', 'slice', '', '', '520', '7765', '107227',
         '610816', '', '', '', '', '', '', 'slice row'].join('\t'),
-    ['2026-08-02', 'cccc333', 'window', '', '', '520', '7765', '107227',
+    ['2026-08-02', 'cccc333', 'goal', '', '', '520', '7765', '107227',
         '610816', '', '', '', '', '', '', ''].join('\t'),
 ].join('\n');
 
@@ -67,14 +67,21 @@ test('appendRow composes a full row and refuses malformed input', () => {
     assert.equal(rows.length, 4);
     assert.equal(rows[3].screens_matched, '521');
     assert.equal(rows[3].note, '');
+    // A caller-supplied utc used to be accepted (and a date-only one upgraded
+    // to a timestamp); every row's utc is now the moment the script wrote it.
+    assert.throws(() => appendRow(
+        { utc: '2026-08-01', sha: 'e', event: 'goal' }, path), /omit utc=/u);
     assert.throws(() => appendRow({ event: 'goal' }, path), /needs a sha/u);
     assert.throws(() => appendRow({ sha: 'e', event: 'victory' }, path),
         /event must be/u);
-    // `checkpoint` was an event until the scoring run stopped appending a row
-    // of its own. Every row now names a commit an agent chose to record, so the
-    // retired name must not start working again.
-    assert.throws(() => appendRow({ sha: 'e', event: 'checkpoint' }, path),
-        /event must be/u);
+    // `checkpoint`, `window`, `candidate`, and `publish` were events until the
+    // scoring run stopped appending a row of its own, review windows moved to
+    // QUALITY.json, and the other two went unused. Historical rows keep the
+    // names, but the retired names must not start working again.
+    for (const retired of ['checkpoint', 'window', 'candidate', 'publish']) {
+        assert.throws(() => appendRow({ sha: 'e', event: retired }, path),
+            /event must be/u);
+    }
     assert.throws(() => appendRow({ sha: 'e', event: 'goal', bogus: '1' },
         path), /unknown SCORE.tsv column/u);
     // A tab inside a value would shift every later column of the row.
@@ -90,20 +97,19 @@ test('appendRow composes a full row and refuses malformed input', () => {
 test('latestRow returns the last row, or the last of one event', () => {
     const rows = readRows(writeFixture('latest.tsv'));
     assert.equal(latestRow(rows).sha, 'cccc333');
-    assert.equal(latestRow(rows, 'goal').sha, 'aaaa111');
-    assert.equal(latestRow(rows, 'publish'), null);
+    assert.equal(latestRow(rows, 'slice').sha, 'bbbb222');
+    assert.equal(latestRow(rows, 'holdout'), null);
 });
 
 test('standing carries the last stated holdout figure forward', () => {
-    const { development, holdout, publish } =
+    const { development, holdout } =
         standing(readRows(writeFixture('standing.tsv')));
-    // Development comes from the newest row stating screens (the window row);
-    // the holdout comes from the goal row two rows earlier, because the rows
-    // between state no holdout figure.
+    // Development comes from the newest row stating screens (the last goal
+    // row); the holdout comes from the first goal row, because the rows after
+    // it state no holdout figure.
     assert.equal(development.sha, 'cccc333');
     assert.equal(holdout.sha, 'aaaa111');
     assert.equal(holdout.holdout_screens_matched, '139');
-    assert.equal(publish, null);
 });
 
 test('generateNote composes a delta summary from current and previous', () => {

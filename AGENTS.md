@@ -82,7 +82,7 @@ slice worker (`.claude/agents/slice-worker.md`) completes one slice per run.
 | Propose a change to tooling or process | `.agents/proposals.md` |
 | Complete one behavior slice as a loop worker | `.claude/agents/slice-worker.md` |
 | Commit game implementation | `.agents/validation.md` |
-| Append a `SCORE.tsv` event row or respond to a holdout result (orchestrator only) | `.agents/scoring.md` |
+| Append a `SCORE.tsv` event row or read a holdout result (orchestrator only) | `.agents/scoring.md` |
 | Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run an authorized holdout evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
 | Check how much unreviewed code has accumulated, or schedule a review (orchestrator only) | `.agents/review.md` and `QUALITY.json` |
 | Run or record a correctness, clarity, simplification, or copyediting pass (orchestrator only) | `.agents/review.md` and the skill named for that pass |

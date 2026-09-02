@@ -28,11 +28,8 @@ export const COLUMNS = [
 
 export const EVENTS = [
     'slice',
-    'window',
     'goal',
     'holdout',
-    'publish',
-    'candidate',
 ];
 
 export const DEFAULT_PATH = fileURLToPath(new URL('../SCORE.tsv',
@@ -61,13 +58,10 @@ export function appendRow(fields, path = DEFAULT_PATH) {
         if (!COLUMNS.includes(key))
             throw new Error(`unknown SCORE.tsv column: ${key}`);
     }
+    if (fields.utc) throw new Error('the script sets utc; omit utc=');
     if (!fields.sha) throw new Error('a SCORE.tsv row needs a sha');
     if (!EVENTS.includes(fields.event))
         throw new Error(`event must be one of ${EVENTS.join(', ')}`);
-    const callerUtc = fields.utc;
-    if (callerUtc && !callerUtc.includes('T')) {
-        fields = { ...fields, utc: new Date().toISOString() };
-    }
     const row = { utc: new Date().toISOString(), ...fields };
     const cells = COLUMNS.map((column) => {
         const value = String(row[column] ?? '');
@@ -97,8 +91,7 @@ export function latestRow(rows, event = null) {
 export function standing(rows) {
     const development = latestNonEmpty(rows, 'screens_matched');
     const holdout = latestNonEmpty(rows, 'holdout_screens_matched');
-    const publish = latestRow(rows, 'publish');
-    return { development, holdout, publish };
+    return { development, holdout };
 }
 
 function latestNonEmpty(rows, column) {
@@ -194,7 +187,7 @@ function main(args) {
             throw new Error(`unknown event: ${event}`);
         console.log(formatRow(latestRow(rows, event)));
     } else if (mode === '--standing') {
-        const { development, holdout, publish } = standing(rows);
+        const { development, holdout } = standing(rows);
         console.log(`development (${development?.sha ?? 'none'}): `
             + `${development?.screens_matched}/${development?.screens_total} `
             + `screens, ${development?.rng_matched}/${development?.rng_total} rng`);
@@ -202,9 +195,6 @@ function main(args) {
             + `${holdout?.holdout_screens_matched}/`
             + `${holdout?.holdout_screens_total} screens, `
             + `${holdout?.holdout_rng_matched}/${holdout?.holdout_rng_total} rng`);
-        console.log(publish
-            ? `published (${publish.sha}): ${publish.note}`
-            : 'published: none recorded');
     } else if (mode === '--generate-note') {
         const fields = Object.fromEntries(args.slice(1).map((pair) => {
             const eq = pair.indexOf('=');
