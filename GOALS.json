@@ -7785,6 +7785,46 @@
         "screens": 71,
         "rng": 360
       }
+    },
+    {
+      "id": "simple-monster-action-requires-monster-ranged-wield-with-a-c",
+      "status": "open",
+      "boundary": "Standard monster AT_WEAP ranged attack where selecting the ranged weapon must wield it while a current MON_WEP exists.",
+      "upstreamOwners": [
+        "monmove.c",
+        "mhitu.c",
+        "mthrowu.c",
+        "weapon.c"
+      ],
+      "forecast": {
+        "steps": 1434,
+        "basis": "Capped look-ahead at simple monster action requires monster ranged wield with a current weapon",
+        "sessions": [
+          "seed0030-ten-diverse-deaths"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0030-ten-diverse-deaths",
+            "evidence": "Development replay witness: seed 31, datetime 20260101120000, options name Quincy, role Tourist, race human, gender male, align neutral, !autopickup, !legacy, !tutorial, disclose:-i -a -v -g -c -o, suppress_alert:3.4.3, symset DECgraphics; first stop is cumulative step 48 on input u with The gnome hits!. The C trace at that stop is ordinary monster movement into mhitu.c:mattacku(), with rnd(20)=9 at mhitu.c:912. The defining branch is the AT_WEAP ranged arm in mhitu.c:883-886, which calls mthrowu.c:thrwmu() at 1172-1194; its NEED_RANGED_WEAPON path invokes weapon.c:mon_wield_item() and select_rwep(), with a selected ranged propellor while MON_WEP is already non-null. Those are the governing state and source preconditions for the JavaScript refusal."
+          }
+        ]
+      },
+      "detail": "Bounding property: one ordinary AT_WEAP ranged-wield branch, witnessed in one development session and bounded to its cap-stable 1,434-screen stretch. Under .agents/selection.md this is a measured, capped look-ahead, not an assumption about all monster attacks; its size is 1,434 forecast screens from the contributing replay.",
+      "slices": [
+        {
+          "name": "ranged-wield-switch-from-an-existing-monster-weapon",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "d6b0300166d3fe80ea56f4e83776fcb54178855a",
+      "openStanding": {
+        "sha": "3e9c15a",
+        "screens": 3788,
+        "rng": 238907
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
