@@ -8076,6 +8076,23 @@
         "screens": 9,
         "rng": 23
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-16",
+      "status": "open",
+      "boundary": "Port kick_door success branch: shatter/crash-open arms.",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "695f542899bfc858eaaaafbb07ed4f6a07b401cc",
+      "openStanding": {
+        "sha": "8ff31382",
+        "screens": 4140,
+        "rng": 258193
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
