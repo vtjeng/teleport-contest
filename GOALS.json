@@ -8079,7 +8079,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-16",
-      "status": "open",
+      "status": "closed",
       "boundary": "Port kick_door success branch: shatter/crash-open arms.",
       "upstreamOwners": [],
       "forecast": null,
@@ -8097,8 +8097,11 @@
         "screens": 4140,
         "rng": 258193
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "773748db3310b71d53431fe385313005bf78e4a8",
+      "delivered": {
+        "screens": 4,
+        "rng": 109
+      }
     }
   ]
 }
