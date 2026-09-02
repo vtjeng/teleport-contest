@@ -7831,7 +7831,7 @@
     },
     {
       "id": "unsupported-level-change-makemaz-no-loader-for-hellfill",
-      "status": "open",
+      "status": "closed",
       "boundary": "Gehennom filler-level construction whose makemaz call must load hellfill.lua.",
       "upstreamOwners": [
         "wizcmds.c",
@@ -7871,8 +7871,11 @@
         "screens": 4052,
         "rng": 254285
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "b46b6c2bc7db0768ae181f2977a39c44aa938e05",
+      "delivered": {
+        "screens": 0,
+        "rng": 2
+      }
     }
   ]
 }
