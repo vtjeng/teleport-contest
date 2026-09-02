@@ -8035,8 +8035,8 @@
       "slices": [
         {
           "name": "kick-door-failure-branch",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d964d8d5cf54211969126ed21bb91ebd56b92606"
         }
       ],
       "openedAt": "2a6180a139f0d560026a9b573c8b38b28c025958",
