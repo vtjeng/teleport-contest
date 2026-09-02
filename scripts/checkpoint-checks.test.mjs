@@ -349,6 +349,10 @@ test('quiet mode suppresses passing output and tails failures', () => {
         run(command, args, opts) {
             // quiet mode always passes encoding: 'utf8'
             assert.equal(opts?.encoding, 'utf8');
+            // The full reporter stream is larger than spawnSync's default
+            // buffer, so quiet capture must retain enough output to reach the
+            // test runner's final summary.
+            assert.equal(opts?.maxBuffer, 64 * 1024 * 1024);
             return {
                 status: command === 'node' ? 1 : 0,
                 stdout: command === 'node' ? failStdout : 'all good',

@@ -27,6 +27,11 @@ const GENERATED_CHECKS = [
     'check:themerooms',
 ];
 
+// The default test suite emits more than Node's 1 MiB spawnSync capture
+// buffer.  Keep the complete reporter stream so the wrapper can reach its
+// final exit status and summary instead of failing with an incomplete log.
+const CHECKPOINT_CAPTURE_MAX_BUFFER = 64 * 1024 * 1024;
+
 export function checkpointCommands() {
     const commands = [];
     commands.push({
@@ -133,7 +138,10 @@ export function runCheckpointChecks(commands, {
         output(`\n== ${label} ==`);
         const useCapture = capture || !verbose;
         const result = run(command, args, useCapture
-            ? { encoding: 'utf8' }
+            ? {
+                encoding: 'utf8',
+                maxBuffer: CHECKPOINT_CAPTURE_MAX_BUFFER,
+            }
             : { stdio: 'inherit' });
         const summary = summarize ? summarize(result) : {};
         if (summary.body) output(summary.body);
