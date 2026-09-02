@@ -8053,7 +8053,7 @@
     },
     {
       "id": "unsupported-level-change-goto-level-leaving-the-first-quest-",
-      "status": "open",
+      "status": "closed",
       "boundary": "Fail-closed: the port refuses all attempts to leave the quest start level.",
       "upstreamOwners": [],
       "forecast": null,
@@ -8061,8 +8061,8 @@
       "slices": [
         {
           "name": "ok-to-quest-level-change-guard",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "8ff31382fe7f92587aeb1015c986371d637179ac"
         }
       ],
       "openedAt": "d8400fc3ce420ca91c9acdc6dc5066e5be09cce2",
@@ -8071,8 +8071,11 @@
         "screens": 4131,
         "rng": 258170
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "8ff31382fe7f92587aeb1015c986371d637179ac",
+      "delivered": {
+        "screens": 9,
+        "rng": 23
+      }
     }
   ]
 }
