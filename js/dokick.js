@@ -6,9 +6,12 @@
 // dokick() is a guard chain, a direction prompt, and five ordered tests over
 // the target square -- monsters, pools, objects, non-doors, doors. Only the
 // last of those five continues into kick_door() or kick_nondoor().
-// kick_door() covers the failure branch (959-969) fully: the closed/locked
-// door that the hero fails to break. The success branch (931-958) and the
-// Levitation guard (921-924) are refused.
+// kick_door() covers the failure branch (959-969) fully and the non-trapped
+// success branch (940-950): the shatter arm (ACURR(A_STR) > 18, rn2(5)==0,
+// non-shop) and the crash-open fallback. Both set the doormask, exercise
+// Strength, and call feel_newsym() and recalc_block_point(). The trapped-door
+// arm (D_TRAPPED, b_trapped), the Levitation guard (kick_ouch), and the
+// shop/town follow-ups are refused.
 //
 // kickdmg(), maybe_kick_monster(), kick_monster(), kick_object(),
 // really_kick_object(), kickstr(), watchman_thief_arrest(),
@@ -26,6 +29,7 @@ import {
     D_BROKEN,
     D_ISOPEN,
     D_NODOOR,
+    D_TRAPPED,
     DEAF,
     ECMD_CANCEL,
     ECMD_TIME,
@@ -48,13 +52,14 @@ import {
     RIGHT_SIDE,
     SCORR,
     SDOOR,
+    SHOPBASE,
     SLT_ENCUMBER,
     STAIRS,
     Upolyd,
     WOUNDED_LEGS,
     isok,
 } from './const.js';
-import { feel_location, unmap_invisible } from './display.js';
+import { feel_location, feel_newsym, unmap_invisible } from './display.js';
 import { set_wounded_legs } from './do.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
@@ -68,8 +73,10 @@ import { BOULDER, KICKING_BOOTS } from './objects.js';
 import { encumber_msg } from './pickup.js';
 import { rn2, rnd, rnl } from './rng.js';
 import { inside_room } from './room_coordinates.js';
+import { in_rooms } from './rooms.js';
 import { is_pool } from './trap.js';
 import { ttyPline } from './tty_message.js';
+import { recalc_block_point } from './vision.js';
 import { martial_bonus } from './weapon.js';
 
 // C ref: decl.h:507 `coord kickedloc`, the square the hero just kicked. Three
@@ -194,10 +201,12 @@ async function kick_dumb(x, y, state) {
 
 // C ref: dokick.c kick_door() (908-970). Kick a door. The failure branch
 // (959-969) is fully implemented: the hero fails to break the door, hears
-// "Whammm!!" or "Thwack!!", and gains Strength exercise. The success branch
-// (931-958), which involves trapped doors, shop doors, shattering, and
-// watchman_thief_arrest, is refused. The Levitation guard (921-924), which
-// calls kick_ouch, is also refused.
+// "Whammm!!" or "Thwack!!", and gains Strength exercise. The non-trapped
+// success branch (940-950) is implemented: the shatter arm (ACURR(A_STR) > 18,
+// rn2(5)==0, non-shop) sets D_NODOOR; the crash-open fallback sets D_BROKEN.
+// Both exercise Strength and call feel_newsym()/recalc_block_point(). The
+// trapped-door arm (D_TRAPPED, b_trapped), the Levitation guard (kick_ouch),
+// and the shop/town follow-ups are refused.
 async function kick_door(x, y, avrg_attrib, state) {
     const maploc = state.level.at(x, y);
     const mask = maploc.flags || maploc.doormask || 0;
@@ -228,14 +237,62 @@ async function kick_door(x, y, avrg_attrib, state) {
     if (doorbuster
         || (rnl(35) < avrg_attrib + (!martial(state) ? 0
             : effective_attribute(state, A_DEX)))) {
-        // 931-958. Success branch: break the door. Involves trapped doors,
-        // shop doors, shattering, feel_newsym, recalc_block_point, and
-        // watchman_thief_arrest. All refused.
-        throw new UnsupportedKickError(
-            "kick_door()'s success branch, which needs b_trapped(), "
-            + 'feel_newsym(), recalc_block_point(), and '
-            + 'watchman_thief_arrest()',
-        );
+        // 931. shopdoor is computed before the if-chain. in_rooms() draws no
+        // RNG, so the stream position is unaffected.
+        const shopdoor = in_rooms(x, y, SHOPBASE, state).length > 0;
+
+        // 934-939. D_TRAPPED: the hero kicks a trapped door. b_trapped()
+        // fires the trap and draws RNG; deferred.
+        if (mask & D_TRAPPED) {
+            throw new UnsupportedKickError(
+                "kick_door()'s D_TRAPPED arm, which needs b_trapped()",
+            );
+        }
+
+        // 940-944. Shatter: strong hero, rn2(5)==0, non-shop door.
+        // C evaluates ACURR(A_STR) > 18 first, then !rn2(5), then !shopdoor.
+        // Short-circuit: rn2(5) is drawn only when ACURR(A_STR) > 18.
+        if (effective_attribute(state, A_STR) > 18 && !rn2(5) && !shopdoor) {
+            // 941. Soundeffect() is a tty-sound hook and writes nothing.
+            await ttyPline(
+                'As you kick the door, it shatters to pieces!', state,
+            );
+            await exercise(A_STR, true, state, { rn2 },
+                           { encumberMessage: encumber_msg });
+            maploc.doormask = D_NODOOR;
+            maploc.flags = D_NODOOR;
+        } else {
+            // 946-949. Crash open: the fallback when the door does not shatter.
+            // 946. Soundeffect() is a tty-sound hook and writes nothing.
+            await ttyPline(
+                'As you kick the door, it crashes open!', state,
+            );
+            await exercise(A_STR, true, state, { rn2 },
+                           { encumberMessage: encumber_msg });
+            maploc.doormask = D_BROKEN;
+            maploc.flags = D_BROKEN;
+        }
+
+        // 951-952. Both shatter and crash-open run these.
+        feel_newsym(x, y, state);
+        recalc_block_point(x, y, state);
+
+        // 953-956. Shop door: charge the hero for damage. Deferred.
+        if (shopdoor) {
+            throw new UnsupportedKickError(
+                "kick_door()'s shop-door arm, which needs add_damage() and "
+                + 'pay_for_damage()',
+            );
+        }
+
+        // 957-958. In a town: the kick alerts the watch. Deferred.
+        if (in_town(x, y, state)) {
+            throw new UnsupportedKickError(
+                "kick_door()'s watchman_thief_arrest arm, which needs "
+                + 'get_iter_mons()',
+            );
+        }
+        return;
     }
 
     // 959-969. Failure branch: the hero fails to break the door.

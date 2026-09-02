@@ -5,10 +5,12 @@
 // reference output in an isolated temporary workspace.
 //
 // The command is dokick.c dokick(), which cmd.c rhack() reaches from '^D' and
-// doextcmd() reaches from '#kick'. One arm of it is ported: kick_nondoor()'s
+// doextcmd() reaches from '#kick'. Two arms of it are ported: kick_nondoor()'s
 // final else at :1251, which calls kick_dumb() (:863-878) on the empty floor
-// beside the hero. Both of kick_dumb()'s arms are here, and so are both of
-// dokick()'s no-direction exits.
+// beside the hero; and kick_door()'s non-trapped success branch (:940-950),
+// which shatters (D_NODOOR) or crashes open (D_BROKEN) a closed or locked door.
+// Both of kick_dumb()'s arms are here, and so are both of dokick()'s
+// no-direction exits.
 //
 // kick_dumb()'s test at :867 is `martial() || ACURR(A_DEX) >= 16 || rn2(3)`,
 // three terms whose short circuits decide whether the rn2(3) is drawn at all.
@@ -40,7 +42,7 @@
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { A_DEX, WOUNDED_LEGS } from '../js/const.js';
+import { A_DEX, D_BROKEN, D_NODOOR, DOOR, WOUNDED_LEGS } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
@@ -157,6 +159,36 @@ export const KICK_CASES = Object.freeze([
         moves: `${KICK}${ESCAPE}${SEARCH}`,
         strained: false,
     },
+    // kick_door() success branch: crash-open and shatter. These seeds were
+    // found by scanning from 6600001 for a starting position with an adjacent
+    // closed door, high Strength (ACURR > 18), and the PRNG position that
+    // sends the first kick into the intended arm. Each case kicks the door
+    // once and follows with a search to confirm the turn count on the status
+    // line.
+    {
+        // Seed 6600057: closed door west, STR 19. The first kick enters the
+        // success branch and the crash-open else arm runs (rn2(5) != 0 or
+        // the second/third term of the shatter condition fails).
+        label: 'crashOpen',
+        seed: 6600057,
+        character: VALKYRIE_CHARACTER,
+        moves: `${KICK}h${SEARCH}`,
+        strained: false,
+        // The door to the west becomes D_BROKEN.
+        doorResult: { dx: -1, dy: 0, mask: D_BROKEN },
+    },
+    {
+        // Seed 6600170: closed door east, STR 20. The first kick enters the
+        // success branch, ACURR(A_STR) > 18 passes, and rn2(5) returns 0,
+        // so the door shatters.
+        label: 'shatter',
+        seed: 6600170,
+        character: VALKYRIE_CHARACTER,
+        moves: `${KICK}l${SEARCH}`,
+        strained: false,
+        // The door to the east becomes D_NODOOR (shattered).
+        doorResult: { dx: 1, dy: 0, mask: D_NODOOR },
+    },
 ]);
 
 export function loadKickCommandRecipe() {
@@ -214,6 +246,26 @@ export async function verifyKickSegment(recipeSegment) {
             `${spec.label}: atemp[A_DEX] is ${dexPenalty}, which does not `
             + 'match the arm this case names',
         );
+    }
+    // kick_door() success cases set the doormask to D_NODOOR (shatter) or
+    // D_BROKEN (crash-open). The door must be the expected type and its
+    // flags must match.
+    if (spec.doorResult) {
+        const x = game.u.ux + spec.doorResult.dx;
+        const y = game.u.uy + spec.doorResult.dy;
+        const loc = game.level.at(x, y);
+        if (loc.typ !== DOOR) {
+            throw new Error(
+                `${spec.label}: expected a door at (${x}, ${y}) but found `
+                + `typ ${loc.typ}`,
+            );
+        }
+        if (loc.flags !== spec.doorResult.mask) {
+            throw new Error(
+                `${spec.label}: door flags are ${loc.flags}, expected `
+                + `${spec.doorResult.mask}`,
+            );
+        }
     }
 }
 

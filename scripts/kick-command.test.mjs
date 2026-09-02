@@ -3,9 +3,14 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    A_STR,
     BLINDED,
+    D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
+    D_LOCKED,
+    D_NODOOR,
+    D_TRAPPED,
     DEAF,
     DOOR,
     DUST,
@@ -13,6 +18,7 @@ import {
     STAIRS,
     WOUNDED_LEGS,
 } from '../js/const.js';
+import { KICKING_BOOTS } from '../js/objects.js';
 import { commandKeyCode } from '../js/command_bindings.js';
 import { dist2 } from '../js/hacklib.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
@@ -110,7 +116,8 @@ test('the matrix holds replay inputs only', () => {
     // changed case.
     assert.deepEqual(
         recipe.segments.map(({ seed }) => seed),
-        [6600001, 6600001, 6600007, 6600006, 6600001, 6600001, 6600001],
+        [6600001, 6600001, 6600007, 6600006, 6600001, 6600001, 6600001,
+         6600057, 6600170],
     );
 });
 
@@ -488,4 +495,133 @@ test('avrg_attrib is computed before the door kick', async () => {
         'if (uarmf && uarmf->otyp == KICKING_BOOTS)',
     );
     assert.equal(lineOf(DOKICK_C, 1329), 'avrg_attrib = 99;');
+});
+
+// --- kick_door() success branch (dokick.c:931-958) ---
+
+// Set kicking boots on the hero so avrg_attrib becomes 99 (dokick.c:1328-1329),
+// which guarantees that rnl(35) < avrg_attrib always holds and the success
+// branch at :929-930 is entered.
+function equipKickingBoots() {
+    game.u.uarmf = { otyp: KICKING_BOOTS };
+}
+
+test('the success branch pins on C source lines', () => {
+    // dokick.c:934-950. The if/else-if/else chain that decides how the door
+    // breaks.
+    assert.equal(
+        lineOf(DOKICK_C, 934),
+        'if (gm.maploc->doormask & D_TRAPPED) {',
+    );
+    assert.equal(
+        lineOf(DOKICK_C, 940),
+        '} else if (ACURR(A_STR) > 18 && !rn2(5) && !shopdoor) {',
+    );
+    assert.equal(
+        lineOf(DOKICK_C, 942),
+        'pline("As you kick the door, it shatters to pieces!");',
+    );
+    assert.equal(
+        lineOf(DOKICK_C, 947),
+        'pline("As you kick the door, it crashes open!");',
+    );
+    assert.equal(lineOf(DOKICK_C, 943), 'exercise(A_STR, TRUE);');
+    assert.equal(lineOf(DOKICK_C, 948), 'exercise(A_STR, TRUE);');
+    assert.equal(lineOf(DOKICK_C, 944), 'gm.maploc->doormask = D_NODOOR;');
+    assert.equal(lineOf(DOKICK_C, 949), 'gm.maploc->doormask = D_BROKEN;');
+    assert.equal(lineOf(DOKICK_C, 951), 'feel_newsym(x, y); /* we know we broke it */');
+    assert.equal(lineOf(DOKICK_C, 952), 'recalc_block_point(x, y); /* vision */');
+});
+
+test('a weak hero always gets crash-open, skipping the rn2(5) draw',
+    async () => {
+    // dokick.c:940. ACURR(A_STR) <= 18 short-circuits the condition, so
+    // rn2(5) is never drawn and the else arm at :946 always runs.
+    await replay(VALKYRIE(), '');
+    setDoorWest(D_CLOSED);
+    equipKickingBoots();
+    // Set Strength to 15, well below 18, so the shatter condition fails
+    // immediately at its first term. effective_attribute(state, A_STR) = 15.
+    game.u.acurr.a[A_STR] = 15;
+
+    for (const key of `${KICK}h   `)
+        game.nhDisplay.pushKey(commandKeyCode(key));
+    await rhack(0, game);
+
+    assert.equal(game._ttyToplines,
+        'As you kick the door, it crashes open!');
+    const loc = game.level.at(game.u.ux - 1, game.u.uy);
+    // dokick.c:949 sets D_BROKEN.
+    assert.equal(loc.doormask, D_BROKEN, 'doormask is D_BROKEN');
+    assert.equal(loc.flags, D_BROKEN, 'flags mirror doormask');
+});
+
+test('a strong hero gets either shatter or crash-open depending on rn2(5)',
+    async () => {
+    // dokick.c:940. ACURR(A_STR) > 18 passes the first term, so rn2(5)
+    // decides: 0 shatters (D_NODOOR), nonzero crashes open (D_BROKEN).
+    await replay(VALKYRIE(), '');
+    setDoorWest(D_CLOSED);
+    equipKickingBoots();
+    // Strength 25 is well above 18, so the first term passes and rn2(5)
+    // is drawn.
+    game.u.acurr.a[A_STR] = 25;
+
+    for (const key of `${KICK}h   `)
+        game.nhDisplay.pushKey(commandKeyCode(key));
+    await rhack(0, game);
+
+    const loc = game.level.at(game.u.ux - 1, game.u.uy);
+    // The message and doormask must agree on which arm ran.
+    if (game._ttyToplines
+        === 'As you kick the door, it shatters to pieces!') {
+        assert.equal(loc.doormask, D_NODOOR, 'shatter sets D_NODOOR');
+        assert.equal(loc.flags, D_NODOOR, 'flags mirror doormask');
+    } else {
+        assert.equal(game._ttyToplines,
+            'As you kick the door, it crashes open!');
+        assert.equal(loc.doormask, D_BROKEN, 'crash sets D_BROKEN');
+        assert.equal(loc.flags, D_BROKEN, 'flags mirror doormask');
+    }
+});
+
+test('a locked door can be kicked open the same way a closed one can',
+    async () => {
+    // dokick.c:929 enters the success branch for both D_CLOSED and D_LOCKED.
+    // The doormask is overwritten by the shatter/crash arm, so the initial
+    // value does not appear in the result.
+    await replay(VALKYRIE(), '');
+    setDoorWest(D_LOCKED);
+    equipKickingBoots();
+    game.u.acurr.a[A_STR] = 15; // force crash-open, skip rn2(5)
+
+    for (const key of `${KICK}h   `)
+        game.nhDisplay.pushKey(commandKeyCode(key));
+    await rhack(0, game);
+
+    assert.equal(game._ttyToplines,
+        'As you kick the door, it crashes open!');
+    const loc = game.level.at(game.u.ux - 1, game.u.uy);
+    assert.equal(loc.doormask, D_BROKEN);
+});
+
+test('a trapped door in the success branch refuses before b_trapped()',
+    async () => {
+    // dokick.c:934-939. D_TRAPPED is checked first in the if-chain.
+    // b_trapped() fires the trap and draws RNG that this port has not
+    // translated, so the arm throws before any message or draw.
+    await replay(VALKYRIE(), '');
+    // D_CLOSED | D_TRAPPED is the common trapped-closed combination.
+    setDoorWest(D_CLOSED | D_TRAPPED);
+    equipKickingBoots();
+
+    for (const key of `${KICK}h   `)
+        game.nhDisplay.pushKey(commandKeyCode(key));
+    try {
+        await rhack(0, game);
+        assert.fail('the trapped-door arm should have thrown');
+    } catch (error) {
+        assert.match(error.message, /D_TRAPPED/u,
+            'the error names the trapped-door arm');
+    }
 });
