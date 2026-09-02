@@ -926,6 +926,84 @@ test('a ranged attacker preflights and then spends its turn wielding a bow',
         assert.match(game.nhDisplay.toplines, /The gnome wields a bow!/u);
     });
 
+// C refs: mthrowu.c thrwmu():1183-1189 and weapon.c
+// mon_wield_item():813-816, 848-888. A ranged attacker may already wield a
+// different ordinary weapon when NEED_RANGED_WEAPON selects its launcher;
+// mon_wield_item() replaces that current weapon, reports the switch, and
+// spends the turn before thrwmu() can enter missile flight.
+test('a ranged attacker replaces a non-welded current weapon before flight',
+    async () => {
+        const target = await prepareSelectedAction({ pmidx: PM_GNOME });
+        const arrow = monsterObject(ARROW, 9201);
+        const bow = monsterObject(BOW, 9202);
+        const dagger = monsterObject(DAGGER, 9203);
+        arrow.nobj = bow;
+        bow.nobj = dagger;
+        dagger.owornmask = W_WEP;
+        target.monster.minvent = arrow;
+        target.monster.mw = dagger;
+        target.monster.weapon_check = NEED_WEAPON;
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        game.viz_array[target.heroY][target.destinationX] |= IN_SIGHT;
+        game._pending_message = '';
+        game.nhDisplay.toplines = '';
+        game.nhDisplay.toplin = 0;
+
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        const beforeRandom = rngSnapshot();
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
+        assert.deepEqual(rngSnapshot(), beforeRandom);
+        assert.equal(target.monster.mw, dagger);
+        assert.equal(dagger.owornmask, W_WEP);
+        assert.equal(bow.owornmask ?? 0, 0);
+
+        await runSimpleMonsterAction(target.monster, { state: game });
+        assert.equal(target.monster.mw, bow);
+        assert.equal(dagger.owornmask, 0);
+        assert.equal(bow.owornmask, W_WEP);
+        assert.equal(target.monster.weapon_check, NEED_WEAPON);
+        assert.match(
+            game.nhDisplay.toplines,
+            /The gnome wields a bow!/u,
+        );
+    });
+
+test('a ranged attacker keeps a welded current weapon fail-closed',
+    async () => {
+        const target = await prepareSelectedAction({ pmidx: PM_GNOME });
+        const arrow = monsterObject(ARROW, 9211);
+        const bow = monsterObject(BOW, 9212);
+        const dagger = monsterObject(DAGGER, 9213);
+        dagger.cursed = true;
+        dagger.owornmask = W_WEP;
+        arrow.nobj = bow;
+        bow.nobj = dagger;
+        target.monster.minvent = arrow;
+        target.monster.mw = dagger;
+        target.monster.weapon_check = NEED_WEAPON;
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        game.viz_array[target.heroY][target.destinationX] |= IN_SIGHT;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        const beforeRandom = rngSnapshot();
+
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'monster ranged wield with a welded current weapon'
+            ),
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
+        assert.deepEqual(rngSnapshot(), beforeRandom);
+    });
+
 test('fog-region transition callbacks remain fail-closed and inert',
     async () => {
         for (const [field, kind] of [

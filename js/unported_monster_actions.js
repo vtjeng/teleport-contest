@@ -1048,8 +1048,14 @@ async function throwRangedWeapon(monster, env) {
             unsupported('monster polearm or returning-weapon action');
         }
         if (propellor && propellor !== hands_obj) {
-            if (monster.mw)
-                unsupported('monster ranged wield with a current weapon');
+            // C's thrwmu() preamble reaches mon_wield_item() even when a
+            // different, non-welded MON_WEP already exists. That call clears
+            // the old W_WEP bit, equips gp.propellor, announces the switch,
+            // and consumes this monster turn. A welded current weapon stays
+            // fail-closed because weapon.c mon_wield_item() takes its own
+            // refusal branch instead of replacing it.
+            if (monster.mw && mwelded(monster.mw, env.state))
+                unsupported('monster ranged wield with a welded current weapon');
             if (propellor.oartifact || artifact_light(propellor))
                 unsupported('monster ranged artifact wield');
             if (will_weld(propellor, env.state))
