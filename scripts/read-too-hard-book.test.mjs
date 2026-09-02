@@ -15,8 +15,8 @@ function witnessPrefix(session, lastStep) {
 
 test('uncursed too-hard spellbook aggravation keeps the book', async () => {
     // Development witness seed0014 reaches the selected sleep spellbook at
-    // step 227.  Use only its recorded input prefix; the expected behavior is
-    // pinned below to spell.c study_book()/cursed_book(), not to screen text.
+    // step 227.  Use only its recorded input prefix; the expected state and
+    // RNG behavior are pinned below to spell.c study_book()/cursed_book().
     const session = JSON.parse(readFileSync(
         new URL('../sessions/seed0014-dequa-fountain-explore.session.json',
             import.meta.url),
@@ -36,9 +36,12 @@ test('uncursed too-hard spellbook aggravation keeps the book', async () => {
     assert.equal(book?.pickup_prev, false);
     assert.equal(book?.in_use, false);
     assert.equal(game.context.spbook.delay, 0);
-    assert.ok(replay.getScreens().some((screen) => screen.includes(
+    // Local js/terminal.js has no serialize() method; C's logical gt.toplines
+    // is mirrored by the display message buffer and remains available here.
+    assert.equal(
+        game.nhDisplay.toplines,
         'You feel threatened.  You can move again.',
-    )));
+    );
 
     const log = replay.getRngLog();
     const difficulty = log.findIndex((entry) => entry === 'rnd(20)=12');

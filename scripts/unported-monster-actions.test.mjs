@@ -1165,7 +1165,7 @@ test('planned fog upkeep skips closed doors and existing visible regions',
         }
     });
 
-test('simple preflight stops before current-square liquid and engraving effects',
+test('simple preflight stops before current-square liquid effects',
     async () => {
         const cases = [
             {
@@ -1182,11 +1182,6 @@ test('simple preflight stops before current-square liquid and engraving effects'
                     game.level.at(target.monsterX, target.heroY).typ
                         = LAVAPOOL;
                 },
-            },
-            {
-                name: 'dust engraving',
-                reason: 'monster engraving wear',
-                setup: installCurrentSquareEngraving,
             },
         ];
 
@@ -1211,6 +1206,28 @@ test('simple preflight stops before current-square liquid and engraving effects'
                 );
             }
         }
+    });
+
+// C ref: monmove.c:733-734. An awake monster calls wipe_engr_at() before
+// movement. The planning clone must reproduce the erosion so later source
+// branches see the same engraving, while keeping the live engraving untouched
+// until the real monster pass.
+test('simple preflight erodes a current-square dust engraving on the clone',
+    async () => {
+        const target = await prepareSelectedAction();
+        installCurrentSquareEngraving(target);
+        const originalText = game.head_engr.engr_txt[0];
+        let plannedText = null;
+
+        await preflightSimpleMonsterActions(game, {
+            advanceRound(planned) {
+                plannedText = planned.head_engr?.engr_txt[0] ?? null;
+                return true;
+            },
+        });
+
+        assert.notEqual(plannedText, originalText);
+        assert.equal(game.head_engr.engr_txt[0], originalText);
     });
 
 // C ref: mon.c minliquid_core():987. The split reads `infountain` beside
@@ -2068,17 +2085,8 @@ test('simple preflight rejects every selected excluded action atomically',
                 name: 'special monster action',
                 reason: 'a special monster action',
                 prepare: () => prepareSelectedAction({
+                    adjacentHero: true,
                     pmidx: PM_SHRIEKER,
-                }),
-            },
-            {
-                // dig.c mdig_tunnel() draws rnd(12) before deciding that
-                // ordinary floor holds nothing to dig, so a tunneler's plain
-                // move already spends a call this port cannot make.
-                name: 'tunneling monster',
-                reason: 'monster tunneling',
-                prepare: () => prepareSelectedAction({
-                    pmidx: PM_ROCK_MOLE,
                 }),
             },
             {

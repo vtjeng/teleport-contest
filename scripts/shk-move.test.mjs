@@ -2,8 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    COLNO,
     MMOVE_NOTHING,
+    ROOM,
     ROOMOFFSET,
+    ROWNO,
     SHOPBASE,
 } from '../js/const.js';
 import { shk_move, UnsupportedShopError } from '../js/shk.js';
@@ -58,25 +61,32 @@ function makeStationaryShopkeeper(overrides = {}) {
     };
 }
 
-// Minimal state that places the shopkeeper in its shop.
-function makeShopState() {
+// Minimal initialized level that places the shopkeeper in a shop.  The
+// monster grid is needed once shk_move() reaches priest.c:move_special().
+function makeShopState({ ux = 10, uy = 10 } = {}) {
     const roomno = ROOMOFFSET;
     const room = {
         resident: null, // set below
         rtype: SHOPBASE,
     };
-    const grid = {};
-    // The shopkeeper's position is inside the shop: roomno set and not edge.
-    grid[3] = { 5: { roomno, edge: false } };
+    const locations = Array.from({ length: COLNO }, () =>
+        Array.from({ length: ROWNO }, () => ({
+            edge: false,
+            roomno,
+            typ: ROOM,
+        })));
     return {
         u: {
-            ux: 10,
-            uy: 10,
+            ux,
+            uy,
             uz: { dnum: 0, dlevel: 1 },
         },
         level: {
+            locations,
+            monsters: Array.from({ length: COLNO }, () =>
+                Array(ROWNO).fill(null)),
             rooms: [room],
-            at(x, y) { return grid[x]?.[y] ?? { roomno: 0, edge: false }; },
+            at(x, y) { return locations[x]?.[y] ?? null; },
         },
     };
 }
@@ -96,24 +106,25 @@ test('shk_move returns 0 for a stationary shopkeeper at guard position', () => {
 
 test('shk_move refuses an angry shopkeeper', () => {
     // C ref: shk.c:4897-4901.  An angry shopkeeper (mpeaceful === false)
-    // calls mattacku(), which is not ported.
+    // calls mattacku(), which is not ported.  Keep the hero within dist2 < 3
+    // so this close-combat branch is reached before move_special().
     const shkp = makeStationaryShopkeeper({ mpeaceful: false });
-    const state = makeShopState();
+    const state = makeShopState({ ux: 4, uy: 5 });
     state.level.rooms[0].resident = shkp;
 
     assert.throws(
         () => shk_move(shkp, state),
         (err) => err instanceof UnsupportedShopError
-            && err.message.includes('angry'),
+            && err.message.includes('close combat'),
     );
 });
 
 test('shk_move refuses a following shopkeeper', () => {
     // C ref: shk.c:4903-4931.  A following shopkeeper would talk to the hero
-    // and possibly attack, which is not ported.
     const shkp = makeStationaryShopkeeper();
     shkp.mextra.eshk.following = true;
-    const state = makeShopState();
+    // C checks following speech only while the hero is within dist2 < 3.
+    const state = makeShopState({ ux: 4, uy: 5 });
     state.level.rooms[0].resident = shkp;
 
     assert.throws(
@@ -123,28 +134,24 @@ test('shk_move refuses a following shopkeeper', () => {
     );
 });
 
-test('shk_move refuses when shopkeeper has outstanding debit', () => {
-    // C ref: shk.c:4976.  With debit > 0 and GDIST >= 3, the shopkeeper
-    // would reach move_special(), which is not ported.
+test('shk_move moves an indebted shopkeeper toward its guard', () => {
+    // C ref: shk.c:4976-4993.  A debit prevents the stationary return at
+    // GDIST < 3, so the keeper reaches move_special() and takes a step toward
+    // its guard position.
     const shkp = makeStationaryShopkeeper();
     // Move the shopkeeper away from its guard position so GDIST >= 3.
     shkp.mx = 10;
     shkp.my = 10;
     shkp.mextra.eshk.debit = 100;
-    const state = makeShopState();
+    const state = makeShopState({ ux: 20, uy: 20 });
     state.level.rooms[0].resident = shkp;
-    // Also update the grid so inhishop still works.
-    state.level.at = (x, y) => {
-        if (x === 10 && y === 10)
-            return { roomno: ROOMOFFSET, edge: false };
-        return { roomno: 0, edge: false };
-    };
+    // m_at() is part of move_special()'s initialized-level contract.
+    state.level.monsters[shkp.mx][shkp.my] = shkp;
 
-    assert.throws(
-        () => shk_move(shkp, state),
-        (err) => err instanceof UnsupportedShopError
-            && err.message.includes('non-stationary'),
-    );
+    assert.equal(shk_move(shkp, state, { planning: true }), 1);
+    assert.deepEqual([shkp.mx, shkp.my], [9, 9]);
+    assert.equal(state.level.monsters[10][10], null);
+    assert.equal(state.level.monsters[9][9], shkp);
 });
 
 test('shk_fixes_damage is a no-op when level has no damagelist', () => {
