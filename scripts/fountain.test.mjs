@@ -9,10 +9,25 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-import { FOUNTAIN, G_GONE, MM_NOMSG, ROOM } from '../js/const.js';
+import {
+    ALTAR,
+    FAINTING,
+    FOUNTAIN,
+    G_GONE,
+    MM_NOMSG,
+    ROOM,
+    SICK,
+    SICK_VOMITABLE,
+} from '../js/const.js';
 import { drinkfountain } from '../js/fountain.js';
 import { game } from '../js/gstate.js';
-import { PM_WATER_MOCCASIN } from '../js/monsters.js';
+import { UnsupportedEatError, vomit } from '../js/eat.js';
+import {
+    PM_ACID_BLOB,
+    PM_SEWER_RAT,
+    PM_WATER_MOCCASIN,
+    PM_YELLOW_DRAGON,
+} from '../js/monsters.js';
 import { runSegment } from '../js/jsmain.js';
 
 const RC = [
@@ -108,3 +123,110 @@ test('dowatersnakes leaves unsupported visibility/extinction arms fail-closed',
             /extinct water-snake fountain effect/u,
         );
     });
+
+test('drinkfountain follows fountain.c foul-water fate 20', async () => {
+    const source = await readFile(
+        new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+        'utf8',
+    );
+    assert.match(
+        source,
+        /case 20:[\s\S]*?pline_The\("water is foul!  You gag and vomit\."\);[\s\S]*?morehungry\(rn1\(20, 11\)\);[\s\S]*?vomit\(\);/u,
+    );
+
+    await startedGame();
+    const location = game.level.at(game.u.ux, game.u.uy);
+    location.typ = FOUNTAIN;
+    location.horizontal = 0;
+    location.flags = 0;
+    game.multi = 0;
+    const hungerBefore = game.u.uhunger;
+    const messages = [];
+    const draws = [];
+    const random = {
+        rnd(bound) {
+            draws.push(`rnd(${bound})`);
+            assert.equal(bound, 30);
+            return 20;
+        },
+        rn1(bound, base) {
+            draws.push(`rn1(${bound},${base})`);
+            assert.equal(bound, 20);
+            assert.equal(base, 11);
+            return 20;
+        },
+        rn2(bound) {
+            draws.push(`rn2(${bound})`);
+            assert.equal(bound, 3);
+            return 0;
+        },
+    };
+
+    await drinkfountain(game, {
+        message: (line) => messages.push(line),
+        random,
+    });
+
+    assert.deepEqual(draws, ['rnd(30)', 'rn1(20,11)', 'rn2(3)']);
+    assert.deepEqual(messages, [
+        'The water is foul!  You gag and vomit.',
+        'The fountain dries up!',
+    ]);
+    assert.equal(game.u.uhunger, hungerBefore - 20);
+    assert.equal(game.multi, -2);
+    assert.equal(game.multi_reason, 'vomiting');
+    assert.equal(game.nomovemsg, 'You can move again.');
+    assert.equal(location.typ, ROOM);
+    assert.equal(location.horizontal, 0);
+    assert.equal(location.flags, 0);
+});
+
+test('vomit keeps special eat.c paths fail-closed', async () => {
+    await startedGame();
+    const normal = game.youmonst.data;
+
+    function stateFor(species, {
+        altar = false,
+        multi = 0,
+        polymorphed = false,
+        sick = false,
+        uhs = 1,
+    } = {}) {
+        const uprops = Array.from(
+            { length: SICK + 1 },
+            () => ({ intrinsic: 0 }),
+        );
+        if (sick) uprops[SICK].intrinsic = 1;
+        return {
+            u: {
+                umonnum: polymorphed ? species.pmidx : normal.pmidx,
+                umonster: normal.pmidx,
+                uhs,
+                uprops,
+                usick_type: sick ? SICK_VOMITABLE : 0,
+                ux: 1,
+                uy: 1,
+            },
+            youmonst: { data: species },
+            level: { at: () => ({ typ: altar ? ALTAR : ROOM }) },
+            multi,
+        };
+    }
+
+    const cases = [
+        ['polymorph', stateFor(game.mons[PM_ACID_BLOB], {
+            polymorphed: true,
+        })],
+        ['cantvomit form', stateFor(game.mons[PM_SEWER_RAT])],
+        ['sickness', stateFor(normal, { sick: true })],
+        ['dry heave', stateFor(normal, { uhs: FAINTING })],
+        ['existing multi-turn action', stateFor(normal, { multi: 1 })],
+        ['acid breath', stateFor(game.mons[PM_YELLOW_DRAGON])],
+        ['altar', stateFor(normal, { altar: true })],
+        ['acidic form', stateFor(game.mons[PM_ACID_BLOB])],
+    ];
+    for (const [name, state] of cases) {
+        assert.throws(() => vomit(state), UnsupportedEatError, name);
+        assert.equal(state.multi, 1 === state.multi ? 1 : 0, name);
+    }
+});

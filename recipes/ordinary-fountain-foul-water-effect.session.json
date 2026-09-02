@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7711168,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:FreshFoulFountain,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,!debug_mongen,time\n",
+      "moves": "kyqy"
+    }
+  ]
+}

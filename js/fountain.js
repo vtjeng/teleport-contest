@@ -3,11 +3,11 @@
 //        dowatersnakes() (38-60), dryup() (201-239).
 //
 // drinkfountain() is the entry point when a hero quaffs from a fountain.
-// It rolls rnd(30) for a random fate. This port covers the water-demon
-// outcome (fate 23), the ordinary visible water-snake outcome (fate 22), and
-// the refreshing-draught early return (fate < 10). Every other fate arm throws
-// UnsupportedFountainError so the scorer stops cleanly at the first unported
-// branch.
+// It rolls rnd(30) for a random fate. This port covers the foul-water
+// continuation (fate 20), the water-demon outcome (fate 23), the ordinary
+// visible water-snake outcome (fate 22), and the refreshing-draught early
+// return (fate < 10). Every other fate arm throws UnsupportedFountainError so
+// the scorer stops cleanly at the first unported branch.
 
 import {
     A_WIS,
@@ -252,8 +252,29 @@ export async function drinkfountain(state = game, env = {}) {
             throw new UnsupportedFountainError(
                 'self-knowledge fountain effect (fate 19)');
         case 20: // Foul water
-            throw new UnsupportedFountainError(
-                'foul-water fountain effect (fate 20)');
+            // C ref: fountain.c:313-316. The deferred imports avoid adding a
+            // fountain.js -> hack.js cycle while supplying the hooks that
+            // morehungry() needs if this subtraction changes hunger status.
+            await message('The water is foul!  You gag and vomit.', state);
+            {
+                const { morehungry, vomit } = await import('./eat.js');
+                const { endRunning } = await import('./hack.js');
+                const { bot } = await import('./display.js');
+                const hungerEnv = {
+                    ...env,
+                    message,
+                    endRunning: env.endRunning
+                        ?? ((currentState) => endRunning(currentState)),
+                    statusRefresh: env.statusRefresh ?? (() => bot()),
+                };
+                await morehungry(
+                    random.rn1(20, 11),
+                    state,
+                    hungerEnv,
+                );
+                vomit(state);
+            }
+            break;
         case 21: // Poisonous
             throw new UnsupportedFountainError(
                 'poisonous-water fountain effect (fate 21)');

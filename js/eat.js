@@ -2,12 +2,13 @@
 // creation and naming share.
 // C refs: src/eat.c is_edible(), gethungry(), newuhs(), nonrotting_corpse(),
 //         vegan(), vegetarian(), tin_variety(), set_tin_variety(),
-//         tin_details(), eat_ok(), floorfood(), and doeat().
+//         tin_details(), eat_ok(), floorfood(), doeat(), and vomit().
 
 import {
     ACID_RES,
     AGGRAVATE_MONSTER,
     A_STR,
+    IS_ALTAR,
     COLD_RES,
     CONFLICT,
     COST_BITE,
@@ -43,6 +44,7 @@ import {
     SATIATED,
     SHOCK_RES,
     SICK,
+    SICK_VOMITABLE,
     SLEEP_RES,
     SLIMED,
     SLOW_DIGESTION,
@@ -74,7 +76,8 @@ import { set_occupation, yn_function } from './cmd.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
 import {
-    check_capacity, endRunning, inv_cnt, losehp, rounddiv,
+    check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv,
+    You_can_move_again,
 } from './hack.js';
 import { dist2 } from './hacklib.js';
 import {
@@ -90,8 +93,10 @@ import { iter_mons_safe, mon_offmap } from './mon.js';
 import {
     acidic,
     attacktype,
+    attacktype_fordmg,
     can_teleport,
     carnivorous,
+    cantvomit,
     control_teleport,
     dmgtype,
     flesh_petrifies,
@@ -110,6 +115,7 @@ import {
     is_undead,
     olfaction,
 } from './mondata.js';
+import { AD_ACID, AT_BREA } from './monsters.js';
 import { monflee } from './monmove.js';
 import {
     AD_HALU,
@@ -1094,6 +1100,46 @@ function hungerTransitionMessage(newhs, incr, state) {
 export async function morehungry(num, state, env) {
     state.u.uhunger -= num;
     await newuhs(true, state, env);
+}
+
+// C ref: eat.c vomit() (3736-3785). This is the ordinary, unpolymorphed hero
+// continuation used by fountain.c's foul-water arm. The other arms are kept
+// explicit boundaries: their C callees (make_sick(), ubreatheu(),
+// altar_wrath(), and melt_ice()) are not ported, and dry-heaving has its own
+// body-part message. Preflight all of them before nomul() so an unsupported
+// form cannot leave a partial vomiting state behind.
+export function vomit(state = game) {
+    const hero = state.u;
+    const species = state.youmonst?.data;
+
+    if (!hero || !species)
+        throw new UnsupportedEatError('vomit() without an initialized hero');
+    if (Upolyd(hero))
+        throw new UnsupportedEatError('vomit() for a polymorphed hero');
+    if (cantvomit(species))
+        throw new UnsupportedEatError('vomit() cantvomit() arm');
+    if (hero.uprops?.[SICK]?.intrinsic
+        || (hero.usick_type & SICK_VOMITABLE)) {
+        throw new UnsupportedEatError('vomit() sickness arm');
+    }
+    if (hero.uhs >= FAINTING)
+        throw new UnsupportedEatError('vomit() dry-heave arm');
+    if ((state.multi ?? 0) !== 0)
+        throw new UnsupportedEatError('vomit() while already multi-turn');
+    if (attacktype_fordmg(species, AT_BREA, AD_ACID))
+        throw new UnsupportedEatError('vomit() acid-breath arm');
+    if (IS_ALTAR(state.level?.at(hero.ux, hero.uy)?.typ))
+        throw new UnsupportedEatError('vomit() altar arm');
+    if (acidic(species))
+        throw new UnsupportedEatError('vomit() acidic-form arm');
+
+    // C ref: eat.c:3759-3763. On the ordinary command path gm.multi is zero,
+    // so nomul(-2) installs the vomiting delay and end_running() clears any
+    // pending run/travel state before the reason and completion message are
+    // stored.
+    nomul(-2, state);
+    state.multi_reason = 'vomiting';
+    state.nomovemsg = You_can_move_again;
 }
 
 // C ref: eat.c lesshungry() (3287-3334). Adds a bite's nutrition and lets
