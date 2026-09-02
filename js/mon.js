@@ -3072,3 +3072,19 @@ export function adj_erinys(abuse, state = game) {
     pm.mlevel = Math.min(7 + state.u.ualign.abuse, 50);
     pm.difficulty = Math.min(10 + Math.trunc(state.u.ualign.abuse / 3), 25);
 }
+
+// C ref: mon.c healmon() (4596-4614). Heal a monster by amt, optionally
+// allowing overheal past mhpmax.  The youmonst branch calls healup() which
+// is not ported; this implementation covers only the monster case.
+export function healmon(mtmp, amt, overheal) {
+    const oldhp = mtmp.mhp;
+    if (mtmp.mhp + amt > mtmp.mhpmax + overheal) {
+        mtmp.mhpmax += overheal;
+        mtmp.mhp = mtmp.mhpmax;
+    } else {
+        mtmp.mhp += amt;
+        if (mtmp.mhp > mtmp.mhpmax)
+            mtmp.mhpmax = mtmp.mhp;
+    }
+    return mtmp.mhp - oldhp;
+}

@@ -1263,7 +1263,7 @@ async function hitmu(mtmp, mattk, env) {
 // when uhp drops below 1; the normal planning pass raises the internal signal
 // above because done() calls bot() on the module-level game and
 // paranoid_query() reads input.
-async function mdamageu(mtmp, n, state, env) {
+export async function mdamageu(mtmp, n, state, env) {
     const unsupported = requireMattackuOperation(env, 'unsupported');
     const message = requireMattackuOperation(env, 'message');
 

@@ -61,7 +61,7 @@ import { hands_obj, obj_extract_self, stackobj } from './invent.js';
 import { any_light_source } from './light.js';
 import { m_dowear, set_mimic_sym } from './makemon_create.js';
 import { fightm } from './mhitm.js';
-import { mattacku, MonsterDeathPlanningError } from './mhitu.js';
+import { mattacku, mdamageu, MonsterDeathPlanningError } from './mhitu.js';
 import { castmu } from './mcastu.js';
 import { m_throw, thitu, thrwmu } from './mthrowu.js';
 import { AKLYS } from './objects.js';
@@ -1191,6 +1191,8 @@ function attackHeroWithMattacku(monster, env) {
                 message: env.planning ? undefined : async (text, s) => {
                     await ttyPline(text, s);
                 },
+                mdamageu: (mtmp2, dmg) =>
+                    mdamageu(mtmp2, dmg, spellEnv.state ?? env.state, spellEnv),
             }),
     });
 }
@@ -1277,6 +1279,12 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                         },
                         message: env.planning ? undefined
                             : async (text, s) => { await ttyPline(text, s); },
+                        mdamageu: (mtmp2, dmg) =>
+                            mdamageu(
+                                mtmp2, dmg,
+                                spellEnv.state ?? state,
+                                spellEnv,
+                            ),
                     };
                     for (const a of mdat.mattk) {
                         if (a.aatyp === AT_MAGC

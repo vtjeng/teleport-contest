@@ -3,8 +3,8 @@
 // is_undirected_spell(), spell_would_be_useless(), and mcast_spell().
 //
 // Individual spell effects (mcast_psi_bolt, mcast_open_wounds, etc.) are
-// ported only as the running game exercises them.  Until then each case
-// inside mcast_spell() throws unsupported.
+// ported as the running game exercises them.  Unexercised cases inside
+// mcast_spell() throw unsupported.
 
 import {
     ANTIMAGIC,
@@ -14,21 +14,30 @@ import {
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
+    HEAD,
     INVIS,
-    MFAST,
     M_ATTK_HIT,
     M_ATTK_MISS,
+    M_SEEN_MAGR,
+    MFAST,
     SEE_INVIS,
     u_at,
 } from './const.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
-import { rn2, d } from './rng.js';
-import { cvt_adtyp_to_mseenres, perceives } from './mondata.js';
+import { healmon } from './mon.js';
+import {
+    cvt_adtyp_to_mseenres,
+    monstseesu,
+    monstunseesu,
+    perceives,
+} from './mondata.js';
 import {
     AD_CLRC,
     AD_SPEL,
 } from './monsters.js';
+import { body_part } from './polyself.js';
+import { rn2, d } from './rng.js';
 import { couldsee, canseemon } from './vision.js';
 
 // ---- Spell enum (mcastu.h MONSPELL order) ----
@@ -445,12 +454,98 @@ function monnamFallback(mtmp, state) {
     return `the ${name}`;
 }
 
+// ---- Individual spell effect functions ----
+
+// C ref: mcastu.c mcast_psi_bolt() (600-621).
+function mcast_psi_bolt(dmg, env = {}) {
+    const state = env.state ?? game;
+    const message = env.message;
+
+    if (heroProperty(state, ANTIMAGIC)) {
+        // shieldeff(u.ux, u.uy) -- display animation, no game state change
+        monstseesu(M_SEEN_MAGR, state);
+        dmg = Math.trunc((dmg + 1) / 2);
+    } else {
+        monstunseesu(M_SEEN_MAGR, state);
+    }
+    if (message) {
+        if (dmg <= 5) {
+            message(
+                `You get a slight ${body_part(HEAD, state.youmonst)}ache.`,
+                state,
+            );
+        } else if (dmg <= 10) {
+            message('Your brain is on fire!', state);
+        } else if (dmg <= 20) {
+            message(
+                `Your ${body_part(HEAD, state.youmonst)} suddenly aches painfully!`,
+                state,
+            );
+        } else {
+            message(
+                `Your ${body_part(HEAD, state.youmonst)} suddenly aches very painfully!`,
+                state,
+            );
+        }
+    }
+    return dmg;
+}
+
+// C ref: mcastu.c mcast_open_wounds() (623-642).
+function mcast_open_wounds(dmg, env = {}) {
+    const state = env.state ?? game;
+    const message = env.message;
+
+    if (heroProperty(state, ANTIMAGIC)) {
+        // shieldeff(u.ux, u.uy) -- display animation, no game state change
+        monstseesu(M_SEEN_MAGR, state);
+        dmg = Math.trunc((dmg + 1) / 2);
+    } else {
+        monstunseesu(M_SEEN_MAGR, state);
+    }
+    if (message) {
+        if (dmg <= 5) {
+            message('Your skin itches badly for a moment.', state);
+        } else if (dmg <= 10) {
+            message('Wounds appear on your body!', state);
+        } else if (dmg <= 20) {
+            message('Severe wounds appear on your body!', state);
+        } else {
+            message('Your body is covered with painful wounds!', state);
+        }
+    }
+    return dmg;
+}
+
+// C ref: mcastu.c m_cure_self() (307-318).
+function m_cure_self(mtmp, dmg, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { d };
+    const message = env.message;
+
+    if (mtmp.mhp < mtmp.mhpmax) {
+        if (canseemon(mtmp, state) && message) {
+            message(
+                `${env.monsterName?.(mtmp)
+                    ?? capitalizedMonsterNameFallback(mtmp, state)
+                } looks better.`,
+                state,
+            );
+        }
+        /* note: player healing does 6d4; this used to do 1d8 */
+        healmon(mtmp, random.d(3, 6), 0);
+        dmg = 0;
+    }
+    return dmg;
+}
+
 // ---- mcast_spell() ----
 // C ref: mcastu.c mcast_spell() (800-897).
 // Dispatches to individual spell effects.  Effects are ported as the running
 // game exercises them; unexercised cases throw unsupported.
 async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     const unsupported = env.unsupported;
+    const mdamageu = env.mdamageu;
 
     if (dmg < 0) return; /* impossible() in C */
     if (dmg === 0 && !is_undirected_spell(spellnum)) return;
@@ -460,6 +555,15 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     let resultDmg = 0;
 
     switch (spellnum) {
+    case MCAST_PSI_BOLT:
+        resultDmg = mcast_psi_bolt(dmg, env);
+        break;
+    case MCAST_OPEN_WOUNDS:
+        resultDmg = mcast_open_wounds(dmg, env);
+        break;
+    case MCAST_CURE_SELF:
+        resultDmg = m_cure_self(mtmp, dmg, env);
+        break;
     case MCAST_DEATH_TOUCH:
     case MCAST_CLONE_WIZ:
     case MCAST_SUMMON_MONS:
@@ -470,8 +574,6 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     case MCAST_DISAPPEAR:
     case MCAST_STUN_YOU:
     case MCAST_HASTE_SELF:
-    case MCAST_CURE_SELF:
-    case MCAST_PSI_BOLT:
     case MCAST_GEYSER:
     case MCAST_FIRE_PILLAR:
     case MCAST_LIGHTNING:
@@ -479,7 +581,6 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     case MCAST_BLIND_YOU:
     case MCAST_PARALYZE:
     case MCAST_CONFUSE_YOU:
-    case MCAST_OPEN_WOUNDS:
         if (typeof unsupported === 'function') {
             unsupported(`mcast_spell effect ${spellnum}`);
         }
@@ -492,8 +593,9 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     }
 
     if (resultDmg) {
-        // mdamageu() -- ported only when exercised
-        if (typeof unsupported === 'function') {
+        if (typeof mdamageu === 'function') {
+            await mdamageu(mtmp, resultDmg);
+        } else if (typeof unsupported === 'function') {
             unsupported('mcast_spell mdamageu');
         }
     }

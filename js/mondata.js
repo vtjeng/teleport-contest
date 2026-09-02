@@ -1791,6 +1791,18 @@ export function cvt_prop_to_mseenres(prop) {
     }
 }
 
+// C ref: mondata.c monstseesu() (1557-1568). Every monster that can see the
+// hero remembers having watched her resist one effect.
+export function monstseesu(seenres, state = game) {
+    if (seenres === M_SEEN_NOTHING || state.u?.uswallow) return;
+
+    for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.mhp < 1) continue; /* DEADMONSTER() */
+        if (m_canseeu(mtmp, state))
+            mtmp.seen_resistance |= seenres; /* m_setseenres() */
+    }
+}
+
 // C ref: mondata.c monstunseesu() (1571-1582). Every monster that can see the
 // hero forgets having watched her resist one effect. worn.c setworn() and
 // setnotworn() call it through the monstunseesu_prop() macro at monst.h:94
