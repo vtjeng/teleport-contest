@@ -638,9 +638,8 @@ async function peffect_sickness(otmp, state = game) {
     }
 
     if (Hallucination(state)) {
-        throw new UnsupportedQuaffError(
-            'make_hallucinated() after peffect_sickness()',
-        );
+        await ttyPline('You are shocked back to your senses!', state);
+        await make_hallucinated(0, false, 0, state);
     }
 }
 

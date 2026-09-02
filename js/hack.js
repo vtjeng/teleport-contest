@@ -152,6 +152,7 @@ import {
     wipe_engr_at,
 } from './engrave.js';
 import { game } from './gstate.js';
+import { carrying } from './invent.js';
 import { doopen_indir } from './lock.js';
 import {
     amorphous,
@@ -192,10 +193,13 @@ import {
     COIN_CLASS,
     CORPSE,
     CREDIT_CARD,
+    DWARVISH_MATTOCK,
     LOCK_PICK,
+    PICK_AXE,
     SKELETON_KEY,
     STATUE,
     WATER_WALKING_BOOTS,
+    WAN_DIGGING,
 } from './objects.js';
 import {
     AT_EXPL,
@@ -2432,12 +2436,10 @@ export async function test_move(
         return false;
     }
 
-    // C ref: hack.c:1216-1252, the boulder block. Two of its four arms are
-    // ported: the run arm that stops in front of a boulder the hero cannot get
-    // past, and the moverock() call that pushes one. The still_chewing() arm
-    // above it and the TEST_TRAV arm below it are not -- the first is refused
-    // by preflight_moverock(), the second belongs to findtravelpath(), which
-    // has no port and is the only caller that asks for TEST_TRAV.
+    // C ref: hack.c:1216-1252, the boulder block. The run arm stops in front
+    // of a boulder the hero cannot get past, the DO_MOVE arm pushes one, and
+    // the TEST_TRAV arm rejects Sokoban and consecutive boulders that cannot
+    // be bypassed. The still_chewing() arm remains behind preflight.
     //
     // A Passes_walls hero walks onto the square without touching the boulder,
     // outside Sokoban. No ported path grants the property, so the guard is
@@ -2459,6 +2461,28 @@ export async function test_move(
                 );
             }
             return false;
+        }
+        if (mode === TEST_TRAV) {
+            // hack.c:1231-1248. Travel never crosses a Sokoban boulder. On
+            // ordinary levels, a second boulder is allowed only when the
+            // hero can get through the current one, tunnel through it, or
+            // carries one of C's digging tools.
+            if (In_sokoban(state.u.uz)) return false;
+            if (sobj_at(BOULDER, ux, uy, state)
+                && !propertyPresent(state, PASSES_WALLS)
+                && !could_move_onto_boulder(
+                    ux, uy, state.u.dx ?? 0, state.u.dy ?? 0, state,
+                )
+                && !(tunnels(state.youmonst?.data)
+                    && !needspick(state.youmonst?.data))
+                && !carrying(PICK_AXE, state)
+                && !carrying(DWARVISH_MATTOCK, state)) {
+                const diggingWand = carrying(WAN_DIGGING, state);
+                if (!diggingWand
+                    || !objectType(diggingWand, state).oc_name_known) {
+                    return false;
+                }
+            }
         }
         if (mode === DO_MOVE) {
             // Every unported arm of moverock_core() is refused here rather
@@ -2528,8 +2552,9 @@ function travelSquareVisible(x, y, state) {
         || (!heroIsBlind(state) && couldsee(x, y, state)));
 }
 
-// C ref: hack.c findtravelpath() (1266-1459), ordinary TRAVP_TRAVEL arm.
-// The search grows a shortest path backwards from the selected destination.
+    // C ref: hack.c findtravelpath() (1266-1459). TRAVP_TRAVEL grows a
+    // shortest path backwards from the selected destination; TRAVP_VALID
+    // reverses the endpoints while checking a proposed destination.
 // Its frontier order is source-defined: cardinal directions first in W, N,
 // E, S order, then NW, NE, SE, SW. That order is observable when two paths
 // have the same length, so it is kept explicitly instead of relying on a
@@ -2559,14 +2584,16 @@ export async function findtravelpath(mode = TRAVP_TRAVEL, state = game) {
             TEST_MOVE,
             state,
         )) {
-            state.u.dx = state.u.tx - state.u.ux;
-            state.u.dy = state.u.ty - state.u.uy;
-            nomul(0, state);
-            state.iflags.travelcc.x = 0;
-            state.iflags.travelcc.y = 0;
+            if (mode === TRAVP_TRAVEL) {
+                state.u.dx = state.u.tx - state.u.ux;
+                state.u.dy = state.u.ty - state.u.uy;
+                nomul(0, state);
+                state.iflags.travelcc.x = 0;
+                state.iflags.travelcc.y = 0;
+            }
             return true;
         }
-        state.context.run = 8;
+        if (mode === TRAVP_TRAVEL) state.context.run = 8;
     }
 
     if (state.u.tx === state.u.ux && state.u.ty === state.u.uy)

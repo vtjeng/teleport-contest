@@ -347,7 +347,9 @@ function liveMonsters(state) {
 // C ref: detect.c monster_detect() (797-860), restricted to the fountain and
 // other ordinary no-object, all-monster call. Potion/object-specific waking,
 // monster-class filtering, constrained maps, and long-worm tails remain
-// fail-closed rather than silently changing the detection result.
+// fail-closed rather than silently changing the detection result. Like the C
+// helper, return 1 when nothing was detected and 0 after displaying monsters;
+// the inverted result is consumed by fountain.c's fate-selection branch.
 export async function monster_detect(
     otmp = null,
     mclass = 0,

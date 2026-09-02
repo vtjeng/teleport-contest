@@ -26,6 +26,7 @@ import {
     STONE,
     STAIRS,
     STEALTH,
+    TRAVP_VALID,
     TIMER_OBJECT,
     WT_ELF,
     ZOMBIFY_MON,
@@ -34,6 +35,7 @@ import {
     disturb_buried_zombies,
     domove,
     endRunning,
+    findtravelpath,
     hero_tread_disturbs_buried_zombies,
     lookaround,
     maybe_smudge_engr,
@@ -46,6 +48,7 @@ import {
     unmul,
 } from '../js/hack.js';
 import { game } from '../js/gstate.js';
+import { GameMap } from '../js/game.js';
 import { M1_FLY, PM_GRID_BUG } from '../js/monsters.js';
 import { CORPSE, DAGGER } from '../js/objects.js';
 import {
@@ -587,6 +590,43 @@ test('end_running(FALSE) preserves travel intent for the adjacent fast path',
     assert.equal(state.context.travel1, 1);
     assert.equal(state.context.mv, 1);
     assert.equal(state.travelmap, null);
+});
+
+test('travel validation does not consume the adjacent travel state', async () => {
+    const base = runState();
+    const state = runState({
+        u: {
+            ...base.u,
+            tx: 11,
+            ty: 10,
+            dx: -7,
+            dy: 6,
+        },
+        context: { run: 8, travel: 1, travel1: 1, mv: 1 },
+        iflags: { travelcc: { x: 4, y: 5 } },
+        multi: 4,
+    });
+    state.level = new GameMap();
+    for (let x = 8; x <= 14; ++x) state.level.at(x, 10).typ = ROOM;
+    state.travelmap = new Uint8Array(COLNO * ROWNO);
+
+    assert.equal(await findtravelpath(TRAVP_VALID, state), true);
+    // hack.c:1278-1287 updates u.dx/u.dy, nomul(), travelcc, and run only
+    // for TRAVP_TRAVEL. The validator still calls end_running(FALSE), which
+    // clears a positive multi but preserves the caller's travel intent.
+    assert.deepEqual([state.u.dx, state.u.dy], [-7, 6]);
+    assert.deepEqual(state.iflags.travelcc, { x: 4, y: 5 });
+    assert.deepEqual(
+        state.context,
+        {
+            run: 0,
+            travel: 1,
+            travel1: 1,
+            mv: 1,
+            door_opened: false,
+        },
+    );
+    assert.equal(state.multi, 0);
 });
 
 test('nomul returns early when multi is already lower than the request', () => {

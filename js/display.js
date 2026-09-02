@@ -917,12 +917,14 @@ function actualMonsterGlyphInfo(monster, state) {
 export function map_monster_glyph_info(monster, state = game) {
     if (!monster?.data)
         throw new TypeError('map_monster_glyph_info requires monster data');
-    // A monster with no ordinary class symbol is the one map_monst() presents
-    // through detected_mon_to_glyph(). No generated monster uses class zero
-    // today, but retaining this source branch keeps the boundary explicit.
+    // C's detected_mon_to_glyph()/pet_to_glyph()/mon_to_glyph() all pass
+    // through what_mon(), so hallucination replaces the displayed species and
+    // consumes one display-RNG draw even during a temporary detector frame.
     if (monster.data.mlet === 0)
         return detectedMonsterGlyphInfo(monster, state);
-    return actualMonsterGlyphInfo(monster, state);
+    return presentedMonsterGlyphInfo(
+        monster, state, false, Boolean(monster.mtame),
+    );
 }
 
 function displayDraw(random, bound) {
@@ -1008,7 +1010,7 @@ export function hallucinated_statue_glyph_info(
 // Hallucination changes the presented species for both detected and physically
 // seen monsters, but not the gender half of the range each of the three
 // what_mon() macros picks: that stays mon->female whatever species is shown.
-function presentedMonsterGlyphInfo(monster, state, detected) {
+function presentedMonsterGlyphInfo(monster, state, detected, pet = false) {
     const hallucinating = heroHallucinating(state);
     if (monster.mtame && !hallucinating)
         return actualMonsterGlyphInfo(monster, state);
@@ -1031,8 +1033,8 @@ function presentedMonsterGlyphInfo(monster, state, detected) {
         : genderedMonsterGlyph(
             mnum,
             monster.female,
-            GLYPH_MON_MALE_OFF,
-            GLYPH_MON_FEM_OFF,
+            pet ? GLYPH_PET_MALE_OFF : GLYPH_MON_MALE_OFF,
+            pet ? GLYPH_PET_FEM_OFF : GLYPH_MON_FEM_OFF,
         );
     const glyph = glyphPresentation(
         monster_class_symbol(species.mlet, state),
@@ -1041,7 +1043,8 @@ function presentedMonsterGlyphInfo(monster, state, detected) {
         numeric_glyph_customization(logicalGlyph, state),
     );
     const attr = print_glyph_attr(
-        (detected ? MG_DETECT : 0) | monsterGenderFlag(monster.female),
+        (detected ? MG_DETECT : monster.mtame && pet ? MG_PET : 0)
+        | monsterGenderFlag(monster.female),
         state,
     );
     if (attr) glyph.attr = attr;
@@ -3428,6 +3431,9 @@ export function see_traps(state = game) {
 // vision back on and overlays the monsters. The port's newsym() answers
 // memory, vision and monsters together from the level and the vision arrays,
 // so one sweep replaces C's three passes.
+// The optional overlayMonsters=false form is for callers that bracket a
+// redraw with their own vision change and then call see_monsters() explicitly;
+// ordinary callers leave it enabled so the live monster layer is restored.
 //
 // The vision recalculation C brackets that repaint with stays with this
 // function's callers, and they do not all make the same calls. goto_level()
@@ -3462,6 +3468,10 @@ export async function docrt(options = {}) {
             // old prompt back over the newly restored map.
             clearTtyMessageWindow(game);
         }
+        // display.c docrt_flags() calls cls() before replaying remembered
+        // glyphs. This clears both the physical terminal and transient
+        // disp_* entries, so unexplored cells cannot retain the old level.
+        await cls();
         // C ref: display.c docrt_flags() (1727-1731). A swallowed hero gets
         // the complete stomach redraw here; newsym()'s swallowed guard only
         // protects the existing transient frame and cannot replace this arm.

@@ -16,6 +16,7 @@ import {
     EXT_ENCUMBER,
     FAST,
     HALLUC,
+    HALLUC_RES,
     HVY_ENCUMBER,
     INTRINSIC,
     MOD_ENCUMBER,
@@ -24,7 +25,10 @@ import {
     RLOC_NOMSG,
     SEARCHING,
     SLT_ENCUMBER,
+    TELEPAT,
     UNENCUMBERED,
+    WARNING,
+    WARN_OF_MON,
 } from './const.js';
 import { effective_attribute, exerchk } from './attrib.js';
 import { makedog, see_nearby_monsters } from './dog.js';
@@ -1248,7 +1252,9 @@ export async function moveloop_core() {
     // the stale pre-hallucination DEC/Unicode stomach on the terminal.
     const hallucination = g.u.uprops?.[HALLUC];
     const hallucinating = Boolean(
-        hallucination?.intrinsic && !hallucination?.blocked,
+        hallucination?.intrinsic
+        && !hallucination?.blocked
+        && !propertyActive(g, HALLUC_RES),
     );
     const blind = Boolean(g.u.uprops?.[BLINDED]?.intrinsic
         || g.u.uprops?.[BLINDED]?.extrinsic)
@@ -1259,6 +1265,15 @@ export async function moveloop_core() {
             see_objects(g);
             see_traps(g);
             if (g.u.uswallow) await swallowed(false, g);
+        } else if (Boolean(g.u.uprops?.[TELEPAT]?.extrinsic)
+            || propertyActive(g, WARNING)
+            || propertyActive(g, WARN_OF_MON)
+            || (g.level?.regions ?? []).some((region) => (
+                region.visible && region.ttl !== -2
+            ))) {
+            // allmain.c:462-467. These sensing modes need only the monster
+            // overlay; objects and traps retain their ordinary memory.
+            see_monsters(g);
         }
     }
     // C ref: allmain.c moveloop_core() (473-478). The status line repaints

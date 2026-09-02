@@ -280,16 +280,17 @@ export function movebubbles(state = game, random = rn2) {
     // C's static `up` toggles before traversing the lists. New levels start
     // false, so the first arrival walks the setup list in creation order.
     state.air_bubbles_up = !state.air_bubbles_up;
-    if (state.air_bubbles_up) {
-        for (const bubble of state.air_bubbles) {
-            const rx = random(3);
-            const ry = random(3);
-            const dx = bubble.dx + 1
-                - (!bubble.dx ? rx : (rx ? 1 : 0));
-            const dy = bubble.dy + 1
-                - (!bubble.dy ? ry : (ry ? 1 : 0));
-            moveAirBubble(bubble, dx, dy, false, state, random);
-        }
+    const bubbles = state.air_bubbles_up
+        ? state.air_bubbles
+        : [...state.air_bubbles].reverse();
+    for (const bubble of bubbles) {
+        const rx = random(3);
+        const ry = random(3);
+        const dx = bubble.dx + 1
+            - (!bubble.dx ? rx : (rx ? 1 : 0));
+        const dy = bubble.dy + 1
+            - (!bubble.dy ? ry : (ry ? 1 : 0));
+        moveAirBubble(bubble, dx, dy, false, state, random);
     }
     state.vision_full_recalc = 1;
 }

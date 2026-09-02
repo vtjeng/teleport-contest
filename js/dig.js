@@ -20,7 +20,10 @@ import {
     DIGTYP_ROCK,
     DIGTYP_TREE,
     DIGTYP_UNDIGGABLE,
+    FAINTED,
     Has_contents,
+    HALLUC,
+    HALLUC_RES,
     isok,
     IS_OBSTRUCTED,
     IS_TREE,
@@ -30,6 +33,7 @@ import {
     ROOM,
     SCORR,
     SDOOR,
+    SHOPBASE,
     u_at,
     W_NONDIGGABLE,
 } from './const.js';
@@ -54,6 +58,14 @@ import { effective_attribute } from './attrib.js';
 import { is_axe, is_pick, mksobj_at, remove_object, sobj_at } from './obj.js';
 import { canseemon, recalc_block_point, unblock_point } from './vision.js';
 import { rn1 } from './rng.js';
+import { unconscious } from './trap.js';
+
+// C ref: youprop.h Unaware. The draft-message random roll is skipped while a
+// negative multi represents unconsciousness or fainting.
+function unaware(state) {
+    return Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || state.u?.uhs === FAINTED);
+}
 
 // C ref: dig.c dig_typ() (167-192). Answers what digging into <x,y> with
 // `otmp` would break: a door, a tree, rock, or nothing diggable at all.
@@ -124,7 +136,8 @@ function setTerrain(location, typ, flags = 0) {
 function addShopDamage(x, y, cost, state) {
     const location = state.level?.at(x, y);
     if (!location) return;
-    if (location.typ === DOOR && !in_rooms(x, y, 14, state).length) return;
+    if (location.typ === DOOR
+        && !in_rooms(x, y, SHOPBASE, state).length) return;
     let damage = state.level.damagelist ?? null;
     while (damage) {
         if (damage.place?.x === x && damage.place?.y === y) {
@@ -149,9 +162,9 @@ async function draft_message(unexpected, env) {
     const random = env.random ?? { rn1 };
     const message = env.planning ? async () => {} : (env.message ?? (async () => {}));
     const hallucinating = Boolean(
-        state.u?.uprops?.[23]?.intrinsic
-        && !state.u?.uprops?.[24]?.intrinsic
-        && !state.u?.uprops?.[24]?.extrinsic,
+        state.u?.uprops?.[HALLUC]?.intrinsic
+        && !state.u?.uprops?.[HALLUC_RES]?.intrinsic
+        && !state.u?.uprops?.[HALLUC_RES]?.extrinsic,
     );
     if (unexpected) {
         if (!hallucinating) {
@@ -200,7 +213,7 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
         location = cvt_sdoor_to_door(location, state);
 
     if (closed_door(x, y, state)) {
-        if (in_rooms(x, y, 14, state).length)
+        if (in_rooms(x, y, SHOPBASE, state).length)
             addShopDamage(x, y, 0, state);
         const sawit = canseemon(monster, state);
         const trapped = Boolean((location.doormask ?? location.flags ?? 0) & D_TRAPPED);
@@ -222,7 +235,9 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
                 redraw(x, y);
                 return true;
             }
-        } else if (state.flags?.verbose && !random.rn2(3)) {
+        } else if (state.flags?.verbose
+            && !unaware(state)
+            && !random.rn2(3)) {
             await draft_message(true, { ...rawEnv, state, message });
         }
         return false;
@@ -243,7 +258,7 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
     if (IS_WALL(location.typ)) {
         if (state.flags?.verbose && !random.rn2(5))
             await message('You hear crashing rock.', state, rawEnv);
-        if (in_rooms(x, y, 14, state).length)
+        if (in_rooms(x, y, SHOPBASE, state).length)
             addShopDamage(x, y, 0, state);
         if (state.level.flags?.is_maze_lev) {
             setTerrain(location, ROOM, 0);

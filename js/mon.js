@@ -1626,6 +1626,9 @@ export function zombie_maker(mon) {
 // supplies allowSwallowedExpulsion after its own source checks. The ball and
 // chain path remains refused because do.c placebc() is not ported; expels()
 // owns the display.c docrt() call after this synchronous state update.
+// Return protocol: undefined means the monster was not the current holder;
+// null means it was released without a deferred cooldown; and `{ mtmp,
+// random }` is the deferred cooldown work item used by mhitu.c expels().
 export function unstuck(mtmp, state = game, env = {}) {
     if (state.u.ustuck !== mtmp) return;
     const random = env.random ?? { rnd };

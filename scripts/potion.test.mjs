@@ -390,6 +390,20 @@ test('the potion refusals are ones the command seam converts', () => {
     assert.ok(listed.includes(UnsupportedQuaffError));
 });
 
+test('sickness potion clears active hallucination before returning', async () => {
+    await startedGame(771021, 'SicknessCuresHallucination');
+    game.u.uprops[HALLUC] = { intrinsic: 30, extrinsic: 0 };
+    game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+    const obj = vaporPotion(POT_SICKNESS);
+    clearTopline();
+    for (let i = 0; i < 3; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await peffects(obj, game);
+
+    assert.equal(game.u.uprops[HALLUC].intrinsic & TIMEOUT, 0);
+    assert.equal(toplines(), 'You are shocked back to your senses!');
+});
+
 // ---------------------------------------------------------------------------
 // Timeout utilities: set_itimeout and incr_itimeout
 // C ref: potion.c:55-86. These clamp and increment the timeout field of an
