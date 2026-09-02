@@ -8207,7 +8207,13 @@
         ]
       },
       "detail": "Bounding property: this candidate is the ordinary monster movement path that reaches a door or special terrain after mon.c mfndpos() has selected a destination and monmove.c m_move() dispatches through postmov(); it excludes pets, worms, guards, covetous monsters, special responders, ranged/magical actions, and other special movement branches. The contributing witness has one ordinary hostile gnome on Dlvl:3, with no option-driven special path. The development-only --ahead stream is capped at 26 recorded steps because the hero dies at step 74 and end.c done() is an independent unported continuation; the uncapped remainder includes unrelated later segments and #quit input. Primary C owners are mon.c mfndpos()/mon_allowflags() and monmove.c m_move()/postmov().",
-      "slices": [],
+      "slices": [
+        {
+          "name": "tunneling-monster-digs-into-wall",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "8ddd3cf667299e097b279e92e842e2c1d37f83b8",
       "openStanding": {
         "sha": "0affcd53",
