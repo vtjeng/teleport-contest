@@ -8144,6 +8144,37 @@
         "screens": 0,
         "rng": 2
       }
+    },
+    {
+      "id": "unsupported-hero-move-a-monster-behind-the-boulder",
+      "status": "open",
+      "boundary": "Boulder pushed toward an unseen monster reaching moverock_core's hear-and-refuse arm.",
+      "upstreamOwners": [
+        "hack.c"
+      ],
+      "forecast": {
+        "steps": 50,
+        "basis": "Capped look-ahead at unsupported hero move: a monster behind the boulder",
+        "sessions": [
+          "seed0014-dequa-fountain-explore"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0014-dequa-fountain-explore",
+            "evidence": "Development replay witness: seed 14, datetime 20260503050437, options name Dequa, symset DECgraphics, runmode walk; first stop is cumulative step 256 on input l, with You hear a monster behind the boulder. followed by Perhaps that's why you cannot move it. The C rn2/rnd log is empty at this step: the branch is pure state lookup (m_at, canspotmon, map_invisible) with no dice roll. The exact C path is hack.c:moverock() (335-345) -> moverock_core() (347-616), past the boulder loop at 356, the blind-glyph check at 358, the context.nopick squeeze arm at 386-414, the levitation leverage check at 415-425 and the verysmall check at 426-431, through the destination-clear conjunction at 432-435 (isok, !IS_OBSTRUCTED, not IRONBARS, doorless-diagonal test, no second boulder), the ttmp/mtmp lookups at 436-437, the Sokoban-diagonal check at 442-448 and revive_nasty() at 450-453, to the monster arm at 455-483. Governing state: mtmp = m_at(rx, ry) is present, not noncorporeal, and not pit-trapped (455-456); canspotmon(mtmp) is false (display.h:129, neither canseemon nor sensemon), so C takes the else arm at 464-470 with Soundeffect(se_monster_behind_boulder, 50), You_hear(\"a monster behind %s.\", the(xname(otmp))), the !Deaf gate setting deliver_part1, and map_invisible(rx, ry) (display.c:378); flags.verbose is on by default and the hero is not Deaf, so 471-481 prints Perhaps that's why you cannot move it. (phrasing gated on deliver_part1 and u.usteed at 476-480), and the branch returns cannot_push(otmp, sx, sy) at 482 (cannot_push defined hack.c:262). The JS refusal is js/hack.js:1938 inside preflight_moverock() (js/hack.js:1832), which refuses unconditionally on any m_at(rx, ry) rather than splitting the spotted, noncorporeal and pit-trapped sub-cases."
+          }
+        ]
+      },
+      "detail": "Bounding property: the port refuses to push a boulder toward a square holding an unseen (not canspotmon) corporeal monster that is not pit-trapped, instead of reporting the You hear a monster behind it / Perhaps that's why you cannot move it pair and falling through to the already-ported cannot_push() refusal; witnessed in one development session and bounded to its cap-stable 50-screen stretch. Per .agents/selection.md this is a capped measured forecast of 50 screens for hack.c moverock_core()'s single monster-behind-boulder detection-and-messaging arm (lines 455-483, feeding the already-ported cannot_push()/cannot_push_msg() at hack.c:262 and 247), not every boulder-push case and not the noncorporeal or pit-trapped exception that lets the push proceed into moverock_core()'s still-unported push logic at 626-637. The visible-monster sibling line (There's %s on the other side.) shares the same helpers and costs nothing extra; the push-through exception stays deferred because the witness session never exercises it. Size: one behavior slice. Every dependency is already ported elsewhere -- canspotmon() (js/startup_a11y.js:1708), a_monnam() (js/do_name.js:844), map_invisible() (js/display.js:2756), the You_hear()/Deaf pattern (js/monmove.js:1370), and cannot_push()/cannot_push_msg() (js/hack.js:1997 and 1981) -- so the goal wires existing primitives into the branch now sitting behind a coarse refuse('a monster behind the boulder') guard.",
+      "slices": [],
+      "openedAt": "3485d5a3a3450120e41a6ebf2746d9b6653a61a3",
+      "openStanding": {
+        "sha": "32288b88",
+        "screens": 4144,
+        "rng": 258304
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
