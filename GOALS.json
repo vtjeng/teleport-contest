@@ -7917,6 +7917,37 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-14",
+      "status": "open",
+      "boundary": "Ordinary hero fountain drink whose fate roll selects the foul-water case 20.",
+      "upstreamOwners": [
+        "fountain.c"
+      ],
+      "forecast": {
+        "steps": 143,
+        "basis": "Capped look-ahead at ordinary hero fountain foul-water fate case 20; one development-session witness, cap-stable 143-screen stretch; C source fountain.c:241-247, 285-298, 389.",
+        "sessions": [
+          "seed0012-monk-vault-escort"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0012-monk-vault-escort",
+            "evidence": "Development replay witness: seed 12, datetime 20260503045501, options symset DECgraphics; first stop is cumulative step 165 on input y after the hero answered yes to drinking from the fountain. C fountain.c:241-247 drinkfountain() selects fate case 20 at fountain.c:285-298, prints The water is foul!, calls vomit(), then dryup() at fountain.c:389; recorded draws rnd(30)=20, rn2(20)=4, rn2(3)=0."
+          }
+        ]
+      },
+      "detail": "Boundary witness is the ordinary drinking command in seed0012-monk-vault-escort. The stop enters fountain.c:241-247 drinkfountain() and fate case 20 at fountain.c:285-298, with the recorded rnd(30)=20, rn2(20)=4, and rn2(3)=0 draws; the case prints The water is foul!, calls vomit(), then dryup(). The capped stretch is 143 screens and does not generalize to other fountain fates.",
+      "slices": [],
+      "openedAt": "095c299f099416f11e1dc4d954d682d281d868a2",
+      "openStanding": {
+        "sha": "04b1ce01",
+        "screens": 4052,
+        "rng": 254287
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
