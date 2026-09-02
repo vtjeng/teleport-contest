@@ -8126,7 +8126,13 @@
         ]
       },
       "detail": "Bounding property: hero melee hit on a tame pet with positive damage, witnessed in one development session and bounded to its cap-stable 41-screen stretch. Per .agents/selection.md this is a capped measured forecast of 41 screens for the exact pet-combat branch, not every hero attack.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "hit-pet-abuse-dog-sounds",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "7ee556eaa7271122ea1e2268fb506c6717136980",
       "openStanding": {
         "sha": "773748db",
