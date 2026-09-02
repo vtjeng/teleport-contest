@@ -6126,6 +6126,7 @@
         "js/dogmove.js",
         "js/makemon.js",
         "js/makemon_create.js",
+        "js/mcastu.js",
         "js/mhitm.js",
         "js/mhitu.js",
         "js/mon.js",

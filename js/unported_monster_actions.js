@@ -62,6 +62,7 @@ import { any_light_source } from './light.js';
 import { m_dowear, set_mimic_sym } from './makemon_create.js';
 import { fightm } from './mhitm.js';
 import { mattacku, MonsterDeathPlanningError } from './mhitu.js';
+import { castmu } from './mcastu.js';
 import { m_throw, thitu, thrwmu } from './mthrowu.js';
 import { AKLYS } from './objects.js';
 import {
@@ -89,9 +90,11 @@ import {
     verysmall,
 } from './mondata.js';
 import {
+    AD_CLRC,
     AD_FIRE,
     AD_MAGM,
     AD_SLEE,
+    AD_SPEL,
     AT_MAGC,
     PM_ERINYS,
     PM_FLOATING_EYE,
@@ -359,8 +362,6 @@ function assertSimpleActionState(monster, state) {
         || monster.data?.pmidx === PM_GELATINOUS_CUBE) {
         unsupported('a special monster action');
     }
-    if (attacktype(monster.data, AT_MAGC))
-        unsupported('monster ranged or magical action');
 }
 
 function clonedRandom(state) {
@@ -1172,7 +1173,26 @@ async function throwRangedWeapon(monster, env) {
 // melee ones -- refuses from inside mattacku() itself, so this seam adds only
 // the operations that file cannot import.
 function attackHeroWithMattacku(monster, env) {
-    return mattacku(monster, { ...env, throwRangedWeapon, unsupported });
+    return mattacku(monster, {
+        ...env,
+        throwRangedWeapon,
+        unsupported,
+        // C ref: mhitu.c:930 castmu(mtmp, mattk, TRUE, foundyou).
+        castMonsterSpell: (subject, mattk, thinkFound, actualFound, spellEnv) =>
+            castmu(subject, mattk, thinkFound, actualFound, {
+                ...spellEnv,
+                monsterName: (mtmp) => capitalizedMonsterName(mtmp, env.state),
+                monnam: (mtmp) => {
+                    const name = mtmp.data?.pmnames?.[2]
+                        ?? mtmp.data?.pmnames?.[0]
+                        ?? 'something';
+                    return `the ${name}`;
+                },
+                message: env.planning ? undefined : async (text, s) => {
+                    await ttyPline(text, s);
+                },
+            }),
+    });
 }
 
 export async function wieldMonsterItemAgainstMonster(
@@ -1238,6 +1258,38 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 // (dogmove.c:911) and js/dogmove.js pet_ranged_attk()
                 // (dogmove.c:1286).
                 attackHero: attackHeroWithMattacku,
+                // C ref: monmove.c:895-907. Iterate AT_MAGC attack slots
+                // with AD_SPEL or AD_CLRC and call castmu(FALSE, FALSE).
+                // Most of the time, choose_monster_spell picks a directed
+                // spell and castmu returns M_ATTK_MISS immediately.
+                castUndirectedSpell: async (subject, spellEnv) => {
+                    const mdat = subject.data;
+                    if (!mdat?.mattk) return false;
+                    const castEnv = {
+                        ...spellEnv,
+                        monsterName: (mtmp) =>
+                            capitalizedMonsterName(mtmp, state),
+                        monnam: (mtmp) => {
+                            const name = mtmp.data?.pmnames?.[2]
+                                ?? mtmp.data?.pmnames?.[0]
+                                ?? 'something';
+                            return `the ${name}`;
+                        },
+                        message: env.planning ? undefined
+                            : async (text, s) => { await ttyPline(text, s); },
+                    };
+                    for (const a of mdat.mattk) {
+                        if (a.aatyp === AT_MAGC
+                            && (a.adtyp === AD_SPEL
+                                || a.adtyp === AD_CLRC)) {
+                            const result = await castmu(
+                                subject, a, false, false, castEnv,
+                            );
+                            if (result & 0x1) return true; /* M_ATTK_HIT */
+                        }
+                    }
+                    return false;
+                },
                 monFlee: () => unsupported('monster flight'),
                 monsterCanSeeHero: ordinaryMonsterCanSeeHero,
                 moveMonster: moveSimpleOrdinary,

@@ -1742,11 +1742,10 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 //   m_respond(), is_covetous() tactics    the boundary rejects both
 //   release_hero(), u.ustuck              no hero-grabbing monster is reachable
 //   Demonic Blackmail, watch_on_duty(),   the boundary rejects guards,
-//   mind_blast()                          priests, and AT_MAGC; a shopkeeper
-//                                         reaches m_move()'s isshk dispatch
-//                                         before dochug() PHASE FOUR
+//   mind_blast()                          priests; a shopkeeper reaches
+//                                         m_move()'s isshk dispatch before
+//                                         dochug() PHASE FOUR
 //   killer bee jelly, gelcube_digests()   the boundary rejects both species
-//   castmu() undirected spell             the boundary rejects AT_MAGC
 //   mon_offmap(), wormhitu()              unreachable on a fresh D:1 level
 //   cuss()                                no MS_CUSS species can be generated
 //                                         at the D:1 difficulty cap
@@ -1861,7 +1860,22 @@ export async function dochug(monster, rawEnv = {}) {
     let status = MMOVE_NOTHING;
     let panicattk = false;
     if (mayMove) {
-        status = await moveMonster(monster, env);
+        // C ref: monmove.c:889-908. "Possibly cast an undirected spell if
+        // not attacking you."  castmu(FALSE, FALSE) picks a spell and
+        // returns immediately when the spell is directed (the common case),
+        // so most of the time this is just one choose_monster_spell() draw.
+        if (!(monster.mspec_used ?? 0)
+            && dist2(monster.mx, monster.my, state.u.ux, state.u.uy) <= 49) {
+            const castUndirectedSpell = rawEnv.castUndirectedSpell;
+            if (typeof castUndirectedSpell === 'function') {
+                const spellResult = await castUndirectedSpell(monster, env);
+                if (spellResult) {
+                    status = MMOVE_DONE;
+                }
+            }
+        }
+
+        if (!status) status = await moveMonster(monster, env);
         if (status !== MMOVE_DIED) {
             range = await distanceAndFear(monster, { ...env, monFlee });
         }

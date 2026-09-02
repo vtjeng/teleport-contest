@@ -57,6 +57,7 @@ export const AD_SSEX = 35;
 export const AD_WRAP = 28;
 export const AD_STUN = 12;
 export const AD_HALU = 36;
+export const AD_CLRC = 240;
 export const AD_SPEL = 241;
 export const AD_DREN = 16;
 export const AD_DRIN = 32;
