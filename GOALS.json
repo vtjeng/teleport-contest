@@ -8009,8 +8009,8 @@
       "slices": [
         {
           "name": "adjacent-castmu-spell-dispatch",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0f04c19032a207a04988e98fbf9b70bf96131715"
         }
       ],
       "openedAt": "cfe12e56689bc8dcfa4cb4d178087bdb870d7dcc",
