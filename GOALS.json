@@ -8001,7 +8001,7 @@
     },
     {
       "id": "simple-monster-action-requires-monster-ranged-or-magical-act",
-      "status": "open",
+      "status": "closed",
       "boundary": "Standard active monster attack with a ranged or AT_MAGC action selected.",
       "upstreamOwners": [],
       "forecast": null,
@@ -8019,8 +8019,11 @@
         "screens": 4124,
         "rng": 258015
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "74c1466fa6c89c435ea5d25e58514740fc4c76aa",
+      "delivered": {
+        "screens": 5,
+        "rng": 122
+      }
     }
   ]
 }
