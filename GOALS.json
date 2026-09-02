@@ -8032,7 +8032,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "kick-door-failure-branch",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "2a6180a139f0d560026a9b573c8b38b28c025958",
       "openStanding": {
         "sha": "74c1466f",

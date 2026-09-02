@@ -1,26 +1,32 @@
-// C ref: src/dokick.c. Three of its functions are ported: dokick() (1257-1470),
-// the #kick command; kick_nondoor() (974-1253), the terrain chain dokick() ends
-// on; and kick_dumb() (863-878), the one arm of that chain this goal reaches.
+// C ref: src/dokick.c. Four of its functions are ported: dokick() (1257-1470),
+// the #kick command; kick_door() (908-970), the door arm of dokick()'s final
+// pair; kick_nondoor() (974-1253), the terrain chain dokick() ends on; and
+// kick_dumb() (863-878), the one arm of that chain the earlier goal reached.
 //
 // dokick() is a guard chain, a direction prompt, and five ordered tests over
 // the target square -- monsters, pools, objects, non-doors, doors. Only the
-// last of those five continues, and only into kick_nondoor()'s final `else`.
-// Every other arm throws UnsupportedKickError at its own condition, before that
-// arm has drawn a random number, printed a line or changed the hero, so the
-// segment keeps every frame the command already matched.
+// last of those five continues into kick_door() or kick_nondoor().
+// kick_door() covers the failure branch (959-969) fully: the closed/locked
+// door that the hero fails to break. The success branch (931-958) and the
+// Levitation guard (921-924) are refused.
 //
 // kickdmg(), maybe_kick_monster(), kick_monster(), kick_object(),
 // really_kick_object(), kickstr(), watchman_thief_arrest(),
-// watchman_door_damage(), kick_ouch(), kick_door(), otransit_msg() and
-// drop_to() keep dokick.c company in C and have no ported caller; the arm that
-// would reach each one names it in its refusal.
+// watchman_door_damage(), kick_ouch(), otransit_msg() and drop_to() keep
+// dokick.c company in C and have no ported caller; the arm that would reach
+// each one names it in its refusal.
 
-import { exercise, effective_attribute } from './attrib.js';
+import { acurrstr, exercise, effective_attribute } from './attrib.js';
 import { getdir } from './cmd.js';
 import {
+    A_CON,
     A_DEX,
     A_STR,
     BLINDED,
+    D_BROKEN,
+    D_ISOPEN,
+    D_NODOOR,
+    DEAF,
     ECMD_CANCEL,
     ECMD_TIME,
     IRONBARS,
@@ -44,6 +50,7 @@ import {
     SDOOR,
     SLT_ENCUMBER,
     STAIRS,
+    Upolyd,
     WOUNDED_LEGS,
     isok,
 } from './const.js';
@@ -52,14 +59,15 @@ import { set_wounded_legs } from './do.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
 import { near_capacity } from './hack.js';
-import { nolimbs, slithy, verysmall } from './mondata.js';
+import { is_giant, nolimbs, slithy, verysmall } from './mondata.js';
 import { wake_nearby } from './mon.js';
 import { m_at } from './monst.js';
 import { PM_SASQUATCH, S_LIZARD } from './monsters.js';
 import { sobj_at } from './obj.js';
 import { BOULDER, KICKING_BOOTS } from './objects.js';
 import { encumber_msg } from './pickup.js';
-import { rn2, rnd } from './rng.js';
+import { rn2, rnd, rnl } from './rng.js';
+import { inside_room } from './room_coordinates.js';
 import { is_pool } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { martial_bonus } from './weapon.js';
@@ -118,6 +126,31 @@ function Passes_walls(state) {
     return Boolean(passes.intrinsic || passes.extrinsic);
 }
 
+// youprop.h:125 Deaf. HDeaf || EDeaf || u.uroleplay.deaf. The third term is
+// the permanent-deafness roleplay option, matching js/sit.js and js/dothrow.js.
+function Deaf(state) {
+    const value = state.u?.uprops?.[DEAF];
+    return Boolean(value?.intrinsic || value?.extrinsic)
+        || Boolean(state.u?.uroleplay?.deaf);
+}
+
+// C ref: hack.c in_town() (3564-3585). Returns true when (x, y) is in the
+// Mine Town special level and inside one of its rooms with subrooms. The
+// witness session is not in a town, so the true arm of the one call site in
+// kick_door() is refused.
+function in_town(x, y, state) {
+    if (!state.level?.flags?.has_town) return false;
+    let hasSubrooms = false;
+    for (const room of state.level.rooms ?? []) {
+        if (!(room?.hx > 0)) break;
+        if ((room.nsubrooms ?? room.sbrooms?.length ?? 0) > 0) {
+            hasSubrooms = true;
+            if (inside_room(room, x, y, state)) return true;
+        }
+    }
+    return !hasSubrooms;
+}
+
 // C ref: dokick.c:8-10, the martial() macro over is_bigfoot() at :7. A Samurai
 // or a Monk answers TRUE from martial_bonus() without either later term being
 // read, which is what keeps kick_dumb()'s rn2(3) out of the stream for them.
@@ -159,14 +192,83 @@ async function kick_dumb(x, y, state) {
     }
 }
 
+// C ref: dokick.c kick_door() (908-970). Kick a door. The failure branch
+// (959-969) is fully implemented: the hero fails to break the door, hears
+// "Whammm!!" or "Thwack!!", and gains Strength exercise. The success branch
+// (931-958), which involves trapped doors, shop doors, shattering, and
+// watchman_thief_arrest, is refused. The Levitation guard (921-924), which
+// calls kick_ouch, is also refused.
+async function kick_door(x, y, avrg_attrib, state) {
+    const maploc = state.level.at(x, y);
+    const mask = maploc.flags || maploc.doormask || 0;
+
+    // 914-918. Open, broken, or no-door: dumb kick. kick_dumb is already
+    // ported.
+    if (mask === D_ISOPEN || mask === D_BROKEN || mask === D_NODOOR) {
+        await kick_dumb(x, y, state);
+        return;
+    }
+
+    // 921-924. Not enough leverage to kick open doors while levitating.
+    // kick_ouch() is unported; refuse.
+    if (Levitation(state)) {
+        throw new UnsupportedKickError(
+            "kick_door()'s Levitation guard, which needs kick_ouch()",
+        );
+    }
+
+    // 926. Exercise dexterity for the attempt.
+    await exercise(A_DEX, true, state, { rn2 });
+
+    // 927. Polymorphed giants are doorbusters.
+    const doorbuster = Upolyd(state.u) && is_giant(state.youmonst?.data);
+
+    // 929-930. Door is known to be CLOSED or LOCKED. The success check
+    // compares rnl(35) against the hero's attributes plus martial dexterity.
+    if (doorbuster
+        || (rnl(35) < avrg_attrib + (!martial(state) ? 0
+            : effective_attribute(state, A_DEX)))) {
+        // 931-958. Success branch: break the door. Involves trapped doors,
+        // shop doors, shattering, feel_newsym, recalc_block_point, and
+        // watchman_thief_arrest. All refused.
+        throw new UnsupportedKickError(
+            "kick_door()'s success branch, which needs b_trapped(), "
+            + 'feel_newsym(), recalc_block_point(), and '
+            + 'watchman_thief_arrest()',
+        );
+    }
+
+    // 959-969. Failure branch: the hero fails to break the door.
+    // 960-961. Blind hero feels the door.
+    if (Blind(state)) feel_location(x, y, state);
+
+    // 962. Exercise Strength for the effort.
+    await exercise(A_STR, true, state, { rn2 },
+                   { encumberMessage: encumber_msg });
+
+    // 966. "Whammm!!" when the hero can hear and rn2(3) is nonzero; "Thwack!!"
+    // when deaf or the one-in-three rn2(3)==0 case. C evaluates the Deaf macro
+    // before the rn2 short circuit: when Deaf is true, rn2(3) is never drawn.
+    await ttyPline(`${(Deaf(state) || !rn2(3)) ? 'Thwack' : 'Whammm'}!!`,
+                   state);
+
+    // 967-968. In a town, the kick alerts the watch. The true arm calls
+    // get_iter_mons_xy(watchman_door_damage, x, y), which is unported.
+    if (in_town(x, y, state)) {
+        throw new UnsupportedKickError(
+            "kick_door()'s watchman_door_damage arm, which needs "
+            + 'get_iter_mons_xy()',
+        );
+    }
+}
+
 // C ref: dokick.c kick_nondoor() (974-1253). Its return value is dokick()'s,
 // and every arm of it ends ECMD_TIME.
 //
-// avrg_attrib is dokick.c's third parameter and has no counterpart here. Two
-// arms of this function read it, the secret door at 977 and the secret
-// corridor at 1003, and one more caller does, kick_door() at 930; all three
-// are refused, so dokick() computing it at 1327-1331 and passing it down would
-// build a value nothing reads.
+// avrg_attrib is kick_nondoor()'s third parameter in C. Two arms of this
+// function read it, the secret door at 977 and the secret corridor at 1003;
+// both are refused, so the parameter is omitted from this signature. dokick()
+// now computes avrg_attrib for kick_door(); kick_nondoor() does not receive it.
 async function kick_nondoor(x, y, state) {
     const maploc = state.level.at(x, y);
 
@@ -313,7 +415,19 @@ export async function dokick(state = game) {
     // exactly as C has.
     state.gk ??= {};
     state.gk.kickedloc = { x, y };
-    // 1327-1331's avrg_attrib is not computed; kick_nondoor() says why.
+
+    // 1327-1331. KMH -- Kicking boots always succeed; otherwise average the
+    // three physical attributes. C's ACURRSTR folds 18/xx Strength down to
+    // 19..25; ACURR for Dexterity and Constitution gives the effective value.
+    let avrg_attrib;
+    if (state.u.uarmf?.otyp === KICKING_BOOTS) {
+        avrg_attrib = 99;
+    } else {
+        avrg_attrib = Math.trunc(
+            (acurrstr(state) + effective_attribute(state, A_DEX)
+             + effective_attribute(state, A_CON)) / 3,
+        );
+    }
 
     if (u.uswallow) {
         throw new UnsupportedKickError(
@@ -372,9 +486,9 @@ export async function dokick(state = game) {
     }
 
     if (IS_DOOR(maploc.typ)) {
-        throw new UnsupportedKickError(
-            "dokick()'s door arm, which needs kick_door()",
-        );
+        await kick_door(x, y, avrg_attrib, state);
+    } else {
+        return await kick_nondoor(x, y, state);
     }
-    return await kick_nondoor(x, y, state);
+    return ECMD_TIME;
 }

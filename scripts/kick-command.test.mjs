@@ -2,7 +2,17 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { BLINDED, DUST, LA_UP, STAIRS, WOUNDED_LEGS } from '../js/const.js';
+import {
+    BLINDED,
+    D_CLOSED,
+    D_ISOPEN,
+    DEAF,
+    DOOR,
+    DUST,
+    LA_UP,
+    STAIRS,
+    WOUNDED_LEGS,
+} from '../js/const.js';
 import { commandKeyCode } from '../js/command_bindings.js';
 import { dist2 } from '../js/hacklib.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
@@ -227,10 +237,10 @@ test('an unported target stops the command before it draws or prints',
     // Each refusal must leave the turn, the PRNG and the top line exactly as
     // the direction prompt left them, because the segment keeps every frame
     // matched so far and the next replay resumes from the same keystroke.
+    // The door case that was here is now ported (kick_door failure branch).
     const cases = [
         [MONK(), `${KICK}k`, /monster arm/u],
         [VALKYRIE(), `${KICK}k`, /wall and upward-stairs arm/u],
-        [DOOR_VALKYRIE(), `${KICK}n`, /door arm/u],
         [OBJECT_PILE(), `${KICK}y`, /object-pile arm/u],
     ];
     for (const [segment, moves, reason] of cases) {
@@ -393,4 +403,89 @@ test('the kick wakes the neighbourhood before it examines the square',
     }
     assert.notEqual(engr_at(game.u.ux, game.u.uy, game).engr_txt[0],
         'Elbereth');
+});
+
+// --- kick_door() tests (dokick.c:908-970) ---
+
+// Set the square to the hero's west to a closed door. Returns the maploc.
+// Called after replay() has set up the game state, before manually pushing
+// the kick key sequence.
+function setDoorWest(mask) {
+    const x = game.u.ux - 1;
+    const y = game.u.uy;
+    const loc = game.level.at(x, y);
+    loc.typ = DOOR;
+    loc.flags = mask;
+    loc.doormask = mask;
+    return loc;
+}
+
+test('kicking a closed door and failing prints Whammm!! or Thwack!!',
+    async () => {
+    // dokick.c:959-966. The failure branch exercises Strength and prints
+    // "Whammm!!" when rn2(3) is nonzero and the hero can hear, or "Thwack!!"
+    // otherwise.
+    assert.equal(
+        lineOf(DOKICK_C, 966),
+        'pline("%s!!", (Deaf || !rn2(3)) ? "Thwack" : "Whammm");',
+    );
+    assert.equal(lineOf(DOKICK_C, 962), 'exercise(A_STR, TRUE);');
+    assert.equal(lineOf(DOKICK_C, 926), 'exercise(A_DEX, TRUE);');
+
+    // Use the lowDex Valkyrie (seed 6600001) who has attributes low enough
+    // that rnl(35) is very likely to exceed avrg_attrib, landing in the
+    // failure branch. Set a closed door to the west so `${KICK}h` hits it.
+    await replay(VALKYRIE(), '');
+    setDoorWest(D_CLOSED);
+
+    for (const key of `${KICK}h   `)
+        game.nhDisplay.pushKey(commandKeyCode(key));
+    await rhack(0, game);
+
+    // The message is either "Whammm!!" or "Thwack!!"; both are valid
+    // depending on the rn2(3) draw.
+    assert.match(game._ttyToplines, /^(Whammm|Thwack)!!$/u,
+        'door kick failure prints the expected message');
+});
+
+test('a deaf hero kicking a closed door always gets Thwack!!', async () => {
+    // dokick.c:966 short-circuits: when Deaf is true, rn2(3) is never drawn.
+    // The deaf macro (youprop.h:125) reads HDeaf || EDeaf || uroleplay.deaf.
+    await replay(VALKYRIE(), '');
+    setDoorWest(D_CLOSED);
+    // Make the hero deaf via the intrinsic.
+    game.u.uprops[DEAF].intrinsic = 100;
+
+    for (const key of `${KICK}h   `)
+        game.nhDisplay.pushKey(commandKeyCode(key));
+    await rhack(0, game);
+
+    assert.equal(game._ttyToplines, 'Thwack!!',
+        'deaf hero always hears Thwack');
+});
+
+test('kicking an open door falls through to kick_dumb', async () => {
+    // dokick.c:914-917. When the door mask is D_ISOPEN, kick_door calls
+    // kick_dumb rather than attempting to break the door.
+    await replay(VALKYRIE(), '');
+    setDoorWest(D_ISOPEN);
+
+    for (const key of `${KICK}h   `)
+        game.nhDisplay.pushKey(commandKeyCode(key));
+    await rhack(0, game);
+
+    assert.equal(game._ttyToplines, 'You kick at empty space.',
+        'open door goes to kick_dumb');
+});
+
+test('avrg_attrib is computed before the door kick', async () => {
+    // dokick.c:1327-1331. The average of ACURRSTR, ACURR(A_DEX), and
+    // ACURR(A_CON) determines whether the kick succeeds. When avrg_attrib
+    // is very high (e.g. kicking boots set it to 99), the hero always
+    // succeeds and the success branch is reached.
+    assert.equal(
+        lineOf(DOKICK_C, 1328),
+        'if (uarmf && uarmf->otyp == KICKING_BOOTS)',
+    );
+    assert.equal(lineOf(DOKICK_C, 1329), 'avrg_attrib = 99;');
 });
