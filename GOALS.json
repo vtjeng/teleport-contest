@@ -7856,8 +7856,8 @@
       "slices": [
         {
           "name": "hellfill-open-cavern-loader-and-population",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "fe6d8eefd6e665657e0b2a71428e86648c7e87e4"
         },
         {
           "name": "hellfill-loader-common-liquid-cleanup",
