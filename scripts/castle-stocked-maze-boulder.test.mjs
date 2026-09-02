@@ -26,19 +26,16 @@ test('Castle stocked mazewalk links boulders through the vision hook',
         const recipe = loadRecipe();
         assert.equal(recipe.segments.length, 1);
 
+        // The recipe now reaches input exhaustion after the Castle's
+        // source-owned ambient sound branches. place_object() resolves
+        // blockPoint before it links a boulder, so the floor-boulder checks
+        // below prove that the stocked mazewalk supplied and ran the vision
+        // owner.
         let boundary;
         await runSegment(recipe.segments[0], {
             onBoundary: (error) => { boundary = error; },
         });
-
-        // The next independent boundary is the later level-sound branch.
-        // place_object() resolves blockPoint before it links a boulder, so
-        // reaching that boundary with floor boulders proves that the stocked
-        // mazewalk supplied and ran the vision owner.
-        assert.equal(
-            boundary?.message,
-            'dosounds() needs the has_court level-sound branch',
-        );
+        assert.equal(boundary, undefined);
 
         const boulders = [];
         for (let obj = game.level.objlist; obj; obj = obj.nobj) {

@@ -722,8 +722,10 @@ async function defaultRevealFoundTrap(trap, env) {
         );
     }
     await cls();
-    const trapGlyph = trap_glyph_info(trap, env.state);
-    show_glyph_cell(trap.tx, trap.ty, trapGlyph);
+    // C ref: detect.c find_trap() calls map_trap(trap, 1), not merely
+    // show_glyph().  The discovered trap must survive the following docrt(),
+    // including when WIN_STOP suppresses the message's --More-- wait.
+    map_trap(trap, 1, env.state);
     const heroGlyph = hero_glyph_info(env.state);
     show_glyph_cell(env.state.u.ux, env.state.u.uy, heroGlyph);
 }

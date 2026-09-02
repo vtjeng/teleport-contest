@@ -3475,14 +3475,25 @@ export async function docrt(options = {}) {
             // a display-RNG draw.
             for (let x = 1; x < COLNO; x++)
                 for (let y = 0; y < ROWNO; y++) {
-                    const remembered = game.level.at(x, y).remembered_glyph;
-                    show_glyph_cell(
-                        x,
-                        y,
-                        remembered
-                            ? remembered_glyph_presentation(remembered, game)
-                            : { ch: ' ', color: NO_COLOR, dec: false },
-                    );
+                    const location = game.level.at(x, y);
+                    const remembered = location.remembered_glyph;
+                    if (remembered) {
+                        show_glyph_cell(
+                            x,
+                            y,
+                            remembered_glyph_presentation(remembered, game),
+                        );
+                    } else if (location.disp_glyph) {
+                        // display.c:1750-1754 calls show_glyph() with
+                        // GLYPH_UNEXPLORED here. After cls() the glyph buffer
+                        // already contains that value, so C leaves an
+                        // untouched cell alone; only a stale transient entry
+                        // needs the blank write. This mirrors newsym()'s
+                        // unexplored-cell arm below.
+                        show_glyph_cell(
+                            x, y, { ch: ' ', color: NO_COLOR, dec: false },
+                        );
+                    }
                 }
             if (options.overlayMonsters !== false) see_monsters(game);
         }

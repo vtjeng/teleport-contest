@@ -56,6 +56,7 @@ import {
     trap_to_glyph,
     map_glyphinfo,
     monster_glyph_info,
+    newsym,
     object_glyph_info,
     remembered_glyph_from_presentation,
     trap_glyph_info,
@@ -837,7 +838,10 @@ test('trap clutter uses logical layers when custom symbols collide', async () =>
     assert.equal(target.replay.getScreens().length, beforeWait + 1);
     assert.equal(game.nhDisplay.inputQueueLength, 0);
     assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
-    assertCompleteMappedGlyph(location, objectGlyph);
+    // find_trap() calls map_trap(trap, 1) before its wait and docrt(); the
+    // temporary frame shows the colliding trap symbol, but the discovered
+    // trap owns the final map memory and redraw.
+    assertCompleteMappedGlyph(location, trapGlyph);
     assertTemporaryTrapScreen(
         captures.at(-1),
         target,
@@ -867,6 +871,12 @@ test('sighted trap discovery compares memory retained under a gas region', async
     const priorMemory = location.remembered_glyph;
     const trap = installUnseenAntiMagicTrap(target);
     installVisibleGasOverlay(target);
+    newsym(target.x, target.y);
+    assert.deepEqual(
+        location.remembered_glyph,
+        priorMemory,
+        'newsym leaves levl glyph memory unchanged below the gas overlay',
+    );
     const captures = captureInputBoundaries();
     game.nhDisplay.pushKey(' '.charCodeAt(0));
 
@@ -877,10 +887,11 @@ test('sighted trap discovery compares memory retained under a gas region', async
     });
 
     assert.equal(trap.tseen, true);
+    // find_trap() then follows its source path through map_trap(trap, 1),
+    // which owns the final memory used by the later docrt().
     assert.deepEqual(
         location.remembered_glyph,
-        priorMemory,
-        'newsym leaves levl glyph memory unchanged below the gas overlay',
+        rememberedGlyphContract(trap_glyph_info(trap, game)),
     );
     assert.equal(target.replay.getScreens().length, beforeWait + 1);
     assertTemporaryTrapScreen(
@@ -913,6 +924,11 @@ test('a telepathically sensed visible mimic shows real form and remembers disgui
         my: target.y,
     };
     game.level.monsters[target.x][target.y] = monster;
+    // C's docrt() redraws the remembered map and then see_monsters() walks
+    // fmon. Keep the synthetic monster in that level-wide chain too, or the
+    // final redraw cannot overlay its real form over the remembered disguise.
+    monster.nmon = game.level.monlist;
+    game.level.monlist = monster;
     game.u.uprops ??= [];
     // The diagonal target has squared distance two, is IN_SIGHT, and is a
     // non-invisible mimic. Range three telepathy therefore adds a
@@ -1069,7 +1085,7 @@ test('WIN_STOP suppresses trap input waiting but still redraws', async () => {
     await dosearch0(1, { state: game, random });
 
     assert.equal(trap.tseen, true);
-    assert.equal(location.disp_ch, '#');
+    assert.equal(location.disp_ch, trap_glyph_info(trap, game).ch);
     assert.equal(game._pending_message, '');
     assert.equal(game._ttyMessageStopped, true);
     assert.equal(game.nhDisplay.inputQueueLength, 1);
