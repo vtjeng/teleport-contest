@@ -35,8 +35,21 @@ function terrainMatches(wanted, actual) {
 }
 
 export class ThemeroomSelection {
-    constructor(points = null) {
+    // Which coordinate frame the points are in. C has one convention: every
+    // selection holds map coordinates, and sp_lev.c get_location() adds the
+    // coder's xstart/ystart when a Lua-relative coordinate is converted. This
+    // port keeps two. The constructors that take Lua-relative coordinates
+    // (selection_area(), selection_rect(), and the like) leave `absolute`
+    // false and the special-level API adds frame.xstart/frame.ystart when it
+    // paints; js/bigrm.js selection_match() reads the map directly and
+    // constructs with `absolute` true so the API adds nothing. Every method
+    // that returns a fresh selection derives it through #derived() so the
+    // frame follows the points.
+    absolute = false;
+
+    constructor(points = null, absolute = false) {
         this.points = new Uint8Array(COLNO * ROWNO);
+        this.absolute = absolute === true;
         if (points) {
             for (const point of points) this.set(point.x, point.y, true);
         }
@@ -46,10 +59,14 @@ export class ThemeroomSelection {
         return y * COLNO + x;
     }
 
+    // An empty selection in the receiver's coordinate frame.
+    #derived() {
+        return new ThemeroomSelection(null, this.absolute);
+    }
+
     clone() {
-        const result = new ThemeroomSelection();
+        const result = this.#derived();
         result.points.set(this.points);
-        result.absolute = this.absolute === true;
         return result;
     }
 
@@ -98,8 +115,7 @@ export class ThemeroomSelection {
 
     // C's percentage filter consumes RNG in x-major order.
     percentage(percent, random = rn2) {
-        const result = new ThemeroomSelection();
-        result.absolute = this.absolute === true;
+        const result = this.#derived();
         const { lx, ly, hx, hy } = this.bounds();
         for (let x = lx; x <= hx; ++x) {
             for (let y = ly; y <= hy; ++y) {
@@ -139,8 +155,7 @@ export class ThemeroomSelection {
             throw new TypeError('filter_mapchar requires a location accessor');
         const lit = options.lit ?? -2;
         const random = options.random ?? rn2;
-        const result = new ThemeroomSelection();
-        result.absolute = this.absolute === true;
+        const result = this.#derived();
         const { lx, ly, hx, hy } = this.bounds();
         for (let x = lx; x <= hx; ++x) {
             for (let y = ly; y <= hy; ++y) {
@@ -163,8 +178,7 @@ export class ThemeroomSelection {
     }
 
     negate() {
-        const result = new ThemeroomSelection();
-        result.absolute = this.absolute === true;
+        const result = this.#derived();
         for (let x = 0; x < COLNO; ++x) {
             for (let y = 0; y < ROWNO; ++y)
                 result.set(x, y, !this.get(x, y));

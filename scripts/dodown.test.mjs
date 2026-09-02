@@ -22,6 +22,7 @@ import {
     HOLE,
     LEVITATION,
     LFILE_EXISTS,
+    MIN_QUEST_ALIGN,
     PIT,
     STRAT_WAITFORU,
     TT_BURIEDBALL,
@@ -801,8 +802,32 @@ test('goto_level blocks descent from quest start when ok_to_quest is false', asy
 
     await dodown(state);
 
-    // Hero stays on the same level.
+    // do.c:1579 is the guard's only visible effect; the hero stays on the
+    // same level.
+    assert.equal(state._ttyToplines,
+        'A mysterious force prevents you from descending.');
     assert.deepEqual(state.u.uz, levelBefore);
+});
+
+test('goto_level lets a hero with the quest leave the quest start', async () => {
+    // do.c:1578, the guard's other arm. quest.c:141-143 answers TRUE when the
+    // leader gave the quest and is_pure() is positive, which needs an
+    // alignment record of at least MIN_QUEST_ALIGN (quest.h, 20); the boundary
+    // value is used. The fresh hero's ualign.type still equals
+    // ualignbase[A_ORIGINAL], so is_pure()'s other terms hold. goto_level()
+    // then runs on to the destination, whose already-visited flag stops it at
+    // the getlev() refusal, past the guard.
+    const state = await descendTo('>');
+    quiet(state);
+    state.qstart_level = { ...state.u.uz };
+    state.svq.quest_status.got_quest = true;
+    state.u.ualign.record = MIN_QUEST_ALIGN;
+    downStairsUnderHero(state);
+    destinationAlreadyVisited(state);
+
+    await assert.rejects(dodown(state), DESTINATION_REFUSAL);
+    assert.notEqual(state._ttyToplines,
+        'A mysterious force prevents you from descending.');
 });
 
 test('goto_level stops for a hero tethered to a buried ball', async () => {

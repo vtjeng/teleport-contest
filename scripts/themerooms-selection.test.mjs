@@ -222,3 +222,51 @@ test('fill eligibility includes Boulder starting at difficulty four', () => {
         /boolean room\.lit/,
     );
 });
+
+// Every method that returns a fresh ThemeroomSelection must keep the
+// receiver's coordinate frame, or js/mklev.js applies frame.xstart/ystart a
+// second time to a selection js/bigrm.js selection_match() built in map
+// coordinates. The table names each prototype method with the arguments it
+// needs; a method added without a row fails the coverage assertion below, and
+// one that forgets the frame fails the `absolute` assertion.
+test('selection-returning methods keep the receiver coordinate frame', () => {
+    const calls = {
+        // Returns a selection; the argument list is the minimum each accepts.
+        clone: [],
+        // 100 keeps every point without depending on the random draw.
+        percentage: [100, () => 0],
+        // MATCH_WALL against a location accessor that always answers HWALL,
+        // so every point survives the filter.
+        filter_mapchar: [MATCH_WALL, () => ({ typ: HWALL })],
+        negate: [],
+        grow: [],
+        // Return something other than a selection, or return the receiver.
+        get: [1, 1],
+        set: [1, 1, true],
+        bounds: [],
+        numpoints: [],
+        rndcoord: [false, () => 0],
+        iterate: [() => {}],
+    };
+    const methods = Object.getOwnPropertyNames(ThemeroomSelection.prototype)
+        .filter((name) => name !== 'constructor');
+    assert.deepEqual([...methods].sort(), Object.keys(calls).sort());
+
+    let selectionReturning = 0;
+    for (const absolute of [true, false]) {
+        // (2, 3) is one interior point, enough for every method to act on.
+        const receiver = new ThemeroomSelection([{ x: 2, y: 3 }], absolute);
+        assert.equal(receiver.absolute, absolute);
+        for (const [name, args] of Object.entries(calls)) {
+            const result = receiver[name](...args);
+            if (!(result instanceof ThemeroomSelection) || result === receiver)
+                continue;
+            selectionReturning += 1;
+            assert.equal(result.absolute, absolute, `${name} absolute=${absolute}`);
+        }
+    }
+    // clone, percentage, filter_mapchar, negate and grow, in both frames.
+    assert.equal(selectionReturning, 10);
+    assert.equal(new ThemeroomSelection().absolute, false);
+    assert.equal(selection_area(1, 1, 2, 2).absolute, false);
+});

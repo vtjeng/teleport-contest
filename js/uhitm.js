@@ -1146,7 +1146,7 @@ async function hmon_hitmon_pet(hmd, mon, state, random) {
     if (mon.mtame && hmd.dmg > 0) {
         /* do this even if the pet is being killed or migrating
            (affects revival) */
-        await abuse_dog(mon, state); /* reduces tameness */
+        await abuse_dog(mon, state, random); /* reduces tameness */
         /* flee if still alive and still tame; if already suffering from
            untimed fleeing, no effect, otherwise increases timed fleeing */
         if (mon.mtame && !hmd.destroyed)

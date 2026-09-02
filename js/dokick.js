@@ -476,8 +476,9 @@ export async function dokick(state = game) {
     // 1327-1331. KMH -- Kicking boots always succeed; otherwise average the
     // three physical attributes. C's ACURRSTR folds 18/xx Strength down to
     // 19..25; ACURR for Dexterity and Constitution gives the effective value.
+    // C's uarmf is a global; worn.js keeps it at state.uarmf.
     let avrg_attrib;
-    if (state.u.uarmf?.otyp === KICKING_BOOTS) {
+    if (state.uarmf?.otyp === KICKING_BOOTS) {
         avrg_attrib = 99;
     } else {
         avrg_attrib = Math.trunc(

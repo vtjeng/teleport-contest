@@ -1,8 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
 import {
     buildTestSuites,
+    strayTestFiles,
     testFilesForSuite,
 } from './test-suites.mjs';
 
@@ -55,3 +60,25 @@ test('the repository registry lists all discovered tests with no dedicated suite
         assert.equal(all.length, ordinary.length);
         assert.throws(() => testFilesForSuite('unknown'), /unknown test suite/u);
     });
+
+test('the stray-test scan reports test files outside the discovered roots',
+    () => {
+        // A tree with one discovered root, one stray directory, one skipped
+        // directory, and one dot-directory: only the stray file is reported.
+        const root = mkdtempSync(join(tmpdir(), 'stray-tests-'));
+        try {
+            for (const dir of ['scripts', 'test', 'node_modules/dep', '.git']) {
+                mkdirSync(join(root, dir), { recursive: true });
+                writeFileSync(join(root, dir, 'a.test.mjs'), '');
+            }
+            writeFileSync(join(root, 'test', 'not-a-test.mjs'), '');
+            assert.deepEqual(strayTestFiles(root), ['test/a.test.mjs']);
+        } finally {
+            rmSync(root, { recursive: true, force: true });
+        }
+    });
+
+test('the repository has no test file outside the discovered roots', () => {
+    // A test that lives outside scripts/ belongs to no suite and never runs.
+    assert.deepEqual(strayTestFiles(), []);
+});

@@ -78,6 +78,7 @@ import {
     PM_GRID_BUG,
     PM_GREMLIN,
     PM_HEZROU,
+    PM_IRON_GOLEM,
     PM_KITTEN,
     PM_LEPRECHAUN,
     PM_LITTLE_DOG,
@@ -1449,30 +1450,35 @@ test('simple preflight erodes a current-square dust engraving on the clone',
         assert.equal(game.head_engr.engr_txt[0], originalText);
     });
 
-// C ref: mon.c minliquid_core():987. The split reads `infountain` beside
-// `inpool`, and only for `mons[PM_GREMLIN]`: a gremlin standing on a fountain
-// draws rn2(3) there that no other species draws. The scan cannot answer that
-// draw, so it stops on the square; every other species crosses the same
-// fountain as ordinary terrain.
-test('simple preflight stops a gremlin standing on a fountain', async () => {
-    const gremlin = await prepareSelectedAction({ pmidx: PM_GREMLIN });
-    game.level.at(gremlin.monsterX, gremlin.heroY).typ = FOUNTAIN;
-    const before = completeSecondTurnSnapshot(game, gremlin.replay);
+// C ref: mon.c minliquid_core():987. The split reads `(inpool || infountain)`,
+// and only for `mons[PM_GREMLIN]`: a gremlin standing on a fountain or in a
+// pool draws rn2(3) there that no other species draws. The scan cannot answer
+// that draw, so it stops on the square with nothing changed; every other
+// species crosses the same fountain as ordinary terrain.
+test('simple preflight stops a gremlin standing on a fountain or in a pool',
+    async () => {
+    for (const terrain of [FOUNTAIN, POOL]) {
+        const gremlin = await prepareSelectedAction({ pmidx: PM_GREMLIN });
+        game.level.at(gremlin.monsterX, gremlin.heroY).typ = terrain;
+        const before = completeSecondTurnSnapshot(game, gremlin.replay);
+        const beforeRandom = rngSnapshot();
 
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'a gremlin splitting in a fountain'
-            ),
-            `attempt ${attempt + 1}`,
-        );
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, gremlin.replay),
-            before,
-            `attempt ${attempt + 1}`,
-        );
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await assert.rejects(
+                preflightSimpleMonsterActions(game),
+                (error) => (
+                    error instanceof UnsupportedSimpleMonsterActionError
+                    && error.reason === 'a gremlin multiplying in water'
+                ),
+                `terrain ${terrain}, attempt ${attempt + 1}`,
+            );
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, gremlin.replay),
+                before,
+                `terrain ${terrain}, attempt ${attempt + 1}`,
+            );
+            assert.deepEqual(rngSnapshot(), beforeRandom);
+        }
     }
 
     // PM_GIANT_RAT is prepareSelectedAction()'s default species; it reads the
@@ -1485,19 +1491,30 @@ test('simple preflight stops a gremlin standing on a fountain', async () => {
     assert.deepEqual(preflightSnapshot(), ratBefore);
 });
 
-// unportedMinliquidReason() retains the two source-specific splits this port
+// unportedMinliquidReason() retains the three source-specific arms this port
 // leaves at the action boundary; ordinary pool and lava effects are exercised
 // by minliquid() above.
-test('minliquid reason keeps the fountain and stranded-eel arms', async () => {
-    const GREMLIN_SPLIT = 'a gremlin splitting in a fountain';
+test('minliquid reason keeps the gremlin, iron-golem and stranded-eel arms',
+    async () => {
+    const GREMLIN_SPLIT = 'a gremlin multiplying in water';
+    const GOLEM_RUST = 'an iron golem rusting in water';
     const STRANDED_EEL = 'an eel out of water';
     const cases = [
         // minliquid() owns the ordinary pool and lava branches now.
         { terrain: POOL, pmidx: PM_GIANT_RAT, reason: null },
         { terrain: LAVAPOOL, pmidx: PM_GIANT_RAT, reason: null },
-        // mon.c:987's fountain split remains outside this bounded slice.
-        { terrain: POOL, pmidx: PM_GREMLIN, reason: null },
+        // mon.c:987 fires on `(inpool || infountain)`: the gremlin arm is
+        // unported, so a pool and a fountain both refuse. Lava is neither, so
+        // a gremlin there takes the ported burn arm.
+        { terrain: POOL, pmidx: PM_GREMLIN, reason: GREMLIN_SPLIT },
         { terrain: FOUNTAIN, pmidx: PM_GREMLIN, reason: GREMLIN_SPLIT },
+        { terrain: LAVAPOOL, pmidx: PM_GREMLIN, reason: null },
+        // mon.c:993 fires on `inpool` alone for the iron golem: a fountain
+        // is dry floor to it, and lava takes the ported burn arm.
+        { terrain: POOL, pmidx: PM_IRON_GOLEM, reason: GOLEM_RUST },
+        { terrain: FOUNTAIN, pmidx: PM_IRON_GOLEM, reason: null },
+        { terrain: LAVAPOOL, pmidx: PM_IRON_GOLEM, reason: null },
+        { terrain: ROOM, pmidx: PM_IRON_GOLEM, reason: null },
         // `infountain` reaches no other species, and no arm reads a gremlin's
         // dry floor, so both of these are squares C walks straight past.
         { terrain: FOUNTAIN, pmidx: PM_GIANT_RAT, reason: null },

@@ -1023,8 +1023,12 @@ function Conflict(state) {
  * worm that loses its tameness calls redraw_worm(). Neither is ported, and
  * neither can be reached today: no ported writer sets mleashed to true (see
  * js/apply_next_to_u.js), so both arms are refused rather than left silent.
+ *
+ * `random` is the injection seam for the complaint draw and for the
+ * hallucination draw inside yelp() and growl(); the game passes nothing and
+ * draws from the core stream.
  */
-export async function abuse_dog(mtmp, state = game) {
+export async function abuse_dog(mtmp, state = game, random = { rn2 }) {
     if (!mtmp.mtame) return;
 
     if (Aggravate_monster(state) || Conflict(state))
@@ -1043,10 +1047,10 @@ export async function abuse_dog(mtmp, state = game) {
     /* don't make a sound if pet is in the middle of leaving the level */
     /* newsym isn't necessary in this case either */
     if (mtmp.mx !== 0) {
-        if (mtmp.mtame && rn2(mtmp.mtame))
-            await yelp(mtmp, state);
+        if (mtmp.mtame && random.rn2(mtmp.mtame))
+            await yelp(mtmp, state, random);
         else
-            await growl(mtmp, state); /* give them a moment's worry */
+            await growl(mtmp, state, random); /* give them a moment's worry */
 
         if (!mtmp.mtame) {
             newsym(mtmp.mx, mtmp.my);

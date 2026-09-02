@@ -45,6 +45,36 @@ export function discoverDefaultTests() {
         .sort();
 }
 
+// Directories the stray-test scan never enters: dependencies, git metadata
+// and agent worktrees under dot-directories, the C reference tree, and the
+// recorded sessions (which include the sealed holdout).
+const STRAY_SCAN_SKIPS = new Set(['node_modules', 'nethack-c', 'sessions']);
+
+// Every *.test.mjs file outside the discovered roots, relative to the
+// project root. A test in any other directory runs under no suite, so it
+// passes `npm test` by never running; this scan is what makes that a failure.
+export function strayTestFiles(root = PROJECT_ROOT, discoveredRoots = ['scripts']) {
+    const stray = [];
+    const walk = (relative) => {
+        const entries = readdirSync(resolve(root, relative), {
+            withFileTypes: true,
+        });
+        for (const entry of entries) {
+            const path = relative ? join(relative, entry.name) : entry.name;
+            if (entry.isDirectory()) {
+                if (entry.name.startsWith('.')
+                    || STRAY_SCAN_SKIPS.has(entry.name)
+                    || discoveredRoots.includes(path)) continue;
+                walk(path);
+            } else if (entry.isFile() && entry.name.endsWith('.test.mjs')) {
+                stray.push(path);
+            }
+        }
+    };
+    walk('');
+    return stray.sort();
+}
+
 export function testFilesForSuite(name) {
     const suites = buildTestSuites(
         discoverDefaultTests(),

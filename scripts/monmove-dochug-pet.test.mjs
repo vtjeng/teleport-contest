@@ -103,6 +103,11 @@ function baseEnv(events) {
         // mpeaceful, which is find_offensive()'s first guard, so no fixture
         // here reaches a refusing arm.
         unsupported: (what) => assert.fail(`unexpected refusal: ${what}`),
+        // monmove.c:895-907. The state above gives the hero no position, so
+        // the dist2() gate in front of this operation fails for every pet
+        // fixture here.
+        castUndirectedSpell: () =>
+            assert.fail('unexpected undirected spell attempt'),
     };
 }
 

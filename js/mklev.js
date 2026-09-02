@@ -1010,9 +1010,19 @@ function pick_vibrasquare_location(frame, state) {
     return { x, y };
 }
 
-// C ref: sp_lev.c set_levltyp_lit(). This is kept beside the special-level
-// API because ordinary map painting has different metadata-reset semantics.
-function set_special_terrain(x, y, typ, lit, state) {
+// C ref: sp_lev.c sel_set_ter(), which calls mkmaze.c set_levltyp_lit() and
+// then fixes up the door, wall, ice, and cloud arms. This is the special-level
+// API's terrain() writer; set_themeroom_map_terrain() above is the same
+// function as called by lspo_map(), whose metadata reset differs. The ice arm
+// (`splev_init_present && ICE` sets icedpool from the coder's icedpools flag)
+// and the cloud arm (del_engr_at()) are not ported; both stop here, ahead of
+// set_levltyp_lit(), so a refused paint changes nothing.
+function sel_set_ter(x, y, typ, lit, state) {
+    if (typ === ICE || typ === CLOUD) {
+        throw new UnsupportedLevelChangeError(
+            `sel_set_ter: ${typ === ICE ? 'ice' : 'cloud'} terrain not ported`,
+        );
+    }
     if (!set_levltyp(x, y, typ, { state })) return false;
     const location = state.level.at(x, y);
     if (lit !== SET_LIT_NOCHANGE) {
@@ -2185,7 +2195,7 @@ function createSpecialLevelApi(state) {
                         if (!selection.get(x, y)) continue;
                         const tx = absolute ? x : frame.xstart + x;
                         const ty = absolute ? y : frame.ystart + y;
-                        set_special_terrain(tx, ty, typ, lit, state);
+                        sel_set_ter(tx, ty, typ, lit, state);
                     }
                 }
                 return;
@@ -2194,7 +2204,7 @@ function createSpecialLevelApi(state) {
             const oy = currentCroom ? currentCroom.ly : frame.ystart;
             const tx = ox + coordinate[0];
             const ty = oy + coordinate[1];
-            set_special_terrain(tx, ty, typ, lit, state);
+            sel_set_ter(tx, ty, typ, lit, state);
         },
 
         // C ref: sp_lev.c lspo_wallify(). Converts STONE tiles adjacent to

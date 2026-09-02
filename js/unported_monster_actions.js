@@ -100,6 +100,7 @@ import {
     PM_FOG_CLOUD,
     PM_GELATINOUS_CUBE,
     PM_GREMLIN,
+    PM_IRON_GOLEM,
     PM_KILLER_BEE,
     PM_KITTEN,
     PM_LEPRECHAUN,
@@ -229,44 +230,40 @@ function assertSimpleScanState(monster, state) {
 }
 
 // C ref: mon.c minliquid_core() (961-1122). The ordinary pool and lava
-// branches now run through js/mon.js. This predicate retains only the
-// species-specific fountain split that this bounded slice deliberately leaves
-// at the action boundary.
+// branches run through js/mon.js minliquid_core(). This predicate retains the
+// three species-specific arms that port does not carry, each of which draws
+// a random number ahead of every later draw in the turn, so answering null
+// for any of them would move the whole random-number log with no stop to mark
+// it.
 //
-// The square decides for every species but one. C derives `inpool` at :967 and
-// `inlava` at :971 to guard the drown and burn effects at :1068 and :1010,
-// neither ported. A flyer or floater is exempt from both: C's `inpool` and
-// `inlava` are false for those species (outside the Plane of Water, where
-// Is_waterlevel at :970 re-includes flyers; that level is not yet reachable).
-// Non-flying, non-floating monsters on pool or lava are refused because
-// minliquid_core()'s burn and drown effects are not ported.
+// The first two sit before either liquid arm, at :987 and :993, and read
+// `inpool` (:967) and `infountain` (:973). C's `inpool` exempts a flyer or
+// floater outside the Plane of Water; a gremlin (monsters.h:448, M1_SWIM) and
+// an iron golem (monsters.h:2586) are neither, so for these two species
+// is_pool() alone is C's `inpool` on every level.
 //
-// The gremlin is the exception, and it is why a fountain appears here. C
-// derives `infountain` at :973 from IS_FOUNTAIN(levl[mx][my].typ) and reads it
-// in exactly one place, the split at :987, which fires for `mons[PM_GREMLIN]`
-// alone: that gremlin draws rn2(3) and on a nonzero roll calls split_mon() and
-// dryup(). Answering false for a fountain would skip that draw silently, so a
-// gremlin standing on one is refused instead. A fountain is ordinary terrain
-// for every other species, which reads the square through `inpool` and `inlava`
-// alone.
+// A gremlin on `(inpool || infountain)` draws rn2(3), and on a nonzero roll
+// calls split_mon(), dryup() and, in a pool, water_damage_chain(), then
+// returns 0. An iron golem in a pool draws rn2(5), and on a zero roll draws
+// d(2,6), prints "rusts", loses hit points and may die. Neither is ported, so
+// both are refused on the square the monster stands on. A fountain is
+// ordinary terrain for every other species, which reads the square through
+// `inpool` and `inlava` alone.
 //
-// C tests the gremlin at :987 before either liquid arm, and these two are in
-// the other order. That is only a labelling difference: a gremlin in water
-// matches both, and whichever arm claims it, the caller refuses.
-//
-// The eel is the other exception, and it is the `else` of the pool arm at
-// :1111-1119: an eel that is neither in water nor in lava loses hit points to
+// The eel is the third, and it is the `else` of the pool arm at :1111-1119: an
+// eel that is neither in water nor in lava loses hit points to
 // `rn2(mtmp->mhp) > rn2(8)` and is sent fleeing by monflee(). Neither effect
-// is ported, and that draw pair sits ahead of every later draw in the turn, so
-// answering false for a stranded eel would move the whole random-number log
-// with no stop to mark it. mklev() only ever places an eel in water, but
-// wizcmds.c wiz_genesis() can put one on dry land, because goodpos() accepts a
-// dry square for an eel one time in thirteen (teleport.c:148).
+// is ported. mklev() only ever places an eel in water, but wizcmds.c
+// wiz_genesis() can put one on dry land, because goodpos() accepts a dry
+// square for an eel one time in thirteen (teleport.c:148).
 export function unportedMinliquidReason(monster, state) {
-    if (monsndx(monster.data) === PM_GREMLIN
-        && IS_FOUNTAIN(state.level?.at?.(monster.mx, monster.my)?.typ))
-        return 'a gremlin splitting in a fountain';
     const location = state.level?.at?.(monster.mx, monster.my);
+    const inpool = is_pool(monster.mx, monster.my, state);
+    const infountain = Boolean(location && IS_FOUNTAIN(location.typ));
+    if (monsndx(monster.data) === PM_GREMLIN && (inpool || infountain))
+        return 'a gremlin multiplying in water';
+    if (monsndx(monster.data) === PM_IRON_GOLEM && inpool)
+        return 'an iron golem rusting in water';
     if (monster.data?.mlet === S_EEL
         && !is_pool(monster.mx, monster.my, state)
         && !is_lava(monster.mx, monster.my, state)

@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    A_CON,
+    A_DEX,
     A_STR,
     BLINDED,
     D_BROKEN,
@@ -25,6 +27,7 @@ import { engr_at, make_engr_at } from '../js/engrave.js';
 import { rhack } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { getRngLog } from '../js/rng.js';
 import {
     KICK,
     KICK_CASES,
@@ -501,10 +504,54 @@ test('avrg_attrib is computed before the door kick', async () => {
 
 // Set kicking boots on the hero so avrg_attrib becomes 99 (dokick.c:1328-1329),
 // which guarantees that rnl(35) < avrg_attrib always holds and the success
-// branch at :929-930 is entered.
+// branch at :929-930 is entered. `game.uarmf` is the slot setworn() writes
+// (worn.js, `{ mask: W_ARMF, field: 'uarmf' }`) and the one martial() and
+// dokick() read; C's `uarmf` is a global, not a field of `u`.
 function equipKickingBoots() {
-    game.u.uarmf = { otyp: KICKING_BOOTS };
+    game.uarmf = { otyp: KICKING_BOOTS };
 }
+
+// The draws one command made from the current game, in order. Unlike
+// kickTurnDraws() this keeps the state the test arranged after replay(), so
+// a test can change the door or the hero and still read the kick's draws.
+async function drawsOf(keys) {
+    const before = getRngLog().length;
+    for (const key of keys)
+        game.nhDisplay.pushKey(commandKeyCode(key));
+    await rhack(0, game);
+    return getRngLog().slice(before);
+}
+
+test('kicking boots break a door that a feeble hero could not', async () => {
+    // dokick.c:1328-1329 and :929-930. With kicking boots avrg_attrib is 99,
+    // so rnl(35) < 99 + ACURR(A_DEX) holds for every draw and the success
+    // branch runs whatever the hero's attributes are. Without them the average
+    // of ACURRSTR, ACURR(A_DEX) and ACURR(A_CON) decides, and 3 in every
+    // attribute is the floor C allows, giving avrg_attrib 3 and a comparison
+    // (rnl(35) < 3 + 3, the boots making martial() true) that the PRNG position
+    // of this segment fails, sending the kick to the "Whammm!!" branch. A port
+    // that reads the boots from anywhere but the slot the game fills sees no
+    // boots and takes that failure branch.
+    await replay(VALKYRIE(), '');
+    setDoorWest(D_CLOSED);
+    equipKickingBoots();
+    game.u.acurr.a[A_STR] = 3;
+    game.u.acurr.a[A_DEX] = 3;
+    game.u.acurr.a[A_CON] = 3;
+
+    const draws = await drawsOf(`${KICK}h   `);
+
+    assert.equal(game._ttyToplines, 'As you kick the door, it crashes open!');
+    const loc = game.level.at(game.u.ux - 1, game.u.uy);
+    // dokick.c:949 sets D_BROKEN; Strength 3 never reaches the rn2(5) at :940.
+    assert.equal(loc.doormask, D_BROKEN);
+    assert.equal(loc.flags, D_BROKEN);
+    // :926 exercise(A_DEX, TRUE), :930 rnl(35), :948 exercise(A_STR, TRUE),
+    // with no rn2(5) between the last two and no rn2(3) from :966 after them.
+    assert.match(draws[0], /^rn2\(19\)=/u);
+    assert.match(draws[1], /^rnl\(35\)=/u);
+    assert.match(draws[2], /^rn2\(19\)=/u);
+});
 
 test('the success branch pins on C source lines', () => {
     // dokick.c:934-950. The if/else-if/else chain that decides how the door
@@ -544,9 +591,7 @@ test('a weak hero always gets crash-open, skipping the rn2(5) draw',
     // immediately at its first term. effective_attribute(state, A_STR) = 15.
     game.u.acurr.a[A_STR] = 15;
 
-    for (const key of `${KICK}h   `)
-        game.nhDisplay.pushKey(commandKeyCode(key));
-    await rhack(0, game);
+    const draws = await drawsOf(`${KICK}h   `);
 
     assert.equal(game._ttyToplines,
         'As you kick the door, it crashes open!');
@@ -554,35 +599,53 @@ test('a weak hero always gets crash-open, skipping the rn2(5) draw',
     // dokick.c:949 sets D_BROKEN.
     assert.equal(loc.doormask, D_BROKEN, 'doormask is D_BROKEN');
     assert.equal(loc.flags, D_BROKEN, 'flags mirror doormask');
+    // :926, :930 and :948 in that order; the rn2(5) of :940 is absent.
+    assert.match(draws[0], /^rn2\(19\)=/u);
+    assert.match(draws[1], /^rnl\(35\)=/u);
+    assert.match(draws[2], /^rn2\(19\)=/u);
 });
 
-test('a strong hero gets either shatter or crash-open depending on rn2(5)',
-    async () => {
-    // dokick.c:940. ACURR(A_STR) > 18 passes the first term, so rn2(5)
-    // decides: 0 shatters (D_NODOOR), nonzero crashes open (D_BROKEN).
-    await replay(VALKYRIE(), '');
-    setDoorWest(D_CLOSED);
-    equipKickingBoots();
-    // Strength 25 is well above 18, so the first term passes and rn2(5)
-    // is drawn.
-    game.u.acurr.a[A_STR] = 25;
+// The two arms of dokick.c:940-949 for a hero whose ACURR(A_STR) > 18. The
+// matrix cases `shatter` and `crashOpen` were chosen so that the first kick
+// of each start lands on the intended rn2(5) result without any change to the
+// hero or the door, so each test asserts its arm unconditionally.
 
-    for (const key of `${KICK}h   `)
-        game.nhDisplay.pushKey(commandKeyCode(key));
-    await rhack(0, game);
+test('a strong hero whose rn2(5) is 0 shatters the door', async () => {
+    // dokick.c:940-944. Seed 6600170: Strength 20, closed door to the east,
+    // and a PRNG position whose rn2(5) is 0.
+    const { kicked, draws } = await kickTurnDraws(segmentFor('shatter'),
+                                                 `${KICK}l`);
+    assert.equal(kicked.boundary, null);
+    assert.equal(kicked.toplines,
+        'As you kick the door, it shatters to pieces!');
+    const loc = game.level.at(game.u.ux + 1, game.u.uy);
+    // :944 sets D_NODOOR.
+    assert.equal(loc.doormask, D_NODOOR, 'shatter sets D_NODOOR');
+    assert.equal(loc.flags, D_NODOOR, 'flags mirror doormask');
+    // :926 exercise(A_DEX, TRUE), :930 rnl(35), :940 rn2(5), :943
+    // exercise(A_STR, TRUE).
+    assert.match(draws[0], /^rn2\(19\)=/u);
+    assert.match(draws[1], /^rnl\(35\)=/u);
+    assert.equal(draws[2], 'rn2(5)=0');
+    assert.match(draws[3], /^rn2\(19\)=/u);
+});
 
+test('a strong hero whose rn2(5) is not 0 crashes the door open', async () => {
+    // dokick.c:946-949. Seed 6600057: Strength 19, closed door to the west,
+    // and a PRNG position whose rn2(5) is not 0.
+    const { kicked, draws } = await kickTurnDraws(segmentFor('crashOpen'),
+                                                 `${KICK}h`);
+    assert.equal(kicked.boundary, null);
+    assert.equal(kicked.toplines, 'As you kick the door, it crashes open!');
     const loc = game.level.at(game.u.ux - 1, game.u.uy);
-    // The message and doormask must agree on which arm ran.
-    if (game._ttyToplines
-        === 'As you kick the door, it shatters to pieces!') {
-        assert.equal(loc.doormask, D_NODOOR, 'shatter sets D_NODOOR');
-        assert.equal(loc.flags, D_NODOOR, 'flags mirror doormask');
-    } else {
-        assert.equal(game._ttyToplines,
-            'As you kick the door, it crashes open!');
-        assert.equal(loc.doormask, D_BROKEN, 'crash sets D_BROKEN');
-        assert.equal(loc.flags, D_BROKEN, 'flags mirror doormask');
-    }
+    // :949 sets D_BROKEN.
+    assert.equal(loc.doormask, D_BROKEN, 'crash sets D_BROKEN');
+    assert.equal(loc.flags, D_BROKEN, 'flags mirror doormask');
+    // The same four draws as the shatter arm, with rn2(5) in 1..4.
+    assert.match(draws[0], /^rn2\(19\)=/u);
+    assert.match(draws[1], /^rnl\(35\)=/u);
+    assert.match(draws[2], /^rn2\(5\)=[1-4]$/u);
+    assert.match(draws[3], /^rn2\(19\)=/u);
 });
 
 test('a locked door can be kicked open the same way a closed one can',

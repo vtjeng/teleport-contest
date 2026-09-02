@@ -5964,6 +5964,31 @@
       "from": "8694373c4aed55a7e2654540d155b574ff1ad138",
       "detail": "dog.c abuse_dog():1373-1374 and 1386-1388, the two arms js/dog.js abuse_dog() refuses. A pet whose tameness reaches 0 while leashed needs dog.c m_unleash(mtmp, TRUE); a long worm that loses its tameness needs worm.c redraw_worm(mtmp) after newsym(). Neither can be exercised by a recording today: no ported writer sets monster.mleashed to true (js/apply_next_to_u.js records the same gap for apply.c mleashed_next2u(), and the only ported writers -- js/dog.js:168 and js/bury.js:198 -- clear it), and js/dog.js migrate_to_level() already refuses a long worm for the same reason. Reaching either also means driving a pet's mtame from 10 down to 0, which takes ten landed hero blows on a pet that survives them all; the three recipes/pet-abuse-*.session.json cases each get one or two blows in before the pet dies or flees out of reach. Closing this entry wants a durable pet (a saddled pony held by a leash the port can set) and should land m_unleash() alongside the apply.c leash commands that create the state.",
       "blockedOn": "m_unleash"
+    },
+    {
+      "id": "sel-set-ter-ice-and-cloud-arms-stop",
+      "area": "generation",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "82fe7b66d00ab56b097c398827eeb10dcf13f323",
+      "detail": "js/mklev.js sel_set_ter(), the special-level API terrain() writer, refuses ICE and CLOUD with UnsupportedLevelChangeError ahead of set_levltyp_lit(). sp_lev.c sel_set_ter() has two arms the port lacks: `splev_init_present && ICE` sets levl[x][y].icedpool from the coder icedpools flag (ICED_POOL or ICED_MOAT), and CLOUD calls del_engr_at() because clouds cannot hold engravings. Porting them needs the coder state sp_lev.c keeps in splev_init_present and icedpools (js/mklev.js createSpecialLevelApi() records neither; mkmap_finish_map() takes icedpools as a parameter instead), plus del_engr_at(), which js/mklev.js already imports. No shipped loader paints I or C through terrain(), so the stop costs no development session today; resolve it when a des-file that does is ported. scripts/sel-set-ter.test.mjs pins the stop."
+    },
+    {
+      "id": "minliquid-gremlin-and-iron-golem-arms-stop",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "82fe7b66d00ab56b097c398827eeb10dcf13f323",
+      "detail": "js/unported_monster_actions.js unportedMinliquidReason() refuses a gremlin on `is_pool() || IS_FOUNTAIN` and an iron golem on `is_pool()`, the squares on which mon.c minliquid_core() takes its two species arms ahead of the pool and lava arms. Neither arm is ported in js/mon.js minliquid_core(). The gremlin arm draws rn2(3) and, on a nonzero roll, calls split_mon() (which clones the gremlin and draws for its placement), dryup() on a fountain, and water_damage_chain() on its inventory in a pool, then returns 0. The iron golem arm draws rn2(5) and, on zero, d(2,6), prints \"<Monnam> rusts.\" when the square is seen, subtracts the damage from mhp and mhpmax, calls mondied() and returns 1 when that kills it, and otherwise calls water_damage_chain() and returns 0. Porting them needs split_mon() (mon.c clone_mon() and its placement draws) and water_damage_chain(); js/fountain.js dryup() and js/mon.js mondied() exist. Refusing both keeps the random-number log aligned, which the earlier boundary lost when it narrowed to the fountain alone. scripts/unported-monster-actions.test.mjs pins both refusals.",
+      "blockedOn": "split_mon",
+      "notes": [
+        {
+          "text": "split_mon() is defined in potion.c and calls mon.c clone_mon() for the placement draws; water_damage_chain() is in trap.c. Neither has a js/ port; js/fountain.js dryup() and js/mon.js mondied() do.",
+          "at": "82fe7b66d00ab56b097c398827eeb10dcf13f323"
+        }
+      ]
     }
   ],
   "areas": [

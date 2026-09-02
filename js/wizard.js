@@ -8,8 +8,11 @@ import {
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
     NO_MM_FLAGS,
+    STRAT_WAITFORU,
+    helpless,
 } from './const.js';
 import { Amonnam } from './do_name.js';
+import { In_W_tower } from './dungeon.js';
 import { game } from './gstate.js';
 import { set_malign } from './makemon.js';
 import { PM_WIZARD_OF_YENDOR } from './monsters.js';
@@ -26,6 +29,25 @@ function heroIsDeaf(state) {
         || deafness?.extrinsic
         || state.u?.uroleplay?.deaf,
     );
+}
+
+// C ref: wizard.c has_aggravatables() (472-491). "are there any monsters mon
+// could aggravate?" A pure scan of fmon: no draws, no output, no state change.
+// mcastu.c spell_would_be_useless() reads it for MCAST_AGGRAVATION.
+export function has_aggravatables(mon, state = game) {
+    const in_w_tower = In_W_tower(mon.mx, mon.my, state.u.uz, state);
+
+    if (in_w_tower !== In_W_tower(state.u.ux, state.u.uy, state.u.uz, state))
+        return false;
+
+    for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.mhp < 1) continue; /* DEADMONSTER() */
+        if (in_w_tower !== In_W_tower(mtmp.mx, mtmp.my, state.u.uz, state))
+            continue;
+        if ((mtmp.mstrategy & STRAT_WAITFORU) !== 0 || helpless(mtmp))
+            return true;
+    }
+    return false;
 }
 
 function creationEnv(state, rawEnv) {

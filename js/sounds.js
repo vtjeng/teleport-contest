@@ -498,8 +498,9 @@ export async function dosoundsInitialLevel(
 // C ref: sounds.c h_sounds[] (341-349). The 35 verbs a hallucinating hero
 // hears in place of a monster's real noise. growl(), yelp() and whimper() all
 // index it with ROLL_FROM(), which is `array[rn2(SIZE(array))]`; only growl()
-// and yelp() have a caller in this port.
-const h_sounds = Object.freeze([
+// and yelp() have a caller in this port. Exported so that a test can pin each
+// entry against the C table.
+export const h_sounds = Object.freeze([
     'beep', 'boing', 'sing', 'belche', 'creak', 'cough',
     'rattle', 'ululate', 'pop', 'jingle', 'sniffle', 'tinkle',
     'eep', 'clatter', 'hum', 'sizzle', 'twitter', 'wheeze',
@@ -557,7 +558,10 @@ export function growl_sound(mtmp) {
 // port of the field first needs pline() to clear it (pline.c:242, 281) so the
 // flag means "the most recent message was this growl". Both belong with
 // setmangry(); nothing here reads the value.
-export async function growl(mtmp, state = game) {
+//
+// `random` is the injection seam for the hallucination draw; the game passes
+// nothing and draws from the core stream.
+export async function growl(mtmp, state = game, random = { rn2 }) {
     let growl_verb = 0;
 
     if (helpless(mtmp) || mtmp.data?.msound === MS_SILENT)
@@ -565,7 +569,7 @@ export async function growl(mtmp, state = game) {
 
     /* presumably nearness and soundok checks have already been made */
     if (Hallucination(state))
-        growl_verb = h_sounds[rn2(h_sounds.length)];
+        growl_verb = h_sounds[random.rn2(h_sounds.length)];
     else
         growl_verb = growl_sound(mtmp);
     if (growl_verb) {
@@ -593,7 +597,7 @@ export async function growl(mtmp, state = game) {
 // C's Soundeffect() calls are omitted: the recorder's soundlib is `nosound`,
 // whose soundprocs.sound_soundeffect is null, so the macro expands to a test
 // that never fires.
-export async function yelp(mtmp, state = game) {
+export async function yelp(mtmp, state = game, random = { rn2 }) {
     let yelp_verb = 0;
 
     if (helpless(mtmp) || !mtmp.data?.msound)
@@ -601,7 +605,7 @@ export async function yelp(mtmp, state = game) {
 
     /* presumably nearness and soundok checks have already been made */
     if (Hallucination(state)) {
-        yelp_verb = h_sounds[rn2(h_sounds.length)];
+        yelp_verb = h_sounds[random.rn2(h_sounds.length)];
     } else {
         switch (mtmp.data.msound) {
         case MS_MEW:

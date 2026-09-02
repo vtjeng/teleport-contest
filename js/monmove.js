@@ -1776,6 +1776,13 @@ export async function dochug(monster, rawEnv = {}) {
     // because use_offensive(), the only reader of what it selects, is not
     // ported.
     const unsupported = requireDochugOperation(rawEnv, 'unsupported');
+    // monmove.c:895-907 walks the AT_MAGC/AD_SPEL/AD_CLRC attack slots and
+    // calls castmu(FALSE, FALSE) for each; the provider answers whether one
+    // returned M_ATTK_HIT.
+    const castUndirectedSpell = requireDochugOperation(
+        rawEnv,
+        'castUndirectedSpell',
+    );
     const distanceAndFear = rawEnv.distanceAndFear ?? distfleeck;
     const disturbMonster = rawEnv.disturbMonster ?? disturb;
     const setApparentHero = rawEnv.setApparentHero ?? set_apparxy;
@@ -1866,13 +1873,7 @@ export async function dochug(monster, rawEnv = {}) {
         // so most of the time this is just one choose_monster_spell() draw.
         if (!(monster.mspec_used ?? 0)
             && dist2(monster.mx, monster.my, state.u.ux, state.u.uy) <= 49) {
-            const castUndirectedSpell = rawEnv.castUndirectedSpell;
-            if (typeof castUndirectedSpell === 'function') {
-                const spellResult = await castUndirectedSpell(monster, env);
-                if (spellResult) {
-                    status = MMOVE_DONE;
-                }
-            }
+            if (await castUndirectedSpell(monster, env)) status = MMOVE_DONE;
         }
 
         if (!status) status = await moveMonster(monster, env);

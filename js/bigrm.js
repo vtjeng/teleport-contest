@@ -86,7 +86,10 @@ export function selection_match(pattern, state) {
     // Center of the pattern: the cell the pattern is "about".
     const cx = Math.trunc(pw / 2);
     const cy = Math.trunc(ph / 2);
-    const sel = new ThemeroomSelection();
+    // Unlike the relative constructors, l_selection_match() stores map
+    // coordinates directly, so the selection is built in the absolute frame
+    // and the special-level API adds no frame offset when it paints it.
+    const sel = new ThemeroomSelection(null, true);
     for (let y = 0; y < ROWNO; ++y) {
         for (let x = 1; x < COLNO; ++x) {
             let match = true;
@@ -114,10 +117,6 @@ export function selection_match(pattern, state) {
             if (match) sel.set(x, y);
         }
     }
-    // Unlike the relative constructors, l_selection_match() stores map
-    // coordinates directly. The special-level API uses this marker to avoid
-    // applying the current frame offset a second time.
-    sel.absolute = true;
     return sel;
 }
 

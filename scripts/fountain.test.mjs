@@ -226,7 +226,12 @@ test('vomit keeps special eat.c paths fail-closed', async () => {
         ['acidic form', stateFor(game.mons[PM_ACID_BLOB])],
     ];
     for (const [name, state] of cases) {
+        // vomit() reaches nomul(-2) only after every refusal above it, so a
+        // refused call leaves `multi` exactly as the case set it. The
+        // baseline is captured before the call; an expectation derived from
+        // the value under test would accept any write.
+        const multiBefore = state.multi;
         assert.throws(() => vomit(state), UnsupportedEatError, name);
-        assert.equal(state.multi, 1 === state.multi ? 1 : 0, name);
+        assert.equal(state.multi, multiBefore, name);
     }
 });

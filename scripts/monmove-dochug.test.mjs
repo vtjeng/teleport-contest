@@ -19,8 +19,10 @@ import { dochug } from '../js/monmove.js';
 import {
     AD_BLND,
     AD_RBRE,
+    AD_SPEL,
     AT_BREA,
     AT_CLAW,
+    AT_MAGC,
     AT_NONE,
     AT_SPIT,
     AT_WEAP,
@@ -83,8 +85,109 @@ function baseEnv(state, events) {
         // reaches a refusing arm: every monster the post-move disjunction
         // carries into find_offensive() is stopped by its first guard.
         unsupported: (what) => assert.fail(`unexpected refusal: ${what}`),
+        // monmove.c:895-907. makeState() gives the hero no position, so the
+        // dist2() gate in front of this operation fails for every fixture
+        // that does not place the hero itself.
+        castUndirectedSpell: () =>
+            assert.fail('unexpected undirected spell attempt'),
     };
 }
+
+// C ref: monmove.c:889-908. Before m_move(), a monster that may move and
+// whose mspec_used is 0 tries an undirected spell when dist2 to the hero
+// is at most 49; a successful cast (M_ATTK_HIT) sets MMOVE_DONE and skips
+// m_move(). The operation is mandatory: a caller that omits it would drop
+// choose_monster_spell()'s draws without a refusal.
+function magicCasterFixture(events, spellResult) {
+    const state = makeState();
+    // Hero at (5,4), monster at (4,4): dist2 = 1, inside the <= 49 gate.
+    state.u.ux = 5;
+    state.u.uy = 4;
+    const monster = makeMonster({
+        data: {
+            mattk: [{ aatyp: AT_MAGC, adtyp: AD_SPEL }],
+            mflags2: 0,
+            mflags3: 0,
+        },
+        // 0 passes the !mspec_used gate.
+        mspec_used: 0,
+    });
+    const env = {
+        ...baseEnv(state, events),
+        castUndirectedSpell: () => {
+            events.push('cast');
+            return spellResult;
+        },
+        // nearby: false keeps mayMove true without any of the disjunction's
+        // draws; inrange: false keeps PHASE FOUR from attacking.
+        distanceAndFear: () => {
+            events.push('range');
+            return { inrange: false, nearby: false, scared: false };
+        },
+        moveMonster: () => {
+            events.push('move');
+            return MMOVE_NOTHING;
+        },
+    };
+    return { monster, env };
+}
+
+test('dochug requires the castUndirectedSpell operation', async () => {
+    const events = [];
+    const { monster, env } = magicCasterFixture(events, false);
+    delete env.castUndirectedSpell;
+    await assert.rejects(
+        dochug(monster, env),
+        /dochug requires a castUndirectedSpell operation/u,
+    );
+});
+
+test('dochug skips m_move() after a successful undirected spell', async () => {
+    const events = [];
+    const { monster, env } = magicCasterFixture(events, true);
+
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(events, [
+        'preflight',
+        'wipe',
+        'apparxy',
+        'range',
+        'items',
+        'cast',
+        // MMOVE_DONE: no 'move', then the post-move distfleeck() re-read.
+        'range',
+    ]);
+});
+
+test('dochug moves after a failed undirected spell', async () => {
+    const events = [];
+    const { monster, env } = magicCasterFixture(events, false);
+
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(events, [
+        'preflight',
+        'wipe',
+        'apparxy',
+        'range',
+        'items',
+        'cast',
+        'move',
+        'range',
+    ]);
+});
+
+test('dochug does not try an undirected spell while mspec_used is set',
+    async () => {
+        const events = [];
+        const { monster, env } = magicCasterFixture(events, true);
+        // Any nonzero cooldown fails the !mspec_used gate.
+        monster.mspec_used = 3;
+        env.castUndirectedSpell = () =>
+            assert.fail('a cooling-down caster does not cast');
+
+        assert.equal(await dochug(monster, env), 0);
+        assert.ok(events.includes('move'));
+    });
 
 test('dochug clears arrival and wait state before ordinary movement', async () => {
     const state = makeState();

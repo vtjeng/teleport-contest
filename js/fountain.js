@@ -21,7 +21,9 @@ import {
 } from './const.js';
 import { exercise } from './attrib.js';
 import { monster_detect } from './detect.js';
-import { newsym, glyph_at, glyph_is_cmap, glyph_to_cmap } from './display.js';
+import {
+    bot, newsym, glyph_at, glyph_is_cmap, glyph_to_cmap,
+} from './display.js';
 import { Amonnam } from './do_name.js';
 import { level_difficulty } from './dungeon.js';
 import { game } from './gstate.js';
@@ -252,14 +254,15 @@ export async function drinkfountain(state = game, env = {}) {
             throw new UnsupportedFountainError(
                 'self-knowledge fountain effect (fate 19)');
         case 20: // Foul water
-            // C ref: fountain.c:313-316. The deferred imports avoid adding a
-            // fountain.js -> hack.js cycle while supplying the hooks that
-            // morehungry() needs if this subtraction changes hunger status.
+            // C ref: fountain.c:313-316. eat.js and hack.js are imported
+            // here rather than at the top of the file, as newuhs() is above,
+            // to keep fountain.js out of their import cycle; they supply the
+            // hooks morehungry() needs if this subtraction changes hunger
+            // status.
             await message('The water is foul!  You gag and vomit.', state);
             {
                 const { morehungry, vomit } = await import('./eat.js');
                 const { endRunning } = await import('./hack.js');
-                const { bot } = await import('./display.js');
                 const hungerEnv = {
                     ...env,
                     message,

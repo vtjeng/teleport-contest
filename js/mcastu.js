@@ -16,6 +16,7 @@ import {
     HALLUC_RES,
     HEAD,
     INVIS,
+    M_AP_OBJECT,
     M_ATTK_HIT,
     M_ATTK_MISS,
     M_SEEN_MAGR,
@@ -36,9 +37,12 @@ import {
     AD_CLRC,
     AD_SPEL,
 } from './monsters.js';
+import { STRANGE_OBJECT } from './objects.js';
 import { body_part } from './polyself.js';
 import { rn2, d } from './rng.js';
+import { canSpotMonster } from './startup_a11y.js';
 import { couldsee, canseemon } from './vision.js';
+import { has_aggravatables } from './wizard.js';
 
 // ---- Spell enum (mcastu.h MONSPELL order) ----
 // These must match the C enum values (0-based, order from mcastu.h).
@@ -133,14 +137,25 @@ function Hallucination(state) {
         && !heroProperty(state, HALLUC_RES);
 }
 
-// C ref: display.h canspotmon(). Inline test that does not require importing
-// the full startup_a11y.js.  canseemon() || sensemon() -- sensemon is unported
-// but only matters for monsters the hero senses without seeing.  For the
-// adjacent-combat paths that reach castmu(), the hero virtually always can
-// either see or is adjacent to the monster, so canseemon() covers every case
-// the development sessions exercise.
-function canspotmon(monster, state) {
-    return canseemon(monster, state);
+// C ref: youprop.h:92 Blinded, `HBlinded && !BBlinded`. Intrinsic only: a
+// worn blindfold sets EBlinded and does not count, unlike the Blind macro at
+// youprop.h:102, which activeHeroProperty(state, BLINDED) would give.
+function Blinded(state) {
+    const value = state.u?.uprops?.[BLINDED];
+    return Boolean(value?.intrinsic) && !value?.blocked;
+}
+
+// C ref: youprop.h:125 Deaf, `HDeaf || EDeaf || u.uroleplay.deaf`. The third
+// term is the permanent-deafness roleplay option, as in js/dokick.js.
+function Deaf(state) {
+    return heroProperty(state, DEAF) || Boolean(state.u?.uroleplay?.deaf);
+}
+
+function requireCastmuOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function')
+        throw new TypeError(`castmu requires a ${name} operation`);
+    return operation;
 }
 
 // ---- is_undirected_spell() ----
@@ -180,10 +195,13 @@ function spell_would_be_useless(mtmp, spellnum, env = {}) {
             return true;
         break;
     case MCAST_AGGRAVATION:
-        // C calls has_aggravatables(), which is complex and unported.
-        // Approximate with rn2(100) -- the same fallback C uses when
-        // has_aggravatables() returns false.
-        if (random.rn2(100)) return true;
+        /* aggravation (global wakeup) when everyone is already active */
+        /* if nothing needs to be awakened then this spell is useless
+           but caster might not realize that [chance to pick it then
+           must be very small otherwise caller's many retry attempts
+           will eventually end up picking it too often] */
+        if (!has_aggravatables(mtmp, state))
+            return random.rn2(100) ? true : false;
         break;
     case MCAST_HASTE_SELF:
         if (mtmp.permspeed === MFAST) return true;
@@ -196,7 +214,7 @@ function spell_would_be_useless(mtmp, spellnum, env = {}) {
         if (mtmp.mhp === mtmp.mhpmax) return true;
         break;
     case MCAST_BLIND_YOU:
-        if (heroProperty(state, BLINDED)) return true;
+        if (Blinded(state)) return true;
         break;
     default:
         break;
@@ -254,8 +272,9 @@ function cursetxt(mtmp, undirected, env = {}) {
         } else if ((activeHeroProperty(state, INVIS)
                 && !perceives(mtmp.data)
                 && (mtmp.mux !== state.u.ux || mtmp.muy !== state.u.uy))
-            || (state.youmonst?.m_ap_type === 10 /* M_AP_OBJECT */
-                && state.youmonst?.mappearance === 63 /* STRANGE_OBJECT */)
+            /* is_obj_mappear(&gy.youmonst, STRANGE_OBJECT) */
+            || (state.youmonst?.m_ap_type === M_AP_OBJECT
+                && state.youmonst?.mappearance === STRANGE_OBJECT)
             || state.u?.uundetected) {
             point_msg = 'and curses in your general direction';
         } else if (activeHeroProperty(state, DISPLACED)
@@ -273,7 +292,7 @@ function cursetxt(mtmp, undirected, env = {}) {
             );
         }
     } else if (!(state.moves % 4) || !random.rn2(4)) {
-        if (!heroProperty(state, DEAF) && message) {
+        if (!Deaf(state) && message) {
             // C uses Norep() here, which suppresses repeated identical lines.
             // Norep is not ported; plain message is acceptable because this
             // code path runs at most once per spell attempt.
@@ -311,9 +330,12 @@ export async function castmu(
 ) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2, d };
-    const unsupported = rawEnv.unsupported;
+    // The unported arms below -- AD_FIRE, AD_COLD and AD_MAGM here, and most
+    // spell effects in mcast_spell() -- refuse through this rather than
+    // running as a spell that quietly does nothing.
+    const unsupported = requireCastmuOperation(rawEnv, 'unsupported');
     const message = rawEnv.message;
-    const env = { ...rawEnv, state, random };
+    const env = { ...rawEnv, state, random, unsupported };
     const ml = mtmp.m_lev;
     let spellnum = 0;
 
@@ -365,8 +387,7 @@ export async function castmu(
     nomul(0, state);
     if (random.rn2(ml * 10) < (mtmp.mconf ? 100 : 20)) {
         /* fumbled attack */
-        if (canseemon(mtmp, state) && !heroProperty(state, DEAF)
-            && message) {
+        if (canseemon(mtmp, state) && !Deaf(state) && message) {
             message(
                 `The air crackles around ${
                     env.monnam?.(mtmp)
@@ -378,9 +399,9 @@ export async function castmu(
         return M_ATTK_MISS;
     }
 
-    if (canspotmon(mtmp, state) || !is_undirected_spell(spellnum)) {
+    if (canSpotMonster(mtmp, state) || !is_undirected_spell(spellnum)) {
         if (message) {
-            const casterName = canspotmon(mtmp, state)
+            const casterName = canSpotMonster(mtmp, state)
                 ? (env.monsterName?.(mtmp)
                     ?? capitalizedMonsterNameFallback(mtmp, state))
                 : 'Something';
@@ -429,20 +450,12 @@ export async function castmu(
     default:
         // AD_FIRE, AD_COLD, AD_MAGM are ranged-only attack types.
         // Adjacent AT_MAGC attacks always carry AD_SPEL or AD_CLRC.
-        if (typeof unsupported === 'function') {
-            unsupported('castmu() elemental spell type');
-        }
-        dmg = 0;
+        unsupported('castmu() elemental spell type');
         break;
     }
-
-    if (dmg) {
-        // mdamageu() is in mhitu.js; only reached when a spell effect
-        // sets dmg > 0.  Individual spell effects are ported as needed.
-        if (typeof unsupported === 'function') {
-            unsupported('castmu() direct damage (mdamageu)');
-        }
-    }
+    // C's trailing `if (dmg) mdamageu(mtmp, dmg)` serves only the three
+    // elemental arms above; the AD_SPEL/AD_CLRC arm zeroes dmg because
+    // mcast_spell() calls mdamageu() itself.
     return ret;
 }
 
@@ -581,9 +594,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     case MCAST_BLIND_YOU:
     case MCAST_PARALYZE:
     case MCAST_CONFUSE_YOU:
-        if (typeof unsupported === 'function') {
-            unsupported(`mcast_spell effect ${spellnum}`);
-        }
+        unsupported(`mcast_spell effect ${spellnum}`);
         resultDmg = 0;
         break;
     default:
@@ -595,7 +606,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     if (resultDmg) {
         if (typeof mdamageu === 'function') {
             await mdamageu(mtmp, resultDmg);
-        } else if (typeof unsupported === 'function') {
+        } else {
             unsupported('mcast_spell mdamageu');
         }
     }

@@ -50,6 +50,7 @@ import {
     PM_HUMAN_WEREWOLF,
     PM_JACKAL,
     PM_LICHEN,
+    PM_LITTLE_DOG,
     PM_NEWT,
     PM_QUIVERING_BLOB,
     PM_ROTHE,
@@ -602,19 +603,56 @@ test('the pet and pudding arms pass an ordinary hostile through', async () => {
     await hmon(mon, game.uwep, HMON_MELEE, 10, game, env);
     assert.equal(mon.mhp, 97);
 
-    // uhitm.c:1594's `mon->mtame && hmd.dmg > 0`. A lichen is MS_SILENT, so
-    // both of abuse_dog()'s complaints stay quiet and only the state moves.
+    // uhitm.c:1594's `mon->mtame && hmd.dmg > 0`. A little dog is MS_BARK,
+    // whose yelp() and growl() verbs differ (sounds.c:447 and :362), so the
+    // message shows which of abuse_dog()'s arms the roll took. Its
+    // complaints print through the game's own topline rather than
+    // env.message, so they are read from the display and then cleared.
+    //
+    // The rolls, in draw order: rnd(3) is the scalpel's damage die, 2
+    // points; rn2(4) is dog.c:1381's complaint draw on the decremented
+    // tameness (5 - 1), where 1 is the smallest roll that yelps; rnd(2) is
+    // uhitm.c:1599's rnd(dmg), the smallest roll and so a flee timer of 10.
+    // The surviving pet then reaches mhitm_knockback(), whose rn2(3) at
+    // uhitm.c:5258 and rn2(6) at :5269 are answered by hitEnv()'s fallback
+    // of 1, which declines the knockback.
+    //
+    // The segment leaves its last message pending on the topline, and a
+    // second ttyPline() would wait at --More-- for a key this test does not
+    // supply, so the topline is cleared before the blow and after each read.
+    const clearTopLine = () => {
+        game._pending_message = '';
+        game.nhDisplay.toplines = '';
+        game.nhDisplay.toplin = 0;
+    };
+    clearTopLine();
     const petEnv = hitEnv({ rolls: [2, 1, 1] });
-    const pet = target(PM_LICHEN, { mtame: 5 });
+    const pet = target(PM_LITTLE_DOG, { mtame: 5 });
     pet.mextra = { edog: { abuse: 0 } };
     await hmon(pet, game.uwep, HMON_MELEE, 10, game, petEnv);
-    // dog.c:1367-1370: one point of tameness and one more recorded abuse.
+    assert.deepEqual(petEnv.bounds,
+                     ['rnd(3)', 'rn2(4)', 'rnd(2)', 'rn2(3)', 'rn2(6)']);
+    assert.equal(game.nhDisplay.toplines, 'The little dog yelps!');
+    clearTopLine();
+    // dog.c:1370-1373: one point of tameness and one more recorded abuse.
     assert.equal(pet.mtame, 4);
     assert.equal(pet.mextra.edog.abuse, 1);
-    // uhitm.c:1598-1599. The survivor flees for 10 * rnd(dmg) turns; hitEnv()
-    // answers every call after the damage die with 1, so rnd(dmg) is 1 here.
+    // uhitm.c:1598-1599. The survivor flees for 10 * rnd(dmg) turns.
     assert.equal(pet.mflee, true);
     assert.equal(pet.mfleetim, 10);
+
+    // The same blow with a zero complaint roll takes dog.c:1384's growl()
+    // arm; the draw list is unchanged, only the verb moves.
+    const growlEnv = hitEnv({ rolls: [2, 0, 1] });
+    const growler = target(PM_LITTLE_DOG, { mtame: 5 });
+    growler.mextra = { edog: { abuse: 0 } };
+    await hmon(growler, game.uwep, HMON_MELEE, 10, game, growlEnv);
+    assert.deepEqual(growlEnv.bounds,
+                     ['rnd(3)', 'rn2(4)', 'rnd(2)', 'rn2(3)', 'rn2(6)']);
+    assert.equal(game.nhDisplay.toplines, 'The little dog growls!');
+    clearTopLine();
+    assert.equal(growler.mtame, 4);
+    assert.equal(growler.mfleetim, 10);
 
     // uhitm.c:1610-1626. The scalpel is METAL and wielded, and the hero is
     // striking hand to hand, so a black pudding meets every one of C's tests

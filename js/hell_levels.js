@@ -7,6 +7,7 @@
 
 import { UnsupportedLevelChangeError } from './do.js';
 import { selection_match, selection_rect } from './bigrm.js';
+import { Invocation_lev } from './dungeon.js';
 import { PM_MINOTAUR } from './monsters.js';
 import { rn2 } from './rng.js';
 
@@ -80,13 +81,15 @@ export function populatemaze(des, random = rn2) {
 }
 
 // C ref: hellfill.lua top-level chunk. The selected generator is followed by
-// the common stair/invocation tail and then populatemaze().
+// the common stair/invocation tail and then populatemaze(). Lua's
+// `u.invocation_level` is nhlua.c's projection of dungeon.c
+// Invocation_lev(&u.uz), so the port asks that predicate directly.
 export async function hellfill(des, state, random = rn2) {
     const generatorNumber = mathRandom(HELL_GENERATORS.length, random);
     const generator = HELL_GENERATORS[generatorNumber - 1];
     await generator(des, state, random);
     des.stair('up');
-    if (state.invocation_level) des.trap('vibrating square');
+    if (Invocation_lev(state.u.uz, state)) des.trap('vibrating square');
     else des.stair('down');
     populatemaze(des, random);
 }
