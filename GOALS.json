@@ -8058,7 +8058,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "ok-to-quest-level-change-guard",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "d8400fc3ce420ca91c9acdc6dc5066e5be09cce2",
       "openStanding": {
         "sha": "32957167",
