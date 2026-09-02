@@ -7960,7 +7960,7 @@
     },
     {
       "id": "simple-monster-action-requires-eel-concealment",
-      "status": "open",
+      "status": "closed",
       "boundary": "An active ordinary monster-turn eel reaches the C hideunder() concealment path in movemon_singlemon() or postmov(); the JavaScript simple-monster preflight currently fails closed on eel concealment.",
       "upstreamOwners": [
         "mon.c",
@@ -7993,8 +7993,11 @@
         "screens": 4124,
         "rng": 258015
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "f05dba38a8b0c1074e083915e2bc8b2aa0e8bfd9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
