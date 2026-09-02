@@ -8129,8 +8129,8 @@
       "slices": [
         {
           "name": "hit-pet-abuse-dog-sounds",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "17fd5c830aee5b617eaba1505a387dad9fe3d738"
         }
       ],
       "openedAt": "7ee556eaa7271122ea1e2268fb506c6717136980",
