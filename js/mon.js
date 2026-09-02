@@ -31,6 +31,7 @@ import {
     D_CLOSED,
     D_LOCKED,
     engulfing_u,
+    FIRE_RES,
     FULL_MOON,
     G_GENOD,
     HALLUC,
@@ -40,6 +41,7 @@ import {
     has_oname,
     In_endgame,
     I_SPECIAL,
+    IS_WATERWALL,
     is_pit,
     isok,
     ismnum,
@@ -63,6 +65,8 @@ import {
     ONAME_NO_FLAGS,
     OPENDOOR,
     PROT_FROM_SHAPE_CHANGERS,
+    RLOC_MSG,
+    RLOC_NOMSG,
     ROOM,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
@@ -84,7 +88,11 @@ import {
     newsym,
     unmap_object,
 } from './display.js';
-import { capitalizedMonsterName, monsterCommonName } from './do_name.js';
+import {
+    capitalizedMonsterName,
+    hliquid,
+    monsterCommonName,
+} from './do_name.js';
 import { flooreffects } from './do.js';
 import { finish_meating } from './dogmove.js';
 import { has_ceiling, on_level } from './dungeon.js';
@@ -111,9 +119,11 @@ import {
 import { m_next2u } from './mhitu.js';
 import {
     always_hostile,
+    amphibious,
     amorphous,
     attacktype,
     bigmonst,
+    breathless,
     can_teleport,
     ceiling_hider,
     completelyburns,
@@ -127,6 +137,9 @@ import {
     is_female,
     is_giant,
     is_golem,
+    is_clinger,
+    is_floater,
+    is_flyer,
     is_hider,
     is_human,
     is_minion,
@@ -134,16 +147,20 @@ import {
     is_neuter,
     is_reviver,
     is_rider,
+    is_swimmer,
     is_shapeshifter,
     is_male,
     is_undead,
     is_unicorn,
     is_vampshifter,
     is_were,
+    likes_lava,
+    monster_resists_element,
     monsndx,
     needspick,
     nohands,
     nonliving,
+    on_fire,
     passes_bars,
     passes_walls,
     regenerates,
@@ -273,6 +290,7 @@ import {
 import {
     accessible,
     m_can_break_boulder,
+    m_in_air,
     monhaskey,
     onscary,
 } from './monmove.js';
@@ -311,7 +329,7 @@ import {
 } from './startup_a11y.js';
 import { mpickobj, relobj } from './steal.js';
 import { noteleport_level } from './teleport.js';
-import { fill_pit, is_pool, t_at } from './trap.js';
+import { fill_pit, is_lava, is_pool, t_at, Flying, Levitation } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import {
     cansee,
@@ -909,6 +927,264 @@ export function mon_allowflags(monster, env = {}) {
         allowflags |= NOGARLIC;
     }
     return allowflags;
+}
+
+function liquidOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function') {
+        throw new TypeError(
+            'monster liquid effects require ' + name,
+        );
+    }
+    return operation;
+}
+
+function liquidCanSee(monster, env) {
+    const state = env.state ?? game;
+    return typeof env.canSee === 'function'
+        ? Boolean(env.canSee(monster.mx, monster.my, env))
+        : cansee(monster.mx, monster.my, state);
+}
+
+function liquidCanSeeMonster(monster, env) {
+    const state = env.state ?? game;
+    return typeof env.canSeeMonster === 'function'
+        ? Boolean(env.canSeeMonster(monster, env))
+        : canseemon(monster, state);
+}
+
+async function liquidMessage(text, monster, env) {
+    const state = env.state ?? game;
+    const message = env.message ?? ttyPline;
+    if (typeof message !== 'function')
+        throw new TypeError('monster liquid effects require message');
+    await message(
+        messageAt(text, monster.mx, monster.my, state),
+        state,
+        env,
+    );
+}
+
+async function liquidTeleportRestricted(monster, env) {
+    const state = env.state ?? game;
+    if (!noteleport_level(monster, state)) return false;
+    // C's tele_restrict() reports the restriction only when canseemon() does.
+    if (liquidCanSeeMonster(monster, env)) {
+        await liquidMessage(
+            'A mysterious force prevents '
+                + monsterCommonName(monster, state)
+                + ' from teleporting!',
+            monster,
+            env,
+        );
+    }
+    return true;
+}
+
+async function liquidRelocate(monster, flags, env) {
+    const relocate = liquidOperation(env, 'relocateMonster');
+    return Boolean(await relocate(monster, flags, env));
+}
+
+async function liquidDamageInventory(monster, lava, env) {
+    const operationName = lava ? 'fireDamageChain' : 'waterDamageChain';
+    const operation = env[operationName];
+    // Both source damage-chain functions return immediately for a null chain.
+    // Avoid requiring an owner for that no-op, while refusing before an
+    // inventory item can be silently lost.
+    if (typeof operation !== 'function') {
+        if (monster.minvent) {
+            throw new TypeError(
+                'monster liquid effects require ' + operationName,
+            );
+        }
+        return;
+    }
+    if (lava) {
+        await operation(
+            monster.minvent,
+            false,
+            false,
+            monster.mx,
+            monster.my,
+            env,
+        );
+    } else {
+        await operation(monster.minvent, false, env);
+    }
+}
+
+async function liquidDeath(monster, water, env) {
+    const state = env.state ?? game;
+    if (state.context?.mon_moving) {
+        const operationName = water ? 'mondied' : 'mondead';
+        const operation = env[operationName];
+        if (typeof operation === 'function') {
+            await operation(monster, state, env);
+        } else if (water) {
+            await mondied(monster, state, env);
+        } else {
+            await mondead(monster, state, env);
+        }
+    } else {
+        const operation = env.xkilled;
+        if (typeof operation === 'function') {
+            await operation(monster, XKILL_NOMSG, state, env);
+        } else {
+            await xkilled(monster, XKILL_NOMSG, state, env);
+        }
+    }
+}
+
+async function liquidOvercrowding(monster, env) {
+    await liquidOperation(env, 'dealWithOvercrowding')(monster, env);
+}
+
+// C ref: mon.c minliquid() and minliquid_core() (945-1122). This is the
+// ordinary non-flying/non-floating pool and lava path. Species-specific
+// gremlin multiplication and iron-golem rust, eel distress, and the Plane of
+// Water exceptions outside this ordinary witness remain owned by the
+// fail-closed action boundary.
+export async function minliquid(monster, env = {}) {
+    const state = env.state ?? game;
+    state.iflags ??= {};
+    const hadSadFeeling = Object.hasOwn(state.iflags, 'sad_feeling');
+    state.iflags.sad_feeling = Boolean(
+        monster.mtame && !liquidCanSeeMonster(monster, env),
+    );
+    try {
+        return await minliquid_core(monster, { ...env, state });
+    } finally {
+        // Keep the JS state shape stable when the field was only needed by
+        // this call. C's iflags member is always present in its struct, but
+        // this port creates optional fields only when their callers need
+        // them; nested death helpers still see the false clear above.
+        if (hadSadFeeling) state.iflags.sad_feeling = false;
+        else delete state.iflags.sad_feeling;
+    }
+}
+
+export async function minliquid_core(monster, env = {}) {
+    const state = env.state ?? game;
+    const location = state.level?.at?.(monster.mx, monster.my);
+    const waterwall = Boolean(location && IS_WATERWALL(location.typ));
+    const inpool = is_pool(monster.mx, monster.my, state)
+        && (!(is_flyer(monster.data) || is_floater(monster.data))
+            || on_level(state.u?.uz, state.water_level));
+    const inlava = is_lava(monster.mx, monster.my, state)
+        && !(is_flyer(monster.data) || is_floater(monster.data));
+
+    // C's steed exception is a hero property, not a monster species branch,
+    // and it is needed before the liquid-specific tests below.
+    if (monster === state.u?.usteed
+        && (Flying(state) || Levitation(state))
+        && !waterwall) {
+        return 0;
+    }
+
+    if (inlava) {
+        if (!is_clinger(monster.data) && !likes_lava(monster.data)) {
+            if (can_teleport(monster.data)
+                && !(await liquidTeleportRestricted(monster, env))
+                && await liquidRelocate(monster, RLOC_MSG, env)) {
+                return 0;
+            }
+
+            if (!monster_resists_element(monster, FIRE_RES, state)) {
+                if (liquidCanSee(monster, env)) {
+                    const how = on_fire(
+                        monster.data,
+                        monster.data?.mattk?.[0],
+                    );
+                    const verb = how === 'boiling'
+                        ? 'boils away'
+                        : how === 'melting'
+                            ? 'melts away'
+                            : 'burns to a crisp';
+                    await liquidMessage(
+                        capitalizedMonsterName(monster, state)
+                            + ' ' + verb + '.',
+                        monster,
+                        env,
+                    );
+                }
+                await liquidDeath(monster, false, env);
+            } else {
+                monster.mhp -= 1;
+                if (monster.mhp < 1) {
+                    if (liquidCanSee(monster, env)) {
+                        await liquidMessage(
+                            capitalizedMonsterName(monster, state)
+                                + ' surrenders to the fire.',
+                            monster,
+                            env,
+                        );
+                    }
+                    await mondead(monster, state, env);
+                } else if (liquidCanSee(monster, env)) {
+                    await liquidMessage(
+                        capitalizedMonsterName(monster, state)
+                            + ' burns slightly.',
+                        monster,
+                        env,
+                    );
+                }
+            }
+
+            if (monster.mhp >= 1) {
+                if (!m_in_air(monster, state) && !likes_lava(monster.data)) {
+                    await liquidDamageInventory(monster, true, env);
+                    if (!await liquidRelocate(monster, RLOC_MSG, env))
+                        await liquidOvercrowding(monster, env);
+                }
+                return 0;
+            }
+            return 1;
+        }
+    } else if (inpool || waterwall) {
+        if ((waterwall || !is_clinger(monster.data))
+            && !is_swimmer(monster.data)
+            && !amphibious(monster.data)
+            && !breathless(monster.data)) {
+            if (can_teleport(monster.data)
+                && !(await liquidTeleportRestricted(monster, env))
+                && await liquidRelocate(monster, RLOC_MSG, env)) {
+                return 0;
+            }
+
+            if (liquidCanSee(monster, env)) {
+                await liquidMessage(
+                    state.context?.mon_moving
+                        ? capitalizedMonsterName(monster, state)
+                            + ' drowns.'
+                        : 'You drown '
+                            + monsterCommonName(monster, state) + '.',
+                    monster,
+                    env,
+                );
+            }
+            if (engulfing_u(monster, state)) {
+                await liquidMessage(
+                    capitalizedMonsterName(monster, state)
+                        + ' sinks as ' + hliquid('water', { state })
+                        + ' rushes in and flushes you out.',
+                    monster,
+                    env,
+                );
+            }
+            await liquidDeath(monster, true, env);
+            if (monster.mhp >= 1) {
+                if (!m_in_air(monster, state)) {
+                    await liquidDamageInventory(monster, false, env);
+                    if (!await liquidRelocate(monster, RLOC_NOMSG, env))
+                        await liquidOvercrowding(monster, env);
+                }
+                return 0;
+            }
+            return 1;
+        }
+    }
+    return 0;
 }
 
 // C ref: mon.c mcalcmove(). Adjust a monster's base speed, then randomly

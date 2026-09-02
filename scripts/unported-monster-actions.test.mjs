@@ -19,6 +19,7 @@ import {
     D_TRAPPED,
     DUST,
     DOOR,
+    FIRE_RES,
     FOUNTAIN,
     DART_TRAP,
     GRAVE,
@@ -43,6 +44,7 @@ import {
     PIT,
     POOL,
     ROOM,
+    RLOC_MSG,
     SATIATED,
     SINK,
     STAIRS,
@@ -68,6 +70,7 @@ import {
     PM_CAVE_SPIDER,
     PM_DISPLACER_BEAST,
     PM_FOG_CLOUD,
+    PM_GIANT_EEL,
     PM_ACID_BLOB,
     PM_GENETIC_ENGINEER,
     PM_GIANT_RAT,
@@ -89,6 +92,7 @@ import {
     PM_TENGU,
     PM_WOOD_NYMPH,
     PM_YELLOW_LIGHT,
+    M1_TPORT,
     S_HUMAN,
 } from '../js/monsters.js';
 import {
@@ -114,7 +118,7 @@ import {
     WAX_CANDLE,
 } from '../js/objects.js';
 import { m_move } from '../js/monmove.js';
-import { movemon_singlemon } from '../js/mon.js';
+import { minliquid, movemon_singlemon } from '../js/mon.js';
 import {
     create_region,
 } from '../js/region.js';
@@ -1165,47 +1169,90 @@ test('planned fog upkeep skips closed doors and existing visible regions',
         }
     });
 
-test('simple preflight stops before current-square liquid effects',
+test('minliquid preserves source ordering for lava survivors', async () => {
+    const target = await prepareSelectedAction();
+    game.level.at(target.monsterX, target.heroY).typ = LAVAPOOL;
+    target.monster.mintrinsics = 1 << (FIRE_RES - 1);
+    target.monster.mhp = 2;
+    game.context.mon_moving = true;
+    const events = [];
+
+    try {
+        const result = await minliquid(target.monster, {
+            state: game,
+            canSee: () => false,
+            fireDamageChain: (...args) => events.push(['fire', args]),
+            relocateMonster: (monster, flags) => {
+                events.push(['relocate', monster, flags]);
+                return false;
+            },
+            dealWithOvercrowding: (monster) => {
+                events.push(['overcrowding', monster]);
+            },
+        });
+
+        assert.equal(result, 0);
+        assert.equal(target.monster.mhp, 1);
+        assert.deepEqual(events.map(([name]) => name), [
+            'fire', 'relocate', 'overcrowding',
+        ]);
+        assert.equal(events[1][2], RLOC_MSG);
+        assert.equal(game.iflags.sad_feeling ?? false, false);
+    } finally {
+        game.context.mon_moving = false;
+    }
+});
+
+test('minliquid orders pool messages before monster death', async () => {
+    const target = await prepareSelectedAction();
+    game.level.at(target.monsterX, target.heroY).typ = POOL;
+    game.context.mon_moving = true;
+    const events = [];
+
+    try {
+        const result = await minliquid(target.monster, {
+            state: game,
+            canSee: () => true,
+            message: (text) => events.push(['message', text]),
+            mondied: (monster) => {
+                events.push(['mondied', monster]);
+                monster.mhp = 0;
+            },
+        });
+
+        assert.equal(result, 1);
+        assert.deepEqual(events.map(([name]) => name), [
+            'message', 'mondied',
+        ]);
+        assert.match(events[0][1], /drowns\.$/u);
+        assert.equal(game.iflags.sad_feeling ?? false, false);
+    } finally {
+        game.context.mon_moving = false;
+    }
+});
+
+test('minliquid lets swimmers and teleporters take their source exemptions',
     async () => {
-        const cases = [
-            {
-                name: 'pool',
-                reason: 'monster liquid effects',
-                setup: (target) => {
-                    game.level.at(target.monsterX, target.heroY).typ = POOL;
-                },
-            },
-            {
-                name: 'lava',
-                reason: 'monster liquid effects',
-                setup: (target) => {
-                    game.level.at(target.monsterX, target.heroY).typ
-                        = LAVAPOOL;
-                },
-            },
-        ];
+        const swimmer = await prepareSelectedAction({ pmidx: PM_GIANT_EEL });
+        game.level.at(swimmer.monsterX, swimmer.heroY).typ = POOL;
+        assert.equal(await minliquid(swimmer.monster, { state: game }), 0);
 
-        for (const actionCase of cases) {
-            const target = await prepareSelectedAction();
-            actionCase.setup(target);
-            const before = completeSecondTurnSnapshot(game, target.replay);
-
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                await assert.rejects(
-                    preflightSimpleMonsterActions(game),
-                    (error) => (
-                        error instanceof UnsupportedSimpleMonsterActionError
-                        && error.reason === actionCase.reason
-                    ),
-                    `${actionCase.name}, attempt ${attempt + 1}`,
-                );
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, target.replay),
-                    before,
-                    `${actionCase.name}, attempt ${attempt + 1}`,
-                );
-            }
-        }
+        const teleporter = await prepareSelectedAction();
+        game.level.at(teleporter.monsterX, teleporter.heroY).typ = LAVAPOOL;
+        teleporter.monster.data = {
+            ...teleporter.monster.data,
+            mflags1: teleporter.monster.data.mflags1 | M1_TPORT,
+        };
+        const events = [];
+        assert.equal(await minliquid(teleporter.monster, {
+            state: game,
+            relocateMonster: (monster, flags) => {
+                events.push([monster, flags]);
+                return true;
+            },
+        }), 0);
+        assert.equal(events.length, 1);
+        assert.equal(events[0][1], RLOC_MSG);
     });
 
 // C ref: monmove.c:733-734. An awake monster calls wipe_engr_at() before
@@ -1266,24 +1313,16 @@ test('simple preflight stops a gremlin standing on a fountain', async () => {
     assert.deepEqual(preflightSnapshot(), ratBefore);
 });
 
-// unportedMinliquidReason() also answers js/allmain.js elapsedTurnMinLiquid().
-// Its water and lava arm has no case in this file: assertSimpleScanState()
-// refuses both squares, with a different reason, before the scan reaches
-// minLiquid, and the live turn runs only on a monster that scan admitted.
-// mcalcdistress() does reach the arm, for an immobile monster that ended up in
-// liquid, but through js/allmain.js rather than through this module. A direct
-// call is what covers the arm either way.
-test('minliquid refusal reads the square before the species', async () => {
-    const LIQUID = 'a non-flying monster in liquid';
+// unportedMinliquidReason() retains only the source-specific fountain split;
+// ordinary pool and lava effects are exercised by minliquid() above.
+test('unported minliquid reason retains only the fountain split', async () => {
     const GREMLIN_SPLIT = 'a gremlin splitting in a fountain';
     const cases = [
-        // mon.c:1068 drowns a monster in a pool; nothing here ports it.
-        { terrain: POOL, pmidx: PM_GIANT_RAT, reason: LIQUID },
-        // mon.c:1010 burns a monster in lava; nothing here ports it either.
-        { terrain: LAVAPOOL, pmidx: PM_GIANT_RAT, reason: LIQUID },
-        // mon.c:987's `(inpool || infountain)` claims a gremlin on both, and
-        // the arm above claims the pool first. Either way the caller refuses.
-        { terrain: POOL, pmidx: PM_GREMLIN, reason: LIQUID },
+        // minliquid() owns the ordinary pool and lava branches now.
+        { terrain: POOL, pmidx: PM_GIANT_RAT, reason: null },
+        { terrain: LAVAPOOL, pmidx: PM_GIANT_RAT, reason: null },
+        // mon.c:987's fountain split remains outside this bounded slice.
+        { terrain: POOL, pmidx: PM_GREMLIN, reason: null },
         { terrain: FOUNTAIN, pmidx: PM_GREMLIN, reason: GREMLIN_SPLIT },
         // `infountain` reaches no other species, and no arm reads a gremlin's
         // dry floor, so both of these are squares C walks straight past.
@@ -1437,25 +1476,6 @@ test('simple movement admits pool and lava destinations for a floater',
             );
         }
 
-        // Negative case: PM_GIANT_RAT (grounded) on pool is still refused.
-        const refused = await prepareSelectedAction();
-        game.level.at(refused.monsterX, refused.heroY).typ = POOL;
-        game.level.at(refused.destinationX, refused.heroY).typ = POOL;
-        const refusedBefore = completeSecondTurnSnapshot(game, refused.replay);
-
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'monster liquid effects'
-            ),
-            'pool grounded refusal',
-        );
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, refused.replay),
-            refusedBefore,
-            'pool grounded snapshot',
-        );
     });
 
 // C ref: monmove.c postmov()'s door block (1520-1622). A monster that ends its

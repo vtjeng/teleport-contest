@@ -64,6 +64,7 @@ import { m_throw, thitu, thrwmu } from './mthrowu.js';
 import { AKLYS } from './objects.js';
 import {
     adaptMonsterActionToDochugwSignature,
+    minliquid,
     movemon_singlemon,
     restrap,
     wake_msg,
@@ -72,8 +73,6 @@ import {
     attacktype,
     defended,
     is_covetous,
-    is_floater,
-    is_flyer,
     is_swimmer,
     likes_lava,
     monsndx,
@@ -214,30 +213,20 @@ function assertSimpleScanState(monster, state) {
     // path -- they all describe branches mon.c only takes after the movement
     // debit -- so they are deliberately skipped rather than merely bypassed.
     if (monster.movement < NORMAL_SPEED) return true;
-    // C ref: mon.c minliquid_core() :967-972. A flyer or floater is not "in"
-    // a pool or lava, so minliquid_core()'s drown/burn effects do not apply.
-    // On the Plane of Water, flyers ARE subject to pool effects
-    // (Is_waterlevel check at :970); that level is not yet reachable.
-    if ((is_pool(monster.mx, monster.my, state)
-            || is_lava(monster.mx, monster.my, state))
-        && !is_flyer(monster.data)
-        && !is_floater(monster.data)) {
-        unsupported('monster liquid effects');
-    }
     // mon.c restrap() is ported, so an M1_HIDE monster is scanned like any
     // other; the eel half stands, because movemon_singlemon()'s S_EEL arm ends
     // in mon.c hideunder(), which is not.
+    const liquidReason = unportedMinliquidReason(monster, state);
+    if (liquidReason) unsupported(liquidReason);
     if (monster.data?.mlet === S_EEL)
         unsupported('eel concealment');
     return true;
 }
 
-// C ref: mon.c minliquid_core() (961-1122). Nothing in this port runs that
-// function's body, so both of its `minLiquid` owners -- elapsedTurnMinLiquid()
-// in js/allmain.js for the live turn, and planSimpleMonsterScan()'s operation
-// below for the cloned scan -- answer "C leaves this monster alone" and refuse
-// otherwise. This names which refusal a monster's square and species earn, so
-// the two owners cannot drift apart; each throws its own error type.
+// C ref: mon.c minliquid_core() (961-1122). The ordinary pool and lava
+// branches now run through js/mon.js. This predicate retains only the
+// species-specific fountain split that this bounded slice deliberately leaves
+// at the action boundary.
 //
 // The square decides for every species but one. C derives `inpool` at :967 and
 // `inlava` at :971 to guard the drown and burn effects at :1068 and :1010,
@@ -260,11 +249,6 @@ function assertSimpleScanState(monster, state) {
 // the other order. That is only a labelling difference: a gremlin in water
 // matches both, and whichever arm claims it, the caller refuses.
 export function unportedMinliquidReason(monster, state) {
-    if ((is_pool(monster.mx, monster.my, state)
-            || is_lava(monster.mx, monster.my, state))
-        && !is_flyer(monster.data)
-        && !is_floater(monster.data))
-        return 'a non-flying monster in liquid';
     if (monsndx(monster.data) === PM_GREMLIN
         && IS_FOUNTAIN(state.level?.at?.(monster.mx, monster.my)?.typ))
         return 'a gremlin splitting in a fountain';
@@ -1356,16 +1340,31 @@ async function planSimpleMonsterScan(monster, env) {
             return planningVisionRecalc(env.state)(control);
         },
         clearBypasses: () => unsupported('monster bypass cleanup'),
-        // unportedMinliquidReason() is the live owner's predicate too, so both
-        // tables refuse the same squares. Its water and lava arm duplicates
-        // assertSimpleScanState()'s earlier liquid guard, which reaches this
-        // monster first; its gremlin arm does not, and is the one that fires
-        // here.
-        minLiquid: async (subject, subjectEnv) => {
-            const reason = unportedMinliquidReason(subject, subjectEnv.state);
-            if (reason) unsupported(reason);
-            return false;
-        },
+        // C ref: mon.c minliquid(). The clone uses the same source function
+        // as the live elapsed-turn owner, but every display, relocation,
+        // inventory, and overcrowding tail stays a planning-owned seam.
+        minLiquid: (subject, subjectEnv) => minliquid(subject, {
+            ...subjectEnv,
+            unsupported,
+            message: async () => {},
+            canSee: (x, y) => cansee(x, y, subjectEnv.state),
+            relocateMonster: () => unsupported(
+                'monster liquid relocation',
+            ),
+            fireDamageChain: () => unsupported(
+                'monster fire inventory damage',
+            ),
+            waterDamageChain: () => unsupported(
+                'monster water inventory damage',
+            ),
+            dealWithOvercrowding: () => unsupported(
+                'monster liquid overcrowding',
+            ),
+            hooks: {
+                ...(subjectEnv.hooks ?? {}),
+                newsym: () => {},
+            },
+        }),
         // C ref: mon.c movemon_singlemon():1268-1281. m_dowear() reassesses
         // the monster's gear. Its new W_ARMF/no-old-item arm applies the
         // source delay and worn masks on the planning clone; other runtime

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 361,
+      "datetime": "20000111090000",
+      "nethackrc": "OPTIONS=name:Soren,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": "  n#levelchange\n20\n                    TcTd\u001b\u0017blessed +5 Grayswandir\n\u0017blessed +5 silver dragon scale mail\n\u0017blessed amulet of life saving\nwiWjPk\u0016?\n y  .\u0014  hhhhhhhhhhhhhhhjjjjjjjj.y \u0016?\n z njjjjjjjjjjjs \u001615\nuulll:\u001617\nuuunnn:\u0016?\n B  \u0016?\n xulllnnnnll llluluyyyyyyh hhhhhhybhhyyyyyhhhb:\u0016?\n y\u0016?\nes\u0016?\ni\u0016?\n y\u0016?\n G \u0016?\n z \u00162\n\u00164\n\u00165\n\u00161\n\u0016?\n y\u0016?\n A\u00162\n\u00164\n\u00165\n \u00161\n\u0016?\ne\u0016?\n B i\u001b+\u001b\\\u001b\u0018 \u001bss:"
+    }
+  ]
+}

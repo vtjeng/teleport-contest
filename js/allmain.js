@@ -40,6 +40,7 @@ import {
     decide_to_shapeshift,
     mcalcdistress,
     mcalcmove,
+    minliquid,
     movemon,
     movemon_singlemon,
     restrap,
@@ -152,7 +153,6 @@ import {
     admitPlannedVisionChange,
     preflightSimpleMonsterActions,
     runSimpleMonsterAction,
-    unportedMinliquidReason,
     UnsupportedSimpleMonsterActionError,
     wieldMonsterItemAgainstMonster,
 } from './unported_monster_actions.js';
@@ -639,13 +639,32 @@ async function runEveryTurnEffectWithRegionHooks(monster, env) {
     });
 }
 
-// The live half of mon.c minliquid_core()'s refusal; the cloned scan's half
-// calls the same predicate. unportedMinliquidReason() states which of that
-// function's branches each square and species earns.
 function elapsedTurnMinLiquid(monster, env) {
-    const reason = unportedMinliquidReason(monster, env.state);
-    if (reason) elapsedTurnBoundary(reason);
-    return false;
+    return minliquid(monster, {
+        ...env,
+        state: env.state,
+        canSee: (x, y) => cansee(x, y, env.state),
+        message: env.planning ? async () => {} : ttyPline,
+        unsupported: unavailableElapsedTurnOperation(
+            'monster liquid effect',
+        ),
+        relocateMonster: unavailableElapsedTurnOperation(
+            'monster liquid relocation',
+        ),
+        fireDamageChain: unavailableElapsedTurnOperation(
+            'monster fire inventory damage',
+        ),
+        waterDamageChain: unavailableElapsedTurnOperation(
+            'monster water inventory damage',
+        ),
+        dealWithOvercrowding: unavailableElapsedTurnOperation(
+            'monster liquid overcrowding',
+        ),
+        hooks: {
+            ...(env.hooks ?? {}),
+            newsym: env.planning ? () => {} : (x, y) => newsym(x, y),
+        },
+    });
 }
 
 export async function finishElapsedTurn(
@@ -682,6 +701,7 @@ export async function finishElapsedTurn(
     await mcalcdistress(state, {
         state,
         random,
+        planning,
         message: turnMessage,
         redrawSquare: planning ? () => {} : newsym,
         visionRecalc: planning ? () => {} : vision_recalc,
