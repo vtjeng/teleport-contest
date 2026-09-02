@@ -7902,8 +7902,8 @@
       "slices": [
         {
           "name": "monster-minliquid-ordinary-pool-lava-effects",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "7ab27f76a5faed68449c7040a57216a0820e37a5"
         }
       ],
       "openedAt": "be10d1cb96d23b278524b1503959f5089250bdff",
