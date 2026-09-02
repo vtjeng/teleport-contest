@@ -16497,5 +16497,121 @@
       ]
     },
     "recordedAt": "2026-09-02T01:37:44.794Z"
+  },
+  {
+    "kind": "review",
+    "head": "a19a79cea0538b3cca084afadb11c6d12f0ae594",
+    "auditedRange": "0ca8b57522d912619bd4d29292fee1f1f978c0d7..a19a79cea0538b3cca084afadb11c6d12f0ae594",
+    "level": "full",
+    "areas": [
+      "startup",
+      "hero",
+      "objects",
+      "generation",
+      "monsters",
+      "world-effects",
+      "commands",
+      "runtime"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 29 raw, 25 deduplicated, 23 confirmed, 23 applied, 0 deferred, 2 rejected, 0 unverified. Full pass over 0ca8b575..82fe7b66 with all four core finders; the performance and concurrency finders were not triggered (source-required iteration only, no shared async state). Fixes landed in a19a79ce with the Audit-fix-for trailer. The kicking-boots field read and the dead invocation-level read mattered most: both silently took the wrong branch in the running game. The aggravation gate needed has_aggravatables() ported from wizard.c (pure). The gremlin and iron-golem liquid arms and the ICE and CLOUD terrain arms now stop; their ports are ledger entries minliquid-gremlin-and-iron-golem-arms-stop and sel-set-ter-ice-and-cloud-arms-stop, opened by the fix work rather than as deferred findings. Development score identical before and after the fixes: 23/33 sessions, 4144/7765 screens, 258304/610816 rng, so none of the fixed paths is exercised by a development session.",
+    "auditMetrics": {
+      "wallTimeSeconds": 2950,
+      "counts": {
+        "raw": 29,
+        "deduplicated": 25,
+        "confirmed": 23,
+        "applied": 23,
+        "deferred": 0,
+        "rejected": 2,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 8,
+        "tests": 9,
+        "clarity": 6,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "dokick() reads the hero's worn boots from state.u.uarmf, a field nothing writes, so the KICKING_BOOTS avrg_attrib = 99 shortcut never fires.",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "hellfill() reads state.invocation_level, a field nothing writes, so the vibrating-square arm is dead and every Gehennom fill level gets a down stair.",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "spell_would_be_useless()'s MCAST_AGGRAVATION arm draws rn2(100) unconditionally, but C draws it only when has_aggravatables() is false.",
+          "foundBy": [
+            "correctness",
+            "readability",
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "spell_would_be_useless()'s MCAST_BLIND_YOU arm tests intrinsic-or-extrinsic blindness, but C's Blinded macro is intrinsic-only with a blocked term.",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "cursetxt()'s is_obj_mappear(STRANGE_OBJECT) test uses the literals 10 and 63 for M_AP_OBJECT and STRANGE_OBJECT; the real values are 2 and 0.",
+          "foundBy": [
+            "correctness",
+            "readability",
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "mcastu.js deafness tests omit the u.uroleplay.deaf term that youprop.h includes.",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "unportedMinliquidReason() lost its non-flying-monster-in-liquid arm while minliquid_core() never gained C's gremlin and iron-golem pre-arms, so those monsters in water run neither the C branch nor a stop.",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "Narrowing the liquid boundary to gremlin-on-a-fountain removed the only stop for a gremlin in a pool, so its rn2(3) split draw is silently skipped.",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        }
+      ],
+      "readiness": {
+        "boundary": "Each slice in 0ca8b575..82fe7b66 starts at a player input or a monster's turn in the running game (a kick command, a move into liquid, a fountain quaff, a monster spell attack, a level change, a melee hit on a pet) and ends at the next screen, message, or state change the C reference records; fresh C recordings replayed against the port reached each ending event.",
+        "sourceReview": "Every branch and helper reachable before those ending events was traced against the upstream C functions and patches, including state ownership, PRNG order, screen and cursor behavior, and the explicitly excluded arms; the pass found two dead-field reads and four condition or constant errors, all fixed against the C source.",
+        "completeness": "No known unsupported behavior remains inside the applied boundaries; the gremlin, iron-golem, ICE, and CLOUD arms the pass found unguarded now stop before state, randomness, or output, and their ports are recorded in the deferral ledger."
+      },
+      "rejections": [
+        {
+          "summary": "in_town() is copied verbatim into a third module while js/fountain.js still carries an always-false in_town_stub, and the new copy's header contradicts its fallthrough.",
+          "counterEvidence": "The new body matches hack.c in_town() line for line including the final return of !hasSubrooms, so no branch, draw, or output diverges; the fountain stub and its stale comment predate the base commit. Consolidating would turn dryup()'s silent path into a throw on every has_town level and would add the fountain.js to hack.js import cycle the file defers imports to avoid. Residual is a duplicated pure helper and an imprecise header, owned by the simplification and clarity passes. Do not reopen without a source-reachable input whose behavior differs."
+        },
+        {
+          "summary": "mcastu.js Hallucination() ORs the extrinsic property into the test, while the C macro reads the intrinsic alone.",
+          "counterEvidence": "No writer of the extrinsic half exists in C (grep of uprops[HALLUC] across src and include finds only the intrinsic macro) or in the port (no assignment to [HALLUC].extrinsic), and worn.c setworn() skips the extrinsic write for a wielded potion, so heroProperty(state, HALLUC) equals HHallucination in every reachable state and the MCAST_DEATH_TOUCH rn2(2) is drawn identically. js/do.js and js/potion.js carried the same OR before the base commit. Do not reopen without a writer of the extrinsic HALLUC property."
+        }
+      ],
+      "deferrals": []
+    },
+    "recordedAt": "2026-09-02T18:59:40.515Z"
   }
 ]
