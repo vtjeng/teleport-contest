@@ -44,13 +44,9 @@
 // The three rows together record 11795 PRNG calls, 123 screens and 123
 // cursors.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 export const UNSEEN_PET_FIGHT_DATETIME = '20260401120000';
 
 // A pet is the point of the matrix, so pettype is left at its default and the
@@ -98,8 +94,8 @@ export function loadUnseenPetFightRecipe() {
     }, 'unseen pet fight recipe');
 }
 
-async function main() {
-    await runFreshMatrix({
+export async function runUnseenPetFightMatrix() {
+    return runFreshMatrix({
         entries: [{
             label: 'unseen pet fight',
             recipe: loadUnseenPetFightRecipe(),
@@ -108,9 +104,4 @@ async function main() {
     });
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main().catch((error) => {
-        process.stderr.write(`run-unseen-pet-fight: ${error.message}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runUnseenPetFightMatrix, 'run-unseen-pet-fight');

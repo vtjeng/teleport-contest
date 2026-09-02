@@ -59,19 +59,15 @@
 // pettype:none is what keeps the starting pet off those lines. The hero never
 // steps, so the only turn any segment spends is the zap itself.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { ZAP_POS, isok } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
 import { objectType } from '../js/obj.js';
 import { RAY } from '../js/objects.js';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20260817120000';
 
 // wizcmds.c wiz_wish(), bound to Ctrl-W in wizard mode.
@@ -234,17 +230,4 @@ export async function runRayZapMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runRayZapMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(`ray zap: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runRayZapMatrix, 'ray zap');

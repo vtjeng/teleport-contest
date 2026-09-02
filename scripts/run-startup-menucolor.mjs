@@ -4,9 +4,6 @@
 // installed list, windows.c add_menu(), TTY menu attributes, the menucolors
 // boolean, and the #optionsfull menu-color count.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import {
     count_menucolors,
     MENU_COLOR_ATTRIBUTES,
@@ -29,9 +26,8 @@ import {
     NO_COLOR,
 } from '../js/terminal.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const OPTIONS_MENU = 'mO       \x1b';
 const BASE_RC = Object.freeze([
     'OPTIONS=name:MenuColor,role:Healer,race:human,gender:male,align:neutral',
@@ -334,17 +330,4 @@ export async function runStartupMenucolorMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runStartupMenucolorMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`startup MENUCOLOR: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runStartupMenucolorMatrix, 'startup MENUCOLOR');

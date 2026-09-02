@@ -4,9 +4,6 @@
 // and pline.c vpline() from startup parsing through the first initialized
 // message or #optionsfull. Interactive rule editing remains outside the slice.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import {
     MSGTYP_NOREP,
     MSGTYP_NORMAL,
@@ -22,9 +19,8 @@ import {
     parseNethackrc,
 } from '../js/options.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const OPEN_FULL_OPTIONS_MENU = ' mO      ';
 const MESSAGE_TYPES = allopt.find(({ name }) => name === 'message types');
 
@@ -481,17 +477,4 @@ export async function runStartupMsgtypeMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runStartupMsgtypeMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`startup MSGTYPE: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runStartupMsgtypeMatrix, 'startup MSGTYPE');

@@ -23,13 +23,9 @@
 // infravision would make C draw a monster the hero cannot see, a separate
 // mismatch scripts/run-corridor-runs.mjs already records.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310203040506';
 
 function nethackrc(options) {
@@ -130,24 +126,14 @@ export function loadCorridorMemoryRecipe() {
     });
 }
 
-async function main() {
-    const result = await runFreshMatrix({
+export async function runCorridorMemoryMatrix() {
+    return runFreshMatrix({
         entries: [{
             label: 'corridor and room memory',
             recipe: loadCorridorMemoryRecipe(),
         }],
         summaryLabel: 'CORRIDOR MEMORY',
     });
-    return result.passed ? 0 : 1;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main().then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `run-corridor-memory: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runCorridorMemoryMatrix, 'run-corridor-memory');

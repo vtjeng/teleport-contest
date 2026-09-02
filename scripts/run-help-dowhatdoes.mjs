@@ -4,13 +4,9 @@
 // description. The case crosses the following command boundary.
 
 import assert from 'node:assert/strict';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 // Space dismisses the first-use explanation before `i` answers the prompt;
 // the final wait reaches the restored map without spending RNG.
@@ -51,16 +47,4 @@ export async function runHelpWhatdoesMatrix() {
     return result;
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    return (await runHelpWhatdoesMatrix()).passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`help whatdoes: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runHelpWhatdoesMatrix, 'help whatdoes');

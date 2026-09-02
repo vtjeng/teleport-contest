@@ -28,16 +28,12 @@
 // Every segment contains replay inputs only; runFreshMatrix() records new
 // reference output in an isolated temporary workspace.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { game } from '../js/gstate.js';
 import { encodeUtf8ByteString } from '../js/hacklib.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // A Wednesday morning with no calendar notice and no moon phase to announce.
 const DATETIME = '20340517080910';
 // Nothing here measures generation, so the seed only has to be a start the
@@ -159,19 +155,4 @@ export async function runCharacterHeaderClipMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runCharacterHeaderClipMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `character header clip: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runCharacterHeaderClipMatrix, 'character header clip');

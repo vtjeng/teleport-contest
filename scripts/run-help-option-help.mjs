@@ -4,13 +4,9 @@
 // page. The case dismisses every text page and reaches the restored map.
 
 import assert from 'node:assert/strict';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 // option_help() emits 114 lines in this build. TTY displays 23 lines per page,
 // so five spaces dismiss its five pages after `g` selects the help-menu target.
@@ -51,16 +47,4 @@ export async function runHelpOptionMatrix() {
     return result;
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    return (await runHelpOptionMatrix()).passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`help option page: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runHelpOptionMatrix, 'help option page');

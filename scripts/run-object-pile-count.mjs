@@ -12,17 +12,13 @@
 // ordinary square, then steps away and back through the same check_here()
 // transaction as the natural cases.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { OBJ_FLOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { HEAVY_IRON_BALL } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // A fixed ordinary Monday morning makes the recorder's tm_isdst handling
 // deterministic; this transaction reads neither the calendar nor the clock.
 const DATETIME = '20330809101112';
@@ -224,17 +220,4 @@ export async function runObjectPileCountMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runObjectPileCountMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`object pile count: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runObjectPileCountMatrix, 'object pile count');

@@ -5,17 +5,12 @@
 // dismisses its greeting, then steps west onto one stock potion. The movement
 // input boundary captures the priced message and the next command prompt.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { OBJ_FLOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { POT_WATER } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 export function loadShopFloorPricingRecipe() {
     return validateCleanRecipe({
@@ -75,17 +70,4 @@ export async function runShopFloorPricingMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runShopFloorPricingMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`shop floor pricing: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runShopFloorPricingMatrix, 'shop floor pricing');

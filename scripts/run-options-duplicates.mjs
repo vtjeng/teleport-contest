@@ -5,13 +5,9 @@
 // shared across lines, a rejected first occurrence, a dupeok row, and the
 // optfn_playmode() branch that consumes parseoptions()'s duplicate result.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SEED = 8734019;
 const DATETIME = '20340417101500';
 const REPEATED_COUNT = 22;
@@ -105,17 +101,4 @@ export async function runOptionsDuplicateMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runOptionsDuplicateMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`options duplicates: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runOptionsDuplicateMatrix, 'options duplicates');

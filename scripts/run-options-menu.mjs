@@ -28,8 +28,6 @@
 // only map memory can answer for.
 
 import assert from 'node:assert/strict';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import {
     COLNO, CORPSTAT_GENDER, CORPSTAT_RANDOM, ROWNO,
@@ -42,9 +40,8 @@ import { ATR_INVERSE, ATR_NONE } from '../js/terminal.js';
 import { cansee } from '../js/vision.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // A fixed weekday morning outside any calendar event, so no extra startup
 // message can shift the menu's first screen.
 const DATETIME = '20281114073500';
@@ -100,7 +97,6 @@ const EDIT_PICKUP_TYPES = [
     ['h', 'aA@\r'],
 ].map(([boolean, answer]) => `mO ${boolean}    n\r ${answer}`).join('')
     + '\x1b';
-
 
 // The 'O' menu's own seed, clock and hero, chosen independently of the ones
 // above. Nothing in doset_simple_menu() reads any of them, which is the point:
@@ -945,17 +941,4 @@ export async function runOptionsMenuMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runOptionsMenuMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(`options menu: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runOptionsMenuMatrix, 'options menu');

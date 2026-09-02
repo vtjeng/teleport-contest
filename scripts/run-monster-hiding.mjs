@@ -22,13 +22,9 @@
 // scripts/monster-hiding.test.mjs instead, and seed5002-wizard-coverage-pair
 // is the recorded C game that runs M_AP_TYPE on a real mimic.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20260214031500';
 
 // C('g'), the "wizgenesis" row's key, and the species name read.c
@@ -110,17 +106,4 @@ export async function runMonsterHidingMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runMonsterHidingMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`monster hiding: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runMonsterHidingMatrix, 'monster hiding');

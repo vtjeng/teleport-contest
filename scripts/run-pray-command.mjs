@@ -23,16 +23,12 @@
 // - 'N', which topl.c:433 folds to 'n' through lowc(); "yn" holds no
 //   uppercase letter, so preserve_case is FALSE.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { PARANOID_PRAY } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // A fixed clock with no calendar event, so nothing competes for the top line.
 const DATETIME = '20260214081500';
 const WAIT = '.';
@@ -300,19 +296,10 @@ export async function runPrayAcceptMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
+// The declined matrix runs first; the accepted one only when it passes.
+export async function runPrayMatrices() {
     const declined = await runPrayCommandMatrix();
-    if (!declined.passed) return 1;
-    const accepted = await runPrayAcceptMatrix();
-    return accepted.passed ? 0 : 1;
+    return declined.passed ? runPrayAcceptMatrix() : declined;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(`pray command: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runPrayMatrices, 'pray command');

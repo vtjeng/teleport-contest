@@ -3,9 +3,6 @@
 // Record and replay cfgfiles.c cnf_line_BOULDER()/get_uchars() from startup
 // through the tutorial boulder and options.c optfn_boulder(get_val).
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { SYM_BOULDER } from '../js/const.js';
 import { object_glyph_info } from '../js/display.js';
 import { game } from '../js/gstate.js';
@@ -16,9 +13,8 @@ import { BOULDER } from '../js/objects.js';
 import { dosetMenuItems, parseNethackrc } from '../js/options.js';
 import { misc_symbol, SYM_OFF_X } from '../js/symbols.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SEED = 713029;
 const DATETIME = '20171031184500';
 const OPEN_AND_DISMISS_FULL_OPTIONS = 'mO       \x1b';
@@ -323,19 +319,4 @@ export async function runLegacyBoulderMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runLegacyBoulderMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `legacy boulder statement: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runLegacyBoulderMatrix, 'legacy boulder statement');

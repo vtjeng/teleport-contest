@@ -7,16 +7,13 @@
 // normally with an empty commit.
 
 import { isDeepStrictEqual } from 'node:util';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { dosetMenuItems } from '../js/options.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SEED = 5938147;
 const DATETIME = '20370419111500';
 const OPEN_AND_DISMISS_FULL_OPTIONS = ' mO       \x1b';
@@ -316,19 +313,4 @@ export async function runStartupStatusHiliteMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runStartupStatusHiliteMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `startup status hilites: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runStartupStatusHiliteMatrix, 'startup status hilites');

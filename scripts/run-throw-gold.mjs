@@ -80,18 +80,14 @@
 // shop is reachable within a Dlvl 1 segment, and js/do.js already stops for
 // the same shop on an ordinary drop.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { COIN_CLASS } from '../js/objects.js';
 import { GETOBJ_SUGGEST } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { throw_ok } from '../js/dothrow.js';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20000110090000';
 
 // One wait ahead of the command settles the arrival turn, so a move wrongly
@@ -279,17 +275,4 @@ export async function runThrowGoldMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runThrowGoldMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(`throw gold: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runThrowGoldMatrix, 'throw gold');

@@ -4,17 +4,13 @@
 // the patched C reference. The cases cross autopickup and verbose wording with
 // an ordinary calendar and the maximal full-moon-plus-Friday message sequence.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { NORMAL_SPEED, OBJ_INVENT, STAIRS } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { stairway_at } from '../js/stairs.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const VERBOSE_STAIRCASE_LINE =
     'There is a staircase up out of the dungeon here.';
 const TERSE_STAIRCASE_LINE = 'A staircase up out of the dungeon.';
@@ -160,19 +156,4 @@ export async function runStartupStaircaseDecorMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runStartupStaircaseDecorMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(
-            `startup staircase decor: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runStartupStaircaseDecorMatrix, 'startup staircase decor');

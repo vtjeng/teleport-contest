@@ -26,9 +26,6 @@
 // stops there rather than on anything the wish parser did; seed 5510561 is one.
 // And a corpse cannot be drawn at all, because objects.h gives it oc_prob 0.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -51,9 +48,7 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 // cmd.c:2000 binds C('w') to the "wizwish" row.
 const WIZWISH_KEY = '\x17';
@@ -243,17 +238,4 @@ export async function runRandomWishMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runRandomWishMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`random wish: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runRandomWishMatrix, 'random wish');

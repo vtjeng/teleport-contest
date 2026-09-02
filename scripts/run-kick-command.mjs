@@ -39,16 +39,12 @@
 // monster movement, which is why `strain` is 6600006 rather than 6600005: on
 // 6600005 a monster steps onto a trap on the turn after the kick.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { A_DEX, D_BROKEN, D_NODOOR, DOOR, WOUNDED_LEGS } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // A fixed Friday afternoon, away from the calendar dates that add a startup
 // message of their own.
 const DATETIME = '20240517131415';
@@ -277,17 +273,4 @@ export async function runKickCommandMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runKickCommandMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(`kick command: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runKickCommandMatrix, 'kick command');

@@ -30,18 +30,14 @@
 // to advance it, and every wizard-only branch, which needs OPTIONS=playmode.
 // scripts/enhance-command.test.mjs pins both refusals instead.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { P_ATTACK_SPELL, P_DAGGER, P_NUM_SKILLS } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { P_RESTRICTED } from '../js/startup_skills.js';
 import { P_NAME, add_skills_to_menu } from '../js/weapon.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // A fixed clock with no calendar event, so nothing competes for the top line.
 const DATETIME = '20310203040506';
 const WAIT = '.';
@@ -255,17 +251,4 @@ export async function runEnhanceCommandMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runEnhanceCommandMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(`enhance command: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runEnhanceCommandMatrix, 'enhance command');

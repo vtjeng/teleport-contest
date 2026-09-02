@@ -9,13 +9,8 @@
 // when needed, and schedules the forced arrival. The chosen arrival then runs
 // do.c:1478-1998's common level-generation path, including dat/fire.lua.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 
 export const FIRE_PLANE_SEED = 5732;
 const FIRE_PLANE_DATETIME = '20330615101500';
@@ -54,19 +49,4 @@ export async function runWizardFirePlaneTeleMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runWizardFirePlaneTeleMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `wizard Plane of Fire level teleport: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runWizardFirePlaneTeleMatrix, 'wizard Plane of Fire level teleport');

@@ -35,13 +35,9 @@
 // nothing extra and are already covered by scripts/run-leave-level.mjs, whose
 // seeds were chosen for having no eligible shop room.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const VALKYRIE_DATETIME = '20330607081011';
 
 // The key bound to the `down` command, extcmdlist[]'s 0x3E row.
@@ -207,17 +203,4 @@ export async function runShopDescentMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runShopDescentMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`shop descent: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runShopDescentMatrix, 'shop descent');

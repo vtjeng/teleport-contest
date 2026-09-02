@@ -51,13 +51,9 @@
 // the two seeds it counts under monster hiding now run past that stop; which
 // owner each reaches instead has not been re-measured.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 export const PET_MELEE_DATETIME = '20260401120000';
 
 // A pet is the point of the matrix, so pettype is left at its default and the
@@ -127,8 +123,8 @@ export function loadPetMeleeAttackRecipe() {
     }, 'pet melee attack recipe');
 }
 
-async function main() {
-    await runFreshMatrix({
+export async function runPetMeleeAttackMatrix() {
+    return runFreshMatrix({
         entries: [{
             label: 'pet melee attack',
             recipe: loadPetMeleeAttackRecipe(),
@@ -137,9 +133,4 @@ async function main() {
     });
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main().catch((error) => {
-        process.stderr.write(`run-pet-melee-attack: ${error.message}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runPetMeleeAttackMatrix, 'run-pet-melee-attack');

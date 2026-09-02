@@ -13,13 +13,8 @@
 // Step 68 types '<', step 69 types ' ' to dismiss the --More--. The segment
 // ends at the D:1 map after the ascent.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 // The moves are taken directly from session seed0007-rogue-snake-swamp
 // (seed 7, datetime 20260503025436, nethackrc "OPTIONS=symset:DECgraphics").
@@ -39,11 +34,13 @@ export function loadAscendRecipe() {
     });
 }
 
-if (process.argv[1] === SCRIPT_PATH || process.argv[1] === resolve(SCRIPT_PATH)) {
-    runFreshMatrix({
+export async function runAscendMatrix() {
+    return runFreshMatrix({
         summaryLabel: 'ascend level',
         entries: [
             { label: 'ascend level', recipe: loadAscendRecipe() },
         ],
     });
 }
+
+runMatrixCli(import.meta.url, runAscendMatrix, 'ascend level');

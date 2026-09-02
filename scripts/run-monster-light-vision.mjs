@@ -13,15 +13,13 @@
 // temporary light before the next input boundary.
 
 import assert from 'node:assert/strict';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import {
     runDifferential,
     validateCleanRecipe,
 } from './diff-fresh.mjs';
+import { runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // This clock has no NetHack calendar event and retains the deterministic
 // big-room layout and monster actions selected by the two seeds below.
 const DATETIME = '20000110090000';
@@ -126,17 +124,4 @@ export async function runMonsterLightVisionMatrix() {
     return { passed: true };
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runMonsterLightVisionMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`monster light vision: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runMonsterLightVisionMatrix, 'monster light vision');

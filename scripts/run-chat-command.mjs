@@ -24,9 +24,6 @@
 // - CANCEL_CASES answer the prompt with Escape, which is cmd.c getdir()'s
 //   quitchars arm and the only route to sounds.c:1294's ECMD_CANCEL.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { BLINDED, IS_WALL, SDOOR, STONE } from '../js/const.js';
 import { vobj_at } from '../js/display.js';
 import { game } from '../js/gstate.js';
@@ -34,9 +31,8 @@ import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
 import { STATUE } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // A fixed clock with no calendar event, so nothing competes for the top line.
 const DATETIME = '20310203040506';
 const WAIT = '.';
@@ -291,17 +287,4 @@ export async function runChatCommandMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runChatCommandMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(`chat command: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runChatCommandMatrix, 'chat command');

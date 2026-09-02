@@ -25,6 +25,7 @@ import {
     runJsSession,
     validateCleanRecipe,
 } from './diff-fresh.mjs';
+import { runMatrixCli } from './fresh-matrix.mjs';
 import {
     createScoringWorkspace,
     removeScoringWorkspace,
@@ -172,16 +173,11 @@ export async function runQuiverUnwieldMatrix() {
                 'Known earlier difference: ia_checkfile() encyclopedia row\n',
             );
         }
-        return true;
+        return { passed: true };
     } finally {
         if (scoringRoot) removeScoringWorkspace(scoringRoot);
         rmSync(workRoot, { recursive: true, force: true });
     }
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    runQuiverUnwieldMatrix().catch((error) => {
-        process.stderr.write(`${error.stack || error}\n`);
-        process.exitCode = 1;
-    });
-}
+runMatrixCli(import.meta.url, runQuiverUnwieldMatrix, 'quiver unwield');

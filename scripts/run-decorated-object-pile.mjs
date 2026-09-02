@@ -7,18 +7,14 @@
 // invent.c look_here()'s terrain header, blank separator, and object menu.
 // The doorway exercises the terrain message before the pile-limit count.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { DOOR, OBJ_FLOOR, STAIRS } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { dfeature_at } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { HEAVY_IRON_BALL } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // This fixed Monday morning isolates terrain and pile output from calendar
 // messages while retaining the recorder's America/New_York normalization.
 const DATETIME = '20330809101112';
@@ -182,19 +178,4 @@ export async function runDecoratedObjectPileMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runDecoratedObjectPileMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(
-            `decorated object pile: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runDecoratedObjectPileMatrix, 'decorated object pile');

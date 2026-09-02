@@ -5,13 +5,9 @@
 // the two cream-blindness counters are three, and waits once after the
 // occupation returns to command input.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // Directly assigning the blindness state would skip apply.c use_cream_pie(),
 // the elapsed-turn timeout, and cmd.c doextcmd(). A bounded local replay scan
 // of seeds 7100001 through 7100050 with these fixed inputs found 7100006 as
@@ -57,17 +53,4 @@ export async function runWipeOccupationMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runWipeOccupationMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`wipe occupation: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runWipeOccupationMatrix, 'wipe occupation');
