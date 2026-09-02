@@ -8087,8 +8087,8 @@
       "slices": [
         {
           "name": "kick-door-shatter-crash-open",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "ffee1964809b5058e3b131382e4fee339ed5021f"
         }
       ],
       "openedAt": "695f542899bfc858eaaaafbb07ed4f6a07b401cc",
