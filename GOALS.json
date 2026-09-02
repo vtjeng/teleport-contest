@@ -7813,8 +7813,8 @@
       "slices": [
         {
           "name": "ranged-wield-switch-from-an-existing-monster-weapon",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "cfd07805fa0dad61865259e8caa99b64af30832e"
         }
       ],
       "openedAt": "d6b0300166d3fe80ea56f4e83776fcb54178855a",
