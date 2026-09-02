@@ -8102,6 +8102,39 @@
         "screens": 4,
         "rng": 109
       }
+    },
+    {
+      "id": "unsupported-hero-move-hitting-a-pet",
+      "status": "open",
+      "boundary": "Hero hit on a tame pet reaching hmon_hitmon_pet's abuse/flee handling.",
+      "upstreamOwners": [
+        "uhitm.c",
+        "dog.c",
+        "sounds.c"
+      ],
+      "forecast": {
+        "steps": 41,
+        "basis": "Capped look-ahead at unsupported hero move: hitting a pet",
+        "sessions": [
+          "seed0383-wizard-hallucinate"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383-wizard-hallucinate",
+            "evidence": "Development replay witness: seed 383, datetime 20000110090000, options name Dazz, role Wizard, race human, gender male, align neutral, playmode debug, suppress_alert:3.4.3, symset DECgraphics, !autopickup; first stop is cumulative step 178 on input u, with The quasit rattles! You kill the poor titan!. C logs rnd(20)=1 at hitum(uhitm.c:780), rnd(6)=6 at weapon.c:265, rn2(9)=7 at abuse_dog(dog.c:1381), and rn2(35)=6 at yelp(sounds.c:437). The exact C path is uhitm.c:hitum() -> hmon() -> hmon_hitmon() -> hmon_hitmon_pet() at uhitm.c:1587-1600 and 1866; with a tame target and positive damage, C calls abuse_dog(), then may monflee(). The hallucinated top line identifies the tame titan combat outcome while the quasit message is incidental."
+          }
+        ]
+      },
+      "detail": "Bounding property: hero melee hit on a tame pet with positive damage, witnessed in one development session and bounded to its cap-stable 41-screen stretch. Per .agents/selection.md this is a capped measured forecast of 41 screens for the exact pet-combat branch, not every hero attack.",
+      "slices": [],
+      "openedAt": "7ee556eaa7271122ea1e2268fb506c6717136980",
+      "openStanding": {
+        "sha": "773748db",
+        "screens": 4144,
+        "rng": 258302
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
