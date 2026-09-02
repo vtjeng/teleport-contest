@@ -7879,7 +7879,7 @@
     },
     {
       "id": "simple-monster-action-requires-monster-liquid-effects",
-      "status": "open",
+      "status": "closed",
       "boundary": "Ordinary active monster movement reaching minliquid on a pool or lava square.",
       "upstreamOwners": [
         "mon.c",
@@ -7912,8 +7912,11 @@
         "screens": 4052,
         "rng": 254287
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "04b1ce01d4f55ea0e21b2dffc8e4bd1e5c08f7ee",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
