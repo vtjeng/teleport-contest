@@ -8084,7 +8084,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "kick-door-shatter-crash-open",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "695f542899bfc858eaaaafbb07ed4f6a07b401cc",
       "openStanding": {
         "sha": "8ff31382",
