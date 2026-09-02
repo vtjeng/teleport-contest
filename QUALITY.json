@@ -5989,6 +5989,15 @@
           "at": "82fe7b66d00ab56b097c398827eeb10dcf13f323"
         }
       ]
+    },
+    {
+      "id": "no-fresh-case-covers-the-spotted-monster-behind-a-boulder",
+      "area": "world-effects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "9d39ba9631cc06633d614598dbfa90cec60e87c3",
+      "detail": "hack.c moverock_core():461-463 prints \"There's %s on the other side.\" when canspotmon() answers TRUE for the monster the boulder would land on. scripts/hero-boulder-push.test.mjs pins it through Detect_monsters, but no fresh C case reaches it: the only ported way to put a monster behind a boulder is to find a seed whose level generates one there, and every such boulder found so far sits in an unlit corridor where canspotmon() is FALSE. A lit-room boulder would need zap.c makewish() or wizard level teleport, both unported."
     }
   ],
   "areas": [
