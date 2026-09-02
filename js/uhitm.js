@@ -57,6 +57,7 @@ import { sgn } from './hacklib.js';
 // ES module cycle initializes before either module body runs, and nothing here
 // reads them at module scope.
 import { hitmsg, magic_negation } from './mhitu.js';
+import { abuse_dog } from './dog.js';
 import { killed, wakeup } from './mon.js';
 import {
     amorphous,
@@ -1134,11 +1135,24 @@ function hmon_hitmon_stagger(hmd, state, env, random) {
 }
 
 // C ref: uhitm.c hmon_hitmon_pet() (1587-1601). Hitting a pet costs tameness
-// and sends it fleeing. abuse_dog() is unported, so a tame target stops; every
-// hostile one runs the whole function and changes nothing.
-function hmon_hitmon_pet(hmd, mon, env) {
-    if (mon.mtame && hmd.dmg > 0)
-        requireAttackOperation(env, 'unsupported')('hitting a pet');
+// and sends it fleeing.
+//
+// abuse_dog() runs even for a pet that this blow has already killed or sent
+// off the map, because tameness is part of the corpse's revival state; only
+// the monflee() that follows is gated on the pet surviving and still being
+// tame. rnd() there is on the core stream, so the flee timer costs a draw
+// whenever that gate opens.
+async function hmon_hitmon_pet(hmd, mon, state, random) {
+    if (mon.mtame && hmd.dmg > 0) {
+        /* do this even if the pet is being killed or migrating
+           (affects revival) */
+        await abuse_dog(mon, state); /* reduces tameness */
+        /* flee if still alive and still tame; if already suffering from
+           untimed fleeing, no effect, otherwise increases timed fleeing */
+        if (mon.mtame && !hmd.destroyed)
+            await monflee(mon, 10 * random.rnd(hmd.dmg), false, false,
+                          { state });
+    }
 }
 
 // C ref: uhitm.c hmon_hitmon_splitmon() (1603-1634). An iron or metal melee
@@ -1351,7 +1365,7 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     }
     if (mon.mhp < 1) hmd.destroyed = true; /* DEADMONSTER() */
 
-    hmon_hitmon_pet(hmd, mon, env);
+    await hmon_hitmon_pet(hmd, mon, state, random);
 
     hmon_hitmon_splitmon(hmd, mon, obj, state, env);
 

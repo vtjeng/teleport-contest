@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7331,
+      "datetime": "20240315103000",
+      "nethackrc": "OPTIONS=name:Petty,role:Caveman,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": "Fn"
+    }
+  ]
+}

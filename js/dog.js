@@ -1,13 +1,17 @@
 // Starting-pet creation, tame-monster state, and the companions that leave a
 // level with the hero.
 // C refs: dog.c newedog(), initedog(), pet_type(), makedog(), mon_leave(),
-// keep_mon_accessible(), keepdogs() and migrate_to_level(); mon.c relmon(),
+// keep_mon_accessible(), keepdogs(), migrate_to_level() and abuse_dog();
+// mon.c relmon(),
 // mon_leaving_level() and see_monster_closeup(); steed.c put_saddle_on_mon();
 // do_name.c christen_monst().
 
 import {
     A_CHA,
+    AGGRAVATE_MONSTER,
     BLINDED,
+    CONFLICT,
+    EDOG,
     HALLUC,
     HALLUC_RES,
     M_AP_MONSTER,
@@ -100,6 +104,7 @@ import { mnexto, rloc_to } from './teleport.js';
 import { vision_recalc } from './vision.js';
 import { mon_wield_item } from './weapon.js';
 import { mon_has_amulet } from './wizard.js';
+import { growl, yelp } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 
 export { christen_monst } from './do_name.js';
@@ -991,4 +996,65 @@ export function migrate_to_level(
     monster.my = 0;
     if (recalculateVision) recalculateVision(0);
     return monster;
+}
+
+// C ref: youprop.h:214 Aggravate_monster and :218 Conflict, each `(H... ||
+// E...)` over one hero property. Neither has a blocking term: youprop.h gives
+// `blocked` aliases to BLINDED, CLAIRVOYANT, INVIS, STEALTH, LEVITATION and
+// FLYING alone. Both are read once here, in abuse_dog()'s halving test.
+function Aggravate_monster(state) {
+    return propertyActive(state.u, AGGRAVATE_MONSTER);
+}
+
+function Conflict(state) {
+    return propertyActive(state.u, CONFLICT);
+}
+
+/**
+ * C ref: dog.c abuse_dog() (1362-1392). Mistreating a pet costs it tameness
+ * and makes it complain.
+ *
+ * mtame is a schar, so the halved arm truncates toward zero the way C's
+ * integer division does. The complaint draw is `rn2(mtmp->mtame)` on the
+ * *decremented* tameness, and it happens only for a pet still on this level:
+ * a pet in the middle of migrating has mx == 0 and stays silent.
+ *
+ * A pet whose tameness reaches 0 while leashed calls m_unleash(), and a long
+ * worm that loses its tameness calls redraw_worm(). Neither is ported, and
+ * neither can be reached today: no ported writer sets mleashed to true (see
+ * js/apply_next_to_u.js), so both arms are refused rather than left silent.
+ */
+export async function abuse_dog(mtmp, state = game) {
+    if (!mtmp.mtame) return;
+
+    if (Aggravate_monster(state) || Conflict(state))
+        mtmp.mtame = Math.trunc(mtmp.mtame / 2);
+    else
+        mtmp.mtame--;
+
+    if (mtmp.mtame && !mtmp.isminion) EDOG(mtmp).abuse++;
+
+    if (!mtmp.mtame && mtmp.mleashed) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'abuse_dog() unleashing a pet that stopped being tame',
+        );
+    }
+
+    /* don't make a sound if pet is in the middle of leaving the level */
+    /* newsym isn't necessary in this case either */
+    if (mtmp.mx !== 0) {
+        if (mtmp.mtame && rn2(mtmp.mtame))
+            await yelp(mtmp, state);
+        else
+            await growl(mtmp, state); /* give them a moment's worry */
+
+        if (!mtmp.mtame) {
+            newsym(mtmp.mx, mtmp.my);
+            if (mtmp.wormno) {
+                throw new UnsupportedHeroMoveBoundaryError(
+                    'abuse_dog() redrawing a long worm that lost its tameness',
+                );
+            }
+        }
+    }
 }

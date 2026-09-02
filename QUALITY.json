@@ -5954,6 +5954,16 @@
       "status": "open",
       "from": "725e271961f2daccaf8bea7ff8def75256ad5c03",
       "detail": "mon.c hideunder():4749-4771, the hides_under() arm and the 'You see <mon> hide under <obj>' message at 4787-4795. js/mon.js hideunder() covers the S_EEL arm only and raises UnsupportedHideError for the other two: 'a monster that hides under objects' and 'concealment the hero can watch'. monmove.c postmov() keeps its own answer for an M1_CONCEAL species on an empty square and stops on every other object-concealing square. Reproduce with an Archeologist, seed 6002, datetime 20010704120000, OPTIONS=name:Hypatia,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,suppress_alert:3.4.3 and OPTIONS=!autopickup,blind, moves '  n#levelchange<LF>20<LF>' + 19 spaces + '^V?<LF>>y' + 2 spaces + '^Ggiant eel<LF>..' -- the Archeologist quest home places eight class-S snakes, and one of them re-hides under an object on the second elapsed turn. The port stops at 'simple monster action requires monster hiding under an object' with 58 of the recorded 59 screens matched. Closing this entry should also fold js/makemon_create.js's private hideunder() into js/mon.js, so one JavaScript function answers for the one C function."
+    },
+    {
+      "id": "abuse-dog-leash-and-worm-arms",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "8694373c4aed55a7e2654540d155b574ff1ad138",
+      "detail": "dog.c abuse_dog():1373-1374 and 1386-1388, the two arms js/dog.js abuse_dog() refuses. A pet whose tameness reaches 0 while leashed needs dog.c m_unleash(mtmp, TRUE); a long worm that loses its tameness needs worm.c redraw_worm(mtmp) after newsym(). Neither can be exercised by a recording today: no ported writer sets monster.mleashed to true (js/apply_next_to_u.js records the same gap for apply.c mleashed_next2u(), and the only ported writers -- js/dog.js:168 and js/bury.js:198 -- clear it), and js/dog.js migrate_to_level() already refuses a long worm for the same reason. Reaching either also means driving a pet's mtame from 10 down to 0, which takes ten landed hero blows on a pet that survives them all; the three recipes/pet-abuse-*.session.json cases each get one or two blows in before the pet dies or flees out of reach. Closing this entry wants a durable pet (a saddled pony held by a leash the port can set) and should land m_unleash() alongside the apply.c leash commands that create the state.",
+      "blockedOn": "m_unleash"
     }
   ],
   "areas": [

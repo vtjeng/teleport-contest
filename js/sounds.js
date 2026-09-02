@@ -21,6 +21,20 @@ import {
     M_AP_OBJECT,
     M_AP_TYPE,
     MS_ANIMAL,
+    MS_BARK,
+    MS_BELLOW,
+    MS_BUZZ,
+    MS_GROAN,
+    MS_GROWL,
+    MS_HISS,
+    MS_MEW,
+    MS_MOO,
+    MS_NEIGH,
+    MS_ROAR,
+    MS_SILENT,
+    MS_SQAWK,
+    MS_SQEEK,
+    MS_WAIL,
     ROOMOFFSET,
     SDOOR,
     SHOPBASE,
@@ -43,7 +57,8 @@ import {
 } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { get_iter_mons } from './mon.js';
+import { nomul } from './hack.js';
+import { get_iter_mons, wake_nearto } from './mon.js';
 import {
     humanoid,
     is_animal,
@@ -55,7 +70,7 @@ import {
 import { MS_LEADER, PM_ORACLE } from './monsters.js';
 import { m_at } from './monst.js';
 import { g_at } from './obj.js';
-import { an } from './objnam.js';
+import { an, vtense } from './objnam.js';
 import { STATUE } from './objects.js';
 import { halu_gname } from './pray.js';
 import { quest_chat } from './quest.js';
@@ -477,6 +492,150 @@ export async function dosoundsInitialLevel(
             }
             return;
         }
+    }
+}
+
+// C ref: sounds.c h_sounds[] (341-349). The 35 verbs a hallucinating hero
+// hears in place of a monster's real noise. growl(), yelp() and whimper() all
+// index it with ROLL_FROM(), which is `array[rn2(SIZE(array))]`; only growl()
+// and yelp() have a caller in this port.
+const h_sounds = Object.freeze([
+    'beep', 'boing', 'sing', 'belche', 'creak', 'cough',
+    'rattle', 'ululate', 'pop', 'jingle', 'sniffle', 'tinkle',
+    'eep', 'clatter', 'hum', 'sizzle', 'twitter', 'wheeze',
+    'rustle', 'honk', 'lisp', 'yodel', 'coo', 'burp',
+    'moo', 'boom', 'murmur', 'oink', 'quack', 'rumble',
+    'twang', 'toot', 'gargle', 'hoot', 'warble',
+]);
+
+// C ref: sounds.c growl_sound() (351-396). Pure: it maps the species' msound
+// to a verb and draws nothing. Every msound outside this switch, including
+// MS_SILENT, answers "scream" -- growl() itself is what rejects MS_SILENT.
+export function growl_sound(mtmp) {
+    switch (mtmp.data?.msound) {
+    case MS_MEW:
+    case MS_HISS:
+        return 'hiss';
+    case MS_BARK:
+    case MS_GROWL:
+        return 'growl';
+    case MS_ROAR:
+        return 'roar';
+    case MS_BELLOW:
+        return 'bellow';
+    case MS_BUZZ:
+        return 'buzz';
+    case MS_SQEEK:
+        return 'squeal';
+    case MS_SQAWK:
+        return 'screech';
+    case MS_NEIGH:
+        return 'neigh';
+    case MS_WAIL:
+        return 'wail';
+    case MS_GROAN:
+        return 'groan';
+    case MS_MOO:
+        return 'low';
+    case MS_SILENT:
+        return 'commotion';
+    default:
+        return 'scream';
+    }
+}
+
+// C ref: sounds.c growl() (398-421), "the sounds of a seriously abused pet,
+// including player attacking it".
+//
+// The hallucination draw is on the core stream and precedes the print, so a
+// hero who cannot see or hear the monster still spends it. wake_nearto() sits
+// outside the print guard for the same reason: the noise happens whether or
+// not the hero perceives it.
+//
+// C also sets iflags.last_msg = PLNMSG_GROWL inside the print guard. Its only
+// C reader is mon.c setmangry() at 4244, which is unported, and a faithful
+// port of the field first needs pline() to clear it (pline.c:242, 281) so the
+// flag means "the most recent message was this growl". Both belong with
+// setmangry(); nothing here reads the value.
+export async function growl(mtmp, state = game) {
+    let growl_verb = 0;
+
+    if (helpless(mtmp) || mtmp.data?.msound === MS_SILENT)
+        return;
+
+    /* presumably nearness and soundok checks have already been made */
+    if (Hallucination(state))
+        growl_verb = h_sounds[rn2(h_sounds.length)];
+    else
+        growl_verb = growl_sound(mtmp);
+    if (growl_verb) {
+        if (canseemon(mtmp, state) || !Deaf(state)) {
+            await ttyPline(
+                `${capitalizedMonsterName(mtmp, state)} `
+                + `${vtense(null, growl_verb)}!`,
+                state,
+            );
+            if (state.context?.run) nomul(0, state);
+        }
+        await wake_nearto(mtmp.mx, mtmp.my, (mtmp.data?.mlevel ?? 0) * 18,
+                          { state });
+    }
+}
+
+// C ref: sounds.c yelp() (425-476), "the sounds of mistreated pets".
+//
+// Two differences from growl() above: the message is printed even when the
+// hero can neither see nor hear the yelper, and a species whose msound has no
+// case below leaves yelp_verb unset, so nothing is printed and wake_nearto()
+// is not reached. Deafness swaps each verb for a silent gesture without
+// changing any draw.
+//
+// C's Soundeffect() calls are omitted: the recorder's soundlib is `nosound`,
+// whose soundprocs.sound_soundeffect is null, so the macro expands to a test
+// that never fires.
+export async function yelp(mtmp, state = game) {
+    let yelp_verb = 0;
+
+    if (helpless(mtmp) || !mtmp.data?.msound)
+        return;
+
+    /* presumably nearness and soundok checks have already been made */
+    if (Hallucination(state)) {
+        yelp_verb = h_sounds[rn2(h_sounds.length)];
+    } else {
+        switch (mtmp.data.msound) {
+        case MS_MEW:
+            yelp_verb = !Deaf(state) ? 'yowl' : 'arch';
+            break;
+        case MS_BARK:
+        case MS_GROWL:
+            yelp_verb = !Deaf(state) ? 'yelp' : 'recoil';
+            break;
+        case MS_ROAR:
+            yelp_verb = !Deaf(state) ? 'snarl' : 'bluff';
+            break;
+        case MS_SQEEK:
+            yelp_verb = !Deaf(state) ? 'squeal' : 'quiver';
+            break;
+        case MS_SQAWK:
+            yelp_verb = !Deaf(state) ? 'screak' : 'thrash';
+            break;
+        case MS_WAIL:
+            yelp_verb = !Deaf(state) ? 'wail' : 'cringe';
+            break;
+        default:
+            break;
+        }
+    }
+    if (yelp_verb) {
+        await ttyPline(
+            `${capitalizedMonsterName(mtmp, state)} `
+            + `${vtense(null, yelp_verb)}!`,
+            state,
+        );
+        if (state.context?.run) nomul(0, state);
+        await wake_nearto(mtmp.mx, mtmp.my, (mtmp.data?.mlevel ?? 0) * 12,
+                          { state });
     }
 }
 

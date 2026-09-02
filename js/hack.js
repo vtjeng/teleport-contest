@@ -1441,12 +1441,10 @@ function requireOrdinaryHostileMelee(monster) {
 // same way, because the two arms have nothing in common below that test. The
 // forcefight conjunct is what sends `F` at a pet down the attack arm instead
 // of down the displacement arm, so the prefix swings at the pet rather than
-// swapping places with it. That path is bounded rather than complete: a miss
-// runs the whole swing, including wakeup(), whose setmangry() returns early on
-// mtame so the pet is not angered, while a landed blow stops at js/uhitm.js
-// hmon_hitmon_pet()'s refusal -- which sits above abuse_dog() and its
-// monflee() rnd(), but below the point where the pet's hit points have already
-// gone negative. Neither outcome is tested end to end.
+// swapping places with it. A miss runs the whole swing, including wakeup(),
+// whose setmangry() returns early on mtame so the pet is not angered; a landed
+// blow runs js/uhitm.js hmon_hitmon_pet(), which spends the pet's tameness
+// through abuse_dog() and then its monflee() rnd().
 function requireSupportedDestinationMonster(monster, x, y, state) {
     requireNoMonsterBump(monster, state);
     if (!is_safemon(monster, state) || state.context?.forcefight) {

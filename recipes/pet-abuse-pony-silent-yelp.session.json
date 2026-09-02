@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4242,
+      "datetime": "20240315103000",
+      "nethackrc": "OPTIONS=name:Petty,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": "FhFh"
+    }
+  ]
+}

@@ -602,13 +602,19 @@ test('the pet and pudding arms pass an ordinary hostile through', async () => {
     await hmon(mon, game.uwep, HMON_MELEE, 10, game, env);
     assert.equal(mon.mhp, 97);
 
-    // uhitm.c:1594's `mon->mtame && hmd.dmg > 0`. abuse_dog() is unported.
-    const pet = hitEnv({ rolls: [2, 1, 1] });
-    await refusesAsync(
-        () => hmon(target(PM_LICHEN, { mtame: 5 }), game.uwep, HMON_MELEE, 10,
-                   game, pet),
-        'hitting a pet',
-    );
+    // uhitm.c:1594's `mon->mtame && hmd.dmg > 0`. A lichen is MS_SILENT, so
+    // both of abuse_dog()'s complaints stay quiet and only the state moves.
+    const petEnv = hitEnv({ rolls: [2, 1, 1] });
+    const pet = target(PM_LICHEN, { mtame: 5 });
+    pet.mextra = { edog: { abuse: 0 } };
+    await hmon(pet, game.uwep, HMON_MELEE, 10, game, petEnv);
+    // dog.c:1367-1370: one point of tameness and one more recorded abuse.
+    assert.equal(pet.mtame, 4);
+    assert.equal(pet.mextra.edog.abuse, 1);
+    // uhitm.c:1598-1599. The survivor flees for 10 * rnd(dmg) turns; hitEnv()
+    // answers every call after the damage die with 1, so rnd(dmg) is 1 here.
+    assert.equal(pet.mflee, true);
+    assert.equal(pet.mfleetim, 10);
 
     // uhitm.c:1610-1626. The scalpel is METAL and wielded, and the hero is
     // striking hand to hand, so a black pudding meets every one of C's tests
