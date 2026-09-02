@@ -7899,7 +7899,13 @@
         ]
       },
       "detail": "Bounding property: one minliquid pool/lava-effect branch for the witnessed ordinary monster state, bounded to the cap-stable 189-screen stretch of one development session. This is a capped replay look-ahead of 189 screens, not a claim covering exempt flyers, floaters, or every liquid effect.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "monster-minliquid-ordinary-pool-lava-effects",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "be10d1cb96d23b278524b1503959f5089250bdff",
       "openStanding": {
         "sha": "b46b6c2b",
