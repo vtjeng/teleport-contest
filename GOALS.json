@@ -7983,8 +7983,8 @@
       "slices": [
         {
           "name": "an active ordinary eel executes movemon_singlemon()'s S_EEL hideunder() concealment arm on an ordinary pool square",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "f1659bb0ac9a4f7f2b938f068013fe549d465dde"
         }
       ],
       "openedAt": "6b3c4d9e38f8f034f8f27ce3a00311e0d9ba7a67",
