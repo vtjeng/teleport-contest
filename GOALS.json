@@ -8166,7 +8166,13 @@
         ]
       },
       "detail": "Bounding property: the port refuses to push a boulder toward a square holding an unseen (not canspotmon) corporeal monster that is not pit-trapped, instead of reporting the You hear a monster behind it / Perhaps that's why you cannot move it pair and falling through to the already-ported cannot_push() refusal; witnessed in one development session and bounded to its cap-stable 50-screen stretch. Per .agents/selection.md this is a capped measured forecast of 50 screens for hack.c moverock_core()'s single monster-behind-boulder detection-and-messaging arm (lines 455-483, feeding the already-ported cannot_push()/cannot_push_msg() at hack.c:262 and 247), not every boulder-push case and not the noncorporeal or pit-trapped exception that lets the push proceed into moverock_core()'s still-unported push logic at 626-637. The visible-monster sibling line (There's %s on the other side.) shares the same helpers and costs nothing extra; the push-through exception stays deferred because the witness session never exercises it. Size: one behavior slice. Every dependency is already ported elsewhere -- canspotmon() (js/startup_a11y.js:1708), a_monnam() (js/do_name.js:844), map_invisible() (js/display.js:2756), the You_hear()/Deaf pattern (js/monmove.js:1370), and cannot_push()/cannot_push_msg() (js/hack.js:1997 and 1981) -- so the goal wires existing primitives into the branch now sitting behind a coarse refuse('a monster behind the boulder') guard.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "moverock-monster-behind-boulder",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "3485d5a3a3450120e41a6ebf2746d9b6653a61a3",
       "openStanding": {
         "sha": "32288b88",
