@@ -5846,6 +5846,96 @@
       "status": "open",
       "from": "dadc04d2af363333df32f95917666f6c3e73f32a",
       "detail": "The correctness audit confirmed the Fire generator check is not included in the standard checkpoint. Register the normalized generator check and generated-output metadata in a tooling/process slice."
+    },
+    {
+      "id": "formal-long-worm-tail-redraw",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "356532cd19e4cdc55285dbb375d49ab04ff93c99",
+      "detail": "Formal review deferred long-worm tail redraw and detection in js/monmove.js and js/display.js; this needs a new source-faithful behavior slice."
+    },
+    {
+      "id": "formal-wizard-intrinsic-special-handlers",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "356532cd19e4cdc55285dbb375d49ab04ff93c99",
+      "detail": "Formal review deferred wizard intrinsic special-property handlers in js/wizkit.js; this needs a new source-faithful behavior slice."
+    },
+    {
+      "id": "formal-visibility-callback-contract",
+      "area": "display",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "356532cd19e4cdc55285dbb375d49ab04ff93c99",
+      "detail": "Formal review deferred the visibility callback contract around js/display.js docrt and its consumers; document and pin the callback ownership."
+    },
+    {
+      "id": "formal-dashboard-interaction-harness",
+      "area": "runtime",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "356532cd19e4cdc55285dbb375d49ab04ff93c99",
+      "detail": "Formal review deferred the dashboard interaction harness in scripts/dashboard.test.mjs; retain listeners in the fake DOM and assert the user-visible interactions."
+    },
+    {
+      "id": "formal-read-book-clean-oracle",
+      "area": "commands",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "356532cd19e4cdc55285dbb375d49ab04ff93c99",
+      "detail": "Formal review deferred the read-too-hard-book case in scripts/read-command.test.mjs; add an independently selected C oracle and remove recorded-step and broad-RNG coupling."
+    },
+    {
+      "id": "formal-fountain-snake-integration",
+      "area": "world-effects",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "356532cd19e4cdc55285dbb375d49ab04ff93c99",
+      "detail": "Formal review deferred the fountain snake case in scripts/fountain.test.mjs; insert the fake snake and exercise the real command path through its observable result."
+    },
+    {
+      "id": "formal-expulsion-relocation-assertions",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "356532cd19e4cdc55285dbb375d49ab04ff93c99",
+      "detail": "Formal review deferred expulsion coverage in scripts/mhitu.test.mjs; assert hero and monster relocation, list linkage, redraw, and spot effects."
+    },
+    {
+      "id": "formal-whatis-description-assertion",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "356532cd19e4cdc55285dbb375d49ab04ff93c99",
+      "detail": "Formal review deferred the whatis case in scripts/whatis.test.mjs; assert the returned description rather than only aggregate counts."
+    },
+    {
+      "id": "formal-air-descriptor-oracle",
+      "area": "generation",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "356532cd19e4cdc55285dbb375d49ab04ff93c99",
+      "detail": "Formal review deferred Air descriptor coverage in scripts/air.test.mjs; compare the complete descriptor table against the source oracle."
+    },
+    {
+      "id": "formal-swallowed-display-rng-independence",
+      "area": "display",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "356532cd19e4cdc55285dbb375d49ab04ff93c99",
+      "detail": "Formal review deferred swallowed docrt coverage in scripts/display.test.mjs; separate the display and RNG assertions with an independent source case."
     }
   ],
   "areas": [
@@ -8800,6 +8890,25 @@
       ],
       "outcome": "no-change",
       "recordedAt": "2026-09-01T02:59:03.511Z"
+    },
+    {
+      "kind": "review",
+      "head": "0ca8b57522d912619bd4d29292fee1f1f978c0d7",
+      "auditedRange": "dadc04d2af363333df32f95917666f6c3e73f32a..0ca8b57522d912619bd4d29292fee1f1f978c0d7",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "recordedAt": "2026-09-02T01:37:44.794Z"
     }
   ]
 }

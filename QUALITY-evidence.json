@@ -16304,5 +16304,198 @@
       }
     },
     "recordedAt": "2026-09-01T02:59:03.511Z"
+  },
+  {
+    "kind": "review",
+    "head": "0ca8b57522d912619bd4d29292fee1f1f978c0d7",
+    "auditedRange": "dadc04d2af363333df32f95917666f6c3e73f32a..0ca8b57522d912619bd4d29292fee1f1f978c0d7",
+    "level": "full",
+    "areas": [
+      "startup",
+      "hero",
+      "objects",
+      "generation",
+      "monsters",
+      "world-effects",
+      "commands",
+      "display",
+      "runtime"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 32 raw, 28 deduplicated, 25 confirmed, 15 applied, 10 deferred, 3 rejected, 0 unverified. Five mandatory correctness finders plus concurrency review ran over the frozen range; performance was not enabled because the reviewed loops are source-required. Applied findings were revalidated by the focused tests and a green full checkpoint at 0ca8b575, with development score 4052/7765 screens, 254285/610816 RNG calls, and 4060/7765 cursors. The checkpoint capture-buffer fix landed afterward as tooling-only commit 356532cd.",
+    "auditMetrics": {
+      "wallTimeSeconds": 1320,
+      "counts": {
+        "raw": 32,
+        "deduplicated": 28,
+        "confirmed": 25,
+        "applied": 15,
+        "deferred": 10,
+        "rejected": 3,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 11,
+        "tests": 7,
+        "clarity": 7,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "Detector monster glyphs omit the hallucination-time display random draw.",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "allmain hallucination repaint ignores HALLUC_RES and redraws hallucinated monsters after resistance.",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "dig monster draft messages omit the C Unaware guard.",
+          "foundBy": [
+            "correctness",
+            "variable-flow"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "TEST_TRAV boulder handling fails to apply the source passability guard.",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "docrt does not clear the physical screen before replaying remembered cells.",
+          "foundBy": [
+            "variable-flow"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "findtravelpath mutates adjacent travel state on the TRAVP_VALID path.",
+          "foundBy": [
+            "variable-flow"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "allmain skips non-hallucination sensing redraws for telepathy, warning, and visible regions.",
+          "foundBy": [
+            "variable-flow"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "Sickness potion handling throws instead of curing active hallucination.",
+          "foundBy": [
+            "correctness",
+            "variable-flow"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "mkmaze moves Air bubbles only in one list direction instead of reversing on alternate turns.",
+          "foundBy": [
+            "variable-flow"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "Long-worm tail redraw and detection remain unported.",
+          "foundBy": [
+            "correctness",
+            "variable-flow"
+          ],
+          "resolution": "deferred"
+        },
+        {
+          "summary": "Wizard intrinsic special-property handlers remain unported.",
+          "foundBy": [
+            "correctness",
+            "variable-flow"
+          ],
+          "resolution": "deferred"
+        }
+      ],
+      "readiness": {
+        "boundary": "The reviewed range starts at the existing review frontier and covers observable screen, message, travel, sensing, potion, digging, boulder, and Air-bubble outcomes through the committed audit-fix boundary; the real game reaches each applied path from recorded input or a running turn.",
+        "sourceReview": "Every reachable branch and helper in the reviewed changes was traced against the upstream C source, including state ownership, display and PRNG order, and explicit stops; the review identified the remaining long-worm and wizard-intrinsic families and tracked them as new slices.",
+        "completeness": "No known unsupported behavior remains inside the applied boundaries; the two excluded production families require new source-faithful behavior slices, and their current reachable branches remain fail-closed without state mutation, randomness, or output."
+      },
+      "rejections": [
+        {
+          "summary": "Air bubble movement bounds are wrong.",
+          "counterEvidence": "The upstream Air setup uses gb.xmin=4, gb.ymin=2, gb.xmax=COLNO-3=77, and gb.ymax=ROWNO-1=19, matching the reviewed JavaScript bounds; reopen only with source-reachable evidence that changes one of those limits."
+        },
+        {
+          "summary": "after_shk_move has conflicting ownership and should be removed from one caller.",
+          "counterEvidence": "Upstream calls after_shk_move from both the shopkeeper movement path and the monster movement path, so both JavaScript callers are source-required; reopen only with a C call-graph or differential proving duplicate execution."
+        },
+        {
+          "summary": "The matrix helpers are not registered in the test suite.",
+          "counterEvidence": "The suite discovers and imports the helper modules through the default test registry, and the helper tests execute during the 5482-test run; reopen only with a test-discovery trace showing an unreachable helper."
+        }
+      ],
+      "deferrals": [
+        {
+          "summary": "Long-worm tail redraw and detection remain unported.",
+          "trackedIn": "formal-long-worm-tail-redraw",
+          "category": "production"
+        },
+        {
+          "summary": "Wizard intrinsic special-property handlers remain unported.",
+          "trackedIn": "formal-wizard-intrinsic-special-handlers",
+          "category": "production"
+        },
+        {
+          "summary": "The canSeeHero callback is named as unconditional visibility and lacks a source-accurate contract.",
+          "trackedIn": "formal-visibility-callback-contract",
+          "category": "clarity"
+        },
+        {
+          "summary": "The dashboard interaction harness does not retain listeners or assert user-visible interactions.",
+          "trackedIn": "formal-dashboard-interaction-harness",
+          "category": "tests"
+        },
+        {
+          "summary": "The read-too-hard-book case lacks an independent C oracle and uses recorded-step and broad-RNG coupling.",
+          "trackedIn": "formal-read-book-clean-oracle",
+          "category": "tests"
+        },
+        {
+          "summary": "The fountain snake case does not insert the fake snake or exercise the real command path.",
+          "trackedIn": "formal-fountain-snake-integration",
+          "category": "tests"
+        },
+        {
+          "summary": "The expulsion case does not assert relocation, list linkage, redraw, and spot effects.",
+          "trackedIn": "formal-expulsion-relocation-assertions",
+          "category": "tests"
+        },
+        {
+          "summary": "The whatis case checks aggregate counts instead of the returned description.",
+          "trackedIn": "formal-whatis-description-assertion",
+          "category": "tests"
+        },
+        {
+          "summary": "Air descriptor coverage is only partial and lacks a complete source oracle.",
+          "trackedIn": "formal-air-descriptor-oracle",
+          "category": "tests"
+        },
+        {
+          "summary": "Swallowed docrt coverage couples display and RNG expectations instead of testing them independently.",
+          "trackedIn": "formal-swallowed-display-rng-independence",
+          "category": "tests"
+        }
+      ]
+    },
+    "recordedAt": "2026-09-02T01:37:44.794Z"
   }
 ]
