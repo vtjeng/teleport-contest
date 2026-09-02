@@ -18,13 +18,9 @@
 // created monster cost one game lock apiece. The matrix records one segment at
 // a time for the same reason the #wizwish matrix does.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20270318143000';
 
 export const GENESIS_KEY = '\x07'; /* C('g'), the "wizgenesis" row's key */
@@ -151,17 +147,4 @@ export async function runWizardGenesisMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runWizardGenesisMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`wizard genesis: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runWizardGenesisMatrix, 'wizard genesis');

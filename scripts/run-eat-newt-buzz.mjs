@@ -5,15 +5,11 @@
 // the reference output in an isolated temporary workspace.
 
 import assert from 'node:assert/strict';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 // The seed, fixed clock, and character/options are independent fresh inputs.
 // Debug genesis creates a newt beside the hero; h kills it, the second h steps
@@ -70,19 +66,4 @@ export async function runEatNewtBuzzMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runEatNewtBuzzMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `PM_NEWT eating completion: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runEatNewtBuzzMatrix, 'PM_NEWT eating completion');

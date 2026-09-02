@@ -34,16 +34,12 @@
 // default takes "haven't encountered". The third needs u.uroleplay.numbones
 // above zero, which only a loaded bones file produces.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { game } from '../js/gstate.js';
 import { magic_negation } from '../js/mhitu.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // A fixed clock with no calendar event, so no --More-- competes for the keys
 // below and every row's first screen is the plain welcome message.
 const DATETIME = '20000110090000';
@@ -197,13 +193,4 @@ export async function runAttributesCommandMatrix() {
     });
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    runAttributesCommandMatrix().then((result) => {
-        process.exitCode = result.passed ? 0 : 1;
-    }).catch((error) => {
-        process.stderr.write(
-            `attributes command: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runAttributesCommandMatrix, 'attributes command');

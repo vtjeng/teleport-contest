@@ -41,13 +41,9 @@
 //
 // The five rows together record 17733 PRNG calls, 150 screens and 150 cursors.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 export const MARKER_DATETIME = '20261118093000';
 
 // A pet is what supplies the spottable half of gv.vis, so pettype is left at
@@ -109,8 +105,8 @@ export function loadInvisibleMonsterMarkerRecipe() {
     }, 'invisible monster marker recipe');
 }
 
-async function main() {
-    await runFreshMatrix({
+export async function runInvisibleMonsterMarkerMatrix() {
+    return runFreshMatrix({
         entries: [{
             label: 'invisible monster marker',
             recipe: loadInvisibleMonsterMarkerRecipe(),
@@ -119,9 +115,4 @@ async function main() {
     });
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main().catch((error) => {
-        process.stderr.write(`run-invisible-monster-marker: ${error.message}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runInvisibleMonsterMarkerMatrix, 'run-invisible-monster-marker');

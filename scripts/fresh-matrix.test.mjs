@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import {
     chunkRecipe,
     RECORDER_SEGMENT_LIMIT,
     runFreshMatrix,
+    runMatrixCli,
 } from './fresh-matrix.mjs';
 
 function segment(seed) {
@@ -147,4 +149,72 @@ test('stops at the first failing chunk and keeps prior passing totals', async ()
     assert.match(output, /JS error: unsupported test path/u);
     assert.match(output, /RESULT: FAIL/u);
     assert.doesNotMatch(output, /FAILURE MATRIX: PASS/u);
+});
+
+// runMatrixCli() is what every matrix script's last line calls. These drive
+// it with the hooks it takes instead of the real process, so the tests neither
+// set process.exitCode nor depend on the test runner's own argv.
+function cliHooks(argv) {
+    const calls = { written: '', exitCode: undefined };
+    return {
+        calls,
+        hooks: {
+            argv,
+            write: (text) => { calls.written += text; },
+            setExitCode: (status) => { calls.exitCode = status; },
+        },
+    };
+}
+
+// A module URL and the argv[1] that names its file, so the entry check passes.
+const CLI_MODULE_URL = new URL('./run-example.mjs', import.meta.url);
+const CLI_ENTRY_ARGV = ['node', fileURLToPath(CLI_MODULE_URL)];
+
+test('runMatrixCli does nothing when the module was imported', async () => {
+    let ran = 0;
+    const { calls, hooks } = cliHooks(['node', '/elsewhere/other.mjs']);
+    const status = await runMatrixCli(
+        CLI_MODULE_URL, async () => { ran++; }, 'example', hooks,
+    );
+    assert.equal(status, null);
+    assert.equal(ran, 0);
+    assert.equal(calls.exitCode, undefined);
+    assert.equal(calls.written, '');
+});
+
+test('runMatrixCli refuses arguments with status 2', async () => {
+    let ran = 0;
+    const { calls, hooks } = cliHooks([...CLI_ENTRY_ARGV, '--verbose']);
+    const status = await runMatrixCli(
+        CLI_MODULE_URL, async () => { ran++; }, 'example', hooks,
+    );
+    assert.equal(status, 2);
+    assert.equal(calls.exitCode, 2);
+    assert.equal(ran, 0);
+    assert.equal(calls.written, 'example: arguments are not accepted\n');
+});
+
+test('runMatrixCli maps the matrix result to status 0 or 1', async () => {
+    for (const [passed, expected] of [[true, 0], [false, 1]]) {
+        const { calls, hooks } = cliHooks(CLI_ENTRY_ARGV);
+        const status = await runMatrixCli(
+            CLI_MODULE_URL, async () => ({ passed }), 'example', hooks,
+        );
+        assert.equal(status, expected);
+        assert.equal(calls.exitCode, expected);
+        assert.equal(calls.written, '');
+    }
+});
+
+test('runMatrixCli reports a thrown error under the label with status 2', async () => {
+    const { calls, hooks } = cliHooks(CLI_ENTRY_ARGV);
+    const status = await runMatrixCli(
+        CLI_MODULE_URL,
+        async () => { throw new Error('recorder binary not found'); },
+        'example',
+        hooks,
+    );
+    assert.equal(status, 2);
+    assert.equal(calls.exitCode, 2);
+    assert.equal(calls.written, 'example: recorder binary not found\n');
 });

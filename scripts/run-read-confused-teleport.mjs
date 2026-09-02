@@ -6,13 +6,10 @@
 // path, including the schedule_goto and the next turn's deferred_goto.
 
 import assert from 'node:assert/strict';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // This fixed clock has no NetHack calendar event, so the recipe varies only
 // the commands and object effects under test.
 const DATETIME = '20370809101112';
@@ -126,18 +123,4 @@ export async function runReadConfusedTeleportMatrix() {
     return result;
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    return (await runReadConfusedTeleportMatrix()).passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `read confused teleport: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runReadConfusedTeleportMatrix, 'read confused teleport');

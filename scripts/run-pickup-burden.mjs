@@ -23,13 +23,8 @@
 // SLT_ENCUMBER, which is the one encumbrance that sits between those two
 // limits; on a stronger hero the ball is held under either.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 // 'm' is #reqmenu and 'O' is #options, which together reach doset() rather
 // than the simple menu. Six spaces walk pages 2 through 7; a seventh would
@@ -118,17 +113,4 @@ export async function runPickupBurdenMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runPickupBurdenMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`pickup burden: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runPickupBurdenMatrix, 'pickup burden');

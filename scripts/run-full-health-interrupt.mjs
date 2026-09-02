@@ -80,13 +80,9 @@
 // regen_hp() runs twice per turn and whose interrupt_multi() has to stay silent
 // on the first pass.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // The datetime the port-side scan above ran at. Seed 405 keeps the walk-in's
 // own clock, since that is the game the bear-trap matrix recorded.
 const SCAN_DATETIME = '20260910083000';
@@ -211,19 +207,4 @@ export async function runFullHealthInterruptMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runFullHealthInterruptMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `full health interrupt: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runFullHealthInterruptMatrix, 'full health interrupt');

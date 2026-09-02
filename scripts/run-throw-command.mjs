@@ -44,18 +44,14 @@
 // its own slice; '*' remains the full-inventory path covered below, while
 // other object prompts still refuse their menu branches.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { SCR_IDENTIFY, SCR_MAGIC_MAPPING, YUMI } from '../js/objects.js';
 import { GETOBJ_DOWNPLAY, GETOBJ_SUGGEST } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { throw_ok } from '../js/dothrow.js';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20000110090000';
 
 // One wait ahead of the command settles the arrival turn, so a move wrongly
@@ -225,17 +221,4 @@ export async function runThrowCommandMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runThrowCommandMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(`throw command: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runThrowCommandMatrix, 'throw command');

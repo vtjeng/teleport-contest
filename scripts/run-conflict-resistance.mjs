@@ -6,17 +6,12 @@
 // three turns. The first two visible attempts resist and fall through to
 // dochugw(); the next case boundary is deliberately outside this slice.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { CONFLICT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { PM_NEWT } from '../js/monsters.js';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 
 export const CONFLICT_RESISTANCE_SEED = 9300001;
 export const CONFLICT_RESISTANCE_DATETIME = '20330101090000';
@@ -67,19 +62,4 @@ export async function runConflictResistanceMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runConflictResistanceMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `Conflict resistance: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runConflictResistanceMatrix, 'Conflict resistance');

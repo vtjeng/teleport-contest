@@ -5,7 +5,7 @@
 // new C result in an isolated temporary workspace.
 
 import { readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
@@ -15,6 +15,7 @@ import {
     chunkRecipe,
     RECORDER_SEGMENT_LIMIT,
     runFreshMatrix,
+    runMatrixCli,
 } from './fresh-matrix.mjs';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -101,19 +102,4 @@ export async function runFirstCommandClosureMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runFirstCommandClosureMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `first-command closure: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runFirstCommandClosureMatrix, 'first-command closure');

@@ -5,13 +5,10 @@
 // source-ordered findtravelpath() movement.
 
 import assert from 'node:assert/strict';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const TRAVEL = '_';
 const DOWNSTAIRS = '>';
 const ACCEPT = '.';
@@ -77,18 +74,4 @@ export async function runTravelAdmissionMatrix() {
     return result;
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    return (await runTravelAdmissionMatrix()).passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `travel target selection: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runTravelAdmissionMatrix, 'travel target selection');

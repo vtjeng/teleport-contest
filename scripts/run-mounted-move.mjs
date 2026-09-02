@@ -22,16 +22,12 @@
 // starting pet solely when `pettype == PM_PONY`, and role.c:209 gives that
 // petnum to the Knight alone.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { RIDE_COMMAND } from './run-ride-dismount.mjs';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310203040506';
 // flags.time puts the turn counter on the status line, so a step that should
 // have cost no time shows up as a wrong T: on the very next screen.
@@ -205,17 +201,4 @@ export async function runMountedMoveMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runMountedMoveMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`mounted move: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runMountedMoveMatrix, 'mounted move');

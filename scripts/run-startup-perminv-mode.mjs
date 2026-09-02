@@ -6,9 +6,6 @@
 // recorder's tty build lacks TTY_PERM_INVENT, so tty_update_inventory() makes
 // the first requested persistent-inventory refresh a source no-op.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import {
     INVOPT_FULL,
     INVOPT_IN_USE,
@@ -19,9 +16,7 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 function startupRc(name, ...statements) {
     return [
@@ -235,19 +230,4 @@ export async function runStartupPerminvModeMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runStartupPerminvModeMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `startup perminv_mode: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runStartupPerminvModeMatrix, 'startup perminv_mode');

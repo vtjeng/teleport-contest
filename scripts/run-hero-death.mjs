@@ -31,9 +31,6 @@
 // the key done() spends drawing "Die? [yn] (n)". Nothing answers it: the
 // answer arms are savelife() and really_done(), and neither is ported.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import {
     KILLED_BY_AN,
     NO_KILLER_PREFIX,
@@ -44,9 +41,7 @@ import { m_at } from '../js/monst.js';
 import { objectType } from '../js/obj.js';
 import { RAY } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 // wizcmds.c wiz_wish(), bound to Ctrl-W in debug mode.
 const WISH = '\u0017'; // cmd.c C('w')
@@ -242,17 +237,4 @@ export async function runHeroDeathMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runHeroDeathMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(`hero death: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runHeroDeathMatrix, 'hero death');

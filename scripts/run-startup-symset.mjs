@@ -6,18 +6,14 @@
 // right-to-left OPTIONS recursion and its failure quirk: cleanup does not undo
 // an earlier valid byte table or SYMBOLS override.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { H_DEC, H_UNK, PRIMARYSET } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { dosetMenuItems } from '../js/options.js';
 import { cmap_symbol, S_vwall } from '../js/symbols.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SEED = 5319071;
 const DATETIME = '20390914121500';
 const OPEN_AND_DISMISS_FULL_OPTIONS = ' mO       \x1b';
@@ -195,17 +191,4 @@ export async function runStartupSymsetMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runStartupSymsetMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`startup symset: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runStartupSymsetMatrix, 'startup symset');

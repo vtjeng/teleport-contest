@@ -4,16 +4,12 @@
 // through its raw error wait and the first command-input boundary.  The valid
 // cases also inspect the iflags fields wc_set_font_name() and the size arm own.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SEED = 7331201;
 const DATETIME = '20040229141500';
 const MALFORMED_REPEAT_COUNT = 6;
@@ -240,19 +236,4 @@ export async function runStartupFontOptionsMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runStartupFontOptionsMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `startup font options: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runStartupFontOptionsMatrix, 'startup font options');

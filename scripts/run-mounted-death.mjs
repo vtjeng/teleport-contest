@@ -4,17 +4,12 @@
 // first disclosure prompt. The segment contains replay inputs only;
 // runFreshMatrix() records new C output in an isolated temporary workspace.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { NO_KILLER_PREFIX, NON_PM } from '../js/const.js';
 import { time_from_yyyymmddhhmmss } from '../js/calendar.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 // A daytime Wednesday avoids night, midnight, Friday-the-13th, and moon-phase
 // messages. The fixed time also makes really_done()'s finish_time repeatable.
@@ -106,17 +101,4 @@ export async function runMountedDeathMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runMountedDeathMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`mounted death: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runMountedDeathMatrix, 'mounted death');

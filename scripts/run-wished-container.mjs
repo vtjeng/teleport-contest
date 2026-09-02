@@ -36,9 +36,6 @@
 // the ice box holding one corpse is carried, and the one holding four is
 // dropped where the hero stands. Nothing about the type decides it.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -60,9 +57,7 @@ import {
     WAND_CLASS,
 } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 // cmd.c:2000 binds C('w') to the "wizwish" row.
 const WIZWISH_KEY = '\x17';
@@ -345,17 +340,4 @@ export async function runWishedContainerMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runWishedContainerMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`wished container: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runWishedContainerMatrix, 'wished container');

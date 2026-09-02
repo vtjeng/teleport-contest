@@ -61,15 +61,10 @@
 //   deferral. Seed 6610160 is the passing one whose walk lands both an AT_BITE
 //   blow and an unarmed AT_WEAP one.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 function walk(pattern, repeats) {
     return pattern.repeat(repeats);
@@ -185,19 +180,4 @@ export async function runMonsterMeleeHitPhysMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runMonsterMeleeHitPhysMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `monster melee physical hit: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runMonsterMeleeHitPhysMatrix, 'monster melee physical hit');

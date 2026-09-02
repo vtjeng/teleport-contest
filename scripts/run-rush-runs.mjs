@@ -37,13 +37,9 @@
 // the case with lookaround() instrumented; the recorder is the authority on
 // what the rush actually does.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310203040506';
 
 // cmd.c reaches the rush commands through the control byte of each direction
@@ -400,19 +396,11 @@ export function loadRushRunsRecipe() {
     });
 }
 
-async function main() {
-    const result = await runFreshMatrix({
+export async function runRushRunsMatrix() {
+    return runFreshMatrix({
         entries: [{ label: 'rush runs', recipe: loadRushRunsRecipe() }],
         summaryLabel: 'RUSH RUNS',
     });
-    return result.passed ? 0 : 1;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main().then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`run-rush-runs: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runRushRunsMatrix, 'run-rush-runs');

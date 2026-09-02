@@ -6,16 +6,12 @@
 // walk would enter. The prefix suppresses both pickup and description before
 // either branch runs.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { OBJ_FLOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // This fixed Tuesday morning isolates movement from calendar messages while
 // preserving the recorder's America/New_York daylight-saving normalization.
 const DATETIME = '20340117112233';
@@ -170,17 +166,4 @@ export async function runNoPickObjectPileMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runNoPickObjectPileMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(`no-pick object pile: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runNoPickObjectPileMatrix, 'no-pick object pile');

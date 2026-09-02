@@ -36,16 +36,12 @@
 //   the extra rn2(rotted + 1) is reachable: 7331780 draws it, and 7331404 is
 //   the contrast where rn2(10) is 0 and short-circuits above it.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { CORPSE } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // A fixed clock with no calendar event, so nothing competes for the top line.
 const DATETIME = '20000110090000';
 // The two intro screens and then 'n' for the tutorial query.
@@ -194,17 +190,4 @@ export async function runEatCorpseMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runEatCorpseMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(`eat corpse: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runEatCorpseMatrix, 'eat corpse');

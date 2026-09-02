@@ -7,9 +7,6 @@
 // menu overlays because the recorder install permits one debug-free game per
 // fresh recipe without sharing state.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { OBJ_FLOOR, ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { encodeUtf8ByteString } from '../js/hacklib.js';
@@ -17,9 +14,8 @@ import { runSegment } from '../js/jsmain.js';
 import { donameFresh } from '../js/objnam.js';
 import { SLIME_MOLD } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SEED = 6500803;
 // This Monday morning carries no calendar notice that could add a separate
 // message boundary to the pile transaction.
@@ -156,17 +152,4 @@ export async function runMultibyteObjectPileMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runMultibyteObjectPileMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`multibyte object pile: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runMultibyteObjectPileMatrix, 'multibyte object pile');

@@ -18,13 +18,9 @@
 // the hero, not by copying any recorded session. The recorded sessions are not
 // consulted for inputs anywhere in this file.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const VALKYRIE_DATETIME = '20310203040506';
 const HEALER_DATETIME = '20291124070000';
 
@@ -250,17 +246,4 @@ export async function runDiagonalDoorwayMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runDiagonalDoorwayMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`diagonal doorway: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runDiagonalDoorwayMatrix, 'diagonal doorway');

@@ -6,16 +6,12 @@
 // menu, and commit.  Mode 0 clears that row and keeps every ordinary class;
 // mode 2 preserves it, so choose_classes_menu() reduces the result to "all".
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { dosetMenuItems, parseNethackrc } from '../js/options.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const BULK_INVERT_CLASS_MENU = ' OoA@\r\x1b\x1b';
 
 export const STARTUP_MENUINVERTMODE_CASES = Object.freeze([
@@ -153,19 +149,4 @@ export async function runStartupMenuinvertmodeMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runStartupMenuinvertmodeMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `startup menuinvertmode: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runStartupMenuinvertmodeMatrix, 'startup menuinvertmode');

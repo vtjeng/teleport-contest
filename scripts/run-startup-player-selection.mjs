@@ -5,17 +5,12 @@
 // TTY does not advertise WC_PLAYER_SELECTION, so #optionsfull hides this row
 // and tty_player_selection() does not consult the configured field.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { VIA_DIALOG, VIA_PROMPTS } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 function startupRc(name, ...statements) {
     return [
@@ -143,19 +138,4 @@ export async function runStartupPlayerSelectionMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runStartupPlayerSelectionMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `startup player_selection: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runStartupPlayerSelectionMatrix, 'startup player_selection');

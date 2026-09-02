@@ -4,13 +4,9 @@
 // each text window and crosses the following command boundary.
 
 import assert from 'node:assert/strict';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 export const MONSTER_OBJECT_LIST_MOVES = ' /m /M /o /O .';
 
@@ -59,16 +55,4 @@ export async function runWhatisMonsterObjectListMatrix() {
     return result;
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    return (await runWhatisMonsterObjectListMatrix()).passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`whatis monster/object lists: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runWhatisMonsterObjectListMatrix, 'whatis monster/object lists');

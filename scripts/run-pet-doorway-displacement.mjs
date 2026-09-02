@@ -43,13 +43,9 @@
 //   Valkyrie/dog/20310203040506 with the mask set to D_NODOOR, seeds
 //     9800000-9800599: 474, 363, 202.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const VALKYRIE_DATETIME = '20310203040506';
 const HEALER_DATETIME = '20291124070000';
 
@@ -185,19 +181,4 @@ export async function runPetDoorwayDisplacementMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runPetDoorwayDisplacementMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `pet doorway displacement: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runPetDoorwayDisplacementMatrix, 'pet doorway displacement');

@@ -32,16 +32,12 @@
 // record-session keeps one staged install per recipe, and two sequential
 // debug games in one install collide.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { OBJ_FLOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 // A fixed Tuesday morning with no calendar event, so nothing competes with
 // the drop's own message for the top line.
 const DATETIME = '20330809101112';
@@ -312,17 +308,4 @@ export async function runDropCommandMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runDropCommandMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(`drop command: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runDropCommandMatrix, 'drop command');

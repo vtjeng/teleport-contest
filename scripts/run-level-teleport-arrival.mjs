@@ -4,9 +4,6 @@
 // Recipes contain replay inputs only; diff-fresh supplies all C and JavaScript
 // output in an isolated temporary workspace.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import {
     ACH_SHOP,
     COLNO,
@@ -84,9 +81,8 @@ import {
     WORTHLESS_WHITE_GLASS,
 } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310417113000';
 const LEVELPORT_KEY = '\x16';
 const LEVELCHANGE_DISMISSALS_TO_30 = 29;
@@ -938,19 +934,4 @@ export async function runLevelTeleportArrivalMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runLevelTeleportArrivalMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `level teleport arrival: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runLevelTeleportArrivalMatrix, 'level teleport arrival');

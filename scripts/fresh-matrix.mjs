@@ -1,3 +1,6 @@
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import {
     formatReport,
     runDifferential,
@@ -92,4 +95,34 @@ export async function runFreshMatrix({
         + `${totals.cursors} cursors, ${totals.animFrames} animation frames\n`,
     );
     return { passed: true, totals };
+}
+
+// The command-line entry of a matrix script. A script calls this once at its
+// end with its own module URL, its exported matrix runner, and the label its
+// error lines carry; the call returns without running when the module was
+// imported rather than executed. Exit status 0 is a passing matrix, 1 a
+// failing one, and 2 an argument or a thrown error, the same statuses as
+// scripts/diff-fresh.mjs.
+export function runMatrixCli(moduleUrl, run, label, {
+    argv = process.argv,
+    write = (text) => process.stderr.write(text),
+    setExitCode = (status) => { process.exitCode = status; },
+} = {}) {
+    if (!argv[1] || resolve(argv[1]) !== fileURLToPath(moduleUrl)) {
+        return Promise.resolve(null);
+    }
+    if (argv.length > 2) {
+        write(`${label}: arguments are not accepted\n`);
+        setExitCode(2);
+        return Promise.resolve(2);
+    }
+    return run().then((result) => {
+        const status = result.passed ? 0 : 1;
+        setExitCode(status);
+        return status;
+    }, (error) => {
+        write(`${label}: ${error?.message || error}\n`);
+        setExitCode(2);
+        return 2;
+    });
 }

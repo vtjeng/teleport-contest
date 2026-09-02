@@ -15,17 +15,13 @@
 // then Ctrl-V and the destination. Seeds were chosen by generating levels and
 // counting the webs each one placed, not by copying any recorded session.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { WEB } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_GIANT_SPIDER } from '../js/monsters.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310417113000';
 const LEVELPORT_KEY = '\x16';
 
@@ -118,17 +114,4 @@ export async function runThemedSpiderNestMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runThemedSpiderNestMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`themed spider nest: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runThemedSpiderNestMatrix, 'themed spider nest');

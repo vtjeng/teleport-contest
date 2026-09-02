@@ -36,18 +36,14 @@
 // Between them the pair covers both answers of the draw, and the extra wait is
 // the only difference in the inputs, so what moved the arrows is the draw.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { WEB } from '../js/const.js';
 import { ARROW } from '../js/objects.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { t_at } from '../js/trap.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20330607081011';
 
 // See the header. verifyBhitWebSegment() asserts the layout this number gives.
@@ -141,17 +137,4 @@ export async function runBhitWebMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runBhitWebMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((exitCode) => {
-        process.exitCode = exitCode;
-    }).catch((error) => {
-        process.stderr.write(`bhit web: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runBhitWebMatrix, 'bhit web');

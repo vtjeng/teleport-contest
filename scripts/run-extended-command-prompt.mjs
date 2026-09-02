@@ -8,13 +8,9 @@
 // below chooses its keys to reach one branch of win/tty/getline.c
 // hooked_tty_getlin(), cmd.c extcmds_match(), or cmd.c doextcmd().
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310203040506';
 
 // The bytes hooked_tty_getlin() treats specially. Recorder patch 006 pins
@@ -238,19 +234,4 @@ export async function runExtendedCommandPromptMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runExtendedCommandPromptMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `extended-command prompt: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runExtendedCommandPromptMatrix, 'extended-command prompt');

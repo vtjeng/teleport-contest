@@ -5,18 +5,14 @@
 // no-action locked-door branches. Acting apply-key and kick branches remain at
 // their named boundaries and do not appear in this matrix.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { D_LOCKED } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
 import { optionValue, parseNethackrc } from '../js/options.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const OPEN_FULL_OPTIONS_MENU = ' mO      ';
 const LOCKED_DOOR_SEED = 9500074;
 const LOCKED_DOOR_DATETIME = '20310203040506';
@@ -213,17 +209,4 @@ export async function runStartupAutounlockMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runStartupAutounlockMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(`startup autounlock: ${error.message || error}\n`);
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runStartupAutounlockMatrix, 'startup autounlock');

@@ -40,15 +40,10 @@
 // step 52's "The kobold misses!" onward, and scripts/mhitu.test.mjs pins
 // mswings() and hitval()'s contribution to the differential directly.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
-
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
 // The opening key of every segment is a space, which dismisses the welcome
 // line's --More--. Without it the tty swallows every direction key that
@@ -136,19 +131,4 @@ export async function runMonsterMeleeMissMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runMonsterMeleeMissMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `monster melee miss: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runMonsterMeleeMissMatrix, 'monster melee miss');

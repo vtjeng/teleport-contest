@@ -5,9 +5,6 @@
 // ga.apelist, config_error_done(), #optionsfull, and the Ctrl-X attributes
 // line. pickup.c object filtering remains at its existing named refusal.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { game } from '../js/gstate.js';
 import { truncateByteString } from '../js/hacklib.js';
 import { runSegment } from '../js/jsmain.js';
@@ -15,9 +12,8 @@ import { allopt } from '../js/optlist_data.js';
 import { optionValue, parseNethackrc } from '../js/options.js';
 import { regex_match } from '../js/posixregex.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const OPEN_FULL_OPTIONS_MENU = ' mO      ';
 const OPEN_ATTRIBUTES = '\x18\x1b:';
 const AUTOPICKUP_ROW = allopt.find(
@@ -333,19 +329,4 @@ export async function runStartupAutopickupExceptionMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runStartupAutopickupExceptionMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `startup autopickup exceptions: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runStartupAutopickupExceptionMatrix, 'startup autopickup exceptions');

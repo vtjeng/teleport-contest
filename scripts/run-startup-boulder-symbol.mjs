@@ -4,9 +4,6 @@
 // def_char_to_monclass(), and symbols.c get_othersym() from startup parsing
 // through #optionsfull and the fixed boulder on the first tutorial map.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { SYM_BOULDER } from '../js/const.js';
 import { object_glyph_info } from '../js/display.js';
 import { game } from '../js/gstate.js';
@@ -16,9 +13,8 @@ import { BOULDER } from '../js/objects.js';
 import { dosetMenuItems } from '../js/options.js';
 import { misc_symbol, SYM_OFF_X } from '../js/symbols.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SEED = 825701;
 const DATETIME = '20040229141500';
 const ERROR_REPEAT_COUNT = 12;
@@ -223,19 +219,4 @@ export async function runStartupBoulderMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runStartupBoulderMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `startup boulder symbol: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runStartupBoulderMatrix, 'startup boulder symbol');

@@ -4,9 +4,6 @@
 // parsing through iflags.getloc_filter and #optionsfull. Each menu case gets a
 // separate recipe because recording stops while the live menu owns the tty.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import {
     GFILTER_AREA,
     GFILTER_NONE,
@@ -16,9 +13,8 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { dosetMenuItems, parseNethackrc } from '../js/options.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const OPEN_FULL_OPTIONS_MENU = ' mO      ';
 
 function startupRc(name, ...statements) {
@@ -166,19 +162,4 @@ export async function runStartupWhatisFilterMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runStartupWhatisFilterMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `startup whatis_filter: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runStartupWhatisFilterMatrix, 'startup whatis_filter');

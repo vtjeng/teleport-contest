@@ -48,13 +48,9 @@
 // scripts/run-monster-equipped-drop.mjs, which selects its own seeds for it;
 // the rows below stay on kills that leave nothing equipped behind.
 
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix } from './fresh-matrix.mjs';
+import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-const SCRIPT_PATH = fileURLToPath(import.meta.url);
 export const KILL_DATETIME = '20260214031500';
 
 function nethackrc({ role, gender, align, options }) {
@@ -216,19 +212,4 @@ export async function runHostileMeleeKillMatrix() {
     });
 }
 
-async function main(argv) {
-    if (argv.length) throw new Error('arguments are not accepted');
-    const result = await runHostileMeleeKillMatrix();
-    return result.passed ? 0 : 1;
-}
-
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
-        process.exitCode = status;
-    }).catch((error) => {
-        process.stderr.write(
-            `hostile melee kill: ${error.message || error}\n`,
-        );
-        process.exitCode = 2;
-    });
-}
+runMatrixCli(import.meta.url, runHostileMeleeKillMatrix, 'hostile melee kill');
