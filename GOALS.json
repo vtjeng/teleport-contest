@@ -8024,6 +8024,23 @@
         "screens": 5,
         "rng": 122
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-15",
+      "status": "open",
+      "boundary": "Hero kick command reaching kick_door's closed/locked-door failure branch.",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "2a6180a139f0d560026a9b573c8b38b28c025958",
+      "openStanding": {
+        "sha": "74c1466f",
+        "screens": 4129,
+        "rng": 258137
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
