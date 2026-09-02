@@ -788,18 +788,21 @@ test('the mysterious force stops a climb but leaves every other case alone',
     }
 });
 
-test('goto_level stops on the first quest level', async () => {
-    // do.c:1578-1581. quest.c ok_to_quest() decides whether the leader has
-    // let the hero pass, and is unported.
+test('goto_level blocks descent from quest start when ok_to_quest is false', async () => {
+    // do.c:1578-1581. ok_to_quest() returns false when the leader has not
+    // given the quest, the hero has not been thanked, and the leader is alive.
+    // The guard prints "A mysterious force prevents you from descending." and
+    // returns without changing level.
     const state = await descendTo('>');
     quiet(state);
     state.qstart_level = { ...state.u.uz };
     downStairsUnderHero(state);
+    const levelBefore = { ...state.u.uz };
 
-    await assert.rejects(
-        dodown(state),
-        (error) => /first quest level/u.test(error.message),
-    );
+    await dodown(state);
+
+    // Hero stays on the same level.
+    assert.deepEqual(state.u.uz, levelBefore);
 });
 
 test('goto_level stops for a hero tethered to a buried ball', async () => {

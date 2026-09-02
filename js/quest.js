@@ -57,6 +57,16 @@ async function is_pure(talk, state) {
         : u.ualignbase[A_CURRENT] !== originalAlignment ? -1 : 0;
 }
 
+// C ref: quest.c ok_to_quest() (139-144). External hook for do.c level
+// change check: the hero may descend past the quest start level when the
+// leader gave the quest and the hero is pure, or the leader is dead.
+export async function ok_to_quest(state = game) {
+    const qs = state.svq.quest_status;
+    return ((qs.got_quest || qs.got_thanks)
+            && (await is_pure(false, state)) > 0)
+        || qs.killed_leader;
+}
+
 // C ref: quest.c chat_with_leader() Rule 5 (317-365), limited to the
 // witnessed peaceful first meeting on the quest start level. Later meetings,
 // artifact/completion states, and refusal branches stay fail-closed.

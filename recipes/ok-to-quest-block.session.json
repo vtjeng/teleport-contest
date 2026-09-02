@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 367,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=playmode:debug\nOPTIONS=!autopickup\nOPTIONS=race:human,role:Priest,gender:female,align:neutral",
+      "moves": "  n#levelchange\n12\n #levelchange\n13\n "
+    }
+  ]
+}

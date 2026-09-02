@@ -151,7 +151,7 @@ import {
     preflight_projected_random_arrival_pickup,
     u_safe_from_fatal_corpse,
 } from './pickup.js';
-import { onquest } from './quest.js';
+import { ok_to_quest, onquest } from './quest.js';
 import { com_pager } from './questpgr.js';
 import { in_out_region, visible_region_at } from './region.js';
 import { getlev } from './restore.js';
@@ -1256,13 +1256,15 @@ export async function goto_level(
         );
     }
 
-    // do.c:1578-1581. quest.c ok_to_quest() is unported, and so is the
-    // "A mysterious force prevents you from descending." message it gates.
+    // do.c:1578-1581. Prevent the player from going past the first quest
+    // level unless the leader has given the go-ahead.
     if (state.qstart_level && on_level(u.uz, state.qstart_level)
-        && !newdungeon) {
-        throw new UnsupportedLevelChangeError(
-            'goto_level() leaving the first quest level',
+        && !newdungeon && !(await ok_to_quest(state))) {
+        await ttyPline(
+            'A mysterious force prevents you from descending.',
+            state,
         );
+        return;
     }
 
     if (on_level(newlevel, u.uz)) return; /* this can happen */
