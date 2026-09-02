@@ -7939,7 +7939,13 @@
         ]
       },
       "detail": "Boundary witness is the ordinary drinking command in seed0012-monk-vault-escort. The stop enters fountain.c:241-247 drinkfountain() and fate case 20 at fountain.c:285-298, with the recorded rnd(30)=20, rn2(20)=4, and rn2(3)=0 draws; the case prints The water is foul!, calls vomit(), then dryup(). The capped stretch is 143 screens and does not generalize to other fountain fates.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "ordinary-fountain-foul-water-effect",
+          "status": "closed",
+          "closedBy": "650ac49216de2ccd8d0a985d78af182c2bb92996"
+        }
+      ],
       "openedAt": "095c299f099416f11e1dc4d954d682d281d868a2",
       "openStanding": {
         "sha": "04b1ce01",
