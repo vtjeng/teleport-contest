@@ -7920,7 +7920,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-14",
-      "status": "open",
+      "status": "closed",
       "boundary": "Ordinary hero fountain drink whose fate roll selects the foul-water case 20.",
       "upstreamOwners": [
         "fountain.c"
@@ -7952,8 +7952,11 @@
         "screens": 4052,
         "rng": 254287
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "22f8efa3e9b43a5fad723c5c110fba11587a7b87",
+      "delivered": {
+        "screens": 72,
+        "rng": 3728
+      }
     }
   ]
 }
