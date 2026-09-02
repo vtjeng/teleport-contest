@@ -8105,7 +8105,7 @@
     },
     {
       "id": "unsupported-hero-move-hitting-a-pet",
-      "status": "open",
+      "status": "closed",
       "boundary": "Hero hit on a tame pet reaching hmon_hitmon_pet's abuse/flee handling.",
       "upstreamOwners": [
         "uhitm.c",
@@ -8139,8 +8139,11 @@
         "screens": 4144,
         "rng": 258302
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "32288b88f5d48a72d00a3141777943c588418d1c",
+      "delivered": {
+        "screens": 0,
+        "rng": 2
+      }
     }
   ]
 }
