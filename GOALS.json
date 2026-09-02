@@ -7980,7 +7980,13 @@
         ]
       },
       "detail": "Bounding property: ordinary monster-turn eel concealment only: movemon_singlemon()'s S_EEL hideunder() arm and monmove.c postmov()'s eel concealment refresh, with the eel-specific water and visibility predicates that govern them. The census contributes one development witness and a conservative full 189-screen capped stretch; this is a measured bound for seed0361-archeologist-tour, not a claim about every eel path.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "an active ordinary eel executes movemon_singlemon()'s S_EEL hideunder() concealment arm on an ordinary pool square",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "6b3c4d9e38f8f034f8f27ce3a00311e0d9ba7a67",
       "openStanding": {
         "sha": "22f8efa3",
