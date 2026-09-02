@@ -8184,6 +8184,38 @@
         "screens": 50,
         "rng": 1725
       }
+    },
+    {
+      "id": "simple-monster-action-requires-door-or-special-terrain-movem",
+      "status": "open",
+      "boundary": "Ordinary hostile monster movement selected by mfndpos() onto a door or special-terrain square reaching monmove.c postmov().",
+      "upstreamOwners": [
+        "mon.c",
+        "monmove.c"
+      ],
+      "forecast": {
+        "steps": 26,
+        "basis": "Capped look-ahead at simple monster action requires door or special terrain movement",
+        "sessions": [
+          "seed0030-ten-diverse-deaths"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0030-ten-diverse-deaths",
+            "evidence": "Development replay witness: seed 31, datetime 20260101120000, neutral male human Tourist on Dlvl:3 with !autopickup, !legacy, !tutorial, disclose:-i -a -v -g -c -o, suppress_alert:3.4.3, and DECgraphics. The first stop is emitted screen 48 while consuming input 'u'; the visible hostile gnome is on the ordinary non-special m_move() path. C enters monmove.c m_move() after the standard prologue (monmove.c:1733-1775), computes can_open from the gnome's hands/size and builds movement flags in mon.c mon_allowflags() (mon.c:2080-2123), then mfndpos() filters and selects a neighboring destination (mon.c:2138-2259; monmove.c:1916-1975). The selected destination is the door/special-terrain case rejected by the port's admitSimpleDestinationAndRegion guard. In C, the move proceeds to monmove.c postmov() (monmove.c:1454-1521), whose door/terrain handling owns the resulting state and redraw/message work. The option set does not activate a special monster branch. The next independent behavior in the recorded stretch is the no-input hero death at step 74, through end.c done(), so the classifier cap is 26 steps from the stop at 48."
+          }
+        ]
+      },
+      "detail": "Bounding property: this candidate is the ordinary monster movement path that reaches a door or special terrain after mon.c mfndpos() has selected a destination and monmove.c m_move() dispatches through postmov(); it excludes pets, worms, guards, covetous monsters, special responders, ranged/magical actions, and other special movement branches. The contributing witness has one ordinary hostile gnome on Dlvl:3, with no option-driven special path. The development-only --ahead stream is capped at 26 recorded steps because the hero dies at step 74 and end.c done() is an independent unported continuation; the uncapped remainder includes unrelated later segments and #quit input. Primary C owners are mon.c mfndpos()/mon_allowflags() and monmove.c m_move()/postmov().",
+      "slices": [],
+      "openedAt": "8ddd3cf667299e097b279e92e842e2c1d37f83b8",
+      "openStanding": {
+        "sha": "0affcd53",
+        "screens": 4194,
+        "rng": 260029
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
