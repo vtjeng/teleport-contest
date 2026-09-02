@@ -39,9 +39,11 @@ path under `sessions/holdout/`.
   `scripts/run-<name>.mjs` matrix instead only when the case needs state read
   from the port after replay; the matrix builds its recipes, passes them with
   a `verifySegment` function to `runFreshMatrix()` in
-  `scripts/fresh-matrix.mjs`, and states in a comment how each seed was
-  chosen. Add cases to the matrix for the same C file before creating a new
-  one.
+  `scripts/fresh-matrix.mjs`, ends with one `runMatrixCli()` call, and states
+  in a comment how each seed was chosen. Copy `scripts/run-read-teleport.mjs`,
+  the smallest complete matrix; `scripts/run-kick-command.mjs` shows
+  `verifySegment` and a documented seed scan. Add cases to the matrix for the
+  same C file before creating a new one.
 - `diff-fresh.mjs` runs `scripts/record-session.mjs` for every case. Call it
   directly only to keep a C recording without comparing:
   `node scripts/record-session.mjs <input.session.json> [output.session.json]`.
