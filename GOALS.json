@@ -8006,7 +8006,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "adjacent-castmu-spell-dispatch",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "cfe12e56689bc8dcfa4cb4d178087bdb870d7dcc",
       "openStanding": {
         "sha": "f05dba38",
