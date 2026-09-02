@@ -27,10 +27,15 @@ import {
     fill_zoo,
 } from './mkroom.js';
 import { mkcorpstat } from './corpstat.js';
-import { del_engr_at, make_engr_at, wipe_engr_at } from './engrave.js';
+import {
+    del_engr_at,
+    engr_at,
+    make_engr_at,
+    wipe_engr_at,
+} from './engrave.js';
 import { map_background, map_object, map_trap, set_wall_state } from './display.js';
 import { def_char_to_monclass } from './drawing.js';
-import { add_to_container } from './invent.js';
+import { add_to_container, obj_extract_self, obfree } from './invent.js';
 import { UnsupportedMonsterCreationError, makemon } from './makemon_create.js';
 import { mkclass } from './makemon.js';
 import { mineralize } from './mineralize.js';
@@ -93,6 +98,7 @@ import {
     WEAPON_CLASS,
 } from './objects.js';
 import { maketrap, t_at } from './trap.js';
+import { recalc_block_point } from './vision.js';
 import {
     mktrap as make_level_trap,
     occupied,
@@ -188,6 +194,7 @@ import {
     In_endgame,
     is_hole,
     is_pit,
+    undestroyable_trap,
 } from './const.js';
 
 const XLIM = 4;
@@ -2207,6 +2214,7 @@ function createSpecialLevelApi(state) {
         finish() {
             link_doors_rooms();
             // C ref: sp_lev.c load_special() post-processing.
+            map_cleanup(state);
             if (!state.level.flags.corrmaze)
                 wallification(1, 0, COLNO - 1, ROWNO - 1);
             // C ref: sp_lev.c flip_level_rnd(). Each allowed flip axis
@@ -5429,6 +5437,48 @@ function fix_wall_spines(x1, y1, x2, y2) {
 function wallification(x1, y1, x2, y2) {
     wall_cleanup(x1, y1, x2, y2);
     fix_wall_spines(x1, y1, x2, y2);
+}
+
+// C ref: sp_lev.c map_cleanup(). Liquid squares cannot retain boulders,
+// ordinary traps, or engravings after a special level has been loaded. The
+// conjoined-pit and Sokoban side effects of trap.c deltrap() are not reached
+// by this source-common cleanup path and remain outside this slice.
+export function map_cleanup(state = game) {
+    const objectEnv = objectGenerationEnv({
+        state,
+        hooks: {
+            recalcBlockPoint: (x, y, env) => {
+                recalc_block_point(x, y, env.state);
+            },
+        },
+    });
+
+    for (let x = 0; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            const typ = state.level.at(x, y).typ;
+            if (!IS_LAVA(typ) && !IS_POOL(typ)) continue;
+
+            // C ref: remove every BOULDER with sobj_at(), obj_extract_self(),
+            // and obfree(), preserving the level and square object chains.
+            let boulder;
+            while ((boulder = sobj_at(BOULDER, x, y, state)) !== null) {
+                obj_extract_self(boulder, objectEnv);
+                obfree(boulder, null, objectEnv);
+            }
+
+            // C ref: deltrap() removes a liquid-cell trap unless it is one of
+            // the two traps explicitly protected by undestroyable_trap().
+            const trap = t_at(x, y, state);
+            if (trap && !undestroyable_trap(trap.ttyp)) {
+                const trapIndex = state.level.traps.indexOf(trap);
+                if (trapIndex < 0)
+                    throw new Error('map_cleanup: trap is not on trap list');
+                state.level.traps.splice(trapIndex, 1);
+            }
+
+            if (engr_at(x, y, state)) del_engr_at(x, y, state);
+        }
+    }
 }
 
 // C ref: sp_lev.c solidify_map(). Marks STONE wall tiles that are outside the
