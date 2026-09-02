@@ -8147,7 +8147,7 @@
     },
     {
       "id": "unsupported-hero-move-a-monster-behind-the-boulder",
-      "status": "open",
+      "status": "closed",
       "boundary": "Boulder pushed toward an unseen monster reaching moverock_core's hear-and-refuse arm.",
       "upstreamOwners": [
         "hack.c"
@@ -8169,8 +8169,8 @@
       "slices": [
         {
           "name": "moverock-monster-behind-boulder",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0affcd5365968a4826e860325819f526ead2c429"
         }
       ],
       "openedAt": "3485d5a3a3450120e41a6ebf2746d9b6653a61a3",
@@ -8179,8 +8179,11 @@
         "screens": 4144,
         "rng": 258304
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "0affcd5365968a4826e860325819f526ead2c429",
+      "delivered": {
+        "screens": 50,
+        "rng": 1725
+      }
     }
   ]
 }

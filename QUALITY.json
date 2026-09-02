@@ -3782,7 +3782,7 @@
       "area": "world-effects",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "cefdbba1b1e550852e55a8d26166edfc6ebbc47f",
       "detail": "hack.c moverock_core():432-435's FALSE arm, cannot_push_msg() (243-256) and cannot_push() (258-310) are still refused: preflight_moverock() raises 'a boulder that will not move' where C prints \"You try to move the boulder, but in vain.\" and lets the hero stay put. The case just outside hero-pushes-a-boulder's limit is seed 110, datetime 20310203040506, rc OPTIONS=name:Prober,role:Healer,race:human,gender:male,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none, moves lllllllll: the sixth key is the first push, the seventh and eighth push again, and the ninth drives the boulder into the corridor's end wall. node scripts/diff-fresh.mjs --seed 110 --datetime 20310203040506 --role Healer --align neutral --name Prober --options '!legacy,!tutorial,!splash_screen' --options 'pettype:none' --moves lllllllll reports the first screen mismatch at boundary 10. Closing it needs could_move_onto_boulder()'s message siblings and sokoban_guilt(); could_move_onto_boulder() itself is ported.",
       "notes": [
