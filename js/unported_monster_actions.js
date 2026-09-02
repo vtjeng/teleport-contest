@@ -74,7 +74,6 @@ import {
     wake_msg,
 } from './mon.js';
 import {
-    attacktype,
     breathless,
     defended,
     is_covetous,

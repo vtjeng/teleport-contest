@@ -7,7 +7,6 @@ import {
     IN_SIGHT,
     M_ATTK_HIT,
     M_ATTK_MISS,
-    M_SEEN_MAGR,
 } from '../js/const.js';
 import { castmu } from '../js/mcastu.js';
 import { healmon } from '../js/mon.js';
