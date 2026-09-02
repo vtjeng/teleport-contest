@@ -7788,7 +7788,7 @@
     },
     {
       "id": "simple-monster-action-requires-monster-ranged-wield-with-a-c",
-      "status": "open",
+      "status": "closed",
       "boundary": "Standard monster AT_WEAP ranged attack where selecting the ranged weapon must wield it while a current MON_WEP exists.",
       "upstreamOwners": [
         "monmove.c",
@@ -7823,8 +7823,11 @@
         "screens": 3788,
         "rng": 238907
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "de78bc6a24634d0dcd7bfd28ae112a210d691c2c",
+      "delivered": {
+        "screens": 264,
+        "rng": 15378
+      }
     }
   ]
 }
