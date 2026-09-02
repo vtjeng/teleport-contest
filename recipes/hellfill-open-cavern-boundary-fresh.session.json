@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 360,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:Magellan,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": "   n#levelchange\n20\n                   \u0017blessed +3 gray dragon scale mail\n\u0017blessed +3 speed boots\n\u0017blessed amulet of life saving\nTaW oPp Pq  \u0016?\ncyyyhhhbbs.\u0016?\nj.\u0016?\nk "
+    }
+  ]
+}

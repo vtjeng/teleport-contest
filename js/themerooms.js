@@ -49,6 +49,7 @@ export class ThemeroomSelection {
     clone() {
         const result = new ThemeroomSelection();
         result.points.set(this.points);
+        result.absolute = this.absolute === true;
         return result;
     }
 
@@ -98,6 +99,7 @@ export class ThemeroomSelection {
     // C's percentage filter consumes RNG in x-major order.
     percentage(percent, random = rn2) {
         const result = new ThemeroomSelection();
+        result.absolute = this.absolute === true;
         const { lx, ly, hx, hy } = this.bounds();
         for (let x = lx; x <= hx; ++x) {
             for (let y = ly; y <= hy; ++y) {
@@ -138,6 +140,7 @@ export class ThemeroomSelection {
         const lit = options.lit ?? -2;
         const random = options.random ?? rn2;
         const result = new ThemeroomSelection();
+        result.absolute = this.absolute === true;
         const { lx, ly, hx, hy } = this.bounds();
         for (let x = lx; x <= hx; ++x) {
             for (let y = ly; y <= hy; ++y) {
@@ -161,6 +164,7 @@ export class ThemeroomSelection {
 
     negate() {
         const result = new ThemeroomSelection();
+        result.absolute = this.absolute === true;
         for (let x = 0; x < COLNO; ++x) {
             for (let y = 0; y < ROWNO; ++y)
                 result.set(x, y, !this.get(x, y));

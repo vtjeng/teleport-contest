@@ -34,7 +34,7 @@ import {
     wipe_engr_at,
 } from './engrave.js';
 import { map_background, map_object, map_trap, set_wall_state } from './display.js';
-import { def_char_to_monclass } from './drawing.js';
+import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
 import { add_to_container, obj_extract_self, obfree } from './invent.js';
 import { UnsupportedMonsterCreationError, makemon } from './makemon_create.js';
 import { mkclass } from './makemon.js';
@@ -147,6 +147,7 @@ import {
     S_ZOMBIE,
 } from './monsters.js';
 import { stairway_add } from './stairs.js';
+import { stairway_find_dir } from './stairs.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import {
@@ -164,7 +165,7 @@ import {
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
     IS_WALL, IS_STWALL, IS_DOOR, IS_ROOM, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
     IS_LAVA,
-    isok, W_NONDIGGABLE, W_NONPASSWALL,
+    isok, SPACE_POS, W_NONDIGGABLE, W_NONPASSWALL,
     W_RANDOM, W_NORTH, W_SOUTH, W_EAST, W_WEST, W_ANY,
     FILL_NONE, FILL_NORMAL,
     G_GONE,
@@ -185,6 +186,7 @@ import {
     PIT, SPIKED_PIT, HOLE, TRAPDOOR, TELEP_TRAP, LEVEL_TELEP,
     MAGIC_PORTAL, WEB, STATUE_TRAP, MAGIC_TRAP, ANTI_MAGIC,
     POLY_TRAP, VIBRATING_SQUARE,
+    SET_LIT_RANDOM, SET_LIT_NOCHANGE,
     MKTRAP_NOFLAGS, MKTRAP_MAZEFLAG, MKTRAP_NOSPIDERONWEB,
     MKTRAP_NOVICTIM, MKTRAP_SEEN,
     BR_PORTAL, BR_NO_END1, BR_NO_END2, SVALL,
@@ -196,6 +198,7 @@ import {
     is_pit,
     undestroyable_trap,
 } from './const.js';
+import { distmin } from './hacklib.js';
 
 const XLIM = 4;
 const YLIM = 3;
@@ -553,6 +556,9 @@ async function makelevel(specialLevelLoader = null) {
                 const { AIR_LEVEL_LOADERS } = await import(
                     './air_levels.js'
                 );
+                const { HELL_LEVEL_LOADERS } = await import(
+                    './hell_levels.js'
+                );
                 SPECIAL_LEVEL_LOADERS = {
                     ...BIGRM_LOADERS,
                     ...QUEST_LEVEL_LOADERS,
@@ -561,6 +567,7 @@ async function makelevel(specialLevelLoader = null) {
                     ...MINES_LEVEL_LOADERS,
                     ...FIRE_LEVEL_LOADERS,
                     ...AIR_LEVEL_LOADERS,
+                    ...HELL_LEVEL_LOADERS,
                 };
             }
             // Determine the resolved protofile the same way makemaz() will.
@@ -970,6 +977,59 @@ function specialCoordinate(frame, coordinate) {
     };
 }
 
+// C ref: mkmaze.c pick_vibrasquare_location().  The invocation trap is not
+// placed with an ordinary random DRY coordinate: its position must leave
+// room for mkinvokearea() and stay away from the upstairs.  `inv_pos` is the
+// shared C state used by occupied(), so clear it before testing candidates.
+function pick_vibrasquare_location(frame, state) {
+    const xMazeMin = 2;
+    const yMazeMin = 2;
+    const invXMargin = 6 - 2;
+    const invYMargin = 5 - 2;
+    const invDistance = 11;
+    const xRange = frame.xMazeMax - xMazeMin - 2 * invXMargin - 1;
+    const yRange = frame.yMazeMax - yMazeMin - 2 * invYMargin - 1;
+    const upstairs = stairway_find_dir(true, state);
+
+    state.inv_pos = { x: 0, y: 0 };
+    let x = 0;
+    let y = 0;
+    let tryCount = 0;
+    do {
+        x = rn1(xRange, xMazeMin + invXMargin + 1);
+        y = rn1(yRange, yMazeMin + invYMargin + 1);
+        ++tryCount;
+    } while (upstairs && tryCount <= 1000 && (
+        x === upstairs.sx
+        || y === upstairs.sy
+        || Math.abs(x - upstairs.sx) === Math.abs(y - upstairs.sy)
+        || distmin(x, y, upstairs.sx, upstairs.sy) <= invDistance
+        || !SPACE_POS(state.level.at(x, y).typ)
+        || occupied(x, y, state)
+    ));
+    return { x, y };
+}
+
+// C ref: sp_lev.c set_levltyp_lit(). This is kept beside the special-level
+// API because ordinary map painting has different metadata-reset semantics.
+function set_special_terrain(x, y, typ, lit, state) {
+    if (!set_levltyp(x, y, typ, { state })) return false;
+    const location = state.level.at(x, y);
+    if (lit !== SET_LIT_NOCHANGE) {
+        location.lit = IS_LAVA(typ)
+            || (lit === SET_LIT_RANDOM ? Boolean(rn2(2)) : Boolean(lit));
+    }
+    if (typ === SDOOR || IS_DOOR(typ)) {
+        if (typ === SDOOR) location.doormask = D_CLOSED;
+        const left = x > 0 ? state.level.at(x - 1, y) : null;
+        if (left && (IS_WALL(left.typ) || left.horizontal))
+            location.horizontal = true;
+    } else if (typ === HWALL || typ === IRONBARS) {
+        location.horizontal = true;
+    }
+    return true;
+}
+
 // C ref: sp_lev.c set_door_orientation(). Tutorial doors all have an
 // adjacent wall or door, so the source's unwallified-rock fallback is not
 // reachable for this loader.
@@ -1078,6 +1138,9 @@ async function makemaz(proto, slev, state) {
             const { AIR_LEVEL_LOADERS } = await import(
                 './air_levels.js'
             );
+            const { HELL_LEVEL_LOADERS } = await import(
+                './hell_levels.js'
+            );
             SPECIAL_LEVEL_LOADERS = {
                 ...BIGRM_LOADERS,
                 ...QUEST_LEVEL_LOADERS,
@@ -1086,6 +1149,7 @@ async function makemaz(proto, slev, state) {
                 ...MINES_LEVEL_LOADERS,
                 ...FIRE_LEVEL_LOADERS,
                 ...AIR_LEVEL_LOADERS,
+                ...HELL_LEVEL_LOADERS,
             };
         }
         const loader = SPECIAL_LEVEL_LOADERS[protofile];
@@ -1390,10 +1454,14 @@ function createSpecialLevelApi(state) {
                 const src = selectionOrSpec;
                 const { lx, ly, hx, hy } = src.bounds();
                 const absSel = new ThemeroomSelection();
+                const absolute = src.absolute === true;
                 for (let x = lx; x <= hx; ++x) {
                     for (let y = ly; y <= hy; ++y) {
                         if (src.get(x, y))
-                            absSel.set(frame.xstart + x, frame.ystart + y);
+                            absSel.set(
+                                absolute ? x : frame.xstart + x,
+                                absolute ? y : frame.ystart + y,
+                            );
                     }
                 }
                 const sel = lit ? absSel.grow() : absSel.clone();
@@ -1694,8 +1762,25 @@ function createSpecialLevelApi(state) {
             // get_location_coord BEFORE mktrap(), and mktrap receives
             // concrete coordinates.
             const spec = specification ?? {};
+            let rawType = typeof specification === 'string'
+                ? specification : spec.type;
+            if (typeof rawType === 'string')
+                rawType = get_traptype_byname(rawType);
+
+            // C ref: mkmaze.c pick_vibrasquare_location() and
+            // sp_lev.c create_trap(). This special trap owns the invocation
+            // position and bypasses the ordinary random-location path.
+            if (rawType === VIBRATING_SQUARE) {
+                const position = pick_vibrasquare_location(frame, state);
+                state.inv_pos = position;
+                return maketrap(
+                    position.x,
+                    position.y,
+                    VIBRATING_SQUARE,
+                    env,
+                );
+            }
             let coordinate;
-            let trapType;
             if (spec.coord) {
                 if (currentCroom) {
                     coordinate = {
@@ -1706,7 +1791,6 @@ function createSpecialLevelApi(state) {
                     coordinate = specialCoordinate(frame, spec.coord);
                 }
             } else if (typeof specification === 'string') {
-                trapType = specification;
                 coordinate = { x: -1, y: -1 };
             } else {
                 coordinate = { x: -1, y: -1 };
@@ -1734,11 +1818,8 @@ function createSpecialLevelApi(state) {
             if (spec.seen) flags |= MKTRAP_SEEN;
             if (spec.victim === false) flags |= MKTRAP_NOVICTIM;
             // C ref: sp_lev.c create_trap() passes the numeric trap type
-            // from get_traptype_byname() to mktrap(). Resolve string names
-            // the same way; leave numbers and undefined (random) as-is.
-            let rawType = trapType ?? spec.type;
-            if (typeof rawType === 'string')
-                rawType = get_traptype_byname(rawType);
+            // from get_traptype_byname() to mktrap(). Leave numbers and
+            // undefined (random) as-is.
             return make_level_trap(
                 rawType,
                 flags,
@@ -1808,7 +1889,11 @@ function createSpecialLevelApi(state) {
             // coordinates until their shared lspo_* adapters consume frame.
             // Terrain, doors, traps, engravings, and stairs convert eagerly
             // above, so applying specialCoordinate() here would offset twice.
-            const spec = specification ?? {};
+            const spec = typeof specification === 'string'
+                ? (specification.length === 1
+                    ? { class: def_char_to_objclass(specification) }
+                    : {})
+                : (specification ?? {});
             // C ref: sp_lev.c lspo_object(). When montype is a single
             // character, resolve it as a monster class letter to a PM_ index
             // the same way C does: mkclass(def_char_to_monclass(ch), flags).
@@ -1831,6 +1916,33 @@ function createSpecialLevelApi(state) {
                 corpsenm,
             };
             return lspo_object(normalized, currentCroom, env);
+        },
+
+        gold(specification) {
+            // C ref: sp_lev.c lspo_gold(). Bare gold chooses a random DRY
+            // square and then uses rnd(200) as the generated amount.
+            const spec = specification ?? {};
+            let coordinate;
+            if (spec.coord) {
+                coordinate = currentCroom
+                    ? {
+                        x: currentCroom.lx + spec.coord[0],
+                        y: currentCroom.ly + spec.coord[1],
+                    }
+                    : specialCoordinate(frame, spec.coord);
+            } else {
+                coordinate = { x: -1, y: -1 };
+                get_location_coord(
+                    coordinate,
+                    DRY,
+                    currentCroom,
+                    SP_COORD_IS_RANDOM,
+                    { frame, state },
+                );
+            }
+            let amount = spec.amount ?? -1;
+            if (amount < 0) amount = rnd(200);
+            return mkgold(amount, coordinate.x, coordinate.y, env);
         },
 
         monster(specification) {
@@ -2035,46 +2147,54 @@ function createSpecialLevelApi(state) {
         // at a single coordinate. Accepts (selection, char), (x, y, char),
         // ([x, y], char), or a table { selection, typ, lit }.
         terrain(selOrX, charOrY, charOpt) {
-            if (Array.isArray(selOrX)) {
+            let selection = null;
+            let typValue;
+            let lit = SET_LIT_NOCHANGE;
+            let coordinate = null;
+            if (selOrX instanceof ThemeroomSelection) {
+                selection = selOrX;
+                typValue = charOrY;
+            } else if (selOrX && typeof selOrX === 'object'
+                && !Array.isArray(selOrX)) {
+                // C ref: sp_lev.c lspo_terrain() table form. Its selection
+                // points are absolute when produced by selection.match(),
+                // while the other JS constructors remain frame-relative.
+                selection = selOrX.selection ?? null;
+                typValue = selOrX.typ;
+                lit = selOrX.lit ?? SET_LIT_NOCHANGE;
+                if (!selection) {
+                    coordinate = selOrX.coord
+                        ?? [selOrX.x, selOrX.y];
+                }
+            } else if (Array.isArray(selOrX)) {
                 // terrain([x, y], char) — array coord form
-                const ox = currentCroom
-                    ? currentCroom.lx : frame.xstart;
-                const oy = currentCroom
-                    ? currentCroom.ly : frame.ystart;
-                const tx = ox + selOrX[0];
-                const ty = oy + selOrX[1];
-                const typ = splev_chr2typ(charOrY);
-                if (typ < MAX_TYPE) set_levltyp(tx, ty, typ, { state });
+                coordinate = selOrX;
+                typValue = charOrY;
             } else if (typeof selOrX === 'number') {
                 // terrain(x, y, char)
-                const ox = currentCroom
-                    ? currentCroom.lx : frame.xstart;
-                const oy = currentCroom
-                    ? currentCroom.ly : frame.ystart;
-                const tx = ox + selOrX;
-                const ty = oy + charOrY;
-                const typ = splev_chr2typ(charOpt);
-                if (typ < MAX_TYPE) set_levltyp(tx, ty, typ, { state });
-            } else {
-                // terrain(selection, char)
-                const typ = splev_chr2typ(charOrY);
-                if (typ >= MAX_TYPE) return;
-                // C ref: sp_lev.c lspo_terrain() uses selvar.c
-                // selection_iterate(), x-major from x=0, with absolute
-                // coords (frame offset already in the selection).
-                const tb = selOrX.bounds();
+                coordinate = [selOrX, charOrY];
+                typValue = charOpt;
+            }
+            const typ = splev_chr2typ(typValue);
+            if (typ >= MAX_TYPE) return;
+            if (selection) {
+                const absolute = selection.absolute === true;
+                const tb = selection.bounds();
                 for (let x = tb.lx; x <= tb.hx; ++x) {
                     for (let y = tb.ly; y <= tb.hy; ++y) {
-                        if (!selOrX.get(x, y)) continue;
-                        set_levltyp(
-                            frame.xstart + x,
-                            frame.ystart + y,
-                            typ,
-                            { state },
-                        );
+                        if (!selection.get(x, y)) continue;
+                        const tx = absolute ? x : frame.xstart + x;
+                        const ty = absolute ? y : frame.ystart + y;
+                        set_special_terrain(tx, ty, typ, lit, state);
                     }
                 }
+                return;
             }
+            const ox = currentCroom ? currentCroom.lx : frame.xstart;
+            const oy = currentCroom ? currentCroom.ly : frame.ystart;
+            const tx = ox + coordinate[0];
+            const ty = oy + coordinate[1];
+            set_special_terrain(tx, ty, typ, lit, state);
         },
 
         // C ref: sp_lev.c lspo_wallify(). Converts STONE tiles adjacent to

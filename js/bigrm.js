@@ -7,7 +7,8 @@ import { UnsupportedLevelChangeError } from './do.js';
 import { rn2 } from './rng.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 import {
-    COLNO, ROWNO, ROOM, STONE, HWALL, VWALL,
+    COLNO, ROWNO, IS_STWALL,
+    MAX_TYPE, MATCH_WALL,
 } from './const.js';
 import { splev_chr2typ } from './mklev.js';
 
@@ -69,10 +70,10 @@ export function selection_fillrect(x1, y1, x2, y2) {
     return selection_area(x1, y1, x2, y2);
 }
 
-// C ref: nhlsel.c selection_do_match(). Matches a map fragment pattern
-// against the current level terrain. The pattern uses the same character
-// set as des.map(); '.' in the pattern is a wildcard that matches any
-// terrain.
+// C ref: nhlsel.c selection_do_match() and sp_lev.c match_maptyps(). Matches
+// a map fragment pattern against the current level terrain. The pattern uses
+// the same character set as des.map(); '.' is ROOM and 'x' is the wildcard
+// (MAX_TYPE/transparency) character.
 //
 // A multi-line pattern (lines separated by \n) matches a rectangular
 // footprint centered on each cell. A single-line pattern matches a
@@ -92,7 +93,6 @@ export function selection_match(pattern, state) {
             for (let py = 0; py < ph && match; ++py) {
                 for (let px = 0; px < pw && match; ++px) {
                     const ch = lines[py][px];
-                    if (ch === '.') continue; // wildcard
                     const tx = x + px - cx;
                     const ty = y + py - cy;
                     if (tx < 0 || tx >= COLNO || ty < 0 || ty >= ROWNO) {
@@ -100,20 +100,13 @@ export function selection_match(pattern, state) {
                         continue;
                     }
                     const loc = state.level.at(tx, ty);
-                    if (ch === 'w') {
+                    const expected = splev_chr2typ(ch);
+                    if (expected === MAX_TYPE) {
+                        continue;
+                    } else if (expected === MATCH_WALL) {
                         // Match any wall type.
-                        if (loc.typ < STONE || loc.typ > CROSSWALL
-                            || loc.typ === ROOM) {
-                            // More precisely: IS_STWALL or is a door boundary.
-                            // Use the MATCH_WALL constant's semantics.
-                            const t = loc.typ;
-                            if (t !== STONE && t !== HWALL && t !== VWALL
-                                && !(t >= 10 && t <= 19)) {
-                                match = false;
-                            }
-                        }
+                        if (!IS_STWALL(loc.typ)) match = false;
                     } else {
-                        const expected = splev_chr2typ(ch);
                         if (loc.typ !== expected) match = false;
                     }
                 }
@@ -121,6 +114,10 @@ export function selection_match(pattern, state) {
             if (match) sel.set(x, y);
         }
     }
+    // Unlike the relative constructors, l_selection_match() stores map
+    // coordinates directly. The special-level API uses this marker to avoid
+    // applying the current frame offset a second time.
+    sel.absolute = true;
     return sel;
 }
 
