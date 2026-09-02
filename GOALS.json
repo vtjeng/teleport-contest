@@ -7957,6 +7957,38 @@
         "screens": 72,
         "rng": 3728
       }
+    },
+    {
+      "id": "simple-monster-action-requires-eel-concealment",
+      "status": "open",
+      "boundary": "An active ordinary monster-turn eel reaches the C hideunder() concealment path in movemon_singlemon() or postmov(); the JavaScript simple-monster preflight currently fails closed on eel concealment.",
+      "upstreamOwners": [
+        "mon.c",
+        "monmove.c"
+      ],
+      "forecast": {
+        "steps": 189,
+        "basis": "Capped look-ahead at simple monster action requires eel concealment",
+        "sessions": [
+          "seed0361-archeologist-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0361-archeologist-tour",
+            "evidence": "Development replay witness: seed 361, datetime 20000110090000, options name:Magellan, role:Archeologist, race:human, gender:male, align:neutral, playmode:debug, suppress_alert:3.4.3, symset:DECgraphics, !autopickup; first JS stop cumulative step 177 on input '.'. C movemon_singlemon() reaches mon.c:1295-1303 S_EEL hideunder() and monmove.c:1692-1698 post-move eel refresh; active on-map eel is not concealed, is fleeing or not adjacent, cannot be seen, and wins rn2(4), with hideunder() requiring an ordinary pool square and its water/visibility predicates."
+          }
+        ]
+      },
+      "detail": "Bounding property: ordinary monster-turn eel concealment only: movemon_singlemon()'s S_EEL hideunder() arm and monmove.c postmov()'s eel concealment refresh, with the eel-specific water and visibility predicates that govern them. The census contributes one development witness and a conservative full 189-screen capped stretch; this is a measured bound for seed0361-archeologist-tour, not a claim about every eel path.",
+      "slices": [],
+      "openedAt": "6b3c4d9e38f8f034f8f27ce3a00311e0d9ba7a67",
+      "openStanding": {
+        "sha": "22f8efa3",
+        "screens": 4124,
+        "rng": 258015
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
