@@ -52,6 +52,7 @@ import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
     s_suffix,
+    upstart,
 } from './hacklib.js';
 import {
     gender,
@@ -841,16 +842,24 @@ export function rndmonnam(env = {}) {
     return rndmonnamDetails(env).name;
 }
 
-// C ref: do_name.c x_monnam(), a_monnam(), and Amonnam().  This is the
+// True where a_monnam() below cannot format the monster, so that a caller can
+// decide before any naming side effect -- a hallucinating hero's a_monnam()
+// draws from the display RNG -- whether it is about to reach the unported arm.
+export function a_monnam_unsupported(monster) {
+    return Boolean(monster.ispriest || monster.isminion || monster.isshk
+        || is_mplayer(monster.data));
+}
+
+// C ref: do_name.c x_monnam() and a_monnam() (1152-1156).  This is the
 // ordinary, already-spotted monster path used by makemon.c's runtime creation
-// message.  Priests, shopkeepers, player monsters, and the unseen "it" arm
-// retain their separate owners and fail closed here.
-export function Amonnam(monster, env = {}) {
+// message and by hack.c moverock_core()'s monster-behind-the-boulder arm.
+// Priests, shopkeepers, player monsters, and the unseen "it" arm retain their
+// separate owners and fail closed here.
+export function a_monnam(monster, env = {}) {
     const state = env.state ?? game;
-    if (monster.ispriest || monster.isminion || monster.isshk
-        || is_mplayer(monster.data)) {
+    if (a_monnam_unsupported(monster)) {
         throw new UnsupportedMonsterNameError(
-            'Amonnam() for a priest, minion, shopkeeper, or player monster',
+            'a_monnam() for a priest, minion, shopkeeper, or player monster',
         );
     }
 
@@ -880,7 +889,7 @@ export function Amonnam(monster, env = {}) {
             : mdat;
         if (!species) {
             throw new UnsupportedMonsterNameError(
-                'Amonnam() for an invalid monster appearance',
+                'a_monnam() for an invalid monster appearance',
             );
         }
         const givenName = monster.mextra?.mgivenname;
@@ -899,9 +908,14 @@ export function Amonnam(monster, env = {}) {
     let article = ARTICLE_A;
     if (nameAtStart && !hasAdjectives) article = ARTICLE_NONE;
     else if ((monster.data.geno & G_UNIQ) !== 0) article = ARTICLE_THE;
-    const named = article === ARTICLE_A ? `${just_an(text)}${text}`
+    return article === ARTICLE_A ? `${just_an(text)}${text}`
         : article === ARTICLE_THE ? `the ${text}` : text;
-    return `${named.charAt(0).toUpperCase()}${named.slice(1)}`;
+}
+
+// C ref: do_name.c Amonnam() (1158-1165), a_monnam() with its first letter
+// raised by highc().
+export function Amonnam(monster, env = {}) {
+    return upstart(a_monnam(monster, env));
 }
 
 // C ref: do_name.c hliquid().  Hallucinatory terrain descriptions share the

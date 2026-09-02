@@ -4,6 +4,8 @@ import test from 'node:test';
 import {
     BLINDED,
     CORR,
+    DEAF,
+    DETECT_MONSTERS,
     DOOR,
     D_CLOSED,
     D_ISOPEN,
@@ -28,6 +30,7 @@ import { mksobj, sobj_at } from '../js/obj.js';
 import { BOULDER, CORPSE, ROCK } from '../js/objects.js';
 import {
     PM_DEATH,
+    PM_GHOST,
     PM_NEWT,
     PM_ROCK_MOLE,
     PM_SEWER_RAT,
@@ -36,7 +39,7 @@ import {
 } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
-import { GLYPH_INVISIBLE } from '../js/display.js';
+import { GLYPH_INVISIBLE, glyph_is_invisible } from '../js/display.js';
 import { clear_path, does_block } from '../js/vision.js';
 import {
     RUSH_EAST,
@@ -378,17 +381,55 @@ test('preflight_moverock refuses each arm moverock_core does not push on',
                 },
                 remove: () => { game.level.objects[rx][ry] = null; },
             },
-            // 450-476. C pushes past a ghost and past a pit-trapped monster;
-            // this refuses every monster, which is wider on purpose.
+            // 455-456, the two conjuncts that send C past the monster arm and
+            // into the push. A ghost is the only S_GHOST monster generated in
+            // ordinary play, so it is what noncorporeal() answers TRUE for.
             {
-                reason: 'a monster behind the boulder',
+                reason: 'a boulder pushed onto a monster',
                 install: () => {
                     place_monster(newMonster({
-                        data: game.mons[PM_SEWER_RAT], mx: rx, my: ry,
-                        m_id: 9301, mhp: 3, mhpmax: 3,
+                        data: game.mons[PM_GHOST], mx: rx, my: ry,
+                        m_id: 9302, mhp: 5, mhpmax: 5,
                     }), rx, ry, game);
                 },
                 remove: () => { game.level.monsters[rx][ry] = null; },
+            },
+            // The same skip for a monster already caught in the pit under it:
+            // mtmp->mtrapped with an is_pit() trap on the square.
+            {
+                reason: 'a boulder pushed onto a monster',
+                install: () => {
+                    const trapped = newMonster({
+                        data: game.mons[PM_SEWER_RAT], mx: rx, my: ry,
+                        m_id: 9303, mhp: 3, mhpmax: 3,
+                    });
+                    trapped.mtrapped = 1;
+                    place_monster(trapped, rx, ry, game);
+                    game.level.traps.push({ tx: rx, ty: ry, ttyp: PIT });
+                },
+                remove: () => {
+                    game.level.monsters[rx][ry] = null;
+                    game.level.traps.pop();
+                },
+            },
+            // 462, a_monnam() for the spotted arm. Its priest, minion,
+            // shopkeeper and player-monster cases have separate owners, and a
+            // shopkeeper is the cheapest of the four to stand up here.
+            {
+                reason: 'a titled monster behind the boulder',
+                install: () => {
+                    const shk = newMonster({
+                        data: game.mons[PM_SEWER_RAT], mx: rx, my: ry,
+                        m_id: 9304, mhp: 3, mhpmax: 3,
+                    });
+                    shk.isshk = 1;
+                    place_monster(shk, rx, ry, game);
+                    game.u.uprops[DETECT_MONSTERS].intrinsic = 1;
+                },
+                remove: () => {
+                    game.level.monsters[rx][ry] = null;
+                    game.u.uprops[DETECT_MONSTERS].intrinsic = 0;
+                },
             },
             // 478-481, cannot_push_msg() for a boulder against a closed door.
             // The conjunction's own door term at 434 excludes only a diagonal
@@ -647,6 +688,98 @@ test('a destination reached without a push keeps its boulder refusal',
                 && error.reason === 'boulder movement',
         );
     });
+
+// hack.c moverock_core():455-483, the monster behind the boulder. The seed-110
+// boulder stands in an unlit corridor, so a monster placed on the square past
+// it is one canspotmon() answers FALSE for and the branch takes its else arm.
+test('an unseen monster behind the boulder is heard, not pushed',
+    async () => {
+        const { rx, ry, boulder } = await heroBesideBoulder();
+        place_monster(newMonster({
+            data: game.mons[PM_SEWER_RAT], mx: rx, my: ry,
+            m_id: 9401, mhp: 3, mhpmax: 3,
+        }), rx, ry, game);
+        const before = [boulder.ox, boulder.oy];
+        const beforePosition = [game.u.ux, game.u.uy];
+        const beforeRng = game.getRngLog?.().length;
+        // Two plines in one step put a --More-- between them, which
+        // tty_message.js waits on; a space dismisses it.
+        game.nhDisplay.terminal.pushKey(' '.charCodeAt(0));
+
+        // 476-480: the !Deaf gate at 467 made deliver_part1 TRUE, which is
+        // what selects "Perhaps that's why " and "it" over the upstart()ed
+        // phrasing. The You_hear() line before it is pinned by the terse case
+        // below, because the --More-- between the two leaves only the second
+        // on the top line here.
+        assert.equal(await stepEast(),
+                     "Perhaps that's why you cannot move it.");
+        assert.deepEqual([boulder.ox, boulder.oy], before,
+                         'the boulder stays where it stood');
+        assert.deepEqual([game.u.ux, game.u.uy], beforePosition,
+                         'cannot_push() returns -1, so the hero stays too');
+        // 469 map_invisible(): the square the hero cannot see keeps a
+        // remembered 'I' after the branch, the way display.c writes it.
+        assert.ok(glyph_is_invisible(
+            game.level.at(rx, ry).remembered_glyph?.glyph,
+        ), 'map_invisible() marked the monster square');
+        assert.equal(game.getRngLog?.().length, beforeRng,
+                     'the branch draws no random numbers');
+    });
+
+// The spotted sibling at 461-463. Detect_monsters is the one operand of
+// display.h sensemon() that needs no line of sight and no telepathy, so it is
+// what turns canspotmon() TRUE for the same corridor monster. flags.verbose is
+// off so that 471-481 prints nothing and the named line stands alone.
+test('a spotted monster behind the boulder is named instead', async () => {
+    const { rx, ry } = await heroBesideBoulder();
+    place_monster(newMonster({
+        data: game.mons[PM_SEWER_RAT], mx: rx, my: ry,
+        m_id: 9402, mhp: 3, mhpmax: 3,
+    }), rx, ry, game);
+    game.u.uprops[DETECT_MONSTERS].intrinsic = 1;
+    game.flags.verbose = false;
+
+    assert.equal(await stepEast(),
+                 "There's a sewer rat on the other side.");
+    // The spotted arm never reaches map_invisible().
+    assert.equal(glyph_is_invisible(
+        game.level.at(rx, ry).remembered_glyph?.glyph,
+    ), false);
+    game.u.uprops[DETECT_MONSTERS].intrinsic = 0;
+    game.flags.verbose = true;
+});
+
+// 467-468 and 476-480. A deaf hero hears nothing, so deliver_part1 stays
+// FALSE and the verbose line switches to upstart("you") with the boulder named
+// in full. pline.c You_hear() prints nothing for him either.
+test('a deaf hero gets the unheralded phrasing of the same line', async () => {
+    const { rx, ry } = await heroBesideBoulder();
+    place_monster(newMonster({
+        data: game.mons[PM_SEWER_RAT], mx: rx, my: ry,
+        m_id: 9403, mhp: 3, mhpmax: 3,
+    }), rx, ry, game);
+    game.u.uprops[DEAF].intrinsic = 1;
+
+    assert.equal(await stepEast(), 'You cannot move the boulder.');
+    // 469 runs on the deaf path too: it sits outside the !Deaf gate.
+    assert.ok(glyph_is_invisible(
+        game.level.at(rx, ry).remembered_glyph?.glyph,
+    ));
+    game.u.uprops[DEAF].intrinsic = 0;
+});
+
+// 471. flags.verbose off drops the second half of the pair entirely.
+test('a terse hero hears the monster and nothing else', async () => {
+    const { rx, ry } = await heroBesideBoulder();
+    place_monster(newMonster({
+        data: game.mons[PM_SEWER_RAT], mx: rx, my: ry,
+        m_id: 9404, mhp: 3, mhpmax: 3,
+    }), rx, ry, game);
+    game.flags.verbose = false;
+
+    assert.equal(await stepEast(), 'You hear a monster behind the boulder.');
+    game.flags.verbose = true;
+});
 
 // hack.c:189 `svm.moves < gb.bldrpushtime`, the disjunct that covers a push
 // made before the turn dopush() stamped. Only a hasted hero reaches it in

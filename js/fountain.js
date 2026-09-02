@@ -24,7 +24,7 @@ import { monster_detect } from './detect.js';
 import {
     bot, newsym, glyph_at, glyph_is_cmap, glyph_to_cmap,
 } from './display.js';
-import { Amonnam } from './do_name.js';
+import { a_monnam } from './do_name.js';
 import { level_difficulty } from './dungeon.js';
 import { game } from './gstate.js';
 import { makemon_runtime } from './makemon_create.js';
@@ -47,14 +47,6 @@ export class UnsupportedFountainError extends Error {
         this.name = 'UnsupportedFountainError';
         this.reason = reason;
     }
-}
-
-// ── a_monnam ──
-// C ref: do_name.c a_monnam() (1152-1156). Returns "a water demon" --
-// the same text as Amonnam() but with a lowercase initial letter.
-function a_monnam(monster, env = {}) {
-    const text = Amonnam(monster, env);
-    return text.charAt(0).toLowerCase() + text.slice(1);
 }
 
 // ── dowaterdemon ──

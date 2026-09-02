@@ -13,6 +13,7 @@ import {
     CONFUSION,
     COLNO,
     CORR,
+    DEAF,
     DIED,
     DISINT_RES,
     DOOR,
@@ -128,6 +129,7 @@ import {
     glyph_is_cmap,
     glyph_is_invisible,
     glyph_to_cmap,
+    map_invisible,
     newsym,
     back_to_glyph,
     unmap_invisible,
@@ -141,11 +143,16 @@ import {
 import { cmdq_clear } from './cmd.js';
 import { clear_kickedloc } from './dokick.js';
 import { dig_typ } from './dig.js';
-import { alwaysVisibleMonsterName, hliquid } from './do_name.js';
+import {
+    a_monnam,
+    a_monnam_unsupported,
+    alwaysVisibleMonsterName,
+    hliquid,
+} from './do_name.js';
 import { Invocation_lev, u_on_newpos } from './dungeon.js';
 import { gethungry } from './eat.js';
 import { done } from './end.js';
-import { dist2, highc } from './hacklib.js';
+import { dist2, highc, upstart } from './hacklib.js';
 import {
     can_reach_floor,
     engr_at,
@@ -872,6 +879,20 @@ function heroIsBlind(state) {
     return Boolean(
         (blindness?.intrinsic || blindness?.extrinsic)
         && !blindness?.blocked,
+    );
+}
+
+// youprop.h:125 Deaf is (HDeaf || EDeaf || u.uroleplay.deaf). Unlike Blind it
+// has no blocked term, so a source of deafness is never suppressed.
+//
+// This is the raw property. pline.c You_hear() applies its own wider test --
+// deafness that an unaware hero still dreams through, plus flags.acoustics --
+// which is why moverock_core() cannot infer `!Deaf` from youHear() printing.
+function heroIsDeaf(state) {
+    const deafness = state.u?.uprops?.[DEAF];
+    return Boolean(
+        deafness?.intrinsic || deafness?.extrinsic
+        || state.u?.uroleplay?.deaf,
     );
 }
 
@@ -1930,12 +1951,28 @@ function preflight_moverock(sx, sy, noPickMove, state) {
         }
     }
 
-    // 450-476. C pushes the boulder onto a noncorporeal monster, and onto one
-    // already trapped in the pit under it, rather than refusing; this refuses
-    // any monster at all, because both of those leave a boulder standing on a
-    // monster and neither is traced here. The refusing arm needs a_monnam(),
-    // map_invisible() and cannot_push().
-    if (m_at(rx, ry, state)) refuse('a monster behind the boulder');
+    // 455-483. The monster arm itself is ported in moverock_core(); it reports
+    // the monster and returns cannot_push() ahead of every test below, so an
+    // admitted monster arm returns from here rather than falling through them.
+    const mtmp = m_at(rx, ry, state);
+    if (mtmp) {
+        const ttmp = t_at(rx, ry, state);
+        // The two conjuncts that skip the arm. C pushes the boulder onto a
+        // noncorporeal monster, and onto one already trapped in the pit under
+        // it; both leave a boulder standing on a monster, in the still
+        // unported push logic at 626-637.
+        if (noncorporeal(mtmp.data)
+            || (mtmp.mtrapped && ttmp && is_pit(ttmp.ttyp))) {
+            refuse('a boulder pushed onto a monster');
+        }
+        // The spotted arm names the monster with a_monnam(), whose priest,
+        // minion, shopkeeper and player-monster cases have separate owners.
+        // Asking here rather than letting a_monnam() throw keeps a
+        // hallucinating hero's naming draw off the display RNG on the way out.
+        if (canSpotMonster(mtmp, state) && a_monnam_unsupported(mtmp))
+            refuse('a titled monster behind the boulder');
+        return;
+    }
 
     // 478-481. cannot_push_msg() again, for a boulder against a closed door.
     if (closed_door(rx, ry, state)) refuse('a closed door behind the boulder');
@@ -2140,11 +2177,62 @@ async function moverock_core(sx, sy, state, env) {
             return cannot_push(otmp, sx, sy, state);
         }
 
+        const ttmp = t_at(rx, ry, state);
+        const mtmp = m_at(rx, ry, state);
+
+        // Sokoban's diagonal rule at 442-448 and revive_nasty() at 450-453
+        // stay behind preflight_moverock().
+
+        // 455-483, a corporeal monster standing where the boulder would land,
+        // unless it is already trapped in the pit under it. C reports the
+        // monster, then gives the push up through cannot_push().
+        if (mtmp && !noncorporeal(mtmp.data)
+            && (!mtmp.mtrapped || !(ttmp && is_pit(ttmp.ttyp)))) {
+            let deliver_part1 = false;
+            const message = requiredMessageOperation(
+                env, 'monster behind the boulder',
+            );
+
+            // 459-460, the Blind arm, is refused by preflight_moverock().
+            if (canSpotMonster(mtmp, state)) {
+                await message(
+                    `There's ${a_monnam(mtmp, { state })} on the other side.`,
+                    state,
+                );
+                deliver_part1 = true;
+            } else {
+                // Soundeffect() is a no-op without a sound library, which the
+                // tty build this port matches is.
+                //
+                // C evaluates the(xname(otmp)) as You_hear()'s argument, so
+                // xname() observes the boulder even when a deaf hero prints
+                // nothing; keep the call outside the printing test.
+                const heard = the(xnameFresh(otmp, state), state);
+                const line = youHear(`a monster behind ${heard}.`, state);
+                if (line !== null) await message(line, state);
+                if (!heroIsDeaf(state)) deliver_part1 = true;
+                map_invisible(rx, ry, state);
+            }
+            if (state.flags?.verbose) {
+                // 474-475. u.usteed is refused by preflight_moverock(), so
+                // you_or_steed is always C's "you" literal, never y_monnam().
+                const you_or_steed = 'you';
+                const who = deliver_part1
+                    ? you_or_steed : upstart(you_or_steed);
+                const what = deliver_part1
+                    ? 'it' : the(xnameFresh(otmp, state), state);
+                await message(
+                    `${deliver_part1 ? "Perhaps that's why " : ''}`
+                    + `${who} cannot move ${what}.`,
+                    state,
+                );
+            }
+            return cannot_push(otmp, sx, sy, state);
+        }
+
         // The remaining valid-destination branches stay behind
-        // preflight_moverock(): Sokoban's diagonal rule at 437-443,
-        // revive_nasty() at 445-448, the monster behind the boulder at
-        // 450-476, closed_door() at 478-481, the trap switch at 490-616 and
-        // boulder_hits_pool() at 618-619.
+        // preflight_moverock(): closed_door() at 485-488, the trap switch at
+        // 496-618 and boulder_hits_pool() at 620-621.
 
         /* rumbling disturbs buried zombies */
         disturb_buried_zombies(sx, sy, state);
