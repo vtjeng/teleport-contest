@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 1799,
+      "datetime": "20291107082300",
+      "nethackrc": "OPTIONS=name:Jelli,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\nhhhhyhyyyyhhhhhhhhhhhhhhykkkkyhhhbjbbbjjjjbl\n"
+    }
+  ]
+}
