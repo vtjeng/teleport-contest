@@ -260,38 +260,13 @@ Stage the paths that the current work changed:
 
 Avoid the whole-tree forms (`git add -A`, `git add --all`, `git add -u`,
 `git add --update`, `git add .`); they stage in-progress changes from other
-agents in the shared working tree.
+agents in the shared working tree. `git checkout -- .`, `git checkout HEAD -- .`
+and `git restore .` discard that work. `.claude/settings.json` denies all of
+these; write a deny message without an apostrophe, because it sits inside a
+single-quoted shell string.
 
 Before committing, inspect `git diff --cached --name-only` and confirm that
 every staged path belongs to the commit.
-
-Staging also protects work in progress: a restore keeps staged changes and
-discards unstaged ones. The next section identifies when that matters.
-
-### Make temporary edits safely
-
-Watching a new test fail means temporarily editing a line of game code in a file
-that holds the rest of an uncommitted slice, then restoring the line. Reverse
-the edit the way you made it: a text edit that restores the line does not touch
-anything else in the file.
-
-Git can do it instead, with one precondition: `git checkout -- <path>` and
-`git restore <path>` rewrite the whole path from the index, discarding every
-edit since the last `git add`. Stage the file before the temporary edit so that
-`git restore <path>` undoes only that edit.
-
-Avoid `git checkout HEAD -- <path>`, because it rewrites the index and discards
-the staged version. Avoid `git checkout -- .`, `git checkout HEAD -- .` and
-`git restore .`, because they touch every file in the tree, including unrelated
-work by another agent; `.claude/settings.json` denies all three.
-
-Write the deny message in `.claude/settings.json` without an apostrophe,
-because the message sits inside a single-quoted shell string and an apostrophe
-breaks the quoting.
-
-A staged version can still be recovered after `git checkout HEAD -- <path>`:
-`git fsck --unreachable` lists it and `git cat-file -p <sha>` prints it. A
-version that was never staged is gone.
 
 ### When to stop and ask the user
 

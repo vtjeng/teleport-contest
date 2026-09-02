@@ -14,7 +14,7 @@
           },
           {
             "type": "command",
-            "command": "c=$(jq -r '.tool_input.command // empty'); printf '%s' \"$c\" | tr ';&|()' '\\n\\n\\n\\n\\n' | awk '/^[ \\t]*git[ \\t]+(checkout|restore)([ \\t]|$)/{for(i=1;i<=NF;i++)if($i==\".\"||$i==\"./\")f=1}END{exit f?0:1}' && printf '%s' '{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"deny\", \"permissionDecisionReason\": \"git checkout -- ., git checkout HEAD -- ., and git restore . discard every uncommitted change in the tree, including work in progress that belongs to another agent. Stage the file before you make a temporary edit, and then `git checkout -- js/one.js` undoes only that edit. AGENTS.md, under Make temporary edits safely, states what each form restores from and how to recover.\"}}'; exit 0",
+            "command": "c=$(jq -r '.tool_input.command // empty'); printf '%s' \"$c\" | tr ';&|()' '\\n\\n\\n\\n\\n' | awk '/^[ \\t]*git[ \\t]+(checkout|restore)([ \\t]|$)/{for(i=1;i<=NF;i++)if($i==\".\"||$i==\"./\")f=1}END{exit f?0:1}' && printf '%s' '{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"deny\", \"permissionDecisionReason\": \"git checkout -- ., git checkout HEAD -- ., and git restore . discard every uncommitted change in the tree, including work in progress that belongs to another agent. Name the path you mean to restore.\"}}'; exit 0",
             "timeout": 10
           }
         ]
