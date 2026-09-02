@@ -10,6 +10,7 @@
 // these.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -55,6 +56,7 @@ import {
     does_block,
     transparencyIndexViews,
 } from '../js/vision.js';
+import { validateCleanRecipe } from './diff-fresh.mjs';
 import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { loadCostlyMimicRedisguiseRecipe } from './run-apply-stethoscope.mjs';
 import { GENESIS_KEY, loadMonsterHidingRecipe } from './run-monster-hiding.mjs';
@@ -220,6 +222,38 @@ test('postmov resets an empty-square concealment with its rn2(5)', async () => {
     assert.deepEqual(bounds, [5]);
     assert.deepEqual(redrawn, [[x, y]]);
     assert.equal(monster.mundetected, 0);
+});
+
+// The fresh C differential for mon.c hideunder()'s eel arm. The recipe holds
+// replay inputs only; scripts/diff-fresh.mjs records the reference run.
+//
+//   node scripts/diff-fresh.mjs recipes/monster-eel-concealment.session.json
+//
+// A blind Barbarian teleports to the Barbarian quest locate level, whose lake
+// is the nearest water mklev() builds that the port reproduces call for call,
+// and creates a giant eel with ^G. mklev() hides every eel it places, so a
+// created one is the only unconcealed eel a monster turn can act on. The first
+// rest hands out movement; on the second the eel is unhidden, out of sight, not
+// adjacent, and wins mon.c:1297's rn2(4), which is the arm this file pins.
+test('the eel concealment recipe carries replay inputs only', () => {
+    const recipe = validateCleanRecipe(JSON.parse(readFileSync(
+        new URL('../recipes/monster-eel-concealment.session.json',
+            import.meta.url),
+        'utf8',
+    )));
+    assert.equal(recipe.version, 5);
+    // One segment: the recorder clears its install directory only before a
+    // chunk's first segment, so a second playmode:debug segment would restore
+    // the first game's save instead of starting a new one.
+    assert.equal(recipe.segments.length, 1);
+    const [segment] = recipe.segments;
+    assert.equal(Object.hasOwn(segment, 'steps'), false);
+    // blind is what keeps canseemon() false at mon.c:1297; the quest level is
+    // lit, so a seeing hero would watch the eel and never reach the arm.
+    assert.match(segment.nethackrc, /OPTIONS=!autopickup,blind/u);
+    // ^G names the species, and the two rests are the smallest pair that
+    // reaches an elapsed turn in which the eel has movement to spend.
+    assert.ok(segment.moves.endsWith('\x07giant eel\n..'));
 });
 
 // C ref: monmove.c postmov():1692-1699 for the S_EEL half of its guard. The

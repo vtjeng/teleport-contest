@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 50301,
+      "datetime": "20010704120000",
+      "nethackrc": "OPTIONS=name:Conan,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3\nOPTIONS=!autopickup,blind\n",
+      "moves": "  n#levelchange\n20\n                   \u0016?\n>z  \u0007giant eel\n.."
+    }
+  ]
+}

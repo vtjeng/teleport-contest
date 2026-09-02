@@ -22,6 +22,7 @@ import {
     INVIS,
     IS_FOUNTAIN,
     IS_FURNITURE,
+    IS_WATERWALL,
     MON_FLOOR,
     MON_MIGRATING,
     NEED_WEAPON,
@@ -52,6 +53,7 @@ import {
     pet_ranged_attk,
 } from './dogmove.js';
 import { capitalizedMonsterName } from './do_name.js';
+import { on_level } from './dungeon.js';
 import { engr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { losehp, nh_delay_output, nomul } from './hack.js';
@@ -72,6 +74,7 @@ import {
 } from './mon.js';
 import {
     attacktype,
+    breathless,
     defended,
     is_covetous,
     is_swimmer,
@@ -248,10 +251,27 @@ function assertSimpleScanState(monster, state) {
 // C tests the gremlin at :987 before either liquid arm, and these two are in
 // the other order. That is only a labelling difference: a gremlin in water
 // matches both, and whichever arm claims it, the caller refuses.
+//
+// The eel is the other exception, and it is the `else` of the pool arm at
+// :1111-1119: an eel that is neither in water nor in lava loses hit points to
+// `rn2(mtmp->mhp) > rn2(8)` and is sent fleeing by monflee(). Neither effect
+// is ported, and that draw pair sits ahead of every later draw in the turn, so
+// answering false for a stranded eel would move the whole random-number log
+// with no stop to mark it. mklev() only ever places an eel in water, but
+// wizcmds.c wiz_genesis() can put one on dry land, because goodpos() accepts a
+// dry square for an eel one time in thirteen (teleport.c:148).
 export function unportedMinliquidReason(monster, state) {
     if (monsndx(monster.data) === PM_GREMLIN
         && IS_FOUNTAIN(state.level?.at?.(monster.mx, monster.my)?.typ))
         return 'a gremlin splitting in a fountain';
+    const location = state.level?.at?.(monster.mx, monster.my);
+    if (monster.data?.mlet === S_EEL
+        && !is_pool(monster.mx, monster.my, state)
+        && !is_lava(monster.mx, monster.my, state)
+        && !(location && IS_WATERWALL(location.typ))
+        && !on_level(state.u?.uz, state.water_level)
+        && !breathless(monster.data))
+        return 'an eel out of water';
     return null;
 }
 

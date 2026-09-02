@@ -5936,6 +5936,24 @@
       "status": "open",
       "from": "356532cd19e4cdc55285dbb375d49ab04ff93c99",
       "detail": "Formal review deferred swallowed docrt coverage in scripts/display.test.mjs; separate the display and RNG assertions with an independent source case."
+    },
+    {
+      "id": "stranded-eel-minliquid-distress",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "725e271961f2daccaf8bea7ff8def75256ad5c03",
+      "detail": "mon.c minliquid_core():1111-1119, the else of the pool arm: an eel that is neither in water nor in lava loses a hit point on rn2(mtmp->mhp) > rn2(8) and is sent fleeing by monflee(mtmp, 2, FALSE, FALSE). js/unported_monster_actions.js unportedMinliquidReason() answers 'an eel out of water' and stops the scan instead, because the draw pair sits ahead of every later draw in the turn. Reproduce with a Barbarian, seed 83028, datetime 20010704120000, OPTIONS=name:Conan,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3 and OPTIONS=!autopickup,blind, moves '  n#levelchange<LF>20<LF>' + 19 spaces + '^V?<LF>>z' + 2 spaces + '^Ggiant eel<LF>..' -- wizcmds.c wiz_genesis() puts the eel on dry land because teleport.c:148 goodpos() accepts a dry square for an eel one time in thirteen. scripts/diff-fresh.mjs stops at the last step with C drawing rn2(33) at minliquid_core(mon.c:1116) where the port emits nothing."
+    },
+    {
+      "id": "hideunder-object-conceal-arm",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "725e271961f2daccaf8bea7ff8def75256ad5c03",
+      "detail": "mon.c hideunder():4749-4771, the hides_under() arm and the 'You see <mon> hide under <obj>' message at 4787-4795. js/mon.js hideunder() covers the S_EEL arm only and raises UnsupportedHideError for the other two: 'a monster that hides under objects' and 'concealment the hero can watch'. monmove.c postmov() keeps its own answer for an M1_CONCEAL species on an empty square and stops on every other object-concealing square. Reproduce with an Archeologist, seed 6002, datetime 20010704120000, OPTIONS=name:Hypatia,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,suppress_alert:3.4.3 and OPTIONS=!autopickup,blind, moves '  n#levelchange<LF>20<LF>' + 19 spaces + '^V?<LF>>y' + 2 spaces + '^Ggiant eel<LF>..' -- the Archeologist quest home places eight class-S snakes, and one of them re-hides under an object on the second elapsed turn. The port stops at 'simple monster action requires monster hiding under an object' with 58 of the recorded 59 screens matched. Closing this entry should also fold js/makemon_create.js's private hideunder() into js/mon.js, so one JavaScript function answers for the one C function."
     }
   ],
   "areas": [

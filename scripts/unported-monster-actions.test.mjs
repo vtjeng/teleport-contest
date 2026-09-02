@@ -1485,10 +1485,12 @@ test('simple preflight stops a gremlin standing on a fountain', async () => {
     assert.deepEqual(preflightSnapshot(), ratBefore);
 });
 
-// unportedMinliquidReason() retains only the source-specific fountain split;
-// ordinary pool and lava effects are exercised by minliquid() above.
-test('unported minliquid reason retains only the fountain split', async () => {
+// unportedMinliquidReason() retains the two source-specific splits this port
+// leaves at the action boundary; ordinary pool and lava effects are exercised
+// by minliquid() above.
+test('minliquid reason keeps the fountain and stranded-eel arms', async () => {
     const GREMLIN_SPLIT = 'a gremlin splitting in a fountain';
+    const STRANDED_EEL = 'an eel out of water';
     const cases = [
         // minliquid() owns the ordinary pool and lava branches now.
         { terrain: POOL, pmidx: PM_GIANT_RAT, reason: null },
@@ -1505,6 +1507,14 @@ test('unported minliquid reason retains only the fountain split', async () => {
         // PM_YELLOW_LIGHT is a floater (S_LIGHT); its is_floater() is true.
         { terrain: POOL, pmidx: PM_YELLOW_LIGHT, reason: null },
         { terrain: LAVAPOOL, pmidx: PM_YELLOW_LIGHT, reason: null },
+        // mon.c:1111-1119, the `else` of the pool arm: an eel on dry land
+        // loses hit points and flees, and neither effect is ported. In water
+        // it takes the ordinary swimmer exemption instead, and on lava it
+        // takes the burn arm, so only a dry square answers.
+        { terrain: ROOM, pmidx: PM_GIANT_EEL, reason: STRANDED_EEL },
+        { terrain: FOUNTAIN, pmidx: PM_GIANT_EEL, reason: STRANDED_EEL },
+        { terrain: POOL, pmidx: PM_GIANT_EEL, reason: null },
+        { terrain: LAVAPOOL, pmidx: PM_GIANT_EEL, reason: null },
     ];
 
     const target = await prepareSelectedAction();
