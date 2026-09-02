@@ -28,6 +28,7 @@ import {
     PM_ANGEL,
     PM_DOPPELGANGER,
     PM_GAS_SPORE,
+    PM_GIANT_EEL,
     PM_GNOME_LEADER,
     PM_GUARD,
     PM_HIGH_CLERIC,
@@ -509,6 +510,27 @@ test('a species outside the admitted reservoir stops before it is created',
         assert.match(boundaries[0].message, /unsupported initial-level/u);
         assert.deepEqual(added, []);
     });
+
+test('^G creates the giant eel the eel-concealment goal acts on', async () => {
+    // The mirror of the case above. mklev() hides every eel it places, so
+    // mon.c movemon_singlemon()'s S_EEL arm -- which requires !mundetected --
+    // has no reachable subject until ^G builds one outside mklev.
+    // assertSupportedSpecies() therefore admits PM_GIANT_EEL by name.
+    const boundaries = [];
+    const segment = segmentFor(`${GENESIS_KEY}gas spore\n`);
+    const { added } = await createdBy(
+        segment,
+        `${WAIT_KEY}${GENESIS_KEY}giant eel\n`,
+        { onBoundary: (error) => boundaries.push(error) },
+    );
+
+    assert.deepEqual(boundaries, []);
+    assert.equal(added.length, 1);
+    assert.equal(added[0].mnum, PM_GIANT_EEL);
+    // makemon.c:1392 hides an eel only `if (gi.in_mklev)`, and ^G runs with
+    // that clear, so this eel arrives visible to the monster scan.
+    assert.ok(!added[0].mundetected);
+});
 
 test('#wizgenesis reaches the same prompt as ^G', async () => {
     const typed = segmentFor(`${EXTCMD_KEY}wizgenesis\ngas spore\n`);

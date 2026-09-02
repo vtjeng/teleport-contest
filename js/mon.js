@@ -1,7 +1,8 @@
 // mon.js -- Runtime monster turn state, and the removal lifecycle a monster
 // runs when the hero kills it.
-// C refs: mon.c movemon(), mcalcmove(), mpickstuff(), curr_mon_load(),
-// max_mon_load(), m_consume_obj(), zombie_maker(), unstuck(),
+// C refs: mon.c movemon(), movemon_singlemon(), hideunder(), mcalcmove(),
+// mpickstuff(), curr_mon_load(), max_mon_load(), m_consume_obj(),
+// zombie_maker(), unstuck(),
 // mon_leaving_level(), m_detach(), mlifesaver(), lifesaved_monster(),
 // logdeadmon(), mondead(), corpse_chance(), make_corpse(), mondied(),
 // monkilled(), killed(), xkilled() and adj_erinys(); mthrowu.c m_carrying();
@@ -334,6 +335,7 @@ import { ttyPline } from './tty_message.js';
 import {
     cansee,
     canseemon,
+    couldsee,
     does_block,
     is_lightblocker_mappear,
     unblock_point,
@@ -2848,9 +2850,9 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
     adjalign(mtmp.malign, state);
 }
 
-// A hiding path this port has not translated. mon.c hideunder() is what every
-// one of them ends in; js/cmd.js failClosedCommandRefusals() lists this class
-// so the segment keeps the frames the command already matched.
+// Hiding paths outside the ordinary eel action below are not translated.
+// js/cmd.js failClosedCommandRefusals() lists this class so a segment keeps the
+// frames it already matched when one of those paths is reached.
 export class UnsupportedHideError extends Error {
     constructor(what) {
         super(`hiding reached an unported branch: ${what}`);
@@ -2922,16 +2924,78 @@ export function restrap(monster, env = {}) {
     return false;
 }
 
+// C ref: mon.c hideunder() (4726-4801), the S_EEL arm only, which is the arm
+// movemon_singlemon() above reaches. mon.c's other two arms -- the hero's own
+// concealment and the M1_CONCEAL species that hide under an object -- stay
+// fail-closed here; js/makemon_create.js carries a separate level-creation
+// subset that still owns them for mklev() and newcham().
+//
+// The boundary is `seeit` alone rather than `seeit && undetected`, because C
+// evaluates `seenmon = y_monnam(mtmp)` for every visible monster, whether or
+// not it ends up hidden, and y_monnam() draws randomness for a hallucinating
+// hero. Only the message below it needs `undetected`. movemon_singlemon()
+// tests !canseemon(mtmp) before it calls this, so its own eels never reach the
+// stop; a future caller that can see the monster owes the message, the
+// PLNMSG_HIDE_UNDER last_msg, and gl.last_hider before it lifts the stop.
+//
+// `redraw` defaults to the newsym() C calls. The planning clone overrides it
+// with a no-op, so an omission repaints rather than silently skipping a
+// square the live display owes.
+export function hideunder(monster, env = {}) {
+    const state = env.state ?? game;
+    if (monster === state.youmonst) {
+        throw new UnsupportedHideError('hero concealment');
+    }
+    if (monster.data?.mlet !== S_EEL) {
+        throw new UnsupportedHideError('a monster that hides under objects');
+    }
+
+    const seeit = state.in_mklev ? false : canseemon(monster, state);
+    if (seeit) {
+        throw new UnsupportedHideError('concealment the hero can watch');
+    }
+
+    const x = monster.mx;
+    const y = monster.my;
+    let undetected = false;
+    // C's `(is_u ? u.utrap : mtmp->mtrapped) || ((t = t_at(x, y)) != 0 &&
+    // !is_pit(t->ttyp))` skips the lookup for a monster already recorded as
+    // trapped. t_at() is a pure lookup, so the skip only spells out that a
+    // trapped monster answers false whatever it is trapped in.
+    const trap = monster.mtrapped ? null : t_at(x, y, state);
+    if (monster === state.u?.ustuck) {
+        /* can't hide if holding you or held by you */
+    } else if (monster.mtrapped || (trap && !is_pit(trap.ttyp))) {
+        /* can't hide while trapped or on a non-pit trap */
+    } else {
+        // "aquatic creatures only hide under water, not under objects; they
+        // don't do so on the Plane of Water or when hero is also under water
+        // unless some obstacle blocks line-of-sight". Is_waterlevel(&u.uz) and
+        // Underwater (youprop.h:279, the bare u.uinwater field) are spelled
+        // out against `state` so a planning clone owns both.
+        undetected = is_pool(x, y, state)
+            && !on_level(state.u?.uz, state.water_level)
+            && (!state.u?.uinwater || !couldsee(x, y, state));
+    }
+
+    const oldundetctd = Boolean(monster.mundetected);
+    monster.mundetected = undetected ? 1 : 0;
+    if (undetected !== oldundetctd) (env.redraw ?? newsym)(x, y);
+    return undetected;
+}
+
 // C ref: mon.c maybe_unhide_at() (4696-4720), "reveal a hiding monster at x,y,
 // either under nonexistent object, or an eel out of water".
 //
 // The lookup and the early return are ported whole. The one call the guard
-// makes, hideunder(), is not: js/makemon_create.js holds a level-creation
-// subset of it that answers only for the object-concealing spiders and snakes
-// mklev() places, and the message sequencing hideunder() owns for a hider the
-// hero can see is unported. The stop is therefore taken on `undetected` alone,
-// one term wider than C's guard, which also wants a hides_under() species with
-// nothing left to hide under or an eel out of water.
+// makes, hideunder(), is only partly: the version above covers the eel arm for
+// a monster the hero cannot see, and js/makemon_create.js holds a
+// level-creation subset that answers for the object-concealing spiders and
+// snakes mklev() places. Neither covers what this guard needs, which is a
+// hider being revealed while the hero watches. The stop is therefore taken on
+// `undetected` alone, one term wider than C's guard, which also wants a
+// hides_under() species with nothing left to hide under or an eel out of
+// water.
 export function maybe_unhide_at(x, y, state = game) {
     const monster = m_at(x, y, state);
     if (monster) {

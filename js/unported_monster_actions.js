@@ -64,6 +64,7 @@ import { m_throw, thitu, thrwmu } from './mthrowu.js';
 import { AKLYS } from './objects.js';
 import {
     adaptMonsterActionToDochugwSignature,
+    hideunder,
     minliquid,
     movemon_singlemon,
     restrap,
@@ -213,13 +214,12 @@ function assertSimpleScanState(monster, state) {
     // path -- they all describe branches mon.c only takes after the movement
     // debit -- so they are deliberately skipped rather than merely bypassed.
     if (monster.movement < NORMAL_SPEED) return true;
-    // mon.c restrap() is ported, so an M1_HIDE monster is scanned like any
-    // other; the eel half stands, because movemon_singlemon()'s S_EEL arm ends
-    // in mon.c hideunder(), which is not.
+    // mon.c restrap() and movemon_singlemon()'s S_EEL concealment arm are
+    // both ported, so an M1_HIDE monster and an eel are scanned like any
+    // other monster; mon.c hideunder() raises its own boundary class for the
+    // arms it does not cover.
     const liquidReason = unportedMinliquidReason(monster, state);
     if (liquidReason) unsupported(liquidReason);
-    if (monster.data?.mlet === S_EEL)
-        unsupported('eel concealment');
     return true;
 }
 
@@ -1381,7 +1381,14 @@ async function planSimpleMonsterScan(monster, env) {
             setMimicSym: setPlannedMimicSym,
         }),
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
-        hideUnder: () => unsupported('eel concealment'),
+        // C ref: mon.c movemon_singlemon():1295-1303 and hideunder():4726-4801.
+        // js/allmain.js binds the same function for the live pass. The clone
+        // owns the eel's mundetected; only the newsym() that follows it is
+        // suppressed, because the live pass repaints the square afterwards.
+        hideUnder: (subject, subjectEnv) => hideunder(subject, {
+            ...subjectEnv,
+            redraw: () => {},
+        }),
         // movemon_singlemon() requires these three. fightm() owns the
         // resistance preflight for this slice; the visibility operations stay
         // here so the planning and live scans take the same final Conflict

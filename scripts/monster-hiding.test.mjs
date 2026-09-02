@@ -24,6 +24,7 @@ import {
     NORMAL_SPEED,
     NON_PM,
     PIT,
+    POOL,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
     TEMP_LIT,
@@ -36,6 +37,7 @@ import { postmov } from '../js/monmove.js';
 import { restrap } from '../js/mon.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import {
+    PM_GIANT_EEL,
     PM_ROCK_PIERCER,
     PM_JACKAL,
     PM_SMALL_MIMIC,
@@ -218,6 +220,95 @@ test('postmov resets an empty-square concealment with its rn2(5)', async () => {
     assert.deepEqual(bounds, [5]);
     assert.deepEqual(redrawn, [[x, y]]);
     assert.equal(monster.mundetected, 0);
+});
+
+// C ref: monmove.c postmov():1692-1699 for the S_EEL half of its guard. The
+// eel arm calls mon.c hideunder(), so these cases pin the draw's position, the
+// short circuit that skips it, and the two newsym() calls a state change
+// spends: hideunder()'s own, then postmov()'s unconditional one.
+async function eelPostmov(monster, roll) {
+    const bounds = [];
+    const redrawn = [];
+    const outcome = await postmov(
+        monster,
+        monster.mx,
+        monster.my,
+        MMOVE_DONE,
+        false,
+        false,
+        false,
+        {
+            state: game,
+            random: {
+                rn2(bound) {
+                    bounds.push(bound);
+                    return roll;
+                },
+            },
+            redraw: (rx, ry) => redrawn.push([rx, ry]),
+            unsupported: (reason) => assert.fail(reason),
+        },
+    );
+    assert.equal(outcome, MMOVE_DONE);
+    return { bounds, redrawn };
+}
+
+// An eel in a pool that is not hidden yet: `!helpless(mtmp) && rn2(5)` is the
+// only term that can reach hideunder() here, so a nonzero roll conceals it.
+test('postmov conceals a revealed eel that wins its rn2(5)', async () => {
+    await hero();
+    const [x, y] = far();
+    const eel = hiderAt(PM_GIANT_EEL, [x, y], { mundetected: 0 });
+    game.level.at(x, y).typ = POOL;
+
+    // 4 stands for any nonzero rn2(5): C reads the draw as a boolean here.
+    const { bounds, redrawn } = await eelPostmov(eel, 4);
+    assert.deepEqual(bounds, [5]);
+    assert.equal(eel.mundetected, 1);
+    // hideunder()'s newsym() for the change, then postmov()'s own.
+    assert.deepEqual(redrawn, [[x, y], [x, y]]);
+});
+
+// The same eel losing the draw: C never calls hideunder(), so the eel stays
+// visible and only postmov()'s unconditional newsym() runs.
+test('postmov leaves a revealed eel alone when its rn2(5) is zero', async () => {
+    await hero();
+    const [x, y] = far();
+    const eel = hiderAt(PM_GIANT_EEL, [x, y], { mundetected: 0 });
+    game.level.at(x, y).typ = POOL;
+
+    const { bounds, redrawn } = await eelPostmov(eel, 0);
+    assert.deepEqual(bounds, [5]);
+    assert.equal(eel.mundetected, 0);
+    assert.deepEqual(redrawn, [[x, y]]);
+});
+
+// `mtmp->mundetected ||` short-circuits the draw for an eel that is already
+// hidden, which is the ordinary case: mklev() hides every eel it places.
+test('postmov refreshes a hidden eel without drawing', async () => {
+    await hero();
+    const [x, y] = far();
+    const eel = hiderAt(PM_GIANT_EEL, [x, y], { mundetected: 1 });
+    game.level.at(x, y).typ = POOL;
+
+    const { bounds, redrawn } = await eelPostmov(eel, 0);
+    assert.deepEqual(bounds, []);
+    assert.equal(eel.mundetected, 1);
+    assert.deepEqual(redrawn, [[x, y]]);
+});
+
+// The comment above the source guard: "Always set--or reset--mundetected if
+// it is already hidden (just in case the object it was hiding under went
+// away)". An eel left on dry land is revealed, again with no draw.
+test('postmov reveals a hidden eel that is no longer in water', async () => {
+    await hero();
+    const [x, y] = far();
+    const eel = hiderAt(PM_GIANT_EEL, [x, y], { mundetected: 1 });
+
+    const { bounds, redrawn } = await eelPostmov(eel, 0);
+    assert.deepEqual(bounds, []);
+    assert.equal(eel.mundetected, 0);
+    assert.deepEqual(redrawn, [[x, y], [x, y]]);
 });
 
 test('restrap answers the four guard terms below the roll', async () => {

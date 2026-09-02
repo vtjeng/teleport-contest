@@ -118,7 +118,12 @@ import {
     WAX_CANDLE,
 } from '../js/objects.js';
 import { m_move } from '../js/monmove.js';
-import { minliquid, movemon_singlemon } from '../js/mon.js';
+import {
+    hideunder,
+    minliquid,
+    movemon_singlemon,
+    UnsupportedHideError,
+} from '../js/mon.js';
 import {
     create_region,
 } from '../js/region.js';
@@ -1254,6 +1259,173 @@ test('minliquid lets swimmers and teleporters take their source exemptions',
         assert.equal(events.length, 1);
         assert.equal(events[0][1], RLOC_MSG);
     });
+
+// C ref: mon.c hideunder():4726-4801. An ordinary eel conceals itself in an
+// ordinary pool when the hero cannot see its square. movemon_singlemon() has
+// already spent the rn2(4) gate by the time it calls this, so these cases pin
+// hideunder()'s own terrain, visibility, state-change, and newsym() behavior
+// rather than the gate above it.
+test('hideunder conceals an unseen eel in an ordinary pool', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_GIANT_EEL });
+    game.level.at(target.monsterX, target.heroY).typ = POOL;
+    game.viz_array[target.heroY][target.monsterX] &= ~IN_SIGHT;
+    const redraws = [];
+    const env = { state: game, redraw: (x, y) => redraws.push([x, y]) };
+
+    assert.equal(hideunder(target.monster, env), true);
+    assert.equal(target.monster.mundetected, 1);
+    assert.deepEqual(redraws, [[target.monsterX, target.heroY]]);
+
+    // C guards newsym() with `undetected != oldundetctd`, so repeating the
+    // same call keeps the eel hidden and repaints nothing.
+    assert.equal(hideunder(target.monster, env), true);
+    assert.equal(target.monster.mundetected, 1);
+    assert.deepEqual(redraws, [[target.monsterX, target.heroY]]);
+});
+
+// Each term of mon.c:4738-4747 that can answer FALSE, plus the two that keep
+// answering TRUE. Every case starts from an eel the hero cannot see that is
+// already hidden, which is the state maybe_unhide_at() and monmove.c postmov()
+// re-test; that also makes each FALSE case assert the newsym() C owes when
+// mundetected goes back to 0.
+test('hideunder applies each eel water and trap predicate', async () => {
+    const cases = [
+        {
+            name: 'ordinary pool',
+            prepare: () => {},
+            expected: true,
+        },
+        {
+            // The eel arm needs is_pool(); no object arm can substitute.
+            name: 'dry square',
+            prepare: (target) => {
+                game.level.at(target.monsterX, target.heroY).typ = ROOM;
+            },
+            expected: false,
+        },
+        {
+            // `!Is_waterlevel(&u.uz)`: the Plane of Water is all water, so an
+            // eel gets no cover there.
+            name: 'Plane of Water',
+            prepare: () => {
+                game.u.uz = { ...game.water_level };
+            },
+            expected: false,
+        },
+        {
+            // `!Underwater || !couldsee(x, y)`: a hero in the water sees the
+            // eel's square unless something blocks the line of sight.
+            name: 'hero underwater with line of sight',
+            prepare: (target) => {
+                game.u.uinwater = true;
+                game.viz_array[target.heroY][target.monsterX] |= COULD_SEE;
+            },
+            expected: false,
+        },
+        {
+            name: 'hero underwater behind an obstruction',
+            prepare: (target) => {
+                game.u.uinwater = true;
+                game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
+            },
+            expected: true,
+        },
+        {
+            // `mtmp == u.ustuck`: an eel holding the hero cannot let go to
+            // hide, whatever it is standing in.
+            name: 'holding the hero',
+            prepare: (target) => {
+                game.u.ustuck = target.monster;
+            },
+            expected: false,
+        },
+        {
+            // The trapped arm is an OR of two terms. mtrapped alone answers
+            // it, with no trap on the square at all.
+            name: 'trapped with no trap present',
+            prepare: (target) => {
+                target.monster.mtrapped = 1;
+            },
+            expected: false,
+        },
+        {
+            name: 'standing on a non-pit trap',
+            prepare: (target) => {
+                game.level.traps.push({
+                    tx: target.monsterX,
+                    ty: target.heroY,
+                    ttyp: BEAR_TRAP,
+                    tseen: false,
+                });
+            },
+            expected: false,
+        },
+        {
+            // is_pit(ttyp) exempts PIT and SPIKED_PIT from that arm.
+            name: 'standing on a pit',
+            prepare: (target) => {
+                game.level.traps.push({
+                    tx: target.monsterX,
+                    ty: target.heroY,
+                    ttyp: PIT,
+                    tseen: false,
+                });
+            },
+            expected: true,
+        },
+    ];
+
+    for (const { name, prepare, expected } of cases) {
+        const target = await prepareSelectedAction({ pmidx: PM_GIANT_EEL });
+        game.level.at(target.monsterX, target.heroY).typ = POOL;
+        game.viz_array[target.heroY][target.monsterX] &= ~IN_SIGHT;
+        target.monster.mundetected = 1;
+        prepare(target);
+        const redraws = [];
+
+        assert.equal(
+            hideunder(target.monster, {
+                state: game,
+                redraw: (x, y) => redraws.push([x, y]),
+            }),
+            expected,
+            name,
+        );
+        assert.equal(target.monster.mundetected, expected ? 1 : 0, name);
+        assert.deepEqual(
+            redraws,
+            expected ? [] : [[target.monsterX, target.heroY]],
+            name,
+        );
+    }
+});
+
+// mon.c:4784 runs `seenmon = y_monnam(mtmp)` for every visible monster,
+// whether or not it ends up hidden, and y_monnam() draws randomness for a
+// hallucinating hero. The stop therefore covers a visible eel that would fail
+// the water test as well as one that would pass it, and leaves mundetected
+// alone in both. Each case starts from mundetected 0 because display.h
+// _mon_visible() ends in `&& !mon->mundetected`: an eel already hidden is
+// never one the hero can see, whatever the vision array says.
+test('hideunder stops on concealment the hero can watch', async () => {
+    for (const [name, typ] of [['pool', POOL], ['dry square', ROOM]]) {
+        const target = await prepareSelectedAction({ pmidx: PM_GIANT_EEL });
+        game.level.at(target.monsterX, target.heroY).typ = typ;
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        target.monster.mundetected = 0;
+
+        assert.throws(
+            () => hideunder(target.monster, { state: game }),
+            (error) => (
+                error instanceof UnsupportedHideError
+                && error.message === 'hiding reached an unported branch: '
+                    + 'concealment the hero can watch'
+            ),
+            name,
+        );
+        assert.equal(target.monster.mundetected, 0, name);
+    }
+});
 
 // C ref: monmove.c:733-734. An awake monster calls wipe_engr_at() before
 // movement. The planning clone must reproduce the erosion so later source

@@ -910,7 +910,10 @@ function canHideUnderObject(obj) {
 }
 
 // C ref: mon.c hideunder(). Covers the S_EEL aquatic-hide and M1_CONCEAL
-// object-concealing branches.
+// object-concealing branches for the level-creation and newcham() callers in
+// this file, which owe neither newsym() nor the "you see it hide" message.
+// js/mon.js hideunder() is the monster-turn port of the same C function and
+// owes both; the S_EEL predicate has to stay identical in the two.
 function hideunder(monster, state) {
     const { mx: x, my: y } = monster;
     let hidden = false;
@@ -1207,6 +1210,13 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
             && species.pmidx !== PM_DJINNI
             && species.pmidx !== PM_WATER_DEMON
             && species.pmidx !== PM_WATER_MOCCASIN
+            // The eel-concealment goal needs an active, unconcealed eel, and
+            // mklev() hides every eel it places (makemon.c:1392). The one
+            // running-game path that produces an unhidden one is wizcmds.c
+            // wiz_genesis(), whose create_particular() reaches makemon()
+            // outside mklev. S_EEL has no arm in m_initweap() or m_initinv(),
+            // so the generic makemon() path already builds it.
+            && species.pmidx !== PM_GIANT_EEL
             && species.pmidx !== PM_UMBER_HULK
             && (!allowMinotaur || species.pmidx !== PM_MINOTAUR))) {
         throw new UnsupportedMonsterCreationError(

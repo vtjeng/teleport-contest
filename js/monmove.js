@@ -162,6 +162,7 @@ import { money_cnt } from './invent.js';
 import { ranged_attk_available } from './mhitu.js';
 import {
     curr_mon_load,
+    hideunder,
     m_carrying,
     max_mon_load,
     mon_allowflags,
@@ -2462,27 +2463,33 @@ export async function postmov(
         // no port, though monmove.c:1257 makes it constantly true off
         // Sokoban.
         if (webmaker(species)) unsupported('monster web spinning');
-        // monmove.c:1692-1699 draws rn2(5) for a hides_under() species or an
-        // eel whose mundetected is clear, and helpless() cannot hold here
-        // because dochug() returns before m_move() for a sleeping or immobile
-        // monster.  The pre-scan guard keys on is_hider() (M1_HIDE), which is
-        // a different flag from hides_under() (M1_CONCEAL), so a garter snake,
-        // centipede or scorpion reached this point and the draw was simply
-        // skipped -- a divergence with no refusal and no stop.
-        const emptyHideSquare = hides_under(species)
-            && species?.mlet !== S_EEL
-            && !state.level?.objects?.[monster.mx]?.[monster.my]
-            && !t_at(monster.mx, monster.my, state)
-            && !monster.mtrapped;
-        if (emptyHideSquare) {
+        // C ref: monmove.c:1692-1699.  A hides_under() species or an eel
+        // re-hides after moving, drawing rn2(5) unless it is already hidden;
+        // helpless() cannot hold here because dochug() returns before
+        // m_move() for a sleeping or immobile monster.  The pre-scan guard
+        // keys on is_hider() (M1_HIDE), which is a different flag from
+        // hides_under() (M1_CONCEAL), so a garter snake, centipede or
+        // scorpion reaches this point.
+        if (hides_under(species) || species?.mlet === S_EEL) {
+            // mon.c hideunder() is ported for the eel arm only.  A
+            // hides_under() species keeps the answer this file already
+            // derived for the one case where the C function has nothing to
+            // decide: an empty square with no trap holds nothing to hide
+            // under, so hideunder() clears mundetected and returns FALSE.
+            // Every other object-concealing square still stops the scan.
+            const eel = species?.mlet === S_EEL;
+            const emptyHideSquare = !eel
+                && !state.level?.objects?.[monster.mx]?.[monster.my]
+                && !t_at(monster.mx, monster.my, state)
+                && !monster.mtrapped;
+            if (!eel && !emptyHideSquare)
+                unsupported('monster hiding under an object');
             if (monster.mundetected
                 || (!helpless(monster) && random.rn2(5))) {
-                // mon.c hideunder(): no object means undetected remains clear.
-                monster.mundetected = 0;
+                if (eel) hideunder(monster, { state, redraw });
+                else monster.mundetected = 0;
             }
             redraw(monster.mx, monster.my);
-        } else if (hides_under(species) || species?.mlet === S_EEL) {
-            unsupported('monster hiding under an object');
         }
         // C ref: monmove.c:1700-1702.  after_shk_move() re-enters the shop
         // for a shopkeeper that moved.

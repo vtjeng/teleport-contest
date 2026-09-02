@@ -38,12 +38,14 @@ import { m_at } from './monst.js';
 import {
     adaptMonsterActionToDochugwSignature,
     decide_to_shapeshift,
+    hideunder,
     mcalcdistress,
     mcalcmove,
     minliquid,
     movemon,
     movemon_singlemon,
     restrap,
+    UnsupportedHideError,
     UnsupportedMonsterDistressError,
     were_change,
 } from './mon.js';
@@ -963,6 +965,7 @@ function unavailableElapsedTurnOperation(operation) {
 function elapsedTurnPlanningRefusals() {
     return [
         UnsupportedSimpleMonsterActionError,
+        UnsupportedHideError,
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedHungerTransitionError,
         UnsupportedMonsterDistressError,
@@ -1033,7 +1036,14 @@ async function moveElapsedTurnMonster(monster, env) {
             }),
         }),
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
-        hideUnder: unavailableElapsedTurnOperation('eel concealment'),
+        // C ref: mon.c movemon_singlemon():1295-1303 and hideunder():4726-4801.
+        // The planning scan binds the same function, so the two passes take
+        // the same branches. This live binding is the one that owes the
+        // newsym() C calls when the eel's mundetected changes.
+        hideUnder: (subject, subjectEnv) => hideunder(subject, {
+            ...subjectEnv,
+            redraw: (x, y) => newsym(x, y),
+        }),
         canSeeHero: () => true,
         canSeeSquare: (x, y) => cansee(x, y, env.state),
         fightMonster: (subject, subjectEnv) => fightm(subject, {
