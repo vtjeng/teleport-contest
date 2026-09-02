@@ -7828,6 +7828,51 @@
         "screens": 264,
         "rng": 15378
       }
+    },
+    {
+      "id": "unsupported-level-change-makemaz-no-loader-for-hellfill",
+      "status": "open",
+      "boundary": "Gehennom filler-level construction whose makemaz call must load hellfill.lua.",
+      "upstreamOwners": [
+        "wizcmds.c",
+        "teleport.c",
+        "mklev.c",
+        "mkmaze.c"
+      ],
+      "forecast": {
+        "steps": 460,
+        "basis": "Capped look-ahead at unsupported level change: makemaz: no loader for hellfill",
+        "sessions": [
+          "seed0360-wizard-world-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0360-wizard-world-tour",
+            "evidence": "Development replay witness: seed 360, datetime 20000110090000, options name Magellan, role Wizard, race human, gender male, align neutral, playmode debug, suppress_alert:3.4.3, symset DECgraphics, !autopickup; first stop is cumulative step 164 on input k with You materialize on a different level!. The debug #wizlevelport path schedules a level change, then C level construction reaches mklev.c:1267-1274; this destination is a Gehennom filler level, whose dungeon.lua record supplies fill_lvl hellfill. mkmaze.c:1127-1195 calls load_special for hellfill.lua. The C stop RNG includes rn2(2)=0 at splev_initlev(sp_lev.c:2992), after rn2(3)=0 at getbones(bones.c:645). The JavaScript failure is the corresponding missing hellfill loader."
+          }
+        ]
+      },
+      "detail": "Bounding property: one wizard level-port arrival through the Gehennom filler-level loader, witnessed in one development session and bounded to its cap-stable 460-screen stretch. Per .agents/selection.md, the forecast is the capped measured stretch after the first stop; the candidate is limited to this loader branch and contributes 460 screens.",
+      "slices": [
+        {
+          "name": "hellfill-open-cavern-loader-and-population",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "hellfill-loader-common-liquid-cleanup",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "3ce0cc6709fd344cc30807edce0e684f994d072a",
+      "openStanding": {
+        "sha": "de78bc6a",
+        "screens": 4052,
+        "rng": 254285
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
