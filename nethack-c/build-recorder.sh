@@ -165,6 +165,16 @@ if [ -n "$GREP_PATH" ] && [ ! -x "$GREP_PATH" ]; then
         -e "s|^GREPPATH=.*|GREPPATH=$AVAILABLE_GREP|" \
         sys/unix/sysconf
 fi
+# The sample's WIZARDS line admits only the root and games logins to debug
+# mode, so a recipe with OPTIONS=playmode:debug would be played in explore
+# mode by C (options.c set_playmode()) and in debug mode by the port.  The
+# fresh matrices under scripts/run-*.mjs record debug games, so admit any
+# login.  WIZARDS is an access list, read only when a game asks for debug
+# mode; normal-mode recordings never consult it.
+echo "[step 5] Admitting every login to debug mode (sysconf WIZARDS=*)..."
+sed -i.bak \
+    -e 's/^WIZARDS=.*/WIZARDS=*/' \
+    sys/unix/sysconf
 # The minimal hints omit Makefile.top's optional SYSCONF* defaults.  Supply
 # the upstream install recipe explicitly so the local HACKDIR contains the
 # runtime configuration that NetHack expects.

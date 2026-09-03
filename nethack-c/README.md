@@ -8,7 +8,7 @@ nethack-c/
 ├── patches/         ← 6 patches: pinned datetime+seed, RNG logging, deterministic capture
 ├── build-recorder.sh   ← clones submodule, applies patches, builds the recorder binary
 └── recorder/        ← (gitignored) built source tree
-    recorder-install/   ← (gitignored) installed binary + data
+    └── install/     ← (gitignored) installed binary + data
 ```
 
 ## You don't need to build this
@@ -38,6 +38,15 @@ bash nethack-c/build-recorder.sh
 ```
 
 Requires: `clang` (not gcc — see below), `make`, `bison`, `flex`.
+
+The script installs upstream's sample `sysconf` with three host settings
+changed, none of which affects gameplay: `GDBPATH` and `PANICTRACE_GDB`
+are commented out when `/usr/bin/gdb` is absent (the game refuses to start
+otherwise), `GREPPATH` points at the `grep` on this host, and `WIZARDS=*`
+admits every login to debug mode, so a recipe with
+`OPTIONS=playmode:debug` records a debug game rather than the explore game
+that the sample's `WIZARDS=root games` would silently substitute. The
+fresh matrices under `scripts/run-*.mjs` depend on the last one.
 
 ## Why clang specifically
 
