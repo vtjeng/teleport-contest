@@ -8705,7 +8705,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "seffect-remove-curse-cursed-branch",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "4449857e62e00d7dbc1f16d133cc254291f59faf",
       "openStanding": {
         "sha": "1be3f063",
