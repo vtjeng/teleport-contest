@@ -8515,6 +8515,23 @@
         "screens": 1,
         "rng": 1979
       }
+    },
+    {
+      "id": "simple-monster-action-requires-monster-web-spinning",
+      "status": "open",
+      "boundary": "js/monmove.js refuses maybe_spin_web() on webmaker() alone, so a cave or giant spider taking an ordinary move stops the port even when C's rn2(1000) draw fails and no web is created.",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "c379be1359040304ae64588a147027f9ebccfc7b",
+      "openStanding": {
+        "sha": "18a01623",
+        "screens": 4267,
+        "rng": 271542
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
