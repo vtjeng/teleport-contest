@@ -5998,6 +5998,16 @@
       "status": "open",
       "from": "9d39ba9631cc06633d614598dbfa90cec60e87c3",
       "detail": "hack.c moverock_core():461-463 prints \"There's %s on the other side.\" when canspotmon() answers TRUE for the monster the boulder would land on. scripts/hero-boulder-push.test.mjs pins it through Detect_monsters, but no fresh C case reaches it: the only ported way to put a monster behind a boulder is to find a seed whose level generates one there, and every such boulder found so far sits in an unlit corridor where canspotmon() is FALSE. A lit-room boulder would need zap.c makewish() or wizard level teleport, both unported."
+    },
+    {
+      "id": "monster-wielding-a-weapon-that-welds-itself",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "3dacb29b54c9c6e76e4fc41a60c2e357c532e483",
+      "detail": "weapon.c mon_wield_item():906-914 follows its \"<Monnam> wields <obj>.\" line with a second pline for a weapon that welds itself -- \"The dwarvish mattock welds itself to the dwarf's hands!\" -- and sets obj->bknown. js/weapon.js mon_wield_item() already computes newlyWelded and hands it to the wieldMessage operation; js/unported_monster_actions.js monsterWieldOperations() refuses on it, because the text needs objnam.c Tobjnam(), is_plural(), s_suffix(mon_nam()) and mondata.c mbodypart() with makeplural() for a bimanual weapon, none of which this seam has. The refusal fires inside preflightSimpleMonsterActions(), so the turn is refused whole rather than emitting only the first of C's two lines. Reproduce with scripts/run-monster-dig.mjs's recipe on seed 7700009: that dwarf carries a cursed dwarvish mattock, m_digweapon_check() has it wield the mattock on turn 15, and the C recording shows the welds line behind a --More--. Every other seed in that matrix carries an uncursed tool and passes.",
+      "blockedOn": "Tobjnam"
     }
   ],
   "areas": [
