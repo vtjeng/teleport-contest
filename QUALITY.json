@@ -6161,6 +6161,33 @@
       "status": "open",
       "from": "1301dcc6b769373f71153c86642fcefca4052e54",
       "detail": "The hallucinating half of mon.c xkilled():3506-3510 has no fresh differential, because a case cannot be built without measuring an unrelated display gap first. Turning hallucination on mid-game with #wizintrinsic diverges one hallucinated glyph on the very next redraw, before any kill: node scripts/diff-fresh.mjs --seed 4410000 --datetime 20270411104500 --moves '#wizintrinsic\\nh\\n s ' with rc OPTIONS=name:Rue,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:cat,!autopickup,playmode:debug fails at boundary 18 with C 'i' color 1 against JS 'N' color 8 at row 17 column 65, and the same control fails with no monster killed at all. Eight further seeds from the same scan (4410006, 4410010, 4410011, 4410013, 4410020, 4410024, 4410026, 4410028) all fail the same way. The recorded session sessions/seed0383-wizard-hallucinate.session.json does cover the message end to end -- its screen 179, 'You kill the poor titan!', now matches -- so the arm is witnessed, not unmeasured."
+    },
+    {
+      "id": "soko-allow-web-sokoban-arm",
+      "area": null,
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "cb881ce97c59d71c0f116fb1ebc1dd2e78d4bf4c",
+      "detail": "soko_allow_web() Sokoban arm (monmove.c:1260-1263): m_cansee check against stairway_find_dir is deferred. No development session reaches Sokoban web spinning. The port returns false (no web) on unsolved Sokoban levels instead of checking whether the spinner can see the upstairs."
+    },
+    {
+      "id": "maybe-spin-web-success-message",
+      "area": null,
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "cb881ce97c59d71c0f116fb1ebc1dd2e78d4bf4c",
+      "detail": "maybe_spin_web() success arm message (monmove.c:1282-1288): y_monnam(), pline_mon(), and canspotmon() are needed for the web-spinning visible message. Behind unsupported guards. No development session triggers a successful web creation."
+    },
+    {
+      "id": "maybe-spin-web-shop-damage",
+      "area": null,
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "cb881ce97c59d71c0f116fb1ebc1dd2e78d4bf4c",
+      "detail": "maybe_spin_web() shop damage (monmove.c:1289-1290): add_damage() for a web created in a shop. Behind an unsupported guard. No development session triggers a successful web creation in a shop."
     }
   ],
   "areas": [
