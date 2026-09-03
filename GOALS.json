@@ -8674,7 +8674,7 @@
     },
     {
       "id": "disclose-identified-container-contents",
-      "status": "open",
+      "status": "closed",
       "boundary": "disclose() identified container contents",
       "upstreamOwners": [],
       "forecast": null,
@@ -8682,8 +8682,8 @@
       "slices": [
         {
           "name": "Port container_contents identified+all_containers branches and disclose call site",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "1be3f063863f0c72908285cdbedbaca3ef19c703"
         }
       ],
       "openedAt": "e4a858f74b9b3188ddd23bcea01816b01e9f8411",
@@ -8692,8 +8692,11 @@
         "screens": 4338,
         "rng": 276600
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "1be3f063863f0c72908285cdbedbaca3ef19c703",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      }
     }
   ]
 }
