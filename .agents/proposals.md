@@ -100,35 +100,6 @@ entry's area. The flag rate needs measuring at the current deferral count.
 cite no path. Of 92 open entries at `4930664`, 33 cited none and keep whatever
 label they were filed under.
 
-## Guard cursors in the score ratchet
-
-**What it changes.** `RATCHET_METRICS` in `scripts/score-baseline.mjs` holds
-`screens` and `rngCalls`. Adding `cursors` would make `npm run checkpoint` fail
-on a session that lost cursor matches while keeping its screens. `cursors` is
-one of the four `SCORE.tsv` columns, so a drop is a scored regression that no
-gate catches. It moves independently of `screens`: at `16ab32d` over the 33
-development sessions, 4 disagree, and `seed0006-wizard-water-demon` disagrees
-by 8 (56 screens, 64 cursors). The comment above `RATCHET_METRICS` explains why
-`rngCalls` was added beside `screens` (a session can keep its screens while the
-state behind them drifts); the same argument covers the cursor.
-
-**Scope.** `raiseBaseline()` and `lowerBaseline()` already iterate
-`RATCHET_METRICS` and skip a metric the caller omits, so neither needs a change.
-The one edit is `main()`'s `lower` verb, which hardcodes two positional
-arguments. Adding a third changes the CLI signature; the alternative is a
-`--cursors <n>` flag, which leaves the existing form working.
-
-**Cost.** Small. One CLI arm, its usage string, and a test per verb. `lower` has
-been used once, so the signature question has little practical effect.
-
-**What it leaves unfixed.** `animFrames` stays unguarded. It is not a
-`SCORE.tsv` column, but three open deferrals cite animation-frame mismatches as
-evidence, so a regression is invisible to every gate. Whether it belongs in the
-ratchet or a separate check is undecided.
-
-**What prompted it.** A production-deferral survey found this gap; the same
-survey found the ratchet 981 screens behind (raised at `af15a30`).
-
 ## Stop the shell deleting a deferral's backticked identifiers
 
 **What it changes.** `defer`, `note-deferral`, and `refile-deferral` would take
