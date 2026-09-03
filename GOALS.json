@@ -8373,7 +8373,13 @@
         ]
       },
       "detail": "Multi-slice candidate, capped at 532 of 1432 raw steps: the stretch runs into the separately gated really_done() shopkeeper/guard/priest cleanup boundary at offset 532 ('Maganasipi takes all your possessions'). use_offensive() is a ~200-line dispatch whose arms pull in distinct subsystems (mzapwand+buzz, mplayhorn, mbhit/mbhitm, boulder drop, camera blinding), each slice-sized on its own, so the full function is too large for one slice. The arm seed0030 exercises fits one slice: the shared MUSE_POT_* case, relaxing m_throw()'s POTION_CLASS refusal at js/mthrowu.js:385-390, and potionhit()'s isyou branch (roughly 40-50 lines) reusing the already-ported potionbreathe() at js/potion.js:980. find_offensive() is already ported fail-closed; use_offensive() and potionhit() are entirely unported. Deferred: the wand and horn arms (MUSE_WAN_DEATH/SLEEP/FIRE/COLD/LIGHTNING/MAGIC_MISSILE, MUSE_FIRE_HORN/FROST_HORN), the bhit arms (MUSE_WAN_TELEPORTATION/UNDEAD_TURNING/STRIKING), MUSE_SCR_EARTH and MUSE_CAMERA, and potionhit()'s monster-target switch and hit_saddle branch.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "monster-hurls-potion-at-hero",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "b3aee6a64be5b007b8ac65110e2996e8df049ef9",
       "openStanding": {
         "sha": "508212bd",
