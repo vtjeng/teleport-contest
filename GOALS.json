@@ -8348,6 +8348,40 @@
         "screens": 4,
         "rng": 0
       }
+    },
+    {
+      "id": "simple-monster-action-requires-monster-offensive-item-use",
+      "status": "open",
+      "boundary": "A monster selects an offensive item against the hero, so find_offensive() must return true and use_offensive() must run. The port raises unsupported('monster offensive item use') in js/muse.js find_offensive() instead. Porting the potion arm lets a monster hurl a potion that crashes on the hero.",
+      "upstreamOwners": [
+        "muse.c",
+        "mthrowu.c",
+        "potion.c",
+        "mhitu.c"
+      ],
+      "forecast": {
+        "steps": 532,
+        "basis": "Capped look-ahead at simple monster action requires monster offensive item use",
+        "sessions": [
+          "seed0030-ten-diverse-deaths"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0030-ten-diverse-deaths",
+            "evidence": "undefined"
+          }
+        ]
+      },
+      "detail": "Multi-slice candidate, capped at 532 of 1432 raw steps: the stretch runs into the separately gated really_done() shopkeeper/guard/priest cleanup boundary at offset 532 ('Maganasipi takes all your possessions'). use_offensive() is a ~200-line dispatch whose arms pull in distinct subsystems (mzapwand+buzz, mplayhorn, mbhit/mbhitm, boulder drop, camera blinding), each slice-sized on its own, so the full function is too large for one slice. The arm seed0030 exercises fits one slice: the shared MUSE_POT_* case, relaxing m_throw()'s POTION_CLASS refusal at js/mthrowu.js:385-390, and potionhit()'s isyou branch (roughly 40-50 lines) reusing the already-ported potionbreathe() at js/potion.js:980. find_offensive() is already ported fail-closed; use_offensive() and potionhit() are entirely unported. Deferred: the wand and horn arms (MUSE_WAN_DEATH/SLEEP/FIRE/COLD/LIGHTNING/MAGIC_MISSILE, MUSE_FIRE_HORN/FROST_HORN), the bhit arms (MUSE_WAN_TELEPORTATION/UNDEAD_TURNING/STRIKING), MUSE_SCR_EARTH and MUSE_CAMERA, and potionhit()'s monster-target switch and hit_saddle branch.",
+      "slices": [],
+      "openedAt": "b3aee6a64be5b007b8ac65110e2996e8df049ef9",
+      "openStanding": {
+        "sha": "508212bd",
+        "screens": 4222,
+        "rng": 260728
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
