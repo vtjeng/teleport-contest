@@ -11,6 +11,44 @@ import {
 // The installed recorder accepts ten such segments before rejecting another.
 export const RECORDER_SEGMENT_LIMIT = 10;
 
+// The judge's sessions were recorded on macOS, and the port prints what they
+// show. A recorder built on another host prints that host's arm of the few
+// strings NetHack chooses at compile time (eat.c fprefx()'s apple line,
+// version.c's "Unix"/"MacOS" banner, mdlib.c's /dev/urandom). A matrix that
+// reaches one lists [hostText, judgeText] pairs; on a host other than the
+// judge's, substituteHostStrings() rewrites those pairs in every recorded
+// screen before comparison and leaves everything else strict.
+export const RECORDER_HOST_IS_JUDGE = process.platform === 'darwin';
+
+export function substituteHostStrings(
+    recording,
+    substitutions,
+    hostIsJudge = RECORDER_HOST_IS_JUDGE,
+) {
+    if (hostIsJudge) return recording;
+    return {
+        ...recording,
+        segments: recording.segments.map((segment) => ({
+            ...segment,
+            steps: segment.steps.map((step) => {
+                let screen = step.screen;
+                for (const [hostText, judgeText] of substitutions) {
+                    screen = screen.split(hostText).join(judgeText);
+                }
+                return screen === step.screen ? step : { ...step, screen };
+            }),
+        })),
+    };
+}
+
+// A runDifferentialFn for runFreshMatrix() that applies substituteHostStrings().
+export function runDifferentialAcceptingHostStrings(substitutions) {
+    return (recipe) => runDifferential(recipe, process.env, {
+        transformRecording: (recording) =>
+            substituteHostStrings(recording, substitutions),
+    });
+}
+
 export function chunkRecipe(recipe, limit = RECORDER_SEGMENT_LIMIT) {
     validateCleanRecipe(recipe, 'fresh matrix recipe');
     if (!Number.isInteger(limit) || limit < 1) {

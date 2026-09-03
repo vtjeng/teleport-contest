@@ -2,11 +2,28 @@
 
 // Record and replay the default help menu through version information. The
 // case dismisses both text pages and reaches the restored command boundary.
+//
+// Two lines of that text name the build host. version.c getversionstring()
+// opens with the port name and mdlib.c runtime build text names the PRNG
+// seed device, so the judge's Darwin recorder printed "MacOS NetHack Version"
+// and "/dev/random", which the port prints (js/version.js, js/mdlib.js),
+// while a Linux-built recorder prints "Unix NetHack Version" and
+// "/dev/urandom". On a Linux host the matrix substitutes the judge's text
+// before comparison; the rest of both pages stays strict.
 
 import assert from 'node:assert/strict';
 
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
+import {
+    runDifferentialAcceptingHostStrings,
+    runFreshMatrix,
+    runMatrixCli,
+} from './fresh-matrix.mjs';
+
+const runDifferentialFn = runDifferentialAcceptingHostStrings([
+    ['Unix NetHack Version', 'MacOS NetHack Version'],
+    ['/dev/urandom', '/dev/random'],
+]);
 
 export const HELP_VERSION_MOVES = '?a  ';
 
@@ -40,6 +57,7 @@ export async function runHelpVersionMatrix() {
             recipe: loadHelpVersionRecipe(),
         }],
         summaryLabel: 'HELP VERSION INFORMATION',
+        runDifferentialFn,
     });
     if (result.passed) assert.equal(result.totals.segments, 1);
     return result;

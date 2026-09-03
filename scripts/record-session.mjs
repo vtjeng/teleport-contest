@@ -30,6 +30,18 @@ const DEFAULT_BINARY = path.join(
 const DEFAULT_INSTALL = path.join(
     TEMPLATE_ROOT, 'nethack-c', 'recorder', 'install',
     'games', 'lib', 'nethackdir');
+// NetHack reads NETHACKDIR and HACKDIR through nh_getenv() (options.c),
+// which discards a value longer than BUFSZ / 2 and lets the game fall back
+// to its compiled-in /usr/games/lib/nethackdir. A checkout under
+// .claude/worktrees/ pushes the install path past that limit, so main()
+// stages a copy under the short temporary directory when the real path
+// would be discarded.
+export const NETHACKDIR_MAX_LENGTH = 128;
+
+export function installDirTooLong(installDir) {
+    return installDir.length > NETHACKDIR_MAX_LENGTH;
+}
+
 const RECORDER_TIME_ZONE = 'America/New_York';
 const RECORDER_TIME_FORMAT = new Intl.DateTimeFormat(
     'en-CA-u-ca-gregory-nu-latn',
@@ -682,7 +694,7 @@ async function main() {
     const outputPath = argv[1] ? path.resolve(argv[1]) : inputPath;
 
     const binary = process.env.NETHACK_BINARY || DEFAULT_BINARY;
-    const installDir = process.env.NETHACK_INSTALL || DEFAULT_INSTALL;
+    let installDir = process.env.NETHACK_INSTALL || DEFAULT_INSTALL;
     if (process.env.RERECORD_TZ
         && process.env.RERECORD_TZ !== RECORDER_TIME_ZONE) {
         throw new Error(
@@ -706,6 +718,12 @@ async function main() {
     const homeDir = path.join(tmpDir, 'home');
 
     try {
+        if (installDirTooLong(installDir)) {
+            const staged = path.join(tmpDir, 'install');
+            await fs.cp(installDir, staged, { recursive: true });
+            console.error(`[note] NetHack ignores a NETHACKDIR longer than ${NETHACKDIR_MAX_LENGTH} characters; recording from a copy at ${staged}`);
+            installDir = staged;
+        }
         const newSegments = [];
         for (let i = 0; i < session.segments.length; i++) {
             const seg = session.segments[i];
@@ -750,7 +768,11 @@ async function main() {
     }
 }
 
-main().catch((err) => {
-    console.error('[fail]', err.message || err);
-    process.exit(1);
-});
+// Run only as a script; the test imports the path-length helper above.
+if (process.argv[1]
+    && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+    main().catch((err) => {
+        console.error('[fail]', err.message || err);
+        process.exit(1);
+    });
+}

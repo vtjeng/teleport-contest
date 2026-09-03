@@ -77,27 +77,16 @@ export function loadMonsterLightVisionRecipe() {
     }, 'monster light vision recipe');
 }
 
-function assertKnownMovementGap(result, label) {
+// Until 2026-09-02 this pinned a known first mismatch on the `o` turn, where
+// two monsters' ordinary movement was unported; that movement is ported now
+// and both segments match C to the end, so the case asserts full parity.
+function assertStrictParity(result, label) {
     assert.equal(result.error, null, `${label}: JavaScript replay error`);
-    assert.equal(result.rngMismatch, null, `${label}: PRNG mismatch`);
-    assert.equal(result.cursorMismatch, null, `${label}: cursor mismatch`);
-    assert.equal(result.animMismatch, null, `${label}: animation mismatch`);
     assert.deepEqual(result.lengths.rng,
         { c: 9889, js: 9889 }, `${label}: PRNG length`);
-    assert.equal(result.lengths.screens.c, result.lengths.screens.js,
-        `${label}: screen length`);
-
-    // The selected `o` turn now finishes both monster scans and reaches the
-    // next input boundary. Two monsters whose earlier ordinary movement is
-    // already recorded under the broader special-monster scope remain one
-    // square apart; the first is the red `1` below. Pinning the first
-    // mismatch keeps this runner useful for the light-source boundary without
-    // treating that pre-existing movement gap as part of this slice.
-    assert.equal(result.screenMismatch?.location?.key, 'o');
-    assert.equal(result.screenMismatch?.row, 12);
-    assert.equal(result.screenMismatch?.column, 31);
-    assert.equal(result.screenMismatch?.cCell?.ch, '1');
-    assert.equal(result.screenMismatch?.jsCell?.ch, ' ');
+    assert.equal(result.passed, true,
+        `${label}: mismatch ${JSON.stringify(result.screenMismatch
+            ?? result.rngMismatch ?? result.cursorMismatch)}`);
 }
 
 export async function runMonsterLightVisionMatrix() {
@@ -112,7 +101,7 @@ export async function runMonsterLightVisionMatrix() {
             segments: [recipe.segments[index]],
         });
         const label = `monster light vision ${index + 1}`;
-        assertKnownMovementGap(result, label);
+        assertStrictParity(result, label);
         rngCalls += result.lengths.rng.c;
         screens += result.lengths.screens.c;
         process.stdout.write(`[${label}] PASS\n`);
