@@ -8376,8 +8376,8 @@
       "slices": [
         {
           "name": "monster-hurls-potion-at-hero",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "1dde7bea24a9289a43df1cc6de9207ed32467c85"
         }
       ],
       "openedAt": "b3aee6a64be5b007b8ac65110e2996e8df049ef9",
