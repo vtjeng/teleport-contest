@@ -8394,7 +8394,7 @@
     },
     {
       "id": "simple-monster-action-requires-quest-wait-strategy",
-      "status": "open",
+      "status": "closed",
       "boundary": "Monster with STRAT_CLOSE (quest leader) present on the level causes unsupported() in assertSimpleActionState before dochug() runs. Porting lets a turn proceed with a waiting quest monster present and lets the leader speak when adjacent.",
       "upstreamOwners": [
         "monmove.c dochug()",
@@ -8429,8 +8429,11 @@
         "screens": 4257,
         "rng": 267944
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "dcee1aced077d64435f89fc5a46da8d2967bbd60",
+      "delivered": {
+        "screens": 8,
+        "rng": 1616
+      }
     }
   ]
 }
