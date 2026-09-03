@@ -8726,7 +8726,7 @@
     },
     {
       "id": "the-attributes-window-requires-the-narcolepsy-status",
-      "status": "open",
+      "status": "closed",
       "boundary": "the attributes window requires the narcolepsy status",
       "upstreamOwners": [],
       "forecast": null,
@@ -8734,8 +8734,8 @@
       "slices": [
         {
           "name": "port-sleepy-arm-and-cause-known",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "87a6789353afb15581040b47ecd7c314fe18a681"
         }
       ],
       "openedAt": "bdbb6c06df3a7d939b65a32d46345cc9447c60f7",
@@ -8744,8 +8744,11 @@
         "screens": 4340,
         "rng": 276601
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "87a6789353afb15581040b47ecd7c314fe18a681",
+      "delivered": {
+        "screens": 6,
+        "rng": 0
+      }
     }
   ]
 }
