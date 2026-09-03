@@ -8247,7 +8247,13 @@
         ]
       },
       "detail": "All owning C code is trap.c: trapeffect_arrow_trap (1190), trapeffect_rocktrap (1324), trapeffect_slp_gas_trap (1563), trapeffect_rust (1595), trapeffect_fire_trap (1730), trapeffect_pit's unported spike arm (1825), trapeffect_hole (2013), trapeffect_telep_trap (2070), trapeffect_level_telep (2088), trapeffect_web (2106), trapeffect_statue_trap (2279), trapeffect_anti_magic (2323), trapeffect_poly_trap (2453), trapeffect_landmine (2528), trapeffect_rolling_boulder_trap (2661), trapeffect_magic_portal (2710), trapeffect_vibrating_square (2725), all dispatched from trapeffect_selector() (2937) and gated for the hero by dotrap()'s preflight checks (2995-3060). Governing precondition is purely trap.ttyp, matched in trapeffect_selector's switch. This candidate is oversized for one goal or slice: it fans one JS error string across 17 distinct trapeffect_*() functions covering unrelated mechanics (arrow/dart-style damage, item destruction by rust/fire, a monster-creating statue trap, object-polymorphing poly trap, hero-relocating teleport/level-teleport/portal traps, a whole rolling-boulder subsystem, web entanglement, and a special-level vibrating-square encounter), each with its own random-number calls, messages, and state changes. Any single stopped session only ever exercises whichever one trap type the hero actually stepped on, so per .agents/selection.md ('state the boundary in terms the sessions contributing to its forecast reach' / don't bundle 'every row of a table' into one goal), this boundary should be narrowed to the specific trap type(s) the witnessing session(s) hit rather than opened as-is. That also matches precedent: BEAR_TRAP, DART_TRAP, MAGIC_TRAP, SQKY_BOARD and PIT were each ported as their own dedicated trapeffect_*() arm/goal already, per the file's own history comments.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "telep-trap-hero-arm",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "0d79b4c24a373daa9171480acfc886cc25ad55bf",
       "openStanding": {
         "sha": "a3de46fd",
