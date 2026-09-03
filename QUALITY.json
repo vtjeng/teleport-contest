@@ -6088,6 +6088,24 @@
       "status": "open",
       "from": "4da558077664fff506322892c326e1ffa8bf17d8",
       "detail": "potion.c potionhit()'s isyou POT_ACID arm (1694-1704) runs, but the potionbreathe() tail below it sets no kn, so trycall() reaches do_name.c docall() for a type the hero has not identified and js/do_name.js raises UnsupportedObjectNamingError 'naming an object type requires getlin()'s Call <thing>: prompt'. The burn message and its d(cursed?2:1, blessed?4:8) damage land first, so the stop is one call past the arm this slice ported. Closing it needs docall()'s getlin() prompt, not more of potion.c. Case just outside the goal's limit: seed 5000082, datetime 20270318143000, Valkyrie human female neutral, playmode:debug pettype:none !acoustics, moves '.<^G>gnome king<NL>m.m.m.  '. C prints 20 screens; the port stops after 17, so it is kept out of the passing suite. scripts/potion.test.mjs pins the arm itself against an identified type."
+    },
+    {
+      "id": "extended-command-prompt-object-under-trap",
+      "area": "display",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "8a0ab4d4188e446bf462a76d0535766f77dfe487",
+      "detail": "scripts/run-extended-command-prompt.mjs fails against a clean recorder (2026-09-02): at segment 10, step 8 (key newline) C draws a red % (an object) at row 17, column 14 where the port draws a cyan ^ (a trap) on the same square, so an object lying on a trap is drawn under the trap. PRNG, cursors, and every earlier screen match. The matrix passed when its slice closed; nothing reruns matrices against C, so the breaking commit is unknown; git bisect the matrix against js/ to find it, then fix from display.c newsym() ordering."
+    },
+    {
+      "id": "startup-glyph-customization-hero-square",
+      "area": "display",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "8a0ab4d4188e446bf462a76d0535766f77dfe487",
+      "detail": "scripts/run-startup-glyph-customization.mjs fails against a clean recorder (2026-09-02) on its first case (seed 940101, symset:Enhanced1, glyph:G_male_healer:U+2603/255-0-0): on the initial screen the port draws a bright-yellow < at row 6, column 28 where the C capture holds a blank. That square is the hero's, so the customized Unicode hero glyph is not drawn and the staircase under it shows through, while the recorder's capture of the non-Latin glyph is blank. PRNG and cursors match. The matrix passed when its slice closed (efdf32a6 era); git bisect it against js/ to find the breaking commit before deciding whether the port or the capture is at fault."
     }
   ],
   "areas": [
