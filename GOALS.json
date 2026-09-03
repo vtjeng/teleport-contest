@@ -8578,8 +8578,8 @@
       "slices": [
         {
           "name": "wire-doapply-container-arm",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "9aaea5df8148976b5283b2a66ecdfde7557ba774"
         }
       ],
       "openedAt": "35859d63034270b27676f6fb9d5ee18834c23a96",
