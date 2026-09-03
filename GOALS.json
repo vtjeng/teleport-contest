@@ -8622,7 +8622,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-19",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported pickup: use_container: menu_loot(0, true)",
       "upstreamOwners": [],
       "forecast": null,
@@ -8640,8 +8640,11 @@
         "screens": 4291,
         "rng": 274846
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "3d550f59e65203a19010a741da5627e1529303d0",
+      "delivered": {
+        "screens": 6,
+        "rng": 198
+      }
     }
   ]
 }
