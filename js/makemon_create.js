@@ -695,8 +695,8 @@ function isArmed(species) {
     return species.mattk.some((attack) => attack.aatyp === AT_WEAP);
 }
 
-// C ref: makemon.c m_initweap(), S_OGRE.  The tyrant mapping is retained
-// here even though that species remains outside the admitted D:5 reservoir.
+// C ref: makemon.c m_initweap(), S_OGRE (makemon.c:446-451).  The tyrant
+// reaches this through mkroom.c mk_zoo_thronemon()'s high-difficulty arm.
 export function ogreWeaponDivisor(species) {
     return species?.pmidx === PM_OGRE_TYRANT ? 3
         : species?.pmidx === PM_OGRE_LEADER ? 6
@@ -1179,10 +1179,17 @@ function isMausoleumSpecies(species) {
 }
 
 function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
+    // The four throne-room rulers are the whole range of mkroom.c
+    // mk_zoo_thronemon() (mkroom.c:256-273): rnd(level_difficulty()) picks
+    // PM_OGRE_TYRANT above 9, PM_ELVEN_MONARCH above 5, PM_DWARF_RULER above
+    // 2, and PM_GNOME_RULER otherwise. The remaining entries are fill_zoo()'s
+    // COURT courtiers.
     const courtSpecies = species
         && (species.pmidx === PM_BUGBEAR
             || species.pmidx === PM_DWARF_RULER
             || species.pmidx === PM_GNOME_RULER
+            || species.pmidx === PM_OGRE_TYRANT
+            || species.pmidx === PM_ELVEN_MONARCH
             || species.pmidx === PM_HOBGOBLIN
             || species.mlet === S_KOBOLD
             || species.mlet === S_GNOME

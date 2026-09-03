@@ -3063,19 +3063,33 @@ test('ogre weapon divisors retain the source tyrant, leader, and ordinary bounds
         assert.equal(ogreWeaponDivisor(state.mons[PM_OGRE_LEADER]), 6);
         assert.equal(ogreWeaponDivisor(state.mons[PM_OGRE]), 12);
 
-        const random = recordingRandom();
-        assert.throws(
-            () => makemon(
-                state.mons[PM_OGRE_TYRANT],
-                MON_X,
-                MON_Y,
-                MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
-                { state, random: random.random },
-            ),
-            (error) => error instanceof UnsupportedMonsterCreationError
-                && error.operation === `monster ${PM_OGRE_TYRANT}`,
+        // The tyrant is the divisor-3 arm mkroom.c mk_zoo_thronemon() seats
+        // on a throne above difficulty 9, so makemon() must build it rather
+        // than refuse it. Gating the single rn2(3) at zero takes the battle
+        // axe of makemon.c:448; every other draw returns its bound minus one.
+        let tyrantGatePending = true;
+        const random = recordingRandom({
+            rn2Result: (bound) => {
+                if (bound === 3 && tyrantGatePending) {
+                    tyrantGatePending = false;
+                    return 0;
+                }
+                return Math.max(0, bound - 1);
+            },
+        });
+        const monster = makemon(
+            state.mons[PM_OGRE_TYRANT],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+            { state, random: random.random },
         );
-        assert.deepEqual(random.calls, []);
+
+        assert.equal(tyrantGatePending, false);
+        assert.deepEqual(
+            monsterInventory(monster).map((obj) => obj.otyp),
+            [BATTLE_AXE],
+        );
     });
 
 test('ogre leaders use rn2(6) for both source weapons before generic inventory',
