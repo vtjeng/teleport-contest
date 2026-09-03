@@ -8308,7 +8308,7 @@
     },
     {
       "id": "really-done-shopkeeper-guard-or-priest-cleanup",
-      "status": "open",
+      "status": "closed",
       "boundary": "Normal death reaching really_done's shopkeeper, guard, or priest cleanup calls.",
       "upstreamOwners": [
         "end.c",
@@ -8333,8 +8333,8 @@
       "slices": [
         {
           "name": "paybill-silent-shopkeeper-scan",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "508212bd22d9ef4aa6b5186d231efd4436b309f0"
         }
       ],
       "openedAt": "d8c79424020c3f073941c9a3996bc45fb6be7e75",
@@ -8343,8 +8343,11 @@
         "screens": 4218,
         "rng": 260728
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "508212bd22d9ef4aa6b5186d231efd4436b309f0",
+      "delivered": {
+        "screens": 4,
+        "rng": 0
+      }
     }
   ]
 }
