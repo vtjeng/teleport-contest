@@ -8287,7 +8287,13 @@
         ]
       },
       "detail": "Bounding property: a non-tame, non-covetous, non-special-responder monster newly triggering one of the 16 still-unported trapeffect_selector() arms -- arrow, rock, sleeping-gas, rust, fire (monster arm), spiked-pit (spike arm), hole/trapdoor, level teleport, magic portal, teleport, web, statue, anti-magic, landmine, polymorph, rolling-boulder, and vibrating square -- reached through the already-ported mintrap()/trapeffect_selector() dispatch in js/trap_effects.js. Witnessed in one development session (seed0030-ten-diverse-deaths) and bounded to its cap-stable 531-step stretch. Following .agents/selection.md, this is a measured 531-step look-ahead for that dispatch, not a claim about every monster-trap interaction: the already-caught escape arm for non-bear traps, hero trap activation, and covetous or special-mover trap handling stay out of scope. Size: roughly 1,296 C lines across 16 trapeffect_*() functions in trap.c (start lines from `grep -n '^trapeffect_' nethack-c/upstream/src/trap.c`, spans by subtraction), ranging from 14-18 lines (statue trap, magic portal, level and regular teleport) to 130-212 lines (web, anti-magic, landmine, vibrating square). That is a multi-slice goal, sliced per trap-effect arm or small cluster of related arms, matching .agents/selection.md's arms-of-one-C-function-family rule.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "trapeffect-rocktrap-monster-arm",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "7c60f7b38c85159567c5e02c35299f9943b2eda7",
       "openStanding": {
         "sha": "97f2fbb4",
