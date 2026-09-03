@@ -151,6 +151,8 @@ import {
     UnsupportedHungerTransitionError,
 } from './eat.js';
 import { UnsupportedEndOfGameError } from './end.js';
+import { UnsupportedShopError } from './shk.js';
+import { UnsupportedVaultGuardError } from './vault.js';
 import { fightm } from './mhitm.js';
 import { m_everyturn_effect } from './monmove.js';
 import {
@@ -1192,8 +1194,19 @@ async function advanceElapsedTurn(state) {
             // refusal before the live pass starts. The normal lethal monster
             // arm reaches done_in_by() here; its existing end.c boundary is
             // converted only after the real killer and death entry are set.
-            if (!(error instanceof UnsupportedSimpleMonsterActionError)
-                && !(error instanceof UnsupportedEndOfGameError))
+            // Below that entry, end.c really_done() settles with the level's
+            // shopkeepers, vault guard and priests through paybill(), paygd()
+            // and clearpriests(), whose unported arms raise the last three
+            // classes; the planning pass never runs really_done(), so this
+            // catch is the only one between them and js/jsmain.js.
+            const liveScanRefusals = [
+                UnsupportedSimpleMonsterActionError,
+                UnsupportedEndOfGameError,
+                UnsupportedShopError,
+                UnsupportedVaultGuardError,
+                UnsupportedMonsterCreationError,
+            ];
+            if (!liveScanRefusals.some((type) => error instanceof type))
                 throw error;
             const boundary = new UnsupportedTurnBoundaryError(error.message);
             boundary.reason = error.reason;

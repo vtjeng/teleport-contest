@@ -846,10 +846,23 @@ export function rndmonnam(env = {}) {
 
 // True where a_monnam() below cannot format the monster, so that a caller can
 // decide before any naming side effect -- a hallucinating hero's a_monnam()
-// draws from the display RNG -- whether it is about to reach the unported arm.
-export function a_monnam_unsupported(monster) {
+// draws from the display RNG -- whether it is about to reach an unported arm.
+// This is the only refusal a_monnam() makes: the titled monsters whose naming
+// arms are unported, and an M_AP_MONSTER appearance that names no species in
+// the catalogue, which x_monnam() would read past the end of mons[].
+export function a_monnam_unsupported(monster, state = game) {
     return Boolean(monster.ispriest || monster.isminion || monster.isshk
-        || is_mplayer(monster.data));
+        || is_mplayer(monster.data)
+        || !apparent_species(monster, state));
+}
+
+// The species x_monnam() (do_name.c:908-910) names for a monster: what it
+// mimics when it is disguised as one, otherwise its own.
+function apparent_species(monster, state) {
+    const appearance = (monster.m_ap_type ?? 0) & M_AP_TYPMASK;
+    return appearance === M_AP_MONSTER
+        ? state.mons?.[monster.mappearance]
+        : monster.data;
 }
 
 // C ref: do_name.c x_monnam() and a_monnam() (1152-1156).  This is the
@@ -859,9 +872,10 @@ export function a_monnam_unsupported(monster) {
 // separate owners and fail closed here.
 export function a_monnam(monster, env = {}) {
     const state = env.state ?? game;
-    if (a_monnam_unsupported(monster)) {
+    if (a_monnam_unsupported(monster, state)) {
         throw new UnsupportedMonsterNameError(
-            'a_monnam() for a priest, minion, shopkeeper, or player monster',
+            'a_monnam() for a priest, minion, shopkeeper, player monster, '
+                + 'or invalid monster appearance',
         );
     }
 
@@ -885,15 +899,7 @@ export function a_monnam(monster, env = {}) {
         nameAtStart = bogon_is_pname(randomName.code);
     } else {
         const mdat = monster.data;
-        const appearance = (monster.m_ap_type ?? 0) & M_AP_TYPMASK;
-        const species = appearance === M_AP_MONSTER
-            ? state.mons?.[monster.mappearance]
-            : mdat;
-        if (!species) {
-            throw new UnsupportedMonsterNameError(
-                'a_monnam() for an invalid monster appearance',
-            );
-        }
+        const species = apparent_species(monster, state);
         const givenName = monster.mextra?.mgivenname;
         if (givenName) {
             // do_name.c changes pm_name for M_AP_MONSTER, but every decision

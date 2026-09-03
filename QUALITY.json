@@ -6106,6 +6106,33 @@
       "status": "open",
       "from": "8a0ab4d4188e446bf462a76d0535766f77dfe487",
       "detail": "scripts/run-startup-glyph-customization.mjs fails against a clean recorder (2026-09-02) on its first case (seed 940101, symset:Enhanced1, glyph:G_male_healer:U+2603/255-0-0): on the initial screen the port draws a bright-yellow < at row 6, column 28 where the C capture holds a blank. That square is the hero's, so the customized Unicode hero glyph is not drawn and the staircase under it shows through, while the recorder's capture of the non-Latin glyph is blank. PRNG and cursors match. The matrix passed when its slice closed (efdf32a6 era); git bisect it against js/ to find the breaking commit before deciding whether the port or the capture is at fault."
+    },
+    {
+      "id": "potionbreathe-sleep-resistance-yawn",
+      "area": "objects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "da55035425af254cd8e3eb08e2336a28be793e23",
+      "detail": "potion.c potionbreathe()'s POT_SLEEPING else arm (2060-2062), taken by a hero with Free_action or Sleep_resistance, still raises UnsupportedPotionError 'the yawn that tells watching monsters the hero resists sleep'. The yawn line is one pline; the stop is over monstseesu(M_SEEN_SLEEP), which records the resistance on every monster that can see the hero and which muse.c find_offensive() reads back through m_seenres() before selecting a potion of sleeping again. A Monk has sleep resistance at experience level 1, so a hurled potion of sleeping reaches this in ordinary play. Case just outside the goal's limit: seed 5000012, datetime 20270318143000, Monk human male neutral, playmode:debug pettype:none !acoustics, moves '.<^G>gnome king<NL>m.m.m.  '. C prints 22 screens over 6447 random-number calls; the port stops after 17 with that refusal, so it is kept out of the passing suite. The seed was found by replaying the port alone over 5000001-5001500 with these keys and keeping the games whose boundary is the yawn refusal (seven of 1500). scripts/potion.test.mjs pins the refusal for both properties."
+    },
+    {
+      "id": "mattacku-continues-after-hero-death",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "da55035425af254cd8e3eb08e2336a28be793e23",
+      "detail": "js/mhitu.js mattacku() keeps delivering a monster's remaining attacks after hitmu() has killed the hero, so a multi-attack monster prints a further attack line after the tombstone. In C, mhitu.c mattacku()'s loop never resumes because done_in_by() does not return. Stop the attack loop when program_state.gameover is set after each hitmu() call. Found by the correctness pass over a19a79ce..c8ff8e63 while testing the movemon() gameover stop; no development session diverges on it, and the recorded water-demon death cannot exercise advanceElapsedTurn()'s early return directly because of it."
+    },
+    {
+      "id": "moveloop-core-dispatches-a-command-after-death",
+      "area": "startup",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "da55035425af254cd8e3eb08e2336a28be793e23",
+      "detail": "js/allmain.js moveloop_core() checks program_state.gameover only after rhack(), so when a monster kills the hero and really_done() returns normally the loop still dispatches one command and reads a key; jsmain ends cleanly only because the input queue is empty. C's moveloop() exits before reading input. Add a gameover check right after advanceElapsedTurn() returns. Found by the correctness pass over a19a79ce..c8ff8e63; no development session diverges on it."
     }
   ],
   "areas": [

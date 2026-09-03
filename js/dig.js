@@ -40,7 +40,7 @@ import {
 import { game } from './gstate.js';
 import { obfree, obj_extract_self } from './invent.js';
 import { hides_under } from './mondata.js';
-import { closed_door } from './monmove.js';
+import { closed_door, youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import {
     APPLE,
@@ -256,8 +256,12 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
         return false;
 
     if (IS_WALL(location.typ)) {
-        if (state.flags?.verbose && !random.rn2(5))
-            await message('You hear crashing rock.', state, rawEnv);
+        if (state.flags?.verbose && !random.rn2(5)) {
+            // Soundeffect() is a no-op in the tty build. You_hear() spends
+            // nothing and prints nothing for a deaf hero or under !acoustics.
+            const heard = youHear('crashing rock.', state);
+            if (heard) await message(heard, state, rawEnv);
+        }
         if (in_rooms(x, y, SHOPBASE, state).length)
             addShopDamage(x, y, 0, state);
         if (state.level.flags?.is_maze_lev) {

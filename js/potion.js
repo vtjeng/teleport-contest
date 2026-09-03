@@ -94,6 +94,7 @@ import { PM_DJINNI, PM_HEALER } from './monsters.js';
 import { bcsign, objectType } from './obj.js';
 import { Tobjnam } from './objnam.js';
 import { discover_object } from './o_init.js';
+import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
@@ -1050,11 +1051,15 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
     const crashDamage = Maybe_Half_Phys(random.rnd(2), state);
     if (crashDamage >= state.u.uhp)
         return unsupported('a fatal potion crash');
+    // losehp()'s showdamage() and maybe_wail() lines take the same seam as the
+    // plines here: a monster's turn runs this once against a planning clone,
+    // which must not write.
     await losehp(
         crashDamage,
         how === POTHIT_OTHER_THROW ? 'propelled potion' : 'thrown potion',
         KILLED_BY_AN,
         state,
+        { message },
     );
 
     /* oil doesn't instantly evaporate; Neither does a saddle hit */
@@ -1081,7 +1086,8 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             );
             if (dmg >= state.u.uhp)
                 return unsupported('a fatal potion of acid crash');
-            await losehp(dmg, 'potion of acid', KILLED_BY_AN, state);
+            await losehp(dmg, 'potion of acid', KILLED_BY_AN, state,
+                { message });
         }
         break;
     default:
@@ -1101,7 +1107,10 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
         trycall(obj, state);
     }
 
-    if (state.u.ushops && obj.unpaid)
+    // C's `*u.ushops` is the first entry of the room list; js/rooms.js keeps
+    // the whole fixed-size array, which is truthy even when the hero stands in
+    // no shop.
+    if (state.u.ushops?.[0] && obj.unpaid)
         return unsupported('shop billing for a potion broken on the hero');
     obfree(obj, null, { ...rawEnv, state });
     return undefined;
@@ -1228,7 +1237,9 @@ export async function potionbreathe(obj, state = game, env = {}) {
     case POT_POLYMORPH:
         await exercise(A_CON, false, state, random, {
             // exercise() runs encumber_msg() for A_CON once play has begun.
-            encumberMessage: env.encumberMessage,
+            // The hero's own turn -- zap.c destroy_items() -- lets it print;
+            // potionhit()'s monster-turn caller supplies a planning-aware one.
+            encumberMessage: env.encumberMessage ?? encumber_msg,
         });
         break;
     /*

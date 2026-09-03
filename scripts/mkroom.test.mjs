@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     AIR,
     ALTAR,
+    ANY_TYPE,
     BLCORNER,
     BRCORNER,
     CLOUD,
@@ -20,6 +21,7 @@ import {
     LADDER,
     LAVAPOOL,
     LAVAWALL,
+    OROOM,
     POOL,
     ROOM,
     SINK,
@@ -33,10 +35,12 @@ import {
     TRCORNER,
     TRWALL,
     TUWALL,
+    VAULT,
     VWALL,
     WATER,
+    ZOO,
 } from '../js/const.js';
-import { cmap_to_type } from '../js/mkroom.js';
+import { cmap_to_type, search_special } from '../js/mkroom.js';
 import {
     S_air,
     S_altar,
@@ -132,4 +136,41 @@ test('cmap_to_type covers the complete source terrain projection', () => {
     for (const [symbol, expected] of cases)
         assert.equal(cmap_to_type(symbol), expected, `symbol ${symbol}`);
     assert.equal(cmap_to_type(-1), STONE);
+});
+
+// C ref: mkroom.c search_special() (764-780). Each room here is the minimum
+// the scan reads: hx (the `croom->hx >= 0` end test) and rtype. The room
+// bounds are otherwise unused, so every hx is 1.
+function room(rtype, sbrooms = []) {
+    return { hx: 1, rtype, nsubrooms: sbrooms.length, sbrooms };
+}
+
+test('search_special ANY_TYPE skips ordinary rooms for the first special one',
+    () => {
+        // mkroom.c:772 `type == ANY_TYPE && croom->rtype != OROOM`. Room 0 is
+        // ordinary and must be passed over; room 1 is a zoo, any non-OROOM
+        // rtype, and room 2 a vault that an early return must never reach.
+        const zoo = room(ZOO);
+        const state = { level: { rooms: [room(OROOM), zoo, room(VAULT)] } };
+        assert.equal(search_special(ANY_TYPE, state), zoo);
+        // With only ordinary rooms the scan finds nothing.
+        assert.equal(
+            search_special(ANY_TYPE, { level: { rooms: [room(OROOM)] } }),
+            null,
+        );
+    });
+
+test('search_special descends into a subroom of a subroom', () => {
+    // mkroom.c:776-779 scans the flat gs.subrooms[] array, which holds every
+    // subroom whatever its depth. The port keeps subrooms under their parent,
+    // so the vault sits two levels below the level's only top-level room: an
+    // ordinary room whose single subroom is ordinary too. Neither pass finds
+    // it without recursing.
+    const vault = room(VAULT);
+    const state = {
+        level: { rooms: [room(OROOM, [room(OROOM, [vault])])] },
+    };
+    assert.equal(search_special(VAULT, state), vault);
+    assert.equal(search_special(ANY_TYPE, state), vault);
+    assert.equal(search_special(ZOO, state), null);
 });

@@ -7,8 +7,14 @@ import test from 'node:test';
 
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import {
-    COLNO, OBJ_CONTAINED, OBJ_FLOOR, ROOM, ROOMOFFSET, ROWNO, SHOPBASE,
+    COLNO, MON_DETACH, OBJ_CONTAINED, OBJ_FLOOR, ROOM, ROOMOFFSET, ROWNO,
+    SHOPBASE,
 } from '../js/const.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { accessible } from '../js/monmove.js';
+import { m_at, newMonster, place_monster } from '../js/monst.js';
+import { NON_PM, PM_ALIGNED_CLERIC } from '../js/monsters.js';
 import { COIN_CLASS } from '../js/objects.js';
 import { clearpriests } from '../js/priest.js';
 import { paybill, UnsupportedShopError } from '../js/shk.js';
@@ -245,6 +251,24 @@ test('paygd refuses a guard while the hero carries gold', () => {
     );
 });
 
+test('paygd returns for a broke hero even with a guard on the level', () => {
+    // C ref: vault.c paygd():1215-1216 `if (!umoney || !grd) return;`. The
+    // guard fixture above is kept and the pack emptied, so `!umoney` is the
+    // disjunct that returns: the only input that tells it from `!grd`.
+    const state = makeState();
+    const guard = {
+        isgd: true, mhp: 12, mhpmax: 12, mx: 8, my: 8, nmon: null,
+        mextra: { egd: { gddone: 0, gdlevel: { dnum: 0, dlevel: 2 } } },
+    };
+    state.level.monlist = guard;
+    state.invent = null;
+
+    assert.equal(findgd(state), guard);
+    assert.equal(paygd(true, state), undefined);
+    assert.equal(findgd(state), guard);
+    assert.equal(state.level.monlist, guard);
+});
+
 test('clearpriests keeps a priest whose shrine is on this level', () => {
     // C ref: priest.c clearpriests():922-928. on_level() matches, so the
     // priest is not discarded and mongone() never runs.
@@ -259,6 +283,75 @@ test('clearpriests keeps a priest whose shrine is on this level', () => {
     assert.equal(priest.mhp, 30);
     assert.equal(state.level.monlist, priest);
 });
+
+test('clearpriests skips a dead priest before reading its shrine', () => {
+    // C ref: priest.c clearpriests():925-926 DEADMONSTER() continues before
+    // the on_level() test. The shrine is off-level (dlevel 7 against the
+    // hero's 2), so a live priest would be discarded; this fixture has no
+    // monster grid, and mongone() throws on it, so surviving the call shows
+    // the skip ran. mhp 0 is DEADMONSTER()'s `mhp < 1`.
+    const state = makeState();
+    const priest = {
+        ispriest: true, mhp: 0, mhpmax: 30, mx: 9, my: 9, nmon: null,
+        mextra: { epri: { shrlevel: { dnum: 0, dlevel: 7 } } },
+    };
+    state.level.monlist = priest;
+
+    clearpriests(state);
+    assert.equal(state.level.monlist, priest);
+});
+
+test('clearpriests discards a priest whose shrine is on another level',
+    async () => {
+        // C ref: priest.c clearpriests():927-928. on_level() fails, so
+        // mongone() removes the priest from the map and marks it detached;
+        // mon.c dmonsfree() later unlinks it from the chain. mongone() needs a
+        // level with a monster grid, so the priest stands beside a hero built
+        // by the recipe the monster-trap tests share.
+        await runSegment({
+            seed: 7710044, datetime: '20260214031500', moves: '',
+            nethackrc: [
+                'OPTIONS=name:Lich,role:Valkyrie,race:human,gender:female,'
+                    + 'align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,time',
+                '',
+            ].join('\n'),
+        });
+        const square = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+            .map(([dx, dy]) => [game.u.ux + dx, game.u.uy + dy])
+            .find(([x, y]) => accessible(x, y, game) && !m_at(x, y, game));
+        assert.ok(square, 'a free square beside the hero');
+        const [x, y] = square;
+        const species = game.mons[PM_ALIGNED_CLERIC];
+        const priest = newMonster({
+            cham: NON_PM,
+            data: species,
+            ispriest: true,
+            m_id: 900,
+            m_lev: species.mlevel,
+            mcanmove: 1,
+            mcansee: true,
+            mhp: 30,
+            mhpmax: 30,
+            mnum: PM_ALIGNED_CLERIC,
+            mx: x,
+            my: y,
+            // The hero is on Dlvl 1; dlevel 7 is any other level in the same
+            // dungeon, which is what on_level() compares.
+            mextra: { epri: { shrlevel: { dnum: 0, dlevel: 7 } } },
+        });
+        place_monster(priest, x, y, game);
+        priest.nmon = game.level.monlist;
+        game.level.monlist = priest;
+
+        clearpriests(game);
+
+        assert.equal(m_at(x, y, game), null);
+        assert.equal(priest.mhp, 0);
+        assert.ok(priest.mstate & MON_DETACH);
+        assert.equal(game.iflags.purge_monsters, 1);
+    });
 
 // The fresh C differential for really_done()'s cleanup calls. The recipe holds
 // replay inputs only; scripts/diff-fresh.mjs records the reference run.

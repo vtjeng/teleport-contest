@@ -1819,3 +1819,53 @@ test('seemimic strips the disguise and unblocks only a blocking one',
     assert.equal(does_block(rockGround.x, rockGround.y, null, game), true);
     assert.equal(game.vision_full_recalc, 0);
 });
+
+// C's done_in_by() is NORETURN: once a monster's attack kills the hero, no
+// later monster in the chain gets a turn. The port's really_done() returns
+// instead, so movemon() reads program_state.gameover after each monster and
+// ends the traversal there.
+test('movemon stops the scan after the monster that killed the hero',
+    async () => {
+        const visited = [];
+        // moveSingleMonster() returning false is movemon_singlemon()'s own
+        // "keep going" verdict, so only the flag can end the traversal here.
+        const moveSingleMonster = (current, env) => {
+            visited.push(current.id);
+            // end.c:1183 done() -> really_done() sets gameover to 1 while
+            // the killer's attack is still on the stack.
+            if (current.killsHero) env.state.program_state.gameover = 1;
+            return false;
+        };
+
+        // Two monsters, so a later one exists to be skipped; the killer is
+        // first so that the skip is what the visit list shows.
+        const dying = schedulerState([
+            { id: 'killer', killsHero: true },
+            { id: 'bystander' },
+        ]);
+        dying.program_state = { gameover: 0 };
+        await movemon({
+            state: dying,
+            ...schedulerOperations({ moveSingleMonster }),
+        });
+        assert.deepEqual(visited, ['killer']);
+        // The scan's terminal cleanup still runs: the objsplit reset is
+        // clear_splitobjs()'s, at movemon()'s tail.
+        assert.deepEqual(dying.context.objsplit, {
+            parent_oid: 0,
+            child_oid: 0,
+        });
+
+        // The same chain with no death visits both.
+        visited.length = 0;
+        const surviving = schedulerState([
+            { id: 'first' },
+            { id: 'second' },
+        ]);
+        surviving.program_state = { gameover: 0 };
+        await movemon({
+            state: surviving,
+            ...schedulerOperations({ moveSingleMonster }),
+        });
+        assert.deepEqual(visited, ['first', 'second']);
+    });

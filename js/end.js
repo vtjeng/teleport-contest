@@ -1079,7 +1079,10 @@ async function really_done(how, state) {
     // Not applicable: how === DIED.
 
     // C ref: end.c:1300-1302 finish_paybill() when bones_ok && taken.
-    // taken is false (no shopkeeper), so finish_paybill() does not run.
+    // taken is always false here: js/shk.js inherits() refuses every arm
+    // that would take the hero's possessions and returns false from the
+    // `clear` arm, so finish_paybill() is unreachable until those arms are
+    // ported.
 
     // -- Grave creation (C ref: end.c:1306-1319) --
     let corpse = null;

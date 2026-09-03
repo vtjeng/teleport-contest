@@ -1525,6 +1525,55 @@ test('m_digweapon_check names the tool the destination terrain calls for',
         }
     });
 
+test('m_digweapon_check keeps the C closed-door quirk for a wielded axe',
+    async () => {
+        // C ref: monmove.c:1120-1121 `!mw_tmp || !is_pick(mw_tmp) ||
+        // !is_axe(mw_tmp)`. No object is both a pick and an axe, so a wielded
+        // axe -- which the natural reading `!(is_pick || is_axe)` would
+        // accept -- still raises NEED_PICK_OR_AXE, and weapon.c
+        // mon_wield_item() then prefers the pick in the pack (no mattock and
+        // no battle-axe are carried) and spends the move re-wielding.
+        const { locations, state } = makeState();
+        locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
+        const axe = objectFor(state, AXE);
+        const pick = objectFor(state, PICK_AXE);
+        axe.nobj = pick;
+        const monster = diggingDwarf(state, axe, {
+            mw: axe,
+            weapon_check: NEED_WEAPON,
+        });
+
+        assert.equal(
+            await m_digweapon_check(monster, 5, 4, { ...UNSEEN_WIELD, state }),
+            true,
+        );
+        assert.equal(monster.mw, pick);
+        // mon_wield_item() resets weapon_check once it has wielded.
+        assert.equal(monster.weapon_check, NEED_WEAPON);
+
+        // The same door with the pick already in hand takes the quirk too
+        // (`!is_axe(pick)` holds), but mon_wield_item() selects the pick it
+        // already wields and exits through its same-otyp arm: weapon_check
+        // back to NEED_WEAPON, nothing wielded, no move spent.
+        const wielded = makeState();
+        wielded.locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
+        const heldPick = objectFor(wielded.state, PICK_AXE);
+        const holder = diggingDwarf(wielded.state, heldPick, {
+            mw: heldPick,
+            weapon_check: NEED_WEAPON,
+        });
+
+        assert.equal(
+            await m_digweapon_check(holder, 5, 4, {
+                ...UNSEEN_WIELD,
+                state: wielded.state,
+            }),
+            false,
+        );
+        assert.equal(holder.mw, heldPick);
+        assert.equal(holder.weapon_check, NEED_WEAPON);
+    });
+
 test('m_digweapon_check leaves weapon_check alone where no arm applies',
     async () => {
         // C ref: monmove.c:1118-1131. may_dig() is true for ordinary floor, so

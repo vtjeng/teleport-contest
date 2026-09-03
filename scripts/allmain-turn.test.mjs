@@ -30,6 +30,7 @@ import {
     HUNGRY,
     HALLUC,
     INTRINSIC,
+    KILLED_BY_AN,
     LEFT_SIDE,
     LEVITATION,
     LS_MONSTER,
@@ -91,6 +92,7 @@ import {
     PM_PONY,
     PM_SMALL_MIMIC,
     PM_TENGU,
+    PM_WATER_DEMON,
 } from '../js/monsters.js';
 import {
     BOULDER,
@@ -128,6 +130,9 @@ import {
 } from './run-first-command-closure.mjs';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 import { loadEatOccupationRecipe } from './run-eat-occupation.mjs';
+import {
+    loadMonsterDeathPlanningRecipe,
+} from './run-monster-death-planning.mjs';
 import { loadStatusRefreshRecipe } from './run-status-refresh.mjs';
 import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
@@ -3121,3 +3126,72 @@ test('the status-refresh matrix covers all three arms of the gate', () => {
         'a multi-turn meal runs with the turn counter off',
     );
 });
+
+// C's done_in_by() is NORETURN, so a hero the monster scan kills never reaches
+// the once-per-turn upkeep, the movement gate, or another scan; the port's
+// really_done() returns from the end-game display instead, and
+// advanceElapsedTurn() returns as soon as movemon() comes back with
+// program_state.gameover set. That return runs only when the killer's own
+// attack loop returns normally, so the recorded water-demon death is replayed
+// one command short and the adjacent demon becomes a one-attack species:
+// js/mhitu.js mattacku() otherwise goes on to the demon's third attack after
+// the death, and that attack's --More-- exhausts the input queue inside the
+// scan, above the return under test.
+test('a hero the monster scan kills reaches no once-per-turn upkeep',
+    async () => {
+        const [segment] = loadMonsterDeathPlanningRecipe().segments;
+        // Drop the final `m.`: the recipe's tail is the command whose elapsed
+        // turn the demon's killing blow lands in, so the game stops with the
+        // demon adjacent and the hero at the two hit points the recipe names.
+        assert.ok(segment.moves.endsWith('m.'));
+        await runSegment({ ...segment, moves: segment.moves.slice(0, -2) });
+        assert.equal(game.u.uhp, 2);
+        // The turn counter the recorded death screen shows (T:8): the lethal
+        // command is charged while moves is 8, and the upkeep that would
+        // carry it to 9 is the block C's longjmp skips.
+        const deathTurn = 8;
+        assert.equal(game.moves, deathTurn);
+
+        let killer = null;
+        for (let mon = game.level.monlist; mon; mon = mon.nmon) {
+            if (mon.mnum === PM_WATER_DEMON) killer = mon;
+        }
+        assert.ok(killer, 'the recorded water demon is on the level');
+        // monst.c gives the jackal one attack, a d(1,2) bite, so mattacku()'s
+        // loop ends with the killing blow. One hit point makes any bite lethal.
+        killer.data = game.mons[PM_JACKAL];
+        killer.mnum = PM_JACKAL;
+        game.u.uhp = 1;
+        // mhitu.c mattacku() hits when AC_VALUE(u.uac) + 10 + m_lev exceeds
+        // rnd(20). The Tourist's AC 10 leaves exactly 20, which the roll can
+        // equal; five levels put every roll below the sum.
+        killer.m_lev = 5;
+
+        // The first moveloop_core() dispatches `m.`; the second runs the
+        // elapsed turn that command charged. Two spaces dismiss the bite's
+        // --More-- and the "You die..." that win/tty/topl.c update_topl()
+        // refuses to share a row with it; q at the possessions prompt declines
+        // every disclosure; the last two dismiss the tombstone and farewell
+        // windows, after which really_done() returns. advanceElapsedTurn()
+        // then returns to moveloop_core(), whose next command dispatch reads
+        // a key that does not exist: the rejection js/jsmain.js ends a
+        // segment on. Without the early return the live movement gate runs
+        // against a preflight that planned no upkeep, and the disagreement
+        // rejects with a different error.
+        for (const key of 'm.  q  ') game.nhDisplay.pushKey(key.charCodeAt(0));
+        await assert.rejects(
+            async () => {
+                await moveloop_core();
+                await moveloop_core();
+            },
+            /Input queue empty/u,
+        );
+
+        assert.deepEqual(game.killer, { name: 'jackal', format: KILLED_BY_AN });
+        // really_done()'s last two statements: `true` replaces the 1 done()
+        // wrote, and in_really_done is cleared for the post-loop capture.
+        assert.equal(game.program_state.gameover, true);
+        assert.equal(game.program_state.in_really_done, false);
+        // finishElapsedTurn() would have advanced moves past the death turn.
+        assert.equal(game.moves, deathTurn);
+    });

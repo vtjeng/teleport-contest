@@ -6,6 +6,7 @@ import {
     ASCENDED,
     BURNING,
     CHOKING,
+    COLNO,
     CRUSHING,
     DIED,
     DISSOLVED,
@@ -21,26 +22,45 @@ import {
     PARANOID_DIE,
     POISONING,
     QUIT,
+    ROOM,
+    ROOMOFFSET,
+    ROWNO,
     STARVING,
     STONING,
     TRICKED,
     TURNED_SLIME,
 } from '../js/const.js';
+import { moveloop_core, UnsupportedTurnBoundaryError } from '../js/allmain.js';
 import { can_make_bones } from '../js/bones.js';
+import { failClosedCommandRefusals } from '../js/cmd.js';
 import { UnsupportedEndOfGameError, deaths, done, done_in_by }
     from '../js/end.js';
 import { game } from '../js/gstate.js';
 import { losehp } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
-import { newMonster } from '../js/monst.js';
-import { NON_PM, PM_GIANT_BAT, PM_GHOUL, PM_GRID_BUG, PM_WRAITH }
-    from '../js/monsters.js';
+import { UnsupportedMonsterCreationError } from '../js/makemon_create.js';
+import { m_at, newMonster, place_monster } from '../js/monst.js';
+import {
+    NON_PM,
+    PM_GIANT_BAT,
+    PM_GHOUL,
+    PM_GRID_BUG,
+    PM_GUARD,
+    PM_SHOPKEEPER,
+    PM_WRAITH,
+} from '../js/monsters.js';
+import { UnsupportedShopError } from '../js/shk.js';
+import { UnsupportedVaultGuardError } from '../js/vault.js';
 import {
     EXPLORE_CASE,
     HERO_DEATH_CASES,
     WIZARD_CASE,
     loadHeroDeathRecipe,
 } from './run-hero-death.mjs';
+import {
+    MONSTER_DEATH_CASE,
+    loadMonsterDeathPlanningRecipe,
+} from './run-monster-death-planning.mjs';
 import {
     MOUNTED_DEATH_CASE,
     loadMountedDeathRecipe,
@@ -912,4 +932,170 @@ test('done_in_by uses STONING message and killer for a stoning death',
     );
     assert.equal(game.killer.name, 'grid bug');
     assert.equal(game.killer.format, KILLED_BY_AN);
+});
+
+// ── really_done() refusals below a monster's killing blow ──
+// A monster's killing blow reaches end.c really_done() from inside the live
+// monster scan, where paybill() and paygd() settle with the level's
+// shopkeepers and vault guard before disclosure. The arms js/shk.js
+// inherits() and js/vault.js paygd() leave unported refuse there, one frame
+// below done_in_by(). The planning pass never runs really_done(), so the live
+// scan's catch in js/allmain.js advanceElapsedTurn() is the only conversion
+// between that refusal and js/jsmain.js. Each case below appends a bystander
+// to the recorded water-demon death's monster chain and replays its lethal
+// command; the refusal must leave moveloop_core() as the turn boundary
+// js/jsmain.js stops on, with the death entry already written, rather than
+// as the raw class that would discard the segment's matched screens.
+
+// The recorded death one command short of the killing blow: the water demon
+// stands adjacent and the hero holds two hit points, as the recipe's comment
+// on its `m.m.` tail states.
+async function gameBeforeLethalMonsterTurn() {
+    const [segment] = loadMonsterDeathPlanningRecipe().segments;
+    assert.ok(MONSTER_DEATH_CASE.moves.endsWith('m.'));
+    await runSegment({ ...segment, moves: segment.moves.slice(0, -2) });
+    assert.equal(game.u.uhp, 2, 'the first m. left two hit points');
+    // The segment ended while reading the next command, so the elapsed turn
+    // the first m. charged has already run; the first moveloop_core() below
+    // dispatches the second m. rather than scanning again.
+    assert.equal(game.context.move, 0);
+}
+
+// Put a monster on the first free room square more than two columns or rows
+// from the hero, at the tail of the monster chain. Beyond two squares it is
+// neither in the demon's way nor the hero's; at the tail (makemon() would
+// prepend) the demon keeps its recorded scan position; and with zero movement
+// points mon.c movemon_singlemon() gives it no action, because mcalcmove()
+// refills only in the once-per-turn upkeep the death never reaches.
+function appendBystander(mnum, overrides) {
+    let spot = null;
+    for (let x = 1; x < COLNO && !spot; ++x) {
+        for (let y = 0; y < ROWNO && !spot; ++y) {
+            if (game.level.at(x, y)?.typ === ROOM && !m_at(x, y, game)
+                && (Math.abs(x - game.u.ux) > 2
+                    || Math.abs(y - game.u.uy) > 2)) {
+                spot = { x, y };
+            }
+        }
+    }
+    assert.ok(spot, 'a free room square away from the hero');
+    const bystander = newMonster({
+        data: game.mons[mnum],
+        mnum,
+        m_id: 9701,
+        m_lev: game.mons[mnum].mlevel,
+        mhp: 20,
+        mhpmax: 20,
+        movement: 0,
+        mpeaceful: true,
+        mcansee: true,
+        mcanmove: true,
+        ...overrides,
+    });
+    place_monster(bystander, spot.x, spot.y, game);
+    let tail = game.level.monlist;
+    while (tail.nmon) tail = tail.nmon;
+    tail.nmon = bystander;
+    return bystander;
+}
+
+// The first moveloop_core() dispatches `m.`; the second runs the elapsed turn
+// that command charged, where the demon's second attack reaches done_in_by().
+// The space is the key that dismisses the "You die..." --More--, which the
+// recipe's verifier appends for the same reason.
+async function lethalTurnRefusal() {
+    for (const key of 'm. ') game.nhDisplay.pushKey(key.charCodeAt(0));
+    for (let iteration = 0; iteration < 2; ++iteration) {
+        try {
+            await moveloop_core();
+        } catch (error) {
+            return error;
+        }
+    }
+    assert.fail('the water demon did not kill the hero');
+    return null;
+}
+
+function assertLethalTurnBoundary(error, arm) {
+    assert.ok(
+        error instanceof UnsupportedTurnBoundaryError,
+        `${error?.name}: ${error?.message}`,
+    );
+    assert.match(error.message, arm);
+    // The death entry precedes the refusal, as it does in the recipe verifier.
+    assert.deepEqual(game.killer, {
+        name: MONSTER_DEATH_CASE.killer,
+        format: MONSTER_DEATH_CASE.format,
+    });
+    assert.equal(game.program_state.gameover, 1);
+    assert.equal(game.u.umortality, 1);
+}
+
+test('a pursuing shopkeeper stops a monster kill at the turn boundary',
+     async () => {
+    await gameBeforeLethalMonsterTurn();
+    appendBystander(PM_SHOPKEEPER, {
+        isshk: true,
+        mextra: {
+            eshk: {
+                // No bill, debit or robbery, so shk.c paybill()'s scan files
+                // this keeper under `hostile` and inherits() reaches its
+                // following-or-angry arm rather than an earlier one.
+                billct: 0,
+                bill_p: null,
+                credit: 0,
+                debit: 0,
+                // Following, and still peaceful: the arm's other disjunct
+                // would send next_shkp() through rile_shk() first.
+                following: true,
+                loan: 0,
+                robbed: 0,
+                shk: { x: 0, y: 0 },
+                // The hero's own level, so the shop counts as local and
+                // paybill() does not mongone() the keeper for bones.
+                shoplevel: { ...game.u.uz },
+                shoproom: ROOMOFFSET,
+                surcharge: false,
+            },
+        },
+    });
+    assertLethalTurnBoundary(
+        await lethalTurnRefusal(),
+        /inherits\(\) for a hostile or pursuing shopkeeper/u,
+    );
+});
+
+test('a vault guard owed gold stops a monster kill at the turn boundary',
+     async () => {
+    await gameBeforeLethalMonsterTurn();
+    // u_init.c gives every Tourist gold, which is the `umoney` half of
+    // paygd()'s gate; the guard on the hero's level is the other half.
+    assert.ok(game.u.umoney0 > 0);
+    appendBystander(PM_GUARD, {
+        isgd: true,
+        mextra: { egd: { gddone: 0, gdlevel: { ...game.u.uz } } },
+    });
+    assertLethalTurnBoundary(
+        await lethalTurnRefusal(),
+        /paygd\(\) surrendering the hero's gold to a vault guard/u,
+    );
+});
+
+// The hero's own command reaches the same really_done() through losehp(), so
+// the classes it can raise there belong to failClosedCommand()'s list too.
+// mongone() raises the third for a departing shopkeeper or priest.
+test('the refusals really_done() raises below a killing blow end a command',
+     () => {
+    for (const Refusal of [
+        UnsupportedShopError,
+        UnsupportedVaultGuardError,
+        UnsupportedMonsterCreationError,
+    ]) {
+        assert.ok(
+            failClosedCommandRefusals().some(
+                (type) => new Refusal('x') instanceof type,
+            ),
+            Refusal.name,
+        );
+    }
 });

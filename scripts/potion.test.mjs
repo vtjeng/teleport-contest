@@ -13,8 +13,8 @@ import test from 'node:test';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
-    A_CON, A_DEX, BLINDED, CONFUSION, FAST, FROMOUTSIDE, HALLUC, HALLUC_RES,
-    INVIS, POTHIT_MONST_THROW, SEE_INVIS, TIMEOUT,
+    A_CON, A_DEX, BLINDED, CONFUSION, FAST, FREE_ACTION, FROMOUTSIDE, HALLUC,
+    HALLUC_RES, INVIS, POTHIT_MONST_THROW, SEE_INVIS, SLEEP_RES, TIMEOUT,
 } from '../js/const.js';
 import { trycall } from '../js/do.js';
 import { UnsupportedObjectNamingError, docall } from '../js/do_name.js';
@@ -54,6 +54,7 @@ import {
 import {
     UnsupportedPotionError,
     UnsupportedQuaffError,
+    bottlename,
     incr_itimeout,
     make_confused,
     peffects,
@@ -257,6 +258,60 @@ for (const [label, otyp, line] of [
     });
 }
 
+// potion.c:2049-2050. Free action takes the paralysis arm's else branch: one
+// line, no nomul() and no Dexterity exercise. The arm still counts kn, so the
+// tail's makeknown() -- exercise(A_WIS, TRUE) -- spends the one rn2(19).
+test('free action turns the paralysis vapors into a momentary stiffening',
+    async () => {
+    await startedGame(771013, 'VaporFreeAction');
+    clearTopline();
+    // youprop.h Free_action reads HFree_action || EFree_action; FROMOUTSIDE is
+    // the intrinsic bit a ring or a role grants.
+    game.u.uprops[FREE_ACTION].intrinsic = FROMOUTSIDE;
+    const drawn = [];
+    const random = {
+        // The frozen branch's nomul(-rnd(5)) must not run.
+        rnd: (bound) => assert.fail(`unexpected rnd(${bound})`),
+        rn2: (bound) => { drawn.push(bound); return 1; },
+    };
+    const before = game.u.aexe[A_DEX];
+    await potionbreathe(vaporPotion(POT_PARALYSIS), game, { random });
+
+    assert.equal(toplines(), 'You stiffen momentarily.');
+    assert.equal(game.multi ?? 0, 0);
+    assert.equal(game.u.aexe[A_DEX], before);
+    // makeknown()'s exercise(A_WIS, TRUE) alone; the arm itself draws nothing.
+    assert.deepEqual(drawn, [19]);
+});
+
+// potion.c:2060-2062. Either property takes the sleeping arm's else branch,
+// whose monstseesu(M_SEEN_SLEEP) has no reader yet, so the port stops before
+// the yawn and before any draw or state change. QUALITY.json carries the
+// deferral with a recorded C case.
+for (const [label, property] of [
+    ['free action', FREE_ACTION], ['sleep resistance', SLEEP_RES],
+]) {
+    test(`${label} stops the sleeping vapors at the yawn`, async () => {
+        await startedGame(771014, 'VaporSleepRes');
+        clearTopline();
+        game.u.uprops[property].intrinsic = FROMOUTSIDE;
+        const drawn = [];
+        const random = {
+            rnd: (bound) => { drawn.push(['rnd', bound]); return 2; },
+            rn2: (bound) => { drawn.push(['rn2', bound]); return 1; },
+        };
+        await assert.rejects(
+            () => potionbreathe(vaporPotion(POT_SLEEPING), game, { random }),
+            (error) => error instanceof UnsupportedPotionError
+                && error.branch === 'the yawn that tells watching monsters the'
+                    + ' hero resists sleep',
+        );
+        assert.equal(toplines(), '');
+        assert.equal(game.multi ?? 0, 0);
+        assert.deepEqual(drawn, []);
+    });
+}
+
 // potion.c:2092-2095. The acid and polymorph vapors share one arm whose whole
 // body is exercise(A_CON, FALSE), so the single rn2(2) is the arm.
 for (const [label, otyp] of [
@@ -288,6 +343,72 @@ for (const [label, otyp] of [
         assert.equal(game.multi ?? 0, 0);
     });
 }
+
+// zap.c destroy_items() reaches the same arm on the hero's own turn and hands
+// potionbreathe() only `state` and `random`, so the arm must own the
+// encumber_msg() that exercise(A_CON) runs once play has begun. Before this
+// default the call threw a bare Error, which no segment boundary converts.
+test('the acid vapors on the hero\'s own turn own their encumber_msg',
+    async () => {
+    await startedGame(771012, 'VaporAcidOwnTurn');
+    discover_object(POT_ACID, true, true, false, game);
+    clearTopline();
+    // moves is 1 after the segment's one key, which is what makes exercise()
+    // reach encumber_msg() for A_CON.
+    assert.ok(Math.trunc(game.moves) > 0);
+    const before = game.u.aexe[A_CON];
+    await potionbreathe(vaporPotion(POT_ACID), game, {
+        state: game,
+        // The scripted 1 is exercise()'s -rn2(2) result; nothing else draws.
+        random: { rn2: () => 1, rnd: () => assert.fail('unexpected rnd') },
+    });
+    assert.equal(game.u.aexe[A_CON], before - 1);
+    // An unchanged encumbrance prints nothing.
+    assert.equal(toplines(), '');
+});
+
+// C ref: potion.c bottlename() (1487-1494) over bottlenames[] and
+// hbottlenames[] (1478-1485). Both tables are read out of potion.c here, so a
+// dropped or reordered entry, or a swapped Hallucination arm, shows up as a
+// wrong name, and the bound pins the table's length.
+function bottleTables() {
+    const source = potionSource();
+    const read = (name) => {
+        const start = source.indexOf(`static const char *${name}[] =`);
+        assert.ok(start > 0, `potion.c still defines ${name}[]`);
+        const end = source.indexOf('};', start);
+        return [...source.slice(start, end).matchAll(/"([a-z]+)"/gu)]
+            .map(([, word]) => word);
+    };
+    return { plain: read('bottlenames'), hallucinated: read('hbottlenames') };
+}
+
+test('bottlename draws from potion.c\'s table for the hero\'s state',
+    async () => {
+    await startedGame(771030, 'BottleNames');
+    const tables = bottleTables();
+    // Seven sober names and twenty-four hallucinated ones, as potion.c lists.
+    assert.equal(tables.plain.length, 7);
+    assert.equal(tables.hallucinated.length, 24);
+    for (const [hallucinating, expected] of [
+        [false, tables.plain], [true, tables.hallucinated],
+    ]) {
+        // youprop.h Hallucination is HHallucination && !BHallucination; the
+        // Healer has no blocking source, so the intrinsic alone decides.
+        game.u.uprops[HALLUC].intrinsic = hallucinating ? 1 : 0;
+        for (let index = 0; index < expected.length; index++) {
+            const bounds = [];
+            const name = bottlename(game, {
+                rn2: (bound) => { bounds.push(bound); return index; },
+            });
+            assert.equal(name, expected[index], `${hallucinating} ${index}`);
+            // ROLL_FROM(array) is array[rn2(SIZE(array))]: one draw, bounded
+            // by the table the hero's state selected.
+            assert.deepEqual(bounds, [expected.length]);
+        }
+    }
+    game.u.uprops[HALLUC].intrinsic = 0;
+});
 
 // C ref: potion.c potionhit() (1624-1705), the hero-target branch. The acid
 // arm is the only one of the isyou switch's three that a monster's hurled
@@ -334,6 +455,77 @@ test('potionhit burns an unresistant hero with the acid it crashes',
         // potionbreathe()'s POT_ACID arm is exercise(A_CON, FALSE) alone.
         ['rn2', 2],
     ]);
+});
+
+// hack.c losehp() prints through showdamage() (4245-4253) and maybe_wail()
+// (4210-4243). A monster's hurled potion reaches potionhit() from a turn that
+// js/unported_monster_actions.js first runs against a planning clone, whose
+// `message` is silent; those two lines must take that seam, as the crash and
+// evaporation lines do, or the clone's copy lands on the live terminal.
+test('potionhit routes the showdamage line through its message seam',
+    async () => {
+    await startedGame(771023, 'PotionShowDamage');
+    discover_object(POT_FRUIT_JUICE, true, true, false, game);
+    clearTopline();
+    game.iflags.showdamage = true;
+    // 20 HP: the crash's rnd(2), scripted to 1, leaves 19 and stays above the
+    // uhpmax/10 wail threshold.
+    game.u.uhp = 20;
+    game.u.uhpmax = 20;
+    const messages = [];
+
+    await potionhit(game.youmonst, vaporPotion(POT_FRUIT_JUICE),
+        POTHIT_MONST_THROW, {
+            state: game,
+            random: { rn2: () => 1, rnd: () => 1, d: () => 1 },
+            message: async (text) => { messages.push(text); },
+            unsupported: (reason) => assert.fail(reason),
+        });
+
+    game.iflags.showdamage = false;
+    assert.deepEqual(messages, [
+        'The phial crashes on your head and breaks into shards.',
+        // hack.c:4251, "[HP %i, %i left]" with the negated loss.
+        '[HP -1, 19 left]',
+        'The potion of fruit juice evaporates.',
+    ]);
+    // Nothing reached the terminal's top line.
+    assert.equal(toplines(), '');
+});
+
+// C ref: potion.c potionhit() (1912-1917). The shop-billing block is guarded
+// by `*u.ushops`, the first entry of the hero's room list, so an unpaid potion
+// that breaks on a hero standing in no shop falls straight through to
+// obfree(). js/rooms.js always materialises the whole list, which is truthy
+// even when empty; the guard must read its first entry.
+test('an unpaid potion broken on a hero outside any shop skips the bill',
+    async () => {
+    await startedGame(771022, 'PotionUnpaid');
+    // Fruit juice has no vapors, and an identified type keeps the tail's
+    // trycall() away from the naming prompt.
+    discover_object(POT_FRUIT_JUICE, true, true, false, game);
+    clearTopline();
+    assert.equal(game.u.ushops[0], 0, 'the hero stands in no shop');
+    const obj = vaporPotion(POT_FRUIT_JUICE);
+    obj.unpaid = 1;
+    // 20 HP survives the crash's rnd(2), scripted to 1.
+    game.u.uhp = 20;
+    game.u.uhpmax = 20;
+    const reasons = [];
+    const billed = [];
+
+    await potionhit(game.youmonst, obj, POTHIT_MONST_THROW, {
+        state: game,
+        random: { rn2: () => 1, rnd: () => 1, d: () => 1 },
+        message: async () => {},
+        unsupported: (reason) => { reasons.push(reason); },
+        // obfree() defers an unpaid object's shop disposition to this hook;
+        // recording the call is what shows obfree() ran.
+        hooks: { obfreeShopBill: (freed) => { billed.push(freed); return 'unbilled'; } },
+    });
+
+    assert.deepEqual(reasons, []);
+    assert.deepEqual(billed, [obj]);
 });
 
 test('potionhit refuses a target that is not the hero', async () => {

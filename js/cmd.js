@@ -192,6 +192,7 @@ import {
     UnsupportedWhatisError,
 } from './pager.js';
 import { UnsupportedShopError } from './shk.js';
+import { UnsupportedVaultGuardError } from './vault.js';
 import { dofire, dothrow, UnsupportedThrowError } from './dothrow.js';
 import { dosit, UnsupportedSitError } from './sit.js';
 import {
@@ -1828,6 +1829,12 @@ export function failClosedCommandRefusals() {
         UnsupportedDiscoveryDisplayError,
         UnsupportedEnlightenmentError,
         UnsupportedShopError,
+        // end.c really_done() calls paybill() and paygd() on every death, so
+        // a shopkeeper inherits() cannot settle with or a vault guard owed the
+        // hero's gold refuses below a killing blow. The hero's own command
+        // reaches that death through losehp(), and js/allmain.js converts the
+        // same two classes where a monster's attack reaches it.
+        UnsupportedVaultGuardError,
         UnsupportedWeaponSkillError,
         UnsupportedGetlinBoundaryError,
         UnsupportedSearchError,

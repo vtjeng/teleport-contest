@@ -4,6 +4,8 @@ import test from 'node:test';
 import { SUPPRESS_NAME } from '../js/const.js';
 import {
     Amonnam,
+    a_monnam,
+    a_monnam_unsupported,
     bogon_is_pname,
     bogusmon,
     capitalizedAlwaysVisibleMonsterName,
@@ -158,6 +160,31 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
             () => monsterCommonName(monster, state, SUPPRESS_NAME),
             UnsupportedMonsterNameError,
         );
+    });
+
+test('monsterCommonName names a gendered species by the monster\'s own gender',
+    () => {
+        // do_name.c mon_nam():911 reads mon_pmname(), which pmname():1300-1308
+        // resolves to pmnames[gender] and only falls back to the NEUTRAL slot
+        // when that one is empty. The one-name fixtures above cannot tell
+        // that from a read of the neutral slot, so this case uses the real
+        // catalogue: PM_GNOME_RULER carries all three names ("gnome king",
+        // "gnome queen", "gnome ruler"), and PM_NEWT carries only the neutral
+        // one, so a female newt pins the fallback.
+        const state = {
+            u: { uprops: [], uroleplay: { blind: false } },
+        };
+        monst_globals_init(state);
+        state.u.uprops[DETECT_MONSTERS] = {
+            intrinsic: 1, extrinsic: 0, blocked: 0,
+        };
+        const ruler = { data: state.mons[PM_GNOME_RULER], mextra: {}, female: 0 };
+        assert.equal(monsterCommonName(ruler, state), 'the gnome king');
+        ruler.female = 1;
+        assert.equal(monsterCommonName(ruler, state), 'the gnome queen');
+
+        const newt = { data: state.mons[PM_NEWT], mextra: {}, female: 1 };
+        assert.equal(monsterCommonName(newt, state), 'the newt');
     });
 
 test('monsterCommonName uses C hallucinated names and display RNG', () => {
@@ -348,6 +375,64 @@ test('Amonnam preserves gender, invisibility, appearance, and display RNG', () =
         }`,
     );
     assert.deepEqual(displayDraws, []);
+});
+
+test('a_monnam_unsupported answers true for every a_monnam refusal', () => {
+    // a_monnam_unsupported() exists so that hack.c moverock_core()'s port can
+    // refuse before a hallucinating hero's a_monnam() spends a display draw.
+    // Each row is one input; the predicate and a_monnam() must agree on it.
+    const state = {
+        u: { uprops: [], uroleplay: { blind: false } },
+    };
+    monst_globals_init(state);
+    const newt = () => ({
+        data: state.mons[PM_NEWT], mextra: {}, m_ap_type: 0, female: 0,
+    });
+    const rows = [
+        // An ordinary, undisguised monster is the supported case.
+        { monster: newt(), unsupported: false },
+        // do_name.c x_monnam():893-906 names priests, minions, shopkeepers
+        // and player monsters through arms this port has not translated.
+        { monster: { ...newt(), ispriest: true }, unsupported: true },
+        { monster: { ...newt(), isminion: true }, unsupported: true },
+        { monster: { ...newt(), isshk: true }, unsupported: true },
+        // do_name.c:908-910 reads mons[mappearance] for M_AP_MONSTER. The
+        // gnome ruler is a real species, so that disguise is supported...
+        {
+            monster: {
+                ...newt(), m_ap_type: M_AP_MONSTER, mappearance: PM_GNOME_RULER,
+            },
+            unsupported: false,
+        },
+        // ...and the first index past the catalogue is refused. The port
+        // keeps monst.c's terminator entry at mons[NUMMONS], so the first
+        // index that names nothing is mons.length, which is NUMMONS + 1.
+        {
+            monster: {
+                ...newt(), m_ap_type: M_AP_MONSTER, mappearance: state.mons.length,
+            },
+            unsupported: true,
+        },
+    ];
+    for (const [index, { monster, unsupported }] of rows.entries()) {
+        assert.equal(
+            a_monnam_unsupported(monster, state),
+            unsupported,
+            `row ${index}: predicate`,
+        );
+        if (unsupported) {
+            assert.throws(
+                () => a_monnam(monster, { state }),
+                UnsupportedMonsterNameError,
+                `row ${index}: a_monnam refuses`,
+            );
+        } else {
+            assert.doesNotThrow(
+                () => a_monnam(monster, { state }),
+                `row ${index}: a_monnam formats`,
+            );
+        }
+    }
 });
 
 test('x_monnam decides hallucination at run time, not by suppress flag', () => {

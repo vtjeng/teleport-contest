@@ -59,6 +59,7 @@ import {
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
+import { messageAt } from '../js/startup_a11y.js';
 import {
     AMULET_OF_GUARDING,
     AMULET_OF_LIFE_SAVING,
@@ -1047,12 +1048,11 @@ test('find_offensive lets a later arm displace an earlier one and no other',
 
 // ---- muse.c use_offensive() ----
 
-test('use_offensive hurls the selected potion along the line to the hero',
-    async () => {
-    const state = await offensiveHero();
+// A gnome carrying a potion of sleeping, three squares east of the hero along
+// a cleared, visible row, so that the launch direction and the range distmin()
+// computes are both nontrivial.
+function hurlingGnome(state) {
     const potion = carried(state, POT_SLEEPING);
-    // Three squares east of the hero, so that the launch direction and the
-    // range distmin() computes are both nontrivial.
     const gnome = offensiveMonster(state, PM_GNOME, potion, {
         mx: state.u.ux + 3,
         my: state.u.uy,
@@ -1067,6 +1067,13 @@ test('use_offensive hurls the selected potion along the line to the hero',
         // only for a thrower on a square the hero can actually see.
         state.viz_array[state.u.uy][x] |= COULD_SEE | IN_SIGHT;
     }
+    return { gnome, potion };
+}
+
+test('use_offensive hurls the selected potion along the line to the hero',
+    async () => {
+    const state = await offensiveHero();
+    const { gnome, potion } = hurlingGnome(state);
     const messages = [];
     const thrown = [];
     const env = {
@@ -1092,6 +1099,33 @@ test('use_offensive hurls the selected potion along the line to the hero',
     assert.deepEqual(thrown[0].slice(0, 7), [
         gnome, gnome.mx, gnome.my, -1, 0, 3, potion,
     ]);
+});
+
+// muse.c:2018-2019 announces the throw with pline_mon(), which sets the
+// message location to the thrower's square; pline.c:175-177 prefixes that
+// location under the accessiblemsg option.
+test('use_offensive locates the hurl line at the thrower under accessiblemsg',
+    async () => {
+    const state = await offensiveHero();
+    state.a11y = { ...state.a11y, accessiblemsg: true };
+    const { gnome } = hurlingGnome(state);
+    const messages = [];
+    const env = {
+        ...offensiveEnv(state),
+        message: async (text) => { messages.push(text); },
+        monsterName: () => 'The gnome',
+        throwMissile: async () => {},
+    };
+
+    assert.equal(find_offensive(gnome, env), true);
+    assert.equal(await use_offensive(gnome, env), 2);
+
+    const line = 'The gnome hurls a dark potion!';
+    const located = messageAt(line, gnome.mx, gnome.my, state);
+    // The prefix is real: messageAt() returns the bare line only when the
+    // option is off.
+    assert.notEqual(located, line);
+    assert.deepEqual(messages, [located]);
 });
 
 test('use_offensive refuses every arm outside the hurled potion',

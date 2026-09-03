@@ -773,8 +773,9 @@ const WAIL_POWERS = Object.freeze([
     SLEEP_RES, DISINT_RES, TELEPORT_CONTROL, STEALTH, FAST, INVIS,
 ]);
 
-async function maybe_wail(state) {
+async function maybe_wail(state, env = {}) {
     if (state.moves <= (state.wailmsg ?? 0) + 50) return;
+    const message = env.message ?? ttyPline;
 
     state.wailmsg = state.moves;
     const role = state.urole?.mnum;
@@ -784,14 +785,14 @@ async function maybe_wail(state) {
             ? state.urole.name.m : 'Elf';
 
         if (state.u.uhp === 1) {
-            await ttyPline(`${who} is about to die.`, state);
+            await message(`${who} is about to die.`, state);
         } else {
             let powercnt = 0;
             for (const power of WAIL_POWERS) {
                 if (state.u.uprops?.[power]?.intrinsic & INTRINSIC)
                     ++powercnt;
             }
-            await ttyPline(
+            await message(
                 powercnt >= 4
                     ? `${who}, all your powers will be lost...`
                     : `${who}, your life force is running out.`,
@@ -807,7 +808,7 @@ async function maybe_wail(state) {
                 : 'the howling of the CwnAnnwn...',
             state,
         );
-        if (line !== null) await ttyPline(line, state);
+        if (line !== null) await message(line, state);
     }
 }
 
@@ -818,7 +819,9 @@ async function maybe_wail(state) {
 // turn, and js/unported_monster_actions.js runs every monster turn twice: once
 // against a clone, to find out whether it can be replayed, and then live. With
 // `showdamage` on, the default would write the clone's line to the live
-// terminal. losehp() runs on the hero's own turn and needs no such seam.
+// terminal. losehp() takes the same seam for its one monster-turn caller,
+// potion.c potionhit(); every other caller runs on the hero's own turn and
+// leaves it unset.
 export async function showdamage(dmg, state, env = {}) {
     if (!state.iflags?.showdamage || !dmg) return;
     const message = env.message ?? ttyPline;
@@ -830,7 +833,11 @@ export async function showdamage(dmg, state, env = {}) {
 // C ref: hack.c losehp() (4255-4292). `knam` and `k_format` describe the
 // killer; only the death branch records them, and only end.c done() reads them
 // back.
-export async function losehp(n, knam, k_format, state = game) {
+//
+// `env.message` reaches showdamage() and maybe_wail(), the two lines this
+// prints short of death. The death branch keeps its urgent_pline(): the one
+// monster-turn caller refuses a fatal loss before calling here.
+export async function losehp(n, knam, k_format, state = game, env = {}) {
     state.disp ??= {};
     state.disp.botl = true; /* u.uhp or u.mh is changing */
     endRunning(state);
@@ -842,7 +849,7 @@ export async function losehp(n, knam, k_format, state = game) {
     }
 
     state.u.uhp -= n;
-    await showdamage(n, state);
+    await showdamage(n, state, env);
     // Widening this comparison to >= would assign u.uhpmax to itself, so no
     // test can tell the two apart.
     if (state.u.uhp > state.u.uhpmax)
@@ -870,7 +877,7 @@ export async function losehp(n, knam, k_format, state = game) {
         // at.
         await done(DIED, state);
     } else if (n > 0 && state.u.uhp * 10 < state.u.uhpmax) {
-        await maybe_wail(state);
+        await maybe_wail(state, env);
     }
 }
 
@@ -1929,13 +1936,13 @@ function preflight_moverock(sx, sy, noPickMove, state) {
         refuse('a boulder that will not move');
     }
 
-    // 437-443, KMH's rule that Sokoban boulders do not roll diagonally. The
+    // 441-448, KMH's rule that Sokoban boulders do not roll diagonally. The
     // refusal covers the whole branch rather than the diagonal alone, because
     // sokoban_guilt() and Sokoban's own hole-plugging in flooreffects() are
     // both unported and an orthogonal Sokoban push reaches them.
     if (In_sokoban(u.uz)) refuse('a boulder push in Sokoban');
 
-    // 445-447. revive_nasty() (103-137) is a call on the push path, not a
+    // 450-453. revive_nasty() (103-137) is a call on the push path, not a
     // guard around it: it walks the pile at <rx,ry> and revives every Rider
     // corpse and every Wizard of Yendor corpse there. Only its TRUE arm gives
     // up the move, so its FALSE arm -- this scan finding neither -- is what
@@ -1974,10 +1981,10 @@ function preflight_moverock(sx, sy, noPickMove, state) {
         return;
     }
 
-    // 478-481. cannot_push_msg() again, for a boulder against a closed door.
+    // 485-488. cannot_push_msg() again, for a boulder against a closed door.
     if (closed_door(rx, ry, state)) refuse('a closed door behind the boulder');
 
-    // 490-616, the trap switch. C acts on six types -- LANDMINE, PIT and
+    // 496-618, the trap switch. C acts on six types -- LANDMINE, PIT and
     // SPIKED_PIT, HOLE and TRAPDOOR, LEVEL_TELEP, TELEP_TRAP and
     // ROLLING_BOULDER_TRAP -- and lets every other type fall through its
     // `default: break` to the push below. This refuses all of them: the six
@@ -1986,7 +1993,7 @@ function preflight_moverock(sx, sy, noPickMove, state) {
     // resting on a trap, which nothing here has traced.
     if (t_at(rx, ry, state)) refuse('a boulder pushed onto a trap');
 
-    // 618-619. do.c boulder_hits_pool() (49-118) is the other unconditional
+    // 620-621. do.c boulder_hits_pool() (49-118) is the other unconditional
     // call on this path. Everything above its `is_pool_or_lava(rx, ry)` test
     // only rejects a non-boulder, so that test alone is its FALSE arm -- the
     // one that lets the push happen. js/do.js flooreffects() already records
@@ -1995,7 +2002,7 @@ function preflight_moverock(sx, sy, noPickMove, state) {
         refuse('a boulder pushed into water or lava');
 
     // dopush():217-240, the shop bill, and the `costly` computed for it at
-    // 445-447. addtobill(), subfrombill() and stolen_value() are all live once
+    // 438-439. addtobill(), subfrombill() and stolen_value() are all live once
     // a boulder crosses a shop boundary. C's `costly` conjoins costly_spot()
     // with shop_keeper(*in_rooms(sx, sy, SHOPBASE)); js/shk.js costly_spot()
     // (491-499) already requires that shopkeeper, so the first term carries it.

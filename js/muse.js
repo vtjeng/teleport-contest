@@ -56,6 +56,7 @@ import { lined_up } from './mthrowu.js';
 import { in_your_sanctuary } from './priest.js';
 import { rn2 } from './rng.js';
 import { stairway_at } from './stairs.js';
+import { messageAt } from './startup_a11y.js';
 import { t_at } from './trap.js';
 import { cansee } from './vision.js';
 import { mwelded } from './wield.js';
@@ -426,10 +427,10 @@ export function select_fresh_monster_item_action(monster, rawEnv = {}) {
 // C ref: muse.c find_offensive() (1420-1594). "Select an offensive
 // item/action for a monster. Returns TRUE iff one is found."
 //
-// Partial, and deliberately only ever answers FALSE. C reports its choice
-// through gm.m.offensive and gm.m.has_offense, whose sole reader is
-// use_offensive(); that function is not ported, so every arm that would set
-// has_offense refuses here instead. What the port therefore covers is the
+// Partial. It answers TRUE only for the five MUSE_POT_* selections and refuses
+// every other arm that would select. C reports its choice through
+// gm.m.offensive and gm.m.has_offense; `state.m_offense` holds both here, set
+// to null on entry and read back by use_offensive() below. The port covers the
 // FALSE answer -- the five guards above the inventory loop, and the loop's
 // rejection of every item that is not an offensive one -- plus the five
 // throwable-potion arms, whose shared use_offensive() case is ported below.
@@ -581,9 +582,16 @@ export async function use_offensive(mtmp, rawEnv = {}) {
                 );
             }
             observe_object(otmp, state);
+            // pline_mon() sets the message location to the thrower's square,
+            // which messageAt() prefixes under the accessiblemsg option.
             await message(
-                `${monsterName(mtmp, state)} hurls `
-                + `${singular(otmp, donameFresh, state)}!`,
+                messageAt(
+                    `${monsterName(mtmp, state)} hurls `
+                    + `${singular(otmp, donameFresh, state)}!`,
+                    mtmp.mx,
+                    mtmp.my,
+                    state,
+                ),
                 state,
             );
         }

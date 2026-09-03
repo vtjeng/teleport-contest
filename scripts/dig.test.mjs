@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    COLNO,
     CORR,
     DIGTYP_DOOR,
     DIGTYP_ROCK,
@@ -11,20 +12,29 @@ import {
     D_CLOSED,
     D_LOCKED,
     D_NODOOR,
+    IS_WALL,
     OBJ_DELETED,
     OBJ_INVENT,
     POOL,
     ROOM,
+    ROWNO,
     SDOOR,
     STONE,
     TREE,
     VWALL,
+    W_NONDIGGABLE,
 } from '../js/const.js';
-import { dig_typ, rot_corpse, unportedRotCorpseReason } from '../js/dig.js';
+import {
+    dig_typ, mdig_tunnel, rot_corpse, unportedRotCorpseReason,
+} from '../js/dig.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { newMonster } from '../js/monst.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
     PM_CAVE_SPIDER,
+    PM_DWARF,
     PM_JACKAL,
     PM_ORC,
     monst_globals_init,
@@ -412,3 +422,70 @@ test('the corpse rot matrix rests long enough for a corpse to come due', () => {
         assert.match(segment.nethackrc, /pettype:none/u);
     }
 });
+
+// ---- dig.c mdig_tunnel() (1413-1490), the wall arm ----
+
+async function tunnelGame(options) {
+    await runSegment({
+        seed: 771040,
+        datetime: '20260724120000',
+        nethackrc: 'OPTIONS=name:Digger,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + `pettype:none${options}`,
+        moves: ' ',
+    });
+}
+
+// Any diggable wall of the generated level: mdig_tunnel() reads only the
+// terrain under the monster, so which wall it is does not matter, but the
+// level's outer walls carry W_NONDIGGABLE and return before the rn2(5).
+// IS_WALL rather than IS_STWALL, which also admits STONE.
+function firstWall() {
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            const location = game.level.at(x, y);
+            if (IS_WALL(location?.typ)
+                && !((location.wall_info ?? 0) & W_NONDIGGABLE)) {
+                return { x, y };
+            }
+        }
+    }
+    return assert.fail('the level has a diggable wall');
+}
+
+// dig.c:1533-1536 is `if (flags.verbose && !rn2(5)) You_hear("crashing
+// rock.")`. pline.c You_hear() (435-451) prints nothing when the hero is deaf
+// or the acoustics option is off, after the rn2(5) has already been spent.
+for (const [label, options, expected] of [
+    ['prints under the default options', '', ['You hear crashing rock.']],
+    ['stays silent under !acoustics', ',!acoustics', []],
+]) {
+    test(`the crashing-rock line of a dug wall ${label}`, async () => {
+        await tunnelGame(options);
+        const { x, y } = firstWall();
+        const dwarf = newMonster({ data: game.mons[PM_DWARF], mx: x, my: y });
+        game.flags.verbose = true;
+        const drawn = [];
+        const messages = [];
+        const random = {
+            // rnd(12) is the pile roll; 6 leaves no boulder or rock behind.
+            rnd: (bound) => { drawn.push(['rnd', bound]); return 6; },
+            // 0 is the one-in-five result that reaches You_hear().
+            rn2: (bound) => { drawn.push(['rn2', bound]); return 0; },
+        };
+
+        const died = await mdig_tunnel(dwarf, {
+            state: game,
+            random,
+            message: async (text) => { messages.push(text); },
+            redraw: () => {},
+        });
+
+        assert.equal(died, false);
+        assert.deepEqual(messages, expected);
+        // Both draws are spent whether or not the line prints.
+        assert.deepEqual(drawn, [['rnd', 12], ['rn2', 5]]);
+        assert.equal(IS_WALL(game.level.at(x, y).typ), false,
+            'the wall is dug away');
+    });
+}
