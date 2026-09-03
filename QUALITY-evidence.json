@@ -16613,5 +16613,104 @@
       "deferrals": []
     },
     "recordedAt": "2026-09-02T18:59:40.515Z"
+  },
+  {
+    "kind": "review",
+    "head": "c6ee098da6459cff0c3a7deac00316010a6bb9d7",
+    "auditedRange": "a19a79cea0538b3cca084afadb11c6d12f0ae594..c6ee098da6459cff0c3a7deac00316010a6bb9d7",
+    "level": "full",
+    "areas": [
+      "startup",
+      "objects",
+      "generation",
+      "monsters",
+      "world-effects",
+      "commands",
+      "runtime"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 23 raw, 22 deduplicated, 18 confirmed, 18 applied, 0 deferred, 4 rejected, 0 unverified. Full pass over a19a79ce..c8ff8e63 with all four core finders; performance and concurrency finders were not triggered. Fixes landed in c6ee098d with the Audit-fix-for trailer. The escaped refusal classes on the death path and the always-true u.ushops guard mattered most: both silently changed behavior on a hero death or a potion breaking outside a shop. Three ledger entries opened by the fix work (potionbreathe-sleep-resistance-yawn, mattacku-continues-after-hero-death, moveloop-core-dispatches-a-command-after-death) record gaps the pass surfaced rather than deferred findings. A user merge (da550354) of recorder and matrix scripts landed between the reviewed head and the fix commit and touches no area-owned path. Development score identical before and after the fixes: 23/33 sessions, 4257/7765 screens, 267944/610816 rng.",
+    "auditMetrics": {
+      "wallTimeSeconds": 5400,
+      "counts": {
+        "raw": 23,
+        "deduplicated": 22,
+        "confirmed": 18,
+        "applied": 18,
+        "deferred": 0,
+        "rejected": 4,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 5,
+        "tests": 8,
+        "clarity": 5,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "really_done()'s paybill()/paygd()/clearpriests() calls can raise UnsupportedShopError, UnsupportedVaultGuardError and UnsupportedMonsterCreationError on the hero-death path, but the live monster scan converts only two other classes, so the refusal escapes the fail-closed boundary.",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "potionhit() calls losehp() directly, so showdamage() and maybe_wail() write to the live terminal during the elapsed-turn planning dry run and again during the live replay.",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "potionhit()'s shop-billing guard tests state.u.ushops, a fixed-size array that is always truthy; C's *u.ushops is the first entry and is zero outside a shop.",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "potionbreathe()'s POT_ACID/POT_POLYMORPH arm passes env.encumberMessage to exercise(), which the hero-turn caller in zap_destroy_items.js does not supply, so attrib.js throws a bare Error instead of a fail-closed refusal.",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "Admitting a tunneler onto a wall makes mdig_tunnel()'s IS_WALL arm live, and it prints 'You hear crashing rock.' directly instead of through You_hear(), ignoring the acoustics gate, deafness, and the Underwater and Unaware prefixes.",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        }
+      ],
+      "readiness": {
+        "boundary": "Each slice in a19a79ce..c8ff8e63 starts at a player input or a monster's turn in the running game (a boulder push, a tunneler's move, a step onto a teleport trap, a monster's step onto a rock trap, the hero's death, a monster's attack turn) and ends at the next screen, message, or state change the C reference records; fresh C recordings replayed against the port reached each ending event.",
+        "sourceReview": "Every branch and helper reachable before those ending events was traced against the upstream C functions and patches, including state ownership, PRNG order, screen and cursor behavior, and the explicitly excluded arms; the pass found one escaped refusal class, one always-true shop guard, one missing owner on a hero-turn path, one unrouted You_hear() line, and one planning-pass output leak, all fixed against the C source.",
+        "completeness": "No known unsupported behavior remains inside the applied boundaries; excluded arms stop before state, randomness, or output, and their ports are recorded in the deferral ledger."
+      },
+      "rejections": [
+        {
+          "summary": "The comment on m_throw()'s new settled flag says C leaves the loop from three arms with two ported, but the loop has six break sites.",
+          "counterEvidence": "The next sentence of the comment defines arms as settlement arms (potionhit(), drop_throw() twice), of which exactly three exist and two are ported; an unset flag is turned into a named refusal at the post-loop check, so no silent divergence is possible. Prose-only; do not reopen without a flight that reaches the post-loop check with the flag wrongly set."
+        },
+        {
+          "summary": "inherits() and paybill() test u.ushops with Array.includes(), which scans past the zero terminator that C's strchr() stops at.",
+          "counterEvidence": "A stale byte past the terminator needs the hero to have stood in two shop rooms at once, which cannot happen: mklev.c makes at most one shop per level and js/rooms.js clears the buffer on level change. Both call sites agree with strchr() for every reachable state. Do not reopen without a level that generates two shop rooms."
+        },
+        {
+          "summary": "The UNPORTED_TRAP_EFFECTS comment was not updated for TELEP_TRAP's removal from the set.",
+          "counterEvidence": "TELEP_TRAP's deliberate absence is documented in trapeffect_telep_trap()'s own header and in the preflight comment below the set, in the same idiom used for MAGIC_TRAP and PIT; the set is read once, after the explicit TELEP_TRAP dispatch, so re-adding it would be inert. Prose polish owned by the clarity audit."
+        },
+        {
+          "summary": "The new wieldMessage refuses a self-welding weapon while three sibling wieldMessage bindings still print only the first of C's two lines.",
+          "counterEvidence": "Each sibling seam refuses a self-welding selection upstream, before mon_wield_item() runs (js/unported_monster_actions.js ranged, mattackm, and offensive seams), so the newlyWelded branch is unreachable through them and no behavior differs. The proposed shared factory is a behavior-neutral refactor owned by the simplification pass."
+        }
+      ],
+      "deferrals": []
+    },
+    "recordedAt": "2026-09-03T05:09:44.023Z"
   }
 ]
