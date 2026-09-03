@@ -8656,8 +8656,8 @@
       "slices": [
         {
           "name": "rottenfood rotten-food cascade with helpers",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e21b251fd358066279c6ef1d3f467ebd24aa9a55"
         }
       ],
       "openedAt": "0a9f4d198f55c45e5fa91e5c9c818dd1d6141b88",
