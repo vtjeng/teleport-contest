@@ -16,6 +16,7 @@ import {
     COLNO,
     CORR,
     DEAF,
+    HWALL,
     LAVAPOOL,
     LR_BRANCH,
     LR_DOWNSTAIR,
@@ -27,17 +28,18 @@ import {
     MAGIC_PORTAL,
     ROOM,
     ROWNO,
+    STONE,
     undestroyable_trap,
 } from './const.js';
 import { Is_branchlev, on_level, u_on_newpos } from './dungeon.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
-import { mkstairs, place_branch } from './mklev.js';
+import { mkstairs, place_branch, walkfrom } from './mklev.js';
 import { occupied } from './mktrap.js';
 import { m_at } from './monst.js';
 import { create_gas_cloud } from './region.js';
 import { within_bounded_area } from './rect.js';
-import { rn1, rn2 } from './rng.js';
+import { rn1, rn2, rnd } from './rng.js';
 import { maketrap, t_at } from './trap.js';
 import { ttyNorep } from './tty_message.js';
 import {
@@ -509,4 +511,94 @@ function put_lregion_here(
         );
     }
     return true;
+}
+
+// C ref: mkmaze.c maze0xy() (309-314). Picks a random odd-coordinate
+// starting point inside the given maze bounds (xMax, yMax).
+function maze0xy(xMax, yMax) {
+    const x = 3 + 2 * rn2((xMax >> 1) - 1);
+    const y = 3 + 2 * rn2((yMax >> 1) - 1);
+    return { x, y };
+}
+
+// C ref: mkmaze.c create_maze() (950-1039). Generates a maze with the
+// specified corridor width and wall thickness, then scales it up when
+// the combined scale exceeds 2. walkfrom() carves from maze0xy()'s
+// random start; the bounds are temporarily reduced to keep the small
+// grid inside the map.
+export function create_maze(corrwid, wallthick, rmDeadends, frame, state) {
+    if (corrwid === -1) corrwid = rnd(4);
+    if (wallthick === -1) wallthick = rnd(4) - corrwid;
+    if (wallthick < 1) wallthick = 1;
+    else if (wallthick > 5) wallthick = 5;
+    if (corrwid < 1) corrwid = 1;
+    else if (corrwid > 5) corrwid = 5;
+
+    const scale = corrwid + wallthick;
+    const rdx = Math.trunc(frame.xMazeMax / scale);
+    const rdy = Math.trunc(frame.yMazeMax / scale);
+
+    // Fill the reduced grid: corrmaze fills with STONE; otherwise,
+    // odd-parity cells are STONE (walls) and even-parity cells are HWALL.
+    if (state.level.flags.corrmaze) {
+        for (let x = 2; x < rdx * 2; ++x)
+            for (let y = 2; y < rdy * 2; ++y)
+                state.level.at(x, y).typ = STONE;
+    } else {
+        for (let x = 2; x <= rdx * 2; ++x)
+            for (let y = 2; y <= rdy * 2; ++y)
+                state.level.at(x, y).typ = ((x % 2) && (y % 2))
+                    ? STONE : HWALL;
+    }
+
+    // Temporarily reduce bounds for maze carving.
+    const bounds = { xMax: rdx * 2, yMax: rdy * 2 };
+
+    const mm = maze0xy(bounds.xMax, bounds.yMax);
+    walkfrom(mm.x, mm.y, 0, state, bounds);
+
+    // rmDeadends would call maze_remove_deadends(); not needed for
+    // the current hells[5] arm where deadends defaults to true
+    // (rm_deadends = false).
+
+    // Scale maze up when scale > 2.
+    if (scale > 2) {
+        // Back up the smaller maze into a temporary map.
+        const tmpmap = [];
+        for (let x = 0; x < COLNO; ++x) {
+            tmpmap[x] = new Uint8Array(ROWNO);
+            for (let y = 0; y < ROWNO; ++y) {
+                tmpmap[x][y] = state.level.at(x, y).typ;
+            }
+        }
+
+        // Scale: walk the reduced grid and expand each cell according
+        // to its parity. Odd columns/rows (corridors) get corrwid cells;
+        // even columns/rows (walls) get wallthick cells, except the
+        // boundary columns/rows (x==2 or x==rdx*2, y==2 or y==rdy*2)
+        // which get 1 cell.
+        let rx = 2, x = 2;
+        while (rx < frame.xMazeMax) {
+            const mx = (x % 2)
+                ? corrwid
+                : (x === 2 || x === rdx * 2) ? 1 : wallthick;
+            let ry = 2, y2 = 2;
+            while (ry < frame.yMazeMax) {
+                const my = (y2 % 2)
+                    ? corrwid
+                    : (y2 === 2 || y2 === rdy * 2) ? 1 : wallthick;
+                for (let dx = 0; dx < mx; ++dx) {
+                    for (let dy = 0; dy < my; ++dy) {
+                        if (rx + dx >= frame.xMazeMax
+                            || ry + dy >= frame.yMazeMax) break;
+                        state.level.at(rx + dx, ry + dy).typ = tmpmap[x][y2];
+                    }
+                }
+                ry += my;
+                y2++;
+            }
+            rx += mx;
+            x++;
+        }
+    }
 }

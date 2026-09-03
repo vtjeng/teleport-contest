@@ -42,6 +42,26 @@ export function hell_open_cavern(des, state, random = rn2) {
     des.wallify();
 }
 
+// C ref: hellfill.lua hells[5]. Thick-wall maze with optional lava
+// replacement. The level_init({style:'maze'}) call drives create_maze()
+// from mkmaze.c; replace_terrain({mapfragment:'w'}) converts inner walls
+// to lava when percent(50) passes.
+function hell_thick_wall_maze(des, state, random = rn2) {
+    const wwid = 1 + mathRandom(2, random);
+    des.level_init({ style: 'solidfill', fg: ' ', lit: 0 });
+    des.level_flags('mazelevel', 'noflip');
+    des.level_init({ style: 'maze', wallthick: wwid, corrwid: mathRandom(2, random) });
+    if (percent(50, random)) {
+        const outsideWalls = selection_match(' ', state);
+        des.replace_terrain({ mapfragment: 'w', toterrain: 'L' });
+        des.terrain(outsideWalls, ' ');
+        if (wwid === 3 && percent(40, random)) {
+            const sel = selection_match('LLL\nLLL\nLLL', state);
+            des.terrain(sel.percentage(30 * mathRandom(4, random), random), 'Z');
+        }
+    }
+}
+
 function unsupportedHellGenerator(number) {
     throw new UnsupportedLevelChangeError(
         `hellfill generator ${number} not ported`,
@@ -55,7 +75,7 @@ export const HELL_GENERATORS = Object.freeze([
     () => unsupportedHellGenerator(2),
     () => unsupportedHellGenerator(3),
     () => unsupportedHellGenerator(4),
-    () => unsupportedHellGenerator(5),
+    hell_thick_wall_maze,
     () => unsupportedHellGenerator(6),
     hell_open_cavern,
 ]);

@@ -39,7 +39,7 @@ import { add_to_container, obj_extract_self, obfree } from './invent.js';
 import { UnsupportedMonsterCreationError, makemon } from './makemon_create.js';
 import { mkclass } from './makemon.js';
 import { mineralize } from './mineralize.js';
-import { place_lregion, setup_waterlevel } from './mkmaze.js';
+import { create_maze, place_lregion, setup_waterlevel } from './mkmaze.js';
 import { d, rn2, rnd, rn1, rne, rnz } from './rng.js';
 import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
 import {
@@ -903,6 +903,47 @@ export function splev_chr2typ(char) {
     }
 }
 
+// C ref: sp_lev.c mapfrag_fromstr() and mapfrag_match(). Parses a
+// mapfragment string (newline-separated rows) into a grid of terrain
+// types, then matches the pattern centered on a map cell.
+function mapfrag_parse(str) {
+    const lines = str.split('\n').filter((l) => l.length > 0);
+    const hei = lines.length;
+    const wid = Math.max(...lines.map((l) => l.length));
+    const data = [];
+    for (let y = 0; y < hei; ++y) {
+        const row = [];
+        for (let x = 0; x < wid; ++x) {
+            row.push(x < lines[y].length ? splev_chr2typ(lines[y][x]) : STONE);
+        }
+        data.push(row);
+    }
+    return { wid, hei, data };
+}
+
+// C ref: sp_lev.c match_maptyps(). MATCH_WALL matches any stone wall;
+// MAX_TYPE (transparency) matches anything.
+function match_maptyps(mapc, levltyp) {
+    if (mapc === MATCH_WALL && !IS_STWALL(levltyp)) return false;
+    if (mapc < MAX_TYPE && mapc !== levltyp) return false;
+    return true;
+}
+
+function mapfrag_match(mf, x, y, state) {
+    for (let rx = -(mf.wid >> 1); rx <= (mf.wid >> 1); ++rx) {
+        for (let ry = -(mf.hei >> 1); ry <= (mf.hei >> 1); ++ry) {
+            const mapc = mf.data[ry + (mf.hei >> 1)][rx + (mf.wid >> 1)];
+            const tx = x + rx;
+            const ty = y + ry;
+            // C ref: isok() check; out-of-bounds treated as STONE.
+            const levc = (tx >= 0 && tx < COLNO && ty >= 0 && ty < ROWNO)
+                ? state.level.at(tx, ty).typ : STONE;
+            if (!match_maptyps(mapc, levc)) return false;
+        }
+    }
+    return true;
+}
+
 function themeroom_map_fits(definition, xstart, ystart, state) {
     const { width, height, map: rows } = definition;
     for (let y = ystart - 1; y < Math.min(ROWNO, ystart + height) + 1; y++) {
@@ -1333,6 +1374,16 @@ function createSpecialLevelApi(state) {
                     walled: specification.walled ?? false,
                     icedpools: false,
                 }, state);
+            } else if (style === 'maze') {
+                // C ref: sp_lev.c splev_initlev() LVLINIT_MAZE case,
+                // calling mkmaze.c create_maze(corrwid, wallthick,
+                // rm_deadends). Lua's "deadends" defaults to true,
+                // so rm_deadends = !true = false when omitted.
+                const corrwid = specification.corrwid ?? -1;
+                const wallthick = specification.wallthick ?? -1;
+                const deadends = specification.deadends ?? true;
+                const rmDeadends = !deadends;
+                create_maze(corrwid, wallthick, rmDeadends, frame, state);
             } else {
                 throw new Error(
                     `unsupported special-level init style ${style}`,
@@ -2119,6 +2170,14 @@ function createSpecialLevelApi(state) {
                 ? splev_chr2typ(spec.fromterrain) : -1;
             const chance = spec.chance ?? 100;
 
+            // C ref: sp_lev.c lspo_replace_terrain(). When fromterrain
+            // is absent, mapfragment provides a pattern-match filter.
+            // mapfrag_match checks each cell in the pattern around (x,y).
+            let mf = null;
+            if (fromTyp < 0 && spec.mapfragment != null) {
+                mf = mapfrag_parse(spec.mapfragment);
+            }
+
             let sel = spec.selection ?? null;
 
             if (!sel) {
@@ -2141,14 +2200,22 @@ function createSpecialLevelApi(state) {
             for (let x = Math.max(1, bounds.lx); x <= bounds.hx; ++x) {
                 for (let y = bounds.ly; y <= bounds.hy; ++y) {
                     if (!sel.get(x, y)) continue;
-                    const loc = state.level.at(x, y);
-                    if (fromTyp >= 0) {
+                    if (mf) {
+                        if (mapfrag_match(mf, x, y, state)
+                            && rn2(100) < chance) {
+                            set_levltyp(x, y, toTyp, { state });
+                        }
+                    } else if (fromTyp >= 0) {
+                        const loc = state.level.at(x, y);
                         if (fromTyp === MATCH_WALL) {
                             if (!IS_STWALL(loc.typ)) continue;
                         } else if (loc.typ !== fromTyp) continue;
+                        if (rn2(100) < chance)
+                            set_levltyp(x, y, toTyp, { state });
+                    } else {
+                        if (rn2(100) < chance)
+                            set_levltyp(x, y, toTyp, { state });
                     }
-                    if (rn2(100) < chance)
-                        set_levltyp(x, y, toTyp, { state });
                 }
             }
         },
@@ -3127,7 +3194,9 @@ function flip_level_rnd(flp) {
 // standard iterative DFS, so an iterative stack-based version would
 // NOT match the C. The Castle level's maze wings are small enough
 // (about 8x17 cells) that recursion depth stays well within limits.
-function walkfrom(x, y, typ, state) {
+// bounds defaults match the full maze area used by special levels.
+// create_maze() passes reduced bounds when generating a scaled maze.
+function walkfrom(x, y, typ, state, bounds) {
     if (!typ) {
         typ = state.level.flags.corrmaze ? CORR : ROOM;
     }
@@ -3143,7 +3212,7 @@ function walkfrom(x, y, typ, state) {
         let q = 0;
         const dirs = [0, 0, 0, 0];
         for (let a = 0; a < 4; ++a) {
-            if (maze_okay(x, y, a, state)) dirs[q++] = a;
+            if (maze_okay(x, y, a, state, bounds)) dirs[q++] = a;
         }
         if (!q) return;
         const dir = dirs[rn2(q)];
@@ -3159,14 +3228,16 @@ function walkfrom(x, y, typ, state) {
         y += dy[dir];
         // Recurse; after it returns, x,y still point to the destination
         // (matching the C behavior where mz_move modifies x,y in place).
-        walkfrom(x, y, typ, state);
+        walkfrom(x, y, typ, state, bounds);
     }
 }
 
 // C ref: mkmaze.c okay(). Checks whether maze carving can extend two
 // cells from (x,y) in direction a. Uses x_maze_max/y_maze_max which
 // default to (COLNO-1)&~1 and (ROWNO-1)&~1 for special levels.
-function maze_okay(x, y, a, state) {
+// bounds.xMax and bounds.yMax default to the full maze area.
+// create_maze() passes reduced bounds for the scaled-down grid.
+function maze_okay(x, y, a, state, bounds) {
     // C ref: mkmaze.c mz_move(). Direction mapping must match walkfrom():
     // 0=north(y--), 1=east(x++), 2=south(y++), 3=west(x--).
     const dx = [0, 1, 0, -1];
@@ -3174,8 +3245,10 @@ function maze_okay(x, y, a, state) {
     const nx = x + 2 * dx[a];
     const ny = y + 2 * dy[a];
     if (nx < 3 || ny < 3) return false;
-    if (nx > ((COLNO - 1) & ~1)) return false;
-    if (ny > ((ROWNO - 1) & ~1)) return false;
+    const xMax = bounds?.xMax ?? ((COLNO - 1) & ~1);
+    const yMax = bounds?.yMax ?? ((ROWNO - 1) & ~1);
+    if (nx > xMax) return false;
+    if (ny > yMax) return false;
     if (state.level.at(nx, ny).typ !== STONE) return false;
     return true;
 }
@@ -5191,6 +5264,7 @@ export {
     somey,
     somexy,
     traptype_rnd,
+    walkfrom,
 };
 
 // C ref: mkroom.c somexyspace(). The source do-while attempts one initial
