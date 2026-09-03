@@ -8775,6 +8775,23 @@
         "screens": 20,
         "rng": 102
       }
+    },
+    {
+      "id": "unsupported-level-change-hellfill-generator-5-not-ported",
+      "status": "open",
+      "boundary": "Hellfill loader dispatch selecting and executing the hells[5] generator arm.",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "e497ce11549dc8953d43b85e9c546c609030ddfe",
+      "openStanding": {
+        "sha": "811fdc458b5a554c356f9be0b77cfbcc6c647f84",
+        "screens": 4366,
+        "rng": 276703
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
