@@ -8526,8 +8526,8 @@
       "slices": [
         {
           "name": "port-maybe-spin-web",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "9ab7eac8b5433e02b9c8ab847b7e5ed399639537"
         }
       ],
       "openedAt": "c379be1359040304ae64588a147027f9ebccfc7b",
