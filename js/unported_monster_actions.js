@@ -22,6 +22,8 @@ import {
     INVIS,
     IS_FOUNTAIN,
     IS_FURNITURE,
+    IS_STWALL,
+    IS_TREE,
     IS_WATERWALL,
     MON_FLOOR,
     MON_MIGRATING,
@@ -56,7 +58,7 @@ import { capitalizedMonsterName } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { engr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { losehp, nh_delay_output, nomul } from './hack.js';
+import { losehp, may_dig, nh_delay_output, nomul } from './hack.js';
 import { hands_obj, obj_extract_self, stackobj } from './invent.js';
 import { any_light_source } from './light.js';
 import { m_dowear, set_mimic_sym } from './makemon_create.js';
@@ -117,6 +119,7 @@ import {
     dochugw,
     m_avoid_kicked_loc,
     m_avoid_soko_push_loc,
+    m_digweapon_check,
     m_everyturn_effect,
     m_in_air,
     m_move,
@@ -793,11 +796,34 @@ function setPlannedMimicSym(monster, env) {
     });
 }
 
-function admitDoorOpening(x, y, env) {
+// postmov() changes the destination's terrain for both admitted cases: it
+// opens a closed door through UnblockDoor, and digs a wall or tree through
+// dig.c mdig_tunnel(). Both rebuild vision.c's module-wide transparency index,
+// which the planning clone borrows, and mdig_tunnel() also rewrites the
+// terrain grid the clone otherwise shares with the live game.
+function admitTerrainChange(x, y, env) {
     const { state } = env;
     if (!env.planning) return;
     admitPlannedVisionChange(x, y, state);
 }
+
+// C ref: mon.c mfndpos()'s ALLOW_DIG arm (2196-2215) hands a tunneling monster
+// an obstructed square, and monmove.c postmov()'s `can_tunnel && may_dig()`
+// arm (1643-1645) then digs it with dig.c mdig_tunnel(). m_move() passes its
+// own can_tunnel here, which mon_allowflags() computed identically, so this
+// admits exactly the squares postmov() will dig.
+//
+// Only the wall and tree terrain mdig_tunnel() rewrites in place is admitted.
+// SDOOR and SCORR are obstructed and diggable too, but they enter
+// mdig_tunnel()'s door and secret-corridor arms, whose shop damage and
+// mb_trapped() owners no development case reaches; they stay refused.
+function digsDestination(location, x, y, env) {
+    if (!env.canTunnel || !location) return false;
+    if (!IS_STWALL(location.typ) && !IS_TREE(location.typ, env.state))
+        return false;
+    return may_dig(x, y, env.state);
+}
+
 
 async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     const { state } = env;
@@ -841,12 +867,14 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
         && monsndx(monster.data) !== PM_FLOATING_EYE;
     const liquidDestination = (is_pool(x, y, state) && poolOkay)
         || (is_lava(x, y, state) && lavaOkay);
+    const digsWall = digsDestination(location, x, y, env);
     const ordinaryDestination = location
         && (location.typ === ROOM
             || location.typ === CORR
             || IS_FURNITURE(location.typ)
             || inertDoorway
             || opensDoor
+            || digsWall
             || liquidDestination);
     if (!ordinaryDestination)
         unsupported('door or special terrain movement');
@@ -880,7 +908,7 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
             unsupported('a region transition');
     }
     // Last, so that a destination another guard rejects prepares nothing.
-    if (opensDoor) admitDoorOpening(x, y, env);
+    if (opensDoor || digsWall) admitTerrainChange(x, y, env);
     return m_in_out_region(monster, x, y, env);
 }
 
@@ -912,10 +940,37 @@ function doorVisionOperations(env) {
         : {};
 }
 
+// weapon.c mon_wield_item()'s two presentation operations, as
+// m_digweapon_check() reaches it. The planning pass mutates its cloned monster
+// and inventory but writes no line; the live replay of the same turn writes
+// the pline_mon() text C writes at weapon.c:891-893.
+function monsterWieldOperations(env) {
+    return {
+        canSeeMonster: (subject) => canSeeMonster(subject, env.state),
+        wieldMessage: async (subject, obj, detail) => {
+            // weapon.c:906-914 follows the wields line with a second pline for
+            // a weapon that welds itself, whose Tobjnam()/mbodypart() text and
+            // bknown write have no owner here. It is refused before the
+            // planning early return below, so the preflight scan stops the
+            // turn instead of writing only the first of C's two lines.
+            if (detail.newlyWelded)
+                unsupported('a monster wielding a weapon that welds itself');
+            if (env.planning) return;
+            await ttyPline(
+                `${capitalizedMonsterName(subject, env.state)} wields `
+                + `${donameFresh(obj, env.state)}`
+                + `${detail.exclaim ? '!' : '.'}`,
+                env.state,
+            );
+        },
+    };
+}
+
 async function moveSimpleOrdinary(monster, env) {
     return m_move(monster, {
         ...env,
         ...doorVisionOperations(env),
+        ...monsterWieldOperations(env),
         mdigTunnel: mdig_tunnel,
         mayCrossRegion: admitSimpleDestinationAndRegion,
         resistsTrapEffect,
@@ -948,7 +1003,15 @@ async function moveSimplePet(monster, after, env) {
             m_avoid_soko_push_loc(subject, x, y, env.state),
         bestTarget: best_target,
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
-        digWeaponCheck: () => false,
+        // C ref: dogmove.c dog_move():1291-1292 calls the same
+        // m_digweapon_check() m_move() does, so the pet gets the real function
+        // rather than a constant answer.
+        digWeaponCheck: (subject, x, y, moveEnv) => m_digweapon_check(
+            subject,
+            x,
+            y,
+            { ...moveEnv, ...monsterWieldOperations(env) },
+        ),
         displaceMonster: () => unsupported('pet displacement'),
         eatObject: dog_eat,
         mayCrossRegion: admitSimpleDestinationAndRegion,

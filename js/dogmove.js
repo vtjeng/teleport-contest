@@ -1515,7 +1515,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
         )) {
             return MMOVE_MOVED;
         }
-        if (petMoveOperation(env, 'digWeaponCheck')(
+        if (await petMoveOperation(env, 'digWeaponCheck')(
             monster,
             nextX,
             nextY,

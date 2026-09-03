@@ -77,6 +77,7 @@ import {
     IS_ALTAR,
     IS_DOOR,
     IS_OBSTRUCTED,
+    IS_STWALL,
     IS_TREE,
     IS_WATERWALL,
     LANDMINE,
@@ -96,7 +97,10 @@ import {
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_AP_TYPMASK,
+    NEED_AXE,
     NEED_HTH_WEAPON,
+    NEED_PICK_AXE,
+    NEED_PICK_OR_AXE,
     NEED_WEAPON,
     NOGARLIC,
     NO_TRAP_FLAGS,
@@ -345,7 +349,8 @@ import {
     recalc_block_point,
     vision_recalc,
 } from './vision.js';
-import { can_touch_safely } from './weapon.js';
+import { can_touch_safely, mon_wield_item } from './weapon.js';
+import { mwelded } from './wield.js';
 import { which_armor } from './worn.js';
 import * as M from './monsters.js';
 import * as O from './objects.js';
@@ -491,6 +496,44 @@ export function should_displace(monster, data, goalX, goalY, env = {}) {
     }
     return withDisplacing >= 0
         && (withDisplacing < withoutDisplacing || !ordinaryCount);
+}
+
+// C ref: monmove.c m_digweapon_check() (1106-1133). Have the monster wield a
+// pick-axe if it wants to dig and it has one; returns true when it spends this
+// move wielding one, which ends the move before it steps anywhere.
+//
+// The can_tunnel this recomputes is monmove.c:1763-1766's, not m_move()'s
+// local copy: C rebuilds it here from tunnels() alone, without m_move()'s
+// hostile-near-hero suppression, so a monster that mfndpos() refused a dig
+// square can still spend this move wielding a pick.
+export async function m_digweapon_check(monster, nix, niy, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const weapon = monster.mw;
+    const canTunnel = !on_level(state.u?.uz, state.rogue_level)
+        && tunnels(monster.data);
+    if (!canTunnel || !needspick(monster.data) || mwelded(weapon, state))
+        return false;
+    const closedDoor = closed_door(nix, niy, state);
+    // C ref: monmove.c:1118. may_dig() is false only for a NONDIGGABLE wall or
+    // tree, so it admits ordinary floor too; the terrain arms below are what
+    // decide whether this monster wants a digging tool at all.
+    if (!may_dig(nix, niy, state) && !closedDoor) return false;
+    const typ = state.level?.at(nix, niy)?.typ;
+    if (closedDoor) {
+        // C ref: monmove.c:1120-1121. C writes `!is_pick(mw) || !is_axe(mw)`,
+        // which no object satisfies both halves of, so any wielded weapon
+        // reaches NEED_PICK_OR_AXE here. Preserved as written.
+        if (!weapon || !isPick(weapon, state) || !isAxe(weapon, state))
+            monster.weapon_check = NEED_PICK_OR_AXE;
+    } else if (IS_TREE(typ, state)) {
+        if (!weapon || !isAxe(weapon, state))
+            monster.weapon_check = NEED_AXE;
+    } else if (IS_STWALL(typ)) {
+        if (!weapon || !isPick(weapon, state))
+            monster.weapon_check = NEED_PICK_AXE;
+    }
+    if (monster.weapon_check < NEED_PICK_AXE) return false;
+    return Boolean(await mon_wield_item(monster, rawEnv));
 }
 
 // C ref: monmove.c closed_door().
@@ -2805,6 +2848,10 @@ export async function m_move(monster, rawEnv = {}) {
             env,
         );
     }
+    // C ref: monmove.c:1987-1988. Wielding a digging tool consumes the whole
+    // move, so this returns before the ALLOW_U test below. C:1986's itsstuck()
+    // sits between the two and is not dig-specific; it stays unported.
+    if (await m_digweapon_check(monster, nextX, nextY, env)) return MMOVE_DONE;
     if (data.info[chosen] & ALLOW_U) {
         nextX = monster.mux;
         nextY = monster.muy;
@@ -2822,7 +2869,10 @@ export async function m_move(monster, rawEnv = {}) {
     if (data.info[chosen] & ALLOW_MDISP)
         unsupported('ordinary monster displacement');
     const mayCrossRegion = rawEnv.mayCrossRegion ?? m_in_out_region;
-    if (!await mayCrossRegion(monster, nextX, nextY, env))
+    // canTunnel travels with the destination because postmov() reads this same
+    // local when it decides whether to dig the square (C:1643-1645); the
+    // admission guard needs it to tell a dig destination from an unported one.
+    if (!await mayCrossRegion(monster, nextX, nextY, { ...env, canTunnel }))
         return MMOVE_DONE;
     if (data.info[chosen] & ALLOW_ROCK)
         unsupported('ordinary monster boulder breaking');

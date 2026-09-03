@@ -55,6 +55,7 @@ import {
     MMOVE_MOVED,
     MMOVE_NOMOVES,
     MMOVE_NOTHING,
+    NEED_WEAPON,
     NOGARLIC,
     NOTONL,
     OPENDOOR,
@@ -82,6 +83,7 @@ import {
     W_ARM,
     W_ARMC,
     W_RINGL,
+    W_WEP,
 } from '../js/const.js';
 import { A_CHA } from '../js/const.js';
 import {
@@ -101,6 +103,7 @@ import {
     distfleeck,
     disturb,
     m_can_break_boulder,
+    m_digweapon_check,
     m_avoid_kicked_loc,
     m_avoid_soko_push_loc,
     m_everyturn_effect,
@@ -135,6 +138,7 @@ import {
     PM_ANGEL,
     PM_DEATH,
     PM_DISPLACER_BEAST,
+    PM_DWARF,
     PM_FOG_CLOUD,
     PM_FLOATING_EYE,
     PM_CAVE_SPIDER,
@@ -177,9 +181,11 @@ import {
     CREDIT_CARD,
     DAGGER,
     DART,
+    DWARVISH_MATTOCK,
     GOLD_DRAGON_SCALE_MAIL,
     LONG_SWORD,
     LOCK_PICK,
+    PICK_AXE,
     SACK,
     SCR_SCARE_MONSTER,
     SKELETON_KEY,
@@ -1400,6 +1406,190 @@ test('postmov refuses the dig arm only where may_dig admits the square',
             postmov(monster, 4, 4, MMOVE_MOVED, true, false, false, digging.env),
             (error) => error.message === 'monster tunneling',
         );
+    });
+
+// C ref: monmove.c m_digweapon_check() (1106-1133). The values below come from
+// that function and from makemon.c m_initweap() (380-399), which is what puts
+// a pick-axe or a dwarvish mattock in a dwarf's pack.
+
+// A dwarf on dungeon level one, standing beside the square it has chosen. Only
+// the destination and the dwarf's own weapons vary between the cases.
+function diggingDwarf(state, minvent = null, overrides = {}) {
+    return ordinaryMonster(state, {
+        data: state.mons[PM_DWARF],
+        mnum: PM_DWARF,
+        mx: 4,
+        my: 4,
+        minvent,
+        ...overrides,
+    });
+}
+
+// mon_wield_item()'s presentation operations. canseemon() is false for every
+// case here, which is the arm C takes for an unseen monster: it wields with no
+// pline at all, so no message operation is reachable.
+const UNSEEN_WIELD = { canSeeMonster: () => false };
+
+test('m_digweapon_check wields a pick for a wall and spends the move',
+    async () => {
+        const { locations, state } = makeState();
+        locations.set('5,4', { typ: STONE, flags: 0, wall_info: 0 });
+        const pick = objectFor(state, PICK_AXE);
+        const monster = diggingDwarf(state, pick);
+
+        assert.equal(
+            await m_digweapon_check(monster, 5, 4, { ...UNSEEN_WIELD, state }),
+            true,
+        );
+        // mon_wield_item() resets weapon_check to NEED_WEAPON once it has
+        // wielded, so the pick in hand is what shows which arm ran.
+        assert.equal(monster.mw, pick);
+        assert.equal(monster.weapon_check, NEED_WEAPON);
+    });
+
+test('m_digweapon_check leaves a dwarf that already holds its pick alone',
+    async () => {
+        const { locations, state } = makeState();
+        locations.set('5,4', { typ: STONE, flags: 0, wall_info: 0 });
+        const pick = objectFor(state, PICK_AXE);
+        const monster = diggingDwarf(state, pick, {
+            mw: pick,
+            weapon_check: NEED_WEAPON,
+        });
+
+        // C ref: monmove.c:1130. is_pick(mw_tmp) holds, so weapon_check is
+        // never raised to NEED_PICK_AXE and the move is not spent.
+        assert.equal(
+            await m_digweapon_check(monster, 5, 4, { ...UNSEEN_WIELD, state }),
+            false,
+        );
+        assert.equal(monster.weapon_check, NEED_WEAPON);
+    });
+
+test('m_digweapon_check names the tool the destination terrain calls for',
+    async () => {
+        // C ref: monmove.c:1119-1131, the three terrain arms. weapon_check
+        // cannot be read afterwards -- mon_wield_item() overwrites it with
+        // NEED_WEAPON on every exit -- so each arm is identified by which
+        // single-tool pack it can spend the move on. Only the axe answers
+        // NEED_AXE, only the pick answers NEED_PICK_AXE, and NEED_PICK_OR_AXE
+        // accepts either, which is what separates a door from a wall.
+        const cases = [
+            // A closed door takes either tool: monmove.c:1120-1121.
+            {
+                location: { typ: DOOR, flags: D_CLOSED },
+                pick: true,
+                axe: true,
+            },
+            // A tree takes an axe: monmove.c:1123-1125.
+            { location: { typ: TREE, flags: 0 }, pick: false, axe: true },
+            // Stone and every wall type take a pick: monmove.c:1126-1128.
+            {
+                location: { typ: STONE, flags: 0, wall_info: 0 },
+                pick: true,
+                axe: false,
+            },
+        ];
+        for (const { location, pick, axe } of cases) {
+            for (const [otyp, wields] of [[PICK_AXE, pick], [AXE, axe]]) {
+                const { locations, state } = makeState();
+                locations.set('5,4', location);
+                const tool = objectFor(state, otyp);
+                const monster = diggingDwarf(state, tool);
+
+                assert.equal(
+                    await m_digweapon_check(monster, 5, 4, {
+                        ...UNSEEN_WIELD,
+                        state,
+                    }),
+                    wields,
+                    `terrain ${location.typ} with object ${otyp}`,
+                );
+                assert.equal(monster.mw, wields ? tool : null);
+            }
+        }
+    });
+
+test('m_digweapon_check leaves weapon_check alone where no arm applies',
+    async () => {
+        // C ref: monmove.c:1118-1131. may_dig() is true for ordinary floor, so
+        // the guard admits this square, but none of the three terrain arms
+        // matches it and weapon_check keeps the value it had. An undiggable
+        // wall fails the guard itself.
+        const cases = [
+            { location: { typ: ROOM, flags: 0 } },
+            {
+                location: {
+                    typ: STONE,
+                    flags: 0,
+                    wall_info: W_NONDIGGABLE,
+                },
+            },
+        ];
+        for (const { location } of cases) {
+            const { locations, state } = makeState();
+            locations.set('5,4', location);
+            const monster = diggingDwarf(state, objectFor(state, PICK_AXE), {
+                weapon_check: NEED_WEAPON,
+            });
+
+            assert.equal(
+                await m_digweapon_check(monster, 5, 4, { ...UNSEEN_WIELD, state }),
+                false,
+            );
+            assert.equal(monster.weapon_check, NEED_WEAPON);
+        }
+    });
+
+test('m_digweapon_check refuses a welded weapon, a rogue level and a monster '
+    + 'that does not tunnel',
+    async () => {
+        // C ref: monmove.c:1113-1118. Each case below fails one term of the
+        // guard, and none of them may touch weapon_check.
+        const { locations, state } = makeState();
+        locations.set('5,4', { typ: STONE, flags: 0, wall_info: 0 });
+
+        // A cursed weapon in hand welds, so wield.c mwelded() is true.
+        const welded = objectFor(state, DWARVISH_MATTOCK, {
+            cursed: true,
+            owornmask: W_WEP,
+        });
+        const stuck = diggingDwarf(state, welded, {
+            mw: welded,
+            weapon_check: NEED_WEAPON,
+        });
+        assert.equal(
+            await m_digweapon_check(stuck, 5, 4, { ...UNSEEN_WIELD, state }),
+            false,
+        );
+        assert.equal(stuck.weapon_check, NEED_WEAPON);
+
+        // Is_rogue_level() suppresses can_tunnel outright.
+        const rogue = diggingDwarf(state, objectFor(state, PICK_AXE), {
+            weapon_check: NEED_WEAPON,
+        });
+        const rogueState = { ...state, rogue_level: { ...state.u.uz } };
+        assert.equal(
+            await m_digweapon_check(rogue, 5, 4, {
+                ...UNSEEN_WIELD,
+                state: rogueState,
+            }),
+            false,
+        );
+        assert.equal(rogue.weapon_check, NEED_WEAPON);
+
+        // A giant rat neither tunnels nor needs a pick.
+        const rat = ordinaryMonster(state, {
+            mx: 4,
+            my: 4,
+            minvent: objectFor(state, PICK_AXE),
+            weapon_check: NEED_WEAPON,
+        });
+        assert.equal(
+            await m_digweapon_check(rat, 5, 4, { ...UNSEEN_WIELD, state }),
+            false,
+        );
+        assert.equal(rat.weapon_check, NEED_WEAPON);
     });
 
 // C ref: monmove.c:1690, maybe_spin_web(). Its rn2(1000) at :1279 is spent
