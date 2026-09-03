@@ -8679,7 +8679,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "Port container_contents identified+all_containers branches and disclose call site",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "e4a858f74b9b3188ddd23bcea01816b01e9f8411",
       "openStanding": {
         "sha": "9dc8c8ed",
