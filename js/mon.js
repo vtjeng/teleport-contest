@@ -390,7 +390,18 @@ export async function movemon(env = {}) {
 
     state.somebody_can_move = false;
     await iter_mons_safe(
-        (monster) => normalized.moveSingleMonster(monster, normalized),
+        async (monster) => {
+            const stop = await normalized.moveSingleMonster(
+                monster,
+                normalized,
+            );
+            // C's done_in_by() is NORETURN, so once a monster kills the hero
+            // no later monster in the list gets a turn. js/end.js returns from
+            // the end-game display instead, so that replay can capture its
+            // final window; ending the traversal is what stands in for C's
+            // longjmp out of the whole move loop.
+            return stop || Boolean(state.program_state?.gameover);
+        },
         state,
     );
 

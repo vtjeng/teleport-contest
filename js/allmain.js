@@ -58,6 +58,8 @@ import {
 import { init_objects } from './o_init.js';
 import { maybe_shuffle_customizations } from './glyphs.js';
 import { UnsupportedObjectNameError } from './objnam.js';
+import { UnsupportedObjectNamingError } from './do_name.js';
+import { UnsupportedPotionError } from './potion.js';
 import { UnsupportedObjectOperationError } from './obj.js';
 import { UnsupportedMonsterPickupOperationError } from './steal.js';
 import { objectGenerationHooks } from './object_generation.js';
@@ -979,6 +981,13 @@ function elapsedTurnPlanningRefusals() {
         UnsupportedObjectNameError,
         UnsupportedObjectOperationError,
         UnsupportedMonsterPickupOperationError,
+        // muse.c use_offensive() hurls a potion that potion.c potionhit()
+        // breaks on the hero, so its potionbreathe() tail now runs inside the
+        // monster scan. The vapor arms this port leaves unported raise the
+        // first class; the trycall() below them raises the second for a type
+        // the hero has neither identified nor already called something.
+        UnsupportedPotionError,
+        UnsupportedObjectNamingError,
         // mon.c mondead() forgets the invisible-monster marker through
         // display.c unmap_object(), which refuses an engraved square. A
         // monster dying on a square that carries both reaches that refusal
@@ -1168,6 +1177,12 @@ async function advanceElapsedTurn(state) {
                         'a deferred monster level transition',
                     ),
                 });
+                // C's done_in_by() is NORETURN, so a hero the monster scan
+                // kills never reaches the once-per-turn upkeep, the movement
+                // gate below, or another scan. js/end.js returns from the
+                // end-game display instead, so that replay can capture its
+                // final window; stop here the way C's longjmp does.
+                if (state.program_state?.gameover) return;
                 if (state.u.umovement >= NORMAL_SPEED) break;
             } while (monstersCanMove);
         } catch (error) {
