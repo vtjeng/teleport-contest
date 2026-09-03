@@ -8351,7 +8351,7 @@
     },
     {
       "id": "simple-monster-action-requires-monster-offensive-item-use",
-      "status": "open",
+      "status": "closed",
       "boundary": "A monster selects an offensive item against the hero, so find_offensive() must return true and use_offensive() must run. The port raises unsupported('monster offensive item use') in js/muse.js find_offensive() instead. Porting the potion arm lets a monster hurl a potion that crashes on the hero.",
       "upstreamOwners": [
         "muse.c",
@@ -8386,8 +8386,11 @@
         "screens": 4222,
         "rng": 260728
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "2864b2cc76589c954db3431a18ca5fc958a61838",
+      "delivered": {
+        "screens": 35,
+        "rng": 7216
+      }
     }
   ]
 }
