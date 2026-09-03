@@ -332,6 +332,7 @@ export class UnsupportedStealError extends Error {
 // paths that need can_carry() or cursed-item checks throw UnsupportedStealError.
 export async function steal(mtmp, state = game, env = {}) {
     const message = env.message ?? ttyUrgentPline;
+    const random = env.random?.rn2 ?? rn2;
 
     const monkey_business = is_animal(mtmp.data);
     const seen = canSpotMonster(mtmp, state);
@@ -414,7 +415,7 @@ export async function steal(mtmp, state = game, env = {}) {
                 }
                 return 1;
             }
-            tmp = rn2(tmp);
+            tmp = random(tmp);
             for (let o = state.invent; o; o = o.nobj) {
                 if ((!state.uarm || o !== state.uarmc) && o !== state.uskin
                     && o.oclass !== COIN_CLASS) {
