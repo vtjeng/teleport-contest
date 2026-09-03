@@ -912,13 +912,7 @@ async function disclose(how, taken, state) {
                         overlay: state.iflags?.menu_overlay !== false,
                     }),
             });
-            for (let obj = state.invent; obj; obj = obj.nobj) {
-                if (isContainer(obj) || obj.otyp === STATUE) {
-                    throw new UnsupportedEndOfGameError(
-                        'disclose() identified container contents',
-                    );
-                }
-            }
+            await container_contents(state.invent, true, true, false, state);
         }
         if (c === KEY_Q) discloseStop(state);
     }
@@ -1324,70 +1318,73 @@ function genl_outrip(textLines, how, when, state) {
     textLines.push({ text: '' });
 }
 
-// C ref: end.c container_contents() (1594-1670). Creates a NHW_MENU text
-// window listing the contents of a container. For the use_container() ':'
-// path, `identified` is FALSE and `all_containers` is FALSE; those branches
-// are the only ones this slice supports.
-//
-// The C version iterates `list->nobj` when `all_containers` is TRUE, recursing
-// into nested containers. This port treats `list` as a single container.
-//
-// SchroedingersBox is treated as false for ordinary containers (spe !== 1 or
-// otyp !== LARGE_BOX), which matches every reachable case. The identified
-// branch that calls discover_object is not reached because every caller in
-// this slice passes identified=FALSE.
+// C ref: end.c container_contents() (1594-1670). Iterates `list` via nobj,
+// creating a NHW_MENU text window listing the contents of each container or
+// statue found. When `all_containers` is TRUE, iterates the full list and
+// recurses into nested containers; when FALSE, processes only the first
+// matching item. When `identified` is TRUE, calls discover_object and sets
+// knowledge flags on each contained object.
 export async function container_contents(
-    box, identified, all_containers, reportempty, state = game,
+    list, identified, all_containers, reportempty, state = game,
 ) {
-    if (identified) {
-        throw new UnsupportedEndOfGameError(
-            'container_contents() with identified=TRUE',
-        );
-    }
-    if (all_containers) {
-        throw new UnsupportedEndOfGameError(
-            'container_contents() with all_containers=TRUE',
-        );
-    }
-    // C: Is_container(box) || box->otyp == STATUE
-    if (!isContainer(box) && box.otyp !== STATUE) return;
-
-    if (!box.cknown || (identified && !box.lknown)) {
-        box.cknown = 1;
-        if (identified) box.lknown = 1;
-        update_inventory({ state });
-    }
-    if (box.otyp === BAG_OF_TRICKS) return; // wrong type of container
-
-    if (box.cobj) {
-        // SchroedingersBox: ordinary containers have spe !== 1 or are not
-        // LARGE_BOX, so this is always false in the supported path.
-        const cat = (box.otyp === LARGE_BOX && box.spe === 1);
-
-        const header = `Contents of ${the(xnameFresh(box, state), state)}:`;
-        const lines = [header, ''];
-
-        if (box.cobj && !cat) {
-            const sortflags = (((state.flags?.sortloot === 'l'
-                || state.flags?.sortloot === 'f')
-                ? SORTLOOT_LOOT : 0)
-                | (state.flags?.sortpack ? SORTLOOT_PACK : 0));
-            const sorted = sortloot(box.cobj, sortflags, false, null, state);
-            for (const entry of sorted) {
-                lines.push(`  ${doname_with_price(entry.obj, state)}`);
+    for (let box = list; box; box = box.nobj) {
+        if (isContainer(box) || box.otyp === STATUE) {
+            if (!box.cknown || (identified && !box.lknown)) {
+                box.cknown = 1;
+                if (identified) box.lknown = 1;
+                update_inventory({ state });
             }
-        } else if (cat) {
-            lines.push("  Schroedinger's cat!");
-        }
+            if (box.otyp === BAG_OF_TRICKS) {
+                // wrong type of container; C: continue
+                if (!all_containers) break;
+                continue;
+            }
 
-        await displayTtyMenuTextWindow(state, lines);
-    } else if (reportempty) {
-        await ttyPline(
-            `${upstart(thesimpleoname(box, state))} is empty.`,
-            state,
-        );
-        // C: display_nhwindow(WIN_MESSAGE, FALSE). The pline call above
-        // displays the message; the explicit display_nhwindow in C ensures
-        // it is flushed, which ttyPline already does.
+            if (box.cobj) {
+                // SchroedingersBox: ordinary containers have spe !== 1 or
+                // are not LARGE_BOX, so this is always false for reachable
+                // cases.
+                const cat = (box.otyp === LARGE_BOX && box.spe === 1);
+
+                const header = `Contents of ${the(xnameFresh(box, state), state)}:`;
+                const lines = [header, ''];
+
+                if (box.cobj && !cat) {
+                    const sortflags = (((state.flags?.sortloot === 'l'
+                        || state.flags?.sortloot === 'f')
+                        ? SORTLOOT_LOOT : 0)
+                        | (state.flags?.sortpack ? SORTLOOT_PACK : 0));
+                    const sorted = sortloot(box.cobj, sortflags, false, null, state);
+                    for (const entry of sorted) {
+                        if (identified) {
+                            discover_object(entry.obj.otyp, true, true, false, state);
+                            entry.obj.dknown = 1;
+                            entry.obj.known = entry.obj.bknown = entry.obj.rknown = 1;
+                            if (isContainer(entry.obj) || entry.obj.otyp === STATUE) {
+                                entry.obj.cknown = entry.obj.lknown = 1;
+                            }
+                        }
+                        lines.push(`  ${doname_with_price(entry.obj, state)}`);
+                    }
+                } else if (cat) {
+                    lines.push("  Schroedinger's cat!");
+                }
+
+                await displayTtyMenuTextWindow(state, lines);
+                if (all_containers) {
+                    await container_contents(box.cobj, identified, true,
+                        reportempty, state);
+                }
+            } else if (reportempty) {
+                await ttyPline(
+                    `${upstart(thesimpleoname(box, state))} is empty.`,
+                    state,
+                );
+                // C: display_nhwindow(WIN_MESSAGE, FALSE). The pline call
+                // above displays the message; the explicit display_nhwindow
+                // in C ensures it is flushed, which ttyPline already does.
+            }
+        }
+        if (!all_containers) break;
     }
 }
