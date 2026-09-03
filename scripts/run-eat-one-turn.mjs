@@ -13,16 +13,25 @@
 // splitobj(); a single item draws nothing at all; and a food older than thirty
 // turns reaches doeat()'s rn2(7) rot test.
 //
-// Every segment that eats an apple needs a recorder built on Darwin, the host
-// that produced the reference sessions. eat.c fprefx() (2179-2190) answers an
-// apple from its `#if defined(MACOS9) || defined(MACOS)` arm, and
+// An apple's message is chosen at compile time. eat.c fprefx() (2179-2190)
+// answers an apple from its `#if defined(MACOS9) || defined(MACOS)` arm, and
 // include/config1.h:43-45 defines MACOS from clang's __APPLE__ and __MACH__
-// alone, so a recorder built by build-recorder.sh's Linux branch compiles that
-// arm out and prints the Unix arm's "Core dumped." for an apple instead. The
-// wolfsbane segment is the one here that does not depend on the host.
+// alone, so the judge's Darwin-built recorder printed "Delicious!  Must be a
+// Macintosh!" and a recorder built by build-recorder.sh's Linux branch prints
+// the Unix arm's "Core dumped." instead. On a Linux host the matrix
+// substitutes the judge's line for the host's before comparison. No recipe
+// here eats a pear, which prints "Core dumped." on both hosts.
 
 import { validateCleanRecipe } from './diff-fresh.mjs';
-import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
+import {
+    runDifferentialAcceptingHostStrings,
+    runFreshMatrix,
+    runMatrixCli,
+} from './fresh-matrix.mjs';
+
+const runDifferentialFn = runDifferentialAcceptingHostStrings([
+    ['Core dumped.', 'Delicious!  Must be a Macintosh!'],
+]);
 
 const DATETIME = '20310203040506';
 
@@ -165,6 +174,7 @@ export async function runEatOneTurnMatrix() {
         }],
         summaryLabel: 'EAT ONE-TURN FOOD',
         chunkLimit: 6,
+        runDifferentialFn,
     });
     if (!ordinary.passed) return ordinary;
     return runFreshMatrix({
@@ -174,6 +184,7 @@ export async function runEatOneTurnMatrix() {
         }],
         summaryLabel: 'EAT ONE-TURN FOOD (OPTION VARIATIONS)',
         chunkLimit: 2,
+        runDifferentialFn,
     });
 }
 

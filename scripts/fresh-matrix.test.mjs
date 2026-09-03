@@ -7,6 +7,7 @@ import {
     RECORDER_SEGMENT_LIMIT,
     runFreshMatrix,
     runMatrixCli,
+    substituteHostStrings,
 } from './fresh-matrix.mjs';
 
 function segment(seed) {
@@ -217,4 +218,35 @@ test('runMatrixCli reports a thrown error under the label with status 2', async 
     assert.equal(status, 2);
     assert.equal(calls.exitCode, 2);
     assert.equal(calls.written, 'example: recorder binary not found\n');
+});
+
+// A two-step recording in the shape record-session.mjs writes: each step
+// holds the serialized screen. The apple line is what eat.c fprefx() prints
+// from its Unix arm; the judge's Darwin build prints the Macintosh line.
+const HOST_RECORDING = {
+    version: 5,
+    segments: [{
+        ...segment(1),
+        steps: [
+            { key: null, screen: 'You see here an apple.\nrow two' },
+            { key: 'e', screen: 'Core dumped.\nrow two' },
+        ],
+    }],
+};
+const APPLE = [['Core dumped.', 'Delicious!  Must be a Macintosh!']];
+
+test('substituteHostStrings rewrites only steps holding a host string', () => {
+    const out = substituteHostStrings(HOST_RECORDING, APPLE, false);
+    const [untouched, rewritten] = out.segments[0].steps;
+    // Identity for an untouched step shows the step was not copied needlessly;
+    // the rewritten step keeps its key and the rest of its screen.
+    assert.equal(untouched, HOST_RECORDING.segments[0].steps[0]);
+    assert.deepEqual(rewritten,
+        { key: 'e', screen: 'Delicious!  Must be a Macintosh!\nrow two' });
+    // The input is not mutated.
+    assert.equal(HOST_RECORDING.segments[0].steps[1].screen, 'Core dumped.\nrow two');
+});
+
+test('substituteHostStrings leaves a recording from the judge host alone', () => {
+    assert.equal(substituteHostStrings(HOST_RECORDING, APPLE, true), HOST_RECORDING);
 });

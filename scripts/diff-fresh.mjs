@@ -934,7 +934,16 @@ function loadRecipe(config) {
     return validateCleanRecipe(buildFreshRecipe(config, exactNethackrc), 'fresh recipe');
 }
 
-export async function runDifferential(recipe, recorderEnv = process.env) {
+// transformRecording, when given, receives the validated C recording and
+// returns the one the port is compared against. A matrix whose recorder runs
+// on a host other than the judge's uses it to substitute the judge's text for
+// a host-bound string (fresh-matrix.mjs substituteHostStrings()); everything
+// it does not touch stays strict.
+export async function runDifferential(
+    recipe,
+    recorderEnv = process.env,
+    { transformRecording = null } = {},
+) {
     validateCleanRecipe(recipe, 'fresh recipe');
     const workRoot = mkdtempSync(join(tmpdir(), 'teleport-fresh-diff-'));
     let scoringRoot = null;
@@ -967,6 +976,11 @@ export async function runDifferential(recipe, recorderEnv = process.env) {
         const recording = JSON.parse(readFileSync(recordingPath, 'utf8'));
         validateCleanRecipe(recording, 'C recording', { steps: 'require' });
         assertRecordingMatchesRecipe(recording, recipe);
+        if (transformRecording) {
+            // The worker reads the recording from this path.
+            writeFileSync(recordingPath,
+                JSON.stringify(transformRecording(recording)));
+        }
 
         // createScoringWorkspace copies contestant modules and overlays the
         // three frozen judge files before jsmain.js is imported.
