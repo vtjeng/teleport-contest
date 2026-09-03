@@ -51,8 +51,10 @@ import { sticks, thick_skinned } from '../js/mondata.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     monst_globals_init,
+    AD_COLD,
     AD_PHYS,
     AT_BITE,
+    AT_ENGL,
     AT_BOOM,
     AT_BUTT,
     AT_CLAW,
@@ -837,11 +839,16 @@ test('getmattk answers the unchanged attack and refuses each substitution',
     const owlbear = meleeAttacker(state, PM_OWLBEAR, -1, 0);
     assert.equal(getmattk(owlbear, state.youmonst, 2, sum, refuse),
         state.mons[PM_OWLBEAR].mattk[2]);
+    // mhitu.c:371-392. When mspec_used is set, the holder's hug attack is
+    // rewritten to a simpler melee attack. The owlbear's AT_HUGS/AD_PHYS
+    // is not elemental, so it becomes AT_CLAW/AD_PHYS with 1d6 damage.
     owlbear.mspec_used = 1;
-    assert.throws(
-        () => getmattk(owlbear, state.youmonst, 2, sum, refuse),
-        (error) => error.reason === 'a substituted monster attack',
-    );
+    const owlSub = getmattk(owlbear, state.youmonst, 2, sum, refuse);
+    assert.notEqual(owlSub, state.mons[PM_OWLBEAR].mattk[2]);
+    assert.equal(owlSub.aatyp, AT_CLAW);
+    assert.equal(owlSub.adtyp, AD_PHYS);
+    assert.equal(owlSub.damn, 1);
+    assert.equal(owlSub.damd, 6);
 
     // mhitu.c:395-410, a weapon attack for non-physical damage. A barrow
     // wight's AT_WEAP does AD_DRLI, which C may force back to AD_PHYS.
@@ -1239,11 +1246,31 @@ test('getmattk separates the two damage types its holder guard names',
     const lichen = meleeAttacker(state, PM_LICHEN, -1, 0);
     assert.equal(getmattk(lichen, state.youmonst, 0, sum, refuse),
         state.mons[PM_LICHEN].mattk[0]);
-    // and mhitu.c:370-373 claims it through the adtyp half of its
-    // disjunction rather than through AT_ENGL or AT_HUGS.
+    // and mhitu.c:370-373 claims it through the adtyp half (AD_STCK) of
+    // its disjunction rather than through AT_ENGL or AT_HUGS.
+    // mhitu.c:375: wimpy is true because damd is 0.  The non-elemental
+    // branch fires (AT_CLAW/AD_PHYS), then the wimpy guard converts
+    // AT_CLAW to AT_TUCH with 0d0.
     lichen.mspec_used = 1;
-    assert.throws(() => getmattk(lichen, state.youmonst, 0, sum, refuse),
-        (error) => error.reason === 'a substituted monster attack');
+    const lichenSub = getmattk(lichen, state.youmonst, 0, sum, refuse);
+    assert.notEqual(lichenSub, state.mons[PM_LICHEN].mattk[0]);
+    assert.equal(lichenSub.aatyp, AT_TUCH);
+    assert.equal(lichenSub.adtyp, AD_PHYS);
+    assert.equal(lichenSub.damn, 0);
+    assert.equal(lichenSub.damd, 0);
+
+    // An ice vortex's AT_ENGL/AD_COLD, the goal's witness case.
+    // mhitu.c:380-382: AD_COLD is elemental, so the attack becomes
+    // AT_TUCH (not AT_CLAW) and keeps AD_COLD.
+    const vortex = meleeAttacker(state, PM_ICE_VORTEX, 1, 0);
+    assert.equal(getmattk(vortex, state.youmonst, 0, sum, refuse).aatyp,
+        AT_ENGL);
+    vortex.mspec_used = 1;
+    const vortexSub = getmattk(vortex, state.youmonst, 0, sum, refuse);
+    assert.equal(vortexSub.aatyp, AT_TUCH);
+    assert.equal(vortexSub.adtyp, AD_COLD);
+    assert.equal(vortexSub.damn, 1);
+    assert.equal(vortexSub.damd, 6);
 });
 
 // ---- mhitu.c hitmsg(), hitmu(), mdamageu() and passiveum() ----

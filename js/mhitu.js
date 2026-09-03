@@ -435,7 +435,24 @@ export function getmattk(magr, mdef, indx, prev_result, rawEnv = {}) {
                                    || attk.aatyp === M.AT_HUGS
                                    || attk.adtyp === M.AD_STCK
                                    || attk.adtyp === M.AD_POLY)) {
-        refuse();
+        const wimpy = (attk.damd === 0); /* lichen, violet fungus */
+        /* can't re-engulf or re-grab yet; switch to simpler attack */
+        const alt = { aatyp: attk.aatyp, adtyp: attk.adtyp,
+                      damn: attk.damn, damd: attk.damd };
+        if (alt.adtyp === M.AD_ACID || alt.adtyp === M.AD_ELEC
+            || alt.adtyp === M.AD_COLD || alt.adtyp === M.AD_FIRE) {
+            alt.aatyp = M.AT_TUCH;
+        } else {
+            alt.aatyp = M.AT_CLAW; /* attack message will be "<foo> hits" */
+            alt.adtyp = M.AD_PHYS;
+        }
+        alt.damn = 1; /* relatively weak: 1d6 */
+        alt.damd = 6;
+        if (wimpy && alt.aatyp === M.AT_CLAW) {
+            alt.aatyp = M.AT_TUCH;
+            alt.damn = alt.damd = 0;
+        }
+        return alt;
 
     /* barrow wight, Nazgul, erinys have weapon attack for non-physical
        damage; force physical damage if attacker has been cancelled or
