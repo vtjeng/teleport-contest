@@ -8500,8 +8500,8 @@
       "slices": [
         {
           "name": "admit-mk-zoo-thronemon-high-difficulty-rulers",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "a8605e8aceb5649ce49b06367b557b248b972514"
         }
       ],
       "openedAt": "e27c9eda29a5ac971fcb0da44eda762e17f7e929",
