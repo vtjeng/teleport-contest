@@ -3681,7 +3681,13 @@
       "status": "open",
       "from": "3dfbff692affa6fe93a29efc05b523f0784cfa6e",
       "detail": "The case just outside this slice, kept out of the passing suite because it does not match C yet. Inputs: seed 8930452, datetime 20310203040506, the recorder's canonical timezone, moves `lllsssjjjss`, and an rc of name:Hoarder,role:Barbarian,race:human,gender:male,align:chaotic with pettype:none and !acoustics. The ledger named this seed as the reproducer for `dochug() returns where C breaks into PHASE FOUR`.\n\nExpected failure: the port matches C for 2879 of 2898 PRNG calls and 4 of 12 screens, then ends segment 1 at step 5 on `simple monster action requires monster offensive item use`. That refusal is mhitu.c mattacku()'s find_offensive() call at js/mhitu.js, standing in for muse.c use_offensive() (muse.c:1824), which is not ported. Measured identically before and after dochug-post-move-restores-c-disjunction, so restoring the disjunction neither reached the stop earlier nor moved past it.\n\nCloses when use_offensive() is ported and this recipe replays to the end of its input. Until then it belongs in no committed matrix: a segment trimmed to step 4 would encode four startup screens and none of the monster behaviour the seed was chosen for.",
-      "blockedOn": "use_offensive"
+      "blockedOn": "m_throw",
+      "notes": [
+        {
+          "text": "use_offensive()'s hurled-potion arm is now ported, and this recipe gets further: the port matches C for 2879 of 2898 PRNG calls and 4 of 12 screens, then ends segment 1 at step 5 on 'cursed or greased monster missile flight'. That is mthrowu.c m_throw():622-637, the misfire arm a cursed or greased missile takes -- rn2(7), then a random rn2(3)-1 direction for each axis and a drop_throw() when both come out zero. The blocker moves from use_offensive to that arm.",
+          "at": "4da558077664fff506322892c326e1ffa8bf17d8"
+        }
+      ]
     },
     {
       "id": "grow-up-form-change-stops",
@@ -6055,6 +6061,33 @@
       "from": "4d129b3107e7608aa85dac4b49171748077e8cde",
       "detail": "vault.c paygd() only returns early in this port: with gold and a vault guard on the level it raises UnsupportedVaultGuardError. The unported arms move every coin into the Magic Memory Vault or onto a Croesus grave (mnexto(), make_grave(), freeinv(), place_object(), stackobj(), two rn2(2) draws for the grave square) and then mongone() the guard, which js/makemon_create.js mongone() itself refuses for isgd. findgd()'s migrating-guard loop is refused for the same reason: it needs mon_track_clear() and parkguard(). No fresh case is offered because no ported code creates a vault guard -- js/ has no invault() and no egd writer -- so the branch cannot be reached from the running game yet.",
       "blockedOn": "parkguard"
+    },
+    {
+      "id": "potionbreathe-blinding-vapors",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "4da558077664fff506322892c326e1ffa8bf17d8",
+      "detail": "potion.c potionbreathe()'s POT_BLINDNESS arm (2071-2079) still raises UnsupportedPotionError 'the blinding vapors, over make_blinded()'. It needs BlindedTimeout as a readable timeout, itimeout_incr() over it, and the Your1(vision_clears) line, none of which js/potion.js has an owner for; make_blinded() itself is ported at js/potion.js:322. muse.c find_offensive() can now select POT_BLINDNESS, so a monster that hurls one reaches this. Case just outside the goal's limit: seed 5000161, datetime 20270318143000, Valkyrie human female neutral, playmode:debug pettype:none !acoustics, moves '.<^G>gnome king<NL>m.m.m.  '. C prints the blinding vapors and 20 screens; the port stops after 17 with that refusal, so it is kept out of the passing suite. scripts/potion.test.mjs pins the refusal itself."
+    },
+    {
+      "id": "potionbreathe-dizzying-vapors",
+      "area": "objects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "4da558077664fff506322892c326e1ffa8bf17d8",
+      "detail": "potion.c potionbreathe()'s shared POT_CONFUSION/POT_BOOZE arm (2027-2032) still raises UnsupportedPotionError 'the dizzying vapors, over make_confused()'. Every part is ported -- make_confused() at js/potion.js:391 and itimeout_incr() at :283 -- so the arm is three lines, but three tests in scripts/zap-destroy-items.test.mjs choose POT_BOOZE precisely because its vapors stop the port, and porting the arm has to move them to a type that still refuses. muse.c find_offensive() can now select POT_CONFUSION, so a monster that hurls one reaches this. Case just outside the goal's limit: seed 5000394, datetime 20270318143000, Valkyrie human female neutral, playmode:debug pettype:none !acoustics, moves '.<^G>gnome king<NL>m.m.m.  '. C prints 20 screens; the port stops after 19 with that refusal, so it is kept out of the passing suite."
+    },
+    {
+      "id": "hurled-acid-potion-naming-prompt",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "4da558077664fff506322892c326e1ffa8bf17d8",
+      "detail": "potion.c potionhit()'s isyou POT_ACID arm (1694-1704) runs, but the potionbreathe() tail below it sets no kn, so trycall() reaches do_name.c docall() for a type the hero has not identified and js/do_name.js raises UnsupportedObjectNamingError 'naming an object type requires getlin()'s Call <thing>: prompt'. The burn message and its d(cursed?2:1, blessed?4:8) damage land first, so the stop is one call past the arm this slice ported. Closing it needs docall()'s getlin() prompt, not more of potion.c. Case just outside the goal's limit: seed 5000082, datetime 20270318143000, Valkyrie human female neutral, playmode:debug pettype:none !acoustics, moves '.<^G>gnome king<NL>m.m.m.  '. C prints 20 screens; the port stops after 17, so it is kept out of the passing suite. scripts/potion.test.mjs pins the arm itself against an identified type."
     }
   ],
   "areas": [

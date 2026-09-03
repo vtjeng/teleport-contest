@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5000008,
+      "datetime": "20270318143000",
+      "nethackrc": "OPTIONS=name:Hurl,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0007gnome king\nm.m.m.  "
+    }
+  ]
+}
