@@ -8434,6 +8434,37 @@
         "screens": 8,
         "rng": 1616
       }
+    },
+    {
+      "id": "unsupported-hero-move-the-kill-message-for-a-pet",
+      "status": "open",
+      "boundary": "The port refuses every mtmp.mtame-guarded arm of xkilled() on the hero-kills-own-pet path - the 'poor <pet>' kill message, the pet's killed_by_u flag, the sad-feeling message, and the luck/alignment/sound fallout - while leaving the non-pet kill path and the rest of xkilled()'s special-case arms untouched.",
+      "upstreamOwners": [
+        "mon.c"
+      ],
+      "forecast": {
+        "steps": 9,
+        "basis": "Capped look-ahead at unsupported hero move: the kill message for a pet",
+        "sessions": [
+          "seed0383-wizard-hallucinate"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383-wizard-hallucinate",
+            "evidence": "undefined | undefined | undefined"
+          }
+        ]
+      },
+      "detail": "Bounding property: js/mon.js xkilled() (ported at js/mon.js:2680-2851 from mon.c 3476-3740) refuses the pet-specific kill message at js/mon.js:2704, the mtmp.mtame branch of You(\"%s %s!\", ...) at mon.c 3503-3512 that uses x_monnam(..., \"poor\", namedpet ? SUPPRESS_SADDLE : 0, FALSE) with has_mgivenname()/Hallucination. That arm's dependencies are already ported and idle: x_monnam() and has_mgivenname() in js/do_name.js (called elsewhere, e.g. js/apply.js:672) and the Hallucination test used identically at js/sounds.js:604. Porting the single message does not clear the session, because five more mtame-guarded stops sit downstream on the same pet-kill path that every hostile kill skips: js/mon.js:2725-2726 (EDOG(mtmp).killed_by_u = 1, mon.c 3524-3526; EDOG() and killed_by_u already exist at js/dog.js:155 and 183 but are never set true), js/mon.js:2743 (the sad-feeling message, mon.c 3563-3564, gated on iflags.sad_feeling which js/mon.js:2607 and js/uhitm.js:2621 already write), and js/mon.js:2846 (unsupported('killing a pet'), mon.c 3703-3722: luck and alignment fallout, with adjalign(-15) already ported in js/attrib.js, the distant-thunder/applause You_hear() pair following the no-op Soundeffect() precedent in js/sounds.js yelp(), and the LL_KILLEDPET livelog call a file write the port omits by established convention, js/mon.js:2140, js/eat.js:2260-2261). The murder-penalty and non-tame peaceful/luck arms above and below stay out of scope because they guard on is_human/mpeaceful, not mtame. Per .agents/selection.md's rule that a slice ports arms of one C function family together, the C-source-honest slice is the full chain of mtame-guarded arms inside xkilled(): message, killed_by_u tracking, sad-feeling message, and the luck/alignment/sound consequences at cleanup. That is a handful of small writes in one function backed by existing helpers, well within one behavior slice. Deferred: everything outside the mtame guards in xkilled() (murder penalty for humans, quest-leader/nemesis/guardian/priest arms, unicorn guilt, petrification/boulder/engulfer edge cases). Capped, cap-stable measured forecast for seed0383-wizard-hallucinate is 9 screens (.cache/session-frontiers.json, cappedStretch 9).",
+      "slices": [],
+      "openedAt": "e677db4c72eff3f043366dad8dd71b22b9333250",
+      "openStanding": {
+        "sha": "dcee1ace",
+        "screens": 4265,
+        "rng": 269560
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
