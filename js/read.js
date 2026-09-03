@@ -8,8 +8,10 @@
 // seffect_teleportation() into scrolltele(), which handles the uncontrolled
 // safe_teleds path; a blessed confused teleportation scroll goes through
 // level_tele(), which handles the confused random_levtport path through
-// random_teleport_level(); other selected readable objects stop before
-// pickup_prev changes.
+// random_teleport_level(); a cursed remove-curse scroll goes through
+// seffect_remove_curse(), which prints the You_feel/disintegrates messages
+// and skips the invent-traversal loop; other selected readable objects stop
+// before pickup_prev changes.
 // wizcmds.c wiz_genesis() calls the monster-creation helpers.
 
 import {
@@ -74,6 +76,7 @@ import {
     SCR_DESTROY_ARMOR,
     SCR_IDENTIFY,
     SCR_MAGIC_MAPPING,
+    SCR_REMOVE_CURSE,
     SCR_TELEPORTATION,
     DUNCE_CAP,
     LENSES,
@@ -319,9 +322,13 @@ export async function doread(state = game) {
         && can_chant(state.youmonst, state) && state.wizard;
     const calmTeleport = ordinaryScroll
         && scroll.otyp === SCR_TELEPORTATION;
+    const removeCurse = scroll.oclass === SCROLL_CLASS
+        && scroll.otyp === SCR_REMOVE_CURSE && scroll.cursed
+        && !propertyActive(BLINDED, state)
+        && can_chant(state.youmonst, state);
     if (!mapping && !identify && !destroyArmor
         && !knownHealing && !tooHardBook
-        && !confusedTeleport && !calmTeleport) {
+        && !confusedTeleport && !calmTeleport && !removeCurse) {
         throw new UnsupportedReadError('the selected readable object branch');
     }
 
@@ -340,7 +347,16 @@ export async function doread(state = game) {
             ? ECMD_TIME : ECMD_OK;
     }
     scroll.in_use = true;
-    await ttyPline('As you read the scroll, it disappears.', state);
+    // C ref: read.c doread() (614-626). Some scroll effects describe
+    // something happening to the scroll itself, so avoid "it disappears"
+    // for those.
+    const nodisappear = scroll.otyp === SCR_REMOVE_CURSE && scroll.cursed;
+    await ttyPline(
+        nodisappear
+            ? 'You read the scroll.'
+            : 'As you read the scroll, it disappears.',
+        state,
+    );
     if (confused) {
         await ttyPline(
             'Being confused, you mispronounce the magic words...',
@@ -390,6 +406,34 @@ export async function seffect_destroy_armor(scroll, state = game) {
         );
     }
     state.gk.known = true;
+}
+
+// C ref: read.c seffect_remove_curse() (1489-1605). Only the cursed-scroll
+// branch (lines 1505-1506) is ported: it prints the You_feel message and
+// "The scroll disintegrates." and skips the uncursed/blessed invent-traversal
+// loop. The function never nulls sobjp, so seffects() returns 0 and the
+// caller handles useup.
+export async function seffect_remove_curse(scroll, state = game) {
+    if (scroll.otyp !== SCR_REMOVE_CURSE || !scroll.cursed) {
+        throw new UnsupportedReadError(
+            'the selected remove-curse branch',
+        );
+    }
+    const confused = propertyActive(CONFUSION, state);
+    const halluc = propertyActive(HALLUC, state);
+    // C ref: pline.c You_feel() prepends "You feel " (or "You dream that
+    // you feel " when Unaware, which cannot happen while reading).
+    await ttyPline(
+        'You feel '
+        + (!halluc
+            ? (!confused ? 'like someone is helping you.'
+                : 'like you need some help.')
+            : (!confused ? 'in touch with the Universal Oneness.'
+                : 'the power of the Force against you!')),
+        state,
+    );
+    await ttyPline('The scroll disintegrates.', state);
+    update_inventory({ state });
 }
 
 // C ref: read.c seffect_teleportation() (2015-2032). Re-read the live
@@ -470,14 +514,15 @@ export async function seffect_magic_mapping(scroll, state = game) {
 }
 
 // C ref: read.c seffects() (2194-2290), restricted to SCR_IDENTIFY,
-// SCR_DESTROY_ARMOR, SCR_MAGIC_MAPPING, and SCR_TELEPORTATION. C returns
-// `sobj ? 0 : 1`:
+// SCR_DESTROY_ARMOR, SCR_MAGIC_MAPPING, SCR_REMOVE_CURSE, and
+// SCR_TELEPORTATION. C returns `sobj ? 0 : 1`:
 // 0 when the scroll still exists (caller handles useup), 1 when the effect
-// consumed it.  seffect_teleportation() and seffect_magic_mapping() never
-// consume the scroll, so both paths return 0.
+// consumed it.  seffect_remove_curse(), seffect_teleportation(), and
+// seffect_magic_mapping() never consume the scroll, so those paths return 0.
 export async function seffects(scroll, state = game) {
     if (scroll.otyp !== SCR_MAGIC_MAPPING && scroll.otyp !== SCR_IDENTIFY
         && scroll.otyp !== SCR_DESTROY_ARMOR
+        && scroll.otyp !== SCR_REMOVE_CURSE
         && scroll.otyp !== SCR_TELEPORTATION) {
         throw new UnsupportedReadError('the selected scroll effect');
     }
@@ -490,6 +535,10 @@ export async function seffects(scroll, state = game) {
     }
     if (scroll.otyp === SCR_DESTROY_ARMOR) {
         await seffect_destroy_armor(scroll, state);
+        return 0;
+    }
+    if (scroll.otyp === SCR_REMOVE_CURSE) {
+        await seffect_remove_curse(scroll, state);
         return 0;
     }
     if (scroll.otyp === SCR_TELEPORTATION) {
