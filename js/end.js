@@ -88,6 +88,9 @@ import { pmname } from './do_name.js';
 import { deepest_lev_reached } from './dungeon.js';
 import { game } from './gstate.js';
 import { make_grave } from './grave.js';
+import { clearpriests } from './priest.js';
+import { paybill } from './shk.js';
+import { paygd } from './vault.js';
 import { curs_on_u } from './hack.js';
 import { zombie_maker } from './mon.js';
 import { gender, is_vampshifter, type_is_pname } from './mondata.js';
@@ -974,15 +977,6 @@ async function disclose(how, taken, state) {
     }
 }
 
-function hasEndCleanupMonster(state) {
-    for (let monster = state.level?.monlist ?? null;
-        monster;
-        monster = monster.nmon) {
-        if (monster.isshk || monster.isgd || monster.ispriest) return true;
-    }
-    return false;
-}
-
 function done_object_cleanup(state) {
     for (let obj = state.invent; obj; obj = obj.nobj) {
         if (obj.in_use) {
@@ -1064,18 +1058,13 @@ async function really_done(how, state) {
             'really_done() special death or grave-arise state',
         );
     }
-    if (hasEndCleanupMonster(state)) {
-        throw new UnsupportedEndOfGameError(
-            'really_done() shopkeeper, guard, or priest cleanup',
-        );
-    }
-
-    // paybill() initializes the repository record even when no shopkeeper is
-    // present, then returns FALSE. paygd(), clearpriests(), and clearlocks()
-    // have no state to change on this D:1 path.
-    state.gr ??= {};
-    state.gr.repo = { location: { x: 0, y: 0 }, shopkeeper: null };
-    const taken = false;
+    // C ref: end.c:1234-1244. how is DIED here, so paybill() is called with
+    // croaked == 1. clearlocks() unlinks the on-disk level files; the port
+    // holds levels in memory and writes no files, so it has no counterpart.
+    const silently = disclosureStopprint(state);
+    const taken = paybill(1, silently, state);
+    paygd(silently, state);
+    clearpriests(state);
 
     identifyInventoryForDisclosure(state);
     // C: if (strcmp(flags.end_disclose, "none")) disclose(how, taken);

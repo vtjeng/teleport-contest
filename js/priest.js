@@ -2,7 +2,7 @@
 // C ref: priest.c newepri(), priestini(), pri_move(), move_special(),
 // mon_aligntyp(), p_coaligned(), temple_occupied(), histemple_at(),
 // inhistemple(), has_shrine(), findpriest(), in_your_sanctuary(),
-// and intemple().
+// clearpriests(), and intemple().
 
 import {
     A_NONE,
@@ -48,7 +48,7 @@ import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { dist2, highc } from './hacklib.js';
 import { record_achievement } from './insight.js';
-import { makemon } from './makemon_create.js';
+import { makemon, mongone } from './makemon_create.js';
 import { set_malign } from './makemon.js';
 import { m_next2u } from './mhitu.js';
 import { mon_allowflags } from './mon.js';
@@ -195,6 +195,17 @@ export function newepri(monster) {
         shrpos: { x: 0, y: 0 },
         shrlevel: { dnum: 0, dlevel: 0 },
     };
+}
+
+// C ref: priest.c clearpriests() (917-929). Called from end.c really_done()
+// before bones are saved: a priest whose shrine is on another level would be
+// impossible to restore, so it is discarded. Its own priest stays.
+export function clearpriests(state = game) {
+    for (let mtmp = state.level?.monlist ?? null; mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.mhp < 1) continue; /* DEADMONSTER() */
+        if (mtmp.ispriest && !on_level(mtmp.mextra?.epri?.shrlevel, state.u.uz))
+            mongone(mtmp, { state });
+    }
 }
 
 // C ref: priest.c p_coaligned(). True when the hero's alignment matches the

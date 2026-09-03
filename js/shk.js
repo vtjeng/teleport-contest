@@ -3,8 +3,10 @@
 // C refs: shk.c inhishop(), inside_shop(), shop_keeper(), u_entered_shop(),
 // u_left_shop(), getprice(), get_cost(), get_cost_of_shop_item(),
 // append_price_quote(), contained_gold(), check_unpaid(), costly_spot(),
-// shop_object(), shk_owns(), mon_owns(), shk_your(), shk_move(), and
-// shk_fixes_damage().
+// shop_object(), shk_owns(), mon_owns(), shk_your(), shk_move(),
+// shk_fixes_damage(), and the end-of-game cleanup chain next_shkp(),
+// rile_shk(), onbill(), clear_unpaid(), clear_no_charge(), setpaid(),
+// inherits() and paybill().
 
 import {
     A_CHA,
@@ -16,7 +18,11 @@ import {
     helpless,
     HUNGRY,
     INVIS,
+    isok,
+    LOW_PM,
     MS_ANIMAL,
+    OBJ_BURIED,
+    OBJ_CONTAINED,
     OBJ_FLOOR,
     OBJ_MINVENT,
     PL_NSIZ,
@@ -31,6 +37,7 @@ import { carrying } from './invent.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
 import { set_malign } from './makemon.js';
+import { mongone } from './makemon_create.js';
 import { wake_nearto } from './mon.js';
 import {
     carried, hasContents, isCandle, isContainer, objectType, sobj_at,
@@ -815,6 +822,259 @@ export function shk_move(shkp, state, rawEnv = {}) {
     );
     if (result > 0) after_shk_move(shkp, state);
     return result;
+}
+
+// C ref: shk.c IS_SHOP() (56). `x` is a room index, not a room number.
+function IS_SHOP(x, state) {
+    return (state.level?.rooms?.[x]?.rtype ?? -1) >= SHOPBASE;
+}
+
+// C ref: shk.c rile_shk() (196-211). Only the surcharge half runs here: every
+// caller reaches it through ANGRY(shkp), so mpeaceful is already clear.
+// js/shknam.js leaves eshk.bill_p null and eshk.billct zero for every
+// shopkeeper the port creates, so the price walk has nothing to raise; a
+// non-empty bill stops instead of being silently skipped.
+function rile_shk(shopkeeper) {
+    shopkeeper.mpeaceful = false; /* NOTANGRY(shkp) = FALSE */
+    const eshkp = shopkeeper.mextra.eshk;
+    if (!eshkp.surcharge) {
+        eshkp.surcharge = true;
+        if (eshkp.billct) {
+            throw new UnsupportedShopError(
+                "rile_shk() surcharging an angry shopkeeper's bill",
+            );
+        }
+    }
+}
+
+// C ref: shk.c next_shkp() (214-231). Walks the monster chain from `shopkeeper`
+// to the next live shopkeeper, riling one that is already angry on the way past.
+function next_shkp(shopkeeper, withbill, state) {
+    let shkp = shopkeeper;
+    for (; shkp; shkp = shkp.nmon) {
+        if (shkp.mhp < 1) continue; /* DEADMONSTER() */
+        if (shkp.isshk && (shkp.mextra?.eshk?.billct || !withbill)) break;
+    }
+    if (shkp && !NOTANGRY(shkp)) {
+        if (!shkp.mextra.eshk.surcharge) rile_shk(shkp);
+    }
+    return shkp;
+}
+
+// C ref: shk.c onbill() (1135-1155). C returns the bill entry; this returns it
+// or null, which is the same test for every ported caller. eshk.bill_p is
+// never filled, so the search finds nothing. C's two impossible() calls are
+// diagnostics: the "paid obj on bill" one cannot be reached while the bill is
+// empty, and the "unpaid obj" one is suppressed by every ported caller's
+// silent=true.
+function onbill(obj, shopkeeper, silent) {
+    const eshkp = shopkeeper?.mextra?.eshk;
+    if (eshkp) {
+        for (let ct = 0; ct < eshkp.billct; ++ct) {
+            const bp = eshkp.bill_p[ct];
+            if (bp.bo_id === obj.o_id) return bp;
+        }
+    }
+    if (obj.unpaid && !silent) {
+        throw new UnsupportedShopError('onbill() reporting a stray unpaid item');
+    }
+    return null;
+}
+
+// C ref: shk.c clear_unpaid_obj() (307-315) and clear_unpaid() (317-323).
+function clear_unpaid_obj(shopkeeper, otmp) {
+    if (hasContents(otmp)) clear_unpaid(shopkeeper, otmp.cobj);
+    if (onbill(otmp, shopkeeper, true)) otmp.unpaid = 0;
+}
+
+function clear_unpaid(shopkeeper, list) {
+    for (let obj = list; obj; obj = obj.nobj) clear_unpaid_obj(shopkeeper, obj);
+}
+
+// C ref: shk.c clear_no_charge_obj() (325-372) and clear_no_charge() (374-383).
+// The source's long disjunction clears the bit unless the object sits on the
+// floor of, or in a container in, some *other* shopkeeper's shop.
+function clear_no_charge_obj(shopkeeper, otmp, state) {
+    if (hasContents(otmp)) clear_no_charge(shopkeeper, otmp.cobj, state);
+    if (!otmp.no_charge) return;
+
+    let keep = false;
+    if (shopkeeper
+        && (otmp.where === OBJ_FLOOR || otmp.where === OBJ_CONTAINED
+            || otmp.where === OBJ_BURIED)) {
+        // shk.c passes `OBJ_CONTAINED | OBJ_BURIED` (2 | 6 == 6), but
+        // get_obj_location() reads its locflags as obj.h's CONTAINED_TOO
+        // (0x1) and BURIED_TOO (0x2). Six therefore asks for buried objects
+        // and not for contained ones, so a no_charge object inside a
+        // container never resolves a location and always loses the bit.
+        // Preserved verbatim: it is behavior, however accidental.
+        const spot = get_obj_location(
+            otmp,
+            OBJ_CONTAINED | OBJ_BURIED,
+            state,
+        );
+        if (spot && isok(spot.x, spot.y)) {
+            const rno = state.level?.at(spot.x, spot.y)?.roomno ?? 0;
+            if (rno >= ROOMOFFSET && IS_SHOP(rno - ROOMOFFSET, state)) {
+                const rmShkp = state.level.rooms[rno - ROOMOFFSET].resident;
+                keep = Boolean(rmShkp) && rmShkp !== shopkeeper;
+            }
+        }
+    }
+    if (!keep) otmp.no_charge = false;
+}
+
+function clear_no_charge(shopkeeper, list, state) {
+    for (let obj = list; obj; obj = obj.nobj) {
+        clear_no_charge_obj(shopkeeper, obj, state);
+    }
+}
+
+// C ref: shk.c setpaid() (397-433). Clears one shopkeeper's claim on every
+// object list the game holds, then discards the bill itself.
+//
+// gb.billobjs holds objects the hero used up while unpaid. Nothing in the port
+// bills the hero, so that chain is never created and the drain loop at 423-427
+// has nothing to free; it is therefore not modelled here.
+export function setpaid(shopkeeper, state = game) {
+    clear_unpaid(shopkeeper, state.invent);
+    clear_unpaid(shopkeeper, state.level?.objlist ?? null);
+    if (state.level?.buriedobjlist)
+        clear_unpaid(shopkeeper, state.level.buriedobjlist);
+    if (state.gt?.thrownobj) clear_unpaid_obj(shopkeeper, state.gt.thrownobj);
+    if (state.gk?.kickedobj) clear_unpaid_obj(shopkeeper, state.gk.kickedobj);
+    for (let mtmp = state.level?.monlist ?? null; mtmp; mtmp = mtmp.nmon)
+        if (mtmp.minvent) clear_unpaid(shopkeeper, mtmp.minvent);
+    for (let mtmp = state.gm?.migrating_mons ?? null; mtmp; mtmp = mtmp.nmon)
+        if (mtmp.minvent) clear_unpaid(shopkeeper, mtmp.minvent);
+
+    /* clear obj->no_charge for all obj in shkp's shop */
+    clear_no_charge(shopkeeper, state.level?.objlist ?? null, state);
+    clear_no_charge(shopkeeper, state.level?.buriedobjlist ?? null, state);
+
+    if (shopkeeper) {
+        const eshkp = shopkeeper.mextra.eshk;
+        eshkp.billct = 0;
+        eshkp.credit = 0;
+        eshkp.debit = 0;
+        eshkp.loan = 0;
+    }
+}
+
+// C ref: shk.c inherits() (2570-2676). Covers the arms that leave the hero's
+// possessions alone and fall through to the `clear` label: a lone shopkeeper
+// who is owed nothing, is not following and is not angry. Every arm that takes
+// something -- a second shopkeeper looking at the corpse, the in-shop
+// "gratefully inherits", and the bill/debit/robbed and following/angry
+// handling -- needs addupbill(), money2mon(), pacify_shk(), rouse_shk(),
+// home_shk() and set_repo_loc(), none of which are ported, so each stops here.
+function inherits(shopkeeper, numsk, _croaked, _silently, state) {
+    const eshkp = shopkeeper.mextra.eshk;
+    const uinshop = (state.u.ushops ?? []).includes(eshkp.shoproom);
+
+    /* not strictly consistent; affects messages and prevents next player
+       (if bones are saved) from blundering into or being ambushed by an
+       invisible shopkeeper */
+    shopkeeper.minvis = 0;
+    shopkeeper.perminvis = 0;
+
+    if (numsk > 1) {
+        throw new UnsupportedShopError(
+            'inherits() for a second shopkeeper at the hero\'s death',
+        );
+    }
+    if (uinshop && inhishop(shopkeeper, state) && !eshkp.billct
+        && !eshkp.robbed && !eshkp.debit && NOTANGRY(shopkeeper)
+        && !eshkp.following && state.u.ugrave_arise < LOW_PM) {
+        throw new UnsupportedShopError(
+            'inherits() bequeathing the hero\'s possessions to the shopkeeper',
+        );
+    }
+    if (eshkp.billct || eshkp.debit || eshkp.robbed) {
+        throw new UnsupportedShopError(
+            'inherits() settling an unpaid bill after death',
+        );
+    }
+    if (eshkp.following || !NOTANGRY(shopkeeper)) {
+        throw new UnsupportedShopError(
+            'inherits() for a hostile or pursuing shopkeeper',
+        );
+    }
+
+    /* clear: */
+    setpaid(shopkeeper, state); /* clear this shk's bill */
+    /* taken is FALSE here, so set_repo_loc() is not called */
+    return false;
+}
+
+// C ref: shk.c paybill() (2483-2566). Called from end.c really_done() after
+// the hero dies, quits, or escapes. Returns whether a shopkeeper took the
+// hero's inventory, which decides whether finish_paybill() later moves it.
+export function paybill(croaked, silently, state = game) {
+    /* if we escaped from the dungeon, shopkeepers can't reach us */
+    if (croaked < 0) return false;
+
+    /* this is where inventory will end up if any shk takes it */
+    state.gr ??= {};
+    state.gr.repo = { location: { x: 0, y: 0 }, shopkeeper: null };
+
+    /*
+     * Scan all shopkeepers on the level, to prioritize them:
+     * 1) keeper of shop hero is inside and who is owed money,
+     * 2) keeper of shop hero is inside who isn't owed any money,
+     * 3) other shk who is owed money, 4) other shk who is angry,
+     * 5) any shk local to this level, and if none is found,
+     * 6) first shk on monster list.
+     */
+    let resident = null;
+    let creditor = null;
+    let hostile = null;
+    let localshk = null;
+    let taken = false;
+    let numsk = 0;
+    let mtmp2 = null;
+
+    for (let mtmp = next_shkp(state.level?.monlist ?? null, false, state);
+        mtmp;
+        mtmp = next_shkp(mtmp2, false, state)) {
+        mtmp2 = mtmp.nmon;
+        const eshkp = mtmp.mextra.eshk;
+        const local = on_level(eshkp.shoplevel, state.u.uz);
+        if (local && (state.u.ushops ?? []).includes(eshkp.shoproom)) {
+            if (!resident || eshkp.billct || eshkp.debit || eshkp.robbed)
+                resident = mtmp;
+        } else if (eshkp.billct || eshkp.debit || eshkp.robbed) {
+            if (!creditor) creditor = mtmp;
+        } else if (eshkp.following || !NOTANGRY(mtmp)) {
+            if (!hostile) hostile = mtmp;
+        } else if (local) {
+            if (!localshk) localshk = mtmp;
+        }
+    }
+
+    /* give highest priority shopkeeper first crack */
+    const firstshk = resident ?? creditor ?? hostile ?? localshk;
+    if (firstshk) {
+        numsk++;
+        taken = inherits(firstshk, numsk, croaked, silently, state);
+    }
+
+    /* now handle the rest */
+    mtmp2 = null;
+    for (let mtmp = next_shkp(state.level?.monlist ?? null, false, state);
+        mtmp;
+        mtmp = next_shkp(mtmp2, false, state)) {
+        mtmp2 = mtmp.nmon;
+        const eshkp = mtmp.mextra.eshk;
+        const local = on_level(eshkp.shoplevel, state.u.uz);
+        if (mtmp !== firstshk) {
+            numsk++;
+            taken = inherits(mtmp, numsk, croaked, silently, state) || taken;
+        }
+        /* for bones: we don't want a shopless shk around */
+        if (!local) mongone(mtmp, { state });
+    }
+    return taken;
 }
 
 // Thrown where shk.c reaches shop bookkeeping this port has not ported.

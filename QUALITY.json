@@ -6035,6 +6035,26 @@
       "status": "open",
       "from": "c222628185903b5e7ec22eaa91734d8b5d733c97",
       "detail": "trap.c thitm():6738-6739 and 6762-6763: a rock or gem that reaches a monster which passes_rocks() is announced as 'but is not harmed', takes no damage, and clears strike so that the missile is placed rather than deallocated. mondata.h passes_rocks() wants M1_WALLWALK without M1_UNSOLID, which means a xorn or an earth elemental; neither is generated on the first dungeon level, and the rock-trap scans over seeds 4,200,000 to 4,202,999 and 4,300,000 to 4,302,499 produced no such victim. The branch is pinned with a constructed xorn fixture in scripts/trap-thitm.test.mjs."
+    },
+    {
+      "id": "paybill-in-shop-inheritance-arms",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "4d129b3107e7608aa85dac4b49171748077e8cde",
+      "detail": "shk.c inherits() takes the hero's possessions in four arms this slice leaves refused: numsk > 1 (a second shopkeeper looks at the corpse, drawing rn2(2) for the head-shake), the peaceful in-shop bequest at 2607-2614, the billct/debit/robbed settlement at 2620-2652, and the following/ANGRY handling that shares its skip label. Each needs addupbill(), money2mon(), pacify_shk(), rouse_shk(), home_shk() or set_repo_loc(), plus end.c finish_paybill() once taken is TRUE. Case just outside this slice's limit: seed 20260904, datetime 20260615103000, Tourist, playmode:debug, moves '  n<^V>2<NL><^G>soldier ant<NL>' then walk into the Dlvl 2 shop and rest until the ant kills the hero. The port raises UnsupportedShopError 'inherits() bequeathing the hero possessions to the shopkeeper' instead of printing 'gratefully inherits all your possessions', so it is kept out of the passing suite. scripts/paybill-end-cleanup.test.mjs pins the refusal itself.",
+      "blockedOn": "money2mon"
+    },
+    {
+      "id": "paygd-vault-gold-surrender",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "4d129b3107e7608aa85dac4b49171748077e8cde",
+      "detail": "vault.c paygd() only returns early in this port: with gold and a vault guard on the level it raises UnsupportedVaultGuardError. The unported arms move every coin into the Magic Memory Vault or onto a Croesus grave (mnexto(), make_grave(), freeinv(), place_object(), stackobj(), two rn2(2) draws for the grave square) and then mongone() the guard, which js/makemon_create.js mongone() itself refuses for isgd. findgd()'s migrating-guard loop is refused for the same reason: it needs mon_track_clear() and parkguard(). No fresh case is offered because no ported code creates a vault guard -- js/ has no invault() and no egd writer -- so the branch cannot be reached from the running game yet.",
+      "blockedOn": "parkguard"
     }
   ],
   "areas": [
