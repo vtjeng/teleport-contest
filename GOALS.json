@@ -8671,6 +8671,23 @@
         "screens": 41,
         "rng": 1556
       }
+    },
+    {
+      "id": "disclose-identified-container-contents",
+      "status": "open",
+      "boundary": "disclose() identified container contents",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "e4a858f74b9b3188ddd23bcea01816b01e9f8411",
+      "openStanding": {
+        "sha": "9dc8c8ed",
+        "screens": 4338,
+        "rng": 276600
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
