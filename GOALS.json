@@ -8228,7 +8228,7 @@
     },
     {
       "id": "unsupported-hero-move-trap-activation",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero move: trap activation — raised at two enforcement points in js/trap_effects.js: preflight_dotrap() (line 1022, gate for dotrap()'s hero path in hack.js's requireSimpleHeroDestination()), which refuses any trap.ttyp other than BEAR_TRAP, DART_TRAP or MAGIC_TRAP before the hero commits to the square; and trapeffect_selector() (line 997), which refuses the same dispatch for the monster arm across the 18-member UNPORTED_TRAP_EFFECTS set (ARROW_TRAP, ROCKTRAP, SLP_GAS_TRAP, RUST_TRAP, FIRE_TRAP, SPIKED_PIT, HOLE, TRAPDOOR, LEVEL_TELEP, MAGIC_PORTAL, TELEP_TRAP, WEB, STATUE_TRAP, ANTI_MAGIC, LANDMINE, POLY_TRAP, ROLLING_BOULDER_TRAP, VIBRATING_SQUARE). SQKY_BOARD and PIT are ported for the monster arm but PIT's hero arm is still refused upstream by preflight_dotrap(), per the comment at trap_effects.js:956-959.",
       "upstreamOwners": [
         "trap.c"
@@ -8250,8 +8250,8 @@
       "slices": [
         {
           "name": "telep-trap-hero-arm",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "97f2fbb4ee9ecc9d2e7d8744e1dfd3bbee29bd21"
         }
       ],
       "openedAt": "0d79b4c24a373daa9171480acfc886cc25ad55bf",
@@ -8260,8 +8260,11 @@
         "screens": 4195,
         "rng": 260084
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "97f2fbb4ee9ecc9d2e7d8744e1dfd3bbee29bd21",
+      "delivered": {
+        "screens": 22,
+        "rng": 600
+      }
     }
   ]
 }
