@@ -8604,8 +8604,8 @@
       "slices": [
         {
           "name": "dobuzz() monster arm and zhitm() ZT_COLD for a wand bolt killing a newt",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "9baad7688d7341c0188552c7b63eceb6f185a7f0"
         }
       ],
       "openedAt": "0b74873431acf90bde45435295c2919e88098826",
