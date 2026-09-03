@@ -16,7 +16,7 @@ Every goal is a fail-closed boundary port: it implements C behavior the port ref
 
 Record the capped forecast and sessions with `node scripts/goal-log.mjs queue-goal`; `open-goal` captures the score standing, and `close-goal` records delivered figures beside the forecast. Compare a slice's delivery against its forecast, and the goal's delivery against the goal's forecast. Retire a ranking statistic when the last three closed goals each delivered less than a tenth of its forecast; use it again only in a goal entry whose `--forecast-basis` states how those three closes corrected it.
 
-A goal may be larger than one agent session. It closes through several behavior slices, each closed on its own. Close slices that port rows of one C table or arms of one C function family as one slice whose recordings cover the table's rows or the function family's arms. `QUALITY.json`'s thresholds schedule reviews inside a goal and set no ceiling on its size; size never justifies refusing, deferring, or silently narrowing a stated goal. Narrow a goal only through the slice-closure mechanism in `.agents/loop.md`. Start at the first queued slice.
+A goal may be larger than one agent session. It closes through several behavior slices, each closed on its own. Close slices that port rows of one C table or arms of one C function family as a single slice. `QUALITY.json`'s thresholds schedule reviews inside a goal; size never justifies refusing, deferring, or narrowing a goal. Narrow a goal only through the slice-closure mechanism in `.agents/loop.md`. Start at the first queued slice.
 
 State the boundary in terms the sessions contributing to its forecast reach. A criterion that the witness sessions do not exercise ("every option", "every row of a table") belongs in its own queued goal with its own forecast, where the ranking prices it.
 
@@ -30,7 +30,7 @@ The agent selecting work chooses the goal. Do not ask the user which goal to tak
 
 ## Appendix A: Measuring what the port cannot do yet
 
-Run `node scripts/scan-sessions.mjs`. It replays the 33 development sessions and prints a behavior table with the boundaries that stop them, plus supporting censuses and a reconciliation; `--help` lists the options and the legend defines every column. This appendix covers the judgments the report leaves to the reader.
+Run `node scripts/scan-sessions.mjs`. It replays the 33 development sessions and prints a behavior table; `--help` lists the options and the legend defines every column. This appendix covers the judgments the report leaves to the reader.
 
 The scanned directory is fixed and the script accepts no path argument, so it cannot be aimed at `sessions/holdout/`.
 
@@ -50,17 +50,17 @@ The steps behind a boundary are an upper bound: sessions blocked on one owner ro
 
 **Require a C-path witness for every contributing session.** Before counting a session toward a goal, trace its seed, date, options, configuration, and stop step through the C source. Confirm that it reaches the goal's defining branch and preconditions. A session that does not execute the proposed branch contributes zero; rename or widen the goal to the branch it actually executes. The `candidate-pipeline` workflow traces witnesses automatically.
 
-**Rank by the look-ahead forecast.** The port is fail-closed: a session does not score screens past its first stop, so a candidate is worth what it unblocks. Start from `unlocks`, the steps from a stopped session's boundary to its next unmet behavior. This file calls that run the session's **stretch**. Cap each stretch at the first recorded message implying a second unported or partially ported behavior, sum the capped stretches, and take the highest; break ties by session count. `node scripts/scan-sessions.mjs --ahead-all` prints every candidate's message streams for the capping read (`--ahead=<behavior>` prints one).
+**Rank by the look-ahead forecast.** The port is fail-closed: a session does not score screens past its first stop, so a candidate is worth what it unblocks. Start from `unlocks`, the steps from a stopped session's boundary to its next unmet behavior; that run is the session's **stretch**. Cap each stretch at the first recorded message implying a second unported or partially ported behavior, sum the capped stretches, and take the highest; break ties by session count. `node scripts/scan-sessions.mjs --ahead-all` prints every candidate's message streams for the capping read (`--ahead=<behavior>` prints one).
 
 **Divergence zeroing is automatic.** `rankCandidates()` zeroes a session's `unlocks` contribution when its earliest divergence (screen or RNG, whichever comes first) is before the boundary step. When the divergence is at the boundary step, the boundary itself may be the cause, so the contribution stays and the annotation flags it for investigation. Serialize-bug divergences (davidbau/teleport-contest#18, unfixable) are excluded automatically.
 
 **Cap divergence candidates the same way as boundary candidates.** `--ahead-all` prints each divergent session's message stream from its first mismatch. Cap at the first message that implies a second, independent issue.
 
-**Read the stretch with a classifier before trusting it.** Hand each session's `--ahead` stream to a `sonnet-worker` subagent with the port's fail-closed boundary list and supported-command set, and ask for the first message implying a behavior the port refuses or partly supports; that step caps the forecast. The classifier errs toward flagging.
+**Read the stretch with a classifier before trusting it.** Hand each session's `--ahead` stream to a `sonnet-worker` subagent with the port's boundary list and supported-command set; the first message implying refused or unported behavior caps the forecast. The classifier errs toward flagging.
 
 **The forecast omits behavior that requires no player input.** Some behavior runs without a command: the hero dies, a monster acts, a trap fires. To verify a forecast, read C's recorded screens from the stop to the end of the stretch and look for such behavior.
 
-**Use cached caps from `.cache/session-frontiers.json`.** The scan annotates each stopped session with `capStable: true` when its state tuple (boundary, screensEmitted, screenDivergenceAt, rngDivergenceStep) matches the cached entry. A cap-stable session does not need re-capping. After capping a session with a classifier, persist the cap with `node scripts/scan-sessions.mjs --set-cap=<session>=<n>`.
+**Use cached caps from `.cache/session-frontiers.json`.** The scan annotates each stopped session with `capStable: true` when its state tuple (boundary, screensEmitted, screenDivergenceAt, rngDivergenceStep) matches the cached entry. After capping a session with a classifier, persist the cap with `node scripts/scan-sessions.mjs --set-cap=<session>=<n>`.
 
 **Select on a measured stop.** Rank a candidate on the sessions the census shows stopped there. An argument that a behavior ought to matter is not a forecast.
 

@@ -82,9 +82,9 @@ The orchestrator repeats without returning to the user between steps:
    the goal with `node scripts/goal-log.mjs close-goal`. Continue at
    step 1.
 
-Formal review passes are steps of this loop. Commits may land while a
-pass reviews its fixed range; they belong to the next pass, and neither
-blocks the other. `.agents/review.md` states the readiness constraint.
+Formal review passes are loop steps. Commits that land while a pass
+reviews its fixed range belong to the next pass. `.agents/review.md`
+states the readiness constraint.
 
 `AGENTS.md`, "When to stop and ask the user", lists the cases that stop
 this loop. Nothing else stops it. End each turn with a subagent or a
@@ -104,9 +104,8 @@ every other question by what it blocks:
 Entries stay open until the user answers. Open each progress report with
 the count of open entries and the newest one.
 
-Spawn a subagent only at the step that calls for one, fresh each time.
-Spawn by agent type (such as `slice-worker`), not by copying its
-instructions into a prompt.
+Spawn a fresh subagent by agent type (such as `slice-worker`) only at
+the step that calls for one.
 
 When the loop runs under `/loop`, set a long wakeup interval while work
 is in flight and a short one when idle. End the loop with
@@ -122,6 +121,6 @@ your measurement in step 4; do not use figures the worker reports.
 
 Keep updates brief and specific: report changed behavior, remaining
 work, and the next check when useful. Do not repeat unchanged status.
-Explain specialized terms on first use. When switching between
-implementation, validation, and review, state the switch and the reason
-once. Review-pass reports follow `.agents/review.md`.
+When switching between implementation, validation, and review, state the
+switch and the reason once. Review-pass reports follow
+`.agents/review.md`.

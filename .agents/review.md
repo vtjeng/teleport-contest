@@ -52,8 +52,8 @@ thresholds; their generators do count. A commit touching a generator or output
 counts toward the commit threshold unless it is a linked audit-fix commit. An
 **evidence-only commit** changes only `SCORE.tsv`, correctness or
 simplification records, or their supporting documentation, and no area-owned
-path. Evidence-only commits do not count toward path-scoped commit totals and
-do not receive their own evidence snapshots.
+path; it does not count toward path-scoped commit totals or receive its own
+evidence snapshot.
 
 ### When a correctness pass is due
 
@@ -91,7 +91,6 @@ or another shared behavioral interface.
 
 Before recording a correctness pass, state whether the full-pass trigger, each
 optional finder trigger, and each separate-pass trigger below applies.
-Omitting an untriggered optional finder or separate pass creates no debt.
 
 - Whenever a full correctness pass is due, run it as a `full`
   `/audit-diff-correctness` pass. Its behavior, readability-risk, test-quality,
@@ -134,8 +133,8 @@ Before returning, check whether any development session reaches the finding's
 behavior. When none does and already-scoring behavior stays correct, record the
 finding with `npm run quality -- defer` instead of returning to implementation.
 Otherwise stop audit-fix work, record the requirement in the pass report, and
-implement through the next observable boundary. Then satisfy the readiness
-requirements again and run a new full correctness pass over the expanded range.
+implement through the next observable boundary, satisfy readiness again, and
+run a new full correctness pass over the expanded range.
 
 After applying in-scope audit fixes, run the validation that
 `.agents/validation.md` specifies for the affected behavior.
@@ -177,10 +176,9 @@ Preserve code whose structure mirrors the C source, and temporary scaffolding
 until a source-faithful replacement owns the behavior. Simplification must
 preserve PRNG and evaluation order.
 
-Do not relaunch a pass that is still running — a second launch restarts at
-zero and produces a duplicate. When a pass returns a suspect result, read its
-transcript before relaunching; the individual reviewer results are usually
-intact, and rerunning the combination step alone repairs the result.
+Do not relaunch a running pass — a second launch restarts at zero. When a pass
+returns a suspect result, read its transcript first; rerunning the combination
+step alone usually repairs it.
 
 ## Recording formal review passes
 
