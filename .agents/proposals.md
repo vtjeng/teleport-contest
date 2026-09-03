@@ -79,8 +79,8 @@ every entry whose label matches none of them. It prints beside the citation
 line that landed at `565f700` and does not block.
 
 **Scope.** One comparison over records the citation check already parses, plus a
-suppression rule and its test. `refile-deferral --id <id> --area <id> --note
-<text>` (landed at `ea2494d`) already moves an entry once identified as
+suppression rule and its test. `refile-deferral --id <id> --area <id>
+--note-file <path>` (landed at `ea2494d`) already moves an entry once identified as
 mislabelled, so only the detection is missing.
 
 **What prompted it.** The area label decides scheduling: `deferralCounts()`
@@ -128,42 +128,6 @@ ratchet or a separate check is undecided.
 
 **What prompted it.** A production-deferral survey found this gap; the same
 survey found the ratchet 981 screens behind (raised at `af15a30`).
-
-## Stop the shell deleting a deferral's backticked identifiers
-
-**What it changes.** `defer`, `note-deferral`, and `refile-deferral` would take
-`--detail-file <path>` and `--note-file <path>` beside the existing `--detail`
-and `--note`, reading entry text from a file instead of an argument. No shell
-then sees the text. `record-pass` already has that pair: `--audit-metrics
-<json>` beside `--audit-metrics-file <path>`.
-
-**Scope.** Three verbs in `scripts/quality-status.mjs`, each reading one new
-option and one file, plus the usage block at `:2078-2081` and a test per verb.
-The argument forms stay, so existing uses do not change.
-
-**What prompted it.** The correction note on `doname-refuses-any-worn-gloves`:
-"Two backticked fragments in this entry were eaten by shell expansion when it
-was written." A backtick inside a double-quoted argument triggers command
-substitution: the shell runs the identifier as a command and puts its output in
-the entry. Reproduced on 16 August 2026:
-
-```
-$ sh -c 'echo "the `Cloak_on` arm and the `Boots_on` arm"' 2>/dev/null
-the  arm and the  arm
-```
-
-Both identifiers are gone, `echo` exits 0, and the only sign is a stderr line
-invisible to a caller reading stdout. At the time of filing, 166 of the
-ledger's 432 texts carried at least one backtick.
-
-**Cost.** Small. One option each on three verbs that already parse a dozen
-between them.
-
-**What it leaves unfixed.** The check cannot determine how many entries are
-already damaged. Substitution removes the backticks and the text between them,
-so a corrupted text has an even backtick count, the same as an intact one. The
-one confirmed instance is a lower bound; finding the rest means reading every
-entry against its cited source.
 
 ## Shard the development scorer
 
