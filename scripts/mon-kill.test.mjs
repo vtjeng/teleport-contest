@@ -72,6 +72,7 @@ import {
     PM_HUMAN_WEREJACKAL,
     PM_JACKAL,
     PM_KEYSTONE_KOP,
+    PM_KITTEN,
     PM_KOBOLD,
     PM_KOBOLD_ZOMBIE,
     PM_LARGE_MIMIC,
@@ -83,6 +84,7 @@ import {
     PM_NEWT,
     PM_OWLBEAR,
     PM_PAPER_GOLEM,
+    PM_PONY,
     PM_SEWER_RAT,
     PM_QUASIT,
     PM_RAVEN,
@@ -104,7 +106,9 @@ import {
     OBJ_MINVENT,
     TAINT_AGE,
     W_AMUL,
+    W_SADDLE,
 } from '../js/const.js';
+import { newedog } from '../js/dog.js';
 import { glyph_is_invisible, map_invisible } from '../js/display.js';
 import { block_point } from '../js/vision.js';
 
@@ -1497,4 +1501,101 @@ test("a zombie leaves the living creature's old corpse", async () => {
     // C passes mtmp unconditionally here, where default_1 passes it only for
     // KEEPTRAITS(), and a kobold zombie satisfies none of that macro's terms.
     assert.equal(corpse.oextra?.omonst?.mnum, PM_KOBOLD_ZOMBIE);
+});
+
+// mon.c xkilled():3502-3511, the mtmp->mtame branch of the kill message. C
+// computes `namedpet = has_mgivenname(mtmp) && !Hallucination` at 3504 and
+// hands x_monnam() ARTICLE_NONE with SUPPRESS_SADDLE for a named pet and
+// ARTICLE_THE with no suppression otherwise. Every row here reads off that
+// pair of choices; the first is the case
+// `node scripts/run-pet-melee-kill.mjs` records against C, and the "poor
+// Fido" line is the one a C recording of seed 4410002 with `Cm  n.Fido` and
+// then a force-fight prints. do_name.c docallcmd()'s "a monster" option is
+// unported, so no ported command can name a pet and the recorded C case
+// cannot be replayed; QUALITY.json carries the deferral.
+//
+// A saddled pet is the pair's other half: an unnamed one keeps do_name.c:940's
+// "saddled " because suppress is 0, and a named one loses it to
+// SUPPRESS_SADDLE.
+test("a pet's kill message follows namedpet", async () => {
+    // A fresh hero per row: four kills in one game reach the experience
+    // newexplevel() cannot yet spend, and each row wants the same start.
+    const kill = async (pmidx, overrides) => {
+        await hero();
+        // The matrix rc turns acoustics off, and these constructed kills want
+        // to read the You_hear() line at 3706-3711.
+        game.flags.acoustics = true;
+        const pet = spawn(pmidx, { mtame: 10, mpeaceful: 1, ...overrides });
+        newedog(pet);
+        // rn2(6)=2 declines the treasure drop, rn2(3) or rn2(2) the corpse,
+        // and 3665's rn2(2) is drawn because a tame monster is peaceful too.
+        const env = killEnv([2, 1, 1]);
+        await killed(pet, game, env);
+        return { pet, env };
+    };
+
+    const kitten = await kill(PM_KITTEN);
+    assert.deepEqual(kitten.env.lines, [
+        'You kill the poor kitten!',
+        'You hear the rumble of distant thunder...',
+    ]);
+
+    const fido = await kill(PM_KITTEN, { mextra: { mgivenname: 'Fido' } });
+    assert.deepEqual(fido.env.lines[0], 'You kill poor Fido!');
+
+    const pony = await kill(PM_PONY, { misc_worn_check: W_SADDLE });
+    assert.deepEqual(pony.env.lines[0], 'You kill the poor saddled pony!');
+
+    const dobbin = await kill(PM_PONY, {
+        misc_worn_check: W_SADDLE,
+        mextra: { mgivenname: 'Dobbin' },
+    });
+    assert.deepEqual(dobbin.env.lines[0], 'You kill poor Dobbin!');
+});
+
+// mon.c xkilled():3524-3526 and 3703-3704. The flag no screen shows, and the
+// alignment the tame arm costs on top of mtmp->malign at 3735.
+test('killing a pet marks its edog and costs alignment', async () => {
+    await hero();
+    const before = game.u.ualign.record;
+
+    const pet = spawn(PM_KITTEN, { mtame: 10, mpeaceful: 1 });
+    const edog = newedog(pet);
+    // makemon() runs this for every monster it creates, and xkilled():3735
+    // reads what it wrote.
+    set_malign(pet, game);
+    assert.equal(edog.killed_by_u, false, 'starts clear');
+
+    await killed(pet, game, killEnv([2, 1, 1]));
+
+    // dog.c wary_dog():1310 is the reader: a pet revived after this reverts to
+    // wild rather than staying tame.
+    assert.equal(edog.killed_by_u, true);
+    // 3704 adjalign(-15), then 3735 adjalign(mtmp->malign). set_malign():
+    // 2358-2362 gives a co-aligned peaceful monster -3 * max(3, abs(maligntyp)),
+    // and a kitten beside a neutral hero is maligntyp 0, so -9.
+    assert.equal(game.u.ualign.record, before - 15 - 9);
+    // 3665: `(mtmp->mpeaceful && !rn2(2)) || mtmp->mtame`.
+    assert.equal(game.u.uluck, -1);
+});
+
+// mon.c xkilled():3495-3496 and 3563-3564. minliquid() is the only writer of
+// iflags.sad_feeling that can still be set when xkilled() reads it, and the
+// read clears the flag whether or not the message prints.
+test('the sad feeling prints once and clears the flag', async () => {
+    await hero();
+    game.flags.acoustics = true;
+    game.iflags.sad_feeling = true;
+
+    const pet = spawn(PM_KITTEN, { mtame: 10, mpeaceful: 1 });
+    newedog(pet);
+    const env = killEnv([2, 1, 1]);
+    await killed(pet, game, env);
+
+    assert.equal(game.iflags.sad_feeling, false, 'cleared at 3496');
+    assert.deepEqual(env.lines, [
+        'You kill the poor kitten!',
+        'You have a sad feeling for a moment, then it passes.',
+        'You hear the rumble of distant thunder...',
+    ]);
 });

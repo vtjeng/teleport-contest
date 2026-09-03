@@ -19,6 +19,8 @@ import {
     ALLOW_TRAPS,
     ALLOW_U,
     ALLOW_WALL,
+    ARTICLE_NONE,
+    ARTICLE_THE,
     BOLT_LIM,
     BUSTDOOR,
     CONFLICT,
@@ -71,6 +73,7 @@ import {
     ROOM,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
+    SUPPRESS_SADDLE,
     TAINT_AGE,
     UNLOCKDOOR,
     W_AMUL,
@@ -93,6 +96,7 @@ import {
     capitalizedMonsterName,
     hliquid,
     monsterCommonName,
+    x_monnam,
 } from './do_name.js';
 import { flooreffects } from './do.js';
 import { finish_meating } from './dogmove.js';
@@ -294,6 +298,7 @@ import {
     m_in_air,
     monhaskey,
     onscary,
+    youHear,
 } from './monmove.js';
 import { m_at, remove_monster } from './monst.js';
 import {
@@ -1275,7 +1280,7 @@ function distressPropertyActive(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-function distressHallucinating(state) {
+function heroHallucinating(state) {
     return distressPropertyActive(state, HALLUC)
         && !distressPropertyActive(state, HALLUC_RES);
 }
@@ -1501,7 +1506,7 @@ export async function new_were(monster, rawEnv = {}) {
     if (!target) return false;
 
     if (normalized.canSeeMonster(monster, normalized)
-        && !distressHallucinating(state)) {
+        && !heroHallucinating(state)) {
         const targetName = is_human(target)
             ? 'human'
             : (target.pmnames?.[2] ?? '').slice(4);
@@ -2665,24 +2670,30 @@ export async function killed(mtmp, state = game, env = {}) {
 // treasure draw. C's "corpse ends up buried" line at 3625-3628 is below them
 // as well as below make_corpse()'s own stop, so it has no counterpart here.
 //
-// Ten arms stop, each guarded by exactly C's condition and each placed above
+// The four arms C guards on mtmp->mtame are ported together, because they are
+// spread through the function and a hero who kills a pet reaches all of them
+// on one move: the "poor <pet>" message at 3502-3511, EDOG()->killed_by_u at
+// 3524-3526, the sad feeling at 3563-3564, and the alignment and sound
+// fallout at 3703-3722. The murder penalty above them and the peaceful
+// alignment arm below them guard on is_human and mpeaceful instead, so they
+// stop with the rest.
+//
+// Eight arms stop, each guarded by exactly C's condition and each placed above
 // the first draw, message or object on its path:
 //
-//   3524-3526  EDOG()->killed_by_u, for a pet that now knows its killer.
 //   3528-3541  mpickobj(), handing a thrown missile to the engulfer it killed.
 //   3546-3547  monstone(), for a monster killed by petrification, and with it
 //              the gs.stoned cleanup at 3569-3572.
 //   3552-3561  the life-saved return and its "Maybe not..." message.
-//   3563-3564  the sad feeling for a pet killed out of sight.
 //   3577-3581  the mail daemon's scroll of mail. include/global.h:430 defines
 //              MAIL_STRUCTURES unconditionally, so the arm is compiled.
 //   3632-3640  spoteffects(), which expels the hero from a dead engulfer.
 //   3648-3663  the murder punishment, which needs the intrinsic-telepathy
 //              clear at 3658 and display.c see_monsters().
 //   3666-3669  the guilt for killing a co-aligned unicorn.
-//   3677-3722  the quest leader, nemesis, guardian, priest, tame and peaceful
-//              alignment arms, every one of which reaches attrib.c adjalign()
-//              with a negative argument.
+//   3677-3702  the quest leader, nemesis, guardian and priest alignment arms,
+//   3723-3724  together with the peaceful one below the tame arm. Every one
+//              reaches attrib.c adjalign() with a negative argument.
 //
 // C's `goto cleanup` at 3571 and 3575 jumps over the corpse-and-drop half, so
 // that half becomes the `if (!skipCorpseAndDrops)` block below and the cleanup
@@ -2712,11 +2723,18 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
         state.u.uconduct.killer++;
     }
     if (!nomsg) {
-        if (mtmp.mtame) unsupported('the kill message for a pet');
+        /* mon.c:3504. A hallucinating hero cannot read a pet's collar, so a
+           named pet is named only while the hallucination is off; that is
+           what decides both the article and the saddle suppression below. */
+        const namedpet = has_mgivenname(mtmp) && !heroHallucinating(state);
+
         await message(
             `You ${nonliving(mtmp.data) ? 'destroy' : 'kill'} `
-            + `${!(wasinside || canSpotMonster(mtmp, state))
-                ? 'it' : monsterCommonName(mtmp, state)}!`,
+            + `${!(wasinside || canSpotMonster(mtmp, state)) ? 'it'
+                : !mtmp.mtame ? monsterCommonName(mtmp, state)
+                    : x_monnam(mtmp, namedpet ? ARTICLE_NONE : ARTICLE_THE,
+                               'poor', namedpet ? SUPPRESS_SADDLE : 0,
+                               false, state, env)}!`,
             state,
         );
     }
@@ -2733,8 +2751,14 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
     }
 
     /* "your pet knows who just killed it...watch out" */
-    if (mtmp.mtame && !mtmp.isminion)
-        unsupported('a pet that learns who killed it');
+    if (mtmp.mtame && !mtmp.isminion) {
+        /* EDOG(mtmp) is include/edog.h:22, `(mon)->mextra->edog`. Every tame
+           non-minion carries one; dog.c newedog() creates it. dog.c
+           wary_dog() (1291-1360) is the only reader, and it runs on revival
+           or life-saving, so the flag outlives this kill without changing
+           anything the hero can see today. */
+        mtmp.mextra.edog.killed_by_u = true;
+    }
 
     if (wasinside && state.gt?.thrownobj && state.gt.thrownobj !== state.uball
         /* "don't give to mon if missile is going to be destroyed" */
@@ -2751,7 +2775,12 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
     if (mtmp.mhp >= 1) /* !DEADMONSTER(): "monster lifesaved" */
         unsupported('a monster that survived being killed');
 
-    if (be_sad) unsupported('the sad feeling for a lost pet');
+    if (be_sad) {
+        await message(
+            'You have a sad feeling for a moment, then it passes.',
+            state,
+        );
+    }
 
     const mdat = mtmp.data; /* "note: mondead can change mtmp->data" */
     const mndx = monsndx(mdat);
@@ -2854,8 +2883,21 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
     else if (mdat.msound === MS_GUARDIAN)
         unsupported('killing a quest guardian');
     else if (mtmp.ispriest) unsupported('killing a priest');
-    else if (mtmp.mtame) unsupported('killing a pet');
-    else if (mtmp.mpeaceful) unsupported('killing a peaceful monster');
+    else if (mtmp.mtame) {
+        adjalign(-15, state); /* "bad!!" */
+        /* "your god is mighty displeased..." C's Soundeffect() is a no-op in
+           this port, as js/sounds.js yelp() records, and its LL_KILLEDPET
+           livelog_printf() at 3714-3719 writes a file this port does not
+           write; js/mon.js:2140 and js/eat.js:2260-2261 record the same
+           treatment. Neither draws, so only the You_hear() line survives. */
+        const heard = youHear(
+            heroHallucinating(state)
+                ? 'the studio audience applaud!'
+                : 'the rumble of distant thunder...',
+            state,
+        );
+        if (heard) await message(heard, state);
+    } else if (mtmp.mpeaceful) unsupported('killing a peaceful monster');
 
     /* "malign was already adjusted for u.ualign.type and randomization" */
     adjalign(mtmp.malign, state);

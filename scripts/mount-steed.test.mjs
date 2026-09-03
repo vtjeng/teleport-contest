@@ -765,22 +765,32 @@ test('x_monnam builds the killer string and refuses every other flag set',
         'an angry saddled pony',
     );
 
-    // Any flag set that leaves do_invis live stops. do_hallu is decided at
-    // run time instead, so SUPPRESS_IT | SUPPRESS_INVISIBLE -- what the two
-    // stethoscope callers pass -- is admitted for this unhallucinating hero;
-    // scripts/do-name.test.mjs pins the hallucinating half.
-    for (const flags of [0, SUPPRESS_IT]) {
-        assert.throws(
-            () => x_monnam(pony, ARTICLE_A, null, flags, true, game),
-            UnsupportedMonsterNameError,
+    // Neither SUPPRESS_IT nor SUPPRESS_INVISIBLE changes a visible, visibly
+    // saddled steed: do_it needs a monster the hero cannot spot, and do_invis
+    // an invisible one. mon.c xkilled():3506-3510 passes 0 and this is the
+    // shape it gets.
+    for (const flags of [0, SUPPRESS_IT, SUPPRESS_IT | SUPPRESS_INVISIBLE]) {
+        assert.equal(
+            x_monnam(pony, ARTICLE_A, null, flags, true, game),
+            'a saddled pony',
             String(flags),
         );
     }
+    // do_name.c:937. An invisible monster gains the adjective unless the
+    // caller suppresses it, and it goes in after any caller-supplied one.
+    // SUPPRESS_IT is needed with it: a hero who cannot see invisible cannot
+    // spot the steed either, and do_name.c:863 answers "it" first.
+    pony.minvis = 1;
+    assert.equal(
+        x_monnam(pony, ARTICLE_A, 'angry', SUPPRESS_IT, true, game),
+        'an angry invisible saddled pony',
+    );
     assert.equal(
         x_monnam(pony, ARTICLE_A, null, SUPPRESS_IT | SUPPRESS_INVISIBLE,
                  true, game),
         'a saddled pony',
     );
+    pony.minvis = 0;
 
     // do_name.c:1006-1010, name_at_start. A bare given name with no adjective
     // in front of it drops the article; with ARTICLE_YOUR it drops even when

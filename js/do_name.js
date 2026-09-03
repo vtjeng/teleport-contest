@@ -554,23 +554,17 @@ export function obj_pmname(obj, state = game) {
     return 'two-legged glorkum-seeker';
 }
 
-// C ref: do_name.c x_monnam() (826-1032), restricted to the `suppress`
-// combinations that carry SUPPRESS_INVISIBLE. Three callers are ported:
-// steed.c mount_steed(), which builds the killer string for a slipped mount
-// ("a saddled pony", or "a saddled pony called Dobbin"); and apply.c
+// C ref: do_name.c x_monnam() (826-1032). Four callers are ported: steed.c
+// mount_steed(), which builds the killer string for a slipped mount ("a
+// saddled pony", or "a saddled pony called Dobbin"); apply.c
 // use_stethoscope():392 and insight.c mstatusline():3392, which name the
-// monster a stethoscope was pointed at. All three pass SUPPRESS_IT as well.
-//
-// SUPPRESS_INVISIBLE is what makes the do_invis branch statically dead here.
-// SUPPRESS_HALLUCINATION is not required, because the two stethoscope callers
-// do not pass it; instead do_hallu is computed as C computes it, and a
-// hallucinating hero stops. That branch replaces the whole name with
-// rndmonnam(), which draws from the display RNG once per rejected species and
-// once more for the gender, so admitting it without a differential that
-// measures those draws would put unspent calls in the port.
+// monster a stethoscope was pointed at; and mon.c xkilled():3506-3510, which
+// names the pet the hero has just killed ("the poor kitten", "poor Fido").
+// The first three pass SUPPRESS_IT and SUPPRESS_INVISIBLE; xkilled() passes
+// neither, and passes SUPPRESS_SADDLE only for a named pet.
 //
 // monsterCommonName() and capitalizedMonsterName() above are the port's
-// mon_nam() and Monnam() subset; they answer ARTICLE_THE and now share the
+// mon_nam() and Monnam() subset; they answer ARTICLE_THE and share the
 // hallucination name branch with this function.
 export function x_monnam(
     monster,
@@ -579,12 +573,8 @@ export function x_monnam(
     suppress,
     called,
     state = game,
+    env = {},
 ) {
-    if (!(suppress & SUPPRESS_INVISIBLE)) {
-        throw new UnsupportedMonsterNameError(
-            `x_monnam() suppress flags 0x${suppress.toString(16)}`,
-        );
-    }
     const mdat = monster.data;
 
     let effectiveSuppress = suppress;
@@ -593,25 +583,23 @@ export function x_monnam(
     if (state.program_state?.gameover)
         effectiveSuppress |= SUPPRESS_HALLUCINATION;
 
-    // do_invis is FALSE under the required flag above, so the hallucinated
-    // bogus name is the only one of the two branches that can be reached.
     let effectiveArticle = article;
     if (effectiveArticle === ARTICLE_YOUR && !monster.mtame)
         effectiveArticle = ARTICLE_THE;
-    if (state.u?.uswallow && monster === state.u.ustuck)
+    // do_name.c:851-859. A swallower is worth "the", and its interior is
+    // visible however invisible it is outside, so SUPPRESS_INVISIBLE joins the
+    // caller's flags here rather than being demanded of the caller.
+    if (state.u?.uswallow && monster === state.u.ustuck) {
         effectiveArticle = ARTICLE_THE;
-
-    // do_name.c:861. C computes do_hallu here and reads it at :917 for a
-    // shopkeeper and at :950 for the name itself; both are unreachable in this
-    // port -- the shopkeeper stops below whatever the hero sees -- so the one
-    // stop stands for the whole branch.
-    if (namingPropertyActive(state, HALLUC)
-        && !namingPropertyActive(state, HALLUC_RES)
-        && !(effectiveSuppress & SUPPRESS_HALLUCINATION)) {
-        throw new UnsupportedMonsterNameError(
-            "x_monnam()'s rndmonnam() branch",
-        );
+        effectiveSuppress |= SUPPRESS_INVISIBLE;
     }
+
+    // do_name.c:861-862.
+    const do_hallu = namingPropertyActive(state, HALLUC)
+        && !namingPropertyActive(state, HALLUC_RES)
+        && !(effectiveSuppress & SUPPRESS_HALLUCINATION);
+    const do_invis = Boolean(monster.minvis)
+        && !(effectiveSuppress & SUPPRESS_INVISIBLE);
 
     // do_name.c:876-885, above the priest and minion block C reaches next.
     if (x_monnam_do_it(monster, effectiveArticle, effectiveSuppress, state))
@@ -641,7 +629,9 @@ export function x_monnam(
     let buf = '';
 
     if (adjective) buf += `${adjective} `;
-    // do_invis is FALSE, so the "invisible " adjective cannot be added.
+    if (do_invis) buf += 'invisible ';
+    // do_name.c:938-941 reads Blind and Hallucination directly here, not
+    // do_hallu, so SUPPRESS_HALLUCINATION does not restore the saddle.
     if (do_saddle && (monster.misc_worn_check & W_SADDLE)
         && !namingPropertyActive(state, BLINDED)
         && !(namingPropertyActive(state, HALLUC)
@@ -651,7 +641,17 @@ export function x_monnam(
 
     let name_at_start;
     const givenName = monster.mextra?.mgivenname;
-    if (do_name && givenName) {
+    if (do_hallu) {
+        // do_name.c:949-955. The bogus name replaces the species outright,
+        // after the adjectives already in the buffer. rndmonnam() spends the
+        // display RNG, not the gameplay RNG.
+        const randomName = rndmonnamDetails({
+            state,
+            random: env.displayRandom ?? rn2_on_display_rng,
+        });
+        buf += randomName.name;
+        name_at_start = bogon_is_pname(randomName.code);
+    } else if (do_name && givenName) {
         if (mdat === state.mons?.[PM_GHOST]) {
             throw new UnsupportedMonsterNameError(
                 "x_monnam() for a named ghost's s_suffix() form",

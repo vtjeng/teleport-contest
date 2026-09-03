@@ -6142,6 +6142,25 @@
       "status": "open",
       "from": "3aba3128f41b05026f8489ac580dec95984dda6f",
       "detail": "quest.c chat_with_leader()'s not_capable() arm (quest.c 340-343) is the badlevel twin of the badalign arm this slice ported: qt_pager(\"badlevel\"), exercise(A_WIS, TRUE), expulsion(FALSE). js/quest.js chat_with_leader() refuses it with 'a quest leader turning away an under-level hero', and scripts/generate-quest-text.mjs leaves badlevel out of NEEDED_MESSAGES, so js/quest_text_data.js carries no badlevel entry. Case just outside the goal's limit: the same Priest recipe as recipes/quest-leader-badalign-expulsion.session.json with '#levelchange\\n20\\n' removed, so the hero meets Pri-strt's leader at experience level 1. It is kept out of the passing suite because that recipe does not reach the leader: #levelchange draws before the wizard level teleport generates the quest level, so removing it regenerates a different Pri-strt and the recorded cursor path (31 'l' and 4 'k') lands the hero far from the leader instead of beside it. Reaching badlevel needs a navigation that does not depend on the level's shape -- getpos monster cycling ('m'), which the port does not carry -- or a natural descent through the quest portal below experience level 14."
+    },
+    {
+      "id": "pet-kill-named-pet-message",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "1301dcc6b769373f71153c86642fcefca4052e54",
+      "detail": "mon.c xkilled():3504-3510 names a pet that has a given name with ARTICLE_NONE plus SUPPRESS_SADDLE (\"You kill poor Fido!\"), and that arm has no fresh differential. Only do_name.c docallcmd()'s \"a monster\" option puts a given name on a pet, and js/do_name.js docallcmd() refuses it, so the port stops before the kill. The C reference for the case is recorded: seed 4410002, datetime 20270411104500, rc OPTIONS=name:Rue,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:cat,!autopickup, keys 'Cm  n.Fido\\nFn ' -- C prints 'Fido yowls!  You kill poor Fido!--More--' and then 'You hear the rumble of distant thunder...'. scripts/mon-kill.test.mjs pins the named and saddled-named forms against that recording until docallcmd() is ported.",
+      "blockedOn": "christen_monst"
+    },
+    {
+      "id": "hallucinating-pet-kill-no-fresh-case",
+      "area": "display",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "1301dcc6b769373f71153c86642fcefca4052e54",
+      "detail": "The hallucinating half of mon.c xkilled():3506-3510 has no fresh differential, because a case cannot be built without measuring an unrelated display gap first. Turning hallucination on mid-game with #wizintrinsic diverges one hallucinated glyph on the very next redraw, before any kill: node scripts/diff-fresh.mjs --seed 4410000 --datetime 20270411104500 --moves '#wizintrinsic\\nh\\n s ' with rc OPTIONS=name:Rue,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:cat,!autopickup,playmode:debug fails at boundary 18 with C 'i' color 1 against JS 'N' color 8 at row 17 column 65, and the same control fails with no monster killed at all. Eight further seeds from the same scan (4410006, 4410010, 4410011, 4410013, 4410020, 4410024, 4410026, 4410028) all fail the same way. The recorded session sessions/seed0383-wizard-hallucinate.session.json does cover the message end to end -- its screen 179, 'You kill the poor titan!', now matches -- so the arm is witnessed, not unmeasured."
     }
   ],
   "areas": [

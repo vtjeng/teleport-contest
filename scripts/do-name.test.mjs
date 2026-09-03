@@ -464,12 +464,18 @@ test('x_monnam decides hallucination at run time, not by suppress flag', () => {
     // do_name.c:861 raises do_hallu for a hallucinating hero whose caller did
     // not suppress it, and :950-955 then replaces the whole name with
     // rndmonnam(), which draws from the display RNG once per rejected species
-    // and once more for the gender. Neither draw is measured yet.
+    // and once more for the gender. A zero for both takes mons[LOW_PM], the
+    // giant ant, and its neutral name.
     state.u.uprops[HALLUC].intrinsic = 1;
-    assert.throws(
-        () => x_monnam(monster, ARTICLE_A, null, STETHOSCOPE, false, state),
-        UnsupportedMonsterNameError,
+    const draws = [];
+    assert.equal(
+        x_monnam(monster, ARTICLE_A, null, STETHOSCOPE, false, state, {
+            displayRandom: (bound) => { draws.push(bound); return 0; },
+        }),
+        'a giant ant',
     );
+    // do_name.c rndmonnam(): the species index, then the gender.
+    assert.deepEqual(draws, [SPECIAL_PM + 100 - LOW_PM, 2]);
 
     // youprop.h:119-120 spells Hallucination as the intrinsic minus
     // resistance from either source, so a resistant hero is not hallucinating.
