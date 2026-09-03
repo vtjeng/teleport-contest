@@ -1875,6 +1875,29 @@ test('doname appends remembered price quotes after the object name', () => {
         doname_with_price(contained, state),
         'a purple-red potion {buy 10-20}',
     );
+
+    // OBJ_INVENT: a hero's own worn item (e.g. during nymph theft) is not
+    // unpaid, so C's doname_base falls through to the remembered-price-quote
+    // branch at objnam.c:1682-1684. The item gets its base name plus any
+    // remembered price quote, matching the OBJ_CONTAINED path.
+    const inventItem = objectOf(state, POT_HEALING, {
+        where: OBJ_INVENT,
+    });
+    assert.equal(
+        doname_with_price(inventItem, state),
+        'a purple-red potion {buy 10-20}',
+    );
+
+    // Without a remembered price quote, OBJ_INVENT returns the plain name.
+    type.oc_buy_minseen = Number.MAX_SAFE_INTEGER;
+    type.oc_buy_maxseen = 0;
+    const inventNoQuote = objectOf(state, POT_HEALING, {
+        where: OBJ_INVENT,
+    });
+    assert.equal(
+        doname_with_price(inventNoQuote, state),
+        'a purple-red potion',
+    );
 });
 
 test('unsupported naming branches fail before discovery or state changes', () => {
