@@ -8265,6 +8265,37 @@
         "screens": 22,
         "rng": 600
       }
+    },
+    {
+      "id": "simple-monster-action-requires-trap-activation",
+      "status": "open",
+      "boundary": "Trap-type dispatch for a simple monster's first activation of one of the 16 unported trapeffect_selector() arms.",
+      "upstreamOwners": [
+        "trap.c"
+      ],
+      "forecast": {
+        "steps": 531,
+        "basis": "Capped look-ahead at simple monster action requires trap activation",
+        "sessions": [
+          "seed0030-ten-diverse-deaths"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0030-ten-diverse-deaths",
+            "evidence": "Development replay witness: seed 31, datetime 20260101120000, options role Tourist/human/male/neutral, symset DECgraphics; first stop is cumulative step 49 on refused input u (movenortheast). The refusal originates in mon.c movemon_singlemon() (mon.c:1214), which calls dochugw()/dochug() (monmove.c:690, dispatching to m_move() at monmove.c:911), whose not_special path returns through postmov() (monmove.c:1455); postmov()'s MMOVE_MOVED arm calls mintrap(mtmp, NO_TRAP_FLAGS) at monmove.c:1508, on the square the monster just entered. mintrap() (trap.c:3733) takes its !mtmp->mtrapped arm (trap.c:3790-3822) -- the monster is newly stepping onto the trap, not already held -- clears the forcetrap/already_seen skip conditions, calls mon_learns_traps() and mons_see_trap(), then dispatches to trapeffect_selector(mtmp, trap, mintrapflags) at trap.c:3823, whose switch (trap->ttyp) (trap.c:2937-2992) selects the per-type trapeffect_*() handler. The governing state is a live, non-tame, non-guard monster moving onto a trap whose ttyp is one of the still-unported types -- every type in trap.c's switch except SQKY_BOARD, DART_TRAP, BEAR_TRAP, PIT, and MAGIC_TRAP -- which is the JavaScript port's UNPORTED_TRAP_EFFECTS set; the port's trapeffect_selector() at js/trap_effects.js:997 raises unsupported('trap activation') for exactly that set before reaching the real per-type effect, and js/allmain.js's monster-movement loop (allmain.js:1173-1185) converts the resulting UnsupportedSimpleMonsterActionError into the turn-boundary refusal 'simple monster action requires trap activation'. No option in this session's set changes the path; the boundary depends only on the trap type at the square the monster's move resolved to."
+          }
+        ]
+      },
+      "detail": "Bounding property: a non-tame, non-covetous, non-special-responder monster newly triggering one of the 16 still-unported trapeffect_selector() arms -- arrow, rock, sleeping-gas, rust, fire (monster arm), spiked-pit (spike arm), hole/trapdoor, level teleport, magic portal, teleport, web, statue, anti-magic, landmine, polymorph, rolling-boulder, and vibrating square -- reached through the already-ported mintrap()/trapeffect_selector() dispatch in js/trap_effects.js. Witnessed in one development session (seed0030-ten-diverse-deaths) and bounded to its cap-stable 531-step stretch. Following .agents/selection.md, this is a measured 531-step look-ahead for that dispatch, not a claim about every monster-trap interaction: the already-caught escape arm for non-bear traps, hero trap activation, and covetous or special-mover trap handling stay out of scope. Size: roughly 1,296 C lines across 16 trapeffect_*() functions in trap.c (start lines from `grep -n '^trapeffect_' nethack-c/upstream/src/trap.c`, spans by subtraction), ranging from 14-18 lines (statue trap, magic portal, level and regular teleport) to 130-212 lines (web, anti-magic, landmine, vibrating square). That is a multi-slice goal, sliced per trap-effect arm or small cluster of related arms, matching .agents/selection.md's arms-of-one-C-function-family rule.",
+      "slices": [],
+      "openedAt": "7c60f7b38c85159567c5e02c35299f9943b2eda7",
+      "openStanding": {
+        "sha": "97f2fbb4",
+        "screens": 4217,
+        "rng": 260684
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
