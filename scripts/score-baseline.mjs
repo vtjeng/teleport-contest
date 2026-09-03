@@ -31,10 +31,11 @@ const SCRIPT_PATH = fileURLToPath(import.meta.url);
 
 export const BASELINE_PATH = join(PROJECT_ROOT, 'score-baseline.json');
 
-// The two metrics the ratchet holds. `screens` is what the scorer reports and
-// `rngCalls` is the finer signal: a session can keep its screens while losing
-// random-number matches, which means the state behind the screens drifted.
-export const RATCHET_METRICS = Object.freeze(['screens', 'rngCalls']);
+// The metrics the ratchet holds. `screens` is what the scorer reports,
+// `rngCalls` is the finer signal (a session can keep its screens while the
+// state behind them drifts), and `cursors` is a scored column that moves
+// independently of screens (at 16ab32d, 4 of 33 sessions disagree).
+export const RATCHET_METRICS = Object.freeze(['screens', 'rngCalls', 'cursors']);
 
 /** Per-session matched counts, read from score-development.mjs's JSON. */
 export function currentFromResults(results) {
@@ -147,7 +148,7 @@ export function describeDrops({ drops, missing }) {
 function usage() {
     return 'usage: score-baseline.mjs raise <results.json>\n'
         + '       score-baseline.mjs lower <session> <screens> <rngCalls> '
-        + '<commit> <reason...>';
+        + '[--cursors <n>] <commit> <reason...>';
 }
 
 export function main(args) {
@@ -162,11 +163,19 @@ export function main(args) {
         return;
     }
     if (verb === 'lower') {
-        const [session, screens, rngCalls, commit, ...reason] = rest;
+        const [session, screens, rngCalls, ...tail] = rest;
+        let cursors, commitIdx = 0;
+        if (tail[0] === '--cursors') {
+            cursors = Number(tail[1]);
+            commitIdx = 2;
+        }
+        const commit = tail[commitIdx];
+        const reason = tail.slice(commitIdx + 1);
         if (!session || !commit || reason.length === 0) throw new Error(usage());
+        const figures = { screens: Number(screens), rngCalls: Number(rngCalls) };
+        if (cursors !== undefined) figures.cursors = cursors;
         const next = lowerBaseline(readBaseline(), session,
-            { screens: Number(screens), rngCalls: Number(rngCalls) },
-            reason.join(' '), commit);
+            figures, reason.join(' '), commit);
         writeBaseline(next);
         console.log(`lowered ${session}; the reason is recorded beside it`);
         return;
