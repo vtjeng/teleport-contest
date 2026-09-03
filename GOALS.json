@@ -8801,6 +8801,26 @@
         "screens": 2,
         "rng": 7
       }
+    },
+    {
+      "id": "unsupported-hero-command-dip",
+      "status": "open",
+      "boundary": "#dip",
+      "upstreamOwners": [
+        "potion.c",
+        "fountain.c"
+      ],
+      "forecast": null,
+      "detail": "Port dodip() and dipfountain(). ~1050 lines of C across potion.c (dodip, dip_into, potion_dip, mixtype ~580 lines), fountain.c (dipfountain ~160 lines, dipsink ~86 lines), and trap.c (water_damage ~143 lines). Multi-slice goal (estimated 5-8 slices).",
+      "slices": [],
+      "openedAt": "e2be2fe01504119e51ce08729db6ae219838e4df",
+      "openStanding": {
+        "sha": "0b0ba70bf69913640968d6b57e6a17fa78d4a36b",
+        "screens": 4368,
+        "rng": 276710
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
