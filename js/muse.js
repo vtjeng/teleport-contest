@@ -1,6 +1,8 @@
-// Monster item-interest predicates.
-// C refs: muse.c searches_for_item(), cures_stoning(),
-// mcould_eat_tin(); mondata.c can_blow().
+// Monster item-interest predicates, plus the offensive action a monster takes
+// against the hero.
+// C refs: muse.c find_offensive(), use_offensive()'s hurled-potion case,
+// searches_for_item(), cures_stoning(), mcould_eat_tin(); mondata.c
+// can_blow().
 
 import {
     MFAST,
@@ -32,7 +34,7 @@ import {
 } from './const.js';
 import { Can_fall_thru } from './dungeon.js';
 import { game } from './gstate.js';
-import { dist2 } from './hacklib.js';
+import { dist2, distmin, sgn } from './hacklib.js';
 import {
     acidic, attacktype, breathless, dmgtype, has_head, is_animal, is_floater,
     is_mercenary, is_unicorn, is_vampshifter, mindless, needspick, nohands,
@@ -47,12 +49,15 @@ import {
     sobj_at,
 } from './obj.js';
 import * as O from './objects.js';
+import { donameFresh, singular } from './objnam.js';
+import { observe_object } from './o_init.js';
 import { monnear, onscary } from './monmove.js';
 import { lined_up } from './mthrowu.js';
 import { in_your_sanctuary } from './priest.js';
 import { rn2 } from './rng.js';
 import { stairway_at } from './stairs.js';
 import { t_at } from './trap.js';
+import { cansee } from './vision.js';
 import { mwelded } from './wield.js';
 import { which_armor } from './worn.js';
 
@@ -62,6 +67,16 @@ import { which_armor } from './worn.js';
 // second caller wants them.
 const AT_GAZE = 15;
 const MS_BUZZ = 10;
+
+// C ref: muse.c:1272-1290, the offensive half of the MUSE_* action codes.
+// Only the five throwable potions are ported; the rest are named so that
+// find_offensive()'s nomore() skips and use_offensive()'s switch read the same
+// numbering C does.
+const MUSE_POT_PARALYSIS = 9;
+const MUSE_POT_BLINDNESS = 10;
+const MUSE_POT_CONFUSION = 11;
+const MUSE_POT_ACID = 14;
+const MUSE_POT_SLEEPING = 16;
 
 function activeHeroProperty(state, property) {
     const value = state.u?.uprops?.[property];
@@ -414,12 +429,12 @@ export function select_fresh_monster_item_action(monster, rawEnv = {}) {
 // Partial, and deliberately only ever answers FALSE. C reports its choice
 // through gm.m.offensive and gm.m.has_offense, whose sole reader is
 // use_offensive(); that function is not ported, so every arm that would set
-// has_offense refuses here instead. What the port therefore covers is exactly
-// the FALSE answer: the five guards above the inventory loop, and the loop's
-// rejection of every item that is not an offensive one. C's `nomore(x)` skip
-// cannot fire, because has_offense never becomes nonzero.
+// has_offense refuses here instead. What the port therefore covers is the
+// FALSE answer -- the five guards above the inventory loop, and the loop's
+// rejection of every item that is not an offensive one -- plus the five
+// throwable-potion arms, whose shared use_offensive() case is ported below.
 //
-// Four arms refuse on the object type ahead of conditions C also tests.
+// Three wand arms refuse on the object type ahead of conditions C also tests.
 // MUSE_WAN_UNDEAD_TURNING needs invent.c carrying() and a corpse ray;
 // MUSE_WAN_TELEPORTATION needs onscary(), hero_behind_chokepoint() and
 // stairway_at(); and MUSE_SCR_EARTH and MUSE_CAMERA each end in a draw --
@@ -435,6 +450,7 @@ export function find_offensive(mtmp, rawEnv = {}) {
     const seenres = (mask) => (mtmp.seen_resistance & mask) !== 0;
     const refuse = () => unsupported('monster offensive item use');
 
+    state.m_offense = null;
     if (mtmp.mpeaceful || is_animal(species) || mindless(species)
         || nohands(species)) {
         return false;
@@ -453,10 +469,19 @@ export function find_offensive(mtmp, rawEnv = {}) {
         || monnear(mtmp, mtmp.mux, mtmp.muy, state);
     // C also reads which_armor(mtmp, W_ARMH) here. Its one consumer is the
     // MUSE_SCR_EARTH arm's hard_helmet() test, which this refuses ahead of.
+    let has_offense = 0;
+    let offensive = null;
+    const select = (choice, obj) => {
+        offensive = obj;
+        has_offense = choice;
+    };
     /* this picks the last viable item rather than prioritizing choices */
     for (let obj = mtmp.minvent; obj; obj = obj.nobj) {
         const otyp = obj.otyp;
         if (!reflection_skip) {
+            // C's nomore() skips for these eight arms cannot fire: has_offense
+            // only ever holds one of the five MUSE_POT_* values below, since
+            // every other arm refuses.
             if ((otyp === O.WAN_DEATH && obj.spe > 0 && !seenres(M_SEEN_MAGR))
                 || (otyp === O.WAN_SLEEP && obj.spe > 0
                     && (state.multi ?? 0) >= 0 && !seenres(M_SEEN_SLEEP))
@@ -478,18 +503,108 @@ export function find_offensive(mtmp, rawEnv = {}) {
         if ((otyp === O.WAN_UNDEAD_TURNING && obj.spe > 0)
             || (otyp === O.WAN_STRIKING && obj.spe > 0
                 && !seenres(M_SEEN_MAGR))
-            || (otyp === O.WAN_TELEPORTATION && obj.spe > 0)
-            || (otyp === O.POT_PARALYSIS && (state.multi ?? 0) >= 0)
-            || (otyp === O.POT_BLINDNESS && !attacktype(species, AT_GAZE))
-            || otyp === O.POT_CONFUSION
-            || (otyp === O.POT_SLEEPING && !seenres(M_SEEN_SLEEP))
-            || (otyp === O.POT_ACID && !seenres(M_SEEN_ACID))
-            || otyp === O.SCR_EARTH
+            || (otyp === O.WAN_TELEPORTATION && obj.spe > 0)) {
+            refuse();
+        }
+        /* nomore(MUSE_POT_PARALYSIS) */
+        if (has_offense === MUSE_POT_PARALYSIS) continue;
+        if (otyp === O.POT_PARALYSIS && (state.multi ?? 0) >= 0)
+            select(MUSE_POT_PARALYSIS, obj);
+        /* nomore(MUSE_POT_BLINDNESS) */
+        if (has_offense === MUSE_POT_BLINDNESS) continue;
+        if (otyp === O.POT_BLINDNESS && !attacktype(species, AT_GAZE))
+            select(MUSE_POT_BLINDNESS, obj);
+        /* nomore(MUSE_POT_CONFUSION) */
+        if (has_offense === MUSE_POT_CONFUSION) continue;
+        if (otyp === O.POT_CONFUSION) select(MUSE_POT_CONFUSION, obj);
+        /* nomore(MUSE_POT_SLEEPING) */
+        if (has_offense === MUSE_POT_SLEEPING) continue;
+        if (otyp === O.POT_SLEEPING && !seenres(M_SEEN_SLEEP))
+            select(MUSE_POT_SLEEPING, obj);
+        /* nomore(MUSE_POT_ACID) */
+        if (has_offense === MUSE_POT_ACID) continue;
+        if (otyp === O.POT_ACID && !seenres(M_SEEN_ACID))
+            select(MUSE_POT_ACID, obj);
+        // C's nomore(MUSE_SCR_EARTH) and nomore(MUSE_CAMERA) sit here; neither
+        // value is reachable, because both arms refuse.
+        if (otyp === O.SCR_EARTH
             || (otyp === O.EXPENSIVE_CAMERA && obj.spe > 0)) {
             refuse();
         }
     }
-    return false;
+    if (!has_offense) return false;
+    state.m_offense = { has_offense, offensive };
+    return true;
+}
+
+// C ref: muse.c use_offensive() (1824-2032). "Perform an offensive action for
+// a monster.  Must be called immediately after find_offensive()."  Only the
+// shared MUSE_POT_PARALYSIS/BLINDNESS/CONFUSION/SLEEPING/ACID case (2005-2023)
+// is ported; every other arm refuses, and find_offensive() above cannot select
+// one.
+//
+// C's entry declares buzzfn and calls precheck(), but "offensive potions are
+// not drunk, they're thrown", so the potion case skips precheck() entirely.
+// C's `oseen` is likewise read only by the wand, horn and bhit arms.
+export async function use_offensive(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const env = { ...rawEnv, state };
+    const unsupported = env.unsupported;
+    if (typeof unsupported !== 'function')
+        throw new TypeError('use_offensive requires an unsupported operation');
+    const selection = state.m_offense;
+    if (!selection) {
+        throw new Error(
+            'use_offensive must follow a find_offensive() that selected',
+        );
+    }
+    const otmp = selection.offensive;
+
+    switch (selection.has_offense) {
+    case MUSE_POT_PARALYSIS:
+    case MUSE_POT_BLINDNESS:
+    case MUSE_POT_CONFUSION:
+    case MUSE_POT_SLEEPING:
+    case MUSE_POT_ACID: {
+        /* Note: this setting of dknown doesn't suffice.  A monster
+         * which is out of sight might throw and it hits something _in_
+         * sight, a problem not existing with wands because wand rays
+         * are not objects.  Also set dknown in mthrowu.c.
+         */
+        if (cansee(mtmp.mx, mtmp.my, state)) {
+            const message = env.message;
+            const monsterName = env.monsterName;
+            if (typeof message !== 'function'
+                || typeof monsterName !== 'function') {
+                throw new TypeError(
+                    'use_offensive requires message and monsterName owners',
+                );
+            }
+            observe_object(otmp, state);
+            await message(
+                `${monsterName(mtmp, state)} hurls `
+                + `${singular(otmp, donameFresh, state)}!`,
+                state,
+            );
+        }
+        const throwMissile = env.throwMissile;
+        if (typeof throwMissile !== 'function')
+            throw new TypeError('use_offensive requires throwMissile');
+        await throwMissile(
+            mtmp,
+            mtmp.mx,
+            mtmp.my,
+            sgn(mtmp.mux - mtmp.mx),
+            sgn(mtmp.muy - mtmp.my),
+            distmin(mtmp.mx, mtmp.my, mtmp.mux, mtmp.muy),
+            otmp,
+            env,
+        );
+        return 2;
+    }
+    default:
+        return unsupported('monster offensive item use');
+    }
 }
 
 function resistsStoning(monster) {

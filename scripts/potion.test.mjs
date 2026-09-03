@@ -13,8 +13,8 @@ import test from 'node:test';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
-    BLINDED, CONFUSION, FAST, FROMOUTSIDE, HALLUC, HALLUC_RES, INVIS,
-    SEE_INVIS, TIMEOUT,
+    A_CON, A_DEX, BLINDED, CONFUSION, FAST, FROMOUTSIDE, HALLUC, HALLUC_RES,
+    INVIS, POTHIT_MONST_THROW, SEE_INVIS, TIMEOUT,
 } from '../js/const.js';
 import { trycall } from '../js/do.js';
 import { UnsupportedObjectNamingError, docall } from '../js/do_name.js';
@@ -58,6 +58,7 @@ import {
     make_confused,
     peffects,
     potionbreathe,
+    potionhit,
     set_itimeout,
     speed_up,
 } from '../js/potion.js';
@@ -198,13 +199,21 @@ test('potion.c still labels the arms this port refuses and none it skips',
     }
 });
 
+// The labels whose bodies this port runs. POT_INVISIBILITY came with the
+// quaffing work; the other three are the vapors a potion hurled at the hero
+// can raise, which muse.c use_offensive() now reaches.
+const PORTED_LABELS = [
+    'POT_INVISIBILITY', 'POT_PARALYSIS', 'POT_SLEEPING', 'POT_ACID',
+    'POT_POLYMORPH',
+];
+
 test('the labelled arms this port has not reached stop by name', async () => {
     await startedGame(771001, 'VaporRefuse');
     const labelled = [
         ...breatheSwitchBody().code.matchAll(/case (POT_[A-Z_]+):/gu),
     ].map(([, name]) => name);
     for (const name of labelled) {
-        if (name === 'POT_INVISIBILITY') continue;
+        if (PORTED_LABELS.includes(name)) continue;
         const otyp = POTION_TYPES[name];
         assert.equal(typeof otyp, 'number', name);
         await assert.rejects(
@@ -213,6 +222,130 @@ test('the labelled arms this port has not reached stop by name', async () => {
             name,
         );
     }
+});
+
+// potion.c:2041-2064. Both arms freeze the hero for -rnd(5) turns, set the
+// reason and the message unmul() prints, and exercise Dexterity downward. The
+// draws below are the only randomness either arm spends; `2` and `-1` are the
+// scripted rnd(5) and rn2(2) results, and rnd(5) coming first pins the order.
+for (const [label, otyp, line] of [
+    ['paralysis', POT_PARALYSIS, 'Something seems to be holding you.'],
+    ['sleeping', POT_SLEEPING, 'You feel rather tired.'],
+]) {
+    test(`the ${label} vapors freeze the hero and cost Dexterity`,
+        async () => {
+        await startedGame(771010, 'VaporFreeze');
+        clearTopline();
+        const obj = vaporPotion(otyp);
+        const drawn = [];
+        const random = {
+            rnd: (bound) => { drawn.push(['rnd', bound]); return 2; },
+            rn2: (bound) => { drawn.push(['rn2', bound]); return 1; },
+        };
+        const before = game.u.aexe[A_DEX];
+        await potionbreathe(obj, game, { random });
+
+        assert.equal(toplines(), line);
+        // nomul(-rnd(5)) with the scripted 2.
+        assert.equal(game.multi, -2);
+        assert.equal(game.nomovemsg, 'You can move again.');
+        // exercise(A_DEX, FALSE) adds -rn2(2), scripted to 1.
+        assert.equal(game.u.aexe[A_DEX], before - 1);
+        // The tail's makeknown() -- both arms set kn -- ends in
+        // exercise(A_WIS, TRUE), whose rn2(19) is the third draw.
+        assert.deepEqual(drawn, [['rnd', 5], ['rn2', 2], ['rn2', 19]]);
+    });
+}
+
+// potion.c:2092-2095. The acid and polymorph vapors share one arm whose whole
+// body is exercise(A_CON, FALSE), so the single rn2(2) is the arm.
+for (const [label, otyp] of [
+    ['acid', POT_ACID], ['polymorph', POT_POLYMORPH],
+]) {
+    test(`the ${label} vapors cost Constitution and nothing else`,
+        async () => {
+        await startedGame(771011, 'VaporAcid');
+        // Neither arm sets kn, so the tail offers the naming prompt for a type
+        // the hero has not identified. Identify it first, as do.c trycall()
+        // reads the shared objects[] row.
+        discover_object(otyp, true, true, false, game);
+        clearTopline();
+        const drawn = [];
+        const random = {
+            rnd: (bound) => assert.fail(`unexpected rnd(${bound})`),
+            rn2: (bound) => { drawn.push(bound); return 1; },
+        };
+        const before = game.u.aexe[A_CON];
+        await potionbreathe(vaporPotion(otyp), game, {
+            random,
+            encumberMessage: async () => {},
+        });
+
+        assert.equal(toplines(), '');
+        assert.equal(game.u.aexe[A_CON], before - 1);
+        // exercise(A_CON, FALSE)'s -rn2(2), and no other draw.
+        assert.deepEqual(drawn, [2]);
+        assert.equal(game.multi ?? 0, 0);
+    });
+}
+
+// C ref: potion.c potionhit() (1624-1705), the hero-target branch. The acid
+// arm is the only one of the isyou switch's three that a monster's hurled
+// potion can reach; POT_OIL needs a lit lamp and POT_POLYMORPH refuses.
+test('potionhit burns an unresistant hero with the acid it crashes',
+    async () => {
+    await startedGame(771020, 'PotionAcid');
+    // The acid vapors set no kn, so the tail offers the naming prompt for an
+    // unidentified type. Identify it first, as do.c trycall() reads the shared
+    // objects[] row.
+    discover_object(POT_ACID, true, true, false, game);
+    clearTopline();
+    const obj = vaporPotion(POT_ACID);
+    obj.cursed = true; // d(2, 8) rather than d(1, 8)
+    game.u.uhp = 20;
+    game.u.uhpmax = 20;
+    const draws = [];
+    const random = {
+        rn2: (bound) => { draws.push(['rn2', bound]); return 1; },
+        // bottlename()'s rn2(7) and the crash rnd(2) come first; 1 keeps the
+        // hero alive and picks potion.c's second bottle name.
+        rnd: (bound) => { draws.push(['rnd', bound]); return 1; },
+        d: (n, x) => { draws.push(['d', n, x]); return 6; },
+    };
+    const messages = [];
+
+    await potionhit(game.youmonst, obj, POTHIT_MONST_THROW, {
+        state: game,
+        random,
+        message: async (text) => { messages.push(text); },
+        unsupported: (reason) => assert.fail(reason),
+        encumberMessage: async () => {},
+    });
+
+    assert.deepEqual(messages, [
+        'The phial crashes on your head and breaks into shards.',
+        'The potion of acid evaporates.',
+        'This burns a lot!',
+    ]);
+    // rnd(2) = 1 for the crash, then d(2, 8) = 6 for the acid.
+    assert.equal(game.u.uhp, 20 - 1 - 6);
+    assert.deepEqual(draws, [
+        ['rn2', 7], ['rnd', 2], ['d', 2, 8],
+        // potionbreathe()'s POT_ACID arm is exercise(A_CON, FALSE) alone.
+        ['rn2', 2],
+    ]);
+});
+
+test('potionhit refuses a target that is not the hero', async () => {
+    await startedGame(771021, 'PotionMonster');
+    const reasons = [];
+    await potionhit({}, vaporPotion(POT_ACID), POTHIT_MONST_THROW, {
+        state: game,
+        random: { rn2: () => 0, rnd: () => 1, d: () => 1 },
+        message: async () => {},
+        unsupported: (reason) => { reasons.push(reason); },
+    });
+    assert.deepEqual(reasons, ['a potion crashing on a monster']);
 });
 
 test('the unlabelled types reach the naming tail and nothing else', async () => {

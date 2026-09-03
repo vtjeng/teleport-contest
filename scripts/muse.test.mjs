@@ -12,6 +12,7 @@ import {
 } from '../js/const.js';
 import {
     COULD_SEE,
+    IN_SIGHT,
     M_SEEN_ACID,
     M_SEEN_MAGR,
     M_SEEN_REFL,
@@ -25,6 +26,7 @@ import {
     cures_stoning,
     find_offensive,
     find_defensive,
+    use_offensive,
     mcould_eat_tin,
     searches_for_item,
     select_fresh_monster_item_action,
@@ -848,16 +850,14 @@ test('find_offensive reads the conditions C attaches to each item',
     // muse.c:1522-1526. A potion of blindness is useless to a gazer, which
     // is the one condition that reads the attacker's own species.
     gnome.minvent = carried(state, POT_BLINDNESS);
-    assert.throws(() => find_offensive(gnome, env),
-        (error) => error.reason === 'monster offensive item use');
+    assert.equal(find_offensive(gnome, env), true);
     const eye = offensiveMonster(state, PM_FLOATING_EYE, gnome.minvent);
     assert.equal(find_offensive(eye, env), false);
 
     // muse.c:1517-1521. A paralysis potion is skipped while the hero is
     // already helpless.
     gnome.minvent = carried(state, POT_PARALYSIS);
-    assert.throws(() => find_offensive(gnome, env),
-        (error) => error.reason === 'monster offensive item use');
+    assert.equal(find_offensive(gnome, env), true);
     state.multi = -2;
     assert.equal(find_offensive(gnome, env), false);
     state.multi = 0;
@@ -867,6 +867,15 @@ test('find_offensive reads the conditions C attaches to each item',
     gnome.minvent = carried(state, DAGGER);
     assert.equal(find_offensive(gnome, env), false);
 });
+
+// muse.c:1272-1290 numbers the MUSE_* action codes. Only the five throwable
+// potions can be selected; the values are read from the C #defines rather than
+// from the port, so a renumbering there fails here.
+const MUSE_POT_PARALYSIS = 9;
+const MUSE_POT_BLINDNESS = 10;
+const MUSE_POT_CONFUSION = 11;
+const MUSE_POT_ACID = 14;
+const MUSE_POT_SLEEPING = 16;
 
 // One row per arm of find_offensive()'s inventory loop, in source order, each
 // naming the muse.c line it stands for. `reflected` puts the attacker three
@@ -930,18 +939,22 @@ const OFFENSIVE_ARMS = [
     { name: 'spent wand of teleportation', otyp: WAN_TELEPORTATION, spe: 0,
         refuses: false },
     // muse.c:1517-1521
-    { name: 'potion of paralysis', otyp: POT_PARALYSIS },
+    { name: 'potion of paralysis', otyp: POT_PARALYSIS,
+        selects: MUSE_POT_PARALYSIS },
     // muse.c:1522-1526
-    { name: 'potion of blindness', otyp: POT_BLINDNESS },
+    { name: 'potion of blindness', otyp: POT_BLINDNESS,
+        selects: MUSE_POT_BLINDNESS },
     // muse.c:1527-1531
-    { name: 'potion of confusion', otyp: POT_CONFUSION },
+    { name: 'potion of confusion', otyp: POT_CONFUSION,
+        selects: MUSE_POT_CONFUSION },
     // muse.c:1532-1537
-    { name: 'potion of sleeping', otyp: POT_SLEEPING },
+    { name: 'potion of sleeping', otyp: POT_SLEEPING,
+        selects: MUSE_POT_SLEEPING },
     { name: 'potion of sleeping against a sleep-resistant hero',
         otyp: POT_SLEEPING, monster: { seen_resistance: M_SEEN_SLEEP },
         refuses: false },
     // muse.c:1538-1543
-    { name: 'potion of acid', otyp: POT_ACID },
+    { name: 'potion of acid', otyp: POT_ACID, selects: MUSE_POT_ACID },
     { name: 'potion of acid against an acid-resistant hero', otyp: POT_ACID,
         monster: { seen_resistance: M_SEEN_ACID }, refuses: false },
     // muse.c:1548-1560
@@ -980,16 +993,121 @@ test('find_offensive selects on the object type and its own conditions',
             ...(arm.monster ?? {}),
         });
         state.multi = arm.multi ?? 0;
-        const refuses = arm.refuses ?? true;
-        if (refuses) {
+        const refuses = arm.selects === undefined && (arm.refuses ?? true);
+        if (arm.selects !== undefined) {
+            assert.equal(find_offensive(gnome, env), true, arm.name);
+            assert.equal(state.m_offense.has_offense, arm.selects, arm.name);
+            assert.equal(state.m_offense.offensive, item, arm.name);
+        } else if (refuses) {
             assert.throws(() => find_offensive(gnome, env),
                 (error) => error.reason === 'monster offensive item use',
                 arm.name);
         } else {
             assert.equal(find_offensive(gnome, env), false, arm.name);
+            assert.equal(state.m_offense, null, arm.name);
         }
         state.multi = 0;
     }
+});
+
+// muse.c's `nomore(x)` skip is `if (gm.m.has_offense == x) continue;`, so an
+// arm can only be displaced by an arm that sits later in the loop body. The
+// three cases below are the whole behavior: a later arm wins, an earlier arm
+// is skipped over, and a repeat of the same type keeps the first object.
+test('find_offensive lets a later arm displace an earlier one and no other',
+    async () => {
+    const state = await offensiveHero();
+    const env = offensiveEnv(state);
+    const pack = (...types) => {
+        const objects = types.map((otyp) => carried(state, otyp));
+        for (let i = 0; i < objects.length - 1; ++i)
+            objects[i].nobj = objects[i + 1];
+        return objects;
+    };
+
+    // nomore(MUSE_POT_CONFUSION) precedes the acid arm, so the confusion
+    // choice made for the first potion skips the acid arm for the second.
+    let objects = pack(POT_ACID, POT_CONFUSION);
+    assert.equal(find_offensive(offensiveMonster(state, PM_GNOME, objects[0]),
+        env), true);
+    assert.equal(state.m_offense.has_offense, MUSE_POT_CONFUSION);
+    assert.equal(state.m_offense.offensive, objects[1]);
+
+    objects = pack(POT_CONFUSION, POT_ACID);
+    assert.equal(find_offensive(offensiveMonster(state, PM_GNOME, objects[0]),
+        env), true);
+    assert.equal(state.m_offense.has_offense, MUSE_POT_CONFUSION);
+    assert.equal(state.m_offense.offensive, objects[0]);
+
+    objects = pack(POT_CONFUSION, POT_CONFUSION);
+    assert.equal(find_offensive(offensiveMonster(state, PM_GNOME, objects[0]),
+        env), true);
+    assert.equal(state.m_offense.offensive, objects[0]);
+});
+
+// ---- muse.c use_offensive() ----
+
+test('use_offensive hurls the selected potion along the line to the hero',
+    async () => {
+    const state = await offensiveHero();
+    const potion = carried(state, POT_SLEEPING);
+    // Three squares east of the hero, so that the launch direction and the
+    // range distmin() computes are both nontrivial.
+    const gnome = offensiveMonster(state, PM_GNOME, potion, {
+        mx: state.u.ux + 3,
+        my: state.u.uy,
+    });
+    for (let x = state.u.ux; x <= gnome.mx; ++x) {
+        const location = state.level.at(x, state.u.uy);
+        location.typ = ROOM;
+        location.flags = 0;
+        location.doormask = 0;
+        location.wall_info = 0;
+        // IN_SIGHT as well as COULD_SEE: use_offensive() announces the throw
+        // only for a thrower on a square the hero can actually see.
+        state.viz_array[state.u.uy][x] |= COULD_SEE | IN_SIGHT;
+    }
+    const messages = [];
+    const thrown = [];
+    const env = {
+        ...offensiveEnv(state),
+        message: async (text) => { messages.push(text); },
+        monsterName: () => 'The gnome',
+        throwMissile: async (...args) => { thrown.push(args); },
+    };
+
+    assert.equal(find_offensive(gnome, env), true);
+    assert.equal(await use_offensive(gnome, env), 2);
+
+    // muse.c:2015-2019. A visible thrower observes the object -- which is what
+    // lets doname() print its description -- and announces the throw.
+    assert.equal(potion.dknown, true);
+    // Seed 7710044 shuffles "dark" onto the potion of sleeping. The
+    // description rather than the type is the point: doname() prints it only
+    // for a dknown object, so an announcement reading "a potion" would mean
+    // observe_object() had not run.
+    assert.deepEqual(messages, ['The gnome hurls a dark potion!']);
+    // muse.c:2020-2022: launch point, unit direction, distmin() range, object.
+    assert.equal(thrown.length, 1);
+    assert.deepEqual(thrown[0].slice(0, 7), [
+        gnome, gnome.mx, gnome.my, -1, 0, 3, potion,
+    ]);
+});
+
+test('use_offensive refuses every arm outside the hurled potion',
+    async () => {
+    const state = await offensiveHero();
+    const env = offensiveEnv(state);
+    // muse.c:1842-1847. A wand arm needs mzapwand() and buzz(); write the
+    // selection find_offensive() would have made and check the switch stops.
+    const wand = carried(state, WAN_DEATH, { spe: 3 });
+    const gnome = offensiveMonster(state, PM_GNOME, wand);
+    state.m_offense = {
+        has_offense: 1 /* muse.c:1272 MUSE_WAN_DEATH */,
+        offensive: wand,
+    };
+    await assert.rejects(() => use_offensive(gnome, env),
+        (error) => error.reason === 'monster offensive item use');
 });
 
 test('find_offensive declines for a nurse beside an unarmed, unarmored hero',

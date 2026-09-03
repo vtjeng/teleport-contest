@@ -5,6 +5,7 @@
 //        peffect_speed() (1052-1070), peffect_oil() (1259-1294),
 //        speed_up() (2918-2928),
 //        itimeout/itimeout_incr/set_itimeout/incr_itimeout (55-86),
+//        bottlename() (1487-1494), potionhit() (1624-1928),
 //        potionbreathe() (1931-2118), make_blinded() (261-331),
 //        make_hallucinated() (387-442), toggle_blindness() (336-364).
 //
@@ -21,6 +22,7 @@
 // status changes. It forces a full vision rebuild and updates monster display.
 
 import {
+    ACID_RES,
     A_CON,
     A_DEX,
     A_MAX,
@@ -44,6 +46,7 @@ import {
     GETOBJ_EXCLUDE_NONINVENT,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
+    HALF_PHDAM,
     INFRAVISION,
     INTRINSIC,
     INVIS,
@@ -52,10 +55,14 @@ import {
     KILLED_BY,
     KILLED_BY_AN,
     FIXED_ABIL,
+    FREE_ACTION,
+    HEAD,
     LEG,
     MM_NOMSG,
     POISON_RES,
+    POTHIT_OTHER_THROW,
     SEE_INVIS,
+    SLEEP_RES,
     STRANGLED,
     TELEPAT,
     TIMEOUT,
@@ -76,22 +83,23 @@ import { drinkfountain } from './fountain.js';
 import { more_experienced } from './exper.js';
 import { makeplural, makesingular } from './fruit.js';
 import { game } from './gstate.js';
-import { losehp } from './hack.js';
+import { losehp, nomul, You_can_move_again } from './hack.js';
 import {
-    getobj, learn_unseen_invent, update_inventory, useup,
+    getobj, learn_unseen_invent, obfree, update_inventory, useup,
 } from './invent.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime, mongone } from './makemon_create.js';
-import { likes_fire } from './mondata.js';
+import { breathless, haseyes, likes_fire } from './mondata.js';
 import { PM_DJINNI, PM_HEALER } from './monsters.js';
 import { bcsign, objectType } from './obj.js';
+import { Tobjnam } from './objnam.js';
 import { discover_object } from './o_init.js';
 import { body_part } from './polyself.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { burn_away_slime } from './timeout.js';
 import { unconscious } from './trap.js';
-import { vision_recalc } from './vision.js';
+import { cansee, vision_recalc } from './vision.js';
 import { Cold_resistance, Fire_resistance, makewish } from './zap.js';
 import {
     OBJ_DESCR,
@@ -950,6 +958,34 @@ function See_invisible(state) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
+// C ref: youprop.h:36 Sleep_resistance and :215 Free_action. Both are the
+// plain "either source" spelling, with no blocking term.
+function eitherSource(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+function Sleep_resistance(state) {
+    return eitherSource(state, SLEEP_RES);
+}
+
+function Free_action(state) {
+    return eitherSource(state, FREE_ACTION);
+}
+
+// C ref: youprop.h:132 Acid_resistance, the plain "either source" spelling.
+function Acid_resistance(state) {
+    return eitherSource(state, ACID_RES);
+}
+
+// hack.h:1236 Maybe_Half_Phys(). youprop.h:341 defines Half_physical_damage
+// as the intrinsic or the extrinsic, with no blocking term.
+function Maybe_Half_Phys(dmg, state) {
+    const halved = state.u?.uprops?.[HALF_PHDAM];
+    return (halved?.intrinsic || halved?.extrinsic)
+        ? Math.trunc((dmg + 1) / 2) : dmg;
+}
+
 // C ref: youprop.h:405 Half_gas_damage, "wrap it round your head to ward off
 // noxious fumes [we require it to be damp or wet]". It is the one property
 // here with no u.uprops slot: a worn towel with charges left, and nothing else.
@@ -958,13 +994,130 @@ function Half_gas_damage(state) {
         && state.ublindf.spe > 0);
 }
 
+// C ref: potion.c bottlenames[] (1478-1479) and hbottlenames[] (1480-1485).
+const bottlenames = [
+    'bottle', 'phial', 'flagon', 'carafe', 'flask', 'jar', 'vial',
+];
+const hbottlenames = [
+    'jug', 'pitcher', 'barrel', 'tin', 'bag', 'box', 'glass', 'beaker',
+    'tumbler', 'vase', 'flowerpot', 'pan', 'thingy', 'mug', 'teacup',
+    'teapot', 'keg', 'bucket', 'thermos', 'amphora', 'wineskin', 'parcel',
+    'bowl', 'ampoule',
+];
+
+// C ref: potion.c bottlename() (1487-1494). hack.h:1493 expands
+// ROLL_FROM(array) to array[rn2(SIZE(array))], so this always spends one draw.
+export function bottlename(state = game, random = { rn2 }) {
+    const names = Hallucination(state) ? hbottlenames : bottlenames;
+    return names[random.rn2(names.length)];
+}
+
+// C ref: potion.c potionhit() (1624-1928), "potion obj hits monster mon, which
+// might be youmonst; obj always used up".
+//
+// Only the hero-target half is ported: the isyou branch (1633-1641), the
+// evaporation line (1679-1681), the isyou object switch (1683-1705), and the
+// potionbreathe()/trycall(), shop-billing and obfree() tail (1906-1927). A
+// monster target -- and with it hit_saddle, the saddle switch and the
+// twenty-arm monster switch -- refuses.
+//
+// `how` is one of obj.h's POTHIT_* codes; only the killer string reads it, and
+// only the two throw codes can reach the ported branch.
+export async function potionhit(mon, obj, how, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { d, rn2, rnd };
+    const unsupported = rawEnv.unsupported;
+    if (typeof unsupported !== 'function')
+        throw new TypeError('potionhit requires an unsupported operation');
+    const message = rawEnv.message ?? ttyPline;
+
+    const botlnam = bottlename(state, random);
+    const isyou = mon === state.youmonst;
+    // C computes `your_fault` here for the monster branch's anger and kill
+    // attribution; the hero branch never reads it.
+    if (!isyou) return unsupported('a potion crashing on a monster');
+
+    /* hit_saddle is FALSE for a hero target, so every test on it below is
+       written out of the ported branch. */
+    const tx = state.u.ux;
+    const ty = state.u.uy;
+    const distance = 0;
+    await message(
+        `The ${botlnam} crashes on your `
+        + `${body_part(HEAD, state.youmonst)} and breaks into shards.`,
+        state,
+    );
+    const crashDamage = Maybe_Half_Phys(random.rnd(2), state);
+    if (crashDamage >= state.u.uhp)
+        return unsupported('a fatal potion crash');
+    await losehp(
+        crashDamage,
+        how === POTHIT_OTHER_THROW ? 'propelled potion' : 'thrown potion',
+        KILLED_BY_AN,
+        state,
+    );
+
+    /* oil doesn't instantly evaporate; Neither does a saddle hit */
+    if (obj.otyp !== POT_OIL && cansee(tx, ty, state))
+        await message(`${Tobjnam(obj, 'evaporate', state)}.`, state);
+
+    switch (obj.otyp) {
+    case POT_OIL:
+        if (obj.lamplit)
+            return unsupported('lit lamp oil exploding on the hero');
+        break;
+    case POT_POLYMORPH:
+        return unsupported('a potion of polymorph crashing on the hero');
+    case POT_ACID:
+        if (!Acid_resistance(state)) {
+            await message(
+                `This burns${obj.blessed ? ' a little'
+                    : obj.cursed ? ' a lot' : ''}!`,
+                state,
+            );
+            const dmg = Maybe_Half_Phys(
+                random.d(obj.cursed ? 2 : 1, obj.blessed ? 4 : 8),
+                state,
+            );
+            if (dmg >= state.u.uhp)
+                return unsupported('a fatal potion of acid crash');
+            await losehp(dmg, 'potion of acid', KILLED_BY_AN, state);
+        }
+        break;
+    default:
+        /* every other type reaches the vapors with no direct effect */
+        break;
+    }
+
+    /* Note: potionbreathe() does its own docall() */
+    // `distance` is 0 for a hero target, so C's second disjunct -- the
+    // rn2((1 + ACURR(A_DEX)) / 2) draw for a nearby monster target -- is
+    // short-circuited away and spends nothing.
+    if ((distance === 0)
+        && (!breathless(state.youmonst.data)
+            || haseyes(state.youmonst.data))) {
+        await potionbreathe(obj, state, { ...rawEnv, state, random, message });
+    } else if (obj.dknown && cansee(tx, ty, state)) {
+        trycall(obj, state);
+    }
+
+    if (state.u.ushops && obj.unpaid)
+        return unsupported('shop billing for a potion broken on the hero');
+    obfree(obj, null, { ...rawEnv, state });
+    return undefined;
+}
+
 // C ref: potion.c potionbreathe() (1931-2118), "vapors are inhaled or get in
 // your eyes".
 //
 // The switch runs over `Half_gas_damage ? TOWEL : obj->otyp`, so a hero wearing
 // a wet towel takes the TOWEL arm whatever the potion is. Of its eighteen case
-// labels only POT_INVISIBILITY (2033-2040) is ported; every other one stops by
-// name before changing state, drawing, or printing.
+// labels four are ported -- POT_INVISIBILITY (2033-2040), POT_PARALYSIS
+// (2041-2051), POT_SLEEPING (2052-2064), and the shared POT_ACID/POT_POLYMORPH
+// arm (2092-2095). The last three are the vapors a potion a monster hurls at
+// the hero can raise; POT_CONFUSION and POT_BLINDNESS are the two hurled types
+// still missing, and every other label stops by name before changing state,
+// drawing, or printing.
 //
 // Nine potion types carry no case label at all and fall straight out of the
 // switch to the naming tail. C's commented-out block at 2096-2105 names seven
@@ -980,6 +1133,10 @@ function Half_gas_damage(state) {
 export async function potionbreathe(obj, state = game, env = {}) {
     let kn = 0;
     const already_in_use = obj.in_use;
+    const random = env.random ?? { rn2, rnd };
+    // The hero's own turn writes straight to the terminal. potionhit() reaches
+    // this from a monster's turn, whose planning clone must stay silent.
+    const message = env.message ?? ttyPline;
 
     /* potion of unholy water might be wielded; prevent
        you_were() -> drop_weapon() from dropping it so that it
@@ -1017,7 +1174,7 @@ export async function potionbreathe(obj, state = game, env = {}) {
     case POT_INVISIBILITY:
         if (!heroIsBlind(state) && !Invis(state)) {
             kn++;
-            await ttyPline(
+            await message(
                 `For an instant you ${See_invisible(state)
                     ? 'could see right through yourself'
                     : "couldn't see yourself"}!`,
@@ -1026,13 +1183,35 @@ export async function potionbreathe(obj, state = game, env = {}) {
         }
         break;
     case POT_PARALYSIS:
-        throw new UnsupportedPotionError(
-            'the paralysing vapors, over nomul() and Free_action',
-        );
+        kn++;
+        if (!Free_action(state)) {
+            // C's Something is "something" capitalized by the format.
+            await message('Something seems to be holding you.', state);
+            nomul(-random.rnd(5), state);
+            state.multi_reason = 'frozen by a potion';
+            state.nomovemsg = You_can_move_again;
+            await exercise(A_DEX, false, state, random);
+        } else {
+            await message('You stiffen momentarily.', state);
+        }
+        break;
     case POT_SLEEPING:
-        throw new UnsupportedPotionError(
-            'the sleeping vapors, over nomul() and monstseesu()',
-        );
+        kn++;
+        if (!Free_action(state) && !Sleep_resistance(state)) {
+            await message('You feel rather tired.', state);
+            nomul(-random.rnd(5), state);
+            state.multi_reason = 'sleeping off a magical draught';
+            state.nomovemsg = You_can_move_again;
+            await exercise(A_DEX, false, state, random);
+        } else {
+            // C follows the yawn with monstseesu(M_SEEN_SLEEP), which records
+            // the resistance on every monster that can see the hero. Nothing
+            // in this port reads that record back for sleep yet.
+            throw new UnsupportedPotionError(
+                'the yawn that tells watching monsters the hero resists sleep',
+            );
+        }
+        break;
     case POT_SPEED:
         throw new UnsupportedPotionError(
             'the speed vapors, over incr_itimeout(&HFast)',
@@ -1047,9 +1226,11 @@ export async function potionbreathe(obj, state = game, env = {}) {
         );
     case POT_ACID:
     case POT_POLYMORPH:
-        throw new UnsupportedPotionError(
-            'the acid or polymorph vapors, over exercise(A_CON, FALSE)',
-        );
+        await exercise(A_CON, false, state, random, {
+            // exercise() runs encumber_msg() for A_CON once play has begun.
+            encumberMessage: env.encumberMessage,
+        });
+        break;
     /*
      * C's own comment lists the first seven of these as the types whose
      * vapors deliberately do nothing. POT_SEE_INVISIBLE and POT_ENLIGHTENMENT

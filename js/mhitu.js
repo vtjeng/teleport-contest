@@ -508,14 +508,16 @@ export function mtrapped_in_pit(mtmp, state = game) {
 // will set it has somewhere to report.
 //
 // Ported: the preamble, the u.usteed arm, the armor-class differential, the
-// eel-reveal, find_offensive()'s FALSE answer, the NATTK loop, and, inside it,
+// eel-reveal, the find_offensive()/use_offensive() pair, the NATTK loop, and,
+// inside it,
 // the AT_CLAW/AT_KICK/AT_BITE/AT_STNG/AT_TUCH/AT_BUTT/AT_TENT arm, the
 // non-range2 AT_WEAP arm, and the ordinary ice-vortex AT_ENGL arm. Those
 // attacks run through hitmu(), missmu() or gulpmu().
 //
 // Refused where C acts: the hero-concealment blocks (u.uundetected, the
-// S_MIMIC and M_AP_OBJECT arms), summonmu(), u.uinvulnerable, use_offensive(),
-// wildmiss() for a monster that guessed wrong, and every other aatyp arm.
+// S_MIMIC and M_AP_OBJECT arms), summonmu(), u.uinvulnerable, use_offensive()'s
+// arms outside the thrown potion, wildmiss() for a monster that guessed wrong,
+// and every other aatyp arm.
 //
 // Two lines of the preamble are deliberately absent:
 //   DEADMONSTER(mtmp) cannot answer TRUE, because mon.c movemon() drops a
@@ -658,11 +660,12 @@ export async function mattacku(monster, rawEnv = {}) {
 
     /* Unlike defensive stuff, don't let them use item _and_ attack. */
     if (find_offensive(monster, env)) {
-        // Unreachable: find_offensive() refuses rather than answering TRUE,
-        // because use_offensive() -- the only reader of what it selects -- is
-        // not ported. The call stays so that the selection, and the rn2 that
-        // lined_up() can spend inside it, happen where C runs them.
-        unsupported('monster offensive item use');
+        const useOffensiveItem = requireMattackuOperation(
+            env,
+            'useOffensiveItem',
+        );
+        const offended = await useOffensiveItem(monster, env);
+        if (offended !== 0) return offended === 1 ? 1 : 0;
     }
 
     const firstfoundyou = foundyou;

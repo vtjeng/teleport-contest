@@ -4,7 +4,8 @@
 // missile), thrwmu()'s ordinary single-shot path (1174-1263), monmulti()'s
 // quantity-one result (201-259), monshoot()'s visible announcement head
 // (262-300), m_throw()'s ordinary quantity-one hit and drop settlement
-// (572-844), and the
+// (572-844) together with the POTION_CLASS arm (698-701) that muse.c
+// use_offensive() reaches, and the
 // line-of-fire tests every ranged monster action asks before it acts:
 // blocking_terrain() (1281-1288), linedup() (1330-1372),
 // m_lined_up() (1375-1394) and lined_up() (1397-1401).
@@ -36,6 +37,7 @@ import {
     Upolyd,
     NEED_RANGED_WEAPON,
     NEED_WEAPON,
+    POTHIT_MONST_THROW,
     P_BOW,
     SLT_ENCUMBER,
     STUNNED,
@@ -326,7 +328,10 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
 
     if (Math.trunc(obj.quan ?? 1) !== 1)
         return refuseRanged(env, 'monster multishot');
-    if (obj.oclass !== WEAPON_CLASS)
+    // C ref: muse.c use_offensive()'s MUSE_POT_* case is the other live
+    // caller; it hands over a potion, whose hero-hit arm at 698-701 calls
+    // potionhit(). Every other object class still refuses.
+    if (obj.oclass !== WEAPON_CLASS && obj.oclass !== POTION_CLASS)
         return refuseRanged(env, 'monster special missile action');
     if (obj.cursed || obj.greased)
         return refuseRanged(env, 'cursed or greased monster missile flight');
@@ -369,6 +374,10 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     );
 
     let hit = false;
+    // C leaves the loop by `break` from three arms; two are ported. The weapon
+    // arm settles the object through drop_throw(), the potion arm through
+    // potionhit()'s obfree().
+    let settled = false;
     while (range-- > 0) {
         singleobj.ox = state.gb.bhitpos.x += dx;
         singleobj.oy = state.gb.bhitpos.y += dy;
@@ -382,8 +391,19 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             if (singleobj.oclass === GEM_CLASS)
                 return refuseRanged(env, 'unicorn gem catch');
             if (u_catch_thrown_obj(singleobj, env)) return 0;
-            if (singleobj.oclass === POTION_CLASS
-                || singleobj.otyp === EGG
+            if (singleobj.oclass === POTION_CLASS) {
+                // potionhit() always uses the object up, so the flight loop
+                // hands over ownership and never reaches drop_throw().
+                await requireRangedOperation(env, 'potionHit')(
+                    state.youmonst,
+                    singleobj,
+                    POTHIT_MONST_THROW,
+                    env,
+                );
+                settled = true;
+                break;
+            }
+            if (singleobj.otyp === EGG
                 || singleobj.otyp === CREAM_PIE
                 || singleobj.otyp === BLINDING_VENOM) {
                 return refuseRanged(env, 'special monster missile hit');
@@ -417,6 +437,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 state.u.uy,
                 env,
             );
+            settled = true;
             break;
         }
 
@@ -448,7 +469,8 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         await delayOutput(state);
     }
 
-    if (!hit) return refuseRanged(env, 'monster missile without settlement');
+    if (!settled)
+        return refuseRanged(env, 'monster missile without settlement');
     await temporaryDisplay(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
     await delayOutput(state);
     await temporaryDisplay(DISP_END, 0, state);

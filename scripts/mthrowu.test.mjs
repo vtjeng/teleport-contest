@@ -36,10 +36,12 @@ import {
     BOULDER,
     BOW,
     ORCISH_DAGGER,
+    POT_SLEEPING,
     WAN_STRIKING,
 } from '../js/objects.js';
 import { blocking_terrain, lined_up, linedup, m_lined_up, m_throw, thitu, thrwmu }
     from '../js/mthrowu.js';
+import { potionhit } from '../js/potion.js';
 import { passive_obj } from '../js/uhitm.js';
 import { block_point, vision_reset } from '../js/vision.js';
 import { dmgval, setmnotwielded } from '../js/weapon.js';
@@ -318,6 +320,107 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
             ['rnd', 3], ['rnd', 20], ['rn2', 2],
         ]);
         assert.equal(temporaryDisplay.at(-1)?.[0], -7);
+    });
+
+// C ref: mthrowu.c m_throw()'s POTION_CLASS arm (698-701), which hands the
+// missile to potion.c potionhit() and never reaches drop_throw(). The whole
+// chain is one witness: bottlename()'s rn2(7), potionhit()'s rnd(2), and the
+// vapors' rnd(5) plus the two exercise draws, in that order.
+test('m_throw hands a hurled potion to potionhit and settles nothing else',
+    async () => {
+        const state = await hero();
+        const y = state.u.uy;
+        // Three squares out: two intermediate flight checks, then the hero.
+        const subject = attacker(state, state.u.ux + 3, y, state.u.ux, y);
+        const potion = mksobj(POT_SLEEPING, false, false, { state });
+        potion.quan = 1;
+        potion.dknown = true;
+        add_to_minv(subject, potion, { state });
+        clearRow(state, state.u.ux, subject.mx, y);
+        state.gt ??= {};
+        const hpBefore = state.u.uhp;
+        const dexBefore = state.u.aexe[A_DEX];
+        const messages = [];
+        const draws = [];
+        const catchBound = 100 - effective_attribute(state, A_DEX);
+        const random = {
+            rn2: (bound) => {
+                draws.push(['rn2', bound]);
+                // A nonzero catch roll makes the hero fail to catch the
+                // potion. bottlename() draws rn2(7); 1 picks "phial", the
+                // second of potion.c's seven names.
+                return bound === catchBound ? 1 : 1;
+            },
+            rnd: (bound) => {
+                draws.push(['rnd', bound]);
+                // rnd(2) is the crash damage and rnd(5) the sleep; 1 keeps
+                // the hero alive and pins both.
+                return 1;
+            },
+            d: (n, x) => assert.fail(`unexpected d(${n},${x})`),
+        };
+
+        await m_throw(subject, subject.mx, subject.my, -1, 0, 3, potion, {
+            state,
+            random,
+            canSeeMonster: () => true,
+            canSeeSquare: () => true,
+            monsterAt: () => null,
+            message: (text) => { messages.push(text); },
+            objectToGlyph: () => 777,
+            temporaryDisplay: async () => {},
+            delayOutput: async () => {},
+            clearObjectKnowledge: (obj) => clear_dknown(obj, state),
+            observeObject: (obj) => observe_object(obj, state),
+            extractObject: (obj) => obj_extract_self(obj, { state }),
+            setMonsterNotWielded: (monster, obj) =>
+                setmnotwielded(monster, obj, { state }),
+            damageValue: () => assert.fail('a potion rolls no weapon damage'),
+            hitHero: () => assert.fail('a potion does not reach thitu()'),
+            stopOccupation: async () => {},
+            shouldMulch: () => assert.fail('a potion never mulches'),
+            shipsAway: () => false,
+            floorEffects: () => assert.fail('a potion never lands'),
+            placeObject: () => assert.fail('a potion is used up, not placed'),
+            passiveObject: () => assert.fail('a potion never lands'),
+            stackObject: () => assert.fail('a potion is used up, not stacked'),
+            endMulti: () => {},
+            potionHit: (target, obj, how, actionEnv) => potionhit(
+                target,
+                obj,
+                how,
+                { ...actionEnv, encumberMessage: async () => {} },
+            ),
+            unsupported: (reason) => assert.fail(reason),
+        });
+
+        assert.deepEqual(messages, [
+            'The phial crashes on your head and breaks into shards.',
+            'The dark potion evaporates.',
+            'You feel rather tired.',
+        ]);
+        // rnd(2) crash damage of 1, and nothing from the sleeping arm.
+        assert.equal(state.u.uhp, hpBefore - 1);
+        // potionbreathe()'s nomul(-rnd(5)) and exercise(A_DEX, FALSE).
+        assert.equal(state.multi, -1);
+        assert.equal(state.u.aexe[A_DEX], dexBefore - 1);
+        // obfree() used the potion up: it is gone from the pack and off the
+        // floor, and m_throw() cleared the global it flew as.
+        assert.equal(subject.minvent, null);
+        assert.equal(state.level.objects[state.u.ux][y], null);
+        assert.equal(state.gt.thrownobj, null);
+        assert.deepEqual(draws, [
+            // Two unobstructed intermediate squares each spend forcehit.
+            ['rn2', 5], ['rn2', 5],
+            ['rn2', catchBound],
+            ['rn2', 7], /* bottlename() */
+            ['rnd', 2], /* potionhit()'s crash damage */
+            ['rnd', 5], /* potionbreathe()'s nomul() */
+            ['rn2', 2], /* exercise(A_DEX, FALSE) */
+            ['rn2', 19], /* makeknown() -> exercise(A_WIS, TRUE) */
+        ]);
+        // kn was set, so the tail identified the type rather than prompting.
+        assert.equal(state.objects[POT_SLEEPING].oc_name_known, 1);
     });
 
 test('ordinary dagger naming and settlement helpers take their no-effect arms',
