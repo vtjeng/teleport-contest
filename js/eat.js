@@ -8,12 +8,15 @@ import {
     ACID_RES,
     AGGRAVATE_MONSTER,
     A_STR,
+    BLINDED,
     IS_ALTAR,
     COLD_RES,
+    CONFUSION,
     CONFLICT,
     COST_BITE,
     CXN_PFX_THE,
     CXN_SINGULAR,
+    DEAF,
     DISINT_RES,
     ECMD_OK,
     ECMD_TIME,
@@ -33,8 +36,11 @@ import {
     HUNGRY,
     HALLUC,
     HALLUC_RES,
+    Is_airlevel,
+    Is_waterlevel,
     KILLED_BY_AN,
     LAST_PROP,
+    LIGHT_HEADED,
     NOT_HUNGRY,
     POISON_RES,
     PROTECTION,
@@ -73,6 +79,7 @@ import {
 } from './const.js';
 import { adjalign } from './attrib.js';
 import { set_occupation, yn_function } from './cmd.js';
+import { surface } from './dungeon.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
 import {
@@ -197,10 +204,13 @@ import {
     S_VORTEX,
 } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
-import { make_blinded } from './potion.js';
+import {
+    incr_itimeout, make_blinded, make_confused, make_deaf, set_itimeout,
+} from './potion.js';
 import {
     carried,
     costly_alteration,
+    isRottable,
     objectType,
     peek_at_iced_corpse_age,
     remove_object,
@@ -227,6 +237,8 @@ import {
     FAKE_AMULET_OF_YENDOR,
     FLESH,
     FOOD_CLASS,
+    GEM_CLASS,
+    GLASS,
     FOOD_RATION,
     FORTUNE_COOKIE,
     K_RATION,
@@ -244,10 +256,12 @@ import {
     TIN,
     TRIPE_RATION,
 } from './objects.js';
+import { discover_object } from './o_init.js';
 import { body_part } from './polyself.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { heroIsBlind } from './startup_a11y.js';
+import { d, rn1, rn2, rnd } from './rng.js';
 import { obj_stop_timers } from './timeout.js';
-import { is_pool_or_lava, unconscious } from './trap.js';
+import { Levitation, is_pool_or_lava, unconscious } from './trap.js';
 import { ttyPline } from './tty_message.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
@@ -744,6 +758,108 @@ function Hallucination(state) {
 // separate otyp test beside this macro's only call site.
 export function nonrotting_food(otyp) {
     return otyp === LEMBAS_WAFER || otyp === CRAM_RATION;
+}
+
+// C ref: eat.c foodwords[] (2490-2495). Indexed by oc_material; each entry
+// gives the food-category name for that material.
+const foodwords = Object.freeze([
+    'meal',    'liquid',  'wax',       'food', 'meat',     'paper',
+    'cloth',   'leather', 'wood',      'bone', 'scale',    'metal',
+    'metal',   'metal',   'silver',    'gold', 'platinum', 'mithril',
+    'plastic', 'glass',   'rich food', 'stone',
+]);
+
+// C ref: eat.c foodword() (2497-2506). Returns a material-based food name.
+// For glass gems whose description is known, discovers the object type.
+function foodword(otmp, state) {
+    if (otmp.oclass === FOOD_CLASS)
+        return 'food';
+    if (otmp.oclass === GEM_CLASS
+        && objectType(otmp, state).oc_material === GLASS
+        && otmp.dknown) {
+        discover_object(otmp.otyp, true, true, true, state);
+    }
+    return foodwords[objectType(otmp, state).oc_material];
+}
+
+// C ref: eat.c Hear_again() (1800-1809). The ga.afternmv callback after
+// rotten-food fainting.  50% chance to clear timed deafness; always returns 0.
+function Hear_again(state) {
+    /* Chance of deafness going away while fainted/sleeping/etc. */
+    if (!rn2(2)) {
+        make_deaf(0, false, state);
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
+    return 0;
+}
+
+// C ref: eat.c rottenfood() (1812-1851). Prints "Blecch!" and applies one
+// of three effects through a cascading rn2 test: confusion (rn2(4)),
+// blindness (rn2(4), only if not blind), or fainting (rn2(3)).  Returns 1
+// when the hero faints (skipping start_eating), 0 otherwise.
+async function rottenfood(obj, state) {
+    const u = state.u;
+
+    await ttyPline(
+        `Blecch!  ${isRottable(obj, state) ? 'Rotten' : 'Awful'} ${
+            foodword(obj, state)}!`,
+        state,
+    );
+
+    if (!rn2(4)) {
+        // Confusion arm.
+        if (Hallucination(state))
+            await ttyPline('You feel rather trippy.', state);
+        else
+            await ttyPline(
+                `You feel rather ${body_part(LIGHT_HEADED, state.youmonst)}.`,
+                state,
+            );
+        await make_confused(
+            (hungerProperty(state, CONFUSION).intrinsic & 0x00FFFFFF)
+                + d(2, 4),
+            false,
+            state,
+        );
+    } else if (!rn2(4) && !heroIsBlind(state)) {
+        // Blindness arm.  The hero is not Blind, but BlindedTimeout might
+        // be nonzero if blindness is being overridden by Eyes of the Overworld.
+        const blindedProp = state.u.uprops[BLINDED];
+        const blindedTimeout = (blindedProp?.intrinsic ?? 0) & 0x00FFFFFF;
+        await ttyPline('Everything suddenly goes dark.', state);
+        await make_blinded(blindedTimeout + d(2, 10), false, state);
+        if (!heroIsBlind(state))
+            await ttyPline('Your vision quickly clears.', state);
+    } else if (!rn2(3)) {
+        // Fainting arm.
+        const duration = rnd(10);
+        let what, where;
+
+        if (!heroIsBlind(state)) {
+            what = 'goes';
+            where = 'dark';
+        } else if (Levitation(state)
+                   || Is_airlevel(u.uz) || Is_waterlevel(u.uz)) {
+            what = 'you lose control of';
+            where = 'yourself';
+        } else {
+            what = 'you slap against the';
+            where = u.usteed ? 'saddle' : surface(u.ux, u.uy, state);
+        }
+        await ttyPline(
+            `The world spins and ${what} ${where}.`, state,
+        );
+        incr_itimeout(hungerProperty(state, DEAF), duration);
+        state.disp ??= {};
+        state.disp.botl = true;
+        nomul(-duration, state);
+        state.multi_reason = 'unconscious from rotten food';
+        state.nomovemsg = 'You are conscious again.';
+        state.afternmv = Hear_again;
+        return 1;
+    }
+    return 0;
 }
 
 // C ref: context.h struct victual_info (59-76) and eat.c's file-scope
@@ -1655,10 +1771,27 @@ async function eatcorpse(otmp, state) {
 
     if (!tp && !nonrotting_corpse(mnum, state)
         && (otmp.orotten || !rn2(7))) {
-        // rottenfood() prints, draws rn2(4) and can blind, confuse or stun the
-        // hero. The arm behind it also uses up a corpse whose species has no
-        // nutrition and halves what is left of every other one.
-        throw new UnsupportedEatError('rottenfood() for a corpse');
+        if (await rottenfood(otmp, state)) {
+            otmp.orotten = true;
+            otmp = touchfood(otmp, { state });
+            if (!otmp)
+                return 1;
+            retcode = 1;
+        }
+
+        if (!state.mons[otmp.corpsenm].cnutrit) {
+            /* no nutrition: rots away, no message if you passed out */
+            if (!retcode)
+                await ttyPline('The corpse rots away completely.', state);
+            if (carried(otmp))
+                useup(otmp, { state });
+            else
+                useupf(otmp, 1, { state });
+            retcode = 2;
+        }
+
+        if (!retcode)
+            consume_oeaten(otmp, 2, state); /* oeaten >>= 2 */
     } else if ((mnum === PM_COCKATRICE || mnum === PM_CHICKATRICE)
                && (propertyActive(state, STONE_RES) || Hallucination(state))) {
         await ttyPline('This tastes just like chicken!', state);
@@ -2280,10 +2413,9 @@ export async function doeat(state = game, env = {}) {
      * for normal vs. rotten food.  The reqtime and nutrit values are
      * then adjusted in accordance with the amount of food left.
      */
-    // eatcorpse() answers 1 only after rottenfood() and 2 only from the two
-    // arms that use the corpse up, and all three stop inside it, so it always
-    // answers 0 here. Both arms are written out because a later slice that
-    // ports rottenfood() or make_sick() has to restore exactly this handling.
+    // eatcorpse() answers 1 after rottenfood() fainting and 2 when the
+    // corpse is used up (no nutrition after rotting, or tainted).  The
+    // make_sick() taint path still stops inside eatcorpse().
     let dont_start = false;
     if (otmp.otyp === CORPSE || otmp.globby) {
         const tmp = await eatcorpse(otmp, state);
@@ -2316,10 +2448,11 @@ export async function doeat(state = game, env = {}) {
             && (otmp.cursed || (!nonrotting_food(otmp.otyp)
                 && (state.moves - otmp.age) > (otmp.blessed ? 50 : 30)
                 && (otmp.orotten || !rn2(7))))) {
-            // rottenfood() prints, draws rn2(4) and can blind, confuse or stun
-            // the hero, and consume_oeaten(otmp, 1) halves what is left either
-            // way.
-            throw new UnsupportedEatError('rottenfood()');
+            if (await rottenfood(otmp, state)) {
+                otmp.orotten = true;
+                dont_start = true;
+            }
+            consume_oeaten(otmp, 1, state); /* oeaten >>= 1 */
         } else if (!already_partly_eaten) {
             if (!await fprefx(otmp, state)) {
                 throw new UnsupportedEatError('do_reset_eat() after fprefx()');

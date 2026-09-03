@@ -8653,7 +8653,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "rottenfood rotten-food cascade with helpers",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "0a9f4d198f55c45e5fa91e5c9c818dd1d6141b88",
       "openStanding": {
         "sha": "3d550f59",

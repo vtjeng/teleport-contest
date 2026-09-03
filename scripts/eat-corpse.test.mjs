@@ -303,16 +303,23 @@ for (const { label, draws, top, prepare } of RETYPED_CASES) {
     });
 }
 
-test('the two rot arms stop before they change anything', async () => {
-    // eat.c:1949's rn2(7) is skipped when the corpse is already known rotten,
-    // which is what leaves one draw here rather than two.
+test('rottenfood prints and applies the three-arm cascade', async () => {
+    // eat.c:1949's rn2(7) is skipped when the corpse is already known rotten.
+    // rottenfood() then draws rn2(4) for confusion, possibly rn2(4) for
+    // blindness, and possibly rn2(3) for fainting, plus any cascade helper
+    // draws (d(2,4), d(2,10), or rnd(10)).  The exact count depends on which
+    // arm fires; the key assertion is that rottenfood succeeds (no throw).
     const rotten = await eatRetypedCorpse(BARBARIAN, (corpse) => {
         corpse.orotten = true;
     });
-    assert.equal(rotten.draws, 1, 'the rot draw alone');
-    assert.equal(rotten.stopped?.message,
-        'eating requires rottenfood() for a corpse');
+    // rottenfood draws at least 1 (the first rn2(4)) and the meal continues,
+    // so the total draw count exceeds the old stop's 1.
+    assert.ok(rotten.draws >= 1, `expected draws >= 1, got ${rotten.draws}`);
+    assert.equal(rotten.stopped, null,
+        'rottenfood() no longer throws');
+});
 
+test('the tainted-corpse arm still stops', async () => {
     // eat.c:1887 divides the elapsed turns by 10 + rn2(20), so an age 400
     // turns back leaves `rotted` above 5 whatever that draw is.
     const tainted = await eatRetypedCorpse(BARBARIAN, (corpse) => {
