@@ -8419,8 +8419,8 @@
       "slices": [
         {
           "name": "quest-leader-waits-and-speaks",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "008c8df4e3654ae59cbc8bc6bf9eb50d8496e0c5"
         }
       ],
       "openedAt": "e23b4b2e9e50ab6a51a8bd239f5eef66e7653f9e",
