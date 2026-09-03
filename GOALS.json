@@ -8459,8 +8459,8 @@
       "slices": [
         {
           "name": "xkilled-mtame-arms",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "7b52f90136f8037d7998e7286a5b7b9342274964"
         }
       ],
       "openedAt": "e677db4c72eff3f043366dad8dd71b22b9333250",
