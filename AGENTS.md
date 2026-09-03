@@ -58,10 +58,10 @@ All other access to `sessions/holdout/` is prohibited:
 - Do not list the directory or open, read, search, parse, compare, summarize,
   copy, display, or reveal its files, filenames, or contents.
 - Do not pass the directory, any path inside it, or any file from it to another
-  agent or tool. This includes `frozen/ps_test_runner.mjs`, the Session Viewer
-  in `tools/session-viewer/`, recording tools, and audit tools.
-- Do not inspect temporary files, caches, continuous-integration logs, or other
-  artifacts to recover results for individual holdout sessions.
+  agent or tool, including `frozen/ps_test_runner.mjs`, the Session Viewer,
+  recording tools, and audit tools.
+- Do not inspect temporary files, caches, or CI logs to recover individual
+  holdout results.
 - Do not change which sessions belong to the development and holdout sets
   without explicit user approval.
 - These restrictions apply even when the files are accessible through the
@@ -239,8 +239,8 @@ Create or update a note, report, or permanent record only when
 Git records `nethack-c/upstream` as a submodule gitlink, and `git worktree add`
 leaves that path as an empty directory. The generated-data checks and the
 source-pinned tests read the C source from that path, so they all fail until
-you check it out. When both sets of failures appear together without mentioning
-git or the submodule, the missing checkout is the cause. Run this once in a new
+you check it out. When both sets of failures appear together, the missing
+checkout is the likely cause. Run this once in a new
 worktree, before its first `npm run checkpoint`:
 
 ```
@@ -249,8 +249,7 @@ git submodule update --init --checkout --no-fetch -- nethack-c/upstream
 
 Confirm: `ls nethack-c/upstream/src/monst.c` prints that path, and `git status`
 reports a clean tree with no `T nethack-c/upstream` line. Each worktree gets its
-own submodule gitdir under `.git/worktrees/<name>/modules/`, so this checkout
-does not disturb other worktrees (31 MiB working tree, 170 MiB gitdir).
+own submodule checkout, so this does not disturb other worktrees.
 
 ### Stage paths by name
 
@@ -260,10 +259,8 @@ Stage the paths that the current work changed:
 
 Avoid the whole-tree forms (`git add -A`, `git add --all`, `git add -u`,
 `git add --update`, `git add .`); they stage in-progress changes from other
-agents in the shared working tree. `git checkout -- .`, `git checkout HEAD -- .`
-and `git restore .` discard that work. `.claude/settings.json` denies all of
-these; write a deny message without an apostrophe, because it sits inside a
-single-quoted shell string.
+agents in the shared working tree. `.claude/settings.json` denies these and
+the whole-tree reset forms (`git checkout -- .`, `git restore .`).
 
 Before committing, inspect `git diff --cached --name-only` and confirm that
 every staged path belongs to the commit.

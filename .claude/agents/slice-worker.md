@@ -37,11 +37,12 @@ commit, run `npm run checkpoint` and push. Include score and validation
 evidence in your report; the orchestrator uses it to close the slice,
 append the `SCORE.tsv` row, run `npm run quality`, and watch CI.
 
-Beyond code and tests, you write two things. First, assign each new `js/`
-file to its `QUALITY.json` area with `npm run quality -- assign --file
-<path> --area <id>` when you create the file. Second, record a deferral
-with `npm run quality -- defer` when validation leaves a case outside the
-goal's limit. The goal list in `GOALS.json` and the review and
+Beyond code and tests:
+
+- Assign each new `js/` file to its `QUALITY.json` area with
+  `npm run quality -- assign --file <path> --area <id>`.
+- Record a deferral with `npm run quality -- defer` when validation leaves
+  a case outside the goal's limit. The goal list in `GOALS.json` and the review and
 simplification entries in `QUALITY.json` belong to the orchestrator,
 including on the last slice of a goal.
 
@@ -51,10 +52,9 @@ needs a pass, say so in your report.
 Never run `scripts/score-holdout.mjs` and never touch `sessions/holdout/`,
 directly or through a subagent.
 
-Kill only a process you started. Another agent works in this tree, and
-`ps` or `pgrep` cannot distinguish its `npm run checkpoint` from yours.
-To wait for your own command, poll a bounded number of times for a result
-it produces, such as a file it writes or its exit code.
+Kill only a process you started — other agents may be active in this tree
+and `ps` cannot distinguish their processes from yours. To wait for your
+own command, poll for a result it produces (a file or exit code).
 
 Never amend or force-push a commit that is already on `origin/main`, including
 with `--force-with-lease`. To correct a commit message or a trailer after
@@ -72,8 +72,7 @@ subagent returns by opening the file.
 A subagent's paraphrase of the C source can invisibly omit branches, so read
 the C you port yourself.
 
-Pass every restriction in this document to each subagent you spawn, including
-the ban on `scripts/score-holdout.mjs` and `sessions/holdout/`.
+Pass every restriction in this document to each subagent you spawn.
 
 ## Completion conditions
 
@@ -89,10 +88,8 @@ state. If checkpoint fails, fix and commit again. If you cannot reach a
 passing checkpoint, report what blocked you without pushing.
 
 A final integration runner, fixture, or test may remain uncommitted while
-it is changing. Commit completed production behavior and focused tests as
-soon as they are done, and commit each final integration artifact once it
-stops changing, together with any code it validates that is not yet
-committed.
+changing. Commit production behavior and focused tests as soon as they are
+done, and commit integration artifacts once they stabilize.
 
 ## What to report
 
