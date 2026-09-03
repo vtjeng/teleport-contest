@@ -72,7 +72,6 @@ import {
     HALLUC_RES,
     HOLE,
     ICE,
-    In_sokoban,
     INVIS,
     IRONBARS,
     IS_ALTAR,
@@ -168,7 +167,7 @@ import {
 } from './hack.js';
 import { sengr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { dist2, distmin, online2, upstart } from './hacklib.js';
+import { dist2, distmin, online2 } from './hacklib.js';
 import { money_cnt } from './invent.js';
 import { ranged_attk_available } from './mhitu.js';
 import {

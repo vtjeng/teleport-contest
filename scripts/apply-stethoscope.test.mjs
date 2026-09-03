@@ -139,7 +139,6 @@ import {
     POTION_CLASS,
     RIN_PROTECTION,
     ROCK,
-    SACK,
     SCALPEL,
     SLIME_MOLD,
     SPBOOK_CLASS,

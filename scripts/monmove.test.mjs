@@ -80,7 +80,6 @@ import {
     TREE,
     UNLOCKDOOR,
     WATER,
-    WEB,
     W_NONDIGGABLE,
     W_NONPASSWALL,
     W_ARM,

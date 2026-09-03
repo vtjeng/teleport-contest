@@ -205,7 +205,7 @@ import {
 } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
-    incr_itimeout, make_blinded, make_confused, make_deaf, set_itimeout,
+    incr_itimeout, make_blinded, make_confused, make_deaf,
 } from './potion.js';
 import {
     carried,

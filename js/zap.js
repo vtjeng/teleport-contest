@@ -111,7 +111,6 @@ import {
     zapdir_to_glyph,
 } from './display.js';
 import {
-    capitalizedMonsterName,
     monsterCommonName,
 } from './do_name.js';
 import { findit } from './detect.js';
@@ -123,7 +122,7 @@ import { game } from './gstate.js';
 import {
     check_capacity, losehp, nh_delay_output, nomul,
 } from './hack.js';
-import { lcase, mungspaces, s_suffix } from './hacklib.js';
+import { lcase, mungspaces } from './hacklib.js';
 import {
     getobj,
     hold_another_object,
