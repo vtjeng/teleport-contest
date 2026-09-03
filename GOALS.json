@@ -8749,6 +8749,23 @@
         "screens": 6,
         "rng": 0
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-22",
+      "status": "open",
+      "boundary": "naming an object type requires getlin()'s 'Call <thing>:' prompt",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "04e611ffbc06883bd018a1c01060fbd968a1eb43",
+      "openStanding": {
+        "sha": "87a67893",
+        "screens": 4346,
+        "rng": 276601
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
