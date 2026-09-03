@@ -8619,6 +8619,23 @@
         "screens": 3,
         "rng": 80
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-19",
+      "status": "open",
+      "boundary": "unsupported pickup: use_container: menu_loot(0, true)",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "47039205fcf75256cf2956bab7ea6c598c126584",
+      "openStanding": {
+        "sha": "7077699b",
+        "screens": 4291,
+        "rng": 274846
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
