@@ -8575,7 +8575,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "wire-doapply-container-arm",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "35859d63034270b27676f6fb9d5ee18834c23a96",
       "openStanding": {
         "sha": "81bef26c",

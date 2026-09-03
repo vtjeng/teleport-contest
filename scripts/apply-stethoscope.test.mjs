@@ -713,16 +713,9 @@ test('doapply refuses every class and arm this slice does not port',
             new RegExp(`applying a tool requires ${branch}`, 'u'), letter);
     }
 
-    // An arm of the switch: the Rogue's sack, which apply.c:4274 sends to
-    // use_container(). Her lock pick, slot `e` in the same pack, no longer
-    // stops here; scripts/apply-lock-pick.test.mjs owns it.
-    const rogueSegment = loadApplyPromptRecipe().segments.find(
-        ({ nethackrc }) => nethackrc.includes('role:Rogue'),
-    );
-    assert.ok(rogueSegment, 'the matrix carries a Rogue segment');
-    const sack = await boundaryFor(rogueSegment, '.af');
-    assert.match(sack?.message ?? '',
-        new RegExp(`doapply\\(\\)'s arm for object type ${SACK}`, 'u'));
+    // The Rogue's sack (apply.c:4274) now reaches use_container() without
+    // stopping. Her lock pick, slot `e`, is tested in
+    // scripts/apply-lock-pick.test.mjs.
 
     // C's default redirects a Knight's slot-b lance to use_pole() and the
     // seed-fixed Barbarian's slot-b axe to use_pick_axe(). Those functions

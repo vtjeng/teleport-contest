@@ -2,13 +2,15 @@
 // C refs: src/apply.c apply_ok(), doapply(), use_cream_pie(),
 // use_stethoscope(), its_dead(), and reset_trapset().
 //
-// doapply()'s switch has thirty-odd named arms. Five are live: CREAM_PIE,
+// doapply()'s switch has thirty-odd named arms. Six are live: CREAM_PIE,
 // STETHOSCOPE, the LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c
 // pick_lock() serves, MAGIC_MARKER which delegates to write.c dowrite() in
-// js/write.js, and the ordinary CARROT unknown-use result. Ordinary armor
-// reaches the same switch-default refusal. Every other named arm, the
-// default's weapon redirects, and the wand, spellbook and coin shortcuts above
-// the switch stop at a refusal naming the C function they need.
+// js/write.js, the container arm (LARGE_BOX/CHEST/ICE_BOX/SACK/BAG_OF_HOLDING/
+// OILSKIN_SACK) which delegates to pickup.c use_container() in js/pickup.js,
+// and the ordinary CARROT unknown-use result. Ordinary armor reaches the same
+// switch-default refusal. Every other named arm, the default's weapon
+// redirects, and the wand, spellbook and coin shortcuts above the switch stop
+// at a refusal naming the C function they need.
 // use_stethoscope() covers
 // the no-hands, Deaf and free-hand guards, the free-action rule, self and
 // off-map probes, the adjacent monster arm, both secret-terrain arms, an empty
@@ -154,6 +156,12 @@ import {
     WAND_CLASS,
     WEAPON_CLASS,
     CARROT,
+    LARGE_BOX,
+    CHEST,
+    ICE_BOX,
+    SACK,
+    BAG_OF_HOLDING,
+    OILSKIN_SACK,
 } from './objects.js';
 import { AT_WEAP, MZ_TINY, PM_HEALER } from './monsters.js';
 import { body_part } from './polyself.js';
@@ -166,6 +174,7 @@ import { ttyPline } from './tty_message.js';
 import { recalc_block_point, unblock_point } from './vision.js';
 import { is_pole, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
+import { use_container } from './pickup.js';
 import { genders } from './roles.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { check_unpaid_usage } from './shk.js';
@@ -817,6 +826,14 @@ export async function doapply(state = game, env = {}) {
         // turn's random numbers.
         return (await pick_lock(obj, 0, 0, null, state) !== 0)
             ? ECMD_TIME : ECMD_OK;
+    case LARGE_BOX:
+    case CHEST:
+    case ICE_BOX:
+    case SACK:
+    case BAG_OF_HOLDING:
+    case OILSKIN_SACK:
+        // apply.c:4271-4278. use_container() handles open/close/loot.
+        return use_container(obj, true, false, state);
     case MAGIC_MARKER:
         // apply.c:4361-4362. dowrite() handles the full magic marker flow.
         return dowrite(obj, state);

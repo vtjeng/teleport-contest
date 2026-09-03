@@ -1463,7 +1463,7 @@ async function in_or_out_menu(
 // Not covered: 'o'/'i'/'b'/'r'/'s' (item transfer), otrapped/chest_trap,
 // cursed bag of holding loss, SchroedingersBox/observe_quantum_cat. All
 // refuse with UnsupportedPickupError.
-async function use_container(obj, held, more_containers, state) {
+export async function use_container(obj, held, more_containers, state) {
     state.ga ??= {};
     state.ga.abort_looting = false;
     state.gs ??= {};
