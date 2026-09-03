@@ -151,6 +151,7 @@ import {
     UnsupportedHungerTransitionError,
 } from './eat.js';
 import { UnsupportedEndOfGameError } from './end.js';
+import { UnsupportedEnlightenmentError } from './insight.js';
 import { UnsupportedShopError } from './shk.js';
 import { UnsupportedVaultGuardError } from './vault.js';
 import { fightm } from './mhitm.js';
@@ -1209,6 +1210,10 @@ async function advanceElapsedTurn(state) {
             const liveScanRefusals = [
                 UnsupportedSimpleMonsterActionError,
                 UnsupportedEndOfGameError,
+                // disclose() now reaches enlightenment() after the
+                // container walk; an unported status property
+                // (e.g. SLEEPY) raises this from inside really_done().
+                UnsupportedEnlightenmentError,
                 UnsupportedShopError,
                 UnsupportedVaultGuardError,
                 UnsupportedMonsterCreationError,
