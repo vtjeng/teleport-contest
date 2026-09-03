@@ -8477,7 +8477,7 @@
     },
     {
       "id": "unsupported-initial-level-monster-creation-monster-205",
-      "status": "open",
+      "status": "closed",
       "boundary": "The port's initial-level species allowlist refuses the two high-difficulty rulers that mk_zoo_thronemon()'s already-ported four-way selector can return - PM_OGRE_TYRANT (205) and PM_ELVEN_MONARCH (269) - while admitting the two low-difficulty rulers from the same selector, PM_DWARF_RULER and PM_GNOME_RULER.",
       "upstreamOwners": [
         "makemon.c",
@@ -8510,8 +8510,11 @@
         "screens": 4266,
         "rng": 269563
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "18a01623d6291a65ba8dcd484a601107f1d8eed5",
+      "delivered": {
+        "screens": 1,
+        "rng": 1979
+      }
     }
   ]
 }
