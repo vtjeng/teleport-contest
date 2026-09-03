@@ -8416,7 +8416,13 @@
         ]
       },
       "detail": "Multi-slice candidate. The STRAT_WAITMASK branch in dochug() is a no-op return 0, optionally calling quest_talk() when the leader is near and awake. quest_talk() dispatches to leader_speaks(), nemesis_speaks(), or prisoner_speaks(). The leader-only arm (quest_stat_check + quest_talk + leader_speaks, widening chat_with_leader) fits one slice and matches the 10-step single-session forecast. Nemesis and prisoner arms require unported infrastructure (angry_guards, guard hostility, additional quest pager IDs) disproportionate to the forecast and belong in separate goals.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "quest-leader-waits-and-speaks",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "e23b4b2e9e50ab6a51a8bd239f5eef66e7653f9e",
       "openStanding": {
         "sha": "2864b2cc",
