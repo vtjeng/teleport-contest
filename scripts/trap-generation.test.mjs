@@ -45,7 +45,7 @@ import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { traptype_rnd } from '../js/mklev.js';
 import { timeout_globals_init } from '../js/timeout.js';
-import { maketrap, t_at } from '../js/trap.js';
+import { count_traps, maketrap, t_at } from '../js/trap.js';
 
 function initializedState(dlevel = 1) {
     const state = resetGame();
@@ -414,4 +414,24 @@ test('maketrap uses raised drawbridge-under terrain for pits and holes', () => {
         [ice.typ, ice.flags],
         [DRAWBRIDGE_UP, DB_FLOOR | DB_EAST],
     );
+});
+
+// C ref: trap.c count_traps() (6516-6528). Walks the level trap list and
+// counts traps of the given type. Used by maybe_spin_web() to reduce web
+// probability when many webs already exist on the level.
+test('count_traps counts traps of a specific type', () => {
+    const state = initializedState();
+    // No traps at all: every type returns 0.
+    assert.equal(count_traps(WEB, state), 0);
+    assert.equal(count_traps(PIT, state), 0);
+
+    // Add two WEB traps and one PIT.
+    state.level.traps.push({ tx: 10, ty: 5, ttyp: WEB, tseen: false });
+    state.level.traps.push({ tx: 11, ty: 5, ttyp: WEB, tseen: false });
+    state.level.traps.push({ tx: 12, ty: 5, ttyp: PIT, tseen: false });
+
+    assert.equal(count_traps(WEB, state), 2);
+    assert.equal(count_traps(PIT, state), 1);
+    // A type with no traps still returns 0.
+    assert.equal(count_traps(BEAR_TRAP, state), 0);
 });

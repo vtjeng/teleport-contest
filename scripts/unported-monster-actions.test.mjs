@@ -2308,16 +2308,6 @@ test('simple preflight rejects every selected excluded action atomically',
                     pmidx: PM_SHRIEKER,
                 }),
             },
-            {
-                // monmove.c:1271-1273 maybe_spin_web() reaches its rn2(1000)
-                // only for a webmaker that also passes four narrower guards.
-                // The port refuses on webmaker() alone rather than port them.
-                name: 'web-spinning monster',
-                reason: 'monster web spinning',
-                prepare: () => prepareSelectedAction({
-                    pmidx: PM_CAVE_SPIDER,
-                }),
-            },
         ];
 
         for (const actionCase of cases) {

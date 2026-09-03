@@ -80,6 +80,7 @@ import {
     TREE,
     UNLOCKDOOR,
     WATER,
+    WEB,
     W_NONDIGGABLE,
     W_NONPASSWALL,
     W_ARM,
@@ -1662,42 +1663,134 @@ test('m_digweapon_check refuses a welded weapon, a rogue level and a monster '
 
 // C ref: monmove.c:1690, maybe_spin_web(). Its rn2(1000) at :1279 is spent
 // only for a webmaker that also passes the four narrower guards at
-// :1271-1273, so the port refuses every webmaker rather than skip a call.
-test('postmov refuses a webmaker after a move and after a completed action',
-    async () => {
-        for (const mmoved of [MMOVE_MOVED, MMOVE_DONE]) {
-            const { state } = makeState();
-            const monster = ordinaryMonster(state, {
-                data: state.mons[PM_CAVE_SPIDER],
-                mnum: PM_CAVE_SPIDER,
-                mx: 5,
-                my: 4,
-            });
-            const { env } = postmovEnv(state, {
-                unsupported: (reason) => { throw new Error(reason); },
-            });
-
-            await assert.rejects(
-                postmov(monster, 4, 4, mmoved, false, false, false, env),
-                (error) => error.message === 'monster web spinning',
-                `mmoved ${mmoved}`,
-            );
-        }
-
-        // MMOVE_NOTHING skips both blocks, so the same spider passes.
+// :1271-1273: !helpless, !mspec_used, no trap on the square, soko_allow_web.
+test('postmov calls maybe_spin_web for a webmaker after a move', async () => {
+    // A cave spider with mspec_used > 0 skips web spinning entirely (one of
+    // the five conjuncts in maybe_spin_web fails), so the rn2(1000) draw is
+    // not reached and no unsupported paths trigger.
+    for (const mmoved of [MMOVE_MOVED, MMOVE_DONE]) {
         const { state } = makeState();
         const monster = ordinaryMonster(state, {
             data: state.mons[PM_CAVE_SPIDER],
             mnum: PM_CAVE_SPIDER,
             mx: 5,
             my: 4,
+            // mspec_used nonzero: the spider recently spun a web, so the
+            // conjunct !mtmp.mspec_used at monmove.c:1272 is false and
+            // maybe_spin_web returns without drawing rn2.
+            mspec_used: 8,
         });
         const { env, redraws } = postmovEnv(state);
-        assert.equal(
-            await postmov(monster, 4, 4, MMOVE_NOTHING, false, false, false, env),
-            MMOVE_NOTHING,
+
+        const result = await postmov(
+            monster, 4, 4, mmoved, false, false, false, env,
         );
-        assert.deepEqual(redraws, []);
+        // maybe_spin_web returns without acting, outcome is unchanged.
+        assert.equal(result, mmoved, `mmoved ${mmoved}`);
+    }
+
+    // MMOVE_NOTHING skips the MMOVE_MOVED/MMOVE_DONE block, so
+    // maybe_spin_web is never called.
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, {
+        data: state.mons[PM_CAVE_SPIDER],
+        mnum: PM_CAVE_SPIDER,
+        mx: 5,
+        my: 4,
+    });
+    const { env, redraws } = postmovEnv(state);
+    assert.equal(
+        await postmov(monster, 4, 4, MMOVE_NOTHING, false, false, false, env),
+        MMOVE_NOTHING,
+    );
+    assert.deepEqual(redraws, []);
+});
+
+// C ref: monmove.c:1279, maybe_spin_web(). When all five conjuncts hold
+// (webmaker, !helpless, !mspec_used, no trap, soko_allow_web), the rn2(1000)
+// draw decides whether a WEB trap is created.
+test('maybe_spin_web draws rn2(1000) and skips web when the roll fails',
+    async () => {
+        // A cave spider at (5,4) surrounded by stone walls. prob for a cave
+        // spider (base 5) with four webbing walls is 5 * (4 + 1) = 25, minus
+        // 3 * count_traps(WEB). With no existing webs, prob is 25. A roll of
+        // 246 (from the witness session) exceeds 25, so no web is created.
+        const { locations, state } = makeState();
+        const monster = ordinaryMonster(state, {
+            data: state.mons[PM_CAVE_SPIDER],
+            mnum: PM_CAVE_SPIDER,
+            mx: 5,
+            my: 4,
+            mspec_used: 0,
+            mcanmove: true, // helpless() checks !mcanmove; true means not helpless
+        });
+        // Seal the neighbourhood so count_webbing_walls returns 4 (all stone).
+        sealNeighborhood(locations, monster.mx, monster.my);
+        const rn2Calls = [];
+        const { env } = postmovEnv(state);
+        // Inject a random that returns 246 for rn2(1000), which fails the
+        // prob < 25 check. rn2 is the only random call maybe_spin_web makes
+        // on the failure path.
+        env.random = {
+            rn2(bound) { rn2Calls.push(bound); return 246; },
+            d(n, s) { return n * s; },
+        };
+
+        const result = await postmov(
+            monster, 4, 4, MMOVE_MOVED, false, false, false, env,
+        );
+        assert.equal(result, MMOVE_MOVED);
+        // The rn2(1000) draw was made: the five conjuncts all held.
+        assert.ok(rn2Calls.includes(1000),
+            `expected rn2(1000) draw, got: ${JSON.stringify(rn2Calls)}`);
+        // No WEB trap was created because 246 >= 25.
+        assert.equal(state.level.traps.length, 0);
+    });
+
+test('maybe_spin_web skips the rn2 draw when mspec_used is nonzero',
+    async () => {
+        const { state } = makeState();
+        const monster = ordinaryMonster(state, {
+            data: state.mons[PM_CAVE_SPIDER],
+            mnum: PM_CAVE_SPIDER,
+            mx: 5,
+            my: 4,
+            mspec_used: 5, // recently spun: conjunct !mspec_used is false
+        });
+        const rn2Calls = [];
+        const { env } = postmovEnv(state);
+        env.random = {
+            rn2(bound) { rn2Calls.push(bound); return 0; },
+            d(n, s) { return n * s; },
+        };
+
+        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, false, env);
+        // No rn2(1000) draw because the conjuncts failed early.
+        assert.ok(!rn2Calls.includes(1000),
+            `did not expect rn2(1000), got: ${JSON.stringify(rn2Calls)}`);
+    });
+
+test('maybe_spin_web skips the rn2 draw for a non-webmaker species',
+    async () => {
+        // A giant rat is not a webmaker, so maybe_spin_web returns immediately
+        // without checking any conjuncts or drawing rn2(1000).
+        const { state } = makeState();
+        const monster = ordinaryMonster(state, {
+            mx: 5,
+            my: 4,
+            mcanmove: true,
+        });
+        const rn2Calls = [];
+        const { env } = postmovEnv(state);
+        env.random = {
+            rn2(bound) { rn2Calls.push(bound); return 0; },
+            d(n, s) { return n * s; },
+        };
+
+        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, false, env);
+        // No rn2(1000) draw: the species is not a webmaker.
+        assert.ok(!rn2Calls.includes(1000),
+            `did not expect rn2(1000), got: ${JSON.stringify(rn2Calls)}`);
     });
 
 // C ref: monmove.c:1764 and :1911-1914. m_move() computes can_tunnel once and

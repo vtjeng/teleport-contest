@@ -72,10 +72,12 @@ import {
     HALLUC_RES,
     HOLE,
     ICE,
+    In_sokoban,
     INVIS,
     IRONBARS,
     IS_ALTAR,
     IS_DOOR,
+    LADDER,
     IS_OBSTRUCTED,
     IS_STWALL,
     IS_TREE,
@@ -124,6 +126,7 @@ import {
     SPIKED_PIT,
     SQKY_BOARD,
     SQSRCHRADIUS,
+    STAIRS,
     STATUE_TRAP,
     STEALTH,
     STONE,
@@ -147,6 +150,7 @@ import {
     helpless,
     isok,
     is_pit,
+    something,
 } from './const.js';
 import { artifactTouchable, artifact_light } from './artifacts.js';
 import { effective_attribute } from './attrib.js';
@@ -164,7 +168,7 @@ import {
 } from './hack.js';
 import { sengr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { dist2, distmin, online2 } from './hacklib.js';
+import { dist2, distmin, online2, upstart } from './hacklib.js';
 import { money_cnt } from './invent.js';
 import { ranged_attk_available } from './mhitu.js';
 import {
@@ -247,6 +251,7 @@ import {
     PM_ETTIN,
     PM_FLOATING_EYE,
     PM_FOG_CLOUD,
+    PM_GIANT_SPIDER,
     PM_GREMLIN,
     PM_GRID_BUG,
     PM_HEZROU,
@@ -329,6 +334,7 @@ import { m_in_out_region, visible_region_at } from './region.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { after_shk_move, inhishop, shk_move } from './shk.js';
+import { stairway_at } from './stairs.js';
 import {
     canSpotMonster,
     collectMonsterMovementMessage,
@@ -337,7 +343,7 @@ import {
 } from './startup_a11y.js';
 import { S_poisoncloud } from './symbols.js';
 import { gettrack, hastrack } from './track.js';
-import { is_lava, is_pool, t_at, unconscious } from './trap.js';
+import { count_traps, is_lava, is_pool, maketrap, t_at, unconscious } from './trap.js';
 import {
     check_in_air,
     fixed_tele_trap,
@@ -2323,6 +2329,80 @@ function requireMoveOperation(env, name) {
     return operation;
 }
 
+// C ref: monmove.c holds_up_web() (1227-1239). TRUE when the cell at (x,y) is
+// a wall, rock, or similar obstruction, an upward staircase or ladder, or iron
+// bars -- anything a web strand can anchor to.
+function holds_up_web(x, y, state = game) {
+    if (!isok(x, y)) return true;
+    const typ = state.level.at(x, y).typ;
+    if (IS_OBSTRUCTED(typ)) return true;
+    if (typ === STAIRS || typ === LADDER) {
+        const sway = stairway_at(x, y, state);
+        if (sway && sway.up) return true;
+    }
+    if (typ === IRONBARS) return true;
+    return false;
+}
+
+// C ref: monmove.c count_webbing_walls() (1244-1248). Returns 0-4: how many
+// cardinal neighbours of (x,y) can hold up a web strand.
+function count_webbing_walls(x, y, state = game) {
+    return (holds_up_web(x, y - 1, state) ? 1 : 0)
+        + (holds_up_web(x + 1, y, state) ? 1 : 0)
+        + (holds_up_web(x, y + 1, state) ? 1 : 0)
+        + (holds_up_web(x - 1, y, state) ? 1 : 0);
+}
+
+// C ref: monmove.c soko_allow_web() (1252-1265). Reject webs that interfere
+// with solving Sokoban. Off Sokoban or on a solved Sokoban level, always TRUE.
+// The Sokoban arm (m_cansee check against stairway_find_dir) is deferred
+// because Sokoban web spinning is never reached in current sessions.
+function soko_allow_web(mon, state = game) {
+    if (!state.level.flags?.sokoban_rules) return true;
+    // Unsolved Sokoban: deferred. The C code allows the web only when the
+    // spinner can see the upstairs.
+    return false;
+}
+
+// C ref: monmove.c maybe_spin_web() (1269-1293). A webmaker monster may
+// create a WEB trap on its current square. The probability depends on species,
+// adjacent walls, and existing web traps on the level.
+async function maybe_spin_web(mtmp, env) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2, d };
+    const species = mtmp.data;
+    if (webmaker(species)
+        && !helpless(mtmp) && !mtmp.mspec_used
+        && !t_at(mtmp.mx, mtmp.my, state) && soko_allow_web(mtmp, state)) {
+        const isGiantSpider = species === state.mons?.[PM_GIANT_SPIDER]
+            || species?.pmidx === PM_GIANT_SPIDER;
+        const prob = (((isGiantSpider ? 15 : 5)
+                       * (count_webbing_walls(mtmp.mx, mtmp.my, state) + 1))
+                      - (3 * count_traps(WEB, state)));
+
+        if (random.rn2(1000) < prob) {
+            const trap = maketrap(mtmp.mx, mtmp.my, WEB, { state });
+            if (trap) {
+                mtmp.mspec_used = random.d(4, 4); /* 4..16 */
+                if (cansee(mtmp.mx, mtmp.my, state)) {
+                    const mbuf = canSpotMonster(mtmp, state)
+                        ? env.unsupported('y_monnam in web-spinning message')
+                        : something;
+                    // C: pline_mon(mtmp, "%s spins a web.", upstart(mbuf));
+                    // pline_mon() is not yet ported; refuse for now when the
+                    // hero can see the spinner, since the message would be
+                    // visible.
+                    env.unsupported('pline_mon for web-spinning message');
+                    trap.tseen = 1;
+                }
+                if ((in_rooms(mtmp.mx, mtmp.my, SHOPBASE, state)[0] ?? 0)) {
+                    env.unsupported('add_damage for web in shop');
+                }
+            }
+        }
+    }
+}
+
 // The door masks that leave postmov()'s door block with nothing to do.  Three
 // of the block's four arms test D_LOCKED or D_CLOSED and the fourth tests
 // whole-mask equality with D_CLOSED, so a monster standing on a doorless,
@@ -2525,17 +2605,12 @@ export async function postmov(
             // monmove.c:1683-1687 repeats newsym() when mtmp->minvis is set.
             // ROADMAP.md records why no case can reach that arm.
         }
-        // maybe_spin_web(), called at monmove.c:1690 and defined at :1269,
-        // reaches its rn2(1000) at :1279 only when all five conjuncts of
-        // :1271-1273 hold: webmaker(), !helpless(), !mspec_used, no trap on
-        // the square, and soko_allow_web().  Skipping that draw silently would
-        // move the whole PRNG log, so this refuses on webmaker() alone and
-        // applies none of the other four.  Two are already available here --
-        // mspec_used is a monster field and t_at() is ported -- helpless() is
-        // ported but module-private to js/mhitm.js, and soko_allow_web() has
-        // no port, though monmove.c:1257 makes it constantly true off
-        // Sokoban.
-        if (webmaker(species)) unsupported('monster web spinning');
+        // C ref: monmove.c:1690, maybe_spin_web(). The five conjuncts
+        // (webmaker, !helpless, !mspec_used, no trap, soko_allow_web) gate
+        // the rn2(1000) draw at :1279. The success arm's message and shop
+        // bookkeeping remain behind unsupported guards until y_monnam,
+        // pline_mon, and add_damage are ported.
+        await maybe_spin_web(monster, { ...env, random, unsupported });
         // C ref: monmove.c:1692-1699.  A hides_under() species or an eel
         // re-hides after moving, drawing rn2(5) unless it is already hidden;
         // helpless() cannot hold here because dochug() returns before

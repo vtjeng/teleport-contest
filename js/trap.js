@@ -564,6 +564,17 @@ function clear_conjoined_pits(trap) {
     }
 }
 
+// C ref: trap.c count_traps() (6516-6528). Returns the number of traps of
+// the given type on the current level. Walks the level trap list (C's
+// gf.ftrap chain) and counts matches.
+export function count_traps(ttyp, state = game) {
+    let ret = 0;
+    for (const trap of state.level?.traps ?? []) {
+        if (trap.ttyp === ttyp) ret++;
+    }
+    return ret;
+}
+
 // ── Hero trap state and the descent out of levitation (C ref: trap.c) ──
 
 // youprop.h:242 Levitation and :253 Flying, spelled out here for the same

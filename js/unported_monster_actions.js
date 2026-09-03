@@ -858,8 +858,8 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     // goodpos() admit them with no furniture branch, and monmove.c postmov()
     // has none either. Three furniture tests do sit on the monster-move path.
     // monmove.c:274 onscary()'s vampire-fears-altar arm is ported in
-    // js/monmove.js; monmove.c:1233 holds_up_web() is reached only from
-    // maybe_spin_web(), which js/monmove.js refuses for every webmaker; and
+    // js/monmove.js; monmove.c:1233 holds_up_web() is ported in
+    // js/monmove.js and reached from maybe_spin_web(); and
     // mon.c:973 minliquid_core()'s `infountain` feeds the gremlin split at
     // :987, which unportedMinliquidReason() refuses on the square the monster
     // ends up standing on rather than here, because C decides it there and
