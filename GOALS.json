@@ -8391,6 +8391,40 @@
         "screens": 35,
         "rng": 7216
       }
+    },
+    {
+      "id": "simple-monster-action-requires-quest-wait-strategy",
+      "status": "open",
+      "boundary": "Monster with STRAT_CLOSE (quest leader) present on the level causes unsupported() in assertSimpleActionState before dochug() runs. Porting lets a turn proceed with a waiting quest monster present and lets the leader speak when adjacent.",
+      "upstreamOwners": [
+        "monmove.c dochug()",
+        "quest.c quest_talk()",
+        "quest.c leader_speaks()",
+        "quest.c quest_stat_check()"
+      ],
+      "forecast": {
+        "steps": 10,
+        "basis": "Capped look-ahead at simple monster action requires quest wait strategy",
+        "sessions": [
+          "seed0361-archeologist-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0361-archeologist-tour",
+            "evidence": "monmove.c dochug() lines 717-723: STRAT_WAITMASK early return | Lord Carnarvon (PM_LORD_CARNARVON), the Archeologist quest leader, has STRAT_CLOSE set via M3_CLOSE in makemon.c:1462-1464 at creation. The flag is unconditional (not role- or mode-gated). monnear() is true at step 177 (hero adjacent to leader). | Wizard/debug mode is incidental (used to reach quest level quickly). Role determines which leader (Archeologist -> Lord Carnarvon), but every role's leader has M3_CLOSE. The mechanic itself has no mode or option precondition."
+          }
+        ]
+      },
+      "detail": "Multi-slice candidate. The STRAT_WAITMASK branch in dochug() is a no-op return 0, optionally calling quest_talk() when the leader is near and awake. quest_talk() dispatches to leader_speaks(), nemesis_speaks(), or prisoner_speaks(). The leader-only arm (quest_stat_check + quest_talk + leader_speaks, widening chat_with_leader) fits one slice and matches the 10-step single-session forecast. Nemesis and prisoner arms require unported infrastructure (angry_guards, guard hostility, additional quest pager IDs) disproportionate to the forecast and belong in separate goals.",
+      "slices": [],
+      "openedAt": "e23b4b2e9e50ab6a51a8bd239f5eef66e7653f9e",
+      "openStanding": {
+        "sha": "2864b2cc",
+        "screens": 4257,
+        "rng": 267944
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
