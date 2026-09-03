@@ -8593,6 +8593,23 @@
         "screens": 1,
         "rng": 0
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-18",
+      "status": "open",
+      "boundary": "A hero's wand ray traveling through the dungeon strikes a monster, requiring dobuzz()'s monster arm and zhitm()'s per-damage-type resolution.",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "0b74873431acf90bde45435295c2919e88098826",
+      "openStanding": {
+        "sha": "938f2847",
+        "screens": 4288,
+        "rng": 274766
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
