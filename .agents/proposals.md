@@ -21,17 +21,11 @@ check prints a count and does not block: a pure-function batch lands ahead of
 its caller and becomes a defect only when an injection stands in for the same
 behavior.
 
-**What prompted it.** `3d33c40` on 24 July 2026 ported `artifact.c
-touch_artifact()`'s monster branch into `js/artifacts.js` with tests but
-deleted none of the five injections that stand in for it (`js/monmove.js
-postmov()`, four in `js/unported_monster_actions.js`). Thirteen days later, two
-consecutive agents in the `monsters` sweep spent most of one slice on a
-capability the port already had. The closing entry
-`touch-artifact-ported-but-unwired` records work the original batch was required
-to finish.
+**What prompted it.** `3d33c40` ported `touch_artifact()`'s monster branch with
+tests but deleted none of the five injections that stand in for it. Two later
+agents spent most of a slice re-implementing what was already ported.
 
-**Cost.** Small. Resolving a symbol's module requires parsing the import block,
-which `check-namespace-members.mjs` already does.
+**Cost.** Small; `check-namespace-members.mjs` already parses the import block.
 
 **What it leaves unfixed.** The check cannot distinguish a batch correctly ahead
 of its caller from one that is overdue, so the flagged set is a reading list
@@ -40,28 +34,17 @@ unported function, which is the ordinary state.
 
 ## Print the remaining unenforced advisories
 
-**What it changes.** Two checks would turn prose rules into printed numbers.
-Two related checks have landed: `node scripts/goal-log.mjs calibration` on
-2 August 2026, and the per-goal gate in `scripts/score-holdout.mjs` on
-12 August.
+**What it changes.** A turn-end warning would print
+`git log --oneline origin/main..HEAD` when commits sit unpushed, enforcing the
+push rule in `.agents/loop.md`. Two related checks have already landed:
+`goal-log.mjs calibration` and the per-goal gate in `score-holdout.mjs`.
 
-- A turn-end warning prints `git log --oneline origin/main..HEAD` when
-  commits sit unpushed, the push rule in `.agents/loop.md`.
+**Scope.** A small addition to an existing script and its test file.
 
-**Scope.** Each item is a small addition to an existing script and its test
-file; the first adds one subcommand.
+**Cost.** Small; prints without blocking, following the sweep-candidate pattern.
 
-**What prompted it.** A survey of the instruction documents identified rules
-with no automated detection. Two related checks landed the same day: the
-review-gate refusal in `score-holdout.mjs` and the review-gate line in the
-checkpoint summary.
-
-**Cost.** Small per item. Each prints without blocking, following the
-sweep-candidate pattern.
-
-**What it leaves unfixed.** Compliance stays voluntary: the checks make skipping
-a rule visible, and the reader decides. Rules the survey judged unenforceable by
-construction, such as report word caps, need rewording instead.
+**What it leaves unfixed.** Compliance stays voluntary: the check makes skipping
+the rule visible, and the reader decides.
 
 ## Let `npm run checkpoint` write its own log
 
@@ -77,8 +60,7 @@ moves to a code comment beside the reporter choice.
 for why per-check detail is appended to the summary line rather than printed
 separately.
 
-**What prompted it.** The reading audit of the agent instructions on 2 August
-2026: every reader of `.agents/validation.md` pays about 20 lines of redirect
+**What prompted it.** Every reader of `.agents/validation.md` pays a redirect
 recipe for output capture the script can perform itself.
 
 **Cost.** Small in code, but it changes the command every agent runs. Capturing
@@ -86,9 +68,8 @@ stdout replaces `stdio: 'inherit'`, which streamed live progress. The TTY case
 must keep streaming, and the summary must stay at the end of the log so a tail
 read stays valid.
 
-**What it leaves unfixed.** The log keeps its 14,491 lines on disk. An agent
-that opens it whole must work through most of them to find the summary and the
-failing test's location.
+**What it leaves unfixed.** The log is large. An agent that opens it whole must
+work through most of it to find the summary and the failing test's location.
 
 ## Report a deferral whose area owns none of the files it cites
 
@@ -102,25 +83,18 @@ suppression rule and its test. `refile-deferral --id <id> --area <id> --note
 <text>` (landed at `ea2494d`) already moves an entry once identified as
 mislabelled, so only the detection is missing.
 
-**What prompted it.** The area label decides scheduling. `deferralCounts()`
-totals open entries per area and `npm run quality` prints the largest as a sweep
-candidate, so a wrong label shifts an entry from one area's count to another's.
-A mislabelled entry once caused `deferralCounts()` to select the wrong area as
-sweep candidate: the selected area had 0 recorded steps yet ranked ahead of a
-boundary goal measured at 21. Correcting one entry on 12 August 2026 moved
-`commands` from 10 entries to 9 and dropped it out of candidacy.
+**What prompted it.** The area label decides scheduling: `deferralCounts()`
+totals open entries per area and prints the largest as a sweep candidate, so a
+wrong label mis-schedules work. A mislabelled entry once caused selection of an
+area with 0 recorded steps over one measured at 21. The citation check (already
+landed) finds a wrong citation; this check finds a correct citation under a
+wrong label.
 
-The two checks find different faults. The citation check finds a wrong citation,
-which misleads a reader. The area check finds a correct citation under a wrong
-label, which mis-schedules work.
-
-**Cost.** Small to compute; the difficulty is the suppression rule. At
-`4930664`, the naive comparison flagged 15 of 59 path-citing entries across 92
-open total, and most of the 15 were sound: an entry filed under one area often
-cites a helper in another (e.g. `pick-lock-lookalike-pile-top-has-no-fresh-case`
-under `commands` citing `js/display.js`). The candidate rule: flag only when no
-cited file maps to the entry's area. Open deferrals have since grown to 108, so
-the flag rate needs measuring again.
+**Cost.** Small to compute; the difficulty is the suppression rule. The naive
+comparison flags entries that cite a helper in another area (e.g.
+`pick-lock-lookalike-pile-top-has-no-fresh-case` under `commands` citing
+`js/display.js`). The candidate rule: flag only when no cited file maps to the
+entry's area. The flag rate needs measuring at the current deferral count.
 
 **What it leaves unfixed.** The check reads `detail` and cannot see entries that
 cite no path. Of 92 open entries at `4930664`, 33 cited none and keep whatever
@@ -140,10 +114,9 @@ state behind them drifts); the same argument covers the cursor.
 
 **Scope.** `raiseBaseline()` and `lowerBaseline()` already iterate
 `RATCHET_METRICS` and skip a metric the caller omits, so neither needs a change.
-The one edit is `main()`'s `lower` verb at `scripts/score-baseline.mjs:164-172`,
-which hardcodes two positional arguments. Adding a third changes the CLI
-signature; the alternative is a `--cursors <n>` flag, which leaves the existing
-form working. One `raise` from a clean tree then captures the cursor figures.
+The one edit is `main()`'s `lower` verb, which hardcodes two positional
+arguments. Adding a third changes the CLI signature; the alternative is a
+`--cursors <n>` flag, which leaves the existing form working.
 
 **Cost.** Small. One CLI arm, its usage string, and a test per verb. `lower` has
 been used once, so the signature question has little practical effect.
@@ -153,9 +126,8 @@ been used once, so the signature question has little practical effect.
 evidence, so a regression is invisible to every gate. Whether it belongs in the
 ratchet or a separate check is undecided.
 
-**What prompted it.** A survey of whether the 50 production deferrals can be
-worked in parallel found this gap while establishing the fleet's safety check.
-The same survey found the ratchet 981 screens behind, raised at `af15a30`.
+**What prompted it.** A production-deferral survey found this gap; the same
+survey found the ratchet 981 screens behind (raised at `af15a30`).
 
 ## Stop the shell deleting a deferral's backticked identifiers
 
@@ -181,8 +153,8 @@ the  arm and the  arm
 ```
 
 Both identifiers are gone, `echo` exits 0, and the only sign is a stderr line
-invisible to a caller reading stdout. At `15c2269`, 166 of the ledger's 432
-texts (281 details and 151 notes) carry at least one backtick.
+invisible to a caller reading stdout. At the time of filing, 166 of the
+ledger's 432 texts carried at least one backtick.
 
 **Cost.** Small. One option each on three verbs that already parse a dozen
 between them.
@@ -206,8 +178,8 @@ development sessions across several workspace copies, run one
 `scripts/score-holdout.mjs` calls the same three helpers and could take the
 sharded path later.
 
-**What prompted it.** Measured on 24 August 2026, clean worktree at `6d10947`,
-5-core/10-thread host: `scripts/score-development.mjs` takes 19.7 s, of which
+**What prompted it.** On a 5-core/10-thread host, `score-development.mjs` takes
+19.7 s, of which
 about 8 s is replay. `frozen/ps_test_runner.mjs:464` spawns one worker per
 session sequentially, so 33 processes import the `js/` graph one after another.
 Every slice worker pays this cost on each `npm run checkpoint`.
@@ -230,17 +202,15 @@ the C recorder (`nethack-c/recorder`), which is the blocker that rules out
 parallel implementation workers. The review worktree rebases onto main after the
 pass completes. Implementation stays serial in the main checkout.
 
-**Scope.** The orchestrator's measurement step in `.agents/loop.md` would spawn the
-review pass as a background agent in a worktree (using `audit-worktree.mjs
-prepare`) alongside the next slice worker. Three prerequisites: each worktree
-needs its own checkpoint log instead of the fixed `/tmp/checkpoint.log`; the
-review branch must rebase rather than merge (QUALITY.json's coverage frontier
-check fails on non-linear history); and the submodule checkout
-(`git submodule update --init`) must run in each new worktree.
+**Scope.** The orchestrator would spawn the review pass as a background agent in
+a worktree alongside the next slice worker. Three prerequisites: each worktree
+needs its own checkpoint log; the review branch must rebase (the coverage
+frontier check fails on non-linear history); and the submodule checkout must run
+in each new worktree.
 
 **What prompted it.** The 2026-08-01 meta-analysis measured 21.59 hours of
-review-agent wall time serialized behind implementation across 8 loop sessions,
-with zero overlap between the two phases. Running them concurrently recovers
+review-agent wall time serialized behind implementation across 8 loop sessions.
+Running them concurrently recovers
 most of that time.
 
 **Cost.** Medium. The worktree infrastructure exists (`audit-worktree.mjs`), but
@@ -268,10 +238,9 @@ a JS state dump behind an env gate in `js/jsmain.js`, and a diff script under
 `scripts/`. The C patch requires maintaining our own recorder addition alongside
 the existing patches in `nethack-c/patches/`.
 
-**What prompted it.** The 2026-08-01 meta-analysis verified that the lockwo
-competitor has this capability (`scripts/oracle.mjs`, 536 lines) and uses it to
-localize divergences to a specific C function and field. Our repository
-localizes divergences from RNG logs and screens only, which cannot distinguish
+**What prompted it.** The lockwo competitor has this capability and uses it to
+localize divergences to a specific C function and field. The port localizes
+divergences from RNG logs and screens only, which cannot distinguish
 state drift from RNG drift.
 
 **Cost.** One goal's budget. The C patch is small (hero + monster fields), but
