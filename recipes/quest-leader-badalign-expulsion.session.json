@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9073,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:Witness,role:Priest,race:human,gender:female,align:chaotic,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": "  n#levelchange\n20\n                   \u0016?\n y  \u0014  lllllllllllllllllllllllllllllllkkkk..  n "
+    }
+  ]
+}

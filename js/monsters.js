@@ -161,6 +161,7 @@ export const M3_CLOSE = 128;
 export const M3_INFRAVISION = 256;
 export const M3_INFRAVISIBLE = 512;
 export const M3_DISPLACES = 1024;
+export const MS_DJINNI = 29;
 export const MS_SHRIEK = 18;
 export const MS_LEADER = 36;
 export const MS_NEMESIS = 37;

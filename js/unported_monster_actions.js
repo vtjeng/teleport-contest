@@ -31,7 +31,6 @@ import {
     NORMAL_SPEED,
     OBJ_MINVENT,
     ROOM,
-    STRAT_CLOSE,
     SLEEP_RES,
     SLP_GAS_TRAP,
     FIRE_TRAP,
@@ -67,6 +66,7 @@ import { mattacku, mdamageu, MonsterDeathPlanningError } from './mhitu.js';
 import { castmu } from './mcastu.js';
 import { m_throw, thitu, thrwmu } from './mthrowu.js';
 import { AKLYS } from './objects.js';
+import { quest_stat_check, quest_talk } from './quest.js';
 import {
     adaptMonsterActionToDochugwSignature,
     hideunder,
@@ -182,6 +182,14 @@ import { mwelded, will_weld } from './wield.js';
 import { is_pole } from './worn.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
+
+// questpgr.c's two window-port calls, suppressed for the dry run. The pager
+// still shuffles nhlib's alignment table and converts every %-code, so the
+// plan spends the same randomness the live pass will.
+const SILENT_QUEST_PAGER = Object.freeze({
+    pline: async () => {},
+    window: async () => {},
+});
 const SPECIAL_RESPONDERS = new Set([PM_SHRIEKER, PM_MEDUSA, PM_ERINYS]);
 
 export class UnsupportedSimpleMonsterActionError extends Error {
@@ -284,8 +292,10 @@ function assertSimpleActionState(monster, state) {
     // monmove.c dochug() answers it at 704-708 by calling m_arrival(), which
     // clears the bit and returns -1 so that dochug() carries straight on.
     // js/monmove.js dochug() carries that clear.
-    if (monster.mstrategy & STRAT_CLOSE)
-        unsupported('quest wait strategy');
+    //
+    // STRAT_CLOSE needs no guard either: it always implies STRAT_WAITMASK, so
+    // dochug() returns 0 from its early arm after at most a quest_talk(), and
+    // js/quest.js refuses every conversation branch it does not carry.
     if (monster.mfrozen)
         unsupported('inconsistent frozen monster state');
     // trap.c mintrap()'s mtmp->mtrapped arm, which monmove.c m_move()'s
@@ -596,6 +606,19 @@ function planningState(state) {
             : state.displayCtx,
         disp: structuredClone(state.disp),
         flags: structuredClone(state.flags),
+        // quest.c chat_with_leader() writes svq.quest_status the first time
+        // the hero stands beside the leader. Sharing the record would let the
+        // dry run consume met_leader, so the live pass would find a leader it
+        // had already met and refuse the repeat audience.
+        svq: state.svq ? {
+            ...state.svq,
+            quest_status: { ...(state.svq.quest_status ?? {}) },
+        } : state.svq,
+        // cmd.c cmdq_clear(CQ_CANNED), which quest.c expulsion()'s nomul(0)
+        // reaches. The queue is one array shared by both passes without this.
+        command_queue: state.command_queue
+            ? state.command_queue.map((queue) => [...queue])
+            : state.command_queue,
         // distant_name() raises gd.distantname around a name it must not let
         // observe_object() record, and lowers it in a finally. The dry run
         // reaches that raise through dog_invent(), so a shared gd is a live
@@ -1395,6 +1418,24 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                     return false;
                 },
                 monFlee: () => unsupported('monster flight'),
+                questStatCheck: quest_stat_check,
+                // C ref: monmove.c:722 quest_talk(). The one place a monster's
+                // turn reads the keyboard: quest.c is_pure()'s wizard-mode
+                // `adjust?` prompt. The clone cannot read a key, so it answers
+                // as an unadjusted alignment and plans the badalign verdict.
+                // Either verdict spends the same randomness -- one pager
+                // shuffle (rn2(3), rn2(2)) and one exercise(A_WIS) rn2(19) --
+                // and neither writes anything a later monster in the same scan
+                // reads, so a live `y` cannot invalidate the plan.
+                questTalk: (subject, talkEnv) => quest_talk(subject, {
+                    ...talkEnv,
+                    unsupported,
+                    output: env.planning ? SILENT_QUEST_PAGER : undefined,
+                    message: env.planning ? async () => {} : ttyPline,
+                    yn: env.planning
+                        ? () => 'n'.charCodeAt(0)
+                        : undefined,
+                }),
                 monsterCanSeeHero: ordinaryMonsterCanSeeHero,
                 moveMonster: moveSimpleOrdinary,
                 selectRangedWeapon: () =>

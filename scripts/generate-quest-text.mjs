@@ -16,12 +16,15 @@ const UPSTREAM_ROOT = join(PROJECT_ROOT, 'nethack-c', 'upstream');
 const SOURCE_PATH = join(UPSTREAM_ROOT, 'dat', 'quest.lua');
 const OUTPUT_PATH = join(PROJECT_ROOT, 'js', 'quest_text_data.js');
 
-// Messages used by on_start(), on_locate(), on_goal():
+// Messages used by on_start(), on_locate(), on_goal() and chat_with_leader().
+// `badalign` is chat_with_leader()'s Rule 5 refusal for an impure hero, given
+// before exercise(A_WIS) and expulsion(FALSE).
 const NEEDED_MESSAGES = [
     'firsttime', 'nexttime', 'othertime',
     'locate_first', 'locate_next',
     'goal_first', 'goal_next', 'goal_alt',
     'leader_first', 'assignquest',
+    'badalign',
 ];
 
 // All role filecodes, in the order they appear in quest.lua.

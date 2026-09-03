@@ -13,6 +13,7 @@ import {
     NEED_HTH_WEAPON,
     NEED_WEAPON,
     STRAT_ARRIVE,
+    STRAT_CLOSE,
     STRAT_WAITFORU,
 } from '../js/const.js';
 import { dochug } from '../js/monmove.js';
@@ -1216,4 +1217,69 @@ test('dochug keeps mflee when courage roll fails', async () => {
     assert.deepEqual(draws.slice(0, 2), [40, 25],
         'first two draws: rn2(40) for teleport, rn2(25) for courage');
     assert.equal(monster.mflee, true, 'monster should still be fleeing');
+});
+
+// C ref: monmove.c:713-724, dochug()'s PHASE ONE quest arm. quest_stat_check()
+// runs for every monster; quest_talk() runs only for a monster that can move,
+// carries STRAT_CLOSE, is awake, and is adjacent to the hero.
+function waitingQuestLeaderFixture(events, overrides = {}) {
+    const state = makeState();
+    // Hero at (5,4) and monster at (4,4): monnear() holds for a non-grid-bug.
+    state.u.ux = 5;
+    state.u.uy = 4;
+    const monster = makeMonster({
+        // STRAT_CLOSE alone is enough: monst.h:179 makes it part of
+        // STRAT_WAITMASK, so dochug() takes its no-op early return.
+        mstrategy: STRAT_CLOSE,
+        mpeaceful: true,
+        ...overrides,
+    });
+    const env = {
+        ...baseEnv(state, events),
+        questStatCheck: () => events.push('stat-check'),
+        questTalk: () => events.push('talk'),
+    };
+    return { monster, env };
+}
+
+test('dochug lets an adjacent waiting quest leader speak', async () => {
+    const events = [];
+    const { monster, env } = waitingQuestLeaderFixture(events);
+
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(events, ['preflight', 'stat-check', 'talk']);
+});
+
+test('dochug keeps a sleeping waiting quest monster silent', async () => {
+    const events = [];
+    const { monster, env } = waitingQuestLeaderFixture(events, {
+        msleeping: true,
+    });
+
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(events, ['preflight', 'stat-check']);
+});
+
+test('dochug keeps a distant waiting quest monster silent', async () => {
+    const events = [];
+    // (1,1) is more than one square from the hero at (5,4), so monnear() fails.
+    const { monster, env } = waitingQuestLeaderFixture(events, {
+        mx: 1,
+        my: 1,
+    });
+
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(events, ['preflight', 'stat-check']);
+});
+
+test('dochug updates quest status before the frozen-monster return', async () => {
+    const events = [];
+    // A monster that cannot move never reaches quest_talk(), but C runs
+    // quest_stat_check() above the test that stops it.
+    const { monster, env } = waitingQuestLeaderFixture(events, {
+        mcanmove: false,
+    });
+
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(events, ['preflight', 'stat-check']);
 });

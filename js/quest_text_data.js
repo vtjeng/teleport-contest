@@ -48,6 +48,11 @@ export const QUEST_TEXT = {
             "text": "\"Grave times have befallen the college, for %na has\nstolen %o.  Without it, the board of directors of\nthe university will soon have no choice but to revoke our research grants.\n\n\"You must locate the entrance to %i.  Within it,\nyou will find %n.\n\n\"You must then defeat %n and return %o\nto me.\n\n\"Only in this way will we be able to prevent the budget cuts that could\nclose this college.\n\n\"May the wisdom of %d be your guide.\"",
             "output": "text",
             "synopsis": "[%nC has stolen %o.  Locate %i, defeat %ni, and return %O.]"
+        },
+        "badalign": {
+            "text": "\"%pC!  I've heard that you've been using sloppy techniques.  Your\nresults lately can hardly be called suitable for %ra!\n\n\"How could you have strayed from the %a path?  Go from here, and come\nback only when you have purified yourself.\"",
+            "output": "text",
+            "synopsis": "[\"%pC, you have strayed from the %a path.  Purify yourself!\"]"
         }
     },
     "Bar": {
@@ -87,6 +92,11 @@ export const QUEST_TEXT = {
             "text": "\"The world is in great need of your assistance, %p.\n\n\"About six months ago, I learned that a mysterious sorcerer, known\nas %n, had begun to gather a large group of cutthroats and brigands\nabout %ni.\n\n\"At about the same time, these people you once rode with `liberated' a\npotent magical talisman, %o, from a Turanian caravan.\n\n\"%nC and %nj Black Horde swept down upon %i and defeated\nthe people there, driving them out into the desert.  He has taken\n%o, and seeks to bend it to %nj will.  I detected the\nsubtle changes in the currents of fate, and joined these people.\nThen I sent forth a summons for you.\n\n\"If %n can bend %o to %nj will, he will become\nalmost indestructible.  He will then be able to enslave the minds of\nmen across the world.  You are the only hope.  The gods smile upon you,\nand with %d behind you, you alone can defeat %n.\n\n\"You must go to %i.  From there, you can track down\n%n, defeat %ni, and return %o to us.  Only\nthen will the world be safe.\"",
             "output": "text",
             "synopsis": "[\"Find %n, defeat %ni, and return %o to us.\"]"
+        },
+        "badalign": {
+            "text": "\"%pC!  You have wandered from the path of the %a!\nIf you attempt to overcome %n in this state, he will surely\nenslave your soul.  Your only hope, and ours, lies in your purification.\nGo forth, and return when you feel ready.\"",
+            "output": "text",
+            "synopsis": "[\"You have wandered from the path of the %a.  Come back when you have atoned.\"]"
         }
     },
     "Cav": {
@@ -126,6 +136,11 @@ export const QUEST_TEXT = {
             "text": "\"You are indeed ready now, %p.  I shall tell you a tale of\ngreat suffering among your people:\n\n\"Shortly after you left on your vision quest, the caves were invaded by\nthe creatures sent against us by %n.\n\n\"She, herself, could not attack us due to her great size, but her minions\nhave harassed us ever since.  In the first attacks, many died, and the\nminions of %n managed to steal %o.\nThey took it to %i and there, none of our\n%g warriors have been able to go.\n\n\"You must find %i, and within it wrest\n%o from %n.  She guards it as\njealously as she guards all treasures she attains.  But with it,\nwe can make our caves safe once more.\n\n\"Please, %p, recover %o for us, and return it here.\"",
             "output": "text",
             "synopsis": "[Find and defeat %n, recover %o, and return with it.]"
+        },
+        "badalign": {
+            "text": "\"%pC!  You have deviated from my teachings.  You no longer follow\nthe path of the %a as you should.  I banish you from these caves, to\ngo forth and purify yourself.  Then, you might be able to accomplish this\nquest.\"",
+            "output": "text",
+            "synopsis": "[\"You no longer follow the path of the %a.  Go, and purify yourself.\"]"
         }
     },
     "Hea": {
@@ -165,6 +180,11 @@ export const QUEST_TEXT = {
             "text": "For the first time, you sense a smile on %ls face.\n\n    \"You have indeed learned as much as we can teach you in preparation\n    for this task.  Let me tell you what I know of the symptoms and hope\n    that you can provide a cure.\n\n    \"A short while ago, the dreaded %nt was fooled by the gods\n    into thinking that %nh could use %o to find a\n    cure for old age.  Think of it, eternal youth!  But %nj good\n    health is accomplished by drawing the health from those around %ni.\n\n    \"He has exhausted %nj own supply of healthy people and now %nh seeks to\n    extend %nj influence into our world.  You must recover from %ni\n    %o and break the spell.\n\n    \"You must travel into the swamps to %i, and from there\n    follow the trail to %ns island lair.  Be careful.\"",
             "output": "text",
             "synopsis": "[Travel to %i on your way to recover %o from %n.]"
+        },
+        "badalign": {
+            "text": "\"You have learned much of the remedies that benefit, but you must also\nknow which physic for which ail.  That is why %ds teachings are a\npart of your training.\n\n\"Return to us when you have healed thyself.\"",
+            "output": "text",
+            "synopsis": "[Return when you are more %a.]"
         }
     },
     "Kni": {
@@ -204,6 +224,11 @@ export const QUEST_TEXT = {
             "text": "\"Ah, %p.  Thou art truly ready, as no %c before thee hath\nbeen.  Hear now Our words:\n\n\"As thou noticed as thou approached %H, a great battle hath\nbeen fought recently in these fields.  Know thou that Merlin himself\ncame to aid Us here as We battled the foul %n.  In the midst of that\nbattle, %n struck Merlin a great blow, felling him.  Then, as Our\nforces were pressed back, %n stole %o.\n\n\"We eventually turned the tide, but lost many %cP in doing so.\nMerlin was taken off by his apprentice, but hath not recovered.  We have\nbeen told that so long as %n possesseth %o,\nMerlin will not regain his health.\n\n\"We hereby charge thee with this most important of duties:\n\n\"Go forth from this place, to the fens, and there thou wilt find\n%i.  From there, thou must track down %n.  Destroy the\nbeast, and return to Us %o.  Only then can\nWe restore Merlin to health.\"",
             "output": "text",
             "synopsis": "[Pass through %i to reach %n.  Destroy %ni and return with %o.]"
+        },
+        "badalign": {
+            "text": "\"Thou dishonourest Us, %p!  Thou hast strayed from the path of\nchivalry! Go from Our presence and do penance.  Only when thou art again\npure mayst thou return hence.\"",
+            "output": "text",
+            "synopsis": "[Go and do penance.  Return when you are truly %a.]"
         }
     },
     "Mon": {
@@ -243,6 +268,11 @@ export const QUEST_TEXT = {
             "text": "\"Yes, %p.  You are truly ready now.  Attend to me and I shall\ntell you of what has transpired:\n\n\"During one of the Great Meditations a short time ago, %n and\na legion of elementals invaded %H.  Many %gP\nwere killed, including the one bearing %o.\n\nNow, there are barely enough %gP left to keep the elementals\nat bay.\n\n\"We need you to find %i, then, from there,\ntravel to %ns lair.  If you can manage to defeat %n and\nreturn %o here, we can then drive off the legions\nof elementals that slay our students.\n\n\"Go with %d as your guide, %p.\"",
             "output": "text",
             "synopsis": "[Find %i, then continue to %ns lair.  Defeat %ni and return with %o.]"
+        },
+        "badalign": {
+            "text": "\"This is terrible, %p.  You have deviated from the true path!\nYou know that %d requires the most strident devotion of this\norder.  The %shood must stand for utmost piety.\n\n\"Go from here, atone for your sins against %d.  Return only when\nyou have purified yourself.\"",
+            "output": "text",
+            "synopsis": "[You must atone.  Come back when you are worthy of %d.]"
         }
     },
     "Pri": {
@@ -282,6 +312,11 @@ export const QUEST_TEXT = {
             "text": "\"Yes, %p.  You are truly ready now.  Attend to me and I shall\ntell you of what has transpired:\n\n\"At one of the Great Festivals a short time ago, %n and a legion\nof undead invaded %H.  Many %gP were killed, including\nthe one carrying %o.\n\n\"As a final act of vengefulness, %n desecrated the altar here.\nWithout it, we could not mount a counter-attack.  Now, there are\nbarely enough %gP left to keep the undead at bay.\n\n\"We need you to find %i, then, from there, travel\nto %ns lair.  If you can manage to defeat %n and return\n%o here, we can then drive off the legions of\nundead that befoul the land.\n\n\"Go with %d as your guide, %p.\"",
             "output": "text",
             "synopsis": "[%nC invaded %H and captured %o.  Defeat %ni and retrieve %oh.]"
+        },
+        "badalign": {
+            "text": "\"This is terrible, %p.  You have deviated from the true path!\nYou know that %d requires the most strident devotion of this\norder.  The %shood must stand for utmost piety.\n\n\"Go from here, atone for your sins against %d.  Return only when\nyou have purified yourself.\"",
+            "output": "text",
+            "synopsis": "[You have deviated from the path.  Return when you have purified yourself.]"
         }
     },
     "Ran": {
@@ -323,6 +358,11 @@ export const QUEST_TEXT = {
             "text": "\"You are indeed ready, %p.  I shall tell you what has transpired,\nand why we so desperately need your help:\n\n\"A short time ago, the mountain centaurs to the east invaded\nand enslaved the plains centaurs in this area.  The local\nleader is now only a figurehead, and serves %n.\n\n\"During our last gathering of worship here, we were beset by hordes of\nhostile centaurs, as you witnessed.  In the first onslaught a group,\nheaded by %n %niself, managed to breach the grove and steal\n%o.\n\n\"Since then, we have been besieged.  We do not know how much longer\nwe will be able to maintain our magical barriers.\n\n\"If we are to survive, you, %p, must infiltrate\n%i.  There, you will find a pathway down, to the\nunderground cavern of %n.  He has always coveted\n%o, and will surely keep it.\n\n\"Recover %o for us, %p!  Only then will %d be safe.\"",
             "output": "text",
             "synopsis": "[%nC has stolen %o.  Infiltrate %i and retrieve %oh for us.]"
+        },
+        "badalign": {
+            "text": "\"You have strayed, %p!  You know that %d requires that\nwe maintain a pure devotion to things %a!\n\n\"You must go from us.  Return when you have purified yourself.\"",
+            "output": "text",
+            "synopsis": "[You are not sufficiently %a.  Come back when you have purified yourself.]"
         }
     },
     "Rog": {
@@ -360,6 +400,11 @@ export const QUEST_TEXT = {
             "text": "\"Will everyone not going to retrieve %o from that\njerk, %n, take one step backwards.  Good choice,\n%p, because I was going to send you anyway.  My other %gp\nare too valuable to me.\n\n\"Here's the deal.  I want %o, %n\nhas %o.  You are going to get %o\nand bring it back to me.  So simple an assignment even you can understand\nit.\"",
             "output": "text",
             "synopsis": "[Get %o from %n and bring it to %l.]"
+        },
+        "badalign": {
+            "text": "\"Maybe I should chain you to my perch here for a while.  Perhaps watching\nreal %a men at work will bring some sense back to you.  I don't\nthink I could stand the sight of you for that long though.  Come back\nwhen you can be trusted to act properly.\"",
+            "output": "text",
+            "synopsis": "[Come back when you are really %a.]"
         }
     },
     "Sam": {
@@ -402,6 +447,11 @@ export const QUEST_TEXT = {
             "text": "\"Domo %p-san, indeed you are ready.  I can now tell you what\nit is that I require of you.\n\n\"The daimyo, %n, has betrayed us.  He has stolen from us\n%o and taken it to his donjon deep within\n%i.\n\n\"If I cannot show the emperor %o when he comes\nfor the festival he will know that I have failed in my duty, and\nrequest that I commit seppuku.\n\n\"You must gain entrance to %i and retrieve the\nemperor's property.  Be quick!  The emperor will be here for the\ncha-no-you in 5 sticks.\n\n\"Wakarimasu ka?\"",
             "output": "text",
             "synopsis": "[You must enter %i, then regain %o from %n.]"
+        },
+        "badalign": {
+            "text": "\"%p-san, you would do better to join the kyokaku.\n\n\"You have skills, but until you can call upon the bushido to know when and\nhow to use them you are not samurai.  When you can think %a and\nact %a then return.\"",
+            "output": "text",
+            "synopsis": "[When you can think %a and act %a then return.]"
         }
     },
     "Tou": {
@@ -442,6 +492,11 @@ export const QUEST_TEXT = {
             "text": "\"You have indeed proven yourself a worthy %c, %p.\n\n\"But now your kinfolk and I must ask you to put aside your travels and\nhelp us in our time of need.  After you left us we elected a new mayor,\n%n.  He proved to be a most heinous and vile creature.\n\n\"Soon after taking office he absconded with %o\nand fled town, leaving behind his henchmen to rule over us.  In order\nfor us to regain control of our town, you must enter %i\nand recover %o.\n\n\"Do not be distracted on your quest.  If you do not return quickly I fear\nthat all will be lost.  Let us both pray now that %d will guide you\nand keep you safe.\"",
             "output": "text",
             "synopsis": "[Enter %i and recover %o from %n.]"
+        },
+        "badalign": {
+            "text": "\"It would be an affront to %d to have one not true to the\n%a path undertake her bidding.\n\n\"You must not return to us until you have purified yourself of these\nbad influences on your actions.  Remember, only by following the %a\npath can you hope to overcome the obstacles you will face.\"",
+            "output": "text",
+            "synopsis": "[You are not sufficiently %a.  Return when you are.]"
         }
     },
     "Val": {
@@ -481,6 +536,11 @@ export const QUEST_TEXT = {
             "text": "\"It is not clear, %p, for my sight is limited without our relic.\nBut it is now likely that you can defeat %n, and recover\n%o.\n\n\"A short time ago, %n and his minions attacked this place.  They\nopened the huge volcanic vents you %x about the hill, and attacked.  I knew\nthat this was to come to pass, and had asked %d for a group of %gP\nto help defend this place.  The few you %x here are the mightiest of\nValhalla's own, and are all that are left of one hundred %d sent.\n\n\"Despite the great and glorious battle we fought, %n managed at\nlast to steal %o.  This has upset the balance of the universe,\nand unless %oh is returned into my care, %n may start Ragnarok.\n\n\"You must find the entrance to %i.  Travel downward\nfrom there and you will find %ns lair.  Defeat him and\nreturn %o to me.\"",
             "output": "text",
             "synopsis": "[Find %i; defeat %n; return with %o.]"
+        },
+        "badalign": {
+            "text": "\"NO!  This is terrible.  I see you becoming an ally of %n, and\nleading his armies in the final great battles.  This must not come to\npass!  You have strayed from the %a path.  You must purge yourself,\nand return here only when you have regained a state of purity.\"",
+            "output": "text",
+            "synopsis": "[You have strayed from the %a path.  Return after you purify yourself.]"
         }
     },
     "Wiz": {
@@ -519,6 +579,11 @@ export const QUEST_TEXT = {
             "text": "\"Yes, %p, you truly are ready for this dire task.  Listen,\ncarefully, for what I tell you now will be of vital importance.\n\n\"Since you left us to hone your skills in the world, we unexpectedly came\nunder attack by the forces of %n.  As you know, we thought\n%n had perished at the end of the last age, but, alas, this was\nnot the case.\n\n\"%nC sent an army of abominations against us.  Among them was a\nminion, mindless and ensorcelled, and thus, in the confusion, it was\nable to penetrate our defenses.  Alas, this creature has stolen\n%o and I fear has delivered %oh to %n.\n\n\"Over the years, I had woven most of my power into this amulet, and thus,\nwithout it, I have but a shadow of my former power, and I fear that I\nshall soon perish.\n\n\"You must travel to %i, and within its dungeons,\nfind and overcome %n, and return %o to me.\n\n\"Go now, with %d, and complete this quest before it is too late.\"",
             "output": "text",
             "synopsis": "[Travel to %i; overcome %n; return with %o.]"
+        },
+        "badalign": {
+            "text": "\"You amaze me, %p!  How many times did I tell you that the way of a mage\nis an exacting one.  One must use the world with care, lest one leave it\nin ruins and simplify the task of %n.\n\n\"You must go back and show your worthiness.  Do not return until you are\ntruly ready for this quest.  May %d guide you in this task.\"",
+            "output": "text",
+            "synopsis": "[Go; come back when you are worthy of %d.]"
         }
     },
     "_fallbacks": {

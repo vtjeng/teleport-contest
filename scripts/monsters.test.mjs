@@ -112,6 +112,8 @@ test('generated monster catalog matches the complete pinned C export', () => {
     assert.equal(monsterExports.MZ_LARGE, 3);
     assert.equal(monsterExports.MZ_HUGE, 4);
     assert.equal(monsterExports.MZ_GIGANTIC, 7);
+    // monflag.h:44 and :53. quest.c quest_talk() dispatches on both.
+    assert.equal(monsterExports.MS_DJINNI, 29);
     assert.equal(MS_GUARDIAN, 38);
     assert.equal(monsterExports.MR_SLEEP, 4);
     assert.equal(monsterExports.MR_DISINT, 8);
@@ -135,7 +137,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // name, attack, generation flag, level, weight, resistance, and color.
     assert.equal(
         digest,
-        'f599060af2948b1ede1c528fa863e50297f27dd8565e74546aa20afed8d1e317',
+        'bf73a2d4fb1831250e431fdcee01fea1722fe934b00f81ef255b9bcb856b377c',
     );
 });
 

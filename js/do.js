@@ -36,6 +36,7 @@ import {
     LEVITATION,
     LFILE_EXISTS,
     LOST_DROPPED,
+    MAGIC_PORTAL,
     OBJ_INVENT,
     OBJ_FREE,
     ROOM,
@@ -178,6 +179,7 @@ import {
     uescaped_shaft,
     uteetering_at_seen_pit,
 } from './trap.js';
+import { seetrap } from './trap_effects.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { cansee, vision_recalc, vision_reset } from './vision.js';
 import { welded } from './wield.js';
@@ -1411,9 +1413,27 @@ export async function goto_level(
     state.vision_full_recalc = 0;
     await flush_screen(-1); /* ensure all map flushes are postponed */
 
-    // do.c:1720-1745 places the hero at the destination portal, and
-    // do.c:1802-1810 at a random spot after a fall or a level teleport.
-    if (!at_stairs) {
+    // do.c:1721-1745. A portal arrival lands the hero on the destination
+    // level's own magic portal, which mklev() places when the branch is laid
+    // out. In_endgame() cannot hold: goto_level() refuses the endgame above.
+    if (portal) {
+        const ttrap = (state.level?.traps ?? []).find(
+            (trap) => trap.ttyp === MAGIC_PORTAL,
+        );
+        if (!ttrap) {
+            // C's two no-portal arms differ only in the impossible() warning;
+            // both then place the hero at random. The quest branch is the only
+            // portal this port creates, and expulsion() leaves the far portal
+            // in place, so neither arm has a case yet.
+            throw new UnsupportedLevelChangeError(
+                'goto_level() portal arrival with no destination portal',
+            );
+        }
+        seetrap(ttrap, { redraw: (x, y) => newsym(x, y, state) });
+        u_on_newpos(ttrap.tx, ttrap.ty, state);
+    // do.c:1802-1810 places the hero at a random spot after a fall or a
+    // level teleport.
+    } else if (!at_stairs) {
         await place_random_arrival(
             (up ? 1 : 0) | (was_in_W_tower ? 2 : 0),
             state,

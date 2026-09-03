@@ -6133,6 +6133,15 @@
       "status": "open",
       "from": "da55035425af254cd8e3eb08e2336a28be793e23",
       "detail": "js/allmain.js moveloop_core() checks program_state.gameover only after rhack(), so when a monster kills the hero and really_done() returns normally the loop still dispatches one command and reads a key; jsmain ends cleanly only because the input queue is empty. C's moveloop() exits before reading input. Add a gameover check right after advanceElapsedTurn() returns. Found by the correctness pass over a19a79ce..c8ff8e63; no development session diverges on it."
+    },
+    {
+      "id": "quest-leader-badlevel-expulsion",
+      "area": "world-effects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "3aba3128f41b05026f8489ac580dec95984dda6f",
+      "detail": "quest.c chat_with_leader()'s not_capable() arm (quest.c 340-343) is the badlevel twin of the badalign arm this slice ported: qt_pager(\"badlevel\"), exercise(A_WIS, TRUE), expulsion(FALSE). js/quest.js chat_with_leader() refuses it with 'a quest leader turning away an under-level hero', and scripts/generate-quest-text.mjs leaves badlevel out of NEEDED_MESSAGES, so js/quest_text_data.js carries no badlevel entry. Case just outside the goal's limit: the same Priest recipe as recipes/quest-leader-badalign-expulsion.session.json with '#levelchange\\n20\\n' removed, so the hero meets Pri-strt's leader at experience level 1. It is kept out of the passing suite because that recipe does not reach the leader: #levelchange draws before the wizard level teleport generates the quest level, so removing it regenerates a different Pri-strt and the recorded cursor path (31 'l' and 4 'k') lands the hero far from the leader instead of beside it. Reaching badlevel needs a navigation that does not depend on the level's shape -- getpos monster cycling ('m'), which the port does not carry -- or a natural descent through the quest portal below experience level 14."
     }
   ],
   "areas": [

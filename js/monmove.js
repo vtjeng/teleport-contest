@@ -106,6 +106,7 @@ import {
     NO_TRAP_FLAGS,
     NOTONL,
     NO_WEAPON_WANTED,
+    OBJ_FLOOR,
     OPENDOOR,
     PIT,
     POISON_RES,
@@ -128,6 +129,7 @@ import {
     STONE,
     STONE_RES,
     STRAT_ARRIVE,
+    STRAT_CLOSE,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
     TELEP_TRAP,
@@ -144,6 +146,7 @@ import {
     W_NONDIGGABLE,
     helpless,
     isok,
+    is_pit,
 } from './const.js';
 import { artifactTouchable, artifact_light } from './artifacts.js';
 import { effective_attribute } from './attrib.js';
@@ -321,6 +324,7 @@ import {
     mon_aligntyp,
     pri_move,
 } from './priest.js';
+import { quest_stat_check, quest_talk } from './quest.js';
 import { m_in_out_region, visible_region_at } from './region.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
@@ -1826,6 +1830,10 @@ export async function dochug(monster, rawEnv = {}) {
         rawEnv,
         'castUndirectedSpell',
     );
+    // C ref: monmove.c:714 and :722. The dry run that precedes a live monster
+    // turn replaces these so the conversation stays silent and reads no key.
+    const questStatCheck = rawEnv.questStatCheck ?? quest_stat_check;
+    const questTalk = rawEnv.questTalk ?? quest_talk;
     const distanceAndFear = rawEnv.distanceAndFear ?? distfleeck;
     const disturbMonster = rawEnv.disturbMonster ?? disturb;
     const setApparentHero = rawEnv.setApparentHero ?? set_apparxy;
@@ -1845,9 +1853,16 @@ export async function dochug(monster, rawEnv = {}) {
             || monster.mhp < monster.mhpmax)) {
         monster.mstrategy &= ~STRAT_WAITFORU;
     }
+    questStatCheck(monster, state);
     if (!monster.mcanmove || (monster.mstrategy & STRAT_WAITMASK)) {
         if (hallucinating()) redraw(monster.mx, monster.my);
-        return 0;
+        // C ref: monmove.c:720-722, "give the leaders a chance to speak".
+        if (monster.mcanmove && (monster.mstrategy & STRAT_CLOSE)
+            && !monster.msleeping
+            && monnear(monster, state.u.ux, state.u.uy, state)) {
+            await questTalk(monster, { state, random, unsupported });
+        }
+        return 0;             /* other frozen monsters can't do anything */
     }
     if (monster.msleeping
         && !await disturbMonster(monster, { ...env, wakeMessage })) {
@@ -2558,8 +2573,7 @@ export async function postmov(
 
 // C ref: monmove.c m_move().  Covers the prologue, the tame dog_move()
 // dispatch, the isshk dispatch (stationary return-0 path), and the ordinary
-// not_special path through postmov().  Not covered: the hides_under() early
-// return, the wormno branch, the is_covetous() tactics branch, the isgd and
+// not_special path through postmov().  Not covered: the wormno branch, the is_covetous() tactics branch, the isgd and
 // ispriest dispatches, m_move_aggress(), displacement, and boulder breaking.
 // Those remain explicit seams until their source owners connect.
 export async function m_move(monster, rawEnv = {}) {
@@ -2581,8 +2595,8 @@ export async function m_move(monster, rawEnv = {}) {
     const oldY = monster.my;
 
     // C ref: monmove.c:1733-1742, m_move()'s prologue.  mintrap() runs first,
-    // then the meating countdown, then hides_under (which the boundary
-    // rejects), then set_apparxy(), then the tame dispatch.
+    // then the meating countdown, then the hides_under() early return, then
+    // set_apparxy(), then the tame dispatch.
     //
     // The two seams postmov() resolves for its own mintrap() call: the cloned
     // planning scan must write neither the message window nor the map, and it
@@ -2617,6 +2631,15 @@ export async function m_move(monster, rawEnv = {}) {
         if (monster.meating <= 0) finishEating(monster, env);
         return MMOVE_DONE;
     }
+    // C ref: monmove.c:1750-1753. A concealing species already lying under
+    // something usually stays put. The draw comes before every later draw in
+    // the monster's turn, so skipping it moves the whole log.
+    if (hides_under(monster.data)
+        && can_hide_under_obj(
+            state.level?.objects?.[monster.mx]?.[monster.my], state,
+        )
+        && random.rn2(10))
+        return MMOVE_NOTHING; /* do not leave hiding place */
     set_apparxy(monster, env);
     // C ref: monmove.c:1763-1766.  mon_allowflags() computes the same three
     // capabilities for mfndpos(); m_move() keeps its own can_tunnel because it
@@ -2897,4 +2920,29 @@ export async function m_move(monster, rawEnv = {}) {
         MMOVE_MOVED,
         env,
     );
+}
+
+// C ref: monmove.c can_hide_under_obj() (2119-2167). `obj` is the head of the
+// square's pile. NO_HIDING_UNDER_STATUES is commented out upstream, so the
+// statue loop it guards is not part of the built behavior.
+export function can_hide_under_obj(headObject, state = game) {
+    let obj = headObject;
+    if (!obj || obj.where !== OBJ_FLOOR) return false;
+    /* can't hide in/on/under traps (except pits) even when there is an
+       object here; since obj is on floor, its <ox,oy> are up to date */
+    const trap = t_at(obj.ox, obj.oy, state);
+    if (trap && !is_pit(trap.ttyp)) return false;
+    /* can't hide under small amount of coins unless non-coins are also
+       present; we expect coins to be a single stack but don't assume that */
+    if (obj.oclass === COIN_CLASS) {
+        let coinquan = 0;
+        do {
+            /* 10 coins is arbitrary amount considered enough to hide under */
+            coinquan += obj.quan;
+            if (coinquan >= 10) break; /* fall through to other checks */
+            obj = obj.nexthere;
+            if (!obj) return false; /* whole pile was less than 10 coins */
+        } while (obj.oclass === COIN_CLASS);
+    }
+    return true; /* can hide under the object */
 }

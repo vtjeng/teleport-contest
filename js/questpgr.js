@@ -8,6 +8,7 @@ import {
     A_LAWFUL,
     A_ORIGINAL,
     BLINDED,
+    MIN_QUEST_LEVEL,
     NEUTRAL,
 } from './const.js';
 import { game } from './gstate.js';
@@ -19,6 +20,7 @@ import { an, the } from './objnam.js';
 import { align_gname } from './pray.js';
 import { QUEST_TEXT, QUEST_TEXT_FALLBACKS } from './quest_text_data.js';
 import { rn2 } from './rng.js';
+import { rankOf } from './roles.js';
 import { ttyPline } from './tty_message.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 
@@ -137,8 +139,15 @@ function convertArg(c, state) {
         return (state.flags?.female && role?.name?.f)
             ? role.name.f : (role?.name?.m ?? 'adventurer');
     }
-    case 'r': return 'adventurer';   // rank_of(u.ulevel) not yet ported
-    case 'R': return 'adventurer';   // rank_of(MIN_QUEST_LEVEL) not yet ported
+    // C ref: questpgr.c convert_arg() 248-253, rank_of(lev, Role_switch,
+    // flags.female). js/roles.js rankOf() is this port's rank_of(); the status
+    // line and insight.c's rank title already read the hero's rank through it.
+    case 'r': return rankOf(
+        state.urole, state.u?.ulevel ?? 1, state.flags?.female,
+    ) ?? 'adventurer';
+    case 'R': return rankOf(
+        state.urole, MIN_QUEST_LEVEL, state.flags?.female,
+    ) ?? 'adventurer';
     case 's': return state.flags?.female ? 'sister' : 'brother';
     case 'S': return state.flags?.female ? 'daughter' : 'son';
     case 'l': return ldrname(state);
@@ -265,24 +274,33 @@ function convertLine(line, state) {
     return out;
 }
 
+// The two window-port entry points questpgr.c uses. A caller that must stay
+// silent -- the monster-movement dry run in js/unported_monster_actions.js
+// replaces both, so the shuffle and the %-code conversion still run while
+// nothing reaches the terminal and nothing waits for a key.
+export const QUEST_PAGER_OUTPUT = Object.freeze({
+    pline: ttyPline,
+    window: displayTtyTextWindow,
+});
+
 // C ref: questpgr.c deliver_by_pline().  Splits multi-line text at
 // newlines and delivers each line via pline.
-async function deliverByPline(text, state) {
+async function deliverByPline(text, state, output) {
     const lines = text.split('\n');
     for (const line of lines) {
         const converted = convertLine(line, state);
-        await ttyPline(converted, state);
+        await output.pline(converted, state);
     }
 }
 
 // C ref: questpgr.c deliver_by_window().  Splits multi-line text at
 // newlines, converts each line, and shows them in a text window.
-async function deliverByWindow(text, state) {
+async function deliverByWindow(text, state, output) {
     const lines = text.split('\n');
     const converted = lines.map((line) => ({
         text: convertLine(line, state),
     }));
-    await displayTtyTextWindow(state, converted);
+    await output.window(state, converted);
 }
 
 // BUFSZ - 1 from the C source.
@@ -291,7 +309,9 @@ const BUFSZ = 256;
 // C ref: questpgr.c com_pager_core().  Looks up a quest message by
 // section (role filecode) and message ID, produces the nhlib shuffle,
 // reads the text and output mode, and delivers the message.
-async function comPagerCore(section, msgid, showerror, state, random) {
+async function comPagerCore(
+    section, msgid, showerror, state, random, output,
+) {
     initializeQuestPagerLua(random);
 
     const roleData = QUEST_TEXT[section];
@@ -341,16 +361,16 @@ async function comPagerCore(section, msgid, showerror, state, random) {
     const OUTPUT_MAP = {
         pline: 1, window: 2, text: 2, menu: 3, default: 0,
     };
-    let output = OUTPUT_MAP[outputStr] ?? 0;
-    if (output === 0
+    let mode = OUTPUT_MAP[outputStr] ?? 0;
+    if (mode === 0
         && (text.includes('\n') || text.length >= BUFSZ - 1)) {
-        output = 2;
+        mode = 2;
     }
 
-    if (output === 0 || output === 1) {
-        await deliverByPline(text, state);
+    if (mode === 0 || mode === 1) {
+        await deliverByPline(text, state, output);
     } else {
-        await deliverByWindow(text, state);
+        await deliverByWindow(text, state, output);
     }
 
     // C ref: questpgr.c com_pager_core() 597-609.  Synopsis goes into
@@ -369,10 +389,12 @@ async function comPagerCore(section, msgid, showerror, state, random) {
 
 // C ref: questpgr.c qt_pager().  Tries the role-specific section first,
 // then falls back to the common section.
-export async function qt_pager(msgid, state = game, random = rn2) {
+export async function qt_pager(
+    msgid, state = game, random = rn2, output = QUEST_PAGER_OUTPUT,
+) {
     if (!await comPagerCore(
-        state.urole?.filecode, msgid, false, state, random)) {
-        await comPagerCore('common', msgid, true, state, random);
+        state.urole?.filecode, msgid, false, state, random, output)) {
+        await comPagerCore('common', msgid, true, state, random, output);
     }
 }
 

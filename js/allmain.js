@@ -1175,9 +1175,16 @@ async function advanceElapsedTurn(state) {
                     clearBypasses: unavailableElapsedTurnOperation(
                         'terminal monster bypass cleanup',
                     ),
-                    deferredGoto: unavailableElapsedTurnOperation(
-                        'a deferred monster level transition',
-                    ),
+                    // C ref: mon.c movemon():1343-1347. quest.c expulsion()
+                    // schedules the hero's departure from inside the monster
+                    // scan, so movemon()'s own tail performs it. The dry run
+                    // deliberately stops short of it: generating a level
+                    // against the cloned ISAAC context would cost as much as
+                    // the live transition and answer nothing the live pass
+                    // does not, so this transition is the one part of the
+                    // turn whose refusals surface live.
+                    deferredGoto: (env) =>
+                        runDeferredGotoAtTurnBoundary(env.state),
                 });
                 // C's done_in_by() is NORETURN, so a hero the monster scan
                 // kills never reaches the once-per-turn upkeep, the movement

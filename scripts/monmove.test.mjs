@@ -58,6 +58,8 @@ import {
     NEED_WEAPON,
     NOGARLIC,
     NOTONL,
+    OBJ_FLOOR,
+    OBJ_INVENT,
     OPENDOOR,
     PIT,
     POOL,
@@ -98,6 +100,7 @@ import { create_region } from '../js/region.js';
 import {
     accessible,
     can_fog,
+    can_hide_under_obj,
     can_ooze,
     dochugw,
     distfleeck,
@@ -175,6 +178,7 @@ import { newObject } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import {
     COIN_CLASS,
+    WEAPON_CLASS,
     AXE,
     BOULDER,
     CLOVE_OF_GARLIC,
@@ -5105,4 +5109,52 @@ test('distfleeck checks an invisible hero at the guessed square', async () => {
 
     assert.deepEqual(checked, [[monster.mux, monster.muy]]);
     assert.deepEqual(result, { inrange: true, nearby: true, scared: false });
+});
+
+// C ref: monmove.c can_hide_under_obj() (2119-2167).
+test('can_hide_under_obj answers for the pile it is handed', () => {
+    // No object and an object that has left the floor both answer FALSE;
+    // C's `!obj || obj->where != OBJ_FLOOR` guard covers both.
+    const emptyLevel = { level: { traps: [] } };
+    assert.equal(can_hide_under_obj(null, emptyLevel), false);
+    assert.equal(
+        can_hide_under_obj(
+            { where: OBJ_INVENT, oclass: WEAPON_CLASS, ox: 3, oy: 4 },
+            emptyLevel,
+        ),
+        false,
+    );
+
+    const dagger = {
+        where: OBJ_FLOOR, oclass: WEAPON_CLASS, quan: 1, ox: 3, oy: 4,
+    };
+    assert.equal(can_hide_under_obj(dagger, emptyLevel), true);
+
+    // A trap on the object's square blocks hiding unless it is a pit.
+    const bearTrap = {
+        level: { traps: [{ tx: 3, ty: 4, ttyp: BEAR_TRAP }] },
+    };
+    assert.equal(can_hide_under_obj(dagger, bearTrap), false);
+    const pit = { level: { traps: [{ tx: 3, ty: 4, ttyp: PIT }] } };
+    assert.equal(can_hide_under_obj(dagger, pit), true);
+
+    // Coins: fewer than ten in the whole pile is too little to hide under,
+    // ten or more is enough, and a non-coin below a short stack also serves.
+    const nineGold = {
+        where: OBJ_FLOOR, oclass: COIN_CLASS, quan: 9, ox: 3, oy: 4,
+        nexthere: null,
+    };
+    assert.equal(can_hide_under_obj(nineGold, emptyLevel), false);
+    const tenGold = { ...nineGold, quan: 10 };
+    assert.equal(can_hide_under_obj(tenGold, emptyLevel), true);
+    const nineGoldOverDagger = { ...nineGold, nexthere: dagger };
+    assert.equal(can_hide_under_obj(nineGoldOverDagger, emptyLevel), true);
+    // Two coin stacks that reach ten together also count; C accumulates
+    // across the run of coins rather than reading the top stack alone.
+    const fiveOverFive = {
+        ...nineGold,
+        quan: 5,
+        nexthere: { ...nineGold, quan: 5, nexthere: null },
+    };
+    assert.equal(can_hide_under_obj(fiveOverFive, emptyLevel), true);
 });
