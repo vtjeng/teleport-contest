@@ -42,11 +42,15 @@ import {
     FROMOUTSIDE,
     HALLUC,
     HALLUC_RES,
+    GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
+    GETOBJ_EXCLUDE_INACCESS,
     GETOBJ_EXCLUDE_NONINVENT,
     GETOBJ_NOFLAGS,
+    GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
     HALF_PHDAM,
+    HAND,
     INFRAVISION,
     INTRINSIC,
     INVIS,
@@ -85,14 +89,18 @@ import { makeplural, makesingular } from './fruit.js';
 import { game } from './gstate.js';
 import { losehp, nomul, You_can_move_again } from './hack.js';
 import {
-    getobj, learn_unseen_invent, obfree, update_inventory, useup,
+    getobj, hands_obj, learn_unseen_invent, obfree, update_inventory, useup,
 } from './invent.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime, mongone } from './makemon_create.js';
 import { breathless, haseyes, likes_fire } from './mondata.js';
 import { PM_DJINNI, PM_HEALER } from './monsters.js';
 import { bcsign, objectType } from './obj.js';
-import { Tobjnam } from './objnam.js';
+import {
+    Tobjnam, donameFresh, is_plural, short_oname, thesimpleoname,
+} from './objnam.js';
+import { inaccessible_equipment } from './do_wear.js';
+import { is_boots, is_gloves } from './obj.js';
 import { discover_object } from './o_init.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
@@ -138,6 +146,8 @@ import {
     SPE_LEVITATION,
     SPE_RESTORE_ABILITY,
     TOWEL,
+    COIN_CLASS,
+    LENSES,
 } from './objects.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
@@ -1350,4 +1360,131 @@ export function healup(nhp, nxtra, curesick, cureblind, state = game) {
     }
     state.disp = state.disp || {};
     state.disp.botl = true;
+}
+
+// ── dodip ──
+// C ref: potion.c dodip() (2267-2372). The #dip command entry point.
+// Asks which object to dip, then checks terrain (fountain, sink, pool)
+// or asks which potion to dip into.
+//
+// Fail-closed arms: sink (dipsink), pool (water_damage/wash_hands),
+// and potion-into-potion (potion_dip). The witness session exercises
+// only the fountain path.
+export async function dodip(state = game) {
+    const message = ttyPline;
+    const hero = state.u;
+    const here = state.level.at(hero.ux, hero.uy).typ;
+    const at_pool = (await import('./trap.js')).is_pool(hero.ux, hero.uy, state);
+    const at_fountain = IS_FOUNTAIN(here);
+    const at_sink = IS_SINK(here);
+    const at_here = !state.iflags.menu_requested
+        && (at_pool || at_fountain || at_sink);
+
+    // C ref: potion.c:2279. getobj() with dip callback.
+    const obj = await getobj(
+        'dip',
+        at_here ? dip_hands_ok(state) : dip_ok,
+        GETOBJ_PROMPT,
+        state);
+    if (!obj) return ECMD_CANCEL;
+    // C ref: potion.c:2282-2283. inaccessible_equipment(obj, "dip", FALSE)
+    // prints a message and returns true for covered items. The JS version
+    // of that function throws when verb is passed; use the silent form here
+    // since getobj's dip_ok callback already filters these out.
+    if (inaccessible_equipment(obj, null, false, state)) {
+        return ECMD_OK;
+    }
+
+    const is_hands = (obj === hands_obj);
+    const shortestname = (is_hands || is_plural(obj) || pair_of(obj))
+        ? 'them' : 'it';
+
+    // C ref: potion.c:2288. drink_ok_extra is a file-scope static that
+    // communicates to drink_ok() that a dip prompt preceded the drink
+    // prompt. Since dodrink keeps its own local drink_ok_extra, this
+    // has no cross-function effect in our port.
+
+    // C ref: potion.c:2298-2306. Format the object name for the prompt.
+    // QBUFSZ is 128 in C. The getobj prompt is the longest consumer:
+    // "What do you want to dip  into? [<letters> or ?*] " (up to ~79 chars
+    // of overhead), leaving 49 characters for the object name.
+    const QBUFSZ = 128;
+    const SHORT_ONAME_LIMIT = QBUFSZ
+        - 'What do you want to dip  into? [abdeghjkmnpqstvwyzBCEFHIKLNOQRTUWXZ#-# or ?*] '
+            .length;
+    let obuf;
+    if (is_hands) {
+        obuf = `your ${makeplural(body_part(HAND, state))}`;
+    } else {
+        // C ref: potion.c:2301-2305. short_oname() tries doname first;
+        // if the result is too long, strips bknown/rknown/erosion and
+        // falls back to thesimpleoname().
+        obuf = short_oname(
+            obj, donameFresh, thesimpleoname, SHORT_ONAME_LIMIT, state);
+    }
+
+    // C ref: potion.c:2310-2363. Terrain dipping.
+    if (!state.iflags.menu_requested) {
+        if (!can_reach_floor(false, state)) {
+            // Cannot reach; skip all terrain prompts.
+        } else if (at_fountain) {
+            const { y_n } = await import('./cmd.js');
+            const verbose = state.flags?.verbose !== false;
+            const prompt = `Dip ${verbose ? obuf : shortestname}`
+                + ' into the fountain?';
+            if (await y_n(prompt, state) === 'y'.charCodeAt(0)) {
+                if (!is_hands) obj.pickup_prev = 0;
+                const { dipfountain } = await import('./fountain.js');
+                await dipfountain(obj, state);
+                return ECMD_TIME;
+            }
+            // Hero declined; drink_ok_extra would be incremented in C
+            // but dodrink keeps its own local copy, so this has no effect.
+        } else if (at_sink) {
+            throw new UnsupportedDipError('the sink dipping path (dipsink)');
+        } else if (at_pool) {
+            throw new UnsupportedDipError('the pool dipping path');
+        }
+    }
+
+    // C ref: potion.c:2366-2372. Ask for a potion to dip into.
+    throw new UnsupportedDipError('the potion-into-potion path (potion_dip)');
+}
+
+// C ref: potion.c dip_ok() (2214-2227). getobj callback for dipping.
+function dip_ok(obj) {
+    if (!obj) return GETOBJ_DOWNPLAY;
+    if (obj.oclass === COIN_CLASS) return GETOBJ_EXCLUDE;
+    // inaccessible_equipment is checked after getobj returns.
+    return GETOBJ_SUGGEST;
+}
+
+// C ref: potion.c dip_hands_ok() (2230-2237). getobj callback when hero
+// has slippery hands and is at a terrain feature.
+function dip_hands_ok(state) {
+    return function(obj) {
+        if (!obj && (Glib(state) && can_reach_floor(false, state))) {
+            return GETOBJ_SUGGEST;
+        }
+        return dip_ok(obj);
+    };
+}
+
+// C ref: obj.h pair_of() macro.
+function pair_of(obj) {
+    return obj.otyp === LENSES || is_gloves(obj) || is_boots(obj);
+}
+
+// Local Glib check: youprop.h #define Glib u.uprops[GLIB].intrinsic
+function Glib(state) {
+    return Boolean(state.u?.uprops?.[GLIB]?.intrinsic & TIMEOUT);
+}
+
+// Thrown when dodip() reaches a branch this port has not ported.
+export class UnsupportedDipError extends Error {
+    constructor(reason) {
+        super(`dip requires ${reason}`);
+        this.name = 'UnsupportedDipError';
+        this.reason = reason;
+    }
 }

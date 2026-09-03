@@ -282,6 +282,7 @@ import {
     PM_WATCHMAN,
     PM_WATER_DEMON,
     PM_WATER_MOCCASIN,
+    PM_WATER_NYMPH,
     PM_WHITE_UNICORN,
     PM_WOLF,
     PM_WOOD_NYMPH,
@@ -1217,6 +1218,7 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
             && species.pmidx !== PM_DJINNI
             && species.pmidx !== PM_WATER_DEMON
             && species.pmidx !== PM_WATER_MOCCASIN
+            && species.pmidx !== PM_WATER_NYMPH
             // The eel-concealment goal needs an active, unconcealed eel, and
             // mklev() hides every eel it places (makemon.c:1392). The one
             // running-game path that produces an unhidden one is wizcmds.c
@@ -1279,11 +1281,12 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === MM_NOMSG;
-    // fountain.c dowaterdemon() and dowatersnakes() create one of these
-    // species near the hero with MM_NOMSG, the same runtime shape.
+    // fountain.c dowaterdemon(), dowatersnakes(), and dowaternymph() create
+    // one of these species near the hero with MM_NOMSG, the same runtime shape.
     const fountainCreatureCall = !state.in_mklev
         && (ptr?.pmidx === PM_WATER_DEMON
-            || ptr?.pmidx === PM_WATER_MOCCASIN)
+            || ptr?.pmidx === PM_WATER_MOCCASIN
+            || ptr?.pmidx === PM_WATER_NYMPH)
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === MM_NOMSG;

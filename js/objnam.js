@@ -873,6 +873,47 @@ export function thesimpleoname(obj, state = game) {
     return the(simpleonames(obj, state), state);
 }
 
+// C ref: objnam.c short_oname() (2009-2085). Produces a short object name
+// for tight prompts. Tries func(obj) first; if the result exceeds lenlimit,
+// truncates user-named and object-named strings, then strips bknown, rknown,
+// greased, oeroded, and oeroded2 before retrying func and finally altfunc.
+// The object is not permanently modified.
+export function short_oname(obj, func, altfunc, lenlimit, state = game) {
+    let out = func(obj, state);
+    if (out.length <= lenlimit) return out;
+
+    // C ref: objnam.c:2023-2046. Truncate user-called and object-named strings.
+    // The port does not yet support oc_uname or individual oname strings, so
+    // skip those two truncation steps.
+
+    // C ref: objnam.c:2065-2077. Strip name-lengthening attributes.
+    const save = {
+        bknown: obj.bknown,
+        rknown: obj.rknown,
+        greased: obj.greased,
+        oeroded: obj.oeroded,
+        oeroded2: obj.oeroded2,
+    };
+    obj.bknown = 0;
+    obj.rknown = 0;
+    obj.greased = 0;
+    obj.oeroded = 0;
+    obj.oeroded2 = 0;
+    try {
+        out = func(obj, state);
+        if (altfunc && out.length > lenlimit) {
+            out = altfunc(obj, state);
+        }
+    } finally {
+        obj.bknown = save.bknown;
+        obj.rknown = save.rknown;
+        obj.greased = save.greased;
+        obj.oeroded = save.oeroded;
+        obj.oeroded2 = save.oeroded2;
+    }
+    return out;
+}
+
 // C ref: objnam.c ysimple_name() (2391-2398). "your <minimal_xname>" for what
 // the hero carries, "the <minimal_xname>" for what she does not, or a
 // shopkeeper's possessive where shk_your() finds an owner.

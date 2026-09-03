@@ -112,10 +112,13 @@ import { UnsupportedObjectOperationError } from './obj.js';
 import { doloot, dotip, UnsupportedPickupError } from './pickup.js';
 import {
     dodrink,
+    dodip,
+    UnsupportedDipError,
     UnsupportedPotionError,
     UnsupportedQuaffError,
 } from './potion.js';
 import { UnsupportedFountainError } from './fountain.js';
+import { WaterDamageError } from './trap_water_damage.js';
 import { UnsupportedItemDestructionError } from './zap_destroy_items.js';
 import { SPE_TELEPORT_AWAY } from './objects.js';
 import { next_to_u } from './apply_next_to_u.js';
@@ -1412,7 +1415,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
-    'terrain', 'travel',
+    'terrain', 'travel', 'dip',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -1981,9 +1984,17 @@ export function failClosedCommandRefusals() {
         // underwater, worn-potion, milky and smoky branches of dodrink()
         // that this port has not reached.
         UnsupportedQuaffError,
-        // fountain.c drinkfountain(), dowaterdemon(), and dryup() raise
-        // this for the fountain-effect arms this port leaves unported.
+        // fountain.c drinkfountain(), dowaterdemon(), dipfountain(),
+        // and dryup() raise this for the fountain-effect arms this port
+        // leaves unported.
         UnsupportedFountainError,
+        // potion.c dodip() raises this for the sink, pool, and
+        // potion-into-potion dipping paths this port leaves unported.
+        UnsupportedDipError,
+        // trap.c water_damage() raises this for the item types
+        // (containers, scrolls, spellbooks, potions, lit items) whose
+        // water-damage paths are not yet ported.
+        WaterDamageError,
         UnsupportedObjectNamingError,
         // Two paths raise this. invent.c hold_another_object(), which
         // makewish() calls unguarded, raises it from its drop, artifact,
@@ -2386,6 +2397,14 @@ async function runCastCommand(key, state) {
 // cancelled object prompt, and ECMD_TIME for the quaff that happens.
 async function runQuaffCommand(key, state) {
     return failClosedCommand(key, state, () => dodrink(state));
+}
+
+// C ref: potion.c dodip(). Like dodrink() it returns its own ECMD_* result:
+// ECMD_CANCEL for an escaped object prompt and ECMD_TIME for the dip that
+// happens. cmd.c:1710's "dip" row carries CMD_M_PREFIX, so an 'm' prefix
+// sets iflags.menu_requested and skips the fountain/sink/pool prompts.
+async function runDipCommand(key, state) {
+    return failClosedCommand(key, state, () => dodip(state));
 }
 
 // C ref: read.c doread(). Like dodrink() it returns its own ECMD_* result:
@@ -2961,6 +2980,9 @@ async function doextcmd(key, state) {
     case 'dotip':
         // C ref: pickup.c dotip(), which returns its own ECMD_* result.
         return await failClosedCommand(key, state, () => dotip(state));
+    case 'dodip':
+        // C ref: potion.c dodip(), which returns its own ECMD_* result.
+        return await runDipCommand(key, state);
     default:
         resetCommandVars(state);
         throw new UnsupportedHeroCommandBoundaryError(
@@ -3940,6 +3962,21 @@ export async function rhack(key, state = game) {
         if (command === 'seeamulet') {
             await failClosedCommand(key, state, () => dopramulet(state, inventoryMenuHooks(state)));
             resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'dip') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the quaff arm applies. dodip() reaches all three:
+            // ECMD_OK for the inaccessible-equipment refusal, ECMD_CANCEL
+            // for an escaped object prompt, and ECMD_TIME for the dip that
+            // happens. cmd.c:1710's "dip" row carries CMD_M_PREFIX, so an
+            // 'm' prefix sets iflags.menu_requested and skips the terrain
+            // prompts.
+            const res = await runDipCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
         if (Object.hasOwn(MOVEMENT_INTENTS, command)) {
