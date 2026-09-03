@@ -8541,6 +8541,23 @@
         "screens": 20,
         "rng": 3224
       }
+    },
+    {
+      "id": "simple-monster-action-requires-a-substituted-monster-attack",
+      "status": "open",
+      "boundary": "getmattk() in js/mhitu.js refuses when an engulfing monster's mspec_used is nonzero and the attack needs substitution to AT_TUCH, even though the C code rewrites the attack and continues.",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "45e637a8d6b112ca82f5de929686dbcc3d726b04",
+      "openStanding": {
+        "sha": "5a6af6be",
+        "screens": 4287,
+        "rng": 274766
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
