@@ -7,6 +7,8 @@ import {
     AIR,
     ALTAR,
     AM_SHRINE,
+    ANY_SHOP,
+    ANY_TYPE,
     BARRACKS,
     BEEHIVE,
     BLCORNER,
@@ -219,6 +221,46 @@ export class UnsupportedSpecialRoomError extends Error {
         this.name = 'UnsupportedSpecialRoomError';
         this.reason = reason;
     }
+}
+
+// C ref: mkroom.c search_special() (764-780). Returns the first room whose
+// rtype matches, scanning the main rooms and then the subrooms; ANY_TYPE
+// matches any room that is not an ordinary one and ANY_SHOP any shop.
+//
+// C keeps subrooms in their own flat gs.subrooms[] array, in creation order.
+// This port keeps each subroom under the parent that owns it (see
+// js/dungeon.js mapseen_room()), so the second pass walks parents in room
+// order instead. The two orders differ only on a level that holds more than
+// one subroom of the same rtype, which no level generator produces.
+export function search_special(type, state = game) {
+    for (const croom of state.level?.rooms ?? []) {
+        if (!croom || croom.hx < 0) break;
+        if (room_rtype_matches(croom.rtype, type)) return croom;
+    }
+    for (const croom of state.level?.rooms ?? []) {
+        if (!croom || croom.hx < 0) break;
+        const found = search_subrooms(croom, type);
+        if (found) return found;
+    }
+    return null;
+}
+
+function search_subrooms(croom, type) {
+    const count = croom.nsubrooms ?? croom.sbrooms?.length ?? 0;
+    for (let index = 0; index < count; ++index) {
+        const subroom = croom.sbrooms?.[index];
+        if (!subroom) continue;
+        if (room_rtype_matches(subroom.rtype, type)) return subroom;
+        const nested = search_subrooms(subroom, type);
+        if (nested) return nested;
+    }
+    return null;
+}
+
+function room_rtype_matches(rtype, type) {
+    if (type === ANY_TYPE) return rtype !== OROOM;
+    if (type === ANY_SHOP) return rtype >= SHOPBASE;
+    return rtype === type;
 }
 
 // C ref: mkroom.c isbig(). A room of more than twenty squares.

@@ -7,6 +7,7 @@ import {
     DEAF,
     HALLUC,
     HALLUC_RES,
+    OROOM,
     ROOMOFFSET,
     SHOPBASE,
     VAULT,
@@ -391,9 +392,20 @@ function vaultState({ gold = false, subroom = false } = {}) {
         rtype: VAULT,
     };
     if (subroom) {
-        state.level.rooms = [];
-        state.level.nroom = 0;
-        state.subrooms = [room];
+        // mkroom.c keeps subrooms in gs.subrooms[]; the port keeps each under
+        // the parent that owns it, so search_special()'s second pass has to
+        // descend into sbrooms[] to find this vault.
+        state.level.rooms = [{
+            lx: 10,
+            hx: 20,
+            ly: 1,
+            hy: 8,
+            roomnoidx: 0,
+            rtype: OROOM,
+            nsubrooms: 1,
+            sbrooms: [room],
+        }];
+        state.level.nroom = 1;
     } else {
         state.level.rooms = [room];
         state.level.nroom = 1;
@@ -432,7 +444,7 @@ test('dosounds reports the source vault messages from floor gold', async () => {
     assert.deepEqual(result.messages, ['You hear Ebenezer Scrooge!']);
 });
 
-test('dosounds finds a vault in the separate subroom array', async () => {
+test('dosounds finds a vault held as a subroom of another room', async () => {
     const state = vaultState({ gold: true, subroom: true });
     // Zero hits the vault gate; selection 1 requests the gold-aware message.
     const result = await runSounds(state, [0, 1]);

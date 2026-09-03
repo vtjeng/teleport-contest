@@ -1,6 +1,7 @@
 // trap.js -- Trap allocation and map ownership.
-// C ref: trap.c -- t_at(), hole_destination(), maketrap(), choose_trapnote(),
-// set_utrap(), reset_utrap(), fill_pit(), float_down(), trapname().
+// C ref: trap.c -- t_at(), hole_destination(), maketrap(), deltrap(),
+// clear_conjoined_pits(), choose_trapnote(), set_utrap(), reset_utrap(),
+// fill_pit(), float_down(), trapname().
 
 import {
     BEAR_TRAP,
@@ -23,6 +24,7 @@ import {
     IS_POOL,
     IS_ROOM,
     IS_WALL,
+    In_sokoban,
     Is_airlevel,
     Is_waterlevel,
     LADDER,
@@ -523,6 +525,43 @@ export function maketrap(x, y, typ, rawEnv = {}) {
 
     if (!oldplace) state.level.traps.unshift(trap);
     return trap;
+}
+
+// C ref: trap.c deltrap() (6529-6548). Unlinks a trap from the level's trap
+// list. C walks gf.ftrap to find the predecessor and panics when the trap is
+// not on the list; the port keeps the same list as an array, in the same
+// order (maketrap() prepends, as C does), so the unlink is one splice and the
+// panic becomes a thrown Error.
+//
+// dealloc_trap() has no counterpart: C frees the record, JavaScript lets it go.
+export function deltrap(trap, state = game) {
+    clear_conjoined_pits(trap);
+    const traps = state.level.traps;
+    const index = traps.indexOf(trap);
+    if (index < 0) throw new Error('deltrap: no preceding trap!');
+    traps.splice(index, 1);
+    const uz = state.u?.uz;
+    if (uz && In_sokoban(uz) && (trap.ttyp === PIT || trap.ttyp === HOLE)) {
+        // trap.c:6545-6546 calls maybe_finish_sokoban(), which awards the
+        // Sokoban prize and its luck bonus. Nothing of that is ported.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'maybe_finish_sokoban() after removing a Sokoban pit or hole',
+        );
+    }
+}
+
+// C ref: trap.c clear_conjoined_pits() (6578-6603). Every trap this port
+// creates has `conjoined` set to 0 -- maketrap() clears it for PIT and
+// SPIKED_PIT and resetTrap() clears it for every other type -- and the
+// mklev.c conjoined-pit generation is not ported (js/mklev.js:2899-2901), so
+// the mask is always empty and the neighbour loop has nothing to walk. It
+// refuses rather than silently skipping the unlink if that ever changes.
+function clear_conjoined_pits(trap) {
+    if (trap && is_pit(trap.ttyp) && trap.conjoined) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'unlinking a conjoined pit',
+        );
+    }
 }
 
 // ── Hero trap state and the descent out of levitation (C ref: trap.c) ──

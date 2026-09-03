@@ -37,7 +37,6 @@ import {
     MS_WAIL,
     ROOMOFFSET,
     SDOOR,
-    SHOPBASE,
     STONE,
     STRANGLED,
     STRAT_WAITMASK,
@@ -58,6 +57,7 @@ import {
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
+import { search_special } from './mkroom.js';
 import { get_iter_mons, wake_nearto } from './mon.js';
 import {
     humanoid,
@@ -158,25 +158,6 @@ function roomStringContainsType(buffer, roomType, state) {
             return roomNumber;
     }
     return 0;
-}
-
-function searchSpecial(roomType, state) {
-    // C ref: mkroom.c search_special(). Scans main rooms then subrooms.
-    // ANY_SHOP matches any room with rtype >= SHOPBASE (any shop type).
-    for (const room of state.level?.rooms ?? []) {
-        if (!room || room.hx < 0) break;
-        if (roomTypeMatches(room.rtype, roomType)) return room;
-    }
-    for (const room of state.subrooms ?? []) {
-        if (!room || room.hx < 0) break;
-        if (roomTypeMatches(room.rtype, roomType)) return room;
-    }
-    return null;
-}
-
-function roomTypeMatches(rtype, wanted) {
-    if (wanted === ANY_SHOP) return rtype >= SHOPBASE;
-    return rtype === wanted;
 }
 
 function vaultGuardPresent(state) {
@@ -391,7 +372,7 @@ export async function dosoundsInitialLevel(
     // Stop at the first unowned source branch, after all earlier work.
     rejectUnportedSpecialSound(state, PRE_VAULT_SPECIAL_SOUND_FLAGS);
     if (flags.has_vault && random(200) === 0) {
-        const room = searchSpecial(VAULT, state);
+        const room = search_special(VAULT, state);
         if (!room) {
             flags.has_vault = false;
             return;
@@ -445,7 +426,7 @@ export async function dosoundsInitialLevel(
         }
     }
     if (flags.has_shop && random(200) === 0) {
-        const sroom = searchSpecial(ANY_SHOP, state);
+        const sroom = search_special(ANY_SHOP, state);
         if (!sroom) {
             // strange...
             flags.has_shop = false;

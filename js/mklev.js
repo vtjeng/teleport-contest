@@ -97,7 +97,7 @@ import {
     WAN_TELEPORTATION,
     WEAPON_CLASS,
 } from './objects.js';
-import { maketrap, t_at } from './trap.js';
+import { deltrap, maketrap, t_at } from './trap.js';
 import { recalc_block_point } from './vision.js';
 import {
     mktrap as make_level_trap,
@@ -5570,9 +5570,7 @@ function wallification(x1, y1, x2, y2) {
 }
 
 // C ref: sp_lev.c map_cleanup(). Liquid squares cannot retain boulders,
-// ordinary traps, or engravings after a special level has been loaded. The
-// conjoined-pit and Sokoban side effects of trap.c deltrap() are not reached
-// by this source-common cleanup path and remain outside this slice.
+// ordinary traps, or engravings after a special level has been loaded.
 export function map_cleanup(state = game) {
     const objectEnv = objectGenerationEnv({
         state,
@@ -5599,12 +5597,7 @@ export function map_cleanup(state = game) {
             // C ref: deltrap() removes a liquid-cell trap unless it is one of
             // the two traps explicitly protected by undestroyable_trap().
             const trap = t_at(x, y, state);
-            if (trap && !undestroyable_trap(trap.ttyp)) {
-                const trapIndex = state.level.traps.indexOf(trap);
-                if (trapIndex < 0)
-                    throw new Error('map_cleanup: trap is not on trap list');
-                state.level.traps.splice(trapIndex, 1);
-            }
+            if (trap && !undestroyable_trap(trap.ttyp)) deltrap(trap, state);
 
             if (engr_at(x, y, state)) del_engr_at(x, y, state);
         }
