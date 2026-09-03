@@ -6188,6 +6188,15 @@
       "status": "open",
       "from": "cb881ce97c59d71c0f116fb1ebc1dd2e78d4bf4c",
       "detail": "maybe_spin_web() shop damage (monmove.c:1289-1290): add_damage() for a web created in a shop. Behind an unsupported guard. No development session triggers a successful web creation in a shop."
+    },
+    {
+      "id": "seffect-remove-curse-uncursed-blessed",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "452290c10d2f0f140ce3a403350f325b553df7c0",
+      "detail": "seffect_remove_curse uncursed/blessed invent-traversal loop (read.c:1514-1597). The loop traverses the full inventory applying curse/bless changes to worn items."
     }
   ],
   "areas": [
