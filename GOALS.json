@@ -8752,7 +8752,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-22",
-      "status": "open",
+      "status": "closed",
       "boundary": "naming an object type requires getlin()'s 'Call <thing>:' prompt",
       "upstreamOwners": [],
       "forecast": null,
@@ -8760,8 +8760,8 @@
       "slices": [
         {
           "name": "docall-naming-prompt",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "811fdc458b5a554c356f9be0b77cfbcc6c647f84"
         }
       ],
       "openedAt": "04e611ffbc06883bd018a1c01060fbd968a1eb43",
@@ -8770,8 +8770,11 @@
         "screens": 4346,
         "rng": 276601
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "811fdc458b5a554c356f9be0b77cfbcc6c647f84",
+      "delivered": {
+        "screens": 20,
+        "rng": 102
+      }
     }
   ]
 }
