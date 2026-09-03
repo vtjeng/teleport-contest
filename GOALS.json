@@ -8822,6 +8822,11 @@
           "name": "mhitm-ad-sedu-steal",
           "status": "closed",
           "closedBy": "13962e6b8b9bfc647a3d304f83349b5a7c8f0fe5"
+        },
+        {
+          "name": "doname-with-price-inventory",
+          "status": "closed",
+          "closedBy": "1fc8c8e73bdef46744eb93679bc6536eced6351a"
         }
       ],
       "openedAt": "e2be2fe01504119e51ce08729db6ae219838e4df",
