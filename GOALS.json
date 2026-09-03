@@ -8731,7 +8731,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "port-sleepy-arm-and-cause-known",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "bdbb6c06df3a7d939b65a32d46345cc9447c60f7",
       "openStanding": {
         "sha": "8ce7c1ce",
