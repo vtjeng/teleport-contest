@@ -8187,7 +8187,7 @@
     },
     {
       "id": "simple-monster-action-requires-door-or-special-terrain-movem",
-      "status": "open",
+      "status": "closed",
       "boundary": "Ordinary hostile monster movement selected by mfndpos() onto a door or special-terrain square reaching monmove.c postmov().",
       "upstreamOwners": [
         "mon.c",
@@ -8210,8 +8210,8 @@
       "slices": [
         {
           "name": "tunneling-monster-digs-into-wall",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "a3de46fdfd08c859f17e659ad81b7e45d3d63f89"
         }
       ],
       "openedAt": "8ddd3cf667299e097b279e92e842e2c1d37f83b8",
@@ -8220,8 +8220,11 @@
         "screens": 4194,
         "rng": 260029
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "a3de46fdfd08c859f17e659ad81b7e45d3d63f89",
+      "delivered": {
+        "screens": 1,
+        "rng": 55
+      }
     }
   ]
 }
