@@ -1042,6 +1042,10 @@ test('every zap refusal names a zap.c function the port has not ported',
         [
             // dozap() and zapyourself().
             'backfire', 'losehp', 'shieldeff', 'zapyourself',
+            // resist(): the shieldeff_mon() and killed-by-damage arms.
+            'shieldeff_mon', 'resist',
+            // zhitm() monster arm: the cold-spell arm and the non-cold types.
+            'spell_damage_bonus', 'zhitm',
             // flash_str() and zap_hit().
             'rnd_hallublast', 'spell_hit_bonus',
             // zhituLosehpArguments(): the arm that names the monster whose
@@ -1058,10 +1062,15 @@ test('every zap refusal names a zap.c function the port has not ported',
             'create_gas_cloud', 'dissolve_bars',
             'cvt_sdoor_to_door', 'add_damage', 'burn_floor_objects', 'wakeup',
             // dobuzz(): a type that is not a hero wand zap, a hallucinating
-            // hero, the swallowed hero, the monster arm, the steed, the
-            // reflecting hero, lightning's flashburn(), the Plane of Air and
-            // the shop door.
-            'dobuzz', 'rnd_hallublast', 'dobuzz', 'dobuzz', 'dobuzz',
+            // hero, the swallowed hero, the Rider arm, PM_DEATH absorption,
+            // disintegrate_mon(), armor disintegration, slept_monst(), the
+            // steed, the reflecting hero, lightning's flashburn(), the Plane
+            // of Air and the shop door.
+            'dobuzz', 'rnd_hallublast', 'dobuzz',
+            'dobuzz', 'dobuzz', 'disintegrate_mon',
+            'monster kill path: ${what}',
+            'armor disintegration in dobuzz', 'slept_monst',
+            'dobuzz',
             'ureflects', 'flashburn', 'Is_airlevel', 'pay_for_damage',
             // zapnodir() retains its default for the other directionless
             // types. weffects() then retains the steed, immediate wand,

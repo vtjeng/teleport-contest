@@ -29,6 +29,7 @@ import {
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
+    NOTELL,
     OBJ_FLOOR,
     LAVAPOOL,
     LAVAWALL,
@@ -89,13 +90,18 @@ import {
     bounce_dir,
     dobuzz,
     flash_str,
+    hit,
     inventory_resistance_check,
+    miss,
+    resist,
     u_adtyp_resistance_obj,
     weffects,
     zap_hit,
     zaptype,
+    zhitm,
     zhituLosehpArguments,
 } from '../js/zap.js';
+import { mon_reflects } from '../js/muse.js';
 import {
     RAY_CASES,
     loadRayZapRecipe,
@@ -994,7 +1000,9 @@ test('a monster in the path stops the bolt before the floor effect wakes it',
             game,
             straightThrough(),
         ),
-        /dobuzz\(\)'s monster arm, over zhitm\(\)/u,
+        // The monster arm is now ported; the bolt enters zhitm() and throws
+        // because the ZT_FIRE branch of zhitm() is not yet ported.
+        /zhitm\(\) monster arm for damage type 1/u,
     );
 });
 
@@ -1393,4 +1401,173 @@ test('dobuzz hands zap_hit the hero own armor class', async () => {
     );
     game.u.uac = 9;
     game.u.uprops[REFLECTING] = { intrinsic: 0, extrinsic: 0 };
+});
+
+// ---------------------------------------------------------------------------
+// hit() / miss() — message functions for zap/missile combat (zap.c:3555-3576)
+// ---------------------------------------------------------------------------
+
+test('hit() prints "The <str> hits <mon><force>" with verbose detail',
+    async () => {
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    const monster = game.level.monlist;
+    assert.ok(monster, 'level has a monster for message test');
+    // bhitpos must be set for hit()/miss() to know where the target is.
+    game.gb ??= {};
+    game.gb.bhitpos = { x: monster.mx, y: monster.my };
+    game.flags ??= {};
+    game.flags.verbose = true;
+
+    game._ttyToplines = '';
+    await hit('bolt of cold', monster, '!', game);
+    assert.match(game._ttyToplines, /The bolt of cold hits/u,
+        'hit() begins with "The <str> hits"');
+    assert.match(game._ttyToplines, /!/u,
+        'hit() ends with the force string');
+});
+
+test('miss() prints "The <str> misses <mon>." with verbose detail',
+    async () => {
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    const monster = game.level.monlist;
+    assert.ok(monster);
+    game.gb ??= {};
+    game.gb.bhitpos = { x: monster.mx, y: monster.my };
+    game.flags ??= {};
+    game.flags.verbose = true;
+
+    game._ttyToplines = '';
+    await miss('bolt of cold', monster, game);
+    assert.match(game._ttyToplines, /The bolt of cold misses/u,
+        'miss() begins with "The <str> misses"');
+    assert.match(game._ttyToplines, /\.$/u,
+        'miss() ends with a period');
+});
+
+// ---------------------------------------------------------------------------
+// resist() — magic resistance check (zap.c:6100-6158)
+// ---------------------------------------------------------------------------
+
+test('resist() uses monster MR against attack level and rolls rn2(100+alev-dlev)',
+    () => {
+    // A wand (oclass = WAND_CLASS) has attack level 12. A monster at level 5
+    // with MR 50 resists when rn2(100 + 12 - 5) = rn2(107) < 50.
+    const mon = {
+        data: { mr: 50 },
+        m_lev: 5,
+        mhp: 30,
+        mhpmax: 30,
+    };
+    const draws = [];
+    const rng = { rn2: (bound) => { draws.push(bound); return 49; } };
+    // rn2(107) = 49 < 50 => resisted
+    const result = resist(mon, WAND_CLASS, 10, NOTELL, game, rng);
+    assert.equal(result, 1, 'rn2(107)=49 < MR 50 means the monster resists');
+    assert.deepEqual(draws, [107],
+        'resist() passes 100 + alev(12) - dlev(5) = 107 to rn2');
+    // damage halved from 10 to (10+1)/2 = 5; deducted from mhp
+    assert.equal(mon.mhp, 25, 'resisted damage is halved: (10+1)/2 = 5');
+});
+
+test('resist() does not halve damage when the roll exceeds MR', () => {
+    const mon = {
+        data: { mr: 50 },
+        m_lev: 5,
+        mhp: 30,
+        mhpmax: 30,
+    };
+    // rn2(107) = 50 >= 50 => not resisted
+    const rng = { rn2: (bound) => 50 };
+    const result = resist(mon, WAND_CLASS, 10, NOTELL, game, rng);
+    assert.equal(result, 0, 'rn2(107)=50 >= MR 50 means no resistance');
+    assert.equal(mon.mhp, 20, 'full damage 10 deducted without halving');
+});
+
+// ---------------------------------------------------------------------------
+// zhitm() — bolt damage to a monster (zap.c:4238-4398), ZT_COLD branch
+// ---------------------------------------------------------------------------
+
+test('zhitm() ZT_COLD deals d(nd,6) damage and calls resist()', async () => {
+    // type 2 is WAN_COLD's hero zap type (zaptype(2) % 10 = ZT_COLD = 2).
+    // nd = 6 means d(6,6). The monster has no cold or fire resistance and
+    // MR 0, so resist() will not halve.
+    const rolls = [];
+    const rng = {
+        d: (n, s) => { rolls.push(`d(${n},${s})`); return 18; },
+        rn2: (bound) => { rolls.push(`rn2(${bound})`); return 1; },
+    };
+    const mon = {
+        data: { mr: 0 },
+        m_lev: 1,
+        mhp: 50,
+        mhpmax: 50,
+        minvent: null,
+    };
+    // monster_resists_element and defended need a state with mons
+    const mockState = { ...game, mons: game.mons };
+    const result = await zhitm(mon, 2, 6, mockState, rng);
+    assert.equal(result.damage, 18,
+        'd(6,6) = 18 with MR 0 means no halving');
+    assert.equal(mon.mhp, 32, '50 - 18 = 32 HP remaining');
+    // First call is d(6,6) for base damage, then rn2(3) for destroy_items
+    // chance, then rn2(112) for resist (100 + 12 wand - 1 level + 1 clamp)
+    assert.equal(rolls[0], 'd(6,6)', 'first roll is the base damage');
+});
+
+test('zhitm() ZT_COLD adds d(nd,3) when the monster has fire resistance',
+    async () => {
+    // A fire-resistant monster hit by cold gets bonus d(nd,3) damage.
+    const rolls = [];
+    const rng = {
+        d: (n, s) => { rolls.push(`d(${n},${s})`); return n * 2; },
+        rn2: (bound) => { rolls.push(`rn2(${bound})`); return bound - 1; },
+    };
+    const mon = {
+        data: { mr: 0, mresists: FIRE_RES },
+        m_lev: 1,
+        mhp: 100,
+        mhpmax: 100,
+        minvent: null,
+    };
+    const mockState = { ...game, mons: game.mons };
+    const result = await zhitm(mon, 2, 6, mockState, rng);
+    // d(6,6) = 12 + d(6,3) = 12 = 24 total. rn2(3) for destroy_items
+    // returns 2 (non-zero) so no destroy call. resist rn2 returns bound-1
+    // which is >= MR 0 so no halving.
+    assert.equal(result.damage, 24,
+        'fire-resistant monster takes d(nd,6) + d(nd,3) from cold');
+    assert.ok(rolls.includes('d(6,3)'),
+        'the bonus d(nd,3) roll appears in the sequence');
+});
+
+test('zhitm() throws for unported damage types', async () => {
+    const mon = { data: { mr: 0 }, m_lev: 1, mhp: 50, minvent: null };
+    const rng = { d: () => 10, rn2: () => 0 };
+    // type 1 = WAN_FIRE hero zap => zaptype(1) % 10 = ZT_FIRE = 1
+    await assert.rejects(
+        () => zhitm(mon, 1, 6, game, rng),
+        /zhitm\(\) monster arm for damage type 1/u,
+        'ZT_FIRE is not yet ported',
+    );
+});
+
+// ---------------------------------------------------------------------------
+// mon_reflects() — monster reflection check (muse.c:2797-2840)
+// ---------------------------------------------------------------------------
+
+test('mon_reflects() returns false for a monster with no reflective gear',
+    async () => {
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    const monster = game.level.monlist;
+    assert.ok(monster);
+    // A plain monster with no equipment should not reflect.
+    const result = await mon_reflects(monster, null, game);
+    assert.equal(result, false,
+        'a monster with no reflective equipment does not reflect');
 });

@@ -69,10 +69,12 @@ import {
     M_SEEN_REFL,
     M_SEEN_SLEEP,
     OBJ_AT,
+    NOTELL,
     REFLECTING,
     SDOOR,
     SHOCK_RES,
     STONE,
+    STRAT_WAITMASK,
     nothing_happens,
     ONAME_KNOW_ARTI,
     ONAME_WISH,
@@ -87,6 +89,8 @@ import {
     W_ART,
     W_ARMOR,
     W_WEP,
+    XKILL_GIVEMSG,
+    XKILL_NOCORPSE,
     ZAP_POS,
     isok,
     u_at,
@@ -106,6 +110,10 @@ import {
     unmap_object,
     zapdir_to_glyph,
 } from './display.js';
+import {
+    capitalizedMonsterName,
+    monsterCommonName,
+} from './do_name.js';
 import { findit } from './detect.js';
 import { dropx, preflight_dropx } from './do.js';
 import { done } from './end.js';
@@ -115,7 +123,7 @@ import { game } from './gstate.js';
 import {
     check_capacity, losehp, nh_delay_output, nomul,
 } from './hack.js';
-import { lcase, mungspaces } from './hacklib.js';
+import { lcase, mungspaces, s_suffix } from './hacklib.js';
 import {
     getobj,
     hold_another_object,
@@ -123,13 +131,25 @@ import {
     update_inventory,
     useupall,
 } from './invent.js';
-import { is_demon, monstunseesu, nonliving, nohands } from './mondata.js';
+import {
+    completelyburns,
+    defended,
+    is_demon,
+    is_mplayer,
+    is_rider,
+    monster_resists_element,
+    monstunseesu,
+    nonliving,
+    nohands,
+} from './mondata.js';
 import {
     AD_ACID,
     AD_COLD,
     AD_DISN,
     AD_ELEC,
     AD_FIRE,
+    AD_RBRE,
+    PM_DEATH,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { is_pick, objectType, remove_object } from './obj.js';
@@ -139,7 +159,10 @@ import {
     HEAVY_IRON_BALL,
     IMMEDIATE,
     NODIR,
+    POTION_CLASS,
+    RING_CLASS,
     ROCK,
+    SCROLL_CLASS,
     SPBOOK_CLASS,
     SPE_DIG,
     SPE_EXTRA_HEALING,
@@ -149,6 +172,7 @@ import {
     SPE_SLEEP,
     TOOL_CLASS,
     WAND_CLASS,
+    WEAPON_CLASS,
     WAN_DEATH,
     WAN_DIGGING,
     WAN_LIGHTNING,
@@ -164,14 +188,17 @@ import {
     Yname2,
     aobjnam,
     donameFresh,
+    vtense,
     xnameFresh,
 } from './objnam.js';
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
 import { healup } from './potion.js';
-import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import { monkilled, wakeup, xkilled } from './mon.js';
 import { m_at } from './monst.js';
+import { mon_reflects } from './muse.js';
 import { check_unpaid, inside_shop } from './shk.js';
 import { canSpotMonster, messageAt } from './startup_a11y.js';
 import { closed_door } from './monmove.js';
@@ -180,7 +207,8 @@ import { is_lava, is_pool, t_at } from './trap.js';
 import { burnarmor } from './trap_erode_obj.js';
 import { shade_miss } from './uhitm.js';
 import { tele } from './teleport.js';
-import { cansee, couldsee } from './vision.js';
+import { cansee, canseemon, couldsee } from './vision.js';
+import { find_mac } from './worn.js';
 import { burn_away_slime, fall_asleep } from './timeout.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
@@ -498,6 +526,150 @@ export function exclam(force) {
     /* note that large force is usual with wands so that !! would
             require information about hand/weapon/wand */
     return (force < 0) ? '?' : (force <= 4) ? '.' : '!';
+}
+
+// C ref: zap.c hit() (3555-3568). Message when a zap or missile hits a monster.
+// `str` is the zap text or missile name, `force` is the exclam() punctuation.
+export async function hit(str, mtmp, force, state = game) {
+    const verbosely = (mtmp === state.youmonst
+        || (state.flags?.verbose
+            && (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
+                || canSpotMonster(mtmp, state)
+                || (state.u.uswallow && state.u.ustuck === mtmp))));
+    await ttyPline(
+        `${The(str, state)} ${vtense(str, 'hit')} `
+        + `${verbosely ? monsterCommonName(mtmp, state) : 'it'}${force}`,
+        state,
+    );
+}
+
+// C ref: zap.c miss() (3570-3576). Message when a zap or missile misses.
+export async function miss(str, mtmp, state = game) {
+    await ttyPline(
+        `${The(str, state)} ${vtense(str, 'miss')} `
+        + `${((cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
+               || canSpotMonster(mtmp, state))
+              && state.flags?.verbose)
+            ? monsterCommonName(mtmp, state) : 'it'}.`,
+        state,
+    );
+}
+
+// C ref: zap.c resist() (6100-6158). Magic resistance check for a monster.
+// Returns true if the monster resisted. When `damage` > 0, deducts it from the
+// monster's HP (halved if resisted) and kills the monster if HP drops to zero.
+// When `tell` is truthy (TELL = 1), shows a shield effect and "<monster>
+// resists!" message; when falsy (NOTELL = 0), silent.
+export function resist(mtmp, oclass, damage, tell, state = game, random = { rn2 }) {
+    /* fake players always pass resistance test against Conflict */
+    if (oclass === RING_CLASS && !damage && !tell && is_mplayer(mtmp.data))
+        return 1;
+
+    /* attack level */
+    let alev;
+    switch (oclass) {
+    case WAND_CLASS: alev = 12; break;
+    case TOOL_CLASS: alev = 10; break; /* instrument */
+    case WEAPON_CLASS: alev = 10; break; /* artifact */
+    case SCROLL_CLASS: alev = 9; break;
+    case POTION_CLASS: alev = 6; break;
+    case RING_CLASS: alev = 5; break;
+    default: alev = state.u.ulevel; break; /* spell */
+    }
+    /* defense level */
+    let dlev = mtmp.m_lev ?? 0;
+    if (dlev > 50) dlev = 50;
+    else if (dlev < 1) dlev = is_mplayer(mtmp.data) ? state.u.ulevel : 1;
+
+    const resisted = random.rn2(100 + alev - dlev) < (mtmp.data?.mr ?? 0);
+    if (resisted) {
+        if (tell) {
+            // shieldeff_mon(): shieldeff() animation plus "resists!" message.
+            // shieldeff() is a tmp_at() animation with no game-state or RNG
+            // effect. The message needs capitalizedMonsterName (Monnam).
+            throw new UnsupportedZapError(
+                'shieldeff_mon() for a monster that resists with tell=TELL',
+            );
+        }
+        damage = Math.trunc((damage + 1) / 2);
+    }
+
+    if (damage) {
+        mtmp.mhp -= damage;
+        if (mtmp.mhp < 1) { /* DEADMONSTER */
+            // gm.m_using tracks "a monster is using an item", set by muse.c.
+            // No ported caller sets it, and the hero-zap path through dobuzz()
+            // does not reach it, so the else (killed()) is the reachable arm.
+            throw new UnsupportedZapError(
+                'resist() killing a monster via damage (m_using / killed path)',
+            );
+        }
+    }
+    return resisted ? 1 : 0;
+}
+
+// C ref: zap.c zhitm() (4238-4398). Damage a bolt does to a monster. The
+// caller (dobuzz() monster arm) is responsible for killing the monster when
+// damage is fatal. Returns the damage dealt. Sets *ootmp (here returned as
+// the second element) to a piece of armor to disintegrate when appropriate.
+//
+// Only the ZT_COLD branch is ported; every other damage type throws.
+// `is_hero_spell(type)` is `type >= 10 && type < 20`. For a wand zap (type
+// 0-9), `spellcaster` is false and `spell_damage_bonus` is never called.
+export async function zhitm(mon, type, nd, state = game, random = { d, rn2 }) {
+    let tmp = 0;
+    let otmp = null;
+    const damgtype = zaptype(type) % 10;
+    let sho_shieldeff = false;
+    const spellcaster = type >= 10 && type < 20; /* is_hero_spell(type) */
+
+    switch (damgtype) {
+    case ZT_COLD:
+        if (monster_resists_element(mon, COLD_RES, state)
+            || defended(mon, AD_COLD, state)) {
+            sho_shieldeff = true;
+            break;
+        }
+        tmp = random.d(nd, 6);
+        if (spellcaster) {
+            throw new UnsupportedZapError(
+                'spell_damage_bonus() for a cold spell a hero cast',
+            );
+        }
+        /* includes spell bonus but not monster vuln to cold */
+        {
+            const orig_dmg = tmp;
+            if (monster_resists_element(mon, FIRE_RES, state))
+                tmp += random.d(nd, 3);
+            if (!random.rn2(3))
+                tmp += await destroy_items(mon, AD_COLD, orig_dmg,
+                    { state, random });
+        }
+        break;
+
+    default:
+        throw new UnsupportedZapError(
+            `zhitm() monster arm for damage type ${damgtype}`,
+        );
+    }
+
+    if (sho_shieldeff) {
+        // shieldeff() is a visual animation with no game-state or RNG effect.
+        // A newt that resists cold would show a shield glyph here, but
+        // shieldeff() is not ported and no RNG call is lost by skipping it.
+        // For now, do nothing; the shield animation is cosmetic.
+        void 0;
+    }
+    // is_hero_spell(type) && Role_if(PM_KNIGHT) && u.uhave.questart => 2x
+    // For wand zaps (type 0-9), is_hero_spell is false so this never fires.
+    // resist() halves damage for a wand zap (type < ZT_SPELL(0) = 10)
+    if (tmp > 0 && type >= 0
+        && resist(mon, type < 10 /* ZT_SPELL(0) */
+            ? WAND_CLASS : 0 /* '\0' */, 0, NOTELL, state, random))
+        tmp = Math.trunc(tmp / 2);
+    if (tmp < 0) tmp = 0; /* don't allow negative damage */
+    mon.mhp -= tmp;
+    return { damage: tmp, otmp };
 }
 
 // C ref: zap.c makewish() (6313-6422). The "help" arm at 6348-6352, the
@@ -1400,10 +1572,15 @@ async function zap_over_floor(
 // `sayhit` and `saymiss` "report out of sight hit/miss events" and belong to
 // the monster arm; `forcemiss` is muse.c's. ubuzz() passes TRUE, FALSE, FALSE.
 //
-// The arms that stop, each before it changes state, draws or writes:
-// u.uswallow (4802-4820), the whole `if (mon)` arm (4864-4956), u.usteed
-// (4959-4961), Reflecting (4966-4976), flashburn() (4988-4989), Is_airlevel
-// (5008-5013) and pay_for_damage() (5028-5035).
+// The monster arm (4864-4956) is ported: zap_hit(), mon_reflects(), zhitm()
+// (ZT_COLD branch), resist(), xkilled() and monkilled(). The Rider
+// resurrection, PM_DEATH absorption, disintegrate_mon(), slept_monst() and
+// armor-disintegration sub-arms throw because no witness exercises them.
+//
+// The arms that still stop, each before it changes state, draws or writes:
+// u.uswallow (4802-4820), u.usteed (4959-4961), Reflecting (4966-4976),
+// flashburn() (4988-4989), Is_airlevel (5008-5013) and pay_for_damage()
+// (5028-5035).
 export async function dobuzz(
     type,               /* 0..29 (by hero) or -39..-10 (by monster) */
     nd,                 /* damage strength ('number of dice') */
@@ -1412,7 +1589,7 @@ export async function dobuzz(
     sayhit, saymiss,    /* report out of sight hit/miss events */
     forcemiss,
     state = game,
-    random = { d, rn1, rn2, rnd, rne, rnl },
+    random = { d, rn1, rn2, rnd, rne, rnl, rnz },
 ) {
     const fltyp = zaptype(type);
     const damgtype = fltyp % 10;
@@ -1483,13 +1660,110 @@ export async function dobuzz(
             mon = m_at(sx, sy, state);
 
             if (mon) {
-                // 4864-4956: mstrategy, zap_hit(find_mac(mon)), mon_reflects(),
-                // zhitm(), the Rider and PM_DEATH arms, disintegrate_mon(),
-                // xkilled(), slept_monst() and wakeup(), plus the miss() at
-                // 4954. None of it is ported.
-                throw new UnsupportedZapError(
-                    "dobuzz()'s monster arm, over zhitm()",
-                );
+                // C ref: zap.c dobuzz() (4864-4956), the monster arm.
+                // fireball is always false for a wand zap.
+                if (type >= 0)
+                    mon.mstrategy &= ~STRAT_WAITMASK;
+                // buzzmonst:
+                state.gn ??= {};
+                state.gn.notonhead = (mon.mx !== state.gb.bhitpos.x
+                    || mon.my !== state.gb.bhitpos.y);
+                if (!forcemiss
+                    && zap_hit(find_mac(mon, state), 0 /* spell_type */, random)) {
+                    if (await mon_reflects(mon, null, state)) {
+                        if (cansee(mon.mx, mon.my, state)) {
+                            await hit(flash_str(fltyp, false, state), mon,
+                                exclam(0), state);
+                            // shieldeff(mon.mx, mon.my) is a visual animation;
+                            // skipped because it has no game-state or RNG effect.
+                            await mon_reflects(mon,
+                                'But it reflects from %s %s!', state);
+                        }
+                        dx = negate(dx);
+                        dy = negate(dy);
+                    } else {
+                        const mon_could_move = mon.mcanmove;
+                        const zhitResult = await zhitm(mon, type, nd, state, random);
+                        const tmp = zhitResult.damage;
+                        const otmp = zhitResult.otmp;
+
+                        if (is_rider(mon.data)
+                            && Math.abs(type) === 20 + ZT_DEATH /* ZT_BREATH(ZT_DEATH) */) {
+                            // Rider disintegration/reintegration. Not exercised
+                            // by any ported witness.
+                            throw new UnsupportedZapError(
+                                "dobuzz()'s Rider resurrection arm",
+                            );
+                        }
+                        if (mon.data === state.mons?.[PM_DEATH]
+                            && damgtype === ZT_DEATH) {
+                            // PM_DEATH absorbs the deadly ray/blast. Not
+                            // exercised by any ported witness.
+                            throw new UnsupportedZapError(
+                                "dobuzz()'s PM_DEATH absorption arm",
+                            );
+                        }
+
+                        if (tmp === 1000 /* MAGIC_COOKIE */) {
+                            // disintegrate_mon(). Not exercised.
+                            throw new UnsupportedZapError(
+                                'disintegrate_mon() in dobuzz() monster arm',
+                            );
+                        } else if (mon.mhp < 1) { /* DEADMONSTER */
+                            const killEnv = {
+                                state,
+                                random,
+                                message: ttyPline,
+                                unsupported: (what) => {
+                                    throw new UnsupportedZapError(
+                                        `monster kill path: ${what}`,
+                                    );
+                                },
+                            };
+                            if (type < 0) {
+                                /* killed by another monster */
+                                await monkilled(mon,
+                                    flash_str(fltyp, false, state),
+                                    AD_RBRE, state, killEnv);
+                            } else {
+                                let xkflags = XKILL_GIVEMSG; /* killed(mon) */
+                                /* fire on highly flammable monsters: no corpse */
+                                if (damgtype === ZT_FIRE
+                                    && completelyburns(mon.data))
+                                    xkflags |= XKILL_NOCORPSE;
+                                await xkilled(mon, xkflags, state, killEnv);
+                            }
+                        } else {
+                            if (!otmp) {
+                                /* normal non-fatal hit */
+                                if (sayhit || canseemon(mon, state))
+                                    await hit(flash_str(fltyp, false, state),
+                                        mon, exclam(tmp), state);
+                            } else {
+                                /* some armor was destroyed; no damage done */
+                                // disintegration armor destruction. Not exercised.
+                                throw new UnsupportedZapError(
+                                    'armor disintegration in dobuzz() monster arm',
+                                );
+                            }
+                            if (mon_could_move && !mon.mcanmove) { /* ZT_SLEEP */
+                                // slept_monst() releases a sleeping grabber.
+                                throw new UnsupportedZapError(
+                                    'slept_monst() in dobuzz() monster arm',
+                                );
+                            }
+                            if (damgtype !== ZT_SLEEP)
+                                await wakeup(mon, type >= 0, { state });
+                        }
+                    }
+                    range -= 2;
+                } else {
+                    if (saymiss
+                        || (canseemon(mon, state)
+                            && !(mon.m_ap_type
+                                 && (mon.m_ap_type & 0x7) !== 2 /* M_AP_MONSTER */)))
+                        await miss(flash_str(fltyp, false, state), mon, state);
+                }
             } else if (u_at(sx, sy, state) && range >= 0) {
                 nomul(0, state);
                 if (state.u.usteed) {
@@ -1595,8 +1869,6 @@ export async function dobuzz(
         );
     }
     state.gb.bhitpos = save_bhitpos;
-    void sayhit;
-    void saymiss;
 }
 
 // C ref: zap.c ubuzz() (4758-4762). The hero's own ray, fired from their own
@@ -1604,7 +1876,7 @@ export async function dobuzz(
 // an explicit origin, for the monsters and traps that fire one; none of its
 // callers is ported, so it has no port here.
 export async function ubuzz(
-    type, nd, state = game, random = { d, rn1, rn2, rnd, rne, rnl },
+    type, nd, state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz },
 ) {
     return dobuzz(
         type, nd, state.u.ux, state.u.uy, state.u.dx, state.u.dy,
@@ -1616,7 +1888,7 @@ export async function ubuzz(
 // breath attack against self (direction '.').  Delegates to zhitu() with the
 // hero-breath type offset and the hero's own coordinates.
 export async function ubreatheu(
-    mattk, state = game, random = { d, rn1, rn2, rnd, rne, rnl },
+    mattk, state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz },
 ) {
     // C: int dtyp = 20 + mattk->adtyp - 1;  /* breath by hero */
     const dtyp = 20 + mattk.adtyp - 1;
@@ -1660,7 +1932,7 @@ export async function zapnodir(obj, state = game) {
 // :1480 BZ_U_WAND(bztyp) is `0 + bztyp`, so the six ray wands become dobuzz()
 // types 0..5 in the order objects.h:1488 lists them.
 export async function weffects(
-    obj, state = game, random = { d, rn1, rn2, rnd, rne, rnl },
+    obj, state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz },
 ) {
     const otyp = obj.otyp;
     let disclose = false;

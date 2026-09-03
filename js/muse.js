@@ -24,9 +24,12 @@ import {
     TELEP_TRAP,
     SEE_INVIS,
     W_ACCESSORY,
+    W_AMUL,
+    W_ARM,
     W_ARMOR,
     W_ARMF,
     W_ARMG,
+    W_ARMS,
     W_SADDLE,
     helpless,
     is_hole,
@@ -49,8 +52,9 @@ import {
     sobj_at,
 } from './obj.js';
 import * as O from './objects.js';
+import { monsterCommonName } from './do_name.js';
 import { donameFresh, singular } from './objnam.js';
-import { observe_object } from './o_init.js';
+import { discover_object, observe_object } from './o_init.js';
 import { monnear, onscary } from './monmove.js';
 import { lined_up } from './mthrowu.js';
 import { in_your_sanctuary } from './priest.js';
@@ -58,6 +62,8 @@ import { rn2 } from './rng.js';
 import { stairway_at } from './stairs.js';
 import { messageAt } from './startup_a11y.js';
 import { t_at } from './trap.js';
+import { s_suffix } from './hacklib.js';
+import { ttyPline } from './tty_message.js';
 import { cansee } from './vision.js';
 import { mwelded } from './wield.js';
 import { which_armor } from './worn.js';
@@ -757,4 +763,65 @@ export function searches_for_item(monster, obj, state = game) {
     default:
         return false;
     }
+}
+
+// C ref: muse.c mon_reflects() (2797-2833). Checks whether a monster reflects
+// a ray. When `str` is non-null and reflection is found, prints a message of
+// the form "But it reflects from <mon's> <item>!" and discovers the object
+// where applicable. When `str` is null, just returns the boolean.
+//
+// arti_reflects(MON_WEP(mon)) checks whether a wielded artifact weapon
+// reflects. No ported monster wields such an artifact, so the arm is a throw.
+export async function mon_reflects(mon, str, state = game) {
+    let orefl = which_armor(mon, W_ARMS, state);
+
+    if (orefl && orefl.otyp === O.SHIELD_OF_REFLECTION) {
+        if (str) {
+            const msg = str.replace('%s', s_suffix(monsterCommonName(mon, state)))
+                .replace('%s', 'shield');
+            await ttyPline(msg, state);
+            // makeknown(SHIELD_OF_REFLECTION)
+            discover_object(O.SHIELD_OF_REFLECTION, true, true, true, state);
+        }
+        return true;
+    }
+    // arti_reflects(MON_WEP(mon)) -- wielded artifact reflection
+    const monwep = mon.mw; /* MON_WEP() */
+    if (monwep && monwep.oartifact) {
+        // No ported monster wields an artifact that reflects.
+        throw new Error(
+            'mon_reflects() reached arti_reflects() for a wielded artifact',
+        );
+    }
+    orefl = which_armor(mon, W_AMUL, state);
+    if (orefl && orefl.otyp === O.AMULET_OF_REFLECTION) {
+        if (str) {
+            const msg = str.replace('%s', s_suffix(monsterCommonName(mon, state)))
+                .replace('%s', 'amulet');
+            await ttyPline(msg, state);
+            discover_object(O.AMULET_OF_REFLECTION, true, true, true, state);
+        }
+        return true;
+    }
+    orefl = which_armor(mon, W_ARM, state);
+    if (orefl && (orefl.otyp === O.SILVER_DRAGON_SCALES
+                  || orefl.otyp === O.SILVER_DRAGON_SCALE_MAIL)) {
+        if (str) {
+            const msg = str.replace('%s', s_suffix(monsterCommonName(mon, state)))
+                .replace('%s', 'armor');
+            await ttyPline(msg, state);
+        }
+        return true;
+    }
+    if (mon.data === state.mons?.[M.PM_SILVER_DRAGON]
+        || mon.data === state.mons?.[M.PM_CHROMATIC_DRAGON]) {
+        /* Silver dragons only reflect when mature; babies do not */
+        if (str) {
+            const msg = str.replace('%s', s_suffix(monsterCommonName(mon, state)))
+                .replace('%s', 'scales');
+            await ttyPline(msg, state);
+        }
+        return true;
+    }
+    return false;
 }
