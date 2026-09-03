@@ -8697,6 +8697,23 @@
         "screens": 1,
         "rng": 0
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-21",
+      "status": "open",
+      "boundary": "reading requires the selected readable object branch",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "4449857e62e00d7dbc1f16d133cc254291f59faf",
+      "openStanding": {
+        "sha": "1be3f063",
+        "screens": 4339,
+        "rng": 276600
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
