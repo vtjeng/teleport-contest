@@ -137,7 +137,7 @@ import {
 import { m_at } from './monst.js';
 import {
     carried, hasContents, isBox, isContainer, obj_no_longer_held,
-    remove_object, set_bknown, splitobj, weight,
+    remove_object, set_bknown, splitobj, unsplitobj, weight,
 } from './obj.js';
 import { get_obj_location } from './light.js';
 import { observe_object } from './o_init.js';
@@ -240,6 +240,23 @@ export function observe_pickup_object(obj, state = game) {
 // addinv_core0() and must not be used to delay this mutation.
 export function reset_justpicked(head) {
     for (let obj = head; obj; obj = obj.nobj) obj.pickup_prev = false;
+}
+
+// C ref: pickup.c count_justpicked() (635-645). Counts objects in a list
+// whose pickup_prev flag is set, indicating they were just picked up.
+function count_justpicked(olist) {
+    let cnt = 0;
+    for (let obj = olist; obj; obj = obj.nobj)
+        if (obj.pickup_prev) cnt++;
+    return cnt;
+}
+
+// C ref: pickup.c find_justpicked() (647-657). Returns the first object in
+// a list whose pickup_prev flag is set, or null.
+function find_justpicked(olist) {
+    for (let obj = olist; obj; obj = obj.nobj)
+        if (obj.pickup_prev) return obj;
+    return null;
 }
 
 function heroHasProperty(state, property) {
@@ -1656,9 +1673,7 @@ export async function use_container(obj, held, more_containers, state) {
             if (state.flags?.menu_style === MENU_TRADITIONAL) {
                 used |= await traditional_loot(true, state);
             } else {
-                throw new UnsupportedPickupError(
-                    'use_container: menu_loot(0, true)',
-                );
+                used |= (await menu_loot(0, true, state)) > 0;
             }
             add_valid_menu_class(0, state);
         } else if (stash_one) {
@@ -1694,9 +1709,7 @@ export async function use_container(obj, held, more_containers, state) {
                 if (state.flags?.menu_style === MENU_TRADITIONAL) {
                     used |= await traditional_loot(false, state);
                 } else {
-                    throw new UnsupportedPickupError(
-                        'use_container: menu_loot(0, false) out-after-in',
-                    );
+                    used |= (await menu_loot(0, false, state)) > 0;
                 }
                 add_valid_menu_class(0, state);
             }
@@ -2628,34 +2641,42 @@ async function traditional_loot(put_in, state) {
     return ECMD_OK;
 }
 
-// C ref: pickup.c:3265-3394. Full-menu take-out from the current floor
-// container: choose category filters, choose objects, then remove the chosen
-// stacks in menu order.  The put-in, retry, and just-picked special arms are
-// intentionally left at their existing fail-closed callers; this slice is
-// only the ordinary out-only path.
+// C ref: pickup.c:3265-3394. Full-menu interface for moving items into or out
+// of the current container. When put_in is false, items are taken out; when
+// true, items from inventory are put in.
+//
+// Three post-category branches: (1) autopick via 'A', (2) justpicked
+// single-item shortcut when exactly one just-picked item exists, (3) manual
+// query_objlist selection. The else branch (3) calls unsplitobj to merge
+// back a count-split item when in_container/out_container rejects it.
 export async function menu_loot(retry, put_in, state = game) {
-    if (put_in) {
-        throw new UnsupportedPickupError('menu_loot(0, true)');
-    }
     if (!state.gc?.current_container) {
         throw new Error('<menu_loot> no gc.current_container?');
     }
+
+    const action = put_in ? 'Put in' : 'Take out';
 
     state.gp ??= {};
     state.gp.pickup_encumbrance = 0;
     let all_categories = true;
     let loot_everything = false;
     let autopick = false;
+    let loot_justpicked = false;
+    let count = 0;
     let n_looted = 0;
 
+    // C: 3279-3312. Category selection.
     if (retry) {
         all_categories = retry === ALL_TYPES_SELECTED;
     } else if (state.flags?.menu_style === MENU_FULL) {
         all_categories = false;
-        const title = 'Take out what type of objects?';
+        const title = `${action} what type of objects?`;
+        const sourceList = put_in
+            ? state.invent
+            : state.gc.current_container.cobj;
         const category = await query_category(
             title,
-            state.gc.current_container.cobj,
+            sourceList,
             ALL_TYPES | UNPAID_TYPES | BUCX_TYPES | CHOOSE_ALL | JUSTPICKED,
             state,
         );
@@ -2665,6 +2686,12 @@ export async function menu_loot(retry, put_in, state = game) {
             if (choice.value === 'A') {
                 loot_everything = true;
                 autopick = true;
+            } else if (put_in && choice.value === 'P') {
+                // C: 3299-3303. 'P' (JUSTPICKED) category is put-in only.
+                loot_justpicked = true;
+                count = Math.max(0, choice.count);
+                add_valid_menu_class(choice.value, state);
+                loot_everything = false;
             } else if (choice.value === ALL_TYPES_SELECTED) {
                 all_categories = true;
             } else {
@@ -2674,37 +2701,81 @@ export async function menu_loot(retry, put_in, state = game) {
         }
     }
 
+    // C: 3314-3341. Autopick branch.
     if (autopick) {
-        state.gc.current_container.cknown = 1;
-        let obj = state.gc.current_container.cobj;
+        let inout_func, firstobj;
+        if (!put_in) {
+            state.gc.current_container.cknown = 1;
+            inout_func = out_container;
+            firstobj = state.gc.current_container.cobj;
+        } else {
+            inout_func = in_container;
+            firstobj = state.invent;
+        }
+        let obj = firstobj;
         while (obj && state.gc.current_container) {
             const next = obj.nobj;
-            if (loot_everything || all_categories || allow_category(obj, state)) {
-                const result = await out_container(obj, state);
-                if (result < 0) break;
-                // C counts a successful removal, including each stack.
-                if (result > 0) n_looted++;
+            if (loot_everything || all_categories
+                || allow_category(obj, state)) {
+                const res = await inout_func(obj, state);
+                if (res < 0) break;
+                n_looted += res;
             }
             obj = next;
         }
+    } else if (put_in && loot_justpicked
+               && count_justpicked(state.invent) === 1) {
+        // C: 3342-3352. Single just-picked item shortcut.
+        const otmp = find_justpicked(state.invent);
+        if (otmp) {
+            n_looted = 1;
+            let toStash = otmp;
+            if (count > 0 && count < otmp.quan)
+                toStash = splitobj(otmp, count, { state });
+            await in_container(toStash, state);
+            // Return value does not matter; container may have exploded.
+        }
     } else {
-        state.gc.current_container.cknown = 1;
+        // C: 3353-3391. Manual selection via query_objlist.
+        let mflags = INVORDER_SORT | INCLUDE_VENOM;
+        if (put_in && state.flags?.invlet_constant)
+            mflags |= USE_INVLET;
+        if (put_in && loot_justpicked)
+            mflags |= JUSTPICKED;
+        if (!put_in)
+            state.gc.current_container.cknown = 1;
+
+        const sourceList = put_in
+            ? state.invent
+            : state.gc.current_container.cobj;
         const result = await query_objlist(
-            state.gc.current_container.cobj,
-            INVORDER_SORT | INCLUDE_VENOM,
+            sourceList,
+            mflags,
             all_categories ? allow_all : allow_category,
             state,
-            'Take out what?',
+            `${action} what?`,
         );
         if (result.n) {
             n_looted = result.n;
             for (const choice of result.pick_list) {
                 let obj = choice.obj;
-                const count = choice.count;
-                if (count > 0 && count < obj.quan)
-                    obj = splitobj(obj, count, { state });
-                const removed = await out_container(obj, state);
-                if (removed < 0) break;
+                const origObj = obj;
+                const cnt = choice.count;
+                if (cnt > 0 && cnt < obj.quan)
+                    obj = splitobj(obj, cnt, { state });
+                const res = put_in
+                    ? await in_container(obj, state)
+                    : await out_container(obj, state);
+                if (res <= 0) {
+                    if (!state.gc.current_container) {
+                        // Container exploded; both obj and container are gone.
+                        break;
+                    } else if (obj && obj !== origObj) {
+                        // Split occurred but action rejected; merge back.
+                        unsplitobj(obj, { state });
+                    }
+                    if (res < 0) break;
+                }
             }
         }
     }

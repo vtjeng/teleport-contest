@@ -50,7 +50,7 @@ import {
     PM_KOBOLD_ZOMBIE,
     PM_LICHEN,
 } from '../js/monsters.js';
-import { mksobj_at } from '../js/obj.js';
+import { mksobj_at, splitobj, unsplitobj, clear_splitobjs } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { addinv, obj_extract_self } from '../js/invent.js';
 import { make_engr_at } from '../js/engrave.js';
@@ -71,6 +71,7 @@ import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {
     COIN_CLASS,
     CORPSE,
+    ELVEN_ARROW,
     ELVEN_DAGGER,
     FIGURINE,
     LEATHER_GLOVES,
@@ -1641,4 +1642,95 @@ test('the interactive arm leaves the engraving unread', async () => {
     assert.equal(await pickup(0, state), 1);
     assert.equal(object.where, OBJ_INVENT);
     assert.match(state._ttyToplines ?? '', /elven dagger/u);
+});
+
+// ---------------------------------------------------------------
+// unsplitobj
+// C ref: mkobj.c unsplitobj() (556-622). Merges back a child created by
+// splitobj() using the objsplit context.
+// ---------------------------------------------------------------
+
+// C: unsplitobj() finds the parent via context.objsplit and calls merged()
+// to recombine the quantities. After the merge the child is freed (OBJ_FREE
+// or OBJ_DELETED) and the parent holds the original total.
+test('unsplitobj merges split inventory objects back together', async () => {
+    // Set up a running game to get state.objects for mergable().
+    const state = await heroOnAnEmptySquare();
+
+    // Create an inventory item with quan 5 (arrows are oc_merge:1).
+    const arrow = {
+        ...state.invent,
+        otyp: ELVEN_ARROW,
+        oclass: WEAPON_CLASS,
+        o_id: 80_001,
+        quan: 5,
+        owt: 5,
+        spe: 0,
+        where: OBJ_INVENT,
+        nobj: null,
+        cursed: false,
+        blessed: false,
+        unpaid: false,
+        no_charge: false,
+        obroken: false,
+        otrapped: false,
+        lamplit: false,
+        timed: 0,
+        owornmask: 0,
+        nomerge: false,
+        how_lost: 0,
+        globby: false,
+        oextra: null,
+        pickup_prev: false,
+        lua_ref_cnt: 0,
+    };
+    state.gi ??= {};
+    state.invent = arrow;
+    state.context ??= {};
+
+    // Split off 2 from the stack of 5. splitobj sets context.objsplit.
+    const child = splitobj(arrow, 2, { state });
+    assert.equal(arrow.quan, 3, 'parent retains 3 after split');
+    assert.equal(child.quan, 2, 'child receives 2 from split');
+    assert.equal(child.where, OBJ_INVENT, 'child inherits where');
+    // child is inserted as arrow.nobj by splitobj.
+    assert.equal(arrow.nobj, child);
+
+    // unsplitobj should find both halves and merge them.
+    const result = unsplitobj(child, { state });
+    assert.ok(result, 'unsplitobj returns the merged parent');
+    assert.equal(result, arrow, 'merged result is the parent');
+    assert.equal(arrow.quan, 5, 'parent quantity restored to 5');
+});
+
+// C: unsplitobj() returns null for OBJ_FREE objects since it cannot
+// determine which list to scan (mkobj.c:570-576).
+test('unsplitobj returns null for OBJ_FREE objects', async () => {
+    const state = await heroOnAnEmptySquare();
+    const obj = {
+        ...state.invent,
+        o_id: 80_010,
+        where: OBJ_FREE,
+        nobj: null,
+    };
+    state.context ??= {};
+    state.context.objsplit = { parent_oid: 80_010, child_oid: 80_011 };
+
+    assert.equal(unsplitobj(obj, { state }), null);
+});
+
+// C: unsplitobj() returns null when context.objsplit has no matching oids.
+test('unsplitobj returns null when objsplit context is empty', async () => {
+    const state = await heroOnAnEmptySquare();
+    const obj = {
+        ...state.invent,
+        o_id: 80_020,
+        where: OBJ_INVENT,
+        nobj: null,
+    };
+    state.gi ??= {};
+    state.invent = obj;
+    clear_splitobjs(state);
+
+    assert.equal(unsplitobj(obj, { state }), null);
 });

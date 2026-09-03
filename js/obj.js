@@ -21,12 +21,14 @@ import {
     MAX_OIL_IN_FLASK,
     NON_PM,
     OBJ_BURIED,
+    OBJ_CONTAINED,
     OBJ_DELETED,
     OBJ_FLOOR,
     OBJ_FREE,
     OBJ_INVENT,
     OBJ_LUAFREE,
     OBJ_MINVENT,
+    OBJ_ONBILL,
     P_AXE,
     P_BOOMERANG,
     P_BOW,
@@ -51,7 +53,7 @@ import { noveltitle } from './do_name.js';
 import { depth, level_difficulty, on_level } from './dungeon.js';
 import { set_tin_variety } from './eat.js';
 import { game } from './gstate.js';
-import { update_inventory } from './invent.js';
+import { merged, update_inventory } from './invent.js';
 import { obj_sheds_light } from './light.js';
 import { rndmonnum } from './makemon.js';
 import {
@@ -639,6 +641,67 @@ export function splitobj(obj, quantity, env = {}) {
     if (splitLight)
         normalized.hooks.splitObjectLight(obj, child, normalized);
     return child;
+}
+
+// C ref: mkobj.c unsplitobj() (556-622). Undoes a prior splitobj() by merging
+// the child back into the parent using the objsplit context. Returns the
+// combined object when the merge succeeds, or null.
+export function unsplitobj(obj, env = {}) {
+    const normalized = objectEnv(env);
+    const state = normalized.state;
+
+    // Only operates on objects in inventory, monster inventory, or containers.
+    // C: 569-586.
+    let list;
+    switch (obj.where) {
+    case OBJ_FREE:
+    case OBJ_FLOOR:
+    case OBJ_ONBILL:
+    // OBJ_MIGRATING and OBJ_BURIED also return null in C.
+    default:
+        return null;
+    case OBJ_INVENT:
+        list = state.invent;
+        break;
+    case OBJ_MINVENT:
+        list = obj.ocarry?.minvent ?? null;
+        break;
+    case OBJ_CONTAINED:
+        list = obj.ocontainer?.cobj ?? null;
+        break;
+    }
+
+    const split = state.context?.objsplit;
+    if (!split) return null;
+
+    let oparent = null;
+    let ochild = null;
+    let target_oid = 0;
+
+    // C: 589-601. Identify parent and child from the objsplit context.
+    if (obj.o_id === split.child_oid) {
+        ochild = obj;
+        target_oid = split.parent_oid;
+        if (obj.nobj && obj.nobj.o_id === target_oid)
+            oparent = obj.nobj;
+    } else if (obj.o_id === split.parent_oid) {
+        oparent = obj;
+        target_oid = split.child_oid;
+        if (obj.nobj && obj.nobj.o_id === target_oid)
+            ochild = obj.nobj;
+    }
+
+    // C: 604-618. Scan the list for the missing half.
+    if (ochild && !oparent) {
+        for (let cur = list; cur; cur = cur.nobj)
+            if (cur.o_id === target_oid) { oparent = cur; break; }
+    } else if (oparent && !ochild) {
+        for (let cur = list; cur; cur = cur.nobj)
+            if (cur.o_id === target_oid) { ochild = cur; break; }
+    }
+
+    // C: 621. Merge if both halves were found.
+    return (oparent && ochild && merged(oparent, ochild, env)) ? oparent : null;
 }
 
 // C ref: mkobj.c next_ident(). Object and monster ids share context.ident.
