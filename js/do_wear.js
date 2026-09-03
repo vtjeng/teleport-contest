@@ -287,7 +287,7 @@ import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { Glib, welded } from './wield.js';
-import { bimanual, setuswapwep, setworn } from './worn.js';
+import { bimanual, setnotworn, setuswapwep, setworn } from './worn.js';
 
 // Raised where do_wear.c reaches a branch this port has not translated.
 // js/cmd.js failClosedCommandRefusals() lists it, so the segment keeps every
@@ -677,6 +677,101 @@ export async function Ring_on(obj, state = game) {
             find_ac(state); /* updates botl */
         break;
     }
+}
+
+// C ref: do_wear.c Ring_off_or_gone() (1347-1446). Called by Ring_off()
+// (gone=false, setworn) and Ring_gone() (gone=true, setnotworn). The switch
+// mirrors Ring_on() with the inverse operation for each ring type.
+//
+// Arms ported: the sixteen no-op types, gain strength/constitution/adornment
+// (adjust_attrib with negative spe), increase accuracy/damage (uhitinc/
+// udaminc), and protection (learnring + find_ac). Unported arms throw
+// UnsupportedTakeOffError so the segment ends cleanly.
+function Ring_off_or_gone(obj, gone, state = game) {
+    const mask = obj.owornmask & W_RING;
+    takeoffContext(state).mask &= ~mask;
+    if (!(state.u.uprops[objectType(obj, state).oc_oprop]?.extrinsic & mask)) {
+        // impossible("Strange... I didn't know you had that ring.");
+    }
+    if (gone)
+        setnotworn(obj, setwornEnv(state));
+    else
+        setworn(null, obj.owornmask, setwornEnv(state));
+
+    switch (obj.otyp) {
+    case RIN_TELEPORTATION:
+    case RIN_REGENERATION:
+    case RIN_SEARCHING:
+    case RIN_HUNGER:
+    case RIN_AGGRAVATE_MONSTER:
+    case RIN_POISON_RESISTANCE:
+    case RIN_FIRE_RESISTANCE:
+    case RIN_COLD_RESISTANCE:
+    case RIN_SHOCK_RESISTANCE:
+    case RIN_CONFLICT:
+    case RIN_TELEPORT_CONTROL:
+    case RIN_POLYMORPH:
+    case RIN_POLYMORPH_CONTROL:
+    case RIN_FREE_ACTION:
+    case RIN_SLOW_DIGESTION:
+    case RIN_SUSTAIN_ABILITY:
+    case MEAT_RING:
+        break;
+    case RIN_STEALTH:
+        throw new UnsupportedTakeOffError(
+            `toggle_stealth() for Ring_off otyp ${obj.otyp}`,
+        );
+    case RIN_WARNING:
+        // see_monsters() redraws; the extrinsic change is already done.
+        throw new UnsupportedTakeOffError(
+            `see_monsters() for Ring_off otyp ${obj.otyp}`,
+        );
+    case RIN_SEE_INVISIBLE:
+        throw new UnsupportedTakeOffError(
+            `set_mimic_blocking() + see_monsters() for Ring_off otyp ${obj.otyp}`,
+        );
+    case RIN_INVISIBILITY:
+        throw new UnsupportedTakeOffError(
+            `invisibility newsym for Ring_off otyp ${obj.otyp}`,
+        );
+    case RIN_LEVITATION:
+        throw new UnsupportedTakeOffError(
+            `float_down() for Ring_off otyp ${obj.otyp}`,
+        );
+    case RIN_GAIN_STRENGTH:
+        adjust_attrib(obj, A_STR, -obj.spe, state);
+        break;
+    case RIN_GAIN_CONSTITUTION:
+        adjust_attrib(obj, A_CON, -obj.spe, state);
+        break;
+    case RIN_ADORNMENT:
+        adjust_attrib(obj, A_CHA, -obj.spe, state);
+        break;
+    case RIN_INCREASE_ACCURACY:
+        state.u.uhitinc -= obj.spe;
+        break;
+    case RIN_INCREASE_DAMAGE:
+        state.u.udaminc -= obj.spe;
+        break;
+    case RIN_PROTECTION: {
+        const observable = (obj.spe !== 0);
+        learnring(obj, observable, state);
+        if (obj.spe)
+            find_ac(state);
+        break;
+    }
+    case RIN_PROTECTION_FROM_SHAPE_CHAN:
+        throw new UnsupportedTakeOffError(
+            `restartcham() for Ring_off otyp ${obj.otyp}`,
+        );
+    }
+}
+
+// C ref: do_wear.c Ring_gone() (1455-1458). Removes a ring that is leaving the
+// hero's possession entirely (theft, destruction); uses setnotworn() rather
+// than setworn(null, mask).
+export function Ring_gone(obj, state = game) {
+    Ring_off_or_gone(obj, true, state);
 }
 
 // Raised where Amulet_on() or Blindf_on() reaches a branch this port has not

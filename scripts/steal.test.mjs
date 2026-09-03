@@ -933,3 +933,138 @@ test('a monster release needs an unsupported operation', async () => {
         /monster object release requires an unsupported operation/u,
     );
 });
+
+// Ring_gone tests: C ref: do_wear.c Ring_off_or_gone() (1347-1446).
+// Ring_gone is the gone=true path: setnotworn() is called instead of setworn(),
+// and the ring-type-specific side effect runs.
+
+import { Ring_gone } from '../js/do_wear.js';
+import {
+    OBJECT_TEMPLATES,
+    RIN_PROTECTION,
+    RIN_INCREASE_ACCURACY,
+    RIN_INCREASE_DAMAGE,
+    RIN_COLD_RESISTANCE,
+} from '../js/objects.js';
+import { A_CHA, LEFT_RING, RIGHT_RING, W_RING, W_RINGL, W_RINGR } from '../js/const.js';
+
+function ringTestState() {
+    // OBJECT_TEMPLATES is pre-frozen; it has each ring type's oc_oprop,
+    // which is what Ring_off_or_gone reads to verify the extrinsic. No
+    // RNG initialization needed.
+    //
+    // uprops is initialized as an array covering all 60 property indices;
+    // setnotworn()'s property() accessor throws for a missing index, and
+    // recalc_telepat_range reads TELEPAT (30). Each entry starts with zero
+    // intrinsic/extrinsic/blocked so the ring's property can be set by the
+    // test.
+    const uprops = [];
+    for (let i = 0; i < 60; i++) {
+        uprops[i] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    }
+    const s = {
+        u: {
+            ux: 5, uy: 5,
+            uhitinc: 0,
+            udaminc: 0,
+            abon: { a: [0, 0, 0, 0, 0, 0, 0] },
+            uprops,
+            unblind_telepat_range: -1,
+        },
+        uwep: null,
+        uswapwep: null,
+        uquiver: null,
+        uleft: null,
+        uright: null,
+        uarm: null,
+        uarmc: null,
+        uarmf: null,
+        uarmg: null,
+        uarmh: null,
+        uarms: null,
+        uarmu: null,
+        invent: null,
+        flags: {},
+        iflags: {},
+        disp: { botl: false },
+        objects: [...OBJECT_TEMPLATES],
+        level: { at: () => ({ roomno: 0 }) },
+    };
+    return s;
+}
+
+test('Ring_gone for RIN_PROTECTION clears the worn mask', () => {
+    // Ring of protection: Ring_gone calls setnotworn(), then runs the
+    // RIN_PROTECTION arm which calls learnring(observable) and find_ac()
+    // when spe != 0. C ref: do_wear.c:1430-1437.
+    //
+    // spe is 0 so learnring's observable is false, and dknown is false
+    // so neither discover_object() nor observe_object() runs; both need
+    // the discovery list initialized, which is too heavy for a unit test.
+    const s = ringTestState();
+    const ring = object({
+        otyp: RIN_PROTECTION,
+        oclass: 33, /* RING_CLASS constant value */
+        owornmask: W_RINGR,
+        spe: 0,
+        in_use: 0,
+        known: false,
+        dknown: false,
+    });
+    // Set up the extrinsic so Ring_off_or_gone's sanity check passes.
+    const oc_oprop = OBJECT_TEMPLATES[RIN_PROTECTION].oc_oprop;
+    s.u.uprops[oc_oprop] = { extrinsic: W_RINGR };
+    s.uright = ring;
+
+    Ring_gone(ring, s);
+
+    // After Ring_gone, the owornmask should be cleared by setnotworn().
+    assert.equal(ring.owornmask, 0,
+        'owornmask cleared by setnotworn()');
+    // uright should be cleared by setnotworn().
+    assert.equal(s.uright, null,
+        'uright cleared by setnotworn()');
+});
+
+test('Ring_gone for RIN_INCREASE_ACCURACY decrements uhitinc', () => {
+    // C ref: do_wear.c:1424-1425. u.uhitinc -= obj->spe.
+    const s = ringTestState();
+    s.u.uhitinc = 3;
+    const ring = object({
+        otyp: RIN_INCREASE_ACCURACY,
+        oclass: 33,
+        owornmask: W_RINGL,
+        spe: 2,
+        in_use: 0,
+    });
+    const oc_oprop = OBJECT_TEMPLATES[RIN_INCREASE_ACCURACY].oc_oprop;
+    s.u.uprops[oc_oprop] = { extrinsic: W_RINGL };
+    s.uleft = ring;
+
+    Ring_gone(ring, s);
+
+    // uhitinc should decrease by spe (3 - 2 = 1).
+    assert.equal(s.u.uhitinc, 1,
+        'uhitinc decremented by ring spe');
+});
+
+test('Ring_gone for RIN_COLD_RESISTANCE (no-op type) clears mask only', () => {
+    // Sixteen ring types have no side effect beyond the extrinsic that
+    // setnotworn() clears. C ref: do_wear.c:1361-1378.
+    const s = ringTestState();
+    const ring = object({
+        otyp: RIN_COLD_RESISTANCE,
+        oclass: 33,
+        owornmask: W_RINGR,
+        spe: 0,
+        in_use: 0,
+    });
+    const oc_oprop = OBJECT_TEMPLATES[RIN_COLD_RESISTANCE].oc_oprop;
+    s.u.uprops[oc_oprop] = { extrinsic: W_RINGR };
+    s.uright = ring;
+
+    Ring_gone(ring, s);
+
+    assert.equal(ring.owornmask, 0, 'owornmask cleared');
+    assert.equal(s.uright, null, 'uright cleared');
+});

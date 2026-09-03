@@ -60,7 +60,10 @@ import {
 import { carrying, update_inventory } from './invent.js';
 import {
     gender,
+    humanoid,
+    is_animal,
     is_mplayer,
+    mindless,
     pronoun_gender,
     type_is_pname,
 } from './mondata.js';
@@ -517,18 +520,20 @@ function x_monnam_do_it(monster, article, suppress, state) {
         && !(suppress & SUPPRESS_IT);
 }
 
-// C ref: do_name.c x_monnam()'s do_it arm (876-885). augment_it is the one
-// thing that makes it answer anything but "it", and no caller here raises it:
-// do_name.c some_mon_nam() (1064-1071) and Some_Monnam() (1092-1098) are its
-// only sources, and both are unported. Its hallucinating half draws rn2(2),
-// so admitting it without a caller would put an unspent call in the port.
-function x_monnam_it(suppress) {
-    if (suppress & AUGMENT_IT) {
-        throw new UnsupportedMonsterNameError(
-            "x_monnam()'s AUGMENT_IT arm",
-        );
-    }
-    return 'it';
+// C ref: do_name.c x_monnam()'s do_it arm (876-885). When AUGMENT_IT is set,
+// the result is "someone" for humanoids or "something" for others, rather than
+// the bare "it". Hallucination inverts with rn2(2).
+function x_monnam_it(suppress, monster, state, env = {}) {
+    if (!(suppress & AUGMENT_IT))
+        return 'it';
+    const mdat = monster.data;
+    const s_one = humanoid(mdat) && !is_animal(mdat) && !mindless(mdat);
+    const hallucinating = namingPropertyActive(state, HALLUC)
+        && !namingPropertyActive(state, HALLUC_RES);
+    const displayRandom = env.displayRandom ?? rn2_on_display_rng;
+    if ((!hallucinating ? s_one : !displayRandom(2)))
+        return 'someone';
+    return 'something';
 }
 
 // C ref: do_name.c mon_nam() (1041-1046) over x_monnam(), early
@@ -563,7 +568,7 @@ export function monsterCommonName(
     // mon_nam() always passes ARTICLE_THE, so the article term is constantly
     // true here and SUPPRESS_IT is the only term a wrapper can move.
     if (x_monnam_do_it(monster, ARTICLE_THE, suppress, state))
-        return x_monnam_it(suppress);
+        return x_monnam_it(suppress, monster, state, env);
     const hallucinating = namingPropertyActive(state, HALLUC)
         && !namingPropertyActive(state, HALLUC_RES);
     if (hallucinating) {
@@ -594,6 +599,35 @@ export function monsterCommonName(
 
 export function capitalizedMonsterName(monster, state = game) {
     const name = monsterCommonName(monster, state);
+    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+}
+
+// C ref: do_name.c some_mon_nam() (1064-1071). Like mon_nam() but when the
+// monster cannot be spotted, answers "someone" or "something" via AUGMENT_IT
+// instead of "it".
+function some_mon_nam(monster, state = game, env = {}) {
+    const hasGivenName = !!(monster.mextra?.mgivenname
+        || monster.mgivenname);
+    const suppress = hasGivenName
+        ? (SUPPRESS_SADDLE | AUGMENT_IT)
+        : AUGMENT_IT;
+    return x_monnam(monster, ARTICLE_THE, null, suppress, false, state, env);
+}
+
+// C ref: do_name.c Some_Monnam() (1092-1098). Capitalized some_mon_nam().
+export function Some_Monnam(monster, state = game, env = {}) {
+    const name = some_mon_nam(monster, state, env);
+    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+}
+
+// C ref: do_name.c Adjmonnam() (1142-1149). "The <adj> <monster>".
+export function Adjmonnam(monster, adj, state = game, env = {}) {
+    const hasGivenName = !!(monster.mextra?.mgivenname
+        || monster.mgivenname);
+    const suppress = hasGivenName ? SUPPRESS_SADDLE : 0;
+    const name = x_monnam(
+        monster, ARTICLE_THE, adj, suppress, false, state, env,
+    );
     return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
 }
 
@@ -687,7 +721,7 @@ export function x_monnam(
 
     // do_name.c:876-885, above the priest and minion block C reaches next.
     if (x_monnam_do_it(monster, effectiveArticle, effectiveSuppress, state))
-        return x_monnam_it(effectiveSuppress);
+        return x_monnam_it(effectiveSuppress, monster, state, env);
 
     const do_saddle = !(effectiveSuppress & SUPPRESS_SADDLE);
     const do_mappear = ((monster.m_ap_type ?? 0) & M_AP_TYPMASK)

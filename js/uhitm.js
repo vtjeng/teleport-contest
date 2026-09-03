@@ -13,13 +13,18 @@ import {
     A_DEX,
     A_LAWFUL,
     A_STR,
+    BLINDED,
     CONFUSION,
+    DEAF,
     HALLUC,
     HALLUC_RES,
     HMON_APPLIED,
     HMON_MELEE,
     IS_DOOR,
+    M_ATTK_AGR_DIED,
+    M_ATTK_AGR_DONE,
     M_ATTK_HIT,
+    RLOC_MSG,
     M_SEEN_ELEC,
     NATTK,
     P_BARE_HANDED_COMBAT,
@@ -43,7 +48,9 @@ import {
     M_AP_TYPE,
 } from './const.js';
 import {
+    Adjmonnam,
     capitalizedAlwaysVisibleMonsterName,
+    capitalizedMonsterName,
     monsterCommonName,
     monsterPossessive,
 } from './do_name.js';
@@ -64,6 +71,7 @@ import {
     attacktype,
     bigmonst,
     dmgtype,
+    is_animal,
     is_orc,
     is_undead,
     is_watch,
@@ -196,6 +204,8 @@ import {
     is_pole,
     which_armor,
 } from './worn.js';
+import { steal } from './steal.js';
+import { noteleport_level, rloc } from './teleport.js';
 import { exclam } from './zap.js';
 
 function intrinsicProperty(hero, index) {
@@ -1422,6 +1432,102 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
 function first_weapon_hit() {
 }
 
+// C ref: uhitm.c mhitm_ad_sedu() (4623-4748). Seduction / item theft attack.
+// Three arms: hero attacks monster (uhitm, unported), monster attacks hero
+// (mhitu, ported below), monster attacks monster (mhitm, unported).
+//
+// The mhitu arm: if the attacker is an animal, it acts like a hit message then
+// falls through to steal(). If the hero's own species seduces, the attacker
+// brags and teleports away. If canceled, "plain" message and maybe teleport.
+// Otherwise steal() runs and the attacker teleports away on success.
+async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
+    const unsupported = requireAttackOperation(env, 'unsupported');
+    const message = requireAttackOperation(env, 'message');
+
+    if (magr === state.youmonst) {
+        // uhitm: hero seduces monster. steal_it() unported.
+        unsupported('uhitm.c mhitm_ad_sedu() uhitm arm');
+        return;
+    }
+
+    if (mdef === state.youmonst) {
+        // mhitu: monster seduces hero.
+        const is_anml = is_animal(magr.data);
+
+        if (is_anml) {
+            await hitmsg(magr, mattk, state, env);
+            if (magr.mcan) return;
+            // Continue below to steal()
+        } else if (dmgtype(state.youmonst?.data, AD_SEDU)
+                   || dmgtype(state.youmonst?.data, AD_SSEX)) {
+            // Hero's own species is seductive; attacker brags and teleports.
+            const deaf = Boolean(
+                state.u?.uprops?.[DEAF]?.intrinsic
+                || state.u?.uprops?.[DEAF]?.extrinsic,
+            );
+            const bragMsg = deaf
+                ? 'says something but you can\'t hear it'
+                : magr.minvent
+                    ? 'brags about the goods some dungeon explorer provided'
+                    : 'makes some remarks about how difficult theft is lately';
+            await message(
+                `${capitalizedMonsterName(magr, state)} ${bragMsg}.`, state,
+            );
+            if (!noteleport_level(magr, state))
+                await rloc(magr, RLOC_MSG, { state });
+            mhm.hitflags = M_ATTK_AGR_DONE;
+            mhm.done = true;
+            return;
+        } else if (magr.mcan) {
+            const blind = Boolean(
+                state.u?.uprops?.[BLINDED]?.intrinsic
+                || state.u?.uprops?.[BLINDED]?.extrinsic,
+            );
+            if (!blind) {
+                const adj = Adjmonnam(magr, 'plain', state);
+                const verb = state.flags?.female ? 'charm' : 'seduce';
+                const seem = state.flags?.female ? 'unaffected' : 'uninterested';
+                await message(
+                    `${adj} tries to ${verb} you, but you seem ${seem}.`,
+                    state,
+                );
+            }
+            if (rn2(3)) {
+                if (!noteleport_level(magr, state))
+                    await rloc(magr, RLOC_MSG, { state });
+                mhm.hitflags = M_ATTK_AGR_DONE;
+                mhm.done = true;
+                return;
+            }
+            return;
+        }
+
+        const result = await steal(magr, state, env);
+        switch (result) {
+        case -1:
+            mhm.hitflags = M_ATTK_AGR_DIED;
+            mhm.done = true;
+            return;
+        case 0:
+            return;
+        default:
+            if (!is_anml && !noteleport_level(magr, state))
+                await rloc(magr, RLOC_MSG, { state });
+            if (is_anml) {
+                // Animal tried to run off with item; message handled
+                // if canseemon. Not ported: locomotion() message for animal.
+            }
+            await monflee(magr, 0, false, false, state, env);
+            mhm.hitflags = M_ATTK_AGR_DONE;
+            mhm.done = true;
+            return;
+        }
+    }
+
+    // mhitm: monster seduces another monster. Unported.
+    unsupported('uhitm.c mhitm_ad_sedu() mhitm arm');
+}
+
 // C ref: uhitm.c mhitm_ad_elec() (2683-2739), the `mdef == &gy.youmonst` arm.
 // A shock attack landing on the hero: the attack's own message, the magic
 // cancellation test, and the item destruction a high-level attacker adds.
@@ -1742,7 +1848,9 @@ export async function mhitm_adtyping(
     case AD_STON: unported('mhitm_ad_ston'); break;
     case AD_SSEX: unported('mhitm_ad_ssex'); break;
     case AD_SITM:
-    case AD_SEDU: unported('mhitm_ad_sedu'); break;
+    case AD_SEDU:
+        await mhitm_ad_sedu(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_SGLD: unported('mhitm_ad_sgld'); break;
     case AD_TLPT: unported('mhitm_ad_tlpt'); break;
     case AD_BLND: unported('mhitm_ad_blnd'); break;
