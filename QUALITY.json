@@ -6017,6 +6017,24 @@
       "status": "open",
       "from": "f1ec361db89838425ae9fbcb90e69349a6642936",
       "detail": "teleport.c tele_trap():1508-1511, the trap->once arm that deltrap()s the one-shot trap and calls vault_tele(), has no fresh C case. mklev.c makevtele() hides that trap on a secret corridor behind a secret door, so a hero has to search both out; the search that reveals the corridor also reveals the trap on it (\"You find a teleportation trap.\"), after which trap.c dotrap():3035-3044's escape branch and the paranoid \"Really step into that teleportation trap? [yn]\" prompt both stand between the hero and the square. Both are refused ahead of the move by js/trap_effects.js preflight_dotrap()'s tseen stop. A scan of seeds 1..4000 with the port kept ten levels whose niche trap sits behind an unlocked secret door one to four room squares from the hero; seeds 1509 and 3963 were recorded and both stop that way. sessions/seed0012-monk-vault-escort reaches the arm against C, and scripts/hero-teleport-trap.test.mjs pins it by calling tele_trap() on seed 1509's generated level."
+    },
+    {
+      "id": "no-fresh-case-reaches-the-rock-trap-wear-out",
+      "area": "world-effects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "c222628185903b5e7ec22eaa91734d8b5d733c97",
+      "detail": "trap.c trapeffect_rocktrap():1379-1388 unlinks a rock trap through deltrap() when a monster steps on a trap that has already fired and that the hero has seen, on an rn2(15) of zero. No recorded case reaches it: a scan of seeds 4,200,000 to 4,202,499 with a 150-search budget put a rock trap on 214 dungeon levels and produced no wear-out on any of them, because the branch needs a second monster on the same already-mapped trap and then the one-in-fifteen roll. Both outcomes of the gate are pinned against mintrap() in scripts/monster-rock-trap.test.mjs; scripts/run-monster-rock-trap.mjs records the scan."
+    },
+    {
+      "id": "no-fresh-case-reaches-thitm-harmless-rock",
+      "area": "world-effects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "c222628185903b5e7ec22eaa91734d8b5d733c97",
+      "detail": "trap.c thitm():6738-6739 and 6762-6763: a rock or gem that reaches a monster which passes_rocks() is announced as 'but is not harmed', takes no damage, and clears strike so that the missile is placed rather than deallocated. mondata.h passes_rocks() wants M1_WALLWALK without M1_UNSOLID, which means a xorn or an earth elemental; neither is generated on the first dungeon level, and the rock-trap scans over seeds 4,200,000 to 4,202,999 and 4,300,000 to 4,302,499 produced no such victim. The branch is pinned with a constructed xorn fixture in scripts/trap-thitm.test.mjs."
     }
   ],
   "areas": [

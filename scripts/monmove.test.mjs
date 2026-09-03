@@ -1179,11 +1179,10 @@ test('postmov names a poisoned dart when the trap arm rolls zero', async () => {
     assert.equal(state.level.objects[5][4].opoisoned, true);
 });
 
-// C ref: trap.c:6743-6760. A dart that strikes needs weapon.c dmgval() for its
-// damage and doname() for its message; the refusal comes after the to-hit
-// roll, which C makes either way, and before the message, the damage and the
-// missile's disposal.
-test('postmov refuses a dart that hits its target', async () => {
+// C ref: trap.c:6740-6770. A dart that strikes names its target, takes
+// weapon.c dmgval() for the damage, and is used up rather than left on the
+// floor -- the one disposal difference from the miss arm beside it.
+test('postmov lands a dart on its target and spends the missile', async () => {
     const { state, monster } = dartTrapState();
     seeSquare(state, 5, 4);
     const { env, messages } = postmovEnv(state, {
@@ -1196,12 +1195,18 @@ test('postmov refuses a dart that hits its target', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await assert.rejects(
-        postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
-        (error) => error.message === 'a monster struck by a trap missile',
-    );
-    assert.deepEqual(messages, []);
+    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+
+    assert.deepEqual(messages, ['The giant rat is hit by a dart!']);
+    // objects.h gives a dart oc_wsdam 3, so dmgval() is rnd(3) plus the
+    // enchantment; plainMissRandom() answers every rnd() but the to-hit roll
+    // with 1 and leaves spe at 0, so the rat loses one of its three hit
+    // points.
+    assert.equal(monster.mhp, 2);
+    // trap.c:6769-6770. The dart that connected is deallocated, so the
+    // square keeps nothing and the level object list stays empty.
     assert.equal(state.level.objects[5][4], null);
+    assert.equal(state.level.objlist, null);
 });
 
 // The pair that pins the threshold. Without it the six dart cases roll 1 for a
@@ -1221,12 +1226,14 @@ test('postmov puts the dart miss and strike either side of fourteen',
             rn2: (bound) => (bound === 11 ? 0 : 1),
             rne: () => 2,
         };
-        for (const [roll, expectation, overrides] of [
-            [13, 'miss', {}],
-            [14, 'strike', {}],
+        for (const [roll, expectation, overrides, extraLines] of [
+            [13, 'miss', {}, []],
+            [14, 'strike', {}, []],
             // 15 strikes without the term and misses with it.
-            [15, 'miss', enchanted],
-            [16, 'strike', enchanted],
+            [15, 'miss', enchanted, []],
+            // dmgval() adds the enchantment to rnd(3), so this row's three
+            // points empty the giant rat and mon.c monkilled() adds its line.
+            [16, 'strike', enchanted, ['The giant rat is killed!']],
         ]) {
             const { state, monster } = dartTrapState();
             seeSquare(state, 5, 4);
@@ -1241,8 +1248,8 @@ test('postmov puts the dart miss and strike either side of fourteen',
                 monster, 4, 4, MMOVE_MOVED, false, false, true, env,
             );
 
+            await run;
             if (expectation === 'miss') {
-                await run;
                 assert.deepEqual(
                     messages,
                     ['The giant rat is almost hit by a dart!'],
@@ -1250,35 +1257,43 @@ test('postmov puts the dart miss and strike either side of fourteen',
                 );
                 assert.notEqual(state.level.objects[5][4], null);
             } else {
-                await assert.rejects(
-                    run,
-                    (error) => error.message === 'a monster struck by a trap missile',
+                assert.deepEqual(
+                    messages,
+                    ['The giant rat is hit by a dart!', ...extraLines],
                     `rnd(20) of ${roll} must strike`,
                 );
-                assert.deepEqual(messages, []);
+                // A struck dart is used up, so the square stays empty; that
+                // is the assertion the miss arm above inverts.
+                assert.equal(state.level.objects[5][4], null);
             }
         }
     });
 
-// C ref: trap.c:1299-1307. A trap that has already fired under a hero who has
-// seen it wears out on one roll in fifteen, which needs deltrap().
-test('postmov refuses a dart trap that wears out', async () => {
+// C ref: trap.c:1298-1306. A trap that has already fired under a hero who has
+// seen it wears out on one roll in fifteen: it says so, deltrap() unlinks it
+// and the arm answers Trap_Is_Gone before any missile is made.
+test('postmov wears out a dart trap the hero has already seen', async () => {
     const { state, monster } = dartTrapState({ once: true, tseen: true });
     seeSquare(state, 5, 4);
     const bounds = [];
-    const { env, messages } = postmovEnv(state, {
+    const { env, messages, redraws } = postmovEnv(state, {
         random: plainMissRandom({
             rn2: (bound) => { bounds.push(bound); return 0; },
         }),
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await assert.rejects(
-        postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
-        (error) => error.message === 'a dart trap that wears out',
-    );
+    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+
+    // The bound-15 roll is the only draw: the arm returns before
+    // t_missile() reaches mksobj().
     assert.deepEqual(bounds, [15]);
-    assert.deepEqual(messages, []);
+    assert.deepEqual(messages, ['The giant rat triggers a trap but nothing happens.']);
+    assert.deepEqual(state.level.traps, [], 'deltrap() unlinked it');
+    // The wear-out arm's own repaint of the monster's square, between the two
+    // newsym() calls postmov() brackets the block with.
+    assert.deepEqual(redraws, [[4, 4], [5, 4], [5, 4]]);
+    assert.equal(state.level.objects[5][4], null, 'no dart was made');
 });
 
 // The sibling: the same gate on a nonzero roll spends the draw and continues

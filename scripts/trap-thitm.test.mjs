@@ -1,15 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { MON_DETACH, OBJ_FLOOR, OBJ_FREE } from '../js/const.js';
+import { MON_DETACH, OBJ_DELETED, OBJ_FLOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { accessible } from '../js/monmove.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
-import { AD_RBRE, NON_PM, PM_JACKAL } from '../js/monsters.js';
-import { mksobj } from '../js/obj.js';
+import { passes_rocks } from '../js/mondata.js';
+import { AD_RBRE, NON_PM, PM_JACKAL, PM_XORN } from '../js/monsters.js';
+import { mksobj, stone_missile } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { DART } from '../js/objects.js';
+import { DART, ROCK } from '../js/objects.js';
 import { thitm } from '../js/trap_effects.js';
 import { find_mac } from '../js/worn.js';
 
@@ -93,13 +94,6 @@ function trapEnv(rolls = [], fallback = 1) {
         redraw: (x, y) => { redraws.push(`${x},${y}`); },
         unsupported: (reason) => { throw new Error(reason); },
     };
-}
-
-function refusesAsync(fn, reason, label) {
-    return assert.rejects(fn, (error) => {
-        assert.equal(error.message, reason, label);
-        return true;
-    }, label);
 }
 
 // trap.c thitm():6721-6726. A nonzero d_override forces the hit, so the to-hit
@@ -213,31 +207,64 @@ test('nocorpse reaches monkilled as a disintegration', async () => {
     assert.deepEqual(ordinaryEnv.bounds[0], 'rn2(2)', 'a corpse is attempted');
 });
 
-// trap.c thitm():6740-6749, the branch a missile takes when it connects. Its
-// damage is weapon.c dmgval(), its message names a still-free object, and a
-// rock that a rock-passing monster shrugs off has to clear `strike` so that
-// 6766 places the missile rather than freeing it. The stop is above all three,
-// so the target keeps its hit points and the missile stays where it was.
-test('a missile that connects stops above the message and the damage',
-    async () => {
-        await hero();
+// trap.c thitm():6740-6760 and 6769-6770, the branch a missile takes when it
+// connects: the victim is named, weapon.c dmgval() decides the damage, and the
+// missile is used up rather than dropped.
+test('a missile that connects is named, damages, and is used up', async () => {
+    await hero();
 
-        const mon = jackal(9);
-        const dart = mksobj(DART, false, false, { state: game });
-        // 6724's to-hit total is find_mac + tlev + spe. 7 + 7 + 2 is 16, and
-        // an rnd(20) of 16 reaches it.
-        dart.spe = 2;
-        const env = trapEnv([16]);
-        await refusesAsync(
-            () => thitm(7, mon, dart, 0, false, env),
-            'a monster struck by a trap missile',
-        );
-        assert.deepEqual(env.bounds, ['rnd(20)'], 'only the to-hit roll');
-        assert.deepEqual(env.lines, [], 'nothing printed');
-        assert.equal(mon.mhp, 9, 'no damage taken');
-        assert.equal(dart.where, OBJ_FREE, 'the missile is neither placed');
-        assert.equal(game.level.objects[mon.mx][mon.my], null, 'nor dropped');
-    });
+    const mon = jackal(9);
+    const dart = mksobj(DART, false, false, { state: game });
+    // 6724's to-hit total is find_mac + tlev + spe. 7 + 7 + 2 is 16, and
+    // an rnd(20) of 16 reaches it.
+    dart.spe = 2;
+    // rnd(20) answers the to-hit roll; the rnd(3) dmgval() then takes over
+    // objects.h's oc_wsdam for a dart falls through to the default of 1.
+    const env = trapEnv([16]);
+    assert.equal(await thitm(7, mon, dart, 0, false, env), false);
+    // doname() hides the enchantment on a dart whose `known` bit is clear,
+    // which is what mksobj() leaves for a trap missile.
+    assert.deepEqual(env.lines, ['The jackal is hit by a dart!']);
+    assert.deepEqual(env.bounds, ['rnd(20)', 'rnd(3)'],
+                     "the to-hit roll and dmgval()'s base die");
+    // dmgval() is rnd(3) plus the +2 enchantment, so three off nine.
+    assert.equal(mon.mhp, 6);
+    // mkobj.c dealloc_obj() frees the record; the port marks it OBJ_DELETED
+    // instead, which is js/obj.js's own note on the collapsed delete queue.
+    assert.equal(dart.where, OBJ_DELETED, 'dealloc_obj() consumed it');
+    assert.equal(game.level.objects[mon.mx][mon.my], null, 'and undropped');
+});
+
+// trap.c thitm():6738-6739 and 6762-6763. A rock or gem that reaches a monster
+// which walks through rock is announced and then does nothing: `harmless`
+// suppresses the damage and clears `strike`, which is what sends the missile
+// to 6766's place_object() instead of 6770's dealloc_obj().
+//
+// No recorded case reaches this: passes_rocks() wants M1_WALLWALK without
+// M1_UNSOLID, which on the first dungeon level means a xorn or an earth
+// elemental, and neither is generated there.
+test('a rock passes harmlessly through a rock-passing monster', async () => {
+    await hero();
+
+    const mon = jackal(9);
+    // mondata.h passes_rocks() is passes_walls() && !unsolid(). The jackal
+    // fixture is neither, so the species record is swapped for the xorn's,
+    // which monsters.h:2357-2364 gives M1_WALLWALK and no M1_UNSOLID.
+    mon.data = game.mons[PM_XORN];
+    assert.equal(passes_rocks(mon.data), true, 'the fixture the branch wants');
+    const rock = mksobj(ROCK, false, false, { state: game });
+    assert.equal(stone_missile(rock, game), true, 'MINERAL and not a ring');
+
+    // A forced hit, the way trapeffect_rocktrap() calls it, so the to-hit
+    // roll is skipped and the override is the damage that is then discarded.
+    const env = trapEnv();
+    assert.equal(await thitm(0, mon, rock, 7, false, env), false);
+    assert.deepEqual(env.lines,
+                     ['The xorn is hit by a rock but is not harmed.']);
+    assert.equal(mon.mhp, 9, 'the override never reaches the hit points');
+    assert.equal(rock.where, OBJ_FLOOR, 'the rock lands on the square');
+    assert.equal(game.level.objects[mon.mx][mon.my], rock);
+});
 
 // trap.c thitm():6732-6734 and 6766-6768, the arm a missile takes when it goes
 // wide. It is the arm every firing in the monster-dart-trap matrix takes, and

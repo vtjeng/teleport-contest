@@ -215,6 +215,12 @@ export function nolimbs(species) {
 export function notake(species) { return flag1(species, M.M1_NOTAKE); }
 export function has_head(species) { return !flag1(species, M.M1_NOHEAD); }
 export function unsolid(species) { return flag1(species, M.M1_UNSOLID); }
+// C ref: mondata.h passes_rocks() (208). Missiles made of rock do not harm a
+// monster that walks through walls without being insubstantial: xorns and
+// earth elementals, but not ghosts or shades.
+export function passes_rocks(species) {
+    return passes_walls(species) && !unsolid(species);
+}
 export function thick_skinned(species) {
     return flag1(species, M.M1_THICK_HIDE);
 }

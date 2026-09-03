@@ -129,6 +129,7 @@ import {
     FROST_HORN,
     FUMBLE_BOOTS,
     GAUNTLETS_OF_FUMBLING,
+    GEMSTONE,
     GEM_CLASS,
     GLOB_OF_BLACK_PUDDING,
     GLOB_OF_BROWN_PUDDING,
@@ -155,6 +156,7 @@ import {
     MAGIC_LAMP,
     MAGIC_MARKER,
     MEAT_RING,
+    MINERAL,
     MITHRIL,
     OILSKIN_SACK,
     OIL_LAMP,
@@ -815,6 +817,16 @@ export function is_missile(obj, state = game) {
     const skill = objectType(obj, state).oc_subtyp;
     return (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
         && skill >= -P_BOOMERANG && skill <= -P_DART;
+}
+
+// C ref: obj.h stone_missile() (274-277). Whether a thrown or dropped object
+// is made of rock, which is what a rock-passing monster shrugs off. The
+// RING_CLASS exclusion is there because an explosion can scatter rings as
+// missiles; the 'missile' aspect is the caller's to decide.
+export function stone_missile(obj, state = game) {
+    const material = objectType(obj, state).oc_material;
+    return (material === GEMSTONE || material === MINERAL)
+        && obj.oclass !== RING_CLASS;
 }
 
 // C ref: obj.h is_wet_towel() (256). `spe` counts a towel's remaining wetness

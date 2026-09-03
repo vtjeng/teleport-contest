@@ -1,7 +1,8 @@
 // Trap triggering, for the hero and for monsters.
 // C ref: trap.c -- wearing_iron_shoes(), floor_trigger(), check_in_air(),
 // seetrap(), feeltrap(), trapnote(), t_missile(), thitm(),
-// trapeffect_sqky_board(), trapeffect_dart_trap(), trapeffect_bear_trap(),
+// trapeffect_sqky_board(), trapeffect_dart_trap(), trapeffect_rocktrap(),
+// trapeffect_bear_trap(),
 // mselftouch(), trapeffect_pit(), trapeffect_telep_trap(),
 // trapeffect_magic_trap(), trapeffect_selector(), dotrap(), mintrap().
 //
@@ -55,6 +56,7 @@ import {
     TT_BEARTRAP,
     Trap_Caught_Mon,
     Trap_Effect_Finished,
+    Trap_Is_Gone,
     Trap_Killed_Mon,
     Upolyd,
     VIASITTING,
@@ -92,6 +94,7 @@ import {
     mon_knows_traps,
     mon_learns_traps,
     mons_see_trap,
+    passes_rocks,
     passes_walls,
     touch_petrifies,
     unsolid,
@@ -107,16 +110,30 @@ import {
 } from './monsters.js';
 import { m_at } from './monst.js';
 import { thitu } from './mthrowu.js';
-import { mksobj, objectType, place_object, weight } from './obj.js';
+import {
+    dealloc_obj,
+    mksobj,
+    objectType,
+    place_object,
+    stone_missile,
+    weight,
+} from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { observe_object } from './o_init.js';
-import { CORPSE, DART, IRON } from './objects.js';
+import { CORPSE, DART, IRON, ROCK } from './objects.js';
 import { donameFresh, just_an } from './objnam.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { canSeeMonster, heroIsBlind, messageAt } from './startup_a11y.js';
-import { Flying, Levitation, set_utrap, t_at, trapname } from './trap.js';
+import {
+    Flying,
+    Levitation,
+    deltrap,
+    set_utrap,
+    t_at,
+    trapname,
+} from './trap.js';
 import { tele_trap } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { dmgval } from './weapon.js';
@@ -345,30 +362,17 @@ function t_missile(otyp, trap, env) {
     return otmp;
 }
 
-// C ref: trap.c thitm() (6709-6773). "Monster is hit by trap." Both arms of
-// the to-hit test are ported; one branch inside the `strike` arm stops.
-//
-// One branch stops: a missile that connects, which is 6740-6749's message and
-// damage, 6762-6763's harmless `else`, and 6769-6770's disposal. The damage is
-// weapon.c dmgval(), the message needs doname() for a still-free object whose
-// text also decides discovery, and a rock or gem that a rock-passing monster
-// shrugs off has to clear `strike` so that 6766 places the missile rather than
-// 6770 freeing it. The refusal sits at the top of the branch, above all three,
-// and its guard is C's own `obj`, so the miss arm still runs for every missile
-// that goes wide. Only a caller that passes no missile reaches the damage
-// below, and `harmless` is false for that caller by its first conjunct, so
-// stone_missile() and passes_rocks() have no reader either.
+// C ref: trap.c thitm() (6709-6773). "Monster is hit by trap." Fully ported.
 //
 // C declares this `staticfn` and the port exports it, as it exports
-// trapnote() above, because a test has to reach it without a caller: its one
-// production caller today is trapeffect_dart_trap() below, whose arm covers
-// only the missile half, and trapeffect_pit() will be the second.
+// trapnote() above, because a test has to reach it without a caller. Its
+// production callers are trapeffect_dart_trap(), trapeffect_pit() and
+// trapeffect_rocktrap() below.
 export async function thitm(tlev, mon, obj, d_override, nocorpse, env) {
     const { state } = env;
     const random = env.random;
     const message = requireTrapOperation(env, 'message');
     const redraw = requireTrapOperation(env, 'redraw');
-    const unsupported = requireTrapOperation(env, 'unsupported');
     let trapkilled = false;
 
     let strike;
@@ -402,33 +406,60 @@ export async function thitm(tlev, mon, obj, d_override, nocorpse, env) {
             );
         }
     } else {
-        if (obj) unsupported('a monster struck by a trap missile');
-        /* `harmless` is FALSE without a missile, by its first conjunct, so
-           C's `if (!harmless)` always holds below and the `else` that clears
-           `strike` for a shrugged-off rock belongs to the refused branch. */
         let dam = 1;
-        if (d_override) dam = d_override;
+        // A rock or gem passes straight through a rock-passing monster; the
+        // missile is named and reported all the same, and only the damage is
+        // skipped.
+        const harmless = Boolean(obj) && stone_missile(obj, state)
+            && passes_rocks(mon.data);
 
-        mon.mhp -= dam;
-        if (mon.mhp <= 0) {
-            const xx = mon.mx;
-            const yy = mon.my;
+        if (obj && cansee(mon.mx, mon.my, state)) {
+            // doname() runs for its discovery side effects here too; see the
+            // miss arm above.
+            await message(
+                messageAt(
+                    `${capitalizedMonsterName(mon, state)} is hit by`
+                    + ` ${donameFresh(obj, state)}`
+                    + `${harmless ? ' but is not harmed.' : '!'}`,
+                    mon.mx,
+                    mon.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+        }
+        if (d_override) {
+            dam = d_override;
+        } else if (obj) {
+            dam = dmgval(obj, mon, state, { random });
+            if (dam < 1) dam = 1;
+        }
+        if (!harmless) {
+            mon.mhp -= dam;
+            if (mon.mhp <= 0) {
+                const xx = mon.mx;
+                const yy = mon.my;
 
-            await monkilled(mon, '', nocorpse ? -AD_RBRE : AD_PHYS,
-                            state, env);
-            if (mon.mhp < 1) { /* DEADMONSTER() */
-                redraw(xx, yy);
-                trapkilled = true;
+                await monkilled(mon, '', nocorpse ? -AD_RBRE : AD_PHYS,
+                                state, env);
+                if (mon.mhp < 1) { /* DEADMONSTER() */
+                    redraw(xx, yy);
+                    trapkilled = true;
+                }
             }
+        } else {
+            strike = 0; /* harmless; don't use up the missile */
         }
     }
-    // C ref: trap.c:6766-6770. A missed missile lands where the target
-    // stands; only a missile that struck is deallocated, and that is inside
-    // the branch the refusal above owns, so every missile that arrives here
-    // has missed. No newsym() follows in C.
-    if (obj) {
+    // C ref: trap.c:6766-6770. A missile that missed, or that a forced-damage
+    // caller supplied, lands where the target stands; one that struck on its
+    // own to-hit roll is used up. No newsym() follows in C.
+    if (obj && (!strike || d_override)) {
         place_object(obj, mon.mx, mon.my, env.objectEnv);
         stackobj(obj, env.objectEnv);
+    } else if (obj) {
+        dealloc_obj(obj, env.objectEnv);
     }
     return trapkilled;
 }
@@ -440,22 +471,21 @@ export async function thitm(tlev, mon, obj, d_override, nocorpse, env) {
 // or the dart lands on the floor on miss.
 //
 // Two hero branches stop:
-//   misfire (trap->once && trap->tseen && !rn2(15), C 1262-1267): calls
-//     deltrap(), which is not ported. The rn2(15) draw happens regardless, and
-//     only when it returns 0 does the arm need deltrap(); the port refuses
-//     there rather than at entry, matching the monster arm's existing pattern.
+//   misfire (trap->once && trap->tseen && !rn2(15), C 1262-1267): needs
+//     pline.c You_hear(), which js/monmove.js owns and which heroTrapEnv()
+//     does not bind. The rn2(15) draw happens regardless, and only when it
+//     returns 0 does the arm need the message; the port refuses there rather
+//     than at entry.
 //   steed (u.usteed, C 1276): calls steedintrap(), which is not ported.
 //     preflight_dotrap() refuses when u.usteed is set, so this is unreachable.
 //
-// Monster arm: C computes `see_it` at the top (1296) but reads it only in the
-// misfire arm's message (1300), which stops before writing anything. The port
-// therefore has no `see_it`.
+// The monster arm is fully ported, misfire included.
 async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
     const { state } = env;
     const random = env.random;
     const unsupported = requireTrapOperation(env, 'unsupported');
     const message = requireTrapOperation(env, 'message');
-    requireTrapOperation(env, 'redraw');
+    const redraw = requireTrapOperation(env, 'redraw');
     const objectEnv = objectGenerationEnv({ state, random });
 
     if (mtmp === state.youmonst) {
@@ -465,7 +495,7 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
         // C 1262-1267: misfire check. The rn2(15) draw fires only when both
         // conditions are true; its roll is part of the recorded PRNG log.
         if (trap.once && trap.tseen && !random.rn2(15)) {
-            // deltrap() removes the trap from the level list.
+            // You_hear("a soft click.") is unavailable in the hero env.
             // Soundeffect() is a tty-sound hook and writes nothing.
             unsupported('a dart trap that wears out');
         }
@@ -528,13 +558,26 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
 
     // ── monster arm (C 1294-1318) ──
     const inSight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+    const see_it = cansee(mtmp.mx, mtmp.my, state);
 
     if (trap.once && trap.tseen && !random.rn2(15)) {
-        // The trap wears out: C writes the "nothing happens" line, calls
-        // deltrap() and repaints. deltrap() is not ported, and dropping the
-        // trap from the level list is the one write in this arm no later
-        // owner can reconstruct.
-        unsupported('a dart trap that wears out');
+        // C 1298-1306: the trap wears out. `see_it` is read only here.
+        if (inSight && see_it) {
+            await message(
+                messageAt(
+                    `${capitalizedMonsterName(mtmp, state)} triggers a trap`
+                    + ' but nothing happens.',
+                    mtmp.mx,
+                    mtmp.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+        }
+        deltrap(trap, state);
+        redraw(mtmp.mx, mtmp.my);
+        return Trap_Is_Gone;
     }
     // C writes 1 into a bitfield; js/trap.js resetTrap() keeps once as a
     // boolean, and this is the same value in one representation.
@@ -547,6 +590,74 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
         mtmp,
         otmp,
         0,
+        false,
+        { ...env, objectEnv },
+    );
+
+    return trapkilled ? Trap_Killed_Mon
+        : mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
+}
+
+// C ref: trap.c trapeffect_rocktrap() (1322-1399), monster arm (1375-1398).
+//
+// The hero arm (1332-1374) stops the scan, and preflight_dotrap() refuses
+// ROCKTRAP ahead of the hero's move so that nothing reaches the stop here: the
+// arm needs uarmh, passes_rocks() over the hero's form, hard_helmet(),
+// helm_simple_name() and Yname2() for the three helmet lines, and
+// losehp(Maybe_Half_Phys(dmg)) after them.
+//
+// The monster arm is the dart trap's monster arm with a rock instead of a
+// dart, no poison roll, and a forced d(2, 6) of damage rather than a to-hit
+// roll at attack level 7. C evaluates that d(2, 6) as thitm()'s argument, so
+// the draw lands before anything inside thitm(); the port spends it in the
+// same place.
+async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
+    const { state } = env;
+    const random = env.random;
+    const unsupported = requireTrapOperation(env, 'unsupported');
+    const message = requireTrapOperation(env, 'message');
+    const redraw = requireTrapOperation(env, 'redraw');
+    const objectEnv = objectGenerationEnv({ state, random });
+
+    if (mtmp === state.youmonst)
+        unsupported('a rock falling on the hero');
+
+    // ── monster arm (C 1375-1398) ──
+    const in_sight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+    // C 1377. Read only by the wear-out message below; the falling-rock path
+    // guards seetrap() on in_sight alone.
+    const see_it = cansee(mtmp.mx, mtmp.my, state);
+
+    if (trap.once && trap.tseen && !random.rn2(15)) {
+        // C 1380-1388: the trap door opens on an empty chute.
+        if (in_sight && see_it) {
+            await message(
+                messageAt(
+                    'A trap door above'
+                    + ` ${monsterCommonName(mtmp, state)} opens, but nothing`
+                    + ' falls out!',
+                    mtmp.mx,
+                    mtmp.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+        }
+        deltrap(trap, state);
+        redraw(mtmp.mx, mtmp.my);
+        return Trap_Is_Gone;
+    }
+    // C writes 1 into a bitfield; js/trap.js resetTrap() keeps once as a
+    // boolean, and this is the same value in one representation.
+    trap.once = true;
+    const otmp = t_missile(ROCK, trap, { ...env, objectEnv });
+    if (in_sight) seetrap(trap, env);
+    const trapkilled = await thitm(
+        0,
+        mtmp,
+        otmp,
+        random.d(2, 6),
         false,
         { ...env, objectEnv },
     );
@@ -977,13 +1088,13 @@ async function trapeffect_magic_trap(mtmp, trap, _trflags, env) {
 // dispatches all of them; each stops the scan before the effect changes state,
 // draws, or writes a message. BEAR_TRAP, DART_TRAP and MAGIC_TRAP are absent
 // because their hero arms are ported (MAGIC_TRAP's monster arm refuses inside
-// trapeffect_magic_trap() itself). PIT is absent because its own body owns the
+// trapeffect_magic_trap() itself). ROCKTRAP is absent for the mirror reason:
+// its monster arm is ported and its own body refuses the hero arm. PIT is absent because its own body owns the
 // refusal: its monster arm is ported and its hero arm stops there. SPIKED_PIT
 // stays here even though C sends it to trapeffect_pit() as well, because
 // neither arm's spike handling is ported.
 const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     ARROW_TRAP,
-    ROCKTRAP,
     SLP_GAS_TRAP,
     RUST_TRAP,
     FIRE_TRAP,
@@ -1011,6 +1122,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
         return trapeffect_sqky_board(monster, trap, trflags, env);
     if (trap.ttyp === DART_TRAP)
         return trapeffect_dart_trap(monster, trap, trflags, env);
+    if (trap.ttyp === ROCKTRAP)
+        return trapeffect_rocktrap(monster, trap, trflags, env);
     if (trap.ttyp === BEAR_TRAP)
         return trapeffect_bear_trap(monster, trap, trflags, env);
     if (trap.ttyp === PIT)
