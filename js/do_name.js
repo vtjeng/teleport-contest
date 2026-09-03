@@ -492,9 +492,11 @@ export function monsterCommonName(
             random: env.displayRandom ?? rn2_on_display_rng,
         })}`;
     }
-    const speciesName = monster.data?.pmnames?.[2]
-        ?? monster.data?.pmnames?.find(Boolean)
-        ?? 'monster';
+    // do_name.c:911 `pm_name = mon_pmname(mtmp)`, which picks the species
+    // name by the monster's own gender and falls back to the neutral slot only
+    // when that one is empty. Reading the neutral slot directly named a male
+    // gnome king a "gnome ruler".
+    const speciesName = mon_pmname(monster) ?? 'monster';
     const givenName = monster.mextra?.mgivenname
         || monster.mgivenname
         || monster.name;
