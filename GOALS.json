@@ -8567,6 +8567,23 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-17",
+      "status": "open",
+      "boundary": "doapply()'s container arm for object type 217 (SACK), dispatching to the already-ported use_container().",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "35859d63034270b27676f6fb9d5ee18834c23a96",
+      "openStanding": {
+        "sha": "81bef26c",
+        "screens": 4287,
+        "rng": 274766
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
