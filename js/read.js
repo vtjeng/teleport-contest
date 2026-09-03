@@ -369,7 +369,7 @@ export async function doread(state = game) {
             if (state.gk.known) {
                 learnscrolltyp(scroll.otyp, state);
             } else {
-                trycall(scroll, state);
+                await trycall(scroll, state);
             }
         }
         scroll.in_use = false;

@@ -563,21 +563,28 @@ test('an unidentified potion sends the naming tail to docall', async () => {
     const obj = vaporPotion(POT_FRUIT_JUICE);
     game.objects[POT_FRUIT_JUICE].oc_name_known = 0;
     game.objects[POT_FRUIT_JUICE].oc_uname = null;
-    await assert.rejects(
-        () => potionbreathe(obj, game),
-        UnsupportedObjectNamingError,
-    );
+    // docall() now prompts via getlin(); queue ESC to dismiss the prompt.
+    // hooked_tty_getlin() dismisses a pending --More-- before the prompt,
+    // consuming one key. Clear the message state so only the getlin ESC
+    // is needed.
+    clearTopline();
+    game.nhDisplay.toplin = 0; // TOPLINE_EMPTY
+    game.nhDisplay.pushKey(0x1b);
+    await potionbreathe(obj, game);
     // Either half of trycall()'s guard suppresses the prompt on its own.
     game.objects[POT_FRUIT_JUICE].oc_uname = 'fizzy';
-    trycall(obj, game);
+    await trycall(obj, game);
     game.objects[POT_FRUIT_JUICE].oc_uname = null;
     game.objects[POT_FRUIT_JUICE].oc_name_known = 1;
-    trycall(obj, game);
+    await trycall(obj, game);
     // do_name.c docall()'s own first line: a hero who cannot see the object
     // has nothing to call it by.
-    docall({ ...obj, dknown: false });
-    assert.throws(() => docall({ ...obj, dknown: true }),
-        UnsupportedObjectNamingError);
+    await docall({ ...obj, dknown: false });
+    // docall with dknown true prompts; queue ESC to dismiss.
+    clearTopline();
+    game.nhDisplay.toplin = 0; // TOPLINE_EMPTY
+    game.nhDisplay.pushKey(0x1b);
+    await docall({ ...obj, dknown: true }, game);
 });
 
 test('a potion whose vapors are not seen prints nothing and is not learned',

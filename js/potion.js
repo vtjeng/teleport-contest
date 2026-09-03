@@ -830,7 +830,7 @@ async function dopotion(otmp, state = game) {
             discover_object(otmp.otyp, true, true, true, state);
             more_experienced(0, 10, state);
         } else {
-            trycall(otmp, state);
+            await trycall(otmp, state);
         }
     }
     useup(otmp);
@@ -1136,7 +1136,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             || haseyes(state.youmonst.data))) {
         await potionbreathe(obj, state, { ...rawEnv, state, random, message });
     } else if (obj.dknown && cansee(tx, ty, state)) {
-        trycall(obj, state);
+        await trycall(obj, state);
     }
 
     // C's `*u.ushops` is the first entry of the room list; js/rooms.js keeps
@@ -1304,7 +1304,7 @@ export async function potionbreathe(obj, state = game, env = {}) {
         // `kn` counts the arms whose message told the hero what the potion
         // was; every other arm offers the naming prompt instead.
         if (kn) discover_object(obj.otyp, true, true, true, state, env);
-        else trycall(obj, state);
+        else await trycall(obj, state);
     }
 }
 

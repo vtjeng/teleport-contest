@@ -465,6 +465,42 @@ export function discover_object(
     return true;
 }
 
+// C ref: o_init.c undiscover_object() (498-523). When a user-assigned name
+// (oc_uname) is cleared and the object is neither formally identified
+// (oc_name_known) nor encountered (oc_encountered), remove it from the
+// disco[] discovery list. The GEM_CLASS arm calls gem_learned() ("unlearned")
+// which this port defers to the gemLearned hook.
+export function undiscover_object(oindx, state = game, rawEnv = {}) {
+    const objects = ensureObjectGlobals(state);
+    const type = objects[oindx];
+    if (!type) return;
+    if (type.oc_name_known || type.oc_encountered) return;
+
+    const acls = type.oc_class;
+    const bases = state.svb.bases;
+    let found = false;
+    let dindx;
+    for (dindx = bases[acls];
+         dindx < NUM_OBJECTS && state.svd.disco[dindx] !== 0
+             && objects[dindx].oc_class === acls;
+         dindx++) {
+        if (found)
+            state.svd.disco[dindx - 1] = state.svd.disco[dindx];
+        else if (state.svd.disco[dindx] === oindx)
+            found = true;
+    }
+
+    if (found)
+        state.svd.disco[dindx - 1] = 0;
+    // C: impossible("named object not in disco") -- should not happen
+
+    if (found && acls === GEM_CLASS) {
+        const gemLearned = rawEnv.gemLearned ?? rawEnv.hooks?.gemLearned;
+        if (typeof gemLearned === 'function')
+            gemLearned(oindx, rawEnv);
+    }
+}
+
 // C ref: o_init.c observe_object().
 export function observe_object(obj, state = game) {
     if (!obj || typeof obj !== 'object')

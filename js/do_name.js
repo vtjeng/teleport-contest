@@ -40,20 +40,24 @@ import {
     SUPPRESS_MAPPEARANCE,
     SUPPRESS_NAME,
     SUPPRESS_SADDLE,
+    NON_PM,
+    OBJ_INVENT,
     W_SADDLE,
     engulfing_u,
     has_oname,
 } from './const.js';
 import { artifact_exists, artifact_name, exist_artifact } from './artifacts.js';
+import { flush_screen } from './display.js';
 import { fruit_from_name } from './fruit.js';
 import { game } from './gstate.js';
-import { UnsupportedObjectOperationError, carried, objectType } from './obj.js';
 import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
+    mungspaces,
     s_suffix,
     upstart,
 } from './hacklib.js';
+import { carrying, update_inventory } from './invent.js';
 import {
     gender,
     is_mplayer,
@@ -71,16 +75,24 @@ import {
     PM_WIZARD_OF_YENDOR,
     SPECIAL_PM,
 } from './monsters.js';
+import { UnsupportedObjectOperationError, carried, objectType } from './obj.js';
+import {
+    discover_object,
+    undiscover_object,
+} from './o_init.js';
 import {
     AMULET_CLASS, AMULET_OF_YENDOR, ARMOR_CLASS, COIN_CLASS,
-    CORPSE, FAKE_AMULET_OF_YENDOR, FIGURINE,
-    GEM_CLASS, OBJ_DESCR, POTION_CLASS, RING_CLASS, SCROLL_CLASS,
-    SPBOOK_CLASS, SPE_NOVEL, STATUE, TOOL_CLASS, VENOM_CLASS, WAND_CLASS,
+    CORPSE, FAKE_AMULET_OF_YENDOR, FIGURINE, FOOD_CLASS,
+    GEM_CLASS, HEAVY_IRON_BALL, OBJ_DESCR, POTION_CLASS,
+    RING_CLASS, SCROLL_CLASS,
+    SPBOOK_CLASS, SPE_NOVEL, STATUE, TIN, TOOL_CLASS, TOWEL,
+    VENOM_CLASS, WAND_CLASS, WEAPON_CLASS,
 } from './objects.js';
-import { just_an } from './objnam.js';
+import { an, just_an, safe_qbuf, simpleonames, xnameFresh } from './objnam.js';
 import { get_rnd_text } from './random_text.js';
 import { HLIQUIDS } from './random_text_data.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
+import { getlin } from './windows.js';
 // display.h canspotmon() (129). js/startup_a11y.js owns it and imports
 // capitalizedMonsterName() from this file, so the two modules form a cycle.
 // Neither uses the other's binding while its module body evaluates, which is
@@ -382,21 +394,93 @@ export async function docallcmd(state) {
     return ECMD_OK;
 }
 
-// C ref: do_name.c docall() (640-676). Everything below its `!obj->dknown`
-// guard is one getlin() prompt -- safe_qbuf() builds "Call <thing>:",
-// name_from_player() reads the answer, and undiscover_object() or
-// discover_object() records it -- and no ported command reaches an input
-// boundary here, so the prompt stops.
-//
-// C's first line is not part of that stop. A hero who cannot see the object
-// has nothing to call it by, so docall() returns in silence; the comment there
-// reads "probably blind; Blind || Hallucination for 'fromsink'".
-export function docall(obj) {
+// C ref: do_name.c docall_xname() (604-633). For safe_qbuf(): strips cosmetic
+// attributes from a temporary copy of obj so the "Call <thing>:" prompt shows
+// a clean base name.
+function docall_xname(obj, state = game) {
+    // Build a shallow temp copy; clear cosmetic fields that doname()/xname()
+    // would format but that distract from the base type name.
+    const otemp = { ...obj, oextra: null, quan: 1 };
+    /* in case water is already known, convert "[un]holy water" to "water" */
+    otemp.blessed = false;
+    otemp.cursed = false;
+    const type = objectType(otemp, state);
+    if (type.oc_class === WEAPON_CLASS)
+        otemp.opoisoned = 0; /* not poisoned */
+    else if (type.oc_class === POTION_CLASS)
+        otemp.odiluted = 0; /* not diluted */
+    else if (otemp.otyp === TOWEL || otemp.otyp === STATUE)
+        otemp.spe = 0; /* not wet or historic */
+    else if (otemp.otyp === TIN)
+        otemp.known = false; /* suppress tin type (homemade, &c) and mon type */
+    else if (otemp.otyp === FIGURINE)
+        otemp.corpsenm = NON_PM; /* suppress mon type */
+    else if (otemp.otyp === HEAVY_IRON_BALL)
+        otemp.owt = state.objects[HEAVY_IRON_BALL].oc_weight; /* not "very heavy" */
+    else if (type.oc_class === FOOD_CLASS && otemp.globby)
+        otemp.owt = 120; /* 6*20, neither a small glob nor a large one */
+
+    return an(xnameFresh(otemp, state));
+}
+
+// C ref: do_name.c name_from_player() (104-128). Wraps getlin() with
+// mungspaces() and PL_PSIZ truncation. Returns the trimmed string, or null
+// when the player cancels (empty input or ESC).
+async function name_from_player(prompt, defres, state = game) {
+    let outbuf = '';
+    // EDIT_GETLIN: pass defres as preloaded text (not compiled in standard
+    // tty, so this branch is dormant; kept for source fidelity).
+    // nhUse(defres);
+    outbuf = await getlin(prompt, state);
+    if (!outbuf || outbuf.charAt(0) === '\x1b')
+        return null;
+
+    /* strip leading and trailing spaces, condense internal sequences */
+    outbuf = mungspaces(outbuf);
+    if (outbuf.length >= PL_PSIZ)
+        outbuf = outbuf.slice(0, PL_PSIZ - 1);
+    return outbuf;
+}
+
+// C ref: do_name.c docall() (636-676). Prompts the player to name ("call")
+// the object type. Updates oc_uname and the discovery list.
+export async function docall(obj, state = game) {
     if (!obj.dknown)
         return; /* probably blind; Blind || Hallucination for 'fromsink' */
-    throw new UnsupportedObjectNamingError(
-        "getlin()'s \"Call <thing>:\" prompt",
-    );
+    await flush_screen(1); /* buffered updates might matter to player's response */
+
+    let qbuf;
+    if (objectType(obj, state).oc_class === POTION_CLASS && obj.fromsink)
+        /* fromsink: kludge, meaning it's sink water */
+        qbuf = `Call a stream of ${OBJ_DESCR(state.objects[obj.otyp])} fluid:`;
+    else
+        qbuf = safe_qbuf(
+            'Call ', ':', obj, docall_xname, simpleonames, 'thing', state,
+        );
+    /* pointer to old name */
+    const type = state.objects[obj.otyp];
+    const hadName = Boolean(type.oc_uname);
+    /* use getlin() to get a name string from the player */
+    const buf = await name_from_player(qbuf, type.oc_uname, state);
+    if (buf == null)
+        return;
+
+    /* clear old name */
+    if (type.oc_uname) {
+        type.oc_uname = null;
+    }
+
+    /* strip leading and trailing spaces; uncalls item if all spaces */
+    const trimmed = mungspaces(buf);
+    if (!trimmed) {
+        if (hadName) /* possibly remove from disco[]; old oc_uname is gone */
+            undiscover_object(obj.otyp, state);
+    } else {
+        type.oc_uname = trimmed;
+        discover_object(obj.otyp, false, true, true, state); /* possibly add to disco[] */
+    }
+    if (obj.where === OBJ_INVENT || carrying(obj.otyp, state))
+        update_inventory({ state });
 }
 
 // A monster name this port cannot format yet.

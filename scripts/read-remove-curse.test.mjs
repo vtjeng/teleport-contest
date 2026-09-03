@@ -6,55 +6,32 @@ import { runSegment } from '../js/jsmain.js';
 import { SCR_REMOVE_CURSE } from '../js/objects.js';
 import { loadReadRemoveCurseRecipe } from './run-read-remove-curse.mjs';
 
-// The recipe wishes for a cursed scroll of remove curse, reads it, and
-// dismisses the first --More--. The cursed branch skips the invent-traversal
-// loop and prints "The scroll disintegrates." as a pending message. doread()
-// then reaches docall(), which is unported and throws; the boundary error
-// leaves the pending disintegrates message undismissed.
-test('cursed remove-curse scroll prints both messages and hits the docall boundary', async () => {
+// The recipe wishes for a cursed scroll of remove curse, reads it, dismisses
+// both --More-- prompts, and presses ESC at the naming prompt. The cursed
+// branch skips the invent-traversal loop and prints "The scroll
+// disintegrates." as a pending message. docall()'s flush_screen(1) triggers
+// that message's --More--, and the player then sees the "Call a scroll..."
+// prompt. After the ESC, useup() consumes the scroll.
+test('cursed remove-curse scroll prints both messages and completes naming flow', async () => {
     const segment = loadReadRemoveCurseRecipe().segments[0];
     let boundary = null;
     const replay = await runSegment(segment, {
         onBoundary: (e) => { boundary = e; },
     });
 
-    // The boundary should be the docall naming prompt, wrapped by
-    // failClosedCommand as UnsupportedHeroCommandBranchBoundaryError.
-    assert.ok(boundary, 'expected a boundary error from the docall throw');
-    assert.ok(
-        boundary.message.includes('getlin'),
-        `boundary should mention getlin: ${boundary.message}`,
-    );
-
-    // seffect_remove_curse() sets "The scroll disintegrates." as the pending
-    // message before docall() throws. The pending message is left undismissed
-    // because docall()'s getlin() would have triggered its --More--.
-    const pending = game._pending_message ?? '';
-    assert.ok(
-        pending.includes('scroll disintegrates'),
-        `pending message should contain "scroll disintegrates": ${JSON.stringify(pending)}`,
-    );
+    // docall is now ported, so no boundary error should be thrown.
+    assert.equal(boundary, null,
+        'docall is ported; no boundary error expected');
 
     // The scroll should have been consumed by useup() in doread()'s
-    // !consumedByEffect branch, which runs before trycall(). Wait -- useup
-    // runs AFTER trycall(), so docall() throwing prevents useup(). The scroll
-    // should still exist in inventory.
+    // !consumedByEffect branch, which runs after trycall(). With docall
+    // completing (ESC dismisses), useup() runs and the scroll is gone.
     const scrollInPack = [];
     for (let obj = game.invent; obj; obj = obj.nobj) {
         if (obj.otyp === SCR_REMOVE_CURSE) scrollInPack.push(obj);
     }
-    // docall throws before useup, so the scroll is still in inventory
-    assert.equal(scrollInPack.length, 1,
-        'the scroll should still be in inventory because docall threw before useup');
-
-    // exercise(A_WIS, true) was called once inside seffects() for the magic
-    // scroll. The rn2(19) draw in C attrib.c:509 is the last RNG call in the
-    // segment. The C recording shows "rn2(19)=14 @ exercise(attrib.c:509)"
-    // for seed 7712309; the JS log omits the annotation.
-    const rng = replay.getRngLog();
-    const lastDraw = rng.at(-1);
-    assert.ok(lastDraw?.startsWith('rn2(19)'),
-        `last PRNG draw should be the exercise rn2(19), got: ${lastDraw}`);
+    assert.equal(scrollInPack.length, 0,
+        'the scroll should be consumed by useup() after docall completes');
 });
 
 // Verify the message variants for different hallucination/confusion states.

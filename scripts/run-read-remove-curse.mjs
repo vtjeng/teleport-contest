@@ -7,9 +7,10 @@
 // The recipe includes one space to dismiss the first --More-- (the
 // concatenated "You read the scroll.  You feel like..."), then
 // seffect_remove_curse() sets "The scroll disintegrates." as a pending
-// message. doread()'s trycall() then reaches docall(), which is unported and
-// throws UnsupportedObjectNamingError. That boundary leaves the pending
-// disintegrates message undismissed, so C has one more screen than JS.
+// message. docall()'s flush_screen(1) triggers the --More-- for that pending
+// message, which the second MORE dismisses. The player then sees the "Call a
+// scroll labeled PRATYAVAYAH:" prompt and presses ESC to dismiss it. useup()
+// consumes the scroll.
 
 import assert from 'node:assert/strict';
 
@@ -41,15 +42,15 @@ export function loadReadRemoveCurseRecipe() {
                 '',
             ].join('\n'),
             // Wait, wish for a cursed remove-curse scroll, then read it.
-            // The first space dismisses the concatenated "You read the
-            // scroll.  You feel like someone is helping you.--More--" and
-            // lets seffect_remove_curse() set "The scroll disintegrates."
-            // as the pending message. doread()'s trycall() then reaches
-            // docall(), which is unported and throws; that boundary leaves
-            // the pending disintegrates message undismissed, so C has one
-            // more screen than JS.
+            // The first MORE dismisses the concatenated "You read the
+            // scroll.  You feel like someone is helping you.--More--".
+            // seffect_remove_curse() sets "The scroll disintegrates." as a
+            // pending message. docall()'s flush_screen(1) triggers its
+            // --More--, which the second MORE dismisses. The ESC cancels
+            // the "Call a scroll labeled PRATYAVAYAH:" prompt. useup()
+            // then consumes the scroll.
             moves: `${WAIT}${wish('cursed scroll of remove curse')}`
-                + `${READ}${SCROLL_SLOT}${MORE}`,
+                + `${READ}${SCROLL_SLOT}${MORE}${MORE}\x1b`,
         }],
     }, 'read cursed remove-curse recipe');
 }
@@ -68,19 +69,6 @@ export async function runReadRemoveCurseMatrix() {
         summaryLabel: 'READ CURSED REMOVE CURSE',
         chunkLimit: 1,
     });
-    // Expected boundary: PRNG matches, 1 screen short due to docall throw.
-    if (!result.passed) {
-        const r = result.failure?.result;
-        if (!r?.rngMismatch
-            && r?.lengths?.screens?.c === r?.lengths?.screens?.js + 1
-            && r?.screenMismatch?.kind === 'js-missing') {
-            process.stdout.write(
-                'READ CURSED REMOVE CURSE: boundary-accepted PASS '
-                + `(PRNG match, ${r.lengths.screens.js}/${r.lengths.screens.c} screens)\n`,
-            );
-            return { passed: true, totals: { segments: 1 } };
-        }
-    }
     if (result.passed) assert.equal(result.totals.segments, 1);
     return result;
 }

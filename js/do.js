@@ -539,10 +539,10 @@ export function flooreffects(obj, x, y, verb, env = {}) {
 // has identified one potion of oil is never asked to name another. That is why
 // potion.c potionbreathe()'s tail is silent for a starting inventory, whose
 // types u_init.c ini_inv_use_obj() discovered as it handed them over.
-export function trycall(obj, state = game) {
+export async function trycall(obj, state = game) {
     const type = objectType(obj, state);
     if (!type.oc_name_known && !type.oc_uname)
-        docall(obj);
+        await docall(obj, state);
 }
 
 // Every branch of the drop chain -- dodrop(), drop() and the
