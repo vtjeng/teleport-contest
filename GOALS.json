@@ -8268,7 +8268,7 @@
     },
     {
       "id": "simple-monster-action-requires-trap-activation",
-      "status": "open",
+      "status": "closed",
       "boundary": "Trap-type dispatch for a simple monster's first activation of one of the 16 unported trapeffect_selector() arms.",
       "upstreamOwners": [
         "trap.c"
@@ -8290,8 +8290,8 @@
       "slices": [
         {
           "name": "trapeffect-rocktrap-monster-arm",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "cc7169b4417cae42470b3db3abb27f348f6aae05"
         }
       ],
       "openedAt": "7c60f7b38c85159567c5e02c35299f9943b2eda7",
@@ -8300,8 +8300,11 @@
         "screens": 4217,
         "rng": 260684
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "cc7169b4417cae42470b3db3abb27f348f6aae05",
+      "delivered": {
+        "screens": 1,
+        "rng": 44
+      }
     }
   ]
 }
