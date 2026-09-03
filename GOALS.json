@@ -8627,7 +8627,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "menu_loot put_in path",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "47039205fcf75256cf2956bab7ea6c598c126584",
       "openStanding": {
         "sha": "7077699b",
