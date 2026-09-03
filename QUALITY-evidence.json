@@ -16712,5 +16712,107 @@
       "deferrals": []
     },
     "recordedAt": "2026-09-03T05:09:44.023Z"
+  },
+  {
+    "kind": "review",
+    "head": "d585847d5cf92ca23342cfac5d035d5b881c7f58",
+    "auditedRange": "c6ee098da6459cff0c3a7deac00316010a6bb9d7..d585847d5cf92ca23342cfac5d035d5b881c7f58",
+    "level": "full",
+    "areas": [
+      "startup",
+      "hero",
+      "objects",
+      "monsters",
+      "world-effects",
+      "commands",
+      "runtime"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 19 raw, 18 deduplicated, 10 confirmed, 10 applied, 0 deferred, 8 rejected, 0 unverified. Full correctness pass. Finders: correctness, readability, tests, concurrency, variable-trace. 19 raw, 18 deduped, 10 confirmed (2 production, 1 clarity, 7 test), 10 applied, 0 deferred, 8 rejected, 0 unverified, 0 warnings. Score unchanged at 4366/7765 screens, 276703/610816 RNG.",
+    "auditMetrics": {
+      "wallTimeSeconds": 3300,
+      "mode": "full",
+      "finders": [
+        "correctness",
+        "readability",
+        "tests",
+        "concurrency",
+        "variable-trace"
+      ],
+      "counts": {
+        "raw": 19,
+        "deduplicated": 18,
+        "confirmed": 10,
+        "applied": 10,
+        "deferred": 0,
+        "rejected": 8,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 2,
+        "tests": 7,
+        "clarity": 1,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "container_contents uses break instead of continue for BAG_OF_TRICKS when all_containers is false, diverging from C's continue semantics at end.c:1612-1613",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "Duplicate command_queue key in planningState object literal makes lines 619-621 dead code; JavaScript silently uses the second definition at line 639",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        }
+      ],
+      "readiness": {
+        "boundary": "8 goals each with user-visible starting event (hero command or monster action) and ending event (screen output, prompt, or state change). Each validated with fresh C-vs-JS differentials.",
+        "sourceReview": "Every ported function traced against upstream C source during implementation. State changes, PRNG order, screen updates, and message output matched. Stubs and explicit stops identified at each boundary.",
+        "completeness": "No known unsupported behavior remains inside ported boundaries. Excluded branches stop before changing state, consuming randomness, or producing output."
+      },
+      "rejections": [
+        {
+          "summary": "name_from_player() accepts a defres parameter that is never used",
+          "counterEvidence": "Readability concern only. The parameter is retained for structural correspondence with C do_name.c:117. Do not reopen without a source-reachable input and a diff-causal line."
+        },
+        {
+          "summary": "maybe_spin_web() cansee block contains unconditional env.unsupported() making trap.tseen dead code",
+          "counterEvidence": "Intentional boundary enforcement. The unsupported() throw is the standard pattern for unported message-printing arms. Moving trap.tseen above would diverge from C. Do not reopen without a source-reachable input and a diff-causal line."
+        },
+        {
+          "summary": "mon_reflects() uses sequential String.replace for printf-style format",
+          "counterEvidence": "Standard JavaScript first-match behavior is correct and well-documented. No correctness defect. Do not reopen without a source-reachable input and a diff-causal line."
+        },
+        {
+          "summary": "menu_loot justpicked shortcut does not merge back a rejected split",
+          "counterEvidence": "C pickup.c:3347-3351 also omits unsplitobj in the justpicked shortcut. JS faithfully matches C behavior. Do not reopen without a source-reachable input and a diff-causal line."
+        },
+        {
+          "summary": "make_deaf() computes a deaf variable that is never read",
+          "counterEvidence": "Readability concern about unused variable, not a correctness defect. Do not reopen without a source-reachable input and a diff-causal line."
+        },
+        {
+          "summary": "is_pure() ops bag shape depends on talk parameter without documentation",
+          "counterEvidence": "Both callers use the interface correctly. Defensive validation for hypothetical misuse is not a correctness issue. Do not reopen without a source-reachable input and a diff-causal line."
+        },
+        {
+          "summary": "seffect_remove_curse header comment line-range citation is imprecise",
+          "counterEvidence": "Pure documentation polish. The comment correctly describes the function behavior. Do not reopen without a source-reachable input and a diff-causal line."
+        },
+        {
+          "summary": "Extra update_inventory() call in seffect_remove_curse not present in C",
+          "counterEvidence": "No PRNG, game-state, or message divergence. Harmless display update. Do not reopen without a source-reachable input and a diff-causal line."
+        }
+      ],
+      "deferrals": []
+    },
+    "recordedAt": "2026-09-03T19:59:49.949Z"
   }
 ]
