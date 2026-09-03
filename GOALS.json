@@ -8778,7 +8778,7 @@
     },
     {
       "id": "unsupported-level-change-hellfill-generator-5-not-ported",
-      "status": "open",
+      "status": "closed",
       "boundary": "Hellfill loader dispatch selecting and executing the hells[5] generator arm.",
       "upstreamOwners": [],
       "forecast": null,
@@ -8786,8 +8786,8 @@
       "slices": [
         {
           "name": "hellfill-hells5-maze-generator",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0b0ba70bf69913640968d6b57e6a17fa78d4a36b"
         }
       ],
       "openedAt": "e497ce11549dc8953d43b85e9c546c609030ddfe",
@@ -8796,8 +8796,11 @@
         "screens": 4366,
         "rng": 276703
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "0b0ba70bf69913640968d6b57e6a17fa78d4a36b",
+      "delivered": {
+        "screens": 2,
+        "rng": 7
+      }
     }
   ]
 }
