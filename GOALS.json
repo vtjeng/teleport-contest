@@ -8804,7 +8804,7 @@
     },
     {
       "id": "unsupported-hero-command-dip",
-      "status": "open",
+      "status": "closed",
       "boundary": "#dip",
       "upstreamOwners": [
         "potion.c",
@@ -8835,8 +8835,11 @@
         "screens": 4368,
         "rng": 276710
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "4c3b2fd244268705e044d8e5d3b0139eab5b4802",
+      "delivered": {
+        "screens": 45,
+        "rng": 405
+      }
     }
   ]
 }
