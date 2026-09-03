@@ -8601,7 +8601,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "dobuzz() monster arm and zhitm() ZT_COLD for a wand bolt killing a newt",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "0b74873431acf90bde45435295c2919e88098826",
       "openStanding": {
         "sha": "938f2847",
