@@ -8437,7 +8437,7 @@
     },
     {
       "id": "unsupported-hero-move-the-kill-message-for-a-pet",
-      "status": "open",
+      "status": "closed",
       "boundary": "The port refuses every mtmp.mtame-guarded arm of xkilled() on the hero-kills-own-pet path - the 'poor <pet>' kill message, the pet's killed_by_u flag, the sad-feeling message, and the luck/alignment/sound fallout - while leaving the non-pet kill path and the rest of xkilled()'s special-case arms untouched.",
       "upstreamOwners": [
         "mon.c"
@@ -8469,8 +8469,11 @@
         "screens": 4265,
         "rng": 269560
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "abc23aff6f3b1acc5779d0c41c53870068cf0f9b",
+      "delivered": {
+        "screens": 1,
+        "rng": 3
+      }
     }
   ]
 }
