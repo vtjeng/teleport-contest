@@ -8225,6 +8225,37 @@
         "screens": 1,
         "rng": 55
       }
+    },
+    {
+      "id": "unsupported-hero-move-trap-activation",
+      "status": "open",
+      "boundary": "unsupported hero move: trap activation — raised at two enforcement points in js/trap_effects.js: preflight_dotrap() (line 1022, gate for dotrap()'s hero path in hack.js's requireSimpleHeroDestination()), which refuses any trap.ttyp other than BEAR_TRAP, DART_TRAP or MAGIC_TRAP before the hero commits to the square; and trapeffect_selector() (line 997), which refuses the same dispatch for the monster arm across the 18-member UNPORTED_TRAP_EFFECTS set (ARROW_TRAP, ROCKTRAP, SLP_GAS_TRAP, RUST_TRAP, FIRE_TRAP, SPIKED_PIT, HOLE, TRAPDOOR, LEVEL_TELEP, MAGIC_PORTAL, TELEP_TRAP, WEB, STATUE_TRAP, ANTI_MAGIC, LANDMINE, POLY_TRAP, ROLLING_BOULDER_TRAP, VIBRATING_SQUARE). SQKY_BOARD and PIT are ported for the monster arm but PIT's hero arm is still refused upstream by preflight_dotrap(), per the comment at trap_effects.js:956-959.",
+      "upstreamOwners": [
+        "trap.c"
+      ],
+      "forecast": {
+        "steps": 21,
+        "basis": "Capped look-ahead at unsupported hero move: trap activation",
+        "sessions": [
+          "seed0012-monk-vault-escort"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0012-monk-vault-escort",
+            "evidence": "Stop site: preflight_dotrap() (js/trap_effects.js:1019-1022), called from requireSimpleHeroDestination()'s speculative pre-move check (js/hack.js:1170-1173) before the hero's move commits, throws UnsupportedHeroMoveBoundaryError('trap activation') because the destination trap's ttyp is neither BEAR_TRAP, DART_TRAP, nor MAGIC_TRAP (the only three admitted at trap_effects.js:1020-1022). TELEP_TRAP is one of the UNPORTED_TRAP_EFFECTS (trap_effects.js:960-979), which trapeffect_selector() (trap_effects.js:985-998) would otherwise route to an unported arm (unsupported('trap activation') at line 997). C path: the recorded window opens with 'You materialize in a different location!', the message teleds() prints at teleport.c:545-547 when is_teleport && flags.verbose. Reached via dotrap() (trap.c:2996) -> trapeffect_selector() case TELEP_TRAP (trap.c:2969-2970) -> trapeffect_telep_trap() (trap.c:2069-2085), which for mtmp==youmonst calls seetrap(trap) then tele_trap(trap) (teleport.c:1491-1535). Inside tele_trap(), this trap was generated with trap->once=1, so the trap->once branch fires (teleport.c:1508-1511): deltrap(trap) removes the one-shot trap, newsym() redraws the square, and vault_tele() (teleport.c:772-783) runs -- it finds the level's VAULT room via search_special(VAULT), picks an open square with somexyspace(), and calls teleds(c.x, c.y, TELEDS_TELEPORT), producing the observed message and cascading into the vault-guard sequence (vault.c gd_move()/gd_move_cleanup(), 835-1200) that generates the rest of the transcript: guard entry, 'hidden gold' dialogue, bag-gold drop, and 'Suddenly, the guard disappears.' (vault.c:862, reached via gd_move_cleanup after egrd->gddone is set, e.g. vault.c:1003-1005). Governing state: trap.once, set at level-generation time by makevtele()->makeniche(TELEP_TRAP) (mklev.c:801-823, once=1 assigned at mklev.c:758-766) -- this is the dedicated single-use 'send hero into the level's vault' teleport-trap niche, consistent with the session name 'monk-vault-escort'. It selects the vault_tele() branch over tele_trap()'s fixed-teledest (isok(trap->teledest...)) or fallback tele() branches. Option preconditions: flags.verbose (default ON) gates the 'You materialize...' message (teleport.c:545-547) and is confirmed on since that message appears; no Antimagic/In_endgame/noteleport_level diversion occurred (would print 'You feel a wrenching sensation', teleport.c:1502-1505) and next_to_u() was true (else 'You shudder for a moment', teleport.c:1506-1507) -- neither alternate line appears. The session's only nethackrc option, OPTIONS=symset:DECgraphics, does not affect this path. Relevant files/functions: js/trap_effects.js (preflight_dotrap, trapeffect_selector, UNPORTED_TRAP_EFFECTS), js/hack.js (requireSimpleHeroDestination ~1170-1173); C: trap.c (dotrap, trapeffect_selector, trapeffect_telep_trap), teleport.c (tele_trap, vault_tele, teleds), vault.c (gd_move, gd_move_cleanup, gd_letknow), mklev.c (makevtele, makeniche)."
+          }
+        ]
+      },
+      "detail": "All owning C code is trap.c: trapeffect_arrow_trap (1190), trapeffect_rocktrap (1324), trapeffect_slp_gas_trap (1563), trapeffect_rust (1595), trapeffect_fire_trap (1730), trapeffect_pit's unported spike arm (1825), trapeffect_hole (2013), trapeffect_telep_trap (2070), trapeffect_level_telep (2088), trapeffect_web (2106), trapeffect_statue_trap (2279), trapeffect_anti_magic (2323), trapeffect_poly_trap (2453), trapeffect_landmine (2528), trapeffect_rolling_boulder_trap (2661), trapeffect_magic_portal (2710), trapeffect_vibrating_square (2725), all dispatched from trapeffect_selector() (2937) and gated for the hero by dotrap()'s preflight checks (2995-3060). Governing precondition is purely trap.ttyp, matched in trapeffect_selector's switch. This candidate is oversized for one goal or slice: it fans one JS error string across 17 distinct trapeffect_*() functions covering unrelated mechanics (arrow/dart-style damage, item destruction by rust/fire, a monster-creating statue trap, object-polymorphing poly trap, hero-relocating teleport/level-teleport/portal traps, a whole rolling-boulder subsystem, web entanglement, and a special-level vibrating-square encounter), each with its own random-number calls, messages, and state changes. Any single stopped session only ever exercises whichever one trap type the hero actually stepped on, so per .agents/selection.md ('state the boundary in terms the sessions contributing to its forecast reach' / don't bundle 'every row of a table' into one goal), this boundary should be narrowed to the specific trap type(s) the witnessing session(s) hit rather than opened as-is. That also matches precedent: BEAR_TRAP, DART_TRAP, MAGIC_TRAP, SQKY_BOARD and PIT were each ported as their own dedicated trapeffect_*() arm/goal already, per the file's own history comments.",
+      "slices": [],
+      "openedAt": "0d79b4c24a373daa9171480acfc886cc25ad55bf",
+      "openStanding": {
+        "sha": "a3de46fd",
+        "screens": 4195,
+        "rng": 260084
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
