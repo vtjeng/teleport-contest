@@ -8630,8 +8630,8 @@
       "slices": [
         {
           "name": "menu_loot put_in path",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "44183e51e72d0684b5a7a3b35d95659019385979"
         }
       ],
       "openedAt": "47039205fcf75256cf2956bab7ea6c598c126584",
