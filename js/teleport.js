@@ -8,6 +8,7 @@ import {
     ACCESSIBLE,
     ACH_AMUL,
     ALTAR,
+    ANTIMAGIC,
     BLINDED,
     BOLT_LIM,
     CC_INCL_CENTER,
@@ -58,6 +59,7 @@ import {
     TRAPDOOR,
     TT_BURIEDBALL,
     UTOTYPE_NONE,
+    VAULT,
     VIBRATING_SQUARE,
     WATER,
     W_NONPASSWALL,
@@ -162,7 +164,11 @@ import {
 import { getpos } from './getpos.js';
 import { in_out_region } from './region.js';
 import { make_blinded } from './potion.js';
-import { fill_pit, reset_utrap, t_at, unconscious } from './trap.js';
+import { deltrap, fill_pit, reset_utrap, t_at, unconscious }
+    from './trap.js';
+import { somexyspace } from './mklev.js';
+import { search_special } from './mkroom.js';
+import { settrack } from './track.js';
 import { ttyPline } from './tty_message.js';
 import { vault_occupied } from './vault.js';
 import { couldsee, vision_recalc } from './vision.js';
@@ -1166,6 +1172,22 @@ export async function safe_teleds(teleds_flags, state = game) {
     );
 }
 
+// C ref: teleport.c vault_tele() (771-784). The one-shot teleport trap that
+// mklev.c makevtele() hides in a niche sends the hero into the level's vault.
+// C's `croom && somexyspace(...) && teleok(...)` short-circuits, so a level
+// with no vault spends no randomness before falling through to tele().
+export async function vault_tele(state = game) {
+    const croom = search_special(VAULT, state);
+    const c = { x: 0, y: 0 };
+
+    if (croom && somexyspace(croom, c, { state })
+        && await teleok(c.x, c.y, false, state)) {
+        await teleds(c.x, c.y, TELEDS_TELEPORT, state);
+        return;
+    }
+    await tele(state);
+}
+
 // C ref: teleport.c scrolltele() (849-915). The calm uncontrolled scroll
 // branch reaches safe_teleds(); controlled, level-restricted, and direct
 // teleport-command branches remain bounded to their existing callers.
@@ -1223,16 +1245,13 @@ export async function scrolltele(scroll, state = game) {
         }
     }
 
-    if (!scroll) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'scrolltele: uncontrolled teleport (safe_teleds) unported',
-        );
-    }
-    learnscroll(scroll, state);
+    if (scroll) learnscroll(scroll, state);
     await safe_teleds(TELEDS_TELEPORT, state);
 }
 
-// C ref: teleport.c tele() (842-845).
+// C ref: teleport.c tele() (841-845). tele_trap()'s fallback arm is its first
+// caller in the running game, which is why scrolltele() now admits a null
+// scroll instead of refusing one.
 export async function tele(state = game) {
     await scrolltele(null, state);
 }
@@ -1348,6 +1367,77 @@ export async function teleds(nux, nuy, teleds_flags, state = game) {
     invocation_message(state);
     notice_mon_on(state);
     await notice_all_mons(true, state);
+}
+
+// youprop.h:57 defines Antimagic as the intrinsic or the extrinsic, with no
+// blocking term.
+function Antimagic_prop(state) {
+    const p = state.u?.uprops?.[ANTIMAGIC];
+    return Boolean(p?.intrinsic || p?.extrinsic);
+}
+
+// C's `static boolean in_tele_trap` inside tele_trap(), teleport.c:1494. A
+// fixed-destination trap can drop the hero onto a second teleport trap, and
+// the guard stops the recursive call spoteffects() would make there. The
+// try/finally below restores it on a refusal too, so a bounded stop cannot
+// leave the flag set for the next segment.
+let in_tele_trap = false;
+
+// C ref: teleport.c tele_trap() (1491-1535). trap.c trapeffect_telep_trap()
+// is its only caller in the running game.
+export async function tele_trap(trap, state = game) {
+    if (in_tele_trap) return;
+
+    in_tele_trap = true;
+    try {
+        if (inEndgame(state) || Antimagic_prop(state)
+            || noteleport_level(state.youmonst, state)) {
+            if (Antimagic_prop(state)) {
+                // shieldeff() animates a shield over the hero's square with
+                // tmp_at(); nothing of tmp_at() is ported.
+                // trapeffect_telep_trap()'s preflight refuses a magic-
+                // resistant hero before the move commits, so this is proof
+                // rather than a live branch.
+                throw new UnsupportedHeroMoveBoundaryError(
+                    'shieldeff() for a magic-resistant hero on a teleport trap',
+                );
+            }
+            await ttyPline('You feel a wrenching sensation.', state);
+        } else if (!next_to_u(state)) {
+            await ttyPline('You shudder for a moment.', state);
+        } else if (trap.once) {
+            deltrap(trap, state);
+            newsym(state.u.ux, state.u.uy); /* get rid of trap symbol */
+            await vault_tele(state);
+        } else if (isok(trap.teledest.x, trap.teledest.y)) {
+            let mtmp = m_at(trap.teledest.x, trap.teledest.y, state);
+
+            settrack(state);
+            if (mtmp) {
+                const cc = enexto(mtmp.mx, mtmp.my, mtmp.data, { state });
+                if (!cc) {
+                    /* could not find some other place to put mtmp; the level
+                       must be nearly or completely full */
+                    await ttyPline('You shudder for a moment.', state);
+                } else {
+                    rloc_to(mtmp, cc.x, cc.y, { state });
+                    mtmp = null; /* no longer a monster at dest */
+                }
+            }
+            if (!mtmp) {
+                await teleds(
+                    trap.teledest.x,
+                    trap.teledest.y,
+                    TELEDS_TELEPORT,
+                    state,
+                );
+            }
+        } else {
+            await tele(state);
+        }
+    } finally {
+        in_tele_trap = false;
+    }
 }
 
 // youprop.h:83-84 defines Confusion as the bare intrinsic field, with neither

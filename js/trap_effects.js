@@ -2,7 +2,8 @@
 // C ref: trap.c -- wearing_iron_shoes(), floor_trigger(), check_in_air(),
 // seetrap(), feeltrap(), trapnote(), t_missile(), thitm(),
 // trapeffect_sqky_board(), trapeffect_dart_trap(), trapeffect_bear_trap(),
-// mselftouch(), trapeffect_pit(), trapeffect_selector(), dotrap(), mintrap().
+// mselftouch(), trapeffect_pit(), trapeffect_telep_trap(),
+// trapeffect_magic_trap(), trapeffect_selector(), dotrap(), mintrap().
 //
 // These are trap.c functions and belong beside js/trap.js's maketrap() group
 // by file name. They are split out because they reach the display, naming,
@@ -12,6 +13,7 @@
 // split the same file for the same reason.
 
 import {
+    ANTIMAGIC,
     ANTI_MAGIC,
     ARROW_TRAP,
     A_CON,
@@ -103,6 +105,7 @@ import {
     PM_PIT_FIEND,
     PM_PIT_VIPER,
 } from './monsters.js';
+import { m_at } from './monst.js';
 import { thitu } from './mthrowu.js';
 import { mksobj, objectType, place_object, weight } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -114,6 +117,7 @@ import { body_part } from './polyself.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { canSeeMonster, heroIsBlind, messageAt } from './startup_a11y.js';
 import { Flying, Levitation, set_utrap, t_at, trapname } from './trap.js';
+import { tele_trap } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { dmgval } from './weapon.js';
 import { cansee, clear_path, couldsee } from './vision.js';
@@ -908,6 +912,26 @@ async function domagictrap(env) {
     }
 }
 
+// C ref: trap.c trapeffect_telep_trap() (2069-2085), hero arm only.
+//
+// The monster arm forwards to teleport.c mtele_trap(), which needs the
+// seeTrap, newsym and setApparxy owners that mintrap()'s callers do not bind
+// and set_apparxy(), which is not ported. It refuses here rather than from
+// UNPORTED_TRAP_EFFECTS, the way trapeffect_magic_trap() and trapeffect_pit()
+// each own the refusal for the arm they do not cover.
+async function trapeffect_telep_trap(mtmp, trap, _trflags, env) {
+    const state = env.state;
+    const unsupported = requireTrapOperation(env, 'unsupported');
+
+    if (mtmp === state.youmonst) {
+        seetrap(trap, env);
+        await tele_trap(trap, state);
+        return Trap_Effect_Finished;
+    }
+    unsupported('a monster on a teleport trap');
+    return Trap_Effect_Finished; // unreachable
+}
+
 // C ref: trap.c trapeffect_magic_trap() (2293-2320), hero arm only.
 //
 // The hero arm calls seetrap(), rolls rn2(30) for a 1/30 magical-explosion
@@ -968,7 +992,6 @@ const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     TRAPDOOR,
     LEVEL_TELEP,
     MAGIC_PORTAL,
-    TELEP_TRAP,
     WEB,
     STATUE_TRAP,
     ANTI_MAGIC,
@@ -994,6 +1017,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
         return trapeffect_pit(monster, trap, trflags, env);
     if (trap.ttyp === MAGIC_TRAP)
         return trapeffect_magic_trap(monster, trap, trflags, env);
+    if (trap.ttyp === TELEP_TRAP)
+        return trapeffect_telep_trap(monster, trap, trflags, env);
     if (UNPORTED_TRAP_EFFECTS.has(trap.ttyp)) unsupported('trap activation');
     throw new Error(`trapeffect_selector: strange trap type ${trap.ttyp}`);
 }
@@ -1005,8 +1030,13 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 // that arrives another way.
 //
 // The stops, and what each of them needs:
-//   every type but BEAR_TRAP, DART_TRAP and MAGIC_TRAP -- its own
+//   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP and TELEP_TRAP -- its own
 //     trapeffect_*() arm;
+//   a magic-resistant hero on a teleport trap -- shieldeff(), a tmp_at()
+//     animation, at teleport.c:1503;
+//   a fixed-destination teleport trap with a monster standing on the
+//     destination -- teleport.c:1516's rloc_to(), whose port covers only a
+//     monster that is not yet on the map;
 //   a trap the hero has already seen -- trapname(), for the "You step over
 //     ..." line at trap.c:3028 and the "You escape ..." line at :3039, and
 //     with it the one-in-five rn2(5) escape roll at :3038 that decides
@@ -1018,8 +1048,25 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //   iron shoes -- Yname2(uarmf), at trap.c:1518 (bear trap only).
 export function preflight_dotrap(trap, state = game) {
     if (trap.ttyp !== BEAR_TRAP && trap.ttyp !== DART_TRAP
-        && trap.ttyp !== MAGIC_TRAP)
+        && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== TELEP_TRAP)
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
+    if (trap.ttyp === TELEP_TRAP) {
+        const antimagic = state.u?.uprops?.[ANTIMAGIC];
+        if (antimagic?.intrinsic || antimagic?.extrinsic) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'shieldeff() for a magic-resistant hero on a teleport trap',
+            );
+        }
+        // tele_trap()'s fixed-destination arm calls settrack() before it can
+        // discover that rloc_to() has no answer for the monster in the way,
+        // so the question has to be asked here, ahead of that write.
+        if (!trap.once && fixed_tele_trap(trap)
+            && m_at(trap.teledest.x, trap.teledest.y, state)) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'a monster on a teleport trap destination',
+            );
+        }
+    }
     if (trap.tseen) {
         throw new UnsupportedHeroMoveBoundaryError(
             'a trap the hero has already seen',
