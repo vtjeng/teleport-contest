@@ -1514,8 +1514,10 @@ test('zhitm() ZT_COLD deals d(nd,6) damage and calls resist()', async () => {
         'd(6,6) = 18 with MR 0 means no halving');
     assert.equal(mon.mhp, 32, '50 - 18 = 32 HP remaining');
     // First call is d(6,6) for base damage, then rn2(3) for destroy_items
-    // chance, then rn2(112) for resist (100 + 12 wand - 1 level + 1 clamp)
+    // chance, then rn2(111) for resist (100 + 12 wand - 1 m_lev clamped to 1)
     assert.equal(rolls[0], 'd(6,6)', 'first roll is the base damage');
+    assert.ok(rolls.includes('rn2(111)'),
+        `resist bound should be rn2(111), got: ${rolls.join(', ')}`);
 });
 
 test('zhitm() ZT_COLD adds d(nd,3) when the monster has fire resistance',
@@ -1542,6 +1544,7 @@ test('zhitm() ZT_COLD adds d(nd,3) when the monster has fire resistance',
         'fire-resistant monster takes d(nd,6) + d(nd,3) from cold');
     assert.ok(rolls.includes('d(6,3)'),
         'the bonus d(nd,3) roll appears in the sequence');
+    assert.equal(mon.mhp, 76, '100 - 24 = 76 HP remaining');
 });
 
 test('zhitm() throws for unported damage types', async () => {

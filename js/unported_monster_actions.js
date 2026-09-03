@@ -614,11 +614,6 @@ function planningState(state) {
             ...state.svq,
             quest_status: { ...(state.svq.quest_status ?? {}) },
         } : state.svq,
-        // cmd.c cmdq_clear(CQ_CANNED), which quest.c expulsion()'s nomul(0)
-        // reaches. The queue is one array shared by both passes without this.
-        command_queue: state.command_queue
-            ? state.command_queue.map((queue) => [...queue])
-            : state.command_queue,
         // distant_name() raises gd.distantname around a name it must not let
         // observe_object() record, and lowers it in a finally. The dry run
         // reaches that raise through dog_invent(), so a shared gd is a live

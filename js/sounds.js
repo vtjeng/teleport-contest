@@ -648,11 +648,9 @@ async function domonnoise(mtmp, state) {
         // quest.c chat_with_leader() raises the caller's own class for the
         // conversation arms this port does not carry, so #chat keeps reporting
         // them as chat boundaries with the arm named.
-        const spoke = await quest_chat(mtmp, state, {
+        await quest_chat(mtmp, state, {
             unsupported: (reason) => { throw new UnsupportedChatError(reason); },
         });
-        if (!spoke)
-            throw new UnsupportedChatError('a quest leader conversation');
     } else {
         // Preserve the existing public boundary for every ordinary monster;
         // only the quest-leader arm is admitted by this slice.

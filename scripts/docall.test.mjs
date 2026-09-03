@@ -78,10 +78,10 @@ test('docall sets oc_uname when the player names an object type', async () => {
         'oc_uname should be set to the player-supplied name');
 });
 
-// docall() clears oc_uname and calls undiscover_object when the player
-// enters an empty name for a previously-named type. To set up the test, first
-// name the type via docall, then call docall again with only spaces.
-test('docall clears oc_uname when the player enters only spaces', async () => {
+// undiscover_object removes a previously named type from disco[] when its
+// oc_uname is cleared and the type is neither identified nor encountered. First
+// name the type via docall, then clear it and call undiscover_object.
+test('undiscover_object removes a previously named type from disco', async () => {
     await startedGame(880003, 'ClearName');
     clearTopline();
     const obj = mksobj(SCR_REMOVE_CURSE, false, false, { state: game });
@@ -92,16 +92,14 @@ test('docall clears oc_uname when the player enters only spaces', async () => {
     queueText('old name');
     await docall(obj, game);
     assert.equal(game.objects[obj.otyp].oc_uname, 'old name');
-    // Now clear the name by entering only spaces. docall reads the existing
-    // oc_uname but the xnameFresh boundary for user-assigned names makes the
-    // prompt path use simpleonames as the safe_qbuf fallback. We bypass that
-    // by setting oc_uname to null just before docall so the prompt can format,
-    // then manually set it back to test the clearing logic.
-    // Actually, for now just test the undiscover path directly.
+    // Test undiscover_object directly: when oc_uname is cleared and the type
+    // is neither formally identified nor encountered, the type leaves disco[].
+    // The docall space-clearing path (do_name.c:669-674) is not exercised here
+    // because xnameFresh does not yet handle user-assigned names.
     game.objects[obj.otyp].oc_uname = null;
     undiscover_object(obj.otyp, game);
     assert.equal(game.objects[obj.otyp].oc_uname, null,
-        'oc_uname should be null after clearing');
+        'oc_uname stays null after undiscover_object');
 });
 
 // docall() does nothing when the player presses ESC.
@@ -127,7 +125,7 @@ test('docall truncates names longer than PL_PSIZ-1', async () => {
     obj.dknown = true;
     game.objects[obj.otyp].oc_name_known = 0;
     game.objects[obj.otyp].oc_uname = null;
-    // PL_PSIZ is 62; a name of 70 characters should be truncated to 61.
+    // PL_PSIZ is 63 (global.h:404); a name of 70 characters is truncated to 62.
     const longName = 'a'.repeat(70);
     queueText(longName);
     await docall(obj, game);

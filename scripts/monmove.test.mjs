@@ -80,6 +80,7 @@ import {
     TREE,
     UNLOCKDOOR,
     WATER,
+    WEB,
     W_NONDIGGABLE,
     W_NONPASSWALL,
     W_ARM,
@@ -1744,6 +1745,45 @@ test('maybe_spin_web draws rn2(1000) and skips web when the roll fails',
             `expected rn2(1000) draw, got: ${JSON.stringify(rn2Calls)}`);
         // No WEB trap was created because 246 >= 25.
         assert.equal(state.level.traps.length, 0);
+    });
+
+test('maybe_spin_web creates a WEB trap and sets mspec_used on success',
+    async () => {
+        // A cave spider at (5,4). prob = 5 * (4 + 1) = 25 with four webbing
+        // walls and no existing webs. rn2(1000) returns 0 (< 25), so the web
+        // is created. d(4,4) returns 10 for the cooldown.
+        const { locations, state } = makeState();
+        const monster = ordinaryMonster(state, {
+            data: state.mons[PM_CAVE_SPIDER],
+            mnum: PM_CAVE_SPIDER,
+            mx: 5,
+            my: 4,
+            mspec_used: 0,
+            mcanmove: true,
+        });
+        sealNeighborhood(locations, monster.mx, monster.my);
+        const rn2Calls = [];
+        const dCalls = [];
+        // The new WEB trap makes the hides_under check refuse (non-empty
+        // square), so record that refusal instead of failing the test.
+        const unsupportedCalls = [];
+        const { env } = postmovEnv(state, {
+            unsupported: (reason) => { unsupportedCalls.push(reason); },
+        });
+        env.random = {
+            rn2(bound) { rn2Calls.push(bound); return 0; },
+            d(n, s) { dCalls.push([n, s]); return 10; },
+        };
+
+        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, false, env);
+        assert.ok(rn2Calls.includes(1000), 'rn2(1000) was drawn');
+        // d(4,4) sets the cooldown on mspec_used.
+        assert.deepEqual(dCalls[0], [4, 4], 'd(4,4) drawn for cooldown');
+        assert.equal(monster.mspec_used, 10, 'mspec_used set to d(4,4) result');
+        // A WEB trap was created at the spider's location.
+        const webTrap = state.level.traps.find(
+            t => t.tx === 5 && t.ty === 4 && t.ttyp === WEB);
+        assert.ok(webTrap, 'WEB trap created at spider coordinates');
     });
 
 test('maybe_spin_web skips the rn2 draw when mspec_used is nonzero',

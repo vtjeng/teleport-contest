@@ -1335,8 +1335,6 @@ export async function container_contents(
                 update_inventory({ state });
             }
             if (box.otyp === BAG_OF_TRICKS) {
-                // wrong type of container; C: continue
-                if (!all_containers) break;
                 continue;
             }
 

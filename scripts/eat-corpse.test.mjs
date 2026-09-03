@@ -312,9 +312,13 @@ test('rottenfood prints and applies the three-arm cascade', async () => {
     const rotten = await eatRetypedCorpse(BARBARIAN, (corpse) => {
         corpse.orotten = true;
     });
-    // rottenfood draws at least 1 (the first rn2(4)) and the meal continues,
-    // so the total draw count exceeds the old stop's 1.
-    assert.ok(rotten.draws >= 1, `expected draws >= 1, got ${rotten.draws}`);
+    // rottenfood always prints "Blecch!" (eat.c:1816) and draws rn2(4) for
+    // confusion plus at least one more arm. The exact draw count depends on
+    // which arms fire for this seed.
+    assert.ok(rotten.topLine.includes('Blecch!'),
+        'rottenfood must print the Blecch message');
+    assert.ok(rotten.draws >= 2,
+        `rottenfood draws rn2(4) plus at least one cascade arm; got ${rotten.draws}`);
     assert.equal(rotten.stopped, null,
         'rottenfood() no longer throws');
 });
