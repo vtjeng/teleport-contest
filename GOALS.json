@@ -8812,7 +8812,13 @@
       ],
       "forecast": null,
       "detail": "Port dodip() and dipfountain(). ~1050 lines of C across potion.c (dodip, dip_into, potion_dip, mixtype ~580 lines), fountain.c (dipfountain ~160 lines, dipsink ~86 lines), and trap.c (water_damage ~143 lines). Multi-slice goal (estimated 5-8 slices).",
-      "slices": [],
+      "slices": [
+        {
+          "name": "dodip-dipfountain-water-damage",
+          "status": "closed",
+          "closedBy": "f3aee8e26e7d036e944a3eb857b773ecd2703724"
+        }
+      ],
       "openedAt": "e2be2fe01504119e51ce08729db6ae219838e4df",
       "openStanding": {
         "sha": "0b0ba70bf69913640968d6b57e6a17fa78d4a36b",
