@@ -8645,6 +8645,23 @@
         "screens": 6,
         "rng": 198
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-20",
+      "status": "open",
+      "boundary": "eating requires rottenfood() for a corpse",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "0a9f4d198f55c45e5fa91e5c9c818dd1d6141b88",
+      "openStanding": {
+        "sha": "3d550f59",
+        "screens": 4297,
+        "rng": 275044
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
