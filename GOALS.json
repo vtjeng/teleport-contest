@@ -8330,7 +8330,13 @@
         ]
       },
       "detail": "Bounding property: normal really_done cleanup for a remaining shopkeeper, guard, or priest, witnessed in one development session and bounded to its cap-stable 11-screen stretch. Following .agents/selection.md, this is a measured 11-screen look-ahead for the exact cleanup state, not a claim about all end-game paths.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "paybill-silent-shopkeeper-scan",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "d8c79424020c3f073941c9a3996bc45fb6be7e75",
       "openStanding": {
         "sha": "cc7169b4",
