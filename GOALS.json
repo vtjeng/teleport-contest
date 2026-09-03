@@ -8648,7 +8648,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-20",
-      "status": "open",
+      "status": "closed",
       "boundary": "eating requires rottenfood() for a corpse",
       "upstreamOwners": [],
       "forecast": null,
@@ -8666,8 +8666,11 @@
         "screens": 4297,
         "rng": 275044
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "9dc8c8edbd936d5dff31fb0d83cad6c5b373ea01",
+      "delivered": {
+        "screens": 41,
+        "rng": 1556
+      }
     }
   ]
 }
