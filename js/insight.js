@@ -134,6 +134,7 @@ import {
     SLEEP_RES,
     SLEEPY,
     SLIMED,
+    TIMEOUT,
     SLOW_DIGESTION,
     SLT_ENCUMBER,
     STEALTH,
@@ -155,6 +156,10 @@ import {
     VOMITING,
     WARN_OF_MON,
     WARN_UNDEAD,
+    W_AMUL,
+    W_ARMOR,
+    W_RING,
+    W_TOOL,
     WARNING,
     WOUNDED_LEGS,
     WWALKING,
@@ -209,7 +214,7 @@ import { x_monnam } from './do_name.js';
 import { mon_aligntyp } from './priest.js';
 import { align_gname, can_pray, u_gname } from './pray.js';
 import { spellid } from './spell.js';
-import { is_ammo, isMetallic } from './obj.js';
+import { is_ammo, isMetallic, objectType } from './obj.js';
 import { body_part } from './polyself.js';
 import { visible_region_at } from './region.js';
 import { mhidden_description } from './startup_a11y.js';
@@ -307,6 +312,23 @@ function propertyInPlay(state, propidx) {
     const property = state.u.uprops?.[propidx];
     return Boolean(property?.intrinsic || property?.extrinsic
         || property?.blocked);
+}
+
+// C ref: insight.c cause_known(). Checks whether the hero is wearing something
+// the player definitely knows confers the target property. The item must have
+// been seen (dknown) and its type discovered (oc_name_known). Simpler than
+// from_what()/what_gives(): does not attempt to handle artifacts and
+// deliberately ignores wielded items.
+export function cause_known(propidx, state) {
+    const mask = W_ARMOR | W_AMUL | W_RING | W_TOOL;
+    for (let o = state.invent; o; o = o.nobj) {
+        if (!(o.owornmask & mask))
+            continue;
+        const type = objectType(o, state);
+        if (type.oc_oprop === propidx && type.oc_name_known && o.dknown)
+            return true;
+    }
+    return false;
 }
 
 // C ref: attrib.c is_innate() and from_what(). Keep the source wording used by
@@ -1013,7 +1035,6 @@ const UNPORTED_STATUS_PROPERTIES = Object.freeze([
     [WOUNDED_LEGS, 'the wounded-legs status'],
     [GLIB, 'the slippery-fingers status'],
     [FUMBLING, 'the fumbling status'],
-    [SLEEPY, 'the narcolepsy status'],
     [HUNGER, 'the rapid-hunger status'],
 ]);
 
@@ -1039,8 +1060,23 @@ function status_enlightenment(mode, final, state, lines) {
     if (state.iflags.tux_penalty)
         throw new UnsupportedEnlightenmentError("the monk's suit penalty");
 
+    const magic = Boolean(mode & MAGICENLIGHTENMENT);
+
     enlght_out(lines, ''); /* separator after title or characteristics */
     enlght_out(lines, final ? 'Final Status:' : 'Status:');
+
+    // C ref: insight.c:1181-1188. Sleepy (narcolepsy) arm: displayed when
+    // the property is set and the cause is either magically known or the
+    // player can see a worn item that confers it.
+    if (hasProperty(state, SLEEPY)) {
+        if (magic || cause_known(SLEEPY, state)) {
+            let buf = attributeSource(SLEEPY, state);
+            if (state.wizard)
+                buf += ` (${(u.uprops[SLEEPY].intrinsic ?? 0) & TIMEOUT})`;
+            enl_msg(lines, final, 'You ', 'fall', 'fell',
+                ' asleep uncontrollably', buf);
+        }
+    }
 
     /* hunger/nutrition; the status line omits "not hungry" and we do not */
     let buf = mungspaces(hu_stat[u.uhs]);

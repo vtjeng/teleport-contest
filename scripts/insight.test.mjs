@@ -14,6 +14,7 @@ import { getnow } from '../js/calendar.js';
 import {
     align_str,
     attrval,
+    cause_known,
     enlightenment,
     fmt_elapsed_time,
     size_str,
@@ -31,7 +32,10 @@ import {
     MAGICENLIGHTENMENT,
     MOD_ENCUMBER,
     OVERLOADED,
+    SLEEPY,
     SLT_ENCUMBER,
+    W_AMUL,
+    W_ARMOR,
 } from '../js/const.js';
 import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
 import { game } from '../js/gstate.js';
@@ -42,6 +46,7 @@ import {
     M2_DEMON,
 } from '../js/monsters.js';
 import {
+    AMULET_OF_RESTFUL_SLEEP,
     AMULET_CLASS,
     ARMOR_CLASS,
     COIN_CLASS,
@@ -56,6 +61,7 @@ import {
     RING_CLASS,
     RING_MAIL,
     SHORT_SWORD,
+    objects_globals_init,
     TOWEL,
     WEAPON_CLASS,
 } from '../js/objects.js';
@@ -1176,4 +1182,79 @@ test('debug Ctrl-X attributes includes numeric enlightenment details', async () 
     game.u.uluck = 1;
     const luckyLines = await enlightenment(MAGIC, ENL_GAMEINPROGRESS, game);
     assert.ok(luckyLines.includes(' You are lucky (1).'));
+});
+
+// insight.c cause_known(). Iterates the inventory checking worn items whose
+// type's oc_oprop matches the property and whose type is name-known and whose
+// instance is player-known (dknown). The mask W_ARMOR | W_AMUL | W_RING |
+// W_TOOL limits the scan to armor, amulets, rings, and tools.
+test('cause_known() returns true only for a worn, known item with matching oc_oprop', () => {
+    // Build a minimal state with the objects table so objectType() works.
+    const state = {};
+    objects_globals_init(state);
+
+    // An amulet of restful sleep (objects.h:842) has oc_oprop = SLEEPY.
+    // Verify the catalog agrees.
+    assert.equal(state.objects[AMULET_OF_RESTFUL_SLEEP].oc_oprop, SLEEPY,
+        'the amulet of restful sleep confers SLEEPY');
+
+    // No inventory: cause_known returns false.
+    state.invent = null;
+    assert.equal(cause_known(SLEEPY, state), false,
+        'empty inventory never matches');
+
+    // Worn amulet, but type not name-known: returns false.
+    const amulet = { otyp: AMULET_OF_RESTFUL_SLEEP, owornmask: W_AMUL,
+        dknown: 1, nobj: null };
+    state.objects[AMULET_OF_RESTFUL_SLEEP].oc_name_known = 0;
+    state.invent = amulet;
+    assert.equal(cause_known(SLEEPY, state), false,
+        'name-unknown item does not reveal the cause');
+
+    // Worn amulet, name-known but not player-seen (dknown=0): returns false.
+    state.objects[AMULET_OF_RESTFUL_SLEEP].oc_name_known = 1;
+    amulet.dknown = 0;
+    assert.equal(cause_known(SLEEPY, state), false,
+        'unseen item (dknown=0) does not reveal the cause');
+
+    // Worn, name-known, player-seen: returns true.
+    amulet.dknown = 1;
+    assert.equal(cause_known(SLEEPY, state), true,
+        'worn+name-known+dknown item reveals the cause');
+
+    // Same item but not worn (owornmask=0): returns false.
+    amulet.owornmask = 0;
+    assert.equal(cause_known(SLEEPY, state), false,
+        'carried but unworn item does not match the worn-item mask');
+
+    // Worn as armor (W_ARMOR mask): returns true -- the mask includes armor.
+    amulet.owornmask = W_ARMOR;
+    assert.equal(cause_known(SLEEPY, state), true,
+        'W_ARMOR is inside the worn mask');
+
+    // Wrong property: the amulet confers SLEEPY, not FIRE_RES.
+    amulet.owornmask = W_AMUL;
+    assert.equal(cause_known(FIRE_RES, state), false,
+        'mismatched property returns false');
+
+    // Restore oc_name_known so later tests that import it are unaffected.
+    state.objects[AMULET_OF_RESTFUL_SLEEP].oc_name_known = 0;
+});
+
+// insight.c:1181-1188. The Sleepy arm of status_enlightenment() prints the
+// narcolepsy line when the property is set and either the enlightenment mode
+// includes MAGICENLIGHTENMENT or cause_known(SLEEPY) returns true.
+test('the Sleepy arm prints the narcolepsy line under magic enlightenment', async () => {
+    const state = await readyExploreGame();
+    // Set the SLEEPY property via intrinsic so hasProperty returns true.
+    state.u.uprops[SLEEPY] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const lines = await enlightenment(MAGIC, ENL_GAMEINPROGRESS, state);
+    // The narcolepsy line uses enl_msg("You ", "fall", ..., " asleep
+    // uncontrollably", from_what). In non-final mode the present tense fires.
+    assert.ok(
+        lines.some((l) => l.includes('fall asleep uncontrollably')),
+        'the Sleepy arm appears under magic enlightenment',
+    );
+    // Clean up.
+    state.u.uprops[SLEEPY] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
 });
