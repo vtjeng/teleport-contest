@@ -8895,7 +8895,7 @@
     },
     {
       "id": "unsupported-initial-level-monster-creation-initial-shapechan",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported initial-level monster creation: initial shapechanger 301",
       "upstreamOwners": [],
       "forecast": null,
@@ -8903,8 +8903,8 @@
       "slices": [
         {
           "name": "pick_nasty-and-sandestin-case",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e923cf21c221d969c228237654fb4e5dc99b9738"
         }
       ],
       "openedAt": "b7a95bf1f1ee3f63173d8f013bab8a590e16c9e6",
@@ -8913,8 +8913,11 @@
         "screens": 4547,
         "rng": 314073
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "e923cf21c221d969c228237654fb4e5dc99b9738",
+      "delivered": {
+        "screens": 5,
+        "rng": 2310
+      }
     }
   ]
 }
