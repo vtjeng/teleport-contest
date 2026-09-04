@@ -40,7 +40,7 @@ import { m_at } from './monst.js';
 import { create_gas_cloud } from './region.js';
 import { within_bounded_area } from './rect.js';
 import { rn1, rn2, rnd } from './rng.js';
-import { maketrap, t_at } from './trap.js';
+import { deltrap, maketrap, t_at } from './trap.js';
 import { ttyNorep } from './tty_message.js';
 import {
     block_point,
@@ -444,11 +444,11 @@ function put_lregion_here(
            avoid failure due to a misplaced trap. */
         const trap = t_at(x, y, state);
         if (trap && !undestroyable_trap(trap.ttyp)) {
-            // mkmaze.c:435-439 frees the trapped flag of any monster standing
-            // in it and calls trap.c deltrap(), neither of which is ported.
-            throw new UnsupportedRegionPlacementError(
-                'put_lregion_here() clearing a trap off the only square left',
-            );
+            // C ref: mkmaze.c:435-439. Clear the trapped flag of any monster
+            // standing in the trap, then remove the trap itself.
+            const mtmpOnTrap = m_at(x, y, state);
+            if (mtmpOnTrap) mtmpOnTrap.mtrapped = false;
+            deltrap(trap, state);
         }
         if (bad_location(x, y, nlx, nly, nhx, nhy, state)
             || is_exclusion_zone(rtype, x, y, state))

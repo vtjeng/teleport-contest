@@ -561,6 +561,9 @@ async function makelevel(specialLevelLoader = null) {
                 const { HELL_LEVEL_LOADERS } = await import(
                     './hell_levels.js'
                 );
+                const { VALLEY_LEVEL_LOADERS } = await import(
+                    './valley_levels.js'
+                );
                 SPECIAL_LEVEL_LOADERS = {
                     ...BIGRM_LOADERS,
                     ...QUEST_LEVEL_LOADERS,
@@ -570,6 +573,7 @@ async function makelevel(specialLevelLoader = null) {
                     ...FIRE_LEVEL_LOADERS,
                     ...AIR_LEVEL_LOADERS,
                     ...HELL_LEVEL_LOADERS,
+                    ...VALLEY_LEVEL_LOADERS,
                 };
             }
             // Determine the resolved protofile the same way makemaz() will.
@@ -1194,6 +1198,9 @@ async function makemaz(proto, slev, state) {
             const { HELL_LEVEL_LOADERS } = await import(
                 './hell_levels.js'
             );
+            const { VALLEY_LEVEL_LOADERS } = await import(
+                './valley_levels.js'
+            );
             SPECIAL_LEVEL_LOADERS = {
                 ...BIGRM_LOADERS,
                 ...QUEST_LEVEL_LOADERS,
@@ -1203,6 +1210,7 @@ async function makemaz(proto, slev, state) {
                 ...FIRE_LEVEL_LOADERS,
                 ...AIR_LEVEL_LOADERS,
                 ...HELL_LEVEL_LOADERS,
+                ...VALLEY_LEVEL_LOADERS,
             };
         }
         const loader = SPECIAL_LEVEL_LOADERS[protofile];
@@ -1427,6 +1435,8 @@ function createSpecialLevelApi(state) {
                 // level flag enables periodic lightning strikes on clouds.
                 case 'stormy': state.level.flags.stormy = true; break;
                 case 'fumaroles': state.level.flags.fumaroles = true; break;
+                case 'nommap': state.level.flags.nommap = true; break;
+                case 'temperate': state.level.flags.temperature = 0; break;
                 case 'nomongen': state.level.flags.rndmongen = false; break;
                 case 'nodeathdrops': state.level.flags.deathdrops = false; break;
                 case 'noautosearch': state.level.flags.noautosearch = true; break;
@@ -2444,7 +2454,51 @@ function createSpecialLevelApi(state) {
             // C ref: sp_lev.c flip_level_rnd(). Each allowed flip axis
             // consumes rn2(2). bigrm-12's "noflipy" clears bit 1, leaving
             // only the horizontal axis flip.
-            flip_level_rnd(state.specialLevelAllowFlips ?? 3);
+            const flipCode = flip_level_rnd(state.specialLevelAllowFlips ?? 3);
+            // C ref: sp_lev.c flip_level() 697-733. flip_level() updates
+            // upstair/dnstair/updest/dndest but cannot reach the closure-local
+            // storedLregions. Apply the same coordinate mirror here.
+            if (flipCode && storedLregions.length) {
+                let { xmin: minx, xmax: maxx,
+                      ymin: miny, ymax: maxy } = get_level_extends();
+                if (miny < 0) miny = 0;
+                if (minx < 1) minx = 1;
+                if (maxx >= COLNO) maxx = COLNO - 1;
+                if (maxy >= ROWNO) maxy = ROWNO - 1;
+                const FlipX = (v) => (maxx - v) + minx;
+                const FlipY = (v) => (maxy - v) + miny;
+                for (const lr of storedLregions) {
+                    const r = lr.region;
+                    if (flipCode & 1) {
+                        r.ly = FlipY(r.ly);
+                        r.hy = FlipY(r.hy);
+                        if (r.ly > r.hy) {
+                            const t = r.ly; r.ly = r.hy; r.hy = t;
+                        }
+                        if (r.nly >= 0) {
+                            r.nly = FlipY(r.nly);
+                            r.nhy = FlipY(r.nhy);
+                            if (r.nly > r.nhy) {
+                                const t = r.nly; r.nly = r.nhy; r.nhy = t;
+                            }
+                        }
+                    }
+                    if (flipCode & 2) {
+                        r.lx = FlipX(r.lx);
+                        r.hx = FlipX(r.hx);
+                        if (r.lx > r.hx) {
+                            const t = r.lx; r.lx = r.hx; r.hx = t;
+                        }
+                        if (r.nlx >= 0) {
+                            r.nlx = FlipX(r.nlx);
+                            r.nhx = FlipX(r.nhx);
+                            if (r.nlx > r.nhx) {
+                                const t = r.nlx; r.nlx = r.nhx; r.nhx = t;
+                            }
+                        }
+                    }
+                }
+            }
             count_level_features(state);
 
             // C ref: sp_lev.c solidify_map(). Marks non-map STONE walls as
@@ -3210,6 +3264,7 @@ function flip_level_rnd(flp) {
     if ((flp & 1) && rn2(2)) c |= 1;
     if ((flp & 2) && rn2(2)) c |= 2;
     if (c) flip_level(c);
+    return c;
 }
 
 // C ref: mkmaze.c walkfrom() (non-MICRO recursive version). Carves a
