@@ -6234,6 +6234,15 @@
       "status": "open",
       "from": "7782656bd507115703d078e57ffba99ca10b2140",
       "detail": "topten.test.mjs: the ENTRYMAX test is absent. The per-player PERSMAX limit is tested but the global ENTRYMAX cap (total entries across all players) has no test."
+    },
+    {
+      "id": "attack-checks-ceiling-hider",
+      "area": "commands",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "e8aca9ec0d797ce98ab2699db5cc6a5076d8a448",
+      "detail": "attack_checks() hidden-monster branch (uhitm.c:268-297) for ceiling hiders.\nThe current implementation admits hides_under (M1_CONCEAL) and S_EEL\n(submerged) monsters through the melee gate in hack.js, but ceiling\nhiders (M1_HIDE without M1_CONCEAL, such as piercers, lurkers, and\ntrappers) still throw UnsupportedHeroMoveBoundaryError. The C source\nat uhitm.c:276-291 formats a message using l_monnam and either\nhides_under/is_pool/is_lava predicates or a generic \"hiding\" fallback.\nThe boundary is in hack.js requireOrdinaryHostileMelee."
     }
   ],
   "areas": [
