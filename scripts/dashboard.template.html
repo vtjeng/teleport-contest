@@ -681,13 +681,36 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     return points[lo].screens;
   }
 
-  const rates = points.map(p => ({
-    time: p.time,
-    avg7d: (p.screens - screensAt(p.time - 7 * DAY_MS)) / 7,
-    last24h: p.screens - screensAt(p.time - DAY_MS),
-  }));
+  function rateAt(t) {
+    const s = screensAt(t);
+    return {
+      avg7d: (s - screensAt(t - 7 * DAY_MS)) / 7,
+      last24h: s - screensAt(t - DAY_MS),
+    };
+  }
 
-  const rateMax = Math.max(1, ...rates.map(r => Math.max(r.avg7d, r.last24h)));
+  const rates = points.map(p => ({ time: p.time, ...rateAt(p.time) }));
+
+  function buildRateSteps(windowMs, valueFn) {
+    const events = new Set();
+    for (const p of points) {
+      events.add(p.time);
+      events.add(p.time + windowMs);
+    }
+    const sorted = [...events].sort((a, b) => a - b);
+    const tMin = points[0].time;
+    const tMax = points[points.length - 1].time;
+    return sorted
+      .filter(t => t >= tMin && t <= tMax)
+      .map(t => ({ time: t, value: valueFn(t) }));
+  }
+
+  const rate7dSteps = buildRateSteps(7 * DAY_MS, t => (screensAt(t) - screensAt(t - 7 * DAY_MS)) / 7);
+  const rate24hSteps = buildRateSteps(DAY_MS, t => screensAt(t) - screensAt(t - DAY_MS));
+
+  const rateMax = Math.max(1,
+    ...rate7dSteps.map(r => r.value),
+    ...rate24hSteps.map(r => r.value));
   const rateYMax = Math.ceil(rateMax / niceStep(rateMax / 4)) * niceStep(rateMax / 4);
   const rateStep = niceStep(rateMax / 4);
 
@@ -892,36 +915,33 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     fillSteps(ctx, vertices, yScale, ink.area);
     strokeSteps(ctx, vertices, yScale, ink.fill, 2);
 
-    // Rate lines (right y-axis: screens per day)
+    // Rate lines (right y-axis: screens per day), exact step functions
     const rateYScale = (v) => pad.t + (1 - v / rateYMax) * (H - pad.t - pad.b);
 
-    ctx.beginPath();
-    for (let i = lo; i <= hi; i++) {
-      const x = xScale(rates[i].time);
-      const y = rateYScale(rates[i].avg7d);
-      if (i === lo) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
+    function drawRateSteps(steps, color, dash) {
+      if (steps.length < 1) return;
+      let si = 0;
+      while (si < steps.length - 1 && steps[si + 1].time < view.t0) si++;
+      ctx.beginPath();
+      ctx.moveTo(xScale(steps[si].time), rateYScale(steps[si].value));
+      for (let i = si + 1; i < steps.length && steps[i - 1].time <= view.t1; i++) {
+        const x = xScale(steps[i].time);
+        ctx.lineTo(x, rateYScale(steps[i - 1].value));
+        ctx.lineTo(x, rateYScale(steps[i].value));
+      }
+      const lastVisible = steps.find((_, i, a) => i === a.length - 1 || a[i + 1].time > view.t1) || steps[steps.length - 1];
+      ctx.lineTo(xScale(view.t1), rateYScale(lastVisible.value));
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      if (dash) ctx.setLineDash(dash);
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.stroke();
+      if (dash) ctx.setLineDash([]);
     }
-    ctx.strokeStyle = ink.rate7d;
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([6, 3]);
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-    ctx.stroke();
-    ctx.setLineDash([]);
 
-    ctx.beginPath();
-    for (let i = lo; i <= hi; i++) {
-      const x = xScale(rates[i].time);
-      const y = rateYScale(rates[i].last24h);
-      if (i === lo) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.strokeStyle = ink.rate24h;
-    ctx.lineWidth = 1.5;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-    ctx.stroke();
+    drawRateSteps(rate7dSteps, ink.rate7d, [6, 3]);
+    drawRateSteps(rate24hSteps, ink.rate24h, null);
 
     ctx.restore();
 
