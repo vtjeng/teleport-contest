@@ -527,8 +527,14 @@ function createMonsterBody(specification, room, env) {
             ? false : Boolean(specification.female);
     }
 
-    // sp_amask_to_amask(AM_SPLEV_RANDOM) runs before mkclass().
-    induced_align(80, env.state, env.random.rn2);
+    // C ref: sp_lev.c:1943. sp_amask_to_amask calls induced_align only
+    // when sp_amask is AM_SPLEV_RANDOM (align unspecified or "random").
+    // An explicit alignment ("noalign", "law", etc.) skips induced_align.
+    const isRandomAlign = specification.align == null
+        || specification.align === 'random';
+    if (isRandomAlign) {
+        induced_align(80, env.state, env.random.rn2);
+    }
     if (!species && specification.class != null) {
         species = mkclass(specification.class, G_NOGEN, {
             state: env.state,

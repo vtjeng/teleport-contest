@@ -6,6 +6,7 @@
 import {
     AIR,
     ALTAR,
+    A_NONE,
     AM_SHRINE,
     ANY_SHOP,
     ANY_TYPE,

@@ -191,6 +191,7 @@ import {
     MKTRAP_NOVICTIM, MKTRAP_SEEN,
     BR_PORTAL, BR_NO_END1, BR_NO_END2, SVALL,
     CORPSTAT_INIT, MARK, MM_NOGRP, NO_MM_FLAGS,
+    AM_SHRINE, AM_SANCTUM,
     In_quest, NO_ROOM,
     TRAPNUM,
     In_endgame,
@@ -199,6 +200,7 @@ import {
     undestroyable_trap,
 } from './const.js';
 import { distmin } from './hacklib.js';
+import { priestini } from './priest.js';
 
 const XLIM = 4;
 const YLIM = 3;
@@ -1552,7 +1554,9 @@ function createSpecialLevelApi(state) {
                 // C ref: sp_lev.c lspo_region() table form with region coords.
                 const ROOM_TYPE_MAP = {
                     ordinary: OROOM, delphi: DELPHI, temple: TEMPLE,
-                    zoo: ZOO, throne: COURT, barracks: BARRACKS,
+                    morgue: MORGUE, barracks: BARRACKS, zoo: ZOO,
+                    beehive: BEEHIVE, leprehall: LEPREHALL, swamp: SWAMP,
+                    vault: VAULT, court: COURT, throne: COURT,
                 };
                 const [rx1, ry1, rx2, ry2] = specification.region;
                 const rtype = ROOM_TYPE_MAP[specification.type] ?? OROOM;
@@ -2103,6 +2107,9 @@ function createSpecialLevelApi(state) {
             };
             const ROOM_TYPE_MAP = {
                 ordinary: OROOM, delphi: DELPHI, temple: TEMPLE,
+                morgue: MORGUE, barracks: BARRACKS, zoo: ZOO,
+                beehive: BEEHIVE, leprehall: LEPREHALL, swamp: SWAMP,
+                vault: VAULT, court: COURT,
             };
             const roomSpec = {
                 x: spec.x ?? -1,
@@ -2138,26 +2145,46 @@ function createSpecialLevelApi(state) {
             makecorridors();
         },
 
-        // C ref: sp_lev.c lspo_feature() for altars. Sets a tile to ALTAR
-        // and stores the alignment mask.
+        // C ref: sp_lev.c create_altar(). Sets a tile to ALTAR, stores
+        // the alignment mask, and calls priestini for shrine altars in
+        // temple rooms.
         altar(spec) {
             const ALIGN_STR_MAP = {
                 noalign: A_NONE, law: A_LAWFUL, neutral: A_NEUTRAL,
                 chaos: A_CHAOTIC, none: A_NONE, random: A_NONE,
                 coaligned: A_NONE, noncoaligned: A_NONE,
             };
+            const SHRINE_MAP = { altar: 0, shrine: 1, sanctum: 2 };
             let x, y;
-            if (currentCroom) {
-                x = currentCroom.lx + spec.x;
-                y = currentCroom.ly + spec.y;
+            let croom_is_temple = true;
+            let croom = currentCroom;
+            if (croom) {
+                x = croom.lx + spec.x;
+                y = croom.ly + spec.y;
+                if (croom.rtype !== TEMPLE) croom_is_temple = false;
             } else {
                 x = frame.xstart + spec.x;
                 y = frame.ystart + spec.y;
+                const sprooms = in_rooms(x, y, TEMPLE, state);
+                if (sprooms.length > 0) {
+                    croom = state.level.rooms[sprooms[0] - ROOMOFFSET];
+                } else {
+                    croom_is_temple = false;
+                }
             }
             set_levltyp(x, y, ALTAR, { state });
             const alignment = ALIGN_STR_MAP[spec.align] ?? A_NONE;
             const loc = state.level.at(x, y);
             if (loc) loc.flags = Align2amask(alignment);
+
+            let shrine = SHRINE_MAP[spec.type] ?? 0;
+            if (shrine < 0) shrine = rn2(2);
+            if (!croom_is_temple || !shrine) return;
+
+            priestini(state.u.uz, croom, x, y, shrine > 1, env);
+            loc.flags |= AM_SHRINE;
+            if (shrine === 2) loc.flags |= AM_SANCTUM;
+            state.level.flags.has_temple = true;
         },
 
         // C ref: sp_lev.c lspo_replace_terrain(). Replaces all cells of
