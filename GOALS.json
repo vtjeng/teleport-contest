@@ -8866,6 +8866,23 @@
         "screens": 134,
         "rng": 36952
       }
+    },
+    {
+      "id": "unsupported-hero-move-attacking-a-disguised-or-hidden-monste",
+      "status": "open",
+      "boundary": "unsupported hero move: attacking a disguised or hidden monster",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "702b6a5c671c19424bbf7920d6913691f2191068",
+      "openStanding": {
+        "sha": "bb3ee74c",
+        "screens": 4547,
+        "rng": 314067
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
