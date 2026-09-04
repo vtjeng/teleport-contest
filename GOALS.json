@@ -8840,6 +8840,29 @@
         "screens": 45,
         "rng": 405
       }
+    },
+    {
+      "id": "unsupported-hero-move-trap-activation-2",
+      "status": "open",
+      "boundary": "the player triggers a ROLLING_BOULDER_TRAP while walking, requiring trapeffect_rolling_boulder_trap() and the launch_obj() boulder-physics subsystem",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [
+        {
+          "name": "hero-rolling-boulder-trap-and-launch",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "5cacff86370926eb89f9d42c73e31ecebf65c326",
+      "openStanding": {
+        "sha": "4c3b2fd244268705e044d8e5d3b0139eab5b4802",
+        "screens": 4413,
+        "rng": 277115
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
