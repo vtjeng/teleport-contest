@@ -6197,6 +6197,43 @@
       "status": "open",
       "from": "452290c10d2f0f140ce3a403350f325b553df7c0",
       "detail": "seffect_remove_curse uncursed/blessed invent-traversal loop (read.c:1514-1597). The loop traverses the full inventory applying curse/bless changes to worn items."
+    },
+    {
+      "id": "mavenge-guards-steal",
+      "area": null,
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "7782656bd507115703d078e57ffba99ca10b2140",
+      "detail": "steal.js:530 — mavenge() guards in mpickobj_container() check for Conflict and Punished state but neither is ported. When those states are ported, the guards must dispatch to mavenge() to match C behavior on container theft retaliation.",
+      "blockedOn": "mavenge"
+    },
+    {
+      "id": "steal-test-named-constants",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "7782656bd507115703d078e57ffba99ca10b2140",
+      "detail": "steal.test.mjs uses literal numeric class values (e.g. oclass: 4) in several remaining test fixtures. Replace with named constants from const.js for consistency with the RING_CLASS fix already applied."
+    },
+    {
+      "id": "steal-test-ball-chain-exclusion",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "7782656bd507115703d078e57ffba99ca10b2140",
+      "detail": "steal.test.mjs test coverage gap: no test for the W_BALL|W_CHAIN exclusion path in stealamulet(). The audit fix corrected the constants; a test should pin the behavior."
+    },
+    {
+      "id": "topten-test-entrymax",
+      "area": null,
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "7782656bd507115703d078e57ffba99ca10b2140",
+      "detail": "topten.test.mjs: the ENTRYMAX test is absent. The per-player PERSMAX limit is tested but the global ENTRYMAX cap (total entries across all players) has no test."
     }
   ],
   "areas": [
