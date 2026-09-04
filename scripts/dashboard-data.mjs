@@ -110,7 +110,7 @@ function goalNameFromNote(note) {
 
 // --- Build goal timeline from SCORE goal events ---
 
-const rawScoreGoals = scoreEvents.filter(e => e.event === 'goal');
+const rawScoreGoals = scoreEvents.filter(e => e.event === 'goal' || e.event === 'divergence');
 const scoreGoals = rawScoreGoals.filter((sg, i) =>
   i === rawScoreGoals.length - 1 || rawScoreGoals[i + 1].note !== sg.note);
 const scoreSlices = scoreEvents.filter(e => e.event === 'slice');
@@ -212,7 +212,7 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
     ? (closeTime - lastSliceClose) / 60000
     : null;
 
-  const totalMin = (closeTime - openTime) / 60000;
+  const totalMin = (closeTime - (prevCloseTime || openTime)) / 60000;
 
   // Audit events within this goal
   const goalAudits = auditCommits.filter(c =>
@@ -251,6 +251,7 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
       && slices.length > 0
       && slices.every((slice) => slice.closeTimeSource === 'score-slice')
       && sg.utcSource === 'commit',
+    eventType: sg.event,
     audits: goalAudits,
     screens: sg.screensMatched,
     screensTotal: sg.screensTotal,
@@ -278,10 +279,10 @@ for (const open of inProgressOpens) {
 
   const now = new Date();
   const openTime = open.time;
-  const totalMin = (now - openTime) / 60000;
   const goalSelectionMin = lastClosedGoal
     ? (openTime - lastCloseTime) / 60000
     : null;
+  const totalMin = (now - (lastClosedGoal ? lastCloseTime : openTime)) / 60000;
 
   const goalQueues = queueCommits.filter(q => q.time >= openTime);
   const slices = [];

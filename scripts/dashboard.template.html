@@ -20,6 +20,7 @@
   --phase-slice-sel: #1baf7a;
   --phase-verif: #c99000;
   --phase-audit: #e87ba4;
+  --phase-div: #0d9488;
 
   --progress-fill: #2a78d6;
   --progress-area: rgba(42,120,214,0.1);
@@ -42,6 +43,7 @@
     --phase-slice-sel: #199e70;
     --phase-verif: #d4a012;
     --phase-audit: #d55181;
+    --phase-div: #14b8a6;
 
     --progress-fill: #3987e5;
     --progress-area: rgba(57,135,229,0.12);
@@ -469,16 +471,24 @@ canvas {
   border-radius: 1px;
 }
 
-.audit-badge {
+.audit-badge, .div-badge {
   display: inline-block;
   font-size: 10px;
   font-weight: 600;
-  color: var(--phase-audit);
-  border: 1px solid var(--phase-audit);
   border-radius: 3px;
   padding: 0 4px;
   line-height: 1.5;
   vertical-align: middle;
+}
+
+.audit-badge {
+  color: var(--phase-audit);
+  border: 1px solid var(--phase-audit);
+}
+
+.div-badge {
+  color: var(--phase-div);
+  border: 1px solid var(--phase-div);
 }
 
 .goal-table tr.in-progress td {
@@ -1324,7 +1334,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     let segments = '';
 
     // Goal selection
-    if (g.goalSelectionMin != null && g.goalSelectionMin > 0 && g.goalSelectionMin < 120) {
+    if (g.goalSelectionMin != null && g.goalSelectionMin > 0) {
       const left = toX(selStart);
       const width = toX(openT) - left;
       const timingNote = g.goalSelectionObserved ? '' : ' †';
@@ -1353,7 +1363,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     { cssVar: '--phase-verif', label: 'Working time' },
   ].map(p =>
     '<div class="legend-item"><div class="legend-swatch" style="background:var(' + p.cssVar + ')"></div>' + p.label + '</div>'
-  ).join('') + '<div class="legend-item"><span class="audit-badge">audit</span> code review during goal</div>';
+  ).join('') + '<div class="legend-item"><span class="audit-badge">audit</span> code review during goal</div>' + '<div class="legend-item"><span class="div-badge">div fix</span> divergence fix</div>';
 
   const table = document.getElementById('goalTable');
   const allGoals = [...DATA.goals].reverse();
@@ -1372,12 +1382,13 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   goals.forEach((g, i) => {
     const screensCell = g.screens !== null ? g.screens : '-';
     const auditBadge = g.audits.length > 0 ? ' <span class="audit-badge" title="' + g.audits.map(a => a.message).join('\\n').replace(/"/g, '&quot;') + '">audit</span>' : '';
+    const divBadge = g.eventType === 'divergence' ? ' <span class="div-badge">div fix</span>' : '';
 
     const deltaCell = g.screensDelta !== null && g.screensDelta !== undefined ? '+' + g.screensDelta : '-';
     const trClass = g.status === 'in-progress' ? ' class="in-progress"' : '';
 
     const selMin = g.goalSelectionMin || 0;
-    const workMin = g.totalMin;
+    const workMin = g.totalMin - selMin;
     const barTotal = selMin + workMin;
     const bar = barTotal <= 0 ? '' : '<div class="phase-bar">'
       + (selMin > 0 ? '<div class="phase-bar-seg" style="width:' + Math.max(selMin / barTotal * 100, 2) + '%;background:var(--phase-impl)' + (workMin <= 0 ? ';background-image:repeating-linear-gradient(135deg,transparent,transparent 2px,rgba(255,255,255,0.3) 2px,rgba(255,255,255,0.3) 4px)' : '') + '" title="Goal selection: ' + fmt(selMin) + '"></div>' : '')
@@ -1385,7 +1396,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       + '</div>';
 
     const startCell = fmtDate(g.openTime) + (g.openTimeSource === 'open-commit' ? '' : ' †');
-    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td title="' + g.name.replace(/"/g, '&quot;') + '">' + g.name + auditBadge + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td><td>' + fmtTiming(g.goalSelectionMin, g.goalSelectionObserved) + '</td><td>' + bar + '</td></tr>';
+    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td title="' + g.name.replace(/"/g, '&quot;') + '">' + g.name + divBadge + auditBadge + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td><td>' + fmtTiming(g.goalSelectionMin, g.goalSelectionObserved) + '</td><td>' + bar + '</td></tr>';
   });
 
   html += '</tbody>';
