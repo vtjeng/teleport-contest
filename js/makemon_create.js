@@ -65,8 +65,11 @@ import {
     MON_DETACH,
     N_DIRS,
     NO_MINVENT,
+    A_LAWFUL,
+    EMIN,
     ONAME,
     ONAME_NO_FLAGS,
+    ONAME_RANDOM,
     OBJ_FLOOR,
     OBJ_MINVENT,
     ROOMOFFSET,
@@ -113,6 +116,7 @@ import {
 import {
     Amonnam,
     christen_monst,
+    oname,
     rndghostname,
 } from './do_name.js';
 import { newsym } from './display.js';
@@ -139,9 +143,11 @@ import {
     can_be_hatched,
     cantweararm,
     emits_light,
+    humanoid,
     is_demon,
     is_female,
     is_giant,
+    is_lord,
     is_male,
     is_mercenary,
     is_ndemon,
@@ -297,6 +303,7 @@ import {
     PM_YELLOW_LIGHT,
     PM_YELLOW_MOLD,
     SPECIAL_PM,
+    S_ANGEL,
     S_CENTAUR,
     S_DEMON,
     S_ELEMENTAL,
@@ -327,6 +334,7 @@ import {
     S_VAMPIRE,
     S_VORTEX,
     S_WRAITH,
+    S_ZOMBIE,
 } from './monsters.js';
 import {
     ARM_BONUS,
@@ -471,6 +479,8 @@ import {
     SKELETON_KEY,
     SHORT_SWORD,
     SHURIKEN,
+    SHIELD_OF_REFLECTION,
+    SILVER_MACE,
     SILVER_SABER,
     SMALL_SHIELD,
     SPEAR,
@@ -1808,6 +1818,36 @@ function m_initweap(monster, normalized) {
         // non-priest, non-guardian humans (all G_NOGEN) receive no weapons
         // from m_initweap. C breaks here without a further else arm.
         break;
+    case S_ANGEL:
+        // C ref: makemon.c:330-360. Humanoid angels get a blessed, erodeproof
+        // weapon (long sword or silver mace) and a shield.
+        if (humanoid(ptr)) {
+            const typ = random.rn2(3) ? LONG_SWORD : SILVER_MACE;
+            const nam = typ === LONG_SWORD ? 'Sunsword' : 'Demonbane';
+            let otmp = mksobj(typ, false, false, normalized);
+            if ((!random.rn2(20) || is_lord(ptr))
+                && Math.sign(monster.isminion
+                    ? EMIN(monster)?.min_align
+                    : ptr.maligntyp) === A_LAWFUL) {
+                otmp = oname(otmp, nam, ONAME_RANDOM, normalized);
+            }
+            otmp.blessed = true;
+            otmp.cursed = false;
+            otmp.oerodeproof = true;
+            otmp.spe = random.rn2(4);
+            if (typ === SILVER_MACE) otmp.spe += 3;
+            addFreshMonsterObject(monster, otmp, normalized);
+
+            const shield = mksobj(
+                !random.rn2(4) || is_lord(ptr)
+                    ? SHIELD_OF_REFLECTION : LARGE_SHIELD,
+                false, false, normalized,
+            );
+            shield.oerodeproof = true;
+            shield.spe = 0;
+            addFreshMonsterObject(monster, shield, normalized);
+        }
+        break;
     case S_HUMANOID:
         if (ptr.pmidx === PM_HOBBIT) {
             switch (random.rn2(3)) {
@@ -1940,6 +1980,14 @@ function m_initweap(monster, normalized) {
     case S_WRAITH:
         mongets(monster, KNIFE, normalized);
         mongets(monster, LONG_SWORD, normalized);
+        break;
+    case S_ZOMBIE:
+        // C ref: makemon.c:489-494. Zombies get a chance at leather armor
+        // and a knife or short sword.
+        if (!random.rn2(4))
+            mongets(monster, LEATHER_ARMOR, normalized);
+        if (!random.rn2(4))
+            mongets(monster, random.rn2(3) ? KNIFE : SHORT_SWORD, normalized);
         break;
     case S_LIZARD:
         // C ref: makemon.c:495-499. Salamanders choose one weapon from

@@ -592,6 +592,9 @@ async function makelevel(specialLevelLoader = null) {
                 await makemaz(slev.proto, slev, g);
                 return;
             }
+            throw new UnsupportedLevelChangeError(
+                `makelevel: no loader for special level "${slev.proto}"`,
+            );
         }
     }
 
