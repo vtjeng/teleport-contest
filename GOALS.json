@@ -8843,7 +8843,7 @@
     },
     {
       "id": "unsupported-hero-move-trap-activation-2",
-      "status": "open",
+      "status": "closed",
       "boundary": "the player triggers a ROLLING_BOULDER_TRAP while walking, requiring trapeffect_rolling_boulder_trap() and the launch_obj() boulder-physics subsystem",
       "upstreamOwners": [],
       "forecast": null,
@@ -8861,8 +8861,11 @@
         "screens": 4413,
         "rng": 277115
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "bb3ee74c2e82884db64f502bb1bb9e9d1d1c7b22",
+      "delivered": {
+        "screens": 134,
+        "rng": 36952
+      }
     }
   ]
 }
