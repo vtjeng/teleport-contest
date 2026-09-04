@@ -31,25 +31,30 @@ test('topten prints wizard mode message and returns without writing record', () 
     // C ref: topten.c:648-662. In wizard mode, topten prints
     // "Since you were in wizard mode, the score list will not be checked."
     // and returns without modifying the record file.
-    const printed = [];
-    // Stub the display so tty_raw_print captures its output.
-    const state = {
-        wizard: true,
-        discover: false,
-        program_state: {},
-        nhDisplay: {
-            nomuxRaw: { active: false, row: 0, col: 0 },
-            rows: 24,
-            cols: 80,
-            clearScreen() { this._cleared = true; },
-            setCell() {},
-        },
-    };
-    // topten should not throw and should not touch storage.
-    topten(DIED, 20260101, state);
-    // If it reached the raw print, nomuxRaw is active.
-    assert.ok(state.nhDisplay.nomuxRaw.active,
-        'wizard mode branch wrote raw output');
+    const mem = new InMemoryStorage();
+    setStorageForTesting(mem);
+    try {
+        const state = {
+            wizard: true,
+            discover: false,
+            program_state: {},
+            nhDisplay: {
+                nomuxRaw: { active: false, row: 0, col: 0 },
+                rows: 24,
+                cols: 80,
+                clearScreen() { this._cleared = true; },
+                setCell() {},
+            },
+        };
+        topten(DIED, 20260101, state);
+        assert.ok(state.nhDisplay.nomuxRaw.active,
+            'wizard mode branch wrote raw output');
+        // Verify storage was not written.
+        assert.equal(mem.getItem('vfs:record'), null,
+            'wizard mode should not write a record');
+    } finally {
+        setStorageForTesting(null);
+    }
 });
 
 test('topten skips everything when panicking', () => {
@@ -133,8 +138,11 @@ test('topten accumulates entries across segments', () => {
         assert.ok(record, 'record exists after two segments');
         const lines = record.trim().split('\n');
         assert.equal(lines.length, 2, 'record has two entries');
-        assert.ok(lines[0].includes('200'), 'first entry has higher score');
-        assert.ok(lines[1].includes('50'), 'second entry has lower score');
+        // The score is the second space-separated field (after version).
+        const score0 = lines[0].split(' ')[1];
+        const score1 = lines[1].split(' ')[1];
+        assert.equal(score0, '200', 'first entry has higher score');
+        assert.equal(score1, '50', 'second entry has lower score');
     } finally {
         setStorageForTesting(null);
     }

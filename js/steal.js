@@ -14,9 +14,13 @@ import {
     RIGHT_RING,
     SHOPBASE,
     W_ACCESSORY,
+    W_AMUL,
     W_ARMOR,
+    W_BALL,
+    W_CHAIN,
     W_RING,
     W_SADDLE,
+    W_TOOL,
     W_WEAPONS,
 } from './const.js';
 import { newsym } from './display.js';
@@ -249,13 +253,13 @@ function remove_worn_item(obj, unchain_ball, state = game) {
         throw new UnsupportedStealError(
             `remove_worn_item() W_ARMOR for otyp ${obj.otyp}`,
         );
-    } else if (obj.owornmask & 0x0100 /* W_AMUL */) {
+    } else if (obj.owornmask & W_AMUL) {
         throw new UnsupportedStealError(
             'remove_worn_item() W_AMUL (Amulet_off)',
         );
     } else if (obj.owornmask & W_RING) {
         Ring_gone(obj, state);
-    } else if (obj.owornmask & 0x0200 /* W_TOOL */) {
+    } else if (obj.owornmask & W_TOOL) {
         throw new UnsupportedStealError(
             'remove_worn_item() W_TOOL (Blindf_off)',
         );
@@ -270,7 +274,7 @@ function remove_worn_item(obj, unchain_ball, state = game) {
     }
 
     // W_BALL | W_CHAIN
-    if (obj.owornmask & (0x20000 | 0x40000) /* W_BALL | W_CHAIN */) {
+    if (obj.owornmask & (W_BALL | W_CHAIN)) {
         if (unchain_ball) {
             throw new UnsupportedStealError(
                 'remove_worn_item() unpunish()',
@@ -538,7 +542,7 @@ export async function steal(mtmp, state = game, env = {}) {
     if ((state.iflags?.last_msg ?? -1) === PLNMSG_MON_TAKES_OFF_ITEM
         && mtmp.data.mlet === S_NYMPH)
         ++named;
-    await message(`${named ? 'She' : Monnambuf} stole ${doname_with_price(otmp, state)}.`, state);
+    await message(`${named ? 'She' : Monnambuf} stole ${donameFresh(otmp, state)}.`, state);
     await encumber_msg(state);
 
     // Petrification check for stolen corpses

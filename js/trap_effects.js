@@ -26,6 +26,8 @@ import {
     DEAF,
     DISP_END,
     DISP_FLASH,
+    D_CLOSED,
+    D_LOCKED,
     DOOR,
     FAILEDUNTRAP,
     FIRE_TRAP,
@@ -1311,7 +1313,8 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state) {
         // closed_door: boulder crashes through a door. Not reached.
         if (otyp === BOULDER) {
             const loc = state.level?.at(x, y);
-            if (loc && loc.typ === DOOR) {
+            if (loc && loc.typ === DOOR
+                && (loc.doormask & (D_LOCKED | D_CLOSED))) {
                 // C: closed_door() check + boulder crashes through door.
                 // Not reached in the session.
                 throw new Error(

@@ -45,7 +45,7 @@ import { mhis, mhe } from './mondata.js';
 import { m_at } from './monst.js';
 import { heroIsBlind } from './startup_a11y.js';
 import {
-    PM_WATER_DEMON, PM_WATER_MOCCASIN, PM_WATER_NYMPH,
+    PM_KNIGHT, PM_WATER_DEMON, PM_WATER_MOCCASIN, PM_WATER_NYMPH,
 } from './monsters.js';
 import { mkgold, mksobj_at, rnd_class, sobj_at, carried } from './obj.js';
 import { body_part } from './polyself.js';
@@ -617,8 +617,14 @@ export async function dipfountain(obj, state = game, env = {}) {
     // that are not fully ported for in-game use.
     const { LONG_SWORD } = await import('./objects.js');
     if (obj.otyp === LONG_SWORD && (state.u.ulevel ?? 0) >= 5) {
-        throw new UnsupportedFountainError(
-            'the Excalibur creation path in dipfountain()');
+        // C evaluates rn2() as part of the compound condition; consume it
+        // even when throwing so the PRNG stays in sync.
+        const isKnight = state.urole?.mnum === PM_KNIGHT;
+        if (!random.rn2(isKnight ? 6 : 30)
+            && obj.quan === 1 && !obj.oartifact) {
+            throw new UnsupportedFountainError(
+                'the Excalibur creation path in dipfountain()');
+        }
     }
 
     // C ref: fountain.c:448-452. Wash hands or water-damage the item.
@@ -692,7 +698,7 @@ export async function dipfountain(obj, state = game, env = {}) {
     case 28: { // An urge to take a bath
         await message(
             'An urge to take a bath overwhelms you.', state);
-        const money = money_cnt();
+        const money = money_cnt(state.invent ?? null);
         if (money > 10) {
             // C ref: fountain.c:509-523. Lose some gold in the fountain.
             let loss = Math.trunc(somegold(money, random) / 10);

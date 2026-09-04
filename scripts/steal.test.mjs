@@ -945,6 +945,7 @@ import {
     RIN_INCREASE_ACCURACY,
     RIN_INCREASE_DAMAGE,
     RIN_COLD_RESISTANCE,
+    RING_CLASS,
 } from '../js/objects.js';
 import { A_CHA, LEFT_RING, RIGHT_RING, W_RING, W_RINGL, W_RINGR } from '../js/const.js';
 
@@ -1004,7 +1005,7 @@ test('Ring_gone for RIN_PROTECTION clears the worn mask', () => {
     const s = ringTestState();
     const ring = object({
         otyp: RIN_PROTECTION,
-        oclass: 33, /* RING_CLASS constant value */
+        oclass: RING_CLASS,
         owornmask: W_RINGR,
         spe: 0,
         in_use: 0,
@@ -1032,7 +1033,7 @@ test('Ring_gone for RIN_INCREASE_ACCURACY decrements uhitinc', () => {
     s.u.uhitinc = 3;
     const ring = object({
         otyp: RIN_INCREASE_ACCURACY,
-        oclass: 33,
+        oclass: RING_CLASS,
         owornmask: W_RINGL,
         spe: 2,
         in_use: 0,
@@ -1048,13 +1049,35 @@ test('Ring_gone for RIN_INCREASE_ACCURACY decrements uhitinc', () => {
         'uhitinc decremented by ring spe');
 });
 
+test('Ring_gone for RIN_INCREASE_DAMAGE decrements udaminc', () => {
+    // C ref: do_wear.c:1426-1427. u.udaminc -= obj->spe.
+    const s = ringTestState();
+    s.u.udaminc = 5;
+    const ring = object({
+        otyp: RIN_INCREASE_DAMAGE,
+        oclass: RING_CLASS,
+        owornmask: W_RINGL,
+        spe: 3,
+        in_use: 0,
+    });
+    const oc_oprop = OBJECT_TEMPLATES[RIN_INCREASE_DAMAGE].oc_oprop;
+    s.u.uprops[oc_oprop] = { extrinsic: W_RINGL };
+    s.uleft = ring;
+
+    Ring_gone(ring, s);
+
+    // udaminc should decrease by spe (5 - 3 = 2).
+    assert.equal(s.u.udaminc, 2,
+        'udaminc decremented by ring spe');
+});
+
 test('Ring_gone for RIN_COLD_RESISTANCE (no-op type) clears mask only', () => {
     // Sixteen ring types have no side effect beyond the extrinsic that
     // setnotworn() clears. C ref: do_wear.c:1361-1378.
     const s = ringTestState();
     const ring = object({
         otyp: RIN_COLD_RESISTANCE,
-        oclass: 33,
+        oclass: RING_CLASS,
         owornmask: W_RINGR,
         spe: 0,
         in_use: 0,

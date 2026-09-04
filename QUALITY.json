@@ -6340,7 +6340,8 @@
         "js/themeroom_data.js",
         "js/themeroom_fill.js",
         "js/themerooms.js",
-        "js/tutorial_level.js"
+        "js/tutorial_level.js",
+        "js/valley_levels.js"
       ],
       "generatedOutputs": [
         {
