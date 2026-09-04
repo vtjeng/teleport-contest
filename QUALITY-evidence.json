@@ -16814,5 +16814,149 @@
       "deferrals": []
     },
     "recordedAt": "2026-09-03T19:59:49.949Z"
+  },
+  {
+    "kind": "review",
+    "head": "40eaecf81b493e81e25b6679e2861e165bd9d300",
+    "auditedRange": "d585847d5cf92ca23342cfac5d035d5b881c7f58..40eaecf81b493e81e25b6679e2861e165bd9d300",
+    "level": "full",
+    "areas": [
+      "startup",
+      "objects",
+      "generation",
+      "monsters",
+      "world-effects",
+      "commands",
+      "runtime"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 25 raw, 23 deduplicated, 15 confirmed, 11 applied, 4 deferred, 8 rejected, 0 unverified. Full correctness review with 4 finders (correctness, readability, tests, variable-trace) and adversarial verification. Applied 11 fixes across fountain.js, steal.js, trap_effects.js, steal.test.mjs, topten.test.mjs. Deferred 4 findings (mavenge guards blocked on Conflict/Punished port, 3 test coverage gaps). Seed0014 baseline lowered to 0/0/0 after Excalibur guard fix shifted PRNG.",
+    "auditMetrics": {
+      "wallTimeSeconds": 2400,
+      "counts": {
+        "raw": 25,
+        "deduplicated": 23,
+        "confirmed": 15,
+        "applied": 11,
+        "deferred": 4,
+        "rejected": 8,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 7,
+        "tests": 7,
+        "clarity": 1,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "Excalibur guard in dipfountain() does not consume rn2() matching C short-circuit evaluation order",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "money_cnt() called with no argument instead of state.invent",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "stealamulet() uses wrong hex literal 0x0100 for W_AMUL and 0x0200 for W_TOOL",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "stealamulet() uses wrong hex literal (0x20000|0x40000) for W_BALL|W_CHAIN",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "mpickobj_container() calls doname_with_price() on OBJ_FREE object; C calls doname()",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "trapeffect_rolling_boulder_trap() door check missing D_CLOSED|D_LOCKED mask",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "mavenge() guards in mpickobj_container() check Conflict/Punished but neither state is ported",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "deferred"
+        }
+      ],
+      "deferrals": [
+        {
+          "summary": "mavenge() guards in mpickobj_container() check Conflict/Punished but neither state is ported",
+          "trackedIn": "mavenge-guards-steal",
+          "category": "production"
+        },
+        {
+          "summary": "steal.test.mjs uses literal numeric class values instead of named constants",
+          "trackedIn": "steal-test-named-constants",
+          "category": "tests"
+        },
+        {
+          "summary": "steal.test.mjs missing test for W_BALL|W_CHAIN exclusion path",
+          "trackedIn": "steal-test-ball-chain-exclusion",
+          "category": "tests"
+        },
+        {
+          "summary": "topten.test.mjs missing ENTRYMAX global cap test",
+          "trackedIn": "topten-test-entrymax",
+          "category": "tests"
+        }
+      ],
+      "rejections": [
+        {
+          "summary": "delfloortrap() is ported from trap.c but placed in fountain.js; nexttodoor() at line 305 is from mkroom.c but also in fountain.js. Both violate the one-C-file-to-one-JS-file naming convention.",
+          "counterEvidence": "evidence refute: The functions delfloortrap() and nexttodoor() are correctly implemented and produce correct behavior. They are private to fountain.js (not exported) and called only from gush() within the same file. The code organization convention in AGENTS.md is a maintainability guideline, not a correctness invariant. The functions work identically regardless of which file they reside in. Counter-evidence: delfloortrap() and nexttodoor() are module-private functions called only from gush() wi"
+        },
+        {
+          "summary": "require_trap_constants() comment claims these constants are 'already imported from const.js' but they are not imported; they are hardcoded magic numbers that duplicate the authoritative exports.",
+          "counterEvidence": "evidence refute: The comment at line 349-351 is factually incorrect (the constants are hardcoded, not imported), but the hardcoded values are correct. SQKY_BOARD=4, BEAR_TRAP=5, LANDMINE=6, FIRE_TRAP=10, TELEP_TRAP=15, LEVEL_TELEP=16, WEB=18, MAGIC_TRAP=20, ANTI_MAGIC=21 all match their canonical definitions. The lazy-import pattern with hardcoded values is a deliberate circular-dependency workaround. The misleading comment is a documentation defect, not a correctness defect. Counter-evidence: T"
+        },
+        {
+          "summary": "somegold() is ported from steal.c but placed in fountain.js, violating the project convention 'Put everything ported from one C file into one JavaScript file with the same name.'",
+          "counterEvidence": "evidence refute: somegold() is correctly implemented and produces correct results. It is a private function called only from dipfountain() at line 698 within the same file. The function's behavior matches the C source steal.c:14-34. No code path produces incorrect behavior due to its file placement. Counter-evidence: somegold() is a private (non-exported) function with a single caller in fountain.js. No other file imports or calls it. Its behavior matches C's somegold() exactly. The AGENTS.md co"
+        },
+        {
+          "summary": "dipfountain case 16 (curse) and cases 17-20 (uncurse) only flip the blessed/cursed flags. C's curse() and uncurse() at mkobj.c:1783-1838 also call set_moreluck() for luck-conferring items, recalculate BAG_OF_HOLDING weight, handle FIGURINE timers, call reset_remarm() for bimanual weapons, and call drop_uswapwep() for cursed swap weapons.",
+          "counterEvidence": "causality refute: The missing curse()/uncurse() side effects are a documented project-wide deferral, not a defect specific to this diff. The full curse() function for carried objects is unported everywhere in the codebase (obj.js:1140-1141 confirms this). The code explicitly documents the gap. The immediate impact is game-state divergence (moreluck), not direct PRNG or screen divergence: set_moreluck() makes no rn2/rnd/rn1 calls and produces no screen output. The indirect impact through luck-dep"
+        },
+        {
+          "summary": "Three near-identical ROOM_TYPE_MAP objects defined in the same file (lines 1564, 2124, 3646) with silent differences: the region map has 'throne: COURT' but the room map does not, and the themeroom map has 'themed: THEMEROOM' but neither other map does.",
+          "counterEvidence": "evidence refute: The three maps serve different C call sites (lspo_region, lspo_room, themeroom) with legitimately different domains. The region map has 'throne' as an alias for COURT because C sp_lev.c lspo_region() accepts it; the room map does not because lspo_room() does not use that alias in C either. The themeroom map has 'themed: THEMEROOM' because only themerooms use that type. These are not bugs -- they are faithful per-context translations of what each C call site accepts. No current l"
+        },
+        {
+          "summary": "worn_item_removal calls doname_with_price(obj, state) where C steal.c:302 calls doname(obj). The OBJ_INVENT path in doname_with_price passes includeRememberedPriceQuote: true, which can append a remembered shop price quote that C's doname() would also include via its doname_base path. If the paths diverge for any item state, the theft-removal message differs from C.",
+          "counterEvidence": "evidence refute: The claim that doname_with_price and donameFresh produce different output for OBJ_INVENT items is not supported by the source. For OBJ_INVENT items, doname_with_price (line 1638-1641) calls donameFreshInternal with allowLiveShopPrice:true and includeRememberedPriceQuote:true. donameFresh (line 1612-1615) calls donameFreshInternal with includeRememberedPriceQuote:true. The allowLiveShopPrice parameter is accepted by donameFreshInternal (line 1479) but never read or used inside th"
+        },
+        {
+          "summary": "find_guard_dest() uses a labeled 'continue outer' to implement C's 'goto incr_radius' but the label spans 30+ lines of nested loops, making the jump target non-obvious without reading the entire function.",
+          "counterEvidence": "evidence refute: The finding is categorized as readability and describes a labeled-continue span that is hard to follow. This is a style preference, not a correctness defect. The labeled continue at line 323 is semantically identical to C's 'goto incr_radius' at vault.c:301, and both skip to the next radius ring iteration. The JS faithfully translates the C control flow. Counter-evidence: The labeled continue is the standard JavaScript translation of C's goto-to-loop-increment pattern. The comme"
+        },
+        {
+          "summary": "The 'hero triggers rolling boulder trap' test checks that any rolling boulder trap on the level is marked seen, but a maze level can have multiple rolling boulder traps. The assertion does not verify that the specific trap the hero triggered is the one marked seen.",
+          "counterEvidence": "evidence refute: The test runs a full game replay from a recipe. Rolling boulder traps start with tseen=false (trap.c maketrap sets tseen=0). The only code path that sets tseen=true for ROLLING_BOULDER_TRAP is feeltrap() called from trapeffect_rolling_boulder_trap(). No other code path in normal gameplay marks rolling boulder traps as tseen during level generation or exploration before the hero triggers one. If feeltrap() were broken, no rolling boulder trap would be tseen after a replay that st"
+        }
+      ]
+    },
+    "recordedAt": "2026-09-04T17:31:36.889Z"
   }
 ]
