@@ -8869,7 +8869,7 @@
     },
     {
       "id": "unsupported-hero-move-attacking-a-disguised-or-hidden-monste",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero move: attacking a disguised or hidden monster",
       "upstreamOwners": [],
       "forecast": null,
@@ -8887,8 +8887,11 @@
         "screens": 4547,
         "rng": 314067
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "b4bf83258329fd18be841787707f9fd07b188417",
+      "delivered": {
+        "screens": 0,
+        "rng": 6
+      }
     }
   ]
 }
