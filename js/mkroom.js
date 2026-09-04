@@ -495,13 +495,16 @@ function ndemon(atyp, state, random) {
 }
 
 // C ref: mkobj.c mk_tt_object(). Creates a corpse or statue named after a
-// random player class. The scoreboard name (tt_oname) is always empty in this
-// port, so the fallback path fires every time.
+// random player class. C calls tt_oname → get_rnd_toptenentry, which draws
+// rnd(tt_oname_maxrank) before reading the record file. The recorder's file
+// is always empty, so get_rnd_toptenentry returns NULL and the fallback path
+// fires. The rnd(10) call must still happen to keep the RNG aligned.
 export function mk_tt_object(objtype, x, y, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? SOURCE_RANDOM;
     const normalized = { ...env, state, random };
     const otmp = mksobj_at(objtype, x, y, objtype !== STATUE, false, normalized);
+    random.rnd(10);
     const pm = random.rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
     set_corpsenm(otmp, pm, normalized);
     return otmp;
