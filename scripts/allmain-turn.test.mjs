@@ -3173,19 +3173,13 @@ test('a hero the monster scan kills reaches no once-per-turn upkeep',
         // refuses to share a row with it; q at the possessions prompt declines
         // every disclosure; the last two dismiss the tombstone and farewell
         // windows, after which really_done() returns. advanceElapsedTurn()
-        // then returns to moveloop_core(), whose next command dispatch reads
-        // a key that does not exist: the rejection js/jsmain.js ends a
-        // segment on. Without the early return the live movement gate runs
-        // against a preflight that planned no upkeep, and the disagreement
-        // rejects with a different error.
+        // then returns to moveloop_core(), which checks gameover and returns
+        // early — matching C's NORETURN done_in_by(). Without the early
+        // return the live movement gate runs against a preflight that planned
+        // no upkeep, and the disagreement rejects with a different error.
         for (const key of 'm.  q  ') game.nhDisplay.pushKey(key.charCodeAt(0));
-        await assert.rejects(
-            async () => {
-                await moveloop_core();
-                await moveloop_core();
-            },
-            /Input queue empty/u,
-        );
+        await moveloop_core();
+        await moveloop_core();
 
         assert.deepEqual(game.killer, { name: 'jackal', format: KILLED_BY_AN });
         // really_done()'s last two statements: `true` replaces the 1 done()

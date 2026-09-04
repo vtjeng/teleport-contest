@@ -1290,6 +1290,12 @@ export async function moveloop_core() {
         // turn, and so does this.
         await advanceElapsedTurn(g);
     }
+    // C's done_in_by() is NORETURN: nh_terminate() exits the process, so
+    // nothing after the fatal monster action runs. The JS port returns
+    // normally from advanceElapsedTurn() with gameover set. Skip every
+    // post-turn effect — vision, bot, rhack — so the terminal stays on the
+    // topten display that tty_raw_print wrote inside really_done().
+    if (g.program_state?.gameover) return;
 
     // C has a separate clear_splitobjs() at movemon()'s terminal boundary.
     // This one is the once-per-player-input owner from allmain.c, so it also
