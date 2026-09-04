@@ -158,7 +158,9 @@ import {
     D_NODOOR, D_BROKEN, D_CLOSED, D_ISOPEN, D_LOCKED, D_TRAPPED, D_SECRET,
     OROOM, THEMEROOM, COURT, SWAMP, VAULT, BEEHIVE, MORGUE,
     BARRACKS, ZOO, TEMPLE, LEPREHALL, COCKNEST, ANTHOLE, SHOPBASE,
-    ARMORSHOP, WEAPONSHOP,
+    ARMORSHOP, SCROLLSHOP, POTIONSHOP, WEAPONSHOP,
+    FOODSHOP, RINGSHOP, WANDSHOP, TOOLSHOP,
+    BOOKSHOP, FODDERSHOP, CANDLESHOP,
     ROOMOFFSET, MAXNROFROOMS, MAX_SUBROOMS, SHARED,
     SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, THRONE, TREE,
     DUST, ENGRAVE, BURN, ENGR_BLOOD,
@@ -867,18 +869,11 @@ export function select_themeroom(difficulty, random = rn2) {
 }
 
 // C ref: nhlua.c splev_chr2typ() (379-391). The cases below are char2typ[]
-// (340-377) entry for entry, so no character C accepts reaches the default arm.
-//
-// The default arm cannot be raised, and is not converted for that reason.
-// C returns INVALID_TYPE there instead of failing, and its three consumers
-// then diverge: lspo_map() skips the cell, while get_table_mapchr_opt() and
-// nhlsel.c's selection filter raise a Lua error. Both data sources that reach
-// here are fixed tables this repository ships, and both are covered --
-// js/tutorial_level.js TUTORIAL_MAP uses " #+-.FLPSTWZ|", and the nineteen
-// maps in js/themeroom_data.js use "-.Lx|}" between them. scripts/
-// tutorial-startup.test.mjs and scripts/themeroom-data.test.mjs run every
-// character of both through this function, so a map that ever needs a new
-// one fails there rather than escaping runSegment().
+// (340-377) entry for entry. The default arm returns MAX_TYPE (C's
+// INVALID_TYPE); selection_match and lspo_map skip those cells, while
+// get_table_mapchr_opt and nhlsel.c's selection filter raise a Lua error.
+// bigrm3 uses "[" in a mapfrag pattern, which reaches here via
+// selection_match and must return MAX_TYPE to be skipped.
 export function splev_chr2typ(char) {
     switch (char) {
     case ' ': return STONE;
@@ -905,7 +900,7 @@ export function splev_chr2typ(char) {
     case 'x': return MAX_TYPE;
     case 'B': return CROSSWALL;
     case 'w': return MATCH_WALL;
-    default: throw new Error(`unsupported special-level map character ${JSON.stringify(char)}`);
+    default: return MAX_TYPE;
     }
 }
 
@@ -1451,6 +1446,7 @@ function createSpecialLevelApi(state) {
                 // C ref: sp_lev.c lspo_level_flags(). "sokoban" sets
                 // Sokoban = 1, which is svl.level.flags.sokoban_rules.
                 case 'sokoban': state.level.flags.sokoban_rules = true; break;
+                case 'inaccessibles': state._specialLevelCheckInaccessibles = true; break;
                 default: throw new Error(`unsupported special-level flag ${name}`);
                 }
             }
@@ -1567,6 +1563,13 @@ function createSpecialLevelApi(state) {
                     morgue: MORGUE, barracks: BARRACKS, zoo: ZOO,
                     beehive: BEEHIVE, leprehall: LEPREHALL, swamp: SWAMP,
                     vault: VAULT, court: COURT, throne: COURT,
+                    shop: SHOPBASE, 'armor shop': ARMORSHOP,
+                    'scroll shop': SCROLLSHOP, 'potion shop': POTIONSHOP,
+                    'weapon shop': WEAPONSHOP, 'food shop': FOODSHOP,
+                    'ring shop': RINGSHOP, 'wand shop': WANDSHOP,
+                    'tool shop': TOOLSHOP, 'book shop': BOOKSHOP,
+                    'health food shop': FODDERSHOP,
+                    'candle shop': CANDLESHOP,
                 };
                 const [rx1, ry1, rx2, ry2] = specification.region;
                 const rtype = ROOM_TYPE_MAP[specification.type] ?? OROOM;
@@ -2120,6 +2123,13 @@ function createSpecialLevelApi(state) {
                 morgue: MORGUE, barracks: BARRACKS, zoo: ZOO,
                 beehive: BEEHIVE, leprehall: LEPREHALL, swamp: SWAMP,
                 vault: VAULT, court: COURT,
+                shop: SHOPBASE, 'armor shop': ARMORSHOP,
+                'scroll shop': SCROLLSHOP, 'potion shop': POTIONSHOP,
+                'weapon shop': WEAPONSHOP, 'food shop': FOODSHOP,
+                'ring shop': RINGSHOP, 'wand shop': WANDSHOP,
+                'tool shop': TOOLSHOP, 'book shop': BOOKSHOP,
+                'health food shop': FODDERSHOP,
+                'candle shop': CANDLESHOP,
             };
             const roomSpec = {
                 x: spec.x ?? -1,
@@ -3630,11 +3640,19 @@ function filler_region(filler, origin, definition, context) {
     return true;
 }
 
+const THEMEROOM_TYPE_MAP = {
+    ordinary: OROOM, themed: THEMEROOM,
+    shop: SHOPBASE, 'armor shop': ARMORSHOP,
+    'scroll shop': SCROLLSHOP, 'potion shop': POTIONSHOP,
+    'weapon shop': WEAPONSHOP, 'food shop': FOODSHOP,
+    'ring shop': RINGSHOP, 'wand shop': WANDSHOP,
+    'tool shop': TOOLSHOP, 'book shop': BOOKSHOP,
+    'health food shop': FODDERSHOP,
+    'candle shop': CANDLESHOP,
+};
 function room_type_from_schema(type, definition) {
-    if (type === 'ordinary') return OROOM;
-    if (type === 'themed') return THEMEROOM;
-    if (type === 'armor shop') return ARMORSHOP;
-    if (type === 'weapon shop') return WEAPONSHOP;
+    const rtype = THEMEROOM_TYPE_MAP[type];
+    if (rtype !== undefined) return rtype;
     throw new UnsupportedThemeroomActionError(
         definition,
         `has unsupported room type ${JSON.stringify(type)}`,
