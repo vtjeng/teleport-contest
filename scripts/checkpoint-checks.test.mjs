@@ -210,11 +210,12 @@ function scorerOutput(sessions) {
         'human-readable scorer output',
         `__RESULTS_JSON__${JSON.stringify({
             results: Object.entries(sessions).map(
-                ([session, { screens, rngCalls }]) => ({
+                ([session, { screens, rngCalls, cursors }]) => ({
                     session,
                     metrics: {
                         screens: { matched: screens },
                         rngCalls: { matched: rngCalls },
+                        cursors: { matched: cursors },
                     },
                 }),
             ),
@@ -227,8 +228,8 @@ function scorerOutput(sessions) {
 // what keeps these cases honest as the ratchet advances.
 function baselineRun(baseline) {
     const run = {};
-    for (const [session, { screens, rngCalls }] of Object.entries(baseline))
-        run[session] = { screens, rngCalls };
+    for (const [session, { screens, rngCalls, cursors }] of Object.entries(baseline))
+        run[session] = { screens, rngCalls, cursors };
     return run;
 }
 
@@ -277,6 +278,21 @@ test('the score check watches random-number matches as well as screens', () => {
         passed: false,
         detail: `${first} rngCalls ${baseline[first].rngCalls} -> `
             + `${baseline[first].rngCalls - 1}`,
+    });
+});
+
+test('the score check watches cursor matches as well as screens', () => {
+    // cursors is a scored column that moves independently of screens: at
+    // 16ab32d, 4 of 33 sessions disagree.
+    const baseline = readBaseline();
+    const [first] = Object.keys(baseline);
+    const dropped = baselineRun(baseline);
+    dropped[first].cursors -= 1;
+
+    assert.deepEqual(compareScoreToBaseline(scorerOutput(dropped)), {
+        passed: false,
+        detail: `${first} cursors ${baseline[first].cursors} -> `
+            + `${baseline[first].cursors - 1}`,
     });
 });
 
