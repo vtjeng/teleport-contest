@@ -197,6 +197,7 @@ import {
     PM_CAVE_SPIDER,
     PM_BUGBEAR,
     PM_CENTIPEDE,
+    PM_CROESUS,
     PM_CHAMELEON,
     PM_CHICKATRICE,
     PM_CHIEFTAIN,
@@ -257,6 +258,7 @@ import {
     PM_ORC_CAPTAIN,
     PM_ORC_SHAMAN,
     PM_OGRE_LEADER,
+    PM_PESTILENCE,
     PM_OGRE_TYRANT,
     PM_PAGE,
     PM_PONY,
@@ -291,6 +293,7 @@ import {
     PM_WRAITH,
     PM_WUMPUS,
     PM_WIZARD,
+    PM_WIZARD_OF_YENDOR,
     PM_YELLOW_LIGHT,
     PM_YELLOW_MOLD,
     SPECIAL_PM,
@@ -357,6 +360,7 @@ import {
     BANDED_MAIL,
     BATTLE_AXE,
     BEC_DE_CORBIN,
+    BELL_OF_OPENING,
     BOULDER,
     BOW,
     BROADSWORD,
@@ -452,6 +456,7 @@ import {
     POT_OBJECT_DETECTION,
     POT_PARALYSIS,
     POT_POLYMORPH,
+    POT_SICKNESS,
     POT_SLEEPING,
     POT_SPEED,
     POTION_CLASS,
@@ -477,6 +482,7 @@ import {
     SLIME_MOLD,
     SLING,
     SPBOOK_CLASS,
+    SPE_DIG,
     SPETUM,
     SPEED_BOOTS,
     STATUE,
@@ -3421,6 +3427,12 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         if (mndx !== PM_VLAD_THE_IMPALER
             && newcham_initial(monster, normalized))
             allowMinvent = false;
+    } else if (mndx === PM_WIZARD_OF_YENDOR) {
+        monster.iswiz = true;
+        state.context.no_of_wizards = (state.context.no_of_wizards || 0) + 1;
+        if (state.context.no_of_wizards === 1
+            && on_level(state.u?.uz, state.earth_level))
+            mitem = SPE_DIG;
     } else if (mndx === PM_GHOST) {
         // C ref: makemon.c -- MM_NONAME suppresses the random ghost name.
         // savebones() passes MM_NONAME and then christen_monst separately.
@@ -3429,6 +3441,12 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
                 updateInventory: () => update_inventory(normalized),
             });
         }
+    } else if (mndx === PM_CROESUS) {
+        mitem = TWO_HANDED_SWORD;
+    } else if (ptr.msound === MS_NEMESIS) {
+        mitem = BELL_OF_OPENING;
+    } else if (mndx === PM_PESTILENCE) {
+        mitem = POT_SICKNESS;
     }
     if (mitem !== STRANGE_OBJECT && allowMinvent)
         mongets(monster, mitem, normalized);
