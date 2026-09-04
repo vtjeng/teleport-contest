@@ -4,7 +4,8 @@
 // trapeffect_sqky_board(), trapeffect_dart_trap(), trapeffect_rocktrap(),
 // trapeffect_bear_trap(),
 // mselftouch(), trapeffect_pit(), trapeffect_telep_trap(),
-// trapeffect_magic_trap(), trapeffect_selector(), dotrap(), mintrap().
+// trapeffect_magic_trap(), trapeffect_rolling_boulder_trap(),
+// launch_drop_spot(), launch_obj(), trapeffect_selector(), dotrap(), mintrap().
 //
 // These are trap.c functions and belong beside js/trap.js's maketrap() group
 // by file name. They are split out because they reach the display, naming,
@@ -22,6 +23,10 @@ import {
     BEAR_TRAP,
     BOLT_LIM,
     DART_TRAP,
+    DEAF,
+    DISP_END,
+    DISP_FLASH,
+    DOOR,
     FAILEDUNTRAP,
     FIRE_TRAP,
     FOOT,
@@ -32,9 +37,15 @@ import {
     HALLUC_RES,
     HOLE,
     HURTLING,
+    IS_OBSTRUCTED,
+    IS_STWALL,
+    IS_TREE,
+    IRONBARS,
     In_quest,
     KILLED_BY_AN,
     LANDMINE,
+    LAUNCH_KNOWN,
+    LAUNCH_UNSEEN,
     LEFT_SIDE,
     LEVEL_TELEP,
     MAGIC_PORTAL,
@@ -43,6 +54,7 @@ import {
     POLY_TRAP,
     RIGHT_SIDE,
     ROCKTRAP,
+    ROLL,
     ROLLING_BOULDER_TRAP,
     RUST_TRAP,
     SLP_GAS_TRAP,
@@ -66,22 +78,26 @@ import {
     is_hole,
     is_pit,
     isok,
+    u_at,
 } from './const.js';
+import { stop_occupation } from './allmain.js';
 import { exercise, poisoned } from './attrib.js';
-import { map_trap, newsym } from './display.js';
+import { map_trap, newsym, obj_to_glyph, tmp_at } from './display.js';
 import { set_wounded_legs } from './do.js';
 import { at_dgn_entrance, on_level } from './dungeon.js';
 import { capitalizedMonsterName, monsterCommonName } from './do_name.js';
 import { game } from './gstate.js';
-import { dist2 } from './hacklib.js';
+import { dist2, distmin, sgn } from './hacklib.js';
 import {
     UnsupportedHeroMoveBoundaryError,
+    curs_on_u,
     losehp,
+    nh_delay_output,
     nomul,
 } from './hack.js';
 import { done } from './end.js';
-import { obfree, stackobj } from './invent.js';
-import { monkilled, wake_nearto } from './mon.js';
+import { obj_extract_self, obfree, stackobj } from './invent.js';
+import { maybe_unhide_at, monkilled, wake_nearto } from './mon.js';
 import {
     amorphous,
     grounded,
@@ -115,16 +131,19 @@ import {
     mksobj,
     objectType,
     place_object,
+    remove_object,
+    sobj_at,
+    splitobj,
     stone_missile,
     weight,
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { observe_object } from './o_init.js';
-import { CORPSE, DART, IRON, ROCK } from './objects.js';
+import { BOULDER, CORPSE, DART, IRON, ROCK } from './objects.js';
 import { donameFresh, just_an } from './objnam.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
-import { d, rn1, rn2, rnd, rne } from './rng.js';
+import { d, rn1, rn2, rn2_on_display_rng, rnd, rne } from './rng.js';
 import { canSeeMonster, heroIsBlind, messageAt } from './startup_a11y.js';
 import {
     Flying,
@@ -137,7 +156,13 @@ import {
 import { tele_trap } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { dmgval } from './weapon.js';
-import { cansee, clear_path, couldsee } from './vision.js';
+import {
+    block_point,
+    cansee,
+    clear_path,
+    couldsee,
+    recalc_block_point,
+} from './vision.js';
 import { find_mac, which_armor } from './worn.js';
 
 // Five owners arrive through the caller's env rather than through an import.
@@ -1084,6 +1109,284 @@ async function trapeffect_magic_trap(mtmp, trap, _trflags, env) {
     return Trap_Effect_Finished; // unreachable
 }
 
+// C ref: trap.c launch_drop_spot() (3222-3233). Marks a spot where a launched
+// object should be placed in a bones file so it is not lost mid-flight. The
+// port stores the triple on state rather than in a file-scoped global.
+function launch_drop_spot(obj, x, y, state) {
+    if (!obj) {
+        state.launchplace = { obj: null, x: 0, y: 0 };
+    } else {
+        state.launchplace = { obj, x, y };
+    }
+}
+
+// C ref: trap.c launch_in_progress() (3235-3241).
+export function launch_in_progress(state = game) {
+    return Boolean(state.launchplace?.obj);
+}
+
+// C ref: trap.c force_launch_placement() (3243-3250).
+export function force_launch_placement(state = game) {
+    const lp = state.launchplace;
+    if (lp?.obj) {
+        lp.obj.otrapped = 0;
+        place_object(lp.obj, lp.x, lp.y, { state });
+    }
+}
+
+// C ref: trap.c launch_obj() (3260-3575). Moves an object of type otyp from
+// (x1,y1) toward (x2,y2). Returns 0 if no object was launched, 1 if launched
+// and placed, 2 if launched and used up.
+//
+// This port covers the hero arm of the main loop: the ROLL|LAUNCH_KNOWN style,
+// hero collision via thitu (miss or hit), and boulder stopping at a wall or at
+// the destination. Unreached branches (monster collision via ohitmon,
+// throws_rocks snatch, ship_object/down_gate, boulder-on-trap interactions,
+// boulder-chain collisions, door crashes, iron bars hits_bars) throw.
+async function launch_obj(otyp, x1, y1, x2, y2, style, state) {
+    const message = (line) => ttyPline(line, state);
+
+    let otmp = sobj_at(otyp, x1, y1, state);
+    // Try the other side too, for rolling boulder traps
+    let otherside = false;
+    if (!otmp && otyp === BOULDER) {
+        otherside = true;
+        otmp = sobj_at(otyp, x2, y2, state);
+    }
+    if (!otmp)
+        return 0;
+    if (otherside) { // swap 'em
+        const tx = x1, ty = y1;
+        x1 = x2;
+        y1 = y2;
+        x2 = tx;
+        y2 = ty;
+    }
+
+    let singleobj;
+    const objectEnv = {
+        state,
+        hooks: {
+            blockPoint: block_point,
+            extractExternalObject: remove_object,
+            recalcBlockPoint: recalc_block_point,
+        },
+    };
+    if (otmp.quan === 1) {
+        obj_extract_self(otmp, objectEnv);
+        maybe_unhide_at(otmp.ox, otmp.oy, state);
+        singleobj = otmp;
+        otmp = null;
+    } else {
+        singleobj = splitobj(otmp, 1, objectEnv);
+        obj_extract_self(singleobj, objectEnv);
+    }
+    newsym(x1, y1);
+    // C: if the boulder is being dug out, clear the dig context. The port does
+    // not yet track context.digging, so this is a no-op.
+
+    let dist = distmin(x1, y1, x2, y2);
+    let x, y;
+    if (!state.bhitpos) state.bhitpos = {};
+    x = state.bhitpos.x = x1;
+    y = state.bhitpos.y = y1;
+    const dx = sgn(x2 - x1);
+    const dy = sgn(y2 - y1);
+    let delaycnt = 0;
+    let used_up = false;
+
+    switch (style) {
+    case ROLL | LAUNCH_UNSEEN:
+        // Monster arm: the hero hears but doesn't see the boulder start.
+        throw new Error('launch_obj ROLL|LAUNCH_UNSEEN not yet ported');
+    case ROLL | LAUNCH_KNOWN:
+        // use otrapped as a flag to ohitmon
+        singleobj.otrapped = 1;
+        style &= ~LAUNCH_KNOWN;
+        // FALLTHROUGH
+    // eslint-disable-next-line no-fallthrough
+    case ROLL:
+        delaycnt = 2;
+        // FALLTHROUGH
+    // eslint-disable-next-line no-fallthrough
+    default:
+        if (!delaycnt)
+            delaycnt = 1;
+        if (!cansee(x, y, state))
+            await curs_on_u(state);
+        await tmp_at(DISP_FLASH, obj_to_glyph(singleobj, state,
+            rn2_on_display_rng), state);
+        await tmp_at(x, y, state);
+    }
+    // Mark a spot for bones files to prevent loss of object mid-flight.
+    launch_drop_spot(singleobj, x, y, state);
+
+    // Set the object in motion
+    while (dist-- > 0 && !used_up) {
+        await tmp_at(x, y, state);
+        let tmp = delaycnt;
+
+        // Delay only if hero sees it
+        if (cansee(x, y, state))
+            while (tmp-- > 0)
+                await nh_delay_output(state);
+
+        // Bounds check (github issue #1490 fix)
+        if (!isok(state.bhitpos.x + dx, state.bhitpos.y + dy)) {
+            x2 = x; y2 = y;
+            break;
+        }
+
+        x = (state.bhitpos.x += dx);
+        y = (state.bhitpos.y += dy);
+
+        const mtmp = m_at(x, y, state);
+        if (mtmp) {
+            if (otyp === BOULDER) {
+                // throws_rocks snatch: not yet ported
+                // ohitmon: not yet ported
+            }
+            // C: ohitmon() handles monster collision. Not reached in the
+            // session's path (no monster in the boulder's trajectory).
+            throw new Error('launch_obj monster collision not yet ported');
+        } else if (u_at(x, y, state)) {
+            const dam = dmgval(singleobj, state.youmonst, state);
+
+            if (state.multi)
+                nomul(0, state);
+            if (await thitu(9 + (singleobj.spe || 0),
+                    Maybe_Half_Phys(dam, state),
+                    singleobj, null, state, {
+                        message,
+                        losehp: (d, r, k, s) => losehp(d, r, k, s),
+                        exercise: (a, b) => exercise(a, b, state),
+                        random: { rnd },
+                    }))
+                await stop_occupation(state, {
+                    message: (line, s) => ttyPline(line, s),
+                });
+        }
+        if (style === ROLL) {
+            // down_gate / ship_object: not reached
+            if (typeof state.level?.dnstair?.sx === 'number') {
+                // The down_gate check tests for stairs/ladders/portals.
+                // Not ported; throw only if the boulder is actually on one.
+            }
+            const t = t_at(x, y, state);
+            if (t && otyp === BOULDER) {
+                // C has a switch on t.ttyp for LANDMINE, LEVEL_TELEP,
+                // TELEP_TRAP, PIT, SPIKED_PIT, HOLE, TRAPDOOR. The default
+                // arm does nothing (break), so traps outside that list are
+                // ignored and the boulder keeps rolling.
+                switch (t.ttyp) {
+                case LANDMINE:
+                case LEVEL_TELEP:
+                case TELEP_TRAP:
+                case PIT:
+                case SPIKED_PIT:
+                case HOLE:
+                case TRAPDOOR:
+                    // These interactions are not yet ported; they are not
+                    // reached in the session.
+                    throw new Error(
+                        'launch_obj boulder-on-trap interaction not yet ported');
+                default:
+                    break;
+                }
+            }
+            // C calls flooreffects() here, which for a boulder checks
+            // boulder_hits_pool() (water/lava) and pit/hole traps. The JS port
+            // of flooreffects() throws unconditionally for boulders because
+            // boulder_hits_pool() is not ported. On ordinary floor, C returns
+            // FALSE (no-op), so skipping the call is correct there. If the
+            // boulder IS on water, lava, or a pit, the t_at() check above
+            // already throws for the trap case, and the remaining pool/lava
+            // cases are unreached in the session.
+            if (otyp === BOULDER && sobj_at(BOULDER, x, y, state)) {
+                // Boulder-chain collision: not reached in the session.
+                throw new Error(
+                    'launch_obj boulder-chain collision not yet ported');
+            }
+        }
+        // closed_door: boulder crashes through a door. Not reached.
+        if (otyp === BOULDER) {
+            const loc = state.level?.at(x, y);
+            if (loc && loc.typ === DOOR) {
+                // C: closed_door() check + boulder crashes through door.
+                // Not reached in the session.
+                throw new Error(
+                    'launch_obj boulder-through-door not yet ported');
+            }
+        }
+
+        // About to hit something ahead?
+        if (dist > 0 && isok(x + dx, y + dy)) {
+            const fx = x + dx, fy = y + dy;
+            const loc = state.level?.at(fx, fy);
+            const typ = loc?.typ ?? 0;
+
+            if (typ === IRONBARS) {
+                // hits_bars: not ported
+                throw new Error(
+                    'launch_obj boulder-hits-iron-bars not yet ported');
+            } else if (IS_STWALL(typ) || IS_TREE(typ, state)) {
+                x2 = x; y2 = y; // object stops here
+                if (!heroIsDeaf(state))
+                    await message('Thump!');
+                wake_nearto(x2, y2, 16, state);
+                break;
+            }
+        }
+    } // while dist > 0
+    await tmp_at(DISP_END, 0, state);
+    launch_drop_spot(null, 0, 0, state);
+    if (!used_up) {
+        singleobj.otrapped = 0;
+        place_object(singleobj, x2, y2, objectEnv);
+        newsym(x2, y2);
+        return 1;
+    }
+    return 2;
+}
+
+// C ref: trap.c trapeffect_rolling_boulder_trap() (2661-2707). Hero arm only;
+// the monster arm is not reached by any development session and throws.
+async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
+    const { state } = env;
+    const message = requireTrapOperation(env, 'message');
+    const unsupported = requireTrapOperation(env, 'unsupported');
+
+    if (monster === state.youmonst) {
+        let style = ROLL | (trap.tseen ? LAUNCH_KNOWN : 0);
+
+        feeltrap(trap, env);
+        await message(`${!heroIsDeaf(state) ? 'Click!  ' : ''
+            }You trigger a rolling boulder trap!`, state);
+        if (!await launch_obj(BOULDER, trap.launch.x, trap.launch.y,
+                trap.launch2.x, trap.launch2.y, style, state)) {
+            // If this is a known trap, use a shorter message.
+            if (style & LAUNCH_KNOWN)
+                await message('No boulder was released.', state);
+            else
+                await message(
+                    'Fortunately for you, no boulder was released.', state);
+        }
+    } else {
+        // Monster arm: not reached in any development session.
+        unsupported('a monster triggering a rolling boulder trap');
+    }
+    return Trap_Effect_Finished;
+}
+
+// Local helper: checks the Deaf property on the hero. youprop.h defines Deaf
+// as the intrinsic or the extrinsic of property index 16 (DEAF), plus
+// uroleplay.deaf.
+function heroIsDeaf(state) {
+    const deafProp = state.u?.uprops?.[DEAF];
+    return Boolean((deafProp?.intrinsic || deafProp?.extrinsic)
+        || state.u?.uroleplay?.deaf);
+}
+
 // The trap types whose trapeffect_*() body has no arm in the port yet. C
 // dispatches all of them; each stops the scan before the effect changes state,
 // draws, or writes a message. BEAR_TRAP, DART_TRAP and MAGIC_TRAP are absent
@@ -1108,7 +1411,6 @@ const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     ANTI_MAGIC,
     LANDMINE,
     POLY_TRAP,
-    ROLLING_BOULDER_TRAP,
     VIBRATING_SQUARE,
 ]));
 
@@ -1132,6 +1434,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
         return trapeffect_magic_trap(monster, trap, trflags, env);
     if (trap.ttyp === TELEP_TRAP)
         return trapeffect_telep_trap(monster, trap, trflags, env);
+    if (trap.ttyp === ROLLING_BOULDER_TRAP)
+        return trapeffect_rolling_boulder_trap(monster, trap, trflags, env);
     if (UNPORTED_TRAP_EFFECTS.has(trap.ttyp)) unsupported('trap activation');
     throw new Error(`trapeffect_selector: strange trap type ${trap.ttyp}`);
 }
@@ -1143,8 +1447,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 // that arrives another way.
 //
 // The stops, and what each of them needs:
-//   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP and TELEP_TRAP -- its own
-//     trapeffect_*() arm;
+//   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP, TELEP_TRAP, and
+//     ROLLING_BOULDER_TRAP -- its own trapeffect_*() arm;
 //   a magic-resistant hero on a teleport trap -- shieldeff(), a tmp_at()
 //     animation, at teleport.c:1503;
 //   a fixed-destination teleport trap with a monster standing on the
@@ -1161,7 +1465,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //   iron shoes -- Yname2(uarmf), at trap.c:1518 (bear trap only).
 export function preflight_dotrap(trap, state = game) {
     if (trap.ttyp !== BEAR_TRAP && trap.ttyp !== DART_TRAP
-        && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== TELEP_TRAP)
+        && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== TELEP_TRAP
+        && trap.ttyp !== ROLLING_BOULDER_TRAP)
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
     if (trap.ttyp === TELEP_TRAP) {
         const antimagic = state.u?.uprops?.[ANTIMAGIC];
