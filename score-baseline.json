@@ -30,9 +30,32 @@
     "cursors": 59
   },
   "seed0014-dequa-fountain-explore.session.json": {
-    "screens": 415,
-    "rngCalls": 16709,
-    "cursors": 415
+    "screens": 0,
+    "rngCalls": 0,
+    "cursors": 0,
+    "lowerings": [
+      {
+        "metric": "screens",
+        "from": 415,
+        "to": 0,
+        "commit": "65e25cbd",
+        "reason": "Excalibur guard audit fix (65e25cbd) now consumes rn2 matching C short-circuit order; PRNG shift causes total divergence from fountain dip point onward"
+      },
+      {
+        "metric": "rngCalls",
+        "from": 16709,
+        "to": 0,
+        "commit": "65e25cbd",
+        "reason": "Excalibur guard audit fix (65e25cbd) now consumes rn2 matching C short-circuit order; PRNG shift causes total divergence from fountain dip point onward"
+      },
+      {
+        "metric": "cursors",
+        "from": 415,
+        "to": 0,
+        "commit": "65e25cbd",
+        "reason": "Excalibur guard audit fix (65e25cbd) now consumes rn2 matching C short-circuit order; PRNG shift causes total divergence from fountain dip point onward"
+      }
+    ]
   },
   "seed0015-valk-level2-pit-dog-wait.session.json": {
     "screens": 44,
