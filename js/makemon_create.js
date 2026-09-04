@@ -227,7 +227,9 @@ import {
     PM_HOUSECAT,
     PM_HUMAN,
     PM_HUNTER,
+    PM_ASMODEUS,
     PM_HOBGOBLIN,
+    PM_ICE_DEVIL,
     PM_JACKAL,
     PM_KOBOLD,
     PM_KOBOLD_MUMMY,
@@ -2328,6 +2330,13 @@ function m_initinv(monster, normalized) {
         case 3:
             mongets(monster, WAN_STRIKING, normalized);
             break;
+        }
+    } else if (ptr.mlet === S_DEMON) {
+        if (ptr.pmidx === PM_ICE_DEVIL && !random.rn2(4)) {
+            mongets(monster, SPEAR, normalized);
+        } else if (ptr.pmidx === PM_ASMODEUS) {
+            mongets(monster, WAN_COLD, normalized);
+            mongets(monster, WAN_FIRE, normalized);
         }
     } else if (ptr.mlet === S_GNOME
         && !random.rn2(
