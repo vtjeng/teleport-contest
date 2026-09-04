@@ -8918,6 +8918,35 @@
         "screens": 5,
         "rng": 2310
       }
+    },
+    {
+      "id": "unsupported-level-change-makelevel-no-loader-for-special-lev",
+      "status": "open",
+      "boundary": "unsupported level change: makelevel: no loader for special level \"medusa\"",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 76,
+        "basis": "capped at session seed0367-priest-quest-tour stretch of 76, capStable True",
+        "sessions": [
+          "seed0367-priest-quest-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0367-priest-quest-tour",
+            "evidence": "Segment 0 (seed 367, datetime 20000110090000, Priest/human/female/chaotic, debug mode) exercises #wizlevelport repeatedly. At step 243, level-teleport lands on dlvl 24, which coincides with medusa_level. makelevel() calls Is_special(&u.uz) matching the medusa entry in sp_levchn, then calls makemaz(slev->proto). The JS port has no registered loader for medusa, throwing UnsupportedLevelChangeError."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "284e72d94f392897c63f44b9d770b4702e6446d0",
+      "openStanding": {
+        "sha": "e923cf21",
+        "screens": 4552,
+        "rng": 316383
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
