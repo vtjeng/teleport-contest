@@ -10,8 +10,6 @@ import test from 'node:test';
 import {
     A_CHAOTIC,
     A_LAWFUL,
-    ARTICLE_A,
-    ARTICLE_NONE,
     CONFUSION,
     DETECT_MONSTERS,
     HALLUC,
@@ -40,7 +38,6 @@ import {
     AT_WEAP,
     AD_COLD,
     AD_PHYS,
-    AD_STCK,
     PM_ACID_BLOB,
     PM_BROWN_MOLD,
     PM_HILL_ORC,
@@ -51,7 +48,6 @@ import {
     PM_LICHEN,
     PM_SAMURAI,
     PM_SMALL_MIMIC,
-    S_MIMIC,
     NON_PM,
 } from '../js/monsters.js';
 import {

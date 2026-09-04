@@ -947,7 +947,7 @@ import {
     RIN_COLD_RESISTANCE,
     RING_CLASS,
 } from '../js/objects.js';
-import { A_CHA, LEFT_RING, RIGHT_RING, W_RING, W_RINGL, W_RINGR } from '../js/const.js';
+import { W_RINGL, W_RINGR } from '../js/const.js';
 
 function ringTestState() {
     // OBJECT_TEMPLATES is pre-frozen; it has each ring type's oc_oprop,

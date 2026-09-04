@@ -253,7 +253,9 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     assert.equal(data.summary.medianImplementationMin, 10);
     // Alpha verification = close(:30) - lastSliceClose(:30) = 0
     assert.equal(data.summary.medianVerificationMin, 0);
-    assert.equal(data.summary.medianTotalMin, 15);
+    // totalMin now measures prevCloseTime → closeTime (includes goal selection)
+    // alpha: (:30 - :05) = 25, empty: (1:10 - :50) = 20, median = 22.5
+    assert.equal(data.summary.medianTotalMin, 22.5);
 
     const rendered = renderDashboard(data);
     const table = rendered.get('goalTable').innerHTML;
@@ -261,31 +263,26 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     const alphaRow = table.split('</tr>').find((row) => row.includes('alpha'));
     const betaRow = table.split('</tr>').find((row) => row.includes('beta'));
     // Orphan has inferred timing (†); alpha has observed timing (no †)
-    assert.match(orphanRow, /10m †/u);
-    assert.match(orphanRow, /Implementation: 10m †/u);
-    assert.match(alphaRow, /Implementation: 10m"/u);
-    assert.doesNotMatch(alphaRow, /Implementation: 10m †/u);
-    assert.match(betaRow, /<td>10m<\/td><td>10m<\/td>/u);
-    assert.match(betaRow, /Goal selection: 10m"/u);
-    assert.match(betaRow, /Slice selection: 10m"/u);
+    assert.match(orphanRow, /20m\s†/u);
+    assert.match(orphanRow, /Working time: 20/u);
+    assert.match(alphaRow, /Working time: 20/u);
+    assert.doesNotMatch(alphaRow, /25m\s†/u);
+    assert.match(betaRow, /<td>10m<\/td>/u);
+    assert.match(betaRow, /Goal selection: 10/u);
 
     const timeline = rendered.get('timeline').innerHTML;
     // Alpha's goal selection is observed (previous goal has commit time)
     assert.match(timeline, /Goal selection: 5m"/u);
     assert.match(timeline, /Goal selection: 10m"/u);
+    // Orphan has inferred working time (†); alpha does not
     assert.match(
         timelineRow(timeline, 'orphan'),
-        /First slice selection: 10m †/u,
+        /Working time: 20m †/u,
     );
     assert.match(
         timelineRow(timeline, 'alpha'),
-        /First slice selection: 10m"/u,
+        /Working time: 20m"/u,
     );
-    assert.match(
-        timeline,
-        /Implementation: 10m † — Queue orphan slice/u,
-    );
-    assert.match(timeline, /Implementation: 10m — Queue alpha slice/u);
     // All SHAs resolve, so no hollow markers
     assert.equal(
         rendered.get('progressProvenance').textContent,
@@ -363,8 +360,7 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     assert.equal(active.sliceSelectionObserved, true);
     assert.equal(active.implementationObserved, false);
     let timeline = renderDashboard(activeData).get('timeline').innerHTML;
-    assert.match(timeline, /Slice selection: 10m"/u);
-    assert.doesNotMatch(timeline, /Slice selection: 10m \(inferred\)/u);
+    assert.match(timeline, /Goal selection: 5m"/u);
     const activeRow = timelineRow(timeline, 'running');
     assertTimelineSegmentsBounded(activeRow);
 
@@ -383,21 +379,16 @@ test('in-progress phase provenance follows each recorded boundary', () => {
         'running',
     );
     assert.match(mixedRow, /Goal selection: 5m"/u);
-    assert.match(mixedRow, /Slice selection: 10m"/u);
     let mixedTableRow = renderDashboard(inferredGoal).get('goalTable')
         .innerHTML.split('</tr>')
         .find((candidate) => candidate.includes('running'));
     assert.match(
         mixedTableRow,
-        /<td>5m<\/td><td>20m<\/td>/u,
+        /<td>5m<\/td>/u,
     );
     assert.match(
         mixedTableRow,
-        /title="Goal selection: 5m" aria-label="Goal selection: 5m"/u,
-    );
-    assert.match(
-        mixedTableRow,
-        /title="Slice selection: 20m" aria-label="Slice selection: 20m"/u,
+        /title="Goal selection: 5m"/u,
     );
 
     // Date-only UTC in slice: its SHA still resolves, so utcSource is 'commit'
@@ -419,21 +410,16 @@ test('in-progress phase provenance follows each recorded boundary', () => {
         'running',
     );
     assert.match(mixedRow, /Goal selection: 5m"/u);
-    assert.match(mixedRow, /Slice selection: 10m"/u);
     mixedTableRow = renderDashboard(inferredSlice).get('goalTable')
         .innerHTML.split('</tr>')
         .find((candidate) => candidate.includes('running'));
     assert.match(
         mixedTableRow,
-        /<td>5m<\/td><td>20m<\/td>/u,
+        /<td>5m<\/td>/u,
     );
     assert.match(
         mixedTableRow,
-        /title="Goal selection: 5m" aria-label="Goal selection: 5m"/u,
-    );
-    assert.match(
-        mixedTableRow,
-        /title="Slice selection: 20m" aria-label="Slice selection: 20m"/u,
+        /title="Goal selection: 5m"/u,
     );
 
     // Both prior goal and slice have date-only UTC, but both SHAs resolve,
@@ -455,7 +441,6 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     assert.match(row, /5m<\/td>/u);
     timeline = rendered.get('timeline').innerHTML;
     assert.match(timeline, /Goal selection: 5m"/u);
-    assert.match(timeline, /Slice selection: 10m"/u);
 });
 
 test('verification requires a recorded final slice closure', () => {

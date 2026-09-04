@@ -682,23 +682,18 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     table.innerHTML = '<tbody><tr><td>No candidates available.</td></tr></tbody>';
     return;
   }
-  const statusColors = {
-    'ready': 'var(--phase-slice-sel)',
-    'needs witnesses': 'var(--phase-verif)',
-    'needs capping': 'var(--phase-impl)',
-  };
   const maxFc = Math.max(...PIPELINE.map(c => c.forecast));
-  let html = '<thead><tr><th>#</th><th>Candidate</th><th>Forecast</th><th>Sessions</th><th>Witnesses</th><th>Status</th><th></th></tr></thead><tbody>';
+  let html = '<thead><tr><th>#</th><th>Blocked by</th><th>Forecast</th><th>Sessions</th><th>Uncapped</th><th></th></tr></thead><tbody>';
   PIPELINE.forEach((c, i) => {
     const barW = maxFc > 0 ? (c.forecast / maxFc * 100) : 0;
-    const color = statusColors[c.status] || 'var(--ink-muted)';
+    const color = c.uncapped > 0 ? 'var(--phase-impl)' : 'var(--phase-slice-sel)';
+    const fcLabel = c.tentative ? '~' + c.forecast : '' + c.forecast;
     html += '<tr>'
       + '<td>' + (i + 1) + '</td>'
-      + '<td title="' + c.id + '">' + c.id + '</td>'
-      + '<td>' + c.forecast + '</td>'
+      + '<td title="' + (c.member || c.id) + '">' + (c.member || c.id) + '</td>'
+      + '<td>' + fcLabel + '</td>'
       + '<td>' + c.sessions + '</td>'
-      + '<td>' + c.witnesses + '</td>'
-      + '<td><span style="color:' + color + ';font-weight:600;font-size:11px">' + c.status + '</span></td>'
+      + '<td>' + (c.uncapped > 0 ? c.uncapped : '-') + '</td>'
       + '<td><div style="height:12px;border-radius:2px;background:' + color + ';width:' + barW + '%;min-width:2px"></div></td>'
       + '</tr>';
   });

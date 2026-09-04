@@ -6,7 +6,7 @@
 // with multiple variants (arrays), com_pager_core() picks one at random
 // via rn2(nelems).
 
-// eslint-disable-next-line no-unused-vars
+ 
 export const QUEST_TEXT = {
     "Arc": {
         "firsttime": {

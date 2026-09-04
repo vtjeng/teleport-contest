@@ -10,19 +10,15 @@ import test from 'node:test';
 
 import { OBJ_INVENT, PL_PSIZ } from '../js/const.js';
 import { docall } from '../js/do_name.js';
-import { GameDisplay } from '../js/game_display.js';
-import { game, resetGame } from '../js/gstate.js';
+import { game } from '../js/gstate.js';
 import { mksobj } from '../js/obj.js';
 import {
     discover_object,
     undiscover_object,
 } from '../js/o_init.js';
-import {
-    GEM_CLASS, POTION_CLASS, POT_HEALING, SCROLL_CLASS,
-    SCR_IDENTIFY, SCR_REMOVE_CURSE,
+import { SCR_REMOVE_CURSE,
 } from '../js/objects.js';
 import { runSegment } from '../js/jsmain.js';
-import { renderTtyStartupBanner } from '../js/tty_startup.js';
 
 // Start a game so the full game state is initialized.
 async function startedGame(seed, name) {

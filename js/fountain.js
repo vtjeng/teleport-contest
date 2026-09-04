@@ -47,7 +47,7 @@ import { heroIsBlind } from './startup_a11y.js';
 import {
     PM_KNIGHT, PM_WATER_DEMON, PM_WATER_MOCCASIN, PM_WATER_NYMPH,
 } from './monsters.js';
-import { mkgold, mksobj_at, rnd_class, sobj_at, carried } from './obj.js';
+import { mkgold, mksobj_at, rnd_class, sobj_at } from './obj.js';
 import { body_part } from './polyself.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { set_levltyp } from './terrain.js';
@@ -683,7 +683,7 @@ export async function dipfountain(obj, state = game, env = {}) {
             break;
         }
         // FALLTHROUGH
-        // eslint-disable-next-line no-fallthrough
+         
     case 25: // Water gushes forth
         await dogushforth(false, state, env);
         break;

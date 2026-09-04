@@ -10,7 +10,6 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import {
-    ER_DAMAGED,
     ER_GREASED,
     ER_NOTHING,
     FOUNTAIN,

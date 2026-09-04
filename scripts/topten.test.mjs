@@ -3,8 +3,7 @@ import test from 'node:test';
 
 import { observable_depth, topten } from '../js/topten.js';
 import {
-    DIED, PANICKED, COLNO, PERSMAX, ENTRYMAX, POINTSMIN,
-    KILLED_BY, KILLED_BY_AN,
+    DIED, PANICKED, PERSMAX, KILLED_BY_AN,
 } from '../js/const.js';
 import { InMemoryStorage, setStorageForTesting } from '../js/storage.js';
 

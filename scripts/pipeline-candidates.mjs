@@ -164,23 +164,19 @@ async function status() {
 async function statusJson() {
     const rows = await loadAnnotatedRows();
     const ranked = cappedRanking(rows);
-    const metadata = readMetadata();
 
     const candidates = ranked.filter((c) => c.cappedForecast > 0);
     const result = candidates.map((candidate) => {
-        const annotated = annotateWithMetadata(candidate, metadata);
-        const allCapped = candidate.sessions.every(
-            (s) => s.capStable || s.divergenceZeroed,
+        const uncapped = candidate.sessions.filter(
+            (s) => !s.capStable && !s.divergenceZeroed,
         );
-        const ready = isReady(annotated);
         return {
-            id: annotated.id,
+            id: generateId(candidate.member, {}),
+            member: candidate.member,
             forecast: candidate.cappedForecast,
             sessions: candidate.sessions.length,
-            witnesses: annotated.witnesses.length,
-            status: ready ? 'ready'
-                : allCapped ? 'needs witnesses'
-                : 'needs capping',
+            uncapped: uncapped.length,
+            tentative: candidate.tentative || false,
         };
     });
     console.log(JSON.stringify(result));

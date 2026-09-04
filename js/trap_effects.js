@@ -39,7 +39,6 @@ import {
     HALLUC_RES,
     HOLE,
     HURTLING,
-    IS_OBSTRUCTED,
     IS_STWALL,
     IS_TREE,
     IRONBARS,
@@ -1206,11 +1205,11 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state) {
         singleobj.otrapped = 1;
         style &= ~LAUNCH_KNOWN;
         // FALLTHROUGH
-    // eslint-disable-next-line no-fallthrough
+     
     case ROLL:
         delaycnt = 2;
         // FALLTHROUGH
-    // eslint-disable-next-line no-fallthrough
+     
     default:
         if (!delaycnt)
             delaycnt = 1;
