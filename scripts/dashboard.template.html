@@ -23,6 +23,8 @@
 
   --progress-fill: #2a78d6;
   --progress-area: rgba(42,120,214,0.1);
+  --rate-7d: #8b5cf6;
+  --rate-24h: #10b981;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -45,6 +47,8 @@
 
     --progress-fill: #3987e5;
     --progress-area: rgba(57,135,229,0.12);
+    --rate-7d: #a78bfa;
+    --rate-24h: #34d399;
   }
 }
 :root[data-theme="dark"] {
@@ -66,6 +70,8 @@
 
   --progress-fill: #3987e5;
   --progress-area: rgba(57,135,229,0.12);
+  --rate-7d: #a78bfa;
+  --rate-24h: #34d399;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -533,6 +539,7 @@ canvas {
 <div class="section">
   <h2 class="section-title">Screens matched over time</h2>
   <p class="subtitle" id="progressProvenance"></p>
+  <div class="legend" id="progressLegend"></div>
   <div class="chart-wrap">
     <div class="chart-toolbar">
       <span class="chart-range" id="progressRange"></span>
@@ -663,6 +670,50 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   const yMax = Math.max(points[points.length - 1].screensTotal || 0, peak);
   const yStep = Math.max(1, niceStep(yMax / 4));
 
+  function screensAt(t) {
+    if (!points.length || t <= points[0].time) return 0;
+    let lo = 0, hi = points.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (points[mid].time <= t) lo = mid;
+      else hi = mid - 1;
+    }
+    return points[lo].screens;
+  }
+
+  function rateAt(t) {
+    const s = screensAt(t);
+    return {
+      avg7d: (s - screensAt(t - 7 * DAY_MS)) / 7,
+      last24h: s - screensAt(t - DAY_MS),
+    };
+  }
+
+  const rates = points.map(p => ({ time: p.time, ...rateAt(p.time) }));
+
+  function buildRateSteps(windowMs, valueFn) {
+    const events = new Set();
+    for (const p of points) {
+      events.add(p.time);
+      events.add(p.time + windowMs);
+    }
+    const sorted = [...events].sort((a, b) => a - b);
+    const tMin = points[0].time;
+    const tMax = points[points.length - 1].time;
+    return sorted
+      .filter(t => t >= tMin && t <= tMax)
+      .map(t => ({ time: t, value: valueFn(t) }));
+  }
+
+  const rate7dSteps = buildRateSteps(7 * DAY_MS, t => (screensAt(t) - screensAt(t - 7 * DAY_MS)) / 7);
+  const rate24hSteps = buildRateSteps(DAY_MS, t => screensAt(t) - screensAt(t - DAY_MS));
+
+  const rateMax = Math.max(1,
+    ...rate7dSteps.map(r => r.value),
+    ...rate24hSteps.map(r => r.value));
+  const rateYMax = Math.ceil(rateMax / niceStep(rateMax / 4)) * niceStep(rateMax / 4);
+  const rateStep = niceStep(rateMax / 4);
+
   let view = { t0: domain.t0, t1: domain.t1 };
   let hover = null;   // index into points, or null when nothing is selected
   let plot = null;    // scales and window from the last draw, for hit testing
@@ -733,6 +784,8 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       primary: read('--ink-primary'),
       fill: read('--progress-fill'),
       area: read('--progress-area'),
+      rate7d: read('--rate-7d'),
+      rate24h: read('--rate-24h'),
       surface: read('--surface-chart'),
       card: read('--surface-card'),
     };
@@ -861,7 +914,45 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     ctx.clip();
     fillSteps(ctx, vertices, yScale, ink.area);
     strokeSteps(ctx, vertices, yScale, ink.fill, 2);
+
+    // Rate lines (right y-axis: screens per day), exact step functions
+    const rateYScale = (v) => pad.t + (1 - v / rateYMax) * (H - pad.t - pad.b);
+
+    function drawRateSteps(steps, color, dash) {
+      if (steps.length < 1) return;
+      let si = 0;
+      while (si < steps.length - 1 && steps[si + 1].time < view.t0) si++;
+      ctx.beginPath();
+      ctx.moveTo(xScale(steps[si].time), rateYScale(steps[si].value));
+      for (let i = si + 1; i < steps.length && steps[i - 1].time <= view.t1; i++) {
+        const x = xScale(steps[i].time);
+        ctx.lineTo(x, rateYScale(steps[i - 1].value));
+        ctx.lineTo(x, rateYScale(steps[i].value));
+      }
+      const lastVisible = steps.find((_, i, a) => i === a.length - 1 || a[i + 1].time > view.t1) || steps[steps.length - 1];
+      ctx.lineTo(xScale(view.t1), rateYScale(lastVisible.value));
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      if (dash) ctx.setLineDash(dash);
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.stroke();
+      if (dash) ctx.setLineDash([]);
+    }
+
+    drawRateSteps(rate7dSteps, ink.rate7d, [6, 3]);
+    drawRateSteps(rate24hSteps, ink.rate24h, null);
+
     ctx.restore();
+
+    // Right y-axis labels
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = ink.muted;
+    for (let v = rateStep; v <= rateYMax; v += rateStep) {
+      const y = Math.round(rateYScale(v)) + 0.5;
+      ctx.fillText(Math.round(v).toLocaleString(), W - pad.r + 8, y + 4);
+    }
 
     // When a commit SHA was not found, the SCORE timestamp is used as a fallback.
     // A hollow marker makes that visible.
@@ -1057,6 +1148,10 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     if (point.sessions !== null) {
       stats.push(['Sessions', point.sessions
         + (point.sessionsTotal ? ' / ' + point.sessionsTotal : '')]);
+    }
+    if (rates[index]) {
+      stats.push(['7d avg', Math.round(rates[index].avg7d) + ' screens/day']);
+      stats.push(['Last 24h', rates[index].last24h + ' screens']);
     }
     if (stats.length) {
       const grid = document.createElement('div');
@@ -1262,6 +1357,14 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   // the opening window back to the whole range.
   setView(domain.t1 - DEFAULT_SPAN_MS, domain.t1);
   render();
+
+  document.getElementById('progressLegend').innerHTML = [
+    { color: 'var(--progress-fill)', label: 'Screens matched (left axis)' },
+    { color: 'var(--rate-7d)', label: '7-day avg screens/day (right axis)' },
+    { color: 'var(--rate-24h)', label: 'Last 24h screens (right axis)' },
+  ].map(item =>
+    '<div class="legend-item"><div class="legend-swatch" style="background:' + item.color + '"></div>' + item.label + '</div>'
+  ).join('');
 })();
 
 // --- Timeline ---
