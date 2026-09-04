@@ -8851,8 +8851,8 @@
       "slices": [
         {
           "name": "hero-rolling-boulder-trap-and-launch",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "ce358fea1b3bc0fccfc42034e6260ee45ca5ea56"
         }
       ],
       "openedAt": "5cacff86370926eb89f9d42c73e31ecebf65c326",
