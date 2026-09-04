@@ -529,14 +529,18 @@ canvas {
   width: 100%;
 }
 
+#pipelineTable col:nth-child(1) { width: 25%; }
+#pipelineTable col:nth-child(2) { width: 9%; }
+#pipelineTable col:nth-child(3) { width: 12%; }
+
 #pipelineTable td:nth-child(1) {
   text-align: left;
   font-family: 'JetBrains Mono', monospace;
   white-space: nowrap;
 }
 
-#pipelineTable td:nth-child(5),
-#pipelineTable th:nth-child(5) {
+#pipelineTable td:nth-child(4),
+#pipelineTable th:nth-child(4) {
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -693,10 +697,10 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     table.innerHTML = '<tbody><tr><td>No blocked sessions.</td></tr></tbody>';
     return;
   }
-  let html = '<thead><tr><th>Session</th><th>Forecast</th><th>Remaining</th><th>%</th><th>Blocked by</th></tr></thead><tbody>';
+  let html = '<colgroup><col><col><col><col></colgroup>'
+    + '<thead><tr><th>Session</th><th>Forecast</th><th>Remaining</th><th>Blocked by</th></tr></thead><tbody>';
   PIPELINE.forEach(s => {
     const remaining = s.total - s.matched;
-    const pct = s.total > 0 ? Math.round(remaining / s.total * 100) : 0;
     const fcCell = s.divergent
       ? '<span style="color:var(--phase-verif)">divergent</span>'
       : (s.forecast != null ? '' + s.forecast : '-');
@@ -706,8 +710,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     html += '<tr>'
       + '<td>' + s.name + '</td>'
       + '<td>' + fcCell + '</td>'
-      + '<td>' + remaining + '</td>'
-      + '<td>' + pct + '%</td>'
+      + '<td>' + remaining + ' / ' + s.total + '</td>'
       + '<td>' + blockedCell + '</td>'
       + '</tr>';
   });
