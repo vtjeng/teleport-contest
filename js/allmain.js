@@ -153,7 +153,7 @@ import {
 import { UnsupportedEndOfGameError } from './end.js';
 import { UnsupportedEnlightenmentError } from './insight.js';
 import { UnsupportedShopError } from './shk.js';
-import { UnsupportedVaultGuardError } from './vault.js';
+import { UnsupportedVaultGuardError, invault } from './vault.js';
 import { fightm } from './mhitm.js';
 import { m_everyturn_effect } from './monmove.js';
 import {
@@ -914,6 +914,13 @@ export async function finishElapsedTurn(
             { message: turnMessage },
         ),
         message: turnMessage,
+    });
+    await invault(state, {
+        random,
+        message: turnMessage,
+        makemon_runtime,
+        stopOccupation: () => stop_occupation(state),
+        unmul: (msg) => unmul(msg, state),
     });
     maybeWipeHeroEngraving(state, random);
 

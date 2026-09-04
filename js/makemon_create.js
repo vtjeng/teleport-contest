@@ -46,6 +46,7 @@ import {
     MM_ANGRY,
     MM_ASLEEP,
     MM_EDOG,
+    MM_EGD,
     MM_EPRI,
     MM_ESHK,
     MM_FEMALE,
@@ -524,6 +525,7 @@ import {
     WEAPON_CLASS,
 } from './objects.js';
 import { newepri } from './priest.js';
+import { newegd } from './vault.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { enexto_core, goodpos, noteleport_level } from './teleport.js';
 import {
@@ -560,6 +562,7 @@ const SUPPORTED_FLAGS = NO_MINVENT
     | MM_ANGRY
     | MM_ASLEEP
     | MM_EDOG
+    | MM_EGD
     | MM_EPRI
     | MM_ESHK
     | MM_NOGRP
@@ -1244,6 +1247,7 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
             // outside mklev. S_EEL has no arm in m_initweap() or m_initinv(),
             // so the generic makemon() path already builds it.
             && species.pmidx !== PM_GIANT_EEL
+            && species.pmidx !== PM_GUARD
             && species.pmidx !== PM_UMBER_HULK
             && (!allowMinotaur || species.pmidx !== PM_MINOTAUR))) {
         throw new UnsupportedMonsterCreationError(
@@ -1321,9 +1325,15 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && (mmflags === MM_NOEXCLAM
             || mmflags === (MM_NOEXCLAM | MM_MALE)
             || mmflags === (MM_NOEXCLAM | MM_FEMALE));
+    // vault.c invault():407 creates a guard at a wall location with MM_EGD
+    // and MM_NOMSG.
+    const vaultGuardCall = !state.in_mklev
+        && ptr?.pmidx === PM_GUARD
+        && mmflags === (MM_EGD | MM_NOMSG);
     const runtimeCall = startingPetCall || djinniBottleCall
         || fountainCreatureCall
-        || runtimeRandomCall || runtimeGroupCall || createParticularCall;
+        || runtimeRandomCall || runtimeGroupCall || createParticularCall
+        || vaultGuardCall;
     if (runtimeCall
         && (!normalized.runtimeContinuation
             || typeof normalized.runtimeContinuation !== 'object')) {
@@ -1361,8 +1371,10 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     }
     // C makemon does not check ACCESSIBLE for explicitly placed mklev
     // monsters; level templates position eels on water and other species on
-    // terrain the template chose.  Restrict the guard to runtime creation.
+    // terrain the template chose.  Guards are placed at wall positions that
+    // invault() converts to doors immediately after creation.
     if (!state.in_mklev && !startingPetCall && !randomCoordinates
+        && !vaultGuardCall
         && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
         throw new UnsupportedMonsterCreationError(
             `non-accessible location <${x},${y}>`,
@@ -3376,6 +3388,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         normalized,
     );
     const monster = newMonster();
+    if (mmflags & MM_EGD) newegd(monster);
     if (mmflags & MM_ESHK) neweshk(monster);
     if (mmflags & MM_EPRI) newepri(monster);
     if (mmflags & MM_EDOG) newedog(monster);
