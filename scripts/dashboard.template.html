@@ -16,11 +16,10 @@
   --baseline: #c3c2b7;
 
   --phase-goal-sel: #2a78d6;
-  --phase-impl: #dc4c4c;
+  --phase-impl: #eb6834;
   --phase-slice-sel: #1baf7a;
-  --phase-verif: #c99000;
+  --phase-verif: #eda100;
   --phase-audit: #e87ba4;
-  --phase-div: #0d9488;
 
   --progress-fill: #2a78d6;
   --progress-area: rgba(42,120,214,0.1);
@@ -39,11 +38,10 @@
     --baseline: #383835;
 
     --phase-goal-sel: #3987e5;
-    --phase-impl: #e06060;
+    --phase-impl: #d95926;
     --phase-slice-sel: #199e70;
-    --phase-verif: #d4a012;
+    --phase-verif: #c98500;
     --phase-audit: #d55181;
-    --phase-div: #14b8a6;
 
     --progress-fill: #3987e5;
     --progress-area: rgba(57,135,229,0.12);
@@ -61,9 +59,9 @@
   --baseline: #383835;
 
   --phase-goal-sel: #3987e5;
-  --phase-impl: #e06060;
+  --phase-impl: #d95926;
   --phase-slice-sel: #199e70;
-  --phase-verif: #d4a012;
+  --phase-verif: #c98500;
   --phase-audit: #d55181;
 
   --progress-fill: #3987e5;
@@ -471,24 +469,16 @@ canvas {
   border-radius: 1px;
 }
 
-.audit-badge, .div-badge {
+.audit-badge {
   display: inline-block;
   font-size: 10px;
   font-weight: 600;
+  color: var(--phase-audit);
+  border: 1px solid var(--phase-audit);
   border-radius: 3px;
   padding: 0 4px;
   line-height: 1.5;
   vertical-align: middle;
-}
-
-.audit-badge {
-  color: var(--phase-audit);
-  border: 1px solid var(--phase-audit);
-}
-
-.div-badge {
-  color: var(--phase-div);
-  border: 1px solid var(--phase-div);
 }
 
 .goal-table tr.in-progress td {
@@ -541,15 +531,6 @@ canvas {
 <div class="stats" id="stats"></div>
 
 <div class="section">
-  <h2 class="section-title">Candidate pipeline</h2>
-  <div class="chart-wrap">
-    <div class="goal-table-wrap">
-      <table class="goal-table" id="pipelineTable"></table>
-    </div>
-  </div>
-</div>
-
-<div class="section">
   <h2 class="section-title">Screens matched over time</h2>
   <p class="subtitle" id="progressProvenance"></p>
   <div class="chart-wrap">
@@ -574,7 +555,7 @@ canvas {
 </div>
 
 <div class="section">
-  <h2 class="section-title">Goal history</h2>
+  <h2 class="section-title">Phase breakdown</h2>
   <p class="subtitle" id="tableSubtitle"></p>
   <div class="legend" id="tableLegend"></div>
   <div class="chart-wrap">
@@ -588,7 +569,6 @@ canvas {
 
 <script>
 const DATA = /*DATA_PLACEHOLDER*/null;
-const PIPELINE = /*PIPELINE_PLACEHOLDER*/null;
 
 // --- Helpers ---
 function fmt(n) {
@@ -614,6 +594,13 @@ function relativeTime(iso) {
   return days + 'd ' + (hr % 24) + 'h ago';
 }
 
+const phases = [
+  { key: 'goalSel', label: 'Goal selection', cssVar: '--phase-goal-sel' },
+  { key: 'sliceSel', label: 'Slice selection', cssVar: '--phase-slice-sel' },
+  { key: 'impl', label: 'Implementation', cssVar: '--phase-impl' },
+  { key: 'verif', label: 'Verification', cssVar: '--phase-verif' },
+];
+
 // --- Last updated ---
 document.getElementById('updated').textContent = 'Updated ' + relativeTime(DATA.summary.generatedAt);
 
@@ -625,6 +612,7 @@ document.getElementById('stats').innerHTML = [
   { label: 'Sessions', value: s.sessions + ' / ' + s.sessionsTotal, detail: pct(s.sessions, s.sessionsTotal) },
   { label: 'Goals closed', value: s.totalGoals, detail: 'median ' + fmt(s.medianTotalMin) },
   { label: 'Goal selection', value: fmt(s.medianGoalSelectionMin), detail: 'median, last 20' },
+  { label: 'Implementation', value: fmt(s.medianImplementationMin), detail: 'median, last 20' },
 ].map(t => '<div class="stat"><div class="stat-label">' + t.label + '</div><div class="stat-value">' + t.value + '</div><div class="stat-detail">' + t.detail + '</div></div>').join('');
 const inferredProgressCount = DATA.progress.filter(
   p => p.utcSource !== 'commit',
@@ -632,37 +620,6 @@ const inferredProgressCount = DATA.progress.filter(
 document.getElementById('progressProvenance').textContent = inferredProgressCount
   ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' SCORE timestamp where the commit SHA was not found.'
   : 'All plotted times come from commit timestamps.';
-
-// --- Pipeline candidates ---
-(function() {
-  const table = document.getElementById('pipelineTable');
-  if (!PIPELINE || PIPELINE.length === 0) {
-    table.innerHTML = '<tbody><tr><td>No candidates available.</td></tr></tbody>';
-    return;
-  }
-  const statusColors = {
-    'ready': 'var(--phase-slice-sel)',
-    'needs witnesses': 'var(--phase-verif)',
-    'needs capping': 'var(--phase-impl)',
-  };
-  const maxFc = Math.max(...PIPELINE.map(c => c.forecast));
-  let html = '<thead><tr><th>#</th><th>Candidate</th><th>Forecast</th><th>Sessions</th><th>Witnesses</th><th>Status</th><th></th></tr></thead><tbody>';
-  PIPELINE.forEach((c, i) => {
-    const barW = maxFc > 0 ? (c.forecast / maxFc * 100) : 0;
-    const color = statusColors[c.status] || 'var(--ink-muted)';
-    html += '<tr>'
-      + '<td>' + (i + 1) + '</td>'
-      + '<td title="' + c.id + '">' + c.id + '</td>'
-      + '<td>' + c.forecast + '</td>'
-      + '<td>' + c.sessions + '</td>'
-      + '<td>' + c.witnesses + '</td>'
-      + '<td><span style="color:' + color + ';font-weight:600;font-size:11px">' + c.status + '</span></td>'
-      + '<td><div style="height:12px;border-radius:2px;background:' + color + ';width:' + barW + '%;min-width:2px"></div></td>'
-      + '</tr>';
-  });
-  html += '</tbody>';
-  table.innerHTML = html;
-})();
 
 // --- Progress chart (time-zoomable step plot, minimap, and hover readout) ---
 (function() {
@@ -1314,10 +1271,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   if (!goals.length) return;
 
   // Legend
-  document.getElementById('timelineLegend').innerHTML = [
-    { cssVar: '--phase-impl', label: 'Goal selection' },
-    { cssVar: '--phase-verif', label: 'Working time' },
-  ].map(p =>
+  document.getElementById('timelineLegend').innerHTML = phases.map(p =>
     '<div class="legend-item"><div class="legend-swatch" style="background:var(' + p.cssVar + ')"></div>' + p.label + '</div>'
   ).join('');
 
@@ -1375,20 +1329,48 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     let segments = '';
 
     // Goal selection
-    if (g.goalSelectionMin != null && g.goalSelectionMin > 0) {
+    if (g.goalSelectionMin != null && g.goalSelectionMin > 0 && g.goalSelectionMin < 120) {
       const left = toX(selStart);
       const width = toX(openT) - left;
       const timingNote = g.goalSelectionObserved ? '' : ' †';
-      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-impl)" title="Goal selection: ' + fmt(g.goalSelectionMin) + timingNote + '"></div>';
+      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-goal-sel)" title="Goal selection: ' + fmt(g.goalSelectionMin) + timingNote + '"></div>';
     }
 
-    // Working time (open → close)
-    if (closeT > openT) {
-      const left = toX(openT);
+    // First slice selection: open → first queue
+    if (g.slices.length > 0) {
+      const firstQ = new Date(g.slices[0].queueTime).getTime();
+      if (firstQ > openT + 30000) {
+        const left = toX(openT);
+        const width = toX(firstQ) - left;
+        const mins = (firstQ - openT) / 60000;
+        const timingNote = g.openTimeSource === 'open-commit'
+          ? '' : ' †';
+        segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-slice-sel)" title="First slice selection: ' + fmt(mins) + timingNote + '"></div>';
+      }
+    }
+
+    // Slices
+    g.slices.forEach((sl, si) => {
+      if (sl.sliceSelectionMin != null && sl.sliceSelectionMin > 0) {
+        const prevClose = new Date(g.slices[si - 1].closeTime).getTime();
+        const left = toX(prevClose);
+        const width = toX(sl.queueTime) - left;
+        const timingNote = g.slices[si - 1].closeTimeSource === 'score-slice'
+          ? '' : ' †';
+        segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-slice-sel)" title="Slice selection: ' + fmt(sl.sliceSelectionMin) + timingNote + '"></div>';
+      }
+      const left = toX(sl.queueTime);
+      const width = toX(sl.closeTime) - left;
+      const timingNote = sl.closeTimeSource === 'score-slice' ? '' : ' †';
+      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-impl)" title="Implementation: ' + fmt(sl.durationMin) + timingNote + ' — ' + sl.message + '"></div>';
+    });
+
+    // Verification
+    if (g.verificationMin != null && g.verificationMin > 0.1) {
+      const verifStart = g.slices.length > 0 ? new Date(g.slices[g.slices.length - 1].closeTime).getTime() : openT;
+      const left = toX(verifStart);
       const width = toX(closeT) - left;
-      const mins = (closeT - openT) / 60000;
-      const timingNote = g.openTimeSource === 'open-commit' ? '' : ' †';
-      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-verif)" title="Working time: ' + fmt(mins) + timingNote + '"></div>';
+      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-verif)" title="Verification: ' + fmt(g.verificationMin) + '"></div>';
     }
 
     rowsHtml += '<div class="timeline-row"><div class="timeline-label" title="' + g.name + '">' + g.name + '</div><div class="timeline-bar-area">' + segments + '</div></div>';
@@ -1399,12 +1381,9 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
 
 // --- Phase breakdown table ---
 (function() {
-  document.getElementById('tableLegend').innerHTML = [
-    { cssVar: '--phase-impl', label: 'Goal selection' },
-    { cssVar: '--phase-verif', label: 'Working time' },
-  ].map(p =>
+  document.getElementById('tableLegend').innerHTML = phases.map(p =>
     '<div class="legend-item"><div class="legend-swatch" style="background:var(' + p.cssVar + ')"></div>' + p.label + '</div>'
-  ).join('') + '<div class="legend-item"><span class="audit-badge">audit</span> code review during goal</div>' + '<div class="legend-item"><span class="div-badge">div fix</span> divergence fix</div>';
+  ).join('') + '<div class="legend-item"><span class="audit-badge">audit</span> code review during goal</div>';
 
   const table = document.getElementById('goalTable');
   const allGoals = [...DATA.goals].reverse();
@@ -1418,26 +1397,31 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
 
-  let html = '<thead><tr><th>Screens</th><th>Δ</th><th>Goal</th><th>Start</th><th>Slices</th><th>Total</th><th>Goal sel</th><th></th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Screens</th><th>Δ</th><th>Goal</th><th>Start</th><th>Slices</th><th>Total</th><th>Goal sel</th><th>Slice sel</th><th>Impl</th><th>Verif</th><th>Phases</th></tr></thead><tbody>';
 
   goals.forEach((g, i) => {
     const screensCell = g.screens !== null ? g.screens : '-';
+    const parts = [
+      { label: 'Goal selection', min: g.goalSelectionMin || 0, var: '--phase-goal-sel', observed: g.goalSelectionObserved },
+      { label: 'Slice selection', min: g.sliceSelectionMin || 0, var: '--phase-slice-sel', observed: g.sliceSelectionObserved },
+      { label: 'Implementation', min: g.implementationMin || 0, var: '--phase-impl', observed: g.implementationObserved },
+      { label: 'Verification', min: g.verificationMin || 0, var: '--phase-verif', observed: g.verificationObserved },
+    ];
+    const barTotal = parts.reduce((s, p) => s + p.min, 0);
+
+    const bar = barTotal === 0 ? '' : '<div class="phase-bar">' + parts.map(p => {
+      const w = Math.max((p.min / barTotal) * 100, p.min > 0 ? 2 : 0);
+      const provenance = p.observed ? '' : ' †';
+      return '<div class="phase-bar-seg" style="width:' + w + '%;background:var(' + p.var + ')" title="' + p.label + ': ' + fmt(p.min) + provenance + '" aria-label="' + p.label + ': ' + fmt(p.min) + provenance + '"></div>';
+    }).join('') + '</div>';
+
     const auditBadge = g.audits.length > 0 ? ' <span class="audit-badge" title="' + g.audits.map(a => a.message).join('\\n').replace(/"/g, '&quot;') + '">audit</span>' : '';
-    const divBadge = g.eventType === 'divergence' ? ' <span class="div-badge">div fix</span>' : '';
 
     const deltaCell = g.screensDelta !== null && g.screensDelta !== undefined ? '+' + g.screensDelta : '-';
     const trClass = g.status === 'in-progress' ? ' class="in-progress"' : '';
 
-    const selMin = g.goalSelectionMin || 0;
-    const workMin = g.totalMin - selMin;
-    const barTotal = selMin + workMin;
-    const bar = barTotal <= 0 ? '' : '<div class="phase-bar">'
-      + (selMin > 0 ? '<div class="phase-bar-seg" style="width:' + Math.max(selMin / barTotal * 100, 2) + '%;background:var(--phase-impl)' + (workMin <= 0 ? ';background-image:repeating-linear-gradient(135deg,transparent,transparent 2px,rgba(255,255,255,0.3) 2px,rgba(255,255,255,0.3) 4px)' : '') + '" title="Goal selection: ' + fmt(selMin) + '"></div>' : '')
-      + (workMin > 0 ? '<div class="phase-bar-seg" style="width:' + Math.max(workMin / barTotal * 100, 2) + '%;background:var(--phase-verif)" title="Working time: ' + fmt(workMin) + '"></div>' : '')
-      + '</div>';
-
     const startCell = fmtDate(g.openTime) + (g.openTimeSource === 'open-commit' ? '' : ' †');
-    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td title="' + g.name.replace(/"/g, '&quot;') + '">' + g.name + divBadge + auditBadge + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td><td>' + fmtTiming(g.goalSelectionMin, g.goalSelectionObserved) + '</td><td>' + bar + '</td></tr>';
+    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td title="' + g.name.replace(/"/g, '&quot;') + '">' + g.name + auditBadge + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td><td>' + fmtTiming(g.goalSelectionMin, g.goalSelectionObserved) + '</td><td>' + fmtTiming(g.sliceSelectionMin || 0, g.sliceSelectionObserved) + '</td><td>' + fmtTiming(g.implementationMin, g.implementationObserved) + '</td><td>' + fmtTiming(g.verificationMin, g.verificationObserved) + '</td><td>' + bar + '</td></tr>';
   });
 
   html += '</tbody>';

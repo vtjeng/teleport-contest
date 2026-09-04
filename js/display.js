@@ -1660,6 +1660,46 @@ export function glyph_is_object(glyph) {
         || glyph_is_statue(glyph) || glyph_is_body(glyph);
 }
 
+// C ref: display.h glyph_to_obj() (902-913). Recovers the object otyp from a
+// glyph number known to be an object glyph. Bodies are CORPSE, statues are
+// STATUE, generic objects subtract their class offset, and normal objects
+// subtract GLYPH_OBJ_OFF (piletop or not). An unrecognized glyph returns
+// NUM_OBJECTS, the fencepost entry.
+export function glyph_to_obj(glyph) {
+    if (glyph_is_body(glyph)) return CORPSE;
+    if (glyph_is_statue(glyph)) return STATUE;
+    if (glyph_is_generic_object(glyph)) {
+        return glyph_is_piletop_generic_obj(glyph)
+            ? glyph - GLYPH_OBJ_PILETOP_OFF
+            : glyph - GLYPH_OBJ_OFF;
+    }
+    if (glyph_is_normal_piletop_obj(glyph))
+        return glyph - GLYPH_OBJ_PILETOP_OFF;
+    if (glyph_is_normal_object(glyph))
+        return glyph - GLYPH_OBJ_OFF;
+    return NUM_OBJECTS;
+}
+
+// C ref: display.h glyph_to_mon() (776-793). Recovers the monster index from
+// a glyph number known to be a monster glyph. An unrecognized glyph returns
+// NUMMONS, the fencepost entry.
+export function glyph_to_mon(glyph) {
+    const offsets = [
+        GLYPH_MON_FEM_OFF,
+        GLYPH_MON_MALE_OFF,
+        GLYPH_PET_FEM_OFF,
+        GLYPH_PET_MALE_OFF,
+        GLYPH_DETECT_FEM_OFF,
+        GLYPH_DETECT_MALE_OFF,
+        GLYPH_RIDDEN_FEM_OFF,
+        GLYPH_RIDDEN_MALE_OFF,
+    ];
+    for (const off of offsets) {
+        if (glyph >= off && glyph < off + NUMMONS) return glyph - off;
+    }
+    return NUMMONS;
+}
+
 // C ref: display.h:995-1013, the glyphflags reset_glyphmap() encodes and
 // map_glyphinfo() passes on. Only the bits the object, monster and
 // invisible-monster arms raise are spelled here; the rest belong with the arms

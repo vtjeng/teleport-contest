@@ -10,20 +10,27 @@ import test from 'node:test';
 import {
     A_CHAOTIC,
     A_LAWFUL,
+    ARTICLE_A,
+    ARTICLE_NONE,
     CONFUSION,
     DETECT_MONSTERS,
     HALLUC,
     HALLUC_RES,
     HVY_ENCUMBER,
+    M_AP_OBJECT,
+    M_AP_TYPE,
     P_BARE_HANDED_COMBAT,
     P_SKILLED,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
     STUNNED,
 } from '../js/const.js';
+import { l_monnam } from '../js/do_name.js';
+import { glyph_at } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { is_undead } from '../js/mondata.js';
+import { CHEST } from '../js/objects.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import {
     AT_BITE,
@@ -33,6 +40,7 @@ import {
     AT_WEAP,
     AD_COLD,
     AD_PHYS,
+    AD_STCK,
     PM_ACID_BLOB,
     PM_BROWN_MOLD,
     PM_HILL_ORC,
@@ -42,6 +50,8 @@ import {
     PM_LEPRECHAUN,
     PM_LICHEN,
     PM_SAMURAI,
+    PM_SMALL_MIMIC,
+    S_MIMIC,
     NON_PM,
 } from '../js/monsters.js';
 import {
@@ -154,7 +164,8 @@ test('attack_checks admits an ordinary hostile and clears its wait strategy',
     async () => {
         await hero();
         const lichen = target(PM_LICHEN, { mstrategy: STRAT_WAITMASK | 0x40 });
-        assert.equal(attack_checks(lichen, game.uwep, game, REFUSING), false);
+        assert.equal(
+            await attack_checks(lichen, game.uwep, game, REFUSING), false);
         // uhitm.c:196 clears STRAT_CLOSE and STRAT_WAITFORU and leaves the
         // rest of mstrategy alone.
         assert.equal(lichen.mstrategy, 0x40);
@@ -171,19 +182,10 @@ test('attack_checks stops on each state it cannot report', async () => {
             mtmp.mx = 0;
             mtmp.my = 0;
         }],
-        ['attacking an unseen monster', (mtmp) => { mtmp.mx = 0; mtmp.my = 0; }],
-        // Both hidden states also defeat canseemon(), so reaching
-        // uhitm.c:254-297 rather than the arm above needs the hero to sense
-        // the target some other way, exactly as C's `!canspotmon()` guard
-        // demands.
-        ['attacking a disguised or hidden monster', (mtmp) => {
-            mtmp.mundetected = 1;
-            game.u.uprops[DETECT_MONSTERS].intrinsic = 1;
+        ['attacking an unseen monster (invisible marker path)', (mtmp) => {
+            mtmp.mx = 0; mtmp.my = 0;
         }],
-        ['attacking a disguised or hidden monster', (mtmp) => {
-            mtmp.m_ap_type = 3; /* M_AP_MONSTER */
-            game.u.uprops[DETECT_MONSTERS].intrinsic = 1;
-        }],
+        // uhitm.c:308-324 confirmation for a peaceful target still stops.
         ['confirming an attack on a peaceful monster', (mtmp) => {
             mtmp.mpeaceful = 1;
         }],
@@ -192,7 +194,7 @@ test('attack_checks stops on each state it cannot report', async () => {
         await hero();
         const mtmp = target();
         apply(mtmp);
-        refuses(
+        await refusesAsync(
             () => attack_checks(mtmp, game.uwep, game, REFUSING),
             reason,
             reason,
@@ -206,15 +208,11 @@ test('attack_checks stops on each state it cannot report', async () => {
 // without the prefix and be admitted with it.
 test('a force-fight returns above the arms that stop an ordinary step',
     async () => {
+        // Each case below stops an ordinary step but is bypassed by a force-
+        // fight. The disguised/hidden cases are now ported and return true
+        // (refusing the attack) instead of throwing, but force-fight still
+        // returns false above them.
         const cases = [
-            ['attacking a disguised or hidden monster', (mtmp) => {
-                mtmp.m_ap_type = 3; /* M_AP_MONSTER */
-                game.u.uprops[DETECT_MONSTERS].intrinsic = 1;
-            }],
-            ['attacking a disguised or hidden monster', (mtmp) => {
-                mtmp.mundetected = 1;
-                game.u.uprops[DETECT_MONSTERS].intrinsic = 1;
-            }],
             ['confirming an attack on a peaceful monster', (mtmp) => {
                 mtmp.mpeaceful = 1;
             }],
@@ -223,7 +221,7 @@ test('a force-fight returns above the arms that stop an ordinary step',
             await hero();
             const stepped = target();
             apply(stepped);
-            refuses(
+            await refusesAsync(
                 () => attack_checks(stepped, game.uwep, game, REFUSING),
                 reason,
                 reason,
@@ -238,7 +236,7 @@ test('a force-fight returns above the arms that stop an ordinary step',
             apply(forced);
             game.context.forcefight = 1;
             assert.equal(
-                attack_checks(forced, game.uwep, game, REFUSING),
+                await attack_checks(forced, game.uwep, game, REFUSING),
                 false,
                 reason,
             );
@@ -261,27 +259,31 @@ test('attack_checks reads the engulfer from the state it was given',
             ...game,
             u: { ...game.u, uswallow: 1, ustuck: mtmp },
         };
-        assert.equal(attack_checks(mtmp, game.uwep, swallowed, REFUSING),
-                     false);
+        assert.equal(
+            await attack_checks(mtmp, game.uwep, swallowed, REFUSING),
+            false);
 
         // The macro is a conjunction, and each half decides on its own: a
         // monster that merely holds the hero is not engulfing her, and being
         // inside something else is not being inside this target.
         const held = { ...game, u: { ...game.u, uswallow: 0, ustuck: mtmp } };
-        assert.equal(attack_checks(mtmp, game.uwep, held, REFUSING), false);
+        assert.equal(
+            await attack_checks(mtmp, game.uwep, held, REFUSING), false);
         const elsewhere = {
             ...game,
             u: { ...game.u, uswallow: 1, ustuck: target(PM_LEPRECHAUN) },
         };
-        assert.equal(attack_checks(mtmp, game.uwep, elsewhere, REFUSING),
-                     false);
+        assert.equal(
+            await attack_checks(mtmp, game.uwep, elsewhere, REFUSING),
+            false);
 
         // And the reverse: an engulfed module-global hero must not decide for
         // a state that says the hero is free.
         game.u.uswallow = 1;
         game.u.ustuck = mtmp;
         const free = { ...game, u: { ...game.u, uswallow: 0, ustuck: null } };
-        assert.equal(attack_checks(mtmp, game.uwep, free, REFUSING), false);
+        assert.equal(
+            await attack_checks(mtmp, game.uwep, free, REFUSING), false);
     });
 
 // uhitm.c:302-303, `!Confusion && !Hallucination && !Stunned`. Each of the
@@ -335,12 +337,12 @@ test('the confirmation reads each suppressing property the way C spells it',
             assert.equal(game.flags.confirm, true, label);
             if (suppressed) {
                 assert.equal(
-                    attack_checks(peaceful, game.uwep, game, REFUSING),
+                    await attack_checks(peaceful, game.uwep, game, REFUSING),
                     false,
                     label,
                 );
             } else {
-                refuses(
+                await refusesAsync(
                     () => attack_checks(peaceful, game.uwep, game, REFUSING),
                     'confirming an attack on a peaceful monster',
                     label,
@@ -1166,4 +1168,116 @@ test('known_hitum reports the armor penalty only when it decided the miss',
             'Your armor is rather cumbersome...',
             'You miss the lichen.',
         ]);
+    });
+
+// --- mimic and hidden-monster branch tests (uhitm.c:254-297) ---
+
+// C ref: do_name.c l_monnam() (1035-1039). Like mon_nam() but with
+// ARTICLE_NONE: lowercase species name, no article.
+test('l_monnam returns the species name without an article', async () => {
+    await hero();
+    // A small mimic with no given name: l_monnam passes ARTICLE_NONE and
+    // called=TRUE, producing the bare species name.
+    const mtmp = target(PM_SMALL_MIMIC);
+    const name = l_monnam(mtmp, game);
+    assert.equal(name, 'small mimic');
+});
+
+// C ref: uhitm.c:254-266. A mimicking target the hero cannot sense is refused
+// (stumble_onto_mimic), and the message names the disguise object and the
+// mimic's species.
+test('attack_checks mimic branch calls stumble_onto_mimic and returns true',
+    async () => {
+        await hero();
+        // Place a small mimic disguised as a chest at the square east of hero.
+        const mimic = target(PM_SMALL_MIMIC, {
+            // M_AP_OBJECT with mappearance = CHEST makes the mimic disguised
+            // as a chest object.
+            m_ap_type: M_AP_OBJECT,
+            mappearance: CHEST,
+            msleeping: 1,
+        });
+        place_monster(mimic, mimic.mx, mimic.my, game);
+
+        // Set bhitpos so glyph_at reads the mimic's square.
+        game.bhitpos = { x: mimic.mx, y: mimic.my };
+
+        const messages = [];
+        let wokenUp = false;
+        const env = {
+            unsupported(reason) { throw new Error(reason); },
+            message(msg) { messages.push(msg); },
+            wakeupMonster() { wokenUp = true; },
+        };
+
+        const result = await attack_checks(mimic, game.uwep, game, env);
+
+        // attack_checks returns true (refusing the attack) because the hero
+        // stumbles onto the mimic.
+        assert.equal(result, true);
+        // that_is_a_mimic builds "That chest is a small mimic!" for an
+        // M_AP_OBJECT mimic disguised as a chest.
+        assert.ok(messages.length >= 1,
+            `expected at least one message, got ${messages.length}`);
+        assert.ok(messages[0].includes('small mimic'),
+            `message should name the mimic: ${messages[0]}`);
+        // seemimic clears the appearance.
+        assert.equal(M_AP_TYPE(mimic), 0,
+            'seemimic should have cleared the appearance');
+    });
+
+// C ref: uhitm.c:260-263. A mimic where the glyph is an invisible-monster
+// marker gets seemimic() and allows the attack (returns false).
+test('attack_checks reveals a mimic at an invisible-marker square',
+    async () => {
+        await hero();
+        const mimic = target(PM_SMALL_MIMIC, {
+            m_ap_type: M_AP_OBJECT,
+            mappearance: CHEST,
+        });
+        place_monster(mimic, mimic.mx, mimic.my, game);
+        // Write an invisible-monster glyph to the transient display buffer,
+        // which is what glyph_at() reads (display.c:2478-2482).
+        const cell = game.level.at(mimic.mx, mimic.my);
+        const { glyph_is_invisible } = await import('../js/display.js');
+        const { GLYPH_INVIS_OFF } = await import('../js/glyph_offsets.js');
+        cell.disp_glyph = { glyph: GLYPH_INVIS_OFF };
+        assert.ok(glyph_is_invisible(
+            glyph_at(mimic.mx, mimic.my, game)));
+
+        game.bhitpos = { x: mimic.mx, y: mimic.my };
+        const env = {
+            unsupported(reason) { throw new Error(reason); },
+            message(msg) { /* swallow messages */ },
+        };
+        const result = await attack_checks(mimic, game.uwep, game, env);
+        // C returns FALSE here, meaning the attack proceeds.
+        assert.equal(result, false);
+        // seemimic was called, clearing the appearance.
+        assert.equal(M_AP_TYPE(mimic), 0);
+    });
+
+// C ref: uhitm.c:303-306. A disguised or hidden monster the hero can sense
+// via Detect_monsters gets woken up and the attack proceeds (returns false).
+test('attack_checks wakes a sensed disguised monster and allows attack',
+    async () => {
+        await hero();
+        const mimic = target(PM_SMALL_MIMIC, {
+            m_ap_type: M_AP_OBJECT,
+            mappearance: CHEST,
+        });
+        place_monster(mimic, mimic.mx, mimic.my, game);
+        // Give the hero Detect_monsters so sensemon(mtmp) is true.
+        game.u.uprops[DETECT_MONSTERS].intrinsic = 1;
+
+        game.bhitpos = { x: mimic.mx, y: mimic.my };
+        const env = {
+            unsupported(reason) { throw new Error(reason); },
+            message(msg) { /* swallow messages */ },
+        };
+        const result = await attack_checks(mimic, game.uwep, game, env);
+        // C falls through to the attack (returns false) for a sensed target.
+        assert.equal(result, false);
+        // mundetected should have been cleared.
+        assert.equal(mimic.mundetected, 0);
     });

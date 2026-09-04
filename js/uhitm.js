@@ -36,6 +36,14 @@ import {
     P_WHIP,
     POISON_RES,
     SHOCK_RES,
+    DETECT_MONSTERS,
+    EXACT_NAME,
+    MIM_REVEAL,
+    M_AP_FURNITURE,
+    M_AP_MONSTER,
+    M_AP_OBJECT,
+    PROT_FROM_SHAPE_CHANGERS,
+    SEE_INVIS,
     STRAT_WAITMASK,
     STUNNED,
     TEST_MOVE,
@@ -46,14 +54,31 @@ import {
     helpless,
     isok,
     M_AP_TYPE,
+    something,
 } from './const.js';
 import {
     Adjmonnam,
+    a_monnam,
     capitalizedAlwaysVisibleMonsterName,
     capitalizedMonsterName,
+    l_monnam,
     monsterCommonName,
     monsterPossessive,
+    pmname,
+    x_monnam,
 } from './do_name.js';
+import {
+    glyph_at,
+    glyph_is_cmap,
+    glyph_is_invisible,
+    glyph_is_monster,
+    glyph_is_object,
+    glyph_to_cmap,
+    glyph_to_mon,
+    glyph_to_obj,
+    map_invisible,
+    newsym,
+} from './display.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
 import { doorless_door, test_move } from './hack.js';
@@ -63,14 +88,16 @@ import { sgn } from './hacklib.js';
 // into each other. Both bindings are hoisted function declarations, which an
 // ES module cycle initializes before either module body runs, and nothing here
 // reads them at module scope.
-import { hitmsg, magic_negation } from './mhitu.js';
+import { hitmsg, m_next2u, magic_negation } from './mhitu.js';
 import { abuse_dog } from './dog.js';
-import { killed, wakeup } from './mon.js';
+import { killed, seemimic, set_ustuck, wakeup } from './mon.js';
 import {
     amorphous,
     attacktype,
     bigmonst,
     dmgtype,
+    gender,
+    hides_under,
     is_animal,
     is_orc,
     is_undead,
@@ -155,20 +182,24 @@ import {
     PM_SHRIEKER,
     PM_STEAM_VORTEX,
     S_BLOB,
+    S_EEL,
     S_EYE,
     S_FUNGUS,
     S_LEPRECHAUN,
+    S_MIMIC,
     S_TROLL,
 } from './monsters.js';
 import {
     carried,
+    init_dummyobj,
     is_ammo,
     is_launcher,
     is_missile,
     is_weptool,
+    newObject,
     objectType,
 } from './obj.js';
-import { cxname } from './objnam.js';
+import { an, cxname, donameFresh, is_plural, otense, simpleonames } from './objnam.js';
 import {
     CORPSE,
     GAUNTLETS_OF_POWER,
@@ -182,7 +213,13 @@ import {
 } from './objects.js';
 import { encumber_msg } from './pickup.js';
 import { d, rn2, rnd } from './rng.js';
-import { canSeeMonster, canSpotMonster } from './startup_a11y.js';
+import {
+    canSeeMonster,
+    canSpotMonster,
+    heroIsBlind,
+    sensesMonster,
+    sensesMonsterWithoutDetection,
+} from './startup_a11y.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import {
     UnsupportedWeaponSkillError,
@@ -206,6 +243,8 @@ import {
 } from './worn.js';
 import { steal } from './steal.js';
 import { noteleport_level, rloc } from './teleport.js';
+import { is_pool } from './trap.js';
+import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { exclam } from './zap.js';
 
 function intrinsicProperty(hero, index) {
@@ -288,41 +327,122 @@ export async function mhitm_mgc_atk_negated(
     return false;
 }
 
+// C ref: uhitm.c that_is_a_mimic() (6199-6276). Builds and prints the message
+// that tells the hero what the mimic really is. Four format branches (cmap,
+// object, monster, blind) choose the format string, and four what-branches
+// (invisible, M_AP_MONSTER, sleeping S_MIMIC, default) choose the substitute.
+// `mimic_flags` carries MIM_REVEAL and MIM_OMIT_WAIT.
+function that_is_a_mimic(mtmp, mimic_flags, state = game, env = {}) {
+    const S_trapped_chest = 73; // defsym.h PCHAR 73
+    const reveal_it = (mimic_flags & MIM_REVEAL) !== 0;
+    const omit_wait = (mimic_flags & 2 /* MIM_OMIT_WAIT */) !== 0;
+    const generic = 'a monster';
+    let fmtbuf = "Wait!  That's %s!";
+    let what = null;
+
+    if (heroIsBlind(state)) {
+        // Blind: default format unless the hero has blind telepathy and the
+        // mimic is disguised as a monster (in which case it looks different
+        // from what was sensed).
+        const Blind_telepat = Boolean(
+            state.u?.uprops?.[30 /* TELEPAT */]?.intrinsic
+            || state.u?.uprops?.[30]?.extrinsic);
+        if (!Blind_telepat) {
+            what = generic;
+        } else if (M_AP_TYPE(mtmp) === M_AP_MONSTER) {
+            what = a_monnam(mtmp, { state });
+        }
+    } else {
+        const x = mtmp.mx, y = mtmp.my;
+        const glyph = glyph_at(x, y, state);
+
+        if (glyph_is_cmap(glyph)) {
+            const sym = glyph_to_cmap(glyph);
+            if (M_AP_TYPE(mtmp) === M_AP_FURNITURE
+                || (M_AP_TYPE(mtmp) === M_AP_OBJECT
+                    && sym === S_trapped_chest)) {
+                const explanation = CMAP_EXPLANATIONS[sym] ?? 'something';
+                fmtbuf = `That ${explanation} actually is %s!`;
+            }
+        } else if (glyph_is_object(glyph)) {
+            // Build a temporary object for naming. C's object_from_map()
+            // creates a fake mksobj when no real floor object exists at the
+            // mimic's position; init_dummyobj with the glyph's otyp gives
+            // the same naming result for simpleonames, is_plural, and otense.
+            const otyp = glyph_to_obj(glyph);
+            const otmp = init_dummyobj(newObject(), otyp, 1, state);
+            const otmp_name = simpleonames(otmp, state);
+            const those = is_plural(otmp) ? 'Those' : 'That';
+            const verb = otense(otmp, 'are');
+            fmtbuf = `${those} ${otmp_name} ${verb} %s!`;
+        } else if (glyph_is_monster(glyph)) {
+            const mndx = glyph_to_mon(glyph);
+            const mtmp_name = pmname(
+                state.mons?.[mndx] ?? mtmp.data, gender(mtmp));
+            fmtbuf = `Wait!  That ${mtmp_name} is really %s!`;
+        }
+
+        // Determine what the mimic really is.
+        if (mtmp.minvis && !propertyPresent(state.u, SEE_INVIS)) {
+            what = generic;
+        } else if (M_AP_TYPE(mtmp) === M_AP_MONSTER) {
+            what = x_monnam(mtmp, 2 /* ARTICLE_A */, null, EXACT_NAME, true,
+                state);
+        } else if (mtmp.data?.mlet === S_MIMIC
+            && (M_AP_TYPE(mtmp) === M_AP_OBJECT
+                || M_AP_TYPE(mtmp) === M_AP_FURNITURE)
+            && (mtmp.msleeping || mtmp.mfrozen)) {
+            what = x_monnam(mtmp, 2 /* ARTICLE_A */, 'sleeping', 0, false,
+                state);
+        } else {
+            what = a_monnam(mtmp, { state });
+        }
+    }
+
+    if (what) {
+        const i = (omit_wait && fmtbuf.startsWith('Wait!  ')) ? 7 : 0;
+        env.pline?.(fmtbuf.substring(i).replace('%s', what), state);
+    }
+    if (reveal_it)
+        seemimic(mtmp, state);
+}
+
+// C ref: uhitm.c stumble_onto_mimic() (6281-6297). Called when the hero moves
+// into a square occupied by a mimicking monster. Prints the identification
+// message, optionally sticks the hero, wakes the mimic, and marks the square
+// invisible if the hero still cannot spot it.
+async function stumble_onto_mimic(mtmp, state = game, env = {}) {
+    that_is_a_mimic(mtmp, MIM_REVEAL, state, env);
+
+    if (!state.u.ustuck && !mtmp.mflee && dmgtype(mtmp.data, AD_STCK)
+        && m_next2u(mtmp, state)) {
+        set_ustuck(mtmp, state);
+    }
+
+    await wakeup(mtmp, false, env);
+
+    if (!canSpotMonster(mtmp, state)
+        && !glyph_is_invisible(
+            state.level?.at(mtmp.mx, mtmp.my)?.glyph)) {
+        map_invisible(mtmp.mx, mtmp.my, state);
+    }
+}
+
 // C ref: uhitm.c attack_checks() (188-327). FALSE means it is fine to attack.
 // The ordinary melee case -- a spotted, undisguised, hostile target -- reaches
 // the closing `return FALSE` at 326 having done nothing but clear the wait
 // strategy at 196.
 //
-// The force-fight arm at 201-214 is the second way through, and its position
-// is the whole of what the 'F' prefix buys: it returns FALSE above every arm
-// below, so a forced blow lands without any of the questions they ask. C's
-// body is entirely commented out; the 'I' marker it once drew moved to
-// do_attack()'s tail at 577-580, so that a target killed by the blow does not
-// blank the square's remembered contents.
+// The force-fight arm at 201-214 returns FALSE above every arm below.
 //
-// Four arms stop instead of porting, and each is the whole of one C branch:
-//
-//   198-199  engulfing_u(): the hero is inside the target. C explicitly
-//            returns FALSE here, allowing the swallowed attack to continue;
-//            the ordinary visibility and concealment tests below do not apply.
-//   230-252  a target the hero cannot spot, whose arm prints "Wait!  There's
-//            something there you can't see!", marks the square and calls
-//            mon.c wakeup(mtmp, TRUE) before returning TRUE. The line and the
-//            wakeup are what stop it; map_invisible() itself is ported.
-//   254-297  a mimicking or hidden target needs seemimic(),
-//            stumble_onto_mimic() or the hiding reveal, none of them ported.
-//            C splits it into three tests; a mimic appearance or mundetected
-//            is what all three have in common, and the pair is refused
-//            together because the arm at 299-306 that follows them is the
-//            same shape. A forced blow returns above all three, as C does, and
-//            a mimic that reaches the swing stops instead at mon.c wakeup()'s
-//            own mimic arm.
+// Remaining unsupported arms:
+//   198-199  engulfing_u(): ported, returns false immediately.
+//   230-252  a target the hero cannot spot that is not hidden under something
+//            or disguised. Prints "Wait! There's something there you can't
+//            see!", marks the square, and calls wakeup before returning TRUE.
 //   308-324  paranoid_query() for a peaceful target, and the Stormbringer
 //            override above it.
-//
-// C caches glyph_at(gb.bhitpos) at 220 for the three glyph tests inside those
-// arms; with every one of them stopping there is nothing left to read it.
-export function attack_checks(mtmp, wep, state = game, env = {}) {
+export async function attack_checks(mtmp, wep, state = game, env = {}) {
     const unsupported = requireAttackOperation(env, 'unsupported');
 
     mtmp.mstrategy &= ~STRAT_WAITMASK;
@@ -330,21 +450,85 @@ export function attack_checks(mtmp, wep, state = game, env = {}) {
     if (engulfing_u(mtmp, state)) return false;
 
     if (state.context?.forcefight) {
-        // C's own canspotmon() test here is inside the commented-out block,
-        // so this one is not C's: it is where the port pays for do_attack()'s
-        // unported tail at 577-580, which marks an unspottable survivor.
-        // Refusing the unspottable target before the blow is what keeps that
-        // tail out of reach. A target the hero can spot --
-        // the case 'F' is normally pressed for -- runs the whole attack.
         if (!canSpotMonster(mtmp, state))
             unsupported('force-fight at a monster the hero cannot spot');
         return false;
     }
 
-    if (!canSpotMonster(mtmp, state))
-        unsupported('attacking an unseen monster');
-    if (M_AP_TYPE(mtmp) || mtmp.mundetected)
-        unsupported('attacking a disguised or hidden monster');
+    // 220: cache the shown glyph for the visibility and mimic tests below.
+    const glyph = glyph_at(
+        state.bhitpos?.x ?? mtmp.mx, state.bhitpos?.y ?? mtmp.my, state);
+
+    // glyph_is_warning() is constantly false in this port: a warning glyph
+    // needs a warning level this port never raises.
+
+    // 230-252: a target the hero cannot spot, not hidden under something.
+    if (!canSpotMonster(mtmp, state)
+        && !glyph_is_invisible(glyph)
+        && !(!(heroIsBlind(state)) && mtmp.mundetected
+            && hides_under(mtmp.data))) {
+        unsupported('attacking an unseen monster (invisible marker path)');
+    }
+
+    // 254-266: a mimicking target the hero cannot sense.
+    if (M_AP_TYPE(mtmp)
+        && !propertyPresent(state.u, PROT_FROM_SHAPE_CHANGERS)
+        && !sensesMonster(mtmp, state)) {
+        if (glyph_is_invisible(glyph)) {
+            // If a hidden mimic was where the player remembers an unseen
+            // monster, the player is in luck -- attacks it even though hidden.
+            seemimic(mtmp, state);
+            return false;
+        }
+        const pline = requireAttackOperation(env, 'message');
+        await stumble_onto_mimic(mtmp, state, { ...env, pline });
+        return true;
+    }
+
+    // 268-297: a hidden or submerged monster the hero cannot see.
+    if (mtmp.mundetected && !canSeeMonster(mtmp, state)
+        && (hides_under(mtmp.data) || mtmp.data?.mlet === S_EEL)) {
+        mtmp.mundetected = 0;
+        mtmp.msleeping = 0;
+        newsym(mtmp.mx, mtmp.my);
+        if (glyph_is_invisible(glyph)) {
+            seemimic(mtmp, state);
+            return false;
+        }
+        // tp_sensemon: sensesMonsterWithoutDetection covers the same
+        // telepathy and warn-of-monster tests, with the swallowed/underwater
+        // gates that C's sensemon() wrapper adds.
+        if (!sensesMonsterWithoutDetection(mtmp, state)
+            && !propertyPresent(state.u, DETECT_MONSTERS)) {
+            const pline = requireAttackOperation(env, 'message');
+            const lmonbuf = l_monnam(mtmp, state);
+            const notseen = lmonbuf === 'it';
+            if (!heroIsBlind(state) && Hallucination(state)) {
+                await pline(`A ${mtmp.mtame ? 'tame' : 'wild'} `
+                    + `${notseen ? 'creature' : lmonbuf} `
+                    + `${notseen ? 'is present' : 'appears'}!`, state);
+            } else if (heroIsBlind(state)
+                || (is_pool(mtmp.mx, mtmp.my, state)
+                    && !state.u.uinwater)) {
+                await pline("Wait!  There's a hidden monster there!", state);
+            } else {
+                const obj = state.level?.objects?.[mtmp.mx]?.[mtmp.my];
+                if (obj) {
+                    const name = notseen
+                        ? something : an(lmonbuf);
+                    await pline(`Wait!  There's ${name} hiding under `
+                        + `${donameFresh(obj, state)}!`, state);
+                }
+            }
+            return true;
+        }
+    }
+
+    // 303-306: wake up a disguised or hidden monster the hero can sense.
+    if ((mtmp.mundetected || M_AP_TYPE(mtmp)) && sensesMonster(mtmp, state)) {
+        mtmp.mundetected = 0;
+        await wakeup(mtmp, true, env);
+    }
 
     if (state.flags?.confirm && mtmp.mpeaceful
         && !intrinsicProperty(state.u, CONFUSION)
@@ -507,7 +691,7 @@ export async function do_attack(monster, state = game, env = {}) {
     // gb.bhitpos and gn.notonhead are set here too and are read only inside
     // arms that stop: attack_checks()'s glyph tests, and known_hitum()'s
     // hmon() and cutworm() calls.
-    if (attack_checks(monster, state.uwep, state, env)) return true;
+    if (await attack_checks(monster, state.uwep, state, env)) return true;
 
     // 516-521's `Upolyd && noattacks()` and 578-579's hmonas() arm cannot run:
     // polyself is unported, so Upolyd() is constantly false.

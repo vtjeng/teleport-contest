@@ -938,7 +938,7 @@ test('a suppressed pull keeps the refusals that precede doopen_indir', async () 
         // domove_attackmon_at():1968 and never calls do_attack(). A spotted
         // hostile would be attacked instead, and the attack draws, which is
         // what the zero-draw assertion below would then catch.
-        ['monster on the door', 'attacking a hidden monster',
+        ['monster on the door', 'attacking a hidden monster (ceiling hider or other)',
             (state, door) => {
                 const monster = newMonster({
                     mx: door.x, my: door.y, mhp: 3,

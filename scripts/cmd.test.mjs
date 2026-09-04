@@ -1260,7 +1260,7 @@ test('simple hero movement rejects spot effects before mutation', async () => {
         // domove_attackmon_at():1968 before do_attack() is called.
         {
             name: 'hidden monster at destination',
-            reason: 'attacking a hidden monster',
+            reason: 'attacking a hidden monster (ceiling hider or other)',
             setup: ({ x, y }) => {
                 game.level.monsters[x][y] = {
                     mx: x, my: y, mhp: 1, mundetected: 1,
@@ -2137,7 +2137,7 @@ test('retried fight movement retains its force-fight prefix', async () => {
             moveloop_core(),
             (error) => (
                 error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'attacking a hidden monster'
+                && error.reason === 'attacking a hidden monster (ceiling hider or other)'
             ),
         );
         assert.equal(game.context.pendingCommand.key, commandKeyCode('l'));
@@ -2233,7 +2233,7 @@ test('retried fight movement retains its committed walk intent', async () => {
             moveloop_core(),
             (error) => (
                 error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'attacking a hidden monster'
+                && error.reason === 'attacking a hidden monster (ceiling hider or other)'
             ),
         );
         assert.equal(game.context.pendingCommand.key, commandKeyCode('L'));

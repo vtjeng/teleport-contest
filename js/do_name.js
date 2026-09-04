@@ -1038,6 +1038,14 @@ export function a_monnam(monster, env = {}) {
         : article === ARTICLE_THE ? `the ${text}` : text;
 }
 
+// C ref: do_name.c l_monnam() (1035-1039). Like mon_nam() with ARTICLE_NONE:
+// lowercase, no article. Named monsters suppress the saddle adjective.
+export function l_monnam(monster, state = game, env = {}) {
+    const hasGivenName = !!(monster.mextra?.mgivenname);
+    return x_monnam(monster, ARTICLE_NONE, null,
+        hasGivenName ? SUPPRESS_SADDLE : 0, true, state, env);
+}
+
 // C ref: do_name.c Amonnam() (1158-1165), a_monnam() with its first letter
 // raised by highc().
 export function Amonnam(monster, env = {}) {

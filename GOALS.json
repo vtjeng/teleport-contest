@@ -8874,7 +8874,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "attack-checks-mimic-hidden",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "702b6a5c671c19424bbf7920d6913691f2191068",
       "openStanding": {
         "sha": "bb3ee74c",

@@ -1620,9 +1620,11 @@ export async function wakeup(monster, via_attack, rawEnv = {}) {
     await wake_msg(monster, via_attack, rawEnv);
     monster.msleeping = 0;
     if (((monster.m_ap_type ?? 0) & M_AP_TYPMASK) !== M_AP_NOTHING) {
-        requiredMonsterReactionOperation(rawEnv, 'unsupported')(
-            'waking a mimicking monster',
-        );
+        // C ref: mon.c:4339-4343. Mimics come out of hiding, but a disguised
+        // Wizard (M_AP_MONSTER) keeps his disguise.
+        if (((monster.m_ap_type ?? 0) & M_AP_TYPMASK) !== M_AP_MONSTER) {
+            seemimic(monster, state);
+        }
     } else if (state.context?.forcefight && !state.context?.mon_moving
                && monster.mundetected) {
         monster.mundetected = 0;

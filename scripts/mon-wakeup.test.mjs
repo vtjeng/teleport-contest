@@ -6,7 +6,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { DUST, STRAT_WAITFORU, STRAT_WAITMASK } from '../js/const.js';
+import {
+    DUST, M_AP_NOTHING, M_AP_OBJECT, STRAT_WAITFORU, STRAT_WAITMASK,
+} from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { setmangry, wakeup } from '../js/mon.js';
@@ -188,14 +190,23 @@ test('wakeup angers only when the attack caused it', async () => {
     assert.equal(woken.msleeping, 0);
 });
 
-test('wakeup stops on the three arms it cannot report', async () => {
+// mon.c:4339-4343. wakeup() calls seemimic() for a disguised monster
+// (m_ap_type other than M_AP_NOTHING or M_AP_MONSTER), stripping the
+// disguise so the player sees the real monster.
+test('wakeup strips a mimic disguise through seemimic', async () => {
     await hero();
-    // mon.c:4339-4343, a mimic or disguised Wizard needs seemimic().
-    await refuses(
-        () => wakeup(target({ m_ap_type: 3 }), true,
-            { ...REFUSING, state: game }),
-        'waking a mimicking monster',
-    );
+    const mimic = target({
+        m_ap_type: M_AP_OBJECT, // disguised as an object
+        mappearance: 42,        // arbitrary object type
+    });
+    await wakeup(mimic, true, { ...REFUSING, state: game });
+    // seemimic clears m_ap_type to M_AP_NOTHING and mappearance to 0.
+    assert.equal(mimic.m_ap_type, M_AP_NOTHING);
+    assert.equal(mimic.mappearance, 0);
+});
+
+test('wakeup stops on the two arms it cannot report', async () => {
+    await hero();
     // mon.c:4353-4354, a target that was asleep growls as it wakes.
     await refuses(
         () => wakeup(target({ msleeping: 1 }), true,

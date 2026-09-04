@@ -167,6 +167,7 @@ import {
     bigmonst,
     is_flyer,
     is_hider,
+    hides_under,
     is_rider,
     is_whirly,
     needspick,
@@ -220,6 +221,7 @@ import {
     PM_WIZARD,
     PM_WIZARD_OF_YENDOR,
     MZ_MEDIUM,
+    S_EEL,
     S_NYMPH,
 } from './monsters.js';
 import { curr_mon_load, maybe_unhide_at } from './mon.js';
@@ -1443,23 +1445,21 @@ function requireNoMonsterBump(monster, state) {
 // its !rn2(2), so every other target reaches do_attack() with no draw spent
 // and only that one species stops here.
 //
-// The gate at 1968-1970 is the other refusal. Its `!mtmp->mundetected` term is
-// what admits an ordinary target; a hidden one needs sensemon() or the
-// hides_under()/S_EEL pair to be admitted, and if none holds, C skips
-// do_attack() entirely and lets the terrain rules answer the step with the
-// monster still standing there. Both halves need unported code -- the skip
-// arm has no port at all, and the admitted arm reaches attack_checks()'s
-// hiding reveal -- so a hidden target stops before nomul(0) rather than one
-// call later.
-function requireOrdinaryHostileMelee(monster) {
+// The gate at 1968-1970 admits a hidden target when it hides under something
+// or is an eel (S_EEL), and is not a safe pet. attack_checks() then handles
+// the reveal message and refuses the attack. Targets hidden another way
+// (ceiling hiders, for example) are not handled in do_attack() and stop here.
+function requireOrdinaryHostileMelee(monster, state) {
     if (monster.data?.pmidx === PM_DISPLACER_BEAST) {
         throw new UnsupportedHeroMoveBoundaryError(
             'displacer beast position swap',
         );
     }
-    if (monster.mundetected) {
+    if (monster.mundetected
+        && !sensesMonster(monster, state)
+        && !(hides_under(monster.data) || monster.data?.mlet === S_EEL)) {
         throw new UnsupportedHeroMoveBoundaryError(
-            'attacking a hidden monster',
+            'attacking a hidden monster (ceiling hider or other)',
         );
     }
 }
@@ -1476,7 +1476,7 @@ function requireOrdinaryHostileMelee(monster) {
 function requireSupportedDestinationMonster(monster, x, y, state) {
     requireNoMonsterBump(monster, state);
     if (!is_safemon(monster, state) || state.context?.forcefight) {
-        requireOrdinaryHostileMelee(monster);
+        requireOrdinaryHostileMelee(monster, state);
         return;
     }
     requireOrdinaryStartingPetSwap(monster, x, y, state);
