@@ -524,25 +524,21 @@ canvas {
   border: 1px solid var(--phase-div);
 }
 
-#pipelineTable td:nth-child(2),
-#pipelineTable th:nth-child(2) {
-  text-align: left;
-  max-width: 40vw;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#sessionTable td:nth-child(1) {
-  text-align: left;
+#pipelineTable td:nth-child(1) {
   white-space: nowrap;
 }
 
-#sessionTable td:nth-child(4),
-#sessionTable th:nth-child(4) {
+#pipelineTable td:nth-child(4),
+#pipelineTable th:nth-child(4) {
   text-align: left;
   max-width: 40vw;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#pipelineTable td:nth-child(5) {
+  text-align: right;
   white-space: nowrap;
 }
 
@@ -596,19 +592,10 @@ canvas {
 <div class="stats" id="stats"></div>
 
 <div class="section">
-  <h2 class="section-title">Candidate pipeline</h2>
+  <h2 class="section-title">Blocked sessions</h2>
   <div class="chart-wrap">
     <div class="goal-table-wrap">
       <table class="goal-table" id="pipelineTable"></table>
-    </div>
-  </div>
-</div>
-
-<div class="section">
-  <h2 class="section-title">Session status</h2>
-  <div class="chart-wrap">
-    <div class="goal-table-wrap">
-      <table class="goal-table" id="sessionTable"></table>
     </div>
   </div>
 </div>
@@ -654,7 +641,6 @@ canvas {
 <script>
 const DATA = /*DATA_PLACEHOLDER*/null;
 const PIPELINE = /*PIPELINE_PLACEHOLDER*/null;
-const SESSIONS = /*SESSIONS_PLACEHOLDER*/null;
 
 // --- Helpers ---
 function fmt(n) {
@@ -699,55 +685,29 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' SCORE timestamp where the commit SHA was not found.'
   : 'All plotted times come from commit timestamps.';
 
-// --- Pipeline candidates ---
+// --- Blocked sessions ---
 (function() {
   const table = document.getElementById('pipelineTable');
   if (!PIPELINE || PIPELINE.length === 0) {
-    table.innerHTML = '<tbody><tr><td>No candidates available.</td></tr></tbody>';
+    table.innerHTML = '<tbody><tr><td>No blocked sessions.</td></tr></tbody>';
     return;
   }
-  const maxFc = Math.max(...PIPELINE.map(c => c.forecast));
-  let html = '<thead><tr><th>#</th><th>Blocked by</th><th>Forecast</th><th>Sessions</th><th>Uncapped</th><th></th></tr></thead><tbody>';
-  PIPELINE.forEach((c, i) => {
-    const barW = maxFc > 0 ? (c.forecast / maxFc * 100) : 0;
-    const color = c.uncapped > 0 ? 'var(--phase-impl)' : 'var(--phase-slice-sel)';
-    const fcLabel = c.tentative ? '~' + c.forecast : '' + c.forecast;
-    html += '<tr>'
-      + '<td>' + (i + 1) + '</td>'
-      + '<td title="' + (c.member || c.id) + '">' + (c.member || c.id) + '</td>'
-      + '<td>' + fcLabel + '</td>'
-      + '<td>' + c.sessions + '</td>'
-      + '<td>' + (c.uncapped > 0 ? c.uncapped : '-') + '</td>'
-      + '<td><div style="height:12px;border-radius:2px;background:' + color + ';width:' + barW + '%;min-width:2px"></div></td>'
-      + '</tr>';
-  });
-  html += '</tbody>';
-  table.innerHTML = html;
-})();
-
-// --- Session status ---
-(function() {
-  const table = document.getElementById('sessionTable');
-  if (!SESSIONS || SESSIONS.length === 0) {
-    table.innerHTML = '<tbody><tr><td>No session data available.</td></tr></tbody>';
-    return;
-  }
-  const sorted = [...SESSIONS].sort((a, b) => {
-    if (a.passed !== b.passed) return a.passed ? 1 : -1;
-    return (b.total - b.matched) - (a.total - a.matched);
-  });
-  const passCount = sorted.filter(s => s.passed).length;
-  let html = '<thead><tr><th>Session</th><th>Screens</th><th>%</th><th>Blocked by</th></tr></thead><tbody>';
-  const failing = sorted.filter(s => !s.passed);
-  failing.forEach(s => {
+  const maxFc = Math.max(...PIPELINE.filter(s => !s.divergent).map(s => s.forecast || 0), 0);
+  let html = '<thead><tr><th>Session</th><th>Screens</th><th>%</th><th>Blocked by</th><th>Forecast</th></tr></thead><tbody>';
+  PIPELINE.forEach(s => {
     const pct = s.total > 0 ? Math.round(s.matched / s.total * 100) : 0;
-    const statusCell = s.boundary ? '<span title="' + s.boundary.replace(/"/g, '&quot;') + '">' + s.boundary + '</span>'
+    const blockedCell = s.boundary
+      ? '<span title="' + s.boundary.replace(/"/g, '&quot;') + '">' + s.boundary + '</span>'
       : '<span style="color:var(--phase-verif)">silent divergence</span>';
+    const fcCell = s.divergent
+      ? '<span style="color:var(--phase-verif)">divergent</span>'
+      : (s.forecast != null ? '' + s.forecast : '-');
     html += '<tr>'
       + '<td>' + s.name + '</td>'
       + '<td>' + s.matched + ' / ' + s.total + '</td>'
       + '<td>' + pct + '%</td>'
-      + '<td>' + statusCell + '</td>'
+      + '<td>' + blockedCell + '</td>'
+      + '<td>' + fcCell + '</td>'
       + '</tr>';
   });
   html += '</tbody>';

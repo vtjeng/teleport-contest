@@ -165,36 +165,43 @@ async function statusJson() {
     const rows = await loadAnnotatedRows();
     const ranked = cappedRanking(rows);
 
-    const candidates = ranked.filter((c) => c.cappedForecast > 0);
-    const candidateList = candidates.map((candidate) => {
-        const uncapped = candidate.sessions.filter(
-            (s) => !s.capStable && !s.divergenceZeroed,
-        );
-        return {
-            id: generateId(candidate.member, {}),
-            member: candidate.member,
-            forecast: candidate.cappedForecast,
-            sessions: candidate.sessions.length,
-            uncapped: uncapped.length,
-            tentative: candidate.tentative || false,
-        };
-    });
+    const sessionForecast = new Map();
+    for (const candidate of ranked) {
+        for (const s of candidate.sessions) {
+            sessionForecast.set(s.session, {
+                forecast: s.divergenceZeroed ? 0
+                    : (s.cappedStretch ?? s.rawStretch ?? 0),
+                divergenceZeroed: s.divergenceZeroed,
+                member: candidate.member,
+            });
+        }
+    }
 
-    const sessions = rows.map((r) => {
-        const name = r.file.replace(/\.session\.json$/, '');
-        const matched = r.scorerScreensMatched ?? r.screensEmitted;
-        const total = r.recordedSteps;
-        const passed = matched === total;
-        return {
-            name,
-            matched,
-            total,
-            passed,
-            boundary: r.boundary || null,
-        };
-    });
+    const sessions = rows
+        .filter((r) => {
+            const matched = r.scorerScreensMatched ?? r.screensEmitted;
+            return matched !== r.recordedSteps;
+        })
+        .map((r) => {
+            const name = r.file.replace(/\.session\.json$/, '');
+            const matched = r.scorerScreensMatched ?? r.screensEmitted;
+            const total = r.recordedSteps;
+            const info = sessionForecast.get(name);
+            return {
+                name,
+                matched,
+                total,
+                boundary: r.boundary || null,
+                forecast: info?.forecast ?? null,
+                divergent: info?.divergenceZeroed ?? (!r.boundary),
+            };
+        })
+        .sort((a, b) => {
+            if (a.divergent !== b.divergent) return a.divergent ? 1 : -1;
+            return (b.forecast ?? 0) - (a.forecast ?? 0);
+        });
 
-    console.log(JSON.stringify({ candidates: candidateList, sessions }));
+    console.log(JSON.stringify(sessions));
 }
 
 async function needsPreparation() {
