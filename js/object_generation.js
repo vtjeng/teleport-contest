@@ -8,7 +8,8 @@ import {
     isPermanentlyPoisoned,
     makeArtifact,
 } from './artifacts.js';
-import { LS_OBJECT } from './const.js';
+import { LS_OBJECT, ONAME_LEVEL_DEF } from './const.js';
+import { oname } from './do_name.js';
 import { populateContainer } from './mkobj_container.js';
 import { del_light_source } from './light.js';
 import { is_reviver } from './mondata.js';
@@ -49,6 +50,7 @@ export function objectGenerationHooks(overrides = {}) {
             return is_reviver(monster);
         },
         objectNoLongerHeld: obj_no_longer_held,
+        nameObject: (obj, name, env) => oname(obj, name, ONAME_LEVEL_DEF, env),
         populateContainer,
         stopObjectTimers: (obj, env) => {
             obj_stop_timers(obj, env.state, env);

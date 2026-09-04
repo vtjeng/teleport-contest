@@ -2,7 +2,8 @@
 // C refs: dat/Bar-strt.lua, dat/Bar-fila.lua, dat/Bar-filb.lua,
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
-//         dat/Pri-filb.lua, dat/oracle.lua, dat/tower1.lua.
+//         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
+//         dat/tower1.lua.
 
 import { COLNO, FEMALE, G_GENOD, ROWNO } from './const.js';
 import { mkclass } from './makemon.js';
@@ -17,6 +18,7 @@ import {
     PM_GIANT_EEL,
     PM_HUMAN_ZOMBIE,
     PM_LORD_CARNARVON,
+    PM_NALZOK,
     PM_OGRE,
     PM_ORACLE,
     PM_PELIAS,
@@ -30,14 +32,16 @@ import {
     PM_WRAITH,
     S_CENTAUR,
     S_MUMMY,
+    S_WRAITH,
+    S_ZOMBIE,
     S_OGRE,
     S_SNAKE,
     S_TROLL,
     S_VAMPIRE,
 } from './monsters.js';
 import {
-    BULLWHIP, CHAIN_MAIL, CHEST, FEDORA, LUCKSTONE, MACE, ROBE,
-    RUNESWORD, STATUE, TALLOW_CANDLE, WAX_CANDLE,
+    BULLWHIP, CHAIN_MAIL, CHEST, FEDORA, HELM_OF_BRILLIANCE, LUCKSTONE,
+    MACE, ROBE, RUNESWORD, STATUE, TALLOW_CANDLE, WAX_CANDLE,
 } from './objects.js';
 import { rn2, rnd } from './rng.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
@@ -883,6 +887,55 @@ async function priLoca(des) {
     // No random monsters - the morgue generation will put them in.
 }
 
+// C ref: dat/Pri-goal.lua. Priest quest goal level — lava-filled cave with
+// Nalzok guarding the Mitre of Holiness amid human zombies and wraiths.
+async function priGoal(des) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel');
+    des.level_init({ style: 'mines', fg: 'L', bg: '.', smoothed: false, joined: false, lit: 0, walled: false });
+
+    des.map([
+        'xxxxxx..xxxxxx...xxxxxxxxx',
+        'xxxx......xx......xxxxxxxx',
+        'xx.xx.............xxxxxxxx',
+        'x....................xxxxx',
+        '......................xxxx',
+        '......................xxxx',
+        'xx........................',
+        'xxx......................x',
+        'xxx................xxxxxxx',
+        'xxxx.....x.xx.......xxxxxx',
+        'xxxxx...xxxxxx....xxxxxxxx',
+    ]);
+
+    const place = [[14, 4], [13, 7]];
+    const placeidx = rn2(2);
+
+    des.region(selection_area(0, 0, 25, 10), 'unlit');
+
+    des.stair({ dir: 'up', coord: [20, 5] });
+
+    des.object({
+        id: HELM_OF_BRILLIANCE, coord: place[placeidx],
+        buc: 'blessed', spe: 0, eroded: -1, name: 'The Mitre of Holiness',
+    });
+    for (let i = 0; i < 14; i++) des.object();
+
+    des.trap('fire');
+    des.trap('fire');
+    des.trap('fire');
+    des.trap('fire');
+    des.trap();
+    des.trap();
+
+    des.monster({ id: PM_NALZOK, coord: place[placeidx] });
+    for (let i = 0; i < 16; i++) des.monster({ id: PM_HUMAN_ZOMBIE });
+    des.monster({ class: S_ZOMBIE });
+    des.monster({ class: S_ZOMBIE });
+    for (let i = 0; i < 8; i++) des.monster({ id: PM_WRAITH });
+    des.monster({ class: S_WRAITH });
+}
+
 // C ref: dat/tower1.lua — Upper stage of Vlad's tower.
 function tower1(des, state) {
     des.level_init({ style: 'solidfill', fg: ' ' });
@@ -1092,6 +1145,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Arc-strt': arcStrt,
     'Pri-strt': priStrt,
     'Pri-loca': priLoca,
+    'Pri-goal': priGoal,
     'Pri-fila': priFila,
     'Pri-filb': priFilb,
     oracle,
