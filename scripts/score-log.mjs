@@ -30,6 +30,7 @@ export const EVENTS = [
     'slice',
     'goal',
     'holdout',
+    'divergence',
 ];
 
 export const DEFAULT_PATH = fileURLToPath(new URL('../SCORE.tsv',

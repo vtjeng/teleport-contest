@@ -106,6 +106,10 @@ Recompute the census after every shared fix and after every fix that removes an
 earlier mismatch. When a coherent group of fixes is ready, run the full
 development scorer and the repository's test and review gates.
 
+After each committed divergence fix that changes the development score, append
+a `SCORE.tsv` row with `event=divergence` and `label=` naming the affected
+session and root cause. Follow the append procedure in `.agents/scoring.md`.
+
 ### 5. Report completion
 
 When no active divergence records remain, run
