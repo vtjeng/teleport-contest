@@ -23,6 +23,8 @@
 
   --progress-fill: #2a78d6;
   --progress-area: rgba(42,120,214,0.1);
+  --rate-7d: #8b5cf6;
+  --rate-24h: #10b981;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -45,6 +47,8 @@
 
     --progress-fill: #3987e5;
     --progress-area: rgba(57,135,229,0.12);
+    --rate-7d: #a78bfa;
+    --rate-24h: #34d399;
   }
 }
 :root[data-theme="dark"] {
@@ -66,6 +70,8 @@
 
   --progress-fill: #3987e5;
   --progress-area: rgba(57,135,229,0.12);
+  --rate-7d: #a78bfa;
+  --rate-24h: #34d399;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -533,6 +539,7 @@ canvas {
 <div class="section">
   <h2 class="section-title">Screens matched over time</h2>
   <p class="subtitle" id="progressProvenance"></p>
+  <div class="legend" id="progressLegend"></div>
   <div class="chart-wrap">
     <div class="chart-toolbar">
       <span class="chart-range" id="progressRange"></span>
@@ -663,6 +670,27 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   const yMax = Math.max(points[points.length - 1].screensTotal || 0, peak);
   const yStep = Math.max(1, niceStep(yMax / 4));
 
+  function screensAt(t) {
+    if (!points.length || t <= points[0].time) return 0;
+    let lo = 0, hi = points.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (points[mid].time <= t) lo = mid;
+      else hi = mid - 1;
+    }
+    return points[lo].screens;
+  }
+
+  const rates = points.map(p => ({
+    time: p.time,
+    avg7d: (p.screens - screensAt(p.time - 7 * DAY_MS)) / 7,
+    last24h: p.screens - screensAt(p.time - DAY_MS),
+  }));
+
+  const rateMax = Math.max(1, ...rates.map(r => Math.max(r.avg7d, r.last24h)));
+  const rateYMax = Math.ceil(rateMax / niceStep(rateMax / 4)) * niceStep(rateMax / 4);
+  const rateStep = niceStep(rateMax / 4);
+
   let view = { t0: domain.t0, t1: domain.t1 };
   let hover = null;   // index into points, or null when nothing is selected
   let plot = null;    // scales and window from the last draw, for hit testing
@@ -733,6 +761,8 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       primary: read('--ink-primary'),
       fill: read('--progress-fill'),
       area: read('--progress-area'),
+      rate7d: read('--rate-7d'),
+      rate24h: read('--rate-24h'),
       surface: read('--surface-chart'),
       card: read('--surface-card'),
     };
@@ -861,7 +891,48 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     ctx.clip();
     fillSteps(ctx, vertices, yScale, ink.area);
     strokeSteps(ctx, vertices, yScale, ink.fill, 2);
+
+    // Rate lines (right y-axis: screens per day)
+    const rateYScale = (v) => pad.t + (1 - v / rateYMax) * (H - pad.t - pad.b);
+
+    ctx.beginPath();
+    for (let i = lo; i <= hi; i++) {
+      const x = xScale(rates[i].time);
+      const y = rateYScale(rates[i].avg7d);
+      if (i === lo) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = ink.rate7d;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 3]);
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.beginPath();
+    for (let i = lo; i <= hi; i++) {
+      const x = xScale(rates[i].time);
+      const y = rateYScale(rates[i].last24h);
+      if (i === lo) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = ink.rate24h;
+    ctx.lineWidth = 1.5;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
     ctx.restore();
+
+    // Right y-axis labels
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = ink.muted;
+    for (let v = rateStep; v <= rateYMax; v += rateStep) {
+      const y = Math.round(rateYScale(v)) + 0.5;
+      ctx.fillText(Math.round(v).toLocaleString(), W - pad.r + 8, y + 4);
+    }
 
     // When a commit SHA was not found, the SCORE timestamp is used as a fallback.
     // A hollow marker makes that visible.
@@ -1057,6 +1128,10 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     if (point.sessions !== null) {
       stats.push(['Sessions', point.sessions
         + (point.sessionsTotal ? ' / ' + point.sessionsTotal : '')]);
+    }
+    if (rates[index]) {
+      stats.push(['7d avg', Math.round(rates[index].avg7d) + ' screens/day']);
+      stats.push(['Last 24h', rates[index].last24h + ' screens']);
     }
     if (stats.length) {
       const grid = document.createElement('div');
@@ -1262,6 +1337,14 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   // the opening window back to the whole range.
   setView(domain.t1 - DEFAULT_SPAN_MS, domain.t1);
   render();
+
+  document.getElementById('progressLegend').innerHTML = [
+    { color: 'var(--progress-fill)', label: 'Screens matched (left axis)' },
+    { color: 'var(--rate-7d)', label: '7-day avg screens/day (right axis)' },
+    { color: 'var(--rate-24h)', label: 'Last 24h screens (right axis)' },
+  ].map(item =>
+    '<div class="legend-item"><div class="legend-swatch" style="background:' + item.color + '"></div>' + item.label + '</div>'
+  ).join('');
 })();
 
 // --- Timeline ---
