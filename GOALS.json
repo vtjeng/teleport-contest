@@ -8877,8 +8877,8 @@
       "slices": [
         {
           "name": "attack-checks-mimic-hidden",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "4b7bc8bd9d8c8074cfed9c83ca06aebd5a631fde"
         }
       ],
       "openedAt": "702b6a5c671c19424bbf7920d6913691f2191068",
