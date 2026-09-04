@@ -1,4 +1,5 @@
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="refresh" content="1800">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzJhNzhkNiIvPgogIDx0ZXh0IHg9IjE2IiB5PSIyNC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSIyNiIgZmlsbD0iI2ZmZiI+QDwvdGV4dD4KPC9zdmc+Cg==">
 <title>NetHack Port</title>
@@ -226,6 +227,32 @@ canvas {
    half-shown instruction helps nobody. The pointer gestures still work. */
 @media (max-width: 720px) {
   .chart-hint { display: none; }
+}
+
+@media (max-width: 480px) {
+  body { padding: 12px; }
+  h1 { font-size: 16px; }
+  .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat { padding: 8px 10px; }
+  .stat-value { font-size: 16px; }
+  .stat-detail { font-size: 10px; }
+  .section-title { font-size: 12px; }
+  .chart-wrap { padding: 8px; }
+  .goal-table { font-size: 11px; }
+  .goal-table th, .goal-table td { padding: 4px 6px; }
+  .legend { font-size: 11px; gap: 8px; }
+  .goal-table-wrap {
+    -webkit-overflow-scrolling: touch;
+    background:
+      linear-gradient(to right, var(--surface-card) 30%, transparent),
+      linear-gradient(to left, var(--surface-card) 30%, transparent),
+      linear-gradient(to right, rgba(0,0,0,0.15), transparent 20px),
+      linear-gradient(to left, rgba(0,0,0,0.15), transparent 20px);
+    background-position: left, right, left, right;
+    background-size: 40px 100%, 40px 100%, 20px 100%, 20px 100%;
+    background-repeat: no-repeat;
+    background-attachment: local, local, scroll, scroll;
+  }
 }
 
 .chart-reset {
@@ -489,6 +516,14 @@ canvas {
 .div-badge {
   color: var(--phase-div);
   border: 1px solid var(--phase-div);
+}
+
+#pipelineTable td:nth-child(2),
+#pipelineTable th:nth-child(2) {
+  text-align: left;
+  max-width: 40vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .goal-table tr.in-progress td {
@@ -864,15 +899,14 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
 
     // X-axis ticks, spaced so that labels never crowd
     const spanDays = spanT / DAY_MS;
-    const xStep = spanDays > 60 ? 14 * DAY_MS
-      : spanDays > 20 ? 7 * DAY_MS
-        : spanDays > 8 ? 2 * DAY_MS
-          : spanDays > 3 ? DAY_MS
-            : spanDays > 1 ? 6 * HOUR_MS
-              : spanDays > 0.4 ? 3 * HOUR_MS
-                : spanDays > 0.15 ? HOUR_MS
-                  : spanDays > 0.05 ? HOUR_MS / 2
-                    : HOUR_MS / 6;
+    const usableW = W - pad.l - pad.r;
+    const minPxPerTick = 50;
+    const maxTicks = Math.max(2, Math.floor(usableW / minPxPerTick));
+    const intervals = [HOUR_MS / 6, HOUR_MS / 2, HOUR_MS, 3 * HOUR_MS, 6 * HOUR_MS, DAY_MS, 2 * DAY_MS, 7 * DAY_MS, 14 * DAY_MS];
+    let xStep = intervals[intervals.length - 1];
+    for (const iv of intervals) {
+      if (spanT / iv <= maxTicks) { xStep = iv; break; }
+    }
     ctx.fillStyle = ink.muted;
     ctx.textAlign = 'center';
     for (let t = Math.ceil(view.t0 / xStep) * xStep; t <= view.t1; t += xStep) {
