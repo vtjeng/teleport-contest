@@ -15,9 +15,9 @@
     "cursors": 302
   },
   "seed0012-monk-vault-escort.session.json": {
-    "screens": 266,
-    "rngCalls": 13287,
-    "cursors": 266
+    "screens": 278,
+    "rngCalls": 13359,
+    "cursors": 278
   },
   "seed0013-friday13-save-then-fullmoon-restore.session.json": {
     "screens": 99,
@@ -30,9 +30,9 @@
     "cursors": 59
   },
   "seed0014-dequa-fountain-explore.session.json": {
-    "screens": 0,
-    "rngCalls": 0,
-    "cursors": 0,
+    "screens": 416,
+    "rngCalls": 16709,
+    "cursors": 416,
     "lowerings": [
       {
         "metric": "screens",
@@ -73,7 +73,7 @@
     "cursors": 67
   },
   "seed0030-ten-diverse-deaths.session.json": {
-    "screens": 85,
+    "screens": 171,
     "rngCalls": 21596,
     "lowerings": [
       {
@@ -112,7 +112,7 @@
         "reason": "The port's first divergence in this session is at random-number index 6732, rnd(5) in maybe_smudge_engr(hack.c:3029), before and after 6079433, and its emitted screens are unchanged at 23. I measured both sides by replaying the session's ten segments against js/makemon.js from 529f7fc and then from 6079433, concatenating each run's log and comparing it positionally with C's. What fell is coincidental positional matching past that stop: a monster that used to stop at grow_up()'s level gain now keeps playing, which raises the port's own emitted total from 51,777 calls to 52,012 and reshuffles the alignment. rngMatched compares positionally over the whole log, which .agents/validation.md records under Facts about the measuring tools."
       }
     ],
-    "cursors": 94
+    "cursors": 173
   },
   "seed0077-rogue-chargen.session.json": {
     "screens": 33,
@@ -156,7 +156,7 @@
   },
   "seed0360-wizard-world-tour.session.json": {
     "screens": 164,
-    "rngCalls": 22934,
+    "rngCalls": 35358,
     "cursors": 164,
     "lowerings": [
       {
@@ -176,14 +176,14 @@
     ]
   },
   "seed0361-archeologist-tour.session.json": {
-    "screens": 206,
-    "rngCalls": 11065,
-    "cursors": 206
+    "screens": 213,
+    "rngCalls": 12291,
+    "cursors": 213
   },
   "seed0367-priest-quest-tour.session.json": {
-    "screens": 212,
-    "rngCalls": 3460,
-    "cursors": 225
+    "screens": 243,
+    "rngCalls": 26690,
+    "cursors": 243
   },
   "seed0373-barbarian-quest-tour.session.json": {
     "screens": 124,
