@@ -132,9 +132,25 @@
     "cursors": 40
   },
   "seed0360-wizard-world-tour.session.json": {
-    "screens": 166,
+    "screens": 164,
     "rngCalls": 22934,
-    "cursors": 168
+    "cursors": 164,
+    "lowerings": [
+      {
+        "metric": "screens",
+        "from": 166,
+        "to": 164,
+        "commit": "9ed31e2b",
+        "reason": "Valley of the Dead level loader (9ed31e2b) progresses 12k further in RNG but diverges 2 screens earlier at the new stop; keeping rngCalls at old baseline since lower only reduces"
+      },
+      {
+        "metric": "cursors",
+        "from": 168,
+        "to": 164,
+        "commit": "9ed31e2b",
+        "reason": "Valley of the Dead level loader (9ed31e2b) progresses 12k further in RNG but diverges 2 screens earlier at the new stop; keeping rngCalls at old baseline since lower only reduces"
+      }
+    ]
   },
   "seed0361-archeologist-tour.session.json": {
     "screens": 206,
