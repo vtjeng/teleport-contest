@@ -1377,7 +1377,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     const trClass = g.status === 'in-progress' ? ' class="in-progress"' : '';
 
     const selMin = g.goalSelectionMin || 0;
-    const workMin = g.totalMin - selMin;
+    const workMin = g.totalMin;
     const barTotal = selMin + workMin;
     const bar = barTotal <= 0 ? '' : '<div class="phase-bar">'
       + (selMin > 0 ? '<div class="phase-bar-seg" style="width:' + Math.max(selMin / barTotal * 100, 2) + '%;background:var(--phase-impl)' + (workMin <= 0 ? ';background-image:repeating-linear-gradient(135deg,transparent,transparent 2px,rgba(255,255,255,0.3) 2px,rgba(255,255,255,0.3) 4px)' : '') + '" title="Goal selection: ' + fmt(selMin) + '"></div>' : '')
