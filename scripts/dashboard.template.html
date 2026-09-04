@@ -541,6 +541,15 @@ canvas {
 <div class="stats" id="stats"></div>
 
 <div class="section">
+  <h2 class="section-title">Candidate pipeline</h2>
+  <div class="chart-wrap">
+    <div class="goal-table-wrap">
+      <table class="goal-table" id="pipelineTable"></table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
   <h2 class="section-title">Screens matched over time</h2>
   <p class="subtitle" id="progressProvenance"></p>
   <div class="chart-wrap">
@@ -579,6 +588,7 @@ canvas {
 
 <script>
 const DATA = /*DATA_PLACEHOLDER*/null;
+const PIPELINE = /*PIPELINE_PLACEHOLDER*/null;
 
 // --- Helpers ---
 function fmt(n) {
@@ -622,6 +632,37 @@ const inferredProgressCount = DATA.progress.filter(
 document.getElementById('progressProvenance').textContent = inferredProgressCount
   ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' SCORE timestamp where the commit SHA was not found.'
   : 'All plotted times come from commit timestamps.';
+
+// --- Pipeline candidates ---
+(function() {
+  const table = document.getElementById('pipelineTable');
+  if (!PIPELINE || PIPELINE.length === 0) {
+    table.innerHTML = '<tbody><tr><td>No candidates available.</td></tr></tbody>';
+    return;
+  }
+  const statusColors = {
+    'ready': 'var(--phase-slice-sel)',
+    'needs witnesses': 'var(--phase-verif)',
+    'needs capping': 'var(--phase-impl)',
+  };
+  const maxFc = Math.max(...PIPELINE.map(c => c.forecast));
+  let html = '<thead><tr><th>#</th><th>Candidate</th><th>Forecast</th><th>Sessions</th><th>Witnesses</th><th>Status</th><th></th></tr></thead><tbody>';
+  PIPELINE.forEach((c, i) => {
+    const barW = maxFc > 0 ? (c.forecast / maxFc * 100) : 0;
+    const color = statusColors[c.status] || 'var(--ink-muted)';
+    html += '<tr>'
+      + '<td>' + (i + 1) + '</td>'
+      + '<td title="' + c.id + '">' + c.id + '</td>'
+      + '<td>' + c.forecast + '</td>'
+      + '<td>' + c.sessions + '</td>'
+      + '<td>' + c.witnesses + '</td>'
+      + '<td><span style="color:' + color + ';font-weight:600;font-size:11px">' + c.status + '</span></td>'
+      + '<td><div style="height:12px;border-radius:2px;background:' + color + ';width:' + barW + '%;min-width:2px"></div></td>'
+      + '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+})();
 
 // --- Progress chart (time-zoomable step plot, minimap, and hover readout) ---
 (function() {
