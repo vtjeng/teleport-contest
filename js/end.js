@@ -126,14 +126,13 @@ import {
     displayTtyMenuTextWindow, displayTtyTextWindow,
 } from './tty_menu.js';
 import { canSpotMonster } from './startup_a11y.js';
-import { formatkiller } from './topten.js';
+import { formatkiller, topten as toptenDisplay } from './topten.js';
 import { In_endgame, In_quest, Is_astralevel, plur } from './const.js';
 import {
     depth, dunlev, on_level, recalc_mapseen, single_level_branch,
 } from './dungeon.js';
 import { makeplural } from './fruit.js';
 import { Goodbye } from './role_init.js';
-import { tty_raw_print } from './tty_rawprint.js';
 import { reset_utrap } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { init_uhunger } from './u_init.js';
@@ -1215,16 +1214,9 @@ async function really_done(how, state) {
 
     // C ref: end.c:1579-1583 exit_nhwindows + topten.
     // exit_nhwindows clears the screen; topten prints to raw output.
-    // In wizard mode, topten just prints the wizard message.
-    if (state.wizard || state.discover) {
-        tty_raw_print(state, '');
-        const modeWord = state.wizard ? 'wizard' : 'discover';
-        tty_raw_print(
-            state,
-            `Since you were in ${modeWord} mode, `
-            + 'the score list will not be checked.',
-        );
-    }
+    // tty_raw_print() enters raw mode on first call: it clears the shadow
+    // screen and starts its cursor at the top left, matching exit_nhwindows.
+    toptenDisplay(how, endtime, state);
 
     // C ref: end.c:1589 nh_terminate(EXIT_SUCCESS).
     // The JS port signals end of segment via gameover. The post-moveloop

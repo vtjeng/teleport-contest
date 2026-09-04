@@ -6,7 +6,7 @@
 
 import { game } from './gstate.js';
 import { encodeUtf8ByteString } from './hacklib.js';
-import { NO_COLOR } from './terminal.js';
+import { ATR_BOLD, NO_COLOR } from './terminal.js';
 import { xwaitforspace } from './tty_message.js';
 
 // Buffer.toString('utf8') in record-session.mjs preserves a leading U+FEFF
@@ -20,7 +20,7 @@ const utf8Decoder = new TextDecoder('utf-8', { ignoreBOM: true });
 // exposes each stored row as UTF-8: a complete sequence occupies one screen
 // cell, while an isolated high byte becomes U+FFFD. Keep that presentation
 // separate from the byte-counted raw cursor.
-function nomux_raw_write(display, bytes) {
+function nomux_raw_write(display, bytes, attr = 0) {
     const raw = display.nomuxRaw;
     let captured = [];
     let capturedStart = 0;
@@ -30,7 +30,7 @@ function nomux_raw_write(display, bytes) {
             for (const character of utf8Decoder.decode(
                 Uint8Array.from(captured),
             )) {
-                display.setCell(column++, raw.row, character, NO_COLOR, 0);
+                display.setCell(column++, raw.row, character, NO_COLOR, attr);
             }
         }
         captured = [];
@@ -76,6 +76,25 @@ export function tty_raw_print(state, str) {
         ...encodeUtf8ByteString(String(str)),
         0x0A,
     ]);
+}
+
+// C ref: win/tty/wintty.c tty_raw_print_bold(). Same as tty_raw_print() but
+// writes each cell with ATR_BOLD so the recorder captures \x1b[1m...\x1b[0m.
+export function tty_raw_print_bold(state, str) {
+    const display = state?.nhDisplay;
+    if (!display) return;
+
+    const raw = display.nomuxRaw;
+    if (!raw.active) {
+        raw.active = true;
+        raw.row = 0;
+        raw.col = 0;
+        display.clearScreen();
+    }
+    nomux_raw_write(display, [
+        ...encodeUtf8ByteString(String(str)),
+        0x0A,
+    ], ATR_BOLD);
 }
 
 // C ref: recorder patch 006 nomux_get_cursor(), which the capture writes at

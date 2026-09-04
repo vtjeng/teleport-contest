@@ -788,9 +788,14 @@ export async function prev_level(at_stairs, state = game, env = {}) {
     }
 }
 
-export function deepest_lev_reached(state) {
+export function deepest_lev_reached(state, noquest = false) {
     let deepest = 0;
     for (let dnum = 0; dnum < state.dungeons.length; ++dnum) {
+        // C ref: dungeon.c:1361-1362. When noquest is true, exclude the
+        // Quest dungeon from the calculation. topten() uses this to report
+        // the deepest level without counting the Quest, which the player
+        // thinks of as starting at level 1 rather than going deeper.
+        if (noquest && dnum === state.quest_dnum) continue;
         const dlevel = Math.trunc(state.dungeons[dnum].dunlev_ureached ?? 0);
         if (!dlevel) continue;
         deepest = Math.max(deepest, depth({ dnum, dlevel }, state));
