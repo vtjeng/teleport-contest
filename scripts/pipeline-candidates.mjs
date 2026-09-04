@@ -166,7 +166,7 @@ async function statusJson() {
     const ranked = cappedRanking(rows);
 
     const candidates = ranked.filter((c) => c.cappedForecast > 0);
-    const result = candidates.map((candidate) => {
+    const candidateList = candidates.map((candidate) => {
         const uncapped = candidate.sessions.filter(
             (s) => !s.capStable && !s.divergenceZeroed,
         );
@@ -179,7 +179,22 @@ async function statusJson() {
             tentative: candidate.tentative || false,
         };
     });
-    console.log(JSON.stringify(result));
+
+    const sessions = rows.map((r) => {
+        const name = r.file.replace(/\.session\.json$/, '');
+        const matched = r.scorerScreensMatched ?? r.screensEmitted;
+        const total = r.recordedSteps;
+        const passed = matched === total;
+        return {
+            name,
+            matched,
+            total,
+            passed,
+            boundary: r.boundary || null,
+        };
+    });
+
+    console.log(JSON.stringify({ candidates: candidateList, sessions }));
 }
 
 async function needsPreparation() {

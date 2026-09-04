@@ -11,18 +11,20 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const data = execSync('node scripts/dashboard-data.mjs', { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 });
 
-let pipelineData = '[]';
+let pipelineRaw = '{"candidates":[],"sessions":[]}';
 try {
-  pipelineData = execSync('node scripts/pipeline-candidates.mjs --status-json', { encoding: 'utf8', timeout: 30000 });
+  pipelineRaw = execSync('node scripts/pipeline-candidates.mjs --status-json', { encoding: 'utf8', timeout: 30000 });
 } catch {
-  console.error('Warning: pipeline candidates unavailable, using empty list');
+  console.error('Warning: pipeline candidates unavailable, using empty data');
 }
+const pipeline = JSON.parse(pipelineRaw.trim());
 
 const template = readFileSync(join(__dirname, 'dashboard.template.html'), 'utf8');
 
 const html = template
   .replace('/*DATA_PLACEHOLDER*/null', data)
-  .replace('/*PIPELINE_PLACEHOLDER*/null', pipelineData.trim());
+  .replace('/*PIPELINE_PLACEHOLDER*/null', JSON.stringify(pipeline.candidates))
+  .replace('/*SESSIONS_PLACEHOLDER*/null', JSON.stringify(pipeline.sessions));
 
 const outPath = process.argv[2] || 'dashboard.html';
 writeFileSync(outPath, html);
