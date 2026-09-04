@@ -161,6 +161,31 @@ async function status() {
     }
 }
 
+async function statusJson() {
+    const rows = await loadAnnotatedRows();
+    const ranked = cappedRanking(rows);
+    const metadata = readMetadata();
+
+    const candidates = ranked.filter((c) => c.cappedForecast > 0);
+    const result = candidates.map((candidate) => {
+        const annotated = annotateWithMetadata(candidate, metadata);
+        const allCapped = candidate.sessions.every(
+            (s) => s.capStable || s.divergenceZeroed,
+        );
+        const ready = isReady(annotated);
+        return {
+            id: annotated.id,
+            forecast: candidate.cappedForecast,
+            sessions: candidate.sessions.length,
+            witnesses: annotated.witnesses.length,
+            status: ready ? 'ready'
+                : allCapped ? 'needs witnesses'
+                : 'needs capping',
+        };
+    });
+    console.log(JSON.stringify(result));
+}
+
 async function needsPreparation() {
     const rows = await loadAnnotatedRows();
     const ranked = cappedRanking(rows);
@@ -259,7 +284,7 @@ async function main(args) {
 
     const modes = [
         '--ready-winner', '--needs-capping', '--status',
-        '--needs-preparation', '--set-metadata',
+        '--status-json', '--needs-preparation', '--set-metadata',
     ];
     const selected = modes.filter((m) => args.includes(m));
     if (selected.length === 0) {
@@ -276,6 +301,7 @@ async function main(args) {
     case '--ready-winner': return readyWinner();
     case '--needs-capping': return needsCapping();
     case '--status': return status();
+    case '--status-json': return statusJson();
     case '--needs-preparation': return needsPreparation();
     case '--set-metadata': return setMetadata();
     }
