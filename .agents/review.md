@@ -209,18 +209,19 @@ step alone usually repairs it.
   `summary` and `counterEvidence`. Write any condition for reopening into that
   text, and keep the wording when copying it forward. The next pass reads
   these rejections to avoid re-deriving a settled claim.
-- Open a ledger entry for every deferred finding with
-  `npm run quality -- defer --id <id> --area <area> --category <c>
-  --effort <small|slice> --detail <text>` before recording the pass, and give
-  each one a `deferrals` entry in `auditMetrics`. `small` fits a later
-  audit-fix commit; `slice` needs its own slice. Close an entry with
+- Open a ledger entry for every deferred finding. Write the detail text to a
+  file, then pass it with `npm run quality -- defer --id <id> --area <area>
+  --category <c> --effort <small|slice> --detail-file <path>`. Give each one
+  a `deferrals` entry in `auditMetrics`. `small` fits a later audit-fix
+  commit; `slice` needs its own slice. Close an entry with
   `npm run quality -- resolve-deferral --id <id>` when its fix lands.
   `productionDefects` covers the production category alone, so a deferred
   test, clarity, or simplification finding has no other durable record.
 - Cite symbols by file and function name, not line numbers.
-- Correct an open entry with `npm run quality -- note-deferral --id <id>
-  --note <text>`. Write a note when a later commit falsifies a claim the entry
-  rests on, or closes part of what it counts.
+- Correct an open entry by writing the note to a file and passing it with
+  `npm run quality -- note-deferral --id <id> --note-file <path>`. Write a
+  note when a later commit falsifies a claim the entry rests on, or closes
+  part of what it counts.
 - Record what an entry waits on with `npm run quality -- defer --blocked-on
   <symbol>`, or `block-deferral --id <id> --blocked-on <symbol>` afterwards.
   Name the missing symbol, not the containing function; `js/` already holds a

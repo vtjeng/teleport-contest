@@ -1245,6 +1245,17 @@ function rejectUnknownOptions(options, allowed) {
   }
 }
 
+function readTextFile(options, key) {
+  const path = options[key];
+  if (!path?.trim()) fail(`--${key} is required`);
+  const resolved = resolve(REPO_ROOT, path);
+  try {
+    return readFileSync(resolved, 'utf8');
+  } catch (error) {
+    fail(`could not read --${key} file ${resolved}: ${error.message}`);
+  }
+}
+
 function stripPassHistory(pass) {
   const { evidence, auditMetrics, ...rest } = pass;
   return rest;
@@ -1618,10 +1629,11 @@ function queryLedger(command, options, config) {
 
 function deferEntry(options) {
   rejectUnknownOptions(options,
-    new Set(['id', 'area', 'category', 'effort', 'detail', 'blocked-on']));
-  for (const key of ['id', 'category', 'effort', 'detail']) {
+    new Set(['id', 'area', 'category', 'effort', 'detail-file', 'blocked-on']));
+  for (const key of ['id', 'category', 'effort']) {
     if (!options[key]?.trim()) fail(`--${key} is required`);
   }
+  const detail = readTextFile(options, 'detail-file');
   withLedgerLock(() => {
     const config = loadConfig();
     if (config.deferred.some((entry) => entry.id === options.id.trim())) {
@@ -1634,7 +1646,7 @@ function deferEntry(options) {
       effort: options.effort,
       status: 'open',
       from: resolveCommit('HEAD'),
-      detail: options.detail.trim(),
+      detail: detail.trim(),
       // Absent rather than null when the entry waits on nothing, so a field
       // in the ledger always carries a claim.
       ...options['blocked-on'] === undefined
@@ -1710,14 +1722,13 @@ export function appendDeferralNote(config, id, text, at) {
 }
 
 function noteDeferral(options) {
-  rejectUnknownOptions(options, new Set(['id', 'note']));
-  for (const key of ['id', 'note']) {
-    if (!options[key]?.trim()) fail(`--${key} is required`);
-  }
+  rejectUnknownOptions(options, new Set(['id', 'note-file']));
+  if (!options.id?.trim()) fail('--id is required');
+  const note = readTextFile(options, 'note-file');
   withLedgerLock(() => {
     const config = loadConfig();
     const entry = appendDeferralNote(
-      config, options.id.trim(), options.note.trim(), resolveCommit('HEAD'));
+      config, options.id.trim(), note.trim(), resolveCommit('HEAD'));
     writeConfig(config);
     console.log(`Noted: ${entry.id} (${plural(entry.notes.length, 'note')})`);
   });
@@ -1758,14 +1769,15 @@ export function refileDeferralArea(config, id, areaId, reason, at) {
 }
 
 function refileDeferral(options) {
-  rejectUnknownOptions(options, new Set(['id', 'area', 'note']));
-  for (const key of ['id', 'area', 'note']) {
+  rejectUnknownOptions(options, new Set(['id', 'area', 'note-file']));
+  for (const key of ['id', 'area']) {
     if (!options[key]?.trim()) fail(`--${key} is required`);
   }
+  const note = readTextFile(options, 'note-file');
   withLedgerLock(() => {
     const config = loadConfig();
     const { entry, previous } = refileDeferralArea(
-      config, options.id.trim(), options.area.trim(), options.note.trim(),
+      config, options.id.trim(), options.area.trim(), note.trim(),
       resolveCommit('HEAD'));
     writeConfig(config);
     console.log(`Re-filed ${entry.id}: ${previous ?? '(no area)'} `
@@ -1844,9 +1856,9 @@ function printHelp() {
   npm run quality -- areas
   npm run quality -- assign --file js/<name>.js --area <id>
   npm run quality -- defer --id <id> --category <c> --effort <small|slice> \\
-    --detail <text> [--area <id>] [--blocked-on <symbol>]
-  npm run quality -- note-deferral --id <id> --note <text>
-  npm run quality -- refile-deferral --id <id> --area <id> --note <text>
+    --detail-file <path> [--area <id>] [--blocked-on <symbol>]
+  npm run quality -- note-deferral --id <id> --note-file <path>
+  npm run quality -- refile-deferral --id <id> --area <id> --note-file <path>
   npm run quality -- block-deferral --id <id> <--blocked-on <symbol>|--clear>
   npm run quality -- resolve-deferral --id <id>
 

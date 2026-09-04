@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { unlinkSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import test from 'node:test';
 
 import {
@@ -897,28 +900,33 @@ test('refile-deferral is reachable as a command and requires its reason', () => 
     }
     return '';
   };
-
-  // No entry in QUALITY.json is named 'no-such-deferral', so the command
-  // reaches the re-filer and stops there, before any write.
-  assert.match(
-    run(['refile-deferral', '--id', 'no-such-deferral', '--area', 'display',
-      '--note', 'a reason']),
-    /no deferred entry has id: no-such-deferral/u,
-  );
-  // --note is required, which is the design decision this command carries:
-  // every other ledger mutation records provenance, and a bare re-file would
-  // not. The check runs before the ledger is read.
-  assert.match(
-    run(['refile-deferral', '--id', 'no-such-deferral', '--area', 'display']),
-    /--note is required/u,
-  );
-  // --detail belongs to defer. Refusing it shows the assertions above are not
-  // vacuous.
-  assert.match(
-    run(['refile-deferral', '--id', 'x', '--area', 'y', '--note', 'z',
-      '--detail', 'w']),
-    /unknown option: --detail/u,
-  );
+  const noteFile = join(tmpdir(), 'refile-note-test.txt');
+  writeFileSync(noteFile, 'a reason');
+  try {
+    // No entry in QUALITY.json is named 'no-such-deferral', so the command
+    // reaches the re-filer and stops there, before any write.
+    assert.match(
+      run(['refile-deferral', '--id', 'no-such-deferral', '--area', 'display',
+        '--note-file', noteFile]),
+      /no deferred entry has id: no-such-deferral/u,
+    );
+    // --note-file is required, which is the design decision this command
+    // carries: every other ledger mutation records provenance, and a bare
+    // re-file would not. The check runs before the ledger is read.
+    assert.match(
+      run(['refile-deferral', '--id', 'no-such-deferral', '--area', 'display']),
+      /--note-file is required/u,
+    );
+    // --detail-file belongs to defer. Refusing it shows the assertions above
+    // are not vacuous.
+    assert.match(
+      run(['refile-deferral', '--id', 'x', '--area', 'y', '--note-file',
+        noteFile, '--detail-file', 'w']),
+      /unknown option: --detail-file/u,
+    );
+  } finally {
+    unlinkSync(noteFile);
+  }
 });
 
 test('a malformed deferral note never reaches the ledger', () => {
@@ -1092,23 +1100,29 @@ test('note-deferral is reachable as a command and refuses an unknown id', () => 
     }
     return '';
   };
-
-  // No entry in QUALITY.json is named 'no-such-deferral', so the command
-  // reaches the appender and stops there, before any write.
-  assert.match(
-    run(['note-deferral', '--id', 'no-such-deferral',
-      '--note', 'a correction']),
-    /no deferred entry has id: no-such-deferral/u,
-  );
-  // Both options are required, and the check runs before the ledger is read.
-  assert.match(run(['note-deferral', '--id', 'no-such-deferral']),
-    /--note is required/u);
-  // --detail belongs to defer. Refusing it here shows the assertions above are
-  // not vacuous.
-  assert.match(
-    run(['note-deferral', '--id', 'x', '--note', 'y', '--detail', 'z']),
-    /unknown option: --detail/u,
-  );
+  const noteFile = join(tmpdir(), 'note-deferral-test.txt');
+  writeFileSync(noteFile, 'a correction');
+  try {
+    // No entry in QUALITY.json is named 'no-such-deferral', so the command
+    // reaches the appender and stops there, before any write.
+    assert.match(
+      run(['note-deferral', '--id', 'no-such-deferral',
+        '--note-file', noteFile]),
+      /no deferred entry has id: no-such-deferral/u,
+    );
+    // Both options are required, and the check runs before the ledger is read.
+    assert.match(run(['note-deferral', '--id', 'no-such-deferral']),
+      /--note-file is required/u);
+    // --detail-file belongs to defer. Refusing it here shows the assertions
+    // above are not vacuous.
+    assert.match(
+      run(['note-deferral', '--id', 'x', '--note-file', noteFile,
+        '--detail-file', 'z']),
+      /unknown option: --detail-file/u,
+    );
+  } finally {
+    unlinkSync(noteFile);
+  }
 });
 
 // evidence and auditMetrics live in QUALITY-evidence.json, so QUALITY.json
