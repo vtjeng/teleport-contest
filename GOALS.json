@@ -8892,6 +8892,23 @@
         "screens": 0,
         "rng": 6
       }
+    },
+    {
+      "id": "unsupported-initial-level-monster-creation-initial-shapechan",
+      "status": "open",
+      "boundary": "unsupported initial-level monster creation: initial shapechanger 301",
+      "upstreamOwners": [],
+      "forecast": null,
+      "detail": "",
+      "slices": [],
+      "openedAt": "b7a95bf1f1ee3f63173d8f013bab8a590e16c9e6",
+      "openStanding": {
+        "sha": "b4bf8325",
+        "screens": 4547,
+        "rng": 314073
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
