@@ -524,21 +524,20 @@ canvas {
   border: 1px solid var(--phase-div);
 }
 
+#pipelineTable {
+  table-layout: fixed;
+  width: 100%;
+}
+
 #pipelineTable td:nth-child(1) {
   white-space: nowrap;
 }
 
-#pipelineTable td:nth-child(4),
-#pipelineTable th:nth-child(4) {
+#pipelineTable td:nth-child(5),
+#pipelineTable th:nth-child(5) {
   text-align: left;
-  max-width: 40vw;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-#pipelineTable td:nth-child(5) {
-  text-align: right;
   white-space: nowrap;
 }
 
@@ -692,22 +691,22 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     table.innerHTML = '<tbody><tr><td>No blocked sessions.</td></tr></tbody>';
     return;
   }
-  const maxFc = Math.max(...PIPELINE.filter(s => !s.divergent).map(s => s.forecast || 0), 0);
-  let html = '<thead><tr><th>Session</th><th>Screens</th><th>%</th><th>Blocked by</th><th>Forecast</th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Session</th><th>Forecast</th><th>Remaining</th><th>%</th><th>Blocked by</th></tr></thead><tbody>';
   PIPELINE.forEach(s => {
-    const pct = s.total > 0 ? Math.round(s.matched / s.total * 100) : 0;
-    const blockedCell = s.boundary
-      ? '<span title="' + s.boundary.replace(/"/g, '&quot;') + '">' + s.boundary + '</span>'
-      : '<span style="color:var(--phase-verif)">silent divergence</span>';
+    const remaining = s.total - s.matched;
+    const pct = s.total > 0 ? Math.round(remaining / s.total * 100) : 0;
     const fcCell = s.divergent
       ? '<span style="color:var(--phase-verif)">divergent</span>'
       : (s.forecast != null ? '' + s.forecast : '-');
+    const blockedCell = s.boundary
+      ? '<span title="' + s.boundary.replace(/"/g, '&quot;') + '">' + s.boundary + '</span>'
+      : '<span style="color:var(--phase-verif)">silent divergence</span>';
     html += '<tr>'
       + '<td>' + s.name + '</td>'
-      + '<td>' + s.matched + ' / ' + s.total + '</td>'
+      + '<td>' + fcCell + '</td>'
+      + '<td>' + remaining + '</td>'
       + '<td>' + pct + '%</td>'
       + '<td>' + blockedCell + '</td>'
-      + '<td>' + fcCell + '</td>'
       + '</tr>';
   });
   html += '</tbody>';
