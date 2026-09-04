@@ -738,13 +738,12 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   });
   const passCount = sorted.filter(s => s.passed).length;
   let html = '<thead><tr><th>Session</th><th>Screens</th><th>%</th><th>Blocked by</th></tr></thead><tbody>';
-  sorted.forEach(s => {
+  const failing = sorted.filter(s => !s.passed);
+  failing.forEach(s => {
     const pct = s.total > 0 ? Math.round(s.matched / s.total * 100) : 0;
-    const trStyle = s.passed ? ' style="color:var(--ink-muted)"' : '';
-    const statusCell = s.passed ? 'complete'
-      : s.boundary ? '<span title="' + s.boundary.replace(/"/g, '&quot;') + '">' + s.boundary + '</span>'
+    const statusCell = s.boundary ? '<span title="' + s.boundary.replace(/"/g, '&quot;') + '">' + s.boundary + '</span>'
       : '<span style="color:var(--phase-verif)">silent divergence</span>';
-    html += '<tr' + trStyle + '>'
+    html += '<tr>'
       + '<td>' + s.name + '</td>'
       + '<td>' + s.matched + ' / ' + s.total + '</td>'
       + '<td>' + pct + '%</td>'
