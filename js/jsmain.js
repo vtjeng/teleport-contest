@@ -18,6 +18,7 @@ import {
     UnsupportedStatusRefreshError,
 } from './display.js';
 import { UnsupportedEarthSenseError } from './dungeon.js';
+import { UnsupportedPositionCheckError } from './teleport.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { UnsupportedGetposError } from './getpos.js';
 import { UnsupportedSpecialRoomError } from './mkroom.js';
@@ -747,6 +748,7 @@ export async function runSegment(
                 // first turn on a level holding an unported special room ends
                 // the segment here.
                 || e instanceof UnsupportedAmbientSoundError
+                || e instanceof UnsupportedPositionCheckError
                 || e instanceof UnsupportedPosixDuplicatedCaptureError) {
                 onBoundary?.(e);
                 break;
