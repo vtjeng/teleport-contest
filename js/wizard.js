@@ -5,17 +5,21 @@
 import {
     BOLT_LIM,
     DEAF,
+    G_GENOD,
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
+    Is_rogue_level,
     NO_MM_FLAGS,
     STRAT_WAITFORU,
     helpless,
 } from './const.js';
 import { Amonnam } from './do_name.js';
-import { In_W_tower } from './dungeon.js';
+import { In_W_tower, In_hell } from './dungeon.js';
 import { game } from './gstate.js';
 import { set_malign } from './makemon.js';
-import { PM_WIZARD_OF_YENDOR } from './monsters.js';
+import { big_to_little } from './mondata.js';
+import { G_HELL, G_NOHELL, PM_WIZARD_OF_YENDOR, monsterClassSymbol } from './monsters.js';
+import { NASTIES } from './nasties_data.js';
 import { AMULET_OF_YENDOR } from './objects.js';
 import { enexto_core } from './teleport.js';
 import { messageAt, canSpotMonster } from './startup_a11y.js';
@@ -169,6 +173,55 @@ export async function resurrect(state = game, rawEnv = {}) {
         );
     }
     return monster;
+}
+
+// C ref: wizard.c:536-581, pick_nasty().
+// Rolls a random entry from the nasties[] table, filtering for genocided,
+// difficulty-capped, and hell/nohell mismatches, with juvenile exclusion on
+// the big_to_little substitute.
+export function pick_nasty(difcap, normalized) {
+    const { random, state } = normalized;
+    const mons = state.mons;
+
+    // ROLL_FROM(nasties): nasties[rn2(SIZE(nasties))]
+    let res = NASTIES[random.rn2(NASTIES.length)];
+
+    // On the rogue level, prefer monsters with uppercase display symbols.
+    // C: Is_rogue_level(&u.uz) && !('A' <= monsym(&mons[res]) && <= 'Z')
+    if (Is_rogue_level(state.u?.uz)) {
+        const sym = monsterClassSymbol(mons[res].mlet);
+        if (!(sym >= 'A' && sym <= 'Z')) {
+            res = NASTIES[random.rn2(NASTIES.length)];
+        }
+    }
+
+    // If genocided, too difficult, or out of place (hell/nohell), try a
+    // substitute via big_to_little.
+    let alt = res;
+    if ((state.mvitals[res].mvflags & G_GENOD) !== 0
+        || (difcap > 0 && mons[res].difficulty >= difcap)
+        || (mons[res].geno
+            & (In_hell(state.u?.uz, state) ? G_NOHELL : G_HELL)) !== 0) {
+        alt = big_to_little(res);
+    }
+
+    if (alt !== res && (state.mvitals[alt].mvflags & G_GENOD) === 0) {
+        // Only non-juveniles can become the alternate choice.
+        // C checks pmnames[NEUTRAL] for "baby " prefix or
+        // " hatchling" / " pup" / " cub" suffix.
+        const NEUTRAL = 2;
+        const mnam = mons[alt].pmnames[NEUTRAL] ?? '';
+        const lastSpace = mnam.lastIndexOf(' ');
+        if (!mnam.startsWith('baby ')
+            && (lastSpace < 0
+                || (!mnam.endsWith(' hatchling')
+                    && !mnam.endsWith(' pup')
+                    && !mnam.endsWith(' cub')))) {
+            res = alt;
+        }
+    }
+
+    return res;
 }
 
 // C ref: wizard.c mon_has_amulet() (105-114). Pure; do.c goto_level() reaches

@@ -17,6 +17,7 @@
     "check:glyph-offsets": "node scripts/generate-glyph-offsets.mjs --check",
     "check:help-data": "node scripts/generate-help-data.mjs --check",
     "check:monsters": "node scripts/generate-monsters.mjs --check",
+    "check:nasties": "node scripts/generate-nasties.mjs --check",
     "check:objects": "node scripts/generate-objects.mjs --check",
     "check:options": "node scripts/generate-options.mjs --check",
     "check:shtypes": "node scripts/generate-shtypes.mjs --check",

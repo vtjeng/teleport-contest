@@ -196,6 +196,7 @@ import {
     PM_ABBOT,
     PM_ACOLYTE,
     PM_APPRENTICE,
+    PM_ARCHON,
     PM_ARCHEOLOGIST,
     PM_ATTENDANT,
     PM_BALROG,
@@ -278,6 +279,7 @@ import {
     PM_SOLDIER,
     PM_SKELETON,
     PM_SALAMANDER,
+    PM_SANDESTIN,
     PM_SNAKE,
     PM_STALKER,
     PM_STUDENT,
@@ -553,6 +555,7 @@ import {
 } from './symbols.js';
 import { begin_burn, stop_timer } from './timeout.js';
 import { is_pool, t_at } from './trap.js';
+import { pick_nasty } from './wizard.js';
 import { which_armor } from './worn.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
@@ -2916,6 +2919,14 @@ function select_newcham_form(monster, normalized) {
     } else if (monster.cham === PM_VAMPIRE
                || monster.cham === PM_VAMPIRE_LEADER) {
         return pick_vampire_shape(monster, normalized);
+    } else if (monster.cham === PM_SANDESTIN) {
+        // C ref: mon.c:5162-5165, select_newcham_form() PM_SANDESTIN case.
+        if (normalized.random.rn2(7)) {
+            mndx = pick_nasty(
+                normalized.state.mons[PM_ARCHON].difficulty - 1,
+                normalized,
+            );
+        }
     } else {
         throw new UnsupportedMonsterCreationError(
             `initial shapechanger ${monster.cham}`,

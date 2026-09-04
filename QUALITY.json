@@ -6428,6 +6428,7 @@
         "js/monsters.js",
         "js/mthrowu.js",
         "js/muse.js",
+        "js/nasties_data.js",
         "js/priest.js",
         "js/read.js",
         "js/shk.js",

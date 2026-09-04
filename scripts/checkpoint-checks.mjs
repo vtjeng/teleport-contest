@@ -20,6 +20,7 @@ const GENERATED_CHECKS = [
     'check:glyph-offsets',
     'check:help-data',
     'check:monsters',
+    'check:nasties',
     'check:objects',
     'check:options',
     'check:shtypes',

@@ -95,6 +95,7 @@ test('checkpoint runs full, generated, static, and score', () => {
             'generated data (check:glyph-offsets)',
             'generated data (check:help-data)',
             'generated data (check:monsters)',
+            'generated data (check:nasties)',
             'generated data (check:objects)',
             'generated data (check:options)',
             'generated data (check:shtypes)',

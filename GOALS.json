@@ -8900,7 +8900,13 @@
       "upstreamOwners": [],
       "forecast": null,
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "pick_nasty-and-sandestin-case",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "b7a95bf1f1ee3f63173d8f013bab8a590e16c9e6",
       "openStanding": {
         "sha": "b4bf8325",
