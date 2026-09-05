@@ -8994,6 +8994,35 @@
         "screens": 6,
         "rng": 33
       }
+    },
+    {
+      "id": "annotate",
+      "status": "open",
+      "boundary": "#annotate",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 8,
+        "basis": "capped at session seed0108-wizard-extcmd-wishlist stretch of 8, capStable True",
+        "sessions": [
+          "seed0108-wizard-extcmd-wishlist"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0108-wizard-extcmd-wishlist",
+            "evidence": "dungeon.c:2571-2577 donamelevel(), registered in cmd.c:1676. Calls query_annotation(NULL) at dungeon.c:2499-2567: looks up mapseen via find_mapseen(), prompts with getlin, stores result as mptr->custom via dupstr(). Empty/ESC input aborts."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "b8e30078cdaa35cc3761e48167f0bff50c320ac4",
+      "openStanding": {
+        "sha": "269925c8",
+        "screens": 4560,
+        "rng": 316450
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
