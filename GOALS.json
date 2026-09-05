@@ -9298,6 +9298,41 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "simple-monster-action-requires-a-monster-casting-a-ranged-sp",
+      "status": "open",
+      "boundary": "A monster with an AT_MAGC attack at range fires its spell as a directed bolt/ray via buzzmu() -> buzz() -> dobuzz()",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 132,
+        "basis": "capped at session seed0361-archeologist-tour stretch of 132, capStable True",
+        "sessions": [
+          "seed0361-archeologist-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0361-archeologist-tour",
+            "evidence": "mattacku() AT_MAGC dispatch -> buzzmu() (mcastu.c) -> buzz() (zap.c) -> dobuzz()"
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "Port buzzmu() and wire monster spell into dobuzz()",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "4b36995b4e2cd41f9cebb6c298fb5b8309991e61",
+      "openStanding": {
+        "sha": "987a3978",
+        "screens": 4604,
+        "rng": 326792
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
