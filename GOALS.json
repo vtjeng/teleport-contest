@@ -9035,7 +9035,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-24",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero command: an unported branch of this command: unsupported drop: a shop level",
       "upstreamOwners": [],
       "forecast": {
@@ -9055,8 +9055,8 @@
       "slices": [
         {
           "name": "narrow-shop-guard-to-costly-spot",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "4004d6db545968797c56a787038ffecfed088af0"
         }
       ],
       "openedAt": "54e40ff77b47fc077904801f5df5eecfcdc7e4c6",
@@ -9065,8 +9065,11 @@
         "screens": 4560,
         "rng": 316450
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "4004d6db545968797c56a787038ffecfed088af0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
