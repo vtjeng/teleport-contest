@@ -9225,7 +9225,7 @@
     },
     {
       "id": "unsupported-initial-level-monster-creation-initial-shape-2",
-      "status": "open",
+      "status": "closed",
       "boundary": "select_newcham_form() encounters mon->cham == PM_DOPPELGANGER (270) during initial shapechanger transformation",
       "upstreamOwners": [],
       "forecast": {
@@ -9245,8 +9245,8 @@
       "slices": [
         {
           "name": "Port PM_DOPPELGANGER case in select_newcham_form and tt_doppel helper",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "fa7fd88d496322f201cba5d55774cadfb5320c42"
         }
       ],
       "openedAt": "2bf13678dd77ba903b903dfa3b9be855c72987cd",
@@ -9255,8 +9255,11 @@
         "screens": 4595,
         "rng": 323531
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "fa7fd88d496322f201cba5d55774cadfb5320c42",
+      "delivered": {
+        "screens": 9,
+        "rng": 3261
+      }
     }
   ]
 }
