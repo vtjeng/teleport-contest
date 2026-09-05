@@ -259,6 +259,9 @@ canvas {
     background-repeat: no-repeat;
     background-attachment: local, local, scroll, scroll;
   }
+  #pipelineTable { min-width: 600px; }
+  #pipelineTable col:nth-child(2) { width: 14%; }
+  #pipelineTable col:nth-child(3) { width: 15%; }
 }
 
 .chart-reset {
@@ -538,6 +541,8 @@ canvas {
   text-align: left;
   font-family: 'JetBrains Mono', monospace;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #pipelineTable td:nth-child(4),
