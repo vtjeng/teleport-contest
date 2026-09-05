@@ -9108,6 +9108,41 @@
         "screens": 23,
         "rng": 486
       }
+    },
+    {
+      "id": "simple-monster-action-requires-uhitm-c-mhitm-ad-cold",
+      "status": "open",
+      "boundary": "monster with AD_COLD attack type touches the hero, requiring the mhitm_ad_cold() damage handler in uhitm.c",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 8,
+        "basis": "capped at session seed0383-wizard-hallucinate stretch of 8, capStable True",
+        "sessions": [
+          "seed0383-wizard-hallucinate"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0383-wizard-hallucinate",
+            "evidence": "uhitm.c:2625-2681 mhitm_ad_cold(), dispatched from mhitm_adtyping() on mattk->adtyp == AD_COLD"
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "port-mhitm-ad-cold",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "cd00c374e001ae48d1a954628b0f401d55c03bdb",
+      "openStanding": {
+        "sha": "6be41292",
+        "screens": 4583,
+        "rng": 316936
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

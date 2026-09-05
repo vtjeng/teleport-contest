@@ -16958,5 +16958,128 @@
       ]
     },
     "recordedAt": "2026-09-04T17:31:36.889Z"
+  },
+  {
+    "kind": "review",
+    "head": "68093db863b9cf4b90363fdbe228e77ada670e42",
+    "auditedRange": "40eaecf81b493e81e25b6679e2861e165bd9d300..68093db863b9cf4b90363fdbe228e77ada670e42",
+    "level": "full",
+    "areas": [
+      "startup",
+      "hero",
+      "objects",
+      "generation",
+      "monsters",
+      "world-effects",
+      "commands",
+      "display",
+      "runtime"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 15 raw, 14 deduplicated, 9 confirmed, 9 applied, 0 deferred, 5 rejected, 0 unverified. Full correctness pass over 40eaecf8..2f17eab2 with audit fixes at 68093db8. 4 finders. 15 raw, 14 deduplicated, 9 confirmed (4 production, 4 tests, 1 clarity), 9 applied, 5 rejected, 0 unverified. Score unchanged: 4583/7765 screens, 316936/610816 RNG.",
+    "auditMetrics": {
+      "mode": "full",
+      "finders": [
+        "correctness",
+        "readability",
+        "tests",
+        "variable-trace"
+      ],
+      "wallTimeSeconds": 2700,
+      "counts": {
+        "raw": 15,
+        "deduplicated": 14,
+        "confirmed": 9,
+        "applied": 9,
+        "deferred": 0,
+        "rejected": 5,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 4,
+        "tests": 4,
+        "clarity": 1,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "file": "js/uhitm.js",
+          "function": "that_is_a_mimic",
+          "summary": "Synchronous function calls async env.pline without await; made async and awaited at call site in stumble_onto_mimic.",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "file": "js/vault.js",
+          "function": "clear_fcorr",
+          "summary": "Checked !state.u.uball.owornmask instead of !carried(state.u.uball) to test whether punishment ball is on the ground; owornmask always has W_BALL set.",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "file": "js/vault.js",
+          "function": "wallify_vault",
+          "summary": "Omitted sobj_at(ROCK, x, y) check and ROCK destruction loop from wall-restoration condition, leaving vault boundary holes when rocks are present.",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "file": "js/vault.js",
+          "function": "gd_move",
+          "summary": "Exit-search loop stored post-change crm.typ in fakecorr entry instead of original typ captured before overwriting; clear_fcorr later restored the wrong type. Two confirmed findings at the same site.",
+          "foundBy": [
+            "correctness",
+            "variable-trace",
+            "readability"
+          ],
+          "resolution": "applied"
+        }
+      ],
+      "rejections": [
+        {
+          "file": "js/invent.js",
+          "line": 864,
+          "summary": "Claimed '*' full-inventory path for throw triggers display_pickinv guard because allownone=true and handsbuf is non-null.",
+          "counterEvidence": "throw_ok(null) returns GETOBJ_EXCLUDE, which hits the default case at invent.js:741-742, leaving allownone=false. With allownone=false, the display_pickinv guard evaluates xtra_choice && allowxtra as handsbuf && false, which is false. No throw occurs."
+        },
+        {
+          "file": "js/medusa_levels.js",
+          "line": 48,
+          "summary": "perseusContents() is an empty stub with a misleading comment while actual contents are inlined in each medusa function.",
+          "counterEvidence": "Dead code with a misleading comment is a readability concern, not a correctness defect. The review instructions route prose-only polish to a clarity audit and structural cleanup to a simplification pass."
+        },
+        {
+          "file": "js/vault.js",
+          "line": 297,
+          "summary": "movedgold is declared and tested but never set to true because the gold-at-wall branch throws.",
+          "counterEvidence": "The gold path correctly throws because gold movement is intentionally unported. The dead code after the throw causes no behavioral divergence from C. This is readability, not correctness."
+        },
+        {
+          "file": "js/vault.js",
+          "line": 307,
+          "summary": "wallify_vault omits sobj_at(ROCK, x, y) check in both the outer condition and inner cleanup loop.",
+          "counterEvidence": "Duplicate of confirmed finding at vault.js:299, which covers the same missing ROCK check. Both describe the identical omission with the same root cause and fix."
+        },
+        {
+          "file": "js/vault.js",
+          "line": 700,
+          "summary": "Comment on gd_move_proceed omits that it recurses into gd_move_nextpos, creating hidden mutual recursion.",
+          "counterEvidence": "The mutual recursion is structurally correct and terminates because find_guard_dest returns null or a new destination. Missing documentation of the termination condition is a readability gap, not a correctness defect."
+        }
+      ],
+      "readiness": {
+        "boundary": "Every slice executes through its real game caller chain and ends at the stated observable result. Fresh differentials confirmed C/JS parity for each slice's target sessions.",
+        "sourceReview": "Every branch and helper reachable before each ending event was traced against upstream C, covering state, PRNG order, screen/cursor behavior, and excluded arms. Unexercised branches throw descriptive errors.",
+        "completeness": "No known unsupported behavior remains inside the stated boundaries. Unreached branches (hostile guard, covetous/worm arms, sellobj billing, describe_level annotation, dooverview) are fail-closed before state, randomness, or output."
+      }
+    },
+    "recordedAt": "2026-09-05T07:56:27.222Z"
   }
 ]
