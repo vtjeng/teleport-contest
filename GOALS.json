@@ -9301,7 +9301,7 @@
     },
     {
       "id": "simple-monster-action-requires-a-monster-casting-a-ranged-sp",
-      "status": "open",
+      "status": "closed",
       "boundary": "A monster with an AT_MAGC attack at range fires its spell as a directed bolt/ray via buzzmu() -> buzz() -> dobuzz()",
       "upstreamOwners": [],
       "forecast": {
@@ -9321,8 +9321,8 @@
       "slices": [
         {
           "name": "Port buzzmu() and wire monster spell into dobuzz()",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "afae61fa766998886e164b7e634449cc4573a976"
         }
       ],
       "openedAt": "4b36995b4e2cd41f9cebb6c298fb5b8309991e61",
@@ -9331,8 +9331,11 @@
         "screens": 4604,
         "rng": 326792
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "afae61fa766998886e164b7e634449cc4573a976",
+      "delivered": {
+        "screens": 2,
+        "rng": 100
+      }
     }
   ]
 }
