@@ -9146,6 +9146,41 @@
         "screens": 0,
         "rng": 147
       }
+    },
+    {
+      "id": "unsupported-initial-level-monster-creation-monster-275",
+      "status": "open",
+      "boundary": "monster type PM_ALIGNED_CLERIC (275) requested during TEMPLE room creation on levels below depth 8; allowlist in assertSupportedSpecies() blocks it",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 1,
+        "basis": "capped at session seed0361-archeologist-tour stretch of 1, capStable True",
+        "sessions": [
+          "seed0361-archeologist-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0361-archeologist-tour",
+            "evidence": "mklev.c level-fill -> do_mkroom(TEMPLE) -> mktemple() -> priestini() -> makemon(&mons[PM_ALIGNED_CLERIC])"
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "add PM_ALIGNED_CLERIC to initial-level monster allowlist",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "086c2855e8b54b5542da3b30f6c40abac50079f0",
+      "openStanding": {
+        "sha": "803448fa",
+        "screens": 4583,
+        "rng": 317083
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
