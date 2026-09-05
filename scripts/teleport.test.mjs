@@ -2,16 +2,24 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BLINDED,
+    BOLT_LIM,
+    COLNO,
+    COULD_SEE,
     D_CLOSED,
     DOOR,
     DUST,
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
+    IN_SIGHT,
     LAVAPOOL,
     MON_FLOOR,
     MON_MIGRATING,
     POOL,
+    RLOC_MSG,
+    RLOC_NOMSG,
     ROOM,
+    ROWNO,
     STONE,
     STRAT_APPEARMSG,
 } from '../js/const.js';
@@ -64,6 +72,24 @@ function positionState() {
     objects_globals_init(state);
     state.level.flags.stasis_until = 0;
     return state;
+}
+
+// Set up a viz_array where every cell within `radius` squared distance of the
+// hero is visible (IN_SIGHT | COULD_SEE). Cells outside that radius have
+// neither bit set, so both cansee() and couldsee() return false for them.
+function setupVision(state, radiusSq = 10000) {
+    const vizArray = [];
+    for (let y = 0; y < ROWNO; ++y) {
+        const row = new Uint8Array(COLNO);
+        for (let x = 0; x < COLNO; ++x) {
+            const dx = x - state.u.ux;
+            const dy = y - state.u.uy;
+            const dist = dx * dx + dy * dy;
+            row[x] = dist <= radiusSq ? (IN_SIGHT | COULD_SEE) : 0;
+        }
+        vizArray.push(row);
+    }
+    state.viz_array = vizArray;
 }
 
 function boundsRandom(result = 0) {
@@ -467,12 +493,14 @@ test('rloc rejects carried shop state before its first destination draw', () => 
 
 test('rloc refuses each rloc_to_core tail state on its own', () => {
     // teleport.c rloc_to_core() ends with tails this port does not run: the
-    // ustuck unstick block (1690-1698), the appearance message the
-    // STRAT_APPEARMSG bit forces (1702-1731), `if (go.occupation) (void)
+    // ustuck unstick block (1690-1698), `if (go.occupation) (void)
     // dochugw(mtmp, FALSE);` (1761-1762) and mintrap() for a trapped monster
     // (1765-1766); a worm and a hidden monster reach maybe_unhide_at() and the
     // segment walk instead. Each is set alone, so a guard joining any two of
     // them would let that state through.
+    //
+    // STRAT_APPEARMSG is now admitted: the messaging block that reads it is
+    // ported.
     //
     // The occupation term names state.go.occupation, cmd.c set_occupation()'s
     // home for C's go.occupation. It used to name a bare state.occupation that
@@ -483,7 +511,6 @@ test('rloc refuses each rloc_to_core tail state on its own', () => {
         ['mtrapped', (mon) => { mon.mtrapped = 1; }],
         ['mundetected', (mon) => { mon.mundetected = 1; }],
         ['occupation', (mon, state) => { state.go.occupation = () => 0; }],
-        ['appearmsg', (mon) => { mon.mstrategy |= STRAT_APPEARMSG; }],
     ]) {
         const state = positionState();
         state.go = {};
@@ -589,6 +616,169 @@ test('rloc preflights live relocation operations before its first draw', () => {
     }), /random relocation without newsym/u);
     assert.equal(draws, 0);
     assert.equal(state.level.monsters[10][11], monster);
+});
+
+// C ref: teleport.c rloc_to_core() lines 1652-1732 -- messaging block.
+// The RLOC_MSG flag selects vanish/appear messages; the result depends
+// on whether the hero can spot the monster before and after the move.
+
+test('rloc with RLOC_MSG emits "vanishes!" when hero cannot see destination',
+    async () => {
+        // The hero sees the monster at its old position but not at the new
+        // one, so the pre-move "vanishes!" message fires and no appear
+        // message follows.
+        const state = positionState();
+        // Vision: hero at (10,10) can see adjacent cells (dist^2 <= 2).
+        // Monster at (10,11) (dist^2=1) is visible, but destination
+        // (12,9) (dist^2=5) is out of sight and out of couldsee range.
+        setupVision(state, 2);
+        const monster = newMonster({
+            data: state.mons[PM_SEWER_RAT],
+            mhp: 2,
+            mhpmax: 2,
+            m_id: 101,
+        });
+        state.level.at(10, 11).typ = ROOM;
+        state.level.at(12, 9).typ = ROOM;
+        place_monster(monster, 10, 11, state);
+
+        const messages = [];
+        const result = await rloc(monster, RLOC_MSG, {
+            state,
+            random: {
+                rnd() { return 12; },
+                rn2() { return 9; },
+            },
+            newsym: () => {},
+            onscary: () => false,
+            setApparxy: () => {},
+            message: async (msg) => { messages.push(msg); },
+        });
+
+        assert.equal(result, true);
+        assert.deepEqual([monster.mx, monster.my], [12, 9]);
+        assert.deepEqual(messages, ['The sewer rat vanishes!']);
+    });
+
+test('rloc with RLOC_MSG emits "vanishes and reappears" when hero sees both '
+    + 'squares', async () => {
+    // The hero can see the monster at both the old and new positions.
+    // The pre-move check sets telemsg, and the post-move check emits
+    // "vanishes and reappears" with a distance suffix.
+    const state = positionState();
+    // Vision: hero can see everything nearby.
+    setupVision(state);
+    const monster = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 2,
+        mhpmax: 2,
+        m_id: 102,
+    });
+    // Monster at (10,11), hero at (10,10). Both are close.
+    state.level.at(10, 11).typ = ROOM;
+    // Target at (11,10): dist2 = 1+0 = 1, next to hero.
+    state.level.at(11, 10).typ = ROOM;
+    place_monster(monster, 10, 11, state);
+
+    const messages = [];
+    const result = await rloc(monster, RLOC_MSG, {
+        state,
+        random: {
+            rnd() { return 11; },
+            rn2() { return 10; },
+        },
+        newsym: () => {},
+        onscary: () => false,
+        setApparxy: () => {},
+        message: async (msg) => { messages.push(msg); },
+    });
+
+    assert.equal(result, true);
+    assert.deepEqual([monster.mx, monster.my], [11, 10]);
+    assert.deepEqual(messages, [
+        'The sewer rat vanishes and reappears next to you.',
+    ]);
+});
+
+test('rloc with RLOC_NOMSG suppresses all messaging', async () => {
+    // RLOC_NOMSG sets preventmsg, which forces domsg to false.
+    const state = positionState();
+    const monster = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 2,
+        mhpmax: 2,
+        m_id: 103,
+    });
+    state.level.at(10, 11).typ = ROOM;
+    state.level.at(12, 9).typ = ROOM;
+    place_monster(monster, 10, 11, state);
+
+    const messages = [];
+    const result = rloc(monster, RLOC_NOMSG, {
+        state,
+        random: {
+            rnd() { return 12; },
+            rn2() { return 9; },
+        },
+        newsym: () => {},
+        onscary: () => false,
+        setApparxy: () => {},
+        message: async (msg) => { messages.push(msg); },
+    });
+
+    // RLOC_NOMSG path is synchronous -- returns a boolean, not a Promise.
+    assert.equal(result, true);
+    assert.deepEqual([monster.mx, monster.my], [12, 9]);
+    assert.deepEqual(messages, []);
+});
+
+test('rloc with STRAT_APPEARMSG emits "suddenly appears" for an unseen '
+    + 'monster', async () => {
+    // A monster with STRAT_APPEARMSG that the hero could not spot before
+    // the move: the pre-move canSpotMonster check fails (monster is
+    // invisible), so appearmsg stays true. After placement, the monster
+    // lands next to the hero and the "suddenly appears" message fires.
+    const state = positionState();
+    // Vision: hero can see everything nearby.
+    setupVision(state);
+    const monster = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 2,
+        mhpmax: 2,
+        m_id: 104,
+        mstrategy: STRAT_APPEARMSG,
+        // Make the monster invisible so canSpotMonster returns false
+        // before the move. After placement, the "appears" branch checks
+        // appearmsg, which was not cleared because canSpotMonster was
+        // false in the pre-move block.
+        minvis: true,
+    });
+    state.level.at(10, 11).typ = ROOM;
+    // Destination at (11,10), next to hero (10,10): dist2 = 1.
+    state.level.at(11, 10).typ = ROOM;
+    place_monster(monster, 10, 11, state);
+
+    const messages = [];
+    const result = await rloc(monster, 0, {
+        state,
+        random: {
+            rnd() { return 11; },
+            rn2() { return 10; },
+        },
+        newsym: () => {},
+        onscary: () => false,
+        setApparxy: () => {},
+        message: async (msg) => { messages.push(msg); },
+    });
+
+    assert.equal(result, true);
+    assert.deepEqual([monster.mx, monster.my], [11, 10]);
+    // STRAT_APPEARMSG cleared after the message fires.
+    assert.equal(monster.mstrategy & STRAT_APPEARMSG, 0);
+    assert.equal(messages.length, 1);
+    // The hero cannot see the monster but appearmsg is set, so the
+    // "suddenly appears" message fires.
+    assert.match(messages[0], /suddenly appears next to you!$/u);
 });
 
 // teleport.c rloc_to(), which is rloc_to_core() with RLOC_NOMSG. dog.c

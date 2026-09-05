@@ -115,7 +115,7 @@ import {
     thick_skinned,
     touch_petrifies,
 } from './mondata.js';
-import { monflee } from './monmove.js';
+import { monflee, onscary, set_apparxy } from './monmove.js';
 import { m_at } from './monst.js';
 import {
     AD_ACID,
@@ -1640,6 +1640,17 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
     if (mdef === state.youmonst) {
         // mhitu: monster seduces hero.
         const is_anml = is_animal(magr.data);
+        // C ref: teleport.c rloc() with RLOC_MSG. The rloc env threads the
+        // display and movement hooks that preflightOrdinaryRloc() requires
+        // alongside the attack env's message function.
+        const rlocEnv = {
+            state,
+            newsym,
+            onscary: (x, y, mon, normEnv) =>
+                onscary(x, y, mon, normEnv.state),
+            setApparxy: set_apparxy,
+            message,
+        };
 
         if (is_anml) {
             await hitmsg(magr, mattk, state, env);
@@ -1661,7 +1672,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
                 `${capitalizedMonsterName(magr, state)} ${bragMsg}.`, state,
             );
             if (!noteleport_level(magr, state))
-                await rloc(magr, RLOC_MSG, { state });
+                await rloc(magr, RLOC_MSG, rlocEnv);
             mhm.hitflags = M_ATTK_AGR_DONE;
             mhm.done = true;
             return;
@@ -1681,7 +1692,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             }
             if (rn2(3)) {
                 if (!noteleport_level(magr, state))
-                    await rloc(magr, RLOC_MSG, { state });
+                    await rloc(magr, RLOC_MSG, rlocEnv);
                 mhm.hitflags = M_ATTK_AGR_DONE;
                 mhm.done = true;
                 return;
@@ -1699,7 +1710,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             return;
         default:
             if (!is_anml && !noteleport_level(magr, state))
-                await rloc(magr, RLOC_MSG, { state });
+                await rloc(magr, RLOC_MSG, rlocEnv);
             if (is_anml) {
                 // Animal tried to run off with item; message handled
                 // if canseemon. Not ported: locomotion() message for animal.

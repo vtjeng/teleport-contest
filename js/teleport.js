@@ -46,6 +46,8 @@ import {
     NO_TRAP,
     OBJ_FREE,
     POOL,
+    RLOC_MSG,
+    RLOC_NOMSG,
     ROWNO,
     SLT_ENCUMBER,
     STONE,
@@ -86,6 +88,7 @@ import {
     u_on_newpos,
 } from './dungeon.js';
 import {
+    Amonnam,
     capitalizedMonsterName,
     monsterCommonName,
 } from './do_name.js';
@@ -146,7 +149,7 @@ import {
     S_MIMIC,
     S_VAMPIRE,
 } from './monsters.js';
-import { set_ustuck } from './mon.js';
+import { maybe_unhide_at, set_ustuck } from './mon.js';
 import { mksobj, sobj_at } from './obj.js';
 import {
     AMULET_OF_YENDOR,
@@ -245,23 +248,113 @@ function requiredRelocationOperation(env, name) {
     return operation;
 }
 
-function finishRandomRelocation(monster, x, y, env) {
-    const oldX = monster.mx;
-    const oldY = monster.my;
-    if (x === oldX && y === oldY && m_at(x, y, env.state) === monster)
-        return true;
-
-    // teleport.c rloc_to_core(), bounded ordinary-monster path. Redraw the
-    // emptied square before track clearing, placement, and region-cache
-    // updates; the destination redraw and apparent-position update come last.
+// C ref: teleport.c rloc_to_core() relocation without messaging. Redraws the
+// emptied square before track clearing, placement, and region-cache updates;
+// the destination redraw and apparent-position update come last.
+function relocateMonsterCore(monster, x, y, oldX, oldY, env) {
     remove_monster(oldX, oldY, env.state);
     env.newsym(oldX, oldY, env);
     mon_track_clear(monster);
     place_monster(monster, x, y, env.state);
     update_monster_region(monster, env.state);
+    maybe_unhide_at(x, y, env.state);
     env.newsym(x, y, env);
     env.setApparxy(monster, env);
+}
+
+// C ref: teleport.c rloc_to_core() lines 1652-1732, messaging block.
+// Computes vanishmsg/appearmsg/domsg from rlocflags and mstrategy, emits
+// vanish/appear messages around the relocation. Returns a Promise<boolean>.
+async function relocateWithMessages(monster, x, y, oldX, oldY, appearmsgInit,
+    env) {
+    const { state } = env;
+    const message = env.message ?? ttyPline;
+    let appearmsg = appearmsgInit;
+    let telemsg = false;
+
+    // C ref: teleport.c:1662-1672 -- pre-move message
+    if (canSpotMonster(monster, state)) {
+        if (couldsee(x, y, state) || sensesMonster(monster, state)) {
+            telemsg = true;
+        } else {
+            await message(
+                `${capitalizedMonsterName(monster, state)} vanishes!`,
+                state,
+            );
+        }
+        // "avoid 'It suddenly appears!' for a STRAT_APPEARMSG monster
+        //  that has just teleported away if we won't see it after this
+        //  vanishing (the regular appears message will be given if we
+        //  do see it)"
+        appearmsg = false;
+    }
+
+    relocateMonsterCore(monster, x, y, oldX, oldY, env);
+
+    // C ref: teleport.c:1703-1726 -- post-placement messaging.
+    // The u.ustuck condition and its "You and <monster> teleport together."
+    // branch are omitted: preflightOrdinaryRloc() refuses ustuck monsters.
+    if (canSpotMonster(monster, state) || appearmsg) {
+        const du = dist2(x, y, state.u.ux, state.u.uy);
+        const next = du <= 2 ? ' next to you' : null;
+        const nearu = du <= BOLT_LIM * BOLT_LIM ? ' close by' : null;
+
+        monster.mstrategy &= ~STRAT_APPEARMSG;
+        if (telemsg
+            && (couldsee(x, y, state) || sensesMonster(monster, state))) {
+            const olddu = dist2(oldX, oldY, state.u.ux, state.u.uy);
+            await message(
+                `${capitalizedMonsterName(monster, state)}`
+                + ' vanishes and reappears'
+                + `${next ?? nearu
+                    ?? (olddu === du ? ''
+                        : du < olddu ? ' closer to you'
+                        : ' farther away')}.`,
+                state,
+            );
+        } else {
+            const name = appearmsg
+                ? Amonnam(monster, { state })
+                : capitalizedMonsterName(monster, state);
+            await message(
+                `${name} `
+                + `${appearmsg ? 'suddenly ' : ''}`
+                + `${heroBlind(state) ? 'arrives' : 'appears'}`
+                + `${next ?? nearu ?? ''}!`,
+                state,
+            );
+        }
+        // C ref: teleport.c:1730-1731 -- wand discovery. Deferred: the
+        // witness path reaches rloc via seduction steal, not wand zap, so
+        // gc.current_wand is null here.
+    }
+
     return true;
+}
+
+// C ref: teleport.c rloc_to_core(), bounded ordinary-monster relocation path.
+// Returns true synchronously when no messaging is needed (rlocflags=0 and no
+// STRAT_APPEARMSG). Returns a Promise<true> when messaging fires.
+function finishRandomRelocation(monster, x, y, env) {
+    const { state } = env;
+    const oldX = monster.mx;
+    const oldY = monster.my;
+    if (x === oldX && y === oldY && m_at(x, y, state) === monster)
+        return true;
+
+    // C ref: teleport.c rloc_to_core() lines 1652-1656, messaging flags.
+    const rlocflags = env.rlocflags ?? 0;
+    const preventmsg = (rlocflags & RLOC_NOMSG) !== 0;
+    const vanishmsg = (rlocflags & RLOC_MSG) !== 0;
+    const appearmsg = Boolean(monster.mstrategy & STRAT_APPEARMSG);
+    const domsg = !state.in_mklev && (vanishmsg || appearmsg) && !preventmsg;
+
+    if (!domsg) {
+        relocateMonsterCore(monster, x, y, oldX, oldY, env);
+        return true;
+    }
+
+    return relocateWithMessages(monster, x, y, oldX, oldY, appearmsg, env);
 }
 
 function preflightOrdinaryRloc(monster, rlocflags, rawEnv) {
@@ -270,8 +363,6 @@ function preflightOrdinaryRloc(monster, rlocflags, rawEnv) {
     const env = teleportEnv(rawEnv);
     if (typeof env.random.rnd !== 'function')
         throw new TypeError('rloc random injection requires rnd');
-    if (rlocflags)
-        throw new UnsupportedPositionCheckError('random relocation flags');
     if (monster === env.state.u?.usteed) {
         throw new UnsupportedPositionCheckError(
             'steed random relocation',
@@ -317,14 +408,14 @@ function preflightOrdinaryRloc(monster, rlocflags, rawEnv) {
         || monster === env.state.u?.ustuck
         || monster.mtrapped
         || monster.mundetected
-        || env.state.go?.occupation
-        || (monster.mstrategy & STRAT_APPEARMSG)) {
+        || env.state.go?.occupation) {
         throw new UnsupportedPositionCheckError(
             'extended rloc_to_core side effects',
         );
     }
     return {
         ...env,
+        rlocflags,
         newsym: requiredRelocationOperation(env, 'newsym'),
         onscary: requiredRelocationOperation(env, 'onscary'),
         setApparxy: requiredRelocationOperation(env, 'setApparxy'),
@@ -611,7 +702,7 @@ export async function mtele_trap(
             );
         }
     } else {
-        rloc(monster, 0, env);
+        await rloc(monster, 0, env);
     }
 
     if (inSight) {
