@@ -6253,6 +6253,16 @@
       "from": "ca79c78b91918929c6f026d2c91257bc7a452856",
       "detail": "Vault guard (`isgd` monster) movement is unported.\n`js/unported_monster_actions.js:333` refuses every monster with `isgd` set.\nIn the witness session `seed0012-monk-vault-escort`, the hero drops gold in\na vault at step 285. The drop now proceeds (after narrowing the shop guard\nto `costly_spot()`), but the end-of-turn monster scan hits the vault guard's\n`isgd` flag and throws `UnsupportedTurnBoundaryError`. The screen from the\ndrop is never captured because `advanceElapsedTurn()` runs before\n`bot()`/`flush_screen()` in `moveloop_core()`.\n\nPorting the vault guard movement requires `gd_move()` in `vault.c`.",
       "blockedOn": "gd_move"
+    },
+    {
+      "id": "mhitm-ad-cold-fresh-differential",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "252d5c9edf3e214e43b85d2a9a145747380deaf8",
+      "detail": "Fresh C differential for mhitm_ad_cold cannot be produced at present.\n\nAD_COLD monsters (mumak, lich) do not appear naturally at early dungeon\nlevels -- scanned 5000+ seeds without finding one. Debug-created liches\nnever attack the hero because distfleeck() in monmove.c:538 is unported,\nso the lich's movement AI prevents it from closing to melee range.\n\nThe mhitu path is validated by three unit tests (non-resistant hero,\nresistant hero, magic-cancellation negation) and by RNG-call matching\nin session seed0383 at steps 179-180. Closing condition: either port\ndistfleeck() so debug liches attack, or find a seed where an AD_COLD\nmonster appears naturally.",
+      "blockedOn": "distfleeck"
     }
   ],
   "areas": [
