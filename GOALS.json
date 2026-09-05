@@ -8956,6 +8956,35 @@
         "screens": 2,
         "rng": 34
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-23",
+      "status": "open",
+      "boundary": "unsupported hero command: an unported branch of this command: the object prompt requires display_pickinv() with a letter subset",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 30,
+        "basis": "capped at session seed0012-monk-vault-escort stretch of 30, capStable True",
+        "sessions": [
+          "seed0012-monk-vault-escort"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0012-monk-vault-escort",
+            "evidence": "Segment 0 (seed 12, datetime 20260503045501, DECgraphics). At step 278, the hero types 'a' (apply/doapply), then '?' at the object prompt. C path: cmd.c 'a' -> apply.c doapply() -> getobj('use or apply', apply_ok, GETOBJ_NOFLAGS) -> invent.c getobj() '?' redo_menu -> display_pickinv(allowed_choices, handsbuf, menuquery, allownone, TRUE, ...). The JS port's getobj() at js/invent.js:820-823 only allows this branch for word='read' or word='throw'; for 'use or apply' it throws UnsupportedObjectPromptError."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "0e182c6f3bc03585b36b6373a87eadcda3bbcf13",
+      "openStanding": {
+        "sha": "8749ab26",
+        "screens": 4554,
+        "rng": 316417
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
