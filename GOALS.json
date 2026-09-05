@@ -9149,7 +9149,7 @@
     },
     {
       "id": "unsupported-initial-level-monster-creation-monster-275",
-      "status": "open",
+      "status": "closed",
       "boundary": "monster type PM_ALIGNED_CLERIC (275) requested during TEMPLE room creation on levels below depth 8; allowlist in assertSupportedSpecies() blocks it",
       "upstreamOwners": [],
       "forecast": {
@@ -9169,8 +9169,8 @@
       "slices": [
         {
           "name": "add PM_ALIGNED_CLERIC to initial-level monster allowlist",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d33075fc5834607789c6c7aadcac6302d63b7c8f"
         }
       ],
       "openedAt": "086c2855e8b54b5542da3b30f6c40abac50079f0",
@@ -9179,8 +9179,11 @@
         "screens": 4583,
         "rng": 317083
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "d33075fc5834607789c6c7aadcac6302d63b7c8f",
+      "delivered": {
+        "screens": 12,
+        "rng": 6393
+      }
     }
   ]
 }
