@@ -8959,7 +8959,7 @@
     },
     {
       "id": "unsupported-hero-command-an-unported-branch-of-this-comm-23",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported hero command: an unported branch of this command: the object prompt requires display_pickinv() with a letter subset",
       "upstreamOwners": [],
       "forecast": {
@@ -8979,8 +8979,8 @@
       "slices": [
         {
           "name": "generalize-getobj-menu-branches",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "269925c8bdcec90b6c543ffff33dc945b525c95d"
         }
       ],
       "openedAt": "0e182c6f3bc03585b36b6373a87eadcda3bbcf13",
@@ -8989,8 +8989,11 @@
         "screens": 4554,
         "rng": 316417
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "269925c8bdcec90b6c543ffff33dc945b525c95d",
+      "delivered": {
+        "screens": 6,
+        "rng": 33
+      }
     }
   ]
 }
