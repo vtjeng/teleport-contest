@@ -9073,7 +9073,7 @@
     },
     {
       "id": "simple-monster-action-requires-special-monster-movement",
-      "status": "open",
+      "status": "closed",
       "boundary": "simple monster action requires special monster movement",
       "upstreamOwners": [],
       "forecast": {
@@ -9093,8 +9093,8 @@
       "slices": [
         {
           "name": "port-gd_move-peaceful-escort",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "6be412920bb5a27fbfd690d6c22255a7e4ead38f"
         }
       ],
       "openedAt": "567dba968a28436b2ed584fc3d8b6eaa81b26686",
@@ -9103,8 +9103,11 @@
         "screens": 4560,
         "rng": 316450
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "6be412920bb5a27fbfd690d6c22255a7e4ead38f",
+      "delivered": {
+        "screens": 23,
+        "rng": 486
+      }
     }
   ]
 }
