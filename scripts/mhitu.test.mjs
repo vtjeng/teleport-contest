@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     BEAR_TRAP,
     BLINDED,
+    COLD_RES,
     CONFLICT,
     CQ_CANNED,
     DETECT_MONSTERS,
@@ -12,6 +13,7 @@ import {
     M_ATTK_HIT,
     M_ATTK_MISS,
     M_SEEN_ACID,
+    M_SEEN_COLD,
     M_SEEN_FIRE,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
@@ -118,7 +120,7 @@ import {
     SILVER_DAGGER,
     objects_globals_init,
 } from '../js/objects.js';
-import { mhitm_ad_phys } from '../js/uhitm.js';
+import { mhitm_ad_cold, mhitm_ad_phys } from '../js/uhitm.js';
 import { UnsupportedSimpleMonsterActionError }
     from '../js/unported_monster_actions.js';
 
@@ -2418,4 +2420,127 @@ test('ranged_attk_available rolls a random breath and keeps looking', () => {
         true,
     );
     assert.deepEqual(bounds, [8]);
+});
+
+// ---- uhitm.c mhitm_ad_cold() ----
+
+// Helper for cold-attack tests. Captures messages, scripts rn2/rnd, and
+// provides the operations mhitm_ad_cold needs.
+function coldEnv(state, rn2Answers, rndAnswers = []) {
+    const lines = [];
+    const bounds = [];
+    const rn2Script = [...rn2Answers];
+    const rndScript = [...rndAnswers];
+    return {
+        lines,
+        bounds,
+        env: {
+            state,
+            random: {
+                rn2: (bound) => {
+                    bounds.push(`rn2(${bound})`);
+                    const val = rn2Script.shift();
+                    if (val === undefined) assert.fail(`unscripted rn2(${bound})`);
+                    return val;
+                },
+                rnd: (bound) => {
+                    bounds.push(`rnd(${bound})`);
+                    const val = rndScript.shift();
+                    if (val === undefined) assert.fail(`unscripted rnd(${bound})`);
+                    return val;
+                },
+            },
+            message: async (text) => { lines.push(text); },
+            unsupported: (reason) => {
+                throw new UnsupportedSimpleMonsterActionError(reason);
+            },
+            redraw: () => {},
+        },
+    };
+}
+
+test('mhitm_ad_cold prints frost and preserves damage for a non-resistant hero',
+    async () => {
+    // C ref: uhitm.c:2648-2663. When Cold_resistance is absent, the attack
+    // prints its message but does not zero the damage, and monstunseesu()
+    // clears the cold-seen bit on every monster that can see the hero.
+    const state = await meleeHero();
+    // Valkyrie starts with intrinsic cold resistance; clear it for this test.
+    if (state.u.uprops?.[COLD_RES])
+        state.u.uprops[COLD_RES].intrinsic = 0;
+    const lich = meleeAttacker(state, PM_LICH, 1, 0);
+    const mattk = lich.data.mattk[0]; // AT_TUCH, AD_COLD, 1, 10
+    assert.equal(mattk.adtyp, AD_COLD, 'lich touch is cold');
+
+    // Seed the attacker's seen_resistance with M_SEEN_COLD so we can
+    // observe monstunseesu clearing it.
+    lich.seen_resistance = M_SEEN_COLD;
+
+    const mhm = { damage: 5 };
+    // rn2(10): magic negation roll -- 1 >= 0 is true, so not negated
+    // rn2(20): destroy_items level check -- lich m_lev=11 > 20 is false
+    //          (we make rn2(20) return 20, so 11 > 20 is false, skip destroy)
+    const { lines, bounds, env } = coldEnv(state, [1, 20]);
+    await mhitm_ad_cold(lich, mattk, state.youmonst, mhm, state, env);
+
+    assert.deepEqual(lines, [
+        'The lich touches you!',       // hitmsg
+        "You're covered in frost!",    // frost message
+    ]);
+    assert.equal(mhm.damage, 5, 'damage preserved without resistance');
+    assert.deepEqual(bounds, ['rn2(10)', 'rn2(20)']);
+    // monstunseesu(M_SEEN_COLD) should have cleared the bit.
+    assert.equal(lich.seen_resistance & M_SEEN_COLD, 0,
+        'monstunseesu clears M_SEEN_COLD');
+});
+
+test('mhitm_ad_cold zeros damage and records resistance for a cold-resistant hero',
+    async () => {
+    // C ref: uhitm.c:2653-2657. Cold_resistance zeroes mhm.damage and prints
+    // the "frost doesn't seem cold" line; monstseesu() sets M_SEEN_COLD on
+    // every monster that can see the hero.
+    const state = await meleeHero();
+    // Give the hero cold resistance via intrinsic.
+    if (!state.u.uprops) state.u.uprops = [];
+    if (!state.u.uprops[COLD_RES]) state.u.uprops[COLD_RES] = {};
+    state.u.uprops[COLD_RES].intrinsic = 1;
+
+    const lich = meleeAttacker(state, PM_LICH, 1, 0);
+    const mattk = lich.data.mattk[0];
+    lich.seen_resistance = 0;
+
+    const mhm = { damage: 5 };
+    // rn2(10): magic negation -- not negated
+    // rn2(20): destroy_items level check -- 11 > 20? no
+    const { lines, bounds, env } = coldEnv(state, [1, 20]);
+    await mhitm_ad_cold(lich, mattk, state.youmonst, mhm, state, env);
+
+    assert.deepEqual(lines, [
+        'The lich touches you!',
+        "You're covered in frost!",
+        "The frost doesn't seem cold!",
+    ]);
+    assert.equal(mhm.damage, 0, 'damage zeroed by Cold_resistance');
+    assert.deepEqual(bounds, ['rn2(10)', 'rn2(20)']);
+    // monstseesu(M_SEEN_COLD) should have set the bit.
+    assert.ok(lich.seen_resistance & M_SEEN_COLD,
+        'monstseesu sets M_SEEN_COLD');
+});
+
+test('mhitm_ad_cold zeros damage when magic cancellation negates the attack',
+    async () => {
+    // C ref: uhitm.c:2651+2663. When mhitm_mgc_atk_negated returns true, the
+    // else branch sets damage to 0 with no frost message.
+    const state = await meleeHero();
+    const lich = meleeAttacker(state, PM_LICH, 1, 0);
+    const mattk = lich.data.mattk[0];
+
+    // A cancelled attacker is turned aside before the negation roll.
+    lich.mcan = 1;
+    const mhm = { damage: 5 };
+    const { lines, env } = coldEnv(state, []);
+    await mhitm_ad_cold(lich, mattk, state.youmonst, mhm, state, env);
+
+    assert.deepEqual(lines, ['The lich touches you!']);
+    assert.equal(mhm.damage, 0, 'damage zeroed by cancellation');
 });

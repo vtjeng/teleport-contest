@@ -565,21 +565,37 @@ test('the mult chain names each of its five counts', async () => {
     }
 });
 
-test('the AD_COLD and AD_ELEC cases stop by name', async () => {
-    await initializedGame(982439, 'HeroColdElec');
+test('a cold attack freezes and shatters a carried potion', async () => {
+    // C ref: zap.c:5820-5824. AD_COLD sets dindx=0 (destroy_strings[0] is the
+    // "freezes and shatters" row) and draws rnd(4) for damage. The hero takes
+    // that damage via losehp() even if Cold_resistance blocks the attack's own
+    // damage, because xresist is never set for AD_COLD.
+    await initializedGame(982439, 'HeroCold');
     emptyPack();
     discover_object(POT_BOOZE, true, true, false, game);
     carriedByHero(POT_BOOZE, 1);
-    // Only the AD_FIRE case is ported. destroyable() admits a non-oil potion
-    // under AD_COLD, so the stack reaches maybe_destroy_item() and stops there
-    // rather than freezing silently.
-    await assert.rejects(
-        () => destroy_items(game.youmonst, AD_COLD, 5, {
-            random: scriptedRandom([[5, 4]], []),
-            state: game,
-        }),
-        /the AD_COLD case/u,
+    game.u.uhp = 30;
+    game.u.uhpmax = 30;
+    clearTopline();
+    const drawn = [];
+    // rn2(5): limit check (5%5=0 > 4 => false, limit=1)
+    // rnd(4): damage from shattered potion => 2
+    // rn2(3): destruction roll => 0 means the potion shatters
+    // rn2(2): exercise(A_STR, false) roll
+    const script = [[5, 4], [4, 2], [3, 0], [2, 1]];
+    await destroy_items(game.youmonst, AD_COLD, 5, {
+        random: scriptedRandom(script, drawn),
+        state: game,
+    });
+    assert.equal(
+        toplines(), 'Your potion of booze freezes and shatters!',
     );
+    assert.equal(game.u.uhp, 30 - 2, 'hero takes rnd(4) shattered-potion damage');
+    assert.equal(game.invent, null, 'the potion was removed from inventory');
+    assert.equal(script.length, 0, 'all scripted draws consumed');
+});
+
+test('the AD_ELEC case stops by name', async () => {
     await initializedGame(982440, 'HeroElec');
     emptyPack();
     carriedByHero(WAN_NOTHING, 1);

@@ -280,9 +280,14 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
         }
         break;
     case AD_COLD:
-        throw new UnsupportedItemDestructionError(
-            'the AD_COLD case, over rnd(4) and a shattered potion',
-        );
+        // C ref: zap.c:5820-5824. Cold shatters potions (except oil, which
+        // destroyable() already excludes). No xresist is set: the hero always
+        // takes the shattered-potion damage even if Cold_resistance blocks the
+        // attack's own damage.
+        quan = Math.trunc(obj.quan);
+        dindx = 0;
+        dmg = random.rnd(4);
+        break;
     case AD_ELEC:
         throw new UnsupportedItemDestructionError(
             'the AD_ELEC case, over recharge(), Ring_gone() and rnd(10)',

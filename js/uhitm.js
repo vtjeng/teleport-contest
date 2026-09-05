@@ -25,6 +25,7 @@ import {
     M_ATTK_AGR_DONE,
     M_ATTK_HIT,
     RLOC_MSG,
+    M_SEEN_COLD,
     M_SEEN_ELEC,
     NATTK,
     P_BARE_HANDED_COMBAT,
@@ -107,6 +108,7 @@ import {
     mon_hates_silver,
     hates_silver,
     monsndx,
+    monstseesu,
     monstunseesu,
     noncorporeal,
     sticks,
@@ -245,7 +247,8 @@ import { steal } from './steal.js';
 import { noteleport_level, rloc } from './teleport.js';
 import { is_pool } from './trap.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
-import { exclam } from './zap.js';
+import { destroy_items } from './zap_destroy_items.js';
+import { Cold_resistance, exclam } from './zap.js';
 
 function intrinsicProperty(hero, index) {
     return Boolean(hero?.uprops?.[index]?.intrinsic);
@@ -1712,6 +1715,52 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
     unsupported('uhitm.c mhitm_ad_sedu() mhitm arm');
 }
 
+// C ref: uhitm.c mhitm_ad_cold() (2625-2681). A cold-damage attack across
+// all three combat directions. The mhitu arm (monster attacks hero) is fully
+// ported: it prints hitmsg, checks magic cancellation, reports frost,
+// applies Cold_resistance, and may call destroy_items(AD_COLD) on the hero's
+// inventory when the attacker's level beats rn2(20). The uhitm (hero attacks
+// monster) and mhitm (monster attacks monster) arms use unsupported().
+export async function mhitm_ad_cold(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2 };
+    const message = requireAttackOperation(env, 'message');
+    const unsupported = requireAttackOperation(env, 'unsupported');
+    const orig_dmg = mhm.damage;
+
+    if (magr === state.youmonst) {
+        /* uhitm */
+        unsupported("the hero's own cold attack");
+    } else if (mdef === state.youmonst) {
+        /* mhitu */
+        await hitmsg(magr, mattk, state, env);
+        if (!await mhitm_mgc_atk_negated(magr, mdef, true, state, env)) {
+            await message("You're covered in frost!", state);
+            if (Cold_resistance(state)) {
+                await message("The frost doesn't seem cold!", state);
+                monstseesu(M_SEEN_COLD, state);
+                mhm.damage = 0;
+            } else {
+                monstunseesu(M_SEEN_COLD, state);
+            }
+            if (magr.m_lev > random.rn2(20)) {
+                await destroy_items(state.youmonst, AD_COLD, orig_dmg, env);
+            }
+        } else {
+            mhm.damage = 0;
+        }
+    } else {
+        /* mhitm */
+        unsupported('one monster freezing another');
+    }
+}
+
 // C ref: uhitm.c mhitm_ad_elec() (2683-2739), the `mdef == &gy.youmonst` arm.
 // A shock attack landing on the hero: the attack's own message, the magic
 // cancellation test, and the item destruction a high-level attacker adds.
@@ -2024,7 +2073,9 @@ export async function mhitm_adtyping(
         await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
         break;
     case AD_FIRE: unported('mhitm_ad_fire'); break;
-    case AD_COLD: unported('mhitm_ad_cold'); break;
+    case AD_COLD:
+        await mhitm_ad_cold(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_ELEC:
         await mhitm_ad_elec(magr, mattk, mdef, mhm, state, env);
         break;
