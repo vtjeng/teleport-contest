@@ -6263,6 +6263,15 @@
       "from": "252d5c9edf3e214e43b85d2a9a145747380deaf8",
       "detail": "Fresh C differential for mhitm_ad_cold cannot be produced at present.\n\nAD_COLD monsters (mumak, lich) do not appear naturally at early dungeon\nlevels -- scanned 5000+ seeds without finding one. Debug-created liches\nnever attack the hero because distfleeck() in monmove.c:538 is unported,\nso the lich's movement AI prevents it from closing to melee range.\n\nThe mhitu path is validated by three unit tests (non-resistant hero,\nresistant hero, magic-cancellation negation) and by RNG-call matching\nin session seed0383 at steps 179-180. Closing condition: either port\ndistfleeck() so debug liches attack, or find a seed where an AD_COLD\nmonster appears naturally.",
       "blockedOn": "distfleeck"
+    },
+    {
+      "id": "rloc-wand-discovery",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "4ae38c748ab7fa468216f020c563fbf997b29e3c",
+      "detail": "current_wand/makeknown(WAN_TELEPORTATION) at teleport.c:1730-1731 deferred: the witness path reaches rloc via seduction steal, not wand zap, so gc.current_wand is null. The wand-discovery arm identifies the teleportation wand when the hero sees a monster vanish from a zapped wand, which requires WAN_TELEPORTATION zapping to be ported first."
     }
   ],
   "areas": [
