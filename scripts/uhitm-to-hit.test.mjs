@@ -1199,11 +1199,9 @@ test('attack_checks mimic branch calls stumble_onto_mimic and returns true',
         game.bhitpos = { x: mimic.mx, y: mimic.my };
 
         const messages = [];
-        let wokenUp = false;
         const env = {
             unsupported(reason) { throw new Error(reason); },
             message(msg) { messages.push(msg); },
-            wakeupMonster() { wokenUp = true; },
         };
 
         const result = await attack_checks(mimic, game.uwep, game, env);
@@ -1220,6 +1218,9 @@ test('attack_checks mimic branch calls stumble_onto_mimic and returns true',
         // seemimic clears the appearance.
         assert.equal(M_AP_TYPE(mimic), 0,
             'seemimic should have cleared the appearance');
+        // stumble_onto_mimic wakes the mimic via wakeup().
+        assert.equal(mimic.msleeping, 0,
+            'mimic should be awake after stumble_onto_mimic');
     });
 
 // C ref: uhitm.c:260-263. A mimic where the glyph is an invisible-monster
@@ -1276,4 +1277,7 @@ test('attack_checks wakes a sensed disguised monster and allows attack',
         assert.equal(result, false);
         // mundetected should have been cleared.
         assert.equal(mimic.mundetected, 0);
+        // wakeup() clears the disguise (m_ap_type reset to 0).
+        assert.equal(M_AP_TYPE(mimic), 0,
+            'disguise should be cleared after waking a sensed monster');
     });

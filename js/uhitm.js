@@ -332,7 +332,7 @@ export async function mhitm_mgc_atk_negated(
 // object, monster, blind) choose the format string, and four what-branches
 // (invisible, M_AP_MONSTER, sleeping S_MIMIC, default) choose the substitute.
 // `mimic_flags` carries MIM_REVEAL and MIM_OMIT_WAIT.
-function that_is_a_mimic(mtmp, mimic_flags, state = game, env = {}) {
+async function that_is_a_mimic(mtmp, mimic_flags, state = game, env = {}) {
     const S_trapped_chest = 73; // defsym.h PCHAR 73
     const reveal_it = (mimic_flags & MIM_REVEAL) !== 0;
     const omit_wait = (mimic_flags & 2 /* MIM_OMIT_WAIT */) !== 0;
@@ -401,7 +401,7 @@ function that_is_a_mimic(mtmp, mimic_flags, state = game, env = {}) {
 
     if (what) {
         const i = (omit_wait && fmtbuf.startsWith('Wait!  ')) ? 7 : 0;
-        env.pline?.(fmtbuf.substring(i).replace('%s', what), state);
+        await env.pline?.(fmtbuf.substring(i).replace('%s', what), state);
     }
     if (reveal_it)
         seemimic(mtmp, state);
@@ -412,7 +412,7 @@ function that_is_a_mimic(mtmp, mimic_flags, state = game, env = {}) {
 // message, optionally sticks the hero, wakes the mimic, and marks the square
 // invisible if the hero still cannot spot it.
 async function stumble_onto_mimic(mtmp, state = game, env = {}) {
-    that_is_a_mimic(mtmp, MIM_REVEAL, state, env);
+    await that_is_a_mimic(mtmp, MIM_REVEAL, state, env);
 
     if (!state.u.ustuck && !mtmp.mflee && dmgtype(mtmp.data, AD_STCK)
         && m_next2u(mtmp, state)) {

@@ -52,7 +52,7 @@ import { del_engr_at } from './engrave.js';
 import { mungspaces } from './fruit.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
-import { money_cnt } from './invent.js';
+import { money_cnt, obj_extract_self, obfree } from './invent.js';
 import { set_malign } from './makemon.js';
 import { mongone } from './makemon_create.js';
 import { gender, is_silent, sticks } from './mondata.js';
@@ -66,8 +66,8 @@ import {
 } from './do_name.js';
 import { makeplural } from './fruit.js';
 import { adjalign } from './attrib.js';
-import { g_at, sobj_at, hasContents } from './obj.js';
-import { BOULDER } from './objects.js';
+import { carried, g_at, sobj_at, hasContents } from './obj.js';
+import { BOULDER, ROCK } from './objects.js';
 import { in_rooms } from './rooms.js';
 import { contained_gold } from './shk.js';
 import { rloc } from './teleport.js';
@@ -206,7 +206,7 @@ function clear_fcorr(grd, forceshow, state, env) {
         if ((state.u.ux === fcx && state.u.uy === fcy && grd.mhp >= 1)
             || (!forceshow && couldsee(fcx, fcy, state))
             || (state.u.uprops?.punished?.intrinsic
-                && state.u.uball && !state.u.uball.owornmask
+                && state.u.uball && !carried(state.u.uball)
                 && state.u.uball.ox === fcx && state.u.uball.oy === fcy)) {
             return false;
         }
@@ -304,7 +304,7 @@ function wallify_vault(grd, state, env) {
 
             const lev = state.level.at(x, y);
             if ((!IS_WALL(lev.typ) || g_at(x, y, state)
-                || sobj_at(BOULDER, x, y, state))
+                || sobj_at(ROCK, x, y, state) || sobj_at(BOULDER, x, y, state))
                 && !in_fcorridor(grd, x, y)) {
 
                 // Monster at wall position: relocate or throw
@@ -323,11 +323,17 @@ function wallify_vault(grd, state, env) {
                         'wallify_vault() move_gold into vault',
                     );
                 }
-                // Rocks/boulders: not exercised by witness
-                if (sobj_at(BOULDER, x, y, state)) {
-                    throw new UnsupportedVaultGuardError(
-                        'wallify_vault() destroying rocks/boulders at wall',
-                    );
+                // Destroy rocks and boulders (subsume them into the walls);
+                // other objects present stay intact and become embedded.
+                // C ref: vault.c lines 682-689.
+                let rocks;
+                while ((rocks = sobj_at(ROCK, x, y, state)) != null) {
+                    obj_extract_self(rocks);
+                    obfree(rocks);
+                }
+                while ((rocks = sobj_at(BOULDER, x, y, state)) != null) {
+                    obj_extract_self(rocks);
+                    obfree(rocks);
                 }
                 const trap = t_at(x, y, state);
                 if (trap) deltrap(trap, state);
@@ -626,7 +632,7 @@ export async function gd_move(grd, env = {}) {
                     del_engr_at(nx, ny, state);
                     // goto proceed — continue to movement below
                     return gd_move_proceed(
-                        grd, x, y, nx, ny, crm.typ, semi_dead, true, state, gdEnv,
+                        grd, x, y, nx, ny, typ, semi_dead, true, state, gdEnv,
                     );
                 }
             }

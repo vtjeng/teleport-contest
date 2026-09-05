@@ -156,10 +156,9 @@ test('gd_move triggers cleanup for a dead guard (semi_dead)', async () => {
         random: fixedRng([]),
         message: msg,
     });
-    // gd_move_cleanup returns -2 for a dead guard that is not visible to the
-    // hero (vault.c:865).
-    assert.ok(result === 1 || result === -2,
-        `dead guard cleanup should return 1 or -2, got ${result}`);
+    // gd_move_cleanup returns -2 for a dead guard: semi_dead is true so
+    // the (!semi_dead && ...) branch at vault.c:863 is skipped (vault.c:865).
+    assert.equal(result, -2);
     assert.equal(egrd.gddone, 1,
         'gddone should be set to 1 for a dead guard');
 

@@ -88,21 +88,15 @@ test('pick_nasty substitutes master mind flayer with mind flayer at difcap', () 
 
 test('pick_nasty with difcap 0 does no difficulty filtering', () => {
     const state = monsterState();
-    // difcap=0 means no cap. Arch-lich should pass through.
-    const archLichIndex = NASTIES.indexOf(M.PM_ARCH_LICH);
-    const random = fakeRandom([archLichIndex]);
+    // difcap=0 means the difficulty guard (difcap > 0 && diff >= difcap) is
+    // false, so high-difficulty monsters pass through unsubstituted.
+    // Purple worm has difficulty 17 (would be capped at any difcap <= 17)
+    // and no G_HELL/G_NOHELL flag, so it is returned unchanged.
+    const purpleWormIndex = NASTIES.indexOf(M.PM_PURPLE_WORM); // index 5
+    const random = fakeRandom([purpleWormIndex]);
     const result = pick_nasty(0, { random, state });
-    // Still might be filtered by G_HELL/G_NOHELL, but arch-lich is G_HELL
-    // and we're not in hell, so it gets substituted for that reason.
-    // Actually let me check: arch-lich has G_HELL flag?
-    // If yes, since we're not in hell, the G_HELL filter triggers.
-    const hasHellFlag = (state.mons[M.PM_ARCH_LICH].geno & M.G_HELL) !== 0;
-    if (hasHellFlag) {
-        // big_to_little demotes to master lich.
-        assert.equal(result, M.PM_MASTER_LICH);
-    } else {
-        assert.equal(result, M.PM_ARCH_LICH);
-    }
+    assert.equal(result, M.PM_PURPLE_WORM,
+        'purple worm (diff 17, no hell flag) should pass through when difcap is 0');
 });
 
 test('nasties table has 44 entries matching C source', () => {
