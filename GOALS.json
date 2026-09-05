@@ -8976,7 +8976,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "generalize-getobj-menu-branches",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "0e182c6f3bc03585b36b6373a87eadcda3bbcf13",
       "openStanding": {
         "sha": "8749ab26",

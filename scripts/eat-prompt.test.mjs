@@ -23,7 +23,7 @@ import { game } from '../js/gstate.js';
 import { near_capacity, weight_cap } from '../js/hack.js';
 import { _getobjInternals, getobj } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_RUST_MONSTER, monst_globals_init } from '../js/monsters.js';
+import { PM_HUMAN, PM_RUST_MONSTER, monst_globals_init } from '../js/monsters.js';
 import {
     AMULET_OF_YENDOR,
     BELL_OF_OPENING,
@@ -43,7 +43,7 @@ import {
     loadEatPromptRecipe,
 } from './run-eat-prompt.mjs';
 
-const { compactify, invletter_value } = _getobjInternals;
+const { compactify, getobj_hands_txt, invletter_value } = _getobjInternals;
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -154,6 +154,60 @@ function catalogState() {
     return state;
 }
 
+// catalogState() with the youmonst set to a human (PM_HUMAN = 260), so
+// body_part() returns the humanoid body-part names the C source uses in its
+// Sprintf calls.
+function humanState() {
+    const state = catalogState();
+    state.youmonst = { data: state.mons[PM_HUMAN] };
+    return state;
+}
+
+// C ref: invent.c getobj_hands_txt() (1717-1736). Each case below pins the
+// result to the Sprintf format string in the C source. The hero is an
+// unpolymorphed human, so body_part(HAND) = "hand", body_part(FINGERTIP) =
+// "fingertip", and fingers_or_gloves(FALSE) = "fingers".
+test('getobj_hands_txt returns the correct hand description per action', () => {
+    const state = humanState();
+    // Default branch (no special action word): "your hands".
+    // Exercises the else branch at C:1732-1734 for any action not in
+    // the if/else-if chain.
+    state.uarmg = null;
+    state.uwep = null;
+    state.uquiver = null;
+    assert.equal(getobj_hands_txt('use or apply', state), 'your hands');
+    assert.equal(getobj_hands_txt('eat', state), 'your hands');
+
+    // C:1721-1722 -- "grease" uses fingers_or_gloves(FALSE), which always
+    // returns makeplural(body_part(FINGER)) regardless of gloves.
+    assert.equal(getobj_hands_txt('grease', state), 'your fingers');
+
+    // C:1723-1724 -- "write with" uses body_part(FINGERTIP).
+    assert.equal(getobj_hands_txt('write with', state), 'your fingertip');
+
+    // C:1725-1728 -- "wield" with no gloves and no weapon.
+    assert.equal(
+        getobj_hands_txt('wield', state), 'your bare hands (wielded)',
+    );
+
+    // C:1725-1728 -- "wield" with gloves and a weapon: no "(wielded)" suffix.
+    state.uarmg = { otyp: 1 };
+    state.uwep = { otyp: 1 };
+    assert.equal(getobj_hands_txt('wield', state), 'your gloved hands');
+
+    // C:1729-1731 -- "ready" with no quiver.
+    state.uarmg = null;
+    state.uwep = null;
+    state.uquiver = null;
+    assert.equal(
+        getobj_hands_txt('ready', state), 'empty quiver (nothing readied)',
+    );
+
+    // C:1729-1731 -- "ready" with something readied: no parenthetical.
+    state.uquiver = { otyp: 1 };
+    assert.equal(getobj_hands_txt('ready', state), 'empty quiver');
+});
+
 test('is_edible answers on object class and excludes unique objects', () => {
     const state = catalogState();
     // eat.c:91-121. FOOD_CLASS is the only class an unpolymorphed hero can
@@ -243,19 +297,18 @@ test('a five-letter suggestion set is left uncompacted', async () => {
     assert.equal(topLine(), 'What do you want to eat? [b-g or ?*]');
 });
 
-test('the menu answers to the eat prompt stop at display_pickinv',
+test('the menu answers to the eat prompt reach display_pickinv',
     async () => {
     const segment = segmentFor('ea');
-    // getobj()'s redo_menu block needs display_pickinv() with a letter subset
-    // ('?') or with getobj_hands_txt()'s extra choice ('*'); neither is
-    // ported, so both stop instead of drawing a menu of the wrong items.
+    // getobj()'s redo_menu block now handles all callers with the general
+    // C computation (invent.c:1960-2001). '?' passes the suggested-letter
+    // subset, and '*' passes the full inventory. For a single-food-item
+    // Valkyrie, '?' shows the item on the message line via the n=1 path
+    // in display_pickinv(). Neither stops at a boundary.
     for (const key of ['?', '*']) {
         const boundary = await boundaryFor(segment, `.e${key}`);
-        assert.match(
-            boundary?.message ?? '',
-            /display_pickinv\(\) with a letter subset/,
-            key,
-        );
+        assert.equal(boundary, null,
+            `'${key}' at eat prompt should not hit a boundary`);
     }
     // '-' reaches mime_action(), whose " or " arm draws rn2(2).
     const hands = await boundaryFor(segment, '.e-');

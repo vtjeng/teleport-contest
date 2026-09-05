@@ -12,8 +12,10 @@ import {
     CONTAINED_SYM,
     CQ_CANNED,
     ECMD_OK,
+    FINGERTIP,
     FUMBLING,
     GOLD_SYM,
+    HAND,
     HALLUC,
     HALLUC_RES,
     LOST_EXPLODING,
@@ -92,6 +94,7 @@ import { makeplural } from './fruit.js';
 import { digit } from './hacklib.js';
 import { PM_ARCHEOLOGIST, PM_CLERIC } from './monsters.js';
 import { observe_object } from './o_init.js';
+import { body_part } from './polyself.js';
 import { ttyPline, tty_message_menu } from './tty_message.js';
 import {
     CMAP_EXPLANATIONS,
@@ -114,6 +117,7 @@ import {
 import { hides_under, touch_petrifies } from './mondata.js';
 import { UnsupportedHideError, maybe_unhide_at } from './mon.js';
 import { newsym, obj_to_glyph } from './display.js';
+import { fingers_or_gloves } from './do_wear.js';
 import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
 import { is_drawbridge_wall } from './startup_a11y.js';
@@ -620,6 +624,25 @@ export function any_obj_ok(obj) {
     return GETOBJ_EXCLUDE;
 }
 
+// C ref: invent.c getobj_hands_txt() (1717-1736). Returns a string describing
+// the hero's hands based on the action word, for display_pickinv()'s
+// xtra_choice parameter when the hands/self option appears in the menu.
+function getobj_hands_txt(action, state) {
+    if (action === 'grease') {
+        return `your ${fingers_or_gloves(false, state)}`;
+    } else if (action === 'write with') {
+        return `your ${body_part(FINGERTIP, state.youmonst)}`;
+    } else if (action === 'wield') {
+        return `your ${state.uarmg ? 'gloved' : 'bare'} `
+            + `${makeplural(body_part(HAND, state.youmonst))}`
+            + `${!state.uwep ? ' (wielded)' : ''}`;
+    } else if (action === 'ready') {
+        return `empty quiver${!state.uquiver ? ' (nothing readied)' : ''}`;
+    } else {
+        return `your ${makeplural(body_part(HAND, state.youmonst))}`;
+    }
+}
+
 // C ref: invent.c getobj() (1751-2088). Answers the object the player chose,
 // null where C returns 0, and hands_obj where C returns &hands_obj.
 //
@@ -634,9 +657,10 @@ export function any_obj_ok(obj) {
 // of that flag; cmdq_add_key(CQ_REPEAT) has no CQ_REPEAT queue to add to for
 // the same reason; flags.invlet_constant is checked below because reassign()
 // is unported; and iflags.force_invmenu stops rather than take an untested
-// arm. The '?' menu, non-throw '*' menus and the '-' hands answer stop too,
-// each naming what it would need. The ordinary throw '*' menu is source-live
-// below.
+// arm. The '-' hands answer stops when allownone is false. The '?' and '*'
+// menus follow the general C computation (redo_menu); display_pickinv()
+// stops when both xtra_choice and allowxtra are truthy (the hands-in-menu
+// feature).
 //
 // The fifth, C's cmdq_pop() at 1779, now has a queue to read. Itemactions
 // queues a command followed by the selected object's inventory letter, so
@@ -758,10 +782,9 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
         prefix.pop();
     // C's two letter subsets, kept here in the shape C builds them in. `lets`
     // is the suggested set snapshotted before compactify() rewrites `letters`,
-    // and `altletsStr` below is the downplayed set. The bounded nonempty `?`
-    // arm below hands a nonempty `lets` set to display_pickinv() for the
-    // source-live read and throw callers; empty/alternate subset arms remain
-    // fail-closed until their own slices are reached.
+    // and `altletsStr` below is the downplayed set. The redo_menu block below
+    // passes `lets` to display_pickinv() for '?' and falls back to `altletsStr`
+    // when `lets` is empty (C:1969-1970).
     const lets = letters.join(''); /* necessary since we destroy buf */
     if (suggested > 5) { /* compactify string */
         letters.push('\0');
@@ -811,46 +834,64 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
             if (allownone) return hands_obj;
             throw new UnsupportedObjectPromptError('mime_action()');
         }
-        if (ilet === '?') {
-            // C ref: invent.c getobj() redo_menu (1966-1970). The ordinary
-            // read and throw callbacks can produce a nonempty suggested set,
-            // so display_pickinv() is source-live for those two callers.
-            // Empty lets and the alternate '*' menu remain outside this
-            // boundary.
-            if (word !== 'read' && word !== 'throw')
-                throw new UnsupportedObjectPromptError(
-                    'display_pickinv() with a letter subset',
+        // C ref: invent.c getobj() redo_menu (1960-2001). Unified handling
+        // for '?' (suggested subset) and '*' (full inventory) menu requests.
+        // C uses goto redo_menu when the player picks '?' or '*' inside the
+        // menu; here a for(;;) loop replaces the goto.
+        if (ilet === '?' || ilet === '*') {
+            // eslint-disable-next-line no-constant-condition
+            for (;;) {
+                let allowed_choices = (ilet === '?') ? lets : null;
+                let handsbuf = null;
+
+                // C:1969-1970 -- fall back to altlets when lets is empty.
+                if (ilet === '?' && !lets && altletsStr)
+                    allowed_choices = altletsStr;
+
+                // C:1972 -- menuquery and qbuf are cleared; C:1973-1975
+                // builds a menuquery only when iflags.force_invmenu, which
+                // the for(;;) above already rejects.
+                const menuquery = null;
+
+                // C:1976-1978 -- compute the hands description when the
+                // full inventory is shown (allowed_choices is null), or
+                // when the first entry is HANDS_SYM.
+                if (!allowed_choices
+                    || (allowed_choices.length && allowed_choices[0] === HANDS_SYM)
+                    || (buf.length && buf[0] === HANDS_SYM))
+                    handsbuf = getobj_hands_txt(word, state);
+
+                const picked = await display_pickinv(
+                    allowed_choices, handsbuf, menuquery,
+                    allownone, true, state,
                 );
-            if (!lets)
-                throw new UnsupportedObjectPromptError(
-                    'display_pickinv() with an empty letter subset',
-                );
-            const picked = await display_pickinv(
-                lets, null, null, false, true, state,
-            );
-            if (!picked) continue;
-            ilet = picked;
-        } else if (ilet === '*') {
-            // C ref: invent.c getobj() redo_menu (1966-1998). The ordinary
-            // throw callback excludes hands, so this is the full inventory
-            // menu with no extra choice, query, or alternate subset. Other
-            // object prompts still stop here until their menu branches are
-            // selected and validated independently.
-            if (word !== 'throw')
-                throw new UnsupportedObjectPromptError(
-                    'display_pickinv() with a letter subset',
-                );
-            const picked = await display_pickinv(
-                null, null, null, false, true, state,
-            );
-            if (!picked) continue;
-            if (picked === HANDS_SYM)
-                return hands_obj;
-            if (picked === '\x1b') {
-                if (state.flags.verbose) await ttyPline(Never_mind, state);
-                return null;
+                if (!picked) {
+                    // C:1983-1985 -- oneloop check. oneloop is set only
+                    // by the iflags.force_invmenu arm, which throws above,
+                    // so it is always false here and we continue.
+                    break; // break inner, continue outer for(;;)
+                }
+                if (picked === HANDS_SYM)
+                    return hands_obj;
+                if (picked === '\x1b') {
+                    if (state.flags.verbose) await ttyPline(Never_mind, state);
+                    return null;
+                }
+                // C:1994-1995 -- goto redo_menu when the player picks
+                // '?' or '*' inside the menu.
+                if (picked === '*' || picked === '?') {
+                    ilet = picked;
+                    continue; // redo_menu
+                }
+                // C:1996-1999 -- allowcnt/ctmp count path. The count arm
+                // already throws at the digit check above, so ctmp is
+                // never written and cntgiven stays false.
+                ilet = picked;
+                break;
             }
-            ilet = picked;
+            // When the inner loop broke without assigning ilet (the !picked
+            // path), continue the outer prompt loop.
+            if (ilet === '?' || ilet === '*') continue;
         }
         /* find the item which was picked */
         for (otmp = inventoryHead(state); otmp; otmp = otmp.nobj)
@@ -915,6 +956,7 @@ async function silly_thing(word, state) {
 // order, so neither is covered for its whole input range by a recorded case.
 export const _getobjInternals = Object.freeze({
     compactify,
+    getobj_hands_txt,
     invletter_value,
 });
 
@@ -932,7 +974,11 @@ export async function display_pickinv(
     state = game,
     { menu } = {},
 ) {
-    if (xtra_choice || allowxtra)
+    // C ref: invent.c display_pickinv() usextra (3084). C computes
+    // usextra = (xtra_choice && allowxtra); when only one is set the
+    // other side is inert. The hands menu entry needs both a description
+    // (xtra_choice) and permission (allowxtra) to appear.
+    if (xtra_choice && allowxtra)
         throw new UnsupportedFeatureDescriptionError('a partial inventory');
     if (!lets && (state.iflags.force_invmenu || state.iflags.menu_requested))
         throw new UnsupportedFeatureDescriptionError('a forced inventory menu');

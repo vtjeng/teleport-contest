@@ -2065,7 +2065,7 @@ export async function takeoff_ok(obj, state = game) {
 }
 
 // C ref: do_wear.c fingers_or_gloves() (59-65).
-function fingers_or_gloves(check_gloves, state) {
+export function fingers_or_gloves(check_gloves, state) {
     return (check_gloves && state.uarmg)
         ? gloves_simple_name(state.uarmg, state) /* "gloves" or "gauntlets" */
         : makeplural(body_part(FINGER, state.youmonst)); /* "fingers" */
