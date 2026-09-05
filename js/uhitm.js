@@ -193,12 +193,11 @@ import {
 } from './monsters.js';
 import {
     carried,
-    init_dummyobj,
     is_ammo,
     is_launcher,
     is_missile,
     is_weptool,
-    newObject,
+    mksobj,
     objectType,
 } from './obj.js';
 import { an, cxname, donameFresh, is_plural, otense, simpleonames } from './objnam.js';
@@ -368,12 +367,9 @@ async function that_is_a_mimic(mtmp, mimic_flags, state = game, env = {}) {
                 fmtbuf = `That ${explanation} actually is %s!`;
             }
         } else if (glyph_is_object(glyph)) {
-            // Build a temporary object for naming. C's object_from_map()
-            // creates a fake mksobj when no real floor object exists at the
-            // mimic's position; init_dummyobj with the glyph's otyp gives
-            // the same naming result for simpleonames, is_plural, and otense.
+            // C ref: pager.c object_from_map() line 317.
             const otyp = glyph_to_obj(glyph);
-            const otmp = init_dummyobj(newObject(), otyp, 1, state);
+            const otmp = mksobj(otyp, false, false, { state });
             const otmp_name = simpleonames(otmp, state);
             const those = is_plural(otmp) ? 'Those' : 'That';
             const verb = otense(otmp, 'are');
