@@ -19,6 +19,7 @@ import {
     DB_UNDER,
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
+    ECMD_OK,
     CORR,
     DELPHI,
     FLYING,
@@ -70,7 +71,7 @@ import { see_nearby_objects } from './display.js';
 import { hliquid } from './do_name.js';
 import { makeplural } from './fruit.js';
 import { switch_terrain } from './hack.js';
-import { strstri } from './hacklib.js';
+import { mungspaces, strstri } from './hacklib.js';
 import { place_lregion } from './mkmaze.js';
 import { cmap_to_type } from './mkroom.js';
 import { within_bounded_area } from './rect.js';
@@ -86,7 +87,7 @@ import { is_ice } from './terrain.js';
 // exports only inside function bodies, so the cycle resolves.
 import { is_lava, is_pool } from './trap.js';
 // js/windows.js does not import from this file, so there is no cycle.
-import { add_menu_heading, select_menu } from './windows.js';
+import { add_menu_heading, getlin, select_menu } from './windows.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -1726,6 +1727,75 @@ function emptyMapseenFlags() {
         vibrating_square: 0,
         spare1: 0,
     };
+}
+
+// C ref: dungeon.c query_annotation() (2499-2567).
+// Asks the player to annotate a dungeon level. When lev is null, uses the
+// current level. The describe_level path (for annotating a different level)
+// is not exercised by any witness session and is not ported.
+// EDIT_GETLIN is disabled in upstream config.h, so the #else branch applies.
+async function query_annotation(lev, state = game) {
+    const mptr = find_mapseen(lev ?? state.u.uz, state);
+    if (!mptr) return;
+
+    let nbuf;
+    if (mptr.custom) {
+        // #else branch of EDIT_GETLIN: existing annotation triggers
+        // "Replace annotation" prompt.
+        const truncated = mptr.custom.length > 30
+            ? mptr.custom.substring(0, 30) + '...'
+            : mptr.custom;
+        nbuf = await getlin(
+            `Replace annotation "${truncated}" with?`, state,
+        );
+    } else {
+        // No existing annotation. The lev==null / on_level branch applies
+        // for the current level; the describe_level branch (different level)
+        // is not ported.
+        let lbuf;
+        if (!lev || on_level(state.u.uz, lev)) {
+            lbuf = 'this dungeon level';
+        } else {
+            // describe_level path -- out of scope for the current goal.
+            throw new Error(
+                'query_annotation: describe_level path is not ported',
+            );
+        }
+        nbuf = await getlin(
+            `What do you want to call ${lbuf}?`, state,
+        );
+    }
+
+    // Empty input or ESC means don't add or change annotation.
+    if (!nbuf || nbuf[0] === '\x1b') return;
+    // Strip leading and trailing spaces, compress consecutive spaces.
+    nbuf = mungspaces(nbuf);
+
+    // Discard old annotation, if any.
+    if (mptr.custom) {
+        mptr.custom = null;
+        mptr.custom_lth = 0;
+    }
+    // Add new annotation, unless it's all spaces (empty after mungspaces).
+    if (nbuf && nbuf !== ' ') {
+        mptr.custom = nbuf;
+        // custom_lth does not include trailing '\0' in the count; in JS
+        // there is no terminator, so the length matches directly.
+        mptr.custom_lth = mptr.custom.length;
+    }
+}
+
+// C ref: dungeon.c donamelevel() (2571-2577).
+// #annotate command -- add a custom name to the current level.
+// The iflags.menu_requested branch (dooverview) is out of scope.
+export async function donamelevel(state = game) {
+    if (state.iflags?.menu_requested) {
+        throw new Error(
+            'donamelevel: iflags.menu_requested (dooverview) is not ported',
+        );
+    }
+    await query_annotation(null, state);
+    return ECMD_OK;
 }
 
 // C ref: dungeon.c find_mapseen() (2638-2649).

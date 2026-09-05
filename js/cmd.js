@@ -160,7 +160,7 @@ import {
 } from './getline.js';
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
-import { recalc_mapseen } from './dungeon.js';
+import { donamelevel, recalc_mapseen } from './dungeon.js';
 import { mungspaces, strstri, strsubst, visctrl } from './hacklib.js';
 import {
     ddoinv,
@@ -2983,6 +2983,9 @@ async function doextcmd(key, state) {
     case 'dodip':
         // C ref: potion.c dodip(), which returns its own ECMD_* result.
         return await runDipCommand(key, state);
+    case 'donamelevel':
+        // C ref: dungeon.c donamelevel(), which returns ECMD_OK.
+        return await donamelevel(state);
     default:
         resetCommandVars(state);
         throw new UnsupportedHeroCommandBoundaryError(
