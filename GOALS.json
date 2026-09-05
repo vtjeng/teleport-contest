@@ -9184,6 +9184,41 @@
         "screens": 12,
         "rng": 6393
       }
+    },
+    {
+      "id": "unsupported-monster-position-check-random-relocation-flags",
+      "status": "open",
+      "boundary": "rloc() called with RLOC_MSG flag for monster vanish/appear messaging; preflightOrdinaryRloc() refuses any nonzero rlocflags",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 1,
+        "basis": "capped at session seed0014-dequa-fountain-explore stretch of 1, capStable True",
+        "sessions": [
+          "seed0014-dequa-fountain-explore"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0014-dequa-fountain-explore",
+            "evidence": "mhitm_ad_sedu() -> steal() -> worn_item_removal() -> rloc(magr, RLOC_MSG) -> rloc_to_core() messaging block"
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "rloc_to_core RLOC_MSG messaging block",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "5bd14c0ec233fd04cb969b924a9e78819438667b",
+      "openStanding": {
+        "sha": "d33075fc",
+        "screens": 4595,
+        "rng": 323476
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
