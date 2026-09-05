@@ -8921,7 +8921,7 @@
     },
     {
       "id": "unsupported-level-change-makelevel-no-loader-for-special-lev",
-      "status": "open",
+      "status": "closed",
       "boundary": "unsupported level change: makelevel: no loader for special level \"medusa\"",
       "upstreamOwners": [],
       "forecast": {
@@ -8941,8 +8941,8 @@
       "slices": [
         {
           "name": "port medusa level loaders and fixup_special medusa branch",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "8749ab26745480316d1f1a076d27020cce5a7b1c"
         }
       ],
       "openedAt": "284e72d94f392897c63f44b9d770b4702e6446d0",
@@ -8951,8 +8951,11 @@
         "screens": 4552,
         "rng": 316383
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "8749ab26745480316d1f1a076d27020cce5a7b1c",
+      "delivered": {
+        "screens": 2,
+        "rng": 34
+      }
     }
   ]
 }
