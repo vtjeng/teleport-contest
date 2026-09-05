@@ -6272,6 +6272,15 @@
       "status": "open",
       "from": "4ae38c748ab7fa468216f020c563fbf997b29e3c",
       "detail": "current_wand/makeknown(WAN_TELEPORTATION) at teleport.c:1730-1731 deferred: the witness path reaches rloc via seduction steal, not wand zap, so gc.current_wand is null. The wand-discovery arm identifies the teleportation wand when the hero sees a monster vanish from a zapped wand, which requires WAN_TELEPORTATION zapping to be ported first."
+    },
+    {
+      "id": "buzzmu-spell-fires",
+      "area": null,
+      "category": "scope",
+      "effort": "small",
+      "status": "open",
+      "from": "1662bbeac8d34daaa6e908058751aa4f9ce4fb3e",
+      "detail": "buzzmu() full-fire path (lined_up && rn2(3)) calls buzz() -> dobuzz() with a\nBZ_M_SPELL type. The path is ported but unexercised in integration: it requires\na monster with AT_MAGC and adtyp 1..10 (AD_MAGM through AD_SPC2). Only Angel\n(AD_MAGM), Yeenoghu (AD_MAGM), and Asmodeus (AD_COLD) qualify, all late-game.\nNo development session currently encounters one of these monsters casting a\nranged spell at the hero. Unit tests cover buzzmu's control flow; the\ndeath_inflicted_by formatting in dobuzz is pinned to expected kbuf strings."
     }
   ],
   "areas": [
