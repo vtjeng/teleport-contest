@@ -9263,7 +9263,7 @@
     },
     {
       "id": "simple-monster-action-requires-unseen-monster-ranged-feedbac",
-      "status": "open",
+      "status": "closed",
       "boundary": "monshoot() else arm: unseen throwing monster suppresses the throw announcement but still calls m_throw() and thitu(), producing hit/miss feedback",
       "upstreamOwners": [],
       "forecast": {
@@ -9283,8 +9283,8 @@
       "slices": [
         {
           "name": "monshoot-unseen-else-arm",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "987a3978d6b76ef0aa75f784e7454a9e209cd5d8"
         }
       ],
       "openedAt": "bb5890168539961a21713c01e389e5a828d723be",
@@ -9293,8 +9293,11 @@
         "screens": 4604,
         "rng": 326792
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "987a3978d6b76ef0aa75f784e7454a9e209cd5d8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
