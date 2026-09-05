@@ -9187,7 +9187,7 @@
     },
     {
       "id": "unsupported-monster-position-check-random-relocation-flags",
-      "status": "open",
+      "status": "closed",
       "boundary": "rloc() called with RLOC_MSG flag for monster vanish/appear messaging; preflightOrdinaryRloc() refuses any nonzero rlocflags",
       "upstreamOwners": [],
       "forecast": {
@@ -9207,8 +9207,8 @@
       "slices": [
         {
           "name": "rloc_to_core RLOC_MSG messaging block",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e54e52e44250cd0764c08fcb5084061ec1421777"
         }
       ],
       "openedAt": "5bd14c0ec233fd04cb969b924a9e78819438667b",
@@ -9217,8 +9217,11 @@
         "screens": 4595,
         "rng": 323476
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "e54e52e44250cd0764c08fcb5084061ec1421777",
+      "delivered": {
+        "screens": 0,
+        "rng": 55
+      }
     }
   ]
 }
