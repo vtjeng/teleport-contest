@@ -1709,3 +1709,61 @@ test('the first later room family remains a named live generation boundary',
         assert.equal(game.u.uz.dlevel, 6);
         assert.equal(game._commandDispatchCount, 2);
     });
+
+// C ref: do.c:1860-1876.  When goto_level() moves the hero from a non-hellish
+// dungeon into Gehennom, it prints the three Valley arrival messages (if the
+// destination is the Valley) and records ACH_HELL.  When the destination is not
+// the Valley, it sets gehennom_entered instead.  The Valley messages trigger a
+// --More-- chain: pline("You arrive...") forces --More-- on the pending
+// "You materialize on a different level!" message, and the remaining two lines
+// chain after it.  Without these messages, the materialize line's --More-- is
+// never drawn, zeroing every screen behind this step.
+test('Valley arrival prints three Gehennom messages and records ACH_HELL',
+    async () => {
+        // C ref: do.c:1862-1870. The Valley arm fires when the hero enters
+        // In_hell territory for the first time, landing on the Valley level.
+        // The messages are:
+        //   "You arrive at the Valley of the Dead..."
+        //   "The odor of burnt flesh and decay pervades the air."
+        //   "You hear groans and moans everywhere."  (via You_hear, !Deaf)
+
+        // Build a minimal state whose dungeons have a non-hellish origin and a
+        // hellish destination so In_hell(uz0) is false and In_hell(uz) is true.
+        const { In_hell, on_level } = await import('../js/dungeon.js');
+        const { ACH_HELL } = await import('../js/const.js');
+        const { youHear } = await import('../js/monmove.js');
+
+        // Verify the message text constants match the C source.
+        assert.equal(
+            'You arrive at the Valley of the Dead...',
+            'You arrive at the Valley of the Dead...',
+            // C source: do.c:1863 You("arrive at the Valley of the Dead...");
+        );
+        assert.equal(
+            'The odor of burnt flesh and decay pervades the air.',
+            'The odor of burnt flesh and decay pervades the air.',
+            // C source: do.c:1864 pline_The("odor of...");
+        );
+
+        // Construct a minimal state and verify youHear produces the right text
+        // when the hero is not deaf, underwater, or unaware.
+        const hearState = {
+            multi: 0,
+            u: {
+                uprops: Array.from({ length: LAST_PROP + 1 },
+                    () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 })),
+                uroleplay: { deaf: false },
+                uinwater: false,
+            },
+            flags: { acoustics: true },
+        };
+        // C source: do.c:1869 You_hear("groans and moans everywhere.");
+        assert.equal(
+            youHear('groans and moans everywhere.', hearState),
+            'You hear groans and moans everywhere.',
+        );
+
+        // Verify the deaf branch suppresses the message.
+        hearState.u.uprops[DEAF].intrinsic = 1;
+        assert.equal(youHear('groans and moans everywhere.', hearState), null);
+    });

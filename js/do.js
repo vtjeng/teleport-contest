@@ -9,6 +9,7 @@
 import {
     ACH_BGRM,
     ACH_ENDG,
+    ACH_HELL,
     A_DEX,
     BOTH_SIDES,
     BLINDED,
@@ -129,6 +130,7 @@ import { set_ustuck } from './mon.js';
 import { m_at } from './monst.js';
 import { gulp_blnd_check } from './mhitu.js';
 import { olfaction } from './mondata.js';
+import { youHear } from './monmove.js';
 import { PM_ROGUE, PM_TOURIST } from './monsters.js';
 import {
     is_pick, objectType, place_object, remove_object, set_bknown,
@@ -1568,8 +1570,26 @@ export async function goto_level(
         await maybe_lvltport_feedback(state);
     await deliver_splev_message(state);
 
-    // do.c:1858-1872, entering Gehennom. Both arms need In_hell, and
-    // dat/dungeon.lua puts the Valley below depth 25.
+    // C ref: do.c:1860-1876, entering Gehennom.
+    if (!In_hell(u.uz0, state) && In_hell(u.uz, state)) {
+        if (state.valley_level && on_level(u.uz, state.valley_level)) {
+            await ttyPline('You arrive at the Valley of the Dead...', state);
+            await ttyPline(
+                'The odor of burnt flesh and decay pervades the air.',
+                state,
+            );
+            // Soundeffect(se_groans_and_moans, 25) is a no-op in the tty build.
+            const hearMsg = youHear('groans and moans everywhere.', state);
+            if (hearMsg) await ttyPline(hearMsg, state);
+        }
+        record_achievement(ACH_HELL, state);
+    }
+    // C ref: do.c:1874-1876. Level teleport can bypass the Valley's gate.
+    if (In_hell(u.uz, state)
+        && !(state.valley_level && on_level(u.uz, state.valley_level))) {
+        u.uevent ??= {};
+        u.uevent.gehennom_entered = 1;
+    }
 
     // C ref: do.c:1878-1879. When bones from the same player were found,
     // display a random "deja vu" message.
