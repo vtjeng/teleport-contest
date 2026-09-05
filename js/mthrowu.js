@@ -2,15 +2,15 @@
 //
 // C ref: mthrowu.c. This file holds thitu() (75-155, hero hit by non-monster
 // missile), thrwmu()'s ordinary single-shot path (1174-1263), monmulti()'s
-// quantity-one result (201-259), monshoot()'s visible announcement head
-// (262-300), m_throw()'s ordinary quantity-one hit and drop settlement
+// quantity-one result (201-259), monshoot()'s visible and unseen announcement
+// arms (262-314), m_throw()'s ordinary quantity-one hit and drop settlement
 // (572-844) together with the POTION_CLASS arm (698-701) that muse.c
 // use_offensive() reaches, and the
 // line-of-fire tests every ranged monster action asks before it acts:
 // blocking_terrain() (1281-1288), linedup() (1330-1372),
 // m_lined_up() (1375-1394) and lined_up() (1397-1401).
-// Polearm and returning-weapon attacks, multishot, unseen feedback, alternate
-// m_throw() flight and hit outcomes, breamu(), and spitmu() remain behind
+// Polearm and returning-weapon attacks, multishot, alternate
+// m_throw() flight outcomes, breamu(), and spitmu() remain behind
 // js/unported_monster_actions.js.
 
 import {
@@ -289,8 +289,10 @@ export function monmulti(monster, missile, launcher, env = {}) {
 }
 
 // C ref: mthrowu.c m_throw() (572-844), quantity-one, ordinary untethered
-// weapon hit. Alternate flight, interception, catch, special-object, miss,
-// death, floor-effect, and return paths retain named refusals.
+// weapon hit and miss. A miss lets the missile continue flying and drop at
+// range expiry or terrain. Alternate flight, interception, catch,
+// special-object, death, floor-effect, and return paths retain named
+// refusals.
 export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2, rnd };
@@ -428,38 +430,53 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 damage = maybeHalfPhysical(damage, state);
             hit = Boolean(await hitHero(hitv, damage, singleobj, env));
             await stopOccupation(state, env);
-            if (!hit)
-                return refuseRanged(env, 'monster missile miss');
-            await drop_throw(
-                singleobj,
-                true,
-                state.u.ux,
-                state.u.uy,
-                env,
-            );
-            settled = true;
-            break;
+            if (hit) {
+                await drop_throw(
+                    singleobj,
+                    true,
+                    state.u.ux,
+                    state.u.uy,
+                    env,
+                );
+                settled = true;
+                break;
+            }
+            // Miss: missile continues flying past the hero.
+            // C ref: mthrowu.c:787-795 -- if (!hitu), the flight loop
+            // does NOT break; the missile keeps going.
         }
 
         random.rn2(5); /* forcehit, consumed even without iron bars */
-        if (!range) return refuseRanged(env, 'monster missile range expiry');
+        // C ref: mthrowu.c:798-822. End of flight: range expired,
+        // edge of map, terrain blocked, or sank. Drop the missile
+        // at its current position.
         const nextFlightX = state.gb.bhitpos.x + dx;
         const nextFlightY = state.gb.bhitpos.y + dy;
-        if (!isok(nextFlightX, nextFlightY))
-            return refuseRanged(env, 'blocked monster missile terrain');
-        const location = state.level.at(nextFlightX, nextFlightY);
-        if (IS_OBSTRUCTED(location.typ)
-            || closed_door(
-                nextFlightX,
-                nextFlightY,
-                state,
-            )
-            || location.typ === IRONBARS
-            || IS_SINK(state.level.at(
-                state.gb.bhitpos.x,
-                state.gb.bhitpos.y,
-            ).typ)) {
-            return refuseRanged(env, 'blocked monster missile terrain');
+        let flightEnded = !range;
+        if (!flightEnded) {
+            if (!isok(nextFlightX, nextFlightY)) {
+                flightEnded = true;
+            } else {
+                const location = state.level.at(nextFlightX, nextFlightY);
+                if (IS_OBSTRUCTED(location.typ)
+                    || closed_door(nextFlightX, nextFlightY, state)
+                    || location.typ === IRONBARS
+                    || IS_SINK(state.level.at(
+                        state.gb.bhitpos.x,
+                        state.gb.bhitpos.y,
+                    ).typ)) {
+                    flightEnded = true;
+                }
+            }
+        }
+        if (flightEnded) {
+            // Sink and multishot-miss messages are gated on
+            // conditions this port does not yet reach (multishot >1,
+            // hallucination sink verb). Drop the missile silently.
+            await drop_throw(singleobj, 0,
+                state.gb.bhitpos.x, state.gb.bhitpos.y, env);
+            settled = true;
+            break;
         }
         await temporaryDisplay(
             state.gb.bhitpos.x,
@@ -479,8 +496,11 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     return 0;
 }
 
-// C ref: mthrowu.c monshoot() (262-300), visible quantity-one thrown-weapon
-// arm through m_throw() and the source-ordered m_shot reset.
+// C ref: mthrowu.c monshoot() (262-314). When the hero can see the throwing
+// monster, announces the throw and records the missile type in m_shot.o for
+// multishot feedback; when the monster is unseen, sets m_shot.o to
+// STRANGE_OBJECT to suppress that feedback. Both arms fall through to the
+// shared m_throw() loop and m_shot reset.
 export async function monshoot(monster, missile, launcher, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
@@ -495,26 +515,29 @@ export async function monshoot(monster, missile, launcher, rawEnv = {}) {
         monster.muy,
     );
     const multishot = monmulti(monster, missile, launcher, env);
-    const seesMonster = requireRangedOperation(env, 'canSeeMonster');
-    if (!seesMonster(monster, state))
-        return refuseRanged(env, 'unseen monster ranged feedback');
-
-    if (ammo_and_launcher(missile, launcher, state))
-        return refuseRanged(env, 'monster ranged launcher action');
-    if (obj_is_pname(missile, state))
-        return refuseRanged(env, 'named monster missile announcement');
-
-    const singleName = singular(missile, xnameFresh, state);
-    const objectName = an(singleName);
     state.m_shot ??= {};
-    state.m_shot.s = false;
-    const monsterName = requireRangedOperation(env, 'monsterName');
-    const message = requireRangedOperation(env, 'message');
-    await message(
-        `${monsterName(monster, state)} throws ${objectName}!`,
-        state,
-    );
-    state.m_shot.o = missile.otyp;
+    const canSeeMonster = requireRangedOperation(env, 'canSeeMonster');
+    if (canSeeMonster(monster, state)) {
+        // Visible arm: announce the throw and record the missile type.
+        if (ammo_and_launcher(missile, launcher, state))
+            return refuseRanged(env, 'monster ranged launcher action');
+        if (obj_is_pname(missile, state))
+            return refuseRanged(env, 'named monster missile announcement');
+
+        const singleName = singular(missile, xnameFresh, state);
+        const objectName = an(singleName);
+        state.m_shot.s = false;
+        const monsterName = requireRangedOperation(env, 'monsterName');
+        const message = requireRangedOperation(env, 'message');
+        await message(
+            `${monsterName(monster, state)} throws ${objectName}!`,
+            state,
+        );
+        state.m_shot.o = missile.otyp;
+    } else {
+        // Unseen arm: suppress multishot feedback (C: mthrowu.c:295-296).
+        state.m_shot.o = STRANGE_OBJECT;
+    }
     state.m_shot.n = multishot;
     state.m_shot.i = 1;
 
@@ -655,7 +678,6 @@ export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
         // Miss. C increments gm.mesg_given, which m_throw() reads when deciding
         // whether a later multishot miss needs its own message.
         state.mesg_given = (state.mesg_given ?? 0) + 1;
-        if (env.requireHit) return refuseRanged(env, 'monster missile miss');
         if (heroIsBlind(state) || !state.flags?.verbose) {
             await message('It misses.', state);
         } else if (state.u.uac + tlev <= dieroll - 2) {

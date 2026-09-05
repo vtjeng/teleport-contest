@@ -2192,21 +2192,6 @@ test('simple preflight rejects every selected excluded action atomically',
                 },
             },
             {
-                name: 'post-move ranged weapon',
-                reason: 'unseen monster ranged feedback',
-                prepare: async () => {
-                    const target = await prepareSelectedAction({
-                        pmidx: PM_GNOME,
-                    });
-                    const dagger = monsterObject(DAGGER);
-                    dagger.owornmask = W_WEP;
-                    target.monster.minvent = dagger;
-                    target.monster.mw = dagger;
-                    target.monster.weapon_check = NEED_WEAPON;
-                    return target;
-                },
-            },
-            {
                 name: 'item search',
                 reason: 'ordinary monster item interaction',
                 prepare: async () => {

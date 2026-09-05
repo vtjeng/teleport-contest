@@ -9260,6 +9260,41 @@
         "screens": 9,
         "rng": 3261
       }
+    },
+    {
+      "id": "simple-monster-action-requires-unseen-monster-ranged-feedbac",
+      "status": "open",
+      "boundary": "monshoot() else arm: unseen throwing monster suppresses the throw announcement but still calls m_throw() and thitu(), producing hit/miss feedback",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 132,
+        "basis": "capped at session seed0361-archeologist-tour stretch of 132, capStable True",
+        "sessions": [
+          "seed0361-archeologist-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0361-archeologist-tour",
+            "evidence": "thrwmu() -> monshoot() canseemon else branch sets m_shot.o = STRANGE_OBJECT, falls through to m_throw() -> thitu()"
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [
+        {
+          "name": "monshoot-unseen-else-arm",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "bb5890168539961a21713c01e389e5a828d723be",
+      "openStanding": {
+        "sha": "fa7fd88d",
+        "screens": 4604,
+        "rng": 326792
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

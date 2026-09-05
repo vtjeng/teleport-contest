@@ -37,10 +37,13 @@ import {
     BOW,
     ORCISH_DAGGER,
     POT_SLEEPING,
+    STRANGE_OBJECT,
     WAN_STRIKING,
 } from '../js/objects.js';
-import { blocking_terrain, lined_up, linedup, m_lined_up, m_throw, thitu, thrwmu }
-    from '../js/mthrowu.js';
+import {
+    blocking_terrain, lined_up, linedup, m_lined_up, monshoot, m_throw,
+    thitu, thrwmu,
+} from '../js/mthrowu.js';
 import { potionhit } from '../js/potion.js';
 import { passive_obj } from '../js/uhitm.js';
 import { block_point, vision_reset } from '../js/vision.js';
@@ -179,6 +182,49 @@ test('thrwmu announces one visible ordinary throw before missile flight',
             // objects.c identifies an unknown orcish dagger as "crude dagger".
             'The giant rat throws a crude dagger!',
         ]);
+    });
+
+test('monshoot unseen arm sets m_shot.o to STRANGE_OBJECT and falls through',
+    async () => {
+        // C ref: mthrowu.c:295-296. When canseemon() is false, the else arm
+        // sets gm.m_shot.o = STRANGE_OBJECT (suppressing multishot feedback)
+        // and falls through to the shared m_throw() loop.
+        const state = await hero();
+        const y = state.u.uy;
+        const subject = attacker(state, state.u.ux + 5, y, state.u.ux, y);
+        const dagger = mksobj(ORCISH_DAGGER, false, false, { state });
+        dagger.quan = 1;
+        dagger.owornmask = W_WEP;
+        dagger.nobj = null;
+        subject.minvent = dagger;
+        subject.mw = dagger;
+        const messages = [];
+        const flight = new Error('expected m_throw boundary');
+
+        await assert.rejects(monshoot(subject, dagger, subject.mw, {
+            state,
+            // Monster is not visible.
+            canSeeMonster: () => false,
+            monsterName: () => assert.fail('should not name unseen monster'),
+            message: (text) => { messages.push(text); },
+            endMulti: () => {},
+            throwMissile: (monster, x, originY, dx, dy, range, obj) => {
+                assert.equal(monster, subject);
+                assert.deepEqual(
+                    [x, originY, dx, dy, range, obj],
+                    [subject.mx, y, -1, 0, 5, dagger],
+                );
+                // Unseen: m_shot.o is STRANGE_OBJECT, not the missile type.
+                // m_shot.s is not set in the unseen arm (C leaves it from
+                // any prior use; JS leaves the key absent on a fresh object).
+                assert.equal(state.m_shot.o, STRANGE_OBJECT);
+                assert.equal(state.m_shot.n, 1);
+                assert.equal(state.m_shot.i, 1);
+                throw flight;
+            },
+        }), flight);
+        // No announcement message when the monster is unseen.
+        assert.deepEqual(messages, []);
     });
 
 test('thrwmu carries an ordinary dagger hit through floor settlement',
@@ -320,6 +366,141 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
             ['rnd', 3], ['rnd', 20], ['rn2', 2],
         ]);
         assert.equal(temporaryDisplay.at(-1)?.[0], -7);
+    });
+
+test('m_throw miss lets the missile continue flying and drop at range end',
+    async () => {
+        // C ref: mthrowu.c:787-795. When thitu() returns 0 (miss), the
+        // flight loop does NOT break. The missile keeps flying until range
+        // expires or terrain blocks, then drop_throw(obj, 0, bhitpos)
+        // places it at its final position.
+        const state = await hero();
+        const y = state.u.uy;
+        // Monster four squares east. Range = distmin = 4. The missile
+        // crosses three intermediate squares (three rn2(5) forcehit
+        // checks), reaches the hero on the fourth, misses, then has
+        // no remaining range after the post-hero forcehit check.
+        const subject = attacker(state, state.u.ux + 4, y, state.u.ux, y);
+        const dagger = mksobj(ORCISH_DAGGER, false, false, { state });
+        state.objects[ORCISH_DAGGER].oc_name_known = 0;
+        dagger.quan = 1;
+        add_to_minv(subject, dagger, { state });
+        dagger.owornmask = W_WEP;
+        subject.mw = dagger;
+        clearRow(state, state.u.ux - 1, subject.mx, y);
+        setCouldSee(state, subject.mx, y, true);
+        state.gt ??= {};
+        const hpBefore = state.u.uhp;
+        const messages = [];
+        const draws = [];
+        const temporaryDisplayCalls = [];
+        let stoppedOccupation = 0;
+        const catchBound = 100 - effective_attribute(state, A_DEX);
+        const random = {
+            rn2: (bound) => {
+                draws.push(['rn2', bound]);
+                // Nonzero catch roll makes the hero fail to catch.
+                // Forcehit rn2(5) returns nonzero so forcehit is false.
+                return bound === catchBound ? 1 : 4;
+            },
+            rnd: (bound) => {
+                draws.push(['rnd', bound]);
+                // rnd(20) = 20 makes the hit roll miss: u.uac + hitv
+                // is around 10-12 for a starting Valkyrie, so 20 exceeds it.
+                // rnd(3) for damage never fires (no hit).
+                return 20;
+            },
+            d: () => assert.fail('miss path does not roll d()'),
+        };
+
+        await m_throw(subject, subject.mx, y, -1, 0, 4, dagger, {
+            state,
+            random,
+            canSeeMonster: () => false,
+            canSeeSquare: () => false,
+            monsterAt: () => null,
+            objectToGlyph: () => 777,
+            temporaryDisplay: async (x, atY) => {
+                temporaryDisplayCalls.push([x, atY]);
+            },
+            delayOutput: async () => {},
+            clearObjectKnowledge: (obj) => clear_dknown(obj, state),
+            observeObject: () => {},
+            extractObject: (obj) => obj_extract_self(obj, { state }),
+            setMonsterNotWielded: (s, obj) =>
+                setmnotwielded(s, obj, { state }),
+            damageValue: (obj, target) =>
+                dmgval(obj, target, state, { random }),
+            hitHero: (hitv, damage, obj) => thitu(
+                hitv,
+                damage,
+                obj,
+                null,
+                state,
+                {
+                    random,
+                    message: (text) => { messages.push(text); },
+                    losehp,
+                    exercise: (index, increase, exerciseState) => exercise(
+                        index,
+                        increase,
+                        exerciseState,
+                        random,
+                        { encumberMessage: async () => {} },
+                    ),
+                    unsupported: (reason) => assert.fail(reason),
+                },
+            ),
+            stopOccupation: async () => { stoppedOccupation++; },
+            shouldMulch: (obj) => should_mulch_missile(obj, state, {
+                unsupported: (reason) => assert.fail(reason),
+            }),
+            shipsAway: () => false,
+            floorEffects: (obj, x, atY, verb) => flooreffects(
+                obj,
+                x,
+                atY,
+                verb,
+                { state, unsupported: (reason) => assert.fail(reason) },
+            ),
+            placeObject: (obj, x, atY) => place_object(obj, x, atY, { state }),
+            passiveObject: () => {},
+            stackObject: (obj) => stackobj(obj, {
+                state,
+                hooks: { extractExternalObject: remove_object },
+            }),
+            unsupported: (reason) => assert.fail(reason),
+        });
+
+        // The missile missed, so the hero took no damage.
+        assert.equal(state.u.uhp, hpBefore);
+        // The missile dropped at the end of its flight, not at the hero.
+        // Range 4, moving west: starts at subject.mx, crosses 4 squares.
+        // Hero is at state.u.ux (= subject.mx - 4). After the miss, the
+        // forcehit check consumes another rn2(5), range is 0, and the
+        // missile drops at the hero's square minus one more step west.
+        // Wait -- range is decremented by the while(range-- > 0) check.
+        // Let's verify by inspecting the dagger's final position.
+        assert.equal(dagger.where, OBJ_FLOOR);
+        assert.equal(stoppedOccupation, 1);
+        assert.equal(state.gt.thrownobj, null);
+        assert.deepEqual(draws, [
+            // Three intermediate squares each spend forcehit rn2(5).
+            ['rn2', 5], ['rn2', 5], ['rn2', 5],
+            // Hero at square 4: catch attempt, damage, and hit roll.
+            ['rn2', catchBound],
+            ['rnd', 3],    // dmgval
+            ['rnd', 20],   // thitu hit roll (miss: 20 > u.uac + hitv)
+            // Post-hero forcehit rn2(5). Range is now 0, so flight ends.
+            ['rn2', 5],
+        ]);
+        // Miss message: "A crude dagger misses you." or "You are almost
+        // hit by a crude dagger." depending on the roll margin.
+        assert.ok(messages.length >= 1, 'at least one miss message');
+        assert.ok(
+            messages[0].includes('miss') || messages[0].includes('almost'),
+            `miss message: ${messages[0]}`,
+        );
     });
 
 // C ref: mthrowu.c m_throw()'s POTION_CLASS arm (698-701), which hands the

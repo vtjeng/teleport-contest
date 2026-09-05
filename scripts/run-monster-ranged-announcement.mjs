@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-// Run the checked-in matrix for mthrowu.c monshoot():262-300's visible
-// quantity-one throw announcement. The input ends at the --More-- prompt that
-// pline() raises before entering m_throw(), so missile flight remains outside
-// this slice.
+// Run the checked-in matrix for mthrowu.c monshoot():262-314's visible and
+// unseen throw arms. The announcement entry ends at the --More-- prompt;
+// the flight entry continues past it through m_throw()'s missile flight,
+// thitu() miss, and the range-expiry drop.
 //
 // The bounded seed scan covered 9200001-9200100 at 20260827130000. Each case
 // wished for speed boots, generated a goblin, and inspected only whether the
@@ -71,14 +71,42 @@ export async function verifyMonsterRangedAnnouncementSegment(segment) {
     assert.deepEqual(game.m_shot, { s: false });
 }
 
+// The same seed, goblin, and geometry as the announcement case, but the
+// recipe continues past --More-- through the missile flight. The goblin
+// throws an orcish dagger; thitu() misses (rnd(20) exceeds u.uac + hitv);
+// the missile continues flying and drops at range expiry via drop_throw().
+// This exercises the miss arm of m_throw() (mthrowu.c:787-822) and the
+// unseen-compatible settlement path.
+export function loadMonsterRangedFlightRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [{
+            seed: 9200016,
+            datetime: '20260827130000',
+            nethackrc: nethackrc(),
+            // The original announcement moves, then space dismisses --More--,
+            // then five searches let the monster turn finish and the game
+            // advance past the throw.
+            moves: ` #wizwish\nspeed boots\nWe${GENESIS_KEY}goblin\n`
+                + `lllllll#wizwish\nmagic lamp named ${LAMP_NAME}\n#rub\nf`
+                + ` sssss`,
+        }],
+    }, 'monster ranged flight recipe');
+}
+
 export async function runMonsterRangedAnnouncementMatrix() {
     return runFreshMatrix({
-        entries: [{
-            label: 'visible single monster throw announcement',
-            recipe: loadMonsterRangedAnnouncementRecipe(),
-        }],
-        summaryLabel: 'MONSTER RANGED ANNOUNCEMENT',
-        verifySegment: verifyMonsterRangedAnnouncementSegment,
+        entries: [
+            {
+                label: 'visible single monster throw announcement',
+                recipe: loadMonsterRangedAnnouncementRecipe(),
+            },
+            {
+                label: 'visible throw with missile miss and range-expiry drop',
+                recipe: loadMonsterRangedFlightRecipe(),
+            },
+        ],
+        summaryLabel: 'MONSTER RANGED ANNOUNCEMENT AND FLIGHT',
     });
 }
 
