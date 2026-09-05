@@ -597,22 +597,33 @@ test('Half_spell_damage halves a wand and a spell but never a breath', () => {
     assert.equal(halved(19, 25, null), 25);
 });
 
-test('a bolt a monster fired stops before the killer names it', () => {
+test('a monster bolt names the caster via death_inflicted_by', () => {
     // zap.c:4570-4577 hands the killer to mcastu.c death_inflicted_by(), which
     // names the monster gb.buzzer points at. `type < 0` is a monster's own
-    // zap and gb.buzzer is written only by mcastu.c, muse.c, mthrowu.c,
-    // priest.c and timeout.c, none of them ported.
-    assert.throws(
-        () => zhituLosehpArguments(-31, 1, 6, 'bolt of fire', killerState()),
-        /death_inflicted_by\(\)/u,
+    // zap and gb.buzzer is written by mcastu.c buzzmu(), muse.c, mthrowu.c,
+    // priest.c and timeout.c.
+
+    // type < 0 with no buzzer: just the fltxt, no "by" attribution.
+    assert.equal(
+        zhituLosehpArguments(-31, 1, 6, 'bolt of fire', killerState()).kbuf,
+        'bolt of fire',
+    );
+    // type < 0 with a buzzer set: "{fltxt} {verb} by a {monster}".
+    // abstyp = zaptype(-16) = 16, verb = "cast" (abstyp < 20).
+    const shaman = { data: { pmnames: ['kobold shaman', null, 'kobold shaman'],
+        geno: 0 } };
+    assert.equal(
+        zhituLosehpArguments(-16, 16, 6, 'bolt of cold',
+            killerState({ buzzer: shaman })).kbuf,
+        'bolt of cold cast by a kobold shaman',
     );
     // zap.c:4572 is `type < 0 || (type == 0 && gb.buzzer != 0)`, and the two
     // halves of the conjunct need separating. A type of 0 with a buzzer set is
     // the only hero-band combination C sends to the monster arm.
-    assert.throws(
-        () => zhituLosehpArguments(0, 1, 6, 'bolt of fire',
-            killerState({ buzzer: { mnum: 1 } })),
-        /death_inflicted_by\(\)/u,
+    assert.equal(
+        zhituLosehpArguments(0, 1, 6, 'bolt of fire',
+            killerState({ buzzer: shaman })).kbuf,
+        'bolt of fire zapped by a kobold shaman',
     );
     // The same buzzer at any other hero type takes the else at 4578, which is
     // what a guard reading `type < 0 || gb.buzzer` would get wrong.

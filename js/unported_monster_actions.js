@@ -63,7 +63,7 @@ import { any_light_source } from './light.js';
 import { m_dowear, set_mimic_sym } from './makemon_create.js';
 import { fightm } from './mhitm.js';
 import { mattacku, mdamageu, MonsterDeathPlanningError } from './mhitu.js';
-import { castmu } from './mcastu.js';
+import { buzzmu, castmu } from './mcastu.js';
 import { m_throw, thitu, thrwmu } from './mthrowu.js';
 import { AKLYS } from './objects.js';
 import { quest_stat_check, quest_talk } from './quest.js';
@@ -1321,6 +1321,15 @@ function attackHeroWithMattacku(monster, env) {
                 },
                 mdamageu: (mtmp2, dmg) =>
                     mdamageu(mtmp2, dmg, spellEnv.state ?? env.state, spellEnv),
+            }),
+        // C ref: mhitu.c AT_MAGC range2 arm -> buzzmu() (mcastu.c:988-1012).
+        castRangedSpell: (subject, mattk, spellEnv) =>
+            buzzmu(subject, mattk, {
+                ...spellEnv,
+                monsterName: (mtmp) => capitalizedMonsterName(mtmp, env.state),
+                message: env.planning ? undefined : async (text, s) => {
+                    await ttyPline(text, s);
+                },
             }),
     });
 }

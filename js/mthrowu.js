@@ -113,13 +113,15 @@ export function blocking_terrain(x, y, state = game) {
 // is the only randomness here and only arm 2 spends it.
 //
 // C also stores the displacement in gt.tbx and gt.tby "for use after
-// successful return". Those two have no ported reader -- m_throw() and
-// thrwmu() are their consumers -- so this keeps them local.
+// successful return". buzzmu() reads sgn(gt.tbx) and sgn(gt.tby) as the
+// direction deltas for buzz(); m_throw() and thrwmu() read them for the
+// throw direction. Surface them on state.gt.
 export function linedup(ax, ay, bx, by, boulderhandling, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2 };
-    const tbx = ax - bx;
-    const tby = ay - by;
+    state.gt ??= {};
+    const tbx = state.gt.tbx = ax - bx;
+    const tby = state.gt.tby = ay - by;
 
     /* sometimes displacement makes a monster think that you're at its
        own location; prevent it from throwing and zapping in that case */

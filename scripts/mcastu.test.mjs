@@ -13,9 +13,9 @@ import {
     MFAST,
     TELEPAT,
 } from '../js/const.js';
-import { castmu } from '../js/mcastu.js';
+import { buzzmu, castmu } from '../js/mcastu.js';
 import { healmon } from '../js/mon.js';
-import { AD_CLRC, AD_MAGM, AD_SPEL, AT_MAGC } from '../js/monsters.js';
+import { AD_CLRC, AD_COLD, AD_FIRE, AD_MAGM, AD_SPEL, AT_MAGC } from '../js/monsters.js';
 import { STRANGE_OBJECT } from '../js/objects.js';
 import { has_aggravatables } from '../js/wizard.js';
 
@@ -717,4 +717,80 @@ test('cure_self: is not chosen when the monster is at full health', async () => 
         'no "looks better" at full health');
     assert.equal(mtmp.mhp, 20, 'monster hp unchanged');
     assert.equal(damageAmount, 6, 'open_wounds delivers d(4,6)=6');
+});
+
+// -- buzzmu ---------------------------------------------------------------
+
+// C ref: mcastu.c buzzmu() (988-1012). "monster uses spell (ranged)"
+// Returns M_ATTK_MISS when the adtyp is not a valid buzz type, the monster
+// is cancelled, or lined_up/rn2(3) fails. Returns M_ATTK_HIT when the
+// spell fires.
+
+// Build an attack mattk for buzzmu. adtyp must be in the BZ_VALID_ADTYP
+// range (AD_MAGM=1 through AD_SPC2=10) for the spell to fire.
+function makeBuzzAttack(adtyp, damn = 4) {
+    return { aatyp: AT_MAGC, adtyp, damn, damd: 0 };
+}
+
+test('buzzmu returns M_ATTK_MISS for an invalid adtyp', async () => {
+    // AD_PHYS(0) is below AD_MAGM(1), so BZ_VALID_ADTYP rejects it.
+    const mtmp = makeCaster();
+    const result = await buzzmu(mtmp, makeBuzzAttack(0), {
+        state: makeState(),
+        random: scriptedRandom([]),
+    });
+    assert.equal(result, M_ATTK_MISS,
+        'adtyp 0 is outside the valid buzz range');
+});
+
+test('buzzmu returns M_ATTK_MISS for a cancelled monster', async () => {
+    // A cancelled monster calls cursetxt() and returns MISS.
+    const mtmp = makeCaster({ mcan: true });
+    const messages = [];
+    const result = await buzzmu(mtmp, makeBuzzAttack(AD_FIRE), {
+        state: makeState(),
+        random: scriptedRandom([]),
+        message: (m) => messages.push(m),
+    });
+    assert.equal(result, M_ATTK_MISS,
+        'cancelled monster returns MISS');
+    // cursetxt() produces a message when the monster is visible.
+    assert.ok(messages.length > 0,
+        'cursetxt produces a message');
+});
+
+test('buzzmu returns M_ATTK_MISS for a monster with seen resistance', async () => {
+    // m_seenres checks mtmp.seen_resistance against the adtyp mask.
+    // cvt_adtyp_to_mseenres(AD_COLD=3) is M_SEEN_COLD=0x100 (bit 8).
+    const M_SEEN_COLD = 0x100;
+    const mtmp = makeCaster({ seen_resistance: M_SEEN_COLD });
+    const messages = [];
+    const result = await buzzmu(mtmp, makeBuzzAttack(AD_COLD), {
+        state: makeState(),
+        random: scriptedRandom([]),
+        message: (m) => messages.push(m),
+    });
+    assert.equal(result, M_ATTK_MISS,
+        'seen resistance returns MISS');
+});
+
+test('buzzmu returns M_ATTK_MISS when rn2(3) returns 0', async () => {
+    // Even when lined_up succeeds, rn2(3)=0 prevents the spell from firing.
+    // State: monster at (5,5), hero at (4,5), couldsee(5,5) true. linedup
+    // returns true immediately (orthogonal, within BOLT_LIM, couldsee passes)
+    // without consuming any rn2 calls. The only rn2 buzzmu itself calls is
+    // rn2(3), whose 0 result makes the `&& rn2(3)` falsy.
+    const state = makeState();
+    state.u.upolyd = false;
+    state.youmonst.m_ap_type = 0;
+    state.youmonst.mappearance = 0;
+    const mtmp = makeCaster({ mx: 5, my: 5, mux: 4, muy: 5 });
+    // The only rn2 consumed is buzzmu's own rn2(3)=0.
+    const random = scriptedRandom([0]);
+    const result = await buzzmu(mtmp, makeBuzzAttack(AD_FIRE), {
+        state,
+        random,
+    });
+    assert.equal(result, M_ATTK_MISS,
+        'rn2(3)=0 prevents the spell from firing');
 });

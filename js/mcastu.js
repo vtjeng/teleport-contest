@@ -9,6 +9,9 @@
 import {
     ANTIMAGIC,
     BLINDED,
+    BZ_M_SPELL,
+    BZ_OFS_AD,
+    BZ_VALID_ADTYP,
     DEAF,
     DISPLACED,
     HALF_SPDAM,
@@ -26,6 +29,7 @@ import {
 } from './const.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
+import { sgn } from './hacklib.js';
 import { healmon } from './mon.js';
 import {
     cvt_adtyp_to_mseenres,
@@ -39,10 +43,12 @@ import {
 } from './monsters.js';
 import { STRANGE_OBJECT } from './objects.js';
 import { body_part } from './polyself.js';
+import { lined_up } from './mthrowu.js';
 import { rn2, d } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { couldsee, canseemon } from './vision.js';
 import { has_aggravatables } from './wizard.js';
+import { buzz, flash_str } from './zap.js';
 
 // ---- Spell enum (mcastu.h MONSPELL order) ----
 // These must match the C enum values (0-based, order from mcastu.h).
@@ -610,4 +616,50 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
             unsupported('mcast_spell mdamageu');
         }
     }
+}
+
+// ---- buzzmu() ----
+// C ref: mcastu.c buzzmu() (988-1012). "monster uses spell (ranged)"
+// Called from mattacku() when AT_MAGC attack fires at range. Returns
+// M_ATTK_HIT on a successful spell, M_ATTK_MISS otherwise.
+export async function buzzmu(mtmp, mattk, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const message = rawEnv.message;
+    const env = { ...rawEnv, state, random };
+
+    /* don't print constant stream of curse messages for 'normal'
+       spellcasting monsters at range */
+    if (!BZ_VALID_ADTYP(mattk.adtyp))
+        return M_ATTK_MISS;
+
+    if (mtmp.mcan || m_seenres(mtmp, cvt_adtyp_to_mseenres(mattk.adtyp))) {
+        cursetxt(mtmp, false, env);
+        return M_ATTK_MISS;
+    }
+    if (lined_up(mtmp, env) && random.rn2(3)) {
+        nomul(0, state);
+        if (canseemon(mtmp, state) && message) {
+            await message(
+                `${env.monsterName?.(mtmp)
+                    ?? capitalizedMonsterNameFallback(mtmp, state)
+                } zaps you with a ${
+                    flash_str(BZ_OFS_AD(mattk.adtyp), false, state)
+                }!`,
+                state,
+            );
+        }
+        state.gb ??= {};
+        state.gb.buzzer = mtmp;
+        await buzz(
+            BZ_M_SPELL(BZ_OFS_AD(mattk.adtyp)),
+            mattk.damn,
+            mtmp.mx, mtmp.my,
+            sgn(state.gt.tbx), sgn(state.gt.tby),
+            state, random,
+        );
+        state.gb.buzzer = 0;
+        return M_ATTK_HIT;
+    }
+    return M_ATTK_MISS;
 }

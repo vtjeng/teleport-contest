@@ -256,8 +256,15 @@ export function STR19(x) { return 100 + x; } // 19 and above
 // C ref: zap.h — BZ_OFS_AD(x) = (x) - 1
 export function BZ_OFS_AD(adtyp) { return adtyp - 1; }
 
+// C ref: hack.h:1474 — BZ_VALID_ADTYP checks adtyp is in the valid buzz range
+// AD_MAGM(1) through AD_SPC2(10).
+export function BZ_VALID_ADTYP(adtyp) { return adtyp >= 1 && adtyp <= 10; }
+
 // C ref: hack.h:1484 — BZ_U_BREATH(bztyp) = 20 + (bztyp), types 20..29
 export function BZ_U_BREATH(bztyp) { return 20 + bztyp; }
+
+// C ref: hack.h:1486 — BZ_M_SPELL(bztyp) = -10 - (bztyp), types -19..-10
+export function BZ_M_SPELL(bztyp) { return -10 - bztyp; }
 
 // Room types (mkroom.h)
 export const OROOM = 0;

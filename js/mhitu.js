@@ -861,8 +861,10 @@ export async function mattacku(monster, rawEnv = {}) {
 
         case M.AT_MAGC:
             if (range2) {
-                // buzzmu() calls buzz() which is a large zap.c subsystem.
-                unsupported('a monster casting a ranged spell (buzzmu)');
+                const castRangedSpell = requireMattackuOperation(
+                    env, 'castRangedSpell',
+                );
+                sum[i] = await castRangedSpell(monster, mattk, env);
             } else {
                 const castMonsterSpell = requireMattackuOperation(
                     env, 'castMonsterSpell',
@@ -888,8 +890,8 @@ export async function mattacku(monster, rawEnv = {}) {
         // teleported one, reading M_ATTK_AGR_DIED and M_ATTK_AGR_DONE out of
         // sum[i]. Neither bit can be set: hitmu() is the only writer of sum[i]
         // and both of its exits answer M_ATTK_HIT; gulpmu(), explmu(), and
-        // gazemu() refuse above; castmu() answers M_ATTK_HIT or M_ATTK_MISS
-        // and buzzmu() refuses above.
+        // gazemu() refuse above; castmu() and buzzmu() answer M_ATTK_HIT or
+        // M_ATTK_MISS.
     }
     return false;
 }

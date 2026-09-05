@@ -140,6 +140,7 @@ import {
     monstunseesu,
     nonliving,
     nohands,
+    type_is_pname,
 } from './mondata.js';
 import {
     AD_ACID,
@@ -185,8 +186,10 @@ import {
     The,
     Tobjnam,
     Yname2,
+    an,
     aobjnam,
     donameFresh,
+    the_unique_pm,
     vtense,
     xnameFresh,
 } from './objnam.js';
@@ -1347,26 +1350,36 @@ export function zhituLosehpArguments(type, abstyp, dam, fltxt, state = game) {
             : (abstyp < 30) ? 'exhaled'
                 : 'imagined'; /* should never happen */
 
+    let kbuf;
     if (type < 0 || (type === 0 && state.gb?.buzzer)) {
-        // 4572-4577 names the monster that fired the bolt, through
-        // mcastu.c death_inflicted_by() and hacklib.c strsubst(). C's guard is
-        // `type < 0 || (type == 0 && gb.buzzer != 0)`, and the conjunct
-        // matters: a hero's own magic missile is type 0, so only a set
-        // gb.buzzer separates it from the else at 4578, while every other
-        // hero type takes the else whatever gb.buzzer holds.
-        //
-        // Neither half can hold here. dobuzz() refuses a negative type one
-        // frame above, and gb.buzzer is written only by mcastu.c, muse.c,
-        // mthrowu.c, priest.c and timeout.c, none of them ported. A hero's own
-        // ricochet therefore always takes the else at 4578.
-        throw new UnsupportedZapError(
-            'death_inflicted_by() for a bolt a monster fired',
-        );
+        // C ref: mcastu.c death_inflicted_by() (358-382) and hacklib.c
+        // strsubst(). The monster that fired the bolt names the killer.
+        const buzzer = state.gb?.buzzer;
+        if (buzzer) {
+            // Simplified death_inflicted_by: use the buzzer's species name
+            // with "a/an" for ordinary monsters, "the" for unique ones, and
+            // the bare name for proper-name monsters.
+            const mptr = buzzer.data;
+            const name = mptr?.pmnames?.[2] ?? mptr?.pmnames?.[0]
+                ?? 'something';
+            let monName;
+            if (the_unique_pm(mptr)) {
+                monName = `the ${name}`;
+            } else if (type_is_pname(mptr)) {
+                monName = name;
+            } else {
+                monName = an(name);
+            }
+            kbuf = `${fltxt} ${verb} by ${monName}`;
+        } else {
+            kbuf = fltxt;
+        }
+    } else {
+        /* FIXME: "zapped by herself" is suitable for a rebound;
+           "zapped at herself" would be better if player explicitly
+           targeted hero */
+        kbuf = `${fltxt} ${verb} by ${uhim(state)}self`;
     }
-    /* FIXME: "zapped by herself" is suitable for a rebound;
-       "zapped at herself" would be better if player explicitly
-       targeted hero */
-    const kbuf = `${fltxt} ${verb} by ${uhim(state)}self`;
     /* Half_spell_damage protection yields half-damage for wands & spells,
        including hero's own ricochets; breath attacks do full damage */
     if (dam && Half_spell_damage(state) && abstyp < 20)
@@ -1593,9 +1606,12 @@ export async function dobuzz(
     const fltyp = zaptype(type);
     const damgtype = fltyp % 10;
 
-    // ubuzz() is the only ported entry, so `type` is a hero wand zap. The
-    // section header above records what that settles.
-    if (type < 0 || type > 9) {
+    // Supported type ranges: 0..9 (hero wand) and -19..-10 (monster spell
+    // via buzzmu). Hero spell (10..19), hero breath (20..29), monster breath
+    // (-29..-20), and monster wand (-39..-30) remain unsupported.
+    const isHeroWand = type >= 0 && type <= 9;
+    const isMonsterSpell = type >= -19 && type <= -10;
+    if (!isHeroWand && !isMonsterSpell) {
         throw new UnsupportedZapError(
             `dobuzz() for a spell, breath or monster zap of type ${type}`,
         );
@@ -1616,7 +1632,10 @@ export async function dobuzz(
             "dobuzz()'s swallowed hero, over zhitm() on the engulfer",
         );
     }
-    // 4821-4822's `if (type < 0) newsym(u.ux, u.uy)` is a monster zap's.
+    // C ref: zap.c:4821-4822. When a monster fires, repaint the hero's cell
+    // so the beam glyph replaces the hero glyph during the animation.
+    if (type < 0)
+        newsym(state.u.ux, state.u.uy);
     let range = random.rn1(7, 7);
     if (dx === 0 && dy === 0)
         range = 1;
@@ -1626,6 +1645,11 @@ export async function dobuzz(
     // zap_over_floor() raises it and that arm stops, so the tail below reads
     // it back false on every reachable path.
     const shopdamage = { value: false };
+
+    // C ref: zap.c:4793. fireball is true only for hero spell fire (type 11),
+    // which is outside the supported range. gas_hit is set per iteration.
+    const fireball = (type === 10 + ZT_FIRE);
+    let gas_hit = false;
 
     await tmp_at(DISP_BEAM, zapdir_to_glyph(dx, dy, hdmgtype, state), state);
     while (range-- > 0) {
@@ -1651,9 +1675,14 @@ export async function dobuzz(
 
             /* hit() and miss() need gb.bhitpos to match the target */
             state.gb.bhitpos = { x: sx, y: sy };
-            range += await zap_over_floor(
-                sx, sy, type, shopdamage, true, 0, state, random,
-            );
+            // C ref: zap.c:4852-4862. Fireballs damage only on explosion;
+            // poison gas defers zap_over_floor until after hit/miss logic.
+            gas_hit = (damgtype === ZT_POISON_GAS);
+            if (!fireball && !gas_hit) {
+                range += await zap_over_floor(
+                    sx, sy, type, shopdamage, true, 0, state, random,
+                );
+            }
             /* zap with fire -> melt ice -> drown monster, so monster
                found and cached above might not be here any more */
             mon = m_at(sx, sy, state);
@@ -1680,6 +1709,7 @@ export async function dobuzz(
                         }
                         dx = negate(dx);
                         dy = negate(dy);
+                        gas_hit = false;
                     } else {
                         const mon_could_move = mon.mcanmove;
                         const zhitResult = await zhitm(mon, type, nd, state, random);
@@ -1830,7 +1860,13 @@ export async function dobuzz(
                 await stop_occupation(state, { message: ttyPline });
                 nomul(0, state);
             }
-            // 5019-5022's deferred gas cloud needs gas_hit, which is false.
+            // C ref: zap.c:4995-4996. Gas that missed or was not reflected
+            // leaves a 1x1 cloud via the deferred zap_over_floor().
+            if (gas_hit) {
+                range += await zap_over_floor(
+                    sx, sy, type, shopdamage, true, 0, state, random,
+                );
+            }
 
             if (!ZAP_POS(state.level.at(sx, sy).typ)
                 || (closed_door(sx, sy, state) && range >= 0))
@@ -1871,9 +1907,7 @@ export async function dobuzz(
 }
 
 // C ref: zap.c ubuzz() (4758-4762). The hero's own ray, fired from their own
-// square along u.dx/u.dy. buzz() beside it at 4764-4768 is the same call with
-// an explicit origin, for the monsters and traps that fire one; none of its
-// callers is ported, so it has no port here.
+// square along u.dx/u.dy.
 export async function ubuzz(
     type, nd, state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz },
 ) {
@@ -1881,6 +1915,16 @@ export async function ubuzz(
         type, nd, state.u.ux, state.u.uy, state.u.dx, state.u.dy,
         true, false, false, state, random,
     );
+}
+
+// C ref: zap.c buzz() (4764-4768). A directed spell, breath, or zap from an
+// explicit origin. Wraps dobuzz with sayhit=true, saymiss=false,
+// forcemiss=false.
+export async function buzz(
+    type, nd, sx, sy, dx, dy,
+    state = game, random = { d, rn1, rn2, rnd, rne, rnl, rnz },
+) {
+    return dobuzz(type, nd, sx, sy, dx, dy, true, false, false, state, random);
 }
 
 // C ref: zap.c ubreatheu() (3017-3022). Called when the poly'd hero uses a
