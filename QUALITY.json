@@ -6243,6 +6243,16 @@
       "status": "open",
       "from": "e8aca9ec0d797ce98ab2699db5cc6a5076d8a448",
       "detail": "attack_checks() hidden-monster branch (uhitm.c:268-297) for ceiling hiders.\nThe current implementation admits hides_under (M1_CONCEAL) and S_EEL\n(submerged) monsters through the melee gate in hack.js, but ceiling\nhiders (M1_HIDE without M1_CONCEAL, such as piercers, lurkers, and\ntrappers) still throw UnsupportedHeroMoveBoundaryError. The C source\nat uhitm.c:276-291 formats a message using l_monnam and either\nhides_under/is_pool/is_lava predicates or a generic \"hiding\" fallback.\nThe boundary is in hack.js requireOrdinaryHostileMelee."
+    },
+    {
+      "id": "vault-guard-isgd-movement",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "ca79c78b91918929c6f026d2c91257bc7a452856",
+      "detail": "Vault guard (`isgd` monster) movement is unported.\n`js/unported_monster_actions.js:333` refuses every monster with `isgd` set.\nIn the witness session `seed0012-monk-vault-escort`, the hero drops gold in\na vault at step 285. The drop now proceeds (after narrowing the shop guard\nto `costly_spot()`), but the end-of-turn monster scan hits the vault guard's\n`isgd` flag and throws `UnsupportedTurnBoundaryError`. The screen from the\ndrop is never captured because `advanceElapsedTurn()` runs before\n`bot()`/`flush_screen()` in `moveloop_core()`.\n\nPorting the vault guard movement requires `gd_move()` in `vault.c`.",
+      "blockedOn": "gd_move"
     }
   ],
   "areas": [

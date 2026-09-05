@@ -159,7 +159,7 @@ import { getlev } from './restore.js';
 import { cloneIsaacContext, createCoreRandom, rn2 } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
-import { preflight_shop_arrival } from './shk.js';
+import { costly_spot, preflight_shop_arrival } from './shk.js';
 import {
     stairway_at,
     stairway_find_from,
@@ -834,10 +834,13 @@ export function preflight_dropx(obj, env = {}) {
         throw new UnsupportedDropError('shipping down stairs or a ladder');
     if (IS_ALTAR(location.typ))
         throw new UnsupportedDropError('an altar');
-    // sellobj() is square-specific, but its location and billing effects are
-    // not ported. Conservatively exclude the whole level when any shop exists.
-    if (state.level.flags?.has_shop)
-        throw new UnsupportedDropError('a shop level');
+    // sellobj() handles billing when an object lands on a shop square. Its
+    // early returns (shk.c:3938-3944) skip the billing body when the hero is
+    // not in *u.ushops, the shopkeeper is absent, or the square is not a
+    // costly_spot. When costly_spot() is false the call is a no-op, so the
+    // drop can proceed through the ordinary place_object/stackobj/newsym tail.
+    if (costly_spot(x, y, state))
+        throw new UnsupportedDropError('a costly shop spot');
     // The remaining square effects are reached from dropz()'s flooreffects().
     if (t_at(x, y, state))
         throw new UnsupportedDropError('shipping or floor effects at a trap');

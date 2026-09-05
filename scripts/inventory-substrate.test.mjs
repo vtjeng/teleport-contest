@@ -2870,16 +2870,22 @@ test('ordinary drop preflight refuses excluded floor effects before mutation',
         ball.where = OBJ_INVENT;
         ball.invlet = 'a';
         state.invent = ball;
+        // A shop level where the hero is NOT at a costly spot does not refuse
+        // the drop -- sellobj() would be a no-op in C (shk.c:3938-3944).
         state.level.flags.has_shop = true;
+        // Use a trap to trigger the guard before mutation, since the hero is
+        // not at a costly spot and the narrowed shop guard is inert here.
+        state.level.traps = [{ tx: 10, ty: 5 }];
 
         assert.throws(
             () => preflight_dropx(ball, { state, hooks: {} }),
-            /shop/u,
+            /trap/u,
         );
         assert.equal(state.invent, ball);
         assert.equal(ball.where, OBJ_INVENT);
         assert.equal(state.level.objects[10][5], null);
 
+        state.level.traps = [];
         state.level.flags.has_shop = false;
         state.u.uprops[BLINDED].intrinsic = 1;
         assert.doesNotThrow(

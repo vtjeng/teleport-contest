@@ -9052,7 +9052,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "narrow-shop-guard-to-costly-spot",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "54e40ff77b47fc077904801f5df5eecfcdc7e4c6",
       "openStanding": {
         "sha": "12d9c4af",

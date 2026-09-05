@@ -369,8 +369,11 @@ test('an excluded heavy-ball drop refuses before wish state changes',
         // default MOD_ENCUMBER pickup limit on this otherwise live hero.
         game.u.acurr.a[A_STR] = 3;
         game.u.acurr.a[A_CON] = 3;
-        game.level.flags.has_shop = true;
+        // Place a trap at the hero's position to trigger the drop guard.
+        // Previously has_shop sufficed, but the guard now checks costly_spot()
+        // and a non-shop square on a shop level no longer refuses the drop.
         const { ux, uy } = game.u;
+        game.level.traps = (game.level.traps ?? []).concat({ tx: ux, ty: uy });
         const before = {
             blesscnt: game.u.ublesscnt,
             conduct: game.u.uconduct.wishes,
@@ -387,7 +390,7 @@ test('an excluded heavy-ball drop refuses before wish state changes',
         await assert.rejects(
             () => rhack(WIZWISH_KEY.charCodeAt(0), game),
             (error) => error instanceof UnsupportedHeroCommandBoundaryError
-                && /shop level/u.test(error.message),
+                && /trap/u.test(error.message),
         );
 
         assert.equal(game.u.uconduct.wishes, before.conduct);
