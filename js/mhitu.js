@@ -15,6 +15,8 @@ import {
     M_AP_NOTHING,
     M_AP_OBJECT,
     M_AP_TYPE,
+    M_ATTK_AGR_DIED,
+    M_ATTK_AGR_DONE,
     M_ATTK_HIT,
     M_ATTK_MISS,
     M_SEEN_COLD,
@@ -886,12 +888,10 @@ export async function mattacku(monster, rawEnv = {}) {
                 state.nomovemsg = 'The combat suddenly awakens you.';
             }
         }
-        // C follows this with `return 1` for a dead attacker and `break` for a
-        // teleported one, reading M_ATTK_AGR_DIED and M_ATTK_AGR_DONE out of
-        // sum[i]. Neither bit can be set: hitmu() is the only writer of sum[i]
-        // and both of its exits answer M_ATTK_HIT; gulpmu(), explmu(), and
-        // gazemu() refuse above; castmu() and buzzmu() answer M_ATTK_HIT or
-        // M_ATTK_MISS.
+        if (sum[i] & M_ATTK_AGR_DIED)
+            return 1;
+        if (sum[i] & M_ATTK_AGR_DONE)
+            break;
     }
     return false;
 }

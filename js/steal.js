@@ -291,8 +291,7 @@ function remove_worn_item(obj, unchain_ball, state = game) {
 
 // C ref: steal.c worn_item_removal() (292-334). Message prefacing the removal
 // of a worn item during theft, followed by remove_worn_item().
-function worn_item_removal(mon, obj, state = game) {
-    const message = ttyUrgentPline;
+function worn_item_removal(mon, obj, state = game, message = ttyUrgentPline) {
     let objbuf = doname_with_price(obj, state);
 
     // Massage the object description: strip article and replace with "your".
@@ -489,7 +488,7 @@ export async function steal(mtmp, state = game, env = {}) {
         case AMULET_CLASS:
         case RING_CLASS:
         case FOOD_CLASS: /* meat ring */
-            worn_item_removal(mtmp, otmp, state);
+            worn_item_removal(mtmp, otmp, state, message);
             break;
         case ARMOR_CLASS: {
             // The armor-delay charming branch is complex and needs
@@ -521,7 +520,7 @@ export async function steal(mtmp, state = game, env = {}) {
                 'steal uball/uchain removal',
             );
         }
-        worn_item_removal(mtmp, otmp, state);
+        worn_item_removal(mtmp, otmp, state, message);
         // if the weapon was also wielded after uchain processing
         if (otmp.owornmask & W_WEAPONS)
             remove_worn_item(otmp, false, state);
