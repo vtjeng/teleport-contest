@@ -9032,6 +9032,35 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "unsupported-hero-command-an-unported-branch-of-this-comm-24",
+      "status": "open",
+      "boundary": "unsupported hero command: an unported branch of this command: unsupported drop: a shop level",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 24,
+        "basis": "capped at session seed0012-monk-vault-escort stretch of 24, capStable True",
+        "sessions": [
+          "seed0012-monk-vault-escort"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0012-monk-vault-escort",
+            "evidence": "At step 284 the hero drops gold in a vault on a level that also has a shop. js/do.js:839-840 refuses the entire level when has_shop is true, but C's sellobj() would no-op here because the hero is not in u.ushops. C ref: do.c dropz() lines 807-841."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "54e40ff77b47fc077904801f5df5eecfcdc7e4c6",
+      "openStanding": {
+        "sha": "12d9c4af",
+        "screens": 4560,
+        "rng": 316450
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
