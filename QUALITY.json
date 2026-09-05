@@ -9300,6 +9300,25 @@
       ],
       "outcome": "changed",
       "recordedAt": "2026-09-04T17:31:36.889Z"
+    },
+    {
+      "kind": "review",
+      "head": "68093db863b9cf4b90363fdbe228e77ada670e42",
+      "auditedRange": "40eaecf81b493e81e25b6679e2861e165bd9d300..68093db863b9cf4b90363fdbe228e77ada670e42",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "recordedAt": "2026-09-05T07:56:27.222Z"
     }
   ]
 }
