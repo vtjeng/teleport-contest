@@ -1624,6 +1624,7 @@ function first_weapon_hit() {
 // brags and teleports away. If canceled, "plain" message and maybe teleport.
 // Otherwise steal() runs and the attacker teleports away on success.
 async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
+    const random = env.random ?? { d, rn2, rnd };
     const unsupported = requireAttackOperation(env, 'unsupported');
     const message = requireAttackOperation(env, 'message');
 
@@ -1641,6 +1642,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
         // alongside the attack env's message function.
         const rlocEnv = {
             state,
+            random: env.random,
             newsym,
             onscary: (x, y, mon, normEnv) =>
                 onscary(x, y, mon, normEnv.state),
@@ -1686,7 +1688,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
                     state,
                 );
             }
-            if (rn2(3)) {
+            if (random.rn2(3)) {
                 if (!noteleport_level(magr, state))
                     await rloc(magr, RLOC_MSG, rlocEnv);
                 mhm.hitflags = M_ATTK_AGR_DONE;
