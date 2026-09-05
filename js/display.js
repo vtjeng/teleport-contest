@@ -2593,7 +2593,7 @@ export function feel_location(x, y, state = game) {
     const engraving = engr_at(x, y, state);
     if (engraving && engr_can_be_felt(engraving)) engraving.erevealed = 1;
 
-    _map_location(x, y, 1, state);
+    map_location(x, y, 1, state);
 
     // display.c:893-900. Floor spaces are dark if unlit, corridors are dark if
     // unlit. C assigns levl[x][y].glyph directly here rather than through
@@ -2651,7 +2651,7 @@ function rememberedCmap(cmap, state) {
 // spot_shows_engravings() and the erevealed test, so it answers non-null
 // exactly where C's third condition holds; the memory and screen writes below
 // it are map_engraving()'s two statements.
-function _map_location(x, y, show, state) {
+export function map_location(x, y, show, state) {
     const location = state.level?.at(x, y);
     if (!location) return;
     const covered = floorLayersCovered(location, state);
@@ -2679,6 +2679,15 @@ function _map_location(x, y, show, state) {
         const region = visible_region_at(x, y, state);
         if (region) show_region(region, x, y, state);
     }
+}
+
+// C ref: display.c unset_seenv() (3384-3393). Called by vault.c blackout() when
+// the vault guard removes a temporary corridor; it clears the bit in
+// location.seenv that records that <x1,y1> was seen from <x0,y0>.
+export function unset_seenv(location, x0, y0, x1, y1) {
+    const dx = x1 - x0;
+    const dy = y0 - y1;
+    location.seenv = (location.seenv ?? 0) & ~seenv_matrix[dy + 1][dx + 1];
 }
 
 // C ref: region.c show_region() (731-735), which is one show_glyph() of the

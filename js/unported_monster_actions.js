@@ -330,9 +330,11 @@ function assertSimpleActionState(monster, state) {
 
     if (monster.mtame || monster.isminion)
         unsupported('minion movement');
-    if (monster.wormno || monster.isgd || is_covetous(monster.data)) {
+    if (monster.wormno || is_covetous(monster.data)) {
         unsupported('special monster movement');
     }
+    // isgd is admitted: m_move() dispatches to gd_move() which handles the
+    // peaceful escort path and throws on unported branches.
     // isshk and ispriest are admitted: m_move() dispatches to shk_move()
     // and pri_move() respectively, which handle the stationary and milling
     // paths and refuse the rest.
@@ -390,6 +392,18 @@ function cloneMonster(monster) {
                 ...monster.mextra.edog,
                 ogoal: { ...monster.mextra.edog.ogoal },
             } : monster.mextra.edog,
+            // gd_move() modifies egd (fcend++, fakecorr entries, ogx/ogy);
+            // share it and the planning pass corrupts the live guard's state.
+            egd: monster.mextra.egd ? {
+                ...monster.mextra.egd,
+                ...(monster.mextra.egd.gdlevel
+                    ? { gdlevel: { ...monster.mextra.egd.gdlevel } }
+                    : {}),
+                ...(monster.mextra.egd.fakecorr
+                    ? { fakecorr: monster.mextra.egd.fakecorr.map(
+                        (fc) => ({ ...fc })) }
+                    : {}),
+            } : monster.mextra.egd,
         } : monster.mextra,
     };
 }

@@ -9090,7 +9090,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "port-gd_move-peaceful-escort",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "567dba968a28436b2ed584fc3d8b6eaa81b26686",
       "openStanding": {
         "sha": "4004d6db",

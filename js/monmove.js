@@ -351,6 +351,7 @@ import {
 } from './trap_effects.js';
 import { noteleport_level } from './teleport.js';
 import { ttyPline } from './tty_message.js';
+import { gd_move } from './vault.js';
 import {
     cansee,
     clear_path,
@@ -2750,12 +2751,13 @@ export async function m_move(monster, rawEnv = {}) {
     // returns through postmov().  -1 (let m_move do it) falls through to
     // normal movement; -2 means the monster died.
     if (monster.isshk || monster.isgd || monster.ispriest) {
-        if (monster.isgd) unsupported('guard movement');
-        // shk_move / pri_move return: 1 moved, 0 didn't, -1 let m_move
-        // do it, -2 died.
+        // shk_move / gd_move / pri_move return: 1 moved, 0 didn't, -1 let
+        // m_move do it, -2 died.
         const xm = monster.ispriest
             ? pri_move(monster, env)
-            : shk_move(monster, state, env);
+            : monster.isgd
+                ? await gd_move(monster, env)
+                : shk_move(monster, state, env);
         if (xm === -2) return MMOVE_DIED;
         if (xm === -1) {
             if (monster.isshk)
