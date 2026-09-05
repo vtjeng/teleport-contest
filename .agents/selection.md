@@ -14,7 +14,7 @@ Every goal is a fail-closed boundary port: it implements C behavior the port ref
 
 ## Opening the goal
 
-Record the capped forecast and sessions with `node scripts/goal-log.mjs queue-goal`; `open-goal` captures the score standing, and `close-goal` records delivered figures beside the forecast. Compare a slice's delivery against its forecast, and the goal's delivery against the goal's forecast. Retire a ranking statistic when the last three closed goals each delivered less than a tenth of its forecast; use it again only in a goal entry whose `--forecast-basis` states how those three closes corrected it.
+Record the capped forecast and sessions with `node scripts/goal-log.mjs queue-goal`; `open-goal` captures the score standing, and `close-goal` records delivered figures beside the forecast for reference. The capped forecast is an upper bound: hidden divergences and entangled systems routinely cause delivery to fall well short, and underdelivery does not need to be justified.
 
 A goal may be larger than one agent session. It closes through several behavior slices, each closed on its own. Close slices that port rows of one C table or arms of one C function family as a single slice. `QUALITY.json`'s thresholds schedule reviews inside a goal; size never justifies refusing, deferring, or narrowing a goal. Narrow a goal only through the slice-closure mechanism in `.agents/loop.md`. Start at the first queued slice.
 
