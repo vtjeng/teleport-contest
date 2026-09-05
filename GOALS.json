@@ -9111,7 +9111,7 @@
     },
     {
       "id": "simple-monster-action-requires-uhitm-c-mhitm-ad-cold",
-      "status": "open",
+      "status": "closed",
       "boundary": "monster with AD_COLD attack type touches the hero, requiring the mhitm_ad_cold() damage handler in uhitm.c",
       "upstreamOwners": [],
       "forecast": {
@@ -9131,8 +9131,8 @@
       "slices": [
         {
           "name": "port-mhitm-ad-cold",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "803448fa495fdf0543a6c2775bc88fd41a51f636"
         }
       ],
       "openedAt": "cd00c374e001ae48d1a954628b0f401d55c03bdb",
@@ -9141,8 +9141,11 @@
         "screens": 4583,
         "rng": 316936
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "803448fa495fdf0543a6c2775bc88fd41a51f636",
+      "delivered": {
+        "screens": 0,
+        "rng": 147
+      }
     }
   ]
 }
