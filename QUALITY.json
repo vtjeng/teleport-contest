@@ -6366,6 +6366,7 @@
         "js/fire_level_data.js",
         "js/fire_levels.js",
         "js/hell_levels.js",
+        "js/medusa_levels.js",
         "js/mineralize.js",
         "js/mines_levels.js",
         "js/mklev.js",

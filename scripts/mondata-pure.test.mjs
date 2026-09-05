@@ -53,6 +53,7 @@ import {
     num_horns,
     olfaction,
     on_fire,
+    pm_resistance,
     poly_when_stoned,
     ranged_attk,
     raceptr,
@@ -812,4 +813,18 @@ test('pronoun_gender picks the row role.c genders[] holds', () => {
     assert.equal(mhis(gnome, noDraw), 'his');
     assert.equal(mhis(gnomeLady, noDraw), 'her');
     assert.equal(mhis(rat, noDraw), 'its');
+});
+
+// C ref: include/mondata.h:14 — pm_resistance(ptr, typ).
+// Tests species.mresists against a resistance-bit constant. The stone golem
+// has MR_STONE (0x80) in its mresists; the gnome does not.
+test('pm_resistance checks a species for an innate resistance bit', () => {
+    // MR_STONE = 0x80 = 128, from include/monflag.h:97.
+    const MR_STONE = 128;
+    const stoneGolem = pm(M.PM_STONE_GOLEM);
+    const gnome = pm(M.PM_GNOME);
+    // Stone golem has stone resistance in its compiled mresists field.
+    assert.equal(pm_resistance(stoneGolem, MR_STONE), true);
+    // Gnome has no stone resistance.
+    assert.equal(pm_resistance(gnome, MR_STONE), false);
 });

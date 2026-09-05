@@ -576,15 +576,6 @@ function createOneObject(specification, croom, env) {
     const context = env.spObjectContext;
     const deadParent = specification.content
         && context.containers.at(-1) === null;
-    if (specification.id === STATUE
-        && specification.corpsenm === NON_PM
-        && !deadParent
-        && on_level(env.state.u?.uz, env.state.medusa_level)) {
-        throw new UnsupportedSpecialObjectError(
-            'Medusa-level generic-statue population',
-            specification,
-        );
-    }
     const coordinate = { x: -1, y: -1 };
     get_location_coord(
         coordinate,

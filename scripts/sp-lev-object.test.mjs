@@ -392,30 +392,27 @@ test('trapKnown follows the source truthy trapped gate', () => {
     }
 });
 
-test('generic Medusa statues fail before coordinate draws or object mutation', () => {
-    const { level, room, state } = roomState();
+// Generic Medusa statues now succeed: the medusa_levels.js loader and the
+// fixup_special medusa branch are ported, so the guard that rejected
+// random-monster-type statues on the Medusa level is removed.
+test('generic Medusa statues are created on the Medusa level', () => {
+    const { room, state } = roomState();
     state.medusa_level = { ...state.u.uz };
-    const logged = loggingGenerationRandom();
     const context = new_sp_lev_object_context();
 
-    assert.throws(
-        () => lspo_object({
-            id: STATUE,
-            coordinate: { x: -1, y: -1 },
-        }, room, {
-            state,
-            random: logged.random,
-            spObjectContext: context,
-        }),
-        /Medusa-level generic-statue population/,
-    );
-    assert.deepEqual(logged.calls, []);
-    assert.equal(state.context.ident, 2);
-    assert.deepEqual(context.containers, []);
-    assert.equal(state.gt.timer_base, null);
-    assert.equal(state.svt.timer_id, 1);
-    assert.equal(level.objlist, null);
-    assert.equal(level.objects[2][3], null);
+    const obj = lspo_object({
+        id: STATUE,
+        coordinate: { x: -1, y: -1 },
+    }, room, {
+        state,
+        random: quietGenerationRandom(),
+        spObjectContext: context,
+    });
+
+    // The statue is created with a random corpsenm assigned during
+    // construction.
+    assert.ok(obj, 'statue object should be created');
+    assert.equal(obj.otyp, STATUE);
 });
 
 test('a Medusa statue under a dead parent is uncreated before special handling', () => {

@@ -1394,6 +1394,12 @@ export function poly_when_stoned(species, state = game) {
         && !((state.svm?.mvitals?.[M.PM_STONE_GOLEM]?.mvflags ?? 0) & G_GENOD);
 }
 
+// C ref: include/mondata.h pm_resistance() macro.
+// Tests whether the species has the given innate resistance bit.
+export function pm_resistance(species, typ) {
+    return (species.mresists & typ) !== 0;
+}
+
 // C ref: mondata.c ranged_attk().
 export function ranged_attk(species) {
     return Boolean(species?.mattk?.some(

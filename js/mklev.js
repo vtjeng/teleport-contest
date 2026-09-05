@@ -25,6 +25,7 @@ import {
     UnsupportedSpecialRoomError,
     do_mkroom,
     fill_zoo,
+    mk_tt_object,
 } from './mkroom.js';
 import { mkcorpstat } from './corpstat.js';
 import {
@@ -37,8 +38,9 @@ import { map_background, map_object, map_trap, set_wall_state } from './display.
 import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
 import { add_to_container, obj_extract_self, obfree } from './invent.js';
 import { UnsupportedMonsterCreationError, makemon } from './makemon_create.js';
-import { mkclass } from './makemon.js';
+import { mkclass, rndmonnum } from './makemon.js';
 import { mineralize } from './mineralize.js';
+import { pm_resistance, poly_when_stoned } from './mondata.js';
 import { create_maze, place_lregion, setup_waterlevel } from './mkmaze.js';
 import { d, rn2, rnd, rn1, rne, rnz } from './rng.js';
 import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
@@ -62,6 +64,7 @@ import {
     mkobj_at,
     mksobj,
     mksobj_at,
+    set_corpsenm,
     sobj_at,
     objectType,
     weight,
@@ -97,6 +100,7 @@ import {
     WAN_TELEPORTATION,
     WEAPON_CLASS,
 } from './objects.js';
+import { goodpos } from './teleport.js';
 import { deltrap, maketrap, t_at } from './trap.js';
 import { recalc_block_point } from './vision.js';
 import {
@@ -131,6 +135,7 @@ import {
 import {
     G_IGNORE,
     G_NOGEN,
+    MR_STONE,
     PM_COCKATRICE,
     PM_GIANT_SPIDER,
     PM_KILLER_BEE,
@@ -192,9 +197,9 @@ import {
     MKTRAP_NOFLAGS, MKTRAP_MAZEFLAG, MKTRAP_NOSPIDERONWEB,
     MKTRAP_NOVICTIM, MKTRAP_SEEN,
     BR_PORTAL, BR_NO_END1, BR_NO_END2, SVALL,
-    CORPSTAT_INIT, MARK, MM_NOGRP, NO_MM_FLAGS,
+    CORPSTAT_INIT, CORPSTAT_NONE, MARK, MM_NOGRP, NO_MM_FLAGS,
     AM_SHRINE, AM_SANCTUM,
-    In_quest, NO_ROOM,
+    In_quest, Is_medusa_level, NO_ROOM,
     TRAPNUM,
     In_endgame,
     is_hole,
@@ -566,6 +571,9 @@ async function makelevel(specialLevelLoader = null) {
                 const { VALLEY_LEVEL_LOADERS } = await import(
                     './valley_levels.js'
                 );
+                const { MEDUSA_LEVEL_LOADERS } = await import(
+                    './medusa_levels.js'
+                );
                 SPECIAL_LEVEL_LOADERS = {
                     ...BIGRM_LOADERS,
                     ...QUEST_LEVEL_LOADERS,
@@ -576,6 +584,7 @@ async function makelevel(specialLevelLoader = null) {
                     ...AIR_LEVEL_LOADERS,
                     ...HELL_LEVEL_LOADERS,
                     ...VALLEY_LEVEL_LOADERS,
+                    ...MEDUSA_LEVEL_LOADERS,
                 };
             }
             // Determine the resolved protofile the same way makemaz() will.
@@ -1199,6 +1208,9 @@ async function makemaz(proto, slev, state) {
             const { VALLEY_LEVEL_LOADERS } = await import(
                 './valley_levels.js'
             );
+            const { MEDUSA_LEVEL_LOADERS } = await import(
+                './medusa_levels.js'
+            );
             SPECIAL_LEVEL_LOADERS = {
                 ...BIGRM_LOADERS,
                 ...QUEST_LEVEL_LOADERS,
@@ -1209,6 +1221,7 @@ async function makemaz(proto, slev, state) {
                 ...AIR_LEVEL_LOADERS,
                 ...HELL_LEVEL_LOADERS,
                 ...VALLEY_LEVEL_LOADERS,
+                ...MEDUSA_LEVEL_LOADERS,
             };
         }
         const loader = SPECIAL_LEVEL_LOADERS[protofile];
@@ -1587,8 +1600,10 @@ function createSpecialLevelApi(state) {
                 const dy2 = frame.ystart + ry2;
                 // C ref: sp_lev.c lspo_region():5652-5654.
                 // A room is needed for special room types, irregular
-                // regions, and themed room contexts.
-                const roomNotNeeded = (rtype === OROOM && !irregular);
+                // regions, arrival rooms, and themed room contexts.
+                const arrivalRoom = Boolean(specification.arrival_room);
+                const roomNotNeeded = (rtype === OROOM && !irregular
+                    && !arrivalRoom);
                 if (roomNotNeeded || game.level.nroom >= MAXNROFROOMS) {
                     // Just set lighting.
                     for (let x = dx1; x <= dx2; ++x)
@@ -2070,6 +2085,8 @@ function createSpecialLevelApi(state) {
                     y = coord.y;
                 }
             }
+            // C ref: sp_lev.c l_create_stairway() line 4189.
+            if (frame.splevMap) frame.splevMap[x][y] = 1;
             mkstairs(x, y, up, null);
         },
 
@@ -2543,6 +2560,65 @@ function createSpecialLevelApi(state) {
                     0, 0, 0, 0, 0, 0, 0, 0,
                     LR_BRANCH, null, state,
                 );
+            }
+
+            // C ref: mkmaze.c fixup_special() Is_medusa_level branch
+            // (lines 649-685). After the special-level loader finishes,
+            // add rnd(4) random non-stone-resistant statues to the first
+            // room defined on the Medusa level.
+            if (Is_medusa_level(state.u.uz)) {
+                const croom = state.level.rooms[0];
+                for (let tryct = rnd(4); tryct > 0; tryct--) {
+                    const x = somex(croom);
+                    const y = somey(croom);
+                    if (goodpos(x, y, null, 0, { state })) {
+                        let tryct2 = 0;
+                        let otmp = mk_tt_object(
+                            STATUE, x, y, levelObjectEnv(),
+                        );
+                        while (++tryct2 < 100 && otmp
+                            && (poly_when_stoned(
+                                state.mons[otmp.corpsenm], state,
+                            )
+                            || pm_resistance(
+                                state.mons[otmp.corpsenm], MR_STONE,
+                            ))) {
+                            set_corpsenm(
+                                otmp, rndmonnum(levelObjectEnv()),
+                                levelObjectEnv(),
+                            );
+                        }
+                    }
+                }
+                let otmp;
+                if (rn2(2)) {
+                    otmp = mk_tt_object(
+                        STATUE, somex(croom), somey(croom),
+                        levelObjectEnv(),
+                    );
+                } else {
+                    // Medusa statues don't contain books
+                    otmp = mkcorpstat(
+                        STATUE, null, null,
+                        somex(croom), somey(croom),
+                        CORPSTAT_NONE, levelObjectEnv(),
+                    );
+                }
+                if (otmp) {
+                    let tryct = 0;
+                    while (++tryct < 100
+                        && (pm_resistance(
+                            state.mons[otmp.corpsenm], MR_STONE,
+                        )
+                        || poly_when_stoned(
+                            state.mons[otmp.corpsenm], state,
+                        ))) {
+                        set_corpsenm(
+                            otmp, rndmonnum(levelObjectEnv()),
+                            levelObjectEnv(),
+                        );
+                    }
+                }
             }
 
             // C ref: sp_lev.c:6052-6053. Reveal the entire map for
