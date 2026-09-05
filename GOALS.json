@@ -9014,7 +9014,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "Port donamelevel and query_annotation",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "b8e30078cdaa35cc3761e48167f0bff50c320ac4",
       "openStanding": {
         "sha": "269925c8",
