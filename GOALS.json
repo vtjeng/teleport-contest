@@ -8997,7 +8997,7 @@
     },
     {
       "id": "annotate",
-      "status": "open",
+      "status": "closed",
       "boundary": "#annotate",
       "upstreamOwners": [],
       "forecast": {
@@ -9017,8 +9017,8 @@
       "slices": [
         {
           "name": "Port donamelevel and query_annotation",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "12d9c4afbd329cdc77ed2cf3408351696271204b"
         }
       ],
       "openedAt": "b8e30078cdaa35cc3761e48167f0bff50c320ac4",
@@ -9027,8 +9027,11 @@
         "screens": 4560,
         "rng": 316450
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "12d9c4afbd329cdc77ed2cf3408351696271204b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
