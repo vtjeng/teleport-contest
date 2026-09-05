@@ -80,6 +80,7 @@ import {
     NON_PM,
     PM_ARCH_LICH,
     PM_AMOROUS_DEMON,
+    PM_ARCHEOLOGIST,
     PM_BARROW_WIGHT,
     PM_ELF,
     PM_BLACK_LIGHT,
@@ -148,6 +149,7 @@ import {
     PM_VAMPIRE_LEADER,
     PM_WHITE_UNICORN,
     PM_WINGED_GARGOYLE,
+    PM_WIZARD,
     PM_WOODLAND_ELF,
     PM_YELLOW_LIGHT,
     PM_WOOD_NYMPH,
@@ -2818,6 +2820,133 @@ test('initial long worm skips tail draws when every worm slot is occupied', () =
     assert.equal(monster.wormno, 0);
     assert.deepEqual(state.level.worms, occupied);
     assert.equal(state.level.monsters[MON_X][MON_Y], monster);
+});
+
+// ---- Doppelganger initial shapechanger tests ----
+// C ref: mon.c:5166-5186, select_newcham_form() PM_DOPPELGANGER case.
+// Doppelganger adj_lev = 8 in the test state (mlevel 9, level_difficulty 1),
+// so newmonhp calls d(8, 8). The doppelganger is not fixed-gender, so
+// initializeGender calls rn2(2). The makemon rnd(2) is next_ident.
+
+test('initial doppelganger tt_doppel branch picks a role-monster form', () => {
+    // Sub-branch 2: rn2(7) != 0 then rn2(3) != 0 enters tt_doppel.
+    // tt_doppel with rn2(13) = 0 skips the rnd(10) toptenentry call and
+    // picks rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST).
+    // accept_newcham_form admits role monsters via is_mplayer, so the
+    // doppelganger takes PM_WIZARD form on the first attempt.
+    const state = initialLevelState();
+    // The witness session places this doppelganger on Sokoban, a non-main
+    // dungeon branch. Use dnum 1 so the species allowlist is bypassed.
+    state.quest_dnum = 99;
+    state.dungeons[1] = { depth_start: 5, dunlev_ureached: 1, entry_lev: 1,
+        flags: { align: 0, hellish: false }, num_dunlevs: 4 };
+    state.u.uz = { dnum: 1, dlevel: 1 };
+    // urole needed for the guardian-avoidance branch (not taken here).
+    state.urole = { guardnum: 369 }; // PM_STUDENT = 369 (Archeologist)
+    const random = scriptedRandom([
+        step('rnd', [2], 1),              // next_ident
+        step('d', [8, 8], 40),            // doppelganger newmonhp
+        step('rn2', [2], 0),              // initializeGender: male
+        // select_newcham_form PM_DOPPELGANGER case, attempt 1:
+        step('rn2', [7], 1),              // != 0: skip pick_nasty
+        step('rn2', [3], 1),              // != 0: enter tt_doppel
+        step('rn2', [13], 0),             // == 0: skip rnd(10) from topten
+        step('rn1', [13, PM_ARCHEOLOGIST], PM_WIZARD), // role = Wizard
+        // accept_newcham_form: is_mplayer(PM_WIZARD) → accepted
+        // apply_newcham_form:
+        step('rn2', [10], 5),             // mgender_from_permonst: no flip
+        step('d', [9, 8], 36),            // newmonhp for PM_WIZARD (adj_lev 9)
+    ]);
+    const monster = makemon(
+        state.mons[PM_DOPPELGANGER],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+    assert.equal(monster.cham, PM_DOPPELGANGER,
+        'cham records the natural shapeshifter species');
+    assert.equal(monster.mnum, PM_WIZARD,
+        'doppelganger took the Wizard role form');
+    assert.equal(monster.data, state.mons[PM_WIZARD]);
+    // HP prorated: floor(40 * 36 / 40) = 36, capped at mhpmax = 36
+    assert.equal(monster.mhp, 36);
+    assert.equal(monster.mhpmax, 36);
+    assert.equal(monster.minvent, null,
+        'shapeshifted form skips inventory');
+});
+
+test('initial doppelganger tt_doppel calls rnd(10) when rn2(13) is nonzero', () => {
+    // When rn2(13) != 0, get_rnd_toptenentry calls rnd(10) before returning
+    // NULL (empty recorder scorefile). The role result is the same.
+    const state = initialLevelState();
+    state.quest_dnum = 99;
+    state.dungeons[1] = { depth_start: 5, dunlev_ureached: 1, entry_lev: 1,
+        flags: { align: 0, hellish: false }, num_dunlevs: 4 };
+    state.u.uz = { dnum: 1, dlevel: 1 };
+    state.urole = { guardnum: 369 };
+    const random = scriptedRandom([
+        step('rnd', [2], 1),              // next_ident
+        step('d', [8, 8], 40),            // doppelganger newmonhp
+        step('rn2', [2], 0),              // initializeGender
+        step('rn2', [7], 1),              // skip pick_nasty
+        step('rn2', [3], 1),              // enter tt_doppel
+        step('rn2', [13], 5),             // != 0: call rnd(10)
+        step('rnd', [10], 3),             // get_rnd_toptenentry (empty file)
+        step('rn1', [13, PM_ARCHEOLOGIST], PM_ARCHEOLOGIST), // role = Arch
+        // accept_newcham_form: is_mplayer → accepted
+        step('rn2', [10], 5),             // mgender_from_permonst
+        step('d', [9, 8], 36),            // newmonhp for PM_ARCHEOLOGIST
+    ]);
+    const monster = makemon(
+        state.mons[PM_DOPPELGANGER],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+    assert.equal(monster.cham, PM_DOPPELGANGER);
+    assert.equal(monster.mnum, PM_ARCHEOLOGIST);
+});
+
+test('initial doppelganger general-humanoid branch selects a polyok humanoid', () => {
+    // Sub-branch 4: rn2(7) != 0, rn2(3) == 0, rn2(3) != 0.
+    // The retry loop draws rn1(SPECIAL_PM - LOW_PM, LOW_PM) up to 5 times
+    // and accepts the first humanoid+polyok result. PM_GOBLIN (70) qualifies.
+    const state = initialLevelState();
+    state.quest_dnum = 99;
+    state.dungeons[1] = { depth_start: 5, dunlev_ureached: 1, entry_lev: 1,
+        flags: { align: 0, hellish: false }, num_dunlevs: 4 };
+    state.u.uz = { dnum: 1, dlevel: 1 };
+    state.urole = { guardnum: 369 };
+    const random = scriptedRandom([
+        step('rnd', [2], 1),              // next_ident
+        step('d', [8, 8], 40),            // doppelganger newmonhp
+        step('rn2', [2], 0),              // initializeGender
+        // select_newcham_form PM_DOPPELGANGER case, attempt 1:
+        step('rn2', [7], 1),              // skip pick_nasty
+        step('rn2', [3], 0),              // skip tt_doppel
+        step('rn2', [3], 1),              // skip quest guardians
+        // general humanoids retry loop:
+        step('rn1', [SPECIAL_PM, 0], PM_GOBLIN), // humanoid+polyok: accepted
+        // accept_newcham_form: PM_GOBLIN is not genocided/placeholder/nopoly
+        // apply_newcham_form:
+        step('rn2', [10], 5),             // mgender_from_permonst: no flip
+        step('rnd', [4], 2),              // newmonhp for PM_GOBLIN (adj_lev 0)
+    ]);
+    const monster = makemon(
+        state.mons[PM_DOPPELGANGER],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+    assert.equal(monster.cham, PM_DOPPELGANGER);
+    assert.equal(monster.mnum, PM_GOBLIN);
+    assert.equal(monster.data, state.mons[PM_GOBLIN]);
 });
 
 test('co-aligned unicorn creation overrides an explicitly angry attitude', () => {

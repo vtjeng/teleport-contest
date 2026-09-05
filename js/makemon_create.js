@@ -154,8 +154,10 @@ import {
     is_ndemon,
     is_neuter,
     is_unicorn,
+    is_mplayer,
     mindless,
     mon_learns_traps,
+    polyok,
 } from './mondata.js';
 import { dochugw } from './monmove.js';
 import {
@@ -215,6 +217,7 @@ import {
     PM_DEMILICH,
     PM_DWARF_RULER,
     PM_DJINNI,
+    PM_DOPPELGANGER,
     PM_ELF,
     PM_ELVEN_MONARCH,
     PM_ETTIN,
@@ -240,6 +243,7 @@ import {
     PM_ASMODEUS,
     PM_HOBGOBLIN,
     PM_ICE_DEVIL,
+    PM_JABBERWOCK,
     PM_JACKAL,
     PM_KOBOLD,
     PM_KOBOLD_MUMMY,
@@ -2912,30 +2916,75 @@ export function pick_vampire_shape(monster, normalized) {
     return mndx;
 }
 
-// C ref: mon.c select_newcham_form(), for the ordinary chameleon and the two
-// non-unique vampires reachable during initial themed-room generation.
+// C ref: topten.c tt_doppel(). Picks a random role monster for a
+// doppelganger's initial form. C calls get_rnd_toptenentry(), which reads
+// the scorefile. The recorder's scorefile is always empty, so
+// get_rnd_toptenentry() always returns NULL and the fallback path fires.
+// The rn2(13) and rnd(10) calls must still happen to keep the RNG aligned.
+function tt_doppel(random) {
+    const hasEntry = random.rn2(13);
+    if (hasEntry) {
+        // C: get_rnd_toptenentry() calls rnd(sysopt.tt_oname_maxrank)
+        // before discovering the scorefile is empty and returning NULL.
+        random.rnd(10);
+    }
+    return random.rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
+}
+
+// C ref: mon.c select_newcham_form().
 function select_newcham_form(monster, normalized) {
+    const { random, state } = normalized;
     let mndx = NON_PM;
-    if (monster.cham === PM_CHAMELEON) {
-        if (!normalized.random.rn2(3)) mndx = pick_animal(normalized);
-    } else if (monster.cham === PM_VAMPIRE
-               || monster.cham === PM_VAMPIRE_LEADER) {
-        return pick_vampire_shape(monster, normalized);
-    } else if (monster.cham === PM_SANDESTIN) {
+    let tryct;
+    if (monster.cham === PM_SANDESTIN) {
         // C ref: mon.c:5162-5165, select_newcham_form() PM_SANDESTIN case.
-        if (normalized.random.rn2(7)) {
+        if (random.rn2(7)) {
             mndx = pick_nasty(
-                normalized.state.mons[PM_ARCHON].difficulty - 1,
+                state.mons[PM_ARCHON].difficulty - 1,
                 normalized,
             );
         }
+    } else if (monster.cham === PM_DOPPELGANGER) {
+        // C ref: mon.c:5166-5186, select_newcham_form() PM_DOPPELGANGER case.
+        if (!random.rn2(7)) {
+            mndx = pick_nasty(
+                state.mons[PM_JABBERWOCK].difficulty - 1,
+                normalized,
+            );
+        } else if (random.rn2(3)) {
+            // Role monsters via tt_doppel.
+            mndx = tt_doppel(random);
+        } else if (!random.rn2(3)) {
+            // Quest guardians; avoid own role's guardian.
+            mndx = random.rn1(
+                PM_APPRENTICE - PM_STUDENT + 1,
+                PM_STUDENT,
+            );
+            if (mndx === state.urole.guardnum) mndx = NON_PM;
+        } else {
+            // General humanoids: try up to 5 times for a humanoid polyok form.
+            tryct = 5;
+            do {
+                mndx = random.rn1(SPECIAL_PM - LOW_PM, LOW_PM);
+                if (humanoid(state.mons[mndx])
+                    && polyok(state.mons[mndx])) {
+                    break;
+                }
+            } while (--tryct > 0);
+            if (!tryct) mndx = NON_PM;
+        }
+    } else if (monster.cham === PM_CHAMELEON) {
+        if (!random.rn2(3)) mndx = pick_animal(normalized);
+    } else if (monster.cham === PM_VAMPIRE
+               || monster.cham === PM_VAMPIRE_LEADER) {
+        return pick_vampire_shape(monster, normalized);
     } else {
         throw new UnsupportedMonsterCreationError(
             `initial shapechanger ${monster.cham}`,
         );
     }
     if (mndx === NON_PM) {
-        mndx = normalized.random.rn1(
+        mndx = random.rn1(
             SPECIAL_PM - LOW_PM,
             LOW_PM,
         );
@@ -2943,14 +2992,19 @@ function select_newcham_form(monster, normalized) {
     return mndx;
 }
 
-// C ref: mon.c accept_newcham_form(). Random initial selection cannot return
-// an endgame player-monster because those records begin at SPECIAL_PM.
+// C ref: mon.c accept_newcham_form(). The doppelganger and quest-guardian
+// branches of select_newcham_form() deliberately pick species at or above
+// SPECIAL_PM, so the range extends to the full catalog.
 function accept_newcham_form(monster, mndx, state) {
-    if (!Number.isInteger(mndx) || mndx < LOW_PM || mndx >= SPECIAL_PM)
+    if (!Number.isInteger(mndx) || mndx < LOW_PM
+        || mndx >= state.mons.length)
         return null;
     const species = state.mons[mndx];
     if (state.mvitals[mndx].mvflags & G_GENOD) return null;
     if (isPlaceholderForm(mndx)) return null;
+    // C ref: mon.c:5243-5244. select_newcham_form() deliberately picks
+    // player-character types that polyok() rejects (M2_NOPOLY).
+    if (is_mplayer(species)) return species;
     if ((species.mflags2 & M2_SHAPESHIFTER)
         && mndx === monster.cham) {
         return species;
