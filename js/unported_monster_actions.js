@@ -126,7 +126,7 @@ import {
 } from './monmove.js';
 import { m_at } from './monst.js';
 import {
-    find_defensive, find_misc, use_defensive, use_offensive,
+    find_defensive, find_misc, use_defensive, use_misc, use_offensive,
 } from './muse.js';
 import {
     clear_dknown,
@@ -1489,7 +1489,17 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                         itemUser,
                         itemEnv,
                     );
-                    if (misc) unsupported('monster item use');
+                    if (misc) {
+                        if (itemEnv.planning)
+                            return true;
+                        const result = await use_misc(
+                            itemUser,
+                            misc,
+                            itemEnv.state,
+                            itemEnv,
+                        );
+                        return result !== 0;
+                    }
                     return false;
                 },
                 wieldMonsterItem: async (weaponUser, weaponEnv) => {

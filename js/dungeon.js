@@ -81,7 +81,7 @@ import { within_bounded_area } from './rect.js';
 import { in_rooms } from './rooms.js';
 // js/stairs.js imports depth() and on_level() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
-import { On_stairs, stairway_at } from './stairs.js';
+import { On_stairs, stairway_at, stairway_find_special_dir } from './stairs.js';
 import { is_ice } from './terrain.js';
 // js/trap.js imports on_level() from this file. Both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
@@ -687,6 +687,33 @@ export function Can_fall_thru(level, state = game) {
     return Can_dig_down(level, state)
         || Boolean(state.stronghold_level
             && on_level(level, state.stronghold_level));
+}
+
+// C ref: dungeon.c Can_rise_up() (1674-1688). Whether a monster (or the hero)
+// can rise through the ceiling at a given position and level. Blocked in the
+// endgame, in Sokoban, and inside the top of the Wizard's tower. Otherwise
+// allowed when dlevel > 1 or the dungeon's entry is at level 1 with a branch
+// stair leading up.
+//
+// In_endgame, In_sokoban, and Is_wiz1_level are spelled out against `state`
+// rather than imported from js/const.js, following the same reasoning as
+// has_ceiling below.
+export function Can_rise_up(x, y, lev, state = game) {
+    const stway = stairway_find_special_dir(false, state);
+
+    const inEndgame = lev?.dnum != null
+        && lev.dnum === state.astral_level?.dnum;
+    const inSokoban = lev?.dnum != null
+        && lev.dnum === state.sokoban_dnum;
+    const isWiz1 = on_level(lev, state.wiz1_level);
+
+    if (inEndgame || inSokoban
+        || (isWiz1 && In_W_tower(x, y, lev, state)))
+        return false;
+    return lev.dlevel > 1
+        || (state.dungeons[lev.dnum].entry_lev === 1
+            && ledger_no(lev, state) !== 1
+            && stway && stway.up);
 }
 
 // C ref: dungeon.c has_ceiling() (1689-1698). Every level has a ceiling

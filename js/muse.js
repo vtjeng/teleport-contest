@@ -22,6 +22,7 @@ import {
     DRAWBRIDGE_UP,
     FORCEBUNGLE,
     FORCETRAP,
+    HAND,
     G_GONE,
     HALF_SPDAM,
     HALLUC,
@@ -94,10 +95,14 @@ import {
 import { stop_occupation } from './allmain.js';
 import { losehp, nomul } from './hack.js';
 import { dirtocoord, xytodir } from './cmd.js';
-import { map_invisible, newsym } from './display.js';
-import { trycall } from './do.js';
+import {
+    cls, display_self, docrt, flush_screen, map_invisible,
+    map_monster_glyph_info, newsym, show_glyph_cell,
+} from './display.js';
+import { canletgo, dropy, trycall } from './do.js';
 import { migrate_to_level } from './dog.js';
 import {
+    Some_Monnam,
     a_monnam,
     capitalizedMonsterName,
     monsterCommonName,
@@ -106,15 +111,16 @@ import {
     x_monnam,
 } from './do_name.js';
 import {
-    Can_dig_down, Can_fall_thru, In_hell, On_W_tower_level,
-    depth, dunlev, dunlevs_in_dungeon, get_level, ledger_no, surface,
+    Can_dig_down, Can_fall_thru, Can_rise_up, In_hell, On_W_tower_level,
+    ceiling, depth, dunlev, dunlevs_in_dungeon, get_level, ledger_no, on_level,
+    surface,
 } from './dungeon.js';
-import { add_to_container, carrying, obfree, obj_extract_self } from './invent.js';
+import { add_to_container, carrying, freeinv, obfree, obj_extract_self } from './invent.js';
 import { game } from './gstate.js';
 import { can_carry } from './moncarry.js';
 import { dist2, distmin, sgn, strsubst } from './hacklib.js';
 import { makemon, mongone } from './makemon_create.js';
-import { rndmonst, set_malign } from './makemon.js';
+import { grow_up, rndmonst, set_malign } from './makemon.js';
 import { m_next2u } from './mhitu.js';
 import {
     healmon, m_carrying, maybe_unhide_at, mon_offmap, monkilled, seemimic,
@@ -123,8 +129,8 @@ import {
 import {
     acidic, attacktype, breathless, dmgtype, has_head, haseyes, is_animal,
     is_floater, is_flyer, is_mercenary, is_undead, is_unicorn, is_vampshifter,
-    locomotion, mhe, mhim, mindless, mon_knows_traps, mon_learns_traps,
-    monstseesu, monstunseesu,
+    locomotion, mhe, mhim, mindless, mon_hates_silver, mon_knows_traps,
+    mon_learns_traps, monstseesu, monstunseesu,
     needspick, nohands, nonliving, passes_walls, resists_magm, same_race,
     slimeproof, throws_rocks, touch_petrifies, verysmall,
 } from './mondata.js';
@@ -138,14 +144,15 @@ import {
     bcsign,
     isContainer,
     objectType,
+    place_object,
     sobj_at,
     splitobj,
     unknow_object,
     weight,
 } from './obj.js';
 import * as O from './objects.js';
-import { an, ansimpleoname, distant_name, donameFresh, simpleonames,
-    singular, vtense, xnameFresh } from './objnam.js';
+import { an, ansimpleoname, distant_name, donameFresh, is_plural,
+    simpleonames, singular, the, vtense, xnameFresh } from './objnam.js';
 import { discover_object, objdescr_is, observe_object } from './o_init.js';
 import { accessible, monflee, mon_would_take_item, monnear, onscary, youHear } from './monmove.js';
 import { lined_up, linedup_callback } from './mthrowu.js';
@@ -159,15 +166,17 @@ import {
     enexto, noteleport_level, random_teleport_level, rloc, tele,
     tele_restrict,
 } from './teleport.js';
-import { fill_pit, is_pool, maketrap, t_at, trapname } from './trap.js';
+import { fill_pit, is_pool, maketrap, t_at, trapname, unconscious } from './trap.js';
 import { mintrap, seetrap, wearing_iron_shoes } from './trap_effects.js';
+import { makeplural } from './fruit.js';
 import { s_suffix, upstart } from './hacklib.js';
-import { mpickobj } from './steal.js';
+import { mpickobj, remove_worn_item } from './steal.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { cansee, canseemon, couldsee, recalc_block_point, unblock_point } from './vision.js';
-import { extract_from_minvent, find_mac } from './worn.js';
-import { mwelded } from './wield.js';
+import { body_part } from './polyself.js';
+import { extract_from_minvent, bimanual, find_mac } from './worn.js';
+import { mwelded, welded } from './wield.js';
 import { mon_has_amulet, mon_has_special } from './wizard.js';
 import { dobuzz, exclam, hit, miss, resist } from './zap.js';
 import { which_armor } from './worn.js';
@@ -1344,6 +1353,293 @@ export async function mloot_container(mon, container, vismon, rawEnv = {}) {
         } /* can_carry */
     } /* takeout_count */
     return res;
+}
+
+// C ref: muse.c use_misc() (2383-2630). Execute the miscellaneous monster
+// action that find_misc() selected. The selection carries a `kind` string and
+// an `object` (or null for a polymorph trap). Returns 0 when nothing happened,
+// 1 when the monster died, or 2 when the action completed.
+//
+// Unported callees whose results the C discards:
+//   mon.c m_useup       -- consumed object stays in monster inventory
+//   worn.c mon_set_minvis   -- visibility flag change skipped
+//   worn.c mon_adjust_speed -- speed flag change skipped
+//   mon.c newcham           -- polymorph skipped
+//   worm.c worm_move        -- worm segment relocation skipped
+export async function use_misc(mtmp, selection, state, env = {}) {
+    const otmp = selection.object;
+    const i = await precheck(mtmp, otmp, state, env);
+    if (i !== 0) return i;
+    const vis = cansee(mtmp.mx, mtmp.my, state);
+    const vismon = canseemon(mtmp, state);
+    const oseen = otmp && vismon;
+
+    switch (selection.kind) {
+    case 'gain level': {
+        // MUSE_POT_GAIN_LEVEL
+        if (!otmp) throw new Error('use_misc: no potion of gain level');
+        await mquaffmsg(mtmp, otmp, state);
+        if (otmp.cursed) {
+            if (Can_rise_up(mtmp.mx, mtmp.my, state.u.uz, state)) {
+                const tolev = depth(state.u.uz, state) - 1;
+                const tolevel = {};
+                get_level(tolevel, tolev, state);
+                // insurance against future changes...
+                if (!on_level(tolevel, state.u.uz)) {
+                    if (vismon) {
+                        await pline_mon(mtmp,
+                            `${capitalizedMonsterName(mtmp, state)} rises up, through the ${ceiling(mtmp.mx, mtmp.my, state)}!`,
+                            state);
+                        await trycall(otmp, state);
+                    }
+                    note_unported('mon.c m_useup');
+                    migrate_to_level(mtmp, ledger_no(tolevel, state),
+                        MIGR_RANDOM, null, { state });
+                    return 2;
+                }
+            }
+            // skipmsg: falls through when Can_rise_up is false or on_level
+            if (vismon) {
+                await pline_mon(mtmp,
+                    `${capitalizedMonsterName(mtmp, state)} looks uneasy.`,
+                    state);
+                await trycall(otmp, state);
+            }
+            note_unported('mon.c m_useup');
+            return 2;
+        }
+        if (vismon)
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} seems more experienced.`,
+                state);
+        if (oseen)
+            discover_object(O.POT_GAIN_LEVEL, true, true, true, state);
+        note_unported('mon.c m_useup');
+        if (!grow_up(mtmp, null, { state, ...env }))
+            return 1; /* grew into genocided monster */
+        return 2;
+    }
+    case 'make invisible':
+    case 'invisibility': {
+        // MUSE_WAN_MAKE_INVISIBLE / MUSE_POT_INVISIBILITY
+        if (!otmp) throw new Error('use_misc: no potion of invisibility');
+        if (otmp.otyp === O.WAN_MAKE_INVISIBLE) {
+            await mzapwand(mtmp, otmp, true, state);
+        } else {
+            await mquaffmsg(mtmp, otmp, state);
+        }
+        // format monster's name before altering its visibility
+        const nambuf = monsterCommonName(mtmp, state);
+        note_unported('worn.c mon_set_minvis');
+        if (vismon && mtmp.minvis) { /* was seen, now invisible */
+            if (canSpotMonster(mtmp, state)) {
+                await ttyPline(messageAt(
+                    `${upstart(s_suffix(nambuf))} body takes on a ${Hallucination(state) ? 'normal' : 'strange'} transparency.`,
+                    mtmp.mx, mtmp.my, state), state);
+            } else {
+                await ttyPline(messageAt(
+                    `Suddenly you cannot see ${nambuf}.`,
+                    mtmp.mx, mtmp.my, state), state);
+                if (vis)
+                    map_invisible(mtmp.mx, mtmp.my, state);
+            }
+            if (oseen)
+                discover_object(otmp.otyp, true, true, true, state);
+        } else if (vismon && !mtmp.minvis) {
+            /* cursed potion; mon tried to make itself invisible but failed */
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} briefly seems to be transparent.`,
+                state);
+        } else if (!vismon && canseemon(mtmp, state)) {
+            /* cursed potion; this won't happen because a monster will only
+               drink a potion of invisibility when not already invisible */
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} suddenly appears!`,
+                state);
+        }
+        if (otmp.otyp === O.POT_INVISIBILITY) {
+            if (otmp.cursed)
+                await you_aggravate(mtmp, state);
+            note_unported('mon.c m_useup');
+        }
+        return 2;
+    }
+    case 'speed wand': {
+        // MUSE_WAN_SPEED_MONSTER
+        if (!otmp) throw new Error('use_misc: no wand of speed monster');
+        await mzapwand(mtmp, otmp, true, state);
+        note_unported('worn.c mon_adjust_speed');
+        return 2;
+    }
+    case 'speed potion': {
+        // MUSE_POT_SPEED
+        if (!otmp) throw new Error('use_misc: no potion of speed');
+        await mquaffmsg(mtmp, otmp, state);
+        note_unported('worn.c mon_adjust_speed');
+        note_unported('mon.c m_useup');
+        return 2;
+    }
+    case 'polymorph wand': {
+        // MUSE_WAN_POLYMORPH
+        if (!otmp) throw new Error('use_misc: no wand of polymorph');
+        await mzapwand(mtmp, otmp, true, state);
+        note_unported('mon.c newcham');
+        if (oseen)
+            discover_object(O.WAN_POLYMORPH, true, true, true, state);
+        return 2;
+    }
+    case 'polymorph potion': {
+        // MUSE_POT_POLYMORPH
+        if (!otmp) throw new Error('use_misc: no potion of polymorph');
+        await mquaffmsg(mtmp, otmp, state);
+        note_unported('mon.c m_useup');
+        if (vismon)
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} suddenly mutates!`,
+                state);
+        note_unported('mon.c newcham');
+        if (oseen)
+            discover_object(O.POT_POLYMORPH, true, true, true, state);
+        return 2;
+    }
+    case 'polymorph trap': {
+        // MUSE_POLY_TRAP
+        const trapX = selection.x;
+        const trapY = selection.y;
+        const t = t_at(trapX, trapY, state);
+        const vistrapspot = cansee(t.tx, t.ty, state);
+        if (vis || vistrapspot)
+            seetrap(t, state);
+        if (vismon || vistrapspot) {
+            // C: vtense(fakename[0], locomotion(...))
+            // fakename[0] is "mon", a singular noun for conjugation
+            await pline_mon(mtmp,
+                `${Some_Monnam(mtmp, state)} deliberately ${vtense('mon', locomotion(mtmp.data, 'jump'))} onto a ${t.tseen ? trapname(t.ttyp, false, state) : 'hidden trap'}!`,
+                state);
+        }
+
+        /* don't use rloc() due to worms */
+        remove_monster(mtmp.mx, mtmp.my, state);
+        newsym(mtmp.mx, mtmp.my, state);
+        place_monster(mtmp, trapX, trapY, state);
+        maybe_unhide_at(trapX, trapY, state);
+        if (mtmp.wormno)
+            note_unported('worm.c worm_move');
+        newsym(trapX, trapY, state);
+
+        note_unported('mon.c newcham');
+        return 2;
+    }
+    case 'container':
+        // MUSE_BAG
+        if (!otmp) throw new Error('use_misc: no container');
+        return await mloot_container(mtmp, otmp, vismon, { state, ...env });
+    case 'bullwhip': {
+        // MUSE_BULLWHIP -- attempt to disarm hero
+        const The_whip = vismon ? 'The bullwhip' : 'A whip';
+        let where_to = rn2(4);
+        let obj = state.uwep;
+
+        if (!obj || !await canletgo(obj, '', state)
+            || (state.u?.twoweap
+                && await canletgo(state.uswapwep, '', state)
+                && rn2(2)))
+            obj = state.uswapwep;
+        if (!obj) break; /* shouldn't happen after find_misc() */
+
+        const the_weapon = the(xnameFresh(obj, state), state);
+        let hand = body_part(HAND, state.youmonst);
+        if (bimanual(obj, state))
+            hand = makeplural(hand);
+        const hand_buf = hand;
+
+        if (vismon)
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} flicks a bullwhip towards your ${hand_buf}!`,
+                state);
+        if (obj.otyp === O.HEAVY_IRON_BALL) {
+            await ttyPline(
+                `${The_whip} fails to wrap around ${the_weapon}.`, state);
+            return 1;
+        }
+        // C: urgent_pline -- behaves like pline for message delivery
+        await ttyPline(
+            `${The_whip} wraps around ${the_weapon} you're wielding!`, state);
+        if (welded(obj, state)) {
+            await ttyPline(
+                `${!is_plural(obj) ? 'It is' : 'They are'} welded to your ${hand_buf}${!obj.bknown ? '!' : '.'}`,
+                state);
+            /* welded() takes care of obj->bknown = 1 */
+            where_to = 0;
+        }
+        if (!where_to) {
+            await ttyPline('The whip slips free.', state); /* not The_whip */
+            return 1;
+        } else if (where_to === 3 && mon_hates_silver(mtmp)
+                   && objectType(obj, state).oc_material === O.SILVER) {
+            /* this monster won't want to catch a silver weapon;
+               drop it at hero's feet instead */
+            where_to = 2;
+        }
+        remove_worn_item(obj, false, state);
+        freeinv(obj, { state });
+        switch (where_to) {
+        case 1: /* onto floor beneath mon */
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} yanks ${the_weapon} from your ${hand_buf}!`,
+                state);
+            place_object(obj, mtmp.mx, mtmp.my, { state });
+            break;
+        case 2: /* onto floor beneath you */
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} yanks ${the_weapon} to the ${surface(state.u.ux, state.u.uy, state)}!`,
+                state);
+            await dropy(obj, { state });
+            break;
+        case 3: /* into mon's inventory */
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} snatches ${the_weapon}!`,
+                state);
+            await mpickobj(mtmp, obj, { state });
+            break;
+        }
+        return 1;
+    }
+    case undefined:
+        return 0; /* i.e. an exploded wand */
+    default:
+        throw new Error(
+            `${capitalizedMonsterName(mtmp, state)} wanted to perform action ${selection.kind}?`);
+    }
+    return 0;
+}
+
+// C ref: muse.c you_aggravate() (2631-2653). Called when a monster drinks a
+// cursed potion of invisibility: announce its presence to the hero, briefly
+// show its position on the map, and (if the hero is unconscious) jolt the
+// hero awake.
+async function you_aggravate(mtmp, state) {
+    await ttyPline(
+        `For some reason, ${s_suffix(monsterCommonName(mtmp, state, SUPPRESS_IT))} presence is known to you.`,
+        state);
+    await cls();
+    // C: #ifdef CLIPPING cliparound() -- not applicable to the JS renderer
+    show_glyph_cell(mtmp.mx, mtmp.my, map_monster_glyph_info(mtmp, state));
+    display_self(state);
+    // C: You_feel("aggravated at %s.") -- prepends "You feel "
+    await ttyPline(messageAt(
+        `You feel aggravated at ${monsterCommonName(mtmp, state, SUPPRESS_IT)}.`,
+        mtmp.mx, mtmp.my, state), state);
+    // C: display_nhwindow(WIN_MAP, TRUE) -- flush the map display
+    await flush_screen(1);
+    await docrt({ state });
+    if (unconscious(state)) {
+        state.multi = -1;
+        state.nomovemsg = 'Aggravated, you are jolted into full consciousness.';
+    }
+    newsym(mtmp.mx, mtmp.my, state);
+    if (!canSpotMonster(mtmp, state))
+        map_invisible(mtmp.mx, mtmp.my, state);
 }
 
 // C ref: muse.c find_defensive() (441-750). This partial port returns the

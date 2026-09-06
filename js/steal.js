@@ -240,7 +240,7 @@ export function mpickobj(monster, obj, rawEnv = {}, prepared = null) {
 // Ported arms: W_RING (Ring_gone), W_WEAPONS (uwepgone/uswapwepgone).
 // Unported arms (W_ARMOR individual slots, W_AMUL, W_TOOL, W_BALL|W_CHAIN)
 // throw so the segment ends cleanly.
-function remove_worn_item(obj, unchain_ball, state = game) {
+export function remove_worn_item(obj, unchain_ball, state = game) {
     // C: if (donning(obj)) cancel_don(); -- donning/cancel_don not ported.
     // In the steal path the hero is not actively putting on armor, so this
     // is inert.

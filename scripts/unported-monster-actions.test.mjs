@@ -2175,22 +2175,8 @@ test('simple preflight rejects every selected excluded action atomically',
                     return target;
                 },
             },
-            {
-                name: 'pre-move item use',
-                reason: 'monster item use',
-                prepare: async () => {
-                    const target = await prepareSelectedAction();
-                    target.monster.data = {
-                        ...game.mons[PM_ORC_SHAMAN],
-                        mattk: [],
-                    };
-                    target.monster.mnum = PM_ORC_SHAMAN;
-                    target.monster.minvent = monsterObject(
-                        POT_SPEED,
-                    );
-                    return target;
-                },
-            },
+            // pre-move item use (POT_SPEED) is no longer rejected:
+            // use_misc() handles it with note_unported for the speed change.
             {
                 name: 'item search',
                 reason: 'ordinary monster item interaction',

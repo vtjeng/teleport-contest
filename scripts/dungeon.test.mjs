@@ -47,6 +47,7 @@ import { DUNGEON_DATA } from '../js/dungeon_data.js';
 import {
     Can_dig_down,
     Can_fall_thru,
+    Can_rise_up,
     Invocation_lev,
     ceiling,
     depth,
@@ -764,6 +765,57 @@ test('digging and falling predicates preserve bottom and Castle rules', () => {
     state.stronghold_level = bottom;
     assert.equal(Can_dig_down(bottom, state), false);
     assert.equal(Can_fall_thru(bottom, state), true);
+});
+
+// C ref: dungeon.c Can_rise_up() (1674-1688). A monster can rise through the
+// ceiling when not in the endgame, Sokoban, or at the top of the Wizard's
+// tower, and the dungeon level is above the first.
+test('Can_rise_up blocks endgame, Sokoban, and Wizard tower top', () => {
+    // Ordinary dungeon level 3 (dlevel > 1): rising is allowed.
+    const state = {
+        astral_level: { dnum: 5, dlevel: 1 },
+        sokoban_dnum: 4,
+        wiz1_level: { dnum: 2, dlevel: 10 },
+        dungeons: [{ entry_lev: 1 }],
+        stairs: null,
+    };
+    const ordinary = { dnum: 0, dlevel: 3 };
+    // dlevel > 1, so Can_rise_up is true regardless of stairway
+    assert.equal(Can_rise_up(5, 5, ordinary, state), true);
+
+    // Endgame plane: blocked.
+    const endgameLev = { dnum: 5, dlevel: 2 };
+    assert.equal(Can_rise_up(5, 5, endgameLev, state), false);
+
+    // Sokoban: blocked.
+    const sokobanLev = { dnum: 4, dlevel: 1 };
+    assert.equal(Can_rise_up(5, 5, sokobanLev, state), false);
+
+    // dlevel === 1 with entry_lev !== 1: blocked even with a stair.
+    const entry3State = {
+        ...state,
+        dungeons: [{ entry_lev: 3 }],
+    };
+    const topFloor = { dnum: 0, dlevel: 1 };
+    assert.equal(Can_rise_up(5, 5, topFloor, entry3State), false);
+
+    // dlevel === 1 with entry_lev === 1, ledger_no !== 1, and upward branch
+    // stair: allowed. ledger_no = dlevel + ledger_start; for dnum 1 with
+    // ledger_start 5, that is 6, which differs from the global entry (1).
+    const branchState = {
+        ...state,
+        dungeons: [
+            { entry_lev: 1, num_dunlevs: 5, ledger_start: 0 },
+            { entry_lev: 1, num_dunlevs: 3, ledger_start: 5 },
+        ],
+        // stairway_find_special_dir(false) looks for a down-branch stair
+        // whose tolev.dnum differs from u.uz.dnum, and returns it when
+        // its up flag is truthy. This stub stair satisfies the lookup.
+        stairs: { tolev: { dnum: 99 }, up: true, next: null },
+    };
+    const branchTop = { dnum: 1, dlevel: 1 };
+    // ledger_no = 1 + 5 = 6, which is not 1, so the branch-entry arm allows.
+    assert.equal(Can_rise_up(5, 5, branchTop, branchState), true);
 });
 
 // C ref: dungeon.c earth_sense() (1543-1565), reached from u_on_newpos()'s
