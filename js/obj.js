@@ -2726,6 +2726,36 @@ export function remove_object(obj, env = {}) {
     return obj;
 }
 
+// C ref: mkobj.c recreate_pile_at() (2371-2389). Tear down the object pile at
+// <x,y> and rebuild it so that place_object() forces boulders to the top.
+export function recreate_pile_at(x, y, env = {}) {
+    const normalized = lifecycleEnv(env);
+    const { state } = normalized;
+    const grid = floorObjectGrid(state);
+
+    let reversed = null;
+
+    // Remove all objects at <x,y>, saving a reversed temporary list.
+    let otmp = grid[x][y];
+    while (otmp) {
+        const nextObj = otmp.nexthere;
+        remove_object(otmp, normalized);
+        otmp.nobj = reversed;
+        reversed = otmp;
+        otmp = nextObj;
+    }
+
+    // Pile at <x,y> is now empty; create new one, re-reversing to restore
+    // original order; place_object() handles making boulders be on top.
+    otmp = reversed;
+    while (otmp) {
+        const nextObj = otmp.nobj;
+        otmp.nobj = null; // obj.where is OBJ_FREE
+        place_object(otmp, x, y, normalized);
+        otmp = nextObj;
+    }
+}
+
 // C ref: invent.c sobj_at() and g_at().
 export function sobj_at(otyp, x, y, state = game) {
     const grid = floorObjectGrid(state);
