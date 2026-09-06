@@ -689,3 +689,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-06T22:06:29.798Z	2911121a	span	24	33	4977	7765	343077	610816	4996	7765					unbless closes. Development unchanged at 4977/7765 screens, 343077/610816 rng. 24/33 sessions.
 2026-09-06T22:17:51.378Z	29bc2053	span	24	33	4977	7765	343077	610816	4996	7765					uncurse closes. Development unchanged at 4977/7765 screens, 343077/610816 rng. 24/33 sessions.
 2026-09-06T22:28:15.758Z	554bd3ab	span	24	33	4977	7765	343077	610816	4996	7765					rnd_treefruit_at..is_treefruit closes. Development unchanged at 4977/7765 screens, 343077/610816 rng. 24/33 sessions.
+2026-09-06T22:38:34.307Z	dbcb0e44	span	24	33	4977	7765	343077	610816	4996	7765					fixup_oil closes. Development unchanged at 4977/7765 screens, 343077/610816 rng. 24/33 sessions.

@@ -10175,10 +10175,19 @@
         },
         {
           "name": "fixup_oil",
+          "status": "closed",
+          "closedBy": "dbcb0e44640f48c3f19813dc306fbe6f2f7a4e6a",
+          "functions": [
+            "fixup_oil"
+          ]
+        },
+        {
+          "name": "corpse_revive_type..obj_attach_mid",
           "status": "queued",
           "closedBy": null,
           "functions": [
-            "fixup_oil"
+            "corpse_revive_type",
+            "obj_attach_mid"
           ]
         }
       ],
@@ -10513,7 +10522,7 @@
           "name": "fixup_oil",
           "line": 2025,
           "endLine": 2066,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mkcorpstat",
