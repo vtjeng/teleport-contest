@@ -842,8 +842,8 @@ export function bill_dummy_object(otmp, env = {}) {
     // C: if (cost && dummy->where != OBJ_DELETED) alter_cost(dummy, -cost);
     // alter_cost is void/discarded and in shk.c, not ported.
     // no_charge is only valid for some locations.
-    otmp.no_charge = (otmp.where === OBJ_FLOOR
-        || otmp.where === OBJ_CONTAINED) ? 1 : 0;
+    otmp.no_charge = otmp.where === OBJ_FLOOR
+        || otmp.where === OBJ_CONTAINED;
     otmp.unpaid = false;
 }
 
