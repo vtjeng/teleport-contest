@@ -9693,14 +9693,25 @@
         },
         {
           "name": "linedup_chk_corpse..mon_likes_objpile_at",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "8f8fe98406e04467231cfb427ce10c2df250607a",
           "functions": [
             "linedup_chk_corpse",
             "m_use_undead_turning",
             "hero_behind_chokepoint",
             "mon_has_friends",
             "mon_likes_objpile_at"
+          ]
+        },
+        {
+          "name": "mbhitm..buzz_force_miss",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mbhitm",
+            "fhito_loc",
+            "mbhit",
+            "buzz_force_miss"
           ]
         }
       ],
@@ -9801,31 +9812,31 @@
           "name": "linedup_chk_corpse",
           "line": 1294,
           "endLine": 1299,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_use_undead_turning",
           "line": 1300,
           "endLine": 1343,
-          "ported": false
+          "ported": true
         },
         {
           "name": "hero_behind_chokepoint",
           "line": 1344,
           "endLine": 1370,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mon_has_friends",
           "line": 1371,
           "endLine": 1394,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mon_likes_objpile_at",
           "line": 1395,
           "endLine": 1420,
-          "ported": false
+          "ported": true
         },
         {
           "name": "find_offensive",
