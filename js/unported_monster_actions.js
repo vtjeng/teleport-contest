@@ -126,7 +126,7 @@ import {
 } from './monmove.js';
 import { m_at } from './monst.js';
 import {
-    find_defensive, select_misc_action, use_defensive, use_offensive,
+    find_defensive, find_misc, use_defensive, use_offensive,
 } from './muse.js';
 import {
     clear_dknown,
@@ -1485,7 +1485,7 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                         );
                         return result !== 0;
                     }
-                    const misc = select_misc_action(
+                    const misc = find_misc(
                         itemUser,
                         itemEnv,
                     );

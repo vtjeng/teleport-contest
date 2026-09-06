@@ -2,7 +2,8 @@
 // C refs: muse.c precheck(), mzapwand(), mplayhorn(), mreadmsg(),
 // mquaffmsg(), m_use_healing(), m_sees_sleepy_soldier(), m_tele(),
 // m_next2m(), reveal_trap(), mon_escape(), use_defensive(),
-// mcureblindness(), find_defensive(),
+// mcureblindness(), find_defensive(), find_misc(),
+// muse_newcham_mon(), mloot_container(),
 // linedup_chk_corpse(), m_use_undead_turning(), hero_behind_chokepoint(),
 // mon_has_friends(), mon_likes_objpile_at(),
 // find_offensive(), use_offensive()'s hurled-potion case,
@@ -73,6 +74,7 @@ import {
     TELEP_TRAP,
     TEMPLE,
     Trap_Killed_Mon,
+    Has_contents,
     W_ACCESSORY,
     W_AMUL,
     W_ARM,
@@ -107,11 +109,12 @@ import {
     Can_dig_down, Can_fall_thru, In_hell, On_W_tower_level,
     depth, dunlev, dunlevs_in_dungeon, get_level, ledger_no, surface,
 } from './dungeon.js';
-import { carrying, obfree } from './invent.js';
+import { add_to_container, carrying, obfree, obj_extract_self } from './invent.js';
 import { game } from './gstate.js';
+import { can_carry } from './moncarry.js';
 import { dist2, distmin, sgn, strsubst } from './hacklib.js';
 import { makemon, mongone } from './makemon_create.js';
-import { set_malign } from './makemon.js';
+import { rndmonst, set_malign } from './makemon.js';
 import { m_next2u } from './mhitu.js';
 import {
     healmon, m_carrying, maybe_unhide_at, mon_offmap, monkilled, seemimic,
@@ -128,16 +131,21 @@ import {
 import * as M from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
+    Dragon_mail_to_pm,
+    Dragon_scales_to_pm,
+    Is_dragon_mail,
+    Is_dragon_scales,
     bcsign,
     isContainer,
     objectType,
     sobj_at,
     splitobj,
     unknow_object,
+    weight,
 } from './obj.js';
 import * as O from './objects.js';
-import { an, ansimpleoname, donameFresh, simpleonames, singular,
-    vtense, xnameFresh } from './objnam.js';
+import { an, ansimpleoname, distant_name, donameFresh, simpleonames,
+    singular, vtense, xnameFresh } from './objnam.js';
 import { discover_object, objdescr_is, observe_object } from './o_init.js';
 import { accessible, monflee, mon_would_take_item, monnear, onscary, youHear } from './monmove.js';
 import { lined_up, linedup_callback } from './mthrowu.js';
@@ -152,9 +160,10 @@ import {
     tele_restrict,
 } from './teleport.js';
 import { fill_pit, is_pool, maketrap, t_at, trapname } from './trap.js';
-import { mintrap, seetrap } from './trap_effects.js';
-import { s_suffix } from './hacklib.js';
-import { ttyPline } from './tty_message.js';
+import { mintrap, seetrap, wearing_iron_shoes } from './trap_effects.js';
+import { s_suffix, upstart } from './hacklib.js';
+import { mpickobj } from './steal.js';
+import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { cansee, canseemon, couldsee, recalc_block_point, unblock_point } from './vision.js';
 import { extract_from_minvent, find_mac } from './worn.js';
@@ -1079,9 +1088,11 @@ function canLetGoWithoutDiscovery(obj, state) {
     return !(obj.owornmask & W_SADDLE);
 }
 
-// C ref: muse.c find_misc(). This is selection only; use_misc() remains
-// outside the simple-turn boundary.
-export function select_misc_action(monster, rawEnv = {}) {
+// C ref: muse.c find_misc() (2095-2246). Select a miscellaneous item or
+// action for a monster: polymorph trap, gain-level potion, bullwhip disarm,
+// invisibility, speed, polymorph, or container looting. Returns a selection
+// object or null; use_misc() executes the selected action.
+export function find_misc(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2 };
     const species = monster.data;
@@ -1096,36 +1107,35 @@ export function select_misc_action(monster, rawEnv = {}) {
         monster.muy,
     ) > 36) return null;
 
-    const mobile = species?.mmove !== 0;
-    if (monster !== hero?.ustuck && mobile && !monster.mtrapped
+    const immobile = species?.mmove === 0;
+    const stuck = monster === hero?.ustuck;
+    if (!stuck && !immobile && !monster.mtrapped
         && monster.cham === NON_PM && species?.difficulty < 6) {
         const ignoresBoulders = verysmall(species)
             || throws_rocks(species)
             || passes_walls(species);
-        const diagonal = species?.pmidx !== M.PM_GRID_BUG;
-        const shoes = which_armor(monster, W_ARMF);
-        const ironShoes = shoes
-            && objectType(shoes, state).oc_material === O.IRON;
-        for (let x = monster.mx - 1; x <= monster.mx + 1; ++x) {
-            for (let y = monster.my - 1; y <= monster.my + 1; ++y) {
-                if (!isok(x, y)
-                    || (hero?.ux === x && hero?.uy === y)
-                    || (!diagonal && x !== monster.mx && y !== monster.my)
-                    || ((x !== monster.mx || y !== monster.my)
-                        && state.level.monsters[x]?.[y])) {
+        const diagOk = species?.pmidx !== M.PM_GRID_BUG;
+        for (let xx = monster.mx - 1; xx <= monster.mx + 1; ++xx) {
+            for (let yy = monster.my - 1; yy <= monster.my + 1; ++yy) {
+                if (!isok(xx, yy)
+                    || u_at(xx, yy, state)
+                    || (!diagOk && xx !== monster.mx && yy !== monster.my)
+                    || ((xx !== monster.mx || yy !== monster.my)
+                        && state.level.monsters[xx]?.[yy])) {
                     continue;
                 }
-                const trap = t_at(x, y, state);
-                if (trap?.ttyp === POLY_TRAP
+                const trap = t_at(xx, yy, state);
+                if (trap
                     && (ignoresBoulders
-                        || !sobj_at(O.BOULDER, x, y, state))
-                    && !onscary(x, y, monster, state)
-                    && !ironShoes) {
+                        || !sobj_at(O.BOULDER, xx, yy, state))
+                    && !onscary(xx, yy, monster, state)
+                    && trap.ttyp === POLY_TRAP
+                    && !wearing_iron_shoes(monster, state)) {
                     return {
                         kind: 'polymorph trap',
                         object: null,
-                        x,
-                        y,
+                        x: xx,
+                        y: yy,
                     };
                 }
             }
@@ -1145,11 +1155,11 @@ export function select_misc_action(monster, rawEnv = {}) {
         if (selected?.kind === 'bullwhip') continue;
         if (obj.otyp === O.BULLWHIP && !monster.mpeaceful
             && state.uwep && !random.rn2(5) && obj === monster.mw
-            && monster.mux === hero?.ux && monster.muy === hero?.uy
-            && dist2(monster.mx, monster.my, hero.ux, hero.uy) <= 2
-            && !hero.uswallow
+            && u_at(monster.mux, monster.muy, state)
+            && m_next2u(monster, state)
+            && !hero?.uswallow
             && (canLetGoWithoutDiscovery(state.uwep, state)
-                || (hero.twoweap
+                || (hero?.twoweap
                     && canLetGoWithoutDiscovery(state.uswapwep, state)))) {
             selected = { kind: 'bullwhip', object: obj };
         }
@@ -1193,11 +1203,147 @@ export function select_misc_action(monster, rawEnv = {}) {
         if (isContainer(obj) && obj.otyp !== O.BAG_OF_TRICKS
             && !random.rn2(5)
             && !(obj.otyp === O.LARGE_BOX && obj.spe === 1)
-            && !selected && obj.cobj && !obj.olocked && !obj.otrapped) {
+            && !selected && Has_contents(obj)
+            && !obj.olocked && !obj.otrapped) {
             selected = { kind: 'container', object: obj };
         }
     }
     return selected;
+}
+
+// C ref: muse.c muse_newcham_mon() (2250-2263). Choose a polymorph target
+// for a monster: if it wears dragon scales or scale mail, become the
+// corresponding dragon; otherwise pick a random monster suitable for the
+// current level.
+export function muse_newcham_mon(mon, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const m_armr = which_armor(mon, W_ARM, state);
+    if (m_armr) {
+        if (Is_dragon_scales(m_armr))
+            return Dragon_scales_to_pm(m_armr, state);
+        if (Is_dragon_mail(m_armr))
+            return Dragon_mail_to_pm(m_armr, state);
+    }
+    return rndmonst(rawEnv);
+}
+
+// C ref: muse.c mloot_container() (2264-2382). A monster loots items from
+// a container it is carrying. Returns 0 if nothing was taken, 2 if at least
+// one item was removed. Messages are printed when the hero can see the
+// monster (vismon).
+export async function mloot_container(mon, container, vismon, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    let res = 0;
+
+    if (!container || !Has_contents(container) || container.olocked)
+        return res; /* 0 */
+    // FIXME: handle cursed bag of holding
+    if (isMagicBag(container) && container.cursed)
+        return res; /* 0 */
+    if (container.otyp === O.LARGE_BOX && container.spe === 1)
+        return res; /* SchroedingersBox */
+
+    let takeout_count;
+    switch (rn2(10)) {
+    default: /* case 0, 1, 2, 3: */
+        takeout_count = 1;
+        break;
+    case 4: case 5: case 6:
+        takeout_count = 2;
+        break;
+    case 7: case 8:
+        takeout_count = 3;
+        break;
+    case 9:
+        takeout_count = 4;
+        break;
+    }
+    const howfar = mdistu(mon, state);
+    const nearby = howfar <= 7 * 7;
+    let contnr_nam = '';
+    let mpronounbuf = '';
+    if (vismon) {
+        // do this once so that when hallucinating it won't change
+        // from one item to the next
+        mpronounbuf = mhe(mon, { state });
+    }
+
+    for (let takeout_indx = 0; takeout_indx < takeout_count; ++takeout_indx) {
+        if (!Has_contents(container)) /* might have removed all items */
+            break;
+        // TODO? Monster ought to prioritize on something it wants to use.
+        let nitems = 0;
+        for (let xobj = container.cobj; xobj; xobj = xobj.nobj)
+            ++nitems;
+        // nitems is always greater than 0 due to Has_contents() check;
+        // throttle item removal as the container becomes less filled
+        if (!rn2(nitems + 1))
+            break;
+        nitems = rn2(nitems);
+        let xobj = container.cobj;
+        while (xobj) {
+            if (--nitems < 0) break;
+            xobj = xobj.nobj;
+        }
+
+        container.cknown = 0; /* hero no longer knows container's contents
+                                * even if [attempted] removal is observed */
+        if (!contnr_nam) {
+            // xname sets dknown, distant_name might depending on its own
+            // idea about nearness
+            const xn = xnameFresh(container, state);
+            contnr_nam = an(nearby ? xn : distant_name(container, xnameFresh, state));
+        }
+        // this was originally just 'can_carry(mon, xobj)' which
+        // covers objects a monster shouldn't pick up but also
+        // checks carrying capacity; for that, it ended up counting
+        // xobj's weight twice when container is carried; so take
+        // xobj out, check whether it can be carried, and then put
+        // it back (below) if it can't be
+        obj_extract_self(xobj, { state });   /* this reduces container's weight */
+        // check whether mon can handle xobj and whether weight of xobj plus
+        // minvent (including container, now without xobj) can be carried
+        if (can_carry(mon, xobj, { state })) {
+            if (vismon) {
+                if (howfar > 2) /* not adjacent */
+                    await ttyNorep(
+                        `${capitalizedMonsterName(mon, state)} rummages through ${contnr_nam}.`,
+                        state,
+                    );
+                else if (takeout_indx === 0) /* adjacent, first item */
+                    await pline_mon(mon,
+                        `${capitalizedMonsterName(mon, state)} removes ${donameFresh(xobj, state)} from ${contnr_nam}.`,
+                        state);
+                else /* adjacent, additional items */
+                    await ttyPline(
+                        `${upstart(mpronounbuf)} removes ${donameFresh(xobj, state)}.`,
+                        state,
+                    );
+            }
+            if (container.otyp === O.ICE_BOX)
+                note_unported('pickup.c removed_from_icebox');
+            // obj_extract_self(xobj) -- already done above
+            mpickobj(mon, xobj, { state });
+            res = 2;
+        } else { /* couldn't carry xobj separately so put back inside */
+            // an achievement prize (castle's wand?) might already be
+            // marked nomerge (when it hasn't been in invent yet)
+            const already_nomerge = xobj.nomerge !== 0 && xobj.nomerge != null;
+            const just_xobj = !Has_contents(container);
+
+            // this doesn't restore the original contents ordering
+            // [shouldn't be a problem; even though this item didn't
+            // give the rummage message, that's what mon was doing]
+            xobj.nomerge = 1;
+            xobj = add_to_container(container, xobj, { state });
+            if (!already_nomerge)
+                xobj.nomerge = 0;
+            container.owt = weight(container, { state });
+            if (just_xobj)
+                break; /* out of takeout_count loop */
+        } /* can_carry */
+    } /* takeout_count */
+    return res;
 }
 
 // C ref: muse.c find_defensive() (441-750). This partial port returns the
@@ -1384,7 +1530,7 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
 export function select_fresh_monster_item_action(monster, rawEnv = {}) {
     const defensive = find_defensive(monster, false, rawEnv);
     if (defensive) return defensive;
-    return select_misc_action(monster, rawEnv);
+    return find_misc(monster, rawEnv);
 }
 
 // C ref: muse.c linedup_chk_corpse() (1294-1299). Callback for

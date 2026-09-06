@@ -35,7 +35,7 @@ import {
     mcould_eat_tin,
     searches_for_item,
     select_fresh_monster_item_action,
-    select_misc_action,
+    find_misc,
 } from '../js/muse.js';
 import { mksobj, place_object, remove_object } from '../js/obj.js';
 import { UnsupportedSimpleMonsterActionError }
@@ -290,7 +290,7 @@ test('find_misc selection covers initial miscellaneous item families',
                 muy: state.u.uy,
             });
             assert.equal(
-                select_misc_action(monster, {
+                find_misc(monster, {
                     state,
                     random: {
                         rn2: (bound) =>
@@ -318,7 +318,7 @@ test('find_misc preserves trap precedence and inert-container RNG', () => {
         ttyp: POLY_TRAP,
     });
     assert.equal(
-        select_misc_action(monster, { state })?.kind,
+        find_misc(monster, { state })?.kind,
         'polymorph trap',
     );
 
@@ -326,7 +326,7 @@ test('find_misc preserves trap precedence and inert-container RNG', () => {
     monster.minvent = makeObject(state, LARGE_BOX);
     const bounds = [];
     assert.equal(
-        select_misc_action(monster, {
+        find_misc(monster, {
             state,
             random: {
                 rn2: (bound) => {

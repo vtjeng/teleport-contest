@@ -140,6 +140,7 @@ import {
     GLASS,
     GOLD_PIECE,
     GRAY_DRAGON_SCALE_MAIL,
+    GRAY_DRAGON_SCALES,
     HEAVY_IRON_BALL,
     HELM_OF_OPPOSITE_ALIGNMENT,
     HORN_OF_PLENTY,
@@ -203,12 +204,14 @@ import {
     WOOD,
     WORM_TOOTH,
     UNICORN_HORN,
+    YELLOW_DRAGON_SCALE_MAIL,
     YELLOW_DRAGON_SCALES,
 } from './objects.js';
 import {
     G_NOCORPSE,
     MZ_HUGE,
     MZ_SMALL,
+    PM_GRAY_DRAGON,
     PM_GRAY_OOZE,
     PM_HUMAN,
     PM_MARILITH,
@@ -984,6 +987,30 @@ export function is_blade(obj, state = game) {
 export function Is_dragon_armor(obj) {
     return obj.otyp >= GRAY_DRAGON_SCALE_MAIL
         && obj.otyp <= YELLOW_DRAGON_SCALES;
+}
+
+// C ref: obj.h Is_dragon_scales() (347-348).
+export function Is_dragon_scales(obj) {
+    return obj.otyp >= GRAY_DRAGON_SCALES
+        && obj.otyp <= YELLOW_DRAGON_SCALES;
+}
+
+// C ref: obj.h Is_dragon_mail() (349-351).
+export function Is_dragon_mail(obj) {
+    return obj.otyp >= GRAY_DRAGON_SCALE_MAIL
+        && obj.otyp <= YELLOW_DRAGON_SCALE_MAIL;
+}
+
+// C ref: obj.h Dragon_scales_to_pm() (353-354). Returns the permonst entry
+// for the dragon whose scales this object represents.
+export function Dragon_scales_to_pm(obj, state = game) {
+    return state.mons[PM_GRAY_DRAGON + obj.otyp - GRAY_DRAGON_SCALES];
+}
+
+// C ref: obj.h Dragon_mail_to_pm() (355-356). Returns the permonst entry
+// for the dragon whose scale mail this object represents.
+export function Dragon_mail_to_pm(obj, state = game) {
+    return state.mons[PM_GRAY_DRAGON + obj.otyp - GRAY_DRAGON_SCALE_MAIL];
 }
 
 // C ref: obj.h is_axe() (217-219). Reads the same field is_pick() below does.

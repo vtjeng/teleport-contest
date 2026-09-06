@@ -47,10 +47,17 @@ import {
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { carrying_stoning_corpse } from '../js/invent.js';
-import { Is_dragon_armor, is_boots, is_gloves } from '../js/obj.js';
+import {
+    Dragon_mail_to_pm, Dragon_scales_to_pm,
+    Is_dragon_armor, Is_dragon_mail, Is_dragon_scales,
+    is_boots, is_gloves,
+} from '../js/obj.js';
 import { runSegment } from '../js/jsmain.js';
 import { monstunseesu } from '../js/mondata.js';
-import { M1_SEE_INVIS, PM_ACID_BLOB, PM_COCKATRICE } from '../js/monsters.js';
+import {
+    M1_SEE_INVIS, PM_ACID_BLOB, PM_COCKATRICE,
+    PM_GRAY_DRAGON, PM_YELLOW_DRAGON,
+} from '../js/monsters.js';
 import { bimanual, setworn } from '../js/worn.js';
 import {
     AMULET_CLASS,
@@ -1359,6 +1366,57 @@ test('Is_dragon_armor() spans the two obj.h ranges and nothing else', () => {
             || (otyp >= GRAY_DRAGON_SCALE_MAIL
                 && otyp <= YELLOW_DRAGON_SCALE_MAIL);
         assert.equal(Is_dragon_armor({ otyp }), disjunction, `otyp ${otyp}`);
+    }
+});
+
+test('Is_dragon_scales() matches the obj.h range GRAY..YELLOW_DRAGON_SCALES', () => {
+    // obj.h:347-348. The range is GRAY_DRAGON_SCALES through
+    // YELLOW_DRAGON_SCALES (otyp 111-120). One below and one above must
+    // be false.
+    assert.equal(Is_dragon_scales({ otyp: GRAY_DRAGON_SCALES - 1 }), false,
+                 'one below GRAY_DRAGON_SCALES');
+    assert.equal(Is_dragon_scales({ otyp: GRAY_DRAGON_SCALES }), true,
+                 'GRAY_DRAGON_SCALES');
+    assert.equal(Is_dragon_scales({ otyp: YELLOW_DRAGON_SCALES }), true,
+                 'YELLOW_DRAGON_SCALES');
+    assert.equal(Is_dragon_scales({ otyp: YELLOW_DRAGON_SCALES + 1 }), false,
+                 'one above YELLOW_DRAGON_SCALES');
+});
+
+test('Is_dragon_mail() matches the obj.h range GRAY..YELLOW_DRAGON_SCALE_MAIL', () => {
+    // obj.h:349-351. The range is GRAY_DRAGON_SCALE_MAIL through
+    // YELLOW_DRAGON_SCALE_MAIL (otyp 101-110).
+    assert.equal(Is_dragon_mail({ otyp: GRAY_DRAGON_SCALE_MAIL - 1 }), false,
+                 'one below GRAY_DRAGON_SCALE_MAIL');
+    assert.equal(Is_dragon_mail({ otyp: GRAY_DRAGON_SCALE_MAIL }), true,
+                 'GRAY_DRAGON_SCALE_MAIL');
+    assert.equal(Is_dragon_mail({ otyp: YELLOW_DRAGON_SCALE_MAIL }), true,
+                 'YELLOW_DRAGON_SCALE_MAIL');
+    assert.equal(Is_dragon_mail({ otyp: YELLOW_DRAGON_SCALE_MAIL + 1 }), false,
+                 'one above YELLOW_DRAGON_SCALE_MAIL');
+});
+
+test('Dragon_scales_to_pm() maps each scale otyp to the correct dragon', () => {
+    // obj.h:353-354. Dragon_scales_to_pm(obj) = mons[PM_GRAY_DRAGON +
+    // obj->otyp - GRAY_DRAGON_SCALES]. There are 10 dragon species
+    // (PM_GRAY_DRAGON through PM_YELLOW_DRAGON) and 10 scale otyps.
+    for (let i = 0; i <= PM_YELLOW_DRAGON - PM_GRAY_DRAGON; i++) {
+        const otyp = GRAY_DRAGON_SCALES + i;
+        const pm = Dragon_scales_to_pm({ otyp }, game);
+        // The permonst entry's pmidx must equal PM_GRAY_DRAGON + i.
+        assert.equal(pm.pmidx, PM_GRAY_DRAGON + i,
+                     `scale otyp ${otyp} maps to dragon pmidx ${PM_GRAY_DRAGON + i}`);
+    }
+});
+
+test('Dragon_mail_to_pm() maps each scale mail otyp to the correct dragon', () => {
+    // obj.h:355-356. Dragon_mail_to_pm(obj) = mons[PM_GRAY_DRAGON +
+    // obj->otyp - GRAY_DRAGON_SCALE_MAIL]. Same arithmetic, different base.
+    for (let i = 0; i <= PM_YELLOW_DRAGON - PM_GRAY_DRAGON; i++) {
+        const otyp = GRAY_DRAGON_SCALE_MAIL + i;
+        const pm = Dragon_mail_to_pm({ otyp }, game);
+        assert.equal(pm.pmidx, PM_GRAY_DRAGON + i,
+                     `mail otyp ${otyp} maps to dragon pmidx ${PM_GRAY_DRAGON + i}`);
     }
 });
 
