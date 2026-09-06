@@ -1,0 +1,12 @@
+{
+    "version": 5,
+    "_comment": "Apply a horn of plenty. Blocked by invent.c consume_obj_charge (spe decrement and shop billing).",
+    "segments": [
+        {
+            "seed": 7710042,
+            "datetime": "20261012143000",
+            "nethackrc": "OPTIONS=name:Horatio,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+            "moves": "  #wizwish\nhorn of plenty\naZ"
+        }
+    ]
+}
