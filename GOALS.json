@@ -10192,11 +10192,19 @@
         },
         {
           "name": "is_flammable..is_rottable",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "1c4db6856cd6bf55f91bf4c2aeb1bb596a30c2d4",
           "functions": [
             "is_flammable",
             "is_rottable"
+          ]
+        },
+        {
+          "name": "recreate_pile_at",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "recreate_pile_at"
           ]
         }
       ],
@@ -10579,13 +10587,13 @@
           "name": "is_flammable",
           "line": 2270,
           "endLine": 2288,
-          "ported": false
+          "ported": true
         },
         {
           "name": "is_rottable",
           "line": 2289,
           "endLine": 2304,
-          "ported": false
+          "ported": true
         },
         {
           "name": "place_object",
