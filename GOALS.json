@@ -10123,11 +10123,19 @@
         },
         {
           "name": "stone_object_type..stone_furniture_type",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "30cc61e5ef19f8c583d0f919a5a39bdd86e034aa",
           "functions": [
             "stone_object_type",
             "stone_furniture_type"
+          ]
+        },
+        {
+          "name": "item_on_ice",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "item_on_ice"
           ]
         }
       ],
@@ -10336,13 +10344,13 @@
           "name": "stone_object_type",
           "line": 1264,
           "endLine": 1275,
-          "ported": false
+          "ported": true
         },
         {
           "name": "stone_furniture_type",
           "line": 1276,
           "endLine": 1317,
-          "ported": false
+          "ported": true
         },
         {
           "name": "set_corpsenm",
