@@ -535,7 +535,9 @@ function initializedIdentContext(state) {
     return context;
 }
 
-function nextSplitOid(source, child, normalized) {
+// C ref: mkobj.c nextoid() (536-555). Assigns the new object an id that
+// preserves the original object's oid_price_adjustment value.
+function nextoid(source, child, normalized) {
     const context = initializedIdentContext(normalized.state);
     const adjustment = oidPriceAdjustment(
         source,
@@ -617,7 +619,7 @@ export function splitobj(obj, quantity, env = {}) {
         ...obj,
         oextra: null,
     });
-    child.o_id = nextSplitOid(obj, child, normalized);
+    child.o_id = nextoid(obj, child, normalized);
     child.timed = 0;
     child.lamplit = false;
     child.owornmask = 0;
