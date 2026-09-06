@@ -9376,10 +9376,21 @@
         },
         {
           "name": "redist_attr",
+          "status": "closed",
+          "closedBy": "4ede2a1c40cee338a32b7999bbd387934a6cc0fc",
+          "functions": [
+            "redist_attr"
+          ]
+        },
+        {
+          "name": "check_innate_abil..from_what",
           "status": "queued",
           "closedBy": null,
           "functions": [
-            "redist_attr"
+            "check_innate_abil",
+            "innately",
+            "is_innate",
+            "from_what"
           ]
         }
       ],
@@ -9492,7 +9503,7 @@
           "name": "redist_attr",
           "line": 740,
           "endLine": 763,
-          "ported": false
+          "ported": true
         },
         {
           "name": "vary_init_attr",
