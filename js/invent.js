@@ -200,6 +200,7 @@ import {
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
 import { UnsupportedShopError, costly_spot } from './shk.js';
+import { set_moreluck } from './attrib.js';
 import { is_pole } from './worn.js';
 
 export const INVLET_BASIC = 52;
@@ -1457,7 +1458,7 @@ function requiredHook(env, name, obj) {
 // Predicates: artifactConfersLuck(obj, env), isReviver(species, env),
 // samePrice(obj, target, env), isDeadSpecies(species, includeGone, env).
 // Inventory effects: addSpecialInventoryEffects(obj, env),
-// removeSpecialInventoryEffects(obj, env), recalculateLuck(obj, env),
+// removeSpecialInventoryEffects(obj, env),
 // archeologistDeciphersScroll(obj, env), recordAchievement(id, env),
 // updateInventory(state).
 // attachFigurineTimer(obj, env) and stopFigurineTimer(obj, env) own both the
@@ -1777,9 +1778,7 @@ function preflightFreeinvCore(obj, env) {
             requiredHook(env, 'artifactConfersLuck', obj)(obj, env),
         );
     }
-    if (confersLuck) {
-        requiredHook(env, 'recalculateLuck', obj);
-    } else if (obj.otyp === FIGURINE && obj.timed) {
+    if (!confersLuck && obj.otyp === FIGURINE && obj.timed) {
         requiredHook(env, 'stopFigurineTimer', obj);
     }
     return { confersLuck };
@@ -1803,7 +1802,7 @@ function freeinvCore(obj, env, facts) {
         curseFreeObject(obj);
     } else if (obj.otyp === LUCKSTONE || obj.oartifact) {
         if (facts.confersLuck) {
-            requiredHook(env, 'recalculateLuck', obj)(obj, env);
+            set_moreluck(env.state);
             env.state.disp ??= {};
             env.state.disp.botl = true;
         }
@@ -2644,7 +2643,6 @@ function preflightAddinvCores(obj, env) {
     if (prize) requiredHook(env, 'recordAchievement', obj);
     const confersLuck = obj.otyp === LUCKSTONE
         || (Boolean(obj.oartifact) && confers_luck(obj, env.state));
-    if (confersLuck) requiredHook(env, 'recalculateLuck', obj);
     if (env.state.urole?.filecode === 'Arc'
         && obj.oclass === SCROLL_CLASS
         && obj.otyp !== SCR_BLANK_PAPER
@@ -2658,7 +2656,7 @@ function preflightAddinvCores(obj, env) {
 function addinvCore2(obj, env, facts) {
     if (obj.otyp === LUCKSTONE || obj.oartifact) {
         if (facts.confersLuck)
-            requiredHook(env, 'recalculateLuck', obj)(obj, env);
+            set_moreluck(env.state);
     }
 
     // The Archeologist's scroll-label side effect can become reachable only

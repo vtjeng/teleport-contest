@@ -11,6 +11,7 @@ import {
     losestr,
     newhp,
     poison_strdmg,
+    set_moreluck,
     vary_init_attr,
 } from '../js/attrib.js';
 import {
@@ -26,6 +27,7 @@ import {
     HVY_ENCUMBER,
     KILLED_BY,
     KILLED_BY_AN,
+    LUCKADD,
     MOD_ENCUMBER,
     NOT_HUNGRY,
     REGENERATION,
@@ -35,6 +37,7 @@ import {
 } from '../js/const.js';
 import { newpw, newuexp } from '../js/exper.js';
 import { PM_MONK } from '../js/monsters.js';
+import { LUCKSTONE } from '../js/objects.js';
 
 function advancement(infix, inrnd, lofix, lornd, hifix, hirnd) {
     return { infix, inrnd, lofix, lornd, hifix, hirnd };
@@ -758,4 +761,41 @@ test('newuexp keeps the three source ranges', () => {
     assert.equal(newuexp(1), 20);
     assert.equal(newuexp(10), 10_000);
     assert.equal(newuexp(20), 10_000_000);
+});
+
+// C ref: attrib.c set_moreluck() (441-453). Three branches: no luck source
+// sets moreluck to 0, a non-negative luck bonus sets LUCKADD (3), and a
+// negative luck bonus sets -LUCKADD (-3).
+test('set_moreluck with no luckstone sets moreluck to 0', () => {
+    const state = { u: { moreluck: 99 }, invent: null };
+    set_moreluck(state);
+    assert.equal(state.u.moreluck, 0);
+});
+
+test('set_moreluck with uncursed luckstone sets moreluck to LUCKADD', () => {
+    // An uncursed luckstone in inventory. stone_luck(true) counts uncursed
+    // stones, yielding a positive sign, so the `luckbon >= 0` branch fires.
+    const luckstone = { otyp: LUCKSTONE, blessed: false, cursed: false,
+        quan: 1, oartifact: 0, nobj: null };
+    const state = { u: { moreluck: 0 }, invent: luckstone, artilist: [] };
+    set_moreluck(state);
+    assert.equal(state.u.moreluck, LUCKADD);
+});
+
+test('set_moreluck with blessed luckstone sets moreluck to LUCKADD', () => {
+    // A blessed luckstone yields a positive stone_luck, same LUCKADD result.
+    const luckstone = { otyp: LUCKSTONE, blessed: true, cursed: false,
+        quan: 1, oartifact: 0, nobj: null };
+    const state = { u: { moreluck: 0 }, invent: luckstone, artilist: [] };
+    set_moreluck(state);
+    assert.equal(state.u.moreluck, LUCKADD);
+});
+
+test('set_moreluck with cursed luckstone sets moreluck to -LUCKADD', () => {
+    // A cursed luckstone gives stone_luck -1, so moreluck = -LUCKADD.
+    const luckstone = { otyp: LUCKSTONE, blessed: false, cursed: true,
+        quan: 1, oartifact: 0, nobj: null };
+    const state = { u: { moreluck: 0 }, invent: luckstone, artilist: [] };
+    set_moreluck(state);
+    assert.equal(state.u.moreluck, -LUCKADD);
 });

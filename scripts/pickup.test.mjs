@@ -610,11 +610,6 @@ test('pickup preflights every reachable addinv dependency before unlinking',
     async () => {
         const cases = [
             {
-                name: 'luckstone recalculation',
-                otyp: LUCKSTONE,
-                expected: /recalculateLuck is not available/u,
-            },
-            {
                 name: 'cursed figurine timer',
                 otyp: FIGURINE,
                 expected: /isDeadSpecies is not available/u,
@@ -662,9 +657,14 @@ test('pickup preflights every reachable addinv dependency before unlinking',
 
 test('pickup preflights the whole pile before any state or floor mutation',
     async () => {
+        // A cursed figurine triggers the isDeadSpecies preflight, which
+        // fails without a hook. This confirms that pickup backs out of
+        // the entire pile when any single object's preflight fails.
         const state = await heroOnAnEmptySquare();
         state.flags.pickup = true;
-        const failing = typedObjectUnderHero(state, LUCKSTONE);
+        const failing = typedObjectUnderHero(state, FIGURINE);
+        failing.cursed = true;
+        failing.corpsenm = PM_KOBOLD_ZOMBIE;
         const ordinary = objectUnderHero(state);
         ordinary.dknown = false;
         failing.dknown = false;
@@ -685,7 +685,7 @@ test('pickup preflights the whole pile before any state or floor mutation',
 
         await assert.rejects(
             () => pickup(1, state),
-            /recalculateLuck is not available/u,
+            /isDeadSpecies is not available/u,
         );
         assertStillOnBothFloorChains(state, ordinary, ordinaryLinks);
         assert.equal(ordinary.nexthere, failing);

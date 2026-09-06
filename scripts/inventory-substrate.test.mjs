@@ -325,7 +325,6 @@ test('addinv sequence projection clears a tracked prize nomerge flag', () => {
         {
             state,
             hooks: {
-                recalculateLuck: () => {},
                 recordAchievement: () => {},
             },
         },
@@ -1419,10 +1418,7 @@ test('Mines prize records its achievement and merges after pickup', () => {
     const carriedId = 701;
     const prizeId = 702;
     const carried = instance(LUCKSTONE, state, { o_id: carriedId });
-    addinv(carried, {
-        state,
-        hooks: { recalculateLuck: () => {} },
-    });
+    addinv(carried, { state });
 
     state.context.achieveo = {
         mines_prize_oid: prizeId,
@@ -1436,7 +1432,6 @@ test('Mines prize records its achievement and merges after pickup', () => {
     const result = addinv(prize, {
         state,
         hooks: {
-            recalculateLuck: () => {},
             recordAchievement(achievement) {
                 assert.equal(state.context.achieveo.mines_prize_oid, prizeId);
                 assert.equal(prize.nomerge, true);
@@ -1520,20 +1515,18 @@ test('addinv_nomerge restores its flag when a seam rejects insertion', () => {
     assert.equal(ration.where, OBJ_FREE);
 });
 
-test('freeinv checks luck side effects before unlinking', () => {
+test('freeinv recalculates moreluck when removing a luckstone', () => {
+    // set_moreluck() is now called directly, so removing an uncursed
+    // luckstone resets u.moreluck to 0.
     const state = initializedState();
     const luckstone = instance(LUCKSTONE, state);
-    addinv(luckstone, {
-        state,
-        hooks: { recalculateLuck: () => {} },
-    });
-    assert.throws(
-        () => freeinv(luckstone, { state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'recalculateLuck',
-    );
-    assert.equal(state.invent, luckstone);
-    assert.equal(luckstone.where, OBJ_INVENT);
+    addinv(luckstone, { state });
+    // After adding an uncursed luckstone, moreluck should be LUCKADD (3).
+    assert.equal(state.u.moreluck, 3);
+    freeinv(luckstone, { state });
+    // After removing the only luckstone, moreluck returns to 0.
+    assert.equal(state.u.moreluck, 0);
+    assert.equal(luckstone.where, OBJ_FREE);
 });
 
 test('split tracking survives extraction and clears on deallocation', () => {

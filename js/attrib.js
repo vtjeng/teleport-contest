@@ -2,7 +2,8 @@
 // C ref: src/attrib.c the innate-ability tables, role_abil(), postadjabil(),
 // adjabil(), newhp(), setuhpmax(), init_attr(), vary_init_attr(), exercise(),
 // exerper(), adjattrib(), exerchk(), losestr(), poison_strdmg(),
-// poisontell(), poisoned(), and adjuhploss().
+// poisontell(), poisoned(), stone_luck(), set_moreluck(), restore_attrib(),
+// and adjuhploss().
 
 import {
     A_CHA,
@@ -33,6 +34,7 @@ import {
     INTRINSIC,
     KILLED_BY,
     KILLED_BY_AN,
+    LUCKADD,
     MAXULEV,
     MOD_ENCUMBER,
     NOT_HUNGRY,
@@ -63,6 +65,8 @@ import { SPFX_LUCK } from './artifacts.js';
 import { see_monsters } from './display.js';
 import { game } from './gstate.js';
 import { strstri } from './hacklib.js';
+// js/invent.js does not import from this file, so no cycle.
+import { carrying } from './invent.js';
 // js/mon.js imports adjalign() from this file; both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
 import { adj_erinys } from './mon.js';
@@ -1041,6 +1045,54 @@ export function stone_luck(includeUncursed, state = game) {
         else if (object.blessed || includeUncursed) bonus += quantity;
     }
     return Math.sign(bonus);
+}
+
+// C ref: attrib.c set_moreluck() (441-453). Recalculates u.moreluck from
+// inventory. Called when a luck-conferring item enters or leaves inventory or
+// changes BUC status. The result feeds into Luck (= u.uluck + u.moreluck),
+// which rnl() draws use.
+export function set_moreluck(state = game) {
+    const luckbon = stone_luck(true, state);
+    if (!luckbon && !carrying(LUCKSTONE, state))
+        state.u.moreluck = 0;
+    else if (luckbon >= 0)
+        state.u.moreluck = LUCKADD;
+    else
+        state.u.moreluck = -LUCKADD;
+}
+
+// C ref: attrib.c restore_attrib() (455-487). "(not used)" -- ATIME() is
+// never set to non-zero anywhere in the C source, so the countdown body never
+// fires. Ported for completeness; no caller exists.
+export async function restore_attrib(state = game, env = {}) {
+    const u = state.u;
+    const attrs = attributeArrays(u);
+    for (let i = 0; i < NUM_ATTRS; i++) {
+        const woundedLegs = u.uprops?.[WOUNDED_LEGS]?.intrinsic
+            || u.uprops?.[WOUNDED_LEGS]?.extrinsic;
+        const equilibrium = ((i === A_STR && u.uhs >= WEAK)
+            || (i === A_DEX && woundedLegs)) ? -1 : 0;
+        if (attrs.temp[i] !== equilibrium && attrs.time[i] !== 0) {
+            if (!(--attrs.time[i])) { /* countdown for change */
+                attrs.temp[i] += (attrs.temp[i] > 0) ? -1 : 1;
+                state.disp ??= {};
+                state.disp.botl = true;
+                if (attrs.temp[i]) /* reset timer */
+                    attrs.time[i] = Math.trunc(
+                        100 / effective_attribute(state, A_CON),
+                    );
+            }
+        }
+    }
+    // C checks `disp.botl` here, which covers both changes this function
+    // made and any flag the caller left set. Since the function is dead code
+    // (ATIME is never non-zero), the distinction is academic.
+    if (state.disp?.botl) {
+        const encumberMessage = env.encumberMessage;
+        if (typeof encumberMessage !== 'function')
+            throw new Error('restore_attrib requires encumber_msg');
+        await encumberMessage(state);
+    }
 }
 
 // C ref: attrib.c losestr() (218-270). Strength loss that may kill; the cause
