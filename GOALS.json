@@ -10140,12 +10140,20 @@
         },
         {
           "name": "shrink_glob..maybe_adjust_light",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "8d03cf651c175f903ca5a2db87decd3937c261d2",
           "functions": [
             "shrink_glob",
             "shrinking_glob_gone",
             "maybe_adjust_light"
+          ]
+        },
+        {
+          "name": "unbless",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "unbless"
           ]
         }
       ],
@@ -10396,19 +10404,19 @@
           "name": "shrink_glob",
           "line": 1500,
           "endLine": 1672,
-          "ported": false
+          "ported": true
         },
         {
           "name": "shrinking_glob_gone",
           "line": 1673,
           "endLine": 1703,
-          "ported": false
+          "ported": true
         },
         {
           "name": "maybe_adjust_light",
           "line": 1704,
           "endLine": 1744,
-          "ported": false
+          "ported": true
         },
         {
           "name": "bless",
