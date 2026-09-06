@@ -9735,8 +9735,8 @@
         },
         {
           "name": "necrophiliac",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "27f7db29c343801bcf6ee8a5b8a3cc6fb99e828f",
           "functions": [
             "necrophiliac"
           ]
@@ -9947,7 +9947,7 @@
           "name": "necrophiliac",
           "line": 2691,
           "endLine": 2705,
-          "ported": false
+          "ported": true
         },
         {
           "name": "searches_for_item",
