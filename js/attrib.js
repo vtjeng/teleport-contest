@@ -1,7 +1,7 @@
 // attrib.js — hero attributes, advancement, exercise, and adjustment.
 // C ref: src/attrib.c the innate-ability tables, role_abil(), postadjabil(),
 // adjabil(), newhp(), setuhpmax(), rnd_attr(), init_attr_role_redist(),
-// init_attr(), vary_init_attr(), exercise(), exerper(), adjattrib(),
+// init_attr(), redist_attr(), vary_init_attr(), exercise(), exerper(), adjattrib(),
 // exerchk(), losestr(), poison_strdmg(), poisontell(), poisoned(),
 // stone_luck(), set_moreluck(), restore_attrib(), and adjuhploss().
 
@@ -581,6 +581,42 @@ export function init_attr(points, state = game, random = { rn2 }) {
     }
     remaining = init_attr_role_redist(state, remaining, true, random);
     return init_attr_role_redist(state, remaining, false, random);
+}
+
+// C ref: attrib.c redist_attr() (740-763). Redistribute attribute points when
+// polymorphing into a new human form (newman). Adjusts every attribute except
+// A_INT and A_WIS by rn2(5)-2, clamps to racial bounds, and scales ABASE
+// proportionally. The caller is responsible for calling encumber_msg().
+//
+// Cycle avoidance: uasmon_maxStr() lives in polyself.js, which imports from
+// this file. To avoid a circular dependency it is injected through env.
+export function redist_attr(state = game, env = {}) {
+    const random = env.random ?? { rn2 };
+    const { race } = roleAndRace(state);
+    const attrs = attributeArrays(state.u);
+
+    for (let i = 0; i < NUM_ATTRS; i++) {
+        if (i === A_INT || i === A_WIS)
+            continue;
+        /* Polymorphing doesn't change your mind */
+        const tmp = attrs.max[i];
+        attrs.max[i] += (random.rn2(5) - 2);
+        // ATTRMAX: for A_STR when polymorphed, use the monster form's max
+        // strength; otherwise use the racial maximum.
+        const attrmax = (i === A_STR && Upolyd(state.u) && env.uasmon_maxStr)
+            ? env.uasmon_maxStr(state)
+            : Math.trunc(race.attrmax?.[i] ?? attrs.max[i]);
+        const attrmin = Math.trunc(race.attrmin?.[i] ?? attrs.base[i]);
+        if (attrs.max[i] > attrmax)
+            attrs.max[i] = attrmax;
+        if (attrs.max[i] < attrmin)
+            attrs.max[i] = attrmin;
+        attrs.base[i] = Math.trunc(attrs.base[i] * attrs.max[i] / tmp);
+        /* ABASE(i) > ATTRMAX(i) is impossible */
+        if (attrs.base[i] < attrmin)
+            attrs.base[i] = attrmin;
+    }
+    /* encumber_msg(); -- caller needs to do this */
 }
 
 function adjustInitialAttribute(state, index, increment, random) {
