@@ -692,3 +692,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-06T22:38:34.307Z	dbcb0e44	span	24	33	4977	7765	343077	610816	4996	7765					fixup_oil closes. Development unchanged at 4977/7765 screens, 343077/610816 rng. 24/33 sessions.
 2026-09-06T22:49:50.846Z	1d31aea5	span	24	33	4977	7765	343077	610816	4996	7765					corpse_revive_type..obj_attach_mid closes. Development unchanged at 4977/7765 screens, 343077/610816 rng. 24/33 sessions.
 2026-09-06T23:04:05.473Z	1c4db685	span	24	33	4977	7765	343077	610816	4996	7765					is_flammable..is_rottable closes. Development unchanged at 4977/7765 screens, 343077/610816 rng. 24/33 sessions.
+2026-09-06T23:10:45.120Z	203a2bc3	span	24	33	4977	7765	343077	610816	4996	7765					recreate_pile_at closes. Development unchanged at 4977/7765 screens, 343077/610816 rng. 24/33 sessions.

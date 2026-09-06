@@ -10201,10 +10201,19 @@
         },
         {
           "name": "recreate_pile_at",
+          "status": "closed",
+          "closedBy": "203a2bc36bad9f299acd59811f69b29cc9a73bec",
+          "functions": [
+            "recreate_pile_at"
+          ]
+        },
+        {
+          "name": "extract_nobj..extract_nexthere",
           "status": "queued",
           "closedBy": null,
           "functions": [
-            "recreate_pile_at"
+            "extract_nobj",
+            "extract_nexthere"
           ]
         }
       ],
@@ -10605,7 +10614,7 @@
           "name": "recreate_pile_at",
           "line": 2371,
           "endLine": 2396,
-          "ported": false
+          "ported": true
         },
         {
           "name": "obj_ice_effects",
