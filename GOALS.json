@@ -9358,11 +9358,20 @@
         },
         {
           "name": "set_moreluck..restore_attrib",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "961c5b3d3be3683b3ed22d2c9f20d2f25efc6e04",
           "functions": [
             "set_moreluck",
             "restore_attrib"
+          ]
+        },
+        {
+          "name": "rnd_attr..init_attr_role_redist",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "rnd_attr",
+            "init_attr_role_redist"
           ]
         }
       ],
@@ -9427,13 +9436,13 @@
           "name": "set_moreluck",
           "line": 441,
           "endLine": 454,
-          "ported": false
+          "ported": true
         },
         {
           "name": "restore_attrib",
           "line": 455,
           "endLine": 488,
-          "ported": false
+          "ported": true
         },
         {
           "name": "exercise",

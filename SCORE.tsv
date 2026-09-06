@@ -658,3 +658,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-05T16:54:14.510Z	afae61fa	slice	24	33	4606	7765	326892	610816	4645	7765					port-buzzmu closes. Development 4604→4606 of 7765 screens, 326792→326892 of 610816 rng. 24 of 33 sessions.
 2026-09-05T16:54:47.388Z	afae61fa	goal	24	33	4606	7765	326892	610816	4645	7765	315	3640	38930	182022	simple-monster-action-requires-a-monster-casting-a-ranged-sp closes. Development 4606 of 7765 screens, 326892 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.
 2026-09-06T06:38:39.438Z	4391e2db	span	24	33	4976	7765	343038	610816	4996	7765					poison_strdmg closes. Development 4606→4976 of 7765 screens, 326892→343038 of 610816 rng. 24 of 33 sessions.
+2026-09-06T06:56:24.964Z	961c5b3d	span	24	33	4976	7765	343038	610816	4996	7765					set_moreluck..restore_attrib closes. Development 4976 of 7765 screens, 343038 of 610816 rng. 24 of 33 sessions.
