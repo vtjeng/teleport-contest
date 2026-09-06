@@ -266,6 +266,14 @@ export function BZ_U_BREATH(bztyp) { return 20 + bztyp; }
 // C ref: hack.h:1486 — BZ_M_SPELL(bztyp) = -10 - (bztyp), types -19..-10
 export function BZ_M_SPELL(bztyp) { return -10 - bztyp; }
 
+// C ref: hack.h:1490 — BZ_M_WAND(bztyp) = -30 - (bztyp), types -39..-30
+export function BZ_M_WAND(bztyp) { return -30 - bztyp; }
+
+// C ref: hack.h:1477 — BZ_OFS_WAN(otyp) = abs(otyp - WAN_MAGIC_MISSILE) % 10
+// WAN_MAGIC_MISSILE is imported from objects.js by callers; the constant value
+// is 429 in the generated catalog.
+export function BZ_OFS_WAN(otyp) { return Math.abs(otyp - 429) % 10; }
+
 // Room types (mkroom.h)
 export const OROOM = 0;
 export const THEMEROOM = 1;

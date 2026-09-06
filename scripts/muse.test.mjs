@@ -777,9 +777,8 @@ test('find_offensive declines above the loop for each guard C names',
     // selected whatever the attacker's distance.
     const wand = carried(state, WAN_STRIKING, { spe: 3 });
     const gnome = offensiveMonster(state, PM_GNOME, wand);
-    // The gnome itself passes every guard and is refused for the wand.
-    assert.throws(() => find_offensive(gnome, env),
-        (error) => error.reason === 'monster offensive item use');
+    // The gnome itself passes every guard and selects the wand.
+    assert.equal(find_offensive(gnome, env), true);
 
     gnome.mpeaceful = true;
     assert.equal(find_offensive(gnome, env), false);
@@ -847,8 +846,7 @@ test('find_offensive reads the conditions C attaches to each item',
     gnome.minvent = carried(state, WAN_STRIKING, { spe: 0 });
     assert.equal(find_offensive(gnome, env), false);
     gnome.minvent = carried(state, WAN_STRIKING, { spe: 2 });
-    assert.throws(() => find_offensive(gnome, env),
-        (error) => error.reason === 'monster offensive item use');
+    assert.equal(find_offensive(gnome, env), true);
     gnome.seen_resistance = M_SEEN_MAGR;
     assert.equal(find_offensive(gnome, env), false);
     gnome.seen_resistance = 0;
@@ -877,6 +875,7 @@ test('find_offensive reads the conditions C attaches to each item',
 // muse.c:1272-1290 numbers the MUSE_* action codes. Only the five throwable
 // potions can be selected; the values are read from the C #defines rather than
 // from the port, so a renumbering there fails here.
+const MUSE_WAN_STRIKING = 7;
 const MUSE_POT_PARALYSIS = 9;
 const MUSE_POT_BLINDNESS = 10;
 const MUSE_POT_CONFUSION = 11;
@@ -944,7 +943,8 @@ const OFFENSIVE_ARMS = [
     { name: 'spent wand of undead turning', otyp: WAN_UNDEAD_TURNING, spe: 0,
         refuses: false },
     // muse.c:1500-1505
-    { name: 'wand of striking', otyp: WAN_STRIKING, spe: 1 },
+    { name: 'wand of striking', otyp: WAN_STRIKING, spe: 1,
+        selects: MUSE_WAN_STRIKING },
     // muse.c:1506-1516 -- wand of teleportation selects when the hero is on
     // stairs (stairway_at() is truthy at the Valkyrie start position), the
     // hero lacks Teleport_control, and the level permits teleporting.
@@ -1175,8 +1175,7 @@ test('find_offensive declines for a nurse beside an unarmed, unarmored hero',
     // which is what makes this a conjunction rather than a species test.
     for (const slot of worn) {
         state[slot] = { otyp: DAGGER };
-        assert.throws(() => find_offensive(nurse, env),
-            (error) => error.reason === 'monster offensive item use', slot);
+        assert.equal(find_offensive(nurse, env), true, slot);
         state[slot] = null;
     }
     for (const slot of worn) state[slot] = saved[slot];
@@ -1184,8 +1183,7 @@ test('find_offensive declines for a nurse beside an unarmed, unarmored hero',
     // The same wand in a gnome's pack is selected whatever the hero wears,
     // so the guard is the nurse's damage type and not the empty slots.
     const gnome = offensiveMonster(state, PM_GNOME, wand);
-    assert.throws(() => find_offensive(gnome, env),
-        (error) => error.reason === 'monster offensive item use');
+    assert.equal(find_offensive(gnome, env), true);
 });
 
 // C ref: muse.c linedup_chk_corpse() (1294-1299). Returns true when a corpse

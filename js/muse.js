@@ -10,21 +10,29 @@
 // can_blow().
 
 import {
+    ANTIMAGIC,
     ARTICLE_A,
     BOLT_LIM,
     CORR,
+    D_BROKEN,
+    D_CLOSED,
+    D_LOCKED,
     DEAF,
+    DRAWBRIDGE_UP,
     FORCEBUNGLE,
     FORCETRAP,
     G_GONE,
+    HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
     HOLE,
+    IS_DOOR,
     In_endgame,
     IS_DRAWBRIDGE,
     IS_FURNITURE,
     Is_botlevel,
     Is_knox_level,
+    KILLED_BY_AN,
     LADDER,
     MFAST,
     MIGR_LADDER_DOWN,
@@ -43,7 +51,9 @@ import {
     M_SEEN_REFL,
     M_SEEN_SLEEP,
     NO_MM_FLAGS,
+    NOTELL,
     NON_PM,
+    OBJ_AT,
     OBJ_FLOOR,
     P_DAGGER,
     P_KNIFE,
@@ -51,13 +61,17 @@ import {
     POLY_TRAP,
     RLOC_MSG,
     SCORR,
+    SDOOR,
     SEE_INVIS,
+    SHOPBASE,
     STAIRS,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
     SUPPRESS_SADDLE,
     AUGMENT_IT,
+    TELL,
     TELEP_TRAP,
+    TEMPLE,
     Trap_Killed_Mon,
     W_ACCESSORY,
     W_AMUL,
@@ -68,13 +82,15 @@ import {
     W_ARMS,
     W_SADDLE,
     N_DIRS,
-    OBJ_AT,
     TELEPORT_CONTROL,
+    ZAP_POS,
     helpless,
     is_hole,
     isok,
+    u_at,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
+import { losehp, nomul } from './hack.js';
 import { dirtocoord, xytodir } from './cmd.js';
 import { map_invisible, newsym } from './display.js';
 import { trycall } from './do.js';
@@ -97,13 +113,17 @@ import { dist2, distmin, sgn, strsubst } from './hacklib.js';
 import { makemon, mongone } from './makemon_create.js';
 import { set_malign } from './makemon.js';
 import { m_next2u } from './mhitu.js';
-import { healmon, m_carrying, maybe_unhide_at, mon_offmap, monkilled } from './mon.js';
+import {
+    healmon, m_carrying, maybe_unhide_at, mon_offmap, monkilled, seemimic,
+    wakeup,
+} from './mon.js';
 import {
     acidic, attacktype, breathless, dmgtype, has_head, haseyes, is_animal,
-    is_floater, is_flyer, is_mercenary, is_unicorn, is_vampshifter,
+    is_floater, is_flyer, is_mercenary, is_undead, is_unicorn, is_vampshifter,
     locomotion, mhe, mhim, mindless, mon_knows_traps, mon_learns_traps,
-    needspick, nohands, nonliving, passes_walls, same_race, slimeproof,
-    throws_rocks, touch_petrifies, verysmall,
+    monstseesu, monstunseesu,
+    needspick, nohands, nonliving, passes_walls, resists_magm, same_race,
+    slimeproof, throws_rocks, touch_petrifies, verysmall,
 } from './mondata.js';
 import * as M from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
@@ -123,11 +143,13 @@ import { accessible, monflee, mon_would_take_item, monnear, onscary, youHear } f
 import { lined_up, linedup_callback } from './mthrowu.js';
 import { in_your_sanctuary } from './priest.js';
 import { d, rn1, rn2, rnd } from './rng.js';
+import { in_rooms } from './rooms.js';
 import { inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { canSpotMonster, is_drawbridge_wall, messageAt, sensesMonster } from './startup_a11y.js';
 import {
-    enexto, noteleport_level, random_teleport_level, rloc, tele_restrict,
+    enexto, noteleport_level, random_teleport_level, rloc, tele,
+    tele_restrict,
 } from './teleport.js';
 import { fill_pit, is_pool, maketrap, t_at, trapname } from './trap.js';
 import { mintrap, seetrap } from './trap_effects.js';
@@ -135,9 +157,10 @@ import { s_suffix } from './hacklib.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { cansee, canseemon, couldsee, recalc_block_point, unblock_point } from './vision.js';
-import { extract_from_minvent } from './worn.js';
+import { extract_from_minvent, find_mac } from './worn.js';
 import { mwelded } from './wield.js';
 import { mon_has_amulet, mon_has_special } from './wizard.js';
+import { dobuzz, exclam, hit, miss, resist } from './zap.js';
 import { which_armor } from './worn.js';
 
 // The generated catalog stores these values but does not currently export
@@ -162,6 +185,7 @@ const MUSE_POT_CONFUSION = 11;
 const MUSE_POT_ACID = 14;
 const MUSE_WAN_TELEPORTATION = 15;
 const MUSE_POT_SLEEPING = 16;
+const MUSE_WAN_STRIKING = 7;
 const MUSE_WAN_UNDEAD_TURNING = 20; /* also a defensive item */
 
 // C ref: hack.h:1409 POTION_OCCUPANT_CHANCE(n). The chance a potion has a
@@ -670,10 +694,17 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         // monster carries the Amulet of Yendor.
         if (mon_has_amulet(mtmp)) {
             // MUSE_WAN_TELEPORTATION: zap at others (monster has the Amulet)
-            note_unported('zap.c mbhit');
+            state.gz ??= {};
+            state.gz.zap_oseen = oseen;
             await mzapwand(mtmp, otmp, false, state);
+            state.m_using = true;
+            // bhito (zap.c) is unported; pass null so fhito_loc skips objects.
+            note_unported('zap.c bhito');
+            await mbhit(mtmp, rn1(8, 6), mbhitm, null, otmp, state);
+            /* monster learns that teleportation isn't useful here */
             if (noteleport_level(mtmp, state))
                 mon_learns_traps(mtmp, TELEP_TRAP);
+            state.m_using = false;
             return 2;
         }
         // MUSE_WAN_TELEPORTATION_SELF: zap self
@@ -1472,12 +1503,246 @@ export function mon_likes_objpile_at(mtmp, x, y, rawEnv = {}) {
     return false;
 }
 
+// C ref: muse.c mbhitm() (1597-1704). Monster beam/projectile hit effect on
+// another monster (or the hero). Called by mbhit() for each monster in the
+// beam's path. Returns 0 in all cases; the return value tells mbhit whether
+// to stop, but C always returns 0 here.
+async function mbhitm(mtmp, otmp, state) {
+    let reveal_invis = false;
+    let learnit = false;
+    const hits_you = (mtmp === state.youmonst);
+
+    if (!hits_you && otmp.otyp !== O.WAN_UNDEAD_TURNING) {
+        mtmp.msleeping = 0;
+        if (mtmp.m_ap_type)
+            seemimic(mtmp, state);
+    }
+    switch (otmp.otyp) {
+    case O.WAN_STRIKING:
+        reveal_invis = true;
+        if (hits_you) {
+            // Antimagic: youprop.h:57, intrinsic or extrinsic.
+            const hasAntimagic = Boolean(
+                state.u?.uprops?.[ANTIMAGIC]?.intrinsic
+                || state.u?.uprops?.[ANTIMAGIC]?.extrinsic,
+            );
+            if (hasAntimagic) {
+                monstseesu(M_SEEN_MAGR, state);
+                note_unported('display.c shieldeff');
+                // Soundeffect is a no-op in the tty build.
+                await ttyPline('Boing!', state);
+                learnit = true;
+            } else if (rnd(20) < 10 + (state.u?.uac ?? 10)
+                       && !(state.gb?.buzzer
+                            && !state.gb.buzzer.mwandexp)) {
+                monstunseesu(M_SEEN_MAGR, state);
+                await ttyPline('The wand hits you!', state);
+                let tmp = d(2, 12);
+                // Half_spell_damage: youprop.h:293-295.
+                const halfSpellDam = Boolean(
+                    state.u?.uprops?.[HALF_SPDAM]?.intrinsic
+                    || state.u?.uprops?.[HALF_SPDAM]?.extrinsic,
+                );
+                if (halfSpellDam)
+                    tmp = Math.trunc((tmp + 1) / 2);
+                await losehp(tmp, 'wand', KILLED_BY_AN, state);
+                learnit = true;
+            } else {
+                await ttyPline('The wand misses you.', state);
+            }
+            await stop_occupation(state);
+            nomul(0, state);
+        } else if (resists_magm(mtmp, state)) {
+            note_unported('display.c shieldeff');
+            // Soundeffect is a no-op in the tty build.
+            await ttyPline('Boing!', state);
+            learnit = true;
+        } else if (rnd(20) < 10 + find_mac(mtmp, state)) {
+            const tmp = d(2, 12);
+            await hit('wand', mtmp, exclam(tmp), state);
+            resist(mtmp, otmp.oclass, tmp, TELL, state);
+            learnit = true;
+        } else {
+            await miss('wand', mtmp, state);
+        }
+        /* need to see the wand being zapped and also the spot where the
+           target is hit; don't have to see the target itself though */
+        if (learnit && state.gz?.zap_oseen
+            && (hits_you || cansee(mtmp.mx, mtmp.my, state)))
+            discover_object(O.WAN_STRIKING, true, true, true, state);
+        break;
+    case O.WAN_TELEPORTATION:
+        if (hits_you) {
+            await tele(state);
+            if (state.gz?.zap_oseen)
+                discover_object(O.WAN_TELEPORTATION, true, true, true, state);
+        } else {
+            /* for consistency with zap.c, don't identify */
+            if (mtmp.ispriest
+                && in_rooms(mtmp.mx, mtmp.my, TEMPLE, state).length > 0) {
+                if (cansee(mtmp.mx, mtmp.my, state))
+                    await pline_mon(mtmp,
+                        `${capitalizedMonsterName(mtmp, state)} resists the magic!`,
+                        state);
+            } else if (!(await tele_restrict(mtmp, state)))
+                rloc(mtmp, RLOC_MSG, { state });
+        }
+        break;
+    case O.WAN_CANCELLATION:
+    case O.SPE_CANCELLATION:
+        note_unported('zap.c cancel_monst');
+        break;
+    case O.WAN_UNDEAD_TURNING:
+        if (hits_you) {
+            note_unported('zap.c unturn_you');
+            learnit = Boolean(state.gz?.zap_oseen);
+        } else {
+            let wake = false;
+
+            // unturn_dead() revives carried corpses. Its return value is used
+            // (gates wakeup), but the function itself calls revive() and many
+            // other unported functions; skip and lose the corpse-revival wake.
+            note_unported('zap.c unturn_dead');
+            if (is_undead(mtmp.data) || is_vampshifter(mtmp)) {
+                wake = true;
+                reveal_invis = true;
+                /* context.bypasses=True: if resist() happens to be fatal,
+                   make_corpse() will set obj->bypass on the new corpse
+                   so that mbhito() will skip it instead of reviving it */
+                state.context ??= {};
+                state.context.bypasses = true;
+                resist(mtmp, O.WAND_CLASS, rnd(8), NOTELL, state);
+            }
+            if (wake) {
+                if (mtmp.mhp >= 1) /* !DEADMONSTER */
+                    await wakeup(mtmp, false, { state });
+                learnit = Boolean(state.gz?.zap_oseen);
+            }
+        }
+        if (learnit)
+            discover_object(O.WAN_UNDEAD_TURNING, true, true, true, state);
+        break;
+    default:
+        break;
+    }
+    if (reveal_invis && mtmp.mhp >= 1 /* !DEADMONSTER */
+        && cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
+        && !canSpotMonster(mtmp, state))
+        map_invisible(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+
+    return 0;
+}
+
+// C ref: muse.c fhito_loc() (1707-1727). Hit all objects at x,y with the
+// fhito function. Returns true if any object was affected.
+function fhito_loc(obj, tx, ty, fhito, state) {
+    if (!fhito || !OBJ_AT(tx, ty, state))
+        return false;
+
+    let hitanything = 0;
+    const objects = state.level?.objects;
+    if (!objects) return false;
+    let otmp = objects[tx]?.[ty] ?? null;
+    while (otmp) {
+        const next_obj = otmp.nexthere;
+        if (otmp.where !== OBJ_FLOOR || otmp.ox !== tx || otmp.oy !== ty) {
+            otmp = next_obj;
+            continue;
+        }
+        hitanything += fhito(otmp, obj);
+        otmp = next_obj;
+    }
+
+    return hitanything ? true : false;
+}
+
+// C ref: muse.c mbhit() (1734-1814). A modified bhit() for monsters. Traces
+// a line from the monster towards its target, calling fhitm on each monster
+// (or the hero) hit and fhito_fn on objects at each location. Handles door
+// and drawbridge interactions for WAN_STRIKING.
+async function mbhit(mon, range, fhitm, fhito_fn, obj, state) {
+    const otyp = obj.otyp;
+
+    state.gb ??= {};
+    state.gb.bhitpos = { x: mon.mx, y: mon.my };
+    const ddx = sgn(mon.mux - mon.mx);
+    const ddy = sgn(mon.muy - mon.my);
+
+    while (range-- > 0) {
+        state.gb.bhitpos.x += ddx;
+        state.gb.bhitpos.y += ddy;
+        const x = state.gb.bhitpos.x;
+        const y = state.gb.bhitpos.y;
+
+        if (!isok(x, y)) {
+            state.gb.bhitpos.x -= ddx;
+            state.gb.bhitpos.y -= ddy;
+            break;
+        }
+        if (u_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
+            await fhitm(state.youmonst, obj, state);
+            range -= 3;
+        } else {
+            const mtmp = m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+            if (mtmp) {
+                if (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
+                    && !canSpotMonster(mtmp, state))
+                    map_invisible(
+                        state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+                await fhitm(mtmp, obj, state);
+                range -= 3;
+            }
+        }
+        if (fhito_loc(obj, state.gb.bhitpos.x, state.gb.bhitpos.y,
+                       fhito_fn, state))
+            range--;
+        const lev = state.level.at(state.gb.bhitpos.x, state.gb.bhitpos.y);
+        const ltyp = lev.typ;
+        let dbx = x;
+        let dby = y;
+        if (otyp === O.WAN_STRIKING
+            /* if levl[x][y].typ is DRAWBRIDGE_UP then the zap is passing
+               over the moat in front of a closed drawbridge and doesn't
+               hit any part of the bridge's mechanism */
+            && ltyp !== DRAWBRIDGE_UP) {
+            // find_drawbridge() and destroy_drawbridge() are unported.
+            note_unported('dbridge.c find_drawbridge');
+        }
+        if (IS_DOOR(ltyp) || ltyp === SDOOR) {
+            switch (otyp) {
+            /* note: monsters don't use opening or locking magic
+               at present, but keep these as placeholders */
+            case O.WAN_OPENING:
+            case O.WAN_LOCKING:
+            case O.WAN_STRIKING:
+                // doorlock() is unported.
+                note_unported('lock.c doorlock');
+                break;
+            }
+        }
+        if (!ZAP_POS(ltyp)
+            || (IS_DOOR(ltyp) && (lev.doormask
+                                  & (D_LOCKED | D_CLOSED)))) {
+            state.gb.bhitpos.x -= ddx;
+            state.gb.bhitpos.y -= ddy;
+            break;
+        }
+    }
+}
+
+// C ref: muse.c buzz_force_miss() (1815-1823). Wrapper around dobuzz() that
+// forces the first shot to miss, used when a monster fires a wand for the
+// first time (mwandexp is false).
+async function buzz_force_miss(type, nd, sx, sy, dx, dy, state) {
+    await dobuzz(type, nd, sx, sy, dx, dy, true, false, true, state);
+}
+
 // C ref: muse.c find_offensive() (1420-1594). "Select an offensive
 // item/action for a monster. Returns TRUE iff one is found."
 //
-// Partial: the eight reflection-gated wand/horn arms, MUSE_WAN_STRIKING,
-// MUSE_SCR_EARTH, and MUSE_CAMERA refuse because their use_offensive() cases
-// are not ported. MUSE_WAN_UNDEAD_TURNING and MUSE_WAN_TELEPORTATION are
+// Partial: the eight reflection-gated wand/horn arms, MUSE_SCR_EARTH, and
+// MUSE_CAMERA refuse because their use_offensive() cases are not ported.
+// MUSE_WAN_STRIKING, MUSE_WAN_UNDEAD_TURNING, and MUSE_WAN_TELEPORTATION are
 // fully wired and can select. The five MUSE_POT_* arms select as before.
 //
 // MUSE_SCR_EARTH and MUSE_CAMERA each end in a draw -- !rn2(10) and !rn2(6)
@@ -1546,10 +1811,11 @@ export function find_offensive(mtmp, rawEnv = {}) {
         /* nomore(MUSE_WAN_UNDEAD_TURNING) */
         if (has_offense === MUSE_WAN_UNDEAD_TURNING) continue;
         m_use_undead_turning(mtmp, obj, select, rawEnv);
-        /* nomore(MUSE_WAN_STRIKING) -- use_offensive case not ported */
+        /* nomore(MUSE_WAN_STRIKING) */
+        if (has_offense === MUSE_WAN_STRIKING) continue;
         if (otyp === O.WAN_STRIKING && obj.spe > 0
             && !seenres(M_SEEN_MAGR)) {
-            refuse();
+            select(MUSE_WAN_STRIKING, obj);
         }
         /* nomore(MUSE_WAN_TELEPORTATION) */
         if (has_offense === MUSE_WAN_TELEPORTATION) continue;
@@ -1599,14 +1865,14 @@ export function find_offensive(mtmp, rawEnv = {}) {
 }
 
 // C ref: muse.c use_offensive() (1824-2032). "Perform an offensive action for
-// a monster.  Must be called immediately after find_offensive()."  Only the
-// shared MUSE_POT_PARALYSIS/BLINDNESS/CONFUSION/SLEEPING/ACID case (2005-2023)
-// is ported; every other arm refuses, and find_offensive() above cannot select
-// one.
+// a monster.  Must be called immediately after find_offensive()."
+// Ported arms: MUSE_WAN_TELEPORTATION, MUSE_WAN_UNDEAD_TURNING,
+// MUSE_WAN_STRIKING (via mbhit), and the five MUSE_POT_* throwable potions.
+// The eight reflection-gated wand/horn arms, MUSE_SCR_EARTH, and MUSE_CAMERA
+// still refuse in find_offensive().
 //
 // C's entry declares buzzfn and calls precheck(), but "offensive potions are
 // not drunk, they're thrown", so the potion case skips precheck() entirely.
-// C's `oseen` is likewise read only by the wand, horn and bhit arms.
 export async function use_offensive(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
@@ -1620,6 +1886,18 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         );
     }
     const otmp = selection.offensive;
+
+    // C: buzzfn = mtmp->mwandexp ? buzz : buzz_force_miss;
+    // The first wand shot always misses when the monster has never used one.
+    // Not wired here because the buzz/horn arms still refuse in find_offensive.
+    // When they are ported, set buzzfn from mtmp.mwandexp and use it below.
+
+    /* offensive potions are not drunk, they're thrown */
+    if (otmp.oclass !== O.POTION_CLASS) {
+        const i = await precheck(mtmp, otmp, state, env);
+        if (i !== 0) return i;
+    }
+    const oseen = canseemon(mtmp, state);
 
     switch (selection.has_offense) {
     case MUSE_POT_PARALYSIS:
@@ -1668,6 +1946,25 @@ export async function use_offensive(mtmp, rawEnv = {}) {
             otmp,
             env,
         );
+        return 2;
+    }
+    case MUSE_WAN_TELEPORTATION:
+    case MUSE_WAN_UNDEAD_TURNING:
+    case MUSE_WAN_STRIKING: {
+        state.gz ??= {};
+        state.gz.zap_oseen = oseen;
+        await mzapwand(mtmp, otmp, false, state);
+        state.m_using = true;
+        state.gb ??= {};
+        state.gb.buzzer = mtmp;
+        // bhito (zap.c) is unported; pass null so fhito_loc skips objects.
+        note_unported('zap.c bhito');
+        await mbhit(mtmp, rn1(8, 6), mbhitm, null, otmp, state);
+        state.gb.buzzer = 0;
+        /* note: 'otmp' might have been destroyed (drawbridge destruction) */
+        state.m_using = false;
+        if (selection.has_offense === MUSE_WAN_STRIKING)
+            mtmp.mwandexp = true;
         return 2;
     }
     default:
