@@ -666,3 +666,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-06T08:29:59.053Z	1d42ac44	span	24	33	4976	7765	343038	610816	4996	7765					uchangealign closes. Development 4976 of 7765 screens, 343038 of 610816 rng. 24 of 33 sessions.
 2026-09-06T08:42:44.174Z	74174ba1	span	24	33	4976	7765	343038	610816	4996	7765					gainstr closes. Development 4976 of 7765 screens, 343038 of 610816 rng. 24 of 33 sessions.
 2026-09-06T09:34:36.828Z	55264471	goal	24	33	4976	7765	343038	610816	4996	7765	315	3640	38930	182022	attrib-c closes. Development 4976 of 7765 screens, 343038 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.
+2026-09-06T10:08:35.544Z	8e8a8a3f	span	24	33	4976	7765	343038	610816	4996	7765					precheck..m_use_healing closes. Development 4976 of 7765 screens, 343038 of 610816 rng. 24 of 33 sessions.

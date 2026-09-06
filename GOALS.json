@@ -9654,8 +9654,8 @@
       "spans": [
         {
           "name": "precheck..m_use_healing",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "8e8a8a3f2c69ca5ca329dcf36fb20b97d4e186ac",
           "functions": [
             "precheck",
             "mzapwand",
@@ -9663,6 +9663,15 @@
             "mreadmsg",
             "mquaffmsg",
             "m_use_healing"
+          ]
+        },
+        {
+          "name": "m_tele..m_next2m",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "m_tele",
+            "m_next2m"
           ]
         }
       ],
@@ -9679,37 +9688,37 @@
           "name": "precheck",
           "line": 59,
           "endLine": 164,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mzapwand",
           "line": 165,
           "endLine": 194,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mplayhorn",
           "line": 195,
           "endLine": 237,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mreadmsg",
           "line": 238,
           "endLine": 292,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mquaffmsg",
           "line": 293,
           "endLine": 336,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_use_healing",
           "line": 337,
           "endLine": 360,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_sees_sleepy_soldier",
