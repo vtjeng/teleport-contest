@@ -9667,11 +9667,20 @@
         },
         {
           "name": "m_tele..m_next2m",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "7fd75eee6e5968ffb48611b5c1e0a72694cf34c8",
           "functions": [
             "m_tele",
             "m_next2m"
+          ]
+        },
+        {
+          "name": "reveal_trap..mon_escape",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "reveal_trap",
+            "mon_escape"
           ]
         }
       ],
@@ -9730,13 +9739,13 @@
           "name": "m_tele",
           "line": 384,
           "endLine": 419,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_next2m",
           "line": 420,
           "endLine": 440,
-          "ported": false
+          "ported": true
         },
         {
           "name": "find_defensive",
