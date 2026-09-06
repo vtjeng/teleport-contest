@@ -19,10 +19,16 @@ import {
     G_GONE,
     HATCH_EGG,
     ICE,
+    IRONBARS,
+    Is_airlevel,
+    Is_waterlevel,
+    IS_ALTAR,
     LARGEST_INT,
     LOST_NONE,
     MAX_OIL_IN_FLASK,
+    NOBJ_STATES,
     NON_PM,
+    nothing_happens,
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_DELETED,
@@ -58,7 +64,14 @@ import {
 // inside function bodies, so the cycle resolves.
 import { get_mtraits } from './corpstat.js';
 import { noveltitle } from './do_name.js';
-import { depth, level_difficulty, on_level } from './dungeon.js';
+// dropy() is imported for hornoplenty()'s tipping-to-floor path. do.js
+// imports from this file; both sides use the other's exports only inside
+// function bodies.
+import { dropy } from './do.js';
+import { depth, level_difficulty, on_level, surface } from './dungeon.js';
+// can_reach_floor() is imported for hornoplenty()'s tipping path. engrave.js
+// imports nothing from this file; the edge is acyclic.
+import { can_reach_floor } from './engrave.js';
 // shrink_glob() and shrinking_glob_gone() use stop_occupation(). allmain.js
 // imports from this file; both sides use the other's exports only inside
 // function bodies.
@@ -71,8 +84,8 @@ import { game } from './gstate.js';
 import { near_capacity } from './hack.js';
 import { strsubst } from './hacklib.js';
 import {
-    container_weight, merged, obfree, obj_extract_self, update_inventory,
-    useupall,
+    add_to_container, container_weight, hold_another_object, merged, obfree,
+    obj_extract_self, update_inventory, useupall,
 } from './invent.js';
 import { confers_luck } from './artifacts.js';
 // attrib.js imports objectType from this file; both sides use the other's
@@ -99,7 +112,7 @@ import { copy_mextra, maybe_unhide_at } from './mon.js';
 // shrink_glob() and maybe_adjust_light() use naming functions from objnam.js.
 // objnam.js imports from this file; both sides use the other's exports only
 // inside function bodies.
-import { Yname2, otense, simpleonames } from './objnam.js';
+import { The, Yname2, aobjnam, otense, simpleonames, vtense } from './objnam.js';
 import {
     pushRngLogEntry,
     rn1 as coreRn1,
@@ -118,6 +131,8 @@ import {
     stop_timer,
 } from './timeout.js';
 import { is_ice } from './terrain.js';
+// ttyPline is imported for hornoplenty() messages.
+import { ttyPline } from './tty_message.js';
 // add_to_migration() calls maybe_reset_pick() for containers. lock.js imports
 // from this file; both sides use the other's exports only inside function
 // bodies.
@@ -188,6 +203,7 @@ import {
     FIGURINE,
     FIRE_HORN,
     FOOD_CLASS,
+    FOOD_RATION,
     FLINT,
     FROST_HORN,
     FUMBLE_BOOTS,
@@ -212,6 +228,7 @@ import {
     LEASH,
     LEATHER,
     LEVITATION_BOOTS,
+    LUMP_OF_ROYAL_JELLY,
     LIQUID,
     LOADSTONE,
     LUCKSTONE,
@@ -230,7 +247,9 @@ import {
     PEAR,
     PLASTIC,
     POTION_CLASS,
+    POT_BOOZE,
     POT_OIL,
+    POT_SICKNESS,
     POT_WATER,
     RANDOM_CLASS,
     RING_CLASS,
@@ -2873,4 +2892,239 @@ export function obj_attach_mid(obj, mid) {
     obj.oextra ??= {};
     obj.oextra.omid = mid;
     return obj;
+}
+
+// C ref: mkobj.c dealloc_obj_real() (2815-2827). In C, this releases oextra,
+// zeros the struct, and calls free(). The JS port uses garbage collection,
+// and the existing dealloc_obj() already clears oextra and sets
+// where = OBJ_DELETED. This function is a no-op in JS; it exists to complete
+// the C file's function list.
+export function dealloc_obj_real(_obj) {
+    // JS garbage collection handles deallocation.
+}
+
+// C ref: mkobj.c dobjsfree() (2831-2843). In C, this walks go.objs_deleted
+// and calls dealloc_obj_real() on each. The JS port's dealloc_obj() does not
+// queue objects into go.objs_deleted (it marks them OBJ_DELETED and lets GC
+// reclaim them), so this function has nothing to process.
+export function dobjsfree(_state) {
+    // JS garbage collection handles deallocation; no deferred-free queue exists.
+}
+
+// C ref: mkobj.c hornoplenty() (2847-2936). Creates an object from a horn
+// of plenty; mirrors bagotricks() in makemon.c.
+export async function hornoplenty(horn, tipping, targetbox, env = {}) {
+    const state = env.state ?? game;
+    const { rn2 } = sourceRandom(env);
+    const u = state.u;
+    let objcount = 0;
+
+    if (!horn || horn.otyp !== HORN_OF_PLENTY) {
+        throw new Error('bad horn o\' plenty');
+    } else if (horn.spe < 1) {
+        await ttyPline(nothing_happens, state);
+        if (!horn.cknown) {
+            horn.cknown = 1;
+            update_inventory(env);
+        }
+    } else {
+        let obj;
+        let what;
+
+        // C: consume_obj_charge(horn, !tipping) -- invent.c, not ported.
+        // Decrements horn->spe and optionally bills the hero.
+        note_unported('invent.c consume_obj_charge');
+        if (!rn2(13)) {
+            obj = mkobj(POTION_CLASS, false, env);
+            if (objectType(obj, state).oc_magic) {
+                do {
+                    obj.otyp = rnd_class(POT_BOOZE, POT_WATER, env);
+                } while (obj.otyp === POT_SICKNESS);
+                // oil uses obj.age field differently from other potions
+                if (obj.otyp === POT_OIL)
+                    fixup_oil(obj, null, env);
+            }
+            what = (obj.quan > 1) ? 'Some potions' : 'A potion';
+        } else {
+            obj = mkobj(FOOD_CLASS, false, env);
+            if (obj.otyp === FOOD_RATION && !rn2(7))
+                obj.otyp = LUMP_OF_ROYAL_JELLY;
+            what = 'Some food';
+        }
+        ++objcount;
+        await ttyPline(
+            `${what} ${vtense(what, 'spill')} out.`,
+            state,
+        );
+        obj.blessed = horn.blessed;
+        obj.cursed = horn.cursed;
+        obj.owt = weight(obj, env);
+        // C: if (horn->unpaid) addtobill(obj, FALSE, FALSE, tipping)
+        // addtobill() is in shk.c and not yet ported.
+        if (horn.unpaid)
+            note_unported('shk.c addtobill');
+        // C: iflags.suppress_price++
+        state.iflags.suppress_price = (state.iflags.suppress_price ?? 0) + 1;
+        if (!tipping) {
+            obj = await hold_another_object(
+                obj,
+                u.uswallow
+                    ? 'Oops!  %s out of your reach!'
+                    : (Is_airlevel(u.uz)
+                       || Is_waterlevel(u.uz)
+                       || state.level.at(u.ux, u.uy).typ < IRONBARS
+                       || state.level.at(u.ux, u.uy).typ >= ICE)
+                        ? 'Oops!  %s away from you!'
+                        : 'Oops!  %s to the floor!',
+                The(aobjnam(obj, 'slip', state), state),
+                null,
+                env,
+            );
+            // C: nhUse(obj) -- no-op macro to suppress unused-variable warnings
+        } else if (targetbox) {
+            add_to_container(targetbox, obj, env);
+            // add_to_container doesn't update the weight
+            targetbox.owt = weight(targetbox, env);
+            // item still in magic horn was weightless; when it's now in
+            // a carried container, hero's encumbrance could change
+            if (carried(targetbox)) {
+                await encumber_msg(state, env);
+                update_inventory(env); // for contents count or wizweight
+            }
+        } else {
+            // assumes this is taking place at hero's location
+            if (!can_reach_floor(true, state)) {
+                // C: hitfloor(obj, TRUE) -- does altar check, message, drop.
+                // hitfloor() is in do.c and not yet ported.
+                note_unported('do.c hitfloor');
+            } else {
+                if (IS_ALTAR(state.level.at(u.ux, u.uy).typ)) {
+                    // C: doaltarobj(obj) -- does its own drop message.
+                    // doaltarobj() is in pray.c and not yet ported.
+                    note_unported('pray.c doaltarobj');
+                } else {
+                    // C uses Doname2(obj) which requires doname(), not yet
+                    // ported. Record the gap and skip the message.
+                    note_unported('objnam.c Doname2');
+                }
+                await dropy(obj, env);
+            }
+        }
+        state.iflags.suppress_price -= 1;
+        if (horn.dknown) {
+            // C: makeknown(HORN_OF_PLENTY) expands to
+            // discover_object(HORN_OF_PLENTY, TRUE, TRUE, TRUE).
+            // discover_object() is in o_init.c and not yet ported for
+            // this call path.
+            note_unported('o_init.c discover_object');
+        }
+    }
+    return objcount;
+}
+
+// ── Sanity-check functions (wizard mode only) ──
+//
+// The following functions are diagnostic utilities that run only when the
+// wizard-mode `sanity_check` option is enabled. They check object list
+// consistency and report problems through insane_object() and related
+// functions, which are in a later span of this file and not yet ported.
+// Until those helpers land, the functions exist but produce no output.
+
+// C ref: mkobj.c obj_state_names[] (3289-3293).
+const OBJ_STATE_NAMES = [
+    'free', 'floor', 'contained', 'invent',
+    'minvent', 'migrating', 'buried', 'onbill',
+    'luafree', 'deleted',
+];
+
+// C ref: mkobj.c where_name() (3296-3311). Returns a human-readable name
+// for an object's location state. Pure function.
+export function where_name(obj) {
+    if (!obj) return 'nowhere';
+    const where = obj.where;
+    if (where < 0 || where >= NOBJ_STATES || !OBJ_STATE_NAMES[where])
+        return `unknown[${where}]`;
+    return OBJ_STATE_NAMES[where];
+}
+
+// C ref: mkobj.c obj_sanity_check() (2949-3028). Checks all object lists
+// for consistency. All diagnostic output goes through insane_object() and
+// mon_obj_sanity(), which are in a later span and not yet ported.
+export function obj_sanity_check(state = game) {
+    // C: objlist_sanity(fobj, OBJ_FLOOR, "floor sanity")
+    objlist_sanity(state.level?.objlist ?? null, OBJ_FLOOR,
+                   'floor sanity', state);
+
+    // C: map location consistency check (2957-2993)
+    // Checks that level.objects[x][y] entries match their ox,oy and that
+    // boulders are on top of their piles. All error reporting goes through
+    // insane_object(), not yet ported.
+    note_unported('mkobj.c insane_object');
+
+    // C: objlist_sanity for invent, migrating, buried, bill, deleted
+    objlist_sanity(state.invent ?? null, OBJ_INVENT,
+                   'invent sanity', state);
+    objlist_sanity(state.gm?.migrating_objs ?? null, OBJ_MIGRATING,
+                   'migrating sanity', state);
+    objlist_sanity(state.level?.buriedobjlist ?? null, OBJ_BURIED,
+                   'buried sanity', state);
+    // gb.billobjs and go.objs_deleted are not maintained in JS
+    note_unported('mkobj.c mon_obj_sanity');
+
+    // C: checks for thrownobj, kickedobj, returning_missile, current_wand
+    // All report through insane_object(), not yet ported.
+}
+
+// C ref: mkobj.c objlist_sanity() (3032-3129). Sanity check for objects on
+// a specified list (fobj, invent, etc.). All diagnostic output goes through
+// insane_object(), insane_obj_bits(), check_contained(), check_glob(),
+// sanity_check_worn(), and shop_obj_sanity(), most of which are in later
+// spans and not yet ported.
+export function objlist_sanity(objlist, wheretype, mesg, state = game) {
+    for (let obj = objlist; obj; obj = obj.nobj) {
+        if (obj.where !== wheretype)
+            note_unported('mkobj.c insane_object');
+        if (obj.where === OBJ_INVENT && obj.how_lost !== LOST_NONE)
+            note_unported('mkobj.c insane_object');
+        if (hasContents(obj)) {
+            if (wheretype === OBJ_ONBILL)
+                note_unported('mkobj.c insane_object');
+            note_unported('mkobj.c check_contained');
+        }
+        if (obj.unpaid || obj.no_charge)
+            shop_obj_sanity(obj, mesg, state);
+        if (obj.owornmask) {
+            // C checks worn masks for consistency. sanity_check_worn() is
+            // in a later span of this file.
+            note_unported('mkobj.c sanity_check_worn');
+        }
+        // C: leash checks using find_mid(), mon_pmname(), where_name()
+        // find_mid() is in light.c and not yet ported.
+        if (obj.otyp === LEASH && obj.leashmon)
+            note_unported('light.c find_mid');
+        if (obj.globby) {
+            // check_glob() is in a later span.
+            note_unported('mkobj.c check_glob');
+        }
+        // C: temporary flag checks (in_use, bypass, nomerge, next_boulder)
+        if (obj.in_use || obj.bypass || obj.nomerge
+            || (obj.otyp === BOULDER && obj.next_boulder))
+            note_unported('mkobj.c insane_obj_bits');
+    }
+}
+
+// C ref: mkobj.c shop_obj_sanity() (3134-3200). Checks obj->unpaid and
+// obj->no_charge for shop sanity. All diagnostic output goes through
+// insane_object(). The function calls find_objowner(), costly_adjacent(),
+// and onshopbill() from shk.c, none of which are ported.
+export function shop_obj_sanity(obj, mesg, state = game) {
+    // The diagnostic logic depends on unported shk.c functions
+    // (find_objowner, costly_adjacent, onshopbill) and reports through
+    // insane_object() which is also not yet ported. Record the gaps.
+    if (obj.no_charge && obj.unpaid)
+        note_unported('mkobj.c insane_object');
+    else if (obj.unpaid)
+        note_unported('shk.c find_objowner');
+    else if (obj.no_charge)
+        note_unported('shk.c find_objowner');
 }

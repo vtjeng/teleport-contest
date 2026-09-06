@@ -108,6 +108,7 @@ import { get_mtraits } from './corpstat.js';
 import { discover_object } from './o_init.js';
 import {
     costly_alteration,
+    hornoplenty,
     init_dummyobj,
     is_axe,
     is_boots,
@@ -138,6 +139,7 @@ import {
     EUCALYPTUS_LEAF,
     FOOD_CLASS,
     GEM_CLASS,
+    HORN_OF_PLENTY,
     LENSES,
     LOCK_PICK,
     LUMP_OF_ROYAL_JELLY,
@@ -837,6 +839,11 @@ export async function doapply(state = game, env = {}) {
     case MAGIC_MARKER:
         // apply.c:4361-4362. dowrite() handles the full magic marker flow.
         return dowrite(obj, state);
+    case HORN_OF_PLENTY:
+        // apply.c:4385-4387. Not a musical instrument.
+        // C's res starts as ECMD_TIME; hornoplenty doesn't change it.
+        await hornoplenty(obj, false, null, { state });
+        return ECMD_TIME;
     default:
         // apply.c:4407-4417. CARROT is not a named switch arm, and it cannot
         // be a polearm, pick, or axe because those macros admit only
