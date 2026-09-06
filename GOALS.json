@@ -10209,11 +10209,19 @@
         },
         {
           "name": "extract_nobj..extract_nexthere",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "bc3aed07a263ee348d4e770d780de16b25a84cc9",
           "functions": [
             "extract_nobj",
             "extract_nexthere"
+          ]
+        },
+        {
+          "name": "add_to_migration",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "add_to_migration"
           ]
         }
       ],
@@ -10656,13 +10664,13 @@
           "name": "extract_nobj",
           "line": 2596,
           "endLine": 2622,
-          "ported": false
+          "ported": true
         },
         {
           "name": "extract_nexthere",
           "line": 2623,
           "endLine": 2647,
-          "ported": false
+          "ported": true
         },
         {
           "name": "add_to_minv",
