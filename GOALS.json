@@ -9644,7 +9644,7 @@
     {
       "id": "muse-c",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port muse.c whole in C order, starting from precheck()",
       "cFile": "muse.c",
       "sessions": [
@@ -9776,8 +9776,11 @@
         "screens": 4976,
         "rng": 343038
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c368ff459f330da6c9c6fe9a26c1e38068678b09",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "precheck",

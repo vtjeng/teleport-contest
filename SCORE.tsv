@@ -678,3 +678,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-06T13:40:50.877Z	cd668198	span	24	33	4976	7765	343038	610816	4996	7765					ureflects closes. Development 4976 of 7765 screens, 343038 of 610816 rng. 24 of 33 sessions.
 2026-09-06T14:00:24.916Z	75d5fa36	span	24	33	4976	7765	343038	610816	4996	7765					munstone..mon_consume_unstone closes. Development 4976 of 7765 screens, 343038 of 610816 rng. 24 of 33 sessions.
 2026-09-06T14:30:19.720Z	20a1c961	span	24	33	4976	7765	343038	610816	4996	7765					munslime..green_mon closes. Development 4976 of 7765 screens, 343038 of 610816 rng. 24 of 33 sessions.
+2026-09-06T15:59:33.254Z	c368ff45	goal	24	33	4976	7765	343038	610816	4996	7765	315	3640	38930	182022	muse-c closes. Development 4976 of 7765 screens, 343038 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.
