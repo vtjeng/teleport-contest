@@ -2777,3 +2777,26 @@ export function mkgold(amount, x, y, env = {}) {
     gold.owt = weight(gold, normalized);
     return gold;
 }
+
+// C ref: mkobj.c fixup_oil() (2025-2049). Adjust a potion's age when its
+// otyp changes to or from POT_OIL, because oil potions store remaining burn
+// time in age rather than the creation turn.
+export function fixup_oil(potion, source, env = {}) {
+    const state = env.state ?? game;
+    if (potion.otyp === POT_OIL) {
+        if (source && source.otyp === POT_OIL) {
+            // source is already oil; copy its remaining burn time
+            potion.age = source.age;
+        } else {
+            // non-oil becoming oil; set full burn time
+            potion.age = MAX_OIL_IN_FLASK;
+        }
+    } else if (source && source.otyp === POT_OIL) {
+        // oil becoming non-oil; restore absolute age (creation turn)
+        if (potion.age === source.age)
+            potion.age = Math.trunc(state.moves ?? 0);
+        // partly used oil marks the result as diluted
+        if (source.age < MAX_OIL_IN_FLASK)
+            potion.odiluted = 1;
+    }
+}
