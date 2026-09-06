@@ -479,10 +479,16 @@ function xnameBase(obj, type, state, ident) {
             return fruit?.fname ?? 'fruit';
         }
         if (obj.globby) {
+            // C ref: objnam.c xname():776-782. shrink_glob() sets
+            // iflags.partly_eaten_hack so xname() adds "partly eaten"
+            // before the size word; doname() adds it separately for
+            // non-glob food but xname() normally omits it.
+            const eaten = state.iflags?.partly_eaten_hack && obj.oeaten
+                ? 'partly eaten ' : '';
             const size = obj.owt <= 100 ? 'small'
                 : obj.owt <= 300 ? 'medium'
                     : obj.owt <= 500 ? 'large' : 'very large';
-            return `${size} ${actual}`;
+            return `${eaten}${size} ${actual}`;
         }
         // C ref: objnam.c xname(). `known` here is the object's own flag, set
         // when the hero knows what is inside the tin, not the type's.

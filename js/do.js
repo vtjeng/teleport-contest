@@ -1532,8 +1532,9 @@ export async function goto_level(
     // migrating monsters and objects are delivered."
     // The arrival is never a dry run, so a rotting floor corpse draws through
     // the live newsym().
-    run_timers(state, {
+    await run_timers(state, {
         newsym,
+        message: ttyPline,
         site: "goto_level()'s run_timers()",
     });
 

@@ -4,6 +4,7 @@
 
 import {
     A_NONE,
+    BLINDED,
     BURIED_TOO,
     CORPSTAT_FEMALE,
     CORPSTAT_MALE,
@@ -28,8 +29,10 @@ import {
     OBJ_FREE,
     OBJ_INVENT,
     OBJ_LUAFREE,
+    OBJ_MIGRATING,
     OBJ_MINVENT,
     OBJ_ONBILL,
+    PLNMSG_OBJ_GLOWS,
     P_AXE,
     P_BOOMERANG,
     P_BOW,
@@ -52,10 +55,22 @@ import {
 } from './const.js';
 import { noveltitle } from './do_name.js';
 import { depth, level_difficulty, on_level } from './dungeon.js';
-import { set_tin_variety } from './eat.js';
+// shrink_glob() and shrinking_glob_gone() use stop_occupation(). allmain.js
+// imports from this file; both sides use the other's exports only inside
+// function bodies.
+import { stop_occupation } from './allmain.js';
+import { eating_glob, set_tin_variety } from './eat.js';
 import { game } from './gstate.js';
-import { merged, update_inventory } from './invent.js';
-import { get_obj_location, obj_sheds_light } from './light.js';
+// near_capacity() compares encumbrance with go.oldcap for shrink_glob().
+// hack.js imports from this file; both sides use the other's exports only
+// inside function bodies.
+import { near_capacity } from './hack.js';
+import { strsubst } from './hacklib.js';
+import {
+    container_weight, merged, obfree, obj_extract_self, update_inventory,
+    useupall,
+} from './invent.js';
+import { arti_light_radius, get_obj_location, obj_sheds_light } from './light.js';
 import { rndmonnum } from './makemon.js';
 import {
     can_be_hatched,
@@ -72,7 +87,11 @@ import {
 // already imports this file, and both sides use the other's exports only
 // inside function bodies, so this direct edge resolves the same way the
 // js/mondata.js edge onto js/dungeon.js does.
-import { copy_mextra } from './mon.js';
+import { copy_mextra, maybe_unhide_at } from './mon.js';
+// shrink_glob() and maybe_adjust_light() use naming functions from objnam.js.
+// objnam.js imports from this file; both sides use the other's exports only
+// inside function bodies.
+import { Yname2, otense, simpleonames } from './objnam.js';
 import {
     pushRngLogEntry,
     rn1 as coreRn1,
@@ -92,6 +111,19 @@ import {
 } from './timeout.js';
 import { is_ice } from './terrain.js';
 import { note_unported } from './unported.js';
+// encumber_msg() compares the old and new encumbrance after glob weight
+// changes. pickup.js imports from this file; both sides use the other's
+// exports only inside function bodies.
+import { encumber_msg } from './pickup.js';
+// shrinking_glob_gone() calls remove_worn_item() for wielded globs in
+// inventory. steal.js imports from this file; both sides use the other's
+// exports only inside function bodies.
+import { remove_worn_item } from './steal.js';
+import { cansee } from './vision.js';
+// shrinking_glob_gone() needs setmnotwielded() for the OBJ_MINVENT path.
+// weapon.js imports from this file; both sides use the other's exports only
+// inside function bodies.
+import { setmnotwielded } from './weapon.js';
 import {
     S_altar,
     S_brdnstair,
@@ -1758,6 +1790,214 @@ export function item_on_ice(item, state = game) {
         }
     }
     return NOT_ON_ICE;
+}
+
+// C ref: mkobj.c shrink_glob() (1500-1669). Timer callback: reduces the
+// glob's weight by 1 each firing, messages about shrinking at key thresholds,
+// and destroys the glob when its weight reaches 0. A catch-up path handles
+// missed firings after returning to a level.
+//
+// env carries: state, message (pline function), newsym, and hooks including
+// extractExternalObject for floor-object removal and stopObjectTimers.
+export async function shrink_glob(obj, expire_time, env = {}) {
+    const state = env.state ?? game;
+    const message = env.message ?? (async () => {});
+    const globloc = item_on_ice(obj, state);
+    const ininv = obj.where === OBJ_INVENT;
+    let shrink = false, gone = false, updinv = false;
+    const contnr = obj.where === OBJ_CONTAINED ? obj.ocontainer : null;
+    let topcontnr = null;
+    let old_top_owt = 0;
+
+    if (!obj.globby) {
+        // C: impossible("shrink_glob for non-glob [%d: %s]?", ...)
+        return; /* old timer is gone, don't start a new one */
+    }
+    // C: check_glob(obj, "shrink obj ") -- void, result discarded
+    note_unported('mkobj.c check_glob');
+
+    /* If shrinkage occurred while on another level, catch up now. */
+    if (expire_time < (state.moves ?? 0) && globloc !== BURIED_UNDER_ICE) {
+        let delta = Math.trunc(((state.moves ?? 0) - expire_time + 24) / 25);
+        const moddelta = 25 - (delta % 25);
+
+        if (globloc === SET_ON_ICE)
+            delta = Math.trunc((delta + 2) / 3);
+
+        if (delta >= obj.owt) {
+            obj.owt = 0;
+            await shrinking_glob_gone(obj, env);
+        } else {
+            obj.owt -= delta;
+            if (contnr)
+                container_weight(contnr, env);
+            start_glob_timeout(obj, moddelta, env);
+        }
+        return;
+    }
+
+    /* When on ice, only shrink every third try. If buried under ice,
+       don't shrink at all. If actively being eaten, skip. */
+    if (eating_glob(obj, state)
+        || globloc === BURIED_UNDER_ICE
+        || (globloc === SET_ON_ICE && ((state.moves ?? 0) % 3) === 1)) {
+        start_glob_timeout(obj, 0, env);
+        return;
+    }
+
+    /* Format the glob name before shrinking; the hack flag asks xname()
+       to include "partly eaten" when appropriate. */
+    state.iflags ??= {};
+    state.iflags.partly_eaten_hack = true;
+    const globnambuf = Yname2(obj, state);
+    state.iflags.partly_eaten_hack = false;
+
+    if (obj.owt > 0) {
+        const basewt = objectType(obj, state).oc_weight; /* 20 */
+        const msgwt = Math.trunc((Math.max(basewt, 1) + 1) / 2); /* 10 */
+
+        shrink = (obj.owt % msgwt) === 0;
+        obj.owt -= 1;
+        if (obj.oeaten > 1)
+            obj.oeaten -= 1;
+    }
+    gone = !obj.owt;
+
+    if (ininv) {
+        if (shrink || gone)
+            await message(
+                `${globnambuf} ${gone ? 'dissolves completely' : 'shrinks'}.`,
+                state,
+            );
+        updinv = true;
+    } else if (contnr) {
+        topcontnr = contnr;
+        while (topcontnr.where === OBJ_CONTAINED)
+            topcontnr = topcontnr.ocontainer;
+        old_top_owt = topcontnr.owt;
+        container_weight(contnr, env);
+
+        if (topcontnr.where === OBJ_INVENT) {
+            if (gone || (shrink && topcontnr.owt !== old_top_owt)
+                || near_capacity(state) !== (state.go?.oldcap ?? 0))
+                await message(
+                    `${Yname2(topcontnr, state)} `
+                    + `${topcontnr.owt !== old_top_owt ? 'becomes' : 'seems'}`
+                    + `${!gone ? ' slightly' : ''} lighter.`,
+                    state,
+                );
+            updinv = true;
+        }
+    }
+
+    if (gone) {
+        let ox = 0, oy = 0;
+        let seeit = false;
+        if (obj.where === OBJ_FLOOR) {
+            const loc = get_obj_location(obj, 0, state);
+            if (loc && cansee(loc.x, loc.y, state)) {
+                ox = loc.x;
+                oy = loc.y;
+                seeit = true;
+            }
+        }
+
+        await shrinking_glob_gone(obj, env);
+
+        if (seeit) {
+            if (typeof env.newsym === 'function')
+                env.newsym(ox, oy, env);
+            let fadeName = globnambuf;
+            if ((ox !== (state.u?.ux ?? -1) || oy !== (state.u?.uy ?? -1))
+                && fadeName.startsWith('The '))
+                fadeName = strsubst(fadeName, 'The ', 'A ');
+            await message(`${fadeName} fades away.`, state);
+        }
+    } else {
+        start_glob_timeout(obj, 0, env);
+    }
+    if (updinv) {
+        update_inventory(env);
+        await encumber_msg(state, { message });
+    }
+}
+
+// C ref: mkobj.c shrink_glob(). The reason a SHRINK_GLOB timer cannot fire
+// over this object, or null when it can. run_timers() asks this for every
+// element of the due prefix before it unlinks any of them.
+export function unportedShrinkGlobReason(obj, env) {
+    if (!obj.globby) return 'shrink_glob for non-glob';
+    // Unpaid globs need the obfreeShopBill hook, which the timer env does not
+    // carry.
+    if (obj.unpaid) return 'shrink_glob for an unpaid glob';
+    return null;
+}
+
+// C ref: mkobj.c shrinking_glob_gone() (1672-1701). A glob has shrunk to
+// nothing; handle owornmask, then delete the glob.
+async function shrinking_glob_gone(obj, env = {}) {
+    const state = env.state ?? game;
+    const owhere = obj.where;
+
+    if (owhere === OBJ_INVENT) {
+        if (obj.owornmask) {
+            remove_worn_item(obj, false, state);
+            await stop_occupation(state, { message: env.message });
+        }
+        useupall(obj, env);
+    } else {
+        if (owhere === OBJ_MIGRATING) {
+            // destination flag overloads owornmask; clear it so obfree()'s
+            // check for freeing a worn object doesn't get a false hit
+            obj.owornmask = 0;
+        } else if (owhere === OBJ_MINVENT) {
+            if (obj.owornmask && obj === obj.ocarry?.mw)
+                await setmnotwielded(obj.ocarry, obj, env);
+        }
+        obj_extract_self(obj, env);
+        if (owhere === OBJ_FLOOR)
+            maybe_unhide_at(obj.ox, obj.oy, state);
+        obfree(obj, null, env);
+    }
+}
+
+// C ref: mkobj.c maybe_adjust_light() (1703-1736). After a BUC state change,
+// adjust the light radius of a light-emitting artifact and message the hero
+// about the brightness change.
+export async function maybe_adjust_light(obj, old_range, env = {}) {
+    const state = env.state ?? game;
+    const message = env.message ?? (async () => {});
+    const new_range = arti_light_radius(obj, state);
+    const delta = new_range - old_range;
+
+    if (delta) {
+        // C: obj_adjust_light_radius(obj, new_range) -- void, result discarded
+        note_unported('light.c obj_adjust_light_radius');
+        const heroIsBlind = Boolean(
+            (state.u?.uprops?.[BLINDED]?.intrinsic
+             || state.u?.uprops?.[BLINDED]?.extrinsic)
+            && !state.u?.uprops?.[BLINDED]?.blocked,
+        );
+        if (!heroIsBlind) {
+            const loc = get_obj_location(obj, 0, state);
+            if (loc) {
+                let buf = '';
+                if ((state.iflags?.last_msg ?? -1) === PLNMSG_OBJ_GLOWS)
+                    buf = obj.quan === 1 ? 'It' : 'They';
+                else if (carried(obj) || cansee(loc.x, loc.y, state))
+                    buf = Yname2(obj, state);
+                if (buf) {
+                    const much = Math.abs(delta) > 1 ? 'much ' : '';
+                    const brightness = delta > 0
+                        ? 'brighter' : 'less brightly';
+                    await message(
+                        `${buf} ${otense(obj, 'shine', state)} ${much}${brightness}.`,
+                        state,
+                    );
+                }
+            }
+        }
+    }
 }
 
 function currentFruit(state, obj) {

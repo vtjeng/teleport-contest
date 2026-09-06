@@ -76,6 +76,9 @@ import {
     TALLOW_CANDLE,
     WAX_CANDLE,
 } from './objects.js';
+import {
+    remove_object, shrink_glob, unportedShrinkGlobReason,
+} from './obj.js';
 import { rn1, rn2, rnd, rnz } from './rng.js';
 import { ttyPline } from './tty_message.js';
 
@@ -274,11 +277,30 @@ const timeout_funcs = [
     { name: 'burn_object' },
     { name: 'hatch_egg' },
     { name: 'fig_transform' },
-    { name: 'shrink_glob' },
+    { name: 'shrink_glob', f: shrinkGlobCallback, unported: unportedShrinkGlobReason },
     { name: 'melt_ice_away' },
 ];
 if (timeout_funcs.length !== NUM_TIME_FUNCS)
     throw new Error('timeout_funcs must cover every timeout_types row');
+
+// C ref: mkobj.c shrink_glob(). Build the full env for the timer callback,
+// injecting the extractExternalObject hook for floor-object removal and
+// stopObjectTimers for obfree()'s food-class cleanup. obj_stop_timers() is
+// already available in this module; remove_object is the owner of the
+// OBJ_FLOOR extraction.
+function shrinkGlobCallback(arg, timeout, env) {
+    const shrinkEnv = {
+        ...env,
+        hooks: {
+            extractExternalObject: remove_object,
+            stopObjectTimers: (obj, hookEnv) => {
+                obj_stop_timers(obj, hookEnv.state ?? env.state, hookEnv);
+            },
+            ...env.hooks,
+        },
+    };
+    return shrink_glob(arg, timeout, shrinkEnv);
+}
 
 // The environment run_timers() hands a timeout function. dig.c rot_corpse()
 // reaches invent.c obfree() and mkobj.c remove_object(), which take their
@@ -512,7 +534,7 @@ export async function nh_timeout_elapsed_turn(state = game, env = {}) {
     if (state.u.ucreamed) --state.u.ucreamed;
     await decrement_property_timeouts(state, env);
     /* timeout.c:947, nh_timeout()'s last statement. */
-    run_timers(state, { ...env, site: "nh_timeout()'s run_timers()" });
+    await run_timers(state, { ...env, site: "nh_timeout()'s run_timers()" });
 }
 
 // C inserts before the first timer whose expiry is greater than or equal to
@@ -813,7 +835,7 @@ export function save_timers(range, state = game) {
 //
 // The refusal is decided over the whole due prefix before the loop starts, so
 // a turn the port cannot finish leaves the queue untouched.
-export function run_timers(state = game, env = {}) {
+export async function run_timers(state = game, env = {}) {
     timerGlobals(state);
     const fireEnv = timerFireEnv(state, env);
     const reason = unportedDueTimerReason(state, fireEnv);
@@ -830,7 +852,10 @@ export function run_timers(state = game, env = {}) {
 
         if (curr.kind === TIMER_OBJECT)
             curr.arg.timed = Math.trunc(curr.arg.timed ?? 0) - 1;
-        timeout_funcs[curr.func_index].f(curr.arg, curr.timeout, fireEnv);
+        // shrink_glob() is async (it calls pline for shrink/dissolve messages
+        // and encumber_msg for capacity changes). Other callbacks are sync but
+        // awaiting a non-thenable is a no-op, so the await is safe for all.
+        await timeout_funcs[curr.func_index].f(curr.arg, curr.timeout, fireEnv);
         curr.next = null;
     }
 }

@@ -233,7 +233,7 @@ test('timer locality follows the four timer kinds', () => {
     assert.equal(state.gt.timer_base.next, null);
 });
 
-test('run_timers stops rather than firing an unported timeout arm', () => {
+test('run_timers stops rather than firing an unported timeout arm', async () => {
     const state = dungeonState();
     timeout_globals_init(state);
     state.moves = 100;
@@ -242,15 +242,15 @@ test('run_timers stops rather than firing an unported timeout arm', () => {
     // writes "Your <corpse> rots away", is not ported.
     start_timer(5, TIMER_OBJECT, 1, { where: OBJ_INVENT, timed: 0 }, state);
     // Scheduled for move 105, which is still ahead of the arrival turn.
-    run_timers(state, { newsym: () => {} });
+    await run_timers(state, { newsym: () => {} });
     state.moves = 105;
     // The message names goto_level()'s call, not nh_timeout()'s. Both raise
     // this class over the same field, and boundary triage reads the line to
     // decide which of the two stopped, so the site marker is asserted here and
     // the nh_timeout wording is asserted in scripts/timeout.test.mjs. Neither
     // assertion may be satisfied by the other's string.
-    assert.throws(
-        () => run_timers(state, {
+    await assert.rejects(
+        run_timers(state, {
             newsym: () => {},
             site: "goto_level()'s run_timers()",
         }),

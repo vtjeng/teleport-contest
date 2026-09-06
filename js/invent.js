@@ -1757,7 +1757,7 @@ export function add_to_buried(obj, env = {}) {
     return obj;
 }
 
-function container_weight(container, env) {
+export function container_weight(container, env) {
     container.owt = weight(container, env);
     if (container.where === OBJ_CONTAINED && container.ocontainer)
         container_weight(container.ocontainer, env);

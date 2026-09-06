@@ -465,7 +465,7 @@ function rottingCorpse(state, x, y, when) {
 }
 
 test('run_timers drains the due prefix head-first and stops at the future',
-    () => {
+    async () => {
         const state = rottingState(254);
         // Expiries chosen so one is already past, one lands exactly on the
         // move count -- run_timers()'s condition is `<=` -- and one is still
@@ -475,7 +475,7 @@ test('run_timers drains the due prefix head-first and stops at the future',
         const future = rottingCorpse(state, 42, 5, 1);
         const drawn = [];
 
-        run_timers(state, { newsym: (x, y) => drawn.push([x, y]) });
+        await run_timers(state, { newsym: (x, y) => drawn.push([x, y]) });
 
         assert.equal(past.where, OBJ_DELETED);
         assert.equal(exact.where, OBJ_DELETED);
@@ -499,9 +499,9 @@ test('run_timers drains the due prefix head-first and stops at the future',
 //
 // Every unported row is driven through run_timers() here, indexed by the
 // js/const.js constant, so the table is pinned against the enum rather than
-// against itself. ROT_CORPSE is absent because it is the one ported row; the
-// drain tests above cover it.
-test('every unported timeout row names its own C function', () => {
+// against itself. ROT_CORPSE and SHRINK_GLOB are absent because they are
+// ported rows; the drain tests above cover them.
+test('every unported timeout row names its own C function', async () => {
     const rows = [
         [ROT_ORGANIC, 'rot_organic'],
         [REVIVE_MON, 'revive_mon'],
@@ -509,18 +509,17 @@ test('every unported timeout row names its own C function', () => {
         [BURN_OBJECT, 'burn_object'],
         [HATCH_EGG, 'hatch_egg'],
         [FIG_TRANSFORM, 'fig_transform'],
-        [SHRINK_GLOB, 'shrink_glob'],
         [MELT_ICE_AWAY, 'melt_ice_away'],
     ];
-    // One short of the enum, which is ROT_CORPSE.
-    assert.equal(rows.length, NUM_TIME_FUNCS - 1);
+    // Two short of the enum: ROT_CORPSE and SHRINK_GLOB are ported.
+    assert.equal(rows.length, NUM_TIME_FUNCS - 2);
 
     for (const [index, name] of rows) {
         const state = rottingState(100);
         start_timer(0, TIMER_OBJECT, index, { where: OBJ_FLOOR, timed: 0 },
                     state);
-        assert.throws(
-            () => run_timers(state, { newsym: () => {} }),
+        await assert.rejects(
+            run_timers(state, { newsym: () => {} }),
             (error) => error.reason
                 === `a ported timeout function, but ${name}() is due`,
             `row ${index}`,
@@ -528,7 +527,7 @@ test('every unported timeout row names its own C function', () => {
     }
 });
 
-test('run_timers fires equal expiries in the order start_timer built', () => {
+test('run_timers fires equal expiries in the order start_timer built', async () => {
     const state = rottingState(300);
     // Both corpses expire on the same move. insert_timer() puts the newer one
     // first, so the second call to start_timer() is the first to fire.
@@ -536,7 +535,7 @@ test('run_timers fires equal expiries in the order start_timer built', () => {
     const newer = rottingCorpse(state, 21, 4, 0);
     const drawn = [];
 
-    run_timers(state, { newsym: (x, y) => drawn.push([x, y]) });
+    await run_timers(state, { newsym: (x, y) => drawn.push([x, y]) });
 
     assert.deepEqual(drawn, [[21, 4], [20, 4]]);
     assert.equal(older.where, OBJ_DELETED);
@@ -545,7 +544,7 @@ test('run_timers fires equal expiries in the order start_timer built', () => {
 });
 
 test('run_timers decrements the object timer count before calling its function',
-    () => {
+    async () => {
         // The ordering this pins is invisible in the result and fatal if
         // reversed: obfree() runs `if (obj.timed) stopObjectTimers(obj, env)`
         // for a FOOD_CLASS object, a required hook js/timeout.js cannot supply
@@ -555,13 +554,13 @@ test('run_timers decrements the object timer count before calling its function',
         const corpse = rottingCorpse(state, 33, 11, 0);
         assert.equal(corpse.timed, 1);
 
-        run_timers(state, { newsym: () => {} });
+        await run_timers(state, { newsym: () => {} });
 
         assert.equal(corpse.timed, 0);
         assert.equal(corpse.where, OBJ_DELETED);
     });
 
-test('run_timers refuses the whole due prefix before draining any of it', () => {
+test('run_timers refuses the whole due prefix before draining any of it', async () => {
     const state = rottingState();
     // The first element is drainable and the second is not, so a per-element
     // check would delete the first corpse and then stop with the queue half
@@ -581,8 +580,8 @@ test('run_timers refuses the whole due prefix before draining any of it', () => 
     assert.equal(state.gt.timer_base.arg, corpse);
     const queueBefore = queue(state).map((timer) => timer.tid);
 
-    assert.throws(
-        () => run_timers(state, { newsym: () => {} }),
+    await assert.rejects(
+        run_timers(state, { newsym: () => {} }),
         /a ported timeout function, but burn_object\(\) is due/u,
     );
 
@@ -591,7 +590,7 @@ test('run_timers refuses the whole due prefix before draining any of it', () => 
     assert.deepEqual(queue(state).map((timer) => timer.tid), queueBefore);
 });
 
-test('run_timers refuses a due corpse that carries a second timer', () => {
+test('run_timers refuses a due corpse that carries a second timer', async () => {
     // remove_object() runs mkobj.c obj_timer_checks() for an object whose
     // `timed` is still nonzero after the drain's decrement, and on ice that
     // stops and restarts a timer -- a change to the very prefix the refusal
@@ -602,20 +601,20 @@ test('run_timers refuses a due corpse that carries a second timer', () => {
     start_timer(50, TIMER_OBJECT, REVIVE_MON, corpse, state);
     assert.equal(corpse.timed, 2);
 
-    assert.throws(
-        () => run_timers(state, { newsym: () => {} }),
+    await assert.rejects(
+        run_timers(state, { newsym: () => {} }),
         /the due object to hold only its own timer/u,
     );
     assert.equal(corpse.where, OBJ_FLOOR);
 });
 
-test('run_timers refuses a due timer that is not an object timer', () => {
+test('run_timers refuses a due timer that is not an object timer', async () => {
     const state = rottingState();
     // timeout.h timer_is_pos(): MELT_ICE_AWAY is the only level timer, and its
     // argument is a packed coordinate rather than an object.
     start_timer(0, TIMER_LEVEL, 8 /* MELT_ICE_AWAY */, 5 * 0x10000 + 5, state);
-    assert.throws(
-        () => run_timers(state, { newsym: () => {} }),
+    await assert.rejects(
+        run_timers(state, { newsym: () => {} }),
         new RegExp(`every due timer to be an object timer, but kind `
             + `${TIMER_LEVEL} is due`, 'u'),
     );

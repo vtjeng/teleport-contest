@@ -24,6 +24,7 @@ import { game } from './gstate.js';
 import {
     BRASS_LANTERN,
     CANDELABRUM_OF_INVOCATION,
+    GOLD_DRAGON_SCALE_MAIL,
     MAGIC_LAMP,
     OIL_LAMP,
     POT_OIL,
@@ -227,6 +228,21 @@ export function candle_light_range(obj) {
     let radius = 1;
     while (radius * radius <= quantity && radius < MAX_RADIUS) ++radius;
     return radius;
+}
+
+// C ref: light.c arti_light_radius() (881-911). Returns the light radius an
+// artifact emits based on its BUC state. Returns 0 when the object is not
+// lit or is not a light-emitting artifact.
+export function arti_light_radius(obj, state = game) {
+    if (!obj.lamplit || !artifact_light(obj)) return 0;
+    let res = obj.blessed ? 3 : !obj.cursed ? 2 : 1;
+    // If poly'd into gold dragon with embedded scales, minimum radiance;
+    // otherwise worn gold DSM gives off more light than other sources.
+    if (obj === state.uskin)
+        res = 1;
+    else if (obj.otyp === GOLD_DRAGON_SCALE_MAIL)
+        ++res;
+    return res;
 }
 
 const LSF_SHOW = 0x1;
