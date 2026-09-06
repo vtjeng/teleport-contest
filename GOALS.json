@@ -9726,11 +9726,19 @@
         },
         {
           "name": "use_misc..you_aggravate",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "fed72f5ff040a0db00da89d2391b8a60bbb607dd",
           "functions": [
             "use_misc",
             "you_aggravate"
+          ]
+        },
+        {
+          "name": "necrophiliac",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "necrophiliac"
           ]
         }
       ],
@@ -9921,13 +9929,13 @@
           "name": "use_misc",
           "line": 2383,
           "endLine": 2630,
-          "ported": false
+          "ported": true
         },
         {
           "name": "you_aggravate",
           "line": 2631,
           "endLine": 2653,
-          "ported": false
+          "ported": true
         },
         {
           "name": "rnd_misc_item",
