@@ -9651,7 +9651,21 @@
         "seed0361-archeologist-tour"
       ],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "precheck..m_use_healing",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "precheck",
+            "mzapwand",
+            "mplayhorn",
+            "mreadmsg",
+            "mquaffmsg",
+            "m_use_healing"
+          ]
+        }
+      ],
       "openedAt": "d83c952378684422da663deb1d85652604aae341",
       "openStanding": {
         "sha": "55264471",
