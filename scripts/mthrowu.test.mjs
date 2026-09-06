@@ -41,8 +41,8 @@ import {
     WAN_STRIKING,
 } from '../js/objects.js';
 import {
-    blocking_terrain, lined_up, linedup, m_lined_up, monshoot, m_throw,
-    thitu, thrwmu,
+    blocking_terrain, lined_up, linedup, linedup_callback, m_lined_up,
+    monshoot, m_throw, thitu, thrwmu,
 } from '../js/mthrowu.js';
 import { potionhit } from '../js/potion.js';
 import { passive_obj } from '../js/uhitm.js';
@@ -1046,4 +1046,65 @@ test('lined_up aims at the believed hero square, not the real one',
         // displacement and it declines before any terrain is read.
         const confused = attacker(state, monsterX, y, monsterX, y);
         assert.equal(lined_up(confused, { state, random: noDraw() }), false);
+    });
+
+// C ref: mthrowu.c linedup_callback() (1295-1328). Walks the line from
+// <bx,by> toward <ax,ay>, calling fnc at each step. Returns true when fnc
+// returns true, false when the walk hits blocking terrain or finishes.
+test('linedup_callback walks toward the target and stops when fnc matches',
+    async () => {
+        const state = await hero();
+        const y = state.u.uy;
+        const ax = state.u.ux + 4; // target end
+        const bx = state.u.ux;     // starting end
+        clearRow(state, bx, ax, y);
+
+        // fnc that matches at a specific x coordinate
+        const matchAt = (targetX) => (x, _y) => x === targetX;
+
+        // C ref: mthrowu.c:1321 -- fnc returns TRUE at intermediate step
+        assert.equal(
+            linedup_callback(ax, y, bx, y, matchAt(bx + 2), { state }),
+            true,
+            'callback returning true at step 2 stops the walk',
+        );
+
+        // C ref: mthrowu.c:1324 -- fnc returns FALSE at every step
+        assert.equal(
+            linedup_callback(ax, y, bx, y, () => false, { state }),
+            false,
+            'callback always returning false means no match found',
+        );
+
+        // C ref: mthrowu.c:1314-1315 -- same source and target is rejected
+        assert.equal(
+            linedup_callback(bx, y, bx, y, () => true, { state }),
+            false,
+            'zero displacement is rejected before any step',
+        );
+
+        // C ref: mthrowu.c:1318-1319 -- blocking terrain stops the walk.
+        // The wall is at the first step (bx+1) so the walk never reaches fnc.
+        const wallX = bx + 1;
+        const savedTyp = state.level.at(wallX, y).typ;
+        state.level.at(wallX, y).typ = STONE;
+        assert.equal(
+            linedup_callback(ax, y, bx, y, () => true, { state }),
+            false,
+            'blocking terrain at first step stops the walk',
+        );
+        state.level.at(wallX, y).typ = savedTyp; // restore
+
+        // C ref: mthrowu.c:1308-1310 -- distance beyond BOLT_LIM is rejected
+        // BOLT_LIM is 8, so a displacement of 9 is too far.
+        const farX = bx + 9;
+        for (let x = ax + 1; x <= farX; x++) {
+            const loc = state.level.at(x, y);
+            loc.typ = ROOM; loc.flags = 0; loc.doormask = 0; loc.wall_info = 0;
+        }
+        assert.equal(
+            linedup_callback(farX, y, bx, y, () => true, { state }),
+            false,
+            'distance exceeding BOLT_LIM is rejected',
+        );
     });

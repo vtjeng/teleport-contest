@@ -3,6 +3,8 @@
 // mquaffmsg(), m_use_healing(), m_sees_sleepy_soldier(), m_tele(),
 // m_next2m(), reveal_trap(), mon_escape(), use_defensive(),
 // mcureblindness(), find_defensive(),
+// linedup_chk_corpse(), m_use_undead_turning(), hero_behind_chokepoint(),
+// mon_has_friends(), mon_likes_objpile_at(),
 // find_offensive(), use_offensive()'s hurled-potion case,
 // searches_for_item(), cures_stoning(), mcould_eat_tin(); mondata.c
 // can_blow().
@@ -65,11 +67,15 @@ import {
     W_ARMG,
     W_ARMS,
     W_SADDLE,
+    N_DIRS,
+    OBJ_AT,
+    TELEPORT_CONTROL,
     helpless,
     is_hole,
     isok,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
+import { dirtocoord, xytodir } from './cmd.js';
 import { map_invisible, newsym } from './display.js';
 import { trycall } from './do.js';
 import { migrate_to_level } from './dog.js';
@@ -85,7 +91,7 @@ import {
     Can_dig_down, Can_fall_thru, In_hell, On_W_tower_level,
     depth, dunlev, dunlevs_in_dungeon, get_level, ledger_no, surface,
 } from './dungeon.js';
-import { obfree } from './invent.js';
+import { carrying, obfree } from './invent.js';
 import { game } from './gstate.js';
 import { dist2, distmin, sgn, strsubst } from './hacklib.js';
 import { makemon, mongone } from './makemon_create.js';
@@ -95,7 +101,7 @@ import { healmon, m_carrying, maybe_unhide_at, mon_offmap, monkilled } from './m
 import {
     acidic, attacktype, breathless, dmgtype, has_head, haseyes, is_animal,
     is_floater, is_flyer, is_mercenary, is_unicorn, is_vampshifter,
-    locomotion, mhe, mhim, mindless, mon_learns_traps,
+    locomotion, mhe, mhim, mindless, mon_knows_traps, mon_learns_traps,
     needspick, nohands, nonliving, passes_walls, same_race, slimeproof,
     throws_rocks, touch_petrifies, verysmall,
 } from './mondata.js';
@@ -113,8 +119,8 @@ import * as O from './objects.js';
 import { an, ansimpleoname, donameFresh, simpleonames, singular,
     vtense, xnameFresh } from './objnam.js';
 import { discover_object, objdescr_is, observe_object } from './o_init.js';
-import { monflee, monnear, onscary, youHear } from './monmove.js';
-import { lined_up } from './mthrowu.js';
+import { accessible, monflee, mon_would_take_item, monnear, onscary, youHear } from './monmove.js';
+import { lined_up, linedup_callback } from './mthrowu.js';
 import { in_your_sanctuary } from './priest.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { inhishop } from './shk.js';
@@ -154,7 +160,9 @@ const MUSE_POT_PARALYSIS = 9;
 const MUSE_POT_BLINDNESS = 10;
 const MUSE_POT_CONFUSION = 11;
 const MUSE_POT_ACID = 14;
+const MUSE_WAN_TELEPORTATION = 15;
 const MUSE_POT_SLEEPING = 16;
+const MUSE_WAN_UNDEAD_TURNING = 20; /* also a defensive item */
 
 // C ref: hack.h:1409 POTION_OCCUPANT_CHANCE(n). The chance a potion has a
 // milky or smoky occupant decreases with the number already born.
@@ -1348,23 +1356,133 @@ export function select_fresh_monster_item_action(monster, rawEnv = {}) {
     return select_misc_action(monster, rawEnv);
 }
 
+// C ref: muse.c linedup_chk_corpse() (1294-1299). Callback for
+// linedup_callback(): returns true when a corpse is on the floor at (x,y).
+export function linedup_chk_corpse(x, y, state) {
+    return sobj_at(O.CORPSE, x, y, state) !== null;
+}
+
+// C ref: muse.c m_use_undead_turning() (1300-1341). Checks whether the monster
+// should zap a wand of undead turning offensively: either the hero is carrying
+// a corpse, or there is a corpse on the ground in a direct line from the
+// monster to the hero (and up to 3 steps beyond). On success, calls `select`
+// to record the choice. C writes gm.m.offensive and gm.m.has_offense directly;
+// this version takes the `select` callback that find_offensive() defines.
+function m_use_undead_turning(mtmp, obj, select, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const u = state.u;
+    const ax = u.ux + sgn(mtmp.mux - mtmp.mx) * 3;
+    const ay = u.uy + sgn(mtmp.muy - mtmp.my) * 3;
+    const bx = mtmp.mx;
+    const by = mtmp.my;
+
+    if (!(obj.otyp === O.WAN_UNDEAD_TURNING && obj.spe > 0))
+        return;
+
+    /* not necrophiliac(); unlike deciding whether to pick this
+       type of wand up, we aren't interested in corpses within
+       carried containers until they're moved into open inventory;
+       we don't check whether hero is poly'd into an undead--the
+       wand's turning effect is too weak to be a useful direct
+       attack--only whether hero is carrying at least one corpse */
+    if (carrying(O.CORPSE, state)
+        || linedup_callback(ax, ay, bx, by,
+            (x, y) => linedup_chk_corpse(x, y, state), rawEnv)
+        /* or there's a corpse on the ground in a direct line from the
+           monster to the hero, and up to 3 steps beyond. */
+        ) {
+        select(MUSE_WAN_UNDEAD_TURNING, obj);
+    }
+}
+
+// C ref: muse.c hero_behind_chokepoint() (1344-1368). From the monster's point
+// of view, is the hero behind a chokepoint? Checks the two squares flanking
+// the step from the hero toward the monster; if both are inaccessible (wall,
+// closed door, or out of bounds), the hero is behind a chokepoint.
+export function hero_behind_chokepoint(mtmp, state = game) {
+    const dx = sgn(mtmp.mx - mtmp.mux);
+    const dy = sgn(mtmp.my - mtmp.muy);
+
+    const x = mtmp.mux + dx;
+    const y = mtmp.muy + dy;
+
+    const dir = xytodir(dx, dy);
+    // DIR_LEFT2(dir) = (dir + 6) % N_DIRS, DIR_RIGHT2(dir) = (dir + 2) % N_DIRS
+    // DIR_CLAMP(dir) = (dir + N_DIRS) % N_DIRS
+    const dir_l = ((dir + 6) % N_DIRS + N_DIRS) % N_DIRS;
+    const dir_r = ((dir + 2) % N_DIRS + N_DIRS) % N_DIRS;
+
+    const c1 = dirtocoord(dir_l);
+    const c2 = dirtocoord(dir_r);
+    if (!c1 || !c2) return false;
+    const c1x = c1.x + x, c1y = c1.y + y;
+    const c2x = c2.x + x, c2y = c2.y + y;
+
+    if ((!isok(c1x, c1y) || !accessible(c1x, c1y, state))
+        && (!isok(c2x, c2y) || !accessible(c2x, c2y, state)))
+        return true;
+    return false;
+}
+
+// C ref: muse.c mon_has_friends() (1371-1392). Returns true when a hostile
+// monster has at least one other hostile monster adjacent to it.
+export function mon_has_friends(mtmp, state = game) {
+    if (mtmp.mtame || mtmp.mpeaceful)
+        return false;
+
+    for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+            const x = mtmp.mx + dx;
+            const y = mtmp.my + dy;
+
+            if (isok(x, y)) {
+                const mon2 = m_at(x, y, state);
+                if (mon2 && mon2 !== mtmp
+                    && !mon2.mtame && !mon2.mpeaceful)
+                    return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+// C ref: muse.c mon_likes_objpile_at() (1395-1420). Returns true when the
+// monster likes any of the top 3 items in the object pile at (x,y), or the
+// pile has more than 3 stacks.
+export function mon_likes_objpile_at(mtmp, x, y, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+
+    if (!isok(x, y) || !OBJ_AT(x, y, state))
+        return false;
+
+    /* monster likes any of the top 3 items in the pile? */
+    let i = 0;
+    let otmp = state.level.objects[x]?.[y] ?? null;
+    for (; otmp && i < 3; i++) {
+        if (mon_would_take_item(mtmp, otmp, rawEnv))
+            return true;
+        otmp = otmp.nexthere;
+    }
+
+    /* pile is larger than 3 stacks? */
+    if (i >= 3)
+        return true;
+
+    return false;
+}
+
 // C ref: muse.c find_offensive() (1420-1594). "Select an offensive
 // item/action for a monster. Returns TRUE iff one is found."
 //
-// Partial. It answers TRUE only for the five MUSE_POT_* selections and refuses
-// every other arm that would select. C reports its choice through
-// gm.m.offensive and gm.m.has_offense; `state.m_offense` holds both here, set
-// to null on entry and read back by use_offensive() below. The port covers the
-// FALSE answer -- the five guards above the inventory loop, and the loop's
-// rejection of every item that is not an offensive one -- plus the five
-// throwable-potion arms, whose shared use_offensive() case is ported below.
+// Partial: the eight reflection-gated wand/horn arms, MUSE_WAN_STRIKING,
+// MUSE_SCR_EARTH, and MUSE_CAMERA refuse because their use_offensive() cases
+// are not ported. MUSE_WAN_UNDEAD_TURNING and MUSE_WAN_TELEPORTATION are
+// fully wired and can select. The five MUSE_POT_* arms select as before.
 //
-// Three wand arms refuse on the object type ahead of conditions C also tests.
-// MUSE_WAN_UNDEAD_TURNING needs invent.c carrying() and a corpse ray;
-// MUSE_WAN_TELEPORTATION needs onscary(), hero_behind_chokepoint() and
-// stairway_at(); and MUSE_SCR_EARTH and MUSE_CAMERA each end in a draw --
-// !rn2(10) and !rn2(6) -- that a refusing port must not spend. Refusing early
-// stops a monster C would have let past; it never lets one past that C stops.
+// MUSE_SCR_EARTH and MUSE_CAMERA each end in a draw -- !rn2(10) and !rn2(6)
+// -- that a refusing port must not spend. Refusing early stops a monster C
+// would have let past; it never lets one past that C stops.
 export function find_offensive(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const unsupported = rawEnv.unsupported;
@@ -1404,9 +1522,9 @@ export function find_offensive(mtmp, rawEnv = {}) {
     for (let obj = mtmp.minvent; obj; obj = obj.nobj) {
         const otyp = obj.otyp;
         if (!reflection_skip) {
-            // C's nomore() skips for these eight arms cannot fire: has_offense
-            // only ever holds one of the five MUSE_POT_* values below, since
-            // every other arm refuses.
+            // C's nomore() skips for these eight arms: when has_offense holds
+            // one of these values the continue skips re-evaluation, but none
+            // of these arms can select because they all refuse.
             if ((otyp === O.WAN_DEATH && obj.spe > 0 && !seenres(M_SEEN_MAGR))
                 || (otyp === O.WAN_SLEEP && obj.spe > 0
                     && (state.multi ?? 0) >= 0 && !seenres(M_SEEN_SLEEP))
@@ -1425,11 +1543,29 @@ export function find_offensive(mtmp, rawEnv = {}) {
                 refuse();
             }
         }
-        if ((otyp === O.WAN_UNDEAD_TURNING && obj.spe > 0)
-            || (otyp === O.WAN_STRIKING && obj.spe > 0
-                && !seenres(M_SEEN_MAGR))
-            || (otyp === O.WAN_TELEPORTATION && obj.spe > 0)) {
+        /* nomore(MUSE_WAN_UNDEAD_TURNING) */
+        if (has_offense === MUSE_WAN_UNDEAD_TURNING) continue;
+        m_use_undead_turning(mtmp, obj, select, rawEnv);
+        /* nomore(MUSE_WAN_STRIKING) -- use_offensive case not ported */
+        if (otyp === O.WAN_STRIKING && obj.spe > 0
+            && !seenres(M_SEEN_MAGR)) {
             refuse();
+        }
+        /* nomore(MUSE_WAN_TELEPORTATION) */
+        if (has_offense === MUSE_WAN_TELEPORTATION) continue;
+        if (otyp === O.WAN_TELEPORTATION && obj.spe > 0
+            /* don't give controlled hero a free teleport */
+            && !activeHeroProperty(state, TELEPORT_CONTROL)
+            /* same hack as MUSE_WAN_TELEPORTATION_SELF */
+            && (!noteleport_level(mtmp, state)
+                || !mon_knows_traps(mtmp, TELEP_TRAP))
+            /* do try to move hero to a more vulnerable spot */
+            && (onscary(u.ux, u.uy, mtmp, state)
+                || (hero_behind_chokepoint(mtmp, state)
+                    && mon_has_friends(mtmp, state))
+                || mon_likes_objpile_at(mtmp, u.ux, u.uy, rawEnv)
+                || stairway_at(u.ux, u.uy, state))) {
+            select(MUSE_WAN_TELEPORTATION, obj);
         }
         /* nomore(MUSE_POT_PARALYSIS) */
         if (has_offense === MUSE_POT_PARALYSIS) continue;

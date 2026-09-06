@@ -105,6 +105,40 @@ export function blocking_terrain(x, y, state = game) {
         || location.typ === LAVAWALL;
 }
 
+// C ref: mthrowu.c linedup_callback() (1295-1328). Walk from <bx,by> toward
+// <ax,ay> in a straight orthogonal or diagonal line, within BOLT_LIM, calling
+// fnc(x,y) at each step. Returns true if fnc returns true for any step;
+// returns false if the walk reaches <ax,ay>, hits blocking terrain, or the
+// line is not straight / too long. C also stores the displacement in gt.tbx
+// and gt.tby.
+export function linedup_callback(ax, ay, bx, by, fnc, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    state.gt ??= {};
+    const tbx = state.gt.tbx = ax - bx;
+    const tby = state.gt.tby = ay - by;
+
+    /* sometimes displacement makes a monster think that you're at its
+       own location; prevent it from throwing and zapping in that case */
+    if (!tbx && !tby) return false;
+
+    /* straight line, orthogonal to the map or diagonal */
+    if ((!tbx || !tby || Math.abs(tbx) === Math.abs(tby))
+        && distmin(tbx, tby, 0, 0) < BOLT_LIM) {
+        const dx = sgn(ax - bx);
+        const dy = sgn(ay - by);
+        let x = bx;
+        let y = by;
+        do {
+            /* <x,y> is guaranteed to eventually converge with <ax,ay> */
+            x += dx;
+            y += dy;
+            if (blocking_terrain(x, y, state)) return false;
+            if (fnc(x, y)) return true;
+        } while (x !== ax || y !== ay);
+    }
+    return false;
+}
+
 // C ref: mthrowu.c linedup() (1330-1372). Is <bx,by> in a straight orthogonal
 // or diagonal line to <ax,ay>, within BOLT_LIM, with nothing in between?
 //

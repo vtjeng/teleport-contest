@@ -18,6 +18,7 @@ import {
     M_SEEN_REFL,
     M_SEEN_SLEEP,
     ROOM,
+    STONE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -26,13 +27,17 @@ import {
     cures_stoning,
     find_offensive,
     find_defensive,
+    hero_behind_chokepoint,
+    linedup_chk_corpse,
+    mon_has_friends,
+    mon_likes_objpile_at,
     use_offensive,
     mcould_eat_tin,
     searches_for_item,
     select_fresh_monster_item_action,
     select_misc_action,
 } from '../js/muse.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj, place_object, remove_object } from '../js/obj.js';
 import { UnsupportedSimpleMonsterActionError }
     from '../js/unported_monster_actions.js';
 import {
@@ -57,7 +62,7 @@ import {
     S_EEL,
     monst_globals_init,
 } from '../js/monsters.js';
-import { newMonster } from '../js/monst.js';
+import { m_at, newMonster, place_monster, remove_monster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
 import { messageAt } from '../js/startup_a11y.js';
 import {
@@ -876,7 +881,9 @@ const MUSE_POT_PARALYSIS = 9;
 const MUSE_POT_BLINDNESS = 10;
 const MUSE_POT_CONFUSION = 11;
 const MUSE_POT_ACID = 14;
+const MUSE_WAN_TELEPORTATION = 15;
 const MUSE_POT_SLEEPING = 16;
+const MUSE_WAN_UNDEAD_TURNING = 20;
 
 // One row per arm of find_offensive()'s inventory loop, in source order, each
 // naming the muse.c line it stands for. `reflected` puts the attacker three
@@ -929,14 +936,20 @@ const OFFENSIVE_ARMS = [
     // The whole half above is skipped for an adjacent attacker.
     { name: 'wand of magic missile up close', otyp: WAN_MAGIC_MISSILE, spe: 1,
         refuses: false },
-    // muse.c:1497-1499
-    { name: 'wand of undead turning', otyp: WAN_UNDEAD_TURNING, spe: 1 },
+    // muse.c:1497-1499 -- m_use_undead_turning() selects only when the hero
+    // carries a corpse or one lies in a direct line; default test state has
+    // neither, so the arm does not select and does not refuse.
+    { name: 'wand of undead turning', otyp: WAN_UNDEAD_TURNING, spe: 1,
+        refuses: false },
     { name: 'spent wand of undead turning', otyp: WAN_UNDEAD_TURNING, spe: 0,
         refuses: false },
     // muse.c:1500-1505
     { name: 'wand of striking', otyp: WAN_STRIKING, spe: 1 },
-    // muse.c:1506-1516
-    { name: 'wand of teleportation', otyp: WAN_TELEPORTATION, spe: 1 },
+    // muse.c:1506-1516 -- wand of teleportation selects when the hero is on
+    // stairs (stairway_at() is truthy at the Valkyrie start position), the
+    // hero lacks Teleport_control, and the level permits teleporting.
+    { name: 'wand of teleportation', otyp: WAN_TELEPORTATION, spe: 1,
+        selects: MUSE_WAN_TELEPORTATION },
     { name: 'spent wand of teleportation', otyp: WAN_TELEPORTATION, spe: 0,
         refuses: false },
     // muse.c:1517-1521
@@ -1173,4 +1186,158 @@ test('find_offensive declines for a nurse beside an unarmed, unarmored hero',
     const gnome = offensiveMonster(state, PM_GNOME, wand);
     assert.throws(() => find_offensive(gnome, env),
         (error) => error.reason === 'monster offensive item use');
+});
+
+// C ref: muse.c linedup_chk_corpse() (1294-1299). Returns true when a corpse
+// is on the floor at the given position, false otherwise.
+test('linedup_chk_corpse returns true only when a corpse is on the floor',
+    async () => {
+    const state = await offensiveHero();
+    const x = state.u.ux + 2;
+    const y = state.u.uy;
+    // Clear the square and confirm no corpse.
+    assert.equal(linedup_chk_corpse(x, y, state), false,
+        'empty square has no corpse');
+    // Place a corpse and confirm it is found.
+    const corpse = mksobj(CORPSE, false, false, { state });
+    place_object(corpse, x, y, state);
+    assert.equal(linedup_chk_corpse(x, y, state), true,
+        'square with a corpse returns true');
+    // Remove the corpse and confirm false again.
+    remove_object(corpse, state);
+    assert.equal(linedup_chk_corpse(x, y, state), false,
+        'square after corpse removal returns false');
+});
+
+// C ref: muse.c hero_behind_chokepoint() (1344-1368). The hero is behind a
+// chokepoint when both flanking squares of the step from hero toward monster
+// are inaccessible (walls, out-of-bounds, or closed doors).
+test('hero_behind_chokepoint detects a corridor one step from the hero',
+    async () => {
+    const state = await offensiveHero();
+    const ux = state.u.ux;
+    const uy = state.u.uy;
+    // Monster is due east, hero at (ux, uy), so the step from hero toward
+    // monster is (ux+1, uy). The two flanking squares are (ux+1, uy-1) and
+    // (ux+1, uy+1). C ref: hero_behind_chokepoint() uses DIR_LEFT2/DIR_RIGHT2
+    // to find these two squares offset from the direct path.
+
+    // Make the direct path accessible but flanks walled off.
+    const stepX = ux + 1, stepY = uy;
+    state.level.at(stepX, stepY).typ = ROOM;
+    state.level.at(stepX, stepY).doormask = 0;
+    state.level.at(stepX, stepY - 1).typ = STONE;
+    state.level.at(stepX, stepY + 1).typ = STONE;
+
+    const mtmp = newMonster({
+        data: state.mons[PM_GNOME],
+        m_id: 9100,
+        mx: ux + 3, my: uy,
+        mux: ux, muy: uy,
+    });
+    assert.equal(hero_behind_chokepoint(mtmp, state), true,
+        'both flanks walled off = chokepoint');
+
+    // Open one flank: no longer a chokepoint.
+    state.level.at(stepX, stepY - 1).typ = ROOM;
+    state.level.at(stepX, stepY - 1).doormask = 0;
+    assert.equal(hero_behind_chokepoint(mtmp, state), false,
+        'one open flank = not a chokepoint');
+});
+
+// C ref: muse.c mon_has_friends() (1371-1392). Returns true when a hostile
+// monster has at least one other hostile monster adjacent.
+test('mon_has_friends detects an adjacent hostile companion', async () => {
+    const state = await offensiveHero();
+    const x = state.u.ux + 4;
+    const y = state.u.uy;
+    const mtmp = newMonster({
+        data: state.mons[PM_GNOME],
+        m_id: 9200,
+        mx: x, my: y,
+        mhp: 10, mhpmax: 10,
+        mtame: false, mpeaceful: false,
+    });
+    place_monster(mtmp, x, y, state);
+
+    // No adjacent friend yet.
+    assert.equal(mon_has_friends(mtmp, state), false,
+        'no adjacent friend');
+
+    // Place a hostile friend adjacent.
+    const friend = newMonster({
+        data: state.mons[PM_GNOME],
+        m_id: 9201,
+        mx: x + 1, my: y,
+        mhp: 10, mhpmax: 10,
+        mtame: false, mpeaceful: false,
+    });
+    place_monster(friend, x + 1, y, state);
+    assert.equal(mon_has_friends(mtmp, state), true,
+        'adjacent hostile = has friends');
+
+    // A peaceful neighbor does not count.
+    friend.mpeaceful = true;
+    assert.equal(mon_has_friends(mtmp, state), false,
+        'adjacent peaceful = no friend');
+
+    // A tame neighbor does not count.
+    friend.mpeaceful = false;
+    friend.mtame = true;
+    assert.equal(mon_has_friends(mtmp, state), false,
+        'adjacent tame = no friend');
+
+    // A tame monster asking about its own friends always returns false.
+    mtmp.mtame = true;
+    friend.mtame = false;
+    friend.mpeaceful = false;
+    assert.equal(mon_has_friends(mtmp, state), false,
+        'tame monster never has hostile friends');
+
+    // Cleanup
+    remove_monster(x, y, state);
+    remove_monster(x + 1, y, state);
+});
+
+// C ref: muse.c mon_likes_objpile_at() (1395-1420). Returns true when the
+// monster likes one of the top 3 items, or the pile has more than 3 stacks.
+test('mon_likes_objpile_at checks the top 3 items and pile size', async () => {
+    const state = await offensiveHero();
+    const env = offensiveEnv(state);
+    const x = state.u.ux + 5;
+    const y = state.u.uy;
+
+    const mtmp = newMonster({
+        data: state.mons[PM_GNOME],
+        m_id: 9300,
+        mx: x + 1, my: y,
+        mtame: false, mpeaceful: false,
+    });
+
+    // Empty square: false.
+    assert.equal(mon_likes_objpile_at(mtmp, x, y, { state }), false,
+        'empty square');
+
+    // Place a single dagger (a gnome wants weapons). This is a desirable
+    // item for a gnome since gnomes collect practical objects and daggers
+    // are in WEAPON_CLASS.
+    const dagger = mksobj(DAGGER, false, false, { state });
+    place_object(dagger, x, y, state);
+    assert.equal(mon_likes_objpile_at(mtmp, x, y, { state }), true,
+        'single wanted item');
+    remove_object(dagger, state);
+
+    // A pile of 4+ stacks returns true regardless of individual item appeal
+    // (C ref: muse.c:1416 "pile is larger than 3 stacks?").
+    const objs = [];
+    for (let i = 0; i < 4; i++) {
+        // Food rations that a gnome might not prioritize individually,
+        // but 4 stacks crosses the threshold.
+        const obj = mksobj(FOOD_RATION, false, false, { state });
+        place_object(obj, x, y, state);
+        objs.push(obj);
+    }
+    assert.equal(mon_likes_objpile_at(mtmp, x, y, { state }), true,
+        '4+ stacks always returns true');
+    for (const obj of objs) remove_object(obj, state);
 });
