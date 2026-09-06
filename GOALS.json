@@ -9403,10 +9403,18 @@
         },
         {
           "name": "uchangealign",
+          "status": "closed",
+          "closedBy": "1d42ac44d974debbe3929a0c70b3dd677aed0c1c",
+          "functions": [
+            "uchangealign"
+          ]
+        },
+        {
+          "name": "gainstr",
           "status": "queued",
           "closedBy": null,
           "functions": [
-            "uchangealign"
+            "gainstr"
           ]
         }
       ],
@@ -9621,7 +9629,7 @@
           "name": "uchangealign",
           "line": 1320,
           "endLine": 1365,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
