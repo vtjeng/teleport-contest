@@ -1,9 +1,9 @@
 // attrib.js — hero attributes, advancement, exercise, and adjustment.
 // C ref: src/attrib.c the innate-ability tables, role_abil(), postadjabil(),
-// adjabil(), newhp(), setuhpmax(), init_attr(), vary_init_attr(), exercise(),
-// exerper(), adjattrib(), exerchk(), losestr(), poison_strdmg(),
-// poisontell(), poisoned(), stone_luck(), set_moreluck(), restore_attrib(),
-// and adjuhploss().
+// adjabil(), newhp(), setuhpmax(), rnd_attr(), init_attr_role_redist(),
+// init_attr(), vary_init_attr(), exercise(), exerper(), adjattrib(),
+// exerchk(), losestr(), poison_strdmg(), poisontell(), poisoned(),
+// stone_luck(), set_moreluck(), restore_attrib(), and adjuhploss().
 
 import {
     A_CHA,
@@ -534,7 +534,7 @@ export function acurrstr(state = game) {
     return Math.min(str, 125) - 100;
 }
 
-function randomAttribute(role, random) {
+function rnd_attr(role, random) {
     let value = random.rn2(100);
     for (let i = 0; i < NUM_ATTRS; i++) {
         value -= Math.trunc(role.attrdist?.[i] ?? 0);
@@ -543,14 +543,14 @@ function randomAttribute(role, random) {
     return NUM_ATTRS;
 }
 
-function redistributeInitialAttributes(state, points, addition, random) {
+function init_attr_role_redist(state, points, addition, random) {
     const { role, race } = roleAndRace(state);
     const attrs = attributeArrays(state.u);
     let tries = 0;
     const adjustment = addition ? 1 : -1;
 
     while ((addition ? points > 0 : points < 0) && tries < 100) {
-        const index = randomAttribute(role, random);
+        const index = rnd_attr(role, random);
         const limit = addition
             ? Math.trunc(race.attrmax?.[index] ?? attrs.base[index])
             : Math.trunc(race.attrmin?.[index] ?? attrs.base[index]);
@@ -579,8 +579,8 @@ export function init_attr(points, state = game, random = { rn2 }) {
         attrs.temp[i] = attrs.time[i] = 0;
         remaining -= base;
     }
-    remaining = redistributeInitialAttributes(state, remaining, true, random);
-    return redistributeInitialAttributes(state, remaining, false, random);
+    remaining = init_attr_role_redist(state, remaining, true, random);
+    return init_attr_role_redist(state, remaining, false, random);
 }
 
 function adjustInitialAttribute(state, index, increment, random) {
@@ -1326,6 +1326,6 @@ export async function poisoned(
 }
 
 export const _attribInternals = Object.freeze({
-    randomAttribute,
-    redistributeInitialAttributes,
+    rnd_attr,
+    init_attr_role_redist,
 });
