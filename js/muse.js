@@ -1,7 +1,7 @@
 // Monster item-use AI: deciding which items to use and executing the use.
 // C refs: muse.c precheck(), mzapwand(), mplayhorn(), mreadmsg(),
 // mquaffmsg(), m_use_healing(), m_sees_sleepy_soldier(), m_tele(),
-// m_next2m(), find_defensive(),
+// m_next2m(), reveal_trap(), mon_escape(), find_defensive(),
 // find_offensive(), use_offensive()'s hurled-potion case,
 // searches_for_item(), cures_stoning(), mcould_eat_tin(); mondata.c
 // can_blow().
@@ -9,6 +9,7 @@
 import {
     ARTICLE_A,
     BOLT_LIM,
+    CORR,
     DEAF,
     G_GONE,
     HALLUC,
@@ -37,6 +38,7 @@ import {
     FORCETRAP,
     Is_knox_level,
     RLOC_MSG,
+    SCORR,
     TELEP_TRAP,
     SEE_INVIS,
     W_ACCESSORY,
@@ -94,13 +96,13 @@ import { stairway_at } from './stairs.js';
 import { messageAt, sensesMonster } from './startup_a11y.js';
 import { enexto, noteleport_level, rloc, tele_restrict } from './teleport.js';
 import { t_at } from './trap.js';
-import { mintrap } from './trap_effects.js';
+import { mintrap, seetrap } from './trap_effects.js';
 import { s_suffix } from './hacklib.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { cansee, canseemon, couldsee } from './vision.js';
+import { cansee, canseemon, couldsee, unblock_point } from './vision.js';
 import { mwelded } from './wield.js';
-import { mon_has_amulet } from './wizard.js';
+import { mon_has_amulet, mon_has_special } from './wizard.js';
 import { which_armor } from './worn.js';
 
 // The generated catalog stores these values but does not currently export
@@ -510,6 +512,36 @@ export function m_next2m(mtmp, state) {
         }
     }
     return false;
+}
+
+// C ref: muse.c reveal_trap() (757-768). When a monster deliberately enters
+// a trap, convert a secret corridor at the trap's location to a normal
+// corridor and mark the trap as seen if the hero can see it.
+function reveal_trap(trap, seeit, state, env) {
+    const lev = state.level.at(trap.tx, trap.ty);
+
+    if (lev.typ === SCORR) {
+        lev.typ = CORR;
+        lev.flags = 0;
+        unblock_point(trap.tx, trap.ty, state);
+    }
+    if (seeit)
+        seetrap(trap, env);
+}
+
+// C ref: muse.c mon_escape() (780-795). A monster without the Amulet or
+// invocation items escapes the dungeon via upstairs and is removed from the
+// game. Returns 0 when the monster must stay, 2 when it escaped.
+async function mon_escape(mtmp, vismon, state, env) {
+    if (mon_has_special(mtmp)
+        || (mtmp.iswiz && (state.context?.no_of_wizards ?? 0) < 2))
+        return 0;
+    if (vismon)
+        await pline_mon(mtmp,
+            `${capitalizedMonsterName(mtmp, state)} escapes the dungeon!`,
+            state);
+    mongone(mtmp, env);
+    return 2;
 }
 
 function canLetGoWithoutDiscovery(obj, state) {

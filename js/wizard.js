@@ -1,6 +1,6 @@
 // The Wizard of Yendor's harassment, and the Amulet test the rest of the game
 // shares with it.
-// C ref: wizard.c mon_has_amulet().
+// C ref: wizard.c mon_has_amulet(), mon_has_special().
 
 import {
     BOLT_LIM,
@@ -20,7 +20,11 @@ import { set_malign } from './makemon.js';
 import { big_to_little } from './mondata.js';
 import { G_HELL, G_NOHELL, PM_WIZARD_OF_YENDOR, monsterClassSymbol } from './monsters.js';
 import { NASTIES } from './nasties_data.js';
-import { AMULET_OF_YENDOR } from './objects.js';
+import { ART_ORB_OF_DETECTION } from './artifacts.js';
+import {
+    AMULET_OF_YENDOR, BELL_OF_OPENING, CANDELABRUM_OF_INVOCATION,
+    SPE_BOOK_OF_THE_DEAD,
+} from './objects.js';
 import { enexto_core } from './teleport.js';
 import { messageAt, canSpotMonster } from './startup_a11y.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
@@ -233,5 +237,20 @@ export function pick_nasty(difcap, normalized) {
 export function mon_has_amulet(monster) {
     for (let otmp = monster.minvent; otmp; otmp = otmp.nobj)
         if (otmp.otyp === AMULET_OF_YENDOR) return true;
+    return false;
+}
+
+// C ref: wizard.c mon_has_special() (117-128). Pure inventory scan: true when
+// the monster carries the Amulet of Yendor, any quest artifact, or one of the
+// three invocation items (Bell, Candelabrum, Book of the Dead).
+export function mon_has_special(monster) {
+    for (let otmp = monster.minvent; otmp; otmp = otmp.nobj) {
+        if (otmp.otyp === AMULET_OF_YENDOR
+            || otmp.oartifact >= ART_ORB_OF_DETECTION
+            || otmp.otyp === BELL_OF_OPENING
+            || otmp.otyp === CANDELABRUM_OF_INVOCATION
+            || otmp.otyp === SPE_BOOK_OF_THE_DEAD)
+            return true;
+    }
     return false;
 }

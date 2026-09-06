@@ -40,10 +40,13 @@ import {
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
-import { AMULET_OF_YENDOR, ELVEN_DAGGER } from '../js/objects.js';
+import {
+    AMULET_OF_YENDOR, BELL_OF_OPENING, CANDELABRUM_OF_INVOCATION,
+    ELVEN_DAGGER, SPE_BOOK_OF_THE_DEAD,
+} from '../js/objects.js';
 import { check_special_room } from '../js/rooms.js';
 import { is_fshk } from '../js/shk.js';
-import { mon_has_amulet, resurrect } from '../js/wizard.js';
+import { mon_has_amulet, mon_has_special, resurrect } from '../js/wizard.js';
 
 const ROOM_BUFFER_SIZE = 5;
 const HERO_X = 20;
@@ -486,4 +489,46 @@ test('In_tutorial answers FALSE when there is no tutorial dungeon', () => {
     state.tutorial_dnum = 3;
     assert.equal(In_tutorial({ dnum: 3, dlevel: 1 }), true);
     assert.equal(In_tutorial({ dnum: 0, dlevel: 1 }), false);
+});
+
+test('mon_has_special detects each invocation item and quest artifacts', () => {
+    // wizard.c:117-128 checks the five item classes that prevent a monster
+    // from escaping the dungeon: the Amulet, the three invocation items, and
+    // any quest artifact (oartifact >= ART_ORB_OF_DETECTION, which is 21).
+    const dagger = { otyp: ELVEN_DAGGER, oartifact: 0, nobj: null };
+    const amulet = { otyp: AMULET_OF_YENDOR, oartifact: 0, nobj: null };
+    const bell = { otyp: BELL_OF_OPENING, oartifact: 0, nobj: null };
+    const candelabrum = { otyp: CANDELABRUM_OF_INVOCATION, oartifact: 0,
+        nobj: null };
+    const book = { otyp: SPE_BOOK_OF_THE_DEAD, oartifact: 0, nobj: null };
+    // oartifact 21 is ART_ORB_OF_DETECTION, the threshold in obj.h:271.
+    const questArt = { otyp: ELVEN_DAGGER, oartifact: 21, nobj: null };
+
+    assert.equal(mon_has_special({ minvent: null }), false,
+        'empty inventory');
+    assert.equal(mon_has_special({ minvent: dagger }), false,
+        'mundane item');
+    assert.equal(mon_has_special({ minvent: amulet }), true,
+        'Amulet of Yendor');
+    assert.equal(mon_has_special({ minvent: bell }), true,
+        'Bell of Opening');
+    assert.equal(mon_has_special({ minvent: candelabrum }), true,
+        'Candelabrum of Invocation');
+    assert.equal(mon_has_special({ minvent: book }), true,
+        'Book of the Dead');
+    assert.equal(mon_has_special({ minvent: questArt }), true,
+        'quest artifact (oartifact=21)');
+    // An artifact below the quest-artifact threshold is not special.
+    assert.equal(
+        mon_has_special({ minvent: { otyp: ELVEN_DAGGER, oartifact: 20,
+            nobj: null } }),
+        false,
+        'artifact below quest threshold (oartifact=20)',
+    );
+    // The special item can be deeper in the inventory chain.
+    assert.equal(
+        mon_has_special({ minvent: { ...dagger, nobj: bell } }),
+        true,
+        'Bell behind a mundane item',
+    );
 });
