@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8830104,
+      "datetime": "20261210150000",
+      "nethackrc": "OPTIONS=name:Nopois,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  hh#wizwish\ndart trap\nlh  "
+    }
+  ]
+}
