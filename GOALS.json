@@ -9355,6 +9355,15 @@
           "functions": [
             "poison_strdmg"
           ]
+        },
+        {
+          "name": "set_moreluck..restore_attrib",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "set_moreluck",
+            "restore_attrib"
+          ]
         }
       ],
       "openedAt": "f911613b64b83f9d729d788f29a9745710cd0219",
