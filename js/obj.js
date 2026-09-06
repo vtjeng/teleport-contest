@@ -151,12 +151,14 @@ import {
     ARM_CLOAK,
     ARM_GLOVES,
     ARM_HELM,
+    APPLE,
     ARM_SHIELD,
     ARM_SHIRT,
     ARM_SUIT,
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
     BALL_CLASS,
+    BANANA,
     BELL_OF_OPENING,
     BOULDER,
     BRASS_LANTERN,
@@ -173,6 +175,7 @@ import {
     DRAGON_HIDE,
     DRUM_OF_EARTHQUAKE,
     EGG,
+    EUCALYPTUS_LEAF,
     ELVEN_SHIELD,
     EXPENSIVE_CAMERA,
     FIGURINE,
@@ -215,7 +218,9 @@ import {
     OILSKIN_SACK,
     OIL_LAMP,
     NODIR,
+    ORANGE,
     ORCISH_SHIELD,
+    PEAR,
     PLASTIC,
     POTION_CLASS,
     POT_OIL,
@@ -1533,6 +1538,29 @@ export function preflightWeight(obj, env = {}) {
     } else if (obj.oclass === FOOD_CLASS && obj.oeaten) {
         requiredHook(normalized, 'eatenStat', obj);
     }
+}
+
+// C ref: mkobj.c treefruits[] (1978-1980).
+const treefruits = [APPLE, ORANGE, PEAR, BANANA, EUCALYPTUS_LEAF];
+
+// C ref: mkobj.c rnd_treefruit_at() (1983-1987). Called when a tree is kicked;
+// picks a random tree fruit and places it at the given location.
+export function rnd_treefruit_at(x, y, env = {}) {
+    const normalized = objectEnv(env);
+    return mksobj_at(
+        treefruits[normalized.random.rn2(treefruits.length)],
+        x,
+        y,
+        true,
+        false,
+        normalized,
+    );
+}
+
+// C ref: mkobj.c is_treefruit() (1990-1998). For describing objects embedded
+// in trees: returns true when the object is one of the tree fruits.
+export function is_treefruit(otmp) {
+    return treefruits.includes(otmp.otyp);
 }
 
 function isInitialInventoryPhase(state) {
