@@ -386,6 +386,16 @@ export function init_objects(state = game, random = rn2) {
     return objects;
 }
 
+// C ref: o_init.c objdescr_is() (352-364). TRUE when the object's unidentified
+// description matches the given string. The hero's knowledge is irrelevant:
+// the match is against the object's actual randomized description.
+export function objdescr_is(obj, descr, state = game) {
+    if (!obj) return false;
+    const type = state.objects[obj.otyp];
+    const objDescr = OBJ_DESCR(type, state);
+    return objDescr != null && objDescr === descr;
+}
+
 // C ref: src/o_init.c oinit.
 export function oinit(state = game) {
     return setgemprobs(state.u?.uz ?? null, state);

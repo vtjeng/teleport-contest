@@ -1,10 +1,17 @@
-// Monster item-interest predicates, plus the offensive action a monster takes
-// against the hero.
-// C refs: muse.c find_offensive(), use_offensive()'s hurled-potion case,
+// Monster item-use AI: deciding which items to use and executing the use.
+// C refs: muse.c precheck(), mzapwand(), mplayhorn(), mreadmsg(),
+// mquaffmsg(), m_use_healing(), m_sees_sleepy_soldier(), find_defensive(),
+// find_offensive(), use_offensive()'s hurled-potion case,
 // searches_for_item(), cures_stoning(), mcould_eat_tin(); mondata.c
 // can_blow().
 
 import {
+    ARTICLE_A,
+    BOLT_LIM,
+    DEAF,
+    G_GONE,
+    HALLUC,
+    HALLUC_RES,
     MFAST,
     MS_SILENT,
     M_SEEN_ACID,
@@ -15,12 +22,17 @@ import {
     M_SEEN_REFL,
     M_SEEN_SLEEP,
     LADDER,
+    MM_NOMSG,
     NON_PM,
     OBJ_FLOOR,
     P_DAGGER,
     P_KNIFE,
     POLY_TRAP,
     STAIRS,
+    SUPPRESS_INVISIBLE,
+    SUPPRESS_IT,
+    SUPPRESS_SADDLE,
+    AUGMENT_IT,
     TELEP_TRAP,
     SEE_INVIS,
     W_ACCESSORY,
@@ -35,14 +47,27 @@ import {
     is_hole,
     isok,
 } from './const.js';
+import { stop_occupation } from './allmain.js';
+import { map_invisible } from './display.js';
+import {
+    a_monnam,
+    capitalizedMonsterName,
+    monsterCommonName,
+    monverbself,
+    rndmonnam,
+    x_monnam,
+} from './do_name.js';
 import { Can_fall_thru } from './dungeon.js';
 import { game } from './gstate.js';
-import { dist2, distmin, sgn } from './hacklib.js';
+import { dist2, distmin, sgn, strsubst } from './hacklib.js';
+import { makemon, mongone } from './makemon_create.js';
+import { set_malign } from './makemon.js';
+import { m_carrying, monkilled } from './mon.js';
 import {
     acidic, attacktype, breathless, dmgtype, has_head, is_animal, is_floater,
-    is_mercenary, is_unicorn, is_vampshifter, mindless, needspick, nohands,
-    nonliving,
-    passes_walls, slimeproof, throws_rocks, touch_petrifies, verysmall,
+    is_mercenary, is_unicorn, is_vampshifter, mhe, mindless, needspick,
+    nohands, nonliving, passes_walls, same_race, slimeproof, throws_rocks,
+    touch_petrifies, verysmall,
 } from './mondata.js';
 import * as M from './monsters.js';
 import { m_at } from './monst.js';
@@ -50,21 +75,24 @@ import {
     isContainer,
     objectType,
     sobj_at,
+    unknow_object,
 } from './obj.js';
 import * as O from './objects.js';
-import { monsterCommonName } from './do_name.js';
-import { donameFresh, singular } from './objnam.js';
-import { discover_object, observe_object } from './o_init.js';
-import { monnear, onscary } from './monmove.js';
+import { an, ansimpleoname, donameFresh, simpleonames, singular,
+    xnameFresh } from './objnam.js';
+import { discover_object, objdescr_is, observe_object } from './o_init.js';
+import { monnear, onscary, youHear } from './monmove.js';
 import { lined_up } from './mthrowu.js';
 import { in_your_sanctuary } from './priest.js';
-import { rn2 } from './rng.js';
+import { d, rn2 } from './rng.js';
 import { stairway_at } from './stairs.js';
-import { messageAt } from './startup_a11y.js';
+import { messageAt, sensesMonster } from './startup_a11y.js';
+import { enexto } from './teleport.js';
 import { t_at } from './trap.js';
 import { s_suffix } from './hacklib.js';
 import { ttyPline } from './tty_message.js';
-import { cansee } from './vision.js';
+import { note_unported } from './unported.js';
+import { cansee, canseemon, couldsee } from './vision.js';
 import { mwelded } from './wield.js';
 import { which_armor } from './worn.js';
 
@@ -79,26 +107,324 @@ const MS_BUZZ = 10;
 // Only the five throwable potions are ported; the rest are named so that
 // find_offensive()'s nomore() skips and use_offensive()'s switch read the same
 // numbering C does.
+// C ref: muse.c:306-335, the defensive half of the MUSE_* action codes.
+const MUSE_POT_HEALING = 3;
+const MUSE_POT_EXTRA_HEALING = 4;
+const MUSE_POT_FULL_HEALING = 18;
+
 const MUSE_POT_PARALYSIS = 9;
 const MUSE_POT_BLINDNESS = 10;
 const MUSE_POT_CONFUSION = 11;
 const MUSE_POT_ACID = 14;
 const MUSE_POT_SLEEPING = 16;
 
+// C ref: hack.h:1409 POTION_OCCUPANT_CHANCE(n). The chance a potion has a
+// milky or smoky occupant decreases with the number already born.
+function POTION_OCCUPANT_CHANCE(n) { return 13 + 2 * n; }
+
+// C ref: hack.h distu() and mdistu(). Distance-squared from the hero to a
+// monster's position.
+function mdistu(mon, state) {
+    return dist2(mon.mx, mon.my, state.u?.ux ?? 0, state.u?.uy ?? 0);
+}
+
+// C ref: youprop.h Hallucination (116-120).
+function Hallucination(state) {
+    const halluc = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(halluc?.intrinsic)
+        && !(resistance?.intrinsic || resistance?.extrinsic);
+}
+
+// C ref: youprop.h Deaf.
+function Deaf(state) {
+    const deafness = state.u?.uprops?.[DEAF];
+    return Boolean(deafness?.intrinsic || deafness?.extrinsic
+        || state.u?.uroleplay?.deaf);
+}
+
+// C ref: pline.c pline_mon() (138-150). Set the message location to the
+// monster's square and output the message. The JS port prefixes an accessible
+// location through messageAt().
+async function pline_mon(mon, text, state) {
+    await ttyPline(messageAt(text, mon.mx, mon.my, state), state);
+}
+
 function activeHeroProperty(state, property) {
     const value = state.u?.uprops?.[property];
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-function healingAction(monster) {
-    for (const otyp of [
-        O.POT_FULL_HEALING,
-        O.POT_EXTRA_HEALING,
-        O.POT_HEALING,
-    ]) {
-        for (let obj = monster.minvent; obj; obj = obj.nobj) {
-            if (obj.otyp === otyp) return { kind: 'healing', object: obj };
+// C ref: muse.c precheck() (59-161). Preliminary checks before a monster uses
+// an item: milky/smoky potion occupants and cursed-wand backfire. Returns 0 if
+// nothing happened, 1 if the monster died, 2 if it was incapacitated.
+async function precheck(mon, obj, state, env = {}) {
+    if (!obj) return 0;
+    const vis = cansee(mon.mx, mon.my, state);
+
+    if (obj.oclass === O.POTION_CLASS) {
+        if (objdescr_is(obj, 'milky', state)) {
+            if (!(state.mvitals[M.PM_GHOST].mvflags & G_GONE)
+                && !rn2(POTION_OCCUPANT_CHANCE(
+                    state.mvitals[M.PM_GHOST].born))) {
+                const cc = enexto(mon.mx, mon.my,
+                    state.mons[M.PM_GHOST], { state });
+                if (!cc) return 0;
+                await mquaffmsg(mon, obj, state);
+                note_unported('mon.c m_useup');
+                const mtmp = makemon(
+                    state.mons[M.PM_GHOST], cc.x, cc.y, MM_NOMSG,
+                    { state },
+                );
+                if (!mtmp) {
+                    if (vis) {
+                        await ttyPline(
+                            'The potion turns out to be empty.', state);
+                    }
+                } else {
+                    if (vis) {
+                        await pline_mon(mon,
+                            `As ${monsterCommonName(mon, state)} opens `
+                            + `the bottle, an enormous `
+                            + `${Hallucination(state) ? rndmonnam({ state }) : 'ghost'}`
+                            + ` emerges!`, state);
+                        await ttyPline(
+                            `${capitalizedMonsterName(mon, state)} `
+                            + `is frightened to death, `
+                            + `and unable to move.`, state);
+                    }
+                    note_unported('mhitm.c paralyze_monst');
+                }
+                return 2;
+            }
         }
+        if (objdescr_is(obj, 'smoky', state)
+            && !(state.mvitals[M.PM_DJINNI].mvflags & G_GONE)
+            && !rn2(POTION_OCCUPANT_CHANCE(
+                state.mvitals[M.PM_DJINNI].born))) {
+            const cc = enexto(mon.mx, mon.my,
+                state.mons[M.PM_DJINNI], { state });
+            if (!cc) return 0;
+            await mquaffmsg(mon, obj, state);
+            note_unported('mon.c m_useup');
+            const mtmp = makemon(
+                state.mons[M.PM_DJINNI], cc.x, cc.y, MM_NOMSG,
+                { state },
+            );
+            if (!mtmp) {
+                if (vis) {
+                    await ttyPline(
+                        'The potion turns out to be empty.', state);
+                }
+            } else {
+                if (vis) {
+                    await pline_mon(mtmp,
+                        `In a cloud of smoke, ${a_monnam(mtmp, { state })} emerges!`,
+                        state);
+                }
+                await ttyPline(
+                    `${vis ? capitalizedMonsterName(mtmp, state) : 'Something'} speaks.`,
+                    state);
+                // SetVoice() is a no-op in the tty build.
+                if (rn2(2)) {
+                    // verbalize("You freed me!") is You_hear('"...')
+                    const freed = youHear('"You freed me!"', state);
+                    if (freed) await ttyPline(freed, state);
+                    mtmp.mpeaceful = 1;
+                    set_malign(mtmp, state);
+                } else {
+                    // verbalize("It is about time.")
+                    const about = youHear('"It is about time."', state);
+                    if (about) await ttyPline(about, state);
+                    if (vis) {
+                        await ttyPline(
+                            `${capitalizedMonsterName(mtmp, state)} vanishes.`,
+                            state);
+                    }
+                    mongone(mtmp, { state });
+                }
+            }
+            return 2;
+        }
+    }
+    if (obj.oclass === O.WAND_CLASS && obj.cursed
+        && !rn2(100 /* WAND_BACKFIRE_CHANCE */)) {
+        const dam = d(obj.spe + 2, 6);
+
+        if (vis) {
+            await pline_mon(mon,
+                `${capitalizedMonsterName(mon, state)} zaps `
+                + `${an(xnameFresh(obj, state))}, which suddenly explodes!`,
+                state);
+        } else {
+            /* same near/far threshold as mzapwand() */
+            const range = couldsee(mon.mx, mon.my, state)
+                ? (BOLT_LIM + 1) : (BOLT_LIM - 3);
+            // Soundeffect is a no-op in the tty build.
+            const heardZap = youHear(`a zap and an explosion ${
+                (mdistu(mon, state) <= range * range)
+                    ? 'nearby' : 'in the distance'}.`, state);
+            if (heardZap) await ttyPline(heardZap, state);
+        }
+        note_unported('mon.c m_useup');
+        mon.mhp -= dam;
+        if (mon.mhp < 1 /* DEADMONSTER() */) {
+            await monkilled(mon, '', M.AD_RBRE, state, env);
+            return 1;
+        }
+        // gm.m.has_defense = gm.m.has_offense = gm.m.has_misc = 0;
+        // Only one needed to be set to 0 but the others are harmless
+    }
+    return 0;
+}
+
+// C ref: muse.c mzapwand() (165-192). Message, charge deduction, and charge
+// concealment when a monster zaps a wand.
+async function mzapwand(mtmp, otmp, self, state) {
+    if (otmp.spe < 1) {
+        // impossible("Mon zapping wand with %d charges?", otmp->spe)
+        return;
+    }
+    if (!canseemon(mtmp, state)) {
+        const range = couldsee(mtmp.mx, mtmp.my, state)
+            ? (BOLT_LIM + 1) : (BOLT_LIM - 3);
+        // Soundeffect is a no-op in the tty build.
+        const heardZap = youHear(`a ${
+            (mdistu(mtmp, state) <= range * range)
+                ? 'nearby' : 'distant'} zap.`, state);
+        if (heardZap) await ttyPline(heardZap, state);
+        unknow_object(otmp, state);
+    } else if (self) {
+        await ttyPline(
+            `${monverbself(mtmp, capitalizedMonsterName(mtmp, state), 'zap', null, state)} with ${donameFresh(otmp, state)}!`,
+            state);
+    } else {
+        await pline_mon(mtmp,
+            `${capitalizedMonsterName(mtmp, state)} zaps ${an(xnameFresh(otmp, state))}!`,
+            state);
+        await stop_occupation(state);
+    }
+    otmp.spe -= 1;
+}
+
+// C ref: muse.c mplayhorn() (195-234). Similar to mzapwand() but for magical
+// horns (the only instrument monsters play).
+async function mplayhorn(mtmp, otmp, self, state) {
+    if (!canseemon(mtmp, state)) {
+        const range = couldsee(mtmp.mx, mtmp.my, state)
+            ? (BOLT_LIM + 1) : (BOLT_LIM - 3);
+        // Soundeffect is a no-op in the tty build.
+        const heardHorn = youHear(`a horn being played ${
+            (mdistu(mtmp, state) <= range * range)
+                ? 'nearby' : 'in the distance'}.`, state);
+        if (heardHorn) await ttyPline(heardHorn, state);
+        unknow_object(otmp, state);
+    } else if (self) {
+        observe_object(otmp, state);
+        let objnamp = xnameFresh(otmp, state);
+        if (objnamp.length >= 128 /* QBUFSZ */)
+            objnamp = simpleonames(otmp, state);
+        const objbuf = `a ${objnamp} directed at`;
+        await ttyPline(
+            `${monverbself(mtmp, capitalizedMonsterName(mtmp, state), 'play', objbuf, state)}!`,
+            state);
+        discover_object(otmp.otyp, true, true, true, state); /* makeknown */
+    } else {
+        observe_object(otmp, state);
+        let objnamp = xnameFresh(otmp, state);
+        if (objnamp.length >= 128 /* QBUFSZ */)
+            objnamp = simpleonames(otmp, state);
+        await ttyPline(
+            `${capitalizedMonsterName(mtmp, state)} plays `
+            + `${an(objnamp)} directed at you!`,
+            state);
+        discover_object(otmp.otyp, true, true, true, state); /* makeknown */
+        await stop_occupation(state);
+    }
+    otmp.spe -= 1; /* use a charge */
+}
+
+// C ref: muse.c mreadmsg() (238-292). Message when a monster reads a scroll;
+// if the scroll hasn't been seen, its label is revealed unless the hero is
+// deaf.
+async function mreadmsg(mtmp, otmp, state) {
+    const vismon = canseemon(mtmp, state);
+    let tpindicator = !vismon && sensesMonster(mtmp, state);
+
+    if (!vismon && Deaf(state))
+        return; /* no feedback */
+
+    observe_object(otmp, state);
+    const onambuf = singular(otmp,
+        vismon ? donameFresh : ansimpleoname, state);
+
+    if (vismon) {
+        await pline_mon(mtmp,
+            `${capitalizedMonsterName(mtmp, state)} reads ${onambuf}!`,
+            state);
+    } else { /* !Deaf, otherwise we wouldn't reach here */
+        const similar = same_race(state.youmonst?.data, mtmp.data, state);
+        const uniqmon = ((mtmp.data?.geno & M.G_UNIQ) !== 0
+            || mtmp.isshk);
+        const recognize = !Hallucination(state)
+            && (mtmp.meverseen || (similar && !uniqmon));
+        const mflags = (SUPPRESS_INVISIBLE | SUPPRESS_SADDLE
+            | (recognize ? SUPPRESS_IT : AUGMENT_IT));
+
+        if (sensesMonster(mtmp, state)) {
+            tpindicator = true;
+        } else if (couldsee(mtmp.mx, mtmp.my, state)
+            && mdistu(mtmp, state) <= 10 * 10) {
+            map_invisible(mtmp.mx, mtmp.my, state);
+        }
+
+        let blindbuf = `reading ${onambuf}`;
+        blindbuf = strsubst(blindbuf, 'reading a scroll labeled',
+            mtmp.mconf ? 'attempting to incant' : 'incant');
+        const heardRead = youHear(
+            `${x_monnam(mtmp, ARTICLE_A, null, mflags, false, state)} `
+            + `${blindbuf}.`, state);
+        if (heardRead) await ttyPline(heardRead, state);
+        if (tpindicator)
+            note_unported('display.c flash_mon');
+    }
+    if (mtmp.mconf) /* (note: won't get if not seen and hero can't hear) */
+        await ttyPline(
+            `Being confused, ${
+                vismon ? monsterCommonName(mtmp, state) : mhe(mtmp, state)
+            } mispronounces the magic words...`, state);
+}
+
+// C ref: muse.c mquaffmsg() (293-303). Message when a monster quaffs a
+// potion.
+async function mquaffmsg(mtmp, otmp, state) {
+    if (canseemon(mtmp, state)) {
+        observe_object(otmp, state);
+        await pline_mon(mtmp,
+            `${capitalizedMonsterName(mtmp, state)} drinks ${singular(otmp, donameFresh, state)}!`,
+            state);
+    } else if (!Deaf(state)) {
+        // Soundeffect is a no-op in the tty build.
+        const heardChug = youHear('a chugging sound.', state);
+        if (heardChug) await ttyPline(heardChug, state);
+    }
+}
+
+// C ref: muse.c m_use_healing() (337-360). Checks whether the monster carries
+// a healing potion (full, extra, or regular, in that priority). Returns a
+// selection object when one is found, null otherwise. The C version sets
+// gm.m.defensive and gm.m.has_defense; the JS version returns the selection
+// for the caller to propagate.
+function m_use_healing(mtmp, state) {
+    let obj;
+    if ((obj = m_carrying(mtmp, O.POT_FULL_HEALING, state)) != null) {
+        return { kind: 'full healing', object: obj };
+    }
+    if ((obj = m_carrying(mtmp, O.POT_EXTRA_HEALING, state)) != null) {
+        return { kind: 'extra healing', object: obj };
+    }
+    if ((obj = m_carrying(mtmp, O.POT_HEALING, state)) != null) {
+        return { kind: 'healing', object: obj };
     }
     return null;
 }
@@ -289,7 +615,7 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
         if (is_unicorn(species) || species?.pmidx === M.PM_KI_RIN)
             return selected('unicorn horn');
         if (!nohands(species) && species?.pmidx !== M.PM_PESTILENCE) {
-            const healing = healingAction(monster);
+            const healing = m_use_healing(monster, state);
             if (healing) return healing;
         }
     }
@@ -312,7 +638,7 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
     }
     if (monster.mpeaceful) {
         if (!nohands(species)) {
-            const healing = healingAction(monster);
+            const healing = m_use_healing(monster, state);
             if (healing) return healing;
         }
         return null;

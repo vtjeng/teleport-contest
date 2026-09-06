@@ -48,7 +48,7 @@ import {
 } from './const.js';
 import { artifact_exists, artifact_name, exist_artifact } from './artifacts.js';
 import { flush_screen } from './display.js';
-import { fruit_from_name } from './fruit.js';
+import { fruit_from_name, makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import {
     decodeUtf8ByteString,
@@ -91,7 +91,7 @@ import {
     SPBOOK_CLASS, SPE_NOVEL, STATUE, TIN, TOOL_CLASS, TOWEL,
     VENOM_CLASS, WAND_CLASS, WEAPON_CLASS,
 } from './objects.js';
-import { an, just_an, safe_qbuf, simpleonames, xnameFresh } from './objnam.js';
+import { an, just_an, safe_qbuf, simpleonames, vtense, xnameFresh } from './objnam.js';
 import { get_rnd_text } from './random_text.js';
 import { HLIQUIDS } from './random_text_data.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
@@ -870,6 +870,33 @@ export function mon_nam_too(mon, other_mon, state = game, env = {}) {
     default:
     case 2: return 'itself';
     }
+}
+
+// C ref: do_name.c monverbself() (1221-1252). Builds "Foo zaps itself" from
+// a monster name, a verb, an optional infix, and a reflexive pronoun.
+// Under hallucination the pronoun can be "themselves", which keeps the verb
+// plural and pluralizes the monster name.
+export function monverbself(mon, monnamtext, verb, othertext,
+    state = game, env = {}) {
+    // "himself"/"herself"/"itself", maybe "themselves" if hallucinating
+    const selfbuf = mon_nam_too(mon, mon, state, env);
+    // verb starts plural; vtense yields singular except for "themselves"
+    const verbs = vtense(selfbuf, verb);
+    let result = monnamtext;
+    if (verb === verbs) { /* a match indicates that it stayed plural */
+        result = makeplural(result);
+        /* for "it", makeplural() produces "they" but we want "them" as
+           the object-position pronoun (C genders[3]: he="they" him="them") */
+        if (result.toLowerCase() === 'they') {
+            const capitaliz = result[0] === result[0].toUpperCase();
+            result = capitaliz ? 'Them' : 'them';
+        }
+    }
+    result += ' ' + verbs;
+    if (othertext)
+        result += ' ' + othertext;
+    result += ' ' + selfbuf;
+    return result;
 }
 
 // C ref: hacklib.c s_suffix() over mon_nam()/Monnam(), which is how mhitm.c
