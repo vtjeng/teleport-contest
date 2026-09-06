@@ -8,9 +8,11 @@
 // mon_has_friends(), mon_likes_objpile_at(),
 // find_offensive(), use_offensive()'s hurled-potion case,
 // necrophiliac(), searches_for_item(), cures_stoning(), mcould_eat_tin(),
-// mon_reflects(), ureflects(); mondata.c can_blow().
+// mon_reflects(), ureflects(), munstone(), mon_consume_unstone();
+// mondata.c can_blow().
 
 import {
+    ACID_RES,
     ANTIMAGIC,
     ARTICLE_A,
     BOLT_LIM,
@@ -20,6 +22,7 @@ import {
     D_LOCKED,
     DEAF,
     DRAWBRIDGE_UP,
+    EDOG,
     FORCEBUNGLE,
     FORCETRAP,
     HAND,
@@ -53,6 +56,7 @@ import {
     M_SEEN_REFL,
     M_SEEN_SLEEP,
     NO_MM_FLAGS,
+    NORMAL_SPEED,
     NOTELL,
     NON_PM,
     OBJ_AT,
@@ -68,6 +72,8 @@ import {
     SEE_INVIS,
     SHOPBASE,
     STAIRS,
+    STONE_RES,
+    STRAT_WAITFORU,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
     SUPPRESS_SADDLE,
@@ -88,6 +94,8 @@ import {
     W_WEP,
     N_DIRS,
     TELEPORT_CONTROL,
+    XKILL_NOCONDUCT,
+    XKILL_NOMSG,
     ZAP_POS,
     helpless,
     is_hole,
@@ -103,6 +111,7 @@ import {
 } from './display.js';
 import { canletgo, dropy, trycall } from './do.js';
 import { migrate_to_level } from './dog.js';
+import { dog_nutrition } from './dogmove.js';
 import {
     Some_Monnam,
     a_monnam,
@@ -125,16 +134,16 @@ import { makemon, mongone } from './makemon_create.js';
 import { grow_up, rndmonst, set_malign } from './makemon.js';
 import { m_next2u } from './mhitu.js';
 import {
-    healmon, m_carrying, maybe_unhide_at, mon_offmap, monkilled, seemimic,
-    wakeup,
+    healmon, m_carrying, maybe_unhide_at, mon_offmap, mondead, monkilled,
+    seemimic, wakeup, xkilled,
 } from './mon.js';
 import {
     acidic, attacktype, breathless, dmgtype, has_head, haseyes, is_animal,
-    is_floater, is_flyer, is_mercenary, is_undead, is_unicorn, is_vampshifter,
-    locomotion, mhe, mhim, mindless, mon_hates_silver, mon_knows_traps,
-    mon_learns_traps, monstseesu, monstunseesu,
-    needspick, nohands, nonliving, passes_walls, resists_magm, same_race,
-    slimeproof, throws_rocks, touch_petrifies, verysmall,
+    is_bat, is_floater, is_flyer, is_mercenary, is_undead, is_unicorn,
+    is_vampshifter, locomotion, mhe, mhim, mindless, mon_hates_silver,
+    mon_knows_traps, mon_learns_traps, monster_resists_element, monstseesu,
+    monstunseesu, needspick, nohands, nonliving, passes_walls, resists_magm,
+    same_race, slimeproof, throws_rocks, touch_petrifies, verysmall,
 } from './mondata.js';
 import * as M from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
@@ -1078,7 +1087,14 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         note_unported('mthrowu.c m_useup');
         return 2;
     }
-    case 'altered defensive state':
+    case 'lizard corpse': {
+        // C ref: muse.c use_defensive() MUSE_LIZARD_CORPSE (1204-1209).
+        // Not actually called for its unstoning effect; cures stun/confusion.
+        if (!otmp)
+            throw new Error('missing defensive item: lizard corpse');
+        await mon_consume_unstone(mtmp, otmp, false, false, state, env);
+        return 2;
+    }
     case 'corpse defense evaluation':
     case 'escape defensive search':
         // These selection kinds are conservative refusals from
@@ -1656,6 +1672,7 @@ async function you_aggravate(mtmp, state) {
 // pass discards that state when the caller refuses the action.
 export function find_defensive(monster, tryescape, rawEnv = {}) {
     const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
     const species = monster.data;
     const hero = state.u;
     const selected = (kind, object = null) => ({ kind, object });
@@ -1674,12 +1691,9 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
         return null;
     if (hero?.uswallow && monster === hero.ustuck) return null;
 
-    // Confusion and stun can select a unicorn horn, lizard corpse, or lizard
-    // tin and may spend rn2(3). Keep the whole altered-state family closed.
-    if (monster.mconf || monster.mstun)
-        return selected('altered defensive state');
-
-    if (!monster.mcansee) {
+    // C ref: muse.c find_defensive() (475-487). Confused, stunned, or blind
+    // monsters check for a unicorn horn first.
+    if (monster.mconf || monster.mstun || !monster.mcansee) {
         if (!nohands(species)) {
             for (let obj = monster.minvent; obj; obj = obj.nobj) {
                 if (obj.otyp === O.UNICORN_HORN && !obj.cursed)
@@ -1688,6 +1702,24 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
         }
         if (is_unicorn(species) || species?.pmidx === M.PM_KI_RIN)
             return selected('unicorn horn');
+    }
+
+    // C ref: muse.c find_defensive() (489-509). Confused or stunned monsters
+    // look for a lizard corpse or tin to cure the condition.
+    if (monster.mconf || monster.mstun) {
+        let liztin = null;
+        for (let obj = monster.minvent; obj; obj = obj.nobj) {
+            if (obj.otyp === O.CORPSE && obj.corpsenm === M.PM_LIZARD)
+                return selected('lizard corpse', obj);
+            else if (obj.otyp === O.TIN && obj.corpsenm === M.PM_LIZARD)
+                liztin = obj;
+        }
+        // confused or stunned monster might not be able to open tin
+        if (liztin && mcould_eat_tin(monster, state) && random.rn2(3))
+            return selected('lizard corpse', liztin);
+    }
+
+    if (!monster.mcansee) {
         if (!nohands(species) && species?.pmidx !== M.PM_PESTILENCE) {
             const healing = m_use_healing(monster, state);
             if (healing) return healing;
@@ -2674,4 +2706,113 @@ export async function ureflects(fmt, str, state = game) {
         return true;
     }
     return false;
+}
+
+/* C ref: muse.c munstone() (2884-2902). A stoning monster checks whether it
+   can cure itself by eating a lizard corpse, acidic corpse, tin, or quaffing
+   acid. Returns TRUE if the monster consumed something. */
+export async function munstone(mon, by_you, state = game, env = {}) {
+    if (monster_resists_element(mon, STONE_RES, state))
+        return false;
+    if (mon.meating || helpless(mon))
+        return false;
+    mon.mstrategy &= ~STRAT_WAITFORU;
+
+    const tinok = mcould_eat_tin(mon, state);
+    for (let obj = mon.minvent; obj; obj = obj.nobj) {
+        if (cures_stoning(mon, obj, tinok, state)) {
+            await mon_consume_unstone(mon, obj, by_you, true, state, env);
+            return true;
+        }
+    }
+    return false;
+}
+
+/* C ref: muse.c mon_consume_unstone() (2906-2984). A monster eats or quaffs
+   an item to stop petrification (stoning=true) or cure stun/confusion
+   (stoning=false). */
+async function mon_consume_unstone(
+    mon, obj, by_you, stoning, state = game, env = {},
+) {
+    const random = env.random ?? { rnd };
+    const vis = canseemon(mon, state);
+    const tinned = obj.otyp === O.TIN;
+    const food = obj.otyp === O.CORPSE || tinned;
+    const acid = obj.otyp === O.POT_ACID
+        || (food && acidic(state.mons[obj.corpsenm]));
+    const lizard = food && obj.corpsenm === M.PM_LIZARD;
+    // dog_nutrition() also sets meating
+    const nutrit = food ? dog_nutrition(mon, obj, state) : 0;
+
+    // "is slowing down" message and removal of intrinsic speed
+    if (stoning)
+        note_unported('worn.c mon_adjust_speed');
+
+    if (vis) {
+        const save_quan = obj.quan;
+        obj.quan = 1;
+        const verb = (obj.oclass === O.POTION_CLASS) ? 'quaffs'
+            : (obj.otyp === O.TIN) ? 'opens and eats the contents of'
+            : 'eats';
+        await pline_mon(mon,
+            `${capitalizedMonsterName(mon, state)} ${verb} ${distant_name(obj, donameFresh, state)}.`,
+            state);
+        obj.quan = save_quan;
+    } else if (!Deaf(state)) {
+        const heard = youHear(
+            `${(obj.oclass === O.POTION_CLASS) ? 'drinking' : 'chewing'}.`,
+            state);
+        if (heard) await ttyPline(heard, state);
+    }
+
+    note_unported('mthrowu.c m_useup');
+    // obj is now gone in C; we skip m_useup so the object persists
+
+    if (acid && !tinned && !monster_resists_element(mon, ACID_RES, state)) {
+        mon.mhp -= random.rnd(15);
+        if (vis)
+            await pline_mon(mon,
+                `${capitalizedMonsterName(mon, state)} has a very bad case of stomach acid.`,
+                state);
+        if (mon.mhp < 1) { /* DEADMONSTER */
+            await pline_mon(mon,
+                `${capitalizedMonsterName(mon, state)} dies!`,
+                state);
+            if (by_you)
+                // hero gets credit and blame for the kill but does not
+                // break pacifism conduct
+                await xkilled(mon, XKILL_NOMSG | XKILL_NOCONDUCT, state, env);
+            else
+                await mondead(mon, state, env);
+            return;
+        }
+    }
+    if (stoning && vis) {
+        if (Hallucination(state))
+            await ttyPline(
+                `What a pity - ${monsterCommonName(mon, state)} just ruined a future piece of art!`,
+                state);
+        else
+            await pline_mon(mon,
+                `${capitalizedMonsterName(mon, state)} seems limber!`,
+                state);
+    }
+    if (lizard && (mon.mconf || mon.mstun)) {
+        mon.mconf = 0;
+        mon.mstun = 0;
+        if (vis && !is_bat(mon.data) && mon.data !== state.mons[M.PM_STALKER])
+            await pline_mon(mon,
+                `${capitalizedMonsterName(mon, state)} seems steadier now.`,
+                state);
+    }
+    if (mon.mtame && !mon.isminion && nutrit > 0) {
+        const edog = EDOG(mon);
+        if (edog.hungrytime < state.moves)
+            edog.hungrytime = state.moves;
+        edog.hungrytime += nutrit;
+        mon.mconf = 0;
+    }
+    // use up monster's next move
+    mon.movement -= NORMAL_SPEED;
+    mon.mlstmv = state.moves;
 }

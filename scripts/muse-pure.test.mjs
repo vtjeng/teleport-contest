@@ -2,7 +2,7 @@
 // Expected values are read from the C source, not from the JavaScript output.
 //
 // C ref: muse.c m_use_healing() (337-360), m_next2m() (420-437),
-// necrophiliac() (2691-2705);
+// necrophiliac() (2691-2705), find_defensive() (489-509);
 // o_init.c objdescr_is() (352-364), do_name.c monverbself() (1221-1252).
 
 import assert from 'node:assert/strict';
@@ -14,7 +14,7 @@ import { newObject } from '../js/obj.js';
 import { objdescr_is, init_objects } from '../js/o_init.js';
 import { monverbself } from '../js/do_name.js';
 import { m_carrying } from '../js/mon.js';
-import { m_next2m, necrophiliac } from '../js/muse.js';
+import { m_next2m, find_defensive, necrophiliac } from '../js/muse.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { roles } from '../js/roles.js';
 
@@ -457,4 +457,154 @@ test('necrophiliac follows nobj links through a list', () => {
         nobj: secondItem,
     };
     assert.equal(necrophiliac(firstItem, false, state), true);
+});
+
+// ---------- find_defensive: lizard corpse selection ----------
+
+// Build a minimal monster with the properties find_defensive reads.
+// data.mflags1 must include M1_HUMANOID (bit 0x80000) to pass nohands().
+// dist2(mx,my,mux,muy) must be <= 25 for the function's distance check.
+function makeMonster(overrides = {}) {
+    const defaultData = {
+        mflags1: 0x80000, /* M1_HUMANOID: has hands */
+        mflags2: 0,
+        mlet: 0,
+        pmidx: 0,
+    };
+    return {
+        data: { ...defaultData, ...overrides.data },
+        mx: 5, my: 5, mux: 5, muy: 5,
+        mconf: 0, mstun: 0, mcansee: 1,
+        mhp: 10, mhpmax: 10,
+        mpeaceful: false,
+        minvent: null,
+        ...overrides,
+    };
+}
+
+test('find_defensive selects lizard corpse for a confused monster', () => {
+    // C ref: muse.c find_defensive() (490-497). A confused monster carrying
+    // a lizard corpse selects MUSE_LIZARD_CORPSE immediately.
+    const state = makeState();
+    state.u.ux = 5; state.u.uy = 5;
+
+    const lizardCorpse = newObject({
+        otyp: O.CORPSE,
+        oclass: O.FOOD_CLASS,
+        corpsenm: M.PM_LIZARD,
+        quan: 1,
+        nobj: null,
+    });
+
+    const monster = makeMonster({
+        mconf: 1,
+        minvent: lizardCorpse,
+    });
+
+    const result = find_defensive(monster, false, { state });
+    assert.equal(result.kind, 'lizard corpse',
+        'confused monster with lizard corpse should select it');
+    assert.equal(result.object, lizardCorpse);
+});
+
+test('find_defensive selects lizard tin for a stunned monster that can open tins', () => {
+    // C ref: muse.c find_defensive() (498-506). A stunned monster with a
+    // lizard tin and a tin opener selects the tin when rn2(3) is nonzero.
+    const state = makeState();
+    state.u.ux = 5; state.u.uy = 5;
+
+    const tinOpener = newObject({
+        otyp: O.TIN_OPENER,
+        oclass: O.TOOL_CLASS,
+        quan: 1,
+        nobj: null,
+    });
+    const lizardTin = newObject({
+        otyp: O.TIN,
+        oclass: O.FOOD_CLASS,
+        corpsenm: M.PM_LIZARD,
+        quan: 1,
+        nobj: tinOpener,
+    });
+
+    const monster = makeMonster({
+        mstun: 1,
+        minvent: lizardTin,
+    });
+
+    // rn2(3) returning 1 (nonzero) means the monster can open the tin.
+    const result = find_defensive(monster, false, {
+        state,
+        random: { rn2: () => 1 },
+    });
+    assert.equal(result.kind, 'lizard corpse',
+        'stunned monster with lizard tin and tin opener should select it');
+    assert.equal(result.object, lizardTin);
+});
+
+test('find_defensive skips lizard tin when rn2(3) returns 0', () => {
+    // C ref: muse.c find_defensive() (505). When rn2(3) returns 0, the
+    // confused/stunned monster fails to open the tin.
+    const state = makeState();
+    state.u.ux = 5; state.u.uy = 5;
+
+    const tinOpener = newObject({
+        otyp: O.TIN_OPENER,
+        oclass: O.TOOL_CLASS,
+        quan: 1,
+        nobj: null,
+    });
+    const lizardTin = newObject({
+        otyp: O.TIN,
+        oclass: O.FOOD_CLASS,
+        corpsenm: M.PM_LIZARD,
+        quan: 1,
+        nobj: tinOpener,
+    });
+
+    const monster = makeMonster({
+        mconf: 1,
+        minvent: lizardTin,
+    });
+
+    // rn2(3) returning 0 means the monster fails to open the tin.
+    const result = find_defensive(monster, false, {
+        state,
+        random: { rn2: () => 0 },
+    });
+    // With rn2(3)=0, no lizard corpse found, so fall through.
+    assert.notEqual(result?.kind, 'lizard corpse',
+        'rn2(3)=0 should prevent lizard tin selection');
+});
+
+test('find_defensive prefers unicorn horn over lizard corpse when both available', () => {
+    // C ref: muse.c find_defensive() (475-487 then 489-509). The unicorn
+    // horn check comes first, so a confused monster with both a unicorn horn
+    // and a lizard corpse selects the horn.
+    const state = makeState();
+    state.u.ux = 5; state.u.uy = 5;
+
+    const lizardCorpse = newObject({
+        otyp: O.CORPSE,
+        oclass: O.FOOD_CLASS,
+        corpsenm: M.PM_LIZARD,
+        quan: 1,
+        nobj: null,
+    });
+    const horn = newObject({
+        otyp: O.UNICORN_HORN,
+        oclass: O.WEAPON_CLASS,
+        cursed: false,
+        quan: 1,
+        nobj: lizardCorpse,
+    });
+
+    const monster = makeMonster({
+        mstun: 1,
+        minvent: horn,
+    });
+
+    const result = find_defensive(monster, false, { state });
+    assert.equal(result.kind, 'unicorn horn',
+        'unicorn horn should be preferred over lizard corpse');
 });
