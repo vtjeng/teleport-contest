@@ -7,7 +7,7 @@
 // linedup_chk_corpse(), m_use_undead_turning(), hero_behind_chokepoint(),
 // mon_has_friends(), mon_likes_objpile_at(),
 // find_offensive(), use_offensive()'s hurled-potion case,
-// searches_for_item(), cures_stoning(), mcould_eat_tin(); mondata.c
+// necrophiliac(), searches_for_item(), cures_stoning(), mcould_eat_tin(); mondata.c
 // can_blow().
 
 import {
@@ -2465,6 +2465,22 @@ export function mcould_eat_tin(monster, state = game) {
 
 function isMagicBag(obj) {
     return obj.otyp === O.BAG_OF_HOLDING || obj.otyp === O.BAG_OF_TRICKS;
+}
+
+// C ref: muse.c necrophiliac() -- inside #if 0 in the C source (dead code).
+// Checks whether an object list contains a corpse (any, or one whose species
+// touch-petrifies), recursing into containers.
+export function necrophiliac(objlist, any_corpse, state = game) {
+    let obj = objlist;
+    while (obj) {
+        if (obj.otyp === O.CORPSE
+            && (any_corpse || touch_petrifies(state.mons[obj.corpsenm])))
+            return true;
+        if (Has_contents(obj) && necrophiliac(obj.cobj, false, state))
+            return true;
+        obj = obj.nobj;
+    }
+    return false;
 }
 
 export function searches_for_item(monster, obj, state = game) {

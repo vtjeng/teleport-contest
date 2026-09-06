@@ -2,6 +2,7 @@
 // Expected values are read from the C source, not from the JavaScript output.
 //
 // C ref: muse.c m_use_healing() (337-360), m_next2m() (420-437),
+// necrophiliac() (2691-2705);
 // o_init.c objdescr_is() (352-364), do_name.c monverbself() (1221-1252).
 
 import assert from 'node:assert/strict';
@@ -13,7 +14,7 @@ import { newObject } from '../js/obj.js';
 import { objdescr_is, init_objects } from '../js/o_init.js';
 import { monverbself } from '../js/do_name.js';
 import { m_carrying } from '../js/mon.js';
-import { m_next2m } from '../js/muse.js';
+import { m_next2m, necrophiliac } from '../js/muse.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { roles } from '../js/roles.js';
 
@@ -324,4 +325,136 @@ test('m_next2m handles map edge without error', () => {
     const neighbor = { mhp: 1, mx: 2, my: 0 };
     placeMonster(state, neighbor, 2, 0);
     assert.equal(m_next2m(corner, state), true);
+});
+
+// ---------- necrophiliac ----------
+// C ref: muse.c necrophiliac() (2691-2705). The function is inside #if 0 in
+// the C source (dead code). It walks an object list, returning true when any
+// item is a CORPSE whose species touch-petrifies (or any_corpse is set), and
+// recurses into containers via Has_contents / cobj.
+
+test('necrophiliac returns false for an empty list', () => {
+    // C ref: muse.c necrophiliac() (2693). A null objlist falls through
+    // the while loop and returns FALSE.
+    const state = makeState();
+    assert.equal(necrophiliac(null, true, state), false);
+});
+
+test('necrophiliac returns true for a cockatrice corpse with any_corpse=false', () => {
+    // C ref: muse.c necrophiliac() (2694-2696). CORPSE with
+    // touch_petrifies(&mons[corpsenm]) == true satisfies the check when
+    // any_corpse is false. PM_COCKATRICE (10) is a petrifier.
+    const state = makeState();
+    const corpse = {
+        otyp: O.CORPSE,
+        corpsenm: M.PM_COCKATRICE,
+        cobj: null,
+        nobj: null,
+    };
+    assert.equal(necrophiliac(corpse, false, state), true);
+});
+
+test('necrophiliac returns false for a non-petrifier corpse with any_corpse=false', () => {
+    // C ref: muse.c necrophiliac() (2694-2696). A CORPSE whose species
+    // does not touch-petrify (e.g. PM_NEWT) fails the check when
+    // any_corpse is false. The function continues to the next item and
+    // returns FALSE at the end of the list.
+    const state = makeState();
+    const corpse = {
+        otyp: O.CORPSE,
+        corpsenm: M.PM_NEWT,
+        cobj: null,
+        nobj: null,
+    };
+    assert.equal(necrophiliac(corpse, false, state), false);
+});
+
+test('necrophiliac returns true for any corpse when any_corpse=true', () => {
+    // C ref: muse.c necrophiliac() (2695). When any_corpse is TRUE, any
+    // CORPSE matches regardless of species. PM_NEWT does not
+    // touch-petrify, but the any_corpse flag short-circuits the check.
+    const state = makeState();
+    const corpse = {
+        otyp: O.CORPSE,
+        corpsenm: M.PM_NEWT,
+        cobj: null,
+        nobj: null,
+    };
+    assert.equal(necrophiliac(corpse, true, state), true);
+});
+
+test('necrophiliac skips non-corpse objects', () => {
+    // C ref: muse.c necrophiliac() (2694). Only objects with otyp == CORPSE
+    // are checked. A short sword is not a corpse and is skipped.
+    const state = makeState();
+    const sword = {
+        otyp: O.SHORT_SWORD,
+        corpsenm: 0,
+        cobj: null,
+        nobj: null,
+    };
+    assert.equal(necrophiliac(sword, true, state), false);
+});
+
+test('necrophiliac recurses into containers', () => {
+    // C ref: muse.c necrophiliac() (2697-2698). When Has_contents(obj) is
+    // true (obj.cobj != null), the function recurses with obj.cobj and
+    // any_corpse=FALSE. A petrifier corpse inside a bag is found.
+    const state = makeState();
+    const innerCorpse = {
+        otyp: O.CORPSE,
+        corpsenm: M.PM_CHICKATRICE, // PM_CHICKATRICE (9) touch-petrifies
+        cobj: null,
+        nobj: null,
+    };
+    const bag = {
+        otyp: O.SACK,
+        corpsenm: 0,
+        cobj: innerCorpse, // Has_contents is true because cobj != null
+        nobj: null,
+    };
+    assert.equal(necrophiliac(bag, false, state), true);
+});
+
+test('necrophiliac container recursion uses any_corpse=false', () => {
+    // C ref: muse.c necrophiliac() (2697). The recursive call passes FALSE
+    // for any_corpse, so a non-petrifier corpse inside a container does not
+    // match even when the outer call had any_corpse=TRUE.
+    const state = makeState();
+    const innerCorpse = {
+        otyp: O.CORPSE,
+        corpsenm: M.PM_NEWT,
+        cobj: null,
+        nobj: null,
+    };
+    const bag = {
+        otyp: O.SACK,
+        corpsenm: 0,
+        cobj: innerCorpse,
+        nobj: null,
+    };
+    // The outer call with any_corpse=true does not match the bag (not a
+    // CORPSE), and the recursive call uses any_corpse=false, so the newt
+    // corpse inside does not match either.
+    assert.equal(necrophiliac(bag, true, state), false);
+});
+
+test('necrophiliac follows nobj links through a list', () => {
+    // C ref: muse.c necrophiliac() (2699). After checking one item, the
+    // function advances to objlist->nobj. A petrifier corpse later in the
+    // chain is found.
+    const state = makeState();
+    const secondItem = {
+        otyp: O.CORPSE,
+        corpsenm: M.PM_COCKATRICE,
+        cobj: null,
+        nobj: null,
+    };
+    const firstItem = {
+        otyp: O.SHORT_SWORD,
+        corpsenm: 0,
+        cobj: null,
+        nobj: secondItem,
+    };
+    assert.equal(necrophiliac(firstItem, false, state), true);
 });
