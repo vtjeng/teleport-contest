@@ -54,6 +54,9 @@ import {
     SPINACH_TIN,
     TIMER_OBJECT,
 } from './const.js';
+// corpstat.js imports from this file; both sides use the other's exports only
+// inside function bodies, so the cycle resolves.
+import { get_mtraits } from './corpstat.js';
 import { noveltitle } from './do_name.js';
 import { depth, level_difficulty, on_level } from './dungeon.js';
 // shrink_glob() and shrinking_glob_gone() use stop_occupation(). allmain.js
@@ -2799,4 +2802,32 @@ export function fixup_oil(potion, source, env = {}) {
         if (source.age < MAX_OIL_IN_FLASK)
             potion.odiluted = 1;
     }
+}
+
+// C ref: mkobj.c corpse_revive_type() (2129-2141). Return the monster index
+// a corpse would revive as: the stored traits species if saved, else the
+// corpse's corpsenm.
+export function corpse_revive_type(obj) {
+    let revivetype = obj.corpsenm;
+    // has_omonst: obj->oextra && OMONST(obj)
+    if (obj.oextra?.omonst) {
+        const mtmp = get_mtraits(obj, false);
+        if (mtmp) {
+            revivetype = mtmp.mnum;
+        }
+    }
+    return revivetype;
+}
+
+// C ref: mkobj.c obj_attach_mid() (2147-2155). Attach a monster id to an
+// object so that the two stay associated (e.g. a ghost corpse on the bones
+// level). C's newomid() ensures oextra exists and inits omid to 0; then
+// OMID(obj) = mid overwrites it.
+export function obj_attach_mid(obj, mid) {
+    if (!mid || !obj)
+        return null;
+    // newomid: ensure oextra exists
+    obj.oextra ??= {};
+    obj.oextra.omid = mid;
+    return obj;
 }

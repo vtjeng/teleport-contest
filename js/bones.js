@@ -47,6 +47,7 @@ import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { can_carry } from './moncarry.js';
 import {
     next_ident,
+    obj_attach_mid,
     objectType,
     obj_no_longer_held,
     place_object,
@@ -429,11 +430,7 @@ export async function savebones(how, when, corpse, state) {
         if (!mtmp) return;
         mtmp = christen_monst(mtmp, state.plname);
         if (corpse) {
-            // C: obj_attach_mid(corpse, mtmp->m_id)
-            // Attach the ghost's monster ID to the corpse so that picking up
-            // the corpse triggers special messages about the former hero.
-            if (!corpse.omid) corpse.omid = {};
-            corpse.omid_mid = mtmp.m_id;
+            obj_attach_mid(corpse, mtmp.m_id);
         }
     }
 
