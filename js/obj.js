@@ -781,44 +781,23 @@ export function replace_object(obj, otmp, env = {}) {
         /* do nothing */
         break;
     case OBJ_INVENT: {
-        // Insert otmp after obj, then extract obj from the nobj chain.
         otmp.nobj = obj.nobj;
         obj.nobj = otmp;
-        const pred = chainPredecessor(
-            state.invent, obj, 'nobj', 'inventory list',
-        );
-        if (pred) pred.nobj = obj.nobj;
-        else state.invent = obj.nobj;
-        obj.where = OBJ_FREE;
-        obj.nobj = null;
+        state.invent = extract_nobj(obj, state.invent);
         break;
     }
     case OBJ_CONTAINED: {
         otmp.nobj = obj.nobj;
         otmp.ocontainer = obj.ocontainer;
         obj.nobj = otmp;
-        const container = obj.ocontainer;
-        const pred = chainPredecessor(
-            container.cobj, obj, 'nobj', 'container contents',
-        );
-        if (pred) pred.nobj = obj.nobj;
-        else container.cobj = obj.nobj;
-        obj.where = OBJ_FREE;
-        obj.nobj = null;
+        obj.ocontainer.cobj = extract_nobj(obj, obj.ocontainer.cobj);
         break;
     }
     case OBJ_MINVENT: {
         otmp.nobj = obj.nobj;
         otmp.ocarry = obj.ocarry;
         obj.nobj = otmp;
-        const carrier = obj.ocarry;
-        const pred = chainPredecessor(
-            carrier.minvent, obj, 'nobj', 'monster inventory',
-        );
-        if (pred) pred.nobj = obj.nobj;
-        else carrier.minvent = obj.nobj;
-        obj.where = OBJ_FREE;
-        obj.nobj = null;
+        obj.ocarry.minvent = extract_nobj(obj, obj.ocarry.minvent);
         break;
     }
     case OBJ_FLOOR: {
@@ -828,18 +807,11 @@ export function replace_object(obj, otmp, env = {}) {
         otmp.oy = obj.oy;
         obj.nobj = otmp;
         obj.nexthere = otmp;
-        // extract_nobj: remove obj from the level-wide nobj chain.
-        const pred = chainPredecessor(
-            state.level.objlist ?? null, obj, 'nobj', 'level object list',
+        state.level.objlist = extract_nobj(obj, state.level.objlist ?? null);
+        const grid = floorObjectGrid(state);
+        grid[obj.ox][obj.oy] = extract_nexthere(
+            obj, grid[obj.ox][obj.oy] ?? null,
         );
-        if (pred) pred.nobj = obj.nobj;
-        else state.level.objlist = obj.nobj;
-        obj.where = OBJ_FREE;
-        obj.nobj = null;
-        // C calls extract_nexthere(obj, &level.objects[ox][oy]) here to
-        // remove obj from the per-square nexthere pile. That function is
-        // ported in a later span; record the gap.
-        note_unported('mkobj.c extract_nexthere');
         break;
     }
     default:
@@ -2576,21 +2548,6 @@ export function place_object(obj, x, y, env = {}) {
     return obj;
 }
 
-function chainPredecessor(head, target, link, label) {
-    const seen = new Set();
-    let previous = null;
-    for (let current = head; current; current = current[link]) {
-        if (typeof current !== 'object' || seen.has(current))
-            throw new Error(`${label} is corrupt`);
-        seen.add(current);
-        if (current === target) return previous;
-        previous = current;
-    }
-    throw new Error(
-        `${label}: object ${target?.o_id ?? '?'} is not on the chain`,
-    );
-}
-
 function objectLocationIsIce(x, y, state) {
     const location = state.level?.at(x, y);
     return location?.typ === ICE
@@ -2683,9 +2640,8 @@ export function obj_ice_effects(x, y, doBuried, rawEnv = {}) {
     }
 }
 
-// C ref: mkobj.c remove_object(). Floor objects have two independent links;
-// validate both before changing either so a JS ownership error cannot orphan
-// an object from just one index.
+// C ref: mkobj.c remove_object(). Removes a floor object from both the
+// per-square nexthere pile and the level-wide nobj list.
 export function remove_object(obj, env = {}) {
     const normalized = lifecycleEnv(env);
     const { state } = normalized;
@@ -2703,23 +2659,14 @@ export function remove_object(obj, env = {}) {
     }
 
     const grid = floorObjectGrid(state);
-    const pilePrevious = chainPredecessor(
-        grid[x][y], obj, 'nexthere', 'floor object pile',
-    );
-    const listPrevious = chainPredecessor(
-        state.level.objlist ?? null, obj, 'nobj', 'level object list',
-    );
     const recalcBlockPoint = obj.otyp === BOULDER
         ? requiredHook(normalized, 'recalcBlockPoint', obj)
         : null;
 
-    if (pilePrevious) pilePrevious.nexthere = obj.nexthere;
-    else grid[x][y] = obj.nexthere;
-    if (listPrevious) listPrevious.nobj = obj.nobj;
-    else state.level.objlist = obj.nobj;
-    obj.nexthere = null;
-    obj.nobj = null;
-    obj.where = OBJ_FREE;
+    // C ref: mkobj.c remove_object() calls extract_nexthere() then
+    // extract_nobj().
+    grid[x][y] = extract_nexthere(obj, grid[x][y]);
+    state.level.objlist = extract_nobj(obj, state.level.objlist ?? null);
 
     if (recalcBlockPoint) recalcBlockPoint(x, y, normalized);
     if (obj.timed) obj_timer_checks(obj, x, y, 0, normalized);
@@ -2754,6 +2701,43 @@ export function recreate_pile_at(x, y, env = {}) {
         place_object(otmp, x, y, normalized);
         otmp = nextObj;
     }
+}
+
+// C ref: mkobj.c extract_nobj() (2596-2615). Remove obj from a chain linked
+// through nobj. Since JavaScript cannot modify a head pointer in place, the
+// caller must assign the returned value back to the chain head. Sets
+// obj.where = OBJ_FREE and obj.nobj = null.
+export function extract_nobj(obj, head) {
+    let prev = null;
+    for (let curr = head; curr; curr = curr.nobj) {
+        if (curr === obj) {
+            if (prev) prev.nobj = curr.nobj;
+            else head = curr.nobj;
+            obj.where = OBJ_FREE;
+            obj.nobj = null;
+            return head;
+        }
+        prev = curr;
+    }
+    throw new Error('extract_nobj: object lost');
+}
+
+// C ref: mkobj.c extract_nexthere() (2623-2647). Remove obj from a chain
+// linked through nexthere. Returns the new head. Does not set obj.where;
+// the C comment says this function is expected to be called in tandem with
+// extract_nobj, which does set it.
+export function extract_nexthere(obj, head) {
+    let prev = null;
+    for (let curr = head; curr; curr = curr.nexthere) {
+        if (curr === obj) {
+            if (prev) prev.nexthere = curr.nexthere;
+            else head = curr.nexthere;
+            obj.nexthere = null;
+            return head;
+        }
+        prev = curr;
+    }
+    throw new Error('extract_nexthere: object lost');
 }
 
 // C ref: invent.c sobj_at() and g_at().

@@ -1,6 +1,6 @@
 // Hero inventory and nobj-chain primitives.
 // C refs: src/invent.c addinv(), mergable(), merged(), nxtobj(), useupall();
-//         src/mkobj.c extract_nobj(), add_to_container(), and add_to_buried().
+//         src/mkobj.c add_to_container() and add_to_buried().
 
 import { calc_capacity, inv_cnt, near_capacity } from './hack.js';
 import {
@@ -171,6 +171,7 @@ import {
     curseFreeObject,
     dealloc_obj,
     erosionMatters,
+    extract_nobj,
     greatest_erosion,
     hasContents,
     isCandle,
@@ -1684,23 +1685,7 @@ export function initializeInventory(state = game) {
     return state;
 }
 
-// C ref: mkobj.c extract_nobj(). The replacement head stays private so a
-// caller cannot forget to assign it back to its owner.
-function extractNobj(obj, head) {
-    let previous = null;
-    let current = head;
-    while (current && current !== obj) {
-        previous = current;
-        current = current.nobj;
-    }
-    if (!current)
-        throw new Error(`extract_nobj: object ${obj?.o_id ?? '?'} is not on chain`);
-    if (previous) previous.nobj = current.nobj;
-    else head = current.nobj;
-    obj.where = OBJ_FREE;
-    obj.nobj = null;
-    return head;
-}
+
 
 function buriedObjectHead(state) {
     if (!state.level
@@ -1822,7 +1807,7 @@ export function freeinv(obj, env = {}) {
     const normalized = inventoryEnv(env);
     requireInventoryRefresh(normalized);
     const facts = preflightFreeinvCore(obj, normalized);
-    normalized.state.invent = extractNobj(obj, inventoryHead(normalized.state));
+    normalized.state.invent = extract_nobj(obj, inventoryHead(normalized.state));
     obj.pickup_prev = false;
     freeinvCore(obj, normalized, facts);
     update_inventory(normalized);
@@ -1924,7 +1909,7 @@ export function obj_extract_self(obj, env = {}) {
         const container = obj.ocontainer;
         if (!container)
             throw new Error('obj_extract_self: contained object has no container');
-        container.cobj = extractNobj(obj, container.cobj);
+        container.cobj = extract_nobj(obj, container.cobj);
         obj.ocontainer = null;
         container_weight(container, normalized);
         return obj;
@@ -1934,11 +1919,11 @@ export function obj_extract_self(obj, env = {}) {
     case OBJ_MINVENT:
         if (!obj.ocarry)
             throw new Error('obj_extract_self: monster object has no carrier');
-        obj.ocarry.minvent = extractNobj(obj, obj.ocarry.minvent);
+        obj.ocarry.minvent = extract_nobj(obj, obj.ocarry.minvent);
         obj.ocarry = null;
         return obj;
     case OBJ_BURIED:
-        normalized.state.level.buriedobjlist = extractNobj(
+        normalized.state.level.buriedobjlist = extract_nobj(
             obj,
             buriedObjectHead(normalized.state),
         );
