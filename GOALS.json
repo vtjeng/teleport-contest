@@ -9367,11 +9367,19 @@
         },
         {
           "name": "rnd_attr..init_attr_role_redist",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "3c622a4aacba5a9f1d23c863111037ff378a5d2a",
           "functions": [
             "rnd_attr",
             "init_attr_role_redist"
+          ]
+        },
+        {
+          "name": "redist_attr",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "redist_attr"
           ]
         }
       ],
@@ -9466,13 +9474,13 @@
           "name": "rnd_attr",
           "line": 682,
           "endLine": 698,
-          "ported": false
+          "ported": true
         },
         {
           "name": "init_attr_role_redist",
           "line": 699,
           "endLine": 722,
-          "ported": false
+          "ported": true
         },
         {
           "name": "init_attr",
