@@ -9705,13 +9705,23 @@
         },
         {
           "name": "mbhitm..buzz_force_miss",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "7ca4fd288cd95a6f94c060f485ad9e04755f7b8b",
           "functions": [
             "mbhitm",
             "fhito_loc",
             "mbhit",
             "buzz_force_miss"
+          ]
+        },
+        {
+          "name": "find_misc..mloot_container",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "find_misc",
+            "muse_newcham_mon",
+            "mloot_container"
           ]
         }
       ],
@@ -9848,25 +9858,25 @@
           "name": "mbhitm",
           "line": 1597,
           "endLine": 1706,
-          "ported": false
+          "ported": true
         },
         {
           "name": "fhito_loc",
           "line": 1707,
           "endLine": 1733,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mbhit",
           "line": 1734,
           "endLine": 1814,
-          "ported": false
+          "ported": true
         },
         {
           "name": "buzz_force_miss",
           "line": 1815,
           "endLine": 1823,
-          "ported": false
+          "ported": true
         },
         {
           "name": "use_offensive",
