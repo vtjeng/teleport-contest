@@ -9640,6 +9640,303 @@
         "to": 1365
       },
       "startFunction": "poison_strdmg"
+    },
+    {
+      "id": "muse-c",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port muse.c whole in C order, starting from precheck()",
+      "cFile": "muse.c",
+      "sessions": [
+        "seed0361-archeologist-tour"
+      ],
+      "detail": "",
+      "spans": [],
+      "openedAt": "d83c952378684422da663deb1d85652604aae341",
+      "openStanding": {
+        "sha": "55264471",
+        "screens": 4976,
+        "rng": 343038
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "precheck",
+          "line": 59,
+          "endLine": 164,
+          "ported": false
+        },
+        {
+          "name": "mzapwand",
+          "line": 165,
+          "endLine": 194,
+          "ported": false
+        },
+        {
+          "name": "mplayhorn",
+          "line": 195,
+          "endLine": 237,
+          "ported": false
+        },
+        {
+          "name": "mreadmsg",
+          "line": 238,
+          "endLine": 292,
+          "ported": false
+        },
+        {
+          "name": "mquaffmsg",
+          "line": 293,
+          "endLine": 336,
+          "ported": false
+        },
+        {
+          "name": "m_use_healing",
+          "line": 337,
+          "endLine": 360,
+          "ported": false
+        },
+        {
+          "name": "m_sees_sleepy_soldier",
+          "line": 361,
+          "endLine": 383,
+          "ported": true
+        },
+        {
+          "name": "m_tele",
+          "line": 384,
+          "endLine": 419,
+          "ported": false
+        },
+        {
+          "name": "m_next2m",
+          "line": 420,
+          "endLine": 440,
+          "ported": false
+        },
+        {
+          "name": "find_defensive",
+          "line": 441,
+          "endLine": 756,
+          "ported": true
+        },
+        {
+          "name": "reveal_trap",
+          "line": 757,
+          "endLine": 779,
+          "ported": false
+        },
+        {
+          "name": "mon_escape",
+          "line": 780,
+          "endLine": 795,
+          "ported": false
+        },
+        {
+          "name": "use_defensive",
+          "line": 796,
+          "endLine": 1221,
+          "ported": false
+        },
+        {
+          "name": "rnd_defensive_item",
+          "line": 1222,
+          "endLine": 1293,
+          "ported": true
+        },
+        {
+          "name": "linedup_chk_corpse",
+          "line": 1294,
+          "endLine": 1299,
+          "ported": false
+        },
+        {
+          "name": "m_use_undead_turning",
+          "line": 1300,
+          "endLine": 1343,
+          "ported": false
+        },
+        {
+          "name": "hero_behind_chokepoint",
+          "line": 1344,
+          "endLine": 1370,
+          "ported": false
+        },
+        {
+          "name": "mon_has_friends",
+          "line": 1371,
+          "endLine": 1394,
+          "ported": false
+        },
+        {
+          "name": "mon_likes_objpile_at",
+          "line": 1395,
+          "endLine": 1420,
+          "ported": false
+        },
+        {
+          "name": "find_offensive",
+          "line": 1421,
+          "endLine": 1596,
+          "ported": true
+        },
+        {
+          "name": "mbhitm",
+          "line": 1597,
+          "endLine": 1706,
+          "ported": false
+        },
+        {
+          "name": "fhito_loc",
+          "line": 1707,
+          "endLine": 1733,
+          "ported": false
+        },
+        {
+          "name": "mbhit",
+          "line": 1734,
+          "endLine": 1814,
+          "ported": false
+        },
+        {
+          "name": "buzz_force_miss",
+          "line": 1815,
+          "endLine": 1823,
+          "ported": false
+        },
+        {
+          "name": "use_offensive",
+          "line": 1824,
+          "endLine": 2034,
+          "ported": true
+        },
+        {
+          "name": "rnd_offensive_item",
+          "line": 2035,
+          "endLine": 2094,
+          "ported": true
+        },
+        {
+          "name": "find_misc",
+          "line": 2095,
+          "endLine": 2249,
+          "ported": false
+        },
+        {
+          "name": "muse_newcham_mon",
+          "line": 2250,
+          "endLine": 2263,
+          "ported": false
+        },
+        {
+          "name": "mloot_container",
+          "line": 2264,
+          "endLine": 2382,
+          "ported": false
+        },
+        {
+          "name": "use_misc",
+          "line": 2383,
+          "endLine": 2630,
+          "ported": false
+        },
+        {
+          "name": "you_aggravate",
+          "line": 2631,
+          "endLine": 2653,
+          "ported": false
+        },
+        {
+          "name": "rnd_misc_item",
+          "line": 2654,
+          "endLine": 2690,
+          "ported": true
+        },
+        {
+          "name": "necrophiliac",
+          "line": 2691,
+          "endLine": 2705,
+          "ported": false
+        },
+        {
+          "name": "searches_for_item",
+          "line": 2706,
+          "endLine": 2796,
+          "ported": true
+        },
+        {
+          "name": "mon_reflects",
+          "line": 2797,
+          "endLine": 2835,
+          "ported": true
+        },
+        {
+          "name": "ureflects",
+          "line": 2836,
+          "endLine": 2871,
+          "ported": false
+        },
+        {
+          "name": "mcureblindness",
+          "line": 2872,
+          "endLine": 2883,
+          "ported": false
+        },
+        {
+          "name": "munstone",
+          "line": 2884,
+          "endLine": 2905,
+          "ported": false
+        },
+        {
+          "name": "mon_consume_unstone",
+          "line": 2906,
+          "endLine": 2984,
+          "ported": false
+        },
+        {
+          "name": "cures_stoning",
+          "line": 2985,
+          "endLine": 3000,
+          "ported": true
+        },
+        {
+          "name": "mcould_eat_tin",
+          "line": 3001,
+          "endLine": 3030,
+          "ported": true
+        },
+        {
+          "name": "munslime",
+          "line": 3031,
+          "endLine": 3103,
+          "ported": false
+        },
+        {
+          "name": "muse_unslime",
+          "line": 3104,
+          "endLine": 3245,
+          "ported": false
+        },
+        {
+          "name": "cures_sliming",
+          "line": 3246,
+          "endLine": 3268,
+          "ported": false
+        },
+        {
+          "name": "green_mon",
+          "line": 3269,
+          "endLine": 3310,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 59,
+        "to": 3310
+      },
+      "startFunction": "precheck"
     }
   ]
 }
