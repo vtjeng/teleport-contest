@@ -4,13 +4,19 @@
 // init_attr(), redist_attr(), vary_init_attr(), exercise(), exerper(), adjattrib(),
 // exerchk(), losestr(), poison_strdmg(), poisontell(), poisoned(),
 // stone_luck(), set_moreluck(), restore_attrib(), adjuhploss(),
-// check_innate_abil(), innately(), is_innate(), from_what(), and acurr().
+// check_innate_abil(), innately(), is_innate(), from_what(), acurr(),
+// and uchangealign().
 
 import {
+    A_CG_CONVERT,
+    A_CG_HELM_ON,
+    A_CG_HELM_OFF,
     A_CHA,
     A_CON,
+    A_CURRENT,
     A_DEX,
     A_INT,
+    A_NEUTRAL,
     A_STR,
     A_WIS,
     BLINDED,
@@ -71,6 +77,7 @@ import {
     WARNING,
     WEAK,
     WOUNDED_LEGS,
+    Is_astralevel,
     ismnum,
     something,
 } from './const.js';
@@ -116,13 +123,20 @@ import {
     S_NYMPH,
 } from './monsters.js';
 import { objectType } from './obj.js';
-import { DUNCE_CAP, GAUNTLETS_OF_POWER, LUCKSTONE } from './objects.js';
+import {
+    DUNCE_CAP, GAUNTLETS_OF_POWER, HELM_OF_OPPOSITE_ALIGNMENT, LUCKSTONE,
+} from './objects.js';
 import { the, ysimple_name } from './objnam.js';
 // js/polyself.js imports exercise() from this file; both sides use the
 // other's exports only inside function bodies, so the cycle resolves.
 import { body_part } from './polyself.js';
+// js/potion.js imports adjattrib, exercise, poisontell from this file;
+// both sides use the other's exports only inside function bodies, so the
+// cycle resolves.
+import { make_confused } from './potion.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { aligns } from './roles.js';
+import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { add_weapon_skill } from './weapon.js';
 
@@ -1311,6 +1325,69 @@ export function adjalign(n, state = game) {
         u.ualign.record = newalign;
         if (u.ualign.record > ALIGNLIM(state))
             u.ualign.record = ALIGNLIM(state);
+    }
+}
+
+// C ref: youprop.h Hallucination macro. TRUE when the hero is hallucinating
+// and does not have hallucination resistance.
+function Hallucination(state) {
+    const halluc = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(halluc?.intrinsic)
+        && !(resistance?.intrinsic || resistance?.extrinsic);
+}
+
+// C ref: attrib.c uchangealign() (1320-1365). Change the hero's alignment
+// type, possibly losing use of artifacts. `reason` is A_CG_CONVERT (altar
+// conversion), A_CG_HELM_ON (putting on helm of opposite alignment), or
+// A_CG_HELM_OFF (taking it off).
+//
+// livelog_printf() writes a file this port does not produce; the calls are
+// omitted.
+export async function uchangealign(newalign, reason, state = game) {
+    const oldalign = state.u.ualign.type;
+
+    state.u.ublessed = 0; /* lose divine protection */
+    // You/Your/pline messages call flush_screen(), triggering bot(),
+    // so the actual data change needs to come before the message.
+    state.disp ??= {};
+    state.disp.botl = true;
+    if (reason === A_CG_CONVERT) {
+        /* conversion via altar */
+        // livelog_printf(LL_ALIGNMENT, "permanently converted to %s", ...)
+        state.u.ualignbase[A_CURRENT] = newalign;
+        /* worn helm of opposite alignment might block change */
+        if (!state.uarmh
+            || state.uarmh.otyp !== HELM_OF_OPPOSITE_ALIGNMENT)
+            state.u.ualign.type = state.u.ualignbase[A_CURRENT];
+        await ttyPline(
+            `You have a ${(state.u.ualign.type !== oldalign) ? 'sudden ' : ''}sense of a new direction.`,
+            state,
+        );
+    } else {
+        /* putting on or taking off a helm of opposite alignment */
+        state.u.ualign.type = newalign;
+        if (reason === A_CG_HELM_ON) {
+            adjalign(-7, state); /* for abuse -- record will be cleared shortly */
+            await ttyPline(
+                `Your mind oscillates ${Hallucination(state) ? 'wildly' : 'briefly'}.`,
+                state,
+            );
+            await make_confused(rn1(2, 3), false, state);
+            if (Is_astralevel(state.u?.uz)
+                || (rn2(50) < state.u.ualign.abuse))
+                note_unported('makemon.c summon_furies');
+            // livelog_printf(LL_ALIGNMENT, "used a helm to turn %s", ...)
+        } else if (reason === A_CG_HELM_OFF) {
+            await ttyPline(
+                `Your mind is ${Hallucination(state) ? 'much of a muchness' : 'back in sync with your body'}.`,
+                state,
+            );
+        }
+    }
+    if (state.u.ualign.type !== oldalign) {
+        state.u.ualign.record = 0; /* slate is wiped clean */
+        note_unported('artifact.c retouch_equipment');
     }
 }
 

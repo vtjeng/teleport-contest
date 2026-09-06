@@ -933,21 +933,23 @@ test('the five cloaks Cloak_on cannot run are refused unwritten',
     }
 });
 
-test('the six helmets Helmet_on cannot run are refused unwritten',
+test('the five helmets Helmet_on cannot run are refused unwritten',
     async () => {
-    // do_wear.c:448-505. Six of Helmet_on()'s twelve labels are carried: the
-    // fedora, which changes Luck, and the five that fall to a bare break. The
-    // six below are refused, and the last of them is the one C's own switch
-    // also answers with a bare break: the helm of telepathy needs no arm here
-    // because objects.h:485 gives it TELEPAT as its oc_oprop, so setworn()
-    // raises the extrinsic that display.h sensemon() reads. Wearing one would
-    // change what the hero senses with no arm in this file to blame.
+    // do_wear.c:448-505. Seven of Helmet_on()'s twelve labels are carried: the
+    // fedora, which changes Luck, the five that fall to a bare break, and
+    // HELM_OF_OPPOSITE_ALIGNMENT which calls uchangealign() and falls through
+    // to the shared DUNCE_CAP curse path. The five below are refused, and the
+    // last of them is the one C's own switch also answers with a bare break:
+    // the helm of telepathy needs no arm here because objects.h:485 gives it
+    // TELEPAT as its oc_oprop, so setworn() raises the extrinsic that
+    // display.h sensemon() reads. Wearing one would change what the hero
+    // senses with no arm in this file to blame.
     //
     // The refusal is hoisted above setworn(), so a refused helmet never
     // reaches the slot and never spends its oc_delay.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     for (const otyp of [HELM_OF_CAUTION, HELM_OF_BRILLIANCE, CORNUTHAUM,
-        DUNCE_CAP, HELM_OF_OPPOSITE_ALIGNMENT, HELM_OF_TELEPATHY]) {
+        DUNCE_CAP, HELM_OF_TELEPATHY]) {
         await setup(segment, OFF);
         const obj = armor(otyp, { dknown: 1, spe: 0 });
 
@@ -962,9 +964,10 @@ test('the six helmets Helmet_on cannot run are refused unwritten',
 
         // Helmet_on() asks the same question again for its other caller.
         // set_wear() reaches it with whatever u_init.c wore, and there is no
-        // frame above that one to hoist a refusal into.
+        // frame above that one to hoist a refusal into. Helmet_on is async,
+        // so its early throw produces a rejected promise.
         game.uarmh = armor(otyp, { dknown: 1, spe: 0, known: false });
-        assert.throws(() => Helmet_on(game),
+        await assert.rejects(() => Helmet_on(game),
             refusal(UnsupportedWearError, `Helmet_on() for otyp ${otyp}`));
         assert.equal(game.uarmh.known, false, `otyp ${otyp}`);
         game.uarmh = null;
@@ -973,7 +976,7 @@ test('the six helmets Helmet_on cannot run are refused unwritten',
     // `return 0` at do_wear.c:514. Both of its callers discard the value, so
     // nothing else in the port would notice it changing.
     game.uarmh = armor(HELMET, { dknown: 1, spe: 0, known: false });
-    assert.equal(Helmet_on(game), 0);
+    assert.equal(await Helmet_on(game), 0);
     assert.equal(game.uarmh.known, true);
     game.uarmh = null;
 
@@ -1538,16 +1541,8 @@ test('the branches accessory_or_armor_on cannot run name themselves',
         ),
         refusal(UnsupportedWearError, 'accessory_or_armor_on() quest helm'),
     );
-    // Outside the Quest branch the same helm reaches the otyp refusal in the
-    // W_ARMH arm instead, one frame later and still above setworn().
-    game.qstart_level = { dnum: game.u.uz.dnum + 1, dlevel: 11 };
-    await assert.rejects(
-        () => accessory_or_armor_on(
-            armor(HELM_OF_OPPOSITE_ALIGNMENT, { dknown: 1 }), game,
-        ),
-        refusal(UnsupportedWearError,
-            `Helmet_on() for otyp ${HELM_OF_OPPOSITE_ALIGNMENT}`),
-    );
+    // Outside the Quest branch the same helm reaches Helmet_on()'s ported
+    // HELM_OF_OPPOSITE_ALIGNMENT arm instead.
     delete game.qstart_level;
 
     // do_wear.c:2355-2356 retouch_object(), refused for an artifact alone.

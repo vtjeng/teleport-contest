@@ -34,8 +34,15 @@
 // names the C function it stops in front of.
 
 import {
+    A_CG_HELM_OFF,
+    A_CG_HELM_ON,
     A_CHA,
+    A_CHAOTIC,
     A_CON,
+    A_CURRENT,
+    A_INT,
+    A_LAWFUL,
+    A_NEUTRAL,
     A_STR,
     ACID_RES,
     CMDQ_KEY,
@@ -65,6 +72,8 @@ import {
     GETOBJ_EXCLUDE_INACCESS,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
+    HALLUC,
+    HALLUC_RES,
     HAND,
     HEAD,
     I_SPECIAL,
@@ -117,7 +126,7 @@ import { see_monsters } from './display.js';
 import { obj_pmname } from './do_name.js';
 import { surface } from './dungeon.js';
 import { makeplural } from './fruit.js';
-import { acurr } from './attrib.js';
+import { acurr, uchangealign } from './attrib.js';
 import { cmdq_pop, paranoid_query, yn_function } from './cmd.js';
 import { artifact_light, set_artifact_intrinsic } from './artifacts.js';
 import { game } from './gstate.js';
@@ -144,7 +153,7 @@ import {
     slithy,
     verysmall,
 } from './mondata.js';
-import { MZ_SMALL, PM_ARCHEOLOGIST, S_CENTAUR } from './monsters.js';
+import { MZ_SMALL, PM_ARCHEOLOGIST, PM_CLERIC, S_CENTAUR } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import { gulp_blnd_check } from './mhitu.js';
 import {
@@ -199,6 +208,7 @@ import {
     CLOAK_OF_MAGIC_RESISTANCE,
     CLOAK_OF_PROTECTION,
     DENTED_POT,
+    DUNCE_CAP,
     DWARVISH_CLOAK,
     DWARVISH_IRON_HELM,
     ELVEN_LEATHER_HELM,
@@ -282,10 +292,11 @@ import {
 import { u_safe_from_fatal_corpse } from './pickup.js';
 import { body_part, float_vs_flight } from './polyself.js';
 import { toggle_blindness } from './potion.js';
-import { rn2, rnl, rnd } from './rng.js';
+import { rn2, rn2_on_display_rng, rnl, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
+import { note_unported } from './unported.js';
 import { Glib, welded } from './wield.js';
 import { bimanual, setnotworn, setuswapwep, setworn } from './worn.js';
 
@@ -1418,6 +1429,43 @@ function Cloak_off(state) {
     return 0;
 }
 
+// C ref: youprop.h Hallucination macro. TRUE when the hero is hallucinating
+// and does not have hallucination resistance.
+function Hallucination(state) {
+    const halluc = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(halluc?.intrinsic)
+        && !(resistance?.intrinsic || resistance?.extrinsic);
+}
+
+// C ref: do_name.c hcolor() (1461-1466). Returns `colorpref` when the hero
+// is not hallucinating; otherwise picks a random color from the hallucination
+// table using the display RNG.
+const hcolors = Object.freeze([
+    'ultraviolet', 'infrared', 'bluish-orange', 'reddish-green', 'dark white',
+    'light black', 'sky blue-pink', 'pinkish-cyan', 'indigo-chartreuse',
+    'salty', 'sweet', 'sour', 'bitter', 'umami',
+    'striped', 'spiral', 'swirly', 'plaid', 'checkered', 'argyle', 'paisley',
+    'blotchy', 'guernsey-spotted', 'polka-dotted', 'square', 'round',
+    'triangular', 'cabernet', 'sangria', 'fuchsia', 'wisteria', 'lemon-lime',
+    'strawberry-banana', 'peppermint', 'romantic', 'incandescent',
+    'octarine',
+    'excitingly dull', 'mauve', 'electric',
+    'neon', 'fluorescent', 'phosphorescent', 'translucent', 'opaque',
+    'psychedelic', 'iridescent', 'rainbow-colored', 'polychromatic',
+    'colorless', 'colorless green',
+    'dancing', 'singing', 'loving', 'loudy', 'noisy', 'clattery', 'silent',
+    'apocyan', 'infra-pink', 'opalescent', 'violant', 'tuneless',
+    'viridian', 'aureolin', 'cinnabar', 'purpurin', 'gamboge', 'madder',
+    'bistre', 'ecru', 'fulvous', 'tekhelet', 'selective yellow',
+]);
+
+function hcolor(colorpref, state) {
+    return (Hallucination(state) || !colorpref)
+        ? hcolors[rn2_on_display_rng(hcolors.length)]
+        : colorpref;
+}
+
 // The helmets Helmet_on() answers with a bare break. C's list at
 // do_wear.c:441-446 holds six labels; HELM_OF_TELEPATHY is left out of this
 // one, because its arm is bare only inside the switch. objects.h:485 gives the
@@ -1440,7 +1488,8 @@ const PLAIN_HELMETS_ON = new Set([
 // but the fedora and the dented pot an oc_delay of 1, so the callback itself
 // runs a turn after the slot and the status line have already moved.
 function helmetOnPorted(otyp) {
-    return otyp === FEDORA || PLAIN_HELMETS_ON.has(otyp);
+    return otyp === FEDORA || otyp === HELM_OF_OPPOSITE_ALIGNMENT
+        || PLAIN_HELMETS_ON.has(otyp);
 }
 
 // C ref: do_wear.c Helmet_on() (433-515), reached both as the ga.afternmv
@@ -1455,11 +1504,11 @@ function helmetOnPorted(otyp) {
 // walks into a closed door -- hack.c:1097, no command needed -- draws one
 // extra rn2(38) at rnd.c:143 and a shifted result while her hat is on.
 //
-// C's `uarmh &&` at 510 is left out. Its own comment at 509 says why it is
-// there: uchangealign() inside the HELM_OF_OPPOSITE_ALIGNMENT arm can empty
-// the slot. That arm is refused, and no other arm here touches uarmh, so the
-// slot is still filled. Port that arm and the guard comes back with it.
-function Helmet_on(state) {
+// The HELM_OF_OPPOSITE_ALIGNMENT arm falls through into the DUNCE_CAP arm;
+// JS models this fallthrough with an explicit call to the shared code.
+// C's `uarmh &&` at 510 guards against uchangealign() clearing the slot;
+// the guard is preserved now that the arm is ported.
+async function Helmet_on(state) {
     const otyp = state.uarmh.otyp;
 
     if (!helmetOnPorted(otyp))
@@ -1469,10 +1518,23 @@ function Helmet_on(state) {
     case FEDORA:
         if (state.urole?.mnum === PM_ARCHEOLOGIST) change_luck(1, state);
         break;
+    case HELM_OF_OPPOSITE_ALIGNMENT:
+        // C ref: do_wear.c Helmet_on() (463-475). Set known early because
+        // uchangealign() can empty the slot through retouch_equipment().
+        state.uarmh.known = true;
+        await uchangealign(
+            (state.u.ualign.type !== A_NEUTRAL)
+                ? -state.u.ualign.type
+                : (state.uarmh.o_id % 2) ? A_CHAOTIC : A_LAWFUL,
+            A_CG_HELM_ON, state);
+        // FALLTHROUGH into the shared DUNCE_CAP path
+        await helmetOnCursePath(state);
+        break;
     default: /* PLAIN_HELMETS_ON, C's bare-break labels at 441-446 */
         break;
     }
-    if (!state.uarmh.known) {
+    /* uarmh could be Null due to uchangealign() */
+    if (state.uarmh && !state.uarmh.known) {
         /* helmet's +/- evident because of status line AC */
         state.uarmh.known = true;
         update_inventory({ state });
@@ -1480,20 +1542,67 @@ function Helmet_on(state) {
     return 0;
 }
 
+// C ref: do_wear.c Helmet_on() (476-508), the DUNCE_CAP case shared by the
+// HELM_OF_OPPOSITE_ALIGNMENT fallthrough. Curses the helm, prints a message,
+// and reveals the helm type.
+//
+// C's full curse() (mkobj.c:1783-1820) has side effects beyond setting
+// blessed/cursed: it adjusts luck for luckstones, resets remarm for
+// bimanual weapons, drops twoweap, and manages figurine and spellbook
+// timers. Those effects are not ported; the call is recorded as a gap.
+async function helmetOnCursePath(state) {
+    if (state.uarmh && !state.uarmh.cursed) {
+        if (heroIsBlind(state))
+            await ttyPline(
+                `${Tobjnam(state.uarmh, 'vibrate', state)} for a moment.`,
+                state);
+        else
+            await ttyPline(
+                `${Tobjnam(state.uarmh, 'glow', state)} ${hcolor('black', state)} for a moment.`,
+                state);
+        note_unported('mkobj.c curse');
+        /* curse() doesn't touch bknown so doesn't update persistent
+           inventory; do so now [set_bknown() calls update_inventory()] */
+        if (heroIsBlind(state))
+            set_bknown(state.uarmh, 0, { state });
+        else if (state.urole?.mnum === PM_CLERIC)
+            set_bknown(state.uarmh, 1, { state });
+        else if (state.uarmh.bknown)
+            update_inventory({ state });
+    }
+    state.disp ??= {};
+    state.disp.botl = true; /* reveal new alignment or INT & WIS */
+    if (Hallucination(state)) {
+        await ttyPline('My brain hurts!', state); /* Monty Python */
+    } else if (state.uarmh && state.uarmh.otyp === DUNCE_CAP) {
+        // DUNCE_CAP arm: track INT change, ignore WIS.
+        const curInt = acurr(state, A_INT);
+        const rawInt = (state.u.acurr.a[A_INT] ?? 0)
+            + (state.u.abon?.a?.[A_INT] ?? 0)
+            + (state.u.atemp?.a?.[A_INT] ?? 0);
+        const msg = curInt <= rawInt
+            ? 'like sitting in a corner' : 'giddy';
+        await ttyPline(`You feel ${msg}.`, state);
+    } else {
+        /* [message formerly given here moved to uchangealign()] */
+        discover_object(HELM_OF_OPPOSITE_ALIGNMENT, true, true, true, state);
+    }
+}
+
 // C ref: do_wear.c Helmet_off() (517-564). C's uarmh is still worn while the
 // switch runs, so the FEDORA arm reads the hero's role and not the helmet.
 //
 // objects.h gives FEDORA and DENTED_POT an oc_delay of 0 and every other
 // helmet an oc_delay of 1, so armoroff()'s delayed branch stops in front of
-// the other nine arms -- DUNCE_CAP's and CORNUTHAUM's status and Charisma
+// the other eight arms -- DUNCE_CAP's and CORNUTHAUM's status and Charisma
 // changes, HELM_OF_TELEPATHY's and HELM_OF_CAUTION's see_monsters(),
-// HELM_OF_BRILLIANCE's adj_abon(), HELM_OF_OPPOSITE_ALIGNMENT's
-// uchangealign(), and the plain break the four remaining hard helms share
-// with the dented pot.
-function Helmet_off(state) {
+// HELM_OF_BRILLIANCE's adj_abon(), and the plain break the four remaining
+// hard helms share with the dented pot.
+async function Helmet_off(state) {
     const otyp = state.uarmh.otyp;
 
-    if (otyp !== FEDORA && otyp !== DENTED_POT)
+    if (otyp !== FEDORA && otyp !== DENTED_POT
+        && otyp !== HELM_OF_OPPOSITE_ALIGNMENT)
         throw new UnsupportedTakeOffError(`Helmet_off() for otyp ${otyp}`);
     takeoffContext(state).mask &= ~W_ARMH;
 
@@ -1505,6 +1614,13 @@ function Helmet_off(state) {
         // the callback over the finished gear before the first turn. So the
         // 'T' takes her from Luck 1 to Luck 0 rather than to Luck -1.
         if (state.urole?.mnum === PM_ARCHEOLOGIST) change_luck(-1, state);
+        break;
+    case HELM_OF_OPPOSITE_ALIGNMENT:
+        // C ref: do_wear.c Helmet_off() (553-556). Changing alignment can
+        // toggle off active artifact properties, including levitation;
+        // uarmh could get dropped or destroyed here.
+        await uchangealign(state.u.ualignbase[A_CURRENT],
+            A_CG_HELM_OFF, state);
         break;
     default: /* DENTED_POT, one of C's plain break labels at 528-533 */
         break;
@@ -2319,7 +2435,7 @@ export async function armoroff(otmp, state = game) {
             Shield_off(state);
             break;
         case ARM_HELM:
-            Helmet_off(state);
+            await Helmet_off(state);
             break;
         // C's ARM_GLOVES and ARM_BOOTS arms at 1985-1990 are absent rather
         // than stopped. objects.h gives every pair of gloves an oc_delay of 1
