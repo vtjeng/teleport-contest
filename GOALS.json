@@ -10183,11 +10183,20 @@
         },
         {
           "name": "corpse_revive_type..obj_attach_mid",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "1d31aea5bda630508073bfc7cd2ca9652c15a489",
           "functions": [
             "corpse_revive_type",
             "obj_attach_mid"
+          ]
+        },
+        {
+          "name": "is_flammable..is_rottable",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "is_flammable",
+            "is_rottable"
           ]
         }
       ],
@@ -10534,13 +10543,13 @@
           "name": "corpse_revive_type",
           "line": 2129,
           "endLine": 2146,
-          "ported": false
+          "ported": true
         },
         {
           "name": "obj_attach_mid",
           "line": 2147,
           "endLine": 2156,
-          "ported": false
+          "ported": true
         },
         {
           "name": "save_mtraits",
