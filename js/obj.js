@@ -14,6 +14,7 @@ import {
     DB_ICE,
     DB_UNDER,
     DRAWBRIDGE_UP,
+    FIG_TRANSFORM,
     FIRE_RES,
     G_GONE,
     HATCH_EGG,
@@ -1390,6 +1391,23 @@ export function curseFreeObject(obj, env = {}) {
     if (obj.otyp === BAG_OF_HOLDING)
         obj.owt = weight(obj, env);
     return obj;
+}
+
+// C ref: mkobj.c uncurse() (1822-1840).
+export async function uncurse(obj, env = {}) {
+    const state = env.state ?? game;
+    let old_light = 0;
+    if (obj.lamplit)
+        old_light = arti_light_radius(obj, state);
+    obj.cursed = false;
+    if (carried(obj) && confers_luck(obj, state))
+        set_moreluck(state);
+    else if (obj.otyp === BAG_OF_HOLDING)
+        obj.owt = weight(obj, env);
+    else if (obj.otyp === FIGURINE && obj.timed)
+        stop_timer(FIG_TRANSFORM, obj, state);
+    if (obj.lamplit)
+        await maybe_adjust_light(obj, old_light, env);
 }
 
 export function bcsign(obj) {
