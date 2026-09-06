@@ -9350,8 +9350,8 @@
       "spans": [
         {
           "name": "poison_strdmg",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4391e2db6e358c9e69593847de9ec47e7732e904",
           "functions": [
             "poison_strdmg"
           ]
@@ -9382,13 +9382,13 @@
           "name": "losestr",
           "line": 221,
           "endLine": 273,
-          "ported": false
+          "ported": true
         },
         {
           "name": "poison_strdmg",
           "line": 274,
           "endLine": 293,
-          "ported": false
+          "ported": true
         },
         {
           "name": "poisontell",

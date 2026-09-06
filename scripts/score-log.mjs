@@ -28,6 +28,7 @@ export const COLUMNS = [
 
 export const EVENTS = [
     'slice',
+    'span',
     'goal',
     'holdout',
     'divergence',
