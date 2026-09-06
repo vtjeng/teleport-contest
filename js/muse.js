@@ -1,6 +1,7 @@
 // Monster item-use AI: deciding which items to use and executing the use.
 // C refs: muse.c precheck(), mzapwand(), mplayhorn(), mreadmsg(),
-// mquaffmsg(), m_use_healing(), m_sees_sleepy_soldier(), find_defensive(),
+// mquaffmsg(), m_use_healing(), m_sees_sleepy_soldier(), m_tele(),
+// m_next2m(), find_defensive(),
 // find_offensive(), use_offensive()'s hurled-potion case,
 // searches_for_item(), cures_stoning(), mcould_eat_tin(); mondata.c
 // can_blow().
@@ -33,6 +34,9 @@ import {
     SUPPRESS_IT,
     SUPPRESS_SADDLE,
     AUGMENT_IT,
+    FORCETRAP,
+    Is_knox_level,
+    RLOC_MSG,
     TELEP_TRAP,
     SEE_INVIS,
     W_ACCESSORY,
@@ -57,17 +61,18 @@ import {
     rndmonnam,
     x_monnam,
 } from './do_name.js';
-import { Can_fall_thru } from './dungeon.js';
+import { Can_fall_thru, On_W_tower_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { dist2, distmin, sgn, strsubst } from './hacklib.js';
 import { makemon, mongone } from './makemon_create.js';
 import { set_malign } from './makemon.js';
-import { m_carrying, monkilled } from './mon.js';
+import { m_next2u } from './mhitu.js';
+import { m_carrying, mon_offmap, monkilled } from './mon.js';
 import {
     acidic, attacktype, breathless, dmgtype, has_head, is_animal, is_floater,
-    is_mercenary, is_unicorn, is_vampshifter, mhe, mindless, needspick,
-    nohands, nonliving, passes_walls, same_race, slimeproof, throws_rocks,
-    touch_petrifies, verysmall,
+    is_mercenary, is_unicorn, is_vampshifter, mhe, mindless, mon_learns_traps,
+    needspick, nohands, nonliving, passes_walls, same_race, slimeproof,
+    throws_rocks, touch_petrifies, verysmall,
 } from './mondata.js';
 import * as M from './monsters.js';
 import { m_at } from './monst.js';
@@ -87,13 +92,15 @@ import { in_your_sanctuary } from './priest.js';
 import { d, rn2 } from './rng.js';
 import { stairway_at } from './stairs.js';
 import { messageAt, sensesMonster } from './startup_a11y.js';
-import { enexto } from './teleport.js';
+import { enexto, noteleport_level, rloc, tele_restrict } from './teleport.js';
 import { t_at } from './trap.js';
+import { mintrap } from './trap_effects.js';
 import { s_suffix } from './hacklib.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { cansee, canseemon, couldsee } from './vision.js';
 import { mwelded } from './wield.js';
+import { mon_has_amulet } from './wizard.js';
 import { which_armor } from './worn.js';
 
 // The generated catalog stores these values but does not currently export
@@ -446,6 +453,65 @@ function m_sees_sleepy_soldier(monster, state) {
     return false;
 }
 
+// C ref: muse.c m_tele() (384-414). Teleport a monster or send it into a
+// trap. `how` is the object type that triggered teleportation (e.g.
+// WAN_TELEPORTATION, SCR_TELEPORTATION) or 0 for a voluntary trap entry.
+// When how is 0, trapCoords must supply { x, y } of the trap the monster
+// is entering, matching gt.trapx/gt.trapy set by find_defensive().
+async function m_tele(mtmp, vismon, oseen, how, state, trapCoords) {
+    if (await tele_restrict(mtmp, state)) {
+        // mysterious force...
+        if (vismon && how) {
+            // mentions 'teleport' -- makeknown(how)
+            discover_object(how, true, true, true, state);
+        }
+        // monster learns that teleportation isn't useful here
+        if (noteleport_level(mtmp, state)) {
+            mon_learns_traps(mtmp, TELEP_TRAP);
+        }
+    } else if ((mon_has_amulet(mtmp) || On_W_tower_level(state.u?.uz, state))
+               && !rn2(3)) {
+        if (vismon) {
+            await pline_mon(
+                mtmp,
+                `${capitalizedMonsterName(mtmp, state)} seems disoriented`
+                    + ' for a moment.',
+                state,
+            );
+        }
+    } else {
+        // teleport monster 'mtmp'
+        if (how) {
+            // teleportation has been triggered by an object
+            if (oseen) {
+                discover_object(how, true, true, true, state);
+            }
+            await rloc(mtmp, RLOC_MSG, { state });
+        } else {
+            // monster is voluntarily entering a teleportation trap; use the
+            // trap instead of rloc() in case it sends 'victim' to a vault
+            mtmp.mx = trapCoords.x;
+            mtmp.my = trapCoords.y;
+            await mintrap(mtmp, FORCETRAP, { state });
+        }
+    }
+}
+
+// C ref: muse.c m_next2m() (420-437). Return true if monster mtmp has
+// another monster next to it. Called from find_defensive() where it is
+// limited to Is_knox() only.
+export function m_next2m(mtmp, state) {
+    if (mtmp.mhp < 1 /* DEADMONSTER */ || mon_offmap(mtmp)) return false;
+    for (let x = mtmp.mx - 1; x <= mtmp.mx + 1; x++) {
+        for (let y = mtmp.my - 1; y <= mtmp.my + 1; y++) {
+            if (!isok(x, y)) continue;
+            const m2 = m_at(x, y, state);
+            if (m2 && m2 !== mtmp) return true;
+        }
+    }
+    return false;
+}
+
 function canLetGoWithoutDiscovery(obj, state) {
     if (!obj) return false;
     if (obj.owornmask & (W_ARMOR | W_ACCESSORY)) return false;
@@ -592,8 +658,14 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
     const hero = state.u;
     const selected = (kind, object = null) => ({ kind, object });
 
-    // find_defensive(TRUE) serves fleeing monsters and has a Knox-specific
-    // adjacency guard. This slice owns only dochug()'s FALSE call.
+    // C ref: muse.c find_defensive() (459-460). Knox-specific adjacency
+    // guard: a monster next to another monster but not next to the hero
+    // won't look for defensive items in Fort Ludios.
+    if (tryescape && Is_knox_level(hero?.uz)
+        && !m_next2u(monster, state) && m_next2m(monster, state))
+        return null;
+    // find_defensive(TRUE) serves fleeing monsters; the rest of the
+    // tryescape path is not yet ported.
     if (tryescape) return selected('escape defensive search');
     if (is_animal(species) || mindless(species)) return null;
     if (dist2(monster.mx, monster.my, monster.mux, monster.muy) > 25)

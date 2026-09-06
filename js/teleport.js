@@ -174,7 +174,7 @@ import { search_special } from './mkroom.js';
 import { settrack } from './track.js';
 import { ttyPline } from './tty_message.js';
 import { vault_occupied } from './vault.js';
-import { couldsee, vision_recalc } from './vision.js';
+import { canseemon, couldsee, vision_recalc } from './vision.js';
 
 // These generated-monster masks are source data which monsters.js does not
 // currently export. Keep their names and values traceable to monflag.h.
@@ -652,6 +652,24 @@ async function relocateToFixedDestination(monster, x, y, env) {
             );
         }
     }
+}
+
+// C ref: teleport.c tele_restrict() (1950-1960). Returns true when the
+// level forbids teleportation, printing a message if the hero can see the
+// monster.
+export async function tele_restrict(mon, state = game) {
+    if (noteleport_level(mon, state)) {
+        if (canseemon(mon, state)) {
+            await ttyPline(
+                'A mysterious force prevents '
+                    + monsterCommonName(mon, state)
+                    + ' from teleporting!',
+                state,
+            );
+        }
+        return true;
+    }
+    return false;
 }
 
 // C ref: teleport.c mtele_trap(), bounded to ordinary fixed or random D:1

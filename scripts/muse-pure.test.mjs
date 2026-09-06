@@ -1,8 +1,8 @@
 // Pin the pure functions ported from muse.c and the callees they need.
 // Expected values are read from the C source, not from the JavaScript output.
 //
-// C ref: muse.c m_use_healing() (337-360), o_init.c objdescr_is() (352-364),
-// do_name.c monverbself() (1221-1252).
+// C ref: muse.c m_use_healing() (337-360), m_next2m() (420-437),
+// o_init.c objdescr_is() (352-364), do_name.c monverbself() (1221-1252).
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -13,6 +13,7 @@ import { newObject } from '../js/obj.js';
 import { objdescr_is, init_objects } from '../js/o_init.js';
 import { monverbself } from '../js/do_name.js';
 import { m_carrying } from '../js/mon.js';
+import { m_next2m } from '../js/muse.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { roles } from '../js/roles.js';
 
@@ -225,4 +226,102 @@ test('monverbself includes othertext when provided', () => {
     const result = monverbself(
         mon, 'The kobold', 'play', 'a horn directed at', state, env);
     assert.equal(result, 'The kobold plays a horn directed at himself');
+});
+
+// ---------- m_next2m ----------
+
+// Build a minimal state whose level.monsters grid supports m_at().
+// COLNO = 80, ROWNO = 21 (const.js). The grid is state.level.monsters[x][y].
+function makeMonsterGrid() {
+    const COLNO = 80;
+    const ROWNO = 21;
+    const grid = [];
+    for (let x = 0; x < COLNO; x++) {
+        grid[x] = new Array(ROWNO).fill(null);
+    }
+    return { level: { monsters: grid } };
+}
+
+function placeMonster(state, mon, x, y) {
+    mon.mx = x;
+    mon.my = y;
+    state.level.monsters[x][y] = mon;
+}
+
+test('m_next2m returns false for a dead monster', () => {
+    // C ref: muse.c m_next2m() (427). DEADMONSTER(mtmp) checks mtmp->mhp < 1.
+    // A dead monster (mhp = 0) short-circuits to FALSE regardless of neighbors.
+    const state = makeMonsterGrid();
+    const dead = { mhp: 0, mx: 5, my: 5 };
+    placeMonster(state, dead, 5, 5);
+    // Place a neighbor to confirm the dead check takes priority.
+    const neighbor = { mhp: 1, mx: 5, my: 6 };
+    placeMonster(state, neighbor, 5, 6);
+    assert.equal(m_next2m(dead, state), false);
+});
+
+test('m_next2m returns false for an off-map monster', () => {
+    // C ref: muse.c m_next2m() (427). mon_offmap() returns true when
+    // mstate is not MON_FLOOR. A migrating monster is off-map.
+    const state = makeMonsterGrid();
+    // MON_FLOOR is 0 (the default). Any non-zero mstate means off-map.
+    const migrating = { mhp: 1, mx: 5, my: 5, mstate: 1 };
+    assert.equal(m_next2m(migrating, state), false);
+});
+
+test('m_next2m returns false for a monster alone on the map', () => {
+    // C ref: muse.c m_next2m() (429-435). The 3x3 scan around (mx,my)
+    // finds no m2 that differs from mtmp, so the function returns FALSE.
+    const state = makeMonsterGrid();
+    const loner = { mhp: 1, mx: 10, my: 10 };
+    placeMonster(state, loner, 10, 10);
+    assert.equal(m_next2m(loner, state), false);
+});
+
+test('m_next2m returns true when an adjacent monster exists', () => {
+    // C ref: muse.c m_next2m() (432-433). m_at(x,y) finds m2 != mtmp,
+    // so the function returns TRUE. The neighbor is one square east.
+    const state = makeMonsterGrid();
+    const mtmp = { mhp: 1, mx: 10, my: 10 };
+    placeMonster(state, mtmp, 10, 10);
+    const adjacent = { mhp: 1, mx: 11, my: 10 };
+    placeMonster(state, adjacent, 11, 10);
+    assert.equal(m_next2m(mtmp, state), true);
+});
+
+test('m_next2m returns true for a diagonal neighbor', () => {
+    // C ref: muse.c m_next2m() (429-434). The scan covers the full 3x3
+    // area, including diagonals. A monster at (mx+1, my+1) is adjacent.
+    const state = makeMonsterGrid();
+    const mtmp = { mhp: 1, mx: 10, my: 10 };
+    placeMonster(state, mtmp, 10, 10);
+    const diagonal = { mhp: 1, mx: 11, my: 11 };
+    placeMonster(state, diagonal, 11, 11);
+    assert.equal(m_next2m(mtmp, state), true);
+});
+
+test('m_next2m returns false for a monster two squares away', () => {
+    // C ref: muse.c m_next2m() (429-434). The scan covers only mx-1..mx+1
+    // and my-1..my+1. A monster two squares away is outside that range.
+    const state = makeMonsterGrid();
+    const mtmp = { mhp: 1, mx: 10, my: 10 };
+    placeMonster(state, mtmp, 10, 10);
+    const distant = { mhp: 1, mx: 12, my: 10 };
+    placeMonster(state, distant, 12, 10);
+    assert.equal(m_next2m(mtmp, state), false);
+});
+
+test('m_next2m handles map edge without error', () => {
+    // C ref: muse.c m_next2m() (431). isok(x,y) rejects coordinates
+    // outside [1..COLNO-1] x [0..ROWNO-1]. A monster at position (1,0)
+    // has some out-of-bounds neighbors that isok skips.
+    const state = makeMonsterGrid();
+    const corner = { mhp: 1, mx: 1, my: 0 };
+    placeMonster(state, corner, 1, 0);
+    // No neighbor: returns false without throwing.
+    assert.equal(m_next2m(corner, state), false);
+    // Add a neighbor within bounds.
+    const neighbor = { mhp: 1, mx: 2, my: 0 };
+    placeMonster(state, neighbor, 2, 0);
+    assert.equal(m_next2m(corner, state), true);
 });
