@@ -9411,8 +9411,8 @@
         },
         {
           "name": "gainstr",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "74174ba1f642cd6f8aa587a5c5dd5a646b0ba79b",
           "functions": [
             "gainstr"
           ]
@@ -9437,7 +9437,7 @@
           "name": "gainstr",
           "line": 203,
           "endLine": 220,
-          "ported": false
+          "ported": true
         },
         {
           "name": "losestr",
