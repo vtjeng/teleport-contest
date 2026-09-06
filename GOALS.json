@@ -10110,6 +10110,16 @@
           "functions": [
             "nextoid"
           ]
+        },
+        {
+          "name": "replace_object..bill_dummy_object",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "replace_object",
+            "unknwn_contnr_contents",
+            "bill_dummy_object"
+          ]
         }
       ],
       "openedAt": "8500abd3c8676ee8add51071e505ca653091d94c",
