@@ -52,7 +52,7 @@
 // roles that fail it and which arm each one reaches.
 
 import { A_DEX } from '../js/const.js';
-import { effective_attribute } from '../js/attrib.js';
+import { acurr } from '../js/attrib.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
@@ -209,7 +209,7 @@ async function verifyTwoWeaponMeleeSegment(recipeSegment) {
     // wield.c:861 spends a move when rnd(20) beats Dexterity, which shifts
     // every later draw. Recording it keeps the rows honest about why two
     // segments at one seed can diverge before the attack.
-    if (!Number.isInteger(effective_attribute(game, A_DEX))) {
+    if (!Number.isInteger(acurr(game, A_DEX))) {
         throw new Error(`seed ${recipeSegment.seed}: no Dexterity`);
     }
 }

@@ -18,7 +18,7 @@ import {
     NEED_WEAPON,
     W_WEP,
 } from '../js/const.js';
-import { effective_attribute, exercise } from '../js/attrib.js';
+import { acurr, exercise } from '../js/attrib.js';
 import { flooreffects } from '../js/do.js';
 import { should_mulch_missile } from '../js/dothrow.js';
 import { game } from '../js/gstate.js';
@@ -254,7 +254,7 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
         const temporaryDisplay = [];
         let stoppedOccupation = 0;
         let endedMulti = 0;
-        const catchBound = 100 - effective_attribute(state, A_DEX);
+        const catchBound = 100 - acurr(state, A_DEX);
         const random = {
             rn2: (bound) => {
                 draws.push(['rn2', bound]);
@@ -395,7 +395,7 @@ test('m_throw miss lets the missile continue flying and drop at range end',
         const draws = [];
         const temporaryDisplayCalls = [];
         let stoppedOccupation = 0;
-        const catchBound = 100 - effective_attribute(state, A_DEX);
+        const catchBound = 100 - acurr(state, A_DEX);
         const random = {
             rn2: (bound) => {
                 draws.push(['rn2', bound]);
@@ -523,7 +523,7 @@ test('m_throw hands a hurled potion to potionhit and settles nothing else',
         const dexBefore = state.u.aexe[A_DEX];
         const messages = [];
         const draws = [];
-        const catchBound = 100 - effective_attribute(state, A_DEX);
+        const catchBound = 100 - acurr(state, A_DEX);
         const random = {
             rn2: (bound) => {
                 draws.push(['rn2', bound]);

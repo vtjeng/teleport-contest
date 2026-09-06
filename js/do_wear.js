@@ -117,7 +117,7 @@ import { see_monsters } from './display.js';
 import { obj_pmname } from './do_name.js';
 import { surface } from './dungeon.js';
 import { makeplural } from './fruit.js';
-import { effective_attribute } from './attrib.js';
+import { acurr } from './attrib.js';
 import { cmdq_pop, paranoid_query, yn_function } from './cmd.js';
 import { artifact_light, set_artifact_intrinsic } from './artifacts.js';
 import { game } from './gstate.js';
@@ -506,17 +506,17 @@ function learnring(ring, observed, state) {
 // learn the ring's enchantment when the change is observable or the attribute
 // is not at a limit.
 function adjust_attrib(obj, which, val, state) {
-    const old_attrib = effective_attribute(state, which);
+    const old_attrib = acurr(state, which);
     const u = state.u;
     // ABON(which) += val.  The JS representation of u.abon is either a flat
     // array [0,0,...] or an object with a .a array, matching the C struct
-    // attribs { schar a[A_MAX]; }.  effective_attribute() reads through the
+    // attribs { schar a[A_MAX]; }.  acurr() reads through the
     // same two-form accessor (attributeArray in attrib.js), so writes here
     // must target the same array it would read.
     u.abon ??= {};
     const abon = Array.isArray(u.abon) ? u.abon : (u.abon.a ??= []);
     abon[which] = (abon[which] ?? 0) + val;
-    const observable = (old_attrib !== effective_attribute(state, which));
+    const observable = (old_attrib !== acurr(state, which));
     // extremeattr() inlined: checks whether the attribute is at the 3..25
     // floor or ceiling (or the Str/Con/Int/Wis special cases). When it is
     // not extreme, learnring() reveals a +0 enchantment; when it is
@@ -533,7 +533,7 @@ function adjust_attrib(obj, which, val, state) {
 function extremeattr(attrindx, state) {
     let lolimit = 3;
     let hilimit = 25;
-    const curval = effective_attribute(state, attrindx);
+    const curval = acurr(state, attrindx);
 
     if (attrindx === A_STR) {
         hilimit = 125; /* STR19(25) */
@@ -546,11 +546,13 @@ function extremeattr(attrindx, state) {
                 === 161 /* GAUNTLETS_OF_POWER, imported below if needed */)
             lolimit = hilimit;
     } else if (attrindx === A_CON) {
-        // u_wield_art(ART_OGRESMASHER) is unported; the artifact's Con
-        // override only matters while the weapon is wielded.
+        // u_wield_art(ART_OGRESMASHER) sets the ceiling.  acurr() already
+        // forces Con to 25 when Ogresmasher is wielded; this makes
+        // extremeattr() agree on the limit so the observability check is
+        // consistent.
         if (state.uwep?.oartifact) {
-            // Import not added because no ported ring arm can reach a hero
-            // wielding a specific artifact. The check is inert.
+            // No ported ring arm reaches a hero wielding a specific
+            // artifact, so this arm is inert in practice.
         }
     }
     if (attrindx === 3 /* A_INT */ || attrindx === 4 /* A_WIS */) {

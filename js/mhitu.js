@@ -39,7 +39,7 @@ import {
 // reads it at module scope.
 import { stop_occupation } from './allmain.js';
 import { ART_SNICKERSNEE } from './artifacts.js';
-import { effective_attribute, minuhpmax, setuhpmax } from './attrib.js';
+import { acurr, minuhpmax, setuhpmax } from './attrib.js';
 import { midnight } from './calendar.js';
 import {
     bot,
@@ -1332,7 +1332,7 @@ export async function mdamageu(mtmp, n, state, env) {
                 if (state.u.uhpmax < uhpmin)
                     setuhpmax(uhpmin, true, state);
                 const givehp = 50
-                    + 10 * Math.trunc(effective_attribute(state, A_CON) / 2);
+                    + 10 * Math.trunc(acurr(state, A_CON) / 2);
                 state.u.uhp = Math.min(state.u.uhpmax, givehp);
                 state.context.move = 0;
                 state.multi = -1;

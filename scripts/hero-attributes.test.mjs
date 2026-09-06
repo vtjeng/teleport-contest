@@ -4,7 +4,7 @@ import test from 'node:test';
 import {
     acurrstr,
     adjattrib,
-    effective_attribute,
+    acurr,
     exerchk,
     exerper,
     init_attr,
@@ -15,9 +15,13 @@ import {
     vary_init_attr,
 } from '../js/attrib.js';
 import {
+    A_CHA,
     A_CON,
+    A_DEX,
+    A_INT,
     A_STR,
     A_WIS,
+    STR19,
     CLAIRVOYANT,
     CONFUSION,
     EXT_ENCUMBER,
@@ -36,8 +40,9 @@ import {
     WOUNDED_LEGS,
 } from '../js/const.js';
 import { newpw, newuexp } from '../js/exper.js';
-import { PM_MONK } from '../js/monsters.js';
-import { LUCKSTONE } from '../js/objects.js';
+import { PM_AMOROUS_DEMON, PM_MONK, S_NYMPH } from '../js/monsters.js';
+import { ART_OGRESMASHER } from '../js/artifacts.js';
+import { DUNCE_CAP, GAUNTLETS_OF_POWER, LUCKSTONE } from '../js/objects.js';
 
 function advancement(infix, inrnd, lofix, lornd, hifix, hirnd) {
     return { infix, inrnd, lofix, lornd, hifix, hirnd };
@@ -112,6 +117,121 @@ test('acurrstr folds every encoded Strength band the source names', () => {
     assert.equal(folded(125), 25);
 });
 
+// C ref: attrib.c:1200-1244 acurr().  Each test pins one of the six
+// attribute branches the C source walks (A_STR, A_CHA, A_CON, A_INT/A_WIS,
+// A_DEX fallthrough, and the final 3..25 clamp when no special case fires).
+
+test('acurr clamps the base+bonus+temp sum to 3..25 by default', () => {
+    // attrib.c:1243 "result = (tmp >= 25) ? 25 : (tmp <= 3) ? 3 : tmp"
+    // exercises the A_DEX branch (no special cases) with values below, at,
+    // and above the limits.
+    const make = (base, bonus = 0, temp = 0) => ({
+        u: {
+            acurr: { a: { [A_DEX]: base } },
+            abon: { a: { [A_DEX]: bonus } },
+            atemp: { a: { [A_DEX]: temp } },
+        },
+    });
+    assert.equal(acurr(make(10), A_DEX), 10); // within range
+    assert.equal(acurr(make(1), A_DEX), 3);   // below floor
+    assert.equal(acurr(make(30), A_DEX), 25); // above ceiling
+    assert.equal(acurr(make(10, 5, -12), A_DEX), 3); // sum below floor
+    assert.equal(acurr(make(20, 10), A_DEX), 25);    // sum above ceiling
+});
+
+test('acurr forces STR19(25) when wearing gauntlets of power', () => {
+    // attrib.c:1222 "(uarmg && uarmg->otyp == GAUNTLETS_OF_POWER)" forces
+    // result to STR19(25) = 125 regardless of the base strength.
+    const state = {
+        u: { acurr: { a: { [A_STR]: 10 } } },
+        uarmg: { otyp: GAUNTLETS_OF_POWER },
+    };
+    assert.equal(acurr(state, A_STR), STR19(25)); // 125
+});
+
+test('acurr caps strength at STR19(25) when tmp already reaches it', () => {
+    // attrib.c:1221 "tmp >= STR19(25)" caps without requiring gauntlets.
+    const state = {
+        u: {
+            acurr: { a: { [A_STR]: 120 } },
+            abon: { a: { [A_STR]: 10 } },
+        },
+    };
+    assert.equal(acurr(state, A_STR), STR19(25)); // 130 capped to 125
+});
+
+test('acurr floors strength at 3 without gauntlets of power', () => {
+    // attrib.c:1228 "result = max(tmp, 3)" when neither condition fires.
+    const state = { u: { acurr: { a: { [A_STR]: 1 } } } };
+    assert.equal(acurr(state, A_STR), 3);
+});
+
+test('acurr raises charisma to 18 for nymph polymorph', () => {
+    // attrib.c:1231 "gy.youmonst.data->mlet == S_NYMPH" forces CHA to 18
+    // when the raw sum is below 18.
+    const state = {
+        u: { acurr: { a: { [A_CHA]: 12 } } },
+        youmonst: { data: { mlet: S_NYMPH } },
+    };
+    assert.equal(acurr(state, A_CHA), 18);
+});
+
+test('acurr raises charisma to 18 for amorous demon polymorph', () => {
+    // attrib.c:1232 "u.umonnum == PM_AMOROUS_DEMON" also forces CHA 18.
+    const state = {
+        u: { acurr: { a: { [A_CHA]: 10 } }, umonnum: PM_AMOROUS_DEMON },
+    };
+    assert.equal(acurr(state, A_CHA), 18);
+});
+
+test('acurr does not raise charisma when already at or above 18', () => {
+    // attrib.c:1230 "tmp < 18" check means 18+ charisma passes through.
+    const state = {
+        u: { acurr: { a: { [A_CHA]: 20 } } },
+        youmonst: { data: { mlet: S_NYMPH } },
+    };
+    assert.equal(acurr(state, A_CHA), 20);
+});
+
+test('acurr forces constitution 25 when wielding Ogresmasher', () => {
+    // attrib.c:1235 "u_wield_art(ART_OGRESMASHER)" forces CON to 25.
+    // u_wield_art is a macro: is_art(uwep, art) => uwep->oartifact == art.
+    const state = {
+        u: { acurr: { a: { [A_CON]: 12 } } },
+        uwep: { oartifact: ART_OGRESMASHER },
+    };
+    assert.equal(acurr(state, A_CON), 25);
+});
+
+test('acurr forces intelligence to 6 when wearing dunce cap', () => {
+    // attrib.c:1238 "uarmh && uarmh->otyp == DUNCE_CAP" forces INT to 6.
+    const state = {
+        u: { acurr: { a: { [A_INT]: 18 } } },
+        uarmh: { otyp: DUNCE_CAP },
+    };
+    assert.equal(acurr(state, A_INT), 6);
+});
+
+test('acurr forces wisdom to 6 when wearing dunce cap', () => {
+    // attrib.c:1237 "chridx == A_INT || chridx == A_WIS" -- dunce cap
+    // applies to both intelligence and wisdom.
+    const state = {
+        u: { acurr: { a: { [A_WIS]: 20 } } },
+        uarmh: { otyp: DUNCE_CAP },
+    };
+    assert.equal(acurr(state, A_WIS), 6);
+});
+
+test('acurr does not apply dunce cap to dexterity', () => {
+    // attrib.c:1240 "chridx == A_DEX" has no special case; verify the cap
+    // only applies to A_INT and A_WIS, not to A_DEX.
+    const state = {
+        u: { acurr: { a: { [A_DEX]: 18 } } },
+        uarmh: { otyp: DUNCE_CAP },
+    };
+    assert.equal(acurr(state, A_DEX), 18);
+});
+
 test('newhp and newpw preserve initial advancement order and alignment state', () => {
     const state = baseState();
     // Draws exercise role HP, race HP, role Pw, then race Pw in source order.
@@ -161,9 +281,9 @@ test('advancement uses effective Constitution and Wisdom with source caps', () =
     state.u.abon = { a: [200, 0, 4, 0, 4, 0] };
     state.u.atemp = [0, 0, 0, 0, 0, 0];
 
-    assert.equal(effective_attribute(state, A_STR), 125);
-    assert.equal(effective_attribute(state, A_CON), 18);
-    assert.equal(effective_attribute(state, A_WIS), 18);
+    assert.equal(acurr(state, A_STR), 125);
+    assert.equal(acurr(state, A_CON), 18);
+    assert.equal(acurr(state, A_WIS), 18);
 
     const random = queuedRandom(
         [
@@ -180,8 +300,8 @@ test('advancement uses effective Constitution and Wisdom with source caps', () =
 
     state.u.abon.a[A_CON] = -30;
     state.u.abon.a[A_WIS] = 30;
-    assert.equal(effective_attribute(state, A_CON), 3);
-    assert.equal(effective_attribute(state, A_WIS), 25);
+    assert.equal(acurr(state, A_CON), 3);
+    assert.equal(acurr(state, A_WIS), 25);
 });
 
 test('init_attr distributes the requested total with role weights', () => {

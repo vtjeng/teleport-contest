@@ -29,7 +29,7 @@ import {
     ROOMOFFSET,
     SHOPBASE,
 } from './const.js';
-import { effective_attribute } from './attrib.js';
+import { acurr } from './attrib.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { dist2, online2, s_suffix } from './hacklib.js';
@@ -382,7 +382,7 @@ export function get_cost(obj, shopkeeper, state = game) {
         throw new UnsupportedShopError('tourist pricing adjustment');
     }
 
-    const charisma = effective_attribute(state, A_CHA);
+    const charisma = acurr(state, A_CHA);
     if (charisma > 18) divisor *= 2;
     else if (charisma === 18) {
         multiplier *= 2;

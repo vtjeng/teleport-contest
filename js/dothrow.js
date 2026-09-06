@@ -72,7 +72,7 @@ import {
     W_WEP,
 } from './const.js';
 import { ART_MJOLLNIR } from './artifacts.js';
-import { acurrstr, effective_attribute, exercise } from './attrib.js';
+import { acurrstr, acurr, exercise } from './attrib.js';
 import { obj_resists } from './bury.js';
 import { cmdq_add_ec, extcmdRow, getdir } from './cmd.js';
 import { newsym } from './display.js';
@@ -349,11 +349,11 @@ export function throw_ok(obj, state = game) {
 
     if (autoReturns(obj, obj.owornmask, state)
         /* to get here, obj is boomerang or is uwep and (alkys or Mjollnir) */
-        /* ACURR(A_STR) is effective_attribute(), which keeps Strength in the
+        /* ACURR(A_STR) is acurr(), which keeps Strength in the
            3..125 encoding STR19() writes; acurrstr() would already have
            folded that down to 3..25 and could never reach the bound. */
         && (obj.oartifact !== ART_MJOLLNIR
-            || effective_attribute(state, A_STR) >= STR19(25)))
+            || acurr(state, A_STR) >= STR19(25)))
         return GETOBJ_SUGGEST;
 
     if (obj.quan === 1 && (obj === state.uwep
@@ -607,7 +607,7 @@ export async function throw_obj(obj, shotlimit, state = game) {
             || (role === PM_TOURIST && skill !== -P_DART)
             /* poor dexterity also inhibits multishot */
             || propertyHeld(state, FUMBLING)
-            || effective_attribute(state, A_DEX) <= 6);
+            || acurr(state, A_DEX) <= 6);
 
         /* Bonus if the player is proficient in this weapon... */
         switch (P_SKILL(weapon_type(obj, state), state)) {

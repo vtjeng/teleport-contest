@@ -161,7 +161,7 @@ import {
     WWALKING,
 } from './const.js';
 import { timet_delta } from './allmain.js';
-import { effective_attribute, from_what, stone_luck } from './attrib.js';
+import { acurr, from_what, stone_luck } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
 import { enc_stat } from './display.js';
 import { depth, dunlev, endgamelevelname } from './dungeon.js';
@@ -740,7 +740,7 @@ function one_characteristic(mode, final, attrindx, state, lines) {
     if ((mode & MAGICENLIGHTENMENT) && !Upolyd(state.u))
         hide_innate_value = false;
 
-    const acurrent = effective_attribute(state, attrindx);
+    const acurrent = acurr(state, attrindx);
     let valubuf = attrval(attrindx, acurrent);
     const subjbuf = `Your ${attrname[attrindx]} `;
 

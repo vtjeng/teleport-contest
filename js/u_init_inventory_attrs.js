@@ -14,7 +14,7 @@ import {
     PROTECTION,
     P_DAGGER,
 } from './const.js';
-import { effective_attribute, init_attr, vary_init_attr } from './attrib.js';
+import { acurr, init_attr, vary_init_attr } from './attrib.js';
 import { game } from './gstate.js';
 import {
     inv_weight as initial_inv_weight,
@@ -360,7 +360,7 @@ function adjustCarryAttribute(index, state) {
     if (u.uprops?.[FIXED_ABIL]?.extrinsic) return false;
     const base = u.acurr.a;
     const maximum = u.amax.a;
-    const old = effective_attribute(state, index);
+    const old = acurr(state, index);
     base[index] += 1;
     if (base[index] > maximum[index]) {
         maximum[index] = base[index];
@@ -368,7 +368,7 @@ function adjustCarryAttribute(index, state) {
         if (maximum[index] > racialMaximum)
             base[index] = maximum[index] = racialMaximum;
     }
-    if (effective_attribute(state, index) === old) return false;
+    if (acurr(state, index) === old) return false;
     if (Array.isArray(u.aexe)) u.aexe[index] = 0;
     else if (Array.isArray(u.aexe?.a)) u.aexe.a[index] = 0;
     state.disp ??= {};
@@ -474,5 +474,5 @@ export const _uInitInventoryAttrInternals = Object.freeze({
     JAPANESE_OBJECTS,
     ORCISH_OBJECTS,
     adjustCarryAttribute,
-    effectiveAttribute: effective_attribute,
+    effectiveAttribute: acurr,
 });

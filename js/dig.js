@@ -54,7 +54,7 @@ import {
 import { cvt_sdoor_to_door } from './detect.js';
 import { inside_room } from './room_coordinates.js';
 import { in_rooms } from './rooms.js';
-import { effective_attribute } from './attrib.js';
+import { acurr } from './attrib.js';
 import { is_axe, is_pick, mksobj_at, remove_object, sobj_at } from './obj.js';
 import { canseemon, recalc_block_point, unblock_point } from './vision.js';
 import { rn1 } from './rng.js';
@@ -172,7 +172,7 @@ async function draft_message(unexpected, env) {
             return;
         }
         const weak = [A_STR, A_DEX, A_CON, A_CHA, A_INT, A_WIS]
-            .some((attribute) => effective_attribute(state, attribute) < 6);
+            .some((attribute) => acurr(state, attribute) < 6);
         await message(`You feel like you are ${weak ? '4-F' : '1-A'}.`, state, env);
         return;
     }

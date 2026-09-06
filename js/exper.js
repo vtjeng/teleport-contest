@@ -10,7 +10,7 @@ import {
     NORMAL_SPEED,
     Upolyd,
 } from './const.js';
-import { adjabil, effective_attribute, newhp, setuhpmax } from './attrib.js';
+import { adjabil, acurr, newhp, setuhpmax } from './attrib.js';
 import { exp_percent_changing, xlev_to_rank } from './display.js';
 import { game } from './gstate.js';
 import { achieve_rank, record_achievement } from './insight.js';
@@ -94,7 +94,7 @@ export function newpw(state = game, random = { rn1, rnd }) {
         if (roleRandom > 0) energy += random.rnd(roleRandom);
         if (raceRandom > 0) energy += random.rnd(raceRandom);
     } else {
-        let energyRandom = Math.trunc(effective_attribute(state, A_WIS) / 2);
+        let energyRandom = Math.trunc(acurr(state, A_WIS) / 2);
         const lowLevel = u.ulevel < Math.trunc(role.xlev ?? 0);
         const fixedField = lowLevel ? 'lofix' : 'hifix';
         const randomField = lowLevel ? 'lornd' : 'hirnd';

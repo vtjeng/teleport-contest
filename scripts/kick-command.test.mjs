@@ -588,7 +588,7 @@ test('a weak hero always gets crash-open, skipping the rn2(5) draw',
     setDoorWest(D_CLOSED);
     equipKickingBoots();
     // Set Strength to 15, well below 18, so the shatter condition fails
-    // immediately at its first term. effective_attribute(state, A_STR) = 15.
+    // immediately at its first term. acurr(state, A_STR) = 15.
     game.u.acurr.a[A_STR] = 15;
 
     const draws = await drawsOf(`${KICK}h   `);

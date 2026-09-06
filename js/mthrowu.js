@@ -44,7 +44,7 @@ import {
     isok,
     u_at,
 } from './const.js';
-import { effective_attribute } from './attrib.js';
+import { acurr } from './attrib.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { calc_capacity } from './hack.js';
@@ -231,7 +231,7 @@ function maybeHalfPhysical(damage, state) {
 function u_catch_thrown_obj(obj, env) {
     const { state, random } = env;
     const role = state.urole?.mnum;
-    const catchChance = 100 - effective_attribute(state, A_DEX)
+    const catchChance = 100 - acurr(state, A_DEX)
         - ((role === PM_MONK || role === PM_ROGUE) ? 20 : 0);
     if (!heroIsBlind(state)
         && !propertyActive(state, CONFUSION)

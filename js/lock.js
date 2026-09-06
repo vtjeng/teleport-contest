@@ -39,7 +39,7 @@ import {
     u_at,
 } from './const.js';
 import { is_magic_key } from './artifacts.js';
-import { acurrstr, effective_attribute, exercise } from './attrib.js';
+import { acurrstr, acurr, exercise } from './attrib.js';
 import {
     get_adjacent_loc,
     getdir,
@@ -712,15 +712,15 @@ export async function pick_lock(pick, rx, ry, container, state = game) {
 
         switch (picktyp) {
         case CREDIT_CARD:
-            ch = effective_attribute(state, A_DEX)
+            ch = acurr(state, A_DEX)
                 + 20 * ((state.urole?.mnum === PM_ROGUE) ? 1 : 0);
             break;
         case LOCK_PICK:
-            ch = 4 * effective_attribute(state, A_DEX)
+            ch = 4 * acurr(state, A_DEX)
                 + 25 * ((state.urole?.mnum === PM_ROGUE) ? 1 : 0);
             break;
         case SKELETON_KEY:
-            ch = 75 + effective_attribute(state, A_DEX);
+            ch = 75 + acurr(state, A_DEX);
             break;
         default:
             ch = 0;
@@ -818,13 +818,13 @@ export async function pick_lock(pick, rx, ry, container, state = game) {
         const isRogue = (state.urole?.mnum === PM_ROGUE) ? 1 : 0;
         switch (picktyp) {
         case CREDIT_CARD:
-            ch = 2 * effective_attribute(state, A_DEX) + 20 * isRogue;
+            ch = 2 * acurr(state, A_DEX) + 20 * isRogue;
             break;
         case LOCK_PICK:
-            ch = 3 * effective_attribute(state, A_DEX) + 30 * isRogue;
+            ch = 3 * acurr(state, A_DEX) + 30 * isRogue;
             break;
         case SKELETON_KEY:
-            ch = 70 + effective_attribute(state, A_DEX);
+            ch = 70 + acurr(state, A_DEX);
             break;
         default:
             ch = 0;
@@ -1166,8 +1166,8 @@ export async function doopen_indir(x, y, state = game, env = {}) {
     // with C's truncating integer division.
     const threshold = Math.trunc((
         acurrstr(state)
-        + effective_attribute(state, A_DEX)
-        + effective_attribute(state, A_CON)
+        + acurr(state, A_DEX)
+        + acurr(state, A_CON)
     ) / 3);
     if (random.rnl(20) < threshold) {
         await message(
@@ -1408,8 +1408,8 @@ export async function doclose(state = game) {
         // rn2(25) against the average of ACURRSTR, ACURR(A_DEX), ACURR(A_CON).
         const threshold = Math.trunc((
             acurrstr(state)
-            + effective_attribute(state, A_DEX)
-            + effective_attribute(state, A_CON)
+            + acurr(state, A_DEX)
+            + acurr(state, A_CON)
         ) / 3);
         if (u.usteed || rn2(25) < threshold) {
             await ttyPline('The door closes.', state);

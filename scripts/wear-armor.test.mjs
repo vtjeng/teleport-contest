@@ -59,7 +59,7 @@ import {
     set_wear,
     wear_ok,
 } from '../js/do_wear.js';
-import { effective_attribute } from '../js/attrib.js';
+import { acurr } from '../js/attrib.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { UnsupportedEnlightenmentError, enlightenment } from '../js/insight.js';
@@ -2732,7 +2732,7 @@ test('Ring_on adjust_attrib changes CHA for ring of adornment', async () => {
     // left slot, and call Ring_on directly.
     const debug = debugRingSegment('ring of adornment', `${WAIT}`);
     await setup(debug, debug.moves);
-    const chaBefore = effective_attribute(game, A_CHA);
+    const chaBefore = acurr(game, A_CHA);
 
     // Synthetic +1 ring of adornment, placed in the left ring slot.
     const ring = syntheticRing(RIN_ADORNMENT, 1);
@@ -2743,7 +2743,7 @@ test('Ring_on adjust_attrib changes CHA for ring of adornment', async () => {
 
     // A_CHA increased by spe (1).
     assert.equal(
-        effective_attribute(game, A_CHA), chaBefore + 1,
+        acurr(game, A_CHA), chaBefore + 1,
         'CHA rises by the ring spe (+1)',
     );
     // adjust_attrib sets the status-line refresh flag on game.disp, not
@@ -2757,7 +2757,7 @@ test('Ring_on adjust_attrib changes STR for ring of gain strength', async () => 
     // A +1 ring bumps STR by 1.
     const debug = debugRingSegment('ring of gain strength', `${WAIT}`);
     await setup(debug, debug.moves);
-    const strBefore = effective_attribute(game, A_STR);
+    const strBefore = acurr(game, A_STR);
 
     const ring = syntheticRing(RIN_GAIN_STRENGTH, 1);
     ring.owornmask = W_RINGR;
@@ -2766,7 +2766,7 @@ test('Ring_on adjust_attrib changes STR for ring of gain strength', async () => 
     await Ring_on(ring, game);
 
     assert.equal(
-        effective_attribute(game, A_STR), strBefore + 1,
+        acurr(game, A_STR), strBefore + 1,
         'STR rises by the ring spe (+1)',
     );
 });
@@ -2779,7 +2779,7 @@ test('Ring_on adjust_attrib changes CON for ring of gain constitution',
     // A_STR (Gauntlets of Power) and A_CHA (no override) branches.
     const debug = debugRingSegment('ring of gain constitution', `${WAIT}`);
     await setup(debug, debug.moves);
-    const conBefore = effective_attribute(game, A_CON);
+    const conBefore = acurr(game, A_CON);
 
     const ring = syntheticRing(RIN_GAIN_CONSTITUTION, 1);
     ring.owornmask = W_RINGL;
@@ -2788,7 +2788,7 @@ test('Ring_on adjust_attrib changes CON for ring of gain constitution',
     await Ring_on(ring, game);
 
     assert.equal(
-        effective_attribute(game, A_CON), conBefore + 1,
+        acurr(game, A_CON), conBefore + 1,
         'CON rises by the ring spe (+1)',
     );
 });

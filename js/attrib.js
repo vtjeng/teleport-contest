@@ -4,7 +4,7 @@
 // init_attr(), redist_attr(), vary_init_attr(), exercise(), exerper(), adjattrib(),
 // exerchk(), losestr(), poison_strdmg(), poisontell(), poisoned(),
 // stone_luck(), set_moreluck(), restore_attrib(), adjuhploss(),
-// check_innate_abil(), innately(), is_innate(), and from_what().
+// check_innate_abil(), innately(), is_innate(), from_what(), and acurr().
 
 import {
     A_CHA,
@@ -74,9 +74,13 @@ import {
     ismnum,
     something,
 } from './const.js';
-import { ART_EYES_OF_THE_OVERWORLD, SPFX_LUCK } from './artifacts.js';
-// js/display.js imports effective_attribute() from this file; both sides use
-// the other's exports only inside function bodies, so the cycle resolves.
+import {
+    ART_EYES_OF_THE_OVERWORLD,
+    ART_OGRESMASHER,
+    SPFX_LUCK,
+} from './artifacts.js';
+// js/display.js imports acurr() from this file; both sides use the other's
+// exports only inside function bodies, so the cycle resolves.
 import { see_monsters } from './display.js';
 import { game } from './gstate.js';
 import { strstri } from './hacklib.js';
@@ -85,8 +89,8 @@ import { carrying } from './invent.js';
 // js/mon.js imports adjalign() from this file; both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
 import { adj_erinys } from './mon.js';
-// js/mondata.js imports effective_attribute() from this file; both sides use
-// the other's exports only inside function bodies, so the cycle resolves.
+// js/mondata.js imports acurr() from this file; both sides use the other's
+// exports only inside function bodies, so the cycle resolves.
 import { haseyes, name_to_mon, type_is_pname } from './mondata.js';
 import {
     G_UNIQ,
@@ -112,7 +116,7 @@ import {
     S_NYMPH,
 } from './monsters.js';
 import { objectType } from './obj.js';
-import { DUNCE_CAP, LUCKSTONE } from './objects.js';
+import { DUNCE_CAP, GAUNTLETS_OF_POWER, LUCKSTONE } from './objects.js';
 import { the, ysimple_name } from './objnam.js';
 // js/polyself.js imports exercise() from this file; both sides use the
 // other's exports only inside function bodies, so the cycle resolves.
@@ -651,7 +655,7 @@ export function newhp(state = game, random = { rnd }) {
         if (roleRandom > 0) hp += random.rnd(roleRandom);
         if (raceRandom > 0) hp += random.rnd(raceRandom);
 
-        const constitution = effective_attribute(state, A_CON);
+        const constitution = acurr(state, A_CON);
         if (constitution <= 3) hp -= 2;
         else if (constitution <= 6) hp -= 1;
         else if (constitution <= 14) hp += 0;
@@ -724,29 +728,49 @@ function attributeArray(value) {
     return Array.isArray(value) ? value : value?.a;
 }
 
-// C ref: attrib.c acurr(). The shared arithmetic here owns the
-// base/bonus/temporary sum, the source caps, and the A_CHA floor of 18 for a
-// nymph or amorous demon. Three of acurr()'s special cases are unported, and
-// each needs a different owner:
-//   A_STR, gauntlets of power forcing STR19(25)   -> worn items
-//   A_INT and A_WIS, dunce cap forcing 6          -> worn items
-//   A_CON, u_wield_art(ART_OGRESMASHER) forcing 25 -> wielded artifacts
-// The A_CON case is a wielded artifact rather than worn gear, so the worn-item
-// subsystem will not reach it. A hero wielding Ogresmasher gets the plain
-// 3..25 clamp here.
-export function effective_attribute(state = game, index) {
+// C ref: attrib.c acurr().  Returns the effective current value of the
+// attribute at chridx, accounting for base, bonus, temporary adjustments,
+// worn items (gauntlets of power, dunce cap), wielded artifacts
+// (Ogresmasher), and polymorphed form (nymph / amorous demon charisma).
+export function acurr(state = game, chridx) {
     const u = state.u;
-    const base = Math.trunc(u?.acurr?.a?.[index] ?? 0);
-    const bonus = Math.trunc(attributeArray(u?.abon)?.[index] ?? 0);
-    const temporary = Math.trunc(attributeArray(u?.atemp)?.[index] ?? 0);
-    const total = base + bonus + temporary;
-    if (index === A_STR) return Math.max(3, Math.min(total, 125));
-    if (index === A_CHA && total < 18
-        && (state.youmonst?.data?.mlet === S_NYMPH
-            || state.u?.umonnum === PM_AMOROUS_DEMON)) {
-        return 18;
+    const base = Math.trunc(u?.acurr?.a?.[chridx] ?? 0);
+    const bonus = Math.trunc(attributeArray(u?.abon)?.[chridx] ?? 0);
+    const temporary = Math.trunc(attributeArray(u?.atemp)?.[chridx] ?? 0);
+    const tmp = base + bonus + temporary;
+    let result = 0;
+
+    if (chridx === A_STR) {
+        // Strength: 3..125 encoded range.  Gauntlets of power force max.
+        if (tmp >= STR19(25)
+            || (state.uarmg && state.uarmg.otyp === GAUNTLETS_OF_POWER)) {
+            result = STR19(25); // 125
+        } else {
+            result = Math.max(tmp, 3);
+        }
+    } else if (chridx === A_CHA) {
+        if (tmp < 18
+            && (state.youmonst?.data?.mlet === S_NYMPH
+                || u?.umonnum === PM_AMOROUS_DEMON)) {
+            result = 18;
+        }
+    } else if (chridx === A_CON) {
+        // u_wield_art(ART_OGRESMASHER) => uwep && uwep->oartifact == art
+        if (state.uwep && state.uwep.oartifact === ART_OGRESMASHER) {
+            result = 25;
+        }
+    } else if (chridx === A_INT || chridx === A_WIS) {
+        if (state.uarmh && state.uarmh.otyp === DUNCE_CAP) {
+            result = 6;
+        }
     }
-    return Math.max(3, Math.min(total, 25));
+    // else chridx === A_DEX: no special cases
+
+    if (result === 0) {
+        // None of the special cases applied; clamp to 3..25.
+        result = tmp >= 25 ? 25 : tmp <= 3 ? 3 : tmp;
+    }
+    return result;
 }
 
 // C ref: attrib.c acurrstr(), the ACURRSTR macro's implementation. It folds
@@ -754,7 +778,7 @@ export function effective_attribute(state = game, index) {
 // Strength uses: 18/01..18/31 become 19, 18/32..18/81 become 20,
 // 18/82..18/100 and 19..21 become 21, and 22..25 come back from 122..125.
 export function acurrstr(state = game) {
-    const str = effective_attribute(state, A_STR);
+    const str = acurr(state, A_STR);
     if (str <= 18) return Math.max(str, 3);
     if (str <= 121) return 19 + Math.trunc(str / 50);
     return Math.min(str, 125) - 100;
@@ -909,7 +933,7 @@ function exerciseAttribute(index, increase, state, random, encumberMessage) {
     let adjustment = 0;
     if (Math.abs(attrs.exercise[index]) < EXERCISE_LIMIT) {
         adjustment = increase
-            ? (random.rn2(19) > effective_attribute(state, index) ? 1 : 0)
+            ? (random.rn2(19) > acurr(state, index) ? 1 : 0)
             : -random.rn2(2);
         attrs.exercise[index] += adjustment;
     }
@@ -1106,7 +1130,7 @@ export async function adjattrib(
 
     const random = env.random ?? { rn2 };
     const attrs = attributeArrays(state.u);
-    const oldCurrent = effective_attribute(state, index);
+    const oldCurrent = acurr(state, index);
     const oldBase = attrs.base[index];
     const oldMaximum = attrs.max[index];
     const racialMinimum = Math.trunc(
@@ -1142,7 +1166,7 @@ export async function adjattrib(
         bonusOpposesChange = attributeBonus(state.u, index) > 0;
     }
 
-    if (effective_attribute(state, index) === oldCurrent) {
+    if (acurr(state, index) === oldCurrent) {
         if (messageMode === 0 && state.flags?.verbose) {
             if (attrs.base[index] === oldBase
                 && attrs.max[index] === oldMaximum) {
@@ -1341,7 +1365,7 @@ export async function restore_attrib(state = game, env = {}) {
                 state.disp.botl = true;
                 if (attrs.temp[i]) /* reset timer */
                     attrs.time[i] = Math.trunc(
-                        100 / effective_attribute(state, A_CON),
+                        100 / acurr(state, A_CON),
                     );
             }
         }
@@ -1451,9 +1475,9 @@ const POISON_EFFECT_MESSAGES = Object.freeze([
 export async function poisontell(typ, exclaim, state = game, env = {}) {
     const effect = POISON_EFFECT_MESSAGES[typ];
     let msg = effect.msg;
-    if (typ === A_STR && effective_attribute(state, A_STR) === STR19(25))
+    if (typ === A_STR && acurr(state, A_STR) === STR19(25))
         msg = 'innately weaker';
-    else if (typ === A_CON && effective_attribute(state, A_CON) === 25)
+    else if (typ === A_CON && acurr(state, A_CON) === 25)
         msg = 'sick inside';
     const message = requiredOperation(env, 'message');
     await message(`${effect.prefix} ${msg}${exclaim ? '!' : '.'}`, state);

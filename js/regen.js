@@ -13,7 +13,7 @@ import {
     SLEEPY,
     Upolyd,
 } from './const.js';
-import { effective_attribute } from './attrib.js';
+import { acurr } from './attrib.js';
 import { game } from './gstate.js';
 import { PM_WIZARD, S_EEL } from './monsters.js';
 import { rn1, rn2 } from './rng.js';
@@ -80,7 +80,7 @@ export async function regen_hp(wtcap, state = game, env = {}) {
     if (typeof random.rn2 !== 'function')
         throw new TypeError('regen_hp requires rn2');
 
-    let heal = ((hero.ulevel ?? 0) + effective_attribute(state, A_CON))
+    let heal = ((hero.ulevel ?? 0) + acurr(state, A_CON))
         > random.rn2(100) ? 1 : 0;
     if (regeneration) heal++;
     if (propertyActive(hero, SLEEPY) && hero.usleep) heal++;
@@ -118,8 +118,8 @@ export async function regen_pw(wtcap, state = game, env = {}) {
     if (typeof random.rn1 !== 'function')
         throw new TypeError('regen_pw requires rn1');
     let upper = Math.trunc(
-        (effective_attribute(state, A_WIS)
-            + effective_attribute(state, A_INT)) / 15,
+        (acurr(state, A_WIS)
+            + acurr(state, A_INT)) / 15,
     ) + 1;
     if (hero.uprops?.[MAGICAL_BREATHING]?.extrinsic) upper += 2;
     hero.uen += random.rn1(upper, 1);

@@ -93,7 +93,7 @@ import {
     canSeeMonster,
     canSpotMonster,
 } from '../js/startup_a11y.js';
-import { effective_attribute } from '../js/attrib.js';
+import { acurr } from '../js/attrib.js';
 import { make_engr_at, sengr_at } from '../js/engrave.js';
 import { online2 } from '../js/hacklib.js';
 import { noteleport_level } from '../js/teleport.js';
@@ -3093,7 +3093,7 @@ test('mon_allowflags uses polymorphed Charisma for conflict resistance', () => {
         state.u.acurr.a[A_CHA] = total;
         state.u.abon = [0, 0, 0, 0, 0, 0];
         state.u.atemp = [0, 0, 0, 0, 0, 0];
-        return effective_attribute(state, A_CHA);
+        return acurr(state, A_CHA);
     };
     assert.equal(charisma(S_NYMPH, PM_HUMAN, 10), 18, 'nymph form raises 10');
     assert.equal(charisma(S_NYMPH, PM_HUMAN, 22), 22, 'the floor never lowers');

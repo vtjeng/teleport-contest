@@ -119,7 +119,7 @@ import {
     xdir,
     ydir,
 } from './const.js';
-import { acurrstr, effective_attribute, exercise } from './attrib.js';
+import { acurrstr, acurr, exercise } from './attrib.js';
 import {
     bot,
     classify_terrain,
@@ -346,7 +346,7 @@ export async function handle_tip(tip, state = game, env = {}) {
 // with !Flying, which is the only reader of Flying in this function.
 export function weight_cap(state = game) {
     let capacity = WT_WEIGHTCAP_STRCON * (
-        acurrstr(state) + effective_attribute(state, A_CON)
+        acurrstr(state) + acurr(state, A_CON)
     ) + WT_WEIGHTCAP_SPARE;
     // C ref: hack.c weight_cap() 4313-4323. Polymorphed carrying capacity
     // scales by the new form's corpse weight, consistent with can_carry().
@@ -2402,7 +2402,7 @@ export async function test_move(
             // vpline() clears a11y.msg_loc after every message, so neither
             // carries a direction prefix under `accessiblemsg`.
             const message = requiredMessageOperation(env, 'closed door');
-            if (effective_attribute(state, A_DEX) < 10) {
+            if (acurr(state, A_DEX) < 10) {
                 await message('Ouch!  You bump into a door.', state);
                 await exercise(A_DEX, false, state, env.random ?? { rn2 });
                 // hack.c:1122-1127, the inverse of the pull's bookkeeping.

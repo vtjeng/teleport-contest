@@ -32,7 +32,7 @@ import {
     STUNNED,
     uhim,
 } from './const.js';
-import { effective_attribute, exercise } from './attrib.js';
+import { acurr, exercise } from './attrib.js';
 import { cmdq_pop, getdir } from './cmd.js';
 import { morehungry } from './eat.js';
 import { freehand } from './engrave.js';
@@ -276,7 +276,7 @@ export function percent_success(spell, state = game) {
     /* Calculate intrinsic ability (splcaster) */
     let splcaster = urole.spelbase;
     const special = urole.spelheal;
-    const statused = effective_attribute(state, urole.spelstat);
+    const statused = acurr(state, urole.spelstat);
 
     if (state.uarm && isMetallic(state.uarm, state) && !paladin_bonus) {
         splcaster += (state.uarmc && state.uarmc.otyp === ROBE)
@@ -596,7 +596,7 @@ async function spelleffects_check(spell, state, env) {
         && spellid(spell, state) !== SPE_DETECT_FOOD) {
         await env.message('You are too hungry to cast that spell.', state);
         return { abort: true, res: ECMD_OK, energy: 0 };
-    } else if (effective_attribute(state, A_STR) < 4
+    } else if (acurr(state, A_STR) < 4
         && spellid(spell, state) !== SPE_RESTORE_ABILITY) {
         await env.message('You lack the strength to cast spells.', state);
         return { abort: true, res: ECMD_OK, energy: 0 };
@@ -626,7 +626,7 @@ async function spelleffects_check(spell, state, env) {
     // Deduct hunger for casting (detect food is exempt).
     if (spellid(spell, state) !== SPE_DETECT_FOOD) {
         let hungr = energy * 2;
-        let intell = effective_attribute(state, A_INT);
+        let intell = acurr(state, A_INT);
         if (state.urole.mnum !== PM_WIZARD)
             intell = 10;
         switch (intell) {

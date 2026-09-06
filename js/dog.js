@@ -99,7 +99,7 @@ import {
     canSeeMonster,
     sensesMonster,
 } from './startup_a11y.js';
-import { effective_attribute } from './attrib.js';
+import { acurr } from './attrib.js';
 import { mnexto, rloc_to } from './teleport.js';
 import { vision_recalc } from './vision.js';
 import { mon_wield_item } from './weapon.js';
@@ -174,7 +174,7 @@ export function initedog(monster, everything = true, env = {}) {
         monster.meating = 0;
         edog.droptime = 0;
         edog.dropdist = 10000;
-        edog.apport = effective_attribute(state, A_CHA);
+        edog.apport = acurr(state, A_CHA);
         edog.whistletime = 0;
         edog.ogoal = { x: -1, y: -1 };
         edog.abuse = 0;

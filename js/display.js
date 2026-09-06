@@ -22,7 +22,7 @@ export const SCORER_DEC_MAP = {
 
 import { game } from './gstate.js';
 import { known_branch_stairs, stairway_at } from './stairs.js';
-import { effective_attribute } from './attrib.js';
+import { acurr } from './attrib.js';
 import { near_capacity } from './hack.js';
 import { In_hell, depth, dunlev, on_level, update_lastseentyp } from './dungeon.js';
 import { money_cnt } from './invent.js';
@@ -4642,12 +4642,12 @@ function _statusLine1Layout(includeAlignment = true) {
 
     column = Math.max(31, column + 1);
     const attrs = [
-        effective_attribute(game, A_STR),
-        effective_attribute(game, A_INT),
-        effective_attribute(game, A_WIS),
-        effective_attribute(game, A_DEX),
-        effective_attribute(game, A_CON),
-        effective_attribute(game, A_CHA),
+        acurr(game, A_STR),
+        acurr(game, A_INT),
+        acurr(game, A_WIS),
+        acurr(game, A_DEX),
+        acurr(game, A_CON),
+        acurr(game, A_CHA),
     ];
     const fields = [
         ['strength', `St:${attrs[A_STR] ? get_strength_str(attrs[A_STR]) : '?'}`],
@@ -4902,12 +4902,12 @@ export function xlev_to_rank(xlev) {
 function _statusFieldData(field, valueSnapshot = null) {
     const u = game.u;
     const attrs = [
-        effective_attribute(game, A_STR),
-        effective_attribute(game, A_INT),
-        effective_attribute(game, A_WIS),
-        effective_attribute(game, A_DEX),
-        effective_attribute(game, A_CON),
-        effective_attribute(game, A_CHA),
+        acurr(game, A_STR),
+        acurr(game, A_INT),
+        acurr(game, A_WIS),
+        acurr(game, A_DEX),
+        acurr(game, A_CON),
+        acurr(game, A_CHA),
     ];
     const title = _statusTitle();
     switch (field) {

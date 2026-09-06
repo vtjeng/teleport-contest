@@ -30,7 +30,7 @@ import {
     WARNING,
     WARN_OF_MON,
 } from './const.js';
-import { effective_attribute, exerchk } from './attrib.js';
+import { acurr, exerchk } from './attrib.js';
 import { makedog, see_nearby_monsters } from './dog.js';
 import { mklev, l_nhcore_init } from './mklev.js';
 import { u_on_upstairs } from './stairs.js';
@@ -421,7 +421,7 @@ export function maybeWipeHeroEngraving(
     state = game,
     random = { rn2, rnd },
 ) {
-    const dexterity = effective_attribute(state, A_DEX);
+    const dexterity = acurr(state, A_DEX);
     if (random.rn2(40 + dexterity * 3) !== 0) return false;
 
     const count = random.rnd(3);

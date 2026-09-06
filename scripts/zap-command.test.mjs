@@ -873,7 +873,7 @@ test('the death ray survive path restores the hero after declining death',
     const segment = recipe.segments[0];
     await runSegment(segment);
     // After surviving and resuming play, the hero is alive with restored HP.
-    // savelife() uses effective_attribute(CON) to compute givehp; on a Valkyrie
+    // savelife() uses acurr(CON) to compute givehp; on a Valkyrie
     // with 16 CON: givehp = 50 + 10 * floor(16/2) = 130, but uhpmax on this
     // seed is lower, capping the result.
     assert.ok(game.u.uhp > 0, 'hero HP positive after surviving death ray');

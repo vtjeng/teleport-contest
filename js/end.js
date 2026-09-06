@@ -27,7 +27,7 @@
 // edges are safe because their imported bindings are read only inside
 // functions, after module initialization; neither belongs in a module-scope
 // value initializer while the cycle remains.
-import { effective_attribute, minuhpmax, setuhpmax } from './attrib.js';
+import { acurr, minuhpmax, setuhpmax } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
 import { can_make_bones, savebones } from './bones.js';
 import { yyyymmdd } from './calendar.js';
@@ -221,8 +221,8 @@ async function savelife(how, state = game) {
     const uhpmin = minuhpmax(10, state);
     if (u.uhpmax < uhpmin) setuhpmax(uhpmin, true, state);
 
-    // ACURR(A_CON) is effective_attribute(state, A_CON)
-    const givehp = 50 + 10 * Math.trunc(effective_attribute(state, A_CON) / 2);
+    // ACURR(A_CON) is acurr(state, A_CON)
+    const givehp = 50 + 10 * Math.trunc(acurr(state, A_CON) / 2);
     u.uhp = Math.min(u.uhpmax, givehp);
 
     if (Upolyd(u)) // Unchanging, or death which bypasses losing hit points

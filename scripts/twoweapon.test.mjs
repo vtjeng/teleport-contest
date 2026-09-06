@@ -316,7 +316,7 @@ async function runCommand(seed, dexterityFromDraw) {
 
 test('dotwoweapon spends no time when the draw does not beat Dexterity', async () => {
     // wield.c:861 is `rnd(20) > ACURR(A_DEX)`, so an equal draw is ECMD_OK.
-    // Seed 2 draws 14, which is above effective_attribute()'s floor of 3.
+    // Seed 2 draws 14, which is above acurr()'s floor of 3.
     const { draw, result, state, log } = await runCommand(2, (d) => d);
     assert.equal(draw, 14);
     assert.equal(result, ECMD_OK);

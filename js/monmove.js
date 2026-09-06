@@ -152,7 +152,7 @@ import {
     something,
 } from './const.js';
 import { artifactTouchable, artifact_light } from './artifacts.js';
-import { effective_attribute } from './attrib.js';
+import { acurr } from './attrib.js';
 import { obj_resists } from './bury.js';
 import { newsym, vobj_at } from './display.js';
 import { capitalizedMonsterName } from './do_name.js';
@@ -2824,7 +2824,7 @@ export async function m_move(monster, rawEnv = {}) {
         const linedUp = (rawEnv.itemSearchInLine ?? lined_up)(monster, env);
         const throwRange = throws_rocks(state.youmonst?.data)
             ? 20
-            : Math.trunc(effective_attribute(state, A_STR) / 2) + 1;
+            : Math.trunc(acurr(state, A_STR) / 2) + 1;
         const inLine = linedUp
             && distmin(oldX, oldY, monster.mux, monster.muy) <= throwRange;
         getItems = approach !== 1 || !inLine;

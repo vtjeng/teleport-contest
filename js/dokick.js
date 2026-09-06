@@ -19,7 +19,7 @@
 // dokick.c company in C and have no ported caller; the arm that would reach
 // each one names it in its refusal.
 
-import { acurrstr, exercise, effective_attribute } from './attrib.js';
+import { acurrstr, exercise, acurr } from './attrib.js';
 import { getdir } from './cmd.js';
 import {
     A_CON,
@@ -178,7 +178,7 @@ async function kick_dumb(x, y, state) {
     // 867. martial() and the Dexterity test are both short circuits: a martial
     // hero, and an ordinary one with 16 or more Dexterity, draw no rn2(3) at
     // all. Getting that wrong changes the stream rather than the message.
-    if (martial(state) || effective_attribute(state, A_DEX) >= 16 || rn2(3)) {
+    if (martial(state) || acurr(state, A_DEX) >= 16 || rn2(3)) {
         await ttyPline('You kick at empty space.', state);
         if (Blind(state)) feel_location(x, y, state);
     } else {
@@ -236,7 +236,7 @@ async function kick_door(x, y, avrg_attrib, state) {
     // compares rnl(35) against the hero's attributes plus martial dexterity.
     if (doorbuster
         || (rnl(35) < avrg_attrib + (!martial(state) ? 0
-            : effective_attribute(state, A_DEX)))) {
+            : acurr(state, A_DEX)))) {
         // 931. shopdoor is computed before the if-chain. in_rooms() draws no
         // RNG, so the stream position is unaffected.
         const shopdoor = in_rooms(x, y, SHOPBASE, state).length > 0;
@@ -252,7 +252,7 @@ async function kick_door(x, y, avrg_attrib, state) {
         // 940-944. Shatter: strong hero, rn2(5)==0, non-shop door.
         // C evaluates ACURR(A_STR) > 18 first, then !rn2(5), then !shopdoor.
         // Short-circuit: rn2(5) is drawn only when ACURR(A_STR) > 18.
-        if (effective_attribute(state, A_STR) > 18 && !rn2(5) && !shopdoor) {
+        if (acurr(state, A_STR) > 18 && !rn2(5) && !shopdoor) {
             // 941. Soundeffect() is a tty-sound hook and writes nothing.
             await ttyPline(
                 'As you kick the door, it shatters to pieces!', state,
@@ -482,8 +482,8 @@ export async function dokick(state = game) {
         avrg_attrib = 99;
     } else {
         avrg_attrib = Math.trunc(
-            (acurrstr(state) + effective_attribute(state, A_DEX)
-             + effective_attribute(state, A_CON)) / 3,
+            (acurrstr(state) + acurr(state, A_DEX)
+             + acurr(state, A_CON)) / 3,
         );
     }
 

@@ -1847,7 +1847,7 @@ test('resetInventory deletes each object and restores first-letter state', () =>
     assert.equal(apple.where, OBJ_DELETED);
 });
 
-// A hero the capacity tests can weigh: acurrstr() and effective_attribute()
+// A hero the capacity tests can weigh: acurrstr() and acurr()
 // read u.acurr, and near_capacity() needs both Strength and Constitution.
 function carryingState() {
     const state = initializedState();

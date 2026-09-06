@@ -28,7 +28,7 @@ import {
     STRANGLED,
     TIMEOUT,
 } from '../js/const.js';
-import { effective_attribute } from '../js/attrib.js';
+import { acurr } from '../js/attrib.js';
 import { morehungry } from '../js/eat.js';
 import { can_chant } from '../js/mondata.js';
 import { healup, UnsupportedPotionError } from '../js/potion.js';
@@ -336,7 +336,7 @@ test('spelleffects_check reads A_INT for wizard hunger calculation', () => {
     attributes[A_INT] = 18; // A_INT = 1
     // A_DEX = 3, left at 10 so the two indices are distinguishable.
     const state = { u: { acurr: { a: attributes } } };
-    assert.equal(effective_attribute(state, A_INT), 18);
+    assert.equal(acurr(state, A_INT), 18);
 });
 
 // ── end-to-end differential tests ───────────────────────────────────────────

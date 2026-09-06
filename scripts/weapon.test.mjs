@@ -1173,7 +1173,7 @@ test('hitval reads the trident bonus off the target square', () => {
 test('dbon reads every Strength band and its exact boundaries', () => {
     const at = (str) => dbon(heroState({ str }));
 
-    // str < 6. effective_attribute() floors Strength at 3, so 3 is the lowest
+    // str < 6. acurr() floors Strength at 3, so 3 is the lowest
     // value this band can be asked about.
     assert.equal(at(3), -1);
     assert.equal(at(5), -1);
@@ -1200,7 +1200,7 @@ test('dbon reads every Strength band and its exact boundaries', () => {
     assert.equal(at(STR18(99)), 5);
     // The final `else`: 18/100 and above.
     assert.equal(at(STR18(100)), 6);
-    // 25 is the encoding's ceiling, which effective_attribute() also caps at.
+    // 25 is the encoding's ceiling, which acurr() also caps at.
     assert.equal(at(125), 6);
 });
 

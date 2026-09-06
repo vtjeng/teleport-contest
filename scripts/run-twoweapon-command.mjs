@@ -39,7 +39,7 @@ import {
     ENL_GAMEINPROGRESS,
     P_TWO_WEAPON_COMBAT,
 } from '../js/const.js';
-import { effective_attribute } from '../js/attrib.js';
+import { acurr } from '../js/attrib.js';
 import { weapon_status } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { enlightenment } from '../js/insight.js';
@@ -415,7 +415,7 @@ async function verifyTimeCost(recipeSegment) {
         throw new Error('setup did not leave a katana and a short sword');
     if (game.uarms)
         throw new Error('setup wore a shield, which can_twoweapon() refuses');
-    if (effective_attribute(game, A_DEX) !== dexterity)
+    if (acurr(game, A_DEX) !== dexterity)
         throw new Error(`setup Dexterity is not ${dexterity}`);
     const movesBefore = game.moves;
 

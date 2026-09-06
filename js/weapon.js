@@ -8,7 +8,7 @@ import {
     artifact_light,
     shade_glare,
 } from './artifacts.js';
-import { effective_attribute } from './attrib.js';
+import { acurr } from './attrib.js';
 import {
     AKLYS_LIM,
     A_DEX,
@@ -828,10 +828,10 @@ export async function setmnotwielded(monster, obj, env = {}) {
 // fact) and that arm is left out rather than restated.
 //
 // ACURR(A_STR) is the 3..125 encoding, which is what STR18() indexes, so this
-// reads effective_attribute() rather than acurrstr().
+// reads acurr() rather than acurrstr().
 export function abon(state = game) {
-    const str = effective_attribute(state, A_STR);
-    const dex = effective_attribute(state, A_DEX);
+    const str = acurr(state, A_STR);
+    const dex = acurr(state, A_DEX);
     let sbon;
 
     if (str < 6) sbon = -2;
@@ -856,7 +856,7 @@ export function abon(state = game) {
 // abon() above, C's Upolyd arm -- here a flat 0 -- is left out because polyself
 // is unported and Upolyd() is constantly false.
 export function dbon(state = game) {
-    const str = effective_attribute(state, A_STR);
+    const str = acurr(state, A_STR);
 
     if (str < 6) return -1;
     if (str < 16) return 0;

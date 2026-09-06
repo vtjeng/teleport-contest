@@ -88,7 +88,7 @@ import {
 } from './objects.js';
 import { isFlammable, objectType } from './obj.js';
 import { not_fully_identified } from './objnam.js';
-import { effective_attribute, exercise } from './attrib.js';
+import { acurr, exercise } from './attrib.js';
 import { do_mapping } from './detect.js';
 import { In_W_tower, Is_special } from './dungeon.js';
 import { level_tele, scrolltele } from './teleport.js';
@@ -190,7 +190,7 @@ function tooHardSpellbookPreflight(spellbook, state) {
         return false;
     }
 
-    const readAbility = effective_attribute(state, A_INT)
+    const readAbility = acurr(state, A_INT)
         + 4 + Math.trunc(state.u.ulevel / 2) - 2 * level
         + ((state.ublindf?.otyp === LENSES) ? 2 : 0);
     return readAbility < 20;
@@ -230,7 +230,7 @@ async function studyTooHardSpellbook(spellbook, state) {
 
     const type = objectType(spellbook, state);
     const level = spellbookLevel(type);
-    const readAbility = effective_attribute(state, A_INT)
+    const readAbility = acurr(state, A_INT)
         + 4 + Math.trunc(state.u.ulevel / 2) - 2 * level
         + ((state.ublindf?.otyp === LENSES) ? 2 : 0);
 

@@ -34,7 +34,7 @@ import { newMonster } from '../js/monst.js';
 import { S_FELINE } from '../js/monsters.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { effective_attribute } from '../js/attrib.js';
+import { acurr } from '../js/attrib.js';
 import {
     loadAutoopenSuppressedRecipe,
     loadClosedDoorAutoopenRecipe,
@@ -203,7 +203,7 @@ test('the seam reads this command\'s run value, not the last one\'s', async () =
         door.flags = door.doormask = D_CLOSED | D_TRAPPED;
         // This Valkyrie's Dexterity decides which line the admitted arm
         // prints; the trap is what the assertion is about either way.
-        const clumsy = effective_attribute(game, A_DEX) < 10;
+        const clumsy = acurr(game, A_DEX) < 10;
 
         game.nhDisplay.pushKey(commandKeyCode(key));
         if (refused) {
@@ -792,7 +792,7 @@ test('a suppressed pull repeats one of three results and moves nothing', async (
                     mask: game.level.at(door.x, door.y).flags,
                     // acurr(A_DEX) is fixed for the segment: the bump exercises
                     // Dexterity, and AEXE is a separate counter from ACURR.
-                    dex: effective_attribute(game, A_DEX),
+                    dex: acurr(game, A_DEX),
                 };
                 assert.equal(game.level.at(door.x, door.y).typ, DOOR, label);
                 assert.ok(

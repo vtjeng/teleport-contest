@@ -34,7 +34,7 @@ import {
     touch_artifact,
 } from './artifacts.js';
 import { reset_remarm, setwornEnv } from './do_wear.js';
-import { effective_attribute } from './attrib.js';
+import { acurr } from './attrib.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { strstri } from './hacklib.js';
@@ -250,7 +250,7 @@ export async function dotwoweapon(state = game) {
         await ttyPline('You begin two-weapon combat.', state);
         set_twoweap(true, state); /* u.twoweap = TRUE */
         update_inventory({ state });
-        return (rnd(20) > effective_attribute(state, A_DEX))
+        return (rnd(20) > acurr(state, A_DEX))
             ? ECMD_TIME : ECMD_OK;
     }
     return ECMD_OK;

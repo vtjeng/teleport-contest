@@ -49,7 +49,7 @@ import {
     W_ARMOR,
     W_WEP,
 } from './const.js';
-import { effective_attribute } from './attrib.js';
+import { acurr } from './attrib.js';
 import { artifact_defends } from './artifacts.js';
 // grounded() below reads has_ceiling(). The two files already reach each other
 // through js/shk.js and js/display.js, and both sides use the other's exports
@@ -568,7 +568,7 @@ export function resist_conflict(monster, state = game, random = { rnd }) {
         throw new TypeError('resist_conflict random injection requires rnd');
     const resistChance = Math.min(
         19,
-        effective_attribute(state, A_CHA)
+        acurr(state, A_CHA)
             - Math.trunc(monster.m_lev ?? 0)
             + Math.trunc(state.u?.ulevel ?? 0),
     );

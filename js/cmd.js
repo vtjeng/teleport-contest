@@ -239,7 +239,7 @@ import { doride, UnsupportedSteedError } from './steed.js';
 import { UnsupportedEndOfGameError } from './end.js';
 import { UnsupportedItemIgnitionError } from './apply_catch_lit.js';
 import {
-    effective_attribute,
+    acurr,
     exercise,
     UnsupportedAbilityChangeError,
 } from './attrib.js';
@@ -3829,7 +3829,7 @@ export async function rhack(key, state = game) {
                 let cantdoit = null;
                 if ((state.u?.uhunger ?? 901) <= 10)
                     cantdoit = 'are too weak from hunger';
-                else if (effective_attribute(state, A_STR) < 4)
+                else if (acurr(state, A_STR) < 4)
                     cantdoit = 'lack the strength';
                 else if (energy > state.u.uen)
                     cantdoit = 'lack the energy';
