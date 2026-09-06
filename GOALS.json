@@ -10091,6 +10091,636 @@
       "function": "precheck",
       "session": "seed0361-archeologist-tour",
       "step": 236
+    },
+    {
+      "id": "mkobj-c",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mkobj.c whole in C order, starting from next_ident()",
+      "cFile": "mkobj.c",
+      "sessions": [
+        "seed0367-priest-quest-tour"
+      ],
+      "detail": "",
+      "spans": [
+        {
+          "name": "nextoid",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "nextoid"
+          ]
+        }
+      ],
+      "openedAt": "8500abd3c8676ee8add51071e505ca653091d94c",
+      "openStanding": {
+        "sha": "e3ac015f",
+        "screens": 4977,
+        "rng": 343077
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "init_oextra",
+          "line": 80,
+          "endLine": 85,
+          "ported": false
+        },
+        {
+          "name": "newoextra",
+          "line": 86,
+          "endLine": 95,
+          "ported": false
+        },
+        {
+          "name": "dealloc_oextra",
+          "line": 96,
+          "endLine": 113,
+          "ported": false
+        },
+        {
+          "name": "newomonst",
+          "line": 114,
+          "endLine": 127,
+          "ported": false
+        },
+        {
+          "name": "free_omonst",
+          "line": 128,
+          "endLine": 142,
+          "ported": false
+        },
+        {
+          "name": "newomid",
+          "line": 143,
+          "endLine": 150,
+          "ported": false
+        },
+        {
+          "name": "free_omid",
+          "line": 151,
+          "endLine": 156,
+          "ported": false
+        },
+        {
+          "name": "new_omailcmd",
+          "line": 157,
+          "endLine": 166,
+          "ported": false
+        },
+        {
+          "name": "free_omailcmd",
+          "line": 167,
+          "endLine": 176,
+          "ported": false
+        },
+        {
+          "name": "may_generate_eroded",
+          "line": 177,
+          "endLine": 195,
+          "ported": false
+        },
+        {
+          "name": "mkobj_erosions",
+          "line": 196,
+          "endLine": 226,
+          "ported": false
+        },
+        {
+          "name": "mkobj_at",
+          "line": 227,
+          "endLine": 237,
+          "ported": true
+        },
+        {
+          "name": "mksobj_at",
+          "line": 238,
+          "endLine": 252,
+          "ported": true
+        },
+        {
+          "name": "mksobj_migr_to_species",
+          "line": 253,
+          "endLine": 269,
+          "ported": false
+        },
+        {
+          "name": "mkobj",
+          "line": 270,
+          "endLine": 303,
+          "ported": true
+        },
+        {
+          "name": "mkbox_cnts",
+          "line": 304,
+          "endLine": 387,
+          "ported": false
+        },
+        {
+          "name": "rndmonnum",
+          "line": 388,
+          "endLine": 394,
+          "ported": true
+        },
+        {
+          "name": "rndmonnum_adj",
+          "line": 395,
+          "endLine": 416,
+          "ported": true
+        },
+        {
+          "name": "copy_oextra",
+          "line": 417,
+          "endLine": 456,
+          "ported": true
+        },
+        {
+          "name": "splitobj",
+          "line": 457,
+          "endLine": 508,
+          "ported": true
+        },
+        {
+          "name": "next_ident",
+          "line": 509,
+          "endLine": 535,
+          "ported": true
+        },
+        {
+          "name": "nextoid",
+          "line": 536,
+          "endLine": 555,
+          "ported": false
+        },
+        {
+          "name": "unsplitobj",
+          "line": 556,
+          "endLine": 625,
+          "ported": true
+        },
+        {
+          "name": "clear_splitobjs",
+          "line": 626,
+          "endLine": 640,
+          "ported": true
+        },
+        {
+          "name": "replace_object",
+          "line": 641,
+          "endLine": 683,
+          "ported": false
+        },
+        {
+          "name": "unknwn_contnr_contents",
+          "line": 684,
+          "endLine": 711,
+          "ported": false
+        },
+        {
+          "name": "bill_dummy_object",
+          "line": 712,
+          "endLine": 751,
+          "ported": false
+        },
+        {
+          "name": "costly_alteration",
+          "line": 752,
+          "endLine": 834,
+          "ported": true
+        },
+        {
+          "name": "clear_dknown",
+          "line": 835,
+          "endLine": 853,
+          "ported": true
+        },
+        {
+          "name": "unknow_object",
+          "line": 854,
+          "endLine": 868,
+          "ported": true
+        },
+        {
+          "name": "mksobj_init",
+          "line": 869,
+          "endLine": 1178,
+          "ported": true
+        },
+        {
+          "name": "mksobj",
+          "line": 1179,
+          "endLine": 1263,
+          "ported": true
+        },
+        {
+          "name": "stone_object_type",
+          "line": 1264,
+          "endLine": 1275,
+          "ported": false
+        },
+        {
+          "name": "stone_furniture_type",
+          "line": 1276,
+          "endLine": 1317,
+          "ported": false
+        },
+        {
+          "name": "set_corpsenm",
+          "line": 1318,
+          "endLine": 1370,
+          "ported": true
+        },
+        {
+          "name": "rider_revival_time",
+          "line": 1371,
+          "endLine": 1388,
+          "ported": true
+        },
+        {
+          "name": "start_corpse_timeout",
+          "line": 1389,
+          "endLine": 1442,
+          "ported": true
+        },
+        {
+          "name": "item_on_ice",
+          "line": 1443,
+          "endLine": 1472,
+          "ported": false
+        },
+        {
+          "name": "start_glob_timeout",
+          "line": 1473,
+          "endLine": 1499,
+          "ported": true
+        },
+        {
+          "name": "shrink_glob",
+          "line": 1500,
+          "endLine": 1672,
+          "ported": false
+        },
+        {
+          "name": "shrinking_glob_gone",
+          "line": 1673,
+          "endLine": 1703,
+          "ported": false
+        },
+        {
+          "name": "maybe_adjust_light",
+          "line": 1704,
+          "endLine": 1744,
+          "ported": false
+        },
+        {
+          "name": "bless",
+          "line": 1745,
+          "endLine": 1766,
+          "ported": true
+        },
+        {
+          "name": "unbless",
+          "line": 1767,
+          "endLine": 1782,
+          "ported": false
+        },
+        {
+          "name": "curse",
+          "line": 1783,
+          "endLine": 1821,
+          "ported": true
+        },
+        {
+          "name": "uncurse",
+          "line": 1822,
+          "endLine": 1840,
+          "ported": false
+        },
+        {
+          "name": "blessorcurse",
+          "line": 1841,
+          "endLine": 1856,
+          "ported": true
+        },
+        {
+          "name": "bcsign",
+          "line": 1857,
+          "endLine": 1863,
+          "ported": true
+        },
+        {
+          "name": "set_bknown",
+          "line": 1864,
+          "endLine": 1887,
+          "ported": true
+        },
+        {
+          "name": "weight",
+          "line": 1888,
+          "endLine": 1983,
+          "ported": true
+        },
+        {
+          "name": "rnd_treefruit_at",
+          "line": 1984,
+          "endLine": 1990,
+          "ported": false
+        },
+        {
+          "name": "is_treefruit",
+          "line": 1991,
+          "endLine": 2002,
+          "ported": false
+        },
+        {
+          "name": "mkgold",
+          "line": 2003,
+          "endLine": 2024,
+          "ported": true
+        },
+        {
+          "name": "fixup_oil",
+          "line": 2025,
+          "endLine": 2066,
+          "ported": false
+        },
+        {
+          "name": "mkcorpstat",
+          "line": 2067,
+          "endLine": 2128,
+          "ported": true
+        },
+        {
+          "name": "corpse_revive_type",
+          "line": 2129,
+          "endLine": 2146,
+          "ported": false
+        },
+        {
+          "name": "obj_attach_mid",
+          "line": 2147,
+          "endLine": 2156,
+          "ported": false
+        },
+        {
+          "name": "save_mtraits",
+          "line": 2157,
+          "endLine": 2200,
+          "ported": true
+        },
+        {
+          "name": "get_mtraits",
+          "line": 2201,
+          "endLine": 2226,
+          "ported": true
+        },
+        {
+          "name": "mk_tt_object",
+          "line": 2227,
+          "endLine": 2252,
+          "ported": true
+        },
+        {
+          "name": "mk_named_object",
+          "line": 2253,
+          "endLine": 2269,
+          "ported": true
+        },
+        {
+          "name": "is_flammable",
+          "line": 2270,
+          "endLine": 2288,
+          "ported": false
+        },
+        {
+          "name": "is_rottable",
+          "line": 2289,
+          "endLine": 2304,
+          "ported": false
+        },
+        {
+          "name": "place_object",
+          "line": 2305,
+          "endLine": 2370,
+          "ported": true
+        },
+        {
+          "name": "recreate_pile_at",
+          "line": 2371,
+          "endLine": 2396,
+          "ported": false
+        },
+        {
+          "name": "obj_ice_effects",
+          "line": 2397,
+          "endLine": 2422,
+          "ported": true
+        },
+        {
+          "name": "peek_at_iced_corpse_age",
+          "line": 2423,
+          "endLine": 2439,
+          "ported": true
+        },
+        {
+          "name": "obj_timer_checks",
+          "line": 2440,
+          "endLine": 2507,
+          "ported": true
+        },
+        {
+          "name": "remove_object",
+          "line": 2508,
+          "endLine": 2524,
+          "ported": true
+        },
+        {
+          "name": "discard_minvent",
+          "line": 2525,
+          "endLine": 2556,
+          "ported": true
+        },
+        {
+          "name": "obj_extract_self",
+          "line": 2557,
+          "endLine": 2595,
+          "ported": true
+        },
+        {
+          "name": "extract_nobj",
+          "line": 2596,
+          "endLine": 2622,
+          "ported": false
+        },
+        {
+          "name": "extract_nexthere",
+          "line": 2623,
+          "endLine": 2647,
+          "ported": false
+        },
+        {
+          "name": "add_to_minv",
+          "line": 2648,
+          "endLine": 2675,
+          "ported": true
+        },
+        {
+          "name": "add_to_container",
+          "line": 2676,
+          "endLine": 2697,
+          "ported": true
+        },
+        {
+          "name": "add_to_migration",
+          "line": 2698,
+          "endLine": 2719,
+          "ported": false
+        },
+        {
+          "name": "add_to_buried",
+          "line": 2720,
+          "endLine": 2732,
+          "ported": true
+        },
+        {
+          "name": "container_weight",
+          "line": 2733,
+          "endLine": 2744,
+          "ported": true
+        },
+        {
+          "name": "dealloc_obj",
+          "line": 2745,
+          "endLine": 2814,
+          "ported": true
+        },
+        {
+          "name": "dealloc_obj_real",
+          "line": 2815,
+          "endLine": 2830,
+          "ported": false
+        },
+        {
+          "name": "dobjsfree",
+          "line": 2831,
+          "endLine": 2846,
+          "ported": false
+        },
+        {
+          "name": "hornoplenty",
+          "line": 2847,
+          "endLine": 2948,
+          "ported": false
+        },
+        {
+          "name": "obj_sanity_check",
+          "line": 2949,
+          "endLine": 3031,
+          "ported": false
+        },
+        {
+          "name": "objlist_sanity",
+          "line": 3032,
+          "endLine": 3133,
+          "ported": false
+        },
+        {
+          "name": "shop_obj_sanity",
+          "line": 3134,
+          "endLine": 3203,
+          "ported": false
+        },
+        {
+          "name": "mon_obj_sanity",
+          "line": 3204,
+          "endLine": 3248,
+          "ported": false
+        },
+        {
+          "name": "insane_obj_bits",
+          "line": 3249,
+          "endLine": 3277,
+          "ported": false
+        },
+        {
+          "name": "nomerge_exception",
+          "line": 3278,
+          "endLine": 3295,
+          "ported": false
+        },
+        {
+          "name": "where_name",
+          "line": 3296,
+          "endLine": 3313,
+          "ported": false
+        },
+        {
+          "name": "insane_object",
+          "line": 3314,
+          "endLine": 3346,
+          "ported": false
+        },
+        {
+          "name": "init_dummyobj",
+          "line": 3347,
+          "endLine": 3373,
+          "ported": true
+        },
+        {
+          "name": "check_contained",
+          "line": 3374,
+          "endLine": 3419,
+          "ported": false
+        },
+        {
+          "name": "check_glob",
+          "line": 3420,
+          "endLine": 3446,
+          "ported": false
+        },
+        {
+          "name": "sanity_check_worn",
+          "line": 3447,
+          "endLine": 3642,
+          "ported": false
+        },
+        {
+          "name": "obj_nexto",
+          "line": 3643,
+          "endLine": 3660,
+          "ported": false
+        },
+        {
+          "name": "obj_nexto_xy",
+          "line": 3661,
+          "endLine": 3701,
+          "ported": false
+        },
+        {
+          "name": "obj_absorb",
+          "line": 3702,
+          "endLine": 3767,
+          "ported": false
+        },
+        {
+          "name": "obj_meld",
+          "line": 3768,
+          "endLine": 3817,
+          "ported": false
+        },
+        {
+          "name": "pudding_merge_message",
+          "line": 3818,
+          "endLine": 3852,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 80,
+        "to": 3852
+      },
+      "startFunction": "next_ident"
     }
   ]
 }
