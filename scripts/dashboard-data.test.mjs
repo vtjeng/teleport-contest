@@ -175,6 +175,35 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     commit(fixture, 'Open beta goal', '2026-01-01T01:20:00Z');
     commit(fixture, 'Queue beta slice', '2026-01-01T01:30:00Z');
 
+    // GOALS.json supplies each goal's kind. alpha is a closed file port with
+    // one of two functions ported; beta is the open file port; orphan is a
+    // divergence fix; legacy and empty have no record and stay `boundary`.
+    writeFileSync(join(fixture, 'GOALS.json'), JSON.stringify({
+        goals: [
+            {
+                id: 'alpha', kind: 'file-port', status: 'closed',
+                summary: 'Port alpha.c', cFile: 'alpha.c',
+                functions: [
+                    { name: 'one', line: 1, endLine: 9, ported: true },
+                    { name: 'two', line: 10, endLine: 20, ported: false },
+                ],
+                spans: [{ name: 'one', status: 'closed', closedBy: alphaClose }],
+                delivered: { screens: 5, rng: 50 },
+            },
+            {
+                id: 'beta', kind: 'file-port', status: 'open',
+                summary: 'Port beta.c', cFile: 'beta.c',
+                functions: [{ name: 'three', line: 1, endLine: 5, ported: false }],
+                spans: [{ name: 'three', status: 'queued', closedBy: null }],
+            },
+            {
+                id: 'orphan', kind: 'divergence-fix', status: 'closed',
+                summary: 'fix', cFile: 'dog.c', function: 'dog_eat',
+                session: 'seed0001-example', spans: [],
+            },
+        ],
+    }));
+
     writeFileSync(join(fixture, 'SCORE.tsv'), [
         SCORE_HEADER,
         scoreRow({
@@ -224,6 +253,18 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     assert.equal(data.summary.inProgressGoals, 1);
 
     const [legacy, alpha, orphan, empty, beta] = data.goals;
+    assert.equal(legacy.kind, 'boundary');
+    assert.equal(alpha.kind, 'file-port');
+    assert.equal(alpha.cFile, 'alpha.c');
+    assert.equal(alpha.functionsPorted, 1);
+    assert.equal(alpha.functionsTotal, 2);
+    assert.equal(orphan.kind, 'divergence-fix');
+    assert.equal(beta.kind, 'file-port');
+    assert.deepEqual(data.filePorts.map((port) => port.id), ['alpha', 'beta']);
+    assert.equal(data.filePorts[0].spansClosed, 1);
+    assert.equal(data.filePorts[0].screensDelivered, 5);
+    assert.equal(data.summary.filePortsClosed, 1);
+    assert.equal(data.summary.filePortsTotal, 2);
     assert.equal(legacy.closeTimeSource, 'commit');
     assert.equal(data.progress[0].utcSource, 'commit');
     assert.equal(data.progress[1].utcSource, 'commit');
@@ -262,6 +303,18 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     const orphanRow = table.split('</tr>').find((row) => row.includes('orphan'));
     const alphaRow = table.split('</tr>').find((row) => row.includes('alpha'));
     const betaRow = table.split('</tr>').find((row) => row.includes('beta'));
+    // The kind badges come from GOALS.json: alpha is a file port, orphan a
+    // divergence fix, legacy neither.
+    assert.match(alphaRow, /class="file-badge"[^>]*>file port</u);
+    assert.match(orphanRow, /class="div-badge"[^>]*>div fix</u);
+    // `empty` has no GOALS.json record, so it carries neither badge. (The
+    // legacy goal is hidden from this table: its inferred timing is zero.)
+    const emptyRow = table.split('</tr>').find((row) => row.includes('empty'));
+    assert.doesNotMatch(emptyRow, /-badge"[^>]*>(file port|div fix)</u);
+    // The file-port table lists both records with their function counts.
+    const filePortTable = rendered.get('filePortTable').innerHTML;
+    assert.match(filePortTable, /alpha\.c<\/td><td>closed<\/td><td>1 \/ 2</u);
+    assert.match(filePortTable, /beta\.c<\/td><td>open<\/td><td>0 \/ 1</u);
     // Orphan has inferred timing (†); alpha has observed timing (no †)
     assert.match(orphanRow, /20m\s†/u);
     assert.match(orphanRow, /Working time: 20/u);
@@ -336,9 +389,10 @@ test('in-progress phase provenance follows each recorded boundary', () => {
             utc: '2026-01-01T00:05:00Z', sha: closed,
             event: 'goal', screens: 10, note: 'prior closes.',
         }),
+        // A `span` row, the label .agents/scoring.md uses since 2026-09-05.
         scoreRow({
             utc: '2026-01-01T00:30:00Z', sha: firstClose,
-            event: 'slice', screens: 15, note: 'first running slice closes.',
+            event: 'span', screens: 15, note: 'first running slice closes.',
         }),
         '',
     ];
@@ -399,7 +453,7 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     });
     rows[2] = scoreRow({
         utc: '2026-01-01', sha: firstClose,
-        event: 'slice', screens: 15, note: 'first running slice closes.',
+        event: 'span', screens: 15, note: 'first running slice closes.',
     });
     writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
     const inferredSlice = runData();

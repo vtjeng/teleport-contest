@@ -3,10 +3,6 @@
   "trackingBase": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
   "enforcementBase": "f11f5c2bfb80d323ac171f83b0a3214d9dbaf9b3",
   "legacyPassCount": 21,
-  "thresholds": {
-    "reviewCommits": 20,
-    "reviewChangedLines": 2000
-  },
   "deferred": [
     {
       "id": "flush_screen() rebuilds the whole screen",

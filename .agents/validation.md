@@ -12,12 +12,18 @@ scans, or browser checks. The access rules in `AGENTS.md` for
   writes `.cache/checkpoint-summary.json` with the commit SHA and results. A
   passing check prints only its `PASS` line; a failing check writes its full
   output to `/tmp/checkpoint-<label>.log` and prints the last 20 lines.
-  `npm run checkpoint -- --verbose` prints everything.
-- For nontrivial behavior, run a fresh differential against the C reference
-  with newly chosen seeds, datetimes, options, character configurations, and
-  input sequences. Compare the PRNG log, the complete 24x80 screens with their
-  attributes, the cursor positions, and persisted state through the next point
-  where the player or the scoring system can observe the result.
+  `npm run checkpoint -- --verbose` prints everything. Two of its checks
+  replay recorded play: the development score over `sessions/`, and the
+  recordings corpus over `recordings/`, which fails when any recording stops
+  matching.
+- For an entry point the span completes, write a recipe with a newly chosen
+  seed, datetime, options, character, and inputs, and record it:
+  `node scripts/record-session.mjs recipes/<c-file>/<name>.session.json
+  recordings/<c-file>/<name>.session.json`. Then run `npm run checkpoint`,
+  which compares the PRNG log, the complete 24x80 screens with their
+  attributes, and the cursor positions of every recording. Commit the
+  recording only when it matches completely, as `AGENTS.md`, "Validate
+  completed work", states.
 - Launch a browser only for changes to browser-specific code, DOM/CSS,
   input/storage, or browser-only presentation. Shared engine or glyph-output
   changes do not need it when focused tests cover the renderer's input
@@ -26,8 +32,9 @@ scans, or browser checks. The access rules in `AGENTS.md` for
 ## Fresh differentials
 
 A fresh differential records a case with the patched C program and replays the
-same inputs with the JavaScript port. Its input is a **recipe**: a session file
-holding replay inputs only, never recorded `steps`. Every tool below rejects a
+same inputs with the JavaScript port. Its input is a **recipe**, as
+`.agents/glossary.md` defines it: a session file holding replay inputs only,
+never recorded `steps`. Every tool below rejects a
 path under `sessions/holdout/`.
 
 - One case: `node scripts/diff-fresh.mjs --seed 42 --moves 'jjj' --role
@@ -35,23 +42,24 @@ path under `sessions/holdout/`.
   `node scripts/diff-fresh.mjs <recipe.session.json>`. Exit status 0 is strict
   parity, 1 a mismatch, 2 invalid input or a recorder or runner failure.
   `--help` lists the options.
-- A reusable case: commit its recipe under `recipes/`. Write a
-  `scripts/run-<name>.mjs` matrix instead only when the case needs state read
-  from the port after replay; the matrix builds its recipes, passes them with
-  a `verifySegment` function to `runFreshMatrix()` in
-  `scripts/fresh-matrix.mjs`, ends with one `runMatrixCli()` call, and states
-  in a comment how each seed was chosen. Copy `scripts/run-read-teleport.mjs`,
-  the smallest complete matrix; `scripts/run-kick-command.mjs` shows
-  `verifySegment` and a documented seed scan. Add cases to the matrix for the
-  same C file before creating a new one.
+- A reusable case: commit its recipe under `recipes/<c-file>/` and its
+  recording under `recordings/<c-file>/`. Add a `scripts/run-<name>.mjs`
+  matrix as well, but only when the case needs state read from the port after
+  replay. The matrix builds its recipes, passes them with a `verifySegment`
+  function to `runFreshMatrix()` in `scripts/fresh-matrix.mjs`, ends with one
+  `runMatrixCli()` call, and states in a comment how each seed was chosen.
+  Copy `scripts/run-read-teleport.mjs`, the smallest complete matrix;
+  `scripts/run-kick-command.mjs` shows `verifySegment` and a documented seed
+  scan. Add cases to the matrix for the same C file before creating a new one.
 - `diff-fresh.mjs` runs `scripts/record-session.mjs` for every case. Call it
   directly only to keep a C recording without comparing:
   `node scripts/record-session.mjs <input.session.json> [output.session.json]`.
 
 Nothing reruns a matrix against C after the worker runs it: `npm test`,
-`npm run checkpoint`, and CI replay the port only, and the development score
-covers a branch only where a development session reaches it. Run the matrix
-yourself before claiming parity, and cite the run in the commit message.
+`npm run checkpoint`, and CI replay the port only. A committed recording keeps
+its C side, so checkpoint and CI replay it on every later commit; a matrix's
+state assertions run only when you run the matrix. Cite the run in the commit
+message.
 
 ### Choosing cases
 
@@ -66,12 +74,12 @@ yourself before claiming parity, and cite the run in the commit message.
   against about 0.65 s for a recorded case). Choose the range before
   searching and keep it under about 10,000 seeds; state the range and its
   yield in the matrix script's comment.
-- When the range yields nothing, do not widen it. Record the branch with
-  `npm run quality -- defer`, stating why no C case reaches it, and pin its
-  behavior with a constructed test that names the C function.
-- Before closing a nontrivial slice or goal, run a matrix that varies the
-  inputs relevant to the change, covering the ordinary cases and the rare
-  branches the source identifies. Exhaustive combinations are unnecessary.
+- When the range yields nothing, do not widen it. Pin the branch with a
+  constructed test that names the C function, and state in the test's comment
+  why no C case reaches it.
+- Before closing a file port, run its recipes and any matrix for the file,
+  covering the ordinary cases and the rare branches the source identifies.
+  Exhaustive combinations are unnecessary.
 
 ### When a fresh differential fails
 

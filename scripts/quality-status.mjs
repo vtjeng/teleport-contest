@@ -759,6 +759,7 @@ export function formatReviewDebt(total, current, dirty, thresholds) {
   const currentLines = changedLines(current) + changedLines(dirty);
 
   if (totalUnits === 0 && !hasChanges(total)) return 'clear';
+  if (!thresholds) return `on demand; ${totalText} since the last recorded pass`;
   if (currentUnits >= thresholds.reviewCommits
       || currentLines >= thresholds.reviewChangedLines) {
     return `DUE (${currentUnits}/${thresholds.reviewCommits} commits, `
@@ -777,13 +778,17 @@ export function validateConfigShape(config, mentionsSymbol = upstreamMentions) {
   if (!SHA_PATTERN.test(config.enforcementBase ?? '')) {
     fail('enforcementBase must be a full commit SHA');
   }
-  if (!Number.isInteger(config.thresholds?.reviewCommits)
-      || config.thresholds.reviewCommits < 1) {
-    fail('thresholds.reviewCommits must be a positive integer');
-  }
-  if (!Number.isInteger(config.thresholds?.reviewChangedLines)
-      || config.thresholds.reviewChangedLines < 1) {
-    fail('thresholds.reviewChangedLines must be a positive integer');
+  // `thresholds` schedules a correctness pass by accumulated debt. A ledger
+  // without it runs reviews on demand, as .agents/review.md states.
+  if (config.thresholds !== undefined) {
+    if (!Number.isInteger(config.thresholds?.reviewCommits)
+        || config.thresholds.reviewCommits < 1) {
+      fail('thresholds.reviewCommits must be a positive integer');
+    }
+    if (!Number.isInteger(config.thresholds?.reviewChangedLines)
+        || config.thresholds.reviewChangedLines < 1) {
+      fail('thresholds.reviewChangedLines must be a positive integer');
+    }
   }
   if (!Array.isArray(config.areas) || config.areas.length === 0) {
     fail('areas must be a non-empty array');
@@ -1005,7 +1010,9 @@ function validateHistory(config, head) {
       fail(`pass head ${pass.head} is not an ancestor of HEAD`);
     }
     if (pass.kind !== 'review') continue;
-    if (pass.auditedRange !== undefined) {
+    // A scheduled cadence asserts gapless coverage; an on-demand pass records
+    // the range it read, so only the cadence checks the range.
+    if (pass.auditedRange !== undefined && config.thresholds !== undefined) {
       const { base } = parseRange(pass.auditedRange);
       validateAuditedRangeCoverage(pass.kind, base, reviewFrontier, isAncestor);
     }
@@ -1196,16 +1203,18 @@ function printStatus(config, head, status, verbose) {
   console.log(`Open deferrals: ${openEntries.length}`
     + (homeless > 0 ? ` (${homeless} without an area)` : '') + '.');
   for (const line of formatStaleAnchors(config.deferred)) console.log(line);
-  const reviewDue = thresholdReached(
+  const reviewDue = config.thresholds !== undefined && thresholdReached(
     review.current,
     status.dirty,
     config.thresholds.reviewCommits,
     config.thresholds.reviewChangedLines,
   ) ? 1 : 0;
   console.log(
-    reviewDue
-      ? 'Review gate: BLOCKED (the batch threshold is reached).'
-      : 'Review gate: clear.',
+    config.thresholds === undefined
+      ? 'Review gate: on demand (.agents/review.md).'
+      : reviewDue
+        ? 'Review gate: BLOCKED (the batch threshold is reached).'
+        : 'Review gate: clear.',
   );
 
   const gateInput = {
@@ -1415,7 +1424,7 @@ function preparePass(kind, options) {
   // Correctness must extend its frontier; simplification records the range it
   // read, wherever that sits. A simplification pass that covers older commits
   // than the last one is ordinary, not an error.
-  if (kind === 'review') {
+  if (kind === 'review' && config.thresholds !== undefined) {
     const frontier = frontiers.review;
     if (!isAncestor(frontier, head)) {
       fail(`head ${head} does not cover the existing ${kind} frontier ${frontier}`);

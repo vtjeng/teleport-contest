@@ -15,8 +15,8 @@ import { readBaseline } from './score-baseline.mjs';
 test('the checkpoint surfaces the review gate without gating on it', () => {
     const gate = checkpointCommands().find(
         (entry) => entry.label.startsWith('review gate'));
-    // Informational: .agents/review.md's gate stops implementation, and the
-    // checkpoint only surfaces it, so a red gate must not fail a checkpoint.
+    // Informational: .agents/review.md schedules reviews on demand, and the
+    // checkpoint only surfaces the debt, so it must not fail a checkpoint.
     assert.equal(gate.informational, true);
     assert.deepEqual(gate.args, ['scripts/quality-status.mjs', '--check']);
     // The detail is the dashboard's own Review line, the one number agents
@@ -107,6 +107,7 @@ test('checkpoint runs full, generated, static, and score', () => {
             'duplicate symbols (check:duplicate-symbols)',
             'review gate',
             'development score',
+            'recordings corpus',
         ],
     );
 });

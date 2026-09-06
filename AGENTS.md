@@ -13,8 +13,8 @@ every valid seed, date and time, set of options, and input sequence.
   produce.
 - Select each goal as `.agents/selection.md` states. `GOALS.json` records the
   goal in progress and the goals queued after it
-  (`node scripts/goal-log.mjs --current`). `ROADMAP.md` describes the group
-  of game systems the current goals belong to.
+  (`node scripts/goal-log.mjs --current`). `ROADMAP.md` lists every C file
+  with its ported and unported function counts.
 
 ## Recorded test sessions
 
@@ -70,22 +70,25 @@ All other access to `sessions/holdout/` is prohibited:
 ## Read the instructions for your task
 
 Before starting work, find every matching row below and read every listed file.
-Follow all instructions in those files. A **behavior slice** is a portion of a
-goal's gameplay behavior that one agent session can implement and validate. The
-slice worker (`.claude/agents/slice-worker.md`) completes one slice per run.
+Follow all instructions in those files. A **goal** is one of two kinds. A
+**file port** ports one C file, or a named group of its functions. A
+**divergence fix** repairs one session's first mismatch inside code that is
+already ported. A **span** is the unit of work one worker run lands: for a
+file port, a contiguous run of its functions in C order; for a divergence
+fix, the functions the fix touches. The span worker
+(`.claude/agents/span-worker.md`) completes one span per run.
 
 | Before you... | Read... |
 | --- | --- |
-| Choose which goal or behavior slice to implement next | `.agents/selection.md` and `ROADMAP.md` |
-| Implement game behavior | `ROADMAP.md`, `.agents/glossary.md`, and `.agents/validation.md` |
-| Validate game behavior | `ROADMAP.md` and `.agents/validation.md` |
+| Choose which goal to open next | `.agents/selection.md` and `ROADMAP.md` |
+| Implement game behavior | `.agents/glossary.md` and `.agents/validation.md` |
+| Validate game behavior | `.agents/validation.md` |
 | Propose a change to tooling or process | `.agents/proposals.md` |
-| Complete one behavior slice as a loop worker | `.claude/agents/slice-worker.md` |
+| Complete one span as a loop worker | `.claude/agents/span-worker.md` |
 | Commit game implementation | `.agents/validation.md` |
 | Append a `SCORE.tsv` event row or read a holdout result (orchestrator only) | `.agents/scoring.md` |
 | Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run an authorized holdout evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
-| Check how much unreviewed code has accumulated, or schedule a review (orchestrator only) | `.agents/review.md` and `QUALITY.json` |
-| Run or record a correctness, clarity, simplification, or copyediting pass (orchestrator only) | `.agents/review.md` and the skill named for that pass |
+| Decide whether a correctness review is warranted, or run or record one (orchestrator only) | `.agents/review.md` and the skill it names for that review |
 
 ## Implementation rules
 
@@ -106,24 +109,31 @@ slice worker (`.claude/agents/slice-worker.md`) completes one slice per run.
   or recorded trace can help locate the upstream function but does not define
   its behavior.
 
-### Complete common gameplay first
+### Port whole files in C order
 
-1. Within the current goal, implement gameplay that is likely to happen often
-   before rare or special cases. Leave rare or special cases for later unless
-   the current goal includes them or they are required to complete the common
-   case.
-2. For each case you implement, choose an existing starting point in the
-   running game: either a player input or a call to a game function. Choose the
-   next result that the player or scoring system can observe. Implement all
-   behavior between those points. Match every game-state change, random-number
-   call, message, screen update, and saved value.
-3. Before implementing a helper, data structure, or game mechanic, identify
-   exactly where the current goal will use it in the running game and implement
-   that use at the same time. If the current goal does not use the code in the
-   running game, defer it; do not prepare code for future commands or
-   branches. This rule applies to code that makes a random-number
-   call, writes output, or changes game state; for pure functions, follow "Port
-   pure functions in bulk" instead.
+1. A file port covers every function of its C file, in the file's definition
+   order, whether or not a recorded session reaches it. Do not wait for a
+   caller in the running game, and do not defer a branch because no session
+   exercises it. `.agents/selection.md`, "Choosing a goal", states which
+   function the first span starts from.
+2. Wire each ported function where the C calls it, in the same span. A
+   function that exists only in JavaScript, or a caller the C does not have,
+   is a defect.
+3. When a ported function calls a C function that is not ported yet, port the
+   callee in the same span if the C uses its return value. If the C discards
+   the result, record the gap and skip the call:
+   `note_unported('<file.c> <function>')`. Never invent a random-number call,
+   message, screen write, or state change to stand in for unported code, and
+   never use the return value of `note_unported()` as data.
+4. A function is pure when it makes no random-number call, writes no message
+   or screen output, and changes no game state. Confirm purity by reading the
+   C source, not the name. Give every pure function a test that pins its
+   result to values read from the C source. An impure function's evidence is
+   the recorded play that "Validate completed work" describes; it needs no
+   test of its own.
+5. When a ported function replaces a stub, an injected operation, or an
+   `Unsupported*Error` refusal that stood in for it, delete the placeholder in
+   the same span.
 
 ### Keep each game value in one place
 
@@ -135,8 +145,10 @@ and test that values the C code changes together change together in JavaScript.
 
 ### Keep each source file's port in one place
 
-Some code in `js/` is ported from the C or Lua source. The rest prevents
-unported code paths from executing and is deleted when those paths are ported.
+Some code in `js/` is ported from the C or Lua source. The rest stands in for
+code that is not: it records a gap with `note_unported()`, or, in a file not
+yet ported whole, throws an `Unsupported*Error` to refuse an unported path.
+Delete both when the path is ported.
 
 - Put everything ported from one C file into one JavaScript file with the same
   name, so the C file name tells you which JavaScript file to open.
@@ -144,34 +156,16 @@ unported code paths from executing and is deleted when those paths are ported.
 - Give each function the name of the C function it comes from. If it covers
   only part of that function, keep the name and say which branches it covers
   in a comment.
-- Keep the code that stops unported paths in its own file, named for what it
-  stops.
-- Do not name a file or function after a behavior slice, a review window, or
-  the work that added it. Those names stop making sense once that work is done.
+- `js/unported.js` holds `note_unported()` and the `game.unported` set it
+  fills; keep them there. Do not add an `Unsupported*Error` class or throw
+  site. When a span ports a function that throws one, replace the throw with
+  the ported branch, or with `note_unported()` where that branch's callee is
+  still unported. Delete a class once its last throw site is gone.
+- Do not name a file or function after a span, a goal, or the work that added
+  it. Those names stop making sense once that work is done.
 - Split a ported file only where the C file has separate groups of functions.
   Name each part for the functions it holds, and name the C file and functions
   in a header comment. A large file is fine; the C file is large too.
-
-### Port pure functions in bulk
-
-A function is pure here when it makes no random-number calls, writes no
-messages or screen output, and changes no game state. Porting a pure function
-cannot change what already-working code does, so it does not need a caller in
-the running game first.
-
-- Port the pure functions of one C file as a batch, without waiting for a
-  caller. Keep them in that file's JavaScript port, in its definition order.
-- Confirm purity by reading the C source, not the name. A function that uses
-  randomness, writes output, or changes state leaves the batch and follows
-  "Complete common gameplay first" instead.
-- Before committing a batch, show that it did not change what already worked:
-  the full test suite passes and the development score matches call for call
-  and screen for screen.
-- Give every ported function a test that pins its result to values read from
-  the C source. The score cannot check a function the game does not call yet,
-  so its test is the only proof it is correct.
-- When a ported function replaces a stub or placeholder that stood in for it,
-  delete the placeholder in the same batch.
 
 ### Generate large fixed tables from source
 
@@ -203,22 +197,36 @@ leaderboard score by a margin that grows with session coverage.
 ## Validate completed work
 
 A unit test shows that one function works in isolation but not that the running
-game reaches it or produces the complete result. Before calling a gameplay case
-complete, record a new case with the patched C program, replay the same inputs
-with the JavaScript port, and compare everything from the chosen starting point
-through the chosen result.
+game reaches it or produces the complete result. The port's oracle is recorded
+play: the 33 development sessions, and the recordings corpus under
+`recordings/`, which the patched C program made from the recipes under
+`recipes/`. `npm run checkpoint` replays both and fails when a recording stops
+matching.
+
+Every file port adds recipes. Before the goal closes, its recipes must reach
+each entry point of the ported file at least once, and their recordings must
+match. An entry point is a command, monster action, level feature, or startup
+path the file implements. Commit a recording only when it matches completely.
+When a recipe's recording diverges inside another C file, leave the recipe
+under `recipes/<c-file>/` with a comment naming the blocking function, and
+record it once that function lands. A span that completes an entry point
+records its recipe before closing; a span closes without a new recording when
+neither the development sessions nor the recordings lost a match.
 
 When choosing new cases:
 
-- Choose the smallest repeatable set of cases that covers the behavior and
-  outcomes in the current goal. Save the inputs for each case.
-- Cover each meaningful branch in the C code that belongs to the current goal,
-  including less common branches.
+- Choose the smallest repeatable set of recipes that reaches each entry point
+  of the goal's file. Commit each recipe under `recipes/<c-file>/` and its
+  recording under `recordings/<c-file>/`.
+- Give each recipe a cheap variation, such as a different role, option, or
+  object class, and cover the branches those variations reach. The
+  source-pinned tests and the file's later divergences cover the branches no
+  cheap recipe reaches.
 - When the goal has an explicit limit, run a representative case just outside
   that limit. If the current goal specifies the result, add a passing test. If
-  the case belongs to future work and does not yet match the C reference, keep
-  it out of the passing test suite. Record its inputs and expected failure with
-  `npm run quality -- defer`, which persists after the slice closes.
+  the case belongs to a later span or file port and does not yet match the C
+  reference, keep it out of the passing test suite and commit its recipe under
+  `recipes/<c-file>/` with a comment naming the function that blocks it.
 - Choose inputs independently rather than copying values from an existing
   recorded session, and change the seed, date and time, options, character
   choices, or input sequence only when that input can affect the behavior being
@@ -228,8 +236,8 @@ When choosing new cases:
 
 `.agents/scoring.md` states when and how to append a `SCORE.tsv` row.
 
-Keep progress updates short; `.agents/loop.md`, "Progress reports," states
-their required shape.
+Keep progress updates short; `.agents/loop.md`, "Reports", states their
+required shape.
 
 Create or update a note, report, or permanent record only when
 `.agents/loop.md` or `.agents/review.md` requires it.
@@ -272,6 +280,8 @@ without returning to the user. Stop and ask only for:
 
 - a holdout evaluation outside the close of a goal;
 - a change to which sessions belong to the development and holdout sets;
+- a complete port: every development session matches and `ROADMAP.md` lists
+  no unported function;
 - a decision not covered by this file or any file it references.
 
 Report progress when the user asks and when the loop stops. Do not stop merely

@@ -259,9 +259,9 @@ canvas {
     background-repeat: no-repeat;
     background-attachment: local, local, scroll, scroll;
   }
-  #pipelineTable { min-width: 600px; }
-  #pipelineTable col:nth-child(2) { width: 14%; }
-  #pipelineTable col:nth-child(3) { width: 15%; }
+  #queueTable { min-width: 600px; }
+  #queueTable col:nth-child(2) { width: 14%; }
+  #queueTable col:nth-child(3) { width: 15%; }
 }
 
 .chart-reset {
@@ -507,7 +507,7 @@ canvas {
   border-radius: 1px;
 }
 
-.audit-badge, .div-badge {
+.audit-badge, .div-badge, .file-badge {
   display: inline-block;
   font-size: 10px;
   font-weight: 600;
@@ -527,17 +527,22 @@ canvas {
   border: 1px solid var(--phase-div);
 }
 
-#pipelineTable {
+.file-badge {
+  color: var(--phase-goal-sel);
+  border: 1px solid var(--phase-goal-sel);
+}
+
+#queueTable {
   table-layout: fixed;
   width: 100%;
 }
 
-#pipelineTable col:nth-child(1) { width: 25%; }
-#pipelineTable col:nth-child(2) { width: 9%; }
-#pipelineTable col:nth-child(3) { width: 12%; }
+#queueTable col:nth-child(1) { width: 25%; }
+#queueTable col:nth-child(2) { width: 9%; }
+#queueTable col:nth-child(3) { width: 12%; }
 
-#pipelineTable td:nth-child(1),
-#pipelineTable th:nth-child(1) {
+#queueTable td:nth-child(1),
+#queueTable th:nth-child(1) {
   text-align: left;
   font-family: 'JetBrains Mono', monospace;
   white-space: nowrap;
@@ -545,8 +550,8 @@ canvas {
   text-overflow: ellipsis;
 }
 
-#pipelineTable td:nth-child(4),
-#pipelineTable th:nth-child(4) {
+#queueTable td:nth-child(4),
+#queueTable th:nth-child(4) {
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -603,10 +608,21 @@ canvas {
 <div class="stats" id="stats"></div>
 
 <div class="section">
-  <h2 class="section-title">Blocked sessions</h2>
+  <h2 class="section-title">Divergence queue</h2>
+  <p class="subtitle">Each development session's first mismatch and the C function it names; the goal order follows the files listed under the table.</p>
   <div class="chart-wrap">
     <div class="goal-table-wrap">
-      <table class="goal-table" id="pipelineTable"></table>
+      <table class="goal-table" id="queueTable"></table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2 class="section-title">File ports</h2>
+  <p class="subtitle">Every file-port goal in GOALS.json, with the functions of its C file that have a same-named JavaScript function.</p>
+  <div class="chart-wrap">
+    <div class="goal-table-wrap">
+      <table class="goal-table" id="filePortTable"></table>
     </div>
   </div>
 </div>
@@ -651,7 +667,7 @@ canvas {
 
 <script>
 const DATA = /*DATA_PLACEHOLDER*/null;
-const PIPELINE = /*PIPELINE_PLACEHOLDER*/null;
+const QUEUE = /*QUEUE_PLACEHOLDER*/null;
 
 // --- Helpers ---
 function fmt(n) {
@@ -688,6 +704,7 @@ document.getElementById('stats').innerHTML = [
   { label: 'Sessions', value: s.sessions + ' / ' + s.sessionsTotal, detail: pct(s.sessions, s.sessionsTotal) },
   { label: 'Goals closed', value: s.totalGoals, detail: 'median ' + fmt(s.medianTotalMin) },
   { label: 'Goal selection', value: fmt(s.medianGoalSelectionMin), detail: 'median, last 20' },
+  { label: 'File ports', value: (s.filePortsClosed ?? 0) + ' / ' + (s.filePortsTotal ?? 0), detail: 'closed / recorded' },
 ].map(t => '<div class="stat"><div class="stat-label">' + t.label + '</div><div class="stat-value">' + t.value + '</div><div class="stat-detail">' + t.detail + '</div></div>').join('');
 const inferredProgressCount = DATA.progress.filter(
   p => p.utcSource !== 'commit',
@@ -696,28 +713,57 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' SCORE timestamp where the commit SHA was not found.'
   : 'All plotted times come from commit timestamps.';
 
-// --- Blocked sessions ---
+// --- Divergence queue ---
 (function() {
-  const table = document.getElementById('pipelineTable');
-  if (!PIPELINE || PIPELINE.length === 0) {
-    table.innerHTML = '<tbody><tr><td>No blocked sessions.</td></tr></tbody>';
+  const table = document.getElementById('queueTable');
+  const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  if (!QUEUE || !QUEUE.sessions || QUEUE.sessions.length === 0) {
+    table.innerHTML = '<tbody><tr><td style="text-align:left">Every development session matches, or the queue was not built.</td></tr></tbody>';
     return;
   }
-  let html = '<colgroup><col><col><col><col></colgroup>'
-    + '<thead><tr><th>Session</th><th>Forecast</th><th>Remaining</th><th>Blocked by</th></tr></thead><tbody>';
-  PIPELINE.forEach(s => {
-    const remaining = s.total - s.matched;
-    const fcCell = s.divergent
-      ? '<span style="color:var(--phase-verif)">divergent</span>'
-      : (s.forecast != null ? '' + s.forecast : '-');
-    const blockedCell = s.boundary
-      ? '<span title="' + s.boundary.replace(/"/g, '&quot;') + '">' + s.boundary + '</span>'
-      : '<span style="color:var(--phase-verif)">silent divergence</span>';
+  let html = '<colgroup><col><col><col><col><col></colgroup>'
+    + '<thead><tr><th>Session</th><th>First mismatch</th><th>Kind</th><th>C function</th><th>Remaining</th></tr></thead><tbody>';
+  QUEUE.sessions.forEach(entry => {
+    const where = entry.function
+      ? '<span title="' + esc(entry.cFile + (entry.line ? ':' + entry.line : '')) + '">' + esc(entry.function) + '() in ' + esc(entry.cFile) + '</span>'
+      : entry.kind === 'screen'
+        ? '<span style="color:var(--ink-muted)">display</span>'
+        : '<span style="color:var(--ink-muted)" title="' + esc(entry.message || '') + '">unresolved</span>';
     html += '<tr>'
-      + '<td>' + s.name + '</td>'
-      + '<td>' + fcCell + '</td>'
-      + '<td>' + remaining + ' / ' + s.total + '</td>'
-      + '<td>' + blockedCell + '</td>'
+      + '<td>' + esc(entry.session) + '</td>'
+      + '<td>step ' + entry.step + '</td>'
+      + '<td>' + esc(entry.kind) + '</td>'
+      + '<td>' + where + '</td>'
+      + '<td>' + entry.remaining + ' / ' + entry.recordedSteps + '</td>'
+      + '</tr>';
+  });
+  html += '</tbody>';
+  if (QUEUE.files && QUEUE.files.length) {
+    html += '<tfoot><tr><td colspan="5">Goal order: ' + QUEUE.files.map(file =>
+      esc(file.cFile) + ' (' + file.sessions.length + ' session' + (file.sessions.length === 1 ? '' : 's')
+      + ', ' + file.functionsPorted + ' / ' + file.functionsTotal + ' functions ported)').join('; ') + '</td></tr></tfoot>';
+  }
+  table.innerHTML = html;
+})();
+
+// --- File ports ---
+(function() {
+  const table = document.getElementById('filePortTable');
+  const ports = DATA.filePorts || [];
+  if (ports.length === 0) {
+    table.innerHTML = '<tbody><tr><td style="text-align:left">No file port recorded yet.</td></tr></tbody>';
+    return;
+  }
+  const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  let html = '<thead><tr><th>C file</th><th>Status</th><th>Functions ported</th><th>Spans closed</th><th>Screens delivered</th></tr></thead><tbody>';
+  ports.forEach(port => {
+    const trClass = port.status === 'open' ? ' class="in-progress"' : '';
+    html += '<tr' + trClass + '>'
+      + '<td title="' + esc(port.summary || port.id) + '">' + esc(port.cFile) + '</td>'
+      + '<td>' + esc(port.status) + '</td>'
+      + '<td>' + port.functionsPorted + ' / ' + port.functionsTotal + '</td>'
+      + '<td>' + port.spansClosed + ' / ' + port.spansTotal + '</td>'
+      + '<td>' + (port.screensDelivered == null ? '-' : '+' + port.screensDelivered) + '</td>'
       + '</tr>';
   });
   html += '</tbody>';
@@ -1544,7 +1590,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     { cssVar: '--phase-verif', label: 'Working time' },
   ].map(p =>
     '<div class="legend-item"><div class="legend-swatch" style="background:var(' + p.cssVar + ')"></div>' + p.label + '</div>'
-  ).join('') + '<div class="legend-item"><span class="audit-badge">audit</span> code review during goal</div>' + '<div class="legend-item"><span class="div-badge">div fix</span> divergence fix</div>';
+  ).join('') + '<div class="legend-item"><span class="file-badge">file port</span> port of one C file</div>' + '<div class="legend-item"><span class="div-badge">div fix</span> divergence fix</div>' + '<div class="legend-item"><span class="audit-badge">audit</span> code review during goal</div>';
 
   const table = document.getElementById('goalTable');
   const allGoals = [...DATA.goals].reverse();
@@ -1558,12 +1604,15 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
 
-  let html = '<thead><tr><th>Screens</th><th>Δ</th><th>Goal</th><th>Start</th><th>Slices</th><th>Total</th><th>Goal sel</th><th></th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Screens</th><th>Δ</th><th>Goal</th><th>Start</th><th>Spans</th><th>Total</th><th>Goal sel</th><th></th></tr></thead><tbody>';
 
   goals.forEach((g, i) => {
     const screensCell = g.screens !== null ? g.screens : '-';
     const auditBadge = g.audits.length > 0 ? ' <span class="audit-badge" title="' + g.audits.map(a => a.message).join('\\n').replace(/"/g, '&quot;') + '">audit</span>' : '';
-    const divBadge = g.eventType === 'divergence' ? ' <span class="div-badge">div fix</span>' : '';
+    const divBadge = g.kind === 'divergence-fix' || g.eventType === 'divergence' ? ' <span class="div-badge">div fix</span>' : '';
+    const fileBadge = g.kind === 'file-port'
+      ? ' <span class="file-badge" title="' + (g.cFile || '') + ': ' + g.functionsPorted + ' / ' + g.functionsTotal + ' functions ported">file port</span>'
+      : '';
 
     const deltaCell = g.screensDelta !== null && g.screensDelta !== undefined ? '+' + g.screensDelta : '-';
     const trClass = g.status === 'in-progress' ? ' class="in-progress"' : '';
@@ -1577,7 +1626,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       + '</div>';
 
     const startCell = fmtDate(g.openTime) + (g.openTimeSource === 'open-commit' ? '' : ' †');
-    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td title="' + g.name.replace(/"/g, '&quot;') + '">' + g.name + divBadge + auditBadge + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td><td>' + fmtTiming(g.goalSelectionMin, g.goalSelectionObserved) + '</td><td>' + bar + '</td></tr>';
+    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td title="' + g.name.replace(/"/g, '&quot;') + '">' + g.name + fileBadge + divBadge + auditBadge + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td><td>' + fmtTiming(g.goalSelectionMin, g.goalSelectionObserved) + '</td><td>' + bar + '</td></tr>';
   });
 
   html += '</tbody>';

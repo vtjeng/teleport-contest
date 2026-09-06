@@ -1,28 +1,54 @@
 #!/usr/bin/env node
 
 // Owns GOALS.json, the record of queued, open, and closed goals and their
-// slices. The orchestrator writes it through the subcommands below in place
-// of hand-editing ROADMAP.md prose, and the delivered-versus-forecast
-// comparison that closes a goal is computed from SCORE.tsv through
-// scripts/score-log.mjs: the standing at open is captured in the entry, so
-// nothing is retyped. ROADMAP.md describes the systems the current goals
-// belong to and points here.
+// spans. A goal is a file port or a divergence fix (.agents/glossary.md); the
+// orchestrator writes it through the subcommands below. Goals recorded before
+// 2026-09-05 carry the retired boundary, forecast, and slices fields. The
+// reader accepts them as history; the writer never produces them.
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { readRows, standing } from './score-log.mjs';
+import {
+    PROJECT_ROOT, cFunctions, jsFunctionNames, listCFiles, markPorted,
+    parseCFunctions,
+} from './c-functions.mjs';
 
 export const DEFAULT_PATH = fileURLToPath(new URL('../GOALS.json',
     import.meta.url));
+export const ROADMAP_PATH = join(PROJECT_ROOT, 'ROADMAP.md');
+export const SPAN_CONTEXT_PATH = join(PROJECT_ROOT, '.cache', 'span-context.json');
 
 export const GOAL_STATUSES = Object.freeze(['queued', 'open', 'closed']);
+export const GOAL_KINDS = Object.freeze(['file-port', 'divergence-fix']);
+
+// A span stops growing at this many C lines. It is a starting cap: the last
+// 213 slices closed before 2026-09-05 landed a median of 101 JavaScript lines
+// with per-slice recording overhead the span rules remove. Recalibrate from
+// `git diff --numstat` once ten spans have closed.
+export const SPAN_LINE_CAP = 400;
 
 export function readGoals(path = DEFAULT_PATH) {
     const store = JSON.parse(readFileSync(path, 'utf8'));
     validateGoals(store);
     return store;
+}
+
+/** The one-line description: `summary` on a current goal, `boundary` before. */
+export function goalSummary(goal) {
+    return goal.summary ?? goal.boundary;
+}
+
+/** The work units under a goal: `spans` on a current goal, `slices` before. */
+export function goalSpans(goal) {
+    return goal.spans ?? goal.slices ?? [];
+}
+
+function nonempty(value) {
+    return typeof value === 'string' && value.trim().length > 0;
 }
 
 export function validateGoals(store) {
@@ -31,24 +57,39 @@ export function validateGoals(store) {
     }
     const ids = new Set();
     for (const goal of store.goals) {
-        if (typeof goal.id !== 'string' || goal.id.trim().length === 0) {
-            throw new Error('every goal needs a nonempty id');
-        }
+        if (!nonempty(goal.id)) throw new Error('every goal needs a nonempty id');
         if (ids.has(goal.id)) throw new Error(`duplicate goal id: ${goal.id}`);
         ids.add(goal.id);
         if (!GOAL_STATUSES.includes(goal.status)) {
             throw new Error(`goal ${goal.id} has unknown status ${goal.status}`);
         }
-        if (typeof goal.boundary !== 'string' || goal.boundary.trim().length === 0) {
-            throw new Error(`goal ${goal.id} needs a boundary`);
+        if (!nonempty(goalSummary(goal))) {
+            throw new Error(`goal ${goal.id} needs a summary`);
         }
-        for (const slice of goal.slices ?? []) {
-            if (typeof slice.name !== 'string' || slice.name.trim().length === 0) {
-                throw new Error(`goal ${goal.id} has a slice without a name`);
+        if (goal.kind !== undefined) {
+            if (!GOAL_KINDS.includes(goal.kind)) {
+                throw new Error(`goal ${goal.id} has unknown kind ${goal.kind}`);
             }
-            if (slice.status !== 'queued' && slice.status !== 'closed') {
+            if (!nonempty(goal.cFile)) {
+                throw new Error(`goal ${goal.id} needs a cFile`);
+            }
+            if (goal.kind === 'file-port' && !Array.isArray(goal.functions)) {
+                throw new Error(`goal ${goal.id} needs a functions array`);
+            }
+            if (goal.kind === 'divergence-fix'
+                && !(nonempty(goal.function) && nonempty(goal.session))) {
                 throw new Error(
-                    `slice ${slice.name} has unknown status ${slice.status}`,
+                    `goal ${goal.id} needs the function and session it fixes`,
+                );
+            }
+        }
+        for (const span of goalSpans(goal)) {
+            if (!nonempty(span.name)) {
+                throw new Error(`goal ${goal.id} has a span without a name`);
+            }
+            if (span.status !== 'queued' && span.status !== 'closed') {
+                throw new Error(
+                    `span ${span.name} has unknown status ${span.status}`,
                 );
             }
         }
@@ -88,7 +129,7 @@ function developmentStanding() {
  * goal's standing from itself. Closing `chat-command` did that and recorded
  * `delivered: 0 screens, 0 rng values` for a goal that delivered 21 and 31.
  * Nothing in the output said the standing was stale, and `GOALS.json` would
- * have carried the zero into every later calibration table.
+ * have carried the zero forward.
  *
  * A `SCORE.tsv` sha is the short form, so the head is matched by prefix.
  *
@@ -136,68 +177,113 @@ function commaSeparated(value) {
         : [];
 }
 
-/** Build a forecast whose named sessions each carry an exact C-path trace. */
-export function buildForecast(options) {
-    if (options['forecast-steps'] === undefined) return null;
-    const steps = Number(options['forecast-steps']);
-    if (!Number.isInteger(steps) || steps < 0) {
-        throw new Error('--forecast-steps must be a nonnegative integer');
-    }
-    const basis = options['forecast-basis']?.trim();
-    if (!basis) throw new Error('--forecast-basis is required');
-
-    const sessions = commaSeparated(options.sessions);
-    if (steps > 0 && sessions.length === 0) {
-        throw new Error('a nonzero forecast requires --sessions');
-    }
-    if (new Set(sessions).size !== sessions.length) {
-        throw new Error('--sessions contains a duplicate session');
-    }
-
-    const witnessValues = options['forecast-witness'] === undefined
-        ? []
-        : Array.isArray(options['forecast-witness'])
-            ? options['forecast-witness']
-            : [options['forecast-witness']];
-    const witnesses = witnessValues.map((value) => {
-        const separator = value.indexOf('=');
-        const session = value.slice(0, separator).trim();
-        const evidence = value.slice(separator + 1).trim();
-        if (separator < 1 || !evidence) {
-            throw new Error(
-                '--forecast-witness must be SESSION=C-path evidence',
-            );
-        }
-        return { session, evidence };
-    });
-    const witnessed = new Set();
-    for (const witness of witnesses) {
-        if (!sessions.includes(witness.session)) {
-            throw new Error(
-                `forecast witness names a session outside the forecast: ${
-                    witness.session}`,
-            );
-        }
-        if (witnessed.has(witness.session)) {
-            throw new Error(`duplicate C-path witness: ${witness.session}`);
-        }
-        witnessed.add(witness.session);
-    }
-    const missing = sessions.filter((session) => !witnessed.has(session));
-    if (missing.length) {
-        throw new Error(`missing C-path witness for ${missing.join(', ')}`);
-    }
-    return { steps, basis, sessions, witnesses };
+/** How many of a file port's functions have a same-named JavaScript function. */
+export function portedCount(goal) {
+    const functions = goal.functions ?? [];
+    return {
+        ported: functions.filter((entry) => entry.ported).length,
+        total: functions.length,
+    };
 }
 
-/** Replace only a queued goal's forecast; opened calibration is immutable. */
-export function restateForecast(store, id, forecast) {
-    const goal = findGoal(store, id);
-    if (goal.status !== 'queued') {
-        throw new Error(`goal ${goal.id} is ${goal.status}, not queued`);
-    }
-    goal.forecast = forecast;
+/** Re-read js/ and update a file port's `ported` marks in place. */
+export function refreshPorted(goal, names = null) {
+    if (goal.kind !== 'file-port') return goal;
+    goal.functions = markPorted(goal.functions, names ?? jsFunctionNames());
     return goal;
+}
+
+/**
+ * The functions of one C file that a goal covers: every function between
+ * `from` and `to` inclusive, in C order, or the whole file when both are
+ * omitted.
+ */
+export function selectFunctionRange(functions, from, to) {
+    const start = from ? functions.findIndex((entry) => entry.name === from) : 0;
+    const end = to
+        ? functions.findIndex((entry) => entry.name === to)
+        : functions.length - 1;
+    if (start < 0) throw new Error(`no function named ${from} in the file`);
+    if (end < 0) throw new Error(`no function named ${to} in the file`);
+    if (end < start) throw new Error(`${to} is defined before ${from}`);
+    return functions.slice(start, end + 1);
+}
+
+/**
+ * The next span of a file port: the contiguous run of unported functions
+ * that follows the last closed span, capped at `cap` C lines.
+ *
+ * The first span starts at `startFunction` (the function the divergence
+ * queue named) or at the file's first unported function. Every later span
+ * starts at the first unported function after the last closed span, wrapping
+ * to the top of the file. A run ends at the first ported function or at the
+ * cap, and always holds at least one function. Returns null when every
+ * function is ported.
+ */
+export function nextSpan(functions, closedSpans, startFunction, cap = SPAN_LINE_CAP) {
+    if (!functions.some((entry) => !entry.ported)) return null;
+    const firstUnportedFrom = (index) => {
+        const after = functions.findIndex(
+            (entry, position) => position >= index && !entry.ported,
+        );
+        return after >= 0 ? after : functions.findIndex((entry) => !entry.ported);
+    };
+    let startIndex;
+    const lastClosed = closedSpans.at(-1);
+    if (lastClosed?.functions?.length) {
+        const lastName = lastClosed.functions.at(-1);
+        const lastIndex = functions.findIndex((entry) => entry.name === lastName);
+        startIndex = firstUnportedFrom(lastIndex + 1);
+    } else {
+        const named = startFunction
+            ? functions.findIndex((entry) => entry.name === startFunction)
+            : -1;
+        startIndex = firstUnportedFrom(Math.max(named, 0));
+    }
+    const run = [];
+    let cLines = 0;
+    for (let index = startIndex; index < functions.length; index += 1) {
+        const entry = functions[index];
+        if (entry.ported) break;
+        const size = entry.endLine - entry.line + 1;
+        if (run.length > 0 && cLines + size > cap) break;
+        run.push(entry);
+        cLines += size;
+    }
+    return {
+        functions: run.map((entry) => entry.name),
+        lineRange: `${run[0].line}-${run.at(-1).endLine}`,
+        cLines,
+    };
+}
+
+function spanName(span) {
+    const { functions } = span;
+    return functions.length === 1
+        ? functions[0]
+        : `${functions[0]}..${functions.at(-1)}`;
+}
+
+function jsFileFor(cFile) {
+    return `js/${cFile.replace(/\.c$/u, '.js')}`;
+}
+
+/** The context file the span worker reads, for a queued span of `goal`. */
+export function spanContext(goal, span) {
+    const first = goal.functions.find((entry) => entry.name === span.functions[0]);
+    const last = goal.functions.find((entry) => entry.name === span.functions.at(-1));
+    return {
+        goal: goal.id,
+        cFile: goal.cFile,
+        functions: span.functions,
+        lineRange: `${first.line}-${last.endLine}`,
+        cLines: span.functions.reduce((sum, name) => {
+            const entry = goal.functions.find((candidate) => candidate.name === name);
+            return sum + (entry.endLine - entry.line + 1);
+        }, 0),
+        jsFile: jsFileFor(goal.cFile),
+        sessions: goal.sessions ?? [],
+    };
 }
 
 function required(options, keys) {
@@ -206,72 +292,89 @@ function required(options, keys) {
     }
 }
 
-// The default stays terse because `--current` opens every task; `--detail`
-// adds the upstream owners and the traced source findings recorded at
-// queue-goal, which the selectors and the worker read before touching source.
 export function formatGoal(goal, { detail = false } = {}) {
     const lines = [
-        `${goal.status.toUpperCase()} ${goal.id}: ${goal.boundary}`,
+        `${goal.status.toUpperCase()} ${goal.id}: ${goalSummary(goal)}`,
     ];
-    if (goal.forecast) {
-        lines.push(`  forecast: ${goal.forecast.steps} steps (${
-            goal.forecast.basis})`);
+    if (goal.kind === 'file-port') {
+        const { ported, total } = portedCount(goal);
+        lines.push(`  file port of ${goal.cFile}: ${ported} of ${total} `
+            + 'functions ported'
+            + (goal.startFunction ? `, first span starts at ${goal.startFunction}` : ''));
+    } else if (goal.kind === 'divergence-fix') {
+        lines.push(`  divergence fix in ${goal.cFile} ${goal.function}() `
+            + `for ${goal.session}`
+            + (goal.step !== undefined ? ` at step ${goal.step}` : ''));
+    }
+    if (goal.sessions?.length) {
+        lines.push(`  sessions: ${goal.sessions.join(', ')}`);
     }
     if (goal.delivered) {
         lines.push(`  delivered: ${goal.delivered.screens} screens, `
             + `${goal.delivered.rng} rng values`);
     }
-    for (const slice of goal.slices ?? []) {
-        lines.push(`  [${slice.status}] ${slice.name}`
-            + (slice.closedBy ? ` (${slice.closedBy.slice(0, 8)})` : ''));
+    for (const span of goalSpans(goal)) {
+        lines.push(`  [${span.status}] ${span.name}`
+            + (span.closedBy ? ` (${span.closedBy.slice(0, 8)})` : ''));
     }
-    if (detail) {
-        if (goal.upstreamOwners?.length) {
-            lines.push(`  owners: ${goal.upstreamOwners.join(', ')}`);
-        }
-        for (const witness of goal.forecast?.witnesses ?? []) {
-            lines.push(`  witness ${witness.session}: ${witness.evidence}`);
-        }
-        if (goal.detail) {
-            lines.push('  detail:');
-            for (const line of goal.detail.split('\n')) {
-                lines.push(`    ${line}`);
-            }
+    if (detail && goal.detail) {
+        lines.push('  detail:');
+        for (const line of goal.detail.split('\n')) {
+            lines.push(`    ${line}`);
         }
     }
     return lines.join('\n');
 }
 
-// The calibration record behind .agents/selection.md's retirement rule: a
-// ranking statistic leaves selection when the last three closed goals each
-// delivered less than a tenth of its forecast. GOALS.json carries the
-// forecast and delivered figures for goals closed through close-goal;
-// SCORE.tsv's `goal` rows carry the standing at every goal close, including
-// closes that predate GOALS.json, so both are printed and a blank cell
-// renders as `-` instead of dropping the row.
-export function calibrationLines(store, rows) {
-    const lines = ['Closed goals in GOALS.json (delivered versus forecast):'];
-    const closed = store.goals.filter((goal) => goal.status === 'closed');
-    if (closed.length === 0) lines.push('  (none recorded)');
-    for (const goal of closed) {
-        const forecastSteps = goal.forecast?.steps;
-        const deliveredScreens = goal.delivered?.screens;
-        const ratio = forecastSteps > 0 && Number.isFinite(deliveredScreens)
-            ? ` (${(deliveredScreens / forecastSteps).toFixed(2)} of forecast)`
-            : '';
-        lines.push(`  ${goal.id}: delivered ${deliveredScreens ?? '-'} `
-            + `screens, forecast ${forecastSteps ?? '-'} steps${ratio}`);
+/**
+ * The roadmap table: one row per C file with its function counts and the
+ * goal that covers it, ordered by the number of unported functions.
+ */
+export function roadmapRows(files, names, goals) {
+    const latestGoal = new Map();
+    for (const goal of goals) {
+        if (goal.kind === 'file-port') latestGoal.set(goal.cFile, goal);
     }
-    lines.push('');
-    lines.push('SCORE.tsv goal rows (standing at each close; - is unrecorded):');
-    const cell = (value) => (value === '' || value === undefined ? '-' : value);
-    for (const row of rows.filter((entry) => entry.event === 'goal')) {
-        lines.push(`  ${row.utc.slice(0, 10)}  ${row.sha.slice(0, 8)}  `
-            + `screens ${cell(row.screens_matched)}/${cell(row.screens_total)}  `
-            + `holdout ${cell(row.holdout_screens_matched)}/${
-                cell(row.holdout_screens_total)}  ${row.note}`);
+    return files.map(({ name, text }) => {
+        const functions = parseCFunctions(text);
+        const ported = functions.filter((entry) => names.has(entry.name)).length;
+        const goal = latestGoal.get(name);
+        return {
+            cFile: name,
+            total: functions.length,
+            ported,
+            unported: functions.length - ported,
+            goal: goal ? `${goal.id} (${goal.status})` : '',
+        };
+    }).sort((a, b) => b.unported - a.unported || a.cFile.localeCompare(b.cFile));
+}
+
+export function formatRoadmap(rows, head) {
+    const total = rows.reduce((sum, row) => sum + row.total, 0);
+    const ported = rows.reduce((sum, row) => sum + row.ported, 0);
+    const lines = [
+        '# Roadmap',
+        '',
+        `Generated by \`node scripts/goal-log.mjs roadmap\` at ${head.slice(0, 8)}. `
+        + 'Do not edit by hand.',
+        '',
+        'This table lists every C file under `src/` and `win/tty/` in',
+        '`nethack-c/upstream/`, the functions it defines, and how many of them',
+        'have a same-named JavaScript function under `js/`. A name match says a',
+        'port exists, not that it is complete or correct. The rows are the',
+        'remaining work, ordered by unported functions; `.agents/selection.md`',
+        'states how the divergence queue chooses the next file.',
+        '',
+        `Ported functions: ${ported} of ${total}.`,
+        '',
+        '| C file | Functions | Ported | Unported | Goal |',
+        '| --- | ---: | ---: | ---: | --- |',
+    ];
+    for (const row of rows) {
+        lines.push(`| ${row.cFile} | ${row.total} | ${row.ported} | ${row.unported} `
+            + `| ${row.goal} |`);
     }
-    return lines;
+    return `${lines.join('\n')}\n`;
 }
 
 function parseOptions(args) {
@@ -285,18 +388,56 @@ function parseOptions(args) {
         if (index + 1 >= args.length || args[index + 1].startsWith('--')) {
             throw new Error(`${argument} needs a value`);
         }
-        const value = args[index + 1];
-        if (key === 'forecast-witness') {
-            options[key] ??= [];
-            options[key].push(value);
-        } else if (Object.hasOwn(options, key)) {
+        if (Object.hasOwn(options, key)) {
             throw new Error(`--${key} was provided twice`);
-        } else {
-            options[key] = value;
         }
+        options[key] = args[index + 1];
         index += 1;
     }
     return options;
+}
+
+function newGoal(options) {
+    required(options, ['id', 'kind', 'summary', 'c-file']);
+    if (!GOAL_KINDS.includes(options.kind)) {
+        throw new Error(`--kind must be one of ${GOAL_KINDS.join(', ')}`);
+    }
+    const goal = {
+        id: options.id,
+        kind: options.kind,
+        status: 'queued',
+        summary: options.summary,
+        cFile: options['c-file'],
+        sessions: commaSeparated(options.sessions),
+        detail: options.detail ?? '',
+        spans: [],
+        openedAt: null,
+        openStanding: null,
+        closedAt: null,
+        delivered: null,
+    };
+    if (goal.kind === 'file-port') {
+        const functions = selectFunctionRange(
+            cFunctions(goal.cFile),
+            options['from-function'],
+            options['to-function'],
+        );
+        goal.functions = markPorted(functions, jsFunctionNames());
+        goal.range = { from: functions[0].line, to: functions.at(-1).endLine };
+        if (options['start-function']
+            && !functions.some((entry) => entry.name === options['start-function'])) {
+            throw new Error(
+                `--start-function ${options['start-function']} is outside the range`,
+            );
+        }
+        goal.startFunction = options['start-function'] ?? null;
+    } else {
+        required(options, ['function', 'session']);
+        goal.function = options.function;
+        goal.session = options.session;
+        if (options.step !== undefined) goal.step = Number(options.step);
+    }
+    return goal;
 }
 
 function main(args) {
@@ -315,78 +456,100 @@ function main(args) {
         for (const goal of visible) console.log(formatGoal(goal, { detail }));
         return;
     }
-    if (mode === 'calibration') {
-        if (args.length > 1) throw new Error('calibration takes no options');
-        for (const line of calibrationLines(readGoals(), readRows())) {
-            console.log(line);
-        }
+    if (mode === 'roadmap') {
+        if (args.length > 1) throw new Error('roadmap takes no options');
+        const files = listCFiles().map((file) => ({
+            name: file.name,
+            text: readFileSync(file.path, 'utf8'),
+        }));
+        const rows = roadmapRows(files, jsFunctionNames(), readGoals().goals);
+        writeFileSync(ROADMAP_PATH, formatRoadmap(rows, repositoryHead()));
+        console.log(`wrote ${ROADMAP_PATH}: ${rows.length} C files`);
         return;
     }
     const options = parseOptions(args.slice(1));
-    if (mode === 'queue-goal' || mode === 'open-goal') {
-        required(options, ['id', 'boundary']);
+    if (mode === 'queue-goal') {
         const store = readGoals();
-        let goal = store.goals.find((entry) => entry.id === options.id);
-        if (!goal) {
-            goal = { id: options.id, status: 'queued', boundary: options.boundary,
-                upstreamOwners: options.owners
-                    ? options.owners.split(',').map((owner) => owner.trim())
-                    : [],
-                forecast: buildForecast(options),
-                detail: options.detail ?? '',
-                slices: [],
-                openedAt: null,
-                openStanding: null,
-                closedAt: null,
-                delivered: null,
-            };
-            store.goals.push(goal);
+        if (store.goals.some((entry) => entry.id === options.id)) {
+            throw new Error(`goal already exists: ${options.id}`);
         }
-        if (mode === 'open-goal') {
-            if (goal.forecast?.sessions?.length
-                && goal.forecast.sessions.some((session) =>
-                    !goal.forecast.witnesses?.some(
-                        (witness) => witness.session === session,
-                    ))) {
-                throw new Error(
-                    `goal ${goal.id} needs one C-path witness per forecast `
-                    + 'session before it can open',
-                );
+        const goal = newGoal(options);
+        store.goals.push(goal);
+        writeGoals(store);
+        console.log(formatGoal(goal));
+        return;
+    }
+    if (mode === 'open-goal') {
+        required(options, ['id']);
+        const store = readGoals();
+        const goal = findGoal(store, options.id);
+        if (goal.status !== 'queued') {
+            throw new Error(`goal ${goal.id} is ${goal.status}, not queued`);
+        }
+        goal.status = 'open';
+        goal.openedAt = repositoryHead();
+        goal.openStanding = developmentStanding();
+        writeGoals(store);
+        console.log(formatGoal(goal));
+        return;
+    }
+    if (mode === 'next-span') {
+        required(options, ['goal']);
+        const store = readGoals();
+        const goal = findGoal(store, options.goal);
+        if (goal.kind !== 'file-port') {
+            throw new Error(`goal ${goal.id} is not a file port; queue its span `
+                + 'with queue-span');
+        }
+        if (goal.status !== 'open') {
+            throw new Error(`goal ${goal.id} is ${goal.status}, not open`);
+        }
+        let span = goal.spans.find((entry) => entry.status === 'queued');
+        if (!span) {
+            refreshPorted(goal);
+            const closed = goal.spans.filter((entry) => entry.status === 'closed');
+            const next = nextSpan(goal.functions, closed, goal.startFunction);
+            if (!next) {
+                console.log(`every function of ${goal.cFile} in ${goal.id} is `
+                    + 'ported; close the goal');
+                writeGoals(store);
+                return;
             }
-            goal.status = 'open';
-            goal.openedAt = repositoryHead();
-            goal.openStanding = developmentStanding();
+            span = { name: spanName(next), status: 'queued', closedBy: null,
+                functions: next.functions };
+            goal.spans.push(span);
+            writeGoals(store);
         }
-        writeGoals(store);
-        console.log(formatGoal(goal));
+        const context = spanContext(goal, span);
+        mkdirSync(join(PROJECT_ROOT, '.cache'), { recursive: true });
+        writeFileSync(SPAN_CONTEXT_PATH, `${JSON.stringify(context, null, 2)}\n`);
+        console.log(JSON.stringify(context, null, 2));
         return;
     }
-    if (mode === 'restate-forecast') {
-        required(options, ['id', 'forecast-steps', 'forecast-basis']);
-        const store = readGoals();
-        const goal = restateForecast(
-            store,
-            options.id,
-            buildForecast(options),
-        );
-        writeGoals(store);
-        console.log(formatGoal(goal));
-        return;
-    }
-    if (mode === 'queue-slice' || mode === 'close-slice') {
+    if (mode === 'queue-span') {
         required(options, ['goal', 'name']);
         const store = readGoals();
         const goal = findGoal(store, options.goal);
-        let slice = (goal.slices ?? []).find((s) => s.name === options.name);
-        if (mode === 'queue-slice') {
-            if (slice) throw new Error(`slice already exists: ${options.name}`);
-            slice = { name: options.name, status: 'queued', closedBy: null };
-            goal.slices.push(slice);
-        } else {
-            if (!slice) throw new Error(`no slice named: ${options.name}`);
-            slice.status = 'closed';
-            slice.closedBy = repositoryHead();
+        const spans = goalSpans(goal);
+        if (spans.some((entry) => entry.name === options.name)) {
+            throw new Error(`span already exists: ${options.name}`);
         }
+        goal.spans = spans;
+        goal.spans.push({ name: options.name, status: 'queued', closedBy: null,
+            functions: commaSeparated(options.functions) });
+        writeGoals(store);
+        console.log(formatGoal(goal));
+        return;
+    }
+    if (mode === 'close-span') {
+        required(options, ['goal', 'name']);
+        const store = readGoals();
+        const goal = findGoal(store, options.goal);
+        const span = goalSpans(goal).find((entry) => entry.name === options.name);
+        if (!span) throw new Error(`no span named: ${options.name}`);
+        span.status = 'closed';
+        span.closedBy = repositoryHead();
+        refreshPorted(goal);
         writeGoals(store);
         console.log(formatGoal(goal));
         return;
@@ -418,6 +581,7 @@ function main(args) {
         const head = repositoryHead();
         const closeStanding = developmentStanding();
         assertStandingIsCurrent(closeStanding, head);
+        refreshPorted(goal);
         goal.status = 'closed';
         goal.closedAt = head;
         goal.delivered = deliveredSince(goal.openStanding, closeStanding);
@@ -425,9 +589,8 @@ function main(args) {
         console.log(formatGoal(goal));
         return;
     }
-    throw new Error('modes: --current [--detail], calibration, queue-goal, '
-        + 'restate-forecast, open-goal, discard-goal, queue-slice, close-slice, '
-        + 'close-goal');
+    throw new Error('modes: --current [--detail], queue-goal, open-goal, '
+        + 'next-span, queue-span, close-span, discard-goal, close-goal, roadmap');
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

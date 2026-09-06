@@ -11,8 +11,8 @@ retires it.
 
 **What it changes.** A check would list every function exported from `js/` that
 no other `js/` module calls, and flag those that also appear as injected
-operations. `AGENTS.md`, "Port pure functions in bulk", requires deleting an
-injection when a ported function replaces it, but no check detects a batch that
+operations. `AGENTS.md`, "Port whole files in C order", requires deleting an
+injection when a ported function replaces it, but no check detects a span that
 skipped the deletion.
 
 **Scope.** One script beside `scripts/check-namespace-members.mjs`, which
@@ -23,7 +23,7 @@ behavior.
 
 **What prompted it.** `3d33c40` ported `touch_artifact()`'s monster branch with
 tests but deleted none of the five injections that stand in for it. Two later
-agents spent most of a slice re-implementing what was already ported.
+agents spent most of a span re-implementing what was already ported.
 
 **Cost.** Small; `check-namespace-members.mjs` already parses the import block.
 
@@ -71,35 +71,6 @@ read stays valid.
 **What it leaves unfixed.** The log is large. An agent that opens it whole must
 work through most of it to find the summary and the failing test's location.
 
-## Report a deferral whose area owns none of the files it cites
-
-**What it changes.** `npm run quality` would compare each open deferral's `area`
-label against the areas that own the `js/` files its `detail` cites, and print
-every entry whose label matches none of them. It prints beside the citation
-line that landed at `565f700` and does not block.
-
-**Scope.** One comparison over records the citation check already parses, plus a
-suppression rule and its test. `refile-deferral --id <id> --area <id>
---note-file <path>` (landed at `ea2494d`) already moves an entry once identified as
-mislabelled, so only the detection is missing.
-
-**What prompted it.** The area label decides scheduling: `deferralCounts()`
-totals open entries per area and prints the largest as a sweep candidate, so a
-wrong label mis-schedules work. A mislabelled entry once caused selection of an
-area with 0 recorded steps over one measured at 21. The citation check (already
-landed) finds a wrong citation; this check finds a correct citation under a
-wrong label.
-
-**Cost.** Small to compute; the difficulty is the suppression rule. The naive
-comparison flags entries that cite a helper in another area (e.g.
-`pick-lock-lookalike-pile-top-has-no-fresh-case` under `commands` citing
-`js/display.js`). The candidate rule: flag only when no cited file maps to the
-entry's area. The flag rate needs measuring at the current deferral count.
-
-**What it leaves unfixed.** The check reads `detail` and cannot see entries that
-cite no path. Of 92 open entries at `4930664`, 33 cited none and keep whatever
-label they were filed under.
-
 ## Shard the development scorer
 
 **What it changes.** `scripts/score-development.mjs` would split the 33
@@ -117,7 +88,7 @@ sharded path later.
 19.7 s, of which
 about 8 s is replay. `frozen/ps_test_runner.mjs:464` spawns one worker per
 session sequentially, so 33 processes import the `js/` graph one after another.
-Every slice worker pays this cost on each `npm run checkpoint`.
+Every span worker pays this cost on each `npm run checkpoint`.
 
 **Cost.** Small. Sharding adds one workspace copy per shard and a merge step;
 4-way sharding is estimated at about 5 s wall (derived from the 19.7 s and 8 s
@@ -127,36 +98,6 @@ figures above, not measured).
 `js/` graph per session. `NODE_COMPILE_CACHE` was measured at 6% faster on the
 test suite but 33% slower under high parallelism (I/O contention across ~10
 parallel test processes), so it is not viable on this host.
-
-## Run formal review passes concurrently with implementation
-
-**What it changes.** The orchestrator would run correctness, clarity, and
-simplification passes in a second worktree while the next slice worker runs in
-the main checkout. Review passes read code and propose changes but do not need
-the C recorder (`nethack-c/recorder`), which is the blocker that rules out
-parallel implementation workers. The review worktree rebases onto main after the
-pass completes. Implementation stays serial in the main checkout.
-
-**Scope.** The orchestrator would spawn the review pass as a background agent in
-a worktree alongside the next slice worker. Three prerequisites: each worktree
-needs its own checkpoint log; the review branch must rebase (the coverage
-frontier check fails on non-linear history); and the submodule checkout must run
-in each new worktree.
-
-**What prompted it.** The 2026-08-01 meta-analysis measured 21.59 hours of
-review-agent wall time serialized behind implementation across 8 loop sessions.
-Running them concurrently recovers
-most of that time.
-
-**Cost.** Medium. The worktree infrastructure exists (`audit-worktree.mjs`), but
-coordinating the review branch's rebase against the moving main requires care to
-avoid merge conflicts when the review pass proposes fixes to files the worker is
-also editing.
-
-**What it leaves unfixed.** Implementation slices remain serial. The 2026-07-30
-probe measured that two concurrent checkpoints contend on I/O (36 s each versus
-25 s solo), and the C recorder is not available in worktrees, so parallel
-workers remain blocked on those two constraints.
 
 ## Build a per-boundary C state-dump divergence oracle
 
@@ -186,4 +127,41 @@ with the C dump is ongoing work.
 items, traps, level geometry, or other game objects. Extending it to full game
 state would require substantially more C instrumentation.
 
+## Land the rest of the file-port tooling
 
+**What it changes.** The 2026-09-05 rules cite or imply five pieces of tooling
+and layout that do not exist yet. The rules hold as written until these land,
+and the list below is the known distance between the documents and the tree.
+
+1. `js/unported.js`, holding `note_unported()` and the `game.unported` set,
+   and a `runSegment()` diagnostics option that returns that set, so a span
+   can record a gap instead of throwing an `Unsupported*Error`. Until it
+   exists, a span that reaches an unported callee whose result the C discards
+   has nowhere to record the gap and must port the callee.
+2. An end-of-input over-read check in `npm run checkpoint`. Continuing past a
+   gap raises the chance of emitting a prompt C did not, and the scorer's
+   playability runner blocks on the extra read instead of throwing.
+3. Retirement of the boundary census in `scripts/scan-sessions.mjs`: the
+   `--by`, `--ahead`, `--ahead-all`, and `--set-cap` options, the ranking
+   and reconciliation sections, and `.cache/session-frontiers.json`.
+   `scripts/divergence-queue.mjs` reads only the per-session rows.
+4. Mechanical audits in `npm run checkpoint`: constants under `js/` compared
+   against the compiled C headers, and duplicate function definitions across
+   `js/`. Both replace classes of finding the retired review cadence used to
+   catch.
+5. The `recordings/` directory and the `recipes/<c-file>/` layout. The 40
+   recipes now sit directly under `recipes/`; move each under the C file it
+   exercises when that file's port opens. Until a recording is committed, the
+   checkpoint's recordings check reports `none`.
+
+**Scope.** Items 1 and 2 touch `js/jsmain.js` and one new module; item 3 is
+a deletion inside one script and its test; item 4 is two new checks beside
+`scripts/check-duplicate-symbols.mjs`; item 5 is file moves.
+
+**What prompted it.** The user approved the file-port rules on 2026-09-05;
+these are the parts of that approval that did not fit in the same change.
+
+**Cost.** Small for items 1 to 3; item 4 needs a compiled-header reader.
+
+**What it leaves unfixed.** The 95 `Unsupported*Error` classes and their
+throw sites stay until the spans that port their files remove them.

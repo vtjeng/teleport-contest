@@ -626,3 +626,22 @@ After the second level teleport to Dlvl:5, JS processes all remaining moves
 without error but emits no screens. The remaining moves exercise inventory,
 spells, discoveries, attributes, search, and look — display-intensive commands
 that are not yet ported. Not tractable as a targeted fix.
+
+## 2026-09-05: file ports replace boundary ports
+
+Every goal above was a fail-closed boundary port, chosen by a census of where
+the development sessions stopped and ranked by a capped forecast of the steps
+it would unlock. On 2026-09-05 the user replaced that scheme after comparing
+it with the field. The official public score stood at 4,895 of 11,405 screens
+and 2,560 of 11,265 held-out screens. The best agentic fork stood at 11,405
+and 9,179; it ports whole files, records gaps instead of refusing, and selects
+work from each session's first mismatch. Of the 213 slices closed in the 14
+days before the change, 83 gained no screen.
+
+A goal is now a file port or a divergence fix, its unit of work is a span of
+functions in C order, and the divergence queue that
+`scripts/divergence-queue.mjs` prints selects it. The forecast, the witness
+tracing, the classifier capping, and the review cadence went with the census.
+The rules that governed them are in this repository's history at `9a8d2f6a`,
+and the goals recorded under them keep their `boundary`, `forecast`, and
+`slices` fields in `GOALS.json`.

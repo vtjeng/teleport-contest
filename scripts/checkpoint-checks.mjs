@@ -86,9 +86,9 @@ export function checkpointCommands() {
         informational: true,
         summarize: summarizeDuplicateSymbols,
     });
-    // Informational: .agents/review.md's 10-commit/1,000-line gate stops
-    // implementation, and this line puts its state in the one output every
-    // agent already reads, so passing DUE cannot happen by omission.
+    // Informational: .agents/review.md schedules reviews on demand, and this
+    // line puts the unreviewed debt in the one output every agent already
+    // reads, so the reader can decide whether a pass is warranted.
     commands.push({
         label: 'review gate',
         command: process.execPath,
@@ -105,6 +105,18 @@ export function checkpointCommands() {
         summarize: (result) => ({
             body: summarizeDevelopmentScore(result.stdout),
             ...compareScoreToBaseline(result.stdout),
+        }),
+    });
+    // The recordings corpus: recipes recorded with the C program and
+    // committed under recordings/. Every one must keep matching.
+    commands.push({
+        label: 'recordings corpus',
+        command: process.execPath,
+        args: ['scripts/score-recordings.mjs'],
+        capture: true,
+        summarize: (result) => ({
+            passed: result.status === 0,
+            body: result.stdout.trim().split('\n').at(-1) ?? '',
         }),
     });
     return commands;

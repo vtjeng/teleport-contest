@@ -79,10 +79,8 @@ test('the checked-in quality ledger has a valid schema', async () => {
     true,
   );
   assert.equal(history.length, config.passes.length);
-  assert.deepEqual(config.thresholds, {
-    reviewCommits: 20,
-    reviewChangedLines: 2000,
-  });
+  // Reviews run on demand since 2026-09-05, so the ledger carries no cadence.
+  assert.equal(config.thresholds, undefined);
   const generatedOutputs = config.areas.flatMap(
     (area) => area.generatedOutputs ?? [],
   );
@@ -264,6 +262,28 @@ test('excluded audit-fix commits retain visible line-based review debt', () => {
     }),
     /^WATCH \(0\/10 commits, 5\/1000 lines\)/,
   );
+});
+
+test('a ledger without thresholds reports review debt on demand', () => {
+  const clean = {
+    files: new Set(), additions: 0, deletions: 0, binaryFiles: 0,
+  };
+  // Three unreviewed commits and 42 changed lines: figures large enough to
+  // trip a small cadence, which the on-demand line must not do.
+  const current = {
+    commits: 3,
+    excludedCommits: 0,
+    files: new Set(['js/runtime.js']),
+    additions: 40,
+    deletions: 2,
+    binaryFiles: 0,
+  };
+  assert.match(
+    formatReviewDebt(current, current, clean, undefined),
+    /^on demand; .*since the last recorded pass$/u,
+  );
+  const nothing = { ...clean, commits: 0, excludedCommits: 0 };
+  assert.equal(formatReviewDebt(nothing, nothing, clean, undefined), 'clear');
 });
 
 test('structured audit metrics preserve categories and finder attribution', () => {

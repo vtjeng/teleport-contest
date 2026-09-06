@@ -4,7 +4,7 @@
 // Covers the development session set only.
 
 import { execSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 
 function run(cmd) {
   return execSync(cmd, { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }).trim();
@@ -113,7 +113,8 @@ function goalNameFromNote(note) {
 const rawScoreGoals = scoreEvents.filter(e => e.event === 'goal' || e.event === 'divergence');
 const scoreGoals = rawScoreGoals.filter((sg, i) =>
   i === rawScoreGoals.length - 1 || rawScoreGoals[i + 1].note !== sg.note);
-const scoreSlices = scoreEvents.filter(e => e.event === 'slice');
+// `slice` rows predate 2026-09-05; `span` rows follow .agents/scoring.md since.
+const scoreSlices = scoreEvents.filter(e => e.event === 'slice' || e.event === 'span');
 
 const goals = [];
 
@@ -358,6 +359,48 @@ for (const open of inProgressOpens) {
   });
 }
 
+// --- Goal records ---
+// The score note names a goal by its id, and GOALS.json carries the id's kind
+// and, for a file port, its function list. A goal closed before 2026-09-05 has
+// no kind and is labelled `boundary`; a divergence row without a record is a
+// divergence fix.
+
+const goalRecords = new Map();
+if (existsSync('GOALS.json')) {
+  for (const record of JSON.parse(readFileSync('GOALS.json', 'utf8')).goals) {
+    goalRecords.set(record.id, record);
+  }
+}
+
+function portedCounts(record) {
+  const functions = record?.functions ?? [];
+  return {
+    functionsPorted: functions.filter((entry) => entry.ported).length,
+    functionsTotal: functions.length,
+  };
+}
+
+for (const goal of goals) {
+  const record = goalRecords.get(goal.name);
+  goal.kind = record?.kind
+    ?? (goal.eventType === 'divergence' ? 'divergence-fix' : 'boundary');
+  goal.cFile = record?.cFile ?? null;
+  Object.assign(goal, portedCounts(record));
+}
+
+const filePorts = [...goalRecords.values()]
+  .filter((record) => record.kind === 'file-port')
+  .map((record) => ({
+    id: record.id,
+    status: record.status,
+    cFile: record.cFile,
+    summary: record.summary,
+    ...portedCounts(record),
+    spansClosed: (record.spans ?? []).filter((span) => span.status === 'closed').length,
+    spansTotal: (record.spans ?? []).length,
+    screensDelivered: record.delivered?.screens ?? null,
+  }));
+
 // --- Compute per-goal screen deltas ---
 for (let i = 0; i < goals.length; i++) {
   if (goals[i].screens !== null) {
@@ -442,8 +485,10 @@ const summary = {
   medianImplementationMin: median(recentObservedGoals.filter(g => g.sliceCount > 0 && g.implementationMin < 600).map(g => g.implementationMin)),
   medianVerificationMin: median(recentWithVerif.map(g => g.verificationMin)),
   medianTotalMin: median(recentGoals.filter(g => g.totalObserved && g.totalMin < 600).map(g => g.totalMin)),
+  filePortsClosed: filePorts.filter((port) => port.status === 'closed').length,
+  filePortsTotal: filePorts.length,
 };
 
-const output = { goals, progress, standaloneAudits, summary };
+const output = { goals, progress, standaloneAudits, filePorts, summary };
 
 process.stdout.write(JSON.stringify(output, null, 2));

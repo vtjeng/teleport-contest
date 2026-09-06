@@ -11,18 +11,22 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const data = execSync('node scripts/dashboard-data.mjs', { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 });
 
-let pipelineData = '[]';
+// The divergence queue replays the development sessions, which takes about
+// a quarter of a minute when the scan cache misses.
+let queueData = '{"sessions":[],"files":[]}';
 try {
-  pipelineData = execSync('node scripts/pipeline-candidates.mjs --status-json', { encoding: 'utf8', timeout: 30000 });
+  queueData = execSync('node scripts/divergence-queue.mjs --json', {
+    encoding: 'utf8', timeout: 600000, maxBuffer: 10 * 1024 * 1024,
+  });
 } catch {
-  console.error('Warning: pipeline candidates unavailable, using empty list');
+  console.error('Warning: divergence queue unavailable, using an empty queue');
 }
 
 const template = readFileSync(join(__dirname, 'dashboard.template.html'), 'utf8');
 
 const html = template
   .replace('/*DATA_PLACEHOLDER*/null', data)
-  .replace('/*PIPELINE_PLACEHOLDER*/null', pipelineData.trim());
+  .replace('/*QUEUE_PLACEHOLDER*/null', queueData.trim());
 
 const outPath = process.argv[2] || 'dashboard.html';
 writeFileSync(outPath, html);
