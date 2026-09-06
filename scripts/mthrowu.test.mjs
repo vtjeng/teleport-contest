@@ -36,13 +36,14 @@ import {
     BOULDER,
     BOW,
     ORCISH_DAGGER,
+    POT_HEALING,
     POT_SLEEPING,
     STRANGE_OBJECT,
     WAN_STRIKING,
 } from '../js/objects.js';
 import {
     blocking_terrain, lined_up, linedup, linedup_callback, m_lined_up,
-    monshoot, m_throw, thitu, thrwmu,
+    m_useup, monshoot, m_throw, thitu, thrwmu,
 } from '../js/mthrowu.js';
 import { potionhit } from '../js/potion.js';
 import { passive_obj } from '../js/uhitm.js';
@@ -1108,3 +1109,22 @@ test('linedup_callback walks toward the target and stops when fnc matches',
             'distance exceeding BOLT_LIM is rejected',
         );
     });
+
+test('m_useup takes one potion from a stack and frees a lone one', async () => {
+    const state = await hero();
+    const subject = attacker(state, state.u.ux + 2, state.u.uy,
+        state.u.ux, state.u.uy);
+    const potion = mksobj(POT_HEALING, false, false, { state });
+    // Two potions: mthrowu.c:1165-1167 takes one and reweighs the stack.
+    potion.quan = 2;
+    add_to_minv(subject, potion, { state });
+
+    m_useup(subject, potion, { state });
+    assert.equal(potion.quan, 1);
+    assert.equal(potion.owt, state.objects[POT_HEALING].oc_weight);
+    assert.equal(subject.minvent, potion);
+
+    // The last one: m_useupall() (mthrowu.c:1153-1158) extracts and frees it.
+    m_useup(subject, potion, { state });
+    assert.equal(subject.minvent, null);
+});

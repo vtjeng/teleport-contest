@@ -2871,11 +2871,17 @@ export async function m_move(monster, rawEnv = {}) {
         { ...env, resistsTrapEffect },
     );
     if (!count && !is_unicorn(monster.data)) {
-        // C ref: monmove.c:1927. A trapped monster with no movement options
-        // attempts a defensive escape before giving up.
+        // C ref: monmove.c:1927. A monster with no movement options attempts
+        // a defensive escape before giving up.
         const escape = find_defensive(monster, true, env);
-        if (escape && await use_defensive(monster, escape, state, env))
-            return MMOVE_DONE;
+        if (escape) {
+            // use_defensive() writes through ttyPline(), which the planning
+            // pass does not suppress, so the pass records that the monster
+            // would act without executing it, as usePreMoveItems() does.
+            if (env.planning) return MMOVE_DONE;
+            if (await use_defensive(monster, escape, state, env))
+                return MMOVE_DONE;
+        }
         return MMOVE_NOMOVES;
     }
 

@@ -471,6 +471,13 @@ export function mon_offmap(monster) {
     return (monster.mstate ?? MON_FLOOR) !== MON_FLOOR;
 }
 
+// C ref: monst.h:222 is_Vlad(). Vlad the Impaler, or a shapechanger whose
+// true form is Vlad.
+export function is_Vlad(monster) {
+    return monster.data?.pmidx === PM_VLAD_THE_IMPALER
+        || monster.cham === PM_VLAD_THE_IMPALER;
+}
+
 function monsterOnMap(monster) {
     return !mon_offmap(monster);
 }

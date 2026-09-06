@@ -27,6 +27,7 @@ import {
     counter_were,
     curr_mon_load,
     decide_to_shapeshift,
+    is_Vlad,
     iter_mons_safe,
     m_carrying,
     mcalcdistress,
@@ -54,6 +55,7 @@ import {
     PM_HUMAN_WEREWOLF,
     PM_SMALL_MIMIC,
     PM_VAMPIRE,
+    PM_VLAD_THE_IMPALER,
     PM_WEREWOLF,
     S_EEL,
     monst_globals_init,
@@ -1868,4 +1870,24 @@ test('movemon stops the scan after the monster that killed the hero',
             ...schedulerOperations({ moveSingleMonster }),
         });
         assert.deepEqual(visited, ['first', 'second']);
+    });
+
+test('is_Vlad answers for Vlad and for a shapeshifter whose true form is Vlad',
+    () => {
+        // C ref: monst.h:222. The macro reads the current species, then cham,
+        // which holds a shapeshifter's true form.
+        const state = {};
+        monst_globals_init(state);
+        const vlad = newMonster({
+            data: state.mons[PM_VLAD_THE_IMPALER],
+            cham: NON_PM,
+        });
+        const disguised = newMonster({
+            data: state.mons[PM_GNOME],
+            cham: PM_VLAD_THE_IMPALER,
+        });
+        const gnome = newMonster({ data: state.mons[PM_GNOME], cham: NON_PM });
+        assert.equal(is_Vlad(vlad), true);
+        assert.equal(is_Vlad(disguised), true);
+        assert.equal(is_Vlad(gnome), false);
     });

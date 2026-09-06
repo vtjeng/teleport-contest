@@ -11,6 +11,7 @@ import {
     W_WEP,
 } from '../js/const.js';
 import {
+    COLNO,
     COULD_SEE,
     IN_SIGHT,
     M_SEEN_ACID,
@@ -18,6 +19,7 @@ import {
     M_SEEN_REFL,
     M_SEEN_SLEEP,
     ROOM,
+    ROWNO,
     STONE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -267,6 +269,77 @@ test('find_defensive selects a bugle before carried healing', () => {
         kind: 'bugle',
         object: bugle,
     });
+});
+
+test('find_defensive with tryescape skips the distance and health gates', () => {
+    const state = makeSelectionState();
+    const potion = makeObject(state, POT_HEALING);
+    const monster = makeMonster(state, PM_GOBLIN, {
+        // Full health: the heal-threshold block (muse.c:543-556) answers
+        // FALSE for dochug()'s find_defensive(mtmp, FALSE), but it is inside
+        // `if (!tryescape)`, so m_move()'s find_defensive(mtmp, TRUE) for a
+        // monster with no move (monmove.c:1927) scans the inventory instead.
+        mhp: 8,
+        mhpmax: 8,
+        minvent: potion,
+        // Twenty squares east: dist2 of 400 fails the `> 25` gate at
+        // muse.c:454, which the same flag guards.
+        mux: state.u.ux + 20,
+        muy: state.u.uy,
+    });
+    // The potion is the only item, so the rn2(3) at muse.c:659 never fires.
+    const env = {
+        state,
+        random: { rn2: (bound) => assert.fail(`unexpected rn2(${bound})`) },
+    };
+
+    assert.equal(find_defensive(monster, false, env), null);
+    assert.deepEqual(find_defensive(monster, true, env), {
+        kind: 'healing',
+        object: potion,
+    });
+    // The peaceful branch (muse.c:558-563) is inside the same block.
+    monster.mpeaceful = true;
+    assert.deepEqual(find_defensive(monster, true, env), {
+        kind: 'healing',
+        object: potion,
+    });
+});
+
+test('find_defensive zaps undead turning at a cockatrice-corpse wielder', () => {
+    const state = makeSelectionState();
+    const wand = makeObject(state, WAN_UNDEAD_TURNING);
+    // Full health: muse.c:526-540 fires "even if 'mtmp' isn't wounded".
+    const monster = makeMonster(state, PM_GOBLIN, {
+        mhp: 8,
+        mhpmax: 8,
+        minvent: wand,
+        mux: state.u.ux,
+        muy: state.u.uy,
+    });
+    // lined_up() (mthrowu.c) wants the monster's square in the hero's line of
+    // sight; adjacent and in view, it answers without a boulder walk or rn2().
+    state.viz_array = Array.from({ length: ROWNO },
+        () => new Array(COLNO).fill(0));
+    state.viz_array[monster.my][monster.mx] |= COULD_SEE;
+    const env = {
+        state,
+        random: { rn2: (bound) => assert.fail(`unexpected rn2(${bound})`) },
+    };
+
+    // A lizard corpse does not petrify, so the branch does not apply and the
+    // full-health gate answers FALSE.
+    state.uwep = makeObject(state, CORPSE, { corpsenm: PM_LIZARD });
+    assert.equal(find_defensive(monster, false, env), null);
+
+    state.uwep = makeObject(state, CORPSE, { corpsenm: PM_COCKATRICE });
+    assert.deepEqual(find_defensive(monster, false, env), {
+        kind: 'undead turning wand',
+        object: wand,
+    });
+    // An empty wand is passed over (muse.c:534).
+    wand.spe = 0;
+    assert.equal(find_defensive(monster, false, env), null);
 });
 
 test('find_misc selection covers initial miscellaneous item families',

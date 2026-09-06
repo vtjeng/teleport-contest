@@ -49,7 +49,7 @@ import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { calc_capacity } from './hack.js';
 import { distmin, sgn, upstart } from './hacklib.js';
-import { hands_obj } from './invent.js';
+import { hands_obj, obfree } from './invent.js';
 import { m_carrying } from './mon.js';
 import { bigmonst, is_elf, nohands, throws_rocks } from './mondata.js';
 import { PM_MONK, PM_ROGUE } from './monsters.js';
@@ -58,7 +58,7 @@ import { PM_MONK, PM_ROGUE } from './monsters.js';
 // function declarations, which an ES module cycle initializes before either
 // module body runs; nothing here reads the import at module scope.
 import { closed_door } from './monmove.js';
-import { ammo_and_launcher, objectType, sobj_at } from './obj.js';
+import { ammo_and_launcher, objectType, sobj_at, weight } from './obj.js';
 import {
     ACID_VENOM,
     AKLYS,
@@ -87,7 +87,7 @@ import {
 import { rn2, rnd } from './rng.js';
 import { clear_path, couldsee } from './vision.js';
 import { mon_wield_item, select_rwep } from './weapon.js';
-import { is_pole } from './worn.js';
+import { extract_from_minvent, is_pole } from './worn.js';
 import { exclam } from './zap.js';
 
 // C ref: mthrowu.c blocking_terrain() (1281-1288). "return TRUE if terrain at
@@ -593,6 +593,24 @@ export async function monshoot(monster, missile, launcher, rawEnv = {}) {
     state.m_shot.o = STRANGE_OBJECT;
     state.m_shot.s = false;
     return 0;
+}
+
+// C ref: mthrowu.c m_useupall() (1153-1158). Remove an item from a monster's
+// inventory, unequipping it first, and free it.
+export function m_useupall(mon, obj, env = {}) {
+    extract_from_minvent(mon, obj, true, false, env);
+    obfree(obj, null, env);
+}
+
+// C ref: mthrowu.c m_useup() (1160-1170). Remove one instance of an item from
+// a monster's inventory.
+export function m_useup(mon, obj, env = {}) {
+    if (obj.quan > 1) {
+        obj.quan--;
+        obj.owt = weight(obj, env);
+    } else {
+        m_useupall(mon, obj, env);
+    }
 }
 
 // C ref: mthrowu.c thrwmu() (1174-1263), through the source-ordered wield

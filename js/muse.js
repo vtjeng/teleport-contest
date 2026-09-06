@@ -104,6 +104,11 @@ import {
     is_hole,
     isok,
     u_at,
+    BEAR_TRAP,
+    In_V_tower,
+    W_NONDIGGABLE,
+    WEB,
+    is_pit,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { losehp, nomul } from './hack.js';
@@ -138,7 +143,7 @@ import { grow_up, rndmonst, set_malign } from './makemon.js';
 import { m_next2u } from './mhitu.js';
 import {
     healmon, m_carrying, maybe_unhide_at, mon_offmap, mondead, monkilled,
-    seemimic, wakeup, xkilled,
+    seemimic, wakeup, xkilled, is_Vlad,
 } from './mon.js';
 import {
     acidic, attacktype, attacktype_fordmg, breathless, dmgtype, has_head, haseyes, is_animal,
@@ -147,6 +152,7 @@ import {
     mon_knows_traps, mon_learns_traps, monster_resists_element, monstseesu,
     monstunseesu, needspick, nohands, nonliving, passes_walls, resists_magm,
     same_race, slimeproof, throws_rocks, touch_petrifies, verysmall,
+    poly_when_stoned,
 } from './mondata.js';
 import * as M from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
@@ -169,7 +175,7 @@ import { an, ansimpleoname, distant_name, donameFresh, is_plural,
     simpleonames, singular, the, vtense, xnameFresh } from './objnam.js';
 import { discover_object, objdescr_is, observe_object } from './o_init.js';
 import { accessible, monflee, mon_would_take_item, monnear, onscary, youHear } from './monmove.js';
-import { lined_up, linedup_callback } from './mthrowu.js';
+import { lined_up, linedup_callback, m_useup } from './mthrowu.js';
 import { in_your_sanctuary } from './priest.js';
 import { d, rn1, rn2, rn2_on_display_rng, rnd } from './rng.js';
 import { in_rooms } from './rooms.js';
@@ -182,7 +188,8 @@ import {
 } from './teleport.js';
 import { CLR_GREEN, CLR_BRIGHT_GREEN } from './terminal.js';
 import { begin_burn } from './timeout.js';
-import { fill_pit, is_pool, maketrap, t_at, trapname, unconscious } from './trap.js';
+import { fill_pit, is_lava, is_pool, maketrap, t_at, trapname, unconscious } from './trap.js';
+import { is_ice } from './terrain.js';
 import { mintrap, seetrap, wearing_iron_shoes } from './trap_effects.js';
 import { makeplural } from './fruit.js';
 import { s_suffix, upstart } from './hacklib.js';
@@ -275,7 +282,7 @@ async function precheck(mon, obj, state, env = {}) {
                     state.mons[M.PM_GHOST], { state });
                 if (!cc) return 0;
                 await mquaffmsg(mon, obj, state);
-                note_unported('mon.c m_useup');
+                m_useup(mon, obj, { state });
                 const mtmp = makemon(
                     state.mons[M.PM_GHOST], cc.x, cc.y, MM_NOMSG,
                     { state },
@@ -310,7 +317,7 @@ async function precheck(mon, obj, state, env = {}) {
                 state.mons[M.PM_DJINNI], { state });
             if (!cc) return 0;
             await mquaffmsg(mon, obj, state);
-            note_unported('mon.c m_useup');
+            m_useup(mon, obj, { state });
             const mtmp = makemon(
                 state.mons[M.PM_DJINNI], cc.x, cc.y, MM_NOMSG,
                 { state },
@@ -370,7 +377,7 @@ async function precheck(mon, obj, state, env = {}) {
                     ? 'nearby' : 'in the distance'}.`, state);
             if (heardZap) await ttyPline(heardZap, state);
         }
-        note_unported('mon.c m_useup');
+        m_useup(mon, obj, { state });
         mon.mhp -= dam;
         if (mon.mhp < 1 /* DEADMONSTER() */) {
             await monkilled(mon, '', M.AD_RBRE, state, env);
@@ -854,6 +861,20 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             MIGR_RANDOM, null, { state });
         return 2;
     }
+    case 'undead turning wand': {
+        // MUSE_WAN_UNDEAD_TURNING
+        if (!otmp)
+            throw new Error('missing defensive item: wand of undead turning');
+        state.gz ??= {};
+        state.gz.zap_oseen = oseen;
+        await mzapwand(mtmp, otmp, false, state);
+        state.m_using = true;
+        // bhito (zap.c) is unported; pass null so fhito_loc skips objects.
+        note_unported('zap.c bhito');
+        await mbhit(mtmp, rn1(8, 6), mbhitm, null, otmp, state);
+        state.m_using = false;
+        return 2;
+    }
     case 'create monster wand': {
         // MUSE_WAN_CREATE_MONSTER
         // pm: null => random, eel => aquatic, croc => amphibious
@@ -895,7 +916,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             discover_object(O.SCR_CREATE_MONSTER, true, true, true, state);
         else
             await trycall(otmp, state);
-        note_unported('mthrowu.c m_useup');
+        m_useup(mtmp, otmp, { state });
         return 2;
     }
     case 'trapdoor': {
@@ -1055,7 +1076,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                 state);
         if (oseen)
             discover_object(O.POT_HEALING, true, true, true, state);
-        note_unported('mthrowu.c m_useup');
+        m_useup(mtmp, otmp, { state });
         return 2;
     }
     case 'extra healing': {
@@ -1071,7 +1092,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                 state);
         if (oseen)
             discover_object(O.POT_EXTRA_HEALING, true, true, true, state);
-        note_unported('mthrowu.c m_useup');
+        m_useup(mtmp, otmp, { state });
         return 2;
     }
     case 'full healing':
@@ -1089,7 +1110,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                 state);
         if (oseen)
             discover_object(otmp.otyp, true, true, true, state);
-        note_unported('mthrowu.c m_useup');
+        m_useup(mtmp, otmp, { state });
         return 2;
     }
     case 'lizard corpse': {
@@ -1100,11 +1121,6 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         await mon_consume_unstone(mtmp, otmp, false, false, state, env);
         return 2;
     }
-    case 'corpse defense evaluation':
-    case 'escape defensive search':
-        // These selection kinds are conservative refusals from
-        // find_defensive() for arms not yet fully ported.
-        return 0;
     default:
         // C: impossible("%s wanted to perform action %d?", ...)
         return 0;
@@ -1415,7 +1431,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
                             state);
                         await trycall(otmp, state);
                     }
-                    note_unported('mon.c m_useup');
+                    m_useup(mtmp, otmp, { state });
                     migrate_to_level(mtmp, ledger_no(tolevel, state),
                         MIGR_RANDOM, null, { state });
                     return 2;
@@ -1428,7 +1444,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
                     state);
                 await trycall(otmp, state);
             }
-            note_unported('mon.c m_useup');
+            m_useup(mtmp, otmp, { state });
             return 2;
         }
         if (vismon)
@@ -1437,7 +1453,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
                 state);
         if (oseen)
             discover_object(O.POT_GAIN_LEVEL, true, true, true, state);
-        note_unported('mon.c m_useup');
+        m_useup(mtmp, otmp, { state });
         if (!grow_up(mtmp, null, { state, ...env }))
             return 1; /* grew into genocided monster */
         return 2;
@@ -1483,7 +1499,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         if (otmp.otyp === O.POT_INVISIBILITY) {
             if (otmp.cursed)
                 await you_aggravate(mtmp, state);
-            note_unported('mon.c m_useup');
+            m_useup(mtmp, otmp, { state });
         }
         return 2;
     }
@@ -1499,7 +1515,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         if (!otmp) throw new Error('use_misc: no potion of speed');
         await mquaffmsg(mtmp, otmp, state);
         note_unported('worn.c mon_adjust_speed');
-        note_unported('mon.c m_useup');
+        m_useup(mtmp, otmp, { state });
         return 2;
     }
     case 'polymorph wand': {
@@ -1515,7 +1531,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         // MUSE_POT_POLYMORPH
         if (!otmp) throw new Error('use_misc: no potion of polymorph');
         await mquaffmsg(mtmp, otmp, state);
-        note_unported('mon.c m_useup');
+        m_useup(mtmp, otmp, { state });
         if (vismon)
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} suddenly mutates!`,
@@ -1665,52 +1681,48 @@ async function you_aggravate(mtmp, state) {
         map_invisible(mtmp.mx, mtmp.my, state);
 }
 
-// C ref: muse.c find_defensive() (441-750). This partial port returns the
-// selected action rather than C's Boolean because use_defensive() remains
-// outside the simple-turn boundary. Every action that would make C return
-// TRUE therefore reaches the caller's fail-closed monster-item boundary.
-//
-// The FALSE path is complete for an unaltered ordinary hostile: it preserves
-// the wound threshold, physical-escape search, nohands and bugle gates, and
-// inventory rejection order. Branches that need unported selection details
-// return a conservative action before spending selection RNG. The planning
-// pass discards that state when the caller refuses the action.
+// C ref: muse.c find_defensive() (440-748). Select a defensive item or
+// action for a monster. C answers TRUE with the choice in gm.m.defensive and
+// gm.m.has_defense; this port returns the selection object use_defensive()
+// takes, or null where C answers FALSE. A trap selection carries the
+// coordinates C stores in gt.trapx and gt.trapy.
 export function find_defensive(monster, tryescape, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2 };
     const species = monster.data;
     const hero = state.u;
+    const x = monster.mx;
+    const y = monster.my;
+    const stuck = monster === hero?.ustuck;
+    const immobile = species?.mmove === 0;
     const selected = (kind, object = null) => ({ kind, object });
 
-    // C ref: muse.c find_defensive() (459-460). Knox-specific adjacency
-    // guard: a monster next to another monster but not next to the hero
-    // won't look for defensive items in Fort Ludios.
+    if (is_animal(species) || mindless(species)) return null;
+    if (!tryescape && dist2(x, y, monster.mux, monster.muy) > 25)
+        return null;
     if (tryescape && Is_knox_level(hero?.uz)
         && !m_next2u(monster, state) && m_next2m(monster, state))
         return null;
-    // find_defensive(TRUE) serves fleeing monsters; the rest of the
-    // tryescape path is not yet ported.
-    if (tryescape) return selected('escape defensive search');
-    if (is_animal(species) || mindless(species)) return null;
-    if (dist2(monster.mx, monster.my, monster.mux, monster.muy) > 25)
-        return null;
-    if (hero?.uswallow && monster === hero.ustuck) return null;
+    if (hero?.uswallow && stuck) return null;
 
-    // C ref: muse.c find_defensive() (475-487). Confused, stunned, or blind
-    // monsters check for a unicorn horn first.
+    // C ref: muse.c:475-487. A cursed unicorn horn is skipped because it
+    // never gets used up; unicorns and ki-rin use their own horns.
     if (monster.mconf || monster.mstun || !monster.mcansee) {
+        let horn = null;
         if (!nohands(species)) {
             for (let obj = monster.minvent; obj; obj = obj.nobj) {
-                if (obj.otyp === O.UNICORN_HORN && !obj.cursed)
-                    return selected('unicorn horn', obj);
+                if (obj.otyp === O.UNICORN_HORN && !obj.cursed) {
+                    horn = obj;
+                    break;
+                }
             }
         }
-        if (is_unicorn(species) || species?.pmidx === M.PM_KI_RIN)
-            return selected('unicorn horn');
+        if (horn || is_unicorn(species) || species?.pmidx === M.PM_KI_RIN)
+            return selected('unicorn horn', horn);
     }
 
-    // C ref: muse.c find_defensive() (489-509). Confused or stunned monsters
-    // look for a lizard corpse or tin to cure the condition.
+    // C ref: muse.c:489-509. Confused or stunned monsters look for a lizard
+    // corpse or tin to cure the condition.
     if (monster.mconf || monster.mstun) {
         let liztin = null;
         for (let obj = monster.minvent; obj; obj = obj.nobj) {
@@ -1724,44 +1736,56 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
             return selected('lizard corpse', liztin);
     }
 
-    if (!monster.mcansee) {
-        if (!nohands(species) && species?.pmidx !== M.PM_PESTILENCE) {
-            const healing = m_use_healing(monster, state);
-            if (healing) return healing;
-        }
+    // C ref: muse.c:511-524. A blind monster checks for healing alone, since
+    // healing cures blindness; Pestilence won't use healing even when blind.
+    if (!monster.mcansee && !nohands(species)
+        && species?.pmidx !== M.PM_PESTILENCE) {
+        const healing = m_use_healing(monster, state);
+        if (healing) return healing;
     }
 
-    // The full corpse-wielding predicate also checks petrification,
-    // polymorph-on-stoning, resistance, and lined_up(). Refuse before those
-    // unported details whenever the arm could apply.
+    // C ref: muse.c:526-540. Monsters aren't given wands of undead turning,
+    // but one that happened to pick one up uses it against a corpse wielder,
+    // now, even if it isn't wounded.
     if (!monster.mpeaceful && !nohands(species)
-        && state.uwep?.otyp === O.CORPSE) {
-        return selected('corpse defense evaluation');
-    }
-
-    const fraction = (hero?.ulevel ?? 1) < 10
-        ? 5
-        : (hero?.ulevel ?? 1) < 14 ? 4 : 3;
-    if (monster.mhp >= monster.mhpmax
-        || (monster.mhp >= 10
-            && monster.mhp * fraction >= monster.mhpmax)) {
-        return null;
-    }
-    if (monster.mpeaceful) {
-        if (!nohands(species)) {
-            const healing = m_use_healing(monster, state);
-            if (healing) return healing;
+        && state.uwep?.otyp === O.CORPSE
+        && touch_petrifies(state.mons[state.uwep.corpsenm])
+        && !poly_when_stoned(species, state)
+        && !monster_resists_element(monster, STONE_RES, state)
+        && lined_up(monster, { state, random })) {
+        for (let obj = monster.minvent; obj; obj = obj.nobj) {
+            if (obj.otyp === O.WAN_UNDEAD_TURNING && obj.spe > 0)
+                return selected('undead turning wand', obj);
         }
-        return null;
     }
 
-    const stuck = monster === hero?.ustuck;
-    const immobile = species?.mmove === 0;
+    if (!tryescape) {
+        // do we try to heal?
+        const fraction = (hero?.ulevel ?? 1) < 10
+            ? 5
+            : (hero?.ulevel ?? 1) < 14 ? 4 : 3;
+        if (monster.mhp >= monster.mhpmax
+            || (monster.mhp >= 10
+                && monster.mhp * fraction >= monster.mhpmax)) {
+            return null;
+        }
+
+        if (monster.mpeaceful) {
+            if (!nohands(species)) {
+                const healing = m_use_healing(monster, state);
+                if (healing) return healing;
+            }
+            return null;
+        }
+    }
+
     let physicalEscape = null;
-    if (!stuck && !immobile && !monster.mtrapped) {
-        const terrain = state.level?.at?.(monster.mx, monster.my)?.typ;
+    if (stuck || immobile || monster.mtrapped) {
+        /* fleeing by stairs or traps is not possible */
+    } else {
+        const terrain = state.level?.at?.(x, y)?.typ;
         if (terrain === STAIRS || terrain === LADDER) {
-            const stair = stairway_at(monster.mx, monster.my, state);
+            const stair = stairway_at(x, y, state);
             if (stair) {
                 const sameDungeon = stair.tolev?.dnum === hero?.uz?.dnum;
                 if (stair.up && sameDungeon) {
@@ -1779,98 +1803,132 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
                 }
             }
         } else {
-            const ignoresBoulders = verysmall(species)
+            /* Note: trap doors take precedence over teleport traps. */
+            const ignoreBoulders = verysmall(species)
                 || throws_rocks(species)
                 || passes_walls(species);
-            const diagonal = species?.pmidx !== M.PM_GRID_BUG;
-            const spots = [[monster.mx, monster.my]];
-            for (let x = monster.mx - 1; x <= monster.mx + 1; ++x) {
-                for (let y = monster.my - 1; y <= monster.my + 1; ++y) {
-                    if (isok(x, y)
-                        && (x !== monster.mx || y !== monster.my)) {
-                        spots.push([x, y]);
-                    }
+            const diagOk = species?.pmidx !== M.PM_GRID_BUG;
+            /* collect viable spots; monster's <mx,my> comes first */
+            const spots = [[x, y]];
+            for (let xx = x - 1; xx <= x + 1; xx++) {
+                for (let yy = y - 1; yy <= y + 1; yy++) {
+                    if (isok(xx, yy) && (xx !== x || yy !== y))
+                        spots.push([xx, yy]);
                 }
             }
-            for (const [x, y] of spots) {
-                if ((hero?.ux === x && hero?.uy === y)
-                    || (!diagonal && x !== monster.mx && y !== monster.my)
-                    || ((x !== monster.mx || y !== monster.my)
-                        && state.level?.monsters?.[x]?.[y])) {
+            /* look for a suitable trap among the viable spots */
+            for (const [xx, yy] of spots) {
+                /* skip if it's hero's location
+                   or a diagonal spot and monster can't move diagonally
+                   or some other monster is there */
+                if ((hero?.ux === xx && hero?.uy === yy)
+                    || (xx !== x && yy !== y && !diagOk)
+                    || (state.level?.monsters?.[xx]?.[yy]
+                        && !(xx === x && yy === y))) {
                     continue;
                 }
-                const trap = t_at(x, y, state);
+                /* skip if there's no trap or can't/won't move onto trap */
+                const trap = t_at(xx, yy, state);
                 if (!trap
-                    || (!ignoresBoulders
-                        && sobj_at(O.BOULDER, x, y, state))
-                    || onscary(x, y, monster, state)) {
+                    || (!ignoreBoulders && sobj_at(O.BOULDER, xx, yy, state))
+                    || onscary(xx, yy, monster, state)) {
                     continue;
                 }
+                /* use trap if it's the correct type */
                 if (is_hole(trap.ttyp)
                     && !is_floater(species)
                     && !monster.isshk && !monster.isgd
                     && !monster.ispriest
                     && Can_fall_thru(hero.uz, state)) {
-                    // A hole ends C's scan and takes precedence over a
-                    // teleport trap found earlier.
-                    physicalEscape = { kind: 'trapdoor', object: null, x, y };
-                    break;
+                    physicalEscape = {
+                        kind: 'trapdoor', object: null, x: xx, y: yy,
+                    };
+                    break; /* no need to look at any other spots */
+                } else if (trap.ttyp === TELEP_TRAP) {
+                    physicalEscape = {
+                        kind: 'teleport trap', object: null, x: xx, y: yy,
+                    };
                 }
-                if (trap.ttyp === TELEP_TRAP)
-                    physicalEscape = { kind: 'teleport trap', object: null,
-                        x, y };
             }
         }
     }
 
-    if (nohands(species)) return physicalEscape;
-    if (is_mercenary(species) && m_sees_sleepy_soldier(monster, state)) {
-        for (let obj = monster.minvent; obj; obj = obj.nobj) {
-            if (obj.otyp === O.BUGLE) return selected('bugle', obj);
-        }
-    }
-    if (physicalEscape) return physicalEscape;
+    if (nohands(species)) /* can't use objects */
+        return physicalEscape;
 
-    // C ref: muse.c find_defensive() (655-748). Scan inventory items for a
-    // defensive choice. The loop does not return on the first match; it
-    // continues scanning, with a 1-in-3 random chance of stopping after a
-    // match is found (the rn2(3) at line 659). The nomore() macro prevents
-    // re-selecting an already-matched item type (it `continue`s to the next
-    // inventory item). Later matches override earlier ones, so items later
-    // in inventory get slight priority, as the C source's own comment notes
-    // "selection could be improved by collecting all possibilities into an
-    // array and then picking one at random."
-    //
-    // Conditions beyond object identity and charge remain conservative: the
-    // rn2(3) call and the nomore skips are the PRNG-visible divergences the
-    // prior immediate-return version missed.
+    if (is_mercenary(species)) {
+        const bugle = m_carrying(monster, O.BUGLE, state);
+        if (bugle && m_sees_sleepy_soldier(monster, state))
+            physicalEscape = selected('bugle', bugle);
+    }
+
+    /* use immediate physical escape prior to attempting magic */
+    if (physicalEscape) /* stairs, trap door or tele-trap, bugle alert */
+        return physicalEscape;
+
+    /* kludge to cut down on trap destruction (particularly portals) */
+    let t = t_at(x, y, state);
+    if (t && (is_pit(t.ttyp) || t.ttyp === WEB || t.ttyp === BEAR_TRAP))
+        t = null; /* ok for monster to dig here */
+
+    // C ref: muse.c:655-747. The scan does not stop at the first match: a
+    // later item overrides an earlier one, a 1-in-3 draw ends the scan once
+    // something is selected, and nomore() skips an item family the monster
+    // already selected. `defKind` stands in for gm.m.has_defense; it differs
+    // from the selection kind only for Pestilence, whose potion of sickness
+    // counts as MUSE_POT_FULL_HEALING.
     let def = null;
     let defKind = null;
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
-        // C ref: muse.c:659. "don't always use the same selection pattern."
+        /* don't always use the same selection pattern */
         if (defKind && !random.rn2(3))
             break;
 
-        // C ref: WAN_DIGGING uses break (not nomore's continue).
+        /* nomore(MUSE_WAN_DIGGING); */
         if (defKind === 'digging wand')
             break;
-        if (obj.otyp === O.WAN_DIGGING && obj.spe > 0) {
+        if (obj.otyp === O.WAN_DIGGING && obj.spe > 0 && !stuck && !t
+            && !monster.isshk && !monster.isgd && !monster.ispriest
+            && !is_floater(species)
+            /* monsters digging in Sokoban can ruin things */
+            && !state.level?.flags?.sokoban_rules
+            /* digging wouldn't be effective; assume they know that */
+            && !((state.level?.at?.(x, y)?.wall_info ?? 0) & W_NONDIGGABLE)
+            && !(Is_botlevel(hero?.uz) || In_endgame(hero?.uz))
+            && !(is_ice(x, y, state) || is_pool(x, y, state)
+                || is_lava(x, y, state))
+            && !(is_Vlad(monster) && In_V_tower(hero?.uz))) {
             def = selected('digging wand', obj);
             defKind = 'digging wand';
         }
-
-        // nomore(MUSE_WAN_TELEPORTATION_SELF / MUSE_WAN_TELEPORTATION)
+        // nomore(MUSE_WAN_TELEPORTATION_SELF), nomore(MUSE_WAN_TELEPORTATION):
+        // use_defensive() tells the two apart by mon_has_amulet().
         if (defKind === 'teleportation wand') continue;
         if (obj.otyp === O.WAN_TELEPORTATION && obj.spe > 0) {
-            def = selected('teleportation wand', obj);
-            defKind = 'teleportation wand';
+            /* use the TELEP_TRAP bit to determine if they know
+             * about noteleport on this level or not.  Avoids
+             * ineffective re-use of teleportation.  This does
+             * mean if the monster leaves the level, they'll know
+             * about teleport traps.
+             */
+            if (!noteleport_level(monster, state)
+                || !mon_knows_traps(monster, TELEP_TRAP)) {
+                def = selected('teleportation wand', obj);
+                defKind = 'teleportation wand';
+            }
         }
-
         // nomore(MUSE_SCR_TELEPORTATION)
         if (defKind === 'teleportation scroll') continue;
-        if (obj.otyp === O.SCR_TELEPORTATION) {
-            def = selected('teleportation scroll', obj);
-            defKind = 'teleportation scroll';
+        if (obj.otyp === O.SCR_TELEPORTATION && monster.mcansee
+            && haseyes(species)
+            && (!obj.cursed || (!(monster.isshk && inhishop(monster, state))
+                                && !monster.isgd && !monster.ispriest))) {
+            /* see WAN_TELEPORTATION case above */
+            if (!noteleport_level(monster, state)
+                || !mon_knows_traps(monster, TELEP_TRAP)) {
+                def = selected('teleportation scroll', obj);
+                defKind = 'teleportation scroll';
+            }
         }
 
         if (species?.pmidx !== M.PM_PESTILENCE) {
@@ -1898,8 +1956,8 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
                 def = selected('healing', obj);
                 defKind = 'healing';
             }
-        } else {
-            // Pestilence: POT_SICKNESS counts as POT_FULL_HEALING
+        } else { /* Pestilence */
+            // nomore(MUSE_POT_FULL_HEALING)
             if (defKind === 'full healing') continue;
             if (obj.otyp === O.POT_SICKNESS) {
                 def = selected('pestilence healing', obj);
@@ -1912,7 +1970,6 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
                 defKind = 'create monster wand';
             }
         }
-
         // nomore(MUSE_SCR_CREATE_MONSTER)
         if (defKind === 'create monster scroll') continue;
         if (obj.otyp === O.SCR_CREATE_MONSTER) {
@@ -2833,8 +2890,8 @@ async function mon_consume_unstone(
         if (heard) await ttyPline(heard, state);
     }
 
-    note_unported('mthrowu.c m_useup');
-    // obj is now gone in C; we skip m_useup so the object persists
+    m_useup(mon, obj, { state });
+    /* obj is now gone */
 
     if (acid && !tinned && !monster_resists_element(mon, ACID_RES, state)) {
         mon.mhp -= random.rnd(15);
@@ -3004,12 +3061,12 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
                 await pline_mon(mon, 'Oh, what a pretty fire!', state);
             if (vis)
                 await trycall(obj, state);
-            note_unported('mon.c m_useup');
+            m_useup(mon, obj, { state });
             vis = false;    /* skip makeknown() below */
             res = false;    /* failed to cure sliming */
         } else {
             dmg = Math.trunc((2 * (random.rn1(3, 3) + 2 * bcsign(obj)) + 1) / 3);
-            note_unported('mon.c m_useup');
+            m_useup(mon, obj, { state });
             /* -11 => monster's fireball */
             note_unported('explode.c explode');
             dmg = 0; /* damage has been applied by explode() */
@@ -3037,7 +3094,7 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
             discover_object(O.POT_OIL, true, true, true, state); /* makeknown */
         }
         dmg = random.d(3, 4); /* [**TEMP** (different from hero)] */
-        note_unported('mon.c m_useup');
+        m_useup(mon, obj, { state });
     } else { /* wand/horn of fire w/ positive charge count */
         if (obj.otyp === O.FIRE_HORN)
             await mplayhorn(mon, obj, true, state);
