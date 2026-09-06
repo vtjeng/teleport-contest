@@ -10113,12 +10113,21 @@
         },
         {
           "name": "replace_object..bill_dummy_object",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "a99f9774c729366212267121d36d4b0a146f6e0c",
           "functions": [
             "replace_object",
             "unknwn_contnr_contents",
             "bill_dummy_object"
+          ]
+        },
+        {
+          "name": "stone_object_type..stone_furniture_type",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "stone_object_type",
+            "stone_furniture_type"
           ]
         }
       ],
@@ -10279,19 +10288,19 @@
           "name": "replace_object",
           "line": 641,
           "endLine": 683,
-          "ported": false
+          "ported": true
         },
         {
           "name": "unknwn_contnr_contents",
           "line": 684,
           "endLine": 711,
-          "ported": false
+          "ported": true
         },
         {
           "name": "bill_dummy_object",
           "line": 712,
           "endLine": 751,
-          "ported": false
+          "ported": true
         },
         {
           "name": "costly_alteration",
