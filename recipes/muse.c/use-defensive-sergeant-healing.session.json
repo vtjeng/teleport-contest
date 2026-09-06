@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7145,
+      "datetime": "20261201080000",
+      "nethackrc": "OPTIONS=name:Muse,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0007sergeant\nl l l l  "
+    }
+  ]
+}

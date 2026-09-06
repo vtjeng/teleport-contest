@@ -1,0 +1,12 @@
+{
+  "_comment": "Diverges in collect_coords (teleport.c:700) during dragon placement; record once teleport.c collect_coords is ported.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7001,
+      "datetime": "20261201080000",
+      "nethackrc": "OPTIONS=name:Refl,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0007silver dragon\n#wizwish\nwand of fire\nzek   "
+    }
+  ]
+}
