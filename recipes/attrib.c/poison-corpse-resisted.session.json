@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8820021,
+      "datetime": "20261207183000",
+      "nethackrc": "OPTIONS=name:Ptox,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0007kobold\nFjFjj,ee    "
+    }
+  ]
+}

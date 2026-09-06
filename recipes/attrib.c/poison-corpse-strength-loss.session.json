@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8810035,
+      "datetime": "20261104071500",
+      "nethackrc": "OPTIONS=name:Ptox,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0007kobold\nFhFhh,ee    "
+    }
+  ]
+}
