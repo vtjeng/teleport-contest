@@ -89,6 +89,7 @@ import {
     start_glob_timeout,
     stop_timer,
 } from './timeout.js';
+import { note_unported } from './unported.js';
 import {
     AMULET_CLASS,
     AMULET_OF_CHANGE,
@@ -707,6 +708,143 @@ export function unsplitobj(obj, env = {}) {
 
     // C: 621. Merge if both halves were found.
     return (oparent && ochild && merged(oparent, ochild, env)) ? oparent : null;
+}
+
+// C ref: mkobj.c replace_object() (641-680). Replaces obj with otmp in
+// whatever chain obj currently occupies. The caller must have already set
+// any type-specific fields on otmp (otyp, spe, etc.); this function only
+// moves the chain pointers.
+export function replace_object(obj, otmp, env = {}) {
+    const normalized = lifecycleEnv(env);
+    const { state } = normalized;
+    otmp.where = obj.where;
+    switch (obj.where) {
+    case OBJ_FREE:
+        /* do nothing */
+        break;
+    case OBJ_INVENT: {
+        // Insert otmp after obj, then extract obj from the nobj chain.
+        otmp.nobj = obj.nobj;
+        obj.nobj = otmp;
+        const pred = chainPredecessor(
+            state.invent, obj, 'nobj', 'inventory list',
+        );
+        if (pred) pred.nobj = obj.nobj;
+        else state.invent = obj.nobj;
+        obj.where = OBJ_FREE;
+        obj.nobj = null;
+        break;
+    }
+    case OBJ_CONTAINED: {
+        otmp.nobj = obj.nobj;
+        otmp.ocontainer = obj.ocontainer;
+        obj.nobj = otmp;
+        const container = obj.ocontainer;
+        const pred = chainPredecessor(
+            container.cobj, obj, 'nobj', 'container contents',
+        );
+        if (pred) pred.nobj = obj.nobj;
+        else container.cobj = obj.nobj;
+        obj.where = OBJ_FREE;
+        obj.nobj = null;
+        break;
+    }
+    case OBJ_MINVENT: {
+        otmp.nobj = obj.nobj;
+        otmp.ocarry = obj.ocarry;
+        obj.nobj = otmp;
+        const carrier = obj.ocarry;
+        const pred = chainPredecessor(
+            carrier.minvent, obj, 'nobj', 'monster inventory',
+        );
+        if (pred) pred.nobj = obj.nobj;
+        else carrier.minvent = obj.nobj;
+        obj.where = OBJ_FREE;
+        obj.nobj = null;
+        break;
+    }
+    case OBJ_FLOOR: {
+        otmp.nobj = obj.nobj;
+        otmp.nexthere = obj.nexthere;
+        otmp.ox = obj.ox;
+        otmp.oy = obj.oy;
+        obj.nobj = otmp;
+        obj.nexthere = otmp;
+        // extract_nobj: remove obj from the level-wide nobj chain.
+        const pred = chainPredecessor(
+            state.level.objlist ?? null, obj, 'nobj', 'level object list',
+        );
+        if (pred) pred.nobj = obj.nobj;
+        else state.level.objlist = obj.nobj;
+        obj.where = OBJ_FREE;
+        obj.nobj = null;
+        // C calls extract_nexthere(obj, &level.objects[ox][oy]) here to
+        // remove obj from the per-square nexthere pile. That function is
+        // ported in a later span; record the gap.
+        note_unported('mkobj.c extract_nexthere');
+        break;
+    }
+    default:
+        throw new Error('replace_object: obj position');
+    }
+}
+
+// C ref: mkobj.c unknwn_contnr_contents() (684-695). Walks up the container
+// chain from obj; returns the outermost container whose contents are not
+// known (cknown is false), or null if every container is known.
+export function unknwn_contnr_contents(obj) {
+    let result = null;
+    while (obj.where === OBJ_CONTAINED) {
+        const parent = obj.ocontainer;
+        if (!parent.cknown)
+            result = parent;
+        obj = parent;
+    }
+    return result;
+}
+
+// C ref: mkobj.c bill_dummy_object() (712-751). Creates a dummy copy of otmp
+// and places it on the shop bill so that billing remembers the original state
+// of an object being altered (eaten, charged, etc.). Shop billing functions
+// (unpaid_cost, subfrombill, addtobill, alter_cost) are in shk.c and not yet
+// ported; their calls are recorded as gaps.
+export function bill_dummy_object(otmp, env = {}) {
+    const normalized = lifecycleEnv(env);
+    // C: cost = unpaid_cost(otmp, COST_SINGLEOBJ) when otmp->unpaid.
+    // unpaid_cost (shk.c) return value feeds alter_cost (also unported),
+    // so the billing block is skipped as a unit.
+    if (otmp.unpaid) {
+        note_unported('shk.c unpaid_cost');
+        note_unported('shk.c subfrombill');
+    }
+    // C: dummy = newobj(); *dummy = *otmp; then override specific fields.
+    // Copy otmp's properties first so nextoid sees the correct otyp/oclass.
+    const dummy = newObject();
+    Object.assign(dummy, otmp);
+    dummy.nobj = null;
+    dummy.v = null;       // clears nexthere/ocontainer/ocarry union
+    dummy.cobj = null;
+    dummy.oextra = null;
+    dummy.where = OBJ_FREE;
+    dummy.o_id = nextoid(otmp, dummy, normalized);
+    dummy.timed = 0;
+    copy_oextra(dummy, otmp);
+    // C: if (has_omid(dummy)) free_omid(dummy);
+    // has_omid is the macro ((o)->oextra && OMID(o)), free_omid sets OMID to 0.
+    if (dummy.oextra?.omid) {
+        dummy.oextra.omid = 0;
+    }
+    if (isCandle(dummy))
+        dummy.lamplit = false;
+    dummy.owornmask = 0; /* dummy object is not worn */
+    // C: addtobill(dummy, FALSE, TRUE, TRUE); -- shk.c, not ported.
+    note_unported('shk.c addtobill');
+    // C: if (cost && dummy->where != OBJ_DELETED) alter_cost(dummy, -cost);
+    // alter_cost is void/discarded and in shk.c, not ported.
+    // no_charge is only valid for some locations.
+    otmp.no_charge = (otmp.where === OBJ_FLOOR
+        || otmp.where === OBJ_CONTAINED) ? 1 : 0;
+    otmp.unpaid = false;
 }
 
 // C ref: mkobj.c next_ident(). Object and monster ids share context.ident.
