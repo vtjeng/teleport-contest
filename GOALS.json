@@ -10218,10 +10218,23 @@
         },
         {
           "name": "add_to_migration",
+          "status": "closed",
+          "closedBy": "0d163370fd327834ddb89735eb91af91520e5889",
+          "functions": [
+            "add_to_migration"
+          ]
+        },
+        {
+          "name": "dealloc_obj_real..shop_obj_sanity",
           "status": "queued",
           "closedBy": null,
           "functions": [
-            "add_to_migration"
+            "dealloc_obj_real",
+            "dobjsfree",
+            "hornoplenty",
+            "obj_sanity_check",
+            "objlist_sanity",
+            "shop_obj_sanity"
           ]
         }
       ],
@@ -10688,7 +10701,7 @@
           "name": "add_to_migration",
           "line": 2698,
           "endLine": 2719,
-          "ported": false
+          "ported": true
         },
         {
           "name": "add_to_buried",
