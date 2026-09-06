@@ -10058,6 +10058,36 @@
         "to": 3310
       },
       "startFunction": "precheck"
+    },
+    {
+      "id": "div-muse-precheck-seed0361",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Fix RNG divergence at precheck() step 236 in seed0361-archeologist-tour",
+      "cFile": "muse.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "precheck-rng-divergence",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "precheck"
+          ]
+        }
+      ],
+      "openedAt": "e5f0a7c11ce5f265193e2f335d37c561dc3ae9f4",
+      "openStanding": {
+        "sha": "c368ff45",
+        "screens": 4976,
+        "rng": 343038
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "precheck",
+      "session": "seed0361-archeologist-tour",
+      "step": 236
     }
   ]
 }
