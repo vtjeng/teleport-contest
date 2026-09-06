@@ -9336,6 +9336,237 @@
         "screens": 2,
         "rng": 100
       }
+    },
+    {
+      "id": "attrib-c",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port attrib.c whole in C order, starting from poison_strdmg()",
+      "cFile": "attrib.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "detail": "",
+      "spans": [],
+      "openedAt": "f911613b64b83f9d729d788f29a9745710cd0219",
+      "openStanding": {
+        "sha": "afae61fa",
+        "screens": 4606,
+        "rng": 326892
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "adjattrib",
+          "line": 117,
+          "endLine": 202,
+          "ported": true
+        },
+        {
+          "name": "gainstr",
+          "line": 203,
+          "endLine": 220,
+          "ported": false
+        },
+        {
+          "name": "losestr",
+          "line": 221,
+          "endLine": 273,
+          "ported": false
+        },
+        {
+          "name": "poison_strdmg",
+          "line": 274,
+          "endLine": 293,
+          "ported": false
+        },
+        {
+          "name": "poisontell",
+          "line": 294,
+          "endLine": 316,
+          "ported": true
+        },
+        {
+          "name": "poisoned",
+          "line": 317,
+          "endLine": 410,
+          "ported": true
+        },
+        {
+          "name": "change_luck",
+          "line": 411,
+          "endLine": 422,
+          "ported": true
+        },
+        {
+          "name": "stone_luck",
+          "line": 423,
+          "endLine": 440,
+          "ported": true
+        },
+        {
+          "name": "set_moreluck",
+          "line": 441,
+          "endLine": 454,
+          "ported": false
+        },
+        {
+          "name": "restore_attrib",
+          "line": 455,
+          "endLine": 488,
+          "ported": false
+        },
+        {
+          "name": "exercise",
+          "line": 489,
+          "endLine": 520,
+          "ported": true
+        },
+        {
+          "name": "exerper",
+          "line": 521,
+          "endLine": 597,
+          "ported": true
+        },
+        {
+          "name": "exerchk",
+          "line": 598,
+          "endLine": 681,
+          "ported": true
+        },
+        {
+          "name": "rnd_attr",
+          "line": 682,
+          "endLine": 698,
+          "ported": false
+        },
+        {
+          "name": "init_attr_role_redist",
+          "line": 699,
+          "endLine": 722,
+          "ported": false
+        },
+        {
+          "name": "init_attr",
+          "line": 723,
+          "endLine": 739,
+          "ported": true
+        },
+        {
+          "name": "redist_attr",
+          "line": 740,
+          "endLine": 763,
+          "ported": false
+        },
+        {
+          "name": "vary_init_attr",
+          "line": 764,
+          "endLine": 779,
+          "ported": true
+        },
+        {
+          "name": "postadjabil",
+          "line": 780,
+          "endLine": 788,
+          "ported": true
+        },
+        {
+          "name": "role_abil",
+          "line": 789,
+          "endLine": 817,
+          "ported": true
+        },
+        {
+          "name": "check_innate_abil",
+          "line": 818,
+          "endLine": 863,
+          "ported": false
+        },
+        {
+          "name": "innately",
+          "line": 864,
+          "endLine": 879,
+          "ported": false
+        },
+        {
+          "name": "is_innate",
+          "line": 880,
+          "endLine": 904,
+          "ported": false
+        },
+        {
+          "name": "from_what",
+          "line": 905,
+          "endLine": 1005,
+          "ported": false
+        },
+        {
+          "name": "adjabil",
+          "line": 1006,
+          "endLine": 1079,
+          "ported": true
+        },
+        {
+          "name": "newhp",
+          "line": 1080,
+          "endLine": 1146,
+          "ported": true
+        },
+        {
+          "name": "minuhpmax",
+          "line": 1147,
+          "endLine": 1156,
+          "ported": true
+        },
+        {
+          "name": "setuhpmax",
+          "line": 1157,
+          "endLine": 1181,
+          "ported": true
+        },
+        {
+          "name": "adjuhploss",
+          "line": 1182,
+          "endLine": 1199,
+          "ported": true
+        },
+        {
+          "name": "acurr",
+          "line": 1200,
+          "endLine": 1244,
+          "ported": false
+        },
+        {
+          "name": "acurrstr",
+          "line": 1245,
+          "endLine": 1267,
+          "ported": true
+        },
+        {
+          "name": "extremeattr",
+          "line": 1268,
+          "endLine": 1297,
+          "ported": true
+        },
+        {
+          "name": "adjalign",
+          "line": 1298,
+          "endLine": 1319,
+          "ported": true
+        },
+        {
+          "name": "uchangealign",
+          "line": 1320,
+          "endLine": 1365,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 117,
+        "to": 1365
+      },
+      "startFunction": "poison_strdmg"
     }
   ]
 }
