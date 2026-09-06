@@ -9685,10 +9685,22 @@
         },
         {
           "name": "use_defensive",
+          "status": "closed",
+          "closedBy": "941394964933de28c5f1827bd24b2a2db61857df",
+          "functions": [
+            "use_defensive"
+          ]
+        },
+        {
+          "name": "linedup_chk_corpse..mon_likes_objpile_at",
           "status": "queued",
           "closedBy": null,
           "functions": [
-            "use_defensive"
+            "linedup_chk_corpse",
+            "m_use_undead_turning",
+            "hero_behind_chokepoint",
+            "mon_has_friends",
+            "mon_likes_objpile_at"
           ]
         }
       ],
@@ -9777,7 +9789,7 @@
           "name": "use_defensive",
           "line": 796,
           "endLine": 1221,
-          "ported": false
+          "ported": true
         },
         {
           "name": "rnd_defensive_item",
@@ -9921,7 +9933,7 @@
           "name": "mcureblindness",
           "line": 2872,
           "endLine": 2883,
-          "ported": false
+          "ported": true
         },
         {
           "name": "munstone",
