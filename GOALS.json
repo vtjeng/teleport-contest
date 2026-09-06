@@ -10158,10 +10158,19 @@
         },
         {
           "name": "uncurse",
+          "status": "closed",
+          "closedBy": "29bc2053ca3b4db57d20366ef1bef22d7f047e7e",
+          "functions": [
+            "uncurse"
+          ]
+        },
+        {
+          "name": "rnd_treefruit_at..is_treefruit",
           "status": "queued",
           "closedBy": null,
           "functions": [
-            "uncurse"
+            "rnd_treefruit_at",
+            "is_treefruit"
           ]
         }
       ],
@@ -10448,7 +10457,7 @@
           "name": "uncurse",
           "line": 1822,
           "endLine": 1840,
-          "ported": false
+          "ported": true
         },
         {
           "name": "blessorcurse",
