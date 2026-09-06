@@ -173,8 +173,8 @@ import {
     isCorrodeable,
     isCrackable,
     isDamageable,
-    isFlammable,
-    isRottable,
+    is_flammable,
+    is_rottable,
     isRustprone,
     set_bknown,
 } from './obj.js';
@@ -2941,10 +2941,10 @@ export function some_armor(victim, state = game, random = { rn2 }) {
 // materials that satisfy more than one predicate, so keep the source order
 // instead of delegating to isDamageable().
 export function obj_erode_type(obj, state = game) {
-    if (isFlammable(obj, state)) return ERODE_BURN;
+    if (is_flammable(obj, state)) return ERODE_BURN;
     if (isRustprone(obj, state)) return ERODE_RUST;
     if (isCrackable(obj, state)) return ERODE_CRACK;
-    if (isRottable(obj, state)) return ERODE_ROT;
+    if (is_rottable(obj, state)) return ERODE_ROT;
     if (isCorrodeable(obj, state)) return ERODE_CORRODE;
     return ERODE_NONE;
 }

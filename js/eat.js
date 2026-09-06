@@ -210,7 +210,7 @@ import {
 import {
     carried,
     costly_alteration,
-    isRottable,
+    is_rottable,
     objectType,
     peek_at_iced_corpse_age,
     remove_object,
@@ -803,7 +803,7 @@ async function rottenfood(obj, state) {
     const u = state.u;
 
     await ttyPline(
-        `Blecch!  ${isRottable(obj, state) ? 'Rotten' : 'Awful'} ${
+        `Blecch!  ${is_rottable(obj, state) ? 'Rotten' : 'Awful'} ${
             foodword(obj, state)}!`,
         state,
     );

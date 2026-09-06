@@ -21,7 +21,7 @@ import {
     blessorcurse,
     copy_oextra,
     dealloc_obj,
-    isFlammable,
+    is_flammable,
     init_dummyobj,
     is_launcher,
     is_missile,
@@ -768,12 +768,12 @@ test('splitobj rejects missing owners and ids before mutating the stack', () => 
     stillNoDraws.done();
 });
 
-test('isFlammable follows material and source exceptions', () => {
+test('is_flammable follows material and source exceptions', () => {
     const state = initializedState();
-    assert.equal(isFlammable(plainObject(APPLE, state), state), true);
-    assert.equal(isFlammable(plainObject(TALLOW_CANDLE, state), state), false);
-    assert.equal(isFlammable(plainObject(POT_OIL, state), state), false);
-    assert.equal(isFlammable(plainObject(WAN_FIRE, state), state), false);
+    assert.equal(is_flammable(plainObject(APPLE, state), state), true);
+    assert.equal(is_flammable(plainObject(TALLOW_CANDLE, state), state), false);
+    assert.equal(is_flammable(plainObject(POT_OIL, state), state), false);
+    assert.equal(is_flammable(plainObject(WAN_FIRE, state), state), false);
 });
 
 // C ref: obj.h is_pick(). Both halves of the macro are pinned to entries read

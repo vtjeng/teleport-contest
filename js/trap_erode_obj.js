@@ -46,8 +46,8 @@ import {
     erosionMatters,
     isCorrodeable,
     isCrackable,
-    isFlammable,
-    isRottable,
+    is_flammable,
+    is_rottable,
     isRustprone,
     objectType,
 } from './obj.js';
@@ -76,7 +76,7 @@ const EROSION = Object.freeze({
         resistanceDamageType: AD_FIRE,
         result: 'burnt',
         costType: COST_BURN,
-        vulnerable: isFlammable,
+        vulnerable: is_flammable,
     },
     [ERODE_RUST]: {
         action: 'rust',
@@ -96,7 +96,7 @@ const EROSION = Object.freeze({
         resistanceDamageType: 0,
         result: 'rotten',
         costType: COST_ROT,
-        vulnerable: isRottable,
+        vulnerable: is_rottable,
     },
     [ERODE_CORRODE]: {
         action: 'corrode',

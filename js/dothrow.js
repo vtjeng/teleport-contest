@@ -110,7 +110,7 @@ import {
 import {
     ammo_and_launcher,
     greatest_erosion,
-    isFlammable,
+    is_flammable,
     is_ammo,
     is_flimsy,
     is_missile,
@@ -849,7 +849,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     if (!Deaf(state) && !u.uinwater) {
         /* Some sound effects when item lands in water or lava */
         if (is_pool(bx, by, state)
-            || (is_lava(bx, by, state) && !isFlammable(obj, state))) {
+            || (is_lava(bx, by, state) && !is_flammable(obj, state))) {
             /* Soundeffect(se_splash, 50) expands to nothing. The minimal
                hints nethack-c/build-recorder.sh selects define no SND_LIB_*
                backend, so sndprocs.h:193-201 leaves SND_LIB_INTEGRATED unset

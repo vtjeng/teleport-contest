@@ -50,7 +50,7 @@ import { observe_object } from './o_init.js';
 import {
     carried, erosionMatters, hasContents, isBox, isCandle, isContainer,
     isCorrodeable, isCrackable,
-    isDamageable, isFlammable, isMultigen, isRottable, isRustprone,
+    isDamageable, is_flammable, isMultigen, is_rottable, isRustprone,
     is_ammo, is_missile, is_weptool, objectType,
 } from './obj.js';
 import { JAPANESE_ITEM_NAMES } from './objnam_data.js';
@@ -981,9 +981,9 @@ function erosionWords(obj, state, rknown) {
         words.push(crysknife ? 'fixed'
             : isRustprone(obj, state) ? 'rustproof'
                 : isCorrodeable(obj, state) ? 'corrodeproof'
-                    : isFlammable(obj, state) ? 'fireproof'
+                    : is_flammable(obj, state) ? 'fireproof'
                         : isCrackable(obj, state) ? 'tempered'
-                            : isRottable(obj, state) ? 'rotproof' : '');
+                            : is_rottable(obj, state) ? 'rotproof' : '');
     }
     return words.filter(Boolean);
 }

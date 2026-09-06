@@ -86,7 +86,7 @@ import {
     SPE_NOVEL,
     SPBOOK_CLASS,
 } from './objects.js';
-import { isFlammable, objectType } from './obj.js';
+import { is_flammable, objectType } from './obj.js';
 import { not_fully_identified } from './objnam.js';
 import { acurr, exercise } from './attrib.js';
 import { do_mapping } from './detect.js';
@@ -154,7 +154,7 @@ function oneWornFlammableArmor(state) {
         state.uarmf,
         state.uarmu,
     ].filter(Boolean);
-    return worn.length === 1 && isFlammable(worn[0], state);
+    return worn.length === 1 && is_flammable(worn[0], state);
 }
 
 // C ref: spell.c study_book() (537-584).  This helper names the small

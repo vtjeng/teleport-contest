@@ -1267,7 +1267,7 @@ export function erosionMatters(obj, state = game) {
         || (obj.oclass === TOOL_CLASS && is_weptool(obj, state));
 }
 
-export function isFlammable(obj, state = game) {
+export function is_flammable(obj, state = game) {
     const type = objectType(obj, state);
     if (isCandle(obj)) return false;
     if (type.oc_oprop === FIRE_RES || obj.otyp === WAN_FIRE) return false;
@@ -1275,7 +1275,7 @@ export function isFlammable(obj, state = game) {
         || type.oc_material === PLASTIC;
 }
 
-export function isRottable(obj, state = game) {
+export function is_rottable(obj, state = game) {
     const material = objectType(obj, state).oc_material;
     return (material <= WOOD && material !== LIQUID)
         || material === DRAGON_HIDE;
@@ -1303,8 +1303,8 @@ export function isCrackable(obj, state = game) {
 
 export function isDamageable(obj, state = game) {
     return isRustprone(obj, state)
-        || isFlammable(obj, state)
-        || isRottable(obj, state)
+        || is_flammable(obj, state)
+        || is_rottable(obj, state)
         || isCorrodeable(obj, state)
         || isCrackable(obj, state);
 }
@@ -1599,7 +1599,7 @@ function initializeErosion(obj, env) {
         obj.oerodeproof = true;
     } else {
         if (!env.random.rn2(80)
-            && (isFlammable(obj, env.state)
+            && (is_flammable(obj, env.state)
                 || isRustprone(obj, env.state)
                 || isCrackable(obj, env.state))) {
             do {
@@ -1607,7 +1607,7 @@ function initializeErosion(obj, env) {
             } while (obj.oeroded < 3 && !env.random.rn2(9));
         }
         if (!env.random.rn2(80)
-            && (isRottable(obj, env.state)
+            && (is_rottable(obj, env.state)
                 || isCorrodeable(obj, env.state))) {
             do {
                 ++obj.oeroded2;
