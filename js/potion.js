@@ -84,7 +84,7 @@ import { tamedog } from './dog.js';
 import { can_reach_floor } from './engrave.js';
 import { drinkfountain } from './fountain.js';
 import { more_experienced } from './exper.js';
-import { makeplural, makesingular } from './fruit.js';
+import { fruitname, makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { losehp, nomul, You_can_move_again } from './hack.js';
 import {
@@ -603,13 +603,6 @@ async function peffect_speed(otmp, state = game) {
 // peffect_sickness
 // C ref: potion.c peffect_sickness() (964-1012).
 // ---------------------------------------------------------------------------
-
-function fruitname(juice, state) {
-    const configured = state.svp?.pl_fruit ?? 'slime mold';
-    const marker = configured.toLowerCase().indexOf(' of ');
-    const base = marker >= 0 ? configured.slice(marker + 4) : configured;
-    return makesingular(base) + (juice ? ' juice' : '');
-}
 
 function poisonResistance(state) {
     const property = state.u?.uprops?.[POISON_RES];

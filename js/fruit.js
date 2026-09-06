@@ -1,6 +1,6 @@
 // Player-specified fruit names and the named-fruit chain.
 // C refs: options.c optfn_fruit(), initoptions_finish(), fruitadd();
-// objnam.c makesingular(), fruit_from_indx(), fruit_from_name();
+// objnam.c makesingular(), fruitname(), fruit_from_indx(), fruit_from_name();
 // hacklib.c mungspaces(), copynchars(); bones.c sanitize_name().
 
 import { game } from './gstate.js';
@@ -8,6 +8,7 @@ import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
     encodeUtf8Text,
+    strstri,
 } from './hacklib.js';
 import { name_to_mon } from './mondata.js';
 import {
@@ -498,6 +499,16 @@ function fruitNodes(state) {
         nodes.push(fruit);
     }
     return nodes;
+}
+
+// C ref: objnam.c fruitname() (411-427). Converts the player's fruit name into
+// the matching juice name, so "slice of pizza" becomes "pizza juice" rather
+// than "slice of pizza juice".
+export function fruitname(juice, state = game) {
+    const configured = state.svp?.pl_fruit ?? DEFAULT_FRUIT;
+    const marker = strstri(configured, ' of ');
+    const base = marker >= 0 ? configured.slice(marker + 4) : configured;
+    return makesingular(base) + (juice ? ' juice' : '');
 }
 
 export function fruit_from_indx(indx, state = game) {

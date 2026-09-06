@@ -1,8 +1,8 @@
 // attrib.js — hero attributes, advancement, exercise, and adjustment.
 // C ref: src/attrib.c the innate-ability tables, role_abil(), postadjabil(),
 // adjabil(), newhp(), setuhpmax(), init_attr(), vary_init_attr(), exercise(),
-// exerper(), adjattrib(), exerchk(), poisontell(), poisoned(), and
-// adjuhploss().
+// exerper(), adjattrib(), exerchk(), losestr(), poison_strdmg(),
+// poisontell(), poisoned(), and adjuhploss().
 
 import {
     A_CHA,
@@ -1041,6 +1041,80 @@ export function stone_luck(includeUncursed, state = game) {
         else if (object.blessed || includeUncursed) bonus += quantity;
     }
     return Math.sign(bonus);
+}
+
+// C ref: attrib.c losestr() (218-270). Strength loss that may kill; the cause
+// is poison or a monster like 'a'. Each point that would push ABASE(A_STR)
+// below the race's minimum is converted into rn1(4, 3) hit points of damage
+// instead, and only the points that fit reach adjattrib().
+//
+// Cycle avoidance follows poisoned() below: hack.c losehp() lives in a file
+// that imports this one, and pickup.c encumber_msg(), which adjattrib() spends
+// on a Strength change, lives in a file that imports that one. Both arrive
+// through env.
+export async function losestr(num, knam, k_format, state = game, env = {}) {
+    const random = env.random ?? { rn1, rn2 };
+    const losehp = requiredOperation(env, 'losehp');
+    const encumberMessage = requiredOperation(env, 'encumberMessage');
+    const u = state.u;
+    const attrmin = Math.trunc(state.urace?.attrmin?.[A_STR] ?? 0);
+    const uhpmin = minuhpmax(1, state);
+    let ustr = u.acurr.a[A_STR] - num;
+    const waspolyd = Upolyd(u);
+
+    if (num <= 0 || u.acurr.a[A_STR] < attrmin) {
+        // C reports impossible("losestr: %d - %d", ABASE(A_STR), num) and
+        // returns. Both conditions mean the caller asked for a loss the hero
+        // cannot take, so there is nothing to spend here either way.
+        return;
+    }
+    let dmg = 0;
+    while (ustr < attrmin) {
+        ++ustr;
+        --num;
+        /* (0..(4-1))+3 => 3..6; used to use flat 6 here */
+        dmg += random.rn1(4, 3);
+    }
+    if (dmg) {
+        /* in case damage is fatal and caller didn't supply killer reason */
+        if (!knam) {
+            knam = 'terminal frailty';
+            k_format = KILLED_BY;
+        }
+        await losehp(dmg, knam, k_format);
+
+        if (Upolyd(u)) {
+            /* when still poly'd, reduce you-as-monst maxHP; never below 1 */
+            setuhpmax(Math.max(u.mhmax - dmg, 1), false, state);
+        } else if (!waspolyd) {
+            /* not polymorphed now and didn't rehumanize when taking damage;
+               reduce max HP, but not below uhpmin */
+            if (u.uhpmax > uhpmin)
+                setuhpmax(Math.max(u.uhpmax - dmg, uhpmin), false, state);
+        }
+        state.disp.botl = true;
+    }
+    // C's `#if 0` arm (256-262), which would clamp u.uhpmax back down to
+    // uhpmin and call losexp(), is compiled out; nhUse(olduhpmax) is all that
+    // is left of C's `olduhpmax`, so this port never reads it either.
+
+    /* 'num' could have been reduced to 0 in the minimum strength loop;
+       '(Upolyd || !waspolyd)' is True unless damage caused rehumanization */
+    if (num > 0 && (Upolyd(u) || !waspolyd))
+        await adjattrib(
+            A_STR, -num, 1, state, { ...env, random, encumberMessage },
+        );
+}
+
+// C ref: attrib.c poison_strdmg() (272-278). Combined strength loss and damage
+// from some poisons. The strength loss runs first and can already have killed
+// the hero through losestr()'s own losehp().
+export async function poison_strdmg(
+    strloss, dmg, knam, k_format, state = game, env = {},
+) {
+    const losehp = requiredOperation(env, 'losehp');
+    await losestr(strloss, knam, k_format, state, env);
+    await losehp(dmg, knam, k_format);
 }
 
 // C ref: attrib.c poiseff[] (280-290). Each entry's delivery function controls

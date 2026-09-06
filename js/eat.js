@@ -77,7 +77,7 @@ import {
     W_WEP,
     NEUTRAL,
 } from './const.js';
-import { adjalign } from './attrib.js';
+import { adjalign, poison_strdmg } from './attrib.js';
 import { set_occupation, yn_function } from './cmd.js';
 import { surface } from './dungeon.js';
 import { can_reach_floor } from './engrave.js';
@@ -257,6 +257,7 @@ import {
     TRIPE_RATION,
 } from './objects.js';
 import { discover_object } from './o_init.js';
+import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { d, rn1, rn2, rnd } from './rng.js';
@@ -1749,10 +1750,23 @@ async function eatcorpse(otmp, state) {
         tp++;
         await ttyPline('Ecch - that must have been poisonous!', state);
         if (!propertyActive(state, POISON_RES)) {
-            // poison_strdmg() drains strength and hit points and can kill.
-            throw new UnsupportedEatError('poison_strdmg()');
+            // attrib.c poison_strdmg() takes hack.c losehp() and, through
+            // adjattrib(), pickup.c encumber_msg() from its caller; both
+            // files import attrib.js, so attrib.js cannot import them back.
+            await poison_strdmg(
+                rnd(4), rnd(15),
+                !glob ? 'poisonous corpse' : 'poisonous glob',
+                KILLED_BY_AN,
+                state,
+                {
+                    losehp: (n, killerName, killerFormat) =>
+                        losehp(n, killerName, killerFormat, state),
+                    encumberMessage: (target) => encumber_msg(target),
+                },
+            );
+        } else {
+            await ttyPline('You seem unaffected by the poison.', state);
         }
-        await ttyPline('You seem unaffected by the poison.', state);
 
     /* now any corpse left too long will make you mildly ill */
     } else if (rotted > 3) {

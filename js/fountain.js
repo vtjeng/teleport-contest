@@ -8,6 +8,7 @@
 
 import {
     ARM,
+    A_CON,
     A_WIS,
     ER_DESTROYED,
     ER_GREASED,
@@ -20,8 +21,11 @@ import {
     HAND,
     IS_DOOR,
     IS_FOUNTAIN,
+    KILLED_BY,
+    KILLED_BY_AN,
     LEVITATION,
     MM_NOMSG,
+    POISON_RES,
     POOL,
     ROOM,
     SDOOR,
@@ -29,7 +33,7 @@ import {
     isok,
     nothing_seems_to_happen,
 } from './const.js';
-import { exercise } from './attrib.js';
+import { exercise, poison_strdmg } from './attrib.js';
 import { monster_detect } from './detect.js';
 import {
     bot, newsym, glyph_at, glyph_is_cmap, glyph_to_cmap,
@@ -57,7 +61,7 @@ import { mintrap } from './trap_effects.js';
 import { t_at, deltrap, reset_utrap } from './trap.js';
 import { water_damage } from './trap_water_damage.js';
 import { ttyPline } from './tty_message.js';
-import { makeplural } from './fruit.js';
+import { fruitname, makeplural } from './fruit.js';
 import {
     BOULDER, DILITHIUM_CRYSTAL, LUCKSTONE, COIN_CLASS,
 } from './objects.js';
@@ -76,6 +80,13 @@ export class UnsupportedFountainError extends Error {
 function Levitation(state) {
     const value = state.u?.uprops?.[LEVITATION];
     return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
+}
+
+// C ref: youprop.h:48 Poison_resistance. Unlike Levitation it has no blocked
+// term, so a source of poison resistance is never suppressed.
+function Poison_resistance(state) {
+    const value = state.u?.uprops?.[POISON_RES];
+    return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
 // ── floating_above ──
@@ -509,8 +520,45 @@ export async function drinkfountain(state = game, env = {}) {
             }
             break;
         case 21: // Poisonous
-            throw new UnsupportedFountainError(
-                'poisonous-water fountain effect (fate 21)');
+            // C ref: fountain.c:299-310. hack.js and pickup.js are imported
+            // here rather than at the top of the file, for the same reason
+            // case 20 imports eat.js and hack.js: attrib.js, which owns
+            // poison_strdmg(), cannot import either of them back, so both
+            // reach it through this call.
+            await message('The water is contaminated!', state);
+            {
+                const { losehp } = await import('./hack.js');
+                const { encumber_msg } = await import('./pickup.js');
+                if (Poison_resistance(state)) {
+                    await message(
+                        'Perhaps it is runoff from the nearby '
+                            + `${fruitname(false, state)} farm.`,
+                        state,
+                    );
+                    await losehp(
+                        random.rnd(4),
+                        'unrefrigerated sip of juice',
+                        KILLED_BY_AN,
+                        state,
+                    );
+                    break;
+                }
+                await poison_strdmg(
+                    random.rn1(4, 3), random.rnd(10),
+                    'contaminated water', KILLED_BY,
+                    state,
+                    {
+                        random,
+                        losehp: (n, killerName, killerFormat) =>
+                            losehp(n, killerName, killerFormat, state),
+                        encumberMessage: (target) => encumber_msg(target),
+                    },
+                );
+                await exercise(A_CON, false, state, random, {
+                    encumberMessage: (target) => encumber_msg(target),
+                });
+            }
+            break;
         case 22: // Fountain of snakes!
             await dowatersnakes(state, env);
             break;

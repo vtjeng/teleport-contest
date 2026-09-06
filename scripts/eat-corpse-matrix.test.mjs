@@ -114,8 +114,9 @@ test('the corpse matrix covers both sides of the rot and poison arms', () => {
     );
     assert.equal(poisons.length, 1, 'exactly one poisonous corpse');
     // Only a hero who resists poison takes the arm that prints "You seem
-    // unaffected by the poison." instead of calling poison_strdmg(), which is
-    // unported, so the poisonous case has to be the Barbarian's.
+    // unaffected by the poison." instead of calling attrib.c poison_strdmg(),
+    // so the poisonous case here has to be the Barbarian's; the recipes under
+    // recipes/attrib.c/ carry the hero who does not resist.
     assert.match(poisons[0].character, /^role:Barbarian,/u);
 
     // Two cases wait between the kill and the meal. eat.c:1887 divides the

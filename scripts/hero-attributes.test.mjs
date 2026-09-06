@@ -8,7 +8,9 @@ import {
     exerchk,
     exerper,
     init_attr,
+    losestr,
     newhp,
+    poison_strdmg,
     vary_init_attr,
 } from '../js/attrib.js';
 import {
@@ -22,6 +24,8 @@ import {
     HALLUC,
     HALLUC_RES,
     HVY_ENCUMBER,
+    KILLED_BY,
+    KILLED_BY_AN,
     MOD_ENCUMBER,
     NOT_HUNGRY,
     REGENERATION,
@@ -495,6 +499,136 @@ test('adjattrib awaits change output before encumbrance follow-up',
         assert.equal(await adjustment, true);
         assert.deepEqual(events, ['message', 'encumber']);
     });
+
+// attrib.c losestr() and poison_strdmg() are impure, so recorded play is their
+// evidence: recordings/attrib.c/poison-corpse-strength-loss.session.json spends
+// the ordinary arm, where the loss fits above the racial minimum. No recipe can
+// cheaply drive a hero's Strength down to ATTRMIN(A_STR), so the loop that
+// turns the points that do not fit into hit-point damage is pinned here
+// instead, with every value read from attrib.c:221-270.
+function losestrState({ base, uhpmax = 20, ulevel = 5 }) {
+    const state = baseState();
+    state.disp = {};
+    state.moves = 1;
+    state.program_state = { in_moveloop: 1 };
+    state.u = {
+        ...state.u,
+        ulevel,
+        uhp: uhpmax,
+        uhpmax,
+        uhppeak: uhpmax,
+        umonnum: 0,
+        umonster: 0,
+        acurr: { a: [base, 10, 10, 10, 10, 10] },
+        amax: { a: [18, 10, 10, 10, 10, 10] },
+        abon: [0, 0, 0, 0, 0, 0],
+        atemp: [0, 0, 0, 0, 0, 0],
+        aexe: [0, 0, 0, 0, 0, 0],
+        uprops: {},
+    };
+    return state;
+}
+
+test('losestr turns the points below the racial minimum into damage',
+    async () => {
+        // urace.attrmin[A_STR] is 3 in baseState(), so losing 4 from a base of
+        // 5 leaves 2 points that fit and 2 that do not. Each of the two that
+        // do not draws rn1(4, 3): the values 0 and 3 stand for that range's
+        // ends, giving 3 + 6 = 9 hit points of damage.
+        const state = losestrState({ base: 5, uhpmax: 20, ulevel: 5 });
+        const random = queuedRandom([0, 3], ['rn1(4,3)', 'rn1(4,3)']);
+        const events = [];
+
+        await losestr(4, 'poisonous corpse', KILLED_BY_AN, state, {
+            random,
+            losehp: (...args) => events.push(['losehp', ...args]),
+            encumberMessage: () => events.push(['encumber']),
+        });
+
+        assert.deepEqual(events[0], ['losehp', 9, 'poisonous corpse', KILLED_BY_AN]);
+        // setuhpmax(max(uhpmax - dmg, uhpmin)): 20 - 9 = 11 is above
+        // minuhpmax(1), which is the experience level 5, so 11 stands.
+        assert.equal(state.u.uhpmax, 11);
+        // The two points that fit reach adjattrib(A_STR, -2, 1), which is
+        // silent and, in the move loop, ends with encumber_msg().
+        assert.equal(state.u.acurr.a[A_STR], 3);
+        assert.deepEqual(events[1], ['encumber']);
+        assert.equal(events.length, 2);
+        random.done();
+    });
+
+test('losestr floors the reduced maximum at minuhpmax', async () => {
+    // Same loop, but the hero's maximum is close to the floor: uhpmax 8 less
+    // dmg 3 is 5, below minuhpmax(1), which is the experience level 7.
+    const state = losestrState({ base: 3, uhpmax: 8, ulevel: 7 });
+    const random = queuedRandom([0], ['rn1(4,3)']);
+
+    await losestr(1, '', KILLED_BY_AN, state, {
+        random,
+        // An empty killer reason becomes "terminal frailty", KILLED_BY.
+        losehp: (n, knam, k_format) => {
+            assert.equal(n, 3);
+            assert.equal(knam, 'terminal frailty');
+            assert.equal(k_format, KILLED_BY);
+        },
+        encumberMessage: () => assert.fail('no point was left for adjattrib'),
+    });
+
+    assert.equal(state.u.uhpmax, 7);
+    assert.equal(state.u.acurr.a[A_STR], 3);
+    random.done();
+});
+
+test('losestr spends no damage while the loss fits above the minimum',
+    async () => {
+        // 18 - 3 is 15, still above urace.attrmin[A_STR], so the loop never
+        // runs, no rn1 is drawn and losehp() is never called.
+        const state = losestrState({ base: 18 });
+        const events = [];
+
+        await losestr(3, 'contaminated water', KILLED_BY, state, {
+            random: queuedRandom([], []),
+            losehp: () => assert.fail('no damage was due'),
+            encumberMessage: () => events.push('encumber'),
+        });
+
+        assert.equal(state.u.acurr.a[A_STR], 15);
+        assert.equal(state.u.uhpmax, 20);
+        assert.deepEqual(events, ['encumber']);
+    });
+
+test('losestr refuses both conditions C reports as impossible', async () => {
+    // attrib.c:226. Neither a non-positive loss nor a base already below
+    // ATTRMIN(A_STR) changes anything.
+    for (const [num, base] of [[0, 18], [-1, 18], [1, 2]]) {
+        const state = losestrState({ base });
+        await losestr(num, 'contaminated water', KILLED_BY, state, {
+            random: queuedRandom([], []),
+            losehp: () => assert.fail(`losehp ran for num ${num} base ${base}`),
+            encumberMessage: () => assert.fail('adjattrib ran'),
+        });
+        assert.equal(state.u.acurr.a[A_STR], base);
+        assert.equal(state.u.uhpmax, 20);
+    }
+});
+
+test('poison_strdmg loses the strength before the hit points', async () => {
+    // attrib.c:274-278 calls losestr() and then losehp() with the same killer.
+    // Here the loss fits above the minimum, so the only losehp() is the
+    // second call, and adjattrib()'s encumber_msg() has to precede it.
+    const state = losestrState({ base: 18 });
+    const events = [];
+
+    await poison_strdmg(4, 7, 'poisonous corpse', KILLED_BY_AN, state, {
+        random: queuedRandom([], []),
+        losehp: (n, knam, k_format) => events.push(`losehp ${n} ${knam} ${k_format}`),
+        encumberMessage: () => events.push('encumber'),
+    });
+
+    assert.equal(state.u.acurr.a[A_STR], 14);
+    assert.deepEqual(events,
+        ['encumber', `losehp 7 poisonous corpse ${KILLED_BY_AN}`]);
+});
 
 test('exerchk applies and reschedules the move-600 attribute check', async () => {
     const state = baseState();

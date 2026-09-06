@@ -29,7 +29,9 @@
 //   CANNIBAL_ALLOWED() keeps maybe_cannibal() from charging the penalty.
 // - `kobold` is the poisonous corpse. eat.c:1928's rn2(5) lands nonzero, and
 //   the Barbarian's role.c intrinsic poison resistance takes the arm that
-//   prints "You seem unaffected by the poison." instead of poison_strdmg().
+//   prints "You seem unaffected by the poison." The sibling arm, attrib.c
+//   poison_strdmg(), belongs to a hero who does not resist poison; the
+//   recipes under recipes/attrib.c/ own both sides of that test.
 // - The two `rotted` cases wait 34 turns between the kill and the meal, which
 //   is enough that (moves - age) / (10 + rn2(20)) is at least 1 for every
 //   draw. That makes `rotted < 1` false in the palatability test at :1989, so
