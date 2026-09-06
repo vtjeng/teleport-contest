@@ -9716,12 +9716,21 @@
         },
         {
           "name": "find_misc..mloot_container",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "f8a46b6982e0534218a3f70ce3d29012a561e2f6",
           "functions": [
             "find_misc",
             "muse_newcham_mon",
             "mloot_container"
+          ]
+        },
+        {
+          "name": "use_misc..you_aggravate",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "use_misc",
+            "you_aggravate"
           ]
         }
       ],
@@ -9894,19 +9903,19 @@
           "name": "find_misc",
           "line": 2095,
           "endLine": 2249,
-          "ported": false
+          "ported": true
         },
         {
           "name": "muse_newcham_mon",
           "line": 2250,
           "endLine": 2263,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mloot_container",
           "line": 2264,
           "endLine": 2382,
-          "ported": false
+          "ported": true
         },
         {
           "name": "use_misc",
