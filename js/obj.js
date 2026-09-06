@@ -118,6 +118,10 @@ import {
     stop_timer,
 } from './timeout.js';
 import { is_ice } from './terrain.js';
+// add_to_migration() calls maybe_reset_pick() for containers. lock.js imports
+// from this file; both sides use the other's exports only inside function
+// bodies.
+import { maybe_reset_pick } from './lock.js';
 import { note_unported } from './unported.js';
 // encumber_msg() compares the old and new encumbrance after glob weight
 // changes. pickup.js imports from this file; both sides use the other's
@@ -2738,6 +2742,31 @@ export function extract_nexthere(obj, head) {
         prev = curr;
     }
     throw new Error('extract_nexthere: object lost');
+}
+
+// C ref: mkobj.c add_to_migration(). Transfers a free object to the
+// gm.migrating_objs chain, recording the level it came from.
+export function add_to_migration(obj, state = game) {
+    if (obj.where !== OBJ_FREE)
+        throw new Error(
+            `add_to_migration: obj where=${obj.where}, not free`,
+        );
+
+    // C: if (obj->unpaid) impossible("unpaid object migrating to another
+    // level? [%s]", simpleonames(obj)). The caller should have changed the
+    // unpaid item to stolen before this point.
+    obj.no_charge = 0; // was only relevant while inside a shop
+
+    // lock picking context becomes stale if it's for this object
+    if (isContainer(obj))
+        maybe_reset_pick(obj, state);
+
+    obj.where = OBJ_MIGRATING;
+    state.gm ??= {};
+    obj.nobj = state.gm.migrating_objs ?? null;
+    obj.omigr_from_dnum = state.u.uz.dnum;
+    obj.omigr_from_dlevel = state.u.uz.dlevel;
+    state.gm.migrating_objs = obj;
 }
 
 // C ref: invent.c sobj_at() and g_at().
