@@ -10062,7 +10062,7 @@
     {
       "id": "div-muse-precheck-seed0361",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix RNG divergence at precheck() step 236 in seed0361-archeologist-tour",
       "cFile": "muse.c",
       "sessions": [],
@@ -10070,8 +10070,8 @@
       "spans": [
         {
           "name": "precheck-rng-divergence",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "e3ac015fdc5e08aa59710d45524ebf765acc2880",
           "functions": [
             "precheck"
           ]
@@ -10083,8 +10083,11 @@
         "screens": 4976,
         "rng": 343038
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e3ac015fdc5e08aa59710d45524ebf765acc2880",
+      "delivered": {
+        "screens": 1,
+        "rng": 39
+      },
       "function": "precheck",
       "session": "seed0361-archeologist-tour",
       "step": 236
