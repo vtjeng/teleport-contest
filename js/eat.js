@@ -77,7 +77,7 @@ import {
     W_WEP,
     NEUTRAL,
 } from './const.js';
-import { adjalign, poison_strdmg } from './attrib.js';
+import { adjalign, gainstr, poison_strdmg } from './attrib.js';
 import { set_occupation, yn_function } from './cmd.js';
 import { surface } from './dungeon.js';
 import { can_reach_floor } from './engrave.js';
@@ -1640,7 +1640,10 @@ async function cpostfx(pm, state) {
 
         /* if something was chosen, give it now (givit() might fail) */
         if (tmp === -1) {
-            throw new UnsupportedEatError('gainstr() from a giant corpse');
+            await gainstr(null, 0, true, state, {
+                message: ttyPline,
+                encumberMessage: (target) => encumber_msg(target),
+            });
         } else if (tmp > 0) {
             // givit() weighs the monster's level against a per-intrinsic
             // chance in should_givit() and temp_givit(), and each intrinsic it

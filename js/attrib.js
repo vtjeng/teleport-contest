@@ -2,7 +2,7 @@
 // C ref: src/attrib.c the innate-ability tables, role_abil(), postadjabil(),
 // adjabil(), newhp(), setuhpmax(), rnd_attr(), init_attr_role_redist(),
 // init_attr(), redist_attr(), vary_init_attr(), exercise(), exerper(), adjattrib(),
-// exerchk(), losestr(), poison_strdmg(), poisontell(), poisoned(),
+// exerchk(), gainstr(), losestr(), poison_strdmg(), poisontell(), poisoned(),
 // stone_luck(), set_moreluck(), restore_attrib(), adjuhploss(),
 // check_innate_abil(), innately(), is_innate(), from_what(), acurr(),
 // and uchangealign().
@@ -64,6 +64,7 @@ import {
     SICK,
     SLEEP_RES,
     STEALTH,
+    STR18,
     STR19,
     STRANGLED,
     STUNNED,
@@ -1456,6 +1457,28 @@ export async function restore_attrib(state = game, env = {}) {
             throw new Error('restore_attrib requires encumber_msg');
         await encumberMessage(state);
     }
+}
+
+// C ref: attrib.c gainstr() (203-220). Strength gain, typically from eating a
+// giant corpse, spinach from a tin, or royal jelly. When incr is 0 the amount
+// depends on current strength; a cursed object reverses the direction.
+//
+// Cycle avoidance: adjattrib() needs pickup.c encumber_msg(), which lives in a
+// file that imports this one. The caller supplies it through env.
+export async function gainstr(otmp, incr, givemsg, state = game, env = {}) {
+    const random = env.random ?? { rn2, rnd };
+    let num = incr;
+
+    if (!num) {
+        if (state.u.acurr.a[A_STR] < 18)
+            num = (random.rn2(4) ? 1 : random.rnd(6));
+        else if (state.u.acurr.a[A_STR] < STR18(85))
+            num = random.rnd(10);
+        else
+            num = 1;
+    }
+    await adjattrib(A_STR, (otmp && otmp.cursed) ? -num : num,
+                    givemsg ? -1 : 1, state, env);
 }
 
 // C ref: attrib.c losestr() (218-270). Strength loss that may kill; the cause
