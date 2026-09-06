@@ -91,6 +91,17 @@ import {
 } from './timeout.js';
 import { note_unported } from './unported.js';
 import {
+    S_altar,
+    S_brdnstair,
+    S_brupstair,
+    S_dnstair,
+    S_sink,
+    S_throne,
+    S_trwall,
+    S_upstair,
+    S_vwall,
+} from './symbols.js';
+import {
     AMULET_CLASS,
     AMULET_OF_CHANGE,
     AMULET_OF_RESTFUL_SLEEP,
@@ -1619,6 +1630,36 @@ function initializeMonsterFood(obj, env) {
     default:
         throw new RangeError(`unsupported monster food ${obj.otyp}`);
     }
+}
+
+// C ref: mkobj.c stone_object_type().
+// Potential mimic shapes that should be undone by stone-to-flesh;
+// not used for objects that will be transformed when hit by stone-to-flesh.
+export function stone_object_type(mappearance) {
+    const otyp = mappearance | 0;
+    return (otyp === BOULDER || otyp === STATUE || otyp === FIGURINE);
+}
+
+// C ref: mkobj.c stone_furniture_type().
+// Possible mimic shapes that are affected by stone-to-flesh;
+// mappearance for furniture is a display symbol rather than a terrain type.
+export function stone_furniture_type(mappearance) {
+    const sym = mappearance | 0;
+    switch (sym) {
+    case S_upstair:
+    case S_dnstair:
+    case S_brupstair:
+    case S_brdnstair:
+    case S_altar:
+    case S_throne:
+    case S_sink: // stone sink is iffy; metal might be more appropriate
+        return true;
+    default:
+        if (sym >= S_vwall && sym <= S_trwall)
+            return true;
+        break;
+    }
+    return false;
 }
 
 // C ref: mkobj.c set_corpsenm().
