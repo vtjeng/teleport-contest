@@ -10105,8 +10105,8 @@
       "spans": [
         {
           "name": "nextoid",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "dd43ed5629c0e55975357ebc7ab4e665983b087c",
           "functions": [
             "nextoid"
           ]
@@ -10251,7 +10251,7 @@
           "name": "nextoid",
           "line": 536,
           "endLine": 555,
-          "ported": false
+          "ported": true
         },
         {
           "name": "unsplitobj",
