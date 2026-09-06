@@ -9384,13 +9384,21 @@
         },
         {
           "name": "check_innate_abil..from_what",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "12049c424b75634188f3b964884553fcfaebe2c9",
           "functions": [
             "check_innate_abil",
             "innately",
             "is_innate",
             "from_what"
+          ]
+        },
+        {
+          "name": "acurr",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "acurr"
           ]
         }
       ],
@@ -9527,25 +9535,25 @@
           "name": "check_innate_abil",
           "line": 818,
           "endLine": 863,
-          "ported": false
+          "ported": true
         },
         {
           "name": "innately",
           "line": 864,
           "endLine": 879,
-          "ported": false
+          "ported": true
         },
         {
           "name": "is_innate",
           "line": 880,
           "endLine": 904,
-          "ported": false
+          "ported": true
         },
         {
           "name": "from_what",
           "line": 905,
           "endLine": 1005,
-          "ported": false
+          "ported": true
         },
         {
           "name": "adjabil",
