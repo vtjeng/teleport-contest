@@ -10132,10 +10132,20 @@
         },
         {
           "name": "item_on_ice",
+          "status": "closed",
+          "closedBy": "d99bc32ef802bdb80d639f58e317b896f9ce0c6f",
+          "functions": [
+            "item_on_ice"
+          ]
+        },
+        {
+          "name": "shrink_glob..maybe_adjust_light",
           "status": "queued",
           "closedBy": null,
           "functions": [
-            "item_on_ice"
+            "shrink_glob",
+            "shrinking_glob_gone",
+            "maybe_adjust_light"
           ]
         }
       ],
@@ -10374,7 +10384,7 @@
           "name": "item_on_ice",
           "line": 1443,
           "endLine": 1472,
-          "ported": false
+          "ported": true
         },
         {
           "name": "start_glob_timeout",
