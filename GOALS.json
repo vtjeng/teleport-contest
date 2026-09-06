@@ -9676,11 +9676,19 @@
         },
         {
           "name": "reveal_trap..mon_escape",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "3fc0c09e7d5cef411e759a757f4edaf754e0e318",
           "functions": [
             "reveal_trap",
             "mon_escape"
+          ]
+        },
+        {
+          "name": "use_defensive",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "use_defensive"
           ]
         }
       ],
@@ -9757,13 +9765,13 @@
           "name": "reveal_trap",
           "line": 757,
           "endLine": 779,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mon_escape",
           "line": 780,
           "endLine": 795,
-          "ported": false
+          "ported": true
         },
         {
           "name": "use_defensive",
