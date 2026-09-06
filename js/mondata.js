@@ -1669,6 +1669,12 @@ export function mhe(mtmp, env = {}) {
     return genders[pronoun_gender(mtmp, PRONOUN_HALLU, env)].he;
 }
 
+// C ref: you.h:323 mhim(), a monster's object pronoun. Same pattern as
+// mhe() above but uses `.him` instead of `.he`.
+export function mhim(mtmp, env = {}) {
+    return genders[pronoun_gender(mtmp, PRONOUN_HALLU, env)].him;
+}
+
 // C ref: mondata.c big_little_match().
 export function big_little_match(montyp1, montyp2, state = game) {
     if (montyp1 === montyp2) return true;

@@ -2559,21 +2559,17 @@ test('simple preflight admits source-inert monster inventory', async () => {
     }
 });
 
-test('simple preflight refuses selected healing without changing live state',
+test('simple preflight admits selected healing (use_defensive is ported)',
     async () => {
         const target = await prepareSelectedAction({ pmidx: PM_GNOME });
-        // One of five hit points is below muse.c's one-fifth threshold.
+        // One of five hit points is below muse.c's one-fifth threshold,
+        // so find_defensive() selects the healing potion.
         target.monster.mhp = 1;
         target.monster.mhpmax = 5;
         target.monster.minvent = monsterObject(POT_HEALING);
-        const before = preflightSnapshot();
 
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'monster item use',
-        );
-        assert.deepEqual(preflightSnapshot(), before);
+        // use_defensive() is now ported, so the planning pass succeeds.
+        await preflightSimpleMonsterActions(game);
     });
 
 test('simple preflight admits inert AT_WEAP capability and inventory',

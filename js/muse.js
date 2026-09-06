@@ -1,7 +1,8 @@
 // Monster item-use AI: deciding which items to use and executing the use.
 // C refs: muse.c precheck(), mzapwand(), mplayhorn(), mreadmsg(),
 // mquaffmsg(), m_use_healing(), m_sees_sleepy_soldier(), m_tele(),
-// m_next2m(), reveal_trap(), mon_escape(), find_defensive(),
+// m_next2m(), reveal_trap(), mon_escape(), use_defensive(),
+// mcureblindness(), find_defensive(),
 // find_offensive(), use_offensive()'s hurled-potion case,
 // searches_for_item(), cures_stoning(), mcould_eat_tin(); mondata.c
 // can_blow().
@@ -11,10 +12,26 @@ import {
     BOLT_LIM,
     CORR,
     DEAF,
+    FORCEBUNGLE,
+    FORCETRAP,
     G_GONE,
     HALLUC,
     HALLUC_RES,
+    HOLE,
+    In_endgame,
+    IS_DRAWBRIDGE,
+    IS_FURNITURE,
+    Is_botlevel,
+    Is_knox_level,
+    LADDER,
     MFAST,
+    MIGR_LADDER_DOWN,
+    MIGR_LADDER_UP,
+    MIGR_RANDOM,
+    MIGR_SSTAIRS,
+    MIGR_STAIRS_DOWN,
+    MIGR_STAIRS_UP,
+    MM_NOMSG,
     MS_SILENT,
     M_SEEN_ACID,
     M_SEEN_COLD,
@@ -23,24 +40,23 @@ import {
     M_SEEN_MAGR,
     M_SEEN_REFL,
     M_SEEN_SLEEP,
-    LADDER,
-    MM_NOMSG,
+    NO_MM_FLAGS,
     NON_PM,
     OBJ_FLOOR,
     P_DAGGER,
     P_KNIFE,
+    PIT,
     POLY_TRAP,
+    RLOC_MSG,
+    SCORR,
+    SEE_INVIS,
     STAIRS,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
     SUPPRESS_SADDLE,
     AUGMENT_IT,
-    FORCETRAP,
-    Is_knox_level,
-    RLOC_MSG,
-    SCORR,
     TELEP_TRAP,
-    SEE_INVIS,
+    Trap_Killed_Mon,
     W_ACCESSORY,
     W_AMUL,
     W_ARM,
@@ -54,7 +70,9 @@ import {
     isok,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
-import { map_invisible } from './display.js';
+import { map_invisible, newsym } from './display.js';
+import { trycall } from './do.js';
+import { migrate_to_level } from './dog.js';
 import {
     a_monnam,
     capitalizedMonsterName,
@@ -63,44 +81,55 @@ import {
     rndmonnam,
     x_monnam,
 } from './do_name.js';
-import { Can_fall_thru, On_W_tower_level } from './dungeon.js';
+import {
+    Can_dig_down, Can_fall_thru, In_hell, On_W_tower_level,
+    depth, dunlev, dunlevs_in_dungeon, get_level, ledger_no, surface,
+} from './dungeon.js';
+import { obfree } from './invent.js';
 import { game } from './gstate.js';
 import { dist2, distmin, sgn, strsubst } from './hacklib.js';
 import { makemon, mongone } from './makemon_create.js';
 import { set_malign } from './makemon.js';
 import { m_next2u } from './mhitu.js';
-import { m_carrying, mon_offmap, monkilled } from './mon.js';
+import { healmon, m_carrying, maybe_unhide_at, mon_offmap, monkilled } from './mon.js';
 import {
-    acidic, attacktype, breathless, dmgtype, has_head, is_animal, is_floater,
-    is_mercenary, is_unicorn, is_vampshifter, mhe, mindless, mon_learns_traps,
+    acidic, attacktype, breathless, dmgtype, has_head, haseyes, is_animal,
+    is_floater, is_flyer, is_mercenary, is_unicorn, is_vampshifter,
+    locomotion, mhe, mhim, mindless, mon_learns_traps,
     needspick, nohands, nonliving, passes_walls, same_race, slimeproof,
     throws_rocks, touch_petrifies, verysmall,
 } from './mondata.js';
 import * as M from './monsters.js';
-import { m_at } from './monst.js';
+import { m_at, place_monster, remove_monster } from './monst.js';
 import {
+    bcsign,
     isContainer,
     objectType,
     sobj_at,
+    splitobj,
     unknow_object,
 } from './obj.js';
 import * as O from './objects.js';
 import { an, ansimpleoname, donameFresh, simpleonames, singular,
-    xnameFresh } from './objnam.js';
+    vtense, xnameFresh } from './objnam.js';
 import { discover_object, objdescr_is, observe_object } from './o_init.js';
-import { monnear, onscary, youHear } from './monmove.js';
+import { monflee, monnear, onscary, youHear } from './monmove.js';
 import { lined_up } from './mthrowu.js';
 import { in_your_sanctuary } from './priest.js';
-import { d, rn2 } from './rng.js';
+import { d, rn1, rn2, rnd } from './rng.js';
+import { inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
-import { messageAt, sensesMonster } from './startup_a11y.js';
-import { enexto, noteleport_level, rloc, tele_restrict } from './teleport.js';
-import { t_at } from './trap.js';
+import { canSpotMonster, is_drawbridge_wall, messageAt, sensesMonster } from './startup_a11y.js';
+import {
+    enexto, noteleport_level, random_teleport_level, rloc, tele_restrict,
+} from './teleport.js';
+import { fill_pit, is_pool, maketrap, t_at, trapname } from './trap.js';
 import { mintrap, seetrap } from './trap_effects.js';
 import { s_suffix } from './hacklib.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { cansee, canseemon, couldsee, unblock_point } from './vision.js';
+import { cansee, canseemon, couldsee, recalc_block_point, unblock_point } from './vision.js';
+import { extract_from_minvent } from './worn.js';
 import { mwelded } from './wield.js';
 import { mon_has_amulet, mon_has_special } from './wizard.js';
 import { which_armor } from './worn.js';
@@ -544,6 +573,464 @@ async function mon_escape(mtmp, vismon, state, env) {
     return 2;
 }
 
+// C ref: muse.c mcureblindness() (2872-2881). Cure a monster's blindness
+// and announce that it can see again if the hero can see it.
+async function mcureblindness(mon, verbos, state) {
+    if (!mon.mcansee) {
+        mon.mcansee = 1;
+        mon.mblinded = 0;
+        if (verbos && haseyes(mon.data))
+            await pline_mon(mon,
+                `${capitalizedMonsterName(mon, state)} can see again.`,
+                state);
+    }
+}
+
+// C ref: muse.c use_defensive() (796-1221). Execute the defensive item
+// action that find_defensive() selected. Returns 0 if nothing happened,
+// 1 if the monster died, 2 if it acted.
+//
+// The C version reads gm.m.defensive and gm.m.has_defense; the JS version
+// receives the selection object from find_defensive(). For trap-based
+// escapes, the selection carries the trap coordinates that C stores in
+// gt.trapx/gt.trapy.
+export async function use_defensive(mtmp, selection, state, env = {}) {
+    const otmp = selection.object;
+    const kind = selection.kind;
+
+    const i = await precheck(mtmp, otmp, state, env);
+    if (i !== 0) return i;
+
+    const vis = cansee(mtmp.mx, mtmp.my, state);
+    const vismon = canseemon(mtmp, state);
+    const oseen = otmp && vismon;
+
+    // C ref: muse.c:812-815. When using a defensive choice to run away, the
+    // monster should avoid rushing right back; don't override if already
+    // scared.
+    const fleetim = !mtmp.mflee
+        ? (33 - Math.trunc(30 * mtmp.mhp / mtmp.mhpmax)) : 0;
+    const m_flee = async (m) => {
+        if (fleetim && !m.iswiz) {
+            await monflee(m, fleetim, false, false, { state });
+        }
+    };
+
+    switch (kind) {
+    case 'unicorn horn': {
+        // MUSE_UNICORN_HORN: unicorn horn object is optional
+        if (vismon) {
+            if (otmp)
+                await pline_mon(mtmp,
+                    `${capitalizedMonsterName(mtmp, state)} uses a unicorn horn!`,
+                    state);
+            else
+                await ttyPline(
+                    `The tip of ${s_suffix(monsterCommonName(mtmp, state))} horn glows!`,
+                    state);
+        }
+        if (!mtmp.mcansee) {
+            await mcureblindness(mtmp, vismon, state);
+        } else if (mtmp.mconf || mtmp.mstun) {
+            mtmp.mconf = 0;
+            mtmp.mstun = 0;
+            if (vismon)
+                await pline_mon(mtmp,
+                    `${capitalizedMonsterName(mtmp, state)} seems steadier now.`,
+                    state);
+        }
+        // C: else impossible("No need for unicorn horn?");
+        return 2;
+    }
+    case 'bugle': {
+        // MUSE_BUGLE
+        if (vismon) {
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} plays ${donameFresh(otmp, state)}!`,
+                state);
+        } else if (!Deaf(state)) {
+            // Soundeffect is a no-op in the tty build.
+            const heard = youHear('a bugle playing reveille!', state);
+            if (heard) await ttyPline(heard, state);
+        }
+        note_unported('music.c awaken_soldiers');
+        return 2;
+    }
+    case 'teleportation wand': {
+        // C distinguishes MUSE_WAN_TELEPORTATION_SELF (zap self) from
+        // MUSE_WAN_TELEPORTATION (zap beam at others) based on whether the
+        // monster carries the Amulet of Yendor.
+        if (mon_has_amulet(mtmp)) {
+            // MUSE_WAN_TELEPORTATION: zap at others (monster has the Amulet)
+            note_unported('zap.c mbhit');
+            await mzapwand(mtmp, otmp, false, state);
+            if (noteleport_level(mtmp, state))
+                mon_learns_traps(mtmp, TELEP_TRAP);
+            return 2;
+        }
+        // MUSE_WAN_TELEPORTATION_SELF: zap self
+        if ((mtmp.isshk && inhishop(mtmp, state))
+            || mtmp.isgd || mtmp.ispriest)
+            return 2;
+        await m_flee(mtmp);
+        await mzapwand(mtmp, otmp, true, state);
+        await m_tele(mtmp, vismon, oseen, O.WAN_TELEPORTATION, state);
+        return 2;
+    }
+    case 'teleportation scroll': {
+        // MUSE_SCR_TELEPORTATION
+        const obj_is_cursed = otmp.cursed;
+        if (mtmp.isshk || mtmp.isgd || mtmp.ispriest)
+            return 2;
+        await m_flee(mtmp);
+        // Take the scroll out of inventory before teleporting, in case the
+        // monster lands in lava or on a fire trap and the scroll is destroyed.
+        let scrollObj = otmp;
+        if (scrollObj.quan > 1)
+            scrollObj = splitobj(scrollObj, 1, { state });
+        extract_from_minvent(mtmp, scrollObj, false, false, { state });
+        await mreadmsg(mtmp, scrollObj, state);
+        if (obj_is_cursed || mtmp.mconf) {
+            const nlev = random_teleport_level(state);
+            if (mon_has_amulet(mtmp)
+                || In_endgame(state.u?.uz)) {
+                if (vismon)
+                    await pline_mon(mtmp,
+                        `${capitalizedMonsterName(mtmp, state)} seems very disoriented for a moment.`,
+                        state);
+            } else if (nlev === depth(state.u?.uz, state)) {
+                if (vismon)
+                    await pline_mon(mtmp,
+                        `${capitalizedMonsterName(mtmp, state)} shudders for a moment.`,
+                        state);
+            } else {
+                const flev = {};
+                get_level(flev, nlev, state);
+                migrate_to_level(mtmp, ledger_no(flev, state),
+                    MIGR_RANDOM, null, { state });
+            }
+        } else {
+            await m_tele(mtmp, vismon, oseen, O.SCR_TELEPORTATION, state);
+        }
+        // m_tele() handles makeknown(). trycall() is a no-op when the otyp
+        // is already discovered. C checks iflags.last_msg != PLNMSG_enum to
+        // detect whether any message was shown; since ttyPline does not set
+        // last_msg, we check dknown directly (mreadmsg sets it when the hero
+        // can see or hear the monster).
+        if (scrollObj.dknown)
+            await trycall(scrollObj, state);
+        obfree(scrollObj, null, { state });
+        return 2;
+    }
+    case 'digging wand': {
+        // MUSE_WAN_DIGGING
+        await m_flee(mtmp);
+        await mzapwand(mtmp, otmp, false, state);
+        if (oseen)
+            discover_object(O.WAN_DIGGING, true, true, true, state);
+        const lev = state.level.at(mtmp.mx, mtmp.my);
+        if (IS_FURNITURE(lev.typ)
+            || IS_DRAWBRIDGE(lev.typ)
+            || (is_drawbridge_wall(mtmp.mx, mtmp.my, state) >= 0)
+            || stairway_at(mtmp.mx, mtmp.my, state)) {
+            await ttyPline('The digging ray is ineffective.', state);
+            return 2;
+        }
+        if (!Can_dig_down(state.u?.uz, state) && !lev.candig) {
+            // Can't dig further; try to make a pit
+            if (t_at(mtmp.mx, mtmp.my, state)
+                || !(env._trap = maketrap(mtmp.mx, mtmp.my, PIT, { state }))) {
+                if (vismon)
+                    await ttyPline(
+                        `The ${surface(mtmp.mx, mtmp.my, state)} here is too hard to dig in.`,
+                        state);
+                return 2;
+            }
+            const t = env._trap;
+            if (vis) {
+                seetrap(t, { redraw: (x, y) => newsym(x, y) });
+                await pline_mon(mtmp,
+                    `${capitalizedMonsterName(mtmp, state)} has made a pit in the ${surface(mtmp.mx, mtmp.my, state)}.`,
+                    state);
+            }
+            fill_pit(mtmp.mx, mtmp.my, state);
+            recalc_block_point(mtmp.mx, mtmp.my, state);
+            return (await mintrap(mtmp, FORCEBUNGLE, { state })) === Trap_Killed_Mon ? 1 : 2;
+        }
+        // Can dig down: make a hole
+        const t = maketrap(mtmp.mx, mtmp.my, HOLE, { state });
+        if (!t) return 2;
+        recalc_block_point(mtmp.mx, mtmp.my, state);
+        seetrap(t, { redraw: (x, y) => newsym(x, y) });
+        if (vis) {
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} has made a hole in the ${surface(mtmp.mx, mtmp.my, state)}.`,
+                state);
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} ${is_flyer(mtmp.data) ? 'dives' : 'falls'} through...`,
+                state);
+        } else if (!Deaf(state)) {
+            // Soundeffect is a no-op in the tty build.
+            const heard = youHear(
+                `something crash through the ${surface(mtmp.mx, mtmp.my, state)}.`,
+                state);
+            if (heard) await ttyPline(heard, state);
+        }
+        fill_pit(mtmp.mx, mtmp.my, state);
+        migrate_to_level(mtmp, ledger_no(state.u?.uz, state) + 1,
+            MIGR_RANDOM, null, { state });
+        return 2;
+    }
+    case 'create monster wand': {
+        // MUSE_WAN_CREATE_MONSTER
+        // pm: null => random, eel => aquatic, croc => amphibious
+        const pm = !is_pool(mtmp.mx, mtmp.my, state) ? null
+            : state.mons[state.u?.uinwater ? M.PM_GIANT_EEL : M.PM_CROCODILE];
+        const cc = enexto(mtmp.mx, mtmp.my, pm, { state });
+        if (!cc) return 0;
+        await mzapwand(mtmp, otmp, false, state);
+        const mon = makemon(null, cc.x, cc.y, NO_MM_FLAGS, { state });
+        if (mon && canSpotMonster(mon, state) && oseen)
+            discover_object(O.WAN_CREATE_MONSTER, true, true, true, state);
+        return 2;
+    }
+    case 'create monster scroll': {
+        // MUSE_SCR_CREATE_MONSTER
+        let cnt = 1;
+        let known = false;
+        if (!rn2(73))
+            cnt += rnd(4);
+        if (mtmp.mconf || otmp.cursed)
+            cnt += 12;
+        const pm = mtmp.mconf
+            ? state.mons[M.PM_ACID_BLOB]
+            : null;
+        const fish = mtmp.mconf
+            ? state.mons[M.PM_ACID_BLOB]
+            : is_pool(mtmp.mx, mtmp.my, state)
+                ? state.mons[state.u?.uinwater ? M.PM_GIANT_EEL : M.PM_CROCODILE]
+                : null;
+        await mreadmsg(mtmp, otmp, state);
+        while (cnt-- > 0) {
+            const cc = enexto(mtmp.mx, mtmp.my, fish, { state });
+            if (!cc) break;
+            const mon = makemon(pm, cc.x, cc.y, NO_MM_FLAGS, { state });
+            if (mon && canSpotMonster(mon, state))
+                known = true;
+        }
+        if (known)
+            discover_object(O.SCR_CREATE_MONSTER, true, true, true, state);
+        else
+            await trycall(otmp, state);
+        note_unported('mthrowu.c m_useup');
+        return 2;
+    }
+    case 'trapdoor': {
+        // MUSE_TRAPDOOR
+        if (Is_botlevel(state.u?.uz))
+            return 0;
+        await m_flee(mtmp);
+        const trapx = selection.x;
+        const trapy = selection.y;
+        const t = t_at(trapx, trapy, state);
+        if (vis) {
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} ${vtense('mon', locomotion(mtmp.data, 'jump'))} into a ${trapname(t.ttyp)}!`,
+                state);
+        }
+        reveal_trap(t, vis, state, { redraw: (x, y) => newsym(x, y) });
+        // Don't use rloc_to() because worm tails must "move"
+        remove_monster(mtmp.mx, mtmp.my, state);
+        newsym(mtmp.mx, mtmp.my);
+        place_monster(mtmp, trapx, trapy, state);
+        if (mtmp.wormno)
+            note_unported('worm.c worm_move');
+        newsym(trapx, trapy);
+        migrate_to_level(mtmp, ledger_no(state.u?.uz, state) + 1,
+            MIGR_RANDOM, null, { state });
+        return 2;
+    }
+    case 'upstairs': {
+        // MUSE_UPSTAIRS
+        await m_flee(mtmp);
+        const stway = stairway_at(mtmp.mx, mtmp.my, state);
+        if (!stway) return 0;
+        if (ledger_no(state.u?.uz, state) === 1)
+            return await mon_escape(mtmp, vismon, state, { state });
+        if (In_hell(state.u?.uz, state) && mon_has_amulet(mtmp) && !rn2(4)
+            && (dunlev(state.u?.uz) < dunlevs_in_dungeon(state.u?.uz, state) - 3)) {
+            if (vismon)
+                await ttyPline(
+                    `As ${monsterCommonName(mtmp, state)} climbs the stairs, a mysterious force momentarily surrounds ${mhim(mtmp, { state })}...`,
+                    state);
+            migrate_to_level(mtmp, ledger_no(state.u?.uz, state) + 1,
+                MIGR_RANDOM, null, { state });
+        } else {
+            if (vismon)
+                await pline_mon(mtmp,
+                    `${capitalizedMonsterName(mtmp, state)} escapes upstairs!`,
+                    state);
+            migrate_to_level(mtmp, ledger_no(stway.tolev, state),
+                MIGR_STAIRS_DOWN, null, { state });
+        }
+        return 2;
+    }
+    case 'downstairs': {
+        // MUSE_DOWNSTAIRS
+        await m_flee(mtmp);
+        const stway = stairway_at(mtmp.mx, mtmp.my, state);
+        if (!stway) return 0;
+        if (vismon)
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} escapes downstairs!`,
+                state);
+        migrate_to_level(mtmp, ledger_no(stway.tolev, state),
+            MIGR_STAIRS_UP, null, { state });
+        return 2;
+    }
+    case 'up ladder': {
+        // MUSE_UP_LADDER
+        await m_flee(mtmp);
+        const stway = stairway_at(mtmp.mx, mtmp.my, state);
+        if (!stway) return 0;
+        if (vismon)
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} escapes up the ladder!`,
+                state);
+        migrate_to_level(mtmp, ledger_no(stway.tolev, state),
+            MIGR_LADDER_DOWN, null, { state });
+        return 2;
+    }
+    case 'down ladder': {
+        // MUSE_DN_LADDER
+        await m_flee(mtmp);
+        const stway = stairway_at(mtmp.mx, mtmp.my, state);
+        if (!stway) return 0;
+        if (vismon)
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} escapes down the ladder!`,
+                state);
+        migrate_to_level(mtmp, ledger_no(stway.tolev, state),
+            MIGR_LADDER_UP, null, { state });
+        return 2;
+    }
+    case 'special stairs': {
+        // MUSE_SSTAIRS
+        await m_flee(mtmp);
+        const stway = stairway_at(mtmp.mx, mtmp.my, state);
+        if (!stway) return 0;
+        if (ledger_no(state.u?.uz, state) === 1)
+            return await mon_escape(mtmp, vismon, state, { state });
+        if (vismon)
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} escapes ${stway.up ? 'up' : 'down'}stairs!`,
+                state);
+        migrate_to_level(mtmp, ledger_no(stway.tolev, state),
+            MIGR_SSTAIRS, null, { state });
+        return 2;
+    }
+    case 'teleport trap': {
+        // MUSE_TELEPORT_TRAP
+        await m_flee(mtmp);
+        const trapx = selection.x;
+        const trapy = selection.y;
+        const t = t_at(trapx, trapy, state);
+        if (vis) {
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} ${vtense('mon', locomotion(mtmp.data, 'jump'))} onto a ${trapname(t.ttyp)}!`,
+                state);
+        }
+        reveal_trap(t, vis, state, { redraw: (x, y) => newsym(x, y) });
+        // Don't use rloc_to() because worm tails must "move"
+        remove_monster(mtmp.mx, mtmp.my, state);
+        newsym(mtmp.mx, mtmp.my);
+        place_monster(mtmp, trapx, trapy, state);
+        if (mtmp.wormno)
+            note_unported('worm.c worm_move');
+        maybe_unhide_at(mtmp.mx, mtmp.my, state);
+        newsym(trapx, trapy);
+        // C calls m_tele(mtmp, vismon, FALSE, 0), which runs mintrap() with
+        // FORCETRAP so the monster teleports through the trap. The JS m_tele
+        // delegates to mintrap(), which requires injected operations this
+        // context does not provide. Use the same tele_restrict / amulet /
+        // rloc sequence m_tele uses for how != 0; the gap is that a vault-
+        // bound trap would send the monster to a random location instead.
+        if (await tele_restrict(mtmp, state)) {
+            if (noteleport_level(mtmp, state))
+                mon_learns_traps(mtmp, TELEP_TRAP);
+        } else if ((mon_has_amulet(mtmp)
+            || On_W_tower_level(state.u?.uz, state)) && !rn2(3)) {
+            if (vismon)
+                await pline_mon(mtmp,
+                    `${capitalizedMonsterName(mtmp, state)} seems disoriented for a moment.`,
+                    state);
+        } else {
+            await rloc(mtmp, RLOC_MSG, { state });
+        }
+        return 2;
+    }
+    case 'healing': {
+        // MUSE_POT_HEALING
+        await mquaffmsg(mtmp, otmp, state);
+        const amt = d(6 + 2 * bcsign(otmp), 4);
+        healmon(mtmp, amt, 1);
+        if (!otmp.cursed && !mtmp.mcansee)
+            await mcureblindness(mtmp, vismon, state);
+        if (vismon)
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} looks better.`,
+                state);
+        if (oseen)
+            discover_object(O.POT_HEALING, true, true, true, state);
+        note_unported('mthrowu.c m_useup');
+        return 2;
+    }
+    case 'extra healing': {
+        // MUSE_POT_EXTRA_HEALING
+        await mquaffmsg(mtmp, otmp, state);
+        const amt = d(6 + 2 * bcsign(otmp), 8);
+        healmon(mtmp, amt, otmp.blessed ? 5 : 2);
+        if (!mtmp.mcansee)
+            await mcureblindness(mtmp, vismon, state);
+        if (vismon)
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} looks much better.`,
+                state);
+        if (oseen)
+            discover_object(O.POT_EXTRA_HEALING, true, true, true, state);
+        note_unported('mthrowu.c m_useup');
+        return 2;
+    }
+    case 'full healing':
+    case 'pestilence healing': {
+        // MUSE_POT_FULL_HEALING (also Pestilence's POT_SICKNESS)
+        await mquaffmsg(mtmp, otmp, state);
+        if (otmp.otyp === O.POT_SICKNESS)
+            otmp.blessed = 0; // unbless for Pestilence
+        healmon(mtmp, mtmp.mhpmax, otmp.blessed ? 8 : 4);
+        if (!mtmp.mcansee && otmp.otyp !== O.POT_SICKNESS)
+            await mcureblindness(mtmp, vismon, state);
+        if (vismon)
+            await pline_mon(mtmp,
+                `${capitalizedMonsterName(mtmp, state)} looks completely healed.`,
+                state);
+        if (oseen)
+            discover_object(otmp.otyp, true, true, true, state);
+        note_unported('mthrowu.c m_useup');
+        return 2;
+    }
+    case 'altered defensive state':
+    case 'corpse defense evaluation':
+    case 'escape defensive search':
+        // These selection kinds are conservative refusals from
+        // find_defensive() for arms not yet fully ported.
+        return 0;
+    default:
+        // C: impossible("%s wanted to perform action %d?", ...)
+        return 0;
+    }
+}
+
 function canLetGoWithoutDiscovery(obj, state) {
     if (!obj) return false;
     if (obj.owornmask & (W_ARMOR | W_ACCESSORY)) return false;
@@ -806,11 +1293,12 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
                     && Can_fall_thru(hero.uz, state)) {
                     // A hole ends C's scan and takes precedence over a
                     // teleport trap found earlier.
-                    physicalEscape = selected('trapdoor');
+                    physicalEscape = { kind: 'trapdoor', object: null, x, y };
                     break;
                 }
                 if (trap.ttyp === TELEP_TRAP)
-                    physicalEscape = selected('teleport trap');
+                    physicalEscape = { kind: 'teleport trap', object: null,
+                        x, y };
             }
         }
     }

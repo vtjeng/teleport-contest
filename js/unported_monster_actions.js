@@ -125,7 +125,9 @@ import {
     m_move,
 } from './monmove.js';
 import { m_at } from './monst.js';
-import { select_fresh_monster_item_action, use_offensive } from './muse.js';
+import {
+    find_defensive, select_misc_action, use_defensive, use_offensive,
+} from './muse.js';
 import {
     clear_dknown,
     newObject,
@@ -1462,12 +1464,32 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 // disjunction calls, refuses through this rather than
                 // answering TRUE.
                 unsupported,
-                usePreMoveItems: (itemUser, itemEnv) => {
-                    const selected = select_fresh_monster_item_action(
+                usePreMoveItems: async (itemUser, itemEnv) => {
+                    const defensive = find_defensive(
+                        itemUser,
+                        false,
+                        itemEnv,
+                    );
+                    if (defensive) {
+                        // The planning pass discovers that the monster
+                        // would act without executing the action, since
+                        // use_defensive calls ttyPline and other output
+                        // functions the planning context does not suppress.
+                        if (itemEnv.planning)
+                            return true;
+                        const result = await use_defensive(
+                            itemUser,
+                            defensive,
+                            itemEnv.state,
+                            itemEnv,
+                        );
+                        return result !== 0;
+                    }
+                    const misc = select_misc_action(
                         itemUser,
                         itemEnv,
                     );
-                    if (selected) unsupported('monster item use');
+                    if (misc) unsupported('monster item use');
                     return false;
                 },
                 wieldMonsterItem: async (weaponUser, weaponEnv) => {
