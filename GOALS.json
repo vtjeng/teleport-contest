@@ -10166,11 +10166,19 @@
         },
         {
           "name": "rnd_treefruit_at..is_treefruit",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "554bd3ab726f46353a9fdaab61ada5b9e4a70901",
           "functions": [
             "rnd_treefruit_at",
             "is_treefruit"
+          ]
+        },
+        {
+          "name": "fixup_oil",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "fixup_oil"
           ]
         }
       ],
@@ -10487,13 +10495,13 @@
           "name": "rnd_treefruit_at",
           "line": 1984,
           "endLine": 1990,
-          "ported": false
+          "ported": true
         },
         {
           "name": "is_treefruit",
           "line": 1991,
           "endLine": 2002,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mkgold",
