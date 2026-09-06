@@ -137,6 +137,7 @@ import {
     is_mplayer,
     is_rider,
     monster_resists_element,
+    monstseesu,
     monstunseesu,
     nonliving,
     nohands,
@@ -200,7 +201,7 @@ import { healup } from './potion.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { monkilled, wakeup, xkilled } from './mon.js';
 import { m_at } from './monst.js';
-import { mon_reflects } from './muse.js';
+import { mon_reflects, ureflects } from './muse.js';
 import { check_unpaid, inside_shop } from './shk.js';
 import { canSpotMonster, messageAt } from './startup_a11y.js';
 import { closed_door } from './monmove.js';
@@ -1590,9 +1591,8 @@ async function zap_over_floor(
 // armor-disintegration sub-arms throw because no witness exercises them.
 //
 // The arms that still stop, each before it changes state, draws or writes:
-// u.uswallow (4802-4820), u.usteed (4959-4961), Reflecting (4966-4976),
-// flashburn() (4988-4989), Is_airlevel (5008-5013) and pay_for_damage()
-// (5028-5035).
+// u.uswallow (4802-4820), u.usteed (4959-4961), flashburn() (4988-4989),
+// Is_airlevel (5008-5013) and pay_for_damage() (5028-5035).
 export async function dobuzz(
     type,               /* 0..29 (by hero) or -39..-10 (by monster) */
     nd,                 /* damage strength ('number of dice') */
@@ -1828,9 +1828,22 @@ export async function dobuzz(
                         state,
                     );
                     if (Reflecting(state)) {
-                        throw new UnsupportedZapError(
-                            'ureflects() for a hero the bolt bounces off',
-                        );
+                        if (!heroIsBlind(state)) {
+                            await ureflects(
+                                'But %s reflects from your %s!', 'it', state,
+                            );
+                        } else {
+                            await ttyPline(
+                                'For some reason you are not affected.',
+                                state,
+                            );
+                        }
+                        monstseesu(M_SEEN_REFL, state);
+                        dx = negate(dx);
+                        dy = negate(dy);
+                        // shieldeff(sx, sy) is a visual animation;
+                        // skipped because it has no game-state or RNG effect.
+                        gas_hit = false;
                     } else {
                         /* flash_str here only used for killer; suppress
                          * hallucination */

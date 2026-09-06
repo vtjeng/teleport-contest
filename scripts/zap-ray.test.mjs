@@ -1037,14 +1037,11 @@ test('a cold bolt over water or lava stops at what it would freeze',
 
 test('a hero the bolt cannot burn stops it before the damage roll',
     async () => {
-    // youprop.h:28 Fire_resistance and :381 Reflecting are both the plain
-    // "either source" spelling, so an intrinsic alone and an extrinsic alone
-    // each select their arm.
+    // youprop.h:28 Fire_resistance is the plain "either source" spelling,
+    // so an intrinsic alone and an extrinsic alone each select their arm.
     for (const [index, source, pattern] of [
         [FIRE_RES, 'intrinsic', /fire-resistant hero, over ugolemeffects/u],
         [FIRE_RES, 'extrinsic', /fire-resistant hero, over ugolemeffects/u],
-        [REFLECTING, 'intrinsic', /ureflects\(\)/u],
-        [REFLECTING, 'extrinsic', /ureflects\(\)/u],
     ]) {
         const wand = await aimedWand(0, 0, 1);
         game.u.uprops[index] = { intrinsic: 0, extrinsic: 0 };
@@ -1052,6 +1049,19 @@ test('a hero the bolt cannot burn stops it before the damage roll',
         await assert.rejects(
             () => weffects(wand, game, straightThrough()), pattern,
         );
+    }
+});
+
+test('a reflecting hero bounces the bolt without taking damage', async () => {
+    // youprop.h:381 Reflecting is "either source". ureflects() checks the
+    // extrinsic mask for the source item; intrinsic-only Reflecting (e.g.
+    // a polymorphed silver dragon) still reflects but prints no item message.
+    for (const source of ['intrinsic', 'extrinsic']) {
+        const wand = await aimedWand(0, 0, 1);
+        game.u.uprops[REFLECTING] = { intrinsic: 0, extrinsic: 0 };
+        game.u.uprops[REFLECTING][source] = FROMOUTSIDE;
+        // The bolt reflects and the hero takes no damage.
+        await weffects(wand, game, straightThrough());
     }
 });
 
@@ -1378,9 +1388,8 @@ test('dobuzz hands zap_hit the hero own armor class', async () => {
     // The two runs below differ only in u.uac. rn2(20) = 0 takes zap_hit()'s
     // "small chance for naked target to avoid" arm, where the comparison is
     // `3 - rnd(10) < AC_VALUE(ac)`; with rnd(10) = 1 that is `2 < AC_VALUE(ac)`,
-    // true at 9 and false at 0. Reflecting is set so the hit stops one line
-    // later, at ureflects(), rather than running on into zhitu() and burning
-    // the hero's armor.
+    // true at 9 and false at 0. Reflecting is set so the hit reflects the bolt
+    // without running zhitu() or burning the hero's armor.
     await runSegment({
         ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
     });
@@ -1392,12 +1401,10 @@ test('dobuzz hands zap_hit the hero own armor class', async () => {
     // "The bolt of fire hits you!" arrives behind the wish line, so the top
     // line raises a --More-- the prompt has to be answered before it prints.
     game.nhDisplay.pushKey(' '.charCodeAt(0));
-    await assert.rejects(
-        () => dobuzz(
-            1, 6, game.u.ux, game.u.uy, 0, 0, true, false, false, game, roll,
-        ),
-        /ureflects\(\)/u,
-        'AC_VALUE(9) is above the roll, so the bolt hits',
+    // AC_VALUE(9) is above the roll, so the bolt hits, but Reflecting bounces
+    // it back without damage.
+    await dobuzz(
+        1, 6, game.u.ux, game.u.uy, 0, 0, true, false, false, game, roll,
     );
 
     game.u.uac = 0;

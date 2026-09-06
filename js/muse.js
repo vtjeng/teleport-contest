@@ -7,8 +7,8 @@
 // linedup_chk_corpse(), m_use_undead_turning(), hero_behind_chokepoint(),
 // mon_has_friends(), mon_likes_objpile_at(),
 // find_offensive(), use_offensive()'s hurled-potion case,
-// necrophiliac(), searches_for_item(), cures_stoning(), mcould_eat_tin(); mondata.c
-// can_blow().
+// necrophiliac(), searches_for_item(), cures_stoning(), mcould_eat_tin(),
+// mon_reflects(), ureflects(); mondata.c can_blow().
 
 import {
     ANTIMAGIC,
@@ -61,6 +61,7 @@ import {
     P_KNIFE,
     PIT,
     POLY_TRAP,
+    REFLECTING,
     RLOC_MSG,
     SCORR,
     SDOOR,
@@ -84,6 +85,7 @@ import {
     W_ARMG,
     W_ARMS,
     W_SADDLE,
+    W_WEP,
     N_DIRS,
     TELEPORT_CONTROL,
     ZAP_POS,
@@ -2629,6 +2631,45 @@ export async function mon_reflects(mon, str, state = game) {
             const msg = str.replace('%s', s_suffix(monsterCommonName(mon, state)))
                 .replace('%s', 'scales');
             await ttyPline(msg, state);
+        }
+        return true;
+    }
+    return false;
+}
+
+/* C ref: muse.c 2836-2871 ureflects() */
+export async function ureflects(fmt, str, state = game) {
+    const extrinsic = state.u?.uprops?.[REFLECTING]?.extrinsic ?? 0;
+    /* Check from outermost to innermost objects */
+    if (extrinsic & W_ARMS) {
+        if (fmt && str) {
+            await ttyPline(fmt.replace('%s', str).replace('%s', 'shield'), state);
+            discover_object(O.SHIELD_OF_REFLECTION, true, true, true, state); /* makeknown */
+        }
+        return true;
+    } else if (extrinsic & W_WEP) {
+        /* Due to wielded artifact weapon */
+        if (fmt && str) {
+            await ttyPline(fmt.replace('%s', str).replace('%s', 'weapon'), state);
+        }
+        return true;
+    } else if (extrinsic & W_AMUL) {
+        if (fmt && str) {
+            await ttyPline(fmt.replace('%s', str).replace('%s', 'medallion'), state);
+            discover_object(O.AMULET_OF_REFLECTION, true, true, true, state); /* makeknown */
+        }
+        return true;
+    } else if (extrinsic & W_ARM) {
+        if (fmt && str) {
+            await ttyPline(
+                fmt.replace('%s', str).replace('%s', state.uskin ? 'luster' : 'armor'),
+                state,
+            );
+        }
+        return true;
+    } else if (state.youmonst?.data === state.mons?.[M.PM_SILVER_DRAGON]) {
+        if (fmt && str) {
+            await ttyPline(fmt.replace('%s', str).replace('%s', 'scales'), state);
         }
         return true;
     }

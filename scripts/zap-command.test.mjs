@@ -1068,7 +1068,7 @@ test('every zap refusal names a zap.c function the port has not ported',
             'monster kill path: ${what}',
             'armor disintegration in dobuzz', 'slept_monst',
             'dobuzz',
-            'ureflects', 'flashburn', 'Is_airlevel', 'pay_for_damage',
+            'flashburn', 'Is_airlevel', 'pay_for_damage',
             // zapnodir() retains its default for the other directionless
             // types. weffects() then retains the steed, immediate wand,
             // digging, cast spell, and C impossible() refusals.
