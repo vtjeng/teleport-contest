@@ -70,6 +70,10 @@ import {
     container_weight, merged, obfree, obj_extract_self, update_inventory,
     useupall,
 } from './invent.js';
+import { confers_luck } from './artifacts.js';
+// attrib.js imports objectType from this file; both sides use the other's
+// exports only inside function bodies.
+import { set_moreluck } from './attrib.js';
 import { arti_light_radius, get_obj_location, obj_sheds_light } from './light.js';
 import { rndmonnum } from './makemon.js';
 import {
@@ -1336,6 +1340,22 @@ function bless(obj) {
     obj.cursed = false;
     obj.blessed = true;
     return obj;
+}
+
+// C ref: mkobj.c unbless() (1767-1782). Full BUC-change function that handles
+// carried luck items, bag-of-holding weight, and artifact light radius.
+export async function unbless(obj, env = {}) {
+    const state = env.state ?? game;
+    let old_light = 0;
+    if (obj.lamplit)
+        old_light = arti_light_radius(obj, state);
+    obj.blessed = false;
+    if (carried(obj) && confers_luck(obj, state))
+        set_moreluck(state);
+    else if (obj.otyp === BAG_OF_HOLDING)
+        obj.owt = weight(obj, env);
+    if (obj.lamplit)
+        await maybe_adjust_light(obj, old_light, env);
 }
 
 function curse(obj) {

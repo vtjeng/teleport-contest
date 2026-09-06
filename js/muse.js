@@ -167,6 +167,7 @@ import {
     place_object,
     sobj_at,
     splitobj,
+    unbless,
     unknow_object,
     weight,
 } from './obj.js';
@@ -1100,7 +1101,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         // MUSE_POT_FULL_HEALING (also Pestilence's POT_SICKNESS)
         await mquaffmsg(mtmp, otmp, state);
         if (otmp.otyp === O.POT_SICKNESS)
-            otmp.blessed = 0; // unbless for Pestilence
+            await unbless(otmp, { state }); /* Pestilence */
         healmon(mtmp, mtmp.mhpmax, otmp.blessed ? 8 : 4);
         if (!mtmp.mcansee && otmp.otyp !== O.POT_SICKNESS)
             await mcureblindness(mtmp, vismon, state);
