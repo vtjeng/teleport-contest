@@ -9340,7 +9340,7 @@
     {
       "id": "attrib-c",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port attrib.c whole in C order, starting from poison_strdmg()",
       "cFile": "attrib.c",
       "sessions": [
@@ -9424,8 +9424,11 @@
         "screens": 4606,
         "rng": 326892
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5526447114df3e566390e634021fd8101fe716d0",
+      "delivered": {
+        "screens": 370,
+        "rng": 16146
+      },
       "functions": [
         {
           "name": "adjattrib",
