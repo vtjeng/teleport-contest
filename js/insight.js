@@ -73,10 +73,6 @@ import {
     FAST,
     FIRE_RES,
     FIXED_ABIL,
-    FROMEXPER,
-    FROMOUTSIDE,
-    FROM_RACE,
-    FROM_FORM,
     FLYING,
     FREE_ACTION,
     FULL_MOON,
@@ -165,7 +161,7 @@ import {
     WWALKING,
 } from './const.js';
 import { timet_delta } from './allmain.js';
-import { effective_attribute, role_abil, stone_luck } from './attrib.js';
+import { effective_attribute, from_what, stone_luck } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
 import { enc_stat } from './display.js';
 import { depth, dunlev, endgamelevelname } from './dungeon.js';
@@ -329,39 +325,6 @@ export function cause_known(propidx, state) {
             return true;
     }
     return false;
-}
-
-// C ref: attrib.c is_innate() and from_what(). Keep the source wording used by
-// the debug enlightenment window for innate abilities whose role/race tables
-// are available here. An unrecognized extrinsic source remains a boundary so
-// an equipment-specific explanation is never silently replaced with the wrong
-// text.
-function attributeSource(propidx, state) {
-    if (!state.wizard) return '';
-    const property = state.u.uprops?.[propidx] ?? {};
-    const roleEntry = role_abil(state.urole?.mnum)?.find(
-        (entry) => entry.ability === propidx
-            && state.u.ulevel >= entry.ulevel,
-    );
-    if (roleEntry)
-        return roleEntry.ulevel === 1
-            ? ' innately' : ' because of your experience';
-    if (property.intrinsic & FROM_RACE)
-        return ' innately';
-    if (property.intrinsic & FROMOUTSIDE)
-        return ' intrinsically';
-    if (property.intrinsic & FROM_FORM)
-        return ' from your creature form';
-    if (property.extrinsic)
-        throw new UnsupportedEnlightenmentError(
-            `the source of ${propidx} resistance`,
-        );
-    // A timeout without a source is what C's from_what() reports as empty.
-    if (property.intrinsic & (FROMEXPER | FROM_RACE))
-        throw new UnsupportedEnlightenmentError(
-            `the innate source of property ${propidx}`,
-        );
-    return '';
 }
 
 // C ref: insight.c enlght_out(). ge.en_via_menu is TRUE for every ^X, so each
@@ -1070,7 +1033,7 @@ function status_enlightenment(mode, final, state, lines) {
     // player can see a worn item that confers it.
     if (hasProperty(state, SLEEPY)) {
         if (magic || cause_known(SLEEPY, state)) {
-            let buf = attributeSource(SLEEPY, state);
+            let buf = from_what(SLEEPY, state);
             if (state.wizard)
                 buf += ` (${(u.uprops[SLEEPY].intrinsic ?? 0) & TIMEOUT})`;
             enl_msg(lines, final, 'You ', 'fall', 'fell',
@@ -1325,14 +1288,14 @@ async function attributes_enlightenment(final, state, lines) {
 
     if (hasProperty(state, POISON_RES))
         you_are(lines, final, 'poison resistant',
-            attributeSource(POISON_RES, state));
+            from_what(POISON_RES, state));
 
     if (hasProperty(state, INFRAVISION))
         you_have(lines, final, 'infravision', '');
 
     if (hasProperty(state, STEALTH))
         you_are(lines, final, 'stealthy',
-            attributeSource(STEALTH, state));
+            from_what(STEALTH, state));
 
     let armpro = magic_negation(state.youmonst, state);
     if (armpro > 0) {
@@ -1345,7 +1308,7 @@ async function attributes_enlightenment(final, state, lines) {
     }
 
     if (hasProperty(state, FAST))
-        you_are(lines, final, 'fast', attributeSource(FAST, state));
+        you_are(lines, final, 'fast', from_what(FAST, state));
 
     if (luck) {
         const prefix = Math.abs(luck) >= 10 ? 'extremely '

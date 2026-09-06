@@ -3,7 +3,8 @@
 // adjabil(), newhp(), setuhpmax(), rnd_attr(), init_attr_role_redist(),
 // init_attr(), redist_attr(), vary_init_attr(), exercise(), exerper(), adjattrib(),
 // exerchk(), losestr(), poison_strdmg(), poisontell(), poisoned(),
-// stone_luck(), set_moreluck(), restore_attrib(), and adjuhploss().
+// stone_luck(), set_moreluck(), restore_attrib(), adjuhploss(),
+// check_innate_abil(), innately(), is_innate(), and from_what().
 
 import {
     A_CHA,
@@ -12,17 +13,23 @@ import {
     A_INT,
     A_STR,
     A_WIS,
+    BLINDED,
+    BLND_RES,
     CLAIRVOYANT,
     COLD_RES,
     CONFUSION,
+    DEAF,
     DIED,
+    DRAIN_RES,
     EXT_ENCUMBER,
+    FACE,
     FAINTED,
     FAINTING,
     FAST,
     FIRE_RES,
     FIXED_ABIL,
     FROMEXPER,
+    FROMFORM,
     FROMOUTSIDE,
     FROM_RACE,
     FUMBLING,
@@ -32,6 +39,8 @@ import {
     HVY_ENCUMBER,
     INFRAVISION,
     INTRINSIC,
+    INVIS,
+    JUMPING,
     KILLED_BY,
     KILLED_BY_AN,
     LUCKADD,
@@ -50,16 +59,22 @@ import {
     SLEEP_RES,
     STEALTH,
     STR19,
+    STRANGLED,
     STUNNED,
     TELEPORT_CONTROL,
+    TIMEOUT,
     Upolyd,
     VOMITING,
+    W_ARMC,
+    W_ARMF,
+    W_ARMH,
     WARNING,
     WEAK,
     WOUNDED_LEGS,
     ismnum,
+    something,
 } from './const.js';
-import { SPFX_LUCK } from './artifacts.js';
+import { ART_EYES_OF_THE_OVERWORLD, SPFX_LUCK } from './artifacts.js';
 // js/display.js imports effective_attribute() from this file; both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
 import { see_monsters } from './display.js';
@@ -72,7 +87,7 @@ import { carrying } from './invent.js';
 import { adj_erinys } from './mon.js';
 // js/mondata.js imports effective_attribute() from this file; both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
-import { name_to_mon, type_is_pname } from './mondata.js';
+import { haseyes, name_to_mon, type_is_pname } from './mondata.js';
 import {
     G_UNIQ,
     PM_AMOROUS_DEMON,
@@ -80,8 +95,11 @@ import {
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
     PM_CLERIC,
+    PM_DWARF,
     PM_ELF,
+    PM_GNOME,
     PM_HEALER,
+    PM_HUMAN,
     PM_KNIGHT,
     PM_MONK,
     PM_ORC,
@@ -93,10 +111,15 @@ import {
     PM_WIZARD,
     S_NYMPH,
 } from './monsters.js';
+import { objectType } from './obj.js';
 import { DUNCE_CAP, LUCKSTONE } from './objects.js';
-import { the } from './objnam.js';
+import { the, ysimple_name } from './objnam.js';
+// js/polyself.js imports exercise() from this file; both sides use the
+// other's exports only inside function bodies, so the cycle resolves.
+import { body_part } from './polyself.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { aligns } from './roles.js';
+import { note_unported } from './unported.js';
 import { add_weapon_skill } from './weapon.js';
 
 const EXERCISE_LIMIT = 50;
@@ -213,20 +236,25 @@ const wiz_abil = Object.freeze([
     innate(17, TELEPORT_CONTROL, 'controlled', 'uncontrolled'),
 ]);
 
-// The race tables adjabil()'s own switch selects. C also defines dwa_abil[],
-// gno_abil[] and the empty hum_abil[], but that switch folds PM_DWARF,
-// PM_GNOME and PM_HUMAN into its `default: rabil = 0` arm, so a dwarf or gnome
-// never gains infravision through adjabil(). Only check_innate_abil(), which
-// answers where an already-held intrinsic came from and has no consumer here,
-// reads those three.
+// The race tables. adjabil()'s own switch selects only elf_abil and orc_abil
+// (PM_DWARF, PM_GNOME, PM_HUMAN fall through to its `default: rabil = 0` arm).
+// check_innate_abil() reads all five when answering where an already-held
+// intrinsic came from.
+const dwa_abil = Object.freeze([
+    innate(1, INFRAVISION, '', ''),
+]);
 const elf_abil = Object.freeze([
     innate(1, INFRAVISION, '', ''),
     innate(4, SLEEP_RES, 'awake', 'tired'),
+]);
+const gno_abil = Object.freeze([
+    innate(1, INFRAVISION, '', ''),
 ]);
 const orc_abil = Object.freeze([
     innate(1, INFRAVISION, '', ''),
     innate(1, POISON_RES, '', ''),
 ]);
+const hum_abil = Object.freeze([]);
 
 // C ref: attrib.c role_abil(). C walks a local roleabils[] array and returns
 // the null `abil` of its terminating entry for a monster number that is not a
@@ -259,6 +287,204 @@ function race_abil(raceMnum) {
     case PM_ORC: return orc_abil;
     default: return null;
     }
+}
+
+// C ref: attrib.c's local FROM_* #defines (856-862), return codes for
+// innately()/is_innate(). C names them FROM_NONE through FROM_LYCN; JS
+// prefixes with INNATE_ to avoid colliding with the bitmask constants
+// FROM_RACE (0x02000000) and FROM_FORM (0x10000000) that const.js exports.
+const INNATE_NONE = 0;
+const INNATE_ROLE = 1; // from experience at level 1
+const INNATE_RACE = 2;
+const INNATE_INTR = 3; // intrinsically (eating corpse or prayer reward)
+const INNATE_EXP  = 4; // from experience for level > 1
+const INNATE_FORM = 5;
+const INNATE_LYCN = 6;
+
+// C ref: attrib.c check_innate_abil() (818-863). Searches the innate-ability
+// tables for a specific property. For FROMEXPER it walks the role's table; for
+// FROM_RACE (C's FROMRACE) it walks the race's table. Returns the matching
+// entry when the hero's level is at or above the entry's threshold, or null.
+function check_innate_abil(ability, frommask, state = game) {
+    let abil = null;
+    if (frommask === FROMEXPER)
+        abil = role_abil(state.urole?.mnum);
+    else if (frommask === FROM_RACE) {
+        switch (state.urace?.mnum) {
+        case PM_DWARF: abil = dwa_abil; break;
+        case PM_ELF:   abil = elf_abil; break;
+        case PM_GNOME: abil = gno_abil; break;
+        case PM_ORC:   abil = orc_abil; break;
+        case PM_HUMAN: abil = hum_abil; break;
+        default: break;
+        }
+    }
+    if (!abil) return null;
+    for (let i = 0; i < abil.length; i++) {
+        if (abil[i].ability === ability && state.u.ulevel >= abil[i].ulevel)
+            return abil[i];
+    }
+    return null;
+}
+
+// C ref: attrib.c innately() (864-879). Determines how a particular ability was
+// obtained by checking role tables, race tables, and intrinsic flags.
+function innately(ability, intrinsicValue, state = game) {
+    let entry;
+    if ((entry = check_innate_abil(ability, FROMEXPER, state)) !== null)
+        return entry.ulevel === 1 ? INNATE_ROLE : INNATE_EXP;
+    if ((entry = check_innate_abil(ability, FROM_RACE, state)) !== null)
+        return INNATE_RACE;
+    if ((intrinsicValue & FROMOUTSIDE) !== 0)
+        return INNATE_INTR;
+    if ((intrinsicValue & FROMFORM) !== 0)
+        return INNATE_FORM;
+    return INNATE_NONE;
+}
+
+// C ref: attrib.c is_innate() (880-904). Returns an INNATE_* constant
+// indicating the innate source of a property, or INNATE_NONE.
+export function is_innate(propidx, state = game) {
+    const u = state.u;
+    // innately() would report INNATE_FORM for this; caller wants specificity
+    if (propidx === DRAIN_RES && ismnum(u.ulycn))
+        return INNATE_LYCN;
+    // C ref: youprop.h:377 Very_fast = ((HFast & ~INTRINSIC) || EFast)
+    const propFast = u.uprops?.[FAST] ?? {};
+    if (propidx === FAST
+        && ((propFast.intrinsic & ~INTRINSIC) || propFast.extrinsic))
+        return INNATE_NONE; // can't become very fast innately
+    const innateness = innately(
+        propidx, u.uprops?.[propidx]?.intrinsic ?? 0, state,
+    );
+    if (innateness !== INNATE_NONE)
+        return innateness;
+    if (propidx === JUMPING && state.urole?.mnum === PM_KNIGHT
+        // knight has intrinsic jumping, but extrinsic is more versatile so
+        // ignore innateness if equipment is going to claim responsibility
+        && !u.uprops?.[propidx]?.extrinsic)
+        return INNATE_ROLE;
+    if ((propidx === BLINDED && !haseyes(state.youmonst?.data))
+        || (propidx === BLND_RES
+            && ((u.uprops?.[BLND_RES]?.intrinsic ?? 0) & FROMFORM) !== 0))
+        return INNATE_FORM;
+    return INNATE_NONE;
+}
+
+// C ref: attrib.c from_what()'s trailing cleanup (969-975). C modifies its
+// static buffer in place; here we trim the returned string. Removes
+// " pair of " to reduce verbosity, and truncates " of strangulation" when the
+// property is STRANGLED.
+function from_what_trim(buf, propidx) {
+    let result = buf;
+    const pairIdx = strstri(result, ' pair of ');
+    if (pairIdx >= 0) {
+        result = result.slice(0, pairIdx + 1) + result.slice(pairIdx + 9);
+    } else if (propidx === STRANGLED) {
+        const strangIdx = strstri(result, ' of strangulation');
+        if (strangIdx >= 0) result = result.slice(0, strangIdx);
+    }
+    return result;
+}
+
+// C ref: attrib.c from_what() (905-1005). Returns a diagnostic string
+// describing the source of a property. Wizard-mode only; returns '' otherwise.
+export function from_what(propidx, state = game) {
+    if (!state.wizard) return '';
+
+    if (propidx >= 0) {
+        const u = state.u;
+        const innateness = is_innate(propidx, state);
+
+        if ((propidx === BLINDED && u.uroleplay?.blind)
+            || (propidx === DEAF && u.uroleplay?.deaf))
+            return ' from birth';
+        if (innateness === INNATE_ROLE || innateness === INNATE_RACE)
+            return ' innately';
+        if (innateness === INNATE_INTR)
+            return ' intrinsically';
+        if (innateness === INNATE_EXP)
+            return ' because of your experience';
+        if (innateness === INNATE_LYCN)
+            return ' due to your lycanthropy';
+        if (innateness === INNATE_FORM)
+            return ' from your creature form';
+
+        // C ref: youprop.h:377 Very_fast = ((HFast & ~INTRINSIC) || EFast)
+        const propFast = u.uprops?.[FAST] ?? {};
+        const HFast = propFast.intrinsic ?? 0;
+        const EFast = propFast.extrinsic ?? 0;
+        const Very_fast = (HFast & ~INTRINSIC) || EFast;
+        if (propidx === FAST && Very_fast) {
+            let source;
+            if ((HFast & TIMEOUT) !== 0)
+                source = 'a potion or spell';
+            else if ((EFast & W_ARMF) !== 0 && state.uarmf?.dknown
+                     && objectType(state.uarmf, state).oc_name_known)
+                source = ysimple_name(state.uarmf, state); // speed boots
+            else if (EFast)
+                source = 'worn equipment';
+            else
+                source = something;
+            return from_what_trim(` because of ${source}`, propidx);
+        }
+
+        // C ref: what_gives(&u.uprops[propidx].extrinsic) identifies the worn
+        // or carried object providing the property. Not yet ported.
+        if (state.wizard && (u.uprops?.[propidx]?.extrinsic ?? 0) !== 0) {
+            note_unported('artifact.c what_gives');
+            // Skip the branch that calls what_gives and bare_artifactname;
+            // the result would name the equipment source, but what_gives and
+            // bare_artifactname are not ported yet.
+        }
+
+        // C ref: youprop.h:96 Blindfolded = EBlinded (W_TOOL)
+        // Blindfolded_only = Blindfolded && !Blinded
+        // where Blinded = HBlinded && !BBlinded
+        const propBlind = u.uprops?.[BLINDED] ?? {};
+        const HBlinded = propBlind.intrinsic ?? 0;
+        const EBlinded = propBlind.extrinsic ?? 0;
+        const BBlinded = propBlind.blocked ?? 0;
+        const Blindfolded = EBlinded;
+        const Blinded = HBlinded && !BBlinded;
+        const Blindfolded_only = Blindfolded && !Blinded;
+        if (propidx === BLINDED && Blindfolded_only)
+            return from_what_trim(
+                ` because of ${ysimple_name(state.ublindf, state)}`, propidx,
+            );
+        const BlindedTimeout = HBlinded & TIMEOUT;
+        if (propidx === BLINDED && u.ucreamed
+            && BlindedTimeout === u.ucreamed
+            && !EBlinded && !(HBlinded & ~TIMEOUT))
+            return `due to goop covering your ${body_part(FACE, state.youmonst)}`;
+    } else {
+        // negative property index: blocking capabilities
+        const u = state.u;
+        switch (-propidx) {
+        case BLINDED: {
+            const propBlind = u.uprops?.[BLINDED] ?? {};
+            const BBlinded = propBlind.blocked ?? 0;
+            if (BBlinded && state.ublindf
+                && state.ublindf.oartifact === ART_EYES_OF_THE_OVERWORLD) {
+                // bare_artifactname for an artifact: lowercased artiname
+                note_unported('objnam.c bare_artifactname');
+                // The C would return ` because of ${bare_artifactname(ublindf)}`
+                // but bare_artifactname is not ported; fall through to empty.
+            }
+            break;
+        }
+        case INVIS:
+            if ((u.uprops?.[INVIS]?.blocked ?? 0) & W_ARMC)
+                return ` because of ${ysimple_name(state.uarmc, state)}`; // mummy wrapping
+            break;
+        case CLAIRVOYANT:
+            if (state.wizard
+                && ((u.uprops?.[CLAIRVOYANT]?.blocked ?? 0) & W_ARMH))
+                return ` because of ${ysimple_name(state.uarmh, state)}`; // cornuthaum
+            break;
+        }
+    }
+    return '';
 }
 
 // Thrown where attrib.c reaches an ability transition this port has not
