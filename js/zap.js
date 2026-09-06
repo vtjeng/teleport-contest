@@ -216,6 +216,7 @@ import { burn_away_slime, fall_asleep } from './timeout.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
+import { note_unported } from './unported.js';
 
 // The wish parser raises every other refusal, so the class lives with it.
 export { UnsupportedWishError };
@@ -616,7 +617,7 @@ export function resist(mtmp, oclass, damage, tell, state = game, random = { rn2 
 // damage is fatal. Returns the damage dealt. Sets *ootmp (here returned as
 // the second element) to a piece of armor to disintegrate when appropriate.
 //
-// Only the ZT_COLD branch is ported; every other damage type throws.
+// The ZT_FIRE and ZT_COLD branches are ported; every other damage type throws.
 // `is_hero_spell(type)` is `type >= 10 && type < 20`. For a wand zap (type
 // 0-9), `spellcaster` is false and `spell_damage_bonus` is never called.
 export async function zhitm(mon, type, nd, state = game, random = { d, rn2 }) {
@@ -627,6 +628,28 @@ export async function zhitm(mon, type, nd, state = game, random = { d, rn2 }) {
     const spellcaster = type >= 10 && type < 20; /* is_hero_spell(type) */
 
     switch (damgtype) {
+    case ZT_FIRE:
+        if (monster_resists_element(mon, FIRE_RES, state)
+            || defended(mon, AD_FIRE, state)) {
+            sho_shieldeff = true;
+            break;
+        }
+        tmp = random.d(nd, 6);
+        if (spellcaster) {
+            throw new UnsupportedZapError(
+                'spell_damage_bonus() for a fire spell a hero cast',
+            );
+        }
+        /* includes spell bonus but not monster vuln to fire */
+        {
+            const orig_dmg = tmp;
+            if (monster_resists_element(mon, COLD_RES, state))
+                tmp += 7;
+            /* burnarmor(mon) for a monster victim is not ported yet;
+               skip the burnarmor/destroy_items/ignite_items block */
+            note_unported('trap_erode_obj.c burnarmor monster arm');
+        }
+        break;
     case ZT_COLD:
         if (monster_resists_element(mon, COLD_RES, state)
             || defended(mon, AD_COLD, state)) {

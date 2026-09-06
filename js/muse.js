@@ -23,6 +23,9 @@ import {
     DEAF,
     DRAWBRIDGE_UP,
     EDOG,
+    FAINTED,
+    FIRE_RES,
+    FIRE_TRAP,
     FORCEBUNGLE,
     FORCETRAP,
     HAND,
@@ -126,7 +129,7 @@ import {
     ceiling, depth, dunlev, dunlevs_in_dungeon, get_level, ledger_no, on_level,
     surface,
 } from './dungeon.js';
-import { add_to_container, carrying, freeinv, obfree, obj_extract_self } from './invent.js';
+import { add_to_container, carrying, freeinv, hands_obj, obfree, obj_extract_self } from './invent.js';
 import { game } from './gstate.js';
 import { can_carry } from './moncarry.js';
 import { dist2, distmin, sgn, strsubst } from './hacklib.js';
@@ -138,7 +141,7 @@ import {
     seemimic, wakeup, xkilled,
 } from './mon.js';
 import {
-    acidic, attacktype, breathless, dmgtype, has_head, haseyes, is_animal,
+    acidic, attacktype, attacktype_fordmg, breathless, dmgtype, has_head, haseyes, is_animal,
     is_bat, is_floater, is_flyer, is_mercenary, is_undead, is_unicorn,
     is_vampshifter, locomotion, mhe, mhim, mindless, mon_hates_silver,
     mon_knows_traps, mon_learns_traps, monster_resists_element, monstseesu,
@@ -168,7 +171,7 @@ import { discover_object, objdescr_is, observe_object } from './o_init.js';
 import { accessible, monflee, mon_would_take_item, monnear, onscary, youHear } from './monmove.js';
 import { lined_up, linedup_callback } from './mthrowu.js';
 import { in_your_sanctuary } from './priest.js';
-import { d, rn1, rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rn2_on_display_rng, rnd } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
@@ -177,6 +180,8 @@ import {
     enexto, noteleport_level, random_teleport_level, rloc, tele,
     tele_restrict,
 } from './teleport.js';
+import { CLR_GREEN, CLR_BRIGHT_GREEN } from './terminal.js';
+import { begin_burn } from './timeout.js';
 import { fill_pit, is_pool, maketrap, t_at, trapname, unconscious } from './trap.js';
 import { mintrap, seetrap, wearing_iron_shoes } from './trap_effects.js';
 import { makeplural } from './fruit.js';
@@ -189,7 +194,7 @@ import { body_part } from './polyself.js';
 import { extract_from_minvent, bimanual, find_mac } from './worn.js';
 import { mwelded, welded } from './wield.js';
 import { mon_has_amulet, mon_has_special } from './wizard.js';
-import { dobuzz, exclam, hit, miss, resist } from './zap.js';
+import { dobuzz, exclam, hit, miss, resist, zhitm } from './zap.js';
 import { which_armor } from './worn.js';
 
 // The generated catalog stores these values but does not currently export
@@ -2815,4 +2820,261 @@ async function mon_consume_unstone(
     // use up monster's next move
     mon.movement -= NORMAL_SPEED;
     mon.mlstmv = state.moves;
+}
+
+/* C ref: muse.c munslime() (3031-3101). A monster being turned into slime
+   checks whether it can cure itself by breathing fire on itself, using an
+   item from its inventory, or stepping onto a fire trap. Returns TRUE if
+   the monster took action. */
+export async function munslime(mon, by_you, state = game, env = {}) {
+    const random = env.random ?? { rn1 };
+    const mptr = mon.data;
+
+    if (slimeproof(mptr))
+        return false;
+    if (mon.meating || helpless(mon))
+        return false;
+    mon.mstrategy &= ~STRAT_WAITFORU;
+
+    /* if monster can breathe fire, do so upon self */
+    if (!mon.mcan && !mon.mspec_used
+        && attacktype_fordmg(mptr, M.AT_BREA, M.AD_FIRE)) {
+        const odummy = { otyp: O.STRANGE_OBJECT };  /* cg.zeroobj */
+        return await muse_unslime(mon, odummy, null, by_you, state, env);
+    }
+
+    /* same MUSE criteria as use_defensive() */
+    if (!is_animal(mptr) && !mindless(mptr)) {
+        let t;
+
+        for (let obj = mon.minvent; obj; obj = obj.nobj)
+            if (cures_sliming(mon, obj))
+                return await muse_unslime(mon, obj, null, by_you, state, env);
+
+        t = t_at(mon.mx, mon.my, state);
+        if ((!t || t.ttyp !== FIRE_TRAP)
+            && mptr.mmove && !mon.mtrapped) {
+            /* collect accessible neighbor cells */
+            const xs = [], ys = [];
+            for (let x = mon.mx - 1; x <= mon.mx + 1; ++x)
+                for (let y = mon.my - 1; y <= mon.my + 1; ++y)
+                    if (isok(x, y) && accessible(x, y, state)
+                        && !m_at(x, y, state)
+                        && (x !== state.u.ux || y !== state.u.uy)) {
+                        xs.push(x);
+                        ys.push(y);
+                    }
+            const nxy = xs.length;
+            /* partial Fisher-Yates shuffle, stopping at the first fire trap */
+            for (let idx = 0; idx < nxy; ++idx) {
+                const ridx = random.rn1(nxy - idx, idx);
+                if (ridx !== idx) {
+                    const tmpx = xs[idx]; xs[idx] = xs[ridx]; xs[ridx] = tmpx;
+                    const tmpy = ys[idx]; ys[idx] = ys[ridx]; ys[ridx] = tmpy;
+                }
+                const found = t_at(xs[idx], ys[idx], state);
+                if (found && found.ttyp === FIRE_TRAP) {
+                    t = found;
+                    break;
+                }
+            }
+        }
+        if (t && t.ttyp === FIRE_TRAP)
+            return await muse_unslime(mon, hands_obj, t, by_you, state, env);
+    } /* MUSE */
+
+    return false;
+}
+
+/* C ref: muse.c muse_unslime() (3104-3219). A monster uses an item or trap
+   selected by munslime() to burn away incipient slime. */
+async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
+    const random = env.random ?? { rn1, rn2, d };
+    const otyp = obj.otyp;
+    let dmg = 0;
+    let vis = canseemon(mon, state);
+    let res = true;
+
+    if (vis)
+        await pline_mon(mon,
+            `${capitalizedMonsterName(mon, state)} starts turning ${green_mon(mon, state) ? 'into ooze' : hcolor('green', state)}.`,
+            state);
+    /* -4 => sliming, causes quiet loss of enhanced speed */
+    note_unported('worn.c mon_adjust_speed');
+
+    if (trap) {
+        const Mnam = vis ? capitalizedMonsterName(mon, state) : null;
+
+        if (mon.mx === trap.tx && mon.my === trap.ty) {
+            if (vis)
+                await pline_mon(mon,
+                    `${Mnam} triggers ${trap.tseen ? 'the' : 'a'} fire trap!`,
+                    state);
+        } else {
+            remove_monster(mon.mx, mon.my, state);
+            newsym(mon.mx, mon.my, state);
+            place_monster(mon, trap.tx, trap.ty, state);
+            if (mon.wormno) /* won't happen; worms don't MUSE to unslime */
+                note_unported('worm.c worm_move');
+            newsym(mon.mx, mon.my, state);
+            if (vis)
+                await pline_mon(mon,
+                    `${Mnam} ${vtense('mon', locomotion(mon.data, 'move'))} ${is_floater(mon.data) ? 'over' : 'onto'} ${trap.tseen ? 'the' : 'a'} fire trap!`,
+                    state);
+        }
+        await mintrap(mon, FORCETRAP, { state });
+    } else if (otyp === O.STRANGE_OBJECT) {
+        /* monster is using fire breath on self */
+        if (vis)
+            await pline_mon(mon,
+                `${monverbself(mon, capitalizedMonsterName(mon, state), 'breath', 'fire on', state)}.`,
+                state);
+        if (!random.rn2(3))
+            mon.mspec_used = random.rn1(10, 5);
+        /* -21 => monster's fire breath; 1 => # of damage dice */
+        const result = await zhitm(mon, by_you ? 21 : -21, 1, state, random);
+        dmg = result.damage;
+    } else if (otyp === O.SCR_FIRE) {
+        await mreadmsg(mon, obj, state);
+        if (mon.mconf) {
+            if (cansee(mon.mx, mon.my, state))
+                await pline_mon(mon, 'Oh, what a pretty fire!', state);
+            if (vis)
+                await trycall(obj, state);
+            note_unported('mon.c m_useup');
+            vis = false;    /* skip makeknown() below */
+            res = false;    /* failed to cure sliming */
+        } else {
+            dmg = Math.trunc((2 * (random.rn1(3, 3) + 2 * bcsign(obj)) + 1) / 3);
+            note_unported('mon.c m_useup');
+            /* -11 => monster's fireball */
+            note_unported('explode.c explode');
+            dmg = 0; /* damage has been applied by explode() */
+        }
+    } else if (otyp === O.POT_OIL) {
+        const was_lit = obj.lamplit ? true : false;
+        let saw_lit = false;
+
+        if (obj.quan > 1)
+            obj = splitobj(obj, 1, { state });
+        if (vis && !was_lit) {
+            await pline_mon(mon,
+                `${capitalizedMonsterName(mon, state)} ignites ${ansimpleoname(obj, state)}.`,
+                state);
+            saw_lit = true;
+        }
+        begin_burn(obj, was_lit, { state });
+        vis |= canseemon(mon, state); /* burning potion may improve visibility */
+        if (vis) {
+            if (!Unaware(state))
+                observe_object(obj, state); /* hero is watching mon drink obj */
+            await pline_mon(mon,
+                `${saw_lit ? upstart(mhe(mon)) : capitalizedMonsterName(mon, state)} quaffs a burning ${simpleonames(obj, state)}`,
+                state);
+            discover_object(O.POT_OIL, true, true, true, state); /* makeknown */
+        }
+        dmg = random.d(3, 4); /* [**TEMP** (different from hero)] */
+        note_unported('mon.c m_useup');
+    } else { /* wand/horn of fire w/ positive charge count */
+        if (obj.otyp === O.FIRE_HORN)
+            await mplayhorn(mon, obj, true, state);
+        else
+            await mzapwand(mon, obj, true, state);
+        /* -1 => monster's wand of fire; 2 => # of damage dice */
+        const result = await zhitm(mon, by_you ? 1 : -1, 2, state, random);
+        dmg = result.damage;
+    }
+
+    if (dmg) {
+        /* zhitm() applies damage but doesn't kill creature off */
+        if (mon.mhp < 1) { /* DEADMONSTER */
+            if (by_you) {
+                if (vis)
+                    await pline_mon(mon,
+                        `${capitalizedMonsterName(mon, state)} is ${nonliving(mon.data) ? 'destroyed' : 'killed'} by the fire!`,
+                        state);
+                await xkilled(mon, XKILL_NOMSG | XKILL_NOCONDUCT, state, env);
+            } else
+                await monkilled(mon, 'fire', M.AD_FIRE, state, env);
+        } else {
+            /* non-fatal damage occurred */
+            if (vis)
+                await pline_mon(mon,
+                    `${capitalizedMonsterName(mon, state)} is burned${exclam(dmg)}`,
+                    state);
+        }
+    }
+    if (vis) {
+        if (res && mon.mhp >= 1) /* !DEADMONSTER */
+            await pline_mon(mon,
+                `${s_suffix(capitalizedMonsterName(mon, state))} slime is burned away!`,
+                state);
+        if (otyp !== O.STRANGE_OBJECT)
+            discover_object(otyp, true, true, true, state); /* makeknown */
+    }
+    /* use up monster's next move */
+    mon.movement -= NORMAL_SPEED;
+    mon.mlstmv = state.moves;
+    return res;
+}
+
+/* C ref: muse.c cures_sliming() (3222-3240). Decides whether obj can be used
+   by mon to cure green slime. */
+export function cures_sliming(mon, obj) {
+    /* scroll of fire */
+    if (obj.otyp === O.SCR_FIRE)
+        return haseyes(mon.data) && mon.mcansee && !nohands(mon.data);
+
+    /* potion of oil; will be set burning if not already */
+    if (obj.otyp === O.POT_OIL)
+        return !nohands(mon.data);
+
+    /* non-empty wand or horn of fire;
+       hero doesn't need hands or even limbs to zap, so mon doesn't either */
+    return (obj.otyp === O.WAN_FIRE
+            || (obj.otyp === O.FIRE_HORN && can_blow(mon)))
+        && obj.spe > 0;
+}
+
+/* C ref: muse.c green_mon() (3249-3258). TRUE if the monster appears green
+   based on its display color. Returns FALSE under hallucination. */
+export function green_mon(mon, state = game) {
+    if (Hallucination(state))
+        return false;
+    return mon.data.mcolor === CLR_GREEN
+        || mon.data.mcolor === CLR_BRIGHT_GREEN;
+}
+
+/* Hallucination color table for hcolor(), matching do_name.c hcolor()
+   (1461-1466). Returns the color name, or a random hallucinated one. */
+const hcolors = Object.freeze([
+    'ultraviolet', 'infrared', 'bluish-orange', 'reddish-green', 'dark white',
+    'light black', 'sky blue-pink', 'pinkish-cyan', 'indigo-chartreuse',
+    'salty', 'sweet', 'sour', 'bitter', 'umami',
+    'striped', 'spiral', 'swirly', 'plaid', 'checkered', 'argyle', 'paisley',
+    'blotchy', 'guernsey-spotted', 'polka-dotted', 'square', 'round',
+    'triangular', 'cabernet', 'sangria', 'fuchsia', 'wisteria', 'lemon-lime',
+    'strawberry-banana', 'peppermint', 'romantic', 'incandescent',
+    'octarine',
+    'excitingly dull', 'mauve', 'electric',
+    'neon', 'fluorescent', 'phosphorescent', 'translucent', 'opaque',
+    'psychedelic', 'iridescent', 'rainbow-colored', 'polychromatic',
+    'colorless', 'colorless green',
+    'dancing', 'singing', 'loving', 'loudy', 'noisy', 'clattery', 'silent',
+    'apocyan', 'infra-pink', 'opalescent', 'violant', 'tuneless',
+    'viridian', 'aureolin', 'cinnabar', 'purpurin', 'gamboge', 'madder',
+    'bistre', 'ecru', 'fulvous', 'tekhelet', 'selective yellow',
+]);
+
+/* C ref: do_name.c hcolor(). Local copy for muse_unslime. */
+function hcolor(colorpref, state) {
+    return (Hallucination(state) || !colorpref)
+        ? hcolors[rn2_on_display_rng(hcolors.length)]
+        : colorpref;
+}
+
+/* C ref: youprop.h Unaware. Local copy for muse_unslime. */
+function Unaware(state) {
+    return Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || state.u?.uhs === FAINTED);
 }

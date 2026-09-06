@@ -1044,8 +1044,9 @@ test('every zap refusal names a zap.c function the port has not ported',
             'backfire', 'losehp', 'shieldeff', 'zapyourself',
             // resist(): the shieldeff_mon() and killed-by-damage arms.
             'shieldeff_mon', 'resist',
-            // zhitm() monster arm: the cold-spell arm and the non-cold types.
-            'spell_damage_bonus', 'zhitm',
+            // zhitm() monster arm: the fire-spell arm, the cold-spell arm,
+            // and the remaining unported damage types.
+            'spell_damage_bonus', 'spell_damage_bonus', 'zhitm',
             // flash_str() and zap_hit().
             'rnd_hallublast', 'spell_hit_bonus',
             // zhitu(): the fire-resistant hero and the other six damage types.

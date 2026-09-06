@@ -995,6 +995,7 @@ test('a monster in the path stops the bolt before the floor effect wakes it',
     // leaves the monster alone and the `if (mon)` arm above it is the one
     // that answers. Moving the level's own monster onto the bolt's first
     // square is what separates the two refusals.
+    // Use WAN_SLEEP whose zhitm() ZT_SLEEP branch is still unported.
     const monster = game.level.monlist;
     assert.ok(monster, 'the level carries a monster to move');
     relocate_monster(monster, game.u.ux - 1, game.u.uy, game);
@@ -1004,16 +1005,16 @@ test('a monster in the path stops the bolt before the floor effect wakes it',
     await assert.rejects(
         () => weffects(
             {
-                otyp: WAN_FIRE,
-                oclass: game.objects[WAN_FIRE].oc_class,
+                otyp: WAN_SLEEP,
+                oclass: game.objects[WAN_SLEEP].oc_class,
                 quan: 1,
             },
             game,
             straightThrough(),
         ),
-        // The monster arm is now ported; the bolt enters zhitm() and throws
-        // because the ZT_FIRE branch of zhitm() is not yet ported.
-        /zhitm\(\) monster arm for damage type 1/u,
+        // The monster arm reaches zhitm() and throws because the ZT_SLEEP
+        // branch is not yet ported.
+        /zhitm\(\) monster arm for damage type 3/u,
     );
 });
 
@@ -1565,15 +1566,17 @@ test('zhitm() ZT_COLD adds d(nd,3) when the monster has fire resistance',
     assert.equal(mon.mhp, 76, '100 - 24 = 76 HP remaining');
 });
 
-test('zhitm() throws for unported damage types', async () => {
-    const mon = { data: { mr: 0 }, m_lev: 1, mhp: 50, minvent: null };
-    const rng = { d: () => 10, rn2: () => 0 };
-    // type 1 = WAN_FIRE hero zap => zaptype(1) % 10 = ZT_FIRE = 1
-    await assert.rejects(
-        () => zhitm(mon, 1, 6, game, rng),
-        /zhitm\(\) monster arm for damage type 1/u,
-        'ZT_FIRE is not yet ported',
-    );
+test('zhitm() ZT_FIRE deals d(nd,6) damage to a non-fire-resistant monster', async () => {
+    // type 1 = WAN_FIRE hero zap => zaptype(1) % 10 = ZT_FIRE = 1.
+    // A monster without fire resistance or cold resistance takes d(nd,6).
+    const state = { u: { uprops: [] }, unported: new Set() };
+    const mon = { data: { mr: 0 }, m_lev: 1, mhp: 100, minvent: null };
+    const rng = { d: () => 10, rn2: () => 1 };
+    const result = await zhitm(mon, 1, 6, state, rng);
+    // d(6,6) returns 10 from our stub, no cold resistance bonus
+    assert.equal(result.damage, 10,
+        'fire damage is d(nd,6) from the stub');
+    assert.equal(mon.mhp, 90, '100 - 10 = 90 HP remaining');
 });
 
 // ---------------------------------------------------------------------------
