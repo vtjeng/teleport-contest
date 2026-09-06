@@ -82,6 +82,7 @@ import {
     vision_reset,
     vision_recalc,
 } from './vision.js';
+import { initUnported } from './unported.js';
 
 const RECORDER_SYSTEM_OPTIONS = Object.freeze({
     // nethack-c/upstream/sys/unix/sysconf, which nethack-c/build-recorder.sh
@@ -290,6 +291,7 @@ export class NethackGame {
 
     async start() {
         const g = resetGame();
+        initUnported();
         // C ref: allmain.c early_init() — clone both mutable source catalogs
         // before options and role initialization; per-game resets run later.
         objects_globals_init(g);
@@ -594,6 +596,8 @@ export class NethackGame {
     // for steps that didn't animate.  SUPPLEMENTAL metric — not part
     // of the official ranking; see API.md.
     getAnimationFramesByStep() { return this._animFramesByStep; }
+    getUnported() { return game.unported ? [...game.unported] : []; }
+    getInputExhausted() { return Boolean(this._inputExhausted); }
     getThemeroomSelections() {
         return this._themeroomSelectionCollector?.snapshot() ?? null;
     }
@@ -721,7 +725,10 @@ export async function runSegment(
         try {
             await moveloop_core();
         } catch (e) {
-            if (String(e?.message || '').includes('Input queue empty')) break;
+            if (String(e?.message || '').includes('Input queue empty')) {
+                nhGame._inputExhausted = true;
+                break;
+            }
             // A known, fail-closed gameplay boundary preserves all output
             // produced through the supported prefix. It must not turn that
             // prefix into a zero-session scorer error.

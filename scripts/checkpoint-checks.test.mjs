@@ -105,9 +105,11 @@ test('checkpoint runs full, generated, static, and score', () => {
             'static sources (check:relative-imports)',
             'static sources (check:fixed-datetime)',
             'duplicate symbols (check:duplicate-symbols)',
+            'constants vs C headers (check:constants)',
             'review gate',
             'development score',
             'recordings corpus',
+            'end-of-input over-read',
         ],
     );
 });

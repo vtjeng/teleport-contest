@@ -1,92 +1,11 @@
 #!/usr/bin/env node
 
-// One replay of the development sessions, reporting where the JavaScript port
-// stops, what each session's recorded input still owes it, and which sessions
-// diverge from the recording before their first unported behavior.
+// Replays the development sessions and reports where the JavaScript port stops
+// and where it diverges from the C recording. `scripts/divergence-queue.mjs`
+// reads the `--json` output to build the goal selection queue.
 //
-// The port is fail-closed: it ends a segment at a boundary rather than guess at
-// unported behavior. That splits every question about the port's remaining work
-// in two, and every figure this script prints is labelled with the half it
-// comes from.
-//
-// OBSERVED. Everything up to a session's first stop is replayed, so the stop is
-// a measurement: the boundary the port raised, the recorded keystroke it
-// refused, that keystroke's command under the session's own bindings, and C's
-// message on that step. The two censuses group those measurements and carry the
-// recorded steps standing behind each one. Those steps state an upper bound on
-// what porting the boundary could earn; they do not forecast it, because a
-// session blocked on one owner routinely blocks again on another.
-//
-// MODELED. Nothing past a stop is observable, so the debt behind it is derived
-// instead: this script differences each session's ENTIRE recorded input against
-// the commands the port dispatches. A session's debt, `supports` and `unlocks`
-// all come from that model.
-//
-// The recorded input cannot name every behavior, because the supported set
-// admits a command by its FIRST BYTE alone: a branch below a command the port
-// dispatches has no byte of its own to be missing from that set. The port
-// names those itself, and isCommandRefusal() below reads which case a stop is
-// from the boundary class js/cmd.js raised.
-//
-// RECONCILED. The two halves are computed by different routes over the same
-// replay, so they can disagree, and a disagreement nobody sees is what this
-// script exists to prevent. Both read the recorded cursor to decide whether a
-// byte began a command, so the census labels a refused byte that answered a
-// prompt instead of filing it under the command sharing that byte: Enter is
-// 0x0A, and so is Ctrl-J, the rush form of `j`. They can still name different
-// behaviors for a stop whose byte did begin a command, and the reconciliation
-// section says so instead of leaving the row to be found by running two scans
-// and diffing them by hand.
-//
-// `supports` counts screens that stop matching if a port matching every
-// recorded screen loses this behavior. That is every screen from the behavior's
-// first use to the end of each session that uses it. It is exact for a command,
-// because the recording states where the command is first issued. Behaviors
-// overlap, since a late screen rests on every behavior used before it, so this
-// column does not sum to the total.
-//
-// `unlocks` counts screens porting this behavior next would earn. Those come
-// from the sessions where it is the earliest unmet behavior. It is an upper
-// bound: a second behavior hidden inside the gap is invisible, because the port
-// stops at the first one it cannot do.
-//
-// For both, the sessions column counts the sessions holding those screens, as
-// guidance. Every session with an unmet behavior has exactly one earliest, so
-// the `unlocks` sessions column sums to the number of unfinished sessions.
-//
-// `--by=` chooses which column orders the behavior table. `AGENTS.md` makes
-// `.agents/selection.md` the authority on selection, and that file states the
-// rule: `--by=unlocks` orders the candidates by the look-ahead forecast's
-// starting figure, and a classifier caps each session's stretch before the
-// figure is trusted. `--ahead=<behavior>` prints the message stream that
-// capping read works from, and `--ahead-all` appends every candidate's
-// streams to the report, so the selection read needs one run instead of one
-// per candidate. The raw `unlocks` count is an upper bound; measured
-// against three closed goals it overstated by 5.8, 4.8 and 26 times.
-//
-// Which recorded bytes are commands
-// ---------------------------------
-// A recorded step is one byte the reference program consumed, and roughly half
-// of them are prompt answers, menu selections and --More-- dismissals rather
-// than commands. Resolving every byte through the binding table would count the
-// six bytes of `Tetra\r` at the opening name prompt as six extended commands.
-//
-// The recording separates the two itself. NetHack parks the cursor on the hero
-// while it waits for a command, and inside its window, on the top line, or on
-// the prompt while it waits for anything else. So the byte at step i is a
-// command exactly when the cursor recorded at step i-1 rests on a map row over
-// the hero's glyph.
-//
-// The estimator this leaves is stated in `ambiguous` below: a step whose cursor
-// rests on a map row over a non-blank glyph that is not the hero's is neither
-// classified nor silently dropped, because a polymorphed or swallowed hero
-// draws something else and would go uncounted.
-//
-// Sealed-holdout rule: DEVELOPMENT_DIR is fixed and this script accepts no path
-// argument, so it cannot be aimed at sessions/holdout/. Every option carries
-// its value in the same token, so no argument can be read as a directory, and
-// `--ahead=`'s value is only ever compared against the behavior names this scan
-// produced -- it is never opened.
+// The scanned directory is fixed and this script accepts no path argument, so
+// it cannot be aimed at sessions/holdout/.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -151,8 +70,6 @@ const EXTENDED_COMMAND_KEY = '#';
 
 const CACHE_DIR = join(PROJECT_ROOT, '.cache');
 const SCAN_CACHE_PATH = join(CACHE_DIR, 'scan-cache.json');
-const FRONTIERS_PATH = join(CACHE_DIR, 'session-frontiers.json');
-const SCORER_CACHE_PATH = join(CACHE_DIR, 'session-results.json');
 
 function repositoryHead() {
     return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: PROJECT_ROOT })
@@ -178,136 +95,24 @@ function readScanCache() {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Per-session capping persistence (session-frontiers.json)
-// ---------------------------------------------------------------------------
-
-function readFrontiers() {
-    if (!existsSync(FRONTIERS_PATH)) return null;
-    try {
-        return JSON.parse(readFileSync(FRONTIERS_PATH, 'utf8'));
-    } catch {
-        return null;
-    }
-}
-
-function writeFrontiers(frontiers) {
-    if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR, { recursive: true });
-    writeFileSync(FRONTIERS_PATH, JSON.stringify(frontiers, null, 2) + '\n');
-}
 
 /**
- * Build the state tuple that determines whether a session's cached cap is
- * still valid: if these four values match the cached entry, the message
- * stream in the stretch is identical and the cap is reusable.
- */
-function frontierState(row) {
-    const screenDiv = row.divergence?.screen;
-    const rngDiv = row.divergence?.rng;
-    return {
-        boundary: row.boundary,
-        screensEmitted: row.screensEmitted,
-        screenDivergenceAt: screenDiv?.index ?? null,
-        rngDivergenceStep: rngDiv?.stepIndex ?? null,
-    };
-}
-
-/**
- * Annotate each row with capping stability by comparing its state against
- * the cached frontiers.
- */
-function sessionKey(file) {
-    return file.replace(/\.session\.json$/, '');
-}
-
-function annotateFrontiers(rows, frontiers) {
-    for (const row of rows) {
-        const cached = frontiers?.[sessionKey(row.file)];
-        if (!cached) {
-            row.capStable = false;
-            continue;
-        }
-        const state = frontierState(row);
-        row.capStable = cached.boundary === state.boundary
-            && cached.screensEmitted === state.screensEmitted
-            && cached.screenDivergenceAt === state.screenDivergenceAt
-            && cached.rngDivergenceStep === state.rngDivergenceStep;
-        if (row.capStable) row.cachedCap = cached.cappedStretch;
-    }
-}
-
-/**
- * Process --set-cap arguments: store capped stretches in the frontiers file.
- * Each argument is `<session>=<value>`.
- */
-function setCapEntries(setCaps, rows) {
-    const frontiers = readFrontiers() ?? {};
-    const sha = repositoryHead();
-    for (const arg of setCaps) {
-        const eq = arg.indexOf('=');
-        if (eq < 0)
-            throw new Error(`--set-cap needs session=value: ${arg}`);
-        const session = arg.slice(0, eq);
-        const value = Number(arg.slice(eq + 1));
-        if (!Number.isFinite(value))
-            throw new Error(`--set-cap value is not a number: ${arg}`);
-        const key = sessionKey(session);
-        const row = rows?.find((r) => sessionKey(r.file) === key);
-        const state = row ? frontierState(row) : {};
-        frontiers[key] = { ...state, cappedStretch: value, cappedBy: sha };
-    }
-    writeFrontiers(frontiers);
-}
-
-/**
- * Load scan rows with frontier and scorer annotations applied.  Uses the scan
- * cache when HEAD has not changed; replays and writes the cache on a miss.
+ * Load scan rows from the cache or by replaying all development sessions.
+ * Uses the scan cache when HEAD has not changed; replays and writes the cache
+ * on a miss.
  */
 export async function loadAnnotatedRows() {
-    let rows;
     const cached = readScanCache();
-    if (cached) {
-        rows = cached;
-    } else {
-        const files = listSessionFiles(DEVELOPMENT_DIR);
-        if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
-            throw new Error('development count changed');
-        const scanned = [];
-        for (const file of files) scanned.push(await scanSession(file));
-        rows = attachBehaviors(scanned);
-        writeScanCache(rows);
-    }
-    annotateFrontiers(rows, readFrontiers());
-    annotateScorerData(rows);
+    if (cached) return cached;
+    const files = listSessionFiles(DEVELOPMENT_DIR);
+    if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
+        throw new Error('development count changed');
+    const scanned = [];
+    for (const file of files) scanned.push(await scanSession(file));
+    const rows = attachBehaviors(scanned);
+    writeScanCache(rows);
     return rows;
 }
-
-// ---------------------------------------------------------------------------
-// Scorer-cache integration
-// ---------------------------------------------------------------------------
-
-function readScorerCache() {
-    if (!existsSync(SCORER_CACHE_PATH)) return null;
-    try {
-        return JSON.parse(readFileSync(SCORER_CACHE_PATH, 'utf8'));
-    } catch {
-        return null;
-    }
-}
-
-function annotateScorerData(rows) {
-    const cache = readScorerCache();
-    if (!cache?.results) return;
-    const bySession = new Map();
-    for (const r of cache.results) bySession.set(r.session, r);
-    for (const row of rows) {
-        const entry = bySession.get(row.file);
-        if (!entry?.metrics?.screens) continue;
-        row.scorerScreensMatched = entry.metrics.screens.matched;
-        row.scorerScreensTotal = entry.metrics.screens.total;
-    }
-}
-
 // The judge builds each segment's input from exactly these fields; mirroring
 // frozen/ps_test_runner.mjs replayInputFor() keeps this scan aligned with the
 // development score rather than with a slightly different replay.
@@ -510,12 +315,6 @@ export function assembleBehaviors(issued, supported, behavioral = null) {
         .map(([member, at]) => ({ member, at }))
         .sort((a, b) => a.at - b.at || a.member.localeCompare(b.member));
 }
-
-/** The screens a session has yet to earn: every recorded step it never drew. */
-export function ceilingFor(row) {
-    return row.recordedSteps - row.screensEmitted;
-}
-
 /**
  * Whether the port refused the COMMAND, which is the one kind of stop the
  * recorded input can name for itself.
@@ -657,6 +456,8 @@ export async function scanSession(file) {
     const issuedAll = [];
     let answers = 0;
     let ambiguous = 0;
+    const unported = new Set();
+    let inputExhausted = false;
 
     for (const [segmentIndex, segment] of data.segments.entries()) {
         let boundary = null;
@@ -666,6 +467,8 @@ export async function scanSession(file) {
         );
         const segmentScreenList = segmentGame.getScreens?.() ?? [];
         const segmentScreens = segmentScreenList.length;
+        for (const fn of segmentGame.getUnported?.() ?? []) unported.add(fn);
+        if (segmentGame.getInputExhausted?.()) inputExhausted = true;
         const steps = segment.steps || [];
         const contextFor = (inputThroughStop) => ({
             segment: segmentIndex,
@@ -771,6 +574,8 @@ export async function scanSession(file) {
         issued: issuedAll,
         answers,
         ambiguous,
+        unported: [...unported],
+        inputExhausted,
     };
 }
 
@@ -838,336 +643,6 @@ function isSupported(command, supported) {
  * instead of dropping it, so the reconciliation section still sees the
  * disagreement it exists to surface.
  */
-export function refusedCommandKey(row) {
-    if (row.command == null) return null;
-    if (row.keyCursor === 'command') return row.command;
-    if (row.keyCursor === 'ambiguous')
-        return `${row.command} (the byte's role could not be read)`;
-    return `${row.command} (the byte answered a prompt)`;
-}
-
-// Group observed rows by a caller-chosen field or key function, carrying the
-// summed ceiling so the output states how much of the set each class stands in
-// front of.
-export function censusBy(rows, field) {
-    const keyOf = typeof field === 'function' ? field : (row) => row[field];
-    const groups = new Map();
-    for (const row of rows) {
-        const key = keyOf(row) ?? '(none)';
-        const group = groups.get(key) ?? { key, sessions: 0, ceiling: 0 };
-        group.sessions += 1;
-        group.ceiling += ceilingFor(row);
-        groups.set(key, group);
-    }
-    return [...groups.values()].sort(
-        (a, b) => b.sessions - a.sessions || b.ceiling - a.ceiling,
-    );
-}
-
-/**
- * Rank every behavior by how much of the recorded score depends on it.
- *
- * The two columns answer different questions and disagree usefully. A high
- * `supports` with a low `unlocks` is a bottleneck buried behind another one; a
- * high `unlocks` is the next goal to take. The header states what each counts.
- */
-export const RANK_ORDERS = Object.freeze({
-    // What to port next: the screens a candidate earns now.
-    unlocks: (a, b) => b.unlocks - a.unlocks || b.supports - a.supports,
-    // What the score rests on: the screens that depend on it at all.
-    supports: (a, b) => b.supports - a.supports || b.unlocks - a.unlocks,
-});
-
-export function rankCandidates(rows, order = 'unlocks') {
-    const compare = RANK_ORDERS[order];
-    if (!compare) throw new Error(`unknown order: ${order}`);
-    const candidates = new Map();
-    for (const row of rows) {
-        for (const [position, behavior] of row.behaviors.entries()) {
-            const entry = candidates.get(behavior.member) ?? {
-                member: behavior.member,
-                supports: 0,
-                supportsSessions: 0,
-                unlocks: 0,
-                unlocksSessions: 0,
-            };
-            entry.supports += row.recordedSteps - behavior.at;
-            entry.supportsSessions += 1;
-            if (position === 0) {
-                entry.unlocksSessions += 1;
-                const screenDiv = row.divergence?.screen;
-                const rngDiv = row.divergence?.rng;
-                const screenStep = screenDiv?.index;
-                const rngStep = rngDiv?.stepIndex;
-                const earliestDiv = [screenStep, rngStep]
-                    .filter((v) => v != null)
-                    .reduce((a, b) => Math.min(a, b), Infinity);
-                const divergesBefore = earliestDiv < behavior.at;
-                if (!divergesBefore) {
-                    const next = row.behaviors[1];
-                    entry.unlocks
-                        += (next ? next.at : row.recordedSteps) - behavior.at;
-                }
-                if (earliestDiv <= behavior.at) {
-                    const relation = divergesBefore ? 'before' : 'at';
-                    const annotation = {
-                        file: row.file,
-                        behaviorAt: behavior.at,
-                        screenDivergenceAt: screenStep ?? null,
-                        rngDivergenceAt: rngStep ?? null,
-                        rngCaller: rngDiv?.cCaller ?? null,
-                        serializeBug: row.divergence?.serializeBug ?? false,
-                        relation,
-                    };
-                    (entry.divergentSessions ??= []).push(annotation);
-                }
-            }
-            candidates.set(behavior.member, entry);
-        }
-    }
-    return [...candidates.values()].sort(
-        (a, b) => compare(a, b) || a.member.localeCompare(b.member),
-    );
-}
-
-export function divergenceCandidates(rows) {
-    const candidates = [];
-    const serializeBugSessions = [];
-    for (const row of rows) {
-        const screenDiv = row.divergence?.screen;
-        const rngDiv = row.divergence?.rng;
-        if (!screenDiv && !rngDiv) continue;
-        if (rngDiv) {
-            candidates.push({
-                file: row.file,
-                type: 'rng-fix',
-                screensEmitted: row.screensEmitted,
-                divergenceAt: rngDiv.stepIndex,
-                rngCaller: rngDiv.cCaller ?? null,
-                blocked: row.screensEmitted - rngDiv.stepIndex,
-            });
-        } else if (row.divergence?.serializeBug) {
-            serializeBugSessions.push(row.file);
-        } else {
-            candidates.push({
-                file: row.file,
-                type: 'screen-fix',
-                screensEmitted: row.screensEmitted,
-                divergenceAt: screenDiv.index,
-                rngCaller: null,
-                blocked: row.screensEmitted - screenDiv.index,
-            });
-        }
-    }
-    return { candidates, serializeBugSessions };
-}
-
-/**
- * The look-ahead read for divergence candidates: each divergent session's
- * recorded message lines between its first mismatch and the end of its
- * emitted screens. The selector hands this stream to a classifier the
- * same way it reads boundary stretches, capping at the first message that
- * implies an independent issue unrelated to the divergence cause. Skips
- * serialize-bug-only screen divergences (issue #18, unfixable).
- */
-export function divergenceStretches(rows) {
-    return rows
-        .filter((row) => {
-            if (!row.divergence) return false;
-            if (row.divergence.rng) return true;
-            if (row.divergence.screen && !row.divergence.serializeBug)
-                return true;
-            return false;
-        })
-        .map((row) => {
-            const rngDiv = row.divergence.rng;
-            const screenDiv = row.divergence.screen;
-            const from = rngDiv
-                ? rngDiv.stepIndex
-                : screenDiv.index;
-            const to = row.screensEmitted;
-            return {
-                file: row.file,
-                type: rngDiv ? 'rng-fix' : 'screen-fix',
-                from,
-                to,
-                blocked: to - from,
-                rngCaller: rngDiv?.cCaller ?? null,
-                messages: dedupeMessages(
-                    recordedStepsFor(row.file)
-                        .slice(from, to)
-                        .map(recordedTopLine),
-                ),
-            };
-        });
-}
-
-/**
- * Check each session's earliest behavior against where the port actually
- * stopped.
- *
- * The port fail-closes at the first behavior it has not ported, so the earliest
- * behavior the model derives from the recorded input must sit at exactly the
- * step the port never consumed. The two are computed by different routes: the
- * stop comes from replaying the port, the behavior from reading cursors and
- * bindings out of the recording. Any disagreement means the model read the
- * input wrongly, so the report states the count.
- *
- * This caught the extended-command behaviors being charged from the `#` that
- * opens the prompt instead of the terminator that runs the command.
- */
-export function stopPointAgreement(rows) {
-    const scored = rows.filter((row) => row.behaviors.length > 0);
-    const mismatches = scored.filter(
-        (row) => row.behaviors[0].at !== row.screensEmitted,
-    );
-    return { agree: scored.length - mismatches.length, total: scored.length,
-        mismatches };
-}
-
-/**
- * Sort every stopped session into how its observed stop meets its modeled
- * earliest behavior.
- *
- * - `carried`: the boundary is not a command refusal, by isCommandRefusal()'s
- *   test, so the model has no way to derive it from the recorded input and
- *   carries the port's own message instead. The two agree by construction.
- *   Both shapes land here: a boundary raised outside any command, and one
- *   raised below a command the port dispatched.
- * - `alike`: a command refusal whose refused byte resolves, through the
- *   session's bindings, to the behavior the model names.
- * - `differing`: a command refusal the two name differently. The model reads
- *   the recorded cursor and the census does not, so this is where the census
- *   names a command nobody issued. The `\n` that terminates an
- *   extended-command prompt is the standing case: it is Ctrl-J, which the
- *   binding table names `rushsouth`.
- * - `unreconciled`: the model has no behavior at the step the port refused.
- *   That means it believes the port supports what the port just refused, and
- *   no row of the behavior table stands for the stop. Any row here needs a
- *   human. The count prefix is the standing case: the port now consumes the
- *   count's digits and refuses the command byte they precede, which the model
- *   reads as supported because it has no count dimension.
- */
-export function reconcile(rows) {
-    const carried = [];
-    const alike = [];
-    const differing = [];
-    const unreconciled = [];
-    for (const row of rows) {
-        if (row.boundary === null) continue;
-        const modeled = row.behaviors[0] ?? null;
-        if (!row.commandRefusal) {
-            if (modeled?.member === row.boundary) carried.push(row);
-            else unreconciled.push(row);
-        } else if (!modeled || modeled.at !== row.screensEmitted) {
-            unreconciled.push(row);
-        } else if (modeled.member === row.command) {
-            alike.push(row);
-        } else {
-            differing.push(row);
-        }
-    }
-    return { carried, alike, differing, unreconciled };
-}
-
-/**
- * Collapse the differing sessions into the refused-command census rows they
- * produce, each carrying the behaviors the model names for those same sessions.
- */
-export function refusalsWithoutBehavior(differing) {
-    const groups = new Map();
-    for (const row of differing) {
-        // Key by the census's own label, so a row printed here is the row a
-        // reader finds in the census rather than its unlabelled name.
-        const key = refusedCommandKey(row) ?? '(none)';
-        const group = groups.get(key)
-            ?? { key, sessions: 0, ceiling: 0, modeled: new Map() };
-        group.sessions += 1;
-        group.ceiling += ceilingFor(row);
-        const member = row.behaviors[0].member;
-        group.modeled.set(member, (group.modeled.get(member) ?? 0) + 1);
-        groups.set(key, group);
-    }
-    return [...groups.values()].sort(
-        (a, b) => b.sessions - a.sessions || b.ceiling - a.ceiling,
-    );
-}
-
-/**
- * The census ceiling of each behavior sessions stop on, beside that behavior's
- * `supports`.
- *
- * The census sums the steps behind the sessions that STOP on a behavior;
- * `supports` sums the steps behind every session that NEEDS it. They are the
- * same figure whenever no other session needs the behavior past its own stop,
- * which holds for every boundary the model cannot read out of the input at all.
- * Reporting both makes the census's column a projection of `supports` rather
- * than a second measurement to maintain.
- */
-export function ceilingAgainstSupports(rows, ranking) {
-    const supports = new Map(ranking.map((e) => [e.member, e.supports]));
-    const observed = new Map();
-    for (const row of rows) {
-        const modeled = row.behaviors[0];
-        if (row.boundary === null || !modeled) continue;
-        const entry = observed.get(modeled.member)
-            ?? { member: modeled.member, ceiling: 0, supports: 0 };
-        entry.ceiling += ceilingFor(row);
-        entry.supports = supports.get(modeled.member) ?? 0;
-        observed.set(modeled.member, entry);
-    }
-    const same = [];
-    const differs = [];
-    for (const entry of observed.values())
-        (entry.ceiling === entry.supports ? same : differs).push(entry);
-    differs.sort((a, b) => b.supports - a.supports
-        || a.member.localeCompare(b.member));
-    return { same, differs };
-}
-
-/** Every recorded step of one session, flattened across its segments. */
-export function recordedStepsFor(file) {
-    const data = normalizeSession(
-        JSON.parse(readFileSync(join(DEVELOPMENT_DIR, file), 'utf8')),
-    );
-    return data.segments.flatMap((segment) => segment.steps || []);
-}
-
-/**
- * The stretch a session replays next if its current stop is ported: from its
- * earliest unmet behavior to its second, or to the recording's end when no
- * second one is visible. Returns null for a session with no unmet behavior.
- */
-export function aheadStretch(row) {
-    const [current, next] = row.behaviors;
-    if (!current) return null;
-    return {
-        member: current.member,
-        from: current.at,
-        to: next ? next.at : row.recordedSteps,
-    };
-}
-
-/** Collapse consecutive identical message lines into {line, count} runs. */
-export function dedupeMessages(lines) {
-    const runs = [];
-    for (const line of lines) {
-        const last = runs[runs.length - 1];
-        if (last && last.line === line) last.count += 1;
-        else runs.push({ line, count: 1 });
-    }
-    return runs;
-}
-
-function formatKey(key) {
-    return key == null ? '-' : JSON.stringify(key);
-}
-
-/** Center a group heading over the columns it names. */
-function centered(label, width) {
-    const left = Math.floor((width - label.length) / 2);
-    return ' '.repeat(left) + label + ' '.repeat(width - label.length - left);
-}
 
 function reportStops(rows) {
     const nameWidth = Math.max(...rows.map((r) => r.file.length));
@@ -1177,26 +652,11 @@ function reportStops(rows) {
             [
                 row.file.padEnd(nameWidth),
                 `${row.screensEmitted}/${row.recordedSteps}`.padStart(10),
-                formatKey(row.key).padEnd(9),
                 (row.command ?? '-').padEnd(14),
                 row.boundary ?? 'no stop (input exhausted)',
                 row.message ? `| C: ${JSON.stringify(row.message)}` : '',
             ].join('  ').trimEnd(),
         );
-    }
-
-    for (const [title, field] of [
-        ['\nBoundary census, observed (sessions, screens standing behind it)',
-            'boundary'],
-        ['\nRefused command census, observed', refusedCommandKey],
-    ]) {
-        console.log(title);
-        for (const group of censusBy(rows, field)) {
-            console.log(
-                `  ${String(group.sessions).padStart(2)}  `
-                + `${String(group.ceiling).padStart(5)}  ${group.key}`,
-            );
-        }
     }
 }
 
@@ -1238,492 +698,45 @@ function reportDivergences(rows) {
                 + `${rngSide(rng.jsEntry)} where C recorded `
                 + `${rngSide(rng.cEntry)}`
             : 'RNG aligned');
-        if (row.scorerScreensMatched != null) {
-            parts.push(`scorer: ${row.scorerScreensMatched}`
-                + `/${row.scorerScreensTotal} matched`);
-        }
         console.log(`  ${row.file.padEnd(nameWidth)}  ${parts.join('; ')}`);
     }
 }
 
-function reportDebt(rows) {
-    const nameWidth = Math.max(...rows.map((r) => r.file.length));
-    console.log('\nWhole remaining debt per development session (modeled)\n');
-    for (const row of rows) {
-        console.log(
-            [
-                row.file.padEnd(nameWidth),
-                `${row.screensEmitted}/${row.recordedSteps}`.padStart(10),
-                `debt ${row.debt.length}`.padStart(8),
-                row.debt.length ? row.debt.join(' + ') : '(none: input exhausted)',
-            ].join('  ').trimEnd(),
-        );
-    }
-}
-
-function reportReconciliation(rows, ranking) {
-    const { carried, alike, differing, unreconciled } = reconcile(rows);
-    const agreement = stopPointAgreement(rows);
-    console.log(
-        '\nReconciliation of the observed stops against the modeled behaviors\n',
-    );
-    console.log(
-        `  ${String(agreement.agree).padStart(3)} of ${agreement.total} `
-        + 'sessions place their earliest modeled behavior at the step the port '
-        + 'stopped on',
-    );
-    for (const row of agreement.mismatches) {
-        console.log(
-            `      MISMATCH ${row.file}: stopped at ${row.screensEmitted}, `
-            + `earliest behavior ${row.behaviors[0].member} at `
-            + `${row.behaviors[0].at}`,
-        );
-    }
-    console.log(
-        `  ${String(carried.length).padStart(3)} stops the model carries as `
-        + "themselves, the port's own message naming a behavior no recorded "
-        + 'byte can',
-    );
-    console.log(
-        `  ${String(alike.length).padStart(3)} command refusals the refused `
-        + "byte's binding and the model name alike",
-    );
-    console.log(
-        `  ${String(differing.length).padStart(3)} command refusals the two `
-        + 'name differently',
-    );
-    console.log(
-        `  ${String(unreconciled.length).padStart(3)} stops with no modeled `
-        + 'behavior at the step the port refused',
-    );
-    for (const row of unreconciled) {
-        const modeled = row.behaviors[0];
-        console.log(
-            `      UNRECONCILED ${row.file}: stopped at ${row.screensEmitted} `
-            + `on ${JSON.stringify(row.boundary)}; the model names `
-            + `${modeled ? `${modeled.member} at ${modeled.at}`
-                : 'no behavior at all'}`,
-        );
-    }
-
-    if (differing.length) {
-        console.log(
-            '\n  Refused-command census rows the behavior table cannot hold. '
-            + 'The census resolves\n  the refused byte through the binding '
-            + 'model; the model reads the recorded\n  cursor and names the '
-            + 'behavior after the arrow. A row the census labelled as\n  '
-            + 'answering a prompt differs for that reason; an unlabelled one '
-            + 'differs for\n  another, so read its arrow before you rank it.\n',
-        );
-        for (const group of refusalsWithoutBehavior(differing)) {
-            const named = [...group.modeled.entries()]
-                .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-                .map(([member, count]) => (count > 1
-                    ? `${member} (${count})` : member))
-                .join(', ');
-            console.log(
-                `  ${String(group.sessions).padStart(2)}  `
-                + `${String(group.ceiling).padStart(5)}  `
-                + `${group.key}  ->  ${named}`,
-            );
-        }
-    }
-
-    const { same, differs } = ceilingAgainstSupports(rows, ranking);
-    console.log(
-        `\n  ${same.length} of ${same.length + differs.length} behaviors that `
-        + 'sessions stop on report the same figure in the\n  census and in '
-        + "supports, so the census's screens-standing-behind column is a\n  "
-        + 'projection of supports rather than a second measurement. The rest '
-        + 'are\n  commands a session also needs past its own stop, which the '
-        + 'census cannot see:',
-    );
-    for (const entry of differs) {
-        console.log(
-            `  ${String(entry.ceiling).padStart(6)} -> `
-            + `${String(entry.supports).padStart(6)}  ${entry.member}`,
-        );
-    }
-}
-
-function reportRanking(rows, recorded, order) {
-    console.log(
-        `\nBehaviors by the screens that depend on them, of ${recorded} `
-        + `recorded, ordered by ${order} (modeled)`,
-    );
-    // Each measure is a (screens, sessions) pair, so the header groups its two
-    // columns under one name rather than leaving four columns to be read as
-    // four separate quantities.
-    console.log(`\n  ${centered('supports', 17)}  ${centered('unlocks', 17)}`);
-    console.log(
-        `  ${'screens'.padStart(7)}  ${'sessions'.padStart(8)}  `
-        + `${'screens'.padStart(7)}  ${'sessions'.padStart(8)}  behavior`,
-    );
-    for (const entry of rankCandidates(rows, order)) {
-        console.log(
-            `  ${String(entry.supports).padStart(7)}  `
-            + `${String(entry.supportsSessions).padStart(8)}  `
-            + `${String(entry.unlocks).padStart(7)}  `
-            + `${String(entry.unlocksSessions).padStart(8)}  ${entry.member}`,
-        );
-        for (const d of entry.divergentSessions ?? []) {
-            const name = d.file.replace(/\.session\.json$/u, '');
-            const caller = d.rngCaller ? `  in ${d.rngCaller}` : '';
-            const bug = d.serializeBug ? ' [serialize bug]' : '';
-            const divAt = d.rngDivergenceAt ?? d.screenDivergenceAt;
-            const divType = d.rngDivergenceAt != null ? 'RNG step' : 'screen';
-            console.log(
-                `    ^ ${name} diverges at ${divType} ${divAt}`
-                + ` (${d.relation} step ${d.behaviorAt})${caller}${bug}`,
-            );
-        }
-    }
-
-    const { candidates: divCandidates, serializeBugSessions }
-        = divergenceCandidates(rows);
-    if (divCandidates.length > 0) {
-        console.log('\nDivergence candidates '
-            + '(screens emitted but not matching)');
-        for (const d of divCandidates) {
-            const caller = d.rngCaller ? `  in ${d.rngCaller}` : '';
-            console.log(
-                `  ${d.file}  [${d.type}] diverges at step ${d.divergenceAt}`
-                + `, ${d.blocked} screens blocked${caller}`,
-            );
-        }
-    }
-    if (serializeBugSessions.length > 0) {
-        console.log('\nSerialize-bug divergences (issue #18, unfixable)');
-        for (const file of serializeBugSessions)
-            console.log(`  ${file}`);
-    }
-}
-
-function reportCappingStatus(rows) {
-    const stoppedRows = rows.filter((r) => r.boundary);
-    if (stoppedRows.length === 0) return;
-    const hasFrontiers = stoppedRows.some((r) => r.capStable != null);
-    if (!hasFrontiers) return;
-    const stable = stoppedRows.filter((r) => r.capStable);
-    const changed = stoppedRows.filter((r) => !r.capStable);
-    console.log('\nCapping status');
-    if (stable.length > 0) {
-        console.log(`  ${stable.length} session(s) cached (cap reusable):`);
-        for (const row of stable)
-            console.log(`    ${row.file}  cappedStretch=${row.cachedCap}`);
-    }
-    if (changed.length > 0) {
-        console.log(`  ${changed.length} session(s) need re-capping:`);
-        for (const row of changed) console.log(`    ${row.file}`);
-    }
-}
-
-function report(rows, order) {
+function report(rows) {
     reportStops(rows);
     reportDivergences(rows);
-    reportDebt(rows);
 
     const emitted = rows.reduce((n, r) => n + r.screensEmitted, 0);
     const recorded = rows.reduce((n, r) => n + r.recordedSteps, 0);
-    const ambiguous = rows.reduce((n, r) => n + r.ambiguous, 0);
-    const answers = rows.reduce((n, r) => n + r.answers, 0);
     console.log(
         `\n${rows.length} sessions; ${emitted} screens emitted of ${recorded} `
-        + `recorded; ${answers} recorded bytes answered a prompt and `
-        + `${ambiguous} could not be classified. `
+        + `recorded. `
         + 'scripts/score-development.mjs is the authority on how many of those '
-        + 'emitted screens match.',
-    );
-
-    reportReconciliation(rows, rankCandidates(rows, order));
-    reportRanking(rows, recorded, order);
-    reportCappingStatus(rows);
-
-    console.log(legend(recorded));
-}
-
-// The legend defines every column this report prints, so it is built here
-// rather than inline: a test can read it without paying for a replay.
-export function legend(recorded) {
-    return (
-        '\nObserved figures come from replaying the port, and cover everything '
-        + "up to each\nsession's first stop. Modeled figures are derived from "
-        + 'the recorded input,\nbecause nothing past a stop is observable at '
-        + 'all.'
-        + '\n\nBoth tables sort for display alone. Neither ordering ranks a row '
-        + 'by priority, and the order a candidate is selected in is the one '
-        + '.agents/selection.md states.'
-        + '\n\nsupports counts screens that stop matching if a port matching '
-        + `all ${recorded} recorded screens loses this behavior. That is every `
-        + "screen from the behavior's first use to the end of each session that "
-        + 'uses it. It is exact for a command, because the recording states '
-        + 'where the command is first issued. Behaviors overlap, since a late '
-        + 'screen rests on every behavior used before it, so this column does '
-        + 'not sum to the total.'
-        + '\n\nunlocks counts screens porting this behavior next would earn. '
-        + 'Those come from the sessions where it is the earliest unmet '
-        + 'behavior. It is an upper bound: a second behavior hidden inside the '
-        + 'gap is invisible, because the port stops at the first one it cannot '
-        + 'do.'
-        + '\n\nFor both, the sessions column counts the sessions holding those '
-        + 'screens, as guidance. Every session with an unmet behavior has '
-        + 'exactly one earliest, so the unlocks sessions column sums to the '
-        + 'number of unfinished sessions.'
-        + '\n\nA silent divergence is a replayed screen, cursor, or RNG call '
-        + 'that differs from the recording while the port plays on. Its '
-        + "section reports each affected session's first difference inside "
-        + 'replayed input.'
-        + '\n\nDivergence rules. When a session diverges before its first '
-        + 'unported behavior (the boundary), its unlocks contribution is '
-        + 'zeroed: those screens cannot match regardless of what the boundary '
-        + 'ports. The ranking table annotates each such session. When both '
-        + 'screen and RNG divergences exist, the earlier one determines the '
-        + 'relation. Three relations: before the boundary (zeroed, creates a '
-        + 'divergence-fix candidate), at the boundary (kept, the boundary '
-        + 'caused it), or none (full contribution). A session whose RNG log '
-        + 'has diverged converts nothing past that call until the root cause '
-        + 'is fixed.'
-        + '\n\nSerialize-bug divergences (davidbau/teleport-contest#18). frozen/terminal.js '
-        + 'serialize() drops attributes from leading spaces, producing '
-        + 'attribute-only screen mismatches on inverse or underlined spaces. '
-        + 'These affect the scorer (the same diffCell detects them) but are '
-        + 'unfixable from the port side. The report tags them [serialize bug] '
-        + 'and excludes them from divergence candidates.'
-        + '\n\nCapping status. When .cache/session-frontiers.json exists, the '
-        + 'report annotates each stopped session as cap-stable or needing '
-        + 're-capping. A session is cap-stable when its boundary, '
-        + 'screensEmitted, screenDivergenceAt, and rngDivergenceStep all '
-        + 'match the cached entry. Use --set-cap=<session>=<n> to store a '
-        + 'capped stretch after a classifier run.'
+        + 'emitted screens match.\n'
+        + 'Use scripts/divergence-queue.mjs for goal selection.',
     );
 }
-
-/**
- * The look-ahead read: every stopped session's recorded message lines between
- * its current stop and its next unmet behavior, for one candidate behavior.
- * "Rank by the look-ahead forecast" in `.agents/selection.md` hands each
- * session's stream to a classifier subagent, which caps the session's forecast
- * at the first message implying an unported or partly ported behavior inside
- * the stretch.
- */
-function reportAhead(rows, target) {
-    const matched = rows.filter((row) => aheadStretch(row)?.member === target);
-    if (matched.length === 0) {
-        const members = [...new Set(rows.map((row) => aheadStretch(row)?.member)
-            .filter(Boolean))].sort();
-        console.log(`No session stops first on "${target}". Current first stops:`);
-        for (const member of members) console.log(`  ${member}`);
-        return false;
-    }
-    let total = 0;
-    for (const row of matched) {
-        const stretch = aheadStretch(row);
-        const steps = recordedStepsFor(row.file).slice(stretch.from, stretch.to);
-        total += steps.length;
-        console.log(`== ${row.file}: steps ${stretch.from}..${stretch.to} `
-            + `(${steps.length} ahead)`);
-        console.log(formatReplayContext(row.stopContext));
-        for (const { line, count } of dedupeMessages(steps.map(recordedTopLine)))
-            console.log(count > 1 ? `${line}  [x${count}]` : line);
-        console.log('');
-    }
-    console.log(`${matched.length} session(s), ${total} recorded steps ahead `
-        + `of "${target}".`);
-    return true;
-}
-
-/** The stretches `--ahead=<behavior>` prints, as data. */
-function aheadStretches(rows, target) {
-    return rows
-        .filter((row) => aheadStretch(row)?.member === target)
-        .map((row) => {
-            const stretch = aheadStretch(row);
-            return {
-                file: row.file,
-                ...stretch,
-                context: row.stopContext,
-                messages: dedupeMessages(
-                    recordedStepsFor(row.file)
-                        .slice(stretch.from, stretch.to)
-                        .map(recordedTopLine),
-                ),
-            };
-        });
-}
-
-/**
- * The candidates `--ahead-all` covers: every behavior that is some session's
- * earliest unmet behavior, in the unlocks ranking's order. Each unfinished
- * session has exactly one earliest, so the full dump holds one stream per
- * unfinished session. A behavior that stops no session first has no stream
- * and is omitted.
- */
-export function aheadMembers(rows) {
-    const members = new Set(
-        rows.map((row) => aheadStretch(row)?.member).filter(Boolean),
-    );
-    return rankCandidates(rows, 'unlocks')
-        .map((entry) => entry.member)
-        .filter((member) => members.has(member));
-}
-
-/**
- * Rank candidates by capped forecast using cached caps from
- * session-frontiers.json.  Each candidate's forecast is the sum of its
- * contributing sessions' capped stretches.  A session whose divergence is
- * before its boundary contributes 0 (divergence zeroing, handled by
- * rankCandidates).
- *
- * For cap-stable sessions the cached cappedStretch is used directly.
- * Sessions that need re-capping are flagged: their raw stretch enters the
- * sum as a placeholder and the candidate is marked `tentative`.
- *
- * Returns an array sorted by cappedForecast desc, then session count desc,
- * then member name asc.
- */
-export function cappedRanking(rows) {
-    const candidates = new Map();
-    for (const row of rows) {
-        const stretch = aheadStretch(row);
-        if (!stretch) continue;
-        const entry = candidates.get(stretch.member) ?? {
-            member: stretch.member,
-            cappedForecast: 0,
-            sessions: [],
-            tentative: false,
-        };
-        const screenDiv = row.divergence?.screen;
-        const rngDiv = row.divergence?.rng;
-        const screenStep = screenDiv?.index;
-        const rngStep = rngDiv?.stepIndex;
-        const earliestDiv = [screenStep, rngStep]
-            .filter((v) => v != null)
-            .reduce((a, b) => Math.min(a, b), Infinity);
-        const divergesBefore = earliestDiv < (row.behaviors[0]?.at ?? Infinity);
-        const sessionName = sessionKey(row.file);
-        if (divergesBefore) {
-            entry.sessions.push({
-                session: sessionName,
-                cappedStretch: 0,
-                capStable: row.capStable ?? false,
-                divergenceZeroed: true,
-            });
-        } else if (row.capStable && row.cachedCap != null) {
-            entry.cappedForecast += row.cachedCap;
-            entry.sessions.push({
-                session: sessionName,
-                cappedStretch: row.cachedCap,
-                capStable: true,
-                divergenceZeroed: false,
-            });
-        } else {
-            const rawStretch = stretch.to - stretch.from;
-            entry.cappedForecast += rawStretch;
-            entry.tentative = true;
-            entry.sessions.push({
-                session: sessionName,
-                cappedStretch: null,
-                rawStretch,
-                capStable: false,
-                divergenceZeroed: false,
-            });
-        }
-        candidates.set(stretch.member, entry);
-    }
-    return [...candidates.values()].sort(
-        (a, b) => b.cappedForecast - a.cappedForecast
-            || b.sessions.length - a.sessions.length
-            || a.member.localeCompare(b.member),
-    );
-}
-
-function reportDivergenceAhead(rows) {
-    const stretches = divergenceStretches(rows);
-    if (stretches.length === 0) return;
-    console.log('\n==== Look-ahead for divergence candidates\n');
-    let total = 0;
-    for (const stretch of stretches) {
-        total += stretch.blocked;
-        const caller = stretch.rngCaller
-            ? `  in ${stretch.rngCaller}` : '';
-        console.log(`== ${stretch.file}: screens ${stretch.from}..${stretch.to}`
-            + ` (${stretch.blocked} blocked)${caller}`);
-        for (const { line, count } of stretch.messages)
-            console.log(count > 1 ? `${line}  [x${count}]` : line);
-        console.log('');
-    }
-    console.log(`${stretches.length} session(s), ${total} blocked screens.`);
-}
-
-/** The `--ahead=<behavior>` sections for every candidate, after the report. */
-function reportAheadAll(rows) {
-    for (const member of aheadMembers(rows)) {
-        console.log(`\n==== Look-ahead for "${member}"\n`);
-        reportAhead(rows, member);
-    }
-    reportDivergenceAhead(rows);
-}
-
-const AHEAD_PREFIX = '--ahead=';
-const SET_CAP_PREFIX = '--set-cap=';
 
 export async function main(args) {
-    const orders = Object.keys(RANK_ORDERS);
     if (args.includes('--help')) {
         console.log(
-            `Usage: node scripts/scan-sessions.mjs [--by=<${orders.join('|')}>]`
-            + ' [--ahead=<behavior>] [--json]\n'
-            + `\n  --by=<${orders.join('|')}>  order the behavior table.`
-            + ' Default: unlocks.'
-            + '\n  --ahead=<behavior>       print each stopped session\'s'
-            + ' recorded messages between\n'
-            + '                           its stop and its next unported behavior.'
-            + '\n  --ahead-all              append every candidate\'s'
-            + ' look-ahead streams and divergence\n'
-            + '                           candidate stretches to the report.'
-            + '\n  --json                   emit the same figures in'
+            'Usage: node scripts/scan-sessions.mjs [--json] [--debug-full-replay]\n'
+            + '\n  --json                   emit per-session rows in'
             + ' machine-readable form.'
             + '\n  --debug-full-replay      force a fresh replay even when'
             + ' .cache/scan-cache.json\n'
             + '                           matches HEAD. For debugging only.'
-            + '\n  --set-cap=<session>=<n>  store a capped stretch for one'
-            + ' session in\n'
-            + '                           .cache/session-frontiers.json.'
-            + ' Repeatable.'
             + '\n\nThe scanned directory is fixed and no path argument is'
             + ' accepted, so this scan\ncannot be aimed at sessions/holdout/.',
         );
         return undefined;
     }
     const rejected = args.find((arg) => arg !== '--json'
-        && arg !== '--ahead-all'
-        && arg !== '--debug-full-replay'
-        && !orders.some((order) => arg === `--by=${order}`)
-        && !arg.startsWith(AHEAD_PREFIX)
-        && !arg.startsWith(SET_CAP_PREFIX));
+        && arg !== '--debug-full-replay');
     if (rejected !== undefined) {
-        throw new Error(
-            `only --json, --by=<${orders.join('|')}>, `
-            + `${AHEAD_PREFIX}<behavior>, --ahead-all, `
-            + `--debug-full-replay`
-            + ` and ${SET_CAP_PREFIX}<session>=<n> are accepted`,
-        );
+        throw new Error('only --json and --debug-full-replay are accepted');
     }
     const json = args.includes('--json');
-    const order = args.find((arg) => arg.startsWith('--by='))
-        ?.slice('--by='.length) ?? 'unlocks';
-    const ahead = args.find((arg) => arg.startsWith(AHEAD_PREFIX))
-        ?.slice(AHEAD_PREFIX.length);
-    const aheadAll = args.includes('--ahead-all');
-    if (aheadAll && ahead !== undefined) {
-        throw new Error(
-            '--ahead-all already prints every candidate; drop --ahead=<behavior>',
-        );
-    }
-    const setCaps = args
-        .filter((arg) => arg.startsWith(SET_CAP_PREFIX))
-        .map((arg) => arg.slice(SET_CAP_PREFIX.length));
-
     const forceReplay = args.includes('--debug-full-replay');
 
     let rows;
@@ -1735,60 +748,14 @@ export async function main(args) {
         for (const file of files) scanned.push(await scanSession(file));
         rows = attachBehaviors(scanned);
         writeScanCache(rows);
-        annotateFrontiers(rows, readFrontiers());
-        annotateScorerData(rows);
     } else {
         rows = await loadAnnotatedRows();
     }
 
-    if (setCaps.length > 0) {
-        setCapEntries(setCaps, rows);
-        return;
-    }
-
-    if (ahead !== undefined) {
-        if (json) {
-            const stretches = aheadStretches(rows, ahead);
-            console.log(JSON.stringify({ ahead, stretches }, null, 2));
-            if (stretches.length === 0) process.exitCode = 1;
-        } else if (!reportAhead(rows, ahead)) process.exitCode = 1;
-        return;
-    }
-
     if (json) {
-        const { carried, alike, differing, unreconciled } = reconcile(rows);
-        const ranking = rankCandidates(rows, order);
-        const { candidates: divCandidates, serializeBugSessions }
-            = divergenceCandidates(rows);
-        console.log(JSON.stringify({
-            rows,
-            order,
-            ranking,
-            divergenceCandidates: divCandidates,
-            serializeBugSessions,
-            ...(aheadAll ? {
-                stretches: aheadMembers(rows).map((member) => ({
-                    member,
-                    sessions: aheadStretches(rows, member),
-                })),
-                divergenceStretches: divergenceStretches(rows),
-            } : {}),
-            reconciliation: {
-                stopPointAgreement: stopPointAgreement(rows),
-                carried: carried.map((row) => row.file),
-                alike: alike.map((row) => row.file),
-                differing: differing.map((row) => ({
-                    file: row.file,
-                    refused: row.command,
-                    modeled: row.behaviors[0].member,
-                })),
-                unreconciled: unreconciled.map((row) => row.file),
-                ceilingAgainstSupports: ceilingAgainstSupports(rows, ranking),
-            },
-        }, null, 2));
+        console.log(JSON.stringify({ rows }, null, 2));
     } else {
-        report(rows, order);
-        if (aheadAll) reportAheadAll(rows);
+        report(rows);
     }
 }
 

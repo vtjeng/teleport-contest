@@ -86,6 +86,21 @@ export function checkpointCommands() {
         informational: true,
         summarize: summarizeDuplicateSymbols,
     });
+    // Informational: compares JS constant values against C #define values.
+    // A mismatch is a copy error worth investigating, but conditional #ifdef
+    // values produce false positives, so the check is informational.
+    commands.push({
+        label: 'constants vs C headers (check:constants)',
+        command: 'npm',
+        args: ['run', 'check:constants'],
+        capture: true,
+        informational: true,
+        summarize: (result) => {
+            const last = result.stdout.trim().split('\n').at(-1) ?? '';
+            const skipped = last.includes('skipping');
+            return { passed: result.status === 0, body: last, skipped };
+        },
+    });
     // Informational: .agents/review.md schedules reviews on demand, and this
     // line puts the unreviewed debt in the one output every agent already
     // reads, so the reader can decide whether a pass is warranted.
@@ -118,6 +133,17 @@ export function checkpointCommands() {
             passed: result.status === 0,
             body: result.stdout.trim().split('\n').at(-1) ?? '',
         }),
+    });
+    commands.push({
+        label: 'end-of-input over-read',
+        command: process.execPath,
+        args: ['scripts/check-overread.mjs'],
+        capture: true,
+        summarize: (result) => {
+            const last = result.stdout.trim().split('\n').at(-1) ?? '';
+            const skipped = last.includes('skipping');
+            return { passed: result.status === 0, body: last, skipped };
+        },
     });
     return commands;
 }

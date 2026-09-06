@@ -6,6 +6,7 @@
   "scripts": {
     "test": "node scripts/run-test-suite.mjs default",
     "test:all": "node scripts/run-test-suite.mjs all",
+    "check:constants": "node scripts/check-constants.mjs",
     "check:duplicate-symbols": "node scripts/check-duplicate-symbols.mjs",
     "check:data-base": "node scripts/generate-data-base.mjs --check",
     "check:config-statements": "node scripts/generate-config-statements.mjs --check",

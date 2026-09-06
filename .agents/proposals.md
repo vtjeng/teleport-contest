@@ -127,41 +127,11 @@ with the C dump is ongoing work.
 items, traps, level geometry, or other game objects. Extending it to full game
 state would require substantially more C instrumentation.
 
-## Land the rest of the file-port tooling
+## Land the rest of the file-port tooling — done
 
-**What it changes.** The 2026-09-05 rules cite or imply five pieces of tooling
-and layout that do not exist yet. The rules hold as written until these land,
-and the list below is the known distance between the documents and the tree.
-
-1. `js/unported.js`, holding `note_unported()` and the `game.unported` set,
-   and a `runSegment()` diagnostics option that returns that set, so a span
-   can record a gap instead of throwing an `Unsupported*Error`. Until it
-   exists, a span that reaches an unported callee whose result the C discards
-   has nowhere to record the gap and must port the callee.
-2. An end-of-input over-read check in `npm run checkpoint`. Continuing past a
-   gap raises the chance of emitting a prompt C did not, and the scorer's
-   playability runner blocks on the extra read instead of throwing.
-3. Retirement of the boundary census in `scripts/scan-sessions.mjs`: the
-   `--by`, `--ahead`, `--ahead-all`, and `--set-cap` options, the ranking
-   and reconciliation sections, and `.cache/session-frontiers.json`.
-   `scripts/divergence-queue.mjs` reads only the per-session rows.
-4. Mechanical audits in `npm run checkpoint`: constants under `js/` compared
-   against the compiled C headers, and duplicate function definitions across
-   `js/`. Both replace classes of finding the retired review cadence used to
-   catch.
-5. The `recordings/` directory and the `recipes/<c-file>/` layout. The 40
-   recipes now sit directly under `recipes/`; move each under the C file it
-   exercises when that file's port opens. Until a recording is committed, the
-   checkpoint's recordings check reports `none`.
-
-**Scope.** Items 1 and 2 touch `js/jsmain.js` and one new module; item 3 is
-a deletion inside one script and its test; item 4 is two new checks beside
-`scripts/check-duplicate-symbols.mjs`; item 5 is file moves.
-
-**What prompted it.** The user approved the file-port rules on 2026-09-05;
-these are the parts of that approval that did not fit in the same change.
-
-**Cost.** Small for items 1 to 3; item 4 needs a compiled-header reader.
+Items 1 through 4 landed. Item 5 (recipe migration to `<c-file>/`
+subdirectories) is incremental: the `recordings/` directory exists, and each
+recipe moves when the C file it exercises opens for porting.
 
 **What it leaves unfixed.** The 95 `Unsupported*Error` classes and their
 throw sites stay until the spans that port their files remove them.
