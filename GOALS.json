@@ -9751,11 +9751,22 @@
         },
         {
           "name": "munstone..mon_consume_unstone",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "75d5fa361ca952e11881ea93f28cc5f83a9301e4",
           "functions": [
             "munstone",
             "mon_consume_unstone"
+          ]
+        },
+        {
+          "name": "munslime..green_mon",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "munslime",
+            "muse_unslime",
+            "cures_sliming",
+            "green_mon"
           ]
         }
       ],
@@ -9994,13 +10005,13 @@
           "name": "munstone",
           "line": 2884,
           "endLine": 2905,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mon_consume_unstone",
           "line": 2906,
           "endLine": 2984,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cures_stoning",
