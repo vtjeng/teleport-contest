@@ -4,6 +4,7 @@
 
 import {
     A_NONE,
+    BURIED_TOO,
     CORPSTAT_FEMALE,
     CORPSTAT_MALE,
     CORPSTAT_NEUTER,
@@ -54,7 +55,7 @@ import { depth, level_difficulty, on_level } from './dungeon.js';
 import { set_tin_variety } from './eat.js';
 import { game } from './gstate.js';
 import { merged, update_inventory } from './invent.js';
-import { obj_sheds_light } from './light.js';
+import { get_obj_location, obj_sheds_light } from './light.js';
 import { rndmonnum } from './makemon.js';
 import {
     can_be_hatched,
@@ -89,6 +90,7 @@ import {
     start_glob_timeout,
     stop_timer,
 } from './timeout.js';
+import { is_ice } from './terrain.js';
 import { note_unported } from './unported.js';
 import {
     S_altar,
@@ -1725,6 +1727,37 @@ function finalizeCorpse(obj, env) {
             : is_male(monster) ? CORPSTAT_MALE
                 : env.random.rn2(2) ? CORPSTAT_FEMALE : CORPSTAT_MALE;
     set_corpsenm(obj, obj.corpsenm, env);
+}
+
+// C ref: mkobj.c item_on_ice() (1443-1472) and the obj_on_ice enum (1434-1441).
+// Returns whether an object (or its outermost container) sits on or under ice.
+export const NOT_ON_ICE = 0;
+export const SET_ON_ICE = 1;
+export const BURIED_UNDER_ICE = 2;
+
+export function item_on_ice(item, state = game) {
+    let otmp = item;
+    // If in a container, it might be nested; find the outermost one since
+    // that is the item whose location needs to be checked.
+    while (otmp.where === OBJ_CONTAINED)
+        otmp = otmp.ocontainer;
+
+    const loc = get_obj_location(otmp, BURIED_TOO, state);
+    if (loc) {
+        switch (otmp.where) {
+        case OBJ_FLOOR:
+            if (is_ice(loc.x, loc.y, state))
+                return SET_ON_ICE;
+            break;
+        case OBJ_BURIED:
+            if (is_ice(loc.x, loc.y, state))
+                return BURIED_UNDER_ICE;
+            break;
+        default:
+            break;
+        }
+    }
+    return NOT_ON_ICE;
 }
 
 function currentFruit(state, obj) {
