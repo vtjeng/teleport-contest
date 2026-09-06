@@ -1831,33 +1831,96 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
     }
     if (physicalEscape) return physicalEscape;
 
+    // C ref: muse.c find_defensive() (655-748). Scan inventory items for a
+    // defensive choice. The loop does not return on the first match; it
+    // continues scanning, with a 1-in-3 random chance of stopping after a
+    // match is found (the rn2(3) at line 659). The nomore() macro prevents
+    // re-selecting an already-matched item type (it `continue`s to the next
+    // inventory item). Later matches override earlier ones, so items later
+    // in inventory get slight priority, as the C source's own comment notes
+    // "selection could be improved by collecting all possibilities into an
+    // array and then picking one at random."
+    //
+    // Conditions beyond object identity and charge remain conservative: the
+    // rn2(3) call and the nomore skips are the PRNG-visible divergences the
+    // prior immediate-return version missed.
+    let def = null;
+    let defKind = null;
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
-        // These are find_defensive()'s complete object families. Conditions
-        // beyond object identity and charge are deliberately conservative:
-        // accepting a possible TRUE arm would skip use_defensive(), whereas
-        // refusing it preserves the fail-closed boundary.
-        if (obj.otyp === O.WAN_DIGGING && obj.spe > 0)
-            return selected('digging wand', obj);
-        if (obj.otyp === O.WAN_TELEPORTATION && obj.spe > 0)
-            return selected('teleportation wand', obj);
-        if (obj.otyp === O.SCR_TELEPORTATION)
-            return selected('teleportation scroll', obj);
-        if (obj.otyp === O.POT_FULL_HEALING)
-            return selected('full healing', obj);
-        if (obj.otyp === O.POT_EXTRA_HEALING)
-            return selected('extra healing', obj);
-        if (obj.otyp === O.WAN_CREATE_MONSTER && obj.spe > 0)
-            return selected('create monster wand', obj);
-        if (obj.otyp === O.POT_HEALING)
-            return selected('healing', obj);
-        if (obj.otyp === O.POT_SICKNESS
-            && species?.pmidx === M.PM_PESTILENCE) {
-            return selected('pestilence healing', obj);
+        // C ref: muse.c:659. "don't always use the same selection pattern."
+        if (defKind && !random.rn2(3))
+            break;
+
+        // C ref: WAN_DIGGING uses break (not nomore's continue).
+        if (defKind === 'digging wand')
+            break;
+        if (obj.otyp === O.WAN_DIGGING && obj.spe > 0) {
+            def = selected('digging wand', obj);
+            defKind = 'digging wand';
         }
-        if (obj.otyp === O.SCR_CREATE_MONSTER)
-            return selected('create monster scroll', obj);
+
+        // nomore(MUSE_WAN_TELEPORTATION_SELF / MUSE_WAN_TELEPORTATION)
+        if (defKind === 'teleportation wand') continue;
+        if (obj.otyp === O.WAN_TELEPORTATION && obj.spe > 0) {
+            def = selected('teleportation wand', obj);
+            defKind = 'teleportation wand';
+        }
+
+        // nomore(MUSE_SCR_TELEPORTATION)
+        if (defKind === 'teleportation scroll') continue;
+        if (obj.otyp === O.SCR_TELEPORTATION) {
+            def = selected('teleportation scroll', obj);
+            defKind = 'teleportation scroll';
+        }
+
+        if (species?.pmidx !== M.PM_PESTILENCE) {
+            // nomore(MUSE_POT_FULL_HEALING)
+            if (defKind === 'full healing') continue;
+            if (obj.otyp === O.POT_FULL_HEALING) {
+                def = selected('full healing', obj);
+                defKind = 'full healing';
+            }
+            // nomore(MUSE_POT_EXTRA_HEALING)
+            if (defKind === 'extra healing') continue;
+            if (obj.otyp === O.POT_EXTRA_HEALING) {
+                def = selected('extra healing', obj);
+                defKind = 'extra healing';
+            }
+            // nomore(MUSE_WAN_CREATE_MONSTER)
+            if (defKind === 'create monster wand') continue;
+            if (obj.otyp === O.WAN_CREATE_MONSTER && obj.spe > 0) {
+                def = selected('create monster wand', obj);
+                defKind = 'create monster wand';
+            }
+            // nomore(MUSE_POT_HEALING)
+            if (defKind === 'healing') continue;
+            if (obj.otyp === O.POT_HEALING) {
+                def = selected('healing', obj);
+                defKind = 'healing';
+            }
+        } else {
+            // Pestilence: POT_SICKNESS counts as POT_FULL_HEALING
+            if (defKind === 'full healing') continue;
+            if (obj.otyp === O.POT_SICKNESS) {
+                def = selected('pestilence healing', obj);
+                defKind = 'full healing';
+            }
+            // nomore(MUSE_WAN_CREATE_MONSTER)
+            if (defKind === 'create monster wand') continue;
+            if (obj.otyp === O.WAN_CREATE_MONSTER && obj.spe > 0) {
+                def = selected('create monster wand', obj);
+                defKind = 'create monster wand';
+            }
+        }
+
+        // nomore(MUSE_SCR_CREATE_MONSTER)
+        if (defKind === 'create monster scroll') continue;
+        if (obj.otyp === O.SCR_CREATE_MONSTER) {
+            def = selected('create monster scroll', obj);
+            defKind = 'create monster scroll';
+        }
     }
-    return null;
+    return def;
 }
 
 // Complete source path through dochug()'s find_defensive(FALSE), followed by
