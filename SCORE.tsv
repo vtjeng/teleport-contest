@@ -686,3 +686,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-06T21:01:55.647Z	30cc61e5	span	24	33	4977	7765	343077	610816	4996	7765					stone_object_type..stone_furniture_type closes. Development unchanged at 4977/7765 screens, 343077/610816 rng. 24/33 sessions.
 2026-09-06T21:13:11.943Z	d99bc32e	span	24	33	4977	7765	343077	610816	4996	7765					item_on_ice closes. Development unchanged at 4977/7765 screens, 343077/610816 rng. 24/33 sessions.
 2026-09-06T21:55:56.157Z	8d03cf65	span	24	33	4977	7765	343077	610816	4996	7765					shrink_glob..maybe_adjust_light closes. Development unchanged at 4977/7765 screens, 343077/610816 rng. 24/33 sessions.
+2026-09-06T22:06:29.798Z	2911121a	span	24	33	4977	7765	343077	610816	4996	7765					unbless closes. Development unchanged at 4977/7765 screens, 343077/610816 rng. 24/33 sessions.

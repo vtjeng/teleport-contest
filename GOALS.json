@@ -10150,10 +10150,18 @@
         },
         {
           "name": "unbless",
+          "status": "closed",
+          "closedBy": "2911121a42791944e05de131272d4aa5245603f2",
+          "functions": [
+            "unbless"
+          ]
+        },
+        {
+          "name": "uncurse",
           "status": "queued",
           "closedBy": null,
           "functions": [
-            "unbless"
+            "uncurse"
           ]
         }
       ],
@@ -10428,7 +10436,7 @@
           "name": "unbless",
           "line": 1767,
           "endLine": 1782,
-          "ported": false
+          "ported": true
         },
         {
           "name": "curse",
