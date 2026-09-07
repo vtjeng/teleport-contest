@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises monmove.c dochug() with a gelatinous cube. Drops food ration (organic item) for the cube to potentially engulf, then creates the cube nearby.",
+  "segments": [
+    {
+      "seed": 7770004,
+      "datetime": "20261015100000",
+      "nethackrc": "OPTIONS=name:Gel,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  #wizwish\nfood ration\ndol\u0007gelatinous cube\n..............................   "
+    }
+  ]
+}

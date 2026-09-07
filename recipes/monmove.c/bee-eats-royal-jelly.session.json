@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises monmove.c bee_eat_jelly(): killer bee eats royal jelly to become queen. Drop jelly (inv letter o), move away, create bee, wait.",
+  "segments": [
+    {
+      "seed": 7770003,
+      "datetime": "20261015100000",
+      "nethackrc": "OPTIONS=name:Bee,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  #wizwish\nlump of royal jelly\ndol\u0007killer bee\n..............................   "
+    }
+  ]
+}

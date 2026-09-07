@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises monmove.c vamp_shift(): vampire lord shifting to fog cloud at a closed door. Wait turns let the vampire path around and encounter doors.",
+  "segments": [
+    {
+      "seed": 7770002,
+      "datetime": "20261015100000",
+      "nethackrc": "OPTIONS=name:Vamp,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  \u0007vampire lord\n..................................................   "
+    }
+  ]
+}

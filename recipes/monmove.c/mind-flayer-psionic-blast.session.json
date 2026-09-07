@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises monmove.c mind_blast(): mind flayer psionic attack. Diverges in makemon_create.js (ports makemon.c): PM_MIND_FLAYER is not in the creation allowlist, so wizgenesis fails. Record once the allowlist includes mind flayers.",
+  "segments": [
+    {
+      "seed": 7770001,
+      "datetime": "20261015100000",
+      "nethackrc": "OPTIONS=name:Psi,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  \u0007mind flayer\n........................................   "
+    }
+  ]
+}
