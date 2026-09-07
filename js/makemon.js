@@ -22,6 +22,7 @@ import {
     always_peaceful,
     is_golem,
     is_mplayer,
+    is_placeholder,
     little_to_big,
     monsndx,
 } from './mondata.js';
@@ -49,7 +50,6 @@ import {
     PM_CLAY_GOLEM,
     PM_DEATH,
     PM_EARTH_ELEMENTAL,
-    PM_ELF,
     PM_ERINYS,
     PM_FAMINE,
     PM_FLESH_GOLEM,
@@ -57,15 +57,12 @@ import {
     PM_GLASS_GOLEM,
     PM_GOLD_GOLEM,
     PM_GRAY_DRAGON,
-    PM_GIANT,
     PM_HIGH_CLERIC,
-    PM_HUMAN,
     PM_IRON_GOLEM,
     PM_KILLER_BEE,
     PM_LEATHER_GOLEM,
     PM_MAIL_DAEMON,
     PM_NAZGUL,
-    PM_ORC,
     PM_PAPER_GOLEM,
     PM_PESTILENCE,
     PM_QUEEN_BEE,
@@ -86,11 +83,11 @@ import {
     S_TRAPPER,
     S_VORTEX,
     SPECIAL_PM,
+    monst_globals_init,
     monsterClassSymbol,
 } from './monsters.js';
-
-// C ref: mondata.h is_placeholder(). These records only back corpse forms.
-const PLACEHOLDER_MONSTERS = new Set([PM_ORC, PM_GIANT, PM_ELF, PM_HUMAN]);
+import { MAXMCLASSES } from './symbols.js';
+import { note_unported } from './unported.js';
 
 function generationState(env = {}) {
     const state = env.state ?? game;
@@ -544,24 +541,78 @@ export function set_malign(mon, state = game) {
     return mon.malign;
 }
 
-function monsterClassOrder(classSymbol, state) {
-    const order = [];
-    for (let index = LOW_PM; index < SPECIAL_PM; ++index) {
-        if (state.mons[index].mlet === classSymbol) order.push(index);
-    }
-    // init_mongen_order() sorts by class and difficulty.  The recorder's
-    // source catalog retains mons[] order for equal-difficulty records.
-    order.sort((left, right) => state.mons[left].difficulty
-        - state.mons[right].difficulty || left - right);
-    return order;
+// C ref: makemon.c mk_gen_ok(). Decides whether it's ok to generate a
+// candidate monster by mkclass(). C declares this staticfn; exported here
+// for direct testing and for mkclass_poly/summon_furies (same file, to be
+// ported).
+export function mk_gen_ok(mndx, mvflagsmask, genomask, state) {
+    const ptr = state.mons[mndx];
+    if (state.mvitals[mndx].mvflags & mvflagsmask) return false;
+    if (ptr.geno & genomask) return false;
+    if (is_placeholder(ptr)) return false;
+    // MAIL_STRUCTURES: reject mail daemon from random generation
+    if (mndx === PM_MAIL_DAEMON) return false;
+    return true;
 }
 
-function mkGenerationOkay(index, mvflagsMask, genoMask, state) {
-    const monster = state.mons[index];
-    return !(state.mvitals[index].mvflags & mvflagsMask)
-        && !(monster.geno & genoMask)
-        && !PLACEHOLDER_MONSTERS.has(index)
-        && index !== PM_MAIL_DAEMON;
+// C ref: makemon.c cmp_init_mongen_order(). Comparison callback for sorting
+// mongen_order by monster class (mlet) and difficulty.
+function cmp_init_mongen_order(i1, i2, mons) {
+    // offset1/offset2 are 0 in the released build (#if 0 block)
+    const difficulty1 = mons[i1].difficulty | (mons[i1].mlet << 8);
+    const difficulty2 = mons[i2].difficulty | (mons[i2].mlet << 8);
+    return difficulty1 - difficulty2;
+}
+
+// C ref: makemon.c check_mongen_order(). Debug validation of sorted order,
+// compiled only when NH_DEVEL_STATUS != NH_STATUS_RELEASED. The released
+// build (NH_DEVEL_STATUS == NH_STATUS_RELEASED) omits this function entirely.
+function check_mongen_order() {
+    // No-op in the released build.
+}
+
+// C ref: makemon.c init_mongen_order(). Initializes the monster generation
+// order table, sorting by class (mlet) and difficulty for mkclass().
+// C stores mongen_order[], mclass_maxf[], and mongen_order_init as file-scoped
+// statics; the JS port caches them on the game state object. Exported for
+// direct testing.
+export function init_mongen_order(state) {
+    if (state._mongen_order) return;
+
+    const mongen_order = new Array(NUMMONS);
+    const mclass_maxf = new Array(MAXMCLASSES).fill(0);
+
+    for (let i = LOW_PM; i < NUMMONS; i++) {
+        mongen_order[i] = i;
+        const mlet = state.mons[i].mlet;
+        const freq = state.mons[i].geno & G_FREQ;
+        if (freq > mclass_maxf[mlet]) mclass_maxf[mlet] = freq;
+    }
+
+    check_mongen_order();
+    // Sort the first SPECIAL_PM entries by class and difficulty.
+    // C uses qsort over mongen_order[0..SPECIAL_PM-1]; the patched build
+    // applies a stable sort, matching JS Array.sort's guaranteed stability.
+    const sortSlice = mongen_order.slice(0, SPECIAL_PM);
+    sortSlice.sort((a, b) => cmp_init_mongen_order(a, b, state.mons));
+    for (let i = 0; i < SPECIAL_PM; i++) mongen_order[i] = sortSlice[i];
+    check_mongen_order();
+
+    state._mongen_order = mongen_order;
+    state._mclass_maxf = mclass_maxf;
+}
+
+// C ref: makemon.c dump_mongen(). Debug dump of the monster generation order
+// table to stdout via raw_printf/raw_print. Called from earlyarg.c for the
+// --mongen-dump command-line option.
+function dump_mongen(state = game) {
+    monst_globals_init(state);
+    init_mongen_order(state);
+    // The body formats and prints the sorted mongen_order table via
+    // raw_printf/raw_print and references def_monsyms[] and monsdump[],
+    // none of which are ported.
+    note_unported('pline.c raw_printf');
+    note_unported('alloc.c freedynamicdata');
 }
 
 // C ref: makemon.c mkclass()/mkclass_aligned(), for A_NONE callers. `special`
@@ -578,17 +629,20 @@ export function mkclass(classSymbol, special = 0, env = {}) {
         return null;
     }
 
-    const order = monsterClassOrder(classSymbol, state);
-    if (!order.length) return null;
-    // Like init_mongen_order()'s mclass_maxf, this check covers all NUMMONS;
-    // the candidate order remains limited to records before SPECIAL_PM.
-    const zeroFrequencyForEntireClass = !state.mons
-        .slice(LOW_PM, NUMMONS)
-        .some((monster) => monster.mlet === classSymbol
-            && (monster.geno & G_FREQ));
-    const weights = Array(SPECIAL_PM).fill(0);
+    init_mongen_order(state);
+    const mongen_order = state._mongen_order;
+    const zeroFrequencyForEntireClass = state._mclass_maxf[classSymbol] === 0;
+    const nums = new Array(SPECIAL_PM + 1).fill(0);
     const maxLevel = Math.trunc(level_difficulty(state) / 2);
     const gehennom = inHell(state);
+
+    // Find first entry in mongen_order where the class matches.
+    let first;
+    for (first = LOW_PM; first < SPECIAL_PM; first++) {
+        if (state.mons[mongen_order[first]].mlet === classSymbol) break;
+    }
+    if (first === SPECIAL_PM) return null;
+
     let mvflagsMask = G_GONE;
     let specialMask = Math.trunc(special);
     if (specialMask & G_IGNORE) {
@@ -596,43 +650,46 @@ export function mkclass(classSymbol, special = 0, env = {}) {
         specialMask &= ~G_IGNORE;
     }
 
-    let total = 0;
-    let last = 0;
-    for (; last < order.length; ++last) {
-        const index = order[last];
-        const monster = state.mons[index];
+    let num = 0;
+    let last;
+    for (last = first;
+        last < SPECIAL_PM && state.mons[mongen_order[last]].mlet === classSymbol;
+        last++) {
         let genoMask = G_NOGEN | G_UNIQ;
         // rn2(9) is evaluated even for liches because it is the left operand.
         if (random.rn2(9) || classSymbol === S_LICH)
             genoMask |= gehennom ? G_NOHELL : G_HELL;
         genoMask &= ~specialMask;
 
-        if (!mkGenerationOkay(index, mvflagsMask, genoMask, state)) continue;
-        // C compares with the immediately preceding difficulty-sorted class
-        // record, even when that record failed the generation filters above.
-        if (total && monster.difficulty > maxLevel
-            && monster.difficulty > state.mons[order[last - 1]].difficulty
-            && random.rn2(2)) {
-            break;
-        }
-
-        let weight = monster.geno & G_FREQ;
-        if (!weight && zeroFrequencyForEntireClass) weight = 1;
-        if (weight) {
-            weight += 1 - Number(
-                adj_lev(monster, state) > state.u.ulevel * 2,
-            );
-            weights[index] = weight;
-            total += weight;
+        if (mk_gen_ok(mongen_order[last], mvflagsMask, genoMask, state)) {
+            // C compares with the immediately preceding difficulty-sorted class
+            // record, even when that record failed the generation filters above.
+            if (num && state.mons[mongen_order[last]].difficulty > maxLevel
+                && state.mons[mongen_order[last]].difficulty
+                    > state.mons[mongen_order[last - 1]].difficulty
+                && random.rn2(2)) {
+                break;
+            }
+            let k = state.mons[mongen_order[last]].geno & G_FREQ;
+            if (!k) k = zeroFrequencyForEntireClass ? 1 : 0;
+            if (k > 0) {
+                nums[mongen_order[last]] = k + 1 - Number(
+                    adj_lev(state.mons[mongen_order[last]], state)
+                        > state.u.ulevel * 2,
+                );
+                num += nums[mongen_order[last]];
+            }
         }
     }
-    if (!total) return null;
+    if (!num) return null;
 
-    let choice = random.rnd(total);
-    for (let position = 0; position < last; ++position) {
-        const index = order[position];
-        choice -= weights[index];
-        if (choice <= 0) return state.mons[index];
+    let choice = random.rnd(num);
+    for (let pos = first; pos < last; pos++) {
+        choice -= nums[mongen_order[pos]];
+        if (choice <= 0) {
+            return nums[mongen_order[pos]]
+                ? state.mons[mongen_order[pos]] : null;
+        }
     }
     return null;
 }

@@ -12,7 +12,9 @@ import { adj_erinys } from '../js/mon.js';
 import {
     golemhp,
     grow_up,
+    init_mongen_order,
     mbirth_limit,
+    mk_gen_ok,
     mkclass,
     newmonhp,
     peace_minded,
@@ -23,21 +25,29 @@ import {
     set_malign,
 } from '../js/makemon.js';
 import {
+    G_FREQ,
+    G_NOGEN,
+    G_UNIQ,
+    LOW_PM,
+    NUMMONS,
     PM_AIR_ELEMENTAL,
     PM_ARCHEOLOGIST,
     PM_BAT,
     PM_DEATH,
     PM_EARTH_ELEMENTAL,
+    PM_ELF,
     PM_ERINYS,
     PM_FIRE_ANT,
     PM_FIRE_ELEMENTAL,
     PM_FOX,
+    PM_GIANT,
     PM_GOBLIN,
     PM_GRAY_DRAGON,
     PM_GREMLIN,
     PM_GRID_BUG,
     PM_HELL_HOUND,
     PM_HELL_HOUND_PUP,
+    PM_HUMAN,
     PM_JACKAL,
     PM_JUIBLEX,
     PM_KILLER_BEE,
@@ -46,8 +56,10 @@ import {
     PM_LEPRECHAUN,
     PM_LICHEN,
     PM_LITTLE_DOG,
+    PM_MAIL_DAEMON,
     PM_NEWT,
     PM_NAZGUL,
+    PM_ORC,
     PM_QUEEN_BEE,
     PM_SEWER_RAT,
     PM_STRAW_GOLEM,
@@ -55,7 +67,6 @@ import {
     PM_WATER_ELEMENTAL,
     PM_WIZARD_OF_YENDOR,
     M2_ORC,
-    G_NOGEN,
     NON_PM,
     S_ANT,
     S_LEPRECHAUN,
@@ -906,4 +917,125 @@ test('grow_up answers nothing for a killer that is already dead', () => {
     );
     assert.deepEqual(alive.bounds, ['rnd(1)']);
     assert.equal(wounded.mhpmax, 5);
+});
+
+// ---- mk_gen_ok tests ----
+// C ref: makemon.c mk_gen_ok() (1736-1752). Pure filter that checks mvitals
+// flags, geno flags, placeholder status, and the mail daemon.
+
+// makemon.c:1741. A normal generatable monster passes all filters.
+// PM_KOBOLD (index 59) has geno 0x23 = G_GENO|0x03; no G_NOGEN or G_UNIQ bits,
+// not a placeholder, not the mail daemon.
+test('mk_gen_ok accepts a normal generatable monster', () => {
+    const state = startingState();
+    assert.equal(mk_gen_ok(PM_KOBOLD, G_GONE, G_NOGEN | G_UNIQ, state), true);
+});
+
+// makemon.c:1740. A genocided monster is rejected by the mvflags mask.
+// Setting mvflags to G_GENOD and checking with G_GONE (which includes G_GENOD)
+// triggers the first rejection.
+test('mk_gen_ok rejects a genocided monster', () => {
+    const state = startingState();
+    state.mvitals[PM_KOBOLD].mvflags = G_GENOD;
+    assert.equal(mk_gen_ok(PM_KOBOLD, G_GONE, G_NOGEN | G_UNIQ, state), false);
+    // Zero mvflagsmask ignores the G_GENOD in mvflags.
+    assert.equal(mk_gen_ok(PM_KOBOLD, 0, G_NOGEN | G_UNIQ, state), true);
+});
+
+// makemon.c:1742. A unique monster's geno field carries G_UNIQ; the genomask
+// filter rejects it. PM_WIZARD_OF_YENDOR has geno 0x1200 = G_NOGEN | G_UNIQ.
+test('mk_gen_ok rejects a unique monster by genomask', () => {
+    const state = startingState();
+    assert.equal(
+        mk_gen_ok(PM_WIZARD_OF_YENDOR, G_GONE, G_NOGEN | G_UNIQ, state),
+        false,
+    );
+    // With genomask 0, the geno check passes; the wizard is not a placeholder
+    // or the mail daemon, so it passes.
+    assert.equal(mk_gen_ok(PM_WIZARD_OF_YENDOR, 0, 0, state), true);
+});
+
+// makemon.c:1744. The four placeholder species (orc, giant, elf, human) are
+// rejected unconditionally, even with zero masks.
+test('mk_gen_ok rejects every placeholder species', () => {
+    const state = startingState();
+    for (const pm of [PM_ORC, PM_GIANT, PM_ELF, PM_HUMAN]) {
+        assert.equal(mk_gen_ok(pm, 0, 0, state), false,
+            `placeholder pm=${pm} should be rejected`);
+    }
+});
+
+// makemon.c:1748 (MAIL_STRUCTURES). The mail daemon is rejected
+// unconditionally, even with zero masks.
+test('mk_gen_ok rejects the mail daemon', () => {
+    const state = startingState();
+    assert.equal(mk_gen_ok(PM_MAIL_DAEMON, 0, 0, state), false);
+});
+
+// ---- init_mongen_order tests ----
+// C ref: makemon.c init_mongen_order() (1807-1828). Sorts mongen_order by
+// (mlet << 8 | difficulty) within the first SPECIAL_PM entries; entries at
+// SPECIAL_PM and above retain their identity positions.
+
+// The sort groups monsters by class (mlet) and orders them by ascending
+// difficulty within each class. Within equal difficulty, the stable sort
+// preserves the original mons[] index order. C values read from the source
+// monst.c and verified against the patched build's dump_mongen output.
+test('init_mongen_order sorts the S_ANT class by ascending difficulty', () => {
+    const state = startingState();
+    init_mongen_order(state);
+    const order = state._mongen_order;
+    // S_ANT (mlet=1) occupies positions 0-5 in the sorted order.
+    // C monst.c: giant ant diff=4, killer bee diff=6, soldier ant diff=7,
+    // fire ant diff=6, giant beetle diff=6, queen bee diff=12.
+    // Sorted by difficulty, with stable order for ties (indices 1,3,4 all diff=6):
+    //   giant ant(0), killer bee(1), fire ant(3), giant beetle(4),
+    //   soldier ant(2), queen bee(5).
+    assert.deepEqual(order.slice(0, 6), [0, 1, 3, 4, 2, 5]);
+});
+
+// Entries at and after SPECIAL_PM remain identity-mapped because qsort
+// only covers the first SPECIAL_PM entries.
+test('init_mongen_order leaves entries at SPECIAL_PM and above unchanged', () => {
+    const state = startingState();
+    init_mongen_order(state);
+    const order = state._mongen_order;
+    for (let i = SPECIAL_PM; i < NUMMONS; i++) {
+        assert.equal(order[i], i,
+            `mongen_order[${i}] should be identity (${i}), got ${order[i]}`);
+    }
+});
+
+// mclass_maxf records the highest G_FREQ value across all NUMMONS entries
+// for each monster class (mlet). C ref: makemon.c:1818-1819.
+test('init_mongen_order computes mclass_maxf from mons geno frequencies', () => {
+    const state = startingState();
+    init_mongen_order(state);
+    const maxf = state._mclass_maxf;
+    // Verify mclass_maxf[mlet] matches the manual max of (geno & G_FREQ) over
+    // all mons with that mlet, scanning LOW_PM..NUMMONS-1 as the C does.
+    for (let mlet = 0; mlet < maxf.length; mlet++) {
+        let expected = 0;
+        for (let i = LOW_PM; i < NUMMONS; i++) {
+            if (state.mons[i].mlet === mlet) {
+                const freq = state.mons[i].geno & G_FREQ;
+                if (freq > expected) expected = freq;
+            }
+        }
+        assert.equal(maxf[mlet], expected,
+            `mclass_maxf[${mlet}] should be ${expected}, got ${maxf[mlet]}`);
+    }
+});
+
+// init_mongen_order is idempotent: calling it twice returns immediately on
+// the second call without changing the cached arrays.
+test('init_mongen_order is idempotent', () => {
+    const state = startingState();
+    init_mongen_order(state);
+    const firstOrder = state._mongen_order;
+    const firstMaxf = state._mclass_maxf;
+    init_mongen_order(state);
+    // Same array references, not new copies.
+    assert.equal(state._mongen_order, firstOrder);
+    assert.equal(state._mclass_maxf, firstMaxf);
 });
