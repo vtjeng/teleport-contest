@@ -11875,7 +11875,7 @@
     {
       "id": "sp-lev-c-load-special",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port sp_lev.c load_special group: level loading and finalization",
       "cFile": "sp_lev.c",
       "sessions": [
@@ -11894,8 +11894,8 @@
         },
         {
           "name": "update_croom..create_des_coder",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "37bd4083e7af349575697899016f1f709a954187",
           "functions": [
             "update_croom",
             "sp_level_coder_init",
@@ -11910,32 +11910,35 @@
         "screens": 5085,
         "rng": 344412
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "37bd4083e7af349575697899016f1f709a954187",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "update_croom",
           "line": 6324,
           "endLine": 6335,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sp_level_coder_init",
           "line": 6336,
           "endLine": 6434,
-          "ported": false
+          "ported": true
         },
         {
           "name": "l_register_des",
           "line": 6435,
           "endLine": 6443,
-          "ported": false
+          "ported": true
         },
         {
           "name": "create_des_coder",
           "line": 6444,
           "endLine": 6453,
-          "ported": false
+          "ported": true
         },
         {
           "name": "load_special",
