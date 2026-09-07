@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "polyself.c newman() -> polyman(): a wizard-mode #polyself into the hero's own race takes polyself()'s your_race() arm into newman(), which reverts through polyman(\"You feel like a new %s!\") with the race's individual name (human female: woman). The trailing space dismisses any --More--; the s searches one turn to show the status line afterwards.",
+  "segments": [
+    {
+      "seed": 4471,
+      "datetime": "20261103101500",
+      "nethackrc": "OPTIONS=name:Revert,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "#polyself\nhuman\n s"
+    }
+  ]
+}

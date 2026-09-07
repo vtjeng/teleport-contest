@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "polyself.c newman() -> polyman(): the own-race #polyself for a race without individual names (dwarf), so newman() names the new form by urace.noun: \"You feel like a new dwarf!\". Variation of polyself-own-race-human; with this seed newman() keeps the experience level, so attrib.c adjabil() reaches its lose_weapon_skill(0) no-op.",
+  "segments": [
+    {
+      "seed": 9153,
+      "datetime": "20261103101500",
+      "nethackrc": "OPTIONS=name:Digger,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "#polyself\ndwarf\n s"
+    }
+  ]
+}
