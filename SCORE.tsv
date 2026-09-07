@@ -702,3 +702,6 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-07T01:03:35.287Z	0e1a41ee	span	24	33	4977	7765	343077	610816							obj_meld..pudding_merge_message closes. Development 4977 of 7765 screens, 343077 of 610816 rng. 24 of 33 sessions. mkobj.c 86/99.
 2026-09-07T01:23:50.223Z	cb3e2948	span	24	33	4977	7765	343077	610816							init_oextra..mkobj_erosions closes. Development 4977 of 7765 screens, 343077 of 610816 rng. 24 of 33 sessions. mkobj.c 97/99.
 2026-09-07T01:31:33.592Z	e7d835bc	span	24	33	4977	7765	343077	610816							mksobj_migr_to_species closes. mkobj.c 98/99.
+2026-09-07T01:53:29.753Z	e44254fc	span	24	33	4977	7765	343077	610816							mkbox_cnts closes. mkobj.c 99/99 — all functions ported.
+2026-09-07T01:55:00.264Z	e44254fc	goal	24	33	4977	7765	343077	610816			315	3640	38930	182022	mkobj-c closes. Development 4977 of 7765 screens, 343077 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.
+2026-09-07T01:55:15.246Z	7a13d0e1	goal	24	33	4977	7765	343077	610816			315	3640	38930	182022	mkobj-c closes. Development 4977 of 7765 screens, 343077 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.

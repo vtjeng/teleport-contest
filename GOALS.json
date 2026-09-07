@@ -10095,7 +10095,7 @@
     {
       "id": "mkobj-c",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mkobj.c whole in C order, starting from next_ident()",
       "cFile": "mkobj.c",
       "sessions": [
@@ -10305,8 +10305,8 @@
         },
         {
           "name": "mkbox_cnts",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "e44254fc5c6c74f51836fb85c8c53195cdfc3aeb",
           "functions": [
             "mkbox_cnts"
           ]
@@ -10318,8 +10318,11 @@
         "screens": 4977,
         "rng": 343077
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7a13d0e19a27d47e80795575bc66bbb651533595",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "init_oextra",
@@ -10415,7 +10418,7 @@
           "name": "mkbox_cnts",
           "line": 304,
           "endLine": 387,
-          "ported": false
+          "ported": true
         },
         {
           "name": "rndmonnum",
