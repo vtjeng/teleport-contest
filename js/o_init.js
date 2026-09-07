@@ -669,7 +669,7 @@ export async function dodiscovered(
             putstr(false, disco_fmt_uniq(uidx, state));
         }
     }
-    const arti_ct = disp_artifact_discoveries(state);
+    const arti_ct = disp_artifact_discoveries(state, putstr);
 
     // Several classes are omitted from the pack order; one matters here.
     const classes = [...state.flags.inv_order];

@@ -30,6 +30,7 @@ import { artifact_origin } from './artifacts.js';
 import {
     ACID_RES,
     AC_VALUE,
+    ANTIMAGIC,
     ARM,
     A_WIS,
     BLINDED,
@@ -150,6 +151,8 @@ import {
     AD_ELEC,
     AD_FIRE,
     AD_RBRE,
+    LOW_PM,
+    PM_CLAY_GOLEM,
     PM_DEATH,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
@@ -2065,4 +2068,56 @@ export async function weffects(
         if (was_unkn)
             more_experienced(0, 10, state);
     }
+}
+
+// C ref: zap.c cancel_monst() (3150-3212). Cancellation effect on a monster
+// or the hero. When called from Magicbane's Mb_hit, allow_cancel_kill and
+// self_cancel are both false: inventory cancelling and clay-golem killing are
+// skipped. Returns true if cancellation was not resisted.
+export async function cancel_monst(
+    mdef, obj, youattack, allow_cancel_kill, self_cancel, state = game,
+) {
+    const youdefend = (mdef === state.youmonst);
+
+    // Resistance check
+    if (youdefend
+        ? (!youattack && Antimagic_cancel(state))
+        : resist(mdef, obj?.oclass ?? 0, 0, NOTELL, state))
+        return false; /* resisted cancellation */
+
+    if (self_cancel) {
+        // Inventory cancelling (cancel_item on each item) is not ported.
+        note_unported('zap.c cancel_item loop');
+    }
+
+    /* now handle special cases */
+    if (youdefend) {
+        if (Upolyd_cancel(state.u)) {
+            // Polymorph cancellation: rehumanize() is not ported.
+            note_unported('polyself.c rehumanize');
+        }
+    } else {
+        mdef.mcan = 1;
+        /* force shapeshifter into its base form or mimic to unhide */
+        note_unported('were.c normal_shape');
+
+        if (mdef.data === state.mons[PM_CLAY_GOLEM]) {
+            // Display message for clay golem (allow_cancel_kill controls
+            // whether the golem is killed; Magicbane passes false)
+            if (allow_cancel_kill) {
+                note_unported('zap.c cancel_monst kill path');
+            }
+        }
+    }
+    return true;
+}
+
+// Local helpers for cancel_monst to avoid importing from artifacts.js
+// (which would create a tighter circular dependency).
+function Antimagic_cancel(state) {
+    const p = state.u?.uprops?.[ANTIMAGIC];
+    return Boolean(p?.intrinsic || p?.extrinsic);
+}
+function Upolyd_cancel(u) {
+    return Boolean(u?.umonnum >= LOW_PM);
 }

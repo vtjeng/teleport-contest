@@ -26,18 +26,29 @@ import {
     ART_WEREBANE,
     AFTER_LAST_ARTIFACT,
     NROFARTIFACTS,
+    SPFX_REFLECT,
     UnsupportedArtifactDisplayError,
     artifactTouchable,
     artifact_defends,
     artifact_light,
     artifact_name,
+    arti_immune,
+    arti_reflects,
+    attacks,
     confers_luck,
     count_surround_traps,
+    defends,
+    defends_when_carried,
+    discover_artifact,
+    found_artifact,
     has_magic_key,
     is_art,
     is_magic_key,
+    protects,
     set_artifact_intrinsic,
     shade_glare,
+    spec_m2,
+    undiscovered_artifact,
     createArtifactTable,
     init_artifacts,
     touch_artifact,
@@ -969,4 +980,157 @@ test('count_surround_traps counts hidden traps and trapped doors', () => {
     state.level.traps.push({ tx: 5, ty: 5 });
     assert.equal(count_surround_traps(5, 5, state), 4,
         'center cell trap is also counted');
+});
+
+// --- Tests for span save_artifacts..Mb_hit ---
+
+// Helper: minimal state with artilist, artiexist, and artidisco initialized.
+function artiState() {
+    const state = {
+        artilist: createArtifactTable(),
+        artiexist: Array.from({ length: NROFARTIFACTS + 1 }, () => ({
+            exists: 0, found: 0, gift: 0, wish: 0, named: 0,
+            viadip: 0, lvldef: 0, bones: 0, rndm: 0,
+        })),
+        artidisco: Array(NROFARTIFACTS).fill(0),
+    };
+    return state;
+}
+
+test('attacks() returns true when the artifact attack type matches', () => {
+    // ART_FROST_BRAND has attk.adtyp = AD_COLD (3).
+    const state = artiState();
+    const frostBrand = { oartifact: ART_FROST_BRAND };
+    assert.equal(attacks(3 /* AD_COLD */, frostBrand, state), true,
+        'Frost Brand attacks with cold');
+    assert.equal(attacks(2 /* AD_FIRE */, frostBrand, state), false,
+        'Frost Brand does not attack with fire');
+});
+
+test('attacks() returns false for non-artifacts', () => {
+    const state = artiState();
+    const plain = { oartifact: 0 };
+    assert.equal(attacks(0, plain, state), false);
+});
+
+test('defends() checks artifact defense type and dragon armor', () => {
+    const state = artiState();
+    // ART_SCEPTRE_OF_MIGHT defn.adtyp = AD_MAGM (1).
+    const sceptre = { oartifact: ART_SCEPTRE_OF_MIGHT };
+    assert.equal(defends(1 /* AD_MAGM */, sceptre, state), true,
+        'Sceptre of Might defends against magic missiles');
+    assert.equal(defends(2 /* AD_FIRE */, sceptre, state), false);
+
+    // Dragon armor: red dragon scales defend against AD_FIRE (2).
+    // RED_DRAGON_SCALES is otyp 114, Is_dragon_armor should return true.
+    const redScales = { oartifact: 0, otyp: 114 };
+    assert.equal(defends(2, redScales, state), true,
+        'red dragon scales defend against fire');
+    assert.equal(defends(3 /* AD_COLD */, redScales, state), false,
+        'red dragon scales do not defend against cold');
+});
+
+test('defends() returns false for null otmp', () => {
+    const state = artiState();
+    assert.equal(defends(0, null, state), false);
+});
+
+test('defends_when_carried() checks the carry defense field', () => {
+    const state = artiState();
+    // ART_MITRE_OF_HOLINESS cary.adtyp = AD_FIRE (2) per the artilist.
+    const mitre = { oartifact: ART_MITRE_OF_HOLINESS };
+    assert.equal(defends_when_carried(2 /* AD_FIRE */, mitre, state), true,
+        'Mitre of Holiness defends when carried against fire');
+    assert.equal(defends_when_carried(3 /* AD_COLD */, mitre, state), false);
+});
+
+test('protects() checks object property and artifact SPFX_PROTECT', () => {
+    // An object with oc_oprop = PROTECTION when worn confers protection.
+    const PROTECTION_PROP = 59; // const.js PROTECTION
+    const state = artiState();
+    state.objects = Array(500).fill(null).map(() => ({ oc_oprop: 0 }));
+    state.objects[150] = { oc_oprop: PROTECTION_PROP };
+    const obj = { oartifact: 0, otyp: 150 };
+    assert.equal(protects(obj, true, state), true,
+        'worn item with oc_oprop PROTECTION protects');
+    assert.equal(protects(obj, false, state), false,
+        'same item not worn does not protect');
+});
+
+test('arti_immune() returns true for matching attack/defense/carry types', () => {
+    const state = artiState();
+    // ART_FROST_BRAND attk.adtyp = AD_COLD (3). Check that it is immune
+    // to cold but not fire, and never immune to AD_PHYS.
+    const obj = { oartifact: ART_FROST_BRAND };
+    assert.equal(arti_immune(obj, 3, state), true, 'Frost Brand immune to cold');
+    assert.equal(arti_immune(obj, 2, state), false, 'Frost Brand not immune to fire');
+    assert.equal(arti_immune(obj, 0 /* AD_PHYS */, state), false,
+        'nothing is immune to physical damage');
+});
+
+test('arti_reflects() checks worn SPFX_REFLECT and carried cspfx', () => {
+    const state = artiState();
+    // ART_DRAGONBANE (11) has SPFX_REFLECT in its spfx. It reflects when
+    // worn (owornmask has a bit besides W_ART) but not when only carried.
+    const dragonbane = { oartifact: 11 /* ART_DRAGONBANE */, owornmask: 0 };
+    assert.equal(arti_reflects(dragonbane, state), false,
+        'not worn Dragonbane does not reflect');
+    // Wearing it (any mask except W_ART alone):
+    dragonbane.owornmask = 0x01; // W_WEP
+    assert.equal(arti_reflects(dragonbane, state), true,
+        'wielded Dragonbane reflects');
+    // Only W_ART mask should not reflect:
+    dragonbane.owornmask = 0x00001000; // W_ART
+    assert.equal(arti_reflects(dragonbane, state), false,
+        'only W_ART mask does not reflect');
+});
+
+test('spec_m2() returns the mtype field of an artifact', () => {
+    const state = artiState();
+    // ART_DEMONBANE mtype = M2_DEMON.
+    const demonbane = { oartifact: ART_DEMONBANE };
+    assert.equal(spec_m2(demonbane, state), M2_DEMON,
+        'Demonbane targets M2_DEMON');
+    const plain = { oartifact: 0 };
+    assert.equal(spec_m2(plain, state), 0,
+        'non-artifact returns 0');
+});
+
+test('discover_artifact and undiscovered_artifact track discovery', () => {
+    const state = artiState();
+    // Initially all artifacts are undiscovered.
+    assert.equal(undiscovered_artifact(ART_EXCALIBUR, state), true);
+    // Discover one.
+    discover_artifact(ART_EXCALIBUR, state);
+    assert.equal(undiscovered_artifact(ART_EXCALIBUR, state), false,
+        'Excalibur is discovered after discover_artifact');
+    // A second call is idempotent.
+    discover_artifact(ART_EXCALIBUR, state);
+    assert.equal(undiscovered_artifact(ART_EXCALIBUR, state), false);
+    // Another artifact remains undiscovered.
+    assert.equal(undiscovered_artifact(ART_STING, state), true);
+});
+
+test('found_artifact() marks an artifact as found', () => {
+    const state = artiState();
+    state.artiexist[ART_EXCALIBUR].exists = 1;
+    assert.equal(state.artiexist[ART_EXCALIBUR].found, 0);
+    found_artifact(ART_EXCALIBUR, state);
+    assert.equal(state.artiexist[ART_EXCALIBUR].found, 1,
+        'found bit is set');
+});
+
+test('found_artifact() throws for non-existent artifact', () => {
+    const state = artiState();
+    // Artifact index 1 exists=0 by default.
+    assert.throws(() => found_artifact(1, state),
+        /artifact doesn't exist yet/);
+});
+
+test('found_artifact() throws for out-of-range index', () => {
+    const state = artiState();
+    assert.throws(() => found_artifact(0, state),
+        /invalid artifact index/);
+    assert.throws(() => found_artifact(99, state),
+        /invalid artifact index/);
 });

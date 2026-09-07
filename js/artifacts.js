@@ -11,6 +11,7 @@ import {
     BLINDED,
     BLND_RES,
     COLD_RES,
+    CONFUSION,
     CONFLICT,
     DISINT_RES,
     DRAIN_RES,
@@ -56,6 +57,8 @@ import {
     SICK_ALL,
     SLIMED,
     STEALTH,
+    STONE_RES,
+    STUNNED,
     TELEPORT_CONTROL,
     TIMEOUT,
     Upolyd,
@@ -88,9 +91,11 @@ import {
     isok,
     W_BALL,
     W_QUIVER,
+    NOTELL,
 } from './const.js';
 import { game } from './gstate.js';
 import {
+    AT_MAGC,
     LOW_PM,
     M2_DEMON,
     M2_ELF,
@@ -103,6 +108,7 @@ import {
     PM_ARCHEOLOGIST,
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
+    PM_CLAY_GOLEM,
     PM_CLERIC,
     PM_ELF,
     PM_HEALER,
@@ -128,7 +134,9 @@ import {
     BAG_OF_TRICKS,
     BATTLE_AXE,
     BELL_OF_OPENING,
+    BLACK_DRAGON_SCALES,
     BLINDING_VENOM,
+    BLUE_DRAGON_SCALES,
     BOW,
     BROADSWORD,
     CREDIT_CARD,
@@ -138,6 +146,9 @@ import {
     FAKE_AMULET_OF_YENDOR,
     GOLD_DRAGON_SCALES,
     GOLD_DRAGON_SCALE_MAIL,
+    GRAY_DRAGON_SCALE_MAIL,
+    GRAY_DRAGON_SCALES,
+    GREEN_DRAGON_SCALES,
     HELM_OF_BRILLIANCE,
     KATANA,
     LARGE_BOX,
@@ -148,8 +159,12 @@ import {
     MACE,
     MIRROR,
     MORNING_STAR,
+    NUM_OBJECTS,
+    OBJ_DESCR,
+    ORANGE_DRAGON_SCALES,
     ORCISH_DAGGER,
     QUARTERSTAFF,
+    RED_DRAGON_SCALES,
     RING_CLASS,
     RIN_INCREASE_DAMAGE,
     RUNESWORD,
@@ -165,30 +180,41 @@ import {
     TSURUGI,
     WAND_CLASS,
     WAR_HAMMER,
+    WEAPON_CLASS,
+    WHITE_DRAGON_SCALES,
+    YELLOW_DRAGON_SCALES,
 } from './objects.js';
 
-import { fuzzymatch, lcase, s_suffix } from './hacklib.js';
+import { fuzzymatch, lcase, s_suffix, upstart } from './hacklib.js';
 import { aligns } from './roles.js';
 import { d, rn2, rnd, rn2_on_display_rng, rnz } from './rng.js';
 import { CLR_BRIGHT_BLUE, CLR_RED, NO_COLOR } from './terminal.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { freeinv, getobj, hold_another_object, nxtobj, update_inventory } from './invent.js';
+import { freeinv, getobj, hold_another_object, nxtobj, obj_extract_self, obfree, update_inventory } from './invent.js';
 import {
-    aobjnam, bare_artifactname, killer_xname, otense, the, Tobjnam,
-    vtense, xnameFresh, yname,
+    aobjnam, bare_artifactname, killer_xname, otense, simple_typename,
+    the, Tobjnam, vtense, xnameFresh, yname,
 } from './objnam.js';
 import { getdir } from './cmd.js';
-import { hates_silver, is_demon, is_dlord, is_dprince } from './mondata.js';
+import {
+    attacktype, defended, hates_silver, is_demon, is_dlord, is_dprince,
+    monster_resists_element, resists_drli, sticks,
+} from './mondata.js';
 import { In_hell, Invocation_lev, depth, dunlevs_in_dungeon, ledger_no, surface } from './dungeon.js';
 import { couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
-import { glyph_at, glyph_is_trap, newsym } from './display.js';
-import { losehp, spoteffects } from './hack.js';
+import { glyph_at, glyph_is_trap, map_invisible, newsym } from './display.js';
+import { losehp, nomul, spoteffects } from './hack.js';
 import { float_down, t_at } from './trap.js';
 import { level_tele } from './teleport.js';
-import { enlightenment } from './insight.js';
-import { carried, mksobj, objectType, weight } from './obj.js';
+import { align_str, enlightenment } from './insight.js';
+import { carried, Is_dragon_armor, Is_dragon_mail, mksobj, objectType, weight } from './obj.js';
+import { obj_shuffle_range } from './o_init.js';
+import { monsterCommonName } from './do_name.js';
+import { cancel_monst, resist, Fire_resistance, Cold_resistance } from './zap.js';
+import { set_ustuck } from './mon.js';
+import { monflee } from './monmove.js';
 import { throwit } from './dothrow.js';
 import { P_SKILL, spell_skilltype } from './startup_skills.js';
 import { spelleffects } from './spell.js';
@@ -307,13 +333,20 @@ const AD_PHYS = 0;
 const AD_MAGM = 1;
 const AD_FIRE = 2;
 const AD_COLD = 3;
+const AD_SLEE = 4;
 const AD_DISN = 5;
 const AD_ELEC = 6;
 const AD_DRST = 7;
+const AD_ACID = 8;
 const AD_BLND = 11;
 const AD_STUN = 12;
+const AD_SLOW = 13;
+const AD_PLYS = 14;
 const AD_DRLI = 15;
+const AD_STON = 18;
 const AD_WERE = 29;
+const AD_DISE = 33;
+const AD_HALU = 36;
 
 const NO_ATTK = Object.freeze({ aatyp: 0, adtyp: 0, damn: 0, damd: 0 });
 
@@ -565,9 +598,49 @@ export function init_artifacts(state = game) {
     return state.artilist;
 }
 
-// C refs: artifact.c found_artifact() and find_artifact(). The browser port
-// has no livelog sink; the persisted artiexist[].found bit is the gameplay
-// state consumed by later naming and disclosure.
+// C ref: artifact.c save_artifacts() (119-130). In C, this writes artiexist
+// and artidisco to the binary save file via Sfo macros. In JS, the save system
+// serializes state.artiexist and state.artidisco as JSON (see save.js), so
+// this function participates in the save protocol without binary I/O.
+export function save_artifacts(state = game) {
+    return {
+        artiexist: state.artiexist,
+        artidisco: state.artidisco,
+    };
+}
+
+// C ref: artifact.c restore_artifacts() (133-148). In C, this reads artiexist
+// and artidisco from the save file and then calls hack_artifacts() to redo
+// non-saved special cases. In JS, restore.js assigns the arrays from the
+// snapshot; this function applies the post-restore fixup.
+export function restore_artifacts(snapshot, state = game) {
+    if (snapshot.artiexist) state.artiexist = snapshot.artiexist;
+    if (snapshot.artidisco) state.artidisco = snapshot.artidisco;
+    hack_artifacts(state);
+}
+
+// C ref: artifact.c found_artifact() (409-421). Marks an existing artifact
+// as found by the hero. C's impossible() calls catch index errors; JS throws
+// instead.
+export function found_artifact(a, state = game) {
+    artifactTables(state);
+    if (a < 1 || a > NROFARTIFACTS) {
+        throw new RangeError(
+            `found_artifact: invalid artifact index! (${a})`,
+        );
+    } else if (!state.artiexist[a].exists) {
+        throw new Error(
+            `found_artifact: artifact doesn't exist yet? (${a})`,
+        );
+    } else {
+        state.artiexist[a].found = 1;
+    }
+}
+
+// C refs: artifact.c find_artifact() (422-459). Calls found_artifact() and
+// generates a livelog event. The browser port has no livelog sink; the
+// persisted artiexist[].found bit is the gameplay state consumed by later
+// naming and disclosure.
 export function find_artifact(obj, state = game) {
     const index = Math.trunc(obj?.oartifact ?? ART_NONARTIFACT);
     if (index === ART_NONARTIFACT) return false;
@@ -590,20 +663,28 @@ export class UnsupportedArtifactDisplayError extends Error {
     }
 }
 
-// C ref: artifact.c disp_artifact_discoveries(). Returns how many artifacts
-// the hero has discovered, writing one line for each into the text window
-// dodiscovered() supplies. discover_artifact() is the only writer of
-// artidisco[] and is not ported, so this loop always exits on the first empty
-// slot and writes nothing; that is why it takes no window. Naming an entry
-// needs artiname(), align_str(), and simple_typename(), none of them ported.
-export function disp_artifact_discoveries(state = game) {
-    let i = 0;
-    for (; i < NROFARTIFACTS; i++) {
+// C ref: artifact.c disp_artifact_discoveries() (1146-1174). Returns how many
+// artifacts the hero has discovered, writing one line for each into the text
+// window dodiscovered() supplies. C passes a `winid tmpwin` and calls
+// `putstr(tmpwin, ...)`; the JS caller provides a local putstr function.
+// The optional `putstr` parameter writes each discovered artifact line.
+export function disp_artifact_discoveries(state = game, putstr = null) {
+    let cnt = 0;
+    for (let i = 0; i < NROFARTIFACTS; i++) {
         if (state.artidisco[i] === 0)
             break;
-        throw new UnsupportedArtifactDisplayError('artiname()');
+        const m = state.artidisco[i];
+        if (putstr) {
+            const name = artiname(m, state);
+            const art = state.artilist[m];
+            const alignStr = align_str(art.alignment);
+            const typeName = simple_typename(art.otyp, state);
+            if (cnt === 0) putstr(true, 'Artifacts');
+            putstr(false, `  ${name} (${alignStr} ${typeName})`);
+        }
+        ++cnt;
     }
-    return i;
+    return cnt;
 }
 
 function monsterAlignment(monster) {
@@ -621,36 +702,11 @@ function isMonsterPlayer(monster) {
     return pmidx >= PM_ARCHEOLOGIST && pmidx <= PM_WIZARD;
 }
 
-// C ref: artifact.c bane_applies()/spec_applies(). touch_artifact() only asks
-// this about SPFX_DBONUS category artifacts, so none of the attack-resistance
-// cases (including their random magic-resistance check) can execute here.
-// `yours` is spec_applies()'s own boolean, which two of the five categories
-// read; it is passed in rather than recomputed so both callers agree on it.
+// Compatibility wrapper: delegates to the C-named bane_applies(). The
+// old callers (touch_artifact, retouch_object) pass the artifact record
+// directly; bane_applies() accepts the same shape.
 function artifactBaneApplies(artifact, monster, yours, state) {
-    if (!(artifact.spfx & SPFX_DBONUS)) return false;
-    const species = monster.data ?? {};
-    if (artifact.spfx & SPFX_DMONS)
-        return species.pmidx === artifact.mtype;
-    if (artifact.spfx & SPFX_DCLAS)
-        return species.mlet === artifact.mtype;
-    if (artifact.spfx & SPFX_DFLAG1)
-        return Boolean((species.mflags1 ?? 0) & artifact.mtype);
-    if (artifact.spfx & SPFX_DFLAG2) {
-        // The hero's own race counts as well as the form she is wearing, and
-        // a lycanthrope answers to M2_WERE whatever shape she is in.
-        return Boolean((species.mflags2 ?? 0) & artifact.mtype)
-            || Boolean(yours
-                && ((!Upolyd(state.u)
-                     && ((state.urace?.selfmask ?? 0) & artifact.mtype))
-                    || ((artifact.mtype & M2_WERE)
-                        && ismnum(state.u.ulycn))));
-    }
-    if (artifact.spfx & SPFX_DALIGN) {
-        if (yours) return state.u.ualign.type !== artifact.alignment;
-        const alignment = monsterAlignment(monster);
-        return alignment === A_NONE || alignment !== artifact.alignment;
-    }
-    return false;
+    return bane_applies(artifact, monster, state);
 }
 
 // C ref: artifact.c touch_artifact() (908-976). C's `touch_blasted` is a
@@ -853,6 +909,22 @@ export function confers_luck(obj, state = game) {
     return Boolean(obj.oartifact) && spec_ability(obj, SPFX_LUCK, state);
 }
 
+// C ref: artifact.c arti_reflects() (537-553). Returns true when an artifact
+// grants reflection, either by being worn (SPFX_REFLECT in spfx) or by just
+// being carried (SPFX_REFLECT in cspfx).
+export function arti_reflects(obj, state = game) {
+    const arti = get_artifact(obj, state);
+    if (arti !== state.artilist[ART_NONARTIFACT]) {
+        /* while being worn */
+        if ((obj.owornmask & ~W_ART) && (arti.spfx & SPFX_REFLECT))
+            return true;
+        /* just being carried */
+        if (arti.cspfx & SPFX_REFLECT)
+            return true;
+    }
+    return false;
+}
+
 // The extrinsic each artifact damage type grants, as the seven-way chain at
 // artifact.c:733-746 assigns it. A type absent from this map leaves C's `mask`
 // null and writes nothing, which is what an artifact with no carry effect
@@ -976,6 +1048,14 @@ function extrinsicMaskToggle(state, property, wp_mask, on) {
         prop.extrinsic |= wp_mask;
     else
         prop.extrinsic &= ~wp_mask;
+}
+
+// C ref: artifact.c dispose_of_orig_obj() (312-320). Frees the original
+// pre-replacement object when mk_artifact() creates a new one.
+export function dispose_of_orig_obj(obj) {
+    if (!obj) return;
+    obj_extract_self(obj);
+    obfree(obj, null);
 }
 
 // C ref: artifact.c artifact_name(). Answers the artifact whose name the
@@ -1213,6 +1293,513 @@ export function shade_glare(obj, state = game) {
        it would be effective too] */
     /* otherwise, harmless to shades */
     return false;
+}
+
+// C ref: artifact.c restrict_name() (575-624). Prevents the player from
+// naming an object with the name of a restricted artifact whose type matches
+// or could match (undiscovered items of the same shuffled-description pool).
+export function restrict_name(otmp, name, state = game) {
+    if (!name) return false;
+    const objects = state.objects;
+    const artilist = state.artilist;
+    const otyp = otmp.otyp;
+    const ocls = objects[otyp].oc_class;
+
+    let sought = name;
+    if (sought.length >= 4
+        && sought.slice(0, 4).toLowerCase() === 'the ')
+        sought = sought.slice(4);
+    if (!sought) return false;
+
+    /* decide what types of objects are the same as otyp;
+       if it's been discovered, then only itself matches;
+       otherwise, include all other undiscovered objects
+       of the same class which have the same description
+       or share the same pool of shuffled descriptions */
+    const sametype = new Uint8Array(NUM_OBJECTS);
+    sametype[otyp] = 1;
+    if (!objects[otyp].oc_name_known) {
+        const odesc = OBJ_DESCR(objects[otyp], state);
+        if (odesc !== null) {
+            const [lo, hi] = obj_shuffle_range(otyp, state);
+            const bases = state.svb?.bases;
+            const base = bases ? bases[ocls] : 0;
+            for (let i = base; i < NUM_OBJECTS; i++) {
+                if (objects[i].oc_class !== ocls) break;
+                if (!objects[i].oc_name_known) {
+                    const other = OBJ_DESCR(objects[i], state);
+                    if (other !== null
+                        && (odesc === other || (i >= lo && i <= hi)))
+                        sametype[i] = 1;
+                }
+            }
+        }
+    }
+
+    for (let a = 1; artilist[a].otyp; a++) {
+        if (!sametype[artilist[a].otyp]) continue;
+        let aname = artilist[a].name;
+        if (aname.length >= 4
+            && aname.slice(0, 4).toLowerCase() === 'the ')
+            aname = aname.slice(4);
+        if (aname === sought)
+            return ((artilist[a].spfx & (SPFX_NOGEN | SPFX_RESTR)) !== 0
+                    || otmp.quan > 1);
+    }
+    return false;
+}
+
+// C ref: artifact.c attacks() (626-633).
+export function attacks(adtyp, otmp, state = game) {
+    const weap = get_artifact(otmp, state);
+    if (weap !== state.artilist[ART_NONARTIFACT])
+        return weap.attk.adtyp === adtyp;
+    return false;
+}
+
+// C ref: artifact.c defends() (636-685). Checks whether an artifact or
+// dragon armor defends against a particular damage type.
+export function defends(adtyp, otmp, state = game) {
+    if (!otmp) return false;
+    const weap = get_artifact(otmp, state);
+    if (weap !== state.artilist[ART_NONARTIFACT])
+        return weap.defn.adtyp === adtyp;
+    if (Is_dragon_armor(otmp)) {
+        let otyp = otmp.otyp;
+        /* convert mail to scales to simplify testing */
+        if (Is_dragon_mail(otmp))
+            otyp += GRAY_DRAGON_SCALES - GRAY_DRAGON_SCALE_MAIL;
+        switch (adtyp) {
+        case AD_MAGM: return (otyp === GRAY_DRAGON_SCALES);
+        case AD_HALU: return (otyp === GOLD_DRAGON_SCALES);
+        case AD_FIRE: return (otyp === RED_DRAGON_SCALES);
+        case AD_COLD: return (otyp === WHITE_DRAGON_SCALES);
+        case AD_DRST: case AD_DISE: return (otyp === GREEN_DRAGON_SCALES);
+        case AD_SLEE: case AD_PLYS: return (otyp === ORANGE_DRAGON_SCALES);
+        case AD_DISN: case AD_DRLI: return (otyp === BLACK_DRAGON_SCALES);
+        case AD_ELEC: case AD_SLOW: return (otyp === BLUE_DRAGON_SCALES);
+        case AD_ACID: case AD_STON: return (otyp === YELLOW_DRAGON_SCALES);
+        default: break;
+        }
+    }
+    return false;
+}
+
+// C ref: artifact.c defends_when_carried() (687-695). Used for monsters.
+export function defends_when_carried(adtyp, otmp, state = game) {
+    const weap = get_artifact(otmp, state);
+    if (weap !== state.artilist[ART_NONARTIFACT])
+        return weap.cary.adtyp === adtyp;
+    return false;
+}
+
+// C ref: artifact.c protects() (698-714). Determine whether an item confers
+// Protection, either through its object property or its artifact flags.
+export function protects(otmp, being_worn, state = game) {
+    if (being_worn && state.objects[otmp.otyp].oc_oprop === PROTECTION)
+        return true;
+    const arti = get_artifact(otmp, state);
+    if (arti === state.artilist[ART_NONARTIFACT])
+        return false;
+    return ((arti.cspfx & SPFX_PROTECT) !== 0
+            || (being_worn && (arti.spfx & SPFX_PROTECT) !== 0));
+}
+
+// C ref: artifact.c arti_immune() (979-991). Returns true when the artifact
+// itself is immune to a given damage type.
+export function arti_immune(obj, dtyp, state = game) {
+    const weap = get_artifact(obj, state);
+    if (weap === state.artilist[ART_NONARTIFACT])
+        return false;
+    if (dtyp === AD_PHYS)
+        return false; /* nothing is immune to phys dmg */
+    return (weap.attk.adtyp === dtyp
+            || weap.defn.adtyp === dtyp
+            || weap.cary.adtyp === dtyp);
+}
+
+// C ref: artifact.c spec_applies() (1009-1063). Decides whether an artifact's
+// special attacks apply against mtmp. The full version handles all five
+// DBONUS categories plus the SPFX_ATTK resistance checks.
+
+// Hero resistance helpers (youprop.h patterns). Fire_resistance and
+// Cold_resistance are imported from zap.js; the rest follow the same pattern.
+function Shock_resistance(state) {
+    const p = state.u?.uprops?.[SHOCK_RES];
+    return Boolean(p?.intrinsic || p?.extrinsic);
+}
+function Poison_resistance(state) {
+    const p = state.u?.uprops?.[POISON_RES];
+    return Boolean(p?.intrinsic || p?.extrinsic);
+}
+function Drain_resistance(state) {
+    const p = state.u?.uprops?.[DRAIN_RES];
+    return Boolean(p?.intrinsic || p?.extrinsic);
+}
+function Stone_resistance(state) {
+    const p = state.u?.uprops?.[STONE_RES];
+    return Boolean(p?.intrinsic || p?.extrinsic);
+}
+
+function spec_applies(weap, mtmp, state = game) {
+    if (!(weap.spfx & (SPFX_DBONUS | SPFX_ATTK)))
+        return (weap.attk.adtyp === AD_PHYS);
+
+    const yours = (mtmp === state.youmonst);
+    const ptr = mtmp.data;
+
+    if (weap.spfx & SPFX_DMONS) {
+        return (ptr.pmidx === weap.mtype);
+    } else if (weap.spfx & SPFX_DCLAS) {
+        return (weap.mtype === ptr.mlet);
+    } else if (weap.spfx & SPFX_DFLAG1) {
+        return ((ptr.mflags1 & weap.mtype) !== 0);
+    } else if (weap.spfx & SPFX_DFLAG2) {
+        return (((ptr.mflags2 & weap.mtype) !== 0)
+                || (yours
+                    && ((!Upolyd(state.u)
+                         && ((state.urace?.selfmask ?? 0) & weap.mtype))
+                        || ((weap.mtype & M2_WERE)
+                            && ismnum(state.u.ulycn)))));
+    } else if (weap.spfx & SPFX_DALIGN) {
+        return yours ? (state.u.ualign.type !== weap.alignment)
+                     : (ptr.maligntyp === A_NONE
+                        || Math.sign(ptr.maligntyp) !== weap.alignment);
+    } else if (weap.spfx & SPFX_ATTK) {
+        if (defended(mtmp, weap.attk.adtyp, state))
+            return false;
+
+        switch (weap.attk.adtyp) {
+        case AD_FIRE:
+            return !(yours ? Fire_resistance(state)
+                           : monster_resists_element(mtmp, FIRE_RES, state));
+        case AD_COLD:
+            return !(yours ? Cold_resistance(state)
+                           : monster_resists_element(mtmp, COLD_RES, state));
+        case AD_ELEC:
+            return !(yours ? Shock_resistance(state)
+                           : monster_resists_element(mtmp, SHOCK_RES, state));
+        case AD_MAGM:
+        case AD_STUN:
+            return !(yours ? Antimagic(state)
+                           : (rn2(100) < ptr.mr));
+        case AD_DRST:
+            return !(yours ? Poison_resistance(state)
+                           : monster_resists_element(mtmp, POISON_RES, state));
+        case AD_DRLI:
+            return !(yours ? Drain_resistance(state)
+                           : resists_drli(mtmp, state));
+        case AD_STON:
+            return !(yours ? Stone_resistance(state)
+                           : monster_resists_element(mtmp, STONE_RES, state));
+        default:
+            throw new Error('Weird weapon special attack.');
+        }
+    }
+    return false;
+}
+
+// C ref: artifact.c bane_applies() (993-1007). Checks whether an artifact's
+// DBONUS flags apply against a monster, using only the DBONUS portion of spfx.
+function bane_applies(oart, mon, state = game) {
+    if (oart !== state.artilist[ART_NONARTIFACT]
+            && (oart.spfx & SPFX_DBONUS) !== 0) {
+        const atmp = { ...oart, spfx: oart.spfx & SPFX_DBONUS };
+        if (spec_applies(atmp, mon, state))
+            return true;
+    }
+    return false;
+}
+
+// C ref: artifact.c spec_m2() (1065-1074). Return the M2 flags of monster
+// that an artifact's special attacks apply against.
+export function spec_m2(otmp, state = game) {
+    const artifact = get_artifact(otmp, state);
+    if (artifact !== state.artilist[ART_NONARTIFACT])
+        return artifact.mtype;
+    return 0;
+}
+
+// C ref: artifact.c spec_abon() (1076-1089). Special attack bonus (to-hit).
+export function spec_abon(otmp, mon, state = game) {
+    const weap = get_artifact(otmp, state);
+    /* no need for an extra check for `NO_ATTK' because this will
+       always return 0 for any artifact which has that attribute */
+    if (weap !== state.artilist[ART_NONARTIFACT]
+            && weap.attk.damn && spec_applies(weap, mon, state))
+        return rnd(weap.attk.damn);
+    return 0;
+}
+
+// C ref: artifact.c spec_dbon() (1091-1111). Special damage bonus.
+// Sets state.spec_dbon_applies as a side effect, read later by artifact_hit
+// and Mb_hit.
+export function spec_dbon(otmp, mon, tmp, state = game) {
+    const weap = get_artifact(otmp, state);
+    if ((weap === state.artilist[ART_NONARTIFACT])
+        || (weap.attk.adtyp === AD_PHYS /* check for `NO_ATTK' */
+            && weap.attk.damn === 0 && weap.attk.damd === 0))
+        state.spec_dbon_applies = false;
+    else if (is_art(otmp, ART_GRIMTOOTH))
+        /* Grimtooth has SPFX settings to warn against elves but we want its
+           damage bonus to apply to all targets, so bypass spec_applies() */
+        state.spec_dbon_applies = true;
+    else
+        state.spec_dbon_applies = spec_applies(weap, mon, state);
+
+    if (state.spec_dbon_applies)
+        return weap.attk.damd ? rnd(weap.attk.damd) : Math.max(tmp, 1);
+    return 0;
+}
+
+// C ref: artifact.c discover_artifact() (1113-1128). Add identified artifact
+// to discoveries list.
+export function discover_artifact(m, state = game) {
+    artifactTables(state);
+    /* look for this artifact in the discoveries list;
+       if we hit an empty slot then it's not present, so add it */
+    for (let i = 0; i < NROFARTIFACTS; i++) {
+        if (state.artidisco[i] === 0 || state.artidisco[i] === m) {
+            state.artidisco[i] = m;
+            return;
+        }
+    }
+    /* there is one slot per artifact, so we should never reach the
+       end without either finding the artifact or an empty slot... */
+    throw new Error(`couldn't discover artifact (${m})`);
+}
+
+// C ref: artifact.c undiscovered_artifact() (1130-1143). Used to decide
+// whether an artifact has been fully identified.
+export function undiscovered_artifact(m, state = game) {
+    artifactTables(state);
+    /* look for this artifact in the discoveries list;
+       if we hit an empty slot then it's undiscovered */
+    for (let i = 0; i < NROFARTIFACTS; i++) {
+        if (state.artidisco[i] === m)
+            return false;
+        else if (state.artidisco[i] === 0)
+            break;
+    }
+    return true;
+}
+
+// C ref: artifact.c dump_artifact_info() (1177-1213). Display a list of
+// artifacts and their status flags in a text window. Uses putstr, which the
+// JS port represents as ttyPline.
+export async function dump_artifact_info(state = game) {
+    artifactTables(state);
+    await ttyPline('Artifacts', state);
+    for (let m = 1; m <= NROFARTIFACTS; ++m) {
+        const e = state.artiexist[m];
+        const flags = `[${e.exists ? 'exists;' : ''}${e.found ? ' hero knows;' : ''
+            }${e.gift ? ' gift' : ''}${e.wish ? ' wish' : ''
+            }${e.named ? ' named' : ''}${e.viadip ? ' viadip' : ''
+            }${e.lvldef ? ' lvldef' : ''}${e.bones ? ' bones' : ''
+            }${e.rndm ? ' random' : ''}]`;
+        const name = artiname(m, state);
+        /* "The Platinum Yendorian Express Card" is 35 characters */
+        const padded = (name + ' '.repeat(36)).slice(0, 36);
+        await ttyPline(`  ${padded}${flags}`, state);
+    }
+}
+
+// C ref: artifact.c Mb_hit() (1264-1445). Called when someone is being hit
+// by Magicbane. Returns true if a message was given.
+//
+// The mb_verb table and MB_* constants are local to this function's scope.
+const MB_INDEX_PROBE = 0;
+const MB_INDEX_STUN = 1;
+const MB_INDEX_SCARE = 2;
+const MB_INDEX_CANCEL = 3;
+const MB_MAX_DIEROLL = 8;
+const mb_verb = [
+    ['probe', 'stun', 'scare', 'cancel'],
+    ['prod', 'amaze', 'tickle', 'purge'],
+];
+// C decl.h:44 fakename[2] = { "mon", "you" }; vtense() uses it to choose
+// verb conjugation without being fooled by assigned names ending in 's'.
+const fakename = ['mon', 'you'];
+
+export async function Mb_hit(
+    magr, mdef, mb, dmgptr, dieroll, vis, hittee, state = game,
+) {
+    const youattack = (magr === state.youmonst);
+    const youdefend = (mdef === state.youmonst);
+    let resisted = false;
+    let do_stun;
+    let result = false;
+    let scare_dieroll = Math.trunc(MB_MAX_DIEROLL / 2);
+
+    /* the most severe effects are less likely at higher enchantment */
+    if (mb.spe >= 3)
+        scare_dieroll = Math.trunc(scare_dieroll / (1 << Math.trunc(mb.spe / 3)));
+    /* if target successfully resisted the artifact damage bonus,
+       reduce overall likelihood of the assorted special effects */
+    if (!state.spec_dbon_applies)
+        dieroll += 1;
+
+    /* might stun even when attempting a more severe effect, but
+       in that case it will only happen if the other effect fails */
+    do_stun = (Math.max(mb.spe, 0) < rn2(state.spec_dbon_applies ? 11 : 7));
+
+    let attack_indx = MB_INDEX_PROBE;
+    dmgptr.value += rnd(4); /* (2..3)d4 */
+    if (do_stun) {
+        attack_indx = MB_INDEX_STUN;
+        dmgptr.value += rnd(4); /* (3..4)d4 */
+    }
+    if (dieroll <= scare_dieroll) {
+        attack_indx = MB_INDEX_SCARE;
+        dmgptr.value += rnd(4); /* (3..5)d4 */
+    }
+    if (dieroll <= Math.trunc(scare_dieroll / 2)) {
+        attack_indx = MB_INDEX_CANCEL;
+        dmgptr.value += rnd(4); /* (4..6)d4 */
+    }
+
+    /* give the hit message prior to inflicting the effects */
+    const halluc = (state.u?.uprops?.[HALLUC]?.intrinsic ?? 0) !== 0
+        && !(state.u?.uprops?.[HALLUC_RES]?.intrinsic ?? 0)
+        && !(state.u?.uprops?.[HALLUC_RES]?.extrinsic ?? 0);
+    const verb = mb_verb[halluc ? 1 : 0][attack_indx];
+    if (youattack || youdefend || vis) {
+        result = true;
+        await ttyPline(
+            `The magic-absorbing blade ${vtense(null, verb)} ${hittee.value}!`,
+            state);
+        /* assume probing has some sort of noticeable feedback
+           even if it is being done by one monster to another */
+        if (attack_indx === MB_INDEX_PROBE) {
+            note_unported('mondata.c canspotmon');
+            // canspotmon check for map_invisible skipped
+        }
+    }
+
+    /* now perform special effects */
+    switch (attack_indx) {
+    case MB_INDEX_CANCEL: {
+        const old_mdat = youdefend ? state.youmonst.data : mdef.data;
+        if (!await cancel_monst(mdef, mb, youattack, false, false, state)) {
+            resisted = true;
+        } else {
+            do_stun = false;
+            if (youdefend) {
+                if (state.youmonst.data !== old_mdat)
+                    dmgptr.value = 0; /* rehumanized, so no more damage */
+                if (state.u.uenmax > 0) {
+                    state.u.uenmax--;
+                    if (state.u.uen > 0)
+                        state.u.uen--;
+                    state.disp.botl = true;
+                    await ttyPline('You lose magical energy!', state);
+                }
+            } else {
+                /* canceled shapeshifter/vamp may have changed forms */
+                if (mdef.data !== old_mdat)
+                    hittee.value = monsterCommonName(mdef, state);
+                if (mdef.data === state.mons[PM_CLAY_GOLEM])
+                    mdef.mhp = 1; /* cancelled clay golems will die */
+                if (youattack && attacktype(mdef.data, AT_MAGC)) {
+                    state.u.uenmax++;
+                    if (state.u.uenmax > state.u.uenpeak)
+                        state.u.uenpeak = state.u.uenmax;
+                    state.u.uen++;
+                    state.disp.botl = true;
+                    await ttyPline('You absorb magical energy!', state);
+                }
+            }
+        }
+        break;
+    }
+    case MB_INDEX_SCARE:
+        if (youdefend) {
+            if (Antimagic(state)) {
+                resisted = true;
+            } else {
+                nomul(-3, state);
+                state.multi_reason = 'being scared stiff';
+                state.nomovemsg = '';
+                if (magr && magr === state.u.ustuck
+                    && sticks(state.youmonst.data)) {
+                    set_ustuck(null, state);
+                    await ttyPline(
+                        `You release ${monsterCommonName(magr, state)}!`,
+                        state);
+                }
+            }
+        } else {
+            if (rn2(2) && resist(mdef, WEAPON_CLASS, 0, NOTELL, state)) {
+                resisted = true;
+            } else {
+                await monflee(mdef, 3, false, (mdef.mhp > dmgptr.value), state);
+            }
+        }
+        if (!resisted)
+            do_stun = false;
+        break;
+
+    case MB_INDEX_STUN:
+        do_stun = true; /* (this is redundant...) */
+        break;
+
+    case MB_INDEX_PROBE:
+        if (youattack && (mb.spe === 0 || !rn2(3 * Math.abs(mb.spe)))) {
+            await ttyPline(`The ${verb} is insightful.`, state);
+            /* pre-damage status */
+            note_unported('zap.c probe_monster');
+        }
+        break;
+    }
+
+    /* stun if that was selected and a worse effect didn't occur */
+    if (do_stun) {
+        if (youdefend) {
+            note_unported('timeout.c make_stunned');
+        } else {
+            mdef.mstun = 1;
+        }
+        /* avoid extra stun message below if we used mb_verb["stun"] above */
+        if (attack_indx === MB_INDEX_STUN)
+            do_stun = false;
+    }
+
+    /* lastly, all this magic can be confusing... */
+    let do_confuse = !rn2(12);
+    if (do_confuse) {
+        if (youdefend) {
+            note_unported('timeout.c make_confused');
+        } else {
+            mdef.mconf = 1;
+        }
+    }
+
+    /* now give message(s) describing side-effects; Use fakename
+       so vtense() won't be fooled by assigned name ending in 's' */
+    const fakeidx = youdefend ? 1 : 0;
+    if (youattack || youdefend || vis) {
+        hittee.value = upstart(hittee.value); /* capitalize */
+        if (resisted) {
+            await ttyPline(
+                `${hittee.value} ${vtense(fakename[fakeidx], 'resist')}!`,
+                state);
+            note_unported('pager.c shieldeff');
+        }
+        if ((do_stun || do_confuse) && state.flags?.verbose) {
+            let buf = '';
+            if (do_stun)
+                buf += 'stunned';
+            if (do_stun && do_confuse)
+                buf += ' and ';
+            if (do_confuse)
+                buf += 'confused';
+            await ttyPline(
+                `${hittee.value} ${vtense(fakename[fakeidx], 'are')} ${buf}${(do_stun && do_confuse) ? '!' : '.'}`,
+                state);
+        }
+    }
+
+    return result;
 }
 
 // --- artifact.c invoke functions (C lines 1727-2260) ---
