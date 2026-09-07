@@ -11363,8 +11363,8 @@
         },
         {
           "name": "save_artifacts..Mb_hit",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "9ecf3057904bd708873c256113e2640913f4ea46",
           "functions": [
             "save_artifacts",
             "restore_artifacts",
@@ -11386,6 +11386,14 @@
             "undiscovered_artifact",
             "dump_artifact_info",
             "Mb_hit"
+          ]
+        },
+        {
+          "name": "artifact_hit",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "artifact_hit"
           ]
         }
       ],
@@ -11414,13 +11422,13 @@
           "name": "save_artifacts",
           "line": 119,
           "endLine": 132,
-          "ported": false
+          "ported": true
         },
         {
           "name": "restore_artifacts",
           "line": 133,
           "endLine": 150,
-          "ported": false
+          "ported": true
         },
         {
           "name": "artiname",
@@ -11438,7 +11446,7 @@
           "name": "dispose_of_orig_obj",
           "line": 312,
           "endLine": 328,
-          "ported": false
+          "ported": true
         },
         {
           "name": "artifact_name",
@@ -11462,7 +11470,7 @@
           "name": "found_artifact",
           "line": 409,
           "endLine": 421,
-          "ported": false
+          "ported": true
         },
         {
           "name": "find_artifact",
@@ -11498,7 +11506,7 @@
           "name": "arti_reflects",
           "line": 537,
           "endLine": 554,
-          "ported": false
+          "ported": true
         },
         {
           "name": "shade_glare",
@@ -11510,31 +11518,31 @@
           "name": "restrict_name",
           "line": 575,
           "endLine": 625,
-          "ported": false
+          "ported": true
         },
         {
           "name": "attacks",
           "line": 626,
           "endLine": 635,
-          "ported": false
+          "ported": true
         },
         {
           "name": "defends",
           "line": 636,
           "endLine": 686,
-          "ported": false
+          "ported": true
         },
         {
           "name": "defends_when_carried",
           "line": 687,
           "endLine": 697,
-          "ported": false
+          "ported": true
         },
         {
           "name": "protects",
           "line": 698,
           "endLine": 715,
-          "ported": false
+          "ported": true
         },
         {
           "name": "set_artifact_intrinsic",
@@ -11552,49 +11560,49 @@
           "name": "arti_immune",
           "line": 979,
           "endLine": 992,
-          "ported": false
+          "ported": true
         },
         {
           "name": "bane_applies",
           "line": 993,
           "endLine": 1008,
-          "ported": false
+          "ported": true
         },
         {
           "name": "spec_applies",
           "line": 1009,
           "endLine": 1064,
-          "ported": false
+          "ported": true
         },
         {
           "name": "spec_m2",
           "line": 1065,
           "endLine": 1075,
-          "ported": false
+          "ported": true
         },
         {
           "name": "spec_abon",
           "line": 1076,
           "endLine": 1090,
-          "ported": false
+          "ported": true
         },
         {
           "name": "spec_dbon",
           "line": 1091,
           "endLine": 1112,
-          "ported": false
+          "ported": true
         },
         {
           "name": "discover_artifact",
           "line": 1113,
           "endLine": 1130,
-          "ported": false
+          "ported": true
         },
         {
           "name": "undiscovered_artifact",
           "line": 1131,
           "endLine": 1146,
-          "ported": false
+          "ported": true
         },
         {
           "name": "disp_artifact_discoveries",
@@ -11606,13 +11614,13 @@
           "name": "dump_artifact_info",
           "line": 1177,
           "endLine": 1248,
-          "ported": false
+          "ported": true
         },
         {
           "name": "Mb_hit",
           "line": 1249,
           "endLine": 1446,
-          "ported": false
+          "ported": true
         },
         {
           "name": "artifact_hit",
