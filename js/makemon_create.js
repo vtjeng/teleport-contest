@@ -3032,15 +3032,20 @@ function mgender_from_permonst(monster, species, random) {
 }
 
 // C ref: mondata.c set_mon_data(). Only unused movement in a slower form is
-// prorated; faster forms retain the already accumulated movement.
-export function set_mon_data(monster, species) {
+// prorated; faster forms retain the already accumulated movement. The hero's
+// movement lives in u.umovement rather than youmonst.movement (you.h), so a
+// polymorphed hero prorates that field.
+export function set_mon_data(monster, species, state = game) {
     const oldSpeed = monster.data?.mmove ?? 0;
+    const hero = monster === state.youmonst;
     monster.data = species;
     monster.mnum = species.pmidx;
-    if (monster.movement && species.mmove < oldSpeed) {
-        monster.movement *= species.mmove;
-        if (oldSpeed > 0)
-            monster.movement = Math.trunc(monster.movement / oldSpeed);
+    let movement = hero ? state.u.umovement : monster.movement;
+    if (movement && species.mmove < oldSpeed) {
+        movement *= species.mmove;
+        if (oldSpeed > 0) movement = Math.trunc(movement / oldSpeed);
+        if (hero) state.u.umovement = movement;
+        else monster.movement = movement;
     }
 }
 
@@ -3063,7 +3068,7 @@ function apply_newcham_form(monster, target, normalized) {
         monster.mhp = monster.mhpmax;
     if (!monster.mhp) monster.mhp = 1;
 
-    set_mon_data(monster, target);
+    set_mon_data(monster, target, state);
 
     const oldLight = emits_light(olddata);
     const newLight = emits_light(target);

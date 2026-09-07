@@ -1524,7 +1524,7 @@ export async function new_were(monster, rawEnv = {}) {
         );
     }
 
-    set_mon_data(monster, target);
+    set_mon_data(monster, target, state);
     if (helpless(monster)) {
         monster.msleeping = false;
         monster.mfrozen = 0;

@@ -29,6 +29,7 @@ import {
 } from '../js/mondata.js';
 import { character_race } from '../js/roles.js';
 import { uasmon_maxStr, set_uasmon } from '../js/polyself.js';
+import { set_mon_data } from '../js/makemon_create.js';
 import { make_glib } from '../js/potion.js';
 import { uwepgone, uswapwepgone } from '../js/wield.js';
 import { objects_globals_init } from '../js/objects.js';
@@ -259,6 +260,61 @@ test('set_uasmon clears FROMFORM when the new form lacks the property', () => {
 });
 
 // -- resists_drli (mondata.c:200-211) --
+// -- set_mon_data (mondata.c:12-38) through set_uasmon --
+// C keeps the hero's movement in u.umovement ("instead of
+// youmonst.movement", you.h:505), and set_mon_data() points movement_p at it
+// when mon == &youmonst. Speeds are monst.c mmove values: human 12, gnome 6,
+// red dragon 9. The proration is `*= new_speed; /= old_speed` in C integer
+// arithmetic, applied only when the new form is slower and movement is
+// nonzero.
+test('set_uasmon prorates u.umovement when the new form is slower', () => {
+    // Human (12) to gnome (6) with a full ration banked: 12 * 6 / 12 = 6.
+    const state = minimalState(PM_GNOME);
+    state.youmonst.data = mons[PM_HUMAN];
+    state.u.umovement = 12;
+    set_uasmon(state);
+    assert.equal(state.u.umovement, 6);
+    // youmonst carries no movement field of its own for the hero.
+    assert.equal(state.youmonst.movement, undefined);
+});
+
+test('set_uasmon truncates the prorated hero movement toward zero', () => {
+    // 7 * 6 / 12 = 42 / 12 = 3 in C integer division.
+    const state = minimalState(PM_GNOME);
+    state.youmonst.data = mons[PM_HUMAN];
+    state.u.umovement = 7;
+    set_uasmon(state);
+    assert.equal(state.u.umovement, 3);
+});
+
+test('set_uasmon keeps u.umovement for a faster form or an empty ration', () => {
+    // Gnome (6) to red dragon (9): new_speed >= old_speed, no proration.
+    const faster = minimalState(PM_RED_DRAGON);
+    faster.youmonst.data = mons[PM_GNOME];
+    faster.u.umovement = 6;
+    set_uasmon(faster);
+    assert.equal(faster.u.umovement, 6);
+    // Human (12) to gnome (6) with nothing banked: `if (*movement_p)` fails.
+    const empty = minimalState(PM_GNOME);
+    empty.youmonst.data = mons[PM_HUMAN];
+    empty.u.umovement = 0;
+    set_uasmon(empty);
+    assert.equal(empty.u.umovement, 0);
+});
+
+test('set_mon_data prorates a monster\'s own movement and not the hero\'s', () => {
+    // A human-speed (12) monster changing into a gnome (6) with 10 banked:
+    // 10 * 6 / 12 = 5. The hero's ration is untouched.
+    const state = minimalState(PM_HUMAN);
+    state.u.umovement = 12;
+    const monster = { data: mons[PM_HUMAN], mnum: PM_HUMAN, movement: 10 };
+    set_mon_data(monster, mons[PM_GNOME], state);
+    assert.equal(monster.movement, 5);
+    assert.equal(monster.mnum, PM_GNOME);
+    assert.equal(monster.data, mons[PM_GNOME]);
+    assert.equal(state.u.umovement, 12);
+});
+
 test('resists_drli returns false for a living non-demonic hero', () => {
     const state = minimalState(PM_GNOME);
     // gnome is not undead, demon, were, or vampshifter

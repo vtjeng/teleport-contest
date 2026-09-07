@@ -288,7 +288,7 @@ export function set_uasmon(state = game) {
     const was_vampshifter = valid_vampshiftform(
         state.youmonst.cham, state.u.umonnum, state,
     );
-    set_mon_data(state.youmonst, mdat);
+    set_mon_data(state.youmonst, mdat, state);
     state.youmonst.m_id = 1;
 
     // Protection_from_shape_changers — not ported, assumed false for now
