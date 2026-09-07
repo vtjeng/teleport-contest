@@ -1,0 +1,12 @@
+{
+    "version": 5,
+    "_comment": "Apply a bag of tricks. Exercises bagotricks() in makemon.c.",
+    "segments": [
+        {
+            "seed": 5550091,
+            "datetime": "20261015100000",
+            "nethackrc": "OPTIONS=name:Bagsworth,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+            "moves": "  #wizwish\nbag of tricks\naZ"
+        }
+    ]
+}
