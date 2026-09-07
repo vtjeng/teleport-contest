@@ -10279,8 +10279,8 @@
         },
         {
           "name": "init_oextra..mkobj_erosions",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "cb3e2948118ad61bb0503404dccb1c6970320697",
           "functions": [
             "init_oextra",
             "newoextra",
@@ -10293,6 +10293,14 @@
             "free_omailcmd",
             "may_generate_eroded",
             "mkobj_erosions"
+          ]
+        },
+        {
+          "name": "mksobj_migr_to_species",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mksobj_migr_to_species"
           ]
         }
       ],
@@ -10309,67 +10317,67 @@
           "name": "init_oextra",
           "line": 80,
           "endLine": 85,
-          "ported": false
+          "ported": true
         },
         {
           "name": "newoextra",
           "line": 86,
           "endLine": 95,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dealloc_oextra",
           "line": 96,
           "endLine": 113,
-          "ported": false
+          "ported": true
         },
         {
           "name": "newomonst",
           "line": 114,
           "endLine": 127,
-          "ported": false
+          "ported": true
         },
         {
           "name": "free_omonst",
           "line": 128,
           "endLine": 142,
-          "ported": false
+          "ported": true
         },
         {
           "name": "newomid",
           "line": 143,
           "endLine": 150,
-          "ported": false
+          "ported": true
         },
         {
           "name": "free_omid",
           "line": 151,
           "endLine": 156,
-          "ported": false
+          "ported": true
         },
         {
           "name": "new_omailcmd",
           "line": 157,
           "endLine": 166,
-          "ported": false
+          "ported": true
         },
         {
           "name": "free_omailcmd",
           "line": 167,
           "endLine": 176,
-          "ported": false
+          "ported": true
         },
         {
           "name": "may_generate_eroded",
           "line": 177,
           "endLine": 195,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mkobj_erosions",
           "line": 196,
           "endLine": 226,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mkobj_at",
