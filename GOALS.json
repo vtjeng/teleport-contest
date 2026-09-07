@@ -11009,11 +11009,26 @@
         },
         {
           "name": "wrong_elem_type..m_initgrp",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "72c379216dca961e1c354a667322942021d565d4",
           "functions": [
             "wrong_elem_type",
             "m_initgrp"
+          ]
+        },
+        {
+          "name": "clone_mon..temperature_shift",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "clone_mon",
+            "monhp_per_lvl",
+            "init_mextra",
+            "newmextra",
+            "unmakemon",
+            "create_critters",
+            "align_shift",
+            "temperature_shift"
           ]
         }
       ],
@@ -11036,13 +11051,13 @@
           "name": "wrong_elem_type",
           "line": 56,
           "endLine": 78,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_initgrp",
           "line": 79,
           "endLine": 147,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_initthrow",
