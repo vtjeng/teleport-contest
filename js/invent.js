@@ -3285,7 +3285,7 @@ export async function hold_another_object(
         /* in case touching this object turns out to be fatal */
         place_object(obj, state.u.ux, state.u.uy, normalized);
 
-        if (!touch_artifact(obj, state.youmonst, normalized)) {
+        if (!await touch_artifact(obj, state.youmonst, normalized)) {
             // invent.c:1228-1230 pulls the artifact back off the floor and
             // drops it again through dropy().  touch_artifact() answers false
             // only for a monster, and this caller is always the hero, so the

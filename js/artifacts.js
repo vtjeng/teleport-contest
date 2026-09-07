@@ -26,6 +26,7 @@ import {
     HALF_PHDAM,
     HALF_SPDAM,
     HALLUC,
+    Has_contents,
     HALLUC_RES,
     I_SPECIAL,
     INVIS,
@@ -75,13 +76,22 @@ import {
     W_WEP,
     WARNING,
     WARN_OF_MON,
+    A_CON,
+    A_WIS,
+    D_TRAPPED,
+    IS_ALTAR,
+    IS_DOOR,
+    KILLED_BY,
     ismnum,
     In_endgame,
     In_quest,
     isok,
+    W_BALL,
+    W_QUIVER,
 } from './const.js';
 import { game } from './gstate.js';
 import {
+    LOW_PM,
     M2_DEMON,
     M2_ELF,
     M2_GIANT,
@@ -115,7 +125,9 @@ import {
     AMULET_OF_ESP,
     ARROW,
     ATHAME,
+    BAG_OF_TRICKS,
     BATTLE_AXE,
+    BELL_OF_OPENING,
     BLINDING_VENOM,
     BOW,
     BROADSWORD,
@@ -128,6 +140,8 @@ import {
     GOLD_DRAGON_SCALE_MAIL,
     HELM_OF_BRILLIANCE,
     KATANA,
+    LARGE_BOX,
+    LEASH,
     LENSES,
     LONG_SWORD,
     LUCKSTONE,
@@ -136,6 +150,7 @@ import {
     MORNING_STAR,
     ORCISH_DAGGER,
     QUARTERSTAFF,
+    RING_CLASS,
     RIN_INCREASE_DAMAGE,
     RUNESWORD,
     SCR_TAMING,
@@ -146,26 +161,31 @@ import {
     SPE_CONE_OF_COLD,
     SPE_FIREBALL,
     STRANGE_OBJECT,
+    TOOL_CLASS,
     TSURUGI,
+    WAND_CLASS,
     WAR_HAMMER,
 } from './objects.js';
 
-import { fuzzymatch, lcase } from './hacklib.js';
+import { fuzzymatch, lcase, s_suffix } from './hacklib.js';
 import { aligns } from './roles.js';
 import { d, rn2, rnd, rn2_on_display_rng, rnz } from './rng.js';
 import { CLR_BRIGHT_BLUE, CLR_RED, NO_COLOR } from './terminal.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { getobj, hold_another_object, update_inventory } from './invent.js';
-import { aobjnam, bare_artifactname, otense, the, vtense, xnameFresh } from './objnam.js';
+import { freeinv, getobj, hold_another_object, nxtobj, update_inventory } from './invent.js';
+import {
+    aobjnam, bare_artifactname, killer_xname, otense, the, Tobjnam,
+    vtense, xnameFresh, yname,
+} from './objnam.js';
 import { getdir } from './cmd.js';
-import { is_demon, is_dlord, is_dprince } from './mondata.js';
-import { In_hell, depth, dunlevs_in_dungeon, ledger_no } from './dungeon.js';
+import { hates_silver, is_demon, is_dlord, is_dprince } from './mondata.js';
+import { In_hell, Invocation_lev, depth, dunlevs_in_dungeon, ledger_no, surface } from './dungeon.js';
 import { couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
-import { newsym } from './display.js';
-import { spoteffects } from './hack.js';
-import { float_down } from './trap.js';
+import { glyph_at, glyph_is_trap, newsym } from './display.js';
+import { losehp, spoteffects } from './hack.js';
+import { float_down, t_at } from './trap.js';
 import { level_tele } from './teleport.js';
 import { enlightenment } from './insight.js';
 import { carried, mksobj, objectType, weight } from './obj.js';
@@ -175,9 +195,12 @@ import { spelleffects } from './spell.js';
 import { seffects } from './read.js';
 import { charge_ok } from './read.js';
 import { make_blinded } from './potion.js';
-import { maybe_lvltport_feedback, goto_level } from './do.js';
+import { dropx, maybe_lvltport_feedback, goto_level } from './do.js';
 import { select_menu } from './windows.js';
 import { clr2colorname } from './coloratt.js';
+import { exercise } from './attrib.js';
+import { remove_worn_item } from './steal.js';
+import { On_stairs } from './stairs.js';
 
 // C refs: artifact.c defends() and defends_when_carried(). Artifact attack,
 // defense, and carry records all use the same damage-type encoding.
@@ -630,24 +653,42 @@ function artifactBaneApplies(artifact, monster, yours, state) {
     return false;
 }
 
-// C ref: artifact.c touch_artifact(). C's `touch_blasted` is set here and read
-// only by retouch_object(), which is unported; the blast that sets it is
-// refused below, so the flag would never leave its initial FALSE and no field
-// carries it.
-//
-// Two arms stop this port, both of them a hero's, and they differ in what the
-// stop costs. The self-willed route and the evade arm reach their stop before
-// any draw. The badalign-only route does not: its guard is
-// `badalign && (!yours || !rn2(4))`, so artifact.c:945's rn2(4) is spent
-// inside the branch condition and necessarily precedes the throw. C spends it
-// too, so that refusal leaves the random-number log matching C rather than
-// untouched -- which is the property that matters, and is not the same as
-// leaving the game where it found it. The detailed statement is at the guard
-// itself; do not restate a stronger claim here.
-export function touch_artifact(obj, monster, env = game) {
-    const state = artifactTables(env);
+// C ref: artifact.c touch_artifact() (908-976). C's `touch_blasted` is a
+// file-scope static set here and read by retouch_object() to decide whether
+// to inflict its own additional damage.
+let touch_blasted = false;
+
+// C ref: youprop.h:57. Antimagic is the intrinsic or the extrinsic.
+function Antimagic(state) {
+    const p = state.u?.uprops?.[ANTIMAGIC];
+    return Boolean(p?.intrinsic || p?.extrinsic);
+}
+
+// C ref: youprop.h:341. Half_physical_damage.
+function Maybe_Half_Phys(dmg, state) {
+    const halved = state.u?.uprops?.[HALF_PHDAM];
+    return (halved?.intrinsic || halved?.extrinsic)
+        ? Math.trunc((dmg + 1) / 2) : dmg;
+}
+
+// C ref: youprop.h:401. Hate_silver: lycanthrope or silver-hating species.
+function Hate_silver(state) {
+    return (state.u.ulycn >= LOW_PM)
+        || hates_silver(state.youmonst?.data);
+}
+
+// C ref: youprop.h:240. Levitation property (intrinsic or extrinsic, not
+// blocked).
+function Levitation(state) {
+    const value = state.u?.uprops?.[LEVITATION];
+    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
+}
+
+export async function touch_artifact(obj, monster, env = game) {
     const index = Math.trunc(obj?.oartifact ?? ART_NONARTIFACT);
+    touch_blasted = false;
     if (index === ART_NONARTIFACT) return true;
+    const state = artifactTables(env);
     if (index < 1 || index > NROFARTIFACTS
         || !state.artilist[index].otyp) {
         throw new RangeError(`invalid artifact index ${index}`);
@@ -685,24 +726,37 @@ export function touch_artifact(obj, monster, env = game) {
     if (!badalign)
         badalign = artifactBaneApplies(artifact, monster, yours, state);
 
-    // C's `!yours` short-circuits before the rn2(4) for a monster, so only a
-    // hero out of step with the artifact spends a draw here -- and she spends
-    // it whether or not the blast follows.
     if (((badclass || badalign) && selfWilled)
         || (badalign && (!yours || !randomFromEnv(env)(4)))) {
         if (!yours) return false;
-        // artifact.c:951-959 prints "You are blasted by <artifact>'s power!",
-        // rolls d(Antimagic ? 2 : 4, self_willed ? 10 : 4) plus a silver
-        // bonus, and spends it through losehp() and exercise().
-        throw new UnsupportedArtifactDisplayError('an artifact blast');
+        // C ref: artifact.c:951-959. Blast the hero.
+        await ttyPline(
+            `You are blasted by ${s_suffix(the(xnameFresh(obj, state), state))} power!`,
+            state);
+        touch_blasted = true;
+        let dmg = d(Antimagic(state) ? 2 : 4, selfWilled ? 10 : 4);
+        /* add half (maybe quarter) of the usual silver damage bonus */
+        if (state.objects[obj.otyp].oc_material === SILVER
+            && Hate_silver(state)) {
+            const tmp = rnd(10);
+            dmg += Maybe_Half_Phys(tmp, state);
+        }
+        const buf = `touching ${artifact.name}`;
+        await losehp(dmg, buf, KILLED_BY, state);
+        await exercise(A_WIS, false, state);
     }
 
     /* can pick it up unless you're totally non-synch'd with the artifact */
     if (badclass && badalign && selfWilled) {
         if (yours) {
-            // artifact.c:965-968 prints "<Artifact> evades your grasp!" or
-            // "<Artifact> are beyond your control!" through Tobjnam().
-            throw new UnsupportedArtifactDisplayError('an artifact that evades');
+            // C ref: artifact.c:965-968. Evade message.
+            if (!carried(obj))
+                await ttyPline(
+                    `${Tobjnam(obj, 'evade', state)} your grasp!`, state);
+            else
+                await ttyPline(
+                    `${Tobjnam(obj, 'are', state)} beyond your control!`,
+                    state);
         }
         return false;
     }
@@ -1179,8 +1233,10 @@ function invoke_ok(obj) {
 export async function doinvoke(state = game) {
     const obj = await getobj('invoke', invoke_ok, GETOBJ_PROMPT, state);
     if (!obj) return ECMD_CANCEL;
-    note_unported('artifact.c retouch_object');
-    return await arti_invoke(obj, state);
+    const objp = { obj };
+    if (!await retouch_object(objp, false, state))
+        return ECMD_TIME;
+    return await arti_invoke(objp.obj, state);
 }
 
 // C ref: artifact.c nothing_special() (1761-1766).
@@ -1876,6 +1932,213 @@ export function isPermanentlyPoisoned(obj) {
     return permapoisoned(obj);
 }
 
+// C ref: artifact.c retouch_object() (2508-2591). After a transformation
+// (alignment change, lycanthropy, polymorph) that might affect item access,
+// test whether the hero can still handle `obj`. Returns 1 if the hero can
+// keep the object, 0 if not (item is unworn and possibly dropped). `loseit`
+// controls whether the object is dropped when the hero can no longer touch it.
+export async function retouch_object(objp, loseit, state = game) {
+    let obj = objp.obj;
+
+    /* allow hero in silver-hating form to try to perform invocation ritual */
+    if (obj.otyp === BELL_OF_OPENING
+        && invocation_pos(state) && !On_stairs(state.u.ux, state.u.uy, state)) {
+        return 1;
+    }
+
+    if (await touch_artifact(obj, state.youmonst, state)) {
+        let dmg = 0;
+        const ag = (state.objects[obj.otyp].oc_material === SILVER
+            && Hate_silver(state));
+        // bane_applies only matters for artifacts; non-artifacts have no
+        // artifact entry, so bane is always false for them.
+        const bane = obj.oartifact
+            ? artifactBaneApplies(
+                get_artifact(obj, state), state.youmonst, true, state)
+            : false;
+
+        /* nothing else to do if hero can successfully handle this object */
+        if (!ag && !bane) return 1;
+
+        /* hero can't handle this object, but didn't get touch_artifact()'s
+           "<obj> evades your grasp|control" message; give an alternate one */
+        await ttyPline(
+            `You can't handle ${yname(obj, state)}${obj.owornmask ? ' anymore' : ''}!`,
+            state);
+        /* also inflict damage unless touch_artifact() already did so */
+        if (!touch_blasted) {
+            let what = killer_xname(obj, state);
+
+            if (ag && !obj.oartifact && !bane) {
+                /* 'obj' is silver; for rings and wands it ended up that
+                   way due to randomization at start of game; showing this
+                   game's silver item without stating that it is silver
+                   potentially leads to confusion about cause of death */
+                if (obj.oclass === RING_CLASS)
+                    what = 'a silver ring';
+                else if (obj.oclass === WAND_CLASS)
+                    what = 'a silver wand';
+                /* for anything else, stick with killer_xname() */
+            }
+            /* damage is somewhat arbitrary; half the usual 1d20 physical
+               for silver, 1d10 magical for <foo>bane, potentially both */
+            if (ag) {
+                const tmp = rnd(10);
+                dmg += Maybe_Half_Phys(tmp, state);
+            }
+            if (bane)
+                dmg += rnd(10);
+            const buf = `handling ${what}`;
+            await losehp(dmg, buf, KILLED_BY, state);
+            await exercise(A_CON, false, state);
+        }
+    }
+
+    /* removing a worn item might result in loss of levitation,
+       dropping the hero onto a polymorph trap or into water or
+       lava and potentially dropping or destroying the item */
+    if (obj.owornmask) {
+        remove_worn_item(obj, false, state);
+        let found = false;
+        for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
+            if (otmp === obj) { found = true; break; }
+        }
+        if (!found)
+            objp.obj = obj = null;
+    }
+
+    /* if we still have it and caller wants us to drop it, do so now */
+    if (loseit && obj) {
+        if (Levitation(state)) {
+            freeinv(obj, { state });
+            note_unported('dothrow.c hitfloor');
+        } else {
+            /* dropx gives a message if a dropped item lands on an altar;
+               we provide one for other terrain */
+            if (!IS_ALTAR(state.level.at(state.u.ux, state.u.uy).typ))
+                await ttyPline(
+                    `${Tobjnam(obj, 'fall', state)} to the ${surface(state.u.ux, state.u.uy, state)}.`,
+                    state);
+            await dropx(obj, { state });
+        }
+        objp.obj = obj = null; /* no longer in inventory */
+    }
+    return 0;
+}
+
+// C ref: artifact.c invocation_pos() check used by retouch_object().
+// hack.c invocation_pos() (982-985): Invocation_lev && x == inv_pos.x && y == inv_pos.y.
+function invocation_pos(state) {
+    return Invocation_lev(state.u.uz, state)
+        && state.u.ux === state.inv_pos?.x
+        && state.u.uy === state.inv_pos?.y;
+}
+
+// obj.h:337 Is_container(o): object type is between LARGE_BOX and BAG_OF_TRICKS.
+function Is_container(obj) {
+    return obj.otyp >= LARGE_BOX && obj.otyp <= BAG_OF_TRICKS;
+}
+
+// C ref: artifact.c untouchable() (2598-2637). Test one worn/wielded item or
+// artifact for touchability after a form or alignment change. Returns true if
+// the item failed the touch test.
+async function untouchable(obj, drop_untouchable, state = game) {
+    const wearmask = ~(W_QUIVER | (state.u.twoweap ? 0 : W_SWAPWEP) | W_BALL);
+
+    const beingworn = obj
+        && (((obj.owornmask & wearmask) !== 0)
+            /* some items in use don't have any wornmask setting */
+            || (obj.oclass === TOOL_CLASS
+                && (obj.lamplit
+                    || (obj.otyp === LEASH && obj.leashmon)
+                    || (Is_container(obj) && Has_contents(obj)))));
+
+    let carryeffect, invoked;
+    if (obj.oartifact) {
+        const art = get_artifact(obj, state);
+        carryeffect = Boolean(art.cary?.adtyp || art.cspfx);
+        invoked = (art.inv_prop > 0 && art.inv_prop <= LAST_PROP
+            && ((state.u.uprops[art.inv_prop].extrinsic & W_ARTI) !== 0));
+    } else {
+        carryeffect = false;
+        invoked = false;
+    }
+
+    if (beingworn || carryeffect || invoked) {
+        const objp = { obj };
+        if (!await retouch_object(objp, drop_untouchable, state)) {
+            /* "<artifact> is beyond your control" or "you can't handle
+               <object>" has been given and it is now unworn/unwielded
+               and possibly dropped (depending upon caller); if dropped,
+               carried effect was turned off, else we leave that alone;
+               we turn off invocation property here if still carried */
+            if (invoked && objp.obj)
+                await arti_invoke(objp.obj, state); /* reverse #invoke */
+            return true;
+        }
+    }
+    return false;
+}
+
+// C ref: artifact.c count_surround_traps() (2708-2750). Count hidden traps
+// in the 3x3 area around (x, y). Visible traps are excluded; door traps and
+// trapped containers count. Used by mkot_trap_warn().
+export function count_surround_traps(x, y, state = game) {
+    let ret = 0;
+
+    for (let dx = x - 1; dx < x + 2; ++dx) {
+        for (let dy = y - 1; dy < y + 2; ++dy) {
+            if (!isok(dx, dy)) continue;
+            /* If a trap is shown here, don't count it; the hero
+             * should be expecting it.  But if there is a trap here
+             * that's not shown, either undiscovered or covered by
+             * something, do count it. */
+            const glyph = glyph_at(dx, dy, state);
+            if (glyph_is_trap(glyph)) continue;
+            if (t_at(dx, dy, state)) {
+                ++ret;
+                continue;
+            }
+            const levp = state.level.at(dx, dy);
+            if (IS_DOOR(levp.typ) && (levp.doormask & D_TRAPPED) !== 0) {
+                ++ret;
+                continue;
+            }
+            for (let o = state.level.objects?.[dx]?.[dy]; o; o = o.nexthere) {
+                if (Is_container(o) && o.otrapped) {
+                    ++ret; /* we're counting locations, so just */
+                    break; /* count the first one in a pile     */
+                }
+            }
+        }
+    }
+    return ret;
+}
+
+// C ref: artifact.c mkot_trap_warn() (2753-2769). Sense adjacent traps
+// when wielding the Master Key of Thievery without wearing gloves.
+export async function mkot_trap_warn(state = game) {
+    const heat = [
+        'cool', 'slightly warm', 'warm', 'very warm',
+        'hot', 'very hot', 'like fire',
+    ];
+
+    if (!state.uarmg && state.uwep
+        && is_art(state.uwep, ART_MASTER_KEY_OF_THIEVERY)) {
+        const ntraps = count_surround_traps(state.u.ux, state.u.uy, state);
+
+        if (ntraps !== (state.mkot_trap_warn_count ?? 0)) {
+            const idx = Math.min(ntraps, heat.length - 1);
+            await ttyPline(
+                `The Key feels ${heat[idx]}${(ntraps > 3) ? '!' : '.'}`,
+                state);
+        }
+        state.mkot_trap_warn_count = ntraps;
+    } else {
+        state.mkot_trap_warn_count = 0;
+    }
+}
+
 // C ref: artifact.c is_magic_key() (2774-2786). The Master Key of Thievery
 // acts as a magic key when its bless/curse state meets role-dependent criteria:
 // not cursed for rogues, blessed for non-rogues. `mon` is the wielder; null
@@ -1890,5 +2153,30 @@ export function is_magic_key(mon, obj, state = game) {
         /* not a rogue; key must be blessed to behave as a magic one */
         return Boolean(obj.blessed);
     }
+    return false;
+}
+
+// C ref: artifact.c has_magic_key() (2790-2805). Figure out whether `mon`
+// (usually the hero) is carrying the Master Key of Thievery in magic-key
+// state. Returns the key object if found, null otherwise.
+export function has_magic_key(mon, state = game) {
+    const key = state.artilist[ART_MASTER_KEY_OF_THIEVERY].otyp;
+
+    if (!mon) mon = state.youmonst;
+    // C loop: for (o = invent; o; o = nxtobj(o, key, FALSE)). The first
+    // iteration checks `o` which could be any object; subsequent iterations
+    // walk from `o` via nxtobj which skips to the next skeleton key.
+    for (let o = (mon === state.youmonst) ? state.invent : mon.minvent;
+         o; o = nxtobj(o, key, false)) {
+        if (is_magic_key(mon, o, state))
+            return o;
+    }
+    return null;
+}
+
+// C ref: artifact.c is_art() (2808-2814). Simple check whether an object
+// is a specific artifact.
+export function is_art(obj, art) {
+    if (obj && obj.oartifact === art) return true;
     return false;
 }

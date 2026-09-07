@@ -174,12 +174,14 @@ test('ready_weapon() stops for the four objects it cannot handle', async () => {
         ECMD_TIME,
     );
     drain(noShield);
-    // artifact.c retouch_object() can blast a hero who handles silver.
+    // artifact.c retouch_object() checks silver + Hate_silver and bane.
+    // A hero who does not hate silver wields a silver saber without issue.
     const silver = makeState();
-    await assert.rejects(
-        () => ready_weapon(object(silver, SILVER_SABER), silver),
-        /handling silver/u,
+    assert.equal(
+        await ready_weapon(object(silver, SILVER_SABER), silver),
+        ECMD_TIME,
     );
+    drain(silver);
     // wield.c:196-209, a cursed weapon welding itself to the hand.
     const cursed = makeState();
     await assert.rejects(

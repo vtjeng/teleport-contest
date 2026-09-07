@@ -65,7 +65,7 @@ import { UnsupportedMonsterPickupOperationError } from './steal.js';
 import { objectGenerationHooks } from './object_generation.js';
 import { reset_mvitals } from './monsters.js';
 import { depth, init_dungeons } from './dungeon.js';
-import { init_artifacts } from './artifacts.js';
+import { init_artifacts, mkot_trap_warn } from './artifacts.js';
 import { role_init, welcomeMessage } from './role_init.js';
 import { u_init_misc } from './u_init.js';
 import {
@@ -885,6 +885,9 @@ export async function finishElapsedTurn(
             elapsedTurnBoundary('burdened multi-cycle automatic search');
         await automatic_search({ state, random });
     }
+    // C ref: allmain.c:351 mkot_trap_warn(). Sense traps near the hero when
+    // wielding the Master Key of Thievery without gloves.
+    await mkot_trap_warn(state);
     await dosoundsInitialLevel(state, {
         random: random.rn2,
         pline: turnMessage,

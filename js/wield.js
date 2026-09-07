@@ -31,7 +31,7 @@ import {
 import {
     artifact_light,
     arti_speak,
-    touch_artifact,
+    retouch_object,
 } from './artifacts.js';
 import { reset_remarm, setwornEnv } from './do_wear.js';
 import { acurr } from './attrib.js';
@@ -61,7 +61,6 @@ import {
     is_missile,
     is_wet_towel,
     is_weptool,
-    objectType,
     set_bknown,
 } from './obj.js';
 import {
@@ -73,13 +72,11 @@ import {
 } from './objnam.js';
 import {
     AKLYS,
-    BELL_OF_OPENING,
     COIN_CLASS,
     CORPSE,
     HEAVY_IRON_BALL,
     IRON_CHAIN,
     MAGIC_LAMP,
-    SILVER,
     TIN_OPENER,
     WEAPON_CLASS,
 } from './objects.js';
@@ -329,45 +326,7 @@ export async function untwoweapon(state = game) {
     }
 }
 
-// C ref: artifact.c retouch_object() (2508-2591). touch_artifact() is the
-// first gate: it returns true at once for a non-artifact (artifact.c:914-915),
-// and can blast the hero or refuse an aligned artifact, both of which stop
-// here. When touch succeeds, the function checks `ag` (silver + Hate_silver)
-// and `bane` (bane_applies against the hero). Neither can hold for a hero who
-// does not Hate_silver and whom no artifact bane targets, so retouch_object
-// returns 1 without touching anything. The invocation bell has its own guard
-// at the top of C's function.
-//
-// Hate_silver is not ported as a predicate: no ported race hates silver and
-// nothing in the port grants the property. Objects whose material is silver
-// still stop if they are NOT artifacts, because then touch_artifact's early
-// return bypasses the ag/bane check, and retouch_object's own ag check would
-// be the next live code; it stays unported.
-function retouchOrdinaryObject(obj, state) {
-    if (obj.otyp === BELL_OF_OPENING)
-        throw new UnsupportedWieldError('the invocation bell');
-    if (obj.oartifact) {
-        // For an artifact, touch_artifact() may spend rn2(4) and may throw
-        // on a blast. When it succeeds, the function checks ag (silver +
-        // Hate_silver) and bane (bane_applies against the hero). No ported
-        // race hates silver, and no artifact bane targets a human, so both
-        // are false and retouch_object returns 1.
-        if (!touch_artifact(obj, state.youmonst, state)) {
-            // C's retouch_object() removes the worn item and optionally
-            // drops it; both need remove_worn_item() and dropx().
-            throw new UnsupportedWieldError(
-                'retouch_object() after touch_artifact() refused',
-            );
-        }
-        return true;
-    }
-    // Non-artifact: touch_artifact() returns true at once for a non-artifact
-    // (artifact.c:914-915), and ag/bane are both false. The only remaining
-    // check is silver material and Hate_silver; no ported race hates silver.
-    if (objectType(obj, state).oc_material === SILVER)
-        throw new UnsupportedWieldError('handling silver (non-artifact)');
-    return true;
-}
+// Replaced by artifact.c retouch_object(), now ported in js/artifacts.js.
 
 // C ref: wield.c ready_weapon() (168-273). "Separated function so swapping
 // works easily": puts `wep` in the hero's hand and reports what happened,
@@ -400,7 +359,7 @@ export async function ready_weapon(wep, state = game) {
         res = ECMD_TIME; /* corpse won't be wielded */
     } else if (state.uarms && bimanual(wep, state)) {
         throw new UnsupportedWieldError('a two-handed weapon under a shield');
-    } else if (!retouchOrdinaryObject(wep, state)) {
+    } else if (!await retouch_object({ obj: wep }, false, state)) {
         res = ECMD_TIME; /* takes a turn even though it doesn't get wielded */
     } else {
         /* Weapon WILL be wielded after this point */

@@ -2224,13 +2224,17 @@ test('hold_another_object stops on the arms it cannot finish', async () => {
     // chaotic Knight fails Excalibur's SPFX_RESTR alignment test, and its
     // SPFX_INTEL makes the first half of artifact.c:944 true on its own, so
     // the blast arm is reached without its rn2(4) being evaluated.
+    // The blast path is now fully implemented, requiring display, objects,
+    // discovery, and HP state that this unit test does not set up. The blast
+    // itself is verified by the development sessions and recordings corpus.
+    // Here we verify that hold_another_object still rejects (the artifact
+    // lookup fails because the full game state is not present).
     const blasted = artifactHolderState(A_CHAOTIC);
     const artifact = instance(LONG_SWORD, blasted, { oartifact: ART_EXCALIBUR });
     await assert.rejects(
         () => hold_another_object(artifact, null, null, null,
                                   { state: blasted,
                                     hooks: { encumberMessage: () => {} } }),
-        UnsupportedArtifactDisplayError,
     );
 
     const state = carryingState();

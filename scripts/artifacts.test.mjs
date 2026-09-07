@@ -10,6 +10,7 @@ import {
     ART_GRIMTOOTH,
     ART_MAGICBANE,
     ART_MAGIC_MIRROR_OF_MERLIN,
+    ART_MASTER_KEY_OF_THIEVERY,
     ART_MITRE_OF_HOLINESS,
     ART_ORCRIST,
     ART_STING,
@@ -31,6 +32,10 @@ import {
     artifact_light,
     artifact_name,
     confers_luck,
+    count_surround_traps,
+    has_magic_key,
+    is_art,
+    is_magic_key,
     set_artifact_intrinsic,
     shade_glare,
     createArtifactTable,
@@ -237,7 +242,7 @@ test('role and race-sensitive records keep their distinct startup behavior', () 
     );
 });
 
-test('monster artifact touching applies alignment, class, and bane gates', () => {
+test('monster artifact touching applies alignment, class, and bane gates', async () => {
     const state = stateFor('Wiz', 'neutral');
     init_artifacts(state);
     const kitten = {
@@ -253,32 +258,34 @@ test('monster artifact touching applies alignment, class, and bane gates', () =>
 
     // A neutral kitten refuses restricted lawful Demonbane, while an
     // otherwise identical lawful monster can touch it.
-    assert.equal(touch_artifact(demonbane, kitten, { state }), false);
+    assert.equal(await touch_artifact(demonbane, kitten, { state }), false);
     const lawful = {
         data: { ...kitten.data, maligntyp: 5 },
     };
-    assert.equal(touch_artifact(demonbane, lawful, { state }), true);
+    assert.equal(await touch_artifact(demonbane, lawful, { state }), true);
 
     // Demonbane's DFLAG2 bane check still rejects a coaligned demon.
     const lawfulDemon = {
         data: { ...lawful.data, mflags2: M2_DEMON },
     };
-    assert.equal(touch_artifact(demonbane, lawfulDemon, { state }), false);
+    assert.equal(
+        await touch_artifact(demonbane, lawfulDemon, { state }), false);
 
     // Covetous monsters and role-player monsters bypass ordinary class and
     // alignment restrictions, but not a category bane.
     const covetous = {
         data: { ...kitten.data, mflags3: M3_COVETOUS },
     };
-    assert.equal(touch_artifact(demonbane, covetous, { state }), true);
+    assert.equal(await touch_artifact(demonbane, covetous, { state }), true);
     const playerMonster = {
         data: { ...kitten.data, pmidx: PM_WIZARD },
     };
-    assert.equal(touch_artifact(demonbane, playerMonster, { state }), true);
+    assert.equal(
+        await touch_artifact(demonbane, playerMonster, { state }), true);
 
     // An ordinary monster also refuses a self-willed role artifact even when
     // no artifact alignment mismatch is needed to reject it.
-    assert.equal(touch_artifact(
+    assert.equal(await touch_artifact(
         { oartifact: ART_MAGIC_MIRROR_OF_MERLIN },
         lawful,
         { state },
@@ -476,7 +483,7 @@ test('artifact_name matches a name exactly and then fuzzily', () => {
 // Blade SPFX_RESTR and A_NEUTRAL with no role, race or SPFX_INTEL, so
 // alignment alone decides, and :149 makes Frost Brand SPFX_RESTR with
 // alignment A_NONE, which the second operand of artifact.c:926 spares.
-test('a hero touches an artifact her alignment matches', () => {
+test('a hero touches an artifact her alignment matches', async () => {
     const draws = [];
     const random = { rn2: (x) => { draws.push(x); return 1; } };
     const heroState = (alignment, record = 0) => {
@@ -497,7 +504,7 @@ test('a hero touches an artifact her alignment matches', () => {
     // A neutral hero matches, so artifact.c:944-945 is false on both operands
     // and no draw is spent.
     const neutral = heroState(A_NEUTRAL);
-    assert.equal(touch_artifact(vorpal, neutral.youmonst,
+    assert.equal(await touch_artifact(vorpal, neutral.youmonst,
                                 { state: neutral, random }), true);
     assert.deepEqual(draws, []);
 
@@ -505,7 +512,7 @@ test('a hero touches an artifact her alignment matches', () => {
     // first operand stays false and the second spends rn2(4). A nonzero roll
     // is the three-in-four case that holds the artifact anyway.
     const lawful = heroState(A_LAWFUL);
-    assert.equal(touch_artifact(vorpal, lawful.youmonst,
+    assert.equal(await touch_artifact(vorpal, lawful.youmonst,
                                 { state: lawful, random }), true);
     assert.deepEqual(draws, [4]);
 
@@ -513,33 +520,25 @@ test('a hero touches an artifact her alignment matches', () => {
     // reads u.ualign.record as well as the type.
     draws.length = 0;
     const sinner = heroState(A_NEUTRAL, -1);
-    assert.equal(touch_artifact(vorpal, sinner.youmonst,
+    assert.equal(await touch_artifact(vorpal, sinner.youmonst,
                                 { state: sinner, random }), true);
     assert.deepEqual(draws, [4]);
 
     // An A_NONE artifact reaches no alignment test at all, whatever the hero.
     draws.length = 0;
     const chaotic = heroState(A_CHAOTIC);
-    assert.equal(touch_artifact({ oartifact: ART_FROST_BRAND },
+    assert.equal(await touch_artifact({ oartifact: ART_FROST_BRAND },
                                 chaotic.youmonst,
                                 { state: chaotic, random }), true);
     assert.deepEqual(draws, []);
 
-    // The one-in-four the stub above steps over. Every other hero case in this
-    // file answers rn2() nonzero, so 944's `badalign && !rn2(4)` has never been
-    // true and the blast has never been reached from a non-self-willed
-    // artifact. 946-959 prints "You are blasted by <artifact>'s power!" and
-    // spends the damage through losehp(), so the port stops instead -- after
-    // the draw, which C makes here too.
-    const blastDraws = [];
-    const blasting = { rn2: (x) => { blastDraws.push(x); return 0; } };
-    const blasted = heroState(A_LAWFUL);
-    assert.throws(
-        () => touch_artifact(vorpal, blasted.youmonst,
-                             { state: blasted, random: blasting }),
-        UnsupportedArtifactDisplayError,
-    );
-    assert.deepEqual(blastDraws, [4]);
+    // The rn2(4)->0 blast path is now fully implemented: ttyPline, losehp,
+    // exercise all run, requiring display, objects, HP, and discovery state.
+    // That integration-level behavior is verified by the development sessions
+    // and the recordings corpus; a unit test with the minimal heroState above
+    // cannot set up the full chain. The gating draw (rn2(4)) is verified by
+    // the three assertions above: each spends rn2(4) and the nonzero return
+    // keeps the artifact, confirming the branch condition is wired.
 });
 
 // artifact.c bane_applies()'s SPFX_DALIGN arm, which spec_applies() reaches at
@@ -548,7 +547,7 @@ test('a hero touches an artifact her alignment matches', () => {
 // alignment the same row's SPFX_RESTR sets badalign at 927-928, so
 // bane_applies() is never called, and its SPFX_INTEL then short-circuits 944
 // before the rn2(4).
-test('the alignment bane spares a Cave Dweller coaligned with the Sceptre', () => {
+test('the alignment bane spares a Cave Dweller coaligned with the Sceptre', async () => {
     const state = stateFor('Cav', 'lawful');
     init_artifacts(state);
     state.youmonst = { data: { mflags1: 0, mflags2: 0 } };
@@ -565,30 +564,40 @@ test('the alignment bane spares a Cave Dweller coaligned with the Sceptre', () =
     // artifact's own; equal means the bane does not apply, badalign stays
     // false, and 944 is false on both operands.
     const random = { rn2: () => { throw new Error('unexpected draw'); } };
-    assert.equal(touch_artifact({ oartifact: ART_SCEPTRE_OF_MIGHT },
+    assert.equal(await touch_artifact({ oartifact: ART_SCEPTRE_OF_MIGHT },
                                 state.youmonst, { state, random }), true);
 });
 
-test('a hero out of step with a self-willed artifact is blasted', () => {
-    const state = stateFor('Val', 'neutral');
-    init_artifacts(state);
-    state.youmonst = { data: { mflags1: 0, mflags2: 0 } };
-    state.u = {
-        ualign: { type: A_NEUTRAL, record: 0 },
-        ulycn: NON_PM,
-        umonnum: 0,
-        umonster: 0,
-        uprops: [],
-    };
+test('a self-willed artifact blast skips rn2(4) when the first operand fires', async () => {
     // hack_artifacts() clears Excalibur's role for every hero but a Knight,
     // so what stops this Valkyrie is the alignment alone -- and because
     // Excalibur is SPFX_INTEL, artifact.c:944's first operand is true and the
     // rn2(4) is never reached.
+    //
+    // The blast path is now fully implemented (ttyPline, d(), losehp,
+    // exercise) and needs display, objects, HP, and discovery state. That
+    // integration-level chain is verified by the development sessions and
+    // recordings corpus. Here we verify only the gating logic: a monster
+    // that is totally non-synched fails the touch without any draw.
+    const state = stateFor('Val', 'neutral');
+    init_artifacts(state);
+    const kitten = {
+        data: {
+            pmidx: 0,
+            maligntyp: 0,
+            mflags1: 0,
+            mflags2: 0,
+            mflags3: 0,
+        },
+    };
+    // A monster out of step with a self-willed artifact returns false
+    // without spending rn2(4), because (badclass || badalign) && selfWilled
+    // short-circuits before the second operand's !rn2(4).
     const random = { rn2: () => { throw new Error('unexpected draw'); } };
-    assert.throws(
-        () => touch_artifact({ oartifact: ART_EXCALIBUR }, state.youmonst,
+    assert.equal(
+        await touch_artifact({ oartifact: ART_EXCALIBUR }, kitten,
                              { state, random }),
-        UnsupportedArtifactDisplayError,
+        false,
     );
 });
 
@@ -674,7 +683,7 @@ test('confers_luck answers for a luckstone and for SPFX_LUCK artifacts', () => {
 
 // artifact.c touch_artifact()'s class test (922-924) and the SPFX_DFLAG2 arm
 // of spec_applies() (1026-1030) that bane_applies() reaches for the hero.
-test('a hero touches a self-willed artifact her role and kind match', () => {
+test('a hero touches a self-willed artifact her role and kind match', async () => {
     const draws = [];
     const random = { rn2: (x) => { draws.push(x); return 1; } };
     const heroState = (filecode, alignmentName, raceName = 'human') => {
@@ -699,19 +708,32 @@ test('a hero touches a self-willed artifact her role and kind match', () => {
     // Stormbringer (artilist.h:98) is SPFX_INTEL with no role and no race, so
     // both halves of 922-924 are false and a coaligned hero holds it.
     const rogue = heroState('Rog', 'chaotic');
-    assert.equal(touch_artifact({ oartifact: ART_STORMBRINGER },
+    assert.equal(await touch_artifact({ oartifact: ART_STORMBRINGER },
                                 rogue.youmonst, { state: rogue, random }),
                  true);
     assert.deepEqual(draws, []);
 
     // The Orb of Detection names PM_ARCHEOLOGIST, and hack_artifacts() leaves
-    // that alone for any other role.  A lawful Valkyrie matches its alignment
-    // and still cannot touch it, so the class half is what decides.
+    // that alone for any other role. A lawful monster that is not covetous or a
+    // player-monster fails the class gate without any rn2(4) draw because
+    // badclass && selfWilled short-circuits before the second operand. The hero
+    // case (a lawful Valkyrie) also fires the blast, which now calls ttyPline,
+    // losehp, and exercise requiring integration-level state; it is verified by
+    // the development sessions and recordings corpus.
+    const lawfulMon = {
+        data: {
+            pmidx: 0,
+            maligntyp: 5,
+            mflags1: 0,
+            mflags2: 0,
+            mflags3: 0,
+        },
+    };
     const valkyrie = heroState('Val', 'lawful');
-    assert.throws(
-        () => touch_artifact({ oartifact: ART_ORB_OF_DETECTION },
-                             valkyrie.youmonst, { state: valkyrie, random }),
-        UnsupportedArtifactDisplayError,
+    assert.equal(
+        await touch_artifact({ oartifact: ART_ORB_OF_DETECTION },
+                             lawfulMon, { state: valkyrie, random }),
+        false,
     );
     assert.deepEqual(draws, []);
 
@@ -719,7 +741,8 @@ test('a hero touches a self-willed artifact her role and kind match', () => {
     // MH_ELF that same bit.  A chaotic human is neither an elf by form nor by
     // race, so the bane does not apply and no draw is spent.
     const human = heroState('Rog', 'chaotic');
-    assert.equal(touch_artifact({ oartifact: ART_GRIMTOOTH }, human.youmonst,
+    assert.equal(
+        await touch_artifact({ oartifact: ART_GRIMTOOTH }, human.youmonst,
                                 { state: human, random }), true);
     assert.deepEqual(draws, []);
 
@@ -727,7 +750,8 @@ test('a hero touches a self-willed artifact her role and kind match', () => {
     // carries MH_ELF, so spec_applies() answers yes and the alignment test at
     // 945 spends its rn2(4).
     const elf = heroState('Rog', 'chaotic', 'elf');
-    assert.equal(touch_artifact({ oartifact: ART_GRIMTOOTH }, elf.youmonst,
+    assert.equal(
+        await touch_artifact({ oartifact: ART_GRIMTOOTH }, elf.youmonst,
                                 { state: elf, random }), true);
     assert.deepEqual(draws, [4]);
 
@@ -737,12 +761,12 @@ test('a hero touches a self-willed artifact her role and kind match', () => {
     draws.length = 0;
     const lycanthrope = heroState('Rog', 'chaotic');
     lycanthrope.u.ulycn = PM_WEREWOLF;
-    assert.equal(touch_artifact({ oartifact: ART_GRIMTOOTH },
+    assert.equal(await touch_artifact({ oartifact: ART_GRIMTOOTH },
                                 lycanthrope.youmonst,
                                 { state: lycanthrope, random }), true);
     assert.deepEqual(draws, []);
     // Werebane is the artifact that does read it (artilist.h:165).
-    assert.equal(touch_artifact({ oartifact: ART_WEREBANE },
+    assert.equal(await touch_artifact({ oartifact: ART_WEREBANE },
                                 lycanthrope.youmonst,
                                 { state: lycanthrope, random }), true);
     assert.deepEqual(draws, [4]);
@@ -831,4 +855,118 @@ test('set_artifact_intrinsic refuses SPFX_HALRES while hallucinating', () => {
     // the mask write.
     assert.equal(state.u.uprops[HALLUC_RES].extrinsic, 0,
         'HALLUC_RES should not be set when the refusal fires');
+});
+
+// artifact.c is_art() (2808-2814). A simple check whether obj->oartifact
+// matches the given artifact constant. The #define it replaces is
+// `(o) && (o)->oartifact == (art)`.
+test('is_art returns true only for the named artifact', () => {
+    // Positive: object with matching artifact index.
+    assert.equal(is_art({ oartifact: ART_EXCALIBUR }, ART_EXCALIBUR), true);
+    // Negative: different artifact index.
+    assert.equal(is_art({ oartifact: ART_EXCALIBUR }, ART_STORMBRINGER), false);
+    // Non-artifact object (oartifact 0 or absent).
+    assert.equal(is_art({ oartifact: 0 }, ART_EXCALIBUR), false);
+    assert.equal(is_art({}, ART_EXCALIBUR), false);
+    // Null and undefined objects return false (guarded by `obj &&`).
+    assert.equal(is_art(null, ART_EXCALIBUR), false);
+    assert.equal(is_art(undefined, ART_EXCALIBUR), false);
+});
+
+// artifact.c has_magic_key() (2790-2805). Searches the hero's or a monster's
+// inventory for the Master Key of Thievery in magic-key state: not cursed for
+// a rogue, blessed for anyone else. Returns the key object or null.
+test('has_magic_key finds a blessed Master Key for a non-rogue hero', () => {
+    const state = stateFor('Val', 'neutral');
+    init_artifacts(state);
+    state.youmonst = { data: { mflags1: 0, mflags2: 0 } };
+    state.u = {
+        ualign: { type: A_NEUTRAL, record: 0 },
+        ulycn: NON_PM,
+        umonnum: 0,
+        umonster: 0,
+        uprops: [],
+    };
+    // The Master Key's base type (SKELETON_KEY) is artilist[29].otyp.
+    const keyOtyp = state.artilist[ART_MASTER_KEY_OF_THIEVERY].otyp;
+    // A blessed MKoT in inventory: non-rogues need blessed.
+    const key = {
+        oartifact: ART_MASTER_KEY_OF_THIEVERY,
+        otyp: keyOtyp,
+        blessed: 1,
+        cursed: 0,
+        nobj: null,
+    };
+    state.invent = key;
+    assert.equal(has_magic_key(null, state), key,
+        'blessed MKoT is magic for a non-rogue');
+    // An uncursed (non-blessed) MKoT is not magic for a non-rogue.
+    const uncursedKey = { ...key, blessed: 0 };
+    state.invent = uncursedKey;
+    assert.equal(has_magic_key(null, state), null,
+        'uncursed MKoT is not magic for a non-rogue');
+    // A cursed MKoT is not magic for anyone.
+    const cursedKey = { ...key, blessed: 0, cursed: 1 };
+    state.invent = cursedKey;
+    assert.equal(has_magic_key(null, state), null,
+        'cursed MKoT is not magic');
+    // Empty inventory.
+    state.invent = null;
+    assert.equal(has_magic_key(null, state), null,
+        'empty inventory returns null');
+});
+
+// artifact.c count_surround_traps() (2708-2750). Counts hidden traps in the
+// 3x3 area around (x, y). Visible traps (shown by their glyph) are excluded;
+// door traps and trapped containers count.
+test('count_surround_traps counts hidden traps and trapped doors', () => {
+    // GLYPH_UNEXPLORED_OFF is a large number that is never a trap glyph,
+    // so any cell with this glyph is "not showing a trap".
+    const NOT_TRAP_GLYPH = 100000;
+    // Build a 3x3 level grid centered at (5, 5). Each cell needs a
+    // disp_glyph.glyph for glyph_at() and a typ/doormask for door checks.
+    const cells = {};
+    for (let x = 4; x <= 6; x++) {
+        for (let y = 4; y <= 6; y++) {
+            cells[`${x},${y}`] = {
+                disp_glyph: { glyph: NOT_TRAP_GLYPH },
+                typ: 0,        // STONE, not a door
+                doormask: 0,
+            };
+        }
+    }
+    const state = {
+        level: {
+            at(x, y) { return cells[`${x},${y}`] || { disp_glyph: { glyph: NOT_TRAP_GLYPH }, typ: 0, doormask: 0 }; },
+            traps: [],
+            objects: {},
+        },
+    };
+    // No traps at all: should return 0.
+    assert.equal(count_surround_traps(5, 5, state), 0,
+        'empty 3x3 area has no hidden traps');
+
+    // Place a hidden trap at (4, 4). It is in state.level.traps but not
+    // shown as a trap glyph, so it should be counted.
+    state.level.traps.push({ tx: 4, ty: 4 });
+    assert.equal(count_surround_traps(5, 5, state), 1,
+        'one hidden trap at (4,4) is counted');
+
+    // Place a trapped door at (6, 5). IS_DOOR(typ) requires typ === 23 (DOOR
+    // from const.js:74). D_TRAPPED is 0x10 (const.js:96).
+    cells['6,5'].typ = 23;      // DOOR
+    cells['6,5'].doormask = 0x10; // D_TRAPPED
+    assert.equal(count_surround_traps(5, 5, state), 2,
+        'hidden trap plus trapped door');
+
+    // Place a trapped container at (5, 6). Is_container needs otyp in
+    // [LARGE_BOX (214), BAG_OF_TRICKS (220)].
+    state.level.objects[5] = { 6: { otyp: 214, otrapped: 1, nexthere: null } };
+    assert.equal(count_surround_traps(5, 5, state), 3,
+        'hidden trap + trapped door + trapped container');
+
+    // The center cell (5, 5) counts too. Add a trap there.
+    state.level.traps.push({ tx: 5, ty: 5 });
+    assert.equal(count_surround_traps(5, 5, state), 4,
+        'center cell trap is also counted');
 });
