@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Hell hound pup (AT_BREA) breathes fire at hero, exercising breamu and breamm. Diverges at mcalcmove (mon.c:1164); record once mon.c mcalcmove is ported.",
+  "segments": [
+    {
+      "seed": 7780001,
+      "datetime": "20261015100000",
+      "nethackrc": "OPTIONS=name:Tester,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  qg               \u0007hell hound pup\nkyhhhhhhhhhh...................."
+    }
+  ]
+}

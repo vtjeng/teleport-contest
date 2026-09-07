@@ -215,6 +215,7 @@ import {
     PM_CHICKATRICE,
     PM_CHIEFTAIN,
     PM_CLERIC,
+    PM_COBRA,
     PM_COCKATRICE,
     PM_DEMILICH,
     PM_DWARF_RULER,
@@ -1255,6 +1256,11 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
             && species.pmidx !== PM_GIANT_EEL
             && species.pmidx !== PM_GUARD
             && species.pmidx !== PM_UMBER_HULK
+            // Cobra is the lowest-difficulty AT_SPIT species (difficulty
+            // 10, just above the D:5 reservoir ceiling). wiz_genesis()
+            // creates it for the spitmu recipe that covers mthrowu.c's
+            // spit-venom entry point.
+            && species.pmidx !== PM_COBRA
             && (!allowMinotaur || species.pmidx !== PM_MINOTAUR))) {
         throw new UnsupportedMonsterCreationError(
             `monster ${species?.pmidx ?? 'null'}`,

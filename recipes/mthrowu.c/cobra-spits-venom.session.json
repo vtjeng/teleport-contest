@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cobra (AT_SPIT) spits venom at hero, exercising spitmu and spitmm. Diverges at mcalcmove (mon.c:1164); record once mon.c mcalcmove is ported.",
+  "segments": [
+    {
+      "seed": 7780020,
+      "datetime": "20261015100000",
+      "nethackrc": "OPTIONS=name:Tester,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  qh               \u0007cobra\nkyhhhhhhhhhh...................."
+    }
+  ]
+}

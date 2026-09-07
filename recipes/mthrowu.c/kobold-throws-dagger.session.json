@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Kobold throws a dart at hero, exercising thrwmu, monshoot, and m_throw. Diverges at mcalcmove (mon.c:1164); record once mon.c mcalcmove is ported.",
+  "segments": [
+    {
+      "seed": 7780055,
+      "datetime": "20261015100000",
+      "nethackrc": "OPTIONS=name:Tester,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  qh               \u0007kobold\nkyhhhhhhhhhh...................."
+    }
+  ]
+}
