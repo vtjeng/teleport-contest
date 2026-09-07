@@ -3069,7 +3069,17 @@ export function obj_sanity_check(state = game) {
     objlist_sanity(state.level?.buriedobjlist ?? null, OBJ_BURIED,
                    'buried sanity', state);
     // gb.billobjs and go.objs_deleted are not maintained in JS
-    note_unported('mkobj.c mon_obj_sanity');
+
+    // C: mon_obj_sanity(fmon, "minvent sanity")
+    mon_obj_sanity(state.level?.monlist ?? null, 'minvent sanity', state);
+    // C: mon_obj_sanity(gm.migrating_mons, "migrating minvent sanity")
+    mon_obj_sanity(state.gm?.migrating_mons ?? null,
+                   'migrating minvent sanity', state);
+    // C: if (gm.mydogs) { impossible(...); mon_obj_sanity(...); }
+    if (state.gm?.mydogs) {
+        note_unported('pline.c impossible');
+        mon_obj_sanity(state.gm.mydogs, 'mydogs minvent sanity', state);
+    }
 
     // C: checks for thrownobj, kickedobj, returning_missile, current_wand
     // All report through insane_object(), not yet ported.
@@ -3109,7 +3119,7 @@ export function objlist_sanity(objlist, wheretype, mesg, state = game) {
         // C: temporary flag checks (in_use, bypass, nomerge, next_boulder)
         if (obj.in_use || obj.bypass || obj.nomerge
             || (obj.otyp === BOULDER && obj.next_boulder))
-            note_unported('mkobj.c insane_obj_bits');
+            insane_obj_bits(obj, null, state);
     }
 }
 
@@ -3127,4 +3137,81 @@ export function shop_obj_sanity(obj, mesg, state = game) {
         note_unported('shk.c find_objowner');
     else if (obj.no_charge)
         note_unported('shk.c find_objowner');
+}
+
+// C ref: mkobj.c mon_obj_sanity() (3204-3246). Iterates monster inventories
+// checking that wielded weapons and carried objects are consistent.
+// Diagnostic output goes through insane_object(), check_glob(),
+// check_contained(), and impossible(), none of which are ported yet.
+export function mon_obj_sanity(monlist, mesg, state = game) {
+    for (let mon = monlist; mon; mon = mon.nmon) {
+        if (mon.mhp < 1) continue; // DEADMONSTER
+        let mwep = mon.mw; // MON_WEP
+        if (mwep) {
+            // C: if (!mcarried(mwep)) insane_object(...)
+            if (mwep.where !== OBJ_MINVENT)
+                note_unported('mkobj.c insane_object');
+            // C: if (mwep->ocarry != mon) insane_object(...)
+            if (mwep.ocarry !== mon)
+                note_unported('mkobj.c insane_object');
+        }
+        for (let obj = mon.minvent; obj; obj = obj.nobj) {
+            if (obj.where !== OBJ_MINVENT)
+                note_unported('mkobj.c insane_object');
+            if (obj.ocarry !== mon)
+                note_unported('mkobj.c insane_object');
+            if (obj.globby)
+                note_unported('mkobj.c check_glob');
+            note_unported('mkobj.c check_contained');
+            if (obj.unpaid || obj.no_charge)
+                shop_obj_sanity(obj, mesg, state);
+            if (obj.in_use || obj.bypass || obj.nomerge
+                || (obj.otyp === BOULDER && obj.next_boulder))
+                insane_obj_bits(obj, mon, state);
+            if (obj === mwep)
+                mwep = null;
+        }
+        if (mwep) {
+            // C: impossible("monst (%s: %u) wielding %s (%u) not in %s
+            //    inventory", pmname(...), mon->m_id, safe_typename(...),
+            //    mwep->o_id, mhis(mon))
+            // impossible(), pmname(), safe_typename(), mhis() -- impossible
+            // and safe_typename are not ported; pmname and mhis are.
+            note_unported('pline.c impossible');
+        }
+    }
+}
+
+// C ref: mkobj.c insane_obj_bits() (3248-3276). Checks object flag
+// consistency (in_use, bypass, nomerge, next_boulder). Reports through
+// insane_object(), not yet ported.
+export function insane_obj_bits(obj, mon, state = game) {
+    if (obj.where === OBJ_DELETED) return;
+
+    const o_in_use = obj.in_use;
+    const o_bypass = obj.bypass;
+    // having obj.nomerge be set might be intentional
+    const o_nomerge = obj.nomerge && !nomerge_exception(obj, state);
+    // next_boulder is only for object name formatting when pushing
+    // boulders and should be reset by time of next sanity check
+    const o_boulder = obj.otyp === BOULDER && obj.next_boulder;
+
+    if (o_in_use || o_bypass || o_nomerge || o_boulder) {
+        // C builds infobuf and calls insane_object(obj, ofmt0, infobuf, mon)
+        note_unported('mkobj.c insane_object');
+    }
+}
+
+// C ref: mkobj.c nomerge_exception() (3280-3288). Returns true for objects
+// that use the nomerge flag persistently (special prize objects for
+// achievement tracking). Pure function.
+export function nomerge_exception(obj, state = game) {
+    // C: is_mines_prize(obj) || is_soko_prize(obj)
+    const tracking = state.context?.achieveo;
+    if (!tracking) return false;
+    if (tracking.mines_prize_oid && obj.o_id === tracking.mines_prize_oid)
+        return true;
+    if (tracking.soko_prize_oid && obj.o_id === tracking.soko_prize_oid)
+        return true;
+    return false;
 }
