@@ -6,6 +6,10 @@ import {
     A_LAWFUL,
     A_NONE,
     AGGRAVATE_MONSTER,
+    AM_CHAOTIC,
+    AM_LAWFUL,
+    AM_NEUTRAL,
+    AM_NONE,
     G_EXTINCT,
     G_GENOD,
     G_GONE,
@@ -13,8 +17,10 @@ import {
 import { level_difficulty } from '../js/dungeon.js';
 import { adj_erinys } from '../js/mon.js';
 import {
+    align_shift,
     golemhp,
     grow_up,
+    init_mextra,
     init_mongen_order,
     mbirth_limit,
     mk_gen_ok,
@@ -22,6 +28,7 @@ import {
     mkclass_aligned,
     mkclass_poly,
     newmcorpsenm,
+    newmextra,
     newmonhp,
     peace_minded,
     propagate,
@@ -29,6 +36,7 @@ import {
     rndmonst,
     rndmonst_adj,
     set_malign,
+    temperature_shift,
     wrong_elem_type,
 } from '../js/makemon.js';
 import {
@@ -78,6 +86,8 @@ import {
     PM_WATER_ELEMENTAL,
     PM_WIZARD_OF_YENDOR,
     M2_ORC,
+    MR_COLD,
+    MR_FIRE,
     NON_PM,
     S_ANT,
     S_DEMON,
@@ -1257,4 +1267,109 @@ test('newmcorpsenm preserves existing mextra and resets mcorpsenm', () => {
         'mcorpsenm should be reset to NON_PM');
     assert.deepEqual(mtmp.mextra.epri, { shralign: 1 },
         'existing mextra fields should be preserved');
+});
+
+// --- align_shift tests ---
+// C ref: makemon.c align_shift(). ALIGNWEIGHT is 4 (global.h:411).
+// The function returns a generation-weight bonus based on the level's
+// alignment and the monster's maligntyp.
+
+// AM_LAWFUL formula: (maligntyp + 20) / (2 * 4) = (maligntyp + 20) / 8.
+// A strongly lawful monster (maligntyp = 10) on a lawful level gets
+// (10 + 20) / 8 = 3. A chaotic monster (maligntyp = -10) gets
+// (-10 + 20) / 8 = 1. Integer truncation applies.
+test('align_shift on a lawful level favors lawful monsters', () => {
+    const state = startingState();
+    state.dungeons[0].flags.align = AM_LAWFUL;
+    // maligntyp 10 (lawful): (10 + 20) / 8 = 3
+    assert.equal(align_shift({ maligntyp: 10 }, state), 3);
+    // maligntyp -10 (chaotic): (-10 + 20) / 8 = 1
+    assert.equal(align_shift({ maligntyp: -10 }, state), 1);
+    // maligntyp 0 (neutral): (0 + 20) / 8 = 2
+    assert.equal(align_shift({ maligntyp: 0 }, state), 2);
+});
+
+// AM_NEUTRAL formula: (20 - abs(maligntyp)) / 4.
+// A neutral monster (maligntyp = 0) on a neutral level gets 20 / 4 = 5.
+// A lawful or chaotic monster (maligntyp = +/-10) gets (20 - 10) / 4 = 2.
+test('align_shift on a neutral level favors neutral monsters', () => {
+    const state = startingState();
+    state.dungeons[0].flags.align = AM_NEUTRAL;
+    // maligntyp 0 (neutral): (20 - 0) / 4 = 5
+    assert.equal(align_shift({ maligntyp: 0 }, state), 5);
+    // maligntyp 10 (lawful): (20 - 10) / 4 = 2
+    assert.equal(align_shift({ maligntyp: 10 }, state), 2);
+    // maligntyp -10 (chaotic): (20 - 10) / 4 = 2
+    assert.equal(align_shift({ maligntyp: -10 }, state), 2);
+});
+
+// AM_CHAOTIC formula: (-(maligntyp - 20)) / (2 * 4) = (20 - maligntyp) / 8.
+// A strongly chaotic monster (maligntyp = -10) on a chaotic level gets
+// (20 - (-10)) / 8 = 3. A lawful monster (maligntyp = 10) gets
+// (20 - 10) / 8 = 1.
+test('align_shift on a chaotic level favors chaotic monsters', () => {
+    const state = startingState();
+    state.dungeons[0].flags.align = AM_CHAOTIC;
+    // maligntyp -10 (chaotic): (20 + 10) / 8 = 3
+    assert.equal(align_shift({ maligntyp: -10 }, state), 3);
+    // maligntyp 10 (lawful): (20 - 10) / 8 = 1
+    assert.equal(align_shift({ maligntyp: 10 }, state), 1);
+    // maligntyp 0 (neutral): 20 / 8 = 2
+    assert.equal(align_shift({ maligntyp: 0 }, state), 2);
+});
+
+// AM_NONE (default case): always returns 0 regardless of the monster's
+// alignment.
+test('align_shift on an unaligned level returns zero', () => {
+    const state = startingState();
+    state.dungeons[0].flags.align = AM_NONE;
+    assert.equal(align_shift({ maligntyp: 10 }, state), 0);
+    assert.equal(align_shift({ maligntyp: -10 }, state), 0);
+    assert.equal(align_shift({ maligntyp: 0 }, state), 0);
+});
+
+// --- temperature_shift tests ---
+// C ref: makemon.c temperature_shift(). Returns 3 when the monster resists the
+// level's temperature element, 0 otherwise.
+
+// A hot level (temperature > 0) checks MR_FIRE. PM_FIRE_ANT resists fire.
+test('temperature_shift returns 3 for a fire-resistant monster on a hot level', () => {
+    const state = startingState();
+    state.level.flags.temperature = 1;
+    // PM_FIRE_ANT has MR_FIRE in its mresists
+    assert.equal(temperature_shift(state.mons[PM_FIRE_ANT], state), 3);
+});
+
+// A cold level (temperature < 0) checks MR_COLD. PM_FOX has no cold resistance.
+test('temperature_shift returns 0 for a non-cold-resistant monster on a cold level', () => {
+    const state = startingState();
+    state.level.flags.temperature = -1;
+    assert.equal(temperature_shift(state.mons[PM_FOX], state), 0);
+});
+
+// Zero temperature means no bonus for any monster.
+test('temperature_shift returns 0 on a temperate level', () => {
+    const state = startingState();
+    state.level.flags.temperature = 0;
+    assert.equal(temperature_shift(state.mons[PM_FIRE_ANT], state), 0);
+});
+
+// --- init_mextra / newmextra tests ---
+// C ref: makemon.c init_mextra(). Initializes mcorpsenm to NON_PM; in C the
+// rest of the struct is zeroed by zeromextra. In JS the empty object literal
+// serves the same purpose.
+test('init_mextra sets mcorpsenm to NON_PM on the given object', () => {
+    const mex = {};
+    init_mextra(mex);
+    assert.equal(mex.mcorpsenm, NON_PM,
+        'mcorpsenm should be NON_PM after init_mextra');
+});
+
+// C ref: makemon.c newmextra(). Allocates a new mextra record and initializes
+// it via init_mextra().
+test('newmextra returns an object with mcorpsenm set to NON_PM', () => {
+    const mex = newmextra();
+    assert.ok(mex, 'newmextra should return a truthy object');
+    assert.equal(mex.mcorpsenm, NON_PM,
+        'mcorpsenm should be NON_PM in a fresh mextra');
 });

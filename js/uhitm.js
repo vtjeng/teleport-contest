@@ -55,6 +55,7 @@ import {
     helpless,
     isok,
     M_AP_TYPE,
+    NO_TRAP_FLAGS,
     something,
 } from './const.js';
 import {
@@ -200,7 +201,8 @@ import {
     mksobj,
     objectType,
 } from './obj.js';
-import { an, cxname, donameFresh, is_plural, otense, simpleonames } from './objnam.js';
+import { clone_mon } from './makemon.js';
+import { an, cxname, donameFresh, is_plural, otense, simpleonames, yname } from './objnam.js';
 import {
     CORPSE,
     GAUNTLETS_OF_POWER,
@@ -245,6 +247,7 @@ import {
 import { steal } from './steal.js';
 import { noteleport_level, rloc } from './teleport.js';
 import { is_pool } from './trap.js';
+import { mintrap } from './trap_effects.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { Cold_resistance, exclam } from './zap.js';
@@ -1349,10 +1352,9 @@ async function hmon_hitmon_pet(hmd, mon, state, random) {
 }
 
 // C ref: uhitm.c hmon_hitmon_splitmon() (1603-1634). An iron or metal melee
-// weapon divides a pudding. clone_mon() is unported, so a pudding that meets
-// every one of C's tests stops; any other species fails the first one and the
-// rest are never evaluated.
-function hmon_hitmon_splitmon(hmd, mon, obj, state, env) {
+// weapon divides a pudding: clone_mon() creates the new half and mintrap()
+// checks whether it landed on a trap.
+async function hmon_hitmon_splitmon(hmd, mon, obj, state, env) {
     if ((hmd.mdat === state.mons[PM_BLACK_PUDDING]
          || hmd.mdat === state.mons[PM_BROWN_PUDDING])
         /* pudding is alive and healthy enough to split */
@@ -1367,7 +1369,19 @@ function hmon_hitmon_splitmon(hmd, mon, obj, state, env) {
             /* but not bashing with darts, arrows or ya */
             && !(is_ammo(obj, state) || is_missile(obj, state)))
         && hmd.hand_to_hand) {
-        requireAttackOperation(env, 'unsupported')('splitting a pudding');
+        const mclone = await clone_mon(mon, 0, 0, state);
+        if (mclone) {
+            const message = requireAttackOperation(env, 'message');
+            let withwhat = '';
+            if (state.u.twoweap && state.flags?.verbose)
+                withwhat = ` with ${yname(obj, state)}`;
+            await message(
+                `${capitalizedMonsterName(mon, state)} divides as you hit it${withwhat}!`,
+                state,
+            );
+            hmd.hittxt = true;
+            await mintrap(mclone, NO_TRAP_FLAGS, { ...env, state });
+        }
     }
 }
 
@@ -1560,7 +1574,7 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
 
     await hmon_hitmon_pet(hmd, mon, state, random);
 
-    hmon_hitmon_splitmon(hmd, mon, obj, state, env);
+    await hmon_hitmon_splitmon(hmd, mon, obj, state, env);
 
     await hmon_hitmon_msg_hit(hmd, mon, obj, state, env);
 

@@ -656,13 +656,17 @@ test('the pet and pudding arms pass an ordinary hostile through', async () => {
 
     // uhitm.c:1610-1626. The scalpel is METAL and wielded, and the hero is
     // striking hand to hand, so a black pudding meets every one of C's tests
-    // and clone_mon() is what is missing.
+    // and clone_mon() splits it. The three rolls: rnd(3) = 2 for scalpel
+    // damage, rn2(3) = 1 and rn2(6) = 1 for the knockback pair.
+    const puddingTarget = target(PM_BLACK_PUDDING);
     const pudding = hitEnv({ rolls: [2, 1, 1] });
-    await refusesAsync(
-        () => hmon(target(PM_BLACK_PUDDING), game.uwep, HMON_MELEE, 10, game,
-                   pudding),
-        'splitting a pudding',
-    );
+    await hmon(puddingTarget, game.uwep, HMON_MELEE, 10, game, pudding);
+    // The blow dealt 2 points first (99 - 2 = 97), then clone_mon halved
+    // the remainder: floor(97/2) = 48 subtracted, leaving 97 - 48 = 49.
+    assert.equal(puddingTarget.mhp, 49);
+    assert.ok(pudding.lines.some(
+        (line) => line.includes('divides as you hit it'),
+    ), 'the divide message should appear');
     // The same pudding struck with an unwielded scalpel fails uhitm.c:1616
     // and passes straight through.
     const spare = mksobj(SCALPEL, true, false, { state: game });
@@ -1101,18 +1105,18 @@ test('a pudding splits only when every one of its tests holds', async () => {
     await hero();
     const pudding = (overrides = {}) => target(PM_BLACK_PUDDING, overrides);
     // The Healer's scalpel is METAL and wielded, and the hero is striking hand
-    // to hand, so this is the case that stops.
-    await refusesAsync(
-        () => hmon(pudding(), game.uwep, HMON_MELEE, 10, game,
-                   hitEnv({ rolls: [2, 1, 1] })),
-        'splitting a pudding',
-    );
+    // to hand, so this is the case that clone_mon() splits.
+    const blackEnv = hitEnv({ rolls: [2, 1, 1] });
+    const blackTarget = pudding();
+    await hmon(blackTarget, game.uwep, HMON_MELEE, 10, game, blackEnv);
+    assert.ok(blackEnv.lines.some((l) => l.includes('divides')),
+        'the black pudding should divide');
     // A brown pudding takes the same arm through C's second otyp test.
-    await refusesAsync(
-        () => hmon(target(PM_BROWN_PUDDING), game.uwep, HMON_MELEE, 10, game,
-                   hitEnv({ rolls: [2, 1, 1] })),
-        'splitting a pudding',
-    );
+    const brownEnv = hitEnv({ rolls: [2, 1, 1] });
+    const brownTarget = target(PM_BROWN_PUDDING);
+    await hmon(brownTarget, game.uwep, HMON_MELEE, 10, game, brownEnv);
+    assert.ok(brownEnv.lines.some((l) => l.includes('divides')),
+        'the brown pudding should divide');
 
     // 1610's `mon->mhp > 1`, read after uhitm.c:1847 has taken the damage: two
     // hit points less one point of damage leaves exactly one, which is alive
@@ -1359,13 +1363,15 @@ test('a swap weapon splits a pudding only while two-weaponing', async () => {
                hitEnv({ rolls: [2, 1, 1] }));
     assert.equal(bystander.mhp, 97);
 
-    // With it, the same object meets every one of C's tests.
+    // With it, the same object meets every one of C's tests and the pudding
+    // splits. The three rolls: rnd(3) = 2 for damage, rn2(3) = 1 and rn2(6)
+    // = 1 for the knockback pair.
     game.u.twoweap = 1;
-    await refusesAsync(
-        () => hmon(target(PM_BLACK_PUDDING), swap, HMON_MELEE, 10, game,
-                   hitEnv({ rolls: [2] })),
-        'splitting a pudding',
-    );
+    const swapEnv = hitEnv({ rolls: [2, 1, 1] });
+    const swapTarget = target(PM_BLACK_PUDDING);
+    await hmon(swapTarget, swap, HMON_MELEE, 10, game, swapEnv);
+    assert.ok(swapEnv.lines.some((l) => l.includes('divides')),
+        'a two-weapon swap scalpel should split the pudding');
     game.u.twoweap = 0;
     game.uswapwep = null;
 });

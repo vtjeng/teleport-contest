@@ -1,7 +1,9 @@
 // Monster selection, birth limits, hit points, attitude, and special summons.
-// C refs: makemon.c rndmonst_adj(), mkclass(), mkclass_aligned(),
-// mkclass_poly(), newmcorpsenm(), freemcorpsenm(), bagotricks(),
-// summon_furies(), wrong_elem_type();
+// C refs: makemon.c clone_mon(), monhp_per_lvl(), init_mextra(), newmextra(),
+// unmakemon(), create_critters(), align_shift(), temperature_shift(),
+// rndmonst_adj(), mkclass(), mkclass_aligned(), mkclass_poly(),
+// newmcorpsenm(), freemcorpsenm(), bagotricks(), summon_furies(),
+// wrong_elem_type();
 // mkobj.c rndmonnum_adj(); questpgr.c qt_montype().
 
 import {
@@ -11,32 +13,54 @@ import {
     AM_CHAOTIC,
     AM_LAWFUL,
     AM_NEUTRAL,
+    EDOG,
+    EMIN,
     G_EXTINCT,
     G_GENOD,
     G_GONE,
+    has_edog,
+    has_emin,
     has_mcorpsenm,
+    has_mgivenname,
+    isok,
+    LS_MONSTER,
     M_AP_MONSTER,
     M_AP_NOTHING,
     M_AP_TYPE,
     MAXMONNO,
+    MGIVENNAME,
     MM_ADJACENTOK,
+    MM_NOCOUNTBIRTH,
     MM_NOWAIT,
     NO_MM_FLAGS,
     nothing_happens,
     nothing_seems_to_happen,
 } from './const.js';
-import { level_difficulty, on_level } from './dungeon.js';
+import { newsym } from './display.js';
+import { christen_monst } from './do_name.js';
+import { tamedog } from './dog.js';
+import { level_difficulty, Is_special, on_level } from './dungeon.js';
 import { sgn } from './hacklib.js';
 import { game } from './gstate.js';
+import { new_light_source } from './light.js';
+import { discard_minvent, makemon, mongone } from './makemon_create.js';
+import { newemin } from './minion.js';
 import {
     always_hostile,
     always_peaceful,
+    emits_light,
     is_golem,
     is_mplayer,
     is_placeholder,
     little_to_big,
     monsndx,
+    pm_resistance,
 } from './mondata.js';
+import { newMonster, mon_track_clear, place_monster } from './monst.js';
+import { next_ident } from './obj.js';
+import { discover_object } from './o_init.js';
+import { BAG_OF_TRICKS } from './objects.js';
+import { create_particular } from './read.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import {
     G_FREQ,
@@ -65,6 +89,7 @@ import {
     PM_FAMINE,
     PM_FLESH_GOLEM,
     PM_FIRE_ELEMENTAL,
+    PM_GIANT_EEL,
     PM_GLASS_GOLEM,
     PM_GOLD_GOLEM,
     PM_GRAY_DRAGON,
@@ -97,11 +122,9 @@ import {
     monst_globals_init,
     monsterClassSymbol,
 } from './monsters.js';
-import { makemon } from './makemon_create.js';
-import { discover_object } from './o_init.js';
-import { BAG_OF_TRICKS } from './objects.js';
 import { sensesMonster } from './startup_a11y.js';
 import { MAXMCLASSES } from './symbols.js';
+import { enexto } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { update_inventory } from './invent.js';
@@ -201,7 +224,10 @@ function uncommon(index, state) {
     return Boolean(monster.geno & G_HELL);
 }
 
-function alignShift(monster, state) {
+// C ref: makemon.c align_shift(). Returns a weight bonus for monsters whose
+// alignment matches the current level's alignment. C caches the Is_special()
+// lookup across calls within the same turn; the JS port recomputes it.
+export function align_shift(monster, state) {
     const special = currentSpecialLevel(state);
     const alignment = special?.flags?.align
         ?? state.dungeons[state.u.uz.dnum].flags.align;
@@ -217,11 +243,12 @@ function alignShift(monster, state) {
     }
 }
 
-function temperatureShift(monster, state) {
+// C ref: makemon.c temperature_shift(). Returns a weight bonus for monsters
+// that resist the level's temperature.
+export function temperature_shift(monster, state) {
     const temperature = Math.trunc(state.level?.flags?.temperature ?? 0);
     if (!temperature) return 0;
-    const resistance = temperature > 0 ? MR_FIRE : MR_COLD;
-    return monster.mresists & resistance ? 3 : 0;
+    return pm_resistance(monster, temperature > 0 ? MR_FIRE : MR_COLD) ? 3 : 0;
 }
 
 // C ref: makemon.c is_home_elemental().
@@ -383,11 +410,202 @@ export function grow_up(mtmp, victim, env = {}) {
     return ptr;
 }
 
+// C ref: makemon.c clone_mon(). Clones a monster, used for pudding splitting
+// and similar effects. The clone gets half the parent's current HP; the parent
+// keeps the extra point when HP is odd. Returns the clone or null on failure.
+// Async because the tamedog path (for cloning a tame monster) is async.
+export async function clone_mon(mon, x, y, state = game) {
+    const mndx = monsndx(mon.data);
+
+    /* may be too weak or have been extinguished for population control */
+    if (mon.mhp <= 1
+        || (state.mvitals[mndx].mvflags & G_EXTINCT) !== 0)
+        return null;
+
+    let mmx, mmy;
+    if (x === 0) {
+        mmx = mon.mx;
+        mmy = mon.my;
+    } else {
+        mmx = x;
+        mmy = y;
+    }
+    if (!isok(mmx, mmy)) { /* paranoia */
+        note_unported('pline.c impossible');
+        return null;
+    }
+    /* C: MON_AT(mm.x, mm.y) checks level.monsters[x][y] */
+    if (state.level.monsters[mmx]?.[mmy]) {
+        const coord = enexto(mmx, mmy, mon.data, { state });
+        if (!coord || state.level.monsters[coord.x]?.[coord.y])
+            return null;
+        mmx = coord.x;
+        mmy = coord.y;
+    }
+
+    /* C: m2 = newmonst(); *m2 = *mon; -- shallow copy of the monster */
+    const m2 = { ...mon };
+    /* mtrack is an array of objects; each clone needs its own copy */
+    m2.mtrack = mon.mtrack
+        ? mon.mtrack.map((t) => ({ ...t }))
+        : Array.from({ length: 4 }, () => ({ x: 0, y: 0 }));
+    m2.mgoal = { ...(mon.mgoal ?? { x: 0, y: 0 }) };
+    m2.mextra = null;
+    m2.nmon = state.level.monlist;
+    state.level.monlist = m2;
+    m2.m_id = next_ident({ state });
+    m2.mx = mmx;
+    m2.my = mmy;
+
+    m2.mundetected = false;
+    m2.mtrapped = false;
+    m2.mcloned = true;
+    m2.minvent = null; /* objects don't clone */
+    m2.mw = null;
+    m2.mleashed = false;
+    /* Max HP the same, but current HP halved for both.  The caller
+     * might want to override this by halving the max HP also.
+     * When current HP is odd, the original keeps the extra point.
+     * We know original has more than 1 HP, so both end up with at least 1.
+     */
+    m2.mhpmax = mon.mhpmax;
+    m2.mhp = Math.trunc(mon.mhp / 2);
+    mon.mhp -= m2.mhp;
+
+    /* clone doesn't have mextra so mustn't retain special monster flags */
+    m2.isshk = false;
+    m2.isgd = false;
+    m2.ispriest = false;
+    /* ms->isminion handled below */
+
+    /* clone shouldn't be reluctant to move on spots 'parent' just moved on */
+    mon_track_clear(m2);
+
+    place_monster(m2, m2.mx, m2.my, state);
+    if (emits_light(m2.data)) {
+        new_light_source(
+            m2.mx, m2.my, emits_light(m2.data), LS_MONSTER, m2, state,
+        );
+    }
+    /* if 'parent' is named, give the clone the same name */
+    if (has_mgivenname(mon)) {
+        christen_monst(m2, MGIVENNAME(mon));
+    } else if (mon.isshk) {
+        /* shkname() is from shknam.c and not ported; skip naming the clone */
+        note_unported('shknam.c shkname');
+    }
+
+    /* not all clones caused by player are tame or peaceful */
+    if (!state.context?.mon_moving && mon.mpeaceful) {
+        if (mon.mtame)
+            m2.mtame = rn2(Math.max(2 + state.u.uluck, 2)) ? mon.mtame : 0;
+        else if (mon.mpeaceful)
+            m2.mpeaceful = rn2(Math.max(2 + state.u.uluck, 2)) ? true : false;
+    }
+    /* if guardian angel could be cloned (maybe after polymorph?),
+       m2 could be both isminion and mtame; isminion takes precedence */
+    if (m2.isminion) {
+        newemin(m2);
+        if (has_emin(m2) && has_emin(mon)) {
+            const src = EMIN(mon);
+            const dst = EMIN(m2);
+            dst.min_align = src.min_align;
+            dst.renegade = src.renegade;
+        }
+        /* renegade when same alignment as hero but not peaceful or
+           when peaceful while being different alignment from hero */
+        const atyp = EMIN(m2).min_align;
+        EMIN(m2).renegade = (atyp !== state.u.ualign.type) !== !m2.mpeaceful;
+    } else if (m2.mtame) {
+        /* Because m2 is a copy of mon it is tame but not init'ed.
+           However, tamedog() will not re-tame a tame dog, so m2
+           must be made non-tame to get initialized properly. */
+        m2.mtame = 0;
+        if (await tamedog(m2, null, false, { state })) {
+            if (has_edog(m2) && has_edog(mon)) {
+                const src = EDOG(mon);
+                const dst = EDOG(m2);
+                Object.assign(dst, src);
+            }
+        }
+    }
+    set_malign(m2, state);
+    newsym(m2.mx, m2.my); /* display the new monster */
+
+    return m2;
+}
+
+// C ref: makemon.c unmakemon(). Caller rejects makemon()'s result: decrement
+// the birth count if appropriate, clear the unique-extinct flag for unique
+// monsters, discard inventory and remove the monster from the game. Always
+// returns null.
+export function unmakemon(mon, mmflags, state = game) {
+    const countbirth = (mmflags & MM_NOCOUNTBIRTH) === 0;
+    const mndx = monsndx(mon.data);
+
+    /* if count has reached the limit of 255, we don't know whether
+       that just happened when creating this monster or the threshold
+       had already been reached and further increments were suppressed;
+       assume the latter */
+    if (countbirth && state.mvitals[mndx].born > 0
+        && state.mvitals[mndx].born < 255)
+        state.mvitals[mndx].born -= 1;
+    if ((mon.data.geno & G_UNIQ) !== 0)
+        state.mvitals[mndx].mvflags &= ~G_EXTINCT;
+
+    mon.mhp = 0; /* let discard_minvent() know that mon isn't being kept */
+    /* uncreate any artifact that the monster was provided with; unlike
+       mongone(), this doesn't protect special items like the Amulet
+       by dropping them so caller should handle them when applicable */
+    discard_minvent(mon, true, { state });
+
+    mongone(mon, { state });
+    return null;
+}
+
 // C ref: makemon.c mbirth_limit().
 export function mbirth_limit(mndx) {
     if (mndx === PM_NAZGUL) return 9;
     if (mndx === PM_ERINYS) return 3;
     return MAXMONNO;
+}
+
+// C ref: makemon.c create_critters(). Creates cnt monsters around the hero's
+// position; used by wand/scroll/spell of create monster. Returns true when the
+// hero saw at least one monster appear. Async because the wizard-mode
+// create_particular() path is async.
+export async function create_critters(cnt, mptr, neverask, state = game) {
+    let known = false;
+    let ask = state.wizard && !neverask;
+
+    while (cnt-- > 0) {
+        if (ask) {
+            if (await create_particular(state)) {
+                known = true;
+                continue;
+            } else {
+                ask = false; /* ESC will shut off prompting */
+            }
+        }
+        let x = state.u.ux;
+        let y = state.u.uy;
+        /* if in water, try to encourage an aquatic monster
+           by finding and then specifying another wet location */
+        if (!mptr && state.u.uinwater) {
+            const c = enexto(x, y, state.mons[PM_GIANT_EEL], { state });
+            if (c) { x = c.x; y = c.y; }
+        }
+
+        const mon = makemon(mptr, x, y, NO_MM_FLAGS, { state });
+        if (!mon) continue; /* try again */
+
+        if ((canseemon(mon, state)
+                && (M_AP_TYPE(mon) === M_AP_NOTHING
+                    || M_AP_TYPE(mon) === M_AP_MONSTER))
+            || sensesMonster(mon, state))
+            known = true;
+    }
+    return known;
 }
 
 // C ref: makemon.c propagate(). Births can still be tallied after a species
@@ -443,6 +661,32 @@ export function golemhp(mndx) {
     }
 }
 
+// C ref: makemon.c monhp_per_lvl(). HP gained per level for a drained or
+// level-gaining monster. Similar to newmonhp but ignores home elementals and
+// riders; riders use the normal d8.
+export function monhp_per_lvl(mon, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rnd, rn2 };
+    const ptr = mon.data;
+    let hp = random.rnd(8); /* default is d8 */
+
+    /* like newmonhp, but home elementals are ignored, riders use normal d8 */
+    if (is_golem(ptr)) {
+        /* draining usually won't be applicable for these critters */
+        hp = Math.trunc(golemhp(monsndx(ptr)) / ptr.mlevel);
+    } else if (ptr.mlevel > 49) {
+        /* arbitrary; such monsters won't be involved in draining anyway */
+        hp = 4 + random.rnd(4); /* 5..8 */
+    } else if (ptr.mlet === S_DRAGON && monsndx(ptr) >= PM_GRAY_DRAGON) {
+        /* adult dragons; newmonhp() uses In_endgame(&u.uz) ? 8 : 4 + rnd(4) */
+        hp = 4 + random.rn2(5); /* 4..8 */
+    } else if (!mon.m_lev) {
+        /* level 0 monsters use 1d4 instead of Nd8 */
+        hp = random.rnd(4);
+    }
+    return hp;
+}
+
 function isRider(mndx) {
     return mndx === PM_DEATH || mndx === PM_PESTILENCE || mndx === PM_FAMINE;
 }
@@ -496,6 +740,20 @@ export function newmonhp(mon, mndx, env = {}) {
     if (mon.mhpmax === basehp)
         mon.mhp = ++mon.mhpmax;
     return mon;
+}
+
+// C ref: makemon.c init_mextra(). Initializes an mextra record to zero values
+// with mcorpsenm set to NON_PM. In JS the zero values come from the object
+// literal; mcorpsenm is the only field that needs a non-zero default.
+export function init_mextra(mex) {
+    mex.mcorpsenm = NON_PM;
+}
+
+// C ref: makemon.c newmextra(). Allocates and initializes a new mextra record.
+export function newmextra() {
+    const mextra = {};
+    init_mextra(mextra);
+    return mextra;
 }
 
 // C ref: makemon.c peace_minded().
@@ -811,8 +1069,8 @@ export function rndmonst_adj(minadj = 0, maxadj = 0, env = {}) {
         if (uncommon(index, state)) continue;
         if (inHell(state) && (monster.geno & G_NOHELL)) continue;
 
-        let weight = (monster.geno & G_FREQ) + alignShift(monster, state);
-        weight += temperatureShift(monster, state);
+        let weight = (monster.geno & G_FREQ) + align_shift(monster, state);
+        weight += temperature_shift(monster, state);
         if (weight < 0 || weight > 127) weight = 0;
         if (weight > 0) {
             totalWeight += weight;
