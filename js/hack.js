@@ -118,7 +118,9 @@ import {
     u_at,
     xdir,
     ydir,
+    UNCHANGING,
 } from './const.js';
+import { rehumanize } from './polyself.js';
 import { acurrstr, acurr, exercise } from './attrib.js';
 import {
     bot,
@@ -755,13 +757,11 @@ export async function u_rooted(state = game) {
     return false;
 }
 
-// A hit point loss whose consequences this port has not reached.
-export class UnsupportedHitPointLossError extends Error {
-    constructor(reason) {
-        super(`unsupported hit point loss: ${reason}`);
-        this.name = 'UnsupportedHitPointLossError';
-        this.reason = reason;
-    }
+// youprop.h:372 Unchanging, intrinsic or extrinsic; losehp() reads it to
+// decide whether a polymorphed hero wails at low hit points.
+function Unchanging(state) {
+    const unchanging = state.u?.uprops?.[UNCHANGING];
+    return Boolean(unchanging?.intrinsic || unchanging?.extrinsic);
 }
 
 // C ref: hack.c maybe_wail() (4210-4243). svm.moves is the turn counter and
@@ -844,10 +844,15 @@ export async function losehp(n, knam, k_format, state = game, env = {}) {
     state.disp.botl = true; /* u.uhp or u.mh is changing */
     endRunning(state);
     if (Upolyd(state.u)) {
-        // Nothing in this port polymorphs the hero, so u.mh, rehumanize() and
-        // the Unchanging wail have no reachable caller. The branch stops
-        // rather than duplicating hit points into a second unowned field.
-        throw new UnsupportedHitPointLossError('damage to a polymorphed hero');
+        state.u.mh -= n;
+        await showdamage(n, state, env);
+        if (state.u.mhmax < state.u.mh)
+            state.u.mhmax = state.u.mh;
+        if (state.u.mh < 1)
+            await rehumanize(state);
+        else if (n > 0 && state.u.mh * 10 < state.u.mhmax && Unchanging(state))
+            await maybe_wail(state, env);
+        return;
     }
 
     state.u.uhp -= n;

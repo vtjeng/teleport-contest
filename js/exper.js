@@ -1,9 +1,10 @@
 // exper.js — experience and spell-energy advancement.
 // C ref: src/exper.c newuexp(), enermod(), newpw(), experience(),
-// more_experienced(), newexplevel(), and pluslvl().
+// more_experienced(), newexplevel(), pluslvl(), and rndexp().
 
 import {
     A_WIS,
+    LARGEST_INT,
     MAGICAL_BREATHING,
     MAXULEV,
     NATTK,
@@ -29,7 +30,7 @@ import {
     PM_WIZARD,
     S_EEL,
 } from './monsters.js';
-import { rn1, rnd } from './rng.js';
+import { rn1, rn2, rnd } from './rng.js';
 import { find_mac } from './worn.js';
 
 function advancementValue(advance, field) {
@@ -346,6 +347,36 @@ export async function pluslvl(incr, state = game, env = {}) {
         if (u.ulevel > u.ulevelpeak) u.ulevelpeak = u.ulevel;
     }
     state.disp.botl = true;
+}
+
+// C ref: exper.c rndexp() (378-402). "compute a random amount of experience
+// points suitable for the hero's experience level: base number of points
+// needed to reach the current level plus a random portion of what it takes to
+// get to the next level". `gaining` is TRUE for a potion of gain level and
+// FALSE when polyself.c newman() sets the points for a new level.
+export function rndexp(gaining, state = game) {
+    const u = state.u;
+    const minexp = (u.ulevel === 1) ? 0 : newuexp(u.ulevel - 1);
+    const maxexp = newuexp(u.ulevel);
+    let diff = maxexp - minexp;
+    let factor = 1;
+    /* make sure that `diff' is an argument which rn2() can handle */
+    while (diff >= LARGEST_INT) {
+        diff = Math.trunc(diff / 2);
+        factor *= 2;
+    }
+    let result = minexp + factor * rn2(diff);
+    /* 3.4.1:  if already at level 30, add to current experience
+       points rather than to threshold needed to reach the current
+       level; otherwise blessed potions of gain level can result
+       in lowering the experience points instead of raising them */
+    if (u.ulevel === MAXULEV && gaining) {
+        result += (u.uexp - minexp);
+        /* avoid wrapping (over 400 blessed potions needed for that...) */
+        if (result < u.uexp)
+            result = u.uexp;
+    }
+    return result;
 }
 
 export const _experInternals = Object.freeze({ enermod });

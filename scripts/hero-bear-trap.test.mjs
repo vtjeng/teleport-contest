@@ -503,14 +503,15 @@ test('a hero the bear trap cannot hold is told so and stays free', async () => {
         // trap.c:1501's `<=` distinguishable from `<`.
         { form: PM_KITTEN, expected: /closes harmlessly over you/u },
         // An owlbear is caught like anyone else and howls about it. Its arm
-        // runs to the end, where losehp() refuses the polymorphed hero this
-        // form implies -- but only after the howl has been written.
+        // runs to the end, where losehp() takes d(2,4) out of u.mh for the
+        // polymorphed hero this form implies. 20 keeps every roll (2..8)
+        // short of the rehumanize() arm at u.mh < 1.
         {
             form: PM_OWLBEAR,
             umonnum: PM_OWLBEAR,
+            mh: 20,
             expected: /howl in anger/u,
             caught: true,
-            rejects: /polymorphed hero/u,
         },
     ];
 
@@ -523,18 +524,23 @@ test('a hero the bear trap cannot hold is told so and stays free', async () => {
         game.level.traps.push(trap);
         game.youmonst.data = game.mons[specimen.form];
         if (specimen.umonnum) game.u.umonnum = specimen.umonnum;
+        if (specimen.mh) {
+            game.u.mh = specimen.mh;
+            game.u.mhmax = specimen.mh;
+        }
         // The welcome line is still pending, and it is long enough that any
         // addition would raise a More prompt this segment has no key for.
         clearTtyMessageWindow(game);
         game._ttyToplines = '';
 
-        if (specimen.rejects) {
-            await assert.rejects(dotrap(trap, 0, game), specimen.rejects);
-        } else {
-            await dotrap(trap, 0, game);
-        }
+        await dotrap(trap, 0, game);
 
         assert.match(game._ttyToplines, specimen.expected);
+        if (specimen.mh) {
+            // The bear trap's d(2,4) came out of the form's hit points.
+            assert.ok(game.u.mh >= specimen.mh - 8 && game.u.mh <= specimen.mh - 2,
+                `u.mh ${game.u.mh} after the bite`);
+        }
         assert.equal(Boolean(game.u.utrap), Boolean(specimen.caught));
         // feeltrap() runs before every one of these arms, so the hero knows
         // the trap however it ends.

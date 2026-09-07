@@ -383,11 +383,15 @@ export function is_watch(species) {
 }
 
 export function is_golem(species) { return species?.mlet === M.S_GOLEM; }
+// mondata.h:218 weirdnonliving: golems plus vortices, the nonliving forms
+// that are neither undead nor manes.
+export function weirdnonliving(species) {
+    return is_golem(species) || species?.mlet === M.S_VORTEX;
+}
 export function nonliving(species) {
     return is_undead(species)
         || species?.pmidx === M.PM_MANES
-        || is_golem(species)
-        || species?.mlet === M.S_VORTEX;
+        || weirdnonliving(species);
 }
 export function webmaker(species) {
     return species?.pmidx === M.PM_CAVE_SPIDER

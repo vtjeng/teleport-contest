@@ -1,21 +1,32 @@
 // Polymorph self -- controlled transformation, species property binding, body
 // part naming, and the flight/stealth blocking updates.
-// C ref: polyself.c set_uasmon(), check_strangling(), polyself(), polymon(),
-// uasmon_maxStr(), break_armor(), drop_weapon(), dropp(), skinback(),
-// polysense(), float_vs_flight(), steed_vs_stealth(), mbodypart().
+// C ref: polyself.c set_uasmon(), check_strangling(), newman(), polyself(),
+// polymon(), uasmon_maxStr(), break_armor(), drop_weapon(), dropp(),
+// rehumanize(), dobreathe(), dospit(), doremove(), dospinweb(), dosummon(),
+// dogaze(), dohide(), dopoly(), domindblast(), uunstick(), skinback(),
+// mbodypart(), body_part(), poly_gender(), ugolemeffects(), polysense(),
+// float_vs_flight(), steed_vs_stealth(), ugenocided(), udeadinside().
 
 import {
     A_CON,
+    A_DEX,
     A_STR,
     A_WIS,
     ACID_RES,
+    ANTI_MAGIC,
     ANTIMAGIC,
     ARM,
+    ARROW_TRAP,
+    BEAR_TRAP,
     BLINDED,
     BLND_RES,
+    BOLT_LIM,
     BZ_OFS_AD,
     BZ_U_BREATH,
     COLD_RES,
+    CONFUSION,
+    DART_TRAP,
+    DIED,
     DISINT_RES,
     DRAIN_RES,
     ECMD_CANCEL,
@@ -26,52 +37,102 @@ import {
     FINGER,
     FINGERTIP,
     FIRE_RES,
+    FIRE_TRAP,
     FLYING,
     FOOT,
+    FREE_ACTION,
     FROMFORM,
     FROM_RACE,
     FROMOUTSIDE,
     G_GENOD,
     HAIR,
+    HALLUC,
     HALLUC_RES,
     HAND,
     HANDED,
     HEAD,
+    HOLE,
     I_SPECIAL,
     In_endgame,
     INVIS,
     INFRAVISION,
+    IS_AIR,
+    IS_FOUNTAIN,
+    Is_airlevel,
+    Is_waterlevel,
+    KILLED_BY,
+    KILLED_BY_AN,
+    LANDMINE,
     LEG,
+    LEVEL_TELEP,
     LEVITATION,
+    LS_MONSTER,
+    M_AP_FURNITURE,
+    M_AP_NOTHING,
+    M_AP_OBJECT,
+    M_AP_TYPE,
+    MAGIC_PORTAL,
+    MAGIC_TRAP,
     MALE,
+    MAXULEV,
+    NATTK,
     NECK,
+    NO_KILLER_PREFIX,
     NO_PART,
+    NO_TRAP_FLAGS,
     NON_PM,
     NOSE,
     PASSES_WALLS,
+    PIT,
     POISON_RES,
     POLY_CONTROLLED,
+    POLY_MONSTER,
+    POLY_TRAP,
+    POLYMORPH_CONTROL,
     REFLECTING,
     REGENERATION,
+    ROCKTRAP,
+    ROLLING_BOULDER_TRAP,
+    RUST_TRAP,
     SEE_INVIS,
     SHOCK_RES,
+    SHOPBASE,
+    SICK,
     SICK_RES,
     SLEEP_RES,
+    SLIMED,
+    SLP_GAS_TRAP,
+    SPIKED_PIT,
+    SQKY_BOARD,
+    STAIRS,
     STEALTH,
     STOMACH,
     STONE_RES,
+    STONED,
+    STONING,
     STRANGLED,
     STUNNED,
     SWIMMING,
+    TELEP_TRAP,
     TELEPAT,
     TELEPORT,
     TELEPORT_CONTROL,
     TOE,
+    TRAPDOOR,
+    TT_BURIEDBALL,
     TT_PIT,
+    UNCHANGING,
+    Ugender,
     Upolyd,
+    VIBRATING_SQUARE,
     WARN_OF_MON,
+    WEB,
+    helpless,
+    plur,
 } from './const.js';
-import { exercise } from './attrib.js';
+import {
+    adjabil, exercise, newhp, redist_attr, setuhpmax,
+} from './attrib.js';
 import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
 import {
@@ -83,17 +144,32 @@ import {
     could_twoweap,
     dmgtype,
     dmgtype_fromattack,
+    emits_light,
     has_horns,
+    hides_under,
     humanoid,
     infravision,
+    is_animal,
     is_bat,
+    is_clinger,
     is_floater,
     is_flyer,
+    is_hider,
+    is_neuter,
     is_placeholder,
     is_swimmer,
     is_vampire,
     is_vampshifter,
+    is_mind_flayer,
+    is_unicorn,
+    is_were,
+    is_whirly,
+    lays_eggs,
+    eggs_in_water,
+    mindless,
+    monster_resists_element,
     nohands,
+    nonliving,
     passes_walls,
     perceives,
     pm_invisible,
@@ -102,43 +178,78 @@ import {
     resists_drli,
     sliparm,
     slithy,
+    sticks,
     strongmonst,
     telepathic,
+    touch_petrifies,
     valid_vampshiftform,
     verysmall,
+    webmaker,
+    weirdnonliving,
     can_teleport,
     control_teleport,
     your_race,
     name_to_mon,
 } from './mondata.js';
 import { character_race } from './roles.js';
-import { pmname } from './do_name.js';
+import {
+    capitalizedMonsterName,
+    hliquid,
+    l_monnam,
+    monsterCommonName,
+    pmname,
+    y_monnam,
+} from './do_name.js';
 import { set_mon_data } from './makemon_create.js';
 import { mkclass_poly } from './makemon.js';
-import { cloak_simple_name, simpleonames, an } from './objnam.js';
+import { cloak_simple_name, cxname, otense, simpleonames, an } from './objnam.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { newsym, see_monsters } from './display.js';
 import { encumber_msg } from './pickup.js';
 import { update_inventory } from './invent.js';
 import { dropx, canletgo } from './do.js';
 import { getlin } from './windows.js';
-import { ttyPline } from './tty_message.js';
-import { set_utrap } from './trap.js';
+import { ttyPline, ttyUrgentPline } from './tty_message.js';
+import {
+    deltrap, is_pool, is_pool_or_lava, maketrap, set_utrap, t_at,
+} from './trap.js';
+import { dotrap, feeltrap } from './trap_effects.js';
 import { make_glib } from './potion.js';
 import { cantwield, untwoweapon, uwepgone, uswapwepgone } from './wield.js';
 import { _doWearInternals } from './do_wear.js';
-import { Is_dragon_armor, is_sword, remove_object } from './obj.js';
+import { Is_dragon_armor, is_sword, mksobj, remove_object } from './obj.js';
 import { makeplural } from './fruit.js';
 import { weapon_descr } from './weapon.js';
 import {
+    ACID_VENOM,
     AMULET_OF_STRANGULATION,
+    AMULET_OF_UNCHANGING,
+    BLINDING_VENOM,
     CORPSE,
     MUMMY_WRAPPING,
+    STRANGE_OBJECT,
 } from './objects.js';
 import * as M from './monsters.js';
 import { rn1, rn2, rnd, rne, rnl, d } from './rng.js';
-import { getdir } from './cmd.js';
+import { getdir, y_n } from './cmd.js';
 import { ubuzz, ubreatheu } from './zap.js';
+import { newpw, rndexp } from './exper.js';
+import { newuhs } from './eat.js';
+import { done } from './end.js';
+import { nomul, rounddiv } from './hack.js';
+import { dist2, s_suffix } from './hacklib.js';
+import { discover_object, observe_object } from './o_init.js';
+import { del_light_source, new_light_source } from './light.js';
+import { has_ceiling, surface } from './dungeon.js';
+import { On_stairs } from './stairs.js';
+import { canseemon, couldsee } from './vision.js';
+import { throwit } from './dothrow.js';
+import { in_rooms } from './rooms.js';
+import { destroy_items } from './zap_destroy_items.js';
+import { ignite_items } from './apply_catch_lit.js';
+import { killed, set_ustuck, setmangry, wakeup } from './mon.js';
+import { were_summon } from './were.js';
+import { note_unported } from './unported.js';
 
 // Boundary error for polyself branches that fall outside the current goal.
 // failClosedCommand() in cmd.js converts this to an
@@ -172,6 +283,83 @@ function Levitation(state) {
     const levitation = uprop(state, LEVITATION);
     return Boolean((levitation.intrinsic || levitation.extrinsic)
                    && !levitation.blocked);
+}
+
+// youprop.h:103 Blind and :198 Invis: intrinsic or extrinsic, defeated by a
+// block.
+function Blind(state) {
+    const blinded = uprop(state, BLINDED);
+    return Boolean((blinded.intrinsic || blinded.extrinsic)
+                   && !blinded.blocked);
+}
+
+function Invis(state) {
+    const invis = uprop(state, INVIS);
+    return Boolean((invis.intrinsic || invis.extrinsic) && !invis.blocked);
+}
+
+// youprop.h:120 Hallucination is HHallucination && !Halluc_resistance, and
+// :119 Halluc_resistance is intrinsic or extrinsic.
+function Hallucination(state) {
+    const halluc = uprop(state, HALLUC);
+    const resistance = uprop(state, HALLUC_RES);
+    return Boolean(halluc.intrinsic
+                   && !(resistance.intrinsic || resistance.extrinsic));
+}
+
+// youprop.h:84 Confusion is HConfusion alone.
+function Confusion(state) {
+    return Boolean(uprop(state, CONFUSION).intrinsic);
+}
+
+// youprop.h:65 Stone_resistance, :152 See_invisible, :368 Polymorph_control
+// and :372 Unchanging: intrinsic or extrinsic, with no block term.
+function intrinsicOrExtrinsic(state, index) {
+    const property = uprop(state, index);
+    return Boolean(property.intrinsic || property.extrinsic);
+}
+
+function Stone_resistance(state) {
+    return intrinsicOrExtrinsic(state, STONE_RES);
+}
+
+function See_invisible(state) {
+    return intrinsicOrExtrinsic(state, SEE_INVIS);
+}
+
+function Polymorph_control(state) {
+    return intrinsicOrExtrinsic(state, POLYMORPH_CONTROL);
+}
+
+function Unchanging(state) {
+    return intrinsicOrExtrinsic(state, UNCHANGING);
+}
+
+// youprop.h:383 Free_action reads the extrinsic field alone.
+function Free_action(state) {
+    return Boolean(uprop(state, FREE_ACTION).extrinsic);
+}
+
+// monst.h:272 resists_fire(mon) is Resists_Elem(mon, FIRE_RES), whose
+// monster arm mondata.js ports as monster_resists_element().
+function resists_fire(mon, state) {
+    return monster_resists_element(mon, FIRE_RES, state);
+}
+
+// mondata.h:71 digests: an AT_ENGL attack that deals AD_DGST.
+function digests(ptr) {
+    return dmgtype_fromattack(ptr, M.AD_DGST, M.AT_ENGL) !== 0;
+}
+
+// you.h:559 mdistu(mon), the squared distance from the hero to a monster.
+function mdistu(mon, state) {
+    return dist2(mon.mx, mon.my, state.u.ux, state.u.uy);
+}
+
+// monst.h DEADMONSTER(mon): the port has no separate dead flag, so a
+// monster with no hit points left is the dead one, as monmove.js reads it.
+function DEADMONSTER(mon) {
+    return mon.mhp <= 0;
 }
 
 // C ref: polyself.c float_vs_flight() (131-154). Floating overrides flight and
@@ -804,18 +992,16 @@ export async function polymon(mntmp, state = game) {
     if (!state.uarmg)
         await selftouch('No longer petrify-resistant, you', state);
 
-    // verbose hints — which #monster commands to use.
-    // C ref: polyself.c:1031-1069.  Each hint is a separate pline(); the
-    // checks are independent (a form can match several).  The dragon case
-    // reaches only the can_breathe() hint.  Remaining checks (is_were,
-    // gremlin, unicorn, mind_flayer, shriek, vampire, eggs) are included
-    // only when the predicate is already imported; forms that satisfy an
-    // unported predicate simply skip that hint.
+    /* the explanation of '#monster' used to be shown sooner, but there are
+       possible fatalities above and it isn't useful unless hero survives */
+    // C ref: polyself.c:1031-1069. Each hint is a separate pline(); the
+    // checks are independent, so a form can match several.
     if (state.flags.verbose) {
         // C uses static format: "Use the command #%s to %s."
         const hint = (cmd, action) =>
             `Use the command #${cmd} to ${action}.`;
         const uptr = state.youmonst.data;
+        const might_hide = is_hider(uptr) || hides_under(uptr);
 
         if (can_breathe(uptr))
             await ttyPline(hint('monster', 'use your breath weapon'), state);
@@ -825,25 +1011,186 @@ export async function polymon(mntmp, state = game) {
             await ttyPline(hint('monster', 'remove an iron ball'), state);
         if (attacktype(uptr, M.AT_GAZE))
             await ttyPline(hint('monster', 'gaze at monsters'), state);
-        // is_hider/hides_under + webmaker: not imported (gnome/dragon skip)
-        // is_were: not imported (gnome/dragon skip)
-        // PM_GREMLIN: no match for gnome or dragon
-        // is_unicorn: not imported (gnome/dragon skip)
-        // is_mind_flayer: not imported (gnome/dragon skip)
-        // MS_SHRIEK: not imported (gnome/dragon skip)
-        // is_vampire/is_vampshifter: dragon is neither
-        // lays_eggs: not imported for this path (gnome/dragon skip)
+        if (might_hide && webmaker(uptr))
+            await ttyPline(hint('monster', 'hide or to spin a web'), state);
+        else if (might_hide)
+            await ttyPline(hint('monster', 'hide'), state);
+        else if (webmaker(uptr))
+            await ttyPline(hint('monster', 'spin a web'), state);
+        if (is_were(uptr))
+            await ttyPline(hint('monster', 'summon help'), state);
+        if (u.umonnum === M.PM_GREMLIN)
+            await ttyPline(hint('monster', 'multiply in a fountain'), state);
+        if (is_unicorn(uptr))
+            await ttyPline(hint('monster', 'use your horn'), state);
+        if (is_mind_flayer(uptr))
+            await ttyPline(hint('monster', 'emit a mental blast'), state);
+        if (uptr.msound === M.MS_SHRIEK) /* worthless, actually */
+            await ttyPline(hint('monster', 'shriek'), state);
+        if (is_vampire(uptr) || is_vampshifter(state.youmonst))
+            await ttyPline(hint('monster', 'change shape'), state);
+
+        if (lays_eggs(uptr) && state.flags.female
+            && !(uptr.pmidx === M.PM_GIANT_EEL
+                 || uptr.pmidx === M.PM_ELECTRIC_EEL))
+            await ttyPline(
+                hint('sit', eggs_in_water(uptr) ? 'spawn in the water'
+                                                : 'lay an egg'),
+                state,
+            );
     }
 
     return 1;
 }
 
+// ---------- newman ------------------------------------------------------
+// C ref: polyself.c newman() (336-468). "make a (new) human out of the
+// player": the experience level moves by -2..+2, the attributes are
+// redistributed, hit points and energy are rebuilt from the per-level
+// increments at a random 80-110% of the extra, and the form reverts through
+// polyman(). A level outside 1..127, or hit points at or below zero without
+// polymorph control, is the "unsuccessful polymorph" death.
+//
+// polyman(), change_sex() and livelog_newform() are the polyself.c functions
+// still unported, and pline.c livelog_printf() writes a file the port does
+// not keep. C discards every one of their results, so each call records its
+// gap and is skipped. The `dead` flag stands for C's `goto dead` into the
+// middle of the u.uhp <= 0 arm.
+export async function newman(state = game) {
+    const u = state.u;
+    let i;
+    const oldlvl = u.ulevel;
+    let newlvl = oldlvl + rn1(5, -2);     /* new = old + {-2,-1,0,+1,+2} */
+    let dead = false;
+    if (newlvl > 127 || newlvl < 1) { /* level went below 0? */
+        dead = true; /* old level is still intact (in case of lifesaving) */
+    } else {
+        if (newlvl > MAXULEV)
+            newlvl = MAXULEV;
+        /* If your level goes down, your peak level goes down by
+           the same amount so that you can't simply use blessed
+           full healing to undo the decrease.  But if your level
+           goes up, your peak level does *not* undergo the same
+           adjustment; you might end up losing out on the chance
+           to regain some levels previously lost to other causes. */
+        if (newlvl < oldlvl)
+            u.ulevelmax -= (oldlvl - newlvl);
+        if (u.ulevelmax < newlvl)
+            u.ulevelmax = newlvl;
+        u.ulevel = newlvl;
+
+        // oldgend = poly_gender() feeds livelog_newform() alone, which is
+        // unported below; poly_gender() is pure, so the read is deferred.
+        if (state.gs?.sex_change_ok && !rn2(10))
+            note_unported('polyself.c change_sex');
+
+        await adjabil(oldlvl, u.ulevel, state);
+
+        /* random experience points for the new experience level */
+        u.uexp = rndexp(false, state);
+
+        /* set up new attribute points (particularly Con) */
+        // attrib.h:43 ATTRMAX(A_STR) reads uasmon_maxStr() while Upolyd,
+        // and the hero is still in the old form here.
+        redist_attr(state, { uasmon_maxStr });
+
+        /*
+         * New hit points:
+         *  remove "level gain"-based HP from any extra HP accumulated
+         *  (the "extra" might actually be negative);
+         *  modify the extra, retaining {80%, 90%, 100%, or 110%};
+         *  add in newly generated set of level-gain HP.
+         */
+        let hpmax = u.uhpmax;
+        for (i = 0; i < oldlvl; i++)
+            hpmax -= u.uhpinc[i];
+        /* hpmax * rn1(4,8) / 10; 0.95*hpmax on average */
+        hpmax = rounddiv(hpmax * rn1(4, 8), 10);
+        for (i = 0; (u.ulevel = i) < newlvl; i++)
+            hpmax += newhp(state);
+        if (hpmax < u.ulevel)
+            hpmax = u.ulevel; /* min of 1 HP per level */
+        /* retain same proportion for current HP; u.uhp * hpmax / u.uhpmax */
+        u.uhp = rounddiv(u.uhp * hpmax, u.uhpmax);
+        setuhpmax(hpmax, true, state); /* might reduce u.uhp */
+        /*
+         * Do the same for spell power.
+         */
+        let enmax = u.uenmax;
+        for (i = 0; i < oldlvl; i++)
+            enmax -= u.ueninc[i];
+        enmax = rounddiv(enmax * rn1(4, 8), 10);
+        for (i = 0; (u.ulevel = i) < newlvl; i++)
+            enmax += newpw(state);
+        if (enmax < u.ulevel)
+            enmax = u.ulevel;
+        u.uen = rounddiv(u.uen * enmax, (u.uenmax < 1) ? 1 : u.uenmax);
+        u.uenmax = enmax;
+        /* [should alignment record be tweaked too?] */
+
+        u.uhunger = rn1(500, 500);
+        if (u.uprops[SICK].intrinsic)
+            note_unported('potion.c make_sick');
+        if (u.uprops[STONED].intrinsic)
+            note_unported('potion.c make_stoned');
+        if (u.uhp <= 0) {
+            if (Polymorph_control(state)) { /* even when Stunned || Unaware */
+                if (u.uhp <= 0)
+                    u.uhp = 1;
+            } else {
+                dead = true;
+            }
+        }
+    }
+    if (dead) { /* we come directly here if experience level went to 0 or less */
+        await ttyUrgentPline(
+            "Your new form doesn't seem healthy enough to survive.", state,
+        );
+        state.killer ??= {};
+        state.killer.format = KILLED_BY_AN;
+        state.killer.name = 'unsuccessful polymorph';
+        await done(DIED, state);
+        /* must have been life-saved to get here */
+        await newuhs(false, state);
+        await encumber_msg(state); /* used to be done by redist_attr() */
+        return; /* lifesaved */
+    }
+    await newuhs(false, state);
+    /* use saved gender we're about to revert to, not current */
+    // polyman("You feel like a new %s!", newform), where newform is the
+    // race's individual name for the gender being reverted to, or its noun.
+    note_unported('polyself.c polyman');
+
+    /* note: newman() bypasses achievements for new ranks attained and
+       doesn't log "new <form>" when that isn't accompanied by level change */
+    if (newlvl !== oldlvl)
+        note_unported('pline.c livelog_printf');
+    else
+        note_unported('polyself.c livelog_newform');
+
+    if (u.uprops[SLIMED].intrinsic) {
+        await ttyPline(
+            'Your body transforms, but there is still slime on you.', state,
+        );
+        note_unported('potion.c make_slimed');
+    }
+
+    state.disp ??= {};
+    state.disp.botl = true;
+    see_monsters(state);
+    await encumber_msg(state);
+
+    await retouch_equipment(2, state);
+    if (!state.uarmg)
+        await selftouch('No longer petrify-resistant, you', state);
+}
+
 // ---------- polyself ----------------------------------------------------
 // C ref: polyself.c polyself() (468-731). The #polyself command's main body.
 // This port covers the controlled-input branch (forcecontrol=true from
-// POLY_CONTROLLED). The do_shift/do_vampyr/do_merge gotos, newman()'s death
-// path, and the random-monster selection path are not exercised by the gnome
-// case and throw if reached.
+// POLY_CONTROLLED). The do_shift/do_vampyr/do_merge gotos and the
+// random-monster selection path are not exercised by the gnome case and
+// throw if reached.
 export async function polyself(psflags, state = game) {
     const u = state.u;
     const forcecontrol = (psflags & POLY_CONTROLLED) !== 0;
@@ -861,7 +1208,7 @@ export async function polyself(psflags, state = game) {
 
     // system shock — skipped when forcecontrol is true
 
-    const old_light = 0; // emits_light(youmonst.data) — for human, 0
+    const old_light = emits_light(state.youmonst.data);
     let mntmp = NON_PM;
 
     // forcecontrol + low_control gate — only matters if draconian/isvamp/iswere
@@ -960,15 +1307,25 @@ export async function polyself(psflags, state = game) {
     state.gs.sex_change_ok = (state.gs.sex_change_ok || 0) + 1;
     if (!polyok(state.mons[mntmp]) || (!forcecontrol && !rn2(5))
         || your_race(state.mons[mntmp], state)) {
-        // newman() — not ported
-        throw new UnsupportedPolyselfError('polyself: newman() not ported');
+        await newman(state);
     } else {
         await polymon(mntmp, state);
     }
     state.gs.sex_change_ok--;
 
-    // made_change: light source bookkeeping
-    // For gnome, old_light=0 and new_light=0 so nothing happens
+    // made_change: polyself.c:722-730. A form that emits light carries a
+    // monster light source on youmonst; swap it when the emitted range
+    // changes, and raise a range of 1 to 2 so the source is detectable.
+    let new_light = emits_light(state.youmonst.data);
+    if (old_light !== new_light) {
+        if (old_light)
+            del_light_source(LS_MONSTER, state.youmonst, state);
+        if (new_light === 1)
+            ++new_light; /* otherwise it's undetectable */
+        if (new_light)
+            new_light_source(u.ux, u.uy, new_light, LS_MONSTER,
+                state.youmonst, state);
+    }
 }
 
 const HUMANOID_PARTS = Object.freeze([
@@ -1161,6 +1518,79 @@ export function mbodypart(monster, part) {
     return ANIMAL_PARTS[part];
 }
 
+// ---------- rehumanize --------------------------------------------------
+// C ref: polyself.c rehumanize() (1367-1420). Return the hero to human form:
+// Unchanging refuses it, fatally when the polymorphed form is out of hit
+// points, and otherwise reports the amulet failing; the form's light source
+// is dropped; polyman() reverts the form; and a human form with no hit
+// points left dies. polyman() is not ported yet and C discards its result,
+// so that call records a gap.
+export async function rehumanize(state = game) {
+    const u = state.u;
+    const was_flying = Flying(state);
+
+    /* You can't revert back while unchanging */
+    if (Unchanging(state)) {
+        if (u.mh < 1) {
+            state.killer ??= {};
+            state.killer.format = NO_KILLER_PREFIX;
+            state.killer.name = 'killed while stuck in creature form';
+            await done(DIED, state);
+            /* can get to here if declining to die in explore or wizard
+               mode; since we're wearing an amulet of unchanging we can't
+               be wearing an amulet of life-saving */
+            return; /* don't rehumanize after all */
+        } else if (state.uamul && state.uamul.otyp === AMULET_OF_UNCHANGING) {
+            await ttyPline(
+                `Your ${simpleonames(state.uamul, state)} `
+                + `${otense(state.uamul, 'fail')}!`,
+                state,
+            );
+            observe_object(state.uamul, state);
+            // hack.h:1530 makeknown(x) is discover_object(x, TRUE, TRUE, TRUE)
+            discover_object(AMULET_OF_UNCHANGING, true, true, true, state);
+        }
+    }
+
+    /*
+     * Right now, dying while being a shifted vampire (bat, cloud, wolf)
+     * reverts to human rather than to vampire.
+     */
+
+    if (emits_light(state.youmonst.data))
+        del_light_source(LS_MONSTER, state.youmonst, state);
+    // polyman("You return to %s form!", urace.adj)
+    note_unported('polyself.c polyman');
+
+    if (u.uhp < 1) {
+        /* can only happen if some bit of code reduces u.uhp
+           instead of u.mh while poly'd */
+        await ttyPline(
+            'Your old form was not healthy enough to survive.', state,
+        );
+        state.killer ??= {};
+        state.killer.name = `reverting to unhealthy ${state.urace.adj} form`;
+        state.killer.format = KILLED_BY;
+        await done(DIED, state);
+    }
+    nomul(0, state);
+
+    state.disp ??= {};
+    state.disp.botl = true;
+    state.vision_full_recalc = 1;
+    await encumber_msg(state);
+    update_inventory({ state });
+    if (was_flying && !Flying(state) && u.usteed)
+        await ttyPline(
+            `You and ${monsterCommonName(u.usteed, state)} return gently `
+            + `to the ${surface(u.ux, u.uy, state)}.`,
+            state,
+        );
+    await retouch_equipment(2, state);
+    if (!state.uarmg)
+        await selftouch('No longer petrify-resistant, you', state);
+}
+
 // C ref: polyself.c dobreathe() (1420-1447). The poly'd hero's breath weapon,
 // reached from domonability() when can_breathe(youmonst.data) is true.
 // Checks Strangled and energy, spends 15 Pw, calls getdir(), then either
@@ -1197,4 +1627,679 @@ export async function dobreathe(state = game) {
         );
     }
     return ECMD_TIME;
+}
+
+// ---------- dospit ------------------------------------------------------
+// C ref: polyself.c dospit() (1450-1478). The poly'd hero spits venom in a
+// chosen direction: blinding venom for a blinding or poisonous spit attack,
+// acid venom otherwise, with spe 1 marking it as the hero's own.
+export async function dospit(state = game) {
+    if (!await getdir(null, state))
+        return ECMD_CANCEL;
+    const mattk = attacktype_fordmg(state.youmonst.data, M.AT_SPIT, M.AD_ANY);
+    if (!mattk) {
+        // C: impossible("bad spit attack?");
+        throw new Error('impossible: bad spit attack?');
+    }
+    let otmp;
+    switch (mattk.adtyp) {
+    case M.AD_BLND:
+    case M.AD_DRST:
+        otmp = mksobj(BLINDING_VENOM, true, false, { state });
+        break;
+    default:
+        // C: impossible("bad attack type in dospit") and fall through to
+        // AD_ACID. No spitting species carries another damage type.
+        throw new Error('impossible: bad attack type in dospit');
+    case M.AD_ACID:
+        otmp = mksobj(ACID_VENOM, true, false, { state });
+        break;
+    }
+    otmp.spe = 1; /* to indicate it's yours */
+    await throwit(otmp, 0, false, null, state);
+    return ECMD_TIME;
+}
+
+// ---------- doremove ----------------------------------------------------
+// C ref: polyself.c doremove() (1481-1494). The poly'd nymph slips out of a
+// ball and chain. youprop.h:77 Punished is `uball != 0`. read.c unpunish()
+// is unported and C discards its result, so that call records a gap.
+export async function doremove(state = game) {
+    const u = state.u;
+    if (!state.uball) {
+        if (u.utrap && u.utraptype === TT_BURIEDBALL) {
+            await ttyPline(
+                'The ball and chain are buried firmly in the '
+                + `${surface(u.ux, u.uy, state)}.`,
+                state,
+            );
+            return ECMD_OK;
+        }
+        await ttyPline('You are not chained to anything!', state);
+        return ECMD_OK;
+    }
+    note_unported('read.c unpunish');
+    return ECMD_TIME;
+}
+
+// ---------- dospinweb ---------------------------------------------------
+// C ref: polyself.c dospinweb() (1497-1621). The poly'd spider spins a web
+// on its square: refused over water, lava, air or while levitating or
+// trapped; inside an engulfer the fluid is expelled, swept away or
+// dissolved; over an existing trap the web covers, muffles, thickens,
+// vanishes or triggers it; on stairs it fails; otherwise a WEB trap is made.
+// mhitu.c expels() with a message, dig.c bury_objs() and shk.c add_damage()
+// are unported and C discards their results, so those calls record gaps.
+export async function dospinweb(state = game) {
+    const u = state.u;
+    const x = u.ux;
+    const y = u.uy;
+    let ttmp = t_at(x, y, state);
+    const location = state.level.at(x, y);
+    /* disallow webs on water, lava, air & cloud */
+    const reject_terrain = is_pool_or_lava(x, y, state)
+        || IS_AIR(location.typ);
+
+    /* [at the time this was written, it was not possible to be both a
+       webmaker and a flyer, but with the advent of amulet of flying that
+       became a possibility; at present hero can spin a web while flying] */
+    if (Levitation(state) || reject_terrain) {
+        await ttyPline(
+            `You must be on ${reject_terrain ? 'solid' : 'the'} ground `
+            + 'to spin a web.',
+            state,
+        );
+        return ECMD_OK;
+    }
+    if (u.uswallow) {
+        await ttyPline(
+            `You release web fluid inside ${monsterCommonName(u.ustuck, state)}.`,
+            state,
+        );
+        if (is_animal(u.ustuck.data)) {
+            // expels(u.ustuck, u.ustuck->data, TRUE)
+            note_unported('mhitu.c expels');
+            return ECMD_OK;
+        }
+        if (is_whirly(u.ustuck.data)) {
+            let i;
+
+            for (i = 0; i < NATTK; i++)
+                if (u.ustuck.data.mattk[i].aatyp === M.AT_ENGL)
+                    break;
+            if (i === NATTK) {
+                // C: impossible("Swallower has no engulfing attack?");
+                throw new Error(
+                    'impossible: Swallower has no engulfing attack?',
+                );
+            }
+            let sweep = '';
+            switch (u.ustuck.data.mattk[i].adtyp) {
+            case M.AD_FIRE:
+                sweep = 'ignites and ';
+                break;
+            case M.AD_ELEC:
+                sweep = 'fries and ';
+                break;
+            case M.AD_COLD:
+                sweep = 'freezes, shatters and ';
+                break;
+            }
+            await ttyPline(`The web ${sweep}is swept away!`, state);
+            return ECMD_OK;
+        } /* default: a nasty jelly-like creature */
+        await ttyPline(
+            `The web dissolves into ${monsterCommonName(u.ustuck, state)}.`,
+            state,
+        );
+        return ECMD_OK;
+    }
+    if (u.utrap) {
+        await ttyPline('You cannot spin webs while stuck in a trap.', state);
+        return ECMD_OK;
+    }
+    await exercise(A_DEX, true, state, { rn2 });
+    if (ttmp) {
+        switch (ttmp.ttyp) {
+        case PIT:
+        case SPIKED_PIT:
+            await ttyPline('You spin a web, covering up the pit.', state);
+            deltrap(ttmp, state);
+            note_unported('dig.c bury_objs');
+            newsym(x, y);
+            return ECMD_TIME;
+        case SQKY_BOARD:
+            await ttyPline('The squeaky board is muffled.', state);
+            deltrap(ttmp, state);
+            newsym(x, y);
+            return ECMD_TIME;
+        case TELEP_TRAP:
+        case LEVEL_TELEP:
+        case MAGIC_PORTAL:
+        case VIBRATING_SQUARE:
+            await ttyPline('Your webbing vanishes!', state);
+            return ECMD_OK;
+        case WEB:
+            await ttyPline('You make the web thicker.', state);
+            return ECMD_TIME;
+        case HOLE:
+        case TRAPDOOR:
+            await ttyPline(
+                `You web over the ${(ttmp.ttyp === TRAPDOOR) ? 'trap door' : 'hole'}.`,
+                state,
+            );
+            deltrap(ttmp, state);
+            newsym(x, y);
+            return ECMD_TIME;
+        case ROLLING_BOULDER_TRAP:
+            await ttyPline('You spin a web, jamming the trigger.', state);
+            deltrap(ttmp, state);
+            newsym(x, y);
+            return ECMD_TIME;
+        case ARROW_TRAP:
+        case DART_TRAP:
+        case BEAR_TRAP:
+        case ROCKTRAP:
+        case FIRE_TRAP:
+        case LANDMINE:
+        case SLP_GAS_TRAP:
+        case RUST_TRAP:
+        case MAGIC_TRAP:
+        case ANTI_MAGIC:
+        case POLY_TRAP:
+            await ttyPline('You have triggered a trap!', state);
+            await dotrap(ttmp, NO_TRAP_FLAGS, state);
+            return ECMD_TIME;
+        default:
+            // C: impossible("Webbing over trap type %d?", ttmp->ttyp);
+            throw new Error(`impossible: Webbing over trap type ${ttmp.ttyp}?`);
+        }
+    } else if (On_stairs(x, y, state)) {
+        /* cop out: don't let them hide the stairs */
+        await ttyPline(
+            'Your web fails to impede access to the '
+            + `${(location.typ === STAIRS) ? 'stairs' : 'ladder'}.`,
+            state,
+        );
+        return ECMD_TIME;
+    }
+    ttmp = maketrap(x, y, WEB, { state });
+    if (ttmp) {
+        await ttyPline('You spin a web.', state);
+        ttmp.madeby_u = 1;
+        feeltrap(ttmp, { state, redraw: newsym });
+        if (in_rooms(x, y, SHOPBASE, state).length)
+            note_unported('shk.c add_damage');
+    }
+    return ECMD_TIME;
+}
+
+// ---------- dosummon ----------------------------------------------------
+// C ref: polyself.c dosummon() (1624-1639). The poly'd lycanthrope spends
+// 10 energy to call were_summon() for tame helpers.
+export async function dosummon(state = game) {
+    const u = state.u;
+    const placeholder = { value: 0 };
+    if (u.uen < 10) {
+        await ttyPline(
+            'You lack the energy to send forth a call for help!', state,
+        );
+        return ECMD_OK;
+    }
+    u.uen -= 10;
+    state.disp ??= {};
+    state.disp.botl = true;
+
+    await ttyPline('You call upon your brethren for help!', state);
+    await exercise(A_WIS, true, state, { rn2 });
+    if (!await were_summon(state.youmonst.data, true, placeholder, null, state))
+        await ttyPline('But none arrive.', state);
+    return ECMD_TIME;
+}
+
+// ---------- dogaze ------------------------------------------------------
+// C ref: polyself.c dogaze() (1642-1774). The poly'd hero's gaze attack,
+// confusing or fiery, spends 15 energy and reaches every monster in view;
+// gazing at a floating eye freezes the hero and gazing at Medusa is death.
+export async function dogaze(state = game) {
+    const u = state.u;
+    let looked = 0;
+    let adtyp = 0;
+
+    for (let i = 0; i < NATTK; i++) {
+        if (state.youmonst.data.mattk[i].aatyp === M.AT_GAZE) {
+            adtyp = state.youmonst.data.mattk[i].adtyp;
+            break;
+        }
+    }
+    if (adtyp !== M.AD_CONF && adtyp !== M.AD_FIRE) {
+        // C: impossible("gaze attack %d?", adtyp);
+        throw new Error(`impossible: gaze attack ${adtyp}?`);
+    }
+
+    if (Blind(state)) {
+        await ttyPline("You can't see anything to gaze at.", state);
+        return ECMD_OK;
+    } else if (Hallucination(state)) {
+        await ttyPline("You can't gaze at anything you can see.", state);
+        return ECMD_OK;
+    }
+    if (u.uen < 15) {
+        await ttyPline('You lack the energy to use your special gaze!', state);
+        return ECMD_OK;
+    }
+    u.uen -= 15;
+    state.disp ??= {};
+    state.disp.botl = true;
+
+    for (let mtmp = state.fmon; mtmp; mtmp = mtmp.nmon) {
+        if (DEADMONSTER(mtmp))
+            continue;
+        if (canseemon(mtmp, state) && couldsee(mtmp.mx, mtmp.my, state)) {
+            looked++;
+            if (Invis(state) && !perceives(mtmp.data)) {
+                await ttyPline(
+                    `${capitalizedMonsterName(mtmp, state)} seems not to `
+                    + 'notice your gaze.',
+                    state,
+                );
+            } else if (mtmp.minvis && !See_invisible(state)) {
+                await ttyPline(
+                    "You can't see where to gaze at "
+                    + `${capitalizedMonsterName(mtmp, state)}.`,
+                    state,
+                );
+            } else if (M_AP_TYPE(mtmp) === M_AP_FURNITURE
+                       || M_AP_TYPE(mtmp) === M_AP_OBJECT) {
+                looked--;
+                continue;
+            } else if (state.flags.safe_dog && mtmp.mtame
+                       && !Confusion(state)) {
+                await ttyPline(
+                    `You avoid gazing at ${y_monnam(mtmp, state)}.`, state,
+                );
+            } else {
+                if (state.flags.confirm && mtmp.mpeaceful
+                    && !Confusion(state)) {
+                    const qbuf = `Really ${(adtyp === M.AD_CONF)
+                        ? 'confuse' : 'attack'} `
+                        + `${monsterCommonName(mtmp, state)}?`;
+                    // y_n() answers a key code.
+                    if (await y_n(qbuf, state) !== 'y'.charCodeAt(0))
+                        continue;
+                }
+                setmangry(mtmp, true, { state });
+                if (helpless(mtmp) || mtmp.mstun
+                    || !mtmp.mcansee || !haseyes(mtmp.data)) {
+                    looked--;
+                    continue;
+                }
+                /* No reflection check for consistency with when a monster
+                 * gazes at *you*--only medusa gaze gets reflected then.
+                 */
+                if (adtyp === M.AD_CONF) {
+                    if (!mtmp.mconf)
+                        await ttyPline(
+                            `Your gaze confuses ${monsterCommonName(mtmp, state)}!`,
+                            state,
+                        );
+                    else
+                        await ttyPline(
+                            `${capitalizedMonsterName(mtmp, state)} is getting `
+                            + 'more and more confused.',
+                            state,
+                        );
+                    mtmp.mconf = 1;
+                } else if (adtyp === M.AD_FIRE) {
+                    let dmg = d(2, 6);
+                    const orig_dmg = dmg;
+                    const lev = u.ulevel;
+
+                    await ttyPline(
+                        `You attack ${monsterCommonName(mtmp, state)} with a `
+                        + 'fiery gaze!',
+                        state,
+                    );
+                    if (resists_fire(mtmp, state)) {
+                        await ttyPline(
+                            `The fire doesn't burn ${monsterCommonName(mtmp, state)}!`,
+                            state,
+                        );
+                        dmg = 0;
+                    }
+                    if (lev > rn2(20)) {
+                        dmg += await destroy_items(mtmp, M.AD_FIRE, orig_dmg,
+                            { state, random: { d, rn1, rn2, rnd, rne, rnl } });
+                        await ignite_items(mtmp.minvent,
+                            { state, random: { d, rn1, rn2, rnd, rne, rnl } });
+                    }
+                    if (dmg)
+                        mtmp.mhp -= dmg;
+                    if (DEADMONSTER(mtmp))
+                        await killed(mtmp, state);
+                }
+                /* For consistency with passive() in uhitm.c, this only
+                 * affects you if the monster is still alive.
+                 */
+                if (DEADMONSTER(mtmp))
+                    continue;
+
+                if (mtmp.data.pmidx === M.PM_FLOATING_EYE && !mtmp.mcan) {
+                    if (!Free_action(state)) {
+                        await ttyPline(
+                            'You are frozen by '
+                            + `${s_suffix(monsterCommonName(mtmp, state))} gaze!`,
+                            state,
+                        );
+                        nomul((u.ulevel > 6 || rn2(4))
+                            ? -d(mtmp.m_lev + 1, mtmp.data.mattk[0].damd)
+                            : -200, state);
+                        state.multi_reason = "frozen by a monster's gaze";
+                        state.nomovemsg = null;
+                        return ECMD_TIME;
+                    } else {
+                        await ttyPline(
+                            'You stiffen momentarily under '
+                            + `${s_suffix(monsterCommonName(mtmp, state))} gaze.`,
+                            state,
+                        );
+                    }
+                }
+                /* Technically this one shouldn't affect you at all because
+                 * the Medusa gaze is an active monster attack that only
+                 * works on the monster's turn, but for it to *not* have an
+                 * effect would be too weird.
+                 */
+                if (mtmp.data.pmidx === M.PM_MEDUSA && !mtmp.mcan) {
+                    await ttyPline(
+                        `Gazing at the awake ${l_monnam(mtmp, state)} is not `
+                        + 'a very good idea.',
+                        state,
+                    );
+                    /* as if gazing at a sleeping anything is fruitful... */
+                    await ttyUrgentPline('You turn to stone...', state);
+                    state.killer ??= {};
+                    state.killer.format = KILLED_BY;
+                    state.killer.name = "deliberately meeting Medusa's gaze";
+                    await done(STONING, state);
+                }
+            }
+        }
+    }
+    if (!looked)
+        await ttyPline('You gaze at no place in particular.', state);
+    return ECMD_TIME;
+}
+
+// ---------- dohide ------------------------------------------------------
+// C ref: polyself.c dohide() (1777-1874). "called by domonability() for
+// #monster": the poly'd hider or mimic hides, unless held, trapped, out of
+// water as an eel, without an object to hide under, or on a plane with
+// nothing above or below. trap.c instapetrify() and insight.c youhiding()
+// are unported and C discards their results, so those calls record gaps.
+export async function dohide(state = game) {
+    const u = state.u;
+    const ismimic = state.youmonst.data.mlet === M.S_MIMIC;
+    const on_ceiling = is_clinger(state.youmonst.data) || Flying(state);
+
+    /* can't hide while being held (or holding) or while trapped
+       (except for floor hiders [trapper or mimic] in pits) */
+    if (u.ustuck || (u.utrap && (u.utraptype !== TT_PIT || on_ceiling))) {
+        const how = !u.ustuck ? 'trapped'
+            : u.uswallow ? (digests(u.ustuck.data) ? 'swallowed'
+                                                    : 'engulfed')
+              : !sticks(state.youmonst.data) ? 'being held'
+                : (humanoid(u.ustuck.data) ? 'holding someone'
+                                           : 'holding that creature');
+        await ttyPline(`You can't hide while you're ${how}.`, state);
+        if (u.uundetected
+            || (ismimic && M_AP_TYPE(state.youmonst) !== M_AP_NOTHING)) {
+            u.uundetected = 0;
+            state.youmonst.m_ap_type = M_AP_NOTHING;
+            newsym(u.ux, u.uy);
+        }
+        return ECMD_OK;
+    }
+    /* note: hero-as-eel handling is incomplete but unnecessary;
+       such critters aren't offered the option of hiding via #monster */
+    if (state.youmonst.data.mlet === M.S_EEL && !is_pool(u.ux, u.uy, state)) {
+        if (IS_FOUNTAIN(state.level.at(u.ux, u.uy).typ))
+            await ttyPline(
+                'The fountain is not deep enough to hide in.', state,
+            );
+        else
+            await ttyPline(
+                `There is no ${hliquid('water', { state })} to hide in here.`,
+                state,
+            );
+        u.uundetected = 0;
+        return ECMD_OK;
+    }
+    if (hides_under(state.youmonst.data)) {
+        let ct = 0;
+        const otop = state.level.objects[u.ux][u.uy];
+        let otmp;
+
+        if (!otop) {
+            await ttyPline('There is nothing to hide under here.', state);
+            u.uundetected = 0;
+            return ECMD_OK;
+        }
+        for (otmp = otop;
+             otmp && otmp.otyp === CORPSE
+                  && touch_petrifies(state.mons[otmp.corpsenm]);
+             otmp = otmp.nexthere)
+            ct += otmp.quan;
+        /* otmp will be Null iff the entire pile consists of 'trice corpses */
+        if (!otmp && !Stone_resistance(state)) {
+            let corpse_name = cxname(otop, state);
+
+            /* for the plural case, we'll say "cockatrice corpses" or
+               "chickatrice corpses" depending on the top of the pile
+               even if both types are present */
+            if (ct === 1)
+                corpse_name = an(corpse_name);
+            /* no need to check poly_when_stoned(); no hide-underers can
+               turn into stone golems instead of becoming petrified */
+            await ttyPline(
+                `Hiding under ${corpse_name}${plur(ct)} is a fatal mistake...`,
+                state,
+            );
+            // instapetrify("hiding under <corpse_name><plur>")
+            note_unported('trap.c instapetrify');
+            /* only reach here if life-saved */
+            u.uundetected = 0;
+            return ECMD_TIME;
+        }
+    }
+    /* Planes of Air and Water */
+    if (on_ceiling && !has_ceiling(u.uz, state)) {
+        await ttyPline('There is nowhere to hide above you.', state);
+        u.uundetected = 0;
+        return ECMD_OK;
+    }
+    if ((is_hider(state.youmonst.data) && !Flying(state)) /* floor hider */
+        && (Is_airlevel(u.uz) || Is_waterlevel(u.uz))) {
+        await ttyPline('There is nowhere to hide beneath you.', state);
+        u.uundetected = 0;
+        return ECMD_OK;
+    }
+    /* TODO? inhibit floor hiding at furniture locations, or
+     * else make youhiding() give smarter messages at such spots.
+     */
+
+    if (u.uundetected
+        || (ismimic && M_AP_TYPE(state.youmonst) !== M_AP_NOTHING)) {
+        // youhiding(FALSE, 1); "you are already hiding"
+        note_unported('insight.c youhiding');
+        return ECMD_OK;
+    }
+
+    if (ismimic) {
+        /* should bring up a dialog "what would you like to imitate?" */
+        state.youmonst.m_ap_type = M_AP_OBJECT;
+        state.youmonst.mappearance = STRANGE_OBJECT;
+    } else {
+        u.uundetected = 1;
+    }
+    newsym(u.ux, u.uy);
+    // youhiding(FALSE, 0); "you are now hiding"
+    note_unported('insight.c youhiding');
+    return ECMD_TIME;
+}
+
+// ---------- dopoly ------------------------------------------------------
+// C ref: polyself.c dopoly() (1877-1891). The poly'd vampire or vampshifter
+// shifts form through polyself(POLY_MONSTER) and reports the new form.
+export async function dopoly(state = game) {
+    const savedat = state.youmonst.data;
+
+    if (is_vampire(state.youmonst.data) || is_vampshifter(state.youmonst)) {
+        await polyself(POLY_MONSTER, state);
+        if (savedat !== state.youmonst.data) {
+            await ttyPline(
+                'You transform into '
+                + `${an(pmname(state.youmonst.data, Ugender(state)))}.`,
+                state,
+            );
+            newsym(state.u.ux, state.u.uy);
+        }
+    }
+    return ECMD_TIME;
+}
+
+// ---------- domindblast -------------------------------------------------
+// C ref: polyself.c domindblast() (1894-1938). "#monster for hero-as-
+// mind_flayer giving psychic blast": 10 energy, and every hostile,
+// non-mindless monster within BOLT_LIM squares that is telepathic and
+// blind, telepathic with an even chance, or anything with a 1-in-10 chance,
+// takes rnd(15).
+export async function domindblast(state = game) {
+    const u = state.u;
+
+    if (u.uen < 10) {
+        await ttyPline(
+            'You concentrate but lack the energy to maintain doing so.',
+            state,
+        );
+        return ECMD_OK;
+    }
+    u.uen -= 10;
+    state.disp ??= {};
+    state.disp.botl = true;
+
+    await ttyPline('You concentrate.', state);
+    await ttyPline('A wave of psychic energy pours out.', state);
+    for (let mtmp = state.fmon, nmon; mtmp; mtmp = nmon) {
+        nmon = mtmp.nmon;
+        if (DEADMONSTER(mtmp))
+            continue;
+        if (mdistu(mtmp, state) > BOLT_LIM * BOLT_LIM)
+            continue;
+        if (mtmp.mpeaceful)
+            continue;
+        if (mindless(mtmp.data))
+            continue;
+        const u_sen = telepathic(mtmp.data) && !mtmp.mcansee;
+        if (u_sen || (telepathic(mtmp.data) && rn2(2)) || !rn2(10)) {
+            const dmg = rnd(15);
+            /* wake it up first, to bring hidden monster out of hiding;
+               but in case it is currently peaceful, don't make it hostile
+               unless it will survive the psychic blast, otherwise hero
+               would avoid the penalty for killing it while peaceful */
+            await wakeup(mtmp, dmg > mtmp.mhp, { state });
+            await ttyPline(
+                `You lock in on ${s_suffix(monsterCommonName(mtmp, state))} `
+                + `${u_sen ? 'telepathy'
+                    : telepathic(mtmp.data) ? 'latent telepathy'
+                      : 'mind'}.`,
+                state,
+            );
+            mtmp.mhp -= dmg;
+            if (DEADMONSTER(mtmp))
+                await killed(mtmp, state);
+        }
+    }
+    return ECMD_TIME;
+}
+
+// ---------- uunstick ----------------------------------------------------
+// C ref: polyself.c uunstick() (1941-1951). Release the monster the hero was
+// holding, clearing u.ustuck before the message names it.
+export async function uunstick(state = game) {
+    const mtmp = state.u.ustuck;
+
+    if (!mtmp) {
+        // C: impossible("uunstick: no ustuck?");
+        throw new Error('impossible: uunstick: no ustuck?');
+    }
+    set_ustuck(null, state); /* before pline() */
+    await ttyPline(
+        `${capitalizedMonsterName(mtmp, state)} is no longer in your clutches.`,
+        state,
+    );
+}
+
+// ---------- poly_gender -------------------------------------------------
+// C ref: polyself.c poly_gender() (2149-2157). "Returns gender of
+// polymorphed player; 0/1=same meaning as flags.female, 2=none."
+export function poly_gender(state = game) {
+    if (is_neuter(state.youmonst.data) || !humanoid(state.youmonst.data))
+        return 2;
+    return state.flags.female ? 1 : 0;
+}
+
+// ---------- ugolemeffects -----------------------------------------------
+// C ref: polyself.c ugolemeffects() (2160-2188). A hero in flesh golem form
+// heals from electricity and one in iron golem form from fire, up to the
+// form's maximum.
+export async function ugolemeffects(damtype, dam, state = game) {
+    const u = state.u;
+    let heal = 0;
+
+    /* We won't bother with "slow"/"haste" since players do not
+     * have a monster-specific slow/haste so there is no way to
+     * restore the old velocity once they are back to human.
+     */
+    if (u.umonnum !== M.PM_FLESH_GOLEM && u.umonnum !== M.PM_IRON_GOLEM)
+        return;
+    switch (damtype) {
+    case M.AD_ELEC:
+        if (u.umonnum === M.PM_FLESH_GOLEM)
+            heal = Math.trunc((dam + 5) / 6); /* Approx 1 per die */
+        break;
+    case M.AD_FIRE:
+        if (u.umonnum === M.PM_IRON_GOLEM)
+            heal = dam;
+        break;
+    }
+    if (heal && (u.mh < u.mhmax)) {
+        u.mh += heal;
+        if (u.mh > u.mhmax)
+            u.mh = u.mhmax;
+        state.disp ??= {};
+        state.disp.botl = true;
+        await ttyPline('Strangely, you feel better than before.', state);
+        await exercise(A_STR, true, state, { rn2 });
+    }
+}
+
+// ---------- ugenocided --------------------------------------------------
+// C ref: polyself.c ugenocided() (2265-2270). Whether the hero's role or
+// race species has been genocided, which is fatal on returning to it.
+export function ugenocided(state = game) {
+    return Boolean((state.svm.mvitals[state.urole.mnum].mvflags & G_GENOD)
+                   || (state.svm.mvitals[state.urace.mnum].mvflags & G_GENOD));
+}
+
+// ---------- udeadinside -------------------------------------------------
+// C ref: polyself.c udeadinside() (2273-2285). "how hero feels 'inside'
+// after self-genocide of role or race": living forms including demons feel
+// dead, undead and manes condemned, golems and vortices empty.
+export function udeadinside(state = game) {
+    return !nonliving(state.youmonst.data)
+        ? 'dead'          /* living, including demons */
+        : !weirdnonliving(state.youmonst.data)
+            ? 'condemned' /* undead plus manes */
+            : 'empty';    /* golems plus vortices */
 }

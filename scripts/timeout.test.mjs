@@ -25,10 +25,12 @@ import {
     TIMER_NONE,
     TIMER_LEVEL,
     TIMER_OBJECT,
+    UNCHANGING,
     WOUNDED_LEGS,
     ZOMBIFY_MON,
 } from '../js/const.js';
 import { wipeoff } from '../js/do.js';
+import { initRng } from '../js/rng.js';
 import {
     PM_DEATH,
     PM_ARCHEOLOGIST,
@@ -123,15 +125,17 @@ test('elapsed-turn timeout upkeep admits only source-inert timeout state',
             );
             state.u[field] = 0;
         }
-        // mtimedone=1 decrements to 0, hitting the boundary for the
-        // unported rehumanize/you_unwere/Unchanging-extension code path
-        // (timeout.c:641-648).
+        // mtimedone=1 decrements to 0 and timeout.c:642-643 re-arms it for
+        // an Unchanging hero with rnd(100 * mlevel + 1); a form of level 0
+        // makes that rnd(1), which is 1, so the timer reads 1 again.
         state.u.mtimedone = 1;
-        await assert.rejects(
-            nh_timeout_elapsed_turn(state),
-            /mtimedone reaches zero/u,
-            'mtimedone reaching zero',
-        );
+        state.u.uprops[UNCHANGING] = { intrinsic: 0, extrinsic: 1 };
+        state.youmonst = { data: { mlevel: 0 } };
+        initRng(1); // rnd(1) draws once; any seed answers 1
+        await assert.doesNotReject(nh_timeout_elapsed_turn(state));
+        assert.equal(state.u.mtimedone, 1, 'Unchanging re-arms mtimedone');
+        delete state.u.uprops[UNCHANGING];
+        delete state.youmonst;
         state.u.mtimedone = 0;
         // mtimedone > 1 decrements without error; the countdown runs but
         // does not reach zero.

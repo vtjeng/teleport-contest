@@ -196,6 +196,7 @@
         "js/teleport.js",
         "js/unported_monster_actions.js",
         "js/weapon.js",
+        "js/were.js",
         "js/wizard.js"
       ],
       "generatedOutputs": [

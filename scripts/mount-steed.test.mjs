@@ -45,7 +45,6 @@ import {
     x_monnam,
 } from '../js/do_name.js';
 import {
-    UnsupportedHitPointLossError,
     losehp,
     near_capacity,
     test_move,
@@ -919,27 +918,29 @@ test('losehp takes the hit points, redraws the status line and stops at '
     assert.match(statusLine(), /HP:0\(16\)/u);
 });
 
-test('losehp stops for a polymorphed hero before it spends a hit point',
+test('losehp takes a polymorphed hero\'s loss out of u.mh, not u.uhp',
      async () => {
-    // hack.c:4267-4276 takes the loss out of u.mh for a polymorphed hero and
-    // can reach rehumanize(); nothing ported owns u.mh, so the arm stops
-    // rather than writing u.uhp for a hero who is not in his own form.
+    // hack.c:4267-4276 takes the loss out of u.mh for a polymorphed hero.
+    // With u.mh well above the loss, neither rehumanize() nor the
+    // Unchanging wail runs, and u.uhp is untouched.
     //
     // const.js Upolyd() takes the hero, not the game. Handing it the game
-    // compares two absent fields, answers false, and turns this fail-closed
-    // guard into a skip that spends the hit points on the wrong field, which
-    // is why the guard needs a test of its own.
+    // compares two absent fields, answers false, and would spend the hit
+    // points on the wrong field, which is why the arm needs a test of its own.
     await runSegment({
         ...knightSlipSegment(), moves: `.${RIDE_COMMAND}`,
     });
     const started = game.u.uhp;
     game.u.umonnum = game.u.umonster + 1;
+    // 20 and 30: any pair with mh - 3 >= 1 and mh * 10 >= mhmax keeps the
+    // arm on its plain subtraction path.
+    game.u.mh = 20;
+    game.u.mhmax = 30;
 
-    await assert.rejects(
-        losehp(3, 'a test', NO_KILLER_PREFIX, game),
-        UnsupportedHitPointLossError,
-    );
-    // The guard sits above the subtraction, so the hero keeps every point.
+    await losehp(3, 'a test', NO_KILLER_PREFIX, game);
+    assert.equal(game.u.mh, 17);
+    assert.equal(game.u.mhmax, 30);
+    // The loss lands on the form's hit points, so the hero keeps every point.
     assert.equal(game.u.uhp, started);
 });
 

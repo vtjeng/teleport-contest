@@ -67,9 +67,10 @@ import {
 } from './symbols.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
 import { tty_create_nhwindow } from './wintty.js';
-import { NHW_MESSAGE } from './const.js';
+import { NHW_MESSAGE, Upolyd } from './const.js';
 import { dorestore } from './restore.js';
 import { welcomeBackMessage } from './role_init.js';
+import { udeadinside, ugenocided } from './polyself.js';
 import {
     cls,
     docrt,
@@ -508,8 +509,16 @@ export class NethackGame {
             await bot({ initialTtyRefresh: true });
             clearTtyMessageWindow(g);
 
-            // C ref: dorecover():948 welcome(FALSE).
-            await ttyPline(welcomeBackMessage(g), g);
+            // C ref: dorecover():948 welcome(FALSE). allmain.c:863-867
+            // skips "welcome back" for a restored hero whose own species
+            // was genocided while polymorphed; that death is pending.
+            if (Upolyd(g.u) && ugenocided(g))
+                await ttyPline(
+                    `You're back, but you still feel ${udeadinside(g)} inside.`,
+                    g,
+                );
+            else
+                await ttyPline(welcomeBackMessage(g), g);
 
             // C ref: allmain.c moveloop(TRUE):589. The preamble with
             // resuming=true applies new date-dependent effects (moon phase,

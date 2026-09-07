@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "polyself.c dospinweb(): step off the stairs, become a cave spider, answer the hide-or-web prompt with s, spin a web on the floor.",
+  "segments": [
+    {
+      "seed": 771006,
+      "datetime": "20261001143000",
+      "nethackrc": "OPTIONS=name:Polly,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "l#polyself\ncave spider\n    #monster\ns"
+    }
+  ]
+}

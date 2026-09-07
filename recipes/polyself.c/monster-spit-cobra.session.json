@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "polyself.c dospit(): take off the cloak, become a cobra, spit acid venom east. BLOCKED: the venom breaking on the floor reaches dothrow.c breakobj(), unported; record once breakobj() lands.",
+  "segments": [
+    {
+      "seed": 771003,
+      "datetime": "20261001143000",
+      "nethackrc": "OPTIONS=name:Polly,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "T#polyself\ncobra\n   #monster\nl"
+    }
+  ]
+}

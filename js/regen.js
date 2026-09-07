@@ -6,6 +6,8 @@ import {
     A_INT,
     A_WIS,
     ENERGY_REGENERATION,
+    HALF_PHDAM,
+    Is_waterlevel,
     MAGICAL_BREATHING,
     MAXULEV,
     MOD_ENCUMBER,
@@ -15,12 +17,22 @@ import {
 } from './const.js';
 import { acurr } from './attrib.js';
 import { game } from './gstate.js';
+import { breathless } from './mondata.js';
 import { PM_WIZARD, S_EEL } from './monsters.js';
+import { rehumanize } from './polyself.js';
 import { rn1, rn2 } from './rng.js';
+import { is_pool } from './trap.js';
 
 function propertyActive(hero, index) {
     const property = hero?.uprops?.[index];
     return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+// youprop.h:276 Breathless: magical breathing from either source, or a form
+// that does not breathe.
+function Breathless(state) {
+    return propertyActive(state.u, MAGICAL_BREATHING)
+        || breathless(state.youmonst?.data);
 }
 
 function canRegenerate(hero) {
@@ -52,33 +64,47 @@ async function reachedFull(kind, state, env) {
     );
 }
 
-// No ported code makes u.umonnum differ from u.umonster: u_init.c writes the
-// pair together, and polyself.c, the only writer that separates them, is
-// unported. const.js Upolyd() is therefore false and the polymorphed arm below
-// cannot run. Keep the boundary explicit until rehumanize and eel upkeep have
-// a live owner.
+// C ref: allmain.c regen_hp() (626-680). The polymorphed arm: a form with
+// no hit points left reverts through rehumanize(); an eel out of water loses
+// a point with a chance that falls as its hit points do; any other form
+// regains one under the same conditions as the human arm below.
 export async function regen_hp(wtcap, state = game, env = {}) {
     const hero = state.u;
+    const encumbranceOk = wtcap < MOD_ENCUMBER || !hero.umoved;
+    const random = env.random ?? { rn2 };
+    if (typeof random.rn2 !== 'function')
+        throw new TypeError('regen_hp requires rn2');
     if (Upolyd(hero)) {
-        // allmain.c regen_hp()'s polymorphed arm. Its caller enters on
-        // `u.mh < u.mhmax || mlet == S_EEL`, and the eel-out-of-water branch
-        // runs at full mh, drawing rn2 twice and able to subtract a hit point,
-        // so full health alone does not make this arm inert. `u.mh < 1` calls
-        // rehumanize(). Only a non-eel polymorph at full health does nothing.
-        const inert = (hero.mh ?? 0) >= 1
-            && (hero.mh ?? 0) >= (hero.mhmax ?? 0)
-            && state.youmonst?.data?.mlet !== S_EEL;
-        if (inert) return false;
-        throw new Error('regen_hp polymorphed branch is not implemented');
+        let heal = 0;
+        if (hero.mh < 1) { /* shouldn't happen... */
+            await rehumanize(state);
+        } else if (state.youmonst.data.mlet === S_EEL
+                   && !is_pool(hero.ux, hero.uy, state)
+                   && !Is_waterlevel(hero.uz)
+                   && !Breathless(state)) {
+            /* eel out of water loses hp, similar to monster eels;
+               as hp gets lower, rate of further loss slows down */
+            if (hero.mh > 1 && !propertyActive(hero, REGENERATION)
+                && random.rn2(hero.mh) > random.rn2(8)
+                && (!propertyActive(hero, HALF_PHDAM)
+                    || !(state.moves % 2)))
+                heal = -1;
+        } else if (hero.mh < hero.mhmax) {
+            if (canRegenerate(hero)
+                || (encumbranceOk && !(state.moves % 20)))
+                heal = 1;
+        }
+        if (!heal) return false;
+        state.disp ??= {};
+        state.disp.botl = true;
+        hero.mh += heal;
+        if (hero.mh === hero.mhmax) await reachedFull('hp', state, env);
+        return true;
     }
     if ((hero.uhp ?? 0) >= (hero.uhpmax ?? 0)) return false;
 
     const regeneration = canRegenerate(hero);
-    const encumbranceOk = wtcap < MOD_ENCUMBER || !hero.umoved;
     if (!encumbranceOk && !regeneration) return false;
-    const random = env.random ?? { rn2 };
-    if (typeof random.rn2 !== 'function')
-        throw new TypeError('regen_hp requires rn2');
 
     let heal = ((hero.ulevel ?? 0) + acurr(state, A_CON))
         > random.rn2(100) ? 1 : 0;

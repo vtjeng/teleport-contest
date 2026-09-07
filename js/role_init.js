@@ -2,7 +2,7 @@
 // C ref: src/role.c selection helpers, rigid_role_checks(), role_init(),
 // Hello(), and Goodbye(); src/allmain.c welcome().
 
-import { A_CURRENT, A_ORIGINAL, P_CLERIC_SPELL } from './const.js';
+import { A_CURRENT, A_ORIGINAL, P_CLERIC_SPELL, Upolyd } from './const.js';
 import {
     M2_FEMALE,
     M2_HOSTILE,
@@ -600,7 +600,8 @@ export function welcomeMessage(state) {
 export function welcomeBackMessage(state) {
     const flags = state.flags;
     // C: currentgend = Upolyd ? u.mfemale : flags.female
-    const currentgend = Boolean(flags.female);
+    const currentgend = Upolyd(state.u)
+        ? Boolean(state.u.mfemale) : Boolean(flags.female);
     // C: adrift = (u.ualign.type != u.ualignbase[A_CURRENT])
     const adrift = state.u.ualign.type !== state.u.ualignbase[A_CURRENT];
 

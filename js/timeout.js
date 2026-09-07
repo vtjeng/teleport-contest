@@ -41,6 +41,7 @@ import {
     TIMER_MONSTER,
     TIMER_OBJECT,
     TROLL_REVIVE_CHANCE,
+    UNCHANGING,
     WOUNDED_LEGS,
     ZOMBIFY_MON,
 } from './const.js';
@@ -57,7 +58,9 @@ import {
     get_obj_location,
     new_light_source,
 } from './light.js';
-import { is_rider, zombie_form } from './mondata.js';
+import { is_rider, is_were, zombie_form } from './mondata.js';
+import { rehumanize } from './polyself.js';
+import { note_unported } from './unported.js';
 import {
     PM_DEATH,
     PM_ARCHEOLOGIST,
@@ -504,6 +507,13 @@ async function decrement_property_timeouts(state, env) {
     }
 }
 
+// youprop.h:372 Unchanging, intrinsic or extrinsic. nh_timeout() reads it
+// when the polymorph timer runs out.
+function Unchanging(state) {
+    const unchanging = state.u?.uprops?.[UNCHANGING];
+    return Boolean(unchanging?.intrinsic || unchanging?.extrinsic);
+}
+
 // Source-ordered elapsed-turn owner. The remaining admitted timeout state is
 // source-inert after the live luck prefix and the property countdown.
 //
@@ -520,16 +530,16 @@ export async function nh_timeout_elapsed_turn(state = game, env = {}) {
     await sleep_dialogue(state, env);
     // C ref: timeout.c:641-648. Decrement the polymorph timer each turn.
     // When it reaches zero, the hero reverts: Unchanging extends it,
-    // is_were() calls you_unwere(), otherwise rehumanize(). None of those
-    // are ported, so reaching zero is a boundary error. In the current
-    // witness session mtimedone starts at 500-999 with ~180 steps left,
-    // so the zero case is unreachable.
-    if (state.u.mtimedone) {
-        if (--state.u.mtimedone === 0) {
-            throw new UnsupportedHeroTimeoutBoundaryError(
-                'rehumanize/you_unwere/Unchanging extension when mtimedone reaches zero',
-            );
-        }
+    // is_were() calls you_unwere(), otherwise rehumanize(). were.c
+    // you_unwere() is unported and C discards its result, so that call
+    // records a gap.
+    if (state.u.mtimedone && !--state.u.mtimedone) {
+        if (Unchanging(state))
+            state.u.mtimedone = rnd(100 * state.youmonst.data.mlevel + 1);
+        else if (is_were(state.youmonst.data))
+            note_unported('were.c you_unwere'); /* if polycontrl, asks whether to rehumanize */
+        else
+            await rehumanize(state);
     }
     if (state.u.ucreamed) --state.u.ucreamed;
     await decrement_property_timeouts(state, env);

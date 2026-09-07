@@ -199,7 +199,7 @@ import {
 } from './objnam.js';
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
-import { body_part } from './polyself.js';
+import { body_part, rehumanize } from './polyself.js';
 import { healup } from './potion.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { monkilled, wakeup, xkilled } from './mon.js';
@@ -2100,8 +2100,7 @@ export async function cancel_monst(
     /* now handle special cases */
     if (youdefend) {
         if (Upolyd_cancel(state.u)) {
-            // Polymorph cancellation: rehumanize() is not ported.
-            note_unported('polyself.c rehumanize');
+            await rehumanize(state);
         }
     } else {
         mdef.mcan = 1;

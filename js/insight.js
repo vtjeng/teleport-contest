@@ -211,7 +211,7 @@ import { mon_aligntyp } from './priest.js';
 import { align_gname, can_pray, u_gname } from './pray.js';
 import { spellid } from './spell.js';
 import { is_ammo, isMetallic, objectType } from './obj.js';
-import { body_part } from './polyself.js';
+import { body_part, udeadinside, ugenocided } from './polyself.js';
 import { visible_region_at } from './region.js';
 import { mhidden_description } from './startup_a11y.js';
 import {
@@ -1028,6 +1028,14 @@ function status_enlightenment(mode, final, state, lines) {
     enlght_out(lines, ''); /* separator after title or characteristics */
     enlght_out(lines, final ? 'Final Status:' : 'Status:');
 
+    /* not a traditional status but inherently obvious to player; more
+       detail given below (attributes section) for magic enlightenment */
+    if (Upolyd(u)) {
+        let buf = 'transformed';
+        if (ugenocided(state))
+            buf += ` and ${final ? 'felt' : 'feel'} ${udeadinside(state)} inside`;
+        you_are(lines, final, buf, '');
+    }
     // C ref: insight.c:1181-1188. Sleepy (narcolepsy) arm: displayed when
     // the property is set and the cause is either magically known or the
     // player can see a worn item that confers it.
