@@ -39,7 +39,6 @@ import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
 import { add_to_container, obj_extract_self, obfree } from './invent.js';
 import { UnsupportedMonsterCreationError, makemon, dmonsfree } from './makemon_create.js';
 import { mkclass, rndmonnum } from './makemon.js';
-import { note_unported } from './unported.js';
 import { mineralize } from './mineralize.js';
 import { pm_resistance, poly_when_stoned } from './mondata.js';
 import { create_maze, place_lregion, setup_waterlevel } from './mkmaze.js';
@@ -1213,16 +1212,13 @@ export async function load_special(name, state) {
     const specialLevelApi = createSpecialLevelApi(state);
     await loader(specialLevelApi, state);
 
-    // C: remove_boundary_syms() changes CROSSWALL tiles placed as
-    // invisible region boundaries to ROOM; not yet ported.
-    note_unported('sp_lev.c remove_boundary_syms');
-    // C: ensure_way_out() runs only when the level requests it.
-    if (state._specialLevelCheckInaccessibles)
-        note_unported('sp_lev.c ensure_way_out');
-
     // Post-processing: finish() covers link_doors_rooms, map_cleanup,
     // wallification, flip_level_rnd, count_level_features, solidify_map,
     // fixup_special, premap_detect, and fill_special_room.
+    // Not yet ported: remove_boundary_syms (changes CROSSWALL boundary
+    // tiles to ROOM) and ensure_way_out (conditional on
+    // check_inaccessibles). Both are separate sp_lev.c functions outside
+    // this goal's range.
     specialLevelApi.finish();
 
     return true;
