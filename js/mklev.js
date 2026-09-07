@@ -37,8 +37,9 @@ import {
 import { map_background, map_object, map_trap, set_wall_state } from './display.js';
 import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
 import { add_to_container, obj_extract_self, obfree } from './invent.js';
-import { UnsupportedMonsterCreationError, makemon } from './makemon_create.js';
+import { UnsupportedMonsterCreationError, makemon, dmonsfree } from './makemon_create.js';
 import { mkclass, rndmonnum } from './makemon.js';
+import { note_unported } from './unported.js';
 import { mineralize } from './mineralize.js';
 import { pm_resistance, poly_when_stoned } from './mondata.js';
 import { create_maze, place_lregion, setup_waterlevel } from './mkmaze.js';
@@ -1162,6 +1163,71 @@ function lightSpecialMatch(frame, mapCharacter, lit, state) {
 // resolves the cycle after both modules have finished evaluating.
 let SPECIAL_LEVEL_LOADERS = null;
 
+// Lazy-loads all special level loader modules and populates
+// SPECIAL_LEVEL_LOADERS. The dynamic import() breaks the circular
+// dependency between mklev.js and bigrm.js.
+async function ensureSpecialLevelLoaders() {
+    if (SPECIAL_LEVEL_LOADERS) return;
+    const { BIGRM_LOADERS } = await import('./bigrm.js');
+    const { QUEST_LEVEL_LOADERS } = await import('./quest_levels.js');
+    const { SOKOBAN_LEVEL_LOADERS } = await import('./sokoban_levels.js');
+    const { CASTLE_LEVEL_LOADERS } = await import('./castle_levels.js');
+    const { MINES_LEVEL_LOADERS } = await import('./mines_levels.js');
+    const { FIRE_LEVEL_LOADERS } = await import('./fire_levels.js');
+    const { AIR_LEVEL_LOADERS } = await import('./air_levels.js');
+    const { HELL_LEVEL_LOADERS } = await import('./hell_levels.js');
+    const { VALLEY_LEVEL_LOADERS } = await import('./valley_levels.js');
+    const { MEDUSA_LEVEL_LOADERS } = await import('./medusa_levels.js');
+    SPECIAL_LEVEL_LOADERS = {
+        ...BIGRM_LOADERS,
+        ...QUEST_LEVEL_LOADERS,
+        ...SOKOBAN_LEVEL_LOADERS,
+        ...CASTLE_LEVEL_LOADERS,
+        ...MINES_LEVEL_LOADERS,
+        ...FIRE_LEVEL_LOADERS,
+        ...AIR_LEVEL_LOADERS,
+        ...HELL_LEVEL_LOADERS,
+        ...VALLEY_LEVEL_LOADERS,
+        ...MEDUSA_LEVEL_LOADERS,
+    };
+}
+
+// C ref: sp_lev.c load_special(). Initializes the level coder, runs the
+// level definition loader (the JS equivalent of load_lua), and applies
+// post-processing. Returns true when the level loaded, false when no
+// loader exists for the given name. C's create_des_coder() is not yet
+// ported as a standalone function; its work is done by
+// createSpecialLevelApi() which initializes the same per-level coder state
+// that sp_level_coder_init() sets in C.
+export async function load_special(name, state) {
+    await ensureSpecialLevelLoaders();
+    const loader = SPECIAL_LEVEL_LOADERS[name];
+    if (!loader) return false; // C: !load_lua() -> give_up
+
+    // C ref: nhlua.c nhl_init(); dat/nhlib.lua. The Lua state shuffles
+    // its private alignment table before evaluating the level file.
+    const align = ['law', 'neutral', 'chaos'];
+    shuffle_core_values(align, rn2);
+    state.specialLevelAlign = align;
+
+    const specialLevelApi = createSpecialLevelApi(state);
+    await loader(specialLevelApi, state);
+
+    // C: remove_boundary_syms() changes CROSSWALL tiles placed as
+    // invisible region boundaries to ROOM; not yet ported.
+    note_unported('sp_lev.c remove_boundary_syms');
+    // C: ensure_way_out() runs only when the level requests it.
+    if (state._specialLevelCheckInaccessibles)
+        note_unported('sp_lev.c ensure_way_out');
+
+    // Post-processing: finish() covers link_doors_rooms, map_cleanup,
+    // wallification, flip_level_rnd, count_level_features, solidify_map,
+    // fixup_special, premap_detect, and fill_special_room.
+    specialLevelApi.finish();
+
+    return true;
+}
+
 // C ref: mkmaze.c makemaz(). Selects the special level variant, loads
 // and runs the corresponding level definition through the special level
 // API, and applies post-processing.
@@ -1180,66 +1246,16 @@ async function makemaz(proto, slev, state) {
     if (protofile) {
         // C ref: mkmaze.c:1184-1193. load_special() runs the Lua level
         // definition and applies post-processing.
-        if (!SPECIAL_LEVEL_LOADERS) {
-            // Lazy initialization breaks the circular import between
-            // mklev.js and bigrm.js.
-            const { BIGRM_LOADERS } = await import('./bigrm.js');
-            const { QUEST_LEVEL_LOADERS } = await import(
-                './quest_levels.js'
-            );
-            const { SOKOBAN_LEVEL_LOADERS } = await import(
-                './sokoban_levels.js'
-            );
-            const { CASTLE_LEVEL_LOADERS } = await import(
-                './castle_levels.js'
-            );
-            const { MINES_LEVEL_LOADERS } = await import(
-                './mines_levels.js'
-            );
-            const { FIRE_LEVEL_LOADERS } = await import(
-                './fire_levels.js'
-            );
-            const { AIR_LEVEL_LOADERS } = await import(
-                './air_levels.js'
-            );
-            const { HELL_LEVEL_LOADERS } = await import(
-                './hell_levels.js'
-            );
-            const { VALLEY_LEVEL_LOADERS } = await import(
-                './valley_levels.js'
-            );
-            const { MEDUSA_LEVEL_LOADERS } = await import(
-                './medusa_levels.js'
-            );
-            SPECIAL_LEVEL_LOADERS = {
-                ...BIGRM_LOADERS,
-                ...QUEST_LEVEL_LOADERS,
-                ...SOKOBAN_LEVEL_LOADERS,
-                ...CASTLE_LEVEL_LOADERS,
-                ...MINES_LEVEL_LOADERS,
-                ...FIRE_LEVEL_LOADERS,
-                ...AIR_LEVEL_LOADERS,
-                ...HELL_LEVEL_LOADERS,
-                ...VALLEY_LEVEL_LOADERS,
-                ...MEDUSA_LEVEL_LOADERS,
-            };
+        if (await load_special(protofile, state)) {
+            // C ref: mkmaze.c:1191. Dead monsters created during level
+            // loading are freed here.
+            dmonsfree(state);
+            return;
         }
-        const loader = SPECIAL_LEVEL_LOADERS[protofile];
-        if (!loader) {
-            throw new UnsupportedLevelChangeError(
-                `makemaz: no loader for "${protofile}"`,
-            );
-        }
-        // C refs: nhlua.c nhl_init(); dat/nhlib.lua. Same nhlib shuffle as
-        // the tutorial special level path.
-        const align = ['law', 'neutral', 'chaos'];
-        shuffle_core_values(align, rn2);
-        state.specialLevelAlign = align;
-
-        const specialLevelApi = createSpecialLevelApi(state);
-        await loader(specialLevelApi, state);
-        specialLevelApi.finish();
-        return;
+        // C: impossible("Couldn't load \"%s\" - making a maze.", protofile);
+        throw new UnsupportedLevelChangeError(
+            `makemaz: no loader for "${protofile}"`,
+        );
     }
 
     // C ref: mkmaze.c:1197-1223. Procedural maze generation when no
