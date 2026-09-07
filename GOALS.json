@@ -10924,6 +10924,36 @@
         "to": 3852
       },
       "startFunction": "next_ident"
+    },
+    {
+      "id": "div-next-ident-seed0367",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Fix seed0367 rng divergence at step 243 in next_ident() (mkobj.c)",
+      "cFile": "mkobj.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "next_ident",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "next_ident"
+          ]
+        }
+      ],
+      "openedAt": "442c46e9be26547d1b90bad6bfd41402ea944ed0",
+      "openStanding": {
+        "sha": "7a13d0e1",
+        "screens": 4977,
+        "rng": 343077
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "next_ident",
+      "session": "seed0367-priest-quest-tour",
+      "step": 243
     }
   ]
 }
