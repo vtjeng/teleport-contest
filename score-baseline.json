@@ -15,9 +15,9 @@
     "cursors": 302
   },
   "seed0012-monk-vault-escort.session.json": {
-    "screens": 278,
-    "rngCalls": 13359,
-    "cursors": 278
+    "screens": 307,
+    "rngCalls": 13878,
+    "cursors": 307
   },
   "seed0013-friday13-save-then-fullmoon-restore.session.json": {
     "screens": 99,
@@ -31,7 +31,7 @@
   },
   "seed0014-dequa-fountain-explore.session.json": {
     "screens": 416,
-    "rngCalls": 16709,
+    "rngCalls": 16773,
     "cursors": 416,
     "lowerings": [
       {
@@ -73,8 +73,8 @@
     "cursors": 67
   },
   "seed0030-ten-diverse-deaths.session.json": {
-    "screens": 171,
-    "rngCalls": 21596,
+    "screens": 159,
+    "rngCalls": 15006,
     "lowerings": [
       {
         "metric": "rngCalls",
@@ -110,9 +110,23 @@
         "to": 6890,
         "commit": "6079433",
         "reason": "The port's first divergence in this session is at random-number index 6732, rnd(5) in maybe_smudge_engr(hack.c:3029), before and after 6079433, and its emitted screens are unchanged at 23. I measured both sides by replaying the session's ten segments against js/makemon.js from 529f7fc and then from 6079433, concatenating each run's log and comparing it positionally with C's. What fell is coincidental positional matching past that stop: a monster that used to stop at grow_up()'s level gain now keeps playing, which raises the port's own emitted total from 51,777 calls to 52,012 and reshuffles the alignment. rngMatched compares positionally over the whole log, which .agents/validation.md records under Facts about the measuring tools."
+      },
+      {
+        "metric": "screens",
+        "from": 171,
+        "to": 159,
+        "commit": "1c406f7e",
+        "reason": "The port's first divergence in this session is at random-number index 338, rnd(2) in level generation (sp_lev.c/mkmap.c), both before and after 1c406f7e. Porting m_arrival through vamp_shift in monmove.c changes the port's own behavior past that stop: m_move_aggress replaces the former unsupported throw, and leppie_avoidance and m_balks_at_approaching alter approach decisions, so the port's own emitted total for segment 0 shifts from 14300 to 14298 calls. That 2-call shift reshuffles the positional alignment past the stop, losing coincidental matches in segments 1 through 9. rngMatched compares positionally over the whole log, which .agents/validation.md records under Facts about the measuring tools."
+      },
+      {
+        "metric": "rngCalls",
+        "from": 21596,
+        "to": 15006,
+        "commit": "1c406f7e",
+        "reason": "The port's first divergence in this session is at random-number index 338, rnd(2) in level generation (sp_lev.c/mkmap.c), both before and after 1c406f7e. Porting m_arrival through vamp_shift in monmove.c changes the port's own behavior past that stop: m_move_aggress replaces the former unsupported throw, and leppie_avoidance and m_balks_at_approaching alter approach decisions, so the port's own emitted total for segment 0 shifts from 14300 to 14298 calls. That 2-call shift reshuffles the positional alignment past the stop, losing coincidental matches in segments 1 through 9. rngMatched compares positionally over the whole log, which .agents/validation.md records under Facts about the measuring tools."
       }
     ],
-    "cursors": 173
+    "cursors": 239
   },
   "seed0077-rogue-chargen.session.json": {
     "screens": 33,
@@ -145,9 +159,9 @@
     "cursors": 98
   },
   "seed0108-wizard-extcmd-wishlist.session.json": {
-    "screens": 147,
-    "rngCalls": 2958,
-    "cursors": 147
+    "screens": 185,
+    "rngCalls": 3019,
+    "cursors": 187
   },
   "seed0200-monk-north-search.session.json": {
     "screens": 40,
@@ -155,9 +169,9 @@
     "cursors": 40
   },
   "seed0360-wizard-world-tour.session.json": {
-    "screens": 164,
-    "rngCalls": 35358,
-    "cursors": 164,
+    "screens": 173,
+    "rngCalls": 37668,
+    "cursors": 173,
     "lowerings": [
       {
         "metric": "screens",
@@ -176,14 +190,14 @@
     ]
   },
   "seed0361-archeologist-tour.session.json": {
-    "screens": 213,
-    "rngCalls": 12291,
-    "cursors": 213
+    "screens": 307,
+    "rngCalls": 23359,
+    "cursors": 307
   },
   "seed0367-priest-quest-tour.session.json": {
-    "screens": 243,
-    "rngCalls": 26690,
-    "cursors": 243
+    "screens": 245,
+    "rngCalls": 26723,
+    "cursors": 253
   },
   "seed0373-barbarian-quest-tour.session.json": {
     "screens": 124,
@@ -192,8 +206,8 @@
   },
   "seed0383-wizard-hallucinate.session.json": {
     "screens": 179,
-    "rngCalls": 11377,
-    "cursors": 179
+    "rngCalls": 11524,
+    "cursors": 182
   },
   "seed0501-priest-cast-read-turn.session.json": {
     "screens": 28,
