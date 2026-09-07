@@ -12,8 +12,8 @@ import { cFunctions, parseCFunctions } from './c-functions.mjs';
 
 import {
     SPAN_LINE_CAP, assertStandingIsCurrent, deliveredSince, formatGoal,
-    formatRoadmap, nextSpan, readGoals, roadmapRows, selectFunctionRange,
-    spanContext, validateGoals,
+    formatRoadmap, lineRanges, nextSpan, readGoals, roadmapRows,
+    selectFunctionRange, spanContext, validateGoals,
 } from './goal-log.mjs';
 
 const dir = mkdtempSync(join(tmpdir(), 'goal-log-'));
@@ -179,7 +179,7 @@ test('selectFunctionRange keeps the functions between two names, inclusive', () 
         /no function named zz/u);
 });
 
-test('nextSpan takes contiguous unported functions up to the line cap', () => {
+test('nextSpan collects unported functions in C order up to the line cap', () => {
     // Six functions of 100 lines each; b and e are ported. With a 250-line
     // cap a span holds at most two of them.
     const functions = ['a', 'b', 'c', 'd', 'e', 'f'].map((name, index) => ({
@@ -190,27 +190,32 @@ test('nextSpan takes contiguous unported functions up to the line cap', () => {
     }));
     const cap = 250;
 
-    // No start function: the first unported function, alone because b is
-    // ported and breaks the run.
+    // No start function: a, then c after passing over ported b; d would push
+    // the span past 250 lines. a and c sit apart, so the span lists two
+    // ranges, and b's lines count for nothing.
     assert.deepEqual(nextSpan(functions, [], null, cap),
-        { functions: ['a'], lineRange: '1-100', cLines: 100 });
+        { functions: ['a', 'c'], lineRanges: ['1-100', '201-300'], cLines: 200 });
 
-    // The divergence queue named d: the run starts there and stops at e.
+    // The divergence queue named d: the span starts there, passes over
+    // ported e, and takes f, the last function in the file.
     assert.deepEqual(nextSpan(functions, [], 'd', cap),
-        { functions: ['d'], lineRange: '301-400', cLines: 100 });
+        { functions: ['d', 'f'], lineRanges: ['301-400', '501-600'], cLines: 200 });
 
     // After d closes, the next unported function after it is f.
     const afterD = [{ functions: ['d'], status: 'closed' }];
     assert.deepEqual(nextSpan(functions, afterD, 'd', cap).functions, ['f']);
 
-    // After f closes the search wraps to the top of the file.
+    // After f closes the search wraps to the top of the file and collects
+    // a and c again: the fixture never marks d ported, and d is what the
+    // cap excludes.
     const afterF = [...afterD, { functions: ['f'], status: 'closed' }];
-    assert.deepEqual(nextSpan(functions, afterF, 'd', cap).functions, ['a']);
+    assert.deepEqual(nextSpan(functions, afterF, 'd', cap).functions, ['a', 'c']);
 
-    // The cap splits a long run: c and d fit in 250 lines, a third would not.
+    // The cap splits a long run: b and c fit in 250 lines, a third would not.
+    // Adjacent functions merge into one range.
     const longRun = functions.map((entry) => ({ ...entry, ported: entry.name === 'a' }));
     assert.deepEqual(nextSpan(longRun, [], null, cap),
-        { functions: ['b', 'c'], lineRange: '101-300', cLines: 200 });
+        { functions: ['b', 'c'], lineRanges: ['101-300'], cLines: 200 });
 
     // A single function larger than the cap still forms a span.
     const huge = [{ name: 'x', line: 1, endLine: 1000, ported: false }];
@@ -220,23 +225,43 @@ test('nextSpan takes contiguous unported functions up to the line cap', () => {
     const done = functions.map((entry) => ({ ...entry, ported: true }));
     assert.equal(nextSpan(done, [], null, cap), null);
 
-    // The default cap is the documented starting value.
-    assert.equal(SPAN_LINE_CAP, 400);
+    // The default cap is the value the comment above it calibrates.
+    assert.equal(SPAN_LINE_CAP, 800);
 });
 
-test('spanContext hands the worker the range, size, and JavaScript file', () => {
+test('lineRanges merges touching functions and keeps separate stretches apart', () => {
+    // 1-10 and 11-20 touch, so they merge; 30-40 stands apart. Sorting by
+    // line makes the order of the input irrelevant.
+    assert.deepEqual(lineRanges([
+        { line: 30, endLine: 40 },
+        { line: 1, endLine: 10 },
+        { line: 11, endLine: 20 },
+    ]), ['1-20', '30-40']);
+    assert.deepEqual(lineRanges([]), []);
+});
+
+test('spanContext hands the worker the ranges, size, and JavaScript file', () => {
     const goal = structuredClone(store.goals[1]);
     goal.sessions = ['seed0108-wizard-extcmd-wishlist'];
+    // The fixture's two functions are adjacent (10-30 and 31-60), so they
+    // form one range of 51 lines.
     const context = spanContext(goal, { functions: ['optfn_align', 'optfn_boulder'] });
     assert.deepEqual(context, {
         goal: 'options-c',
         cFile: 'options.c',
         functions: ['optfn_align', 'optfn_boulder'],
-        lineRange: '10-60',
+        lineRanges: ['10-60'],
         cLines: 51,
         jsFile: 'js/options.js',
         sessions: ['seed0108-wizard-extcmd-wishlist'],
     });
+
+    // A span that passed over a ported function lists one range per
+    // stretch: 21 lines at 10-30 and 21 lines at 100-120.
+    goal.functions.push({ name: 'optfn_color', line: 100, endLine: 120, ported: false });
+    const apart = spanContext(goal, { functions: ['optfn_align', 'optfn_color'] });
+    assert.deepEqual(apart.lineRanges, ['10-30', '100-120']);
+    assert.equal(apart.cLines, 42);
 });
 
 test('the roadmap orders files by unported functions and names their goal', () => {

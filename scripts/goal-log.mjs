@@ -25,11 +25,15 @@ export const SPAN_CONTEXT_PATH = join(PROJECT_ROOT, '.cache', 'span-context.json
 export const GOAL_STATUSES = Object.freeze(['queued', 'open', 'closed']);
 export const GOAL_KINDS = Object.freeze(['file-port', 'divergence-fix']);
 
-// A span stops growing at this many C lines. It is a starting cap: the last
-// 213 slices closed before 2026-09-05 landed a median of 101 JavaScript lines
-// with per-slice recording overhead the span rules remove. Recalibrate from
-// `git diff --numstat` once ten spans have closed.
-export const SPAN_LINE_CAP = 400;
+// A span stops growing at this many C lines. The cap was 400 from 2026-09-05
+// until the 34 spans that closed under it were measured on 2026-09-06: 29
+// ended at an already-ported neighbour rather than at the cap, at a median of
+// 43 C lines, and commit timestamps put a worker's fixed cost near four
+// minutes per span against about a minute per twelve C lines ported. Spans
+// of 227 to 426 C lines took 20 to 39 minutes of worker time. Recalibrate
+// from commit timestamps and `git diff --numstat` once ten spans have closed
+// under this cap.
+export const SPAN_LINE_CAP = 800;
 
 export function readGoals(path = DEFAULT_PATH) {
     const store = JSON.parse(readFileSync(path, 'utf8'));
@@ -210,14 +214,15 @@ export function selectFunctionRange(functions, from, to) {
 }
 
 /**
- * The next span of a file port: the contiguous run of unported functions
- * that follows the last closed span, capped at `cap` C lines.
+ * The next span of a file port: the unported functions, in C order, that
+ * follow the last closed span, up to `cap` C lines.
  *
  * The first span starts at `startFunction` (the function the divergence
  * queue named) or at the file's first unported function. Every later span
  * starts at the first unported function after the last closed span, wrapping
- * to the top of the file. A run ends at the first ported function or at the
- * cap, and always holds at least one function. Returns null when every
+ * to the top of the file. From there the span passes over ported functions
+ * and collects unported ones until the next would exceed the cap or the file
+ * ends; it always holds at least one function. Returns null when every
  * function is ported.
  */
 export function nextSpan(functions, closedSpans, startFunction, cap = SPAN_LINE_CAP) {
@@ -244,7 +249,7 @@ export function nextSpan(functions, closedSpans, startFunction, cap = SPAN_LINE_
     let cLines = 0;
     for (let index = startIndex; index < functions.length; index += 1) {
         const entry = functions[index];
-        if (entry.ported) break;
+        if (entry.ported) continue;
         const size = entry.endLine - entry.line + 1;
         if (run.length > 0 && cLines + size > cap) break;
         run.push(entry);
@@ -252,9 +257,27 @@ export function nextSpan(functions, closedSpans, startFunction, cap = SPAN_LINE_
     }
     return {
         functions: run.map((entry) => entry.name),
-        lineRange: `${run[0].line}-${run.at(-1).endLine}`,
+        lineRanges: lineRanges(run),
         cLines,
     };
+}
+
+/**
+ * The C line ranges that `entries` cover, as `line-endLine` strings in file
+ * order. Functions that touch or overlap merge into one range, so a span
+ * whose functions sit apart in the file lists one range per stretch.
+ */
+export function lineRanges(entries) {
+    const ranges = [];
+    for (const entry of [...entries].sort((a, b) => a.line - b.line)) {
+        const last = ranges.at(-1);
+        if (last && entry.line <= last.endLine + 1) {
+            last.endLine = Math.max(last.endLine, entry.endLine);
+        } else {
+            ranges.push({ line: entry.line, endLine: entry.endLine });
+        }
+    }
+    return ranges.map((range) => `${range.line}-${range.endLine}`);
 }
 
 function spanName(span) {
@@ -270,17 +293,17 @@ function jsFileFor(cFile) {
 
 /** The context file the span worker reads, for a queued span of `goal`. */
 export function spanContext(goal, span) {
-    const first = goal.functions.find((entry) => entry.name === span.functions[0]);
-    const last = goal.functions.find((entry) => entry.name === span.functions.at(-1));
+    const entries = span.functions.map(
+        (name) => goal.functions.find((entry) => entry.name === name),
+    );
     return {
         goal: goal.id,
         cFile: goal.cFile,
         functions: span.functions,
-        lineRange: `${first.line}-${last.endLine}`,
-        cLines: span.functions.reduce((sum, name) => {
-            const entry = goal.functions.find((candidate) => candidate.name === name);
-            return sum + (entry.endLine - entry.line + 1);
-        }, 0),
+        lineRanges: lineRanges(entries),
+        cLines: entries.reduce(
+            (sum, entry) => sum + (entry.endLine - entry.line + 1), 0,
+        ),
         jsFile: jsFileFor(goal.cFile),
         sessions: goal.sessions ?? [],
     };
