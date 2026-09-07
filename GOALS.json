@@ -11350,8 +11350,8 @@
         },
         {
           "name": "retouch_object..is_art",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "72a2f782ca70d8930dd0711263b03b75f7e7affe",
           "functions": [
             "retouch_object",
             "untouchable",
@@ -11359,6 +11359,33 @@
             "mkot_trap_warn",
             "has_magic_key",
             "is_art"
+          ]
+        },
+        {
+          "name": "save_artifacts..Mb_hit",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "save_artifacts",
+            "restore_artifacts",
+            "dispose_of_orig_obj",
+            "found_artifact",
+            "arti_reflects",
+            "restrict_name",
+            "attacks",
+            "defends",
+            "defends_when_carried",
+            "protects",
+            "arti_immune",
+            "bane_applies",
+            "spec_applies",
+            "spec_m2",
+            "spec_abon",
+            "spec_dbon",
+            "discover_artifact",
+            "undiscovered_artifact",
+            "dump_artifact_info",
+            "Mb_hit"
           ]
         }
       ],
@@ -11771,13 +11798,13 @@
           "name": "retouch_object",
           "line": 2508,
           "endLine": 2597,
-          "ported": false
+          "ported": true
         },
         {
           "name": "untouchable",
           "line": 2598,
           "endLine": 2639,
-          "ported": false
+          "ported": true
         },
         {
           "name": "retouch_equipment",
@@ -11789,13 +11816,13 @@
           "name": "count_surround_traps",
           "line": 2708,
           "endLine": 2752,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mkot_trap_warn",
           "line": 2753,
           "endLine": 2774,
-          "ported": false
+          "ported": true
         },
         {
           "name": "is_magic_key",
@@ -11807,13 +11834,13 @@
           "name": "has_magic_key",
           "line": 2790,
           "endLine": 2807,
-          "ported": false
+          "ported": true
         },
         {
           "name": "is_art",
           "line": 2808,
           "endLine": 2820,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_artifact",
