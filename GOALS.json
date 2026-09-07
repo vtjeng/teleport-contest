@@ -11317,8 +11317,8 @@
       "spans": [
         {
           "name": "doinvoke..Sting_effects",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "9ef06b8f5eb7842484d79bfeabdb518d8cc20ddd",
           "functions": [
             "doinvoke",
             "nothing_special",
@@ -11346,6 +11346,19 @@
             "glow_strength",
             "glow_verb",
             "Sting_effects"
+          ]
+        },
+        {
+          "name": "retouch_object..is_art",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "retouch_object",
+            "untouchable",
+            "count_surround_traps",
+            "mkot_trap_warn",
+            "has_magic_key",
+            "is_art"
           ]
         }
       ],
@@ -11584,109 +11597,109 @@
           "name": "invoke_ok",
           "line": 1727,
           "endLine": 1748,
-          "ported": false
+          "ported": true
         },
         {
           "name": "doinvoke",
           "line": 1749,
           "endLine": 1761,
-          "ported": false
+          "ported": true
         },
         {
           "name": "nothing_special",
           "line": 1762,
           "endLine": 1768,
-          "ported": false
+          "ported": true
         },
         {
           "name": "invoke_taming",
           "line": 1769,
           "endLine": 1779,
-          "ported": false
+          "ported": true
         },
         {
           "name": "invoke_healing",
           "line": 1780,
           "endLine": 1817,
-          "ported": false
+          "ported": true
         },
         {
           "name": "invoke_energy_boost",
           "line": 1818,
           "endLine": 1837,
-          "ported": false
+          "ported": true
         },
         {
           "name": "invoke_untrap",
           "line": 1838,
           "endLine": 1847,
-          "ported": false
+          "ported": true
         },
         {
           "name": "invoke_charge_obj",
           "line": 1848,
           "endLine": 1866,
-          "ported": false
+          "ported": true
         },
         {
           "name": "invoke_create_portal",
           "line": 1867,
           "endLine": 1933,
-          "ported": false
+          "ported": true
         },
         {
           "name": "invoke_create_ammo",
           "line": 1934,
           "endLine": 1962,
-          "ported": false
+          "ported": true
         },
         {
           "name": "invoke_banish",
           "line": 1963,
           "endLine": 2021,
-          "ported": false
+          "ported": true
         },
         {
           "name": "invoke_fling_poison",
           "line": 2022,
           "endLine": 2039,
-          "ported": false
+          "ported": true
         },
         {
           "name": "invoke_storm_spell",
           "line": 2040,
           "endLine": 2053,
-          "ported": false
+          "ported": true
         },
         {
           "name": "invoke_blinding_ray",
           "line": 2054,
           "endLine": 2090,
-          "ported": false
+          "ported": true
         },
         {
           "name": "arti_invoke_cost_pw",
           "line": 2091,
           "endLine": 2105,
-          "ported": false
+          "ported": true
         },
         {
           "name": "arti_invoke_cost",
           "line": 2106,
           "endLine": 2130,
-          "ported": false
+          "ported": true
         },
         {
           "name": "arti_invoke",
           "line": 2131,
           "endLine": 2235,
-          "ported": false
+          "ported": true
         },
         {
           "name": "finesse_ahriman",
           "line": 2236,
           "endLine": 2263,
-          "ported": false
+          "ported": true
         },
         {
           "name": "artifact_light",
@@ -11704,55 +11717,55 @@
           "name": "artifact_has_invprop",
           "line": 2299,
           "endLine": 2308,
-          "ported": false
+          "ported": true
         },
         {
           "name": "arti_cost",
           "line": 2309,
           "endLine": 2319,
-          "ported": false
+          "ported": true
         },
         {
           "name": "abil_to_adtyp",
           "line": 2320,
           "endLine": 2343,
-          "ported": false
+          "ported": true
         },
         {
           "name": "abil_to_spfx",
           "line": 2344,
           "endLine": 2375,
-          "ported": false
+          "ported": true
         },
         {
           "name": "what_gives",
           "line": 2376,
           "endLine": 2426,
-          "ported": false
+          "ported": true
         },
         {
           "name": "glow_color",
           "line": 2427,
           "endLine": 2441,
-          "ported": false
+          "ported": true
         },
         {
           "name": "glow_strength",
           "line": 2442,
           "endLine": 2450,
-          "ported": false
+          "ported": true
         },
         {
           "name": "glow_verb",
           "line": 2451,
           "endLine": 2465,
-          "ported": false
+          "ported": true
         },
         {
           "name": "Sting_effects",
           "line": 2466,
           "endLine": 2507,
-          "ported": false
+          "ported": true
         },
         {
           "name": "retouch_object",
