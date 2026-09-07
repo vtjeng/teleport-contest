@@ -11966,8 +11966,8 @@
       "spans": [
         {
           "name": "m_arrival..vamp_shift",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "de60fbe7f7aa812c2a21f09c538b0839a2b6b343",
           "functions": [
             "m_arrival",
             "mind_blast",
@@ -11979,6 +11979,23 @@
             "dissolve_bars",
             "stuff_prevents_passage",
             "vamp_shift"
+          ]
+        },
+        {
+          "name": "msg_mon_movement..stuff_prevents_passage",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "msg_mon_movement",
+            "mb_trapped",
+            "mon_yells",
+            "m_break_boulder",
+            "watch_on_duty",
+            "release_hero",
+            "find_pmmonst",
+            "bee_eat_jelly",
+            "gelcube_digests",
+            "stuff_prevents_passage"
           ]
         }
       ],
@@ -12109,13 +12126,13 @@
           "name": "m_arrival",
           "line": 574,
           "endLine": 582,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mind_blast",
           "line": 583,
           "endLine": 649,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_everyturn_effect",
@@ -12127,7 +12144,7 @@
           "name": "m_postmove_effect",
           "line": 672,
           "endLine": 689,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dochug",
@@ -12169,19 +12186,19 @@
           "name": "leppie_avoidance",
           "line": 1139,
           "endLine": 1153,
-          "ported": false
+          "ported": true
         },
         {
           "name": "leppie_stash",
           "line": 1154,
           "endLine": 1180,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_balks_at_approaching",
           "line": 1181,
           "endLine": 1226,
-          "ported": false
+          "ported": true
         },
         {
           "name": "holds_up_web",
@@ -12241,7 +12258,7 @@
           "name": "m_move_aggress",
           "line": 2088,
           "endLine": 2120,
-          "ported": false
+          "ported": true
         },
         {
           "name": "can_hide_under_obj",
@@ -12253,7 +12270,7 @@
           "name": "dissolve_bars",
           "line": 2170,
           "endLine": 2180,
-          "ported": false
+          "ported": true
         },
         {
           "name": "closed_door",
@@ -12301,7 +12318,7 @@
           "name": "vamp_shift",
           "line": 2377,
           "endLine": 2397,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
