@@ -10961,7 +10961,7 @@
     {
       "id": "makemon-c",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port makemon.c whole in C order, starting from rndmonst_adj()",
       "cFile": "makemon.c",
       "sessions": [
@@ -11018,8 +11018,8 @@
         },
         {
           "name": "clone_mon..temperature_shift",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "79215ff62bc65076ba136bf882a331ec0e6b9200",
           "functions": [
             "clone_mon",
             "monhp_per_lvl",
@@ -11038,8 +11038,11 @@
         "screens": 4977,
         "rng": 343076
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "79215ff62bc65076ba136bf882a331ec0e6b9200",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "is_home_elemental",
@@ -11087,7 +11090,7 @@
           "name": "clone_mon",
           "line": 837,
           "endLine": 957,
-          "ported": false
+          "ported": true
         },
         {
           "name": "propagate",
@@ -11099,7 +11102,7 @@
           "name": "monhp_per_lvl",
           "line": 986,
           "endLine": 1011,
-          "ported": false
+          "ported": true
         },
         {
           "name": "newmonhp",
@@ -11111,13 +11114,13 @@
           "name": "init_mextra",
           "line": 1059,
           "endLine": 1065,
-          "ported": false
+          "ported": true
         },
         {
           "name": "newmextra",
           "line": 1066,
           "endLine": 1075,
-          "ported": false
+          "ported": true
         },
         {
           "name": "makemon_rnd_goodpos",
@@ -11135,7 +11138,7 @@
           "name": "unmakemon",
           "line": 1514,
           "endLine": 1541,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mbirth_limit",
@@ -11147,7 +11150,7 @@
           "name": "create_critters",
           "line": 1556,
           "endLine": 1592,
-          "ported": false
+          "ported": true
         },
         {
           "name": "uncommon",
@@ -11159,13 +11162,13 @@
           "name": "align_shift",
           "line": 1611,
           "endLine": 1640,
-          "ported": false
+          "ported": true
         },
         {
           "name": "temperature_shift",
           "line": 1641,
           "endLine": 1651,
-          "ported": false
+          "ported": true
         },
         {
           "name": "rndmonst",

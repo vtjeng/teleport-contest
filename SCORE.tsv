@@ -712,3 +712,5 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-07T03:32:42.564Z	1dba4a4c	span	24	33	4977	7765	343076	610816							newmcorpsenm closes. makemon.c 30/42.
 2026-09-07T04:07:41.685Z	79aa16bf	span	24	33	4977	7765	343076	610816							bagotricks..summon_furies closes. Recordings 6/6. makemon.c 32/42.
 2026-09-07T04:26:29.901Z	754e7311	span	24	33	4977	7765	343076	610816							wrong_elem_type..m_initgrp closes (renames). makemon.c 34/42.
+2026-09-07T05:02:28.975Z	79215ff6	span	24	33	4977	7765	343076	610816							clone_mon..temperature_shift closes. makemon.c 42/42.
+2026-09-07T05:03:19.018Z	79215ff6	goal	24	33	4977	7765	343076	610816			315	3640	38930	182022	makemon-c closes. All 42 functions ported across 6 spans. Holdout 315/3640 screens, 38930/182022 rng.
