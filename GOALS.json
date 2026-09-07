@@ -10257,8 +10257,8 @@
         },
         {
           "name": "check_contained..obj_absorb",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "9689c256961f3197de112471d8a8d1a61176afe1",
           "functions": [
             "check_contained",
             "check_glob",
@@ -10828,37 +10828,37 @@
           "name": "check_contained",
           "line": 3374,
           "endLine": 3419,
-          "ported": false
+          "ported": true
         },
         {
           "name": "check_glob",
           "line": 3420,
           "endLine": 3446,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sanity_check_worn",
           "line": 3447,
           "endLine": 3642,
-          "ported": false
+          "ported": true
         },
         {
           "name": "obj_nexto",
           "line": 3643,
           "endLine": 3660,
-          "ported": false
+          "ported": true
         },
         {
           "name": "obj_nexto_xy",
           "line": 3661,
           "endLine": 3701,
-          "ported": false
+          "ported": true
         },
         {
           "name": "obj_absorb",
           "line": 3702,
           "endLine": 3767,
-          "ported": false
+          "ported": true
         },
         {
           "name": "obj_meld",
