@@ -10270,11 +10270,29 @@
         },
         {
           "name": "obj_meld..pudding_merge_message",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "0e1a41ee7d347dba689eaac80dccc2a628931150",
           "functions": [
             "obj_meld",
             "pudding_merge_message"
+          ]
+        },
+        {
+          "name": "init_oextra..mkobj_erosions",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "init_oextra",
+            "newoextra",
+            "dealloc_oextra",
+            "newomonst",
+            "free_omonst",
+            "newomid",
+            "free_omid",
+            "new_omailcmd",
+            "free_omailcmd",
+            "may_generate_eroded",
+            "mkobj_erosions"
           ]
         }
       ],
@@ -10873,13 +10891,13 @@
           "name": "obj_meld",
           "line": 3768,
           "endLine": 3817,
-          "ported": false
+          "ported": true
         },
         {
           "name": "pudding_merge_message",
           "line": 3818,
           "endLine": 3852,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
