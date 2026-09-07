@@ -1,18 +1,10 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { unlinkSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { tmpdir } from 'node:os';
 import test from 'node:test';
 
 import {
-  appendDeferralNote,
   assignPathToArea,
-  refileDeferralArea,
   auditMetricsFromOptions,
-  formatDeferralRow,
-  formatStaleAnchors,
-  setDeferralBlocker,
   countReviewCommits,
   excludeGeneratedLines,
   formatMetrics,
@@ -29,10 +21,6 @@ import {
   thresholdReached,
   validateAuditedRangeCoverage,
   validateAuditMetrics,
-  openDeferrals,
-  portDefines,
-  portFileDefines,
-  upstreamMentions,
   collectRejections,
   renderCountsSentence,
   validateConfigShape,
@@ -68,7 +56,7 @@ test('the checked-in quality ledger has a valid schema', async () => {
   );
 
   assert.doesNotThrow(() => validateConfigShape(config));
-  assert.equal(config.version, 4);
+  assert.equal(config.version, 5);
   assert.equal(config.legacyPassCount, 21);
   // evidence and auditMetrics live in QUALITY-evidence.json
   const history = JSON.parse(
@@ -387,40 +375,34 @@ const DEFERRED_TESTS_FINDING = Object.freeze({
   categories: { ...EMPTY_AUDIT_METRICS.categories, tests: 1 },
 });
 
-test('deferred findings name an existing tracker heading', () => {
-  const heading = 'Unresolved: six deferred test-coverage findings';
+test('deferred findings carry a summary and a category', () => {
   const metrics = {
     ...DEFERRED_TESTS_FINDING,
     deferrals: [{
       summary: 'the generated-table test imports its expected values from the '
         + 'module under test',
       category: 'tests',
-      trackedIn: heading,
     }],
   };
-  const headings = new Set([heading]);
 
-  assert.equal(validateAuditMetrics(metrics, { trackerHeadings: headings }), metrics);
+  assert.equal(validateAuditMetrics(metrics), metrics);
   assert.throws(
     () => validateAuditMetrics({ ...metrics, deferrals: [] }),
     /deferrals lists 0 findings but the deferred count is 1/,
   );
-  // An id absent from the ledger leaves the finding untracked, which is the
-  // failure the check exists to catch.
+  // A finding without a summary has no durable record, which is the failure
+  // the check exists to catch.
   assert.throws(
-    () => validateAuditMetrics(metrics, { trackerHeadings: new Set(['Unresolved: something else']) }),
-    /is no id in the deferred ledger/,
+    () => validateAuditMetrics({ ...metrics, deferrals: [{ category: 'tests' }] }),
+    /deferrals\[0\]\.summary must be nonempty/,
   );
-  // An unopened id would strand the finding where nothing clears it.
-  assert.throws(
-    () => validateAuditMetrics({
-      ...metrics,
-      deferrals: [{ summary: 'a finding', category: 'tests', trackedIn: 'Next goals, in order' }],
-    }, { trackerHeadings: headings }),
-    /is no id in the deferred ledger/,
-  );
-  // Stored passes are revalidated on every run, after the entry closes.
-  assert.doesNotThrow(() => validateAuditMetrics(metrics));
+  // Passes recorded before 2026-09-06 carry a trackedIn id from the retired
+  // deferral ledger. Stored passes are revalidated on every run, so the
+  // field must stay inert.
+  assert.doesNotThrow(() => validateAuditMetrics({
+    ...metrics,
+    deferrals: [{ ...metrics.deferrals[0], trackedIn: 'a retired ledger id' }],
+  }));
 });
 
 test('the two enumerations of a deferred production finding must agree', () => {
@@ -440,13 +422,12 @@ test('the two enumerations of a deferred production finding must agree', () => {
       { summary: defect, foundBy: ['correctness'], resolution: 'deferred' },
     ],
     deferrals: [
-      { summary: defect, category: 'production', trackedIn: 'Unresolved: x' },
-      { summary: testFinding, category: 'tests', trackedIn: 'Unresolved: x' },
+      { summary: defect, category: 'production' },
+      { summary: testFinding, category: 'tests' },
     ],
   };
-  const headings = new Set(['Unresolved: x']);
 
-  assert.equal(validateAuditMetrics(metrics, { trackerHeadings: headings }), metrics);
+  assert.equal(validateAuditMetrics(metrics), metrics);
   // The misclassification: the tests finding sits in the production slot and
   // the defect is recorded only among the deferrals.
   assert.throws(
@@ -455,7 +436,7 @@ test('the two enumerations of a deferred production finding must agree', () => {
       productionDefects: [
         { summary: testFinding, foundBy: ['tests'], resolution: 'deferred' },
       ],
-    }, { trackerHeadings: headings }),
+    }),
     /worded differently in deferrals and productionDefects/,
   );
   // A production deferral that productionDefects never enumerates.
@@ -463,15 +444,15 @@ test('the two enumerations of a deferred production finding must agree', () => {
     () => validateAuditMetrics({
       ...metrics,
       deferrals: metrics.deferrals.map((d) => ({ ...d, category: 'production' })),
-    }, { trackerHeadings: headings }),
+    }),
     /marks 2 findings as production, but productionDefects defers 1/,
   );
   // Every deferral states which category it belongs to.
   assert.throws(
     () => validateAuditMetrics({
       ...metrics,
-      deferrals: [{ summary: defect, trackedIn: 'Unresolved: x' }, metrics.deferrals[1]],
-    }, { trackerHeadings: headings }),
+      deferrals: [{ summary: defect }, metrics.deferrals[1]],
+    }),
     /category must be one of: production, tests, clarity, simplification, other/,
   );
 });
@@ -480,7 +461,7 @@ test('recording a pass requires a deferrals entry for every deferred finding', (
   assert.doesNotThrow(() => validateAuditMetrics(DEFERRED_TESTS_FINDING));
   assert.throws(
     () => validateAuditMetrics(DEFERRED_TESTS_FINDING, { requireDeferrals: true }),
-    /deferrals must record all 1 deferred findings with the deferred-ledger id/,
+    /deferrals must record all 1 deferred findings with a summary and category/,
   );
   // An audit that deferred nothing has nothing to record.
   assert.doesNotThrow(
@@ -491,23 +472,14 @@ test('recording a pass requires a deferrals entry for every deferred finding', (
 test('the recorder entry point enforces both durable-record gates', () => {
   // The two tests above pin validateAuditMetrics(), which takes its options
   // from the caller. They stay green if the recorder stops passing them, so
-  // this drives the one place that does. The id set is injected, so the case
-  // does not depend on what QUALITY.json happens to contain.
-  const deferredIds = new Set(['a deferred finding']);
+  // this drives the one place that does.
   const withMetrics = (metrics) => auditMetricsFromOptions(
-    { 'audit-metrics': JSON.stringify(metrics) }, { deferredIds },
+    { 'audit-metrics': JSON.stringify(metrics) },
   );
 
   assert.throws(
     () => withMetrics(DEFERRED_TESTS_FINDING),
     /deferrals must record all 1 deferred findings/,
-  );
-  assert.throws(
-    () => withMetrics({
-      ...DEFERRED_TESTS_FINDING,
-      deferrals: [{ summary: 'a finding', category: 'tests', trackedIn: 'absent' }],
-    }),
-    /is no id in the deferred ledger/,
   );
   // A rejected finding needs its counter-evidence through the same entry point.
   assert.throws(
@@ -520,16 +492,14 @@ test('the recorder entry point enforces both durable-record gates', () => {
     }),
     /rejections must record all 1 rejected/,
   );
-  // The heading the tracker does carry resolves, so the gate is not simply
-  // refusing everything. The return value is what the recorder writes into
+  // A complete record resolves, so the gate is not simply refusing
+  // everything. The return value is what the recorder writes into
   // QUALITY.json, so it is asserted rather than merely not throwing: the
   // entry point must hand back the metrics it parsed, deferrals intact and
   // unnormalised.
   const accepted = {
     ...DEFERRED_TESTS_FINDING,
-    deferrals: [{
-      summary: 'a finding', category: 'tests', trackedIn: 'a deferred finding',
-    }],
+    deferrals: [{ summary: 'a finding', category: 'tests' }],
   };
   assert.deepEqual(withMetrics(accepted), accepted);
 });
@@ -648,7 +618,7 @@ test('a stored audited range must end at the pass head', () => {
     recordedAt: '2026-07-27T00:00:00.000Z',
   };
   const config = {
-    version: 4,
+    version: 5,
     trackingBase,
     enforcementBase: head,
     legacyPassCount: 0,
@@ -656,7 +626,6 @@ test('a stored audited range must end at the pass head', () => {
       reviewCommits: 10,
       reviewChangedLines: 1000,
     },
-    deferred: [],
     areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
     passes: [pass],
   };
@@ -714,7 +683,7 @@ test('an implementation path cannot belong to two quality areas', () => {
   // Full-length placeholder SHAs satisfy the schema while the configured
   // thresholds mirror repository policy; this test isolates path ownership.
   const config = {
-    version: 4,
+    version: 5,
     trackingBase: '1'.repeat(40),
     enforcementBase: '2'.repeat(40),
     legacyPassCount: 0,
@@ -722,7 +691,6 @@ test('an implementation path cannot belong to two quality areas', () => {
       reviewCommits: 10,
       reviewChangedLines: 1000,
     },
-    deferred: [],
     areas: [
       { id: 'first', label: 'First', paths: ['js/shared.js'] },
       { id: 'second', label: 'Second', paths: ['js/shared.js'] },
@@ -740,12 +708,11 @@ test('assign inserts a js/ file into one area and refuses every bad write', () =
   // The same minimal-valid config shape the ownership test above uses;
   // js/aaa.js sorts before js/monmove.js so the sort outcome is observable.
   const config = () => ({
-    version: 4,
+    version: 5,
     trackingBase: '1'.repeat(40),
     enforcementBase: '2'.repeat(40),
     legacyPassCount: 0,
     thresholds: { reviewCommits: 10, reviewChangedLines: 1000 },
-    deferred: [],
     areas: [
       { id: 'monsters', label: 'Monsters', paths: ['js/monmove.js'] },
       { id: 'world', label: 'World', paths: ['js/dungeon.js'] },
@@ -776,375 +743,6 @@ test('assign inserts a js/ file into one area and refuses every bad write', () =
   );
 });
 
-// The minimal valid config shape the ownership tests above use, carrying one
-// open entry and one closed entry so both status branches are reachable. The
-// SHAs are full-length placeholders because validateConfigShape() checks their
-// length; which 40 hex characters they hold is immaterial.
-const deferralLedgerConfig = () => ({
-  version: 4,
-  trackingBase: '1'.repeat(40),
-  enforcementBase: '2'.repeat(40),
-  legacyPassCount: 0,
-  thresholds: { reviewCommits: 10, reviewChangedLines: 1000 },
-  deferred: [
-    {
-      id: 'open-entry',
-      area: 'monsters',
-      category: 'production',
-      effort: 'small',
-      status: 'open',
-      from: '3'.repeat(40),
-      detail: 'the original claim',
-    },
-    {
-      id: 'closed-entry',
-      area: 'monsters',
-      category: 'production',
-      effort: 'small',
-      status: 'closed',
-      from: '3'.repeat(40),
-      detail: 'a settled claim',
-    },
-  ],
-  areas: [{ id: 'monsters', label: 'Monsters', paths: ['js/monmove.js'] }],
-  passes: [],
-});
-
-test('a deferral note appends without disturbing what the entry already says', () => {
-  // Two notes at two commits. The second must land after the first, because a
-  // reader dates a correction by the commit beside it, and a rewrite would
-  // destroy when the earlier claim died.
-  const noted = deferralLedgerConfig();
-  appendDeferralNote(noted, 'open-entry', 'the claim died', 'a'.repeat(40));
-  appendDeferralNote(noted, 'open-entry', 'this one too', 'b'.repeat(40));
-  const entry = noted.deferred[0];
-  assert.deepEqual(entry.notes, [
-    { text: 'the claim died', at: 'a'.repeat(40) },
-    { text: 'this one too', at: 'b'.repeat(40) },
-  ]);
-  // Every field that identifies the entry survives both appends, and so does
-  // the claim as first written.
-  assert.deepEqual(
-    { ...entry, notes: undefined },
-    { ...deferralLedgerConfig().deferred[0], notes: undefined },
-  );
-  // An entry nobody has corrected carries no notes key, so a note's ledger
-  // diff names only the entry that took one.
-  assert.equal(Object.hasOwn(noted.deferred[1], 'notes'), false);
-
-  // An unknown id is a typo. Creating an entry is defer's job.
-  assert.throws(
-    () => appendDeferralNote(
-      deferralLedgerConfig(), 'no-such-entry', 'x', 'a'.repeat(40)),
-    /no deferred entry has id: no-such-entry/u,
-  );
-  // A closed entry schedules no work, so nothing it says is still a claim on
-  // anyone; the refusal names the route that reopens it.
-  assert.throws(
-    () => appendDeferralNote(
-      deferralLedgerConfig(), 'closed-entry', 'x', 'a'.repeat(40)),
-    /already closed: closed-entry; reopen it by recording a deferral/u,
-  );
-});
-
-test('re-filing an entry moves its area and records the move', () => {
-  // Two areas, because a re-file needs somewhere to go. 'display' owns
-  // js/display.js, which the moved entry's detail never mentions: an area's
-  // file list plays no part in which area an entry is filed under, so the
-  // move below succeeds without the two agreeing.
-  const config = deferralLedgerConfig();
-  config.areas.push({
-    id: 'display', label: 'Display', paths: ['js/display.js'],
-  });
-
-  const { entry, previous } = refileDeferralArea(
-    config, 'open-entry', 'display', 'the detail cites only display files',
-    'c'.repeat(40));
-  assert.equal(previous, 'monsters');
-  assert.equal(entry.area, 'display');
-  // The move is recorded rather than silent, because area decides which goal
-  // runs next and a label that changed with no trace is the drift this
-  // command exists to stop. The composed text carries both ends of the move;
-  // the operator's reason follows it.
-  assert.deepEqual(entry.notes, [{
-    text: 'Re-filed from monsters to display. '
-      + 'the detail cites only display files',
-    at: 'c'.repeat(40),
-  }]);
-  // Only `area` and `notes` move. The claim as first written survives, so a
-  // reader can still tell what the entry originally asserted.
-  assert.deepEqual(
-    { ...entry, area: undefined, notes: undefined },
-    { ...deferralLedgerConfig().deferred[0], area: undefined, notes: undefined },
-  );
-
-  const fresh = () => {
-    const next = deferralLedgerConfig();
-    next.areas.push({ id: 'display', label: 'Display', paths: [] });
-    return next;
-  };
-  // An unknown id is a typo; creating an entry is defer's job.
-  assert.throws(
-    () => refileDeferralArea(fresh(), 'no-such-entry', 'display', 'why',
-      'c'.repeat(40)),
-    /no deferred entry has id: no-such-entry/u,
-  );
-  // A closed entry counts toward no sweep, so its label decides nothing.
-  assert.throws(
-    () => refileDeferralArea(fresh(), 'closed-entry', 'display', 'why',
-      'c'.repeat(40)),
-    /already closed: closed-entry/u,
-  );
-  // An unknown area would validate away to null and silently un-file the
-  // entry, so it is refused by name before the write.
-  assert.throws(
-    () => refileDeferralArea(fresh(), 'open-entry', 'no-such-area', 'why',
-      'c'.repeat(40)),
-    /no area has id: no-such-area/u,
-  );
-  // A re-file to the area the entry already carries writes a note recording a
-  // move that did not happen. Refusing keeps the note list honest.
-  assert.throws(
-    () => refileDeferralArea(fresh(), 'open-entry', 'monsters', 'why',
-      'c'.repeat(40)),
-    /already filed under monsters/u,
-  );
-});
-
-test('refile-deferral is reachable as a command and requires its reason', () => {
-  const run = (args) => {
-    try {
-      main(args);
-    } catch (error) {
-      return String(error?.message ?? '');
-    }
-    return '';
-  };
-  const noteFile = join(tmpdir(), 'refile-note-test.txt');
-  writeFileSync(noteFile, 'a reason');
-  try {
-    // No entry in QUALITY.json is named 'no-such-deferral', so the command
-    // reaches the re-filer and stops there, before any write.
-    assert.match(
-      run(['refile-deferral', '--id', 'no-such-deferral', '--area', 'display',
-        '--note-file', noteFile]),
-      /no deferred entry has id: no-such-deferral/u,
-    );
-    // --note-file is required, which is the design decision this command
-    // carries: every other ledger mutation records provenance, and a bare
-    // re-file would not. The check runs before the ledger is read.
-    assert.match(
-      run(['refile-deferral', '--id', 'no-such-deferral', '--area', 'display']),
-      /--note-file is required/u,
-    );
-    // --detail-file belongs to defer. Refusing it shows the assertions above
-    // are not vacuous.
-    assert.match(
-      run(['refile-deferral', '--id', 'x', '--area', 'y', '--note-file',
-        noteFile, '--detail-file', 'w']),
-      /unknown option: --detail-file/u,
-    );
-  } finally {
-    unlinkSync(noteFile);
-  }
-});
-
-test('a malformed deferral note never reaches the ledger', () => {
-  const withNotes = (notes) => {
-    const config = deferralLedgerConfig();
-    config.deferred[0].notes = notes;
-    return config;
-  };
-  const wellFormed = { text: 'a correction', at: 'a'.repeat(40) };
-
-  assert.doesNotThrow(() => validateConfigShape(withNotes([wellFormed])));
-  // Absent and empty both say the entry has never been corrected.
-  assert.doesNotThrow(() => validateConfigShape(withNotes([])));
-  assert.doesNotThrow(
-    () => validateConfigShape(deferralLedgerConfig()));
-
-  assert.throws(
-    () => validateConfigShape(withNotes(wellFormed)),
-    /deferred\[0\]\.notes must be an array/u,
-  );
-  // A bare string is the shape a hand-edit reaches for first.
-  assert.throws(
-    () => validateConfigShape(withNotes(['a correction'])),
-    /deferred\[0\]\.notes\[0\] must be an object/u,
-  );
-  // Whitespace-only text is as absent as a missing key.
-  assert.throws(
-    () => validateConfigShape(withNotes([{ ...wellFormed, text: '  ' }])),
-    /deferred\[0\]\.notes\[0\]\.text must be nonempty/u,
-  );
-  // An abbreviated SHA dates a note only until the repository grows a second
-  // commit with that prefix, so the appender stores all 40 characters.
-  assert.throws(
-    () => validateConfigShape(withNotes([{ ...wellFormed, at: 'abc1234' }])),
-    /deferred\[0\]\.notes\[0\]\.at must be a full commit SHA/u,
-  );
-  assert.throws(
-    () => validateConfigShape(withNotes([{ text: 'a correction' }])),
-    /deferred\[0\]\.notes\[0\]\.at must be a full commit SHA/u,
-  );
-});
-
-test('a deferral records and drops the symbol it waits on', () => {
-    // `find_offensive` is the symbol the monsters pickup entry waits on: C's
-    // mattacku() reaches use_offensive() through it, and the port's stand-in
-    // omits that path. The setter validates against the real C source, so the
-    // name has to be one mhitu.c holds rather than any placeholder.
-    const mentions = (symbol) => symbol === 'find_offensive';
-    const blocked = deferralLedgerConfig();
-    setDeferralBlocker(blocked, 'open-entry', 'find_offensive');
-    assert.equal(blocked.deferred[0].blockedOn, 'find_offensive');
-    // Setting it disturbs nothing else the entry says.
-    assert.deepEqual(
-        { ...blocked.deferred[0], blockedOn: undefined },
-        { ...deferralLedgerConfig().deferred[0], blockedOn: undefined },
-    );
-
-    // Clearing removes the key rather than leaving a null, so a field present
-    // in the ledger always carries a claim.
-    setDeferralBlocker(blocked, 'open-entry', null);
-    assert.equal(Object.hasOwn(blocked.deferred[0], 'blockedOn'), false);
-
-    // An unknown id is a typo, and a closed entry schedules no work, so
-    // nothing it waits on is still a claim on anyone.
-    assert.throws(
-        () => setDeferralBlocker(
-            deferralLedgerConfig(), 'no-such-entry', 'find_offensive'),
-        /no deferred entry has id: no-such-entry/u,
-    );
-    assert.throws(
-        () => setDeferralBlocker(
-            deferralLedgerConfig(), 'closed-entry', 'find_offensive'),
-        /already closed: closed-entry/u,
-    );
-
-    // The write is validated before it is returned, so an invented symbol
-    // never reaches the ledger through this route either.
-    const config = deferralLedgerConfig();
-    assert.throws(
-        () => validateConfigShape(
-            { ...config, deferred: [{ ...config.deferred[0],
-                blockedOn: 'zzyzx' }] },
-            mentions),
-        /blockedOn names zzyzx, which does not appear in nethack-c/u,
-    );
-});
-
-test('a blockedOn symbol the C source never mentions is refused', () => {
-    // `mattacku` is a real mhitu.c function and `zzyzx` is the wish this
-    // repository's own deferral entries use as a name nothing resolves, so
-    // one stands for a symbol read out of the source and the other for a
-    // symbol invented to dodge a sweep.
-    const mentions = (symbol) => symbol === 'mattacku';
-    const withBlocker = (blockedOn) => {
-        const config = deferralLedgerConfig();
-        config.deferred[0].blockedOn = blockedOn;
-        return config;
-    };
-
-    assert.doesNotThrow(
-        () => validateConfigShape(withBlocker('mattacku'), mentions));
-    // Absent says the entry waits on nothing outside itself, which is the
-    // ordinary state and must stay valid.
-    assert.doesNotThrow(
-        () => validateConfigShape(deferralLedgerConfig(), mentions));
-
-    assert.throws(
-        () => validateConfigShape(withBlocker('zzyzx'), mentions),
-        /deferred\[0\]\.blockedOn names zzyzx, which does not appear in/u,
-    );
-    // Whitespace-only and non-string are as absent as a missing key, and both
-    // would exclude the entry from every sweep for a blocker that says
-    // nothing.
-    assert.throws(
-        () => validateConfigShape(withBlocker('  '), mentions),
-        /deferred\[0\]\.blockedOn must be a nonempty symbol name/u,
-    );
-    assert.throws(
-        () => validateConfigShape(withBlocker(true), mentions),
-        /deferred\[0\]\.blockedOn must be a nonempty symbol name/u,
-    );
-});
-
-test('the two blockedOn probes read the real trees', () => {
-    // mhitu.c mattacku() is one name in both trees, which is the whole design
-    // in one value: it is a real C symbol, so a blocker may name it, and js/
-    // defines it, so naming it excludes nothing. That js/mhitu.js ports only
-    // the preamble and the steed arm is why a landed name cannot be read as a
-    // finished port. Neither fact moves: upstream is a pinned submodule, and
-    // AGENTS.md keeps a ported function under its C name.
-    assert.equal(upstreamMentions('mattacku'), true);
-    assert.equal(portDefines('mattacku'), true);
-    // A name neither tree can hold, so a typo cannot pass for a blocker.
-    assert.equal(upstreamMentions('zzyzx_blocks_nothing'), false);
-    assert.equal(portDefines('zzyzx_blocks_nothing'), false);
-});
-
-test('the deferrals listing prints a note count and never a note', () => {
-  const entry = {
-    id: 'an-entry', area: 'monsters', category: 'production', effort: 'small',
-  };
-  const note = { text: 'a correction', at: 'a'.repeat(40) };
-
-  // Without notes the line is exactly what the listing printed before notes
-  // existed, so adding the field changed no existing row.
-  assert.equal(formatDeferralRow(entry),
-    '[monsters] (production, small) an-entry');
-  // One and two exercise both sides of the plural. The note text stays out of
-  // the line: the backlog runs to dozens of entries and a note is a paragraph.
-  assert.equal(
-    formatDeferralRow({ ...entry, notes: [note] }),
-    '[monsters] (production, small) an-entry (1 note)',
-  );
-  assert.equal(
-    formatDeferralRow({ ...entry, notes: [note, note] }),
-    '[monsters] (production, small) an-entry (2 notes)',
-  );
-  // An area-less entry keeps the dash the listing has always printed.
-  assert.equal(formatDeferralRow({ ...entry, area: null }),
-    '[-] (production, small) an-entry');
-});
-
-// Through main(), for the reason the --areas test below records: a correct
-// function stays unreachable when the dispatcher never routes to it.
-test('note-deferral is reachable as a command and refuses an unknown id', () => {
-  const run = (args) => {
-    try {
-      main(args);
-    } catch (error) {
-      return String(error?.message ?? '');
-    }
-    return '';
-  };
-  const noteFile = join(tmpdir(), 'note-deferral-test.txt');
-  writeFileSync(noteFile, 'a correction');
-  try {
-    // No entry in QUALITY.json is named 'no-such-deferral', so the command
-    // reaches the appender and stops there, before any write.
-    assert.match(
-      run(['note-deferral', '--id', 'no-such-deferral',
-        '--note-file', noteFile]),
-      /no deferred entry has id: no-such-deferral/u,
-    );
-    // Both options are required, and the check runs before the ledger is read.
-    assert.match(run(['note-deferral', '--id', 'no-such-deferral']),
-      /--note-file is required/u);
-    // --detail-file belongs to defer. Refusing it here shows the assertions
-    // above are not vacuous.
-    assert.match(
-      run(['note-deferral', '--id', 'x', '--note-file', noteFile,
-        '--detail-file', 'z']),
-      /unknown option: --detail-file/u,
-    );
-  } finally {
-    unlinkSync(noteFile);
-  }
-});
-
 // evidence and auditMetrics live in QUALITY-evidence.json, so QUALITY.json
 // passes validate without them. The recording path still requires both
 // via --evidence and --audit-metrics options.
@@ -1159,7 +757,7 @@ test('QUALITY.json passes validate without evidence and auditMetrics', () => {
     recordedAt: '2026-07-23T00:00:00.000Z',
   };
   const config = {
-    version: 4,
+    version: 5,
     trackingBase: sha,
     enforcementBase: '2'.repeat(40),
     legacyPassCount: 0,
@@ -1167,7 +765,6 @@ test('QUALITY.json passes validate without evidence and auditMetrics', () => {
       reviewCommits: 10,
       reviewChangedLines: 1000,
     },
-    deferred: [],
     areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
     passes: [pass],
   };
@@ -1186,7 +783,7 @@ test('pass area labels are inert history', () => {
     auditMetrics: EMPTY_AUDIT_METRICS,
   };
   const config = {
-    version: 4,
+    version: 5,
     trackingBase: '1'.repeat(40),
     enforcementBase: '2'.repeat(40),
     legacyPassCount: 0,
@@ -1194,7 +791,6 @@ test('pass area labels are inert history', () => {
       reviewCommits: 10,
       reviewChangedLines: 1000,
     },
-    deferred: [],
     areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
     passes: [pass],
   };
@@ -1212,7 +808,7 @@ test('pass area labels are inert history', () => {
   );
 });
 
-test('ledger queries flatten pass rejections and filter deferrals', () => {
+test('ledger queries flatten pass rejections', () => {
     // Two passes; the first carries one rejection and one deferral, and its
     // historical area labels ride along uninterpreted. The second records no
     // areas at all, the shape every new pass takes.
@@ -1223,8 +819,7 @@ test('ledger queries flatten pass rejections and filter deferrals', () => {
             areas: ['monsters', 'world'],
             auditMetrics: {
                 rejections: [{ summary: 'claim A', counterEvidence: 'trace A' }],
-                deferrals: [{ summary: 'gap B', trackedIn: 'Unresolved: B',
-                    category: 'tests' }],
+                deferrals: [{ summary: 'gap B', category: 'tests' }],
             },
         },
         {
@@ -1238,97 +833,6 @@ test('ledger queries flatten pass rejections and filter deferrals', () => {
     const rejections = collectRejections(passes);
     assert.deepEqual(rejections.map(({ summary }) => summary),
         ['claim A', 'claim C']);
-    // The deferred ledger: two open entries in monsters, one closed, one open
-    // without an area. Defaults return open entries only; the closed entry
-    // needs status 'closed' or 'all'; the area filter excludes the null-area
-    // entry.
-    const ledger = [
-        { id: 'A', area: 'monsters', status: 'open', category: 'production' },
-        { id: 'B', area: 'monsters', status: 'open', category: 'production' },
-        { id: 'C', area: 'monsters', status: 'closed', category: 'production' },
-        { id: 'D', area: null, status: 'open', category: 'production' },
-    ];
-    assert.deepEqual(openDeferrals(ledger).map(({ id }) => id),
-        ['A', 'B', 'D']);
-    assert.deepEqual(openDeferrals(ledger, { area: 'monsters' })
-        .map(({ id }) => id), ['A', 'B']);
-    assert.deepEqual(openDeferrals(ledger, { status: 'closed' })
-        .map(({ id }) => id), ['C']);
-    assert.deepEqual(openDeferrals(ledger, { status: 'all' }).length, 4);
-});
-
-test('a stale anchor reports a landed blocker and an undefined citation', () => {
-    // Every detail below is a real ledger sentence, shortened. The two probes
-    // are injected, so what js/ defines today cannot move this test: only
-    // mkmaze.js defines place_lregion(), and only dotrap() has landed.
-    const fileDefines = (file, symbol) => file === 'mkmaze.js'
-        && symbol === 'place_lregion';
-    const blockerLanded = (symbol) => symbol === 'dotrap';
-    const ledger = [
-        // The shape nearly every citing entry has: the file that defines the
-        // symbol. It must stay silent, or the check reports the whole ledger.
-        {
-            id: 'right-file', status: 'open',
-            detail: '`js/mkmaze.js place_lregion()` is synchronous.',
-        },
-        // The 12 August 2026 finding. Its second sentence cites the same pair
-        // through a line anchor, and one wrong pair is one repair, so the pair
-        // prints once.
-        {
-            id: 'wrong-file', status: 'open',
-            detail: 'and so are `js/mklev.js place_lregion()` and\n'
-                + '`u_on_upstairs()`, which call it while `js/mklev.js:92\n'
-                + 'place_lregion()` builds the level.',
-        },
-        // Words between the path and the symbol usually change the claim. This
-        // sentence says the file's comment mentions postmov(), which
-        // js/monmove.js defines; adjacency is what keeps it out.
-        {
-            id: 'prose-gap', status: 'open',
-            detail: 'the comment in `js/unported_monster_actions.js` says '
-                + '`postmov()` calls `mintrap()` "after the move".',
-        },
-        // A closed entry schedules nothing, so nobody reads its citations.
-        {
-            id: 'closed', status: 'closed',
-            detail: '`js/mklev.js place_lregion()` is synchronous.',
-        },
-        // The blocker half, both ways round. dotrap() has landed, so the
-        // entry may be resolvable and the reader is told; conjoined_pits()
-        // has not, so it stays blocked and silent.
-        { id: 'blocker-landed', status: 'open', blockedOn: 'dotrap', detail: 'x' },
-        { id: 'still-blocked', status: 'open', blockedOn: 'conjoined_pits', detail: 'x' },
-    ];
-    // Blockers first, then citations: the two answer different questions and a
-    // reader scanning for one should not have to sort them apart.
-    assert.deepEqual(formatStaleAnchors(ledger, { blockerLanded, fileDefines }), [
-        'Blocker landed, so recheck the entry: dotrap [blocker-landed].',
-        'Cited but not defined there: js/mklev.js place_lregion() [wrong-file].',
-    ]);
-    // The same ledger prints no line when both probes answer that everything
-    // is in place, which pins the two lines above to the two faults.
-    assert.deepEqual(
-        formatStaleAnchors(ledger, { blockerLanded: () => false,
-            fileDefines: () => true }),
-        [],
-    );
-});
-
-test('the citation probe reads the real js/ tree', () => {
-    // mkmaze.c place_lregion() is the pair this check was built for: the
-    // ledger cites it as js/mklev.js. AGENTS.md, "Keep each source file's port
-    // in one place", puts a C file's functions in the JavaScript file named
-    // for it, so js/mkmaze.js is where the port must live and js/mklev.js can
-    // never define it.
-    assert.equal(portFileDefines('mkmaze.js', 'place_lregion'), true);
-    assert.equal(portFileDefines('mklev.js', 'place_lregion'), false);
-    // js/ holds no such file, which is the answer a citation to a renamed or
-    // invented file needs.
-    assert.equal(portFileDefines('zzyzx_defines_nothing.js', 'place_lregion'),
-        false);
-    // The file-blind probe still answers for the whole tree, which is what a
-    // blockedOn asks; the two now read one index.
-    assert.equal(portDefines('place_lregion'), true);
 });
 
 test('the recorder renders the counts sentence from the metrics', () => {

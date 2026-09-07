@@ -5,35 +5,22 @@ import {
   closeSync,
   existsSync,
   openSync,
-  readdirSync,
   readFileSync,
   renameSync,
-  statSync,
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { basename, dirname, join, resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // `record-review --range` and `audit-worktree.mjs prepare --range` name the
 // same audited range, so they share one parser and accept one syntax.
 import { parseRange } from './audit-worktree.mjs';
-// One spelling of "a definition at column zero", shared with the duplicate
-// symbol index rather than copied, so both answer the same question about js/.
-// A shared /g regex carries lastIndex between readers, so each resets it.
-import { TOP_LEVEL_DEFINITION } from './check-duplicate-symbols.mjs';
-import { sourceFilesIn } from './check-namespace-members.mjs';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 const QUALITY_PATH = resolve(REPO_ROOT, 'QUALITY.json');
 const QUALITY_EVIDENCE_PATH = resolve(REPO_ROOT, 'QUALITY-evidence.json');
-const UPSTREAM_SRC = resolve(REPO_ROOT, 'nethack-c', 'upstream', 'src');
-const PORT_ROOT = resolve(REPO_ROOT, 'js');
-// ROADMAP.md holds each deferred finding as prose. The ledger stores a
-// pointer to the heading that carries it.
-const DEFERRAL_EFFORTS = Object.freeze(['small', 'slice', 'undecided']);
-const DEFERRAL_STATUSES = Object.freeze(['open', 'closed']);
 const QUALITY_LOCK_PATH = resolve(REPO_ROOT, '.quality-status.lock');
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const PASS_KINDS = new Set(['review', 'simplification']);
@@ -60,104 +47,6 @@ const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function fail(message) {
   throw new Error(message);
-}
-
-// The probes below answer a question about a symbol a deferral names, and each
-// reads a tree that does not change while the process runs, so each reads its
-// tree once and remembers what it found. `npm run quality` asks about a
-// handful of distinct symbols; measured on 10 August 2026, reading
-// nethack-c/upstream/src/ costs 18 ms and js/ 16 ms, and one symbol costs
-// about 1 ms and 7 ms against them.
-let upstreamSource = null;
-const upstreamAnswers = new Map();
-let portedDefinitions = null;
-
-function readTree(root) {
-  if (!existsSync(root)) return '';
-  return readdirSync(root)
-    .map((name) => join(root, name))
-    .filter((path) => statSync(path).isFile())
-    .map((path) => readFileSync(path, 'utf8'))
-    .join('\n');
-}
-
-/**
- * Does `symbol` appear anywhere in the C source?
- *
- * This keeps `blockedOn` trustworthy as a record: a symbol the C program
- * never mentions is a typo or an invention, and either way the entry names a
- * blocker that does not exist. A plain mention is the test rather than a
- * definition, because a macro an entry waits on is defined under include/
- * and appears in src/ only where it is used.
- *
- * `git worktree add` leaves nethack-c/upstream/ empty, where every
- * source-pinned check already fails by name. Answering TRUE there keeps this
- * from becoming a second, more confusing report of that one problem.
- */
-export function upstreamMentions(symbol) {
-  if (upstreamSource === null) upstreamSource = readTree(UPSTREAM_SRC);
-  if (upstreamSource === '') return true;
-  if (!upstreamAnswers.has(symbol)) {
-    upstreamAnswers.set(
-      symbol,
-      new RegExp(`\\b${escapeForRegExp(symbol)}\\b`, 'u').test(upstreamSource),
-    );
-  }
-  return upstreamAnswers.get(symbol);
-}
-
-// Every top-level definition in js/, by file name. Two questions read it: what
-// js/ defines anywhere, and what one file defines, so one index answers both
-// and neither can drift from the other's spelling of "a definition".
-function portIndex() {
-  if (portedDefinitions === null) {
-    portedDefinitions = new Map();
-    for (const path of sourceFilesIn(PORT_ROOT)) {
-      const source = readFileSync(path, 'utf8');
-      const names = new Set();
-      TOP_LEVEL_DEFINITION.lastIndex = 0;
-      let match;
-      while ((match = TOP_LEVEL_DEFINITION.exec(source)) !== null) {
-        names.add(match[1] ?? match[2] ?? match[3]);
-      }
-      portedDefinitions.set(basename(path), names);
-    }
-  }
-  return portedDefinitions;
-}
-
-/**
- * Does js/ define a top-level `symbol`?
- *
- * AGENTS.md, "Keep each source file's port in one place", gives a ported
- * function the name of the C function it comes from, so a definition under
- * that name is the mechanical sign that a blocker has landed and the entry
- * it blocks is ready to recheck. `formatStaleAnchors()` prints that line and
- * states what this answer cannot tell.
- */
-export function portDefines(symbol) {
-  for (const names of portIndex().values()) {
-    if (names.has(symbol)) return true;
-  }
-  return false;
-}
-
-/**
- * Does `file`, a bare js/ file name, define a top-level `symbol`?
- *
- * A deferral cites the port by file and symbol together. AGENTS.md, "Keep each
- * source file's port in one place", puts a C file's functions in the
- * JavaScript file named for it and keeps each function's C name, so
- * `js/mkmaze.js place_lregion()` is the one spelling of that pair that can be
- * right. A file js/ does not hold answers FALSE, which is what a citation
- * naming a renamed or invented file needs.
- */
-export function portFileDefines(file, symbol) {
-  return portIndex().get(file)?.has(symbol) ?? false;
-}
-
-function escapeForRegExp(text) {
-  return text.replaceAll(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 }
 
 function validateExactNonnegativeCounts(value, fields, label) {
@@ -204,13 +93,12 @@ function validateAuditRejections(rejections, rejectedCount) {
   }
 }
 
-// A deferred finding is confirmed work the pass chose not to do, so it has to
-// outlive the session that found it. The pass output sits under the session's
-// temporary directory and goes with it, and productionDefects enumerates the
-// production category alone, so a deferred test, clarity, or simplification
-// finding has no other durable record. Require each one to name the heading
-// that carries it, and check that the heading is really there.
-function validateAuditDeferrals(deferrals, deferredCount, trackerHeadings) {
+// A deferred finding is confirmed work the pass chose not to do. The pass's
+// QUALITY.json entry is its only durable record: the pass output sits under
+// the session's temporary directory and goes with it, and productionDefects
+// enumerates the production category alone. Require each one to carry a
+// summary and its category.
+function validateAuditDeferrals(deferrals, deferredCount) {
   if (!Array.isArray(deferrals)) fail('auditMetrics.deferrals must be an array');
   if (deferrals.length !== deferredCount) {
     fail(
@@ -226,25 +114,9 @@ function validateAuditDeferrals(deferrals, deferredCount, trackerHeadings) {
     if (typeof deferral.summary !== 'string' || deferral.summary.trim().length === 0) {
       fail(`${label}.summary must be nonempty`);
     }
-    if (typeof deferral.trackedIn !== 'string' || deferral.trackedIn.trim().length === 0) {
-      fail(
-        `${label}.trackedIn must name the deferred-ledger id that carries `
-          + 'this finding',
-      );
-    }
     if (!AUDIT_CATEGORY_FIELDS.includes(deferral.category)) {
       fail(
         `${label}.category must be one of: ${AUDIT_CATEGORY_FIELDS.join(', ')}`,
-      );
-    }
-    const id = deferral.trackedIn.trim();
-    // Only the recorder passes ids. Stored passes are revalidated on every
-    // run, long after their debt is cleared and its entry closed or renamed.
-    if (trackerHeadings && !trackerHeadings.has(id)) {
-      fail(
-        `${label}.trackedIn names "${id}", which is no id in the deferred `
-          + 'ledger. Add the entry with npm run quality -- defer before '
-          + 'recording the pass.',
       );
     }
   }
@@ -287,7 +159,6 @@ function validateDeferredProductionAgreement(deferrals, productionDefects) {
 export function validateAuditMetrics(metrics, {
   requireRejections = false,
   requireDeferrals = false,
-  trackerHeadings = null,
 } = {}) {
   if (!metrics || typeof metrics !== 'object' || Array.isArray(metrics)) {
     fail('auditMetrics must be an object');
@@ -388,12 +259,12 @@ export function validateAuditMetrics(metrics, {
   }
 
   if (metrics.deferrals !== undefined) {
-    validateAuditDeferrals(metrics.deferrals, counts.deferred, trackerHeadings);
+    validateAuditDeferrals(metrics.deferrals, counts.deferred);
     validateDeferredProductionAgreement(metrics.deferrals, metrics.productionDefects);
   } else if (requireDeferrals && counts.deferred > 0) {
     fail(
       `auditMetrics.deferrals must record all ${counts.deferred} deferred `
-        + 'findings with the deferred-ledger id that carries each one',
+        + 'findings with a summary and category',
     );
   }
   return metrics;
@@ -649,8 +520,8 @@ function changedPathsIn(base, head) {
  * which is what a caller would otherwise write out by hand. `changedPaths` is
  * a thunk so the derivation costs nothing when the caller named the labels.
  *
- * Labels attribute findings and route deferrals. They carry no frontier of
- * their own, so an area missing here loses no coverage; it only makes the
+ * Labels attribute findings. They carry no frontier of their own, so an
+ * area missing here loses no coverage; it only makes the
  * record less useful to the pass that reads it next.
  */
 export function passAreas(config, option, changedPaths) {
@@ -769,11 +640,10 @@ export function formatReviewDebt(total, current, dirty, thresholds) {
     + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
 }
 
-// mentionsSymbol is injectable so a test can pin the blockedOn rules without
-// reading nethack-c/upstream/src/, which a worktree may not have checked out.
-export function validateConfigShape(config, mentionsSymbol = upstreamMentions) {
+export function validateConfigShape(config) {
   if (!config || typeof config !== 'object') fail('QUALITY.json must contain an object');
-  if (config.version !== 4) fail('QUALITY.json version must be 4');
+  // Version 5 dropped the `deferred` ledger on 2026-09-06.
+  if (config.version !== 5) fail('QUALITY.json version must be 5');
   if (!SHA_PATTERN.test(config.trackingBase ?? '')) fail('trackingBase must be a full commit SHA');
   if (!SHA_PATTERN.test(config.enforcementBase ?? '')) {
     fail('enforcementBase must be a full commit SHA');
@@ -857,73 +727,6 @@ export function validateConfigShape(config, mentionsSymbol = upstreamMentions) {
     }
   }
 
-  if (!Array.isArray(config.deferred)) fail('deferred must be an array');
-  const deferredIds = new Set();
-  for (const [index, entry] of config.deferred.entries()) {
-    const label = `deferred[${index}]`;
-    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
-      fail(`${label} must be an object`);
-    }
-    if (typeof entry.id !== 'string' || entry.id.trim().length === 0) {
-      fail(`${label}.id must be nonempty`);
-    }
-    if (deferredIds.has(entry.id)) fail(`deferred ids must be unique: ${entry.id}`);
-    deferredIds.add(entry.id);
-    if (entry.area !== null && !areaIds.has(entry.area)) {
-      fail(`${label}.area must be null or a known area id`);
-    }
-    if (!AUDIT_CATEGORY_FIELDS.includes(entry.category) && entry.category !== 'scope') {
-      fail(`${label}.category must be scope or one of: `
-        + AUDIT_CATEGORY_FIELDS.join(', '));
-    }
-    if (!DEFERRAL_EFFORTS.includes(entry.effort)) {
-      fail(`${label}.effort must be one of: ${DEFERRAL_EFFORTS.join(', ')}`);
-    }
-    if (!DEFERRAL_STATUSES.includes(entry.status)) {
-      fail(`${label}.status must be one of: ${DEFERRAL_STATUSES.join(', ')}`);
-    }
-    if (typeof entry.from !== 'string' || entry.from.trim().length === 0) {
-      fail(`${label}.from must name the recording pass head or origin`);
-    }
-    if (typeof entry.detail !== 'string' || entry.detail.trim().length === 0) {
-      fail(`${label}.detail must be nonempty`);
-    }
-    // `blockedOn` names the C symbol whose port the entry waits on, and the
-    // blocker-landed line in formatStaleAnchors() rechecks it. That is why
-    // the symbol has to be real: an invented name would never land. An entry
-    // that waits on nothing outside itself carries no `blockedOn` key at all.
-    if (entry.blockedOn !== undefined) {
-      if (typeof entry.blockedOn !== 'string'
-          || entry.blockedOn.trim().length === 0) {
-        fail(`${label}.blockedOn must be a nonempty symbol name`);
-      }
-      if (!mentionsSymbol(entry.blockedOn.trim())) {
-        fail(`${label}.blockedOn names ${entry.blockedOn.trim()}, which does `
-          + 'not appear in nethack-c/upstream/src/');
-      }
-    }
-    // Notes are the append-only half of an entry: `detail` states the claim as
-    // first written, and each note corrects it without erasing it. An entry
-    // that has never been corrected carries no `notes` key at all.
-    if (entry.notes !== undefined) {
-      if (!Array.isArray(entry.notes)) fail(`${label}.notes must be an array`);
-      for (const [noteIndex, note] of entry.notes.entries()) {
-        const noteLabel = `${label}.notes[${noteIndex}]`;
-        if (!note || typeof note !== 'object' || Array.isArray(note)) {
-          fail(`${noteLabel} must be an object`);
-        }
-        if (typeof note.text !== 'string' || note.text.trim().length === 0) {
-          fail(`${noteLabel}.text must be nonempty`);
-        }
-        // The commit dates the note. `from` may say `roadmap` because an entry
-        // can predate the ledger; a note is only ever written by the
-        // subcommand, which resolves HEAD, so nothing but a SHA is valid.
-        if (!SHA_PATTERN.test(note.at ?? '')) {
-          fail(`${noteLabel}.at must be a full commit SHA`);
-        }
-      }
-    }
-  }
 
   for (const [passIndex, pass] of config.passes.entries()) {
     if (!PASS_KINDS.has(pass.kind)) fail(`invalid pass kind: ${pass.kind}`);
@@ -994,8 +797,8 @@ function allReviewHeads(config) {
 // every recorded pass's audited range, and its debt is what falls outside that
 // union. Recording a scoped pass therefore marks no commit it did not read.
 //
-// Deferrals carry their own area labels; passes recorded before 2026-08-01 keep
-// per-area `bases` maps and `areas` lists as inert history.
+// Passes recorded before 2026-08-01 keep per-area `bases` maps and `areas`
+// lists as inert history.
 function validateHistory(config, head) {
   if (!isAncestor(config.trackingBase, config.enforcementBase)) {
     fail('trackingBase must be an ancestor of enforcementBase');
@@ -1196,13 +999,6 @@ function printStatus(config, head, status, verbose) {
   if (status.unassigned.length > 0) {
     console.log(`Unassigned js/ files: ${status.unassigned.join(', ')}`);
   }
-  // The open backlog prints on every run so deferred findings stay visible;
-  // .agents/loop.md resolves the entries a goal's commits closed at its close.
-  const openEntries = openDeferrals(config.deferred);
-  const homeless = openEntries.filter((entry) => !entry.area).length;
-  console.log(`Open deferrals: ${openEntries.length}`
-    + (homeless > 0 ? ` (${homeless} without an area)` : '') + '.');
-  for (const line of formatStaleAnchors(config.deferred)) console.log(line);
   const reviewDue = config.thresholds !== undefined && thresholdReached(
     review.current,
     status.dirty,
@@ -1251,17 +1047,6 @@ function parseOptions(args) {
 function rejectUnknownOptions(options, allowed) {
   for (const key of Object.keys(options)) {
     if (!allowed.has(key)) fail(`unknown option: --${key}`);
-  }
-}
-
-function readTextFile(options, key) {
-  const path = options[key];
-  if (!path?.trim()) fail(`--${key} is required`);
-  const resolved = resolve(REPO_ROOT, path);
-  try {
-    return readFileSync(resolved, 'utf8');
-  } catch (error) {
-    fail(`could not read --${key} file ${resolved}: ${error.message}`);
   }
 }
 
@@ -1322,11 +1107,7 @@ function withLedgerLock(callback) {
   }
 }
 
-// deferredIds is injectable so a test can drive this wiring against a
-// literal id set instead of the repository's QUALITY.json.
-export function auditMetricsFromOptions(options, {
-  deferredIds = null,
-} = {}) {
+export function auditMetricsFromOptions(options) {
   if (options['audit-metrics'] && options['audit-metrics-file']) {
     fail('provide only one of --audit-metrics or --audit-metrics-file');
   }
@@ -1351,7 +1132,6 @@ export function auditMetricsFromOptions(options, {
   return validateAuditMetrics(metrics, {
     requireRejections: true,
     requireDeferrals: true,
-    trackerHeadings: deferredIds,
   });
 }
 
@@ -1398,9 +1178,7 @@ function preparePass(kind, options) {
     fail('--outcome must be changed or no-change');
   }
   if (!options.evidence?.trim()) fail('--evidence is required');
-  const auditMetrics = auditMetricsFromOptions(options, {
-    deferredIds: new Set(config.deferred.map((entry) => entry.id)),
-  });
+  const auditMetrics = auditMetricsFromOptions(options);
   if (kind === 'review' && !REVIEW_LEVELS.has(options.level)) {
     fail('review passes require --level light or --level full');
   }
@@ -1451,12 +1229,6 @@ function preparePass(kind, options) {
   };
   if (!options['dry-run']) {
     config.passes.push(pass);
-    // A recorded deferral reopens its ledger entry: deferring a finding a
-    // second time means its earlier closure did not hold.
-    for (const { trackedIn } of auditMetrics.deferrals ?? []) {
-      const entry = config.deferred.find((d) => d.id === trackedIn.trim());
-      if (entry) entry.status = 'open';
-    }
     const history = loadHistory();
     history.push(pass);
     writeHistory(history);
@@ -1507,92 +1279,6 @@ export function collectRejections(passes) {
   return rows;
 }
 
-export function openDeferrals(deferred, { area = null, status = 'open' } = {}) {
-  return deferred.filter((entry) => (status === 'all' || entry.status === status)
-    && (!area || entry.area === area));
-}
-
-// One line per entry, so a note's text stays out of the listing: the backlog
-// runs to dozens of entries and a note is a paragraph. The count is what a
-// reader needs from a list -- it says this entry has been corrected since it
-// was written -- and `deferrals --id <id>` prints the entry whole, notes
-// included.
-export function formatDeferralRow(entry) {
-  const notes = entry.notes?.length
-    ? ` (${plural(entry.notes.length, 'note')})`
-    : '';
-  return `[${entry.area ?? '-'}] (${entry.category}, ${entry.effort}) `
-    + `${entry.id}${notes}`;
-}
-
-// A citation of the port inside a deferral's prose: a js/ file, an optional
-// line anchor, and the symbol, with nothing between them but quoting and
-// whitespace. Requiring that adjacency is what holds the false flags down.
-// Prose that puts words between the two usually states something other than
-// "this file defines this symbol": "`js/unported_monster_actions.js` says
-// `postmov()` calls `mintrap()`", or "cmd.c dispatches neither dowield() nor
-// doswapweapon() in js/cmd.js". Over the 108 open entries of 12 August 2026,
-// admitting a gap of up to two words raised the flag count from one to three,
-// and both added flags had those shapes. Carries `g`, so every reader resets
-// `lastIndex`.
-const CITED_PORT_SYMBOL = new RegExp(
-  '\\bjs/([\\w-]+\\.js)'
-  + '(?::\\d+(?:-\\d+)?)?'
-  + '[`\'"]*\\s+[`\'"]*'
-  + '([A-Za-z_$][\\w$]*)\\(\\)',
-  'gu',
-);
-
-/**
- * The lines that report an open deferral pointing at js/ code that is not
- * there, in the order they print.
- *
- * Both kinds mislead a reader of the ledger. A landed blocker means the
- * entry may be resolvable now, which the goal close in `.agents/loop.md`
- * acts on. A citation no definition backs sends a reader to the wrong
- * file. `earth_sense()'s notice is refused rather than printed` points at
- * `js/mklev.js place_lregion()` for a function defined at `js/mkmaze.js:92`,
- * and a hand-written note is what corrected it.
- *
- * Neither line blocks. A record may name a symbol the file has yet to define,
- * and an entry whose blocker has landed may still have work left, in which
- * case the repair is to name the symbol it now waits on. Both probes are
- * injectable, so a test can pin the wording without reading js/.
- *
- * Only `detail` is scanned. A note is the append-only correction of a detail,
- * so it quotes a wrong citation about as often as it writes one, and flagging
- * a correction for the text it corrects would report a repair as a defect.
- */
-export function formatStaleAnchors(deferred, {
-  blockerLanded = portDefines,
-  fileDefines = portFileDefines,
-} = {}) {
-  const open = deferred.filter((entry) => entry.status === 'open');
-  const lines = [];
-  for (const entry of open) {
-    const blocker = entry.blockedOn?.trim();
-    if (blocker && blockerLanded(blocker)) {
-      lines.push(`Blocker landed, so recheck the entry: ${blocker} `
-        + `[${entry.id}].`);
-    }
-  }
-  for (const entry of open) {
-    const flagged = new Set();
-    CITED_PORT_SYMBOL.lastIndex = 0;
-    let match;
-    while ((match = CITED_PORT_SYMBOL.exec(entry.detail)) !== null) {
-      const [, file, symbol] = match;
-      const pair = `js/${file} ${symbol}()`;
-      // One entry cites one pair several times when it argues from it, and
-      // the reader has one thing to fix either way.
-      if (flagged.has(pair) || fileDefines(file, symbol)) continue;
-      flagged.add(pair);
-      lines.push(`Cited but not defined there: ${pair} [${entry.id}].`);
-    }
-  }
-  return lines;
-}
-
 function queryLedger(command, options, config) {
   if (command === 'pass') {
     rejectUnknownOptions(options, new Set(['head']));
@@ -1618,180 +1304,6 @@ function queryLedger(command, options, config) {
     console.log(`${plural(rows.length, 'recorded rejection')}.`);
     return;
   }
-  rejectUnknownOptions(options, new Set(['area', 'status', 'id']));
-  if (options.id) {
-    const entry = config.deferred.find((d) => d.id === options.id);
-    if (!entry) fail(`no deferred entry has id: ${options.id}`);
-    console.log(JSON.stringify(entry, null, 2));
-    return;
-  }
-  const status = options.status ?? 'open';
-  if (status !== 'all' && !DEFERRAL_STATUSES.includes(status)) {
-    fail('--status must be open, closed, or all');
-  }
-  const rows = openDeferrals(config.deferred,
-    { area: options.area ?? null, status });
-  for (const row of rows) console.log(formatDeferralRow(row));
-  console.log(`${plural(rows.length, 'deferral')} (${status}`
-    + `${options.area ? `, ${options.area}` : ''}).`);
-}
-
-function deferEntry(options) {
-  rejectUnknownOptions(options,
-    new Set(['id', 'area', 'category', 'effort', 'detail-file', 'blocked-on']));
-  for (const key of ['id', 'category', 'effort']) {
-    if (!options[key]?.trim()) fail(`--${key} is required`);
-  }
-  const detail = readTextFile(options, 'detail-file');
-  withLedgerLock(() => {
-    const config = loadConfig();
-    if (config.deferred.some((entry) => entry.id === options.id.trim())) {
-      fail(`deferred id already exists: ${options.id.trim()}`);
-    }
-    config.deferred.push({
-      id: options.id.trim(),
-      area: options.area ?? null,
-      category: options.category,
-      effort: options.effort,
-      status: 'open',
-      from: resolveCommit('HEAD'),
-      detail: detail.trim(),
-      // Absent rather than null when the entry waits on nothing, so a field
-      // in the ledger always carries a claim.
-      ...options['blocked-on'] === undefined
-        ? {} : { blockedOn: options['blocked-on'].trim() },
-    });
-    // Full-shape validation rejects a bad area, category, effort, or
-    // blockedOn symbol before anything is written.
-    validateConfigShape(config);
-    writeConfig(config);
-    console.log(`Deferred: ${options.id.trim()}`);
-  });
-}
-
-// A separate verb rather than a flag on note-deferral, because the two have
-// opposite contracts. A note is appended and never rewritten, which is what
-// lets a reader date a correction; `blockedOn` is one current answer, replaced
-// when the entry turns out to wait on something else and removed when it waits
-// on nothing. Folding them together would make one subcommand both
-// append-only and destructive.
-export function setDeferralBlocker(config, id, symbol) {
-  const entry = config.deferred.find((candidate) => candidate.id === id);
-  if (!entry) fail(`no deferred entry has id: ${id}`);
-  if (entry.status === 'closed') fail(`already closed: ${entry.id}`);
-  if (symbol === null) delete entry.blockedOn;
-  else entry.blockedOn = symbol;
-  // Full-shape validation rejects a symbol the C source never mentions before
-  // anything is written.
-  validateConfigShape(config);
-  return entry;
-}
-
-function blockDeferral(options) {
-  rejectUnknownOptions(options, new Set(['id', 'blocked-on', 'clear']));
-  if (!options.id?.trim()) fail('--id is required');
-  const clearing = options.clear === true;
-  if (clearing === (options['blocked-on'] !== undefined)) {
-    fail('block-deferral needs exactly one of --blocked-on <symbol> and --clear');
-  }
-  withLedgerLock(() => {
-    const config = loadConfig();
-    const entry = setDeferralBlocker(config, options.id.trim(),
-      clearing ? null : options['blocked-on'].trim());
-    writeConfig(config);
-    console.log(clearing
-      ? `Unblocked: ${entry.id}`
-      : `Blocked: ${entry.id} on ${entry.blockedOn}`);
-  });
-}
-
-// A deferral's `detail` is written once and never rewritten. A later commit
-// can falsify its central claim, and when that happened is worth as much as
-// the correction itself, so a note appends beside the original rather than
-// replacing it. The entry's id, area, category, effort and `from` are the
-// entry's identity and are never touched here.
-//
-// A closed entry takes no note, for the same reason resolve-deferral refuses
-// to close one twice: a closed entry schedules no work, so nothing it says is
-// still a claim on anyone. A correction to settled work belongs with whatever
-// reopens the entry -- recording a deferral against a closed id does exactly
-// that -- and the reopened entry then takes the note in the backlog where a
-// reader will meet it.
-export function appendDeferralNote(config, id, text, at) {
-  const entry = config.deferred.find((candidate) => candidate.id === id);
-  if (!entry) fail(`no deferred entry has id: ${id}`);
-  if (entry.status === 'closed') {
-    fail(`already closed: ${entry.id}; reopen it by recording a deferral `
-      + 'against its id before adding a note');
-  }
-  entry.notes = [...entry.notes ?? [], { text, at }];
-  // Full-shape validation rejects a malformed note before anything is written.
-  validateConfigShape(config);
-  return entry;
-}
-
-function noteDeferral(options) {
-  rejectUnknownOptions(options, new Set(['id', 'note-file']));
-  if (!options.id?.trim()) fail('--id is required');
-  const note = readTextFile(options, 'note-file');
-  withLedgerLock(() => {
-    const config = loadConfig();
-    const entry = appendDeferralNote(
-      config, options.id.trim(), note.trim(), resolveCommit('HEAD'));
-    writeConfig(config);
-    console.log(`Noted: ${entry.id} (${plural(entry.notes.length, 'note')})`);
-  });
-}
-
-// An entry's area decides which goal close rechecks it: .agents/loop.md
-// resolves the entries in the areas a closing goal touched, so a wrong label
-// hides an entry from the close that could resolve it. Until this verb
-// existed the only correction was
-// a hand edit of QUALITY.json, which leaves no trace that the entry moved. The
-// move is therefore appended as a note beside the operator's reason, so a
-// later reader can tell an entry that was always filed here from one that was
-// moved, and date the move. Correcting the entry's prose stays note-deferral's
-// job; this verb touches `area` and nothing else.
-export function refileDeferralArea(config, id, areaId, reason, at) {
-  const entry = config.deferred.find((candidate) => candidate.id === id);
-  if (!entry) fail(`no deferred entry has id: ${id}`);
-  if (entry.status === 'closed') {
-    fail(`already closed: ${entry.id}; no goal close rechecks a closed `
-      + 'entry, so its area decides nothing');
-  }
-  if (!config.areas.some((area) => area.id === areaId)) {
-    fail(`no area has id: ${areaId}`);
-  }
-  const previous = entry.area;
-  if (previous === areaId) {
-    fail(`${entry.id} is already filed under ${areaId}`);
-  }
-  entry.area = areaId;
-  entry.notes = [...entry.notes ?? [], {
-    text: `Re-filed from ${previous ?? 'no area'} to ${areaId}. ${reason}`,
-    at,
-  }];
-  // Full-shape validation rejects an unknown area or a malformed note before
-  // anything is written.
-  validateConfigShape(config);
-  return { entry, previous };
-}
-
-function refileDeferral(options) {
-  rejectUnknownOptions(options, new Set(['id', 'area', 'note-file']));
-  for (const key of ['id', 'area']) {
-    if (!options[key]?.trim()) fail(`--${key} is required`);
-  }
-  const note = readTextFile(options, 'note-file');
-  withLedgerLock(() => {
-    const config = loadConfig();
-    const { entry, previous } = refileDeferralArea(
-      config, options.id.trim(), options.area.trim(), note.trim(),
-      resolveCommit('HEAD'));
-    writeConfig(config);
-    console.log(`Re-filed ${entry.id}: ${previous ?? '(no area)'} `
-      + `-> ${entry.area}.`);
-  });
 }
 
 // The one QUALITY.json write the per-chunk workflow asks of a worker:
@@ -1832,20 +1344,6 @@ function assignEntry(options) {
   });
 }
 
-function resolveDeferral(options) {
-  rejectUnknownOptions(options, new Set(['id']));
-  if (!options.id?.trim()) fail('--id is required');
-  withLedgerLock(() => {
-    const config = loadConfig();
-    const entry = config.deferred.find((d) => d.id === options.id.trim());
-    if (!entry) fail(`no deferred entry has id: ${options.id.trim()}`);
-    if (entry.status === 'closed') fail(`already closed: ${entry.id}`);
-    entry.status = 'closed';
-    writeConfig(config);
-    console.log(`Closed: ${entry.id}`);
-  });
-}
-
 function printHelp() {
   console.log(`Usage:
   npm run quality
@@ -1860,54 +1358,27 @@ function printHelp() {
     <--audit-metrics <json>|--audit-metrics-file <path>> \\
     [--head <commit>] [--dry-run]
   npm run quality -- rejections
-  npm run quality -- deferrals [--area <id>] [--status open|closed|all] [--id <id>]
   npm run quality -- pass --head <sha or prefix>
   npm run quality -- areas
   npm run quality -- assign --file js/<name>.js --area <id>
-  npm run quality -- defer --id <id> --category <c> --effort <small|slice> \\
-    --detail-file <path> [--area <id>] [--blocked-on <symbol>]
-  npm run quality -- note-deferral --id <id> --note-file <path>
-  npm run quality -- refile-deferral --id <id> --area <id> --note-file <path>
-  npm run quality -- block-deferral --id <id> <--blocked-on <symbol>|--clear>
-  npm run quality -- resolve-deferral --id <id>
 
 The query subcommands read the ledger, so a later pass consults prior
-rejections and open deferrals without opening QUALITY.json. defer opens a
-ledger entry and resolve-deferral closes one when its fix lands. note-deferral
-appends a correction to an open entry, stamped with the commit it was written
-at; it never rewrites what the entry already says, so a reader can tell an
-original claim from a later correction and date each one. The deferrals listing
-prints each entry's note count, and deferrals --id prints the notes themselves.
-refile-deferral moves an open entry to another area, the label the goal close
-reads when it resolves the entries a goal's commits closed; it requires a
-reason and appends the move as a note, so a label that changed leaves a
-trace. areas lists the quality areas, and assign inserts a new
-js/ file into one, the write the per-chunk workflow requires as soon as the
-file is created.
-
---blocked-on names the C symbol whose port the entry waits on, for an entry
-that can only be retired once other work lands. The symbol must appear in
-nethack-c/upstream/src/, and the listings print a recheck line once js/
-defines a function of that name. Set it only where the entry's closing
-condition names work outside the entry, and name the symbol the entry waits
-on rather than the function whose missing arm it sits in: js/ already defines
-partial ports under their C names, so a blocker named too loosely reads as
-landed the day it is written. block-deferral sets or clears it on an open
-entry.
+rejections without opening QUALITY.json. areas lists the quality areas, and
+assign inserts a new js/ file into one, the write the per-chunk workflow
+requires as soon as the file is created.
 
 Status is derived from Git. The review frontier is the newest recorded
 review head, and recording a pass advances it through the --range head.
---areas names the areas the range touched, as labels for finding attribution
-and deferral routing; areas carry no frontiers of their own.
+--areas names the areas the range touched, as labels for finding
+attribution; areas carry no frontiers of their own.
 
 --range is the commit range the audit actually read. Its base must be at or
 before the frontier, so no unaudited commit becomes reviewed history.
 --head, when given, must name the same commit as the range head.
 
 Audit metrics must list one rejections entry, with summary and counterEvidence,
-for every rejected finding, and one deferrals entry, with summary and a
-trackedIn naming an id in the deferred ledger, for every deferred finding.
-Create the ledger entry with defer before recording the pass.`);
+for every rejected finding, and one deferrals entry, with summary and
+category, for every deferred finding.`);
 }
 
 export function main(argv) {
@@ -1921,7 +1392,7 @@ export function main(argv) {
     recordPass(kind, parseOptions(rest));
     return;
   }
-  if (first === 'rejections' || first === 'deferrals' || first === 'pass') {
+  if (first === 'rejections' || first === 'pass') {
     queryLedger(first, parseOptions(rest), loadConfig());
     return;
   }
@@ -1932,26 +1403,6 @@ export function main(argv) {
   }
   if (first === 'assign') {
     assignEntry(parseOptions(rest));
-    return;
-  }
-  if (first === 'defer') {
-    deferEntry(parseOptions(rest));
-    return;
-  }
-  if (first === 'note-deferral') {
-    noteDeferral(parseOptions(rest));
-    return;
-  }
-  if (first === 'refile-deferral') {
-    refileDeferral(parseOptions(rest));
-    return;
-  }
-  if (first === 'block-deferral') {
-    blockDeferral(parseOptions(rest));
-    return;
-  }
-  if (first === 'resolve-deferral') {
-    resolveDeferral(parseOptions(rest));
     return;
   }
   const statusArgs = first === 'status' ? rest : argv;
