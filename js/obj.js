@@ -139,6 +139,9 @@ import {
 // inside function bodies, so this direct edge resolves the same way the
 // js/mondata.js edge onto js/dungeon.js does.
 import { copy_mextra, maybe_unhide_at } from './mon.js';
+// newomonst() allocates a blank monster on the oextra; newMonster() is the
+// port of C's newmonst() / cg.zeromonst. monst.js does not import this file.
+import { newMonster } from './monst.js';
 // pudding_merge_message() composes You_hear/You_see message strings from
 // pline.c helpers ported in monmove.js. monmove.js imports from this file;
 // both sides use the other's exports only inside function bodies.
@@ -679,17 +682,159 @@ function nextoid(source, child, normalized) {
     return oid;
 }
 
+// C ref: mkobj.c init_oextra() (80-83). Initializes an oextra struct to the
+// zero state (zerooextra). In JS an empty object literal is the zero state.
+function init_oextra(oex) {
+    // C: *oex = zerooextra; -- clear all fields to zero/null.
+    // JS representation: oextra is a plain object; clearing means deleting
+    // all properties to return it to the {} baseline.
+    for (const key of Object.keys(oex)) {
+        delete oex[key];
+    }
+}
+
+// C ref: mkobj.c newoextra() (86-93). Allocates and initializes an oextra
+// struct. Returns the new oextra.
+export function newoextra() {
+    const oextra = {};
+    init_oextra(oextra);
+    return oextra;
+}
+
+// C ref: mkobj.c dealloc_oextra() (96-111). Frees an object's oextra and
+// all its sub-allocations. In JS, setting to null lets GC reclaim them.
+export function dealloc_oextra(o) {
+    const x = o.oextra;
+    if (x) {
+        // C: free oname
+        if (x.oname) x.oname = null;
+        // C: if (x->omonst) free_omonst(o);
+        if (x.omonst) free_omonst(o);
+        // C: free omailcmd
+        if (x.omailcmd) x.omailcmd = null;
+        o.oextra = null;
+    }
+}
+
+// C ref: mkobj.c newomonst() (114-125). Ensures oextra exists and allocates
+// a blank monster struct in its omonst slot.
+export function newomonst(otmp) {
+    if (!otmp.oextra)
+        otmp.oextra = newoextra();
+    if (!otmp.oextra.omonst) {
+        // C: struct monst *m = newmonst(); *m = cg.zeromonst;
+        const m = newMonster();
+        otmp.oextra.omonst = m;
+    }
+}
+
+// C ref: mkobj.c free_omonst() (128-140). Frees the monster stored in an
+// object's oextra.
+export function free_omonst(otmp) {
+    if (otmp.oextra) {
+        const m = otmp.oextra.omonst;
+        if (m) {
+            // C: if (m->mextra) dealloc_mextra(m);
+            if (m.mextra) {
+                note_unported('mon.c dealloc_mextra');
+            }
+            otmp.oextra.omonst = null;
+        }
+    }
+}
+
+// C ref: mkobj.c newomid() (143-149). Ensures oextra exists and initializes
+// omid to 0.
+export function newomid(otmp) {
+    if (!otmp.oextra)
+        otmp.oextra = newoextra();
+    otmp.oextra.omid = 0;
+}
+
+// C ref: mkobj.c free_omid() (151-154). Clears the monster-id association.
+export function free_omid(otmp) {
+    if (otmp.oextra) {
+        otmp.oextra.omid = 0;
+    }
+}
+
+// C ref: mkobj.c new_omailcmd() (157-164). Sets the mail response command
+// on an object's oextra.
+export function new_omailcmd(otmp, response_cmd) {
+    if (!otmp.oextra)
+        otmp.oextra = newoextra();
+    if (otmp.oextra.omailcmd)
+        free_omailcmd(otmp);
+    otmp.oextra.omailcmd = String(response_cmd);
+}
+
+// C ref: mkobj.c free_omailcmd() (167-173). Frees the mail response command.
+export function free_omailcmd(otmp) {
+    if (otmp.oextra && otmp.oextra.omailcmd) {
+        otmp.oextra.omailcmd = null;
+    }
+}
+
+// C ref: mkobj.c may_generate_eroded() (177-192). Returns whether an object
+// can be generated with random erosion. Checks for initial hero inventory,
+// erodeproof status, damagability, body parts, and artifacts.
+function may_generate_eroded(otmp, state) {
+    // C: svm.moves <= 1 && !gi.in_mklev
+    if (Math.trunc(state.moves ?? 0) <= 1 && !state.in_mklev)
+        return false;
+    if (otmp.oerodeproof || !erosionMatters(otmp, state)
+        || !isDamageable(otmp, state))
+        return false;
+    if (otmp.otyp === WORM_TOOTH || otmp.otyp === UNICORN_HORN)
+        return false;
+    if (otmp.oartifact)
+        return false;
+    return true;
+}
+
+// C ref: mkobj.c mkobj_erosions() (196-226). Applies random erosion and
+// grease to a newly created object.
+function mkobj_erosions(otmp, env) {
+    if (may_generate_eroded(otmp, env.state)) {
+        if (!env.random.rn2(100)) {
+            otmp.oerodeproof = true;
+        } else {
+            if (!env.random.rn2(80)
+                && (is_flammable(otmp, env.state)
+                    || isRustprone(otmp, env.state)
+                    || isCrackable(otmp, env.state))) {
+                do {
+                    ++otmp.oeroded;
+                } while (otmp.oeroded < 3 && !env.random.rn2(9));
+            }
+            if (!env.random.rn2(80)
+                && (is_rottable(otmp, env.state)
+                    || isCorrodeable(otmp, env.state))) {
+                do {
+                    ++otmp.oeroded2;
+                } while (otmp.oeroded2 < 3 && !env.random.rn2(9));
+            }
+        }
+        if (!env.random.rn2(1000)) otmp.greased = true;
+    }
+}
+
 // C ref: mkobj.c copy_oextra() (417-448). C copies the inline monster
 // structure while retaining its pointer fields, then separately copies mextra
 // and clears nmon.
 export function copy_oextra(target, source) {
     if (!target || !source || !source.oextra) return target;
 
-    target.oextra ??= {};
+    // C: if (!obj2->oextra) obj2->oextra = newoextra();
+    if (!target.oextra)
+        target.oextra = newoextra();
     const sourceExtra = source.oextra;
     if (sourceExtra.oname)
         target.oextra.oname = String(sourceExtra.oname);
     if (sourceExtra.omonst) {
+        // C: if (!OMONST(obj2)) newomonst(obj2);
+        if (!target.oextra.omonst)
+            newomonst(target);
         const sourceMonster = sourceExtra.omonst;
         // mkobj.c:430-431 copies struct monst by value, so its two
         // struct-valued members -- `coord mtrack[MTSZ]` (monst.h:143) and
@@ -707,15 +852,22 @@ export function copy_oextra(target, source) {
                 : sourceMonster.mgoal,
             mextra: null,
         };
+        // C: memcpy(OMONST(obj2), OMONST(obj1), sizeof(struct monst));
+        // JS replaces the reference rather than copying into existing memory.
         target.oextra.omonst = targetMonster;
         // mkobj.c:437-438 guards this call on the source's mextra;
         // copy_mextra() makes the same test first, so the guard is left to it.
         copy_mextra(targetMonster, sourceMonster);
     }
+    // C: if (has_omailcmd(obj1)) new_omailcmd(obj2, OMAILCMD(obj1));
     if (sourceExtra.omailcmd)
-        target.oextra.omailcmd = String(sourceExtra.omailcmd);
-    if (sourceExtra.omid != null)
+        new_omailcmd(target, sourceExtra.omailcmd);
+    // C: if (has_omid(obj1)) { if (!OMID(obj2)) newomid(obj2); OMID(obj2) = OMID(obj1); }
+    if (sourceExtra.omid != null) {
+        if (!target.oextra.omid)
+            newomid(target);
         target.oextra.omid = sourceExtra.omid;
+    }
     return target;
 }
 
@@ -763,7 +915,9 @@ export function splitobj(obj, quantity, env = {}) {
     if (obj.unpaid)
         normalized.hooks.splitBill(obj, child, normalized);
     copy_oextra(child, obj);
-    if (child.oextra?.omid != null) delete child.oextra.omid;
+    // C: if (has_omid(otmp)) free_omid(otmp); /* only one association */
+    if (child.oextra && child.oextra.omid)
+        free_omid(child);
     if (obj.timed)
         normalized.hooks.splitObjectTimers(obj, child, normalized);
     if (splitLight)
@@ -924,10 +1078,8 @@ export function bill_dummy_object(otmp, env = {}) {
     dummy.timed = 0;
     copy_oextra(dummy, otmp);
     // C: if (has_omid(dummy)) free_omid(dummy);
-    // has_omid is the macro ((o)->oextra && OMID(o)), free_omid sets OMID to 0.
-    if (dummy.oextra?.omid) {
-        dummy.oextra.omid = 0;
-    }
+    if (dummy.oextra && dummy.oextra.omid)
+        free_omid(dummy);
     if (isCandle(dummy))
         dummy.lamplit = false;
     dummy.owornmask = 0; /* dummy object is not worn */
@@ -1619,38 +1771,6 @@ function inHell(state) {
     const dnum = state.u?.uz?.dnum;
     return Number.isInteger(dnum)
         && Boolean(state.dungeons?.[dnum]?.flags?.hellish);
-}
-
-function initializeErosion(obj, env) {
-    if (isInitialInventoryPhase(env.state)
-        || obj.oerodeproof
-        || !erosionMatters(obj, env.state)
-        || !isDamageable(obj, env.state)
-        || obj.oartifact) {
-        return;
-    }
-    if (obj.otyp === WORM_TOOTH || obj.otyp === UNICORN_HORN) return;
-
-    if (!env.random.rn2(100)) {
-        obj.oerodeproof = true;
-    } else {
-        if (!env.random.rn2(80)
-            && (is_flammable(obj, env.state)
-                || isRustprone(obj, env.state)
-                || isCrackable(obj, env.state))) {
-            do {
-                ++obj.oeroded;
-            } while (obj.oeroded < 3 && !env.random.rn2(9));
-        }
-        if (!env.random.rn2(80)
-            && (is_rottable(obj, env.state)
-                || isCorrodeable(obj, env.state))) {
-            do {
-                ++obj.oeroded2;
-            } while (obj.oeroded2 < 3 && !env.random.rn2(9));
-        }
-    }
-    if (!env.random.rn2(1000)) obj.greased = true;
 }
 
 function makeArtifact(obj, env, adjustSpe) {
@@ -2363,7 +2483,7 @@ function mksobj_init(obj, artif = false, env = {}) {
         );
     }
 
-    initializeErosion(obj, normalized);
+    mkobj_erosions(obj, normalized);
     if (obj.oartifact) {
         const poisoned = requiredHook(normalized, 'isPermanentlyPoisoned', obj)(
             obj,
@@ -2924,13 +3044,12 @@ export function corpse_revive_type(obj) {
 
 // C ref: mkobj.c obj_attach_mid() (2147-2155). Attach a monster id to an
 // object so that the two stay associated (e.g. a ghost corpse on the bones
-// level). C's newomid() ensures oextra exists and inits omid to 0; then
-// OMID(obj) = mid overwrites it.
+// level).
 export function obj_attach_mid(obj, mid) {
     if (!mid || !obj)
         return null;
-    // newomid: ensure oextra exists
-    obj.oextra ??= {};
+    // C: newomid(obj); OMID(obj) = mid;
+    newomid(obj);
     obj.oextra.omid = mid;
     return obj;
 }

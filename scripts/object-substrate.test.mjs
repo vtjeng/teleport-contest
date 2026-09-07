@@ -591,7 +591,8 @@ test('splitobj preserves source list placement, ids, and independent extras', ()
     assert.equal(child.where, OBJ_FLOOR);
     assert.equal(child.owornmask, 0);
     assert.equal(child.oextra.oname, 'practice darts');
-    assert.equal(Object.hasOwn(child.oextra, 'omid'), false);
+    // C: free_omid() sets OMID to 0; has_omid() checks nonzero.
+    assert.equal(child.oextra.omid, 0);
     child.oextra.oname = 'split darts';
     assert.equal(stack.oextra.oname, 'practice darts');
     assert.deepEqual(state.context.objsplit, {
@@ -681,7 +682,8 @@ test('splitobj runs bill, extra, timer, and light work in source order', () => {
                 events.push('timers');
                 assert.equal(parent, stack);
                 assert.equal(split.oextra.oname, 'practice candles');
-                assert.equal(Object.hasOwn(split.oextra, 'omid'), false);
+                // C: free_omid() sets OMID to 0; has_omid() checks nonzero.
+                assert.equal(split.oextra.omid, 0);
                 split.timed = 1;
             },
             splitObjectLight(parent, split) {

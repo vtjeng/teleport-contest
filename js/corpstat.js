@@ -15,7 +15,7 @@ import { game } from './gstate.js';
 // the other's exports only inside function bodies, so the cycle resolves.
 import { copy_mextra } from './mon.js';
 import { is_rider, monsndx } from './mondata.js';
-import { mksobj, mksobj_at, weight } from './obj.js';
+import { mksobj, mksobj_at, newomonst, weight } from './obj.js';
 import { CORPSE, STATUE } from './objects.js';
 import { PM_LICHEN, PM_LIZARD, S_TROLL } from './monsters.js';
 import { obj_stop_timers, start_corpse_timeout } from './timeout.js';
@@ -61,20 +61,21 @@ function monsterSpecies(monster, state) {
 // C ref: mkobj.c save_mtraits() (2156-2195). "save_mtraits updates
 // otmp->oextra->omonst in place": a corpse or statue carries a copy of the
 // monster so that a revival can restore it. mkcorpstat() below is C's only
-// caller.
-//
-// C's has_omonst()/newomonst() pair allocates obj->oextra->omonst on demand.
-// js/obj.js copy_oextra() already treats that field as a plain object, so the
-// port builds one instead. The priest arm at 2159-2160 is refused ahead of the
-// call, in mkcorpstat().
+// caller. The priest arm at 2159-2160 is refused ahead of the call, in
+// mkcorpstat().
 function save_mtraits(obj, mtmp) {
     const baselevel = mtmp.data.mlevel; /* "mtmp->data is valid ptr" */
+    // C: if (!has_omonst(obj)) newomonst(obj);
+    if (!(obj.oextra && obj.oextra.omonst))
+        newomonst(obj);
+    // C: struct monst *mtmp2 = OMONST(obj); *mtmp2 = *mtmp;
     // C's `*mtmp2 = *mtmp` copies the struct by value, so every struct-valued
     // member inside it is copied too. monst.h gives struct monst two of them:
     // the fixed-size `coord mtrack[MTSZ]` array (monst.h:143) and the `coord
     // mgoal` strategy target (monst.h:189). A JavaScript spread aliases both,
     // so both are rebuilt here. js/obj.js copy_oextra() copies the same two
-    // for the same reason.
+    // for the same reason. JS replaces the reference rather than copying into
+    // the slot newomonst allocated.
     const mtmp2 = {
         ...mtmp,
         mtrack: Array.isArray(mtmp.mtrack)
@@ -101,7 +102,6 @@ function save_mtraits(obj, mtmp) {
     if (mtmp2.mhp < 1) mtmp2.mhp = 0;
     mtmp2.mstate &= ~MON_DETACH;
 
-    obj.oextra ??= {};
     obj.oextra.omonst = mtmp2;
     return obj;
 }
