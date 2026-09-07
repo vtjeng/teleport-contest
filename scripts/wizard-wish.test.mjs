@@ -19,7 +19,6 @@ import {
     A_CON, A_STR, MOD_ENCUMBER, UNENCUMBERED,
 } from '../js/const.js';
 import { UnsupportedDropError } from '../js/do.js';
-import { UnsupportedObjectOperationError } from '../js/obj.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -552,32 +551,10 @@ test('a wish that merges into a carried stack announces the comparison',
 // of the seven container types reach mkobj.c mkbox_cnts() from there, and
 // nothing else on the wish path needs an obj.js hook, so before this slice the
 // call site passed only the game state. Both halves are asserted: that a wish
-// through the running game fills its container, and that the same wish without
-// the hooks stops, which is what makes the first half an assertion about the
-// call site rather than about mkbox_cnts().
-test('makewish() gives readobjnam() the object-generation hooks', async () => {
-    // mkobj.c mkbox_cnts():338 spends rn2(n + 1); a stub answering 1 puts one
-    // object in the sack, which is the roll that needs populateContainer().
-    // The state starts a turn past mkbox_cnts():324's svm.moves <= 1 arm,
-    // which would otherwise leave the sack empty and the hook unreached.
-    const { state } = wishState('');
-    state.moves = 2;
-    // requireSimpleWishedObject() refuses every wish an ordinary hero makes;
-    // wizcmds.c wiz_wish() is the only caller, so this is what it always sees.
-    state.wizard = true;
-    // mkobj.c next_ident() reads svc.context.ident, which u_init.c seeds at 1
-    // and the game raises per object; 2 is where a started game has it.
-    state.context = { ident: 2 };
-    const oneItem = {
-        rn2: (x) => (x === 2 ? 1 : 0), rnd: () => 1, rn1: (_x, y) => y,
-        rne: () => 1,
-    };
-    assert.throws(
-        () => readobjnam('sack', Object.freeze({}), { state, random: oneItem }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && /populateContainer/u.test(error.message),
-    );
-
+// mkbox_cnts() is inlined in obj.js and no longer uses a populateContainer
+// hook; the end-to-end segment replay verifies that a wished container gets
+// properly populated through the running game.
+test('makewish() populates wished containers through mkbox_cnts()', async () => {
     // End to end, on the case scripts/run-wished-container.mjs records against
     // C at this seed: mkbox_cnts() draws one object and boxiprobs[] lands on
     // the gem band. Nothing on the screen shows it, because a fresh container

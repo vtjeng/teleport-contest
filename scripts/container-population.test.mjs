@@ -6,7 +6,6 @@ import {
     ROT_CORPSE,
     ZOMBIFY_MON,
 } from '../js/const.js';
-import { populateContainer } from '../js/mkobj_container.js';
 import { init_objects } from '../js/o_init.js';
 import { mksobj } from '../js/obj.js';
 import {
@@ -135,10 +134,6 @@ function selectKoboldDraws() {
     );
 }
 
-function containerHooks() {
-    return { populateContainer };
-}
-
 test('chest contents preserve coin and rock-replacement RNG order', () => {
     const state = containerState();
     const rng = scriptedRandom([
@@ -163,7 +158,7 @@ test('chest contents preserve coin and rock-replacement RNG order', () => {
     const chest = mksobj(CHEST, true, false, {
         state,
         random: rng.random,
-        hooks: containerHooks(),
+
     });
     const stone = chest.cobj;
     const gold = stone.nobj;
@@ -202,7 +197,7 @@ test('locked large box uses its five-item maximum before population', () => {
     const box = mksobj(LARGE_BOX, true, false, {
         state,
         random: rng.random,
-        hooks: containerHooks(),
+
     });
 
     assert.equal(box.olocked, true);
@@ -237,7 +232,7 @@ test('bag of holding replaces cancellation wands without regenerating them', () 
     const bag = mksobj(BAG_OF_HOLDING, true, false, {
         state,
         random: rng.random,
-        hooks: containerHooks(),
+
     });
     const wand = bag.cobj;
 
@@ -270,7 +265,7 @@ test('ice-box corpses stop rot timers and merge as contained objects', () => {
     const iceBox = mksobj(ICE_BOX, true, false, {
         state,
         random: rng.random,
-        hooks: containerHooks(),
+
     });
     const corpse = iceBox.cobj;
 
@@ -306,7 +301,7 @@ test('ice-box source stops leave a zombification timer intact', () => {
     const iceBox = mksobj(ICE_BOX, true, false, {
         state,
         random: rng.random,
-        hooks: containerHooks(),
+
     });
     const corpse = iceBox.cobj;
 

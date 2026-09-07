@@ -1438,24 +1438,22 @@ test('residual figurine hooks retain source initialization order', () => {
     random.done();
 });
 
-test('noninitial sacks delegate their source-selected content count', () => {
+test('noninitial sacks use mkbox_cnts maximum of one', () => {
+    // A sack created after the initial-inventory phase (moves > 1) uses
+    // BAG_OF_HOLDING's n=1 through the fallthrough, so rn2(2) determines
+    // whether the sack gets zero or one item. rn2(2) returning 0 means
+    // the sack stays empty, confirming the maximum is 1 not higher.
     const state = initializedState();
     state.moves = 2; // past the initial-inventory boundary
     const random = scriptedRandom([
         { name: 'rnd', args: [2], result: 1 }, // next_ident increment
-        { name: 'rn2', args: [2], result: 1 }, // select one sack item
+        { name: 'rn2', args: [2], result: 0 }, // zero items chosen
     ]);
-    let selectedCount = 0;
-    mksobj(SACK, true, false, {
+    const sack = mksobj(SACK, true, false, {
         state,
         ...random,
-        hooks: {
-            populateContainer(_obj, count) {
-                selectedCount = count;
-            },
-        },
     });
-    assert.equal(selectedCount, 1);
+    assert.equal(sack.cobj, null, 'empty sack when rn2(2) returns 0');
     random.done();
 });
 
