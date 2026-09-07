@@ -736,21 +736,20 @@ test('do_hit and weapon dispatch reject what they cannot roll damage for',
 test('the artifact, jousting and poison arms stop on their own guards',
     async () => {
         await hero();
-        // uhitm.c:1013's `obj->oartifact`, which artifact_hit() reads.
-        // Excalibur's base object is a long sword. artiexist[].exists has to
-        // be set as well, because hmon_hitmon_do_hit():1411 names the object
-        // with cxname() before the arm below is reached, and objnam.c's
-        // find_artifact() rejects an artifact the game never made.
+        // uhitm.c:1013's `obj->oartifact` now calls artifact_hit(), which is
+        // ported. Excalibur (AD_PHYS attack) goes through spec_dbon() and
+        // returns false because it has no fire/cold/elec/magm/stun/behead/drli
+        // special effect. The call succeeds rather than throwing.
         const excalibur = mksobj(LONG_SWORD, true, false, { state: game });
         excalibur.oartifact = ART_EXCALIBUR;
         game.artiexist[ART_EXCALIBUR].exists = 1;
-        await refusesAsync(
-            () => hmon(target(), excalibur, HMON_MELEE, 10, game,
-                       hitEnv({ rolls: [1] })),
-            'artifact melee hit',
-        );
-        // weapon.c dmgval() rolled the long sword's die before the arm above
-        // answered, which is where C rolls it too.
+        // artifact_hit calls spec_dbon (rnd draw from the game rng) and
+        // attacks() (no draw for AD_PHYS), then returns false. The blow
+        // continues through the rest of hmon_hitmon_weapon_melee().
+        // Provide enough injected rolls: [1] for dmgval's long-sword die,
+        // plus fallback covers the rest of hmon_hitmon.
+        await hmon(target(), excalibur, HMON_MELEE, 10, game,
+                   hitEnv({ rolls: [1], fallback: 1 }));
         game.artiexist[ART_EXCALIBUR].exists = 0;
 
         // uhitm.c:1043-1048's jousting arm needs a lance and a saddle, and
@@ -758,6 +757,10 @@ test('the artifact, jousting and poison arms stop on their own guards',
         // unmounted pole to the ranged arm before the melee arm can look at
         // it, so the two lance rows below differ only in u.usteed.
         const lance = mksobj(LANCE, true, false, { state: game });
+        // The Excalibur hmon above draws from the game RNG via spec_dbon,
+        // which may shift the lance's random spe to a negative value.
+        // Pin spe to 0 so dmgval is guaranteed positive.
+        lance.spe = 0;
         await refusesAsync(
             () => hmon(target(), lance, HMON_MELEE, 10, game,
                        hitEnv({ rolls: [1] })),

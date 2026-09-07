@@ -92,6 +92,8 @@ import {
     W_BALL,
     W_QUIVER,
     NOTELL,
+    engulfing_u,
+    NECK,
 } from './const.js';
 import { game } from './gstate.js';
 import {
@@ -121,6 +123,8 @@ import {
     PM_TOURIST,
     PM_VALKYRIE,
     PM_WIZARD,
+    PM_JABBERWOCK,
+    PM_WATER_ELEMENTAL,
     S_DRAGON,
     S_IMP,
     S_OGRE,
@@ -193,16 +197,17 @@ import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { freeinv, getobj, hold_another_object, nxtobj, obj_extract_self, obfree, update_inventory } from './invent.js';
 import {
-    aobjnam, bare_artifactname, killer_xname, otense, simple_typename,
-    the, Tobjnam, vtense, xnameFresh, yname,
+    aobjnam, bare_artifactname, distant_name, killer_xname, otense, simple_typename,
+    the, The, Tobjnam, vtense, xnameFresh, yname,
 } from './objnam.js';
 import { getdir } from './cmd.js';
 import {
-    attacktype, defended, hates_silver, is_demon, is_dlord, is_dprince,
-    monster_resists_element, resists_drli, sticks,
+    amorphous, attacktype, bigmonst, defended, has_head, hates_silver,
+    is_demon, is_dlord, is_dprince, monster_resists_element,
+    noncorporeal, nonliving, resists_drli, sticks,
 } from './mondata.js';
 import { In_hell, Invocation_lev, depth, dunlevs_in_dungeon, ledger_no, surface } from './dungeon.js';
-import { couldsee } from './vision.js';
+import { cansee, couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { glyph_at, glyph_is_trap, map_invisible, newsym } from './display.js';
 import { losehp, nomul, spoteffects } from './hack.js';
@@ -210,21 +215,27 @@ import { float_down, t_at } from './trap.js';
 import { level_tele } from './teleport.js';
 import { align_str, enlightenment } from './insight.js';
 import { carried, Is_dragon_armor, Is_dragon_mail, mksobj, objectType, weight } from './obj.js';
-import { obj_shuffle_range } from './o_init.js';
-import { monsterCommonName } from './do_name.js';
+import { obj_shuffle_range, observe_object } from './o_init.js';
+import { capitalizedMonsterName, monsterCommonName } from './do_name.js';
 import { cancel_monst, resist, Fire_resistance, Cold_resistance } from './zap.js';
-import { set_ustuck } from './mon.js';
+import { healmon, set_ustuck, wake_nearto } from './mon.js';
 import { monflee } from './monmove.js';
 import { throwit } from './dothrow.js';
 import { P_SKILL, spell_skilltype } from './startup_skills.js';
 import { spelleffects } from './spell.js';
 import { seffects } from './read.js';
 import { charge_ok } from './read.js';
-import { make_blinded } from './potion.js';
+import { healup, make_blinded } from './potion.js';
 import { dropx, maybe_lvltport_feedback, goto_level } from './do.js';
 import { select_menu } from './windows.js';
 import { clr2colorname } from './coloratt.js';
 import { exercise } from './attrib.js';
+import { body_part, mbodypart } from './polyself.js';
+import { monhp_per_lvl } from './makemon.js';
+import { losexp } from './exper.js';
+import { destroy_items } from './zap_destroy_items.js';
+import { ignite_items } from './apply_catch_lit.js';
+import { burn_away_slime } from './timeout.js';
 import { remove_worn_item } from './steal.js';
 import { On_stairs } from './stairs.js';
 
@@ -1800,6 +1811,346 @@ export async function Mb_hit(
     }
 
     return result;
+}
+
+// C ref: artifact.c FATAL_DAMAGE_MODIFIER (63). Local to artifact.c.
+const FATAL_DAMAGE_MODIFIER = 200;
+
+// Local property helpers, following the pattern used in uhitm.js and other
+// combat modules. Each mirrors one youprop.h macro.
+function Blind(state) {
+    const value = state.u?.uprops?.[BLINDED];
+    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
+}
+function Hallucination(state) {
+    const halluc = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(halluc?.intrinsic)
+        && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
+}
+function Slimed(state) {
+    return Boolean(state.u?.uprops?.[SLIMED]?.intrinsic);
+}
+
+// C ref: artifact.c artifact_hit() (1447-1726). The main artifact combat
+// handler. Returns true when it did something special (in which case the
+// caller skips the normal hit message). Modifies dmgptr.value in place.
+//
+// magr may be null when a thrown artifact hits the hero (C callers in
+// dothrow.c and mthrowu.c pass (struct monst *) 0).
+export async function artifact_hit(
+    magr, mdef, otmp, dmgptr, dieroll, state = game,
+) {
+    const youattack = (magr === state.youmonst);
+    const youdefend = (mdef === state.youmonst);
+    const vis = (!youattack && magr && cansee(magr.mx, magr.my, state))
+              || (!youdefend && cansee(mdef.mx, mdef.my, state))
+              || (youattack && engulfing_u(mdef, state) && !Blind(state));
+    let realizes_damage;
+    let wepdesc;
+    let hittee = youdefend ? 'you' : monsterCommonName(mdef, state);
+
+    /* The following takes care of most of the damage, but not all--
+     * the exception being for level draining, which is specially
+     * handled.  Messages are done in this function, however. */
+    dmgptr.value += spec_dbon(otmp, mdef, dmgptr.value, state);
+
+    if (youattack && youdefend) {
+        // C: impossible("attacking yourself with weapon?");
+        return false;
+    }
+
+    realizes_damage = (youdefend || vis
+                       /* feel the effect even if not seen */
+                       || (youattack && mdef === state.u.ustuck));
+
+    /* the four basic attacks: fire, cold, shock and missiles */
+    if (attacks(AD_FIRE, otmp, state)) {
+        if (realizes_damage) {
+            const verb = !state.spec_dbon_applies
+                ? 'hits'
+                : (mdef.data === state.mons[PM_WATER_ELEMENTAL])
+                    ? 'vaporizes part of'
+                    : 'burns';
+            const punct = !state.spec_dbon_applies ? '.' : '!';
+            await ttyPline(`The fiery blade ${verb} ${hittee}${punct}`, state);
+        }
+        if (!rn2(4)) {
+            const env = { state, random: { rn2, rnd, d } };
+            const itemdmg = await destroy_items(mdef, AD_FIRE, dmgptr.value, env);
+            if (!youdefend)
+                dmgptr.value += itemdmg; /* item destruction dmg */
+            await ignite_items(mdef.minvent, env);
+        }
+        if (youdefend && Slimed(state))
+            burn_away_slime(state);
+        return realizes_damage;
+    }
+    if (attacks(AD_COLD, otmp, state)) {
+        if (realizes_damage) {
+            const verb = !state.spec_dbon_applies ? 'hits' : 'freezes';
+            const punct = !state.spec_dbon_applies ? '.' : '!';
+            await ttyPline(
+                `The ice-cold blade ${verb} ${hittee}${punct}`, state);
+        }
+        if (!rn2(4)) {
+            const env = { state, random: { rn2, rnd, d } };
+            const itemdmg = await destroy_items(mdef, AD_COLD, dmgptr.value, env);
+            if (!youdefend)
+                dmgptr.value += itemdmg; /* item destruction dmg */
+        }
+        return realizes_damage;
+    }
+    if (attacks(AD_ELEC, otmp, state)) {
+        if (realizes_damage) {
+            const extra = !state.spec_dbon_applies
+                ? '' : '!  Lightning strikes';
+            const punct = !state.spec_dbon_applies ? '.' : '!';
+            await ttyPline(
+                `The massive hammer hits${extra} ${hittee}${punct}`, state);
+        }
+        if (state.spec_dbon_applies)
+            await wake_nearto(mdef.mx, mdef.my, 4 * 4, { state });
+        if (!rn2(5)) {
+            const env = { state, random: { rn2, rnd, d } };
+            const itemdmg = await destroy_items(mdef, AD_ELEC, dmgptr.value, env);
+            if (!youdefend)
+                dmgptr.value += itemdmg; /* item destruction dmg */
+        }
+        return realizes_damage;
+    }
+    if (attacks(AD_MAGM, otmp, state)) {
+        if (realizes_damage) {
+            const extra = !state.spec_dbon_applies
+                ? '' : '!  A hail of magic missiles strikes';
+            const punct = !state.spec_dbon_applies ? '.' : '!';
+            await ttyPline(
+                `The imaginary widget hits${extra} ${hittee}${punct}`, state);
+        }
+        return realizes_damage;
+    }
+
+    if (attacks(AD_STUN, otmp, state) && dieroll <= MB_MAX_DIEROLL) {
+        /* Magicbane's special attacks (possibly modifies hittee[]) */
+        const hitteeRef = { value: hittee };
+        return await Mb_hit(magr, mdef, otmp, dmgptr, dieroll, vis,
+                            hitteeRef, state);
+    }
+
+    if (!state.spec_dbon_applies) {
+        /* since damage bonus didn't apply, nothing more to do;
+           no further attacks have side-effects on inventory */
+        return false;
+    }
+
+    /* We really want "on a natural 20" but Nethack does it in
+       reverse from AD&D. */
+    if (spec_ability(otmp, SPFX_BEHEAD, state)) {
+        if (is_art(otmp, ART_TSURUGI_OF_MURAMASA) && dieroll === 1) {
+            wepdesc = 'The razor-sharp blade';
+            /* not really beheading, but so close, why add another SPFX */
+            if (youattack && engulfing_u(mdef, state)) {
+                await ttyPline(
+                    `You slice ${monsterCommonName(mdef, state)} wide open!`,
+                    state);
+                dmgptr.value = 2 * mdef.mhp + FATAL_DAMAGE_MODIFIER;
+                return true;
+            }
+            if (!youdefend) {
+                /* allow normal cutworm() call to add extra damage */
+                if (state.gn.notonhead)
+                    return false;
+
+                if (bigmonst(mdef.data)) {
+                    if (youattack) {
+                        await ttyPline(
+                            `You slice deeply into ${monsterCommonName(mdef, state)}!`,
+                            state);
+                    } else if (vis) {
+                        await ttyPline(
+                            `${capitalizedMonsterName(magr, state)} cuts deeply into ${hittee}!`,
+                            state);
+                    }
+                    dmgptr.value *= 2;
+                    return true;
+                }
+                dmgptr.value = 2 * mdef.mhp + FATAL_DAMAGE_MODIFIER;
+                await ttyPline(
+                    `${wepdesc} cuts ${monsterCommonName(mdef, state)} in half!`,
+                    state);
+                observe_object(otmp, state);
+                return true;
+            } else {
+                if (bigmonst(state.youmonst.data)) {
+                    await ttyPline(
+                        `${magr ? capitalizedMonsterName(magr, state) : wepdesc} cuts deeply into you!`,
+                        state);
+                    dmgptr.value *= 2;
+                    return true;
+                }
+
+                /* Players with negative AC's take less damage instead
+                 * of just not getting hit.  We must add a large enough
+                 * value to the damage so that this reduction in
+                 * damage does not prevent death. */
+                dmgptr.value = 2 * (Upolyd(state) ? state.u.mh : state.u.uhp)
+                             + FATAL_DAMAGE_MODIFIER;
+                await ttyPline(`${wepdesc} cuts you in half!`, state);
+                observe_object(otmp, state);
+                return true;
+            }
+        } else if (is_art(otmp, ART_VORPAL_BLADE)
+                   && (dieroll === 1
+                       || mdef.data === state.mons[PM_JABBERWOCK])) {
+            const behead_msg = ['%wepdesc beheads %target!',
+                                '%wepdesc decapitates %target!'];
+
+            if (youattack && engulfing_u(mdef, state))
+                return false;
+            wepdesc = state.artilist[ART_VORPAL_BLADE].name;
+            if (!youdefend) {
+                if (!has_head(mdef.data) || state.gn.notonhead
+                    || state.u.uswallow) {
+                    if (youattack) {
+                        await ttyPline(
+                            `Somehow, you miss ${monsterCommonName(mdef, state)} wildly.`,
+                            state);
+                    } else if (vis) {
+                        await ttyPline(
+                            `Somehow, ${monsterCommonName(magr, state)} misses wildly.`,
+                            state);
+                    }
+                    dmgptr.value = 0;
+                    return youattack || vis;
+                }
+                if (noncorporeal(mdef.data) || amorphous(mdef.data)) {
+                    await ttyPline(
+                        `${wepdesc} slices through ${s_suffix(monsterCommonName(mdef, state))} ${mbodypart(mdef, NECK)}.`,
+                        state);
+                    return true;
+                }
+                dmgptr.value = 2 * mdef.mhp + FATAL_DAMAGE_MODIFIER;
+                // C: ROLL_FROM(behead_msg) = behead_msg[rn2(2)]
+                const msg = behead_msg[rn2(2)];
+                await ttyPline(
+                    msg.replace('%wepdesc', wepdesc)
+                       .replace('%target', monsterCommonName(mdef, state)),
+                    state);
+                if (Hallucination(state) && !state.flags.female)
+                    await ttyPline(
+                        "Good job Henry, but that wasn't Anne.", state);
+                observe_object(otmp, state);
+                return true;
+            } else {
+                if (!has_head(state.youmonst.data)) {
+                    await ttyPline(
+                        `Somehow, ${magr ? monsterCommonName(magr, state) : wepdesc} misses you wildly.`,
+                        state);
+                    dmgptr.value = 0;
+                    return true;
+                }
+                if (noncorporeal(state.youmonst.data)
+                    || amorphous(state.youmonst.data)) {
+                    await ttyPline(
+                        `${wepdesc} slices through your ${body_part(NECK, state.youmonst)}.`,
+                        state);
+                    return true;
+                }
+                dmgptr.value = 2 * (Upolyd(state) ? state.u.mh : state.u.uhp)
+                             + FATAL_DAMAGE_MODIFIER;
+                // C: ROLL_FROM(behead_msg) = behead_msg[rn2(2)]
+                const msg = behead_msg[rn2(2)];
+                await ttyPline(
+                    msg.replace('%wepdesc', wepdesc)
+                       .replace('%target', 'you'),
+                    state);
+                observe_object(otmp, state);
+                /* Should amulets fall off? */
+                return true;
+            }
+        }
+    }
+    if (spec_ability(otmp, SPFX_DRLI, state)) {
+        /* some non-living creatures (golems, vortices) are vulnerable to
+           life drain effects so can get "<Arti> draws the <life>" feedback */
+        const life = nonliving(mdef.data) ? 'animating force' : 'life';
+
+        if (!youdefend) {
+            const m_lev = mdef.m_lev | 0; /* will be 0 for 1d4 mon */
+            const mhpmax = mdef.mhpmax;
+            let drain = monhp_per_lvl(mdef); /* usually 1d8 */
+            /* note: DRLI attack uses 2d6, attacker doesn't get healed */
+
+            /* stop draining HP if it drops too low (still drains level;
+               also caller still inflicts regular weapon damage) */
+            if (mhpmax - drain <= m_lev)
+                drain = (mhpmax > m_lev) ? (mhpmax - (m_lev + 1)) : 0;
+
+            if (vis) {
+                /* call distant_name() for possible side-effects even if
+                   the result won't be printed */
+                const otmpname = distant_name(otmp, xnameFresh, state);
+
+                if (is_art(otmp, ART_STORMBRINGER)) {
+                    await ttyPline(
+                        `The ${hcolor('black', state)} blade draws the ${life} from ${monsterCommonName(mdef, state)}!`,
+                        state);
+                } else {
+                    await ttyPline(
+                        `${The(otmpname, state)} draws the ${life} from ${monsterCommonName(mdef, state)}!`,
+                        state);
+                }
+            }
+            if (mdef.m_lev === 0) {
+                /* losing a level when at 0 is fatal */
+                dmgptr.value = 2 * mdef.mhp + FATAL_DAMAGE_MODIFIER;
+            } else {
+                dmgptr.value += drain;
+                mdef.mhpmax -= drain;
+                mdef.m_lev--;
+            }
+
+            if (drain > 0) {
+                /* drain: was target's damage, now heal attacker by half */
+                drain = Math.trunc((drain + 1) / 2); /* drain/2 rounded up */
+                if (youattack) {
+                    healup(drain, 0, false, false, state);
+                } else {
+                    // C: assert(magr != 0);
+                    healmon(magr, drain, 0);
+                }
+            }
+            return vis;
+        } else { /* youdefend */
+            const oldhpmax = state.u.uhpmax;
+
+            if (Blind(state)) {
+                await ttyPline(
+                    `You feel an ${is_art(otmp, ART_STORMBRINGER) ? 'unholy blade' : 'object'} drain your ${life}!`,
+                    state);
+            } else {
+                /* call distant_name() for possible side-effects even if
+                   the result won't be printed */
+                const otmpname = distant_name(otmp, xnameFresh, state);
+
+                if (is_art(otmp, ART_STORMBRINGER)) {
+                    await ttyPline(
+                        `The ${hcolor('black', state)} blade drains your ${life}!`,
+                        state);
+                } else {
+                    await ttyPline(
+                        `${The(otmpname, state)} drains your ${life}!`,
+                        state);
+                }
+            }
+            await losexp('life drainage', state);
+            if (magr && magr.mhp < magr.mhpmax) {
+                healmon(magr, Math.trunc((Math.abs(oldhpmax - state.u.uhpmax) + 1) / 2), 0);
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 // --- artifact.c invoke functions (C lines 1727-2260) ---

@@ -5,6 +5,7 @@ import {
     ART_OGRESMASHER,
     ART_SNICKERSNEE,
     ART_TROLLSBANE,
+    artifact_hit,
     artifact_light,
     permapoisoned,
 } from './artifacts.js';
@@ -1099,14 +1100,12 @@ function backstabbable(mon, state) {
 // weapon, weapon-tool or gem swung in melee, and the flags the messages below
 // read off it.
 //
-// Five arms stop, each the whole of one C branch:
+// Four arms stop, each the whole of one C branch:
 //
 //   979-1010  the dieroll == 2 shatter of a defender's weapon. It needs
 //             Yobjnam2() and m_useupall(); C reaches it only for a hero at
 //             P_SKILLED or better swinging a two-handed weapon (or a
 //             Samurai's katana) at a monster that is wielding something.
-//   1013-1030 artifact_hit(). Guarded by obj->oartifact, which is 0 for every
-//             ordinary weapon.
 //   1043-1049 joust(), for a lance used from a saddle.
 //   1050-1063 the HMON_THROWN ammunition bonuses. hmon() admits only
 //             HMON_MELEE, so `thrown` is 0 here and both tests fail.
@@ -1157,7 +1156,30 @@ async function hmon_hitmon_weapon_melee(hmd, mon, obj, state, env, random) {
         unsupported('shattering a monster weapon');
     }
 
-    if (obj.oartifact) unsupported('artifact melee hit');
+    if (obj.oartifact) {
+        const dmgptr = { value: hmd.dmg };
+        if (await artifact_hit(
+            state.youmonst, mon, obj, dmgptr, hmd.dieroll, state)) {
+            hmd.dmg = dmgptr.value;
+            /* artifact_hit updates 'tmp' but doesn't inflict any
+               damage; however, it might cause carried items to be
+               destroyed and they might do so */
+            if (mon.mhp < 1) { /* DEADMONSTER(mon) -- artifact killed monster */
+                hmd.doreturn = true;
+                hmd.retval = false;
+                return;
+            }
+            /* perhaps artifact tried to behead a headless monster */
+            if (hmd.dmg === 0) {
+                hmd.doreturn = true;
+                hmd.retval = true;
+                return;
+            }
+            hmd.hittxt = true;
+        } else {
+            hmd.dmg = dmgptr.value;
+        }
+    }
     if (hmd.material === SILVER && mon_hates_silver(mon)) {
         hmd.silvermsg = hmd.silverobj = true;
     }
