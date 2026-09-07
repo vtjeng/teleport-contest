@@ -730,3 +730,5 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-07T17:08:00.310Z	5fab8629	goal	24	33	4707	7765	321679	610816			315	3640	38930	182022	mthrowu-c closes. 28 functions, 2 spans. Holdout 315/3640 screens, 38930/182022 rng.
 2026-09-07T19:27:12.437Z	4a44372d	span	24	33	5085	7765	344412	610816							m_throw-divergence closes. Fixed m_move approach ordering in monmove.js. +378 screens, +22733 rng.
 2026-09-07T19:27:31.516Z	4a44372d	goal	24	33	5085	7765	344412	610816			315	3640	38930	182022	div-seed0030-m-throw closes. +378 screens, +22733 rng. Holdout 315/3640 screens, 38930/182022 rng.
+2026-09-07T21:23:33.258Z	7d4daca3	span	24	33	5091	7765	344578	610816							distfleeck-divergence closes. Fixed set_mon_data u.umovement proration on hero polymorph. +6 screens, +166 rng.
+2026-09-07T21:23:52.198Z	7d4daca3	goal	24	33	5091	7765	344578	610816			315	3640	38930	182022	div-seed0108-distfleeck closes. +6 screens, +166 rng. Holdout 315/3640.

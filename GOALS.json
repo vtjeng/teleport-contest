@@ -12596,7 +12596,7 @@
     {
       "id": "div-seed0108-distfleeck",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix seed0108 rng divergence at distfleeck() in monmove.c step 149",
       "cFile": "monmove.c",
       "sessions": [],
@@ -12604,8 +12604,8 @@
       "spans": [
         {
           "name": "distfleeck-divergence",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "7d4daca360e43a5c5c6ec9f762cf922774fc74b2",
           "functions": []
         }
       ],
@@ -12615,8 +12615,11 @@
         "screens": 5085,
         "rng": 344412
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7d4daca360e43a5c5c6ec9f762cf922774fc74b2",
+      "delivered": {
+        "screens": 6,
+        "rng": 166
+      },
       "function": "distfleeck",
       "session": "seed0108-wizard-extcmd-wishlist",
       "step": 149
