@@ -11956,7 +11956,7 @@
     {
       "id": "monmove-c",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monmove.c whole in C order, starting from distfleeck()",
       "cFile": "monmove.c",
       "sessions": [
@@ -12013,8 +12013,11 @@
         "screens": 5085,
         "rng": 344412
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b4eae321f63a935b07ed04b1dd19bb3e191c4d9c",
+      "delivered": {
+        "screens": -378,
+        "rng": -22733
+      },
       "functions": [
         {
           "name": "msg_mon_movement",
@@ -12308,7 +12311,7 @@
           "name": "stuff_prevents_passage",
           "line": 2319,
           "endLine": 2355,
-          "ported": true
+          "ported": false
         },
         {
           "name": "can_ooze",
