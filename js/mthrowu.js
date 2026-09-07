@@ -58,7 +58,7 @@ import { PM_MONK, PM_ROGUE } from './monsters.js';
 // function declarations, which an ES module cycle initializes before either
 // module body runs; nothing here reads the import at module scope.
 import { closed_door } from './monmove.js';
-import { ammo_and_launcher, objectType, sobj_at, weight } from './obj.js';
+import { ammo_and_launcher, is_launcher, objectType, sobj_at, weight } from './obj.js';
 import {
     ACID_VENOM,
     AKLYS,
@@ -789,4 +789,17 @@ export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
         await exercise(A_STR, false, state);
     }
     return 1;
+}
+
+// C ref: mthrowu.c m_has_launcher_and_ammo() (58-71). TRUE when the monster
+// wields a launcher and carries at least one matching projectile.
+export function m_has_launcher_and_ammo(mtmp, state = game) {
+    const mwep = mtmp.mw; /* MON_WEP() */
+    if (mwep && is_launcher(mwep, state)) {
+        for (let otmp = mtmp.minvent; otmp; otmp = otmp.nobj) {
+            if (ammo_and_launcher(otmp, mwep, state))
+                return true;
+        }
+    }
+    return false;
 }

@@ -73,6 +73,7 @@ import {
     BATTLE_AXE,
     BELL_OF_OPENING,
     BOULDER,
+    AKLYS,
     BOW,
     BROADSWORD,
     BULLWHIP,
@@ -125,6 +126,7 @@ import {
     P_NAME,
     skill_level_name,
     weapon_descr,
+    autoreturn_weapon,
     weapon_hit_bonus,
 } from '../js/weapon.js';
 import { mwelded } from '../js/wield.js';
@@ -1887,4 +1889,24 @@ test('martial_bonus holds for the Samurai and the Monk alone', () => {
     assert.equal(martial_bonus(state), false);
     state.urole = { mnum: PM_ARCHEOLOGIST };
     assert.equal(martial_bonus(state), false);
+});
+
+// autoreturn_weapon tests: C ref: weapon.c:520-528.  The arwep table has a
+// single entry for AKLYS; the function returns the table entry for a match
+// and null otherwise.
+
+test('autoreturn_weapon returns a table entry for AKLYS', () => {
+    // AKLYS is the only throw-and-return weapon.  C ref: weapon.c:515-518.
+    // The entry's tethered field is 1 (thrown on a thong) and range is
+    // AKLYS_LIM^2 = 16.
+    const result = autoreturn_weapon({ otyp: AKLYS });
+    assert.ok(result, 'should return an entry for AKLYS');
+    assert.equal(result.otyp, AKLYS);
+    assert.equal(result.range, 16, 'AKLYS_LIM=4 squared is 16');
+    assert.equal(result.tethered, 1);
+});
+
+test('autoreturn_weapon returns null for a non-returning weapon', () => {
+    // DAGGER is a throwing weapon but not tethered: the table has no entry.
+    assert.equal(autoreturn_weapon({ otyp: DAGGER }), null);
 });

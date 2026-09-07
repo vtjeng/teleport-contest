@@ -46,7 +46,7 @@ import { attacktype, dead_species, is_animal } from './mondata.js';
 import { AT_ENGL, S_NYMPH } from './monsters.js';
 import { objectType, place_object, unknow_object } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { ARMOR_CLASS, AMULET_CLASS, COIN_CLASS, FOOD_CLASS, RING_CLASS, TOOL_CLASS } from './objects.js';
+import { ARMOR_CLASS, AMULET_CLASS, COIN_CLASS, FOOD_CLASS, GOLD_PIECE, RING_CLASS, TOOL_CLASS } from './objects.js';
 import { distant_name, donameFresh, doname_with_price, yname } from './objnam.js';
 import { encumber_msg } from './pickup.js';
 import { in_rooms } from './rooms.js';
@@ -715,4 +715,13 @@ export async function relobj(mtmp, show, is_pet, rawEnv = {}) {
     }
 
     if (show && cansee(omx, omy, state)) redraw(omx, omy, state);
+}
+
+// C ref: steal.c findgold() (45-52). Walk an object chain and return the
+// first gold-piece stack, or null if none is found.
+export function findgold(chain) {
+    let obj = chain;
+    while (obj && obj.otyp !== GOLD_PIECE)
+        obj = obj.nobj;
+    return obj ?? null;
 }

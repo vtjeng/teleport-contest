@@ -43,6 +43,7 @@ import {
 } from '../js/objects.js';
 import {
     blocking_terrain, lined_up, linedup, linedup_callback, m_lined_up,
+    m_has_launcher_and_ammo,
     m_useup, monshoot, m_throw, thitu, thrwmu,
 } from '../js/mthrowu.js';
 import { potionhit } from '../js/potion.js';
@@ -1127,4 +1128,58 @@ test('m_useup takes one potion from a stack and frees a lone one', async () => {
     // The last one: m_useupall() (mthrowu.c:1153-1158) extracts and frees it.
     m_useup(subject, potion, { state });
     assert.equal(subject.minvent, null);
+});
+
+// m_has_launcher_and_ammo tests: C ref: mthrowu.c:58-71.  Checks whether a
+// monster wields a launcher (mw) and has matching ammo in inventory.
+
+test('m_has_launcher_and_ammo returns true for bow with matching arrow',
+    async () => {
+        // BOW is the simplest launcher; ARROW is its matching ammo.
+        const state = await hero();
+        const bow = mksobj(BOW, false, false, { state });
+        const arrow = mksobj(ARROW, false, false, { state });
+        const mtmp = attacker(state, state.u.ux + 2, state.u.uy,
+            state.u.ux, state.u.uy);
+        mtmp.mw = bow;
+        arrow.nobj = null;
+        mtmp.minvent = arrow;
+
+        assert.equal(m_has_launcher_and_ammo(mtmp, state), true);
+    });
+
+test('m_has_launcher_and_ammo returns false when no ammo matches',
+    async () => {
+        // BOW with no ammo in inventory: the inventory walk finds nothing.
+        const state = await hero();
+        const bow = mksobj(BOW, false, false, { state });
+        const dagger = mksobj(ORCISH_DAGGER, false, false, { state });
+        const mtmp = attacker(state, state.u.ux + 2, state.u.uy,
+            state.u.ux, state.u.uy);
+        mtmp.mw = bow;
+        dagger.nobj = null;
+        mtmp.minvent = dagger;
+
+        assert.equal(m_has_launcher_and_ammo(mtmp, state), false);
+    });
+
+test('m_has_launcher_and_ammo returns false when mw is not a launcher',
+    async () => {
+        // A non-launcher wielded weapon: the is_launcher() gate fails.
+        const state = await hero();
+        const dagger = mksobj(ORCISH_DAGGER, false, false, { state });
+        const arrow = mksobj(ARROW, false, false, { state });
+        const mtmp = attacker(state, state.u.ux + 2, state.u.uy,
+            state.u.ux, state.u.uy);
+        mtmp.mw = dagger;
+        arrow.nobj = null;
+        mtmp.minvent = arrow;
+
+        assert.equal(m_has_launcher_and_ammo(mtmp, state), false);
+    });
+
+test('m_has_launcher_and_ammo returns false when mw is null', () => {
+    // No wielded weapon at all: the first guard fails.
+    const mtmp = { mw: null, minvent: null };
+    assert.equal(m_has_launcher_and_ammo(mtmp, game), false);
 });

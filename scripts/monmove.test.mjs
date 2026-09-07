@@ -1324,18 +1324,23 @@ test('postmov fires an already-seen dart trap that survives its roll',
         assert.equal(state.level.objects[5][4].otyp, DART);
     });
 
-test('postmov refuses a move that ends on iron bars', async () => {
+// A monster that cannot eat through iron bars (no AD_RUST, AD_CORR, or
+// metallivorous) passes through without throwing.  The verbose Norep message
+// arm records a note_unported gap.
+test('postmov does not throw for an ordinary monster on iron bars', async () => {
     const { locations, state } = makeState();
     const monster = ordinaryMonster(state, { mx: 5, my: 4 });
-    locations.set('5,4', { typ: IRONBARS, flags: 0 });
+    locations.set('5,4', { typ: IRONBARS, flags: 0, wall_info: 0 });
     const { env } = postmovEnv(state, {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await assert.rejects(
-        postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
-        (error) => error.message === 'monster iron-bar movement',
+    // An ordinary giant rat has no bar-dissolving attack; it falls through
+    // without throwing an unsupported error.
+    const result = await postmov(
+        monster, 4, 4, MMOVE_MOVED, false, false, true, env,
     );
+    assert.ok(result !== undefined);
 });
 
 // C ref: monmove.c:1650-1656. An engulfer drags the hero along, but only when

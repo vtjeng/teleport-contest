@@ -26,6 +26,7 @@ import { count_unpaid } from '../js/invent.js';
 import { AT_ENGL } from '../js/monsters.js';
 import { UnsupportedObjectNameError } from '../js/objnam.js';
 import {
+    findgold,
     mpickobj,
     preflight_mpickobj,
     relobj,
@@ -38,6 +39,7 @@ import {
     FIGURINE,
     FOOD_CLASS,
     GOLD_DRAGON_SCALE_MAIL,
+    GOLD_PIECE,
     OIL_LAMP,
     ORCISH_DAGGER,
     ORCISH_HELM,
@@ -1090,4 +1092,28 @@ test('Ring_gone for RIN_COLD_RESISTANCE (no-op type) clears mask only', () => {
 
     assert.equal(ring.owornmask, 0, 'owornmask cleared');
     assert.equal(s.uright, null, 'uright cleared');
+});
+
+// findgold tests: C ref: steal.c:45-52.  The function walks an inventory chain
+// and returns the first GOLD_PIECE object, or null when the chain has none.
+
+test('findgold returns the first GOLD_PIECE object in a chain', () => {
+    // A three-item chain where gold is in the middle exercises the walk past
+    // one non-gold item and the early return when gold is found.
+    const dagger = { otyp: ORCISH_DAGGER, nobj: null };
+    const gold = { otyp: GOLD_PIECE, nobj: dagger };
+    const apple = { otyp: APPLE, nobj: gold };
+    assert.equal(findgold(apple), gold);
+});
+
+test('findgold returns null when the chain has no GOLD_PIECE', () => {
+    // A two-item chain with no gold exercises the full walk to the end.
+    const dagger = { otyp: ORCISH_DAGGER, nobj: null };
+    const apple = { otyp: APPLE, nobj: dagger };
+    assert.equal(findgold(apple), null);
+});
+
+test('findgold returns null for a null chain', () => {
+    // Covers the entry guard: an empty inventory (null) returns null.
+    assert.equal(findgold(null), null);
 });

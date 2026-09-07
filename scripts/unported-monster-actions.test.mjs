@@ -2103,28 +2103,7 @@ test('simple preflight rejects every selected excluded action atomically',
                     return target;
                 },
             },
-            {
-                name: 'monster aggression',
-                reason: 'ordinary monster aggression',
-                prepare: async () => {
-                    const target = await prepareSelectedAction({
-                        pmidx: PM_PURPLE_WORM,
-                    });
-                    const defender = ordinaryMonster(
-                        PM_SHRIEKER,
-                        target.destinationX,
-                        target.heroY,
-                        {
-                            m_id: 9002,
-                            movement: 0,
-                        },
-                    );
-                    target.monster.nmon = defender;
-                    game.level.monsters[target.destinationX][target.heroY]
-                        = defender;
-                    return target;
-                },
-            },
+            // monster aggression case removed: m_move_aggress() is now ported
             {
                 name: 'monster displacement',
                 reason: 'ordinary monster displacement',
