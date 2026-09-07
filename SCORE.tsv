@@ -717,3 +717,5 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-07T06:08:27.101Z	9ef06b8f	span	24	33	5015	7765	343137	610816							doinvoke..Sting_effects closes. +38 screens, +61 rng. artifact.c 48/76. Recordings 6/6 (188/188).
 2026-09-07T06:50:55.849Z	72a2f782	span	24	33	5015	7765	343137	610816							retouch_object..is_art closes. artifact.c 55/76.
 2026-09-07T07:31:50.384Z	9ecf3057	span	24	33	5015	7765	343137	610816							save_artifacts..Mb_hit closes. artifact.c 75/76. Recordings 6/6 (188/188).
+2026-09-07T08:20:16.013Z	5e019e52	span	24	33	5085	7765	344412	610816							artifact_hit closes. +70 screens, +1275 rng. artifact.c 76/76. Recordings 7/7 (225/225).
+2026-09-07T08:20:39.320Z	5e019e52	goal	24	33	5085	7765	344412	610816			315	3640	38930	182022	artifact-c closes. All 76 functions ported across 4 spans. +108 screens, +1336 rng over goal. Holdout 315/3640 screens, 38930/182022 rng.

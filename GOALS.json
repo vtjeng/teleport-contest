@@ -11306,7 +11306,7 @@
     {
       "id": "artifact-c",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port artifact.c whole in C order, starting from doinvoke()",
       "cFile": "artifact.c",
       "sessions": [
@@ -11390,8 +11390,8 @@
         },
         {
           "name": "artifact_hit",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "5e019e5268693d74e7969a52f95c531c5b722ef0",
           "functions": [
             "artifact_hit"
           ]
@@ -11403,8 +11403,11 @@
         "screens": 4977,
         "rng": 343076
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5e019e5268693d74e7969a52f95c531c5b722ef0",
+      "delivered": {
+        "screens": 108,
+        "rng": 1336
+      },
       "functions": [
         {
           "name": "hack_artifacts",
@@ -11626,7 +11629,7 @@
           "name": "artifact_hit",
           "line": 1447,
           "endLine": 1726,
-          "ported": false
+          "ported": true
         },
         {
           "name": "invoke_ok",
