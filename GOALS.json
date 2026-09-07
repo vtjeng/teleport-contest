@@ -12341,7 +12341,7 @@
     {
       "id": "mthrowu-c",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mthrowu.c whole in C order",
       "cFile": "mthrowu.c",
       "sessions": [
@@ -12381,8 +12381,11 @@
         "screens": 4707,
         "rng": 321679
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5fab86296319449362dbb57adc8bbe872ff31fab",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "rnd_hallublast",

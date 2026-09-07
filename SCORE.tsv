@@ -727,3 +727,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-07T14:48:15.454Z	b4eae321	goal	24	33	4707	7765	321679	610816			315	3640	38930	182022	monmove-c closes. 52 functions, 3 spans. Holdout 315/3640 screens, 38930/182022 rng.
 2026-09-07T15:38:45.863Z	64eb2dc1	span	24	33	4707	7765	321679	610816							return_from_mtoss..hits_bars closes. mthrowu.c span 1, 9 functions.
 2026-09-07T16:10:15.012Z	69ede816	span	24	33	4707	7765	321679	610816							ohitmon..ucatchgem closes. mthrowu.c final span, 2 functions + omon_adj callee.
+2026-09-07T17:08:00.310Z	5fab8629	goal	24	33	4707	7765	321679	610816			315	3640	38930	182022	mthrowu-c closes. 28 functions, 2 spans. Holdout 315/3640 screens, 38930/182022 rng.
