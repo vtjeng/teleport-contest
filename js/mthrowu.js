@@ -1,17 +1,15 @@
 // mthrowu.js -- Monster ranged attacks and hero-is-hit-by-missile logic.
 //
-// C ref: mthrowu.c. This file holds thitu() (75-155, hero hit by non-monster
-// missile), thrwmu()'s ordinary single-shot path (1174-1263), monmulti()'s
-// quantity-one result (201-259), monshoot()'s visible and unseen announcement
-// arms (262-314), m_throw()'s ordinary quantity-one hit and drop settlement
-// (572-844) together with the POTION_CLASS arm (698-701) that muse.c
-// use_offensive() reaches, and the
-// line-of-fire tests every ranged monster action asks before it acts:
-// blocking_terrain() (1281-1288), linedup() (1330-1372),
-// m_lined_up() (1375-1394) and lined_up() (1397-1401).
-// Polearm and returning-weapon attacks, multishot, alternate
-// m_throw() flight outcomes, breamu(), and spitmu() remain behind
-// js/unported_monster_actions.js.
+// C ref: mthrowu.c. This file holds every function from mthrowu.c:
+// rnd_hallublast (50-55), m_has_launcher_and_ammo (57-71), thitu (75-155),
+// drop_throw (162-196), monmulti (201-259), monshoot (262-314),
+// u_catch_thrown_obj (531-549 partial), m_throw (572-844),
+// return_from_mtoss (850-965), thrwmm (968-1012), spitmm (1014-1077),
+// breathwep_name (1082-1089), breamm (1091-1150), m_useupall (1153-1158),
+// m_useup (1160-1170), thrwmu (1174-1263), spitmu (1265-1271),
+// breamu (1273-1278), blocking_terrain (1281-1288), linedup_callback
+// (1295-1328), linedup (1330-1372), m_lined_up (1375-1394),
+// lined_up (1397-1401), hit_bars (1417-1495), hits_bars (1498-1559).
 
 import {
     A_CON,
@@ -19,11 +17,18 @@ import {
     A_STR,
     BLINDED,
     BOLT_LIM,
+    BZ_M_BREATH,
+    BZ_OFS_AD,
+    BZ_VALID_ADTYP,
     CONFUSION,
+    DEAF,
     DISP_END,
     DISP_FLASH,
+    EDOG,
     FUMBLING,
     HALF_PHDAM,
+    HALLUC,
+    HALLUC_RES,
     IRONBARS,
     IS_OBSTRUCTED,
     IS_SINK,
@@ -34,47 +39,99 @@ import {
     M_AP_MONSTER,
     M_AP_NOTHING,
     M_AP_TYPE,
+    M_ATTK_HIT,
+    M_ATTK_MISS,
+    M_SEEN_REFL,
     Upolyd,
     NEED_RANGED_WEAPON,
     NEED_WEAPON,
+    PET_MISSILE_RANGE2,
     POTHIT_MONST_THROW,
     P_BOW,
+    P_CROSSBOW,
+    P_DART,
+    P_KNIFE,
+    P_SHURIKEN,
+    P_SPEAR,
+    BRK_BY_HERO,
+    BRK_MELEE,
+    SLEEP_RES,
     SLT_ENCUMBER,
     STUNNED,
+    W_NONDIGGABLE,
+    W_WEP,
+    WT_IRON_BALL_INCR,
     isok,
     u_at,
 } from './const.js';
-import { acurr } from './attrib.js';
+import { acurr, acurrstr } from './attrib.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { calc_capacity } from './hack.js';
-import { distmin, sgn, upstart } from './hacklib.js';
-import { hands_obj, obfree } from './invent.js';
+import { calc_capacity, nomul } from './hack.js';
+import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
+import { hands_obj, obfree, obj_extract_self, stackobj, add_to_minv } from './invent.js';
 import { m_carrying } from './mon.js';
-import { bigmonst, is_elf, nohands, throws_rocks } from './mondata.js';
-import { PM_MONK, PM_ROGUE } from './monsters.js';
+import { bigmonst, cvt_adtyp_to_mseenres, get_atkdam_type, is_elf, mhis, nohands, throws_rocks } from './mondata.js';
+import { AD_ACID, AD_BLND, AD_DRST, AD_SLEE, MZ_TINY, PM_MONK, PM_ROGUE } from './monsters.js';
 // closed_door() belongs to monmove.c, and js/monmove.js imports lined_up()
 // back for m_move()'s item search. Both sides of that cycle are hoisted
 // function declarations, which an ES module cycle initializes before either
 // module body runs; nothing here reads the import at module scope.
 import { closed_door } from './monmove.js';
-import { ammo_and_launcher, is_launcher, objectType, sobj_at, weight } from './obj.js';
+import {
+    ammo_and_launcher,
+    is_flammable,
+    is_flimsy,
+    is_launcher,
+    mksobj,
+    objectType,
+    place_object,
+    sobj_at,
+    weight,
+} from './obj.js';
 import {
     ACID_VENOM,
     AKLYS,
+    ARMOR_CLASS,
+    ARM_GLOVES,
+    BALL_CLASS,
     BLINDING_VENOM,
     BOULDER,
+    CHAIN_CLASS,
+    COIN_CLASS,
+    CORPSE,
     CREAM_PIE,
+    CREDIT_CARD,
     EGG,
+    ENORMOUS_MEATBALL,
+    FOOD_CLASS,
     GEM_CLASS,
+    GOLD,
+    HEAVY_IRON_BALL,
+    LENSES,
+    LOCK_PICK,
+    MAGIC_WHISTLE,
+    MEAT_STICK,
     POTION_CLASS,
+    POT_ACID,
+    ROCK_CLASS,
     SILVER,
+    SKELETON_KEY,
+    SPBOOK_CLASS,
+    STATUE,
     STRANGE_OBJECT,
+    TALLOW_CANDLE,
+    TIN_WHISTLE,
+    TOOL_CLASS,
     VENOM_CLASS,
     WAN_STRIKING,
+    WAND_CLASS,
+    WAR_HAMMER,
+    WAX_CANDLE,
     WEAPON_CLASS,
 } from './objects.js';
 import {
+    Tobjnam,
     an,
     killer_xname,
     mshot_xname,
@@ -85,10 +142,83 @@ import {
     xnameFresh,
 } from './objnam.js';
 import { rn2, rnd } from './rng.js';
-import { clear_path, couldsee } from './vision.js';
+import { note_unported } from './unported.js';
+import { cansee, canseemon, clear_path, couldsee } from './vision.js';
 import { mon_wield_item, select_rwep } from './weapon.js';
 import { extract_from_minvent, is_pole } from './worn.js';
 import { exclam } from './zap.js';
+import { harmless_missile, shipsAway } from './dothrow.js';
+import { is_lava, is_pool } from './trap.js';
+import { obj_sheds_light } from './light.js';
+import { capitalizedMonsterName, monsterCommonName, some_mon_nam } from './do_name.js';
+import { makeplural } from './fruit.js';
+import { body_part, mbodypart } from './polyself.js';
+import { flooreffects } from './do.js';
+
+/* C ref: mthrowu.c:24-28. Breath weapon names indexed by BZ_OFS_AD(typ).
+ * Keep consistent with breath weapons in zap.c, and AD_* in monattk.h. */
+const breathwep = [
+    'fragments', 'fire', 'frost', 'sleep gas', 'a disintegration blast',
+    'lightning', 'poison gas', 'acid', 'strange breath #8',
+    'strange breath #9',
+];
+
+/* C ref: mthrowu.c:31-48. Hallucinatory blast types for rnd_hallublast(). */
+const hallublasts = [
+    'asteroids', 'beads', 'bubbles', 'butterflies', 'champagne', 'chaos',
+    'coins', 'cotton candy', 'crumbs', 'dark matter', 'darkness', 'data',
+    'dust specks', 'emoticons', 'emotions', 'entropy', 'flowers', 'foam',
+    'fog', 'gamma rays', 'gelatin', 'gemstones', 'ghosts', 'glass shards',
+    'glitter', 'good vibes', 'gravel', 'gravity', 'gravy', 'grawlixes',
+    'holy light', 'hornets', 'hot air', 'hyphens', 'hypnosis', 'infrared',
+    'insects', 'jargon', 'laser beams', 'leaves', 'lightening', 'logic gates',
+    'magma', 'marbles', 'mathematics', 'megabytes', 'metal shavings',
+    'metapatterns', 'meteors', 'mist', 'mud', 'music', 'nanites', 'needles',
+    'noise', 'nostalgia', 'oil', 'paint', 'photons', 'pixels', 'plasma',
+    'polarity', 'powder', 'powerups', 'prismatic light', 'pure logic',
+    'purple', 'radio waves', 'rainbows', 'rock music', 'rocket fuel', 'rope',
+    'sadness', 'salt', 'sand', 'scrolls', 'sludge', 'smileys', 'snowflakes',
+    'sparkles', 'specularity', 'spores', 'stars', 'steam', 'tetrahedrons',
+    'text', 'the past', 'tornadoes', 'toxic waste', 'ultraviolet light',
+    'viruses', 'water', 'waveforms', 'wind', 'X-rays', 'zorkmids',
+];
+
+// C ref: mthrowu.c rnd_hallublast() (50-55). Return a random hallucinatory
+// blast name. Uses the gameplay RNG (ROLL_FROM macro).
+export function rnd_hallublast(random = { rn2 }) {
+    return hallublasts[random.rn2(hallublasts.length)];
+}
+
+// ---- Module-local hero-property helpers ----
+// Each C port file defines these locally; see the pattern in js/mcastu.js.
+function heroProperty(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+function Hallucination(state) {
+    return heroProperty(state, HALLUC)
+        && !heroProperty(state, HALLUC_RES);
+}
+
+function Deaf(state) {
+    return heroProperty(state, DEAF) || Boolean(state.u?.uroleplay?.deaf);
+}
+
+function Sleep_resistance(state) {
+    return heroProperty(state, SLEEP_RES);
+}
+
+// C ref: mondata.h mdistu(). Distance-squared from the hero to a monster.
+function mdistu(mon, state) {
+    return dist2(state.u.ux, state.u.uy, mon.mx, mon.my);
+}
+
+// C ref: mondata.h m_seenres(). Check whether the monster has seen a
+// particular resistance type.
+function m_seenres(mtmp, mask) {
+    return (mtmp.seen_resistance & mask) !== 0;
+}
 
 // C ref: mthrowu.c blocking_terrain() (1281-1288). "return TRUE if terrain at
 // x,y blocks linedup checks".
@@ -396,13 +526,21 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
 
     const nextX = state.gb.bhitpos.x + dx;
     const nextY = state.gb.bhitpos.y + dy;
-    if (!isok(nextX, nextY))
-        return refuseRanged(env, 'blocked monster missile terrain');
-    const nextLocation = state.level.at(nextX, nextY);
-    if (IS_OBSTRUCTED(nextLocation.typ)
+    const singleobj_ref = { obj: singleobj };
+    // C ref: MT_FLIGHTCHECK(TRUE, 0) — pre-flight check before the loop.
+    if (!isok(nextX, nextY)
+        || IS_OBSTRUCTED(state.level.at(nextX, nextY).typ)
         || closed_door(nextX, nextY, state)
-        || nextLocation.typ === IRONBARS) {
-        return refuseRanged(env, 'blocked monster missile terrain');
+        || (state.level.at(nextX, nextY).typ === IRONBARS
+            && hits_bars(singleobj_ref,
+                         state.gb.bhitpos.x, state.gb.bhitpos.y,
+                         nextX, nextY, 0, 0, state, random))) {
+        if (singleobj_ref.obj) {
+            await drop_throw(singleobj_ref.obj, 0,
+                             state.gb.bhitpos.x, state.gb.bhitpos.y, env);
+        }
+        state.gt.thrownobj = null;
+        return 0;
     }
     state.mesg_given = 0;
     await temporaryDisplay(
@@ -410,6 +548,11 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         objectToGlyph(singleobj, state),
         state,
     );
+
+    // C: autoreturn_weapon and tethered_weapon handling. Currently blocked
+    // by the oartifact refusal above; included for structural fidelity.
+    const tethered_weapon = false;
+    let return_flightpath = false;
 
     let hit = false;
     // C leaves the loop by `break` from three arms; two are ported. The weapon
@@ -467,13 +610,17 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             hit = Boolean(await hitHero(hitv, damage, singleobj, env));
             await stopOccupation(state, env);
             if (hit) {
-                await drop_throw(
-                    singleobj,
-                    true,
-                    state.u.ux,
-                    state.u.uy,
-                    env,
-                );
+                if (!tethered_weapon) {
+                    await drop_throw(
+                        singleobj,
+                        true,
+                        state.u.ux,
+                        state.u.uy,
+                        env,
+                    );
+                } else {
+                    return_flightpath = true;
+                }
                 settled = true;
                 break;
             }
@@ -482,10 +629,10 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             // does NOT break; the missile keeps going.
         }
 
-        random.rn2(5); /* forcehit, consumed even without iron bars */
-        // C ref: mthrowu.c:798-822. End of flight: range expired,
-        // edge of map, terrain blocked, or sank. Drop the missile
-        // at its current position.
+        const forcehit = !random.rn2(5);
+        // C ref: mthrowu.c:798-822, MT_FLIGHTCHECK(FALSE, forcehit).
+        // End of flight: range expired, edge of map, terrain blocked,
+        // iron bars (via hits_bars), or sank.
         const nextFlightX = state.gb.bhitpos.x + dx;
         const nextFlightY = state.gb.bhitpos.y + dy;
         let flightEnded = !range;
@@ -496,7 +643,11 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 const location = state.level.at(nextFlightX, nextFlightY);
                 if (IS_OBSTRUCTED(location.typ)
                     || closed_door(nextFlightX, nextFlightY, state)
-                    || location.typ === IRONBARS
+                    || (location.typ === IRONBARS
+                        && hits_bars(singleobj_ref,
+                                     state.gb.bhitpos.x, state.gb.bhitpos.y,
+                                     nextFlightX, nextFlightY,
+                                     forcehit ? 1 : 0, 0, state, random))
                     || IS_SINK(state.level.at(
                         state.gb.bhitpos.x,
                         state.gb.bhitpos.y,
@@ -506,11 +657,30 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             }
         }
         if (flightEnded) {
-            // Sink and multishot-miss messages are gated on
-            // conditions this port does not yet reach (multishot >1,
-            // hallucination sink verb). Drop the missile silently.
-            await drop_throw(singleobj, 0,
-                state.gb.bhitpos.x, state.gb.bhitpos.y, env);
+            if (singleobj_ref.obj) { /* hits_bars might have destroyed it */
+                // C ref: mthrowu.c:800-821.
+                if (range && cansee(state.gb.bhitpos.x, state.gb.bhitpos.y)
+                    && IS_SINK(state.level.at(
+                        state.gb.bhitpos.x,
+                        state.gb.bhitpos.y,
+                    ).typ)) {
+                    note_unported('pline.c pline'); /* sink plop/drop message */
+                } else if ((state.m_shot?.n ?? 0) > 1
+                           && (!state.mesg_given
+                               || state.gb.bhitpos.x !== state.u.ux
+                               || state.gb.bhitpos.y !== state.u.uy)
+                           && (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y)
+                               || (state.gm?.marcher
+                                   && canseemon(state.gm.marcher, state)))) {
+                    note_unported('pline.c pline'); /* "%s misses." */
+                }
+                if (!tethered_weapon) {
+                    await drop_throw(singleobj_ref.obj, 0,
+                        state.gb.bhitpos.x, state.gb.bhitpos.y, env);
+                } else {
+                    return_flightpath = true;
+                }
+            }
             settled = true;
             break;
         }
@@ -526,10 +696,316 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         return refuseRanged(env, 'monster missile without settlement');
     await temporaryDisplay(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
     await delayOutput(state);
-    await temporaryDisplay(DISP_END, 0, state);
+    if (return_flightpath) {
+        return_from_mtoss(monster, singleobj, tethered_weapon, state, random);
+        // monster could be DEADMONSTER now
+    } else {
+        await temporaryDisplay(DISP_END, 0, state);
+    }
     state.mesg_given = 0;
     state.gt.thrownobj = null;
     return 0;
+}
+
+// C ref: mthrowu.c return_from_mtoss() (850-965). Cleanup after a monster's
+// throw of a returning weapon (Aklys / Mjollnir). Handles the return flight
+// animation, the message, re-equipping the weapon, and the case where the
+// return goes wrong (weapon hits thrower or drops).
+export function return_from_mtoss(magr, otmp, tethered_weapon, state = game, random = { rn2, rnd }) {
+    const impaired = (magr.mconf || magr.mstun || magr.mblinded);
+    let notcaught = false;
+    let hits_thrower_flag = false;
+    let x = state.gb.bhitpos.x;
+    let y = state.gb.bhitpos.y;
+    const made_it_back = random.rn2(100);
+    let dmg = 0;
+
+    if (otmp && made_it_back) {
+        /* it made it back to thrower's location */
+        if (tethered_weapon) {
+            note_unported('display.c tmp_at'); /* tmp_at(DISP_END, BACKTRACK) */
+        } else {
+            // Return flight animation (display only, no game state)
+            note_unported('display.c tmp_at'); /* return flight animation */
+        }
+        x = magr.mx;
+        y = magr.my;
+        if (!impaired && random.rn2(100)) {
+            /* Weapon returns successfully to the thrower's hand. */
+            /* C: pline("%s to %s %s!", ...) -- message skipped */
+            note_unported('pline.c pline'); /* return-to-hand message */
+            if (otmp) {
+                add_to_minv(magr, otmp, { state });
+                if (tethered_weapon) {
+                    magr.mw = otmp;
+                    otmp.owornmask |= W_WEP;
+                }
+            }
+            if (cansee(x, y, state))
+                note_unported('display.c newsym');
+        } else {
+            /* Weapon return fumbled. */
+            dmg = random.rn2(2);
+            if (!dmg) {
+                /* Lands at feet. */
+                if (canseemon(magr, state)) {
+                    note_unported('pline.c pline'); /* lands-at-feet message */
+                } else if (!Deaf(state)) {
+                    note_unported('pline.c pline'); /* You_hear land message */
+                }
+            } else {
+                /* Hits thrower's arm. */
+                dmg += random.rnd(3);
+                if (canseemon(magr, state)) {
+                    note_unported('pline.c pline'); /* hits-arm message */
+                } else if (!Deaf(state)) {
+                    note_unported('pline.c pline'); /* You_hear thud message */
+                }
+                hits_thrower_flag = true;
+            }
+            notcaught = true;
+        }
+    } else {
+        /* it didn't make it back to thrower's location */
+        if (tethered_weapon)
+            note_unported('display.c tmp_at'); /* tmp_at(DISP_END, 0) */
+        note_unported('pline.c pline'); /* "You hear a loud snap!" */
+        notcaught = true;
+    }
+    if (otmp) {
+        if (hits_thrower_flag) {
+            note_unported('artifact.c artifact_hit'); /* (void) artifact_hit() */
+            magr.mhp -= dmg;
+            if (magr.mhp < 1) /* DEADMONSTER */
+                note_unported('mon.c monkilled');
+        }
+        if (notcaught) {
+            note_unported('apply.c snuff_candle'); /* (void) snuff_candle() */
+            if (shipsAway(x, y, state)) {
+                // C calls ship_object() whose result is used in a condition.
+                // ship_object returns FALSE when there is no down gate, which
+                // shipsAway tests for. When there IS a down gate, we skip the
+                // full shipping logic.
+                note_unported('dokick.c ship_object');
+            } else {
+                if (flooreffects(otmp, x, y, 'drop', { state })) {
+                    if (cansee(x, y, state))
+                        note_unported('display.c newsym');
+                    return;
+                }
+                place_object(otmp, x, y, { state });
+                stackobj(otmp, { state });
+            }
+            if (!Deaf(state) && !state.u?.uinwater) {
+                if (is_pool(x, y, state)
+                    || (is_lava(x, y, state) && !is_flammable(otmp, state))) {
+                    note_unported('pline.c pline'); /* Splash!/Plop! */
+                }
+            }
+            if (obj_sheds_light(otmp)) {
+                state.gv = state.gv ?? {};
+                state.gv.vision_full_recalc = 1;
+            }
+        }
+    }
+    if (cansee(x, y, state))
+        note_unported('display.c newsym');
+}
+
+// C ref: mthrowu.c thrwmm() (968-1012). Monster throws item at another
+// monster. Returns M_ATTK_HIT or M_ATTK_MISS.
+export async function thrwmm(mtmp, mtarg, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const env = { ...rawEnv, state, random };
+
+    /* Polearms won't be applied by monsters against other monsters */
+    if (mtmp.weapon_check === NEED_WEAPON || !mtmp.mw) {
+        mtmp.weapon_check = NEED_RANGED_WEAPON;
+        /* mon_wield_item resets weapon_check as appropriate */
+        if (await mon_wield_item(mtmp, {
+            ...env,
+            handsObject: hands_obj,
+            selectRangedWeapon: (subject, selectionEnv) => {
+                const propellorResult = {};
+                select_rwep(subject, {
+                    ...selectionEnv,
+                    propellorResult,
+                });
+                return propellorResult.value;
+            },
+        }) !== 0)
+            return M_ATTK_MISS;
+    }
+
+    /* Pick a weapon */
+    const otmp = select_rwep(mtmp, env);
+    if (!otmp)
+        return M_ATTK_MISS;
+    const ispole = is_pole(otmp, state);
+
+    const x = mtmp.mx;
+    const y = mtmp.my;
+
+    const mwep = mtmp.mw ?? null; /* wielded weapon */
+
+    if (!ispole && m_lined_up(mtarg, mtmp, { state, random })) {
+        const chance = Math.max(BOLT_LIM - distmin(x, y, mtarg.mx, mtarg.my), 1);
+
+        if (!mtarg.mflee || !random.rn2(chance)) {
+            if (ammo_and_launcher(otmp, mwep, state)
+                && dist2(mtmp.mx, mtmp.my, mtarg.mx, mtarg.my)
+                   > PET_MISSILE_RANGE2)
+                return M_ATTK_MISS; /* Out of range */
+            /* Set target monster */
+            state.gm ??= {};
+            state.gm.mtarget = mtarg;
+            state.gm.marcher = mtmp;
+            await monshoot(mtmp, otmp, mwep, env);
+            state.gm.marcher = null;
+            state.gm.mtarget = null;
+            nomul(0, state);
+            return M_ATTK_HIT;
+        }
+    }
+    return M_ATTK_MISS;
+}
+
+// C ref: mthrowu.c spitmm() (1014-1077). Monster spits substance at monster.
+// Returns M_ATTK_HIT or M_ATTK_MISS.
+export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2, rnd };
+    const env = { ...rawEnv, state, random };
+
+    if (mtmp.mcan) {
+        if (!Deaf(state) && mdistu(mtmp, state) < BOLT_LIM * BOLT_LIM) {
+            if (canseemon(mtmp, state)) {
+                note_unported('pline.c pline'); /* "A dry rattle comes from %s throat." */
+            } else {
+                note_unported('pline.c pline'); /* You_hear "a dry rattle nearby." */
+            }
+        }
+        return M_ATTK_MISS;
+    }
+    if (m_lined_up(mtarg, mtmp, { state, random })) {
+        const utarg = (mtarg === state.youmonst);
+        const tx = utarg ? mtmp.mux : mtarg.mx;
+        const ty = utarg ? mtmp.muy : mtarg.my;
+
+        let otmp;
+        switch (mattk.adtyp) {
+        case AD_BLND:
+        case AD_DRST:
+            otmp = mksobj(BLINDING_VENOM, true, false, { state, random });
+            break;
+        default:
+            /* C: impossible("bad attack type in spitmm"); FALLTHROUGH */
+        case AD_ACID:
+            otmp = mksobj(ACID_VENOM, true, false, { state, random });
+            break;
+        }
+        if (!random.rn2(BOLT_LIM - distmin(mtmp.mx, mtmp.my, tx, ty))) {
+            if (canseemon(mtmp, state))
+                note_unported('pline.c pline'); /* "%s spits venom!" */
+            if (!utarg) {
+                state.gm ??= {};
+                state.gm.mtarget = mtarg;
+            }
+            await m_throw(mtmp, mtmp.mx, mtmp.my, sgn(state.gt.tbx), sgn(state.gt.tby),
+                    distmin(mtmp.mx, mtmp.my, tx, ty), otmp, env);
+            state.gm ??= {};
+            state.gm.mtarget = null;
+            nomul(0, state);
+
+            /* If this is a pet, it'll get hungry. Minions and
+             * spell beings won't hunger */
+            if (mtmp.mtame && !mtmp.isminion) {
+                const dog = EDOG(mtmp);
+                /* Hunger effects will catch up next move */
+                if (dog && dog.hungrytime > 1)
+                    dog.hungrytime -= 5;
+            }
+
+            return M_ATTK_HIT;
+        } else {
+            obj_extract_self(otmp, { state });
+            obfree(otmp, null, { state });
+        }
+    }
+    return M_ATTK_MISS;
+}
+
+// C ref: mthrowu.c breathwep_name() (1082-1089). Return the name of a breath
+// weapon. If the player is hallucinating, return a silly name instead.
+// typ is AD_MAGM, AD_FIRE, etc.
+function breathwep_name(typ, state = game, random = { rn2 }) {
+    if (Hallucination(state))
+        return rnd_hallublast(random);
+    return breathwep[BZ_OFS_AD(typ)];
+}
+
+// C ref: mthrowu.c breamm() (1091-1150). Monster breathes at monster (ranged).
+// Returns M_ATTK_HIT or M_ATTK_MISS.
+export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2, rnd };
+    const env = { ...rawEnv, state, random };
+
+    const typ = get_atkdam_type(mattk.adtyp, random);
+    const utarget = (mtarg === state.youmonst);
+
+    if (m_lined_up(mtarg, mtmp, { state, random })) {
+        if (mtmp.mcan) {
+            if (!Deaf(state)) {
+                if (canseemon(mtmp, state)) {
+                    note_unported('pline.c pline'); /* "%s coughs." */
+                } else {
+                    note_unported('pline.c pline'); /* You_hear "a cough." */
+                }
+            }
+            return M_ATTK_MISS;
+        }
+
+        /* if we've seen the actual resistance, don't bother, or
+           if we're close by and they reflect, just jump the player */
+        if (utarget && (m_seenres(mtmp, cvt_adtyp_to_mseenres(typ))
+                        || m_seenres(mtmp, M_SEEN_REFL)))
+            return M_ATTK_HIT;
+
+        if (!mtmp.mspec_used && random.rn2(3)) {
+            if (BZ_VALID_ADTYP(typ)) {
+                if (canseemon(mtmp, state))
+                    note_unported('pline.c pline'); /* "%s breathes %s!" */
+                state.gb ??= {};
+                state.gb.buzzer = mtmp;
+                // dobuzz() is void in C. The beam animation, damage, and side
+                // effects are all inside dobuzz; skipping it means the breath
+                // attack produces no effect beyond the RNG draws already made.
+                note_unported('zap.c dobuzz');
+                state.gb.buzzer = null;
+                nomul(0, state);
+                /* breath runs out sometimes. Also, give monster some
+                 * cunning; don't breath if the target fell asleep. */
+                if (!utarget || !random.rn2(3))
+                    mtmp.mspec_used = 8 + random.rn2(18);
+                if (utarget && typ === AD_SLEE && !Sleep_resistance(state))
+                    mtmp.mspec_used += random.rnd(20);
+
+                /* If this is a pet, it'll get hungry. Minions and
+                 * spell beings won't hunger */
+                if (mtmp.mtame && !mtmp.isminion) {
+                    const dog = EDOG(mtmp);
+                    /* Hunger effects will catch up next move */
+                    if (dog && dog.hungrytime >= 10)
+                        dog.hungrytime -= 10;
+                }
+            } /* else impossible("Breath weapon %d used", typ-1); */
+        } else {
+            return M_ATTK_MISS;
+        }
+    }
+    return M_ATTK_HIT;
 }
 
 // C ref: mthrowu.c monshoot() (262-314). When the hero can see the throwing
@@ -540,33 +1016,35 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
 export async function monshoot(monster, missile, launcher, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
-    const target = env.monsterTarget ?? null;
-    if (target)
-        return refuseRanged(env, 'monster ranged attack on another monster');
-
+    const mtarg = state.gm?.mtarget ?? null;
     const range = distmin(
         monster.mx,
         monster.my,
-        monster.mux,
-        monster.muy,
+        mtarg ? mtarg.mx : monster.mux,
+        mtarg ? mtarg.my : monster.muy,
     );
     const multishot = monmulti(monster, missile, launcher, env);
     state.m_shot ??= {};
     const canSeeMonster = requireRangedOperation(env, 'canSeeMonster');
     if (canSeeMonster(monster, state)) {
         // Visible arm: announce the throw and record the missile type.
-        if (ammo_and_launcher(missile, launcher, state))
-            return refuseRanged(env, 'monster ranged launcher action');
-        if (obj_is_pname(missile, state))
-            return refuseRanged(env, 'named monster missile announcement');
-
-        const singleName = singular(missile, xnameFresh, state);
-        const objectName = an(singleName);
-        state.m_shot.s = false;
+        let onm;
+        if (multishot > 1) {
+            // "N arrows"; multishot > 1 implies otmp->quan > 1, so
+            // xname()'s result will already be pluralized.
+            onm = `${multishot} ${xnameFresh(missile, state)}`;
+        } else {
+            // "an arrow"
+            const singleName = singular(missile, xnameFresh, state);
+            onm = obj_is_pname(missile, state) ? the(singleName, state) : an(singleName);
+        }
+        state.m_shot.s = ammo_and_launcher(missile, launcher, state) ? true : false;
+        const trgbuf = mtarg ? some_mon_nam(mtarg, state) : '';
+        note_unported('pline.c set_msg_xy'); /* set_msg_xy(mtmp->mx, mtmp->my) */
         const monsterName = requireRangedOperation(env, 'monsterName');
         const message = requireRangedOperation(env, 'message');
         await message(
-            `${monsterName(monster, state)} throws ${objectName}!`,
+            `${monsterName(monster, state)} ${state.m_shot.s ? 'shoots' : 'throws'} ${onm}${mtarg ? ' at ' : ''}${trgbuf}!`,
             state,
         );
         state.m_shot.o = missile.otyp;
@@ -575,19 +1053,23 @@ export async function monshoot(monster, missile, launcher, rawEnv = {}) {
         state.m_shot.o = STRANGE_OBJECT;
     }
     state.m_shot.n = multishot;
-    state.m_shot.i = 1;
-
     const throwMissile = requireRangedOperation(env, 'throwMissile');
-    await throwMissile(
-        monster,
-        monster.mx,
-        monster.my,
-        sgn(monster.mux - monster.mx),
-        sgn(monster.muy - monster.my),
-        range,
-        missile,
-        env,
-    );
+    for (state.m_shot.i = 1; state.m_shot.i <= state.m_shot.n; state.m_shot.i++) {
+        await throwMissile(
+            monster,
+            monster.mx,
+            monster.my,
+            sgn(state.gt.tbx),
+            sgn(state.gt.tby),
+            range,
+            missile,
+            env,
+        );
+        // Conceptually all N missiles are in flight at once, but if mtmp
+        // gets killed, cancel pending shots.
+        if (monster.mhp < 1 /* DEADMONSTER */ && state.m_shot.i < state.m_shot.n)
+            break;
+    }
     state.m_shot.n = 0;
     state.m_shot.i = 0;
     state.m_shot.o = STRANGE_OBJECT;
@@ -680,6 +1162,20 @@ export async function thrwmu(monster, rawEnv = {}) {
     await monshoot(monster, selected, monster.mw, env);
     endMulti(0, state);
     return 0;
+}
+
+// C ref: mthrowu.c spitmu() (1265-1271). Monster spits at the hero.
+// Trivial wrapper: calls spitmm with youmonst as the target.
+export async function spitmu(mtmp, mattk, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    return spitmm(mtmp, mattk, state.youmonst, rawEnv);
+}
+
+// C ref: mthrowu.c breamu() (1273-1278). Monster breathes at the hero.
+// Trivial wrapper: calls breamm with youmonst as the target.
+export async function breamu(mtmp, mattk, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    return breamm(mtmp, mattk, state.youmonst, rawEnv);
 }
 
 // C ref: mthrowu.c thitu() (75-155). "hero is hit by something other than a
@@ -802,4 +1298,146 @@ export function m_has_launcher_and_ammo(mtmp, state = game) {
         }
     }
     return false;
+}
+
+// C ref: mthrowu.c hit_bars() (1417-1495). Resolve a projectile hitting iron
+// bars: it might break against the bars (dissolving them if acid), or bounce
+// off with a sound effect, or break the bars when the hero hammers them.
+// *objp is set to null if the object breaks.
+export function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, state = game, random = { rn2 }) {
+    const otmp = objRef.obj;
+    const obj_type = otmp.otyp;
+    const location = state.level.at(barsx, barsy);
+    const nodissolve = (location.wall_info & W_NONDIGGABLE) !== 0;
+    const your_fault = (breakflags & BRK_BY_HERO) !== 0;
+    const melee_attk = (breakflags & BRK_MELEE) !== 0;
+    let noise = 0;
+
+    // C: hero_breaks() and breaks() are not ported. They test whether the
+    // object shatters and produce breakage messages and effects. Both use the
+    // return value in a condition. Since neither is ported, the break path
+    // never fires and the object always survives to hit the bars.
+    const broke = false;
+    if (your_fault)
+        note_unported('dothrow.c hero_breaks');
+    else
+        note_unported('dothrow.c breaks');
+
+    if (broke) {
+        objRef.obj = null; /* object is now gone */
+        /* breakage makes its own noises */
+        if (obj_type === POT_ACID) {
+            if (cansee(barsx, barsy, state) && !nodissolve) {
+                note_unported('pline.c pline'); /* "The iron bars are dissolved!" */
+            } else {
+                note_unported('pline.c pline'); /* You_hear hissing */
+            }
+            if (!nodissolve)
+                note_unported('monmove.c dissolve_bars');
+        }
+    } else {
+        if (!Deaf(state)) {
+            /* Sound effect table: Whang/Whap/Flapp/Clink/Clonk */
+            const barsounds = [
+                '', 'Whang', 'Whap', 'Flapp', 'Clink', 'Clonk',
+            ];
+            let bsindx;
+            if (obj_type === BOULDER || obj_type === HEAVY_IRON_BALL) {
+                bsindx = 1;
+            } else if (harmless_missile(otmp, state)) {
+                bsindx = 2;
+            } else if (is_flimsy(otmp, state)) {
+                bsindx = 3;
+            } else {
+                const otype = objectType(otmp, state);
+                if (otmp.oclass === COIN_CLASS
+                    || otype.oc_material === GOLD
+                    || otype.oc_material === SILVER) {
+                    bsindx = 4;
+                } else {
+                    bsindx = barsounds.length - 1;
+                }
+            }
+            note_unported('pline.c pline'); /* pline("%s!", barsounds[bsindx]) */
+        }
+        if (!(harmless_missile(otmp, state) || is_flimsy(otmp, state)))
+            noise = 4 * 4;
+
+        if (your_fault && (otmp.otyp === WAR_HAMMER
+                           || otmp.otyp === HEAVY_IRON_BALL)) {
+            const spe = (otmp.otyp === HEAVY_IRON_BALL)
+                       ? Math.trunc(otmp.owt / WT_IRON_BALL_INCR)
+                       : otmp.spe;
+            const chance = (melee_attk ? 40 : 60) - acurrstr(state) - spe;
+
+            if (!random.rn2(Math.max(2, chance))) {
+                note_unported('pline.c pline'); /* "You break the bars apart!" */
+                note_unported('monmove.c dissolve_bars');
+                noise = noise * 2;
+            }
+        }
+
+        if (noise)
+            note_unported('mon.c wake_nearto');
+    }
+}
+
+// C ref: mthrowu.c hits_bars() (1498-1559). TRUE iff a thrown/kicked/rolled
+// object doesn't pass through iron bars. When whodidit != -1 and the object
+// would hit, calls hit_bars() to resolve breakage and sound effects.
+export function hits_bars(obj_ref, x, y, barsx, barsy, always_hit, whodidit, state = game, random = { rn2 }) {
+    const otmp = obj_ref.obj;
+    const obj_type = otmp.otyp;
+    let hits = always_hit;
+
+    if (!hits) {
+        switch (otmp.oclass) {
+        case WEAPON_CLASS: {
+            const otype = objectType(otmp, state);
+            const oskill = otype.oc_skill;
+            hits = (oskill !== -P_BOW && oskill !== -P_CROSSBOW
+                    && oskill !== -P_DART && oskill !== -P_SHURIKEN
+                    && oskill !== P_SPEAR
+                    && oskill !== P_KNIFE); /* but not dagger */
+            break;
+        }
+        case ARMOR_CLASS:
+            hits = (objectType(obj_type, state).oc_armcat !== ARM_GLOVES);
+            break;
+        case TOOL_CLASS:
+            hits = (obj_type !== SKELETON_KEY && obj_type !== LOCK_PICK
+                    && obj_type !== CREDIT_CARD && obj_type !== TALLOW_CANDLE
+                    && obj_type !== WAX_CANDLE && obj_type !== LENSES
+                    && obj_type !== TIN_WHISTLE && obj_type !== MAGIC_WHISTLE);
+            break;
+        case ROCK_CLASS: /* includes boulder */
+            if (obj_type !== STATUE
+                || state.mons[otmp.corpsenm].msize > MZ_TINY)
+                hits = true;
+            break;
+        case FOOD_CLASS:
+            if (obj_type === CORPSE
+                && state.mons[otmp.corpsenm].msize > MZ_TINY)
+                hits = true;
+            else
+                hits = (obj_type === MEAT_STICK
+                        || obj_type === ENORMOUS_MEATBALL);
+            break;
+        case SPBOOK_CLASS:
+        case WAND_CLASS:
+        case BALL_CLASS:
+        case CHAIN_CLASS:
+            hits = true;
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (hits && whodidit !== -1) {
+        hit_bars(obj_ref, x, y, barsx, barsy,
+                 (whodidit === 1) ? BRK_BY_HERO : 0, state, random);
+    }
+
+    return hits;
 }

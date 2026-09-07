@@ -87,6 +87,7 @@ import { d, rn2, rnd } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { mhitm_adtyping, mhitm_knockback, shade_miss } from './uhitm.js';
 import { cansee } from './vision.js';
+import { breamm, spitmm, thrwmm } from './mthrowu.js';
 import { possibly_unwield } from './weapon.js';
 import { find_mac } from './worn.js';
 
@@ -452,8 +453,19 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
 
         switch (mattk.aatyp) {
         case AT_WEAP: /* "hand to hand" attacks */
-            if (distmin(magr.mx, magr.my, mdef.mx, mdef.my) > 1)
-                unsupported('an armed monster attacking another monster');
+            if (distmin(magr.mx, magr.my, mdef.mx, mdef.my) > 1) {
+                /* D: Do a ranged attack here! */
+                strike = (await thrwmm(magr, mdef, env) === M_ATTK_MISS)
+                         ? 0 : 1;
+                if (strike)
+                    /* don't really know if we hit or not; pretend we did */
+                    res[i] |= M_ATTK_HIT;
+                if (mdef.mhp < 1) /* DEADMONSTER */
+                    res[i] = M_ATTK_DEF_DIED;
+                if (magr.mhp < 1) /* DEADMONSTER */
+                    res[i] |= M_ATTK_AGR_DIED;
+                break;
+            }
             if (magr.weapon_check === NEED_WEAPON || !magr.mw) {
                 magr.weapon_check = NEED_HTH_WEAPON;
                 const wieldMonsterItem = requireAttackOperation(
@@ -542,7 +554,24 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
 
         case AT_BREA:
         case AT_SPIT:
-            unsupported('a monster breathing or spitting at another monster');
+            /* Ranged attacks aren't allowed at point blank range. */
+            if (!monnear(magr, mdef.mx, mdef.my)) {
+                const mmtmp = ((mattk.aatyp === AT_BREA)
+                             ? await breamm(magr, mattk, mdef, env)
+                             : await spitmm(magr, mattk, mdef, env));
+
+                strike = (mmtmp === M_ATTK_MISS) ? 0 : 1;
+                /* We don't really know if we hit or not; pretend we did. */
+                if (strike)
+                    res[i] |= M_ATTK_HIT;
+                if (mdef.mhp < 1) /* DEADMONSTER */
+                    res[i] = M_ATTK_DEF_DIED;
+                if (magr.mhp < 1) /* DEADMONSTER */
+                    res[i] |= M_ATTK_AGR_DIED;
+            } else {
+                strike = 0;
+                attk = 0;
+            }
             break;
 
         default: /* no attack */

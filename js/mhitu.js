@@ -110,6 +110,7 @@ import { Cold_resistance } from './zap.js';
 import { cansee, vision_recalc } from './vision.js';
 import { hitval } from './weapon.js';
 import { is_pole } from './worn.js';
+import { breamu, spitmu } from './mthrowu.js';
 import { mnexto } from './teleport.js';
 
 // Planning cannot call end.c done_in_by() on its cloned state: the ordinary
@@ -797,11 +798,15 @@ export async function mattacku(monster, rawEnv = {}) {
             break;
 
         case M.AT_BREA:
-            if (range2) unsupported('a monster breathing at the hero');
+            if (range2)
+                sum[i] = await breamu(mtmp, mattk, env);
+            /* Note: breamu takes care of displacement */
             break;
 
         case M.AT_SPIT:
-            if (range2) unsupported('a monster spitting at the hero');
+            if (range2)
+                sum[i] = await spitmu(mtmp, mattk, env);
+            /* Note: spitmu takes care of displacement */
             break;
 
         case M.AT_WEAP:

@@ -37,6 +37,7 @@ import {
     OIL_LAMP,
     PICK_AXE,
     ROCK,
+    WAR_HAMMER,
 } from '../js/objects.js';
 
 // A straight run of floor at row 4 from column 1 to `last`, with the hero at
@@ -143,11 +144,17 @@ test('bhit() refuses the four branches along the flight it cannot finish',
             () => fireEast(lit, 4, missile(lit, OIL_LAMP, { lamplit: 1 })),
             /show_transient_light/u,
         );
+        // A WAR_HAMMER is WEAPON_CLASS with P_HAMMER skill, which hits_bars
+        // does not exclude, so it stops at the bars. An ARROW (P_BOW) would
+        // pass through.
         const bars = corridor(6);
         bars.level.at(3, 4).typ = IRONBARS;
-        await assert.rejects(
-            () => fireEast(bars, 4, missile(bars)), /hits_bars/u,
-        );
+        const noopRandom = { rn2: () => 0, rnd: () => 1 };
+        const hammer = missile(bars, WAR_HAMMER);
+        const hammerRef = { obj: hammer };
+        await bhit(1, 0, 4, THROWN_WEAPON, null, null, hammerRef, bars, noopRandom);
+        // bhitpos backs up one square before the bars.
+        assert.deepEqual(bars.gb.bhitpos, { x: 2, y: 4 });
         const ball = corridor(6);
         await assert.rejects(
             () => fireEast(ball, 4, missile(ball, HEAVY_IRON_BALL)),

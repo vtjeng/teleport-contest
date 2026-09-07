@@ -219,6 +219,7 @@ import { burn_away_slime, fall_asleep } from './timeout.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
+import { hits_bars } from './mthrowu.js';
 import { note_unported } from './unported.js';
 
 // The wish parser raises every other refusal, so the class lives with it.
@@ -928,6 +929,7 @@ export async function bhit(
     }
 
     await tmp_at(DISP_FLASH, obj_to_glyph(obj, state), state);
+    let point_blank = true;
 
     while (range-- > 0) {
         state.gb.bhitpos.x += ddx;
@@ -954,8 +956,14 @@ export async function bhit(
         if (obj.lamplit) {
             throw new UnsupportedBhitError('show_transient_light()');
         }
-        if (typ === IRONBARS) {
-            throw new UnsupportedBhitError('hits_bars()');
+        if (typ === IRONBARS
+            && hits_bars(pobj, x - ddx, y - ddy, x, y,
+                         point_blank ? 0 : !random.rn2(5) ? 1 : 0, 1,
+                         state, random)) {
+            /* caveat: obj might now be null... */
+            state.gb.bhitpos.x -= ddx;
+            state.gb.bhitpos.y -= ddy;
+            break;
         }
 
         const mtmp = m_at(x, y, state);
@@ -1067,9 +1075,8 @@ export async function bhit(
             throw new UnsupportedBhitError('a heavy iron ball in flight');
         }
 
-        // C clears point_blank here, "affects passing through iron bars". Its
-        // only reader is the hits_bars() call that stops above, so the port
-        // keeps neither the variable nor this assignment.
+        /* thrown/kicked missile has moved away from its starting spot */
+        point_blank = false; /* affects passing through iron bars */
     }
 
     await tmp_at(DISP_END, 0, state);

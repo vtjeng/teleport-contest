@@ -266,6 +266,9 @@ export function BZ_U_BREATH(bztyp) { return 20 + bztyp; }
 // C ref: hack.h:1486 — BZ_M_SPELL(bztyp) = -10 - (bztyp), types -19..-10
 export function BZ_M_SPELL(bztyp) { return -10 - bztyp; }
 
+// C ref: hack.h:1488 — BZ_M_BREATH(bztyp) = -20 - (bztyp), types -29..-20
+export function BZ_M_BREATH(bztyp) { return -20 - bztyp; }
+
 // C ref: hack.h:1490 — BZ_M_WAND(bztyp) = -30 - (bztyp), types -39..-30
 export function BZ_M_WAND(bztyp) { return -30 - bztyp; }
 

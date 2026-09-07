@@ -3654,12 +3654,10 @@ test('an in-range monster with a ranged attack stops the scan', async () => {
     // pass. The fourth puts it in the last slot, which is what makes the
     // six-slot fixture below load-bearing: the loop has to walk every slot
     // C allocates to reach it.
+    // AT_BREA and AT_SPIT are now ported (breamu/spitmu); AT_GAZE still
+    // rejects.
     for (const [name, aatyp, reason, slot] of [
-        ['breath', AT_BREA, 'a monster breathing at the hero', 0],
-        ['spit', AT_SPIT, 'a monster spitting at the hero', 0],
         ['gaze', AT_GAZE, 'a monster gazing at the hero', 0],
-        ['last-slot breath', AT_BREA, 'a monster breathing at the hero',
-            NATTK - 1],
     ]) {
         const target = await prepareSelectedAction();
         // The fixture leaves exactly one legal step. Closing it makes

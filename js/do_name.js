@@ -605,7 +605,7 @@ export function capitalizedMonsterName(monster, state = game) {
 // C ref: do_name.c some_mon_nam() (1064-1071). Like mon_nam() but when the
 // monster cannot be spotted, answers "someone" or "something" via AUGMENT_IT
 // instead of "it".
-function some_mon_nam(monster, state = game, env = {}) {
+export function some_mon_nam(monster, state = game, env = {}) {
     const hasGivenName = !!(monster.mextra?.mgivenname
         || monster.mgivenname);
     const suppress = hasGivenName

@@ -50,6 +50,7 @@ import {
     Is_airlevel,
     Is_waterlevel,
     LARGEST_INT,
+    Has_contents,
     ZAP_POS,
     is_hole,
     isok,
@@ -128,25 +129,38 @@ import {
     ACID_VENOM,
     AKLYS,
     ARMOR_CLASS,
+    BAG_OF_HOLDING,
+    BAG_OF_TRICKS,
     BLINDING_VENOM,
     BOOMERANG,
     BOULDER,
     BULLWHIP,
+    CLOTH,
     COIN_CLASS,
     CORPSE,
     CREAM_PIE,
     EGG,
     ELVEN_ARROW,
     ELVEN_BOW,
+    EUCALYPTUS_LEAF,
     EXPENSIVE_CAMERA,
+    FORTUNE_COOKIE,
     GEM_CLASS,
     GLASS,
     HEAVY_IRON_BALL,
+    KELP_FROND,
     MELON,
+    OILSKIN_SACK,
     ORCISH_ARROW,
     ORCISH_BOW,
+    PANCAKE,
     POTION_CLASS,
     POT_WATER,
+    RUBBER_HOSE,
+    SACK,
+    SCROLL_CLASS,
+    SLING,
+    SPRIG_OF_WOLFSBANE,
     STRANGE_OBJECT,
     VENOM_CLASS,
     WEAPON_CLASS,
@@ -924,6 +938,37 @@ export function shipsAway(x, y, state) {
     if (stway && !stway.up) return true;
     const ttmp = t_at(x, y, state);
     return Boolean(ttmp && ttmp.tseen && is_hole(ttmp.ttyp));
+}
+
+// C ref: dothrow.c harmless_missile() (1220-1248). A pure predicate: TRUE when
+// the thrown object is too soft, light, or fragile to cause meaningful noise
+// or damage when it hits iron bars. Used by hit_bars() to select the sound
+// effect and by hits_bars() indirectly through hit_bars().
+export function harmless_missile(obj, state = game) {
+    const otyp = obj.otyp;
+    switch (otyp) {
+    case SLING:
+    case EUCALYPTUS_LEAF:
+    case KELP_FROND:
+    case SPRIG_OF_WOLFSBANE:
+    case FORTUNE_COOKIE:
+    case PANCAKE:
+        return true;
+    case RUBBER_HOSE:
+    case BAG_OF_TRICKS:
+        return obj.spe < 1;
+    case SACK:
+    case OILSKIN_SACK:
+    case BAG_OF_HOLDING:
+        return !Has_contents(obj);
+    default:
+        if (obj.oclass === SCROLL_CLASS)
+            return true;
+        if (objectType(otyp, state).oc_material === CLOTH)
+            return true;
+        break;
+    }
+    return false;
 }
 
 // C ref: hack.c impact_disturbs_zombies() (1786-1794) over obj.h is_flimsy()

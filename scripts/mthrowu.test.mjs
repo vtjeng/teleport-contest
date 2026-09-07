@@ -202,6 +202,9 @@ test('monshoot unseen arm sets m_shot.o to STRANGE_OBJECT and falls through',
         subject.mw = dagger;
         const messages = [];
         const flight = new Error('expected m_throw boundary');
+        // monshoot reads sgn(state.gt.tbx/tby) for direction; callers
+        // (thrwmu/thrwmm) set these via lined_up/m_lined_up before calling.
+        state.gt = { tbx: subject.mux - subject.mx, tby: subject.muy - subject.my };
 
         await assert.rejects(monshoot(subject, dagger, subject.mw, {
             state,

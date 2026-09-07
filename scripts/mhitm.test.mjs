@@ -764,15 +764,19 @@ test('mattackm falls through an adjacent empty-handed weapon attack',
 test('mattackm keeps every continuation past the wield turn closed',
     async () => {
         const cases = [
-            { name: 'distant attack', gap: 2, mw: null, result: 1, calls: 0 },
+            // Distant attack: thrwmm is now ported; with no ranged weapon the
+            // goblin misses. mattackm falls through to the remaining attacks.
+            { name: 'distant attack', gap: 2, mw: null, result: 1, calls: 0,
+                rejects: false },
             {
                 name: 'armed swing', gap: 1,
                 mw: { otyp: 1, owornmask: 0 },
                 weaponCheck: NEED_HTH_WEAPON,
                 result: 1, calls: 0,
+                rejects: true,
             },
             { name: 'empty selection and damage', gap: 1, mw: null,
-                result: 0, calls: 1 },
+                result: 0, calls: 1, rejects: false },
         ];
         for (const row of cases) {
             await hero();
@@ -803,26 +807,31 @@ test('mattackm keeps every continuation past the wield turn closed',
                 assert.equal(await mattackm(goblin, kitten, env), M_ATTK_HIT,
                              row.name);
                 assert.equal(goblin.mw, null, row.name);
-            } else {
+            } else if (row.rejects) {
                 await assert.rejects(
                     mattackm(goblin, kitten, env),
                     /an armed monster attacking another monster/u,
                     row.name,
                 );
+            } else {
+                // Distant: thrwmm returns M_ATTK_MISS, mattackm continues.
+                const result = await mattackm(goblin, kitten, env);
+                assert.equal(typeof result, 'number', row.name);
             }
             assert.equal(calls, row.calls, row.name);
-            if (row.name !== 'empty selection and damage')
+            if (row.rejects)
                 assert.deepEqual(env.bounds, [], row.name);
             goblin.data = ordinary;
         }
     });
 
-// mhitm.c mattackm()'s five wholly refusing arms, each at the `case` label.
-// AT_WEAP has a narrow wielding-turn arm above, but its distant and armed
-// continuations still refuse separately. The attack records are fabricated
-// because no species this port can place carries one of them beside a pet's
-// melee slot; mondata.h reads the list off the species record, so replacing
-// that record is enough.
+// mhitm.c mattackm()'s four wholly refusing arms, each at the `case` label.
+// AT_WEAP has a narrow wielding-turn arm above, but its armed continuation
+// still refuses separately. AT_BREA and AT_SPIT are ported (breamm/spitmm);
+// at gap=1 they take the monnear else-branch (strike=0, no attack). The
+// attack records are fabricated because no species this port can place carries
+// one of them beside a pet's melee slot; mondata.h reads the list off the
+// species record, so replacing that record is enough.
 test('mattackm stops at every attack type outside the physical group',
     async () => {
         await hero();
@@ -830,18 +839,15 @@ test('mattackm stops at every attack type outside the physical group',
         const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
         const ant = fixture(PM_GIANT_ANT, dx, y);
         aim(ant);
-        const rows = [
+        // These four still refuse with unsupported().
+        const refusingRows = [
             [AT_HUGS, 'a monster crushing another monster'],
             [AT_GAZE, 'a monster gazing at another monster'],
             [AT_EXPL, 'a monster exploding at another monster'],
             [AT_ENGL, 'a monster engulfing another monster'],
-            [AT_BREA,
-                'a monster breathing or spitting at another monster'],
-            [AT_SPIT,
-                'a monster breathing or spitting at another monster'],
         ];
         const ordinary = pet.data;
-        for (const [aatyp, reason] of rows) {
+        for (const [aatyp, reason] of refusingRows) {
             pet.data = {
                 ...ordinary,
                 mattk: [
@@ -856,6 +862,19 @@ test('mattackm stops at every attack type outside the physical group',
                     return true;
                 },
             );
+        }
+        // AT_BREA and AT_SPIT at point-blank range take the monnear
+        // else-branch and return normally (strike=0, no attack).
+        for (const aatyp of [AT_BREA, AT_SPIT]) {
+            pet.data = {
+                ...ordinary,
+                mattk: [
+                    { aatyp, adtyp: AD_PHYS, damn: 1, damd: 4 },
+                    ...ordinary.mattk.slice(1),
+                ],
+            };
+            const result = await mattackm(pet, ant, attackEnv());
+            assert.equal(typeof result, 'number', `aatyp ${aatyp}`);
         }
         pet.data = ordinary;
         assert.equal(ordinary.mattk.length, NATTK);
