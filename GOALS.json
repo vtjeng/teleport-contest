@@ -10239,12 +10239,20 @@
         },
         {
           "name": "mon_obj_sanity..nomerge_exception",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "94dc13ddd83d48e87f3bd2d8fac42a6171a4d466",
           "functions": [
             "mon_obj_sanity",
             "insane_obj_bits",
             "nomerge_exception"
+          ]
+        },
+        {
+          "name": "insane_object",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "insane_object"
           ]
         }
       ],
@@ -10771,19 +10779,19 @@
           "name": "mon_obj_sanity",
           "line": 3204,
           "endLine": 3248,
-          "ported": false
+          "ported": true
         },
         {
           "name": "insane_obj_bits",
           "line": 3249,
           "endLine": 3277,
-          "ported": false
+          "ported": true
         },
         {
           "name": "nomerge_exception",
           "line": 3278,
           "endLine": 3295,
-          "ported": false
+          "ported": true
         },
         {
           "name": "where_name",
