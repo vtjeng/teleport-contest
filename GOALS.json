@@ -12592,6 +12592,34 @@
       "function": "m_throw",
       "session": "seed0030-ten-diverse-deaths",
       "step": 50
+    },
+    {
+      "id": "div-seed0108-distfleeck",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Fix seed0108 rng divergence at distfleeck() in monmove.c step 149",
+      "cFile": "monmove.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "distfleeck-divergence",
+          "status": "queued",
+          "closedBy": null,
+          "functions": []
+        }
+      ],
+      "openedAt": "e984434fc0f5a62fe0e4793270a744d92423ee46",
+      "openStanding": {
+        "sha": "4a44372d",
+        "screens": 5085,
+        "rng": 344412
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "distfleeck",
+      "session": "seed0108-wizard-extcmd-wishlist",
+      "step": 149
     }
   ]
 }
