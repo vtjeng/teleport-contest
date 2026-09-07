@@ -8,8 +8,8 @@ model: opus
 
 Read these sources:
 
-- `.cache/span-context.json`: the current span's goal, C file, function
-  run, line range, C line count, JavaScript file, and the sessions whose
+- `.cache/span-context.json`: the current span's goal, C file, functions,
+  C line ranges, C line count, JavaScript file, and the sessions whose
   first mismatch the goal addresses, written by `goal-log.mjs next-span`
 - `node scripts/goal-log.mjs --current --detail`: the goal in progress,
   its functions with their ported marks, and its spans
@@ -17,7 +17,8 @@ Read these sources:
 - `.agents/glossary.md`: the work vocabulary
 
 Before you write anything, read the C source for every function in the span,
-starting from the file and line range in the span context. List all symbols
+starting from the file and line ranges in the span context; a span can pass
+over ported functions, so the ranges need not be adjacent. List all symbols
 those functions directly call, then batch-grep for each in `js/` to separate
 the ported from the missing, and read C source only for the missing ones. Port
 a missing callee in this span when the C uses its return value; when the C

@@ -74,8 +74,8 @@ Follow all instructions in those files. A **goal** is one of two kinds. A
 **file port** ports one C file, or a named group of its functions. A
 **divergence fix** repairs one session's first mismatch inside code that is
 already ported. A **span** is the unit of work one worker run lands: for a
-file port, a contiguous run of its functions in C order; for a divergence
-fix, the functions the fix touches. The span worker
+file port, its unported functions in C order up to a line cap; for a
+divergence fix, the functions the fix touches. The span worker
 (`.claude/agents/span-worker.md`) completes one span per run.
 
 | Before you... | Read... |

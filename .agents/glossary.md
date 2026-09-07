@@ -17,8 +17,9 @@ mismatch when the C function the mismatch names is already ported whole.
 `.agents/divergence.md` defines its workflow.
 
 A **span** is the unit of work one worker run ports, wires, and lands: for a
-file port, a contiguous run of its functions in C order; for a divergence fix,
-the functions the fix touches. `node scripts/goal-log.mjs next-span` plans a
+file port, its unported functions in C order up to the planner's line cap,
+passing over functions that are already ported; for a divergence fix, the
+functions the fix touches. `node scripts/goal-log.mjs next-span` plans a
 file port's span and writes `.cache/span-context.json`; `.agents/divergence.md`
 states how a divergence fix queues one. A span closes when its commits pass
 `npm run checkpoint` without the development sessions or the recordings losing

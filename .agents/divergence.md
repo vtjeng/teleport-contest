@@ -48,7 +48,7 @@ Put the record in its `--detail`:
 
 Queue the first span with `queue-span`, naming the functions the fix will
 read, and write `.cache/span-context.json` with the same fields
-`next-span` writes: `goal`, `cFile`, `functions`, `lineRange`, `cLines`,
+`next-span` writes: `goal`, `cFile`, `functions`, `lineRanges`, `cLines`,
 `jsFile`, and `sessions`.
 
 ### 3. Investigate and implement
