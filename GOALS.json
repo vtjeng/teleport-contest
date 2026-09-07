@@ -10226,8 +10226,8 @@
         },
         {
           "name": "dealloc_obj_real..shop_obj_sanity",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "17d5e80d2cac9b66f011433f80789f73b8fd73c0",
           "functions": [
             "dealloc_obj_real",
             "dobjsfree",
@@ -10235,6 +10235,16 @@
             "obj_sanity_check",
             "objlist_sanity",
             "shop_obj_sanity"
+          ]
+        },
+        {
+          "name": "mon_obj_sanity..nomerge_exception",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mon_obj_sanity",
+            "insane_obj_bits",
+            "nomerge_exception"
           ]
         }
       ],
@@ -10725,37 +10735,37 @@
           "name": "dealloc_obj_real",
           "line": 2815,
           "endLine": 2830,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dobjsfree",
           "line": 2831,
           "endLine": 2846,
-          "ported": false
+          "ported": true
         },
         {
           "name": "hornoplenty",
           "line": 2847,
           "endLine": 2948,
-          "ported": false
+          "ported": true
         },
         {
           "name": "obj_sanity_check",
           "line": 2949,
           "endLine": 3031,
-          "ported": false
+          "ported": true
         },
         {
           "name": "objlist_sanity",
           "line": 3032,
           "endLine": 3133,
-          "ported": false
+          "ported": true
         },
         {
           "name": "shop_obj_sanity",
           "line": 3134,
           "endLine": 3203,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mon_obj_sanity",
@@ -10779,7 +10789,7 @@
           "name": "where_name",
           "line": 3296,
           "endLine": 3313,
-          "ported": false
+          "ported": true
         },
         {
           "name": "insane_object",
