@@ -12866,6 +12866,260 @@
         "to": 6647
       },
       "startFunction": "dountrap"
+    },
+    {
+      "id": "polyself-c",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port polyself.c whole in C order",
+      "cFile": "polyself.c",
+      "sessions": [
+        "seed0108-wizard-extcmd-wishlist"
+      ],
+      "detail": "",
+      "spans": [
+        {
+          "name": "newman..udeadinside",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "newman",
+            "rehumanize",
+            "dospit",
+            "doremove",
+            "dospinweb",
+            "dosummon",
+            "dogaze",
+            "dohide",
+            "dopoly",
+            "domindblast",
+            "uunstick",
+            "poly_gender",
+            "ugolemeffects",
+            "ugenocided",
+            "udeadinside"
+          ]
+        }
+      ],
+      "openedAt": "29fc9b9f94132cba4a1c1859bffe0cdec0679f2f",
+      "openStanding": {
+        "sha": "79400f42",
+        "screens": 5107,
+        "rng": 344578
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "set_uasmon",
+          "line": 38,
+          "endLine": 130,
+          "ported": true
+        },
+        {
+          "name": "float_vs_flight",
+          "line": 131,
+          "endLine": 157,
+          "ported": true
+        },
+        {
+          "name": "steed_vs_stealth",
+          "line": 158,
+          "endLine": 167,
+          "ported": true
+        },
+        {
+          "name": "check_strangling",
+          "line": 168,
+          "endLine": 199,
+          "ported": true
+        },
+        {
+          "name": "polyman",
+          "line": 200,
+          "endLine": 272,
+          "ported": false
+        },
+        {
+          "name": "change_sex",
+          "line": 273,
+          "endLine": 306,
+          "ported": false
+        },
+        {
+          "name": "livelog_newform",
+          "line": 307,
+          "endLine": 335,
+          "ported": false
+        },
+        {
+          "name": "newman",
+          "line": 336,
+          "endLine": 468,
+          "ported": false
+        },
+        {
+          "name": "polyself",
+          "line": 469,
+          "endLine": 734,
+          "ported": true
+        },
+        {
+          "name": "polymon",
+          "line": 735,
+          "endLine": 1076,
+          "ported": true
+        },
+        {
+          "name": "uasmon_maxStr",
+          "line": 1077,
+          "endLine": 1122,
+          "ported": true
+        },
+        {
+          "name": "dropp",
+          "line": 1123,
+          "endLine": 1156,
+          "ported": true
+        },
+        {
+          "name": "break_armor",
+          "line": 1157,
+          "endLine": 1304,
+          "ported": true
+        },
+        {
+          "name": "drop_weapon",
+          "line": 1305,
+          "endLine": 1366,
+          "ported": true
+        },
+        {
+          "name": "rehumanize",
+          "line": 1367,
+          "endLine": 1420,
+          "ported": false
+        },
+        {
+          "name": "dobreathe",
+          "line": 1421,
+          "endLine": 1449,
+          "ported": true
+        },
+        {
+          "name": "dospit",
+          "line": 1450,
+          "endLine": 1480,
+          "ported": false
+        },
+        {
+          "name": "doremove",
+          "line": 1481,
+          "endLine": 1496,
+          "ported": false
+        },
+        {
+          "name": "dospinweb",
+          "line": 1497,
+          "endLine": 1623,
+          "ported": false
+        },
+        {
+          "name": "dosummon",
+          "line": 1624,
+          "endLine": 1641,
+          "ported": false
+        },
+        {
+          "name": "dogaze",
+          "line": 1642,
+          "endLine": 1776,
+          "ported": false
+        },
+        {
+          "name": "dohide",
+          "line": 1777,
+          "endLine": 1876,
+          "ported": false
+        },
+        {
+          "name": "dopoly",
+          "line": 1877,
+          "endLine": 1893,
+          "ported": false
+        },
+        {
+          "name": "domindblast",
+          "line": 1894,
+          "endLine": 1940,
+          "ported": false
+        },
+        {
+          "name": "uunstick",
+          "line": 1941,
+          "endLine": 1953,
+          "ported": false
+        },
+        {
+          "name": "skinback",
+          "line": 1954,
+          "endLine": 1971,
+          "ported": true
+        },
+        {
+          "name": "mbodypart",
+          "line": 1972,
+          "endLine": 2142,
+          "ported": true
+        },
+        {
+          "name": "body_part",
+          "line": 2143,
+          "endLine": 2148,
+          "ported": true
+        },
+        {
+          "name": "poly_gender",
+          "line": 2149,
+          "endLine": 2159,
+          "ported": false
+        },
+        {
+          "name": "ugolemeffects",
+          "line": 2160,
+          "endLine": 2190,
+          "ported": false
+        },
+        {
+          "name": "armor_to_dragon",
+          "line": 2191,
+          "endLine": 2235,
+          "ported": true
+        },
+        {
+          "name": "polysense",
+          "line": 2236,
+          "endLine": 2264,
+          "ported": true
+        },
+        {
+          "name": "ugenocided",
+          "line": 2265,
+          "endLine": 2272,
+          "ported": false
+        },
+        {
+          "name": "udeadinside",
+          "line": 2273,
+          "endLine": 2287,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 38,
+        "to": 2287
+      },
+      "startFunction": "newman"
     }
   ]
 }
