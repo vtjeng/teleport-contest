@@ -10249,10 +10249,23 @@
         },
         {
           "name": "insane_object",
+          "status": "closed",
+          "closedBy": "a5146c60c438f2e8e8c3125b5954f0dabe91776c",
+          "functions": [
+            "insane_object"
+          ]
+        },
+        {
+          "name": "check_contained..obj_absorb",
           "status": "queued",
           "closedBy": null,
           "functions": [
-            "insane_object"
+            "check_contained",
+            "check_glob",
+            "sanity_check_worn",
+            "obj_nexto",
+            "obj_nexto_xy",
+            "obj_absorb"
           ]
         }
       ],
@@ -10803,7 +10816,7 @@
           "name": "insane_object",
           "line": 3314,
           "endLine": 3346,
-          "ported": false
+          "ported": true
         },
         {
           "name": "init_dummyobj",

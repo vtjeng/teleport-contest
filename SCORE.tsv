@@ -697,3 +697,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-06T23:34:18.489Z	0d163370	span	24	33	4977	7765	343077	610816							add_to_migration closes. Development 4977 of 7765 screens, 343077 of 610816 rng. 24 of 33 sessions.
 2026-09-07T00:02:48.408Z	17d5e80d	span	24	33	4977	7765	343077	610816							dealloc_obj_real..shop_obj_sanity closes. Development 4977 of 7765 screens, 343077 of 610816 rng. 24 of 33 sessions. Recordings 5/5.
 2026-09-07T00:12:54.138Z	94dc13dd	span	24	33	4977	7765	343077	610816							mon_obj_sanity..nomerge_exception closes. Development 4977 of 7765 screens, 343077 of 610816 rng. 24 of 33 sessions.
+2026-09-07T00:28:02.598Z	a5146c60	span	24	33	4977	7765	343077	610816							insane_object closes. Development 4977 of 7765 screens, 343077 of 610816 rng. 24 of 33 sessions.
