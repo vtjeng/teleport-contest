@@ -1,6 +1,7 @@
 // Monster selection, birth limits, hit points, and attitude.
-// C refs: makemon.c rndmonst_adj(), mkclass(), freemcorpsenm(), and elemental
-// filtering; mkobj.c rndmonnum_adj(); questpgr.c qt_montype().
+// C refs: makemon.c rndmonst_adj(), mkclass(), mkclass_aligned(),
+// mkclass_poly(), freemcorpsenm(), and elemental filtering;
+// mkobj.c rndmonnum_adj(); questpgr.c qt_montype().
 
 import {
     A_NONE,
@@ -16,6 +17,7 @@ import {
     MAXMONNO,
 } from './const.js';
 import { level_difficulty, on_level } from './dungeon.js';
+import { sgn } from './hacklib.js';
 import { game } from './gstate.js';
 import {
     always_hostile,
@@ -543,8 +545,7 @@ export function set_malign(mon, state = game) {
 
 // C ref: makemon.c mk_gen_ok(). Decides whether it's ok to generate a
 // candidate monster by mkclass(). C declares this staticfn; exported here
-// for direct testing and for mkclass_poly/summon_furies (same file, to be
-// ported).
+// for direct testing and for mkclass_poly/summon_furies (same file).
 export function mk_gen_ok(mndx, mvflagsmask, genomask, state) {
     const ptr = state.mons[mndx];
     if (state.mvitals[mndx].mvflags & mvflagsmask) return false;
@@ -615,17 +616,23 @@ function dump_mongen(state = game) {
     note_unported('alloc.c freedynamicdata');
 }
 
-// C ref: makemon.c mkclass()/mkclass_aligned(), for A_NONE callers. `special`
-// contains mons[].geno bits exempted from normal rejection. G_IGNORE is a
-// pseudo-flag: it disables the G_GONE mvitals check, then is removed before
-// the geno mask is applied.
+// C ref: makemon.c mkclass(). Wrapper for mkclass_aligned with A_NONE.
 export function mkclass(classSymbol, special = 0, env = {}) {
+    return mkclass_aligned(classSymbol, special, A_NONE, env);
+}
+
+// C ref: makemon.c mkclass_aligned(). `special` contains mons[].geno bits
+// exempted from normal rejection. G_IGNORE is a pseudo-flag: it disables the
+// G_GONE mvitals check, then is removed before the geno mask is applied.
+// `atyp` restricts selection to monsters whose alignment sign matches.
+export function mkclass_aligned(classSymbol, special = 0, atyp = A_NONE,
+    env = {}) {
     const normalized = generationEnv(env);
     const { random, state } = normalized;
     if (typeof random.rnd !== 'function')
         throw new TypeError('mkclass random injection requires rnd');
     if (!Number.isInteger(classSymbol)
-        || classSymbol < 1 || classSymbol > S_MIMIC_DEF) {
+        || classSymbol < 1 || classSymbol >= MAXMCLASSES) {
         return null;
     }
 
@@ -655,6 +662,9 @@ export function mkclass(classSymbol, special = 0, env = {}) {
     for (last = first;
         last < SPECIAL_PM && state.mons[mongen_order[last]].mlet === classSymbol;
         last++) {
+        if (atyp !== A_NONE
+            && sgn(state.mons[mongen_order[last]].maligntyp) !== sgn(atyp))
+            continue;
         let genoMask = G_NOGEN | G_UNIQ;
         // rn2(9) is evaluated even for liches because it is the left operand.
         if (random.rn2(9) || classSymbol === S_LICH)
@@ -692,6 +702,46 @@ export function mkclass(classSymbol, special = 0, env = {}) {
         }
     }
     return null;
+}
+
+// C ref: makemon.c mkclass_poly(). Like mkclass(), but excludes difficulty
+// considerations; used when a player with polycontrol picks a class instead
+// of a specific type. Genocided types are avoided but extinct ones are
+// acceptable. Iterates raw mons[] order (not mongen_order). Returns a
+// monster index, not a permonst pointer.
+export function mkclass_poly(classSymbol, env = {}) {
+    const normalized = generationEnv(env);
+    const { random, state } = normalized;
+
+    let first;
+    for (first = LOW_PM; first < SPECIAL_PM; first++)
+        if (state.mons[first].mlet === classSymbol)
+            break;
+    if (first === SPECIAL_PM)
+        return NON_PM;
+
+    let gmask = G_NOGEN | G_UNIQ;
+    // mkclass() does this on a per monster type basis, but doing that here
+    // would make the two loops inconsistent with each other for non L.
+    if (random.rn2(9) || classSymbol === S_LICH)
+        gmask |= inHell(state) ? G_NOHELL : G_HELL;
+
+    let num = 0;
+    let last;
+    for (last = first;
+        last < SPECIAL_PM && state.mons[last].mlet === classSymbol;
+        last++)
+        if (mk_gen_ok(last, G_GENOD, gmask, state))
+            num += state.mons[last].geno & G_FREQ;
+    if (!num)
+        return NON_PM;
+
+    for (num = random.rnd(num); num > 0; first++)
+        if (mk_gen_ok(first, G_GENOD, gmask, state))
+            num -= state.mons[first].geno & G_FREQ;
+    first--; // correct an off-by-one error
+
+    return first;
 }
 
 // C ref: questpgr.c qt_montype().

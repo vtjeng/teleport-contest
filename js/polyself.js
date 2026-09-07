@@ -114,6 +114,7 @@ import {
 import { character_race } from './roles.js';
 import { pmname } from './do_name.js';
 import { set_mon_data } from './makemon_create.js';
+import { mkclass_poly } from './makemon.js';
 import { cloak_simple_name, simpleonames, an } from './objnam.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { newsym, see_monsters } from './display.js';
@@ -893,15 +894,13 @@ export async function polyself(psflags, state = game) {
             const nameResult = name_to_mon(buf, { state });
             mntmp = nameResult;
             if (mntmp < M.LOW_PM) {
-                // name_to_monclass fallback — not ported
-                // For the gnome case, "gnome" resolves directly via
-                // name_to_mon, so this path is not taken.
+                // name_to_monclass fallback — not ported; monclass stays 0
+                // so this branch is unreachable until name_to_monclass lands.
                 monclass = 0; // placeholder
-                if (monclass && mntmp === NON_PM) {
-                    throw new UnsupportedPolyselfError(
-                        'polyself: name_to_monclass/mkclass_poly not ported',
-                    );
-                }
+                if (monclass && mntmp === NON_PM)
+                    mntmp = (draconian && monclass === M.S_DRAGON)
+                        ? armor_to_dragon(state.uarm.otyp)
+                        : mkclass_poly(monclass, { state });
             } else if (is_placeholder(state.mons[mntmp])
                        && !your_race(state.mons[mntmp], state)
                        && mntmp !== M.PM_HUMAN) {

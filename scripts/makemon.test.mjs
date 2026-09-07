@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    A_CHAOTIC,
+    A_LAWFUL,
+    A_NONE,
     AGGRAVATE_MONSTER,
     G_EXTINCT,
     G_GENOD,
@@ -16,6 +19,8 @@ import {
     mbirth_limit,
     mk_gen_ok,
     mkclass,
+    mkclass_aligned,
+    mkclass_poly,
     newmonhp,
     peace_minded,
     propagate,
@@ -69,6 +74,7 @@ import {
     M2_ORC,
     NON_PM,
     S_ANT,
+    S_DEMON,
     S_LEPRECHAUN,
     SPECIAL_PM,
     monst_globals_init,
@@ -1038,4 +1044,105 @@ test('init_mongen_order is idempotent', () => {
     // Same array references, not new copies.
     assert.equal(state._mongen_order, firstOrder);
     assert.equal(state._mclass_maxf, firstMaxf);
+});
+
+// mkclass_aligned with A_LAWFUL filters out chaotic and neutral demons,
+// consuming rn2(9) only for the lawful candidates. The mongen_order for
+// S_DEMON contains three generatable lawful demons (mndx 291, 292, 293 with
+// freq 2 each) and four lawful uniques (mndx 306-309, G_NOGEN|G_UNIQ,
+// rejected by mk_gen_ok). With rn2(9)=0 for all seven, the hell-restriction
+// mask is not added, letting the G_HELL demons pass. Each gets nums = 3
+// (freq 2 + 1 - 0, since adj_lev << ulevel*2 at hero level 30). Total
+// weight is 9; rnd(9)=4 lands in mndx 292's interval.
+test('mkclass_aligned filters demons by alignment sign', () => {
+    const state = startingState();
+    state.u.ulevel = 30;
+    state.u.uz = { dnum: 0, dlevel: 30 };
+    state.dungeons[0].num_dunlevs = 50;
+    const rng = scriptedRandom([
+        // rn2(9) for each lawful-aligned demon reached in mongen_order:
+        // 3 generatable (mndx 291, 292, 293) + 4 unique (mndx 306-309)
+        { bound: 9, result: 0 },
+        { bound: 9, result: 0 },
+        { bound: 9, result: 0 },
+        { bound: 9, result: 0 },
+        { bound: 9, result: 0 },
+        { bound: 9, result: 0 },
+        { bound: 9, result: 0 },
+        // rnd(9) selection draw; 4 lands in mndx 292's interval [4,6]
+        { kind: 'rnd', bound: 9, result: 4 },
+    ]);
+
+    const result = mkclass_aligned(S_DEMON, 0, A_LAWFUL,
+        { state, random: rng.random });
+    assert.equal(result.pmidx, 292,
+        'should select the second lawful demon (mndx 292)');
+    rng.assertExhausted();
+});
+
+// mkclass_aligned with A_NONE is equivalent to mkclass: both exercise the
+// same code path without the alignment filter.
+test('mkclass_aligned with A_NONE matches mkclass', () => {
+    const state = startingState();
+    // Use S_ANT so the existing mkclass test's RNG sequence applies.
+    const steps = [
+        { bound: 9, result: 0 },
+        { bound: 9, result: 0 },
+        { bound: 2, result: 0 },
+        { bound: 9, result: 0 },
+        { bound: 9, result: 0 },
+        { bound: 9, result: 0 },
+        { bound: 2, result: 0 },
+        { bound: 9, result: 0 },
+        { kind: 'rnd', bound: 15, result: 8 },
+    ];
+    const rng1 = scriptedRandom([...steps]);
+    const rng2 = scriptedRandom([...steps]);
+
+    const a = mkclass(S_ANT, 0, { state, random: rng1.random });
+    const b = mkclass_aligned(S_ANT, 0, A_NONE, { state, random: rng2.random });
+    assert.equal(a.pmidx, b.pmidx,
+        'mkclass and mkclass_aligned(A_NONE) should select the same monster');
+    rng1.assertExhausted();
+    rng2.assertExhausted();
+});
+
+// mkclass_poly iterates raw mons[] order (not mongen_order), excludes
+// difficulty considerations, uses G_GENOD (not G_GONE) for mvflags, and
+// returns a monster index (not a permonst pointer). For S_ANT, ants 0-4
+// pass mk_gen_ok (mndx 5 has G_NOGEN); total freq = 3+2+2+1+3 = 11.
+// rnd(11)=6 walks: 6-3=3 (mndx 0), 3-2=1 (mndx 1), 1-2=-1 (mndx 2,
+// loop exits), first-- yields mndx 2.
+test('mkclass_poly selects from raw mons order and returns an index', () => {
+    const state = startingState();
+    const rng = scriptedRandom([
+        // rn2(9) for the hell-mask decision (once at the top)
+        { bound: 9, result: 1 },
+        // rnd(11) selection draw
+        { kind: 'rnd', bound: 11, result: 6 },
+    ]);
+
+    const result = mkclass_poly(S_ANT, { state, random: rng.random });
+    // mkclass_poly returns a monster index, not a permonst pointer.
+    assert.equal(typeof result, 'number');
+    assert.equal(result, 2,
+        'rnd(11)=6 should land on mndx 2 (the third ant in raw order)');
+    rng.assertExhausted();
+});
+
+// mkclass_poly returns NON_PM when the class has no eligible monster (all
+// rejected by mk_gen_ok). Genocide all ants; then every ant fails the
+// G_GENOD mvflags check, yielding num=0 and NON_PM.
+test('mkclass_poly returns NON_PM for an empty class', () => {
+    const state = startingState();
+    // Genocide all ants (mndx 0-5)
+    for (let i = 0; i <= 5; i++)
+        state.mvitals[i].mvflags |= G_GENOD;
+    const rng = scriptedRandom([
+        // rn2(9) for the hell-mask decision
+        { bound: 9, result: 1 },
+    ]);
+    const result = mkclass_poly(S_ANT, { state, random: rng.random });
+    assert.equal(result, NON_PM);
+    rng.assertExhausted();
 });
