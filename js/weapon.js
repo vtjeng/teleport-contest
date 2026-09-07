@@ -7,6 +7,7 @@ import {
     artifactTouchable,
     artifact_light,
     shade_glare,
+    spec_abon,
 } from './artifacts.js';
 import { acurr } from './attrib.js';
 import {
@@ -385,11 +386,7 @@ export function hitval(otmp, mon, state = game, env = {}) {
     if (is_pick(otmp, state) && passes_walls(ptr) && thick_skinned(ptr))
         tmp += 2;
 
-    if (otmp.oartifact) {
-        requiredOperation(env, 'unsupported', 'hitval')(
-            'spec_abon() artifact to-hit bonus',
-        );
-    }
+    if (otmp.oartifact) tmp += spec_abon(otmp, mon, state);
     return tmp;
 }
 

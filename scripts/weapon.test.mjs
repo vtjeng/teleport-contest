@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ART_SUNSWORD } from '../js/artifacts.js';
+import { ART_SUNSWORD, init_artifacts } from '../js/artifacts.js';
 import {
     P_ATTACK_SPELL,
     P_BARE_HANDED_COMBAT,
@@ -1134,12 +1134,13 @@ test('hitval adds each weapon-versus-monster bonus its source names', () => {
         state.objects[DAGGER].oc_hitbon,
     );
 
-    // artifact.c spec_abon() has no port.
-    assert.throws(
-        () => hitval(object(state, LONG_SWORD, { oartifact: ART_SUNSWORD }),
-            newt, state, refuse),
-        /artifact to-hit bonus/u,
-    );
+    // artifact.c spec_abon() adds a to-hit bonus when the artifact's spec
+    // applies. Sunsword targets M2_UNDEAD; against a newt the bonus is 0,
+    // so hitval returns the same as a plain long sword of equal enchantment.
+    state.flags = { initalign: 1 }; // neutral, for init_artifacts
+    init_artifacts(state);
+    const artSword = object(state, LONG_SWORD, { oartifact: ART_SUNSWORD });
+    assert.equal(hitval(artSword, newt, state), 0);
 });
 
 // weapon.c:170-175, the trident's three answers. It needs a level to read
