@@ -10,6 +10,7 @@ import { GameMap } from './game.js';
 import {
     Can_dig_down,
     Can_fall_thru,
+    In_hell,
     Is_branchlev,
     Is_special,
     at_dgn_entrance,
@@ -166,7 +167,7 @@ import {
     ARMORSHOP, SCROLLSHOP, POTIONSHOP, WEAPONSHOP,
     FOODSHOP, RINGSHOP, WANDSHOP, TOOLSHOP,
     BOOKSHOP, FODDERSHOP, CANDLESHOP,
-    ROOMOFFSET, MAXNROFROOMS, MAX_SUBROOMS, SHARED,
+    ROOMOFFSET, MAXNROFROOMS, MAX_NESTED_ROOMS, MAX_SUBROOMS, SHARED,
     SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, THRONE, TREE,
     DUST, ENGRAVE, BURN, ENGR_BLOOD,
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
@@ -1194,10 +1195,7 @@ async function ensureSpecialLevelLoaders() {
 // C ref: sp_lev.c load_special(). Initializes the level coder, runs the
 // level definition loader (the JS equivalent of load_lua), and applies
 // post-processing. Returns true when the level loaded, false when no
-// loader exists for the given name. C's create_des_coder() is not yet
-// ported as a standalone function; its work is done by
-// createSpecialLevelApi() which initializes the same per-level coder state
-// that sp_level_coder_init() sets in C.
+// loader exists for the given name.
 export async function load_special(name, state) {
     await ensureSpecialLevelLoaders();
     const loader = SPECIAL_LEVEL_LOADERS[name];
@@ -1282,19 +1280,94 @@ function mapAlignY(valign, height, frame) {
     }
 }
 
-function createSpecialLevelApi(state) {
-    // C ref: sp_lev.c sp_level_coder_init(). Each special level gets a fresh
-    // coder with allow_flips = 3; reset state fields that correspond to
-    // per-coder fields so a previous level's noflip does not leak.
-    delete state.specialLevelAllowFlips;
+// C ref: sp_lev.c update_croom(). Synchronizes coder->croom from the
+// tmproomlist stack. After each room enter (n_subroom++) or exit
+// (n_subroom--), croom points to the innermost active room, or null
+// when at the top level.
+function update_croom(coder) {
+    if (!coder) return;
+    if (coder.n_subroom) {
+        coder.croom = coder.tmproomlist[coder.n_subroom - 1];
+    } else {
+        coder.croom = null;
+    }
+}
 
-    // C ref: sp_lev.c reset_xystart_size(), called by sp_level_coder_init()
-    // before any level creation code runs. des.map() overrides these with
-    // the map's placement; mines-style level_init and other map-less levels
-    // keep these defaults, so get_location() covers the whole playable area.
+// C ref: sp_lev.c sp_level_coder_init(). Allocates and initializes the
+// sp_coder structure, resets file-scope level-generation state, and sets
+// default level flags. Returns the coder. The frame (xstart/ystart/
+// xsize/ysize) and SpLev_Map are created by createSpecialLevelApi since
+// they are not part of the C sp_coder struct.
+function sp_level_coder_init(state) {
+    const coder = {
+        premapped: false,
+        solidify: false,
+        check_inaccessibles: false,
+        allow_flips: 3,  // allow flipping level horiz/vert
+        croom: null,
+        n_subroom: 1,
+        lvl_is_joined: false,
+        room_stack: 0,
+        tmproomlist: new Array(MAX_NESTED_ROOMS + 1).fill(null),
+        failed_room: new Array(MAX_NESTED_ROOMS + 1).fill(false),
+    };
+
+    // C: splev_init_present = FALSE; icedpools = FALSE;
+    // Not tracked as JS state; ICE terrain in sel_set_ter is not yet ported.
+
+    update_croom(coder);
+
+    // C: container_obj[0..MAX_CONTAINMENT-1] = NULL; container_idx = 0;
+    // invent_carrying_monster = NULL;
+    // In JS these live in the sp_lev_object context, created separately.
+
+    // C: memset(SpLev_Map, 0, sizeof SpLev_Map);
+    // In JS, splevMap is created by createSpecialLevelApi.
+
+    // C: level.flags initialization
+    state.level.flags.is_maze_lev = false;
+    state.level.flags.temperature = In_hell(state.u.uz, state) ? 1 : 0;
+    state.level.flags.rndmongen = true;
+    state.level.flags.deathdrops = true;
+
+    // C: reset_xystart_size(). Sets xstart=1, ystart=0, xsize=COLNO-1,
+    // ysize=ROWNO. In JS these live in the frame object created by
+    // createSpecialLevelApi, which initializes them to the same values.
+
+    return coder;
+}
+
+// C ref: sp_lev.c nhl_functions[] / l_register_des(). In C, creates the
+// des.* Lua table from the nhl_functions array, mapping each name to its
+// lspo_* C function. In JS, the equivalent dispatch is the API object
+// returned by createSpecialLevelApi; its methods correspond to the C
+// entries: message, monster, object, level_flags, level_init, engraving,
+// mineralize, door, stair, ladder, grave, altar, map, feature, terrain,
+// replace_terrain, room, corridor, random_corridors, gold, trap,
+// mazewalk, drawbridge, region, levregion, exclusion, wallify,
+// wall_property, non_diggable, non_passwall, teleport_region,
+// reset_level, finalize_level, gas_cloud.
+function l_register_des(api) {
+    return api;
+}
+
+// C ref: sp_lev.c create_des_coder(). In C, allocates the coder on first
+// use (each lspo_* function calls this as a guard). In JS, the coder is
+// created once per special level by createSpecialLevelApi.
+function create_des_coder(state) {
+    return sp_level_coder_init(state);
+}
+
+function createSpecialLevelApi(state) {
+    const coder = create_des_coder(state);
+
     // C ref: sp_lev.c SpLev_Map[COLNO][ROWNO]. Tracks which cells were
     // placed by lspo_map, lspo_door, lspo_stair, or lspo_drawbridge.
     // maze1xy avoids these cells when placing fill objects.
+    // C ref: sp_lev.c reset_xystart_size(), called by sp_level_coder_init().
+    // des.map() overrides these with the map's placement; mines-style
+    // level_init and other map-less levels keep these defaults, so
+    // get_location() covers the whole playable area.
     const splevMap = Array.from({ length: COLNO }, () =>
         new Uint8Array(ROWNO),
     );
@@ -1327,17 +1400,11 @@ function createSpecialLevelApi(state) {
         spObjectContext,
     };
 
-    // C ref: sp_lev.c coder->tmproomlist / coder->croom. Tracks which room
-    // des.room() or des.region() callbacks are executing inside, so that
-    // coordinate-bearing methods offset from the room instead of the frame.
-    const croomStack = [];
-    let currentCroom = null;
-
     // C ref: sp_lev.c levregion_add() / mkmaze.c fixup_special(). Branch and
     // stair levregions are stored here and resolved in finish().
     const storedLregions = [];
 
-    return {
+    return l_register_des({
         random: SOURCE_THEMEROOM_RANDOM,
         get frame() { return frame; },
 
@@ -1439,16 +1506,14 @@ function createSpecialLevelApi(state) {
             for (const name of names) {
                 switch (name) {
                 case 'mazelevel': state.level.flags.is_maze_lev = true; break;
-                case 'noflip': state.specialLevelAllowFlips = 0; break;
+                case 'noflip': coder.allow_flips = 0; break;
                 // C ref: sp_lev.c lspo_level_flags(). allow_flips starts at
                 // 3 (both axes). noflipy clears bit 1, noflipx clears bit 2.
                 case 'noflipy':
-                    state.specialLevelAllowFlips
-                        = (state.specialLevelAllowFlips ?? 3) & ~1;
+                    coder.allow_flips &= ~1;
                     break;
                 case 'noflipx':
-                    state.specialLevelAllowFlips
-                        = (state.specialLevelAllowFlips ?? 3) & ~2;
+                    coder.allow_flips &= ~2;
                     break;
                 case 'noteleport': state.level.flags.noteleport = true; break;
                 case 'hardfloor': state.level.flags.hardfloor = true; break;
@@ -1466,15 +1531,15 @@ function createSpecialLevelApi(state) {
                 // C ref: sp_lev.c lspo_level_flags(). solidify marks all
                 // STONE walls not part of the map as non-diggable and
                 // non-passwall during post-processing.
-                case 'solidify': state._specialLevelSolidify = true; break;
+                case 'solidify': coder.solidify = true; break;
                 // C ref: sp_lev.c lspo_level_flags(). premapped is a
                 // coder-only flag (gc.coder->premapped); no level flag
-                // is set. Accept it as a no-op so loaders can pass it.
-                case 'premapped': state._specialLevelPremapped = true; break;
+                // is set.
+                case 'premapped': coder.premapped = true; break;
                 // C ref: sp_lev.c lspo_level_flags(). "sokoban" sets
                 // Sokoban = 1, which is svl.level.flags.sokoban_rules.
                 case 'sokoban': state.level.flags.sokoban_rules = true; break;
-                case 'inaccessibles': state._specialLevelCheckInaccessibles = true; break;
+                case 'inaccessibles': coder.check_inaccessibles = true; break;
                 default: throw new Error(`unsupported special-level flag ${name}`);
                 }
             }
@@ -1647,10 +1712,18 @@ function createSpecialLevelApi(state) {
                     troom.needfill = needfill;
                     troom.needjoining = joined;
                     if (typeof specification.contents === 'function') {
-                        croomStack.push(currentCroom);
-                        currentCroom = troom;
+                        coder.tmproomlist[coder.n_subroom] = troom;
+                        coder.failed_room[coder.n_subroom] = false;
+                        coder.n_subroom++;
+                        update_croom(coder);
                         specification.contents(troom);
-                        currentCroom = croomStack.pop();
+                        // C ref: sp_lev.c spo_endroom()
+                        if (coder.n_subroom > 1) {
+                            coder.n_subroom--;
+                            coder.tmproomlist[coder.n_subroom] = null;
+                            coder.failed_room[coder.n_subroom] = true;
+                        }
+                        update_croom(coder);
                     }
                     add_doors_to_room(troom);
                 } else {
@@ -1660,10 +1733,18 @@ function createSpecialLevelApi(state) {
                     troom.needfill = needfill;
                     troom.needjoining = joined;
                     if (typeof specification.contents === 'function') {
-                        croomStack.push(currentCroom);
-                        currentCroom = troom;
+                        coder.tmproomlist[coder.n_subroom] = troom;
+                        coder.failed_room[coder.n_subroom] = false;
+                        coder.n_subroom++;
+                        update_croom(coder);
                         specification.contents(troom);
-                        currentCroom = croomStack.pop();
+                        // C ref: sp_lev.c spo_endroom()
+                        if (coder.n_subroom > 1) {
+                            coder.n_subroom--;
+                            coder.tmproomlist[coder.n_subroom] = null;
+                            coder.failed_room[coder.n_subroom] = true;
+                        }
+                        update_croom(coder);
                     }
                     add_doors_to_room(troom);
                 }
@@ -1819,7 +1900,7 @@ function createSpecialLevelApi(state) {
             const specification = specOrState;
             // Wall form: door({ state, wall }) — C ref: sp_lev.c:4714-4720
             if (specification.wall != null && specification.coord == null) {
-                if (!currentCroom) return null;
+                if (!coder.croom) return null;
                 const msk = specification.state === 'random'
                     ? -1
                     : SPECIAL_DOOR_STATES[specification.state];
@@ -1830,16 +1911,16 @@ function createSpecialLevelApi(state) {
                     wall: ROOM_DOOR_WALL_MASKS[specification.wall]
                         ?? W_ANY,
                 };
-                create_door(dd, currentCroom, rn2);
+                create_door(dd, coder.croom, rn2);
                 return null;
             }
             // Coord form: door({ state, coord })
             let coordinate;
-            if (currentCroom && specification.coord) {
+            if (coder.croom && specification.coord) {
                 // C ref: sp_lev.c:4723 get_location_coord with croom
                 coordinate = {
-                    x: currentCroom.lx + specification.coord[0],
-                    y: currentCroom.ly + specification.coord[1],
+                    x: coder.croom.lx + specification.coord[0],
+                    y: coder.croom.ly + specification.coord[1],
                 };
             } else {
                 coordinate = specialCoordinate(frame, specification.coord);
@@ -1890,10 +1971,10 @@ function createSpecialLevelApi(state) {
             }
             let coordinate;
             if (spec.coord) {
-                if (currentCroom) {
+                if (coder.croom) {
                     coordinate = {
-                        x: currentCroom.lx + spec.coord[0],
-                        y: currentCroom.ly + spec.coord[1],
+                        x: coder.croom.lx + spec.coord[0],
+                        y: coder.croom.ly + spec.coord[1],
                     };
                 } else {
                     coordinate = specialCoordinate(frame, spec.coord);
@@ -1910,7 +1991,7 @@ function createSpecialLevelApi(state) {
                 let trycnt = 0;
                 do {
                     get_location_coord(
-                        coordinate, DRY, currentCroom,
+                        coordinate, DRY, coder.croom,
                         SP_COORD_IS_RANDOM, { frame, state },
                     );
                 } while ((state.level.at(coordinate.x, coordinate.y)?.typ
@@ -2028,7 +2109,7 @@ function createSpecialLevelApi(state) {
                 coordinate,
                 corpsenm,
             };
-            return lspo_object(normalized, currentCroom, env);
+            return lspo_object(normalized, coder.croom, env);
         },
 
         gold(specification) {
@@ -2037,10 +2118,10 @@ function createSpecialLevelApi(state) {
             const spec = specification ?? {};
             let coordinate;
             if (spec.coord) {
-                coordinate = currentCroom
+                coordinate = coder.croom
                     ? {
-                        x: currentCroom.lx + spec.coord[0],
-                        y: currentCroom.ly + spec.coord[1],
+                        x: coder.croom.lx + spec.coord[0],
+                        y: coder.croom.ly + spec.coord[1],
                     }
                     : specialCoordinate(frame, spec.coord);
             } else {
@@ -2048,7 +2129,7 @@ function createSpecialLevelApi(state) {
                 get_location_coord(
                     coordinate,
                     DRY,
-                    currentCroom,
+                    coder.croom,
                     SP_COORD_IS_RANDOM,
                     { frame, state },
                 );
@@ -2072,7 +2153,7 @@ function createSpecialLevelApi(state) {
                 coordinate,
             };
             try {
-                return create_monster(normalized, currentCroom, env);
+                return create_monster(normalized, coder.croom, env);
             } catch (e) {
                 if (e instanceof UnsupportedMonsterCreationError) return null;
                 throw e;
@@ -2089,16 +2170,16 @@ function createSpecialLevelApi(state) {
                 up = specification === 'up';
                 const coord = { x: -1, y: -1 };
                 get_location_coord(
-                    coord, DRY, currentCroom, SP_COORD_IS_RANDOM,
+                    coord, DRY, coder.croom, SP_COORD_IS_RANDOM,
                     { frame, state },
                 );
                 x = coord.x;
                 y = coord.y;
             } else {
                 up = specification.dir === 'up';
-                if (currentCroom && specification.coord) {
-                    x = currentCroom.lx + specification.coord[0];
-                    y = currentCroom.ly + specification.coord[1];
+                if (coder.croom && specification.coord) {
+                    x = coder.croom.lx + specification.coord[0];
+                    y = coder.croom.ly + specification.coord[1];
                 } else {
                     const coord = specialCoordinate(
                         frame, specification.coord,
@@ -2186,16 +2267,24 @@ function createSpecialLevelApi(state) {
                 needfill: spec.filled ?? FILL_NORMAL,
                 joined: spec.joined ?? true,
             };
-            const parent = currentCroom;
+            const parent = coder.croom;
             const room = build_room(roomSpec, parent, rn2, rnd);
             if (!room) return null;
             if (parent) parent.irregular = true;
-            croomStack.push(currentCroom);
-            currentCroom = room;
+            coder.tmproomlist[coder.n_subroom] = room;
+            coder.failed_room[coder.n_subroom] = false;
+            coder.n_subroom++;
+            update_croom(coder);
             if (typeof spec.contents === 'function') {
                 spec.contents(room);
             }
-            currentCroom = croomStack.pop();
+            // C ref: sp_lev.c spo_endroom()
+            if (coder.n_subroom > 1) {
+                coder.n_subroom--;
+                coder.tmproomlist[coder.n_subroom] = null;
+                coder.failed_room[coder.n_subroom] = true;
+            }
+            update_croom(coder);
             add_doors_to_room(room);
             return room;
         },
@@ -2219,7 +2308,7 @@ function createSpecialLevelApi(state) {
             const SHRINE_MAP = { altar: 0, shrine: 1, sanctum: 2 };
             let x, y;
             let croom_is_temple = true;
-            let croom = currentCroom;
+            let croom = coder.croom;
             if (croom) {
                 x = croom.lx + spec.x;
                 y = croom.ly + spec.y;
@@ -2356,8 +2445,8 @@ function createSpecialLevelApi(state) {
                 }
                 return;
             }
-            const ox = currentCroom ? currentCroom.lx : frame.xstart;
-            const oy = currentCroom ? currentCroom.ly : frame.ystart;
+            const ox = coder.croom ? coder.croom.lx : frame.xstart;
+            const oy = coder.croom ? coder.croom.ly : frame.ystart;
             const tx = ox + coordinate[0];
             const ty = oy + coordinate[1];
             sel_set_ter(tx, ty, typ, lit, state);
@@ -2378,8 +2467,8 @@ function createSpecialLevelApi(state) {
         // or throne at the given coordinates. Accepts ("fountain", x, y) or
         // ("fountain", {x, y}).
         feature(name, xOrSpec, yOpt) {
-            const ox = currentCroom ? currentCroom.lx : frame.xstart;
-            const oy = currentCroom ? currentCroom.ly : frame.ystart;
+            const ox = coder.croom ? coder.croom.lx : frame.xstart;
+            const oy = coder.croom ? coder.croom.ly : frame.ystart;
             let tx, ty;
             if (typeof xOrSpec === 'number') {
                 tx = ox + xOrSpec;
@@ -2506,7 +2595,7 @@ function createSpecialLevelApi(state) {
             // C ref: sp_lev.c flip_level_rnd(). Each allowed flip axis
             // consumes rn2(2). bigrm-12's "noflipy" clears bit 1, leaving
             // only the horizontal axis flip.
-            const flipCode = flip_level_rnd(state.specialLevelAllowFlips ?? 3);
+            const flipCode = flip_level_rnd(coder.allow_flips);
             // C ref: sp_lev.c flip_level() 697-733. flip_level() updates
             // upstair/dnstair/updest/dndest but cannot reach the closure-local
             // storedLregions. Apply the same coordinate mirror here.
@@ -2555,9 +2644,8 @@ function createSpecialLevelApi(state) {
 
             // C ref: sp_lev.c solidify_map(). Marks non-map STONE walls as
             // non-diggable and non-passwall.
-            if (state._specialLevelSolidify) {
+            if (coder.solidify) {
                 solidify_map(state);
-                delete state._specialLevelSolidify;
             }
 
             // C ref: mkmaze.c fixup_special(). Plane of Air levels replace
@@ -2645,9 +2733,8 @@ function createSpecialLevelApi(state) {
 
             // C ref: sp_lev.c:6052-6053. Reveal the entire map for
             // premapped levels (Sokoban).
-            if (state._specialLevelPremapped) {
+            if (coder.premapped) {
                 premap_detect(state);
-                delete state._specialLevelPremapped;
             }
 
             // C ref: sp_lev.c load_special() calls fill_special_room for
@@ -2661,7 +2748,7 @@ function createSpecialLevelApi(state) {
                 fill_special_room(rooms[i], levelObjectEnv());
             }
         },
-    };
+    });
 }
 
 // C ref: sp_lev.c lspo_map(), array form. Sets the map frame and paints

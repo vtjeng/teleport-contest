@@ -1013,20 +1013,21 @@ test('configured tutorial choices skip the query or reach its first command', as
         ],
     );
 
+    // C ref: sp_lev.c sp_level_coder_init() / lspo_level_flags(). Level
+    // flags persist on state.level.flags; coder-only fields like allow_flips
+    // are freed with the coder after level generation (C: Free(gc.coder)).
     assert.deepEqual(
         {
             maze: game.level.flags.is_maze_lev,
             randomMonsters: game.level.flags.rndmongen,
             deathDrops: game.level.flags.deathdrops,
             autoSearch: game.level.flags.noautosearch,
-            flips: game.specialLevelAllowFlips,
         },
         {
             maze: true,
             randomMonsters: false,
             deathDrops: false,
             autoSearch: true,
-            flips: 0,
         },
     );
     assert.deepEqual(game.dndest, {
