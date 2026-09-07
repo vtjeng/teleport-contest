@@ -133,6 +133,7 @@ import {
 } from './invent.js';
 import { del_light_source, new_light_source } from './light.js';
 import {
+    newmcorpsenm,
     newmonhp,
     peace_minded,
     propagate,
@@ -734,11 +735,6 @@ export function ogreWeaponDivisor(species) {
             : 12;
 }
 
-function setMimicCorpsenm(monster, value) {
-    monster.mextra ??= {};
-    monster.mextra.mcorpsenm = value;
-}
-
 function permanentlyInvisible(species) {
     return species?.pmidx === PM_STALKER
         || species?.pmidx === PM_BLACK_LIGHT;
@@ -1138,19 +1134,19 @@ export function set_mimic_sym(monster, normalized) {
                    || (appearance === TIN && noCorpse)) {
             species = NON_PM;
         }
-        setMimicCorpsenm(monster, species);
+        newmcorpsenm(monster);
+        monster.mextra.mcorpsenm = species;
     } else if (appearanceType === M_AP_OBJECT
                && appearance === SLIME_MOLD) {
-        setMimicCorpsenm(monster, state.context.current_fruit);
+        newmcorpsenm(monster);
+        monster.mextra.mcorpsenm = state.context.current_fruit;
         state.flags.made_fruit = true;
     } else if (appearanceType === M_AP_FURNITURE
                && appearance === S_altar) {
         const alignment = random.rn2(3) - 1;
-        setMimicCorpsenm(
-            monster,
-            alignment < 0 ? AM_CHAOTIC
-                : alignment > 0 ? AM_LAWFUL : AM_NEUTRAL,
-        );
+        newmcorpsenm(monster);
+        monster.mextra.mcorpsenm = alignment < 0 ? AM_CHAOTIC
+            : alignment > 0 ? AM_LAWFUL : AM_NEUTRAL;
     } else if (monster.mextra && 'mcorpsenm' in monster.mextra) {
         monster.mextra.mcorpsenm = NON_PM;
     }

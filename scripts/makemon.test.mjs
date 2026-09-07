@@ -21,6 +21,7 @@ import {
     mkclass,
     mkclass_aligned,
     mkclass_poly,
+    newmcorpsenm,
     newmonhp,
     peace_minded,
     propagate,
@@ -1145,4 +1146,31 @@ test('mkclass_poly returns NON_PM for an empty class', () => {
     const result = mkclass_poly(S_ANT, { state, random: rng.random });
     assert.equal(result, NON_PM);
     rng.assertExhausted();
+});
+
+// --- newmcorpsenm ---
+// C ref: makemon.c newmcorpsenm() (2370-2376). Pure allocation helper that
+// ensures mextra exists and sets mcorpsenm to NON_PM.
+
+// When mextra is absent, newmcorpsenm allocates it and writes NON_PM into
+// the mcorpsenm field. The C function calls newmextra() which initializes
+// the struct with mcorpsenm = NON_PM.
+test('newmcorpsenm allocates mextra and sets mcorpsenm to NON_PM', () => {
+    const mtmp = {};
+    newmcorpsenm(mtmp);
+    assert.ok(mtmp.mextra, 'mextra should be allocated');
+    assert.equal(mtmp.mextra.mcorpsenm, NON_PM,
+        'mcorpsenm should be NON_PM after newmcorpsenm');
+});
+
+// When mextra already exists, newmcorpsenm preserves it and overwrites
+// mcorpsenm. The C guard `if (!mtmp->mextra)` skips allocation when the
+// struct is present.
+test('newmcorpsenm preserves existing mextra and resets mcorpsenm', () => {
+    const mtmp = { mextra: { mcorpsenm: 42, epri: { shralign: 1 } } };
+    newmcorpsenm(mtmp);
+    assert.equal(mtmp.mextra.mcorpsenm, NON_PM,
+        'mcorpsenm should be reset to NON_PM');
+    assert.deepEqual(mtmp.mextra.epri, { shralign: 1 },
+        'existing mextra fields should be preserved');
 });

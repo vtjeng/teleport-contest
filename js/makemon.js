@@ -1,6 +1,6 @@
 // Monster selection, birth limits, hit points, and attitude.
 // C refs: makemon.c rndmonst_adj(), mkclass(), mkclass_aligned(),
-// mkclass_poly(), freemcorpsenm(), and elemental filtering;
+// mkclass_poly(), newmcorpsenm(), freemcorpsenm(), and elemental filtering;
 // mkobj.c rndmonnum_adj(); questpgr.c qt_montype().
 
 import {
@@ -825,6 +825,15 @@ export function rndmonnum_adj(minadj = 0, maxadj = 0, env = {}) {
 
 export function rndmonnum(env = {}) {
     return rndmonnum_adj(0, 0, env);
+}
+
+// C ref: makemon.c newmcorpsenm() (2370-2376). Allocates the mextra record
+// if absent and initializes mcorpsenm to NON_PM. In the C source every call
+// site immediately overwrites the field, so the NON_PM value is transient.
+export function newmcorpsenm(mtmp) {
+    if (!mtmp.mextra)
+        mtmp.mextra = {};
+    mtmp.mextra.mcorpsenm = NON_PM;
 }
 
 // C ref: makemon.c freemcorpsenm() (2377-2383), which C's own comment calls
