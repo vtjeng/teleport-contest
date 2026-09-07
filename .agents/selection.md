@@ -22,8 +22,10 @@ The kind is `rng` when C's random-number log first differs, `screen` when a
 screen differs while the log still matches, and `stop` when the port refused an
 unported path. An `rng` entry takes its function name from the
 `@ caller(file.c:line)` annotation on C's call; a `stop` entry takes its name
-from the refusal message, when a C file defines that name. Appendix A states
-how to read an entry.
+from the refusal message, when a C file defines that name. When the queue
+prints a `stop` entry as unresolved, name the C function the refusal stands
+in for in that throw site's message, written as `name()`, and rerun the
+queue before choosing. Appendix A states how to read an entry.
 
 Take goals in this order:
 
