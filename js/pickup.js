@@ -140,6 +140,7 @@ import {
     remove_object, set_bknown, splitobj, unsplitobj, weight,
 } from './obj.js';
 import { get_obj_location } from './light.js';
+import { bagotricks } from './makemon.js';
 import { observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
@@ -3009,7 +3010,7 @@ export async function doloot(state = game) {
 const TIPCHECK_OK = 0;
 const TIPCHECK_LOCKED = 1;
 // const TIPCHECK_TRAPPED = 2;
-// const TIPCHECK_CANNOT = 3;
+const TIPCHECK_CANNOT = 3;
 const TIPCHECK_EMPTY = 4;
 
 // Sentinel returned by tipcontainer_gettarget() when the user chooses
@@ -3093,11 +3094,11 @@ async function tipcontainer_gettarget(box, state) {
 // horn-of-plenty, and Schrodinger branches throw because their helpers
 // are unported.
 async function tipcontainer_checks(box, targetbox, allowempty, state) {
-    // pickup.c:3962-3967. Undiscovered bag of tricks as destination.
+    // pickup.c:3962-3967. Undiscovered bag of tricks as destination:
+    // apply it once before trying to tip source box.
     if (targetbox && targetbox.otyp === BAG_OF_TRICKS) {
-        throw new UnsupportedPickupError(
-            'tipcontainer_checks: bag-of-tricks target (bagotricks)',
-        );
+        await bagotricks(targetbox, false, state);
+        return TIPCHECK_CANNOT;
     }
 
     // pickup.c:3972-3976. Discover lock status.
@@ -3122,10 +3123,14 @@ async function tipcontainer_checks(box, targetbox, allowempty, state) {
         );
     }
 
-    // pickup.c:3993-4032. Bag of tricks or horn of plenty.
+    // pickup.c:3993-4032. Bag of tricks or horn of plenty tipping loop.
+    // bagotricks() and hornoplenty() are ported, but the loop requires
+    // consume_obj_charge() (invent.c) to decrement spe; without it the
+    // loop condition (box->spe > 0) never becomes false. The surrounding
+    // shop billing (addtobill, subfrombill) is also unported.
     if (box.otyp === BAG_OF_TRICKS || box.otyp === HORN_OF_PLENTY) {
         throw new UnsupportedPickupError(
-            'tipcontainer_checks: bag of tricks / horn of plenty',
+            'tipcontainer_checks: bag/horn tipping loop (consume_obj_charge)',
         );
     }
 

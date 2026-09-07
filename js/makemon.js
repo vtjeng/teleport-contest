@@ -1,6 +1,7 @@
-// Monster selection, birth limits, hit points, and attitude.
+// Monster selection, birth limits, hit points, attitude, and special summons.
 // C refs: makemon.c rndmonst_adj(), mkclass(), mkclass_aligned(),
-// mkclass_poly(), newmcorpsenm(), freemcorpsenm(), and elemental filtering;
+// mkclass_poly(), newmcorpsenm(), freemcorpsenm(), bagotricks(),
+// summon_furies(), and elemental filtering;
 // mkobj.c rndmonnum_adj(); questpgr.c qt_montype().
 
 import {
@@ -14,7 +15,15 @@ import {
     G_GENOD,
     G_GONE,
     has_mcorpsenm,
+    M_AP_MONSTER,
+    M_AP_NOTHING,
+    M_AP_TYPE,
     MAXMONNO,
+    MM_ADJACENTOK,
+    MM_NOWAIT,
+    NO_MM_FLAGS,
+    nothing_happens,
+    nothing_seems_to_happen,
 } from './const.js';
 import { level_difficulty, on_level } from './dungeon.js';
 import { sgn } from './hacklib.js';
@@ -88,8 +97,15 @@ import {
     monst_globals_init,
     monsterClassSymbol,
 } from './monsters.js';
+import { makemon } from './makemon_create.js';
+import { discover_object } from './o_init.js';
+import { BAG_OF_TRICKS } from './objects.js';
+import { sensesMonster } from './startup_a11y.js';
 import { MAXMCLASSES } from './symbols.js';
+import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
+import { update_inventory } from './invent.js';
+import { canseemon } from './vision.js';
 
 function generationState(env = {}) {
     const state = env.state ?? game;
@@ -846,4 +862,80 @@ export function newmcorpsenm(mtmp) {
 export function freemcorpsenm(mtmp) {
     if (has_mcorpsenm(mtmp))
         mtmp.mextra.mcorpsenm = NON_PM;
+}
+
+// C ref: makemon.c bagotricks() (2554-2601). Creates a monster when applying
+// a bag of tricks (the `a` command) or tipping one (#tip). Consumes a charge
+// and creates 1-8 monsters; returns { moncount, seecount } where moncount is
+// the number of monsters created and seecount is the number the hero saw.
+export async function bagotricks(bag, tipping, state = game) {
+    let moncount = 0;
+    let seecount_out = 0;
+
+    if (!bag || bag.otyp !== BAG_OF_TRICKS) {
+        // C: impossible("bad bag o' tricks") -- pline.c debug output
+        note_unported('pline.c impossible');
+    } else if (bag.spe < 1) {
+        // C: pline1() is pline("%s", cstr)
+        await ttyPline(
+            (tipping && bag.cknown) ? "It's empty." : nothing_happens,
+            state,
+        );
+        // Now known to be empty if sufficiently discovered
+        if (bag.dknown && state.objects[bag.otyp].oc_name_known) {
+            bag.cknown = 1;
+            update_inventory({ state }); // for perm_invent
+        }
+    } else {
+        let creatcnt = 1;
+        let seecount = 0;
+
+        // C: consume_obj_charge(bag, !tipping) -- invent.c, not ported.
+        // Decrements bag->spe and optionally bills the hero.
+        note_unported('invent.c consume_obj_charge');
+
+        if (!rn2(23))
+            creatcnt += rnd(7);
+        do {
+            const mtmp = makemon(null, state.u.ux, state.u.uy,
+                NO_MM_FLAGS, { state });
+            if (mtmp) {
+                ++moncount;
+                if ((canseemon(mtmp, state)
+                        && (M_AP_TYPE(mtmp) === M_AP_NOTHING
+                            || M_AP_TYPE(mtmp) === M_AP_MONSTER))
+                    || sensesMonster(mtmp, state))
+                    ++seecount;
+            }
+        } while (--creatcnt > 0);
+        if (seecount) {
+            seecount_out = seecount;
+            if (bag.dknown) {
+                // C: makeknown(BAG_OF_TRICKS) expands to
+                // discover_object(BAG_OF_TRICKS, TRUE, TRUE, TRUE)
+                discover_object(BAG_OF_TRICKS, true, true, true, state);
+                update_inventory({ state }); // for perm_invent
+            }
+        } else if (!tipping) {
+            await ttyPline(
+                !moncount ? nothing_happens : nothing_seems_to_happen,
+                state,
+            );
+        }
+    }
+    return { moncount, seecount: seecount_out };
+}
+
+// C ref: makemon.c summon_furies() (2605-2615). Creates some or all remaining
+// Erinyes around the player. Called when the player angers the gods (e.g. via
+// a helm of opposite alignment). Pass limit=0 to create until the species is
+// extinct; pass limit=N to create at most N.
+export function summon_furies(limit, state = game) {
+    let i = 0;
+    while (mk_gen_ok(PM_ERINYS, G_GONE, 0, state)
+        && (i < limit || !limit)) {
+        makemon(state.mons[PM_ERINYS], state.u.ux, state.u.uy,
+            MM_ADJACENTOK | MM_NOWAIT, { state });
+        i++;
+    }
 }

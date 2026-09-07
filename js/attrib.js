@@ -138,6 +138,7 @@ import { make_confused } from './potion.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { aligns } from './roles.js';
 import { ttyPline } from './tty_message.js';
+import { summon_furies } from './makemon.js';
 import { note_unported } from './unported.js';
 import { add_weapon_skill } from './weapon.js';
 
@@ -1377,7 +1378,7 @@ export async function uchangealign(newalign, reason, state = game) {
             await make_confused(rn1(2, 3), false, state);
             if (Is_astralevel(state.u?.uz)
                 || (rn2(50) < state.u.ualign.abuse))
-                note_unported('makemon.c summon_furies');
+                summon_furies(Is_astralevel(state.u?.uz) ? 0 : 1, state);
             // livelog_printf(LL_ALIGNMENT, "used a helm to turn %s", ...)
         } else if (reason === A_CG_HELM_OFF) {
             await ttyPline(
