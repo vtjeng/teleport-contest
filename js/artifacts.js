@@ -1447,7 +1447,7 @@ function Drain_resistance(state) {
     const p = state.u?.uprops?.[DRAIN_RES];
     return Boolean(p?.intrinsic || p?.extrinsic);
 }
-function Stone_resistance(state) {
+export function Stone_resistance(state) {
     const p = state.u?.uprops?.[STONE_RES];
     return Boolean(p?.intrinsic || p?.extrinsic);
 }

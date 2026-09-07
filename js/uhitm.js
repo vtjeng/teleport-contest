@@ -414,7 +414,7 @@ async function that_is_a_mimic(mtmp, mimic_flags, state = game, env = {}) {
 // into a square occupied by a mimicking monster. Prints the identification
 // message, optionally sticks the hero, wakes the mimic, and marks the square
 // invisible if the hero still cannot spot it.
-async function stumble_onto_mimic(mtmp, state = game, env = {}) {
+export async function stumble_onto_mimic(mtmp, state = game, env = {}) {
     await that_is_a_mimic(mtmp, MIM_REVEAL, state, env);
 
     if (!state.u.ustuck && !mtmp.mflee && dmgtype(mtmp.data, AD_STCK)

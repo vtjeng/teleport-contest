@@ -123,7 +123,7 @@ import { UnsupportedItemDestructionError } from './zap_destroy_items.js';
 import { SPE_TELEPORT_AWAY } from './objects.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { UnsupportedPositionCheckError, tele } from './teleport.js';
-import { t_at } from './trap.js';
+import { t_at, dountrap } from './trap.js';
 import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
 import { UnsupportedErosionError } from './trap_erode_obj.js';
 import {
@@ -1415,7 +1415,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
-    'terrain', 'travel', 'dip', 'invoke',
+    'terrain', 'travel', 'dip', 'invoke', 'untrap',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -2989,6 +2989,9 @@ async function doextcmd(key, state) {
     case 'doinvoke':
         // C ref: artifact.c doinvoke(), which returns its own ECMD_* result.
         return await failClosedCommand(key, state, () => doinvoke(state));
+    case 'dountrap':
+        // C ref: trap.c dountrap(), which returns ECMD_OK or ECMD_TIME.
+        return await dountrap(state);
     default:
         resetCommandVars(state);
         throw new UnsupportedHeroCommandBoundaryError(

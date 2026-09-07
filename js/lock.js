@@ -545,7 +545,7 @@ export function autokey(opening, state = game) {
 // addcmdq=true because CQ_REPEAT is not ported, but the autounlock path that
 // calls this is never repeated, so passing false is safe here.
 const YNQCHARS = 'ynq';
-async function ynq(query, state = game) {
+export async function ynq(query, state = game) {
     const KEY_Q = 'q'.charCodeAt(0);
     const KEY_Y = 'y'.charCodeAt(0);
     const c = await yn_function(query, YNQCHARS, 'q', false, state);
@@ -875,7 +875,7 @@ export function u_have_forceable_weapon(state = game) {
 }
 
 // C ref: obj.h Is_box() (195-196). True for chests and large boxes.
-function Is_box(obj) {
+export function Is_box(obj) {
     return obj.otyp === CHEST || obj.otyp === LARGE_BOX;
 }
 
@@ -1216,7 +1216,7 @@ export async function doopen_indir(x, y, state = game, env = {}) {
 // stumble_onto_mimic() is unported, so this function throws when the mimic
 // condition is met. In normal play the condition requires a shapechanger
 // mimicking a closed door, which is rare enough that the throw is acceptable.
-function stumble_on_door_mimic(x, y, state = game) {
+export function stumble_on_door_mimic(x, y, state = game) {
     const mtmp = m_at(x, y, state);
     if (mtmp && is_door_mappear(mtmp)
         && !Protection_from_shape_changers(state)) {
