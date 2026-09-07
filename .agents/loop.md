@@ -25,8 +25,9 @@ The orchestrator repeats without returning to the user between steps:
    a. Check the queue: run `node scripts/goal-log.mjs --current --detail`.
       If a goal is already queued, take it and skip to step 1c.
    b. Run `node scripts/divergence-queue.mjs`. When every development session
-      matches and `ROADMAP.md` lists no unported function, the port is
-      complete: stop the loop and notify the user. Otherwise choose the goal
+      matches and `node scripts/goal-log.mjs roadmap` lists no unported
+      function, the port is complete: stop the loop and notify the user.
+      Otherwise choose the goal
       by the order in `.agents/selection.md`, "Choosing a goal", and queue it
       with `node scripts/goal-log.mjs queue-goal`.
    c. Open the goal with `node scripts/goal-log.mjs open-goal --id <id>`,
@@ -58,16 +59,15 @@ The orchestrator repeats without returning to the user between steps:
    unreviewed debt for information, and nothing in that output forces a
    review. Decide whether a correctness review is warranted by
    `.agents/review.md`, "When a correctness review is warranted".
-5. When a span closes, close it with `node scripts/goal-log.mjs close-span`,
-   regenerate `ROADMAP.md` with `node scripts/goal-log.mjs roadmap`, and
-   append the span's `SCORE.tsv` row as `.agents/scoring.md` requires, in the
-   commit that records the closure in `GOALS.json`. The row's `sha` and
+5. When a span closes, close it with `node scripts/goal-log.mjs close-span`
+   and append the span's `SCORE.tsv` row as `.agents/scoring.md` requires, in
+   the commit that records the closure in `GOALS.json`. The row's `sha` and
    figures come from step 3's measurement. Continue at step 2.
 6. When a goal closes, for a file port confirm that its recipes reach each
    entry point of the file (`AGENTS.md`, "Validate completed work"). Then run
    the authorized holdout evaluation and record its result with the goal's
-   evidence. Close the goal with `node scripts/goal-log.mjs close-goal`,
-   regenerate `ROADMAP.md`, and continue at step 1.
+   evidence. Close the goal with `node scripts/goal-log.mjs close-goal`
+   and continue at step 1.
 
 A correctness review, when one is warranted, is a loop step between spans.
 Commits that land while a review reads its fixed range belong to the next

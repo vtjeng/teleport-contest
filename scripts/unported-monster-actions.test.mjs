@@ -3937,7 +3937,7 @@ test('the planning clone remaps a light source and a timer onto the copy',
 // turn boundary rather than letting js/jsmain.js rethrow it and discard the
 // segment -- is not pinned here, because advanceElapsedTurn() is not exported
 // and driving moveloop_core() from this fixture does not reach the arm.
-// ROADMAP.md records that gap.
+// That gap is unported.
 test('a planned pickup raises the naming class the turn must convert',
     async () => {
         const target = await prepareStartingPetAction(PM_PONY);

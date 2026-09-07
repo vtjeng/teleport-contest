@@ -21,7 +21,7 @@
 //
 // Every character is human. A race with infravision makes C draw a monster
 // the hero cannot see, which `js/display.js newsym()` does not do; that
-// mismatch is recorded in ROADMAP.md and belongs to the infravision work.
+// mismatch belongs to the infravision work (unported newsym branch).
 
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

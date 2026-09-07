@@ -3,7 +3,8 @@
 A **goal** is one tracked unit of work in `GOALS.json`, written through
 `node scripts/goal-log.mjs`. It is either a file port or a divergence fix.
 `.agents/selection.md` states how the divergence queue orders goals, and
-`ROADMAP.md` lists the C files with their ported and unported function counts.
+`node scripts/goal-log.mjs roadmap` lists the C files with their ported and
+unported function counts.
 Goals recorded before 2026-09-05 were boundary ports with a forecast and
 slices; `GOALS.json` keeps them as history.
 

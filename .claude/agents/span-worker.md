@@ -25,7 +25,7 @@ a missing callee in this span when the C uses its return value; when the C
 discards the result, call `note_unported()` and skip the call, as `AGENTS.md`,
 "Port whole files in C order", states.
 
-Do not open `.agents/review.md`, `.agents/selection.md`, or `ROADMAP.md`.
+Do not open `.agents/review.md` or `.agents/selection.md`.
 Those belong to the orchestrator defined in `.agents/loop.md`. This
 restriction overrides the AGENTS.md reading rows that name them.
 

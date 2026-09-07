@@ -55,7 +55,7 @@ function segment(seed, options, moves, character = {}) {
 
 const PLAIN = 'pettype:none,!acoustics';
 // A menu heading whose text starts at a space cannot round-trip through the
-// scorer's screen decoder, which ROADMAP.md records as a fixed ceiling. These
+// scorer's screen decoder (a fixed ceiling in the scorer). These
 // segments open menus, so they select the unindented heading style instead.
 const PLAIN_MENUS = 'pettype:none,!acoustics,menu_headings:none';
 const DEBUG = 'pettype:none,!acoustics,playmode:debug';
@@ -173,7 +173,7 @@ export function loadExtendedCommandPromptRecipe() {
             // 77 characters: custompline() puts "# " in columns 0 and 1, so
             // the 77th lands in column 78 and leaves the cursor on column 79,
             // the last column topl_putsym() keeps unused. One more keystroke
-            // would take its newline arm, which ROADMAP.md records as unported
+            // would take its newline arm, which is unported
             // together with tty_clear_nhwindow()'s multi-row repair; the
             // BUFSZ/COLNO length cap sits beyond that wrap and is unreachable
             // until both land.

@@ -19,7 +19,7 @@
 // a checkpoint can only advance the ratchet. Lowering is deliberate and needs a
 // reason, which `lowerBaseline()` appends to the session's own record. Nothing
 // here is deferred work: a lowering is a closed fact, so it lives beside the
-// number it explains rather than in `ROADMAP.md`.
+// number it explains.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -88,7 +88,7 @@ export function raiseBaseline(baseline, current) {
 /**
  * Lower one session's figures deliberately, recording why.
  *
- * The reason is stored beside the number rather than in `ROADMAP.md`, because a
+ * The reason is stored beside the number because a
  * lowering is not outstanding work: the port became more correct and a session
  * earns fewer screens. Someone later asking why a baseline sits below what the
  * history suggests finds the answer in the same record, and a session lowered

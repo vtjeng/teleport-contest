@@ -277,8 +277,7 @@ test('the roadmap orders files by unported functions and names their goal', () =
         { cFile: 'small.c', total: 1, ported: 1, unported: 0, goal: '' },
     ]);
     const markdown = formatRoadmap(rows, 'f'.repeat(40));
-    assert.ok(markdown.startsWith('# Roadmap\n'));
-    assert.ok(markdown.includes('Ported functions: 2 of 3.'));
+    assert.ok(markdown.startsWith('Ported functions: 2 of 3, at ffffffff.\n'));
     assert.ok(markdown.includes('| big.c | 2 | 1 | 1 | big-c (open) |'));
 });
 

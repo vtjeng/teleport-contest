@@ -43,8 +43,7 @@
 // D:1 walk missed a potion's colour before the descent began, so it was
 // dropped rather than recorded against the wrong colour. The defect behind
 // that, a missing display.c see_nearby_objects(), is fixed; recording the seed
-// now needs only a fresh walk from its upstairs to its downstairs. ROADMAP.md
-// carries the outstanding item.
+// now needs only a fresh walk from its upstairs to its downstairs.
 
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

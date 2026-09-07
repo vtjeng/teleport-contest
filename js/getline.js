@@ -79,7 +79,7 @@ let suppress_history = false;
 // wrapped prompt.  Nothing reaches the arm yet, because the only caller that
 // wraps is the default arm below and no ported prompt runs past column 79.
 // Porting the second cl_end() belongs with tty_clear_nhwindow(WIN_MESSAGE)'s
-// docorner() repair, which ROADMAP.md records: both are wrapped-prompt
+// docorner() repair: both are wrapped-prompt
 // rendering and neither can be validated against a C recording without the
 // other.
 function topl_putsym(display, ch) {

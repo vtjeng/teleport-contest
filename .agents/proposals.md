@@ -1,7 +1,7 @@
 # Proposed changes
 
 This file collects proposed changes to tooling and process. For unimplemented
-game behavior, see `ROADMAP.md`. Agents do not select goals from this file.
+game behavior, run `node scripts/goal-log.mjs roadmap`. Agents do not select goals from this file.
 
 Each entry states what it would change, what it costs, what prompted it, and
 what it leaves unfixed. Delete an entry when the change lands or a decision

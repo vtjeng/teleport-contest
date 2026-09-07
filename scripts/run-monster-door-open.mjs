@@ -14,7 +14,7 @@
 //
 // `You see a door open.` has no segment. It needs a hero who sees the square
 // while canspotmon() fails for the monster standing on it, which on this level
-// means an invisible one; ROADMAP.md records why nothing behind the current
+// means an invisible one; nothing behind the current
 // boundary sets minvis on dungeon level one. scripts/monmove.test.mjs pins
 // that arm against postmov() directly.
 //

@@ -646,7 +646,7 @@ test('postmov opens a closed door and reports what the hero heard',
 // sight of the opener, and this test pins the same arm against postmov()
 // directly. The second is not, and cannot be on this level: `You see a door
 // open.` needs canspotmon() to fail for a monster the hero can see, which
-// means an invisible one, and ROADMAP.md records why nothing behind the
+// means an invisible one, and nothing behind the
 // current boundary sets minvis on dungeon level one.
 test('postmov names a spotted monster that opens a door in sight',
     async () => {
@@ -1079,7 +1079,7 @@ test('postmov shoots a dart at a monster the hero watches and misses',
 // version of this case pinned that wrong string as correct. Detection keeps
 // canspotmon() true through sensemon(), which separates the two gates this
 // case is about without dragging in an unported naming branch. The missing
-// do_it branch is recorded under `## Unresolved` in ROADMAP.md.
+// do_it branch is not yet ported.
 test('postmov separates the dart line gate from the seetrap gate', async () => {
     const { state, monster } = dartTrapState();
     seeSquare(state, 5, 4);

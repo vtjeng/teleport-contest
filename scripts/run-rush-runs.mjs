@@ -30,7 +30,7 @@
 //
 // Every character is human. A race with infravision makes C draw a monster
 // the hero cannot see, which `js/display.js newsym()` does not do; that
-// mismatch is recorded in ROADMAP.md and belongs to the infravision work.
+// mismatch belongs to the infravision work (unported newsym branch).
 //
 // Each case names the stop it was chosen for in its `arm` field and describes
 // it in a comment. The square counts in those comments come from replaying

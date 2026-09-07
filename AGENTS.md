@@ -13,8 +13,9 @@ every valid seed, date and time, set of options, and input sequence.
   produce.
 - Select each goal as `.agents/selection.md` states. `GOALS.json` records the
   goal in progress and the goals queued after it
-  (`node scripts/goal-log.mjs --current`). `ROADMAP.md` lists every C file
-  with its ported and unported function counts.
+  (`node scripts/goal-log.mjs --current`).
+  `node scripts/goal-log.mjs roadmap` lists every C file with its ported and
+  unported function counts.
 
 ## Recorded test sessions
 
@@ -80,7 +81,7 @@ divergence fix, the functions the fix touches. The span worker
 
 | Before you... | Read... |
 | --- | --- |
-| Choose which goal to open next | `.agents/selection.md` and `ROADMAP.md` |
+| Choose which goal to open next | `.agents/selection.md` |
 | Implement game behavior | `.agents/glossary.md` and `.agents/validation.md` |
 | Validate game behavior | `.agents/validation.md` |
 | Propose a change to tooling or process | `.agents/proposals.md` |
@@ -280,8 +281,8 @@ without returning to the user. Stop and ask only for:
 
 - a holdout evaluation outside the close of a goal;
 - a change to which sessions belong to the development and holdout sets;
-- a complete port: every development session matches and `ROADMAP.md` lists
-  no unported function;
+- a complete port: every development session matches and
+  `node scripts/goal-log.mjs roadmap` lists no unported function;
 - a decision not covered by this file or any file it references.
 
 Report progress when the user asks and when the loop stops. Do not stop merely
