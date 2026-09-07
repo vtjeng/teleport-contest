@@ -158,7 +158,7 @@ import { body_part } from './polyself.js';
 import { costly_spot, sellobj_state } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { menuTitleStyle } from './tty_menu.js';
-import { is_lava, is_pool, t_at } from './trap.js';
+import { is_lava, is_pool, t_at, chest_trap } from './trap.js';
 import { clearTtyMessageWindow, ttyNorep, ttyPline } from './tty_message.js';
 import {
     add_menu, add_menu_heading, getlin, select_menu,
@@ -1503,9 +1503,17 @@ export async function use_container(obj, held, more_containers, state) {
             await ttyPline('You must put it down to unlock.', state);
         return ECMD_OK;
     } else if (obj.otrapped) {
-        throw new UnsupportedPickupError(
-            'use_container: otrapped container (chest_trap)',
-        );
+        if (held)
+            await ttyPline(`You open ${the(xnameFresh(obj, state))}...`, state);
+        await chest_trap(obj, HAND, false, state);
+        // Even if the trap fails, you've used up this turn.
+        if ((state.multi ?? 0) >= 0) {
+            nomul(-1, state);
+            state.multi_reason = 'opening a container';
+            state.nomovemsg = '';
+        }
+        state.ga.abort_looting = true;
+        return ECMD_TIME;
     }
 
     state.gc ??= {};
@@ -3009,7 +3017,7 @@ export async function doloot(state = game) {
 
 const TIPCHECK_OK = 0;
 const TIPCHECK_LOCKED = 1;
-// const TIPCHECK_TRAPPED = 2;
+const TIPCHECK_TRAPPED = 2;
 const TIPCHECK_CANNOT = 3;
 const TIPCHECK_EMPTY = 4;
 
@@ -3118,9 +3126,14 @@ async function tipcontainer_checks(box, targetbox, allowempty, state) {
 
     // pickup.c:3982-3991. Trapped container.
     if (box.otrapped) {
-        throw new UnsupportedPickupError(
-            'tipcontainer_checks: trapped container (chest_trap)',
-        );
+        await chest_trap(box, HAND, false, state);
+        // Even if the trap fails, you've used up this turn.
+        if ((state.multi ?? 0) >= 0) {
+            nomul(-1, state);
+            state.multi_reason = 'tipping a container';
+            state.nomovemsg = '';
+        }
+        return TIPCHECK_TRAPPED;
     }
 
     // pickup.c:3993-4032. Bag of tricks or horn of plenty tipping loop.

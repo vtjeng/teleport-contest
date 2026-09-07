@@ -620,6 +620,88 @@ export function Some_Monnam(monster, state = game, env = {}) {
     return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
 }
 
+// C ref: do_name.c noit_mon_nam() (1048-1060). Like mon_nam() but suppresses
+// "it" so the hero always sees a name (used for probing and aggravation).
+export function noit_mon_nam(monster, state = game, env = {}) {
+    const hasGivenName = !!(monster.mextra?.mgivenname
+        || monster.mgivenname);
+    const suppress = hasGivenName
+        ? (SUPPRESS_SADDLE | SUPPRESS_IT)
+        : SUPPRESS_IT;
+    return x_monnam(monster, ARTICLE_YOUR, null, suppress, false, state, env);
+}
+
+// C ref: do_name.c noit_Monnam() (1083-1089). Capitalized noit_mon_nam().
+export function noit_Monnam(monster, state = game, env = {}) {
+    const name = noit_mon_nam(monster, state, env);
+    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+}
+
+// C ref: do_name.c y_monnam() (1117-1129). "your little dog" for pets,
+// "the orc" for non-tame monsters.
+export function y_monnam(monster, state = game, env = {}) {
+    const prefix = monster.mtame ? ARTICLE_YOUR : ARTICLE_THE;
+    const hasGivenName = !!(monster.mextra?.mgivenname
+        || monster.mgivenname);
+    const suppression_flag = (hasGivenName || monster === state.u?.usteed)
+        ? SUPPRESS_SADDLE : 0;
+    return x_monnam(monster, prefix, null, suppression_flag, false, state, env);
+}
+
+// C ref: decl.c c_obj_colors[] (20-37). Color names indexed by CLR_* value.
+const c_obj_colors = Object.freeze([
+    'black',          /* CLR_BLACK   0 */
+    'red',            /* CLR_RED     1 */
+    'green',          /* CLR_GREEN   2 */
+    'brown',          /* CLR_BROWN   3 */
+    'blue',           /* CLR_BLUE    4 */
+    'magenta',        /* CLR_MAGENTA 5 */
+    'cyan',           /* CLR_CYAN    6 */
+    'gray',           /* CLR_GRAY    7 */
+    'transparent',    /* no_color    8 */
+    'orange',         /* CLR_ORANGE  9 */
+    'bright green',   /* CLR_BRIGHT_GREEN 10 */
+    'yellow',         /* CLR_YELLOW 11 */
+    'bright blue',    /* CLR_BRIGHT_BLUE 12 */
+    'bright magenta', /* CLR_BRIGHT_MAGENTA 13 */
+    'bright cyan',    /* CLR_BRIGHT_CYAN 14 */
+    'white',          /* CLR_WHITE  15 */
+]);
+
+const CLR_MAX = 16;
+const NO_COLOR = 8;
+
+// C ref: do_name.c hcolors[] (1430-1458). Hallucination color names drawn
+// from the display RNG. Duplicated locally in artifacts.js, muse.js, and
+// do_wear.js where each file's hcolor() needs the array.
+const hcolors = Object.freeze([
+    'ultraviolet', 'infrared', 'bluish-orange',
+    'reddish-green', 'dark white', 'light black', 'sky blue-Loss',
+    'pinkish-cyan', 'indigo-Loss', 'colorless',
+    'white', 'black', 'hot pink', 'chartreuse', 'periwinkle',
+    'mellow yellow', 'sarcoline', 'incarnadine', 'sinoper',
+    'zinnober', 'smaragdine', 'woad', 'watchet',
+    'keppel', 'feldgrau', 'glaucous', 'gamboge',
+    'falun red', 'aureolin', 'celadon', 'erin', 'coquelicot',
+    'nattier blue', 'mikado yellow', 'amaranth', 'viridian',
+    'feldgrau', 'amaranth', 'zinnober', 'smaragdine',
+    'coquelicot', 'glaucous', 'gamboge',
+    'bistre', 'ecru', 'fulvous', 'tekhelet', 'selective yellow',
+]);
+
+// C ref: do_name.c rndcolor() (1470-1479). Random color from the gameplay
+// RNG; if hallucinating, picks a hallucination color from the display RNG
+// instead.
+export function rndcolor(state = game) {
+    const k = rn2(CLR_MAX);
+    const hallucinating = namingPropertyActive(state, HALLUC)
+        && !namingPropertyActive(state, HALLUC_RES);
+    if (hallucinating) {
+        return hcolors[rn2_on_display_rng(hcolors.length)];
+    }
+    return (k === NO_COLOR) ? 'colorless' : c_obj_colors[k];
+}
+
 // C ref: do_name.c Adjmonnam() (1142-1149). "The <adj> <monster>".
 export function Adjmonnam(monster, adj, state = game, env = {}) {
     const hasGivenName = !!(monster.mextra?.mgivenname
