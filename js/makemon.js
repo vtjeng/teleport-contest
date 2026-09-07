@@ -1,7 +1,7 @@
 // Monster selection, birth limits, hit points, attitude, and special summons.
 // C refs: makemon.c rndmonst_adj(), mkclass(), mkclass_aligned(),
 // mkclass_poly(), newmcorpsenm(), freemcorpsenm(), bagotricks(),
-// summon_furies(), and elemental filtering;
+// summon_furies(), wrong_elem_type();
 // mkobj.c rndmonnum_adj(); questpgr.c qt_montype().
 
 import {
@@ -241,8 +241,10 @@ export function is_home_elemental(monster, state = game) {
     }
 }
 
-// C ref: makemon.c wrong_elem_type().
-function wrongElementType(monster, state) {
+// C ref: makemon.c wrong_elem_type(). Returns true when the given monster
+// species does not belong on the current elemental level. C declares this
+// staticfn; exported here for direct testing.
+export function wrong_elem_type(monster, state) {
     if (monster.mlet === S_ELEMENTAL)
         return !is_home_elemental(monster, state);
     if (on_level(state.u?.uz, state.earth_level)) return false;
@@ -805,7 +807,7 @@ export function rndmonst_adj(minadj = 0, maxadj = 0, env = {}) {
             && !/^[A-Z]$/u.test(monsterClassSymbol(monster.mlet))) {
             continue;
         }
-        if (elementalLevel && wrongElementType(monster, state)) continue;
+        if (elementalLevel && wrong_elem_type(monster, state)) continue;
         if (uncommon(index, state)) continue;
         if (inHell(state) && (monster.geno & G_NOHELL)) continue;
 

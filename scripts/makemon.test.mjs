@@ -29,6 +29,7 @@ import {
     rndmonst,
     rndmonst_adj,
     set_malign,
+    wrong_elem_type,
 } from '../js/makemon.js';
 import {
     G_FREQ,
@@ -45,6 +46,8 @@ import {
     PM_ERINYS,
     PM_FIRE_ANT,
     PM_FIRE_ELEMENTAL,
+    PM_FLOATING_EYE,
+    PM_FOG_CLOUD,
     PM_FOX,
     PM_GIANT,
     PM_GOBLIN,
@@ -62,11 +65,13 @@ import {
     PM_LEPRECHAUN,
     PM_LICHEN,
     PM_LITTLE_DOG,
+    PM_LURKER_ABOVE,
     PM_MAIL_DAEMON,
     PM_NEWT,
     PM_NAZGUL,
     PM_ORC,
     PM_QUEEN_BEE,
+    PM_GHOST,
     PM_SEWER_RAT,
     PM_STRAW_GOLEM,
     PM_WOLF,
@@ -582,6 +587,85 @@ test('elemental planes filter ordinary monsters by source capabilities', () => {
             allowed ? candidate : NON_PM, `${field} candidate ${candidate}`);
         assert.equal(result.bounds.length, allowed ? 1 : 0);
     }
+});
+
+// ---- wrong_elem_type tests ----
+// C ref: makemon.c wrong_elem_type() (55-75). Pure filter that checks whether
+// a given monster species does not belong on the current elemental level.
+// Elementals must be on their home plane; ordinary monsters must satisfy
+// level-specific capability checks (swimming, fire resistance, flying, etc.).
+
+// makemon.c:58-59. An elemental on its home plane is not wrong; on a foreign
+// plane it is. is_home_elemental(ptr) compares the elemental's pmidx against
+// the four elemental-plane level identities.
+test('wrong_elem_type rejects an elemental on a foreign plane', () => {
+    const state = planeState('air_level');
+    // Air elemental on the air plane: home elemental, not wrong.
+    assert.equal(wrong_elem_type(state.mons[PM_AIR_ELEMENTAL], state), false);
+    // Fire elemental on the air plane: foreign elemental, wrong.
+    assert.equal(wrong_elem_type(state.mons[PM_FIRE_ELEMENTAL], state), true);
+});
+
+// makemon.c:60-61. The earth level has no restrictions: any species passes.
+// C comment: "/* no restrictions? */".
+test('wrong_elem_type allows any monster on the earth level', () => {
+    const state = planeState('earth_level');
+    // A jackal has no swimming, fire resistance, or flying; it passes because
+    // the earth level imposes no capability filter.
+    assert.equal(wrong_elem_type(state.mons[PM_JACKAL], state), false);
+});
+
+// makemon.c:62-65. The water level rejects non-swimmers. is_swimmer(ptr) tests
+// M1_SWIM. PM_GREMLIN has M1_SWIM; PM_JACKAL does not.
+test('wrong_elem_type filters by swimming on the water level', () => {
+    const state = planeState('water_level');
+    assert.equal(wrong_elem_type(state.mons[PM_GREMLIN], state), false);
+    assert.equal(wrong_elem_type(state.mons[PM_JACKAL], state), true);
+});
+
+// makemon.c:66-68. The fire level rejects non-fire-resistant monsters.
+// pm_resistance(ptr, MR_FIRE) checks mresists. PM_FIRE_ANT has MR_FIRE.
+test('wrong_elem_type filters by fire resistance on the fire level', () => {
+    const state = planeState('fire_level');
+    assert.equal(wrong_elem_type(state.mons[PM_FIRE_ANT], state), false);
+    assert.equal(wrong_elem_type(state.mons[PM_JACKAL], state), true);
+});
+
+// makemon.c:69-72. The air level admits flyers (except S_TRAPPER), floaters
+// (S_EYE or S_LIGHT), amorphous (M1_AMORPHOUS), noncorporeal (S_GHOST), and
+// whirly (S_VORTEX or PM_AIR_ELEMENTAL). Everything else is wrong.
+test('wrong_elem_type filters by air capabilities on the air level', () => {
+    const state = planeState('air_level');
+    // Flyer (bat, M1_FLY, not S_TRAPPER): accepted.
+    assert.equal(wrong_elem_type(state.mons[PM_BAT], state), false);
+    // Floater (floating eye, S_EYE): accepted.
+    assert.equal(wrong_elem_type(state.mons[PM_FLOATING_EYE], state), false);
+    // Noncorporeal (ghost, S_GHOST): accepted.
+    assert.equal(wrong_elem_type(state.mons[PM_GHOST], state), false);
+    // Whirly (fog cloud, S_VORTEX): accepted.
+    assert.equal(wrong_elem_type(state.mons[PM_FOG_CLOUD], state), false);
+    // No qualifying property (jackal): rejected.
+    assert.equal(wrong_elem_type(state.mons[PM_JACKAL], state), true);
+});
+
+// makemon.c:70. A lurker above has M1_FLY but its class is S_TRAPPER, so the
+// flyer check excludes it. It has no other air-level-valid property (not a
+// floater, not amorphous, not noncorporeal, not whirly), so it is wrong.
+test('wrong_elem_type excludes S_TRAPPER flyers on the air level', () => {
+    const state = planeState('air_level');
+    assert.equal(wrong_elem_type(state.mons[PM_LURKER_ABOVE], state), true);
+});
+
+// Off elemental planes the non-elemental branches return false because none
+// of the Is_*level() conditions match. An S_ELEMENTAL still hits the first
+// branch and returns !is_home_elemental(), which is true off its home plane.
+test('wrong_elem_type returns false for non-elementals off elemental planes', () => {
+    const state = startingState();
+    // The default state places the hero on dungeon level 1, which is not an
+    // elemental plane.
+    assert.equal(wrong_elem_type(state.mons[PM_JACKAL], state), false);
+    // An air elemental off elemental planes: S_ELEMENTAL, not home -> true.
+    assert.equal(wrong_elem_type(state.mons[PM_AIR_ELEMENTAL], state), true);
 });
 
 test('monster selection fails closed without initialized source catalogs', () => {
