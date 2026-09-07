@@ -11871,6 +11871,73 @@
         "to": 2844
       },
       "startFunction": "doinvoke"
+    },
+    {
+      "id": "sp-lev-c-load-special",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port sp_lev.c load_special group: level loading and finalization",
+      "cFile": "sp_lev.c",
+      "sessions": [
+        "seed0360-wizard-world-tour",
+        "seed0361-archeologist-tour"
+      ],
+      "detail": "",
+      "spans": [
+        {
+          "name": "load_special",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "load_special"
+          ]
+        }
+      ],
+      "openedAt": "9933592e5d488ce6945f02534d6aaefdc7a0142d",
+      "openStanding": {
+        "sha": "5e019e52",
+        "screens": 5085,
+        "rng": 344412
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "update_croom",
+          "line": 6324,
+          "endLine": 6335,
+          "ported": false
+        },
+        {
+          "name": "sp_level_coder_init",
+          "line": 6336,
+          "endLine": 6434,
+          "ported": false
+        },
+        {
+          "name": "l_register_des",
+          "line": 6435,
+          "endLine": 6443,
+          "ported": false
+        },
+        {
+          "name": "create_des_coder",
+          "line": 6444,
+          "endLine": 6453,
+          "ported": false
+        },
+        {
+          "name": "load_special",
+          "line": 6454,
+          "endLine": 6505,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 6324,
+        "to": 6505
+      },
+      "startFunction": "load_special"
     }
   ]
 }
