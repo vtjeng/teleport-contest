@@ -11302,6 +11302,524 @@
         "to": 2615
       },
       "startFunction": "rndmonst_adj"
+    },
+    {
+      "id": "artifact-c",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port artifact.c whole in C order, starting from doinvoke()",
+      "cFile": "artifact.c",
+      "sessions": [
+        "seed0108-wizard-extcmd-wishlist",
+        "seed0361-archeologist-tour"
+      ],
+      "detail": "",
+      "spans": [
+        {
+          "name": "doinvoke..Sting_effects",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "doinvoke",
+            "nothing_special",
+            "invoke_taming",
+            "invoke_healing",
+            "invoke_energy_boost",
+            "invoke_untrap",
+            "invoke_charge_obj",
+            "invoke_create_portal",
+            "invoke_create_ammo",
+            "invoke_banish",
+            "invoke_fling_poison",
+            "invoke_storm_spell",
+            "invoke_blinding_ray",
+            "arti_invoke_cost_pw",
+            "arti_invoke_cost",
+            "arti_invoke",
+            "finesse_ahriman",
+            "artifact_has_invprop",
+            "arti_cost",
+            "abil_to_adtyp",
+            "abil_to_spfx",
+            "what_gives",
+            "glow_color",
+            "glow_strength",
+            "glow_verb",
+            "Sting_effects"
+          ]
+        }
+      ],
+      "openedAt": "3b9e2f38df22b2ab18eecd9e69e26d06ea7ecf2c",
+      "openStanding": {
+        "sha": "79215ff6",
+        "screens": 4977,
+        "rng": 343076
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "hack_artifacts",
+          "line": 87,
+          "endLine": 110,
+          "ported": true
+        },
+        {
+          "name": "init_artifacts",
+          "line": 111,
+          "endLine": 118,
+          "ported": true
+        },
+        {
+          "name": "save_artifacts",
+          "line": 119,
+          "endLine": 132,
+          "ported": false
+        },
+        {
+          "name": "restore_artifacts",
+          "line": 133,
+          "endLine": 150,
+          "ported": false
+        },
+        {
+          "name": "artiname",
+          "line": 151,
+          "endLine": 171,
+          "ported": true
+        },
+        {
+          "name": "mk_artifact",
+          "line": 172,
+          "endLine": 311,
+          "ported": true
+        },
+        {
+          "name": "dispose_of_orig_obj",
+          "line": 312,
+          "endLine": 328,
+          "ported": false
+        },
+        {
+          "name": "artifact_name",
+          "line": 329,
+          "endLine": 355,
+          "ported": true
+        },
+        {
+          "name": "exist_artifact",
+          "line": 356,
+          "endLine": 370,
+          "ported": true
+        },
+        {
+          "name": "artifact_exists",
+          "line": 371,
+          "endLine": 408,
+          "ported": true
+        },
+        {
+          "name": "found_artifact",
+          "line": 409,
+          "endLine": 421,
+          "ported": false
+        },
+        {
+          "name": "find_artifact",
+          "line": 422,
+          "endLine": 461,
+          "ported": true
+        },
+        {
+          "name": "nartifact_exist",
+          "line": 462,
+          "endLine": 477,
+          "ported": true
+        },
+        {
+          "name": "artifact_origin",
+          "line": 478,
+          "endLine": 515,
+          "ported": true
+        },
+        {
+          "name": "spec_ability",
+          "line": 516,
+          "endLine": 525,
+          "ported": true
+        },
+        {
+          "name": "confers_luck",
+          "line": 526,
+          "endLine": 536,
+          "ported": true
+        },
+        {
+          "name": "arti_reflects",
+          "line": 537,
+          "endLine": 554,
+          "ported": false
+        },
+        {
+          "name": "shade_glare",
+          "line": 555,
+          "endLine": 574,
+          "ported": true
+        },
+        {
+          "name": "restrict_name",
+          "line": 575,
+          "endLine": 625,
+          "ported": false
+        },
+        {
+          "name": "attacks",
+          "line": 626,
+          "endLine": 635,
+          "ported": false
+        },
+        {
+          "name": "defends",
+          "line": 636,
+          "endLine": 686,
+          "ported": false
+        },
+        {
+          "name": "defends_when_carried",
+          "line": 687,
+          "endLine": 697,
+          "ported": false
+        },
+        {
+          "name": "protects",
+          "line": 698,
+          "endLine": 715,
+          "ported": false
+        },
+        {
+          "name": "set_artifact_intrinsic",
+          "line": 716,
+          "endLine": 907,
+          "ported": true
+        },
+        {
+          "name": "touch_artifact",
+          "line": 908,
+          "endLine": 978,
+          "ported": true
+        },
+        {
+          "name": "arti_immune",
+          "line": 979,
+          "endLine": 992,
+          "ported": false
+        },
+        {
+          "name": "bane_applies",
+          "line": 993,
+          "endLine": 1008,
+          "ported": false
+        },
+        {
+          "name": "spec_applies",
+          "line": 1009,
+          "endLine": 1064,
+          "ported": false
+        },
+        {
+          "name": "spec_m2",
+          "line": 1065,
+          "endLine": 1075,
+          "ported": false
+        },
+        {
+          "name": "spec_abon",
+          "line": 1076,
+          "endLine": 1090,
+          "ported": false
+        },
+        {
+          "name": "spec_dbon",
+          "line": 1091,
+          "endLine": 1112,
+          "ported": false
+        },
+        {
+          "name": "discover_artifact",
+          "line": 1113,
+          "endLine": 1130,
+          "ported": false
+        },
+        {
+          "name": "undiscovered_artifact",
+          "line": 1131,
+          "endLine": 1146,
+          "ported": false
+        },
+        {
+          "name": "disp_artifact_discoveries",
+          "line": 1147,
+          "endLine": 1176,
+          "ported": true
+        },
+        {
+          "name": "dump_artifact_info",
+          "line": 1177,
+          "endLine": 1248,
+          "ported": false
+        },
+        {
+          "name": "Mb_hit",
+          "line": 1249,
+          "endLine": 1446,
+          "ported": false
+        },
+        {
+          "name": "artifact_hit",
+          "line": 1447,
+          "endLine": 1726,
+          "ported": false
+        },
+        {
+          "name": "invoke_ok",
+          "line": 1727,
+          "endLine": 1748,
+          "ported": false
+        },
+        {
+          "name": "doinvoke",
+          "line": 1749,
+          "endLine": 1761,
+          "ported": false
+        },
+        {
+          "name": "nothing_special",
+          "line": 1762,
+          "endLine": 1768,
+          "ported": false
+        },
+        {
+          "name": "invoke_taming",
+          "line": 1769,
+          "endLine": 1779,
+          "ported": false
+        },
+        {
+          "name": "invoke_healing",
+          "line": 1780,
+          "endLine": 1817,
+          "ported": false
+        },
+        {
+          "name": "invoke_energy_boost",
+          "line": 1818,
+          "endLine": 1837,
+          "ported": false
+        },
+        {
+          "name": "invoke_untrap",
+          "line": 1838,
+          "endLine": 1847,
+          "ported": false
+        },
+        {
+          "name": "invoke_charge_obj",
+          "line": 1848,
+          "endLine": 1866,
+          "ported": false
+        },
+        {
+          "name": "invoke_create_portal",
+          "line": 1867,
+          "endLine": 1933,
+          "ported": false
+        },
+        {
+          "name": "invoke_create_ammo",
+          "line": 1934,
+          "endLine": 1962,
+          "ported": false
+        },
+        {
+          "name": "invoke_banish",
+          "line": 1963,
+          "endLine": 2021,
+          "ported": false
+        },
+        {
+          "name": "invoke_fling_poison",
+          "line": 2022,
+          "endLine": 2039,
+          "ported": false
+        },
+        {
+          "name": "invoke_storm_spell",
+          "line": 2040,
+          "endLine": 2053,
+          "ported": false
+        },
+        {
+          "name": "invoke_blinding_ray",
+          "line": 2054,
+          "endLine": 2090,
+          "ported": false
+        },
+        {
+          "name": "arti_invoke_cost_pw",
+          "line": 2091,
+          "endLine": 2105,
+          "ported": false
+        },
+        {
+          "name": "arti_invoke_cost",
+          "line": 2106,
+          "endLine": 2130,
+          "ported": false
+        },
+        {
+          "name": "arti_invoke",
+          "line": 2131,
+          "endLine": 2235,
+          "ported": false
+        },
+        {
+          "name": "finesse_ahriman",
+          "line": 2236,
+          "endLine": 2263,
+          "ported": false
+        },
+        {
+          "name": "artifact_light",
+          "line": 2264,
+          "endLine": 2278,
+          "ported": true
+        },
+        {
+          "name": "arti_speak",
+          "line": 2279,
+          "endLine": 2298,
+          "ported": true
+        },
+        {
+          "name": "artifact_has_invprop",
+          "line": 2299,
+          "endLine": 2308,
+          "ported": false
+        },
+        {
+          "name": "arti_cost",
+          "line": 2309,
+          "endLine": 2319,
+          "ported": false
+        },
+        {
+          "name": "abil_to_adtyp",
+          "line": 2320,
+          "endLine": 2343,
+          "ported": false
+        },
+        {
+          "name": "abil_to_spfx",
+          "line": 2344,
+          "endLine": 2375,
+          "ported": false
+        },
+        {
+          "name": "what_gives",
+          "line": 2376,
+          "endLine": 2426,
+          "ported": false
+        },
+        {
+          "name": "glow_color",
+          "line": 2427,
+          "endLine": 2441,
+          "ported": false
+        },
+        {
+          "name": "glow_strength",
+          "line": 2442,
+          "endLine": 2450,
+          "ported": false
+        },
+        {
+          "name": "glow_verb",
+          "line": 2451,
+          "endLine": 2465,
+          "ported": false
+        },
+        {
+          "name": "Sting_effects",
+          "line": 2466,
+          "endLine": 2507,
+          "ported": false
+        },
+        {
+          "name": "retouch_object",
+          "line": 2508,
+          "endLine": 2597,
+          "ported": false
+        },
+        {
+          "name": "untouchable",
+          "line": 2598,
+          "endLine": 2639,
+          "ported": false
+        },
+        {
+          "name": "retouch_equipment",
+          "line": 2640,
+          "endLine": 2707,
+          "ported": true
+        },
+        {
+          "name": "count_surround_traps",
+          "line": 2708,
+          "endLine": 2752,
+          "ported": false
+        },
+        {
+          "name": "mkot_trap_warn",
+          "line": 2753,
+          "endLine": 2774,
+          "ported": false
+        },
+        {
+          "name": "is_magic_key",
+          "line": 2775,
+          "endLine": 2789,
+          "ported": true
+        },
+        {
+          "name": "has_magic_key",
+          "line": 2790,
+          "endLine": 2807,
+          "ported": false
+        },
+        {
+          "name": "is_art",
+          "line": 2808,
+          "endLine": 2820,
+          "ported": false
+        },
+        {
+          "name": "get_artifact",
+          "line": 2821,
+          "endLine": 2836,
+          "ported": true
+        },
+        {
+          "name": "permapoisoned",
+          "line": 2837,
+          "endLine": 2844,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 87,
+        "to": 2844
+      },
+      "startFunction": "doinvoke"
     }
   ]
 }
