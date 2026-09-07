@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 42,
+    "datetime": "20250315120000",
+    "nethackrc": "OPTIONS=name:Tester-Wiz-Unt,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+    "comment": "Invoke #untrap toward the south. The direction leads to a square with no trap, no container, and no door, so untrap() prints 'You know of no traps there.' and returns 0 (no time spent).",
+    "moves": "  #untrap\nj"
+  }]
+}

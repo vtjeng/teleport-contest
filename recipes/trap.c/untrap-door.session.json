@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 77,
+    "datetime": "20250401080000",
+    "nethackrc": "OPTIONS=name:Trap-Door-Test,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+    "comment": "Walk to a closed door and invoke #untrap toward it to exercise the door-checking path of untrap(). The hero checks for traps on the door and finds none.",
+    "moves": "  jjjj#untrap\nj"
+  }]
+}
