@@ -2989,7 +2989,7 @@ async function doextcmd(key, state) {
     default:
         resetCommandVars(state);
         throw new UnsupportedHeroCommandBoundaryError(
-            `the extended command '${entry.ef_txt}' is not ported`,
+            `${entry.ef_funct}() for the extended command '${entry.ef_txt}' is not ported`,
             key,
         );
     }

@@ -912,7 +912,7 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
             || digsWall
             || liquidDestination);
     if (!ordinaryDestination)
-        unsupported('door or special terrain movement');
+        unsupported('mfndpos() door or special terrain movement');
     // A trap on the destination is no longer refused here. C has no such gate:
     // monmove.c postmov() calls mintrap() after the move, and only there. That
     // is where an unported trap type now stops the scan, which also covers a

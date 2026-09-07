@@ -1626,7 +1626,7 @@ test('simple movement admits every furniture square but not ice', async () => {
             preflightSimpleMonsterActions(game),
             (error) => (
                 error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'door or special terrain movement'
+                && error.reason === 'mfndpos() door or special terrain movement'
             ),
             `ice attempt ${attempt + 1}`,
         );
@@ -1742,7 +1742,7 @@ test('simple movement admits an inert doorway and no other mask', async () => {
                             error
                                 instanceof UnsupportedSimpleMonsterActionError
                             && error.reason
-                                === 'door or special terrain movement'
+                                === 'mfndpos() door or special terrain movement'
                         ),
                         `${representation} mask ${mask}, `
                             + `attempt ${attempt + 1}`,
@@ -2151,7 +2151,7 @@ test('simple preflight rejects every selected excluded action atomically',
                 // ICE, the first type past IS_FURNITURE()'s range, stands for
                 // terrain the destination check still refuses.
                 name: 'special terrain',
-                reason: 'door or special terrain movement',
+                reason: 'mfndpos() door or special terrain movement',
                 prepare: async () => {
                     const target = await prepareSelectedAction();
                     game.level.at(

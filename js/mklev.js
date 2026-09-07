@@ -602,7 +602,7 @@ async function makelevel(specialLevelLoader = null) {
                 return;
             }
             throw new UnsupportedLevelChangeError(
-                `makelevel: no loader for special level "${slev.proto}"`,
+                `makelevel: load_special() has no loader for special level "${slev.proto}"`,
             );
         }
     }

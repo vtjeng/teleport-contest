@@ -387,7 +387,7 @@ export function hitval(otmp, mon, state = game, env = {}) {
 
     if (otmp.oartifact) {
         requiredOperation(env, 'unsupported', 'hitval')(
-            'artifact to-hit bonus',
+            'spec_abon() artifact to-hit bonus',
         );
     }
     return tmp;

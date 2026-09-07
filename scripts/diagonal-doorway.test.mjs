@@ -445,7 +445,7 @@ test('the seam consults its destination checks only where the rules allow',
             assert.throws(
                 () => preflightDomoveDestination(ux + 1, uy + 1, game),
                 (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason === 'door or special terrain movement',
+                    && error.reason === 'test_move() door or special terrain movement',
                 `${IRONBARS} from ${source}`,
             );
             destination.typ = TREE;

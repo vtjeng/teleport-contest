@@ -359,7 +359,7 @@ test('live movement swaps with a pet standing on every furniture square',
             moveloop_core(),
             (error) => (
                 error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'door or special terrain movement'
+                && error.reason === 'domove_swap_with_pet() door or special terrain movement'
             ),
         );
         assert.deepEqual([game.u.ux, game.u.uy], oldHero);

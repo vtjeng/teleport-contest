@@ -1056,7 +1056,7 @@ export function requireSimpleHeroDestination(
             || doorway);
     if (!ordinaryDestination) {
         throw new UnsupportedHeroMoveBoundaryError(
-            'door or special terrain movement',
+            'test_move() door or special terrain movement',
         );
     }
     // pickup.c pickup() returns before look_here() when the square holds no
@@ -1528,7 +1528,7 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
             || (destination.typ === DOOR && doorMask(destination) === 0));
     if (!ordinaryDestination) {
         throw new UnsupportedHeroMoveBoundaryError(
-            'door or special terrain movement',
+            'domove_swap_with_pet() door or special terrain movement',
         );
     }
     // The furniture arrival's own consequences. domove_core()'s run stop at
@@ -2321,7 +2321,7 @@ export async function test_move(
                 return false;
             }
             throw new UnsupportedHeroMoveBoundaryError(
-                'door or special terrain movement',
+                'test_move() door or special terrain movement',
             );
         }
         // C runs feel_location() before its branch chain, so refusing here

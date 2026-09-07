@@ -1224,7 +1224,7 @@ test('simple hero movement rejects spot effects before mutation', async () => {
         },
         {
             name: 'lava under pile',
-            reason: 'door or special terrain movement',
+            reason: 'test_move() door or special terrain movement',
             setup: ({ destination, x, y }) => {
                 destination.typ = LAVAPOOL;
                 installFloorPile(x, y);
@@ -1236,7 +1236,7 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             // upper bound. Its own arm of dfeature_at() calls ice_descr(),
             // which is unported.
             name: 'ice terrain',
-            reason: 'door or special terrain movement',
+            reason: 'test_move() door or special terrain movement',
             setup: ({ destination }) => {
                 destination.typ = ICE;
             },
@@ -1437,7 +1437,7 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             // outside IS_FURNITURE()'s range now that the seven types inside
             // it are admitted.
             name: 'special terrain',
-            reason: 'door or special terrain movement',
+            reason: 'test_move() door or special terrain movement',
             install: ({ destination }) => {
                 destination.typ = ICE;
             },
@@ -1456,11 +1456,11 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         // test_move() but has its own dfeature_at() description and no
         // recording.
         ...[
-            ['broken door', D_BROKEN, 'door or special terrain movement'],
+            ['broken door', D_BROKEN, 'test_move() door or special terrain movement'],
             [
                 'trapped open door',
                 D_ISOPEN | D_TRAPPED,
-                'door or special terrain movement',
+                'test_move() door or special terrain movement',
             ],
             [
                 'trapped closed door',
@@ -1987,7 +1987,7 @@ test('unsupported movement retains its byte ahead of the next command',
                 moveloop_core(),
                 (error) => (
                     error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason === 'door or special terrain movement'
+                    && error.reason === 'test_move() door or special terrain movement'
                 ),
             );
             assert.equal(
@@ -2054,7 +2054,7 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
             moveloop_core(),
             (error) => (
                 error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'door or special terrain movement'
+                && error.reason === 'test_move() door or special terrain movement'
             ),
         );
         assert.equal(game.context.pendingCommand.key, commandKeyCode('l'));
@@ -2303,7 +2303,7 @@ test('simple hero movement admits every furniture square', async () => {
         domove(game),
         (error) => (
             error instanceof UnsupportedHeroMoveBoundaryError
-            && error.reason === 'door or special terrain movement'
+            && error.reason === 'test_move() door or special terrain movement'
         ),
     );
 });
@@ -4694,7 +4694,7 @@ test('the run loop leaves a class outside the refusal list as it found it',
                     `${error.constructor.name} is not a hero move boundary`,
                 );
                 assert.equal(error.reason,
-                    'door or special terrain movement');
+                    'test_move() door or special terrain movement');
                 return true;
             },
         );
