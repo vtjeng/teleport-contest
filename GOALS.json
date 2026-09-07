@@ -10928,7 +10928,7 @@
     {
       "id": "div-next-ident-seed0367",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix seed0367 rng divergence at step 243 in next_ident() (mkobj.c)",
       "cFile": "mkobj.c",
       "sessions": [],
@@ -10936,8 +10936,8 @@
       "spans": [
         {
           "name": "next_ident",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "5348c27c639e52a33916b46fc04abccdab3bc07e",
           "functions": [
             "next_ident"
           ]
@@ -10949,11 +10949,306 @@
         "screens": 4977,
         "rng": 343077
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5348c27c639e52a33916b46fc04abccdab3bc07e",
+      "delivered": {
+        "screens": 0,
+        "rng": -1
+      },
       "function": "next_ident",
       "session": "seed0367-priest-quest-tour",
       "step": 243
+    },
+    {
+      "id": "makemon-c",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port makemon.c whole in C order, starting from rndmonst_adj()",
+      "cFile": "makemon.c",
+      "sessions": [
+        "seed0367-priest-quest-tour"
+      ],
+      "detail": "",
+      "spans": [
+        {
+          "name": "mk_gen_ok..dump_mongen",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mk_gen_ok",
+            "cmp_init_mongen_order",
+            "check_mongen_order",
+            "init_mongen_order",
+            "dump_mongen"
+          ]
+        }
+      ],
+      "openedAt": "5348c27c639e52a33916b46fc04abccdab3bc07e",
+      "openStanding": {
+        "sha": "5348c27c",
+        "screens": 4977,
+        "rng": 343076
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "is_home_elemental",
+          "line": 33,
+          "endLine": 55,
+          "ported": true
+        },
+        {
+          "name": "wrong_elem_type",
+          "line": 56,
+          "endLine": 78,
+          "ported": false
+        },
+        {
+          "name": "m_initgrp",
+          "line": 79,
+          "endLine": 147,
+          "ported": false
+        },
+        {
+          "name": "m_initthrow",
+          "line": 148,
+          "endLine": 160,
+          "ported": true
+        },
+        {
+          "name": "m_initweap",
+          "line": 161,
+          "endLine": 575,
+          "ported": true
+        },
+        {
+          "name": "mkmonmoney",
+          "line": 576,
+          "endLine": 588,
+          "ported": true
+        },
+        {
+          "name": "m_initinv",
+          "line": 589,
+          "endLine": 836,
+          "ported": true
+        },
+        {
+          "name": "clone_mon",
+          "line": 837,
+          "endLine": 957,
+          "ported": false
+        },
+        {
+          "name": "propagate",
+          "line": 958,
+          "endLine": 985,
+          "ported": true
+        },
+        {
+          "name": "monhp_per_lvl",
+          "line": 986,
+          "endLine": 1011,
+          "ported": false
+        },
+        {
+          "name": "newmonhp",
+          "line": 1012,
+          "endLine": 1058,
+          "ported": true
+        },
+        {
+          "name": "init_mextra",
+          "line": 1059,
+          "endLine": 1065,
+          "ported": false
+        },
+        {
+          "name": "newmextra",
+          "line": 1066,
+          "endLine": 1075,
+          "ported": false
+        },
+        {
+          "name": "makemon_rnd_goodpos",
+          "line": 1076,
+          "endLine": 1146,
+          "ported": true
+        },
+        {
+          "name": "makemon",
+          "line": 1147,
+          "endLine": 1513,
+          "ported": true
+        },
+        {
+          "name": "unmakemon",
+          "line": 1514,
+          "endLine": 1541,
+          "ported": false
+        },
+        {
+          "name": "mbirth_limit",
+          "line": 1542,
+          "endLine": 1555,
+          "ported": true
+        },
+        {
+          "name": "create_critters",
+          "line": 1556,
+          "endLine": 1592,
+          "ported": false
+        },
+        {
+          "name": "uncommon",
+          "line": 1593,
+          "endLine": 1610,
+          "ported": true
+        },
+        {
+          "name": "align_shift",
+          "line": 1611,
+          "endLine": 1640,
+          "ported": false
+        },
+        {
+          "name": "temperature_shift",
+          "line": 1641,
+          "endLine": 1651,
+          "ported": false
+        },
+        {
+          "name": "rndmonst",
+          "line": 1652,
+          "endLine": 1658,
+          "ported": true
+        },
+        {
+          "name": "rndmonst_adj",
+          "line": 1659,
+          "endLine": 1735,
+          "ported": true
+        },
+        {
+          "name": "mk_gen_ok",
+          "line": 1736,
+          "endLine": 1759,
+          "ported": false
+        },
+        {
+          "name": "cmp_init_mongen_order",
+          "line": 1760,
+          "endLine": 1782,
+          "ported": false
+        },
+        {
+          "name": "check_mongen_order",
+          "line": 1783,
+          "endLine": 1806,
+          "ported": false
+        },
+        {
+          "name": "init_mongen_order",
+          "line": 1807,
+          "endLine": 1834,
+          "ported": false
+        },
+        {
+          "name": "dump_mongen",
+          "line": 1835,
+          "endLine": 1872,
+          "ported": false
+        },
+        {
+          "name": "mkclass",
+          "line": 1873,
+          "endLine": 1879,
+          "ported": true
+        },
+        {
+          "name": "mkclass_aligned",
+          "line": 1880,
+          "endLine": 1982,
+          "ported": false
+        },
+        {
+          "name": "mkclass_poly",
+          "line": 1983,
+          "endLine": 2015,
+          "ported": false
+        },
+        {
+          "name": "adj_lev",
+          "line": 2016,
+          "endLine": 2050,
+          "ported": true
+        },
+        {
+          "name": "grow_up",
+          "line": 2051,
+          "endLine": 2180,
+          "ported": true
+        },
+        {
+          "name": "mongets",
+          "line": 2181,
+          "endLine": 2232,
+          "ported": true
+        },
+        {
+          "name": "golemhp",
+          "line": 2233,
+          "endLine": 2267,
+          "ported": true
+        },
+        {
+          "name": "peace_minded",
+          "line": 2268,
+          "endLine": 2320,
+          "ported": true
+        },
+        {
+          "name": "set_malign",
+          "line": 2321,
+          "endLine": 2369,
+          "ported": true
+        },
+        {
+          "name": "newmcorpsenm",
+          "line": 2370,
+          "endLine": 2378,
+          "ported": false
+        },
+        {
+          "name": "freemcorpsenm",
+          "line": 2379,
+          "endLine": 2392,
+          "ported": true
+        },
+        {
+          "name": "set_mimic_sym",
+          "line": 2393,
+          "endLine": 2553,
+          "ported": true
+        },
+        {
+          "name": "bagotricks",
+          "line": 2554,
+          "endLine": 2604,
+          "ported": false
+        },
+        {
+          "name": "summon_furies",
+          "line": 2605,
+          "endLine": 2615,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 33,
+        "to": 2615
+      },
+      "startFunction": "rndmonst_adj"
     }
   ]
 }
