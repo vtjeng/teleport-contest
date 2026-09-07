@@ -19,6 +19,8 @@ import {
     FIG_TRANSFORM,
     FIRE_RES,
     G_GONE,
+    HALLUC,
+    HALLUC_RES,
     HATCH_EGG,
     I_SPECIAL,
     ICE,
@@ -104,7 +106,7 @@ import { stop_occupation } from './allmain.js';
 import { eating_glob, set_tin_variety } from './eat.js';
 // makesingular() is used by sanity_check_worn() for class name formatting.
 // fruit.js imports nothing from this file; the edge is acyclic.
-import { makesingular } from './fruit.js';
+import { makeplural, makesingular } from './fruit.js';
 import { game } from './gstate.js';
 // near_capacity() compares encumbrance with go.oldcap for shrink_glob().
 // hack.js imports from this file; both sides use the other's exports only
@@ -137,10 +139,14 @@ import {
 // inside function bodies, so this direct edge resolves the same way the
 // js/mondata.js edge onto js/dungeon.js does.
 import { copy_mextra, maybe_unhide_at } from './mon.js';
+// pudding_merge_message() composes You_hear/You_see message strings from
+// pline.c helpers ported in monmove.js. monmove.js imports from this file;
+// both sides use the other's exports only inside function bodies.
+import { youHear, youSee } from './monmove.js';
 // shrink_glob() and maybe_adjust_light() use naming functions from objnam.js.
 // objnam.js imports from this file; both sides use the other's exports only
 // inside function bodies.
-import { The, Yname2, aobjnam, donameFresh, otense, simpleonames, vtense } from './objnam.js';
+import { The, Yname2, aobjnam, donameFresh, obj_typename, otense, simpleonames, vtense } from './objnam.js';
 import {
     pushRngLogEntry,
     rn1 as coreRn1,
@@ -3674,4 +3680,110 @@ export function obj_absorb(otmp1, otmp2, state = game, env = {}) {
 
     note_unported('pline.c impossible');
     return null;
+}
+
+// C ref: mkobj.c obj_meld() (3768-3814). High-level glob merge wrapper that
+// chooses which glob absorbs which (heavier wins, coin flip on tie), then
+// updates the display and unhides monsters where the absorbed glob stood.
+// C takes struct obj **; JS takes the objects directly and returns the survivor.
+export function obj_meld(otmp1, otmp2, state = game, env = {}) {
+    const random = env.random ?? { rn2: coreRn2 };
+    let result = null;
+    if (otmp1 && otmp2) {
+        if (otmp1 !== otmp2) {
+            let ox = 0, oy = 0;
+            /*
+             * FIXME?
+             *  If one of the objects is free because it's being dropped,
+             *  we should really finish a full drop and then absorb/meld
+             *  if it survives the flooreffects().  Then lighter-melds-into-
+             *  heavier will be true even when heavier is the one dropped.
+             */
+            if (!(otmp2.where === OBJ_FLOOR && otmp1.where === OBJ_FREE)
+                && (otmp1.owt > otmp2.owt
+                    || (otmp1.owt === otmp2.owt && random.rn2(2)))) {
+                if (otmp2.where === OBJ_FLOOR) {
+                    ox = otmp2.ox;
+                    oy = otmp2.oy;
+                }
+                result = obj_absorb(otmp1, otmp2, state, env);
+            } else {
+                if (otmp1.where === OBJ_FLOOR) {
+                    ox = otmp1.ox;
+                    oy = otmp1.oy;
+                }
+                result = obj_absorb(otmp2, otmp1, state, env);
+            }
+            /* callers really ought to take care of this; glob melding is
+               a bookkeeping issue rather than a display one */
+            if (ox) {
+                if (cansee(ox, oy, state)) {
+                    if (typeof env.newsym === 'function')
+                        env.newsym(ox, oy, env);
+                }
+                /* a hides-under monster might be hiding under the glob
+                   that went away; if there's nothing else there to hide
+                   under, force it out of hiding */
+                maybe_unhide_at(ox, oy, state);
+            }
+        }
+    } else {
+        // C: impossible("obj_meld: not called with two actual objects")
+        note_unported('pline.c impossible');
+    }
+    return result;
+}
+
+// C ref: mkobj.c pudding_merge_message() (3818-3849). Message when two globs
+// merge; handles visible, hallucinating, in-pack, and unseen-but-heard cases.
+// C's You_see, Your, pline, and You_hear compose message strings and call
+// vpline; JS composes the same strings and awaits the env.message function.
+export async function pudding_merge_message(otmp, otmp2, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const visible = cansee(otmp.ox, otmp.oy, state)
+        || cansee(otmp2.ox, otmp2.oy, state);
+    const onfloor = otmp.where === OBJ_FLOOR || otmp2.where === OBJ_FLOOR;
+    const inpack = carried(otmp) || carried(otmp2);
+
+    const blind = Boolean(
+        (state.u?.uprops?.[BLINDED]?.intrinsic
+         || state.u?.uprops?.[BLINDED]?.extrinsic)
+        && !state.u?.uprops?.[BLINDED]?.blocked,
+    );
+    const hallucinating = Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
+        && !(state.u?.uprops?.[HALLUC_RES]?.intrinsic
+             || state.u?.uprops?.[HALLUC_RES]?.extrinsic);
+
+    /* the player will know something happened inside his own inventory */
+    if ((!blind && visible) || inpack) {
+        if (hallucinating) {
+            if (onfloor) {
+                // C: You_see("parts of the floor melting!")
+                const line = youSee('parts of the floor melting!', state);
+                await message(line, state);
+            } else if (inpack) {
+                // C: Your("pack reaches out and grabs something!")
+                await message(
+                    'Your pack reaches out and grabs something!', state,
+                );
+            }
+            /* even though we can see where they should be,
+               they'll be out of our view (minvent or container)
+               so don't actually show anything */
+        } else if (onfloor || inpack) {
+            const adj = (otmp.ox !== (state.u?.ux ?? -1)
+                         || otmp.oy !== (state.u?.uy ?? -1))
+                && (otmp2.ox !== (state.u?.ux ?? -1)
+                    || otmp2.oy !== (state.u?.uy ?? -1));
+            const typename = makeplural(obj_typename(otmp.otyp, state));
+            const prefix = (onfloor && adj) ? 'adjacent ' : '';
+            const suffix = inpack ? ' inside your pack' : '';
+            await message(`The ${prefix}${typename} coalesce${suffix}.`, state);
+        }
+    } else {
+        // C: Soundeffect(se_faint_sloshing, 25) -- no-op in tty build
+        // C: You_hear("a faint sloshing sound.")
+        const line = youHear('a faint sloshing sound.', state);
+        if (line) await message(line, state);
+    }
 }

@@ -1434,9 +1434,9 @@ export function youHear(line, state) {
 }
 
 // C ref: pline.c You_see() (453-470).  C's own comment says a caller should
-// have caught the Blind case; every caller in this file reaches it only behind
-// cansee(), which is false while the hero is blind.
-function youSee(line, state) {
+// have caught the Blind case; most callers reach it only behind cansee(),
+// which is false while the hero is blind.
+export function youSee(line, state) {
     if (heroUnaware(state)) return `You dream that you see ${line}`;
     // youprop.h:103 defines Blind as ((HBlinded || EBlinded) && !BBlinded)
     // and folds OPTIONS=blind into HBlinded, so there is no uroleplay term.
