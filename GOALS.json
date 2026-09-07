@@ -10992,10 +10992,19 @@
         },
         {
           "name": "newmcorpsenm",
+          "status": "closed",
+          "closedBy": "1dba4a4c25bdf601556869c970ba349ccd156864",
+          "functions": [
+            "newmcorpsenm"
+          ]
+        },
+        {
+          "name": "bagotricks..summon_furies",
           "status": "queued",
           "closedBy": null,
           "functions": [
-            "newmcorpsenm"
+            "bagotricks",
+            "summon_furies"
           ]
         }
       ],
@@ -11234,7 +11243,7 @@
           "name": "newmcorpsenm",
           "line": 2370,
           "endLine": 2378,
-          "ported": false
+          "ported": true
         },
         {
           "name": "freemcorpsenm",

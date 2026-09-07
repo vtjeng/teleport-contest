@@ -709,3 +709,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-07T02:33:04.692Z	5348c27c	goal	24	33	4977	7765	343076	610816							div-next-ident-seed0367 closes. Mismatch moved from step 243 next_ident to rndmonst_adj in makemon.c.
 2026-09-07T03:03:01.861Z	a8bff329	span	24	33	4977	7765	343076	610816							mk_gen_ok..dump_mongen closes. makemon.c 27/42.
 2026-09-07T03:22:47.488Z	c9eb7f35	span	24	33	4977	7765	343076	610816							mkclass_aligned..mkclass_poly closes. makemon.c 29/42.
+2026-09-07T03:32:42.564Z	1dba4a4c	span	24	33	4977	7765	343076	610816							newmcorpsenm closes. makemon.c 30/42.
