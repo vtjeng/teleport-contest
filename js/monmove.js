@@ -3284,7 +3284,7 @@ export async function postmov(
                 if (picked) outcome = MMOVE_DONE;
             }
             // monmove.c:1683-1687 repeats newsym() when mtmp->minvis is set.
-            // ROADMAP.md records why no case can reach that arm.
+            // No ported case sets minvis, so this arm is unreachable.
         }
         // C ref: monmove.c:1690, maybe_spin_web(). The five conjuncts
         // (webmaker, !helpless, !mspec_used, no trap, soko_allow_web) gate
