@@ -218,7 +218,7 @@ test('second-turn fresh recipe contains only simple replay inputs', () => {
     assert.equal(fixture.expectations.length, recipe.segments.length);
     assert.deepEqual(
         fixture.excludedPrefixes.map(({ name }) => name),
-        ['TrapBoundary', 'WeaponInventory'],
+        ['TrapBoundary'],
     );
     assert.deepEqual(
         new Set(recipe.segments.map(({ moves }) => moves)),

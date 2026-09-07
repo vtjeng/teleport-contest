@@ -3,6 +3,7 @@
 // C ref: mthrowu.c. This file holds every function from mthrowu.c:
 // rnd_hallublast (50-55), m_has_launcher_and_ammo (57-71), thitu (75-155),
 // drop_throw (162-196), monmulti (201-259), monshoot (262-314),
+// ohitmon (321-502), ucatchgem (505-529),
 // u_catch_thrown_obj (531-549 partial), m_throw (572-844),
 // return_from_mtoss (850-965), thrwmm (968-1012), spitmm (1014-1077),
 // breathwep_name (1082-1089), breamm (1091-1150), m_useupall (1153-1158),
@@ -15,6 +16,7 @@ import {
     A_CON,
     A_DEX,
     A_STR,
+    ACID_RES,
     BLINDED,
     BOLT_LIM,
     BZ_M_BREATH,
@@ -46,7 +48,9 @@ import {
     NEED_RANGED_WEAPON,
     NEED_WEAPON,
     PET_MISSILE_RANGE2,
+    POISON_RES,
     POTHIT_MONST_THROW,
+    POTHIT_OTHER_THROW,
     P_BOW,
     P_CROSSBOW,
     P_DART,
@@ -57,10 +61,12 @@ import {
     BRK_MELEE,
     SLEEP_RES,
     SLT_ENCUMBER,
+    STONE_RES,
     STUNNED,
     W_NONDIGGABLE,
     W_WEP,
     WT_IRON_BALL_INCR,
+    XKILL_NOMSG,
     isok,
     u_at,
 } from './const.js';
@@ -69,10 +75,30 @@ import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { calc_capacity, nomul } from './hack.js';
 import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
-import { hands_obj, obfree, obj_extract_self, stackobj, add_to_minv } from './invent.js';
-import { m_carrying } from './mon.js';
-import { bigmonst, cvt_adtyp_to_mseenres, get_atkdam_type, is_elf, mhis, nohands, throws_rocks } from './mondata.js';
-import { AD_ACID, AD_BLND, AD_DRST, AD_SLEE, MZ_TINY, PM_MONK, PM_ROGUE } from './monsters.js';
+import { hands_obj, hold_another_object, obfree, obj_extract_self, stackobj, add_to_minv } from './invent.js';
+import { omon_adj } from './dothrow.js';
+import { m_carrying, mondied, seemimic, setmangry, xkilled } from './mon.js';
+import {
+    amorphous,
+    bigmonst,
+    can_blnd,
+    cvt_adtyp_to_mseenres,
+    get_atkdam_type,
+    is_elf,
+    is_unicorn,
+    is_vampshifter,
+    mhim,
+    mhis,
+    mon_hates_silver,
+    monster_resists_element,
+    nohands,
+    noncorporeal,
+    nonliving,
+    passes_rocks,
+    throws_rocks,
+    touch_petrifies,
+} from './mondata.js';
+import { AD_ACID, AD_BLND, AD_DRST, AD_SLEE, AT_SPIT, AT_WEAP, MZ_TINY, PM_MONK, PM_ROGUE } from './monsters.js';
 // closed_door() belongs to monmove.c, and js/monmove.js imports lined_up()
 // back for m_move()'s item search. Both sides of that cycle are hoisted
 // function declarations, which an ES module cycle initializes before either
@@ -87,6 +113,7 @@ import {
     objectType,
     place_object,
     sobj_at,
+    stone_missile,
     weight,
 } from './obj.js';
 import {
@@ -104,10 +131,12 @@ import {
     CREDIT_CARD,
     EGG,
     ENORMOUS_MEATBALL,
+    FIRST_GLASS_GEM,
     FOOD_CLASS,
     GEM_CLASS,
     GOLD,
     HEAVY_IRON_BALL,
+    LAST_GLASS_GEM,
     LENSES,
     LOCK_PICK,
     MAGIC_WHISTLE,
@@ -133,6 +162,8 @@ import {
 import {
     Tobjnam,
     an,
+    distant_name,
+    isPoisonable,
     killer_xname,
     mshot_xname,
     obj_is_pname,
@@ -144,16 +175,22 @@ import {
 import { rn2, rnd } from './rng.js';
 import { note_unported } from './unported.js';
 import { cansee, canseemon, clear_path, couldsee } from './vision.js';
-import { mon_wield_item, select_rwep } from './weapon.js';
-import { extract_from_minvent, is_pole } from './worn.js';
-import { exclam } from './zap.js';
+import { dmgval, mon_wield_item, select_rwep } from './weapon.js';
+import { spec_abon } from './artifacts.js';
+import { extract_from_minvent, find_mac, is_pole } from './worn.js';
+import { exclam, hit, miss } from './zap.js';
 import { harmless_missile, shipsAway } from './dothrow.js';
+import { observe_object, discover_object } from './o_init.js';
+import { potionhit } from './potion.js';
+import { munstone } from './muse.js';
+import { dropy, flooreffects } from './do.js';
+import { canSpotMonster } from './startup_a11y.js';
+import { shade_miss } from './uhitm.js';
 import { is_lava, is_pool } from './trap.js';
 import { obj_sheds_light } from './light.js';
 import { capitalizedMonsterName, monsterCommonName, some_mon_nam } from './do_name.js';
 import { makeplural } from './fruit.js';
 import { body_part, mbodypart } from './polyself.js';
-import { flooreffects } from './do.js';
 
 /* C ref: mthrowu.c:24-28. Breath weapon names indexed by BZ_OFS_AD(typ).
  * Keep consistent with breath weapons in zap.c, and AD_* in monattk.h. */
@@ -454,6 +491,207 @@ export function monmulti(monster, missile, launcher, env = {}) {
     return 1;
 }
 
+// C ref: mthrowu.c ohitmon() (321-502). Object hits a monster from a throw.
+// Handles to-hit calculation, potions, damage, special effects (poison,
+// silver searing, petrification, blinding), monster death, and object
+// disposal. Returns TRUE if the missile is used up and the caller should
+// stop the flight; FALSE if the missile continues.
+export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2, rnd };
+    const env = { ...rawEnv, state, random };
+
+    let damage, tmp;
+    const mon_launcher = state.gm?.marcher
+        ? (state.gm.marcher.mw ?? null) : null;
+
+    /* assert(otmp != NULL); */
+    state.gn ??= {};
+    state.gn.notonhead = (state.gb.bhitpos.x !== mtmp.mx
+                          || state.gb.bhitpos.y !== mtmp.my);
+    const ismimic = M_AP_TYPE(mtmp)
+                    && M_AP_TYPE(mtmp) !== M_AP_MONSTER;
+    const vis = cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+    if (vis)
+        observe_object(otmp, state);
+
+    tmp = 5 + find_mac(mtmp, state) + omon_adj(mtmp, otmp, false, { state, random });
+    /* High level monsters will be more likely to hit */
+    /* This check applies only if this monster is the target
+     * the archer was aiming at. */
+    if (state.gm?.marcher && state.gm.mtarget === mtmp) {
+        if (state.gm.marcher.m_lev > 5)
+            tmp += state.gm.marcher.m_lev - 5;
+        if (mon_launcher && mon_launcher.oartifact)
+            tmp += spec_abon(mon_launcher, mtmp, state);
+    }
+    if (tmp < random.rnd(20)) {
+        if (!ismimic) {
+            if (vis)
+                await miss(distant_name(otmp, mshot_xname, state), mtmp, state);
+            else if (verbose && !state.gm?.mtarget)
+                note_unported('pline.c pline'); /* "It is missed." */
+        }
+        if (!range) { /* Last position; object drops */
+            await drop_throw(otmp, 0, mtmp.mx, mtmp.my, env);
+            return 1;
+        }
+    } else if (otmp.oclass === POTION_CLASS) {
+        if (ismimic)
+            seemimic(mtmp, state);
+        mtmp.msleeping = 0;
+        /* probably thrown by a monster rather than 'other', but the
+           distinction only matters when hitting the hero */
+        await potionhit(mtmp, otmp, POTHIT_OTHER_THROW, env);
+        return 1;
+    } else {
+        const material = objectType(otmp, state).oc_material;
+        const harmless = (stone_missile(otmp, state)
+                          && passes_rocks(mtmp.data));
+
+        damage = dmgval(otmp, mtmp, state, env);
+        if (otmp.otyp === ACID_VENOM
+            && monster_resists_element(mtmp, ACID_RES, state))
+            damage = 0;
+
+        if (ismimic)
+            seemimic(mtmp, state);
+        mtmp.msleeping = 0;
+        note_unported('sounds.c Soundeffect'); /* Soundeffect(se_splat_egg, 35) */
+        if (vis) {
+            if (otmp.otyp === EGG) {
+                note_unported('pline.c pline'); /* "Splat! %s is hit with %s egg!" */
+            } else {
+                let how;
+                if (!harmless)
+                    how = exclam(damage); /* "!" or "." */
+                else
+                    how = ` but passes harmlessly through ${mhim(mtmp)}.`;
+                await hit(distant_name(otmp, mshot_xname, state), mtmp, how, state);
+            }
+        } else if (verbose && !state.gm?.mtarget)
+            note_unported('pline.c pline'); /* "%s%s is hit%s" */
+
+        if (otmp.opoisoned && isPoisonable(otmp, state)) {
+            if (monster_resists_element(mtmp, POISON_RES, state)) {
+                if (vis)
+                    note_unported('pline.c pline'); /* "The poison doesn't seem to affect %s." */
+            } else {
+                if (random.rn2(30)) {
+                    damage += random.rnd(6);
+                } else {
+                    if (vis)
+                        note_unported('pline.c pline'); /* "The poison was deadly..." */
+                    damage = mtmp.mhp;
+                }
+            }
+        }
+        if (material === SILVER && mon_hates_silver(mtmp)) {
+            const flesh = (!noncorporeal(mtmp.data)
+                           && !amorphous(mtmp.data));
+
+            /* note: extra silver damage is handled by dmgval() */
+            if (vis) {
+                let m_name = monsterCommonName(mtmp, state);
+                if (flesh) /* s_suffix returns a modifiable buffer */
+                    m_name = s_suffix(m_name) + ' flesh';
+                note_unported('pline.c pline'); /* "The silver sears %s!" */
+            } else if (verbose && !state.gm?.mtarget) {
+                note_unported('pline.c pline'); /* "%s is seared!" */
+            }
+        }
+        if (otmp.otyp === ACID_VENOM && cansee(mtmp.mx, mtmp.my, state)) {
+            if (monster_resists_element(mtmp, ACID_RES, state)) {
+                if (vis || (verbose && !state.gm?.mtarget))
+                    note_unported('pline.c pline'); /* "%s is unaffected." */
+            } else {
+                if (vis)
+                    note_unported('pline.c pline'); /* "The %s burns %s!" */
+                else if (verbose && !state.gm?.mtarget)
+                    note_unported('pline.c pline'); /* "It is burned!" */
+            }
+        }
+        if (otmp.otyp === EGG
+            && touch_petrifies(state.mons[otmp.corpsenm])) {
+            if (!await munstone(mtmp, false, state, env))
+                note_unported('trap.c minstapetrify'); /* minstapetrify(mtmp, FALSE) */
+            if (monster_resists_element(mtmp, STONE_RES, state))
+                damage = 0;
+        }
+
+        /* might already be dead (if petrified) */
+        if (!harmless && mtmp.mhp > 0 /* !DEADMONSTER */) {
+            mtmp.mhp -= damage;
+            if (mtmp.mhp <= 0 /* DEADMONSTER */) {
+                if (vis || (verbose && !state.gm?.mtarget))
+                    note_unported('pline.c pline'); /* "%s is %s!" destroyed/killed */
+                /* don't blame hero for unknown rolling boulder trap */
+                if (!state.context?.mon_moving
+                    && (otmp.otyp !== BOULDER || range >= 0
+                        || otmp.otrapped))
+                    await xkilled(mtmp, XKILL_NOMSG, state, env);
+                else
+                    await mondied(mtmp, state, env);
+            }
+        }
+
+        /* blinding venom and cream pie do 0 damage, but verify
+           that the target is still alive anyway */
+        if (mtmp.mhp > 0 /* !DEADMONSTER */
+            && can_blnd(null, mtmp,
+                        (otmp.otyp === BLINDING_VENOM) ? AT_SPIT
+                                                       : AT_WEAP,
+                        otmp)) {
+            if (vis && mtmp.mcansee)
+                note_unported('pline.c pline'); /* "%s is blinded by %s." */
+            mtmp.mcansee = 0;
+            tmp = (mtmp.mblinded | 0) + random.rnd(25) + 20;
+            if (tmp > 127)
+                tmp = 127;
+            mtmp.mblinded = tmp;
+        }
+
+        if (mtmp.mhp > 0 /* !DEADMONSTER */ && !state.context?.mon_moving)
+            setmangry(mtmp, true, { state });
+
+        const objgone = await drop_throw(otmp, 1,
+            state.gb.bhitpos.x, state.gb.bhitpos.y, env);
+        if (!objgone && range === -1) { /* special case */
+            obj_extract_self(otmp, { state }); /* free it for motion again */
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+// C ref: mthrowu.c ucatchgem() (505-529). Hero catches a gem thrown by a
+// monster if poly'd into a unicorn. Catches and drops worthless glass;
+// catches and keeps a real gem via hold_another_object.
+async function ucatchgem(gem, mon, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const env = { ...rawEnv, state };
+    /* won't catch rock or gray stone; catch (then drop) worthless glass */
+    if (gem.otyp <= LAST_GLASS_GEM && is_unicorn(state.youmonst.data)) {
+        const gem_xname = xnameFresh(gem, state);
+        const mon_s_name = s_suffix(monsterCommonName(mon, state));
+
+        if (gem.otyp >= FIRST_GLASS_GEM) {
+            note_unported('pline.c pline'); /* You("catch the %s.", gem_xname) */
+            note_unported('pline.c pline'); /* You("are not interested in %s junk.", mon_s_name) */
+            /* makeknown(gem->otyp) = discover_object(otyp, TRUE, TRUE, TRUE) */
+            discover_object(gem.otyp, true, true, true, state);
+            await dropy(gem, env);
+        } else {
+            note_unported('pline.c pline'); /* You("accept %s gift in the spirit ...") */
+            await hold_another_object(gem, 'You catch, but drop, %s.',
+                                      gem_xname, 'You catch:', env);
+        }
+        return true;
+    }
+    return false;
+}
+
 // C ref: mthrowu.c m_throw() (572-844), quantity-one, ordinary untethered
 // weapon hit and miss. A miss lets the missile continue flying and drop at
 // range expiry or terrain. Alternate flight, interception, catch,
@@ -565,12 +803,26 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         if (canSeeSquare(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
             observeObject(singleobj, state);
 
-        if (monsterAt(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
-            return refuseRanged(env, 'monster missile flight');
+        { /* C ref: m_throw lines 679-693 -- monster hit or hero hit */
+            let mtmp = monsterAt(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+            if (mtmp && shade_miss(monster, mtmp, singleobj, true, true, state, env)) {
+                /* shade: missile passes harmlessly through */
+                mtmp = null;
+            } else if (mtmp) {
+                if (await ohitmon(mtmp, singleobj, range, true, env)) {
+                    settled = true;
+                    break;
+                }
+            }
+        }
         if (u_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
             if (state.multi) requireRangedOperation(env, 'endMulti')(0, state);
-            if (singleobj.oclass === GEM_CLASS)
-                return refuseRanged(env, 'unicorn gem catch');
+            /* hero might be poly'd into a unicorn */
+            if (singleobj.oclass === GEM_CLASS
+                && await ucatchgem(singleobj, monster, env)) {
+                settled = true;
+                break;
+            }
             if (u_catch_thrown_obj(singleobj, env)) return 0;
             if (singleobj.oclass === POTION_CLASS) {
                 // potionhit() always uses the object up, so the flight loop

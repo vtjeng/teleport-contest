@@ -466,23 +466,6 @@
         "screenCount": 2,
         "screenDigest": "b3a18b48e8711b6cad432984c0a8a9b5dc1aa712217085c3d147c810638e41d7"
       }
-    },
-    {
-      "name": "WeaponInventory",
-      "reason": "monster missile flight",
-      "input": {
-        "seed": 2026073002,
-        "datetime": "20260724100000",
-        "nethackrc": "OPTIONS=name:WeaponInventory,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\n",
-        "moves": " n."
-      },
-      "oracle": {
-        "cursors": [[15, 1, 1], [57, 18, 1], [58, 19, 1]],
-        "rngCount": 3181,
-        "rngDigest": "4909e62a1986e85d8e3c9ce7e1bc123d24a4f9d889ab796255d3877170b28f63",
-        "screenCount": 3,
-        "screenDigest": "b2444b0a29fde82544e409f72c10ae62236b502f611116720933f9f954fd48eb"
-      }
     }
   ]
 }

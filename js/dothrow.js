@@ -88,6 +88,7 @@ import {
 } from './hack.js';
 import { freeinv, getobj, stackobj } from './invent.js';
 import { obj_sheds_light } from './light.js';
+import { MZ_MEDIUM } from './monsters.js';
 import { nohands, notake, throws_rocks, touch_petrifies } from './mondata.js';
 import { closed_door } from './monmove.js';
 import {
@@ -116,6 +117,7 @@ import {
     is_flimsy,
     is_missile,
     is_wet_towel,
+    is_weptool,
     matching_launcher,
     obj_no_longer_held,
     objectType,
@@ -171,6 +173,7 @@ import { an, helm_simple_name, singular, the, xnameFresh } from './objnam.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
 import { rn2, rnd } from './rng.js';
+import { hitval } from './weapon.js';
 import { stairway_at } from './stairs.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import { Levitation, is_lava, is_pool, t_at } from './trap.js';
@@ -980,6 +983,46 @@ export function impact_disturbs_zombies(obj, violent, state = game) {
         return;
 
     disturb_buried_zombies(obj.ox, obj.oy, state);
+}
+
+// C ref: dothrow.c omon_adj() (1913-1947). Adjust to-hit for the target
+// monster's size, status (sleeping, immobilized), and the specific object
+// thrown. Called from ohitmon() (mthrowu.c) and thitmonst() (dothrow.c).
+export function omon_adj(mon, obj, mon_notices, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    let tmp = 0;
+
+    /* size of target affects the chance of hitting */
+    tmp += (mon.data.msize - MZ_MEDIUM); /* -2..+5 */
+    /* sleeping target is more likely to be hit */
+    if (mon.msleeping) {
+        tmp += 2;
+    }
+    /* ditto for immobilized target */
+    if (!mon.mcanmove || !mon.data.mmove) {
+        tmp += 4;
+        if (mon_notices && mon.data.mmove && !random.rn2(10)) {
+            mon.mcanmove = 1;
+            mon.mfrozen = 0;
+        }
+    }
+    /* some objects are more likely to hit than others */
+    switch (obj.otyp) {
+    case HEAVY_IRON_BALL:
+        if (obj !== state.uball)
+            tmp += 2;
+        break;
+    case BOULDER:
+        tmp += 6;
+        break;
+    default:
+        if (obj.oclass === WEAPON_CLASS || is_weptool(obj, state)
+            || obj.oclass === GEM_CLASS)
+            tmp += hitval(obj, mon, state);
+        break;
+    }
+    return tmp;
 }
 
 // C ref: dothrow.c throw_gold() (2655-2731). The coin arm of throw_obj(), and
