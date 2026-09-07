@@ -12565,7 +12565,7 @@
     {
       "id": "div-seed0030-m-throw",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix seed0030 rng divergence at m_throw() in mthrowu.c step 50",
       "cFile": "mthrowu.c",
       "sessions": [],
@@ -12573,8 +12573,8 @@
       "spans": [
         {
           "name": "m_throw-divergence",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4a44372d69337a5ce7c2e8138305a725cba4c200",
           "functions": []
         }
       ],
@@ -12584,8 +12584,11 @@
         "screens": 4707,
         "rng": 321679
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4a44372d69337a5ce7c2e8138305a725cba4c200",
+      "delivered": {
+        "screens": 378,
+        "rng": 22733
+      },
       "function": "m_throw",
       "session": "seed0030-ten-diverse-deaths",
       "step": 50
