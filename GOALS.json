@@ -12627,7 +12627,7 @@
     {
       "id": "trap-c-dountrap",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port trap.c dountrap group (untrap, disarm, and related)",
       "cFile": "trap.c",
       "sessions": [
@@ -12661,8 +12661,8 @@
         },
         {
           "name": "openholdingtrap..join_adjacent_pits",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "79400f429cadda3f8954eb56b529289a26513cb5",
           "functions": [
             "openholdingtrap",
             "closeholdingtrap",
@@ -12680,8 +12680,11 @@
         "screens": 5091,
         "rng": 344578
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "79400f429cadda3f8954eb56b529289a26513cb5",
+      "delivered": {
+        "screens": 16,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dountrap",
@@ -12795,25 +12798,25 @@
           "name": "openholdingtrap",
           "line": 6101,
           "endLine": 6209,
-          "ported": false
+          "ported": true
         },
         {
           "name": "closeholdingtrap",
           "line": 6210,
           "endLine": 6251,
-          "ported": false
+          "ported": true
         },
         {
           "name": "openfallingtrap",
           "line": 6252,
           "endLine": 6293,
-          "ported": false
+          "ported": true
         },
         {
           "name": "chest_trap",
           "line": 6294,
           "endLine": 6501,
-          "ported": false
+          "ported": true
         },
         {
           "name": "t_at",
@@ -12837,7 +12840,7 @@
           "name": "conjoined_pits",
           "line": 6552,
           "endLine": 6579,
-          "ported": false
+          "ported": true
         },
         {
           "name": "clear_conjoined_pits",
@@ -12849,13 +12852,13 @@
           "name": "adj_nonconjoined_pit",
           "line": 6604,
           "endLine": 6621,
-          "ported": false
+          "ported": true
         },
         {
           "name": "join_adjacent_pits",
           "line": 6622,
           "endLine": 6647,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
