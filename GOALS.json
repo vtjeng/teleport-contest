@@ -12337,6 +12337,218 @@
         "to": 2397
       },
       "startFunction": "distfleeck"
+    },
+    {
+      "id": "mthrowu-c",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mthrowu.c whole in C order",
+      "cFile": "mthrowu.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "detail": "",
+      "spans": [
+        {
+          "name": "return_from_mtoss..hits_bars",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "return_from_mtoss",
+            "thrwmm",
+            "spitmm",
+            "breathwep_name",
+            "breamm",
+            "spitmu",
+            "breamu",
+            "hit_bars",
+            "hits_bars"
+          ]
+        }
+      ],
+      "openedAt": "c7981d1fd6a64c923fc6748f94c09feff3487e8b",
+      "openStanding": {
+        "sha": "b4eae321",
+        "screens": 4707,
+        "rng": 321679
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "rnd_hallublast",
+          "line": 52,
+          "endLine": 57,
+          "ported": false
+        },
+        {
+          "name": "m_has_launcher_and_ammo",
+          "line": 58,
+          "endLine": 74,
+          "ported": true
+        },
+        {
+          "name": "thitu",
+          "line": 75,
+          "endLine": 161,
+          "ported": true
+        },
+        {
+          "name": "drop_throw",
+          "line": 162,
+          "endLine": 200,
+          "ported": true
+        },
+        {
+          "name": "monmulti",
+          "line": 201,
+          "endLine": 261,
+          "ported": true
+        },
+        {
+          "name": "monshoot",
+          "line": 262,
+          "endLine": 320,
+          "ported": true
+        },
+        {
+          "name": "ohitmon",
+          "line": 321,
+          "endLine": 505,
+          "ported": false
+        },
+        {
+          "name": "ucatchgem",
+          "line": 506,
+          "endLine": 532,
+          "ported": false
+        },
+        {
+          "name": "u_catch_thrown_obj",
+          "line": 533,
+          "endLine": 571,
+          "ported": true
+        },
+        {
+          "name": "m_throw",
+          "line": 572,
+          "endLine": 849,
+          "ported": true
+        },
+        {
+          "name": "return_from_mtoss",
+          "line": 850,
+          "endLine": 968,
+          "ported": false
+        },
+        {
+          "name": "thrwmm",
+          "line": 969,
+          "endLine": 1015,
+          "ported": false
+        },
+        {
+          "name": "spitmm",
+          "line": 1016,
+          "endLine": 1082,
+          "ported": false
+        },
+        {
+          "name": "breathwep_name",
+          "line": 1083,
+          "endLine": 1092,
+          "ported": false
+        },
+        {
+          "name": "breamm",
+          "line": 1093,
+          "endLine": 1153,
+          "ported": false
+        },
+        {
+          "name": "m_useupall",
+          "line": 1154,
+          "endLine": 1161,
+          "ported": true
+        },
+        {
+          "name": "m_useup",
+          "line": 1162,
+          "endLine": 1173,
+          "ported": true
+        },
+        {
+          "name": "thrwmu",
+          "line": 1174,
+          "endLine": 1267,
+          "ported": true
+        },
+        {
+          "name": "spitmu",
+          "line": 1268,
+          "endLine": 1274,
+          "ported": false
+        },
+        {
+          "name": "breamu",
+          "line": 1275,
+          "endLine": 1281,
+          "ported": false
+        },
+        {
+          "name": "blocking_terrain",
+          "line": 1282,
+          "endLine": 1294,
+          "ported": true
+        },
+        {
+          "name": "linedup_callback",
+          "line": 1295,
+          "endLine": 1329,
+          "ported": true
+        },
+        {
+          "name": "linedup",
+          "line": 1330,
+          "endLine": 1375,
+          "ported": true
+        },
+        {
+          "name": "m_lined_up",
+          "line": 1376,
+          "endLine": 1397,
+          "ported": true
+        },
+        {
+          "name": "lined_up",
+          "line": 1398,
+          "endLine": 1404,
+          "ported": true
+        },
+        {
+          "name": "m_carrying",
+          "line": 1405,
+          "endLine": 1416,
+          "ported": true
+        },
+        {
+          "name": "hit_bars",
+          "line": 1417,
+          "endLine": 1498,
+          "ported": false
+        },
+        {
+          "name": "hits_bars",
+          "line": 1499,
+          "endLine": 1562,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 52,
+        "to": 1562
+      },
+      "startFunction": "m_throw"
     }
   ]
 }
