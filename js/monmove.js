@@ -3471,6 +3471,10 @@ export async function m_move(monster, rawEnv = {}) {
     let goalX = monster.mux;
     let goalY = monster.muy;
     let approach = monster.mflee ? -1 : 1;
+    // C ref: monmove.c:1878. Set inside the else block by
+    // m_balks_at_approaching(); used later in position selection.
+    let preferredrange_min = 0;
+    let preferredrange_max = 0;
 
     if (monster.mconf) {
         approach = 0;
@@ -3491,6 +3495,17 @@ export async function m_move(monster, rawEnv = {}) {
                 && !random.rn2(3))) {
             approach = 0;
         }
+        // C ref: monmove.c:1874-1875. Leprechaun gold avoidance.
+        if (approach === 1 && leppie_avoidance(monster, state))
+            approach = -1;
+
+        // C ref: monmove.c:1878. Hostiles with ranged weapon or attack try to
+        // stay away. The returned object carries appr and the preferred range.
+        const balks = m_balks_at_approaching(approach, monster, state);
+        approach = balks.appr;
+        preferredrange_min = balks.distmin;
+        preferredrange_max = balks.distmax;
+
         if (!shouldSee && haseyes(monster.data)) {
             const track = gettrack(oldX, oldY, state);
             if (track) {
@@ -3533,21 +3548,6 @@ export async function m_move(monster, rawEnv = {}) {
             );
         }
     }
-
-    // C ref: monmove.c:1874-1875. Leprechaun gold avoidance.
-    if (approach === 1 && leppie_avoidance(monster, state))
-        approach = -1;
-
-    // C ref: monmove.c:1878. Hostiles with ranged weapon or attack try to
-    // stay away. The returned object carries appr and the preferred range.
-    const balks = m_balks_at_approaching(approach, monster, state);
-    approach = balks.appr;
-    // preferredrange_min and preferredrange_max are used later when the C
-    // source picks movement squares (monmove.c:1960-1970), but that section
-    // is not wired yet; these values are recorded so the logic exists when it
-    // is connected.
-    let preferredrange_min = balks.distmin;
-    let preferredrange_max = balks.distmax;
 
     // C ref: monmove.c:1910-1914, "don't tunnel if hostile and close enough to
     // prefer a weapon".  The two postmov() calls above run before this, so a
