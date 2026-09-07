@@ -10983,11 +10983,19 @@
         },
         {
           "name": "mkclass_aligned..mkclass_poly",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c9eb7f3522979d1a6115e3153a10f38cc25faa46",
           "functions": [
             "mkclass_aligned",
             "mkclass_poly"
+          ]
+        },
+        {
+          "name": "newmcorpsenm",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "newmcorpsenm"
           ]
         }
       ],
@@ -11178,13 +11186,13 @@
           "name": "mkclass_aligned",
           "line": 1880,
           "endLine": 1982,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mkclass_poly",
           "line": 1983,
           "endLine": 2015,
-          "ported": false
+          "ported": true
         },
         {
           "name": "adj_lev",
