@@ -66,11 +66,8 @@ The orchestrator repeats without returning to the user between steps:
 6. When a goal closes, for a file port confirm that its recipes reach each
    entry point of the file (`AGENTS.md`, "Validate completed work"). Then run
    the authorized holdout evaluation and record its result with the goal's
-   evidence. Resolve every open deferral the goal's commits closed, using
-   `npm run quality -- deferrals --area <id>` for the areas the goal touched;
-   the rest stay open, and none becomes a queued span. Close the goal with
-   `node scripts/goal-log.mjs close-goal`, regenerate `ROADMAP.md`, and
-   continue at step 1.
+   evidence. Close the goal with `node scripts/goal-log.mjs close-goal`,
+   regenerate `ROADMAP.md`, and continue at step 1.
 
 A correctness review, when one is warranted, is a loop step between spans.
 Commits that land while a review reads its fixed range belong to the next

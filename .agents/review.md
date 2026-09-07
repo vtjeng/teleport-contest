@@ -97,10 +97,7 @@ Return to implementation when a finding:
 - requires a new recipe because an entry point the file implements has none.
 
 A finding outside the scope, or one that needs a span of its own, goes in the
-pass's `QUALITY.json` entry and becomes the goal's next span. The deferral
-ledger has accepted no new entries since 2026-09-05. Close its existing entries
-with `npm run quality -- resolve-deferral --id <id>` as the file ports that
-cover them land.
+pass's `QUALITY.json` entry and becomes the goal's next span.
 
 After applying in-scope audit fixes, run the validation that
 `.agents/validation.md` specifies for the affected behavior.
@@ -161,9 +158,6 @@ step alone usually repairs it.
   text, and keep the wording when copying it forward. The next pass reads
   these rejections to avoid re-deriving a settled claim.
 - Cite symbols by file and function name, not line numbers.
-- When a later commit falsifies a claim an open deferral entry rests on, or
-  closes part of what it counts, write the correction to a file and pass it
-  with `npm run quality -- note-deferral --id <id> --note-file <path>`.
 - A clarity or copyedit pass leaves no ledger record. State its elapsed wall
   time and finding counts in the progress report that announces it.
 - Finish each formal review pass with `npm run quality -- --check`. Assign
