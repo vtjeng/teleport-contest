@@ -2,11 +2,12 @@
 // C refs: src/apply.c apply_ok(), doapply(), use_cream_pie(),
 // use_stethoscope(), its_dead(), and reset_trapset().
 //
-// doapply()'s switch has thirty-odd named arms. Six are live: CREAM_PIE,
+// doapply()'s switch has thirty-odd named arms. Seven are live: CREAM_PIE,
 // STETHOSCOPE, the LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c
 // pick_lock() serves, MAGIC_MARKER which delegates to write.c dowrite() in
 // js/write.js, the container arm (LARGE_BOX/CHEST/ICE_BOX/SACK/BAG_OF_HOLDING/
 // OILSKIN_SACK) which delegates to pickup.c use_container() in js/pickup.js,
+// BAG_OF_TRICKS which delegates to makemon.c bagotricks() in js/makemon.js,
 // and the ordinary CARROT unknown-use result. Ordinary armor reaches the same
 // switch-default refusal. Every other named arm, the default's weapon
 // redirects, and the wand, spellbook and coin shortcuts above the switch stop
@@ -91,6 +92,7 @@ import {
     update_inventory,
 } from './invent.js';
 import { pick_lock } from './lock.js';
+import { bagotricks } from './makemon.js';
 import { seemimic } from './mon.js';
 import {
     can_blnd,
@@ -163,6 +165,7 @@ import {
     ICE_BOX,
     SACK,
     BAG_OF_HOLDING,
+    BAG_OF_TRICKS,
     OILSKIN_SACK,
 } from './objects.js';
 import { AT_WEAP, MZ_TINY, PM_HEALER } from './monsters.js';
@@ -836,6 +839,10 @@ export async function doapply(state = game, env = {}) {
     case OILSKIN_SACK:
         // apply.c:4271-4278. use_container() handles open/close/loot.
         return use_container(obj, true, false, state);
+    case BAG_OF_TRICKS:
+        // apply.c:4279-4281. (void) bagotricks(obj, FALSE, (int *) 0)
+        await bagotricks(obj, false, state);
+        return ECMD_TIME;
     case MAGIC_MARKER:
         // apply.c:4361-4362. dowrite() handles the full magic marker flow.
         return dowrite(obj, state);

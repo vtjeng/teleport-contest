@@ -63,7 +63,7 @@ import { game } from './gstate.js';
 import { add_to_container } from './invent.js';
 import { occupied, somexyspace, topologize } from './mklev.js';
 import { makemon, mongets } from './makemon_create.js';
-import { mkclass, set_malign } from './makemon.js';
+import { mkclass, mkclass_aligned, set_malign } from './makemon.js';
 import { is_ndemon } from './mondata.js';
 import {
     PM_ARCHEOLOGIST,
@@ -490,7 +490,7 @@ export function squadmon(state = game, random = SOURCE_RANDOM) {
 
 // C ref: minion.c ndemon(). A_NONE means any alignment.
 function ndemon(atyp, state, random) {
-    const ptr = mkclass(S_DEMON, 0, { state, random });
+    const ptr = mkclass_aligned(S_DEMON, 0, atyp, { state, random });
     return (ptr && is_ndemon(ptr)) ? ptr.pmidx : NON_PM;
 }
 

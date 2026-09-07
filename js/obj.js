@@ -1,6 +1,6 @@
 // Object allocation, initialization, and weight.
-// C refs: include/obj.h, src/mkobj.c mkobj(), mksobj(), init_dummyobj(), and
-// weight().
+// C refs: include/obj.h, src/mkobj.c mkobj(), mksobj(), mkbox_cnts(),
+// init_dummyobj(), and weight().
 
 import {
     ARTICLE_A,
@@ -131,6 +131,7 @@ import {
     is_female,
     is_male,
     is_neuter,
+    is_reviver,
     monsndx,
     noncorporeal,
     undead_to_corpse,
@@ -235,6 +236,7 @@ import {
     COIN_CLASS,
     CORPSE,
     CRYSKNIFE,
+    DILITHIUM_CRYSTAL,
     CRYSTAL_BALL,
     COPPER,
     DRAGON_HIDE,
@@ -322,7 +324,10 @@ import {
     TOUCHSTONE,
     TOWEL,
     VENOM_CLASS,
+    WAN_CANCELLATION,
     WAN_FIRE,
+    WAN_LIGHT,
+    WAN_LIGHTNING,
     WAN_STASIS,
     WAN_WISHING,
     WAND_CLASS,
@@ -416,7 +421,6 @@ export class UnsupportedObjectOperationError extends Error {
 //   eatenStat(weight, obj, env) -> adjusted weight
 //   artifactCount(env) -> existing artifact count
 //   makeArtifact(obj, { alignment, maxGiftValue, adjustSpe, env }) -> obj
-//   populateContainer(obj, count, env)
 //   monsterObject(obj, 'initialize' | 'finalize', env) for the residual
 //     STATUE and FIGURINE branches
 //   isPermanentlyPoisoned(obj, env) -> boolean
@@ -1794,35 +1798,141 @@ function maybeGenerateArtifact(obj, artif, divisorBase, env) {
     return obj;
 }
 
-function initializeContainer(obj, env) {
-    let maximum;
-    switch (obj.otyp) {
+// C ref: mkobj.c boxiprobs[]. Probability table for non-ice-box container
+// contents, selecting by object class; entries must sum to 100.
+const boxiprobs = Object.freeze([
+    [18, GEM_CLASS],
+    [15, FOOD_CLASS],
+    [18, POTION_CLASS],
+    [18, SCROLL_CLASS],
+    [12, SPBOOK_CLASS],
+    [7, COIN_CLASS],
+    [6, WAND_CLASS],
+    [5, RING_CLASS],
+    [1, AMULET_CLASS],
+]);
+
+// C ref: mkobj.c mkbox_cnts(). Populates a container with random contents
+// when it is first created. Ice boxes receive corpses whose rot, revive,
+// and shrink timers are stopped; ordinary boxes select from boxiprobs;
+// bags of holding reject magic bags and cancellation wands.
+//
+// An env.hooks.populateContainer override, when present, replaces the item
+// creation loop: it receives (box, count, env) after mkbox_cnts selects the
+// count, and is responsible for adding the items. Tests use this to suppress
+// or control container contents without scripting every interior RNG draw.
+function mkbox_cnts(box, env) {
+    const { state, random } = env;
+
+    box.cobj = null;
+
+    let n;
+    switch (box.otyp) {
     case ICE_BOX:
-        maximum = 20;
+        n = 20;
         break;
     case CHEST:
-        maximum = obj.olocked ? 7 : 5;
+        n = box.olocked ? 7 : 5;
         break;
     case LARGE_BOX:
-        maximum = obj.olocked ? 5 : 3;
+        n = box.olocked ? 5 : 3;
         break;
     case SACK:
     case OILSKIN_SACK:
-        maximum = isInitialInventoryPhase(env.state) ? 0 : 1;
-        break;
+        // initial inventory: sack starts out empty
+        if (isInitialInventoryPhase(state)) {
+            n = 0;
+            break;
+        }
+        // FALLTHROUGH
     case BAG_OF_HOLDING:
-        maximum = 1;
+        n = 1;
         break;
     default:
-        maximum = 0;
+        n = 0;
         break;
     }
 
-    // C calls rn2(n + 1) even when n is zero. Keeping that draw is required
-    // for sacks in initial inventory.
-    const count = env.random.rn2(maximum + 1);
-    if (count)
-        requiredHook(env, 'populateContainer', obj)(obj, count, env);
+    const count = random.rn2(n + 1);
+    if (!count) return;
+
+    // Allow callers to override the item creation loop.
+    const populateHook = env.hooks?.populateContainer;
+    if (typeof populateHook === 'function') {
+        populateHook(box, count, env);
+        return;
+    }
+
+    // Ensure add_to_container's hook requirements are met. These default
+    // to the direct implementations when the caller does not inject them.
+    const hooks = { ...env.hooks };
+    hooks.objectNoLongerHeld ??= (obj, hookEnv) =>
+        obj_no_longer_held(obj, hookEnv);
+    hooks.stopObjectTimers ??= (obj, hookEnv) =>
+        obj_stop_timers(obj, hookEnv.state, hookEnv);
+    hooks.isReviver ??= (mnum, hookEnv) => {
+        const monster = hookEnv.state?.mons?.[mnum];
+        if (!monster)
+            throw new Error('container corpse merging requires a monster catalog');
+        return is_reviver(monster);
+    };
+    const enrichedEnv = { ...env, hooks };
+
+    for (let i = count; i > 0; i--) {
+        let otmp;
+        if (box.otyp === ICE_BOX) {
+            otmp = mksobj(CORPSE, true, false, enrichedEnv);
+            // Note: setting age to 0 is correct. Age has a different
+            // from usual meaning for objects stored in ice boxes. -KAA
+            otmp.age = 0;
+            if (otmp.timed) {
+                stop_timer(ROT_CORPSE, otmp, state, enrichedEnv);
+                stop_timer(REVIVE_MON, otmp, state, enrichedEnv);
+                stop_timer(SHRINK_GLOB, otmp, state, enrichedEnv);
+            }
+        } else {
+            let tprob = random.rnd(100);
+            let selectedClass;
+            for (const [prob, oclass] of boxiprobs) {
+                tprob -= prob;
+                if (tprob <= 0) {
+                    selectedClass = oclass;
+                    break;
+                }
+            }
+            otmp = mkobj(selectedClass, false, enrichedEnv);
+
+            // handle a couple of special cases
+            if (otmp.oclass === COIN_CLASS) {
+                // 2.5 x level's usual amount; weight adjusted below
+                otmp.quan = random.rnd(level_difficulty(state) + 2)
+                    * random.rnd(75);
+                otmp.owt = weight(otmp, enrichedEnv);
+            } else {
+                while (otmp.otyp === ROCK) {
+                    otmp.otyp = rnd_class(
+                        DILITHIUM_CRYSTAL, LOADSTONE, enrichedEnv);
+                    if (otmp.quan > 2) otmp.quan = 1;
+                    otmp.owt = weight(otmp, enrichedEnv);
+                }
+            }
+            if (box.otyp === BAG_OF_HOLDING) {
+                // Is_mbag(): bag of holding or bag of tricks
+                if (otmp.otyp === BAG_OF_HOLDING
+                    || otmp.otyp === BAG_OF_TRICKS) {
+                    otmp.otyp = SACK;
+                    otmp.spe = 0;
+                    otmp.owt = weight(otmp, enrichedEnv);
+                } else {
+                    while (otmp.otyp === WAN_CANCELLATION)
+                        otmp.otyp = rnd_class(
+                            WAN_LIGHT, WAN_LIGHTNING, enrichedEnv);
+                }
+            }
+        }
+        add_to_container(box, otmp, enrichedEnv);
+    }
+    // caller will update box->owt
 }
 
 function initializeResidualMonsterObject(obj, phase, env) {
@@ -2338,13 +2448,13 @@ function mksobj_init(obj, artif = false, env = {}) {
             obj.olocked = Boolean(random.rn2(5));
             obj.otrapped = !random.rn2(10);
             obj.tknown = obj.otrapped && !random.rn2(100);
-            initializeContainer(obj, normalized);
+            mkbox_cnts(obj, normalized);
             break;
         case ICE_BOX:
         case SACK:
         case OILSKIN_SACK:
         case BAG_OF_HOLDING:
-            initializeContainer(obj, normalized);
+            mkbox_cnts(obj, normalized);
             break;
         case EXPENSIVE_CAMERA:
         case TINNING_KIT:

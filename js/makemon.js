@@ -1,6 +1,8 @@
-// Monster selection, birth limits, hit points, and attitude.
-// C refs: makemon.c rndmonst_adj(), mkclass(), freemcorpsenm(), and elemental
-// filtering; mkobj.c rndmonnum_adj(); questpgr.c qt_montype().
+// Monster selection, birth limits, hit points, attitude, and special summons.
+// C refs: makemon.c rndmonst_adj(), mkclass(), mkclass_aligned(),
+// mkclass_poly(), newmcorpsenm(), freemcorpsenm(), bagotricks(),
+// summon_furies(), wrong_elem_type();
+// mkobj.c rndmonnum_adj(); questpgr.c qt_montype().
 
 import {
     A_NONE,
@@ -13,15 +15,25 @@ import {
     G_GENOD,
     G_GONE,
     has_mcorpsenm,
+    M_AP_MONSTER,
+    M_AP_NOTHING,
+    M_AP_TYPE,
     MAXMONNO,
+    MM_ADJACENTOK,
+    MM_NOWAIT,
+    NO_MM_FLAGS,
+    nothing_happens,
+    nothing_seems_to_happen,
 } from './const.js';
 import { level_difficulty, on_level } from './dungeon.js';
+import { sgn } from './hacklib.js';
 import { game } from './gstate.js';
 import {
     always_hostile,
     always_peaceful,
     is_golem,
     is_mplayer,
+    is_placeholder,
     little_to_big,
     monsndx,
 } from './mondata.js';
@@ -49,7 +61,6 @@ import {
     PM_CLAY_GOLEM,
     PM_DEATH,
     PM_EARTH_ELEMENTAL,
-    PM_ELF,
     PM_ERINYS,
     PM_FAMINE,
     PM_FLESH_GOLEM,
@@ -57,15 +68,12 @@ import {
     PM_GLASS_GOLEM,
     PM_GOLD_GOLEM,
     PM_GRAY_DRAGON,
-    PM_GIANT,
     PM_HIGH_CLERIC,
-    PM_HUMAN,
     PM_IRON_GOLEM,
     PM_KILLER_BEE,
     PM_LEATHER_GOLEM,
     PM_MAIL_DAEMON,
     PM_NAZGUL,
-    PM_ORC,
     PM_PAPER_GOLEM,
     PM_PESTILENCE,
     PM_QUEEN_BEE,
@@ -86,11 +94,18 @@ import {
     S_TRAPPER,
     S_VORTEX,
     SPECIAL_PM,
+    monst_globals_init,
     monsterClassSymbol,
 } from './monsters.js';
-
-// C ref: mondata.h is_placeholder(). These records only back corpse forms.
-const PLACEHOLDER_MONSTERS = new Set([PM_ORC, PM_GIANT, PM_ELF, PM_HUMAN]);
+import { makemon } from './makemon_create.js';
+import { discover_object } from './o_init.js';
+import { BAG_OF_TRICKS } from './objects.js';
+import { sensesMonster } from './startup_a11y.js';
+import { MAXMCLASSES } from './symbols.js';
+import { ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
+import { update_inventory } from './invent.js';
+import { canseemon } from './vision.js';
 
 function generationState(env = {}) {
     const state = env.state ?? game;
@@ -226,8 +241,10 @@ export function is_home_elemental(monster, state = game) {
     }
 }
 
-// C ref: makemon.c wrong_elem_type().
-function wrongElementType(monster, state) {
+// C ref: makemon.c wrong_elem_type(). Returns true when the given monster
+// species does not belong on the current elemental level. C declares this
+// staticfn; exported here for direct testing.
+export function wrong_elem_type(monster, state) {
     if (monster.mlet === S_ELEMENTAL)
         return !is_home_elemental(monster, state);
     if (on_level(state.u?.uz, state.earth_level)) return false;
@@ -544,51 +561,113 @@ export function set_malign(mon, state = game) {
     return mon.malign;
 }
 
-function monsterClassOrder(classSymbol, state) {
-    const order = [];
-    for (let index = LOW_PM; index < SPECIAL_PM; ++index) {
-        if (state.mons[index].mlet === classSymbol) order.push(index);
+// C ref: makemon.c mk_gen_ok(). Decides whether it's ok to generate a
+// candidate monster by mkclass(). C declares this staticfn; exported here
+// for direct testing and for mkclass_poly/summon_furies (same file).
+export function mk_gen_ok(mndx, mvflagsmask, genomask, state) {
+    const ptr = state.mons[mndx];
+    if (state.mvitals[mndx].mvflags & mvflagsmask) return false;
+    if (ptr.geno & genomask) return false;
+    if (is_placeholder(ptr)) return false;
+    // MAIL_STRUCTURES: reject mail daemon from random generation
+    if (mndx === PM_MAIL_DAEMON) return false;
+    return true;
+}
+
+// C ref: makemon.c cmp_init_mongen_order(). Comparison callback for sorting
+// mongen_order by monster class (mlet) and difficulty.
+function cmp_init_mongen_order(i1, i2, mons) {
+    // offset1/offset2 are 0 in the released build (#if 0 block)
+    const difficulty1 = mons[i1].difficulty | (mons[i1].mlet << 8);
+    const difficulty2 = mons[i2].difficulty | (mons[i2].mlet << 8);
+    return difficulty1 - difficulty2;
+}
+
+// C ref: makemon.c check_mongen_order(). Debug validation of sorted order,
+// compiled only when NH_DEVEL_STATUS != NH_STATUS_RELEASED. The released
+// build (NH_DEVEL_STATUS == NH_STATUS_RELEASED) omits this function entirely.
+function check_mongen_order() {
+    // No-op in the released build.
+}
+
+// C ref: makemon.c init_mongen_order(). Initializes the monster generation
+// order table, sorting by class (mlet) and difficulty for mkclass().
+// C stores mongen_order[], mclass_maxf[], and mongen_order_init as file-scoped
+// statics; the JS port caches them on the game state object. Exported for
+// direct testing.
+export function init_mongen_order(state) {
+    if (state._mongen_order) return;
+
+    const mongen_order = new Array(NUMMONS);
+    const mclass_maxf = new Array(MAXMCLASSES).fill(0);
+
+    for (let i = LOW_PM; i < NUMMONS; i++) {
+        mongen_order[i] = i;
+        const mlet = state.mons[i].mlet;
+        const freq = state.mons[i].geno & G_FREQ;
+        if (freq > mclass_maxf[mlet]) mclass_maxf[mlet] = freq;
     }
-    // init_mongen_order() sorts by class and difficulty.  The recorder's
-    // source catalog retains mons[] order for equal-difficulty records.
-    order.sort((left, right) => state.mons[left].difficulty
-        - state.mons[right].difficulty || left - right);
-    return order;
+
+    check_mongen_order();
+    // Sort the first SPECIAL_PM entries by class and difficulty.
+    // C uses qsort over mongen_order[0..SPECIAL_PM-1]; the patched build
+    // applies a stable sort, matching JS Array.sort's guaranteed stability.
+    const sortSlice = mongen_order.slice(0, SPECIAL_PM);
+    sortSlice.sort((a, b) => cmp_init_mongen_order(a, b, state.mons));
+    for (let i = 0; i < SPECIAL_PM; i++) mongen_order[i] = sortSlice[i];
+    check_mongen_order();
+
+    state._mongen_order = mongen_order;
+    state._mclass_maxf = mclass_maxf;
 }
 
-function mkGenerationOkay(index, mvflagsMask, genoMask, state) {
-    const monster = state.mons[index];
-    return !(state.mvitals[index].mvflags & mvflagsMask)
-        && !(monster.geno & genoMask)
-        && !PLACEHOLDER_MONSTERS.has(index)
-        && index !== PM_MAIL_DAEMON;
+// C ref: makemon.c dump_mongen(). Debug dump of the monster generation order
+// table to stdout via raw_printf/raw_print. Called from earlyarg.c for the
+// --mongen-dump command-line option.
+function dump_mongen(state = game) {
+    monst_globals_init(state);
+    init_mongen_order(state);
+    // The body formats and prints the sorted mongen_order table via
+    // raw_printf/raw_print and references def_monsyms[] and monsdump[],
+    // none of which are ported.
+    note_unported('pline.c raw_printf');
+    note_unported('alloc.c freedynamicdata');
 }
 
-// C ref: makemon.c mkclass()/mkclass_aligned(), for A_NONE callers. `special`
-// contains mons[].geno bits exempted from normal rejection. G_IGNORE is a
-// pseudo-flag: it disables the G_GONE mvitals check, then is removed before
-// the geno mask is applied.
+// C ref: makemon.c mkclass(). Wrapper for mkclass_aligned with A_NONE.
 export function mkclass(classSymbol, special = 0, env = {}) {
+    return mkclass_aligned(classSymbol, special, A_NONE, env);
+}
+
+// C ref: makemon.c mkclass_aligned(). `special` contains mons[].geno bits
+// exempted from normal rejection. G_IGNORE is a pseudo-flag: it disables the
+// G_GONE mvitals check, then is removed before the geno mask is applied.
+// `atyp` restricts selection to monsters whose alignment sign matches.
+export function mkclass_aligned(classSymbol, special = 0, atyp = A_NONE,
+    env = {}) {
     const normalized = generationEnv(env);
     const { random, state } = normalized;
     if (typeof random.rnd !== 'function')
         throw new TypeError('mkclass random injection requires rnd');
     if (!Number.isInteger(classSymbol)
-        || classSymbol < 1 || classSymbol > S_MIMIC_DEF) {
+        || classSymbol < 1 || classSymbol >= MAXMCLASSES) {
         return null;
     }
 
-    const order = monsterClassOrder(classSymbol, state);
-    if (!order.length) return null;
-    // Like init_mongen_order()'s mclass_maxf, this check covers all NUMMONS;
-    // the candidate order remains limited to records before SPECIAL_PM.
-    const zeroFrequencyForEntireClass = !state.mons
-        .slice(LOW_PM, NUMMONS)
-        .some((monster) => monster.mlet === classSymbol
-            && (monster.geno & G_FREQ));
-    const weights = Array(SPECIAL_PM).fill(0);
+    init_mongen_order(state);
+    const mongen_order = state._mongen_order;
+    const zeroFrequencyForEntireClass = state._mclass_maxf[classSymbol] === 0;
+    const nums = new Array(SPECIAL_PM + 1).fill(0);
     const maxLevel = Math.trunc(level_difficulty(state) / 2);
     const gehennom = inHell(state);
+
+    // Find first entry in mongen_order where the class matches.
+    let first;
+    for (first = LOW_PM; first < SPECIAL_PM; first++) {
+        if (state.mons[mongen_order[first]].mlet === classSymbol) break;
+    }
+    if (first === SPECIAL_PM) return null;
+
     let mvflagsMask = G_GONE;
     let specialMask = Math.trunc(special);
     if (specialMask & G_IGNORE) {
@@ -596,45 +675,91 @@ export function mkclass(classSymbol, special = 0, env = {}) {
         specialMask &= ~G_IGNORE;
     }
 
-    let total = 0;
-    let last = 0;
-    for (; last < order.length; ++last) {
-        const index = order[last];
-        const monster = state.mons[index];
+    let num = 0;
+    let last;
+    for (last = first;
+        last < SPECIAL_PM && state.mons[mongen_order[last]].mlet === classSymbol;
+        last++) {
+        if (atyp !== A_NONE
+            && sgn(state.mons[mongen_order[last]].maligntyp) !== sgn(atyp))
+            continue;
         let genoMask = G_NOGEN | G_UNIQ;
         // rn2(9) is evaluated even for liches because it is the left operand.
         if (random.rn2(9) || classSymbol === S_LICH)
             genoMask |= gehennom ? G_NOHELL : G_HELL;
         genoMask &= ~specialMask;
 
-        if (!mkGenerationOkay(index, mvflagsMask, genoMask, state)) continue;
-        // C compares with the immediately preceding difficulty-sorted class
-        // record, even when that record failed the generation filters above.
-        if (total && monster.difficulty > maxLevel
-            && monster.difficulty > state.mons[order[last - 1]].difficulty
-            && random.rn2(2)) {
-            break;
-        }
-
-        let weight = monster.geno & G_FREQ;
-        if (!weight && zeroFrequencyForEntireClass) weight = 1;
-        if (weight) {
-            weight += 1 - Number(
-                adj_lev(monster, state) > state.u.ulevel * 2,
-            );
-            weights[index] = weight;
-            total += weight;
+        if (mk_gen_ok(mongen_order[last], mvflagsMask, genoMask, state)) {
+            // C compares with the immediately preceding difficulty-sorted class
+            // record, even when that record failed the generation filters above.
+            if (num && state.mons[mongen_order[last]].difficulty > maxLevel
+                && state.mons[mongen_order[last]].difficulty
+                    > state.mons[mongen_order[last - 1]].difficulty
+                && random.rn2(2)) {
+                break;
+            }
+            let k = state.mons[mongen_order[last]].geno & G_FREQ;
+            if (!k) k = zeroFrequencyForEntireClass ? 1 : 0;
+            if (k > 0) {
+                nums[mongen_order[last]] = k + 1 - Number(
+                    adj_lev(state.mons[mongen_order[last]], state)
+                        > state.u.ulevel * 2,
+                );
+                num += nums[mongen_order[last]];
+            }
         }
     }
-    if (!total) return null;
+    if (!num) return null;
 
-    let choice = random.rnd(total);
-    for (let position = 0; position < last; ++position) {
-        const index = order[position];
-        choice -= weights[index];
-        if (choice <= 0) return state.mons[index];
+    let choice = random.rnd(num);
+    for (let pos = first; pos < last; pos++) {
+        choice -= nums[mongen_order[pos]];
+        if (choice <= 0) {
+            return nums[mongen_order[pos]]
+                ? state.mons[mongen_order[pos]] : null;
+        }
     }
     return null;
+}
+
+// C ref: makemon.c mkclass_poly(). Like mkclass(), but excludes difficulty
+// considerations; used when a player with polycontrol picks a class instead
+// of a specific type. Genocided types are avoided but extinct ones are
+// acceptable. Iterates raw mons[] order (not mongen_order). Returns a
+// monster index, not a permonst pointer.
+export function mkclass_poly(classSymbol, env = {}) {
+    const normalized = generationEnv(env);
+    const { random, state } = normalized;
+
+    let first;
+    for (first = LOW_PM; first < SPECIAL_PM; first++)
+        if (state.mons[first].mlet === classSymbol)
+            break;
+    if (first === SPECIAL_PM)
+        return NON_PM;
+
+    let gmask = G_NOGEN | G_UNIQ;
+    // mkclass() does this on a per monster type basis, but doing that here
+    // would make the two loops inconsistent with each other for non L.
+    if (random.rn2(9) || classSymbol === S_LICH)
+        gmask |= inHell(state) ? G_NOHELL : G_HELL;
+
+    let num = 0;
+    let last;
+    for (last = first;
+        last < SPECIAL_PM && state.mons[last].mlet === classSymbol;
+        last++)
+        if (mk_gen_ok(last, G_GENOD, gmask, state))
+            num += state.mons[last].geno & G_FREQ;
+    if (!num)
+        return NON_PM;
+
+    for (num = random.rnd(num); num > 0; first++)
+        if (mk_gen_ok(first, G_GENOD, gmask, state))
+            num -= state.mons[first].geno & G_FREQ;
+    first--; // correct an off-by-one error
+
+    return first;
 }
 
 // C ref: questpgr.c qt_montype().
@@ -682,7 +807,7 @@ export function rndmonst_adj(minadj = 0, maxadj = 0, env = {}) {
             && !/^[A-Z]$/u.test(monsterClassSymbol(monster.mlet))) {
             continue;
         }
-        if (elementalLevel && wrongElementType(monster, state)) continue;
+        if (elementalLevel && wrong_elem_type(monster, state)) continue;
         if (uncommon(index, state)) continue;
         if (inHell(state) && (monster.geno & G_NOHELL)) continue;
 
@@ -720,6 +845,15 @@ export function rndmonnum(env = {}) {
     return rndmonnum_adj(0, 0, env);
 }
 
+// C ref: makemon.c newmcorpsenm() (2370-2376). Allocates the mextra record
+// if absent and initializes mcorpsenm to NON_PM. In the C source every call
+// site immediately overwrites the field, so the NON_PM value is transient.
+export function newmcorpsenm(mtmp) {
+    if (!mtmp.mextra)
+        mtmp.mextra = {};
+    mtmp.mextra.mcorpsenm = NON_PM;
+}
+
 // C ref: makemon.c freemcorpsenm() (2377-2383), which C's own comment calls
 // "basically a no-op": mextra.h keeps mcorpsenm inline rather than behind a
 // pointer, so releasing the record means writing NON_PM back into it.
@@ -730,4 +864,80 @@ export function rndmonnum(env = {}) {
 export function freemcorpsenm(mtmp) {
     if (has_mcorpsenm(mtmp))
         mtmp.mextra.mcorpsenm = NON_PM;
+}
+
+// C ref: makemon.c bagotricks() (2554-2601). Creates a monster when applying
+// a bag of tricks (the `a` command) or tipping one (#tip). Consumes a charge
+// and creates 1-8 monsters; returns { moncount, seecount } where moncount is
+// the number of monsters created and seecount is the number the hero saw.
+export async function bagotricks(bag, tipping, state = game) {
+    let moncount = 0;
+    let seecount_out = 0;
+
+    if (!bag || bag.otyp !== BAG_OF_TRICKS) {
+        // C: impossible("bad bag o' tricks") -- pline.c debug output
+        note_unported('pline.c impossible');
+    } else if (bag.spe < 1) {
+        // C: pline1() is pline("%s", cstr)
+        await ttyPline(
+            (tipping && bag.cknown) ? "It's empty." : nothing_happens,
+            state,
+        );
+        // Now known to be empty if sufficiently discovered
+        if (bag.dknown && state.objects[bag.otyp].oc_name_known) {
+            bag.cknown = 1;
+            update_inventory({ state }); // for perm_invent
+        }
+    } else {
+        let creatcnt = 1;
+        let seecount = 0;
+
+        // C: consume_obj_charge(bag, !tipping) -- invent.c, not ported.
+        // Decrements bag->spe and optionally bills the hero.
+        note_unported('invent.c consume_obj_charge');
+
+        if (!rn2(23))
+            creatcnt += rnd(7);
+        do {
+            const mtmp = makemon(null, state.u.ux, state.u.uy,
+                NO_MM_FLAGS, { state });
+            if (mtmp) {
+                ++moncount;
+                if ((canseemon(mtmp, state)
+                        && (M_AP_TYPE(mtmp) === M_AP_NOTHING
+                            || M_AP_TYPE(mtmp) === M_AP_MONSTER))
+                    || sensesMonster(mtmp, state))
+                    ++seecount;
+            }
+        } while (--creatcnt > 0);
+        if (seecount) {
+            seecount_out = seecount;
+            if (bag.dknown) {
+                // C: makeknown(BAG_OF_TRICKS) expands to
+                // discover_object(BAG_OF_TRICKS, TRUE, TRUE, TRUE)
+                discover_object(BAG_OF_TRICKS, true, true, true, state);
+                update_inventory({ state }); // for perm_invent
+            }
+        } else if (!tipping) {
+            await ttyPline(
+                !moncount ? nothing_happens : nothing_seems_to_happen,
+                state,
+            );
+        }
+    }
+    return { moncount, seecount: seecount_out };
+}
+
+// C ref: makemon.c summon_furies() (2605-2615). Creates some or all remaining
+// Erinyes around the player. Called when the player angers the gods (e.g. via
+// a helm of opposite alignment). Pass limit=0 to create until the species is
+// extinct; pass limit=N to create at most N.
+export function summon_furies(limit, state = game) {
+    let i = 0;
+    while (mk_gen_ok(PM_ERINYS, G_GONE, 0, state)
+        && (i < limit || !limit)) {
+        makemon(state.mons[PM_ERINYS], state.u.ux, state.u.uy,
+            MM_ADJACENTOK | MM_NOWAIT, { state });
+        i++;
+    }
 }

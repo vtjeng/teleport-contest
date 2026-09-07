@@ -2,9 +2,10 @@
 // dungeon branches (main dungeon, Quest, Mines, Sokoban, etc.).  Covers
 // ordinary rooms, themed-room fills including Mausoleum, starting pets, and
 // Statuary's temporary monsters.
-// C ref: makemon.c makemon(), m_initthrow(), m_initweap(), m_initinv(), and
-// mongets(); worn.c m_dowear(). Outside level generation the implementation
-// fails closed on species and call shapes that have not been ported.
+// C ref: makemon.c makemon(), m_initgrp(), m_initthrow(), m_initweap(),
+// m_initinv(), and mongets(); worn.c m_dowear(). Outside level generation
+// the implementation fails closed on species and call shapes that have not
+// been ported.
 // Expanding that closed set means porting the corresponding complete source
 // branches, not approximating their PRNG effects.
 
@@ -133,6 +134,7 @@ import {
 } from './invent.js';
 import { del_light_source, new_light_source } from './light.js';
 import {
+    newmcorpsenm,
     newmonhp,
     peace_minded,
     propagate,
@@ -734,11 +736,6 @@ export function ogreWeaponDivisor(species) {
             : 12;
 }
 
-function setMimicCorpsenm(monster, value) {
-    monster.mextra ??= {};
-    monster.mextra.mcorpsenm = value;
-}
-
 function permanentlyInvisible(species) {
     return species?.pmidx === PM_STALKER
         || species?.pmidx === PM_BLACK_LIGHT;
@@ -1138,19 +1135,19 @@ export function set_mimic_sym(monster, normalized) {
                    || (appearance === TIN && noCorpse)) {
             species = NON_PM;
         }
-        setMimicCorpsenm(monster, species);
+        newmcorpsenm(monster);
+        monster.mextra.mcorpsenm = species;
     } else if (appearanceType === M_AP_OBJECT
                && appearance === SLIME_MOLD) {
-        setMimicCorpsenm(monster, state.context.current_fruit);
+        newmcorpsenm(monster);
+        monster.mextra.mcorpsenm = state.context.current_fruit;
         state.flags.made_fruit = true;
     } else if (appearanceType === M_AP_FURNITURE
                && appearance === S_altar) {
         const alignment = random.rn2(3) - 1;
-        setMimicCorpsenm(
-            monster,
-            alignment < 0 ? AM_CHAOTIC
-                : alignment > 0 ? AM_LAWFUL : AM_NEUTRAL,
-        );
+        newmcorpsenm(monster);
+        monster.mextra.mcorpsenm = alignment < 0 ? AM_CHAOTIC
+            : alignment > 0 ? AM_LAWFUL : AM_NEUTRAL;
     } else if (monster.mextra && 'mcorpsenm' in monster.mextra) {
         monster.mextra.mcorpsenm = NON_PM;
     }
@@ -1529,7 +1526,7 @@ function makemon_rnd_goodpos(ptr, gpflags, normalized) {
 
 // C ref: makemon.c m_initgrp(). Runtime random generation can create a small
 // or large hostile group before the original monster receives inventory.
-function initializeMonsterGroup(monster, countBound, mmflags, normalized) {
+function m_initgrp(monster, countBound, mmflags, normalized) {
     const { random, state } = normalized;
     const divisor = state.u.ulevel < 3 ? 4 : state.u.ulevel < 5 ? 2 : 1;
     let count = Math.trunc(random.rnd(countBound) / divisor);
@@ -1571,7 +1568,7 @@ function initializeMonsterGroup(monster, countBound, mmflags, normalized) {
 // Runtime m_initgrp() has to await each recursive makemon() tail before the
 // loop can advance: that tail can stop at a tty --More-- prompt.  C applies
 // the forced-hostile correction only after the recursive call returns.
-async function initializeRuntimeMonsterGroup(
+async function m_initgrp_runtime(
     monster,
     countBound,
     mmflags,
@@ -3621,9 +3618,9 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
 
     if (anymon && !(mmflags & MM_NOGRP)) {
         if ((ptr.geno & G_SGROUP) && random.rn2(2)) {
-            initializeMonsterGroup(monster, 3, mmflags, normalized);
+            m_initgrp(monster, 3, mmflags, normalized);
         } else if (ptr.geno & G_LGROUP) {
-            initializeMonsterGroup(
+            m_initgrp(
                 monster,
                 random.rn2(3) ? 10 : 3,
                 mmflags,
@@ -3672,14 +3669,14 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
     } = runtimeContinuation;
     if (anymon && !(mmflags & MM_NOGRP)) {
         if ((selected.geno & G_SGROUP) && normalized.random.rn2(2)) {
-            await initializeRuntimeMonsterGroup(
+            await m_initgrp_runtime(
                 monster,
                 3,
                 mmflags,
                 normalized,
             );
         } else if (selected.geno & G_LGROUP) {
-            await initializeRuntimeMonsterGroup(
+            await m_initgrp_runtime(
                 monster,
                 normalized.random.rn2(3) ? 10 : 3,
                 mmflags,

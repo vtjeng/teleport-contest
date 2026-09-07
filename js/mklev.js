@@ -2004,11 +2004,16 @@ function createSpecialLevelApi(state) {
                     ? state.mons.indexOf(species)
                     : undefined;
             }
+            // C ref: sp_lev.c get_table_xy_or_coord(). Check separate x/y
+            // fields first, then fall back to the coord array.
+            const coordinate = (spec.x != null || spec.y != null)
+                ? { x: spec.x ?? -1, y: spec.y ?? -1 }
+                : spec.coord
+                    ? { x: spec.coord[0], y: spec.coord[1] }
+                    : undefined;
             const normalized = {
                 ...spec,
-                coordinate: spec.coord
-                    ? { x: spec.coord[0], y: spec.coord[1] }
-                    : undefined,
+                coordinate,
                 corpsenm,
             };
             return lspo_object(normalized, currentCroom, env);
@@ -2043,11 +2048,16 @@ function createSpecialLevelApi(state) {
 
         monster(specification) {
             const spec = specification ?? {};
+            // C ref: sp_lev.c get_table_xy_or_coord(). Check separate
+            // x/y fields first, then fall back to the coord array.
+            const coordinate = (spec.x != null || spec.y != null)
+                ? { x: spec.x ?? -1, y: spec.y ?? -1 }
+                : spec.coord
+                    ? { x: spec.coord[0], y: spec.coord[1] }
+                    : undefined;
             const normalized = {
                 ...spec,
-                coordinate: spec.coord
-                    ? { x: spec.coord[0], y: spec.coord[1] }
-                    : undefined,
+                coordinate,
             };
             try {
                 return create_monster(normalized, currentCroom, env);
