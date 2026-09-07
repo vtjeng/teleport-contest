@@ -11000,11 +11000,20 @@
         },
         {
           "name": "bagotricks..summon_furies",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "79aa16bfc68abaf205912ac6bba234d7350952d4",
           "functions": [
             "bagotricks",
             "summon_furies"
+          ]
+        },
+        {
+          "name": "wrong_elem_type..m_initgrp",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "wrong_elem_type",
+            "m_initgrp"
           ]
         }
       ],
@@ -11261,13 +11270,13 @@
           "name": "bagotricks",
           "line": 2554,
           "endLine": 2604,
-          "ported": false
+          "ported": true
         },
         {
           "name": "summon_furies",
           "line": 2605,
           "endLine": 2615,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
