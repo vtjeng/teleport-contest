@@ -3,6 +3,7 @@
 // weight().
 
 import {
+    ARTICLE_A,
     A_NONE,
     BLINDED,
     BURIED_TOO,
@@ -13,6 +14,7 @@ import {
     COLNO,
     DB_ICE,
     DB_UNDER,
+    EXACT_NAME,
     DRAWBRIDGE_UP,
     FIG_TRANSFORM,
     FIRE_RES,
@@ -63,7 +65,7 @@ import {
 // corpstat.js imports from this file; both sides use the other's exports only
 // inside function bodies, so the cycle resolves.
 import { get_mtraits } from './corpstat.js';
-import { noveltitle } from './do_name.js';
+import { noveltitle, x_monnam } from './do_name.js';
 // dropy() is imported for hornoplenty()'s tipping-to-floor path. do.js
 // imports from this file; both sides use the other's exports only inside
 // function bodies.
@@ -82,7 +84,7 @@ import { game } from './gstate.js';
 // hack.js imports from this file; both sides use the other's exports only
 // inside function bodies.
 import { near_capacity } from './hack.js';
-import { strsubst } from './hacklib.js';
+import { strstri, strsubst } from './hacklib.js';
 import {
     add_to_container, container_weight, hold_another_object, merged, obfree,
     obj_extract_self, update_inventory, useupall,
@@ -112,7 +114,7 @@ import { copy_mextra, maybe_unhide_at } from './mon.js';
 // shrink_glob() and maybe_adjust_light() use naming functions from objnam.js.
 // objnam.js imports from this file; both sides use the other's exports only
 // inside function bodies.
-import { The, Yname2, aobjnam, otense, simpleonames, vtense } from './objnam.js';
+import { The, Yname2, aobjnam, donameFresh, otense, simpleonames, vtense } from './objnam.js';
 import {
     pushRngLogEntry,
     rn1 as coreRn1,
@@ -131,6 +133,10 @@ import {
     stop_timer,
 } from './timeout.js';
 import { is_ice } from './terrain.js';
+// is_pool and is_pool_or_lava are imported for the boulder sanity check in
+// obj_sanity_check(). trap.js imports from this file; both sides use the
+// other's exports only inside function bodies.
+import { is_pool, is_pool_or_lava } from './trap.js';
 // ttyPline is imported for hornoplenty() messages.
 import { ttyPline } from './tty_message.js';
 // add_to_migration() calls maybe_reset_pick() for containers. lock.js imports
@@ -3027,8 +3033,14 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
 // The following functions are diagnostic utilities that run only when the
 // wizard-mode `sanity_check` option is enabled. They check object list
 // consistency and report problems through insane_object() and related
-// functions, which are in a later span of this file and not yet ported.
-// Until those helpers land, the functions exist but produce no output.
+// functions. All diagnostic output goes through insane_object(), which
+// formats the message and passes it to impossible() (not yet ported).
+
+// C ref: mkobj.c pline formats for insane_object() (2940-2945).
+const ofmt0 = '%s obj %s %s: %s';
+const ofmt3 = '%s [not null] %s %s: %s';
+const mfmt1 = '%s obj %s %s (%s)';
+const mfmt2 = '%s obj %s %s (%s) *not*';
 
 // C ref: mkobj.c obj_state_names[] (3289-3293).
 const OBJ_STATE_NAMES = [
@@ -3048,18 +3060,49 @@ export function where_name(obj) {
 }
 
 // C ref: mkobj.c obj_sanity_check() (2949-3028). Checks all object lists
-// for consistency. All diagnostic output goes through insane_object() and
-// mon_obj_sanity(), which are in a later span and not yet ported.
+// for consistency. All diagnostic output goes through insane_object().
 export function obj_sanity_check(state = game) {
     // C: objlist_sanity(fobj, OBJ_FLOOR, "floor sanity")
     objlist_sanity(state.level?.objlist ?? null, OBJ_FLOOR,
                    'floor sanity', state);
 
-    // C: map location consistency check (2957-2993)
-    // Checks that level.objects[x][y] entries match their ox,oy and that
-    // boulders are on top of their piles. All error reporting goes through
-    // insane_object(), not yet ported.
-    note_unported('mkobj.c insane_object');
+    // C: map location consistency check (2957-2993). Checks that
+    // level.objects[x][y] entries match their ox,oy and that boulders
+    // are on top of their piles and not in water or lava.
+    const objects = state.level?.objects;
+    if (objects) {
+        for (let x = 0; x < COLNO; x++) {
+            for (let y = 0; y < ROWNO; y++) {
+                const otop = objects[x]?.[y] ?? null;
+                let prevo = null;
+                for (let obj = otop; obj;
+                     prevo = obj, obj = prevo.nexthere) {
+                    if (obj.where !== OBJ_FLOOR || x === 0
+                        || obj.ox !== x || obj.oy !== y) {
+                        const at_fmt = `%s obj@<${x},${y}> %s %s: `
+                            + `%s@<${obj.ox},${obj.oy}>`;
+                        insane_object(obj, at_fmt, 'location sanity',
+                                      null, state);
+                    } else if (obj.otyp === BOULDER) {
+                        if (prevo && prevo.otyp !== BOULDER) {
+                            const at_fmt = `%s boulder@<${x},${y}>`
+                                + ' %s %s: not on top';
+                            insane_object(obj, at_fmt, 'boulder sanity',
+                                          null, state);
+                        }
+                        if (is_pool_or_lava(x, y, state)) {
+                            const label = is_pool(x, y, state)
+                                ? 'water' : 'lava';
+                            const at_fmt = `%s boulder@<${x},${y}>`
+                                + ` %s %s: on/in ${label}`;
+                            insane_object(obj, at_fmt, 'boulder sanity',
+                                          null, state);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // C: objlist_sanity for invent, migrating, buried, bill, deleted
     objlist_sanity(state.invent ?? null, OBJ_INVENT,
@@ -3081,24 +3124,41 @@ export function obj_sanity_check(state = game) {
         mon_obj_sanity(state.gm.mydogs, 'mydogs minvent sanity', state);
     }
 
-    // C: checks for thrownobj, kickedobj, returning_missile, current_wand
-    // All report through insane_object(), not yet ported.
+    // C: objects temporarily freed from invent/floor lists (3008-3028)
+    const thrownobj = state.gt?.thrownobj ?? state.thrownobj ?? null;
+    if (thrownobj)
+        insane_object(thrownobj, ofmt3, 'thrownobj sanity', null, state);
+    const kickedobj = state.gk?.kickedobj ?? state.kickedobj ?? null;
+    if (kickedobj)
+        insane_object(kickedobj, ofmt3, 'kickedobj sanity', null, state);
+    if (state.iflags?.returning_missile)
+        insane_object(kickedobj, ofmt3, 'returning_missile sanity',
+                      null, state);
+    const current_wand = state.gc?.current_wand ?? state.current_wand ?? null;
+    if (current_wand)
+        insane_object(current_wand, ofmt3, 'current_wand sanity',
+                      null, state);
 }
 
 // C ref: mkobj.c objlist_sanity() (3032-3129). Sanity check for objects on
 // a specified list (fobj, invent, etc.). All diagnostic output goes through
 // insane_object(), insane_obj_bits(), check_contained(), check_glob(),
-// sanity_check_worn(), and shop_obj_sanity(), most of which are in later
-// spans and not yet ported.
+// sanity_check_worn(), and shop_obj_sanity().
 export function objlist_sanity(objlist, wheretype, mesg, state = game) {
     for (let obj = objlist; obj; obj = obj.nobj) {
         if (obj.where !== wheretype)
-            note_unported('mkobj.c insane_object');
-        if (obj.where === OBJ_INVENT && obj.how_lost !== LOST_NONE)
-            note_unported('mkobj.c insane_object');
+            insane_object(obj, ofmt0, mesg, null, state);
+        if (obj.where === OBJ_INVENT && obj.how_lost !== LOST_NONE) {
+            // C: Sprintf(lostbuf, "how_lost=%d obj in inventory!",
+            //            obj->how_lost)
+            const lostbuf = `how_lost=${obj.how_lost} obj in inventory!`;
+            insane_object(obj, ofmt0, lostbuf, null, state);
+        }
         if (hasContents(obj)) {
             if (wheretype === OBJ_ONBILL)
-                note_unported('mkobj.c insane_object');
+                insane_object(obj,
+                              '%s obj contains something! %s %s: %s',
+                              mesg, null, state);
             note_unported('mkobj.c check_contained');
         }
         if (obj.unpaid || obj.no_charge)
@@ -3108,7 +3168,7 @@ export function objlist_sanity(objlist, wheretype, mesg, state = game) {
             // in a later span of this file.
             note_unported('mkobj.c sanity_check_worn');
         }
-        // C: leash checks using find_mid(), mon_pmname(), where_name()
+        // C: leash checks using find_mid(), mon_pmname(), where_name().
         // find_mid() is in light.c and not yet ported.
         if (obj.otyp === LEASH && obj.leashmon)
             note_unported('light.c find_mid');
@@ -3124,42 +3184,50 @@ export function objlist_sanity(objlist, wheretype, mesg, state = game) {
 }
 
 // C ref: mkobj.c shop_obj_sanity() (3134-3200). Checks obj->unpaid and
-// obj->no_charge for shop sanity. All diagnostic output goes through
-// insane_object(). The function calls find_objowner(), costly_adjacent(),
-// and onshopbill() from shk.c, none of which are ported.
+// obj->no_charge for shop sanity. Diagnostic output goes through
+// insane_object(). The unpaid/no_charge sub-conditions call
+// find_objowner(), costly_spot(), costly_adjacent(), and onshopbill()
+// from shk.c, none of which are ported.
 export function shop_obj_sanity(obj, mesg, state = game) {
-    // The diagnostic logic depends on unported shk.c functions
-    // (find_objowner, costly_adjacent, onshopbill) and reports through
-    // insane_object() which is also not yet ported. Record the gaps.
-    if (obj.no_charge && obj.unpaid)
-        note_unported('mkobj.c insane_object');
-    else if (obj.unpaid)
+    // C: get top-most container for location (3140-3143)
+    let otop = obj;
+    while (otop.where === OBJ_CONTAINED)
+        otop = otop.ocontainer;
+    const mon = (otop.where === OBJ_MINVENT) ? otop.ocarry : null;
+
+    if (obj.no_charge && obj.unpaid) {
+        // C: why = "%s obj both unpaid and no_charge! %s %s: %s"
+        insane_object(obj,
+                      '%s obj both unpaid and no_charge! %s %s: %s',
+                      mesg, mon, state);
+    } else if (obj.unpaid) {
+        // Remaining checks depend on find_objowner, costly_spot,
+        // costly_adjacent, onshopbill from shk.c (not yet ported).
         note_unported('shk.c find_objowner');
-    else if (obj.no_charge)
+    } else if (obj.no_charge) {
         note_unported('shk.c find_objowner');
+    }
 }
 
 // C ref: mkobj.c mon_obj_sanity() (3204-3246). Iterates monster inventories
 // checking that wielded weapons and carried objects are consistent.
 // Diagnostic output goes through insane_object(), check_glob(),
-// check_contained(), and impossible(), none of which are ported yet.
+// check_contained(), and impossible().
 export function mon_obj_sanity(monlist, mesg, state = game) {
     for (let mon = monlist; mon; mon = mon.nmon) {
         if (mon.mhp < 1) continue; // DEADMONSTER
         let mwep = mon.mw; // MON_WEP
         if (mwep) {
-            // C: if (!mcarried(mwep)) insane_object(...)
             if (mwep.where !== OBJ_MINVENT)
-                note_unported('mkobj.c insane_object');
-            // C: if (mwep->ocarry != mon) insane_object(...)
+                insane_object(mwep, mfmt1, mesg, mon, state);
             if (mwep.ocarry !== mon)
-                note_unported('mkobj.c insane_object');
+                insane_object(mwep, mfmt2, mesg, mon, state);
         }
         for (let obj = mon.minvent; obj; obj = obj.nobj) {
             if (obj.where !== OBJ_MINVENT)
-                note_unported('mkobj.c insane_object');
+                insane_object(obj, mfmt1, mesg, mon, state);
             if (obj.ocarry !== mon)
-                note_unported('mkobj.c insane_object');
+                insane_object(obj, mfmt2, mesg, mon, state);
             if (obj.globby)
                 note_unported('mkobj.c check_glob');
             note_unported('mkobj.c check_contained');
@@ -3175,8 +3243,7 @@ export function mon_obj_sanity(monlist, mesg, state = game) {
             // C: impossible("monst (%s: %u) wielding %s (%u) not in %s
             //    inventory", pmname(...), mon->m_id, safe_typename(...),
             //    mwep->o_id, mhis(mon))
-            // impossible(), pmname(), safe_typename(), mhis() -- impossible
-            // and safe_typename are not ported; pmname and mhis are.
+            // safe_typename is not ported; pmname and mhis are.
             note_unported('pline.c impossible');
         }
     }
@@ -3184,7 +3251,7 @@ export function mon_obj_sanity(monlist, mesg, state = game) {
 
 // C ref: mkobj.c insane_obj_bits() (3248-3276). Checks object flag
 // consistency (in_use, bypass, nomerge, next_boulder). Reports through
-// insane_object(), not yet ported.
+// insane_object().
 export function insane_obj_bits(obj, mon, state = game) {
     if (obj.where === OBJ_DELETED) return;
 
@@ -3197,8 +3264,13 @@ export function insane_obj_bits(obj, mon, state = game) {
     const o_boulder = obj.otyp === BOULDER && obj.next_boulder;
 
     if (o_in_use || o_bypass || o_nomerge || o_boulder) {
-        // C builds infobuf and calls insane_object(obj, ofmt0, infobuf, mon)
-        note_unported('mkobj.c insane_object');
+        // C: Sprintf(infobuf, "flagged%s%s%s%s", ...)
+        const infobuf = 'flagged'
+            + (o_in_use ? ' in_use' : '')
+            + (o_bypass ? ' bypass' : '')
+            + (o_nomerge ? ' nomerge' : '')
+            + (o_boulder ? ' nxtbldr' : '');
+        insane_object(obj, ofmt0, infobuf, mon, state);
     }
 }
 
@@ -3214,4 +3286,44 @@ export function nomerge_exception(obj, state = game) {
     if (tracking.soko_prize_oid && obj.o_id === tracking.soko_prize_oid)
         return true;
     return false;
+}
+
+// C ref: alloc.c fmt_ptr() (125-135). Returns a string representation of
+// a C pointer address, used only in diagnostic messages. In JS there are
+// no pointer addresses; use the object or monster id instead.
+function fmt_ptr(thing) {
+    if (!thing) return 'null';
+    if (thing.o_id !== undefined) return `[obj#${thing.o_id}]`;
+    if (thing.m_id !== undefined) return `[mon#${thing.m_id}]`;
+    return '[?]';
+}
+
+// C ref: mkobj.c insane_object() (3314-3346). Central diagnostic reporter
+// for the object sanity check system. Formats a diagnostic message from
+// the given printf-style format and calls impossible(). The fmt parameter
+// contains %s placeholders filled with: mesg, fmt_ptr(obj), where_name(obj),
+// objnm, and optionally fmt_ptr(mon), monnm.
+export function insane_object(obj, fmt, mesg, mon, state = game) {
+    let objnm = 'null!';
+    let monnm = 'null!';
+    if (obj) {
+        // C: iflags.override_ID++ / doname(obj) / iflags.override_ID--
+        // override_ID makes doname show the object's true name.
+        state.iflags.override_ID = (state.iflags.override_ID ?? 0) + 1;
+        objnm = donameFresh(obj, state);
+        state.iflags.override_ID -= 1;
+    }
+    if (mon || (strstri(mesg, 'minvent') && !strstri(mesg, 'contained'))) {
+        // C: Strcat(strcpy(altfmt, fmt), " held by mon %s (%s)")
+        const altfmt = fmt + ' held by mon %s (%s)';
+        if (mon)
+            monnm = x_monnam(mon, ARTICLE_A, null, EXACT_NAME, true, state);
+        // C: impossible(altfmt, mesg, fmt_ptr(obj), where_name(obj),
+        //              objnm, fmt_ptr(mon), monnm)
+        // impossible() is from pline.c and not yet ported; record the gap.
+        note_unported('pline.c impossible');
+    } else {
+        // C: impossible(fmt, mesg, fmt_ptr(obj), where_name(obj), objnm)
+        note_unported('pline.c impossible');
+    }
 }
