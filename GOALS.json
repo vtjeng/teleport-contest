@@ -10267,6 +10267,15 @@
             "obj_nexto_xy",
             "obj_absorb"
           ]
+        },
+        {
+          "name": "obj_meld..pudding_merge_message",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "obj_meld",
+            "pudding_merge_message"
+          ]
         }
       ],
       "openedAt": "8500abd3c8676ee8add51071e505ca653091d94c",
