@@ -1310,6 +1310,19 @@ function genl_outrip(textLines, how, when, state) {
     textLines.push({ text: '' });
 }
 
+// C ref: end.c find_delayed_killer() (1726-1735). Walk the delayed-killer
+// chain hanging off svk.killer for the entry with the given id. The port
+// keeps that chain, when it has one, as state.killer.next, and returns null
+// where C returns a null pointer.
+export function find_delayed_killer(id, state = game) {
+    let k;
+    for (k = state.killer?.next ?? null; k; k = k.next ?? null) {
+        if (k.id === id)
+            break;
+    }
+    return k;
+}
+
 // C ref: end.c container_contents() (1594-1670). Iterates `list` via nobj,
 // creating a NHW_MENU text window listing the contents of each container or
 // statue found. When `all_containers` is TRUE, iterates the full list and

@@ -571,15 +571,19 @@ test('adjabil refuses the transitions this slice leaves unported',
         /lose_weapon_skill/,
     );
     // adjabil(n, n) reaches the same tail: C's `else` covers an unchanged
-    // level as well as a lowered one, and lose_weapon_skill(0) is its no-op.
-    // val_abil[]'s stealth entry sits exactly at 3, so the loss test has to
-    // read `newlevel < abil->ulevel` strictly to leave it alone.
-    await assert.rejects(
-        () => adjabil(3, 3, heroState({
-            role: { ...ARCHEOLOGIST, mnum: PM_VALKYRIE, filecode: 'Val' },
-        })),
-        /lose_weapon_skill/,
-    );
+    // level as well as a lowered one, but lose_weapon_skill(0)'s
+    // `while (--n >= 0)` body never runs, so nothing changes and nothing is
+    // refused. polyself.c newman() lands here one time in five. val_abil[]'s
+    // stealth entry sits exactly at 3, so the loss test has to read
+    // `newlevel < abil->ulevel` strictly to leave it alone.
+    const unchanged = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_VALKYRIE, filecode: 'Val' },
+    });
+    const slotsBefore = unchanged.u.weapon_slots;
+    const intrinsicsBefore = [...intrinsicsOf(unchanged)];
+    await adjabil(3, 3, unchanged);
+    assert.equal(unchanged.u.weapon_slots, slotsBefore);
+    assert.deepEqual([...intrinsicsOf(unchanged)], intrinsicsBefore);
 });
 
 test('setuhpmax owns u.uhpmax, u.uhppeak and the u.uhp ceiling', () => {

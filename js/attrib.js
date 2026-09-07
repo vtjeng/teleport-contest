@@ -545,7 +545,11 @@ function postadjabil(propertyIndex, state) {
 // Two outcomes stay fail-closed:
 //
 //   any loss        -> the whole `else if` arm at attrib.c:1054-1062
-//   a lowered level -> weapon.c lose_weapon_skill()
+//   a lowered level -> weapon.c lose_weapon_skill() with a positive count
+//
+// An unchanged level is not a loss: C calls lose_weapon_skill(0), whose
+// `while (--n >= 0)` body never runs. polyself.c newman() lands there one
+// time in five, so the arm returns quietly instead of refusing.
 export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
     const u = state.u;
     let table = role_abil(state.urole?.mnum);
@@ -605,7 +609,9 @@ export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
 
     if (oldlevel > 0) {
         if (newlevel > oldlevel) add_weapon_skill(newlevel - oldlevel, state);
-        else throw new UnsupportedAbilityChangeError('lose_weapon_skill()');
+        else if (newlevel < oldlevel)
+            throw new UnsupportedAbilityChangeError('lose_weapon_skill()');
+        /* else lose_weapon_skill(0) runs no iteration */
     }
 }
 

@@ -1,6 +1,7 @@
 // Polymorph self -- controlled transformation, species property binding, body
 // part naming, and the flight/stealth blocking updates.
-// C ref: polyself.c set_uasmon(), check_strangling(), newman(), polyself(),
+// C ref: polyself.c set_uasmon(), check_strangling(), polyman(),
+// change_sex(), livelog_newform(), newman(), polyself(),
 // polymon(), uasmon_maxStr(), break_armor(), drop_weapon(), dropp(),
 // rehumanize(), dobreathe(), dospit(), doremove(), dospinweb(), dosummon(),
 // dogaze(), dohide(), dopoly(), domindblast(), uunstick(), skinback(),
@@ -45,6 +46,7 @@ import {
     FROM_RACE,
     FROMOUTSIDE,
     G_GENOD,
+    GENOCIDED,
     HAIR,
     HALLUC,
     HALLUC_RES,
@@ -88,6 +90,7 @@ import {
     POLY_CONTROLLED,
     POLY_MONSTER,
     POLY_TRAP,
+    POLYMORPH,
     POLYMORPH_CONTROL,
     REFLECTING,
     REGENERATION,
@@ -155,6 +158,8 @@ import {
     is_floater,
     is_flyer,
     is_hider,
+    is_female,
+    is_male,
     is_neuter,
     is_placeholder,
     is_swimmer,
@@ -191,7 +196,7 @@ import {
     your_race,
     name_to_mon,
 } from './mondata.js';
-import { character_race } from './roles.js';
+import { character_race, genders } from './roles.js';
 import {
     capitalizedMonsterName,
     hliquid,
@@ -204,7 +209,8 @@ import { set_mon_data } from './makemon_create.js';
 import { mkclass_poly } from './makemon.js';
 import { cloak_simple_name, cxname, otense, simpleonames, an } from './objnam.js';
 import { find_ac } from './u_init_inventory_attrs.js';
-import { newsym, see_monsters } from './display.js';
+import { max_rank_sz } from './u_init.js';
+import { newsym, rank_of, see_monsters } from './display.js';
 import { encumber_msg } from './pickup.js';
 import { update_inventory } from './invent.js';
 import { dropx, canletgo } from './do.js';
@@ -214,7 +220,7 @@ import {
     deltrap, is_pool, is_pool_or_lava, maketrap, set_utrap, t_at,
 } from './trap.js';
 import { dotrap, feeltrap } from './trap_effects.js';
-import { make_glib } from './potion.js';
+import { make_blinded, make_glib, set_itimeout } from './potion.js';
 import { cantwield, untwoweapon, uwepgone, uswapwepgone } from './wield.js';
 import { _doWearInternals } from './do_wear.js';
 import { Is_dragon_armor, is_sword, mksobj, remove_object } from './obj.js';
@@ -235,8 +241,8 @@ import { getdir, y_n } from './cmd.js';
 import { ubuzz, ubreatheu } from './zap.js';
 import { newpw, rndexp } from './exper.js';
 import { newuhs } from './eat.js';
-import { done } from './end.js';
-import { nomul, rounddiv } from './hack.js';
+import { done, find_delayed_killer } from './end.js';
+import { nomul, rounddiv, spoteffects, unmul } from './hack.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { discover_object, observe_object } from './o_init.js';
 import { del_light_source, new_light_source } from './light.js';
@@ -1043,6 +1049,151 @@ export async function polymon(mntmp, state = game) {
     return 1;
 }
 
+// ---------- polyman -----------------------------------------------------
+// C ref: polyself.c polyman() (198-267). "make a (new) human out of the
+// player": restore the attributes, species and gender saved at polymorph
+// time, clear the form's hit points, timer and hiding, release a grip and a
+// mimicked appearance, announce the change with `fmt` and `arg`, and die if
+// the hero genocided her own role or race while polymorphed.
+//
+// display.c set_mimic_blocking() and end.c dealloc_killer() are unported and
+// C discards both results, so each call records its gap and is skipped.
+async function polyman(fmt, arg, state) {
+    const u = state.u;
+    const sticking = Boolean(sticks(state.youmonst.data) && u.ustuck
+                             && !u.uswallow);
+    const was_mimicking = (M_AP_TYPE(state.youmonst) !== M_AP_NOTHING);
+    const was_blind = Blind(state);
+    const had_see_invis = See_invisible(state);
+
+    if (Upolyd(u)) {
+        u.acurr = { a: [...u.macurr.a] }; /* restore old attribs */
+        u.amax = { a: [...u.mamax.a] };
+        u.umonnum = u.umonster;
+        state.flags.female = u.mfemale;
+    }
+    set_uasmon(state);
+
+    u.mh = u.mhmax = 0;
+    u.mtimedone = 0;
+    await skinback(false, state);
+    u.uundetected = 0;
+
+    if (sticking)
+        await uunstick(state);
+    find_ac(state);
+    if (was_mimicking) {
+        if (state.multi < 0)
+            await unmul('', state);
+        state.youmonst.m_ap_type = M_AP_NOTHING;
+        state.youmonst.mappearance = 0;
+    }
+
+    newsym(u.ux, u.uy);
+
+    await ttyUrgentPline(fmt.replace('%s', arg), state);
+    /* check whether player foolishly genocided self while poly'd */
+    if (ugenocided(state)) {
+        /* intervening activity might have clobbered genocide info */
+        const kptr = find_delayed_killer(POLYMORPH, state);
+
+        state.killer ??= {};
+        if (kptr && kptr.name) {
+            state.killer.format = kptr.format;
+            state.killer.name = kptr.name;
+        } else {
+            state.killer.format = KILLED_BY;
+            state.killer.name = 'self-genocide';
+        }
+        note_unported('end.c dealloc_killer');
+        await done(GENOCIDED, state);
+    }
+
+    if (See_invisible(state) !== had_see_invis)
+        note_unported('display.c set_mimic_blocking'); /* See_invisible just toggled */
+
+    if (u.twoweap && !could_twoweap(state.youmonst.data))
+        await untwoweapon(state);
+
+    if (u.utrap && u.utraptype === TT_PIT) {
+        set_utrap(rn1(6, 2), TT_PIT, state); /* time to escape resets */
+    }
+    if (was_blind && !Blind(state)) { /* reverting from eyeless */
+        set_itimeout(u.uprops[BLINDED], 1);
+        await make_blinded(0, true, state); /* remove blindness */
+    }
+    await check_strangling(true, state);
+
+    if (!Levitation(state) && !u.ustuck && is_pool_or_lava(u.ux, u.uy, state))
+        await spoteffects(true, state);
+
+    see_monsters(state);
+}
+
+// ---------- change_sex --------------------------------------------------
+// C ref: polyself.c change_sex() (272-304). Flip the hero's gender, and the
+// saved gender too while polymorphed, then rewrite the character name and
+// species to match. Called from newman() here and from do_wear.c Amulet_on()
+// and eat.c eataccessory(), whose amulet-of-change arms are not ported.
+export function change_sex(state = game) {
+    const u = state.u;
+    /* Some monsters are always of one sex and their sex can't be changed;
+     * Succubi/incubi can change, but are handled below.
+     *
+     * !Upolyd check necessary because is_male() and is_female()
+     * may be true for certain roles
+     */
+    if (!Upolyd(u)
+        || (!is_male(state.youmonst.data) && !is_female(state.youmonst.data)
+            && !is_neuter(state.youmonst.data)))
+        state.flags.female = !state.flags.female;
+    if (Upolyd(u)) /* poly'd: also change saved sex */
+        u.mfemale = !u.mfemale;
+    max_rank_sz(state); /* [this appears to be superfluous] */
+    if ((Upolyd(u) ? u.mfemale : state.flags.female) && state.urole.name.f)
+        state.pl_character = state.urole.name.f;
+    else
+        state.pl_character = state.urole.name.m;
+    if (!Upolyd(u)) {
+        u.umonnum = u.umonster;
+    } else if (u.umonnum === M.PM_AMOROUS_DEMON) {
+        state.flags.female = !state.flags.female;
+        /* change monster type to match new sex; disabled with
+           PM_AMOROUS_DEMON */
+        set_uasmon(state);
+    }
+}
+
+// ---------- livelog_newform ---------------------------------------------
+// C ref: polyself.c livelog_newform() (306-333). "log a message if
+// non-poly'd hero's gender has changed". The line is built as C builds it;
+// pline.c livelog_printf(), which appends it to the chronicle and the live
+// log, is unported and C discards its result, so the write records its gap.
+export function livelog_newform(viapoly, oldgend, newgend, state = game) {
+    const u = state.u;
+    const urole = state.urole;
+
+    if (!Upolyd(u)) {
+        if (newgend !== oldgend) {
+            const oldrole = (oldgend && urole.name.f) ? urole.name.f
+                                                      : urole.name.m;
+            const newrole = (newgend && urole.name.f) ? urole.name.f
+                                                      : urole.name.m;
+            const oldrank = rank_of(u.ulevel, urole.mnum, oldgend, state);
+            const newrank = rank_of(u.ulevel, urole.mnum, newgend, state);
+            const buf = `${genders[state.flags.female ? 1 : 0].adj.slice(0, 10)}`
+                        + ` ${newrank.slice(0, 30)}`;
+            // `line` is the text livelog_printf(LL_MINORAC, "%s into %s",
+            // ...) would append; the append itself is the recorded gap.
+            const line = `${viapoly ? 'polymorphed' : 'transformed'} into `
+                         + an(newrole !== oldrole ? newrole
+                                : newrank !== oldrank ? newrank
+                                    : buf);
+            note_unported('pline.c livelog_printf');
+        }
+    }
+}
+
 // ---------- newman ------------------------------------------------------
 // C ref: polyself.c newman() (336-468). "make a (new) human out of the
 // player": the experience level moves by -2..+2, the attributes are
@@ -1051,14 +1202,13 @@ export async function polymon(mntmp, state = game) {
 // polyman(). A level outside 1..127, or hit points at or below zero without
 // polymorph control, is the "unsuccessful polymorph" death.
 //
-// polyman(), change_sex() and livelog_newform() are the polyself.c functions
-// still unported, and pline.c livelog_printf() writes a file the port does
-// not keep. C discards every one of their results, so each call records its
-// gap and is skipped. The `dead` flag stands for C's `goto dead` into the
-// middle of the u.uhp <= 0 arm.
+// pline.c livelog_printf() appends to the chronicle and the live log,
+// neither of which the port keeps; C discards its result, so the call
+// records its gap and is skipped. The `dead` flag stands for C's `goto dead`
+// into the middle of the u.uhp <= 0 arm.
 export async function newman(state = game) {
     const u = state.u;
-    let i;
+    let i, oldgend;
     const oldlvl = u.ulevel;
     let newlvl = oldlvl + rn1(5, -2);     /* new = old + {-2,-1,0,+1,+2} */
     let dead = false;
@@ -1079,10 +1229,9 @@ export async function newman(state = game) {
             u.ulevelmax = newlvl;
         u.ulevel = newlvl;
 
-        // oldgend = poly_gender() feeds livelog_newform() alone, which is
-        // unported below; poly_gender() is pure, so the read is deferred.
+        oldgend = poly_gender(state);
         if (state.gs?.sex_change_ok && !rn2(10))
-            note_unported('polyself.c change_sex');
+            change_sex(state);
 
         await adjabil(oldlvl, u.ulevel, state);
 
@@ -1157,16 +1306,21 @@ export async function newman(state = game) {
     }
     await newuhs(false, state);
     /* use saved gender we're about to revert to, not current */
-    // polyman("You feel like a new %s!", newform), where newform is the
-    // race's individual name for the gender being reverted to, or its noun.
-    note_unported('polyself.c polyman');
+    const newform = ((Upolyd(u) ? u.mfemale : state.flags.female)
+                     && state.urace.individual.f)
+        ? state.urace.individual.f
+        : (state.urace.individual.m)
+            ? state.urace.individual.m
+            : state.urace.noun;
+    await polyman('You feel like a new %s!', newform, state);
 
+    const newgend = poly_gender(state);
     /* note: newman() bypasses achievements for new ranks attained and
        doesn't log "new <form>" when that isn't accompanied by level change */
     if (newlvl !== oldlvl)
         note_unported('pline.c livelog_printf');
     else
-        note_unported('polyself.c livelog_newform');
+        livelog_newform(true, oldgend, newgend, state);
 
     if (u.uprops[SLIMED].intrinsic) {
         await ttyPline(
@@ -1559,8 +1713,7 @@ export async function rehumanize(state = game) {
 
     if (emits_light(state.youmonst.data))
         del_light_source(LS_MONSTER, state.youmonst, state);
-    // polyman("You return to %s form!", urace.adj)
-    note_unported('polyself.c polyman');
+    await polyman('You return to %s form!', state.urace.adj, state);
 
     if (u.uhp < 1) {
         /* can only happen if some bit of code reduces u.uhp

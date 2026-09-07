@@ -88,7 +88,7 @@ import {
     CLR_YELLOW,
     DEC_TO_UNICODE,
 } from './terminal.js';
-import { rankOf } from './roles.js';
+import { rankOf, roles } from './roles.js';
 import { pmname } from './do_name.js';
 import { is_flyer, monsndx } from './mondata.js';
 import { m_at } from './monst.js';
@@ -4900,6 +4900,33 @@ export function exp_percent_changing(state = game) {
 // levels gives the next index, with level 30 alone giving 8.
 export function xlev_to_rank(xlev) {
     return xlev <= 2 ? 0 : xlev <= 30 ? Math.trunc((xlev + 2) / 4) : 8;
+}
+
+// C ref: botl.c rank_of() (332-358). The rank title for experience level
+// `lev` in the role whose monster number is `monnum`, or in the hero's own
+// role when no role has that number. Walks down from xlev_to_rank(lev) to
+// the first rank with a name for the gender, then falls back to the role
+// name and finally to "Player".
+export function rank_of(lev, monnum, female, state = game) {
+    /* Find the role */
+    let role = roles.find((candidate) => candidate.mnum === monnum);
+    if (!role)
+        role = state.urole;
+
+    /* Find the rank */
+    for (let i = xlev_to_rank(lev); i >= 0; i--) {
+        if (female && role.rank[i].f)
+            return role.rank[i].f;
+        if (role.rank[i].m)
+            return role.rank[i].m;
+    }
+
+    /* Try the role name, instead */
+    if (female && role.name.f)
+        return role.name.f;
+    else if (role.name.m)
+        return role.name.m;
+    return 'Player';
 }
 
 function _statusFieldData(field, valueSnapshot = null) {

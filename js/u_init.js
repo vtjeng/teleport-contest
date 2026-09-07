@@ -323,7 +323,7 @@ function clearSpellIds(state) {
     spellbook.length = MAXSPELL + 1;
 }
 
-function max_rank_sz(state) {
+export function max_rank_sz(state) {
     let maximum = 0;
     for (const rank of state.urole.rank ?? []) {
         maximum = Math.max(
