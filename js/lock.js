@@ -139,6 +139,18 @@ function xlockContext(state) {
     return state.xlock;
 }
 
+// C ref: lock.c picking_lock() (17-28). Returns { x, y } of the door being
+// picked when the hero is currently picking a lock, or null otherwise.
+export function picking_lock(state = game) {
+    if (state.go?.occupation === picklock) {
+        return {
+            x: state.u.ux + (state.u.dx ?? 0),
+            y: state.u.uy + (state.u.dy ?? 0),
+        };
+    }
+    return null;
+}
+
 // C ref: lock.c reset_pick() (258-266).
 export function reset_pick(state = game) {
     const xlock = xlockContext(state);

@@ -30,6 +30,7 @@ import {
     AGGRAVATE_MONSTER,
     ALLOW_ALL,
     ALLOW_BARS,
+    ARM,
     ALLOW_DIG,
     ALLOW_M,
     ALLOW_MDISP,
@@ -66,11 +67,13 @@ import {
     D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
+    D_WARNED,
     FAINTED,
     FIRE_TRAP,
     G_GENOD,
     HALF_SPDAM,
     HALLUC,
+    HEAD,
     HALLUC_RES,
     HOLE,
     ICE,
@@ -149,6 +152,7 @@ import {
     TELEP_TRAP,
     TEMPLE,
     TRAPDOOR,
+    TRAPPED_DOOR,
     TRAPNUM,
     Trap_Caught_Mon,
     Trap_Killed_Mon,
@@ -167,8 +171,9 @@ import { artifactTouchable, artifact_light } from './artifacts.js';
 import { acurr } from './attrib.js';
 import { bury_an_obj, obj_resists } from './bury.js';
 import { newsym, vobj_at } from './display.js';
-import { capitalizedMonsterName, monsterCommonName } from './do_name.js';
+import { Amonnam, capitalizedMonsterName, monsterCommonName } from './do_name.js';
 import { dogfood } from './dogfood.js';
+import { is_digging } from './dig.js';
 import { could_reach_item } from './dogmove.js';
 import { has_ceiling, Is_special, on_level } from './dungeon.js';
 import {
@@ -179,10 +184,14 @@ import {
     may_passwall,
     switch_terrain,
 } from './hack.js';
+import { eaten_stat } from './eat.js';
 import { sengr_at, wipe_engr_at } from './engrave.js';
+import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { dist2, distmin, online2 } from './hacklib.js';
-import { money_cnt } from './invent.js';
+import { delobj, money_cnt } from './invent.js';
+import { picking_lock } from './lock.js';
+import { grow_up } from './makemon.js';
 import { newcham_distress } from './makemon_create.js';
 import { mattackm } from './mhitm.js';
 import { ranged_attk_available } from './mhitu.js';
@@ -190,11 +199,15 @@ import {
     curr_mon_load,
     hideunder,
     m_carrying,
+    m_consume_obj,
     max_mon_load,
     mon_allowflags,
+    mondied,
     mon_offmap,
     monkilled,
     mpickstuff,
+    unstuck,
+    wake_nearto,
     wakeup,
     zombie_maker,
 } from './mon.js';
@@ -230,16 +243,20 @@ import {
     likes_magic,
     likes_objs,
     metallivorous,
+    mhis,
     mindless,
     mon_knows_traps,
+    mon_learns_traps,
     monster_resists_element,
     needspick,
     noattacks,
     nohands,
+    nolimbs,
     resist_conflict,
     nonliving,
     passes_walls,
     perceives,
+    sticks,
     telepathic,
     throws_rocks,
     touch_petrifies,
@@ -273,14 +290,17 @@ import {
     PM_ETTIN,
     PM_FLOATING_EYE,
     PM_FOG_CLOUD,
+    PM_GELATINOUS_CUBE,
     PM_GIANT_SPIDER,
     PM_GREMLIN,
     PM_GRID_BUG,
     PM_HEZROU,
     PM_IRON_GOLEM,
     PM_JABBERWOCK,
+    PM_KILLER_BEE,
     PM_MINOTAUR,
     PM_PURPLE_WORM,
+    PM_QUEEN_BEE,
     PM_SHRIEKER,
     PM_LEPRECHAUN,
     PM_STALKER,
@@ -297,10 +317,19 @@ import {
     S_VAMPIRE,
 } from './monsters.js';
 import { lined_up, m_has_launcher_and_ammo } from './mthrowu.js';
+import { an, xnameFresh } from './objnam.js';
 import {
     find_defensive, find_offensive, searches_for_item, use_defensive,
 } from './muse.js';
-import { g_at, isCandle, isContainer, objectType, sobj_at } from './obj.js';
+import {
+    bill_dummy_object,
+    g_at,
+    isCandle,
+    isContainer,
+    objectType,
+    sobj_at,
+    splitobj,
+} from './obj.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,
@@ -348,6 +377,7 @@ import {
     TOWEL,
     VENOM_CLASS,
     WEAPON_CLASS,
+    WOOD,
 } from './objects.js';
 import {
     in_your_sanctuary,
@@ -369,6 +399,8 @@ import {
     messageAt,
     sensesMonster,
 } from './startup_a11y.js';
+import { mbodypart } from './polyself.js';
+import { inside_room } from './room_coordinates.js';
 import { S_poisoncloud } from './symbols.js';
 import { gettrack, hastrack } from './track.js';
 import { count_traps, is_lava, is_pool, maketrap, t_at, unconscious } from './trap.js';
@@ -393,7 +425,7 @@ import {
 } from './vision.js';
 import { autoreturn_weapon, can_touch_safely, mon_wield_item } from './weapon.js';
 import { mwelded } from './wield.js';
-import { is_pole, which_armor } from './worn.js';
+import { extract_from_minvent, is_pole, which_armor } from './worn.js';
 import * as M from './monsters.js';
 import * as O from './objects.js';
 
@@ -433,6 +465,67 @@ function doorMask(location) {
 
 function drawbridgeMask(location) {
     return location?.flags || location?.drawbridgemask || 0;
+}
+
+// C ref: hack.h mdistu(). Squared distance from the hero to a monster.
+// Defined locally because mhitu.js and muse.js each have their own copy.
+function mdistu(mon, state) {
+    return dist2(mon.mx, mon.my, state.u.ux, state.u.uy);
+}
+
+// C ref: monmove.c msg_mon_movement() (33-49). Accessibility message for a
+// monster that just moved. The composed line goes through pline_xy(), which
+// the JS port handles through messageAt() and the caller's async message
+// delivery. collectMonsterMovementMessage() in startup_a11y.js already
+// implements the composition; this wrapper delivers it, matching the C call
+// site in m_move() that calls msg_mon_movement() fire-and-forget.
+async function msg_mon_movement(mtmp, omx, omy, env = {}) {
+    const state = env.state ?? game;
+    const msg = collectMonsterMovementMessage(mtmp, omx, omy, state);
+    if (msg && !env.planning) {
+        const message = env.message ?? ttyPline;
+        await message(msg, state, env);
+    }
+}
+
+// C ref: monmove.c mb_trapped() (54-77). A monster triggered a trapped door
+// lock. Prints a message, stuns the monster, deals 1-15 damage, and may kill
+// it. Returns true if the monster died.
+async function mb_trapped(mtmp, canseeit, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rnd };
+    const message = env.message ?? ttyPline;
+    if (state.flags?.verbose) {
+        if (canseeit && !unconscious(state)) {
+            await message(
+                messageAt(
+                    'KABOOM!!  You see a door explode.',
+                    mtmp.mx,
+                    mtmp.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+        } else if (!heroDeaf(state)) {
+            const dist = mdistu(mtmp, state);
+            const heard = youHear(
+                `a ${dist > 7 * 7 ? 'distant' : 'nearby'} explosion.`,
+                state,
+            );
+            if (heard) await message(heard, state, env);
+        }
+    }
+    await wake_nearto(mtmp.mx, mtmp.my, 7 * 7, env);
+    mtmp.mstun = 1;
+    mtmp.mhp -= random.rnd(15);
+    if (mtmp.mhp < 1) { /* DEADMONSTER */
+        await mondied(mtmp, state, env);
+        if (mtmp.mhp < 1) return true; /* DEADMONSTER */
+        /* will get here if lifesaved */
+    }
+    mon_learns_traps(mtmp, TRAPPED_DOOR);
+    return false;
 }
 
 // C ref: monmove.c mon_track_add(). Index zero is the newest square.
@@ -846,6 +939,52 @@ export function monhaskey(monster, forUnlocking, state = game) {
         || m_carrying(monster, LOCK_PICK, state));
 }
 
+// C ref: monmove.c mon_yells() (106-132). A watch guard shouts at the hero.
+// Deaf heroes see an arm-waving gesture; hearing heroes get a verbalize1()
+// line (a pline in double quotes). SetVoice() is a tty-sound no-op.
+async function mon_yells(mon, shout, env = {}) {
+    const state = env.state ?? game;
+    const message = env.message ?? ttyPline;
+    if (heroDeaf(state)) {
+        if (canSpotMonster(mon, state)) {
+            const verb = nolimbs(mon.data) ? 'shakes' : 'waves';
+            const poss = mhis(mon, { state });
+            const part = nolimbs(mon.data)
+                ? mbodypart(mon, HEAD)
+                : makeplural(mbodypart(mon, ARM));
+            await message(
+                messageAt(
+                    `${Amonnam(mon, { state })} angrily ${verb} ${poss} ${part}!`,
+                    mon.mx,
+                    mon.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+        }
+    } else {
+        if (canSpotMonster(mon, state)) {
+            await message(
+                messageAt(
+                    `${Amonnam(mon, { state })} yells:`,
+                    mon.mx,
+                    mon.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+        } else {
+            const heard = youHear('someone yell:', state);
+            if (heard) await message(heard, state, env);
+        }
+        // SetVoice(mon, 0, 80, 0) is a tty-sound no-op.
+        // verbalize1(shout) expands to pline("\"%s\"", shout).
+        await message(`"${shout}"`, state, env);
+    }
+}
+
 // C ref: monmove.c m_can_break_boulder(). Riders do not spend special-action
 // cooldown; the caller which fractures the boulder owns that later effect.
 export function m_can_break_boulder(monster) {
@@ -854,6 +993,110 @@ export function m_can_break_boulder(monster) {
             && (monster.isshk
                 || monster.ispriest
                 || monster.data?.msound === MS_LEADER));
+}
+
+// C ref: monmove.c m_break_boulder() (143-175). A special-ability monster
+// (rider, priest, shopkeeper, quest leader) fractures a boulder in its path.
+// Riders skip the incantation; others spend mspec_used and print a message.
+// fracture_rock() is in zap.c and not ported; it is void so we note_unported.
+async function m_break_boulder(mtmp, x, y, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn1 };
+    const message = env.message ?? ttyPline;
+    let otmp;
+    if (m_can_break_boulder(mtmp)
+        && (otmp = sobj_at(BOULDER, x, y, state)) != null) {
+        if (!is_rider(mtmp.data)) {
+            if (!heroDeaf(state) && mdistu(mtmp, state) < 4 * 4) {
+                const text = `${capitalizedMonsterName(mtmp, state)} mutters ${
+                    mtmp.ispriest ? 'a prayer' : 'an incantation'
+                }.`;
+                // C: canspotmon() gates set_msg_xy() for the location prefix;
+                // the pline() itself runs unconditionally.
+                const line = canSpotMonster(mtmp, state)
+                    ? messageAt(text, mtmp.mx, mtmp.my, state)
+                    : text;
+                await message(line, state, env);
+            }
+            mtmp.mspec_used += random.rn1(20, 10);
+        }
+        if (cansee(x, y, state)) {
+            await message(
+                messageAt('The boulder falls apart.', x, y, state),
+                state,
+                env,
+            );
+        }
+        if (otmp.unpaid) {
+            bill_dummy_object(otmp, env);
+        }
+        // fracture_rock() changes the boulder into rocks, adjusts the map,
+        // and draws rn1(60,7) for the new rock quantity. It is void.
+        note_unported('zap.c fracture_rock');
+    }
+}
+
+// C ref: hack.c in_town(). Duplicated here because hack.c, dig.c, and
+// dokick.c each keep a local copy; the function belongs to hack.c's port.
+function in_town(x, y, state) {
+    if (!state.level?.flags?.has_town) return false;
+    let hasSubrooms = false;
+    for (const room of state.level.rooms ?? []) {
+        if (!(room?.hx > 0)) break;
+        if ((room.nsubrooms ?? room.sbrooms?.length ?? 0) > 0) {
+            hasSubrooms = true;
+            if (inside_room(room, x, y, state)) return true;
+        }
+    }
+    return !hasSubrooms;
+}
+
+// C ref: monmove.c watch_on_duty() (176-203). A watch guard on duty checks
+// whether the hero is picking a lock or digging, and warns or arrests.
+// picking_lock() and is_digging() are occupation predicates from lock.c and
+// dig.c; angry_guards() (mon.c) and watch_dig() (dig.c) are void or have
+// their return values discarded, so they get note_unported.
+async function watch_on_duty(mtmp, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2 };
+    if (mtmp.mpeaceful
+        && in_town(state.u.ux + (state.u.dx ?? 0),
+            state.u.uy + (state.u.dy ?? 0), state)
+        && mtmp.mcansee && m_canseeu(mtmp, state) && !random.rn2(3)) {
+        const lockResult = picking_lock(state);
+        if (lockResult) {
+            const { x, y } = lockResult;
+            const here = state.level?.at(x, y);
+            if (IS_DOOR(here?.typ)
+                && (doorMask(here) & D_LOCKED)) {
+                if (couldsee(mtmp.mx, mtmp.my, state)) {
+                    if ((here.looted ?? 0) & D_WARNED) {
+                        await mon_yells(
+                            mtmp,
+                            "Halt, thief!  You're under arrest!",
+                            env,
+                        );
+                        note_unported('mon.c angry_guards');
+                    } else {
+                        await mon_yells(
+                            mtmp,
+                            'Hey, stop picking that lock!',
+                            env,
+                        );
+                        here.looted = (here.looted ?? 0) | D_WARNED;
+                    }
+                    // stop_occupation() lives in allmain.js which
+                    // imports from monmove.js; a lazy import avoids the
+                    // circular dependency at module evaluation time.
+                    const { stop_occupation } = await import('./allmain.js');
+                    await stop_occupation(state, env);
+                }
+            }
+        } else if (is_digging(state)) {
+            // watch_dig() is void; note_unported.
+            note_unported('dig.c watch_dig');
+        }
+    }
 }
 
 // C ref: mon.c m_in_air() (2128-2136). Clingers count only while concealed
@@ -1702,8 +1945,114 @@ function requireFleeOperation(env, name) {
     return operation;
 }
 
+// C ref: monmove.c release_hero() (362-374). If the monster is grabbing or
+// engulfing the hero, release them. The u.uswallow branch calls expels()
+// (mhitu.c, void, not exported), so it is note_unported; the non-swallow
+// branch calls unstuck() and prints "You get released!".
+async function release_hero(mon, env = {}) {
+    const state = env.state ?? game;
+    const message = env.message ?? ttyPline;
+    if (mon === state.u?.ustuck) {
+        if (state.u.uswallow) {
+            // expels(mon, mon->data, TRUE) is void and not exported.
+            note_unported('mhitu.c expels');
+        } else if (!sticks(state.youmonst?.data)) {
+            unstuck(mon, state, env);
+            await message('You get released!', state, env);
+        }
+    }
+}
+
+// C ref: monmove.c find_pmmonst() (375-391). Find a living monster of a
+// given species index on the current level. Returns the monster or null.
+// Pure lookup: no RNG, no message, no state change.
+export function find_pmmonst(pm, state = game) {
+    if ((state.mvitals?.[pm]?.mvflags ?? 0) & G_GENOD) return null;
+    for (let mtmp = state.fmon; mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.mhp < 1) continue; /* DEADMONSTER */
+        if (mtmp.data === state.mons?.[pm]) return mtmp;
+    }
+    return null;
+}
+
+// C ref: monmove.c bee_eat_jelly() (394-422). A killer bee on a spot with
+// royal jelly eats it and grows into a queen bee if no queen is present.
+// Returns 1 if the bee died, 0 if it ate and lived, -1 if it did not eat.
+async function bee_eat_jelly(mon, obj, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2 };
+    const message = env.message ?? ttyPline;
+    const mtmp = find_pmmonst(PM_QUEEN_BEE, state);
+
+    if (!mtmp) {
+        const m_delay = obj.blessed ? 3 : !obj.cursed ? 5 : 7;
+        if (obj.quan > 1) obj = splitobj(obj, 1, env);
+        if (canseemon(mon, state)) {
+            await message(
+                messageAt(
+                    `${capitalizedMonsterName(mon, state)} eats ${an(xnameFresh(obj, state))}.`,
+                    mon.mx,
+                    mon.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+        }
+        delobj(obj, env);
+
+        if (mon.m_lev < (state.mons?.[PM_QUEEN_BEE]?.mlevel ?? 0) - 1)
+            mon.m_lev = (state.mons?.[PM_QUEEN_BEE]?.mlevel ?? 0) - 1;
+        // Transform immediately; delay comes after.
+        grow_up(mon, null, env);
+
+        if (mon.mhp < 1) return 1; /* DEADMONSTER */
+        mon.mfrozen = m_delay;
+        mon.mcanmove = 0;
+        return 0;
+    }
+    return -1;
+}
+
+// C ref: monmove.c gelcube_digests() (424-461). A gelatinous cube digests
+// an organic, non-artifact, non-prize item from its inventory.
+// Returns 0 if it used a move, -1 if it did not eat.
+function gelcube_digests(mtmp, env = {}) {
+    const state = env.state ?? game;
+    if (mtmp.meating || !mtmp.minvent) return -1;
+
+    let otmp = mtmp.minvent;
+    while (otmp) {
+        if (isOrganic(otmp, state) && !otmp.oartifact
+            && !isMinesPrize(otmp, state) && !isSokoPrize(otmp, state))
+            break;
+        otmp = otmp.nobj;
+    }
+    if (!otmp) return -1;
+
+    mtmp.meating = eaten_stat(mtmp.meating, otmp, env);
+    extract_from_minvent(mtmp, otmp, true, true, state, env);
+    m_consume_obj(mtmp, otmp, env);
+    return 0;
+}
+
+// C ref: objclass.h is_organic(). material <= WOOD.
+function isOrganic(obj, state) {
+    return (state.objects?.[obj.otyp]?.oc_material ?? 0) <= WOOD;
+}
+
+// C ref: obj.h is_mines_prize(). Compares o_id with the achieveo field.
+function isMinesPrize(obj, state) {
+    return obj.o_id === (state.svc?.context?.achieveo?.mines_prize_oid ?? -1);
+}
+
+// C ref: obj.h is_soko_prize(). Compares o_id with the achieveo field.
+function isSokoPrize(obj, state) {
+    return obj.o_id === (state.svc?.context?.achieveo?.soko_prize_oid ?? -1);
+}
+
 // C ref: monmove.c monflee(). fleeMessage owns the exact naming and terminal
-// calls for the five source kinds below. releaseHero owns release_hero(), and
+// calls for the five source kinds below. release_hero() is now ported above;
 // createGasCloud owns create_gas_cloud(). Required downstream operations are
 // checked before release or flee-state mutation.
 export async function monflee(
@@ -1730,7 +2079,7 @@ export async function monflee(
     if (!Array.isArray(monster.mtrack))
         throw new TypeError('monflee requires monster tracking state');
     const releaseHero = monster === state.u?.ustuck
-        ? requireFleeOperation(env, 'releaseHero')
+        ? (env.releaseHero ?? ((mon, e) => release_hero(mon, e)))
         : null;
     const canSeeMonster = checksMessage
         ? requireFleeOperation(env, 'canSeeMonster')
@@ -2040,11 +2389,11 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 // condition that keeps them unreachable behind the current action boundary:
 //   quest_stat_check(), quest_talk()      no quest monster is reachable
 //   m_respond(), is_covetous() tactics    the boundary rejects both
-//   release_hero(), u.ustuck              no hero-grabbing monster is reachable
+//   release_hero(), u.ustuck              wired; no hero-grabbing monster is reachable
 //   Demonic Blackmail                     the boundary rejects demons
-//   watch_on_duty()                       wired as note_unported
+//   watch_on_duty()                       wired
 //   mind_blast()                          wired for mind flayers
-//   killer bee jelly, gelcube_digests()   the boundary rejects both species
+//   killer bee jelly, gelcube_digests()   wired; the boundary rejects both species
 //   mon_offmap(), wormhitu()              unreachable on a fresh D:1 level
 //   cuss()                                no MS_CUSS species can be generated
 //                                         at the D:1 difficulty cap
@@ -2161,6 +2510,16 @@ export async function dochug(monster, rawEnv = {}) {
         }
     }
 
+    // C ref: monmove.c:763-767. Cease conflict-induced swallow/grab if
+    // conflict has ended. No ported path sets u.ustuck, so this is unreachable
+    // behind the current boundary but wired for completeness.
+    if (monster === state.u?.ustuck
+        && monster.mpeaceful && !monster.mconf
+        && !activeProperty(state, CONFLICT, false)) {
+        await release_hero(monster, env);
+        return 0;
+    }
+
     // PHASE TWO: special movements and actions.
     setApparentHero(monster, env);
     let range = await distanceAndFear(monster, { ...env, monFlee });
@@ -2168,7 +2527,7 @@ export async function dochug(monster, rawEnv = {}) {
 
     // C ref: monmove.c:828-834. Watch and mind flayer special actions.
     if (is_watch(monster.data)) {
-        note_unported('monmove.c watch_on_duty');
+        await watch_on_duty(monster, env);
     } else if (is_mind_flayer(monster.data) && !random.rn2(20)) {
         const message = env.planning
             ? async () => {}
@@ -2179,6 +2538,21 @@ export async function dochug(monster, rawEnv = {}) {
     }
 
     if (await wieldPreMoveWeapon(monster, range, env)) return 0;
+
+    // C ref: monmove.c:867-879. Killer bee jelly and gelcube digestion,
+    // checked at the start of PHASE THREE before the movement decision.
+    {
+        let res;
+        const species = monster.data;
+        let otmp;
+        if (species === state.mons?.[PM_KILLER_BEE]
+            && (otmp = sobj_at(LUMP_OF_ROYAL_JELLY, monster.mx, monster.my, state)) != null
+            && (res = await bee_eat_jelly(monster, otmp, env)) >= 0)
+            return res;
+        if (species === state.mons?.[PM_GELATINOUS_CUBE]
+            && (res = gelcube_digests(monster, env)) >= 0)
+            return res;
+    }
 
     // PHASE THREE: movement.  C's disjunction also carries a leprechaun gold
     // term and (Conflict && !iswiz) between is_wanderer and !mcansee; both are
@@ -3309,8 +3683,10 @@ export async function m_move(monster, rawEnv = {}) {
     // admission guard needs it to tell a dig destination from an unported one.
     if (!await mayCrossRegion(monster, nextX, nextY, { ...env, canTunnel }))
         return MMOVE_DONE;
-    if (data.info[chosen] & ALLOW_ROCK)
-        unsupported('ordinary monster boulder breaking');
+    if ((data.info[chosen] & ALLOW_ROCK) && m_can_break_boulder(monster)) {
+        await m_break_boulder(monster, nextX, nextY, env);
+        return MMOVE_DONE;
+    }
 
     // C ref: monmove.c:2047. Post-move effect (gas clouds) runs before the
     // monster is physically moved, because monsters lack a "previous location"
@@ -3322,15 +3698,14 @@ export async function m_move(monster, rawEnv = {}) {
 
     remove_monster(oldX, oldY, state);
     place_monster(monster, nextX, nextY, state);
-    const movementMessage = collectMonsterMovementMessage(
-        monster,
-        oldX,
-        oldY,
-        state,
-    );
-    if (movementMessage && !env.planning) {
-        const message = rawEnv.message ?? ttyPline;
-        await message(movementMessage, state, env);
+    // C ref: monmove.c:2053. msg_mon_movement() is async because it may
+    // deliver a message. Avoid an unconditional microtask boundary for the
+    // common case where the accessibility flag is off or the monster is not
+    // noticed, so that tests counting microtask yields stay stable.
+    const movementMsg = collectMonsterMovementMessage(monster, oldX, oldY, state);
+    if (movementMsg && !env.planning) {
+        const msgFn = rawEnv.message ?? ttyPline;
+        await msgFn(movementMsg, state, env);
     }
     mon_track_add(monster, oldX, oldY);
     return postMonsterMove(

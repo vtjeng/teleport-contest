@@ -25,7 +25,7 @@ import {
     W_NONDIGGABLE,
 } from '../js/const.js';
 import {
-    dig_typ, mdig_tunnel, rot_corpse, unportedRotCorpseReason,
+    dig_typ, is_digging, mdig_tunnel, rot_corpse, unportedRotCorpseReason,
 } from '../js/dig.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
@@ -489,3 +489,16 @@ for (const [label, options, expected] of [
             'the wall is dug away');
     });
 }
+
+// --- is_digging ---
+// C ref: dig.c is_digging() (195-201). Returns true when the hero is
+// performing the dig occupation. The dig() occupation callback is not yet
+// ported, so this always returns false. Pinning that invariant ensures the
+// callers in monmove.c watch_on_duty get the correct sentinel.
+
+test('is_digging returns false because the dig occupation is not ported', () => {
+    // With no occupation active, C also returns false.
+    assert.equal(is_digging(game), false);
+    // Passing any state makes no difference; the function body is a constant.
+    assert.equal(is_digging({}), false);
+});

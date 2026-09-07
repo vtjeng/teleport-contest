@@ -2569,7 +2569,7 @@ function make_corpse(mtmp, corpseflags, state, env) {
 // mon_leaving_level() takes the monster off the map without clearing mx and
 // my, and mon.c:2712-2714 says in so many words that it must not clear them,
 // so corpse_chance() and make_corpse() still read the square it died on.
-async function mondied(mdef, state = game, env = {}) {
+export async function mondied(mdef, state = game, env = {}) {
     await mondead(mdef, state, env);
     if (mdef.mhp >= 1) return; /* !DEADMONSTER(): "lifesaved" */
 

@@ -88,6 +88,15 @@ function unaware(state) {
 // to dig a tree as rock. The arboreal conjunct beneath it asks a separate
 // question and settles only the obstructed types that are neither walls nor
 // trees, which leaves the two secret ones, SDOOR and SCORR.
+// C ref: dig.c is_digging() (195-201). Returns true when the hero is
+// currently performing the dig occupation. The dig() occupation callback
+// is not yet ported, so this always returns false.
+export function is_digging(_state) {
+    // The dig() occupation callback is not ported to JS, so the hero can
+    // never be in the dig occupation.
+    return false;
+}
+
 export function dig_typ(otmp, x, y, state = game) {
     if (!isok(x, y) || !otmp
         || (!is_pick(otmp, state) && !is_axe(otmp, state)))

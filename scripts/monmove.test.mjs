@@ -112,6 +112,7 @@ import {
     m_avoid_soko_push_loc,
     m_everyturn_effect,
     m_harmless_trap,
+    find_pmmonst,
     m_in_air,
     mfndpos,
     mon_track_add,
@@ -162,6 +163,7 @@ import {
     PM_LONG_WORM,
     PM_MINOTAUR,
     PM_PURPLE_WORM,
+    PM_QUEEN_BEE,
     PM_SALAMANDER,
     PM_SHRIEKER,
     PM_VAMPIRE_LEADER,
@@ -4955,18 +4957,24 @@ test('monflee preflights downstream ownership and ignores dead monsters', async 
     });
     assert.deepEqual(dead.mtrack, [{ x: 1, y: 2 }]);
 
+    // release_hero() is now the default when no releaseHero operation is
+    // provided. When ustuck matches, monflee calls release_hero(), which
+    // runs unstuck() and prints "You get released!".
     const stuck = ordinaryMonster(state, {
         mhp: 5,
         mfleetim: 6,
         mtrack: [{ x: 1, y: 2 }],
     });
     state.u.ustuck = stuck;
-    await assert.rejects(
-        monflee(stuck, 5, true, false, { state }),
-        /releaseHero/,
-    );
-    assert.equal(stuck.mfleetim, 6);
-    assert.deepEqual(stuck.mtrack, [{ x: 1, y: 2 }]);
+    const messages = [];
+    await monflee(stuck, 5, true, false, {
+        state,
+        message: async (msg) => messages.push(msg),
+    });
+    // release_hero called unstuck and printed "You get released!"
+    assert.equal(state.u.ustuck, null);
+    assert.ok(messages.some(m => m === 'You get released!'),
+        'release_hero should print "You get released!"');
 
     state.u.ustuck = null;
     const visible = ordinaryMonster(state, { mhp: 5, mfleetim: 6 });
@@ -5294,4 +5302,77 @@ test('can_hide_under_obj answers for the pile it is handed', () => {
         nexthere: { ...nineGold, quan: 5, nexthere: null },
     };
     assert.equal(can_hide_under_obj(fiveOverFive, emptyLevel), true);
+});
+
+// --- find_pmmonst ---
+// Pure function: searches fmon linked list for a living monster of a given
+// species. Pins behavior to C monmove.c find_pmmonst() lines 375-391.
+test('find_pmmonst returns null on an empty level', () => {
+    const { state } = makeState();
+    state.fmon = null;
+    // No monsters on the level, so nothing to find.
+    assert.equal(find_pmmonst(PM_QUEEN_BEE, state), null);
+});
+
+test('find_pmmonst returns null when species is genocided', () => {
+    const { state } = makeState();
+    const queen = newMonster({
+        data: state.mons[PM_QUEEN_BEE],
+        mnum: PM_QUEEN_BEE,
+        mhp: 10,
+        nmon: null,
+    });
+    state.fmon = queen;
+    // Mark queen bees as genocided; C checks mvitals[pm].mvflags & G_GENOD
+    // before walking the chain.
+    state.mvitals[PM_QUEEN_BEE].mvflags |= G_GENOD;
+    assert.equal(find_pmmonst(PM_QUEEN_BEE, state), null);
+});
+
+test('find_pmmonst finds a living monster of the given species', () => {
+    const { state } = makeState();
+    const rat = newMonster({
+        data: state.mons[PM_GIANT_RAT],
+        mnum: PM_GIANT_RAT,
+        mhp: 5,
+        nmon: null,
+    });
+    const queen = newMonster({
+        data: state.mons[PM_QUEEN_BEE],
+        mnum: PM_QUEEN_BEE,
+        mhp: 10,
+        nmon: rat,
+    });
+    state.fmon = queen;
+    // The queen is the first (and only) monster of that species on the level.
+    assert.equal(find_pmmonst(PM_QUEEN_BEE, state), queen);
+    // A rat is also present and findable.
+    assert.equal(find_pmmonst(PM_GIANT_RAT, state), rat);
+});
+
+test('find_pmmonst skips dead monsters', () => {
+    const { state } = makeState();
+    // Dead queen (mhp < 1 is the DEADMONSTER check in C).
+    const deadQueen = newMonster({
+        data: state.mons[PM_QUEEN_BEE],
+        mnum: PM_QUEEN_BEE,
+        mhp: 0,
+        nmon: null,
+    });
+    state.fmon = deadQueen;
+    // The queen exists but is dead, so find_pmmonst must skip her.
+    assert.equal(find_pmmonst(PM_QUEEN_BEE, state), null);
+});
+
+test('find_pmmonst returns null when no monster of that species exists', () => {
+    const { state } = makeState();
+    const rat = newMonster({
+        data: state.mons[PM_GIANT_RAT],
+        mnum: PM_GIANT_RAT,
+        mhp: 5,
+        nmon: null,
+    });
+    state.fmon = rat;
+    // Only a rat is on the level; no queen bee exists.
+    assert.equal(find_pmmonst(PM_QUEEN_BEE, state), null);
 });

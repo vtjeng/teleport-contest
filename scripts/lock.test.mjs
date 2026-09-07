@@ -19,7 +19,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { autokey, doclose, doopen, doopen_indir } from '../js/lock.js';
+import { autokey, doclose, doopen, doopen_indir, picking_lock } from '../js/lock.js';
 import { M1_NOHANDS } from '../js/monsters.js';
 import { is_magic_key } from '../js/artifacts.js';
 import { ART_MASTER_KEY_OF_THIEVERY } from '../js/artifacts.js';
@@ -614,4 +614,23 @@ test('doclose verysmall refusal costs no turn for an unimpaired hero', async () 
     assert.equal(result, ECMD_OK, 'verysmall returns res = ECMD_OK');
 
     game.youmonst.data.msize = savedSize;
+});
+
+// --- picking_lock ---
+// C ref: lock.c picking_lock() (17-28). Pure: returns { x, y } of the door
+// being picked when the hero's current occupation is picklock, else null.
+
+test('picking_lock returns null when hero has no occupation', () => {
+    // state.go is null or occupation is not picklock, so nothing is being
+    // picked. C returns (coord *) 0 (null) in this case.
+    const state = { go: null, u: { ux: 5, uy: 5 } };
+    assert.equal(picking_lock(state), null);
+});
+
+test('picking_lock returns null when occupation is not picklock', () => {
+    // A different occupation is active. C compares occupation == picklock and
+    // returns null when it does not match.
+    const otherFn = () => {};
+    const state = { go: { occupation: otherFn }, u: { ux: 5, uy: 5 } };
+    assert.equal(picking_lock(state), null);
 });
