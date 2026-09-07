@@ -725,3 +725,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-07T10:05:00.685Z	de60fbe7	span	24	33	4707	7765	321679	610816							m_arrival..vamp_shift closes. monmove.c span 1, 10 functions. Baseline lowered for seed0030 positional artifact.
 2026-09-07T10:47:20.385Z	1fe85f3d	span	24	33	4707	7765	321679	610816							msg_mon_movement..stuff_prevents_passage closes. monmove.c final span, 9 new functions (stuff_prevents_passage already ported).
 2026-09-07T14:48:15.454Z	b4eae321	goal	24	33	4707	7765	321679	610816			315	3640	38930	182022	monmove-c closes. 52 functions, 3 spans. Holdout 315/3640 screens, 38930/182022 rng.
+2026-09-07T15:38:45.863Z	64eb2dc1	span	24	33	4707	7765	321679	610816							return_from_mtoss..hits_bars closes. mthrowu.c span 1, 9 functions.

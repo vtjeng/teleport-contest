@@ -12351,8 +12351,8 @@
       "spans": [
         {
           "name": "return_from_mtoss..hits_bars",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "64eb2dc1ee17d8a8b377f7e08a1cfd372871a737",
           "functions": [
             "return_from_mtoss",
             "thrwmm",
@@ -12363,6 +12363,15 @@
             "breamu",
             "hit_bars",
             "hits_bars"
+          ]
+        },
+        {
+          "name": "ohitmon..ucatchgem",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "ohitmon",
+            "ucatchgem"
           ]
         }
       ],
@@ -12379,7 +12388,7 @@
           "name": "rnd_hallublast",
           "line": 52,
           "endLine": 57,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_has_launcher_and_ammo",
@@ -12439,31 +12448,31 @@
           "name": "return_from_mtoss",
           "line": 850,
           "endLine": 968,
-          "ported": false
+          "ported": true
         },
         {
           "name": "thrwmm",
           "line": 969,
           "endLine": 1015,
-          "ported": false
+          "ported": true
         },
         {
           "name": "spitmm",
           "line": 1016,
           "endLine": 1082,
-          "ported": false
+          "ported": true
         },
         {
           "name": "breathwep_name",
           "line": 1083,
           "endLine": 1092,
-          "ported": false
+          "ported": true
         },
         {
           "name": "breamm",
           "line": 1093,
           "endLine": 1153,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_useupall",
@@ -12487,13 +12496,13 @@
           "name": "spitmu",
           "line": 1268,
           "endLine": 1274,
-          "ported": false
+          "ported": true
         },
         {
           "name": "breamu",
           "line": 1275,
           "endLine": 1281,
-          "ported": false
+          "ported": true
         },
         {
           "name": "blocking_terrain",
@@ -12535,13 +12544,13 @@
           "name": "hit_bars",
           "line": 1417,
           "endLine": 1498,
-          "ported": false
+          "ported": true
         },
         {
           "name": "hits_bars",
           "line": 1499,
           "endLine": 1562,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
