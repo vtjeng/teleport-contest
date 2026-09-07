@@ -735,3 +735,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-07T21:58:53.193Z	4fd6bd87	span	24	33	5107	7765	344578	610816							dountrap..untrap_box closes. trap.c span 1, 18 functions (17 planned + untrap callee). +16 screens.
 2026-09-07T22:38:48.962Z	79400f42	span	24	33	5107	7765	344578	610816							openholdingtrap..join_adjacent_pits closes. trap.c final span, 7 functions.
 2026-09-07T22:39:20.508Z	79400f42	goal	24	33	5107	7765	344578	610816			315	3640	38930	182022	trap-c-dountrap closes. 29 functions, 2 spans. Holdout 315/3640.
+2026-09-07T23:31:59.711Z	ce7247e9	span	24	33	5107	7765	344592	610816							newman..udeadinside closes. polyself.c span 1, 15 functions. +14 rng. Fable 5.1 worker.
