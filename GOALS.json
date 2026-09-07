@@ -11952,6 +11952,363 @@
         "to": 6505
       },
       "startFunction": "load_special"
+    },
+    {
+      "id": "monmove-c",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port monmove.c whole in C order, starting from distfleeck()",
+      "cFile": "monmove.c",
+      "sessions": [
+        "seed0108-wizard-extcmd-wishlist"
+      ],
+      "detail": "",
+      "spans": [
+        {
+          "name": "m_arrival..vamp_shift",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "m_arrival",
+            "mind_blast",
+            "m_postmove_effect",
+            "leppie_avoidance",
+            "leppie_stash",
+            "m_balks_at_approaching",
+            "m_move_aggress",
+            "dissolve_bars",
+            "stuff_prevents_passage",
+            "vamp_shift"
+          ]
+        }
+      ],
+      "openedAt": "d228ed02b3f82fdd5592a9a7c18005f34cf90b84",
+      "openStanding": {
+        "sha": "37bd4083",
+        "screens": 5085,
+        "rng": 344412
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "msg_mon_movement",
+          "line": 33,
+          "endLine": 53,
+          "ported": false
+        },
+        {
+          "name": "mb_trapped",
+          "line": 54,
+          "endLine": 77,
+          "ported": false
+        },
+        {
+          "name": "mon_track_add",
+          "line": 78,
+          "endLine": 88,
+          "ported": true
+        },
+        {
+          "name": "mon_track_clear",
+          "line": 89,
+          "endLine": 95,
+          "ported": true
+        },
+        {
+          "name": "monhaskey",
+          "line": 96,
+          "endLine": 105,
+          "ported": true
+        },
+        {
+          "name": "mon_yells",
+          "line": 106,
+          "endLine": 132,
+          "ported": false
+        },
+        {
+          "name": "m_can_break_boulder",
+          "line": 133,
+          "endLine": 142,
+          "ported": true
+        },
+        {
+          "name": "m_break_boulder",
+          "line": 143,
+          "endLine": 175,
+          "ported": false
+        },
+        {
+          "name": "watch_on_duty",
+          "line": 176,
+          "endLine": 203,
+          "ported": false
+        },
+        {
+          "name": "dochugw",
+          "line": 204,
+          "endLine": 240,
+          "ported": true
+        },
+        {
+          "name": "onscary",
+          "line": 241,
+          "endLine": 306,
+          "ported": true
+        },
+        {
+          "name": "mon_regen",
+          "line": 307,
+          "endLine": 326,
+          "ported": true
+        },
+        {
+          "name": "disturb",
+          "line": 327,
+          "endLine": 361,
+          "ported": true
+        },
+        {
+          "name": "release_hero",
+          "line": 362,
+          "endLine": 374,
+          "ported": false
+        },
+        {
+          "name": "find_pmmonst",
+          "line": 375,
+          "endLine": 393,
+          "ported": false
+        },
+        {
+          "name": "bee_eat_jelly",
+          "line": 394,
+          "endLine": 423,
+          "ported": false
+        },
+        {
+          "name": "gelcube_digests",
+          "line": 424,
+          "endLine": 461,
+          "ported": false
+        },
+        {
+          "name": "monflee",
+          "line": 462,
+          "endLine": 532,
+          "ported": true
+        },
+        {
+          "name": "distfleeck",
+          "line": 533,
+          "endLine": 573,
+          "ported": true
+        },
+        {
+          "name": "m_arrival",
+          "line": 574,
+          "endLine": 582,
+          "ported": false
+        },
+        {
+          "name": "mind_blast",
+          "line": 583,
+          "endLine": 649,
+          "ported": false
+        },
+        {
+          "name": "m_everyturn_effect",
+          "line": 650,
+          "endLine": 671,
+          "ported": true
+        },
+        {
+          "name": "m_postmove_effect",
+          "line": 672,
+          "endLine": 689,
+          "ported": false
+        },
+        {
+          "name": "dochug",
+          "line": 690,
+          "endLine": 998,
+          "ported": true
+        },
+        {
+          "name": "mon_would_take_item",
+          "line": 999,
+          "endLine": 1035,
+          "ported": true
+        },
+        {
+          "name": "mon_would_consume_item",
+          "line": 1036,
+          "endLine": 1052,
+          "ported": true
+        },
+        {
+          "name": "itsstuck",
+          "line": 1053,
+          "endLine": 1069,
+          "ported": true
+        },
+        {
+          "name": "should_displace",
+          "line": 1070,
+          "endLine": 1107,
+          "ported": true
+        },
+        {
+          "name": "m_digweapon_check",
+          "line": 1108,
+          "endLine": 1138,
+          "ported": true
+        },
+        {
+          "name": "leppie_avoidance",
+          "line": 1139,
+          "endLine": 1153,
+          "ported": false
+        },
+        {
+          "name": "leppie_stash",
+          "line": 1154,
+          "endLine": 1180,
+          "ported": false
+        },
+        {
+          "name": "m_balks_at_approaching",
+          "line": 1181,
+          "endLine": 1226,
+          "ported": false
+        },
+        {
+          "name": "holds_up_web",
+          "line": 1227,
+          "endLine": 1243,
+          "ported": true
+        },
+        {
+          "name": "count_webbing_walls",
+          "line": 1244,
+          "endLine": 1251,
+          "ported": true
+        },
+        {
+          "name": "soko_allow_web",
+          "line": 1252,
+          "endLine": 1268,
+          "ported": true
+        },
+        {
+          "name": "maybe_spin_web",
+          "line": 1269,
+          "endLine": 1296,
+          "ported": true
+        },
+        {
+          "name": "m_avoid_kicked_loc",
+          "line": 1297,
+          "endLine": 1312,
+          "ported": true
+        },
+        {
+          "name": "m_avoid_soko_push_loc",
+          "line": 1313,
+          "endLine": 1329,
+          "ported": true
+        },
+        {
+          "name": "m_search_items",
+          "line": 1330,
+          "endLine": 1454,
+          "ported": true
+        },
+        {
+          "name": "postmov",
+          "line": 1455,
+          "endLine": 1714,
+          "ported": true
+        },
+        {
+          "name": "m_move",
+          "line": 1715,
+          "endLine": 2087,
+          "ported": true
+        },
+        {
+          "name": "m_move_aggress",
+          "line": 2088,
+          "endLine": 2120,
+          "ported": false
+        },
+        {
+          "name": "can_hide_under_obj",
+          "line": 2121,
+          "endLine": 2169,
+          "ported": true
+        },
+        {
+          "name": "dissolve_bars",
+          "line": 2170,
+          "endLine": 2180,
+          "ported": false
+        },
+        {
+          "name": "closed_door",
+          "line": 2181,
+          "endLine": 2187,
+          "ported": true
+        },
+        {
+          "name": "accessible",
+          "line": 2188,
+          "endLine": 2197,
+          "ported": true
+        },
+        {
+          "name": "set_apparxy",
+          "line": 2198,
+          "endLine": 2276,
+          "ported": true
+        },
+        {
+          "name": "undesirable_disp",
+          "line": 2277,
+          "endLine": 2318,
+          "ported": true
+        },
+        {
+          "name": "stuff_prevents_passage",
+          "line": 2319,
+          "endLine": 2355,
+          "ported": false
+        },
+        {
+          "name": "can_ooze",
+          "line": 2356,
+          "endLine": 2364,
+          "ported": true
+        },
+        {
+          "name": "can_fog",
+          "line": 2365,
+          "endLine": 2376,
+          "ported": true
+        },
+        {
+          "name": "vamp_shift",
+          "line": 2377,
+          "endLine": 2397,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 33,
+        "to": 2397
+      },
+      "startFunction": "distfleeck"
     }
   ]
 }
