@@ -719,3 +719,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-07T07:31:50.384Z	9ecf3057	span	24	33	5015	7765	343137	610816							save_artifacts..Mb_hit closes. artifact.c 75/76. Recordings 6/6 (188/188).
 2026-09-07T08:20:16.013Z	5e019e52	span	24	33	5085	7765	344412	610816							artifact_hit closes. +70 screens, +1275 rng. artifact.c 76/76. Recordings 7/7 (225/225).
 2026-09-07T08:20:39.320Z	5e019e52	goal	24	33	5085	7765	344412	610816			315	3640	38930	182022	artifact-c closes. All 76 functions ported across 4 spans. +108 screens, +1336 rng over goal. Holdout 315/3640 screens, 38930/182022 rng.
+2026-09-07T08:41:05.806Z	bb2d4b74	span	24	33	5085	7765	344412	610816							load_special closes. sp_lev.c load_special group 1/5.

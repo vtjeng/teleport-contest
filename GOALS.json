@@ -11886,10 +11886,21 @@
       "spans": [
         {
           "name": "load_special",
+          "status": "closed",
+          "closedBy": "bb2d4b7481bf7b1fc4667e4badb6cf430b2c509b",
+          "functions": [
+            "load_special"
+          ]
+        },
+        {
+          "name": "update_croom..create_des_coder",
           "status": "queued",
           "closedBy": null,
           "functions": [
-            "load_special"
+            "update_croom",
+            "sp_level_coder_init",
+            "l_register_des",
+            "create_des_coder"
           ]
         }
       ],
@@ -11930,7 +11941,7 @@
           "name": "load_special",
           "line": 6454,
           "endLine": 6505,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
