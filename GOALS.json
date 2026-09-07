@@ -12637,8 +12637,8 @@
       "spans": [
         {
           "name": "dountrap..untrap_box",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4fd6bd87af9c6eb092ab9153adf4e566bdb0ba12",
           "functions": [
             "dountrap",
             "could_untrap",
@@ -12658,6 +12658,20 @@
             "disarm_box",
             "untrap_box"
           ]
+        },
+        {
+          "name": "openholdingtrap..join_adjacent_pits",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "openholdingtrap",
+            "closeholdingtrap",
+            "openfallingtrap",
+            "chest_trap",
+            "conjoined_pits",
+            "adj_nonconjoined_pit",
+            "join_adjacent_pits"
+          ]
         }
       ],
       "openedAt": "27c5a26ff514edb3011ec36d48cef239b3564e19",
@@ -12673,109 +12687,109 @@
           "name": "dountrap",
           "line": 5248,
           "endLine": 5257,
-          "ported": false
+          "ported": true
         },
         {
           "name": "could_untrap",
           "line": 5258,
           "endLine": 5288,
-          "ported": false
+          "ported": true
         },
         {
           "name": "untrap_prob",
           "line": 5289,
           "endLine": 5340,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cnv_trap_obj",
           "line": 5341,
           "endLine": 5374,
-          "ported": false
+          "ported": true
         },
         {
           "name": "into_vs_onto",
           "line": 5375,
           "endLine": 5392,
-          "ported": false
+          "ported": true
         },
         {
           "name": "move_into_trap",
           "line": 5393,
           "endLine": 5440,
-          "ported": false
+          "ported": true
         },
         {
           "name": "try_disarm",
           "line": 5441,
           "endLine": 5529,
-          "ported": false
+          "ported": true
         },
         {
           "name": "reward_untrap",
           "line": 5530,
           "endLine": 5552,
-          "ported": false
+          "ported": true
         },
         {
           "name": "disarm_holdingtrap",
           "line": 5553,
           "endLine": 5593,
-          "ported": false
+          "ported": true
         },
         {
           "name": "disarm_landmine",
           "line": 5594,
           "endLine": 5606,
-          "ported": false
+          "ported": true
         },
         {
           "name": "unsqueak_ok",
           "line": 5607,
           "endLine": 5629,
-          "ported": false
+          "ported": true
         },
         {
           "name": "disarm_squeaky_board",
           "line": 5630,
           "endLine": 5663,
-          "ported": false
+          "ported": true
         },
         {
           "name": "disarm_shooting_trap",
           "line": 5664,
           "endLine": 5676,
-          "ported": false
+          "ported": true
         },
         {
           "name": "try_lift",
           "line": 5677,
           "endLine": 5699,
-          "ported": false
+          "ported": true
         },
         {
           "name": "help_monster_out",
           "line": 5700,
           "endLine": 5793,
-          "ported": false
+          "ported": true
         },
         {
           "name": "disarm_box",
           "line": 5794,
           "endLine": 5820,
-          "ported": false
+          "ported": true
         },
         {
           "name": "untrap_box",
           "line": 5821,
           "endLine": 5847,
-          "ported": false
+          "ported": true
         },
         {
           "name": "untrap",
           "line": 5848,
           "endLine": 6100,
-          "ported": false
+          "ported": true
         },
         {
           "name": "openholdingtrap",
