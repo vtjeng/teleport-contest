@@ -26,6 +26,7 @@ import {
     FEMALE,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
+    GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
     HALLUC,
@@ -72,8 +73,14 @@ import {
 import { makemon_runtime } from './makemon_create.js';
 import { MAXMCLASSES } from './symbols.js';
 import {
+    BRASS_LANTERN,
+    MAGIC_LAMP,
+    OIL_LAMP,
+    RING_CLASS,
     SCROLL_CLASS,
     SCR_DESTROY_ARMOR,
+    TOOL_CLASS,
+    WAND_CLASS,
     SCR_IDENTIFY,
     SCR_MAGIC_MAPPING,
     SCR_REMOVE_CURSE,
@@ -86,7 +93,7 @@ import {
     SPE_NOVEL,
     SPBOOK_CLASS,
 } from './objects.js';
-import { is_flammable, objectType } from './obj.js';
+import { is_flammable, is_weptool, objectType } from './obj.js';
 import { not_fully_identified } from './objnam.js';
 import { acurr, exercise } from './attrib.js';
 import { do_mapping } from './detect.js';
@@ -123,6 +130,30 @@ export function read_ok(obj) {
     if (obj.oclass === SCROLL_CLASS || obj.oclass === SPBOOK_CLASS)
         return GETOBJ_SUGGEST;
     return GETOBJ_DOWNPLAY;
+}
+
+// C ref: read.c charge_ok() (689-724). Filter for getobj() when choosing an
+// object to recharge: wands are suggested, identified chargeable rings and
+// tools are suggested, and everything else is excluded but selectable.
+export function charge_ok(obj) {
+    if (!obj) return GETOBJ_EXCLUDE;
+    if (obj.oclass === WAND_CLASS) return GETOBJ_SUGGEST;
+    if (obj.oclass === RING_CLASS && objectType(obj.otyp).oc_charged
+        && obj.dknown && objectType(obj.otyp).oc_name_known)
+        return GETOBJ_SUGGEST;
+    if (is_weptool(obj)) return GETOBJ_EXCLUDE;
+    if (obj.oclass === TOOL_CLASS) {
+        if (obj.otyp === BRASS_LANTERN
+            || obj.otyp === OIL_LAMP
+            || (obj.otyp === MAGIC_LAMP
+                && !objectType(MAGIC_LAMP).oc_name_known))
+            return GETOBJ_SUGGEST;
+        if (objectType(obj.otyp).oc_charged)
+            return (obj.dknown && objectType(obj.otyp).oc_name_known)
+                ? GETOBJ_SUGGEST : GETOBJ_DOWNPLAY;
+        return GETOBJ_EXCLUDE;
+    }
+    return GETOBJ_EXCLUDE_SELECTABLE;
 }
 
 function remainingPackIsFullyIdentified(selected, state) {

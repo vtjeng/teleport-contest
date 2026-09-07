@@ -56,7 +56,7 @@ import {
     reset_trapset,
     UnsupportedApplyError,
 } from './apply.js';
-import { UnsupportedArtifactDisplayError } from './artifacts.js';
+import { UnsupportedArtifactDisplayError, doinvoke } from './artifacts.js';
 import {
     dosearch,
     reveal_terrain,
@@ -1415,7 +1415,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
-    'terrain', 'travel', 'dip',
+    'terrain', 'travel', 'dip', 'invoke',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -2986,6 +2986,9 @@ async function doextcmd(key, state) {
     case 'donamelevel':
         // C ref: dungeon.c donamelevel(), which returns ECMD_OK.
         return await donamelevel(state);
+    case 'doinvoke':
+        // C ref: artifact.c doinvoke(), which returns its own ECMD_* result.
+        return await failClosedCommand(key, state, () => doinvoke(state));
     default:
         resetCommandVars(state);
         throw new UnsupportedHeroCommandBoundaryError(

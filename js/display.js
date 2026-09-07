@@ -3438,9 +3438,12 @@ export function see_monsters(state = game) {
     }
 
     if (new_warn_obj_cnt !== (state.warn_obj_cnt ?? 0)) {
-        // artifact.c Sting_effects() makes Sting glow or stop glowing. Nothing
-        // grants Warn_of_mon on the levels this port reaches, so the count
-        // cannot leave zero and this arm cannot be entered.
+        // Sting_effects() is ported in artifacts.js but see_monsters() is
+        // synchronous and Sting_effects() is async, so this callsite is left
+        // as a throw until see_monsters() becomes async. The comment in C's
+        // artifact.c:2482 notes this path is via goto_level -> docrt ->
+        // see_monsters; nothing grants Warn_of_mon on the levels this port
+        // reaches, so the count cannot leave zero.
         throw new Error('see_monsters() toggling a warning artifact');
     }
 

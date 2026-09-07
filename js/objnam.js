@@ -12,6 +12,7 @@
 
 import {
     ART_EYES_OF_THE_OVERWORLD, ART_ORB_OF_DETECTION, artifact_name,
+    artiname,
     find_artifact,
     permapoisoned,
 } from './artifacts.js';
@@ -1696,6 +1697,18 @@ export function distant_name(obj, func, state = game) {
         // every later name in the same game.
         state.gd.distantname -= 1;
     }
+}
+
+// C ref: objnam.c bare_artifactname() (2502-2515). Returns the artifact's
+// name with a leading "The" lowered to "the", or xnameFresh for non-artifacts.
+export function bare_artifactname(obj, state = game) {
+    if (obj.oartifact) {
+        let name = artiname(obj.oartifact, state);
+        if (name.startsWith('The '))
+            name = 't' + name.slice(1);
+        return name;
+    }
+    return xnameFresh(obj, state);
 }
 
 // C ref: objnam.c safe_qbuf() (5624-5698). Builds a prompt string from an

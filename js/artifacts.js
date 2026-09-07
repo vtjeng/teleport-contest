@@ -8,30 +8,33 @@ import {
     A_LAWFUL,
     A_NEUTRAL,
     ANTIMAGIC,
+    BLINDED,
     BLND_RES,
     COLD_RES,
     CONFLICT,
     DISINT_RES,
     DRAIN_RES,
+    ECMD_CANCEL,
     ECMD_OK,
+    ECMD_TIME,
     ENERGY_REGENERATION,
     FIRE_RES,
+    GETOBJ_EXCLUDE,
+    GETOBJ_PROMPT,
+    GETOBJ_SUGGEST,
+    GETOBJ_ALLOWCNT,
     HALF_PHDAM,
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
+    I_SPECIAL,
     INVIS,
     LAST_PROP,
     LEVITATION,
+    Never_mind,
     NON_PM,
-    POISON_RES,
-    PROTECTION,
-    REFLECTING,
-    REGENERATION,
-    SEARCHING,
-    SHOCK_RES,
-    STEALTH,
-    TELEPORT_CONTROL,
+    nothing_happens,
+    nothing_seems_to_happen,
     ONAME_BONES,
     ONAME_GIFT,
     ONAME_KNOW_ARTI,
@@ -41,11 +44,41 @@ import {
     ONAME_VIA_DIP,
     ONAME_VIA_NAMING,
     ONAME_WISH,
+    PICK_ONE,
+    POISON_RES,
+    PROTECTION,
+    REFLECTING,
+    REGENERATION,
+    SEARCHING,
+    SHOCK_RES,
+    SICK,
+    SICK_ALL,
+    SLIMED,
+    STEALTH,
+    TELEPORT_CONTROL,
+    TIMEOUT,
     Upolyd,
+    W_AMUL,
     W_ARM,
+    W_ARMC,
+    W_ARMF,
+    W_ARMG,
+    W_ARMH,
+    W_ARMS,
     W_ART,
+    W_ARTI,
+    W_ARMU,
+    W_RINGL,
+    W_RINGR,
+    W_SWAPWEP,
+    W_TOOL,
     W_WEP,
+    WARNING,
+    WARN_OF_MON,
     ismnum,
+    In_endgame,
+    In_quest,
+    isok,
 } from './const.js';
 import { game } from './gstate.js';
 import {
@@ -56,6 +89,7 @@ import {
     M2_UNDEAD,
     M2_WERE,
     M3_COVETOUS,
+    MS_NEMESIS,
     PM_ARCHEOLOGIST,
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
@@ -72,19 +106,24 @@ import {
     PM_VALKYRIE,
     PM_WIZARD,
     S_DRAGON,
+    S_IMP,
     S_OGRE,
     S_TROLL,
 } from './monsters.js';
 import {
+    ACID_VENOM,
     AMULET_OF_ESP,
+    ARROW,
     ATHAME,
     BATTLE_AXE,
+    BLINDING_VENOM,
     BOW,
     BROADSWORD,
     CREDIT_CARD,
     CRYSTAL_BALL,
     ELVEN_BROADSWORD,
     ELVEN_DAGGER,
+    FAKE_AMULET_OF_YENDOR,
     GOLD_DRAGON_SCALES,
     GOLD_DRAGON_SCALE_MAIL,
     HELM_OF_BRILLIANCE,
@@ -99,10 +138,13 @@ import {
     QUARTERSTAFF,
     RIN_INCREASE_DAMAGE,
     RUNESWORD,
+    SCR_TAMING,
     SILVER,
     SILVER_MACE,
     SILVER_SABER,
     SKELETON_KEY,
+    SPE_CONE_OF_COLD,
+    SPE_FIREBALL,
     STRANGE_OBJECT,
     TSURUGI,
     WAR_HAMMER,
@@ -110,8 +152,32 @@ import {
 
 import { fuzzymatch, lcase } from './hacklib.js';
 import { aligns } from './roles.js';
-import { rn2 } from './rng.js';
+import { d, rn2, rnd, rn2_on_display_rng, rnz } from './rng.js';
 import { CLR_BRIGHT_BLUE, CLR_RED, NO_COLOR } from './terminal.js';
+import { ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
+import { getobj, hold_another_object, update_inventory } from './invent.js';
+import { aobjnam, bare_artifactname, otense, the, vtense, xnameFresh } from './objnam.js';
+import { getdir } from './cmd.js';
+import { is_demon, is_dlord, is_dprince } from './mondata.js';
+import { In_hell, depth, dunlevs_in_dungeon, ledger_no } from './dungeon.js';
+import { couldsee } from './vision.js';
+import { next_to_u } from './apply_next_to_u.js';
+import { newsym } from './display.js';
+import { spoteffects } from './hack.js';
+import { float_down } from './trap.js';
+import { level_tele } from './teleport.js';
+import { enlightenment } from './insight.js';
+import { carried, mksobj, objectType, weight } from './obj.js';
+import { throwit } from './dothrow.js';
+import { P_SKILL, spell_skilltype } from './startup_skills.js';
+import { spelleffects } from './spell.js';
+import { seffects } from './read.js';
+import { charge_ok } from './read.js';
+import { make_blinded } from './potion.js';
+import { maybe_lvltport_feedback, goto_level } from './do.js';
+import { select_menu } from './windows.js';
+import { clr2colorname } from './coloratt.js';
 
 // C refs: artifact.c defends() and defends_when_carried(). Artifact attack,
 // defense, and carry records all use the same damage-type encoding.
@@ -1095,6 +1161,490 @@ export function shade_glare(obj, state = game) {
     return false;
 }
 
+// --- artifact.c invoke functions (C lines 1727-2260) ---
+
+// C ref: artifact.c invoke_ok() (1727-1745). Filter for getobj() when choosing
+// an object to invoke.
+function invoke_ok(obj) {
+    if (!obj) return GETOBJ_EXCLUDE;
+    if (obj.oartifact || objectType(obj.otyp).oc_unique
+        || (obj.otyp === FAKE_AMULET_OF_YENDOR && !obj.known))
+        return GETOBJ_SUGGEST;
+    if (obj.otyp === CRYSTAL_BALL)
+        return GETOBJ_SUGGEST;
+    return GETOBJ_EXCLUDE;
+}
+
+// C ref: artifact.c doinvoke() (1749-1759). The #invoke command handler.
+export async function doinvoke(state = game) {
+    const obj = await getobj('invoke', invoke_ok, GETOBJ_PROMPT, state);
+    if (!obj) return ECMD_CANCEL;
+    note_unported('artifact.c retouch_object');
+    return await arti_invoke(obj, state);
+}
+
+// C ref: artifact.c nothing_special() (1761-1766).
+async function nothing_special(obj, state) {
+    if (carried(obj)) {
+        await ttyPline(
+            'You feel a surge of power, but nothing seems to happen.', state);
+    }
+}
+
+// C ref: artifact.c invoke_taming() (1768-1777).
+async function invoke_taming(obj, state) {
+    const pseudo = { ...state.zeroobj, otyp: SCR_TAMING };
+    await seffects(pseudo, state);
+    return ECMD_TIME;
+}
+
+// C ref: artifact.c invoke_healing() (1779-1815).
+async function invoke_healing(obj, state) {
+    const u = state.u;
+    let healamt = Math.trunc((u.uhpmax + 1 - u.uhp) / 2);
+    const creamed = u.ucreamed ?? 0;
+
+    if (Upolyd(state))
+        healamt = Math.trunc((u.mhmax + 1 - u.mh) / 2);
+
+    // C: Sick = u.uprops[SICK].intrinsic, Slimed = u.uprops[SLIMED].intrinsic,
+    // BlindedTimeout = u.uprops[BLINDED].intrinsic & TIMEOUT.
+    const blindProp = u.uprops?.[BLINDED] ?? { intrinsic: 0, extrinsic: 0 };
+    const blindedTimeout = blindProp.intrinsic & TIMEOUT;
+    const sick = (u.uprops?.[SICK]?.intrinsic ?? 0) !== 0;
+    const slimed = (u.uprops?.[SLIMED]?.intrinsic ?? 0) !== 0;
+    const hBlinded = blindProp.intrinsic;
+
+    if (healamt || sick || slimed || blindedTimeout > creamed) {
+        const prefix = (!healamt && !sick && !slimed
+            && (hBlinded & ~TIMEOUT) !== 0) ? 'slightly ' : '';
+        await ttyPline(`You feel ${prefix}better.`, state);
+    } else {
+        await nothing_special(obj, state);
+        return ECMD_TIME;
+    }
+    if (healamt > 0) {
+        if (Upolyd(state))
+            u.mh += healamt;
+        else
+            u.uhp += healamt;
+    }
+    if (sick) {
+        note_unported('eat.c make_sick');
+    }
+    if (slimed) {
+        note_unported('hack.c make_slimed');
+    }
+    if (blindedTimeout > creamed)
+        await make_blinded(creamed, false, state);
+    state.disp ??= {};
+    state.disp.botl = true;
+    return ECMD_TIME;
+}
+
+// C ref: artifact.c invoke_energy_boost() (1817-1835).
+async function invoke_energy_boost(obj, state) {
+    const u = state.u;
+    let epboost = Math.trunc((u.uenmax + 1 - u.uen) / 2);
+    if (epboost > 120) epboost = 120;
+    else if (epboost < 12) epboost = u.uenmax - u.uen;
+    if (epboost) {
+        u.uen += epboost;
+        state.disp ??= {};
+        state.disp.botl = true;
+        await ttyPline('You feel re-energized.', state);
+    } else {
+        await nothing_special(obj, state);
+        return ECMD_TIME;
+    }
+    return ECMD_TIME;
+}
+
+// C ref: artifact.c invoke_untrap() (1837-1845).
+async function invoke_untrap(obj, state) {
+    // untrap() is a large interactive function in trap.c, not yet ported.
+    note_unported('trap.c untrap');
+    obj.age = 0;
+    return ECMD_CANCEL;
+}
+
+// C ref: artifact.c invoke_charge_obj() (1847-1864).
+async function invoke_charge_obj(obj, state) {
+    const oart = get_artifact(obj, state);
+    const otmp = await getobj('charge', charge_ok,
+        GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state);
+    if (!otmp) {
+        obj.age = 0;
+        return ECMD_CANCEL;
+    }
+    // recharge() is in read.c, not yet ported; its return is discarded.
+    note_unported('read.c recharge');
+    update_inventory(state);
+    return ECMD_TIME;
+}
+
+// C ref: artifact.c invoke_create_portal() (1866-1931).
+async function invoke_create_portal(obj, state) {
+    const u = state.u;
+    let num_ok_dungeons = 0;
+    let last_ok_dungeon = 0;
+    const items = [];
+
+    for (let i = 0; i < state.n_dgns; i++) {
+        if (!state.dungeons[i].dunlev_ureached) continue;
+        if (Number.isInteger(state.tutorial_dnum) && i === state.tutorial_dnum)
+            continue;
+        items.push({
+            value: i + 1,
+            label: state.dungeons[i].dname,
+        });
+        num_ok_dungeons++;
+        last_ok_dungeon = i;
+    }
+
+    let chosen;
+    if (num_ok_dungeons > 1) {
+        const selected = await select_menu(state, {
+            title: 'Open a portal to which dungeon?',
+            items,
+            how: PICK_ONE,
+            cancelValue: null,
+        });
+        if (!selected || selected.length <= 0) {
+            await nothing_special(obj, state);
+            return ECMD_TIME;
+        }
+        chosen = selected[0].value - 1;
+    } else {
+        chosen = last_ok_dungeon;
+    }
+
+    const newlev = { dnum: chosen, dlevel: 0 };
+    if (state.dungeons[chosen].depth_start >= depth(u.uz, state))
+        newlev.dlevel = state.dungeons[chosen].entry_lev;
+    else
+        newlev.dlevel = state.dungeons[chosen].dunlev_ureached;
+
+    if (u.uhave?.amulet || In_endgame(u.uz) || In_endgame(newlev)
+        || newlev.dnum === u.uz.dnum || !next_to_u(state)) {
+        await ttyPline('You feel very disoriented for a moment.', state);
+    } else {
+        const blind = (u.uprops?.[44]?.intrinsic ?? 0) !== 0
+            || (u.uprops?.[44]?.extrinsic ?? 0) !== 0;
+        if (!blind)
+            await ttyPline('You are surrounded by a shimmering sphere!', state);
+        else
+            await ttyPline('You feel weightless for a moment.', state);
+        await goto_level(newlev, false, false, false, state);
+    }
+    return ECMD_TIME;
+}
+
+// C ref: artifact.c invoke_create_ammo() (1933-1960).
+async function invoke_create_ammo(obj, state) {
+    let otmp = mksobj(ARROW, true, false, state);
+    if (!otmp) {
+        await nothing_special(obj, state);
+        return ECMD_TIME;
+    }
+    otmp.blessed = obj.blessed;
+    otmp.cursed = obj.cursed;
+    otmp.bknown = obj.bknown;
+    otmp.oeroded = 0;
+    otmp.oeroded2 = 0;
+    if (obj.blessed) {
+        if (otmp.spe < 0) otmp.spe = 0;
+        otmp.quan += rnd(10);
+    } else if (obj.cursed) {
+        if (otmp.spe > 0) otmp.spe = 0;
+    } else {
+        otmp.quan += rnd(5);
+    }
+    otmp.owt = weight(otmp, state);
+    otmp = await hold_another_object(otmp, 'Suddenly %s out.',
+        aobjnam(otmp, 'fall', state), null, state);
+    return ECMD_TIME;
+}
+
+// C ref: artifact.c invoke_banish() (1962-2019).
+async function invoke_banish(obj, state) {
+    let nvanished = 0;
+    let nstayed = 0;
+    const u = state.u;
+
+    for (let mtmp = state.fmon; mtmp; mtmp = mtmp.nmon) {
+        let chance = 1;
+        if (mtmp.mhp < 1 || !isok(mtmp.mx, mtmp.my)) continue;
+        if (!is_demon(mtmp.data) && mtmp.data?.mlet !== S_IMP) continue;
+        if (!couldsee(mtmp.mx, mtmp.my, state)) continue;
+        if (mtmp.data?.msound === MS_NEMESIS) continue;
+
+        if (In_quest(u.uz) && !state.quest_status?.killed_nemesis)
+            chance += 10;
+        if (is_dprince(mtmp.data)) chance += 2;
+        if (is_dlord(mtmp.data)) chance++;
+
+        mtmp.msleeping = 0;
+        mtmp.mtame = 0;
+        mtmp.mpeaceful = 0;
+        if (chance <= 1 || !rn2(chance)) {
+            const inhell = In_hell(u.uz, state);
+            if (!inhell) {
+                nvanished++;
+                // find_hell/migrate_mon are not ported; consume the rn2
+                // that selects a destination level to maintain RNG sync.
+                note_unported('dungeon.c find_hell');
+                const dest = {
+                    dnum: state.valley_level?.dnum ?? 0,
+                    dlevel: 0,
+                };
+                dest.dlevel = rn2(dunlevs_in_dungeon(dest, state));
+                note_unported('mon.c migrate_mon');
+            } else {
+                note_unported('teleport.c u_teleport_mon');
+            }
+        } else {
+            nstayed++;
+        }
+    }
+
+    if (nvanished) {
+        let subject = 'demons';
+        if (nvanished === 1) subject = 'demon';
+        const article = nstayed
+            ? (nvanished > nstayed ? 'Most of the' : 'Some of the')
+            : 'The';
+        await ttyPline(
+            `${article} ${subject} ${vtense(subject, 'disappear')} in a cloud of brimstone!`,
+            state);
+    }
+    return ECMD_TIME;
+}
+
+// C ref: artifact.c invoke_fling_poison() (2021-2037).
+async function invoke_fling_poison(obj, state) {
+    if (await getdir(null, state)) {
+        const venom = rn2(2) ? BLINDING_VENOM : ACID_VENOM;
+        const otmp = mksobj(venom, true, false, state);
+        otmp.spe = 1;
+        await throwit(otmp, 0, false, null, state);
+    } else {
+        await ttyPline(Never_mind, state);
+        obj.age = state.moves;
+        return ECMD_CANCEL;
+    }
+    return ECMD_TIME;
+}
+
+// C ref: artifact.c invoke_storm_spell() (2039-2051).
+async function invoke_storm_spell(obj, state) {
+    const oart = get_artifact(obj, state);
+    const storm = oart.inv_prop === SNOWSTORM
+        ? SPE_CONE_OF_COLD : SPE_FIREBALL;
+    const skill = spell_skilltype(storm, state);
+    // Temporarily set skill to P_EXPERT
+    const slots = state.u.weapon_skills;
+    const slot = slots?.[skill];
+    const saved = slot?.skill ?? 0;
+    if (slot) slot.skill = 4; // P_EXPERT
+    await spelleffects(storm, false, true, state);
+    if (slot) slot.skill = saved;
+    return ECMD_TIME;
+}
+
+// C ref: artifact.c invoke_blinding_ray() (2053-2086).
+async function invoke_blinding_ray(obj, state) {
+    if (await getdir(null, state)) {
+        if (state.u.dx || state.u.dy) {
+            note_unported('artifact.c do_blinding_ray');
+        } else if (state.u.dz) {
+            note_unported('light.c litroom');
+            await ttyPline(nothing_seems_to_happen, state);
+        } else {
+            const damg = obj.blessed ? 15 : !obj.cursed ? 10 : 5;
+            // rnd(damg) consumed by flashburn argument
+            rnd(damg);
+            note_unported('zap.c flashburn');
+            note_unported('light.c lightdamage');
+            await ttyPline(nothing_seems_to_happen, state);
+        }
+    } else {
+        await ttyPline(Never_mind, state);
+        obj.age = state.moves;
+        return ECMD_CANCEL;
+    }
+    return ECMD_TIME;
+}
+
+// C ref: artifact.c arti_invoke_cost_pw() (2090-2102).
+function arti_invoke_cost_pw(obj, state) {
+    const oart = get_artifact(obj, state);
+    if (oart.inv_prop === FLING_POISON
+        || oart.inv_prop === BLINDING_RAY) {
+        return 5 * 5; // SPELL_LEV_PW(5) = 5 * 5
+    }
+    return -1;
+}
+
+// C ref: artifact.c arti_invoke_cost() (2105-2128).
+async function arti_invoke_cost(obj, state) {
+    if (obj.age > state.moves) {
+        const pw_cost = arti_invoke_cost_pw(obj, state);
+        if (pw_cost < 0 || state.u.uen < pw_cost) {
+            await ttyPline(
+                `You feel that ${the(xnameFresh(obj, state), state)} ${otense(obj, 'are')} ignoring you.`,
+                state);
+            obj.age += d(3, 10);
+            return false;
+        } else {
+            await ttyPline('You feel drained...', state);
+            state.u.uen -= pw_cost;
+            state.disp ??= {};
+            state.disp.botl = true;
+        }
+    } else {
+        obj.age = state.moves + rnz(100);
+    }
+    return true;
+}
+
+// C ref: artifact.c arti_invoke() (2130-2232).
+async function arti_invoke(obj, state = game) {
+    let res = ECMD_OK;
+
+    if (!obj) {
+        // impossible("arti_invoke without obj")
+        return ECMD_OK;
+    }
+    const oart = get_artifact(obj, state);
+    if (oart === state.artilist[ART_NONARTIFACT] || !oart.inv_prop) {
+        if (obj.otyp === CRYSTAL_BALL) {
+            note_unported('apply.c use_crystal_ball');
+        } else {
+            await ttyPline(nothing_happens, state);
+        }
+        return ECMD_TIME;
+    }
+
+    if (oart.inv_prop > LAST_PROP) {
+        if (!await arti_invoke_cost(obj, state))
+            return ECMD_TIME;
+
+        switch (oart.inv_prop) {
+        case TAMING: res = await invoke_taming(obj, state); break;
+        case HEALING: res = await invoke_healing(obj, state); break;
+        case ENERGY_BOOST: res = await invoke_energy_boost(obj, state); break;
+        case UNTRAP: res = await invoke_untrap(obj, state); break;
+        case CHARGE_OBJ: res = await invoke_charge_obj(obj, state); break;
+        case LEV_TELE: await level_tele(state); res = ECMD_TIME; break;
+        case CREATE_PORTAL: res = await invoke_create_portal(obj, state); break;
+        case ENLIGHTENING:
+            await enlightenment(2 /* MAGICENLIGHTENMENT */, 0 /* ENL_GAMEINPROGRESS */, state);
+            res = ECMD_TIME;
+            break;
+        case CREATE_AMMO: res = await invoke_create_ammo(obj, state); break;
+        case BANISH: res = await invoke_banish(obj, state); break;
+        case FLING_POISON: res = await invoke_fling_poison(obj, state); break;
+        case SNOWSTORM:
+        case FIRESTORM: res = await invoke_storm_spell(obj, state); break;
+        case BLINDING_RAY: res = await invoke_blinding_ray(obj, state); break;
+        default:
+            // impossible("Unknown invoke power %d.", oart.inv_prop)
+            break;
+        }
+        return res;
+    }
+
+    // Property toggle (inv_prop <= LAST_PROP)
+    const prop = state.u.uprops[oart.inv_prop] ??= {
+        intrinsic: 0, extrinsic: 0,
+    };
+    prop.extrinsic ^= W_ARTI;
+    const eprop = prop.extrinsic;
+    const iprop = prop.intrinsic;
+    const on = (eprop & W_ARTI) !== 0;
+
+    if (on && obj.age > state.moves) {
+        prop.extrinsic ^= W_ARTI;
+        await ttyPline(
+            `You feel that ${the(xnameFresh(obj, state), state)} ${otense(obj, 'are')} ignoring you.`,
+            state);
+        obj.age += d(3, 10);
+        return ECMD_TIME;
+    } else if (!on) {
+        obj.age = state.moves + rnz(100);
+    }
+
+    if ((eprop & ~W_ARTI) || iprop) {
+        await nothing_special(obj, state);
+        return ECMD_TIME;
+    }
+    switch (oart.inv_prop) {
+    case CONFLICT:
+        if (on)
+            await ttyPline('You feel like a rabble-rouser.', state);
+        else
+            await ttyPline('You feel the tension decrease around you.', state);
+        break;
+    case LEVITATION:
+        if (on) {
+            note_unported('hack.c float_up');
+            await spoteffects(false, state);
+        } else {
+            await float_down(I_SPECIAL | TIMEOUT, W_ARTI, state);
+        }
+        break;
+    case INVIS: {
+        // BInvis: extrinsic/intrinsic blocking invisibility
+        const bInvis = (state.u.uprops?.[INVIS]?.extrinsic ?? 0)
+            & ~(W_ARTI | W_ART);
+        const blind = (state.u.uprops?.[44]?.intrinsic ?? 0) !== 0
+            || (state.u.uprops?.[44]?.extrinsic ?? 0) !== 0;
+        if (bInvis || blind) {
+            await nothing_special(obj, state);
+            return ECMD_TIME;
+        }
+        newsym(state.u.ux, state.u.uy);
+        const halluc = (state.u.uprops?.[HALLUC]?.intrinsic ?? 0) !== 0
+            || (state.u.uprops?.[HALLUC]?.extrinsic ?? 0) !== 0;
+        if (on)
+            await ttyPline(
+                `Your body takes on a ${halluc ? 'normal' : 'strange'} transparency...`,
+                state);
+        else
+            await ttyPline('Your body seems to unfade...', state);
+        break;
+    }
+    }
+
+    return ECMD_TIME;
+}
+
+// C ref: artifact.c finesse_ahriman() (2235-2260). Checks whether freeing
+// this object from inventory would cause levitation to end.
+export function finesse_ahriman(obj, state = game) {
+    const oart = get_artifact(obj, state);
+    if (oart === state.artilist[ART_NONARTIFACT]) return false;
+
+    const levProp = state.u.uprops?.[LEVITATION]
+        ?? { intrinsic: 0, extrinsic: 0 };
+    // Not levitating, or not an artifact that confers levitation via invoke
+    if (!(levProp.intrinsic || levProp.extrinsic)
+        || oart.inv_prop !== LEVITATION
+        || !(levProp.extrinsic & W_ARTI))
+        return false;
+
+    // Probe: clear I_SPECIAL|TIMEOUT and W_ARTI, check if still levitating
+    const saveIntrinsic = levProp.intrinsic;
+    const saveExtrinsic = levProp.extrinsic;
+    levProp.intrinsic &= ~(I_SPECIAL | TIMEOUT);
+    levProp.extrinsic &= ~W_ARTI;
+    const result = !(levProp.intrinsic || levProp.extrinsic);
+    levProp.intrinsic = saveIntrinsic;
+    levProp.extrinsic = saveExtrinsic;
+    return result;
+}
+
 // C ref: artifact.c artifact_light() (2263-2275). Whether an object lights the
 // map without burning fuel. C's second clause reads
 // `get_artifact(obj) != &artilist[ART_NONARTIFACT] && is_art(obj, ART_SUNSWORD)`;
@@ -1128,6 +1678,192 @@ export function arti_speak(obj, state = game) {
     // The speaking path reads a rumor and verbalize1()s it. getrumor() and
     // verbalize1() are not ported.
     throw new UnsupportedArtifactDisplayError('a speaking artifact (arti_speak)');
+}
+
+// --- artifact.c functions (C lines 2299-2502) ---
+
+// C ref: artifact.c artifact_has_invprop() (2299-2305).
+export function artifact_has_invprop(otmp, inv_prop, state = game) {
+    const arti = get_artifact(otmp, state);
+    return arti !== state.artilist[ART_NONARTIFACT]
+        && arti.inv_prop === inv_prop;
+}
+
+// C ref: artifact.c arti_cost() (2308-2317). Returns the price the hero
+// paid for an artifact or unique item.
+export function arti_cost(otmp, state = game) {
+    if (!otmp.oartifact)
+        return objectType(otmp.otyp, state).oc_cost;
+    if (state.artilist[otmp.oartifact]?.cost)
+        return state.artilist[otmp.oartifact].cost;
+    return 100 * objectType(otmp.otyp, state).oc_cost;
+}
+
+// C ref: artifact.c abil_to_adtyp() (2319-2341). Maps a property index to
+// the damage type that property's extrinsic confers. The C version compares
+// pointer identity; this port compares the property index directly.
+function abil_to_adtyp(propIdx) {
+    switch (propIdx) {
+    case FIRE_RES: return AD_FIRE;
+    case COLD_RES: return AD_COLD;
+    case SHOCK_RES: return AD_ELEC;
+    case ANTIMAGIC: return AD_MAGM;
+    case DISINT_RES: return AD_DISN;
+    case POISON_RES: return AD_DRST;
+    case DRAIN_RES: return AD_DRLI;
+    default: return 0;
+    }
+}
+
+// C ref: artifact.c abil_to_spfx() (2343-2370). Maps a property index to
+// the SPFX flag that property's extrinsic confers.
+function abil_to_spfx(propIdx) {
+    switch (propIdx) {
+    case SEARCHING: return SPFX_SEARCH;
+    case HALLUC_RES: return SPFX_HALRES;
+    case 30 /* TELEPAT */: return SPFX_ESP;
+    case STEALTH: return SPFX_STLTH;
+    case REGENERATION: return SPFX_REGEN;
+    case TELEPORT_CONTROL: return SPFX_TCTRL;
+    case WARN_OF_MON: return SPFX_WARN;
+    case WARNING: return SPFX_WARN;
+    case ENERGY_REGENERATION: return SPFX_EREGEN;
+    case HALF_SPDAM: return SPFX_HSPDAM;
+    case HALF_PHDAM: return SPFX_HPHDAM;
+    case REFLECTING: return SPFX_REFLECT;
+    default: return 0;
+    }
+}
+
+// C ref: artifact.c what_gives() (2372-2424). Returns the first inventory
+// item conveying a particular intrinsic identified by property index.
+export function what_gives(propIdx, state = game) {
+    const u = state.u;
+    const dtyp = abil_to_adtyp(propIdx);
+    const spfx = abil_to_spfx(propIdx);
+    const wornmask = W_ARM | W_ARMC | W_ARMH | W_ARMS
+        | W_ARMG | W_ARMF | W_ARMU
+        | W_AMUL | W_RINGL | W_RINGR | W_TOOL
+        | W_ART | W_ARTI
+        | (u.twoweap ? W_SWAPWEP : 0);
+    const abilValue = u.uprops?.[propIdx]?.extrinsic ?? 0;
+    const wornbits = wornmask & abilValue;
+
+    for (let obj = state.invent; obj; obj = obj.nobj) {
+        if (obj.oartifact
+            && (propIdx !== WARN_OF_MON
+                || state.context?.warntype?.obj)) {
+            const art = get_artifact(obj, state);
+            if (art !== state.artilist[ART_NONARTIFACT]) {
+                if (dtyp) {
+                    if (art.cary?.adtyp === dtyp
+                        || (art.defn?.adtyp === dtyp
+                            && (obj.owornmask & ~(W_ART | W_ARTI))))
+                        return obj;
+                }
+                if (spfx) {
+                    if ((art.cspfx & spfx) === spfx)
+                        return obj;
+                    if ((art.spfx & spfx) === spfx && obj.owornmask)
+                        return obj;
+                }
+                if (obj === u.uwep && propIdx === BLND_RES
+                    && (abilValue & W_WEP) !== 0)
+                    return obj;
+            }
+        } else {
+            if (wornbits && wornbits === (wornmask & obj.owornmask))
+                return obj;
+        }
+    }
+    return null;
+}
+
+// C ref: artifact.c glow_color() (2426-2433).
+export function glow_color(arti_indx, state = game) {
+    const colornum = state.artilist[arti_indx]?.acolor ?? 0;
+    const colorstr = clr2colorname(colornum);
+    return hcolor(colorstr, state);
+}
+
+// Hallucination color table (shared with do_name.c hcolor).
+const hcolors = Object.freeze([
+    'ultraviolet', 'infrared', 'bluish-orange',
+    'reddish-green', 'dark white', 'light black', 'sky blue-Loss',
+    'pinkish-cyan', 'indigo-Loss', 'colorless',
+    'white', 'black', 'hot pink', 'chartreuse', 'periwinkle',
+    'mellow yellow', 'sarcoline', 'incarnadine', 'sinoper',
+    'zinnober', 'smaragdine', 'woad', 'watchet',
+    'keppel', 'feldgrau', 'glaucous', 'gamboge',
+    'falun red', 'aureolin', 'celadon', 'erin', 'coquelicot',
+    'nattier blue', 'mikado yellow', 'amaranth', 'viridian',
+    'feldgrau', 'amaranth', 'zinnober', 'smaragdine',
+    'coquelicot', 'glaucous', 'gamboge',
+    'bistre', 'ecru', 'fulvous', 'tekhelet', 'selective yellow',
+]);
+
+// C ref: do_name.c hcolor() (1460-1466).
+function hcolor(colorpref, state) {
+    const halluc = (state.u?.uprops?.[HALLUC]?.intrinsic ?? 0) !== 0
+        || (state.u?.uprops?.[HALLUC]?.extrinsic ?? 0) !== 0;
+    return (halluc || !colorpref)
+        ? hcolors[rn2_on_display_rng(hcolors.length)]
+        : colorpref;
+}
+
+// C ref: artifact.c glow_verbs[] (2436-2438).
+const glow_verbs = Object.freeze([
+    'quiver', 'flicker', 'glimmer', 'gleam',
+]);
+
+// C ref: artifact.c glow_strength() (2441-2448).
+export function glow_strength(count) {
+    return (count > 12) ? 3 : (count > 4) ? 2 : (count > 0) ? 1 : 0;
+}
+
+// C ref: artifact.c glow_verb() (2450-2462).
+export function glow_verb(count, ingsfx) {
+    let verb = glow_verbs[glow_strength(count)];
+    if (ingsfx) verb += 'ing';
+    return verb;
+}
+
+// C ref: artifact.c Sting_effects() (2465-2502). Warning glow for Sting,
+// Orcrist, and Grimtooth.
+export async function Sting_effects(orc_count, state = game) {
+    const uwep = state.u?.uwep;
+    if (uwep
+        && (uwep.oartifact === ART_STING
+            || uwep.oartifact === ART_ORCRIST
+            || uwep.oartifact === ART_GRIMTOOTH)) {
+        const warn_cnt = state.warn_obj_cnt ?? 0;
+        const oldstr = glow_strength(warn_cnt);
+        const newstr = glow_strength(orc_count);
+
+        const blind = (state.u.uprops?.[44]?.intrinsic ?? 0) !== 0
+            || (state.u.uprops?.[44]?.extrinsic ?? 0) !== 0;
+
+        if (orc_count === -1 && warn_cnt > 0) {
+            await ttyPline(
+                `${bare_artifactname(uwep, state)} is ${glow_verb(blind ? 0 : warn_cnt, true)}.`,
+                state);
+        } else if (newstr > 0 && newstr !== oldstr) {
+            await maybe_lvltport_feedback(state);
+
+            if (!blind)
+                await ttyPline(
+                    `${bare_artifactname(uwep, state)} ${otense(uwep, glow_verb(orc_count, false))} ${glow_color(uwep.oartifact, state)}${(newstr > oldstr) ? '!' : '.'}`,
+                    state);
+            else if (oldstr === 0)
+                await ttyPline(
+                    `${bare_artifactname(uwep, state)} ${otense(uwep, glow_verb(0, false))} slightly.`,
+                    state);
+        } else if (orc_count === 0 && warn_cnt > 0) {
+            await ttyPline(
+                `${bare_artifactname(uwep, state)} stops ${glow_verb(blind ? 0 : warn_cnt, true)}.`,
+                state);
+        }
+    }
 }
 
 /** Port of artifact.c:permapoisoned(); currently only Grimtooth qualifies. */

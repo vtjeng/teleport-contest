@@ -58,6 +58,17 @@ function basicColor(value) {
     return null;
 }
 
+// C ref: coloratt.c clr2colorname(). Returns the canonical name for a basic
+// color number (0-15), or null if no name matches. The table uses only the
+// entries before the null separator; COLOR_NAMES already carries them.
+export function clr2colorname(clr) {
+    for (const entry of COLOR_NAMES) {
+        if (entry.name === null) break; // separator
+        if (entry.name && entry.color === clr) return entry.name;
+    }
+    return null;
+}
+
 // C ref: coloratt.c match_str2clr(). Null is C's CLR_MAX sentinel. The
 // caller supplies config_error_add() because coloratt.c reports through the
 // active configuration frame without owning that frame.
