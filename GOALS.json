@@ -11983,8 +11983,8 @@
         },
         {
           "name": "msg_mon_movement..stuff_prevents_passage",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "1fe85f3d9477b0a2bed30f1f3c8b611cd4e71f81",
           "functions": [
             "msg_mon_movement",
             "mb_trapped",
@@ -11995,6 +11995,14 @@
             "find_pmmonst",
             "bee_eat_jelly",
             "gelcube_digests",
+            "stuff_prevents_passage"
+          ]
+        },
+        {
+          "name": "stuff_prevents_passage",
+          "status": "closed",
+          "closedBy": "1fe85f3d9477b0a2bed30f1f3c8b611cd4e71f81",
+          "functions": [
             "stuff_prevents_passage"
           ]
         }
@@ -12012,13 +12020,13 @@
           "name": "msg_mon_movement",
           "line": 33,
           "endLine": 53,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mb_trapped",
           "line": 54,
           "endLine": 77,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mon_track_add",
@@ -12042,7 +12050,7 @@
           "name": "mon_yells",
           "line": 106,
           "endLine": 132,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_can_break_boulder",
@@ -12054,13 +12062,13 @@
           "name": "m_break_boulder",
           "line": 143,
           "endLine": 175,
-          "ported": false
+          "ported": true
         },
         {
           "name": "watch_on_duty",
           "line": 176,
           "endLine": 203,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dochugw",
@@ -12090,25 +12098,25 @@
           "name": "release_hero",
           "line": 362,
           "endLine": 374,
-          "ported": false
+          "ported": true
         },
         {
           "name": "find_pmmonst",
           "line": 375,
           "endLine": 393,
-          "ported": false
+          "ported": true
         },
         {
           "name": "bee_eat_jelly",
           "line": 394,
           "endLine": 423,
-          "ported": false
+          "ported": true
         },
         {
           "name": "gelcube_digests",
           "line": 424,
           "endLine": 461,
-          "ported": false
+          "ported": true
         },
         {
           "name": "monflee",
@@ -12300,7 +12308,7 @@
           "name": "stuff_prevents_passage",
           "line": 2319,
           "endLine": 2355,
-          "ported": false
+          "ported": true
         },
         {
           "name": "can_ooze",

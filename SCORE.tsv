@@ -723,3 +723,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-07T09:00:27.135Z	37bd4083	span	24	33	5085	7765	344412	610816							update_croom..create_des_coder closes. sp_lev.c load_special group 5/5.
 2026-09-07T09:00:45.000Z	37bd4083	goal	24	33	5085	7765	344412	610816			315	3640	38930	182022	sp-lev-c-load-special closes. 5 functions, 2 spans. Holdout 315/3640 screens, 38930/182022 rng.
 2026-09-07T10:05:00.685Z	de60fbe7	span	24	33	4707	7765	321679	610816							m_arrival..vamp_shift closes. monmove.c span 1, 10 functions. Baseline lowered for seed0030 positional artifact.
+2026-09-07T10:47:20.385Z	1fe85f3d	span	24	33	4707	7765	321679	610816							msg_mon_movement..stuff_prevents_passage closes. monmove.c final span, 9 new functions (stuff_prevents_passage already ported).
