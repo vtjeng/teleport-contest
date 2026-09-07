@@ -32,6 +32,7 @@ import {
     LARGEST_INT,
     LOST_NONE,
     MAX_OIL_IN_FLASK,
+    MIGR_TO_SPECIES,
     NOBJ_STATES,
     NON_PM,
     nothing_happens,
@@ -2980,6 +2981,16 @@ export function mksobj_at(otyp, x, y, init = true, artif = false, env = {}) {
 export function mkobj_at(oclass, x, y, artif = false, env = {}) {
     const normalized = objectEnv(env);
     return place_object(mkobj(oclass, artif, normalized), x, y, normalized);
+}
+
+// C ref: mkobj.c mksobj_migr_to_species(). Used for extra orctown loot.
+export function mksobj_migr_to_species(otyp, mflags2, init = true, artif = false, env = {}) {
+    const normalized = objectEnv(env);
+    const otmp = mksobj(otyp, init, artif, normalized);
+    add_to_migration(otmp, normalized.state);
+    otmp.owornmask = MIGR_TO_SPECIES;
+    otmp.migr_species = mflags2;
+    return otmp;
 }
 
 // C ref: mkobj.c mkgold(). Existing floor gold absorbs the new amount without
