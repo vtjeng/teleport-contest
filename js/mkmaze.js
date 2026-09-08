@@ -1,25 +1,22 @@
-// mkmaze.js -- the level-region placement group of NetHack's mkmaze.c.
-//
-// C refs: mkmaze.c is_exclusion_zone() (316-332), bad_location() (340-352),
-// place_lregion() (355-408) and put_lregion_here() (412-467). Together they
-// answer "where on this level does <something> go", and the something this
-// port asks about is the hero: dungeon.c u_on_rndspot() sends a level-teleport
-// arrival here, and stairs.c u_on_upstairs() falls back to it on a level with
-// no up staircase.
-//
-// The rest of mkmaze.c -- maze carving, the Wizard's tower, wallification and
-// the bubble levels -- has no port yet, so this file holds only that group.
+// mkmaze.js -- NetHack's mkmaze.c level generation and special-level fixups.
 
 import {
     ACCESSIBLE,
     AIR,
+    BLCORNER,
+    BRCORNER,
     CLOUD,
     COLNO,
     CORR,
     DEAF,
     HWALL,
     In_quest,
+    IRONBARS,
+    IS_DOOR,
     IS_LAVA,
+    IS_STWALL,
+    IS_WALL,
+    LAVAWALL,
     LAVAPOOL,
     LR_BRANCH,
     LR_DOWNSTAIR,
@@ -36,13 +33,23 @@ import {
     NO_MM_FLAGS,
     SWIMMING,
     MON_BUBBLEMOVE,
+    POOL,
     ROOM,
+    RLOC_ERR,
     RLOC_NOMSG,
     ROWNO,
+    SDOOR,
     SET_LIT_NOCHANGE,
     SET_LIT_RANDOM,
     STONE,
+    TDWALL,
+    TLCORNER,
+    TLWALL,
+    TRCORNER,
+    TRWALL,
+    TUWALL,
     WATER,
+    W_NONDIGGABLE,
     isok,
     undestroyable_trap,
 } from './const.js';
@@ -63,7 +70,7 @@ import { add_to_minv, stackobj } from './invent.js';
 import { set_malign } from './makemon.js';
 import { makemon } from './makemon_create.js';
 import { mnearto } from './mon.js';
-import { mkstairs, place_branch, walkfrom } from './mklev.js';
+import { mkstairs, place_branch, walkfrom, wallification } from './mklev.js';
 import { mktrap, occupied } from './mktrap.js';
 import { is_orc, is_swimmer } from './mondata.js';
 import { m_at, remove_monster } from './monst.js';
@@ -132,7 +139,44 @@ import {
 import { christen_monst, christen_orc, new_oname, rndorcname } from './do_name.js';
 import { fruitadd } from './fruit.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { mnexto } from './teleport.js';
+import { mnexto, rloc } from './teleport.js';
+import { onscary, set_apparxy } from './monmove.js';
+
+// C ref: mkmaze.c iswall(). Wall-spine joins accept doors, lava walls,
+// water, secret doors, and iron bars in addition to ordinary wall types.
+export function iswall(x, y, state = game) {
+    if (!isok(x, y)) return 0;
+    const typ = state.level.at(x, y).typ;
+    return (IS_WALL(typ) || IS_DOOR(typ) || typ === LAVAWALL
+        || typ === WATER || typ === SDOOR || typ === IRONBARS) ? 1 : 0;
+}
+
+// C ref: mkmaze.c iswall_or_stone(). Out-of-bounds squares count as stone.
+export function iswall_or_stone(x, y, state = game) {
+    if (!isok(x, y)) return 1;
+    return state.level.at(x, y).typ === STONE || iswall(x, y, state) ? 1 : 0;
+}
+
+// C ref: mkmaze.c is_solid(). STONE and ordinary wall types are solid, as
+// are coordinates outside the map.
+export function is_solid(x, y, state = game) {
+    return !isok(x, y) || IS_STWALL(state.level.at(x, y).typ);
+}
+
+// C ref: mkmaze.c okay(). Move two cells in one cardinal direction, then
+// accept only untouched stone inside the active maze bounds.
+export function okay(x, y, dir, state = game, bounds = null) {
+    const dx = [0, 1, 0, -1];
+    const dy = [-1, 0, 1, 0];
+    if (dir < 0 || dir >= dx.length)
+        throw new Error(`okay: bad direction ${dir}`);
+    x += 2 * dx[dir];
+    y += 2 * dy[dir];
+    const xMax = bounds?.xMax ?? ((COLNO - 1) & ~1);
+    const yMax = bounds?.yMax ?? ((ROWNO - 1) & ~1);
+    return !(x < 3 || y < 3 || x > xMax || y > yMax
+        || state.level.at(x, y).typ !== STONE);
+}
 
 // C ref: mkmaze.c set_levltyp_lit() (125-145). Sets the terrain with
 // set_levltyp() and then the lit flag unless `lit` is SET_LIT_NOCHANGE; lava
@@ -834,6 +878,123 @@ function put_lregion_here(
     return true;
 }
 
+// C ref: mkmaze.c baalz_fixup(). Preserve the level-sized beetle's wall legs
+// while wallification cleans the surrounding nondiggable region.
+export function baalz_fixup(state = game) {
+    const bughack = state.bughack ??= {
+        inarea: { x1: COLNO, y1: ROWNO, x2: 0, y2: 0 },
+        delarea: { x1: COLNO, y1: ROWNO, x2: 0, y2: 0 },
+    };
+    let x = 0;
+    let y = Math.trunc(ROWNO / 2);
+    let lastx = 0;
+    let lasty = 0;
+
+    for (x = 0; x < COLNO; ++x) {
+        if ((state.level.at(x, y).wall_info & W_NONDIGGABLE) !== 0) {
+            if (!lastx) bughack.inarea.x1 = x + 1;
+            lastx = x;
+        }
+    }
+    bughack.inarea.x2 = (lastx > bughack.inarea.x1 ? lastx : x) - 1;
+
+    x = bughack.inarea.x1;
+    for (y = 0; y < ROWNO; ++y) {
+        if ((state.level.at(x, y).wall_info & W_NONDIGGABLE) !== 0) {
+            if (!lasty) bughack.inarea.y1 = y + 1;
+            lasty = y;
+        }
+    }
+    bughack.inarea.y2 = (lasty > bughack.inarea.y1 ? lasty : y) - 1;
+
+    for (x = bughack.inarea.x1; x <= bughack.inarea.x2; ++x) {
+        for (y = bughack.inarea.y1; y <= bughack.inarea.y2; ++y) {
+            const location = state.level.at(x, y);
+            if (location.typ === POOL) {
+                location.typ = HWALL;
+                if (bughack.delarea.x1 === COLNO) {
+                    bughack.delarea.x1 = x;
+                    bughack.delarea.y1 = y;
+                } else {
+                    bughack.delarea.x2 = x;
+                    bughack.delarea.y2 = y;
+                }
+            } else if (location.typ === IRONBARS) {
+                const left = state.level.at(x - 1, y);
+                const right = state.level.at(x + 1, y);
+                if (isok(x - 1, y)
+                    && (left.wall_info & W_NONDIGGABLE) !== 0) {
+                    left.wall_info &= ~W_NONDIGGABLE;
+                    if (isok(x - 2, y))
+                        state.level.at(x - 2, y).wall_info &= ~W_NONDIGGABLE;
+                } else if (isok(x + 1, y)
+                    && (right.wall_info & W_NONDIGGABLE) !== 0) {
+                    right.wall_info &= ~W_NONDIGGABLE;
+                    if (isok(x + 2, y))
+                        state.level.at(x + 2, y).wall_info &= ~W_NONDIGGABLE;
+                }
+            }
+        }
+    }
+
+    wallification(
+        Math.max(bughack.inarea.x1 - 2, 1),
+        Math.max(bughack.inarea.y1 - 2, 0),
+        Math.min(bughack.inarea.x2 + 2, COLNO - 1),
+        Math.min(bughack.inarea.y2 + 2, ROWNO - 1),
+        state,
+    );
+
+    x = bughack.delarea.x1;
+    y = bughack.delarea.y1;
+    if (isok(x, y)
+        && (state.level.at(x, y).typ === TLWALL
+            || state.level.at(x, y).typ === TRWALL)
+        && isok(x, y + 1)
+        && state.level.at(x, y + 1).typ === TUWALL) {
+        const location = state.level.at(x, y);
+        location.typ = location.typ === TLWALL ? BRCORNER : BLCORNER;
+        state.level.at(x, y + 1).typ = HWALL;
+        const monster = m_at(x, y, state);
+        if (monster) {
+            rloc(monster, RLOC_ERR | RLOC_NOMSG, {
+                state,
+                newsym,
+                onscary: (nx, ny, mon, env) =>
+                    onscary(nx, ny, mon, env.state),
+                setApparxy: set_apparxy,
+            });
+        }
+    }
+
+    x = bughack.delarea.x2;
+    y = bughack.delarea.y2;
+    if (isok(x, y)
+        && (state.level.at(x, y).typ === TLWALL
+            || state.level.at(x, y).typ === TRWALL)
+        && isok(x, y - 1)
+        && state.level.at(x, y - 1).typ === TDWALL) {
+        const location = state.level.at(x, y);
+        location.typ = location.typ === TLWALL ? TRCORNER : TLCORNER;
+        state.level.at(x, y - 1).typ = HWALL;
+        const monster = m_at(x, y, state);
+        if (monster) {
+            rloc(monster, RLOC_ERR | RLOC_NOMSG, {
+                state,
+                newsym,
+                onscary: (nx, ny, mon, env) =>
+                    onscary(nx, ny, mon, env.state),
+                setApparxy: set_apparxy,
+            });
+        }
+    }
+
+    bughack.inarea.x1 = bughack.delarea.x1 = COLNO;
+    bughack.inarea.y1 = bughack.delarea.y1 = ROWNO;
+    bughack.inarea.x2 = bughack.delarea.x2 = 0;
+    bughack.inarea.y2 = bughack.delarea.y2 = 0;
+}
+
 // C ref: mkmaze.c fixup_special() (568-704).  The special-level loader owns
 // the object-generation environment, so it supplies the few mklev-local
 // operations used by the Medusa branch.  All region, topology, and level-flag
@@ -948,7 +1109,7 @@ export function fixup_special(state = game, env = {}) {
     } else if (on_level(state.u.uz, state.stronghold_level)) {
         state.level.flags.graveyard = true;
     } else if (on_level(state.u.uz, state.baalzebub_level)) {
-        note_unported('mkmaze.c baalz_fixup');
+        baalz_fixup(state);
     } else if (state.u.uz.dnum === state.mines_dnum && state.ransacked) {
         stolen_booty(state);
     }

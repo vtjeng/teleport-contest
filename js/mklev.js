@@ -73,11 +73,21 @@ import {
     create_maze,
     check_ransacked,
     fixup_special,
+    is_solid,
+    iswall,
+    iswall_or_stone,
     mkportal,
+    okay,
     set_levltyp_lit,
 } from './mkmaze.js';
 import { d, rn2, rnd, rn1, rne, rnz } from './rng.js';
-import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
+import {
+    init_rect,
+    rnd_rect,
+    get_rect,
+    split_rects,
+    within_bounded_area,
+} from './rect.js';
 import {
     mkaltar,
     mkfount,
@@ -5414,7 +5424,7 @@ function walkfrom(x, y, typ, state, bounds) {
         let q = 0;
         const dirs = [0, 0, 0, 0];
         for (let a = 0; a < 4; ++a) {
-            if (maze_okay(x, y, a, state, bounds)) dirs[q++] = a;
+            if (okay(x, y, a, state, bounds)) dirs[q++] = a;
         }
         if (!q) return;
         const dir = dirs[rn2(q)];
@@ -5432,27 +5442,6 @@ function walkfrom(x, y, typ, state, bounds) {
         // (matching the C behavior where mz_move modifies x,y in place).
         walkfrom(x, y, typ, state, bounds);
     }
-}
-
-// C ref: mkmaze.c okay(). Checks whether maze carving can extend two
-// cells from (x,y) in direction a. Uses x_maze_max/y_maze_max which
-// default to (COLNO-1)&~1 and (ROWNO-1)&~1 for special levels.
-// bounds.xMax and bounds.yMax default to the full maze area.
-// create_maze() passes reduced bounds for the scaled-down grid.
-function maze_okay(x, y, a, state, bounds) {
-    // C ref: mkmaze.c mz_move(). Direction mapping must match walkfrom():
-    // 0=north(y--), 1=east(x++), 2=south(y++), 3=west(x--).
-    const dx = [0, 1, 0, -1];
-    const dy = [-1, 0, 1, 0];
-    const nx = x + 2 * dx[a];
-    const ny = y + 2 * dy[a];
-    if (nx < 3 || ny < 3) return false;
-    const xMax = bounds?.xMax ?? ((COLNO - 1) & ~1);
-    const yMax = bounds?.yMax ?? ((ROWNO - 1) & ~1);
-    if (nx > xMax) return false;
-    if (ny > yMax) return false;
-    if (state.level.at(nx, ny).typ !== STONE) return false;
-    return true;
 }
 
 // C ref: mkmaze.c move(). Opens the cell between the old and new
@@ -7774,21 +7763,6 @@ function premap_detect(state) {
 // Wallification
 // ============================================================
 
-function isSolidTile(x, y) {
-    if (!isok(x, y)) return true;
-    return IS_STWALL(game.level?.at(x, y)?.typ ?? STONE);
-}
-function isWallOrStone(x, y) {
-    if (!isok(x, y)) return 1;
-    const typ = game.level?.at(x, y)?.typ ?? STONE;
-    return (typ === STONE || isWallTile(x, y)) ? 1 : 0;
-}
-function isWallTile(x, y) {
-    if (!isok(x, y)) return 0;
-    const typ = game.level?.at(x, y)?.typ ?? STONE;
-    return (IS_WALL(typ) || IS_DOOR(typ) || typ === LAVAWALL
-        || typ === WATER || typ === SDOOR || typ === IRONBARS) ? 1 : 0;
-}
 function extend_spine(locale, wall_there, dx, dy) {
     const nx = 1 + dx, ny = 1 + dy;
     if (!wall_there) return 0;
@@ -7799,47 +7773,60 @@ function extend_spine(locale, wall_there, dx, dy) {
     if (locale[0][1] && locale[2][1] && locale[0][ny] && locale[2][ny]) return 0;
     return 1;
 }
-function wall_cleanup(x1, y1, x2, y2) {
-    const map = game.level;
+function wall_cleanup(x1, y1, x2, y2, state = game) {
+    const map = state.level;
     if (!map) return;
     for (let x = x1; x <= x2; x++)
         for (let y = y1; y <= y2; y++) {
+            const protectedArea = state.bughack?.inarea;
+            if (protectedArea && within_bounded_area(
+                x, y,
+                protectedArea.x1, protectedArea.y1,
+                protectedArea.x2, protectedArea.y2,
+            )) continue;
             const loc = map.at(x, y);
             const typ = loc?.typ ?? STONE;
             if (!(IS_WALL(typ) && typ !== DBWALL)) continue;
-            if (isSolidTile(x-1,y-1) && isSolidTile(x-1,y) && isSolidTile(x-1,y+1)
-                && isSolidTile(x,y-1) && isSolidTile(x,y+1)
-                && isSolidTile(x+1,y-1) && isSolidTile(x+1,y) && isSolidTile(x+1,y+1))
+            if (is_solid(x-1,y-1,state) && is_solid(x-1,y,state)
+                && is_solid(x-1,y+1,state) && is_solid(x,y-1,state)
+                && is_solid(x,y+1,state) && is_solid(x+1,y-1,state)
+                && is_solid(x+1,y,state) && is_solid(x+1,y+1,state))
                 loc.typ = STONE;
         }
 }
-function fix_wall_spines(x1, y1, x2, y2) {
+function fix_wall_spines(x1, y1, x2, y2, state = game) {
     const spineArray = [VWALL, HWALL, HWALL, HWALL,
         VWALL, TRCORNER, TLCORNER, TDWALL,
         VWALL, BRCORNER, BLCORNER, TUWALL,
         VWALL, TLWALL, TRWALL, CROSSWALL];
-    const map = game.level;
+    const map = state.level;
     if (!map) return;
     for (let x = x1; x <= x2; x++)
         for (let y = y1; y <= y2; y++) {
             const loc = map.at(x, y);
             const typ = loc?.typ ?? STONE;
             if (!(IS_WALL(typ) && typ !== DBWALL)) continue;
+            const protectedArea = state.bughack?.inarea;
+            const locationTest = protectedArea && within_bounded_area(
+                x, y,
+                protectedArea.x1, protectedArea.y1,
+                protectedArea.x2, protectedArea.y2,
+            ) ? iswall : iswall_or_stone;
             const locale = [
-                [isWallOrStone(x-1,y-1), isWallOrStone(x-1,y), isWallOrStone(x-1,y+1)],
-                [isWallOrStone(x,y-1), 0, isWallOrStone(x,y+1)],
-                [isWallOrStone(x+1,y-1), isWallOrStone(x+1,y), isWallOrStone(x+1,y+1)],
+                [locationTest(x-1,y-1,state), locationTest(x-1,y,state), locationTest(x-1,y+1,state)],
+                [locationTest(x,y-1,state), 0, locationTest(x,y+1,state)],
+                [locationTest(x+1,y-1,state), locationTest(x+1,y,state), locationTest(x+1,y+1,state)],
             ];
-            const bits = (extend_spine(locale, isWallTile(x,y-1), 0, -1) << 3)
-                | (extend_spine(locale, isWallTile(x,y+1), 0, 1) << 2)
-                | (extend_spine(locale, isWallTile(x+1,y), 1, 0) << 1)
-                | extend_spine(locale, isWallTile(x-1,y), -1, 0);
+            const bits = (extend_spine(locale, iswall(x,y-1,state), 0, -1) << 3)
+                | (extend_spine(locale, iswall(x,y+1,state), 0, 1) << 2)
+                | (extend_spine(locale, iswall(x+1,y,state), 1, 0) << 1)
+                | extend_spine(locale, iswall(x-1,y,state), -1, 0);
             if (bits) loc.typ = spineArray[bits];
         }
 }
-function wallification(x1, y1, x2, y2) {
-    wall_cleanup(x1, y1, x2, y2);
-    fix_wall_spines(x1, y1, x2, y2);
+export function wallification(x1, y1, x2, y2, state = game) {
+    wall_cleanup(x1, y1, x2, y2, state);
+    fix_wall_spines(x1, y1, x2, y2, state);
 }
 
 // C ref: sp_lev.c map_cleanup(). Liquid squares cannot retain boulders,

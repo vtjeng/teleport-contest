@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7603,
+      "datetime": "20070609141500",
+      "nethackrc": "OPTIONS=name:BaalzFix,role:Ranger,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Wizard-mode level teleport (^V, ? for the level menu, first page's baalz entry) to Baalzebub's lair. This independently chosen seed is intended to reach mkmaze.c baalz_fixup(), including its protected wallification region, temporary pool markers, eye-adjacent nondiggable clearing, and final sentinel reset. No recording yet: sp_lev.c load_special() has no JavaScript loader for the baalz special level; record this case once that blocker lands.",
+      "moves": " \u0016?\nn"
+    }
+  ]
+}
