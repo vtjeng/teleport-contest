@@ -407,11 +407,27 @@ export class NethackGame {
         }
         g.gp = {
             plnamelen: 0,
+            // decl.c zero-initializes this message flag word. set_voice()
+            // raises PLINE_SPEECH for the next vpline() call, which clears it.
+            pline_flags: 0,
             // C ref: decl.h instance_globals_p; dog.c:pet_type().
             preferred_pet: opts.preferred_pet ?? '',
             // cfgfiles.c cnf_line_MSGTYPE() has finished prepending the
             // per-game options.c list before any initialized vpline() call.
             plinemsg_types: opts.gp?.plinemsg_types ?? null,
+        };
+        // decl.c g_init_v zero-initializes gv.voice. sounds.c set_voice()
+        // updates these fields together and deliberately leaves `mon` alone.
+        g.gv = {
+            voice: {
+                serialno: 0,
+                gender: 0,
+                tone: 0,
+                volume: 0,
+                moreinfo: 0,
+                mon: null,
+                nameid: null,
+            },
         };
         // decl.c initializes gp.prevmsg to an empty byte string. The TTY port
         // keeps that sole value here because getline.js and vpline() share it.

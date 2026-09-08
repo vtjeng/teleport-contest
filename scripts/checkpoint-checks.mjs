@@ -24,6 +24,7 @@ const GENERATED_CHECKS = [
     'check:objects',
     'check:options',
     'check:shtypes',
+    'check:sound-effects',
     'check:symbols',
     'check:themerooms',
 ];

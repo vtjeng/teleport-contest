@@ -13,6 +13,8 @@ import {
     PICK_NONE,
     PICK_ONE,
     PLINE_NOREPEAT,
+    PLINE_SPEECH,
+    PLINE_VERBALIZE,
     URGENT_MESSAGE,
 } from './const.js';
 import { flush_screen } from './display.js';
@@ -25,6 +27,7 @@ import { emitGlyphUpdateNotices } from './startup_a11y.js';
 import { NO_COLOR } from './terminal.js';
 import { vision_recalc } from './vision.js';
 import { msgtype_type } from './options.js';
+import { sound_speak } from './sounds.js';
 
 // C ref: win/tty/wintty.c defmorestr[], the prompt both more() and dmore()
 // print when no window supplies its own.
@@ -435,6 +438,8 @@ async function ttyPlineCore(message, state, pflags, mixedFirstCell = null) {
     // flushes pending map and bottom-line changes before update_topl() can
     // wrap into a blocking More prompt.
     if (state === game && state.u?.ux) await flush_screen(1);
+    if (pflags & (PLINE_VERBALIZE | PLINE_SPEECH))
+        sound_speak(normalizedMessage, state);
     // "You die" is update_topl()'s exception to WIN_STOP.  Other messages
     // continue updating gt.toplines for history but remain invisible.
     if (stoppedAtEntry && !deathComparisonReached) {
@@ -484,7 +489,13 @@ async function ttyPlineCore(message, state, pflags, mixedFirstCell = null) {
 }
 
 export async function ttyPline(message, state = game) {
-    return ttyPlineCore(message, state, 0);
+    const pflags = state.gp?.pline_flags ?? 0;
+    try {
+        return await ttyPlineCore(message, state, pflags);
+    } finally {
+        if (state.gp)
+            state.gp.pline_flags &= ~PLINE_SPEECH;
+    }
 }
 
 // C ref: win/tty/wintty.c tty_putmixed(), for pager.c do_look()'s encoded
@@ -497,7 +508,13 @@ export async function ttyPutmixed(
 }
 
 export async function ttyNorep(message, state = game) {
-    return ttyPlineCore(message, state, PLINE_NOREPEAT);
+    const pflags = (state.gp?.pline_flags ?? 0) | PLINE_NOREPEAT;
+    try {
+        return await ttyPlineCore(message, state, pflags);
+    } finally {
+        if (state.gp)
+            state.gp.pline_flags &= ~PLINE_SPEECH;
+    }
 }
 
 export class UnsupportedCustomPlineFlagsError extends Error {

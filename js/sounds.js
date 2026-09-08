@@ -1,5 +1,5 @@
 // Monster noises, ambient level sounds, #chat, and sound backends.
-// C refs: sounds.c dosounds() through nosound_play_usersound().
+// C refs: sounds.c dosounds() through sound_speak().
 
 import {
     ANY_SHOP,
@@ -33,7 +33,6 @@ import {
     MS_BARK,
     MS_BELLOW,
     MS_BOAST,
-    MS_BRIBE,
     MS_BUZZ,
     MS_CHIRP,
     MS_CUSS,
@@ -51,13 +50,11 @@ import {
     MS_MEW,
     MS_MOO,
     MS_MUMBLE,
-    MS_NEMESIS,
     MS_NEIGH,
     MS_NURSE,
     MS_ORACLE,
     MS_ORC,
     MS_PRIEST,
-    MS_RIDER,
     MS_ROAR,
     MS_SEDUCE,
     MS_SELL,
@@ -73,6 +70,7 @@ import {
     NECK,
     ROOMOFFSET,
     SDOOR,
+    SOUND_TRIGGER_VERBAL,
     STONE,
     STRANGLED,
     STRAT_WAITMASK,
@@ -84,6 +82,13 @@ import {
     helpless,
     isok,
     nothing_happens,
+    PLINE_SPEECH,
+    PLINE_VERBALIZE,
+    sff_base_only,
+    sff_default,
+    sff_havedir_append_rest,
+    voice_deity,
+    voice_talking_artifact,
 } from './const.js';
 import { getdir } from './cmd.js';
 import {
@@ -104,6 +109,10 @@ import {
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
+import {
+    decodeUtf8ByteString,
+    encodeUtf8ByteString,
+} from './hacklib.js';
 import { search_special } from './mkroom.js';
 import { get_iter_mons, wake_nearto } from './mon.js';
 import {
@@ -142,6 +151,7 @@ import { rn1, rn2 } from './rng.js';
 import { genders } from './roles.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { noisy_shop, shop_object, tended_shop } from './shk.js';
+import { SOUND_EFFECT_BASE_FILENAMES } from './sound_effects_data.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, canseemon, couldsee } from './vision.js';
 import { vault_occupied } from './vault.js';
@@ -814,8 +824,13 @@ export async function beg(mtmp, rawEnv = {}) {
     } else if (mtmp.data.msound >= MS_HUMANOID) {
         if (!spotMonster(mtmp, state))
             markInvisible(mtmp.mx, mtmp.my, state);
-        // SetVoice() is disabled without SND_SPEECH; verbalize() quotes text.
-        await message('"I\'m hungry."', state);
+        set_voice(mtmp, 0, 80, 0, state);
+        state.gp.pline_flags |= PLINE_VERBALIZE;
+        try {
+            await message('"I\'m hungry."', state);
+        } finally {
+            state.gp.pline_flags &= ~PLINE_VERBALIZE;
+        }
     } else if (spotMonster(mtmp, state)) {
         await message(
             `${capitalizedMonsterName(mtmp, state)} seems famished.`,
@@ -1516,3 +1531,205 @@ export function nosound_achievement(_ach1, _ach2, _repeat) {}
 export function nosound_soundeffect(_seid, _volume) {}
 export function nosound_hero_playnotes(_instr, _notes, _volume) {}
 export function nosound_play_usersound(_filename, _volume, _idx) {}
+
+export function nosound_ambience(
+    _ambienceid,
+    _ambienceAction,
+    _heroProximity,
+) {}
+
+export function nosound_verbal(
+    _text,
+    _gender,
+    _tone,
+    _volume,
+    _moreinfo,
+) {}
+
+// C refs: sounds.c se_mappings_init[] and initialize_semap_basenames()
+// (1965-1992). The generated array's index is the corresponding
+// sound_effect_entries value from sndprocs.h.
+const semap_basenames = [];
+let basenames_initialized = false;
+
+export function initialize_semap_basenames() {
+    for (let i = 1; i < SOUND_EFFECT_BASE_FILENAMES.length; ++i) {
+        if (i > 0 && i < SOUND_EFFECT_BASE_FILENAMES.length)
+            semap_basenames[i] = SOUND_EFFECT_BASE_FILENAMES[i];
+    }
+}
+
+function cStringBytes(value) {
+    const bytes = encodeUtf8ByteString(value);
+    const nul = bytes.indexOf(0);
+    return nul < 0 ? bytes : bytes.slice(0, nul);
+}
+
+function appendSoundFilename(existing, body, bufsz) {
+    let prefix = cStringBytes(existing);
+    const last = prefix.at(-1);
+    if (last !== 0x2F && last !== 0x5C)
+        prefix = [...prefix, 0x2F];
+
+    // sounds.c passes `bufsz - (existinglen + 1)` after updating existinglen
+    // for the slash. That is one byte smaller than the actual remaining
+    // buffer, so an exactly-sized caller loses the formatted part's last byte.
+    const snprintfSize = bufsz - (prefix.length + 1);
+    const appended = cStringBytes(body).slice(
+        0,
+        Math.max(0, snprintfSize - 1),
+    );
+    return decodeUtf8ByteString([...prefix, ...appended]);
+}
+
+// C ref: sounds.c get_sound_effect_filename() (1995-2079). JavaScript strings
+// are immutable, so the return value is the caller's resulting `buf`; null is
+// C's null-pointer result.
+export function get_sound_effect_filename(
+    seidint,
+    buf,
+    bufsz,
+    approach,
+    state = game,
+) {
+    const ourdir = state.sounddir;
+    if (buf === null || buf === undefined
+        || ((ourdir === null || ourdir === undefined)
+            && approach === sff_default)) {
+        return null;
+    }
+
+    if (!basenames_initialized) {
+        initialize_semap_basenames();
+        basenames_initialized = true;
+    }
+
+    const basename = semap_basenames[Math.trunc(seidint)];
+    const baseBytes = basename ? cStringBytes(basename) : [];
+    const existingBytes = approach === sff_havedir_append_rest
+        ? cStringBytes(buf) : [];
+    const dirBytes = approach === sff_default ? cStringBytes(ourdir) : [];
+    const needsSlash = existingBytes.length === 0
+        || ![0x2F, 0x5C].includes(existingBytes.at(-1));
+
+    let consumes = 3 + baseBytes.length; // "se_" and the basename
+    if (approach === sff_default) {
+        consumes += 4 + dirBytes.length + 1; // ".wav" and '/'
+    } else if (approach === sff_havedir_append_rest) {
+        if (needsSlash) ++consumes;
+        consumes += existingBytes.length + 4;
+    }
+    ++consumes; // trailing NUL
+    if (baseBytes.length <= 0 || consumes > bufsz
+        || existingBytes.length >= bufsz) {
+        return null;
+    }
+
+    const filename = `se_${basename}`;
+    if (approach === sff_default)
+        return `${decodeUtf8ByteString(dirBytes)}/${filename}.wav`;
+    if (approach === sff_havedir_append_rest)
+        return appendSoundFilename(buf, `${filename}.wav`, bufsz);
+    if (approach === sff_base_only) return filename;
+    return null;
+}
+
+// C ref: sounds.c base_soundname_to_filename() (2084-2151). This preserves
+// the same append-size quirk as get_sound_effect_filename().
+export function base_soundname_to_filename(
+    basename,
+    buf,
+    bufsz,
+    approach,
+) {
+    if (buf === null || buf === undefined) return null;
+
+    const baseBytes = cStringBytes(basename);
+    const existingBytes = approach === sff_havedir_append_rest
+        ? cStringBytes(buf) : [];
+    const needsSlash = existingBytes.length === 0
+        || ![0x2F, 0x5C].includes(existingBytes.at(-1));
+    let consumes = baseBytes.length;
+    if (approach === sff_havedir_append_rest) {
+        if (needsSlash) ++consumes;
+        consumes += existingBytes.length + 4; // ".wav"
+    }
+    ++consumes; // trailing NUL
+    if (!baseBytes.length || consumes > bufsz
+        || existingBytes.length >= bufsz) {
+        return null;
+    }
+
+    const base = decodeUtf8ByteString(baseBytes);
+    if (approach === sff_havedir_append_rest)
+        return appendSoundFilename(buf, `${base}.wav`, bufsz);
+    if (approach === sff_base_only) return base;
+    return null;
+}
+
+// C ref: sounds.c set_voice() (2161-2182). The compile-time SND_SPEECH body
+// is represented directly; the default nosound backend never asks to speak.
+export function set_voice(
+    mtmp,
+    tone,
+    volume,
+    moreinfo,
+    state = game,
+) {
+    state.gv ??= {};
+    state.gv.voice ??= {
+        serialno: 0,
+        gender: MALE,
+        tone: 0,
+        volume: 0,
+        moreinfo: 0,
+        mon: null,
+        nameid: null,
+    };
+    const voice = state.gv.voice;
+    voice.gender = mtmp?.female ? FEMALE : MALE;
+    voice.serialno = mtmp
+        ? mtmp.m_id
+        : (moreinfo & voice_talking_artifact) !== 0
+            ? 3
+            : (moreinfo & voice_deity) !== 0 ? 4 : 2;
+    voice.tone = tone;
+    voice.volume = volume;
+    voice.moreinfo = moreinfo;
+    voice.nameid = null;
+    state.gp ??= {};
+    state.gp.pline_flags = (state.gp.pline_flags ?? 0) | PLINE_SPEECH;
+}
+
+// C ref: sounds.c sound_speak() (2185-2217). The fixed 2*BUFSZ buffer is not
+// truncated on overflow: C leaves it empty and still calls sound_verbal().
+export function sound_speak(text, state = game) {
+    if (text === null || text === undefined || text === '') return;
+    const verbal = state.soundprocs?.sound_verbal;
+    if (!state.iflags?.voices || typeof verbal !== 'function'
+        || !((state.soundprocs.sound_triggers ?? 0)
+            & SOUND_TRIGGER_VERBAL)) {
+        return;
+    }
+
+    const bytes = cStringBytes(text);
+    if (!bytes.length) return;
+    let first = 0;
+    let last = bytes.length - 1;
+    if ((state.gp?.pline_flags ?? 0) & PLINE_VERBALIZE) {
+        if (bytes[first] === 0x22) ++first;
+        if (bytes[last] === 0x22) --last;
+    }
+    let spoken = '';
+    if (last - first >= 0 && last - first < (512 - 1))
+        spoken = decodeUtf8ByteString(bytes.slice(first, last + 1));
+
+    const voice = state.gv?.voice ?? {};
+    verbal(
+        spoken,
+        voice.gender ?? 0,
+        voice.tone ?? 0,
+        voice.volume ?? 0,
+        voice.moreinfo ?? 0,
+    );
+}

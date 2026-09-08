@@ -99,6 +99,7 @@ test('checkpoint runs full, generated, static, and score', () => {
             'generated data (check:objects)',
             'generated data (check:options)',
             'generated data (check:shtypes)',
+            'generated data (check:sound-effects)',
             'generated data (check:symbols)',
             'generated data (check:themerooms)',
             'static sources (check:namespace-members)',

@@ -1260,6 +1260,17 @@ export const SOUND_TRIGGER_ACHIEVEMENTS = 0x0004;
 export const SOUND_TRIGGER_SOUNDEFFECTS = 0x0008;
 export const SOUND_TRIGGER_AMBIENCE = 0x0010;
 export const SOUND_TRIGGER_VERBAL = 0x0020;
+export const sff_default = 0;
+export const sff_base_only = 1;
+export const sff_havedir_append_rest = 2;
+export const sff_baseknown_add_rest = 3;
+export const voice_nothing_special = 0;
+export const voice_audioassistant = 0x0001;
+export const voice_talking_artifact = 0x0002;
+export const voice_deity = 0x0004;
+export const voice_oracle = 0x0008;
+export const voice_throne = 0x0010;
+export const voice_death = 0x0020;
 
 // ===== spell.h =====
 export const NO_SPELL = 0;

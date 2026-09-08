@@ -22,6 +22,7 @@
     "check:objects": "node scripts/generate-objects.mjs --check",
     "check:options": "node scripts/generate-options.mjs --check",
     "check:shtypes": "node scripts/generate-shtypes.mjs --check",
+    "check:sound-effects": "node scripts/generate-sound-effects.mjs --check",
     "check:symbols": "node scripts/generate-symbol-data.mjs --check",
     "check:themerooms": "node scripts/generate-themeroom-data.mjs --check",
     "checkpoint": "node scripts/checkpoint-checks.mjs",

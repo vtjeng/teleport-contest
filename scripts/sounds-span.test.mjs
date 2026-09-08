@@ -17,6 +17,14 @@ import {
     MS_SQAWK,
     MS_SHRIEK,
     MS_SILENT,
+    PLINE_SPEECH,
+    PLINE_VERBALIZE,
+    sff_base_only,
+    sff_default,
+    sff_havedir_append_rest,
+    SOUND_TRIGGER_VERBAL,
+    voice_deity,
+    voice_talking_artifact,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { GLYPH_MON_MALE_OFF } from '../js/glyph_offsets.js';
@@ -28,24 +36,33 @@ import {
 } from '../js/objects.js';
 import {
     add_sound_mapping,
+    base_soundname_to_filename,
     beg,
     choose_soundlib,
     cry_sound,
+    get_sound_effect_filename,
+    initialize_semap_basenames,
     maybe_gasp,
     maybe_play_sound,
     mon_is_gecko,
     nosound_achievement,
+    nosound_ambience,
     nosound_exit_nhsound,
     nosound_hero_playnotes,
     nosound_init_nhsound,
     nosound_play_usersound,
     nosound_soundeffect,
+    nosound_verbal,
     play_sound_for_message,
     release_sound_mappings,
     responsive_mon_at,
+    set_voice,
+    sound_speak,
     sound_matches_message,
     tiphat,
 } from '../js/sounds.js';
+import { SOUND_EFFECT_BASE_FILENAMES } from '../js/sound_effects_data.js';
+import { ttyPline } from '../js/tty_message.js';
 import {
     M1_CARNIVORE,
     M1_NOEYES,
@@ -58,6 +75,10 @@ import {
 const SOUNDS_C = readFileSync(
     new URL('../nethack-c/upstream/src/sounds.c', import.meta.url), 'utf8',
 ).split('\n');
+const SEFFECTS_H = readFileSync(
+    new URL('../nethack-c/upstream/include/seffects.h', import.meta.url),
+    'utf8',
+);
 
 function minimalState() {
     const uprops = [];
@@ -253,4 +274,135 @@ test('sound mapping errors, choose_soundlib, and no-sound stubs are pinned', () 
     assert.equal(nosound_soundeffect(1, 2), undefined);
     assert.equal(nosound_hero_playnotes(1, 'C', 2), undefined);
     assert.equal(nosound_play_usersound('x', 1, 2), undefined);
+    assert.equal(nosound_ambience(1, 2, 3), undefined);
+    assert.equal(nosound_verbal('x', 1, 2, 3, 4), undefined);
 });
+
+test('generated sound-effect basenames preserve seffects.h source order', () => {
+    const sourceNames = [''];
+    for (const match of SEFFECTS_H.matchAll(
+        /^\s*seffect\(([A-Za-z0-9_]+)\),?\s*$/gmu,
+    )) {
+        sourceNames.push(match[1]);
+    }
+    assert.deepEqual([...SOUND_EFFECT_BASE_FILENAMES], sourceNames);
+    assert.equal(SOUND_EFFECT_BASE_FILENAMES[1], 'air_crackles');
+    assert.equal(SOUND_EFFECT_BASE_FILENAMES.at(-1), 'zap_then_explosion');
+});
+
+test('sound-effect filename construction preserves all three source forms', () => {
+    const airCrackles = SOUND_EFFECT_BASE_FILENAMES.indexOf('air_crackles');
+    const state = { sounddir: 'audio' };
+    assert.equal(initialize_semap_basenames(), undefined);
+    assert.equal(get_sound_effect_filename(
+        airCrackles, '', 26, sff_default, state,
+    ), 'audio/se_air_crackles.wav');
+    assert.equal(get_sound_effect_filename(
+        airCrackles, '', 25, sff_default, state,
+    ), null);
+    assert.equal(get_sound_effect_filename(
+        airCrackles, '', 16, sff_base_only, state,
+    ), 'se_air_crackles');
+    assert.equal(get_sound_effect_filename(
+        airCrackles, 'audio', 27, sff_havedir_append_rest, state,
+    ), 'audio/se_air_crackles.wav');
+    assert.equal(get_sound_effect_filename(
+        airCrackles, 'audio\\', 27, sff_havedir_append_rest, state,
+    ), 'audio\\se_air_crackles.wav');
+    assert.equal(get_sound_effect_filename(
+        0, '', 256, sff_base_only, state,
+    ), null);
+    assert.equal(get_sound_effect_filename(
+        airCrackles, '', 256, sff_default, { sounddir: null },
+    ), null);
+});
+
+test('append filename builders retain sounds.c exact-size truncation quirk', () => {
+    const airCrackles = SOUND_EFFECT_BASE_FILENAMES.indexOf('air_crackles');
+    assert.equal(get_sound_effect_filename(
+        airCrackles,
+        'audio',
+        26,
+        sff_havedir_append_rest,
+        {},
+    ), 'audio/se_air_crackles.wa');
+    assert.equal(base_soundname_to_filename(
+        'alert', 'audio', 16, sff_havedir_append_rest,
+    ), 'audio/alert.wa');
+    assert.equal(base_soundname_to_filename(
+        'alert', 'audio/', 17, sff_havedir_append_rest,
+    ), 'audio/alert.wav');
+    assert.equal(base_soundname_to_filename(
+        'é', '', 3, sff_base_only,
+    ), 'é');
+    assert.equal(base_soundname_to_filename(
+        'é', '', 2, sff_base_only,
+    ), null);
+    assert.equal(base_soundname_to_filename(
+        'alert', '', 256, sff_default,
+    ), null);
+});
+
+test('set_voice and sound_speak carry source voice state through vpline',
+    async () => {
+        const calls = [];
+        const state = {
+            iflags: { voices: true },
+            gp: { pline_flags: PLINE_VERBALIZE },
+            gv: {
+                voice: {
+                    serialno: 0,
+                    gender: 0,
+                    tone: 0,
+                    volume: 0,
+                    moreinfo: 0,
+                    mon: { unchanged: true },
+                    nameid: 'old allocation',
+                },
+            },
+            soundprocs: {
+                sound_triggers: SOUND_TRIGGER_VERBAL,
+                sound_verbal: (...args) => calls.push(args),
+            },
+        };
+        set_voice({ m_id: 77, female: true }, -2, 80, 9, state);
+        assert.equal(state.gp.pline_flags,
+            PLINE_VERBALIZE | PLINE_SPEECH);
+        assert.deepEqual(state.gv.voice, {
+            serialno: 77,
+            gender: 1,
+            tone: -2,
+            volume: 80,
+            moreinfo: 9,
+            mon: { unchanged: true },
+            nameid: null,
+        });
+
+        await ttyPline('"Stand fast."', state);
+        assert.deepEqual(calls, [['Stand fast.', 1, -2, 80, 9]]);
+        assert.equal(state.gp.pline_flags, PLINE_VERBALIZE);
+
+        set_voice(null, 3, 40,
+            voice_talking_artifact | voice_deity, state);
+        assert.equal(state.gv.voice.serialno, 3);
+        assert.equal(state.gv.voice.gender, 0);
+    });
+
+test('sound_speak passes an empty buffer instead of truncating oversized text',
+    () => {
+        const spoken = [];
+        const state = {
+            iflags: { voices: true },
+            gp: { pline_flags: 0 },
+            gv: { voice: { gender: 0, tone: 1, volume: 2, moreinfo: 3 } },
+            soundprocs: {
+                sound_triggers: SOUND_TRIGGER_VERBAL,
+                sound_verbal: (text) => spoken.push(text),
+            },
+        };
+        sound_speak('x'.repeat(511), state);
+        sound_speak('y'.repeat(512), state);
+        sound_speak('', state);
+        sound_speak('\0ignored', state);
+        assert.deepEqual(spoken, ['x'.repeat(511), '']);
+    });

@@ -227,6 +227,7 @@
         "js/random_text.js",
         "js/random_text_data.js",
         "js/region.js",
+        "js/sound_effects_data.js",
         "js/sounds.js",
         "js/terrain.js",
         "js/track.js",
@@ -241,6 +242,11 @@
           "path": "js/random_text_data.js",
           "generator": "scripts/generate-random-text-data.mjs",
           "check": "node scripts/generate-random-text-data.mjs --check"
+        },
+        {
+          "path": "js/sound_effects_data.js",
+          "generator": "scripts/generate-sound-effects.mjs",
+          "check": "node scripts/generate-sound-effects.mjs --check"
         }
       ]
     },
