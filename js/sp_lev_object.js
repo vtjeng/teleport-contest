@@ -615,6 +615,13 @@ export function create_object(specification, croom, rawEnv = {}) {
     return createOneObject(normalized, croom, env);
 }
 
+// C ref: sp_lev.c spo_pop_container(). Drops the innermost container slot
+// when one is open; the JS stack's length stands for C's container_idx.
+function spo_pop_container(context) {
+    if (context.containers.length > 0)
+        context.containers.pop();
+}
+
 // Lua-facing semantic operation: nonmergeable exact quantities create one
 // object per unit, the callback sees the final result, then one container slot
 // is popped when the descriptor declared contents.  That final pop also
@@ -643,7 +650,7 @@ export function lspo_object(specification, croom, rawEnv = {}) {
     } finally {
         if (normalized.container
             && (completed || context.containers.length > entryDepth)) {
-            context.containers.pop();
+            spo_pop_container(context);
         }
     }
     return obj;

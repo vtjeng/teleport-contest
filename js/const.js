@@ -1840,6 +1840,13 @@ export const SPOFILTER_MAPCHAR = 2;
 export const SEL_GRADIENT_RADIAL = 0;
 export const SEL_GRADIENT_SQUARE = 1;
 export const SP_COORD_IS_RANDOM = 0x01000000;
+// C ref: sp_lev.h SP_COORD_X(), SP_COORD_Y(), SP_COORD_PACK() and
+// SP_COORD_PACK_RANDOM(). A packed coordinate keeps x in the low byte and y
+// in bits 16-23; a random one sets SP_COORD_IS_RANDOM over its humidity flags.
+export function SP_COORD_X(l) { return l & 0xff; }
+export function SP_COORD_Y(l) { return (l >> 16) & 0xff; }
+export function SP_COORD_PACK(x, y) { return ((x & 0xff) + ((y & 0xff) << 16)); }
+export function SP_COORD_PACK_RANDOM(f) { return SP_COORD_IS_RANDOM | f; }
 export const DRY = 0x01;
 export const WET = 0x02;
 export const HOT = 0x04;
@@ -2139,6 +2146,8 @@ export function IS_OBSTRUCTED(typ) {
     // C ref: rm.h — IS_OBSTRUCTED(typ) ((typ) < POOL)
     return typ < POOL;
 }
+// C ref: rm.h IS_DOORJOIN(): terrain a door can be set into a wall of.
+export function IS_DOORJOIN(typ) { return IS_OBSTRUCTED(typ) || typ === IRONBARS; }
 export function IS_DRAWBRIDGE(typ) {
     // C ref: rm.h — IS_DRAWBRIDGE(typ) ((typ) == DRAWBRIDGE_UP || (typ) == DRAWBRIDGE_DOWN)
     return typ === DRAWBRIDGE_UP || typ === DRAWBRIDGE_DOWN;

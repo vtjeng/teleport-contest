@@ -1,6 +1,7 @@
 // Room and special-level coordinate selection.
 // C refs: mkroom.c somex()/somey()/somexy();
-//         sp_lev.c get_location()/get_location_coord()/get_room_loc()/
+//         sp_lev.c set_ok_location_func()/is_ok_location()/get_location()/
+//         get_unpacked_coord()/get_location_coord()/get_room_loc()/
 //         get_free_room_loc().
 
 import {
@@ -26,6 +27,8 @@ import {
     SPACELOC,
     SPACE_POS,
     SP_COORD_IS_RANDOM,
+    SP_COORD_X,
+    SP_COORD_Y,
     WATER,
     WET,
     isok,
@@ -137,8 +140,18 @@ function isLavaAt(x, y, state) {
         || raisedDrawbridgeOver(location, DB_LAVA);
 }
 
-// sp_lev.c is_ok_location(). The optional hook mirrors the source's temporary
-// is_ok_location_func override without making that process-global in JS.
+// C ref: sp_lev.c is_ok_location_func, the file-scope predicate that
+// set_ok_location_func() installs and is_ok_location() consults first. It is
+// set only around one get_location_coord() call (l_create_stairway()), and
+// cleared again before that caller returns.
+let is_ok_location_func = null;
+
+// C ref: sp_lev.c set_ok_location_func().
+export function set_ok_location_func(func) {
+    is_ok_location_func = func;
+}
+
+// C ref: sp_lev.c is_ok_location().
 export function is_ok_location(x, y, humidity, rawEnv = {}) {
     const env = coordinateEnvironment(rawEnv);
     const { hooks, state } = env;
@@ -146,7 +159,10 @@ export function is_ok_location(x, y, humidity, rawEnv = {}) {
         ? hooks.isWaterLevel(state)
         : on_level(state.u?.uz, state.water_level);
     if (waterLevel) return true;
-    if (hooks.okLocation) return Boolean(hooks.okLocation(x, y, env));
+
+    if (is_ok_location_func)
+        return Boolean(is_ok_location_func(x, y, state));
+
     if (humidity & ANY_LOC) return true;
 
     const location = state.level?.at(x, y);
@@ -257,27 +273,29 @@ export function get_location(coordinate, humidity, croom, rawEnv = {}) {
     return coordinate;
 }
 
-function unpackCoordinate(packedCoordinate, callerHumidity) {
-    const packed = Number(packedCoordinate) >>> 0;
-    if (packed & SP_COORD_IS_RANDOM) {
-        // Random coordinates can carry their own humidity flags in the packed
-        // value.  An empty payload inherits the operation's caller humidity.
-        const packedFlags = packed & ~SP_COORD_IS_RANDOM;
-        return {
-            x: -1,
-            y: -1,
-            isRandom: true,
-            flags: packedFlags || callerHumidity,
-        };
+// C ref: sp_lev.c get_unpacked_coord(). A random packed coordinate carries
+// its own humidity flags below SP_COORD_IS_RANDOM; an empty payload inherits
+// the caller's default humidity.
+export function get_unpacked_coord(loc, defhumidity) {
+    const c = {};
+    loc = Number(loc) >>> 0;
+
+    if (loc & SP_COORD_IS_RANDOM) {
+        c.x = c.y = -1;
+        c.is_random = 1;
+        c.getloc_flags = loc & ~SP_COORD_IS_RANDOM;
+        if (!c.getloc_flags)
+            c.getloc_flags = defhumidity;
+    } else {
+        c.is_random = 0;
+        c.getloc_flags = defhumidity;
+        c.x = SP_COORD_X(loc);
+        c.y = SP_COORD_Y(loc);
     }
-    return {
-        x: packed & 0xff,
-        y: (packed >>> 16) & 0xff,
-        isRandom: false,
-        flags: callerHumidity,
-    };
+    return c;
 }
 
+// C ref: sp_lev.c get_location_coord().
 export function get_location_coord(
     coordinate,
     humidity,
@@ -285,19 +303,17 @@ export function get_location_coord(
     packedCoordinate = SP_COORD_IS_RANDOM,
     rawEnv = {},
 ) {
-    const unpacked = unpackCoordinate(packedCoordinate, humidity);
-    coordinate.x = unpacked.x;
-    coordinate.y = unpacked.y;
+    const c = get_unpacked_coord(packedCoordinate, humidity);
+    coordinate.x = c.x;
+    coordinate.y = c.y;
     get_location(
         coordinate,
-        unpacked.flags | (unpacked.isRandom ? NO_LOC_WARN : 0),
+        c.getloc_flags | (c.is_random ? NO_LOC_WARN : 0),
         croom,
         rawEnv,
     );
-    // A packed random coordinate first searches with NO_LOC_WARN using its
-    // embedded flags (or caller humidity when empty).  If that returns the
-    // negative sentinel, retry once with caller humidity as passed.
-    if (coordinate.x === -1 && coordinate.y === -1 && unpacked.isRandom)
+
+    if (coordinate.x === -1 && coordinate.y === -1 && c.is_random)
         get_location(coordinate, humidity, croom, rawEnv);
     return coordinate;
 }

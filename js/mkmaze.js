@@ -17,6 +17,7 @@ import {
     CORR,
     DEAF,
     HWALL,
+    IS_LAVA,
     LAVAPOOL,
     LR_BRANCH,
     LR_DOWNSTAIR,
@@ -28,7 +29,10 @@ import {
     MAGIC_PORTAL,
     ROOM,
     ROWNO,
+    SET_LIT_NOCHANGE,
+    SET_LIT_RANDOM,
     STONE,
+    isok,
     undestroyable_trap,
 } from './const.js';
 import { Is_branchlev, on_level, u_on_newpos } from './dungeon.js';
@@ -40,6 +44,7 @@ import { m_at } from './monst.js';
 import { create_gas_cloud } from './region.js';
 import { within_bounded_area } from './rect.js';
 import { rn1, rn2, rnd } from './rng.js';
+import { set_levltyp } from './terrain.js';
 import { deltrap, maketrap, t_at } from './trap.js';
 import { ttyNorep } from './tty_message.js';
 import {
@@ -49,6 +54,26 @@ import {
 } from './vision.js';
 import { cmap_to_glyph, newsym } from './display.js';
 import { S_air, S_cloud } from './symbols.js';
+
+// C ref: mkmaze.c set_levltyp_lit() (125-145). Sets the terrain with
+// set_levltyp() and then the lit flag unless `lit` is SET_LIT_NOCHANGE; lava
+// is always lit and SET_LIT_RANDOM draws rn2(2). Returns set_levltyp()'s
+// result so callers can skip their own follow-up on a refused square.
+export function set_levltyp_lit(x, y, typ, lit, state = game, random = rn2) {
+    const ret = set_levltyp(x, y, typ, { state });
+
+    if (ret && isok(x, y)) {
+        if (lit !== SET_LIT_NOCHANGE) {
+            if (IS_LAVA(typ))
+                lit = 1;
+            else if (lit === SET_LIT_RANDOM)
+                lit = random(2);
+
+            state.level.at(x, y).lit = Boolean(lit);
+        }
+    }
+    return ret;
+}
 
 // C ref: youprop.h Deaf (125). The roleplay term is kept beside this
 // endgame-only caller because the source macro is evaluated after fumaroles

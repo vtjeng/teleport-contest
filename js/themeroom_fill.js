@@ -52,8 +52,19 @@ import {
     SOLID,
     WEB,
     ZOMBIFY_MON,
+    AM_MASK,
+    AM_SPLEV_CO,
+    AM_SPLEV_NONCO,
+    AM_SPLEV_RANDOM,
+    A_ORIGINAL,
+    Align2amask,
+    D_CLOSED,
+    D_LOCKED,
+    IS_DOOR,
 } from './const.js';
 import { obj_resists } from './bury.js';
+import { sobj_at } from './obj.js';
+import { t_at } from './trap.js';
 import { make_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { induced_align } from './dungeon.js';
@@ -62,6 +73,7 @@ import {
     makemon,
     m_dowear,
     restore_waiting_vampire,
+    set_mimic_sym,
     UnsupportedMonsterCreationError,
 } from './makemon_create.js';
 import { mkclass, set_malign } from './makemon.js';
@@ -135,10 +147,11 @@ import {
     S_MIMIC,
     S_VAMPIRE,
 } from './monsters.js';
-import { m_at } from './monst.js';
+import { m_at, place_monster, remove_monster } from './monst.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
     get_free_room_loc,
+    get_location,
     get_location_coord,
     inside_room,
 } from './room_coordinates.js';
@@ -527,14 +540,11 @@ function createMonsterBody(specification, room, env) {
             ? false : Boolean(specification.female);
     }
 
-    // C ref: sp_lev.c:1943. sp_amask_to_amask calls induced_align only
-    // when sp_amask is AM_SPLEV_RANDOM (align unspecified or "random").
-    // An explicit alignment ("noalign", "law", etc.) skips induced_align.
-    const isRandomAlign = specification.align == null
-        || specification.align === 'random';
-    if (isRandomAlign) {
-        induced_align(80, env.state, env.random.rn2);
-    }
+    // C ref: sp_lev.c:1943. lspo_monster() reads sp_amask with
+    // get_table_align(), whose default is "random"; a caller that supplies no
+    // sp_amask gets that default here. The mask feeds only the mk_roamer()
+    // branch (sp_lev.c:1983), which this port does not have.
+    sp_amask_to_amask(specification.sp_amask ?? AM_SPLEV_RANDOM, env);
     if (!species && specification.class != null) {
         species = mkclass(specification.class, G_NOGEN, {
             state: env.state,
@@ -591,10 +601,40 @@ function createMonsterBody(specification, room, env) {
         monsterEnv,
     );
     if (!monster) return null;
+    // C ref: sp_lev.c:1991 `m->x = x, m->y = y` copies the placed position
+    // back into the descriptor before the appearance switch reads it.
+    let mx = monster.mx;
+    let my = monster.my;
     if (specification.appearAs?.type === M_AP_OBJECT
         && monster.data.mlet === S_MIMIC) {
+        const i = specification.appearAs.id;
         monster.m_ap_type = M_AP_OBJECT;
-        monster.mappearance = specification.appearAs.id;
+        monster.mappearance = i;
+        // C ref: sp_lev.c:2039-2058. Try to avoid placing a mimic boulder on
+        // a trap. Because m->x was overwritten above, `m->x < 0` never holds
+        // and the retry never runs; the source's structure is kept as is.
+        if (i === BOULDER && mx < 0 && m_bad_boulder_spot(mx, my, env)) {
+            let retrylimit = 10;
+
+            remove_monster(mx, my, env.state);
+            do {
+                const cc = { x: mx, y: my };
+                get_location(cc, DRY, room, env);
+                mx = cc.x;
+                my = cc.y;
+                if (m_at(mx, my, env.state)) {
+                    const near = enexto(mx, my, species, env);
+                    if (near) {
+                        mx = near.x;
+                        my = near.y;
+                    }
+                }
+            } while (m_bad_boulder_spot(mx, my, env) && --retrylimit > 0);
+            place_monster(monster, mx, my, env.state);
+            // if we didn't find a good spot then mimic something else
+            if (!retrylimit)
+                set_mimic_sym(monster, monsterEnv);
+        }
     }
     // create_monster() applies the parser-selected gender after makemon(),
     // even though makemon may have consumed its own gender draw.
@@ -648,11 +688,68 @@ function assertSupportedMonsterAppearance(specification, state) {
     }
 }
 
-// C refs: sp_lev.c lspo_monster(), create_monster(), and
-// spo_end_moninvent().  The descriptor callback runs even when monster
-// creation fails.  A top-level failure leaves its objects on the floor; a
-// nested failure inherits the outer scalar carrier until this descriptor's end
-// boundary clears it, matching create_monster()'s success-only assignment.
+// C ref: sp_lev.c noncoalignment(). An alignment that differs from the
+// hero's: either of the two others for a neutral hero, otherwise the opposite
+// or neutral.
+export function noncoalignment(alignment, random = rn2) {
+    const k = random(2);
+    if (!alignment)
+        return (k ? -1 : 1);
+    return (k ? -alignment : 0);
+}
+
+// C ref: sp_lev.c m_bad_boulder_spot(). Screens out locations where a
+// mimic-as-boulder should not occur: traps, existing boulders (which cannot
+// exist yet, as the source notes), and closed or locked doors.
+export function m_bad_boulder_spot(x, y, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+
+    if (t_at(x, y, state))
+        return true;
+    if (sobj_at(BOULDER, x, y, state))
+        return true;
+    const lev = state.level.at(x, y);
+    if (IS_DOOR(lev.typ) && (lev.doormask & (D_CLOSED | D_LOCKED)) !== 0)
+        return true;
+    return false;
+}
+
+// C ref: sp_lev.c sp_amask_to_amask(). Resolves the special-level alignment
+// request (co-aligned, non-co-aligned, random, or explicit) to an AM_ mask.
+export function sp_amask_to_amask(sp_amask, rawEnv = {}) {
+    const env = fillEnvironment(rawEnv);
+    const { state } = env;
+    let amask;
+
+    if (sp_amask === AM_SPLEV_CO)
+        amask = Align2amask(state.u.ualignbase[A_ORIGINAL]);
+    else if (sp_amask === AM_SPLEV_NONCO)
+        amask = Align2amask(
+            noncoalignment(state.u.ualignbase[A_ORIGINAL], env.random.rn2),
+        );
+    else if (sp_amask === AM_SPLEV_RANDOM)
+        amask = induced_align(80, state, env.random.rn2);
+    else
+        amask = sp_amask & AM_MASK;
+
+    return amask;
+}
+
+// C ref: sp_lev.c spo_end_moninvent(). Closes a monster's custom-inventory
+// descriptor: the carrier wears what it was given, and the shared carrier
+// slot is cleared. It deliberately consults the shared carrier rather than a
+// saved local, so a nested descriptor that replaced or cleared it wins.
+function spo_end_moninvent(context, env) {
+    if (context.inventCarryingMonster)
+        m_dowear(context.inventCarryingMonster, true, env);
+    context.inventCarryingMonster = null;
+}
+
+// C refs: sp_lev.c lspo_monster() and create_monster(). The descriptor
+// callback runs even when monster creation fails.  A top-level failure leaves
+// its objects on the floor; a nested failure inherits the outer scalar carrier
+// until spo_end_moninvent() clears it, matching create_monster()'s
+// success-only assignment.
 export function create_monster(specification, room, rawEnv = {}) {
     const env = fillEnvironment(rawEnv);
     // This bounded port implements the Storeroom's object-disguised mimic
@@ -699,14 +796,13 @@ export function create_monster(specification, room, rawEnv = {}) {
     if (monster) context.inventCarryingMonster = monster;
     try {
         inventory(monster, env);
-        // spo_end_moninvent() deliberately consults the shared carrier rather
-        // than a saved local.  Preserve that behavior if a nested descriptor
-        // replaced or cleared it during the callback.
-        if (context.inventCarryingMonster)
-            m_dowear(context.inventCarryingMonster, true, env);
-    } finally {
+    } catch (e) {
+        // C has no exception path; keep the shared carrier from leaking into
+        // a later descriptor when the callback fails.
         context.inventCarryingMonster = null;
+        throw e;
     }
+    spo_end_moninvent(context, env);
     return monster;
 }
 

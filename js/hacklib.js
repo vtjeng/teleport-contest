@@ -509,4 +509,10 @@ export function online2(x0, y0, x1, y1) {
     return !dy || !dx || dy === dx || dy === -dx;
 }
 
+// C ref: hacklib.c swapbits(). Swaps bit a with bit b in val.
+export function swapbits(val, bita, bitb) {
+    const tmp = ((val >> bita) & 1) ^ ((val >> bitb) & 1);
+    return val ^ ((tmp << bita) | (tmp << bitb));
+}
+
 // C ref: rn2(x) already in rng.js — re-export not needed
