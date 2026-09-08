@@ -627,48 +627,7 @@ async function makelevel(specialLevelLoader = null) {
     if (!specialLevelLoader) {
         const slev = Is_special(g.u.uz, g);
         if (slev && slev.proto) {
-            if (!SPECIAL_LEVEL_LOADERS) {
-                const { BIGRM_LOADERS } = await import('./bigrm.js');
-                const { QUEST_LEVEL_LOADERS } = await import(
-                    './quest_levels.js'
-                );
-                const { SOKOBAN_LEVEL_LOADERS } = await import(
-                    './sokoban_levels.js'
-                );
-                const { CASTLE_LEVEL_LOADERS } = await import(
-                    './castle_levels.js'
-                );
-                const { MINES_LEVEL_LOADERS } = await import(
-                    './mines_levels.js'
-                );
-                const { FIRE_LEVEL_LOADERS } = await import(
-                    './fire_levels.js'
-                );
-                const { AIR_LEVEL_LOADERS } = await import(
-                    './air_levels.js'
-                );
-                const { HELL_LEVEL_LOADERS } = await import(
-                    './hell_levels.js'
-                );
-                const { VALLEY_LEVEL_LOADERS } = await import(
-                    './valley_levels.js'
-                );
-                const { MEDUSA_LEVEL_LOADERS } = await import(
-                    './medusa_levels.js'
-                );
-                SPECIAL_LEVEL_LOADERS = {
-                    ...BIGRM_LOADERS,
-                    ...QUEST_LEVEL_LOADERS,
-                    ...SOKOBAN_LEVEL_LOADERS,
-                    ...CASTLE_LEVEL_LOADERS,
-                    ...MINES_LEVEL_LOADERS,
-                    ...FIRE_LEVEL_LOADERS,
-                    ...AIR_LEVEL_LOADERS,
-                    ...HELL_LEVEL_LOADERS,
-                    ...VALLEY_LEVEL_LOADERS,
-                    ...MEDUSA_LEVEL_LOADERS,
-                };
-            }
+            await ensureSpecialLevelLoaders();
             // Determine the resolved protofile the same way makemaz() will.
             // For bigrm, slev.rndlevs is 13, so the proto is
             // "bigrm-<rnd(13)>". We cannot call rnd() here because it
@@ -724,20 +683,7 @@ async function makelevel(specialLevelLoader = null) {
         const loc_lev = find_level(locaName, g);
         const fillName = `${filecode}-fil`
             + (g.u.uz.dlevel < loc_lev.dlevel.dlevel ? 'a' : 'b');
-        if (!SPECIAL_LEVEL_LOADERS) {
-            const { BIGRM_LOADERS } = await import('./bigrm.js');
-            const { QUEST_LEVEL_LOADERS } = await import(
-                './quest_levels.js'
-            );
-            const { SOKOBAN_LEVEL_LOADERS } = await import(
-                './sokoban_levels.js'
-            );
-            SPECIAL_LEVEL_LOADERS = {
-                ...BIGRM_LOADERS,
-                ...QUEST_LEVEL_LOADERS,
-                ...SOKOBAN_LEVEL_LOADERS,
-            };
-        }
+        await ensureSpecialLevelLoaders();
         if (SPECIAL_LEVEL_LOADERS[fillName]) {
             await makemaz(fillName, null, g);
             return;
@@ -1740,6 +1686,7 @@ async function ensureSpecialLevelLoaders() {
     const { HELL_LEVEL_LOADERS } = await import('./hell_levels.js');
     const { VALLEY_LEVEL_LOADERS } = await import('./valley_levels.js');
     const { MEDUSA_LEVEL_LOADERS } = await import('./medusa_levels.js');
+    const { SANCTUM_LEVEL_LOADERS } = await import('./sanctum_levels.js');
     SPECIAL_LEVEL_LOADERS = {
         ...BIGRM_LOADERS,
         ...QUEST_LEVEL_LOADERS,
@@ -1751,6 +1698,7 @@ async function ensureSpecialLevelLoaders() {
         ...HELL_LEVEL_LOADERS,
         ...VALLEY_LEVEL_LOADERS,
         ...MEDUSA_LEVEL_LOADERS,
+        ...SANCTUM_LEVEL_LOADERS,
     };
 }
 

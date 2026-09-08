@@ -201,6 +201,7 @@ import {
     PM_ACOLYTE,
     PM_ALIGNED_CLERIC,
     PM_APPRENTICE,
+    PM_ARCH_LICH,
     PM_ARCHON,
     PM_ARCHEOLOGIST,
     PM_ATTENDANT,
@@ -218,6 +219,7 @@ import {
     PM_COBRA,
     PM_COCKATRICE,
     PM_DEMILICH,
+    PM_DISPATER,
     PM_DWARF_RULER,
     PM_DJINNI,
     PM_DOPPELGANGER,
@@ -240,6 +242,7 @@ import {
     PM_GRID_BUG,
     PM_GUIDE,
     PM_HOBBIT,
+    PM_HORNED_DEVIL,
     PM_HOUSECAT,
     PM_HUMAN,
     PM_HUNTER,
@@ -259,6 +262,7 @@ import {
     PM_LITTLE_DOG,
     PM_LONG_WORM,
     PM_MANES,
+    PM_MASTER_LICH,
     PM_MINOTAUR,
     PM_GIANT_EEL,
     PM_GUARD,
@@ -273,6 +277,7 @@ import {
     PM_ORC,
     PM_ORC_CAPTAIN,
     PM_ORC_SHAMAN,
+    PM_ORCUS,
     PM_OGRE_LEADER,
     PM_PESTILENCE,
     PM_OGRE_TYRANT,
@@ -313,6 +318,7 @@ import {
     PM_WIZARD_OF_YENDOR,
     PM_YELLOW_LIGHT,
     PM_YELLOW_MOLD,
+    PM_YEENOGHU,
     SPECIAL_PM,
     S_ANGEL,
     S_CENTAUR,
@@ -330,6 +336,7 @@ import {
     S_KOBOLD,
     S_KOP,
     S_LEPRECHAUN,
+    S_LICH,
     S_LIZARD,
     S_LIGHT,
     S_MIMIC,
@@ -375,6 +382,7 @@ import {
     ARM_SUIT,
     ARMOR_CLASS,
     ARROW,
+    ATHAME,
     AXE,
     BANDED_MAIL,
     BATTLE_AXE,
@@ -479,6 +487,7 @@ import {
     POT_SLEEPING,
     POT_SPEED,
     POTION_CLASS,
+    QUARTERSTAFF,
     RANDOM_CLASS,
     RANSEUR,
     RING_MAIL,
@@ -525,6 +534,7 @@ import {
     WAN_LIGHTNING,
     WAN_MAGIC_MISSILE,
     WAN_MAKE_INVISIBLE,
+    WAN_NOTHING,
     WAN_POLYMORPH,
     WAN_SLEEP,
     WAN_SPEED_MONSTER,
@@ -2033,6 +2043,22 @@ function m_initweap(monster, normalized) {
             mongets(monster, BULLWHIP, normalized);
             mongets(monster, BROADSWORD, normalized);
             break;
+        case PM_ORCUS:
+            mongets(monster, WAN_DEATH, normalized);
+            break;
+        case PM_HORNED_DEVIL:
+            mongets(
+                monster,
+                random.rn2(4) ? TRIDENT : BULLWHIP,
+                normalized,
+            );
+            break;
+        case PM_DISPATER:
+            mongets(monster, WAN_STRIKING, normalized);
+            break;
+        case PM_YEENOGHU:
+            mongets(monster, FLAIL, normalized);
+            break;
         }
         // Non-demons in class S_DEMON (djinni, mail daemon) break here so
         // a later vanish drops no object. Actual demons (water demon, etc.)
@@ -2383,6 +2409,26 @@ function m_initinv(monster, normalized) {
             );
             obj.quan = random.rn1(2, 3);
             obj.owt = weight(obj, normalized);
+            addFreshMonsterObject(monster, obj, normalized);
+        }
+    } else if (ptr.mlet === S_LICH) {
+        // C ref: makemon.c:759-771. Master liches rarely receive an athame
+        // or empty wand; arch-liches can receive a higher-quality weapon.
+        if (ptr.pmidx === PM_MASTER_LICH && !random.rn2(13)) {
+            mongets(
+                monster,
+                random.rn2(7) ? ATHAME : WAN_NOTHING,
+                normalized,
+            );
+        } else if (ptr.pmidx === PM_ARCH_LICH && !random.rn2(3)) {
+            const obj = mksobj(
+                random.rn2(3) ? ATHAME : QUARTERSTAFF,
+                true,
+                !random.rn2(13),
+                normalized,
+            );
+            if (obj.spe < 2) obj.spe = random.rnd(3);
+            if (!random.rn2(4)) obj.oerodeproof = true;
             addFreshMonsterObject(monster, obj, normalized);
         }
     } else if (ptr.mlet === S_MUMMY) {

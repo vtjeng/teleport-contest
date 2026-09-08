@@ -136,6 +136,8 @@
         "js/room_coordinates.js",
         "js/room_features.js",
         "js/rooms.js",
+        "js/sanctum_level_data.js",
+        "js/sanctum_levels.js",
         "js/save.js",
         "js/shknam.js",
         "js/shtypes_data.js",

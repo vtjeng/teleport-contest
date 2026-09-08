@@ -48,7 +48,7 @@ import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { dist2, highc } from './hacklib.js';
 import { record_achievement } from './insight.js';
-import { makemon, mongone } from './makemon_create.js';
+import { makemon, mongets, mongone } from './makemon_create.js';
 import { set_malign } from './makemon.js';
 import { m_next2u } from './mhitu.js';
 import { mon_allowflags } from './mon.js';
@@ -67,6 +67,7 @@ import {
 import { mfndpos } from './monmove.js';
 import { PM_ALIGNED_CLERIC, PM_GHOST, PM_HIGH_CLERIC, S_EEL } from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
+import { AMULET_OF_YENDOR } from './objects.js';
 import { just_an } from './objnam.js';
 import { mkobj, SPBOOK_NO_NOVEL } from './obj.js';
 import { body_part } from './polyself.js';
@@ -279,8 +280,10 @@ export function priestini(lvl, sroom, sx, sy, sanctum, env = {}) {
     priest.msleeping = false;
     set_malign(priest, state);
 
-    // Sanctum high priest carries the Amulet of Yendor.  This path is not
-    // exercised by ordinary temple generation, so it remains unported.
+    if (sanctum && epri.shralign === A_NONE
+        && on_level(state.sanctum_level, state.u.uz)) {
+        mongets(priest, AMULET_OF_YENDOR, env);
+    }
 
     // 2 to 4 spellbooks.
     for (let cnt = random.rn1(3, 2); cnt > 0; --cnt) {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8461,
+      "datetime": "20420402074500",
+      "nethackrc": "OPTIONS=name:SanctumProbe,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\n",
+      "comment": "Wizard-mode level teleport (^V, ? for the level menu, second page's sanctum entry) to the Sanctum. Its Lua definition reaches the pre-map and post-map non-passwall barriers, the temple and morgue regions, the sanctum altar and high priest, fixed and random traps, objects, monsters, the up stair, and the down-teleport region. The seed was chosen without a search: every seed reaches the Sanctum from the menu.",
+      "moves": ".#levelchange\n20\n                     \u0016?\n>v"
+    }
+  ]
+}
