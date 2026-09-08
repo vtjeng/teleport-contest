@@ -225,12 +225,40 @@ function uncommon(index, state) {
 }
 
 // C ref: makemon.c align_shift(). Returns a weight bonus for monsters whose
-// alignment matches the current level's alignment. C caches the Is_special()
-// lookup across calls within the same turn; the JS port recomputes it.
+// alignment matches the current level's alignment.
+//
+// C keeps `oldmoves` and `lev` as function statics, initially 0 and NULL: it
+// redoes the Is_special(&u.uz) lookup only when svm.moves has changed since
+// the previous call, so every call within one turn reuses the level the
+// turn's first call found. Two consequences the port keeps:
+//
+// - newgame() builds the first level before u_init_role() sets svm.moves to
+//   1, so the calls made while creating it find oldmoves == moves == 0 and
+//   use the initial NULL `lev`; the first lookup happens at the first call
+//   with a nonzero `moves`.
+// - A level change that takes no time (a wizard-mode ^V teleport returns
+//   ECMD_OK, and allmain.c:539 runs deferred_goto() in the same
+//   moveloop_core() pass) weights the new level's monsters by the level the
+//   turn's first call found, not by the new level.
+//
+// The statics live on game state as `align_shift_static`, which
+// js/gstate.js resetGame() replaces for each runSegment(); a C process
+// starts each segment with the statics at their initial values too. A
+// lookup replaces the record rather than writing into it, so a planning
+// dry run (js/unported_monster_actions.js planningState(), which shares
+// unnamed root fields with the live state by reference) updates only its
+// own root and the live record stays as the live pass will find it.
+const ALIGN_SHIFT_INITIAL = Object.freeze({ oldmoves: 0, lev: null });
+
 export function align_shift(monster, state) {
-    const special = currentSpecialLevel(state);
-    const alignment = special?.flags?.align
-        ?? state.dungeons[state.u.uz.dnum].flags.align;
+    let statics = state.align_shift_static ?? ALIGN_SHIFT_INITIAL;
+    if (statics.oldmoves !== state.moves) {
+        statics = { oldmoves: state.moves, lev: currentSpecialLevel(state) };
+        state.align_shift_static = statics;
+    }
+    const alignment = statics.lev
+        ? statics.lev.flags.align
+        : state.dungeons[state.u.uz.dnum].flags.align;
     switch (alignment) {
     case AM_LAWFUL:
         return Math.trunc((monster.maligntyp + 20) / (2 * ALIGNWEIGHT));

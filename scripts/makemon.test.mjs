@@ -1328,6 +1328,101 @@ test('align_shift on an unaligned level returns zero', () => {
     assert.equal(align_shift({ maligntyp: 0 }, state), 0);
 });
 
+// C keeps `oldmoves` and `lev` as function statics (makemon.c:1611-1626) and
+// redoes the Is_special(&u.uz) lookup only when svm.moves has changed since
+// the previous call, so every call within one turn reuses the level the
+// turn's first call found. A level change that takes no time, such as the
+// wizard-mode ^V teleport (wizcmds.c wiz_level_tele() returns ECMD_OK, and
+// allmain.c:539 runs deferred_goto() in the same moveloop_core() pass), then
+// weights the new level's monsters by the old level's alignment.
+test('align_shift keeps the turn\'s first special level across a level change', () => {
+    const state = startingState();
+    // Turn 5 starts on a chaotic special level while the dungeon is lawful.
+    state.specialLevels.push({
+        dlevel: { dnum: 0, dlevel: 1 },
+        flags: { align: AM_CHAOTIC },
+    });
+    state.dungeons[0].flags.align = AM_LAWFUL;
+    state.moves = 5;
+    // maligntyp -10 on a chaotic level: (20 + 10) / 8 = 3.
+    assert.equal(align_shift({ maligntyp: -10 }, state), 3);
+    // An ordinary level of the lawful dungeon, reached in the same turn, still
+    // uses the chaotic level; the lawful figure would be (-10 + 20) / 8 = 1.
+    state.u.uz = { dnum: 0, dlevel: 2 };
+    assert.equal(align_shift({ maligntyp: -10 }, state), 3);
+    // The next turn looks the level up again.
+    state.moves = 6;
+    assert.equal(align_shift({ maligntyp: -10 }, state), 1);
+});
+
+// The other direction of the same static: a turn whose first call found no
+// special level reads the current dungeon's alignment on every later call,
+// even after a level change onto a special level with its own alignment.
+// Only `lev` is cached; svd.dungeons[u.uz.dnum].flags.align is read live.
+test('align_shift ignores a special level reached after the turn\'s first lookup', () => {
+    const state = startingState();
+    state.dungeons.push({
+        depth_start: 21,
+        dunlev_ureached: 1,
+        entry_lev: 1,
+        flags: { align: AM_NEUTRAL, hellish: false },
+        num_dunlevs: 4,
+    });
+    state.moves = 1;
+    // Dungeon zero, ordinary level: unaligned, so 0.
+    assert.equal(align_shift({ maligntyp: 0 }, state), 0);
+    // Same turn, onto a chaotic special level of the neutral dungeon: the
+    // stale null `lev` makes C read the dungeon's alignment, (20 - 0) / 4 = 5,
+    // rather than the level's (20 - 0) / 8 = 2.
+    state.specialLevels.push({
+        dlevel: { dnum: 1, dlevel: 1 },
+        flags: { align: AM_CHAOTIC },
+    });
+    state.u.uz = { dnum: 1, dlevel: 1 };
+    assert.equal(align_shift({ maligntyp: 0 }, state), 5);
+    state.moves = 2;
+    assert.equal(align_shift({ maligntyp: 0 }, state), 2);
+});
+
+// `oldmoves` and `lev` start at 0 and NULL. allmain.c newgame() calls mklev()
+// before u_init_role() sets svm.moves to 1 (u_init.c:645, "initialize moves
+// to 0 instead of 1, then set it to 1 here"), so the calls made while
+// creating the first level find oldmoves == moves and keep the NULL `lev`
+// even on a special level, such as the tutorial. The first lookup happens at
+// the first call with a nonzero `moves`.
+test('align_shift makes no lookup while moves is still zero', () => {
+    const state = startingState();
+    state.specialLevels.push({
+        dlevel: { dnum: 0, dlevel: 1 },
+        flags: { align: AM_NEUTRAL },
+    });
+    state.moves = 0;
+    // The NULL `lev` reads the unaligned dungeon: 0, not the level's 5.
+    assert.equal(align_shift({ maligntyp: 0 }, state), 0);
+    state.moves = 1;
+    // maligntyp 0 on a neutral level: (20 - 0) / 4 = 5.
+    assert.equal(align_shift({ maligntyp: 0 }, state), 5);
+});
+
+// The statics live on the game state, which resetGame() replaces for each
+// segment, so a second state starts with them at their initial values like a
+// fresh C process rather than inheriting the first state's level.
+test('align_shift keeps its statics on the game state', () => {
+    const first = startingState();
+    first.specialLevels.push({
+        dlevel: { dnum: 0, dlevel: 1 },
+        flags: { align: AM_NEUTRAL },
+    });
+    first.moves = 1;
+    assert.equal(align_shift({ maligntyp: 0 }, first), 5);
+
+    const second = startingState();
+    second.dungeons[0].flags.align = AM_LAWFUL;
+    second.moves = 1;
+    // maligntyp 0 on a lawful level: (0 + 20) / 8 = 2, not the first state's 5.
+    assert.equal(align_shift({ maligntyp: 0 }, second), 2);
+});
+
 // --- temperature_shift tests ---
 // C ref: makemon.c temperature_shift(). Returns 3 when the monster resists the
 // level's temperature element, 0 otherwise.

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4471,
+      "datetime": "20261118143000",
+      "nethackrc": "OPTIONS=name:Stale,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug",
+      "comment": "makemon.c align_shift() caches its Is_special() lookup per svm.moves. A wizard-mode ^V teleport takes no time, so Dlvl 2 (built at moves 1, an ordinary level whose random monsters make the turn's lookup find no special level) and Medusa's level (built in the same turn) share that lookup: C weights Medusa's monsters by the unaligned main dungeon, not by the level's chaotic alignment, so its first reservoir draw is rn2(3) for the giant ant rather than rn2(5). Blocked: the recording diverges inside sp_lev.c create_object(), whose Medusa-level statue branch (makemon() of the petrified monster at a random position) is not ported. Record it once that branch lands.",
+      "moves": "\u00162\n\u0016?\nh"
+    }
+  ]
+}
