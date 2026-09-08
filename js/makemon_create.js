@@ -1263,7 +1263,7 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
             && species.pmidx !== PM_COBRA
             && (!allowMinotaur || species.pmidx !== PM_MINOTAUR))) {
         throw new UnsupportedMonsterCreationError(
-            `monster ${species?.pmidx ?? 'null'}`,
+            `makemon() monster ${species?.pmidx ?? 'null'}`,
         );
     }
 }
