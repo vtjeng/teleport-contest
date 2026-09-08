@@ -15668,7 +15668,16 @@
         "seed0367-priest-quest-tour"
       ],
       "detail": "Development session seed0367-priest-quest-tour, segment 0, input step 243 (key h, the level-teleport choice to Dlvl:24 / medusa). The first mismatch is a stop after 243 matching screens: the JS boundary is unsupported initial-level monster creation: makemon() monster 125, with C RNG already matching through the deferred level arrival. Upstream makemon.c makemon() accepts any non-genocided explicit permonst; the call is reached while C creates Medusa-level random statues through sp_lev.c create_object()'s STATUE + Is_medusa_level branch, which materializes the selected statue monster at random coordinates and checks its stone resistance before saving the statue traits. The JavaScript owner is js/makemon_create.js preflightCreation()/assertSupportedSpecies(), reached through the special-level object/statue path, whose main-dungeon mklev allowlist rejects PM_ARCHON (125). Verify the exact call stack and source-ordered RNG/inventory behavior, then make the smallest general source-backed fix.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "makemon-medusa-0367",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "makemon"
+          ]
+        }
+      ],
       "openedAt": "239a43e53bbc002bc7d96eb18f32cee4eaf88af2",
       "openStanding": {
         "sha": "f0bb624db2363d24d712e10d63852a51e0834f34",
