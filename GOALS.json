@@ -14301,8 +14301,8 @@
         },
         {
           "name": "nosound_ambience..sound_speak",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "5d963bb1c8c0ba83843e494a9aa3da3849c84f5d",
           "functions": [
             "nosound_ambience",
             "nosound_verbal",
@@ -14549,43 +14549,43 @@
           "name": "nosound_ambience",
           "line": 1947,
           "endLine": 1952,
-          "ported": false
+          "ported": true
         },
         {
           "name": "nosound_verbal",
           "line": 1953,
           "endLine": 1980,
-          "ported": false
+          "ported": true
         },
         {
           "name": "initialize_semap_basenames",
           "line": 1981,
           "endLine": 1994,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_sound_effect_filename",
           "line": 1995,
           "endLine": 2083,
-          "ported": false
+          "ported": true
         },
         {
           "name": "base_soundname_to_filename",
           "line": 2084,
           "endLine": 2160,
-          "ported": false
+          "ported": true
         },
         {
           "name": "set_voice",
           "line": 2161,
           "endLine": 2184,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sound_speak",
           "line": 2185,
           "endLine": 2223,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
