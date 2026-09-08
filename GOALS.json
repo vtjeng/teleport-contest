@@ -13179,8 +13179,8 @@
       "spans": [
         {
           "name": "reset_xystart_size..l_push_mkroom_table",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "76afe27400e5a2767d4ba74a49c36f4348c7c660",
           "functions": [
             "reset_xystart_size",
             "mapfrag_fromstr",
@@ -13217,6 +13217,29 @@
             "l_push_wid_hei_table",
             "l_push_mkroom_table"
           ]
+        },
+        {
+          "name": "lspo_message..get_table_roomtype_opt",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "lspo_message",
+            "get_table_monclass",
+            "find_montype",
+            "get_table_montype",
+            "get_table_xy_or_coord",
+            "lspo_monster",
+            "get_table_int_or_random",
+            "get_table_buc",
+            "get_table_objclass",
+            "find_objtype",
+            "get_table_objtype",
+            "lspo_level_flags",
+            "lspo_level_init",
+            "lspo_engraving",
+            "lspo_mineralize",
+            "get_table_roomtype_opt"
+          ]
         }
       ],
       "openedAt": "6ea47ee0c7c07b5cc4899b65be4477a5e6ad44eb",
@@ -13232,7 +13255,7 @@
           "name": "reset_xystart_size",
           "line": 206,
           "endLine": 216,
-          "ported": false
+          "ported": true
         },
         {
           "name": "match_maptyps",
@@ -13244,31 +13267,31 @@
           "name": "mapfrag_fromstr",
           "line": 227,
           "endLine": 255,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mapfrag_free",
           "line": 256,
           "endLine": 265,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mapfrag_get",
           "line": 266,
           "endLine": 274,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mapfrag_canmatch",
           "line": 275,
           "endLine": 280,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mapfrag_error",
           "line": 281,
           "endLine": 297,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mapfrag_match",
@@ -13292,43 +13315,43 @@
           "name": "lvlfill_maze_grid",
           "line": 359,
           "endLine": 373,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lvlfill_solid",
           "line": 374,
           "endLine": 390,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lvlfill_swamp",
           "line": 391,
           "endLine": 427,
-          "ported": false
+          "ported": true
         },
         {
           "name": "flip_dbridge_horizontal",
           "line": 428,
           "endLine": 441,
-          "ported": false
+          "ported": true
         },
         {
           "name": "flip_dbridge_vertical",
           "line": 442,
           "endLine": 457,
-          "ported": false
+          "ported": true
         },
         {
           "name": "flip_visuals",
           "line": 458,
           "endLine": 498,
-          "ported": false
+          "ported": true
         },
         {
           "name": "flip_encoded_dir_bits",
           "line": 499,
           "endLine": 532,
-          "ported": false
+          "ported": true
         },
         {
           "name": "flip_level",
@@ -13340,7 +13363,7 @@
           "name": "flip_vault_guard",
           "line": 926,
           "endLine": 966,
-          "ported": false
+          "ported": true
         },
         {
           "name": "flip_level_rnd",
@@ -13352,25 +13375,25 @@
           "name": "sel_set_wall_property",
           "line": 986,
           "endLine": 1000,
-          "ported": false
+          "ported": true
         },
         {
           "name": "set_wall_property",
           "line": 1001,
           "endLine": 1015,
-          "ported": false
+          "ported": true
         },
         {
           "name": "remove_boundary_syms",
           "line": 1016,
           "endLine": 1041,
-          "ported": false
+          "ported": true
         },
         {
           "name": "set_door_orientation",
           "line": 1042,
           "endLine": 1088,
-          "ported": false
+          "ported": true
         },
         {
           "name": "shared_with_room",
@@ -13412,7 +13435,7 @@
           "name": "set_ok_location_func",
           "line": 1274,
           "endLine": 1279,
-          "ported": false
+          "ported": true
         },
         {
           "name": "is_ok_location",
@@ -13430,7 +13453,7 @@
           "name": "get_unpacked_coord",
           "line": 1317,
           "endLine": 1336,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_location_coord",
@@ -13478,19 +13501,19 @@
           "name": "create_trap",
           "line": 1812,
           "endLine": 1851,
-          "ported": false
+          "ported": true
         },
         {
           "name": "noncoalignment",
           "line": 1852,
           "endLine": 1863,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_bad_boulder_spot",
           "line": 1864,
           "endLine": 1883,
-          "ported": false
+          "ported": true
         },
         {
           "name": "pm_to_humidity",
@@ -13502,7 +13525,7 @@
           "name": "sp_amask_to_amask",
           "line": 1908,
           "endLine": 1924,
-          "ported": false
+          "ported": true
         },
         {
           "name": "create_monster",
@@ -13520,13 +13543,13 @@
           "name": "create_altar",
           "line": 2446,
           "endLine": 2491,
-          "ported": false
+          "ported": true
         },
         {
           "name": "search_door",
           "line": 2492,
           "endLine": 2548,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dig_corridor",
@@ -13538,7 +13561,7 @@
           "name": "create_corridor",
           "line": 2671,
           "endLine": 2730,
-          "ported": false
+          "ported": true
         },
         {
           "name": "fill_special_room",
@@ -13556,7 +13579,7 @@
           "name": "light_region",
           "line": 2839,
           "endLine": 2864,
-          "ported": false
+          "ported": true
         },
         {
           "name": "wallify_map",
@@ -13580,37 +13603,37 @@
           "name": "splev_initlev",
           "line": 2982,
           "endLine": 3021,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sp_code_jmpaddr",
           "line": 3022,
           "endLine": 3030,
-          "ported": false
+          "ported": true
         },
         {
           "name": "spo_end_moninvent",
           "line": 3031,
           "endLine": 3039,
-          "ported": false
+          "ported": true
         },
         {
           "name": "spo_pop_container",
           "line": 3040,
           "endLine": 3049,
-          "ported": false
+          "ported": true
         },
         {
           "name": "l_push_wid_hei_table",
           "line": 3050,
           "endLine": 3058,
-          "ported": false
+          "ported": true
         },
         {
           "name": "l_push_mkroom_table",
           "line": 3059,
           "endLine": 3075,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_message",
@@ -13622,7 +13645,7 @@
           "name": "get_table_align",
           "line": 3114,
           "endLine": 3130,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_table_monclass",
@@ -13718,7 +13741,7 @@
           "name": "get_mkroom_name",
           "line": 3991,
           "endLine": 4003,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_table_roomtype_opt",
@@ -13742,7 +13765,7 @@
           "name": "good_stair_loc",
           "line": 4139,
           "endLine": 4146,
-          "ported": false
+          "ported": true
         },
         {
           "name": "l_create_stairway",
