@@ -14264,7 +14264,7 @@
     {
       "id": "sounds-dosounds-to-sound_speak",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port sounds.c dosounds through sound_speak",
       "cFile": "sounds.c",
       "sessions": [
@@ -14320,8 +14320,11 @@
         "screens": 5180,
         "rng": 349457
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4d31adcecb2a14c880ef05c76b18c249bf0b9527",
+      "delivered": {
+        "screens": 7,
+        "rng": 1178
+      },
       "functions": [
         {
           "name": "mon_in_room",
