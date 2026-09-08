@@ -174,6 +174,21 @@ test('option help derives its ordinary TTY page from allopt source order',
         assert.equal(lines.at(-1), 'See NetHack\'s "Guidebook" for details.');
     });
 
+test('option help prints the configuration path stored by cfgfiles.c', () => {
+    // cfgfiles.c fopen_config_file() passes the path it opened to
+    // set_configfile_name(), and options.c option_help() prints the exact
+    // get_configfile() result. A replay segment supplies configuration text
+    // without that machine-local path, but callers which do define it must
+    // retain the source behavior.
+    const [,,, configLine] = optionHelpLines({
+        configfile: '/configured-user/.nethackrc',
+    });
+    assert.equal(
+        configLine.text,
+        'Set options as OPTIONS=<options> in /configured-user/.nethackrc',
+    );
+});
+
 test('option help returns through the restored command boundary',
     () => withSerializedGrids(async () => {
         const segment = loadHelpOptionRecipe().segments[0];
