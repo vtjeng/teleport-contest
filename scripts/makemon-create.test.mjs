@@ -3424,7 +3424,7 @@ test('rock trolls remain outside the ordinary D:5 reservoir before RNG', () => {
             { state, random: random.random },
         ),
         (error) => error instanceof UnsupportedMonsterCreationError
-            && error.operation === `monster ${PM_ROCK_TROLL}`,
+            && error.operation === `makemon() monster ${PM_ROCK_TROLL}`,
     );
     assert.deepEqual(random.calls, []);
 });
@@ -3498,7 +3498,7 @@ test('Nazgul remain outside the ordinary D:5 reservoir before RNG', () => {
             { state, random: random.random },
         ),
         (error) => error instanceof UnsupportedMonsterCreationError
-            && error.operation === `monster ${PM_NAZGUL}`,
+            && error.operation === `makemon() monster ${PM_NAZGUL}`,
     );
     assert.deepEqual(random.calls, []);
 });
@@ -3811,7 +3811,7 @@ test('soldier NO_MINVENT and unsupported mercenary siblings stay drawless',
                 { state: siblingState, random: siblingRandom.random },
             ),
             (error) => error instanceof UnsupportedMonsterCreationError
-                && error.operation === `monster ${PM_WATCHMAN}`,
+                && error.operation === `makemon() monster ${PM_WATCHMAN}`,
         );
         assert.deepEqual(siblingRandom.calls, []);
     });
@@ -4141,7 +4141,7 @@ test('stone giant NO_MINVENT and later giant families stop before inventory RNG'
                     { state, random: random.random },
                 ),
                 (error) => error instanceof UnsupportedMonsterCreationError
-                    && error.operation === `monster ${mndx}`,
+                    && error.operation === `makemon() monster ${mndx}`,
                 state.mons[mndx].pmnames[2],
             );
             assert.deepEqual(random.calls, [], state.mons[mndx].pmnames[2]);

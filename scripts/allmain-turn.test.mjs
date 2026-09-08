@@ -2287,7 +2287,7 @@ test('a refused runtime monster keeps the segment prefix through runSegment',
         assert.ok(boundary instanceof UnsupportedTurnBoundaryError, 'boundary');
         // js/monsters.js index 122 is the Aleax, source difficulty 12, above
         // the difficulty-9 ceiling isOrdinaryD5ReservoirSpecies() admits.
-        assert.match(boundary.message, /monster creation: monster 122$/u);
+        assert.match(boundary.message, /monster creation: makemon\(\) monster 122$/u);
         // Recorded with the C reference program for this exact input:
         // `node scripts/diff-fresh.mjs` on it reports C=67 screens, C=67
         // cursors and C=3199 PRNG calls, with the first screen mismatch at
