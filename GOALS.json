@@ -13220,8 +13220,8 @@
         },
         {
           "name": "lspo_message..get_table_roomtype_opt",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "dc0de263e64bf93bf9770506ac2d844918349e9b",
           "functions": [
             "lspo_message",
             "get_table_monclass",
@@ -13239,6 +13239,37 @@
             "lspo_engraving",
             "lspo_mineralize",
             "get_table_roomtype_opt"
+          ]
+        },
+        {
+          "name": "lspo_room..nhl_abs_coord",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "lspo_room",
+            "spo_endroom",
+            "l_create_stairway",
+            "lspo_stair",
+            "lspo_ladder",
+            "lspo_grave",
+            "lspo_altar",
+            "get_table_traptype_opt",
+            "get_trapname_bytype",
+            "lspo_trap",
+            "lspo_gold",
+            "lspo_corridor",
+            "lspo_random_corridors",
+            "random_wdir",
+            "floodfillchk_match_under",
+            "set_floodfillchk_match_under",
+            "floodfillchk_match_accessible",
+            "sel_set_feature",
+            "sel_set_door",
+            "lspo_door",
+            "l_table_getset_feature_flag",
+            "cvt_to_abscoord",
+            "cvt_to_relcoord",
+            "nhl_abs_coord"
           ]
         }
       ],
@@ -13639,7 +13670,7 @@
           "name": "lspo_message",
           "line": 3076,
           "endLine": 3113,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_table_align",
@@ -13651,61 +13682,61 @@
           "name": "get_table_monclass",
           "line": 3131,
           "endLine": 3142,
-          "ported": false
+          "ported": true
         },
         {
           "name": "find_montype",
           "line": 3143,
           "endLine": 3166,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_table_montype",
           "line": 3167,
           "endLine": 3187,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_table_xy_or_coord",
           "line": 3188,
           "endLine": 3213,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_monster",
           "line": 3214,
           "endLine": 3406,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_table_int_or_random",
           "line": 3407,
           "endLine": 3441,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_table_buc",
           "line": 3442,
           "endLine": 3454,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_table_objclass",
           "line": 3455,
           "endLine": 3467,
-          "ported": false
+          "ported": true
         },
         {
           "name": "find_objtype",
           "line": 3468,
           "endLine": 3538,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_table_objtype",
           "line": 3539,
           "endLine": 3556,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_object",
@@ -13717,25 +13748,25 @@
           "name": "lspo_level_flags",
           "line": 3759,
           "endLine": 3836,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_level_init",
           "line": 3837,
           "endLine": 3880,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_engraving",
           "line": 3881,
           "endLine": 3938,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_mineralize",
           "line": 3939,
           "endLine": 3990,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_mkroom_name",
@@ -13747,7 +13778,7 @@
           "name": "get_table_roomtype_opt",
           "line": 4004,
           "endLine": 4027,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_room",
@@ -13951,7 +13982,7 @@
           "name": "get_table_intarray_entry",
           "line": 5260,
           "endLine": 5281,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_table_region",
@@ -13963,7 +13994,7 @@
           "name": "get_coord",
           "line": 5319,
           "endLine": 5370,
-          "ported": false
+          "ported": true
         },
         {
           "name": "levregion_add",
