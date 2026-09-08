@@ -14996,8 +14996,8 @@
         },
         {
           "name": "uint_to_any..escape_from_sticky_mon",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "b949093582e96581b915738e66793ab102946192",
           "functions": [
             "uint_to_any",
             "long_to_any",
@@ -15037,31 +15037,31 @@
           "name": "uint_to_any",
           "line": 73,
           "endLine": 80,
-          "ported": false
+          "ported": true
         },
         {
           "name": "long_to_any",
           "line": 81,
           "endLine": 88,
-          "ported": false
+          "ported": true
         },
         {
           "name": "monst_to_any",
           "line": 89,
           "endLine": 96,
-          "ported": false
+          "ported": true
         },
         {
           "name": "obj_to_any",
           "line": 97,
           "endLine": 104,
-          "ported": false
+          "ported": true
         },
         {
           "name": "revive_nasty",
           "line": 105,
           "endLine": 144,
-          "ported": false
+          "ported": true
         },
         {
           "name": "could_move_onto_boulder",
@@ -15091,7 +15091,7 @@
           "name": "rock_disappear_msg",
           "line": 315,
           "endLine": 326,
-          "ported": false
+          "ported": true
         },
         {
           "name": "moverock_done",
@@ -15115,7 +15115,7 @@
           "name": "still_chewing",
           "line": 647,
           "endLine": 824,
-          "ported": false
+          "ported": true
         },
         {
           "name": "movobj",
@@ -15127,7 +15127,7 @@
           "name": "dosinkfall",
           "line": 836,
           "endLine": 922,
-          "ported": false
+          "ported": true
         },
         {
           "name": "may_dig",
@@ -15193,13 +15193,13 @@
           "name": "notice_mon",
           "line": 1708,
           "endLine": 1734,
-          "ported": false
+          "ported": true
         },
         {
           "name": "notice_mons_cmp",
           "line": 1735,
           "endLine": 1743,
-          "ported": false
+          "ported": true
         },
         {
           "name": "notice_all_mons",
@@ -15229,7 +15229,7 @@
           "name": "u_simple_floortyp",
           "line": 1833,
           "endLine": 1851,
-          "ported": false
+          "ported": true
         },
         {
           "name": "handle_tip",
@@ -15241,19 +15241,19 @@
           "name": "swim_move_danger",
           "line": 1885,
           "endLine": 1924,
-          "ported": false
+          "ported": true
         },
         {
           "name": "domove_bump_mon",
           "line": 1925,
           "endLine": 1954,
-          "ported": false
+          "ported": true
         },
         {
           "name": "domove_attackmon_at",
           "line": 1955,
           "endLine": 1995,
-          "ported": false
+          "ported": true
         },
         {
           "name": "domove_fight_ironbars",
@@ -15283,19 +15283,19 @@
           "name": "air_turbulence",
           "line": 2342,
           "endLine": 2364,
-          "ported": false
+          "ported": true
         },
         {
           "name": "water_turbulence",
           "line": 2365,
           "endLine": 2395,
-          "ported": false
+          "ported": true
         },
         {
           "name": "slippery_ice_fumbling",
           "line": 2396,
           "endLine": 2417,
-          "ported": false
+          "ported": true
         },
         {
           "name": "u_maybe_impaired",
@@ -15307,7 +15307,7 @@
           "name": "impaired_movement",
           "line": 2425,
           "endLine": 2443,
-          "ported": false
+          "ported": true
         },
         {
           "name": "avoid_moving_on_trap",
@@ -15325,13 +15325,13 @@
           "name": "avoid_running_into_trap_or_liquid",
           "line": 2495,
           "endLine": 2514,
-          "ported": false
+          "ported": true
         },
         {
           "name": "avoid_trap_andor_region",
           "line": 2515,
           "endLine": 2585,
-          "ported": false
+          "ported": true
         },
         {
           "name": "move_out_of_bounds",
@@ -15343,13 +15343,13 @@
           "name": "carrying_too_much",
           "line": 2616,
           "endLine": 2638,
-          "ported": false
+          "ported": true
         },
         {
           "name": "escape_from_sticky_mon",
           "line": 2639,
           "endLine": 2694,
-          "ported": false
+          "ported": true
         },
         {
           "name": "domove",
