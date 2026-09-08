@@ -14971,7 +14971,7 @@
     {
       "id": "hack-c-in-town",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port hack.c in_town and remaining movement behavior",
       "cFile": "hack.c",
       "sessions": [
@@ -15025,8 +15025,8 @@
         },
         {
           "name": "pooleffects..furniture_present",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "5b80e3ce4531a35f2c81352bb10ab4633fc1538e",
           "functions": [
             "pooleffects",
             "monstinroom",
@@ -15040,8 +15040,11 @@
         "screens": 5187,
         "rng": 350635
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5b80e3ce4531a35f2c81352bb10ab4633fc1538e",
+      "delivered": {
+        "screens": -1,
+        "rng": 160
+      },
       "functions": [
         {
           "name": "uint_to_any",
@@ -15425,7 +15428,7 @@
           "name": "pooleffects",
           "line": 3233,
           "endLine": 3311,
-          "ported": false
+          "ported": true
         },
         {
           "name": "spoteffects",
@@ -15437,13 +15440,13 @@
           "name": "monstinroom",
           "line": 3466,
           "endLine": 3481,
-          "ported": false
+          "ported": true
         },
         {
           "name": "furniture_present",
           "line": 3482,
           "endLine": 3497,
-          "ported": false
+          "ported": true
         },
         {
           "name": "in_rooms",
