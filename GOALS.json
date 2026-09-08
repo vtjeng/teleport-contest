@@ -14264,7 +14264,7 @@
     {
       "id": "sounds-dosounds-to-sound_speak",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port sounds.c dosounds through sound_speak",
       "cFile": "sounds.c",
       "sessions": [
@@ -14272,8 +14272,12 @@
       ],
       "detail": "The divergence queue names dosounds() at step 175 in seed0360-wizard-world-tour; dosounds is not fully represented by the partial dosoundsInitialLevel() implementation. Start at dosounds and cover every remaining sounds.c function through sound_speak in C order, preserving ambient sound gates, RNG, messages, and no-sound backend behavior.",
       "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "3ac89ac44fd5cafdbe7ed3595968eadce036b4da",
+      "openStanding": {
+        "sha": "1270a4418200bf6d8b58412ce95e7695795c3b27",
+        "screens": 5180,
+        "rng": 349457
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
