@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8123,
+      "datetime": "20260908123456",
+      "nethackrc": "OPTIONS=name:Listener,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "  ."
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 // Direct tests for dog.c abuse_dog() and the sounds.c verbs it reaches,
-// growl() and yelp(). The three recipes/pet-abuse-*.session.json fresh
+// growl(), yelp(), and whimper(). The three recipes/pet-abuse-*.session.json fresh
 // differentials cover what a live game shows: a landed hit on a little dog
 // that yelps and then flees, one that growls, and one on a pony, whose
 // MS_NEIGH has no yelp verb. The arms below are the ones a recording cannot
@@ -21,7 +21,7 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
-import { growl, growl_sound, h_sounds, yelp } from '../js/sounds.js';
+import { growl, growl_sound, h_sounds, whimper, yelp } from '../js/sounds.js';
 import {
     PM_GNOME,
     PM_JACKAL,
@@ -354,4 +354,26 @@ test('growl prints for a visible monster and skips MS_SILENT', async () => {
     // sounds.c:405, the helpless() half of the same guard.
     await growl(pet(PM_LITTLE_DOG, { mcanmove: 0 }));
     assert.equal(lines(), '');
+});
+
+test('whimper follows the distressed-pet verb table and wake radius', async () => {
+    await hero();
+    const dog = pet(PM_LITTLE_DOG);
+    const nearby = sleeper(dog.mx + (dog.mx < 40 ? 2 : -2), dog.my);
+
+    await whimper(dog, { state: game });
+    assert.equal(lines(), 'The little dog whines.');
+    assert.equal(Boolean(nearby.msleeping), false);
+
+    await whimper(pet(PM_KITTEN), { state: game });
+    assert.equal(lines(), 'The kitten whimpers.');
+    await whimper(pet(PM_PONY), { state: game });
+    assert.equal(lines(), '');
+
+    setProperty(HALLUC, true);
+    const random = rolls([34]);
+    await whimper(dog, { state: game, random });
+    assert.deepEqual(random.bounds, ['rn2(35)']);
+    assert.match(lines(), /^The .+ warbles\.$/u);
+    setProperty(HALLUC, false);
 });

@@ -3,10 +3,12 @@ import test from 'node:test';
 
 import {
     BARRACKS,
+    BEEHIVE,
     COURT,
     DEAF,
     HALLUC,
     HALLUC_RES,
+    MORGUE,
     OROOM,
     ROOMOFFSET,
     SHOPBASE,
@@ -15,11 +17,17 @@ import {
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { COIN_CLASS } from '../js/objects.js';
-import { M1_ANIMAL, M2_LORD, M2_MERC } from '../js/monsters.js';
+import {
+    M1_ANIMAL,
+    M1_FLY,
+    M2_LORD,
+    M2_MERC,
+    M2_UNDEAD,
+    S_ANT,
+} from '../js/monsters.js';
 import { parseNethackrc } from '../js/options.js';
 import {
-    dosoundsInitialLevel,
-    UnsupportedAmbientSoundError,
+    dosounds,
 } from '../js/sounds.js';
 
 function soundState() {
@@ -27,7 +35,7 @@ function soundState() {
     uprops[DEAF] = { intrinsic: 0, extrinsic: 0 };
     uprops[HALLUC] = { intrinsic: 0, extrinsic: 0 };
     uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
-    return {
+    const state = {
         flags: { acoustics: true },
         level: new GameMap(),
         u: {
@@ -38,7 +46,9 @@ function soundState() {
             uswallow: false,
             uz: { dnum: 0, dlevel: 1 },
         },
+        youmonst: { data: { mlet: 0, mattk: [] } },
     };
+    return state;
 }
 
 function scriptedRandom(results) {
@@ -84,7 +94,7 @@ async function flushMicrotasks() {
 async function runSounds(state, results) {
     const script = scriptedRandom(results);
     const sink = messageSink();
-    await dosoundsInitialLevel(state, {
+    await dosounds(state, {
         random: script.random,
         pline: sink.pline,
     });
@@ -160,7 +170,7 @@ test('dosounds awaits each message before drawing for the next branch', async ()
     const gates = [fountain, sink];
     const messages = [];
     let completed = false;
-    const execution = dosoundsInitialLevel(state, {
+    const execution = dosounds(state, {
         random: script.random,
         pline(message) {
             messages.push(message);
@@ -488,66 +498,50 @@ test('dosounds clears a stale vault flag at the source gate', async () => {
     assert.deepEqual(messages, []);
 });
 
-// Runs dosounds() expecting a refusal, and reports everything the refusal
-// position has to leave untouched: the draws taken, the messages printed, and
-// the level flags.
-async function refusedSounds(state, results) {
-    const script = scriptedRandom(results);
-    const sink = messageSink();
-    const flagsBefore = { ...state.level.flags };
-    let error = null;
-    try {
-        await dosoundsInitialLevel(state, {
-            random: script.random,
-            pline: sink.pline,
-        });
-    } catch (caught) {
-        error = caught;
-    }
-    return { error, script, messages: sink.messages, flagsBefore };
+test('dosounds emits the swamp message and returns in source order', async () => {
+    const state = soundState();
+    state.level.flags.has_swamp = true;
+    const result = await runSounds(state, [0, 1]);
+    result.script.assertBounds([200, 2]);
+    assert.deepEqual(result.messages, ['You smell marsh gas!']);
+});
+
+function roomMonsterSoundState(roomType, flag, data) {
+    const state = soundState();
+    state.level.rooms = [{ roomnoidx: 0, rtype: roomType }];
+    state.level.nroom = 1;
+    state.level.flags[flag] = true;
+    state.level.locations[5][5].roomno = ROOMOFFSET;
+    state.level.monlist = {
+        mx: 5,
+        my: 5,
+        mhp: 10,
+        data,
+        nmon: null,
+    };
+    return state;
 }
 
-test('dosounds refuses each unported branch by name, in source order',
-    async () => {
-        const fountainSwamp = soundState();
-        fountainSwamp.level.flags.nfountains = 1;
-        fountainSwamp.level.flags.has_swamp = true;
-        // One misses the earlier fountain gate before the swamp boundary.
-        let refusal = await refusedSounds(fountainSwamp, [1]);
-        assert.ok(refusal.error instanceof UnsupportedAmbientSoundError);
-        assert.equal(refusal.error.name, 'UnsupportedAmbientSoundError');
-        assert.equal(refusal.error.message,
-            'dosounds() needs the has_swamp level-sound branch');
-        // The refusal follows sounds.c:226's own rn2(200) court gate, which
-        // is absent here, so
-        // fountain draw is the only one taken, nothing is printed, and the
-        // level flags are as they were.
-        refusal.script.assertBounds([400]);
-        assert.deepEqual(refusal.messages, []);
-        assert.deepEqual(fountainSwamp.level.flags, refusal.flagsBefore);
-
-        const vaultBeehive = vaultState();
-        vaultBeehive.level.flags.has_beehive = true;
-        // One misses the earlier vault gate before the beehive boundary.
-        refusal = await refusedSounds(vaultBeehive, [1]);
-        assert.ok(refusal.error instanceof UnsupportedAmbientSoundError);
-        assert.equal(refusal.error.message,
-            'dosounds() needs the has_beehive level-sound branch');
-        refusal.script.assertBounds([200]);
-        assert.deepEqual(refusal.messages, []);
-        assert.deepEqual(vaultBeehive.level.flags, refusal.flagsBefore);
-
-        // Oracle branch is ported: sink gate misses, Oracle rn2(400) gate
-        // misses (non-zero), function completes normally with no message.
-        const sinkOracle = soundState();
-        sinkOracle.level.flags.nsinks = 1;
-        sinkOracle.oracle_level = { ...sinkOracle.u.uz };
-        refusal = await refusedSounds(sinkOracle, [1, 1]);
-        assert.equal(refusal.error, null);
-        refusal.script.assertBounds([300, 400]);
-        assert.deepEqual(refusal.messages, []);
-        assert.deepEqual(sinkOracle.level.flags, refusal.flagsBefore);
+test('dosounds scans beehive monsters before selecting a message', async () => {
+    const state = roomMonsterSoundState(BEEHIVE, 'has_beehive', {
+        mlet: S_ANT,
+        mflags1: M1_FLY,
     });
+    const result = await runSounds(state, [0, 0]);
+    result.script.assertBounds([200, 2]);
+    assert.deepEqual(result.messages, ['You hear a low buzzing.']);
+});
+
+test('dosounds scans morgue monsters before selecting a message', async () => {
+    const state = roomMonsterSoundState(MORGUE, 'has_morgue', {
+        mflags2: M2_UNDEAD,
+    });
+    const result = await runSounds(state, [0, 0]);
+    result.script.assertBounds([200, 2]);
+    assert.deepEqual(result.messages, [
+        'You suddenly realize it is unnaturally quiet.',
+    ]);
+});
 
 // Creates a minimal state where has_shop is set and a tended shop exists.
 // The shopkeeper (resident) is placed at (5, 5) inside a room whose roomno is

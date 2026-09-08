@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Tip a worn hat to exercise sounds.c tiphat(). Blocked by pickup.c dotip()'s inventory-item getobj/tip_ok path; record after that path is ported.",
+  "segments": [
+    {
+      "seed": 8124,
+      "datetime": "20260908124500",
+      "nethackrc": "OPTIONS=name:Tipper,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": "  #wizwish\nuncursed fedora\nWe#tip\nel"
+    }
+  ]
+}

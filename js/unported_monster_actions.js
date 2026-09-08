@@ -67,6 +67,7 @@ import { buzzmu, castmu } from './mcastu.js';
 import { m_throw, thitu, thrwmu } from './mthrowu.js';
 import { AKLYS } from './objects.js';
 import { quest_stat_check, quest_talk } from './quest.js';
+import { whimper } from './sounds.js';
 import {
     adaptMonsterActionToDochugwSignature,
     hideunder,
@@ -1098,6 +1099,7 @@ async function moveSimplePet(monster, after, env) {
         // owner; letting the real function through would run the interruption
         // without the announcement that precedes it.
         stopOccupation: () => unsupported('pet hunger interruption'),
+        whimper,
         // steal.c relobj() and mdrop_obj() and do.c flooreffects() reach the
         // drop arm as ported functions with unported branches, so they refuse
         // through the caller's boundary class the way m_move() does.

@@ -24,7 +24,6 @@ import { UnsupportedGetposError } from './getpos.js';
 import { UnsupportedSpecialRoomError } from './mkroom.js';
 import {
     activate_chosen_soundlib,
-    UnsupportedAmbientSoundError,
 } from './sounds.js';
 import { initRng, enableRngLog, getRngLog } from './rng.js';
 import {
@@ -760,10 +759,6 @@ export async function runSegment(
                 // screen.
                 || e instanceof UnsupportedStatusRefreshError
                 || e instanceof UnsupportedSpecialRoomError
-                // sounds.c dosounds() runs every turn under this loop, so the
-                // first turn on a level holding an unported special room ends
-                // the segment here.
-                || e instanceof UnsupportedAmbientSoundError
                 || e instanceof UnsupportedPositionCheckError
                 || e instanceof UnsupportedPosixDuplicatedCaptureError) {
                 onBoundary?.(e);

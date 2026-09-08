@@ -1,19 +1,27 @@
-// Ambient level sounds and the #chat command.
-// C refs: sounds.c dosounds(), dotalk(), dochat().
+// Monster noises, ambient level sounds, #chat, and sound backends.
+// C refs: sounds.c dosounds() through nosound_play_usersound().
 
 import {
     ANY_SHOP,
     BARRACKS,
+    BEEHIVE,
     BLINDED,
+    BOLT_LIM,
+    CONFLICT,
     COURT,
     DEAF,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    EMIN,
     EPRI,
     FEMALE,
+    HAIR,
     HALLUC,
     HALLUC_RES,
+    HEAD,
+    INVIS,
+    IRONBARS,
     IS_WALL,
     Is_astralevel,
     MALE,
@@ -21,33 +29,72 @@ import {
     M_AP_OBJECT,
     M_AP_TYPE,
     MS_ANIMAL,
+    MS_ARREST,
     MS_BARK,
     MS_BELLOW,
+    MS_BOAST,
+    MS_BRIBE,
     MS_BUZZ,
+    MS_CHIRP,
+    MS_CUSS,
+    MS_DJINNI,
     MS_GROAN,
     MS_GROWL,
+    MS_GRUNT,
+    MS_GUARD,
+    MS_GUARDIAN,
     MS_HISS,
+    MS_HUMANOID,
+    MS_IMITATE,
+    MS_LAUGH,
+    MS_LEADER,
     MS_MEW,
     MS_MOO,
+    MS_MUMBLE,
+    MS_NEMESIS,
     MS_NEIGH,
+    MS_NURSE,
+    MS_ORACLE,
+    MS_ORC,
+    MS_PRIEST,
+    MS_RIDER,
     MS_ROAR,
+    MS_SEDUCE,
+    MS_SELL,
     MS_SILENT,
+    MS_SOLDIER,
+    MS_SPELL,
     MS_SQAWK,
     MS_SQEEK,
+    MS_VAMPIRE,
     MS_WAIL,
+    MS_WERE,
+    MORGUE,
+    NECK,
     ROOMOFFSET,
     SDOOR,
     STONE,
     STRANGLED,
     STRAT_WAITMASK,
     VAULT,
+    W_ARMH,
     WINTYPELEN,
     ZOO,
+    has_emin,
     helpless,
     isok,
+    nothing_happens,
 } from './const.js';
 import { getdir } from './cmd.js';
-import { map_invisible, vobj_at } from './display.js';
+import {
+    glyph_at,
+    glyph_is_invisible,
+    glyph_is_statue,
+    glyph_to_mon,
+    map_invisible,
+    vobj_at,
+} from './display.js';
+import { cursed } from './do_wear.js';
 import {
     capitalizedMonsterName,
     monsterCommonName,
@@ -60,27 +107,45 @@ import { nomul } from './hack.js';
 import { search_special } from './mkroom.js';
 import { get_iter_mons, wake_nearto } from './mon.js';
 import {
+    carnivorous,
+    haseyes,
+    herbivorous,
     humanoid,
     is_animal,
+    is_flyer,
     is_lord,
     is_mercenary,
     is_prince,
     is_silent,
+    is_undead,
+    is_vampshifter,
+    mhis,
+    perceives,
 } from './mondata.js';
-import { MS_LEADER, PM_ORACLE } from './monsters.js';
+import {
+    PM_GECKO,
+    PM_LONG_WORM,
+    PM_ORACLE,
+    S_ANT,
+    S_EEL,
+} from './monsters.js';
+import { accessible } from './monmove.js';
 import { m_at } from './monst.js';
 import { g_at } from './obj.js';
-import { an, vtense } from './objnam.js';
+import { an, helm_simple_name, vtense } from './objnam.js';
 import { STATUE } from './objects.js';
 import { halu_gname } from './pray.js';
+import { body_part } from './polyself.js';
 import { quest_chat } from './quest.js';
-import { inhistemple, temple_occupied } from './priest.js';
-import { rn2 } from './rng.js';
+import { inhistemple, p_coaligned, temple_occupied } from './priest.js';
+import { rn1, rn2 } from './rng.js';
 import { genders } from './roles.js';
-import { canSeeMonster, canSpotMonster } from './startup_a11y.js';
+import { canSpotMonster } from './startup_a11y.js';
 import { noisy_shop, shop_object, tended_shop } from './shk.js';
 import { ttyPline } from './tty_message.js';
-import { cansee, canseemon } from './vision.js';
+import { cansee, canseemon, couldsee } from './vision.js';
+import { vault_occupied } from './vault.js';
+import { which_armor } from './worn.js';
 
 const FOUNTAIN_MESSAGES = Object.freeze([
     'bubbling water.',
@@ -93,22 +158,6 @@ const SINK_MESSAGES = Object.freeze([
     'a slow drip.',
     'a gurgling noise.',
     'dishes being washed!',
-]);
-
-const PRE_VAULT_SPECIAL_SOUND_FLAGS = Object.freeze([
-    'has_swamp',
-]);
-
-// C's dosounds() checks special-room flags in this order after the vault:
-// beehive, morgue, barracks, zoo, shop, temple. The shop and zoo branches are
-// ported; the remaining special-room branches are rejected before their gate
-// draws.
-const PRE_SHOP_SPECIAL_SOUND_FLAGS = Object.freeze([
-    'has_beehive',
-    'has_morgue',
-]);
-
-const POST_SHOP_SPECIAL_SOUND_FLAGS = Object.freeze([
 ]);
 
 function propertyActive(hero, propertyIndex) {
@@ -196,7 +245,8 @@ function mon_in_room(monster, roomType, state) {
 
 // C ref: sounds.c:115-129 zoo_mon_sound(). The callback's selection draw is
 // made only after get_iter_mons() finds the first live qualifying monster.
-async function zoo_mon_sound(_monster, state, hallu, { random, pline }) {
+async function zoo_mon_sound(monster, state, hallu, { random, pline }) {
+    if (!zoo_mon_sound_qualifies(monster, state)) return false;
     const selection = random(2) + hallu;
     const zooMessages = [
         'a sound reminiscent of an elephant stepping on a peanut.',
@@ -215,7 +265,8 @@ function zoo_mon_sound_qualifies(monster, state) {
 // C ref: sounds.c:29-61 throne_mon_sound(). The room gate is the callback's
 // responsibility, so get_iter_mons() can continue to the next sound branch
 // when a court exists but has no eligible living monster.
-async function throneMonSound(_monster, state, hallu, { random, pline }) {
+async function throne_mon_sound(monster, state, hallu, { random, pline }) {
+    if (!throne_mon_sound_qualifies(monster, state)) return false;
     const selection = random(3) + hallu;
     const messages = [
         'the tones of courtly conversation.',
@@ -235,12 +286,71 @@ async function throneMonSound(_monster, state, hallu, { random, pline }) {
     return true;
 }
 
-function throneMonSoundQualifies(monster, state) {
+function throne_mon_sound_qualifies(monster, state) {
     return (monster.msleeping
         || is_lord(monster.data)
         || is_prince(monster.data))
         && !is_animal(monster.data)
         && mon_in_room(monster, COURT, state);
+}
+
+// C ref: sounds.c beehive_mon_sound() (62-88).
+async function beehive_mon_sound(monster, state, hallu, { random, pline }) {
+    if (monster.data?.mlet !== S_ANT || !is_flyer(monster.data)
+        || !mon_in_room(monster, BEEHIVE, state)) {
+        return false;
+    }
+    switch (random(2) + hallu) {
+    case 0:
+        await hear('a low buzzing.', state, pline);
+        break;
+    case 1:
+        await hear('an angry drone.', state, pline);
+        break;
+    case 2:
+        await hear(
+            `bees in your ${state.uarmh ? '' : '(nonexistent) '}bonnet!`,
+            state,
+            pline,
+        );
+        break;
+    default:
+        break;
+    }
+    return true;
+}
+
+// C ref: sounds.c morgue_mon_sound() (89-114).
+async function morgue_mon_sound(monster, state, hallu, { random, pline }) {
+    if (!(is_undead(monster.data) || is_vampshifter(monster))
+        || !mon_in_room(monster, MORGUE, state)) {
+        return false;
+    }
+    const hair = body_part(HAIR, state.youmonst);
+    switch (random(2) + hallu) {
+    case 0:
+        await pline('You suddenly realize it is unnaturally quiet.', state);
+        break;
+    case 1: {
+        const neck = body_part(NECK, state.youmonst);
+        await pline(
+            `The ${hair} on the back of your ${neck} ${vtense(hair, 'stand')} up.`,
+            state,
+        );
+        break;
+    }
+    case 2: {
+        const head = body_part(HEAD, state.youmonst);
+        await pline(
+            `The ${hair} on your ${head} ${vtense(hair, 'seem')} to stand up.`,
+            state,
+        );
+        break;
+    }
+    default:
+        break;
+    }
+    return true;
 }
 
 const BARRACKS_MESSAGES = Object.freeze([
@@ -264,27 +374,6 @@ async function barracksMonSound(state, hallu, { random, pline }) {
     return true;
 }
 
-// A sounds.c dosounds() branch this port cannot run yet. dosounds() runs once
-// per turn from allmain.c moveloop_core(), so the refusal has to end the
-// segment on its last matching screen rather than crash the caller.
-export class UnsupportedAmbientSoundError extends Error {
-    constructor(reason) {
-        super(`dosounds() needs ${reason}`);
-        this.name = 'UnsupportedAmbientSoundError';
-    }
-}
-
-function rejectUnportedSpecialSound(state, flagNames) {
-    const flags = state.level?.flags ?? {};
-    const laterFlag = flagNames.find((name) => flags[name]);
-    if (laterFlag) {
-        throw new UnsupportedAmbientSoundError(
-            `the ${laterFlag} level-sound branch`,
-        );
-    }
-}
-
-
 async function hear(message, state, pline) {
     await pline(`You hear ${message}`, state);
 }
@@ -298,47 +387,56 @@ const TEMPLE_MESSAGES = Object.freeze([
 
 // C ref: sounds.c:131-178 temple_priest_sound(). Iterates monlist for a
 // priest inside their own temple while the hero is outside it.
-async function templePriestSound(state, hallu, { random, pline }) {
-    for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
-        if (!mtmp.ispriest || !inhistemple(mtmp, state)
-            || helpless(mtmp)
-            || temple_occupied(state.u?.urooms, state) === EPRI(mtmp)?.shroom)
-            continue;
-        const epri = EPRI(mtmp);
-        const ax = epri.shrpos.x;
-        const ay = epri.shrpos.y;
-        const speechless = (mtmp.data?.msound ?? 0) <= MS_ANIMAL;
-        const in_sight = canseemon(mtmp, state) || cansee(ax, ay, state);
-        let msg;
-        let trycount = 0;
-        do {
-            msg = TEMPLE_MESSAGES[random(TEMPLE_MESSAGES.length - 1 + hallu)];
-            if (msg.includes('*') && speechless) continue;
-            if (msg.includes('#') && in_sight) continue;
-            break;
-        } while (++trycount < 50);
-        const text = msg.replace(/^[*#]+/, '');
-        if (text.includes('%s')) {
-            await hear(
-                text.replace('%s', halu_gname(epri.shralign, state)),
-                state, pline,
-            );
-        } else {
-            await hear(text, state, pline);
-        }
-        return true;
+async function temple_priest_sound(mtmp, state, hallu, { random, pline }) {
+    if (!mtmp.ispriest || !inhistemple(mtmp, state)
+        || helpless(mtmp)
+        || temple_occupied(state.u?.urooms, state) === EPRI(mtmp)?.shroom) {
+        return false;
     }
-    return false;
+    const epri = EPRI(mtmp);
+    const ax = epri.shrpos.x;
+    const ay = epri.shrpos.y;
+    const speechless = (mtmp.data?.msound ?? 0) <= MS_ANIMAL;
+    const in_sight = canseemon(mtmp, state) || cansee(ax, ay, state);
+    let msg;
+    let trycount = 0;
+    do {
+        msg = TEMPLE_MESSAGES[random(TEMPLE_MESSAGES.length - 1 + hallu)];
+        if (msg.includes('*') && speechless) continue;
+        if (msg.includes('#') && in_sight) continue;
+        break;
+    } while (++trycount < 50);
+    const text = msg.replace(/^[*#]+/, '');
+    if (text.includes('%s')) {
+        await hear(
+            text.replace('%s', halu_gname(epri.shralign, state)),
+            state, pline,
+        );
+    } else {
+        await hear(text, state, pline);
+    }
+    return true;
 }
 
-/**
- * Run every sounds.c:dosounds() branch reachable on an ordinary initial level.
- *
- * Fountain, sink, court, secret-vault, and shop behavior is complete. Special
- * rooms which require a deeper level, plus the Oracle level, are rejected
- * before their owning gameplay goals make them reachable.
- */
-export async function dosoundsInitialLevel(
+async function oracle_sound(mtmp, state, hallu, { random, pline }) {
+    if (mtmp.data !== state.mons?.[PM_ORACLE]) return false;
+    if (Hallucination(state) || !canseemon(mtmp, state)) {
+        const messages = [
+            'a strange wind.',
+            'convulsive ravings.',
+            'snoring snakes.',
+            'someone say "No more woodchucks!"',
+            'a loud ZOT!',
+        ];
+        await hear(messages[random(3) + hallu * 2], state, pline);
+    }
+    return true;
+}
+
+// C ref: sounds.c dosounds() (202-339). Ambient gates remain in source order;
+// a taken branch returns exactly where C does, while a callback gate whose
+// monster scan finds nobody continues to the following room type.
+export async function dosounds(
     state = game,
     { random = rn2, pline = ttyPline } = {},
 ) {
@@ -361,16 +459,23 @@ export async function dosoundsInitialLevel(
     // qualifies, dosounds() continues to the swamp branch.
     if (flags.has_court && random(200) === 0) {
         const monster = get_iter_mons(
-            (candidate) => throneMonSoundQualifies(candidate, state),
+            (candidate) => throne_mon_sound_qualifies(candidate, state),
             state,
         );
         if (monster) {
-            await throneMonSound(monster, state, hallu, { random, pline });
+            await throne_mon_sound(monster, state, hallu, { random, pline });
             return;
         }
     }
-    // Stop at the first unowned source branch, after all earlier work.
-    rejectUnportedSpecialSound(state, PRE_VAULT_SPECIAL_SOUND_FLAGS);
+    if (flags.has_swamp && random(200) === 0) {
+        const messages = [
+            'hear mosquitoes!',
+            'smell marsh gas!',
+            'hear Donald Duck!',
+        ];
+        await pline(`You ${messages[random(2) + hallu]}`, state);
+        return;
+    }
     if (flags.has_vault && random(200) === 0) {
         const room = search_special(VAULT, state);
         if (!room) {
@@ -380,7 +485,8 @@ export async function dosoundsInitialLevel(
         if (vaultSoundAllowed(state)) {
             const selection = random(2) + hallu;
             if (selection === 1
-                && !roomStringContainsType(hero?.urooms, VAULT, state)) {
+                && vault_occupied(hero?.urooms, state)
+                    !== (room.roomnoidx ?? 0) + ROOMOFFSET) {
                 if (vaultContainsGold(room, state)) {
                     await hear(
                         hallu
@@ -406,7 +512,30 @@ export async function dosoundsInitialLevel(
         // guard or the hero's room suppresses its selection draw.
         return;
     }
-    rejectUnportedSpecialSound(state, PRE_SHOP_SPECIAL_SOUND_FLAGS);
+    if (flags.has_beehive && random(200) === 0) {
+        const monster = get_iter_mons(
+            (candidate) => candidate.data?.mlet === S_ANT
+                && is_flyer(candidate.data)
+                && mon_in_room(candidate, BEEHIVE, state),
+            state,
+        );
+        if (monster) {
+            await beehive_mon_sound(monster, state, hallu, { random, pline });
+            return;
+        }
+    }
+    if (flags.has_morgue && random(200) === 0) {
+        const monster = get_iter_mons(
+            (candidate) => (is_undead(candidate.data)
+                    || is_vampshifter(candidate))
+                && mon_in_room(candidate, MORGUE, state),
+            state,
+        );
+        if (monster) {
+            await morgue_mon_sound(monster, state, hallu, { random, pline });
+            return;
+        }
+    }
     // C ref: sounds.c:280-305. If the barracks gate fires but fewer than six
     // awake mercenaries (and no sleeping mercenary) qualify, continue on.
     if (flags.has_barracks && random(200) === 0
@@ -446,31 +575,34 @@ export async function dosoundsInitialLevel(
         }
         return;
     }
-    rejectUnportedSpecialSound(state, POST_SHOP_SPECIAL_SOUND_FLAGS);
     // C ref: sounds.c:330-334 temple ambient sound.
     if (flags.has_temple && random(200) === 0
         && !(Is_astralevel(state.u?.uz)
             || (state.sanctum_level
                 && on_level(state.u?.uz, state.sanctum_level)))) {
-        if (templePriestSound(state, hallu, { random, pline }))
+        const monster = get_iter_mons(
+            (candidate) => candidate.ispriest
+                && inhistemple(candidate, state)
+                && !helpless(candidate)
+                && temple_occupied(state.u?.urooms, state)
+                    !== EPRI(candidate)?.shroom,
+            state,
+        );
+        if (monster) {
+            await temple_priest_sound(
+                monster, state, hallu, { random, pline },
+            );
             return;
+        }
     }
     // C ref: sounds.c:335-338 Oracle level sound branch.
     if (on_level(state.u?.uz, state.oracle_level) && random(400) === 0) {
-        for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
-            if (mtmp.data !== state.mons?.[PM_ORACLE]) continue;
-            if (Hallucination(state) || !canSeeMonster(mtmp, state)) {
-                const oracleMessages = [
-                    'a strange wind.',
-                    'convulsive ravings.',
-                    'snoring snakes.',
-                    'someone say "No more woodchucks!"',
-                    'a loud ZOT!',
-                ];
-                await hear(
-                    oracleMessages[random(3) + hallu * 2], state, pline,
-                );
-            }
+        const mtmp = get_iter_mons(
+            (candidate) => candidate.data === state.mons?.[PM_ORACLE],
+            state,
+        );
+        if (mtmp) {
+            await oracle_sound(mtmp, state, hallu, { random, pline });
             return;
         }
     }
@@ -478,9 +610,8 @@ export async function dosoundsInitialLevel(
 
 // C ref: sounds.c h_sounds[] (341-349). The 35 verbs a hallucinating hero
 // hears in place of a monster's real noise. growl(), yelp() and whimper() all
-// index it with ROLL_FROM(), which is `array[rn2(SIZE(array))]`; only growl()
-// and yelp() have a caller in this port. Exported so that a test can pin each
-// entry against the C table.
+// index it with ROLL_FROM(), which is `array[rn2(SIZE(array))]`. Exported so
+// that a test can pin each entry against the C table.
 export const h_sounds = Object.freeze([
     'beep', 'boing', 'sing', 'belche', 'creak', 'cough',
     'rattle', 'ululate', 'pop', 'jingle', 'sniffle', 'tinkle',
@@ -622,6 +753,160 @@ export async function yelp(mtmp, state = game, random = { rn2 }) {
         await wake_nearto(mtmp.mx, mtmp.my, (mtmp.data?.mlevel ?? 0) * 12,
                           { state });
     }
+}
+
+// C ref: sounds.c whimper() (479-515), the sounds of distressed pets.
+export async function whimper(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const message = rawEnv.message ?? ttyPline;
+    let whimper_verb = 0;
+
+    if (helpless(mtmp) || !mtmp.data?.msound) return;
+    if (Hallucination(state)) {
+        whimper_verb = h_sounds[random.rn2(h_sounds.length)];
+    } else {
+        switch (mtmp.data.msound) {
+        case MS_MEW:
+        case MS_GROWL:
+            whimper_verb = 'whimper';
+            break;
+        case MS_BARK:
+            whimper_verb = 'whine';
+            break;
+        case MS_SQEEK:
+            whimper_verb = 'squeal';
+            break;
+        default:
+            break;
+        }
+    }
+    if (whimper_verb) {
+        // Soundeffect() is a no-op with the recorder's nosound backend.
+        await message(
+            `${capitalizedMonsterName(mtmp, state)} `
+            + `${vtense(null, whimper_verb)}.`,
+            state,
+        );
+        if (state.context?.run) nomul(0, state);
+        await wake_nearto(
+            mtmp.mx,
+            mtmp.my,
+            (mtmp.data?.mlevel ?? 0) * 6,
+            { state },
+        );
+    }
+}
+
+// C ref: sounds.c beg() (519-542), a hungry pet's request for food.
+export async function beg(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    const spotMonster = rawEnv.canSpotMonster ?? canSpotMonster;
+    const markInvisible = rawEnv.mapInvisible ?? map_invisible;
+    if (helpless(mtmp)
+        || !(carnivorous(mtmp.data) || herbivorous(mtmp.data))) {
+        return;
+    }
+
+    if (!is_silent(mtmp.data) && mtmp.data.msound <= MS_ANIMAL) {
+        await (rawEnv.domonnoise ?? domonnoise)(mtmp, state);
+    } else if (mtmp.data.msound >= MS_HUMANOID) {
+        if (!spotMonster(mtmp, state))
+            markInvisible(mtmp.mx, mtmp.my, state);
+        // SetVoice() is disabled without SND_SPEECH; verbalize() quotes text.
+        await message('"I\'m hungry."', state);
+    } else if (spotMonster(mtmp, state)) {
+        await message(
+            `${capitalizedMonsterName(mtmp, state)} seems famished.`,
+            state,
+        );
+    }
+}
+
+// C ref: sounds.c maybe_gasp() (546-609). The caller has already established
+// that a peaceful humanoid witnessed the hero attack another peaceful.
+export function maybe_gasp(mon, state = game, random = { rn2 }) {
+    const exclamations = ['Gasp!', 'Uh-oh.', 'Oh my!', 'What?', 'Why?'];
+    const mptr = mon.data;
+    let msound = mptr?.msound ?? MS_SILENT;
+    let dogasp = false;
+
+    if ((msound === MS_GUARDIAN
+            && mptr !== state.mons?.[state.urole?.guardnum])
+        || (msound === MS_PRIEST && !p_coaligned(mon, state))) {
+        msound = MS_SILENT;
+    } else if (msound === MS_CUSS && has_emin(mon)
+        && (p_coaligned(mon, state)
+            ? !EMIN(mon)?.renegade : EMIN(mon)?.renegade)) {
+        msound = MS_HUMANOID;
+    }
+
+    switch (msound) {
+    case MS_HUMANOID:
+    case MS_ARREST:
+    case MS_SOLDIER:
+    case MS_GUARD:
+    case MS_NURSE:
+    case MS_SEDUCE:
+    case MS_LEADER:
+    case MS_GUARDIAN:
+    case MS_SELL:
+    case MS_ORACLE:
+    case MS_PRIEST:
+    case MS_BOAST:
+    case MS_IMITATE:
+        dogasp = true;
+        break;
+    case MS_ORC:
+    case MS_GRUNT:
+    case MS_LAUGH:
+    case MS_ROAR:
+    case MS_BELLOW:
+    case MS_DJINNI:
+    case MS_VAMPIRE:
+    case MS_WERE:
+    case MS_SPELL:
+        dogasp = mptr?.mlet === state.youmonst?.data?.mlet;
+        break;
+    default:
+        break;
+    }
+    return dogasp ? exclamations[random.rn2(exclamations.length)] : null;
+}
+
+// C ref: sounds.c cry_sound() (617-655). Pure: supplies the stem which the
+// egg-hatching caller passes to ing_suffix().
+export function cry_sound(mtmp) {
+    const ptr = mtmp.data;
+    switch (ptr?.msound) {
+    default:
+    case MS_SILENT:
+        return ptr?.mlet === S_EEL ? 'gurgle' : 'chitter';
+    case MS_HISS:
+        return 'hiss';
+    case MS_ROAR:
+    case MS_GROWL:
+        return 'growl';
+    case MS_CHIRP:
+        return 'chirp';
+    case MS_BUZZ:
+        return 'buzz';
+    case MS_SQAWK:
+        return 'screech';
+    case MS_GRUNT:
+        return 'grunt';
+    case MS_MUMBLE:
+        return 'mumble';
+    }
+}
+
+// C ref: sounds.c mon_is_gecko() (659-674). Pure: actual geckos win before
+// consulting the displayed glyph; long worms lose before a possible tail.
+export function mon_is_gecko(mon, state = game) {
+    if (mon.data === state.mons?.[PM_GECKO]) return true;
+    if (mon.data === state.mons?.[PM_LONG_WORM]) return false;
+    return glyph_to_mon(glyph_at(mon.mx, mon.my, state)) === PM_GECKO;
 }
 
 export class UnsupportedChatError extends Error {
@@ -839,14 +1124,318 @@ export async function dotalk(state = game) {
     return dochat(state);
 }
 
+// C ref: sounds.c responsive_mon_at() (1413-1423). Pure: identify a monster
+// at the head square (never a worm tail) which is able to see and react.
+export function responsive_mon_at(x, y, state = game) {
+    let mtmp = isok(x, y) ? m_at(x, y, state) : null;
+    const invisibility = state.u?.uprops?.[INVIS];
+    const invisible = Boolean(
+        (invisibility?.intrinsic || invisibility?.extrinsic)
+        && !invisibility?.blocked,
+    );
+    if (mtmp && (helpless(mtmp)
+        || !mtmp.mcansee
+        || !haseyes(mtmp.data)
+        || (invisible && !perceives(mtmp.data))
+        || x !== mtmp.mx || y !== mtmp.my)) {
+        mtmp = null;
+    }
+    return mtmp;
+}
+
+function next2u(x, y, state) {
+    const dx = x - state.u.ux;
+    const dy = y - state.u.uy;
+    return dx * dx + dy * dy <= 2;
+}
+
+// C ref: sounds.c tiphat() (1427-1537), selected by pickup.c dotip() when the
+// chosen inventory object is the worn helmet. The pickup selection arm is
+// still outside sounds.c; this function preserves the complete response once
+// called.
+export async function tiphat(state = game, rawEnv = {}) {
+    const u = state.u;
+    const helmet = state.uarmh;
+    if (!helmet) return 0;
+
+    let res = helmet.bknown ? 0 : 1;
+    const cursedCheck = rawEnv.cursed ?? cursed;
+    if (await cursedCheck(helmet, state)) return res;
+
+    const readDirection = rawEnv.getdir ?? getdir;
+    if (!await readDirection('At whom? (in what direction)', state)) return res;
+    res = 1;
+
+    const message = rawEnv.message ?? ttyPline;
+    const random = rawEnv.random ?? { rn1, rn2 };
+    const seesMonster = rawEnv.canseemon ?? canseemon;
+    const couldSee = rawEnv.couldsee ?? couldsee;
+    const displayedGlyph = rawEnv.glyph_at ?? glyph_at;
+    const monsterNoise = rawEnv.domonnoise ?? domonnoise;
+    const spotMonster = rawEnv.canSpotMonster ?? canSpotMonster;
+
+    await message(
+        `You briefly doff your ${helm_simple_name(helmet, state)}.`,
+        state,
+    );
+
+    if (!u.dx && !u.dy) {
+        if (u.usteed && u.dz > 0) {
+            if (helpless(u.usteed)) {
+                await message(
+                    `${capitalizedMonsterName(u.usteed, state)} doesn't notice.`,
+                    state,
+                );
+            } else {
+                await monsterNoise(u.usteed, state);
+            }
+        } else if (u.dz) {
+            await message(
+                `There's no one ${u.dz < 0 ? 'up' : 'down'} there.`,
+                state,
+            );
+        } else {
+            await message("The lout here doesn't acknowledge you...", state);
+        }
+        return res;
+    }
+
+    let mtmp = null;
+    let vismon = false;
+    let unseen = false;
+    let statue = false;
+    let x = u.ux;
+    let y = u.uy;
+    let range;
+    for (range = 1; range <= BOLT_LIM + 1; ++range) {
+        x += u.dx;
+        y += u.dy;
+        if (!isok(x, y) || (range > 1 && !couldSee(x, y, state))) {
+            x -= u.dx;
+            y -= u.dy;
+            break;
+        }
+        mtmp = m_at(x, y, state);
+        vismon = Boolean(mtmp && seesMonster(mtmp, state));
+        const glyph = displayedGlyph(x, y, state);
+        unseen = glyph_is_invisible(glyph);
+        const object = !vismon && !unseen ? vobj_at(x, y, state) : null;
+        statue = glyph_is_statue(glyph)
+            || Boolean(object && object.otyp === STATUE);
+        if (vismon && (M_AP_TYPE(mtmp) === M_AP_FURNITURE
+            || M_AP_TYPE(mtmp) === M_AP_OBJECT)) {
+            vismon = false;
+            mtmp = null;
+        }
+        if (vismon || unseen || (statue && Hallucination(state))
+            || (range === 1 && mtmp && responsive_mon_at(x, y, state)
+                && !is_silent(mtmp.data))
+            || !(accessible(x, y, state)
+                || state.level.at(x, y).typ === IRONBARS)) {
+            break;
+        }
+    }
+
+    if (unseen || (statue && Hallucination(state))) {
+        await message(
+            `That ${unseen ? 'unseen ' : ''}creature is ignoring you!`,
+            state,
+        );
+    } else if (!mtmp || !responsive_mon_at(x, y, state)) {
+        if (vismon) {
+            await message(
+                `${capitalizedMonsterName(mtmp, state)} seems not to notice you.`,
+                state,
+            );
+        } else {
+            await message(nothing_happens, state);
+        }
+    } else {
+        mtmp.mstrategy &= ~STRAT_WAITMASK;
+        const conflict = state.u?.uprops?.[CONFLICT];
+        const conflictActive = Boolean(conflict?.intrinsic || conflict?.extrinsic);
+        if (vismon && humanoid(mtmp.data) && mtmp.mpeaceful
+            && !conflictActive) {
+            const wornHelmet = which_armor(mtmp, W_ARMH, state);
+            if (!wornHelmet) {
+                await message(
+                    `${capitalizedMonsterName(mtmp, state)} waves.`,
+                    state,
+                );
+            } else {
+                const possessive = mhis(mtmp, {
+                    state,
+                    random,
+                    canSpotMonster: spotMonster,
+                });
+                if (wornHelmet.cursed) {
+                    await message(
+                        `${capitalizedMonsterName(mtmp, state)} grasps `
+                        + `${possessive} ${helm_simple_name(wornHelmet, state)} `
+                        + "but can't remove it.",
+                        state,
+                    );
+                    wornHelmet.bknown = true;
+                } else {
+                    await message(
+                        `${capitalizedMonsterName(mtmp, state)} tips `
+                        + `${possessive} ${helm_simple_name(wornHelmet, state)} `
+                        + 'in response.',
+                        state,
+                    );
+                }
+            }
+        } else if (vismon && humanoid(mtmp.data)) {
+            const reactions = ['curses', 'gestures rudely', 'gestures offensively'];
+            const deaf = Deaf(state);
+            const which = !deaf ? random.rn2(3) : random.rn1(2, 1);
+            const twice = (deaf || which > 0 || random.rn2(3))
+                ? 0 : random.rn1(2, 1);
+            await message(
+                `${capitalizedMonsterName(mtmp, state)} ${reactions[which]}`
+                + `${twice ? ` and ${reactions[twice]}` : ''} at you...`,
+                state,
+            );
+        } else if (next2u(x, y, state) && !Deaf(state)
+            && await monsterNoise(mtmp, state)) {
+            if (!vismon) map_invisible(x, y, state);
+        } else if (vismon) {
+            await message(
+                `${capitalizedMonsterName(mtmp, state)} doesn't respond.`,
+                state,
+            );
+        } else {
+            await message(nothing_happens, state);
+        }
+    }
+    return res;
+}
+
+function soundMappingError(text, state, rawEnv) {
+    if (typeof rawEnv.rawPrint === 'function') rawEnv.rawPrint(text, state);
+    else {
+        state.startupEvents ??= [];
+        state.startupEvents.push({ text });
+    }
+}
+
+function parseSoundMapping(mapping) {
+    const plain = /^MESG[\t ]+"([^"]{0,255})"[\t ]+"([^"]{0,255})"[\t ]+([+-]?\d+)(?:[\t ]+([+-]?\d+))?[\t ]*$/u
+        .exec(mapping);
+    if (plain) {
+        return {
+            msgtyp: '',
+            text: plain[1],
+            filename: plain[2],
+            volume: Number.parseInt(plain[3], 10),
+            idx: plain[4] === undefined ? -1 : Number.parseInt(plain[4], 10),
+        };
+    }
+    const typed = /^MESG[\t ]+([^"]{1,10})"([^"]{0,255})"[\t ]+"([^"]{0,255})"[\t ]+([+-]?\d+)(?:[\t ]+([+-]?\d+))?[\t ]*$/u
+        .exec(mapping);
+    if (!typed) return null;
+    return {
+        msgtyp: typed[1].trim(),
+        text: typed[2],
+        filename: typed[3],
+        volume: Number.parseInt(typed[4], 10),
+        idx: typed[5] === undefined ? -1 : Number.parseInt(typed[5], 10),
+    };
+}
+
+// C ref: sounds.c add_sound_mapping() (1556-1626). USER_SOUNDS is disabled
+// in the recorder, so file readability is supplied by a host which opts into
+// user sounds; indexed mappings require no filesystem access, as in C.
+export function add_sound_mapping(mapping, state = game, rawEnv = {}) {
+    const parsed = parseSoundMapping(mapping);
+    if (!parsed) {
+        soundMappingError('syntax error in SOUND', state, rawEnv);
+        return 0;
+    }
+    state.sounddir ??= '.';
+    const filespec = `${state.sounddir}/${parsed.filename}`;
+    if (new TextEncoder().encode(filespec).length >= 256) {
+        soundMappingError('sound file name too long', state, rawEnv);
+        return 0;
+    }
+    const canReadFile = rawEnv.canReadFile ?? (() => false);
+    if (parsed.idx < 0 && !canReadFile(filespec)) {
+        soundMappingError(`cannot read ${filespec.slice(0, 243)}`, state, rawEnv);
+        return 0;
+    }
+
+    let regex;
+    try {
+        regex = new RegExp(parsed.text, 'u');
+    } catch (error) {
+        soundMappingError(error.message, state, rawEnv);
+        return 0;
+    }
+    const newMap = {
+        regex,
+        filename: filespec,
+        volume: parsed.volume,
+        idx: parsed.idx,
+        next: state.soundmap ?? null,
+    };
+    if (parsed.msgtyp && typeof rawEnv.msgtypeParseAdd === 'function') {
+        rawEnv.msgtypeParseAdd(
+            `${parsed.msgtyp.slice(0, 10)} "${parsed.text.slice(0, 230)}"`,
+        );
+    }
+    state.soundmap = newMap;
+    return 1;
+}
+
+// C ref: sounds.c sound_matches_message() (1629-1639).
+export function sound_matches_message(msg, state = game) {
+    for (let snd = state.soundmap ?? null; snd; snd = snd.next) {
+        if (snd.regex.test(msg)) return snd;
+    }
+    return null;
+}
+
+// C ref: sounds.c play_sound_for_message() and maybe_play_sound()
+// (1642-1673). The two source functions are intentionally identical.
+export function play_sound_for_message(msg, state = game) {
+    const play = state.soundprocs?.sound_play_usersound;
+    if (typeof play !== 'function') return;
+    const snd = sound_matches_message(msg, state);
+    if (snd) play(snd.filename, snd.volume, snd.idx);
+}
+
+export function maybe_play_sound(msg, state = game) {
+    const play = state.soundprocs?.sound_play_usersound;
+    if (typeof play !== 'function') return;
+    const snd = sound_matches_message(msg, state);
+    if (snd) play(snd.filename, snd.volume, snd.idx);
+}
+
+// C ref: sounds.c release_sound_mappings() (1676-1690).
+export function release_sound_mappings(state = game) {
+    state.soundmap = null;
+    state.sounddir = null;
+}
+
 // C refs: sounds.c soundlib_choices[], activate_chosen_soundlib(),
 // assign_soundlib(), get_soundlib_name(), and soundlib_id_from_opt()
 // (1744-1895).  The recorder build defines none of the optional SND_LIB_*
 // macros, so its table contains only the built-in nosound entry.
 export const soundlib_nosound = 0;
 
+const nosound_procs = Object.freeze({
+    soundname: 'nosound',
+    soundlib_id: soundlib_nosound,
+    sound_init_nhsound: null,
+    sound_exit_nhsound: null,
+    sound_achievement: null,
+    sound_soundeffect: null,
+    sound_hero_playnotes: null,
+    sound_play_usersound: null,
+});
+
 const soundlib_choices = Object.freeze([
-    Object.freeze({ soundname: 'nosound', soundlib_id: soundlib_nosound }),
+    nosound_procs,
 ]);
 
 function soundlibChoice(index, caller) {
@@ -861,6 +1450,12 @@ export function activate_chosen_soundlib(state = game) {
     const choice = soundlibChoice(
         state.gc?.chosen_soundlib, 'activate_chosen_soundlib',
     );
+    if (state.ga?.active_soundlib !== soundlib_nosound
+        || choice.soundlib_id !== soundlib_nosound) {
+        state.soundprocs?.sound_exit_nhsound?.('assigning a new sound library');
+    }
+    state.soundprocs = choice;
+    choice.sound_init_nhsound?.();
     state.ga ??= {};
     state.ga.active_soundlib = choice.soundlib_id;
     state.gc.chosen_soundlib = state.ga.active_soundlib;
@@ -871,6 +1466,28 @@ export function assign_soundlib(state, index) {
     state.gc.chosen_soundlib = soundlibChoice(
         index, 'assign_soundlib',
     ).soundlib_id;
+}
+
+// C ref: sounds.c choose_soundlib() (1809-1858), retained inside #if 0 in
+// upstream. With the recorder's one-entry table, every supplied name falls
+// back to nosound and reports the sole available choice.
+export function choose_soundlib(name, state = game, rawEnv = {}) {
+    for (let i = 1; i < soundlib_choices.length; ++i) {
+        if (name.toLowerCase() === soundlib_choices[i].soundname.toLowerCase()) {
+            assign_soundlib(state, i);
+            return;
+        }
+    }
+    assign_soundlib(state, soundlib_nosound);
+    const shown = name.length >= 50 ? name.slice(0, 49) : name;
+    const report = rawEnv.configErrorAdd
+        ?? ((text) => {
+            state.configErrors ??= [];
+            state.configErrors.push(text);
+        });
+    report(
+        `Soundlib type ${shown} not recognized.  The only choice is: nosound`,
+    );
 }
 
 export function get_soundlib_name(state = game, maxlen = WINTYPELEN) {
@@ -890,3 +1507,12 @@ export function soundlib_id_from_opt(option) {
     );
     return (choice ?? soundlib_choices[0]).soundlib_id;
 }
+
+// C ref: sounds.c nosound_*() (1917-1944), the disabled empty fallback
+// implementations. The active nosound_procs table uses null callbacks.
+export function nosound_init_nhsound() {}
+export function nosound_exit_nhsound(_reason) {}
+export function nosound_achievement(_ach1, _ach2, _repeat) {}
+export function nosound_soundeffect(_seid, _volume) {}
+export function nosound_hero_playnotes(_instr, _notes, _volume) {}
+export function nosound_play_usersound(_filename, _volume, _idx) {}

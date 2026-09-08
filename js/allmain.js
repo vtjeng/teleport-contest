@@ -142,7 +142,7 @@ import {
     rnl,
     rnz,
 } from './rng.js';
-import { dosoundsInitialLevel } from './sounds.js';
+import { dosounds } from './sounds.js';
 import {
     gethungry,
     maybe_finished_meal,
@@ -888,7 +888,7 @@ export async function finishElapsedTurn(
     // C ref: allmain.c:351 mkot_trap_warn(). Sense traps near the hero when
     // wielding the Master Key of Thievery without gloves.
     await mkot_trap_warn(state);
-    await dosoundsInitialLevel(state, {
+    await dosounds(state, {
         random: random.rn2,
         pline: turnMessage,
     });
