@@ -14271,7 +14271,35 @@
         "seed0360-wizard-world-tour"
       ],
       "detail": "The divergence queue names dosounds() at step 175 in seed0360-wizard-world-tour; dosounds is not fully represented by the partial dosoundsInitialLevel() implementation. Start at dosounds and cover every remaining sounds.c function through sound_speak in C order, preserving ambient sound gates, RNG, messages, and no-sound backend behavior.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "dosounds..nosound_play_usersound",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "dosounds",
+            "whimper",
+            "beg",
+            "maybe_gasp",
+            "cry_sound",
+            "mon_is_gecko",
+            "responsive_mon_at",
+            "tiphat",
+            "add_sound_mapping",
+            "sound_matches_message",
+            "play_sound_for_message",
+            "maybe_play_sound",
+            "release_sound_mappings",
+            "choose_soundlib",
+            "nosound_init_nhsound",
+            "nosound_exit_nhsound",
+            "nosound_achievement",
+            "nosound_soundeffect",
+            "nosound_hero_playnotes",
+            "nosound_play_usersound"
+          ]
+        }
+      ],
       "openedAt": "3ac89ac44fd5cafdbe7ed3595968eadce036b4da",
       "openStanding": {
         "sha": "1270a4418200bf6d8b58412ce95e7695795c3b27",
