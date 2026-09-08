@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7639,
+      "datetime": "20031123100000",
+      "nethackrc": "OPTIONS=name:Nimbus,role:Ranger,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "comment": "A game whose first level holds the themed \"Cloud room\": its fill calls des.gas_cloud({ selection = selection.room() }), which reaches lspo_gas_cloud and create_gas_cloud_selection. The hero dismisses the welcome and searches once. Seed chosen by replaying the port over seeds 7400-8399 with this character and no keys and keeping those whose first level held a gas-cloud region: 7639 is the first of six.",
+      "moves": " s"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7402,
+      "datetime": "20031123100000",
+      "nethackrc": "OPTIONS=name:Townsfolk,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Wizard-mode level teleport (^V, ? for the level menu, second page's minetn entry) to Minetown on a seed whose variant is minetn-6, Bustling Town: the only level that asks for the \"inaccessibles\" flag, so load_special() runs ensure_way_out() and, for any pocket the mines fill left, generate_way_out_method(). Its Lua also runs the mines form of des.level_init, a top-aligned des.map, and its five shops and temple as table-form des.region calls, through lspo_region, get_table_coords_or_region, add_doors_to_room, and fill_special_room. Seed chosen by replaying the port over seeds 7400-7999 with these keys and keeping those whose Minetown loader was minetn-6: 7402 is the first of 78 (about one in seven, as rnd(7) gives).",
+      "moves": " \u0016?\n w"
+    }
+  ]
+}

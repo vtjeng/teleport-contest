@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7305,
+      "datetime": "20031123110000",
+      "nethackrc": "OPTIONS=name:Roomy,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Wizard-mode level teleport (^V, ? for the level menu, first page's bigrm entry) to the Big Room, which wizard mode always places. The bigrm-N variant is rnd(13); every variant runs region(selection, \"lit\"/\"unlit\") through lspo_region and sel_set_lit, and most run des.terrain with a selection, des.replace_terrain with fromterrain or a selection, des.teleport_region, and des.levregion, through lspo_terrain, l_selection_check, lspo_replace_terrain, lspo_teleport_region, l_get_lregion, and levregion_add, with fixup_special placing the stored regions in finish().",
+      "moves": " \u0016?\ne"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7315,
+      "datetime": "20031123120000",
+      "nethackrc": "OPTIONS=name:Roomy,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "A third Big Room level teleport, on a seed whose rnd(13) variant is bigrm-12: two hexagons whose pools are rewritten by a chain of des.replace_terrain({ fromterrain, toterrain }) calls over the whole map through lspo_replace_terrain, then des.wallify. Seeds 7306-7335 were replayed with the port to read each seed's variant; 7315 is the first bigrm-12. See bigroom-level-teleport for the level menu.",
+      "moves": " \u0016?\ne"
+    }
+  ]
+}

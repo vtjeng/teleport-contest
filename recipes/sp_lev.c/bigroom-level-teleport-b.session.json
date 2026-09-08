@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7314,
+      "datetime": "20031123113000",
+      "nethackrc": "OPTIONS=name:Roomy,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "A second Big Room level teleport, on a seed whose rnd(13) variant is bigrm-2: it darkens a union of relative selections through region(selection, \"unlit\") and, on a percent(25) roll, replaces floor inside that selection's grown copy through des.replace_terrain({ selection }), which is how l_selection_check() shifts a relative selection into the map frame before lspo_region and lspo_replace_terrain paint it. Seeds 7306-7335 were replayed with the port to read each seed's variant; 7314 is the first bigrm-2. See bigroom-level-teleport for the level menu.",
+      "moves": " \u0016?\ne"
+    }
+  ]
+}
