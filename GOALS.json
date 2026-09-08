@@ -15692,6 +15692,27 @@
       "function": "makemon",
       "session": "seed0367-priest-quest-tour",
       "step": 243
+    },
+    {
+      "id": "div-wintty-text-2200",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Resolve seed2200 options-help text-window screen divergence",
+      "cFile": "wintty.c",
+      "sessions": [],
+      "detail": "Development session seed2200-wizard-quaff-zap-read, segment 0, input step 158 (key g). The first mismatch is a screen cell at row 3, column 36: C has a blank cell while JavaScript retains a map dot; RNG is aligned through this screen, with a later cursor mismatch at step 165. Upstream win/tty/wintty.c tty_display_nhwindow() takes the NHW_TEXT branch and invokes process_text_window() after options.c option_help() writes the text; cl_end() must clear each line tail. The JavaScript owner is js/tty_menu.js displayTtyTextWindow()/clearRow(), suspected of leaving stale map content during text-window rendering or dismissal. Verify the C clearing and restoration order, screen attributes, cursor state, and subsequent --More-- pages.",
+      "spans": [],
+      "openedAt": "139897034b16ec9e1b4f4c512e974cda65169154",
+      "openStanding": {
+        "sha": "4a95c27d6c9b23c164abf7166cb91c7549e4df59",
+        "screens": 5275,
+        "rng": 371643
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "tty_display_nhwindow",
+      "session": "seed2200-wizard-quaff-zap-read",
+      "step": 158
     }
   ]
 }
