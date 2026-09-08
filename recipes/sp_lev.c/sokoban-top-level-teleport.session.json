@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7301,
+      "datetime": "20031122143000",
+      "nethackrc": "OPTIONS=name:Sokotop,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Wizard-mode level teleport (^V, then ? for the level menu, then the second page's soko1 entry) to the top Sokoban level. Its Lua runs des.level_init, des.level_flags, des.map, table-form des.monster with appear_as = \"obj:boulder\", and a des.engraving whose type is \"burn\" with degrade defaulted, through lspo_level_init, lspo_level_flags, lspo_monster, find_montype, get_table_montype, and lspo_engraving.",
+      "moves": "   ny \u0016?\n B"
+    }
+  ]
+}

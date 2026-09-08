@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7302,
+      "datetime": "20031122150000",
+      "nethackrc": "OPTIONS=name:Minesbottom,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Wizard-mode level teleport (^V, ?, second page's minend entry) to Mines' End. Its Lua variants run des.level_init with style \"mines\", string-form des.monster calls such as des.monster(\"gnome\") through find_montype's gender draw, and the wine-cellar variant's positional des.engraving({x, y}, \"engrave\", text) form.",
+      "moves": "   ny \u0016?\n x"
+    }
+  ]
+}
