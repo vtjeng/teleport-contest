@@ -13274,8 +13274,8 @@
         },
         {
           "name": "lspo_feature..lspo_region",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "d9f349cab81ab7ccf22a422b8f651e313f73bab0",
           "functions": [
             "lspo_feature",
             "lspo_gas_cloud",
@@ -13292,6 +13292,23 @@
             "sel_set_lit",
             "get_table_coords_or_region",
             "lspo_region"
+          ]
+        },
+        {
+          "name": "lspo_drawbridge..lspo_finalize_level",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "lspo_drawbridge",
+            "lspo_mazewalk",
+            "lspo_wall_property",
+            "set_wallprop_in_selection",
+            "lspo_non_diggable",
+            "lspo_non_passwall",
+            "sel_set_wallify",
+            "lspo_wallify",
+            "lspo_reset_level",
+            "lspo_finalize_level"
           ]
         }
       ],
@@ -13968,37 +13985,37 @@
           "name": "lspo_feature",
           "line": 4844,
           "endLine": 4928,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_gas_cloud",
           "line": 4929,
           "endLine": 4977,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_terrain",
           "line": 4978,
           "endLine": 5050,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_replace_terrain",
           "line": 5051,
           "endLine": 5145,
-          "ported": false
+          "ported": true
         },
         {
           "name": "generate_way_out_method",
           "line": 5146,
           "endLine": 5216,
-          "ported": false
+          "ported": true
         },
         {
           "name": "ensure_way_out",
           "line": 5217,
           "endLine": 5259,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_table_intarray_entry",
@@ -14010,7 +14027,7 @@
           "name": "get_table_region",
           "line": 5282,
           "endLine": 5318,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_coord",
@@ -14022,37 +14039,37 @@
           "name": "levregion_add",
           "line": 5371,
           "endLine": 5409,
-          "ported": false
+          "ported": true
         },
         {
           "name": "l_get_lregion",
           "line": 5410,
           "endLine": 5442,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_teleport_region",
           "line": 5443,
           "endLine": 5471,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_levregion",
           "line": 5472,
           "endLine": 5497,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_exclusion",
           "line": 5498,
           "endLine": 5534,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sel_set_lit",
           "line": 5535,
           "endLine": 5543,
-          "ported": false
+          "ported": true
         },
         {
           "name": "add_doors_to_room",
@@ -14064,13 +14081,13 @@
           "name": "get_table_coords_or_region",
           "line": 5561,
           "endLine": 5583,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_region",
           "line": 5584,
           "endLine": 5719,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_drawbridge",
