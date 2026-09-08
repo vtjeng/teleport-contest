@@ -728,6 +728,43 @@ test('a planned hallucinated hit keeps the live display RNG unchanged',
         assert.deepEqual(game.displayCtx, displayBefore);
     });
 
+test('a planned hallucinated pickup uses only the cloned display RNG',
+    async () => {
+        // mon.c mpickstuff():1893-1901 calls Monnam() only inside the visible,
+        // verbose message arm. Under Hallucination, do_name.c x_monnam()
+        // replaces the species through rndmonnam(), consuming the display RNG.
+        // The JavaScript preflight repeats this monster turn on a clone before
+        // the live pass, so its Monnam() draw must use that clone's display
+        // context rather than advancing the one C reaches only once.
+        const target = await prepareSelectedAction({ pmidx: PM_GNOME });
+        installObject(target, floorObject(
+            target.destinationX,
+            target.heroY,
+            9101,
+            FOOD_RATION,
+        ));
+        game.viz_array[target.heroY][target.destinationX] |=
+            COULD_SEE | IN_SIGHT;
+        game.u.uprops[HALLUC].intrinsic = 1;
+        const displayBefore = structuredClone(game.displayCtx);
+
+        await preflightSimpleMonsterActions(game);
+
+        assert.deepEqual(game.displayCtx, displayBefore);
+
+        // Prove that the planned path above really reached the naming arm:
+        // replaying it live prints the pickup and spends the display draw.
+        const messages = [];
+        await runSimpleMonsterAction(target.monster, {
+            state: game,
+            message: async (line) => messages.push(line),
+            redraw: () => {},
+        });
+        assert.equal(messages.length, 1);
+        assert.match(messages[0], / picks up a food ration\.$/u);
+        assert.notDeepEqual(game.displayCtx, displayBefore);
+    });
+
 // mon.c movemon() sets vision_full_recalc whenever a light source is present,
 // and movemon_singlemon() rebuilds viz_array for the next ration-spending
 // monster. The scan after an allocation crosses that same tail, so this case

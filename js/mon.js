@@ -843,7 +843,7 @@ export async function mpickstuff(monster, obj, carryamt, rawEnv = {}) {
         if (state.flags?.verbose) {
             await message(
                 messageAt(
-                    `${capitalizedMonsterName(monster, state)}`
+                    `${capitalizedMonsterName(monster, state, env)}`
                     + ` picks up ${remainingName}.`,
                     monster.mx,
                     monster.my,

@@ -2426,7 +2426,11 @@ export async function dochug(monster, rawEnv = {}) {
     const wipeEngraving = rawEnv.wipeEngraving ?? wipe_engr_at;
     const wieldPreMoveWeapon = rawEnv.wieldPreMoveWeapon
         ?? wield_pre_move_weapon;
-    const redraw = rawEnv.redraw ?? newsym;
+    // C's Hallucination arms below repaint the live monster once. The
+    // JavaScript preflight repeats dochug() on a clone before that live pass,
+    // so its redraw must not spend the module-global display RNG or paint the
+    // live map.
+    const redraw = rawEnv.planning ? () => {} : (rawEnv.redraw ?? newsym);
     const env = { ...rawEnv, state, random, unsupported };
     const hallucinating = () => activeProperty(state, HALLUC)
         && !activeProperty(state, HALLUC_RES);
