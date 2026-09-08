@@ -14596,6 +14596,27 @@
         "to": 2223
       },
       "startFunction": "dosounds"
+    },
+    {
+      "id": "div-makemon-set-mimic-sym-0360",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Align set_mimic_sym() altar disguise state and RNG in Gehennom",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "detail": "Development session seed0360-wizard-world-tour, step 180, first mismatch is RNG. Upstream nethack-c/upstream/src/makemon.c set_mimic_sym() enters the M_AP_FURNITURE/S_altar tail; when Inhell is true it must draw rn2(3) and choose AM_NONE on nonzero, otherwise Align2amask(algn). The JavaScript owner is js/makemon_create.js set_mimic_sym(), whose altar branch currently maps the alignment without the Inhell conditional draw. Fresh ps_test_runner replay reproduced the mismatch at 42949 matching RNG calls.",
+      "spans": [],
+      "openedAt": "8d26a5cd7e7c62bef28ba06d7310a250c0e9ee78",
+      "openStanding": {
+        "sha": "d144e222",
+        "screens": 5187,
+        "rng": 350635
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "set_mimic_sym",
+      "session": "seed0360-wizard-world-tour",
+      "step": 180
     }
   ]
 }
