@@ -1345,6 +1345,15 @@ export function requireSimpleHeroDestination(
     pushesBoulder = false,
 ) {
     const location = state.level?.at(x, y);
+    // hack.c domove_core():2843-2856 admits liquid through test_move(), then
+    // asks swim_move_danger() before moving the hero or applying any arrival
+    // effect.  A warning which is certain to stop the step therefore needs no
+    // ordinary-destination preflight.  Keep this walking-only: teleport.c
+    // teleds() also calls this seam but never calls swim_move_danger().
+    if (pushesBoulder && is_pool(x, y, state)
+        && swim_move_danger_result(x, y, state) === SWIM_DANGER_AVOID) {
+        return;
+    }
     // hack.c test_move() admits every IS_FURNITURE type untouched -- stairs,
     // ladder, fountain, throne, sink, grave and altar. Its obstacle chain never
     // claims the square: `IS_OBSTRUCTED` is `typ < POOL` (rm.h:119) and
@@ -3377,36 +3386,53 @@ export function u_simple_floortyp(x, y, state = game) {
     return ROOM;
 }
 
-// C ref: hack.c swim_move_danger() (1885-1922).
-export async function swim_move_danger(x, y, state = game) {
+const SWIM_DANGER_CONTINUE = 0;
+const SWIM_DANGER_FORCE = 1;
+const SWIM_DANGER_AVOID = 2;
+
+// Pure classification of hack.c swim_move_danger() (1885-1922).  The command
+// admission seam uses only SWIM_DANGER_AVOID, the one result which guarantees
+// that domove_core() returns before moving the hero.  SWIM_DANGER_FORCE is the
+// m-prefix arm: it records TIP_SWIM but deliberately lets the move continue.
+function swim_move_danger_result(x, y, state) {
     const newtyp = u_simple_floortyp(x, y, state);
     const liquidWall = IS_WATERWALL(newtyp) || newtyp === LAVAWALL;
     if (state.u.uinwater
-        && (is_pool(x, y, state) || IS_WATERWALL(newtyp))) return false;
+        && (is_pool(x, y, state) || IS_WATERWALL(newtyp))) {
+        return SWIM_DANGER_CONTINUE;
+    }
 
     const stunned = propertyIntrinsic(state, STUNNED);
     const confused = propertyIntrinsic(state, CONFUSION);
     if (newtyp !== u_simple_floortyp(state.u.ux, state.u.uy, state)
         && !stunned && !confused && state.level.at(x, y).seenv
-        && (is_pool(x, y, state) || is_lava(x, y, state) || liquidWall)) {
-        if ((is_pool(x, y, state) && !known_wwalking(state))
+        && (is_pool(x, y, state) || is_lava(x, y, state) || liquidWall)
+        && ((is_pool(x, y, state) && !known_wwalking(state))
             || (is_lava(x, y, state) && !known_lwalking(state)
                 && !is_lava(state.u.ux, state.u.uy, state))
-            || liquidWall) {
-            if (state.context.nopick) {
-                state.context.tips = Math.trunc(state.context.tips ?? 0)
-                    | (1 << TIP_SWIM);
-                return false;
-            }
-            if ((state.flags?.paranoia_bits & PARANOID_SWIM) || liquidWall) {
-                await ttyPline(
-                    `You avoid ${ing_suffix(u_locomotion('step', state))} into the ${waterbody_name(x, y, state)}.`,
-                    state,
-                );
-                await handle_tip(TIP_SWIM, state);
-                return true;
-            }
-        }
+            || liquidWall)) {
+        if (state.context.nopick) return SWIM_DANGER_FORCE;
+        if ((state.flags?.paranoia_bits & PARANOID_SWIM) || liquidWall)
+            return SWIM_DANGER_AVOID;
+    }
+    return SWIM_DANGER_CONTINUE;
+}
+
+// C ref: hack.c swim_move_danger() (1885-1922).
+export async function swim_move_danger(x, y, state = game) {
+    const result = swim_move_danger_result(x, y, state);
+    if (result === SWIM_DANGER_FORCE) {
+        state.context.tips = Math.trunc(state.context.tips ?? 0)
+            | (1 << TIP_SWIM);
+        return false;
+    }
+    if (result === SWIM_DANGER_AVOID) {
+        await ttyPline(
+            `You avoid ${ing_suffix(u_locomotion('step', state))} into the ${waterbody_name(x, y, state)}.`,
+            state,
+        );
+        await handle_tip(TIP_SWIM, state);
+        return true;
     }
     return false;
 }

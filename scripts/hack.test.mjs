@@ -22,6 +22,8 @@ import {
     LEVITATION,
     MAX_TYPE,
     MELT_ICE_AWAY,
+    PARANOID_SWIM,
+    POOL,
     ROOM,
     ROOMOFFSET,
     ROT_CORPSE,
@@ -57,10 +59,13 @@ import {
     notice_mons_cmp,
     monst_to_any,
     obj_to_any,
+    preflightDomoveDestination,
+    requireSimpleHeroDestination,
     runmode_delay_output,
     runStopsBeforeMonster,
     spot_checks,
     spoteffects,
+    swim_move_danger,
     switch_terrain,
     terrain_changed_under_hero,
     u_simple_floortyp,
@@ -377,6 +382,73 @@ test('notice distance comparator and simplified floor type follow hack.c', () =>
     ), -7);
     state.level.at(11, 10).typ = ROOM;
     assert.equal(u_simple_floortyp(11, 10, state), ROOM);
+});
+
+function swimDangerState() {
+    const level = new GameMap();
+    level.at(10, 10).typ = ROOM;
+    level.at(11, 10).typ = POOL;
+    level.at(11, 10).seenv = 1;
+    return {
+        level,
+        u: {
+            ux: 10,
+            uy: 10,
+            uinwater: false,
+            usteed: null,
+            uprops: [],
+        },
+        youmonst: { data: { mflags1: 0, mmove: 12 } },
+        context: { nopick: 0, tips: 0 },
+        flags: { paranoia_bits: PARANOID_SWIM, tips: false },
+    };
+}
+
+test('known liquid warning passes the walking seam and stops before arrival',
+    async () => {
+        // hack.c test_move():1255 admits POOL. domove_core():2852 then calls
+        // swim_move_danger(), whose known unsafe liquid arm returns TRUE when
+        // paranoid_confirm:Swim is set, before domove_core() changes u.ux.
+        const state = swimDangerState();
+        assert.doesNotThrow(
+            () => preflightDomoveDestination(11, 10, state),
+        );
+        assert.equal(await swim_move_danger(11, 10, state), true);
+        assert.equal(
+            state._ttyToplines,
+            'You avoid stepping into the pool of water.',
+        );
+        assert.deepEqual([state.u.ux, state.u.uy], [10, 10]);
+
+        // teleport.c teleds() does not call swim_move_danger(), so its use of
+        // the shared destination seam must continue to reject the pool.
+        assert.throws(
+            () => requireSimpleHeroDestination(11, 10, state),
+            /door or special terrain movement/u,
+        );
+    });
+
+test('liquid admission requires a warning that will stop the move', () => {
+    // Each variation follows a FALSE arm of hack.c swim_move_danger(): an
+    // unseen pool, a forced m-prefix step, or disabled paranoid_confirm:Swim.
+    // Those moves would reach the unported liquid-arrival effects, so the
+    // admission seam remains closed.
+    const cases = [
+        ['unseen pool', (state) => { state.level.at(11, 10).seenv = 0; }],
+        ['m-prefix', (state) => { state.context.nopick = 1; }],
+        ['no paranoid warning', (state) => {
+            state.flags.paranoia_bits = 0;
+        }],
+    ];
+    for (const [name, change] of cases) {
+        const state = swimDangerState();
+        change(state);
+        assert.throws(
+            () => preflightDomoveDestination(11, 10, state),
+            /door or special terrain movement/u,
+            name,
+        );
+    }
 });
 
 test('spoteffects calls pickup only for an enabled ordinary arrival',

@@ -725,11 +725,11 @@ test('the admission seam lets a force-fight past the terrain rules',
     async () => {
         // hack.c domove_core():2805-2810 puts the three fight functions above
         // test_move(), so a force-fight never reaches the terrain rules this
-        // seam stands in for. A pool is where that shows: an ordinary step
-        // into one stops at the seam, and the force-fight has to get through
-        // to domove_fight_empty(), which names the water.
+        // seam stands in for. Ice is where that shows now that known dangerous
+        // pools reach swim_move_danger(): an ordinary step stops at the seam,
+        // and the force-fight has to get through to domove_fight_empty().
         const state = await heroInARoom();
-        targetTerrain(state, POOL);
+        targetTerrain(state, ICE);
         const x = state.u.ux + WEST[0];
         const y = state.u.uy + WEST[1];
 
