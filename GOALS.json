@@ -14203,7 +14203,16 @@
       "cFile": "options.c",
       "sessions": [],
       "detail": "development session: seed2200-wizard-quaff-zap-read, segment 0, input step 158 (key g)\\nfirst mismatch: screen at position row 3, column 36; C has a space and JavaScript has a dot, with RNG aligned\\nupstream: options.c option_help() lines 9461-9549, branch building the OPTIONS help text; its get_configfile() value comes from cfgfiles.c read_config_file() and the UNIX HOME path\\npreconditions: the session's configuration is supplied as text and does not define HOME or a configuration-file path\\nJavaScript owner: js/options.js optionHelpLines() calls js/cfgfiles.js get_configfile(), which intentionally returns the bare default .nethackrc when no state path exists\\nclassification: machine-local; the absolute recorded path is not defined by the replay input and must not be hardcoded",
-      "spans": [],
+      "spans": [
+        {
+          "name": "option_help-config-path",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "option_help"
+          ]
+        }
+      ],
       "openedAt": "449ce3110536edc693d02c748e9bbbd23db9d561",
       "openStanding": {
         "sha": "f8aacfae",
