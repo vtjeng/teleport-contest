@@ -14260,6 +14260,293 @@
       "function": "load_special",
       "session": "seed0360-wizard-world-tour",
       "step": 173
+    },
+    {
+      "id": "sounds-dosounds-to-sound_speak",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port sounds.c dosounds through sound_speak",
+      "cFile": "sounds.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "detail": "The divergence queue names dosounds() at step 175 in seed0360-wizard-world-tour; dosounds is not fully represented by the partial dosoundsInitialLevel() implementation. Start at dosounds and cover every remaining sounds.c function through sound_speak in C order, preserving ambient sound gates, RNG, messages, and no-sound backend behavior.",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mon_in_room",
+          "line": 20,
+          "endLine": 29,
+          "ported": true
+        },
+        {
+          "name": "throne_mon_sound",
+          "line": 30,
+          "endLine": 61,
+          "ported": false
+        },
+        {
+          "name": "beehive_mon_sound",
+          "line": 62,
+          "endLine": 88,
+          "ported": false
+        },
+        {
+          "name": "morgue_mon_sound",
+          "line": 89,
+          "endLine": 114,
+          "ported": false
+        },
+        {
+          "name": "zoo_mon_sound",
+          "line": 115,
+          "endLine": 130,
+          "ported": true
+        },
+        {
+          "name": "temple_priest_sound",
+          "line": 131,
+          "endLine": 180,
+          "ported": false
+        },
+        {
+          "name": "oracle_sound",
+          "line": 181,
+          "endLine": 201,
+          "ported": false
+        },
+        {
+          "name": "dosounds",
+          "line": 202,
+          "endLine": 350,
+          "ported": false
+        },
+        {
+          "name": "growl_sound",
+          "line": 351,
+          "endLine": 401,
+          "ported": true
+        },
+        {
+          "name": "growl",
+          "line": 402,
+          "endLine": 426,
+          "ported": true
+        },
+        {
+          "name": "yelp",
+          "line": 427,
+          "endLine": 478,
+          "ported": true
+        },
+        {
+          "name": "whimper",
+          "line": 479,
+          "endLine": 518,
+          "ported": false
+        },
+        {
+          "name": "beg",
+          "line": 519,
+          "endLine": 545,
+          "ported": false
+        },
+        {
+          "name": "maybe_gasp",
+          "line": 546,
+          "endLine": 616,
+          "ported": false
+        },
+        {
+          "name": "cry_sound",
+          "line": 617,
+          "endLine": 658,
+          "ported": false
+        },
+        {
+          "name": "mon_is_gecko",
+          "line": 659,
+          "endLine": 678,
+          "ported": false
+        },
+        {
+          "name": "domonnoise",
+          "line": 679,
+          "endLine": 1247,
+          "ported": true
+        },
+        {
+          "name": "dotalk",
+          "line": 1248,
+          "endLine": 1256,
+          "ported": true
+        },
+        {
+          "name": "dochat",
+          "line": 1257,
+          "endLine": 1412,
+          "ported": true
+        },
+        {
+          "name": "responsive_mon_at",
+          "line": 1413,
+          "endLine": 1426,
+          "ported": false
+        },
+        {
+          "name": "tiphat",
+          "line": 1427,
+          "endLine": 1555,
+          "ported": false
+        },
+        {
+          "name": "add_sound_mapping",
+          "line": 1556,
+          "endLine": 1628,
+          "ported": false
+        },
+        {
+          "name": "sound_matches_message",
+          "line": 1629,
+          "endLine": 1641,
+          "ported": false
+        },
+        {
+          "name": "play_sound_for_message",
+          "line": 1642,
+          "endLine": 1658,
+          "ported": false
+        },
+        {
+          "name": "maybe_play_sound",
+          "line": 1659,
+          "endLine": 1675,
+          "ported": false
+        },
+        {
+          "name": "release_sound_mappings",
+          "line": 1676,
+          "endLine": 1778,
+          "ported": false
+        },
+        {
+          "name": "activate_chosen_soundlib",
+          "line": 1779,
+          "endLine": 1797,
+          "ported": true
+        },
+        {
+          "name": "assign_soundlib",
+          "line": 1798,
+          "endLine": 1808,
+          "ported": true
+        },
+        {
+          "name": "choose_soundlib",
+          "line": 1809,
+          "endLine": 1863,
+          "ported": false
+        },
+        {
+          "name": "get_soundlib_name",
+          "line": 1864,
+          "endLine": 1882,
+          "ported": true
+        },
+        {
+          "name": "soundlib_id_from_opt",
+          "line": 1883,
+          "endLine": 1916,
+          "ported": true
+        },
+        {
+          "name": "nosound_init_nhsound",
+          "line": 1917,
+          "endLine": 1921,
+          "ported": false
+        },
+        {
+          "name": "nosound_exit_nhsound",
+          "line": 1922,
+          "endLine": 1926,
+          "ported": false
+        },
+        {
+          "name": "nosound_achievement",
+          "line": 1927,
+          "endLine": 1931,
+          "ported": false
+        },
+        {
+          "name": "nosound_soundeffect",
+          "line": 1932,
+          "endLine": 1936,
+          "ported": false
+        },
+        {
+          "name": "nosound_hero_playnotes",
+          "line": 1937,
+          "endLine": 1941,
+          "ported": false
+        },
+        {
+          "name": "nosound_play_usersound",
+          "line": 1942,
+          "endLine": 1946,
+          "ported": false
+        },
+        {
+          "name": "nosound_ambience",
+          "line": 1947,
+          "endLine": 1952,
+          "ported": false
+        },
+        {
+          "name": "nosound_verbal",
+          "line": 1953,
+          "endLine": 1980,
+          "ported": false
+        },
+        {
+          "name": "initialize_semap_basenames",
+          "line": 1981,
+          "endLine": 1994,
+          "ported": false
+        },
+        {
+          "name": "get_sound_effect_filename",
+          "line": 1995,
+          "endLine": 2083,
+          "ported": false
+        },
+        {
+          "name": "base_soundname_to_filename",
+          "line": 2084,
+          "endLine": 2160,
+          "ported": false
+        },
+        {
+          "name": "set_voice",
+          "line": 2161,
+          "endLine": 2184,
+          "ported": false
+        },
+        {
+          "name": "sound_speak",
+          "line": 2185,
+          "endLine": 2223,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 20,
+        "to": 2223
+      },
+      "startFunction": "dosounds"
     }
   ]
 }
