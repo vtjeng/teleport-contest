@@ -628,8 +628,8 @@ export function monsterCommonName(
     return `the ${saddled ? 'saddled ' : ''}${speciesName}`;
 }
 
-export function capitalizedMonsterName(monster, state = game) {
-    const name = monsterCommonName(monster, state);
+export function capitalizedMonsterName(monster, state = game, env = {}) {
+    const name = monsterCommonName(monster, state, 0, env);
     return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
 }
 
@@ -1017,10 +1017,15 @@ export function monverbself(mon, monnamtext, verb, othertext,
 // function rather than from an apostrophe rule written here, because
 // s_suffix() special-cases "it" and "you" case-blind: C answers "Its
 // tentacles suck", and a bare apostrophe rule answers "It's".
-export function monsterPossessive(monster, state = game, capitalized = false) {
+export function monsterPossessive(
+    monster,
+    state = game,
+    capitalized = false,
+    env = {},
+) {
     const name = capitalized
-        ? capitalizedMonsterName(monster, state)
-        : monsterCommonName(monster, state);
+        ? capitalizedMonsterName(monster, state, env)
+        : monsterCommonName(monster, state, 0, env);
     return s_suffix(name);
 }
 

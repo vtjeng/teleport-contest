@@ -253,7 +253,7 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
     const gh = hitmsgState(state);
     let punct = '!';
     let verb;
-    let Monst_name = capitalizedMonsterName(mtmp, state);
+    let Monst_name = capitalizedMonsterName(mtmp, state, env);
 
     /* Note: if opposite gender, "seductively";
        if same gender, "engagingly" for nymph, normal msg for others. */
@@ -289,7 +289,7 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
     case M.AT_TENT:
         verb = 'tentacles suck your brain';
         /* s_suffix(Monst_name) */
-        Monst_name = monsterPossessive(mtmp, state, true);
+        Monst_name = monsterPossessive(mtmp, state, true, env);
         break;
     case M.AT_EXPL:
     case M.AT_BOOM:
@@ -339,12 +339,13 @@ async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
         unsupported('a miss by an invisible monster the hero can see');
     if (could_seduce(mtmp, state.youmonst, mattk, rawEnv) && !mtmp.mcan) {
         await message(
-            `${capitalizedMonsterName(mtmp, state)} pretends to be friendly.`,
+            `${capitalizedMonsterName(mtmp, state, rawEnv)} `
+            + 'pretends to be friendly.',
             state,
         );
     } else {
         await message(
-            `${capitalizedMonsterName(mtmp, state)} `
+            `${capitalizedMonsterName(mtmp, state, rawEnv)} `
             + `${(nearmiss && state.flags?.verbose) ? 'just ' : ''}misses!`,
             state,
         );

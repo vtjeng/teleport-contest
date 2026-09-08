@@ -23,6 +23,7 @@ import {
     FOUNTAIN,
     DART_TRAP,
     GRAVE,
+    HALLUC,
     HEADSTONE,
     ICE,
     IN_SIGHT,
@@ -706,6 +707,25 @@ test('multi-round planning isolates every monster-generation global',
         assert.deepEqual(game.mvitals, liveVitals);
         assert.deepEqual(game.flags, liveFlags);
         assert.strictEqual(game.gl.light_base, liveLight);
+    });
+
+test('a planned hallucinated hit keeps the live display RNG unchanged',
+    async () => {
+        const target = await prepareSelectedAction({ adjacentHero: true });
+        game.viz_array[target.heroY][target.monsterX] |=
+            COULD_SEE | IN_SIGHT;
+        // mhitu.c hitmu() tests `tmp > rnd(20)`. Thirty makes the staged
+        // adjacent attack hit for every roll and reach hitmsg().
+        target.monster.m_lev = 30;
+        // hitmsg() names a visible hallucinated monster through Monnam(),
+        // which consumes rnd.c's display RNG. Planning must use the cloned
+        // display context because C performs only the later live scan.
+        game.u.uprops[HALLUC].intrinsic = 1;
+        const displayBefore = structuredClone(game.displayCtx);
+
+        await preflightSimpleMonsterActions(game);
+
+        assert.deepEqual(game.displayCtx, displayBefore);
     });
 
 // mon.c movemon() sets vision_full_recalc whenever a light source is present,

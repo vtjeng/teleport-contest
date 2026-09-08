@@ -1749,6 +1749,16 @@ export async function preflightSimpleMonsterActions(
 // The body of preflightSimpleMonsterActions()'s scan, split out so that its
 // caller can restore the shared vision buffers on every exit.
 async function planSimpleMonsterTurn(planned, random, advanceRound) {
+    // The preflight scan executes the same naming branches as the live scan.
+    // Hallucinated names draw from rnd.c's display context, so point them at
+    // the copy planningState() owns instead of advancing the live stream.
+    const displayRandom = planned.displayCtx
+        ? createCoreRandom(planned.displayCtx, planned).rn2
+        : () => {
+            throw new TypeError(
+                'planned monster naming requires initialized display RNG',
+            );
+        };
     let somebodyCanMove;
     let upkeepCount = 0;
     do {
@@ -1764,6 +1774,7 @@ async function planSimpleMonsterTurn(planned, random, advanceRound) {
                 await planSimpleMonsterScan(monster, {
                     state: planned,
                     random,
+                    displayRandom,
                     planning: true,
                 });
             }
