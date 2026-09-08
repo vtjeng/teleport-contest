@@ -15872,7 +15872,16 @@
       "cFile": "display.c",
       "sessions": [],
       "detail": "Development session seed0383-wizard-hallucinate, segment 0, input step 199 (key l). First mismatch is a screen with core RNG still aligned: at screen index 199, map cell row 7 column 68 is C=@ (color 15) but JS=B (color 8), after the preceding hallucinated pickup now matches. Upstream display.c display_monster() chooses the hallucinated species through what_mon() and rn2_on_display_rng(), called by newsym() from see_monsters() in the post-turn display refresh, with Hallucination active and the monster physically visible. Suspected JavaScript owners are display.js newsym(), presentedMonsterGlyphInfo()/monster_glyph_info(), and see_monsters(); trace the display-RNG call order and monster presentation branch against display.c before changing behavior.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "display_monster-hallucination-glyph-order",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "display_monster"
+          ]
+        }
+      ],
       "openedAt": "eaa2cae26c09a769f1dcbbbd5f64cc80bbf34b9a",
       "openStanding": {
         "sha": "60fcc9db",
