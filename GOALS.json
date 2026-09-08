@@ -14640,7 +14640,33 @@
         "seed0360-wizard-world-tour"
       ],
       "detail": "Covers the excluded seed0360 set_mimic_sym divergence: mkmaze.c fixup_special() sets has_town for Minetown, which is required before makemon.c set_mimic_sym() selects the shop branch. Start at fixup_special() and port every remaining mkmaze.c function in C order.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "check_ransacked..mv_bubble",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "check_ransacked",
+            "migrate_orc",
+            "shiny_orc_stuff",
+            "migr_booty_item",
+            "stolen_booty",
+            "maze_inbounds",
+            "maze_remove_deadends",
+            "populate_maze",
+            "mazexy",
+            "mkportal",
+            "water_friction",
+            "save_waterlevel",
+            "restore_waterlevel",
+            "set_wportal",
+            "unsetup_waterlevel",
+            "mk_bubble",
+            "maybe_adjust_hero_bubble",
+            "mv_bubble"
+          ]
+        }
+      ],
       "openedAt": "54d8d9ec54c7b8dd10aa363f3ce9c09e0e253386",
       "openStanding": {
         "sha": "4c79b1eabed25b19262a52e93f6370b985340d12",
