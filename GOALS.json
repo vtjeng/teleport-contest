@@ -15801,7 +15801,7 @@
     {
       "id": "div-allmain-hallu-redraw-0383",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Align hallucination redraw ordering around wizard level teleport",
       "cFile": "allmain.c",
       "sessions": [],
@@ -15822,8 +15822,11 @@
         "screens": 5291,
         "rng": 376945
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "71c445792b2337b8a31532aa8595cf334c990258",
+      "delivered": {
+        "screens": 3,
+        "rng": 0
+      },
       "function": "moveloop_core",
       "session": "seed0383-wizard-hallucinate",
       "step": 195
