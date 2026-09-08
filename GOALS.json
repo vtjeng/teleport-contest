@@ -15701,7 +15701,19 @@
       "cFile": "wintty.c",
       "sessions": [],
       "detail": "Development session seed2200-wizard-quaff-zap-read, segment 0, input step 158 (key g). The first mismatch is a screen cell at row 3, column 36: C has a blank cell while JavaScript retains a map dot; RNG is aligned through this screen, with a later cursor mismatch at step 165. Upstream win/tty/wintty.c tty_display_nhwindow() takes the NHW_TEXT branch and invokes process_text_window() after options.c option_help() writes the text; cl_end() must clear each line tail. The JavaScript owner is js/tty_menu.js displayTtyTextWindow()/clearRow(), suspected of leaving stale map content during text-window rendering or dismissal. Verify the C clearing and restoration order, screen attributes, cursor state, and subsequent --More-- pages.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "tty-text-window-2200",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "erase_menu_or_text",
+            "process_text_window",
+            "tty_display_nhwindow",
+            "tty_dismiss_nhwindow"
+          ]
+        }
+      ],
       "openedAt": "139897034b16ec9e1b4f4c512e974cda65169154",
       "openStanding": {
         "sha": "4a95c27d6c9b23c164abf7166cb91c7549e4df59",
