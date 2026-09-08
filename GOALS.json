@@ -14668,8 +14668,8 @@
         },
         {
           "name": "iswall..baalz_fixup",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "3eb80a855b0cea57bbed5e260b0f02db0336f199",
           "functions": [
             "iswall",
             "iswall_or_stone",
@@ -14692,19 +14692,19 @@
           "name": "iswall",
           "line": 45,
           "endLine": 58,
-          "ported": false
+          "ported": true
         },
         {
           "name": "iswall_or_stone",
           "line": 59,
           "endLine": 69,
-          "ported": false
+          "ported": true
         },
         {
           "name": "is_solid",
           "line": 70,
           "endLine": 76,
-          "ported": false
+          "ported": true
         },
         {
           "name": "set_levltyp",
@@ -14746,7 +14746,7 @@
           "name": "okay",
           "line": 297,
           "endLine": 308,
-          "ported": false
+          "ported": true
         },
         {
           "name": "maze0xy",
@@ -14782,7 +14782,7 @@
           "name": "baalz_fixup",
           "line": 475,
           "endLine": 569,
-          "ported": false
+          "ported": true
         },
         {
           "name": "fixup_special",
