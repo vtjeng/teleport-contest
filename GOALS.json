@@ -14983,8 +14983,8 @@
       "spans": [
         {
           "name": "monster_nearby..spot_checks",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "0bc139cfb4bfac36be39da48983c163e2212929e",
           "functions": [
             "monster_nearby",
             "end_running",
@@ -15464,13 +15464,13 @@
           "name": "monster_nearby",
           "line": 4106,
           "endLine": 4129,
-          "ported": false
+          "ported": true
         },
         {
           "name": "end_running",
           "line": 4130,
           "endLine": 4160,
-          "ported": false
+          "ported": true
         },
         {
           "name": "nomul",
@@ -15530,7 +15530,7 @@
           "name": "max_capacity",
           "line": 4391,
           "endLine": 4398,
-          "ported": false
+          "ported": true
         },
         {
           "name": "check_capacity",
@@ -15542,13 +15542,13 @@
           "name": "dump_weights",
           "line": 4421,
           "endLine": 4485,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmp_weights",
           "line": 4486,
           "endLine": 4495,
-          "ported": false
+          "ported": true
         },
         {
           "name": "inv_cnt",
@@ -15566,7 +15566,7 @@
           "name": "spot_checks",
           "line": 4525,
           "endLine": 4550,
-          "ported": false
+          "ported": true
         },
         {
           "name": "rounddiv",
