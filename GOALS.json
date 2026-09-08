@@ -15765,7 +15765,7 @@
     {
       "id": "div-hack-test-move-0383",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit known liquid movement in seed0383",
       "cFile": "hack.c",
       "sessions": [],
@@ -15789,8 +15789,11 @@
         "screens": 5283,
         "rng": 371643
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d2918fcd16cd4414f446fd23a7ec48770b89fa6a",
+      "delivered": {
+        "screens": 8,
+        "rng": 5302
+      },
       "function": "test_move",
       "session": "seed0383-wizard-hallucinate",
       "step": 187
