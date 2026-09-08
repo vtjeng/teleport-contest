@@ -15728,6 +15728,27 @@
       "function": "tty_display_nhwindow",
       "session": "seed2200-wizard-quaff-zap-read",
       "step": 158
+    },
+    {
+      "id": "div-mhitu-hitmsg-0383",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Resolve hallucinated monster touch message in seed0383",
+      "cFile": "mhitu.c",
+      "sessions": [],
+      "detail": "Development session seed0383-wizard-hallucinate, segment 0, input step 179. First mismatch is a screen while the gameplay RNG log still matches: screen row 0, column 43 is C 'm' from 'mumak' but JavaScript 'v' from 'vampire bat'; the preceding step 178 matches and the cursor diverges after the changed message width. Upstream mhitu.c hitmsg() line 33 calls Monnam(mtmp), with Hallucination active and AT_TUCH selecting the 'touches you' verb. JavaScript js/mhitu.js hitmsg() line 256 calls capitalizedMonsterName(), whose js/do_name.js monsterCommonName()/rndmonnam() path owns the hallucinated display-RNG name. Suspected cause is the JavaScript hitmsg/name call path or display-RNG state before this source branch; confirm against C before changing code.",
+      "spans": [],
+      "openedAt": "0a5928d65ea9dcf0a04c01968b32c830d70404f4",
+      "openStanding": {
+        "sha": "1b21080603f67f4134347909ae313ab32b1a2cf9",
+        "screens": 5275,
+        "rng": 371643
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "hitmsg",
+      "session": "seed0383-wizard-hallucinate",
+      "step": 179
     }
   ]
 }
