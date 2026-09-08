@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7303,
+      "datetime": "20031123100000",
+      "nethackrc": "OPTIONS=name:Townsfolk,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Wizard-mode level teleport (^V, ? for the level menu, second page's minetn entry) to Minetown. Its Lua variants run table-form des.room with a contents callback that nests des.room subrooms, the wall form of des.door, des.altar inside a temple, and des.random_corridors, through lspo_room, spo_endroom, lspo_door, sel_set_door, lspo_altar, and lspo_random_corridors.",
+      "moves": " \u0016?\n w"
+    }
+  ]
+}

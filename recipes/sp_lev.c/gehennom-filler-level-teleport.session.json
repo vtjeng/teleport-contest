@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7309,
+      "datetime": "20031123113000",
+      "nethackrc": "OPTIONS=name:Goldfill,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Two wizard-mode level teleports: ^V, ? for the level menu, and its valley entry to enter Gehennom, then ^V 31 for the filler level below the Valley of the Dead, whose hellfill.lua populatemaze() runs des.gold() through lspo_gold's random square and rnd(200) amount, plus des.object(), des.monster(), and des.trap() without arguments. No recording yet: the Valley's own creation diverges first, in makemon.c m_initweap(), so the filler is never compared; record it once that function lands.",
+      "moves": " \u0016?\nk    \u001631\n"
+    }
+  ]
+}

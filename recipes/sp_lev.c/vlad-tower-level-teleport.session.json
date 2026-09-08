@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7305,
+      "datetime": "20031123110000",
+      "nethackrc": "OPTIONS=name:Ladderer,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Wizard-mode level teleport (^V, ? for the level menu, second page's tower1 entry) to the top of Vlad's Tower. Its Lua runs the table form of des.ladder with dir \"down\", des.door, des.monster, and des.object, through lspo_ladder and l_create_stairway's ladder arm.",
+      "moves": " \u0016?\n G"
+    }
+  ]
+}

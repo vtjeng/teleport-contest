@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7304,
+      "datetime": "20031123103000",
+      "nethackrc": "OPTIONS=name:Delphic,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Wizard-mode level teleport (^V, ? for the level menu, first page's oracle entry) to the Oracle. Its Lua runs des.room with xalign and yalign \"center\" and a contents callback that places fountains with the positional des.feature form, des.stair, and des.random_corridors, through lspo_room, sel_set_feature, l_create_stairway, and lspo_random_corridors. No recording yet: with this seed the level lies at difficulty 9, and its recording diverges in mklev.c dosdoor(), whose trapped-door mimic branch (makemon(mkclass(S_MIMIC, 0)) under level_difficulty() >= 9) the port lacks; record it once that function lands.",
+      "moves": " \u0016?\nc"
+    }
+  ]
+}
