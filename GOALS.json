@@ -15740,8 +15740,8 @@
       "spans": [
         {
           "name": "mhitu-hitmsg-0383",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "ce0405f4e132f3b0504608f6c01ca3cdb65122f3",
           "functions": [
             "hitmsg"
           ]
