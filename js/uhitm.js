@@ -2288,7 +2288,7 @@ export async function mhitm_knockback(
        stops it first. */
     if (IS_DOOR(here?.typ)
         && (defx - (magr.mx ?? 0)) && (defy - (magr.my ?? 0))
-        && !doorless_door(here))
+        && !doorless_door(here, state))
         return false;
 
     /* monsters must be alive */

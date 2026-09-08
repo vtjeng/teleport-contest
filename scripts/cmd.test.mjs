@@ -1413,18 +1413,20 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 destination.typ = ROOM;
             },
         },
-        // A doorless or open doorway is now an admitted destination
+        // A doorless, broken, or open doorway is an admitted destination
         // (hack.c test_move() reaches only its testdiag arm for those), and so
         // are the two masks closed_door() answers TRUE for: autoopen pulls at
         // a plain D_CLOSED door and names a plain D_LOCKED one. The masks
         // below are the ones left. The two carrying D_TRAPPED alongside
         // D_CLOSED or D_LOCKED reach doopen_indir(), whose D_TRAPPED tail
-        // fires the door trap and bills a shop; the other two reach the
-        // ordinary destination checks, where D_BROKEN is doorless to
-        // test_move() but has its own dfeature_at() description and no
-        // recording.
+        // fires the door trap and bills a shop; D_ISOPEN | D_TRAPPED reaches
+        // the ordinary destination checks but remains outside this boundary.
         ...[
-            ['broken door', D_BROKEN, 'test_move() door or special terrain movement'],
+            [
+                'trapped broken door',
+                D_BROKEN | D_TRAPPED,
+                'test_move() door or special terrain movement',
+            ],
             [
                 'trapped open door',
                 D_ISOPEN | D_TRAPPED,
@@ -1836,31 +1838,35 @@ test('a hostile on a refused diagonal is attacked, not declined', async () => {
     assert.equal(hostile.mhp, 3);
 });
 
-test('a doorless destination admits the diagonal test_move() allows',
+test('doorless destinations admit the diagonal test_move() allows',
     async () => {
     // The companion of the hero-square case: test_move()'s testdiag arm
     // admits a diagonal move into a doorway when doorless_door() holds.
-    // D_BROKEN is not applicable, because the terrain seam refuses it as a
-    // destination, so D_NODOOR is the only mask this rule admits here.
-    await runSegment({
-        seed: 840025,
-        datetime: COMMAND_DATETIME,
-        nethackrc: 'OPTIONS=name:DoorwayEntry,role:Valkyrie,race:human,'
-            + 'gender:female,align:neutral,!legacy,!tutorial,'
-            + '!splash_screen,pettype:none',
-        moves: ' ',
-    });
-    const [x, y] = [game.u.ux + 1, game.u.uy - 1];
-    const destination = game.level.at(x, y);
-    destination.typ = DOOR;
-    destination.flags = D_NODOOR;
-    destination.doormask = D_NODOOR;
-    game.level.at(game.u.ux, game.u.uy).typ = ROOM;
+    // hack.c doorless_door() names D_NODOOR and D_BROKEN together, so both
+    // masks must pass the same ordinary-level route.
+    for (const [name, mask] of [
+        ['doorless', D_NODOOR],
+        ['broken', D_BROKEN],
+    ]) {
+        await runSegment({
+            seed: 840025,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:DoorwayEntry,role:Valkyrie,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none',
+            moves: ' ',
+        });
+        const [x, y] = [game.u.ux + 1, game.u.uy - 1];
+        const destination = game.level.at(x, y);
+        destination.typ = DOOR;
+        destination.flags = destination.doormask = mask;
+        game.level.at(game.u.ux, game.u.uy).typ = ROOM;
 
-    game.nhDisplay.pushKey(commandKeyCode('u'));
-    await moveloop_core();
+        game.nhDisplay.pushKey(commandKeyCode('u'));
+        await moveloop_core();
 
-    assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+        assert.deepEqual([game.u.ux, game.u.uy], [x, y], name);
+    }
 });
 
 test('a doorless mask leaves both diagonal doorway rules unarmed',

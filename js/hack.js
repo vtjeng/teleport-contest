@@ -1273,7 +1273,7 @@ function blocksMove(x, y, state) {
 function blocksDiagonalDoorwayEntry(ux, uy, x, y, state) {
     return Boolean((x - ux) && (y - uy)
         && !propertyPresent(state, PASSES_WALLS)
-        && !doorless_door(state.level?.at(x, y)));
+        && !doorless_door(state.level?.at(x, y), state));
 }
 
 // C ref: hack.c:1208-1209. The mirror rule: a doorway that still has its door
@@ -1282,7 +1282,7 @@ function blocksDiagonalDoorwayExit(ux, uy, x, y, state) {
     const source = state.level?.at(ux, uy);
     return Boolean((x - ux) && (y - uy)
         && !propertyPresent(state, PASSES_WALLS)
-        && IS_DOOR(source?.typ) && !doorless_door(source));
+        && IS_DOOR(source?.typ) && !doorless_door(source, state));
 }
 
 // TRUE where test_move() refuses the step through one of its two diagonal
@@ -1316,11 +1316,11 @@ function refusedDiagonalDoorway(x, y, state) {
 }
 
 // This repeated-command boundary owns entry into a ROOM, CORR, or
-// IS_FURNITURE square, or a doorway whose mask is exactly D_NODOOR or
-// D_ISOPEN. With autopickup disabled, it also admits the sighted object
-// descriptions and, now that js/dungeon.js surface() names every terrain
-// look_here() can feel underfoot, the blind paths with no object or one
-// object. Blind paths that would describe an object pile remain refused.
+// IS_FURNITURE square, or a doorway whose mask is exactly D_NODOOR,
+// D_BROKEN, or D_ISOPEN. With autopickup disabled, it also admits the sighted
+// object descriptions and, now that js/dungeon.js surface() names every
+// terrain look_here() can feel underfoot, the blind paths with no object or
+// one object. Blind paths that would describe an object pile remain refused.
 // These checks are a temporary admission seam in front
 // of hack.c:domove_core(); each rejected branch will move to its upstream owner
 // when that behavior is ported.
@@ -1361,23 +1361,14 @@ export function requireSimpleHeroDestination(
     // arm, which refuses a diagonal entry and allows an orthogonal one; the
     // diagonal case never arrives here, because preflightDomoveDestination()
     // admits it for test_move() to refuse.
-    // Only D_NODOOR and D_ISOPEN are admitted, the two masks recorded against
-    // the C program. D_BROKEN behaves like D_NODOOR in doorless_door() but
-    // differs in dfeature_at(), which returns the literal "broken door" where
-    // the other two go through the cmap, so it is refused rather than assumed
-    // equivalent. It is a mask a level really can carry: sp_lev.c
-    // lspo_door():4702 rolls rnddoor() for `state = "random"`, and its
-    // coordinate arm at 4721-4726 hands that roll to sel_set_door() (4646-4662)
-    // to write as the doormask. dat/tut-1.lua:273 takes that arm, so the
-    // tutorial's door at map [40,15] is D_BROKEN on about one seed in five. The
-    // room-door arm at 4704-4720 cannot: it passes `msk`, still -1, to
-    // create_door(), which rerolls a state that has no D_BROKEN in it.
-    // D_TRAPPED is excluded too: C admits an open trapped door here because
-    // its trap fires from doopen(), not from entry, but that path is not
-    // traced yet, so it stays refused.
+    // The three exact masks below are the non-closed doorway states that this
+    // boundary owns. In particular, hack.c test_move():1074-1150 sends
+    // D_BROKEN through testdiag, where doorless_door() admits it off the Rogue
+    // level. D_TRAPPED combinations remain excluded: the trap bit makes them
+    // distinct C states whose later behavior is not traced here.
     const mask = doorMask(location);
     const doorway = location?.typ === DOOR
-        && (mask === D_NODOOR || mask === D_ISOPEN);
+        && (mask === D_NODOOR || mask === D_BROKEN || mask === D_ISOPEN);
     const ordinaryDestination = location
         && (location.typ === ROOM
             || location.typ === CORR
@@ -1549,12 +1540,12 @@ function doorMask(location) {
 }
 
 // C ref: hack.c doorless_door(). A doorway lacks its door when no mask bit
-// outside D_NODOOR and D_BROKEN is set. Both of test_move()'s diagonal rules
-// turn on this predicate, so they read it here rather than testing masks
-// themselves. The Is_rogue_level() arm is not ported: the rogue level is not
-// reachable from this boundary.
-export function doorless_door(location) {
+// outside D_NODOOR and D_BROKEN is set. Rogue-level doorways are the exception:
+// Rogue has no doors but disallows diagonal access, so C treats them as intact.
+// Both of test_move()'s diagonal rules use this predicate.
+export function doorless_door(location, state = game) {
     return location?.typ === DOOR
+        && !on_level(state.u?.uz, state.rogue_level)
         && (doorMask(location) & ~(D_NODOOR | D_BROKEN)) === 0;
 }
 
@@ -2214,7 +2205,7 @@ function preflight_moverock(sx, sy, noPickMove, state) {
         || IS_OBSTRUCTED(destination.typ)
         || destination.typ === IRONBARS
         || (IS_DOOR(destination.typ) && dx && dy
-            && !doorless_door(destination))
+            && !doorless_door(destination, state))
         || sobj_at(BOULDER, rx, ry, state)) {
         refuse('a boulder that will not move');
     }
@@ -2677,7 +2668,7 @@ async function moverock_core(sx, sy, state, env) {
             || IS_OBSTRUCTED(destination.typ)
             || destination.typ === IRONBARS
             || (IS_DOOR(destination.typ) && u.dx && u.dy
-                && !doorless_door(destination))
+                && !doorless_door(destination, state))
             || sobj_at(BOULDER, rx, ry, state)) {
             // hack.c:486-487. nomul(0) and next_boulder bookkeeping precede
             // this failed-destination check. No trap, monster, or push-side

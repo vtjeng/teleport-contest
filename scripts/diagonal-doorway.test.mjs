@@ -16,6 +16,7 @@ import {
 } from '../js/const.js';
 import {
     cant_squeeze_thru,
+    doorless_door,
     preflightDomoveDestination,
     test_move,
     UnsupportedHeroMoveBoundaryError,
@@ -182,6 +183,45 @@ test('the doorless segments walk the diagonals the rules leave open',
             assert.ok(isDoorless(left), `seed ${segment.seed}`);
         }
     });
+
+test('Rogue-level doorways retain their diagonal restriction', async () => {
+    await runSegment({
+        seed: 9600003,
+        datetime: '20310203040506',
+        nethackrc: 'OPTIONS=name:RogueDoor,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none',
+        moves: '',
+    });
+    const { ux, uy } = game.u;
+    game.rogue_level = { ...game.u.uz };
+    game.level.at(ux, uy).typ = ROOM;
+    for (const column of game.level.monsters) column.fill(null);
+
+    // hack.c doorless_door():4069-4071 treats Rogue's nonexistent doors as
+    // intact so test_move() rejects diagonal entry. Orthogonal entry remains
+    // legal because testdiag checks both dx and dy.
+    for (const mask of [D_NODOOR, D_BROKEN]) {
+        const diagonal = game.level.at(ux + 1, uy + 1);
+        diagonal.typ = DOOR;
+        diagonal.flags = diagonal.doormask = mask;
+        assert.equal(doorless_door(diagonal, game), false);
+        assert.equal(
+            await test_move(ux, uy, 1, 1, DO_MOVE, game),
+            false,
+            `mask ${mask} diagonal`,
+        );
+
+        const orthogonal = game.level.at(ux + 1, uy);
+        orthogonal.typ = DOOR;
+        orthogonal.flags = orthogonal.doormask = mask;
+        assert.equal(
+            await test_move(ux, uy, 1, 0, DO_MOVE, game),
+            true,
+            `mask ${mask} orthogonal`,
+        );
+    }
+});
 
 // hack.c cant_squeeze_thru()'s four results, with the thresholds read from
 // weight.h:22 (WT_TOOMUCH_DIAGONAL = 600) rather than from any recording.
