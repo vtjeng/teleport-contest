@@ -15704,8 +15704,8 @@
       "spans": [
         {
           "name": "tty-text-window-2200",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "b830dc88a15393e80d4ba7be18912cae176d1577",
           "functions": [
             "erase_menu_or_text",
             "process_text_window",

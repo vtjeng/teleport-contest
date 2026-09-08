@@ -645,3 +645,19 @@ tracing, the classifier capping, and the review cadence went with the census.
 The rules that governed them are in this repository's history at `9a8d2f6a`,
 and the goals recorded under them keep their `boundary`, `forecast`, and
 `slices` fields in `GOALS.json`.
+
+## 2026-09-08: the options-help path is machine-local
+
+`div-wintty-text-2200` investigated the screen divergence in
+`seed2200-wizard-quaff-zap-read` at step 158. The C recording was made on
+macOS, where its absolute `$HOME/.nethackrc` path is long enough for
+`tty_putstr()` to wrap after `in `; JavaScript uses the portable `.nethackrc`
+name, which fits on the line. The apparent retained map dot is the filename's
+first period, and the extra wrapped row accounts for the later `--More--` and
+cursor differences.
+
+The session input contains no configuration-file path. A fresh C recording on
+this host uses a short `/tmp/.../.nethackrc` path and matches JavaScript through
+the text-window dismissal, so the TTY clearing and restoration code needs no
+change. The divergence is classified `machine-local`; neither host path is
+hardcoded.
