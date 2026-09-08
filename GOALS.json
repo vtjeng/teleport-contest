@@ -15773,8 +15773,8 @@
       "spans": [
         {
           "name": "hack-test-move-liquid-0383",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "6551c855c6694d9e17397d959de6400cb0a8a12f",
           "functions": [
             "test_move",
             "preflightDomoveDestination",
