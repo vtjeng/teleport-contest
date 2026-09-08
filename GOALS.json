@@ -14633,7 +14633,7 @@
     {
       "id": "mkmaze-c-fixup-special",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mkmaze.c fixup_special and remaining maze-generation behavior",
       "cFile": "mkmaze.c",
       "sessions": [
@@ -14685,8 +14685,11 @@
         "screens": 5187,
         "rng": 350635
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "00f3638ed48ae5ec5d8822996bb7e7ed8119711c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "iswall",
