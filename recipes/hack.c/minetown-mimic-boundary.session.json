@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8124,
+      "datetime": "20070819143000",
+      "nethackrc": "OPTIONS=name:Townwatch,role:Ranger,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Wizard-mode level teleport (^V, ? for the level menu, second page's minetn entry) to Mine Town. The seed and character differ from the existing Mine Town loader cases; after arrival, rooms.c check_special_room() calls hack.c in_town() at the hero's location before recording the Mine Town achievement. Blocked: the fresh differential next diverges in makemon.c set_mimic_sym(), where the JavaScript shop-room lookup reaches rn2(17) instead of C's rn2(10); record this case after that function is corrected.",
+      "moves": " \u0016?\n w"
+    }
+  ]
+}

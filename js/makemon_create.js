@@ -110,6 +110,7 @@ import {
 } from './const.js';
 import { artifact_exists } from './artifacts.js';
 import { obj_resists } from './bury.js';
+import { in_town } from './hack.js';
 import {
     can_saddle,
     newedog,
@@ -1021,8 +1022,8 @@ export function set_mimic_sym(monster, normalized) {
             ? horizontal ? S_hwall : S_vwall
             : horizontal ? S_hcdoor : S_vcdoor;
     } else if (state.level.flags.is_maze_lev
-               // C also checks !(In_mines && in_town); in_town is unported,
-               // and no maze level contains a town, so the check is inert.
+               && !(In_mines(state.u.uz)
+                   && in_town(state.u.ux, state.u.uy, state))
                && !In_sokoban(state.u.uz) && random.rn2(2)) {
         appearanceType = M_AP_OBJECT;
         appearance = STATUE;

@@ -65,6 +65,8 @@ import {
     preflight_end_burn,
     run_timers,
     spot_stop_timers,
+    spot_time_expires,
+    spot_time_left,
     start_timer,
     start_glob_timeout,
     start_corpse_timeout,
@@ -677,6 +679,30 @@ test('spot_stop_timers removes only the matching packed-coordinate timer', () =>
             [REVIVE_MON, other],
         ],
     );
+});
+
+test('spot timer queries match level kind, coordinate, and current move', () => {
+    // timeout.c:2443-2463 scans for the absolute expiration first, then
+    // subtracts svm.moves. An object timer with the same index and numeric
+    // argument must not satisfy the level-timer query.
+    const state = timerState(10);
+    const coordinate = 3 * 0x10000 + 4;
+    state.gt.timer_base = {
+        kind: TIMER_OBJECT,
+        func_index: MELT_ICE_AWAY,
+        arg: coordinate,
+        timeout: 15,
+        next: null,
+    };
+    assert.equal(spot_time_expires(3, 4, MELT_ICE_AWAY, state), 0);
+    assert.equal(spot_time_left(3, 4, MELT_ICE_AWAY, state), 0);
+
+    start_timer(9, TIMER_LEVEL, MELT_ICE_AWAY, coordinate, state);
+    assert.equal(spot_time_expires(3, 4, MELT_ICE_AWAY, state), 19);
+    assert.equal(spot_time_left(3, 4, MELT_ICE_AWAY, state), 9);
+    state.moves = 22;
+    assert.equal(spot_time_left(3, 4, MELT_ICE_AWAY, state), -3);
+    assert.equal(spot_time_expires(4, 3, MELT_ICE_AWAY, state), 0);
 });
 
 test('start_timer validates the numeric source enum ranges', () => {

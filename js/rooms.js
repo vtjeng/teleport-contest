@@ -4,7 +4,7 @@
 import { game } from './gstate.js';
 // js/hack.js imports this file; both sides use the other's exports only inside
 // function bodies, so the cycle resolves.
-import { UnsupportedHeroMoveBoundaryError } from './hack.js';
+import { in_town, UnsupportedHeroMoveBoundaryError } from './hack.js';
 import {
     ACH_TOWN,
     ANTHOLE,
@@ -32,7 +32,6 @@ import {
 import { record_achievement } from './insight.js';
 import { wake_msg } from './mon.js';
 import { room_discovered } from './dungeon.js';
-import { inside_room } from './room_coordinates.js';
 import { rn2 } from './rng.js';
 import { u_entered_shop, u_left_shop } from './shk.js';
 import { ttyPline } from './tty_message.js';
@@ -138,22 +137,6 @@ export function in_rooms(x, y, typewanted = 0, state = game) {
 
 function isShopRoom(roomno, state) {
     return roomType(roomno, state) >= SHOPBASE;
-}
-
-// C ref: hack.c in_town() (3564-3585). Mine Town variants with subrooms use
-// their containing room as the town boundary; variants without any subrooms
-// treat the whole level as town.
-function in_town(x, y, state) {
-    if (!state.level?.flags?.has_town) return false;
-    let hasSubrooms = false;
-    for (const room of state.level.rooms ?? []) {
-        if (!(room?.hx > 0)) break;
-        if ((room.nsubrooms ?? room.sbrooms?.length ?? 0) > 0) {
-            hasSubrooms = true;
-            if (inside_room(room, x, y, state)) return true;
-        }
-    }
-    return !hasSubrooms;
 }
 
 /**

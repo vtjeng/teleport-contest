@@ -226,8 +226,8 @@ import {
     check_capacity,
     domove,
     dopickup,
-    endRunning,
-    monsterNearby,
+    end_running,
+    monster_nearby,
     preflightDomoveDestination,
     u_maybe_impaired,
     NODIAG,
@@ -464,7 +464,7 @@ export async function cmdSafetyPrevention(
             }
         }
 
-        if (monsterNearby(state)) {
+        if (monster_nearby(state)) {
             await ttyNorep(`${act}${assist}`, state);
             return true;
         }
@@ -2389,7 +2389,7 @@ async function runCastCommand(key, state) {
         // morehungry() -> newuhs() requires these hooks for hunger
         // status-change messages and status-line redraws.
         statusRefresh: () => bot(),
-        endRunning: (s) => endRunning(s),
+        endRunning: (s) => end_running(true, s),
     }));
 }
 

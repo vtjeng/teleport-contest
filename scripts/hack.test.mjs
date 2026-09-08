@@ -4,6 +4,9 @@ import test from 'node:test';
 import {
     BLINDED,
     COLNO,
+    DB_FLOOR,
+    DB_ICE,
+    DRAWBRIDGE_UP,
     M_AP_FURNITURE,
     PROT_FROM_SHAPE_CHANGERS,
     TELEPAT,
@@ -12,9 +15,11 @@ import {
     FLYING,
     FOUNTAIN,
     HEADSTONE,
+    ICE,
     I_SPECIAL,
     LEVITATION,
     MAX_TYPE,
+    MELT_ICE_AWAY,
     ROOM,
     ROT_CORPSE,
     ROWNO,
@@ -32,16 +37,20 @@ import {
     ZOMBIFY_MON,
 } from '../js/const.js';
 import {
+    cmp_weights,
     disturb_buried_zombies,
     domove,
-    endRunning,
+    dump_weights,
+    end_running,
     findtravelpath,
     hero_tread_disturbs_buried_zombies,
+    in_town,
     lookaround,
     maybe_smudge_engr,
     nomul,
     runmode_delay_output,
     runStopsBeforeMonster,
+    spot_checks,
     spoteffects,
     switch_terrain,
     terrain_changed_under_hero,
@@ -49,8 +58,12 @@ import {
 } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
-import { M1_FLY, PM_GRID_BUG } from '../js/monsters.js';
-import { CORPSE, DAGGER } from '../js/objects.js';
+import {
+    M1_FLY, PM_GRID_BUG, monst_globals_init,
+} from '../js/monsters.js';
+import {
+    CORPSE, DAGGER, objects_globals_init,
+} from '../js/objects.js';
 import {
     peek_timer,
     start_timer,
@@ -445,6 +458,100 @@ function runState(overrides = {}) {
     };
 }
 
+test('in_town uses a containing subroom parent as the town boundary', () => {
+    // hack.c:3569-3584. A town level without subrooms admits every square;
+    // once any room has subrooms, only that parent room and its one-square
+    // border are in town.
+    const wholeLevel = { level: { flags: { has_town: true }, rooms: [
+        { lx: 4, hx: 8, ly: 3, hy: 6, nsubrooms: 0 },
+    ] } };
+    assert.equal(in_town(70, 19, wholeLevel), true);
+
+    const bounded = { level: { flags: { has_town: true }, rooms: [
+        { lx: 4, hx: 8, ly: 3, hy: 6, nsubrooms: 1 },
+    ] } };
+    assert.equal(in_town(3, 2, bounded), true);
+    assert.equal(in_town(9, 7, bounded), true);
+    assert.equal(in_town(10, 7, bounded), false);
+    bounded.level.flags.has_town = false;
+    assert.equal(in_town(5, 4, bounded), false);
+});
+
+test('cmp_weights compares the complete prefixed source name', () => {
+    // hack.c:4491 compares nm rather than wt. The seven-digit prefix orders
+    // weights first; the suffix breaks equal-weight ties bytewise.
+    assert.ok(cmp_weights(
+        { nm: '0000010the body of an ant' },
+        { nm: '0000100an arrow' },
+    ) < 0);
+    assert.ok(cmp_weights(
+        { nm: '0000100the body of a jackal' },
+        { nm: '0000100an arrow' },
+    ) > 0);
+    assert.equal(cmp_weights({ nm: '0000010an apple' },
+        { nm: '0000010an apple' }), 0);
+});
+
+test('dump_weights prints the source initializer in cmp_weights order', () => {
+    const state = {};
+    monst_globals_init(state);
+    objects_globals_init(state);
+    const lines = [];
+    dump_weights(state, {
+        random: () => 0,
+        rawPrint: (line) => lines.push(line),
+    });
+
+    assert.equal(lines[0], 'int all_weights[] = {');
+    assert.equal(lines.at(-2), '};');
+    assert.equal(lines.at(-1), '');
+    const rows = lines.slice(1, -2);
+    assert.ok(rows.length > 700);
+    const weights = rows.map((line) => Number(line.slice(4, 11)));
+    assert.deepEqual(weights, [...weights].sort((a, b) => a - b));
+    assert.ok(rows.some((line) => line.includes('the body of a giant ant')));
+    assert.ok(rows.some((line) => line.includes('an arrow')));
+});
+
+test('spot_checks cancels melting before adjusting objects off ice', () => {
+    const location = { typ: ROOM, flags: 0 };
+    const state = { level: { at: () => location } };
+    const events = [];
+    spot_checks(7, 4, ICE, state, {
+        spotTimeLeft: (...args) => {
+            events.push(['time', ...args.slice(0, 3)]);
+            return 9;
+        },
+        spotStopTimers: (...args) =>
+            events.push(['stop', ...args.slice(0, 3)]),
+        objIceEffects: (x, y, buried) =>
+            events.push(['objects', x, y, buried]),
+    });
+    assert.deepEqual(events, [
+        ['time', 7, 4, MELT_ICE_AWAY],
+        ['stop', 7, 4, MELT_ICE_AWAY],
+        ['objects', 7, 4, false],
+    ]);
+
+    // A raised drawbridge remains icy when only non-underlay mask bits differ.
+    location.typ = DRAWBRIDGE_UP;
+    location.flags = DB_ICE;
+    events.length = 0;
+    spot_checks(7, 4, DRAWBRIDGE_UP, state, {
+        spotTimeLeft: () => assert.fail('unchanged ice has no timer check'),
+        objIceEffects: () => assert.fail('unchanged ice has no object check'),
+    });
+    assert.deepEqual(events, []);
+
+    location.flags = DB_FLOOR;
+    spot_checks(7, 4, DRAWBRIDGE_UP, state, {
+        spotTimeLeft: () => 0,
+        objIceEffects: (x, y, buried) =>
+            events.push(['objects', x, y, buried]),
+    });
+    assert.deepEqual(events, [['objects', 7, 4, false]]);
+});
+
 test('nomul(0) clears the run and the source fields around it', () => {
     const state = runState();
     nomul(0, state);
@@ -570,7 +677,7 @@ test('end_running frees the travel map whether or not a run was going', () => {
     for (const run of [0, 1]) {
         const state = runState({ context: { run, travel: 1, mv: 1 } });
         state.travelmap = { sentinel: true };
-        endRunning(state);
+        end_running(true, state);
         assert.equal(state.travelmap, null, `travelmap with run ${run}`);
     }
 });
@@ -584,7 +691,7 @@ test('end_running(FALSE) preserves travel intent for the adjacent fast path',
         context: { run: 8, travel: 1, travel1: 1, mv: 1 },
     });
     state.travelmap = new Uint8Array(COLNO * ROWNO);
-    endRunning(state, false);
+    end_running(false, state);
     assert.equal(state.context.run, 0);
     assert.equal(state.context.travel, 1);
     assert.equal(state.context.travel1, 1);

@@ -114,7 +114,7 @@ import { game, resetGame } from '../js/gstate.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
     domove,
-    monsterNearby,
+    monster_nearby,
     test_move,
     UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
@@ -3564,21 +3564,21 @@ test('#autopickup dispatches dotogglepickup without taking time', async () => {
 
 test('monster_nearby applies hostility, concealment, helplessness, and sensing', () => {
     const { state, monster } = resetSafeWaitTestGame();
-    assert.equal(monsterNearby(state), true);
+    assert.equal(monster_nearby(state), true);
 
     monster.mpeaceful = true;
-    assert.equal(monsterNearby(state), false);
+    assert.equal(monster_nearby(state), false);
     state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
-    assert.equal(monsterNearby(state), true);
+    assert.equal(monster_nearby(state), true);
 
     monster.m_ap_type = M_AP_FURNITURE;
-    assert.equal(monsterNearby(state), false);
+    assert.equal(monster_nearby(state), false);
     monster.m_ap_type = 0;
     monster.msleeping = true;
-    assert.equal(monsterNearby(state), false);
+    assert.equal(monster_nearby(state), false);
     monster.msleeping = false;
     state.viz_array[monster.my][monster.mx] = 0;
-    assert.equal(monsterNearby(state), false);
+    assert.equal(monster_nearby(state), false);
 });
 
 test('safe wait rejects a nearby hostile with the bound force prefix', async () => {

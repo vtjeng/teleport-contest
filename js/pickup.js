@@ -103,6 +103,7 @@ import {
     check_capacity,
     inv_cnt,
     inv_weight,
+    max_capacity,
     near_capacity,
     nomul,
     weight_cap,
@@ -2047,7 +2048,7 @@ function carry_count(obj, container, count, telekinesis, state) {
     const savequan = obj.quan;
     const saveowt = obj.owt;
     const umoney = money_cnt(state.invent);
-    const iw_base = inv_weight(state) - 2 * (state.gw?.wc ?? 0);
+    const iw_base = max_capacity(state);
 
     let wt;
     if (count !== savequan) {

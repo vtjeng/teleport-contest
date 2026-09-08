@@ -42,6 +42,7 @@ import { hliquid, a_monnam } from './do_name.js';
 import { level_difficulty, dunlevs_in_dungeon, dunlev } from './dungeon.js';
 import { del_engr_at } from './engrave.js';
 import { game } from './gstate.js';
+import { in_town } from './hack.js';
 import { distmin } from './hacklib.js';
 import { update_inventory, delobj, money_cnt } from './invent.js';
 import { makemon_runtime } from './makemon_create.js';
@@ -409,10 +410,8 @@ async function dryup(x, y, isyou, state = game, env = {}) {
         && (!random.rn2(3)
             || (state.level.at(x, y).flags & F_WARNED))) {
         // C ref: fountain.c:205-214. Town fountain warning; the watch
-        // warns the hero. in_town() is not ported; fail-closed so a
-        // town-fountain path stops the scorer rather than skipping the
-        // watchman interaction.
-        if (isyou && in_town_stub(x, y, state)
+        // interaction remains unported and fails closed before mutation.
+        if (isyou && in_town(x, y, state)
             && !(state.level.at(x, y).flags & F_WARNED)) {
             throw new UnsupportedFountainError(
                 'the in-town fountain warning in dryup()');
@@ -440,7 +439,7 @@ async function dryup(x, y, isyou, state = game, env = {}) {
         newsym(x, y);
 
         // C ref: fountain.c:236-237. Town guards get angry.
-        if (isyou && in_town_stub(x, y, state)) {
+        if (isyou && in_town(x, y, state)) {
             throw new UnsupportedFountainError(
                 'angry_guards() after drying up a town fountain');
         }
@@ -450,13 +449,6 @@ async function dryup(x, y, isyou, state = game, env = {}) {
 // Fountain flag bits from rm.h.
 const F_LOOTED = 1;
 const F_WARNED = 2;
-
-// Stub: in_town() is not ported. Returns false so non-town fountains
-// work; any session that reaches a town fountain will hit the
-// fail-closed throw above instead of silently skipping the watchman.
-function in_town_stub(_x, _y, _state) {
-    return false;
-}
 
 // ── drinkfountain ──
 // C ref: fountain.c drinkfountain() (243-390). Called from dodrink() when

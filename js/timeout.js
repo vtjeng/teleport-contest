@@ -711,6 +711,29 @@ export function peek_timer(funcIndex, arg, state = game) {
     return 0;
 }
 
+// C ref: timeout.c spot_time_expires() (2443-2456). Level timers encode their
+// map square as `(x << 16) | y`; object timers with the same function index do
+// not match.
+export function spot_time_expires(x, y, funcIndex, state = game) {
+    timerGlobals(state);
+    const coordinate = x * 0x10000 + y;
+    for (let timer = state.gt.timer_base; timer; timer = timer.next) {
+        if (timer.kind === TIMER_LEVEL
+            && timer.func_index === funcIndex
+            && timer.arg === coordinate) {
+            return timer.timeout;
+        }
+    }
+    return 0;
+}
+
+// C ref: timeout.c spot_time_left() (2459-2463). An absolute expiration of
+// zero is the no-timer sentinel; otherwise C returns the signed difference.
+export function spot_time_left(x, y, funcIndex, state = game) {
+    const expires = spot_time_expires(x, y, funcIndex, state);
+    return expires > 0 ? expires - currentMove(state) : 0;
+}
+
 export function obj_stop_timers(obj, state = game, env = {}) {
     timerGlobals(state);
     const cleanupByTimer = new Map();

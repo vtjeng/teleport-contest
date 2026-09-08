@@ -63,7 +63,7 @@ import { feel_location, feel_newsym, unmap_invisible } from './display.js';
 import { set_wounded_legs } from './do.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
-import { near_capacity } from './hack.js';
+import { in_town, near_capacity } from './hack.js';
 import { is_giant, nolimbs, slithy, verysmall } from './mondata.js';
 import { wake_nearby } from './mon.js';
 import { m_at } from './monst.js';
@@ -72,7 +72,6 @@ import { sobj_at } from './obj.js';
 import { BOULDER, KICKING_BOOTS } from './objects.js';
 import { encumber_msg } from './pickup.js';
 import { rn2, rnd, rnl } from './rng.js';
-import { inside_room } from './room_coordinates.js';
 import { in_rooms } from './rooms.js';
 import { is_pool } from './trap.js';
 import { ttyPline } from './tty_message.js';
@@ -139,23 +138,6 @@ function Deaf(state) {
     const value = state.u?.uprops?.[DEAF];
     return Boolean(value?.intrinsic || value?.extrinsic)
         || Boolean(state.u?.uroleplay?.deaf);
-}
-
-// C ref: hack.c in_town() (3564-3585). Returns true when (x, y) is in the
-// Mine Town special level and inside one of its rooms with subrooms. The
-// witness session is not in a town, so the true arm of the one call site in
-// kick_door() is refused.
-function in_town(x, y, state) {
-    if (!state.level?.flags?.has_town) return false;
-    let hasSubrooms = false;
-    for (const room of state.level.rooms ?? []) {
-        if (!(room?.hx > 0)) break;
-        if ((room.nsubrooms ?? room.sbrooms?.length ?? 0) > 0) {
-            hasSubrooms = true;
-            if (inside_room(room, x, y, state)) return true;
-        }
-    }
-    return !hasSubrooms;
 }
 
 // C ref: dokick.c:8-10, the martial() macro over is_bigfoot() at :7. A Samurai

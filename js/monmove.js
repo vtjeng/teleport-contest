@@ -179,6 +179,7 @@ import { has_ceiling, Is_special, on_level } from './dungeon.js';
 import {
     bad_rock,
     cant_squeeze_thru,
+    in_town,
     losehp,
     may_dig,
     may_passwall,
@@ -400,7 +401,6 @@ import {
     sensesMonster,
 } from './startup_a11y.js';
 import { mbodypart } from './polyself.js';
-import { inside_room } from './room_coordinates.js';
 import { S_poisoncloud } from './symbols.js';
 import { gettrack, hastrack } from './track.js';
 import { count_traps, is_lava, is_pool, maketrap, t_at, unconscious } from './trap.js';
@@ -1034,21 +1034,6 @@ async function m_break_boulder(mtmp, x, y, env = {}) {
         // and draws rn1(60,7) for the new rock quantity. It is void.
         note_unported('zap.c fracture_rock');
     }
-}
-
-// C ref: hack.c in_town(). Duplicated here because hack.c, dig.c, and
-// dokick.c each keep a local copy; the function belongs to hack.c's port.
-function in_town(x, y, state) {
-    if (!state.level?.flags?.has_town) return false;
-    let hasSubrooms = false;
-    for (const room of state.level.rooms ?? []) {
-        if (!(room?.hx > 0)) break;
-        if ((room.nsubrooms ?? room.sbrooms?.length ?? 0) > 0) {
-            hasSubrooms = true;
-            if (inside_room(room, x, y, state)) return true;
-        }
-    }
-    return !hasSubrooms;
 }
 
 // C ref: monmove.c watch_on_duty() (176-203). A watch guard on duty checks

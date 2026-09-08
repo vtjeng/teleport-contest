@@ -14,10 +14,13 @@ import {
     COLNO,
     CORR,
     DEAF,
+    DB_ICE,
+    DB_UNDER,
     DIED,
     DISINT_RES,
     DOOR,
     DO_MOVE,
+    DRAWBRIDGE_UP,
     D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
@@ -64,10 +67,12 @@ import {
     LEVITATION,
     MAX_CARR_CAP,
     MAX_TYPE,
+    MELT_ICE_AWAY,
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_AP_TYPMASK,
     N_DIRS,
+    NEUTRAL,
     PASSES_WALLS,
     PICK_NONE,
     POISON_RES,
@@ -186,14 +191,17 @@ import {
 } from './mondata.js';
 import {
     is_pick,
+    obj_ice_effects,
     objectType,
     place_object,
     remove_object,
     sobj_at,
 } from './obj.js';
 import {
+    an,
     assertObjectNameable,
     assertPricedObjectNameable,
+    simple_typename,
     the,
     UnsupportedObjectNameError,
     xnameFresh,
@@ -205,19 +213,24 @@ import {
     CREDIT_CARD,
     DWARVISH_MATTOCK,
     LOCK_PICK,
+    NUM_OBJECTS,
     PICK_AXE,
     SKELETON_KEY,
+    SLIME_MOLD,
     STATUE,
     WATER_WALKING_BOOTS,
     WAN_DIGGING,
 } from './objects.js';
 import {
     AT_EXPL,
+    G_UNIQ,
+    NUMMONS,
     PM_DISPLACER_BEAST,
     PM_ELF,
     PM_GRID_BUG,
     PM_KITTEN,
     PM_LITTLE_DOG,
+    PM_LONG_WORM_TAIL,
     PM_PONY,
     PM_VALKYRIE,
     PM_WIZARD,
@@ -243,7 +256,9 @@ import {
     UnsupportedPickupError,
 } from './pickup.js';
 import { in_out_region, inside_region, visible_region_at } from './region.js';
+import { CapitalMon } from './random_text.js';
 import { rn2, rnd } from './rng.js';
+import { inside_room } from './room_coordinates.js';
 import { check_special_room } from './rooms.js';
 import {
     costly_spot,
@@ -264,6 +279,8 @@ import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { S_hcdoor, S_stone, S_tree, S_vcdoor } from './symbols.js';
 import {
     peek_timer,
+    spot_stop_timers,
+    spot_time_left,
     start_timer,
     stop_timer,
 } from './timeout.js';
@@ -278,6 +295,9 @@ import { dotrap, preflight_dotrap } from './trap_effects.js';
 import {
     ttyNorep, ttyPline, ttyUrgentPline,
 } from './tty_message.js';
+import { tty_raw_print } from './tty_rawprint.js';
+import { init_objects } from './o_init.js';
+import { note_unported } from './unported.js';
 import { select_menu } from './windows.js';
 import { do_attack, is_safemon } from './uhitm.js';
 import {
@@ -595,9 +615,25 @@ function heroHallucinating(state) {
         && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
 }
 
+// C ref: hack.c in_town() (3562-3585). A Mine Town level with subrooms uses
+// the containing room as its town boundary. A variant without subrooms treats
+// the whole level as town.
+export function in_town(x, y, state = game) {
+    if (!state.level?.flags?.has_town) return false;
+    let hasSubrooms = false;
+    for (const room of state.level.rooms ?? []) {
+        if (!(room?.hx > 0)) break;
+        if ((room.nsubrooms ?? room.sbrooms?.length ?? 0) > 0) {
+            hasSubrooms = true;
+            if (inside_room(room, x, y, state)) return true;
+        }
+    }
+    return !hasSubrooms;
+}
+
 // C ref: hack.c monster_nearby(). This deliberately has stricter concealment,
 // disposition, helplessness, and scare checks than canspotmon().
-export function monsterNearby(state = game) {
+export function monster_nearby(state = game) {
     const { ux, uy } = state.u;
     const hallucinating = heroHallucinating(state);
     for (let x = ux - 1; x <= ux + 1; ++x) {
@@ -623,6 +659,10 @@ export function monsterNearby(state = game) {
     return false;
 }
 
+// Compatibility for operation objects and callers that predate the
+// source-owned name. New direct C call sites use monster_nearby().
+export const monsterNearby = monster_nearby;
+
 // C ref: hack.c end_running(TRUE). Finite movement, hunger transitions, and
 // safe-pet refusal share this owner for run, travel, movement-repeat, and count
 // cancellation.
@@ -639,7 +679,7 @@ export function monsterNearby(state = game) {
 // no guard either. The adjacent findtravelpath() fast path passes FALSE: it
 // must discard the old map while leaving the caller's travel intent intact so
 // domove_core() can continue through the ordinary movement pipeline.
-export function endRunning(state = game, andTravel = true) {
+export function end_running(andTravel = true, state = game) {
     if (state.context.run) {
         state.context.run = 0;
         state.disp ??= {};
@@ -656,6 +696,126 @@ export function endRunning(state = game, andTravel = true) {
     }
     state.travelmap = null;
     if (state.multi > 0) state.multi = 0;
+}
+
+// Compatibility for injected operation objects, whose established contract
+// takes state before the optional and_travel flag.
+export const endRunning = (state = game, andTravel = true) =>
+    end_running(andTravel, state);
+
+// C ref: hack.c max_capacity() (4391-4396). inv_weight() refreshes gw.wc
+// before this function applies the source's two-capacity overload threshold.
+export function max_capacity(state = game) {
+    const weight = inv_weight(state);
+    return weight - (2 * state.gw.wc);
+}
+
+// C ref: hack.c dump_weights() (4421-4482). This developer command prints a
+// source-formatted initializer ordered first by seven-digit weight and then by
+// the displayed body or object name.
+export function dump_weights(state = game, env = {}) {
+    // decl_globals_init() and freedynamicdata() are void lifecycle calls. The
+    // JS command-line path that would own them is not ported, so record both
+    // gaps and operate on the caller's initialized catalogs.
+    note_unported('decl.c decl_globals_init');
+    const initializeObjects = env.initObjects ?? init_objects;
+    initializeObjects(state, env.random ?? rn2);
+
+    if (!Array.isArray(state.mons) || state.mons.length < NUMMONS) {
+        throw new Error('dump_weights requires an initialized monster catalog');
+    }
+    if (!Array.isArray(state.objects)
+        || !Array.isArray(state.obj_descr)
+        || state.objects.length < NUM_OBJECTS) {
+        throw new Error('dump_weights requires an initialized object catalog');
+    }
+
+    const weightlist = [];
+    for (let index = 0; index < NUMMONS; ++index) {
+        if (index === PM_LONG_WORM_TAIL) continue;
+        const species = state.mons[index];
+        const weight = Math.trunc(species.cwt);
+        const name = species.pmnames[NEUTRAL];
+        const unique = Boolean(species.geno & G_UNIQ);
+        const body = CapitalMon(name, state)
+            ? the(name, state) : unique ? name : an(name);
+        weightlist.push({
+            wtyp: 1,
+            wt: weight,
+            idx: index,
+            unique,
+            nm: `${String(weight).padStart(7, '0')}the body of ${body}`,
+        });
+    }
+
+    for (let index = 0; index < NUM_OBJECTS; ++index) {
+        const name = index === SLIME_MOLD
+            ? 'slime mold' : state.obj_descr[index]?.oc_name;
+        const objectClass = state.objects[index];
+        const weight = Math.trunc(objectClass.oc_weight);
+        if (!weight || !name) continue;
+        const unique = Boolean(objectClass.oc_unique);
+        objectClass.oc_name_known = 1;
+        const base = simple_typename(index, state);
+        const displayName = unique ? the(base, state) : an(base);
+        weightlist.push({
+            wtyp: 2,
+            wt: weight,
+            idx: index,
+            unique,
+            nm: `${String(weight).padStart(7, '0')}${displayName}`,
+        });
+    }
+
+    weightlist.sort(cmp_weights);
+    const rawPrint = env.rawPrint
+        ?? ((line) => tty_raw_print(state, line));
+    rawPrint('int all_weights[] = {');
+    for (let index = 0; index < weightlist.length; ++index) {
+        const entry = weightlist[index];
+        const comma = index === weightlist.length - 1 ? ' ' : ',';
+        const name = entry.nm.slice(7).padEnd(49, ' ');
+        rawPrint(`    ${String(entry.wt).padStart(7, ' ')}${comma} /* ${name} */`);
+    }
+    rawPrint('};');
+    rawPrint('');
+    note_unported('decl.c freedynamicdata');
+}
+
+// C ref: hack.c cmp_weights() (4486-4493). strcmp() only promises a negative,
+// zero, or positive result, which is exactly what Array.sort() consumes.
+export function cmp_weights(first, second) {
+    const left = first.nm;
+    const right = second.nm;
+    return left < right ? -1 : left > right ? 1 : 0;
+}
+
+// C ref: hack.c spot_checks() (4525-4546). When ice disappears, cancel its
+// level timer before updating timed floor objects for their new temperature.
+export function spot_checks(x, y, oldTyp, state = game, env = {}) {
+    const location = state.level.at(x, y);
+    const newTyp = location.typ;
+    let drawbridgeIceNow = false;
+
+    switch (oldTyp) {
+    case DRAWBRIDGE_UP:
+        drawbridgeIceNow = (((location.flags || location.drawbridgemask || 0)
+            & DB_UNDER) === DB_ICE);
+        // FALLTHROUGH
+    case ICE:
+        if (newTyp !== oldTyp
+            || (oldTyp === DRAWBRIDGE_UP && !drawbridgeIceNow)) {
+            const timeLeft = env.spotTimeLeft ?? spot_time_left;
+            const stopTimers = env.spotStopTimers ?? spot_stop_timers;
+            const iceEffects = env.objIceEffects ?? obj_ice_effects;
+            if (timeLeft(x, y, MELT_ICE_AWAY, state))
+                stopTimers(x, y, MELT_ICE_AWAY, state);
+            iceEffects(x, y, false, { ...env, state });
+        }
+        break;
+    default:
+        break;
+    }
 }
 
 // C ref: hack.c nomul() (4160-4173). Interrupts a multi-turn action: a run, a
@@ -684,7 +844,7 @@ export function nomul(nval, state = game) {
         state.multi_reason = null;
         state.multireasonbuf = '';
     }
-    endRunning(state);
+    end_running(true, state);
     cmdq_clear(CQ_CANNED, state);
 }
 
@@ -842,7 +1002,7 @@ export async function showdamage(dmg, state, env = {}) {
 export async function losehp(n, knam, k_format, state = game, env = {}) {
     state.disp ??= {};
     state.disp.botl = true; /* u.uhp or u.mh is changing */
-    endRunning(state);
+    end_running(true, state);
     if (Upolyd(state.u)) {
         state.u.mh -= n;
         await showdamage(n, state, env);
@@ -2673,7 +2833,7 @@ export async function findtravelpath(mode = TRAVP_TRAVEL, state = game) {
     if (state.context.travel1
         && dist2(state.u.ux, state.u.uy, state.u.tx, state.u.ty) <= 2
         && crawl_destination(state.u.tx, state.u.ty, state)) {
-        endRunning(state, false);
+        end_running(false, state);
         if (await test_move(
             state.u.ux,
             state.u.uy,

@@ -13,6 +13,7 @@ import { game, resetGame } from '../js/gstate.js';
 import {
     calc_capacity,
     inv_weight,
+    max_capacity,
     near_capacity,
     projected_capacity,
     weight_cap,
@@ -345,6 +346,9 @@ test('live capacity pins exceptional Strength, weight, and cache boundaries',
         assert.equal(inv_weight(state), 402);
         assert.equal(state.gw.wc, 200);
         assert.equal(calc_capacity(98, state), 5);
+        // hack.c max_capacity() subtracts two full capacity units from the
+        // excess returned by inv_weight(), after that call refreshes gw.wc.
+        assert.equal(max_capacity(state), 2);
 
         // Rock throwers exclude boulders from inventory weight but retain
         // the source's (quan + 50) / 100 coin rounding.

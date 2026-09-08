@@ -38,6 +38,9 @@ import {
     W_NONDIGGABLE,
 } from './const.js';
 import { game } from './gstate.js';
+// js/hack.js imports dig_typ(); both crossings occur only inside function
+// bodies, so the source-owned in_town() remains safe across the cycle.
+import { in_town } from './hack.js';
 import { obfree, obj_extract_self } from './invent.js';
 import { hides_under } from './mondata.js';
 import { closed_door, youHear } from './monmove.js';
@@ -52,7 +55,6 @@ import {
     ROCK,
 } from './objects.js';
 import { cvt_sdoor_to_door } from './detect.js';
-import { inside_room } from './room_coordinates.js';
 import { in_rooms } from './rooms.js';
 import { acurr } from './attrib.js';
 import { is_axe, is_pick, mksobj_at, remove_object, sobj_at } from './obj.js';
@@ -114,22 +116,6 @@ export function dig_typ(otmp, x, y, state = game) {
                && (!state.level.flags.arboreal || IS_WALL(ltyp)))
                 ? DIGTYP_ROCK
                 : DIGTYP_UNDIGGABLE;
-}
-
-// C ref: hack.c in_town(). The Mine Town flag is the only caller-side state
-// that enables this test. `inside_room()` includes the one-square room edge,
-// matching mkroom.c's predicate used by the C implementation.
-function in_town(x, y, state) {
-    if (!state.level?.flags?.has_town) return false;
-    let hasSubrooms = false;
-    for (const room of state.level.rooms ?? []) {
-        if (!(room?.hx > 0)) break;
-        if ((room.nsubrooms ?? room.sbrooms?.length ?? 0) > 0) {
-            hasSubrooms = true;
-            if (inside_room(room, x, y, state)) return true;
-        }
-    }
-    return !hasSubrooms;
 }
 
 function setTerrain(location, typ, flags = 0) {
