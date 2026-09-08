@@ -13168,7 +13168,7 @@
     {
       "id": "sp-lev-c-create",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port sp_lev.c creation and helper functions; add sanctum and Arc-loca level loaders",
       "cFile": "sp_lev.c",
       "sessions": [
@@ -13296,8 +13296,8 @@
         },
         {
           "name": "lspo_drawbridge..lspo_finalize_level",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "f8aacfae80e504162a53a07e658fdf083c85c669",
           "functions": [
             "lspo_drawbridge",
             "lspo_mazewalk",
@@ -13318,8 +13318,11 @@
         "screens": 5178,
         "rng": 345354
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f8aacfae80e504162a53a07e658fdf083c85c669",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "reset_xystart_size",
@@ -14093,61 +14096,61 @@
           "name": "lspo_drawbridge",
           "line": 5720,
           "endLine": 5768,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_mazewalk",
           "line": 5769,
           "endLine": 5875,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_wall_property",
           "line": 5876,
           "endLine": 5910,
-          "ported": false
+          "ported": true
         },
         {
           "name": "set_wallprop_in_selection",
           "line": 5911,
           "endLine": 5936,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_non_diggable",
           "line": 5937,
           "endLine": 5945,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_non_passwall",
           "line": 5946,
           "endLine": 5954,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sel_set_wallify",
           "line": 5955,
           "endLine": 5964,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_wallify",
           "line": 5965,
           "endLine": 5992,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_reset_level",
           "line": 5993,
           "endLine": 6013,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_finalize_level",
           "line": 6014,
           "endLine": 6074,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_map",
