@@ -14298,6 +14298,20 @@
             "nosound_hero_playnotes",
             "nosound_play_usersound"
           ]
+        },
+        {
+          "name": "nosound_ambience..sound_speak",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "nosound_ambience",
+            "nosound_verbal",
+            "initialize_semap_basenames",
+            "get_sound_effect_filename",
+            "base_soundname_to_filename",
+            "set_voice",
+            "sound_speak"
+          ]
         }
       ],
       "openedAt": "3ac89ac44fd5cafdbe7ed3595968eadce036b4da",
