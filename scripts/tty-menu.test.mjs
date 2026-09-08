@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { PICK_NONE } from '../js/const.js';
+import { COLNO, PICK_NONE, ROOM, ROWNO } from '../js/const.js';
+import { flush_screen } from '../js/display.js';
+import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import {
     encodeUtf8ByteString,
 } from '../js/hacklib.js';
 import { parseNethackrc } from '../js/options.js';
+import { initialize_symbols_from_options } from '../js/symbols.js';
 import { ttyPline } from '../js/tty_message.js';
 import {
     displayTtyMenuTextWindow,
@@ -20,6 +23,11 @@ import {
     ttyMenuTextLayout,
 } from '../js/tty_menu.js';
 import { renderTtyStartupBanner } from '../js/tty_startup.js';
+import {
+    init_vision_globals,
+    vision_recalc,
+    vision_reset,
+} from '../js/vision.js';
 
 function menuState(keys = '') {
     resetGame();
@@ -437,6 +445,69 @@ test('a 24-row role menu becomes full-screen', () => {
         [7, 23],
     );
 });
+
+// C ref: wintty.c erase_menu_or_text() (966-984). A column-zero gameplay
+// menu is repaired by docrt(), not by restoring the terminal cells saved when
+// the menu opened. Deliberately corrupting that saved frame distinguishes the
+// two: the model-backed hero must replace it during dismissal.
+test('a full-screen gameplay menu redraws the map instead of its saved frame',
+    async () => {
+        const state = menuState();
+        state.level = new GameMap();
+        for (let x = 1; x < COLNO; ++x) {
+            for (let y = 0; y < ROWNO; ++y) {
+                const location = state.level.at(x, y);
+                location.typ = ROOM;
+                location.lit = true;
+            }
+        }
+        state.u = {
+            ux: 12,
+            uy: 5,
+            uz: { dnum: 0, dlevel: 1 },
+            uhp: 1,
+            uhpmax: 1,
+            ulevel: 1,
+            uen: 0,
+            uenmax: 0,
+            uac: 10,
+            ualign: { type: 0 },
+            acurr: { a: [10, 10, 10, 10, 10, 10] },
+            uprops: [],
+            uroleplay: {},
+        };
+        state.dungeons = [{ depth_start: 1 }];
+        state.urole = {
+            name: { m: 'Wizard' },
+            rank: { m: 'Evoker' },
+        };
+        state.plname = 'Hero';
+        state.moves = 1;
+        state.flags = {};
+        state.gb = { bot_disabled: true };
+        initialize_symbols_from_options({ flags: {} }, state);
+        init_vision_globals();
+        vision_reset();
+        vision_recalc(0);
+        await flush_screen(1);
+
+        // Map coordinate (12,5) occupies tty cell (11,6). The display model
+        // and map memory still contain the hero while only the cached frame
+        // is changed to X before renderTtyMenu() takes its snapshot.
+        state.nhDisplay.setCell(11, 6, 'X', 2, 1);
+        const rendered = renderTtyMenu(state, {
+            title: 'Full-screen gameplay menu',
+            lines: Array.from({ length: 21 }, (_, index) => `line ${index}`),
+        });
+
+        await dismissTtyMenu(state, rendered);
+
+        assert.equal(state.nhDisplay.grid[6][11].ch, '@');
+        assert.deepEqual(
+            [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+            [11, 6],
+        );
+    });
 
 // C ref: wintty.c erase_menu_or_text() (966-984) repairs a full-screen menu
 // with `docrt(); flush_screen(1)`.  display.c cls() blanks the whole physical

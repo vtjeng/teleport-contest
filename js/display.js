@@ -3490,9 +3490,10 @@ export function see_traps(state = game) {
 // vision back on and overlays the monsters. The port's newsym() answers
 // memory, vision and monsters together from the level and the vision arrays,
 // so one sweep replaces C's three passes.
-// The optional overlayMonsters=false form is for callers that bracket a
-// redraw with their own vision change and then call see_monsters() explicitly;
-// ordinary callers leave it enabled so the live monster layer is restored.
+// `suspendVision` and `restoreVision`, when supplied, run at the two
+// vision_recalc() positions inside docrt_flags(). They let a caller retain
+// ownership of vision.js while preserving the redraw order. The optional
+// overlayMonsters=false form is for callers that perform the final overlay.
 //
 // The vision recalculation C brackets that repaint with stays with this
 // function's callers, and they do not all make the same calls. goto_level()
@@ -3527,6 +3528,7 @@ export async function docrt(options = {}) {
             // old prompt back over the newly restored map.
             clearTtyMessageWindow(game);
         }
+        options.suspendVision?.();
         // display.c docrt_flags() calls cls() before replaying remembered
         // glyphs. This clears both the physical terminal and transient
         // disp_* entries, so unexplored cells cannot retain the old level.
@@ -3564,6 +3566,7 @@ export async function docrt(options = {}) {
                         );
                     }
                 }
+            options.restoreVision?.();
             if (options.overlayMonsters !== false) see_monsters(game);
         }
     } finally {

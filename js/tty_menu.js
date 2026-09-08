@@ -3,7 +3,12 @@
 // process_menu_window(), process_text_window(), dmore(), and
 // tty_select_menu().
 
-import { bot, status_window_rows } from './display.js';
+import {
+    bot,
+    docrt,
+    flush_screen,
+    status_window_rows,
+} from './display.js';
 import { game } from './gstate.js';
 import { tty_getlin } from './getline.js';
 import {
@@ -45,6 +50,7 @@ import {
     NO_COLOR,
 } from './terminal.js';
 import { menuitem_invert_test, select_menu } from './windows.js';
+import { vision_recalc } from './vision.js';
 
 // C ref: win/tty/wintty.c process_menu_window()'s MENU_SEARCH arm, which
 // calls tty_getlin("Search for:") and skips an empty or Escaped answer.
@@ -191,52 +197,36 @@ function restoreRegion(display, firstColumn, snapshot) {
 // docorner(), which each caller already spells as a clear or a rectangle
 // restore.
 //
-// `snapshot` and `baseCursor` are the port's stand-in for docrt(): C's cls()
-// blanks the physical screen and clears the glyph buffer, docrt_flags() then
-// replays every remembered glyph through show_glyph(), and flush_screen(1)
-// prints them and homes the cursor on the hero.  Restoring the frame the
-// window covered reaches the same screen without the whole-screen rebuild
-// js/display.js flush_screen() would perform, which would paint over a menu
-// that has already been drawn.
-//
-// Two things the restore alone cannot reproduce follow it, and they are what
-// makes the status rows behave:
-//
-//   - cls() blanks the status rows along with everything else and nothing in
-//     docrt_flags() paints them again, so they are blank on leaving docrt().
-//   - docrt_flags()'s post_map block (display.c:466) sets disp.botlx, and
-//     flush_screen()'s first act (display.c:2235-2239) is to spend it on
-//     bot().  While js/windows.js select_menu() or getlin() holds
-//     gb.bot_disabled, that bot() returns without writing and without
-//     clearing disp.botlx, so the rows stay blank until the menu is gone.
-//
-// js/display.js bot() and timebot() paint the module-level game rather than a
-// supplied state, the same constraint js/options.js:3911 records for docrt(),
-// so this branch refuses any other state instead of repairing the wrong
-// screen.  Every production caller passes the module-level game; a focused
-// test that supplies its own state keeps its window off column zero and takes
-// the docorner() branch, which needs neither.
+// docrt() and flush_screen(1) are observable beyond their final pixels:
+// docrt_flags() redraws hallucinated glyphs through the display RNG before
+// the core caller resumes. A saved terminal snapshot cannot substitute for
+// that map traversal even when it would restore the same visible frame.
 async function erase_menu_or_text(state, display, snapshot, baseCursor) {
     if (state !== game) {
         throw new Error(
             'erase_menu_or_text requires the module-level game',
         );
     }
-    restoreRegion(display, 0, snapshot);
-    display.setCursor(...baseCursor);
-
-    // wintty.c pins wins[WIN_STATUS] to the bottom of the terminal and sizes
-    // it at status_window_rows() rows, so counting up from the last row is
-    // what names the rows term_clear_screen() blanks and nothing repaints.
-    for (let row = 0; row < status_window_rows(); ++row)
-        clearRow(display, display.rows - 1 - row);
-    state.disp ??= {};
-    state.disp.botlx = true;
-
-    // display.c:2235-2239 dispatches three ways, but docrt_flags()'s post_map
-    // block has just set disp.botlx on the line above, exactly as display.c:466
-    // does, so the first arm always wins here and timebot() is unreachable.
-    await bot();
+    // Role-selection and focused window tests can dismiss a window before
+    // the dungeon map exists. C's docrt_flags() returns immediately in that
+    // state, while the JS startup screen still needs its covered frame. This
+    // is the old window repair, restricted to the non-gameplay case; once a
+    // hero and level exist, the observable docrt() traversal below owns it.
+    if (!state.level || !state.u?.ux) {
+        restoreRegion(display, 0, snapshot);
+        display.setCursor(...baseCursor);
+        for (let row = 0; row < status_window_rows(); ++row)
+            clearRow(display, display.rows - 1 - row);
+        state.disp ??= {};
+        state.disp.botlx = true;
+        await bot();
+        return;
+    }
+    await docrt({
+        suspendVision: () => vision_recalc(2),
+        restoreVision: () => vision_recalc(0),
+    });
+    await flush_screen(1);
 }
 
 // C ref: win/tty/wintty.c compress_str(). tty_putstr() applies this to menu
