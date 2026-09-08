@@ -12870,7 +12870,7 @@
     {
       "id": "polyself-c",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port polyself.c whole in C order",
       "cFile": "polyself.c",
       "sessions": [
@@ -12902,8 +12902,8 @@
         },
         {
           "name": "polyman..livelog_newform",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "71cbadc8a76361ea96203645cca544fd7d9337a4",
           "functions": [
             "polyman",
             "change_sex",
@@ -12917,8 +12917,11 @@
         "screens": 5107,
         "rng": 344578
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "71cbadc8a76361ea96203645cca544fd7d9337a4",
+      "delivered": {
+        "screens": 73,
+        "rng": 379
+      },
       "functions": [
         {
           "name": "set_uasmon",
@@ -12948,19 +12951,19 @@
           "name": "polyman",
           "line": 200,
           "endLine": 272,
-          "ported": false
+          "ported": true
         },
         {
           "name": "change_sex",
           "line": 273,
           "endLine": 306,
-          "ported": false
+          "ported": true
         },
         {
           "name": "livelog_newform",
           "line": 307,
           "endLine": 335,
-          "ported": false
+          "ported": true
         },
         {
           "name": "newman",
