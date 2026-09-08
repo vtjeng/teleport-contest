@@ -14993,6 +14993,35 @@
             "cmp_weights",
             "spot_checks"
           ]
+        },
+        {
+          "name": "uint_to_any..escape_from_sticky_mon",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "uint_to_any",
+            "long_to_any",
+            "monst_to_any",
+            "obj_to_any",
+            "revive_nasty",
+            "rock_disappear_msg",
+            "still_chewing",
+            "dosinkfall",
+            "notice_mon",
+            "notice_mons_cmp",
+            "u_simple_floortyp",
+            "swim_move_danger",
+            "domove_bump_mon",
+            "domove_attackmon_at",
+            "air_turbulence",
+            "water_turbulence",
+            "slippery_ice_fumbling",
+            "impaired_movement",
+            "avoid_running_into_trap_or_liquid",
+            "avoid_trap_andor_region",
+            "carrying_too_much",
+            "escape_from_sticky_mon"
+          ]
         }
       ],
       "openedAt": "6f857b121ca408b866f5a6a7e8be08afe07fe72c",
