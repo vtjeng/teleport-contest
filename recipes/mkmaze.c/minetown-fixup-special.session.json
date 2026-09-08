@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7511,
+      "datetime": "20050417124500",
+      "nethackrc": "OPTIONS=name:Townflag,role:Wizard,race:dwarf,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Wizard-mode level teleport (^V, ? for the level menu, second page's minetn entry) to Minetown. This independently chosen seed exercises mkmaze.c fixup_special(): the loaded level's town flag becomes svl.level.flags.has_town before check_special_room() tests in_town() and records the one-time Mine Town achievement.",
+      "moves": " \u0016?\n w"
+    }
+  ]
+}

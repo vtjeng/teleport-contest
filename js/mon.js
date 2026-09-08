@@ -60,6 +60,7 @@ import {
     MON_DETACH,
     MON_FLOOR,
     MON_MIGRATING,
+    MON_OFFMAP,
     MSLOW,
     NATTK,
     NOGARLIC,
@@ -334,9 +335,10 @@ import {
     sensesMonster,
 } from './startup_a11y.js';
 import { mpickobj, relobj } from './steal.js';
-import { noteleport_level } from './teleport.js';
+import { enexto, goodpos, noteleport_level, rloc_to } from './teleport.js';
 import { fill_pit, is_lava, is_pool, t_at, Flying, Levitation } from './trap.js';
 import { ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
 import {
     cansee,
     canseemon,
@@ -2055,6 +2057,40 @@ export function mon_leaving_level(mon, state = game, env = {}) {
        test cannot hold; js/dog.js relmon() restates the same two lines. */
     if (state.context?.polearm?.hitmon === mon)
         state.context.polearm.hitmon = null;
+}
+
+// C ref: mon.c mnearto() (4019-4085). Put a monster at or near the requested
+// coordinate, optionally moving an occupant aside. Overcrowding itself is a
+// discarded-return dependency and remains an explicit gap at its call sites.
+export function mnearto(monster, x, y, moveOther, rlocflags, state = game) {
+    if (monster.mx === x && monster.my === y
+        && m_at(x, y, state) === monster) return 1;
+
+    let other = null;
+    if (moveOther) other = m_at(x, y, state);
+    if (other) {
+        mon_leaving_level(other, state);
+        other.mx = 0;
+        other.my = 0;
+        other.mstate = (other.mstate ?? 0) | MON_OFFMAP;
+    }
+
+    let destination = { x, y };
+    if (!goodpos(x, y, monster, 0, { state })) {
+        destination = enexto(x, y, monster.data, { state });
+        if (!destination || !isok(destination.x, destination.y)) {
+            if (other) note_unported('mon.c deal_with_overcrowding');
+            return 0;
+        }
+    }
+    rloc_to(monster, destination.x, destination.y, { state, rlocflags });
+
+    if (moveOther && other) {
+        if (!mnearto(other, x, y, false, rlocflags, state))
+            note_unported('mon.c deal_with_overcrowding');
+        return 2;
+    }
+    return 1;
 }
 
 // C ref: mon.c m_detach() (2733-2803). "'mtmp' is going away; remove effects

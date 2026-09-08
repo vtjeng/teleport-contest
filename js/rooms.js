@@ -6,6 +6,7 @@ import { game } from './gstate.js';
 // function bodies, so the cycle resolves.
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import {
+    ACH_TOWN,
     ANTHOLE,
     BARRACKS,
     BEEHIVE,
@@ -28,8 +29,10 @@ import {
     THRONE,
     ZOO,
 } from './const.js';
+import { record_achievement } from './insight.js';
 import { wake_msg } from './mon.js';
 import { room_discovered } from './dungeon.js';
+import { inside_room } from './room_coordinates.js';
 import { rn2 } from './rng.js';
 import { u_entered_shop, u_left_shop } from './shk.js';
 import { ttyPline } from './tty_message.js';
@@ -137,6 +140,22 @@ function isShopRoom(roomno, state) {
     return roomType(roomno, state) >= SHOPBASE;
 }
 
+// C ref: hack.c in_town() (3564-3585). Mine Town variants with subrooms use
+// their containing room as the town boundary; variants without any subrooms
+// treat the whole level as town.
+function in_town(x, y, state) {
+    if (!state.level?.flags?.has_town) return false;
+    let hasSubrooms = false;
+    for (const room of state.level.rooms ?? []) {
+        if (!(room?.hx > 0)) break;
+        if ((room.nsubrooms ?? room.sbrooms?.length ?? 0) > 0) {
+            hasSubrooms = true;
+            if (inside_room(room, x, y, state)) return true;
+        }
+    }
+    return !hasSubrooms;
+}
+
 /**
  * Update the hero's current, previous, entered, and shop room strings.
  * This is hack.c:move_update(); it intentionally has no messaging or PRNG.
@@ -207,12 +226,12 @@ export async function check_special_room(
     if (roomString(roomBuffer(state.u, 'ushops0')).length)
         u_left_shop(roomBuffer(state.u, 'ushops_left'), newlev, state);
 
-    // svl.level.flags.has_town is set by the Mine Town special level alone, so
-    // no level this port generates satisfies the achievement's first term.
-    if (state.level?.flags?.has_town) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'check_special_room() on a level holding a town',
-        );
+    const achieveo = state.context?.achieveo;
+    if (state.level?.flags?.has_town && !achieveo?.minetn_reached
+        && state.u.uz.dnum === state.mines_dnum
+        && in_town(state.u.ux, state.u.uy, state)) {
+        record_achievement(ACH_TOWN, state);
+        achieveo.minetn_reached = true;
     }
 
     const entered = roomString(roomBuffer(state.u, 'uentered'));

@@ -34,6 +34,7 @@ import {
 import { fixup_level_locations } from './dungeon.js';
 import { game } from './gstate.js';
 import { l_nhcore_init } from './mklev.js';
+import { restore_waterlevel } from './mkmaze.js';
 import { restrap, restore_cham } from './mon.js';
 import { hides_under, is_hider } from './mondata.js';
 import { S_EEL, S_MIMIC } from './monsters.js';
@@ -492,6 +493,8 @@ export function getlev(ledger, state = game) {
             hide_monst(mtmp, state);
         }
     }
+
+    if (snapshot.waterlevel) restore_waterlevel(snapshot.waterlevel, state);
 
     // C restore.c rest_track() restores the track ring after the elapsed-time
     // catch-up. A missing ring is the equivalent of a freshly initialized

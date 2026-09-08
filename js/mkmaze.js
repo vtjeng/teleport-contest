@@ -11,12 +11,14 @@
 // the bubble levels -- has no port yet, so this file holds only that group.
 
 import {
+    ACCESSIBLE,
     AIR,
     CLOUD,
     COLNO,
     CORR,
     DEAF,
     HWALL,
+    In_quest,
     IS_LAVA,
     LAVAPOOL,
     LR_BRANCH,
@@ -27,33 +29,110 @@ import {
     LR_UPTELE,
     LR_UPSTAIR,
     MAGIC_PORTAL,
+    MIGR_LEFTOVERS,
+    MIGR_RANDOM,
+    MKTRAP_MAZEFLAG,
+    MM_NONAME,
+    NO_MM_FLAGS,
+    SWIMMING,
+    MON_BUBBLEMOVE,
     ROOM,
+    RLOC_NOMSG,
     ROWNO,
     SET_LIT_NOCHANGE,
     SET_LIT_RANDOM,
     STONE,
+    WATER,
     isok,
     undestroyable_trap,
 } from './const.js';
-import { Is_branchlev, on_level, u_on_newpos } from './dungeon.js';
+import {
+    Is_branchlev,
+    Is_special,
+    depth,
+    dunlevs_in_dungeon,
+    get_level,
+    ledger_no,
+    on_level,
+    u_on_newpos,
+} from './dungeon.js';
+import { migrate_to_level } from './dog.js';
 import { game } from './gstate.js';
-import { dist2 } from './hacklib.js';
+import { dist2, upstart } from './hacklib.js';
+import { add_to_minv, stackobj } from './invent.js';
+import { set_malign } from './makemon.js';
+import { makemon } from './makemon_create.js';
+import { mnearto } from './mon.js';
 import { mkstairs, place_branch, walkfrom } from './mklev.js';
-import { occupied } from './mktrap.js';
-import { m_at } from './monst.js';
+import { mktrap, occupied } from './mktrap.js';
+import { is_orc, is_swimmer } from './mondata.js';
+import { m_at, remove_monster } from './monst.js';
+import {
+    dealloc_obj,
+    mkgold,
+    mkobj,
+    mkobj_at,
+    mksobj,
+    mksobj_at,
+    mksobj_migr_to_species,
+    objectType,
+    place_object,
+    remove_object,
+    weight,
+} from './obj.js';
+import { shiny_obj } from './objnam_readobjnam.js';
+import {
+    BOULDER,
+    CORPSE,
+    C_RATION,
+    EGG,
+    FOOD_CLASS,
+    GAUNTLETS_OF_DEXTERITY,
+    GEM_CLASS,
+    GOLD_PIECE,
+    K_RATION,
+    LEATHER_GLOVES,
+    LEMBAS_WAFER,
+    LONG_SWORD,
+    RANDOM_CLASS,
+    RING_CLASS,
+    ROCK,
+    SILVER_SABER,
+    SKELETON_KEY,
+    SLIME_MOLD,
+    STRANGE_OBJECT,
+    TALLOW_CANDLE,
+    TIN,
+    TRIPE_RATION,
+    WAX_CANDLE,
+} from './objects.js';
 import { create_gas_cloud } from './region.js';
 import { within_bounded_area } from './rect.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { set_levltyp } from './terrain.js';
-import { deltrap, maketrap, t_at } from './trap.js';
-import { ttyNorep } from './tty_message.js';
+import { deltrap, is_pool, maketrap, t_at } from './trap.js';
+import { ttyNorep, ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
 import {
     block_point,
     cansee,
     recalc_block_point,
+    unblock_point,
 } from './vision.js';
 import { cmap_to_glyph, newsym } from './display.js';
-import { S_air, S_cloud } from './symbols.js';
+import { S_air, S_cloud, S_water } from './symbols.js';
+import {
+    M2_ORC,
+    PM_CLERIC,
+    PM_MINOTAUR,
+    PM_ORC,
+    PM_ORC_CAPTAIN,
+    PM_ORC_SHAMAN,
+} from './monsters.js';
+import { christen_monst, christen_orc, new_oname, rndorcname } from './do_name.js';
+import { fruitadd } from './fruit.js';
+import { objectGenerationEnv } from './object_generation.js';
+import { mnexto } from './teleport.js';
 
 // C ref: mkmaze.c set_levltyp_lit() (125-145). Sets the terrain with
 // set_levltyp() and then the lit flag unless `lit` is SET_LIT_NOCHANGE; lava
@@ -145,9 +224,11 @@ const AIR_BUBBLE_MASKS = Object.freeze([
     Object.freeze({ width: 8, height: 4, rows: [0x7e, 0xff, 0xff, 0x7e] }),
 ]);
 
-function airBubbleBounds() {
-    // C's svx/svy are initialized by setup_waterlevel().
-    return { xmin: 4, ymin: 2, xmax: 77, ymax: 19 };
+function airBubbleBounds(state = game) {
+    // C's svx/svy are initialized by setup_waterlevel(); the four public
+    // values are the gbxmin/gbymin/gbxmax/gbymax macro results.
+    return state.waterlevel_bounds
+        ?? { xmin: 4, ymin: 2, xmax: 77, ymax: 19 };
 }
 
 function resetAirLocation(location, typ = AIR) {
@@ -164,11 +245,14 @@ function resetAirLocation(location, typ = AIR) {
     location.roomno = 0;
 }
 
-function moveAirBubble(bubble, dx, dy, initial, state, random = rn2) {
-    const bounds = airBubbleBounds();
+export function mv_bubble(bubble, dx, dy, initial, state = game,
+                          random = rn2) {
+    const bounds = airBubbleBounds(state);
+    const waterLevel = on_level(state.u?.uz, state.water_level);
+    const airLevel = on_level(state.u?.uz, state.air_level);
     let collision = 0;
     // mkmaze.c:1702-1704. Clouds move only when the one-in-six test passes.
-    if (!random(6)) {
+    if (!airLevel || !random(6)) {
         if (dx < -1 || dx > 1 || dy < -1 || dy > 1) {
             dx = Math.sign(dx);
             dy = Math.sign(dy);
@@ -202,12 +286,55 @@ function moveAirBubble(bubble, dx, dy, initial, state, random = rn2) {
     for (let i = 0; i < bubble.mask.width; ++i) {
         for (let j = 0; j < bubble.mask.height; ++j) {
             if (!(bubble.mask.rows[j] & (1 << i))) continue;
-            const location = state.level.at(bubble.x + i, bubble.y + j);
+            const x = bubble.x + i;
+            const y = bubble.y + j;
+            const location = state.level.at(x, y);
             if (!location) continue;
-            location.typ = CLOUD;
+            location.typ = waterLevel ? AIR : CLOUD;
             location.lit = true;
-            block_point(bubble.x + i, bubble.y + j, state);
+            if (waterLevel) unblock_point(x, y, state);
+            else if (airLevel) block_point(x, y, state);
         }
+    }
+
+    if (waterLevel && bubble.cons?.length) {
+        for (const contents of bubble.cons) {
+            contents.x += dx;
+            contents.y += dy;
+            switch (contents.what) {
+            case 'object':
+                for (let object = contents.list; object;) {
+                    const next = object.nexthere;
+                    place_object(object, contents.x, contents.y,
+                                 objectGenerationEnv({ state }));
+                    stackobj(object, { state });
+                    object = next;
+                }
+                break;
+            case 'monster':
+                if (!mnearto(contents.list, contents.x, contents.y, true,
+                             RLOC_NOMSG, state)) {
+                    note_unported('mon.c elemental_clog');
+                }
+                break;
+            case 'hero': {
+                const occupying = m_at(contents.x, contents.y, state);
+                const oldx = state.u.ux;
+                const oldy = state.u.uy;
+                u_on_newpos(contents.x, contents.y, state);
+                newsym(oldx, oldy);
+                if (occupying) mnexto(occupying, RLOC_NOMSG, { state });
+                break;
+            }
+            case 'trap':
+                contents.list.tx = contents.x;
+                contents.list.ty = contents.y;
+                break;
+            default:
+                throw new Error('mv_bubble: unknown bubble contents');
+            }
+        }
+        bubble.cons = [];
     }
 
     // mkmaze.c:2087-2105. Bounce or occasionally reroll a bubble's
@@ -227,49 +354,64 @@ function moveAirBubble(bubble, dx, dy, initial, state, random = rn2) {
     }
 }
 
-function makeAirBubble(x, y, mask, state, random = rn2) {
-    if (x >= 77 || y >= 19) return;
-    if (x + mask.width - 1 > 77) x = 77 - mask.width + 1;
-    if (y + mask.height - 1 > 19) y = 19 - mask.height + 1;
+export function mk_bubble(x, y, n, state = game, random = rn2) {
+    const bounds = airBubbleBounds(state);
+    if (x >= bounds.xmax || y >= bounds.ymax) return null;
+    if (n >= AIR_BUBBLE_MASKS.length) n = AIR_BUBBLE_MASKS.length - 1;
+    const mask = AIR_BUBBLE_MASKS[n];
+    if (x + mask.width - 1 > bounds.xmax)
+        x = bounds.xmax - mask.width + 1;
+    if (y + mask.height - 1 > bounds.ymax)
+        y = bounds.ymax - mask.height + 1;
     const bubble = {
         x,
         y,
         dx: 1 - random(3),
         dy: 1 - random(3),
         mask,
+        cons: [],
     };
+    state.air_bubbles ??= [];
     state.air_bubbles.push(bubble);
     // mv_bubble(..., TRUE) still performs the Air one-in-six draw and draws
     // the mask, but does not reroll the direction afterward.
-    moveAirBubble(bubble, 0, 0, true, state, random);
+    mv_bubble(bubble, 0, 0, true, state, random);
+    return bubble;
 }
 
-// C ref: mkmaze.c setup_waterlevel() (1812-1858). Only the Air arm is
-// reachable in the current port; Water retains its explicit boundary.
+// C ref: mkmaze.c setup_waterlevel() (1812-1858).
 export function setup_waterlevel(state = game, random = rn2) {
-    if (!on_level(state.u?.uz, state.air_level)) return;
+    const waterLevel = on_level(state.u?.uz, state.water_level);
+    const airLevel = on_level(state.u?.uz, state.air_level);
+    if (!waterLevel && !airLevel)
+        throw new Error('setup_waterlevel: level is neither Water nor Air');
 
     state.level.flags.hero_memory = false;
     state.air_bubbles = [];
+    state.waterlevel_bounds = { xmin: 4, ymin: 2, xmax: 77, ymax: 19 };
+    state.waterlevel_portal = null;
+    state.hero_bubble = null;
     for (let x = 1; x <= COLNO - 1; ++x) {
         for (let y = 0; y <= ROWNO - 1; ++y) {
-            resetAirLocation(state.level.at(x, y));
+            const location = state.level.at(x, y);
             // C setup_waterlevel() stores the base element's glyph in every
             // level cell. movebubbles() later replaces the live glyph with
             // S_cloud; the initial level memory is S_air, so unexplored Air
             // cells display as blank rather than as cloud markers.
-            state.level.at(x, y).remembered_glyph = {
-                glyph: cmap_to_glyph(S_air, state),
+            location.remembered_glyph = {
+                glyph: cmap_to_glyph(waterLevel ? S_water : S_air, state),
             };
+            if (location.typ === STONE)
+                location.typ = waterLevel ? WATER : AIR;
         }
     }
 
-    const xskip = 6 + random(4);
-    const yskip = 3 + random(3);
-    const bounds = airBubbleBounds();
+    const xskip = (waterLevel ? 10 : 6) + random(waterLevel ? 10 : 4);
+    const yskip = (waterLevel ? 4 : 3) + random(waterLevel ? 4 : 3);
+    const bounds = airBubbleBounds(state);
     for (let x = bounds.xmin; x <= bounds.xmax; x += xskip) {
         for (let y = bounds.ymin; y <= bounds.ymax; y += yskip)
-            makeAirBubble(x, y, AIR_BUBBLE_MASKS[random(7)], state, random);
+            mk_bubble(x, y, random(7), state, random);
     }
 }
 
@@ -278,10 +420,59 @@ export function setup_waterlevel(state = game, random = rn2) {
 // candidate until a development session exercises cloud movement after an
 // action on the plane.
 export function movebubbles(state = game, random = rn2) {
-    if (!on_level(state.u?.uz, state.air_level)) return;
-    const bounds = airBubbleBounds();
+    const waterLevel = on_level(state.u?.uz, state.water_level);
+    const airLevel = on_level(state.u?.uz, state.air_level);
+    if (!waterLevel && !airLevel) return;
+    if (!state.waterlevel_portal) set_wportal(state);
+    const bounds = airBubbleBounds(state);
 
-    for (let x = 1; x <= COLNO - 1; ++x) {
+    if (waterLevel) {
+        state.hero_bubble = null;
+        for (const bubble of state.air_bubbles ?? []) {
+            if (bubble.cons?.length)
+                throw new Error('movebubbles: cons != null');
+            bubble.cons = [];
+            for (let i = 0; i < bubble.mask.width; ++i) {
+                for (let j = 0; j < bubble.mask.height; ++j) {
+                    if (!(bubble.mask.rows[j] & (1 << i))) continue;
+                    const x = bubble.x + i;
+                    const y = bubble.y + j;
+                    if (!isok(x, y)) continue;
+                    let object = state.level.objects?.[x]?.[y] ?? null;
+                    if (object) {
+                        let list = null;
+                        while (object) {
+                            const next = object.nexthere;
+                            remove_object(object, objectGenerationEnv({ state }));
+                            object.ox = object.oy = 0;
+                            object.nexthere = list;
+                            list = object;
+                            object = next;
+                        }
+                        bubble.cons.unshift({ x, y, what: 'object', list });
+                    }
+                    const monster = m_at(x, y, state);
+                    if (monster) {
+                        bubble.cons.unshift({ x, y, what: 'monster', list: monster });
+                        remove_monster(x, y, state);
+                        newsym(x, y);
+                        monster.mx = monster.my = 0;
+                        monster.mstate = (monster.mstate ?? 0) | MON_BUBBLEMOVE;
+                    }
+                    if (!state.u.uswallow && state.u.ux === x && state.u.uy === y) {
+                        bubble.cons.unshift({ x, y, what: 'hero', list: null });
+                        state.hero_bubble = bubble;
+                    }
+                    const trap = t_at(x, y, state);
+                    if (trap)
+                        bubble.cons.unshift({ x, y, what: 'trap', list: trap });
+                    resetAirLocation(state.level.at(x, y), WATER);
+                    block_point(x, y, state);
+                }
+            }
+        }
+    } else {
+      for (let x = 1; x <= COLNO - 1; ++x) {
         for (let y = 0; y <= ROWNO - 1; ++y) {
             const location = state.level.at(x, y);
             resetAirLocation(location);
@@ -302,6 +493,7 @@ export function movebubbles(state = game, random = rn2) {
                 block_point(x, y, state);
             }
         }
+      }
     }
 
     // C's static `up` toggles before traversing the lists. New levels start
@@ -317,9 +509,114 @@ export function movebubbles(state = game, random = rn2) {
             - (!bubble.dx ? rx : (rx ? 1 : 0));
         const dy = bubble.dy + 1
             - (!bubble.dy ? ry : (ry ? 1 : 0));
-        moveAirBubble(bubble, dx, dy, false, state, random);
+        mv_bubble(bubble, dx, dy, false, state, random);
     }
     state.vision_full_recalc = 1;
+}
+
+function heroSwimming(state) {
+    const property = state.u?.uprops?.[SWIMMING];
+    return Boolean(property?.intrinsic || property?.extrinsic)
+        || is_swimmer(state.youmonst?.data);
+}
+
+// C ref: mkmaze.c water_friction() (1687-1720).
+export async function water_friction(state = game, random = rn2) {
+    const hero = state.u;
+    if (heroSwimming(state) && random(4)) return;
+    let affected = false;
+    if (hero.dx && !random(!hero.dy ? 3 : 6)) {
+        let dy;
+        do {
+            dy = random(3) - 1;
+        } while (dy && (!isok(hero.ux, hero.uy + dy)
+            || !is_pool(hero.ux, hero.uy + dy, state)));
+        hero.dx = 0;
+        hero.dy = dy;
+        affected = true;
+    } else if (hero.dy && !random(!hero.dx ? 3 : 5)) {
+        let dx;
+        do {
+            dx = random(3) - 1;
+        } while (dx && (!isok(hero.ux + dx, hero.uy)
+            || !is_pool(hero.ux + dx, hero.uy, state)));
+        hero.dy = 0;
+        hero.dx = dx;
+        affected = true;
+    }
+    if (affected)
+        await ttyPline('Water turbulence affects your movements.', state);
+}
+
+function cloneBubble(bubble) {
+    return {
+        x: bubble.x,
+        y: bubble.y,
+        dx: bubble.dx,
+        dy: bubble.dy,
+        mask: {
+            width: bubble.mask.width,
+            height: bubble.mask.height,
+            rows: [...bubble.mask.rows],
+        },
+        cons: [],
+    };
+}
+
+// C ref: mkmaze.c save_waterlevel() (1722-1745).  The JS save layer keeps
+// levels in memory, so this returns a plain snapshot instead of writing C's
+// Sfo_* stream.  `releaseData` is the FREEING mode bit.
+export function save_waterlevel(target = null, state = game,
+                                releaseData = false) {
+    if (!state.air_bubbles?.length) return null;
+    const snapshot = {
+        bounds: { ...airBubbleBounds(state) },
+        bubbles: state.air_bubbles.map(cloneBubble),
+    };
+    if (target) target.waterlevel = snapshot;
+    if (releaseData) unsetup_waterlevel(state);
+    return snapshot;
+}
+
+// C ref: mkmaze.c restore_waterlevel() (1748-1798).
+export function restore_waterlevel(source, state = game, random = rn2) {
+    const snapshot = source?.waterlevel ?? source;
+    state.air_bubbles = [];
+    state.waterlevel_bounds = snapshot?.bounds
+        ? { ...snapshot.bounds }
+        : { xmin: 4, ymin: 2, xmax: 77, ymax: 19 };
+    for (const saved of snapshot?.bubbles ?? []) {
+        const bubble = cloneBubble(saved);
+        state.air_bubbles.push(bubble);
+        mv_bubble(bubble, 0, 0, true, state, random);
+    }
+    if (!state.air_bubbles.length)
+        throw new Error('No air bubbles or clouds to restore?');
+    return state.air_bubbles;
+}
+
+// C ref: mkmaze.c set_wportal() (1800-1809).
+export function set_wportal(state = game) {
+    state.waterlevel_portal = (state.level?.traps ?? [])
+        .find((trap) => trap.ttyp === MAGIC_PORTAL) ?? null;
+    return state.waterlevel_portal;
+}
+
+// C ref: mkmaze.c unsetup_waterlevel() (1859-1869).
+export function unsetup_waterlevel(state = game) {
+    state.air_bubbles = [];
+    state.hero_bubble = null;
+    state.waterlevel_portal = null;
+}
+
+// C ref: mkmaze.c maybe_adjust_hero_bubble() (1927-1940).
+export function maybe_adjust_hero_bubble(state = game, random = rn2) {
+    if (!on_level(state.u?.uz, state.water_level)) return;
+    if (!state.u.dx && !state.u.dy) return;
+    if (state.hero_bubble && !random(2)) {
+        state.hero_bubble.dx = state.u.dx;
+        state.hero_bubble.dy = state.u.dy;
+    }
 }
 
 // A region placement that needs an unported operation. Both arms below sit
@@ -516,8 +813,7 @@ function put_lregion_here(
     case LR_PORTAL: {
         // C ref: mkmaze.c:450-454 mkportal(). A portal is a magic portal
         // trap whose destination is the level region's resolved d_level.
-        const portal = maketrap(x, y, MAGIC_PORTAL, { state });
-        if (portal && lev) portal.dst = { ...lev };
+        if (lev) mkportal(x, y, lev.dnum, lev.dlevel, state);
         break;
     }
     case LR_DOWNSTAIR:
@@ -536,6 +832,321 @@ function put_lregion_here(
         );
     }
     return true;
+}
+
+// C ref: mkmaze.c fixup_special() (568-704).  The special-level loader owns
+// the object-generation environment, so it supplies the few mklev-local
+// operations used by the Medusa branch.  All region, topology, and level-flag
+// state remains owned here, where the corresponding C function lives.
+export function fixup_special(state = game, env = {}) {
+    if (on_level(state.u?.uz, state.water_level)
+        || on_level(state.u?.uz, state.air_level)) {
+        state.level.flags.hero_memory = false;
+        setup_waterlevel(state);
+    }
+
+    let addedBranch = false;
+    for (const region of state.lregions ?? []) {
+        let destination = null;
+        switch (region.rtype) {
+        case LR_BRANCH:
+            addedBranch = true;
+            place_lregion(
+                region.inarea.x1, region.inarea.y1,
+                region.inarea.x2, region.inarea.y2,
+                region.delarea.x1, region.delarea.y1,
+                region.delarea.x2, region.delarea.y2,
+                region.rtype, destination, state,
+            );
+            break;
+        case LR_PORTAL:
+            if (region.rname?.[0] >= '0' && region.rname[0] <= '9') {
+                destination = {
+                    ...state.u.uz,
+                    dlevel: Number.parseInt(region.rname, 10),
+                };
+            } else {
+                destination = env.findLevel(region.rname, state).dlevel;
+            }
+            place_lregion(
+                region.inarea.x1, region.inarea.y1,
+                region.inarea.x2, region.inarea.y2,
+                region.delarea.x1, region.delarea.y1,
+                region.delarea.x2, region.delarea.y2,
+                region.rtype, destination, state,
+            );
+            break;
+        case LR_UPSTAIR:
+        case LR_DOWNSTAIR:
+            place_lregion(
+                region.inarea.x1, region.inarea.y1,
+                region.inarea.x2, region.inarea.y2,
+                region.delarea.x1, region.delarea.y1,
+                region.delarea.x2, region.delarea.y2,
+                region.rtype, destination, state,
+            );
+            break;
+        case LR_TELE:
+        case LR_UPTELE:
+        case LR_DOWNTELE:
+            if (region.rtype === LR_TELE || region.rtype === LR_UPTELE) {
+                state.updest = {
+                    lx: region.inarea.x1, ly: region.inarea.y1,
+                    hx: region.inarea.x2, hy: region.inarea.y2,
+                    nlx: region.delarea.x1, nly: region.delarea.y1,
+                    nhx: region.delarea.x2, nhy: region.delarea.y2,
+                };
+            }
+            if (region.rtype === LR_TELE || region.rtype === LR_DOWNTELE) {
+                state.dndest = {
+                    lx: region.inarea.x1, ly: region.inarea.y1,
+                    hx: region.inarea.x2, hy: region.inarea.y2,
+                    nlx: region.delarea.x1, nly: region.delarea.y1,
+                    nhx: region.delarea.x2, nhy: region.delarea.y2,
+                };
+            }
+            break;
+        }
+    }
+
+    if (!addedBranch && Is_branchlev(state.u.uz, state)) {
+        place_lregion(0, 0, 0, 0, 0, 0, 0, 0,
+                      LR_BRANCH, null, state);
+    }
+
+    if (env.isMedusaLevel?.(state.u.uz)) {
+        const room = state.level.rooms[0];
+        const objectEnv = env.levelObjectEnv();
+        for (let attempts = rnd(4); attempts; --attempts) {
+            const x = env.somex(room);
+            const y = env.somey(room);
+            if (!env.goodpos(x, y, null, 0, { state })) continue;
+            let retries = 0;
+            const statue = env.mkTtObject(x, y, objectEnv);
+            while (++retries < 100 && statue
+                && env.badStatueSpecies(statue.corpsenm, state)) {
+                env.setCorpsenm(statue, env.rndmonnum(objectEnv), objectEnv);
+            }
+        }
+        let statue;
+        if (rn2(2)) {
+            statue = env.mkTtObject(
+                env.somex(room), env.somey(room), objectEnv,
+            );
+        } else {
+            statue = env.mkCorpstat(
+                env.somex(room), env.somey(room), objectEnv,
+            );
+        }
+        let retries = 0;
+        while (++retries < 100 && statue
+            && env.badStatueSpecies(statue.corpsenm, state)) {
+            env.setCorpsenm(statue, env.rndmonnum(objectEnv), objectEnv);
+        }
+    } else if (state.urole?.mnum === PM_CLERIC && In_quest(state.u.uz)) {
+        state.level.flags.graveyard = true;
+    } else if (on_level(state.u.uz, state.stronghold_level)) {
+        state.level.flags.graveyard = true;
+    } else if (on_level(state.u.uz, state.baalzebub_level)) {
+        note_unported('mkmaze.c baalz_fixup');
+    } else if (state.u.uz.dnum === state.mines_dnum && state.ransacked) {
+        stolen_booty(state);
+    }
+
+    const special = Is_special(state.u.uz, state);
+    if (special?.flags?.town) state.level.flags.has_town = true;
+    state.lregions = [];
+}
+
+// C ref: mkmaze.c check_ransacked() (706-711).
+export function check_ransacked(name, state = game) {
+    state.ransacked = state.u.uz.dnum === state.mines_dnum
+        && name === 'minetn-1';
+}
+
+const ORC_LEADER = 1;
+const ORC_FRUIT = Object.freeze(['paddle cactus', 'dwarven root']);
+
+// C ref: mkmaze.c migrate_orc() (716-745).
+export function migrate_orc(monster, flags, state = game) {
+    const currentDepth = depth(state.u.uz, state);
+    const maxDepth = dunlevs_in_dungeon(state.u.uz, state)
+        + state.dungeons[state.u.uz.dnum].depth_start - 1;
+    let destinationDepth;
+    if (flags === ORC_LEADER) {
+        destinationDepth = maxDepth;
+        if (!rn2(40)) --destinationDepth;
+        monster.migflags = (monster.migflags ?? 0) | MIGR_LEFTOVERS;
+    } else {
+        destinationDepth = rn2(maxDepth - currentDepth + 1) + currentDepth;
+        if (destinationDepth === currentDepth) ++destinationDepth;
+        if (destinationDepth > maxDepth) destinationDepth = maxDepth;
+        monster.migflags = (monster.migflags ?? 0) & ~MIGR_LEFTOVERS;
+    }
+    const destination = {};
+    get_level(destination, destinationDepth, state);
+    migrate_to_level(
+        monster, ledger_no(destination, state), MIGR_RANDOM, null, { state },
+    );
+}
+
+// C ref: mkmaze.c shiny_orc_stuff() (747-777).
+export function shiny_orc_stuff(monster, state = game) {
+    const env = objectGenerationEnv({ state, random: { rn1, rn2, rnd, rne } });
+    const captain = monster.data === state.mons[PM_ORC_CAPTAIN];
+    const goldProbability = captain ? 600 : 300;
+    const gemProbability = Math.trunc(goldProbability / 4);
+    if (rn2(1000) < goldProbability) {
+        const gold = mksobj(GOLD_PIECE, true, false, env);
+        if (gold) {
+            gold.quan = 1 + rnd(goldProbability);
+            gold.owt = weight(gold, env);
+            add_to_minv(monster, gold, env);
+        }
+    }
+    if (rn2(1000) < gemProbability) {
+        const gem = mkobj(GEM_CLASS, false, env);
+        if (gem) {
+            if (gem.otyp === ROCK) dealloc_obj(gem, env);
+            else add_to_minv(monster, gem, env);
+        }
+    }
+    if (captain || !rn2(8)) {
+        const otyp = shiny_obj(RING_CLASS, env);
+        if (otyp !== STRANGE_OBJECT) {
+            const ring = mksobj(otyp, true, false, env);
+            if (ring) add_to_minv(monster, ring, env);
+        }
+    }
+}
+
+// C ref: mkmaze.c migr_booty_item() (779-796).
+export function migr_booty_item(otyp, gang, state = game) {
+    const env = objectGenerationEnv({ state, random: { rn1, rn2, rnd, rne } });
+    const object = mksobj_migr_to_species(otyp, M2_ORC, true, false, env);
+    if (object && gang) {
+        new_oname(object, gang.length + 1);
+        object.oextra.oname = gang;
+        if (objectType(otyp, state).oc_class === FOOD_CLASS) {
+            if (otyp === SLIME_MOLD) {
+                object.spe = fruitadd(ORC_FRUIT[rn2(ORC_FRUIT.length)], null,
+                                      env);
+            }
+            object.quan += rn2(3);
+            object.owt = weight(object, env);
+        }
+    }
+    return object;
+}
+
+// C ref: mkmaze.c stolen_booty() (798-889).
+export function stolen_booty(state = game) {
+    const gang = rndorcname({ rn1, rn2 });
+    let count = rnd(4);
+    for (let i = 0; i < count; ++i)
+        migr_booty_item(rn2(4) ? TALLOW_CANDLE : WAX_CANDLE, gang, state);
+    count = rnd(3);
+    for (let i = 0; i < count; ++i)
+        migr_booty_item(SKELETON_KEY, gang, state);
+    migr_booty_item(
+        rn1(GAUNTLETS_OF_DEXTERITY - LEATHER_GLOVES + 1, LEATHER_GLOVES),
+        gang, state,
+    );
+    count = rnd(10);
+    for (let i = 0; i < count; ++i) {
+        const otyp = rn1(TIN - TRIPE_RATION + 1, TRIPE_RATION);
+        const definition = objectType(otyp, state);
+        if (otyp !== LEMBAS_WAFER
+            && (definition.oc_prob !== 0 || otyp === C_RATION
+                || otyp === K_RATION)
+            && otyp !== CORPSE && otyp !== EGG && otyp !== TIN) {
+            migr_booty_item(otyp, gang, state);
+        }
+    }
+    migr_booty_item(rn2(2) ? LONG_SWORD : SILVER_SABER, gang, state);
+
+    const monsterEnv = {
+        state,
+        random: { d, rn1, rn2, rnd, rne },
+        hooks: objectGenerationEnv({ state }).hooks,
+    };
+    let monster = makemon(state.mons[PM_ORC_CAPTAIN], 0, 0, MM_NONAME,
+                          monsterEnv);
+    if (monster) {
+        monster = christen_monst(monster, upstart(gang));
+        monster.mpeaceful = false;
+        set_malign(monster, state);
+        shiny_orc_stuff(monster, state);
+        migrate_orc(monster, ORC_LEADER, state);
+    }
+    for (let current = state.level.monlist; current; current = current.nmon) {
+        if ((current.mhp ?? 1) < 1) continue;
+        if (is_orc(current.data) && !current.mextra?.mgivenname && rn2(10)
+            && current.data !== state.mons[PM_ORC_CAPTAIN]) {
+            christen_orc(current, upstart(gang), '', { random: { rn1, rn2 } });
+        }
+    }
+    count = rn2(10) + 5;
+    for (let i = 0; i < count; ++i) {
+        const mtyp = rn2(PM_ORC_SHAMAN - PM_ORC + 1) + PM_ORC;
+        monster = makemon(state.mons[mtyp], 0, 0, MM_NONAME, monsterEnv);
+        if (monster) {
+            shiny_orc_stuff(monster, state);
+            migrate_orc(monster, 0, state);
+        }
+    }
+    state.ransacked = false;
+}
+
+// C ref: mkmaze.c maze_inbounds() (893-901).
+export function maze_inbounds(x, y, frame) {
+    return x >= 2 && y >= 2 && x < frame.xMazeMax && y < frame.yMazeMax
+        && isok(x, y);
+}
+
+function mazeStep(x, y, direction) {
+    switch (direction) {
+    case 0: return { x, y: y - 1 };
+    case 1: return { x: x + 1, y };
+    case 2: return { x, y: y + 1 };
+    case 3: return { x: x - 1, y };
+    default: throw new RangeError(`mz_move: bad direction ${direction}`);
+    }
+}
+
+// C ref: mkmaze.c maze_remove_deadends() (903-944).
+export function maze_remove_deadends(typ, frame, state = game,
+                                     random = rn2) {
+    for (let x = 2; x < frame.xMazeMax; ++x) {
+        for (let y = 2; y < frame.yMazeMax; ++y) {
+            if (!ACCESSIBLE(state.level.at(x, y).typ) || !(x % 2) || !(y % 2))
+                continue;
+            const directions = [];
+            let unavailable = 0;
+            for (let direction = 0; direction < 4; ++direction) {
+                const one = mazeStep(x, y, direction);
+                if (!maze_inbounds(one.x, one.y, frame)) {
+                    ++unavailable;
+                    continue;
+                }
+                const two = mazeStep(one.x, one.y, direction);
+                if (!maze_inbounds(two.x, two.y, frame)) {
+                    ++unavailable;
+                    continue;
+                }
+                if (!ACCESSIBLE(state.level.at(one.x, one.y).typ)
+                    && ACCESSIBLE(state.level.at(two.x, two.y).typ)) {
+                    directions.push(direction);
+                    ++unavailable;
+                }
+            }
+            if (unavailable >= 3 && directions.length) {
+                const one = mazeStep(x, y,
+                    directions[random(directions.length)]);
+                state.level.at(one.x, one.y).typ = typ;
+            }
+        }
+    }
 }
 
 // C ref: mkmaze.c maze0xy() (309-314). Picks a random odd-coordinate
@@ -582,9 +1193,13 @@ export function create_maze(corrwid, wallthick, rmDeadends, frame, state) {
     const mm = maze0xy(bounds.xMax, bounds.yMax);
     walkfrom(mm.x, mm.y, 0, state, bounds);
 
-    // rmDeadends would call maze_remove_deadends(); not needed for
-    // the current hells[5] arm where deadends defaults to true
-    // (rm_deadends = false).
+    if (rmDeadends) {
+        maze_remove_deadends(
+            state.level.flags.corrmaze ? CORR : ROOM,
+            bounds,
+            state,
+        );
+    }
 
     // Scale maze up when scale > 2.
     if (scale > 2) {
@@ -626,4 +1241,79 @@ export function create_maze(corrwid, wallthick, rmDeadends, frame, state) {
             x++;
         }
     }
+}
+
+// C ref: mkmaze.c populate_maze() (1095-1124).  Every placement call has a
+// discarded return in C, so a failed placement does not alter the remaining
+// random-call sequence.
+export function populate_maze(frame, state = game) {
+    const env = objectGenerationEnv({ state, random: { rn1, rn2, rnd, rne } });
+    let count = rn1(8, 11);
+    for (; count; --count) {
+        const point = mazexy(null, frame, state);
+        mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS,
+                 point.x, point.y, true, env);
+    }
+    count = rn1(10, 2);
+    for (; count; --count) {
+        const point = mazexy(null, frame, state);
+        mksobj_at(BOULDER, point.x, point.y, true, false, env);
+    }
+    count = rn2(3);
+    for (; count; --count) {
+        const point = mazexy(null, frame, state);
+        makemon(state.mons[PM_MINOTAUR], point.x, point.y, NO_MM_FLAGS,
+                { state, random: { d, rn1, rn2, rnd, rne }, hooks: env.hooks });
+    }
+    count = rn1(5, 7);
+    for (; count; --count) {
+        const point = mazexy(null, frame, state);
+        makemon(null, point.x, point.y, NO_MM_FLAGS,
+                { state, random: { d, rn1, rn2, rnd, rne }, hooks: env.hooks });
+    }
+    count = rn1(6, 7);
+    for (; count; --count) {
+        const point = mazexy(null, frame, state);
+        mkgold(0, point.x, point.y, env);
+    }
+    count = rn1(6, 7);
+    for (; count; --count)
+        mktrap(0, MKTRAP_MAZEFLAG, null, null, env);
+}
+
+// C ref: mkmaze.c mazexy() (1313-1350).  `coordinate` mirrors the output
+// pointer and is optional for ordinary JavaScript callers.
+export function mazexy(coordinate = null, frame, state = game,
+                       randomOneBased = rnd) {
+    const result = coordinate ?? {};
+    const allowedType = state.level.flags.corrmaze ? CORR : ROOM;
+    let attempts = 0;
+    do {
+        const x = randomOneBased(frame.xMazeMax);
+        const y = randomOneBased(frame.yMazeMax);
+        if (state.level.at(x, y).typ === allowedType) {
+            result.x = x;
+            result.y = y;
+            return result;
+        }
+    } while (++attempts < 100);
+    for (let x = 1; x <= frame.xMazeMax; ++x) {
+        for (let y = 1; y <= frame.yMazeMax; ++y) {
+            if (state.level.at(x, y).typ === allowedType) {
+                result.x = x;
+                result.y = y;
+                return result;
+            }
+        }
+    }
+    throw new Error("mazexy: can't find a place!");
+}
+
+// C ref: mkmaze.c mkportal() (1463-1479).
+export function mkportal(x, y, destinationDungeon, destinationLevel,
+                         state = game) {
+    const portal = maketrap(x, y, MAGIC_PORTAL, { state });
+    if (!portal) return null;
+    portal.dst = { dnum: destinationDungeon, dlevel: destinationLevel };
+    return portal;
 }

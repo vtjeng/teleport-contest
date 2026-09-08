@@ -385,11 +385,13 @@ test('check_special_room(TRUE) clears room strings and settles inert shop exit',
     assert.deepEqual([...shopper.u.ushops], [0, 0, 0, 0, 0]);
 
     const town = heroState();
+    town.mines_dnum = town.u.uz.dnum;
     town.level.flags = { has_town: true };
-    await assert.rejects(
-        () => check_special_room(true, town),
-        /holding a town/u,
-    );
+    town.context = { achieveo: { minetn_reached: false } };
+    town.u.uachieved = new Array(20).fill(0);
+    await check_special_room(true, town);
+    assert.equal(town.context.achieveo.minetn_reached, true);
+    assert.equal(town.u.uachieved[0], 16); // ACH_TOWN
 });
 
 test('dunlevs_in_dungeon and In_hell read the dungeon the level belongs to',

@@ -11,7 +11,6 @@ import {
     Can_dig_down,
     Can_fall_thru,
     In_hell,
-    Is_branchlev,
     Is_special,
     at_dgn_entrance,
     depth,
@@ -72,9 +71,10 @@ import {
 } from './nhlua.js';
 import {
     create_maze,
-    place_lregion,
+    check_ransacked,
+    fixup_special,
+    mkportal,
     set_levltyp_lit,
-    setup_waterlevel,
 } from './mkmaze.js';
 import { d, rn2, rnd, rn1, rne, rnz } from './rng.js';
 import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
@@ -1746,6 +1746,7 @@ async function makemaz(proto, slev, state) {
     }
 
     if (protofile) {
+        check_ransacked(protofile, state);
         // C ref: mkmaze.c:1184-1193. load_special() runs the Lua level
         // definition and applies post-processing.
         if (await load_special(protofile, state)) {
@@ -4206,7 +4207,7 @@ export function lspo_finalize_level(args, env) {
 
     /* This must be done before premap_detect(),
      * otherwise branch stairs won't be premapped. */
-    fixup_special(state);
+    finishFixupSpecial(state);
 
     if (coder.premapped)
         premap_detect(state);
@@ -4223,147 +4224,24 @@ export function lspo_finalize_level(args, env) {
 }
 
 
-// C ref: mkmaze.c fixup_special(). Kept in this file rather than
-// js/mkmaze.js because it drives mklev.js's level-object environment.
-// Covers the water and air setup, the level-region placement with its
-// branch fallback, and the Medusa statues; the Cleric-quest and stronghold
-// graveyard flags, baalz_fixup(), stolen_booty(), and the has_town flag are
-// not ported. load_special() and lspo_finalize_level() both call it.
-function fixup_special(state) {
-    // C ref: mkmaze.c fixup_special(). Plane of Air levels replace
-    // the special-level map cells with the shared air base terrain
-    // and initialize their cloud bubbles before placing levregions.
-    setup_waterlevel(state);
-
-    // C ref: mkmaze.c fixup_special(). Each level region
-    // levregion_add() stored is placed now, after wallification and
-    // flipping; a teleport region only records its outlines for
-    // goto_level(), which places it on arrival.
-    let addedBranch = false;
-    for (const r of state.lregions) {
-        let lev = null;
-        switch (r.rtype) {
-        case LR_BRANCH:
-            addedBranch = true;
-            place_lregion(
-                r.inarea.x1, r.inarea.y1, r.inarea.x2, r.inarea.y2,
-                r.delarea.x1, r.delarea.y1, r.delarea.x2, r.delarea.y2,
-                r.rtype, lev, state,
-            );
-            break;
-
-        case LR_PORTAL:
-            if (r.rname[0] >= '0' && r.rname[0] <= '9') {
-                /* "chutes and ladders" */
-                lev = { ...state.u.uz, dlevel: parseInt(r.rname, 10) };
-            } else {
-                lev = find_level(r.rname, state).dlevel;
-            }
-            /*FALLTHRU*/
-        case LR_UPSTAIR:
-        case LR_DOWNSTAIR:
-            place_lregion(
-                r.inarea.x1, r.inarea.y1, r.inarea.x2, r.inarea.y2,
-                r.delarea.x1, r.delarea.y1, r.delarea.x2, r.delarea.y2,
-                r.rtype, lev, state,
-            );
-            break;
-
-        case LR_TELE:
-        case LR_UPTELE:
-        case LR_DOWNTELE:
-            /* save the region outlines for goto_level() */
-            if (r.rtype === LR_TELE || r.rtype === LR_UPTELE) {
-                state.updest = {
-                    lx: r.inarea.x1, ly: r.inarea.y1,
-                    hx: r.inarea.x2, hy: r.inarea.y2,
-                    nlx: r.delarea.x1, nly: r.delarea.y1,
-                    nhx: r.delarea.x2, nhy: r.delarea.y2,
-                };
-            }
-            if (r.rtype === LR_TELE || r.rtype === LR_DOWNTELE) {
-                state.dndest = {
-                    lx: r.inarea.x1, ly: r.inarea.y1,
-                    hx: r.inarea.x2, hy: r.inarea.y2,
-                    nlx: r.delarea.x1, nly: r.delarea.y1,
-                    nhx: r.delarea.x2, nhy: r.delarea.y2,
-                };
-            }
-            /* place_lregion gets called from goto_level() */
-            break;
-        }
-    }
-
-    /* place dungeon branch if not placed above */
-    if (!addedBranch && Is_branchlev(state.u.uz, state)) {
-        place_lregion(
-            0, 0, 0, 0, 0, 0, 0, 0,
-            LR_BRANCH, null, state,
-        );
-    }
-
-    // C ref: mkmaze.c fixup_special() Is_medusa_level branch
-    // (lines 649-685). After the special-level loader finishes,
-    // add rnd(4) random non-stone-resistant statues to the first
-    // room defined on the Medusa level.
-    if (Is_medusa_level(state.u.uz)) {
-        const croom = state.level.rooms[0];
-        for (let tryct = rnd(4); tryct > 0; tryct--) {
-            const x = somex(croom);
-            const y = somey(croom);
-            if (goodpos(x, y, null, 0, { state })) {
-                let tryct2 = 0;
-                let otmp = mk_tt_object(
-                    STATUE, x, y, levelObjectEnv(),
-                );
-                while (++tryct2 < 100 && otmp
-                    && (poly_when_stoned(
-                        state.mons[otmp.corpsenm], state,
-                    )
-                    || pm_resistance(
-                        state.mons[otmp.corpsenm], MR_STONE,
-                    ))) {
-                    set_corpsenm(
-                        otmp, rndmonnum(levelObjectEnv()),
-                        levelObjectEnv(),
-                    );
-                }
-            }
-        }
-        let otmp;
-        if (rn2(2)) {
-            otmp = mk_tt_object(
-                STATUE, somex(croom), somey(croom),
-                levelObjectEnv(),
-            );
-        } else {
-            // Medusa statues don't contain books
-            otmp = mkcorpstat(
-                STATUE, null, null,
-                somex(croom), somey(croom),
-                CORPSTAT_NONE, levelObjectEnv(),
-            );
-        }
-        if (otmp) {
-            let tryct = 0;
-            while (++tryct < 100
-                && (pm_resistance(
-                    state.mons[otmp.corpsenm], MR_STONE,
-                )
-                || poly_when_stoned(
-                    state.mons[otmp.corpsenm], state,
-                ))) {
-                set_corpsenm(
-                    otmp, rndmonnum(levelObjectEnv()),
-                    levelObjectEnv(),
-                );
-            }
-        }
-    }
-
-    // C: fixup_special() frees gl.lregions once every record is
-    // placed.
-    state.lregions = [];
+function finishFixupSpecial(state) {
+    fixup_special(state, {
+        findLevel: find_level,
+        isMedusaLevel: Is_medusa_level,
+        somex: (room) => somex(room),
+        somey: (room) => somey(room),
+        goodpos,
+        levelObjectEnv,
+        mkTtObject: (x, y, env) => mk_tt_object(STATUE, x, y, env),
+        mkCorpstat: (x, y, env) => mkcorpstat(
+            STATUE, null, null, x, y, CORPSTAT_NONE, env,
+        ),
+        badStatueSpecies: (mnum, currentState) =>
+            poly_when_stoned(currentState.mons[mnum], currentState)
+                || pm_resistance(currentState.mons[mnum], MR_STONE),
+        setCorpsenm: set_corpsenm,
+        rndmonnum,
+    });
 }
 
 function createSpecialLevelApi(state) {
@@ -4666,7 +4544,7 @@ function createSpecialLevelApi(state) {
                 solidify_map(state);
             }
 
-            fixup_special(state);
+            finishFixupSpecial(state);
 
             // C ref: sp_lev.c:6052-6053. Reveal the entire map for
             // premapped levels (Sokoban).
@@ -7850,10 +7728,7 @@ function place_branch(branchp, x = 0, y = 0) {
     const dest = on_end1 ? branchp.end2 : branchp.end1;
     // C ref: mklev.c:1727-1739
     if (branchp.type === BR_PORTAL) {
-        const trap = maketrap(x, y, MAGIC_PORTAL);
-        if (trap) {
-            trap.dst = { dnum: dest.dnum, dlevel: dest.dlevel };
-        }
+        mkportal(x, y, dest.dnum, dest.dlevel, g);
     } else {
         const make_stairs = on_end1
             ? branchp.type !== BR_NO_END1

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7406,
+      "datetime": "20031123100000",
+      "nethackrc": "OPTIONS=name:OrcProbe,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Wizard-mode level teleport (^V, ? for the level menu, second page's minetn entry) to the minetn-1 Orcish Town variant selected by seed 7406 from the preselected 7400-7407 scan. It reaches check_ransacked() and stolen_booty(), including migrating named orcs and their loot. No recording yet: after the span's behavior creates migrating loot, the port reaches makemon.c's existing unsupported initial-level monster creation boundary for migrating object delivery; record this case once that blocker lands.",
+      "moves": " \u0016?\n w"
+    }
+  ]
+}

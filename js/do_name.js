@@ -94,7 +94,7 @@ import {
 import { an, just_an, safe_qbuf, simpleonames, vtense, xnameFresh } from './objnam.js';
 import { get_rnd_text } from './random_text.js';
 import { HLIQUIDS } from './random_text_data.js';
-import { rn2, rn2_on_display_rng } from './rng.js';
+import { rn1, rn2, rn2_on_display_rng } from './rng.js';
 import { getlin } from './windows.js';
 // display.h canspotmon() (129). js/startup_a11y.js owns it and imports
 // capitalizedMonsterName() from this file, so the two modules form a cycle.
@@ -248,6 +248,37 @@ export function christen_monst(monster, name, env = {}) {
     );
     if (monster.mleashed) updateInventory(env);
     return monster;
+}
+
+// C ref: do_name.c rndorcname() (1537-1554).  Orc names alternate vowel and
+// consonant chunks, starting on either side, and very rarely hyphenate a
+// chunk after the first.  Keeping this here lets mkmaze.c's stolen_booty()
+// consume the same draws as the source without embedding naming policy in the
+// maze generator.
+export function rndorcname(random = { rn1, rn2 }) {
+    const vowels = ['a', 'ai', 'og', 'u'];
+    const sounds = ['gor', 'gris', 'un', 'bane', 'ruk', 'oth', 'ul', 'z',
+        'thos', 'akh', 'hai'];
+    const end = random.rn1(2, 3);
+    let vowelNext = random.rn2(2);
+    let result = '';
+    for (let i = 0; i < end; ++i) {
+        vowelNext = 1 - vowelNext;
+        if (i > 0 && !random.rn2(30)) result += '-';
+        const choices = vowelNext ? vowels : sounds;
+        result += choices[random.rn2(choices.length)];
+    }
+    return result;
+}
+
+// C ref: do_name.c christen_orc() (1556-1585).  The generated personal name
+// is capitalized and optionally followed by the invading gang name.
+export function christen_orc(monster, gang, other, env = {}) {
+    const orcname = rndorcname(env.random ?? { rn1, rn2 });
+    if (!gang && !other) return monster;
+    const suffix = gang ? ` of ${upstart(gang)}` : (other ?? '');
+    const name = `${upstart(orcname)}${suffix}`;
+    return name.length < 256 ? christen_monst(monster, name, env) : monster;
 }
 
 // An object-naming prompt this port cannot open yet.

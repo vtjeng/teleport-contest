@@ -641,6 +641,13 @@ export function rnd_otyp_by_namedesc(name, oclass, xtra_prob, env = {}) {
     return STRANGE_OBJECT;
 }
 
+// C ref: objnam.c shiny_obj() (3531-3535).  This deliberately delegates to
+// the complete weighted name/description selector so object shuffling and
+// zero-probability handling stay identical to wishes.
+export function shiny_obj(oclass, env = {}) {
+    return rnd_otyp_by_namedesc('shiny', oclass, 0, env);
+}
+
 // C ref: objnam.c readobjnam_preparse() (3965-4175).  Consumes a count and
 // every leading qualifier, answering 1 when the line held nothing but
 // qualifiers and 0 when anything else remains.

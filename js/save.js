@@ -50,6 +50,7 @@ import { initrack } from './track.js';
 import { vfsWriteFile } from './storage.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
 import { tty_raw_print } from './tty_rawprint.js';
+import { save_waterlevel } from './mkmaze.js';
 
 // ── Level-local timer and light source capture ──
 //
@@ -147,6 +148,7 @@ export function savelev(ledger, state = game) {
     const levelLights = allLightsBefore
         ? allLightsBefore.filter((l) => !survivingLights.has(l))
         : [];
+    const waterlevel = save_waterlevel(null, state, true);
 
     // Store the snapshot. The key is the ledger number of the level.
     state._savedLevels ??= {};
@@ -169,6 +171,7 @@ export function savelev(ledger, state = game) {
         dndest: state.dndest ? { ...state.dndest } : {},
         timers: levelTimers,
         lights: levelLights,
+        waterlevel,
     };
 
     // Mark LFILE_EXISTS so goto_level knows a save exists for this level.
