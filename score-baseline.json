@@ -73,8 +73,8 @@
     "cursors": 67
   },
   "seed0030-ten-diverse-deaths.session.json": {
-    "screens": 159,
-    "rngCalls": 15006,
+    "screens": 537,
+    "rngCalls": 37739,
     "lowerings": [
       {
         "metric": "rngCalls",
@@ -126,7 +126,7 @@
         "reason": "The port's first divergence in this session is at random-number index 338, rnd(2) in level generation (sp_lev.c/mkmap.c), both before and after 1c406f7e. Porting m_arrival through vamp_shift in monmove.c changes the port's own behavior past that stop: m_move_aggress replaces the former unsupported throw, and leppie_avoidance and m_balks_at_approaching alter approach decisions, so the port's own emitted total for segment 0 shifts from 14300 to 14298 calls. That 2-call shift reshuffles the positional alignment past the stop, losing coincidental matches in segments 1 through 9. rngMatched compares positionally over the whole log, which .agents/validation.md records under Facts about the measuring tools."
       }
     ],
-    "cursors": 239
+    "cursors": 537
   },
   "seed0077-rogue-chargen.session.json": {
     "screens": 33,
@@ -159,9 +159,9 @@
     "cursors": 98
   },
   "seed0108-wizard-extcmd-wishlist.session.json": {
-    "screens": 185,
-    "rngCalls": 3019,
-    "cursors": 187
+    "screens": 280,
+    "rngCalls": 3564,
+    "cursors": 280
   },
   "seed0200-monk-north-search.session.json": {
     "screens": 40,
@@ -195,9 +195,25 @@
     "cursors": 307
   },
   "seed0367-priest-quest-tour.session.json": {
-    "screens": 245,
-    "rngCalls": 26723,
-    "cursors": 253
+    "screens": 243,
+    "rngCalls": 27120,
+    "cursors": 243,
+    "lowerings": [
+      {
+        "metric": "screens",
+        "from": 245,
+        "to": 243,
+        "commit": "90111517",
+        "reason": "align_shift() per-turn cache (90111517) moves the session's first mismatch from random-number call 26695 in rndmonst_adj() to call 27119 at sp_lev.c create_object()'s unported Medusa-statue makemon(), so rngCalls rises 26723 -> 27120. What fell is coincidence after the stop: the replay now reaches the species allowlist's UnsupportedMonsterCreationError during Medusa's level (a statue trap the out-of-step port rolls and C does not) and emits no later screens, whereas before it ran on with a divergent level and two level-teleport menu pages and ten prompt-line cursors matched positionally. rngCalls stays at 26723 here because lower only reduces; the raise that follows records 27120."
+      },
+      {
+        "metric": "cursors",
+        "from": 253,
+        "to": 243,
+        "commit": "90111517",
+        "reason": "align_shift() per-turn cache (90111517) moves the session's first mismatch from random-number call 26695 in rndmonst_adj() to call 27119 at sp_lev.c create_object()'s unported Medusa-statue makemon(), so rngCalls rises 26723 -> 27120. What fell is coincidence after the stop: the replay now reaches the species allowlist's UnsupportedMonsterCreationError during Medusa's level (a statue trap the out-of-step port rolls and C does not) and emits no later screens, whereas before it ran on with a divergent level and two level-teleport menu pages and ten prompt-line cursors matched positionally. rngCalls stays at 26723 here because lower only reduces; the raise that follows records 27120."
+      }
+    ]
   },
   "seed0373-barbarian-quest-tour.session.json": {
     "screens": 124,
