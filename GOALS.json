@@ -14629,6 +14629,303 @@
       "function": "set_mimic_sym",
       "session": "seed0360-wizard-world-tour",
       "step": 180
+    },
+    {
+      "id": "mkmaze-c-fixup-special",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mkmaze.c fixup_special and remaining maze-generation behavior",
+      "cFile": "mkmaze.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "detail": "Covers the excluded seed0360 set_mimic_sym divergence: mkmaze.c fixup_special() sets has_town for Minetown, which is required before makemon.c set_mimic_sym() selects the shop branch. Start at fixup_special() and port every remaining mkmaze.c function in C order.",
+      "spans": [],
+      "openedAt": "54d8d9ec54c7b8dd10aa363f3ce9c09e0e253386",
+      "openStanding": {
+        "sha": "4c79b1eabed25b19262a52e93f6370b985340d12",
+        "screens": 5187,
+        "rng": 350635
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "iswall",
+          "line": 45,
+          "endLine": 58,
+          "ported": false
+        },
+        {
+          "name": "iswall_or_stone",
+          "line": 59,
+          "endLine": 69,
+          "ported": false
+        },
+        {
+          "name": "is_solid",
+          "line": 70,
+          "endLine": 76,
+          "ported": false
+        },
+        {
+          "name": "set_levltyp",
+          "line": 77,
+          "endLine": 124,
+          "ported": true
+        },
+        {
+          "name": "set_levltyp_lit",
+          "line": 125,
+          "endLine": 165,
+          "ported": true
+        },
+        {
+          "name": "extend_spine",
+          "line": 166,
+          "endLine": 197,
+          "ported": true
+        },
+        {
+          "name": "wall_cleanup",
+          "line": 198,
+          "endLine": 228,
+          "ported": true
+        },
+        {
+          "name": "fix_wall_spines",
+          "line": 229,
+          "endLine": 289,
+          "ported": true
+        },
+        {
+          "name": "wallification",
+          "line": 290,
+          "endLine": 296,
+          "ported": true
+        },
+        {
+          "name": "okay",
+          "line": 297,
+          "endLine": 308,
+          "ported": false
+        },
+        {
+          "name": "maze0xy",
+          "line": 309,
+          "endLine": 316,
+          "ported": true
+        },
+        {
+          "name": "is_exclusion_zone",
+          "line": 317,
+          "endLine": 340,
+          "ported": true
+        },
+        {
+          "name": "bad_location",
+          "line": 341,
+          "endLine": 355,
+          "ported": true
+        },
+        {
+          "name": "place_lregion",
+          "line": 356,
+          "endLine": 412,
+          "ported": true
+        },
+        {
+          "name": "put_lregion_here",
+          "line": 413,
+          "endLine": 474,
+          "ported": true
+        },
+        {
+          "name": "baalz_fixup",
+          "line": 475,
+          "endLine": 569,
+          "ported": false
+        },
+        {
+          "name": "fixup_special",
+          "line": 570,
+          "endLine": 706,
+          "ported": true
+        },
+        {
+          "name": "check_ransacked",
+          "line": 707,
+          "endLine": 716,
+          "ported": false
+        },
+        {
+          "name": "migrate_orc",
+          "line": 717,
+          "endLine": 747,
+          "ported": false
+        },
+        {
+          "name": "shiny_orc_stuff",
+          "line": 748,
+          "endLine": 779,
+          "ported": false
+        },
+        {
+          "name": "migr_booty_item",
+          "line": 780,
+          "endLine": 798,
+          "ported": false
+        },
+        {
+          "name": "stolen_booty",
+          "line": 799,
+          "endLine": 893,
+          "ported": false
+        },
+        {
+          "name": "maze_inbounds",
+          "line": 894,
+          "endLine": 903,
+          "ported": false
+        },
+        {
+          "name": "maze_remove_deadends",
+          "line": 904,
+          "endLine": 949,
+          "ported": false
+        },
+        {
+          "name": "create_maze",
+          "line": 950,
+          "endLine": 1041,
+          "ported": true
+        },
+        {
+          "name": "pick_vibrasquare_location",
+          "line": 1042,
+          "endLine": 1096,
+          "ported": true
+        },
+        {
+          "name": "populate_maze",
+          "line": 1097,
+          "endLine": 1126,
+          "ported": false
+        },
+        {
+          "name": "makemaz",
+          "line": 1127,
+          "endLine": 1231,
+          "ported": true
+        },
+        {
+          "name": "walkfrom",
+          "line": 1232,
+          "endLine": 1278,
+          "ported": true
+        },
+        {
+          "name": "walkfrom",
+          "line": 1279,
+          "endLine": 1315,
+          "ported": true
+        },
+        {
+          "name": "mazexy",
+          "line": 1316,
+          "endLine": 1352,
+          "ported": false
+        },
+        {
+          "name": "get_level_extends",
+          "line": 1353,
+          "endLine": 1440,
+          "ported": true
+        },
+        {
+          "name": "bound_digging",
+          "line": 1441,
+          "endLine": 1463,
+          "ported": true
+        },
+        {
+          "name": "mkportal",
+          "line": 1464,
+          "endLine": 1483,
+          "ported": false
+        },
+        {
+          "name": "fumaroles",
+          "line": 1484,
+          "endLine": 1538,
+          "ported": true
+        },
+        {
+          "name": "movebubbles",
+          "line": 1539,
+          "endLine": 1688,
+          "ported": true
+        },
+        {
+          "name": "water_friction",
+          "line": 1689,
+          "endLine": 1722,
+          "ported": false
+        },
+        {
+          "name": "save_waterlevel",
+          "line": 1723,
+          "endLine": 1749,
+          "ported": false
+        },
+        {
+          "name": "restore_waterlevel",
+          "line": 1750,
+          "endLine": 1801,
+          "ported": false
+        },
+        {
+          "name": "set_wportal",
+          "line": 1802,
+          "endLine": 1811,
+          "ported": false
+        },
+        {
+          "name": "setup_waterlevel",
+          "line": 1812,
+          "endLine": 1859,
+          "ported": true
+        },
+        {
+          "name": "unsetup_waterlevel",
+          "line": 1860,
+          "endLine": 1872,
+          "ported": false
+        },
+        {
+          "name": "mk_bubble",
+          "line": 1873,
+          "endLine": 1928,
+          "ported": false
+        },
+        {
+          "name": "maybe_adjust_hero_bubble",
+          "line": 1929,
+          "endLine": 1951,
+          "ported": false
+        },
+        {
+          "name": "mv_bubble",
+          "line": 1952,
+          "endLine": 2111,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 45,
+        "to": 2111
+      },
+      "startFunction": "fixup_special"
     }
   ]
 }
