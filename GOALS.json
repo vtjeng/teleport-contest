@@ -14980,7 +14980,21 @@
         "seed0030-ten-diverse-deaths"
       ],
       "detail": "The current seed0360 set_mimic_sym() mismatch is source-traced to hack.c in_town() lines 3562-3585: C excludes Minetown from makemon.c set_mimic_sym() maze-statue selection when In_mines() and in_town() are true. JavaScript has no source-owned js/hack.js in_town() implementation. Start at in_town() and port every remaining hack.c function in C order; this also covers the town movement boundary seen in seed0367 and the later hack.c movement session.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "monster_nearby..spot_checks",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "monster_nearby",
+            "end_running",
+            "max_capacity",
+            "dump_weights",
+            "cmp_weights",
+            "spot_checks"
+          ]
+        }
+      ],
       "openedAt": "6f857b121ca408b866f5a6a7e8be08afe07fe72c",
       "openStanding": {
         "sha": "00f3638ed48ae5ec5d8822996bb7e7ed8119711c",
