@@ -13243,8 +13243,8 @@
         },
         {
           "name": "lspo_room..nhl_abs_coord",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "37e85bcbabbe8ee3aba7c6ecf31a37f0e586ddac",
           "functions": [
             "lspo_room",
             "spo_endroom",
@@ -13270,6 +13270,28 @@
             "cvt_to_abscoord",
             "cvt_to_relcoord",
             "nhl_abs_coord"
+          ]
+        },
+        {
+          "name": "lspo_feature..lspo_region",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "lspo_feature",
+            "lspo_gas_cloud",
+            "lspo_terrain",
+            "lspo_replace_terrain",
+            "generate_way_out_method",
+            "ensure_way_out",
+            "get_table_region",
+            "levregion_add",
+            "l_get_lregion",
+            "lspo_teleport_region",
+            "lspo_levregion",
+            "lspo_exclusion",
+            "sel_set_lit",
+            "get_table_coords_or_region",
+            "lspo_region"
           ]
         }
       ],
@@ -13784,13 +13806,13 @@
           "name": "lspo_room",
           "line": 4028,
           "endLine": 4118,
-          "ported": false
+          "ported": true
         },
         {
           "name": "spo_endroom",
           "line": 4119,
           "endLine": 4138,
-          "ported": false
+          "ported": true
         },
         {
           "name": "good_stair_loc",
@@ -13802,43 +13824,43 @@
           "name": "l_create_stairway",
           "line": 4147,
           "endLine": 4222,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_stair",
           "line": 4223,
           "endLine": 4231,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_ladder",
           "line": 4232,
           "endLine": 4242,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_grave",
           "line": 4243,
           "endLine": 4282,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_altar",
           "line": 4283,
           "endLine": 4349,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_table_traptype_opt",
           "line": 4350,
           "endLine": 4366,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_trapname_bytype",
           "line": 4367,
           "endLine": 4378,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_traptype_byname",
@@ -13850,49 +13872,49 @@
           "name": "lspo_trap",
           "line": 4397,
           "endLine": 4479,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_gold",
           "line": 4480,
           "endLine": 4528,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_corridor",
           "line": 4529,
           "endLine": 4557,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_random_corridors",
           "line": 4558,
           "endLine": 4577,
-          "ported": false
+          "ported": true
         },
         {
           "name": "random_wdir",
           "line": 4578,
           "endLine": 4586,
-          "ported": false
+          "ported": true
         },
         {
           "name": "floodfillchk_match_under",
           "line": 4587,
           "endLine": 4592,
-          "ported": false
+          "ported": true
         },
         {
           "name": "set_floodfillchk_match_under",
           "line": 4593,
           "endLine": 4599,
-          "ported": false
+          "ported": true
         },
         {
           "name": "floodfillchk_match_accessible",
           "line": 4600,
           "endLine": 4608,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sel_set_ter",
@@ -13904,43 +13926,43 @@
           "name": "sel_set_feature",
           "line": 4633,
           "endLine": 4646,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sel_set_door",
           "line": 4647,
           "endLine": 4670,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_door",
           "line": 4671,
           "endLine": 4738,
-          "ported": false
+          "ported": true
         },
         {
           "name": "l_table_getset_feature_flag",
           "line": 4739,
           "endLine": 4771,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cvt_to_abscoord",
           "line": 4772,
           "endLine": 4792,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cvt_to_relcoord",
           "line": 4793,
           "endLine": 4810,
-          "ported": false
+          "ported": true
         },
         {
           "name": "nhl_abs_coord",
           "line": 4811,
           "endLine": 4843,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lspo_feature",
