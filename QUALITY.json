@@ -213,6 +213,7 @@
       "paths": [
         "js/apply_splash_lit.js",
         "js/bury.js",
+        "js/dbridge.js",
         "js/detect.js",
         "js/dig.js",
         "js/engrave.js",

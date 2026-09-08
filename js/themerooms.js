@@ -244,6 +244,19 @@ export function selection_area(x1, y1, x2, y2) {
     return result;
 }
 
+// C ref: selvar.c selection_new(). A fresh selection over the whole map,
+// in map coordinates as every C selection is; its points are clear.
+export function selection_new() {
+    return new ThemeroomSelection(null, true);
+}
+
+// C ref: selvar.c selection_clear(). Sets every point of `sel` to `val`.
+// The source also rewrites the cached bounds; the port's bounds() derives
+// them from the points, so a selection cleared to 1 spans the whole map.
+export function selection_clear(sel, val) {
+    sel.points.fill(val ? 1 : 0);
+}
+
 // C ref: selvar.c selection_iterate(). This is distinct from Lua's
 // selection:iterate(), which traverses y-major after returning to Lua.
 export function selection_iterate(selection, callback, origin = null) {

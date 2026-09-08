@@ -248,8 +248,8 @@ async function castle(des) {
     des.monster({ class: m[5], coord: [36, 11] });
 
     // MazeWalks
-    des.mazewalk({ x: 0, y: 10, dir: 'west' });
-    des.mazewalk({ x: 62, y: 6, dir: 'east' });
+    des.mazewalk(0, 10, 'west');
+    des.mazewalk(62, 6, 'east');
 
     // Non diggable walls
     des.non_diggable(selection_area(0, 0, 62, 16));
