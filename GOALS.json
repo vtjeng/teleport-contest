@@ -15622,6 +15622,38 @@
         "to": 4576
       },
       "startFunction": "in_town"
+    },
+    {
+      "id": "div-test-move-0360",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Resolve seed0360 test_move() divergence on a broken doorway",
+      "cFile": "hack.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "detail": "Development session seed0360-wizard-world-tour, segment 0, input step 181 (key y), first boundary after 181 matching screens: JavaScript stops before consuming the diagonal northwest move. Fresh replay reports unsupported hero move: test_move() door or special terrain movement; the C screen before the step has the hero at terminal [66,19] and the next recorded screen moves it to [65,18]. The preceding level-change input (key w) loads Dlvl:6. Source trace: nethack-c/upstream/src/hack.c test_move() at 991-1214 checks an obstructed destination first, then an IS_DOOR destination; for a DOOR with doormask D_BROKEN, closed_door() is false (monmove.c:2181-2185), and doorless_door() is true (hack.c:4063-4074), so the diagonal move passes the testdiag guard and returns TRUE without opening, messaging, or spending extra randomness. The JS owner is js/hack.js requireSimpleHeroDestination() at 1341-1389, which admits only D_NODOOR and D_ISOPEN doorway masks and incorrectly refuses D_BROKEN before test_move() can run. Fix the source-backed ordinary destination admission and preserve behavior for closed/trapped/rogue doors.",
+      "spans": [
+        {
+          "name": "test-move-broken-door",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "test_move"
+          ]
+        }
+      ],
+      "openedAt": "6c87662595fa7028730035f1c9995f2f2665fdf7",
+      "openStanding": {
+        "sha": "5b80e3ce4531a35f2c81352bb10ab4633fc1538e",
+        "screens": 5186,
+        "rng": 350795
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "test_move",
+      "session": "seed0360-wizard-world-tour",
+      "step": 181
     }
   ]
 }
