@@ -15696,7 +15696,7 @@
     {
       "id": "div-wintty-text-2200",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Resolve seed2200 options-help text-window screen divergence",
       "cFile": "wintty.c",
       "sessions": [],
@@ -15720,8 +15720,11 @@
         "screens": 5275,
         "rng": 371643
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1b21080603f67f4134347909ae313ab32b1a2cf9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "tty_display_nhwindow",
       "session": "seed2200-wizard-quaff-zap-read",
       "step": 158
