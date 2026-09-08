@@ -15636,8 +15636,8 @@
       "spans": [
         {
           "name": "test-move-broken-door",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "b5f6ebf997414b8b464d1969d93d8507a963871e",
           "functions": [
             "test_move"
           ]
