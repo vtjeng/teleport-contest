@@ -15022,6 +15022,16 @@
             "carrying_too_much",
             "escape_from_sticky_mon"
           ]
+        },
+        {
+          "name": "pooleffects..furniture_present",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "pooleffects",
+            "monstinroom",
+            "furniture_present"
+          ]
         }
       ],
       "openedAt": "6f857b121ca408b866f5a6a7e8be08afe07fe72c",
