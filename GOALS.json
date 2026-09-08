@@ -14198,7 +14198,7 @@
     {
       "id": "div-options-option-help-path-2200",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Classify option-help configuration path mismatch as machine-local",
       "cFile": "options.c",
       "sessions": [],
@@ -14219,8 +14219,11 @@
         "screens": 5178,
         "rng": 345354
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7f07952abd8801e05093f7a2c02f1ee33dee62c3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "option_help",
       "session": "seed2200-wizard-quaff-zap-read",
       "step": 158
