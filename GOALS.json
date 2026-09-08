@@ -15626,7 +15626,7 @@
     {
       "id": "div-test-move-0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Resolve seed0360 test_move() divergence on a broken doorway",
       "cFile": "hack.c",
       "sessions": [
@@ -15649,8 +15649,11 @@
         "screens": 5186,
         "rng": 350795
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f0bb624db2363d24d712e10d63852a51e0834f34",
+      "delivered": {
+        "screens": 48,
+        "rng": 9402
+      },
       "function": "test_move",
       "session": "seed0360-wizard-world-tour",
       "step": 181
