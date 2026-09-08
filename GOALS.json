@@ -13164,6 +13164,940 @@
       "function": "rndmonst_adj",
       "session": "seed0367-priest-quest-tour",
       "step": 243
+    },
+    {
+      "id": "sp-lev-c-create",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port sp_lev.c creation and helper functions; add sanctum and Arc-loca level loaders",
+      "cFile": "sp_lev.c",
+      "sessions": [
+        "seed0360-wizard-world-tour",
+        "seed0361-archeologist-tour"
+      ],
+      "detail": "",
+      "spans": [
+        {
+          "name": "reset_xystart_size..l_push_mkroom_table",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "reset_xystart_size",
+            "mapfrag_fromstr",
+            "mapfrag_free",
+            "mapfrag_get",
+            "mapfrag_canmatch",
+            "mapfrag_error",
+            "lvlfill_maze_grid",
+            "lvlfill_solid",
+            "lvlfill_swamp",
+            "flip_dbridge_horizontal",
+            "flip_dbridge_vertical",
+            "flip_visuals",
+            "flip_encoded_dir_bits",
+            "flip_vault_guard",
+            "sel_set_wall_property",
+            "set_wall_property",
+            "remove_boundary_syms",
+            "set_door_orientation",
+            "set_ok_location_func",
+            "get_unpacked_coord",
+            "create_trap",
+            "noncoalignment",
+            "m_bad_boulder_spot",
+            "sp_amask_to_amask",
+            "create_altar",
+            "search_door",
+            "create_corridor",
+            "light_region",
+            "splev_initlev",
+            "sp_code_jmpaddr",
+            "spo_end_moninvent",
+            "spo_pop_container",
+            "l_push_wid_hei_table",
+            "l_push_mkroom_table"
+          ]
+        }
+      ],
+      "openedAt": "6ea47ee0c7c07b5cc4899b65be4477a5e6ad44eb",
+      "openStanding": {
+        "sha": "43f5b3be",
+        "screens": 5178,
+        "rng": 345354
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "reset_xystart_size",
+          "line": 206,
+          "endLine": 216,
+          "ported": false
+        },
+        {
+          "name": "match_maptyps",
+          "line": 217,
+          "endLine": 226,
+          "ported": true
+        },
+        {
+          "name": "mapfrag_fromstr",
+          "line": 227,
+          "endLine": 255,
+          "ported": false
+        },
+        {
+          "name": "mapfrag_free",
+          "line": 256,
+          "endLine": 265,
+          "ported": false
+        },
+        {
+          "name": "mapfrag_get",
+          "line": 266,
+          "endLine": 274,
+          "ported": false
+        },
+        {
+          "name": "mapfrag_canmatch",
+          "line": 275,
+          "endLine": 280,
+          "ported": false
+        },
+        {
+          "name": "mapfrag_error",
+          "line": 281,
+          "endLine": 297,
+          "ported": false
+        },
+        {
+          "name": "mapfrag_match",
+          "line": 298,
+          "endLine": 314,
+          "ported": true
+        },
+        {
+          "name": "solidify_map",
+          "line": 315,
+          "endLine": 327,
+          "ported": true
+        },
+        {
+          "name": "map_cleanup",
+          "line": 328,
+          "endLine": 358,
+          "ported": true
+        },
+        {
+          "name": "lvlfill_maze_grid",
+          "line": 359,
+          "endLine": 373,
+          "ported": false
+        },
+        {
+          "name": "lvlfill_solid",
+          "line": 374,
+          "endLine": 390,
+          "ported": false
+        },
+        {
+          "name": "lvlfill_swamp",
+          "line": 391,
+          "endLine": 427,
+          "ported": false
+        },
+        {
+          "name": "flip_dbridge_horizontal",
+          "line": 428,
+          "endLine": 441,
+          "ported": false
+        },
+        {
+          "name": "flip_dbridge_vertical",
+          "line": 442,
+          "endLine": 457,
+          "ported": false
+        },
+        {
+          "name": "flip_visuals",
+          "line": 458,
+          "endLine": 498,
+          "ported": false
+        },
+        {
+          "name": "flip_encoded_dir_bits",
+          "line": 499,
+          "endLine": 532,
+          "ported": false
+        },
+        {
+          "name": "flip_level",
+          "line": 533,
+          "endLine": 925,
+          "ported": true
+        },
+        {
+          "name": "flip_vault_guard",
+          "line": 926,
+          "endLine": 966,
+          "ported": false
+        },
+        {
+          "name": "flip_level_rnd",
+          "line": 967,
+          "endLine": 985,
+          "ported": true
+        },
+        {
+          "name": "sel_set_wall_property",
+          "line": 986,
+          "endLine": 1000,
+          "ported": false
+        },
+        {
+          "name": "set_wall_property",
+          "line": 1001,
+          "endLine": 1015,
+          "ported": false
+        },
+        {
+          "name": "remove_boundary_syms",
+          "line": 1016,
+          "endLine": 1041,
+          "ported": false
+        },
+        {
+          "name": "set_door_orientation",
+          "line": 1042,
+          "endLine": 1088,
+          "ported": false
+        },
+        {
+          "name": "shared_with_room",
+          "line": 1089,
+          "endLine": 1109,
+          "ported": true
+        },
+        {
+          "name": "maybe_add_door",
+          "line": 1110,
+          "endLine": 1121,
+          "ported": true
+        },
+        {
+          "name": "link_doors_rooms",
+          "line": 1122,
+          "endLine": 1147,
+          "ported": true
+        },
+        {
+          "name": "rnddoor",
+          "line": 1148,
+          "endLine": 1158,
+          "ported": true
+        },
+        {
+          "name": "rndtrap",
+          "line": 1159,
+          "endLine": 1201,
+          "ported": true
+        },
+        {
+          "name": "get_location",
+          "line": 1202,
+          "endLine": 1273,
+          "ported": true
+        },
+        {
+          "name": "set_ok_location_func",
+          "line": 1274,
+          "endLine": 1279,
+          "ported": false
+        },
+        {
+          "name": "is_ok_location",
+          "line": 1280,
+          "endLine": 1310,
+          "ported": true
+        },
+        {
+          "name": "pm_good_location",
+          "line": 1311,
+          "endLine": 1316,
+          "ported": true
+        },
+        {
+          "name": "get_unpacked_coord",
+          "line": 1317,
+          "endLine": 1336,
+          "ported": false
+        },
+        {
+          "name": "get_location_coord",
+          "line": 1337,
+          "endLine": 1359,
+          "ported": true
+        },
+        {
+          "name": "get_room_loc",
+          "line": 1360,
+          "endLine": 1384,
+          "ported": true
+        },
+        {
+          "name": "get_free_room_loc",
+          "line": 1385,
+          "endLine": 1406,
+          "ported": true
+        },
+        {
+          "name": "check_room",
+          "line": 1407,
+          "endLine": 1485,
+          "ported": true
+        },
+        {
+          "name": "create_room",
+          "line": 1486,
+          "endLine": 1667,
+          "ported": true
+        },
+        {
+          "name": "create_subroom",
+          "line": 1668,
+          "endLine": 1713,
+          "ported": true
+        },
+        {
+          "name": "create_door",
+          "line": 1714,
+          "endLine": 1811,
+          "ported": true
+        },
+        {
+          "name": "create_trap",
+          "line": 1812,
+          "endLine": 1851,
+          "ported": false
+        },
+        {
+          "name": "noncoalignment",
+          "line": 1852,
+          "endLine": 1863,
+          "ported": false
+        },
+        {
+          "name": "m_bad_boulder_spot",
+          "line": 1864,
+          "endLine": 1883,
+          "ported": false
+        },
+        {
+          "name": "pm_to_humidity",
+          "line": 1884,
+          "endLine": 1907,
+          "ported": true
+        },
+        {
+          "name": "sp_amask_to_amask",
+          "line": 1908,
+          "endLine": 1924,
+          "ported": false
+        },
+        {
+          "name": "create_monster",
+          "line": 1925,
+          "endLine": 2192,
+          "ported": true
+        },
+        {
+          "name": "create_object",
+          "line": 2193,
+          "endLine": 2445,
+          "ported": true
+        },
+        {
+          "name": "create_altar",
+          "line": 2446,
+          "endLine": 2491,
+          "ported": false
+        },
+        {
+          "name": "search_door",
+          "line": 2492,
+          "endLine": 2548,
+          "ported": false
+        },
+        {
+          "name": "dig_corridor",
+          "line": 2549,
+          "endLine": 2670,
+          "ported": true
+        },
+        {
+          "name": "create_corridor",
+          "line": 2671,
+          "endLine": 2730,
+          "ported": false
+        },
+        {
+          "name": "fill_special_room",
+          "line": 2731,
+          "endLine": 2806,
+          "ported": true
+        },
+        {
+          "name": "build_room",
+          "line": 2807,
+          "endLine": 2838,
+          "ported": true
+        },
+        {
+          "name": "light_region",
+          "line": 2839,
+          "endLine": 2864,
+          "ported": false
+        },
+        {
+          "name": "wallify_map",
+          "line": 2865,
+          "endLine": 2899,
+          "ported": true
+        },
+        {
+          "name": "maze1xy",
+          "line": 2900,
+          "endLine": 2925,
+          "ported": true
+        },
+        {
+          "name": "fill_empty_maze",
+          "line": 2926,
+          "endLine": 2981,
+          "ported": true
+        },
+        {
+          "name": "splev_initlev",
+          "line": 2982,
+          "endLine": 3021,
+          "ported": false
+        },
+        {
+          "name": "sp_code_jmpaddr",
+          "line": 3022,
+          "endLine": 3030,
+          "ported": false
+        },
+        {
+          "name": "spo_end_moninvent",
+          "line": 3031,
+          "endLine": 3039,
+          "ported": false
+        },
+        {
+          "name": "spo_pop_container",
+          "line": 3040,
+          "endLine": 3049,
+          "ported": false
+        },
+        {
+          "name": "l_push_wid_hei_table",
+          "line": 3050,
+          "endLine": 3058,
+          "ported": false
+        },
+        {
+          "name": "l_push_mkroom_table",
+          "line": 3059,
+          "endLine": 3075,
+          "ported": false
+        },
+        {
+          "name": "lspo_message",
+          "line": 3076,
+          "endLine": 3113,
+          "ported": false
+        },
+        {
+          "name": "get_table_align",
+          "line": 3114,
+          "endLine": 3130,
+          "ported": false
+        },
+        {
+          "name": "get_table_monclass",
+          "line": 3131,
+          "endLine": 3142,
+          "ported": false
+        },
+        {
+          "name": "find_montype",
+          "line": 3143,
+          "endLine": 3166,
+          "ported": false
+        },
+        {
+          "name": "get_table_montype",
+          "line": 3167,
+          "endLine": 3187,
+          "ported": false
+        },
+        {
+          "name": "get_table_xy_or_coord",
+          "line": 3188,
+          "endLine": 3213,
+          "ported": false
+        },
+        {
+          "name": "lspo_monster",
+          "line": 3214,
+          "endLine": 3406,
+          "ported": false
+        },
+        {
+          "name": "get_table_int_or_random",
+          "line": 3407,
+          "endLine": 3441,
+          "ported": false
+        },
+        {
+          "name": "get_table_buc",
+          "line": 3442,
+          "endLine": 3454,
+          "ported": false
+        },
+        {
+          "name": "get_table_objclass",
+          "line": 3455,
+          "endLine": 3467,
+          "ported": false
+        },
+        {
+          "name": "find_objtype",
+          "line": 3468,
+          "endLine": 3538,
+          "ported": false
+        },
+        {
+          "name": "get_table_objtype",
+          "line": 3539,
+          "endLine": 3556,
+          "ported": false
+        },
+        {
+          "name": "lspo_object",
+          "line": 3557,
+          "endLine": 3758,
+          "ported": true
+        },
+        {
+          "name": "lspo_level_flags",
+          "line": 3759,
+          "endLine": 3836,
+          "ported": false
+        },
+        {
+          "name": "lspo_level_init",
+          "line": 3837,
+          "endLine": 3880,
+          "ported": false
+        },
+        {
+          "name": "lspo_engraving",
+          "line": 3881,
+          "endLine": 3938,
+          "ported": false
+        },
+        {
+          "name": "lspo_mineralize",
+          "line": 3939,
+          "endLine": 3990,
+          "ported": false
+        },
+        {
+          "name": "get_mkroom_name",
+          "line": 3991,
+          "endLine": 4003,
+          "ported": false
+        },
+        {
+          "name": "get_table_roomtype_opt",
+          "line": 4004,
+          "endLine": 4027,
+          "ported": false
+        },
+        {
+          "name": "lspo_room",
+          "line": 4028,
+          "endLine": 4118,
+          "ported": false
+        },
+        {
+          "name": "spo_endroom",
+          "line": 4119,
+          "endLine": 4138,
+          "ported": false
+        },
+        {
+          "name": "good_stair_loc",
+          "line": 4139,
+          "endLine": 4146,
+          "ported": false
+        },
+        {
+          "name": "l_create_stairway",
+          "line": 4147,
+          "endLine": 4222,
+          "ported": false
+        },
+        {
+          "name": "lspo_stair",
+          "line": 4223,
+          "endLine": 4231,
+          "ported": false
+        },
+        {
+          "name": "lspo_ladder",
+          "line": 4232,
+          "endLine": 4242,
+          "ported": false
+        },
+        {
+          "name": "lspo_grave",
+          "line": 4243,
+          "endLine": 4282,
+          "ported": false
+        },
+        {
+          "name": "lspo_altar",
+          "line": 4283,
+          "endLine": 4349,
+          "ported": false
+        },
+        {
+          "name": "get_table_traptype_opt",
+          "line": 4350,
+          "endLine": 4366,
+          "ported": false
+        },
+        {
+          "name": "get_trapname_bytype",
+          "line": 4367,
+          "endLine": 4378,
+          "ported": false
+        },
+        {
+          "name": "get_traptype_byname",
+          "line": 4379,
+          "endLine": 4396,
+          "ported": true
+        },
+        {
+          "name": "lspo_trap",
+          "line": 4397,
+          "endLine": 4479,
+          "ported": false
+        },
+        {
+          "name": "lspo_gold",
+          "line": 4480,
+          "endLine": 4528,
+          "ported": false
+        },
+        {
+          "name": "lspo_corridor",
+          "line": 4529,
+          "endLine": 4557,
+          "ported": false
+        },
+        {
+          "name": "lspo_random_corridors",
+          "line": 4558,
+          "endLine": 4577,
+          "ported": false
+        },
+        {
+          "name": "random_wdir",
+          "line": 4578,
+          "endLine": 4586,
+          "ported": false
+        },
+        {
+          "name": "floodfillchk_match_under",
+          "line": 4587,
+          "endLine": 4592,
+          "ported": false
+        },
+        {
+          "name": "set_floodfillchk_match_under",
+          "line": 4593,
+          "endLine": 4599,
+          "ported": false
+        },
+        {
+          "name": "floodfillchk_match_accessible",
+          "line": 4600,
+          "endLine": 4608,
+          "ported": false
+        },
+        {
+          "name": "sel_set_ter",
+          "line": 4609,
+          "endLine": 4632,
+          "ported": true
+        },
+        {
+          "name": "sel_set_feature",
+          "line": 4633,
+          "endLine": 4646,
+          "ported": false
+        },
+        {
+          "name": "sel_set_door",
+          "line": 4647,
+          "endLine": 4670,
+          "ported": false
+        },
+        {
+          "name": "lspo_door",
+          "line": 4671,
+          "endLine": 4738,
+          "ported": false
+        },
+        {
+          "name": "l_table_getset_feature_flag",
+          "line": 4739,
+          "endLine": 4771,
+          "ported": false
+        },
+        {
+          "name": "cvt_to_abscoord",
+          "line": 4772,
+          "endLine": 4792,
+          "ported": false
+        },
+        {
+          "name": "cvt_to_relcoord",
+          "line": 4793,
+          "endLine": 4810,
+          "ported": false
+        },
+        {
+          "name": "nhl_abs_coord",
+          "line": 4811,
+          "endLine": 4843,
+          "ported": false
+        },
+        {
+          "name": "lspo_feature",
+          "line": 4844,
+          "endLine": 4928,
+          "ported": false
+        },
+        {
+          "name": "lspo_gas_cloud",
+          "line": 4929,
+          "endLine": 4977,
+          "ported": false
+        },
+        {
+          "name": "lspo_terrain",
+          "line": 4978,
+          "endLine": 5050,
+          "ported": false
+        },
+        {
+          "name": "lspo_replace_terrain",
+          "line": 5051,
+          "endLine": 5145,
+          "ported": false
+        },
+        {
+          "name": "generate_way_out_method",
+          "line": 5146,
+          "endLine": 5216,
+          "ported": false
+        },
+        {
+          "name": "ensure_way_out",
+          "line": 5217,
+          "endLine": 5259,
+          "ported": false
+        },
+        {
+          "name": "get_table_intarray_entry",
+          "line": 5260,
+          "endLine": 5281,
+          "ported": false
+        },
+        {
+          "name": "get_table_region",
+          "line": 5282,
+          "endLine": 5318,
+          "ported": false
+        },
+        {
+          "name": "get_coord",
+          "line": 5319,
+          "endLine": 5370,
+          "ported": false
+        },
+        {
+          "name": "levregion_add",
+          "line": 5371,
+          "endLine": 5409,
+          "ported": false
+        },
+        {
+          "name": "l_get_lregion",
+          "line": 5410,
+          "endLine": 5442,
+          "ported": false
+        },
+        {
+          "name": "lspo_teleport_region",
+          "line": 5443,
+          "endLine": 5471,
+          "ported": false
+        },
+        {
+          "name": "lspo_levregion",
+          "line": 5472,
+          "endLine": 5497,
+          "ported": false
+        },
+        {
+          "name": "lspo_exclusion",
+          "line": 5498,
+          "endLine": 5534,
+          "ported": false
+        },
+        {
+          "name": "sel_set_lit",
+          "line": 5535,
+          "endLine": 5543,
+          "ported": false
+        },
+        {
+          "name": "add_doors_to_room",
+          "line": 5544,
+          "endLine": 5560,
+          "ported": true
+        },
+        {
+          "name": "get_table_coords_or_region",
+          "line": 5561,
+          "endLine": 5583,
+          "ported": false
+        },
+        {
+          "name": "lspo_region",
+          "line": 5584,
+          "endLine": 5719,
+          "ported": false
+        },
+        {
+          "name": "lspo_drawbridge",
+          "line": 5720,
+          "endLine": 5768,
+          "ported": false
+        },
+        {
+          "name": "lspo_mazewalk",
+          "line": 5769,
+          "endLine": 5875,
+          "ported": false
+        },
+        {
+          "name": "lspo_wall_property",
+          "line": 5876,
+          "endLine": 5910,
+          "ported": false
+        },
+        {
+          "name": "set_wallprop_in_selection",
+          "line": 5911,
+          "endLine": 5936,
+          "ported": false
+        },
+        {
+          "name": "lspo_non_diggable",
+          "line": 5937,
+          "endLine": 5945,
+          "ported": false
+        },
+        {
+          "name": "lspo_non_passwall",
+          "line": 5946,
+          "endLine": 5954,
+          "ported": false
+        },
+        {
+          "name": "sel_set_wallify",
+          "line": 5955,
+          "endLine": 5964,
+          "ported": false
+        },
+        {
+          "name": "lspo_wallify",
+          "line": 5965,
+          "endLine": 5992,
+          "ported": false
+        },
+        {
+          "name": "lspo_reset_level",
+          "line": 5993,
+          "endLine": 6013,
+          "ported": false
+        },
+        {
+          "name": "lspo_finalize_level",
+          "line": 6014,
+          "endLine": 6074,
+          "ported": false
+        },
+        {
+          "name": "lspo_map",
+          "line": 6075,
+          "endLine": 6323,
+          "ported": true
+        },
+        {
+          "name": "update_croom",
+          "line": 6324,
+          "endLine": 6335,
+          "ported": true
+        },
+        {
+          "name": "sp_level_coder_init",
+          "line": 6336,
+          "endLine": 6434,
+          "ported": true
+        },
+        {
+          "name": "l_register_des",
+          "line": 6435,
+          "endLine": 6443,
+          "ported": true
+        },
+        {
+          "name": "create_des_coder",
+          "line": 6444,
+          "endLine": 6453,
+          "ported": true
+        },
+        {
+          "name": "load_special",
+          "line": 6454,
+          "endLine": 6505,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 206,
+        "to": 6505
+      },
+      "startFunction": "load_special"
     }
   ]
 }
