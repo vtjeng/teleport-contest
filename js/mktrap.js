@@ -436,7 +436,7 @@ function mk_trap_statue(x, y, env) {
         0,
         0,
         MM_NOCOUNTBIRTH | MM_NOMSG,
-        env,
+        { ...env, _statueInventoryCreation: true },
     );
     if (!monster) return;
 

@@ -7,6 +7,7 @@ import {
     BEAR_TRAP,
     DART_TRAP,
     FOUNTAIN,
+    G_EXTINCT,
     HATCH_EGG,
     MAGIC_TRAP,
     MKTRAP_MAZEFLAG,
@@ -29,6 +30,7 @@ import { light_globals_init } from '../js/light.js';
 import { mktrap } from '../js/mktrap.js';
 import {
     PM_ARCHEOLOGIST,
+    PM_ARCHON,
     PM_BLACK_UNICORN,
     PM_DWARF,
     PM_ELF,
@@ -512,6 +514,46 @@ test('statue traps transfer a temporary monster inventory before detaching it', 
     assert.equal(temporary.mstate & MON_DETACH, MON_DETACH);
     assert.equal(state.level.monsters[temporary.mx][temporary.my], null);
     assert.equal(state.iflags.purge_monsters, 1);
+});
+
+test('statue traps admit their full adjusted monster reservoir', () => {
+    const state = generationState();
+    // mkobj.c rndmonnum_adj() falls back to any common monster when every
+    // level-appropriate species is extinct. Archon is outside makemon()'s
+    // ordinary D:1 allowlist, but trap.c mk_trap_statue() must still create
+    // the explicit temporary monster selected by that fallback.
+    for (const vital of state.mvitals) vital.mvflags = G_EXTINCT;
+    state.mvitals[PM_ARCHON].mvflags = 0;
+    const random = {
+        d: (number, sides) => number * sides,
+        rn1(bound, base) {
+            if (bound === SPECIAL_PM - LOW_PM && base === LOW_PM)
+                return PM_ARCHON;
+            return base;
+        },
+        rn2: (bound) => bound === 21 ? 5 : 0,
+        rnd: () => 1,
+        rne: () => 1,
+        rnz: (value) => value,
+    };
+
+    const trap = mktrap(
+        STATUE_TRAP,
+        MKTRAP_MAZEFLAG,
+        null,
+        { x: 10, y: 5 },
+        { state, random, hooks: objectGenerationHooks() },
+    );
+
+    assert.equal(trap.ttyp, STATUE_TRAP);
+    const statue = floorPile(state, 10, 5).find(
+        (obj) => obj.otyp === STATUE,
+    );
+    assert.equal(statue.corpsenm, PM_ARCHON);
+    assert.ok(statue.cobj, 'the temporary Archon contributes equipment');
+    assert.equal(state.mvitals[PM_ARCHON].born, 0);
+    assert.equal(state.level.monlist.mhp, 0);
+    assert.equal(state.level.monlist.mstate & MON_DETACH, MON_DETACH);
 });
 
 test('living statues retry only co-aligned true unicorns and accept attempt ten', () => {

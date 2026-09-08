@@ -6,10 +6,13 @@ import {
     CORPSTAT_HISTORIC,
     CORPSTAT_MALE,
     DRY,
+    MM_NOCOUNTBIRTH,
+    MM_NOMSG,
     NON_PM,
     ONAME,
     ONAME_NO_FLAGS,
     SP_COORD_IS_RANDOM,
+    STONE_RES,
     W_SADDLE,
 } from './const.js';
 import { artifact_exists } from './artifacts.js';
@@ -21,10 +24,13 @@ import { game } from './gstate.js';
 import {
     add_to_container,
     delete_contents,
+    obj_extract_self,
     obfree,
     stackobj,
 } from './invent.js';
-import { rndmonnum } from './makemon.js';
+import { makemon, mongone } from './makemon_create.js';
+import { propagate, rndmonnum } from './makemon.js';
+import { monster_resists_element, poly_when_stoned } from './mondata.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     mkgold,
@@ -560,6 +566,57 @@ function pushContainer(obj, context, env) {
     }
 }
 
+// C ref: sp_lev.c create_object() (2352-2390). Random Medusa-level statues
+// are petrified monsters: create each candidate with its normal inventory,
+// reject candidates that would survive petrification, then move the accepted
+// monster's inventory into the statue before discarding the temporary body.
+function populateMedusaStatue(obj, specification, env) {
+    const { state } = env;
+    if (specification.id !== STATUE
+        || !on_level(state.u?.uz, state.medusa_level)
+        || specification.corpsenm !== NON_PM) {
+        return obj;
+    }
+
+    let monster = null;
+    let speciesIndex = obj.corpsenm;
+    for (let attempts = 0; attempts < 1000; ++attempts) {
+        monster = makemon(
+            state.mons[speciesIndex],
+            0,
+            0,
+            MM_NOCOUNTBIRTH | MM_NOMSG,
+            { ...env, _statueInventoryCreation: true },
+        );
+        if (monster) {
+            const survivesPetrification = monster_resists_element(
+                monster,
+                STONE_RES,
+                state,
+            ) || poly_when_stoned(state.mons[speciesIndex], state);
+            if (!survivesPetrification) {
+                propagate(speciesIndex, true, false, env);
+                break;
+            }
+            mongone(monster, env);
+            monster = null;
+        }
+        speciesIndex = rndmonnum(env);
+    }
+
+    if (!monster) return obj;
+    set_corpsenm(obj, speciesIndex, env);
+    while (monster.minvent) {
+        const carried = monster.minvent;
+        carried.owornmask = 0;
+        obj_extract_self(carried, env);
+        add_to_container(obj, carried, env);
+    }
+    obj.owt = weight(obj, env);
+    mongone(monster, env);
+    return obj;
+}
+
 function finalizeTopLevelObject(obj, specification, context, env) {
     stackobj(obj, env);
     if (specification.lit) begin_burn(obj, false, env);
@@ -595,6 +652,8 @@ function createOneObject(specification, croom, env) {
     }
     if (specification.container && obj)
         pushContainer(obj, context, env);
+
+    obj = populateMedusaStatue(obj, specification, env);
 
     if (specification.achievement) {
         initializeAchievementObject(obj, env);

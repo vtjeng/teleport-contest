@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    LOW_PM,
+    G_EXTINCT,
+    MON_DETACH,
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_DELETED,
@@ -44,10 +47,13 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import {
+    PM_ACID_BLOB,
     PM_ARCHEOLOGIST,
+    PM_HOBGOBLIN,
     PM_OGRE,
     PM_TROLL,
     PM_WARHORSE,
+    SPECIAL_PM,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
@@ -413,6 +419,46 @@ test('generic Medusa statues are created on the Medusa level', () => {
     // construction.
     assert.ok(obj, 'statue object should be created');
     assert.equal(obj.otyp, STATUE);
+});
+
+test('Medusa statues reject stone-resistant donors and keep accepted inventory', () => {
+    const { room, state } = roomState();
+    state.medusa_level = { ...state.u.uz };
+    for (const vital of state.mvitals) vital.mvflags = G_EXTINCT;
+    state.mvitals[PM_ACID_BLOB].mvflags = 0;
+    state.mvitals[PM_HOBGOBLIN].mvflags = 0;
+    const fallbackSpecies = [PM_ACID_BLOB, PM_HOBGOBLIN];
+    const random = quietGenerationRandom();
+    random.rn1 = (bound, base) => {
+        if (bound === SPECIAL_PM - LOW_PM && base === LOW_PM) {
+            assert.ok(fallbackSpecies.length, 'unexpected third fallback');
+            return fallbackSpecies.shift();
+        }
+        return base;
+    };
+
+    const statue = lspo_object({
+        id: STATUE,
+        coordinate: { x: 0, y: 0 },
+    }, room, { state, random });
+
+    assert.deepEqual(fallbackSpecies, []);
+    assert.equal(statue.corpsenm, PM_HOBGOBLIN);
+    assert.ok(statue.cobj, 'the accepted hobgoblin contributes equipment');
+    assert.equal(state.mvitals[PM_ACID_BLOB].born, 0);
+    assert.equal(state.mvitals[PM_HOBGOBLIN].born, 1);
+    assert.equal(state.iflags.purge_monsters, 2);
+    for (let monster = state.level.monlist; monster; monster = monster.nmon) {
+        assert.equal(monster.mhp, 0);
+        assert.equal(monster.mstate & MON_DETACH, MON_DETACH);
+        assert.equal(monster.minvent, null);
+    }
+    for (let obj = statue.cobj; obj; obj = obj.nobj) {
+        assert.equal(obj.where, OBJ_CONTAINED);
+        assert.equal(obj.ocontainer, statue);
+        assert.equal(obj.owornmask, 0);
+    }
+    assert.equal(statue.owt, weight(statue, { state }));
 });
 
 test('a Medusa statue under a dead parent is uncreated before special handling', () => {

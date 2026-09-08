@@ -1386,6 +1386,15 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && ptr?.pmidx === PM_SHOPKEEPER
         && !randomCoordinates
         && mmflags === MM_ESHK;
+    // trap.c mk_trap_statue() and sp_lev.c create_object() explicitly create
+    // temporary inventory donors at random locations. Their rndmonnum_adj()
+    // reservoirs can extend beyond the ordinary main-dungeon mklev allowlist;
+    // the shared caller marker admits only that exact source call shape.
+    const statueInventoryCall = state.in_mklev
+        && normalized._statueInventoryCreation === true
+        && Boolean(ptr)
+        && randomCoordinates
+        && mmflags === (MM_NOCOUNTBIRTH | MM_NOMSG);
     if ((mmflags & MM_ESHK) && !shopkeeperCall) {
         throw new UnsupportedMonsterCreationError(
             'shopkeeper extension outside shkinit',
@@ -1454,6 +1463,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         // rndmonst selections (the _rndmonMklev flag, set in the rndmonst
         // loop).  Outside mklev the allowlist always applies.
         if (!revivalCall
+            && !statueInventoryCall
             && (!state.in_mklev
                 || (isMainDungeonLevel(state)
                     && !normalized._rndmonMklev))) {
