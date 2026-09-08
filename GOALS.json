@@ -14643,8 +14643,8 @@
       "spans": [
         {
           "name": "check_ransacked..mv_bubble",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c01b9291774a1f0ae6b749956e7ab2e29052e221",
           "functions": [
             "check_ransacked",
             "migrate_orc",
@@ -14782,43 +14782,43 @@
           "name": "check_ransacked",
           "line": 707,
           "endLine": 716,
-          "ported": false
+          "ported": true
         },
         {
           "name": "migrate_orc",
           "line": 717,
           "endLine": 747,
-          "ported": false
+          "ported": true
         },
         {
           "name": "shiny_orc_stuff",
           "line": 748,
           "endLine": 779,
-          "ported": false
+          "ported": true
         },
         {
           "name": "migr_booty_item",
           "line": 780,
           "endLine": 798,
-          "ported": false
+          "ported": true
         },
         {
           "name": "stolen_booty",
           "line": 799,
           "endLine": 893,
-          "ported": false
+          "ported": true
         },
         {
           "name": "maze_inbounds",
           "line": 894,
           "endLine": 903,
-          "ported": false
+          "ported": true
         },
         {
           "name": "maze_remove_deadends",
           "line": 904,
           "endLine": 949,
-          "ported": false
+          "ported": true
         },
         {
           "name": "create_maze",
@@ -14836,7 +14836,7 @@
           "name": "populate_maze",
           "line": 1097,
           "endLine": 1126,
-          "ported": false
+          "ported": true
         },
         {
           "name": "makemaz",
@@ -14860,7 +14860,7 @@
           "name": "mazexy",
           "line": 1316,
           "endLine": 1352,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_level_extends",
@@ -14878,7 +14878,7 @@
           "name": "mkportal",
           "line": 1464,
           "endLine": 1483,
-          "ported": false
+          "ported": true
         },
         {
           "name": "fumaroles",
@@ -14896,25 +14896,25 @@
           "name": "water_friction",
           "line": 1689,
           "endLine": 1722,
-          "ported": false
+          "ported": true
         },
         {
           "name": "save_waterlevel",
           "line": 1723,
           "endLine": 1749,
-          "ported": false
+          "ported": true
         },
         {
           "name": "restore_waterlevel",
           "line": 1750,
           "endLine": 1801,
-          "ported": false
+          "ported": true
         },
         {
           "name": "set_wportal",
           "line": 1802,
           "endLine": 1811,
-          "ported": false
+          "ported": true
         },
         {
           "name": "setup_waterlevel",
@@ -14926,25 +14926,25 @@
           "name": "unsetup_waterlevel",
           "line": 1860,
           "endLine": 1872,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mk_bubble",
           "line": 1873,
           "endLine": 1928,
-          "ported": false
+          "ported": true
         },
         {
           "name": "maybe_adjust_hero_bubble",
           "line": 1929,
           "endLine": 1951,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mv_bubble",
           "line": 1952,
           "endLine": 2111,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
