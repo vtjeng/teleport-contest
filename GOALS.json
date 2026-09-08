@@ -14274,8 +14274,8 @@
       "spans": [
         {
           "name": "dosounds..nosound_play_usersound",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "9c006f208f225a747f505e92ddc8141518b5371d",
           "functions": [
             "dosounds",
             "whimper",
@@ -14319,19 +14319,19 @@
           "name": "throne_mon_sound",
           "line": 30,
           "endLine": 61,
-          "ported": false
+          "ported": true
         },
         {
           "name": "beehive_mon_sound",
           "line": 62,
           "endLine": 88,
-          "ported": false
+          "ported": true
         },
         {
           "name": "morgue_mon_sound",
           "line": 89,
           "endLine": 114,
-          "ported": false
+          "ported": true
         },
         {
           "name": "zoo_mon_sound",
@@ -14343,19 +14343,19 @@
           "name": "temple_priest_sound",
           "line": 131,
           "endLine": 180,
-          "ported": false
+          "ported": true
         },
         {
           "name": "oracle_sound",
           "line": 181,
           "endLine": 201,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dosounds",
           "line": 202,
           "endLine": 350,
-          "ported": false
+          "ported": true
         },
         {
           "name": "growl_sound",
@@ -14379,31 +14379,31 @@
           "name": "whimper",
           "line": 479,
           "endLine": 518,
-          "ported": false
+          "ported": true
         },
         {
           "name": "beg",
           "line": 519,
           "endLine": 545,
-          "ported": false
+          "ported": true
         },
         {
           "name": "maybe_gasp",
           "line": 546,
           "endLine": 616,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cry_sound",
           "line": 617,
           "endLine": 658,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mon_is_gecko",
           "line": 659,
           "endLine": 678,
-          "ported": false
+          "ported": true
         },
         {
           "name": "domonnoise",
@@ -14427,43 +14427,43 @@
           "name": "responsive_mon_at",
           "line": 1413,
           "endLine": 1426,
-          "ported": false
+          "ported": true
         },
         {
           "name": "tiphat",
           "line": 1427,
           "endLine": 1555,
-          "ported": false
+          "ported": true
         },
         {
           "name": "add_sound_mapping",
           "line": 1556,
           "endLine": 1628,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sound_matches_message",
           "line": 1629,
           "endLine": 1641,
-          "ported": false
+          "ported": true
         },
         {
           "name": "play_sound_for_message",
           "line": 1642,
           "endLine": 1658,
-          "ported": false
+          "ported": true
         },
         {
           "name": "maybe_play_sound",
           "line": 1659,
           "endLine": 1675,
-          "ported": false
+          "ported": true
         },
         {
           "name": "release_sound_mappings",
           "line": 1676,
           "endLine": 1778,
-          "ported": false
+          "ported": true
         },
         {
           "name": "activate_chosen_soundlib",
@@ -14481,7 +14481,7 @@
           "name": "choose_soundlib",
           "line": 1809,
           "endLine": 1863,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_soundlib_name",
@@ -14499,37 +14499,37 @@
           "name": "nosound_init_nhsound",
           "line": 1917,
           "endLine": 1921,
-          "ported": false
+          "ported": true
         },
         {
           "name": "nosound_exit_nhsound",
           "line": 1922,
           "endLine": 1926,
-          "ported": false
+          "ported": true
         },
         {
           "name": "nosound_achievement",
           "line": 1927,
           "endLine": 1931,
-          "ported": false
+          "ported": true
         },
         {
           "name": "nosound_soundeffect",
           "line": 1932,
           "endLine": 1936,
-          "ported": false
+          "ported": true
         },
         {
           "name": "nosound_hero_playnotes",
           "line": 1937,
           "endLine": 1941,
-          "ported": false
+          "ported": true
         },
         {
           "name": "nosound_play_usersound",
           "line": 1942,
           "endLine": 1946,
-          "ported": false
+          "ported": true
         },
         {
           "name": "nosound_ambience",
