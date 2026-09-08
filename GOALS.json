@@ -15732,7 +15732,7 @@
     {
       "id": "div-mhitu-hitmsg-0383",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Resolve hallucinated monster touch message in seed0383",
       "cFile": "mhitu.c",
       "sessions": [],
@@ -15753,8 +15753,11 @@
         "screens": 5275,
         "rng": 371643
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "62fbc53383e7ef7e0b113ba6b5d2b3f249e0daa0",
+      "delivered": {
+        "screens": 8,
+        "rng": 0
+      },
       "function": "hitmsg",
       "session": "seed0383-wizard-hallucinate",
       "step": 179
