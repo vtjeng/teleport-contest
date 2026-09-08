@@ -15830,6 +15830,27 @@
       "function": "moveloop_core",
       "session": "seed0383-wizard-hallucinate",
       "step": 195
+    },
+    {
+      "id": "div-display-see-monsters-0383",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Align hallucination display RNG after monster pickup",
+      "cFile": "display.c",
+      "sessions": [],
+      "detail": "Development session seed0383-wizard-hallucinate, segment 0, input step 198 (key k). First mismatch is a screen with core RNG still aligned: the C top line says \"Barney the dinosaur picks up a sprig of wolfsbane.\" while JS says \"The stone giant picks up a sprig of wolfsbane.\"; the hallucinated map also differs at the visible monster/object cells. Upstream preconditions are Hallucination active, a visible monster taking an object in mon.c mpickstuff(), whose Monnam() consumes display RNG, followed by allmain.c moveloop_core() Hallucination redraws: display.c see_monsters() loops fmon and newsym() resolves what_mon() through rn2_on_display_rng. Suspected JavaScript owners are mon.js mpickstuff(), do_name.js monsterCommonName()/rndmonnam(), display.js see_monsters()/newsym()/monster_glyph_info(), and allmain.js moveloop_core(); trace their display-RNG ordering against the C branch before changing behavior.",
+      "spans": [],
+      "openedAt": "f9051b3f2b1c6a6449ce32094548b54abaec3284",
+      "openStanding": {
+        "sha": "71c44579",
+        "screens": 5294,
+        "rng": 376945
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "see_monsters",
+      "session": "seed0383-wizard-hallucinate",
+      "step": 198
     }
   ]
 }
