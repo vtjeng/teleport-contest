@@ -15770,7 +15770,19 @@
       "cFile": "hack.c",
       "sessions": [],
       "detail": "Development session seed0383-wizard-hallucinate, segment 0, input step 187 (key n). This is a stop, not an RNG mismatch: the JavaScript admission seam throws 'unsupported hero move: test_move() door or special terrain movement' before emitting the C frame. C hack.c test_move() (991-1255) has no pool/lava rejection and returns TRUE for the known pool destination; hack.c domove_core() (2712-2980) then calls swim_move_danger() at 2852, whose known-liquid branch prints 'You avoid stepping into the pool of purified water.' and spends the turn. JavaScript js/hack.js preflightDomoveDestination() calls requireSimpleHeroDestination(), whose ordinaryDestination gate rejects POOL before domove() reaches swim_move_danger(). Suspected owner is that admission boundary around js/hack.js requireSimpleHeroDestination()/preflightDomoveDestination(), with test_move() as the upstream movement contract. The preceding step 186 matches; fresh replay reproduces the stop with 187 matching screens in the full development score.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "hack-test-move-liquid-0383",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "test_move",
+            "preflightDomoveDestination",
+            "requireSimpleHeroDestination",
+            "swim_move_danger"
+          ]
+        }
+      ],
       "openedAt": "d189066a13e828fa26298cfa9abc5cad28a60cbd",
       "openStanding": {
         "sha": "62fbc53383e7ef7e0b113ba6b5d2b3f249e0daa0",
