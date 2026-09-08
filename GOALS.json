@@ -14967,6 +14967,605 @@
         "to": 2111
       },
       "startFunction": "fixup_special"
+    },
+    {
+      "id": "hack-c-in-town",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port hack.c in_town and remaining movement behavior",
+      "cFile": "hack.c",
+      "sessions": [
+        "seed0360-wizard-world-tour",
+        "seed0367-priest-quest-tour",
+        "seed0030-ten-diverse-deaths"
+      ],
+      "detail": "The current seed0360 set_mimic_sym() mismatch is source-traced to hack.c in_town() lines 3562-3585: C excludes Minetown from makemon.c set_mimic_sym() maze-statue selection when In_mines() and in_town() are true. JavaScript has no source-owned js/hack.js in_town() implementation. Start at in_town() and port every remaining hack.c function in C order; this also covers the town movement boundary seen in seed0367 and the later hack.c movement session.",
+      "spans": [],
+      "openedAt": "6f857b121ca408b866f5a6a7e8be08afe07fe72c",
+      "openStanding": {
+        "sha": "00f3638ed48ae5ec5d8822996bb7e7ed8119711c",
+        "screens": 5187,
+        "rng": 350635
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "uint_to_any",
+          "line": 73,
+          "endLine": 80,
+          "ported": false
+        },
+        {
+          "name": "long_to_any",
+          "line": 81,
+          "endLine": 88,
+          "ported": false
+        },
+        {
+          "name": "monst_to_any",
+          "line": 89,
+          "endLine": 96,
+          "ported": false
+        },
+        {
+          "name": "obj_to_any",
+          "line": 97,
+          "endLine": 104,
+          "ported": false
+        },
+        {
+          "name": "revive_nasty",
+          "line": 105,
+          "endLine": 144,
+          "ported": false
+        },
+        {
+          "name": "could_move_onto_boulder",
+          "line": 145,
+          "endLine": 165,
+          "ported": true
+        },
+        {
+          "name": "dopush",
+          "line": 166,
+          "endLine": 246,
+          "ported": true
+        },
+        {
+          "name": "cannot_push_msg",
+          "line": 247,
+          "endLine": 261,
+          "ported": true
+        },
+        {
+          "name": "cannot_push",
+          "line": 262,
+          "endLine": 314,
+          "ported": true
+        },
+        {
+          "name": "rock_disappear_msg",
+          "line": 315,
+          "endLine": 326,
+          "ported": false
+        },
+        {
+          "name": "moverock_done",
+          "line": 327,
+          "endLine": 335,
+          "ported": true
+        },
+        {
+          "name": "moverock",
+          "line": 336,
+          "endLine": 347,
+          "ported": true
+        },
+        {
+          "name": "moverock_core",
+          "line": 348,
+          "endLine": 646,
+          "ported": true
+        },
+        {
+          "name": "still_chewing",
+          "line": 647,
+          "endLine": 824,
+          "ported": false
+        },
+        {
+          "name": "movobj",
+          "line": 825,
+          "endLine": 835,
+          "ported": true
+        },
+        {
+          "name": "dosinkfall",
+          "line": 836,
+          "endLine": 922,
+          "ported": false
+        },
+        {
+          "name": "may_dig",
+          "line": 923,
+          "endLine": 931,
+          "ported": true
+        },
+        {
+          "name": "may_passwall",
+          "line": 932,
+          "endLine": 938,
+          "ported": true
+        },
+        {
+          "name": "bad_rock",
+          "line": 939,
+          "endLine": 952,
+          "ported": true
+        },
+        {
+          "name": "cant_squeeze_thru",
+          "line": 953,
+          "endLine": 981,
+          "ported": true
+        },
+        {
+          "name": "invocation_pos",
+          "line": 982,
+          "endLine": 990,
+          "ported": true
+        },
+        {
+          "name": "test_move",
+          "line": 991,
+          "endLine": 1265,
+          "ported": true
+        },
+        {
+          "name": "findtravelpath",
+          "line": 1266,
+          "endLine": 1525,
+          "ported": true
+        },
+        {
+          "name": "is_valid_travelpt",
+          "line": 1526,
+          "endLine": 1549,
+          "ported": true
+        },
+        {
+          "name": "trapmove",
+          "line": 1550,
+          "endLine": 1693,
+          "ported": true
+        },
+        {
+          "name": "u_rooted",
+          "line": 1694,
+          "endLine": 1707,
+          "ported": true
+        },
+        {
+          "name": "notice_mon",
+          "line": 1708,
+          "endLine": 1734,
+          "ported": false
+        },
+        {
+          "name": "notice_mons_cmp",
+          "line": 1735,
+          "endLine": 1743,
+          "ported": false
+        },
+        {
+          "name": "notice_all_mons",
+          "line": 1744,
+          "endLine": 1786,
+          "ported": true
+        },
+        {
+          "name": "impact_disturbs_zombies",
+          "line": 1787,
+          "endLine": 1797,
+          "ported": true
+        },
+        {
+          "name": "disturb_buried_zombies",
+          "line": 1798,
+          "endLine": 1816,
+          "ported": true
+        },
+        {
+          "name": "u_locomotion",
+          "line": 1817,
+          "endLine": 1832,
+          "ported": true
+        },
+        {
+          "name": "u_simple_floortyp",
+          "line": 1833,
+          "endLine": 1851,
+          "ported": false
+        },
+        {
+          "name": "handle_tip",
+          "line": 1852,
+          "endLine": 1884,
+          "ported": true
+        },
+        {
+          "name": "swim_move_danger",
+          "line": 1885,
+          "endLine": 1924,
+          "ported": false
+        },
+        {
+          "name": "domove_bump_mon",
+          "line": 1925,
+          "endLine": 1954,
+          "ported": false
+        },
+        {
+          "name": "domove_attackmon_at",
+          "line": 1955,
+          "endLine": 1995,
+          "ported": false
+        },
+        {
+          "name": "domove_fight_ironbars",
+          "line": 1996,
+          "endLine": 2020,
+          "ported": true
+        },
+        {
+          "name": "domove_fight_web",
+          "line": 2021,
+          "endLine": 2097,
+          "ported": true
+        },
+        {
+          "name": "domove_swap_with_pet",
+          "line": 2098,
+          "endLine": 2228,
+          "ported": true
+        },
+        {
+          "name": "domove_fight_empty",
+          "line": 2229,
+          "endLine": 2341,
+          "ported": true
+        },
+        {
+          "name": "air_turbulence",
+          "line": 2342,
+          "endLine": 2364,
+          "ported": false
+        },
+        {
+          "name": "water_turbulence",
+          "line": 2365,
+          "endLine": 2395,
+          "ported": false
+        },
+        {
+          "name": "slippery_ice_fumbling",
+          "line": 2396,
+          "endLine": 2417,
+          "ported": false
+        },
+        {
+          "name": "u_maybe_impaired",
+          "line": 2418,
+          "endLine": 2424,
+          "ported": true
+        },
+        {
+          "name": "impaired_movement",
+          "line": 2425,
+          "endLine": 2443,
+          "ported": false
+        },
+        {
+          "name": "avoid_moving_on_trap",
+          "line": 2444,
+          "endLine": 2462,
+          "ported": true
+        },
+        {
+          "name": "avoid_moving_on_liquid",
+          "line": 2463,
+          "endLine": 2494,
+          "ported": true
+        },
+        {
+          "name": "avoid_running_into_trap_or_liquid",
+          "line": 2495,
+          "endLine": 2514,
+          "ported": false
+        },
+        {
+          "name": "avoid_trap_andor_region",
+          "line": 2515,
+          "endLine": 2585,
+          "ported": false
+        },
+        {
+          "name": "move_out_of_bounds",
+          "line": 2586,
+          "endLine": 2615,
+          "ported": true
+        },
+        {
+          "name": "carrying_too_much",
+          "line": 2616,
+          "endLine": 2638,
+          "ported": false
+        },
+        {
+          "name": "escape_from_sticky_mon",
+          "line": 2639,
+          "endLine": 2694,
+          "ported": false
+        },
+        {
+          "name": "domove",
+          "line": 2695,
+          "endLine": 2711,
+          "ported": true
+        },
+        {
+          "name": "domove_core",
+          "line": 2712,
+          "endLine": 2995,
+          "ported": true
+        },
+        {
+          "name": "runmode_delay_output",
+          "line": 2996,
+          "endLine": 3019,
+          "ported": true
+        },
+        {
+          "name": "maybe_smudge_engr",
+          "line": 3020,
+          "endLine": 3034,
+          "ported": true
+        },
+        {
+          "name": "overexert_hp",
+          "line": 3035,
+          "endLine": 3050,
+          "ported": true
+        },
+        {
+          "name": "overexertion",
+          "line": 3051,
+          "endLine": 3063,
+          "ported": true
+        },
+        {
+          "name": "invocation_message",
+          "line": 3064,
+          "endLine": 3089,
+          "ported": true
+        },
+        {
+          "name": "classify_terrain",
+          "line": 3090,
+          "endLine": 3177,
+          "ported": true
+        },
+        {
+          "name": "switch_terrain",
+          "line": 3178,
+          "endLine": 3220,
+          "ported": true
+        },
+        {
+          "name": "set_uinwater",
+          "line": 3221,
+          "endLine": 3232,
+          "ported": true
+        },
+        {
+          "name": "pooleffects",
+          "line": 3233,
+          "endLine": 3311,
+          "ported": false
+        },
+        {
+          "name": "spoteffects",
+          "line": 3312,
+          "endLine": 3465,
+          "ported": true
+        },
+        {
+          "name": "monstinroom",
+          "line": 3466,
+          "endLine": 3481,
+          "ported": false
+        },
+        {
+          "name": "furniture_present",
+          "line": 3482,
+          "endLine": 3497,
+          "ported": false
+        },
+        {
+          "name": "in_rooms",
+          "line": 3498,
+          "endLine": 3563,
+          "ported": true
+        },
+        {
+          "name": "in_town",
+          "line": 3564,
+          "endLine": 3587,
+          "ported": true
+        },
+        {
+          "name": "move_update",
+          "line": 3588,
+          "endLine": 3625,
+          "ported": true
+        },
+        {
+          "name": "check_special_room",
+          "line": 3626,
+          "endLine": 3787,
+          "ported": true
+        },
+        {
+          "name": "pickup_checks",
+          "line": 3788,
+          "endLine": 3875,
+          "ported": true
+        },
+        {
+          "name": "dopickup",
+          "line": 3876,
+          "endLine": 3897,
+          "ported": true
+        },
+        {
+          "name": "lookaround",
+          "line": 3898,
+          "endLine": 4062,
+          "ported": true
+        },
+        {
+          "name": "doorless_door",
+          "line": 4063,
+          "endLine": 4078,
+          "ported": true
+        },
+        {
+          "name": "crawl_destination",
+          "line": 4079,
+          "endLine": 4105,
+          "ported": true
+        },
+        {
+          "name": "monster_nearby",
+          "line": 4106,
+          "endLine": 4129,
+          "ported": false
+        },
+        {
+          "name": "end_running",
+          "line": 4130,
+          "endLine": 4160,
+          "ported": false
+        },
+        {
+          "name": "nomul",
+          "line": 4161,
+          "endLine": 4176,
+          "ported": true
+        },
+        {
+          "name": "unmul",
+          "line": 4177,
+          "endLine": 4210,
+          "ported": true
+        },
+        {
+          "name": "maybe_wail",
+          "line": 4211,
+          "endLine": 4246,
+          "ported": true
+        },
+        {
+          "name": "showdamage",
+          "line": 4247,
+          "endLine": 4255,
+          "ported": true
+        },
+        {
+          "name": "losehp",
+          "line": 4256,
+          "endLine": 4294,
+          "ported": true
+        },
+        {
+          "name": "weight_cap",
+          "line": 4295,
+          "endLine": 4350,
+          "ported": true
+        },
+        {
+          "name": "inv_weight",
+          "line": 4351,
+          "endLine": 4371,
+          "ported": true
+        },
+        {
+          "name": "calc_capacity",
+          "line": 4372,
+          "endLine": 4384,
+          "ported": true
+        },
+        {
+          "name": "near_capacity",
+          "line": 4385,
+          "endLine": 4390,
+          "ported": true
+        },
+        {
+          "name": "max_capacity",
+          "line": 4391,
+          "endLine": 4398,
+          "ported": false
+        },
+        {
+          "name": "check_capacity",
+          "line": 4399,
+          "endLine": 4420,
+          "ported": true
+        },
+        {
+          "name": "dump_weights",
+          "line": 4421,
+          "endLine": 4485,
+          "ported": false
+        },
+        {
+          "name": "cmp_weights",
+          "line": 4486,
+          "endLine": 4495,
+          "ported": false
+        },
+        {
+          "name": "inv_cnt",
+          "line": 4496,
+          "endLine": 4513,
+          "ported": true
+        },
+        {
+          "name": "money_cnt",
+          "line": 4514,
+          "endLine": 4524,
+          "ported": true
+        },
+        {
+          "name": "spot_checks",
+          "line": 4525,
+          "endLine": 4550,
+          "ported": false
+        },
+        {
+          "name": "rounddiv",
+          "line": 4551,
+          "endLine": 4576,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 73,
+        "to": 4576
+      },
+      "startFunction": "in_town"
     }
   ]
 }
