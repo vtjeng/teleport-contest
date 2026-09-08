@@ -14206,8 +14206,8 @@
       "spans": [
         {
           "name": "option_help-config-path",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4ae32875be858d404031a0a1f53eaf709245ea28",
           "functions": [
             "option_help"
           ]
