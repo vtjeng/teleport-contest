@@ -13133,6 +13133,34 @@
         "to": 2287
       },
       "startFunction": "newman"
+    },
+    {
+      "id": "div-seed0367-rndmonst-adj",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Fix seed0367 rng divergence at rndmonst_adj() in makemon.c step 243",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "rndmonst-adj-divergence",
+          "status": "queued",
+          "closedBy": null,
+          "functions": []
+        }
+      ],
+      "openedAt": "25917e4d5bd9c08de8b5b39d13094dcabe95d9fb",
+      "openStanding": {
+        "sha": "71cbadc8",
+        "screens": 5180,
+        "rng": 344957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "rndmonst_adj",
+      "session": "seed0367-priest-quest-tour",
+      "step": 243
     }
   ]
 }
