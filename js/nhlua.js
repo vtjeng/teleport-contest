@@ -42,6 +42,12 @@ export function luaL_checkinteger(value) {
     return value;
 }
 
+// C ref: lua_tointeger(). An integer as itself; anything without an integer
+// representation reads as 0, where luaL_checkinteger() would error.
+export function lua_tointeger(value) {
+    return Number.isInteger(value) ? value : 0;
+}
+
 // C ref: luaL_checkstring(). A string, or a number converted to one.
 export function luaL_checkstring(value) {
     if (typeof value === 'string') return value;
@@ -93,6 +99,11 @@ export function get_table_boolean(table, name) {
 export function get_table_boolean_opt(table, name, defval) {
     if (table[name] == null) return defval;
     return get_table_boolean(table, name);
+}
+
+// C ref: nhlua.c get_table_int(). A required integer field.
+export function get_table_int(table, name) {
+    return luaL_checkinteger(table[name]);
 }
 
 // C ref: nhlua.c get_table_int_opt().

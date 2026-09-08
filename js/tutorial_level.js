@@ -2,13 +2,6 @@
 // C/Lua ref: dat/tut-1.lua. Descriptor order is PRNG-significant.
 
 import {
-    MAGIC_PORTAL,
-    SLP_GAS_TRAP,
-    SQKY_BOARD,
-    TRAPDOOR,
-    WEB,
-} from './const.js';
-import {
     PM_KNIGHT,
     PM_LICHEN,
     PM_MONK,
@@ -191,7 +184,7 @@ export function loadTutorialLevel(des, state) {
         text: 'You can leave the tutorial via the magic portal.',
         degrade: false,
     });
-    des.trap({ type: MAGIC_PORTAL, coord: [4, 4], seen: true });
+    des.trap({ type: 'magic portal', coord: [4, 4], seen: true });
 
     des.engraving({
         coord: [5, 9], type: 'engrave',
@@ -238,7 +231,7 @@ export function loadTutorialLevel(des, state) {
     des.shuffle(locations);
     for (let index = 0; index < 4; ++index) {
         des.trap({
-            type: percent(50) ? SLP_GAS_TRAP : SQKY_BOARD,
+            type: percent(50) ? 'sleep gas' : 'board',
             coord: locations[index],
             victim: false,
         });
@@ -249,7 +242,7 @@ export function loadTutorialLevel(des, state) {
         degrade: false,
     });
     des.trap({
-        coord: [15, 16], type: WEB, spider_on_web: false,
+        coord: [15, 16], type: 'web', spider_on_web: false,
     });
 
     des.door({ coord: [18, 13], state: 'closed' });
@@ -290,7 +283,7 @@ export function loadTutorialLevel(des, state) {
         coord: [26, 16], type: 'engrave',
         text: 'Step into this portal to leave the tutorial', degrade: false,
     });
-    des.trap({ type: MAGIC_PORTAL, coord: [27, 16], seen: true });
+    des.trap({ type: 'magic portal', coord: [27, 16], seen: true });
 
     des.engraving({
         coord: [25, 13], type: 'engrave',
@@ -321,7 +314,7 @@ export function loadTutorialLevel(des, state) {
         text: 'Another magic portal, a way to leave this tutorial',
         degrade: false,
     });
-    des.trap({ type: MAGIC_PORTAL, coord: [19, 11], seen: true });
+    des.trap({ type: 'magic portal', coord: [19, 11], seen: true });
 
     des.object({
         coord: [14, 5], id: ROCK, quantity: des.random.rn1(50, 50),
@@ -364,7 +357,7 @@ export function loadTutorialLevel(des, state) {
         coord: [25, 5], type: 'engrave',
         text: `Throw items with '${tutKey('throw')}'`, degrade: false,
     });
-    des.trap({ type: MAGIC_PORTAL, coord: [21, 1], seen: true });
+    des.trap({ type: 'magic portal', coord: [21, 1], seen: true });
 
     des.monster({
         id: PM_WOLF, coord: [29, 2], peaceful: false, waiting: true,
@@ -430,7 +423,7 @@ export function loadTutorialLevel(des, state) {
         text: `Travel across the level with '${tutKey('travel')}'`,
         degrade: false,
     });
-    des.trap({ type: MAGIC_PORTAL, coord: [27, 14], seen: true });
+    des.trap({ type: 'magic portal', coord: [27, 14], seen: true });
 
     des.engraving({
         coord: [48, 1], type: 'burn',
@@ -480,7 +473,7 @@ export function loadTutorialLevel(des, state) {
         coord: [65, 3], type: 'burn',
         text: 'UNDER CONSTRUCTION', degrade: false,
     });
-    des.trap({ type: MAGIC_PORTAL, coord: [66, 2], seen: true });
+    des.trap({ type: 'magic portal', coord: [66, 2], seen: true });
 
     des.engraving({
         coord: [69, 12], type: 'burn',
@@ -490,7 +483,7 @@ export function loadTutorialLevel(des, state) {
     des.object({ id: BOULDER, coord: [71, 16] });
     des.object({ id: BOULDER, coord: [72, 16] });
     des.object({ id: BOULDER, coord: [73, 16] });
-    des.trap({ type: TRAPDOOR, coord: [73, 15] });
+    des.trap({ type: 'trap door', coord: [73, 15] });
 
     des.engraving({
         coord: [60, 2], type: 'engrave',

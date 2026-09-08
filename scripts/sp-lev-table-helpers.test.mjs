@@ -37,6 +37,7 @@ import {
     get_table_xy_or_coord,
     lspo_level_flags,
     lspo_message,
+    nhl_get_xy_params,
 } from '../js/mklev.js';
 import {
     PM_GNOME,
@@ -48,11 +49,13 @@ import { monst_globals_init } from '../js/monsters.js';
 import {
     get_table_boolean,
     get_table_boolean_opt,
+    get_table_int,
     get_table_int_opt,
     get_table_option,
     get_table_str,
     get_table_str_opt,
     lcheck_param_table,
+    lua_tointeger,
 } from '../js/nhlua.js';
 import {
     BOULDER,
@@ -385,4 +388,29 @@ test('sp_lev.c lspo_message joins lines into gl.lev_message', () => {
     lspo_message([3], { state });
     assert.equal(state.gl.lev_message, 'first\nsecond\n3');
     assert.throws(() => lspo_message([], { state }), /Wrong parameters/u);
+});
+
+test('nhlua.c get_table_int, lua_tointeger, and nhl_get_xy_params read integers', () => {
+    // get_table_int() is luaL_checkinteger() on a required field.
+    assert.equal(get_table_int({ srcroom: 2 }, 'srcroom'), 2);
+    assert.throws(() => get_table_int({}, 'srcroom'), /integer/u);
+    // lua_tointeger() answers 0 for anything without an integer value.
+    assert.equal(lua_tointeger(7), 7);
+    assert.equal(lua_tointeger(7.5), 0);
+    assert.equal(lua_tointeger(undefined), 0);
+
+    // nhl_get_xy_params(): two integers, or one coordinate table, set both
+    // outputs and answer TRUE; anything else answers FALSE and leaves them.
+    const c = { x: -1, y: -1 };
+    assert.equal(nhl_get_xy_params([4, 7], c), true);
+    assert.deepEqual(c, { x: 4, y: 7 });
+    assert.equal(nhl_get_xy_params([[5, 6]], c), true);
+    assert.deepEqual(c, { x: 5, y: 6 });
+    assert.equal(nhl_get_xy_params([{ x: 8, y: 9 }], c), true);
+    assert.deepEqual(c, { x: 8, y: 9 });
+    assert.equal(nhl_get_xy_params([], c), false);
+    assert.deepEqual(c, { x: 8, y: 9 });
+    // A lone string is neither form: stair("up") leaves x and y at -1.
+    assert.equal(nhl_get_xy_params(['up'], c), false);
+    assert.deepEqual(c, { x: 8, y: 9 });
 });

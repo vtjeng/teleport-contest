@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import test from 'node:test';
 
-import { SLP_GAS_TRAP, SQKY_BOARD } from '../js/const.js';
 import { nh_basename, read_sym_file } from '../js/files.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -381,7 +380,7 @@ test('tutorial descriptor retains the complete source call sequence', () => {
     });
     assert.equal(
         descriptorDigest(log),
-        'da03ef0433ec233c05a6d5f0f58c71bc6dded08e2765b24c9ec4331beb276883',
+        '0363c1a9b51de61cea2260ea97bc37de4569763402b0e34f77ad5bc8e5bbcaeb',
     );
 });
 
@@ -396,7 +395,7 @@ test('tutorial descriptor covers role, energy, percentage, and contents branches
     assert.deepEqual(
         base.filter(([name]) => name === 'trap').slice(1, 5)
             .map(([, specification]) => specification.type),
-        [SLP_GAS_TRAP, SQKY_BOARD, SLP_GAS_TRAP, SQKY_BOARD],
+        ['sleep gas', 'board', 'sleep gas', 'board'],
     );
     assert.deepEqual(
         doors.find(({ coord }) => coord[0] === 20 && coord[1] === 3),
@@ -530,14 +529,11 @@ test('numpad mode restoration preserves duplicate meta-digit backups', () => {
     assert.equal(tutorialCommandKey('close', model), '#close');
 });
 
-// js/mklev.js createSpecialLevelApi() refuses a level_init style outside
-// solidfill, a level_flags name outside its five, and a door state outside
-// SPECIAL_DOOR_STATES plus random -- each a value sp_lev.c accepts. Those
-// three arms are unreachable only while this loader, the one des-file the port
-// ships, stays inside them, and js/mklev.js splev_chr2typ()'s default arm only
-// while every map character it writes is in char2typ[]. Reading the whole
+// Pins the level_init styles, level_flags names, and door states the loader
+// supplies, and checks that js/mklev.js splev_chr2typ() answers every map
+// character it writes without reaching its default arm. Reading the whole
 // level under both outcomes of each percent(50) and every role and energy
-// branch settles all four, and fails here the moment a level file needs more.
+// branch covers all of the loader's arms.
 test('the tutorial supplies only special-level values the port accepts', () => {
     const styles = new Set();
     const levelFlags = new Set();
@@ -576,7 +572,8 @@ test('the tutorial supplies only special-level values the port accepts', () => {
     assert.deepEqual([...levelFlags].sort(), [
         'mazelevel', 'noautosearch', 'nodeathdrops', 'noflip', 'nomongen',
     ]);
-    // `broken` is the one SPECIAL_DOOR_STATES key the tutorial never asks for.
+    // Of lspo_door()'s seven states, the tutorial never asks for `broken` or
+    // `secret`.
     assert.deepEqual([...doorStates].sort(), [
         'closed', 'locked', 'nodoor', 'open', 'random',
     ]);

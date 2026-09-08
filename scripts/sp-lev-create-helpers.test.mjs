@@ -1,36 +1,51 @@
 // Source-pinned tests for the pure sp_lev.c helpers that the sp-lev-c-create
-// span ported: the mapfragment record, the encoded-direction and seen-vector
-// bit swaps, the packed-coordinate reader, the door search, and the tables
-// a Lua contents callback receives. Every expected value is read from the C
-// function the test names.
+// spans ported: the mapfragment record, the encoded-direction and seen-vector
+// bit swaps, the packed-coordinate reader, the door search, the tables a Lua
+// contents callback receives, the trap-name table, the flood-fill checks, and
+// the relative-to-absolute coordinate conversions. Every expected value is
+// read from the C function the test names.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ARROW_TRAP,
     COLNO,
+    CORR,
     COURT,
     DOOR,
     DRY,
+    HOLE,
     HWALL,
     MAX_TYPE,
+    NO_TRAP,
     ROOM,
+    SCORR,
     SDOOR,
     SP_COORD_PACK,
     SP_COORD_PACK_RANDOM,
     STONE,
     TEMPLE,
+    TRAPDOOR,
+    VIBRATING_SQUARE,
     VWALL,
     WET,
     W_EAST,
     W_NORTH,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
-import { resetGame } from '../js/gstate.js';
+import { game, resetGame } from '../js/gstate.js';
 import { swapbits } from '../js/hacklib.js';
 import {
+    cvt_to_abscoord,
+    cvt_to_relcoord,
     flip_encoded_dir_bits,
+    floodfillchk_match_accessible,
+    floodfillchk_match_under,
     get_mkroom_name,
+    get_table_traptype_opt,
+    get_trapname_bytype,
+    get_traptype_byname,
     l_push_mkroom_table,
     l_push_wid_hei_table,
     mapfrag_canmatch,
@@ -38,7 +53,9 @@ import {
     mapfrag_fromstr,
     mapfrag_get,
     mapfrag_match,
+    nhl_abs_coord,
     search_door,
+    set_floodfillchk_match_under,
     sp_code_jmpaddr,
 } from '../js/mklev.js';
 import { get_unpacked_coord } from '../js/room_coordinates.js';
@@ -196,4 +213,88 @@ test('sp_lev.c l_push_wid_hei_table() and l_push_mkroom_table() describe a map a
     // room_types[] names COURT "throne"; an unlisted type is "unknown".
     assert.equal(get_mkroom_name(COURT), 'throne');
     assert.equal(get_mkroom_name(COLNO + 1000), 'unknown');
+});
+
+test('sp_lev.c trap_types[] readers map Lua trap names to trap types', () => {
+    // The first and last trap entries of trap_types[], and its "random"
+    // entry, whose type is -1.
+    assert.equal(get_traptype_byname('arrow'), ARROW_TRAP);
+    assert.equal(get_traptype_byname('vibrating square'), VIBRATING_SQUARE);
+    assert.equal(get_traptype_byname('random'), -1);
+    // strcmpi(): the comparison ignores case.
+    assert.equal(get_traptype_byname('Trap Door'), TRAPDOOR);
+    // A name past the terminator is NO_TRAP, which lspo_trap() rejects.
+    assert.equal(get_traptype_byname('pitfall'), NO_TRAP);
+
+    // get_table_traptype_opt(): an absent, empty, or unknown field keeps
+    // the default, which lspo_trap() passes as -1 (a random trap).
+    assert.equal(get_table_traptype_opt({}, 'type', -1), -1);
+    assert.equal(get_table_traptype_opt({ type: '' }, 'type', -1), -1);
+    assert.equal(get_table_traptype_opt({ type: 'pitfall' }, 'type', -1), -1);
+    assert.equal(get_table_traptype_opt({ type: 'hole' }, 'type', -1), HOLE);
+
+    // get_trapname_bytype(): the table's name, "random" for -1, and NULL
+    // for NO_TRAP, which only the terminator carries.
+    assert.equal(get_trapname_bytype(HOLE), 'hole');
+    assert.equal(get_trapname_bytype(-1), 'random');
+    assert.equal(get_trapname_bytype(NO_TRAP), null);
+});
+
+test('sp_lev.c flood-fill checks match the stored terrain or an accessible square', () => {
+    const state = levelState();
+    state.level.at(3, 3).typ = ROOM;
+    state.level.at(4, 3).typ = CORR;
+    state.level.at(5, 3).typ = SDOOR;
+    state.level.at(6, 3).typ = SCORR;
+    state.level.at(7, 3).typ = HWALL;
+    // (8, 3) stays STONE.
+
+    // floodfillchk_match_accessible(): ACCESSIBLE() (DOOR and above) plus
+    // the two secret types below it; walls and stone fail.
+    assert.equal(floodfillchk_match_accessible(3, 3, state), true);
+    assert.equal(floodfillchk_match_accessible(4, 3, state), true);
+    assert.equal(floodfillchk_match_accessible(5, 3, state), true);
+    assert.equal(floodfillchk_match_accessible(6, 3, state), true);
+    assert.equal(floodfillchk_match_accessible(7, 3, state), false);
+    assert.equal(floodfillchk_match_accessible(8, 3, state), false);
+
+    // set_floodfillchk_match_under() stores the type that
+    // floodfillchk_match_under() compares each square against.
+    set_floodfillchk_match_under(CORR);
+    assert.equal(floodfillchk_match_under(4, 3, state), true);
+    assert.equal(floodfillchk_match_under(3, 3, state), false);
+    set_floodfillchk_match_under(STONE);
+    assert.equal(floodfillchk_match_under(8, 3, state), true);
+    assert.equal(floodfillchk_match_under(4, 3, state), false);
+    // The installer it calls, selvar.c set_selection_floodfillchk(), is a
+    // recorded gap.
+    assert.ok(game.unported.has('selvar.c set_selection_floodfillchk'));
+});
+
+test('sp_lev.c cvt_to_abscoord(), cvt_to_relcoord(), and nhl_abs_coord() offset by the room or the map frame', () => {
+    // Inside a room whose corner is (10, 4), the room is the origin and the
+    // map frame is ignored.
+    const inRoom = {
+        coder: { croom: { lx: 10, ly: 4 } },
+        frame: { xstart: 3, ystart: 2 },
+    };
+    let c = { x: 2, y: 1 };
+    cvt_to_abscoord(c, inRoom);
+    assert.deepEqual(c, { x: 12, y: 5 });
+    cvt_to_relcoord(c, inRoom);
+    assert.deepEqual(c, { x: 2, y: 1 });
+
+    // Outside a room, xstart/ystart apply; unlike get_location(), negative
+    // input is offset rather than treated as random.
+    const onMap = { coder: { croom: null }, frame: { xstart: 3, ystart: 2 } };
+    c = { x: -1, y: -2 };
+    cvt_to_abscoord(c, onMap);
+    assert.deepEqual(c, { x: 2, y: 0 });
+    cvt_to_relcoord(c, onMap);
+    assert.deepEqual(c, { x: -1, y: -2 });
+
+    // nh.abscoord(x, y) answers two integers; nh.abscoord({x, y}) a table.
+    assert.deepEqual(nhl_abs_coord([2, 1], inRoom), [12, 5]);
+    assert.deepEqual(nhl_abs_coord([{ x: 2, y: 1 }], onMap), { x: 5, y: 3 });
+    assert.throws(() => nhl_abs_coord(['x'], onMap), /Wrong args/u);
 });

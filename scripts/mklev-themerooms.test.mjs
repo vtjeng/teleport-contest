@@ -1097,8 +1097,9 @@ test('nested room failure preserves ancestor finalization and short-circuits sib
         definition: { id: 'nested-failure-test' },
         random: random.random.rn2,
         randomOneBased: random.random.rnd,
-        roomFailed: false,
     };
+    // C: makerooms() clears gt.themeroom_failed before each generate call.
+    game.themeroom_failed = false;
     let skippedContents = false;
 
     const ancestor = run_room_descriptor(
@@ -1119,7 +1120,7 @@ test('nested room failure preserves ancestor finalization and short-circuits sib
                 created,
                 context,
             ), null);
-            assert.equal(context.roomFailed, true);
+            assert.equal(game.themeroom_failed, true);
             assert.equal(run_room_descriptor(
                 { type: 'unsupported' },
                 created,
@@ -1130,7 +1131,7 @@ test('nested room failure preserves ancestor finalization and short-circuits sib
     );
 
     random.assertExhausted();
-    assert.equal(context.roomFailed, true);
+    assert.equal(game.themeroom_failed, true);
     assert.equal(skippedContents, false);
     assert.equal(ancestor, game.subrooms[0]);
     const door = { x: ancestor.lx + 1, y: ancestor.ly - 1 };
