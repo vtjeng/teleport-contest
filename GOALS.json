@@ -15661,7 +15661,7 @@
     {
       "id": "div-makemon-0367",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Resolve seed0367 makemon() divergence on the Medusa level",
       "cFile": "makemon.c",
       "sessions": [
@@ -15684,8 +15684,11 @@
         "screens": 5234,
         "rng": 360197
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4a95c27d6c9b23c164abf7166cb91c7549e4df59",
+      "delivered": {
+        "screens": 41,
+        "rng": 11446
+      },
       "function": "makemon",
       "session": "seed0367-priest-quest-tour",
       "step": 243
