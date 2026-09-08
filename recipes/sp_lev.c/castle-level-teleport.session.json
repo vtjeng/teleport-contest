@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4471,
+      "datetime": "20120229083000",
+      "nethackrc": "OPTIONS=name:Portcullis,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Wizard-mode level teleport (^V, ? for the level menu, first page's castle entry) to the Castle. Its Lua runs des.drawbridge in the table form with dir east and state closed through lspo_drawbridge and dbridge.c create_drawbridge, and des.mazewalk in the positional (x, y, dir) form through lspo_mazewalk, once west and once east, each stocked through fill_empty_maze. It also runs des.non_diggable with a selection through set_wallprop_in_selection. The seed was chosen without a search: every seed reaches the Castle from the menu.",
+      "moves": " \u0016?\nj"
+    }
+  ]
+}
