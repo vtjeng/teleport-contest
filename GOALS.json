@@ -15834,7 +15834,7 @@
     {
       "id": "div-display-see-monsters-0383",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Align hallucination display RNG after monster pickup",
       "cFile": "display.c",
       "sessions": [],
@@ -15855,8 +15855,11 @@
         "screens": 5294,
         "rng": 376945
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "60fcc9dbd3ae2bd645f0b5945ae20d631ddccc5e",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      },
       "function": "see_monsters",
       "session": "seed0383-wizard-hallucinate",
       "step": 198
