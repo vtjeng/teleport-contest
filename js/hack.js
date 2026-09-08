@@ -19,6 +19,8 @@ import {
     DB_UNDER,
     DIED,
     DISINT_RES,
+    DISMOUNT_FELL,
+    DISMOUNT_GENERIC,
     DOOR,
     DO_MOVE,
     DRAWBRIDGE_UP,
@@ -73,6 +75,7 @@ import {
     LEFT_SIDE,
     LEVITATION,
     MAX_CARR_CAP,
+    MAGICAL_BREATHING,
     MAX_TYPE,
     MELT_ICE_AWAY,
     M_AP_FURNITURE,
@@ -87,11 +90,13 @@ import {
     PARANOID_SWIM,
     PARANOID_TRAP,
     PICK_NONE,
+    PLNMSG_BACK_ON_GROUND,
     POISON_RES,
     POOL,
     RIGHT_SIDE,
     ROWNO,
     ROOM,
+    ROOMOFFSET,
     RUN_CRAWL,
     RUN_LEAP,
     RUN_TPORT,
@@ -138,6 +143,7 @@ import {
     WT_WEIGHTCAP_STRCON,
     WT_TOOMUCH_DIAGONAL,
     WT_WOUNDEDLEG_REDUCT,
+    WWALKING,
     ZOMBIFY_MON,
     OVERLOADED,
     PROT_FROM_SHAPE_CHANGERS,
@@ -222,6 +228,9 @@ import {
     nohands,
     noncorporeal,
     grounded,
+    amphibious,
+    breathless,
+    is_swimmer,
     metallivorous,
     monster_resists_element,
     passes_walls,
@@ -352,6 +361,9 @@ import {
     is_lava,
     is_pool,
     is_pool_or_lava,
+    back_on_ground,
+    drown,
+    lava_effects,
     reset_utrap,
     t_at,
     trapname,
@@ -4824,6 +4836,101 @@ export function set_uinwater(in_out, state = game) {
     }
 }
 
+// C ref: hack.c pooleffects() (3233-3311). This is the shared liquid
+// transition owner for spoteffects() and for a hero who spends a turn without
+// moving. It returns true only when dismounting, drowning, or burning moves
+// the hero and the caller must skip the rest of its square effects.
+export async function pooleffects(newspot, state = game) {
+    const { u } = state;
+    const levitating = propertyActiveUnblocked(state, LEVITATION);
+    const flying = heroIsFlying(state);
+    const waterWalking = propertyActiveUnblocked(state, WWALKING);
+    const swimming = propertyActiveUnblocked(state, SWIMMING)
+        || Boolean(u.usteed && is_swimmer(u.usteed.data));
+    const breathlessHero = propertyActiveUnblocked(
+        state,
+        MAGICAL_BREATHING,
+    ) || breathless(state.youmonst?.data);
+    const amphibiousHero = breathlessHero || amphibious(state.youmonst?.data);
+
+    if (u.uinwater) {
+        let stillInWater = false;
+        if (!is_pool(u.ux, u.uy, state)) {
+            if (Is_waterlevel(u.uz)) {
+                await ttyPline('You pop into an air bubble.', state);
+                state.iflags.last_msg = PLNMSG_BACK_ON_GROUND;
+            } else if (is_lava(u.ux, u.uy, state)) {
+                await ttyPline(
+                    `You leave the ${hliquid('water', { state })}...`,
+                    state,
+                );
+            } else {
+                await back_on_ground(false, state);
+            }
+        } else if (Is_waterlevel(u.uz)) {
+            stillInWater = true;
+        } else if (levitating) {
+            await ttyPline(
+                `You pop out of the ${hliquid('water', { state })} like a cork!`,
+                state,
+            );
+        } else if (flying) {
+            await ttyPline(
+                `You fly out of the ${hliquid('water', { state })}.`,
+                state,
+            );
+        } else if (waterWalking) {
+            await ttyPline('You slowly rise above the surface.', state);
+        } else {
+            stillInWater = true;
+        }
+        if (!stillInWater) {
+            const wasUnderwater = Boolean(
+                u.uinwater && !Is_waterlevel(u.uz),
+            );
+            set_uinwater(false, state);
+            if (wasUnderwater) {
+                await docrt({ state });
+                state.vision_full_recalc = 1;
+            }
+        }
+    }
+
+    if (!u.ustuck && !levitating && !flying
+        && is_pool_or_lava(u.ux, u.uy, state)) {
+        if (u.usteed && !grounded(u.usteed.data, state)) {
+            return false;
+        }
+        if (u.usteed) {
+            const { dismount_steed } = await import('./steed.js');
+            await dismount_steed(
+                u.uinwater ? DISMOUNT_FELL : DISMOUNT_GENERIC,
+                state,
+            );
+            if (Is_airlevel(u.uz) || Is_waterlevel(u.uz)) return false;
+            if (newspot) await check_special_room(false, state);
+            return true;
+        }
+        if (Upolyd(u) && ceiling_hider(state.mons?.[u.umonnum])
+            && u.uundetected) {
+            return false;
+        }
+        if (is_lava(u.ux, u.uy, state)) {
+            if (await lava_effects(state)) return true;
+        } else {
+            const isWaterWall = IS_WATERWALL(
+                state.level?.at(u.ux, u.uy)?.typ,
+            );
+            if ((!waterWalking || isWaterWall)
+                && (newspot || !u.uinwater
+                    || !(swimming || amphibiousHero || breathlessHero))) {
+                if (await drown(state)) return true;
+            }
+        }
+    }
+    return false;
+}
+
 // C ref: hack.c spoteffects():3345-3347, the terrain test that guards
 // switch_terrain(). teleport.c teleds():551-552 has a test of its own with the
 // same call, so this one is written where spoteffects() has it rather than
@@ -4858,6 +4965,7 @@ export async function spoteffects(pick, state = game) {
     // FAILEDUNTRAP never reaches dotrap() -- but the read belongs here, where
     // C makes it, rather than being written out as the constant 0.
     const trapflag = state.iflags?.failing_untrap ? FAILEDUNTRAP : 0;
+    if (await pooleffects(true, state)) return;
     if (terrain_changed_under_hero(state)) switch_terrain(state);
     await check_special_room(false, state);
     // C ref: hack.c:3353-3354, spoteffects()'s only IS_FURNITURE arm. Nothing
@@ -4890,6 +4998,39 @@ export async function spoteffects(pick, state = game) {
         if (trap) await dotrap(trap, trapflag, state);
         if (pick && pit) await pickup(1, state);
     }
+}
+
+// C ref: hack.c monstinroom() (3466-3481). Monster species objects model C's
+// `struct permonst *`, so identity comparison preserves the source test.
+export function monstinroom(mdat, roomno, state = game) {
+    for (let mtmp = state.level?.monlist ?? null;
+        mtmp;
+        mtmp = mtmp.nmon) {
+        if ((mtmp.mhp ?? 0) < 1) continue;
+        if (mtmp.data === mdat
+            && in_rooms(mtmp.mx, mtmp.my, 0, state).includes(
+                roomno + ROOMOFFSET,
+            )) {
+            return mtmp;
+        }
+    }
+    return null;
+}
+
+// C ref: hack.c furniture_present() (3482-3497). The inclusive bounds and
+// inside_room() test both matter for edge furniture and irregular rooms.
+export function furniture_present(furniture, roomno, state = game) {
+    const sroom = state.level?.rooms?.[roomno];
+    if (!sroom) return false;
+    for (let y = sroom.ly; y <= sroom.hy; ++y) {
+        for (let x = sroom.lx; x <= sroom.hx; ++x) {
+            if (state.level.at(x, y)?.typ === furniture
+                && inside_room(sroom, x, y, state)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 // C ref: flag.h:233 notice_mon_off(). Suspends the accessibility monster

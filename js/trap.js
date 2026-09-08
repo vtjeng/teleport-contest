@@ -40,11 +40,15 @@ import {
     DB_MOAT,
     DB_UNDER,
     DISMOUNT_FELL,
+    DISMOUNT_GENERIC,
+    DROWNING,
+    BURNING,
     DOOR,
     DRAWBRIDGE_UP,
     ECMD_OK,
     ECMD_TIME,
     FAILEDUNTRAP,
+    FAINTED,
     FIRE_RES,
     FIRE_TRAP,
     FINGER,
@@ -69,8 +73,10 @@ import {
     IS_POOL,
     IS_ROOM,
     IS_WALL,
+    IS_WATERWALL,
     In_sokoban,
     Is_airlevel,
+    KILLED_BY,
     KILLED_BY_AN,
     Is_waterlevel,
     LADDER,
@@ -78,6 +84,8 @@ import {
     LAVAWALL,
     LEVEL_TELEP,
     LEVITATION,
+    M_SEEN_FIRE,
+    MAGICAL_BREATHING,
     M_SEEN_ELEC,
     MAGIC_PORTAL,
     MAGIC_TRAP,
@@ -90,6 +98,7 @@ import {
     N_DIRS,
     PASSES_WALLS,
     PIT,
+    PLNMSG_BACK_ON_GROUND,
     POLY_TRAP,
     P_BASIC,
     P_RIDING,
@@ -102,6 +111,7 @@ import {
     SHOCK_RES,
     SHOPBASE,
     SLEEP_RES,
+    SLT_ENCUMBER,
     SLP_GAS_TRAP,
     SPIKED_PIT,
     SQKY_BOARD,
@@ -109,7 +119,12 @@ import {
     STATUE_TRAP,
     STONE,
     STUNNED,
+    SWIMMING,
+    TELEPORT,
+    TELEPORT_CONTROL,
     TELEP_TRAP,
+    TELEDS_ALLOW_DRAG,
+    TELEDS_TELEPORT,
     TEST_MOVE,
     TRAPDOOR,
     TRAPPED_CHEST,
@@ -126,9 +141,11 @@ import {
     TT_NONE,
     TT_PIT,
     TT_WEB,
+    UNENCUMBERED,
     VIBRATING_SQUARE,
     WATER,
     WEB,
+    WWALKING,
     WT_TOOMUCH_DIAGONAL,
     W_SADDLE,
     ZAP_POS,
@@ -146,7 +163,7 @@ import { unearth_objs } from './bury.js';
 import { getdir, xytodir } from './cmd.js';
 import {
     capitalizedMonsterName, monsterCommonName, mon_pmname,
-    noit_Monnam, y_monnam, rndcolor,
+    noit_Monnam, y_monnam, rndcolor, hliquid,
 } from './do_name.js';
 import { abuse_dog } from './dog.js';
 import {
@@ -163,8 +180,8 @@ import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import {
     near_capacity, calc_capacity, check_capacity, inv_weight, weight_cap,
-    test_move, spoteffects, bad_rock,
-    nomul, losehp, You_can_move_again,
+    test_move, spoteffects, bad_rock, crawl_destination, set_uinwater,
+    nomul, unmul, losehp, You_can_move_again,
     UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import { sgn, upstart } from './hacklib.js';
@@ -174,9 +191,10 @@ import { Is_box, stumble_on_door_mimic, ynq } from './lock.js';
 import { set_malign } from './makemon.js';
 import { killed, wake_nearby, wakeup } from './mon.js';
 import {
-    amorphous, attacktype, breathless, flaming, is_clinger, is_floater,
+    amorphous, amphibious, attacktype, breathless, can_teleport, flaming,
+    is_clinger, is_floater,
     is_flyer, is_whirly, nohands, resists_magm, unsolid, webmaker, sticks,
-    bigmonst, mindless, monster_resists_element,
+    bigmonst, is_swimmer, likes_lava, mindless, monster_resists_element,
     touch_petrifies, unique_corpstat, poly_when_stoned,
 } from './mondata.js';
 import { stagger, monstseesu, monstunseesu } from './mondata.js';
@@ -197,15 +215,16 @@ import {
     weight,
 } from './obj.js';
 import {
-    bare_artifactname, safe_qbuf, ansimpleoname, the, xnameFresh,
+    an, bare_artifactname, safe_qbuf, ansimpleoname, the, xnameFresh,
     donameFresh, Tobjnam,
 } from './objnam.js';
 import {
-    ARROW, BEARTRAP, BOULDER, CAN_OF_GREASE, DART, IRON, LAND_MINE,
+    ARROW, BEARTRAP, BOULDER, CAN_OF_GREASE, DART, IRON, LAND_MINE, LEASH,
     POTION_CLASS, POT_OIL, SCROLL_CLASS, SCR_FIRE, SPBOOK_CLASS, SPE_FIREBALL,
 } from './objects.js';
 import { check_here, encumber_msg } from './pickup.js';
 import { make_hallucinated } from './potion.js';
+import { waterbody_name } from './pager.js';
 import { float_vs_flight, body_part, polymon } from './polyself.js';
 import { create_gas_cloud } from './region.js';
 import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
@@ -217,7 +236,7 @@ import { trap_to_defsym } from './symbols.js';
 import { is_ice, set_levltyp } from './terrain.js';
 import { spot_stop_timers } from './timeout.js';
 import { dotrap, mintrap } from './trap_effects.js';
-import { ttyPline } from './tty_message.js';
+import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { stumble_onto_mimic } from './uhitm.js';
 import { note_unported } from './unported.js';
 import { unblock_point, vision_recalc, cansee, canseemon } from './vision.js';
@@ -788,6 +807,295 @@ export function Flying(state) {
     return Boolean((flying.intrinsic || flying.extrinsic
                     || (state.u.usteed && is_flyer(state.u.usteed.data)))
                    && !flying.blocked);
+}
+
+function activeHeroProperty(state, property) {
+    const value = state.u?.uprops?.[property] ?? {};
+    return Boolean((value.intrinsic || value.extrinsic) && !value.blocked);
+}
+
+function heroSwimming(state) {
+    return activeHeroProperty(state, SWIMMING)
+        || Boolean(state.u?.usteed && is_swimmer(state.u.usteed.data));
+}
+
+function heroBreathless(state) {
+    return activeHeroProperty(state, MAGICAL_BREATHING)
+        || breathless(state.youmonst?.data);
+}
+
+function heroAmphibious(state) {
+    return heroBreathless(state) || amphibious(state.youmonst?.data);
+}
+
+// C ref: trap.c back_on_ground() (4976-5011). ice_descr() has not been
+// ported; surface() already supplies "ice" for that square, which is the
+// ordinary ice_descr() result used by this message.
+export async function back_on_ground(rescued, state = game) {
+    const { u } = state;
+    let preposition = Levitation(state) || Flying(state) ? 'over' : 'on';
+    let surf = surface(u.ux, u.uy, state);
+    if (is_ice(u.ux, u.uy, state)) {
+        surf = 'ice';
+    } else if (/^(?:floor|ground)$/iu.test(surf)) {
+        surf = 'solid ground';
+    } else if (/^(?:bridge|altar|headstone)$/iu.test(surf)) {
+        surf = an(surf);
+    } else if (/^(?:stairs|lava|bottom)$/iu.test(surf)) {
+        surf = the(surf);
+    } else {
+        surf = surf.toLowerCase() === 'air' ? the(surf) : an(surf);
+        preposition = 'in';
+    }
+    const subject = rescued
+        ? 'You find yourself'
+        : state.flags?.verbose ? 'You are back' : 'Back';
+    await ttyPline(`${subject} ${preposition} ${surf}.`, state);
+    state.iflags.last_msg = PLNMSG_BACK_ON_GROUND;
+}
+
+function numberLeashed(state) {
+    let count = 0;
+    for (let obj = state.invent; obj; obj = obj.nobj) {
+        if (obj.otyp === LEASH && obj.leashmon) ++count;
+    }
+    return count;
+}
+
+function randomCrawlDestination(state) {
+    const directions = Array.from({ length: N_DIRS }, (_, index) => index);
+    for (let count = N_DIRS; count > 0; --count) {
+        const selected = rn2(count);
+        const swap = directions[selected];
+        directions[selected] = directions[count - 1];
+        directions[count - 1] = swap;
+    }
+    for (const direction of directions) {
+        const x = state.u.ux + xdir[direction];
+        const y = state.u.uy + ydir[direction];
+        if (crawl_destination(x, y, state)) return { x, y };
+    }
+    return null;
+}
+
+// C ref: trap.c drown() (5059-5200), the boolean dependency pooleffects()
+// consumes. Missing void-only item, leash, punishment, and underwater-display
+// owners are recorded as gaps; none supplies data to this control flow.
+export async function drown(state = game) {
+    const { u } = state;
+    const location = state.level?.at(u.ux, u.uy);
+    const solid = Boolean(location && IS_WATERWALL(location.typ));
+    const swimming = heroSwimming(state);
+    const breathlessHero = heroBreathless(state);
+    const amphibiousHero = heroAmphibious(state);
+    let inpoolOk = false;
+
+    note_unported('display.c feel_newsym');
+    if (u.uinwater && is_pool(u.ux - u.dx, u.uy - u.dy, state)
+        && (swimming || amphibiousHero || breathlessHero)) {
+        if (!rn2(5)) inpoolOk = true;
+        else return false;
+    }
+    if (!u.uinwater) {
+        await ttyPline(
+            `You ${solid ? 'plunge' : 'fall'} into the ${waterbody_name(
+                u.ux,
+                u.uy,
+                state,
+            )}${amphibiousHero || swimming || breathlessHero ? '.' : '!'}`,
+            state,
+        );
+        if (!swimming && !solid) {
+            const hallucinating = activeHeroProperty(state, HALLUC)
+                && !activeHeroProperty(state, HALLUC_RES);
+            await ttyPline(
+                `You sink like ${hallucinating ? 'the Titanic' : 'a rock'}.`,
+                state,
+            );
+        }
+    }
+    note_unported('trap.c water_damage_chain');
+    if (inpoolOk) return false;
+
+    const leashed = numberLeashed(state);
+    if (leashed > 0) {
+        await ttyPline(
+            `The leash${leashed > 1 ? 'es' : ''} slip${leashed > 1 ? '' : 's'} loose.`,
+            state,
+        );
+        note_unported('apply.c unleash_all');
+    }
+
+    if (amphibiousHero || breathlessHero || swimming) {
+        if (amphibiousHero || breathlessHero) {
+            if (state.flags?.verbose)
+                await ttyPline("But you aren't drowning.", state);
+            if (!Is_waterlevel(u.uz)) {
+                const hallucinating = activeHeroProperty(state, HALLUC)
+                    && !activeHeroProperty(state, HALLUC_RES);
+                await ttyPline(
+                    hallucinating
+                        ? 'Your keel hits the bottom.'
+                        : 'You touch bottom.',
+                    state,
+                );
+            }
+        }
+        if (Punished(state)) {
+            note_unported('ball.c unplacebc');
+            note_unported('ball.c placebc');
+        }
+        vision_recalc(2);
+        set_uinwater(true, state);
+        note_unported('vision.c under_water');
+        state.vision_full_recalc = 1;
+        return false;
+    }
+
+    const teleports = activeHeroProperty(state, TELEPORT)
+        || can_teleport(state.youmonst?.data);
+    const teleportControl = activeHeroProperty(state, TELEPORT_CONTROL);
+    if (teleports && !unconscious(state)
+        && (teleportControl || rn2(3) < (u.uluck ?? 0) + 2)) {
+        await ttyPline('You attempt a teleport spell.', state);
+        const { noteleport_level, tele } = await import('./teleport.js');
+        if (!noteleport_level(state.youmonst, state)) {
+            await tele(state);
+            if (!is_pool(u.ux, u.uy, state)) return true;
+        } else {
+            await ttyPline('The attempted teleport spell fails.', state);
+        }
+    }
+    if (u.usteed) {
+        await dismount_steed(DISMOUNT_GENERIC, state);
+        if (!is_pool(u.ux, u.uy, state)) return true;
+    }
+    if (u.usleep) await unmul('Suddenly you wake up!', state);
+    if (u.uhs === FAINTED) note_unported('eat.c reset_faint');
+
+    const destination = (state.multi ?? 0) >= 0
+        && state.youmonst?.data?.mmove
+        ? randomCrawlDestination(state)
+        : null;
+    if (destination) {
+        if (near_capacity(state) <= (Punished(state)
+            ? UNENCUMBERED
+            : SLT_ENCUMBER)) {
+            await ttyPline(
+                `You try to crawl out of the ${hliquid('water', { state })}.`,
+                state,
+            );
+            await ttyPline('Pheew!  That was close.', state);
+            const { teleds } = await import('./teleport.js');
+            await teleds(
+                destination.x,
+                destination.y,
+                TELEDS_ALLOW_DRAG,
+                state,
+            );
+            return true;
+        }
+        throw new Error('trap.c emergency_disrobe return value is not ported');
+    }
+
+    set_uinwater(true, state);
+    await ttyUrgentPline('You drown.', state);
+    for (let pass = 0; pass < 2; ++pass) {
+        const pool = waterbody_name(u.ux, u.uy, state);
+        state.killer ??= { name: '', format: KILLED_BY_AN };
+        state.killer.name = pool === 'water' ? 'deep water' : pool;
+        state.killer.format = pool === 'water' || pool === 'limitless water'
+            ? KILLED_BY
+            : KILLED_BY_AN;
+        await done(DROWNING, state);
+        const { safe_teleds } = await import('./teleport.js');
+        if (await safe_teleds(
+            TELEDS_ALLOW_DRAG | TELEDS_TELEPORT,
+            state,
+        )) break;
+        await ttyPline("You're still drowning.", state);
+    }
+    if (u.uinwater) set_uinwater(false, state);
+    await back_on_ground(true, state);
+    return true;
+}
+
+// C ref: trap.c lava_effects() (6794-6965), the second boolean dependency of
+// pooleffects(). The return is preserved for every survival and relocation
+// arm; missing void inventory destructors remain explicit gaps.
+export async function lava_effects(state = game) {
+    const { u } = state;
+    const damage = d(6, 6);
+    if (state.iflags?.in_lava_effects) return false;
+    note_unported('display.c feel_newsym');
+    note_unported('timeout.c burn_away_slime');
+    if (likes_lava(state.youmonst?.data)) return false;
+
+    const fireResistant = activeHeroProperty(state, FIRE_RES);
+    const waterWalking = activeHeroProperty(state, WWALKING);
+    let survives = fireResistant || (waterWalking && damage < u.uhp);
+    if (!survives) note_unported('trap.c lava inventory premark');
+    if (state.uarmf)
+        throw new Error('trap.c lava_effects Boots_off dependency is not ported');
+
+    if (!fireResistant) {
+        if (waterWalking) {
+            await ttyPline(
+                `The ${hliquid('lava', { state })} here burns you!`,
+                state,
+            );
+            if (survives) {
+                await losehp(damage, 'molten lava', KILLED_BY, state);
+            }
+        } else {
+            await ttyPline(
+                `You fall into the ${waterbody_name(u.ux, u.uy, state)}!`,
+                state,
+            );
+        }
+        if (!survives) {
+            state.iflags.in_lava_effects =
+                (state.iflags.in_lava_effects ?? 0) + 1;
+            note_unported('trap.c lava inventory destruction');
+            for (let pass = 0; pass < 2; ++pass) {
+                u.uhp = -1;
+                state.killer ??= { name: '', format: KILLED_BY };
+                state.killer.name = 'molten lava';
+                state.killer.format = KILLED_BY;
+                await ttyUrgentPline('You burn to a crisp...', state);
+                await done(BURNING, state);
+                const { safe_teleds } = await import('./teleport.js');
+                if (await safe_teleds(
+                    TELEDS_ALLOW_DRAG | TELEDS_TELEPORT,
+                    state,
+                )) break;
+                await ttyPline("You're still burning.", state);
+            }
+            state.iflags.in_lava_effects--;
+            await back_on_ground(true, state);
+            await spoteffects(false, state);
+            return true;
+        }
+    } else if (!waterWalking
+        && (!u.utrap || u.utraptype !== TT_LAVA)) {
+        set_utrap(rn1(4, 4) + (rn1(4, 12) << 8), TT_LAVA, state);
+        await ttyPline(
+            `You sink into the ${waterbody_name(u.ux, u.uy, state)}, but it only burns slightly!`,
+            state,
+        );
+        monstseesu(M_SEEN_FIRE, state);
+        if (u.uhp > 1) await losehp(1, 'molten lava', KILLED_BY, state);
+    }
+    await destroy_items(state.youmonst, AD_FIRE, damage, {
+        state,
+        random: { rn2, rn1, rnd, d },
+    });
+    const { ignite_items } = await import('./apply_catch_lit.js');
+    await ignite_items(state.invent, {
+        state,
+        random: { rn2, rn1, rnd, d },
+    });
+    return false;
 }
 
 // C ref: trap.c unconscious() (6775-6786). The larger half of youprop.h:399

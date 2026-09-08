@@ -10,6 +10,7 @@ import {
     M_AP_FURNITURE,
     PROT_FROM_SHAPE_CHANGERS,
     TELEPAT,
+    THRONE,
     CORR,
     DUST,
     FLYING,
@@ -22,6 +23,7 @@ import {
     MAX_TYPE,
     MELT_ICE_AWAY,
     ROOM,
+    ROOMOFFSET,
     ROT_CORPSE,
     ROWNO,
     RUN_CRAWL,
@@ -44,11 +46,13 @@ import {
     dump_weights,
     end_running,
     findtravelpath,
+    furniture_present,
     hero_tread_disturbs_buried_zombies,
     in_town,
     long_to_any,
     lookaround,
     maybe_smudge_engr,
+    monstinroom,
     nomul,
     notice_mons_cmp,
     monst_to_any,
@@ -66,7 +70,7 @@ import {
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
 import {
-    M1_FLY, PM_GRID_BUG, monst_globals_init,
+    M1_FLY, PM_GRID_BUG, PM_SOLDIER, monst_globals_init,
 } from '../js/monsters.js';
 import {
     CORPSE, DAGGER, objects_globals_init,
@@ -200,6 +204,55 @@ test('hero tread uses the source weight and grounded-property gates', () => {
         hero_tread_disturbs_buried_zombies(blockedStealth),
         true,
     );
+});
+
+test('monstinroom skips dead monsters and matches species by identity', () => {
+    const level = new GameMap();
+    const roomno = 2;
+    level.rooms[roomno] = {
+        lx: 10, ly: 5, hx: 14, hy: 9, rtype: 0,
+    };
+    level.at(12, 7).roomno = roomno + ROOMOFFSET;
+    const soldier = { pmidx: PM_SOLDIER };
+    const equalButDistinct = { pmidx: PM_SOLDIER };
+    const live = {
+        data: soldier, mhp: 5, mx: 12, my: 7, nmon: null,
+    };
+    const dead = {
+        data: soldier, mhp: 0, mx: 12, my: 7, nmon: live,
+    };
+    level.monlist = dead;
+    const state = { level };
+
+    assert.equal(monstinroom(soldier, roomno, state), live);
+    assert.equal(monstinroom(equalButDistinct, roomno, state), null);
+    level.at(12, 7).roomno = 0;
+    assert.equal(monstinroom(soldier, roomno, state), null);
+});
+
+test('furniture_present checks inclusive bounds and irregular interiors', () => {
+    const level = new GameMap();
+    const roomno = 1;
+    level.rooms[roomno] = {
+        lx: 10,
+        ly: 5,
+        hx: 14,
+        hy: 9,
+        irregular: true,
+        roomnoidx: roomno,
+    };
+    const state = { level };
+    const corner = level.at(14, 9);
+    corner.typ = THRONE;
+    corner.roomno = roomno + ROOMOFFSET;
+    corner.edge = false;
+
+    assert.equal(furniture_present(THRONE, roomno, state), true);
+    corner.edge = true;
+    assert.equal(furniture_present(THRONE, roomno, state), false);
+    corner.edge = false;
+    corner.typ = ROOM;
+    assert.equal(furniture_present(THRONE, roomno, state), false);
 });
 
 test('legal-move terrain switching classifies only at the source gate', () => {

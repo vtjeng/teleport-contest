@@ -92,6 +92,8 @@ import {
     PM_CHAMELEON,
     PM_KOBOLD_ZOMBIE,
     PM_LITTLE_DOG,
+    PM_ORACLE,
+    PM_SOLDIER,
     PM_TOURIST,
     PM_WIZARD,
     monst_globals_init,
@@ -519,7 +521,7 @@ test('check_special_room handles Court and stops on later room families',
     // `default` arm answers for the rest, so THEMEROOM and VAULT stay silent
     // beside them.
     for (const rt of [ZOO, SWAMP, LEPREHALL, MORGUE, BEEHIVE,
-        COCKNEST, ANTHOLE, BARRACKS, DELPHI]) {
+        COCKNEST, ANTHOLE]) {
         state.u.urooms = [0, 0, 0, 0, 0];
         state.u.urooms0 = [0, 0, 0, 0, 0];
         state.level.rooms[0].rtype = rt;
@@ -552,6 +554,56 @@ test('check_special_room handles Court and stops on later room families',
     state.level.at(14, 9).typ = THRONE;
     state.level.at(12, 7).roomno = 6;
     monst_globals_init(state);
+
+    const soldier = newMonster({
+        data: state.mons[PM_SOLDIER],
+        mnum: PM_SOLDIER,
+        mhp: 8,
+        mhpmax: 8,
+        mx: 12,
+        my: 7,
+    });
+    state.level.monlist = soldier;
+    state.level.rooms[3].rtype = BARRACKS;
+    state.level.flags.has_barracks = true;
+    state.u.urooms = [0, 0, 0, 0, 0];
+    state.u.urooms0 = [0, 0, 0, 0, 0];
+    const barracksMessages = [];
+    await check_special_room(false, state, {
+        message: async (line) => barracksMessages.push(line),
+    });
+    assert.deepEqual(barracksMessages, ['You enter a military barracks!']);
+    assert.equal(state.level.rooms[3].rtype, OROOM);
+    assert.equal(state.level.flags.has_barracks, false);
+
+    const oracle = newMonster({
+        data: state.mons[PM_ORACLE],
+        mnum: PM_ORACLE,
+        mhp: 12,
+        mhpmax: 12,
+        mpeaceful: true,
+        mx: 12,
+        my: 7,
+    });
+    state.level.monlist = oracle;
+    state.level.rooms[3].rtype = DELPHI;
+    state.u.urooms = [0, 0, 0, 0, 0];
+    state.u.urooms0 = [0, 0, 0, 0, 0];
+    state.plname = 'Alice';
+    const delphiMessages = [];
+    await check_special_room(false, state, {
+        message: async (line) => delphiMessages.push(line),
+    });
+    assert.deepEqual(
+        delphiMessages,
+        ['"Hello, Alice, welcome to Delphi!"'],
+    );
+    assert.equal(state.level.rooms[3].rtype, OROOM);
+
+    state.level.rooms[3].rtype = COURT;
+    state.level.flags.has_court = true;
+    state.u.urooms = [0, 0, 0, 0, 0];
+    state.u.urooms0 = [0, 0, 0, 0, 0];
     const sleeper = newMonster({
         data: state.mons[PM_KOBOLD_ZOMBIE],
         mnum: PM_KOBOLD_ZOMBIE,

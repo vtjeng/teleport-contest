@@ -4,7 +4,12 @@
 import { game } from './gstate.js';
 // js/hack.js imports this file; both sides use the other's exports only inside
 // function bodies, so the cycle resolves.
-import { in_town, UnsupportedHeroMoveBoundaryError } from './hack.js';
+import {
+    furniture_present,
+    in_town,
+    monstinroom,
+    UnsupportedHeroMoveBoundaryError,
+} from './hack.js';
 import {
     ACH_TOWN,
     ANTHOLE,
@@ -29,11 +34,20 @@ import {
     THRONE,
     ZOO,
 } from './const.js';
+import {
+    PM_CAPTAIN,
+    PM_LIEUTENANT,
+    PM_ORACLE,
+    PM_SERGEANT,
+    PM_SOLDIER,
+} from './monsters.js';
 import { record_achievement } from './insight.js';
 import { wake_msg } from './mon.js';
 import { room_discovered } from './dungeon.js';
 import { rn2 } from './rng.js';
+import { Hello } from './role_init.js';
 import { u_entered_shop, u_left_shop } from './shk.js';
+import { set_voice } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 
 const ROOM_STRING_SIZE = 5;
@@ -237,15 +251,7 @@ export async function check_special_room(
         // fall through this loop rather than being listed as exceptions.
         if (rt === COURT) {
             const room = state.level.rooms[roomIndex];
-            let hasThrone = false;
-            for (let x = room.lx; x <= room.hx && !hasThrone; ++x) {
-                for (let y = room.ly; y <= room.hy; ++y) {
-                    if (state.level.at(x, y)?.typ === THRONE) {
-                        hasThrone = true;
-                        break;
-                    }
-                }
-            }
+            const hasThrone = furniture_present(THRONE, roomIndex, state);
             await message(
                 `You enter an opulent${hasThrone ? ' throne' : ''} room!`,
                 state,
@@ -285,6 +291,49 @@ export async function check_special_room(
             }
             continue;
         }
+        if (rt === BARRACKS) {
+            const occupied = [
+                PM_SOLDIER,
+                PM_SERGEANT,
+                PM_LIEUTENANT,
+                PM_CAPTAIN,
+            ].some((mnum) => monstinroom(
+                state.mons?.[mnum],
+                roomIndex,
+                state,
+            ));
+            await message(
+                occupied
+                    ? 'You enter a military barracks!'
+                    : 'You enter an abandoned barracks.',
+                state,
+            );
+            room_discovered(roomIndex, state);
+            state.level.rooms[roomIndex].rtype = OROOM;
+            if (!state.level.rooms.some(
+                (candidate) => candidate?.rtype === BARRACKS,
+            )) state.level.flags.has_barracks = false;
+            continue;
+        }
+        if (rt === DELPHI) {
+            const oracle = monstinroom(
+                state.mons?.[PM_ORACLE],
+                roomIndex,
+                state,
+            );
+            if (oracle) {
+                set_voice(oracle, 0, 80, 0, state);
+                await message(
+                    oracle.mpeaceful
+                        ? `"${Hello(state)}, ${state.plname}, welcome to Delphi!"`
+                        : `"You're in Delphi, ${state.plname}."`,
+                    state,
+                );
+                room_discovered(roomIndex, state);
+            }
+            state.level.rooms[roomIndex].rtype = OROOM;
+            continue;
+        }
         if (rt === TEMPLE) {
             // C: intemple(roomno + ROOMOFFSET) then FALLTHRU to default
             // where msg_given = TRUE and rt = 0. The room stays TEMPLE.
@@ -295,7 +344,7 @@ export async function check_special_room(
         }
         if (rt === ZOO || rt === SWAMP || rt === LEPREHALL
             || rt === MORGUE || rt === BEEHIVE || rt === COCKNEST
-            || rt === ANTHOLE || rt === BARRACKS || rt === DELPHI) {
+            || rt === ANTHOLE) {
             throw new UnsupportedHeroMoveBoundaryError(
                 `check_special_room() entering room type ${rt}`,
             );

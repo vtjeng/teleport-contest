@@ -26,6 +26,7 @@ import {
     SEARCHING,
     SLT_ENCUMBER,
     TELEPAT,
+    TT_LAVA,
     UNENCUMBERED,
     WARNING,
     WARN_OF_MON,
@@ -89,6 +90,7 @@ import {
     monster_nearby,
     near_capacity,
     nomul,
+    pooleffects,
     overexert_hp,
     projected_capacity,
     runmode_delay_output,
@@ -491,6 +493,9 @@ export async function finishHeroTimeEffects(state = game, env = {}) {
     state.hero_seq++;
     await env.encumberMessage(state);
     applyClairvoyancePlan(plan, state, env);
+    if (!state.u.utrap || state.u.utraptype !== TT_LAVA) {
+        if (!state.u.umoved) await pooleffects(false, state);
+    }
 }
 
 export class UnsupportedTurnBoundaryError extends Error {
