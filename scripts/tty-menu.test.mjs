@@ -507,6 +507,9 @@ test('a full-screen gameplay menu redraws the map instead of its saved frame',
             [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
             [11, 6],
         );
+        assert.equal(rowText(state, 22), '');
+        assert.equal(rowText(state, 23), '');
+        assert.equal(state.disp.botlx, true);
     });
 
 // C ref: wintty.c erase_menu_or_text() (966-984) repairs a full-screen menu
