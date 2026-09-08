@@ -738,3 +738,5 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-07T23:31:59.711Z	ce7247e9	span	24	33	5107	7765	344592	610816							newman..udeadinside closes. polyself.c span 1, 15 functions. +14 rng. Fable 5.1 worker.
 2026-09-07T23:59:34.945Z	71cbadc8	span	24	33	5180	7765	344957	610816							polyman..livelog_newform closes. polyself.c final span, 3 functions. +73 screens, +365 rng. Fable 5.1 worker.
 2026-09-08T00:00:10.344Z	71cbadc8	goal	24	33	5180	7765	344957	610816			315	3640	38930	182022	polyself-c closes. 34 functions, 2 spans. +73 screens, +365 rng. Holdout 315/3640.
+2026-09-08T00:48:26.169Z	43f5b3be	span	24	33	5178	7765	345354	610816	5189	7765					rndmonst-adj-divergence closes. Development 5180→5178 of 7765 screens, 344957→345354 of 610816 rng. 24 of 33 sessions.
+2026-09-08T00:49:14.287Z	43f5b3be	goal	24	33	5178	7765	345354	610816	5189	7765					div-seed0367-rndmonst-adj closes. Development 5178 of 7765 screens, 345354 of 610816 rng. 24 of 33 sessions.
