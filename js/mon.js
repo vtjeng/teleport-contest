@@ -96,6 +96,7 @@ import {
 import {
     capitalizedMonsterName,
     hliquid,
+    Monnam,
     monsterCommonName,
     x_monnam,
 } from './do_name.js';
@@ -843,7 +844,7 @@ export async function mpickstuff(monster, obj, carryamt, rawEnv = {}) {
         if (state.flags?.verbose) {
             await message(
                 messageAt(
-                    `${capitalizedMonsterName(monster, state, env)}`
+                    `${Monnam(monster, state, env)}`
                     + ` picks up ${remainingName}.`,
                     monster.mx,
                     monster.my,

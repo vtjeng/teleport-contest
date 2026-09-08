@@ -96,6 +96,7 @@ import {
     PM_YELLOW_LIGHT,
     M1_TPORT,
     S_HUMAN,
+    SPECIAL_PM,
 } from '../js/monsters.js';
 import {
     preflightSimpleMonsterActions,
@@ -755,14 +756,29 @@ test('a planned hallucinated pickup uses only the cloned display RNG',
         // Prove that the planned path above really reached the naming arm:
         // replaying it live prints the pickup and spends the display draw.
         const messages = [];
+        let displayDraws = 0;
         await runSimpleMonsterAction(target.monster, {
             state: game,
             message: async (line) => messages.push(line),
             redraw: () => {},
+            // The first draw selects bogusmon(); byte offset 3241 selects
+            // the source record "-Barney the dinosaur". do_name.c
+            // bogon_is_pname() treats '-' as a personal-name marker, so
+            // Monnam() must suppress ARTICLE_THE before capitalizing it.
+            displayRandom(bound) {
+                const result = displayDraws++ === 0 ? SPECIAL_PM : 3241;
+                assert.ok(result >= 0 && result < bound);
+                return result;
+            },
         });
         assert.equal(messages.length, 1);
-        assert.match(messages[0], / picks up a food ration\.$/u);
-        assert.notDeepEqual(game.displayCtx, displayBefore);
+        assert.equal(
+            messages[0],
+            'Barney the dinosaur picks up a food ration.',
+        );
+        // get_rnd_line() makes ten attempts at the same overlong partial
+        // record before falling back to the following complete line.
+        assert.equal(displayDraws, 11);
     });
 
 // mon.c movemon() sets vision_full_recalc whenever a light source is present,
