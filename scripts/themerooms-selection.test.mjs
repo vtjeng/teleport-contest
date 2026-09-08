@@ -16,10 +16,12 @@ import {
     ThemeroomSelection,
     is_themeroom_fill_eligible,
     selection_area,
+    selection_floodfill,
     selection_iterate,
     selection_negate,
     selection_room,
     select_themeroom_fill,
+    set_selection_floodfillchk,
 } from '../js/themerooms.js';
 
 function selectedPoints(selection) {
@@ -269,4 +271,39 @@ test('selection-returning methods keep the receiver coordinate frame', () => {
     assert.equal(selectionReturning, 10);
     assert.equal(new ThemeroomSelection().absolute, false);
     assert.equal(selection_area(1, 1, 2, 2).absolute, false);
+});
+
+test('selvar.c selection_floodfill() spreads through the installed check', () => {
+    // The check accepts a two-square bar at (5,5)-(6,5), one square that
+    // touches it only diagonally at (7,6), and an isolated (9,9). Squares
+    // are absolute, as every C selection's are.
+    const accepted = new Set(['5,5', '6,5', '7,6', '9,9']);
+    set_selection_floodfillchk((x, y) => accepted.has(`${x},${y}`));
+
+    // Orthogonal flooding from (5,5) reaches the bar and stops there.
+    const bar = new ThemeroomSelection(null, true);
+    selection_floodfill(bar, 5, 5, false);
+    assert.deepEqual(selectedPoints(bar), [[5, 5], [6, 5]]);
+
+    // The diagonal form reaches (7,6) through (6,5) but never (9,9).
+    const diagonal = new ThemeroomSelection(null, true);
+    selection_floodfill(diagonal, 5, 5, true);
+    assert.deepEqual(selectedPoints(diagonal), [[5, 5], [6, 5], [7, 6]]);
+
+    // The start square is pushed before any check, so a rejected start is
+    // still set and nothing else is: SEL_FLOOD(x, y) precedes the loop.
+    const rejectedStart = new ThemeroomSelection(null, true);
+    selection_floodfill(rejectedStart, 2, 2, true);
+    assert.deepEqual(selectedPoints(rejectedStart), [[2, 2]]);
+
+    // The flood adds to what the selection already holds.
+    const grown = new ThemeroomSelection([{ x: 30, y: 10 }], true);
+    selection_floodfill(grown, 9, 9, false);
+    assert.deepEqual(selectedPoints(grown), [[9, 9], [30, 10]]);
+
+    // Without a check installed the source returns at once.
+    set_selection_floodfillchk(null);
+    const untouched = new ThemeroomSelection(null, true);
+    selection_floodfill(untouched, 5, 5, true);
+    assert.equal(untouched.numpoints(), 0);
 });

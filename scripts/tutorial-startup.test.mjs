@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import { nh_basename, read_sym_file } from '../js/files.js';
+import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import { PM_HEALER, PM_KNIGHT, PM_MONK } from '../js/monsters.js';
@@ -14,6 +15,7 @@ import {
 } from '../js/objects.js';
 import { splev_chr2typ } from '../js/mklev.js';
 import { SYMBOL_SET_DEFINITIONS } from '../js/symbol_data.js';
+import { ThemeroomSelection } from '../js/themerooms.js';
 import {
     ask_do_tutorial,
     buildTutorialMenuSpec,
@@ -56,6 +58,16 @@ function descriptorValue(value) {
     if (typeof value === 'function') return '<function>';
     if (Array.isArray(value)) return value.map(descriptorValue);
     if (!value || typeof value !== 'object') return value;
+    // A des.region() selection: its frame, extent, and size stand for it.
+    if (value instanceof ThemeroomSelection) {
+        return {
+            selection: {
+                absolute: value.absolute,
+                bounds: value.bounds(),
+                numpoints: value.numpoints(),
+            },
+        };
+    }
     return Object.fromEntries(Object.entries(value).map(
         ([key, child]) => [key, descriptorValue(child)],
     ));
@@ -95,7 +107,7 @@ function recordTutorialDescriptor({
         level_init(specification) { record('level_init', specification); },
         level_flags(...flags) { record('level_flags', ...flags); },
         map(rows) { record('map', rows); },
-        region(specification) { record('region', specification); },
+        region(selection, lit) { record('region', selection, lit); },
         non_diggable() { record('non_diggable'); },
         teleport_region(specification) {
             record('teleport_region', specification);
@@ -124,6 +136,8 @@ function recordTutorialDescriptor({
     loadTutorialLevel(des, {
         urole: { mnum: role },
         u: { uenmax: energy },
+        // selection_match() scans the map; an empty one matches ' ' alone.
+        level: new GameMap(),
     });
     assert.deepEqual(percentageResults, []);
     return log;
@@ -346,7 +360,15 @@ test('tutorial descriptor retains the complete source call sequence', () => {
         ['level_flags', 'mazelevel', 'noflip', 'nomongen', 'nodeathdrops',
             'noautosearch'],
         ['map', TUTORIAL_MAP],
-        ['region', { area: [1, 1, 73, 16], lit: true }],
+        // tut-1.lua: des.region(selection.area(01,01, 73, 16), "lit"). A
+        // relative 73x16 area holds 1168 squares.
+        ['region', {
+            selection: {
+                absolute: false,
+                bounds: { lx: 1, ly: 1, hx: 73, hy: 16 },
+                numpoints: 1168,
+            },
+        }, 'lit'],
         ['non_diggable'],
         ['teleport_region', { region: [9, 3, 9, 3] }],
         ['parse_config', 'mention_walls', true],
@@ -380,7 +402,7 @@ test('tutorial descriptor retains the complete source call sequence', () => {
     });
     assert.equal(
         descriptorDigest(log),
-        '0363c1a9b51de61cea2260ea97bc37de4569763402b0e34f77ad5bc8e5bbcaeb',
+        '35904f464e1dc07289c863ab0ac3df10424ae381e453523caefc125a4f3dcc88',
     );
 });
 
@@ -560,8 +582,6 @@ test('the tutorial supplies only special-level values the port accepts', () => {
                         for (const row of args[0])
                             for (const character of row)
                                 mapCharacters.add(character);
-                    } else if (name === 'region' && args[0].match != null) {
-                        mapCharacters.add(args[0].match);
                     }
                 }
             }

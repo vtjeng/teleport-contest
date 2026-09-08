@@ -26,6 +26,7 @@ import {
     find_objtype,
     get_coord,
     get_table_buc,
+    get_table_coords_or_region,
     get_table_int_or_random,
     get_table_intarray_entry,
     get_table_mapchr_opt,
@@ -34,7 +35,9 @@ import {
     get_table_objclass,
     get_table_objtype,
     get_table_roomtype_opt,
+    get_table_region,
     get_table_xy_or_coord,
+    l_get_lregion,
     lspo_level_flags,
     lspo_message,
     nhl_get_xy_params,
@@ -413,4 +416,77 @@ test('nhlua.c get_table_int, lua_tointeger, and nhl_get_xy_params read integers'
     // A lone string is neither form: stair("up") leaves x and y at -1.
     assert.equal(nhl_get_xy_params(['up'], c), false);
     assert.deepEqual(c, { x: 8, y: 9 });
+});
+
+test('sp_lev.c get_table_region reads a four-entry array and rejects the rest', () => {
+    // The four entries land in x1, y1, x2, y2 in order, and the call answers
+    // 1 as the source does.
+    const r = { x1: 0, y1: 0, x2: 0, y2: 0 };
+    assert.equal(get_table_region({ region: [3, 4, 10, 12] }, 'region', r,
+                                  false), 1);
+    assert.deepEqual(r, { x1: 3, y1: 4, x2: 10, y2: 12 });
+
+    // An absent optional field answers 1 and leaves the record alone.
+    const kept = { x1: -1, y1: -1, x2: -1, y2: -1 };
+    assert.equal(get_table_region({}, 'exclude', kept, true), 1);
+    assert.deepEqual(kept, { x1: -1, y1: -1, x2: -1, y2: -1 });
+
+    // An absent required field fails luaL_checktype(); a wrong-length array
+    // is "Not a region"; a non-number entry fails get_table_intarray_entry().
+    assert.throws(() => get_table_region({}, 'region', r, false),
+                  /table expected/);
+    assert.throws(() => get_table_region({ region: [1, 2, 3] }, 'region', r,
+                                         false), /Not a region/);
+    assert.throws(() => get_table_region({ region: [1, 2, 3, 'x'] }, 'region',
+                                         r, false), /expected number/);
+});
+
+test('sp_lev.c get_table_coords_or_region prefers x1..y2 and falls back to region', () => {
+    // knox.lua's throne room gives the four corners as fields.
+    const d = { x1: 0, y1: 0, x2: 0, y2: 0 };
+    get_table_coords_or_region({ x1: 37, y1: 8, x2: 46, y2: 11 }, d);
+    assert.deepEqual(d, { x1: 37, y1: 8, x2: 46, y2: 11 });
+
+    // With no field at all the region array is read instead.
+    get_table_coords_or_region({ region: [9, 12, 30, 13] }, d);
+    assert.deepEqual(d, { x1: 9, y1: 12, x2: 30, y2: 13 });
+
+    // Any one field short-circuits the region read: the other three stay -1.
+    get_table_coords_or_region({ x1: 5, region: [1, 1, 2, 2] }, d);
+    assert.deepEqual(d, { x1: 5, y1: -1, x2: -1, y2: -1 });
+
+    // Neither form is an error from get_table_region(), not "region needs
+    // region", which lspo_region() can then only reach with a -1 region.
+    assert.throws(() => get_table_coords_or_region({}, d), /table expected/);
+});
+
+test('sp_lev.c l_get_lregion reads region, exclude, and the islev flags', () => {
+    // medusa-3.lua's branch: region and exclude, neither in level
+    // coordinates, so both flags stay 0.
+    const branch = {};
+    l_get_lregion({ region: [1, 0, 79, 20], exclude: [30, 6, 46, 13] }, branch);
+    assert.deepEqual(branch, {
+        inarea: { x1: 1, y1: 0, x2: 79, y2: 20 },
+        delarea: { x1: 30, y1: 6, x2: 46, y2: 13 },
+        in_islev: 0,
+        del_islev: 0,
+    });
+
+    // Without an exclude the -1 corners stay and del_islev is forced true so
+    // the area is off the map; region_islev=1 (minend-1.lua) reads as 1.
+    const tele = {};
+    l_get_lregion({ region: [23, 3, 48, 16], region_islev: 1 }, tele);
+    assert.deepEqual(tele, {
+        inarea: { x1: 23, y1: 3, x2: 48, y2: 16 },
+        delarea: { x1: -1, y1: -1, x2: -1, y2: -1 },
+        in_islev: 1,
+        del_islev: true,
+    });
+
+    // An explicit exclude_islev survives when an exclude is given.
+    const both = {};
+    l_get_lregion({
+        region: [57, 1, 78, 19], exclude: [60, 5, 62, 7], exclude_islev: true,
+    }, both);
+    assert.equal(both.del_islev, 1);
 });

@@ -84,7 +84,7 @@ import {
 } from './makemon_create.js';
 import { mkclass, set_malign } from './makemon.js';
 import { your_race } from './mondata.js';
-import { lspo_monster } from './mklev.js';
+import { lspo_gas_cloud, lspo_monster } from './mklev.js';
 import { christen_monst } from './do_name.js';
 import { MAXMCLASSES } from './symbols.js';
 import { block_point, does_block } from './vision.js';
@@ -169,7 +169,6 @@ import {
     get_location_coord,
     inside_room,
 } from './room_coordinates.js';
-import { create_gas_cloud_selection } from './region.js';
 import {
     lspo_object,
     new_sp_lev_object_context,
@@ -932,9 +931,9 @@ function fillCloudRoom(room, _difficulty, env) {
     for (let index = 0; index < monsterCount; ++index)
         lspo_monster([{ id: PM_FOG_CLOUD, asleep: true }], room, env);
     const replacement = env.hooks.createGasCloudSelection;
-    return replacement
-        ? replacement(fog, 0, env)
-        : create_gas_cloud_selection(fog, 0, env);
+    if (replacement)
+        return replacement(fog, 0, env);
+    return lspo_gas_cloud([{ selection: fog }], env);
 }
 
 // dat/themerms.lua "Boulder room". selection:percentage() samples x-major,

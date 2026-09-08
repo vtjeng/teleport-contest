@@ -32,6 +32,8 @@ import {
     createCommandBindingModel,
     visibleCommandKey,
 } from './command_bindings.js';
+import { selection_match } from './bigrm.js';
+import { selection_area } from './themerooms.js';
 
 export const TUTORIAL_MAP = Object.freeze([
     '---------------------------------------------------------------------------',
@@ -127,7 +129,7 @@ export function loadTutorialLevel(des, state) {
         'noautosearch',
     );
     des.map(TUTORIAL_MAP);
-    des.region({ area: [1, 1, 73, 16], lit: true });
+    des.region(selection_area(1, 1, 73, 16), 'lit');
     des.non_diggable();
     des.teleport_region({ region: [9, 3, 9, 3] });
 
@@ -216,8 +218,8 @@ export function loadTutorialLevel(des, state) {
     des.door({
         coord: [10, 9], state: percent(50) ? 'locked' : 'closed',
     });
-    des.region({ match: '#', lit: false });
-    des.region({ match: ' ', lit: false });
+    des.region(selection_match('#', state), 'unlit');
+    des.region(selection_match(' ', state), 'unlit');
     des.door({
         coord: [15, 10], state: percent(50) ? 'locked' : 'closed',
     });
@@ -510,7 +512,7 @@ export function loadTutorialLevel(des, state) {
         coord: [53, 2], type: 'engrave',
         text: `Use '${tutKey('cast')}' to cast a spell`, degrade: false,
     });
-    des.region({ area: [53, 1, 59, 3], lit: false });
+    des.region(selection_area(53, 1, 59, 3), 'unlit');
 
     des.engraving({
         coord: [72, 2], type: 'engrave',

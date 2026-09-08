@@ -28,14 +28,19 @@ import {
     TEMPLE,
     TRAPDOOR,
     VIBRATING_SQUARE,
+    ROWNO,
     VWALL,
     WET,
     W_EAST,
     W_NORTH,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
-import { game, resetGame } from '../js/gstate.js';
+import { resetGame } from '../js/gstate.js';
 import { swapbits } from '../js/hacklib.js';
+import {
+    selection_floodfill,
+    ThemeroomSelection,
+} from '../js/themerooms.js';
 import {
     cvt_to_abscoord,
     cvt_to_relcoord,
@@ -266,9 +271,16 @@ test('sp_lev.c flood-fill checks match the stored terrain or an accessible squar
     set_floodfillchk_match_under(STONE);
     assert.equal(floodfillchk_match_under(8, 3, state), true);
     assert.equal(floodfillchk_match_under(4, 3, state), false);
-    // The installer it calls, selvar.c set_selection_floodfillchk(), is a
-    // recorded gap.
-    assert.ok(game.unported.has('selvar.c set_selection_floodfillchk'));
+    // set_floodfillchk_match_under() installs floodfillchk_match_under() as
+    // selvar.c's flood check, so a flood from the STONE square at (8, 3)
+    // covers every STONE square isok() admits: columns 1..79 of 21 rows,
+    // less the five squares above that hold other terrain.
+    const flooded = new ThemeroomSelection(null, true);
+    selection_floodfill(flooded, 8, 3, false);
+    assert.equal(flooded.get(8, 3), true);
+    assert.equal(flooded.get(7, 3), false);
+    assert.equal(flooded.get(3, 3), false);
+    assert.equal(flooded.numpoints(), (COLNO - 1) * ROWNO - 5);
 });
 
 test('sp_lev.c cvt_to_abscoord(), cvt_to_relcoord(), and nhl_abs_coord() offset by the room or the map frame', () => {
