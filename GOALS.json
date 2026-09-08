@@ -14665,6 +14665,18 @@
             "maybe_adjust_hero_bubble",
             "mv_bubble"
           ]
+        },
+        {
+          "name": "iswall..baalz_fixup",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "iswall",
+            "iswall_or_stone",
+            "is_solid",
+            "okay",
+            "baalz_fixup"
+          ]
         }
       ],
       "openedAt": "54d8d9ec54c7b8dd10aa363f3ce9c09e0e253386",
