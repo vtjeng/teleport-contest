@@ -14231,7 +14231,7 @@
     {
       "id": "div-sp-lev-load-special-sanctum-0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Port Sanctum special-level loader through load_special",
       "cFile": "sp_lev.c",
       "sessions": [],
@@ -14252,8 +14252,11 @@
         "screens": 5178,
         "rng": 345354
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1270a4418200bf6d8b58412ce95e7695795c3b27",
+      "delivered": {
+        "screens": 2,
+        "rng": 4103
+      },
       "function": "load_special",
       "session": "seed0360-wizard-world-tour",
       "step": 173
