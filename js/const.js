@@ -111,6 +111,9 @@ export const STATUS_ROW_2 = 23;
 export const xdir = [-1, -1,  0,  1,  1,  1,  0, -1, 0,  0];
 export const ydir = [ 0, -1, -1, -1,  0,  1,  1,  1, 0,  0];
 export const zdir = [0, 0, 0, 0, 0, 0, 0, 0, 1, -1];
+// decl.c dirs_ord[]: cardinals first, then diagonals. confdir() uses its
+// first half for forms that cannot move diagonally.
+export const dirs_ord = [0, 2, 4, 6, 1, 3, 5, 7];
 
 // Direction constants
 export const DIR_W = 0;

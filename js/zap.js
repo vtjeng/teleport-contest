@@ -70,6 +70,19 @@ import {
     M_SEEN_REFL,
     M_SEEN_SLEEP,
     OBJ_AT,
+    OBJ_FLOOR,
+    CORPSTAT_FEMALE,
+    CORPSTAT_GENDER,
+    CORPSTAT_MALE,
+    CXN_PFX_THE,
+    MM_FEMALE,
+    MM_MALE,
+    MM_NOCOUNTBIRTH,
+    MM_NOMSG,
+    MM_NOTAIL,
+    MM_NOWAIT,
+    NO_MINVENT,
+    NON_PM,
     NOTELL,
     REFLECTING,
     SDOOR,
@@ -112,8 +125,11 @@ import {
     zapdir_to_glyph,
 } from './display.js';
 import {
+    christen_monst,
     monsterCommonName,
 } from './do_name.js';
+import { get_mtraits } from './corpstat.js';
+import { eaten_stat } from './eat.js';
 import { findit } from './detect.js';
 import { dropx, preflight_dropx } from './do.js';
 import { done } from './end.js';
@@ -123,14 +139,21 @@ import { game } from './gstate.js';
 import {
     check_capacity, losehp, nh_delay_output, nomul,
 } from './hack.js';
-import { lcase, mungspaces } from './hacklib.js';
+import { lcase, mungspaces, upstart } from './hacklib.js';
 import {
     getobj,
     hold_another_object,
     prepareHoldDropAdmission,
     update_inventory,
     useupall,
+    delobj_core,
 } from './invent.js';
+import { get_obj_location } from './light.js';
+import { monhp_per_lvl } from './makemon.js';
+import {
+    makemon_revival,
+    newcham_revival,
+} from './makemon_create.js';
 import {
     completelyburns,
     defended,
@@ -143,6 +166,7 @@ import {
     nonliving,
     nohands,
     type_is_pname,
+    unique_corpstat,
 } from './mondata.js';
 import {
     AD_ACID,
@@ -154,11 +178,21 @@ import {
     LOW_PM,
     PM_CLAY_GOLEM,
     PM_DEATH,
+    PM_DOPPELGANGER,
+    S_EEL,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
-import { is_pick, objectType, remove_object } from './obj.js';
+import {
+    free_omid,
+    free_omonst,
+    is_pick,
+    objectType,
+    remove_object,
+    splitobj,
+} from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
+    CORPSE,
     DWARVISH_CLOAK,
     HEAVY_IRON_BALL,
     IMMEDIATE,
@@ -193,17 +227,29 @@ import {
     an,
     aobjnam,
     donameFresh,
+    corpse_xname,
     the_unique_pm,
     vtense,
     xnameFresh,
 } from './objnam.js';
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
+import { cant_revive } from './read.js';
 import { body_part, rehumanize } from './polyself.js';
 import { healup } from './potion.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
-import { monkilled, wakeup, xkilled } from './mon.js';
-import { m_at } from './monst.js';
+import {
+    monkilled,
+    pm_to_cham,
+    seemimic,
+    wakeup,
+    xkilled,
+} from './mon.js';
+import {
+    m_at,
+    place_monster,
+    remove_monster,
+} from './monst.js';
 import { mon_reflects, ureflects } from './muse.js';
 import { check_unpaid, inside_shop } from './shk.js';
 import { canSpotMonster, messageAt } from './startup_a11y.js';
@@ -212,7 +258,7 @@ import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { burnarmor } from './trap_erode_obj.js';
 import { shade_miss } from './uhitm.js';
-import { tele } from './teleport.js';
+import { enexto, tele } from './teleport.js';
 import { cansee, canseemon, couldsee } from './vision.js';
 import { find_mac } from './worn.js';
 import { burn_away_slime, fall_asleep } from './timeout.js';
@@ -240,6 +286,231 @@ function heroIsBlind(state) {
     const blinded = state.u?.uprops?.[BLINDED];
     return Boolean((blinded?.intrinsic || blinded?.extrinsic)
         && !blinded?.blocked);
+}
+
+export class UnsupportedRevivalError extends Error {
+    constructor(branch) {
+        super(`reviving a corpse requires ${branch}`);
+        this.name = 'UnsupportedRevivalError';
+        this.branch = branch;
+    }
+}
+
+function revivalEnv(rawEnv = {}) {
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    return { ...rawEnv, random, state: rawEnv.state ?? game };
+}
+
+// C ref: zap.c replmon(), as used by montraits(). The dummy and saved record
+// are the same species and have no inventory, tail, shop extension, leash, or
+// hero attachment on the revive_nasty() path.
+function replaceRevivedMonster(dummy, saved, state) {
+    let previous = null;
+    let current = state.level?.monlist ?? null;
+    while (current && current !== dummy) {
+        previous = current;
+        current = current.nmon;
+    }
+    if (current !== dummy)
+        throw new Error('montraits dummy is absent from the monster list');
+
+    saved.nmon = dummy.nmon;
+    if (previous) previous.nmon = saved;
+    else state.level.monlist = saved;
+
+    remove_monster(dummy.mx, dummy.my, state);
+    place_monster(saved, saved.mx, saved.my, state);
+    dummy.mx = 0;
+    dummy.my = 0;
+    dummy.nmon = null;
+    return saved;
+}
+
+// C ref: zap.c montraits() (713-829), bounded to the saved unique monsters
+// revive_nasty() can reach. Shopkeeper extensions remain outside this path;
+// revive() records the discarded wary_dog() tail for an anomalous tame one.
+export function montraits(obj, cc, adjacentok = false, rawEnv = {}) {
+    const env = revivalEnv(rawEnv);
+    const { random, state } = env;
+    const saved = get_mtraits(obj, true, state);
+    if (!saved) return null;
+    if (adjacentok || saved.isshk) {
+        throw new UnsupportedRevivalError(
+            'adjacent, shopkeeper, or pet saved traits',
+        );
+    }
+    if (!saved.data || (saved.mhpmax <= 0 && !is_rider(saved.data)))
+        return null;
+
+    const dummy = makemon_revival(
+        saved.data,
+        cc.x,
+        cc.y,
+        NO_MINVENT | MM_NOWAIT | MM_NOCOUNTBIRTH | MM_NOTAIL | MM_NOMSG,
+        env,
+    );
+    if (!dummy) return null;
+
+    if (dummy.m_lev < dummy.data.mlevel) {
+        const targetLevel = random.rnd(dummy.data.mlevel + 1);
+        if (targetLevel > dummy.m_lev) {
+            while (dummy.m_lev < targetLevel) {
+                ++dummy.m_lev;
+                dummy.mhpmax += monhp_per_lvl(dummy, env);
+            }
+            saved.m_lev = dummy.m_lev;
+        }
+    }
+    if (dummy.mhpmax > saved.mhpmax) saved.mhpmax = dummy.mhpmax;
+    saved.mhp = saved.mhpmax;
+
+    saved.minvent = dummy.minvent;
+    if (dummy.m_id) {
+        saved.m_id = dummy.m_id;
+        const quest = state.svq?.quest_status;
+        if (quest?.leader_is_dead && saved.m_id === quest.leader_m_id)
+            quest.leader_is_dead = false;
+    }
+    for (const field of [
+        'mx', 'my', 'mux', 'muy', 'mw', 'wormno', 'misc_worn_check',
+        'weapon_check', 'mtrapseen', 'mflee', 'mburied', 'mundetected',
+        'mfleetim', 'mlstmv', 'm_ap_type',
+    ]) {
+        saved[field] = dummy[field];
+    }
+    saved.mrevived = true;
+    saved.mavenge = false;
+    saved.meating = 0;
+    saved.mleashed = false;
+    saved.mtrapped = false;
+    saved.msleeping = false;
+    saved.mfrozen = 0;
+    saved.mcanmove = true;
+    saved.mcan = false;
+    saved.mcansee = true;
+    saved.mblinded = 0;
+    saved.mstun = false;
+    saved.mconf = false;
+    saved.mstate = dummy.mstate;
+
+    replaceRevivedMonster(dummy, saved, state);
+    newsym(saved.mx, saved.my, state);
+    if (saved.cham === NON_PM)
+        saved.cham = pm_to_cham(saved.mnum, state);
+    return saved;
+}
+
+// C ref: zap.c revive() (884-1100), for a floor corpse and a non-hero cause.
+// That is the complete call shape of do.c revive_corpse() from revive_nasty().
+export async function revive(corpse, byHero = false, rawEnv = {}) {
+    const env = revivalEnv(rawEnv);
+    const { state } = env;
+    if (corpse?.otyp !== CORPSE) return null;
+    if (byHero || corpse.where !== OBJ_FLOOR) {
+        throw new UnsupportedRevivalError(
+            'the floor, non-hero revive() call shape',
+        );
+    }
+    if (state.context?.victual?.piece === corpse) {
+        throw new UnsupportedRevivalError('eat.c cant_finish_meal()');
+    }
+    if (corpse.oextra?.omid) {
+        throw new UnsupportedRevivalError('active-ghost recorporealization');
+    }
+    if (corpse.quan > 1 && (corpse.timed || corpse.unpaid || corpse.lamplit)) {
+        throw new UnsupportedRevivalError('timed, billed, or lit corpse split');
+    }
+
+    const originalType = corpse.corpsenm;
+    const originalSpecies = state.mons?.[originalType];
+    if (!originalSpecies) return null;
+    let coordinate = get_obj_location(corpse, 0, state);
+    if (!coordinate?.x) return null;
+    corpse.ox = coordinate.x;
+    corpse.oy = coordinate.y;
+
+    if (m_at(coordinate.x, coordinate.y, state)) {
+        coordinate = enexto(
+            coordinate.x,
+            coordinate.y,
+            originalSpecies,
+            env,
+        ) ?? coordinate;
+    }
+    const { x, y } = coordinate;
+    if (corpse.norevive
+        || (originalSpecies.mlet === S_EEL && !is_pool(x, y, state))) {
+        if (cansee(x, y, state)) {
+            await ttyPline(
+                `${upstart(corpse_xname(corpse, null, CXN_PFX_THE, state))} `
+                    + 'twitches feebly.',
+                state,
+            );
+        }
+        return null;
+    }
+
+    let mmflags = NO_MINVENT | MM_NOWAIT | MM_NOMSG;
+    const gender = corpse.spe & CORPSTAT_GENDER;
+    if (gender === CORPSTAT_MALE) mmflags |= MM_MALE;
+    else if (gender === CORPSTAT_FEMALE) mmflags |= MM_FEMALE;
+
+    const substitution = cant_revive(
+        originalType,
+        true,
+        corpse,
+        state,
+    );
+    let monster = null;
+    if (substitution.changed) {
+        monster = makemon_revival(
+            state.mons[substitution.mtype], x, y, mmflags, env,
+        );
+        if (monster) {
+            if (corpse.oextra?.omid) free_omid(corpse);
+            if (corpse.oextra?.omonst) free_omonst(corpse);
+            if (monster.cham === PM_DOPPELGANGER) {
+                newcham_revival(monster, originalSpecies, env);
+            }
+        }
+    } else if (corpse.oextra?.omonst) {
+        monster = montraits(corpse, { x, y }, false, env);
+        if (monster?.mtame && !monster.isminion)
+            note_unported('dog.c wary_dog');
+    } else {
+        monster = makemon_revival(
+            originalSpecies,
+            x,
+            y,
+            mmflags | MM_NOCOUNTBIRTH,
+            env,
+        );
+    }
+    if (!monster) return null;
+
+    if (monster.mundetected) {
+        monster.mundetected = false;
+        newsym(monster.mx, monster.my, state);
+    }
+    if (M_AP_TYPE(monster)) seemimic(monster, state);
+
+    if (corpse.quan > 1)
+        corpse = splitobj(corpse, 1, objectGenerationEnv(env));
+
+    if (corpse.oextra?.oname && !unique_corpstat(monster.data)) {
+        monster = christen_monst(monster, corpse.oextra.oname, {
+            state,
+        });
+    }
+    if (corpse.oeaten)
+        monster.mhp = eaten_stat(monster.mhp, corpse, env);
+    monster.mrevived = true;
+
+    delobj_core(corpse, true, objectGenerationEnv({
+        ...env,
+        redraw: (rx, ry) => newsym(rx, ry, state),
+    }));
+    return monster;
 }
 
 // C ref: zap.c learnwand() (122-151), translated whole. Called once a zap's

@@ -208,11 +208,21 @@ test('cant_revive substitutes the species read.c names for each special case',
             cant_revive(PM_GAS_SPORE, false, null, state),
             { changed: false, mtype: PM_GAS_SPORE },
         );
-        // The corpse or statue a revival came from would need
-        // mkobj.c has_omonst(), which is unported.
-        assert.throws(
-            () => cant_revive(PM_GAS_SPORE, true, { otyp: 1 }, state),
-            UnsupportedMonsterRequestError,
+        // A non-unique corpse is unchanged whether or not it has saved traits.
+        assert.deepEqual(
+            cant_revive(PM_GAS_SPORE, true, { otyp: 1 }, state),
+            { changed: false, mtype: PM_GAS_SPORE },
+        );
+        // Saved traits let a unique corpse revive as itself; without them the
+        // same species is substituted with a doppelganger.
+        assert.deepEqual(
+            cant_revive(PM_MEDUSA, true, { oextra: {} }, state),
+            { changed: true, mtype: PM_DOPPELGANGER },
+        );
+        assert.deepEqual(
+            cant_revive(PM_MEDUSA, true,
+                { oextra: { omonst: {} } }, state),
+            { changed: false, mtype: PM_MEDUSA },
         );
     });
 

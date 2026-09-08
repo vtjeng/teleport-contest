@@ -1423,6 +1423,13 @@ export function glyph_is_swallow(glyph) {
         && glyph < GLYPH_SWALLOW_OFF + (NUMMONS << 3);
 }
 
+// C ref: display.h glyph_is_warning() (677-679). Warning glyphs occupy one
+// entry per warning level immediately before the statue ranges.
+export function glyph_is_warning(glyph) {
+    return glyph >= GLYPH_WARNING_OFF
+        && glyph < GLYPH_WARNING_OFF + WARNCOUNT;
+}
+
 // C ref: display.h glyph_is_cmap_zap() (699-700), one of the ten per-range
 // predicates. It names the sub-range glyph_is_cmap() above admits along with
 // every other cmap glyph, which zapdir_to_glyph() produces and

@@ -12,6 +12,7 @@ import {
     capitalizedMonsterName,
     christen_monst,
     lookup_novel,
+    Monnam,
     mon_nam_too,
     monsterCommonName,
     monsterPossessive,
@@ -115,6 +116,7 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
             capitalizedMonsterName(monster, state),
             'The saddled pony',
         );
+        assert.equal(Monnam(monster, state), 'The saddled pony');
         assert.equal(
             capitalizedAlwaysVisibleMonsterName(monster, state),
             'Your saddled pony',

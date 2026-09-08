@@ -1089,12 +1089,10 @@ export function enexto(xx, yy, species, env = {}) {
         ?? enexto_core(xx, yy, species, 0, env);
 }
 
-// C ref: teleport.c rloc_to(), which is rloc_to_core() with RLOC_NOMSG,
-// bounded to a monster arriving on a level it is not yet placed on. dog.c
-// mon_arrive() is its only ported caller and reaches it with `mtmp->mx == 0`,
-// which is what lets the whole "pick up the monster" block at the top of
-// rloc_to_core() be skipped rather than ported: there is no old square to
-// clear, redraw or unhide.
+// C ref: teleport.c rloc_to(), which is rloc_to_core() with RLOC_NOMSG.
+// Besides an arriving monster with mx == 0, hack.c revive_nasty() moves an
+// ordinary on-map occupant away from a reviving corpse. Worm tails and the
+// extended shop, trap, occupation, and hero-attachment tails remain bounded.
 //
 // Every message in rloc_to_core() is suppressed by RLOC_NOMSG, and the
 // shopkeeper, shop-goods, occupation and trap tails below the placement each
@@ -1102,11 +1100,8 @@ export function enexto(xx, yy, species, env = {}) {
 export function rloc_to(monster, x, y, rawEnv = {}) {
     const env = teleportEnv(rawEnv);
     const { state } = env;
-    if (monster.mx) {
-        throw new UnsupportedPositionCheckError(
-            'rloc_to() for a monster already on the map',
-        );
-    }
+    const oldx = monster.mx;
+    const oldy = monster.my;
     // The occupation term names state.go.occupation, cmd.c set_occupation()'s
     // home for C's go.occupation, so the tail at teleport.c:1761-1762 refuses
     // instead of being skipped by a field nothing assigns.
@@ -1124,12 +1119,18 @@ export function rloc_to(monster, x, y, rawEnv = {}) {
         }
     }
 
-    mon_track_clear(monster);
-    place_monster(monster, x, y, state);
-    update_monster_region(monster, state);
+    if (oldx) {
+        relocate_monster(monster, x, y, state);
+        newsym(oldx, oldy);
+    } else {
+        mon_track_clear(monster);
+        place_monster(monster, x, y, state);
+        update_monster_region(monster, state);
+    }
     // maybe_unhide_at(x, y) calls hideunder() for a monster whose mundetected
     // is set; an arriving follower's is clear, because dog.c relmon() cleared
     // it as the monster left the level it came from.
+    maybe_unhide_at(x, y, state);
     newsym(x, y);
     // set_apparxy() takes monmove.c:2211's first branch whatever the monster
     // is: dog.c mon_arrive() has just written the hero's own square into

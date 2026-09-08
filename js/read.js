@@ -600,17 +600,9 @@ export class UnsupportedMonsterRequestError extends Error {
 // bones.c:156, trap.c:746, read.c:3262 and zap.c:982.
 //
 // `from_obj` is the corpse or statue a revival came from, and only the
-// unique-species arm looks at it. read.c create_particular_creation() passes
-// NULL, which short-circuits that look, so mkobj.c has_omonst() has no owner
-// here and an object argument is refused rather than answered wrongly. The two
-// callers that pass a real from_obj, trap.c:746 and zap.c:982, are what that
-// refusal defers.
+// unique-species arm looks at it. A unique corpse with saved monster traits is
+// allowed to revive as itself; without them it becomes a doppelganger.
 export function cant_revive(mtype, revival, from_obj, state = game) {
-    if (from_obj) {
-        throw new UnsupportedMonsterRequestError(
-            'cant_revive() from a corpse or statue',
-        );
-    }
     /* SHOPKEEPERS can be revived now */
     if (mtype === PM_GUARD || (mtype === PM_SHOPKEEPER && !revival)
         || mtype === PM_HIGH_CLERIC || mtype === PM_ALIGNED_CLERIC
@@ -618,7 +610,8 @@ export function cant_revive(mtype, revival, from_obj, state = game) {
         return { changed: true, mtype: PM_HUMAN_ZOMBIE };
     } else if (mtype === PM_LONG_WORM_TAIL) { /* for create_particular() */
         return { changed: true, mtype: PM_LONG_WORM };
-    } else if (unique_corpstat(state.mons?.[mtype])) {
+    } else if (unique_corpstat(state.mons?.[mtype])
+        && (!from_obj || !from_obj.oextra?.omonst)) {
         /* unique corpses (from bones or wizard mode wish) or
            statues (bones or any wish) end up as shapechangers */
         return { changed: true, mtype: PM_DOPPELGANGER };

@@ -45,7 +45,6 @@ import {
     TRAPPED_CHEST,
     TRAPPED_DOOR,
     SVALL,
-    WARNCOUNT,
     WM_MASK,
     isok,
     u_at,
@@ -64,6 +63,7 @@ import {
     glyph_is_monster,
     glyph_is_object,
     glyph_is_trap,
+    glyph_is_warning,
     glyph_at,
     glyph_to_cmap,
     hero_glyph_info,
@@ -122,7 +122,7 @@ import {
     unblock_point,
     vision_reset,
 } from './vision.js';
-import { GLYPH_SWALLOW_OFF, GLYPH_UNEXPLORED_OFF, GLYPH_WARNING_OFF } from './glyph_offsets.js';
+import { GLYPH_SWALLOW_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { NO_COLOR } from './terminal.js';
 
 /** A branch of detect.c discovery which this port does not own yet. */
@@ -162,12 +162,6 @@ export function reconstrain_map(state = game) {
     state.iflags.save_uinwater = 0;
     state.iflags.save_uburied = 0;
     state.iflags.save_uswallow = 0;
-}
-
-function glyphIsWarning(glyph) {
-    return Number.isInteger(glyph)
-        && glyph >= GLYPH_WARNING_OFF
-        && glyph < GLYPH_WARNING_OFF + WARNCOUNT;
 }
 
 function glyphIsSwallow(glyph) {
@@ -234,7 +228,7 @@ export function reveal_terrain_getglyph(
 
     // C's keep_mons is false for TER_MAP.  A swallow glyph is also removed;
     // the preflight in reveal_terrain keeps the ordinary path unconstrained.
-    if ((!glyph_is_monster(glyph) && !glyphIsWarning(glyph))
+    if ((!glyph_is_monster(glyph) && !glyph_is_warning(glyph))
         && !glyphIsSwallow(glyph)) {
         // This branch is intentionally empty: it is the source's fallthrough
         // when no monster-like display layer covers the square.

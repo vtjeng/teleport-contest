@@ -386,6 +386,19 @@ test('notice_mon updates one monster only while its option is active', () => {
     assert.equal(subject.mspotted, true);
     assert.equal(collectMonsterNoticeMessage(subject, state), null);
 
+    // hack.c notice_mon() does not announce or reset a dead monster while it
+    // is still linked into fmon.
+    subject.mhp = 0;
+    subject.mspotted = false;
+    assert.equal(collectMonsterNoticeMessage(subject, state), null);
+    assert.equal(subject.mspotted, false);
+    subject.mspotted = true;
+    state.level.monlist = subject;
+    assert.deepEqual(collectMonsterNoticeMessages(state), []);
+    assert.equal(subject.mspotted, true);
+    subject.mhp = 4;
+    state.level.monlist = null;
+
     state.viz_array[subject.my][subject.mx] = 0;
     assert.equal(collectMonsterNoticeMessage(subject, state), null);
     assert.equal(subject.mspotted, false);

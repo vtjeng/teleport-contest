@@ -140,6 +140,7 @@ import {
     glyph_is_object,
     glyph_is_piletop_generic_obj,
     glyph_is_statue,
+    glyph_is_warning,
     glyph_to_cmap,
     hallucinated_statue_glyph_info,
     hero_glyph_info,
@@ -197,6 +198,7 @@ import {
     GLYPH_STATUE_MALE_OFF,
     GLYPH_STATUE_MALE_PILETOP_OFF,
     GLYPH_UNEXPLORED_OFF,
+    GLYPH_WARNING_OFF,
     GLYPH_ZAP_OFF,
     NUM_ZAP,
 } from '../js/glyph_offsets.js';
@@ -9182,6 +9184,17 @@ test('glyph_is_cmap answers TRUE for a zap glyph, as display.h:723 does', () => 
         glyph_is_cmap_zap(GLYPH_ZAP_OFF + (NUM_ZAP << 2) - 1), true,
     );
     assert.equal(glyph_is_cmap_zap(GLYPH_ZAP_OFF + (NUM_ZAP << 2)), false);
+});
+
+test('glyph_is_warning covers exactly the warning glyph range', () => {
+    assert.equal(glyph_is_warning(GLYPH_WARNING_OFF - 1), false);
+    assert.equal(glyph_is_warning(GLYPH_WARNING_OFF), true);
+    assert.equal(
+        glyph_is_warning(GLYPH_WARNING_OFF + WARNCOUNT - 1), true,
+    );
+    assert.equal(
+        glyph_is_warning(GLYPH_WARNING_OFF + WARNCOUNT), false,
+    );
 });
 
 test('glyph_to_cmap inverts cmap_to_glyph where the number allows', () => {

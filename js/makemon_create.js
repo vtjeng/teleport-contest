@@ -52,6 +52,7 @@ import {
     MM_ESHK,
     MM_FEMALE,
     MM_MALE,
+    MM_NOWAIT,
     MM_NOCOUNTBIRTH,
     MM_NOEXCLAM,
     MM_NOGRP,
@@ -578,7 +579,9 @@ import { pick_nasty } from './wizard.js';
 import { which_armor } from './worn.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
+    | MM_NOWAIT
     | MM_NOCOUNTBIRTH
+    | MM_NOTAIL
     | MM_NOMSG
     | MM_NOEXCLAM
     | MM_ANGRY
@@ -1353,10 +1356,19 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     const vaultGuardCall = !state.in_mklev
         && ptr?.pmidx === PM_GUARD
         && mmflags === (MM_EGD | MM_NOMSG);
+    const revivalCall = !state.in_mklev
+        && normalized.revival === true
+        && Boolean(ptr)
+        && !randomCoordinates
+        && Boolean(mmflags & NO_MINVENT)
+        && Boolean(mmflags & MM_NOWAIT)
+        && Boolean(mmflags & MM_NOMSG)
+        && !(mmflags & ~(NO_MINVENT | MM_NOWAIT | MM_NOMSG
+            | MM_NOCOUNTBIRTH | MM_NOTAIL | MM_MALE | MM_FEMALE));
     const runtimeCall = startingPetCall || djinniBottleCall
         || fountainCreatureCall
         || runtimeRandomCall || runtimeGroupCall || createParticularCall
-        || vaultGuardCall;
+        || vaultGuardCall || revivalCall;
     if (runtimeCall
         && (!normalized.runtimeContinuation
             || typeof normalized.runtimeContinuation !== 'object')) {
@@ -1364,7 +1376,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'runtime creation without its async tail owner',
         );
     }
-    if (runtimeCall && state.go?.occupation
+    if (runtimeCall && !revivalCall && state.go?.occupation
         && typeof normalized.hooks?.stopOccupation !== 'function') {
         throw new UnsupportedMonsterCreationError(
             'runtime creation while an occupation lacks stopOccupation',
@@ -1441,8 +1453,10 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         // allowlist for explicitly placed species but bypass it for
         // rndmonst selections (the _rndmonMklev flag, set in the rndmonst
         // loop).  Outside mklev the allowlist always applies.
-        if (!state.in_mklev
-            || (isMainDungeonLevel(state) && !normalized._rndmonMklev)) {
+        if (!revivalCall
+            && (!state.in_mklev
+                || (isMainDungeonLevel(state)
+                    && !normalized._rndmonMklev))) {
             assertSupportedSpecies(ptr, {
                 // sp_lev.c:fill_empty_maze() explicitly places a minotaur
                 // while generating a stocked main-dungeon maze. The caller
@@ -3106,6 +3120,18 @@ function apply_newcham_form(monster, target, normalized) {
     const olddata = monster.data;
     if (target === olddata) return false;
 
+    // mon.c newcham():5356-5362 discards an old long-worm tail before
+    // changing the head's species. A newly-created doppelganger can select
+    // long worm as its initial shape before revive() gives it the corpse's
+    // unique species, so this is part of the revival path too.
+    if (monster.wormno) {
+        const mx = monster.mx;
+        const my = monster.my;
+        remove_worm(monster, normalized);
+        wormgone(monster, state);
+        place_monster(monster, mx, my, state);
+    }
+
     mgender_from_permonst(monster, target, random);
     const oldHp = monster.mhp;
     const oldMax = monster.mhpmax;
@@ -3368,10 +3394,33 @@ export function restore_waiting_vampire(monster, rawEnv = {}) {
     return apply_newcham_form(monster, target, normalized);
 }
 
+// C ref: zap.c revive():991-994, the explicit-target newcham() used after a
+// unique corpse without saved traits is substituted with a doppelganger.
+// Inventory, leash, hero attachment, and arbitrary shapechanger calls remain
+// outside this adapter; revive() removes a mimic disguise after this returns.
+export function newcham_revival(monster, target, rawEnv = {}) {
+    const normalized = creationEnv(rawEnv);
+    const { state } = normalized;
+    if (monster?.cham !== PM_DOPPELGANGER
+        || !target
+        || state.mons?.[target.pmidx] !== target
+        || monster.minvent
+        || monster.mleashed
+        || monster === state.u?.ustuck
+        || monster === state.u?.usteed) {
+        throw new UnsupportedMonsterCreationError(
+            'revival doppelganger shape change',
+        );
+    }
+    if (state.mvitals[target.pmidx].mvflags & G_GENOD) return false;
+    return apply_newcham_form(monster, target, normalized);
+}
+
 function finishMonsterInventoryAndStrategy(
     monster,
     ptr,
     allowMinvent,
+    mmflags,
     normalized,
 ) {
     const { random } = normalized;
@@ -3391,9 +3440,9 @@ function finishMonsterInventoryAndStrategy(
         monster.minvent = null;
     }
 
-    // C ref: makemon.c makemon() (1457-1466). MM_NOWAIT is not among this
-    // port's admitted flags, so every supported call takes the ordinary arm.
-    if (ptr.mflags3) {
+    // C ref: makemon.c makemon() (1457-1466). Revived monsters pass
+    // MM_NOWAIT and therefore retain no waiting or covetous strategy bits.
+    if (ptr.mflags3 && !(mmflags & MM_NOWAIT)) {
         if (ptr.mflags3 & M3_WAITFORU)
             monster.mstrategy |= STRAT_WAITFORU;
         if (ptr.mflags3 & M3_CLOSE)
@@ -3690,6 +3739,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         monster,
         ptr,
         allowMinvent,
+        mmflags,
         normalized,
     );
 
@@ -3746,9 +3796,41 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
         monster,
         selected,
         allowMinvent,
+        mmflags,
         normalized,
     );
     await finishRuntimeCreationTail(monster, mmflags, normalized);
+    return monster;
+}
+
+// C ref: makemon.c makemon(), the synchronous runtime call shape used by
+// zap.c revive()/montraits(). NO_MINVENT makes the inventory tail drawless,
+// MM_NOMSG suppresses the appearance line, and MM_NOWAIT suppresses the
+// species' initial waiting strategy. MM_NOWAIT also makes makemon() leave any
+// unrelated hero occupation alone.
+export function makemon_revival(ptr, x, y, mmflags, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const runtimeContinuation = { claimed: false };
+    const normalized = creationEnv({
+        ...rawEnv,
+        state,
+        revival: true,
+        runtimeContinuation,
+    });
+    const monster = makemon(ptr, x, y, mmflags, normalized);
+    if (!monster) return null;
+    if (!runtimeContinuation.claimed
+        || runtimeContinuation.monster !== monster) {
+        throw new Error('revival continuation was not claimed');
+    }
+    finishMonsterInventoryAndStrategy(
+        monster,
+        runtimeContinuation.ptr,
+        runtimeContinuation.allowMinvent,
+        mmflags,
+        normalized,
+    );
+    redrawSquare(monster.mx, monster.my, normalized);
     return monster;
 }
 

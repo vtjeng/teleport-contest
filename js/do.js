@@ -39,7 +39,9 @@ import {
     LOST_DROPPED,
     MAGIC_PORTAL,
     OBJ_INVENT,
+    OBJ_FLOOR,
     OBJ_FREE,
+    CXN_SINGULAR,
     ROOM,
     RLOC_NOMSG,
     SLT_ENCUMBER,
@@ -73,7 +75,7 @@ import { bones_include_name } from './bones.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { reset_occupations, set_move_cmd, set_occupation } from './cmd.js';
 import { docrt, flush_screen, newsym } from './display.js';
-import { docall } from './do_name.js';
+import { Adjmonnam, Monnam, docall } from './do_name.js';
 import { setwornEnv } from './do_wear.js';
 import { keepdogs, losedogs, update_mlstmv } from './dog.js';
 import { can_reach_floor, engr_at } from './engrave.js';
@@ -104,6 +106,7 @@ import { more_experienced, newexplevel } from './exper.js';
 import { record_achievement } from './insight.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
+import { get_obj_location } from './light.js';
 import {
     near_capacity,
     notice_all_mons,
@@ -131,12 +134,18 @@ import { m_at } from './monst.js';
 import { gulp_blnd_check } from './mhitu.js';
 import { olfaction } from './mondata.js';
 import { youHear } from './monmove.js';
-import { PM_ROGUE, PM_TOURIST } from './monsters.js';
+import {
+    PM_DEATH,
+    PM_FAMINE,
+    PM_PESTILENCE,
+    PM_ROGUE,
+    PM_TOURIST,
+} from './monsters.js';
 import {
     is_pick, objectType, place_object, remove_object, set_bknown,
 } from './obj.js';
 import { oinit } from './o_init.js';
-import { donameFresh, vtense } from './objnam.js';
+import { The, corpse_xname, donameFresh, vtense } from './objnam.js';
 import {
     BOULDER,
     CORPSE,
@@ -183,7 +192,7 @@ import {
 } from './trap.js';
 import { seetrap } from './trap_effects.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
-import { cansee, vision_recalc, vision_reset } from './vision.js';
+import { cansee, canseemon, vision_recalc, vision_reset } from './vision.js';
 import { welded } from './wield.js';
 import { bimanual, setuqwep, setuswapwep, setuwep } from './worn.js';
 import { resurrect } from './wizard.js';
@@ -206,6 +215,49 @@ export class UnsupportedWipeError extends Error {
         this.name = 'UnsupportedWipeError';
         this.reason = reason;
     }
+}
+
+// C ref: do.c revive_corpse() (2111-2250), floor arm used by hack.c
+// revive_nasty(). revive() owns creation and corpse deletion; this wrapper
+// snapshots the corpse description and reports the source-specific result.
+export async function revive_corpse(corpse, state = game) {
+    if (corpse?.where !== OBJ_FLOOR) {
+        throw new UnsupportedLevelChangeError(
+            'revive_corpse() outside its floor arm',
+        );
+    }
+    const chewed = Boolean(corpse.oeaten);
+    const cname = corpse_xname(
+        corpse,
+        chewed ? 'bite-covered' : null,
+        CXN_SINGULAR,
+        state,
+    );
+    const coordinate = get_obj_location(corpse, 0, state);
+    const { revive } = await import('./zap.js');
+    const monster = await revive(corpse, false, { state });
+    if (!monster) return false;
+
+    if (cansee(coordinate.x, coordinate.y, state)
+        || canseemon(monster, state)) {
+        let effect = '';
+        if (monster.data === state.mons[PM_DEATH])
+            effect = ' in a whirl of spectral skulls';
+        else if (monster.data === state.mons[PM_PESTILENCE])
+            effect = ' in a churning pillar of flies';
+        else if (monster.data === state.mons[PM_FAMINE])
+            effect = ' in a ring of withered crops';
+
+        if (canseemon(monster, state)) {
+            const name = chewed
+                ? Adjmonnam(monster, 'bite-covered', state)
+                : Monnam(monster, state);
+            await ttyPline(`${name} rises from the dead${effect}!`, state);
+        } else {
+            await ttyPline(`${The(cname, state)} disappears${effect}!`, state);
+        }
+    }
+    return true;
 }
 
 function ordinaryWipeState(state, timeout) {

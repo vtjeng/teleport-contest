@@ -1779,7 +1779,7 @@ function updateMonsterNotice(monster, state) {
         monster.mspotted = false;
         return null;
     }
-    if (monster.mspotted) return null;
+    if (monster.mspotted || monster.mhp < 1) return null;
 
     monster.mspotted = true;
     return messageAt(
@@ -1798,19 +1798,20 @@ export function collectMonsterNoticeMessage(monster, state) {
     return updateMonsterNotice(monster, state);
 }
 
-export function collectMonsterNoticeMessages(state) {
+export function collectMonsterNoticeMessages(state, compare = null) {
     const monsters = [];
     for (let monster = state.level?.monlist; monster; monster = monster.nmon) {
+        if (monster.mhp < 1) continue;
         if (canSpotMonster(monster, state)) monsters.push(monster);
         else monster.mspotted = false;
     }
-    monsters.sort((left, right) => {
+    monsters.sort(compare ?? ((left, right) => {
         const ldx = left.mx - state.u.ux;
         const ldy = left.my - state.u.uy;
         const rdx = right.mx - state.u.ux;
         const rdy = right.my - state.u.uy;
         return ldx * ldx + ldy * ldy - (rdx * rdx + rdy * rdy);
-    });
+    }));
 
     const messages = [];
     for (const monster of monsters) {

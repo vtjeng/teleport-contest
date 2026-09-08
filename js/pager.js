@@ -518,7 +518,7 @@ function visibleGlyphCharacter(glyphinfo) {
 
 // C ref: pager.c waterbody_name() (560-612). Returns the terrain name for
 // water, lava, and ice tiles.
-function waterbody_name(x, y, state) {
+export function waterbody_name(x, y, state = game) {
     const loc = state.level?.at(x, y);
     const typ = loc?.typ;
     const liquid = (pref) => hliquid(pref, { state });

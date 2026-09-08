@@ -16,6 +16,8 @@ import {
     A_LAWFUL,
     A_STR,
     A_WIS,
+    ANTI_MAGIC,
+    ANTIMAGIC,
     ARM,
     ARROW_TRAP,
     BEAR_TRAP,
@@ -43,6 +45,8 @@ import {
     ECMD_OK,
     ECMD_TIME,
     FAILEDUNTRAP,
+    FIRE_RES,
+    FIRE_TRAP,
     FINGER,
     FLYING,
     FORCETRAP,
@@ -76,6 +80,7 @@ import {
     LEVITATION,
     M_SEEN_ELEC,
     MAGIC_PORTAL,
+    MAGIC_TRAP,
     MAXULEV,
     MELT_ICE_AWAY,
     M_AP_FURNITURE,
@@ -85,15 +90,19 @@ import {
     N_DIRS,
     PASSES_WALLS,
     PIT,
+    POLY_TRAP,
     P_BASIC,
     P_RIDING,
     ROCKTRAP,
     ROLLING_BOULDER_TRAP,
     ROOM,
+    RUST_TRAP,
     SCORR,
     SDOOR,
     SHOCK_RES,
     SHOPBASE,
+    SLEEP_RES,
+    SLP_GAS_TRAP,
     SPIKED_PIT,
     SQKY_BOARD,
     STAIRS,
@@ -105,6 +114,9 @@ import {
     TRAPDOOR,
     TRAPPED_CHEST,
     TRAPPED_DOOR,
+    TRAP_CLEARLY_IMMUNE,
+    TRAP_HIDDEN_IMMUNE,
+    TRAP_NOT_IMMUNE,
     TIMEOUT,
     Trap_Effect_Finished,
     TT_BEARTRAP,
@@ -137,7 +149,13 @@ import {
     noit_Monnam, y_monnam, rndcolor,
 } from './do_name.js';
 import { abuse_dog } from './dog.js';
-import { on_level, level_difficulty, u_on_newpos, surface } from './dungeon.js';
+import {
+    has_ceiling,
+    on_level,
+    level_difficulty,
+    u_on_newpos,
+    surface,
+} from './dungeon.js';
 import { done } from './end.js';
 import { can_reach_floor } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
@@ -150,23 +168,29 @@ import {
     UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import { sgn, upstart } from './hacklib.js';
-import { stackobj, getobj, useup, delete_contents, delobj, currency } from './invent.js';
+import { stackobj, getobj, useup, delete_contents, delobj } from './invent.js';
 import { get_obj_location } from './light.js';
 import { Is_box, stumble_on_door_mimic, ynq } from './lock.js';
 import { set_malign } from './makemon.js';
 import { killed, wake_nearby, wakeup } from './mon.js';
 import {
-    is_flyer, nohands, webmaker, sticks, bigmonst, mindless,
+    amorphous, attacktype, breathless, flaming, is_clinger, is_floater,
+    is_flyer, is_whirly, nohands, resists_magm, unsolid, webmaker, sticks,
+    bigmonst, mindless, monster_resists_element,
     touch_petrifies, unique_corpstat, poly_when_stoned,
 } from './mondata.js';
 import { stagger, monstseesu, monstunseesu } from './mondata.js';
-import { AD_ELEC, AD_FIRE, S_HUMAN, PM_STONE_GOLEM, PM_RANGER, PM_ROGUE } from './monsters.js';
+import {
+    AD_ELEC, AD_FIRE, AT_BREA, AT_MAGC, S_HUMAN, PM_GELATINOUS_CUBE,
+    MZ_SMALL, PM_IRON_GOLEM, PM_STONE_GOLEM, PM_RANGER, PM_ROGUE,
+} from './monsters.js';
 import { m_at } from './monst.js';
 import { observe_object } from './o_init.js';
 import {
     mksobj,
     obj_ice_effects,
     is_blade,
+    is_flammable,
     objectType,
     place_object,
     sobj_at,
@@ -176,7 +200,10 @@ import {
     bare_artifactname, safe_qbuf, ansimpleoname, the, xnameFresh,
     donameFresh, Tobjnam,
 } from './objnam.js';
-import { ARROW, BEARTRAP, BOULDER, CAN_OF_GREASE, DART, LAND_MINE, POTION_CLASS, POT_OIL } from './objects.js';
+import {
+    ARROW, BEARTRAP, BOULDER, CAN_OF_GREASE, DART, IRON, LAND_MINE,
+    POTION_CLASS, POT_OIL, SCROLL_CLASS, SCR_FIRE, SPBOOK_CLASS, SPE_FIREBALL,
+} from './objects.js';
 import { check_here, encumber_msg } from './pickup.js';
 import { make_hallucinated } from './potion.js';
 import { float_vs_flight, body_part, polymon } from './polyself.js';
@@ -199,7 +226,8 @@ import { bimanual } from './worn.js';
 import { newsym, bot } from './display.js';
 import { m_next2u } from './mhitu.js';
 import { destroy_items } from './zap_destroy_items.js';
-import { costly_spot, shop_keeper, inside_shop } from './shk.js';
+import { costly_spot, shop_keeper } from './shk.js';
+import { mon_has_amulet } from './wizard.js';
 
 // Env object for poisoned() calls inside chest_trap and other trap functions.
 function poisonedEnv(state) {
@@ -940,6 +968,120 @@ export async function float_down(hmask, emask, state = game) {
 // range.
 export function trapname(ttyp) {
     return CMAP_EXPLANATIONS[trap_to_defsym(ttyp)];
+}
+
+function heroProperty(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
+}
+
+// C ref: trap.c immune_to_trap() (2783-2942). This is a pure classification:
+// hidden immunity still asks the hero for confirmation, while clearly visible
+// immunity suppresses the prompt.
+export function immune_to_trap(mon, ttype, state = game) {
+    if (!mon) return TRAP_NOT_IMMUNE;
+    const pm = mon.data;
+    const isYou = mon === state.youmonst;
+    switch (ttype) {
+    case ARROW_TRAP:
+    case DART_TRAP:
+    case ROCKTRAP:
+        return TRAP_NOT_IMMUNE;
+    case BEAR_TRAP:
+        if ((pm?.msize ?? 0) <= MZ_SMALL || amorphous(pm)
+            || is_whirly(pm) || unsolid(pm)) return TRAP_CLEARLY_IMMUNE;
+        // fall through to the other ground-based traps
+    case SQKY_BOARD:
+    case LANDMINE:
+    case ROLLING_BOULDER_TRAP:
+    case HOLE:
+    case TRAPDOOR:
+    case PIT:
+    case SPIKED_PIT:
+        if (state.level?.flags?.sokoban_rules
+            && (is_pit(ttype) || is_hole(ttype))) return TRAP_NOT_IMMUNE;
+        if (state.u?.uz?.dnum === state.sokoban_dnum
+            && ttype === ROLLING_BOULDER_TRAP)
+            return TRAP_CLEARLY_IMMUNE;
+        if (is_floater(pm) || is_flyer(pm)
+            || (is_clinger(pm) && has_ceiling(state.u.uz, state))) {
+            return TRAP_CLEARLY_IMMUNE;
+        }
+        if (isYou && (heroProperty(state, LEVITATION)
+            || heroProperty(state, FLYING))) return TRAP_CLEARLY_IMMUNE;
+        return TRAP_NOT_IMMUNE;
+    case SLP_GAS_TRAP:
+        if (breathless(pm)) return TRAP_CLEARLY_IMMUNE;
+        if (!isYou && monster_resists_element(mon, SLEEP_RES, state))
+            return TRAP_CLEARLY_IMMUNE;
+        if (isYou && heroProperty(state, SLEEP_RES))
+            return TRAP_HIDDEN_IMMUNE;
+        return TRAP_NOT_IMMUNE;
+    case LEVEL_TELEP:
+    case TELEP_TRAP:
+        return state.u?.uz?.dnum === state.astral_level?.dnum
+            || mon_has_amulet(mon)
+            ? TRAP_CLEARLY_IMMUNE : TRAP_NOT_IMMUNE;
+    case POLY_TRAP:
+        if (resists_magm(mon, state))
+            return isYou ? TRAP_HIDDEN_IMMUNE : TRAP_CLEARLY_IMMUNE;
+        return TRAP_NOT_IMMUNE;
+    case STATUE_TRAP:
+        return isYou ? TRAP_NOT_IMMUNE : TRAP_CLEARLY_IMMUNE;
+    case WEB:
+        if (webmaker(pm) || amorphous(pm) || is_whirly(pm) || flaming(pm)
+            || unsolid(pm) || pm?.pmidx === PM_GELATINOUS_CUBE) {
+            return TRAP_CLEARLY_IMMUNE;
+        }
+        return TRAP_NOT_IMMUNE;
+    case ANTI_MAGIC:
+        if (isYou) {
+            if (heroProperty(state, ANTIMAGIC)) return TRAP_NOT_IMMUNE;
+            if (!state.u.uenmax) return TRAP_HIDDEN_IMMUNE;
+        } else if (!resists_magm(mon, state)
+            && (mon.mcan || (!attacktype(pm, AT_MAGC)
+                && !attacktype(pm, AT_BREA)))) return TRAP_CLEARLY_IMMUNE;
+        return TRAP_NOT_IMMUNE;
+    case RUST_TRAP:
+        if (pm?.pmidx === PM_IRON_GOLEM) return TRAP_NOT_IMMUNE;
+        for (let obj = isYou ? state.invent : mon.minvent;
+            obj;
+            obj = obj.nobj) {
+            if (objectType(obj, state).oc_material !== IRON || !obj.owornmask)
+                continue;
+            if (isYou && (obj === state.uquiver
+                || (obj === state.uswapwep && !state.u.twoweap))) continue;
+            return TRAP_NOT_IMMUNE;
+        }
+        return TRAP_CLEARLY_IMMUNE;
+    case MAGIC_TRAP:
+        if (isYou) return TRAP_NOT_IMMUNE;
+        // monster magic traps have the same harmful part as fire traps
+    case FIRE_TRAP: {
+        const fireproof = isYou
+            ? heroProperty(state, FIRE_RES)
+            : monster_resists_element(mon, FIRE_RES, state);
+        if (!fireproof) return TRAP_NOT_IMMUNE;
+        for (let obj = isYou ? state.invent : mon.minvent;
+            obj;
+            obj = obj.nobj) {
+            if (obj.oclass !== SCROLL_CLASS && obj.oclass !== POTION_CLASS
+                && obj.oclass !== SPBOOK_CLASS
+                && !(obj.owornmask && is_flammable(obj, state))) continue;
+            if ((obj.otyp === SCR_FIRE || obj.otyp === SPE_FIREBALL)
+                && (!isYou || (obj.dknown
+                    && objectType(obj, state).oc_name_known))) continue;
+            return TRAP_NOT_IMMUNE;
+        }
+        return isYou ? TRAP_HIDDEN_IMMUNE : TRAP_CLEARLY_IMMUNE;
+    }
+    case MAGIC_PORTAL:
+        return isYou ? TRAP_NOT_IMMUNE : TRAP_CLEARLY_IMMUNE;
+    case VIBRATING_SQUARE:
+        return TRAP_CLEARLY_IMMUNE;
+    default:
+        return TRAP_NOT_IMMUNE;
+    }
 }
 
 // ── #untrap command and disarm subsystem (C ref: trap.c 5248-6096) ──

@@ -183,6 +183,7 @@ import {
     losehp,
     may_dig,
     may_passwall,
+    notice_mon,
     switch_terrain,
 } from './hack.js';
 import { eaten_stat } from './eat.js';
@@ -396,7 +397,6 @@ import { stairway_at } from './stairs.js';
 import {
     canSpotMonster,
     collectMonsterMovementMessage,
-    collectMonsterNoticeMessage,
     messageAt,
     sensesMonster,
 } from './startup_a11y.js';
@@ -3086,8 +3086,7 @@ export async function postmov(
     let canseeit = cansee(monster.mx, monster.my, state);
     const didseeit = canseeit;
 
-    const notice = collectMonsterNoticeMessage(monster, state);
-    if (notice) await message(notice, state, env);
+    await notice_mon(monster, state, { message });
 
     // C ref: monmove.c:1526-1536, the UnblockDoor macro.  canseeit is the
     // caller's local there, so this returns the value the macro recomputes.

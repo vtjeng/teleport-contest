@@ -2,8 +2,6 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    BLINDED,
-    BOLT_LIM,
     COLNO,
     COULD_SEE,
     D_CLOSED,
@@ -811,17 +809,22 @@ test('rloc_to places a monster that holds no square', () => {
     assert.deepEqual([monster.mux, monster.muy], [state.u.ux, state.u.uy]);
 });
 
-test('rloc_to refuses each state whose tail it does not run', () => {
+test('rloc_to moves an ordinary on-map monster and refuses extended tails',
+    () => {
     const state = positionState();
     state.level.at(10, 11).typ = ROOM;
 
-    // A monster still on the map belongs to rloc_to_core()'s "pick up" block,
-    // which this port does not have.
+    // hack.c revive_nasty() reaches rloc_to_core()'s "pick up" block for an
+    // ordinary monster standing over the corpse.
     const placed = arrivingMonster(state);
-    placed.mx = 10;
-    placed.my = 11;
-    assert.throws(() => rloc_to(placed, 12, 11, { state, newsym: () => {} }),
-        /already on the map/u);
+    place_monster(placed, 10, 11, state);
+    assert.equal(
+        rloc_to(placed, 12, 11, { state, newsym: () => {} }),
+        placed,
+    );
+    assert.equal(state.level.monsters[10][11], null);
+    assert.equal(state.level.monsters[12][11], placed);
+    state.level.monsters[12][11] = null;
 
     // Each term of the side-effect guard on its own. The occupation term names
     // state.go.occupation, where cmd.c set_occupation() puts C's

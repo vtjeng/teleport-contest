@@ -1186,6 +1186,28 @@ export function l_monnam(monster, state = game, env = {}) {
         hasGivenName ? SUPPRESS_SADDLE : 0, true, state, env);
 }
 
+// C ref: do_name.c mon_nam() (1042-1046). Ordinary definite monster name.
+export function mon_nam(monster, state = game, env = {}) {
+    const hasGivenName = !!(monster.mextra?.mgivenname
+        || monster.mgivenname);
+    return x_monnam(monster, ARTICLE_THE, null,
+        hasGivenName ? SUPPRESS_SADDLE : 0, false, state, env);
+}
+
+// C ref: do_name.c Monnam() (1151-1156), mon_nam() with its first letter
+// raised by highc().
+export function Monnam(monster, state = game, env = {}) {
+    return upstart(mon_nam(monster, state, env));
+}
+
+// C ref: do_name.c m_monnam() (1110-1113). EXACT_NAME is the three
+// suppression bits below, so this reports the monster's own name.
+export function m_monnam(monster, state = game, env = {}) {
+    return x_monnam(monster, ARTICLE_NONE, null,
+        SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION | SUPPRESS_IT,
+        false, state, env);
+}
+
 // C ref: do_name.c Amonnam() (1158-1165), a_monnam() with its first letter
 // raised by highc().
 export function Amonnam(monster, env = {}) {

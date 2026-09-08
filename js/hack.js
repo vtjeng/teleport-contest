@@ -11,6 +11,7 @@ import {
     BLINDED,
     COLD_RES,
     CONFUSION,
+    CONFLICT,
     COLNO,
     CORR,
     DEAF,
@@ -38,9 +39,13 @@ import {
     FIRE_RES,
     FLYING,
     FUMBLING,
+    FROMFORM,
+    FROMOUTSIDE,
     GOLD_SYM,
+    GP_ALLOW_U,
     HALLUC,
     HALLUC_RES,
+    HALF_PHDAM,
     HEADSTONE,
     ICE,
     IS_AIR,
@@ -60,9 +65,11 @@ import {
     Is_airlevel,
     Is_waterlevel,
     IRONBARS,
+    I_SPECIAL,
     INTRINSIC,
     INVIS,
     LAVAWALL,
+    LAVAPOOL,
     LEFT_SIDE,
     LEVITATION,
     MAX_CARR_CAP,
@@ -71,11 +78,17 @@ import {
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_AP_TYPMASK,
+    MOD_ENCUMBER,
     N_DIRS,
     NEUTRAL,
+    NO_KILLER_PREFIX,
     PASSES_WALLS,
+    PARANOID_CONFIRM,
+    PARANOID_SWIM,
+    PARANOID_TRAP,
     PICK_NONE,
     POISON_RES,
+    POOL,
     RIGHT_SIDE,
     ROWNO,
     ROOM,
@@ -86,11 +99,14 @@ import {
     SDOOR,
     SEE_INVIS,
     SHOCK_RES,
+    SHOPBASE,
     SLEEP_RES,
+    SLT_ENCUMBER,
     STAIRS,
     STEALTH,
     STONE,
     STUNNED,
+    SWIMMING,
     TELEPORT,
     TELEPORT_CONTROL,
     TEST_TRAV,
@@ -99,12 +115,20 @@ import {
     TRAVP_TRAVEL,
     TRAVP_VALID,
     TIMER_OBJECT,
+    TIMEOUT,
+    TIP_ENHANCE,
     TIP_GETPOS,
+    TIP_SWIM,
+    TIP_UNTRAP_MON,
+    TRAP_CLEARLY_IMMUNE,
+    TRAPNUM,
     TT_BEARTRAP,
     Upolyd,
     VIBRATING_SQUARE,
+    WATER,
     WEB,
     WOUNDED_LEGS,
+    W_ARTI,
     W_NONDIGGABLE,
     W_NONPASSWALL,
     WT_ELF,
@@ -125,7 +149,7 @@ import {
     ydir,
     UNCHANGING,
 } from './const.js';
-import { rehumanize } from './polyself.js';
+import { float_vs_flight, rehumanize } from './polyself.js';
 import { acurrstr, acurr, exercise } from './attrib.js';
 import {
     bot,
@@ -135,6 +159,7 @@ import {
     glyph_at,
     glyph_is_cmap,
     glyph_is_invisible,
+    glyph_is_warning,
     glyph_to_cmap,
     map_invisible,
     newsym,
@@ -147,7 +172,11 @@ import {
 // this pair of modules forms an import cycle. Only the hoisted function
 // declaration is used, and only at call time, so neither module reads the
 // other during evaluation.
-import { cmdq_clear } from './cmd.js';
+import { cmdq_clear, confdir, paranoid_query } from './cmd.js';
+import {
+    createCommandBindingModel,
+    keyForCommand,
+} from './command_bindings.js';
 import { clear_kickedloc } from './dokick.js';
 import { dig_typ } from './dig.js';
 import {
@@ -155,25 +184,35 @@ import {
     a_monnam_unsupported,
     alwaysVisibleMonsterName,
     hliquid,
+    m_monnam,
+    mon_nam,
+    y_monnam,
 } from './do_name.js';
-import { Invocation_lev, u_on_newpos } from './dungeon.js';
+import {
+    assign_level,
+    Invocation_lev,
+    on_level,
+    u_on_newpos,
+} from './dungeon.js';
 import { gethungry } from './eat.js';
 import { done } from './end.js';
-import { dist2, highc, upstart } from './hacklib.js';
+import { dist2, highc, ing_suffix, upstart, visctrl } from './hacklib.js';
 import {
     can_reach_floor,
     engr_at,
     wipe_engr_at,
 } from './engrave.js';
 import { game } from './gstate.js';
-import { carrying } from './invent.js';
+import { carrying, delobj } from './invent.js';
 import { doopen_indir } from './lock.js';
 import {
     amorphous,
     attacktype,
     bigmonst,
     is_flyer,
+    is_floater,
     is_hider,
+    is_clinger,
     hides_under,
     is_rider,
     is_whirly,
@@ -182,8 +221,12 @@ import {
     noattacks,
     nohands,
     noncorporeal,
+    grounded,
+    metallivorous,
+    monster_resists_element,
     passes_walls,
     slithy,
+    sticks,
     strongmonst,
     throws_rocks,
     tunnels,
@@ -191,6 +234,7 @@ import {
 } from './mondata.js';
 import {
     is_pick,
+    is_weptool,
     obj_ice_effects,
     objectType,
     place_object,
@@ -203,6 +247,7 @@ import {
     assertPricedObjectNameable,
     simple_typename,
     the,
+    donameFresh,
     UnsupportedObjectNameError,
     xnameFresh,
 } from './objnam.js';
@@ -212,14 +257,17 @@ import {
     CORPSE,
     CREDIT_CARD,
     DWARVISH_MATTOCK,
+    LEVITATION_BOOTS,
     LOCK_PICK,
     NUM_OBJECTS,
     PICK_AXE,
+    RIN_LEVITATION,
     SKELETON_KEY,
     SLIME_MOLD,
     STATUE,
     WATER_WALKING_BOOTS,
     WAN_DIGGING,
+    WEAPON_CLASS,
 } from './objects.js';
 import {
     AT_EXPL,
@@ -239,7 +287,8 @@ import {
     S_EEL,
     S_NYMPH,
 } from './monsters.js';
-import { curr_mon_load, maybe_unhide_at } from './mon.js';
+import { curr_mon_load, maybe_unhide_at, set_ustuck } from './mon.js';
+import { m_next2u } from './mhitu.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
     accessible,
@@ -255,11 +304,19 @@ import {
     preflight_projected_random_arrival_pickup,
     UnsupportedPickupError,
 } from './pickup.js';
-import { in_out_region, inside_region, visible_region_at } from './region.js';
+import {
+    in_out_region,
+    inside_region,
+    visible_region_at,
+} from './region.js';
 import { CapitalMon } from './random_text.js';
-import { rn2, rnd } from './rng.js';
+import { rn1, rn2, rnd } from './rng.js';
+import { water_friction } from './mkmaze.js';
+import { waterbody_name } from './pager.js';
+import { Cold_resistance } from './zap.js';
+import { enexto, goodpos, rloc_to } from './teleport.js';
 import { inside_room } from './room_coordinates.js';
-import { check_special_room } from './rooms.js';
+import { check_special_room, in_rooms } from './rooms.js';
 import {
     costly_spot,
     preflight_shop_transition,
@@ -267,6 +324,7 @@ import {
 } from './shk.js';
 import {
     canSpotMonster,
+    collectMonsterNoticeMessage,
     collectMonsterNoticeMessages,
     is_db_wall,
     is_drawbridge_wall,
@@ -276,7 +334,13 @@ import {
 } from './startup_a11y.js';
 import { exercise_steed, stucksteed } from './steed.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
-import { S_hcdoor, S_stone, S_tree, S_vcdoor } from './symbols.js';
+import {
+    S_hcdoor,
+    S_stone,
+    S_tree,
+    S_vcdoor,
+    trap_to_defsym,
+} from './symbols.js';
 import {
     peek_timer,
     spot_stop_timers,
@@ -290,6 +354,9 @@ import {
     is_pool_or_lava,
     reset_utrap,
     t_at,
+    trapname,
+    into_vs_onto,
+    immune_to_trap,
 } from './trap.js';
 import { dotrap, preflight_dotrap } from './trap_effects.js';
 import {
@@ -299,7 +366,7 @@ import { tty_raw_print } from './tty_rawprint.js';
 import { init_objects } from './o_init.js';
 import { note_unported } from './unported.js';
 import { select_menu } from './windows.js';
-import { do_attack, is_safemon } from './uhitm.js';
+import { do_attack, is_safemon, stumble_onto_mimic } from './uhitm.js';
 import {
     block_point,
     couldsee,
@@ -308,6 +375,79 @@ import {
 } from './vision.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
+
+function reset_tmp_anything(state) {
+    state.tmp_anything ??= {};
+    Object.assign(state.tmp_anything, {
+        a_uint: 0,
+        a_long: 0,
+        a_monst: null,
+        a_obj: null,
+    });
+    return state.tmp_anything;
+}
+
+// C ref: hack.c uint_to_any(), long_to_any(), monst_to_any(), and
+// obj_to_any() (73-102). All four reuse gt.tmp_anything, so a later call
+// overwrites a value returned by an earlier one.
+export function uint_to_any(ui, state = game) {
+    const value = reset_tmp_anything(state);
+    value.a_uint = Number(ui) >>> 0;
+    return value;
+}
+
+export function long_to_any(lng, state = game) {
+    const value = reset_tmp_anything(state);
+    value.a_long = Math.trunc(lng);
+    return value;
+}
+
+export function monst_to_any(mtmp, state = game) {
+    const value = reset_tmp_anything(state);
+    value.a_monst = mtmp;
+    return value;
+}
+
+export function obj_to_any(obj, state = game) {
+    const value = reset_tmp_anything(state);
+    value.a_obj = obj;
+    return value;
+}
+
+// C ref: hack.c revive_nasty() (105-137). Save nexthere before revival because
+// a successful revive_corpse() deletes the corpse from the floor chain.
+export async function revive_nasty(x, y, msg, state = game) {
+    let revived = false;
+    for (let obj = state.level?.objects?.[x]?.[y] ?? null; obj;) {
+        const next = obj.nexthere;
+        if (obj.otyp !== CORPSE
+            || (!is_rider(state.mons?.[obj.corpsenm])
+                && obj.corpsenm !== PM_WIZARD_OF_YENDOR)) {
+            obj = next;
+            continue;
+        }
+        const occupant = m_at(x, y, state);
+        if (occupant) {
+            const adjacent = enexto(x, y, occupant.data, { state });
+            if (adjacent)
+                rloc_to(occupant, adjacent.x, adjacent.y, { state });
+        }
+        if (msg) await ttyNorep(msg, state);
+        const { revive_corpse } = await import('./do.js');
+        revived = await revive_corpse(obj, state);
+        obj = next;
+    }
+
+    if (revived) {
+        const monster = m_at(x, y, state);
+        if (monster && !goodpos(x, y, monster, 0, { state })) {
+            const adjacent = enexto(x, y, monster.data, { state });
+            if (adjacent)
+                rloc_to(monster, adjacent.x, adjacent.y, { state });
+        }
+    }
+    return revived;
+}
 
 // Lua ref: dat/nhcore.lua show_getpos_tip() (108-123). nh.text() preserves
 // blank lines in the literal and displays the result in an NHW_MENU window
@@ -323,24 +463,36 @@ export const GETPOS_TIP_LINES = Object.freeze([
     'and pressing ? will show the key help.',
 ]);
 
-// C ref: hack.c handle_tip() (1852-1880), TIP_GETPOS arm. Other tip owners
-// retain their existing local implementations until a running caller needs
-// this shared dispatcher. The bit is set before the Lua callback runs.
+// C ref: hack.c handle_tip() (1852-1880). The bit is set before the selected
+// message or Lua callback runs.
 export async function handle_tip(tip, state = game, env = {}) {
     if (!state.flags?.tips) return false;
     state.context ??= {};
     const tips = Math.trunc(state.context.tips ?? 0);
     if (tip < 0 || tip >= 4 || (tips & (1 << tip))) return false;
     state.context.tips = tips | (1 << tip);
-    if (tip !== TIP_GETPOS)
-        throw new UnsupportedHeroMoveBoundaryError(`handle_tip(${tip})`);
-    const textWindow = env.textWindow ?? (async (lines) => select_menu(state, {
-        how: PICK_NONE,
-        items: lines,
-        cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
-    }));
-    await textWindow(GETPOS_TIP_LINES.map((text) => ({ text })));
+    if (tip === TIP_ENHANCE) {
+        await ttyPline(
+            '(Tip: use the #enhance command to advance them.)', state,
+        );
+    } else if (tip === TIP_SWIM) {
+        state.commandBindings ??= createCommandBindingModel(state);
+        const key = keyForCommand(state.commandBindings, 'reqmenu');
+        await ttyPline(
+            `(Tip: use '${visctrl(key)}' prefix to step in if you really want to.)`,
+            state,
+        );
+    } else if (tip === TIP_UNTRAP_MON) {
+        await ttyPline('(Tip: perhaps #untrap would help?)', state);
+    } else if (tip === TIP_GETPOS) {
+        const textWindow = env.textWindow ?? (async (lines) => select_menu(state, {
+            how: PICK_NONE,
+            items: lines,
+            cancelValue: null,
+            overlay: state.iflags?.menu_overlay !== false,
+        }));
+        await textWindow(GETPOS_TIP_LINES.map((text) => ({ text })));
+    }
     return true;
 }
 
@@ -1566,43 +1718,6 @@ function carriesUnlockingTool(state) {
     return false;
 }
 
-// C ref: hack.c domove_bump_mon() (1924-1948), which domove_core() calls at
-// 2794, one line above domove_attackmon_at(). With the reqmenu prefix pending
-// it claims the step outright -- "Pardon me, Fido." for a peaceful target,
-// "You move right into the newt." for a hostile one -- and spends the turn
-// without reaching do_attack(), so none of that function's draws happen.
-// Nothing here ports it.
-//
-// `!svc.context.travel` is left out rather than restated: it is always true,
-// because js/hack.js:412, js/cmd.js:844 and js/cmd.js:865 are the only writers
-// of context.travel and all three write 0.
-//
-// The two glyph terms are left out. glyph_is_warning() is constantly false,
-// because a warning glyph needs a warning level this port never raises.
-// glyph_is_invisible() is not: mhitm.c pre_mm_attack() writes the marker now,
-// so a target the hero cannot spot standing where one was written would take
-// C's arm and print. This port falls through to do_attack() instead, and
-// uhitm.c attack_checks() refuses an unseen-monster attack there
-// (js/uhitm.js:307). Both routes end the segment on the same screen, so the
-// term would change which refusal names the stop and nothing else. Adding it
-// without the arm under it would only move the stop, and the arm needs
-// stumble_onto_mimic() and the m_monnam() half of its message pair, neither of
-// which is ported; the deferral
-// reqmenu-bump-ignores-the-invisible-monster-marker owns the gap.
-//
-// cmd.c set_move_cmd() copies the prefix into context.nopick, but
-// executeMovement() runs this seam before that call, so the pending
-// iflags.menu_requested is read beside it exactly as
-// requireSimpleHeroDestination() does.
-function requireNoMonsterBump(monster, state) {
-    if ((state.context?.nopick || state.iflags?.menu_requested)
-        && canSpotMonster(monster, state)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'reqmenu bump into a monster',
-        );
-    }
-}
-
 // C ref: hack.c domove_attackmon_at() (1954-1992). What the hero has to know
 // about the target before uhitm.c do_attack() can run.
 //
@@ -1615,11 +1730,6 @@ function requireNoMonsterBump(monster, state) {
 // the reveal message and refuses the attack. Targets hidden another way
 // (ceiling hiders, for example) are not handled in do_attack() and stop here.
 function requireOrdinaryHostileMelee(monster, state) {
-    if (monster.data?.pmidx === PM_DISPLACER_BEAST) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'displacer beast position swap',
-        );
-    }
     if (monster.mundetected
         && !sensesMonster(monster, state)
         && !(hides_under(monster.data) || monster.data?.mlet === S_EEL)) {
@@ -1639,7 +1749,6 @@ function requireOrdinaryHostileMelee(monster, state) {
 // blow runs js/uhitm.js hmon_hitmon_pet(), which spends the pet's tameness
 // through abuse_dog() and then its monflee() rnd().
 function requireSupportedDestinationMonster(monster, x, y, state) {
-    requireNoMonsterBump(monster, state);
     if (!is_safemon(monster, state) || state.context?.forcefight) {
         requireOrdinaryHostileMelee(monster, state);
         return;
@@ -2040,9 +2149,6 @@ function preflight_moverock(sx, sy, noPickMove, state) {
     // test_move():1225-1229, which runs before moverock() is called at all:
     // a tunneller that needs no pick chews the boulder through still_chewing()
     // instead.
-    if (tunnels(species) && !needspick(species) && !In_sokoban(u.uz))
-        refuse('a boulder chewed rather than pushed');
-
     // 355-363, and wider than C's arm. C refuses only a boulder the hero has
     // not already felt -- `Blind && glyph_to_obj(glyph_at(sx, sy)) != BOULDER`
     // -- and pushes one he has, so a blind hero pushing a mapped boulder is a
@@ -2106,22 +2212,6 @@ function preflight_moverock(sx, sy, noPickMove, state) {
     // sokoban_guilt() and Sokoban's own hole-plugging in flooreffects() are
     // both unported and an orthogonal Sokoban push reaches them.
     if (In_sokoban(u.uz)) refuse('a boulder push in Sokoban');
-
-    // 450-453. revive_nasty() (103-137) is a call on the push path, not a
-    // guard around it: it walks the pile at <rx,ry> and revives every Rider
-    // corpse and every Wizard of Yendor corpse there. Only its TRUE arm gives
-    // up the move, so its FALSE arm -- this scan finding neither -- is what
-    // has to be exact. The TRUE arm needs revive_corpse(), enexto() and
-    // rloc_to().
-    for (let obj = state.level?.objects?.[rx]?.[ry] ?? null;
-        obj;
-        obj = obj.nexthere) {
-        if (obj.otyp !== CORPSE) continue;
-        if (is_rider(state.mons?.[obj.corpsenm])
-            || obj.corpsenm === PM_WIZARD_OF_YENDOR) {
-            refuse('a Rider or Wizard corpse behind a boulder');
-        }
-    }
 
     // 455-483. The monster arm itself is ported in moverock_core(); it reports
     // the monster and returns cannot_push() ahead of every test below, so an
@@ -2219,6 +2309,166 @@ function cannot_push(otmp, sx, sy, state) {
     return -1;
 }
 
+// C ref: hack.c rock_disappear_msg() (315-324).
+export async function rock_disappear_msg(otmp, state = game) {
+    const objectName = the(xnameFresh(otmp, state), state);
+    if (state.u.usteed) {
+        const steed = upstart(y_monnam(state.u.usteed, state));
+        await ttyPline(
+            `${steed} pushes ${objectName} and suddenly it disappears!`, state,
+        );
+    } else {
+        await ttyPline(
+            `You push ${objectName} and suddenly it disappears!`, state,
+        );
+    }
+}
+
+function reset_digging(state) {
+    state.context.digging = {
+        down: false,
+        chew: false,
+        warned: false,
+        pos: { x: 0, y: 0 },
+        level: { dnum: 0, dlevel: 0 },
+        effort: 0,
+    };
+    return state.context.digging;
+}
+
+// C ref: hack.c still_chewing() (647-822).
+export async function still_chewing(x, y, state = game) {
+    const lev = state.level.at(x, y);
+    let boulder = sobj_at(BOULDER, x, y, state);
+    let digtxt = null;
+    let dmgtxt = null;
+    let digging = state.context.digging ?? reset_digging(state);
+    if (digging.down) digging = reset_digging(state);
+
+    if (!boulder && ((IS_OBSTRUCTED(lev.typ) && !may_dig(x, y, state))
+        || (lev.typ === IRONBARS && (lev.wall_info & W_NONDIGGABLE)))) {
+        const what = lev.typ === IRONBARS ? 'bars'
+            : IS_TREE(lev.typ) ? 'tree' : 'hard stone';
+        await ttyPline(`You hurt your teeth on the ${what}.`, state);
+        nomul(0, state);
+        return 1;
+    }
+    if (lev.typ === IRONBARS && metallivorous(state.youmonst.data)
+        && state.u.uhunger > 1500) {
+        await ttyPline('You are too full to eat the bars.', state);
+        nomul(0, state);
+        return 1;
+    }
+    if (!digging.chew || digging.pos?.x !== x || digging.pos?.y !== y
+        || !on_level(digging.level, state.u.uz)) {
+        digging.down = false;
+        digging.chew = true;
+        digging.warned = false;
+        digging.pos = { x, y };
+        digging.level ??= {};
+        assign_level(digging.level, state.u.uz);
+        digging.effort = (IS_OBSTRUCTED(lev.typ) && !IS_TREE(lev.typ)
+            ? 30 : 60) + Math.trunc(state.u.udaminc ?? 0);
+        const prep = boulder || IS_TREE(lev.typ) || lev.typ === IRONBARS
+            ? 'on a' : 'a hole in the';
+        const target = boulder ? 'boulder'
+            : IS_TREE(lev.typ) ? 'tree'
+                : IS_OBSTRUCTED(lev.typ) ? 'rock'
+                    : lev.typ === IRONBARS ? 'bar' : 'door';
+        await ttyPline(`You start chewing ${prep} ${target}.`, state);
+        note_unported('mon.c watch_dig');
+        return 1;
+    }
+    digging.effort += 30 + Math.trunc(state.u.udaminc ?? 0);
+    if (digging.effort <= 100) {
+        if (state.flags?.verbose) {
+            const target = boulder ? 'boulder'
+                : IS_TREE(lev.typ) ? 'tree'
+                    : IS_OBSTRUCTED(lev.typ) ? 'rock'
+                        : lev.typ === IRONBARS ? 'bars' : 'door';
+            await ttyPline(`You continue chewing on the ${target}.`, state);
+        }
+        digging.chew = true;
+        note_unported('mon.c watch_dig');
+        return 1;
+    }
+
+    state.u.uconduct ??= {};
+    if (!(state.u.uconduct.food ?? 0))
+        note_unported('pline.c livelog_printf');
+    state.u.uconduct.food = Math.trunc(state.u.uconduct.food ?? 0) + 1;
+    state.u.uhunger += rnd(20);
+
+    if (boulder) {
+        delobj(boulder, { state });
+        await ttyPline('You eat the boulder.', state);
+        boulder = sobj_at(BOULDER, x, y, state);
+        if (IS_OBSTRUCTED(lev.typ) || closed_door(x, y, state) || boulder) {
+            block_point(x, y, state);
+            reset_digging(state);
+            return 1;
+        }
+    } else if (IS_WALL(lev.typ)) {
+        if (in_rooms(x, y, SHOPBASE, state)[0]) {
+            note_unported('shk.c add_damage');
+            dmgtxt = 'damage';
+        }
+        digtxt = 'You chew a hole in the wall.';
+        if (state.level.flags?.is_maze_lev) lev.typ = ROOM;
+        else if (state.level.flags?.is_cavernous_lev
+            && !in_town(x, y, state)) lev.typ = CORR;
+        else {
+            lev.typ = DOOR;
+            lev.doormask = D_NODOOR;
+            lev.flags = D_NODOOR;
+        }
+    } else if (IS_TREE(lev.typ)) {
+        digtxt = 'You chew through the tree.';
+        lev.typ = ROOM;
+    } else if (lev.typ === IRONBARS) {
+        if (metallivorous(state.youmonst.data))
+            note_unported('eat.c morehungry');
+        digtxt = u_at(x, y, state)
+            ? 'You devour the iron bars.' : 'You eat through the bars.';
+        note_unported('trap.c dissolve_bars');
+    } else if (lev.typ === SDOOR) {
+        if ((lev.doormask ?? lev.flags ?? 0) & D_TRAPPED) {
+            lev.doormask = D_NODOOR;
+            lev.flags = D_NODOOR;
+            note_unported('trap.c b_trapped');
+        } else {
+            digtxt = 'You chew through the secret door.';
+            lev.doormask = D_BROKEN;
+            lev.flags = D_BROKEN;
+        }
+        lev.typ = DOOR;
+    } else if (IS_DOOR(lev.typ)) {
+        if (in_rooms(x, y, SHOPBASE, state)[0]) {
+            note_unported('shk.c add_damage');
+            dmgtxt = 'break';
+        }
+        if ((lev.doormask ?? lev.flags ?? 0) & D_TRAPPED) {
+            lev.doormask = D_NODOOR;
+            lev.flags = D_NODOOR;
+            note_unported('trap.c b_trapped');
+        } else {
+            digtxt = 'You chew through the door.';
+            lev.doormask = D_BROKEN;
+            lev.flags = D_BROKEN;
+        }
+    } else {
+        digtxt = 'You chew a passage through the rock.';
+        lev.typ = CORR;
+    }
+
+    recalc_block_point(x, y, state);
+    newsym(x, y);
+    if (digtxt) await ttyPline(digtxt, state);
+    if (dmgtxt) note_unported('shk.c pay_for_damage');
+    reset_digging(state);
+    return 0;
+}
+
 // C ref: hack.c movobj() (824-833). Unlink the object, tell the square it
 // left, relink it, tell the square it landed on.
 //
@@ -2233,6 +2483,81 @@ export function movobj(obj, ox, oy, state = game) {
     newsym(obj.ox, obj.oy);
     place_object(obj, ox, oy, boulderVisionEnv(state));
     newsym(ox, oy);
+}
+
+function maybe_half_phys(damage, state) {
+    return propertyPresent(state, HALF_PHDAM)
+        ? Math.trunc((damage + 1) / 2) : damage;
+}
+
+// C ref: hack.c dosinkfall() (836-922). Equipment callbacks that remove
+// levitation rings or boots are still owned by unported do_wear.c arms; those
+// discarded calls are recorded while this function preserves hack.c's own
+// property-mask and fall-damage updates.
+export async function dosinkfall(state = game) {
+    const u = state.u;
+    const levitation = u.uprops[LEVITATION];
+    const flying = u.uprops[FLYING];
+    const levBoots = state.uarmf?.otyp === LEVITATION_BOOTS;
+    const innateLev = Boolean(levitation.intrinsic
+        & (FROMOUTSIDE | FROMFORM));
+    const blockedLev = levitation.blocked === I_SPECIAL;
+    const ufall = !innateLev && !blockedLev
+        && !(flying.intrinsic || flying.extrinsic);
+
+    if (!ufall) {
+        await ttyPline(innateLev || blockedLev
+            ? 'You wobble unsteadily for a moment.'
+            : 'You gain control of your flight.', state);
+    } else {
+        const saveExtrinsic = levitation.extrinsic;
+        const saveIntrinsic = levitation.intrinsic;
+        levitation.extrinsic = 0;
+        levitation.intrinsic = 0;
+        await ttyPline('You crash to the floor!', state);
+        const damage = rn1(8, 25 - acurr(state, A_CON));
+        await losehp(
+            maybe_half_phys(damage, state),
+            'fell onto a sink', NO_KILLER_PREFIX, state,
+        );
+        await exercise(A_DEX, false, state);
+        note_unported('polyself.c selftouch');
+        for (let obj = state.level?.objects?.[u.ux]?.[u.uy] ?? null;
+            obj;
+            obj = obj.nexthere) {
+            if (obj.oclass !== WEAPON_CLASS && !is_weptool(obj, state))
+                continue;
+            await ttyPline(`You fell on ${donameFresh(obj, state)}.`, state);
+            await losehp(
+                maybe_half_phys(rnd(3), state),
+                'fell onto a sink', NO_KILLER_PREFIX, state,
+            );
+            await exercise(A_CON, false, state, { rn2 }, {
+                encumberMessage: encumber_msg,
+            });
+        }
+        levitation.extrinsic = saveExtrinsic;
+        levitation.intrinsic = saveIntrinsic;
+    }
+
+    if (ufall || levBoots) note_unported('do_wear.c stop_donning');
+    levitation.extrinsic &= ~W_ARTI;
+    levitation.intrinsic &= ~(I_SPECIAL | TIMEOUT);
+    levitation.intrinsic++;
+    if (state.uleft?.otyp === RIN_LEVITATION) {
+        note_unported('do_wear.c Ring_off');
+        note_unported('do_wear.c off_msg');
+    }
+    if (state.uright?.otyp === RIN_LEVITATION) {
+        note_unported('do_wear.c Ring_off');
+        note_unported('do_wear.c off_msg');
+    }
+    if (levBoots) {
+        note_unported('do_wear.c Boots_off');
+        note_unported('do_wear.c off_msg');
+    }
+    levitation.intrinsic--;
+    float_vs_flight(state);
 }
 
 // C ref: hack.c dopush() (165-241). The feedback is throttled by two globals
@@ -2350,10 +2675,12 @@ async function moverock_core(sx, sy, state, env) {
         }
 
         const ttmp = t_at(rx, ry, state);
-        const mtmp = m_at(rx, ry, state);
 
-        // Sokoban's diagonal rule at 442-448 and revive_nasty() at 450-453
-        // stay behind preflight_moverock().
+        // Sokoban's diagonal rule remains behind preflight_moverock().
+        if (await revive_nasty(
+            rx, ry, 'You sense movement on the other side.', state,
+        )) return -1;
+        const mtmp = m_at(rx, ry, state);
 
         // 455-483, a corporeal monster standing where the boulder would land,
         // unless it is already trapped in the pit under it. C reports the
@@ -2493,8 +2820,26 @@ export async function test_move(
         // skips a tactile update C performs. The terrain refusal above sits on
         // the same side for the same reason: a refusal ends the port's run, and
         // a half-updated map would only make the stop harder to read.
-        requireOrdinaryObstacleRefusal(state);
         if (heroIsBlind(state) && mode === DO_MOVE) feel_location(x, y, state);
+        if (propertyPresent(state, PASSES_WALLS)
+            && may_passwall(x, y, state)) {
+            // pass through
+        } else if (state.u?.uinwater) {
+            if (mode === DO_MOVE)
+                await ttyPline('There is an obstacle there.', state);
+            return false;
+        } else if (location.typ === IRONBARS) {
+            if (mode === DO_MOVE && metallivorous(state.youmonst.data)
+                && await still_chewing(x, y, state)) return false;
+            throw new UnsupportedHeroMoveBoundaryError(
+                'test_move() iron bars movement',
+            );
+        } else if (tunnels(state.youmonst?.data)
+            && !needspick(state.youmonst?.data)) {
+            if (mode === DO_MOVE && await still_chewing(x, y, state))
+                return false;
+        } else {
+            requireOrdinaryObstacleRefusal(state);
 
         // C ref: hack.c:1048-1069, the three-arm chain inside the closing
         // else's `if (mode == DO_MOVE)`. Only the drawbridge arm and the
@@ -2533,6 +2878,7 @@ export async function test_move(
             }
         }
         return false;
+        }
     }
 
     if (IS_DOOR(location.typ) && closed_door(x, y, state)) {
@@ -2697,7 +3043,7 @@ export async function test_move(
     // C ref: hack.c:1216-1252, the boulder block. The run arm stops in front
     // of a boulder the hero cannot get past, the DO_MOVE arm pushes one, and
     // the TEST_TRAV arm rejects Sokoban and consecutive boulders that cannot
-    // be bypassed. The still_chewing() arm remains behind preflight.
+    // be bypassed. A tunnelling form reaches still_chewing() first.
     //
     // A Passes_walls hero walks onto the square without touching the boulder,
     // outside Sokoban. No ported path grants the property, so the guard is
@@ -2743,6 +3089,10 @@ export async function test_move(
             }
         }
         if (mode === DO_MOVE) {
+            if (tunnels(state.youmonst?.data)
+                && !needspick(state.youmonst?.data)
+                && !In_sokoban(state.u.uz)
+                && await still_chewing(x, y, state)) return false;
             // Every unported arm of moverock_core() is refused here rather
             // than only in the command-admission seam. cmd.c
             // executeMovement()'s seam runs once per keystroke, so the second
@@ -2996,6 +3346,205 @@ export async function is_valid_travelpt(x, y, state = game) {
     }
 }
 
+// C ref: hack.c notice_mon() (1708-1732). startup_a11y.js owns the exact
+// visibility and naming calculation; hack.c owns the option gate and emit.
+export async function notice_mon(mtmp, state = game, env = {}) {
+    const line = collectMonsterNoticeMessage(mtmp, state);
+    if (line) await (env.message ?? ttyPline)(line, state);
+}
+
+// C ref: hack.c notice_mons_cmp() (1735-1742).
+export function notice_mons_cmp(left, right, state = game) {
+    return dist2(left.mx, left.my, state.u.ux, state.u.uy)
+        - dist2(right.mx, right.my, state.u.ux, state.u.uy);
+}
+
+// C ref: hack.c u_simple_floortyp() (1833-1848). This deliberately collapses
+// every ordinary solid or airborne destination to ROOM.
+export function u_simple_floortyp(x, y, state = game) {
+    const typ = state.level?.at(x, y)?.typ;
+    const inAir = propertyActiveUnblocked(state, LEVITATION)
+        || heroIsFlying(state) || !grounded(state.youmonst?.data, state);
+    if (IS_WATERWALL(typ)) return WATER;
+    if (typ === LAVAWALL) return LAVAWALL;
+    if (!inAir) {
+        if (is_pool(x, y, state)) return POOL;
+        if (is_lava(x, y, state)) return LAVAPOOL;
+    }
+    return ROOM;
+}
+
+// C ref: hack.c swim_move_danger() (1885-1922).
+export async function swim_move_danger(x, y, state = game) {
+    const newtyp = u_simple_floortyp(x, y, state);
+    const liquidWall = IS_WATERWALL(newtyp) || newtyp === LAVAWALL;
+    if (state.u.uinwater
+        && (is_pool(x, y, state) || IS_WATERWALL(newtyp))) return false;
+
+    const stunned = propertyIntrinsic(state, STUNNED);
+    const confused = propertyIntrinsic(state, CONFUSION);
+    if (newtyp !== u_simple_floortyp(state.u.ux, state.u.uy, state)
+        && !stunned && !confused && state.level.at(x, y).seenv
+        && (is_pool(x, y, state) || is_lava(x, y, state) || liquidWall)) {
+        if ((is_pool(x, y, state) && !known_wwalking(state))
+            || (is_lava(x, y, state) && !known_lwalking(state)
+                && !is_lava(state.u.ux, state.u.uy, state))
+            || liquidWall) {
+            if (state.context.nopick) {
+                state.context.tips = Math.trunc(state.context.tips ?? 0)
+                    | (1 << TIP_SWIM);
+                return false;
+            }
+            if ((state.flags?.paranoia_bits & PARANOID_SWIM) || liquidWall) {
+                await ttyPline(
+                    `You avoid ${ing_suffix(u_locomotion('step', state))} into the ${waterbody_name(x, y, state)}.`,
+                    state,
+                );
+                await handle_tip(TIP_SWIM, state);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+// C ref: hack.c domove_bump_mon() (1925-1948).
+export async function domove_bump_mon(mtmp, glyph, state = game) {
+    if (state.context.nopick && !state.context.travel
+        && (canSpotMonster(mtmp, state) || glyph_is_invisible(glyph)
+            || glyph_is_warning(glyph))) {
+        if ((mtmp.m_ap_type ?? 0)
+            && !propertyActiveUnblocked(state, PROT_FROM_SHAPE_CHANGERS)
+            && !sensesMonster(mtmp, state)) {
+            await stumble_onto_mimic(mtmp, state);
+        } else if (mtmp.mpeaceful && !heroHallucinating(state)) {
+            await ttyPline(`Pardon me, ${m_monnam(mtmp, state)}.`, state);
+        } else {
+            await ttyPline(`You move right into ${mon_nam(mtmp, state)}.`, state);
+        }
+        return true;
+    }
+    return false;
+}
+
+// C ref: hack.c domove_attackmon_at() (1955-1992). The returned displace
+// field is the C output parameter.
+export async function domove_attackmon_at(
+    mtmp, x, y, state = game, env = {},
+) {
+    let displace = false;
+    if (state.context.forcefight || !mtmp.mundetected
+        || sensesMonster(mtmp, state)
+        || ((hides_under(mtmp.data) || mtmp.data?.mlet === S_EEL)
+            && !is_safemon(mtmp, state))) {
+        displace = mtmp.data?.pmidx === PM_DISPLACER_BEAST && !rn2(2)
+            && mtmp.mux === state.u.ux0 && mtmp.muy === state.u.uy0
+            && !helpless(mtmp) && !mtmp.meating && !mtmp.mtrapped
+            && !state.u.utrap && !state.u.ustuck && !state.u.usteed
+            && !(state.u.dx && state.u.dy
+                && (NODIAG(state.u.umonnum)
+                    || (bad_rock(mtmp.data, x, state.u.uy0, state)
+                        && bad_rock(mtmp.data, state.u.ux0, y, state))
+                    || (bad_rock(state.youmonst.data, state.u.ux0, y, state)
+                        && bad_rock(state.youmonst.data, x, state.u.uy0, state))))
+            && goodpos(state.u.ux0, state.u.uy0, mtmp, GP_ALLOW_U, { state });
+        if (!displace && await do_attack(mtmp, state, env))
+            return { used: true, displace: false };
+    }
+    return { used: false, displace };
+}
+
+// C ref: hack.c air_turbulence() (2342-2362).
+export async function air_turbulence(state = game) {
+    if (Is_airlevel(state.u.uz) && rn2(4)
+        && !propertyActiveUnblocked(state, LEVITATION)
+        && !heroIsFlying(state)) {
+        switch (rn2(3)) {
+        case 0:
+            await ttyPline('You tumble in place.', state);
+            await exercise(A_DEX, false, state);
+            break;
+        case 1:
+            await ttyPline("You can't control your movements very well.", state);
+            break;
+        default:
+            await ttyPline("It's hard to walk in thin air.", state);
+            await exercise(A_DEX, true, state);
+            break;
+        }
+        return true;
+    }
+    return false;
+}
+
+// C ref: hack.c water_turbulence() (2365-2393). Coordinates are returned in
+// an object because C mutates its two pointer parameters.
+export async function water_turbulence(x, y, state = game) {
+    if (state.u.uinwater) {
+        const wtmod = propertyPresent(state, SWIMMING)
+            ? MOD_ENCUMBER : SLT_ENCUMBER;
+        await water_friction(state);
+        if (!state.u.dx && !state.u.dy) {
+            nomul(0, state);
+            return { stopped: true, x, y };
+        }
+        x = state.u.ux + state.u.dx;
+        y = state.u.uy + state.u.dy;
+        if (isok(x, y) && !is_pool(x, y, state)
+            && !Is_waterlevel(state.u.uz) && near_capacity(state) > wtmod) {
+            await ttyPline(
+                'You are carrying too much to climb out of the water.', state,
+            );
+            nomul(0, state);
+            return { stopped: true, x, y };
+        }
+    }
+    return { stopped: false, x, y };
+}
+
+// C ref: hack.c slippery_ice_fumbling() (2396-2413).
+export function slippery_ice_fumbling(state = game) {
+    state.u.uprops[FUMBLING] ??= {
+        intrinsic: 0, extrinsic: 0, blocked: 0,
+    };
+    let onIce = !propertyActiveUnblocked(state, LEVITATION)
+        && state.level?.at(state.u.ux, state.u.uy)?.typ === ICE;
+    const skater = state.u.usteed ?? state.youmonst;
+    if (onIce) {
+        if ((state.uarmf && objdescr_is(state.uarmf, 'snow boots', state))
+            || monster_resists_element(skater, COLD_RES, state)
+            || heroIsFlying(state) || is_floater(skater.data)
+            || is_clinger(skater.data) || is_whirly(skater.data)) {
+            onIce = false;
+        } else if (!rn2(Cold_resistance(state) ? 3 : 2)) {
+            const fumbling = state.u.uprops[FUMBLING];
+            fumbling.intrinsic |= FROMOUTSIDE;
+            fumbling.intrinsic &= ~TIMEOUT;
+            fumbling.intrinsic += 1;
+        }
+    }
+    if (!onIce && (state.u.uprops[FUMBLING].intrinsic & FROMOUTSIDE))
+        state.u.uprops[FUMBLING].intrinsic &= ~FROMOUTSIDE;
+}
+
+// C ref: hack.c impaired_movement() (2425-2443).
+export function impaired_movement(x, y, state = game) {
+    if (u_maybe_impaired(state)) {
+        let tries = 0;
+        do {
+            if (tries++ > 50) {
+                nomul(0, state);
+                return { stopped: true, x, y };
+            }
+            confdir(true, state);
+            x = state.u.ux + state.u.dx;
+            y = state.u.uy + state.u.dy;
+        } while (!isok(x, y)
+            || bad_rock(state.youmonst.data, x, y, state));
+    }
+    return { stopped: false, x, y };
+}
+
 // C ref: hack.c move_out_of_bounds() (2584-2612). domove_core() calls this
 // ahead of every terrain branch, so a step off the edge of the map ends the run
 // and spends no time before test_move() runs. Until this was ported the refusal
@@ -3040,22 +3589,19 @@ function known_lwalking(state) {
         && Boolean(state.uarmf.rknown);
 }
 
-// C ref: hack.c avoid_moving_on_trap(). Its message needs trapname() and an(),
-// neither of which is ported, so a msg = TRUE caller stops instead.
-//
-// Two callers pass TRUE. lookaround()'s trap arm does, at run values above 1,
-// which the ctrl-direction rush now reaches. The other is
-// avoid_running_into_trap_or_liquid(), which is `domove_core()`'s first run arm
-// and is not ported at all: at run 1 it can only act on a destination trap or
-// liquid, and both are refused before domove() reaches them, so nothing is
-// dropped today. Port it with the trap work, where C stops a rush cleanly with
-// no time spent and the port's destination seam throws instead.
-function avoid_moving_on_trap(x, y, msg, state) {
+// C ref: hack.c avoid_moving_on_trap().
+async function avoid_moving_on_trap(x, y, msg, state) {
     const trap = t_at(x, y, state);
     if (trap && trap.tseen && trap.ttyp !== VIBRATING_SQUARE) {
         if (msg && state.flags?.mention_walls) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'a trap stop message while rushing',
+            await ttyPline(
+                messageAt(
+                    `You stop in front of ${an(trapname(trap.ttyp))}.`,
+                    x,
+                    y,
+                    state,
+                ),
+                state,
             );
         }
         return true;
@@ -3095,6 +3641,139 @@ async function avoid_moving_on_liquid(x, y, msg, state) {
             );
         }
         return true;
+    }
+    return false;
+}
+
+// C ref: hack.c avoid_running_into_trap_or_liquid() (2495-2510).
+export async function avoid_running_into_trap_or_liquid(
+    x, y, state = game,
+) {
+    const wouldStop = (state.context.run ?? 0) >= 2;
+    if (!state.context.run) return false;
+    if (await avoid_moving_on_trap(x, y, wouldStop, state)
+        || (heroIsBlind(state)
+            && await avoid_moving_on_liquid(x, y, wouldStop, state))) {
+        nomul(0, state);
+        if (wouldStop) state.context.move = 0;
+        return wouldStop;
+    }
+    return false;
+}
+
+function region_damage(region) {
+    return (!region?.visible || region.ttl === -2)
+        ? 0 : Math.trunc(region.arg ?? 0);
+}
+
+// C ref: hack.c avoid_trap_andor_region() (2515-2581).
+export async function avoid_trap_andor_region(x, y, state = game) {
+    const paranoia = Math.trunc(state.flags?.paranoia_bits ?? 0);
+    const paranoidTrap = Boolean(paranoia & PARANOID_TRAP);
+    const impaired = propertyIntrinsic(state, STUNNED)
+        || propertyIntrinsic(state, CONFUSION);
+    if (paranoidTrap && !heroIsBlind(state) && !impaired
+        && !heroHallucinating(state)
+        && (!state.context.nopick || state.context.run)) {
+        const newreg = visible_region_at(x, y, state);
+        const oldreg = visible_region_at(state.u.ux, state.u.uy, state);
+        if (newreg && (!oldreg
+            || (region_damage(newreg) > 0 && region_damage(oldreg) === 0))
+            && await test_move(
+                state.u.ux, state.u.uy, state.u.dx, state.u.dy,
+                TEST_MOVE, state,
+            )) {
+            const qbuf = upstart(
+                `${u_locomotion('step', state)} into that ${
+                    region_damage(newreg) > 0 ? 'poison gas' : 'vapor'
+                } cloud?`,
+            );
+            if (!await paranoid_query(
+                Boolean(paranoia & PARANOID_CONFIRM), qbuf, state,
+            )) {
+                nomul(0, state);
+                state.context.move = 0;
+                return true;
+            }
+        }
+    }
+
+    const trap = t_at(x, y, state);
+    if (paranoidTrap && !impaired
+        && (!state.context.nopick || state.context.run)
+        && trap?.tseen
+        && await test_move(
+            state.u.ux, state.u.uy, state.u.dx, state.u.dy,
+            TEST_MOVE, state,
+        )
+        && (immune_to_trap(state.youmonst, trap.ttyp, state)
+            !== TRAP_CLEARLY_IMMUNE || heroHallucinating(state))) {
+        const traptype = heroHallucinating(state)
+            ? rnd(TRAPNUM - 1) : Math.trunc(trap.ttyp);
+        const prompt = `Really ${u_locomotion('step', state)} ${
+            into_vs_onto(traptype) ? 'into' : 'onto'
+        } that ${CMAP_EXPLANATIONS[trap_to_defsym(traptype)]}?`;
+        if (!await paranoid_query(
+            Boolean(paranoia & PARANOID_CONFIRM), prompt, state,
+        )) {
+            nomul(0, state);
+            state.context.move = 0;
+            return true;
+        }
+    }
+    return false;
+}
+
+// C ref: hack.c carrying_too_much() (2616-2636).
+export async function carrying_too_much(state = game) {
+    const wtcap = near_capacity(state);
+    const lowHitPoints = Upolyd(state.u)
+        ? state.u.mh < 5 && state.u.mh !== state.u.mhmax
+        : state.u.uhp < 10 && state.u.uhp !== state.u.uhpmax;
+    if ((wtcap >= OVERLOADED || (wtcap > SLT_ENCUMBER && lowHitPoints))
+        && !Is_airlevel(state.u.uz)) {
+        if (wtcap < OVERLOADED) {
+            await ttyPline("You don't have enough stamina to move.", state);
+            await exercise(A_CON, false, state, { rn2 }, {
+                encumberMessage: encumber_msg,
+            });
+        } else {
+            await ttyPline('You collapse under your load.', state);
+        }
+        nomul(0, state);
+        return true;
+    }
+    return false;
+}
+
+// C ref: hack.c escape_from_sticky_mon() (2639-2690).
+export async function escape_from_sticky_mon(x, y, state = game) {
+    const u = state.u;
+    if (!u.ustuck || (x === u.ustuck.mx && y === u.ustuck.my)) return false;
+    if (!m_next2u(u.ustuck, state)) {
+        set_ustuck(null, state);
+    } else if (sticks(state.youmonst.data)) {
+        const mtmp = u.ustuck;
+        set_ustuck(null, state);
+        await ttyPline(`You release ${y_monnam(mtmp, state)}.`, state);
+    } else {
+        const roll = rn2(!u.ustuck.mcanmove ? 8 : 40);
+        if (roll === 3 && !u.ustuck.mcanmove) {
+            u.ustuck.mfrozen = 1;
+            u.ustuck.msleeping = 0;
+        }
+        if (roll >= 3
+            && (propertyPresent(state, CONFLICT)
+                || u.ustuck.mconf || !u.ustuck.mtame)) {
+            await ttyPline(
+                `You cannot escape from ${y_monnam(u.ustuck, state)}!`, state,
+            );
+            nomul(0, state);
+            return true;
+        }
+        const mtmp = u.ustuck;
+        set_ustuck(null, state);
+        await ttyPline(`You pull free from ${y_monnam(mtmp, state)}.`, state);
     }
     return false;
 }
@@ -3363,9 +4042,7 @@ export async function domove(state = game) {
     clear_kickedloc(state);
 }
 
-// C ref: hack.c domove_core(). This remains the narrow ordinary-floor subset;
-// the movement goal will replace its collision and terrain branches in source
-// order without changing the command intent established by cmd.c. It requires
+// C ref: hack.c domove_core(). It requires
 // established u.dx/u.dy and context.move = 1. Success updates the position and
 // leaves that turn flag untouched; a blocked step sets it to 0 and cancels
 // multi, context.mv, and context.run. moveloop_core() calls domove() directly
@@ -3388,9 +4065,15 @@ async function domove_core(state = game) {
         state.context.travel1 = 0;
     }
 
+    if (await carrying_too_much(state)) {
+        state.domoveAttempting = 0;
+        return;
+    }
+
     let newx;
     let newy;
     let destinationMonster;
+    let displaceu = false;
     if (u.uswallow) {
         // C ref: hack.c domove_core():2739-2743. A swallowed hero does not
         // move in the requested direction. The swallower owns the hero's
@@ -3408,10 +4091,39 @@ async function domove_core(state = game) {
         u_on_newpos(newx, newy, state);
         destinationMonster = u.ustuck;
     } else {
+        if (await air_turbulence(state)) {
+            state.domoveAttempting = 0;
+            return;
+        }
+        slippery_ice_fumbling(state);
         newx = u.ux + u.dx;
         newy = u.uy + u.dy;
 
+        const impaired = impaired_movement(newx, newy, state);
+        if (impaired.stopped) {
+            state.domoveAttempting = 0;
+            return;
+        }
+        newx = impaired.x;
+        newy = impaired.y;
+
+        const turbulent = await water_turbulence(newx, newy, state);
+        if (turbulent.stopped) {
+            state.domoveAttempting = 0;
+            return;
+        }
+        newx = turbulent.x;
+        newy = turbulent.y;
+
         if (await move_out_of_bounds(newx, newy, state)) {
+            state.domoveAttempting = 0;
+            return;
+        }
+        if (await avoid_running_into_trap_or_liquid(newx, newy, state)) {
+            state.domoveAttempting = 0;
+            return;
+        }
+        if (await escape_from_sticky_mon(newx, newy, state)) {
             state.domoveAttempting = 0;
             return;
         }
@@ -3435,6 +4147,9 @@ async function domove_core(state = game) {
     const oldy = u.uy;
     u.ux0 = oldx;
     u.uy0 = oldy;
+    state.gb ??= {};
+    state.gb.bhitpos = { x: newx, y: newy };
+    const targetGlyph = glyph_at(newx, newy, state);
 
     // C ref: domove_core():2787-2800, which reaches domove_attackmon_at()
     // (1955-1992) at 2798 and test_move() only at 2843. The attack therefore
@@ -3446,12 +4161,7 @@ async function domove_core(state = game) {
     // It is gated on `!is_safemon(mtmp) || svc.context.forcefight`, so a pet
     // displacement skips it, and a hostile target or the 'F' prefix takes it.
     if (destinationMonster) {
-        if (u.uswallow) {
-            // C still applies the optional m-prefix bump message, but the
-            // engulfing target is admitted by uhitm.c attack_checks() before
-            // ordinary visibility and concealment checks.
-            requireNoMonsterBump(destinationMonster, state);
-        } else {
+        if (!u.uswallow) {
             requireSupportedDestinationMonster(
                 destinationMonster,
                 newx,
@@ -3463,9 +4173,14 @@ async function domove_core(state = game) {
             || state.context.forcefight) {
             nomul(0, state);
         }
-        const attackConsumedMove = await do_attack(
-            destinationMonster,
-            state,
+        if (await domove_bump_mon(
+            destinationMonster, targetGlyph, state,
+        )) {
+            state.domoveAttempting = 0;
+            return;
+        }
+        const attack = await domove_attackmon_at(
+            destinationMonster, newx, newy, state,
             {
                 checkCapacity: check_capacity,
                 encumberMessage: encumber_msg,
@@ -3478,23 +4193,24 @@ async function domove_core(state = game) {
                 },
             },
         );
-        if (attackConsumedMove) {
+        if (attack.used) {
             state.domoveAttempting = 0;
             return;
         }
+        displaceu = attack.displace;
     }
 
-    // C ref: domove_core():2805-2810, inside its `if (!displaceu)` block. The
-    // displacer-beast swap that clears that flag is refused above, so the
-    // block is entered on every step that gets this far. All three run before
+    // C ref: domove_core():2805-2810, inside its `if (!displaceu)` block. A
+    // displacer-beast swap skips it. All three run before
     // the u.utrap block and before test_move(), so a force-fight answers the
     // square whatever else is true of the hero or the terrain.
-    domove_fight_ironbars(newx, newy, state);
-    domove_fight_web(newx, newy, state);
-    if (await domove_fight_empty(newx, newy, state)) {
-        state.domoveAttempting = 0;
-        return;
-    }
+    if (!displaceu) {
+        domove_fight_ironbars(newx, newy, state);
+        domove_fight_web(newx, newy, state);
+        if (await domove_fight_empty(newx, newy, state)) {
+            state.domoveAttempting = 0;
+            return;
+        }
 
     // C ref: domove_core():2812. The square the hero is about to step onto is
     // about to become known, so a marker left there by a monster that has
@@ -3502,7 +4218,7 @@ async function domove_core(state = game) {
     // and does nothing on every other step. domove_fight_empty() above has
     // already taken the marker away on the paths its own disjunct admits, so
     // this fires for the 'm' prefix, which that disjunct excludes.
-    unmap_invisible(newx, newy, state);
+        unmap_invisible(newx, newy, state);
 
     // C ref: domove_core():2815-2818, C's first line after unmap_invisible()
     // and its comment "not attacking an animal, so we try to move". A steed
@@ -3519,16 +4235,28 @@ async function domove_core(state = game) {
     // FALSE, as hack.c:2815 does, so a steed that is still eating walks on
     // from here. Only do.c dodown() and doup() pass TRUE, and js/steed.js owns
     // that arm.
-    if ((u.dx || u.dy) && u.usteed && stucksteed(false, state)) {
-        nomul(0, state);
-        state.domoveAttempting = 0;
-        return;
-    }
+        if ((u.dx || u.dy) && u.usteed && stucksteed(false, state)) {
+            nomul(0, state);
+            state.domoveAttempting = 0;
+            return;
+        }
+
+        if (await u_rooted(state)) {
+            state.domoveAttempting = 0;
+            return;
+        }
+
+        if (state.flags?.paranoia_bits & PARANOID_TRAP) {
+            if (await avoid_trap_andor_region(newx, newy, state)) {
+                state.domoveAttempting = 0;
+                return;
+            }
+        }
 
     // C ref: domove_core():2830-2841. A held hero spends the step struggling
     // and never reaches test_move(). C passes NULL for desttrap here; the
     // adjacent-pit lookup that argument serves belongs to the other caller.
-    if (u.utrap) {
+        if (u.utrap) {
         const moved = await trapmove(newx, newy, null, state);
 
         if (!u.utrap) {
@@ -3541,25 +4269,33 @@ async function domove_core(state = game) {
             state.domoveAttempting = 0;
             return;
         }
-    }
+        }
 
     // C ref: domove_core():2843-2849. The closed-door arm inside test_move()
     // sets context.door_opened when the pull succeeded, and that suppresses
     // the no-time refusal here even though the hero has not moved.
-    if (!await test_move(u.ux, u.uy, u.dx, u.dy, DO_MOVE, state, {
+        if (!await test_move(u.ux, u.uy, u.dx, u.dy, DO_MOVE, state, {
         message: ttyPline,
-    })) {
-        if (!state.context.door_opened) {
+        })) {
+            if (!state.context.door_opened) {
+                state.context.move = 0;
+                nomul(0, state);
+            }
+            state.domoveAttempting = 0;
+            return;
+        }
+        // test_move() has already run moverock() by now, so a boulder that was
+        // on the destination has moved on and this reads the square it left.
+        if (!destinationMonster)
+            requireSimpleHeroDestination(newx, newy, state, true);
+
+        if (await swim_move_danger(newx, newy, state)) {
             state.context.move = 0;
             nomul(0, state);
+            state.domoveAttempting = 0;
+            return;
         }
-        state.domoveAttempting = 0;
-        return;
     }
-    // test_move() has already run moverock() by now, so a boulder that was on
-    // the destination has moved on and this reads the square it left.
-    if (!destinationMonster)
-        requireSimpleHeroDestination(newx, newy, state, true);
 
     if (!await in_out_region(newx, newy, { state })) return;
     u.ux = newx;
@@ -3898,7 +4634,7 @@ export async function lookaround(state = game) {
             return LOOKAROUND_CONTINUE;
 
         /* stop for traps, sometimes */
-        if (avoid_moving_on_trap(
+        if (await avoid_moving_on_trap(
             x, y, infront && state.context.run > 1, state,
         )) {
             if (state.context.run === 1) return bcorr(x, y, mtmp);
@@ -4130,7 +4866,7 @@ export async function spoteffects(pick, state = game) {
     // principle; sit.c dosinkfall() has no owner.
     if (IS_SINK(state.level?.at(state.u.ux, state.u.uy)?.typ)
         && propertyActiveUnblocked(state, LEVITATION)) {
-        throw new UnsupportedHeroMoveBoundaryError('dosinkfall()');
+        await dosinkfall(state);
     }
     if (!state.in_steed_dismounting) {
         // C ref: hack.c:3362-3372. A levitation about to time out at the end
@@ -4187,7 +4923,10 @@ export async function notice_all_mons(reset, state = game, env = {}) {
     }
     if (!state.a11y?.mon_notices || state.a11y?.mon_notices_blocked) return;
     const message = env.message ?? ttyPline;
-    for (const line of collectMonsterNoticeMessages(state))
+    for (const line of collectMonsterNoticeMessages(
+        state,
+        (left, right) => notice_mons_cmp(left, right, state),
+    ))
         await message(line, state);
 }
 

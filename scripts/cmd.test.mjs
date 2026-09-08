@@ -126,7 +126,6 @@ import {
     AT_NONE,
     M1_NEEDPICK,
     M1_TUNNEL,
-    PM_DISPLACER_BEAST,
     PM_FOG_CLOUD,
     PM_COCKATRICE,
     PM_LICHEN,
@@ -321,12 +320,9 @@ test('a raised drawbridge answers for itself rather than as a wall',
     });
 
 // C ref: hack.c:1014-1045. Before its closing "It's solid stone." else, the
-// obstacle arm asks four questions about the hero, and every answer diverges
-// from the refusal this port gives: Passes_walls falls through the arm and can
-// answer TRUE, Underwater prints a different line, a tunneller that needs no
-// pick eats the rock, and autodig with a wielded pick digs. None is ported, so
-// each has to raise rather than answer FALSE.
-test('the obstacle arm refuses the four hero states C answers differently',
+// obstacle arm asks four questions about the hero. Passes_walls, Underwater,
+// and a tunneller now follow their C branches; autodig remains in dig.c.
+test('the obstacle arm handles special movement before ordinary refusal',
     async () => {
         // Interior coordinate and an eastward step, as in the wall case above:
         // it keeps isok() and the map edge out of the result.
@@ -341,7 +337,10 @@ test('the obstacle arm refuses the four hero states C answers differently',
                 flags: { mention_walls: true },
                 context: {},
                 level: new GameMap(),
-                u: { ux, uy, uprops: [], uinwater: 0 },
+                u: {
+                    ux, uy, uprops: [], uinwater: 0,
+                    uz: { dnum: 0, dlevel: 1 },
+                },
                 youmonst: { data: { mflags1: 0 } },
             };
             objects_globals_init(state);
@@ -355,31 +354,26 @@ test('the obstacle arm refuses the four hero states C answers differently',
             });
         }
 
-        // hack.c:1014. The port refuses on Passes_walls alone, without
-        // may_passwall(), so the extrinsic form has to stop here too.
+        // hack.c:1014. An ordinary stone square permits passwall movement.
         const passwall = obstacleState();
         passwall.u.uprops[PASSES_WALLS] = { intrinsic: 1, extrinsic: 0 };
-        await assert.rejects(() => step(passwall), {
-            name: 'UnsupportedHeroMoveBoundaryError',
-            reason: 'obstacle passed rather than blocking',
-        });
+        assert.equal(await step(passwall), true);
 
-        // hack.c:1016. u.uinwater, not a property slot.
+        // hack.c:1016. Underwater obstruction prints its own line.
         const underwater = obstacleState();
         underwater.u.uinwater = 1;
-        await assert.rejects(() => step(underwater), {
-            name: 'UnsupportedHeroMoveBoundaryError',
-            reason: 'obstacle passed rather than blocking',
-        });
+        assert.equal(await step(underwater), false);
+        assert.equal(underwater._ttyToplines, 'There is an obstacle there.');
 
-        // hack.c:1037 reads both flags, so a dwarf -- M1_TUNNEL and
-        // M1_NEEDPICK together -- keeps the ordinary refusal and its line.
+        // hack.c:1037 starts chewing for a tunneller which needs no pick.
         const tunneller = obstacleState();
         tunneller.youmonst.data.mflags1 = M1_TUNNEL;
-        await assert.rejects(() => step(tunneller), {
-            name: 'UnsupportedHeroMoveBoundaryError',
-            reason: 'obstacle passed rather than blocking',
-        });
+        assert.equal(await step(tunneller), false);
+        assert.equal(tunneller._ttyToplines,
+            'You start chewing a hole in the rock.');
+
+        // A dwarf -- M1_TUNNEL and M1_NEEDPICK together -- keeps the
+        // ordinary refusal and its line.
         const dwarf = obstacleState();
         dwarf.youmonst.data.mflags1 = M1_TUNNEL | M1_NEEDPICK;
         const dwarfLines = [];
@@ -1187,24 +1181,11 @@ test('simple hero movement rejects spot effects before mutation', async () => {
                 });
             },
         },
-        // trap.c preflight_dotrap()'s three stops beyond the trap type. Each
+        // trap.c preflight_dotrap()'s remaining stops beyond the trap type.
         // is asked here, ahead of the move, because spoteffects() calls
         // dotrap() after the hero has already stepped onto the square and
         // pickup(1) has already described what is on it; refusing there would
         // land after both.
-        {
-            // trap.c dotrap():3035-3044 answers a trap the hero already knows
-            // with a one-in-five rn2(5) escape, and both that branch and the
-            // fly-over at :3027-3032 name the trap through trapname().
-            name: 'bear trap the hero has seen',
-            reason: 'a trap the hero has already seen',
-            setup: ({ x, y }) => {
-                installFloorPile(x, y);
-                game.level.traps.push({
-                    tx: x, ty: y, ttyp: BEAR_TRAP, tseen: true,
-                });
-            },
-        },
         {
             // trap.c:1517-1518 answers iron shoes with Yname2(uarmf).
             name: 'bear trap under iron shoes',
@@ -1265,19 +1246,6 @@ test('simple hero movement rejects spot effects before mutation', async () => {
                 game.level.monsters[x][y] = {
                     mx: x, my: y, mhp: 1, mundetected: 1,
                 };
-            },
-        },
-        // hack.c:1972's displacer-beast swap short-circuits on the species
-        // before its !rn2(2), so the refusal has to cost no draw -- which the
-        // snapshot below checks along with everything else.
-        {
-            name: 'displacer beast at destination',
-            reason: 'displacer beast position swap',
-            setup: ({ x, y }) => {
-                game.level.monsters[x][y] = newMonster({
-                    mx: x, my: y, mhp: 3, mhpmax: 3, mcanmove: 1,
-                    data: game.mons[PM_DISPLACER_BEAST],
-                });
             },
         },
         // is_safemon() sends a spotted peaceful monster down do_attack()'s
@@ -1740,11 +1708,10 @@ test('a declined attack still reaches the doorway exit rule', async () => {
 
 // hack.c domove_bump_mon() (1925-1948) runs at hack.c:2794, above the
 // do_attack() call this slice moved. With the reqmenu prefix pending it prints
-// "Pardon me, <pet>." and spends the turn without reaching do_attack() at all,
-// so the port cannot admit the step and let the swap happen. The control run
+// "Pardon me, <pet>." and spends the turn without reaching do_attack(). The control run
 // is what makes this a test of the prefix rather than of the geometry: the
 // same two squares swap normally when nothing precedes the movement key.
-test('the reqmenu prefix refuses a step into a monster', async () => {
+test('the reqmenu prefix bumps a visible pet without attacking', async () => {
     for (const prefixed of [false, true]) {
         const label = prefixed ? 'with m' : 'without m';
         const replay = await runSegment(petDoorwaySegment(840026, 'PetBump'));
@@ -1770,28 +1737,10 @@ test('the reqmenu prefix refuses a step into a monster', async () => {
             assert.deepEqual([pet.mx, pet.my], start, label);
             continue;
         }
-        await assert.rejects(
-            moveloop_core(),
-            (error) => error.reason === 'reqmenu bump into a monster',
-            label,
-        );
-        // C spends the turn on the bump; the port spends nothing and stops,
-        // so neither the draw nor the swap may have happened.
-        assert.equal(replay.getRngLog().length, drawsBefore, label);
+        await moveloop_core();
+        assert.match(game._ttyToplines, /^Pardon me, /u, label);
         assert.deepEqual([game.u.ux, game.u.uy], start, label);
-        assert.deepEqual([pet.mx, pet.my], [x, y], label);
-        // The seam runs ahead of cmd.c set_move_cmd(), which is what lets
-        // executeMovement() unwind the keystroke completely. A refusal raised
-        // below domove() instead would leave context.move set, and the next
-        // moveloop_core() would charge the hero for a turn that never ran.
-        assert.deepEqual({
-            nopick: game.context.nopick,
-            move: game.context.move,
-            menuRequested: game.iflags.menu_requested,
-            attempting: game.domoveAttempting,
-        }, {
-            nopick: 0, move: 0, menuRequested: false, attempting: 0,
-        }, label);
+        assert.ok(replay.getRngLog().length >= drawsBefore, label);
     }
 });
 

@@ -11,9 +11,11 @@ import {
     D_ISOPEN,
     D_NODOOR,
     LEVITATION,
+    OBJ_FLOOR,
     PASSES_WALLS,
     PIT,
     POOL,
+    NON_PM,
     STONE,
     WT_SQUEEZABLE_INV,
 } from '../js/const.js';
@@ -22,22 +24,22 @@ import {
     UnsupportedHeroMoveBoundaryError,
     domove,
     preflightDomoveDestination,
+    revive_nasty,
     requireSimpleHeroDestination,
     weight_cap,
 } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
-import { mksobj, sobj_at } from '../js/obj.js';
+import { mksobj, place_object, sobj_at } from '../js/obj.js';
 import { BOULDER, CORPSE, ROCK } from '../js/objects.js';
 import {
     PM_DEATH,
     PM_GHOST,
     PM_NEWT,
-    PM_ROCK_MOLE,
     PM_SEWER_RAT,
     PM_STONE_GIANT,
     PM_WIZARD_OF_YENDOR,
 } from '../js/monsters.js';
-import { newMonster, place_monster } from '../js/monst.js';
+import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { GLYPH_INVISIBLE, glyph_is_invisible } from '../js/display.js';
 import { clear_path, does_block } from '../js/vision.js';
@@ -329,15 +331,6 @@ test('preflight_moverock refuses each arm moverock_core does not push on',
                 install: () => { game.u.usteed = { mx: sx, my: sy }; },
                 remove: () => { game.u.usteed = null; },
             },
-            // test_move():1225-1229. A rock mole tunnels and needs no pick, so
-            // still_chewing() claims the square before moverock() is called.
-            {
-                reason: 'a boulder chewed rather than pushed',
-                install: () => {
-                    game.youmonst.data = game.mons[PM_ROCK_MOLE];
-                },
-                remove: () => { game.youmonst.data = game.mons[game.umonnum]; },
-            },
             // 435, a second boulder already on the destination.
             {
                 reason: 'a boulder that will not move',
@@ -355,31 +348,6 @@ test('preflight_moverock refuses each arm moverock_core does not push on',
                 reason: 'a boulder push in Sokoban',
                 install: () => { game.u.uz.dnum = game.sokoban_dnum; },
                 remove: () => { game.u.uz.dnum = 0; },
-            },
-            // 445-447, revive_nasty()'s pile scan. Death is a Rider.
-            {
-                reason: 'a Rider or Wizard corpse behind a boulder',
-                install: () => {
-                    const corpse = mksobj(CORPSE, false, false,
-                                          { state: game });
-                    corpse.corpsenm = PM_DEATH;
-                    corpse.nexthere = null;
-                    game.level.objects[rx][ry] = corpse;
-                },
-                remove: () => { game.level.objects[rx][ry] = null; },
-            },
-            // The other half of revive_nasty()'s disjunction, which is a
-            // single species rather than is_rider()'s three.
-            {
-                reason: 'a Rider or Wizard corpse behind a boulder',
-                install: () => {
-                    const corpse = mksobj(CORPSE, false, false,
-                                          { state: game });
-                    corpse.corpsenm = PM_WIZARD_OF_YENDOR;
-                    corpse.nexthere = null;
-                    game.level.objects[rx][ry] = corpse;
-                },
-                remove: () => { game.level.objects[rx][ry] = null; },
             },
             // 455-456, the two conjuncts that send C past the monster arm and
             // into the push. A ghost is the only S_GHOST monster generated in
@@ -489,6 +457,73 @@ test('preflight_moverock refuses each arm moverock_core does not push on',
                          `the level is restored after "${reason}"`);
         }
     });
+
+test('revive_nasty revives Rider and Wizard floor corpses exactly once',
+    async () => {
+        for (const corpsenm of [PM_DEATH, PM_WIZARD_OF_YENDOR]) {
+            const { sx, sy, rx, ry } = await heroBesideBoulder();
+            const corpse = mksobj(CORPSE, false, false, { state: game });
+            corpse.corpsenm = corpsenm;
+            place_object(corpse, rx, ry, { state: game });
+
+            assert.equal(refusalReason(sx, sy), null,
+                         'the boulder command admits revival');
+            assert.equal(await revive_nasty(rx, ry, null, game), true);
+            assert.equal(sobj_at(CORPSE, rx, ry, game), null,
+                         'a successful revival consumes the corpse');
+            assert.equal(m_at(rx, ry, game)?.data, game.mons[corpsenm]);
+        }
+    });
+
+test('revive_nasty restores saved Rider traits', async () => {
+    const { rx, ry } = await heroBesideBoulder();
+    const corpse = mksobj(CORPSE, false, false, { state: game });
+    corpse.corpsenm = PM_DEATH;
+    corpse.oextra = {
+        omonst: newMonster({
+            data: null,
+            mnum: PM_DEATH,
+            cham: NON_PM,
+            m_id: 81234,
+            m_lev: 1,
+            mhp: 1,
+            mhpmax: 9,
+            mpeaceful: true,
+            female: true,
+            mcanmove: false,
+        }),
+    };
+    place_object(corpse, rx, ry, { state: game });
+
+    assert.equal(await revive_nasty(rx, ry, null, game), true);
+    const revived = m_at(rx, ry, game);
+    assert.ok(revived.m_id > 0);
+    assert.notEqual(revived.m_id, 81234,
+                    'montraits adopts the dummy monster allocation id');
+    assert.equal(revived.data, game.mons[PM_DEATH]);
+    assert.equal(revived.mpeaceful, true);
+    assert.equal(revived.female, true);
+    assert.equal(revived.mcanmove, true);
+    assert.ok(revived.mhpmax >= 9);
+    assert.equal(revived.mhp, revived.mhpmax);
+});
+
+test('revive_nasty returns the last qualifying corpse result', async () => {
+    const { rx, ry } = await heroBesideBoulder();
+    const finalCorpse = mksobj(CORPSE, false, false, { state: game });
+    finalCorpse.corpsenm = PM_WIZARD_OF_YENDOR;
+    finalCorpse.norevive = true;
+    place_object(finalCorpse, rx, ry, { state: game });
+    const firstCorpse = mksobj(CORPSE, false, false, { state: game });
+    firstCorpse.corpsenm = PM_DEATH;
+    place_object(firstCorpse, rx, ry, { state: game });
+
+    assert.equal(await revive_nasty(rx, ry, null, game), false);
+    assert.ok(m_at(rx, ry, game) || m_at(rx + 1, ry, game),
+              'the first corpse did revive');
+    assert.equal(finalCorpse.where, OBJ_FLOOR,
+                 'the failed final corpse remains');
+});
 
 // hack.c moverock_core():432-487, cannot_push_msg() and cannot_push(). The
 // boulder is named and the failed-push line is emitted after nomul(0), while

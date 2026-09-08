@@ -13,6 +13,7 @@ import {
     CORR,
     DUST,
     FLYING,
+    FROMOUTSIDE,
     FOUNTAIN,
     HEADSTONE,
     ICE,
@@ -45,15 +46,21 @@ import {
     findtravelpath,
     hero_tread_disturbs_buried_zombies,
     in_town,
+    long_to_any,
     lookaround,
     maybe_smudge_engr,
     nomul,
+    notice_mons_cmp,
+    monst_to_any,
+    obj_to_any,
     runmode_delay_output,
     runStopsBeforeMonster,
     spot_checks,
     spoteffects,
     switch_terrain,
     terrain_changed_under_hero,
+    u_simple_floortyp,
+    uint_to_any,
     unmul,
 } from '../js/hack.js';
 import { game } from '../js/gstate.js';
@@ -97,6 +104,7 @@ function terrainProperties() {
     const uprops = [];
     uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     uprops[FLYING] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    uprops[STEALTH] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     return uprops;
 }
 
@@ -249,34 +257,21 @@ test('switch_terrain refuses both arms that would unblock levitation', () => {
     }
 });
 
-test('a levitating hero over a sink stops for dosinkfall()', async () => {
+test('a sink only disturbs active, unblocked levitation', async () => {
     // hack.c:3353-3354, spoteffects()'s only IS_FURNITURE arm:
     // `if (IS_SINK(levl[u.ux][u.uy].typ) && Levitation) dosinkfall();`
-    // Both terms have to hold, and the destination seam now admits a sink, so
-    // the arm needs a guard of its own. youprop.h:240 defines Levitation as
-    // `(HLevitation || ELevitation) && !BLevitation`, so an extrinsic source
-    // reaches it as an intrinsic one does and a blocked one does not.
+    // FROMOUTSIDE is innate levitation in dosinkfall(), so it takes the
+    // no-damage wobble arm and retains the source bit.
+    const active = terrainState(SINK, SINK);
+    active.u.uprops[LEVITATION].intrinsic = FROMOUTSIDE;
+    await spoteffects(false, active);
+    assert.equal(active._ttyToplines,
+        'You wobble unsteadily for a moment.');
+    assert.equal(active.u.uprops[LEVITATION].intrinsic, FROMOUTSIDE);
+
     for (const field of ['intrinsic', 'extrinsic']) {
-        const state = terrainState(SINK);
-        state.u.uprops[LEVITATION][field] = 1;
-        await assert.rejects(
-            spoteffects(false, state),
-            /dosinkfall\(\)/u,
-            field,
-        );
-
-        state.u.uprops[LEVITATION].blocked = I_SPECIAL;
         // A blocked property leaves switch_terrain()'s own refusal ahead of
-        // this one, which is why the message differs rather than passing.
-        await assert.rejects(
-            spoteffects(false, state),
-            /unblocking levitation or flight/u,
-            `${field} blocked`,
-        );
-
-        // That arm never reaches the sink guard, so on its own it says nothing
-        // about propertyActiveUnblocked()'s `blocked` half: deleting that half
-        // leaves it green. Arriving on a sink from a sink makes
+        // dosinkfall(). Arriving on a sink from a sink makes
         // terrain_changed_under_hero() false, so switch_terrain() does not run
         // and the sink guard is the first thing a blocked hero meets -- and
         // must not stop, because C's Levitation is false when blocked.
@@ -297,6 +292,38 @@ test('a levitating hero over a sink stops for dosinkfall()', async () => {
     levitationOnly.u.uprops[LEVITATION].intrinsic = 1;
     levitationOnly.level.objects = [];
     await spoteffects(false, levitationOnly);
+});
+
+test('anything converters reuse and overwrite the shared C union', () => {
+    const state = {};
+    const mon = { m_id: 7 };
+    const obj = { o_id: 9 };
+    const first = uint_to_any(0xFFFFFFFF + 2, state);
+    assert.equal(first.a_uint, 1);
+    assert.strictEqual(long_to_any(14.9, state), first);
+    assert.deepEqual(first, {
+        a_uint: 0, a_long: 14, a_monst: null, a_obj: null,
+    });
+    assert.strictEqual(monst_to_any(mon, state), first);
+    assert.strictEqual(first.a_monst, mon);
+    assert.strictEqual(obj_to_any(obj, state), first);
+    assert.strictEqual(first.a_obj, obj);
+    assert.equal(first.a_monst, null);
+});
+
+test('notice distance comparator and simplified floor type follow hack.c', () => {
+    const state = {
+        u: { ux: 10, uy: 10, uprops: [] },
+        youmonst: { data: { mflags1: 0 } },
+        level: new GameMap(),
+    };
+    state.u.uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.u.uprops[FLYING] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    assert.equal(notice_mons_cmp(
+        { mx: 11, my: 10 }, { mx: 12, my: 12 }, state,
+    ), -7);
+    state.level.at(11, 10).typ = ROOM;
+    assert.equal(u_simple_floortyp(11, 10, state), ROOM);
 });
 
 test('spoteffects calls pickup only for an enabled ordinary arrival',
@@ -448,7 +475,7 @@ function runState(overrides = {}) {
             last_str_turn: 0, uinvulnerable: true, usleep: 5,
             uprops,
         },
-        youmonst: { data: {} },
+        youmonst: { data: { mmove: 12 } },
         context: { run: 1, travel: 0, travel1: 0, mv: 1, move: 1 },
         disp: { botl: false },
         flags: { runmode: RUN_LEAP, time: false },
@@ -1065,6 +1092,7 @@ test('a run refused by test_move ends through nomul, not by zeroing fields',
     // hack.c:2843-2849. <11,10> is the square in front; leaving it STONE makes
     // test_move() fail, which is the arm that gives up the move.
     const state = interruptibleRunState();
+    state.u.uhp = state.u.uhpmax = 20;
     state.level.at(11, 10).typ = STONE;
 
     await domove(state);

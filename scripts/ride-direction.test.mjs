@@ -461,19 +461,16 @@ test('u_maybe_impaired draws rn2(5) only for a confused hero', async () => {
     assert.equal(drawn(), before + 1);
     game.u.uprops[CONFUSION].intrinsic = 0;
 
-    // confdir() stops on the impairment rather than rerolling the direction.
-    // Stunned is the deterministic half; the confused half turns on rn2(5).
+    // confdir() rerolls an impaired direction. Stunned is the deterministic
+    // half; force_impairment reaches the same branch without a property.
     game.u.uprops[STUNNED].intrinsic = 1;
-    assert.throws(
-        () => confdir(false, game),
-        /an impaired hero rerolls the direction/u,
-    );
+    before = drawn();
+    assert.equal(confdir(false, game), undefined);
+    assert.equal(drawn(), before + 1);
     game.u.uprops[STUNNED].intrinsic = 0;
-    // force_impairment reaches the same stop without consulting the hero.
-    assert.throws(
-        () => confdir(true, game),
-        /an impaired hero rerolls the direction/u,
-    );
+    before = drawn();
+    assert.equal(confdir(true, game), undefined);
+    assert.equal(drawn(), before + 1);
     // The unimpaired hero passes straight through, which is what every
     // accepted direction above relies on.
     assert.equal(confdir(false, game), undefined);
