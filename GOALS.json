@@ -14600,7 +14600,7 @@
     {
       "id": "div-makemon-set-mimic-sym-0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Align set_mimic_sym() altar disguise state and RNG in Gehennom",
       "cFile": "makemon.c",
       "sessions": [],
@@ -14621,8 +14621,11 @@
         "screens": 5187,
         "rng": 350635
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4c79b1eabed25b19262a52e93f6370b985340d12",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "set_mimic_sym",
       "session": "seed0360-wizard-world-tour",
       "step": 180
