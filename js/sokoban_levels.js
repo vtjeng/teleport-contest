@@ -3,7 +3,6 @@
 //         dat/soko2-2.lua, dat/soko3-1.lua, dat/soko3-2.lua,
 //         dat/soko4-1.lua, dat/soko4-2.lua.
 
-import { M_AP_OBJECT } from './const.js';
 import { PM_GIANT_MIMIC } from './monsters.js';
 import {
     AMULET_OF_REFLECTION,
@@ -113,11 +112,11 @@ async function soko1_1(des) {
 
     des.monster({
         id: PM_GIANT_MIMIC,
-        appearAs: { type: M_AP_OBJECT, id: BOULDER },
+        appear_as: 'obj:boulder',
     });
     des.monster({
         id: PM_GIANT_MIMIC,
-        appearAs: { type: M_AP_OBJECT, id: BOULDER },
+        appear_as: 'obj:boulder',
     });
 
     // Random objects
@@ -248,11 +247,11 @@ async function soko1_2(des) {
 
     des.monster({
         id: PM_GIANT_MIMIC,
-        appearAs: { type: M_AP_OBJECT, id: BOULDER },
+        appear_as: 'obj:boulder',
     });
     des.monster({
         id: PM_GIANT_MIMIC,
-        appearAs: { type: M_AP_OBJECT, id: BOULDER },
+        appear_as: 'obj:boulder',
     });
 
     // Random objects

@@ -48,7 +48,25 @@ import { add_to_container, obj_extract_self, obfree } from './invent.js';
 import { UnsupportedMonsterCreationError, makemon, dmonsfree } from './makemon_create.js';
 import { mkclass, rndmonnum } from './makemon.js';
 import { mineralize } from './mineralize.js';
-import { pm_resistance, poly_when_stoned } from './mondata.js';
+import {
+    is_female,
+    is_male,
+    name_to_monplus,
+    pm_resistance,
+    poly_when_stoned,
+} from './mondata.js';
+import {
+    get_table_boolean_opt,
+    get_table_int_opt,
+    get_table_option,
+    get_table_str,
+    get_table_str_opt,
+    lcheck_param_table,
+    luaL_checkinteger,
+    luaL_checkoption,
+    luaL_checkstring,
+    luaL_typename,
+} from './nhlua.js';
 import {
     create_maze,
     place_lregion,
@@ -93,6 +111,10 @@ import {
     GEM_CLASS,
     LARGE_BOX,
     LEMBAS_WAFER,
+    MAXOCLASSES,
+    NUM_OBJECTS,
+    OBJ_DESCR,
+    OBJ_NAME,
     POTION_CLASS,
     POT_EXTRA_HEALING,
     POT_GAIN_ENERGY,
@@ -107,11 +129,15 @@ import {
     SCR_ENCHANT_WEAPON,
     SCR_SCARE_MONSTER,
     SCR_TELEPORTATION,
+    SPBOOK_CLASS,
     SPE_HEALING,
     STATUE,
+    STRANGE_OBJECT,
     WAN_DIGGING,
     WAN_TELEPORTATION,
+    WAND_CLASS,
     WEAPON_CLASS,
+    getObjects,
 } from './objects.js';
 import { goodpos } from './teleport.js';
 import { deltrap, maketrap, t_at } from './trap.js';
@@ -143,6 +169,7 @@ import {
 import {
     create_monster,
     sp_amask_to_amask,
+    spo_end_moninvent,
     initialize_themeroom_postprocess_branch,
     run_themeroom_postprocess,
     themeroom_fill,
@@ -150,7 +177,9 @@ import {
 import {
     G_IGNORE,
     G_NOGEN,
+    LOW_PM,
     MR_STONE,
+    NUMMONS,
     PM_COCKATRICE,
     PM_GIANT_SPIDER,
     PM_KILLER_BEE,
@@ -228,8 +257,11 @@ import {
     AM_SPLEV_NONCO,
     AM_SPLEV_RANDOM,
     BOOL_RANDOM,
+    CUSTOM_INVENT,
     DB_DIR,
+    DEFAULT_INVENT,
     EGD,
+    FEMALE,
     INVALID_TYPE,
     IS_DOORJOIN,
     IS_DRAWBRIDGE,
@@ -242,13 +274,25 @@ import {
     LVLINIT_SOLIDFILL,
     LVLINIT_SWAMP,
     MAP_Y_LIM,
+    MM_ADJACENTOK,
+    MM_IGNOREWATER,
+    MM_NOCOUNTBIRTH,
+    MM_NOTAIL,
+    M_AP_FURNITURE,
+    M_AP_MONSTER,
+    M_AP_OBJECT,
+    NEUTRAL,
+    NON_PM,
+    NO_INVENT,
     SP_COORD_PACK,
     SP_COORD_PACK_RANDOM,
 } from './const.js';
 import {
     distmin,
+    lcase,
     str_lines_maxlen,
     stripdigits,
+    strstri,
     swapbits,
 } from './hacklib.js';
 import { note_unported } from './unported.js';
@@ -961,6 +1005,26 @@ export function splev_chr2typ(char) {
     }
 }
 
+// C ref: nhlua.c check_mapchr(). The terrain type of a one-character map
+// string; anything else is INVALID_TYPE. It lives here rather than in
+// nhlua.js because it needs splev_chr2typ() and nhlua.js imports nothing.
+export function check_mapchr(s) {
+    if (s && s.length === 1) return splev_chr2typ(s);
+    return INVALID_TYPE;
+}
+
+// C ref: nhlua.c get_table_mapchr_opt(). An absent or empty field yields
+// `defval`; a string that is not a map character is an error.
+export function get_table_mapchr_opt(table, name, defval) {
+    const ter = get_table_str_opt(table, name, '');
+    if (ter) {
+        const typ = check_mapchr(ter);
+        if (typ === INVALID_TYPE) throw new Error('Erroneous map char');
+        return typ;
+    }
+    return defval;
+}
+
 // C ref: sp_lev.c mapfrag_fromstr(). Parses a mapfragment string into the
 // source's record: the digit-stripped text, the widest line, and the line
 // count. Returns null past MAP_Y_LIM lines. The text is kept as one string
@@ -1614,9 +1678,9 @@ function splev_initlev(linit, frame, state) {
             linit.lit = rn2(2);
         if (linit.filling > -1)
             lvlfill_solid(linit.filling, 0, frame, state);
-        // C: linit->icedpools = icedpools, the coder's file-scope flag that
-        // lspo_level_flags("icedpools") sets; this port does not track it.
-        linit.icedpools = false;
+        // C: the file-scope icedpools flag lspo_level_flags("icedpools")
+        // sets; this port keeps it on the frame.
+        linit.icedpools = frame.icedpools;
         mkmap(linit, state);
         break;
     case LVLINIT_SWAMP:
@@ -1818,7 +1882,9 @@ async function makemaz(proto, slev, state) {
 // alignment names to x/y offsets within the maze area.
 function mapAlignX(halign, width, frame) {
     switch (halign) {
-    case 'left': return 3;
+    // C: splev_init_present ? 1 : 3, the file-scope flag lspo_level_init()
+    // sets; this port keeps it on the frame.
+    case 'left': return frame.splev_init_present ? 1 : 3;
     case 'half-left': return 2 + Math.trunc((frame.xMazeMax - 2 - width) / 4);
     case 'center': return 2 + Math.trunc((frame.xMazeMax - 2 - width) / 2);
     case 'half-right':
@@ -1886,8 +1952,12 @@ function sp_level_coder_init(state, frame) {
         failed_room: new Array(MAX_NESTED_ROOMS + 1).fill(false),
     };
 
-    // C: splev_init_present = FALSE; icedpools = FALSE;
-    // Not tracked as JS state; ICE terrain in sel_set_ter is not yet ported.
+    // C: splev_init_present = FALSE; icedpools = FALSE. Both are sp_lev.c
+    // file-scope flags for one special-level load, so the frame holds them:
+    // lspo_level_init() and lspo_level_flags() set them, and lspo_map(),
+    // splev_initlev(), and sel_set_ter() read them.
+    frame.splev_init_present = false;
+    frame.icedpools = false;
 
     update_croom(coder);
 
@@ -1930,6 +2000,629 @@ function create_des_coder(state, frame) {
     return sp_level_coder_init(state, frame);
 }
 
+// The des.* functions below take their Lua arguments as the array `args`
+// and read C's globals from `env`: `env.state` for svl.level, `env.coder`
+// for gc.coder, and `env.frame` for sp_lev.c's file-scope placement state.
+
+// C ref: sp_lev.c lspo_message(). Appends a line to gl.lev_message, which
+// do.c delivers after the destination map is drawn.
+export function lspo_message(args, env) {
+    const { state } = env;
+    if (args.length < 1) throw new Error('Wrong parameters');
+    const msg = luaL_checkstring(args[0]);
+    state.gl ??= {};
+    const old = state.gl.lev_message;
+    state.gl.lev_message = old != null ? `${old}\n${msg}` : msg;
+}
+
+// C ref: sp_lev.c get_table_monclass(). The class of a one-character
+// `class` field, or -1. The C keeps the character and converts it in
+// create_monster(); this port stores the class index def_char_to_monclass()
+// returns, which its level loaders also pass directly.
+export function get_table_monclass(table) {
+    if (Number.isInteger(table.class)) return table.class;
+    const s = get_table_str_opt(table, 'class', null);
+    let ret = -1;
+    if (s && s.length === 1) ret = def_char_to_monclass(s);
+    return ret;
+}
+
+// C ref: sp_lev.c find_montype(). The species a monster name denotes, with
+// its gender: a one-gender species keeps its own, and any other takes the
+// name's gender or a coin flip. The C reads the name through
+// name_to_monplus(); the port's level loaders may instead pass the index
+// that call would return, with `parsedGender` standing for the gender it
+// would report.
+export function find_montype(s, env, parsedGender = NEUTRAL) {
+    const { state } = env;
+    let i;
+    let mgend;
+    if (typeof s === 'string') {
+        const parsed = name_to_monplus(s, { state, gender: NEUTRAL });
+        i = parsed.mnum;
+        mgend = parsed.gender;
+    } else {
+        i = s;
+        mgend = parsedGender;
+    }
+    if (i >= LOW_PM && i < NUMMONS) {
+        const ptr = state.mons[i];
+        if (is_male(ptr) || is_female(ptr))
+            mgend = is_female(ptr) ? FEMALE : MALE;
+        else
+            mgend = (mgend === FEMALE) ? FEMALE
+                : (mgend === MALE) ? MALE : env.random.rn2(2);
+        return { montype: i, mgender: mgend };
+    }
+    return { montype: NON_PM, mgender: NEUTRAL };
+}
+
+// C ref: sp_lev.c get_table_montype(). The species and gender of the `id`
+// field through find_montype(). An absent field answers NON_PM and NEUTRAL,
+// the value the C caller's gender variable already holds. The `id` may be
+// a species index with `parsedGender`, as find_montype() describes.
+export function get_table_montype(table, env) {
+    const s = Number.isInteger(table.id)
+        ? table.id : get_table_str_opt(table, 'id', null);
+    if (s != null) {
+        const found = find_montype(s, env, table.parsedGender ?? NEUTRAL);
+        if (found.montype === NON_PM) throw new Error('Unknown monster id');
+        return found;
+    }
+    return { montype: NON_PM, mgender: NEUTRAL };
+}
+
+// C ref: sp_lev.c get_table_xy_or_coord(). The x and y of a table that
+// gives either x= and y= or coord=; -1 for an axis it omits. The result is
+// absolute rather than map-relative; the caller decides how to interpret it.
+export function get_table_xy_or_coord(table) {
+    let mx = get_table_int_opt(table, 'x', -1);
+    let my = get_table_int_opt(table, 'y', -1);
+
+    if (mx === -1 && my === -1) {
+        const c = { x: mx, y: my };
+        get_coord(table.coord, c);
+        mx = c.x;
+        my = c.y;
+    }
+    return { x: mx, y: my };
+}
+
+// C ref: sp_lev.c lspo_monster(). `args` holds the des.monster() arguments
+// in Lua order and `croom` is gc.coder->croom; the themed-room fills pass
+// their room the way their Lua contents functions call des.monster().
+// Fills the C `monster` descriptor, creates the monster, and runs a custom
+// inventory callback. The port stores `class` as the class index
+// def_char_to_monclass() returns rather than the class character.
+export function lspo_monster(args, croom, rawEnv = {}) {
+    const env = {
+        ...rawEnv,
+        state: rawEnv.state ?? game,
+        random: rawEnv.random ?? SOURCE_THEMEROOM_RANDOM,
+        spObjectContext: rawEnv.spObjectContext
+            ?? new_sp_lev_object_context(),
+    };
+    const { state } = env;
+    const argc = args.length;
+    const tmpmons = {
+        id: NON_PM,
+        class: -1,
+        coord: 0,
+        x: -1,
+        y: -1,
+        peaceful: -1,
+        asleep: -1,
+        name: null,
+        appear: 0,
+        appear_as: null,
+        sp_amask: AM_SPLEV_RANDOM,
+        female: 0,
+        invis: 0,
+        cancelled: 0,
+        revived: 0,
+        avenge: 0,
+        fleeing: 0,
+        blinded: 0,
+        paralyzed: 0,
+        stunned: 0,
+        confused: 0,
+        seentraps: 0,
+        has_invent: DEFAULT_INVENT,
+        waiting: 0,
+        mm_flags: NO_MM_FLAGS,
+        m_lev_adj: 0,
+    };
+    let mx = -1;
+    let my = -1;
+    let mgend = NEUTRAL;
+    let inventory = null;
+
+    // The C repeats this reading of the string argument in each of its
+    // three positional forms.
+    const readParamstr = (paramstr) => {
+        if (paramstr.length === 1) {
+            tmpmons.class = def_char_to_monclass(paramstr);
+            tmpmons.id = NON_PM;
+        } else {
+            tmpmons.class = -1;
+            ({ montype: tmpmons.id, mgender: mgend }
+                = find_montype(paramstr, env));
+            tmpmons.female = (mgend === FEMALE) ? FEMALE
+                : (mgend === MALE) ? MALE : env.random.rn2(2);
+        }
+    };
+
+    if (argc === 1 && typeof args[0] === 'string') {
+        readParamstr(luaL_checkstring(args[0]));
+    } else if (argc === 2 && typeof args[0] === 'string'
+               && args[1] != null && typeof args[1] === 'object') {
+        const paramstr = luaL_checkstring(args[0]);
+        const c = { x: mx, y: my };
+        get_coord(args[1], c);
+        mx = c.x;
+        my = c.y;
+        readParamstr(paramstr);
+    } else if (argc === 3) {
+        const paramstr = luaL_checkstring(args[0]);
+        mx = luaL_checkinteger(args[1]);
+        my = luaL_checkinteger(args[2]);
+        readParamstr(paramstr);
+    } else {
+        let keep_default_invent = -1; /* -1 = unspecified */
+        const table = lcheck_param_table(args);
+
+        tmpmons.peaceful = get_table_boolean_opt(table, 'peaceful', BOOL_RANDOM);
+        tmpmons.asleep = get_table_boolean_opt(table, 'asleep', BOOL_RANDOM);
+        tmpmons.name = get_table_str_opt(table, 'name', null);
+        tmpmons.appear = 0;
+        tmpmons.appear_as = null;
+        tmpmons.sp_amask = get_table_align(table);
+        tmpmons.female = get_table_boolean_opt(table, 'female', BOOL_RANDOM);
+        tmpmons.invis = get_table_boolean_opt(table, 'invisible', 0);
+        tmpmons.cancelled = get_table_boolean_opt(table, 'cancelled', 0);
+        tmpmons.revived = get_table_boolean_opt(table, 'revived', 0);
+        tmpmons.avenge = get_table_boolean_opt(table, 'avenge', 0);
+        tmpmons.fleeing = get_table_int_opt(table, 'fleeing', 0);
+        tmpmons.blinded = get_table_int_opt(table, 'blinded', 0);
+        tmpmons.paralyzed = get_table_int_opt(table, 'paralyzed', 0);
+        tmpmons.stunned = get_table_boolean_opt(table, 'stunned', 0);
+        tmpmons.confused = get_table_boolean_opt(table, 'confused', 0);
+        tmpmons.waiting = get_table_boolean_opt(table, 'waiting', 0);
+        tmpmons.m_lev_adj = get_table_int_opt(table, 'm_lev_adj', 0);
+        tmpmons.seentraps = 0; /* TODO: list of trap names to bitfield */
+        keep_default_invent
+            = get_table_boolean_opt(table, 'keep_default_invent', -1);
+
+        if (!get_table_boolean_opt(table, 'tail', 1))
+            tmpmons.mm_flags |= MM_NOTAIL;
+        if (!get_table_boolean_opt(table, 'group', 1))
+            tmpmons.mm_flags |= MM_NOGRP;
+        if (get_table_boolean_opt(table, 'adjacentok', 0))
+            tmpmons.mm_flags |= MM_ADJACENTOK;
+        if (get_table_boolean_opt(table, 'ignorewater', 0))
+            tmpmons.mm_flags |= MM_IGNOREWATER;
+        if (!get_table_boolean_opt(table, 'countbirth', 1))
+            tmpmons.mm_flags |= MM_NOCOUNTBIRTH;
+
+        const mappear = get_table_str_opt(table, 'appear_as', null);
+        if (mappear) {
+            if (mappear.startsWith('obj:')) {
+                tmpmons.appear = M_AP_OBJECT;
+            } else if (mappear.startsWith('mon:')) {
+                tmpmons.appear = M_AP_MONSTER;
+            } else if (mappear.startsWith('ter:')) {
+                tmpmons.appear = M_AP_FURNITURE;
+            } else {
+                throw new Error('Unknown appear_as type');
+            }
+            tmpmons.appear_as = mappear.slice(4);
+        }
+
+        ({ x: mx, y: my } = get_table_xy_or_coord(table));
+
+        ({ montype: tmpmons.id, mgender: mgend }
+            = get_table_montype(table, env));
+        /* get_table_montype will return a random gender if the species isn't
+         * all-male or all-female; if the level designer specified a certain
+         * gender, override that random one now, unless it *is* a one-gender
+         * species, in which case don't override (don't permit creation of a
+         * male nymph or female Nazgul, etc.) */
+        if (mgend !== NEUTRAL
+            && (tmpmons.female === BOOL_RANDOM
+                || is_female(state.mons[tmpmons.id])
+                || is_male(state.mons[tmpmons.id])))
+            tmpmons.female = mgend;
+        /* safety net - if find_montype did not find a gender for this species
+         * (should cause a lua error anyway) */
+        if (tmpmons.female === BOOL_RANDOM)
+            tmpmons.female = 0;
+
+        tmpmons.class = get_table_monclass(table);
+
+        inventory = table.inventory ?? null;
+        if (inventory != null) {
+            /* overwrite DEFAULT_INVENT - most times inventory is specified,
+             * the monster should not get its species' default inventory. Only
+             * provide it if explicitly requested. */
+            tmpmons.has_invent = CUSTOM_INVENT;
+            if (keep_default_invent === 1)
+                tmpmons.has_invent |= DEFAULT_INVENT;
+        } else {
+            /* if keep_default_invent was not specified (-1), keep has_invent
+             * as DEFAULT_INVENT and provide the species' default inventory.
+             * But if it was explicitly set to false, provide *no* inventory. */
+            if (keep_default_invent === 0)
+                tmpmons.has_invent = NO_INVENT;
+        }
+    }
+
+    if (mx === -1 && my === -1)
+        tmpmons.coord = SP_COORD_PACK_RANDOM(0);
+    else
+        tmpmons.coord = SP_COORD_PACK(mx, my);
+
+    // C: tmpmons.class = monsym(&mons[tmpmons.id]), the class character;
+    // the port's class index is the species' mlet.
+    if (tmpmons.id !== NON_PM && tmpmons.class === -1)
+        tmpmons.class = state.mons[tmpmons.id].mlet;
+
+    const mtmp = create_monster(tmpmons, croom, env);
+
+    if ((tmpmons.has_invent & CUSTOM_INVENT)
+        && typeof inventory === 'function') {
+        const context = env.spObjectContext;
+        try {
+            inventory(mtmp, env);
+        } catch (e) {
+            // C has no exception path; keep the shared carrier from leaking
+            // into a later descriptor when the callback fails.
+            context.inventCarryingMonster = null;
+            throw e;
+        }
+        spo_end_moninvent(context, env);
+    }
+
+    return mtmp;
+}
+
+// C ref: sp_lev.c get_table_int_or_random(). The field's integer, or
+// `rndval` when it is absent or "random".
+export function get_table_int_or_random(table, name, rndval) {
+    const value = table[name];
+    if (value == null) return rndval;
+    if (typeof value !== 'number') {
+        const tmp = typeof value === 'string' ? value : null;
+
+        if (tmp && lcase(tmp) === 'random') return rndval;
+        throw new Error(
+            `Expected integer or "random" for "${name}", got `
+            + (tmp ? `"${tmp}"` : '<Null>'),
+        );
+    }
+    return luaL_checkinteger(value);
+}
+
+// C ref: sp_lev.c get_table_buc(). The curse state create_object() applies:
+// 0 random, 1 blessed, 2 uncursed, 3 cursed, 4 not-cursed, 5 not-uncursed,
+// 6 not-blessed.
+export function get_table_buc(table) {
+    const bucs = [
+        'random', 'blessed', 'uncursed', 'cursed',
+        'not-cursed', 'not-uncursed', 'not-blessed',
+    ];
+    const bucs2i = [0, 1, 2, 3, 4, 5, 6, 0];
+    const curse_state = bucs2i[get_table_option(table, 'buc', 'random', bucs)];
+
+    return curse_state;
+}
+
+// C ref: sp_lev.c get_table_objclass(). The class of a one-character
+// `class` field, or -1. As with get_table_monclass(), this port stores the
+// class index def_char_to_objclass() returns, which its loaders also pass
+// directly, where the C keeps the character.
+export function get_table_objclass(table) {
+    if (Number.isInteger(table.class)) return table.class;
+    const s = get_table_str_opt(table, 'class', null);
+    let ret = -1;
+    if (s && s.length === 1) ret = def_char_to_objclass(s);
+    return ret;
+}
+
+// C ref: sp_lev.c find_objtype(). The object type named by `s`, matched
+// first by name (within `oclass` when given, or the class a "ring of "-style
+// prefix implies) and then by description. `oclass` is the class index the
+// C would derive from its class character; MAXOCLASSES or a negative value
+// means any class.
+export function find_objtype(s, oclass, state = game) {
+    if (s) {
+        const objects = getObjects(state);
+        let objname;
+        let cls = oclass;
+
+        /* In objects.h, some item classes are defined without prefixes
+           (such as "scroll of ") in their names, making some names (such
+           as "teleportation") ambiguous.  Get the object class if it is
+           specified, and only return an object of the matching class. */
+        const class_prefixes = [
+            ['ring of ', RING_CLASS],
+            ['potion of ', POTION_CLASS],
+            ['scroll of ', SCROLL_CLASS],
+            ['spellbook of ', SPBOOK_CLASS],
+            ['wand of ', WAND_CLASS],
+        ];
+
+        if (cls === MAXOCLASSES || cls < 0)
+            cls = 0;
+
+        if (strstri(s, ' of ') >= 0) {
+            for (const [p, pclass] of class_prefixes) {
+                if (lcase(s).startsWith(p)) {
+                    cls = pclass;
+                    s = s.slice(p.length);
+                    break;
+                }
+            }
+        }
+
+        /* find by object name */
+        for (let i = 0; i < NUM_OBJECTS; i++) {
+            objname = OBJ_NAME(objects[i], state);
+            if ((!cls || cls === objects[i].oc_class)
+                && objname && lcase(s) === lcase(objname))
+                return i;
+        }
+
+        /*
+         * FIXME:
+         *  If the file specifies "orange potion", the actual object
+         *  description is just "orange" and won't match.  [There's a
+         *  reason that wish handling is insanely complicated.]  And
+         *  even if that gets fixed, if the file specifies "gray stone"
+         *  it will start matching but would always pick the first one.
+         *
+         *  "orange potion" is an unlikely thing to have in a special
+         *  level description but "gray stone" is not....
+         */
+
+        /* find by object description */
+        for (let i = 0; i < NUM_OBJECTS; i++) {
+            objname = OBJ_DESCR(objects[i], state);
+            if (objname && lcase(s) === lcase(objname))
+                return i;
+        }
+
+        throw new Error('Unknown object id');
+    }
+    return STRANGE_OBJECT;
+}
+
+// C ref: sp_lev.c get_table_objtype(). The object type of the `id` field
+// through find_objtype(), restricted to the `class` field's class. The
+// port's loaders may give `id` as the object type index instead.
+export function get_table_objtype(table, state = game) {
+    if (Number.isInteger(table.id)) return table.id;
+    const s = get_table_str_opt(table, 'id', null);
+    const oclass = get_table_objclass(table);
+    const ret = find_objtype(s, oclass, state);
+
+    return ret;
+}
+
+// C ref: sp_lev.c lspo_level_flags(). Each argument names a level flag;
+// the names compare case-insensitively.
+export function lspo_level_flags(args, env) {
+    const { state, coder, frame } = env;
+    const flags = state.level.flags;
+
+    if (args.length < 1) throw new Error('expected string params');
+
+    for (const arg of args) {
+        const s = luaL_checkstring(arg);
+
+        switch (lcase(s)) {
+        case 'noteleport': flags.noteleport = true; break;
+        case 'hardfloor': flags.hardfloor = true; break;
+        case 'nommap': flags.nommap = true; break;
+        case 'shortsighted': flags.shortsighted = true; break;
+        case 'arboreal': flags.arboreal = true; break;
+        case 'mazelevel': flags.is_maze_lev = true; break;
+        case 'shroud': flags.hero_memory = true; break;
+        case 'graveyard': flags.graveyard = true; break;
+        case 'icedpools': frame.icedpools = true; break;
+        case 'corrmaze': flags.corrmaze = true; break;
+        case 'premapped': coder.premapped = true; break;
+        case 'solidify': coder.solidify = true; break;
+        case 'sokoban': flags.sokoban_rules = true; break; /* C: Sokoban */
+        case 'inaccessibles': coder.check_inaccessibles = true; break;
+        case 'noflipx': coder.allow_flips &= ~2; break;
+        case 'noflipy': coder.allow_flips &= ~1; break;
+        case 'noflip': coder.allow_flips = 0; break;
+        case 'temperate': flags.temperature = 0; break;
+        case 'hot': flags.temperature = 1; break;
+        case 'cold': flags.temperature = -1; break;
+        case 'nomongen': flags.rndmongen = false; break;
+        case 'nodeathdrops': flags.deathdrops = false; break;
+        case 'noautosearch': flags.noautosearch = true; break;
+        case 'fumaroles': flags.fumaroles = true; break;
+        case 'stormy': flags.stormy = true; break;
+        default:
+            throw new Error(`Unknown level flag ${s}`);
+        }
+    }
+}
+
+// C ref: sp_lev.c lspo_level_init(). Reads the style table into a lev_init
+// record and hands it to splev_initlev().
+export function lspo_level_init(args, env) {
+    const { state, coder, frame } = env;
+    const initstyles = [
+        'solidfill', 'mazegrid', 'maze', 'rogue', 'mines', 'swamp',
+    ];
+    const initstyles2i = [
+        LVLINIT_SOLIDFILL, LVLINIT_MAZEGRID, LVLINIT_MAZE, LVLINIT_ROGUE,
+        LVLINIT_MINES, LVLINIT_SWAMP, 0,
+    ];
+    const init_lev = {};
+
+    const table = lcheck_param_table(args);
+
+    frame.splev_init_present = true;
+
+    init_lev.init_style
+        = initstyles2i[get_table_option(table, 'style', 'solidfill', initstyles)];
+    init_lev.fg = get_table_mapchr_opt(table, 'fg', ROOM);
+    init_lev.bg = get_table_mapchr_opt(table, 'bg', INVALID_TYPE);
+    init_lev.smoothed = get_table_boolean_opt(table, 'smoothed', 0);
+    init_lev.joined = get_table_boolean_opt(table, 'joined', 0);
+    init_lev.lit = get_table_boolean_opt(table, 'lit', BOOL_RANDOM);
+    init_lev.walled = get_table_boolean_opt(table, 'walled', 0);
+    init_lev.filling = get_table_mapchr_opt(table, 'filling', init_lev.fg);
+    init_lev.corrwid = get_table_int_opt(table, 'corrwid', -1);
+    init_lev.wallthick = get_table_int_opt(table, 'wallthick', -1);
+    init_lev.rm_deadends = !get_table_boolean_opt(table, 'deadends', 1);
+
+    coder.lvl_is_joined = init_lev.joined;
+
+    if (init_lev.bg === INVALID_TYPE)
+        init_lev.bg = (init_lev.init_style === LVLINIT_SWAMP) ? MOAT : STONE;
+
+    splev_initlev(init_lev, frame, state);
+}
+
+// C ref: sp_lev.c lspo_engraving(). Forms: engraving({ x, y, type, text })
+// or engraving({ coord, type, text }), and engraving({x, y}, type, text).
+// A square that is absent or -1,-1 is chosen at random.
+export function lspo_engraving(args, env) {
+    const { state, coder } = env;
+    const engrtypes = ['dust', 'engrave', 'burn', 'mark', 'blood'];
+    const engrtypes2i = [DUST, ENGRAVE, BURN, MARK, ENGR_BLOOD, 0];
+    let etyp = DUST;
+    let txt = null;
+    let ecoord;
+    let x = -1;
+    let y = -1;
+    const argc = args.length;
+    let guardobjs = 0;
+    let wipeout = 1;
+
+    if (argc === 1) {
+        const table = lcheck_param_table(args);
+
+        ({ x, y } = get_table_xy_or_coord(table));
+        etyp = engrtypes2i[get_table_option(table, 'type', 'engrave', engrtypes)];
+        txt = get_table_str(table, 'text');
+        wipeout = get_table_boolean_opt(table, 'degrade', 1);
+        guardobjs = get_table_boolean_opt(table, 'guardobjects', 0);
+    } else if (argc === 3) {
+        const c = { x, y };
+        get_coord(args[0], c);
+        x = c.x;
+        y = c.y;
+        etyp = engrtypes2i[luaL_checkoption(args[1], 'engrave', engrtypes)];
+        txt = luaL_checkstring(args[2]);
+    } else {
+        throw new Error('Wrong parameters');
+    }
+
+    if (x === -1 && y === -1)
+        ecoord = SP_COORD_PACK_RANDOM(0);
+    else
+        ecoord = SP_COORD_PACK(x, y);
+
+    const c = { x, y };
+    get_location_coord(c, DRY, coder.croom, ecoord, env);
+    make_engr_at(c.x, c.y, txt, null, 0, etyp, env);
+    const ep = engr_at(c.x, c.y, state);
+    if (ep) {
+        ep.guardobjects = Boolean(guardobjs);
+        ep.nowipeout = !wipeout;
+    }
+}
+
+// C ref: sp_lev.c lspo_mineralize(). Seeds the level's rock with gold, gems,
+// and kelp at the table's probabilities, skipping mklev.c's level checks.
+export function lspo_mineralize(args, env) {
+    const table = lcheck_param_table(args);
+    /* -1 produces default mineralize behavior */
+    const gem_prob = get_table_int_opt(table, 'gem_prob', -1);
+    const gold_prob = get_table_int_opt(table, 'gold_prob', -1);
+    const kelp_moat = get_table_int_opt(table, 'kelp_moat', -1);
+    const kelp_pool = get_table_int_opt(table, 'kelp_pool', -1);
+
+    mineralize(kelp_pool, kelp_moat, gold_prob, gem_prob, true,
+               { state: env.state });
+}
+
+// C ref: sp_lev.c get_table_roomtype_opt(). The room type the field names
+// in room_types[], compared case-insensitively; `defval` when the field is
+// absent, empty, or unknown (the C reports an unknown name through
+// impossible()).
+export function get_table_roomtype_opt(table, name, defval, env = {}) {
+    const roomstr = get_table_str_opt(table, name, '');
+    let res = defval;
+
+    if (roomstr) {
+        const found = room_types.find(
+            ([rname]) => lcase(rname) === lcase(roomstr),
+        );
+        if (found)
+            res = found[1];
+        else if (typeof env.hooks?.impossible === 'function')
+            env.hooks.impossible(`Unknown room type '${roomstr}'`, env);
+    }
+    return res;
+}
+
+// C ref: sp_lev.c get_table_intarray_entry(). Entry `entrynum`, counted
+// from 1 as Lua does, of an array table; it must be a number. The C names
+// entry #1 in its error whatever the entry asked for.
+export function get_table_intarray_entry(table, entrynum) {
+    const value = table[entrynum - 1];
+    if (typeof value === 'number')
+        return Number.isInteger(value) ? value : 0;
+    throw new Error(
+        `Array entry #1 is ${luaL_typename(value)}, expected number`,
+    );
+}
+
+// C ref: sp_lev.c get_coord(). Reads a coordinate table into `c`: either
+// x= and y= fields or a two-entry array. A nil value leaves `c` unchanged
+// and answers false; any other non-table is an error.
+export function get_coord(value, c) {
+    let ret = false;
+
+    if (value != null && typeof value === 'object') {
+        let gotx = false;
+
+        if (value.x != null) {
+            c.x = luaL_checkinteger(value.x);
+            gotx = true;
+        }
+
+        if (gotx) {
+            if (value.y != null) {
+                c.y = luaL_checkinteger(value.y);
+                ret = true;
+            } else {
+                throw new Error('Not a coordinate');
+            }
+        } else {
+            const arrlen = Array.isArray(value) ? value.length : 0;
+            if (arrlen !== 2)
+                throw new Error('Not a coordinate');
+
+            c.x = get_table_intarray_entry(value, 1);
+            c.y = get_table_intarray_entry(value, 2);
+
+            return true;
+        }
+    } else if (value != null) {
+        /* non-existent coord is ok */
+        throw new Error('non-table coord specified');
+    }
+    return ret;
+}
+
 function createSpecialLevelApi(state) {
     // C ref: sp_lev.c SpLev_Map[COLNO][ROWNO]. Tracks which cells were
     // placed by lspo_map, lspo_door, lspo_stair, or lspo_drawbridge.
@@ -1947,6 +2640,8 @@ function createSpecialLevelApi(state) {
     };
     const coder = create_des_coder(state, frame);
     const spObjectContext = new_sp_lev_object_context();
+    // The C globals the des.* functions read: svl.level through `state`,
+    // gc.coder, and sp_lev.c's file-scope placement state through `frame`.
     const env = {
         state,
         random: SOURCE_THEMEROOM_RANDOM,
@@ -1963,6 +2658,7 @@ function createSpecialLevelApi(state) {
             },
         },
         frame,
+        coder,
         spObjectContext,
     };
 
@@ -2048,101 +2744,13 @@ function createSpecialLevelApi(state) {
         random: SOURCE_THEMEROOM_RANDOM,
         get frame() { return frame; },
 
-        // C ref: sp_lev.c lspo_level_init(). Reads the style table into a
-        // lev_init record and hands it to splev_initlev().
-        level_init(specification) {
-            const initstyles = {
-                solidfill: LVLINIT_SOLIDFILL, mazegrid: LVLINIT_MAZEGRID,
-                maze: LVLINIT_MAZE, rogue: LVLINIT_ROGUE,
-                mines: LVLINIT_MINES, swamp: LVLINIT_SWAMP,
-            };
-            const spec = specification ?? {};
-            const mapchr = (value, defval) => (value != null
-                ? splev_chr2typ(value) : defval);
-            const boolOpt = (value, defval) => (value == null
-                ? defval : (value ? 1 : 0));
-            const init_lev = {};
+        level_init(...args) { return lspo_level_init(args, env); },
 
-            // C: splev_init_present = TRUE, a file-scope flag read by
-            // lspo_map()'s "left" alignment and sel_set_ter()'s ice arm;
-            // neither reader tracks it in this port.
+        message(...args) { return lspo_message(args, env); },
 
-            init_lev.init_style = initstyles[spec.style ?? 'solidfill'];
-            if (init_lev.init_style == null)
-                throw new Error(`unsupported special-level init style ${spec.style}`);
-            init_lev.fg = mapchr(spec.fg, ROOM);
-            init_lev.bg = mapchr(spec.bg, INVALID_TYPE);
-            init_lev.smoothed = Boolean(boolOpt(spec.smoothed, false));
-            init_lev.joined = Boolean(boolOpt(spec.joined, false));
-            init_lev.lit = boolOpt(spec.lit, BOOL_RANDOM);
-            init_lev.walled = Boolean(boolOpt(spec.walled, false));
-            init_lev.filling = mapchr(spec.filling, init_lev.fg);
-            init_lev.corrwid = spec.corrwid ?? -1;
-            init_lev.wallthick = spec.wallthick ?? -1;
-            init_lev.rm_deadends = !boolOpt(spec.deadends, true);
+        level_flags(...args) { return lspo_level_flags(args, env); },
 
-            coder.lvl_is_joined = init_lev.joined;
-
-            if (init_lev.bg === INVALID_TYPE)
-                init_lev.bg = (init_lev.init_style === LVLINIT_SWAMP)
-                    ? MOAT : STONE;
-
-            splev_initlev(init_lev, frame, state);
-        },
-
-        // C ref: sp_lev.c lspo_message(). Special-level messages are held
-        // until do.c delivers them after the destination map is drawn.
-        message(text) {
-            if (typeof text !== 'string')
-                throw new TypeError('special-level message requires a string');
-            state.gl ??= {};
-            state.gl.lev_message = state.gl.lev_message
-                ? `${state.gl.lev_message}\n${text}`
-                : text;
-        },
-
-        level_flags(...names) {
-            for (const name of names) {
-                switch (name) {
-                case 'mazelevel': state.level.flags.is_maze_lev = true; break;
-                case 'noflip': coder.allow_flips = 0; break;
-                // C ref: sp_lev.c lspo_level_flags(). allow_flips starts at
-                // 3 (both axes). noflipy clears bit 1, noflipx clears bit 2.
-                case 'noflipy':
-                    coder.allow_flips &= ~1;
-                    break;
-                case 'noflipx':
-                    coder.allow_flips &= ~2;
-                    break;
-                case 'noteleport': state.level.flags.noteleport = true; break;
-                case 'hardfloor': state.level.flags.hardfloor = true; break;
-                case 'shortsighted': state.level.flags.shortsighted = true; break;
-                case 'hot': state.level.flags.temperature = 1; break;
-                // C ref: rm.h stormy bit and timeout.c do_storms(). The
-                // level flag enables periodic lightning strikes on clouds.
-                case 'stormy': state.level.flags.stormy = true; break;
-                case 'fumaroles': state.level.flags.fumaroles = true; break;
-                case 'nommap': state.level.flags.nommap = true; break;
-                case 'temperate': state.level.flags.temperature = 0; break;
-                case 'nomongen': state.level.flags.rndmongen = false; break;
-                case 'nodeathdrops': state.level.flags.deathdrops = false; break;
-                case 'noautosearch': state.level.flags.noautosearch = true; break;
-                // C ref: sp_lev.c lspo_level_flags(). solidify marks all
-                // STONE walls not part of the map as non-diggable and
-                // non-passwall during post-processing.
-                case 'solidify': coder.solidify = true; break;
-                // C ref: sp_lev.c lspo_level_flags(). premapped is a
-                // coder-only flag (gc.coder->premapped); no level flag
-                // is set.
-                case 'premapped': coder.premapped = true; break;
-                // C ref: sp_lev.c lspo_level_flags(). "sokoban" sets
-                // Sokoban = 1, which is svl.level.flags.sokoban_rules.
-                case 'sokoban': state.level.flags.sokoban_rules = true; break;
-                case 'inaccessibles': coder.check_inaccessibles = true; break;
-                default: throw new Error(`unsupported special-level flag ${name}`);
-                }
-            }
-        },
+        mineralize(...args) { return lspo_mineralize(args, env); },
 
         // C ref: sp_lev.c lspo_map(). The array form is the source's
         // string form (centered, no contents); the table form places the
@@ -2291,21 +2899,10 @@ function createSpecialLevelApi(state) {
                 );
             } else if (specification.region) {
                 // C ref: sp_lev.c lspo_region() table form with region coords.
-                const ROOM_TYPE_MAP = {
-                    ordinary: OROOM, delphi: DELPHI, temple: TEMPLE,
-                    morgue: MORGUE, barracks: BARRACKS, zoo: ZOO,
-                    beehive: BEEHIVE, leprehall: LEPREHALL, swamp: SWAMP,
-                    vault: VAULT, court: COURT, throne: COURT,
-                    shop: SHOPBASE, 'armor shop': ARMORSHOP,
-                    'scroll shop': SCROLLSHOP, 'potion shop': POTIONSHOP,
-                    'weapon shop': WEAPONSHOP, 'food shop': FOODSHOP,
-                    'ring shop': RINGSHOP, 'wand shop': WANDSHOP,
-                    'tool shop': TOOLSHOP, 'book shop': BOOKSHOP,
-                    'health food shop': FODDERSHOP,
-                    'candle shop': CANDLESHOP,
-                };
                 const [rx1, ry1, rx2, ry2] = specification.region;
-                const rtype = ROOM_TYPE_MAP[specification.type] ?? OROOM;
+                const rtype = get_table_roomtype_opt(
+                    specification, 'type', OROOM, env,
+                );
                 const needfill = specification.filled ?? 0;
                 const irregular = Boolean(specification.irregular);
                 const joined = specification.joined ?? true;
@@ -2502,28 +3099,7 @@ function createSpecialLevelApi(state) {
             state.flags[name] = Boolean(enabled);
         },
 
-        engraving(specification) {
-            const ENGR_TYPE_MAP = {
-                dust: DUST, engrave: ENGRAVE, burn: BURN,
-                mark: MARK, blood: ENGR_BLOOD,
-            };
-            const coordinate = specialCoordinate(frame, specification.coord);
-            const rawType = specification.type ?? 'dust';
-            const etyp = typeof rawType === 'string'
-                ? (ENGR_TYPE_MAP[rawType] ?? DUST)
-                : rawType;
-            const engraving = make_engr_at(
-                coordinate.x,
-                coordinate.y,
-                specification.text,
-                null,
-                0,
-                etyp,
-                env,
-            );
-            engraving.nowipeout = specification.degrade === false;
-            return engraving;
-        },
+        engraving(...args) { return lspo_engraving(args, env); },
 
         // C ref: sp_lev.c lspo_door(). Supports three forms:
         // - Table with coord: door({ state, coord })
@@ -2705,16 +3281,35 @@ function createSpecialLevelApi(state) {
             }
         },
 
-        object(specification) {
-            // sp_lev's object and monster descriptors retain map-relative
-            // coordinates until their shared lspo_* adapters consume frame.
-            // Terrain, doors, traps, engravings, and stairs convert eagerly
-            // above, so applying specialCoordinate() here would offset twice.
-            const spec = typeof specification === 'string'
-                ? (specification.length === 1
-                    ? { class: def_char_to_objclass(specification) }
-                    : {})
-                : (specification ?? {});
+        // C ref: sp_lev.c lspo_object() argument forms: object("sack"),
+        // object("scimitar", 6, 7), object("scimitar", {6, 7}), and the
+        // table form. A one-character string is an object class; a longer
+        // one is an object name for find_objtype(). The descriptor keeps
+        // map-relative coordinates until sp_lev_object.js consumes the
+        // frame, so no offset is applied here.
+        object(...args) {
+            const argc = args.length;
+            const objectParamstr = (paramstr) => (paramstr.length === 1
+                ? { class: def_char_to_objclass(paramstr) }
+                : { id: find_objtype(paramstr, -1, state) });
+            let spec;
+            if (argc === 1 && typeof args[0] === 'string') {
+                spec = objectParamstr(luaL_checkstring(args[0]));
+            } else if (argc === 2 && typeof args[0] === 'string'
+                       && args[1] != null && typeof args[1] === 'object') {
+                const c = { x: -1, y: -1 };
+                get_coord(args[1], c);
+                spec = { ...objectParamstr(luaL_checkstring(args[0])), ...c };
+            } else if (argc === 3 && typeof args[1] === 'number'
+                       && typeof args[2] === 'number') {
+                spec = {
+                    ...objectParamstr(luaL_checkstring(args[0])),
+                    x: luaL_checkinteger(args[1]),
+                    y: luaL_checkinteger(args[2]),
+                };
+            } else {
+                spec = lcheck_param_table(args);
+            }
             // C ref: sp_lev.c lspo_object(). When montype is a single
             // character, resolve it as a monster class letter to a PM_ index
             // the same way C does: mkclass(def_char_to_monclass(ch), flags).
@@ -2729,13 +3324,7 @@ function createSpecialLevelApi(state) {
                     ? state.mons.indexOf(species)
                     : undefined;
             }
-            // C ref: sp_lev.c get_table_xy_or_coord(). Check separate x/y
-            // fields first, then fall back to the coord array.
-            const coordinate = (spec.x != null || spec.y != null)
-                ? { x: spec.x ?? -1, y: spec.y ?? -1 }
-                : spec.coord
-                    ? { x: spec.coord[0], y: spec.coord[1] }
-                    : undefined;
+            const coordinate = get_table_xy_or_coord(spec);
             const normalized = {
                 ...spec,
                 coordinate,
@@ -2771,24 +3360,9 @@ function createSpecialLevelApi(state) {
             return mkgold(amount, coordinate.x, coordinate.y, env);
         },
 
-        monster(specification) {
-            const spec = specification ?? {};
-            // C ref: sp_lev.c get_table_xy_or_coord(). Check separate
-            // x/y fields first, then fall back to the coord array.
-            const coordinate = (spec.x != null || spec.y != null)
-                ? { x: spec.x ?? -1, y: spec.y ?? -1 }
-                : spec.coord
-                    ? { x: spec.coord[0], y: spec.coord[1] }
-                    : undefined;
-            // C ref: sp_lev.c lspo_monster() reads sp_amask through
-            // get_table_align(), whose default is "random".
-            const normalized = {
-                ...spec,
-                coordinate,
-                sp_amask: get_table_align(spec),
-            };
+        monster(...args) {
             try {
-                return create_monster(normalized, coder.croom, env);
+                return lspo_monster(args, coder.croom, env);
             } catch (e) {
                 if (e instanceof UnsupportedMonsterCreationError) return null;
                 throw e;
@@ -2822,19 +3396,6 @@ function createSpecialLevelApi(state) {
             const SPLEV_VALIGN_MAP = {
                 top: 0, center: 3, bottom: 2, none: -1, random: -1,
             };
-            const ROOM_TYPE_MAP = {
-                ordinary: OROOM, delphi: DELPHI, temple: TEMPLE,
-                morgue: MORGUE, barracks: BARRACKS, zoo: ZOO,
-                beehive: BEEHIVE, leprehall: LEPREHALL, swamp: SWAMP,
-                vault: VAULT, court: COURT,
-                shop: SHOPBASE, 'armor shop': ARMORSHOP,
-                'scroll shop': SCROLLSHOP, 'potion shop': POTIONSHOP,
-                'weapon shop': WEAPONSHOP, 'food shop': FOODSHOP,
-                'ring shop': RINGSHOP, 'wand shop': WANDSHOP,
-                'tool shop': TOOLSHOP, 'book shop': BOOKSHOP,
-                'health food shop': FODDERSHOP,
-                'candle shop': CANDLESHOP,
-            };
             const roomSpec = {
                 x: spec.x ?? -1,
                 y: spec.y ?? -1,
@@ -2842,7 +3403,7 @@ function createSpecialLevelApi(state) {
                 h: spec.h ?? -1,
                 xalign: SPLEV_ALIGN_MAP[spec.xalign] ?? -1,
                 yalign: SPLEV_VALIGN_MAP[spec.yalign] ?? -1,
-                rtype: ROOM_TYPE_MAP[spec.type] ?? OROOM,
+                rtype: get_table_roomtype_opt(spec, 'type', OROOM, env),
                 chance: spec.chance ?? 100,
                 rlit: spec.lit ?? -1,
                 needfill: spec.filled ?? FILL_NORMAL,
@@ -4895,12 +5456,12 @@ function mausoleum(context) {
                             S_MUMMY, S_VAMPIRE, S_LICH, S_ZOMBIE,
                         ];
                         shuffle_core_values(classes, context.random);
-                        create_monster(
-                            {
+                        lspo_monster(
+                            [{
                                 class: classes[0],
-                                coordinate: { x: 0, y: 0 },
+                                coord: [0, 0],
                                 waiting: true,
-                            },
+                            }],
                             child,
                             creationEnvironment,
                         );
@@ -5210,15 +5771,15 @@ function water_surrounded_vault_contents(
     }
 
     shuffle_core_values(nastyUndead, context.random);
-    create_monster(
-        {
+    lspo_monster(
+        [{
             id: nastyUndead[0],
-            coordinate: { x: 2, y: 2 },
+            coord: [2, 2],
             // The source string is "vampire lord", whose male pmname makes
             // find_montype() skip its otherwise-random parser gender draw.
             ...(nastyUndead[0] === PM_VAMPIRE_LEADER
                 ? { parsedGender: MALE } : {}),
-        },
+        }],
         null,
         creationEnvironment,
     );

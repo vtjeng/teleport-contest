@@ -4,6 +4,9 @@ import test from 'node:test';
 import {
     AIR,
     ALTAR,
+    FEMALE,
+    NON_PM,
+    SP_COORD_PACK,
     AM_CHAOTIC,
     AM_LAWFUL,
     AM_NEUTRAL,
@@ -22,8 +25,6 @@ import {
     MELT_ICE_AWAY,
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
-    M_AP_FURNITURE,
-    M_AP_MONSTER,
     M_AP_OBJECT,
     OBJ_BURIED,
     OBJ_CONTAINED,
@@ -69,12 +70,12 @@ import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import { mksobj } from '../js/obj.js';
 import {
-    create_monster,
     initialize_themeroom_postprocess_branch,
     run_themeroom_fill,
     run_themeroom_postprocess,
     themeroom_fill,
 } from '../js/themeroom_fill.js';
+import { lspo_monster } from '../js/mklev.js';
 import { THEMEROOM_FILL_DEFINITIONS } from '../js/themerooms.js';
 import {
     AMULET_OF_LIFE_SAVING,
@@ -94,8 +95,8 @@ import {
     STATUE,
     WEAPON_CLASS,
     OIL_LAMP,
-    NUM_OBJECTS,
     objects_globals_init,
+    NUM_OBJECTS,
 } from '../js/objects.js';
 import {
     PM_ABBOT,
@@ -305,6 +306,14 @@ function monsterDescriptorFixture() {
         urole: { mnum: PM_ARCHEOLOGIST, questarti: 0 },
     };
     objects_globals_init(state);
+    // o_init.c init_objects() numbers the name and description indices that
+    // create_monster()'s appearance lookup reads by OBJ_NAME(); its later
+    // description shuffle draws RNG these tests script, so only the numbering
+    // is applied.
+    for (let i = 0; i < NUM_OBJECTS; ++i) {
+        state.objects[i].oc_name_idx = i;
+        state.objects[i].oc_descr_idx = i;
+    }
     init_artifacts(state);
     monst_globals_init(state);
     reset_mvitals(state);
@@ -404,18 +413,24 @@ test('Ice room selects in source order and starts timers y-major', () => {
 
 test('Cloud room creates all fog monsters before its unchanged selection region', () => {
     const { level, room } = fourByTwoRoom();
+    const state = { level };
+    monst_globals_init(state);
     const events = [];
     let retainedSelection;
-    const random = randomWithRn2(() => {
-        assert.fail('replacement hooks should contain Cloud creation RNG');
+    // lspo_monster() draws each fog cloud's gender through find_montype()
+    // before create_monster(); the replacement hook covers only the latter.
+    const random = randomWithRn2((bound) => {
+        assert.equal(bound, 2);
+        events.push(['gender']);
+        return 0;
     });
 
     run_themeroom_fill(fillById('cloud_room'), room, 1, {
-        state: { level },
+        state,
         random,
         hooks: {
-            createMonster(specification) {
-                events.push(['monster', specification]);
+            createMonster(m) {
+                events.push(['monster', m.id, m.asleep, m.female]);
                 return {};
             },
             createGasCloudSelection(selection, damage) {
@@ -427,8 +442,8 @@ test('Cloud room creates all fog monsters before its unchanged selection region'
     });
 
     assert.deepEqual(events, [
-        ['monster', { id: PM_FOG_CLOUD, asleep: true }],
-        ['monster', { id: PM_FOG_CLOUD, asleep: true }],
+        ['gender'], ['monster', PM_FOG_CLOUD, 1, 0],
+        ['gender'], ['monster', PM_FOG_CLOUD, 1, 0],
         ['region', 0],
     ]);
     assert.equal(retainedSelection.numpoints(), 8);
@@ -479,8 +494,8 @@ test('Storeroom samples x-major but invokes independent placements y-major', () 
         state: { level },
         random,
         hooks: {
-            createMonster(specification) {
-                events.push(['monster', specification]);
+            createMonster(m) {
+                events.push(['monster', m.class, m.id, m.appear, m.appear_as]);
                 return {};
             },
             createObject(specification) {
@@ -492,10 +507,7 @@ test('Storeroom samples x-major but invokes independent placements y-major', () 
 
     assert.deepEqual(draws, []);
     assert.deepEqual(events, [
-        ['monster', {
-            class: S_MIMIC,
-            appearAs: { type: M_AP_OBJECT, id: CHEST },
-        }],
+        ['monster', S_MIMIC, NON_PM, M_AP_OBJECT, 'chest'],
         ['object', { id: CHEST }],
     ]);
 });
@@ -524,10 +536,10 @@ test('Storeroom scripts class selection and preserves pre-override mimic metadat
         step('rn2', [100], 99), // no miscellaneous item
     ]);
 
-    const mimic = create_monster({
+    const mimic = lspo_monster([{
         class: S_MIMIC,
-        appearAs: { type: M_AP_OBJECT, id: CHEST },
-    }, room, { state, random: random.random });
+        appear_as: 'obj:chest',
+    }], room, { state, random: random.random });
 
     random.assertExhausted();
     assert.equal(mimic.data.pmidx, PM_GIANT_MIMIC);
@@ -541,10 +553,10 @@ test('automatic mimic setup handles all room types', () => {
     for (const roomType of [OROOM, THEMEROOM, COURT]) {
         const { level, room, state } = monsterDescriptorFixture();
         level.rooms[0] = { ...room, rtype: roomType };
-        const mimic = create_monster({
+        const mimic = lspo_monster([{
             class: S_MIMIC,
-            appearAs: { type: M_AP_OBJECT, id: CHEST },
-        }, room, { state, random: quietObjectRandom() });
+            appear_as: 'obj:chest',
+        }], room, { state, random: quietObjectRandom() });
         assert.ok(mimic, `room type ${roomType}`);
         assert.equal(mimic.mappearance, CHEST, `room type ${roomType}`);
     }
@@ -565,37 +577,21 @@ test('unsupported appearance pairs fail before hooks, RNG, or level mutation', (
             },
         },
     };
+    // The furniture and monster appearance arms of create_monster() are not
+    // ported; an appear_as prefix the C does not know is a Lua error in
+    // lspo_monster().
     const invalid = [
-        {
-            id: PM_FOG_CLOUD,
-            appearAs: { type: M_AP_OBJECT, id: CHEST },
-        },
-        {
-            class: S_MIMIC,
-            appearAs: { type: M_AP_FURNITURE, id: 0 },
-        },
-        {
-            class: S_MIMIC,
-            appearAs: { type: M_AP_MONSTER, id: PM_GOBLIN },
-        },
-        {
-            class: S_MIMIC,
-            appearAs: { type: M_AP_OBJECT, id: -1 },
-        },
-        {
-            class: S_MIMIC,
-            appearAs: { type: M_AP_OBJECT, id: NUM_OBJECTS },
-        },
-        {
-            class: S_MIMIC,
-            appearAs: { type: M_AP_OBJECT, id: 'chest' },
-        },
+        [{ class: S_MIMIC, appear_as: 'ter:altar' },
+            /unsupported initial-level monster creation/u],
+        [{ class: S_MIMIC, appear_as: 'mon:goblin' },
+            /unsupported initial-level monster creation/u],
+        [{ class: S_MIMIC, appear_as: 'chest' }, /Unknown appear_as type/u],
     ];
 
-    for (const specification of invalid) {
+    for (const [specification, expected] of invalid) {
         assert.throws(
-            () => create_monster(specification, room, env),
-            /unsupported initial-level monster creation/u,
+            () => lspo_monster([specification], room, env),
+            expected,
         );
         assert.equal(level.monlist, null);
     }
@@ -607,10 +603,10 @@ test('create_monster relocates an occupied fixed coordinate inside its room', ()
     const occupant = occupyFixedRoomCoordinate(level, room, state);
     const random = occupiedFogRandom({ create: true });
 
-    const fog = create_monster({
+    const fog = lspo_monster([{
         id: PM_FOG_CLOUD,
-        coordinate: { x: 0, y: 0 },
-    }, room, { state, random: random.random });
+        coord: [0, 0],
+    }], room, { state, random: random.random });
 
     random.assertExhausted();
     assert.ok(fog);
@@ -634,10 +630,10 @@ test('create_monster rejects occupied-coordinate relocation outside its room', (
     level.at(room.lx, room.ly - 2).typ = ROOM;
     const random = occupiedFogRandom({ create: false });
 
-    const fog = create_monster({
+    const fog = lspo_monster([{
         id: PM_FOG_CLOUD,
-        coordinate: { x: 0, y: 0 },
-    }, room, { state, random: random.random });
+        coord: [0, 0],
+    }], room, { state, random: random.random });
 
     random.assertExhausted();
     assert.equal(fog, null);
@@ -649,13 +645,13 @@ test('create_monster honors uncounted births and explicit peacefulness', () => {
     const { level, room, state, random } = monsterDescriptorFixture();
     level.rooms[0] = { ...room, rtype: THEMEROOM };
 
-    const lichen = create_monster({
+    const lichen = lspo_monster([{
         id: PM_LICHEN,
-        coordinate: { x: 0, y: 0 },
+        coord: [0, 0],
         countbirth: false,
         peaceful: true,
         waiting: true,
-    }, room, { state, random });
+    }], room, { state, random });
 
     assert.ok(lichen);
     assert.equal(state.mvitals[PM_LICHEN].born, 0);
@@ -1440,18 +1436,21 @@ test('Temple of the gods places the branch-shuffled alignments in order', () => 
 
 test('Ghost fill shares one coordinate and preserves equipment order', () => {
     const { level, room } = twoByTwoRoom();
+    const state = { level };
+    monst_globals_init(state);
     const bounds = [];
     const requests = [];
     const chanceDraws = [0, 99, 0, 0, 99, 0];
     const random = randomWithRn2((bound) => {
         bounds.push(bound);
         if (bound === 4) return 2; // x-major selection => relative <1,0>
+        if (bound === 2) return 0; // find_montype(): the ghost's gender
         assert.equal(bound, 100);
         return chanceDraws.shift();
     });
 
     run_themeroom_fill(fillById('ghost_of_an_adventurer'), room, 1, {
-        state: { level },
+        state,
         random,
         hooks: {
             createMonster(specification) {
@@ -1465,11 +1464,11 @@ test('Ghost fill shares one coordinate and preserves equipment order', () => {
         },
     });
 
-    assert.deepEqual(bounds, [4, 100, 100, 100, 100, 100, 100]);
+    assert.deepEqual(bounds, [4, 2, 100, 100, 100, 100, 100, 100]);
     assert.equal(requests[0][1].id, PM_GHOST);
-    assert.deepEqual(requests[0][1].coordinate, { x: 1, y: 0 });
-    assert.equal(requests[0][1].asleep, true);
-    assert.equal(requests[0][1].waiting, true);
+    assert.equal(requests[0][1].coord, SP_COORD_PACK(1, 0));
+    assert.equal(requests[0][1].asleep, 1);
+    assert.equal(requests[0][1].waiting, 1);
     assert.deepEqual(
         requests.slice(1).map(([, spec]) => spec.id ?? spec.class),
         [DAGGER, BOW, ARROW, ARMOR_CLASS, SCROLL_CLASS],
@@ -1531,9 +1530,9 @@ test('custom inventory discards worn defaults and reverses artifacts', () => {
     add_to_minv(monster, generatedHelm, { state, random });
 
     let customHelm = null;
-    const created = create_monster({
+    const created = lspo_monster([{
         id: PM_GOBLIN,
-        coordinate: { x: 0, y: 0 },
+        coord: [0, 0],
         inventory(callbackMonster, callbackEnv) {
             assert.equal(callbackMonster, monster);
             customHelm = lspo_object({
@@ -1541,7 +1540,7 @@ test('custom inventory discards worn defaults and reverses artifacts', () => {
                 coordinate: { x: 0, y: 0 },
             }, room, callbackEnv);
         },
-    }, room, {
+    }], room, {
         state,
         random,
         hooks: { createMonster: () => monster },
@@ -1587,11 +1586,11 @@ test('explicit false discards default inventory without a custom callback', () =
     monster.misc_worn_check = W_ARMH;
     add_to_minv(monster, generatedHelm, { state, random });
 
-    const created = create_monster({
+    const created = lspo_monster([{
         id: PM_GOBLIN,
-        coordinate: { x: 0, y: 0 },
-        keepDefaultInventory: false,
-    }, room, {
+        coord: [0, 0],
+        keep_default_invent: false,
+    }], room, {
         state,
         random,
         hooks: { createMonster: () => monster },
@@ -1628,11 +1627,11 @@ test('discarding live default wrapping restores permanent invisibility', () => {
     monster.misc_worn_check = W_ARMC;
     add_to_minv(monster, generatedWrapping, { state, random });
 
-    const created = create_monster({
+    const created = lspo_monster([{
         id: PM_HUMAN_MUMMY,
-        coordinate: { x: 0, y: 0 },
-        keepDefaultInventory: false,
-    }, room, {
+        coord: [0, 0],
+        keep_default_invent: false,
+    }], room, {
         state,
         random,
         hooks: { createMonster: () => monster },
@@ -1673,10 +1672,10 @@ test('kept default inventory preserves an amulet and upgrades a weaker helm', ()
 
     let newAmulet = null;
     let newHelm = null;
-    create_monster({
+    lspo_monster([{
         id: PM_GOBLIN,
-        coordinate: { x: 0, y: 0 },
-        keepDefaultInventory: true,
+        coord: [0, 0],
+        keep_default_invent: true,
         inventory(_callbackMonster, callbackEnv) {
             newAmulet = lspo_object({
                 id: AMULET_OF_LIFE_SAVING,
@@ -1688,7 +1687,7 @@ test('kept default inventory preserves an amulet and upgrades a weaker helm', ()
                 coordinate: { x: 0, y: 0 },
             }, room, callbackEnv);
         },
-    }, room, {
+    }], room, {
         state,
         random,
         hooks: { createMonster: () => monster },
@@ -1712,16 +1711,16 @@ test('animal carriers keep custom armor in inventory without wearing it', () => 
     });
     let helm = null;
 
-    create_monster({
+    lspo_monster([{
         id: PM_PONY,
-        coordinate: { x: 0, y: 0 },
+        coord: [0, 0],
         inventory(_callbackMonster, callbackEnv) {
             helm = lspo_object({
                 id: ORCISH_HELM,
                 coordinate: { x: 0, y: 0 },
             }, room, callbackEnv);
         },
-    }, room, {
+    }], room, {
         state,
         random,
         hooks: { createMonster: () => pony },
@@ -1738,9 +1737,9 @@ test('failed monster creation runs custom inventory with a null carrier', () => 
     const { context, level, random, room, state } = monsterDescriptorFixture();
     let callbackObject = null;
 
-    const monster = create_monster({
+    const monster = lspo_monster([{
         id: PM_GOBLIN,
-        coordinate: { x: 0, y: 0 },
+        coord: [0, 0],
         inventory(callbackMonster, callbackEnv) {
             assert.equal(callbackMonster, null);
             callbackObject = lspo_object({
@@ -1748,7 +1747,7 @@ test('failed monster creation runs custom inventory with a null carrier', () => 
                 coordinate: { x: 0, y: 0 },
             }, room, callbackEnv);
         },
-    }, room, {
+    }], room, {
         state,
         random,
         hooks: { createMonster: () => null },
@@ -1773,13 +1772,13 @@ test('a failed nested descriptor uses then clears the outer scalar carrier', () 
     let inheritedHelm = null;
     let laterApple = null;
 
-    create_monster({
+    lspo_monster([{
         id: PM_GOBLIN,
-        coordinate: { x: 0, y: 0 },
+        coord: [0, 0],
         inventory(_outerMonster, outerEnv) {
-            const inner = create_monster({
+            const inner = lspo_monster([{
                 id: PM_GOBLIN,
-                coordinate: { x: 0, y: 0 },
+                coord: [0, 0],
                 inventory(innerMonster, innerEnv) {
                     assert.equal(innerMonster, null);
                     inheritedHelm = lspo_object({
@@ -1787,7 +1786,7 @@ test('a failed nested descriptor uses then clears the outer scalar carrier', () 
                         coordinate: { x: 0, y: 0 },
                     }, room, innerEnv);
                 },
-            }, room, outerEnv);
+            }], room, outerEnv);
             assert.equal(inner, null);
             assert.equal(inheritedHelm.owornmask, W_ARMH);
             assert.equal(outer.misc_worn_check & W_ARMH, W_ARMH);
@@ -1796,7 +1795,7 @@ test('a failed nested descriptor uses then clears the outer scalar carrier', () 
                 coordinate: { x: 1, y: 0 },
             }, room, outerEnv);
         },
-    }, room, {
+    }], room, {
         state,
         random,
         hooks: {
@@ -1827,11 +1826,11 @@ test('throwing monster inventory callbacks still clear their carrier', () => {
     const marker = new Error('inventory failed');
 
     assert.throws(
-        () => create_monster({
+        () => lspo_monster([{
             id: PM_GOBLIN,
-            coordinate: { x: 0, y: 0 },
+            coord: [0, 0],
             inventory() { throw marker; },
-        }, room, {
+        }], room, {
             state,
             random,
             hooks: { createMonster: () => monster },
@@ -1974,8 +1973,10 @@ test('Ghost equipment descriptors clear generated blessing and wear state', () =
         };
         objects_globals_init(state);
         init_artifacts(state);
+        monst_globals_init(state);
         const random = scriptedRandom([
             step('rn2', [4], 2), // choose relative coordinate <1,0>
+            step('rn2', [2], 0), // find_montype(): the ghost's gender
             step('rn2', [100], 0), // pass the 65% dagger equipment gate
             step('rnd', [2], 1), // advance the dagger object identifier
             ...scenario.middle,
@@ -2016,6 +2017,7 @@ test('Garden creates one sleeping nymph per six points and an uncounted fountain
         level,
         u: { uz: { dnum: 2, dlevel: 1 } },
     };
+    monst_globals_init(state);
     const random = scriptedRandom([
         step('rn2', [100], 0),
         step('rn1', [3, 2], 2),
@@ -2035,7 +2037,11 @@ test('Garden creates one sleeping nymph per six points and an uncounted fountain
     });
 
     random.assertExhausted();
-    assert.deepEqual(monsters, [{ id: PM_WOOD_NYMPH, asleep: true }]);
+    // A wood nymph is all-female, so find_montype() draws no gender.
+    assert.deepEqual(
+        monsters.map((m) => [m.id, m.asleep, m.female]),
+        [[PM_WOOD_NYMPH, 1, FEMALE]],
+    );
     assert.equal(level.at(2, 3).typ, FOUNTAIN);
     assert.equal(level.flags.nfountains, 0);
     assert.equal(state.themeroom_postprocess[2].length, 1);
@@ -2046,6 +2052,7 @@ test('Garden creates one sleeping nymph per six points and an uncounted fountain
         level: sparse.level,
         u: { uz: { dnum: 2, dlevel: 1 } },
     };
+    monst_globals_init(sparseState);
     run_themeroom_fill(fillById('garden'), sparse.room, 1, {
         state: sparseState,
         random: randomWithRn2(() => {
@@ -2075,6 +2082,7 @@ test('Garden creates one sleeping nymph per six points and an uncounted fountain
         level: dozen.level,
         u: { uz: { dnum: 2, dlevel: 1 } },
     };
+    monst_globals_init(dozenState);
     const dozenRandom = scriptedRandom([
         step('rn2', [100], 0), // first nymph requests one fountain
         step('rn2', [100], 99), // second nymph does not request a fountain
@@ -2106,10 +2114,10 @@ test('Garden creates one sleeping nymph per six points and an uncounted fountain
         },
     });
     dozenRandom.assertExhausted();
-    assert.deepEqual(dozenMonsters, [
-        { id: PM_WOOD_NYMPH, asleep: true },
-        { id: PM_WOOD_NYMPH, asleep: true },
-    ]);
+    assert.deepEqual(
+        dozenMonsters.map((m) => [m.id, m.asleep, m.female]),
+        [[PM_WOOD_NYMPH, 1, FEMALE], [PM_WOOD_NYMPH, 1, FEMALE]],
+    );
     assert.deepEqual(dozenFeatures, [FOUNTAIN]);
     assert.deepEqual(dozenEvents, [
         'monster', 'rn2(100)', 'feature', 'monster', 'rn2(100)',
@@ -2703,14 +2711,11 @@ test('create_monster with no species passes MM_NOGRP so preflightCreation accept
     // C ref: sp_lev.c lspo_monster() initializes mm_flags = NO_MM_FLAGS (0).
     // A bare des.monster() call sets neither id nor class, so create_monster()
     // resolves species = null and makemon() must call rndmonst_adj() to
-    // select one. Without MM_NOGRP, preflightCreation() refuses the call
-    // with "random monster groups" because m_initgrp (group creation) is
-    // unported.
+    // select one.
     //
     // Set level.flags.rndmongen = false so makemon() returns null at its
     // debug_mongen/rndmongen gate (makemon.c:1392-1393) before consuming
-    // any rndmonst_adj RNG. This isolates the test to the MM_NOGRP fix in
-    // createMonsterBody().
+    // any rndmonst_adj RNG.
     const { level, room } = twoByTwoRoom();
     const state = {
         ...rawMonsterGenerationState(),
@@ -2734,7 +2739,7 @@ test('create_monster with no species passes MM_NOGRP so preflightCreation accept
     ]);
 
     // Must not throw UnsupportedMonsterCreationError('random monster groups').
-    const monster = create_monster({}, room, {
+    const monster = lspo_monster([], room, {
         state,
         random: random.random,
     });

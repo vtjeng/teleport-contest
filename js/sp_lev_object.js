@@ -46,8 +46,15 @@ import {
     SPE_NOVEL,
     STATUE,
     TIN,
+    STRANGE_OBJECT,
 } from './objects.js';
 import { get_location_coord } from './room_coordinates.js';
+import {
+    get_table_buc,
+    get_table_int_or_random,
+    get_table_objclass,
+    get_table_objtype,
+} from './mklev.js';
 import {
     begin_burn,
 } from './timeout.js';
@@ -109,12 +116,6 @@ function packedCoordinate(specification) {
     return (coordinate.x & 0xff) | ((coordinate.y & 0xff) << 16);
 }
 
-function normalizedBuc(specification) {
-    if (specification.buc != null) return specification.buc;
-    if (specification.notBlessed) return 'not-blessed';
-    return 'random';
-}
-
 function normalizedSpe(specification) {
     if (specification.id === CORPSE || specification.id === STATUE) {
         return (specification.historic ? CORPSTAT_HISTORIC : 0)
@@ -125,7 +126,7 @@ function normalizedSpe(specification) {
         return specification.laidByYou ? 1 : 0;
     if (specification.id === TIN || specification.id === FIGURINE)
         return 0;
-    return specification.spe ?? -127;
+    return get_table_int_or_random(specification, 'spe', -127);
 }
 
 // The level descriptor stores spe in a signed short before create_object()
@@ -145,17 +146,14 @@ function unsignedThreeBits(value) {
     return ((value % 8) + 8) % 8;
 }
 
-function normalizeSpecification(specification, context) {
+// C ref: sp_lev.c lspo_object()'s table reading. `id` may be an object name
+// and `class` a class character, which get_table_objtype() and
+// get_table_objclass() resolve, or the indices the port's level loaders
+// pass. The port keeps null where the C keeps STRANGE_OBJECT, -1, or a class
+// of -1 for "not given".
+function normalizeSpecification(specification, context, state) {
     if (!specification || typeof specification !== 'object') {
         throw new TypeError('special-level object requires a specification');
-    }
-    if (specification.id != null
-        && !Number.isInteger(specification.id)) {
-        throw new TypeError('special-level object id must be an integer');
-    }
-    if (specification.class != null
-        && !Number.isInteger(specification.class)) {
-        throw new TypeError('special-level object class must be an integer');
     }
     if (specification.contents != null
         && typeof specification.contents !== 'function') {
@@ -163,12 +161,20 @@ function normalizeSpecification(specification, context) {
             'special-level object contents must be a function',
         );
     }
+    let id = get_table_objtype(specification, state);
+    let objectClass = get_table_objclass(specification);
+    if (objectClass === -1 && id > STRANGE_OBJECT)
+        objectClass = objectType(id, state).oc_class;
+    else if (objectClass > -1 && id === STRANGE_OBJECT)
+        id = -1;
     return {
         ...specification,
+        id: id > STRANGE_OBJECT ? id : null,
+        class: objectClass > -1 ? objectClass : null,
         spe: signedShort(normalizedSpe(specification)),
-        buc: normalizedBuc(specification),
+        buc: get_table_buc(specification),
         corpsenm: specification.corpsenm ?? NON_PM,
-        quantity: specification.quantity ?? -1,
+        quantity: get_table_int_or_random(specification, 'quantity', -1),
         buried: Boolean(specification.buried),
         lit: Boolean(specification.lit),
         eroded: specification.eroded ?? 0,
@@ -230,34 +236,29 @@ function blessorcurseSpecialObject(obj, env) {
 }
 
 function applyBuc(obj, buc, env, specification) {
+    // C ref: sp_lev.c create_object()'s curse_state switch; get_table_buc()
+    // produces the numbers.
     switch (buc) {
-    case 0:
-    case 'random':
-        break;
-    case 1:
-    case 'blessed':
+    case 1: /* blessed */
         blessSpecialObject(obj, env);
         break;
-    case 2:
-    case 'uncursed':
+    case 2: /* uncursed */
         unblessSpecialObject(obj, env);
         uncurseSpecialObject(obj, env);
         break;
-    case 3:
-    case 'cursed':
+    case 3: /* cursed */
         curseSpecialObject(obj, env);
         break;
-    case 4:
-    case 'not-cursed':
+    case 4: /* not cursed */
         uncurseSpecialObject(obj, env);
         break;
-    case 5:
-    case 'not-uncursed':
+    case 5: /* not uncursed */
         blessorcurseSpecialObject(obj, env);
         break;
-    case 6:
-    case 'not-blessed':
+    case 6: /* not blessed */
         unblessSpecialObject(obj, env);
+        break;
+    case 0: /* random */
         break;
     default:
         throw new UnsupportedSpecialObjectError(
@@ -611,6 +612,7 @@ export function create_object(specification, croom, rawEnv = {}) {
     const normalized = normalizeSpecification(
         specification,
         env.spObjectContext,
+        env.state,
     );
     return createOneObject(normalized, croom, env);
 }
@@ -631,7 +633,7 @@ export function lspo_object(specification, croom, rawEnv = {}) {
     const env = specialObjectEnvironment(rawEnv);
     const context = env.spObjectContext;
     const entryDepth = context.containers.length;
-    const normalized = normalizeSpecification(specification, context);
+    const normalized = normalizeSpecification(specification, context, env.state);
     const exactType = normalized.id == null
         ? null
         : objectType(normalized.id, env.state);

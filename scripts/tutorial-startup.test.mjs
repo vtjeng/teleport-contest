@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import test from 'node:test';
 
-import { ENGRAVE, SLP_GAS_TRAP, SQKY_BOARD } from '../js/const.js';
+import { SLP_GAS_TRAP, SQKY_BOARD } from '../js/const.js';
 import { nh_basename, read_sym_file } from '../js/files.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -381,7 +381,7 @@ test('tutorial descriptor retains the complete source call sequence', () => {
     });
     assert.equal(
         descriptorDigest(log),
-        '26448bab05e618594855dd95aa2c05537f98e59b9a306678f4eadcda90ba9367',
+        'da03ef0433ec233c05a6d5f0f58c71bc6dded08e2765b24c9ec4331beb276883',
     );
 });
 
@@ -429,7 +429,7 @@ test('tutorial descriptor covers role, energy, percentage, and contents branches
         ['contents.end'],
         ['eckey', 'tip'],
         ['engraving', {
-            coord: [42, 6], type: ENGRAVE,
+            coord: [42, 6], type: 'engrave',
             text: "Containers can also be emptied with '@tip'",
             degrade: false,
         }],
@@ -443,14 +443,14 @@ test('tutorial descriptor covers role, energy, percentage, and contents branches
     assert.deepEqual(knight.find(([, specification]) => (
         specification?.text === "Knights can jump with '@jump'"
     )), ['engraving', {
-        coord: [12, 1], type: ENGRAVE,
+        coord: [12, 1], type: 'engrave',
         text: "Knights can jump with '@jump'", degrade: false,
     }]);
     assert.deepEqual(knight.find(([, specification]) => (
         specification?.text
             === "Unfortunately you don't have enough energy to cast spells."
     )), ['engraving', {
-        coord: [59, 2], type: ENGRAVE,
+        coord: [59, 2], type: 'engrave',
         text: "Unfortunately you don't have enough energy to cast spells.",
         degrade: false,
     }]);

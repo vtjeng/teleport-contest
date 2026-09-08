@@ -15,7 +15,6 @@ import {
     COLNO,
     DART_TRAP,
     DRY,
-    FEMALE,
     FOUNTAIN,
     ICE,
     HOT,
@@ -23,12 +22,19 @@ import {
     IS_STWALL,
     LADDER,
     LANDMINE,
-    MALE,
     MELT_ICE_AWAY,
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
     MKTRAP_SEEN,
-    MM_NOCOUNTBIRTH,
+    NON_PM,
+    PROT_FROM_SHAPE_CHANGERS,
+    In_mines,
+    ismnum,
+    BOOL_RANDOM,
+    CUSTOM_INVENT,
+    DEFAULT_INVENT,
+    G_EXTINCT,
+    G_GONE,
     M_AP_OBJECT,
     M_AP_MONSTER,
     NO_LOC_WARN,
@@ -77,7 +83,11 @@ import {
     UnsupportedMonsterCreationError,
 } from './makemon_create.js';
 import { mkclass, set_malign } from './makemon.js';
-import { is_female, is_male } from './mondata.js';
+import { your_race } from './mondata.js';
+import { lspo_monster } from './mklev.js';
+import { christen_monst } from './do_name.js';
+import { MAXMCLASSES } from './symbols.js';
+import { block_point, does_block } from './vision.js';
 import { mktrap } from './mktrap.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
@@ -91,8 +101,11 @@ import {
     OIL_LAMP,
     RING_CLASS,
     SCROLL_CLASS,
+    NUM_OBJECTS,
+    OBJ_NAME,
     STATUE,
     WEAPON_CLASS,
+    getObjects,
 } from './objects.js';
 import {
     PM_ABBOT,
@@ -110,6 +123,7 @@ import {
     PM_GIANT,
     PM_GNOME,
     G_NOGEN,
+    G_UNIQ,
     M1_FLY,
     M1_SWIM,
     PM_FIRE_ELEMENTAL,
@@ -388,31 +402,6 @@ function monsterHumidity(species) {
     return humidity;
 }
 
-function themedMonsterCoordinate(specification, room, species, env) {
-    const coordinate = { x: -1, y: -1 };
-    const packed = specification.coordinate
-        ? packedMapCoordinate(specification.coordinate)
-        : SP_COORD_IS_RANDOM;
-    const humidity = monsterHumidity(species);
-    get_location_coord(
-        coordinate,
-        humidity | NO_LOC_WARN,
-        room,
-        packed,
-        env,
-    );
-    if (coordinate.x === -1 && coordinate.y === -1) {
-        get_location_coord(
-            coordinate,
-            humidity | DRY,
-            room,
-            packed,
-            env,
-        );
-    }
-    return coordinate;
-}
-
 function createObject(specification, room, env) {
     const replacement = env.hooks.createObject;
     // This hook replaces the complete special-level object specification,
@@ -500,190 +489,248 @@ function createPostprocessTrap(specification, env) {
     }
 }
 
-function createMonsterBody(specification, room, env) {
+// C ref: youprop.h Protection_from_shape_changers, the bare intrinsic OR
+// extrinsic bits without the `blocked` mask.
+function Protection_from_shape_changers(state) {
+    const value = state.u?.uprops?.[PROT_FROM_SHAPE_CHANGERS];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+function impossible(message, env) {
+    if (typeof env.hooks.impossible === 'function')
+        env.hooks.impossible(message, env);
+}
+
+// C ref: sp_lev.c create_monster(), from the class lookup through the
+// attribute switch. `m` is the descriptor lspo_monster() fills; the port
+// stores its `class` as the class index rather than the C's class
+// character. Two arms are not ported: an explicit alignment (C: mk_roamer)
+// and a player species (C: mk_mplayer) both fall through to makemon(), and
+// assertSupportedMonsterAppearance() refuses the furniture and monster
+// appearance arms before this runs.
+function createMonsterBody(m, croom, env) {
     const replacement = env.hooks.createMonster;
     // This hook replaces create_monster()'s monster construction and
     // attribute processing, including coordinate selection and asleep/waiting
-    // state.  The surrounding lspo_monster() custom-inventory lifecycle still
-    // runs after the replacement returns.
-    if (replacement) return replacement(specification, room, env);
+    // state.  create_monster()'s inventory handling still runs after the
+    // replacement returns.
+    if (replacement) return replacement(m, croom, env);
 
-    // lspo_monster() resolves a named species and parser gender before
-    // create_monster(), but a class-only descriptor has no parser gender draw
-    // and its BOOL_RANDOM safety net becomes male.
-    let species = Number.isInteger(specification.id)
-        ? env.state.mons?.[specification.id] : null;
-    let female;
-    if (species) {
-        let parsedFemale;
-        if (is_female(species)) {
-            parsedFemale = true;
-        } else if (is_male(species)) {
-            parsedFemale = false;
-        } else if (specification.parsedGender != null) {
-            parsedFemale = specification.parsedGender === FEMALE;
-        } else {
-            parsedFemale = Boolean(env.random.rn2(2));
-        }
-        female = specification.female == null
-            || is_female(species) || is_male(species)
-            ? parsedFemale
-            : Boolean(specification.female);
-    } else if (specification.class != null) {
-        female = specification.female == null
-            ? false : Boolean(specification.female);
+    const { state } = env;
+    // C: class = def_char_to_monclass(m->class), or 0 without a class.
+    const cls = m.class >= 0 ? m.class : 0;
+
+    if (cls === MAXMCLASSES)
+        throw new Error(`create_monster: unknown monster class '${m.class}'`);
+
+    sp_amask_to_amask(m.sp_amask, env);
+
+    let pm;
+    if (!cls) {
+        pm = null;
+    } else if (m.id !== NON_PM) {
+        pm = state.mons[m.id];
+        const g_mvflags = state.mvitals[m.id].mvflags;
+        if ((pm.geno & G_UNIQ) && (g_mvflags & G_EXTINCT))
+            return null;
+        if (g_mvflags & G_GONE) /* genocided or extinct */
+            pm = null; /* make random monster */
     } else {
-        // C ref: sp_lev.c create_monster() with class -1 / id NON_PM:
-        // bare des.monster() call produces a random monster. female
-        // defaults to false (MALE, matching C's safety net at 3355).
-        female = specification.female == null
-            ? false : Boolean(specification.female);
+        pm = mkclass(cls, G_NOGEN, { state, random: env.random });
+        /* if we can't get a specific monster type (pm == 0) then the
+           class has been genocided, so settle for a random monster */
+    }
+    if (In_mines(state.u?.uz) && pm && your_race(pm, state)
+        && (state.urace?.mnum === PM_DWARF || state.urace?.mnum === PM_GNOME)
+        && env.random.rn2(3))
+        pm = null;
+
+    const coordinate = { x: -1, y: -1 };
+    if (pm) {
+        let loc = monsterHumidity(pm);
+
+        /* If water-liking monster, first try is without DRY */
+        get_location_coord(coordinate, loc | NO_LOC_WARN, croom, m.coord, env);
+        if (coordinate.x === -1 && coordinate.y === -1) {
+            loc |= DRY;
+            get_location_coord(coordinate, loc, croom, m.coord, env);
+        }
+    } else {
+        get_location_coord(coordinate, DRY, croom, m.coord, env);
     }
 
-    // C ref: sp_lev.c:1943. lspo_monster() reads sp_amask with
-    // get_table_align(), whose default is "random"; a caller that supplies no
-    // sp_amask gets that default here. The mask feeds only the mk_roamer()
-    // branch (sp_lev.c:1983), which this port does not have.
-    sp_amask_to_amask(specification.sp_amask ?? AM_SPLEV_RANDOM, env);
-    if (!species && specification.class != null) {
-        species = mkclass(specification.class, G_NOGEN, {
-            state: env.state,
-            random: env.random,
-        });
+    /* try to find a close place if someone else is already there */
+    // enexto_core defaults a null species to the hero's, as the C does.
+    if (m_at(coordinate.x, coordinate.y, state)) {
+        const cc = enexto(coordinate.x, coordinate.y, pm, env);
+        if (cc) Object.assign(coordinate, cc);
     }
-    // When both id and class are absent, species stays null and makemon()
-    // creates a random monster (C ref: sp_lev.c:1945-1946).
 
-    const coordinate = themedMonsterCoordinate(
-        specification,
-        room,
-        species,
-        env,
-    );
-    // C ref: sp_lev.c create_monster() line 1977 calls enexto regardless of
-    // whether pm is NULL.  enexto_core defaults NULL to the player species.
-    if (m_at(coordinate.x, coordinate.y, env.state)) {
-        const nearby = enexto(
-            coordinate.x,
-            coordinate.y,
-            species,
-            env,
-        );
-        if (nearby) Object.assign(coordinate, nearby);
-    }
-    if (room && !inside_room(
-        room,
-        coordinate.x,
-        coordinate.y,
-        env.state,
-    )) {
+    if (croom && !inside_room(croom, coordinate.x, coordinate.y, state))
         return null;
-    }
+
     const monsterEnv = themedCreationEnv(env);
     // C makemon has no species allowlist.  Special-level scripts place
     // branch-native species that fall outside the JS allowlist (the Oracle on
     // its eponymous main-dungeon level, for instance).  Bypass the allowlist
     // for script-placed monsters during mklev, the same way rndmonst-selected
     // species bypass it.
-    if (env.state?.in_mklev) monsterEnv._rndmonMklev = true;
-    // C ref: sp_lev.c lspo_monster() initializes mm_flags = NO_MM_FLAGS.
-    // create_monster passes m->mm_flags (initialized to NO_MM_FLAGS = 0), so
-    // group creation proceeds normally for random species. makemon handles
-    // m_initgrp for all species rndmonst selects.
-    const mmflags = specification.countbirth === false
-        ? MM_NOCOUNTBIRTH
-        : 0;
-    const monster = makemon(
-        species,
+    if (state?.in_mklev) monsterEnv._rndmonMklev = true;
+    const mtmp = makemon(
+        pm,
         coordinate.x,
         coordinate.y,
-        mmflags,
+        m.mm_flags,
         monsterEnv,
     );
-    if (!monster) return null;
-    // C ref: sp_lev.c:1991 `m->x = x, m->y = y` copies the placed position
-    // back into the descriptor before the appearance switch reads it.
-    let mx = monster.mx;
-    let my = monster.my;
-    if (specification.appearAs?.type === M_AP_OBJECT
-        && monster.data.mlet === S_MIMIC) {
-        const i = specification.appearAs.id;
-        monster.m_ap_type = M_AP_OBJECT;
-        monster.mappearance = i;
-        // C ref: sp_lev.c:2039-2058. Try to avoid placing a mimic boulder on
-        // a trap. Because m->x was overwritten above, `m->x < 0` never holds
-        // and the retry never runs; the source's structure is kept as is.
-        if (i === BOULDER && mx < 0 && m_bad_boulder_spot(mx, my, env)) {
-            let retrylimit = 10;
+    if (!mtmp) return null;
 
-            remove_monster(mx, my, env.state);
-            do {
-                const cc = { x: mx, y: my };
-                get_location(cc, DRY, room, env);
-                mx = cc.x;
-                my = cc.y;
-                if (m_at(mx, my, env.state)) {
-                    const near = enexto(mx, my, species, env);
-                    if (near) {
-                        mx = near.x;
-                        my = near.y;
-                    }
+    let x = mtmp.mx;
+    let y = mtmp.my; /* sanity precaution */
+    m.x = x;
+    m.y = y;
+    /* handle specific attributes for some special monsters */
+    if (m.name != null)
+        christen_monst(mtmp, m.name);
+
+    /*
+     * This doesn't complain if an attempt is made to give a
+     * non-mimic/non-shapechanger an appearance or to give a
+     * shapechanger a non-monster shape, it just refuses to comply.
+     */
+    if (m.appear_as != null
+        && ((mtmp.data.mlet === S_MIMIC)
+            /* shapechanger (chameleons, et al, and vampires) */
+            || (ismnum(mtmp.cham) && m.appear === M_AP_MONSTER))
+        && !Protection_from_shape_changers(state)) {
+        switch (m.appear) {
+        case M_AP_OBJECT: {
+            const objects = getObjects(state);
+            let i;
+
+            for (i = 0; i < NUM_OBJECTS; i++)
+                if (OBJ_NAME(objects[i], state)
+                    && OBJ_NAME(objects[i], state) === m.appear_as)
+                    break;
+            if (i === NUM_OBJECTS) {
+                impossible(
+                    `create_monster: can't find object "${m.appear_as}"`,
+                    env,
+                );
+            } else {
+                mtmp.m_ap_type = M_AP_OBJECT;
+                mtmp.mappearance = i;
+                /* try to avoid placing mimic boulder on a trap */
+                // Because m->x was overwritten above, `m->x < 0` never holds
+                // and the retry never runs; the source's structure is kept.
+                if (i === BOULDER && m.x < 0
+                    && m_bad_boulder_spot(x, y, env)) {
+                    let retrylimit = 10;
+
+                    remove_monster(x, y, state);
+                    do {
+                        const cc = { x: m.x, y: m.y };
+                        get_location(cc, DRY, croom, env);
+                        x = cc.x;
+                        y = cc.y;
+                        if (m_at(x, y, state)) {
+                            const near = enexto(x, y, pm, env);
+                            if (near) {
+                                x = near.x;
+                                y = near.y;
+                            }
+                        }
+                    } while (m_bad_boulder_spot(x, y, env)
+                             && --retrylimit > 0);
+                    place_monster(mtmp, x, y, state);
+                    /* if we didn't find a good spot
+                       then mimic something else */
+                    if (!retrylimit)
+                        set_mimic_sym(mtmp, monsterEnv);
                 }
-            } while (m_bad_boulder_spot(mx, my, env) && --retrylimit > 0);
-            place_monster(monster, mx, my, env.state);
-            // if we didn't find a good spot then mimic something else
-            if (!retrylimit)
-                set_mimic_sym(monster, monsterEnv);
+            }
+            break;
         }
+        default:
+            // M_AP_NOTHING, M_AP_FURNITURE, and M_AP_MONSTER: refused by
+            // assertSupportedMonsterAppearance() before creation.
+            break;
+        }
+        if (does_block(x, y, state.level.at(x, y), state))
+            block_point(x, y, state);
     }
+
     // create_monster() applies the parser-selected gender after makemon(),
     // even though makemon may have consumed its own gender draw.
-    monster.female = female;
-    if (specification.peaceful != null) {
-        monster.mpeaceful = Boolean(specification.peaceful);
-        // sp_lev.c:create_monster() recomputes malign because makemon()
-        // initialized it from the monster's natural peacefulness.
-        set_malign(monster, env.state);
+    mtmp.female = Boolean(m.female);
+    if (m.peaceful > BOOL_RANDOM) {
+        mtmp.mpeaceful = Boolean(m.peaceful);
+        /* changed mpeaceful again; have to reset malign */
+        set_malign(mtmp, state);
     }
-    if (specification.asleep != null)
-        monster.msleeping = Boolean(specification.asleep);
-    if (specification.waiting) {
-        monster.mstrategy |= STRAT_WAITFORU;
-        // sp_lev.c:create_monster() restores a naturally shifted waiting
-        // vampire unless the descriptor explicitly requested a monster
-        // appearance. makemon() already suppressed inventory for the initial
-        // successful shift; the reversion must not regenerate it here.
-        const isVampireShifter = monster.cham === PM_VAMPIRE
-            || monster.cham === PM_VAMPIRE_LEADER;
+    if (m.asleep > BOOL_RANDOM)
+        mtmp.msleeping = Boolean(m.asleep);
+    if (m.seentraps)
+        mtmp.mtrapseen = m.seentraps;
+    if (m.cancelled)
+        mtmp.mcan = true;
+    if (m.revived)
+        mtmp.mrevived = true;
+    if (m.avenge)
+        mtmp.mavenge = true;
+    if (m.stunned)
+        mtmp.mstun = true;
+    if (m.confused)
+        mtmp.mconf = true;
+    if (m.invis) {
+        mtmp.minvis = mtmp.perminvis = true;
+    }
+    if (m.blinded) {
+        mtmp.mcansee = false;
+        mtmp.mblinded = (m.blinded % 127);
+    }
+    if (m.paralyzed) {
+        mtmp.mcanmove = false;
+        mtmp.mfrozen = (m.paralyzed % 127);
+    }
+    if (m.fleeing) {
+        mtmp.mflee = true;
+        mtmp.mfleetim = (m.fleeing % 127);
+    }
+    if (m.waiting) {
+        mtmp.mstrategy |= STRAT_WAITFORU;
+        /* if this is a vampire that got created already shifted into
+           bat/fog/wolf form and the special level or theme room didn't
+           explicitly request that, shift back to vampire */
+        // makemon() already suppressed inventory for the initial successful
+        // shift; the reversion must not regenerate it here.
+        const isVampireShifter = mtmp.cham === PM_VAMPIRE
+            || mtmp.cham === PM_VAMPIRE_LEADER;
         if (isVampireShifter
-            && monster.data.mlet !== S_VAMPIRE
-            && specification.appearAs?.type !== M_AP_MONSTER) {
-            restore_waiting_vampire(monster, monsterEnv);
+            && mtmp.data.mlet !== S_VAMPIRE
+            && m.appear !== M_AP_MONSTER) {
+            restore_waiting_vampire(mtmp, monsterEnv);
         }
     }
-    return monster;
+    if (m.m_lev_adj) {
+        if (mtmp.m_lev + m.m_lev_adj > 49)
+            mtmp.m_lev = 49;
+        else if (mtmp.m_lev + m.m_lev_adj < 0)
+            mtmp.m_lev = 0;
+        else
+            mtmp.m_lev += m.m_lev_adj;
+    }
+    return mtmp;
 }
 
-function assertSupportedMonsterAppearance(specification, state) {
-    const appearance = specification.appearAs;
-    if (appearance == null) return;
-
-    const species = Number.isInteger(specification.id)
-        ? state.mons?.[specification.id] : null;
-    const monsterClass = species?.mlet ?? specification.class;
-    if (monsterClass !== S_MIMIC) {
+// The furniture and monster appearance arms of create_monster() are not
+// ported. Refuse those descriptors before create_monster() consumes RNG or
+// mutates level state.
+function assertSupportedMonsterAppearance(m) {
+    if (m.appear_as == null) return;
+    if (m.appear !== M_AP_OBJECT) {
         throw new UnsupportedMonsterCreationError(
-            'appearance descriptor for a non-mimic',
-        );
-    }
-    if (appearance.type !== M_AP_OBJECT) {
-        throw new UnsupportedMonsterCreationError(
-            `special-level mimic appearance type ${appearance.type}`,
-        );
-    }
-    if (appearance.id !== CHEST && appearance.id !== BOULDER) {
-        throw new UnsupportedMonsterCreationError(
-            `special-level mimic object appearance ${appearance.id}`,
+            `special-level appearance type ${m.appear}`,
         );
     }
 }
@@ -739,71 +786,41 @@ export function sp_amask_to_amask(sp_amask, rawEnv = {}) {
 // descriptor: the carrier wears what it was given, and the shared carrier
 // slot is cleared. It deliberately consults the shared carrier rather than a
 // saved local, so a nested descriptor that replaced or cleared it wins.
-function spo_end_moninvent(context, env) {
+export function spo_end_moninvent(context, env) {
     if (context.inventCarryingMonster)
         m_dowear(context.inventCarryingMonster, true, env);
     context.inventCarryingMonster = null;
 }
 
-// C refs: sp_lev.c lspo_monster() and create_monster(). The descriptor
-// callback runs even when monster creation fails.  A top-level failure leaves
-// its objects on the floor; a nested failure inherits the outer scalar carrier
-// until spo_end_moninvent() clears it, matching create_monster()'s
-// success-only assignment.
-export function create_monster(specification, room, rawEnv = {}) {
+// C ref: sp_lev.c create_monster(). `m` is the descriptor lspo_monster()
+// fills. The monster's construction runs in createMonsterBody() so that a
+// test hook can replace it; the inventory handling that follows runs either
+// way. Answers the monster, or null when none was created; the C returns
+// nothing and leaves the custom-inventory callback to lspo_monster().
+export function create_monster(m, croom, rawEnv = {}) {
     const env = fillEnvironment(rawEnv);
-    // This bounded port implements the Storeroom's object-disguised mimic
-    // descriptor only. Reject other appearance pairs before create_monster()
-    // consumes RNG or mutates level state.
-    assertSupportedMonsterAppearance(specification, env.state);
-    if (specification.parsedGender != null
-        && specification.parsedGender !== MALE
-        && specification.parsedGender !== FEMALE) {
-        throw new TypeError(
-            'special-level monster parsedGender must be MALE or FEMALE',
-        );
-    }
-    const inventory = specification.inventory;
-    if (inventory != null && typeof inventory !== 'function') {
-        throw new TypeError(
-            'special-level monster inventory must be a function',
-        );
-    }
-    if (specification.keepDefaultInventory != null
-        && typeof specification.keepDefaultInventory !== 'boolean') {
-        throw new TypeError(
-            'special-level monster keepDefaultInventory must be boolean',
-        );
-    }
+    assertSupportedMonsterAppearance(m);
 
-    const monster = createMonsterBody(specification, room, env);
-    const hasCustomInventory = typeof inventory === 'function';
-    const keepDefaultInventory = hasCustomInventory
-        ? specification.keepDefaultInventory === true
-        : specification.keepDefaultInventory !== false;
-    if (monster && !keepDefaultInventory) {
-        // C ref: sp_lev.c:2180. mdrop_special_objs (steal.c:852)
-        // calls obj_resists(obj, 0, 0) for each inventory item before
-        // discard_minvent discards them. The rn2(100) calls always
-        // return false for ordinary items but still consume the RNG.
-        for (let obj = monster.minvent; obj; obj = obj.nobj)
-            obj_resists(obj, 0, 0, env);
-        discard_minvent(monster, true, env);
-    }
-    if (!hasCustomInventory) return monster;
+    const mtmp = createMonsterBody(m, croom, env);
 
-    const context = env.spObjectContext;
-    if (monster) context.inventCarryingMonster = monster;
-    try {
-        inventory(monster, env);
-    } catch (e) {
-        // C has no exception path; keep the shared carrier from leaking into
-        // a later descriptor when the callback fails.
-        context.inventCarryingMonster = null;
-        throw e;
+    if (mtmp) {
+        if (!(m.has_invent & DEFAULT_INVENT)) {
+            /* guard against someone accidentally specifying e.g. quest nemesis
+             * with custom inventory that lacks Bell or quest artifact but
+             * forgetting to flag them as receiving their default inventory */
+            // C ref: steal.c mdrop_special_objs() calls obj_resists(obj, 0, 0)
+            // for each inventory item before discard_minvent() discards them.
+            // The rn2(100) calls always return false for ordinary items but
+            // still consume the RNG.
+            for (let obj = mtmp.minvent; obj; obj = obj.nobj)
+                obj_resists(obj, 0, 0, env);
+            discard_minvent(mtmp, true, env);
+        }
+        if (m.has_invent & CUSTOM_INVENT) {
+            env.spObjectContext.inventCarryingMonster = mtmp;
+        }
     }
-    spo_end_moninvent(context, env);
-    return monster;
+    return mtmp;
 }
 
 function replaceSelectedTerrain(selection, predicate, toTerrain, env) {
@@ -913,7 +930,7 @@ function fillCloudRoom(room, _difficulty, env) {
     const fog = roomSelection(room, env);
     const monsterCount = Math.trunc(fog.numpoints() / 4);
     for (let index = 0; index < monsterCount; ++index)
-        create_monster({ id: PM_FOG_CLOUD, asleep: true }, room, env);
+        lspo_monster([{ id: PM_FOG_CLOUD, asleep: true }], room, env);
     const replacement = env.hooks.createGasCloudSelection;
     return replacement
         ? replacement(fog, 0, env)
@@ -1016,7 +1033,7 @@ function fillGarden(room, _difficulty, env) {
     const selected = roomSelection(room, env);
     const monsterCount = Math.trunc(selected.numpoints() / 6);
     for (let index = 0; index < monsterCount; ++index) {
-        create_monster({ id: PM_WOOD_NYMPH, asleep: true }, room, env);
+        lspo_monster([{ id: PM_WOOD_NYMPH, asleep: true }], room, env);
         if (env.random.rn2(100) < 30)
             createFeature(FOUNTAIN, room, env);
     }
@@ -1129,10 +1146,10 @@ function fillStoreroom(room, _difficulty, env) {
         if (env.random.rn2(100) < 25) {
             createObject({ id: CHEST }, room, env);
         } else {
-            create_monster({
+            lspo_monster([{
                 class: S_MIMIC,
-                appearAs: { type: M_AP_OBJECT, id: CHEST },
-            }, room, env);
+                appear_as: 'obj:chest',
+            }], room, env);
         }
     });
 }
@@ -1163,12 +1180,12 @@ function fillGhostOfAnAdventurer(room, _difficulty, env) {
         env.random.rn2,
         { x: room.lx, y: room.ly },
     );
-    create_monster({
+    lspo_monster([{
         id: PM_GHOST,
         asleep: true,
         waiting: true,
-        coordinate,
-    }, room, env);
+        coord: coordinate,
+    }], room, env);
 
     const equipment = (specification, chance) => {
         if (env.random.rn2(100) < chance) {
