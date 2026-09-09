@@ -17265,7 +17265,20 @@
         "seed0383-wizard-hallucinate"
       ],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "replmon..vamprises",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "replmon",
+            "dealloc_mextra",
+            "dealloc_monst",
+            "set_mon_min_mhpmax",
+            "vamprises"
+          ]
+        }
+      ],
       "openedAt": "4e18fc55d05505d9d2686fd67cefd7d5a90f1bfa",
       "openStanding": {
         "sha": "049962b2",
