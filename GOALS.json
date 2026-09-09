@@ -17053,7 +17053,7 @@
     {
       "id": "port-mon-meatbox-can-carry",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mon.c monster food consumption and inventory pickup helpers",
       "cFile": "mon.c",
       "sessions": [
@@ -17082,8 +17082,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1938c3ea210df08ca2f1a8d3fd44942711d9dd7f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "meatbox",
