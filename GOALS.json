@@ -18043,6 +18043,276 @@
         "from": 5971,
         "to": 6089
       }
+    },
+    {
+      "id": "port-options-core-option-handlers",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port options.c core option parsing and display handlers",
+      "cFile": "options.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [],
+      "openedAt": "ecdcc2d269e035900a6d8cf955ca7837466e8132",
+      "openStanding": {
+        "sha": "1a229673",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "check_misc_menu_command",
+          "line": 694,
+          "endLine": 714,
+          "ported": false
+        },
+        {
+          "name": "opt2roleopt",
+          "line": 715,
+          "endLine": 733,
+          "ported": false
+        },
+        {
+          "name": "getoptstr",
+          "line": 734,
+          "endLine": 757,
+          "ported": false
+        },
+        {
+          "name": "saveoptstr",
+          "line": 758,
+          "endLine": 775,
+          "ported": false
+        },
+        {
+          "name": "unsaveoptstr",
+          "line": 776,
+          "endLine": 786,
+          "ported": false
+        },
+        {
+          "name": "freeroleoptvals",
+          "line": 787,
+          "endLine": 800,
+          "ported": false
+        },
+        {
+          "name": "saveoptvals",
+          "line": 801,
+          "endLine": 822,
+          "ported": false
+        },
+        {
+          "name": "restoptvals",
+          "line": 823,
+          "endLine": 847,
+          "ported": false
+        },
+        {
+          "name": "petname_optfn",
+          "line": 848,
+          "endLine": 884,
+          "ported": true
+        },
+        {
+          "name": "optfn_alignment",
+          "line": 885,
+          "endLine": 922,
+          "ported": false
+        },
+        {
+          "name": "optfn_align_message",
+          "line": 923,
+          "endLine": 972,
+          "ported": true
+        },
+        {
+          "name": "optfn_align_status",
+          "line": 973,
+          "endLine": 1021,
+          "ported": true
+        },
+        {
+          "name": "optfn_altkeyhandling",
+          "line": 1022,
+          "endLine": 1065,
+          "ported": false
+        },
+        {
+          "name": "optfn_autounlock",
+          "line": 1066,
+          "endLine": 1170,
+          "ported": true
+        },
+        {
+          "name": "optfn_boulder",
+          "line": 1171,
+          "endLine": 1248,
+          "ported": true
+        },
+        {
+          "name": "optfn_catname",
+          "line": 1249,
+          "endLine": 1258,
+          "ported": false
+        },
+        {
+          "name": "optfn_crash_email",
+          "line": 1259,
+          "endLine": 1284,
+          "ported": true
+        },
+        {
+          "name": "optfn_crash_name",
+          "line": 1285,
+          "endLine": 1310,
+          "ported": true
+        },
+        {
+          "name": "optfn_crash_urlmax",
+          "line": 1311,
+          "endLine": 1344,
+          "ported": true
+        },
+        {
+          "name": "optfn_cursesgraphics",
+          "line": 1345,
+          "endLine": 1393,
+          "ported": false
+        },
+        {
+          "name": "optfn_DECgraphics",
+          "line": 1394,
+          "endLine": 1441,
+          "ported": false
+        },
+        {
+          "name": "optfn_disclose",
+          "line": 1442,
+          "endLine": 1562,
+          "ported": true
+        },
+        {
+          "name": "optfn_dogname",
+          "line": 1563,
+          "endLine": 1571,
+          "ported": false
+        },
+        {
+          "name": "optfn_dungeon",
+          "line": 1572,
+          "endLine": 1593,
+          "ported": false
+        },
+        {
+          "name": "optfn_effects",
+          "line": 1594,
+          "endLine": 1615,
+          "ported": false
+        },
+        {
+          "name": "optfn_font_map",
+          "line": 1616,
+          "endLine": 1624,
+          "ported": true
+        },
+        {
+          "name": "optfn_font_menu",
+          "line": 1625,
+          "endLine": 1633,
+          "ported": true
+        },
+        {
+          "name": "optfn_font_message",
+          "line": 1634,
+          "endLine": 1642,
+          "ported": true
+        },
+        {
+          "name": "optfn_font_size_map",
+          "line": 1643,
+          "endLine": 1651,
+          "ported": true
+        },
+        {
+          "name": "optfn_font_size_menu",
+          "line": 1652,
+          "endLine": 1660,
+          "ported": true
+        },
+        {
+          "name": "optfn_font_size_message",
+          "line": 1661,
+          "endLine": 1669,
+          "ported": true
+        },
+        {
+          "name": "optfn_font_size_status",
+          "line": 1670,
+          "endLine": 1678,
+          "ported": true
+        },
+        {
+          "name": "optfn_font_size_text",
+          "line": 1679,
+          "endLine": 1687,
+          "ported": true
+        },
+        {
+          "name": "optfn_font_status",
+          "line": 1688,
+          "endLine": 1696,
+          "ported": true
+        },
+        {
+          "name": "optfn_font_text",
+          "line": 1697,
+          "endLine": 1705,
+          "ported": true
+        },
+        {
+          "name": "optfn_fruit",
+          "line": 1706,
+          "endLine": 1776,
+          "ported": false
+        },
+        {
+          "name": "optfn_gender",
+          "line": 1777,
+          "endLine": 1814,
+          "ported": false
+        },
+        {
+          "name": "optfn_glyph",
+          "line": 1815,
+          "endLine": 1851,
+          "ported": false
+        },
+        {
+          "name": "optfn_hilite_status",
+          "line": 1852,
+          "endLine": 1896,
+          "ported": false
+        },
+        {
+          "name": "optfn_horsename",
+          "line": 1897,
+          "endLine": 1905,
+          "ported": false
+        },
+        {
+          "name": "optfn_IBMgraphics",
+          "line": 1906,
+          "endLine": 1962,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 694,
+        "to": 1962
+      }
     }
   ]
 }
