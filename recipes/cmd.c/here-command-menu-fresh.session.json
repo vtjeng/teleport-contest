@@ -1,0 +1,9 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 424242,
+    "datetime": "20320405060708",
+    "nethackrc": "OPTIONS=name:MenuProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug\n",
+    "moves": "#herecmdmenu\n\u001b"
+  }]
+}

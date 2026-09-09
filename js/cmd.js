@@ -14,7 +14,9 @@ import {
 import {
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
-    AIR,
+    ARTICLE_THE,
+    CLICK_1,
+    CLICK_2,
     CMDQ_DIR,
     CMDQ_EXTCMD,
     CMDQ_INT,
@@ -35,27 +37,38 @@ import {
     DIR_SW,
     DIR_W,
     DIR_ERR,
+    D_CLOSED,
+    D_ISOPEN,
+    D_LOCKED,
     ECMD_CANCEL,
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
+    GC_CONDHIST,
+    GC_ECHOFIRST,
+    GC_SAVEHIST,
     DOOR,
     DRAWBRIDGE_UP,
     GFILTER_VIEW,
-    GLOC_INTERESTING,
-    GRAVE,
     IRONBARS,
     IS_DOOR,
+    IS_ALTAR,
+    IS_FOUNTAIN,
+    IS_SINK,
     IS_STWALL,
+    IS_THRONE,
+    In_tutorial,
     IS_TREE,
     IS_WATERWALL,
     LAVAWALL,
+    LARGEST_INT,
+    MENU_BEHAVE_STANDARD,
     MAX_TYPE,
     ROOM,
     ROOMOFFSET,
     SCORR,
     SDOOR,
-    TREE,
+    SUPPRESS_SADDLE,
     GETOBJ_PROMPT,
     MV_ANY,
     MV_RUN,
@@ -79,6 +92,7 @@ import {
     TELEP_TRAP,
     TELEPORT,
     TER_MAP,
+    VIBRATING_SQUARE,
     Upolyd,
     isok,
     quitchars,
@@ -87,6 +101,7 @@ import {
     xdir,
     ydir,
     zdir,
+    W_SADDLE,
 } from './const.js';
 import {
     doapply,
@@ -106,7 +121,11 @@ import {
     docrt,
     flush_screen,
     glyph_at,
+    glyph_is_invisible,
+    hero_glyph_info,
     newsym,
+    objnum_to_glyph,
+    vobj_at,
     UnsupportedMapMemoryError,
     UnsupportedTransientDisplayError,
 } from './display.js';
@@ -148,8 +167,13 @@ import {
 } from './monsters.js';
 import { dmonsfree, UnsupportedMonsterCreationError } from './makemon_create.js';
 import { UnsupportedRegionPlacementError } from './mkmaze.js';
-import { docallcmd, UnsupportedObjectNamingError } from './do_name.js';
-import { dobjsfree, UnsupportedObjectOperationError } from './obj.js';
+import {
+    docallcmd,
+    mon_nam,
+    x_monnam,
+    UnsupportedObjectNamingError,
+} from './do_name.js';
+import { dobjsfree, isContainer, UnsupportedObjectOperationError } from './obj.js';
 import { doloot, dotip, UnsupportedPickupError } from './pickup.js';
 import {
     dodrink,
@@ -161,10 +185,19 @@ import {
 import { UnsupportedFountainError } from './fountain.js';
 import { WaterDamageError } from './trap_water_damage.js';
 import { UnsupportedItemDestructionError } from './zap_destroy_items.js';
-import { SPE_TELEPORT_AWAY } from './objects.js';
+import {
+    BOULDER,
+    CREDIT_CARD,
+    FOOD_CLASS,
+    LOCK_PICK,
+    SADDLE,
+    SKELETON_KEY,
+    SPE_TELEPORT_AWAY,
+} from './objects.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { UnsupportedPositionCheckError, tele } from './teleport.js';
 import { reset_utrap, t_at, dountrap } from './trap.js';
+import { stairway_at } from './stairs.js';
 import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
 import { UnsupportedErosionError } from './trap_erode_obj.js';
 import {
@@ -210,7 +243,15 @@ import {
     recalc_mapseen,
     u_on_rndspot,
 } from './dungeon.js';
-import { mungspaces, strstri, strsubst, visctrl } from './hacklib.js';
+import {
+    dist2,
+    mungspaces,
+    sgn,
+    strstri,
+    strsubst,
+    upstart,
+    visctrl,
+} from './hacklib.js';
 import {
     ddoinv,
     dolook,
@@ -219,6 +260,7 @@ import {
     doprgold,
     doprring,
     doprwep,
+    carrying,
     getobj,
     hands_obj,
     UnsupportedFeatureDescriptionError,
@@ -230,7 +272,7 @@ import {
     UnsupportedEnlightenmentError,
 } from './insight.js';
 import { dodiscovered, UnsupportedDiscoveryDisplayError } from './o_init.js';
-import { UnsupportedObjectNameError } from './objnam.js';
+import { donameFresh, UnsupportedObjectNameError } from './objnam.js';
 import {
     doset_simple,
     dotogglepickup,
@@ -240,10 +282,11 @@ import {
 } from './options.js';
 import { dopray, UnsupportedPrayerError } from './pray.js';
 import { UnsupportedHideError } from './mon.js';
-import { dosave, savelev } from './save.js';
+import { dosave, dosave0, savelev } from './save.js';
 import {
     dohelp,
     doquickwhatis,
+    do_screen_description,
     dowhatis,
     UnsupportedHelpError,
     UnsupportedWhatisError,
@@ -283,6 +326,7 @@ import {
     end_running,
     monster_nearby,
     preflightDomoveDestination,
+    test_move,
     u_maybe_impaired,
     NODIAG,
     UnsupportedHeroMoveBoundaryError,
@@ -339,10 +383,13 @@ import {
     selection_new,
     set_selection_floodfillchk,
 } from './themerooms.js';
-import { collectLookaroundMessages, messageAt } from './startup_a11y.js';
+import { canSpotMonster, collectLookaroundMessages, messageAt } from './startup_a11y.js';
 import { cansee, vision_reset } from './vision.js';
 import { m_at } from './monst.js';
-import { losedogs } from './dog.js';
+import { linedup } from './mthrowu.js';
+import { can_saddle, losedogs } from './dog.js';
+import { which_armor } from './worn.js';
+import { num_spells } from './startup_skills.js';
 import { initrack } from './track.js';
 import { check_special_room } from './rooms.js';
 import { maybe_reset_pick } from './lock.js';
@@ -638,8 +685,17 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
     if (yn_menuable_resp(resp, state)) {
         throw new UnsupportedDirectionBoundaryError('yn_function_menu()');
     }
-    const res = await tty_yn_function(query, resp, def, state);
-    if (addcmdq) cmdq_add_key(CQ_REPEAT, res, state);
+    const queued = addcmdq ? cmdq_peek(CQ_CANNED, state) : null;
+    let fromQueue = false;
+    let res;
+    if (queued?.typ === CMDQ_KEY) {
+        cmdq_pop(state);
+        res = queued.key;
+        fromQueue = true;
+    } else {
+        res = await tty_yn_function(query, resp, def, state);
+    }
+    if (addcmdq && !fromQueue) cmdq_add_key(CQ_REPEAT, res, state);
     // "in case we're called via getdir() which sets input_state".
     state.program_state.input_state = 'other';
     return res;
@@ -1242,19 +1298,16 @@ export async function get_adjacent_loc(prompt, emsg, x, y, cc, state = game) {
 export async function getdir(s, state = game) {
     const u = state.u;
     // C ref: getdir():3962-3981. A queued direction answers the prompt and
-    // jumps to got_dirsym, skipping the prompt itself, the message-window
-    // clear and the CQ_REPEAT record below. Nothing ported pushes a CMDQ_DIR
-    // or CMDQ_KEY node -- dothrow.c dofire()'s swap-and-retry arm pushes two
-    // extended commands and rhack() has consumed both by the time throw_obj()
-    // asks for a direction -- so any node found here is one this port cannot
-    // answer, and C's own impossible() arm is the shape of the refusal.
-    const queued = cmdq_pop(state);
-    if (queued) {
-        cmdq_clear(CQ_CANNED, state);
-        throw new UnsupportedDirectionBoundaryError(
-            'the direction prompt has a queued answer',
-        );
+    // jumps to got_dirsym, skipping the prompt itself and its repeat record.
+    const queued = cmdq_peek(CQ_CANNED, state);
+    if (queued?.typ === CMDQ_DIR) {
+        cmdq_pop(state);
+        u.dx = queued.dx;
+        u.dy = queued.dy;
+        u.dz = queued.dz;
+        return 1;
     }
+    if (queued?.typ === CMDQ_USER_INPUT) cmdq_pop(state);
     // retry: -- only the '^R' arm jumps back here, and it is refused below.
     state.program_state.input_state = 'getdir';
     const dirsym = await yn_function(
@@ -1332,63 +1385,88 @@ export async function getdir(s, state = game) {
     return 1;
 }
 
-// C ref: cmd.c get_count(). parse() passes allowchars == NULL: an ordinary
-// non-digit commits the count, Backspace/Delete edit it, and Escape returns
-// without committing so parse() can cancel the count.
-async function getCount(state, inkey = 0) {
-    let count = 0;
-    let key = inkey;
-    let hasInkey = Boolean(inkey);
-    let backspaced = false;
-    let showZero = true;
+// C ref: cmd.c get_count() (5018-5089). `allowchars` is a string of accepted
+// terminators; null accepts any non-digit. C's AppendLongDigit() returns -1
+// on overflow, which the caller changes back to zero before applying its
+// positive maximum.
+export async function get_count(
+    allowchars = null,
+    inkey = 0,
+    maxcount = LARGEST_INT,
+    countOut = null,
+    gcFlags = 0,
+    state = game,
+) {
+    state.program_state ??= {};
     const savedInputState = state.program_state.input_state;
+    let key = inkey;
+    let count = 0;
+    let first = inkey ? inkey - 0x30 : 0;
+    let backspaced = false;
+    let showzero = true;
+    const historicmsg = (gcFlags & GC_SAVEHIST) !== 0;
+    const conditionalmsg = (gcFlags & GC_CONDHIST) !== 0;
+    const echoalways = (gcFlags & GC_ECHOFIRST) !== 0;
+    const escape = commandBindings(state).specialKeys.escape ?? ESC;
+
+    const storeCount = (value) => {
+        if (countOut && typeof countOut === 'object') countOut.value = value;
+    };
+    const appendLongDigit = (value, digitValue) => {
+        const appended = value * 10 + digitValue;
+        return appended > Number.MAX_SAFE_INTEGER ? -1 : appended;
+    };
 
     for (;;) {
-        if (hasInkey) {
-            hasInkey = false;
+        if (inkey) {
+            key = inkey;
+            inkey = 0;
         } else {
-            // readchar_core() resets input_state after each logical read.
-            // Restore commandInp before the next read so ESC+byte remains one
-            // meta command after any number of digits.
             state.program_state.input_state = savedInputState;
             key = await readchar(state);
         }
 
         if (isDigit(key)) {
-            // AppendLongDigit() followed by parse()'s LARGEST_INT limit.
-            count = Math.min(
-                MAX_COMMAND_COUNT,
-                count * 10 + key - 0x30,
-            );
-            showZero = key === 0x30;
+            const dgt = key - 0x30;
+            count = appendLongDigit(count, dgt);
+            if (count < 0) count = 0;
+            else if (maxcount > 0 && count > maxcount) count = maxcount;
+            showzero = key === 0x30;
         } else if (key === BACKSPACE || key === DELETE) {
-            if (!count) break;
-            showZero = false;
+            if (!count && !echoalways) break;
+            showzero = false;
             count = Math.trunc(count / 10);
             backspaced = true;
-        } else if (key === ESC) {
+        } else if (key === escape) {
             break;
-        } else {
+        } else if (!allowchars || allowchars.includes(String.fromCharCode(key))) {
+            storeCount(count);
             break;
         }
 
-        if (count > 9 || backspaced) {
+        if (count > 9 || backspaced || echoalways) {
             clearTtyMessageWindow(state);
             let countMessage;
-            if (backspaced && !count && !showZero) {
+            if (backspaced && !count && !showzero) {
                 countMessage = 'Count: ';
             } else {
                 countMessage = `Count: ${count}`;
                 backspaced = false;
             }
             await ttyPline(countMessage, state);
-            // get_count() calls mark_synch() after writing the transient
-            // message, making it visible at the next readchar() boundary.
             await flush_screen(1);
             state.nhDisplay?.setCursor(countMessage.length, 0);
         }
     }
-    return { key, count };
+
+    const resultCount = countOut && typeof countOut === 'object'
+        ? countOut.value ?? 0 : count;
+    if (historicmsg || (conditionalmsg && resultCount !== first)) {
+        const historyLine = `Count: ${resultCount} ${key2txt(key)}`;
+        state.messageHistory ??= [];
+        state.messageHistory.push(historyLine);
+    }
+    return { key, count: resultCount };
 }
 
 async function beginCommandParse(state) {
@@ -1430,32 +1508,61 @@ function finishCommandParse(parsed, state) {
 // byte in cmdKey. It restores parse/input state, clears the physical TTY
 // message row, and returns cmdKey.
 export async function parseCommand(state = game) {
+    return parse(state);
+}
+
+// C ref: cmd.c parse() (5093-5156). The wrapper above keeps the existing
+// JavaScript callers named `parseCommand`; this source-named function owns the
+// command-count and input-state transitions from C.
+export async function parse(state = game) {
     await beginCommandParse(state);
-    let parsed;
     try {
-        if (!state.iflags.num_pad) {
-            parsed = await getCount(state);
-        } else {
-            const key = await readchar(state);
-            const countKey = commandBindings(state).specialKeys.count;
-            if (key === countKey) {
-                // The initial read reset input_state; get_count() restores
-                // commandInp so altmeta also works after the count prefix.
-                state.program_state.input_state = 'command';
-                parsed = await getCount(state);
-            } else {
-                parsed = { key, count: 0 };
-            }
+        let key;
+        if (!state.iflags.num_pad || (key = await readchar(state))
+            === commandBindings(state).specialKeys.count) {
+            state.program_state.input_state = 'command';
+            const countOut = { value: 0 };
+            key = await get_count(
+                null, 0, LARGEST_INT, countOut, 0, state,
+            );
+            return finishCommandParse(
+                { key: key.key, count: countOut.value }, state,
+            );
         }
+        return finishCommandParse({ key, count: 0 }, state);
     } catch (error) {
-        // A replay can intentionally stop at this live input wait. C never
-        // returns from readchar() in that state, so undo parse()'s provisional
-        // time assumption for the runner's boundary diagnostics.
         abortCommandParse(state);
         throw error;
     }
+}
 
-    return finishCommandParse(parsed, state);
+// C ref: cmd.c hangup() (5159-5185). The terminal hangup swap has no browser
+// equivalent; the saved flags and deferred-save decision remain observable.
+export function hangup(_sig = 0, state = game) {
+    state.program_state ??= {};
+    if (state.program_state.exiting) state.program_state.in_moveloop = 0;
+    state.program_state.done_hup = (state.program_state.done_hup ?? 0) + 1;
+    if (state.program_state.in_moveloop
+        && state.program_state.something_worth_saving) return;
+    return end_of_input(state);
+}
+
+// C ref: cmd.c end_of_input() (5188-5212). The JavaScript runner observes
+// `gameover` as nh_terminate(EXIT_SUCCESS); clearlocks and sound shutdown have
+// no stateful browser implementation.
+export function end_of_input(state = game) {
+    state.program_state ??= {};
+    if (In_tutorial(state.u?.uz))
+        state.program_state.something_worth_saving = 0;
+    if (state.program_state.something_worth_saving
+        && !state.program_state.done_hup_saved) {
+        dosave0(state);
+        state.program_state.done_hup_saved = true;
+    }
+    state.program_state.in_moveloop = 0;
+    state.program_state.exiting = 1;
+    state.program_state.gameover = true;
+    return ECMD_OK;
 }
 
 // Every command this seam dispatches from the key bound to it, named once so
@@ -1490,7 +1597,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
-    'terrain', 'travel', 'dip', 'invoke', 'untrap',
+    'terrain', 'travel', 'dip', 'invoke', 'untrap', 'herecmdmenu', 'therecmdmenu',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -1595,7 +1702,7 @@ export function doprev_message(state = game) {
 // C appends at the tail and pops from the head, so a canned sequence runs in
 // the order it was pushed.
 export function cmdq_add_ec(q, entry, state = game) {
-    if (!entry || typeof entry.ef_txt !== 'string') {
+    if (!entry || typeof entry.ef_funct !== 'string') {
         throw new TypeError('cmdq_add_ec() requires an extcmdlist row');
     }
     commandQueue(state)[q].push({ typ: CMDQ_EXTCMD, ec_entry: entry });
@@ -3666,9 +3773,9 @@ export function commands_init(state = game) {
         if (entry.key) cmdbind_add(entry.key, entry, false, state);
     }
     const there = extcmdlist.find((entry) => entry.ef_txt === 'therecmdmenu');
-    const clicklook = extcmdlist.find((entry) => entry.ef_txt === 'clicklook');
+    const clicklook = extcmdlist.find((entry) => entry.ef_funct === 'doclicklook');
     model.mouseButtons[0] = there?.ef_txt ?? null;
-    model.mouseButtons[1] = clicklook?.ef_txt ?? null;
+    model.mouseButtons[1] = clicklook?.ef_funct ?? null;
     for (const [key, command] of [
         [controlKey('l'.charCodeAt(0)), 'redraw'],
         ['h'.charCodeAt(0), 'help'],
@@ -3932,21 +4039,21 @@ export function directionname(dir) {
 function commandMenuResult(state, name, ...args) {
     const callback = state[name];
     if (typeof callback === 'function') return callback(...args);
-    throw new UnsupportedHeroCommandBoundaryError(
-        `cmd.c ${name}() is scheduled for the next span`,
-    );
+    if (!state?.u) {
+        throw new UnsupportedHeroCommandBoundaryError(`cmd.c ${name}()`);
+    }
+    if (name === 'hereCmdMenu') return here_cmd_menu(state);
+    if (name === 'thereCmdMenu') return there_cmd_menu(...args, state);
+    throw new UnsupportedHeroCommandBoundaryError(`cmd.c ${name}()`);
 }
 
-// C ref: cmd.c doherecmdmenu() (4328-4340).  here_cmd_menu() is the first
-// callee in the next queued span; retaining the call boundary keeps this span
-// source-shaped without inventing its menu entries.
+// C ref: cmd.c doherecmdmenu() (4328-4340).
 export async function doherecmdmenu(state = game) {
     const ch = await commandMenuResult(state, 'hereCmdMenu');
     return ch && ch !== ESC ? ECMD_TIME : ECMD_OK;
 }
 
-// C ref: cmd.c dotherecmdmenu() (4343-4420).  The injected callbacks are a
-// test seam until there_cmd_menu() and here_cmd_menu() land in their span.
+// C ref: cmd.c dotherecmdmenu() (4343-4420).
 export async function dotherecmdmenu(state = game) {
     state.iflags ??= {};
     state.clicklook_cc ??= { x: -1, y: -1 };
@@ -3983,6 +4090,479 @@ export function mcmd_addmenu(win, act, txt) {
     if (Array.isArray(win)) win.push(item);
     else if (win && Array.isArray(win.items)) win.items.push(item);
     return item;
+}
+
+// C ref: cmd.c enum menucmd (4378-4414). Keep the numeric order because the
+// menu stores the action integer and selects it after the menu window closes.
+export const MCMD = Object.freeze({
+    NOTHING: 0,
+    OPEN_DOOR: 1,
+    LOCK_DOOR: 2,
+    UNTRAP_DOOR: 3,
+    KICK_DOOR: 4,
+    CLOSE_DOOR: 5,
+    SEARCH: 6,
+    LOOK_TRAP: 7,
+    UNTRAP_TRAP: 8,
+    MOVE_DIR: 9,
+    RIDE: 10,
+    REMOVE_SADDLE: 11,
+    APPLY_SADDLE: 12,
+    TALK: 13,
+    NAME: 14,
+    QUAFF: 15,
+    DIP: 16,
+    SIT: 17,
+    UP: 18,
+    DOWN: 19,
+    DISMOUNT: 20,
+    MONABILITY: 21,
+    PICKUP: 22,
+    LOOT: 23,
+    TIP: 24,
+    EAT: 25,
+    DROP: 26,
+    REST: 27,
+    LOOK_HERE: 28,
+    LOOK_AT: 29,
+    ATTACK_NEXT2U: 30,
+    UNTRAP_HERE: 31,
+    OFFER: 32,
+    INVENTORY: 33,
+    CAST_SPELL: 34,
+    THROW_OBJ: 35,
+    TRAVEL: 36,
+});
+
+function tileAt(x, y, state) {
+    return state.level?.at?.(x, y) ?? null;
+}
+
+function terrainAt(x, y, state) {
+    const tile = tileAt(x, y, state);
+    return typeof tile === 'object' ? tile?.typ ?? 0 : tile ?? 0;
+}
+
+function doorMaskAt(x, y, state) {
+    const tile = tileAt(x, y, state);
+    return typeof tile === 'object'
+        ? tile?.doormask ?? tile?.flags ?? 0 : 0;
+}
+
+function objectAt(x, y, state) {
+    return vobj_at(x, y, state);
+}
+
+function next2u(x, y, state) {
+    return !u_at(x, y, state)
+        && dist2(x, y, state.u.ux, state.u.uy) <= 2;
+}
+
+function commandEntryForHandler(handler) {
+    if (handler === 'dotravel_target') return EXTCMD_BY_NAME.get('retravel');
+    return extcmdlist.find((entry) => entry.ef_funct === handler) ?? null;
+}
+
+function queueHandler(handler, state) {
+    const entry = commandEntryForHandler(handler);
+    if (!entry) {
+        note_unported(`cmd.c command queue handler ${handler}`);
+        return false;
+    }
+    cmdq_add_ec(CQ_CANNED, entry, state);
+    return true;
+}
+
+// C ref: cmd.c there_cmd_menu_self() (4435-4521).
+export function there_cmd_menu_self(win, x, y, act, state = game) {
+    let K = 0;
+    const typ = terrainAt(x, y, state);
+    const stway = stairway_at(x, y, state);
+    const add = (action, text) => {
+        mcmd_addmenu(win, action, text);
+        ++K;
+    };
+    if (!u_at(x, y, state)) return K;
+
+    if ((IS_FOUNTAIN(typ) || IS_SINK(typ))
+        && can_reach_floor(false, state)) {
+        add(MCMD.QUAFF, `Drink from the ${IS_FOUNTAIN(typ) ? 'fountain' : 'sink'}`);
+    }
+    if (IS_FOUNTAIN(typ) && can_reach_floor(false, state))
+        add(MCMD.DIP, 'Dip something into the fountain');
+    if (IS_THRONE(typ)) add(MCMD.SIT, 'Sit on the throne');
+    if (IS_ALTAR(typ)) add(MCMD.OFFER, 'Sacrifice something on the altar');
+
+    if (stway?.up)
+        add(MCMD.UP, `Go up the ${stway.isladder ? 'ladder' : 'stairs'}`);
+    if (stway && !stway.up)
+        add(MCMD.DOWN, `Go down the ${stway.isladder ? 'ladder' : 'stairs'}`);
+    if (state.u?.usteed) {
+        const name = x_monnam(
+            state.u.usteed, ARTICLE_THE, null, SUPPRESS_SADDLE, false, state,
+        );
+        add(MCMD.DISMOUNT, `Dismount ${name}`);
+    }
+
+    const otmp = objectAt(x, y, state);
+    if (otmp) {
+        add(MCMD.PICKUP, `Pick up ${otmp.nexthere ? 'items' : donameFresh(otmp, state)}`);
+        if (isContainer(otmp)) {
+            add(MCMD.LOOT, `Loot ${donameFresh(otmp, state)}`);
+            add(MCMD.TIP, `Tip ${donameFresh(otmp, state)}`);
+        }
+        if (otmp.oclass === FOOD_CLASS)
+            add(MCMD.EAT, `Eat ${donameFresh(otmp, state)}`);
+    }
+    if (state.invent) {
+        add(MCMD.INVENTORY, 'Inventory');
+        add(MCMD.DROP, 'Drop items');
+    }
+    add(MCMD.REST, 'Rest one turn');
+    add(MCMD.SEARCH, 'Search around you');
+    add(MCMD.LOOK_HERE, 'Look at what is here');
+    if (num_spells(state) > 0) add(MCMD.CAST_SPELL, 'Cast a spell');
+
+    const trap = t_at(x, y, state);
+    if (trap?.tseen && trap.ttyp !== VIBRATING_SQUARE) {
+        add(MCMD.UNTRAP_HERE, 'Attempt to disarm trap');
+    }
+    return K;
+}
+
+// C ref: cmd.c there_cmd_menu_next2u() (4524-4617).
+export function there_cmd_menu_next2u(win, x, y, mod, act, state = game) {
+    let K = 0;
+    const typ = terrainAt(x, y, state);
+    const add = (action, text) => {
+        mcmd_addmenu(win, action, text);
+        ++K;
+    };
+    if (!next2u(x, y, state)) return K;
+
+    if (IS_DOOR(typ)) {
+        const dm = doorMaskAt(x, y, state);
+        if (dm & (D_CLOSED | D_LOCKED)) {
+            add(MCMD.OPEN_DOOR, 'Open the door');
+            const keyOrPick = Boolean(
+                carrying(SKELETON_KEY, state) || carrying(LOCK_PICK, state),
+            );
+            const card = Boolean(carrying(CREDIT_CARD, state));
+            if (keyOrPick || card) {
+                add(
+                    MCMD.LOCK_DOOR,
+                    upstart(`${keyOrPick ? 'lock or ' : ''}unlock the door`),
+                );
+            }
+            add(MCMD.UNTRAP_DOOR, 'Search the door for a trap');
+            add(MCMD.KICK_DOOR, 'Kick the door');
+        } else if ((dm & D_ISOPEN) && mod === CLICK_2) {
+            add(MCMD.CLOSE_DOOR, 'Close the door');
+        }
+    }
+    if (typ <= SCORR) add(MCMD.SEARCH, 'Search for secret doors');
+
+    const trap = t_at(x, y, state);
+    if (trap?.tseen) {
+        add(MCMD.LOOK_TRAP, 'Examine trap');
+        if (trap.ttyp !== VIBRATING_SQUARE)
+            add(MCMD.UNTRAP_TRAP, 'Attempt to disarm trap');
+        add(MCMD.MOVE_DIR, 'Move on the trap');
+    }
+    if (glyph_at(x, y, state) === objnum_to_glyph(BOULDER))
+        add(MCMD.MOVE_DIR, 'Push the boulder');
+
+    let mtmp = m_at(x, y, state);
+    if (mtmp && !canSpotMonster(mtmp, state)) mtmp = null;
+    if (mtmp && which_armor(mtmp, W_SADDLE, state)) {
+        const mnam = x_monnam(mtmp, ARTICLE_THE, null, SUPPRESS_SADDLE, false, state);
+        if (!state.u?.usteed) add(MCMD.RIDE, `Ride ${mnam}`);
+        add(MCMD.REMOVE_SADDLE, `Remove saddle from ${mnam}`);
+    }
+    if (mtmp && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE, state)
+        && carrying(SADDLE, state)) {
+        add(MCMD.APPLY_SADDLE, `Put saddle on ${mon_nam(mtmp, state)}`);
+    }
+    if (mtmp && (mtmp.mpeaceful || mtmp.mtame)) {
+        add(MCMD.TALK, `Talk to ${mon_nam(mtmp, state)}`);
+        add(MCMD.MOVE_DIR, `Swap places with ${mon_nam(mtmp, state)}`);
+        add(
+            MCMD.NAME,
+            `${mtmp.mgivenname ? 'Rename' : 'Name'} ${mon_nam(mtmp, state)}`,
+        );
+    }
+    if ((mtmp && !(mtmp.mpeaceful || mtmp.mtame))
+        || glyph_is_invisible(glyph_at(x, y, state))) {
+        add(
+            MCMD.ATTACK_NEXT2U,
+            `Attack ${mtmp ? mon_nam(mtmp, state) : 'unseen creature'}`,
+        );
+        if (act && typeof act === 'object') act.value = MCMD.ATTACK_NEXT2U;
+        else if (Array.isArray(act)) act[0] = MCMD.ATTACK_NEXT2U;
+    }
+    return K;
+}
+
+// C ref: cmd.c there_cmd_menu_far() (4620-4633).
+export function there_cmd_menu_far(win, x, y, mod, state = game) {
+    let K = 0;
+    if (mod === CLICK_1) {
+        if (linedup(state.u.ux, state.u.uy, x, y, 1, { state })
+            && dist2(state.u.ux, state.u.uy, x, y) < 18 * 18) {
+            mcmd_addmenu(win, MCMD.THROW_OBJ, 'Throw something');
+            ++K;
+        }
+        mcmd_addmenu(win, MCMD.TRAVEL, 'Travel here');
+        ++K;
+    }
+    return K;
+}
+
+// C ref: cmd.c there_cmd_menu_common() (4636-4651).
+export function there_cmd_menu_common(win, x, y, mod, act, state = game) {
+    let K = 0;
+    if (mod === CLICK_1 || mod === CLICK_2) {
+        const heroGlyph = hero_glyph_info(state)?.glyph;
+        if (!u_at(x, y, state) || Upolyd(state.u)
+            || glyph_at(x, y, state) !== heroGlyph) {
+            mcmd_addmenu(win, MCMD.LOOK_AT, 'Look at map symbol');
+            ++K;
+        }
+    }
+    return K;
+}
+
+function actionValue(act) {
+    if (act && typeof act === 'object') return act.value ?? act[0] ?? MCMD.NOTHING;
+    return act;
+}
+
+// C ref: cmd.c act_on_act() (4654-4797).
+export function act_on_act(act, dx, dy, state = game) {
+    const action = actionValue(act);
+    if (![MCMD.THROW_OBJ, MCMD.TRAVEL, MCMD.LOOK_AT].includes(action)) {
+        dx = sgn(dx);
+        dy = sgn(dy);
+    }
+    const dir = xytodir(dx, dy);
+    const queueMove = () => queueHandler(MOVE_FUNCS[dir]?.[MV_WALK], state);
+    switch (action) {
+    case MCMD.TRAVEL:
+        state.iflags ??= {};
+        state.iflags.travelcc = { x: state.u.ux + dx, y: state.u.uy + dy };
+        state.u.tx = state.iflags.travelcc.x;
+        state.u.ty = state.iflags.travelcc.y;
+        queueHandler('dotravel_target', state);
+        break;
+    case MCMD.THROW_OBJ:
+        queueHandler('dothrow', state);
+        cmdq_add_userinput(CQ_CANNED, state);
+        cmdq_add_dir(CQ_CANNED, dx, dy, 0, state);
+        break;
+    case MCMD.OPEN_DOOR: queueHandler('doopen', state); cmdq_add_dir(CQ_CANNED, dx, dy, 0, state); break;
+    case MCMD.LOCK_DOOR: {
+        const otmp = carrying(SKELETON_KEY, state)
+            ?? carrying(LOCK_PICK, state) ?? carrying(CREDIT_CARD, state);
+        if (otmp) {
+            queueHandler('doapply', state);
+            cmdq_add_key(CQ_CANNED, otmp.invlet, state);
+            cmdq_add_dir(CQ_CANNED, dx, dy, 0, state);
+            cmdq_add_key(CQ_CANNED, 'y'.charCodeAt(0), state);
+        }
+        break;
+    }
+    case MCMD.UNTRAP_DOOR: queueHandler('dountrap', state); cmdq_add_dir(CQ_CANNED, dx, dy, 0, state); break;
+    case MCMD.KICK_DOOR: queueHandler('dokick', state); cmdq_add_dir(CQ_CANNED, dx, dy, 0, state); break;
+    case MCMD.CLOSE_DOOR: queueHandler('doclose', state); cmdq_add_dir(CQ_CANNED, dx, dy, 0, state); break;
+    case MCMD.SEARCH: queueHandler('dosearch', state); break;
+    case MCMD.LOOK_TRAP: queueHandler('doidtrap', state); cmdq_add_dir(CQ_CANNED, dx, dy, 0, state); break;
+    case MCMD.UNTRAP_TRAP: queueHandler('dountrap', state); cmdq_add_dir(CQ_CANNED, dx, dy, 0, state); break;
+    case MCMD.MOVE_DIR: queueMove(); break;
+    case MCMD.RIDE: queueHandler('doride', state); cmdq_add_dir(CQ_CANNED, dx, dy, 0, state); break;
+    case MCMD.REMOVE_SADDLE:
+        queueHandler('do_reqmenu', state);
+        queueHandler('doloot', state);
+        cmdq_add_dir(CQ_CANNED, dx, dy, 0, state);
+        cmdq_add_key(CQ_CANNED, 'y'.charCodeAt(0), state);
+        break;
+    case MCMD.APPLY_SADDLE: {
+        const saddle = carrying(SADDLE, state);
+        if (saddle) {
+            queueHandler('doapply', state);
+            cmdq_add_key(CQ_CANNED, saddle.invlet, state);
+            cmdq_add_dir(CQ_CANNED, dx, dy, 0, state);
+        }
+        break;
+    }
+    case MCMD.ATTACK_NEXT2U: queueMove(); break;
+    case MCMD.TALK: queueHandler('dotalk', state); cmdq_add_dir(CQ_CANNED, dx, dy, 0, state); break;
+    case MCMD.NAME:
+        queueHandler('docallcmd', state);
+        cmdq_add_key(CQ_CANNED, 'm'.charCodeAt(0), state);
+        cmdq_add_dir(CQ_CANNED, dx, dy, 0, state);
+        break;
+    case MCMD.QUAFF: queueHandler('dodrink', state); cmdq_add_key(CQ_CANNED, 'y'.charCodeAt(0), state); break;
+    case MCMD.DIP: queueHandler('dodip', state); cmdq_add_userinput(CQ_CANNED, state); cmdq_add_key(CQ_CANNED, 'y'.charCodeAt(0), state); break;
+    case MCMD.SIT: queueHandler('dosit', state); break;
+    case MCMD.UP: queueHandler('doup', state); break;
+    case MCMD.DOWN: queueHandler('dodown', state); break;
+    case MCMD.DISMOUNT: queueHandler('doride', state); break;
+    case MCMD.MONABILITY: queueHandler('domonability', state); break;
+    case MCMD.PICKUP: queueHandler('dopickup', state); break;
+    case MCMD.LOOT: queueHandler('doloot', state); break;
+    case MCMD.TIP: queueHandler('dotip', state); cmdq_add_key(CQ_CANNED, 'y'.charCodeAt(0), state); break;
+    case MCMD.EAT:
+        queueHandler('doeat', state);
+        cmdq_add_key(CQ_CANNED, 'y'.charCodeAt(0), state);
+        cmdq_add_key(CQ_CANNED, 'y'.charCodeAt(0), state);
+        break;
+    case MCMD.DROP: queueHandler('dodrop', state); break;
+    case MCMD.INVENTORY: queueHandler('ddoinv', state); break;
+    case MCMD.REST: queueHandler('donull', state); break;
+    case MCMD.LOOK_HERE: queueHandler('dolook', state); break;
+    case MCMD.LOOK_AT:
+        state.clicklook_cc = { x: state.u.ux + dx, y: state.u.uy + dy };
+        queueHandler('doclicklook', state);
+        break;
+    case MCMD.UNTRAP_HERE: queueHandler('dountrap', state); cmdq_add_dir(CQ_CANNED, 0, 0, 1, state); break;
+    case MCMD.OFFER: queueHandler('dosacrifice', state); cmdq_add_userinput(CQ_CANNED, state); break;
+    case MCMD.CAST_SPELL: queueHandler('docast', state); break;
+    default: break;
+    }
+}
+
+// C ref: cmd.c there_cmd_menu() (4800-4897). The JS menu window returns one
+// scalar action for PICK_ONE; null is C's zero-pick cancellation.
+export async function there_cmd_menu(x, y, mod, state = game) {
+    const items = [];
+    const act = { value: MCMD.NOTHING };
+    let K = 0;
+    const dx = x - state.u.ux;
+    const dy = y - state.u.uy;
+    if (u_at(x, y, state)) K += there_cmd_menu_self(items, x, y, act, state);
+    else if (next2u(x, y, state))
+        K += there_cmd_menu_next2u(items, x, y, mod, act, state);
+    else K += there_cmd_menu_far(items, x, y, mod, state);
+    K += there_cmd_menu_common(items, x, y, mod, act, state);
+
+    if (!K) {
+        if (next2u(x, y, state)
+            && await test_move(state.u.ux, state.u.uy, dx, dy, 1, state)) {
+            queueHandler(MOVE_FUNCS[xytodir(dx, dy)]?.[MV_WALK], state);
+        } else if (state.flags?.travelcmd) {
+            state.iflags ??= {};
+            state.iflags.travelcc = { x, y };
+            state.u.tx = x;
+            state.u.ty = y;
+            queueHandler('dotravel_target', state);
+        }
+        return '\0';
+    }
+    if (K === 1 && act.value !== MCMD.NOTHING && act.value !== MCMD.TRAVEL) {
+        act_on_act(act.value, dx, dy, state);
+        return '\0';
+    }
+    const picked = await select_menu(state, {
+        items,
+        how: PICK_ONE,
+        title: 'What do you want to do?',
+        cancelValue: null,
+        behavior: MENU_BEHAVE_STANDARD,
+    });
+    if (picked !== null && picked !== undefined) {
+        act_on_act(picked, dx, dy, state);
+        return '\0';
+    }
+    return ESC;
+}
+
+// C ref: cmd.c here_cmd_menu() (4900-4906).
+export async function here_cmd_menu(state = game) {
+    await there_cmd_menu(state.u.ux, state.u.uy, CLICK_1, state);
+    return '\0';
+}
+
+// C ref: cmd.c click_to_cmd() (4909-4919).
+export function click_to_cmd(x, y, mod, state = game) {
+    state.clicklook_cc = { x, y };
+    const command = commandBindings(state).mouseButtons?.[mod - 1];
+    const entry = typeof command === 'string'
+        ? EXTCMD_BY_NAME.get(command)
+            ?? extcmdlist.find((row) => row.ef_funct === command)
+        : command;
+    if (entry) cmdq_add_ec(CQ_CANNED, entry, state);
+}
+
+// C ref: cmd.c domouseaction() (4922-5015). Travel clicks choose the nearest
+// cardinal/diagonal direction only when the click is within one square; a
+// farther click stores the absolute travel target.
+export async function domouseaction(state = game) {
+    const click = state.clicklook_cc ?? { x: -1, y: -1 };
+    let x = click.x - state.u.ux;
+    let y = click.y - state.u.uy;
+    if (state.flags?.travelcmd) {
+        if (Math.abs(x) <= 1 && Math.abs(y) <= 1) {
+            x = sgn(x);
+            y = sgn(y);
+        } else {
+            state.iflags ??= {};
+            state.iflags.travelcc = { x: state.u.ux + x, y: state.u.uy + y };
+            state.u.tx = state.iflags.travelcc.x;
+            state.u.ty = state.iflags.travelcc.y;
+            queueHandler('dotravel_target', state);
+            return ECMD_OK;
+        }
+        if (!x && !y) {
+            const typ = terrainAt(state.u.ux, state.u.uy, state);
+            const otmp = objectAt(state.u.ux, state.u.uy, state);
+            if (IS_FOUNTAIN(typ) || IS_SINK(typ)) queueHandler('dodrink', state);
+            else if (IS_THRONE(typ)) queueHandler('dosit', state);
+            else if (stairway_at(state.u.ux, state.u.uy, state)?.up)
+                queueHandler('doup', state);
+            else if (stairway_at(state.u.ux, state.u.uy, state))
+                queueHandler('dodown', state);
+            else if (otmp) queueHandler(isContainer(otmp) ? 'doloot' : 'dopickup', state);
+            else queueHandler('donull', state);
+            return ECMD_OK;
+        }
+        const dir = xytodir(x, y);
+        const target = m_at(state.u.ux + x, state.u.uy + y, state);
+        if (!target && !await test_move(state.u.ux, state.u.uy, x, y, 1, state)) {
+            const typ = terrainAt(state.u.ux + x, state.u.uy + y, state);
+            const dm = doorMaskAt(state.u.ux + x, state.u.uy + y, state);
+            if (IS_DOOR(typ)) {
+                if (dm & D_LOCKED) queueHandler('dokick', state);
+                else if (dm & D_CLOSED) queueHandler('doopen', state);
+                else if (typ <= SCORR) queueHandler('dosearch', state);
+                else queueHandler(MOVE_FUNCS[dir]?.[MV_WALK], state);
+            } else if (typ <= SCORR) queueHandler('dosearch', state);
+            else queueHandler(MOVE_FUNCS[dir]?.[MV_WALK], state);
+            return ECMD_OK;
+        }
+    } else {
+        if (x > 2 * Math.abs(y)) [x, y] = [1, 0];
+        else if (y > 2 * Math.abs(x)) [x, y] = [0, 1];
+        else if (x < -2 * Math.abs(y)) [x, y] = [-1, 0];
+        else if (y < -2 * Math.abs(x)) [x, y] = [0, -1];
+        else [x, y] = [sgn(x), sgn(y)];
+        if (!x && !y) {
+            queueHandler('donull', state);
+            return ECMD_OK;
+        }
+    }
+    queueHandler(MOVE_FUNCS[xytodir(x, y)]?.[MV_WALK], state);
+    return ECMD_OK;
+}
+
+// C ref: cmd.c doclicklook() (5381-5390), the internal command queued by the
+// map-symbol menu. pager.c owns the description text in this port.
+export async function doclicklook(state = game) {
+    const cc = state.clicklook_cc ?? { x: -1, y: -1 };
+    if (!isok(cc.x, cc.y)) return ECMD_OK;
+    state.context.move = 0;
+    const description = do_screen_description(cc, true, 0, state);
+    if (description?.found) await ttyPline(description.firstmatch, state);
+    return ECMD_OK;
 }
 
 // C ref: invent.c dolook().
@@ -4392,7 +4972,8 @@ export async function rhack(key, state = game) {
         let cmdqCommand = null;
         if (queued) {
             if (queued.typ === CMDQ_EXTCMD && queued.ec_entry) {
-                cmdqCommand = queued.ec_entry.ef_txt;
+                cmdqCommand = queued.ec_entry.ef_txt
+                    ?? queued.ec_entry.ef_funct;
             } else {
                 key = queued.typ === CMDQ_KEY ? queued.key : 0;
             }
@@ -4465,7 +5046,8 @@ export async function rhack(key, state = game) {
             if (queuedAfterPrefix) {
                 if (queuedAfterPrefix.typ === CMDQ_EXTCMD
                     && queuedAfterPrefix.ec_entry) {
-                    commandAfterPrefix = queuedAfterPrefix.ec_entry.ef_txt;
+                    commandAfterPrefix = queuedAfterPrefix.ec_entry.ef_txt
+                        ?? queuedAfterPrefix.ec_entry.ef_funct;
                 } else {
                     key = queuedAfterPrefix.typ === CMDQ_KEY
                         ? queuedAfterPrefix.key : 0;
@@ -4547,6 +5129,15 @@ export async function rhack(key, state = game) {
                 COUNTED_BOUNDARY,
                 key,
             );
+        }
+        if (command === 'doclicklook' || command === 'domouseaction') {
+            const result = command === 'doclicklook'
+                ? await doclicklook(state) : await domouseaction(state);
+            if (result & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((result & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (result & ECMD_TIME) commandTookTime(state);
+            return;
         }
         if (command === 'wait') {
             // donull() writes context.move itself, so this arm carries only

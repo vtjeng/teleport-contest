@@ -255,7 +255,7 @@ export async function dosave(state = game) {
 //   - store_version/store_plname — part of the JSON snapshot
 //   - multi-level save loop — the port keeps one level in game.level
 //   - set_ustuck(0), u.usteed = 0 — post-serialization cleanup only
-function dosave0(state = game) {
+export function dosave0(state = game) {
     // C ref: save.c:142-145. Undo date-dependent luck adjustments made at
     // startup time in moveloop_preamble(). The session exercises the
     // Friday-13th path: change_luck(-1) was applied at startup, so

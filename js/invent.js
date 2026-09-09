@@ -9,6 +9,7 @@ import {
     BLINDED,
     BUFSZ,
     CMDQ_KEY,
+    CMDQ_USER_INPUT,
     CONTAINED_SYM,
     CQ_CANNED,
     ECMD_OK,
@@ -676,7 +677,10 @@ function getobj_hands_txt(action, state) {
 // selection's count -- and the first, third and fourth sit behind arms that
 // already stop, so the digit at :1940 is where this port's refusal sits.
 export async function getobj(word, obj_ok, ctrlflags, state = game) {
-    const queued = cmdq_pop(state);
+    let queued = cmdq_pop(state);
+    // C's CMDQ_USER_INPUT marker means that this prompt reads a fresh object
+    // selection while later canned answers remain in the queue.
+    if (queued?.typ === CMDQ_USER_INPUT) queued = null;
     if (queued) {
         if (queued.typ === CMDQ_KEY) {
             if (queued.key === HANDS_SYM) {
