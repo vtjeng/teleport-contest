@@ -17889,8 +17889,8 @@
       "spans": [
         {
           "name": "egg_type_from_parent..usmellmon",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "037076895ede0efe795b1ff8bd304b95b1b558d3",
           "functions": [
             "egg_type_from_parent",
             "kill_eggs",
@@ -17916,7 +17916,7 @@
           "name": "egg_type_from_parent",
           "line": 5569,
           "endLine": 5586,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dead_species",
@@ -17928,7 +17928,7 @@
           "name": "kill_eggs",
           "line": 5609,
           "endLine": 5638,
-          "ported": false
+          "ported": true
         },
         {
           "name": "kill_genocided_monsters",
@@ -17940,37 +17940,37 @@
           "name": "golemeffects",
           "line": 5680,
           "endLine": 5710,
-          "ported": false
+          "ported": true
         },
         {
           "name": "angry_guards",
           "line": 5711,
           "endLine": 5762,
-          "ported": false
+          "ported": true
         },
         {
           "name": "pacify_guard",
           "line": 5763,
           "endLine": 5769,
-          "ported": false
+          "ported": true
         },
         {
           "name": "pacify_guards",
           "line": 5770,
           "endLine": 5775,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mimic_hit_msg",
           "line": 5776,
           "endLine": 5795,
-          "ported": false
+          "ported": true
         },
         {
           "name": "usmellmon",
           "line": 5796,
           "endLine": 5914,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
