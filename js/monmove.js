@@ -210,6 +210,7 @@ import {
     mm_aggression,
     mm_displacement,
     monlineu,
+    m_respond,
     mondied,
     mon_offmap,
     monkilled,
@@ -2300,7 +2301,7 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 // as in C.  Steps C runs that this does not are listed with the source
 // condition that keeps them unreachable behind the current action boundary:
 //   quest_stat_check(), quest_talk()      no quest monster is reachable
-//   m_respond(), is_covetous() tactics    the boundary rejects both
+//   is_covetous() tactics                  the boundary rejects covetous forms
 //   release_hero(), u.ustuck              wired; no hero-grabbing monster is reachable
 //   Demonic Blackmail                     the boundary rejects demons
 //   watch_on_duty()                       wired
@@ -2415,9 +2416,10 @@ export async function dochug(monster, rawEnv = {}) {
             // removed.
             unsupported('fleeing monster teleport');
         }
-        // C ref: monmove.c:753-755.  m_respond() is inert for every species
-        // that reaches this code: Shrieker, Medusa, and Erinys are all behind
-        // the SPECIAL_RESPONDERS boundary.
+        // C ref: monmove.c:753-755. A Medusa gaze can kill the responder, so
+        // the dead-monster result is tested before fleeing recovery.
+        await m_respond(monster, env);
+        if (monster.mhp < 1) return 1;
         // C ref: monmove.c:758-760.  Fleeing monsters might regain courage.
         if (!monster.mfleetim
             && monster.mhp === monster.mhpmax

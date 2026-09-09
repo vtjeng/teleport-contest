@@ -98,7 +98,6 @@ import {
     AD_SLEE,
     AD_SPEL,
     AT_MAGC,
-    PM_ERINYS,
     PM_FLOATING_EYE,
     PM_FOG_CLOUD,
     PM_GELATINOUS_CUBE,
@@ -108,9 +107,7 @@ import {
     PM_KITTEN,
     PM_LEPRECHAUN,
     PM_LITTLE_DOG,
-    PM_MEDUSA,
     PM_PONY,
-    PM_SHRIEKER,
     PM_TENGU,
     S_EEL,
 } from './monsters.js';
@@ -169,7 +166,6 @@ import {
     cansee,
     couldsee,
     does_block,
-    m_canseeu,
     makeVisionBuffers,
     recalc_block_point,
     vision_recalc,
@@ -193,7 +189,6 @@ const SILENT_QUEST_PAGER = Object.freeze({
     pline: async () => {},
     window: async () => {},
 });
-const SPECIAL_RESPONDERS = new Set([PM_SHRIEKER, PM_MEDUSA, PM_ERINYS]);
 
 export class UnsupportedSimpleMonsterActionError extends Error {
     constructor(reason) {
@@ -342,11 +337,8 @@ function assertSimpleActionState(monster, state) {
     // and pri_move() respectively, which handle the stationary and milling
     // paths and refuse the rest.
     //
-    // mon.c m_respond() is a no-op unless its source predicates hold: a
-    // shrieker must be adjacent, Medusa must be in couldsee(), and Erinys
-    // must be hostile, able to see, and able to see the hero. Refuse only
-    // those active response branches; a distant shrieker, for example, falls
-    // through dochug() without any special-action work.
+    // mon.c m_respond() is now wired through dochug(); its remaining
+    // unported callees record their own gaps without stopping the turn.
     // monmove.c dochug() checks msleeping before m_move()'s leppie_avoidance()
     // arm. For a non-tame, non-minion leprechaun outside couldsee(),
     // disturb() returns 0 without a draw, so this exact case returns from
@@ -358,19 +350,7 @@ function assertSimpleActionState(monster, state) {
         && !monster.mtame
         && !monster.isminion
         && !couldsee(monster.mx, monster.my, state);
-    const specialResponseNeeded = monster.data?.pmidx === PM_SHRIEKER
-        ? Math.abs(monster.mx - state.u.ux) <= 1
-            && Math.abs(monster.my - state.u.uy) <= 1
-        : monster.data?.pmidx === PM_MEDUSA
-            ? couldsee(monster.mx, monster.my, state)
-            : monster.data?.pmidx === PM_ERINYS
-                ? !monster.mpeaceful
-                    && monster.mcansee
-                    && m_canseeu(monster, state)
-                : false;
-    if ((SPECIAL_RESPONDERS.has(monster.data?.pmidx)
-            && specialResponseNeeded)
-        || monster.data?.pmidx === PM_TENGU
+    if (monster.data?.pmidx === PM_TENGU
         || (monster.data?.pmidx === PM_LEPRECHAUN
             && !sleepingOutOfSightLeprechaun)
         || monster.data?.pmidx === PM_KILLER_BEE

@@ -84,7 +84,6 @@ import {
     PM_ORC_SHAMAN,
     PM_PONY,
     PM_QUANTUM_MECHANIC,
-    PM_SHRIEKER,
     PM_STEAM_VORTEX,
     PM_TENGU,
     PM_WOOD_NYMPH,
@@ -2263,14 +2262,6 @@ test('simple preflight rejects every selected excluded action atomically',
                     });
                     return target;
                 },
-            },
-            {
-                name: 'special monster action',
-                reason: 'a special monster action',
-                prepare: () => prepareSelectedAction({
-                    adjacentHero: true,
-                    pmidx: PM_SHRIEKER,
-                }),
             },
         ];
 

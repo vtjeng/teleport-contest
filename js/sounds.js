@@ -84,6 +84,7 @@ import {
     nothing_happens,
     PLINE_SPEECH,
     PLINE_VERBALIZE,
+    PLNMSG_GROWL,
     sff_base_only,
     sff_default,
     sff_havedir_append_rest,
@@ -701,6 +702,8 @@ export async function growl(mtmp, state = game, random = { rn2 }) {
                 + `${vtense(null, growl_verb)}!`,
                 state,
             );
+            state.iflags ??= {};
+            state.iflags.last_msg = PLNMSG_GROWL;
             if (state.context?.run) nomul(0, state);
         }
         await wake_nearto(mtmp.mx, mtmp.my, (mtmp.data?.mlevel ?? 0) * 18,

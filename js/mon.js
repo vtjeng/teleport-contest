@@ -5,6 +5,8 @@
 // pet_sanity_check(), sanity_check_single_mon(), mon_sanity_check(),
 // m_poisongas_ok(), genus(), monlineu(), mm_2way_aggression(),
 // mm_aggression(), mm_displacement(), zombie_maker(), unstuck(),
+// m_respond_shrieker(), m_respond_medusa(), m_respond(),
+// qst_guardians_respond(), peacefuls_respond(), wake_nearto_core(),
 // mon_leaving_level(), m_detach(), mlifesaver(), lifesaved_monster(),
 // logdeadmon(), mondead(), corpse_chance(), make_corpse(), mondied(),
 // monkilled(), killed(), xkilled() and adj_erinys(); mthrowu.c m_carrying();
@@ -94,6 +96,7 @@ import {
     OBJ_AT,
     MSLOW,
     NATTK,
+    NEUTRAL,
     NOGARLIC,
     NORMAL_SPEED,
     NOTONL,
@@ -108,6 +111,7 @@ import {
     ROOM,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
+    PLNMSG_GROWL,
     SUPPRESS_SADDLE,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
@@ -158,6 +162,7 @@ import {
     has_ceiling,
     In_W_tower,
     ledger_no,
+    level_difficulty,
     on_level,
     On_W_tower_level,
     surface,
@@ -165,6 +170,7 @@ import {
 import { sengr_at } from './engrave.js';
 import { adjalign } from './attrib.js';
 import { experience, more_experienced, newexplevel } from './exper.js';
+import { growl, maybe_gasp } from './sounds.js';
 import { game } from './gstate.js';
 import { disturb_buried_zombies, NODIAG, u_locomotion } from './hack.js';
 import { dist2, online2, s_suffix, upstart } from './hacklib.js';
@@ -187,6 +193,7 @@ import { freemcorpsenm, is_home_elemental } from './makemon.js';
 import {
     count_wsegs,
     dmonsfree,
+    makemon_runtime,
     mongone,
     newcham,
     newcham_distress,
@@ -204,6 +211,7 @@ import {
     attacktype,
     attacktype_fordmg,
     bigmonst,
+    big_little_match,
     breathless,
     can_teleport,
     ceiling_hider,
@@ -215,6 +223,7 @@ import {
     emits_light,
     flesh_petrifies,
     haseyes,
+    humanoid,
     hides_under,
     is_female,
     is_giant,
@@ -239,9 +248,11 @@ import {
     is_orc,
     is_undead,
     is_unicorn,
+    is_watch,
     is_vampshifter,
     is_were,
     likes_lava,
+    mindless,
     monster_resists_element,
     monsndx,
     gender,
@@ -404,6 +415,8 @@ import {
     PM_WRAITH,
     PM_WOOD_GOLEM,
     PM_YELLOW_DRAGON,
+    AT_GAZE,
+    MS_SHRIEK,
     S_EEL,
     S_ELEMENTAL,
     S_GHOST,
@@ -429,6 +442,7 @@ import {
 } from './monmove.js';
 import {
     m_at,
+    mon_track_clear,
     newMonster,
     place_monster,
     remove_monster,
@@ -472,7 +486,14 @@ import {
     WOOD,
     SADDLE,
 } from './objects.js';
-import { distant_name, donameFresh, The, xnameFresh } from './objnam.js';
+import { makeplural } from './fruit.js';
+import {
+    distant_name,
+    donameFresh,
+    The,
+    vtense,
+    xnameFresh,
+} from './objnam.js';
 import { obj_resists } from './bury.js';
 import { objdescr_is } from './o_init.js';
 import { corpse_intrinsic, should_givit } from './eat.js';
@@ -507,6 +528,7 @@ import {
     couldsee,
     does_block,
     is_lightblocker_mappear,
+    m_canseeu,
     recalc_block_point,
     unblock_point,
 } from './vision.js';
@@ -2417,6 +2439,251 @@ export async function new_were(monster, rawEnv = {}) {
     return true;
 }
 
+// C ref: mon.c m_respond_shrieker(). makemon() ignores its return here, but
+// its creation side effects and random calls remain part of the shriek.
+async function m_respond_shrieker(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    if (!distressDeaf(state)) {
+        await message(`${Monnam(monster, state)} shrieks.`, state, rawEnv);
+        const stopOccupation = rawEnv.stopOccupation;
+        if (typeof stopOccupation === 'function')
+            await stopOccupation({ ...rawEnv, state });
+    }
+    if (!random.rn2(10)) {
+        const strong = state.mons?.[PM_PURPLE_WORM]?.difficulty
+            > Math.trunc((level_difficulty(state) + state.u.ulevel) / 2);
+        const species = random.rn2(13)
+            ? null
+            : state.mons?.[strong ? PM_BABY_PURPLE_WORM : PM_PURPLE_WORM];
+        const makeMonster = rawEnv.makemon ?? makemon_runtime;
+        await makeMonster(species, 0, 0, 0, {
+            ...rawEnv,
+            state,
+            random,
+            message,
+            norepMessage: rawEnv.norepMessage ?? message,
+            hooks: {
+                ...(rawEnv.hooks ?? {}),
+                ...(rawEnv.stopOccupation
+                    ? { stopOccupation: rawEnv.hooks?.stopOccupation
+                        ?? ((_monster, hookEnv) =>
+                            rawEnv.stopOccupation(hookEnv)) }
+                    : {}),
+            },
+        });
+    }
+    // wizard.c aggravate() has no return value. Its full tower and paralysis
+    // behavior is still unported, so retain the source-ordered gap here.
+    note_unported('wizard.c aggravate');
+}
+
+// C ref: mon.c m_respond_medusa(). gazemu() is outside this span and returns
+// a value that C explicitly discards; recording the gap preserves the call
+// boundary without inventing its gaze damage or random draws.
+function m_respond_medusa(monster) {
+    for (const attack of monster.data?.mattk ?? []) {
+        if (attack.aatyp === AT_GAZE) {
+            note_unported('mhitu.c gazemu');
+            break;
+        }
+    }
+}
+
+// C ref: mon.c m_respond(). The predicates are deliberately kept in source
+// order: an adjacent shrieker can summon before the Medusa and Erinys tests.
+export async function m_respond(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (monster.data?.msound === MS_SHRIEK
+        && !um_dist(monster.mx, monster.my, 1, state)) {
+        await m_respond_shrieker(monster, rawEnv);
+    }
+    if (monster.data === state.mons?.[PM_MEDUSA]
+        && couldsee(monster.mx, monster.my, state)) {
+        m_respond_medusa(monster);
+    }
+    if (monster.data === state.mons?.[PM_ERINYS]
+        && !monster.mpeaceful && m_canseeu(monster, state)) {
+        note_unported('wizard.c aggravate');
+    }
+}
+
+// C ref: apply.c um_dist(). The hero is outside the square's Chebyshev radius
+// when either axis exceeds n.
+function um_dist(x, y, n, state) {
+    return Math.abs(state.u.ux - x) > n || Math.abs(state.u.uy - y) > n;
+}
+
+// C ref: mon.c qst_guardians_respond(). The role's guardian species is the
+// JavaScript equivalent of quest_info(MS_GUARDIAN), even after a shape change.
+export async function qst_guardians_respond(rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const qGuardian = state.mons?.[state.urole?.guardnum];
+    let gotMad = 0;
+    for (let monster = state.level?.monlist ?? null;
+        monster;
+        monster = monster.nmon) {
+        if (monster.mhp < 1) continue;
+        if (monster.data === qGuardian && monster.mpeaceful) {
+            monster.mpeaceful = false;
+            if (canseemon(monster, state)) ++gotMad;
+        }
+    }
+    if (gotMad && !heroHallucinating(state)) {
+        const who = gotMad > 1
+            ? makeplural(pmname(qGuardian, NEUTRAL))
+            : pmname(qGuardian, NEUTRAL);
+        await message(
+            `The ${who} ${vtense(who, 'appear')} to be angry too...`,
+            state,
+            rawEnv,
+        );
+    }
+}
+
+function responseMessage(text, monster, state, rawEnv) {
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    return message(messageAt(text, monster.mx, monster.my, state), state, rawEnv);
+}
+
+function responseFleeMessage(monster, detail, rawEnv) {
+    const state = rawEnv.state ?? game;
+    const name = Monnam(monster, state);
+    let text;
+    switch (detail.kind) {
+    case 'immobile-flinch':
+        text = `${name} seems to flinch.`;
+        break;
+    case 'frightened':
+        text = `${name} is frightened.`;
+        break;
+    case 'painful-light':
+        text = `${name} flees from the painful light of `
+            + '[its imagination?].';
+        break;
+    case 'bright-light':
+        text = '"Bright light!"';
+        break;
+    default:
+        text = `${name} turns to flee.`;
+        break;
+    }
+    return responseMessage(text, monster, state, rawEnv);
+}
+
+// C ref: mon.c peacefuls_respond(). This is asynchronous because the port's
+// message and monster-noise owners are asynchronous; all source predicates,
+// draws, and state writes remain in C order.
+export async function peacefuls_respond(attacked, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const attackedIndex = monsndx(attacked.data);
+    for (let monster = state.level?.monlist ?? null;
+        monster;
+        monster = monster.nmon) {
+        if (monster.mhp < 1 || monster === attacked) continue;
+        if (mindless(monster.data) || !monster.mpeaceful
+            || !couldsee(monster.mx, monster.my, state)
+            || monster.msleeping || !monster.mcansee
+            || !m_canseeu(monster, state)) continue;
+
+        let buf = '';
+        let exclaimed = false;
+        let needPunct = false;
+        if (humanoid(monster.data) || monster.isshk || monster.ispriest) {
+            if (is_watch(monster.data)) {
+                await message('"Halt!  You\'re under arrest!"', state, rawEnv);
+                note_unported('mon.c angry_guards');
+            } else {
+                if (!distressDeaf(state) && !random.rn2(5)) {
+                    const gasp = maybe_gasp(monster, state, random);
+                    if (gasp) {
+                        if (gasp.slice(0, 4).toLowerCase() === 'gasp') {
+                            buf = `${Monnam(monster, state)} gasps`;
+                            needPunct = true;
+                        } else {
+                            buf = `${Monnam(monster, state)} exclaims "${gasp}"`;
+                        }
+                        exclaimed = true;
+                    }
+                }
+                const isLeader = monster.data === state.mons?.[state.urole?.ldrnum];
+                const isOwnGuardian = attacked.data
+                    === state.mons?.[state.urole?.guardnum];
+                if (monster.isshk || monster.ispriest
+                    || (isLeader && !isOwnGuardian)) {
+                    if (exclaimed)
+                        await responseMessage(`${buf} then shrugs.`, monster,
+                            state, rawEnv);
+                    continue;
+                }
+                if (monster.data.mlevel < random.rn2(10)
+                    && monster.data !== state.mons?.[state.urole?.guardnum]) {
+                    const alreadyFleeing = monster.mflee || monster.mfleetim;
+                    await monflee(monster, random.rn2(50) + 25, true,
+                        !exclaimed, {
+                            ...rawEnv,
+                            state,
+                            random,
+                            canSeeMonster: rawEnv.canSeeMonster
+                                ?? ((subject) => canseemon(subject, state)),
+                            fleeMessage: rawEnv.fleeMessage
+                                ?? responseFleeMessage,
+                        });
+                    if (exclaimed) {
+                        if (state.flags?.verbose && !alreadyFleeing) {
+                            buf += ' and then turns to flee.';
+                            needPunct = false;
+                        }
+                    } else {
+                        exclaimed = true;
+                    }
+                }
+                if (buf)
+                    await responseMessage(buf + (needPunct ? '.' : ''),
+                        monster, state, rawEnv);
+                if (!monster.mtame) {
+                    monster.mpeaceful = false;
+                    monster.mstrategy &= ~STRAT_WAITMASK;
+                    adjalign(-1, state);
+                    if (!exclaimed)
+                        await responseMessage(`${Monnam(monster, state)} gets angry!`,
+                            monster, state, rawEnv);
+                }
+            }
+        } else if (monster.data.mlet === attacked.data.mlet
+            && big_little_match(attackedIndex, monsndx(monster.data), state)
+            && !random.rn2(3)) {
+            if (!random.rn2(4)) {
+                await growl(monster, state, random);
+                exclaimed = state.iflags?.last_msg === PLNMSG_GROWL;
+            }
+            if (random.rn2(6)) {
+                const alreadyFleeing = monster.mflee || monster.mfleetim;
+                await monflee(monster, random.rn2(25) + 15, true,
+                    !exclaimed, {
+                        ...rawEnv,
+                        state,
+                        random,
+                        canSeeMonster: rawEnv.canSeeMonster
+                            ?? ((subject) => canseemon(subject, state)),
+                        fleeMessage: rawEnv.fleeMessage
+                            ?? responseFleeMessage,
+                    });
+                if (exclaimed && !alreadyFleeing)
+                    await message('And then starts to flee.', state, rawEnv);
+            }
+        }
+    }
+}
+
 // C ref: mon.c wake_msg(). The caller owns clearing msleeping after this
 // visibility-dependent message has completed.
 export async function wake_msg(monster, interesting, rawEnv = {}) {
@@ -2532,8 +2799,15 @@ export async function wakeup(monster, via_attack, rawEnv = {}) {
 }
 
 // C ref: mon.c wake_nearto_core(). Frontend sound is cosmetic; wake messages,
-// sleep and wait-strategy state, and buried-zombie disturbance are observable.
-export async function wake_nearto(x, y, distance, rawEnv = {}) {
+// sleep and wait-strategy state, pet whistle tracking, and buried-zombie
+// disturbance are observable.
+export async function wake_nearto_core(
+    x,
+    y,
+    distance,
+    petcall,
+    rawEnv = {},
+) {
     const state = rawEnv.state ?? game;
     const seeMonster = rawEnv.canSeeMonster
         ?? ((monster) => canSeeMonster(monster, state));
@@ -2551,7 +2825,7 @@ export async function wake_nearto(x, y, distance, rawEnv = {}) {
         monster;
         monster = monster.nmon) {
         if (monster.mhp < 1
-            || (distance
+            || (distance !== 0
                 && dist2(monster.mx, monster.my, x, y) >= distance)) {
             continue;
         }
@@ -2564,20 +2838,33 @@ export async function wake_nearto(x, y, distance, rawEnv = {}) {
         monster.msleeping = false;
         if (!(monster.data?.geno & G_UNIQ))
             monster.mstrategy &= ~STRAT_WAITMASK;
+        if (state.context?.mon_moving || !petcall) continue;
+        if (monster.mtame) {
+            if (!monster.isminion) {
+                monster.mextra ??= {};
+                monster.mextra.edog ??= {};
+                monster.mextra.edog.whistletime = state.moves;
+            }
+            mon_track_clear(monster);
+        }
     }
     await disturbBuriedZombies(x, y, rawEnv);
 }
 
-// C ref: mon.c wake_nearby() (4366-4370). It is `wake_nearto_core(u.ux, u.uy,
-// u.ulevel * 20, petcall)`, so the noise a kick makes carries further as the
-// hero gains experience levels. The petcall parameter is absent for the same
-// reason wake_nearto() above lacks it: C's wake_nearto() at 4401-4405 passes
-// FALSE too, and that shared specialization is what this port translated. The
-// only ported caller, dokick.c dokick() at 1383, also passes FALSE.
-export async function wake_nearby(rawEnv = {}) {
-    const state = rawEnv.state ?? game;
-    return wake_nearto(state.u.ux, state.u.uy, state.u.ulevel * 20,
-                       { ...rawEnv, state });
+// C ref: mon.c wake_nearby() (4366-4370). Accept the old object-only call
+// shape used by existing JavaScript callers as well as C's explicit boolean.
+export async function wake_nearby(petcallOrEnv = false, rawEnv = {}) {
+    const env = petcallOrEnv && typeof petcallOrEnv === 'object'
+        ? petcallOrEnv : rawEnv;
+    const petcall = typeof petcallOrEnv === 'boolean'
+        ? petcallOrEnv : false;
+    const state = env.state ?? game;
+    return wake_nearto_core(state.u.ux, state.u.uy, state.u.ulevel * 20,
+        petcall, { ...env, state });
+}
+
+export async function wake_nearto(x, y, distance, rawEnv = {}) {
+    return wake_nearto_core(x, y, distance, false, rawEnv);
 }
 
 // C ref: mon.c seemimic() (4406-4426), which strips a mimic's disguise. C's

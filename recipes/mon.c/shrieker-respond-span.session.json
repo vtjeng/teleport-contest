@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises mon.c m_respond_shrieker() with a debug-wished adjacent shrieker.",
+  "segments": [
+    {
+      "seed": 7770031,
+      "datetime": "20261028100000",
+      "nethackrc": "OPTIONS=name:ShriekerSpan,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": "  #wizwish\nlump of royal jelly\ndol\u0007shrieker\n...................."
+    }
+  ]
+}
