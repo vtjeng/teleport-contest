@@ -17879,7 +17879,7 @@
     {
       "id": "port-mon-egg-type-to-usmellmon",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mon.c egg, genocide, guard, and monster-scent helpers",
       "cFile": "mon.c",
       "sessions": [
@@ -17909,8 +17909,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9a3a161a58068909aefcc288272e26b0c63fb1ae",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "egg_type_from_parent",
