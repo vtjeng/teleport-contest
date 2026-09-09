@@ -80,6 +80,7 @@ import {
     PARANOID_WERECHANGE,
     PICK_ANY,
     PICK_ONE,
+    ECMD_FAIL,
     ECMD_OK,
     PRIMARYSET,
     QBUFSZ,
@@ -6660,6 +6661,26 @@ function setBooleanOptionValue(state, option, value) {
     const parsedName = option.name.toLowerCase();
     if (option.addr !== `flags.${parsedName}`)
         delete state.flags?.[parsedName];
+}
+
+// C ref: options.c toggle_bool_option() (9278-9293). The command supplies a
+// prefix, but only an in-game boolean option with storage may match it.
+export async function toggle_bool_option(prefix, state) {
+    const text = String(prefix).toLowerCase();
+    let result = ECMD_FAIL;
+    // C deliberately does not stop after the first prefix match: every
+    // matching in-game BoolOpt row is toggled, and each row refreshes the
+    // visuals after parseoptions() handles it.
+    for (const option of allopt) {
+        if (option.opttyp !== 'BoolOpt'
+            || option.setwhere !== set_in_game
+            || !option.addr
+            || !option.name.toLowerCase().startsWith(text)) continue;
+        setBooleanOptionValue(state, option, !booleanOptionValue(state, option));
+        await reset_needed_visuals(state);
+        result = ECMD_OK;
+    }
+    return result;
 }
 
 // C ref: options.c optfn_boolean() (5192-5443), the do_set request.  The

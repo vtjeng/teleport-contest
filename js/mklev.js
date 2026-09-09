@@ -11,6 +11,7 @@ import {
     Can_dig_down,
     Can_fall_thru,
     In_hell,
+    In_W_tower,
     Is_special,
     at_dgn_entrance,
     depth,
@@ -4163,17 +4164,20 @@ export function lspo_wallify(args, env) {
 // testing, remakes the coder, and clears the level for a fresh generation.
 // The port's coder is the object createSpecialLevelApi() made, shared with
 // its closures, so the remake writes sp_level_coder_init()'s fields into
-// it in place and clears the SpLev_Map the frame holds. The source also
-// reads In_W_tower() for makemap_prepost(), which is recorded as a gap.
-export function lspo_reset_level(args, env) {
+// it in place and clears the SpLev_Map the frame holds.
+export async function lspo_reset_level(args, env) {
     const { state, coder, frame } = env;
+    const wtower = In_W_tower(state.u.ux, state.u.uy, state.u.uz, state);
 
     state.iflags ??= {};
     state.iflags.lua_testing = true;
     // C: if (L) { Free(gc.coder); gc.coder = NULL; create_des_coder(); }
     Object.assign(coder, sp_level_coder_init(state, frame));
+    // Dynamic import keeps cmd.c's port in js/cmd.js without adding a static
+    // cmd -> do -> mklev -> cmd initialization cycle.
+    const { makemap_prepost } = await import('./cmd.js');
+    await makemap_prepost(true, wtower, state);
     for (const column of frame.splevMap) column.fill(0);
-    note_unported('cmd.c makemap_prepost');
     state.in_mklev = true;
     oinit(state); /* assign level dependent obj probabilities */
     clear_level_structures();
@@ -4186,9 +4190,10 @@ export function lspo_reset_level(args, env) {
 // steps, and the port, with only the Lua caller, runs every arm. The
 // sequence up to premap_detect() is the one load_special() runs in
 // finish(); this adds level_finalize_topology() and the special-room
-// fills. makemap_prepost() is recorded as a gap.
-export function lspo_finalize_level(args, env) {
+// fills.
+export async function lspo_finalize_level(args, env) {
     const { state, coder, frame } = env;
+    const wtower = In_W_tower(state.u.ux, state.u.uy, state.u.uz, state);
 
     link_doors_rooms();
     remove_boundary_syms(frame, state);
@@ -4228,7 +4233,8 @@ export function lspo_finalize_level(args, env) {
         fill_special_room(state.level.rooms[i], levelObjectEnv());
     }
 
-    note_unported('cmd.c makemap_prepost');
+    const { makemap_prepost } = await import('./cmd.js');
+    await makemap_prepost(false, wtower, state);
     state.iflags ??= {};
     state.iflags.lua_testing = false;
 }
@@ -4526,9 +4532,9 @@ function createSpecialLevelApi(state) {
 
         gas_cloud(...args) { return lspo_gas_cloud(args, env); },
 
-        reset_level(...args) { return lspo_reset_level(args, env); },
+        async reset_level(...args) { return lspo_reset_level(args, env); },
 
-        finalize_level(...args) { return lspo_finalize_level(args, env); },
+        async finalize_level(...args) { return lspo_finalize_level(args, env); },
 
         finish() {
             link_doors_rooms();

@@ -565,32 +565,22 @@ test('extended spellings share the four newly ported direct handlers',
     }
 });
 
-test('extmenu stops the prompt before it opens, through either spelling',
+test('extmenu selects an extended command through either spelling',
     async () => {
     // getline.c:300 makes iflags.extmenu tty_get_ext_cmd()'s first test:
-    // `if (iflags.extmenu) return extcmd_via_menu();`.  extcmd_via_menu() is
-    // unported, so the port has to stop there rather than substitute the
-    // typed prompt, which would paint different screens and draw different
-    // random numbers.  No matrix segment can hold this: C opens a menu.
+    // `if (iflags.extmenu) return extcmd_via_menu();`.  The menu consumes the
+    // command name one accelerator at a time before returning its extcmd row.
     const base = segmentFor(`${EXTCMD_KEY}wait${NEWLINE_KEY}`);
     const moves = `.${EXTCMD_KEY}wait${NEWLINE_KEY}`;
 
-    // Both spellings, because the bare form reaches applyBooleanOption()
-    // directly while the value-carrying form only arrives through
-    // HANDLED_BOOLEAN_OPTIONS.
+    // Both spellings reach the same C option address through different config
+    // parser forms.
     for (const line of ['OPTIONS=extmenu\n', 'OPTIONS=extmenu:true\n']) {
-        let boundary = null;
         const replay = await runSegment(
             { ...base, nethackrc: base.nethackrc + line, moves },
-            { onBoundary: (error) => { boundary = error; } },
         );
-        assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError', line);
-        assert.match(boundary.message, /extcmd_via_menu\(\)/u);
-        // The test precedes extcmd_initiator() and the custompline() paint, so
-        // the prompt never reaches row zero and only the screens before the
-        // '#' keystroke were drawn.
-        assert.equal(topLine(), '', line);
-        assert.equal(replay.getScreens().length, 2, line);
+        assert.equal(game.iflags.extmenu, true, line);
+        assert.ok(replay.getScreens().length > 2, line);
     }
 
     // The negated form must leave the typed prompt working, which is what

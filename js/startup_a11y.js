@@ -1576,7 +1576,7 @@ function visibleSubjectAt(x, y, state) {
     return terrainDescription(location, x, y, state);
 }
 
-export function collectLookaroundMessages(state) {
+export function collectLookaroundMessages(state, { includeRoom = true } = {}) {
     const messages = [];
     const { ux, uy } = state.u;
     const heroLocation = state.level?.at(ux, uy);
@@ -1589,11 +1589,11 @@ export function collectLookaroundMessages(state) {
         for (const [dx, dy] of cardinals) {
             const x = ux + dx;
             const y = uy + dy;
-            if (state.level?.at(x, y)?.typ >= ROOM)
+            if (includeRoom && state.level?.at(x, y)?.typ >= ROOM)
                 messages.push(describeKnownRoom(x, y, state));
         }
         mentionAdjacentCorridors = true;
-    } else {
+    } else if (includeRoom) {
         messages.push(describeKnownRoom(ux, uy, state));
     }
 

@@ -16,6 +16,7 @@ import { mklev } from '../js/mklev.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { objects_globals_init } from '../js/objects.js';
 import { initRng } from '../js/rng.js';
+import { light_globals_init } from '../js/light.js';
 import {
     str2align,
     str2gend,
@@ -43,6 +44,7 @@ async function runLoader(seed, body) {
     objects_globals_init(game);
     monst_globals_init(game);
     timeout_globals_init(game);
+    light_globals_init(game);
     initRng(seed);
     game.fixedDatetime = '20400314015926';
     game.recorderIsDst = false;
@@ -85,7 +87,7 @@ test('lspo_reset_level is the C function that clears the level for a rerun', () 
 
 test('reset_level marks Lua testing, remakes the coder, and clears the level', async () => {
     // Any seed serves: the loader replaces the level's generation.
-    await runLoader(0x4e51, (des) => {
+    await runLoader(0x4e51, async (des) => {
         // A three-column map moves the frame off the whole-map default and
         // marks its squares in SpLev_Map; both must be reset.
         des.map(['...']);
@@ -96,14 +98,16 @@ test('reset_level marks Lua testing, remakes the coder, and clears the level', a
         const before = game.level;
         game.in_mklev = false;
 
-        des.reset_level();
+        await des.reset_level();
 
         assert.equal(game.iflags.lua_testing, true);
         // sp_level_coder_init() -> reset_xystart_size(): the whole-map frame.
         assert.equal(des.frame.xstart, 1);
         assert.equal(des.frame.ystart, 0);
         assert.equal(des.frame.splevMap[painted.x][painted.y], 0);
-        assert.ok(game.unported.has('cmd.c makemap_prepost'));
+        assert.equal(game.unported.has('cmd.c makemap_prepost'), false);
+        assert.ok(game.unported.has('wizcmds.c makemap_remove_mons'));
+        assert.ok(game.unported.has('dungeon.c rm_mapseen'));
         assert.equal(game.in_mklev, true);
         // clear_level_structures(): a fresh level with no rooms.
         assert.notEqual(game.level, before);
@@ -124,15 +128,15 @@ test('lspo_finalize_level is the C function that ends a Lua-driven level', () =>
 });
 
 test('finalize_level finishes the topology and clears Lua testing', async () => {
-    await runLoader(0x4e52, (des) => {
-        des.reset_level();
+    await runLoader(0x4e52, async (des) => {
+        await des.reset_level();
         assert.equal(game.iflags.lua_testing, true);
         // A lit room gives level_finalize_topology() something to
         // topologize and the fills a room to visit.
         des.room({ type: 'ordinary', x: 10, y: 5, w: 4, h: 3, lit: 1 });
         assert.equal(game.level.nroom, 1);
 
-        des.finalize_level();
+        await des.finalize_level();
 
         assert.equal(game.iflags.lua_testing, false);
         // level_finalize_topology(): gi.in_mklev = FALSE and
@@ -140,7 +144,7 @@ test('finalize_level finishes the topology and clears Lua testing', async () => 
         assert.equal(game.in_mklev, false);
         assert.equal(game.xstart, 0);
         assert.equal(game.ystart, 0);
-        assert.ok(game.unported.has('cmd.c makemap_prepost'));
+        assert.equal(game.unported.has('cmd.c makemap_prepost'), false);
         // The room survived the pass with its floor intact.
         const room = game.level.rooms[0];
         assert.equal(game.level.at(room.lx, room.ly).typ, ROOM);

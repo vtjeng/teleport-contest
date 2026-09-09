@@ -437,11 +437,11 @@ function ext_cmd_getlin_hook(base, state) {
 // of the command the player named, or -1 for a cancelled or unknown one.
 export async function tty_get_ext_cmd(state = game) {
     // C's first statement is `if (iflags.extmenu) return extcmd_via_menu();`.
-    // That function is not ported, so the option has to stop here rather than
-    // fall through to the typed prompt, which is a different command entirely.
-    // The test keeps C's position, before anything paints.
+    // Importing cmd.js statically would close the existing cmd.js -> getline.js
+    // cycle, so resolve the already-initialized command module at this call.
     if (state.iflags?.extmenu) {
-        throw new UnsupportedGetlinBoundaryError('extcmd_via_menu()');
+        const { extcmd_via_menu } = await import('./cmd.js');
+        return extcmd_via_menu(state);
     }
     const extcmdChar = extcmd_initiator(state);
 

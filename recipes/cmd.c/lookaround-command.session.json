@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8810099,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:FreshDiff,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": ".#lookaround\n.",
+      "comment": "Reaches cmd.c dolookaround() from the ordinary extended-command prompt; its room description and visible-cell messages are shared with startup_a11y.js."
+    }
+  ]
+}

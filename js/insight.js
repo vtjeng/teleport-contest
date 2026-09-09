@@ -1472,6 +1472,23 @@ export function record_achievement(achidx, state = game) {
     u.uachieved[i] = achidx;
 }
 
+// C ref: insight.c remove_achievement() (2476-2493). The signed value keeps
+// the female-rank encoding, so compare absolute values and compact the
+// zero-terminated list after the first match.
+export function remove_achievement(achidx, state = game) {
+    const achievements = state.u?.uachieved ?? [];
+    let index = 0;
+    for (; achievements[index]; ++index) {
+        if (Math.abs(achievements[index]) === Math.abs(achidx)) break;
+    }
+    if (!achievements[index]) return false;
+    do {
+        achievements[index] = achievements[index + 1] ?? 0;
+        ++index;
+    } while (achievements[index]);
+    return true;
+}
+
 // C ref: insight.c achieve_rank(). The complement encodes a female hero so
 // that a later report can name the gender-specific rank title.
 export function achieve_rank(rank, state = game) {

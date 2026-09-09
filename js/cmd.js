@@ -8,19 +8,50 @@ import {
     visibleCommandKey,
 } from './command_bindings.js';
 import {
+    ACH_MINE_PRIZE,
+    ACH_SOKO_PRIZE,
+    AIR,
+    CMDQ_DIR,
     CMDQ_EXTCMD,
+    CMDQ_INT,
     CMDQ_KEY,
+    CMDQ_USER_INPUT,
     COLNO,
     A_STR,
     A_WIS,
     CONFUSION,
     CQ_CANNED,
     CQ_REPEAT,
+    DIR_E,
+    DIR_N,
+    DIR_NE,
+    DIR_NW,
+    DIR_S,
+    DIR_SE,
+    DIR_SW,
+    DIR_W,
     DIR_ERR,
     ECMD_CANCEL,
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
+    DOOR,
+    DRAWBRIDGE_UP,
+    GFILTER_VIEW,
+    GLOC_INTERESTING,
+    GRAVE,
+    IRONBARS,
+    IS_DOOR,
+    IS_STWALL,
+    IS_TREE,
+    IS_WATERWALL,
+    LAVAWALL,
+    MAX_TYPE,
+    ROOM,
+    ROOMOFFSET,
+    SCORR,
+    SDOOR,
+    TREE,
     GETOBJ_PROMPT,
     MV_ANY,
     MV_RUN,
@@ -31,6 +62,7 @@ import {
     Never_mind,
     PICK_NONE,
     PICK_ONE,
+    PARANOID_QUIT,
     PLNMSG_UNKNOWN,
     QBUFSZ,
     ROWNO,
@@ -65,7 +97,10 @@ import {
 } from './detect.js';
 import {
     bot,
+    cls,
+    docrt,
     flush_screen,
+    glyph_at,
     newsym,
     UnsupportedMapMemoryError,
     UnsupportedTransientDisplayError,
@@ -106,10 +141,10 @@ import {
     PM_WIZARD,
     S_NYMPH,
 } from './monsters.js';
-import { UnsupportedMonsterCreationError } from './makemon_create.js';
+import { dmonsfree, UnsupportedMonsterCreationError } from './makemon_create.js';
 import { UnsupportedRegionPlacementError } from './mkmaze.js';
 import { docallcmd, UnsupportedObjectNamingError } from './do_name.js';
-import { UnsupportedObjectOperationError } from './obj.js';
+import { dobjsfree, UnsupportedObjectOperationError } from './obj.js';
 import { doloot, dotip, UnsupportedPickupError } from './pickup.js';
 import {
     dodrink,
@@ -124,7 +159,7 @@ import { UnsupportedItemDestructionError } from './zap_destroy_items.js';
 import { SPE_TELEPORT_AWAY } from './objects.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { UnsupportedPositionCheckError, tele } from './teleport.js';
-import { t_at, dountrap } from './trap.js';
+import { reset_utrap, t_at, dountrap } from './trap.js';
 import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
 import { UnsupportedErosionError } from './trap_erode_obj.js';
 import {
@@ -161,7 +196,13 @@ import {
 } from './getline.js';
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
-import { donamelevel, recalc_mapseen } from './dungeon.js';
+import {
+    donamelevel,
+    ledger_no,
+    on_level,
+    recalc_mapseen,
+    u_on_rndspot,
+} from './dungeon.js';
 import { mungspaces, strstri, strsubst, visctrl } from './hacklib.js';
 import {
     ddoinv,
@@ -176,18 +217,23 @@ import {
     UnsupportedFeatureDescriptionError,
     UnsupportedObjectPromptError,
 } from './invent.js';
-import { doattributes, UnsupportedEnlightenmentError } from './insight.js';
+import {
+    doattributes,
+    remove_achievement,
+    UnsupportedEnlightenmentError,
+} from './insight.js';
 import { dodiscovered, UnsupportedDiscoveryDisplayError } from './o_init.js';
 import { UnsupportedObjectNameError } from './objnam.js';
 import {
     doset_simple,
     dotogglepickup,
+    toggle_bool_option,
     show_menu_controls,
     UnsupportedOptionMenuError,
 } from './options.js';
 import { dopray, UnsupportedPrayerError } from './pray.js';
 import { UnsupportedHideError } from './mon.js';
-import { dosave } from './save.js';
+import { dosave, savelev } from './save.js';
 import {
     dohelp,
     doquickwhatis,
@@ -235,7 +281,7 @@ import {
     UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import { nhgetch } from './input.js';
-import { doride, UnsupportedSteedError } from './steed.js';
+import { doride, Punished, UnsupportedSteedError } from './steed.js';
 import { UnsupportedEndOfGameError } from './end.js';
 import { UnsupportedItemIgnitionError } from './apply_catch_lit.js';
 import {
@@ -272,7 +318,7 @@ import {
     UnsupportedWieldError,
     cantwield,
 } from './wield.js';
-import { rn2, rnd } from './rng.js';
+import { rn1, rn2, rnd } from './rng.js';
 import { dotalk, UnsupportedChatError } from './sounds.js';
 import {
     clearTtyMessageWindow,
@@ -280,8 +326,25 @@ import {
     ttyPline,
     UnsupportedUrgentMessageError,
 } from './tty_message.js';
+import { note_unported } from './unported.js';
+import {
+    selection_floodfill,
+    selection_new,
+    set_selection_floodfillchk,
+} from './themerooms.js';
+import { collectLookaroundMessages, messageAt } from './startup_a11y.js';
+import { cansee, vision_reset } from './vision.js';
+import { m_at } from './monst.js';
+import { losedogs } from './dog.js';
+import { initrack } from './track.js';
+import { check_special_room } from './rooms.js';
+import { maybe_reset_pick } from './lock.js';
+import { set_uinwater } from './hack.js';
+import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 
 export const MAX_COMMAND_COUNT = 32767;
+// C ref: cmd.c extcmd_via_menu()'s choices[MAX_EXT_CMD + 1].
+const MAX_EXT_CMD = 200;
 const ESC = 0x1B;
 const BACKSPACE = 0x08;
 const DELETE = 0x7F;
@@ -1516,8 +1579,9 @@ export function reset_occupations(state = game) {
 // callers such as doride(); getdir()'s separate source write remains outside
 // its current boundary.
 //
-// CMDQ_EXTCMD and CMDQ_KEY nodes are produced. cmdq_add_dir(),
-// cmdq_add_int() and cmdq_add_userinput() have no ported caller.
+// CMDQ_EXTCMD and CMDQ_KEY nodes are produced by live callers. The remaining
+// node constructors stay source-shaped here because spell and Lua command
+// paths can queue them even when the current recorder does not.
 // cmdq_add_key() is called by itemactions_pushkeys() (iactions.c) to
 // queue the inventory letter for the command the player chose from the
 // item-actions menu. rhack() below classifies every node type the way C
@@ -1526,6 +1590,14 @@ export function reset_occupations(state = game) {
 function commandQueue(state) {
     state.command_queue ??= [[], []];
     return state.command_queue;
+}
+
+// C ref: cmd.c doprev_message() (164-169). The window-port helper's return
+// value is discarded by C, so record the missing callee and preserve the
+// command's non-time-consuming result.
+export function doprev_message(state = game) {
+    note_unported('nhwindows.c nh_doprev_message');
+    return ECMD_OK;
 }
 
 // C appends at the tail and pops from the head, so a canned sequence runs in
@@ -1542,6 +1614,149 @@ export function cmdq_add_ec(q, entry, state = game) {
 // the inventory letter that identifies the object the player chose.
 export function cmdq_add_key(q, key, state = game) {
     commandQueue(state)[q].push({ typ: CMDQ_KEY, key });
+}
+
+// C ref: cmd.c cmdq_add_dir() (294-315). The direction fields are kept as
+// three separate values because getdir() can queue a vertical direction too.
+export function cmdq_add_dir(q, dx, dy, dz, state = game) {
+    commandQueue(state)[q].push({ typ: CMDQ_DIR, dx, dy, dz });
+}
+
+// C ref: cmd.c cmdq_add_userinput() (317-329). A user-input node carries no
+// payload in C; the consumer obtains the answer from its owning prompt.
+export function cmdq_add_userinput(q, state = game) {
+    commandQueue(state)[q].push({ typ: CMDQ_USER_INPUT });
+}
+
+// C ref: cmd.c cmdq_add_int() (331-343). Keep the integer separate from a key
+// so a queued count cannot be mistaken for a command byte.
+export function cmdq_add_int(q, value, state = game) {
+    commandQueue(state)[q].push({ typ: CMDQ_INT, value });
+}
+
+// C ref: cmd.c cmdq_shift() (345-360). The JS queue is an array, so moving
+// its tail to the head is the linked-list operation's direct equivalent.
+export function cmdq_shift(q, state = game) {
+    const queue = commandQueue(state)[q];
+    if (queue.length > 1) queue.unshift(queue.pop());
+}
+
+// C ref: cmd.c cmdq_reverse() (362-378). This helper accepts the source-shaped
+// linked list used by direct callers as well as a JS queue array.
+export function cmdq_reverse(head) {
+    if (Array.isArray(head)) return head.reverse();
+    let previous = null;
+    let current = head;
+    while (current) {
+        const next = current.next;
+        current.next = previous;
+        previous = current;
+        current = next;
+    }
+    return previous;
+}
+
+// C ref: cmd.c cmdq_copy() (380-404). C allocates a fresh linked list; the
+// array-backed queue owns the equivalent fresh node array here.
+export function cmdq_copy(q, state = game) {
+    return commandQueue(state)[q].map((node) => ({ ...node }));
+}
+
+// C ref: cmd.c cmdq_print() (220-250). The original definition is retained in
+// a disabled debugging block, but its output is part of the command queue's
+// observable behavior when the debug command calls it.
+export async function cmdq_print(q, state = game) {
+    const lines = commandQueue(state)[q].map((node) => {
+        switch (node.typ) {
+        case CMDQ_KEY:
+            return `(key:${String.fromCharCode(node.key)})`;
+        case CMDQ_EXTCMD:
+            return `(extcmd:#${node.ec_entry?.ef_txt ?? ''})`;
+        case CMDQ_DIR:
+            return `(dir:${node.dx},${node.dy},${node.dz})`;
+        case CMDQ_USER_INPUT:
+            return '(userinput)';
+        case CMDQ_INT:
+            return `(int:${node.value})`;
+        default:
+            return `(ERROR:${node.typ})`;
+        }
+    });
+    await ttyPline(`CQ:${q}`, state);
+    for (const line of lines) await ttyPline(line, state);
+}
+
+// C ref: cmd.c pgetchar() (445-453) and randomkey() (3517-3590).
+export async function pgetchar(state = game) {
+    if (state.iflags?.debug_fuzzer) return randomkey(state);
+    return Number(await nhgetch(state)) & 0xFF;
+}
+
+function randomDirectionKey(dir, mode, state) {
+    const names = ['west', 'northwest', 'north', 'northeast', 'east',
+        'southeast', 'south', 'southwest'];
+    const prefix = mode === MV_WALK ? 'move' : mode === MV_RUSH ? 'rush' : 'run';
+    return keyForCommand(commandBindings(state), `${prefix}${names[dir]}`);
+}
+
+export function randomkey(state = game) {
+    state._randomkeyIndex ??= 0;
+    const previous = state._randomkeyLast ?? 0;
+    const commandInput = state.program_state?.input_state === 'command';
+    // C('a') and C('p') are control-A (1) and control-P (16), not the
+    // printable letters used by their ordinary command bindings.
+    if ((previous === 1 || previous === 16) && commandInput && rn2(5))
+        return previous;
+
+    let value;
+    switch (rn2(16)) {
+    case 0:
+        value = 10;
+        break;
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+        value = rn1('~'.charCodeAt(0) - ' '.charCodeAt(0) + 1,
+            ' '.charCodeAt(0));
+        break;
+    case 5:
+        value = rn2(2) ? 9 : 32;
+        break;
+    case 6:
+        value = rn1(26, 'a'.charCodeAt(0));
+        break;
+    case 7:
+        value = rn1(26, 'A'.charCodeAt(0));
+        break;
+    case 8: {
+        const row = extcmdlist[state._randomkeyIndex++ % extcmdlist.length];
+        value = row.key || 0;
+        break;
+    }
+    case 9:
+        value = '#'.charCodeAt(0);
+        break;
+    case 10:
+    case 11:
+    case 12: {
+        const dir = rn2(N_DIRS);
+        const mode = rn2(7) ? MV_WALK : (!rn2(3) ? MV_RUSH : MV_RUN);
+        value = randomDirectionKey(dir, mode, state);
+        break;
+    }
+    case 13:
+        value = rn1(10, '0'.charCodeAt(0));
+        break;
+    case 14:
+        value = rnd(state.iflags?.wc_eight_bit_input ? 255 : 127);
+        break;
+    default:
+        value = ESC;
+        break;
+    }
+    if (commandInput) state._randomkeyLast = value;
+    return value;
 }
 
 // C ref: cmd.c cmdq_pop(). It picks its own queue -- CQ_REPEAT while
@@ -1609,6 +1824,384 @@ export function set_move_cmd(dir, run, state = game) {
         state.context.run = run;
         state.domoveAttempting |= (!run ? DOMOVE_WALK : DOMOVE_RUSH);
     }
+}
+
+// C ref: cmd.c do_move_*(), do_rush_*(), and do_run_*() (1404-1552). These
+// handlers are deliberately small: all movement state belongs to
+// set_move_cmd(), and each wrapper returns ECMD_TIME so rhack() enters the
+// normal movement loop.
+export function do_move_west(state = game) { set_move_cmd(DIR_W, MV_WALK, state); return ECMD_TIME; }
+export function do_move_northwest(state = game) { set_move_cmd(DIR_NW, MV_WALK, state); return ECMD_TIME; }
+export function do_move_north(state = game) { set_move_cmd(DIR_N, MV_WALK, state); return ECMD_TIME; }
+export function do_move_northeast(state = game) { set_move_cmd(DIR_NE, MV_WALK, state); return ECMD_TIME; }
+export function do_move_east(state = game) { set_move_cmd(DIR_E, MV_WALK, state); return ECMD_TIME; }
+export function do_move_southeast(state = game) { set_move_cmd(DIR_SE, MV_WALK, state); return ECMD_TIME; }
+export function do_move_south(state = game) { set_move_cmd(DIR_S, MV_WALK, state); return ECMD_TIME; }
+export function do_move_southwest(state = game) { set_move_cmd(DIR_SW, MV_WALK, state); return ECMD_TIME; }
+
+export function do_rush_west(state = game) { set_move_cmd(DIR_W, 3, state); return ECMD_TIME; }
+export function do_rush_northwest(state = game) { set_move_cmd(DIR_NW, 3, state); return ECMD_TIME; }
+export function do_rush_north(state = game) { set_move_cmd(DIR_N, 3, state); return ECMD_TIME; }
+export function do_rush_northeast(state = game) { set_move_cmd(DIR_NE, 3, state); return ECMD_TIME; }
+export function do_rush_east(state = game) { set_move_cmd(DIR_E, 3, state); return ECMD_TIME; }
+export function do_rush_southeast(state = game) { set_move_cmd(DIR_SE, 3, state); return ECMD_TIME; }
+export function do_rush_south(state = game) { set_move_cmd(DIR_S, 3, state); return ECMD_TIME; }
+export function do_rush_southwest(state = game) { set_move_cmd(DIR_SW, 3, state); return ECMD_TIME; }
+
+export function do_run_west(state = game) { set_move_cmd(DIR_W, MV_RUN, state); return ECMD_TIME; }
+export function do_run_northwest(state = game) { set_move_cmd(DIR_NW, MV_RUN, state); return ECMD_TIME; }
+export function do_run_north(state = game) { set_move_cmd(DIR_N, MV_RUN, state); return ECMD_TIME; }
+export function do_run_northeast(state = game) { set_move_cmd(DIR_NE, MV_RUN, state); return ECMD_TIME; }
+export function do_run_east(state = game) { set_move_cmd(DIR_E, MV_RUN, state); return ECMD_TIME; }
+
+// C ref: cmd.c extcmd_via_menu() (752-889). The menu has one row per
+// accelerator at the matched prefix depth; selecting one more character
+// narrows the same command list until one exact extended command remains.
+export async function extcmd_via_menu(state = game) {
+    let prefix = '';
+    let matchLevel = 0;
+    for (;;) {
+        const choices = extcmdlist.filter((entry) => {
+            if (entry.flags & (CMD_NOT_AVAILABLE | INTERNALCMD)) return false;
+            if (!(entry.flags & AUTOCOMPLETE)) return false;
+            if (!state.wizard && (entry.flags & WIZMODECMD)) return false;
+            return entry.ef_txt.startsWith(prefix);
+        });
+        if (choices.length === 0) return -1;
+        if (choices.length > MAX_EXT_CMD) {
+            // C disables the option rather than displaying a truncated menu.
+            state.iflags.extmenu = false;
+            return -1;
+        }
+        if (choices.length === 1) return extcmdlist.indexOf(choices[0]);
+
+        const groups = new Map();
+        for (const entry of choices) {
+            const accelerator = entry.ef_txt[matchLevel];
+            if (!accelerator) continue;
+            if (!groups.has(accelerator)) groups.set(accelerator, []);
+            groups.get(accelerator).push(entry);
+        }
+        const items = [...groups].map(([accelerator, rows]) => ({
+            selector: accelerator,
+            value: accelerator,
+            label: rows.map((row) => `${row.ef_txt} [${row.ef_desc}]`).join(' or '),
+        }));
+        const selected = await select_menu(state, {
+            items,
+            how: PICK_ONE,
+            title: `Extended Command: ${prefix}`,
+            ...menuTitleStyle(state),
+            cancelValue: null,
+            overlay: state.iflags?.menu_overlay !== false,
+        });
+        if (selected === null || selected === undefined) {
+            if (matchLevel) {
+                // C lets Escape back out one complete menu prompt by
+                // restarting the root menu; only Escape at the root cancels.
+                prefix = '';
+                matchLevel = 0;
+                continue;
+            }
+            return -1;
+        }
+        prefix += typeof selected === 'string'
+            ? selected : String.fromCharCode(selected);
+        matchLevel++;
+        const exact = choices.filter((entry) => entry.ef_txt === prefix);
+        if (exact.length === 1) return extcmdlist.indexOf(exact[0]);
+    }
+}
+
+// C ref: cmd.c enter_explore_mode() (952-983). The Unix authorization list
+// has the same syntax as jsmain.set_playmode(): a leading '*' permits every
+// account, otherwise the login name must appear as a whitespace-delimited
+// word.
+export async function enter_explore_mode(state = game) {
+    if (state.discover) {
+        await ttyPline('You are already in explore mode.', state);
+        return ECMD_OK;
+    }
+    const oldmode = state.wizard ? 'debug mode' : 'normal game';
+    const users = String(state.sysopt?.explorers ?? '*');
+    const login = String(state.loginName ?? state.plname ?? 'root');
+    const authorized = users.startsWith('*')
+        || (login && users.split(/\s+/u).includes(login));
+    if (!authorized) {
+        if (!state.wizard) {
+            await ttyPline('You cannot access explore mode.', state);
+            return ECMD_OK;
+        }
+        await ttyPline("Note: normally you wouldn't be allowed into explore mode.", state);
+    }
+    await ttyPline(
+        `Beware!  From explore mode there will be no return to ${oldmode},`,
+        state,
+    );
+    const paranoid = Boolean(state.flags?.paranoia_bits & PARANOID_QUIT);
+    if (!await paranoid_query(paranoid, 'Do you want to enter explore mode?', state)) {
+        clearTtyMessageWindow(state);
+        await ttyPline(`Continuing with ${oldmode}.`, state);
+        return ECMD_OK;
+    }
+    state.discover = true;
+    state.flags ??= {};
+    state.flags.explore = true;
+    state.wizard = false;
+    state.flags.debug = false;
+    state.iflags ??= {};
+    state.iflags.deferred_X = false;
+    clearTtyMessageWindow(state);
+    await ttyPline('You are now in non-scoring explore mode.', state);
+    return ECMD_OK;
+}
+
+const LEVLTYP_NAMES = Object.freeze([
+    'stone', 'vertical wall', 'horizontal wall', 'top-left corner wall',
+    'top-right corner wall', 'bottom-left corner wall',
+    'bottom-right corner wall', 'cross wall', 'tee-up wall', 'tee-down wall',
+    'tee-left wall', 'tee-right wall', 'drawbridge wall', 'tree',
+    'secret door', 'secret corridor', 'pool', 'moat', 'water',
+    'drawbridge up', 'lava pool', 'lava wall', 'iron bars', 'door',
+    'corridor', 'room', 'stairs', 'ladder', 'fountain', 'throne', 'sink',
+    'grave', 'altar', 'ice', 'drawbridge down', 'air', 'cloud',
+    'unreachable/undiggable', '',
+]);
+
+// C ref: cmd.c levltyp_to_name() (1090-1193).
+export function levltyp_to_name(typ) {
+    return typ >= 0 && typ < MAX_TYPE ? LEVLTYP_NAMES[typ] : null;
+}
+
+function selectedPoint(selection, x, y) {
+    return Boolean(selection?.get(x, y));
+}
+
+function selectionBoundsSeen(selection, bounds, state) {
+    for (let x = bounds.lx; x <= bounds.hx; ++x) {
+        for (const y of [bounds.ly, bounds.hy]) {
+            if (isok(x, y) && selectedPoint(selection, x, y)
+                && glyph_at(x, y, state) === GLYPH_UNEXPLORED_OFF) {
+                return false;
+            }
+        }
+    }
+    for (let y = bounds.ly; y <= bounds.hy; ++y) {
+        for (const x of [bounds.lx, bounds.hx]) {
+            if (isok(x, y) && selectedPoint(selection, x, y)
+                && glyph_at(x, y, state) === GLYPH_UNEXPLORED_OFF) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+// C ref: cmd.c u_have_seen_whole_selection() (1195-1212).
+export function u_have_seen_whole_selection(selection, state = game) {
+    const bounds = selection.bounds();
+    for (let x = bounds.lx; x <= bounds.hx; ++x) {
+        for (let y = bounds.ly; y <= bounds.hy; ++y) {
+            if (isok(x, y) && selectedPoint(selection, x, y)
+                && glyph_at(x, y, state) === GLYPH_UNEXPLORED_OFF) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+// C ref: cmd.c u_have_seen_bounds_selection() (1213-1245).
+export function u_have_seen_bounds_selection(selection, state = game) {
+    return selectionBoundsSeen(selection, selection.bounds(), state);
+}
+
+// C ref: cmd.c u_can_see_whole_selection() (1247-1261).
+export function u_can_see_whole_selection(selection, state = game) {
+    const bounds = selection.bounds();
+    for (let x = bounds.lx; x <= bounds.hx; ++x) {
+        for (let y = bounds.ly; y <= bounds.hy; ++y) {
+            if (isok(x, y) && selectedPoint(selection, x, y)
+                && !cansee(x, y, state)) return false;
+        }
+    }
+    return true;
+}
+
+// C ref: cmd.c dolookaround_floodfill_findroom() (1263-1275).
+export function dolookaround_floodfill_findroom(x, y, state = game) {
+    const typ = state.level?.at(x, y)?.typ;
+    return !(IS_STWALL(typ) || IS_DOOR(typ) || IS_TREE(typ)
+        || IS_WATERWALL(typ) || typ === LAVAWALL || typ === IRONBARS
+        || typ === SCORR || typ === SDOOR || typ === DRAWBRIDGE_UP);
+}
+
+function selectionSizeDescription(selection) {
+    const bounds = selection.bounds();
+    let irregular = false;
+    for (let x = bounds.lx; x <= bounds.hx; ++x) {
+        for (let y = bounds.ly; y <= bounds.hy; ++y) {
+            if (isok(x, y) && !selectedPoint(selection, x, y)) {
+                irregular = true;
+                break;
+            }
+        }
+        if (irregular) break;
+    }
+    const width = bounds.hx - bounds.lx + 1;
+    const height = bounds.hy - bounds.ly + 1;
+    const shape = irregular
+        ? 'irregularly shaped' : width === height ? 'square' : 'rectangular';
+    return `${shape} ${width} by ${height}`;
+}
+
+function sizeDescriptionArticle(text) {
+    return /^[aeiou]/u.test(text) ? 'an' : 'a';
+}
+
+// C ref: cmd.c lookaround_known_room() (1277-1309).
+export async function lookaround_known_room(x, y, state = game) {
+    const selection = selection_new();
+    set_selection_floodfillchk((sx, sy) =>
+        dolookaround_floodfill_findroom(sx, sy, state));
+    selection_floodfill(selection, x, y, true);
+    const wholeSeen = u_have_seen_whole_selection(selection, state);
+    const boundsSeen = u_have_seen_bounds_selection(selection, state);
+    const size = selectionSizeDescription(selection);
+    const roomNumber = (state.u?.urooms?.[0] ?? 0) - ROOMOFFSET;
+    const place = roomNumber >= 0 ? 'room' : 'area';
+    const heroHere = state.u?.ux === x && state.u?.uy === y;
+    const article = sizeDescriptionArticle(size);
+    let message;
+    if (wholeSeen) {
+        const relation = heroHere && u_can_see_whole_selection(selection, state)
+            ? 'are in' : heroHere ? 'remember this as' : 'remember that as';
+        message = `You ${relation} ${article} ${size} ${place}.`;
+    } else if (boundsSeen) {
+        message = `You guess ${heroHere ? 'this' : 'that'} to be ${article} ${size} ${place}.`;
+    } else {
+        message = `You can't guess the size of ${heroHere ? 'this' : 'that'} area.`;
+    }
+    await ttyPline(
+        heroHere ? message : messageAt(message, x, y, state, true),
+        state,
+    );
+}
+
+// C ref: cmd.c dolookaround() (1311-1375). startup_a11y.js owns the same
+// source-order room and visible-cell description primitives; this wrapper
+// supplies the command's filter lifetime and emits their pline_xy messages.
+export async function dolookaround(state = game) {
+    const oldFilter = state.iflags?.getloc_filter;
+    const oldAccessible = state.a11y?.accessiblemsg;
+    state.iflags ??= {};
+    state.a11y ??= {};
+    state.a11y.accessiblemsg = true;
+    state.iflags.getloc_filter = GFILTER_VIEW;
+    try {
+        const { ux, uy } = state.u;
+        const here = state.level?.at(ux, uy)?.typ;
+        if (here === DOOR) {
+            // C checks the four cardinal neighbors in DIR_W..N_DIRS steps of
+            // two, which is exactly this west/north/east/south order.
+            for (const [dx, dy] of [[-1, 0], [0, -1], [1, 0], [0, 1]]) {
+                const x = ux + dx;
+                const y = uy + dy;
+                if (isok(x, y) && (state.level?.at(x, y)?.typ ?? -1) >= ROOM)
+                    await lookaround_known_room(x, y, state);
+            }
+        } else if (here !== SCORR) {
+            await lookaround_known_room(ux, uy, state);
+        }
+        // The room/area description above is emitted by this cmd.c function;
+        // the shared helper supplies only the visible-cell pline_xy loop.
+        for (const message of collectLookaroundMessages(state, { includeRoom: false }))
+            await ttyPline(message, state);
+    } finally {
+        state.iflags.getloc_filter = oldFilter;
+        if (oldAccessible === undefined) delete state.a11y.accessiblemsg;
+        else state.a11y.accessiblemsg = oldAccessible;
+    }
+    return ECMD_OK;
+}
+
+// C ref: cmd.c dotoggleoption() (1377-1386).
+export async function dotoggleoption(state = game) {
+    if (state.cmd_bind?.param) {
+        return await toggle_bool_option(state.cmd_bind.param, state);
+    }
+    await ttyPline('Use #optionsfull to set any option instead.', state);
+    return ECMD_OK;
+}
+
+// C ref: cmd.c makemap_prepost() (985-1088). The JavaScript level serializer
+// owns the in-memory equivalent of savelev(); file handles and monster/ball
+// helpers without a JS owner are recorded as discarded-result gaps.
+export async function makemap_prepost(pre, wiztower = false, state = game) {
+    state.context ??= {};
+    if (pre) {
+        note_unported('wizcmds.c makemap_remove_mons');
+        const ledger = ledger_no(state.u.uz, state);
+        note_unported('dungeon.c rm_mapseen');
+        state.context.achieveo ??= {};
+        if (on_level(state.u.uz, state.mineend_level)) {
+            if (remove_achievement(ACH_MINE_PRIZE, state))
+                await ttyPline('Mine\'s-end achievement revoked.', state);
+            state.context.achieveo.mines_prize_oid = 0;
+        } else if (on_level(state.u.uz, state.sokoend_level)) {
+            if (remove_achievement(ACH_SOKO_PRIZE, state))
+                await ttyPline('Sokoban end achievement revoked.', state);
+            state.context.achieveo.soko_prize_oid = 0;
+        }
+        if (Punished(state)) {
+            note_unported('ball.c ballrelease');
+            note_unported('ball.c unplacebc');
+        }
+        maybe_reset_pick(null, state);
+        if (on_level(state.context.digging?.level, state.u.uz))
+            state.context.digging = {};
+        state.iflags ??= {};
+        state.iflags.travelcc = { x: 0, y: 0 };
+        state.context.polearm ??= {};
+        state.context.polearm.hitmon = null;
+        reset_utrap(false, state);
+        await check_special_room(true, state);
+        state.dndest = {};
+        state.updest = {};
+        state.u.ustuck = null;
+        state.u.uswallow = false;
+        state.u.uswldtim = 0;
+        set_uinwater(0, state);
+        state.u.uundetected = false;
+        dmonsfree(state);
+        dobjsfree(state);
+        savelev(ledger, state);
+        note_unported('files.c get_freeing_nhfile');
+        note_unported('files.c close_nhfile');
+        return ECMD_OK;
+    }
+
+    vision_reset(state);
+    state.vision_full_recalc = 1;
+    await cls();
+    u_on_rndspot(
+        (state.u?.uhave?.amulet ? 1 : 0) | (wiztower ? 2 : 0),
+        state,
+    );
+    losedogs({ state });
+    note_unported('mon.c kill_genocided_monsters');
+    if (m_at(state.u.ux, state.u.uy, state))
+        note_unported('do.c u_collide_m');
+    initrack(state);
+    if (Punished(state)) {
+        note_unported('ball.c unplacebc');
+        note_unported('ball.c placebc');
+    }
+    await docrt();
+    await flush_screen(1);
+    note_unported('questpgr.c deliver_splev_message');
+    await check_special_room(false, state);
+    return ECMD_OK;
 }
 
 // C ref: cmd.c do_reqmenu() (1574-1587), the 'm' prefix. Pressed twice it
@@ -2846,6 +3439,56 @@ async function doextcmd(key, state) {
         // `retval = (*func)()`; the do/while around it repeats only for
         // doextlist.
         return doextcmd(key, state);
+    case 'doprev_message':
+        return doprev_message(state);
+    case 'enter_explore_mode':
+        return await enter_explore_mode(state);
+    case 'dolookaround':
+        return await dolookaround(state);
+    case 'dotoggleoption':
+        return await dotoggleoption(state);
+    case 'do_move_west':
+        return do_move_west(state);
+    case 'do_move_northwest':
+        return do_move_northwest(state);
+    case 'do_move_north':
+        return do_move_north(state);
+    case 'do_move_northeast':
+        return do_move_northeast(state);
+    case 'do_move_east':
+        return do_move_east(state);
+    case 'do_move_southeast':
+        return do_move_southeast(state);
+    case 'do_move_south':
+        return do_move_south(state);
+    case 'do_move_southwest':
+        return do_move_southwest(state);
+    case 'do_rush_west':
+        return do_rush_west(state);
+    case 'do_rush_northwest':
+        return do_rush_northwest(state);
+    case 'do_rush_north':
+        return do_rush_north(state);
+    case 'do_rush_northeast':
+        return do_rush_northeast(state);
+    case 'do_rush_east':
+        return do_rush_east(state);
+    case 'do_rush_southeast':
+        return do_rush_southeast(state);
+    case 'do_rush_south':
+        return do_rush_south(state);
+    case 'do_rush_southwest':
+        return do_rush_southwest(state);
+    case 'do_run_west':
+        return do_run_west(state);
+    case 'do_run_northwest':
+        return do_run_northwest(state);
+    case 'do_run_north':
+        return do_run_north(state);
+    case 'do_run_northeast':
+        return do_run_northeast(state);
+    case 'do_run_east':
+        return do_run_east(state);
     case 'donull':
         return await donull(state) ? ECMD_TIME : ECMD_OK;
     case 'dolook':
