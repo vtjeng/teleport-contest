@@ -15896,6 +15896,926 @@
       "function": "display_monster",
       "session": "seed0383-wizard-hallucinate",
       "step": 199
+    },
+    {
+      "id": "port-cmd-doherecmdmenu",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port cmd.c command handling needed by doherecmdmenu()",
+      "cFile": "cmd.c",
+      "sessions": [
+        "seed0108-wizard-extcmd-wishlist"
+      ],
+      "detail": "",
+      "spans": [],
+      "openedAt": "52f3a156bd9f18f96e70ebe395fbbd3e42c4e8ce",
+      "openStanding": {
+        "sha": "9a486c22",
+        "screens": 5299,
+        "rng": 376945
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doprev_message",
+          "line": 164,
+          "endLine": 171,
+          "ported": false
+        },
+        {
+          "name": "timed_occupation",
+          "line": 172,
+          "endLine": 194,
+          "ported": true
+        },
+        {
+          "name": "reset_occupations",
+          "line": 195,
+          "endLine": 205,
+          "ported": true
+        },
+        {
+          "name": "set_occupation",
+          "line": 206,
+          "endLine": 219,
+          "ported": true
+        },
+        {
+          "name": "cmdq_print",
+          "line": 220,
+          "endLine": 253,
+          "ported": false
+        },
+        {
+          "name": "cmdq_add_ec",
+          "line": 254,
+          "endLine": 273,
+          "ported": true
+        },
+        {
+          "name": "cmdq_add_key",
+          "line": 274,
+          "endLine": 293,
+          "ported": true
+        },
+        {
+          "name": "cmdq_add_dir",
+          "line": 294,
+          "endLine": 315,
+          "ported": false
+        },
+        {
+          "name": "cmdq_add_userinput",
+          "line": 316,
+          "endLine": 334,
+          "ported": false
+        },
+        {
+          "name": "cmdq_add_int",
+          "line": 335,
+          "endLine": 354,
+          "ported": false
+        },
+        {
+          "name": "cmdq_shift",
+          "line": 355,
+          "endLine": 372,
+          "ported": false
+        },
+        {
+          "name": "cmdq_reverse",
+          "line": 373,
+          "endLine": 386,
+          "ported": false
+        },
+        {
+          "name": "cmdq_copy",
+          "line": 387,
+          "endLine": 409,
+          "ported": false
+        },
+        {
+          "name": "cmdq_pop",
+          "line": 410,
+          "endLine": 423,
+          "ported": true
+        },
+        {
+          "name": "cmdq_peek",
+          "line": 424,
+          "endLine": 430,
+          "ported": true
+        },
+        {
+          "name": "cmdq_clear",
+          "line": 431,
+          "endLine": 444,
+          "ported": true
+        },
+        {
+          "name": "pgetchar",
+          "line": 445,
+          "endLine": 456,
+          "ported": false
+        },
+        {
+          "name": "extcmd_initiator",
+          "line": 457,
+          "endLine": 462,
+          "ported": true
+        },
+        {
+          "name": "can_do_extcmd",
+          "line": 463,
+          "endLine": 492,
+          "ported": true
+        },
+        {
+          "name": "doextcmd",
+          "line": 493,
+          "endLine": 523,
+          "ported": true
+        },
+        {
+          "name": "doc_extcmd_flagstr",
+          "line": 524,
+          "endLine": 561,
+          "ported": true
+        },
+        {
+          "name": "doextlist",
+          "line": 562,
+          "endLine": 751,
+          "ported": true
+        },
+        {
+          "name": "extcmd_via_menu",
+          "line": 752,
+          "endLine": 889,
+          "ported": false
+        },
+        {
+          "name": "domonability",
+          "line": 890,
+          "endLine": 951,
+          "ported": true
+        },
+        {
+          "name": "enter_explore_mode",
+          "line": 952,
+          "endLine": 985,
+          "ported": false
+        },
+        {
+          "name": "makemap_prepost",
+          "line": 986,
+          "endLine": 1088,
+          "ported": false
+        },
+        {
+          "name": "levltyp_to_name",
+          "line": 1089,
+          "endLine": 1097,
+          "ported": false
+        },
+        {
+          "name": "doterrain",
+          "line": 1098,
+          "endLine": 1194,
+          "ported": true
+        },
+        {
+          "name": "u_have_seen_whole_selection",
+          "line": 1195,
+          "endLine": 1212,
+          "ported": false
+        },
+        {
+          "name": "u_have_seen_bounds_selection",
+          "line": 1213,
+          "endLine": 1245,
+          "ported": false
+        },
+        {
+          "name": "u_can_see_whole_selection",
+          "line": 1246,
+          "endLine": 1262,
+          "ported": false
+        },
+        {
+          "name": "dolookaround_floodfill_findroom",
+          "line": 1263,
+          "endLine": 1275,
+          "ported": false
+        },
+        {
+          "name": "lookaround_known_room",
+          "line": 1276,
+          "endLine": 1309,
+          "ported": false
+        },
+        {
+          "name": "dolookaround",
+          "line": 1310,
+          "endLine": 1375,
+          "ported": false
+        },
+        {
+          "name": "dotoggleoption",
+          "line": 1376,
+          "endLine": 1386,
+          "ported": false
+        },
+        {
+          "name": "set_move_cmd",
+          "line": 1387,
+          "endLine": 1403,
+          "ported": true
+        },
+        {
+          "name": "do_move_west",
+          "line": 1404,
+          "endLine": 1410,
+          "ported": false
+        },
+        {
+          "name": "do_move_northwest",
+          "line": 1411,
+          "endLine": 1417,
+          "ported": false
+        },
+        {
+          "name": "do_move_north",
+          "line": 1418,
+          "endLine": 1424,
+          "ported": false
+        },
+        {
+          "name": "do_move_northeast",
+          "line": 1425,
+          "endLine": 1431,
+          "ported": false
+        },
+        {
+          "name": "do_move_east",
+          "line": 1432,
+          "endLine": 1438,
+          "ported": false
+        },
+        {
+          "name": "do_move_southeast",
+          "line": 1439,
+          "endLine": 1445,
+          "ported": false
+        },
+        {
+          "name": "do_move_south",
+          "line": 1446,
+          "endLine": 1452,
+          "ported": false
+        },
+        {
+          "name": "do_move_southwest",
+          "line": 1453,
+          "endLine": 1460,
+          "ported": false
+        },
+        {
+          "name": "do_rush_west",
+          "line": 1461,
+          "endLine": 1467,
+          "ported": false
+        },
+        {
+          "name": "do_rush_northwest",
+          "line": 1468,
+          "endLine": 1474,
+          "ported": false
+        },
+        {
+          "name": "do_rush_north",
+          "line": 1475,
+          "endLine": 1481,
+          "ported": false
+        },
+        {
+          "name": "do_rush_northeast",
+          "line": 1482,
+          "endLine": 1488,
+          "ported": false
+        },
+        {
+          "name": "do_rush_east",
+          "line": 1489,
+          "endLine": 1495,
+          "ported": false
+        },
+        {
+          "name": "do_rush_southeast",
+          "line": 1496,
+          "endLine": 1502,
+          "ported": false
+        },
+        {
+          "name": "do_rush_south",
+          "line": 1503,
+          "endLine": 1509,
+          "ported": false
+        },
+        {
+          "name": "do_rush_southwest",
+          "line": 1510,
+          "endLine": 1517,
+          "ported": false
+        },
+        {
+          "name": "do_run_west",
+          "line": 1518,
+          "endLine": 1524,
+          "ported": false
+        },
+        {
+          "name": "do_run_northwest",
+          "line": 1525,
+          "endLine": 1531,
+          "ported": false
+        },
+        {
+          "name": "do_run_north",
+          "line": 1532,
+          "endLine": 1538,
+          "ported": false
+        },
+        {
+          "name": "do_run_northeast",
+          "line": 1539,
+          "endLine": 1545,
+          "ported": false
+        },
+        {
+          "name": "do_run_east",
+          "line": 1546,
+          "endLine": 1552,
+          "ported": false
+        },
+        {
+          "name": "do_run_southeast",
+          "line": 1553,
+          "endLine": 1559,
+          "ported": false
+        },
+        {
+          "name": "do_run_south",
+          "line": 1560,
+          "endLine": 1566,
+          "ported": false
+        },
+        {
+          "name": "do_run_southwest",
+          "line": 1567,
+          "endLine": 1574,
+          "ported": false
+        },
+        {
+          "name": "do_reqmenu",
+          "line": 1575,
+          "endLine": 1589,
+          "ported": true
+        },
+        {
+          "name": "do_rush",
+          "line": 1590,
+          "endLine": 1605,
+          "ported": false
+        },
+        {
+          "name": "do_run",
+          "line": 1606,
+          "endLine": 1621,
+          "ported": false
+        },
+        {
+          "name": "do_fight",
+          "line": 1622,
+          "endLine": 1637,
+          "ported": true
+        },
+        {
+          "name": "do_repeat",
+          "line": 1638,
+          "endLine": 2100,
+          "ported": false
+        },
+        {
+          "name": "extcmds_getentry",
+          "line": 2101,
+          "endLine": 2109,
+          "ported": false
+        },
+        {
+          "name": "cmdbind_get",
+          "line": 2110,
+          "endLine": 2125,
+          "ported": false
+        },
+        {
+          "name": "cmdbind_add",
+          "line": 2126,
+          "endLine": 2157,
+          "ported": false
+        },
+        {
+          "name": "cmdbind_remove",
+          "line": 2158,
+          "endLine": 2179,
+          "ported": false
+        },
+        {
+          "name": "cmdbind_freeall",
+          "line": 2180,
+          "endLine": 2194,
+          "ported": false
+        },
+        {
+          "name": "cmdbind_swapkeys",
+          "line": 2195,
+          "endLine": 2207,
+          "ported": false
+        },
+        {
+          "name": "count_bind_keys",
+          "line": 2208,
+          "endLine": 2234,
+          "ported": true
+        },
+        {
+          "name": "get_changed_key_binds",
+          "line": 2235,
+          "endLine": 2290,
+          "ported": false
+        },
+        {
+          "name": "handler_rebind_keys_add",
+          "line": 2291,
+          "endLine": 2407,
+          "ported": false
+        },
+        {
+          "name": "handler_rebind_keys",
+          "line": 2408,
+          "endLine": 2448,
+          "ported": false
+        },
+        {
+          "name": "handler_change_autocompletions",
+          "line": 2449,
+          "endLine": 2522,
+          "ported": false
+        },
+        {
+          "name": "extcmds_match",
+          "line": 2523,
+          "endLine": 2560,
+          "ported": true
+        },
+        {
+          "name": "key2extcmddesc",
+          "line": 2561,
+          "endLine": 2623,
+          "ported": true
+        },
+        {
+          "name": "bind_mousebtn",
+          "line": 2624,
+          "endLine": 2661,
+          "ported": true
+        },
+        {
+          "name": "bind_key",
+          "line": 2662,
+          "endLine": 2731,
+          "ported": true
+        },
+        {
+          "name": "bind_key_fn",
+          "line": 2732,
+          "endLine": 2749,
+          "ported": false
+        },
+        {
+          "name": "commands_init",
+          "line": 2750,
+          "endLine": 2784,
+          "ported": false
+        },
+        {
+          "name": "keylist_func_has_key",
+          "line": 2785,
+          "endLine": 2801,
+          "ported": true
+        },
+        {
+          "name": "keylist_putcmds",
+          "line": 2802,
+          "endLine": 2866,
+          "ported": true
+        },
+        {
+          "name": "dokeylist",
+          "line": 2867,
+          "endLine": 3015,
+          "ported": true
+        },
+        {
+          "name": "ext_func_tab_from_func",
+          "line": 3016,
+          "endLine": 3028,
+          "ported": false
+        },
+        {
+          "name": "cmd_from_dir",
+          "line": 3029,
+          "endLine": 3035,
+          "ported": false
+        },
+        {
+          "name": "cmd_from_func",
+          "line": 3036,
+          "endLine": 3070,
+          "ported": false
+        },
+        {
+          "name": "cmd_from_ecname",
+          "line": 3071,
+          "endLine": 3091,
+          "ported": false
+        },
+        {
+          "name": "ecname_from_fn",
+          "line": 3092,
+          "endLine": 3105,
+          "ported": false
+        },
+        {
+          "name": "cmdname_from_func",
+          "line": 3106,
+          "endLine": 3193,
+          "ported": false
+        },
+        {
+          "name": "bind_specialkey",
+          "line": 3194,
+          "endLine": 3207,
+          "ported": false
+        },
+        {
+          "name": "spkey_name",
+          "line": 3208,
+          "endLine": 3224,
+          "ported": false
+        },
+        {
+          "name": "key2txt",
+          "line": 3225,
+          "endLine": 3243,
+          "ported": true
+        },
+        {
+          "name": "parseautocomplete",
+          "line": 3244,
+          "endLine": 3295,
+          "ported": true
+        },
+        {
+          "name": "all_options_autocomplete",
+          "line": 3296,
+          "endLine": 3311,
+          "ported": false
+        },
+        {
+          "name": "count_autocompletions",
+          "line": 3312,
+          "endLine": 3325,
+          "ported": true
+        },
+        {
+          "name": "lock_mouse_buttons",
+          "line": 3326,
+          "endLine": 3343,
+          "ported": false
+        },
+        {
+          "name": "reset_commands",
+          "line": 3344,
+          "endLine": 3482,
+          "ported": false
+        },
+        {
+          "name": "update_rest_on_space",
+          "line": 3483,
+          "endLine": 3508,
+          "ported": false
+        },
+        {
+          "name": "accept_menu_prefix",
+          "line": 3509,
+          "endLine": 3516,
+          "ported": true
+        },
+        {
+          "name": "randomkey",
+          "line": 3517,
+          "endLine": 3580,
+          "ported": false
+        },
+        {
+          "name": "random_response",
+          "line": 3581,
+          "endLine": 3600,
+          "ported": false
+        },
+        {
+          "name": "rnd_extcmd_idx",
+          "line": 3601,
+          "endLine": 3606,
+          "ported": false
+        },
+        {
+          "name": "reset_cmd_vars",
+          "line": 3607,
+          "endLine": 3626,
+          "ported": false
+        },
+        {
+          "name": "rhack",
+          "line": 3627,
+          "endLine": 3846,
+          "ported": true
+        },
+        {
+          "name": "xytodir",
+          "line": 3847,
+          "endLine": 3858,
+          "ported": true
+        },
+        {
+          "name": "dirtocoord",
+          "line": 3859,
+          "endLine": 3868,
+          "ported": true
+        },
+        {
+          "name": "movecmd",
+          "line": 3869,
+          "endLine": 3901,
+          "ported": true
+        },
+        {
+          "name": "dxdy_moveok",
+          "line": 3902,
+          "endLine": 3910,
+          "ported": true
+        },
+        {
+          "name": "redraw_cmd",
+          "line": 3911,
+          "endLine": 3930,
+          "ported": true
+        },
+        {
+          "name": "get_adjacent_loc",
+          "line": 3931,
+          "endLine": 3957,
+          "ported": true
+        },
+        {
+          "name": "getdir",
+          "line": 3958,
+          "endLine": 4121,
+          "ported": true
+        },
+        {
+          "name": "show_direction_keys",
+          "line": 4122,
+          "endLine": 4170,
+          "ported": true
+        },
+        {
+          "name": "help_dir",
+          "line": 4171,
+          "endLine": 4299,
+          "ported": true
+        },
+        {
+          "name": "confdir",
+          "line": 4300,
+          "endLine": 4312,
+          "ported": true
+        },
+        {
+          "name": "directionname",
+          "line": 4313,
+          "endLine": 4325,
+          "ported": false
+        },
+        {
+          "name": "isok",
+          "line": 4326,
+          "endLine": 4333,
+          "ported": true
+        },
+        {
+          "name": "doherecmdmenu",
+          "line": 4334,
+          "endLine": 4342,
+          "ported": false
+        },
+        {
+          "name": "dotherecmdmenu",
+          "line": 4343,
+          "endLine": 4420,
+          "ported": false
+        },
+        {
+          "name": "mcmd_addmenu",
+          "line": 4421,
+          "endLine": 4434,
+          "ported": false
+        },
+        {
+          "name": "there_cmd_menu_self",
+          "line": 4435,
+          "endLine": 4523,
+          "ported": false
+        },
+        {
+          "name": "there_cmd_menu_next2u",
+          "line": 4524,
+          "endLine": 4623,
+          "ported": false
+        },
+        {
+          "name": "there_cmd_menu_far",
+          "line": 4624,
+          "endLine": 4638,
+          "ported": false
+        },
+        {
+          "name": "there_cmd_menu_common",
+          "line": 4639,
+          "endLine": 4657,
+          "ported": false
+        },
+        {
+          "name": "act_on_act",
+          "line": 4658,
+          "endLine": 4842,
+          "ported": false
+        },
+        {
+          "name": "there_cmd_menu",
+          "line": 4843,
+          "endLine": 4898,
+          "ported": false
+        },
+        {
+          "name": "here_cmd_menu",
+          "line": 4899,
+          "endLine": 4905,
+          "ported": false
+        },
+        {
+          "name": "click_to_cmd",
+          "line": 4906,
+          "endLine": 4915,
+          "ported": false
+        },
+        {
+          "name": "domouseaction",
+          "line": 4916,
+          "endLine": 5009,
+          "ported": false
+        },
+        {
+          "name": "get_count",
+          "line": 5010,
+          "endLine": 5095,
+          "ported": false
+        },
+        {
+          "name": "parse",
+          "line": 5096,
+          "endLine": 5158,
+          "ported": false
+        },
+        {
+          "name": "hangup",
+          "line": 5159,
+          "endLine": 5182,
+          "ported": false
+        },
+        {
+          "name": "end_of_input",
+          "line": 5183,
+          "endLine": 5212,
+          "ported": false
+        },
+        {
+          "name": "readchar_core",
+          "line": 5213,
+          "endLine": 5275,
+          "ported": false
+        },
+        {
+          "name": "readchar",
+          "line": 5276,
+          "endLine": 5287,
+          "ported": true
+        },
+        {
+          "name": "readchar_poskey",
+          "line": 5288,
+          "endLine": 5298,
+          "ported": false
+        },
+        {
+          "name": "dotravel",
+          "line": 5299,
+          "endLine": 5347,
+          "ported": true
+        },
+        {
+          "name": "dotravel_target",
+          "line": 5348,
+          "endLine": 5380,
+          "ported": true
+        },
+        {
+          "name": "doclicklook",
+          "line": 5381,
+          "endLine": 5393,
+          "ported": false
+        },
+        {
+          "name": "yn_menuable_resp",
+          "line": 5394,
+          "endLine": 5401,
+          "ported": true
+        },
+        {
+          "name": "yn_func_menu_opt",
+          "line": 5402,
+          "endLine": 5418,
+          "ported": false
+        },
+        {
+          "name": "yn_function_menu",
+          "line": 5419,
+          "endLine": 5470,
+          "ported": false
+        },
+        {
+          "name": "yn_function",
+          "line": 5471,
+          "endLine": 5587,
+          "ported": true
+        },
+        {
+          "name": "paranoid_ynq",
+          "line": 5588,
+          "endLine": 5654,
+          "ported": true
+        },
+        {
+          "name": "paranoid_query",
+          "line": 5655,
+          "endLine": 5661,
+          "ported": true
+        },
+        {
+          "name": "dosuspend_core",
+          "line": 5662,
+          "endLine": 5681,
+          "ported": false
+        },
+        {
+          "name": "dosh_core",
+          "line": 5682,
+          "endLine": 5698,
+          "ported": false
+        },
+        {
+          "name": "dummyfunction",
+          "line": 5699,
+          "endLine": 5705,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 164,
+        "to": 5705
+      }
     }
   ]
 }
