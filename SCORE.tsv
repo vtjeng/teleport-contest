@@ -795,3 +795,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-09T18:07:20.021Z	e295226b	span	24	33	5305	7765	376957	610816	5327	7765					meatbox..mpickgold closes. Development 5305 of 7765 screens, 376957 of 610816 rng. 24 of 33 sessions.
 2026-09-09T18:08:51.970Z	1938c3ea	goal	24	33	5305	7765	376957	610816	5327	7765	315	3640	38930	182022	port-mon-meatbox-can-carry closes. Development 5305 of 7765 screens, 376957 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.
 2026-09-09T18:24:21.679Z	e877c466	span	24	33	5305	7765	376957	610816	5327	7765					monlineu..mm_displacement closes. Development 5305 of 7765 screens, 376957 of 610816 rng. 24 of 33 sessions.
+2026-09-09T18:25:33.215Z	049962b2	goal	24	33	5305	7765	376957	610816	5327	7765	315	3640	38930	182022	port-mon-monlineu-mm-displacement closes. Development 5305 of 7765 screens, 376957 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.
