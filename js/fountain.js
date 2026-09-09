@@ -440,8 +440,8 @@ async function dryup(x, y, isyou, state = game, env = {}) {
 
         // C ref: fountain.c:236-237. Town guards get angry.
         if (isyou && in_town(x, y, state)) {
-            throw new UnsupportedFountainError(
-                'angry_guards() after drying up a town fountain');
+            const { angry_guards } = await import('./mon.js');
+            await angry_guards(false, { ...env, state, message });
         }
     }
 }

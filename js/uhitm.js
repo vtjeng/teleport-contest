@@ -93,7 +93,13 @@ import { sgn } from './hacklib.js';
 // reads them at module scope.
 import { hitmsg, m_next2u, magic_negation } from './mhitu.js';
 import { abuse_dog } from './dog.js';
-import { killed, seemimic, set_ustuck, wakeup } from './mon.js';
+import {
+    angry_guards,
+    killed,
+    seemimic,
+    set_ustuck,
+    wakeup,
+} from './mon.js';
 import {
     amorphous,
     attacktype,
@@ -1010,23 +1016,32 @@ export async function hitum(mon, uattk, state = game, env = {}) {
 // C ref: uhitm.c hmon() (817-834). The wrapper every hit goes through. Its own
 // body is two consequences of striking a monster the town protects.
 //
-// `anger_guards` is computed at 826-828, before hmon_hitmon() runs, and the
-// priest's rn2(2) at 830 is drawn only for a priest target. Both refuse here
-// rather than after the call, so neither spends the damage roll first.
+// `anger_guards` is computed at 826-828, before hmon_hitmon() runs, and is
+// called after the hit just as C does. The priest's rn2(2) and ghod_hitsu()
+// remain an unported consequence, so priest targets still stop first.
 export async function hmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     const unsupported = requireAttackOperation(env, 'unsupported');
+    const angerGuards = mon.mpeaceful
+        && (mon.ispriest || mon.isshk || is_watch(mon.data));
 
     // 819-822. Only known_hitum() calls this, always with HMON_MELEE.
     // dothrow.c, dokick.c and apply.c own the other three values and none of
     // them is ported, so no caller can send one.
     if (thrown !== HMON_MELEE) unsupported('ranged or applied hit');
 
-    // 830-831 ghod_hitsu() and 832-833 angry_guards().
+    // 830-831 ghod_hitsu() remains unported.
     if (mon.ispriest) unsupported('striking a temple priest');
-    if (mon.mpeaceful && (mon.isshk || is_watch(mon.data)))
-        unsupported('angering the town guards');
 
-    return hmon_hitmon(mon, obj, thrown, dieroll, state, env);
+    const result = await hmon_hitmon(mon, obj, thrown, dieroll, state, env);
+    if (angerGuards) {
+        const deaf = state.u?.uprops?.[DEAF];
+        await angry_guards(
+            Boolean(deaf?.intrinsic || deaf?.extrinsic
+                || state.u?.uroleplay?.deaf),
+            { ...env, state },
+        );
+    }
+    return result;
 }
 
 // C ref: uhitm.c hmon_hitmon_barehands() (837-882). Damage for a hero striking

@@ -3385,6 +3385,8 @@ export async function newcham_distress(
     if (!canSpotNow) {
         if (seenOrSensed)
             await message(`${oldName} disappears!`, state, normalized);
+        const { usmellmon } = await import('./mon.js');
+        await usmellmon(selected, normalized);
     } else if (!seenOrSensed) {
         const newName = distressShapechangeNewName(monster);
         const appeared = newName

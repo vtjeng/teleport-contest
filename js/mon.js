@@ -143,6 +143,8 @@ import {
     XKILL_NOMSG,
     helpless,
     u_at,
+    Upolyd,
+    plur,
 } from './const.js';
 import { get_mleash } from './apply.js';
 import { artifact_exists, artifactTouchable } from './artifacts.js';
@@ -291,11 +293,15 @@ import {
     vegan,
     verysmall,
     zombie_form,
+    dead_species,
+    olfaction,
 } from './mondata.js';
 import {
+    AD_COLD,
     AD_DCAY,
     AD_DGST,
     AD_DRST,
+    AD_ELEC,
     AD_FIRE,
     AD_POLY,
     AD_RBRE,
@@ -331,6 +337,9 @@ import {
     PM_ATTENDANT,
     PM_BABY_PURPLE_WORM,
     PM_BARBARIAN,
+    PM_GARGOYLE,
+    PM_KILLER_BEE,
+    PM_QUEEN_BEE,
     PM_BLACK_DRAGON,
     PM_BLACK_PUDDING,
     PM_BLACK_UNICORN,
@@ -426,6 +435,7 @@ import {
     PM_WEREJACKAL,
     PM_WERERAT,
     PM_WEREWOLF,
+    PM_WINGED_GARGOYLE,
     PM_WHITE_DRAGON,
     PM_WHITE_UNICORN,
     PM_WOLF,
@@ -434,17 +444,32 @@ import {
     PM_WRAITH,
     PM_WOOD_GOLEM,
     PM_YELLOW_DRAGON,
+    PM_ASMODEUS,
+    PM_BALROG,
+    PM_DISPATER,
+    PM_HORNED_DEVIL,
+    PM_JELLYFISH,
+    PM_OWLBEAR,
+    PM_ORCUS,
+    PM_PONY,
+    PM_ROTHE,
+    PM_VIOLET_FUNGUS,
+    PM_YEENOGHU,
     AT_GAZE,
     MS_SHRIEK,
     S_EEL,
     S_ELEMENTAL,
     S_BAT,
     S_DOG,
+    S_DRAGON,
+    S_FUNGUS,
     S_GHOST,
     S_HUMAN,
     S_KOP,
     S_LICH,
     S_MIMIC,
+    S_ORC,
+    S_UNICORN,
     S_VAMPIRE,
     S_VORTEX,
     S_ZOMBIE,
@@ -505,6 +530,8 @@ import {
     ROCK_CLASS,
     SCROLL_CLASS,
     SCR_SCARE_MONSTER,
+    SPE_EXTRA_HEALING,
+    SPE_HEALING,
     TIN,
     WOOD,
     SADDLE,
@@ -513,6 +540,7 @@ import { makeplural, mungspaces } from './fruit.js';
 import {
     distant_name,
     donameFresh,
+    simple_typename,
     The,
     vtense,
     xnameFresh,
@@ -2864,7 +2892,10 @@ export async function peacefuls_respond(attacked, rawEnv = {}) {
         if (humanoid(monster.data) || monster.isshk || monster.ispriest) {
             if (is_watch(monster.data)) {
                 await message('"Halt!  You\'re under arrest!"', state, rawEnv);
-                note_unported('mon.c angry_guards');
+                await angry_guards(
+                    distressDeaf(state),
+                    { ...rawEnv, state, message },
+                );
             } else {
                 if (!distressDeaf(state) && !random.rn2(5)) {
                     const gasp = maybe_gasp(monster, state, random);
@@ -5314,4 +5345,284 @@ export function healmon(mtmp, amt, overheal) {
             mtmp.mhpmax = mtmp.mhp;
     }
     return mtmp.mhp - oldhp;
+}
+
+// C ref: mon.c egg_type_from_parent() (5569-5586). A queen bee or winged
+// gargoyle normally produces its ordinary offspring, except for the one-in-77
+// breeder-egg result. Forced ordinary eggs skip that draw, as C's short-circuit
+// expression does.
+export function egg_type_from_parent(mnum, force_ordinary = false, rawEnv = {}) {
+    const random = rawEnv.random ?? { rn2 };
+    if (force_ordinary || random.rn2(77) !== 0) {
+        if (mnum === PM_QUEEN_BEE) return PM_KILLER_BEE;
+        if (mnum === PM_WINGED_GARGOYLE) return PM_GARGOYLE;
+    }
+    return mnum;
+}
+
+// C ref: mon.c kill_eggs() (5609-5638). The TIN/CORPSE arms are under #if 0,
+// but the recursive container arm is active. kill_egg() belongs to timeout.c
+// and has no port yet, so the call is recorded exactly as required for a
+// discarded return value and does not invent timer state.
+export function kill_eggs(obj_list, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    for (let obj = obj_list; obj; obj = obj.nobj) {
+        if (obj.otyp === EGG && dead_species(obj.corpsenm, true, { state }))
+            note_unported('timeout.c kill_egg');
+        else if (obj.cobj)
+            kill_eggs(obj.cobj, { ...rawEnv, state });
+    }
+}
+
+// C ref: mon.c golemeffects() (5680-5708). Elemental damage can heal or slow
+// a flesh or iron golem. The speed mutation is owned by the still-unported
+// worn.c mon_adjust_speed(); the source call's return value is discarded.
+export async function golemeffects(mon, damtype, dam, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    let heal = 0;
+    let slow = false;
+    const mnum = mon?.data?.pmidx;
+
+    if (mnum === PM_FLESH_GOLEM) {
+        if (damtype === AD_ELEC) heal = Math.trunc((dam + 5) / 6);
+        else if (damtype === AD_FIRE || damtype === AD_COLD) slow = true;
+    } else if (mnum === PM_IRON_GOLEM) {
+        if (damtype === AD_ELEC) slow = true;
+        else if (damtype === AD_FIRE) heal = dam;
+    } else {
+        return;
+    }
+
+    if (slow && mon.mspeed !== MSLOW)
+        note_unported('worn.c mon_adjust_speed');
+    if (heal && healmon(mon, heal, 0)) {
+        if (cansee(mon.mx, mon.my, state)) {
+            await monsterMessage(
+                `${Monnam(mon, state)} seems healthier.`,
+                mon,
+                state,
+                rawEnv,
+            );
+        }
+    }
+}
+
+// C ref: mon.c angry_guards() (5711-5767). This deliberately walks the live
+// level list directly: fmon contains every current-level guard, and the C loop
+// clears sleep/freeze before changing peacefulness.
+export async function angry_guards(silent = false, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    let count = 0;
+    let nearby = 0;
+    let distant = 0;
+    let sleeping = 0;
+
+    for (let mon = state.level?.monlist ?? null; mon; mon = mon.nmon) {
+        if (mon.mhp < 1 || !is_watch(mon.data) || !mon.mpeaceful)
+            continue;
+        ++count;
+        if (canSpotMonster(mon, state) && mon.mcanmove) {
+            if (m_next2u(mon, state)) ++nearby;
+            else ++distant;
+        }
+        if (mon.msleeping || mon.mfrozen) {
+            ++sleeping;
+            mon.msleeping = 0;
+            mon.mfrozen = 0;
+        }
+        mon.mpeaceful = false;
+    }
+
+    if (!count) return false;
+    if (!silent) {
+        if (sleeping) {
+            const buf = `guard${plur(sleeping)}`;
+            await message(
+                `${The(buf, state)} ${vtense(buf, 'wake')} up.`,
+                state,
+                rawEnv,
+            );
+        }
+        if (nearby) {
+            const buf = `guard${plur(nearby)}`;
+            await message(
+                `${The(buf, state)} ${vtense(buf, 'get')} angry!`,
+                state,
+                rawEnv,
+            );
+        } else if (distant) {
+            const buf = `guard${plur(distant)}`;
+            await message(
+                `${distant === 1 ? 'An angry' : 'Angry'} ${buf} `
+                    + `${vtense(buf, 'are')} approaching!`,
+                state,
+                rawEnv,
+            );
+        } else {
+            const possessive = count === 1 ? "a guard's" : "guards'";
+            const heard = youHear(
+                `the shrill sound of ${possessive} whistle${plur(count)}`,
+                state,
+            );
+            if (heard) await message(heard, state, rawEnv);
+        }
+    }
+    return true;
+}
+
+// C ref: mon.c pacify_guard() and pacify_guards() (5769-5774).
+export function pacify_guard(mon) {
+    if (is_watch(mon.data)) mon.mpeaceful = true;
+}
+
+export function pacify_guards(state = game) {
+    iter_mons(pacify_guard, state);
+}
+
+const cObjColors = Object.freeze([
+    'black', 'red', 'green', 'brown', 'blue', 'magenta', 'cyan', 'gray',
+    'transparent', 'orange', 'bright green', 'yellow', 'bright blue',
+    'bright magenta', 'bright cyan', 'white',
+]);
+
+// C ref: mon.c mimic_hit_msg() (5776-5794). Healing spellbooks reveal a
+// mimic's object disguise by describing the object type and its catalog color.
+export async function mimic_hit_msg(mon, otyp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    switch (M_AP_TYPE(mon)) {
+    case M_AP_NOTHING:
+    case M_AP_FURNITURE:
+    case M_AP_MONSTER:
+        return;
+    case M_AP_OBJECT: {
+        if (otyp !== SPE_HEALING && otyp !== SPE_EXTRA_HEALING) return;
+        const appearance = mon.mappearance;
+        const color = cObjColors[state.objects?.[appearance]?.oc_color ?? 0];
+        await monsterMessage(
+            `${The(simple_typename(appearance, state), state)} seems a more `
+                + `vivid ${color} than before.`,
+            mon,
+            state,
+            rawEnv,
+        );
+        return;
+    }
+    default:
+        return;
+    }
+}
+
+// C ref: mon.c usmellmon() (5796-5914). This reports only species or class
+// smells that C recognizes; an ordinary unrecognized species returns FALSE.
+export async function usmellmon(mdat, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (!mdat || !olfaction(state.youmonst?.data)) return false;
+
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const mndx = monsndx(mdat);
+    let nonspecific = false;
+    let given = false;
+    const you = (text) => message(`You ${text}`, state, rawEnv);
+    const line = (text) => message(text, state, rawEnv);
+
+    switch (mndx) {
+    case PM_ROTHE:
+    case PM_MINOTAUR:
+        await you('notice a bovine smell.');
+        given = true;
+        break;
+    case PM_CAVE_DWELLER:
+    case PM_BARBARIAN:
+    case PM_NEANDERTHAL:
+        await you('smell body odor.');
+        given = true;
+        break;
+    case PM_HORNED_DEVIL:
+    case PM_BALROG:
+    case PM_ASMODEUS:
+    case PM_DISPATER:
+    case PM_YEENOGHU:
+    case PM_ORCUS:
+        break;
+    case PM_HUMAN_WEREJACKAL:
+    case PM_HUMAN_WERERAT:
+    case PM_HUMAN_WEREWOLF:
+    case PM_WEREJACKAL:
+    case PM_WERERAT:
+    case PM_WEREWOLF:
+    case PM_OWLBEAR:
+        await you("detect an odor reminiscent of an animal's den.");
+        given = true;
+        break;
+    case PM_STEAM_VORTEX:
+        await you('smell steam.');
+        given = true;
+        break;
+    case PM_GREEN_SLIME:
+        await line('Something stinks.');
+        given = true;
+        break;
+    case PM_VIOLET_FUNGUS:
+    case PM_SHRIEKER:
+        await you('smell mushrooms.');
+        given = true;
+        break;
+    case PM_WHITE_UNICORN:
+    case PM_GRAY_UNICORN:
+    case PM_BLACK_UNICORN:
+    case PM_JELLYFISH:
+        break;
+    default:
+        nonspecific = true;
+        break;
+    }
+
+    if (nonspecific) {
+        switch (mdat.mlet) {
+        case S_DOG:
+            await you('notice a dog smell.');
+            given = true;
+            break;
+        case S_DRAGON:
+            await you('smell a dragon!');
+            given = true;
+            break;
+        case S_FUNGUS:
+            await line('Something smells moldy.');
+            given = true;
+            break;
+        case S_UNICORN:
+            await you(
+                `${mndx === PM_PONY ? 'detect an' : 'detect a strong'} `
+                    + 'odor reminiscent of a stable.',
+            );
+            given = true;
+            break;
+        case S_ZOMBIE:
+            await you('smell rotting flesh.');
+            given = true;
+            break;
+        case S_EEL:
+            await you('smell fish.');
+            given = true;
+            break;
+        case S_ORC: {
+            const ownOrc = Upolyd(state.u)
+                ? is_orc(state.youmonst?.data)
+                : state.urace?.mnum === PM_ORC;
+            if (ownOrc) await you('notice an attractive smell.');
+            else await line(
+                'A foul stench makes you feel a little nauseated.',
+            );
+            given = true;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    return given;
 }

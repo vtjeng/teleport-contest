@@ -208,10 +208,10 @@ test('hmon admits melee alone', async () => {
 });
 
 // uhitm.c:826-833. A temple priest's god strikes back through ghod_hitsu(),
-// behind an rn2(2) that only a priest target draws, and a peaceful shopkeeper
-// or watchman calls angry_guards(). Both refuse above hmon_hitmon(), which is
-// what keeps the rn2(2) unspent.
-test('hmon stops on the two town consequences before it rolls damage',
+// behind an rn2(2) that only a priest target draws. That consequence remains
+// unported, while the peaceful shopkeeper/watchman path now calls
+// angry_guards() after hmon_hitmon().
+test('hmon stops on the unported priest consequence before it rolls damage',
     async () => {
         await hero();
         // Each row carries the species and the flags that reach one refusal.
@@ -222,10 +222,6 @@ test('hmon stops on the two town consequences before it rolls damage',
             ['striking a temple priest', PM_LICHEN, { ispriest: 1 }],
             ['striking a temple priest', PM_LICHEN,
                 { ispriest: 1, mpeaceful: 1 }],
-            ['angering the town guards', PM_LICHEN,
-                { isshk: 1, mpeaceful: 1 }],
-            ['angering the town guards', PM_WATCHMAN, { mpeaceful: 1 }],
-            ['angering the town guards', PM_WATCH_CAPTAIN, { mpeaceful: 1 }],
         ];
         for (const [reason, pmidx, overrides] of cases) {
             const label = `${reason} ${pmidx}`;

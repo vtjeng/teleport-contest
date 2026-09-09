@@ -92,7 +92,7 @@ test('qst_guardians_respond angers visible role guardians', async () => {
     assert.match(lines[0], /angry too/);
 });
 
-test('peacefuls_respond warns a watch guard and records angry_guards gap', async () => {
+test('peacefuls_respond warns a watch guard and angers the watch', async () => {
     await hero();
     const guard = prepend(monster(PM_WATCHMAN, { mpeaceful: true }));
     const attacked = monster(PM_GNOME, { mpeaceful: false });
@@ -102,9 +102,12 @@ test('peacefuls_respond warns a watch guard and records angry_guards gap', async
         random: { rn2: () => { throw new Error('watch branch draws none'); } },
         message: async (text) => lines.push(text),
     });
-    assert.equal(guard.mpeaceful, true);
-    assert.deepEqual(lines, ['"Halt!  You\'re under arrest!"']);
-    assert.ok(game.unported.has('mon.c angry_guards'));
+    assert.equal(guard.mpeaceful, false);
+    assert.deepEqual(lines, [
+        '"Halt!  You\'re under arrest!"',
+        'The guard gets angry!',
+    ]);
+    assert.ok(!game.unported.has('mon.c angry_guards'));
 });
 
 test('m_respond_medusa records gazemu without inventing gaze effects', async () => {

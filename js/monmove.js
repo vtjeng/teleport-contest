@@ -198,6 +198,7 @@ import { newcham_distress } from './makemon_create.js';
 import { mattackm } from './mhitm.js';
 import { ranged_attk_available } from './mhitu.js';
 import {
+    angry_guards,
     curr_mon_load,
     hideunder,
     m_carrying,
@@ -1040,8 +1041,7 @@ async function m_break_boulder(mtmp, x, y, env = {}) {
 // C ref: monmove.c watch_on_duty() (176-203). A watch guard on duty checks
 // whether the hero is picking a lock or digging, and warns or arrests.
 // picking_lock() and is_digging() are occupation predicates from lock.c and
-// dig.c; angry_guards() (mon.c) and watch_dig() (dig.c) are void or have
-// their return values discarded, so they get note_unported.
+// dig.c; watch_dig() (dig.c) remains a discarded gap.
 async function watch_on_duty(mtmp, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2 };
@@ -1062,7 +1062,7 @@ async function watch_on_duty(mtmp, env = {}) {
                             "Halt, thief!  You're under arrest!",
                             env,
                         );
-                        note_unported('mon.c angry_guards');
+                        await angry_guards(heroDeaf(state), { ...env, state });
                     } else {
                         await mon_yells(
                             mtmp,
