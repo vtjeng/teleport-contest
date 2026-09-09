@@ -17376,8 +17376,8 @@
       "spans": [
         {
           "name": "anger_quest_guardians..migrate_mon",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "b919082e7b0297d27de09dd4ea9648215465eab1",
           "functions": [
             "anger_quest_guardians",
             "monstone",
@@ -17401,7 +17401,7 @@
           "name": "anger_quest_guardians",
           "line": 3072,
           "endLine": 3080,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mondead",
@@ -17431,7 +17431,7 @@
           "name": "monstone",
           "line": 3287,
           "endLine": 3376,
-          "ported": false
+          "ported": true
         },
         {
           "name": "monkilled",
@@ -17467,25 +17467,25 @@
           "name": "mon_to_stone",
           "line": 3748,
           "endLine": 3765,
-          "ported": false
+          "ported": true
         },
         {
           "name": "vamp_stone",
           "line": 3766,
           "endLine": 3833,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_into_limbo",
           "line": 3834,
           "endLine": 3842,
-          "ported": false
+          "ported": true
         },
         {
           "name": "migrate_mon",
           "line": 3843,
           "endLine": 3863,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
