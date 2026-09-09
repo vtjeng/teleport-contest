@@ -17787,8 +17787,8 @@
       "spans": [
         {
           "name": "pickvampshape..wiz_force_cham_form",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "130c82b05231a28e66c4744d57801c91b038a8bb",
           "functions": [
             "pickvampshape",
             "isspecmon",
@@ -17811,19 +17811,19 @@
           "name": "pickvampshape",
           "line": 4941,
           "endLine": 4982,
-          "ported": false
+          "ported": true
         },
         {
           "name": "isspecmon",
           "line": 4983,
           "endLine": 4992,
-          "ported": false
+          "ported": true
         },
         {
           "name": "validspecmon",
           "line": 4993,
           "endLine": 5014,
-          "ported": false
+          "ported": true
         },
         {
           "name": "valid_vampshiftform",
@@ -17835,13 +17835,13 @@
           "name": "validvamp",
           "line": 5028,
           "endLine": 5077,
-          "ported": false
+          "ported": true
         },
         {
           "name": "wiz_force_cham_form",
           "line": 5078,
           "endLine": 5156,
-          "ported": false
+          "ported": true
         },
         {
           "name": "select_newcham_form",
