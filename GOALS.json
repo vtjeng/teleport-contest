@@ -16026,6 +16026,20 @@
             "hangup",
             "end_of_input"
           ]
+        },
+        {
+          "name": "readchar_core..dummyfunction",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "readchar_core",
+            "readchar_poskey",
+            "yn_func_menu_opt",
+            "yn_function_menu",
+            "dosuspend_core",
+            "dosh_core",
+            "dummyfunction"
+          ]
         }
       ],
       "openedAt": "52f3a156bd9f18f96e70ebe395fbbd3e42c4e8ce",
