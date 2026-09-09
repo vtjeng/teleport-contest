@@ -582,7 +582,10 @@ test('debug mode asks whether to force the mount', async () => {
     const forced = await rideOnce('ly', (state) => { state.wizard = true; });
     assert.equal(forced.error, null);
     assert.equal(forced.result, ECMD_OK);
-    assert.equal(cmdq_peek(CQ_REPEAT, game)?.key, 'y'.charCodeAt(0));
+    // getdir() records its prompted direction before y_n() appends the
+    // confirmation answer, matching cmd.c:4017 and cmd.c:5552.
+    assert.equal(cmdq_peek(CQ_REPEAT, game)?.key, 'l'.charCodeAt(0));
+    assert.equal(game.command_queue[CQ_REPEAT][1]?.key, 'y'.charCodeAt(0));
     game.wizard = false;
 
     // Without debug mode the same keystroke skips the question entirely and

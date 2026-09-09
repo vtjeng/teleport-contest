@@ -657,10 +657,10 @@ function yn_menuable_resp(resp, state) {
 // C ref: cmd.c yn_function() (5471-5578). The ordinary user-input arm reads
 // through tty_yn_function() and, when addcmdq is true, records the answer in
 // CQ_REPEAT. Both unrestricted whatdoes input and restricted y_n input reach
-// that write. The queued-answer arm remains outside the running-game boundary:
-// nothing ported can set gi.in_doagain. getdir() passes addcmdq FALSE, exactly
-// as C does at 3989. iflags.debug_fuzzer is never set, leaving the window
-// port's reader as the only live input source.
+// that write. The queued-answer arm also matters to canned commands and to
+// do_repeat(); getdir() passes addcmdq FALSE, exactly as C does at 3989.
+// iflags.debug_fuzzer is never set, leaving the window port's reader as the
+// only live input source.
 //
 // The `resp && *resp && res && !strchr(resp, res)` repair at 5567 has no work
 // to do for either caller. A null `resp` fails its first test. For a restricted
@@ -685,16 +685,30 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
     if (yn_menuable_resp(resp, state)) {
         throw new UnsupportedDirectionBoundaryError('yn_function_menu()');
     }
-    const queued = addcmdq ? cmdq_peek(CQ_CANNED, state) : null;
+    const queue = state.in_doagain ? CQ_REPEAT : CQ_CANNED;
+    const queued = addcmdq ? cmdq_peek(queue, state) : null;
     let fromQueue = false;
     let res;
     if (queued?.typ === CMDQ_KEY) {
         cmdq_pop(state);
         res = queued.key;
         fromQueue = true;
+    } else if (queued?.typ === CMDQ_USER_INPUT) {
+        // CMDQ_USER_INPUT is an explicit prompt handoff; C consumes it and
+        // then reads the answer from the window port.
+        cmdq_pop(state);
+    } else if (queued) {
+        // C treats any other queued node as an impossible prompt answer,
+        // clears the canned queue, and returns Escape without prompting.
+        cmdq_pop(state);
+        cmdq_clear(CQ_CANNED, state);
+        res = ESC;
+        fromQueue = true;
     } else {
         res = await tty_yn_function(query, resp, def, state);
     }
+    if (!fromQueue && res === undefined)
+        res = await tty_yn_function(query, resp, def, state);
     if (addcmdq && !fromQueue) cmdq_add_key(CQ_REPEAT, res, state);
     // "in case we're called via getdir() which sets input_state".
     state.program_state.input_state = 'other';
@@ -1292,42 +1306,52 @@ export async function get_adjacent_loc(prompt, emsg, x, y, cc, state = game) {
 // an impaired hero. help_dir() is ported and displays the direction-key window
 // when cmdassist is set (the default). The help_requested retry path
 // (cmd.c:4106 goto retry) is deferred.
-//
-// Two of C's own inputs cannot arrive at all: gi.in_doagain and
-// readchar_queue are always empty, and iflags.debug_fuzzer is never set.
 export async function getdir(s, state = game) {
     const u = state.u;
-    // C ref: getdir():3962-3981. A queued direction answers the prompt and
-    // jumps to got_dirsym, skipping the prompt itself and its repeat record.
-    const queued = cmdq_peek(CQ_CANNED, state);
+    state.program_state ??= {};
+    // C ref: getdir():3962-4019. A queued direction or key jumps to
+    // got_dirsym, skipping the prompt and its repeat record. Other queued
+    // nodes are consumed and make the direction invalid.
+    const queued = cmdq_pop(state);
+    let dirsym;
     if (queued?.typ === CMDQ_DIR) {
-        cmdq_pop(state);
-        u.dx = queued.dx;
-        u.dy = queued.dy;
-        u.dz = queued.dz;
-        return 1;
+        const index = queued.dz
+            ? (queued.dz > 0 ? 8 : 9)
+            : xytodir(queued.dx, queued.dy);
+        const directionChars = state.dirchars ?? 'hykulnjb><';
+        dirsym = directionChars.charCodeAt(index);
+    } else if (queued?.typ === CMDQ_KEY) {
+        dirsym = queued.key;
+    } else if (queued) {
+        cmdq_clear(CQ_CANNED, state);
+        dirsym = 0;
     }
-    if (queued?.typ === CMDQ_USER_INPUT) cmdq_pop(state);
     // retry: -- only the '^R' arm jumps back here, and it is refused below.
-    state.program_state.input_state = 'getdir';
-    const dirsym = await yn_function(
-        (s && s[0] !== '^') ? s : 'In what direction?',
-        null,
-        '\0',
-        false,
-        state,
-    );
-    // "remove the prompt string so caller won't have to"
-    clearTtyMessageWindow(state);
+    if (dirsym === undefined) {
+        state.program_state.input_state = 'getdir';
+        if (state.in_doagain || state.readchar_queue)
+            dirsym = await readchar(state);
+        else
+            dirsym = await yn_function(
+                (s && s[0] !== '^') ? s : 'In what direction?',
+                null,
+                '\0',
+                false,
+                state,
+            );
+        // "remove the prompt string so caller won't have to"
+        clearTtyMessageWindow(state);
+    }
 
     if (redraw_cmd(dirsym, state)) {
         throw new UnsupportedDirectionBoundaryError(
             "'^R' repaints the screen and reissues the direction prompt",
         );
     }
-    // cmdq_add_key(CQ_REPEAT, dirsym): getdir() repeat recording remains
-    // outside this caller's boundary. yn_function() owns the generic admitted
-    // write for dowhatdoes() and y_n() callers such as doride().
+    // C jumps straight to got_dirsym for every queued node, so only a
+    // direction read from the prompt is recorded for a later do-again.
+    if (!queued && !state.in_doagain)
+        cmdq_add_key(CQ_REPEAT, dirsym, state);
 
     const spkeys = commandBindings(state).specialKeys;
     // cmd.c:4021-4090 tests NHKF_GETDIR_SELF first and evaluates movecmd()
@@ -1401,6 +1425,7 @@ export async function get_count(
     const savedInputState = state.program_state.input_state;
     let key = inkey;
     let count = 0;
+    let committedCount = 0;
     let first = inkey ? inkey - 0x30 : 0;
     let backspaced = false;
     let showzero = true;
@@ -1410,6 +1435,7 @@ export async function get_count(
     const escape = commandBindings(state).specialKeys.escape ?? ESC;
 
     const storeCount = (value) => {
+        committedCount = value;
         if (countOut && typeof countOut === 'object') countOut.value = value;
     };
     const appendLongDigit = (value, digitValue) => {
@@ -1460,7 +1486,7 @@ export async function get_count(
     }
 
     const resultCount = countOut && typeof countOut === 'object'
-        ? countOut.value ?? 0 : count;
+        ? countOut.value ?? 0 : committedCount;
     if (historicmsg || (conditionalmsg && resultCount !== first)) {
         const historyLine = `Count: ${resultCount} ${key2txt(key)}`;
         state.messageHistory ??= [];
@@ -4413,7 +4439,6 @@ export function act_on_act(act, dx, dy, state = game) {
     case MCMD.TIP: queueHandler('dotip', state); cmdq_add_key(CQ_CANNED, 'y'.charCodeAt(0), state); break;
     case MCMD.EAT:
         queueHandler('doeat', state);
-        cmdq_add_key(CQ_CANNED, 'y'.charCodeAt(0), state);
         cmdq_add_key(CQ_CANNED, 'y'.charCodeAt(0), state);
         break;
     case MCMD.DROP: queueHandler('dodrop', state); break;
