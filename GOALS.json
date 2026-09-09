@@ -17060,7 +17060,22 @@
         "seed0383-wizard-hallucinate"
       ],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "meatbox..mpickgold",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "meatbox",
+            "meatmetal",
+            "meatobj",
+            "meatcorpse",
+            "mon_give_prop",
+            "mon_givit",
+            "mpickgold"
+          ]
+        }
+      ],
       "openedAt": "8a9d31995c13c5b58ea6479bdc74e02e33f4910c",
       "openStanding": {
         "sha": "8c3cd61e",
