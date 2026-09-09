@@ -254,7 +254,7 @@ import {
     glyphrep_to_custom_map_entries,
     inspect_glyphrep,
 } from './glyphs.js';
-import { choose_classes_menu } from './windows.js';
+import { choose_classes_menu, select_menu } from './windows.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { note_unported } from './unported.js';
 
@@ -280,8 +280,9 @@ const NUM_OPT_PHASES = 7;
 // makes the small handlers below mirror their C request switch explicitly.
 const DO_INIT = 1;
 const DO_SET = 2;
-const GET_VAL = 3;
-const GET_CNF_VAL = 4;
+const DO_HANDLER = 3;
+const GET_VAL = 4;
+const GET_CNF_VAL = 5;
 
 // C ref: options.c:allopt[] and determine_ambiguities().  Matching is
 // case-insensitive, so the generated catalog is folded once here.  The full
@@ -2822,28 +2823,203 @@ function setStatusHiliteDuration(result, value, negated) {
     result.iflags.hilite_delta = parsed < 0 ? 1 : parsed;
 }
 
-// C ref: options.c optfn_menu_headings() (2182-2212), its do_set arm.  The
-// handler reads the value parseoptions() already found, so a statement without
-// one is not an error at all: it means "no colour and inverse", or "no colour
-// and no attribute" when negated.  optlist.h gives menu_headings negateok Yes,
-// so the negation arms below are the live ones, unlike petattr's beneath.
-// color_attr_parse_str() reports everything C says about a value it cannot
-// read, and the handler adds nothing to it.
-function setMenuHeadings(result, value, negated) {
-    if (value == null || value === '') {
-        result.iflags.menu_headings = {
-            attr: negated ? ATR_NONE : ATR_INVERSE,
-            color: NO_COLOR,
-        };
-        return;
+// C refs: coloratt.c query_color(), query_attr(), query_color_attr(), and
+// options.c handler_menu_headings().  The C query temporarily replaces the
+// user's menu-colour rules with the canonical colour list.  Explicit item
+// colours and skipMenuColors reproduce that visible result in the TTY port;
+// the state flag itself is never changed by this temporary display.
+function optionMenuSelect(state, spec, helpers) {
+    if (typeof helpers?.selectMenu === 'function')
+        return helpers.selectMenu(spec);
+    return select_menu(state, {
+        ...spec,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+}
+
+function selectedMenuValue(selection, fallback, allowMany) {
+    if (allowMany) {
+        if (!Array.isArray(selection) || selection.length === 0) return -1;
+        return selection.reduce((bits, entry) => {
+            const value = typeof entry === 'object' ? entry.value : entry;
+            return bits | (value ?? 0);
+        }, 0);
     }
-    if (negated) { /* 'op != empty_optstr' to get here */
-        bad_negation(result, 'menu_headings');
-        return;
+    if (selection === null || selection === undefined) return -1;
+    if (Array.isArray(selection)) {
+        if (selection.length === 0) return fallback;
+        const first = selection[0];
+        return typeof first === 'object' ? first.value : first;
     }
-    const ca = color_attr_parse_str(result, value);
-    if (ca === null) return;
-    result.iflags.menu_headings = ca;
+    if (typeof selection === 'object') return selection.value ?? fallback;
+    return selection;
+}
+
+async function query_color(state, prompt, dflt, helpers) {
+    const items = COLOR_NAMES.map(([name, color]) => ({
+        text: name,
+        value: color,
+        color: color === CLR_BLACK || color === CLR_GRAY
+            || color === CLR_WHITE || color === NO_COLOR
+            ? NO_COLOR : color,
+        attr: ATR_NONE,
+        selected: color === dflt,
+        skipMenuColors: true,
+    }));
+    const selection = await optionMenuSelect(state, {
+        items,
+        how: PICK_ONE,
+        title: prompt || 'Pick a color',
+        preselected: dflt,
+        cancelValue: null,
+    }, helpers);
+    return selectedMenuValue(selection, dflt, false);
+}
+
+async function query_attr(state, prompt, dflt, helpers) {
+    const allowMany = typeof prompt === 'string'
+        && prompt.slice(0, 6).toLowerCase() === 'choose';
+    const rawAttributes = [
+        ['none', 0], ['bold', 2], ['dim', 3], ['italic', 5],
+        ['underline', 4], ['blink', 6], ['inverse', 1],
+    ];
+    const items = [
+        ...rawAttributes,
+    ].map(([name, rawAttr], index) => ({
+        text: name,
+        value: rawAttr,
+        sourceIndex: index,
+        // The recorder's TTY attribute vocabulary collapses dim, italic and
+        // blink to ATR_NONE; the selection value still retains C's raw
+        // attribute so PICK_ANY can form the HL_* mask exactly.
+        attr: MENU_HEADING_ATTRIBUTES[name],
+        color: NO_COLOR,
+        selected: rawAttr === dflt,
+        skipMenuColors: true,
+    }));
+    const selection = await optionMenuSelect(state, {
+        items,
+        how: allowMany ? PICK_ANY : PICK_ONE,
+        title: prompt || 'Pick an attribute',
+        preselected: dflt,
+        cancelValue: null,
+    }, helpers);
+    if (!allowMany) {
+        const raw = selectedMenuValue(selection, dflt, false);
+        if (raw === -1) return -1;
+        return raw === 0 || raw === 3 || raw === 5 || raw === 6
+            ? ATR_NONE : raw;
+    }
+    if (!Array.isArray(selection) || selection.length === 0) return -1;
+    let bits = 0;
+    for (const entry of selection) {
+        const raw = typeof entry === 'object' ? entry.value : entry;
+        if (raw === 0 && selection.length > 1) continue;
+        bits |= raw === 0 ? HL_NONE
+            : raw === 1 ? HL_INVERSE
+                : raw === 2 ? HL_BOLD
+                    : raw === 3 ? HL_DIM
+                        : raw === 4 ? HL_ULINE
+                            : raw === 5 ? HL_ITALIC
+                                : raw === 6 ? HL_BLINK : 0;
+    }
+    return bits;
+}
+
+async function query_color_attr(state, ca, prompt, helpers) {
+    const queried = { ...ca };
+    const color = await query_color(state, prompt, queried.color, helpers);
+    if (color === -1) return false;
+    const attr = await query_attr(state, prompt, queried.attr, helpers);
+    if (attr === -1) return false;
+    ca.color = color;
+    ca.attr = attr;
+    return true;
+}
+
+// C ref: options.c shared_menu_optfn() and the thirteen wrapper functions
+// immediately following it (2052-2180).  The wrappers are intentionally
+// separate: allopt[] stores each source function name, while the C body is
+// shared only through this helper.
+export function shared_menu_optfn(
+    result, optidx, request, negated, opts, op,
+) {
+    if (request === DO_INIT) return optn_ok;
+    if (request === DO_SET) {
+        const res = check_misc_menu_command(opts, op);
+        if (res < 0) return optn_err;
+        return spcfn_misc_menu_cmd(result, res, request, negated, opts, op);
+    }
+    if (request === GET_VAL) return to_be_done;
+    if (request === GET_CNF_VAL) return '';
+    return optn_ok;
+}
+
+export function optfn_menu_deselect_all(...args) { return shared_menu_optfn(...args); }
+export function optfn_menu_deselect_page(...args) { return shared_menu_optfn(...args); }
+export function optfn_menu_first_page(...args) { return shared_menu_optfn(...args); }
+export function optfn_menu_invert_all(...args) { return shared_menu_optfn(...args); }
+export function optfn_menu_invert_page(...args) { return shared_menu_optfn(...args); }
+export function optfn_menu_last_page(...args) { return shared_menu_optfn(...args); }
+export function optfn_menu_next_page(...args) { return shared_menu_optfn(...args); }
+export function optfn_menu_previous_page(...args) { return shared_menu_optfn(...args); }
+export function optfn_menu_search(...args) { return shared_menu_optfn(...args); }
+export function optfn_menu_select_all(...args) { return shared_menu_optfn(...args); }
+export function optfn_menu_select_page(...args) { return shared_menu_optfn(...args); }
+export function optfn_menu_shift_left(...args) { return shared_menu_optfn(...args); }
+export function optfn_menu_shift_right(...args) { return shared_menu_optfn(...args); }
+
+// C ref: options.c optfn_menu_headings() (2182-2212).  The do_set arm reads
+// an empty_optstr as a request for the default style, whereas the get arms
+// write into the caller's buffer; returning that string is the JavaScript
+// equivalent used by optionValue().
+async function handler_menu_headings(state, helpers) {
+    state.iflags ??= {};
+    state.go ??= {};
+    const current = { ...(state.iflags.menu_headings ?? {
+        color: NO_COLOR,
+        attr: ATR_INVERSE,
+    }) };
+    const gotca = await query_color_attr(
+        state, current, 'How to highlight menu headings:', helpers,
+    );
+    if (gotca) {
+        state.iflags.menu_headings = current;
+        if (state.iflags.perm_invent) update_inventory({ state });
+    }
+    adjust_menu_promptstyle(state);
+    return optn_ok;
+}
+
+export function optfn_menu_headings(
+    result, optidx, request, negated, opts, op, helpers,
+) {
+    if (request === DO_INIT) return optn_ok;
+    if (request === DO_SET) {
+        const value = op === undefined
+            ? string_for_opt(opts, true, result) : op;
+        if (value === '') {
+            result.iflags.menu_headings = {
+                attr: negated ? ATR_NONE : ATR_INVERSE,
+                color: NO_COLOR,
+            };
+            return optn_ok;
+        }
+        if (negated) {
+            bad_negation(result, allopt[optidx]?.name ?? 'menu_headings');
+            return optn_silenterr;
+        }
+        const ca = color_attr_parse_str(result, value);
+        if (ca === null) return optn_err;
+        result.iflags.menu_headings = ca;
+        return optn_ok;
+    }
+    if (request === GET_VAL || request === GET_CNF_VAL) {
+        return color_attr_to_str(result.iflags.menu_headings)
+            .replaceAll(' ', '-');
+    }
+    if (request === DO_HANDLER) return handler_menu_headings(result, helpers);
+    return optn_ok;
 }
 
 // C ref: options.c set_menuobjsyms_flags() (7446-7451).  The numeric mode is
@@ -2982,6 +3158,23 @@ export function check_misc_menu_command(opts, op) {
     }
     return -1;
 }
+
+const MENU_OPTION_FUNCTIONS = Object.freeze({
+    menu_deselect_all: optfn_menu_deselect_all,
+    menu_deselect_page: optfn_menu_deselect_page,
+    menu_first_page: optfn_menu_first_page,
+    menu_invert_all: optfn_menu_invert_all,
+    menu_invert_page: optfn_menu_invert_page,
+    menu_last_page: optfn_menu_last_page,
+    menu_next_page: optfn_menu_next_page,
+    menu_previous_page: optfn_menu_previous_page,
+    menu_search: optfn_menu_search,
+    menu_select_all: optfn_menu_select_all,
+    menu_select_page: optfn_menu_select_page,
+    menu_shift_left: optfn_menu_shift_left,
+    menu_shift_right: optfn_menu_shift_right,
+    menu_headings: optfn_menu_headings,
+});
 
 // C ref: options.c get_menu_cmd_key() (8094-8105). A configured alias is
 // displayed in place of its source command byte; when several incoming keys
@@ -3244,19 +3437,31 @@ function addMenuCommandAlias(result, fromKey, command) {
     result.iflags.mapped_menu_op += command;
 }
 
-// C ref: options.c spcfn_misc_menu_cmd() (5451-5477), the do_set request.  Its
-// own bad_negation() arm (5458-5460) is unreachable from a configuration file:
-// every menu command option's optlist.h negateok is No, so parseoptions()
-// answers a negated spelling before the handler runs.  The remaining two arms
-// both report and leave the alias list alone: string_for_opt(opts, FALSE)
-// names the whole statement when no value follows the separator, and
-// illegal_menu_cmd_key() reports for itself.
-function setMenuCommandOption(result, descriptor, statement) {
-    const op = string_for_opt(statement, false, result);
-    if (op === '') return;
-    const key = textToKey(op);
-    if (illegalMenuCommandKey(result, key)) return;
-    addMenuCommandAlias(result, key, descriptor.command);
+// C ref: options.c spcfn_misc_menu_cmd() (5451-5477).  shared_menu_optfn()
+// passes the complete allopt statement because this function deliberately
+// calls string_for_opt(..., FALSE), which reports a missing value using that
+// complete spelling.  The caller ignores the returned status only where C's
+// parseoptions() does; the alias and diagnostic side effects remain here.
+function spcfn_misc_menu_cmd(result, midx, request, negated, opts, op) {
+    void op;
+    if (request === DO_INIT) return optn_ok;
+    if (request === DO_SET) {
+        if (negated) {
+            bad_negation(result, MENU_COMMAND_OPTIONS[midx].name, false);
+            return optn_err;
+        }
+        const value = string_for_opt(opts, false, result);
+        if (value !== '') {
+            const key = textToKey(value);
+            if (illegalMenuCommandKey(result, key)) return optn_err;
+            addMenuCommandAlias(
+                result, key, MENU_COMMAND_OPTIONS[midx].command,
+            );
+        }
+        return optn_ok;
+    }
+    if (request === GET_VAL || request === GET_CNF_VAL) return '';
+    return optn_ok;
 }
 
 function bindingSeparator(bindings) {
@@ -4670,19 +4875,15 @@ function optfn_suppress_alert(result, value) {
     feature_alert_opts(result, value, 'suppress_alert');
 }
 
-// C ref: options.c bad_negation() (6692-6697).  Three of its callers are
-// reachable here -- parseoptions() (627), optfn_menu_headings() (2201) and
-// optfn_pile_limit() (3421) -- and all three pass with_parameter TRUE, whether
-// or not the statement carried a value, so the message names a value either
-// way.  The two that pass FALSE, optfn_suppress_alert() (4144) and
-// spcfn_misc_menu_cmd() (5459), sit behind rows whose optlist.h negateok is
-// No, so parseoptions() has already answered the negation by the time either
-// handler runs.  That is also why several C handlers declare their `negated`
-// argument UNUSED.
-function bad_negation(result, optname) {
+// C ref: options.c bad_negation() (6692-6697).  The with_parameter flag keeps
+// the two source messages distinct: menu_headings and parseoptions() name the
+// value-bearing form, while spcfn_misc_menu_cmd() passes FALSE and says only
+// that the option may not be negated.
+function bad_negation(result, optname, withParameter = true) {
     configErrorAdd(
         result,
-        `The ${optname} option may not both have a value and be negated.`,
+        `The ${optname} option may not ${withParameter
+            ? 'both have a value and ' : ''}be negated.`,
     );
 }
 
@@ -5170,7 +5371,10 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     } else if (name === 'menuinvertmode') {
         optfn_menuinvertmode(result, value);
     } else if (name === 'menu_headings') {
-        setMenuHeadings(result, value, negated);
+        optfn_menu_headings(
+            result, allopt.indexOf(matchedRow), DO_SET, negated,
+            statement, value ?? '', null,
+        );
     } else if (name === 'petattr') {
         setPetAttribute(result, statement);
     } else if (name === 'hilite_status') {
@@ -5178,7 +5382,10 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     } else if (name === 'statushilites') {
         setStatusHiliteDuration(result, value, negated);
     } else if (menuCommand && parsedName === name) {
-        setMenuCommandOption(result, menuCommand, statement);
+        MENU_OPTION_FUNCTIONS[name](
+            result, allopt.indexOf(matchedRow), DO_SET, negated,
+            statement, value ?? '', null,
+        );
     } else if (menuCommand || isMenuCommandPrefix(parsedName)) {
         optionError(
             lineNumber,
@@ -6550,8 +6757,9 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     ),
     // strNsubst(ca_buf, " ", "-", 0) replaces every space, so a two-word
     // color or attribute name becomes hyphenated.
-    menu_headings: (state) => color_attr_to_str(state.iflags.menu_headings)
-        .replaceAll(' ', '-'),
+    menu_headings: (state, option) => optfn_menu_headings(
+        state, allopt.indexOf(option), GET_VAL, false, '', '', null,
+    ),
     menu_objsyms: (state) => objsymvals[state.iflags.menuobjsyms],
     menuinvertmode: (state) => `${state.iflags.menuinvertmode}`,
     menustyle: (state) => menutype[state.flags.menu_style],
@@ -6732,6 +6940,12 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     o_message_types: (state) => n_currently_set(msgtype_count(state)),
     o_status_cond: (state) => n_currently_set(count_cond(state)),
     o_status_hilites: (state) => n_currently_set(count_status_hilites(state)),
+    ...Object.fromEntries(MENU_COMMAND_OPTIONS.map(({ name }) => [
+        name,
+        (state, option) => MENU_OPTION_FUNCTIONS[name](
+            state, allopt.indexOf(option), GET_VAL, false, '', '', null,
+        ),
+    ])),
 });
 
 // C ref: optfn_symset() and optfn_roguesymset(), which differ only in the set
@@ -6932,6 +7146,7 @@ export function dosetMenuItems(state, helpers, skiphelp) {
 // other two stop with a refusal below.  parseoptions() treats it as every
 // other error anyway.  The configuration-file parser above does port the
 // negation arm at 5220, in optfn_boolean_returns_before_setting().
+const optn_silenterr = -1;
 const optn_err = 0;
 const optn_ok = 1;
 
@@ -7385,6 +7600,26 @@ async function optfn_pickup_types(state, optidx, negated, opts, helpers) {
     return parsed.badopt ? optn_err : optn_ok;
 }
 
+function setMenuOptionFromParse(state, optidx, negated, opts, helpers) {
+    const name = allopt[optidx].name;
+    const optfn = MENU_OPTION_FUNCTIONS[name];
+    if (!optfn) throw new UnsupportedOptionMenuError(`optfn_${name}()`);
+    return optfn(
+        state,
+        optidx,
+        DO_SET,
+        negated,
+        opts,
+        string_for_opt(opts, true, state),
+        helpers,
+    );
+}
+
+const MENU_OPTION_SET_HANDLERS = Object.freeze(Object.fromEntries([
+    ...MENU_COMMAND_OPTIONS.map(({ name }) => name),
+    'menu_headings',
+].map((name) => [name, setMenuOptionFromParse])));
+
 // C ref: options.c parseoptions() (489-681)'s handler table, C's
 // allopt[optidx].optfn(optidx, do_set, ...).  The key is that function's own
 // name, as OPTION_VALUE_HANDLERS' keys are.
@@ -7394,6 +7629,7 @@ const OPTION_SET_HANDLERS = Object.freeze({
         state, negated, opts,
     ),
     pickup_types: optfn_pickup_types,
+    ...MENU_OPTION_SET_HANDLERS,
 });
 
 // C ref: options.c parseoptions() (489-681), the path doset()'s pick loop
@@ -7502,6 +7738,7 @@ async function handler_pickup_types(state, helpers) {
 // on the handler's own option, as OPTION_SET_HANDLERS is.
 const OPTION_HANDLERS = Object.freeze({
     pickup_types: handler_pickup_types,
+    menu_headings: (state, helpers) => handler_menu_headings(state, helpers),
 });
 
 // C ref: options.c reset_needed_visuals() (8977-9010), which doset() runs once

@@ -37,7 +37,9 @@ import {
     ARROW, FOOD_CLASS, RING_CLASS, ROCK, ROCK_CLASS, WAND_CLASS, WEAPON_CLASS,
 } from '../js/objects.js';
 import { S_darkroom, S_room, SYM_OFF_X } from '../js/symbols.js';
-import { ATR_INVERSE, ATR_NONE, NO_COLOR } from '../js/terminal.js';
+import {
+    ATR_BOLD, ATR_INVERSE, ATR_NONE, CLR_RED, NO_COLOR,
+} from '../js/terminal.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import { selectTtyMenu } from '../js/tty_menu.js';
 import { cansee, vision_recalc } from '../js/vision.js';
@@ -104,6 +106,33 @@ function optionIndex(name) {
 function menuValue(name) {
     return optionIndex(name) + 2;
 }
+
+test('menu_headings handler queries color then attribute and refreshes style',
+    async () => {
+        const state = await startStockGame();
+        const querySpecs = [];
+        const helpers = {
+            headingStyle: { attr: ATR_INVERSE, color: NO_COLOR },
+            countBindKeys: () => 0,
+            menu: (_items, prompt, how) => {
+                assert.equal(prompt, 'Set what options?');
+                assert.equal(how, PICK_ANY);
+                return [{ value: menuValue('menu_headings') }];
+            },
+            selectMenu: (spec) => {
+                querySpecs.push(spec);
+                return querySpecs.length === 1 ? CLR_RED : ATR_BOLD;
+            },
+        };
+
+        await doset(state, helpers);
+        assert.equal(querySpecs.length, 2);
+        assert.equal(querySpecs[0].title, 'How to highlight menu headings:');
+        assert.equal(querySpecs[1].title, 'How to highlight menu headings:');
+        assert.equal(state.iflags.menu_headings.color, CLR_RED);
+        assert.equal(state.iflags.menu_headings.attr, ATR_BOLD);
+        assert.equal(state.go.opt_need_promptstyle, false);
+    });
 
 // `classPicks` answers choose_classes_menu()'s window, which
 // handler_pickup_types() opens from inside the pick loop; `picks` answers

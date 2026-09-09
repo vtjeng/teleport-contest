@@ -10,6 +10,20 @@ import {
     check_misc_menu_command,
     finishStartupBooleanOptions,
     getoptstr,
+    optfn_menu_deselect_all,
+    optfn_menu_deselect_page,
+    optfn_menu_first_page,
+    optfn_menu_invert_all,
+    optfn_menu_invert_page,
+    optfn_menu_last_page,
+    optfn_menu_next_page,
+    optfn_menu_previous_page,
+    optfn_menu_search,
+    optfn_menu_select_all,
+    optfn_menu_select_page,
+    optfn_menu_shift_left,
+    optfn_menu_shift_right,
+    optfn_menu_headings,
     optionAliasTarget,
     opt2roleopt,
     parseNethackrc,
@@ -114,6 +128,53 @@ test('options.c core pure helpers preserve table and phase semantics', () => {
     assert.equal(getoptstr(parsed, 3, 3), 'Healer');
     assert.equal(getoptstr(parsed, 3, 7), 'Healer');
     assert.equal(getoptstr(parsed, 4, 3), null);
+});
+
+// C refs: options.c shared_menu_optfn() (2052-2068), its thirteen forwarding
+// wrappers (2071-2180), and optfn_menu_headings() (2182-2212). These source-
+// pinned calls cover every request arm that is pure: initialization is a
+// no-op, menu-command values use the shared placeholder, and the confirmation
+// value is empty. The headings getter is pinned to coloratt.c's spelling.
+test('options menu selection handlers preserve their source request arms', () => {
+    const wrappers = [
+        optfn_menu_deselect_all,
+        optfn_menu_deselect_page,
+        optfn_menu_first_page,
+        optfn_menu_invert_all,
+        optfn_menu_invert_page,
+        optfn_menu_last_page,
+        optfn_menu_next_page,
+        optfn_menu_previous_page,
+        optfn_menu_search,
+        optfn_menu_select_all,
+        optfn_menu_select_page,
+        optfn_menu_shift_left,
+        optfn_menu_shift_right,
+    ];
+    for (const handler of wrappers) {
+        assert.equal(handler(null, 0, 1, false, '', ''), 1);
+        assert.equal(handler(null, 0, 4, false, '', ''), '(to be done)');
+        assert.equal(handler(null, 0, 5, false, '', ''), '');
+    }
+
+    const parsed = parseNethackrc('');
+    const optidx = allopt.findIndex((option) => option.name === 'menu_headings');
+    assert.equal(optfn_menu_headings(
+        parsed, optidx, 1, false, '', '',
+    ), 1);
+    assert.equal(optfn_menu_headings(
+        parsed, optidx, 2, false, 'menu_headings:red&bold', 'red&bold',
+    ), 1);
+    assert.deepEqual(parsed.iflags.menu_headings, {
+        color: CLR_RED,
+        attr: ATR_BOLD,
+    });
+    assert.equal(optfn_menu_headings(
+        parsed, optidx, 4, false, '', '',
+    ), 'red&bold');
+    assert.equal(optfn_menu_headings(
+        parsed, optidx, 5, false, '', '',
+    ), 'red&bold');
 });
 
 test('startup option defaults use source role indices and zero roleplay', () => {

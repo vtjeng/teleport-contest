@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7320151,
+      "datetime": "20310817091500",
+      "nethackrc": "OPTIONS=name:MenuHeadingSpan,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": " mO     d\rbb",
+      "comment": "Reaches options.c handler_menu_headings(): full options page 6 selects menu_headings, then the color and attribute PICK_ONE menus choose red and bold."
+    }
+  ]
+}
