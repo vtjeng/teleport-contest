@@ -51,12 +51,13 @@ import {
 } from './const.js';
 import { acurr } from './attrib.js';
 import { artifact_defends } from './artifacts.js';
+import { def_char_to_monclass } from './drawing.js';
 // grounded() below reads has_ceiling(). The two files already reach each other
 // through js/shk.js and js/display.js, and both sides use the other's exports
 // only inside function bodies, so this direct edge resolves the same way.
 import { has_ceiling } from './dungeon.js';
 import { game } from './gstate.js';
-import { dist2, highc } from './hacklib.js';
+import { dist2, highc, strstri } from './hacklib.js';
 import * as M from './monsters.js';
 import {
     ALCHEMY_SMOCK,
@@ -64,8 +65,11 @@ import {
     CREAM_PIE,
 } from './objects.js';
 import { rn2, rnd } from './rng.js';
+import { makesingular } from './fruit.js';
 import { genders, roles } from './roles.js';
 import { is_fshk } from './shk.js';
+import { MONSTER_CLASS_EXPLANATIONS } from './symbol_data.js';
+import { MAXMCLASSES } from './symbols.js';
 // monstunseesu() below reads m_canseeu(), which reads perceives() from this
 // file; the two modules reach each other the way this file and js/dungeon.js
 // already do, and neither side uses the other's exports at module scope.
@@ -964,6 +968,70 @@ export function name_to_mon(in_str, env = {}) {
     return name_to_monplus(in_str, env).mnum;
 }
 
+// C ref: mondata.c name_to_monclass() (1090-1180). `mndxRef` models the
+// optional output pointer: it is initialized to NON_PM, then receives a
+// concrete monster index for a worm-tail alias or an individual species.
+export function name_to_monclass(in_str, mndxRef = null, env = {}) {
+    const state = env.state ?? game;
+    if (mndxRef) mndxRef.value = M.NON_PM;
+    if (!in_str) return 0;
+
+    const text = String(in_str);
+    if (text.length === 1) {
+        let monsterClass = def_char_to_monclass(text);
+        if (monsterClass === M.S_MIMIC_DEF) {
+            monsterClass = M.S_MIMIC;
+        } else if (monsterClass === M.S_WORM_TAIL) {
+            monsterClass = M.S_WORM;
+            if (mndxRef) mndxRef.value = M.PM_LONG_WORM;
+        } else if (monsterClass === MAXMCLASSES) {
+            monsterClass = text === 'I' ? M.S_invisible : 0;
+        }
+        return monsterClass;
+    }
+
+    if (text.toLowerCase() === 'long') return 0;
+    const singular = makesingular(text);
+    if (['an', 'the', 'or', 'other', 'or other'].some(
+        (word) => singular.toLowerCase() === word,
+    )) return 0;
+
+    const trueMatches = new Map([
+        ['long worm', { value: M.PM_LONG_WORM }],
+        ['demon', { monsterClass: M.S_DEMON }],
+        ['devil', { monsterClass: M.S_DEMON }],
+        ['bug', { monsterClass: M.S_XAN }],
+        ['fish', { monsterClass: M.S_EEL }],
+    ]);
+    const special = trueMatches.get(singular.toLowerCase());
+    if (special) {
+        if (special.value !== undefined) {
+            if (mndxRef) mndxRef.value = special.value;
+            return state.mons[special.value].mlet;
+        }
+        return special.monsterClass;
+    }
+
+    const length = singular.length;
+    for (let monsterClass = 1; monsterClass < MAXMCLASSES; ++monsterClass) {
+        const description = MONSTER_CLASS_EXPLANATIONS[monsterClass];
+        const match = strstri(description, singular);
+        if (match >= 0
+            && (match === 0 || description[match - 1] === ' ')
+            && (match + length === description.length
+                || description[match + length] === ' ')) {
+            return monsterClass;
+        }
+    }
+
+    const mndx = name_to_mon(singular, { state });
+    if (mndx !== M.NON_PM) {
+        if (mndxRef) mndxRef.value = mndx;
+        return state.mons[mndx].mlet;
+    }
+    return 0;
+}
+
 export function little_to_big(montype) {
     montype = monsterIndexOrNonPm(montype);
     for (const [little, big] of grownups) {
@@ -1290,7 +1358,6 @@ export function dead_species(m_idx, egg = false, env = {}) {
 //   can_blow               its hero branch reads Strangled, which callers
 //                           of the port do not exercise yet
 //   can_track               needs u_wield_art()
-//   name_to_monclass        needs def_monsyms[], makesingular(), strstri()
 
 // C ref: mondata.c can_be_strangled() (591-619). Strangulation is loss of
 // blood flow to the brain from neck constriction: headless creatures are immune

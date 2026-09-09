@@ -29,6 +29,7 @@ import {
     ARTICLE_NONE,
     ARTICLE_THE,
     BOLT_LIM,
+    QBUFSZ,
     BUSTDOOR,
     COLNO,
     CONFLICT,
@@ -53,6 +54,11 @@ import {
     STONE_RES,
     FULL_MOON,
     G_GENOD,
+    GPCOORDS_COMPASS,
+    GPCOORDS_COMFULL,
+    GPCOORDS_MAP,
+    GPCOORDS_NONE,
+    GPCOORDS_SCREEN,
     HALLUC,
     HALLUC_RES,
     MAGICAL_BREATHING,
@@ -119,6 +125,7 @@ import {
     SUPPRESS_NAME,
     AUGMENT_IT,
     TAINT_AGE,
+    thats_enough_tries,
     UNLOCKDOOR,
     WATER,
     LAVAPOOL,
@@ -152,6 +159,7 @@ import {
     Monnam,
     mon_pmname,
     monsterCommonName,
+    noit_mon_nam,
     oname,
     pmname,
     x_monnam,
@@ -189,15 +197,19 @@ import {
 } from './light.js';
 import { mkcorpstat } from './corpstat.js';
 import { change_luck } from './moveloop_preamble.js';
-import { freemcorpsenm, is_home_elemental } from './makemon.js';
+import {
+    freemcorpsenm,
+    is_home_elemental,
+    mkclass_poly,
+} from './makemon.js';
 import {
     count_wsegs,
     dmonsfree,
+    accept_newcham_form,
     makemon_runtime,
     mongone,
     newcham,
     newcham_distress,
-    pick_vampire_shape,
     preflight_newcham_distress,
     remove_worm,
     set_mimic_sym,
@@ -224,6 +236,7 @@ import {
     emits_light,
     flesh_petrifies,
     haseyes,
+    has_head,
     humanoid,
     hides_under,
     is_female,
@@ -258,7 +271,10 @@ import {
     monsndx,
     gender,
     needspick,
+    name_to_mon,
+    name_to_monclass,
     nohands,
+    notake,
     noncorporeal,
     nonliving,
     on_fire,
@@ -399,6 +415,7 @@ import {
     PM_STEAM_VORTEX,
     PM_STONE_GOLEM,
     PM_VAMPIRE,
+    PM_VAMPIRE_BAT,
     PM_VAMPIRE_LEADER,
     PM_VROCK,
     PM_VLAD_THE_IMPALER,
@@ -411,6 +428,7 @@ import {
     PM_WEREWOLF,
     PM_WHITE_DRAGON,
     PM_WHITE_UNICORN,
+    PM_WOLF,
     PM_WIZARD,
     PM_WIZARD_OF_YENDOR,
     PM_WRAITH,
@@ -420,12 +438,15 @@ import {
     MS_SHRIEK,
     S_EEL,
     S_ELEMENTAL,
+    S_BAT,
+    S_DOG,
     S_GHOST,
     S_HUMAN,
     S_KOP,
     S_LICH,
     S_MIMIC,
     S_VAMPIRE,
+    S_VORTEX,
     S_ZOMBIE,
     HIGH_PM,
     LOW_PM,
@@ -488,7 +509,7 @@ import {
     WOOD,
     SADDLE,
 } from './objects.js';
-import { makeplural } from './fruit.js';
+import { makeplural, mungspaces } from './fruit.js';
 import {
     distant_name,
     donameFresh,
@@ -520,10 +541,12 @@ import {
     unconscious,
     Flying,
     Levitation,
+    is_pool_or_lava,
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { mon_has_amulet } from './wizard.js';
+import { mon_has_amulet, mon_has_special } from './wizard.js';
+import { getlin } from './windows.js';
 import {
     cansee,
     canseemon,
@@ -2306,6 +2329,202 @@ function newchamDistressEnv(normalized) {
     };
 }
 
+function coordinateDescriptionForPrompt(x, y, state, mode) {
+    const dx = x - (state.u?.ux ?? 0);
+    const dy = y - (state.u?.uy ?? 0);
+    if (mode === GPCOORDS_MAP) return `<${x},${y}>`;
+    if (mode === GPCOORDS_SCREEN) {
+        return `[${String(y + 2).padStart(2, '0')},${String(x).padStart(2, '0')}]`;
+    }
+    const full = mode === GPCOORDS_COMFULL;
+    if (!dx && !dy) return '(here)';
+    if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) {
+        const vertical = dy < 0 ? 'north' : dy > 0 ? 'south' : '';
+        const horizontal = dx < 0 ? 'west' : dx > 0 ? 'east' : '';
+        return `(${vertical}${horizontal})`;
+    }
+    const parts = [];
+    if (dy) parts.push(`${Math.abs(dy)}${dy < 0
+        ? (full ? 'north' : 'n') : (full ? 'south' : 's')}`);
+    if (dx) parts.push(`${Math.abs(dx)}${dx < 0
+        ? (full ? 'west' : 'w') : (full ? 'east' : 'e')}`);
+    return `(${parts.join(',')})`;
+}
+
+// C ref: mon.c pickvampshape(). The initial form is selected from the true
+// vampire species, then a genocided result or a failed 25% shape-change roll
+// returns the true form. The Vlad special-item guard deliberately skips the
+// wolf and bat/fog draws, matching the fall-through structure in C.
+export function pickvampshape(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const uppercaseOnly = on_level(state.u?.uz, state.rogue_level);
+    let mndx = monster.cham;
+    let wolfchance = 10;
+    switch (monster.cham) {
+    case PM_VLAD_THE_IMPALER:
+        if (mon_has_special(monster)) break;
+        wolfchance = 3;
+        // FALLTHROUGH
+    case PM_VAMPIRE_LEADER:
+        if (!random.rn2(wolfchance) && !uppercaseOnly
+            && !is_pool_or_lava(monster.mx, monster.my, state)) {
+            mndx = PM_WOLF;
+            break;
+        }
+        // FALLTHROUGH
+    case PM_VAMPIRE:
+        mndx = !random.rn2(4) && !uppercaseOnly
+            ? PM_FOG_CLOUD : PM_VAMPIRE_BAT;
+        break;
+    default:
+        break;
+    }
+    const mvitals = state.svm?.mvitals ?? state.mvitals ?? [];
+    if ((mvitals[mndx]?.mvflags ?? 0) & G_GENOD
+        || (monster.data !== state.mons?.[monster.cham]
+            && !random.rn2(4))) {
+        return monster.cham;
+    }
+    return mndx;
+}
+
+// C ref: mon.c isspecmon(). Quest leader identity is stored separately from
+// the ordinary special-monster flags, so all four predicates remain visible.
+export function isspecmon(monster, state = game) {
+    const leaderId = state.svq?.quest_status?.leader_m_id;
+    return Boolean(monster.isshk || monster.ispriest || monster.isgd
+        || (Number.isInteger(monster.m_id)
+            && Number.isInteger(leaderId)
+            && monster.m_id === leaderId));
+}
+
+// C ref: mon.c validspecmon(). A special monster may only become a form that
+// has a head and does not reject taking items; ordinary forms use the shared
+// accept_newcham_form() catalog checks.
+export function validspecmon(monster, mndx, state = game) {
+    if (mndx === NON_PM) return true;
+    const species = accept_newcham_form(monster, mndx, state);
+    if (!species) return false;
+    if (isspecmon(monster, state)
+        && (notake(species) || !has_head(species))) return false;
+    return true;
+}
+
+// C ref: mon.c validvamp(). The mndxRef object carries C's int *mndx_p so
+// vampire class fallback can replace the requested form in place.
+export function validvamp(monster, mndxRef, monclass, state = game) {
+    if (!mndxRef || !Number.isInteger(mndxRef.value))
+        throw new TypeError('validvamp requires an mndx reference');
+    let mndx = mndxRef.value;
+    if (!is_vampshifter(monster)) return validspecmon(monster, mndx, state);
+    if (monster.cham === PM_VLAD_THE_IMPALER
+        && mon_has_special(monster)) {
+        mndxRef.value = PM_VLAD_THE_IMPALER;
+        return true;
+    }
+    if (ismnum(mndx) && is_shapeshifter(state.mons[mndx])) {
+        mndxRef.value = monster.cham;
+        return true;
+    }
+    if (mndx === PM_WOLF) return monster.cham !== PM_VAMPIRE;
+    if (mndx === PM_FOG_CLOUD || mndx === PM_VAMPIRE_BAT) return true;
+    switch (monclass) {
+    case S_VAMPIRE:
+        mndx = monster.cham;
+        break;
+    case S_BAT:
+        mndx = PM_VAMPIRE_BAT;
+        break;
+    case S_VORTEX:
+        mndx = PM_FOG_CLOUD;
+        break;
+    case S_DOG:
+        if (monster.cham !== PM_VAMPIRE) {
+            mndx = PM_WOLF;
+            break;
+        }
+        // FALLTHROUGH
+    default:
+        mndx = NON_PM;
+        break;
+    }
+    mndxRef.value = mndx;
+    return mndx !== NON_PM;
+}
+
+// C ref: mon.c wiz_force_cham_form(). The getlin operation is injected for
+// replay and unit tests; the normal caller reaches windows.c getlin().
+export async function wiz_force_cham_form(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne };
+    const input = rawEnv.getlin ?? getlin;
+    const message = rawEnv.message ?? ttyPline;
+    const mode = state.iflags?.getpos_coords === GPCOORDS_NONE
+        || state.iflags?.getpos_coords == null
+        ? GPCOORDS_MAP : state.iflags.getpos_coords;
+    let prompt = `Change ${noit_mon_nam(monster, state, rawEnv)}`;
+    const suffix = ` @ ${coordinateDescriptionForPrompt(
+        monster.mx,
+        monster.my,
+        state,
+        mode,
+    )} into what?`;
+    const promptLength = prompt.length + suffix.length;
+    if (promptLength >= QBUFSZ) {
+        prompt = prompt.slice(0, prompt.length - (promptLength - (QBUFSZ - 1)));
+    }
+    prompt += suffix;
+
+    let buf = '';
+    let prevbuf = '';
+    let monclass = 0;
+    let mndx = NON_PM;
+    let tryct = 5;
+    do {
+        if (tryct === 4
+            && prompt.length + ' kind of monster'.length < QBUFSZ) {
+            prompt = `${prompt.slice(0, -1)} kind of monster?`;
+        }
+        monclass = 0;
+        buf = mungspaces(await input(prompt, state));
+        if (buf === '\x1b') break;
+        if (buf === '*' || buf.toLowerCase() === 'random') {
+            mndx = NON_PM;
+            break;
+        }
+        const mndxRef = { value: name_to_mon(buf, { state }) };
+        mndx = mndxRef.value;
+        if (mndx === NON_PM) {
+            monclass = name_to_monclass(buf, mndxRef, { state });
+            mndx = mndxRef.value;
+            if (monclass && mndx === NON_PM) {
+                mndx = mkclass_poly(monclass, { state, random });
+                mndxRef.value = mndx;
+            }
+        }
+        if (ismnum(mndx) && validvamp(monster, mndxRef, monclass, state)) {
+            mndx = mndxRef.value;
+            break;
+        }
+        mndx = NON_PM;
+        await message("It can't become that.", state, rawEnv);
+    } while (--tryct > 0);
+    if (!tryct) await message(thats_enough_tries, state, rawEnv);
+    const finalRef = { value: mndx };
+    if (is_vampshifter(monster)
+        && !validvamp(monster, finalRef, monclass, state)) {
+        mndx = pickvampshape(monster, { state, random });
+    } else {
+        mndx = finalRef.value;
+    }
+    // EDIT_GETLIN is disabled in this build, so C's nhUse(prevbuf) branch is
+    // absent. Keep the local to document that the previous answer is scoped
+    // to that compile-time branch.
+    void prevbuf;
+    return mndx;
+}
+
 // C ref: mon.c decide_to_shapeshift(). The only naturally live initial-D:1
 // shifters are restored Mausoleum vampires with STRAT_WAITFORU, which exit
 // without RNG. The remaining empty-inventory chameleon/vampire cases are
@@ -2355,7 +2574,7 @@ export async function decide_to_shapeshift(monster, rawEnv = {}) {
                     state.u?.ux,
                     state.u?.uy,
                 ) > BOLT_LIM * BOLT_LIM)) {
-            const mndx = pick_vampire_shape(monster, shapeEnv);
+            const mndx = pickvampshape(monster, shapeEnv);
             if (ismnum(mndx)) {
                 target = state.mons[mndx];
                 change = target !== monster.data;

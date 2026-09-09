@@ -72,6 +72,7 @@ import {
     mon_knows_traps,
     monster_resists_element,
     name_to_mon,
+    name_to_monclass,
     name_to_monplus,
     needspick,
     noattacks,
@@ -327,6 +328,22 @@ test('name_to_monplus preserves remainder and canonical gender semantics', () =>
     assert.equal(name_to_monplus('wolves', { state }).remainder, 'es');
     assert.equal(name_to_monplus('energy vortices', { state }).remainder,
         'es');
+});
+
+test('name_to_monclass matches source class explanations and aliases', () => {
+    const state = monsterState(true);
+    const mndx = { value: 123 };
+
+    // mondata.c:1090-1180 and defsym.h MONSYM() explanations.
+    assert.equal(name_to_monclass('bat', mndx, { state }), M.S_BAT);
+    assert.equal(mndx.value, M.NON_PM);
+    assert.equal(name_to_monclass('long worm', mndx, { state }), M.S_WORM);
+    assert.equal(mndx.value, M.PM_LONG_WORM);
+    assert.equal(name_to_monclass('devil', mndx, { state }), M.S_DEMON);
+    assert.equal(name_to_monclass('fish', mndx, { state }), M.S_EEL);
+    assert.equal(name_to_monclass('the', mndx, { state }), 0);
+    assert.equal(name_to_monclass('not a monster class', mndx, { state }), 0);
+    assert.equal(mndx.value, M.NON_PM);
 });
 
 test('name_to_monplus covers every source alternate spelling in order', () => {

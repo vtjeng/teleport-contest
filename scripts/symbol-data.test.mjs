@@ -5,6 +5,7 @@ import test from 'node:test';
 import {
     DEFAULT_PRIMARY_SYMBOLS,
     DEFAULT_ROGUE_SYMBOLS,
+    MONSTER_CLASS_EXPLANATIONS,
     OBJCLASS_EXPLANATIONS,
     SYMBOL_INDEX_BY_NAME,
     CMAP_COLORS,
@@ -74,6 +75,10 @@ test('generated symbol layout matches the complete pinned defsym projection', ()
     assert.deepEqual(layout.rogueDefaults, DEFAULT_ROGUE_SYMBOLS);
     assert.deepEqual(layout.indices, SYMBOL_INDEX_BY_NAME);
     assert.deepEqual(layout.objectExplanations, OBJCLASS_EXPLANATIONS);
+    assert.deepEqual(
+        layout.monsterClassExplanations,
+        MONSTER_CLASS_EXPLANATIONS,
+    );
     assert.equal(DEFAULT_PRIMARY_SYMBOLS.length, SYM_MAX);
     assert.equal(DEFAULT_ROGUE_SYMBOLS.length, SYM_MAX);
 
@@ -110,6 +115,22 @@ test('generated symbol layout matches the complete pinned defsym projection', ()
             /["]|S_|_CLASS/u.test(text),
             false,
             `oclass ${index} carries source punctuation: ${text}`,
+        );
+    }
+
+    // drawing.c def_monsyms[].explain, which mondata.c name_to_monclass()
+    // matches before individual monster names. Entry 0 is the random-class
+    // placeholder; these rows pin both an ordinary class and a synonym-rich
+    // class that would otherwise be easy to parse too loosely.
+    assert.equal(MONSTER_CLASS_EXPLANATIONS[0], '');
+    assert.equal(MONSTER_CLASS_EXPLANATIONS[19], 'arachnid or centipede');
+    assert.equal(MONSTER_CLASS_EXPLANATIONS[28], 'bat or bird');
+    assert.equal(MONSTER_CLASS_EXPLANATIONS[60], 'mimic');
+    for (const [index, text] of MONSTER_CLASS_EXPLANATIONS.entries()) {
+        assert.equal(
+            /[" ]{2}|MONSYM|S_/u.test(text),
+            false,
+            `monster class ${index} carries source punctuation: ${text}`,
         );
     }
 });

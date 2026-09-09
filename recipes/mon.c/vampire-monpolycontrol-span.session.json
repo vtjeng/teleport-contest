@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises mon.c pickvampshape(), validspecmon(), validvamp(), and wiz_force_cham_form() through a wizard-controlled vampire lord. BLOCKED: makemon() is synchronous in js/makemon_create.js, so its initial newcham() cannot await wiz_force_cham_form(); record after that continuation is ported.",
+  "segments": [
+    {
+      "seed": 7800041,
+      "datetime": "20261102101500",
+      "nethackrc": "OPTIONS=name:VampControl,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,pettype:none,monpolycontrol,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": "  \u0007vampire lord\n............................................................   "
+    }
+  ]
+}

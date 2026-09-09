@@ -218,6 +218,8 @@ export const CMAP_COLORS = Object.freeze([8,7,7,7,7,7,7,7,7,7,7,7,7,3,3,3,3,6,2,
 
 export const OBJCLASS_EXPLANATIONS = Object.freeze(["","strange object","weapon","suit or piece of armor","ring","amulet","useful item (pick-axe, key, lamp...)","piece of food","potion","scroll","spellbook","wand","pile of coins","gem or rock","boulder or statue","iron ball","iron chain","splash of venom"]);
 
+export const MONSTER_CLASS_EXPLANATIONS = Object.freeze(["","ant or other insect","blob","cockatrice","dog or other canine","eye or sphere","cat or other feline","gremlin","humanoid","imp or minor demon","jelly","kobold","leprechaun","mimic","nymph","orc","piercer","quadruped","rodent","arachnid or centipede","trapper or lurker above","unicorn or horse","vortex","worm","xan or other mythical/fantastic insect","light","zruty","angelic being","bat or bird","centaur","dragon","elemental","fungus or mold","gnome","giant humanoid","invisible monster","jabberwock","Keystone Kop","lich","mummy","naga","ogre","pudding or ooze","quantum mechanic","rust monster or disenchanter","snake","troll","umber hulk","vampire","wraith","xorn","apelike creature","zombie","human or elf","ghost","golem","major demon","sea monster","lizard","long worm tail","mimic"]);
+
 function freezeDefinition(definition) {
     Object.freeze(definition.restrictions);
     Object.freeze(definition.bytes);
