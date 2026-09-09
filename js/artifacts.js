@@ -1741,7 +1741,7 @@ export async function Mb_hit(
                 }
             }
         } else {
-            if (rn2(2) && resist(mdef, WEAPON_CLASS, 0, NOTELL, state)) {
+            if (rn2(2) && await resist(mdef, WEAPON_CLASS, 0, NOTELL, state)) {
                 resisted = true;
             } else {
                 await monflee(mdef, 3, false, (mdef.mhp > dmgptr.value), state);

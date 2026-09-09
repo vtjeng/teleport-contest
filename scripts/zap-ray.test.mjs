@@ -15,6 +15,7 @@ import {
     ACID_RES,
     AC_VALUE,
     COLD_RES,
+    COULD_SEE,
     CORR,
     DISINT_RES,
     DOOR,
@@ -29,6 +30,7 @@ import {
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
+    IN_SIGHT,
     NOTELL,
     OBJ_FLOOR,
     LAVAPOOL,
@@ -101,6 +103,7 @@ import {
     zhitm,
     zhituLosehpArguments,
 } from '../js/zap.js';
+import { flash_mon, shieldeff_mon } from '../js/mon.js';
 import { mon_reflects } from '../js/muse.js';
 import {
     RAY_CASES,
@@ -1472,7 +1475,7 @@ test('miss() prints "The <str> misses <mon>." with verbose detail',
 // ---------------------------------------------------------------------------
 
 test('resist() uses monster MR against attack level and rolls rn2(100+alev-dlev)',
-    () => {
+    async () => {
     // A wand (oclass = WAND_CLASS) has attack level 12. A monster at level 5
     // with MR 50 resists when rn2(100 + 12 - 5) = rn2(107) < 50.
     const mon = {
@@ -1484,7 +1487,7 @@ test('resist() uses monster MR against attack level and rolls rn2(100+alev-dlev)
     const draws = [];
     const rng = { rn2: (bound) => { draws.push(bound); return 49; } };
     // rn2(107) = 49 < 50 => resisted
-    const result = resist(mon, WAND_CLASS, 10, NOTELL, game, rng);
+    const result = await resist(mon, WAND_CLASS, 10, NOTELL, game, rng);
     assert.equal(result, 1, 'rn2(107)=49 < MR 50 means the monster resists');
     assert.deepEqual(draws, [107],
         'resist() passes 100 + alev(12) - dlev(5) = 107 to rn2');
@@ -1492,7 +1495,7 @@ test('resist() uses monster MR against attack level and rolls rn2(100+alev-dlev)
     assert.equal(mon.mhp, 25, 'resisted damage is halved: (10+1)/2 = 5');
 });
 
-test('resist() does not halve damage when the roll exceeds MR', () => {
+test('resist() does not halve damage when the roll exceeds MR', async () => {
     const mon = {
         data: { mr: 50 },
         m_lev: 5,
@@ -1501,9 +1504,45 @@ test('resist() does not halve damage when the roll exceeds MR', () => {
     };
     // rn2(107) = 50 >= 50 => not resisted
     const rng = { rn2: (bound) => 50 };
-    const result = resist(mon, WAND_CLASS, 10, NOTELL, game, rng);
+    const result = await resist(mon, WAND_CLASS, 10, NOTELL, game, rng);
     assert.equal(result, 0, 'rn2(107)=50 >= MR 50 means no resistance');
     assert.equal(mon.mhp, 20, 'full damage 10 deducted without halving');
+});
+
+test('shieldeff_mon reports visible resistance after the shield gap', async () => {
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    const monster = game.level.monlist;
+    assert.ok(monster, 'the debug-wished ray fixture has a monster');
+    game.viz_array[monster.my][monster.mx] |= IN_SIGHT;
+    const messages = [];
+    await shieldeff_mon(monster, {
+        state: game,
+        message: async (text) => messages.push(text),
+    });
+    assert.equal(messages.length, 1,
+        'C shieldeff_mon() emits one visible resistance message');
+    assert.match(messages[0], /resists!$/u,
+        'the message keeps C\'s resistance suffix');
+    assert.ok(game.unported.has('display.c shieldeff'),
+        'display.c shieldeff() remains an explicit gap');
+});
+
+test('flash_mon restores the original vision byte before newsym()', async () => {
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    const monster = game.level.monlist;
+    assert.ok(monster, 'the debug-wished ray fixture has a monster');
+    const original = game.viz_array[monster.my][monster.mx];
+    flash_mon(monster, game);
+    assert.equal(game.viz_array[monster.my][monster.mx], original,
+        'mon.c flash_mon() restores saveviz after the flash');
+    assert.ok(game.unported.has('display.c flash_glyph_at'),
+        'display.c flash_glyph_at() remains an explicit gap');
+    assert.equal(IN_SIGHT | COULD_SEE, 3,
+        'vision.h assigns IN_SIGHT=2 and COULD_SEE=1 before the temporary OR');
 });
 
 // ---------------------------------------------------------------------------

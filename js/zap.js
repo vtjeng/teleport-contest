@@ -239,6 +239,7 @@ import { body_part, rehumanize } from './polyself.js';
 import { healup } from './potion.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import {
+    shieldeff_mon,
     monkilled,
     normal_shape,
     pm_to_cham,
@@ -814,7 +815,7 @@ export async function miss(str, mtmp, state = game) {
 // monster's HP (halved if resisted) and kills the monster if HP drops to zero.
 // When `tell` is truthy (TELL = 1), shows a shield effect and "<monster>
 // resists!" message; when falsy (NOTELL = 0), silent.
-export function resist(mtmp, oclass, damage, tell, state = game, random = { rn2 }) {
+export async function resist(mtmp, oclass, damage, tell, state = game, random = { rn2 }) {
     /* fake players always pass resistance test against Conflict */
     if (oclass === RING_CLASS && !damage && !tell && is_mplayer(mtmp.data))
         return 1;
@@ -838,12 +839,7 @@ export function resist(mtmp, oclass, damage, tell, state = game, random = { rn2 
     const resisted = random.rn2(100 + alev - dlev) < (mtmp.data?.mr ?? 0);
     if (resisted) {
         if (tell) {
-            // shieldeff_mon(): shieldeff() animation plus "resists!" message.
-            // shieldeff() is a tmp_at() animation with no game-state or RNG
-            // effect. The message needs capitalizedMonsterName (Monnam).
-            throw new UnsupportedZapError(
-                'shieldeff_mon() for a monster that resists with tell=TELL',
-            );
+            await shieldeff_mon(mtmp, { state });
         }
         damage = Math.trunc((damage + 1) / 2);
     }
@@ -940,7 +936,7 @@ export async function zhitm(mon, type, nd, state = game, random = { d, rn2 }) {
     // For wand zaps (type 0-9), is_hero_spell is false so this never fires.
     // resist() halves damage for a wand zap (type < ZT_SPELL(0) = 10)
     if (tmp > 0 && type >= 0
-        && resist(mon, type < 10 /* ZT_SPELL(0) */
+        && await resist(mon, type < 10 /* ZT_SPELL(0) */
             ? WAND_CLASS : 0 /* '\0' */, 0, NOTELL, state, random))
         tmp = Math.trunc(tmp / 2);
     if (tmp < 0) tmp = 0; /* don't allow negative damage */
@@ -2335,7 +2331,7 @@ export async function cancel_monst(
     // Resistance check
     if (youdefend
         ? (!youattack && Antimagic_cancel(state))
-        : resist(mdef, obj?.oclass ?? 0, 0, NOTELL, state))
+        : await resist(mdef, obj?.oclass ?? 0, 0, NOTELL, state))
         return false; /* resisted cancellation */
 
     if (self_cancel) {

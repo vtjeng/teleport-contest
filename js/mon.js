@@ -32,6 +32,7 @@ import {
     QBUFSZ,
     BUSTDOOR,
     COLNO,
+    COULD_SEE,
     CONFLICT,
     CORPSTAT_BURIED,
     CORPSTAT_FEMALE,
@@ -133,6 +134,7 @@ import {
     ROWNO,
     FEMALE,
     FAINTED,
+    IN_SIGHT,
     MALE,
     W_AMUL,
     W_SADDLE,
@@ -151,6 +153,7 @@ import { artifact_exists, artifactTouchable } from './artifacts.js';
 import { night } from './calendar.js';
 import {
     glyph_is_invisible,
+    map_monster_glyph_info,
     newsym,
     unmap_object,
 } from './display.js';
@@ -5625,4 +5628,48 @@ export async function usmellmon(mdat, rawEnv = {}) {
         }
     }
     return given;
+}
+
+// C ref: mon.c shieldeff_mon() (6058-6065). A monster's magic resistance
+// always invokes the shield animation first; the visible message is the only
+// non-display effect owned by this file. display.c shieldeff() remains a gap,
+// so record that call without manufacturing its glyph frames or delays.
+export async function shieldeff_mon(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    note_unported('display.c shieldeff');
+    if (!cansee(mtmp.mx, mtmp.my, state)) return;
+
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    await message(
+        messageAt(
+            `${Monnam(mtmp, state, rawEnv)} resists!`,
+            mtmp.mx,
+            mtmp.my,
+            state,
+        ),
+        state,
+        rawEnv,
+    );
+}
+
+// C ref: mon.c flash_mon() (6067-6089). The temporary vision bits make the
+// monster's square drawable while flash_glyph_at() alternates its glyph; the
+// bits are restored before newsym() redraws the remembered square. The
+// display.c flash_glyph_at() animation is not ported, but its mon_to_glyph()
+// argument is still evaluated because it can consume display-RNG draws under
+// hallucination.
+export function flash_mon(mtmp, state = game) {
+    const mx = mtmp.mx;
+    const my = mtmp.my;
+    let count = couldsee(mx, my, state) ? 8 : 4;
+    const saveviz = state.viz_array[my][mx];
+
+    if (!state.flags?.sparkle) count = Math.trunc(count / 2);
+    state.viz_array[my][mx] |= IN_SIGHT | COULD_SEE;
+    map_monster_glyph_info(mtmp, state); // mon_to_glyph(mtmp, newsym_rn2)
+    void count; // flash_glyph_at() is the recorded display.c gap.
+    note_unported('display.c flash_glyph_at');
+    state.viz_array[my][mx] = saveviz;
+    newsym(mx, my);
 }

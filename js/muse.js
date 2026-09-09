@@ -143,7 +143,7 @@ import { grow_up, rndmonst, set_malign } from './makemon.js';
 import { m_next2u } from './mhitu.js';
 import {
     healmon, m_carrying, maybe_unhide_at, mon_offmap, mondead, monkilled,
-    seemimic, wakeup, xkilled, is_Vlad,
+    seemimic, wakeup, xkilled, is_Vlad, flash_mon,
 } from './mon.js';
 import {
     acidic, attacktype, attacktype_fordmg, breathless, dmgtype, has_head, haseyes, is_animal,
@@ -497,8 +497,7 @@ async function mreadmsg(mtmp, otmp, state) {
             `${x_monnam(mtmp, ARTICLE_A, null, mflags, false, state)} `
             + `${blindbuf}.`, state);
         if (heardRead) await ttyPline(heardRead, state);
-        if (tpindicator)
-            note_unported('display.c flash_mon');
+        if (tpindicator) flash_mon(mtmp, state);
     }
     if (mtmp.mconf) /* (note: won't get if not seen and hero can't hear) */
         await ttyPline(
@@ -2162,7 +2161,7 @@ async function mbhitm(mtmp, otmp, state) {
         } else if (rnd(20) < 10 + find_mac(mtmp, state)) {
             const tmp = d(2, 12);
             await hit('wand', mtmp, exclam(tmp), state);
-            resist(mtmp, otmp.oclass, tmp, TELL, state);
+            await resist(mtmp, otmp.oclass, tmp, TELL, state);
             learnit = true;
         } else {
             await miss('wand', mtmp, state);
@@ -2213,7 +2212,7 @@ async function mbhitm(mtmp, otmp, state) {
                    so that mbhito() will skip it instead of reviving it */
                 state.context ??= {};
                 state.context.bypasses = true;
-                resist(mtmp, O.WAND_CLASS, rnd(8), NOTELL, state);
+                await resist(mtmp, O.WAND_CLASS, rnd(8), NOTELL, state);
             }
             if (wake) {
                 if (mtmp.mhp >= 1) /* !DEADMONSTER */
