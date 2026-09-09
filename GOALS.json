@@ -17773,6 +17773,92 @@
         "from": 4431,
         "to": 4648
       }
+    },
+    {
+      "id": "port-mon-pickvampshape-newcham",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mon.c vampire-shape selection and transformation helpers",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0383-wizard-hallucinate"
+      ],
+      "detail": "",
+      "spans": [],
+      "openedAt": "541fbfb6c1480eb65d6beeee295db0e55d1b2038",
+      "openStanding": {
+        "sha": "236a4976",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "pickvampshape",
+          "line": 4941,
+          "endLine": 4982,
+          "ported": false
+        },
+        {
+          "name": "isspecmon",
+          "line": 4983,
+          "endLine": 4992,
+          "ported": false
+        },
+        {
+          "name": "validspecmon",
+          "line": 4993,
+          "endLine": 5014,
+          "ported": false
+        },
+        {
+          "name": "valid_vampshiftform",
+          "line": 5015,
+          "endLine": 5027,
+          "ported": true
+        },
+        {
+          "name": "validvamp",
+          "line": 5028,
+          "endLine": 5077,
+          "ported": false
+        },
+        {
+          "name": "wiz_force_cham_form",
+          "line": 5078,
+          "endLine": 5156,
+          "ported": false
+        },
+        {
+          "name": "select_newcham_form",
+          "line": 5157,
+          "endLine": 5228,
+          "ported": true
+        },
+        {
+          "name": "accept_newcham_form",
+          "line": 5229,
+          "endLine": 5255,
+          "ported": true
+        },
+        {
+          "name": "mgender_from_permonst",
+          "line": 5256,
+          "endLine": 5277,
+          "ported": true
+        },
+        {
+          "name": "newcham",
+          "line": 5278,
+          "endLine": 5545,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 4941,
+        "to": 5545
+      }
     }
   ]
 }
