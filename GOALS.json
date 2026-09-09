@@ -15976,6 +15976,36 @@
             "get_changed_key_binds",
             "handler_rebind_keys_add"
           ]
+        },
+        {
+          "name": "handler_rebind_keys..mcmd_addmenu",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "handler_rebind_keys",
+            "handler_change_autocompletions",
+            "bind_key_fn",
+            "commands_init",
+            "ext_func_tab_from_func",
+            "cmd_from_dir",
+            "cmd_from_func",
+            "cmd_from_ecname",
+            "ecname_from_fn",
+            "cmdname_from_func",
+            "bind_specialkey",
+            "spkey_name",
+            "all_options_autocomplete",
+            "lock_mouse_buttons",
+            "reset_commands",
+            "update_rest_on_space",
+            "random_response",
+            "rnd_extcmd_idx",
+            "reset_cmd_vars",
+            "directionname",
+            "doherecmdmenu",
+            "dotherecmdmenu",
+            "mcmd_addmenu"
+          ]
         }
       ],
       "openedAt": "52f3a156bd9f18f96e70ebe395fbbd3e42c4e8ce",
