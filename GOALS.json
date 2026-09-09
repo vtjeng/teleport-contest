@@ -17258,7 +17258,7 @@
     {
       "id": "port-mon-replmon-vamprises",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mon.c monster replacement, deallocation, and lifecycle helpers",
       "cFile": "mon.c",
       "sessions": [
@@ -17285,8 +17285,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e217a8670f530201c60d2b96d41f0fbcd9370116",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "replmon",
