@@ -63,6 +63,7 @@ import {
     has_mgivenname,
     has_oname,
     In_endgame,
+    Is_astralevel,
     I_SPECIAL,
     IS_WATERWALL,
     is_pit,
@@ -81,8 +82,10 @@ import {
     M_POISONGAS_OK,
     MFAST,
     MIGR_APPROX_XY,
+    MIGR_RANDOM,
     MON_DETACH,
     MON_ENDGAME_MIGR,
+    MON_OBLITERATE,
     MON_FLOOR,
     MON_LIMBO,
     MON_MIGRATING,
@@ -180,10 +183,11 @@ import {
 } from './light.js';
 import { mkcorpstat } from './corpstat.js';
 import { change_luck } from './moveloop_preamble.js';
-import { freemcorpsenm } from './makemon.js';
+import { freemcorpsenm, is_home_elemental } from './makemon.js';
 import {
     count_wsegs,
     dmonsfree,
+    mongone,
     newcham,
     newcham_distress,
     pick_vampire_shape,
@@ -396,10 +400,12 @@ import {
     PM_WHITE_DRAGON,
     PM_WHITE_UNICORN,
     PM_WIZARD,
+    PM_WIZARD_OF_YENDOR,
     PM_WRAITH,
     PM_WOOD_GOLEM,
     PM_YELLOW_DRAGON,
     S_EEL,
+    S_ELEMENTAL,
     S_GHOST,
     S_KOP,
     S_LICH,
@@ -494,6 +500,7 @@ import {
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
+import { mon_has_amulet } from './wizard.js';
 import {
     cansee,
     canseemon,
@@ -3019,8 +3026,8 @@ export function mon_leaving_level(mon, state = game, env = {}) {
 }
 
 // C ref: mon.c mnearto() (4019-4085). Put a monster at or near the requested
-// coordinate, optionally moving an occupant aside. Overcrowding itself is a
-// discarded-return dependency and remains an explicit gap at its call sites.
+// coordinate, optionally moving an occupant aside. A failed destination
+// follows C's overcrowding recovery path.
 export function mnearto(monster, x, y, moveOther, rlocflags, state = game) {
     if (monster.mx === x && monster.my === y
         && m_at(x, y, state) === monster) return 1;
@@ -3038,7 +3045,7 @@ export function mnearto(monster, x, y, moveOther, rlocflags, state = game) {
     if (!goodpos(x, y, monster, 0, { state })) {
         destination = enexto(x, y, monster.data, { state });
         if (!destination || !isok(destination.x, destination.y)) {
-            if (other) note_unported('mon.c deal_with_overcrowding');
+            if (other) deal_with_overcrowding(other, state);
             return 0;
         }
     }
@@ -3046,7 +3053,7 @@ export function mnearto(monster, x, y, moveOther, rlocflags, state = game) {
 
     if (moveOther && other) {
         if (!mnearto(other, x, y, false, rlocflags, state))
-            note_unported('mon.c deal_with_overcrowding');
+            deal_with_overcrowding(other, state);
         return 2;
     }
     return 1;
@@ -4300,6 +4307,133 @@ export function migrate_mon(
         null,
         { ...env, state },
     );
+}
+
+// C ref: mon.c ok_to_obliterate() (3864-3874). These monsters must survive
+// an elemental-plane overcrowding purge: the Wizard, Riders, quest/minion
+// special records, and either monster attached to the hero.
+export function ok_to_obliterate(mtmp, state = game) {
+    if (mtmp.data?.pmidx === PM_WIZARD_OF_YENDOR
+        || is_rider(mtmp.data)
+        || has_emin(mtmp)
+        || has_epri(mtmp)
+        || has_eshk(mtmp)
+        || mtmp === state.u?.ustuck
+        || mtmp === state.u?.usteed) {
+        return false;
+    }
+    return true;
+}
+
+// C ref: mon.c elemental_clog() (3877-3952). This is deliberately kept
+// synchronous because mnexto() and the level-arrival callers are synchronous
+// in the port. C's You_feel() is a pline.c boundary; callers may provide a
+// synchronous message hook for tests, while ordinary gameplay records the
+// unported call rather than starting an un-awaited tty promise.
+let elementalClogMessageMove = 0;
+
+export function elemental_clog(mon, state = game, env = {}) {
+    if (!In_endgame(state.u?.uz)) return;
+
+    let m1 = null;
+    let m2 = null;
+    let m3 = null;
+    let m4 = null;
+    let m5 = null;
+    let mLevel = 0;
+    const random = env.random ?? { rn2 };
+
+    if (!elementalClogMessageMove
+        || (state.moves - elementalClogMessageMove) > 200) {
+        if (!elementalClogMessageMove || random.rn2(2)) {
+            if (typeof env.message === 'function') {
+                env.message('You feel besieged.', state, env);
+            } else {
+                note_unported('pline.c You_feel');
+            }
+        }
+        elementalClogMessageMove = state.moves;
+    }
+
+    for (let mtmp = state.level?.monlist ?? null;
+        mtmp;
+        mtmp = mtmp.nmon) {
+        if (mtmp.mhp < 1 || mtmp === mon) continue;
+        if (mtmp.mx === 0 && mtmp.my === 0) continue;
+        if (mon_has_amulet(mtmp) || !ok_to_obliterate(mtmp, state)) continue;
+
+        if (mtmp.data?.mlet === S_ELEMENTAL) {
+            if (!is_home_elemental(mtmp.data, state)) {
+                if (!m1) m1 = mtmp;
+            } else if (!m2) {
+                m2 = mtmp;
+            }
+        } else if (!mtmp.mtame) {
+            if (!mLevel || mtmp.m_lev < mLevel) {
+                mLevel = mtmp.m_lev;
+                m3 = mtmp;
+            } else if (!m4) {
+                m4 = mtmp;
+            }
+        } else {
+            if (!m5) m5 = mtmp;
+            break;
+        }
+    }
+
+    const target = m1 ?? m2 ?? m3 ?? m4 ?? m5;
+    if (target) {
+        const mx = target.mx;
+        const my = target.my;
+        target.mstate = (target.mstate ?? 0) | MON_OBLITERATE;
+        mongone(target, { ...env, state });
+        // C intentionally relocates `mon`, not the monster just obliterated.
+        rloc_to(mon, mx, my, { ...env, state });
+    } else if (!Is_astralevel(state.u?.uz)) {
+        const destination = {
+            ...state.u.uz,
+            dlevel: state.u.uz.dlevel - 1,
+        };
+        const targetLev = ledger_no(destination, state);
+        mon.mstate = (mon.mstate ?? 0) | MON_ENDGAME_MIGR;
+        migrate_mon(mon, targetLev, MIGR_RANDOM, state, env);
+    }
+}
+
+// C ref: mon.c deal_with_overcrowding() (3986-3993). The two debugpline1()
+// calls are empty under this build's lint.h configuration; the state-changing
+// branches are the complete function body here.
+export function deal_with_overcrowding(mtmp, state = game, env = {}) {
+    if (In_endgame(state.u?.uz))
+        elemental_clog(mtmp, state, env);
+    else
+        m_into_limbo(mtmp, state, env);
+}
+
+// C ref: mon.c maybe_mnexto() (3997-4016). Unlike mnexto(), this helper
+// accepts only a square that is currently visible and preserves the grid bug's
+// no-diagonal restriction. The twenty attempts intentionally remain bounded.
+export function maybe_mnexto(mtmp, state = game, env = {}) {
+    const ptr = mtmp.data;
+    const diagok = !NODIAG(monsndx(ptr));
+    let tryct = 20;
+
+    do {
+        const coordinate = enexto(
+            state.u?.ux,
+            state.u?.uy,
+            ptr,
+            { ...env, state },
+        );
+        if (!coordinate) return;
+        if (couldsee(coordinate.x, coordinate.y, state)
+            && (diagok
+                || coordinate.x === mtmp.mx
+                || coordinate.y === mtmp.my)) {
+            rloc_to(mtmp, coordinate.x, coordinate.y, { ...env, state });
+            return;
+        }
+    } while (--tryct > 0);
 }
 
 // Hiding paths outside the ordinary eel action below are not translated.

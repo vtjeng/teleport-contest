@@ -119,7 +119,6 @@ import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { set_levltyp } from './terrain.js';
 import { deltrap, is_pool, maketrap, t_at } from './trap.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import {
     block_point,
     cansee,
@@ -356,10 +355,8 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
                 }
                 break;
             case 'monster':
-                if (!mnearto(contents.list, contents.x, contents.y, true,
-                             RLOC_NOMSG, state)) {
-                    note_unported('mon.c elemental_clog');
-                }
+                mnearto(contents.list, contents.x, contents.y, true,
+                         RLOC_NOMSG, state);
                 break;
             case 'hero': {
                 const occupying = m_at(contents.x, contents.y, state);

@@ -149,7 +149,11 @@ import {
     S_MIMIC,
     S_VAMPIRE,
 } from './monsters.js';
-import { maybe_unhide_at, set_ustuck } from './mon.js';
+import {
+    deal_with_overcrowding,
+    maybe_unhide_at,
+    set_ustuck,
+} from './mon.js';
 import { mksobj, sobj_at } from './obj.js';
 import {
     AMULET_OF_YENDOR,
@@ -1142,8 +1146,8 @@ export function rloc_to(monster, x, y, rawEnv = {}) {
     return monster;
 }
 
-// C ref: mon.c mnexto(). Overcrowding and wizard destination control remain
-// explicit subsystem seams; both are reached at their source call boundary.
+// C ref: mon.c mnexto(). Wizard destination control remains an explicit
+// environment seam; overcrowding now follows mon.c's helper by default.
 export function mnexto(monster, _rlocflags = 0, env = {}) {
     const normalized = teleportEnv(env);
     const { state } = normalized;
@@ -1161,6 +1165,8 @@ export function mnexto(monster, _rlocflags = 0, env = {}) {
     if (!coordinate) {
         if (typeof normalized.dealWithOvercrowding === 'function')
             normalized.dealWithOvercrowding(monster, normalized);
+        else
+            deal_with_overcrowding(monster, state, normalized);
         return null;
     }
     if (state.iflags?.mon_telecontrol) {
