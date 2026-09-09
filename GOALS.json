@@ -17509,8 +17509,8 @@
       "spans": [
         {
           "name": "ok_to_obliterate..maybe_mnexto",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "1a44f855ae0fb7e8b2fe099ee88bfe213a04f023",
           "functions": [
             "ok_to_obliterate",
             "elemental_clog",
@@ -17532,13 +17532,13 @@
           "name": "ok_to_obliterate",
           "line": 3864,
           "endLine": 3877,
-          "ported": false
+          "ported": true
         },
         {
           "name": "elemental_clog",
           "line": 3878,
           "endLine": 3954,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mnexto",
@@ -17550,13 +17550,13 @@
           "name": "deal_with_overcrowding",
           "line": 3986,
           "endLine": 3998,
-          "ported": false
+          "ported": true
         },
         {
           "name": "maybe_mnexto",
           "line": 3999,
           "endLine": 4030,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
