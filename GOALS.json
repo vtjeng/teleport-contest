@@ -17362,6 +17362,122 @@
         "from": 2515,
         "to": 2996
       }
+    },
+    {
+      "id": "port-mon-anger-quest-guardians-migrate-mon",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mon.c monster death, stoning, and migration helpers",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0383-wizard-hallucinate"
+      ],
+      "detail": "",
+      "spans": [],
+      "openedAt": "fe1bc0c180b96010228ce5dcbbfdd5c32b79e7d6",
+      "openStanding": {
+        "sha": "e217a867",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "anger_quest_guardians",
+          "line": 3072,
+          "endLine": 3080,
+          "ported": false
+        },
+        {
+          "name": "mondead",
+          "line": 3081,
+          "endLine": 3180,
+          "ported": true
+        },
+        {
+          "name": "corpse_chance",
+          "line": 3181,
+          "endLine": 3252,
+          "ported": true
+        },
+        {
+          "name": "mondied",
+          "line": 3253,
+          "endLine": 3266,
+          "ported": true
+        },
+        {
+          "name": "mongone",
+          "line": 3267,
+          "endLine": 3286,
+          "ported": true
+        },
+        {
+          "name": "monstone",
+          "line": 3287,
+          "endLine": 3376,
+          "ported": false
+        },
+        {
+          "name": "monkilled",
+          "line": 3377,
+          "endLine": 3420,
+          "ported": true
+        },
+        {
+          "name": "set_ustuck",
+          "line": 3421,
+          "endLine": 3437,
+          "ported": true
+        },
+        {
+          "name": "unstuck",
+          "line": 3438,
+          "endLine": 3469,
+          "ported": true
+        },
+        {
+          "name": "killed",
+          "line": 3470,
+          "endLine": 3476,
+          "ported": true
+        },
+        {
+          "name": "xkilled",
+          "line": 3477,
+          "endLine": 3747,
+          "ported": true
+        },
+        {
+          "name": "mon_to_stone",
+          "line": 3748,
+          "endLine": 3765,
+          "ported": false
+        },
+        {
+          "name": "vamp_stone",
+          "line": 3766,
+          "endLine": 3833,
+          "ported": false
+        },
+        {
+          "name": "m_into_limbo",
+          "line": 3834,
+          "endLine": 3842,
+          "ported": false
+        },
+        {
+          "name": "migrate_mon",
+          "line": 3843,
+          "endLine": 3863,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 3072,
+        "to": 3863
+      }
     }
   ]
 }
