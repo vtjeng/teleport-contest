@@ -6,7 +6,6 @@ import test from 'node:test';
 import {
     CMDQ_DIR,
     CMDQ_INT,
-    CQ_REPEAT,
     CMDQ_USER_INPUT,
     CQ_CANNED,
     DIR_E,
