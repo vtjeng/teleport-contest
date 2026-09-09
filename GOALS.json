@@ -17669,6 +17669,92 @@
         "from": 4089,
         "to": 4401
       }
+    },
+    {
+      "id": "port-mon-normal-shape-restartcham",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mon.c monster shape restoration and iteration helpers",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0383-wizard-hallucinate"
+      ],
+      "detail": "",
+      "spans": [],
+      "openedAt": "e8e6604b20da339a6ae2edd3ed023d88b6ecd58a",
+      "openStanding": {
+        "sha": "337152e0",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "normal_shape",
+          "line": 4431,
+          "endLine": 4470,
+          "ported": false
+        },
+        {
+          "name": "alloc_itermonarr",
+          "line": 4471,
+          "endLine": 4499,
+          "ported": false
+        },
+        {
+          "name": "iter_mons_safe",
+          "line": 4500,
+          "endLine": 4526,
+          "ported": true
+        },
+        {
+          "name": "iter_mons",
+          "line": 4527,
+          "endLine": 4543,
+          "ported": false
+        },
+        {
+          "name": "get_iter_mons",
+          "line": 4544,
+          "endLine": 4561,
+          "ported": true
+        },
+        {
+          "name": "get_iter_mons_xy",
+          "line": 4562,
+          "endLine": 4595,
+          "ported": false
+        },
+        {
+          "name": "healmon",
+          "line": 4596,
+          "endLine": 4620,
+          "ported": true
+        },
+        {
+          "name": "rescham",
+          "line": 4621,
+          "endLine": 4626,
+          "ported": false
+        },
+        {
+          "name": "m_restartcham",
+          "line": 4627,
+          "endLine": 4639,
+          "ported": false
+        },
+        {
+          "name": "restartcham",
+          "line": 4640,
+          "endLine": 4648,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 4431,
+        "to": 4648
+      }
     }
   ]
 }
