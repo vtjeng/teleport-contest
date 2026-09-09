@@ -61,7 +61,7 @@ const DIRECTION_KEYS = Object.freeze({
 // NHKF_ESC is spelled here too even though spkeys_binds[] marks it "no
 // binding": reset_commands() copies every row, and bind_specialkey() declines
 // it only because the row carries a null name.
-const SOURCE_SPECIAL_KEY_DEFAULTS = Object.freeze({
+export const SOURCE_SPECIAL_KEY_DEFAULTS = Object.freeze({
     escape: '\x1B',
     'getdir.self': '.',
     'getdir.self2': 's',
@@ -162,6 +162,13 @@ function updateRestOnSpace(model, enabled) {
     model.restOnSpace = enabled;
 }
 
+// Source-named seams for cmd.c's update_rest_on_space() and reset_commands().
+// Keeping the binding mutations here preserves one owner for cmdbinds while
+// js/cmd.js supplies the surrounding Cmd state and serial-number bookkeeping.
+export function updateRestOnSpaceModel(model, enabled) {
+    updateRestOnSpace(model, enabled);
+}
+
 function resetCommandBindings(
     model,
     numberPadEnabled,
@@ -257,6 +264,15 @@ function resetCommandBindings(
     updateRestOnSpace(model, model.restOnSpace);
 }
 
+export function resetCommandBindingModel(
+    model,
+    numberPadEnabled,
+    numberPadMode,
+    initialSetup = false,
+) {
+    resetCommandBindings(model, numberPadEnabled, numberPadMode, initialSetup);
+}
+
 export function createCommandBindingModel(state) {
     const model = {
         bindings: [],
@@ -278,6 +294,7 @@ export function createCommandBindingModel(state) {
         phone: false,
         restOnSpace: false,
         unrestOnSpace: null,
+        mouseButtons: [null, null],
     };
     // extcmdlist[] stores its key as a byte, so these pairs bind it directly.
     for (const [keyCode, command] of SOURCE_EXTENDED_COMMAND_DEFAULTS) {

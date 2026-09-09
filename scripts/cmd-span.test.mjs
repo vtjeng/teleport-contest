@@ -1,4 +1,5 @@
-// Source-pinned tests for the cmd.c span doprev_message through do_run_east().
+// Source-pinned tests for the cmd.c spans through do_run_east() and
+// handler_rebind_keys through mcmd_addmenu().
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -19,12 +20,15 @@ import {
     ECMD_TIME,
     ECMD_OK,
     ECMD_CANCEL,
+    MV_WALK,
+    N_DIRS_Z,
     MAX_TYPE,
     ROOM,
     SCORR,
     SDOOR,
     TREE,
 } from '../js/const.js';
+import { AUTOCOMP_ADJ, AUTOCOMPLETE } from '../js/extcmdlist_data.js';
 import {
     cmdq_add_dir,
     cmdq_add_int,
@@ -60,11 +64,30 @@ import {
     cmdbind_swapkeys,
     get_changed_key_binds,
     bind_key,
+    bind_key_fn,
+    bind_specialkey,
+    cmd_from_dir,
+    cmd_from_ecname,
+    cmd_from_func,
+    cmdname_from_func,
+    commands_init,
+    directionname,
+    dotherecmdmenu,
+    doherecmdmenu,
+    ecname_from_fn,
+    all_options_autocomplete,
+    lock_mouse_buttons,
+    mcmd_addmenu,
+    reset_cmd_vars,
+    reset_commands,
+    spkey_name,
+    UnsupportedHeroCommandBoundaryError,
     dolookaround_floodfill_findroom,
     levltyp_to_name,
     u_have_seen_whole_selection,
 } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
+import { initialExtcmdFlags } from '../js/cmd_autocomplete.js';
 import { remove_achievement } from '../js/insight.js';
 import { toggle_bool_option } from '../js/options.js';
 import { selection_new } from '../js/themerooms.js';
@@ -206,6 +229,113 @@ test('repeat queue selection and command binding helpers follow cmd.c', async ()
     await get_changed_key_binds(sbuf, state);
     assert.match(sbuf.str, /BIND=Z:toggle\(example\)\n/u);
     assert.match(sbuf.str, /BIND=[^\n]+:nothing\n/u);
+});
+
+test('cmd.c command lookup helpers preserve binding order and source names', () => {
+    // cmd.c:2750-2784 initializes aliases; reset_commands() then installs the
+    // movement bindings that cmd_from_dir() reads.
+    const state = { flags: {}, iflags: {} };
+    reset_commands(true, state);
+    assert.equal(cmd_from_func('doextcmd', state), '#'.charCodeAt(0));
+    assert.equal(cmd_from_ecname('help', state), '?');
+    assert.equal(cmd_from_ecname('not-a-command', state), '');
+    assert.equal(ecname_from_fn('dohelp'), 'help');
+    assert.equal(cmd_from_dir(4, MV_WALK, state), 'l'.charCodeAt(0));
+
+    // cmd_from_func() skips a non-number-pad digit, then retains a control
+    // fallback only when no printable binding exists.
+    bind_key_fn(0x01, 'dohelp', state);
+    assert.equal(cmd_from_func('dohelp', state), '?'.charCodeAt(0));
+    const full = [];
+    assert.equal(cmdname_from_func('dohelp', full, true, state), 'help');
+    assert.deepEqual(full, ['help']);
+    assert.equal(cmdname_from_func('dohelp', [], false, state), 'hel');
+});
+
+test('special keys, autocomplete options, mouse locks, and source reset state', () => {
+    // cmd.c:3161-3224 keeps special navigation keys outside cmdbinds and
+    // refuses the nameless escape row as a bind target.
+    const state = { flags: {}, iflags: {}, extcmdFlags: initialExtcmdFlags() };
+    assert.equal(bind_specialkey(0x7F, 'getdir.self', state), true);
+    assert.equal(state.commandBindings.specialKeys['getdir.self'], 0x7F);
+    assert.equal(bind_specialkey(0x7F, 'escape', state), false);
+    assert.equal(spkey_name(0), 'escape');
+    assert.equal(spkey_name(1), 'getdir.self');
+    assert.equal(spkey_name(999), null);
+
+    const changedIndex = 0;
+    state.extcmdFlags[changedIndex] |= AUTOCOMP_ADJ | AUTOCOMPLETE;
+    const sbuf = { str: '' };
+    all_options_autocomplete(sbuf, state);
+    assert.match(sbuf.str, /AUTOCOMPLETE=#\n/u);
+
+    commands_init(state);
+    const before = [...state.commandBindings.mouseButtons];
+    lock_mouse_buttons(true, state);
+    assert.deepEqual(state.commandBindings.mouseButtons, [null, null]);
+    lock_mouse_buttons(false, state);
+    assert.deepEqual(state.commandBindings.mouseButtons, before);
+
+    state.iflags.num_pad = true;
+    state.iflags.num_pad_mode = 2;
+    reset_commands(false, state);
+    assert.equal(state.dirchars, '41236987><');
+    assert.equal(state.alphadirchars, 'hykulnjb><');
+    assert.equal(state.extcmd_char, '#'.charCodeAt(0));
+    assert.equal(state.serialno, 1);
+});
+
+test('reset_cmd_vars clears command-owned state and both queues', () => {
+    const state = {
+        context: {
+            run: 1, nopick: 1, forcefight: 1, move: 1, mv: 1,
+            travel: 1, travel1: 1,
+        },
+        domoveAttempting: 1,
+        multi: 7,
+        iflags: { menu_requested: true },
+        travelmap: { marker: true },
+        command_queue: [[{ typ: 1 }], [{ typ: 2 }]],
+    };
+    reset_cmd_vars(true, state);
+    assert.deepEqual(state.context, {
+        run: 0, nopick: 0, forcefight: 0, move: 0, mv: 0,
+        travel: 0, travel1: 0,
+    });
+    assert.equal(state.domoveAttempting, 0);
+    assert.equal(state.multi, 0);
+    assert.equal(state.iflags.menu_requested, false);
+    assert.equal(state.travelmap, null);
+    assert.deepEqual(state.command_queue, [[], []]);
+    state.command_queue = [[{ typ: 1 }], [{ typ: 2 }]];
+    reset_cmd_vars(false, state);
+    assert.deepEqual(state.command_queue, [[{ typ: 1 }], [{ typ: 2 }]]);
+});
+
+test('direction names, menu selectors, and command-menu result mapping follow C', async () => {
+    assert.equal(directionname(-1), 'invalid');
+    assert.equal(directionname(0), 'west');
+    assert.equal(directionname(N_DIRS_Z - 1), 'up');
+    assert.equal(directionname(N_DIRS_Z), 'invalid');
+    const menu = [];
+    assert.deepEqual(mcmd_addmenu(menu, 37, 'Look here'), {
+        value: 37, label: 'Look here',
+    });
+    assert.deepEqual(menu, [{ value: 37, label: 'Look here' }]);
+
+    const here = {
+        iflags: {},
+        clicklook_cc: { x: 3, y: 4 },
+        u: { ux: 3, uy: 4 },
+        hereCmdMenu: () => 'x'.charCodeAt(0),
+    };
+    assert.equal(await doherecmdmenu(here), ECMD_TIME);
+    assert.equal(await dotherecmdmenu(here), ECMD_TIME);
+    assert.deepEqual(here.clicklook_cc, { x: -1, y: -1 });
+    await assert.rejects(
+        doherecmdmenu({}),
+        UnsupportedHeroCommandBoundaryError,
+    );
 });
 
 test('levltyp_to_name follows the complete MAX_TYPE table', () => {

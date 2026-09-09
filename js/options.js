@@ -6690,7 +6690,7 @@ export async function toggle_bool_option(prefix, state) {
 //
 // C switches on optidx, the enum opt member; this switches on the option's
 // name, which the generator pins to the same array position.
-async function optfn_boolean(state, optidx, negated, opts) {
+async function optfn_boolean(state, optidx, negated, opts, helpers) {
     const option = allopt[optidx];
 
     /* silent retreat: the #ifdef arm that would have supplied storage for
@@ -6861,7 +6861,10 @@ async function optfn_boolean(state, optidx, negated, opts) {
         // options.c:5424-5425 calls cmd.c update_rest_on_space(), which
         // rebinds <space> in gc.Cmd.cmdbinds to a private #wait entry, or
         // back to whatever the RC file bound there.
-        throw new UnsupportedOptionMenuError('update_rest_on_space()');
+        if (typeof helpers?.updateRestOnSpace === 'function')
+            helpers.updateRestOnSpace(state);
+        else
+            throw new UnsupportedOptionMenuError('update_rest_on_space()');
     case 'accessiblemsg':
         // options.c:5427-5428 clears a11y.msg_loc.  This port stores no such
         // position: pline.c:162-164 clears it on every message, which is the
@@ -7148,7 +7151,8 @@ async function applyOptionMenuPick(state, option, helpers) {
         await parseoptions(state, buf, false, false, helpers);
     } else if (option.has_handler) {
         /* compound option */
-        const handler = OPTION_HANDLERS[option.optfn];
+        const handler = OPTION_HANDLERS[option.optfn]
+            ?? helpers?.optionHandlers?.[option.optfn];
         if (!handler) {
             throw new UnsupportedOptionMenuError(
                 `optfn_${option.optfn}()'s do_handler request`,

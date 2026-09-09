@@ -6,6 +6,9 @@ import {
     commandForKey,
     createCommandBindingModel,
     keyForCommand,
+    resetCommandBindingModel,
+    SOURCE_SPECIAL_KEY_DEFAULTS,
+    updateRestOnSpaceModel,
     visibleCommandKey,
 } from './command_bindings.js';
 import {
@@ -61,6 +64,7 @@ import {
     N_DIRS,
     N_DIRS_Z,
     Never_mind,
+    PICK_ANY,
     PICK_NONE,
     PICK_ONE,
     PARANOID_QUIT,
@@ -177,6 +181,7 @@ import {
 } from './engrave.js';
 import {
     AUTOCOMPLETE,
+    AUTOCOMP_ADJ,
     CMD_NOT_AVAILABLE,
     CMD_M_PREFIX,
     CMD_gGF_PREFIX,
@@ -190,6 +195,7 @@ import {
     extcmdlist,
 } from './extcmdlist_data.js';
 export { extcmds_match } from './cmd_autocomplete.js';
+import { initialExtcmdFlags, parseautocomplete } from './cmd_autocomplete.js';
 import {
     UnsupportedGetlinBoundaryError,
     tty_get_ext_cmd,
@@ -1768,36 +1774,6 @@ export function cmdq_clear(q, state = game) {
     commandQueue(state)[q].length = 0;
 }
 
-// C ref: cmd.c reset_cmd_vars(). Travel-map ownership stays with its future
-// subsystem; this resets the state already owned here.
-// context.pendingCommand is the JS retry owner rather than a C command
-// variable, so this reset deliberately preserves it until rhack() either
-// completes that command or reaches a non-retryable result.
-//
-// `resetCmdq` is C's parameter, and dropping it would break a canned
-// sequence: rhack() passes FALSE for a command that answered plain ECMD_OK
-// (3815, when gm.multi >= 0), which is exactly how dofire() returns after
-// queueing [doswapweapon, dofire], and TRUE everywhere else so a cancelled or
-// failed command discards the rest of the sequence.
-export function resetCommandVars(state = game, resetCmdq = true) {
-    state.context ??= {};
-    state.iflags ??= {};
-    state.context.run = 0;
-    state.context.nopick = 0;
-    state.context.forcefight = 0;
-    state.context.move = 0;
-    state.context.mv = 0;
-    state.context.travel = 0;
-    state.context.travel1 = 0;
-    state.domoveAttempting = 0;
-    state.multi = 0;
-    state.iflags.menu_requested = false;
-    if (resetCmdq) {
-        cmdq_clear(CQ_CANNED, state);
-        cmdq_clear(CQ_REPEAT, state);
-    }
-}
-
 // C ref: cmd.c set_move_cmd() (1386-1399), over the decl.c direction arrays
 // indexed by hack.h's DIR_* enum. Every do_move_<dir>, do_run_<dir> and
 // do_rush_<dir> handler calls it, and so do do.c dodown() and doup(), which
@@ -3329,6 +3305,11 @@ async function runOptionsCommand(key, state) {
         // already imports js/options.js, so importing this back would close
         // the cycle.
         countBindKeys: count_bind_keys,
+        optionHandlers: {
+            o_bind_keys: () => handler_rebind_keys(state),
+            o_autocomplete: () => handler_change_autocompletions(state),
+        },
+        updateRestOnSpace: () => update_rest_on_space(state),
     }));
 }
 
@@ -3585,6 +3566,425 @@ export async function handler_rebind_keys_add(keyfirst = false, state = game) {
     }
 }
 
+// C ref: cmd.c handler_rebind_keys() (2408-2451).  A PICK_ONE menu returns
+// the same integer selector that C stores in anything.a_int; the loop repeats
+// after each operation until the player dismisses the menu.
+export async function handler_rebind_keys(state = game) {
+    for (;;) {
+        const items = [
+            { value: 1, label: 'bind key to a command' },
+            { value: 2, label: 'bind command to a key' },
+        ];
+        if (count_bind_keys(state))
+            items.push({ value: 3, label: 'view changed key binds' });
+        const selected = await select_menu(state, {
+            items,
+            how: PICK_ONE,
+            title: 'Do what?',
+            cancelValue: null,
+            overlay: state.iflags?.menu_overlay !== false,
+        });
+        if (selected == null) return;
+        if (selected === 1 || selected === 2)
+            await handler_rebind_keys_add(selected === 1, state);
+        else if (selected === 3)
+            await get_changed_key_binds(null, state);
+    }
+}
+
+// C ref: cmd.c handler_change_autocompletions() (2453-2509).  The extcmd
+// index remains the selector value even though internal and unavailable rows
+// are omitted from the displayed menu.
+export async function handler_change_autocompletions(state = game) {
+    const flags = state.extcmdFlags ??= initialExtcmdFlags();
+    const items = [];
+    for (let index = 0; index < extcmdlist.length; ++index) {
+        const entry = extcmdlist[index];
+        const entryFlags = flags[index];
+        if (entryFlags & (INTERNALCMD | CMD_NOT_AVAILABLE)) continue;
+        if (entry.ef_txt.length < 2) continue;
+        items.push({
+            value: index + 1,
+            label: `${entryFlags & AUTOCOMP_ADJ ? '*' : ' '} ${entry.ef_txt}: ${entry.ef_desc}`,
+            selected: Boolean(entryFlags & AUTOCOMPLETE),
+        });
+    }
+    const picks = await select_menu(state, {
+        items,
+        how: PICK_ANY,
+        title: 'Which commands autocomplete?',
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+    if (picks == null) return;
+    const selected = new Set(Array.isArray(picks) ? picks : [picks]);
+    for (let index = 0; index < extcmdlist.length; ++index) {
+        const entry = extcmdlist[index];
+        const entryFlags = flags[index];
+        if (entryFlags & (INTERNALCMD | CMD_NOT_AVAILABLE)) continue;
+        if (entry.ef_txt.length < 2) continue;
+        parseautocomplete(
+            entry.ef_txt,
+            selected.has(index + 1),
+            state,
+        );
+    }
+}
+
+function handlerName(fn) {
+    if (typeof fn === 'string') return fn;
+    if (fn && typeof fn.ef_funct === 'string') return fn.ef_funct;
+    return typeof fn?.name === 'string' ? fn.name : null;
+}
+
+function controlKey(byte) {
+    return byte & 0x1F;
+}
+
+function metaKey(byte) {
+    return (byte | 0x80) & 0xFF;
+}
+
+function extcmdEntryForHandler(fn) {
+    const name = handlerName(fn);
+    return extcmdlist.find((entry) => entry.ef_funct === name) ?? null;
+}
+
+// C ref: cmd.c bind_key_fn() (3247-3267).  The JavaScript binding model uses
+// the extcmd name where C stores the function-table pointer.
+export function bind_key_fn(key, fn, state = game) {
+    const entry = extcmdEntryForHandler(fn);
+    if (!entry || (entry.flags & INTERNALCMD)) return false;
+    cmdbind_add(key, entry, false, state);
+    return true;
+}
+
+// C ref: cmd.c commands_init() (2750-2784).
+export function commands_init(state = game) {
+    const model = commandBindings(state);
+    for (const entry of extcmdlist) {
+        if (entry.key) cmdbind_add(entry.key, entry, false, state);
+    }
+    const there = extcmdlist.find((entry) => entry.ef_txt === 'therecmdmenu');
+    const clicklook = extcmdlist.find((entry) => entry.ef_txt === 'clicklook');
+    model.mouseButtons[0] = there?.ef_txt ?? null;
+    model.mouseButtons[1] = clicklook?.ef_txt ?? null;
+    for (const [key, command] of [
+        [controlKey('l'.charCodeAt(0)), 'redraw'],
+        ['h'.charCodeAt(0), 'help'],
+        ['j'.charCodeAt(0), 'jump'],
+        ['k'.charCodeAt(0), 'kick'],
+        ['l'.charCodeAt(0), 'loot'],
+        [controlKey('n'.charCodeAt(0)), 'annotate'],
+        ['N'.charCodeAt(0), 'name'],
+        ['u'.charCodeAt(0), 'untrap'],
+        ['5'.charCodeAt(0), 'run'],
+        [metaKey('5'.charCodeAt(0)), 'rush'],
+        ['-'.charCodeAt(0), 'fight'],
+        [metaKey('O'.charCodeAt(0)), 'overview'],
+        [metaKey('2'.charCodeAt(0)), 'twoweapon'],
+        [metaKey('N'.charCodeAt(0)), 'name'],
+    ]) bind_key(key, command, false, state);
+}
+
+// C ref: cmd.c ext_func_tab_from_func() (3016-3025).
+export function ext_func_tab_from_func(fn) {
+    return extcmdEntryForHandler(fn);
+}
+
+// C ref: cmd.c cmd_from_dir() (3030-3033).
+export function cmd_from_dir(dir, mode, state = game) {
+    return cmd_from_func(MOVE_FUNCS[dir]?.[mode], state);
+}
+
+// C ref: cmd.c cmd_from_func() (3036-3069).
+export function cmd_from_func(fn, state = game) {
+    const name = handlerName(fn);
+    const model = commandBindings(state);
+    let fallback = 0;
+    for (const binding of model.bindings) {
+        const key = binding.key & 0xFF;
+        if (key === 0x20) continue;
+        if (((key >= 0x30 && key <= 0x39)
+                || (key === 0x2D && name === 'do_fight'))
+            && !model.numPad) continue;
+        const entry = EXTCMD_BY_NAME.get(binding.command);
+        if (!entry || entry.ef_funct !== name) continue;
+        if (key >= 0x20 && key <= 0x7E) return key;
+        fallback = key;
+    }
+    const space = bindingAt(model.bindings, 0x20);
+    if (space && EXTCMD_BY_NAME.get(space.command)?.ef_funct === name)
+        return 0x20;
+    return fallback;
+}
+
+// C ref: cmd.c cmd_from_ecname() (3072-3090).
+export function cmd_from_ecname(ecname, state = game) {
+    const entry = extcmdlist.find((candidate) => candidate.ef_txt === ecname);
+    if (!entry) return '';
+    const key = cmd_from_func(entry.ef_funct, state);
+    return key ? visctrl(key) : '#' + ecname;
+}
+
+// C ref: cmd.c ecname_from_fn() (3093-3107).
+export function ecname_from_fn(fn) {
+    return extcmdEntryForHandler(fn)?.ef_txt ?? null;
+}
+
+function writeOutBuffer(outbuf, value) {
+    if (Array.isArray(outbuf)) outbuf[0] = value;
+    else if (outbuf && typeof outbuf === 'object') outbuf.value = value;
+}
+
+// C ref: cmd.c cmdname_from_func() (3110-3160).  The debugpline2() call has
+// no game-state effect; retain its source gap through the shared tracker.
+export function cmdname_from_func(fn, outbuf = [], fullname = false, state = game) {
+    const entry = extcmdEntryForHandler(fn);
+    if (!entry) {
+        writeOutBuffer(outbuf, '');
+        return '';
+    }
+    if (fullname) {
+        writeOutBuffer(outbuf, entry.ef_txt);
+        return entry.ef_txt;
+    }
+    let length = 0;
+    while (length < entry.ef_txt.length) {
+        ++length;
+        const ambiguous = extcmdlist.some((candidate) => (
+            candidate !== entry
+            && !(candidate.flags & CMD_NOT_AVAILABLE)
+            && (!(candidate.flags & WIZMODECMD) || state.wizard)
+            && candidate.ef_txt.startsWith(entry.ef_txt.slice(0, length))
+        ));
+        if (!ambiguous) break;
+    }
+    const result = entry.ef_txt.slice(0, length || entry.ef_txt.length);
+    writeOutBuffer(outbuf, result);
+    if (result !== entry.ef_txt)
+        note_unported('pline.c debugpline2');
+    return result;
+}
+
+const SPECIAL_KEY_NAMES = Object.freeze([
+    'getdir.self', 'getdir.self2', 'getdir.help', 'getdir.mouse', 'count',
+    'getpos.self', 'getpos.pick', 'getpos.pick.quick', 'getpos.pick.once',
+    'getpos.pick.verbose', 'getpos.valid', 'getpos.autodescribe',
+    'getpos.mon.next', 'getpos.mon.prev', 'getpos.obj.next', 'getpos.obj.prev',
+    'getpos.door.next', 'getpos.door.prev', 'getpos.unexplored.next',
+    'getpos.unexplored.prev', 'getpos.valid.next', 'getpos.valid.prev',
+    'getpos.all.next', 'getpos.all.prev', 'getpos.help', 'getpos.filter',
+    'getpos.moveskip', 'getpos.menu',
+]);
+
+// C ref: cmd.c bind_specialkey() (3194-3210).
+export function bind_specialkey(key, command, state = game) {
+    if (!SPECIAL_KEY_NAMES.includes(command)) return false;
+    commandBindings(state).specialKeys[command] = key & 0xFF;
+    return true;
+}
+
+// C ref: cmd.c spkey_name() (3213-3224).
+export function spkey_name(nhkf) {
+    if (nhkf === 'escape' || nhkf === 0) return 'escape';
+    return SPECIAL_KEY_NAMES[nhkf - 1] ?? null;
+}
+
+// C ref: cmd.c all_options_autocomplete() (3296-3311).
+export function all_options_autocomplete(sbuf, state = game) {
+    const flags = state.extcmdFlags ??= initialExtcmdFlags();
+    for (let index = 0; index < extcmdlist.length; ++index) {
+        if (!(flags[index] & AUTOCOMP_ADJ)) continue;
+        appendBindText(
+            sbuf,
+            `AUTOCOMPLETE=${flags[index] & AUTOCOMPLETE ? '' : '!'}${extcmdlist[index].ef_txt}\n`,
+        );
+    }
+}
+
+let savedMouseButtons = null;
+
+// C ref: cmd.c lock_mouse_buttons() (3314-3333).
+export function lock_mouse_buttons(savebtns, state = game) {
+    const buttons = commandBindings(state).mouseButtons;
+    if (savebtns) {
+        savedMouseButtons = [...buttons];
+        buttons[0] = null;
+        buttons[1] = null;
+    } else if (savedMouseButtons) {
+        buttons[0] = savedMouseButtons[0];
+        buttons[1] = savedMouseButtons[1];
+    }
+}
+
+// C ref: cmd.c reset_commands() (3336-3508).  Binding mutation is delegated
+// to command_bindings.js, which owns the C cmdbinds equivalent.
+export function reset_commands(initial = false, state = game) {
+    state.iflags ??= {};
+    state.flags ??= {};
+    const model = commandBindings(state);
+    let updated = 0;
+    if (initial) {
+        updated = 1;
+        model.numPad = false;
+        model.pcHack = false;
+        model.phone = false;
+        model.swapYZ = false;
+        for (const [name, key] of Object.entries(SOURCE_SPECIAL_KEY_DEFAULTS))
+            model.specialKeys[name] = key.charCodeAt(0);
+        commands_init(state);
+        resetCommandBindingModel(model, false, 0, true);
+    } else {
+        const numberPad = Boolean(state.iflags.num_pad);
+        const mode = state.iflags.num_pad_mode ?? 0;
+        const next = {
+            numPad: numberPad,
+            swapYZ: Boolean(mode & 1) && !numberPad,
+            pcHack: Boolean(mode & 1) && numberPad,
+            phone: Boolean(mode & 2) && numberPad,
+        };
+        if (Object.keys(next).some((key) => model[key] !== next[key]))
+            updated = 1;
+        resetCommandBindingModel(model, numberPad, mode);
+    }
+    if (updated) state.serialno = (state.serialno ?? 0) + 1;
+    const direction = !model.numPad
+        ? (model.swapYZ ? 'hzkulnjb><' : 'hykulnjb><')
+        : (model.phone ? '41236987><' : '47896321><');
+    state.dirchars = direction;
+    state.alphadirchars = model.numPad ? 'hykulnjb><' : direction;
+    update_rest_on_space(state);
+    state.extcmd_char = cmd_from_func(doextcmd, state);
+}
+
+// C ref: cmd.c update_rest_on_space() (3511-3550).
+export function update_rest_on_space(state = game) {
+    state.flags ??= {};
+    updateRestOnSpaceModel(
+        commandBindings(state),
+        Boolean(state.flags.rest_on_space),
+    );
+}
+
+// C ref: cmd.c random_response() (3553-3580).  The optional buffer form keeps
+// the C out-parameter shape; the returned string is convenient for JS callers.
+export function random_response(bufferOrSize, sizeOrState, maybeState) {
+    const buffer = typeof bufferOrSize === 'number' ? null : bufferOrSize;
+    const size = typeof bufferOrSize === 'number' ? bufferOrSize : sizeOrState;
+    const state = typeof bufferOrSize === 'number' ? sizeOrState : maybeState ?? game;
+    let response = '';
+    const limit = Math.max(0, (Number(size) || 0) - 1);
+    for (;;) {
+        const key = randomkey(state);
+        if (key === 0x0A) break;
+        if (key === ESC) {
+            response = '';
+            break;
+        }
+        // C keeps drawing until newline or ESC even after the output buffer
+        // is full; only the write is bounded by sz - 1.
+        if (response.length < limit)
+            response += String.fromCharCode(key);
+    }
+    if (Array.isArray(buffer)) buffer[0] = response;
+    else if (buffer && typeof buffer === 'object') buffer.value = response;
+    return response;
+}
+
+// C ref: cmd.c rnd_extcmd_idx() (3583-3587).
+export function rnd_extcmd_idx() {
+    return rn2(extcmdlist.length + 1) - 1;
+}
+
+// Source-named implementation of cmd.c reset_cmd_vars().
+export function reset_cmd_vars(resetCmdq = true, state = game) {
+    state.context ??= {};
+    state.iflags ??= {};
+    state.context.run = 0;
+    state.context.nopick = 0;
+    state.context.forcefight = 0;
+    state.context.move = 0;
+    state.context.mv = 0;
+    state.domoveAttempting = 0;
+    state.multi = 0;
+    state.iflags.menu_requested = false;
+    state.context.travel = 0;
+    state.context.travel1 = 0;
+    state.travelmap = null;
+    if (resetCmdq) {
+        cmdq_clear(CQ_CANNED, state);
+        cmdq_clear(CQ_REPEAT, state);
+    }
+}
+
+// Casing-compatible bridge for existing callers in this file.
+export function resetCommandVars(state = game, resetCmdq = true) {
+    return reset_cmd_vars(resetCmdq, state);
+}
+
+// C ref: cmd.c directionname() (4313-4325).
+export function directionname(dir) {
+    return ['west', 'northwest', 'north', 'northeast', 'east', 'southeast',
+        'south', 'southwest', 'down', 'up'][dir] ?? 'invalid';
+}
+
+function commandMenuResult(state, name, ...args) {
+    const callback = state[name];
+    if (typeof callback === 'function') return callback(...args);
+    throw new UnsupportedHeroCommandBoundaryError(
+        `cmd.c ${name}() is scheduled for the next span`,
+    );
+}
+
+// C ref: cmd.c doherecmdmenu() (4328-4340).  here_cmd_menu() is the first
+// callee in the next queued span; retaining the call boundary keeps this span
+// source-shaped without inventing its menu entries.
+export async function doherecmdmenu(state = game) {
+    const ch = await commandMenuResult(state, 'hereCmdMenu');
+    return ch && ch !== ESC ? ECMD_TIME : ECMD_OK;
+}
+
+// C ref: cmd.c dotherecmdmenu() (4343-4420).  The injected callbacks are a
+// test seam until there_cmd_menu() and here_cmd_menu() land in their span.
+export async function dotherecmdmenu(state = game) {
+    state.iflags ??= {};
+    state.clicklook_cc ??= { x: -1, y: -1 };
+    state.iflags.getdir_click = 1 | 2;
+    const x = state.clicklook_cc.x;
+    const y = state.clicklook_cc.y;
+    const ux = state.u?.ux ?? 0;
+    const uy = state.u?.uy ?? 0;
+    if (isok(x, y)) {
+        const ch = x === ux && y === uy
+            ? await commandMenuResult(state, 'hereCmdMenu')
+            : await commandMenuResult(state, 'thereCmdMenu', x, y, state.iflags.getdir_click);
+        state.clicklook_cc.x = -1;
+        state.clicklook_cc.y = -1;
+        state.iflags.getdir_click = 0;
+        return ch && ch !== ESC ? ECMD_TIME : ECMD_OK;
+    }
+    const dir = await getdir(null, state);
+    const click = state.iflags.getdir_click;
+    state.iflags.getdir_click = 0;
+    if (!dir || !isok(ux + state.u.dx, uy + state.u.dy)) return ECMD_CANCEL;
+    const ch = state.u.dx || state.u.dy
+        ? await commandMenuResult(
+            state, 'thereCmdMenu', ux + state.u.dx, uy + state.u.dy, click,
+        )
+        : await commandMenuResult(state, 'hereCmdMenu');
+    return ch && ch !== ESC ? ECMD_TIME : ECMD_OK;
+}
+
+// C ref: cmd.c mcmd_addmenu() (4421-4434).  Menu windows are represented by
+// their item arrays in JavaScript; preserve the C selector and text fields.
+export function mcmd_addmenu(win, act, txt) {
+    const item = { value: act, label: txt };
+    if (Array.isArray(win)) win.push(item);
+    else if (win && Array.isArray(win.items)) win.items.push(item);
+    return item;
+}
+
 // C ref: invent.c dolook().
 async function runLookCommand(key, state) {
     return failClosedCommand(key, state, () => dolook(state, {
@@ -3727,6 +4127,10 @@ async function doextcmd(key, state) {
         return await enter_explore_mode(state);
     case 'dolookaround':
         return await dolookaround(state);
+    case 'doherecmdmenu':
+        return await doherecmdmenu(state);
+    case 'dotherecmdmenu':
+        return await dotherecmdmenu(state);
     case 'dotoggleoption':
         return await dotoggleoption(state);
     case 'do_move_west':

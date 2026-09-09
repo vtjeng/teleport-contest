@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44021,
+      "datetime": "20320417091527",
+      "nethackrc": "OPTIONS=name:HereMenuSpan,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": "#herecmdmenu\u001b",
+      "comment": "Reaches cmd.c doherecmdmenu(); recording is deferred until the next span ports here_cmd_menu()."
+    }
+  ]
+}
