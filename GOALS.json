@@ -17373,7 +17373,21 @@
         "seed0383-wizard-hallucinate"
       ],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "anger_quest_guardians..migrate_mon",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "anger_quest_guardians",
+            "monstone",
+            "mon_to_stone",
+            "vamp_stone",
+            "m_into_limbo",
+            "migrate_mon"
+          ]
+        }
+      ],
       "openedAt": "fe1bc0c180b96010228ce5dcbbfdd5c32b79e7d6",
       "openStanding": {
         "sha": "e217a867",
