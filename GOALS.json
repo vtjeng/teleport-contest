@@ -17673,7 +17673,7 @@
     {
       "id": "port-mon-normal-shape-restartcham",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mon.c monster shape restoration and iteration helpers",
       "cFile": "mon.c",
       "sessions": [
@@ -17702,8 +17702,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "236a4976f34ab86b1feb1f48fb5bbbbeda8aa3c2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "normal_shape",
