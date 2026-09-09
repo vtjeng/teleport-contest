@@ -17577,7 +17577,21 @@
         "seed0383-wizard-hallucinate"
       ],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "m_respond_shrieker..wake_nearto_core",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "m_respond_shrieker",
+            "m_respond_medusa",
+            "m_respond",
+            "qst_guardians_respond",
+            "peacefuls_respond",
+            "wake_nearto_core"
+          ]
+        }
+      ],
       "openedAt": "74b479510acdad06cbbc73b750ff78508fcd3d1e",
       "openStanding": {
         "sha": "dad67c24",
