@@ -785,3 +785,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-09T06:41:43.346Z	9a486c22	goal	24	33	5299	7765	376945	610816	5307	7765	315	3640	38930	182022	div-display-display-monster-0383 closes. Development 5299 of 7765 screens, 376945 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.
 2026-09-09T07:27:34.745Z	167432ce	span	24	33	5299	7765	376945	610816	5307	7765					doprev_message..do_run_east closes. Development 5299 of 7765 screens, 376945 of 610816 rng. 24 of 33 sessions.
 2026-09-09T14:48:17.569Z	0f703e1c	span	24	33	5299	7765	376945	610816	5307	7765					do_run_southeast..handler_rebind_keys_add closes. Development 5299 of 7765 screens, 376945 of 610816 rng. 24 of 33 sessions.
+2026-09-09T15:26:16.222Z	978c3c73	span	24	33	5299	7765	376945	610816	5307	7765					handler_rebind_keys..mcmd_addmenu closes. Development 5299 of 7765 screens, 376945 of 610816 rng. 24 of 33 sessions.

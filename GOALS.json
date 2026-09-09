@@ -15979,8 +15979,8 @@
         },
         {
           "name": "handler_rebind_keys..mcmd_addmenu",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "978c3c731553095d84005546c3d139bc7146d6c4",
           "functions": [
             "handler_rebind_keys",
             "handler_change_autocompletions",
@@ -16465,13 +16465,13 @@
           "name": "handler_rebind_keys",
           "line": 2408,
           "endLine": 2448,
-          "ported": false
+          "ported": true
         },
         {
           "name": "handler_change_autocompletions",
           "line": 2449,
           "endLine": 2522,
-          "ported": false
+          "ported": true
         },
         {
           "name": "extcmds_match",
@@ -16501,13 +16501,13 @@
           "name": "bind_key_fn",
           "line": 2732,
           "endLine": 2749,
-          "ported": false
+          "ported": true
         },
         {
           "name": "commands_init",
           "line": 2750,
           "endLine": 2784,
-          "ported": false
+          "ported": true
         },
         {
           "name": "keylist_func_has_key",
@@ -16531,49 +16531,49 @@
           "name": "ext_func_tab_from_func",
           "line": 3016,
           "endLine": 3028,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmd_from_dir",
           "line": 3029,
           "endLine": 3035,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmd_from_func",
           "line": 3036,
           "endLine": 3070,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmd_from_ecname",
           "line": 3071,
           "endLine": 3091,
-          "ported": false
+          "ported": true
         },
         {
           "name": "ecname_from_fn",
           "line": 3092,
           "endLine": 3105,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmdname_from_func",
           "line": 3106,
           "endLine": 3193,
-          "ported": false
+          "ported": true
         },
         {
           "name": "bind_specialkey",
           "line": 3194,
           "endLine": 3207,
-          "ported": false
+          "ported": true
         },
         {
           "name": "spkey_name",
           "line": 3208,
           "endLine": 3224,
-          "ported": false
+          "ported": true
         },
         {
           "name": "key2txt",
@@ -16591,7 +16591,7 @@
           "name": "all_options_autocomplete",
           "line": 3296,
           "endLine": 3311,
-          "ported": false
+          "ported": true
         },
         {
           "name": "count_autocompletions",
@@ -16603,19 +16603,19 @@
           "name": "lock_mouse_buttons",
           "line": 3326,
           "endLine": 3343,
-          "ported": false
+          "ported": true
         },
         {
           "name": "reset_commands",
           "line": 3344,
           "endLine": 3482,
-          "ported": false
+          "ported": true
         },
         {
           "name": "update_rest_on_space",
           "line": 3483,
           "endLine": 3508,
-          "ported": false
+          "ported": true
         },
         {
           "name": "accept_menu_prefix",
@@ -16633,19 +16633,19 @@
           "name": "random_response",
           "line": 3581,
           "endLine": 3600,
-          "ported": false
+          "ported": true
         },
         {
           "name": "rnd_extcmd_idx",
           "line": 3601,
           "endLine": 3606,
-          "ported": false
+          "ported": true
         },
         {
           "name": "reset_cmd_vars",
           "line": 3607,
           "endLine": 3626,
-          "ported": false
+          "ported": true
         },
         {
           "name": "rhack",
@@ -16717,7 +16717,7 @@
           "name": "directionname",
           "line": 4313,
           "endLine": 4325,
-          "ported": false
+          "ported": true
         },
         {
           "name": "isok",
@@ -16729,19 +16729,19 @@
           "name": "doherecmdmenu",
           "line": 4334,
           "endLine": 4342,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dotherecmdmenu",
           "line": 4343,
           "endLine": 4420,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mcmd_addmenu",
           "line": 4421,
           "endLine": 4434,
-          "ported": false
+          "ported": true
         },
         {
           "name": "there_cmd_menu_self",
