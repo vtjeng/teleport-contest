@@ -18495,7 +18495,22 @@
       "cFile": "options.c",
       "sessions": [],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "optfn_monsters..optfn_palette",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "optfn_monsters",
+            "optfn_msg_window",
+            "optfn_name",
+            "optfn_number_pad",
+            "optfn_objects",
+            "optfn_palette",
+            "optfn_palette"
+          ]
+        }
+      ],
       "openedAt": "3063d4634868979425475ae5d58b0aa228d65dc3",
       "openStanding": {
         "sha": "7c04d2f3",
