@@ -7,8 +7,11 @@ import { configLineStatements } from '../js/config_statement_data.js';
 import { encodeUtf8ByteString } from '../js/hacklib.js';
 import { FOOD_CLASS, WEAPON_CLASS } from '../js/objects.js';
 import {
+    check_misc_menu_command,
     finishStartupBooleanOptions,
+    getoptstr,
     optionAliasTarget,
+    opt2roleopt,
     parseNethackrc,
 } from '../js/options.js';
 import { allopt, optionParserMetadata } from '../js/optlist_data.js';
@@ -92,6 +95,26 @@ function characterFlags(parsed) {
         parsed.flags.initalign,
     ];
 }
+
+// C refs: options.c check_misc_menu_command() (694-707), opt2roleopt()
+// (709-730), and getoptstr() (732-754). These are source-pinned pure reads:
+// menu prefixes are rejected by the handler-level full-name check, the four
+// option indices map to their fixed roleopt slots, and phase num_opt_phases
+// searches from play_opt back toward builtin_opt.
+test('options.c core pure helpers preserve table and phase semantics', () => {
+    assert.deepEqual(
+        [3, 4, 5, 6, 99].map((index) => opt2roleopt(index)),
+        [0, 1, 2, 3, 0],
+    );
+    assert.equal(check_misc_menu_command('menu_next_page:key', 'key'), 0);
+    assert.equal(check_misc_menu_command('menu_shift_left', ''), 12);
+    assert.equal(check_misc_menu_command('menu_next', ''), -1);
+
+    const parsed = parseNethackrc('OPTIONS=role:Healer\n');
+    assert.equal(getoptstr(parsed, 3, 3), 'Healer');
+    assert.equal(getoptstr(parsed, 3, 7), 'Healer');
+    assert.equal(getoptstr(parsed, 4, 3), null);
+});
 
 test('startup option defaults use source role indices and zero roleplay', () => {
     const parsed = parseNethackrc('');

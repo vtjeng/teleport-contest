@@ -149,6 +149,8 @@ import { count_menucolors } from './coloratt.js';
 import {
     DEFAULT_FRUIT,
     finish_fruit_option,
+    fruit_from_name,
+    fruitadd,
     normalize_initial_fruit,
 } from './fruit.js';
 import {
@@ -245,10 +247,16 @@ import { escapes } from './options_escapes.js';
 import {
     finish_boulder_symbol,
     MAXMCLASSES,
+    switch_symbols,
 } from './symbols.js';
-import { apply_customizations, inspect_glyphrep } from './glyphs.js';
+import {
+    apply_customizations,
+    glyphrep_to_custom_map_entries,
+    inspect_glyphrep,
+} from './glyphs.js';
 import { choose_classes_menu } from './windows.js';
 import { displayTtyTextWindow } from './tty_menu.js';
+import { note_unported } from './unported.js';
 
 const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
 const PLAYER_NAME_BYTE_LIMIT = 31; // PL_NSIZ - 1
@@ -256,6 +264,24 @@ const CONFIG_BUFFER_BYTE_CAPACITY = 4 * 256; // cfgfiles.c: 4 * BUFSZ
 const OPTION_ELEMENT_BYTE_LIMIT = 256 / 2; // options.c: BUFSZ / 2
 const SET_WIZONLY = 5; // global.h enum optset_restrictions
 const SET_WIZNOFUZ = 6; // global.h enum optset_restrictions
+
+// global.h:option_phases.  These are separate from set_in_* restrictions:
+// roleoptvals records the source that supplied each role-selection value.
+const PHASE_NOT_SET = 0;
+const BUILTIN_OPT = 1;
+const SYSCF_OPT = 2;
+const RC_FILE_OPT = 3;
+const ENVIRON_OPT = 4;
+const CMDLINE_OPT = 5;
+const PLAY_OPT = 6;
+const NUM_OPT_PHASES = 7;
+
+// options.c's request values are local enum constants.  Keeping them here
+// makes the small handlers below mirror their C request switch explicitly.
+const DO_INIT = 1;
+const DO_SET = 2;
+const GET_VAL = 3;
+const GET_CNF_VAL = 4;
 
 // C ref: options.c:allopt[] and determine_ambiguities().  Matching is
 // case-insensitive, so the generated catalog is folded once here.  The full
@@ -403,6 +429,13 @@ function defaultRoleFilter() {
         roles: Array(roles.length).fill(false),
         mask: 0,
     };
+}
+
+function defaultRoleoptvals() {
+    return Array.from(
+        { length: 4 },
+        () => Array(NUM_OPT_PHASES).fill(null),
+    );
 }
 
 // allopt[].addr names the C lvalue a boolean option writes.  Its four roots
@@ -603,6 +636,10 @@ function defaultResult() {
             warnsyms: def_warnsyms.map(({ ch }) => ch.charCodeAt(0)),
         },
         roleFilter: defaultRoleFilter(),
+        // options.c roleoptvals[MAX_ROLEOPT][num_opt_phases].  The parser
+        // uses the rc-file phase; later menu code can use play_opt without
+        // overwriting the value saved for the configuration file.
+        roleoptvals: defaultRoleoptvals(),
         uroleplay: defaultRoleplay(),
         playmode: 'normal',
         preferred_pet: '',
@@ -619,6 +656,9 @@ function defaultResult() {
         // decl.c zeros these option-transition flags. Symbol-set handlers set
         // all three during the configuration pass, before the first input.
         go: {
+            opt_phase: RC_FILE_OPT,
+            opt_initial: true,
+            opt_from_file: true,
             opt_need_redraw: false,
             opt_need_glyph_reset: false,
             opt_symset_changed: false,
@@ -1054,115 +1094,273 @@ function complain_about_duplicate(result, option, metadata, usingAlias) {
     );
 }
 
-// C ref: options.c parse_role_opt() (7904-8016), the shared body of
-// optfn_role() (3588-3623), optfn_race() (3506-3547), optfn_gender()
-// (1776-1817) and optfn_alignment() (884-925).  This covers everything the
-// four reach from a configuration file, which is their whole do_set arm; the
-// get_val and get_cnf_val requests belong to the options menu.
-//
-// Every message C writes here leaves the file being read, so this reports and
-// returns rather than throwing.  Each return is one of C's two failure exits
-// and they are indistinguishable from applyOption(): parse_role_opt() answering
-// FALSE becomes optn_silenterr and the unknown-value arm becomes optn_err, and
-// parseoptions() turns both into a discarded FALSE for a row whose optlist.h
-// pfx is false, which all four of these are.
-//
-// C's `duplicate` is the value duplicate_opt_detection() returned before this
-// handler ran. The general parse path owns that counter and passes its answer
-// here, just as parseoptions() leaves the file-static value for optfn_role().
-function setCharacterOption(
-    result, optionState, option, statement, negated, usingAlias, duplicate,
+// C refs: options.c opt2roleopt(), getoptstr(), saveoptstr(),
+// unsaveoptstr(), freeroleoptvals(), saveoptvals() and restoptvals()
+// (709-844). The save/restore pair is inside the source's #if 0 block; its
+// plain-object form is retained here for callers that inspect the dormant
+// helpers.
+export function opt2roleopt(optidx) {
+    switch (optidx) {
+    case 3: return 0; // opt_role
+    case 4: return 1; // opt_race
+    case 5: return 2; // opt_gender
+    case 6: return 3; // opt_alignment
+    default: return 0; // options.c's default case is opt_role
+    }
+}
+
+function roleoptIndex(optidx) {
+    if (optidx && typeof optidx === 'object') {
+        return roleoptIndex(optidx.name);
+    }
+    if (typeof optidx === 'string') {
+        return opt2roleopt(allopt.findIndex(
+            (option) => option.name.toLowerCase() === optidx.toLowerCase(),
+        ));
+    }
+    return opt2roleopt(optidx);
+}
+
+function ensureRoleoptvals(state) {
+    if (!Array.isArray(state.roleoptvals)
+        || state.roleoptvals.length !== 4) {
+        state.roleoptvals = defaultRoleoptvals();
+    }
+    for (let index = 0; index < 4; ++index) {
+        if (!Array.isArray(state.roleoptvals[index])
+            || state.roleoptvals[index].length !== NUM_OPT_PHASES) {
+            state.roleoptvals[index] = Array(NUM_OPT_PHASES).fill(null);
+        }
+    }
+    return state.roleoptvals;
+}
+
+export function getoptstr(state, optidx, ophase = state.go?.opt_phase) {
+    const phase = ophase ?? RC_FILE_OPT;
+    const values = ensureRoleoptvals(state)[roleoptIndex(optidx)];
+    if (phase === NUM_OPT_PHASES) {
+        for (let index = NUM_OPT_PHASES - 1; index >= 0; --index) {
+            if (values[index] != null) return values[index];
+        }
+        return null;
+    }
+    if (phase < 0 || phase >= NUM_OPT_PHASES)
+        throw new Error(`invalid option phase ${phase}`);
+    return values[phase];
+}
+
+function saveoptstr(state, optidx, optstr, ophase = state.go?.opt_phase) {
+    const phase = ophase ?? RC_FILE_OPT;
+    const values = ensureRoleoptvals(state)[roleoptIndex(optidx)];
+    let value = String(optstr ?? '');
+    const colon = value.indexOf(':');
+    const equals = value.indexOf('=');
+    const delimiter = colon < 0 || (equals >= 0 && equals < colon)
+        ? equals : colon;
+    if (delimiter >= 0) value = value.slice(delimiter + 1);
+    if (phase < 0 || phase >= NUM_OPT_PHASES)
+        throw new Error(`invalid option phase ${phase}`);
+    values[phase] = value;
+}
+
+function unsaveoptstr(state, optidx, ophase = state.go?.opt_phase) {
+    const phase = ophase ?? RC_FILE_OPT;
+    const values = ensureRoleoptvals(state)[roleoptIndex(optidx)];
+    if (phase < 0 || phase >= NUM_OPT_PHASES)
+        throw new Error(`invalid option phase ${phase}`);
+    values[phase] = null;
+}
+
+function freeroleoptvals(state) {
+    for (const roleValues of ensureRoleoptvals(state)) roleValues.fill(null);
+}
+
+function saveoptvals(state, nhfp) {
+    const values = ensureRoleoptvals(state).map((roleValues) => [
+        ...roleValues,
+    ]);
+    if (nhfp && typeof nhfp === 'object') nhfp.roleoptvals = values;
+    return values;
+}
+
+function restoptvals(state, nhfp) {
+    if (!nhfp?.roleoptvals) return;
+    state.roleoptvals = nhfp.roleoptvals.map((roleValues) => [
+        ...roleValues,
+    ]);
+}
+
+// C ref: options.c parse_role_opt() (7904-8016). It returns both the C
+// boolean answer and the value left through `opp`; a role filter leaves the
+// latter as the literal "!" so the caller skips str2role/str2race/etc.
+function parse_role_opt(
+    result, optidx, negated, fullname, opts, duplicate, usingAlias,
 ) {
-    const optionName = option.name.toLowerCase();
-    // parse_role_opt():7935 reads the value with
-    // string_for_env_opt(fullname, opts, FALSE), whose mandatory parameter is
-    // what reports a statement that carries none.  `ok` stays FALSE, so the
-    // handler answers optn_silenterr without a second message.
-    const op = string_for_env_opt(statement, false, result);
-    if (op === '') return;
+    const op = string_for_env_opt(opts, false, result);
+    if (op === '') return { ok: false, op: '' };
 
-    const normalized = mungspaces(op);
-    const values = normalized ? normalized.split(' ') : [];
+    const values = mungspaces(op).split(' ').filter((value) => value !== '');
     let previousValueNegated = false;
-    let filtered = false;
-    let selectedValue = '';
+    let first = true;
+    let finalOp = '';
+    const optionName = String(fullname).toLowerCase();
 
-    for (let index = 0; index < values.length; ++index) {
-        const valueNegation = stripValueNegation(values[index]);
+    for (const rawValue of values) {
+        const valueNegation = stripValueNegation(rawValue);
         const token = valueNegation.token;
         const valueNegated = valueNegation.negated;
         if (!token) {
-            configErrorAdd(result, `Negated nothing for '${optionName}'`);
-            return;
+            configErrorAdd(result, `Negated nothing for '${fullname}'`);
+            return { ok: false, op: '' };
         }
-        if (index > 0) {
+        if (!first) {
             if ((valueNegated !== previousValueNegated)
                 || (negated && valueNegated)) {
                 configErrorAdd(
                     result,
-                    'Invalid mixed negation for'
-                    + ` '${negated ? '!' : ''}${optionName}'`,
+                    `Invalid mixed negation for '${negated ? '!' : ''}${fullname}'`,
                 );
-                return;
+                return { ok: false, op: '' };
             }
             if (!negated && !valueNegated) {
                 configErrorAdd(
                     result,
                     'Multiple role values only allowed when list is negated',
                 );
-                return;
+                return { ok: false, op: '' };
             }
         }
+        first = false;
         previousValueNegated = valueNegated;
 
-        const prior = optionState.values[optionName];
+        const prior = getoptstr(result, optidx, result.go?.opt_phase);
         if (valueNegated || negated) {
-            if (!prior || !prior.startsWith('!')) {
+            if (!prior || !prior.startsWith('!'))
                 clearRoleFilter(result.roleFilter, optionName);
-            }
             if (!setRoleFilter(result.roleFilter, token)) {
-                configErrorAdd(
-                    result, `Invalid ${optionName} '${token}'`,
-                );
-                return;
+                configErrorAdd(result, `Invalid ${fullname} '${token}'`);
+                return { ok: false, op: '' };
             }
-            optionState.values[optionName] = roleFilterString(
+            saveoptstr(result, optidx, roleFilterString(
                 result.roleFilter, optionName,
-            );
-            filtered = true;
+            ));
+            finalOp = '!';
         } else {
             if (duplicate && prior?.startsWith('!')) {
+                const option = typeof optidx === 'number'
+                    ? allopt[optidx] : optidx;
                 complain_about_duplicate(
-                    result, option, optionParserMetadata[option.name] ?? {},
+                    result, option, optionParserMetadata[fullname] ?? {},
                     usingAlias,
                 );
-                return;
+                return { ok: false, op: '' };
             }
-            optionState.values[optionName] = token;
-            selectedValue = token;
-            filtered = false;
+            saveoptstr(result, optidx, token);
+            finalOp = token;
         }
     }
+    return { ok: true, op: finalOp };
+}
 
-    // C's `if (*op != '!')`: parse_role_opt() leaves *opp pointing at the
-    // literal "!" once any value in the list was negated, so a filter skips
-    // the handler's own str2<aspect>() lookup.
-    if (filtered) return;
+function get_cnf_role_opt(state, optidx) {
+    for (let phase = NUM_OPT_PHASES - 1; phase >= 0; --phase) {
+        if (phase === CMDLINE_OPT || phase === ENVIRON_OPT
+            || phase === BUILTIN_OPT) continue;
+        const value = getoptstr(state, optidx, phase);
+        if (value != null) return value;
+    }
+    return null;
+}
+
+function applyParsedCharacterOption(result, option, parsedOp) {
+    if (parsedOp === '!') return;
+    const optionName = option.name.toLowerCase();
     const choice = CHARACTER_OPTIONS[optionName];
-    const parsed = choice.parser(selectedValue);
+    const parsed = choice.parser(parsedOp);
     if (parsed === ROLE_NONE) {
-        // C's "Unknown %s '%s'" names allopt[optidx].name, so alignment
-        // reports "alignment" rather than the shorter field it writes.
-        configErrorAdd(
-            result, `Unknown ${optionName} '${selectedValue}'`,
-        );
+        configErrorAdd(result, `Unknown ${option.name} '${parsedOp}'`);
         return;
     }
     result[choice.resultField] = parsed;
     result.flags[choice.flagField] = parsed;
-    if (optionName === 'gender' && parsed !== ROLE_RANDOM) {
+    const table = optionName === 'role' ? roles
+        : optionName === 'race' ? races
+            : optionName === 'gender' ? genders : aligns;
+    const field = optionName === 'role' ? (entry) => entry.name.m
+        : optionName === 'race' ? (entry) => entry.noun
+            : (entry) => entry.adj;
+    if (optionName === 'gender' && parsed !== ROLE_RANDOM)
         result.flags.female = parsed === 1;
+    saveoptstr(result, option, rolestring(parsed, table, field));
+}
+
+function characterOptionValue(result, option) {
+    const optionName = (typeof option === 'number'
+        ? allopt[option]?.name : option?.name)?.toLowerCase();
+    const choice = CHARACTER_OPTIONS[optionName];
+    if (!choice) return ROLE_NONE;
+    const table = optionName === 'gender' ? genders : aligns;
+    return rolestring(
+        result.flags[choice.flagField],
+        table,
+        (entry) => entry.adj,
+    );
+}
+
+// C refs: optfn_alignment() and optfn_gender() (884-919 and 1777-1812).
+function optfn_alignment(
+    result, option, requestOrStatement, negated, duplicate, usingAlias,
+) {
+    if (requestOrStatement === DO_INIT) return optn_ok;
+    if (requestOrStatement === GET_VAL)
+        return characterOptionValue(result, option);
+    if (requestOrStatement === GET_CNF_VAL)
+        return get_cnf_role_opt(result, option) ?? 'none';
+    const parsed = parse_role_opt(
+        result, option, negated, option.name, requestOrStatement,
+        duplicate, usingAlias,
+    );
+    if (parsed.ok) applyParsedCharacterOption(result, option, parsed.op);
+    return optn_ok;
+}
+
+function optfn_gender(
+    result, option, requestOrStatement, negated, duplicate, usingAlias,
+) {
+    if (requestOrStatement === DO_INIT) return optn_ok;
+    if (requestOrStatement === GET_VAL)
+        return characterOptionValue(result, option);
+    if (requestOrStatement === GET_CNF_VAL)
+        return get_cnf_role_opt(result, option) ?? 'none';
+    const parsed = parse_role_opt(
+        result, option, negated, option.name, requestOrStatement,
+        duplicate, usingAlias,
+    );
+    if (parsed.ok) applyParsedCharacterOption(result, option, parsed.op);
+    return optn_ok;
+}
+
+// The role and race rows already share this path; keeping the source-shaped
+// helper here makes all four aspects use the same phase table.
+function setCharacterOption(
+    result, optionState, option, statement, negated, usingAlias, duplicate,
+) {
+    if (option.name.toLowerCase() === 'alignment') {
+        optfn_alignment(
+            result, option, statement, negated, duplicate, usingAlias,
+        );
+    } else if (option.name.toLowerCase() === 'gender') {
+        optfn_gender(
+            result, option, statement, negated, duplicate, usingAlias,
+        );
+    } else {
+        const parsed = parse_role_opt(
+            result, option, negated, option.name, statement,
+            duplicate, usingAlias,
+        );
+        if (parsed.ok) applyParsedCharacterOption(result, option, parsed.op);
     }
+    void optionState;
 }
 
 // C ref: options.c optfn_playmode() (3470-3499), its do_set arm.  The handler
@@ -1243,30 +1441,316 @@ function sanitizePetName(value, eightBitTty) {
 // neither a message nor the name: the handler reads the value parseoptions()
 // already found rather than asking for a mandatory one of its own.
 function setPetName(result, field, value) {
-    if (value == null || value === '') return; /* optn_err, silently */
+    if (value == null) return; /* optn_err, silently */
+    if (value === '') {
+        result[field] = '';
+        return;
+    }
     result[field] = value === 'none' || value === '(none)'
         ? '' : sanitizePetName(value, result.iflags.wc_eight_bit_input);
 }
 
-// C ref: options.c optfn_fruit(do_set) during initial option parsing.
-// Singularization and fruit-chain insertion are deferred to
-// initoptions_finish(), after the complete configuration has been read.
-// optlist.h:339-340 gives fruit negateok No, so parseoptions() answers a
-// negated spelling with bad_negation() and optfn_fruit()'s negation arm
-// (options.c:1717-1724), which resets svp.pl_fruit through `goodfruit`, is
-// unreachable from a configuration file.
-//
-// That negation is also the whole of C's val_optional argument here:
-// `negated || !go.opt_initial` is FALSE for every configuration-file read that
-// gets this far, so the value is mandatory and string_for_opt() reports a
-// statement without one.  The handler adds nothing of its own afterwards.
-function setFruit(result, statement) {
-    const op = string_for_opt(statement, false, result);
-    if (op === '') return;
-    result.pl_fruit = normalize_initial_fruit(
-        op,
-        result.iflags.wc_eight_bit_input,
-    );
+function petnameValue(result, field, request) {
+    const value = result[field] ?? '';
+    return value || (request === GET_CNF_VAL ? 'none' : none);
+}
+
+// C ref: options.c petname_optfn() and its three forwarding handlers
+// (846-873, 1248-1254, 1563-1568 and 1896-1902).
+function petnameHandler(result, field, request, negated, value) {
+    if (request === DO_INIT) return optn_ok;
+    if (request === DO_SET) {
+        if ((value == null || value === '') && !negated) return optn_err;
+        if (negated || value === 'none' || value === none) {
+            setPetName(result, field, '');
+        } else {
+            setPetName(result, field, value);
+        }
+        return optn_ok;
+    }
+    if (request === GET_VAL || request === GET_CNF_VAL)
+        return petnameValue(result, field, request);
+    return optn_ok;
+}
+
+function optfn_catname(result, request, negated, opts, op) {
+    return petnameHandler(result, 'catname', request, negated, op
+        ?? string_for_opt(opts, true, result));
+}
+
+function optfn_dogname(result, request, negated, opts, op) {
+    return petnameHandler(result, 'dogname', request, negated, op
+        ?? string_for_opt(opts, true, result));
+}
+
+function optfn_horsename(result, request, negated, opts, op) {
+    return petnameHandler(result, 'horsename', request, negated, op
+        ?? string_for_opt(opts, true, result));
+}
+
+// C ref: options.c optfn_altkeyhandling() (1022-1065). This build is UNIX
+// TTY, so the compiled do_set and get_val arms consume no state.
+function optfn_altkeyhandling(result, request, negated, opts, op) {
+    void result;
+    void negated;
+    void opts;
+    void op;
+    if (request === GET_VAL || request === GET_CNF_VAL) return '';
+    return optn_ok;
+}
+
+function optfn_dungeon(result, request, negated, opts, op) {
+    void result;
+    void negated;
+    void opts;
+    void op;
+    if (request === GET_VAL) return to_be_done;
+    if (request === GET_CNF_VAL) return '';
+    return optn_ok;
+}
+
+function optfn_effects(result, request, negated, opts, op) {
+    void result;
+    void negated;
+    void opts;
+    void op;
+    if (request === GET_VAL) return to_be_done;
+    if (request === GET_CNF_VAL) return '';
+    return optn_ok;
+}
+
+function fruitNodeCount(state) {
+    let count = 0;
+    for (let fruit = state.gf?.ffruit; fruit; fruit = fruit.nextf) ++count;
+    return count;
+}
+
+// C ref: options.c optfn_fruit() (1706-1774). Initial configuration keeps
+// the singularization and fruit-chain insertion in initoptions_finish(); an
+// in-game caller updates svp.pl_fruit and calls the already ported fruitadd().
+function optfn_fruit(result, request, negated, opts, op) {
+    if (request === DO_INIT) return optn_ok;
+    if (request === DO_SET) {
+        const initial = result.go?.opt_initial !== false;
+        // optfn_fruit() deliberately re-reads opts; the mandatory flag is
+        // false during startup, so `fruit:` reports its own missing value.
+        const value = string_for_opt(
+            opts,
+            negated || !initial,
+            result,
+        );
+        if (negated) {
+            if (value !== '') {
+                bad_negation(result, 'fruit');
+                return optn_err;
+            }
+        } else if (value === '') {
+            return optn_err;
+        }
+
+        const munged = mungspaces(value);
+        let original = null;
+        if (!initial) {
+            const found = fruit_from_name(munged, false, result);
+            if (!found) {
+                if (!result.flags.made_fruit)
+                    original = fruit_from_name(result.svp.pl_fruit, false, result);
+                if (!original && fruitNodeCount(result) >= 100) {
+                    configErrorAdd(
+                        result,
+                        'Doing that so many times isn\'t very fruitful.',
+                    );
+                    return optn_ok;
+                }
+            }
+        }
+
+        const fruit = normalize_initial_fruit(
+            munged,
+            result.iflags?.wc_eight_bit_input,
+        );
+        if (initial) {
+            result.pl_fruit = fruit;
+        } else {
+            result.svp.pl_fruit = fruit;
+            // C discards fruitadd()'s fid; the callee is ported and its
+            // mutation is the behavior that matters here.
+            fruitadd(result.svp.pl_fruit, original, {
+                state: result,
+                userSpecified: true,
+            });
+            if (result.give_opt_msg && result.startupEvents) {
+                result.startupEvents.push({
+                    type: 'message',
+                    text: `Fruit is now "${result.svp.pl_fruit}".`,
+                });
+            }
+        }
+        return optn_ok;
+    }
+    if (request === GET_VAL || request === GET_CNF_VAL)
+        return result.svp?.pl_fruit ?? result.pl_fruit ?? DEFAULT_FRUIT;
+    return optn_ok;
+}
+
+function legacySymbolName(result, set) {
+    return result.gs?.symset?.[set]?.name
+        ?? result.parserGlyphSetContext?.names?.[set]
+        ?? null;
+}
+
+function selectLegacyPrimary(result, name) {
+    const context = result.parserGlyphSetContext;
+    const current = legacySymbolName(result, PRIMARYSET);
+    if (current) return false;
+    context.set = 'primary';
+    if (!read_sym_file(name)) {
+        context.names.primary = null;
+        result.symbolOperations.push({
+            kind: 'clear', set: 'primary', nameToo: true,
+        });
+        return false;
+    }
+    context.names.primary = name;
+    appendSymbolSelection(result, 'primary', name, { legacyIfUnset: true });
+    if (result.gs?.symset) switch_symbols(result, true);
+    return true;
+}
+
+// C refs: options.c optfn_cursesgraphics() (1345-1391) and
+// optfn_DECgraphics() (1393-1441). CURSES_GRAPHICS is not in this TTY build,
+// but the named handler remains source-complete for callers that invoke it.
+function optfn_cursesgraphics(result, request, negated, opts, op) {
+    void opts;
+    void op;
+    if (request === DO_SET && !negated) {
+        const name = 'cursesgraphics';
+        if (!selectLegacyPrimary(result, name)) {
+            configErrorAdd(result, `Failure to load symbol set ${name}.`);
+            return optn_err;
+        }
+    }
+    if (request === GET_VAL || request === GET_CNF_VAL) return '';
+    return optn_ok;
+}
+
+function optfn_DECgraphics(result, request, negated, opts, op) {
+    void opts;
+    void op;
+    if (request === DO_SET && !negated) {
+        const name = 'DECgraphics';
+        if (!selectLegacyPrimary(result, name)) {
+            configErrorAdd(result, `Failure to load symbol set ${name}.`);
+            return optn_err;
+        }
+    }
+    if (request === GET_VAL || request === GET_CNF_VAL) return '';
+    return optn_ok;
+}
+
+function optfn_glyph(result, request, negated, opts, op) {
+    if (request === DO_SET) {
+        const value = op ?? string_for_opt(opts, true, result);
+        if (negated && value !== '') {
+            bad_negation(result, 'glyph');
+            return optn_err;
+        }
+        if (value === '') return optn_err;
+        const glyphValue = mungspaces(value);
+        // glyphrep_to_custom_map_entries() is the C callee whose boolean
+        // result controls this handler's optn_err/optn_ok answer.
+        if (!glyphrep_to_custom_map_entries(glyphValue, result))
+            return optn_err;
+        const inspected = inspect_glyphrep(glyphValue);
+        const context = result.parserGlyphSetContext;
+        result.symbolOperations.push({
+            kind: 'glyph-customization',
+            set: context.set,
+            raw: glyphValue,
+        });
+        if (!context.names[context.set]) {
+            if (inspected.hasUnicode && !context.unicodeNagged) {
+                context.unicodeNagged = true;
+                configErrorAdd(
+                    result,
+                    'Unimplemented customization feature, ignoring for now',
+                );
+            }
+            if (inspected.hasColor && !context.colorNagged) {
+                context.colorNagged = true;
+                configErrorAdd(
+                    result,
+                    'Unimplemented customization feature, ignoring for now',
+                );
+            }
+        }
+        return optn_ok;
+    }
+    if (request === GET_VAL) return to_be_done;
+    if (request === GET_CNF_VAL) return '';
+    return optn_ok;
+}
+
+function optfn_hilite_status(result, request, negated, opts, op) {
+    if (request === DO_SET) {
+        const value = op ?? string_for_opt(opts, true, result);
+        setStatusHiliteOption(result, value, negated);
+        return optn_ok;
+    }
+    if (request === GET_VAL)
+        return count_status_hilites(result)
+            ? '(see "status highlight rules" below)' : none;
+    if (request === GET_CNF_VAL) return '';
+    return optn_ok;
+}
+
+function optfn_IBMgraphics(result, request, negated, opts, op) {
+    void opts;
+    void op;
+    if (request === DO_SET && !negated) {
+        const context = result.parserGlyphSetContext;
+        const names = [
+            ['primary', 'IBMgraphics'],
+            ['rogue', 'RogueIBM'],
+        ];
+        let bad = false;
+        let badName = 'IBMgraphics';
+        for (const [set, name] of names) {
+            if (legacySymbolName(result, set)) {
+                bad = true;
+                continue;
+            }
+            if (set === 'rogue') badName = name;
+            context.set = set;
+            if (!read_sym_file(name)) {
+                bad = true;
+                context.names[set] = null;
+                result.symbolOperations.push({ kind: 'clear', set, nameToo: true });
+                break;
+            }
+            context.names[set] = name;
+        }
+        result.symbolOperations.push({
+            kind: 'select',
+            set: 'primary',
+            name: 'IBMgraphics',
+            legacyIfUnset: true,
+            legacyIBM: true,
+        });
+        if (bad) {
+            configErrorAdd(result, `Failure to load symbol set ${badName}.`);
+            return optn_err;
+        }
+        if (result.gs?.symset) switch_symbols(result, true);
+        if (result.go?.opt_initial === false
+            && Is_rogue_level(result.u?.uz)) {
+            // C discards assign_graphics()'s void result; the callee is not
+            // ported in symbols.c, so record the permitted discarded-result gap.
+            note_unported('symbols.c assign_graphics');
+        }
+    }
+    if (request === GET_VAL || request === GET_CNF_VAL) return '';
+    return optn_ok;
 }
 
 // C ref: options.c optfn_autounlock() (1066-1168), its startup do_set arm.
@@ -2487,6 +2971,18 @@ const MENU_COMMAND_BY_NAME = new Map(
     MENU_COMMAND_OPTIONS.map(({ name, command }) => [name, command]),
 );
 
+// C ref: options.c check_misc_menu_command() (694-707). The handler accepts
+// only a complete canonical name, even though parseoptions() accepts the
+// shorter unambiguous prefix before it reaches the handler.
+export function check_misc_menu_command(opts, op) {
+    void op;
+    for (let index = 0; index < MENU_COMMAND_OPTIONS.length; ++index) {
+        const { name } = MENU_COMMAND_OPTIONS[index];
+        if (match_optname(opts, name, name.length, true)) return index;
+    }
+    return -1;
+}
+
 // C ref: options.c get_menu_cmd_key() (8094-8105). A configured alias is
 // displayed in place of its source command byte; when several incoming keys
 // target the same command, the first mapping wins because strchr() does.
@@ -2621,9 +3117,8 @@ function menuCommandOption(name) {
     // parseoptions() initially accepts unambiguous prefixes, but
     // shared_menu_optfn() calls check_misc_menu_command(), which requires
     // the complete canonical name. Preserve that handler-level quirk.
-    return MENU_COMMAND_OPTIONS.find(
-        ({ name: canonical }) => canonical === name,
-    ) ?? null;
+    const index = check_misc_menu_command(name, name);
+    return index >= 0 ? MENU_COMMAND_OPTIONS[index] : null;
 }
 
 function isMenuCommandPrefix(name) {
@@ -4679,7 +5174,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     } else if (name === 'petattr') {
         setPetAttribute(result, statement);
     } else if (name === 'hilite_status') {
-        setStatusHiliteOption(result, value, negated);
+        optfn_hilite_status(result, DO_SET, negated, statement, value);
     } else if (name === 'statushilites') {
         setStatusHiliteDuration(result, value, negated);
     } else if (menuCommand && parsedName === name) {
@@ -4695,7 +5190,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     } else if (name === 'pettype') {
         setPettype(result, statement, negated);
     } else if (name === 'fruit') {
-        setFruit(result, statement);
+        optfn_fruit(result, DO_SET, negated, statement, value);
     } else if (name === 'autounlock') {
         optfn_autounlock(result, statement, negated);
     } else if (name === 'boulder') {
@@ -4710,56 +5205,19 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         optfn_crash_urlmax(result, statement);
     } else if (name === 'catname' || name === 'dogname'
                || name === 'horsename') {
-        setPetName(result, name, value);
+        const petHandler = name === 'catname' ? optfn_catname
+            : name === 'dogname' ? optfn_dogname : optfn_horsename;
+        petHandler(result, DO_SET, negated, statement, value);
+    } else if (name === 'altkeyhandling') {
+        optfn_altkeyhandling(result, DO_SET, negated, statement, value);
+    } else if (name === 'dungeon') {
+        optfn_dungeon(result, DO_SET, negated, statement, value);
+    } else if (name === 'effects') {
+        optfn_effects(result, DO_SET, negated, statement, value);
     } else if (name === 'decgraphics') {
-        result.flags.decgraphics = !negated;
-        if (!negated) {
-            appendSymbolSelection(result, 'primary', 'DECgraphics', {
-                legacyIfUnset: true,
-            });
-            // BACKWARD_COMPAT's handler calls read_sym_file(PRIMARYSET) only
-            // when that slot has no name.  read_sym_file() is what changes
-            // symset_which_set, so a failed legacy selection leaves the prior
-            // glyph association alone.
-            const context = result.parserGlyphSetContext;
-            if (!context.names.primary) {
-                context.set = 'primary';
-                context.names.primary = 'DECgraphics';
-            }
-        }
+        optfn_DECgraphics(result, DO_SET, negated, statement, value);
     } else if (name === 'ibmgraphics') {
-        result.flags.ibmgraphics = !negated;
-        if (!negated) {
-            appendSymbolSelection(result, 'primary', 'IBMgraphics', {
-                legacyIfUnset: true,
-                legacyIBM: true,
-            });
-            // IBMgraphics examines primary and rogue independently. Each
-            // empty slot loads even when the other is occupied, and the last
-            // successful load owns subsequent glyph rows. Any occupied slot
-            // makes the whole option report failure after those partial loads.
-            const context = result.parserGlyphSetContext;
-            let failed = false;
-            let failedName = 'IBMgraphics';
-            if (context.names.primary) {
-                failed = true;
-            } else {
-                context.set = 'primary';
-                context.names.primary = 'IBMgraphics';
-            }
-            if (context.names.rogue) {
-                failed = true;
-            } else {
-                failedName = 'RogueIBM';
-                context.set = 'rogue';
-                context.names.rogue = 'RogueIBM';
-            }
-            if (failed) {
-                configErrorAdd(
-                    result, `Failure to load symbol set ${failedName}.`,
-                );
-            }
-        }
+        optfn_IBMgraphics(result, DO_SET, negated, statement, value);
     } else if (isSymbolAssignment) {
         // parsesymbols() does not receive parseoptions()'s negation flag.
         appendSymbolOverrides(result, 'primary', [{
@@ -4939,39 +5397,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         // report it.
         applyBooleanOption(result, name, matchedRow, statement, value, negated);
     } else if (name === 'glyph') {
-        // C ref: options.c optfn_glyph(). Empty spellings fail silently. A
-        // valid ID succeeds even when an invalid payload contributes no
-        // Unicode or color detail.
-        if (value == null || value === '') return;
-        if (negated) {
-            bad_negation(result, name);
-            return;
-        }
-        const glyphValue = mungspaces(value);
-        const inspected = inspect_glyphrep(glyphValue);
-        if (!inspected.valid) return;
-        const context = result.parserGlyphSetContext;
-        result.symbolOperations.push({
-            kind: 'glyph-customization',
-            set: context.set,
-            raw: glyphValue,
-        });
-        if (!context.names[context.set]) {
-            if (inspected.hasUnicode && !context.unicodeNagged) {
-                context.unicodeNagged = true;
-                configErrorAdd(
-                    result,
-                    'Unimplemented customization feature, ignoring for now',
-                );
-            }
-            if (inspected.hasColor && !context.colorNagged) {
-                context.colorNagged = true;
-                configErrorAdd(
-                    result,
-                    'Unimplemented customization feature, ignoring for now',
-                );
-            }
-        }
+        optfn_glyph(result, DO_SET, negated, statement, value);
     } else if (name === 'symset' || name === 'roguesymset') {
         // C refs: options.c optfn_symset() (4166-4201) and
         // optfn_roguesymset() (3543-3585). parseoptions() passes each handler
@@ -6067,6 +6493,9 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     alignment: (state) => rolestring(
         state.flags.initalign, aligns, (entry) => entry.adj,
     ),
+    altkeyhandling: () => optfn_altkeyhandling(
+        null, GET_VAL, false, '', '',
+    ),
     align_message: (state) => windowAlignmentValue(
         state.iflags.wc_align_message,
     ),
@@ -6104,13 +6533,21 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     crash_email: (state) => state.gc?.crash_email ?? '',
     crash_name: (state) => state.gc?.crash_name ?? '',
     crash_urlmax: (state) => `${state.gc?.crash_urlmax ?? -1}`,
+    DECgraphics: () => optfn_DECgraphics(
+        null, GET_VAL, false, '', '',
+    ),
     disclose: (state) => state.flags.end_disclose
         .map((setting, index) => `${setting}${disclosure_options[index]}`)
         .join(' '),
+    dungeon: () => optfn_dungeon(null, GET_VAL, false, '', ''),
+    effects: () => optfn_effects(null, GET_VAL, false, '', ''),
     fruit: (state) => state.svp.pl_fruit,
     glyph: () => to_be_done,
     hilite_status: (state) => (count_status_hilites(state)
         ? '(see "status highlight rules" below)' : none),
+    IBMgraphics: () => optfn_IBMgraphics(
+        null, GET_VAL, false, '', '',
+    ),
     // strNsubst(ca_buf, " ", "-", 0) replaces every space, so a two-word
     // color or attribute name becomes hyphenated.
     menu_headings: (state) => color_attr_to_str(state.iflags.menu_headings)
