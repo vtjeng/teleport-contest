@@ -17980,6 +17980,56 @@
         "from": 5569,
         "to": 5914
       }
+    },
+    {
+      "id": "port-mon-see-monsters-flash",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mon.c close-up sighting, shield, and flash effects",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0383-wizard-hallucinate"
+      ],
+      "detail": "",
+      "spans": [],
+      "openedAt": "654fbbedda744360dbd363ffba91092d0feb8246",
+      "openStanding": {
+        "sha": "9a3a161a",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "see_monster_closeup",
+          "line": 5971,
+          "endLine": 6024,
+          "ported": true
+        },
+        {
+          "name": "see_nearby_monsters",
+          "line": 6025,
+          "endLine": 6057,
+          "ported": true
+        },
+        {
+          "name": "shieldeff_mon",
+          "line": 6058,
+          "endLine": 6066,
+          "ported": false
+        },
+        {
+          "name": "flash_mon",
+          "line": 6067,
+          "endLine": 6089,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 5971,
+        "to": 6089
+      }
     }
   ]
 }
