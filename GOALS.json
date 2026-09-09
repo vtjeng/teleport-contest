@@ -18598,7 +18598,7 @@
     {
       "id": "port-mon-m-calcdistress",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mon.c's once-per-turn monster distress helper",
       "cFile": "mon.c",
       "sessions": [
@@ -18621,8 +18621,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7b2de1957425d72ec443cafeb2eeae5dc0dd3e95",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "m_calcdistress",
