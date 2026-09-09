@@ -235,6 +235,7 @@ import {
     tty_yn_function,
 } from './getline.js';
 import { game } from './gstate.js';
+import { getnow } from './calendar.js';
 import { getpos } from './getpos.js';
 import {
     donamelevel,
@@ -404,6 +405,11 @@ const BACKSPACE = 0x08;
 const DELETE = 0x7F;
 const DOMOVE_WALK = 0x01;
 const DOMOVE_RUSH = 0x02;
+const ynchars = 'yn';
+const ynqchars = 'ynq';
+const ynaqchars = 'ynaq';
+const rightleftchars = 'rl';
+const hidespinchars = 'hsq';
 export class UnsupportedHeroCommandBoundaryError extends Error {
     constructor(reason, key) {
         super(`unsupported hero command: ${reason}`);
@@ -615,21 +621,92 @@ function isDigit(key) {
     return key >= 0x30 && key <= 0x39;
 }
 
-// C ref: cmd.c readchar(), which is readchar_core() with the mouse-position
-// outputs discarded. The window port supplies physical bytes; this composes
-// ESC+byte for altmeta and resets input_state after the completed logical read.
-// The debug fuzzer, the do-again buffer and the readchar queue are all
-// unported, and none of them is reachable in a recorded game.
-export async function readchar(state) {
-    let key = (await nhgetch(state)) & 0xFF;
-    if (key === ESC && state.iflags.altmeta
-        && state.program_state.input_state !== 'other') {
-        const following = (await nhgetch(state)) & 0xFF;
-        if (following === 0 || following === ESC) key = ESC;
-        else key = following | 0x80;
+function pointerValue(pointer, fallback = 0) {
+    return pointer && typeof pointer === 'object'
+        ? pointer.value ?? fallback : pointer ?? fallback;
+}
+
+function setPointerValue(pointer, value) {
+    if (pointer && typeof pointer === 'object') pointer.value = value;
+}
+
+// C ref: cmd.c readchar_core(). The browser input layer is the port's
+// nh_poskey() implementation; it supplies a byte and has no mouse-position
+// event, so x, y and mod remain the caller's values unless a test supplies a
+// poskey event through state.poskey.
+async function nh_poskey(x, y, mod, state) {
+    const event = state.poskey;
+    if (typeof event === 'function') {
+        const result = await event(x, y, mod);
+        if (result && typeof result === 'object') {
+            setPointerValue(x, result.x);
+            setPointerValue(y, result.y);
+            setPointerValue(mod, result.mod);
+            return result.key;
+        }
+        return result;
     }
+    return nhgetch(state);
+}
+
+function queuedReadcharValue(state) {
+    const queue = state.readchar_queue;
+    if (!queue || (typeof queue !== 'string' && !Array.isArray(queue)))
+        return null;
+    if (!queue.length) return null;
+    const value = typeof queue === 'string' ? queue.charCodeAt(0) : queue[0];
+    state.readchar_queue = typeof queue === 'string'
+        ? queue.slice(1) : queue.slice(1);
+    return value;
+}
+
+async function readchar_core(x, y, mod, state = game) {
+    state.iflags ??= {};
+    state.program_state ??= {};
+    let sym;
+
+    if (state.iflags.debug_fuzzer) {
+        sym = randomkey(state);
+    } else {
+        const queued = queuedReadcharValue(state);
+        if (queued !== null) sym = queued;
+        else if (state.in_doagain) sym = await pgetchar(state);
+        else sym = await nh_poskey(x, y, mod, state);
+    }
+
+    if (sym === ESC && state.iflags.altmeta
+        && state.program_state.input_state !== 'other') {
+        const queued = queuedReadcharValue(state);
+        const following = queued === null ? await pgetchar(state) : queued;
+        if (following === 0 || following === ESC) sym = ESC;
+        else sym = following | 0x80;
+    }
+
+    // The TTY reader maps NUL and EOF to Escape before this function sees
+    // them. A supplied poskey event can still use zero for a mouse click.
+    if (sym === 0) {
+        state.clicklook_cc = { x: -1, y: -1 };
+        click_to_cmd(pointerValue(x), pointerValue(y), pointerValue(mod), state);
+    }
+
     state.program_state.input_state = 'other';
-    return key;
+    return Number(sym) & 0xFF;
+}
+
+// C ref: cmd.c readchar(). The mouse-position outputs are discarded.
+export async function readchar(state = game) {
+    const x = { value: state.u?.ux ?? 0 };
+    const y = { value: state.u?.uy ?? 0 };
+    const mod = { value: 0 };
+    return readchar_core(x, y, mod, state);
+}
+
+// C ref: cmd.c readchar_poskey(). getpos.c reads the three out parameters;
+// callers in this port use the same mutable `{value}` shape as C pointers.
+export async function readchar_poskey(x, y, mod, state = game) {
+    state.program_state ??= {};
+    state.program_state.input_state = 'getpos';
+    return readchar_core(x, y, mod, state);
 }
 
 // C ref: cmd.c key2txt(). The four named keys are spelled out; everything else
@@ -643,15 +720,67 @@ export function key2txt(c) {
     return visctrl(byte);
 }
 
-// C ref: cmd.c yn_menuable_resp(). The C test compares `resp` against five
-// specific string literals by address. Two of them, ynchars and ynqchars, are
-// exactly what paranoid_ynq() passes, so the address test succeeds and the
-// answer is iflags.query_menu; getdir()'s null `resp` matches none of the
-// five and answers FALSE on the address comparisons alone. C also requires
-// iflags.window_inited, which is true from tty_init_nhwindows() onward and so
-// on every path that can reach a prompt at all.
+// C ref: cmd.c yn_menuable_resp(). JavaScript compares the five source
+// strings by value because it has no C pointer identity. An omitted
+// window_inited flag represents the initialized browser window; an explicit
+// false keeps the C pre-window behavior.
 function yn_menuable_resp(resp, state) {
-    return resp !== null && Boolean(state.iflags?.query_menu);
+    return Boolean(state.iflags?.query_menu)
+        && state.iflags?.window_inited !== false
+        && [ynchars, ynqchars, ynaqchars, rightleftchars, hidespinchars]
+            .includes(resp);
+}
+
+function byteValue(value) {
+    return typeof value === 'string' ? value.charCodeAt(0) : Number(value) || 0;
+}
+
+// C ref: cmd.c yn_func_menu_opt(). `win` is the array-backed menu window used
+// by the JavaScript windows layer; C's `a_char` is the numeric item value.
+function yn_func_menu_opt(win, key, text, def) {
+    const keyByte = byteValue(key);
+    win.push({
+        selector: String.fromCharCode(keyByte),
+        value: keyByte,
+        label: text,
+        selected: byteValue(def) === keyByte,
+    });
+}
+
+// C ref: cmd.c yn_function_menu(). Returns null when the response set cannot
+// use a menu, otherwise the selected response byte. Escape and an empty
+// selection return the C default response.
+async function yn_function_menu(query, resp, def, state = game) {
+    if (!yn_menuable_resp(resp, state)) return null;
+
+    const items = [];
+    if (resp === rightleftchars) {
+        yn_func_menu_opt(items, 'r', 'Right', def);
+        yn_func_menu_opt(items, 'l', 'Left', def);
+    } else if (resp === hidespinchars) {
+        yn_func_menu_opt(items, 'h', 'Hide', def);
+        yn_func_menu_opt(items, 's', 'Spin a web', def);
+    } else {
+        yn_func_menu_opt(items, 'y', 'Yes', def);
+        yn_func_menu_opt(items, 'n', 'No', def);
+    }
+    if (resp === ynaqchars) yn_func_menu_opt(items, 'a', 'All', def);
+    if (resp === ynqchars || resp === ynaqchars || resp === hidespinchars)
+        yn_func_menu_opt(items, 'q', 'Quit', def);
+
+    const selected = await select_menu(state, {
+        items,
+        how: PICK_ONE,
+        title: query,
+        ...menuTitleStyle(state),
+        cancelValue: byteValue(def),
+        behavior: MENU_BEHAVE_STANDARD,
+    });
+    const result = selected === null || selected === undefined
+        ? byteValue(def) : byteValue(selected);
+    await ttyPline(`${query} ${key2txt(result)}`, state);
+    clearTtyMessageWindow(state);
+    return result;
 }
 
 // C ref: cmd.c yn_function() (5471-5578). The ordinary user-input arm reads
@@ -682,9 +811,6 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
             `a query of ${query.length} characters needs paniclog()`,
         );
     }
-    if (yn_menuable_resp(resp, state)) {
-        throw new UnsupportedDirectionBoundaryError('yn_function_menu()');
-    }
     const queue = state.in_doagain ? CQ_REPEAT : CQ_CANNED;
     const queued = addcmdq ? cmdq_peek(queue, state) : null;
     let fromQueue = false;
@@ -705,7 +831,10 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
         res = ESC;
         fromQueue = true;
     } else {
-        res = await tty_yn_function(query, resp, def, state);
+        const menuResult = await yn_function_menu(query, resp, def, state);
+        res = menuResult === null
+            ? await tty_yn_function(query, resp, def, state)
+            : menuResult;
     }
     if (!fromQueue && res === undefined)
         res = await tty_yn_function(query, resp, def, state);
@@ -717,7 +846,6 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
 
 // C ref: hack.h:1329 y_n(), over decl.c ynchars[]. The accepted byte is saved
 // in CQ_REPEAT so a future #repeat implementation can replay the same answer.
-const ynchars = 'yn';
 export async function y_n(query, state = game) {
     return yn_function(query, ynchars, 'n', true, state);
 }
@@ -744,7 +872,6 @@ export async function y_n(query, state = game) {
 const KEY_N = 'n'.charCodeAt(0);
 const KEY_Q = 'q'.charCodeAt(0);
 const KEY_Y = 'y'.charCodeAt(0);
-const ynqchars = 'ynq';
 async function paranoid_ynq(be_paranoid, prompt, accept_q, state = game) {
     let c = KEY_N; /* default result */
 
@@ -767,6 +894,49 @@ async function paranoid_ynq(be_paranoid, prompt, accept_q, state = game) {
 // ESC yield False".
 export async function paranoid_query(be_paranoid, prompt, state = game) {
     return await paranoid_ynq(be_paranoid, prompt, false, state) === KEY_Y;
+}
+
+function externalCommandStarted(state) {
+    state.urealtime ??= {
+        realtime: 0,
+        start_timing: getnow(state),
+        finish_time: 0,
+    };
+    const now = getnow(state);
+    state.urealtime.realtime += now - state.urealtime.start_timing;
+    state.urealtime.start_timing = now;
+}
+
+// C ref: cmd.c dosuspend_core(). The browser window has no suspend-capable
+// window port, so the normal tty path reports the same unavailable command.
+// A test or future window port can expose the C callback shape; its discarded
+// platform operation remains an explicit gap while the clock bookkeeping is
+// preserved here.
+export async function dosuspend_core(state = game) {
+    const canSuspend = state.windowprocs?.win_can_suspend?.() === true;
+    if (canSuspend) {
+        externalCommandStarted(state);
+        note_unported('sys/share/ioctl.c dosuspend');
+        state.urealtime.start_timing = getnow(state);
+    } else {
+        await ttyNorep("'#suspend' command not available.", state);
+    }
+    return ECMD_OK;
+}
+
+// C ref: cmd.c dosh_core(). The subprocess is outside the browser runtime;
+// keep the elapsed-time boundaries and record the discarded dosh() call.
+export async function dosh_core(state = game) {
+    externalCommandStarted(state);
+    note_unported('sys/unix/unixunix.c dosh');
+    state.urealtime.start_timing = getnow(state);
+    return ECMD_OK;
+}
+
+// C ref: cmd.c dummyfunction(). rhack() initializes its function pointer with
+// this cost-free cancellation result before it resolves a command row.
+export function dummyfunction() {
+    return ECMD_CANCEL;
 }
 
 // C ref: cmd.c move_funcs[N_DIRS_Z][N_MOVEMODES] (2070-2082), named by the
@@ -4792,6 +4962,10 @@ async function doextcmd(key, state) {
         return do_run(state);
     case 'do_repeat':
         return do_repeat(state);
+    case 'dosh_core':
+        return await dosh_core(state);
+    case 'dosuspend_core':
+        return await dosuspend_core(state);
     case 'donull':
         return await donull(state) ? ECMD_TIME : ECMD_OK;
     case 'dolook':
@@ -5851,6 +6025,15 @@ export async function rhack(key, state = game) {
             // 3773-3800 cannot divert it.
             await dosave(state);
             resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'shell' || command === 'suspend') {
+            const res = command === 'shell'
+                ? await dosh_core(state) : await dosuspend_core(state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
         // These five wrappers answer a boolean rather than an ECMD code. The
