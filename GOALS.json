@@ -17784,7 +17784,20 @@
         "seed0383-wizard-hallucinate"
       ],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "pickvampshape..wiz_force_cham_form",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "pickvampshape",
+            "isspecmon",
+            "validspecmon",
+            "validvamp",
+            "wiz_force_cham_form"
+          ]
+        }
+      ],
       "openedAt": "541fbfb6c1480eb65d6beeee295db0e55d1b2038",
       "openStanding": {
         "sha": "236a4976",
