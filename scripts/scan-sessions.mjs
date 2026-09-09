@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Replays the development sessions and reports where the JavaScript port stops
-// and where it diverges from the C recording. `scripts/divergence-queue.mjs`
+// and where it diverges from the C recording. `scripts/mismatch-queue.mjs`
 // reads the `--json` output to build the goal selection queue.
 //
 // The scanned directory is fixed and this script accepts no path argument, so
@@ -713,7 +713,7 @@ function report(rows) {
         + `recorded. `
         + 'scripts/score-development.mjs is the authority on how many of those '
         + 'emitted screens match.\n'
-        + 'Use scripts/divergence-queue.mjs for goal selection.',
+        + 'Use scripts/mismatch-queue.mjs for goal selection.',
     );
 }
 

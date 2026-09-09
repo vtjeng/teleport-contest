@@ -14,7 +14,7 @@ the function the goal named, or the record is classified `machine-local` or
 
 - `AGENTS.md`: source authority, holdout access, session-specific hardcoding,
   protected files, and escalation;
-- `.agents/selection.md`: the divergence queue and how to read an entry;
+- `.agents/selection.md`: the mismatch queue and how to read an entry;
 - `.agents/validation.md`: recording, replaying, and comparing cases;
 - `.agents/loop.md`: the loop that opens and closes the goal;
 - `.agents/scoring.md`: score evidence and holdout-result recording.
@@ -24,7 +24,7 @@ the function the goal named, or the record is classified `machine-local` or
 ### 1. Establish the inventory
 
 Run `node scripts/score-development.mjs` and save its development screen
-counts as the before measurement. Run `node scripts/divergence-queue.mjs` for
+counts as the before measurement. Run `node scripts/mismatch-queue.mjs` for
 the session's entry: the step, the kind, and the C function it names.
 
 ### 2. Confirm and record the divergence
@@ -75,7 +75,7 @@ Validate in this order:
 - focused unit and source-pinned tests;
 - focused C/JavaScript differential replay;
 - fresh-process confirmation;
-- a refreshed divergence queue.
+- a refreshed mismatch queue.
 
 Run `npm run checkpoint` after every commit that claims the fix. When the fix
 changes the development score, the goal's `SCORE.tsv` rows record it; a fix

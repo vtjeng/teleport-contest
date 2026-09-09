@@ -23,7 +23,7 @@ on a `js/` file that no quality area owns.
 
 Recorded play is the port's oracle: the development sessions and the
 recordings under `recordings/` replay on every checkpoint, and a mismatch they
-find goes to the divergence queue, not to a review. A review reads code the
+find goes to the mismatch queue, not to a review. A review reads code the
 oracle does not reach. Run one in these three cases:
 
 - A file port is closing and an entry point of its file has no recipe that

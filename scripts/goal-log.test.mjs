@@ -196,7 +196,7 @@ test('nextSpan collects unported functions in C order up to the line cap', () =>
     assert.deepEqual(nextSpan(functions, [], null, cap),
         { functions: ['a', 'c'], lineRanges: ['1-100', '201-300'], cLines: 200 });
 
-    // The divergence queue named d: the span starts there, passes over
+    // The mismatch queue named d: the span starts there, passes over
     // ported e, and takes f, the last function in the file.
     assert.deepEqual(nextSpan(functions, [], 'd', cap),
         { functions: ['d', 'f'], lineRanges: ['301-400', '501-600'], cLines: 200 });

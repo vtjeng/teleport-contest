@@ -24,7 +24,7 @@ The orchestrator repeats without returning to the user between steps:
 
    a. Check the queue: run `node scripts/goal-log.mjs --current --detail`.
       If a goal is already queued, take it and skip to step 1c.
-   b. Run `node scripts/divergence-queue.mjs`. When every development session
+   b. Run `node scripts/mismatch-queue.mjs`. When every development session
       matches and `node scripts/goal-log.mjs roadmap` lists no unported
       function, the port is complete: stop the loop and notify the user.
       Otherwise choose the goal

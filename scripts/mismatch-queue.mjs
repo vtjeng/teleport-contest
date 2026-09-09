@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-// The divergence queue: each development session's first mismatch against
+// The mismatch queue: each development session's first mismatch against
 // its recording and the C function that mismatch names, read from
 // `scripts/scan-sessions.mjs --json`. `.agents/selection.md` states how the
 // queue orders goals; the dashboard shows it.
 //
 // Usage:
-//   node scripts/divergence-queue.mjs            # print the queue
-//   node scripts/divergence-queue.mjs --json     # machine-readable form
-//   node scripts/divergence-queue.mjs --scan <path>   # reuse a saved scan
+//   node scripts/mismatch-queue.mjs            # print the queue
+//   node scripts/mismatch-queue.mjs --json     # machine-readable form
+//   node scripts/mismatch-queue.mjs --scan <path>   # reuse a saved scan
 //
 // The scan replays the development sessions only and takes no path argument,
 // so this queue cannot be aimed at sessions/holdout/.
@@ -132,7 +132,7 @@ function realPortedCounts() {
 }
 
 export function formatQueue(queue) {
-    const lines = ['Divergence queue (development sessions, first mismatch first):'];
+    const lines = ['Mismatch queue (development sessions, first mismatch first):'];
     if (queue.sessions.length === 0) lines.push('  every session matches');
     for (const entry of queue.sessions) {
         const where = entry.function
@@ -170,7 +170,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     try {
         main(process.argv.slice(2));
     } catch (error) {
-        console.error(`divergence-queue: ${error.message}`);
+        console.error(`mismatch-queue: ${error.message}`);
         process.exitCode = 1;
     }
 }

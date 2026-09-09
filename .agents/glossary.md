@@ -2,7 +2,7 @@
 
 A **goal** is one tracked unit of work in `GOALS.json`, written through
 `node scripts/goal-log.mjs`. It is either a file port or a divergence fix.
-`.agents/selection.md` states how the divergence queue orders goals, and
+`.agents/selection.md` states how the mismatch queue orders goals, and
 `node scripts/goal-log.mjs roadmap` lists the C files with their ported and
 unported function counts.
 Goals recorded before 2026-09-05 were boundary ports with a forecast and
@@ -30,11 +30,13 @@ A **gap** is a call to an unported C function that the port records with
 `note_unported()` and skips. `AGENTS.md`, "Port whole files in C order",
 states when a call may be skipped.
 
-A **divergence** is the first step at which a session's replay stops matching
+A **mismatch** is the first step at which a session's replay stops matching
 its recording: on the random-number log, on the screen, or at a refusal the
-port raised. The **divergence queue** lists the development sessions' first
-divergences, each with the C function it names;
-`node scripts/divergence-queue.mjs` prints it.
+port raised. When the mismatch falls inside a function that is already ported,
+it is a **divergence** and a divergence fix covers it; otherwise a file port
+covers it. The **mismatch queue** lists each development session's first
+mismatch and the C function it names;
+`node scripts/mismatch-queue.mjs` prints it.
 
 A **recipe** is a session file holding replay inputs only: seed, date and
 time, options, and keystrokes, with no recorded steps. A **recording** is a

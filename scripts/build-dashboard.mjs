@@ -11,15 +11,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const data = execSync('node scripts/dashboard-data.mjs', { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 });
 
-// The divergence queue replays the development sessions, which takes about
+// The mismatch queue replays the development sessions, which takes about
 // a quarter of a minute when the scan cache misses.
 let queueData = '{"sessions":[],"files":[]}';
 try {
-  queueData = execSync('node scripts/divergence-queue.mjs --json', {
+  queueData = execSync('node scripts/mismatch-queue.mjs --json', {
     encoding: 'utf8', timeout: 600000, maxBuffer: 10 * 1024 * 1024,
   });
 } catch {
-  console.error('Warning: divergence queue unavailable, using an empty queue');
+  console.error('Warning: mismatch queue unavailable, using an empty queue');
 }
 
 const template = readFileSync(join(__dirname, 'dashboard.template.html'), 'utf8');

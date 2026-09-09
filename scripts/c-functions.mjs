@@ -1,4 +1,4 @@
-// Reads the C source tree for the goal log and the divergence queue: which
+// Reads the C source tree for the goal log and the mismatch queue: which
 // functions each C file defines, where each one starts and ends, and which of
 // them already have a same-named function under js/.
 

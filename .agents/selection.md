@@ -1,7 +1,7 @@
 # Choosing what to implement next
 
 Read this file when deciding which goal to open. `.agents/glossary.md` defines
-"goal", "file port", "divergence fix", "span", "gap", and "divergence queue".
+"goal", "file port", "divergence fix", "span", "gap", and "mismatch queue".
 `.agents/loop.md` states when the orchestrator opens a goal and how it divides
 a file port into spans.
 
@@ -12,7 +12,7 @@ more than about 3,000 lines. Split a large file at the banners or function
 families the C file itself uses, and name the goal after the file and the
 group's first and last function.
 
-The divergence queue orders goals. `node scripts/divergence-queue.mjs` prints
+The mismatch queue orders goals. `node scripts/mismatch-queue.mjs` prints
 one entry for each development session that does not match its recording
 completely: the step and kind of the session's first mismatch, the C function
 that mismatch names, and, for information, the screens the session still has
@@ -74,9 +74,9 @@ the file, the function range, and any traced findings in `detail`.
 
 -------------------------------------------------------------------------------
 
-## Appendix A: Reading a divergence-queue entry
+## Appendix A: Reading a mismatch-queue entry
 
-`node scripts/divergence-queue.mjs` reads `node scripts/scan-sessions.mjs
+`node scripts/mismatch-queue.mjs` reads `node scripts/scan-sessions.mjs
 --json`, which replays the 33 development sessions. The scanned directory is
 fixed and the scan accepts no path argument, so neither command can be aimed at
 `sessions/holdout/`. Emitted screens are not matched screens:

@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import {
     buildQueue, fileOrder, formatQueue, parseCaller, queueEntry,
-} from './divergence-queue.mjs';
+} from './mismatch-queue.mjs';
 
 // Row shapes copied from a real `scan-sessions.mjs --json` run at 9a8d2f6a,
 // trimmed to the fields the queue reads.
