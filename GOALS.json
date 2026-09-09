@@ -18490,7 +18490,7 @@
     {
       "id": "port-options-monsters-palette",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port options.c monster, object, and palette option handlers",
       "cFile": "options.c",
       "sessions": [],
@@ -18517,8 +18517,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f4ad0290e1ae632c9c0a80cacc5e9e8ed46d8089",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "optfn_monsters",
