@@ -18355,7 +18355,30 @@
       "cFile": "options.c",
       "sessions": [],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "shared_menu_optfn..optfn_menu_headings",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "shared_menu_optfn",
+            "optfn_menu_deselect_all",
+            "optfn_menu_deselect_page",
+            "optfn_menu_first_page",
+            "optfn_menu_invert_all",
+            "optfn_menu_invert_page",
+            "optfn_menu_last_page",
+            "optfn_menu_next_page",
+            "optfn_menu_previous_page",
+            "optfn_menu_search",
+            "optfn_menu_select_all",
+            "optfn_menu_select_page",
+            "optfn_menu_shift_left",
+            "optfn_menu_shift_right",
+            "optfn_menu_headings"
+          ]
+        }
+      ],
       "openedAt": "9915dd820376515693eed907fe0094a8798d28d4",
       "openStanding": {
         "sha": "a7bbab17",
