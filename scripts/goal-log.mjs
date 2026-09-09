@@ -216,15 +216,14 @@ export function selectFunctionRange(functions, from, to) {
  * The next span of a file port: the unported functions, in C order, that
  * follow the last closed span, up to `cap` C lines.
  *
- * The first span starts at `startFunction` (the function the divergence
- * queue named) or at the file's first unported function. Every later span
- * starts at the first unported function after the last closed span, wrapping
- * to the top of the file. From there the span passes over ported functions
- * and collects unported ones until the next would exceed the cap or the file
- * ends; it always holds at least one function. Returns null when every
- * function is ported.
+ * The first span starts at the file's first unported function. Every later
+ * span starts at the first unported function after the last closed span,
+ * wrapping to the top of the file. From there the span passes over ported
+ * functions and collects unported ones until the next would exceed the cap
+ * or the file ends; it always holds at least one function. Returns null
+ * when every function is ported.
  */
-export function nextSpan(functions, closedSpans, startFunction, cap = SPAN_LINE_CAP) {
+export function nextSpan(functions, closedSpans, cap = SPAN_LINE_CAP) {
     if (!functions.some((entry) => !entry.ported)) return null;
     const firstUnportedFrom = (index) => {
         const after = functions.findIndex(
@@ -239,10 +238,7 @@ export function nextSpan(functions, closedSpans, startFunction, cap = SPAN_LINE_
         const lastIndex = functions.findIndex((entry) => entry.name === lastName);
         startIndex = firstUnportedFrom(lastIndex + 1);
     } else {
-        const named = startFunction
-            ? functions.findIndex((entry) => entry.name === startFunction)
-            : -1;
-        startIndex = firstUnportedFrom(Math.max(named, 0));
+        startIndex = firstUnportedFrom(0);
     }
     const run = [];
     let cLines = 0;
@@ -321,8 +317,7 @@ export function formatGoal(goal, { detail = false } = {}) {
     if (goal.kind === 'file-port') {
         const { ported, total } = portedCount(goal);
         lines.push(`  file port of ${goal.cFile}: ${ported} of ${total} `
-            + 'functions ported'
-            + (goal.startFunction ? `, first span starts at ${goal.startFunction}` : ''));
+            + 'functions ported');
     } else if (goal.kind === 'divergence-fix') {
         lines.push(`  divergence fix in ${goal.cFile} ${goal.function}() `
             + `for ${goal.session}`
@@ -437,13 +432,6 @@ function newGoal(options) {
         );
         goal.functions = markPorted(functions, jsFunctionNames());
         goal.range = { from: functions[0].line, to: functions.at(-1).endLine };
-        if (options['start-function']
-            && !functions.some((entry) => entry.name === options['start-function'])) {
-            throw new Error(
-                `--start-function ${options['start-function']} is outside the range`,
-            );
-        }
-        goal.startFunction = options['start-function'] ?? null;
     } else {
         required(options, ['function', 'session']);
         goal.function = options.function;
@@ -520,7 +508,7 @@ function main(args) {
         if (!span) {
             refreshPorted(goal);
             const closed = goal.spans.filter((entry) => entry.status === 'closed');
-            const next = nextSpan(goal.functions, closed, goal.startFunction);
+            const next = nextSpan(goal.functions, closed);
             if (!next) {
                 console.log(`every function of ${goal.cFile} in ${goal.id} is `
                     + 'ported; close the goal');

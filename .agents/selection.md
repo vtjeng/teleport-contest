@@ -29,9 +29,8 @@ queue before choosing. Appendix A states how to read an entry.
 
 Take goals in this order:
 
-1. Open a file port for the C file whose mismatches forfeit the most screens,
-   passing `--start-function` for the function the mismatch named. Break a tie
-   by the earliest mismatch step.
+1. Open a file port for the C file whose mismatches forfeit the most screens.
+   Break a tie by the earliest mismatch step.
 2. When a session's first mismatch falls inside a function that is already
    ported whole, open a divergence fix for that session instead of a file
    port, and follow `.agents/divergence.md`.
@@ -46,8 +45,7 @@ divergence fix for the display owner it identifies.
 Queue a file port with
 `node scripts/goal-log.mjs queue-goal --kind file-port --id <id> --c-file <file.c> --summary "<one line>"`.
 Add `--from-function` and `--to-function` for a group inside a large file,
-`--start-function` for the function the queue named, and `--sessions` for the
-sessions whose first mismatch names the file. The command reads the C file and
+and `--sessions` for the sessions whose first mismatch names the file. The command reads the C file and
 records every function in the range, marking whether `js/` already defines a
 function of that name. Queue a divergence fix with
 `node scripts/goal-log.mjs queue-goal --kind divergence-fix --id <id> --summary "<one line>" --c-file <file.c> --function <name> --session <name>`,

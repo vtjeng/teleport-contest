@@ -41,7 +41,6 @@ const store = {
                 { name: 'optfn_align', line: 10, endLine: 30, ported: true },
                 { name: 'optfn_boulder', line: 31, endLine: 60, ported: false },
             ],
-            startFunction: null,
             sessions: [],
             spans: [],
         },
@@ -107,14 +106,12 @@ test('the goal store validates both goal kinds and the legacy shape', () => {
 
 test('formatGoal states the kind, the ported count, and the spans', () => {
     const filePort = structuredClone(store.goals[1]);
-    filePort.startFunction = 'optfn_boulder';
     filePort.spans = [{ name: 'optfn_boulder', status: 'queued', closedBy: null,
         functions: ['optfn_boulder'] }];
     filePort.detail = 'line one\nline two';
     const brief = formatGoal(filePort);
     assert.ok(brief.includes('QUEUED options-c: Port options.c'));
-    assert.ok(brief.includes('file port of options.c: 1 of 2 functions ported, '
-        + 'first span starts at optfn_boulder'));
+    assert.ok(brief.includes('file port of options.c: 1 of 2 functions ported'));
     assert.ok(brief.includes('[queued] optfn_boulder'));
     // The default stays terse because --current opens every task; detail
     // must not leak into it.
@@ -190,40 +187,40 @@ test('nextSpan collects unported functions in C order up to the line cap', () =>
     }));
     const cap = 250;
 
-    // No start function: a, then c after passing over ported b; d would push
-    // the span past 250 lines. a and c sit apart, so the span lists two
-    // ranges, and b's lines count for nothing.
-    assert.deepEqual(nextSpan(functions, [], null, cap),
+    // First span starts at the file's first unported function: a, then c
+    // after passing over ported b; d would push the span past 250 lines.
+    // a and c sit apart, so the span lists two ranges.
+    assert.deepEqual(nextSpan(functions, [], cap),
         { functions: ['a', 'c'], lineRanges: ['1-100', '201-300'], cLines: 200 });
 
-    // The mismatch queue named d: the span starts there, passes over
-    // ported e, and takes f, the last function in the file.
-    assert.deepEqual(nextSpan(functions, [], 'd', cap),
+    // After a and c close, the next unported function is d; e is ported, so
+    // the span takes d and f.
+    const afterAC = [{ functions: ['a', 'c'], status: 'closed' }];
+    assert.deepEqual(nextSpan(functions, afterAC, cap),
         { functions: ['d', 'f'], lineRanges: ['301-400', '501-600'], cLines: 200 });
 
     // After d closes, the next unported function after it is f.
     const afterD = [{ functions: ['d'], status: 'closed' }];
-    assert.deepEqual(nextSpan(functions, afterD, 'd', cap).functions, ['f']);
+    assert.deepEqual(nextSpan(functions, afterD, cap).functions, ['f']);
 
-    // After f closes the search wraps to the top of the file and collects
-    // a and c again: the fixture never marks d ported, and d is what the
-    // cap excludes.
+    // After f closes the search wraps to the top: a and c are still unported
+    // because the fixture never marks them.
     const afterF = [...afterD, { functions: ['f'], status: 'closed' }];
-    assert.deepEqual(nextSpan(functions, afterF, 'd', cap).functions, ['a', 'c']);
+    assert.deepEqual(nextSpan(functions, afterF, cap).functions, ['a', 'c']);
 
     // The cap splits a long run: b and c fit in 250 lines, a third would not.
     // Adjacent functions merge into one range.
     const longRun = functions.map((entry) => ({ ...entry, ported: entry.name === 'a' }));
-    assert.deepEqual(nextSpan(longRun, [], null, cap),
+    assert.deepEqual(nextSpan(longRun, [], cap),
         { functions: ['b', 'c'], lineRanges: ['101-300'], cLines: 200 });
 
     // A single function larger than the cap still forms a span.
     const huge = [{ name: 'x', line: 1, endLine: 1000, ported: false }];
-    assert.deepEqual(nextSpan(huge, [], null, cap).functions, ['x']);
+    assert.deepEqual(nextSpan(huge, [], cap).functions, ['x']);
 
     // Nothing left: the goal closes.
     const done = functions.map((entry) => ({ ...entry, ported: true }));
-    assert.equal(nextSpan(done, [], null, cap), null);
+    assert.equal(nextSpan(done, [], cap), null);
 
     // The default cap is the value the comment above it calibrates.
     assert.equal(SPAN_LINE_CAP, 800);
