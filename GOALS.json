@@ -15867,7 +15867,7 @@
     {
       "id": "div-display-display-monster-0383",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Align hallucinated monster glyph after pickup",
       "cFile": "display.c",
       "sessions": [],
@@ -15888,8 +15888,11 @@
         "screens": 5295,
         "rng": 376945
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9a486c2210aab404db7bfc415f019f67f68d0aa9",
+      "delivered": {
+        "screens": 4,
+        "rng": 0
+      },
       "function": "display_monster",
       "session": "seed0383-wizard-hallucinate",
       "step": 199
