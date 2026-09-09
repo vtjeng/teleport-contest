@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises mon.c meatmetal(): a rust monster eats a newly wished mace after the newly seeded debug setup.",
+  "segments": [
+    {
+      "seed": 7770018,
+      "datetime": "20261024100000",
+      "nethackrc": "OPTIONS=name:RustMace,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  #wizwish\nmace\ndol\u0007rust monster\n..............................   "
+    }
+  ]
+}

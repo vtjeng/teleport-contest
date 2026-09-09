@@ -533,9 +533,9 @@ test('m_consume_obj deletes an inert non-mimic corpse without quickmimic',
             'quickmimic not called for non-mimic');
     });
 
-// m_consume_obj rejects corpses that would trigger unported mon_givit
-// effects.  PM_WRAITH triggers the mlevelgain branch; PM_NURSE triggers
-// mhealup; PM_STALKER triggers the invisible-stalker path.
+// m_consume_obj still rejects corpse effects that are not ported.  PM_WRAITH
+// triggers the mlevelgain branch and PM_NURSE triggers mhealup; the stalker
+// branch is covered below because mon_givit now handles it.
 test('m_consume_obj rejects corpses with unported effect branches',
     async () => {
         const cases = [
@@ -543,8 +543,6 @@ test('m_consume_obj rejects corpses with unported effect branches',
             ['wraith corpse', PM_WRAITH, /non-wraith/u],
             // Nurse corpse: mhealup branch (full heal).
             ['nurse corpse', PM_NURSE, /non-nurse/u],
-            // Stalker corpse: mon_givit invisibility path.
-            ['stalker corpse', PM_STALKER, /non-stalker/u],
         ];
         for (const [name, corpsenm, reason] of cases) {
             const { monster, state } = quickState(false);
@@ -559,6 +557,22 @@ test('m_consume_obj rejects corpses with unported effect branches',
             );
             assert.equal(state.level.objects[5][5], corpse, name);
         }
+    });
+
+test('m_consume_obj eats a stalker corpse and grants invisibility',
+    async () => {
+        const { monster, state } = quickState(false);
+        const corpse = floorMimicCorpse(state, PM_STALKER);
+        await m_consume_obj(monster, corpse, {
+            ...eatingEnv(state),
+            quickMimic: async () => assert.fail('stalker corpse'),
+        });
+        assert.equal(state.level.objects[5][5], null,
+            'stalker corpse removed from floor');
+        assert.equal(monster.minvis, 1,
+            'stalker corpse grants temporary invisibility');
+        assert.equal(monster.perminvis, 1,
+            'stalker corpse grants permanent invisibility');
     });
 
 test('quickmimic turns a visible little dog into a kitten appearance',

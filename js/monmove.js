@@ -202,6 +202,9 @@ import {
     hideunder,
     m_carrying,
     m_consume_obj,
+    meatcorpse,
+    meatmetal,
+    meatobj,
     max_mon_load,
     mon_allowflags,
     mondied,
@@ -2002,7 +2005,7 @@ async function bee_eat_jelly(mon, obj, env = {}) {
 // C ref: monmove.c gelcube_digests() (424-461). A gelatinous cube digests
 // an organic, non-artifact, non-prize item from its inventory.
 // Returns 0 if it used a move, -1 if it did not eat.
-function gelcube_digests(mtmp, env = {}) {
+async function gelcube_digests(mtmp, env = {}) {
     const state = env.state ?? game;
     if (mtmp.meating || !mtmp.minvent) return -1;
 
@@ -2017,7 +2020,7 @@ function gelcube_digests(mtmp, env = {}) {
 
     mtmp.meating = eaten_stat(mtmp.meating, otmp, env);
     extract_from_minvent(mtmp, otmp, true, true, state, env);
-    m_consume_obj(mtmp, otmp, env);
+    await m_consume_obj(mtmp, otmp, env);
     return 0;
 }
 
@@ -2539,7 +2542,7 @@ export async function dochug(monster, rawEnv = {}) {
             && (res = await bee_eat_jelly(monster, otmp, env)) >= 0)
             return res;
         if (species === state.mons?.[PM_GELATINOUS_CUBE]
-            && (res = gelcube_digests(monster, env)) >= 0)
+            && (res = await gelcube_digests(monster, env)) >= 0)
             return res;
     }
 
@@ -2754,7 +2757,7 @@ export function select_postmove_object_action(
         : { ...monster, mx: x, my: y };
     const species = subject.data;
 
-    if (!subject.mtame && metallivorous(species)) {
+    if (!rawEnv.skipConsumption && !subject.mtame && metallivorous(species)) {
         const rustMonster = species?.pmidx === M.PM_RUST_MONSTER;
         for (let obj = objects; obj; obj = obj.nexthere) {
             const material = objectType(obj, state).oc_material;
@@ -2782,7 +2785,13 @@ export function select_postmove_object_action(
         }
     }
 
-    if (!subject.mtame && CORPSE_EATERS.has(species?.pmidx)) {
+    if (!rawEnv.skipConsumption
+        && species?.pmidx === PM_GELATINOUS_CUBE) {
+        return { kind: 'eat objects' };
+    }
+
+    if (!rawEnv.skipConsumption
+        && !subject.mtame && CORPSE_EATERS.has(species?.pmidx)) {
         for (let obj = objects; obj; obj = obj.nexthere) {
             if (obj.otyp !== O.CORPSE) continue;
             const corpseSpecies = state.mons?.[obj.corpsenm];
@@ -3048,9 +3057,9 @@ export const INERT_DOOR_MASKS = new Set([D_NODOOR, D_BROKEN, D_ISOPEN]);
 // monsters.  The injected `unsupported` refuses the rest:
 // every door arm that needs a door trap, amorphous(), can_unlock or a
 // doorbuster, mdig_tunnel(), the engulfed-hero relocation, and
-// maybe_spin_web().  meatmetal(), meatobj() and meatcorpse() are refused
-// through select_postmove_object_action(), which selects them.  The ordinary
-// no-object arm of hideunder() is admitted below; object-backed hiders and
+// maybe_spin_web().  The meatmetal(), meatobj(), meatcorpse() and mpickstuff()
+// object arms are wired below. The ordinary no-object arm of hideunder() is
+// admitted below; object-backed hiders and
 // eels remain refused because their hideunder() branches have different
 // terrain and message behavior.  after_shk_move() (C:1700-1702) is guarded by
 // its own unsupported() inside the MMOVE_MOVED / MMOVE_DONE block; the
@@ -3244,20 +3253,34 @@ export async function postmov(
 
     if (mmoved === MMOVE_MOVED || mmoved === MMOVE_DONE) {
         if (state.level?.objects?.[monster.mx]?.[monster.my]) {
+            const consumptionEnv = {
+                ...env,
+                touchArtifact: () =>
+                    unsupported('monster artifact item interaction'),
+            };
+            if (metallivorous(species)) {
+                const eaten = await meatmetal(monster, consumptionEnv);
+                if (eaten >= 2) return MMOVE_DIED;
+            }
+            if (species === state.mons?.[PM_GELATINOUS_CUBE]) {
+                const eaten = await meatobj(monster, consumptionEnv);
+                if (eaten >= 2) return eaten;
+            }
+            if (CORPSE_EATERS.has(species?.pmidx)) {
+                const eaten = await meatcorpse(monster, consumptionEnv);
+                if (eaten >= 2) return eaten;
+            }
             const selected = select_postmove_object_action(
                 monster,
                 monster.mx,
                 monster.my,
                 {
                     ...env,
+                    skipConsumption: true,
                     touchArtifact: () =>
                         unsupported('monster artifact item interaction'),
                 },
             );
-            // Only mpickstuff()'s arm is ported; meatmetal(), meatobj() and
-            // meatcorpse() still stop the scan, and they precede it here.
-            if (selected && selected.kind !== 'pick up')
-                unsupported('ordinary monster item interaction');
             if (selected) {
                 const picked = await mpickstuff(
                     monster,

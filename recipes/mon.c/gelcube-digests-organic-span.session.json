@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises mon.c meatobj(): a gelatinous cube engulfs a food ration after the newly seeded debug setup.",
+  "segments": [
+    {
+      "seed": 7770012,
+      "datetime": "20261018100000",
+      "nethackrc": "OPTIONS=name:CubeSpan,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  #wizwish\nfood ration\ndol\u0007gelatinous cube\n..............................   "
+    }
+  ]
+}

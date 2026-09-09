@@ -37,6 +37,11 @@ import {
     D_LOCKED,
     engulfing_u,
     FIRE_RES,
+    COLD_RES,
+    SLEEP_RES,
+    DISINT_RES,
+    SHOCK_RES,
+    STONE_RES,
     FULL_MOON,
     G_GENOD,
     HALLUC,
@@ -111,7 +116,7 @@ import {
     u_at,
 } from './const.js';
 import { get_mleash } from './apply.js';
-import { artifact_exists } from './artifacts.js';
+import { artifact_exists, artifactTouchable } from './artifacts.js';
 import { night } from './calendar.js';
 import {
     glyph_is_invisible,
@@ -127,16 +132,22 @@ import {
     pmname,
     x_monnam,
 } from './do_name.js';
-import { flooreffects } from './do.js';
+import { flooreffects, revive_corpse } from './do.js';
 import { finish_meating } from './dogmove.js';
-import { has_ceiling, on_level } from './dungeon.js';
+import { has_ceiling, on_level, surface } from './dungeon.js';
 import { sengr_at } from './engrave.js';
 import { adjalign } from './attrib.js';
 import { experience, more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
 import { disturb_buried_zombies } from './hack.js';
-import { dist2 } from './hacklib.js';
-import { delobj, obj_extract_self, stackobj } from './invent.js';
+import { dist2, s_suffix } from './hacklib.js';
+import {
+    add_to_minv,
+    delobj,
+    nxtobj,
+    obj_extract_self,
+    stackobj,
+} from './invent.js';
 import { any_light_source, del_light_source } from './light.js';
 import { mkcorpstat } from './corpstat.js';
 import { change_luck } from './moveloop_preamble.js';
@@ -164,7 +175,6 @@ import {
     completelyburns,
     completelyrots,
     completelyrusts,
-    control_teleport,
     dmgtype,
     emits_light,
     flesh_petrifies,
@@ -206,12 +216,12 @@ import {
     regenerates,
     resist_conflict,
     strongmonst,
-    telepathic,
     throws_rocks,
     tunnels,
     undead_to_corpse,
     unique_corpstat,
     unsolid,
+    vegan,
     verysmall,
     zombie_form,
 } from './mondata.js';
@@ -320,6 +330,7 @@ import {
     PM_PAPER_GOLEM,
     PM_RED_DRAGON,
     PM_ROPE_GOLEM,
+    PM_RUST_MONSTER,
     PM_SILVER_DRAGON,
     PM_SKELETON,
     PM_SMALL_MIMIC,
@@ -373,6 +384,10 @@ import {
     clear_dknown,
     clear_splitobjs,
     mkobj,
+    g_at,
+    isMetallic,
+    isRustprone,
+    mksobj_at,
     objectType,
     place_object,
     sobj_at,
@@ -390,10 +405,23 @@ import {
     GLOB_OF_GREEN_SLIME,
     POTION_CLASS,
     RANDOM_CLASS,
+    AMULET_OF_STRANGULATION,
+    GOLD,
+    ICE_BOX,
+    RIN_SLOW_DIGESTION,
+    ROCK,
+    ROCK_CLASS,
+    SCROLL_CLASS,
+    SCR_SCARE_MONSTER,
     TIN,
+    WOOD,
     SADDLE,
 } from './objects.js';
-import { distant_name, donameFresh } from './objnam.js';
+import { distant_name, donameFresh, The, xnameFresh } from './objnam.js';
+import { obj_resists } from './bury.js';
+import { objdescr_is } from './o_init.js';
+import { corpse_intrinsic, should_givit } from './eat.js';
+import { mon_set_minvis } from './worn.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import {
     canSeeMonster,
@@ -1046,12 +1074,60 @@ export function m_carrying(monster, type, state = game) {
     return null;
 }
 
+// C ref: mon.c meatbox() (1354-1390). Contents of an eaten container either
+// enter an engulfing monster's inventory or land on the floor.
+export async function meatbox(mon, obj, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const x = mon.mx;
+    const y = mon.my;
+    const engulfContents = mon.data === state.mons?.[PM_GELATINOUS_CUBE];
+    if (!obj?.cobj || !isok(x, y)) return;
+
+    if (!engulfContents && cansee(x, y, state)) {
+        const contents = s_suffix(The(
+            distant_name(obj, xnameFresh, state),
+            state,
+        ));
+        await monsterMessage(
+            `${contents} contents spill out onto the ${surface(x, y, state)}.`,
+            mon,
+            state,
+            rawEnv,
+        );
+    }
+    while (obj.cobj) {
+        const child = obj.cobj;
+        obj_extract_self(child, objectGenerationEnv({ ...rawEnv, state }));
+        if (obj.otyp === ICE_BOX)
+            note_unported('mkobj.c removed_from_icebox');
+        if (engulfContents) {
+            mpickobj(mon, child, rawEnv);
+        } else if (!flooreffects(
+            child,
+            x,
+            y,
+            '',
+            {
+                ...objectGenerationEnv({ ...rawEnv, state }),
+                unsupported: rawEnv.unsupported
+                    ?? ((reason) => note_unported(`do.c flooreffects ${reason}`)),
+            },
+        )) {
+            place_object(
+                child,
+                x,
+                y,
+                objectGenerationEnv({ ...rawEnv, state }),
+            );
+        }
+    }
+}
+
 // C ref: mon.c m_consume_obj() (1392-1453), the tame-monster branch for a
 // corpse.  dogmove.c dog_eat() is its live caller.  The uball/uchain and
 // Has_contents arms are gated before entry.  After delobj, corpses that
-// trigger polyfood, mlevelgain, mhealup, mstoning, sliming, pyrolisk
-// explosion, or mon_givit effects are refused fail-closed; only inert
-// corpses, ordinary food items, and the mimic-quickmimic branch pass through.
+// trigger polyfood, mlevelgain, mhealup, mstoning, sliming, or pyrolisk
+// explosion remain explicit fail-closed gaps; mon_givit is ported below.
 export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const unsupported = rawEnv.unsupported;
@@ -1060,10 +1136,10 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
         throw new TypeError(`m_consume_obj requires ${reason}`);
     };
 
-    if (!mtmp?.mtame) stop('a tame monster');
     if (otmp === state.uball || otmp === state.uchain)
         stop('an unpunished object');
-    if (otmp?.oartifact) stop('an ordinary object');
+    if (otmp?.cobj)
+        await meatbox(mtmp, otmp, { ...rawEnv, state });
 
     // C line 1410: corpsenm is NON_PM for non-CORPSE objects.
     const corpsenm = otmp.otyp === CORPSE ? otmp.corpsenm : NON_PM;
@@ -1077,7 +1153,6 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
         if (otmp.otyp === TIN) stop('a non-TIN food item');
         if (otmp.otyp === GLOB_OF_GREEN_SLIME)
             stop('a non-slime food item');
-        if (otmp.cobj) stop('an empty food container');
         delobj(otmp, objectGenerationEnv({ ...rawEnv, state }));
         if (otmp.otyp === CARROT && !mtmp.mcansee) {
             // C ref: muse.c mcureblindness() (2872-2881), reached by
@@ -1102,13 +1177,10 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
         return;
     }
 
-    if (otmp.cobj) stop('an empty corpse object');
-
     const corpseSpecies = ismnum(corpsenm) ? state.mons?.[corpsenm] : null;
 
-    // Gate every post-delobj effect branch.  Each check mirrors the C macro
-    // or inline test that guards the branch.  Refuse any corpse that would
-    // fire an unported branch; allow the rest through to delobj.
+    // Gate every post-delobj effect branch. Each check mirrors the C macro or
+    // inline test that guards an effect not yet ported in this file.
     const isMimic = corpsenm === PM_SMALL_MIMIC
         || corpsenm === PM_LARGE_MIMIC
         || corpsenm === PM_GIANT_MIMIC;
@@ -1126,23 +1198,6 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     if (corpseSpecies && flesh_petrifies(corpseSpecies))
         stop('a non-petrifying corpse');
     // pyrolisk egg: EGG is not a corpse, handled in the non-CORPSE branch.
-    // mon_givit: fires when corpsenm != NON_PM.  For corpses whose species
-    // conveys no intrinsic and is not a stalker, corpse_intrinsic returns 0
-    // and mon_givit returns immediately with no random draw or state change.
-    // Gate corpses that WOULD convey an intrinsic or trigger the stalker
-    // invisibility path.
-    if (corpsenm === PM_STALKER) stop('a non-stalker corpse');
-    if (corpseSpecies) {
-        if (is_giant(corpseSpecies))
-            stop('a non-giant corpse');
-        if (corpseSpecies.mconveys)
-            stop('a corpse that conveys no intrinsic');
-        if (can_teleport(corpseSpecies)
-            || control_teleport(corpseSpecies)
-            || telepathic(corpseSpecies))
-            stop('a corpse that conveys no intrinsic');
-    }
-
     if (isMimic) {
         if (typeof rawEnv.quickMimic !== 'function')
             throw new TypeError(
@@ -1156,8 +1211,315 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     if (isMimic) {
         await rawEnv.quickMimic(mtmp, { ...rawEnv, state });
     }
-    // For non-mimic corpses with no effect branches, mon_givit is a no-op
-    // (corpse_intrinsic returns 0), so nothing happens after delobj.
+    if (ismnum(corpsenm))
+        await mon_givit(mtmp, corpseSpecies, { ...rawEnv, state });
+}
+
+// C ref: mon.c meatmetal() (1463-1531).
+export async function meatmetal(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2, rnd };
+    const visible = canseemon(mtmp, state);
+    if (mtmp.mtame) return 0;
+
+    for (let obj = state.level?.objects?.[mtmp.mx]?.[mtmp.my] ?? null;
+        obj;
+        obj = obj.nexthere) {
+        if ((mtmp.data === state.mons?.[PM_RUST_MONSTER]
+                && !isRustprone(obj, state))
+            || obj.otyp === AMULET_OF_STRANGULATION
+            || obj.otyp === RIN_SLOW_DIGESTION
+            || (obj.opoisoned
+                && !monster_resists_element(mtmp, POISON_RES, state))) {
+            continue;
+        }
+        if (!isMetallic(obj, state)
+            || obj_resists(obj, 5, 95, rawEnv)
+            || !artifactTouchable(obj, mtmp, rawEnv)) continue;
+
+        const rustMonster = mtmp.data === state.mons?.[PM_RUST_MONSTER];
+        if (rustMonster && obj.oerodeproof) {
+            if (visible && state.flags?.verbose) {
+                const name = distant_name(obj, donameFresh, state);
+                await monsterMessage(
+                    `${capitalizedMonsterName(mtmp, state)} eats ${name}!`,
+                    mtmp,
+                    state,
+                    rawEnv,
+                );
+            }
+            obj.oerodeproof = 0;
+            mtmp.mstun = 1;
+            if (visible && state.flags?.verbose) {
+                const name = distant_name(obj, donameFresh, state);
+                await monsterMessage(
+                    `${capitalizedMonsterName(mtmp, state)} spits ${name} out in disgust!`,
+                    mtmp,
+                    state,
+                    rawEnv,
+                );
+            }
+            continue;
+        }
+
+        if (cansee(mtmp.mx, mtmp.my, state)) {
+            const name = distant_name(obj, donameFresh, state);
+            if (state.flags?.verbose)
+                await monsterMessage(
+                    `${capitalizedMonsterName(mtmp, state)} eats ${name}!`,
+                    mtmp,
+                    state,
+                    rawEnv,
+                );
+        } else if (state.flags?.verbose) {
+            await monsterMessage('You hear a crunching sound.', null, state, rawEnv);
+        }
+        mtmp.meating = Math.trunc(obj.owt / 2) + 1;
+        await m_consume_obj(mtmp, obj, { ...rawEnv, state, random });
+        if (mtmp.mhp < 1) return 2;
+        if (random.rnd(25) < 3) {
+            mksobj_at(ROCK, mtmp.mx, mtmp.my, true, false, {
+                ...objectGenerationEnv({ ...rawEnv, state, random }),
+            });
+        }
+        newsym(mtmp.mx, mtmp.my, state);
+        return 1;
+    }
+    return 0;
+}
+
+// C ref: mon.c meatobj() (1533-1653).
+export async function meatobj(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (mtmp.mtame) return 0;
+    const original = mtmp.data;
+    let count = 0;
+    let engulfed = 0;
+    let messageText = '';
+    let obj = state.level?.objects?.[mtmp.mx]?.[mtmp.my] ?? null;
+    while (obj) {
+        const nextObj = obj.nexthere;
+        if (isMinesPrize(obj, state) || isSokoPrize(obj, state)) {
+            obj = nextObj;
+            continue;
+        }
+        if (obj.otyp === CORPSE
+            && is_rider(state.mons?.[obj.corpsenm])) {
+            const ox = obj.ox;
+            const oy = obj.oy;
+            const revived = await revive_corpse(obj, state);
+            newsym(ox, oy, state);
+            if (!revived) {
+                obj = nextObj;
+                continue;
+            }
+            break;
+        }
+        const species = obj.otyp === CORPSE ? state.mons?.[obj.corpsenm] : null;
+        if ((species && touch_petrifies(species)
+                && !monster_resists_element(mtmp, STONE_RES, state))
+            || obj.oclass === ROCK_CLASS
+            || obj === state.uball
+            || obj === state.uchain
+            || obj.otyp === SCR_SCARE_MONSTER) {
+            obj = nextObj;
+            continue;
+        }
+
+        const stoning = obj.otyp === CORPSE
+            && ismnum(obj.corpsenm)
+            && flesh_petrifies(state.mons[obj.corpsenm]);
+        const engulf = !isOrganic(obj, state)
+            || obj_resists(obj, 5, 95, rawEnv)
+            || !artifactTouchable(obj, mtmp, rawEnv)
+            || obj.otyp === AMULET_OF_STRANGULATION
+            || obj.otyp === RIN_SLOW_DIGESTION
+            || (obj.opoisoned
+                && !monster_resists_element(mtmp, POISON_RES, state))
+            || (stoning
+                && !monster_resists_element(mtmp, STONE_RES, state))
+            || (obj.otyp === GLOB_OF_GREEN_SLIME && !slimeproof(mtmp.data));
+        if (engulf) {
+            engulfed++;
+            const name = distant_name(obj, donameFresh, state);
+            if (engulfed === 1)
+                messageText = `${capitalizedMonsterName(mtmp, state)} engulfs ${name}.`;
+            else if (engulfed === 2)
+                messageText = `${capitalizedMonsterName(mtmp, state)} engulfs several objects.`;
+            obj_extract_self(obj, objectGenerationEnv({ ...rawEnv, state }));
+            mpickobj(mtmp, obj, rawEnv);
+        } else {
+            count++;
+            if (cansee(mtmp.mx, mtmp.my, state)) {
+                const name = distant_name(obj, donameFresh, state);
+                if (state.flags?.verbose)
+                    await monsterMessage(
+                        `${capitalizedMonsterName(mtmp, state)} eats ${name}!`,
+                        mtmp,
+                        state,
+                        rawEnv,
+                    );
+                if (obj.oclass === SCROLL_CLASS
+                    && objdescr_is(obj, 'YUM YUM', state)) {
+                    await monsterMessage(`Yum${obj.blessed ? '!' : '.'}`, null, state, rawEnv);
+                }
+            } else {
+                await monsterMessage('You hear a slurping sound.', null, state, rawEnv);
+            }
+            await m_consume_obj(mtmp, obj, { ...rawEnv, state });
+            if (mtmp.data !== original) return mtmp.data ? 1 : 2;
+        }
+        if (mtmp.minvis) newsym(mtmp.mx, mtmp.my, state);
+        obj = nextObj;
+    }
+    if (engulfed && state.flags?.verbose) {
+        if (cansee(mtmp.mx, mtmp.my, state) && messageText)
+            await monsterMessage(messageText, mtmp, state, rawEnv);
+        else
+            await monsterMessage(
+                `You hear ${engulfed === 1 ? 'a' : 'several'} slurping sound${engulfed === 1 ? '' : 's'}.`,
+                null,
+                state,
+                rawEnv,
+            );
+    }
+    return count || engulfed ? 1 : 0;
+}
+
+// C ref: mon.c meatcorpse() (1656-1723).
+export async function meatcorpse(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (mtmp.mtame) return 0;
+    const original = mtmp.data;
+    const x = mtmp.mx;
+    const y = mtmp.my;
+    for (let obj = sobj_at(CORPSE, x, y, state); obj;
+        obj = nxtobj(obj, CORPSE, true)) {
+        const species = state.mons?.[obj.corpsenm];
+        if (vegan(species)
+            || (flesh_petrifies(species)
+                && !monster_resists_element(mtmp, STONE_RES, state))) continue;
+        if (is_rider(species)) {
+            const revived = await revive_corpse(obj, state);
+            newsym(x, y, state);
+            if (!revived) continue;
+            break;
+        }
+        if (obj.quan > 1)
+            obj = splitobj(obj, 1, objectGenerationEnv({ ...rawEnv, state }));
+        if (cansee(x, y, state) && canseemon(mtmp, state)) {
+            const name = distant_name(obj, donameFresh, state);
+            if (state.flags?.verbose)
+                await monsterMessage(
+                    `${capitalizedMonsterName(mtmp, state)} eats ${name}!`,
+                    mtmp,
+                    state,
+                    rawEnv,
+                );
+        } else {
+            await monsterMessage('You hear a masticating sound.', null, state, rawEnv);
+        }
+        await m_consume_obj(mtmp, obj, { ...rawEnv, state });
+        if (mtmp.data !== original) return mtmp.data ? 1 : 2;
+        if (mtmp.minvis) newsym(x, y, state);
+        return 1;
+    }
+    return 0;
+}
+
+// C ref: mon.c mon_give_prop() (1726-1775).
+export async function mon_give_prop(mtmp, prop, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const messages = new Map([
+        [FIRE_RES, '%s shivers slightly.'],
+        [COLD_RES, '%s looks quite warm.'],
+        [SLEEP_RES, '%s looks wide awake.'],
+        [DISINT_RES, '%s looks very firm.'],
+        [SHOCK_RES, '%s crackles with static electricity.'],
+        [POISON_RES, '%s looks healthy.'],
+    ]);
+    if (!messages.has(prop)) return;
+    const intrinsic = 1 << (prop - FIRE_RES);
+    const oldResistance = (mtmp.data?.mresists ?? 0) | (mtmp.mintrinsics ?? 0);
+    const message = oldResistance & intrinsic ? null : messages.get(prop);
+    mtmp.mintrinsics = (mtmp.mintrinsics ?? 0) | intrinsic;
+    if (canseemon(mtmp, state) && message) {
+        await monsterMessage(
+            message.replace('%s', capitalizedMonsterName(mtmp, state)),
+            mtmp,
+            state,
+            rawEnv,
+        );
+    }
+}
+
+// C ref: mon.c mon_givit() (1778-1824).
+export async function mon_givit(mtmp, ptr, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (mtmp.mhp < 1) return;
+    const visible = canseemon(mtmp, state);
+    if (ptr === state.mons?.[PM_STALKER]) {
+        if (!mtmp.perminvis || mtmp.invis_blkd) {
+            const oldName = capitalizedMonsterName(mtmp, state);
+            mon_set_minvis(mtmp, false, state);
+            if (visible) {
+                const text = !canSpotMonster(mtmp, state)
+                    ? `${oldName} vanishes.`
+                    : mtmp.invis_blkd
+                        ? `${oldName} seems to flicker.`
+                        : `${oldName} becomes invisible.`;
+                await monsterMessage(text, mtmp, state, rawEnv);
+            }
+        }
+        mtmp.mstun = 1;
+        return;
+    }
+    const prop = corpse_intrinsic(ptr, rawEnv.random ?? { rn2 });
+    if (!prop || !should_givit(prop, ptr, rawEnv.random ?? { rn2 })) return;
+    await mon_give_prop(mtmp, prop, rawEnv);
+}
+
+// C ref: mon.c mpickgold() (1827-1845).
+export function mpickgold(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const gold = g_at(mtmp.mx, mtmp.my, state);
+    if (!gold) return;
+    const material = objectType(gold, state).oc_material;
+    obj_extract_self(gold, objectGenerationEnv({ ...rawEnv, state }));
+    add_to_minv(mtmp, gold, rawEnv);
+    if (cansee(mtmp.mx, mtmp.my, state)) {
+        if (state.flags?.verbose && !mtmp.isgd) {
+            const message = rawEnv.message ?? ttyPline;
+            message(
+                messageAt(
+                    `${capitalizedMonsterName(mtmp, state)} picks up some ${material === GOLD ? 'gold' : 'money'}.`,
+                    mtmp.mx,
+                    mtmp.my,
+                    state,
+                ),
+                state,
+            );
+        }
+        newsym(mtmp.mx, mtmp.my, state);
+    }
+}
+
+function isOrganic(obj, state) {
+    return (state.objects?.[obj.otyp]?.oc_material ?? 0) <= WOOD;
+}
+
+function isMinesPrize(obj, state) {
+    return obj.o_id === (state.svc?.context?.achieveo?.mines_prize_oid ?? -1);
+}
+
+function isSokoPrize(obj, state) {
+    return obj.o_id === (state.svc?.context?.achieveo?.soko_prize_oid ?? -1);
+}
+
+async function monsterMessage(text, monster, state, env) {
+    const message = env.message ?? ttyPline;
+    const output = monster ? messageAt(text, monster.mx, monster.my, state) : text;
+    await message(output, state, env);
 }
 
 // C ref: mon.c check_gear_next_turn(). Setting misc_worn_check's I_SPECIAL bit

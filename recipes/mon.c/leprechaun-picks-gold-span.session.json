@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises mon.c mpickgold() with a newly seeded leprechaun setup. No recording yet: the C and JavaScript gold-wish paths diverge in mkobj.c next_ident() while creating the gold object, before pickup.",
+  "segments": [
+    {
+      "seed": 7770020,
+      "datetime": "20261026100000",
+      "nethackrc": "OPTIONS=name:LepGold,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  #wizwish\ngold\ndol\u0007leprechaun\n....................   "
+    }
+  ]
+}

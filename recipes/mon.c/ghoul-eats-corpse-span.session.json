@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises mon.c meatcorpse() with a newly seeded ghoul setup. No recording yet: the C and JavaScript wish paths diverge in objnam.c rnd_otyp_by_namedesc() while creating the corpse, before the ghoul action.",
+  "segments": [
+    {
+      "seed": 7770019,
+      "datetime": "20261025100000",
+      "nethackrc": "OPTIONS=name:GhoulHuman,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  #wizwish\nhuman corpse\ndol\u0007ghoul\n..............................   "
+    }
+  ]
+}

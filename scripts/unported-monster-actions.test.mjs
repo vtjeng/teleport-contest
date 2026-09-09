@@ -62,11 +62,9 @@ import { game } from '../js/gstate.js';
 import { new_light_source } from '../js/light.js';
 import { runSegment } from '../js/jsmain.js';
 import {
-    AT_BREA,
     AT_CLAW,
     AT_GAZE,
     AT_NONE,
-    AT_SPIT,
     AT_WEAP,
     PM_CAVE_SPIDER,
     PM_DISPLACER_BEAST,
@@ -85,10 +83,7 @@ import {
     PM_LITTLE_DOG,
     PM_ORC_SHAMAN,
     PM_PONY,
-    PM_PURPLE_WORM,
     PM_QUANTUM_MECHANIC,
-    PM_ROCK_MOLE,
-    PM_RUST_MONSTER,
     PM_SHRIEKER,
     PM_STEAM_VORTEX,
     PM_TENGU,
@@ -116,7 +111,6 @@ import {
     FOOD_RATION,
     ORCISH_HELM,
     POT_HEALING,
-    POT_SPEED,
     ROCK,
     WAX_CANDLE,
 } from '../js/objects.js';
@@ -2227,62 +2221,9 @@ test('simple preflight rejects every selected excluded action atomically',
                     return target;
                 },
             },
-            // pre-move item use (POT_SPEED) is no longer rejected:
-            // use_misc() handles it with note_unported for the speed change.
-            {
-                name: 'item search',
-                reason: 'ordinary monster item interaction',
-                prepare: async () => {
-                    // A rust monster is metallivorous without tunneling: a
-                    // tunneler's move reaches mdig_tunnel() first, which the
-                    // port refuses before this arm.
-                    const target = await prepareSelectedAction({
-                        pmidx: PM_RUST_MONSTER,
-                    });
-                    // A blind hostile sets approach=0, so m_move() enters
-                    // m_search_items() regardless of line-of-fire geometry.
-                    target.monster.mcansee = false;
-                    game.viz_array[target.heroY][target.monsterX]
-                        &= ~COULD_SEE;
-                    installObject(
-                        target,
-                        floorObject(
-                            target.destinationX,
-                            target.heroY,
-                            9101,
-                            DAGGER,
-                        ),
-                    );
-                    return target;
-                },
-            },
-            {
-                name: 'own-square item search',
-                reason: 'ordinary monster item interaction',
-                prepare: async () => {
-                    // A blind hostile searches items, and finding this metal
-                    // object on its own square completes m_search_items()
-                    // before candidate movement. The monster never moves, so
-                    // MMOVE_DONE skips postmov()'s dig arm and this rock
-                    // mole's tunneling stays out of the way.
-                    const target = await prepareSelectedAction({
-                        pmidx: PM_ROCK_MOLE,
-                    });
-                    target.monster.mcansee = false;
-                    game.viz_array[target.heroY][target.monsterX]
-                        &= ~COULD_SEE;
-                    installObject(
-                        target,
-                        floorObject(
-                            target.monsterX,
-                            target.heroY,
-                            9101,
-                            DAGGER,
-                        ),
-                    );
-                    return target;
-                },
-            },
+            // Rust-monster consumption is now handled in postmov(); its
+            // former item-search refusal is covered by the live consumption
+            // tests rather than this excluded-action matrix.
             {
                 // An arrow trap, because trapeffect_selector() dispatches PIT
                 // to a ported arm now and only the types still listed in

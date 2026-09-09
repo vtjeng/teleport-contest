@@ -17,7 +17,6 @@ import {
     DOOR,
     EGD,
     FCSIZ,
-    GD_EATGOLD,
     HWALL,
     IN_SIGHT,
     IS_OBSTRUCTED,
@@ -58,6 +57,7 @@ import { mongone } from './makemon_create.js';
 import { gender, is_silent, sticks } from './mondata.js';
 import { PM_GUARD } from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
+import { mpickgold } from './mon.js';
 import {
     capitalizedAlwaysVisibleMonsterName,
     alwaysVisibleMonsterName,
@@ -753,10 +753,7 @@ function gd_move_proceed(
     if (newspot && g_at(nx, ny, state)) {
         // Gold here (likely from mineralize()); pick it up now so the guard
         // doesn't later think the hero dropped it.
-        // mpickgold not ported; throw on the exercised branch.
-        throw new UnsupportedVaultGuardError(
-            'gd_move() guard picks up pre-existing gold at new position',
-        );
+        mpickgold(grd, gdEnv);
     } else {
         newsym(grd.mx, grd.my);
     }

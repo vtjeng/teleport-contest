@@ -164,6 +164,8 @@ import {
     PM_LITTLE_DOG,
     PM_MASTER_MIND_FLAYER,
     PM_MIND_FLAYER,
+    PM_KILLER_BEE,
+    PM_SCORPION,
     PM_NURSE,
     PM_PESTILENCE,
     PM_QUANTUM_MECHANIC,
@@ -1497,7 +1499,7 @@ export function intrinsic_possible(type, ptr) {
 // C ref: eat.c corpse_intrinsic() (1337-1372). Picks one of the intrinsics a
 // species can convey, uniformly, in one pass: "a 1 in count chance of replacing
 // the old choice with this one". -1 stands in for strength, and 0 for nothing.
-export function corpse_intrinsic(ptr) {
+export function corpse_intrinsic(ptr, random = { rn2 }) {
     /* Check the monster for all of the intrinsics.  If this
      * monster can give more than one, pick one to try to give
      * from among all it can give.
@@ -1518,14 +1520,34 @@ export function corpse_intrinsic(ptr) {
            with this one, and a count-1 in count chance
            of keeping the old choice (note that 1 in 1 and
            0 in 1 are what we want for the first candidate) */
-        if (!rn2(count))
+        if (!random.rn2(count))
             prop = i;
     }
     /* if strength is the only candidate, give it 50% chance */
-    if (conveys_STR && count === 1 && !rn2(2))
+    if (conveys_STR && count === 1 && !random.rn2(2))
         prop = 0;
 
     return prop;
+}
+
+// C ref: eat.c should_givit() (961-991). Monster intrinsic chances use the
+// corpse species' level, with the killer bee and scorpion poison exception.
+export function should_givit(type, ptr, random = { rn2 }) {
+    let chance;
+    if (type === POISON_RES) {
+        const isFastPoison = ptr?.pmidx === PM_KILLER_BEE
+            || ptr?.pmidx === PM_SCORPION;
+        chance = isFastPoison && !random.rn2(4) ? 1 : 15;
+    } else if (type === TELEPORT) {
+        chance = 10;
+    } else if (type === TELEPORT_CONTROL) {
+        chance = 12;
+    } else if (type === TELEPAT) {
+        chance = 1;
+    } else {
+        chance = 15;
+    }
+    return (ptr?.mlevel ?? 0) > random.rn2(chance);
 }
 
 /*

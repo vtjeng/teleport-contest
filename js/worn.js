@@ -40,6 +40,7 @@ import {
     artifact_light,
 } from './artifacts.js';
 import { game } from './gstate.js';
+import { newsym } from './display.js';
 import { obj_extract_self, update_inventory } from './invent.js';
 import { check_gear_next_turn } from './mon.js';
 import { PM_WIZARD } from './monsters.js';
@@ -351,6 +352,17 @@ export function which_armor(monster, mask, state = game) {
         if (obj.owornmask & mask) return obj;
     }
     return null;
+}
+
+// C ref: worn.c mon_set_minvis() (474-488). The monster's permanent
+// invisibility is copied to its current visibility unless invisibility is
+// blocked, then the occupied square is redrawn.
+export function mon_set_minvis(monster, cursedPotion, state = game) {
+    monster.perminvis = cursedPotion ? 0 : 1;
+    if (!monster.invis_blkd) {
+        monster.minvis = monster.perminvis;
+        newsym(monster.mx, monster.my, state);
+    }
 }
 
 // C ref: worn.c extract_from_minvent() (1376-1416). Take obj out of a

@@ -22,6 +22,7 @@ import {
     NORMAL_SPEED,
     PASSES_WALLS,
     helpless,
+    ismnum,
 } from './const.js';
 import {
     capitalizedMonsterName,
@@ -32,7 +33,13 @@ import { game } from './gstate.js';
 import { dist2, distmin } from './hacklib.js';
 import { grow_up } from './makemon.js';
 import { could_seduce, getmattk, mtrapped_in_pit } from './mhitu.js';
-import { mon_offmap, monkilled, set_ustuck, zombie_maker } from './mon.js';
+import {
+    mon_givit,
+    mon_offmap,
+    monkilled,
+    set_ustuck,
+    zombie_maker,
+} from './mon.js';
 import {
     is_elf,
     is_whirly,
@@ -77,7 +84,10 @@ import {
     MZ_HUGE,
     NON_PM,
     PM_GRID_BUG,
+    PM_GREEN_SLIME,
     PM_MEDUSA,
+    PM_NURSE,
+    PM_WRAITH,
     S_TROLL,
 } from './monsters.js';
 import { ART_TROLLSBANE } from './artifacts.js';
@@ -852,8 +862,15 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
             return M_ATTK_DEF_DIED | M_ATTK_AGR_DIED;
 
         if (mattk.adtyp === AD_DGST) {
-            /* various checks similar to dog_eat and meatobj */
-            unsupported('a monster digesting the monster it killed');
+            /* The transformation, growth and healing arms remain deferred;
+             * ordinary corpses still reach mon_givit() here. */
+            if (ismnum(mdef.cham)
+                || mdef.data === state.mons?.[PM_GREEN_SLIME]
+                || mdef.data === state.mons?.[PM_WRAITH]
+                || mdef.data === state.mons?.[PM_NURSE]) {
+                unsupported('a monster digesting a special corpse');
+            }
+            await mon_givit(magr, mdef.data, { ...env, state });
         }
 
         return M_ATTK_DEF_DIED

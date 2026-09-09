@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises the monster-food integration around mon.c consumption with a newly seeded killer-bee setup.",
+  "segments": [
+    {
+      "seed": 7770011,
+      "datetime": "20261017100000",
+      "nethackrc": "OPTIONS=name:BeeSpan,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  #wizwish\nlump of royal jelly\ndol\u0007killer bee\n..............................   "
+    }
+  ]
+}
