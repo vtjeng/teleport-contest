@@ -15955,6 +15955,27 @@
             "do_run_northeast",
             "do_run_east"
           ]
+        },
+        {
+          "name": "do_run_southeast..handler_rebind_keys_add",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "do_run_southeast",
+            "do_run_south",
+            "do_run_southwest",
+            "do_rush",
+            "do_run",
+            "do_repeat",
+            "extcmds_getentry",
+            "cmdbind_get",
+            "cmdbind_add",
+            "cmdbind_remove",
+            "cmdbind_freeall",
+            "cmdbind_swapkeys",
+            "get_changed_key_binds",
+            "handler_rebind_keys_add"
+          ]
         }
       ],
       "openedAt": "52f3a156bd9f18f96e70ebe395fbbd3e42c4e8ce",
