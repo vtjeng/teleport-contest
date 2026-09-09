@@ -18052,7 +18052,37 @@
       "cFile": "options.c",
       "sessions": [],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "check_misc_menu_command..optfn_IBMgraphics",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "check_misc_menu_command",
+            "opt2roleopt",
+            "getoptstr",
+            "saveoptstr",
+            "unsaveoptstr",
+            "freeroleoptvals",
+            "saveoptvals",
+            "restoptvals",
+            "optfn_alignment",
+            "optfn_altkeyhandling",
+            "optfn_catname",
+            "optfn_cursesgraphics",
+            "optfn_DECgraphics",
+            "optfn_dogname",
+            "optfn_dungeon",
+            "optfn_effects",
+            "optfn_fruit",
+            "optfn_gender",
+            "optfn_glyph",
+            "optfn_hilite_status",
+            "optfn_horsename",
+            "optfn_IBMgraphics"
+          ]
+        }
+      ],
       "openedAt": "ecdcc2d269e035900a6d8cf955ca7837466e8132",
       "openStanding": {
         "sha": "1a229673",
