@@ -1,7 +1,7 @@
 // command_bindings.js -- Source command-key binding state.
 // C ref: cmd.c extcmdlist[], commands_init(), and reset_commands().
 
-import { extcmdlist } from './extcmdlist_data.js';
+import { CMD_PARAM, extcmdlist } from './extcmdlist_data.js';
 
 // C ref: cmd.c commands_init(), which walks extcmdlist[] and binds every row
 // carrying a nonzero key. Keeping that order matters because rebinding an
@@ -122,7 +122,7 @@ export function bindingAt(bindings, key) {
 // but bind_key()'s OPTIONS `bind` path passes FALSE, which is this default.
 // cmd.c count_bind_keys() is the only reader.
 function setBinding(bindings, key, command, restBinding = false,
-    userbind = false) {
+    userbind = false, param = null) {
     const index = bindings.findIndex((binding) => binding.key === key);
     if (command == null) {
         if (index >= 0) bindings.splice(index, 1);
@@ -132,8 +132,9 @@ function setBinding(bindings, key, command, restBinding = false,
         bindings[index].command = command;
         bindings[index].restBinding = restBinding;
         bindings[index].userbind = userbind;
+        bindings[index].param = param;
     } else {
-        bindings.unshift({ key, command, restBinding, userbind });
+        bindings.unshift({ key, command, restBinding, userbind, param });
     }
 }
 
@@ -295,10 +296,19 @@ export function createCommandBindingModel(state) {
     // snapshots should agree with the replayed result.
     for (const operation of state.commandOperations ?? []) {
         if (operation.type === 'bind') {
-            const parameter = operation.command.indexOf('(');
-            const command = (parameter >= 0
-                ? operation.command.slice(0, parameter)
+            const opening = operation.command.indexOf('(');
+            const closing = operation.command.lastIndexOf(')');
+            const parenthesized = opening >= 0 && closing > opening;
+            const command = (parenthesized
+                ? operation.command.slice(0, opening)
                 : operation.command).toLowerCase();
+            const entry = extcmdlist.find((candidate) => (
+                candidate.ef_txt.toLowerCase() === command
+            ));
+            const param = parenthesized && entry
+                && (entry.flags & CMD_PARAM) !== 0
+                ? operation.command.slice(opening + 1, closing).slice(0, 30)
+                : null;
             setBinding(
                 model.bindings,
                 operation.key,
@@ -308,6 +318,7 @@ export function createCommandBindingModel(state) {
                 // marks an entry as the player's; options.c parsebindings()
                 // is its one caller that passes TRUE.
                 true,
+                param || null,
             );
         } else if (operation.type === 'special_key') {
             model.specialKeys[operation.command] = operation.key & 0xFF;

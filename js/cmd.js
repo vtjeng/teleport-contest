@@ -2,6 +2,7 @@
 // C refs: cmd.c get_count(), parse(), rhack(), set_move_cmd().
 
 import {
+    bindingAt,
     commandForKey,
     createCommandBindingModel,
     keyForCommand,
@@ -1459,7 +1460,8 @@ export async function parseCommand(state = game) {
 // after the prompt has painted the frames the reference program painted for
 // the same keystrokes.
 //
-// 'fight' and 'reqmenu' are the two PREFIXCMD rows this seam admits. Each
+// 'fight', 'reqmenu', 'rush', and 'run' are the PREFIXCMD rows this seam
+// admits. Each
 // modifies the command typed after it, which rhack() reads without consulting
 // this list; a prefixed command the port does not own stops at its own arm
 // below, exactly as the same key does unprefixed.
@@ -1476,7 +1478,8 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'pickup',
     'takeoff', 'wear',
-    'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'options', 'autopickup',
+    'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
+    'options', 'autopickup',
     'wizwish', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'fire', 'throw',
     'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
@@ -1497,23 +1500,8 @@ const COUNTED_BOUNDARY = 'cmd.c parse() committed a count leaving gm.multi '
 // do_run_<dir>, which the shift-direction keys use, and 3 for do_rush_<dir>
 // at cmd.c:1461-1512, which the ctrl-direction keys use.
 //
-// Two values are refused here, by value: 2, which only do_rush() behind the `g`
-// prefix sets at cmd.c:1599, and 8, which dotravel_target() sets.
-//
-// The `g` and `G` prefixes are refused one level earlier instead, and this list
-// cannot refuse them. `js/command_bindings.js` binds them to the commands
-// `rush` and `run`, which no `MOVEMENT_INTENTS` entry covers, so the lookup
-// below throws before any run value exists. That matters for `G`: do_run() at
-// cmd.c:1606 sets 3, the same value do_rush_<dir> sets, so this list cannot
-// tell a `G` run from a ctrl-direction rush.
-//
-// Two seams keep them out, and PREFIXCMD dispatch added the second.
-// ADMITTED_COMMANDS omits `rush` and `run`, so neither key can start a
-// command. A prefixed one is a different route: only the first byte of a
-// command passes that gate, so `FG` and `mG` read `G`, find its row, and pass
-// the PREFIXCMD exemption below exactly as they do in C. They are refused
-// further down, at the bound-command-without-a-handler arm, because
-// MOVEMENT_INTENTS has no row for `run`.
+// Two values are not movement-row values: 2, which do_rush() sets behind the
+// `g` prefix, and 8, which dotravel_target() sets.
 export const ADMITTED_RUN_MODES = Object.freeze([0, 1, 3]);
 
 // A byte that cmd.c cmdbind_get() finds no command for reaches rhack()'s
@@ -1572,12 +1560,10 @@ export function reset_occupations(state = game) {
 // return; rhack() then runs one node per call, ahead of reading any key, so
 // "time passes normally when doing queued actions" (hack.h:172-173).
 //
-// CQ_REPEAT is a write-only recording buffer during ordinary play:
-// cmdq_pop() reads it only while gi.in_doagain is set, and cmd.c do_repeat()
-// (1636-1660) is the sole writer of that flag. #repeat and its ^A binding are
-// unported. yn_function() records answers for dowhatdoes() and admitted y_n()
-// callers such as doride(); getdir()'s separate source write remains outside
-// its current boundary.
+// CQ_REPEAT records the command sequence that #repeat replays. cmdq_pop() reads
+// it only while state.in_doagain is set; prompt answers also append their raw
+// keys there for the same replay path. getdir()'s separate source write remains
+// outside this boundary.
 //
 // CMDQ_EXTCMD and CMDQ_KEY nodes are produced by live callers. The remaining
 // node constructors stay source-shaped here because spell and Lua command
@@ -1639,6 +1625,14 @@ export function cmdq_add_int(q, value, state = game) {
 export function cmdq_shift(q, state = game) {
     const queue = commandQueue(state)[q];
     if (queue.length > 1) queue.unshift(queue.pop());
+}
+
+function recordRepeatCommand(command, prefixed, state) {
+    if (state.in_doagain || command === 'repeat' || command === '#') return;
+    const entry = EXTCMD_BY_NAME.get(command);
+    if (!entry) return;
+    if (!prefixed) cmdq_clear(CQ_REPEAT, state);
+    cmdq_add_ec(CQ_REPEAT, entry, state);
 }
 
 // C ref: cmd.c cmdq_reverse() (362-378). This helper accepts the source-shaped
@@ -1759,11 +1753,11 @@ export function randomkey(state = game) {
     return value;
 }
 
-// C ref: cmd.c cmdq_pop(). It picks its own queue -- CQ_REPEAT while
-// gi.in_doagain, CQ_CANNED otherwise -- and gi.in_doagain is always false
-// here, so this reads CQ_CANNED unconditionally.
+// C ref: cmd.c cmdq_pop(). It picks CQ_REPEAT while gi.in_doagain is true and
+// CQ_CANNED otherwise. state.in_doagain owns that C flag in the port.
 export function cmdq_pop(state = game) {
-    return commandQueue(state)[CQ_CANNED].shift() ?? null;
+    const queue = state.in_doagain ? CQ_REPEAT : CQ_CANNED;
+    return commandQueue(state)[queue].shift() ?? null;
 }
 
 export function cmdq_peek(q, state = game) {
@@ -1853,6 +1847,67 @@ export function do_run_northwest(state = game) { set_move_cmd(DIR_NW, MV_RUN, st
 export function do_run_north(state = game) { set_move_cmd(DIR_N, MV_RUN, state); return ECMD_TIME; }
 export function do_run_northeast(state = game) { set_move_cmd(DIR_NE, MV_RUN, state); return ECMD_TIME; }
 export function do_run_east(state = game) { set_move_cmd(DIR_E, MV_RUN, state); return ECMD_TIME; }
+export function do_run_southeast(state = game) { set_move_cmd(DIR_SE, MV_RUN, state); return ECMD_TIME; }
+export function do_run_south(state = game) { set_move_cmd(DIR_S, MV_RUN, state); return ECMD_TIME; }
+export function do_run_southwest(state = game) { set_move_cmd(DIR_SW, MV_RUN, state); return ECMD_TIME; }
+
+// C ref: cmd.c do_rush() (1590-1602). state.domoveAttempting and
+// state.context.run represent gd.domove_attempting and svc.context.run.
+export async function do_rush(state = game) {
+    state.context ??= {};
+    if (state.domoveAttempting & DOMOVE_RUSH) {
+        await ttyNorep('Double rush prefix, canceled.', state);
+        state.context.run = 0;
+        state.domoveAttempting = 0;
+        return ECMD_CANCEL;
+    }
+    state.context.run = 2;
+    state.domoveAttempting |= DOMOVE_RUSH;
+    return ECMD_OK;
+}
+
+// C ref: cmd.c do_run() (1606-1618). NetHack uses run value 3 for this
+// prefix; the following direction handler leaves it unchanged because this
+// function has already set gd.domove_attempting.
+export async function do_run(state = game) {
+    state.context ??= {};
+    if (state.domoveAttempting & DOMOVE_RUSH) {
+        await ttyNorep('Double run prefix, canceled.', state);
+        state.context.run = 0;
+        state.domoveAttempting = 0;
+        return ECMD_CANCEL;
+    }
+    state.context.run = 3;
+    state.domoveAttempting |= DOMOVE_RUSH;
+    return ECMD_OK;
+}
+
+// C ref: cmd.c do_repeat() (1638-1660). The repeat copy is restored after
+// rhack() consumes the working queue, so a repeated command remains available
+// for the next #repeat. `state.in_doagain` is gi.in_doagain.
+export async function do_repeat(state = game) {
+    state.context ??= {};
+    state.iflags ??= {};
+    let result = ECMD_OK;
+    if (!state.in_doagain) {
+        if (!cmdq_peek(CQ_REPEAT, state)) {
+            await ttyNorep('There is no command available to repeat.', state);
+            return ECMD_FAIL;
+        }
+        const repeatCopy = cmdq_copy(CQ_REPEAT, state);
+        state.in_doagain = true;
+        try {
+            await rhack(0, state);
+        } finally {
+            state.in_doagain = false;
+            cmdq_clear(CQ_REPEAT, state);
+            commandQueue(state)[CQ_REPEAT] = repeatCopy;
+            state.iflags.menu_requested = false;
+        }
+        if (state.context.move) result = ECMD_TIME;
+    }
+    return result;
+}
 
 // C ref: cmd.c extcmd_via_menu() (752-889). The menu has one row per
 // accelerator at the matched prefix depth; selecting one more character
@@ -3308,6 +3363,228 @@ export function count_bind_keys(state = game) {
     return nbinds;
 }
 
+// C ref: cmd.c extcmds_getentry() (2101-2106). The generated JavaScript
+// table has no C sentinel row, so its length is the first invalid index.
+export function extcmds_getentry(index) {
+    return Number.isInteger(index) && index >= 0 && index < extcmdlist.length
+        ? extcmdlist[index] : null;
+}
+
+function bindingCommand(binding) {
+    if (!binding) return null;
+    const command = EXTCMD_BY_NAME.get(binding.command);
+    return command ? {
+        ...binding,
+        key: binding.key & 0xFF,
+        param: binding.param ?? null,
+        cmd: command,
+    } : null;
+}
+
+// C ref: cmd.c cmdbind_get() (2110-2123). command_bindings.js owns the
+// linked-list equivalent; return a C-shaped snapshot so callers cannot mutate
+// the list without going through cmdbind_add/remove.
+export function cmdbind_get(key, state = game) {
+    if (!key) return null;
+    return bindingCommand(bindingAt(commandBindings(state).bindings, key));
+}
+
+// C ref: cmd.c cmdbind_add() (2126-2155). New entries are newest-first, while
+// an existing key is overwritten in place. The C param field is maintained by
+// bind_key() after the command row is installed.
+export function cmdbind_add(key, command, user = false, state = game) {
+    if (!key || !command) {
+        if (!key) return;
+        cmdbind_remove(key, state);
+        return;
+    }
+    const bindings = commandBindings(state).bindings;
+    const byte = key & 0xFF;
+    const existing = bindingAt(bindings, byte);
+    if (existing) {
+        existing.command = command.ef_txt;
+        existing.userbind = Boolean(user);
+        existing.param = null;
+    } else {
+        bindings.unshift({
+            key: byte,
+            command: command.ef_txt,
+            restBinding: false,
+            userbind: Boolean(user),
+            param: null,
+        });
+    }
+}
+
+// C ref: cmd.c cmdbind_remove() (2158-2177). JavaScript owns no separately
+// allocated parameter or linked-list node, so removing the array entry is the
+// complete equivalent of both frees.
+export function cmdbind_remove(key, state = game) {
+    if (!key) return;
+    const bindings = commandBindings(state).bindings;
+    const index = bindings.findIndex((binding) => binding.key === (key & 0xFF));
+    if (index >= 0) bindings.splice(index, 1);
+}
+
+// C ref: cmd.c cmdbind_freeall() (2180-2191).
+export function cmdbind_freeall(state = game) {
+    commandBindings(state).bindings.length = 0;
+}
+
+// C ref: cmd.c cmdbind_swapkeys() (2195-2204). A swap only happens when both
+// keys have entries; an absent key is intentionally left absent.
+export function cmdbind_swapkeys(first, second, state = game) {
+    const bindings = commandBindings(state).bindings;
+    const firstBinding = bindingAt(bindings, first);
+    const secondBinding = bindingAt(bindings, second);
+    if (firstBinding && secondBinding) {
+        firstBinding.key = second & 0xFF;
+        secondBinding.key = first & 0xFF;
+    }
+}
+
+function appendBindText(sbuf, text) {
+    if (sbuf && typeof sbuf.append === 'function') sbuf.append(text);
+    else if (sbuf && typeof sbuf.str === 'string') sbuf.str += text;
+    else if (sbuf && typeof sbuf.text === 'string') sbuf.text += text;
+}
+
+// C ref: cmd.c get_changed_key_binds() (2235-2287). A caller-provided
+// strbuf receives newline-terminated config lines; without one C opens a text
+// window, represented by the existing displayTtyTextWindow wrapper.
+export async function get_changed_key_binds(sbuf = null, state = game) {
+    const model = commandBindings(state);
+    const used = new Uint8Array(256);
+    const lines = [];
+    const append = (line) => {
+        if (sbuf) appendBindText(sbuf, line + '\n');
+        else lines.push({ text: line });
+    };
+
+    for (const binding of model.bindings) {
+        const key = binding.key & 0xFF;
+        used[key] = 1;
+        const command = EXTCMD_BY_NAME.get(binding.command);
+        if (!binding.userbind || !command || command.key === key) continue;
+        const parameter = command.flags & CMD_PARAM
+            ? '(' + (binding.param ?? '') + ')' : '';
+        append('BIND=' + key2txt(key) + ':' + command.ef_txt + parameter);
+    }
+    for (const command of extcmdlist) {
+        if (command.key && !used[command.key])
+            append('BIND=' + key2txt(command.key) + ':nothing');
+    }
+    if (!sbuf) await displayTtyTextWindow(state, lines);
+}
+
+// C ref: bind_key() (2661-2728). This is the interactive/config-independent
+// binding operation used by handler_rebind_keys_add(); options.js has its own
+// parser for configuration strings and records the same command operation.
+export function bind_key(key, commandText, user = false, state = game) {
+    const text = String(commandText ?? '');
+    if (text.toLowerCase() === 'nothing') {
+        cmdbind_remove(key, state);
+        return true;
+    }
+    const opening = text.indexOf('(');
+    const closing = text.lastIndexOf(')');
+    const parenthesized = opening >= 0 && closing > opening;
+    const name = (parenthesized ? text.slice(0, opening) : text).toLowerCase();
+    const command = extcmdlist.find((entry) => (
+        entry.ef_txt.toLowerCase() === name
+        && !(entry.flags & INTERNALCMD)
+    ));
+    if (!command) return false;
+
+    cmdbind_add(key, command, user, state);
+    if (parenthesized && (command.flags & CMD_PARAM)
+        && text.slice(opening + 1, closing).length > 0) {
+        const binding = bindingAt(commandBindings(state).bindings, key);
+        if (binding) binding.param = text.slice(opening + 1, closing).slice(0, 30);
+    }
+    return true;
+}
+
+// C ref: cmd.c handler_rebind_keys_add() (2291-2405). Menu entries retain
+// their extcmdlist index as the selector value, matching C's i + 1 value even
+// when movement, internal, and unavailable rows are omitted.
+export async function handler_rebind_keys_add(keyfirst = false, state = game) {
+    let key = 0;
+    if (keyfirst) {
+        await ttyPline('Bind which key? ', state);
+        key = await pgetchar(state);
+        if (!key || key === ESC) return;
+    }
+
+    const current = key ? cmdbind_get(key, state) : null;
+    const items = [];
+    if (key) {
+        items.push({
+            text: current
+                ? "Key '" + key2txt(key) + "' is currently bound to \""
+                    + current.cmd.ef_txt + '".'
+                : "Key '" + key2txt(key) + "' is not bound to anything.",
+        });
+        items.push({ text: '' });
+    }
+    items.push({ value: -1, label: 'nothing: unbind the key' });
+    items.push({ text: '' });
+    for (let index = 0; index < extcmdlist.length; index++) {
+        const command = extcmds_getentry(index);
+        if (!command || (command.flags & (MOVEMENTCMD | INTERNALCMD
+            | CMD_NOT_AVAILABLE))) continue;
+        items.push({
+            value: index + 1,
+            label: command.ef_txt + ': ' + command.ef_desc,
+        });
+    }
+    const selected = await select_menu(state, {
+        items,
+        how: PICK_ONE,
+        title: key ? "Bind '" + key2txt(key) + "' to what command?"
+            : 'Bind what command?',
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+    if (selected == null) return;
+
+    let command = null;
+    let commandText = 'nothing';
+    if (selected !== -1) {
+        command = extcmds_getentry(selected - 1);
+        if (!command) return;
+        commandText = command.ef_txt;
+        if (command.flags & CMD_PARAM) {
+            const parameter = mungspaces(await getlin(
+                'Command ' + command.ef_txt + ' requires a parameter:', state,
+            ));
+            commandText = command.ef_txt + '(' + parameter + ')';
+        }
+    }
+    if (!key) {
+        await ttyPline('Bind which key? ', state);
+        key = await pgetchar(state);
+        if (!key || key === ESC) return;
+    }
+    const previous = cmdbind_get(key, state);
+    if (!bind_key(key, commandText, true, state)) {
+        await ttyPline('Key binding failed?!', state);
+        return;
+    }
+    if (previous && (!command || previous.cmd !== command)) {
+        await ttyPline(
+            "Changed key '" + key2txt(key) + "' from \""
+            + previous.cmd.ef_txt + "\" to \"" + commandText + '".',
+            state,
+        );
+    } else if (!previous && command) {
+        await ttyPline(
+            "Bound key '" + key2txt(key) + "' to \"" + commandText + '".',
+            state,
+        );
+    }
+}
+
 // C ref: invent.c dolook().
 async function runLookCommand(key, state) {
     return failClosedCommand(key, state, () => dolook(state, {
@@ -3420,6 +3697,11 @@ async function doextcmd(key, state) {
 
     const entry = extcmdlist[idx];
     if (!await can_do_extcmd(entry, state)) return ECMD_OK;
+    if (!state.in_doagain && entry.ef_funct !== 'do_repeat'
+        && entry.ef_funct !== 'doextcmd') {
+        cmdq_clear(CQ_REPEAT, state);
+        cmdq_add_ec(CQ_REPEAT, entry, state);
+    }
     if (state.iflags.menu_requested && !accept_menu_prefix(entry)) {
         const prefix = keyForCommand(commandBindings(state), 'reqmenu');
         await ttyPline(
@@ -3489,6 +3771,18 @@ async function doextcmd(key, state) {
         return do_run_northeast(state);
     case 'do_run_east':
         return do_run_east(state);
+    case 'do_run_southeast':
+        return do_run_southeast(state);
+    case 'do_run_south':
+        return do_run_south(state);
+    case 'do_run_southwest':
+        return do_run_southwest(state);
+    case 'do_rush':
+        return do_rush(state);
+    case 'do_run':
+        return do_run(state);
+    case 'do_repeat':
+        return do_repeat(state);
     case 'donull':
         return await donull(state) ? ECMD_TIME : ECMD_OK;
     case 'dolook':
@@ -3740,15 +4034,18 @@ export async function rhack(key, state = game) {
         // handler, is remembered in prefix_seen, and jumps back to
         // got_prefix_input for the command it modifies -- so a prefix may
         // follow a prefix, and this is a loop for the same reason C uses a
-        // goto. Two of the four PREFIXCMD rows are ported: 'm' (do_reqmenu)
-        // and 'F' (do_fight). 'g' and 'G' are refused one level up, because
-        // ADMITTED_COMMANDS omits `rush` and `run`.
+        // goto. The four PREFIXCMD rows are do_reqmenu, do_fight, do_rush,
+        // and do_run.
         let prefixSeen = null;
         let wasMPrefix = false;
-        while (command === 'reqmenu' || command === 'fight') {
-            const res = command === 'reqmenu'
-                ? await do_reqmenu(state)
-                : await do_fight(state);
+        while (command === 'reqmenu' || command === 'fight'
+            || command === 'rush' || command === 'run') {
+            recordRepeatCommand(command, Boolean(prefixSeen), state);
+            let res;
+            if (command === 'reqmenu') res = await do_reqmenu(state);
+            else if (command === 'fight') res = await do_fight(state);
+            else if (command === 'rush') res = await do_rush(state);
+            else res = await do_run(state);
             // 3764-3767. A prefix pressed twice cancels the whole command.
             if (res & ECMD_CANCEL) {
                 resetCommandVars(state);
@@ -3808,6 +4105,7 @@ export async function rhack(key, state = game) {
                 return;
             }
         }
+        recordRepeatCommand(command, Boolean(prefixSeen), state);
         // C ref: rhack():3726-3729, where a committed count is spent. A row
         // carrying occupation text becomes a timed occupation, which
         // moveloop_core():485-509 then runs once a turn without reading
@@ -3863,6 +4161,17 @@ export async function rhack(key, state = game) {
             const res = await failClosedCommand(
                 key, state, () => doextcmd(key, state),
             );
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'repeat') {
+            // C ref: do_repeat() returns its nested rhack() result to the
+            // ordinary ECMD result arm; the retained CQ_REPEAT copy is
+            // restored inside do_repeat() before this branch runs.
+            const res = await do_repeat(state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

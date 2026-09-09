@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9137,
+      "datetime": "20310314150926",
+      "nethackrc": "OPTIONS=name:FreshDiff,role:Healer,race:human,gender:male,align:neutral\n",
+      "moves": " Gj",
+      "comment": "Dismisses startup output, then reaches cmd.c do_run() through the G prefix and a southward movement."
+    }
+  ]
+}

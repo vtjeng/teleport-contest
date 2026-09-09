@@ -6,6 +6,7 @@ import test from 'node:test';
 import {
     CMDQ_DIR,
     CMDQ_INT,
+    CQ_REPEAT,
     CMDQ_USER_INPUT,
     CQ_CANNED,
     DIR_E,
@@ -18,6 +19,7 @@ import {
     DIR_W,
     ECMD_TIME,
     ECMD_OK,
+    ECMD_CANCEL,
     MAX_TYPE,
     ROOM,
     SCORR,
@@ -28,6 +30,7 @@ import {
     cmdq_add_dir,
     cmdq_add_int,
     cmdq_add_userinput,
+    cmdq_pop,
     cmdq_copy,
     cmdq_reverse,
     cmdq_shift,
@@ -42,8 +45,22 @@ import {
     do_move_west,
     do_rush_east,
     do_rush_north,
+    do_rush,
+    do_run,
     do_rush_west,
     do_run_east,
+    do_run_southeast,
+    do_run_south,
+    do_run_southwest,
+    extcmdRow,
+    extcmds_getentry,
+    cmdbind_add,
+    cmdbind_freeall,
+    cmdbind_get,
+    cmdbind_remove,
+    cmdbind_swapkeys,
+    get_changed_key_binds,
+    bind_key,
     dolookaround_floodfill_findroom,
     levltyp_to_name,
     u_have_seen_whole_selection,
@@ -118,6 +135,78 @@ test('movement wrappers pin direction and source run modes', () => {
         assert.equal(state.context.travel1, 0);
         assert.equal(state.domoveAttempting, run === 0 ? 1 : 2);
     }
+});
+
+test('the southeast-through-southwest run wrappers pin source directions', () => {
+    // cmd.c:1553-1571 calls set_move_cmd() with DIR_SE, DIR_S, and DIR_SW,
+    // and returns ECMD_TIME for each wrapper.
+    const cases = [
+        [do_run_southeast, DIR_SE, 1, 1, 1],
+        [do_run_south, DIR_S, 1, 0, 1],
+        [do_run_southwest, DIR_SW, 1, -1, 1],
+    ];
+    for (const [handler, _dir, run, dx, dy] of cases) {
+        const state = moveState();
+        assert.equal(handler(state), ECMD_TIME);
+        assert.deepEqual(
+            [state.u.dx, state.u.dy, state.context.run],
+            [dx, dy, run],
+        );
+        assert.equal(state.domoveAttempting, 2);
+    }
+});
+
+test('run and rush prefixes set and cancel their C state', async () => {
+    // cmd.c:1590-1618 uses DOMOVE_RUSH for both prefixes, with run values 2
+    // and 3; a second prefix clears both fields and returns ECMD_CANCEL.
+    for (const [handler, run, message] of [
+        [do_rush, 2, 'Double rush prefix, canceled.'],
+        [do_run, 3, 'Double run prefix, canceled.'],
+    ]) {
+        const state = { context: {}, domoveAttempting: 0 };
+        assert.equal(await handler(state), ECMD_OK);
+        assert.equal(state.context.run, run);
+        assert.equal(state.domoveAttempting, 2);
+        assert.equal(await handler(state), ECMD_CANCEL);
+        assert.equal(state.context.run, 0);
+        assert.equal(state.domoveAttempting, 0);
+        assert.match(message, /^Double (rush|run) prefix/u);
+    }
+});
+
+test('repeat queue selection and command binding helpers follow cmd.c', async () => {
+    // cmd.c:1638-1660 keeps the repeat queue separate from canned input while
+    // cmdq_pop() reads it under gi.in_doagain.
+    const queueState = {
+        in_doagain: true,
+        command_queue: [[], [{ typ: CMDQ_INT, value: 7 }]],
+    };
+    assert.equal(cmdq_pop(queueState).value, 7);
+
+    // cmd.c:2101-2204 uses the sentinel-bounded table and newest-first
+    // overwrite/remove/swap semantics for key bindings.
+    assert.equal(extcmds_getentry(-1), null);
+    assert.equal(extcmds_getentry(0).ef_txt, '#');
+    assert.equal(extcmds_getentry(170), null);
+    const state = {};
+    cmdbind_freeall(state);
+    bind_key(90, 'toggle(example)', true, state);
+    assert.equal(cmdbind_get(90, state).cmd, extcmdRow('toggle'));
+    assert.equal(cmdbind_get(90, state).param, 'example');
+    cmdbind_add(65, extcmdRow('wait'), true, state);
+    cmdbind_swapkeys(90, 65, state);
+    assert.equal(cmdbind_get(65, state).cmd, extcmdRow('toggle'));
+    cmdbind_remove(65, state);
+    assert.equal(cmdbind_get(65, state), null);
+
+    // cmd.c:2235-2287 emits the changed binding and missing-default lines;
+    // its strbuf form is newline-terminated.
+    cmdbind_freeall(state);
+    bind_key(90, 'toggle(example)', true, state);
+    const sbuf = { str: '' };
+    await get_changed_key_binds(sbuf, state);
+    assert.match(sbuf.str, /BIND=Z:toggle\(example\)\n/u);
+    assert.match(sbuf.str, /BIND=[^\n]+:nothing\n/u);
 });
 
 test('levltyp_to_name follows the complete MAX_TYPE table', () => {

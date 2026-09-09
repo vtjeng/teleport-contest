@@ -48,10 +48,9 @@ test('cmdq_add_ec() appends at the tail and cmdq_pop() takes the head', () => {
     assert.equal(cmdq_pop(state), null);
 });
 
-test('cmdq_pop() reads CQ_CANNED and never CQ_REPEAT', () => {
-    // cmd.c:412 chooses CQ_REPEAT only while gi.in_doagain is set, and
-    // do_repeat() is the only writer of that flag. #repeat is unported, so
-    // the selector is constant and a node parked in CQ_REPEAT is unreachable.
+test('cmdq_pop() reads CQ_CANNED outside a repeat replay', () => {
+    // cmd.c:412 chooses CQ_REPEAT only while gi.in_doagain is set; ordinary
+    // command dispatch therefore leaves a node parked in CQ_REPEAT alone.
     const state = makeState();
     cmdq_add_ec(CQ_REPEAT, extcmdRow('fire'), state);
     assert.equal(cmdq_pop(state), null);

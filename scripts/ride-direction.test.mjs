@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    cmdq_clear,
     cmdq_peek,
     confdir,
     dxdy_moveok,
@@ -494,6 +495,7 @@ test('yn_function stops on a query too long for QBUFSZ', async () => {
 test('the response sets tty_yn_function still refuses stop before it paints',
     async () => {
     await runSegment({ ...promptSegment(), moves: `.${RIDE_COMMAND}` });
+    cmdq_clear(CQ_REPEAT, game);
     const row = topLine();
     // topl.c:397-408 reads two things out of `resp` before the prompt is
     // built, and each one has a reader this port lacks: '#' turns digits into
@@ -533,6 +535,7 @@ test('the response sets tty_yn_function still refuses stop before it paints',
 // fresh checkout does not have.
 async function rideOnce(answer, mutate = () => {}) {
     await runSegment({ ...promptSegment(), moves: `.${RIDE_COMMAND}` });
+    cmdq_clear(CQ_REPEAT, game);
     const display = game.nhDisplay;
     const readKey = display.readKey;
     // The last key of `answer` repeats, so a single-key case answers every
@@ -592,6 +595,8 @@ test('debug mode asks whether to force the mount', async () => {
 test('yn_function returns its key and records an unrestricted repeat answer',
     async () => {
     await runSegment({ ...promptSegment(), moves: `.${RIDE_COMMAND}` });
+    // The direct prompt calls begin at a fresh command boundary.
+    cmdq_clear(CQ_REPEAT, game);
     const display = game.nhDisplay;
     const readKey = display.readKey;
     display.readKey = async () => 'l'.charCodeAt(0);

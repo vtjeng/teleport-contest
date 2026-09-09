@@ -1064,13 +1064,10 @@ test('the second prefix of a pair is the one the refusal names', async () => {
     }
 });
 
-// The route a prefixed `G` takes. Only a fresh-read command passes
-// admitParsedCommand()'s ADMITTED_COMMANDS gate, so `FG` reads `G`, finds its
-// row, and passes the PREFIXCMD exemption exactly as it does in C; the arm
-// that refuses it is the bound-command-without-a-handler one, because
-// MOVEMENT_INTENTS has no `run` row. Removing that arm would turn this into an
-// unknown-command message or worse.
-test('a run command after a prefix is refused at the movement seam',
+// The route a prefixed `G` takes. cmd.c:1606-1618 treats it as a second
+// PREFIXCMD: it sets the run mode while preserving the earlier force-fight
+// prefix, and waits for a direction without spending a turn.
+test('a run command after force-fight preserves both prefix states',
     async () => {
         let boundary = null;
         await runSegment({
@@ -1081,13 +1078,12 @@ test('a run command after a prefix is refused at the movement seam',
                 + '!splash_screen,pettype:none,!acoustics,!autopickup',
             moves: 'FG',
         }, { onBoundary: (error) => { boundary = error; } });
-        assert.ok(boundary instanceof UnsupportedHeroCommandBoundaryError);
-        assert.equal(boundary.key, 'G'.charCodeAt(0));
-        // Refused before anything was drawn or any turn spent: the welcome
-        // line the segment opened with is still the last thing written, so
-        // neither a prefix refusal nor an unknown-command line went out.
+        assert.equal(boundary, null);
         assert.match(game._ttyToplines, /welcome to NetHack!/u);
         assert.equal(game.context.move, 0);
+        assert.equal(game.context.forcefight, 1);
+        assert.equal(game.context.run, 3);
+        assert.equal(game.domoveAttempting, 3);
     });
 
 // uhitm.c:462 splits do_attack() on `is_safemon(mtmp) && !svc.context

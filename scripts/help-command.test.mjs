@@ -4,12 +4,11 @@ import test from 'node:test';
 
 import * as pager from '../js/pager.js';
 import {
-    cmdq_peek,
     extendedCommandListLines,
     key2extcmddesc,
     keyBindingLines,
 } from '../js/cmd.js';
-import { CMDQ_KEY, CQ_REPEAT } from '../js/const.js';
+import { CMDQ_EXTCMD, CMDQ_KEY, CQ_REPEAT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { next_opt, optionHelpLines, show_menu_controls } from '../js/options.js';
@@ -243,7 +242,13 @@ test('whatdoes records its unrestricted prompt answer for command repeat',
             ...segment,
             moves: HELP_WHATDOES_MOVES.slice(0, -1),
         });
-        const answer = cmdq_peek(CQ_REPEAT, game);
+        const repeatQueue = game.command_queue[CQ_REPEAT];
+        // cmd.c rhack() puts dohelp() at the head after # has cleared the
+        // repeat queue; yn_function() appends its unrestricted answer after
+        // that command.
+        assert.equal(repeatQueue[0]?.typ, CMDQ_EXTCMD);
+        assert.equal(repeatQueue[0]?.ec_entry?.ef_funct, 'dohelp');
+        const answer = repeatQueue[1];
         assert.equal(answer?.typ, CMDQ_KEY);
         // cmd.c yn_function() records the byte that answered `What command?`.
         assert.equal(answer?.key, 0x69);

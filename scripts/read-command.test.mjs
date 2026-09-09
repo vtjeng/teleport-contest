@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import {
     ADMITTED_COMMANDS,
+    cmdq_clear,
     cmdq_peek,
     failClosedCommandRefusals,
 } from '../js/cmd.js';
@@ -464,6 +465,9 @@ test('declining a fresh known healing spellbook refresh takes no turn',
     const rngBefore = replay.getRngLog().length;
     const literateBefore = game.u.uconduct.literate;
 
+    // This direct doread() call bypasses rhack(), whose command boundary
+    // clears CQ_REPEAT before recording the read command.
+    cmdq_clear(CQ_REPEAT, game);
     // The inventory letter selects healing. Space dismisses the knowledge
     // message, and Escape selects the refresh question's default no answer.
     game.nhDisplay.pushKey(HEALING_BOOK_LETTER.charCodeAt(0));
@@ -506,6 +510,8 @@ test('accepting a known healing refresh stops before study state', async () => {
     const rngBefore = replay.getRngLog().length;
     const literateBefore = game.u.uconduct.literate;
 
+    // The direct doread() call bypasses rhack()'s repeat-command boundary.
+    cmdq_clear(CQ_REPEAT, game);
     game.nhDisplay.pushKey(HEALING_BOOK_LETTER.charCodeAt(0));
     game.nhDisplay.pushKey(HEALING_MESSAGE_MORE.charCodeAt(0));
     game.nhDisplay.pushKey('y'.charCodeAt(0));
