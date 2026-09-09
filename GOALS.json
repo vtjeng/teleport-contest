@@ -16964,7 +16964,20 @@
         "seed0383-wizard-hallucinate"
       ],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "pet_sanity_check..genus",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "pet_sanity_check",
+            "sanity_check_single_mon",
+            "mon_sanity_check",
+            "m_poisongas_ok",
+            "genus"
+          ]
+        }
+      ],
       "openedAt": "a9106b408f5c4b86e2237a9ec98ca57c9635184d",
       "openStanding": {
         "sha": "37232290",
