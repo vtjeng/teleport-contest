@@ -18498,8 +18498,8 @@
       "spans": [
         {
           "name": "optfn_monsters..optfn_palette",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "7569587c28d0e232d414f5be60e66084e13e4288",
           "functions": [
             "optfn_monsters",
             "optfn_msg_window",
@@ -18524,7 +18524,7 @@
           "name": "optfn_monsters",
           "line": 2378,
           "endLine": 2395,
-          "ported": false
+          "ported": true
         },
         {
           "name": "optfn_mouse_support",
@@ -18536,7 +18536,7 @@
           "name": "optfn_msg_window",
           "line": 2456,
           "endLine": 2522,
-          "ported": false
+          "ported": true
         },
         {
           "name": "optfn_msghistory",
@@ -18548,19 +18548,19 @@
           "name": "optfn_name",
           "line": 2549,
           "endLine": 2573,
-          "ported": false
+          "ported": true
         },
         {
           "name": "optfn_number_pad",
           "line": 2574,
           "endLine": 2647,
-          "ported": false
+          "ported": true
         },
         {
           "name": "optfn_objects",
           "line": 2648,
           "endLine": 2669,
-          "ported": false
+          "ported": true
         },
         {
           "name": "optfn_packorder",
@@ -18572,13 +18572,13 @@
           "name": "optfn_palette",
           "line": 2699,
           "endLine": 2734,
-          "ported": false
+          "ported": true
         },
         {
           "name": "optfn_palette",
           "line": 2735,
           "endLine": 2817,
-          "ported": false
+          "ported": true
         },
         {
           "name": "optfn_paranoid_confirmation",
