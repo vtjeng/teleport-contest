@@ -16006,6 +16006,26 @@
             "dotherecmdmenu",
             "mcmd_addmenu"
           ]
+        },
+        {
+          "name": "there_cmd_menu_self..end_of_input",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "there_cmd_menu_self",
+            "there_cmd_menu_next2u",
+            "there_cmd_menu_far",
+            "there_cmd_menu_common",
+            "act_on_act",
+            "there_cmd_menu",
+            "here_cmd_menu",
+            "click_to_cmd",
+            "domouseaction",
+            "get_count",
+            "parse",
+            "hangup",
+            "end_of_input"
+          ]
         }
       ],
       "openedAt": "52f3a156bd9f18f96e70ebe395fbbd3e42c4e8ce",
