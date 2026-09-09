@@ -17506,7 +17506,19 @@
         "seed0383-wizard-hallucinate"
       ],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "ok_to_obliterate..maybe_mnexto",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "ok_to_obliterate",
+            "elemental_clog",
+            "deal_with_overcrowding",
+            "maybe_mnexto"
+          ]
+        }
+      ],
       "openedAt": "c71cbb1a97bfb79a48e2f49e53ff953976b8c265",
       "openStanding": {
         "sha": "13519c96",
