@@ -18486,6 +18486,96 @@
         "from": 2052,
         "to": 2224
       }
+    },
+    {
+      "id": "port-options-monsters-palette",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port options.c monster, object, and palette option handlers",
+      "cFile": "options.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [],
+      "openedAt": "3063d4634868979425475ae5d58b0aa228d65dc3",
+      "openStanding": {
+        "sha": "7c04d2f3",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "optfn_monsters",
+          "line": 2378,
+          "endLine": 2395,
+          "ported": false
+        },
+        {
+          "name": "optfn_mouse_support",
+          "line": 2396,
+          "endLine": 2455,
+          "ported": true
+        },
+        {
+          "name": "optfn_msg_window",
+          "line": 2456,
+          "endLine": 2522,
+          "ported": false
+        },
+        {
+          "name": "optfn_msghistory",
+          "line": 2523,
+          "endLine": 2548,
+          "ported": true
+        },
+        {
+          "name": "optfn_name",
+          "line": 2549,
+          "endLine": 2573,
+          "ported": false
+        },
+        {
+          "name": "optfn_number_pad",
+          "line": 2574,
+          "endLine": 2647,
+          "ported": false
+        },
+        {
+          "name": "optfn_objects",
+          "line": 2648,
+          "endLine": 2669,
+          "ported": false
+        },
+        {
+          "name": "optfn_packorder",
+          "line": 2670,
+          "endLine": 2698,
+          "ported": true
+        },
+        {
+          "name": "optfn_palette",
+          "line": 2699,
+          "endLine": 2734,
+          "ported": false
+        },
+        {
+          "name": "optfn_palette",
+          "line": 2735,
+          "endLine": 2817,
+          "ported": false
+        },
+        {
+          "name": "optfn_paranoid_confirmation",
+          "line": 2818,
+          "endLine": 3045,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 2378,
+        "to": 3045
+      }
     }
   ]
 }
