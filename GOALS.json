@@ -17886,7 +17886,23 @@
         "seed0383-wizard-hallucinate"
       ],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "egg_type_from_parent..usmellmon",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "egg_type_from_parent",
+            "kill_eggs",
+            "golemeffects",
+            "angry_guards",
+            "pacify_guard",
+            "pacify_guards",
+            "mimic_hit_msg",
+            "usmellmon"
+          ]
+        }
+      ],
       "openedAt": "5e76b5743f5b46b519422e89974f21a47bdb9433",
       "openStanding": {
         "sha": "8a364404",
