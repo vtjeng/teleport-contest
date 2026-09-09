@@ -1,5 +1,5 @@
 // apply.js -- the `a` command: using a tool.
-// C refs: src/apply.c apply_ok(), doapply(), use_cream_pie(),
+// C refs: src/apply.c apply_ok(), doapply(), get_mleash(), use_cream_pie(),
 // use_stethoscope(), its_dead(), and reset_trapset().
 //
 // doapply()'s switch has thirty-odd named arms. Seven are live: CREAM_PIE,
@@ -163,6 +163,7 @@ import {
     LARGE_BOX,
     CHEST,
     ICE_BOX,
+    LEASH,
     SACK,
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
@@ -185,6 +186,17 @@ import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { check_unpaid_usage } from './shk.js';
 import { begin_burn } from './timeout.js';
 import { wield_tool } from './wield.js';
+
+// C ref: apply.c get_mleash() (880-887). The leash belongs to the hero's
+// inventory, and its leashmon id names the monster; the monster's minvent is
+// not searched here.
+export function get_mleash(monster, state = game) {
+    for (let object = state.invent; object; object = object.nobj) {
+        if (object.otyp === LEASH && object.leashmon === monster.m_id)
+            return object;
+    }
+    return null;
+}
 
 // Thrown where apply.c reaches a tool or a branch this port has not ported.
 export class UnsupportedApplyError extends Error {

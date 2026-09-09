@@ -2,7 +2,8 @@
 // runs when the hero kills it.
 // C refs: mon.c movemon(), movemon_singlemon(), hideunder(), mcalcmove(),
 // mpickstuff(), curr_mon_load(), max_mon_load(), m_consume_obj(),
-// zombie_maker(), unstuck(),
+// pet_sanity_check(), sanity_check_single_mon(), mon_sanity_check(),
+// m_poisongas_ok(), genus(), zombie_maker(), unstuck(),
 // mon_leaving_level(), m_detach(), mlifesaver(), lifesaved_monster(),
 // logdeadmon(), mondead(), corpse_chance(), make_corpse(), mondied(),
 // monkilled(), killed(), xkilled() and adj_erinys(); mthrowu.c m_carrying();
@@ -23,6 +24,7 @@ import {
     ARTICLE_THE,
     BOLT_LIM,
     BUSTDOOR,
+    COLNO,
     CONFLICT,
     CORPSTAT_BURIED,
     CORPSTAT_FEMALE,
@@ -39,7 +41,13 @@ import {
     G_GENOD,
     HALLUC,
     HALLUC_RES,
+    MAGICAL_BREATHING,
     has_mcorpsenm,
+    has_egd,
+    has_edog,
+    has_emin,
+    has_epri,
+    has_eshk,
     has_mgivenname,
     has_oname,
     In_endgame,
@@ -56,11 +64,18 @@ import {
     M_AP_OBJECT,
     M_AP_TYPE,
     M_AP_TYPMASK,
+    M_POISONGAS_BAD,
+    M_POISONGAS_MINOR,
+    M_POISONGAS_OK,
     MFAST,
     MON_DETACH,
+    MON_ENDGAME_MIGR,
     MON_FLOOR,
+    MON_LIMBO,
     MON_MIGRATING,
     MON_OFFMAP,
+    MOAT,
+    OBJ_AT,
     MSLOW,
     NATTK,
     NOGARLIC,
@@ -68,6 +83,8 @@ import {
     NOTONL,
     ONAME_NO_FLAGS,
     OPENDOOR,
+    POISON_RES,
+    POOL,
     PROT_FROM_SHAPE_CHANGERS,
     RLOC_MSG,
     RLOC_NOMSG,
@@ -77,7 +94,14 @@ import {
     SUPPRESS_SADDLE,
     TAINT_AGE,
     UNLOCKDOOR,
+    WATER,
+    LAVAPOOL,
+    LAVAWALL,
+    ROWNO,
+    FEMALE,
+    MALE,
     W_AMUL,
+    W_SADDLE,
     WT_HUMAN,
     XKILL_GIVEMSG,
     XKILL_NOCONDUCT,
@@ -86,6 +110,7 @@ import {
     helpless,
     u_at,
 } from './const.js';
+import { get_mleash } from './apply.js';
 import { artifact_exists } from './artifacts.js';
 import { night } from './calendar.js';
 import {
@@ -97,7 +122,9 @@ import {
     capitalizedMonsterName,
     hliquid,
     Monnam,
+    mon_pmname,
     monsterCommonName,
+    pmname,
     x_monnam,
 } from './do_name.js';
 import { flooreffects } from './do.js';
@@ -129,6 +156,7 @@ import {
     amphibious,
     amorphous,
     attacktype,
+    attacktype_fordmg,
     bigmonst,
     breathless,
     can_teleport,
@@ -141,6 +169,7 @@ import {
     emits_light,
     flesh_petrifies,
     haseyes,
+    hides_under,
     is_female,
     is_giant,
     is_golem,
@@ -149,6 +178,9 @@ import {
     is_flyer,
     is_hider,
     is_human,
+    is_dwarf,
+    is_elf,
+    is_gnome,
     is_minion,
     is_mplayer,
     is_neuter,
@@ -157,6 +189,7 @@ import {
     is_swimmer,
     is_shapeshifter,
     is_male,
+    is_orc,
     is_undead,
     is_unicorn,
     is_vampshifter,
@@ -195,6 +228,7 @@ import {
     AD_SSEX,
     AD_STCK,
     AT_BOOM,
+    AT_BREA,
     AT_ENGL,
     AT_HUGS,
     AT_MAGC,
@@ -214,7 +248,11 @@ import {
     MS_NEMESIS,
     MZ_MEDIUM,
     NON_PM,
+    PM_ABBOT,
+    PM_ACOLYTE,
     PM_ARCHEOLOGIST,
+    PM_ATTENDANT,
+    PM_BARBARIAN,
     PM_BLACK_DRAGON,
     PM_BLACK_PUDDING,
     PM_BLACK_UNICORN,
@@ -225,7 +263,12 @@ import {
     PM_DWARF_ZOMBIE,
     PM_ELF_MUMMY,
     PM_ELF_ZOMBIE,
+    PM_ELF,
     PM_ERINYS,
+    PM_CHIEFTAIN,
+    PM_CLERIC,
+    PM_CAVE_DWELLER,
+    PM_DWARF,
     PM_ETTIN_MUMMY,
     PM_ETTIN_ZOMBIE,
     PM_FLESH_GOLEM,
@@ -235,6 +278,7 @@ import {
     PM_GLASS_GOLEM,
     PM_GNOME_MUMMY,
     PM_GNOME_ZOMBIE,
+    PM_GNOME,
     PM_GOLD_DRAGON,
     PM_GOLD_GOLEM,
     PM_GRAY_DRAGON,
@@ -243,7 +287,10 @@ import {
     PM_GREEN_DRAGON,
     PM_GREEN_SLIME,
     PM_GHOUL,
+    PM_GUIDE,
+    PM_HEZROU,
     PM_HIGH_CLERIC,
+    PM_HEALER,
     PM_HUMAN,
     PM_HUMAN_MUMMY,
     PM_HUMAN_WEREJACKAL,
@@ -253,6 +300,9 @@ import {
     PM_IRON_GOLEM,
     PM_KOBOLD_MUMMY,
     PM_KOBOLD_ZOMBIE,
+    PM_HUNTER,
+    PM_APPRENTICE,
+    PM_KNIGHT,
     PM_GIANT_MIMIC,
     PM_LARGE_MIMIC,
     PM_LEATHER_GOLEM,
@@ -264,19 +314,33 @@ import {
     PM_NURSE,
     PM_ORANGE_DRAGON,
     PM_ORC_MUMMY,
+    PM_ORC,
     PM_ORC_ZOMBIE,
+    PM_PAGE,
     PM_PAPER_GOLEM,
     PM_RED_DRAGON,
     PM_ROPE_GOLEM,
     PM_SILVER_DRAGON,
     PM_SKELETON,
     PM_SMALL_MIMIC,
+    PM_MONK,
+    PM_NEANDERTHAL,
+    PM_RANGER,
+    PM_ROGUE,
+    PM_ROSHI,
+    PM_SAMURAI,
     PM_STALKER,
+    PM_STUDENT,
     PM_STEAM_VORTEX,
     PM_STONE_GOLEM,
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
+    PM_VROCK,
     PM_VLAD_THE_IMPALER,
+    PM_THUG,
+    PM_TOURIST,
+    PM_VALKYRIE,
+    PM_WARRIOR,
     PM_WEREJACKAL,
     PM_WERERAT,
     PM_WEREWOLF,
@@ -293,6 +357,8 @@ import {
     S_MIMIC,
     S_VAMPIRE,
     S_ZOMBIE,
+    HIGH_PM,
+    LOW_PM,
 } from './monsters.js';
 import {
     accessible,
@@ -325,6 +391,7 @@ import {
     POTION_CLASS,
     RANDOM_CLASS,
     TIN,
+    SADDLE,
 } from './objects.js';
 import { distant_name, donameFresh } from './objnam.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
@@ -497,6 +564,315 @@ export function get_iter_mons(bfunc, state = game) {
         if (bfunc(mtmp)) return mtmp;
     }
     return null;
+}
+
+function sanityImpossible(message, env) {
+    if (typeof env.impossible === 'function') {
+        env.impossible(message, env);
+    } else {
+        note_unported('pline.c impossible');
+    }
+}
+
+function sanityPanic(message, env) {
+    if (typeof env.panic === 'function') env.panic(message, env);
+    else note_unported('pline.c panic');
+    throw new Error(message);
+}
+
+// C ref: mon.c pet_sanity_check() (57-70). This is a diagnostic-only helper;
+// the C impossible() boundary is injected when a caller wants diagnostics,
+// and otherwise recorded as the existing pline.c gap.
+export function pet_sanity_check(mtmp, msgarg, state = game, env = {}) {
+    if (!has_edog(mtmp)) return;
+    const edog = mtmp.mextra.edog;
+    if (edog.droptime > (state.moves ?? 0)) {
+        sanityImpossible(
+            `insane pet #${mtmp.m_id} has droptime (${edog.droptime}) `
+            + `in the future (${state.moves ?? 0}) (${msgarg})`,
+            env,
+        );
+    }
+}
+
+// C ref: mon.c sanity_check_single_mon() (73-255). The checks retain C's
+// order, including the early dead-monster return and the diagnostic-only
+// calls into worm.c and pline.c.
+export function sanity_check_single_mon(
+    mtmp,
+    chkGeno,
+    msg,
+    state = game,
+    env = {},
+) {
+    const mptr = mtmp.data;
+    let mx = mtmp.mx;
+    let my = mtmp.my;
+    const mndx = monsndx(mptr);
+    const validSpecies = Number.isInteger(mndx)
+        && mndx >= LOW_PM && mndx <= HIGH_PM
+        && (state.mons?.[mndx] === mptr || mptr?.pmidx === mndx);
+
+    if (!validSpecies) {
+        sanityPanic(
+            `illegal mon data; mnum=${mtmp.mnum} (${msg})`,
+            env,
+        );
+    } else {
+        if (mtmp.mnum !== mndx) {
+            sanityImpossible(
+                `monster mnum=${mtmp.mnum}, monsndx=${mndx} (${msg})`,
+                env,
+            );
+            mtmp.mnum = mndx;
+        }
+        if ((mtmp.mhpmax ?? 0) < 1
+            || (mtmp.mhpmax ?? 0) < (mtmp.m_lev ?? 0)
+            || mtmp.mhp > mtmp.mhpmax) {
+            sanityImpossible(
+                `${msg}: level ${mtmp.m_lev} ${mptr.pmnames?.[2] ?? ''}`
+                + ` #${mtmp.m_id} has ${mtmp.mhp} cur HP,`
+                + ` ${mtmp.mhpmax} max HP`,
+                env,
+            );
+        }
+        if (mtmp.mhp < 1) return;
+        const mvitals = state.svm?.mvitals ?? state.mvitals;
+        if (chkGeno && (mvitals?.[mndx]?.mvflags ?? 0) & G_GENOD)
+            sanityImpossible(
+                `genocided ${pmname(mptr, mtmp.female ? FEMALE : MALE)}`
+                + ` in play (${msg})`,
+                env,
+            );
+        if (mtmp.mtame && !mtmp.mpeaceful)
+            sanityImpossible(`tame monster is not peaceful (${msg})`, env);
+    }
+
+    if (mtmp.isshk && !has_eshk(mtmp))
+        sanityImpossible(`shk without eshk (${msg})`, env);
+    if (mtmp.ispriest && !has_epri(mtmp))
+        sanityImpossible(`priest without epri (${msg})`, env);
+    if (mtmp.isgd && !has_egd(mtmp))
+        sanityImpossible(`guard without egd (${msg})`, env);
+    if (mtmp.isminion && !has_emin(mtmp))
+        sanityImpossible(`minion without emin (${msg})`, env);
+    if (mtmp.mtame) {
+        if (!has_edog(mtmp) && !mtmp.isminion)
+            sanityImpossible(`pet without edog (${msg})`, env);
+        else pet_sanity_check(mtmp, msg, state, env);
+    }
+
+    if (mtmp === state.u?.usteed) {
+        const notTame = !mtmp.mtame ? 'not tame' : '';
+        const saddle = !m_carrying(mtmp, SADDLE, state)
+            ? 'no saddle'
+            : !which_armor(mtmp, W_SADDLE, state) ? 'saddle not worn' : '';
+        if (saddle || notTame)
+            sanityImpossible(
+                `steed: ${saddle}${saddle && notTame ? ', ' : ''}`
+                + `${notTame} (${msg})`,
+                env,
+            );
+    }
+
+    if (mtmp.mtrapped && !mtmp.wormno && !t_at(mx, my, state))
+        sanityImpossible(`trapped without a trap (${msg})`, env);
+    if (mtmp.mfrozen && mtmp.mcanmove)
+        sanityImpossible(
+            `frozen monster [${mtmp.mtame ? 'tame ' : mtmp.mpeaceful ? 'peaceful ' : ''}`
+            + `${pmname(mptr, mtmp.female ? FEMALE : MALE)}] is able to move (${msg})`,
+            env,
+        );
+
+    if (mtmp.mundetected) {
+        if (!isok(mx, my)) mx = my = 0;
+        if (mtmp === state.u?.ustuck)
+            sanityImpossible(`hiding monster stuck to you (${msg})`, env);
+        if (m_at(mx, my, state) === mtmp && hides_under(mptr)
+            && !OBJ_AT(mx, my, state)) {
+            sanityImpossible(`mon hiding under nonexistent obj (${msg})`, env);
+        }
+        if (mptr.mlet === S_EEL
+            && !(is_pool(mx, my, state) && !on_level(state.u?.uz, state.water_level))) {
+            sanityImpossible(
+                `eel hiding ${!on_level(state.u?.uz, state.water_level)
+                    ? 'out of water' : 'on Plane of Water'} (${msg})`,
+                env,
+            );
+        }
+        if (ceiling_hider(mptr)
+            && (!has_ceiling(state.u?.uz, state)
+                || ![POOL, MOAT, WATER, LAVAPOOL, LAVAWALL]
+                    .includes(state.level?.at?.(mx, my)?.typ)
+                    && !accessible(mx, my, state))) {
+            sanityImpossible(
+                `${!has_ceiling(state.u?.uz, state) ? 'without ceiling' : 'in solid stone'}`
+                + ` (${msg})`,
+                env,
+            );
+        }
+        const trap = mtmp.mtrapped ? t_at(mx, my, state) : null;
+        if (trap && !is_pit(trap.ttyp))
+            sanityImpossible(`hiding while trapped in a non-pit (${msg})`, env);
+    } else if (M_AP_TYPE(mtmp) !== M_AP_NOTHING) {
+        const isMimic = mptr.mlet === S_MIMIC;
+        const appearance = M_AP_TYPE(mtmp);
+        const what = appearance === M_AP_FURNITURE ? 'furniture'
+            : appearance === M_AP_MONSTER ? 'a monster'
+                : appearance === M_AP_OBJECT ? 'an object' : 'something strange';
+        if (msg === 'migr' && appearance !== M_AP_MONSTER)
+            sanityImpossible(
+                `migrating ${isMimic ? 'mimic' : 'monster'} mimicking ${what} ${msg}`,
+                env,
+            );
+        else if (msg !== 'migr'
+            && (state.u?.uprops?.[PROT_FROM_SHAPE_CHANGERS]?.intrinsic
+                || state.u?.uprops?.[PROT_FROM_SHAPE_CHANGERS]?.extrinsic)) {
+            sanityImpossible(
+                `mimic${isMimic ? '' : 'ker'} concealed as ${what}`
+                + ` despite Prot-from-shape-changers ${msg}`,
+                env,
+            );
+        }
+        if (!(isMimic || mtmp.meating
+              || (mtmp.iswiz && appearance === M_AP_MONSTER))) {
+            sanityImpossible(
+                `non-mimic (${mptr.pmnames?.[2] ?? ''}) posing as ${what} (${msg})`,
+                env,
+            );
+        }
+    }
+
+    if (mtmp.mleashed) {
+        if (!get_mleash(mtmp, state))
+            sanityImpossible(
+                `monst ${mtmp.m_id}: leashed but no leash for ${mon_pmname(mtmp)}`,
+                env,
+            );
+        else if (!mtmp.mtame)
+            sanityImpossible(
+                `monst ${mtmp.m_id}: leashed but not tame ${mon_pmname(mtmp)}`,
+                env,
+            );
+    }
+}
+
+// C ref: mon.c mon_sanity_check() (258-326). The two worm.c checks remain
+// void-only gaps; all list and map checks retain their C traversal order.
+export function mon_sanity_check(state = game, env = {}) {
+    const level = state.level;
+    for (let mtmp = level?.monlist ?? null; mtmp; mtmp = mtmp.nmon) {
+        sanity_check_single_mon(mtmp, true, 'fmon', state, env);
+        if (mtmp.mhp < 1 && !mtmp.isgd) continue;
+        const { mx, my } = mtmp;
+        if (!isok(mx, my) && !(mtmp.isgd && mx === 0 && my === 0)) {
+            sanityImpossible(`mon claims to be at <${mx},${my}>?`, env);
+        } else if (mtmp === state.u?.usteed) {
+            if (mx !== state.u.ux || my !== state.u.uy)
+                sanityImpossible(`steed claims to be at <${mx},${my}>?`, env);
+        } else if (m_at(mx, my, state) !== mtmp) {
+            sanityImpossible(`mon at <${mx},${my}> is not there!`, env);
+        } else if (mtmp.wormno) {
+            note_unported('worm.c sanity_check_worm');
+        } else if (mon_offmap(mtmp)) {
+            sanityImpossible('floor mon has mstate set to non-floor', env);
+        }
+    }
+
+    const monsters = level?.monsters;
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            const mtmp = monsters?.[x]?.[y];
+            if (!mtmp) continue;
+            let found = false;
+            for (let m = level?.monlist ?? null; m; m = m.nmon) {
+                if (m === mtmp) { found = true; break; }
+            }
+            if (!found)
+                sanityImpossible(`map mon at <${x},${y}> not in fmon list!`, env);
+            else if (mtmp === state.u?.usteed)
+                sanityImpossible(`steed is on the map at <${x},${y}>!`, env);
+            else if ((mtmp.mx !== x || mtmp.my !== y)
+                     && mtmp.data?.pmidx !== PM_LONG_WORM) {
+                sanityImpossible(
+                    `map mon at <${x},${y}> is found at <${mtmp.mx},${mtmp.my}>?`,
+                    env,
+                );
+            }
+        }
+    }
+
+    for (let mtmp = state.gm?.migrating_mons ?? null;
+        mtmp;
+        mtmp = mtmp.nmon) {
+        sanity_check_single_mon(mtmp, false, 'migr', state, env);
+        const allowed = MON_MIGRATING | MON_LIMBO | MON_ENDGAME_MIGR | MON_OFFMAP;
+        if (((mtmp.mstate ?? 0) & ~allowed) !== 0
+            || !((mtmp.mstate ?? 0) & MON_MIGRATING)) {
+            sanityImpossible('migrating mon has invalid mstate', env);
+        }
+    }
+    note_unported('worm.c wormno_sanity_check');
+}
+
+// C ref: mon.c m_poisongas_ok() (330-357). This only classifies tolerance;
+// region.c owns the later damage/message decisions.
+export function m_poisongas_ok(mtmp, state = game) {
+    const species = mtmp.data;
+    const isYou = mtmp === state.youmonst;
+    if (nonliving(species) || is_vampshifter(mtmp)
+        || breathless(species)
+        || species?.pmidx === PM_HEZROU || species?.pmidx === PM_VROCK) {
+        return M_POISONGAS_OK;
+    }
+    const px = isYou ? state.u?.ux : mtmp.mx;
+    const py = isYou ? state.u?.uy : mtmp.my;
+    if ((species?.mlet === S_EEL || on_level(state.u?.uz, state.water_level))
+        && is_pool(px, py, state)) return M_POISONGAS_OK;
+    if (attacktype_fordmg(species, AT_BREA, AD_DRST)
+        || attacktype_fordmg(species, AT_BREA, AD_RBRE)) {
+        return M_POISONGAS_OK;
+    }
+    const magicalBreathing = state.u?.uprops?.[MAGICAL_BREATHING];
+    const poisonResistance = state.u?.uprops?.[POISON_RES];
+    if (isYou && (state.u?.uinvulnerable
+        || magicalBreathing?.intrinsic || magicalBreathing?.extrinsic
+        || state.u?.uinwater)) return M_POISONGAS_OK;
+    if (isYou
+        ? poisonResistance?.intrinsic || poisonResistance?.extrinsic
+        : monster_resists_element(mtmp, POISON_RES, state)) {
+        return M_POISONGAS_MINOR;
+    }
+    return M_POISONGAS_BAD;
+}
+
+// C ref: mon.c genus() (470-532). Quest guardians map to their role in mode 1;
+// ordinary humanoid species collapse to their generic race in mode 0.
+export function genus(mndx, mode, state = game) {
+    switch (mndx) {
+    case PM_STUDENT: return mode ? PM_ARCHEOLOGIST : PM_HUMAN;
+    case PM_CHIEFTAIN: return mode ? PM_BARBARIAN : PM_HUMAN;
+    case PM_NEANDERTHAL: return mode ? PM_CAVE_DWELLER : PM_HUMAN;
+    case PM_ATTENDANT: return mode ? PM_HEALER : PM_HUMAN;
+    case PM_PAGE: return mode ? PM_KNIGHT : PM_HUMAN;
+    case PM_ABBOT: return mode ? PM_MONK : PM_HUMAN;
+    case PM_ACOLYTE: return mode ? PM_CLERIC : PM_HUMAN;
+    case PM_HUNTER: return mode ? PM_RANGER : PM_HUMAN;
+    case PM_THUG: return mode ? PM_ROGUE : PM_HUMAN;
+    case PM_ROSHI: return mode ? PM_SAMURAI : PM_HUMAN;
+    case PM_GUIDE: return mode ? PM_TOURIST : PM_HUMAN;
+    case PM_APPRENTICE: return mode ? PM_WIZARD : PM_HUMAN;
+    case PM_WARRIOR: return mode ? PM_VALKYRIE : PM_HUMAN;
+    default: {
+        const species = ismnum(mndx) ? state.mons?.[mndx] : null;
+        if (is_human(species)) return PM_HUMAN;
+        if (is_elf(species)) return PM_ELF;
+        if (is_dwarf(species)) return PM_DWARF;
+        if (is_gnome(species)) return PM_GNOME;
+        if (is_orc(species)) return PM_ORC;
+        return mndx;
+    }
+    }
 }
 
 // C ref: mon.c pm_to_cham(). Answers the shape a monster of species `mndx`
