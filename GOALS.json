@@ -17580,8 +17580,8 @@
       "spans": [
         {
           "name": "m_respond_shrieker..wake_nearto_core",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "df5e1d919377ed28203ab92e878aff61c85c7823",
           "functions": [
             "m_respond_shrieker",
             "m_respond_medusa",
@@ -17605,31 +17605,31 @@
           "name": "m_respond_shrieker",
           "line": 4089,
           "endLine": 4108,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_respond_medusa",
           "line": 4109,
           "endLine": 4121,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_respond",
           "line": 4122,
           "endLine": 4134,
-          "ported": false
+          "ported": true
         },
         {
           "name": "qst_guardians_respond",
           "line": 4135,
           "endLine": 4162,
-          "ported": false
+          "ported": true
         },
         {
           "name": "peacefuls_respond",
           "line": 4163,
           "endLine": 4264,
-          "ported": false
+          "ported": true
         },
         {
           "name": "setmangry",
@@ -17659,7 +17659,7 @@
           "name": "wake_nearto_core",
           "line": 4374,
           "endLine": 4401,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
