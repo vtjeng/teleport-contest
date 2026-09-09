@@ -44,7 +44,7 @@ export function parseCaller(caller) {
  * screens; its C function comes from the `name()` its message carries, when a
  * C file defines that name.
  */
-export function queueEntry(row, owners) {
+export function queueEntry(row, owners, portedNames = new Set()) {
     const candidates = [];
     const screen = row.divergence?.screen;
     if (screen && Number.isInteger(screen.index)) {
@@ -65,11 +65,13 @@ export function queueEntry(row, owners) {
     if (candidates.length === 0) return null;
     candidates.sort((a, b) => a.step - b.step || a.order - b.order);
     const first = candidates[0];
+    const fn = first.caller?.function ?? null;
     return {
         session: row.file.replace(/\.session\.json$/u, ''),
         step: first.step,
         kind: first.kind,
-        function: first.caller?.function ?? null,
+        function: fn,
+        functionPorted: fn !== null && portedNames.has(fn),
         cFile: first.caller?.cFile ?? null,
         line: first.caller?.line ?? null,
         message: first.message ?? null,
@@ -99,9 +101,9 @@ export function fileOrder(entries, portedCounts) {
             || a.cFile.localeCompare(b.cFile));
 }
 
-export function buildQueue(scan, owners, portedCounts) {
+export function buildQueue(scan, owners, portedCounts, portedNames = new Set()) {
     const sessions = scan.rows
-        .map((row) => queueEntry(row, owners))
+        .map((row) => queueEntry(row, owners, portedNames))
         .filter(Boolean)
         .sort((a, b) => a.step - b.step || a.session.localeCompare(b.session));
     return { sessions, files: fileOrder(sessions, portedCounts) };
@@ -120,8 +122,7 @@ function runScan() {
     return JSON.parse(run.stdout);
 }
 
-function realPortedCounts() {
-    const names = jsFunctionNames();
+function realPortedCounts(names) {
     return (cFile) => {
         const functions = cFunctions(cFile);
         return {
@@ -138,17 +139,31 @@ export function formatQueue(queue) {
         const where = entry.function
             ? `${entry.function}() in ${entry.cFile}`
             : entry.kind === 'screen' ? 'display' : 'unresolved';
+        const tag = entry.functionPorted ? ' [divergence]' : '';
         lines.push(`  ${entry.session}: step ${entry.step} (${entry.kind}), `
-            + `${where}, ${entry.remaining} of ${entry.recordedSteps} screens remain`
+            + `${where}${tag}, ${entry.remaining} of ${entry.recordedSteps} screens remain`
             + (entry.message ? `\n      ${entry.message}` : ''));
     }
     lines.push('');
-    lines.push('Goal order (sessions naming the file, then earliest step):');
-    if (queue.files.length === 0) lines.push('  no C file named');
-    for (const file of queue.files) {
+    const filePorts = queue.files.filter(
+        (f) => f.functionsPorted < f.functionsTotal);
+    const divergenceFixes = queue.files.filter(
+        (f) => f.functionsPorted >= f.functionsTotal);
+    lines.push('Goal order — file ports (sessions naming the file, then earliest step):');
+    if (filePorts.length === 0) lines.push('  none');
+    for (const file of filePorts) {
         lines.push(`  ${file.cFile}: ${file.sessions.length} session(s), earliest `
             + `step ${file.earliestStep}, ${file.functionsPorted} of `
             + `${file.functionsTotal} functions ported`);
+    }
+    if (divergenceFixes.length > 0) {
+        lines.push('');
+        lines.push('Goal order — divergence fixes (all functions ported):');
+        for (const file of divergenceFixes) {
+            lines.push(`  ${file.cFile}: ${file.sessions.length} session(s), earliest `
+                + `step ${file.earliestStep}, ${file.functionsPorted} of `
+                + `${file.functionsTotal} functions ported`);
+        }
     }
     return lines.join('\n');
 }
@@ -162,7 +177,8 @@ function main(args) {
         else throw new Error(`unexpected argument: ${args[index]}`);
     }
     const scan = scanPath ? JSON.parse(readFileSync(scanPath, 'utf8')) : runScan();
-    const queue = buildQueue(scan, functionOwners(), realPortedCounts());
+    const portedNames = jsFunctionNames();
+    const queue = buildQueue(scan, functionOwners(), realPortedCounts(portedNames), portedNames);
     console.log(json ? JSON.stringify(queue, null, 2) : formatQueue(queue));
 }
 

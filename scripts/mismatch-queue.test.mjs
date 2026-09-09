@@ -56,6 +56,7 @@ test('queueEntry takes the earliest mismatch and names its C function', () => {
         step: 416,
         kind: 'screen',
         function: null,
+        functionPorted: false,
         cFile: null,
         line: null,
         message: null,
@@ -69,8 +70,13 @@ test('queueEntry takes the earliest mismatch and names its C function', () => {
     const entry = queueEntry(sameStep, owners);
     assert.equal(entry.kind, 'rng');
     assert.equal(entry.function, 'dog_move');
+    assert.equal(entry.functionPorted, false);
     assert.equal(entry.cFile, 'dogmove.c');
     assert.equal(entry.line, 1255);
+
+    // When the named function appears in portedNames, functionPorted is true.
+    const portedEntry = queueEntry(sameStep, owners, new Set(['dog_move']));
+    assert.equal(portedEntry.functionPorted, true);
 
     // A refusal counts at the step the port stopped, and the `name()` in its
     // message resolves to the C file that defines it.
@@ -78,6 +84,7 @@ test('queueEntry takes the earliest mismatch and names its C function', () => {
     assert.equal(stop.kind, 'stop');
     assert.equal(stop.step, 227);
     assert.equal(stop.function, 'poison_strdmg');
+    assert.equal(stop.functionPorted, false);
     assert.equal(stop.cFile, 'attrib.c');
     assert.equal(stop.remaining, 1726);
 
@@ -109,8 +116,28 @@ test('buildQueue and formatQueue cover the whole scan', () => {
     ]);
     assert.deepEqual(queue.files.map((file) => file.cFile), ['attrib.c']);
     const text = formatQueue(queue);
+    // The stop entry names an unported function, so no [divergence] tag.
     assert.ok(text.includes('seed0030-ten-diverse-deaths: step 227 (stop), '
         + 'poison_strdmg() in attrib.c, 1726 of 1953 screens remain'));
+    assert.ok(!text.includes('[divergence]'));
+    // The file has unported functions, so it appears under file ports.
+    assert.ok(text.includes('Goal order — file ports'));
     assert.ok(text.includes('attrib.c: 1 session(s), earliest step 227, '
         + '4 of 10 functions ported'));
+});
+
+test('formatQueue labels divergences and separates fully-ported files', () => {
+    const scan = { rows: [stopOnly] };
+    // All functions ported: the file is a divergence-fix candidate.
+    const allPorted = () => ({ functionsTotal: 5, functionsPorted: 5 });
+    const portedNames = new Set(['poison_strdmg']);
+    const queue = buildQueue(scan, owners, allPorted, portedNames);
+    assert.equal(queue.sessions[0].functionPorted, true);
+    const text = formatQueue(queue);
+    // The session line carries the [divergence] tag.
+    assert.ok(text.includes('poison_strdmg() in attrib.c [divergence]'));
+    // The file appears under divergence fixes, not file ports.
+    assert.ok(text.includes('Goal order — divergence fixes'));
+    assert.ok(text.includes('attrib.c: 1 session(s)'));
+    assert.ok(!text.includes('Goal order — file ports\n  attrib.c'));
 });
