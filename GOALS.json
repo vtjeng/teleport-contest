@@ -15900,7 +15900,7 @@
     {
       "id": "port-cmd-doherecmdmenu",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port cmd.c command handling needed by doherecmdmenu()",
       "cFile": "cmd.c",
       "sessions": [
@@ -16048,8 +16048,11 @@
         "screens": 5299,
         "rng": 376945
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "37232290c45b287102ca2ee04b84ef97abf513f8",
+      "delivered": {
+        "screens": 6,
+        "rng": 12
+      },
       "functions": [
         {
           "name": "doprev_message",
