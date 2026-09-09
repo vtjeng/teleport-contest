@@ -92,17 +92,23 @@ test('queueEntry takes the earliest mismatch and names its C function', () => {
     assert.equal(queueEntry(passing, owners), null);
 });
 
-test('fileOrder ranks by session count, then by the earliest step', () => {
+test('fileOrder ranks by forfeited screens, then by the earliest step', () => {
     const entries = [
-        { session: 's1', step: 300, cFile: 'attrib.c' },
-        { session: 's2', step: 50, cFile: 'dogmove.c' },
-        { session: 's3', step: 400, cFile: 'attrib.c' },
-        { session: 's4', step: 10, cFile: null },
+        // attrib.c: 2 sessions, 100+200 = 300 forfeited screens.
+        { session: 's1', step: 300, remaining: 100, cFile: 'attrib.c' },
+        // dogmove.c: 1 session, 500 forfeited screens — ranks first.
+        { session: 's2', step: 50, remaining: 500, cFile: 'dogmove.c' },
+        { session: 's3', step: 400, remaining: 200, cFile: 'attrib.c' },
+        // No C file: excluded from the order.
+        { session: 's4', step: 10, remaining: 900, cFile: null },
     ];
     const counts = () => ({ functionsTotal: 10, functionsPorted: 4 });
-    assert.deepEqual(fileOrder(entries, counts).map((file) => file.cFile),
-        ['attrib.c', 'dogmove.c']);
-    assert.equal(fileOrder(entries, counts)[0].earliestStep, 300);
+    const order = fileOrder(entries, counts);
+    assert.deepEqual(order.map((file) => file.cFile),
+        ['dogmove.c', 'attrib.c']);
+    assert.equal(order[0].forfeitedScreens, 500);
+    assert.equal(order[1].forfeitedScreens, 300);
+    assert.equal(order[1].earliestStep, 300);
 });
 
 test('buildQueue and formatQueue cover the whole scan', () => {
@@ -122,8 +128,8 @@ test('buildQueue and formatQueue cover the whole scan', () => {
     assert.ok(!text.includes('[divergence]'));
     // The file has unported functions, so it appears under file ports.
     assert.ok(text.includes('Goal order — file ports'));
-    assert.ok(text.includes('attrib.c: 1 session(s), earliest step 227, '
-        + '4 of 10 functions ported'));
+    assert.ok(text.includes('attrib.c: 1726 forfeited screens across 1 session(s), '
+        + 'earliest step 227, 4 of 10 functions ported'));
 });
 
 test('formatQueue labels divergences and separates fully-ported files', () => {
@@ -138,6 +144,6 @@ test('formatQueue labels divergences and separates fully-ported files', () => {
     assert.ok(text.includes('poison_strdmg() in attrib.c [divergence]'));
     // The file appears under divergence fixes, not file ports.
     assert.ok(text.includes('Goal order — divergence fixes'));
-    assert.ok(text.includes('attrib.c: 1 session(s)'));
+    assert.ok(text.includes('attrib.c: 1726 forfeited screens across 1 session(s)'));
     assert.ok(!text.includes('Goal order — file ports\n  attrib.c'));
 });

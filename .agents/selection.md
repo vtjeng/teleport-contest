@@ -29,10 +29,9 @@ queue before choosing. Appendix A states how to read an entry.
 
 Take goals in this order:
 
-1. Open a file port for the C file that the most sessions' first mismatches
-   name, passing `--start-function` for the function the mismatch named. Break
-   a tie by the earliest mismatch step, because an early mismatch forfeits
-   more screens.
+1. Open a file port for the C file whose mismatches forfeit the most screens,
+   passing `--start-function` for the function the mismatch named. Break a tie
+   by the earliest mismatch step.
 2. When a session's first mismatch falls inside a function that is already
    ported whole, open a divergence fix for that session instead of a file
    port, and follow `.agents/divergence.md`.

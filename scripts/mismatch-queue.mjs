@@ -82,21 +82,23 @@ export function queueEntry(row, owners, portedNames = new Set()) {
 
 /**
  * The C files the queue names, ordered as `.agents/selection.md` ranks
- * goals: most sessions first, then the earliest mismatch step.
+ * goals: most forfeited screens first, then the earliest mismatch step.
  */
 export function fileOrder(entries, portedCounts) {
     const byFile = new Map();
     for (const entry of entries) {
         if (!entry.cFile) continue;
         const file = byFile.get(entry.cFile)
-            ?? { cFile: entry.cFile, sessions: [], earliestStep: Infinity };
+            ?? { cFile: entry.cFile, sessions: [], earliestStep: Infinity,
+                forfeitedScreens: 0 };
         file.sessions.push(entry.session);
         file.earliestStep = Math.min(file.earliestStep, entry.step);
+        file.forfeitedScreens += entry.remaining;
         byFile.set(entry.cFile, file);
     }
     return [...byFile.values()]
         .map((file) => ({ ...file, ...(portedCounts(file.cFile)) }))
-        .sort((a, b) => b.sessions.length - a.sessions.length
+        .sort((a, b) => b.forfeitedScreens - a.forfeitedScreens
             || a.earliestStep - b.earliestStep
             || a.cFile.localeCompare(b.cFile));
 }
@@ -149,18 +151,20 @@ export function formatQueue(queue) {
         (f) => f.functionsPorted < f.functionsTotal);
     const divergenceFixes = queue.files.filter(
         (f) => f.functionsPorted >= f.functionsTotal);
-    lines.push('Goal order — file ports (sessions naming the file, then earliest step):');
+    lines.push('Goal order — file ports (forfeited screens, then earliest step):');
     if (filePorts.length === 0) lines.push('  none');
     for (const file of filePorts) {
-        lines.push(`  ${file.cFile}: ${file.sessions.length} session(s), earliest `
+        lines.push(`  ${file.cFile}: ${file.forfeitedScreens} forfeited screens `
+            + `across ${file.sessions.length} session(s), earliest `
             + `step ${file.earliestStep}, ${file.functionsPorted} of `
             + `${file.functionsTotal} functions ported`);
     }
     if (divergenceFixes.length > 0) {
         lines.push('');
-        lines.push('Goal order — divergence fixes (all functions ported):');
+        lines.push('Goal order — divergence fixes (forfeited screens, then earliest step):');
         for (const file of divergenceFixes) {
-            lines.push(`  ${file.cFile}: ${file.sessions.length} session(s), earliest `
+            lines.push(`  ${file.cFile}: ${file.forfeitedScreens} forfeited screens `
+                + `across ${file.sessions.length} session(s), earliest `
                 + `step ${file.earliestStep}, ${file.functionsPorted} of `
                 + `${file.functionsTotal} functions ported`);
         }
