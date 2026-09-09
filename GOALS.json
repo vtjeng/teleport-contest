@@ -17366,7 +17366,7 @@
     {
       "id": "port-mon-anger-quest-guardians-migrate-mon",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mon.c monster death, stoning, and migration helpers",
       "cFile": "mon.c",
       "sessions": [
@@ -17394,8 +17394,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "13519c962755c36607398c9fd2a74254e62eceeb",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "anger_quest_guardians",
