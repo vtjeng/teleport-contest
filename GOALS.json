@@ -17680,7 +17680,22 @@
         "seed0383-wizard-hallucinate"
       ],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "normal_shape..restartcham",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "normal_shape",
+            "alloc_itermonarr",
+            "iter_mons",
+            "get_iter_mons_xy",
+            "rescham",
+            "m_restartcham",
+            "restartcham"
+          ]
+        }
+      ],
       "openedAt": "e8e6604b20da339a6ae2edd3ed023d88b6ecd58a",
       "openStanding": {
         "sha": "337152e0",
