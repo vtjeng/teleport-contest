@@ -15958,8 +15958,8 @@
         },
         {
           "name": "do_run_southeast..handler_rebind_keys_add",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "0f703e1c0ec5076032168208157a0b42a2b7ed54",
           "functions": [
             "do_run_southeast",
             "do_run_south",
@@ -16333,19 +16333,19 @@
           "name": "do_run_southeast",
           "line": 1553,
           "endLine": 1559,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_run_south",
           "line": 1560,
           "endLine": 1566,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_run_southwest",
           "line": 1567,
           "endLine": 1574,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_reqmenu",
@@ -16357,13 +16357,13 @@
           "name": "do_rush",
           "line": 1590,
           "endLine": 1605,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_run",
           "line": 1606,
           "endLine": 1621,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_fight",
@@ -16375,43 +16375,43 @@
           "name": "do_repeat",
           "line": 1638,
           "endLine": 2100,
-          "ported": false
+          "ported": true
         },
         {
           "name": "extcmds_getentry",
           "line": 2101,
           "endLine": 2109,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmdbind_get",
           "line": 2110,
           "endLine": 2125,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmdbind_add",
           "line": 2126,
           "endLine": 2157,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmdbind_remove",
           "line": 2158,
           "endLine": 2179,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmdbind_freeall",
           "line": 2180,
           "endLine": 2194,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmdbind_swapkeys",
           "line": 2195,
           "endLine": 2207,
-          "ported": false
+          "ported": true
         },
         {
           "name": "count_bind_keys",
@@ -16423,13 +16423,13 @@
           "name": "get_changed_key_binds",
           "line": 2235,
           "endLine": 2290,
-          "ported": false
+          "ported": true
         },
         {
           "name": "handler_rebind_keys_add",
           "line": 2291,
           "endLine": 2407,
-          "ported": false
+          "ported": true
         },
         {
           "name": "handler_rebind_keys",
