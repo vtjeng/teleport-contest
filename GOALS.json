@@ -17875,6 +17875,92 @@
         "from": 4941,
         "to": 5545
       }
+    },
+    {
+      "id": "port-mon-egg-type-to-usmellmon",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mon.c egg, genocide, guard, and monster-scent helpers",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0383-wizard-hallucinate"
+      ],
+      "detail": "",
+      "spans": [],
+      "openedAt": "5e76b5743f5b46b519422e89974f21a47bdb9433",
+      "openStanding": {
+        "sha": "8a364404",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "egg_type_from_parent",
+          "line": 5569,
+          "endLine": 5586,
+          "ported": false
+        },
+        {
+          "name": "dead_species",
+          "line": 5587,
+          "endLine": 5608,
+          "ported": true
+        },
+        {
+          "name": "kill_eggs",
+          "line": 5609,
+          "endLine": 5638,
+          "ported": false
+        },
+        {
+          "name": "kill_genocided_monsters",
+          "line": 5639,
+          "endLine": 5679,
+          "ported": true
+        },
+        {
+          "name": "golemeffects",
+          "line": 5680,
+          "endLine": 5710,
+          "ported": false
+        },
+        {
+          "name": "angry_guards",
+          "line": 5711,
+          "endLine": 5762,
+          "ported": false
+        },
+        {
+          "name": "pacify_guard",
+          "line": 5763,
+          "endLine": 5769,
+          "ported": false
+        },
+        {
+          "name": "pacify_guards",
+          "line": 5770,
+          "endLine": 5775,
+          "ported": false
+        },
+        {
+          "name": "mimic_hit_msg",
+          "line": 5776,
+          "endLine": 5795,
+          "ported": false
+        },
+        {
+          "name": "usmellmon",
+          "line": 5796,
+          "endLine": 5914,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 5569,
+        "to": 5914
+      }
     }
   ]
 }
