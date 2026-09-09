@@ -17171,6 +17171,74 @@
         "from": 1354,
         "to": 2056
       }
+    },
+    {
+      "id": "port-mon-monlineu-mm-displacement",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mon.c monster movement candidate and aggression helpers",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0383-wizard-hallucinate"
+      ],
+      "detail": "",
+      "spans": [],
+      "openedAt": "58444c2e847acb3a1372a991e57d168629d0b364",
+      "openStanding": {
+        "sha": "1938c3ea",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "monlineu",
+          "line": 2057,
+          "endLine": 2063,
+          "ported": false
+        },
+        {
+          "name": "mon_allowflags",
+          "line": 2064,
+          "endLine": 2129,
+          "ported": true
+        },
+        {
+          "name": "m_in_air",
+          "line": 2130,
+          "endLine": 2139,
+          "ported": true
+        },
+        {
+          "name": "mfndpos",
+          "line": 2140,
+          "endLine": 2387,
+          "ported": true
+        },
+        {
+          "name": "mm_2way_aggression",
+          "line": 2388,
+          "endLine": 2427,
+          "ported": false
+        },
+        {
+          "name": "mm_aggression",
+          "line": 2428,
+          "endLine": 2450,
+          "ported": false
+        },
+        {
+          "name": "mm_displacement",
+          "line": 2451,
+          "endLine": 2475,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 2057,
+        "to": 2475
+      }
     }
   ]
 }
