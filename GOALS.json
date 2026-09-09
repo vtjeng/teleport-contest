@@ -17683,8 +17683,8 @@
       "spans": [
         {
           "name": "normal_shape..restartcham",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "40496d27a085183e07a6bc6d5391f7e20582bd16",
           "functions": [
             "normal_shape",
             "alloc_itermonarr",
@@ -17709,13 +17709,13 @@
           "name": "normal_shape",
           "line": 4431,
           "endLine": 4470,
-          "ported": false
+          "ported": true
         },
         {
           "name": "alloc_itermonarr",
           "line": 4471,
           "endLine": 4499,
-          "ported": false
+          "ported": true
         },
         {
           "name": "iter_mons_safe",
@@ -17727,7 +17727,7 @@
           "name": "iter_mons",
           "line": 4527,
           "endLine": 4543,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_iter_mons",
@@ -17739,7 +17739,7 @@
           "name": "get_iter_mons_xy",
           "line": 4562,
           "endLine": 4595,
-          "ported": false
+          "ported": true
         },
         {
           "name": "healmon",
@@ -17751,19 +17751,19 @@
           "name": "rescham",
           "line": 4621,
           "endLine": 4626,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_restartcham",
           "line": 4627,
           "endLine": 4639,
-          "ported": false
+          "ported": true
         },
         {
           "name": "restartcham",
           "line": 4640,
           "endLine": 4648,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
