@@ -200,6 +200,7 @@ import {
     pick_vampire_shape,
     preflight_newcham_distress,
     remove_worm,
+    set_mimic_sym,
     set_mon_data,
     wormgone,
 } from './makemon_create.js';
@@ -420,6 +421,7 @@ import {
     S_EEL,
     S_ELEMENTAL,
     S_GHOST,
+    S_HUMAN,
     S_KOP,
     S_LICH,
     S_MIMIC,
@@ -565,8 +567,28 @@ export async function iter_mons_safe(callback, state = game) {
         monster = monster.nmon) {
         monsters.push(monster);
     }
-    for (const monster of monsters) {
-        if (await callback(monster)) break;
+    alloc_itermonarr(monsters.length);
+    for (let i = 0; i < monsters.length; ++i)
+        itermonarr[i] = monsters[i];
+    for (let i = 0; i < monsters.length; ++i) {
+        if (await callback(itermonarr[i])) break;
+    }
+}
+
+// C ref: mon.c alloc_itermonarr() (4471-4490). JavaScript arrays do not need
+// manual allocation, but keeping the same retained capacity and release rules
+// makes the safe iterator's ownership explicit and mirrors freedynamicdata().
+let itermonarr = [];
+let itermonsiz = 0;
+
+export function alloc_itermonarr(count) {
+    if (!count || count > itermonsiz || count + 40 < itermonsiz) {
+        itermonarr = [];
+        itermonsiz = 0;
+    }
+    if (count > itermonsiz) {
+        itermonsiz = count + 20;
+        itermonarr.length = itermonsiz;
     }
 }
 
@@ -679,6 +701,28 @@ export function get_iter_mons(bfunc, state = game) {
         next = mtmp.nmon;
         if (mtmp.mhp < 1 /* DEADMONSTER() */ || mon_offmap(mtmp)) continue;
         if (bfunc(mtmp)) return mtmp;
+    }
+    return null;
+}
+
+// C ref: mon.c iter_mons(). Cache nmon before invoking the callback so a
+// callback may unlink or otherwise mutate the current monster safely.
+export function iter_mons(vfunc, state = game) {
+    for (let mtmp = state.level?.monlist ?? null; mtmp;) {
+        const next = mtmp.nmon;
+        if (mtmp.mhp >= 1 && !mon_offmap(mtmp)) vfunc(mtmp);
+        mtmp = next;
+    }
+}
+
+// C ref: mon.c get_iter_mons_xy(). The coordinate pair belongs to the
+// predicate, not to the monster being visited.
+export function get_iter_mons_xy(bfunc, x, y, state = game) {
+    for (let mtmp = state.level?.monlist ?? null; mtmp;) {
+        const next = mtmp.nmon;
+        if (mtmp.mhp >= 1 && !mon_offmap(mtmp)
+            && bfunc(mtmp, x, y)) return mtmp;
+        mtmp = next;
     }
     return null;
 }
@@ -1004,19 +1048,16 @@ export function pm_to_cham(mndx, state = game) {
 // that reaches a level, because Protection_from_shape_changers may have
 // changed while the monster was off the map.
 //
-// The forced-revert arm needs normal_shape(), which is unported: it undoes a
-// mimic's disguise through seemimic() and a vampshifter's form through
-// newcham(). Neither the hero property nor mcan can be set on any path that
-// reaches a level change today, so the arm stops rather than runs.
+// The forced-revert arm delegates to normal_shape(), which also preserves the
+// cancellation bit when newcham() clears it.
 export function restore_cham(monster, state = game) {
     const shapeChangerProtection
         = state.u?.uprops?.[PROT_FROM_SHAPE_CHANGERS];
     if (shapeChangerProtection?.intrinsic
         || shapeChangerProtection?.extrinsic
         || monster.mcan) {
-        throw new RangeError(
-            'restore_cham: forcing a natural shape is future work',
-        );
+        normal_shape(monster, state);
+        return;
     }
     if (monster.cham === NON_PM)
         monster.cham = pm_to_cham(monsndx(monster.data), state);
@@ -2401,6 +2442,19 @@ function preflightNewWere(monster, normalized) {
     return target;
 }
 
+function applyNewWereForm(monster, target, state, redrawSquare) {
+    set_mon_data(monster, target, state);
+    if (helpless(monster)) {
+        monster.msleeping = false;
+        monster.mfrozen = 0;
+        monster.mcanmove = true;
+    }
+    const healing = Math.trunc((monster.mhpmax - monster.mhp) / 4);
+    monster.mhp = Math.min(monster.mhp + healing, monster.mhpmax);
+    redrawSquare(monster.mx, monster.my, state);
+    return true;
+}
+
 // C ref: were.c new_were(), bounded to the inventory-free, non-mon_moving
 // distress state. Transformation feedback precedes the data change; wakeup,
 // one-quarter lost-HP regeneration, and redraw preserve source order.
@@ -2422,21 +2476,12 @@ export async function new_were(monster, rawEnv = {}) {
         );
     }
 
-    set_mon_data(monster, target, state);
-    if (helpless(monster)) {
-        monster.msleeping = false;
-        monster.mfrozen = 0;
-        monster.mcanmove = true;
-    }
-    const healing = Math.trunc((monster.mhpmax - monster.mhp) / 4);
-    monster.mhp = Math.min(monster.mhp + healing, monster.mhpmax);
-    normalized.redrawSquare(
-        monster.mx,
-        monster.my,
+    return applyNewWereForm(
+        monster,
+        target,
         state,
-        normalized,
+        (x, y, owner) => normalized.redrawSquare(x, y, owner, normalized),
     );
-    return true;
 }
 
 // C ref: mon.c m_respond_shrieker(). makemon() ignores its return here, but
@@ -2894,6 +2939,96 @@ export function seemimic(mtmp, state = game) {
         unblock_point(mtmp.mx, mtmp.my, state);
 
     newsym(mtmp.mx, mtmp.my);
+}
+
+function restoreWereShapeSynchronously(monster, state, rawEnv) {
+    const normalized = normalizedDistressEnv({ ...rawEnv, state });
+    const target = preflightNewWere(monster, normalized);
+    if (!target) return false;
+
+    if (normalized.canSeeMonster(monster, normalized)
+        && !heroHallucinating(state)) {
+        const targetName = is_human(target)
+            ? 'human'
+            : (target.pmnames?.[2] ?? '').slice(4);
+        const pending = normalized.message(
+            distressMonnam(monster) + ' changes into a ' + targetName + '.',
+            state,
+            normalized,
+        );
+        // normal_shape() is a synchronous C callback used by iter_mons().
+        // Preserve its state-change ordering while allowing the shared TTY
+        // message adapter to finish its asynchronous display work afterward.
+        if (pending && typeof pending.catch === 'function') pending.catch(() => {});
+    }
+
+    return applyNewWereForm(
+        monster,
+        target,
+        state,
+        (x, y, owner) => normalized.redrawSquare(x, y, owner, normalized),
+    );
+}
+
+// C ref: mon.c normal_shape() (4434-4464). Revert a chameleon or vampire to
+// its recorded natural form, turn a werecreature back into human form, and
+// reveal a mimic. The C caller ignores newcham()/new_were() return values, but
+// their state transitions and the saved cancellation bit remain observable.
+export function normal_shape(mon, state = game, rawEnv = {}) {
+    const mcham = Number(mon.cham);
+    if (ismnum(mcham)) {
+        const mcan = mon.mcan;
+        newcham(mon, state.mons?.[mcham], { ...rawEnv, state });
+        mon.cham = NON_PM;
+        // newcham() may uncancel a polymorphing monster; C overrides that.
+        if (mcan) mon.mcan = 1;
+        newsym(mon.mx, mon.my);
+    }
+    if (is_were(mon.data) && mon.data.mlet !== S_HUMAN)
+        restoreWereShapeSynchronously(mon, state, rawEnv);
+
+    if (M_AP_TYPE(mon) !== M_AP_NOTHING) {
+        if (!mon.meating) {
+            if (M_AP_TYPE(mon) !== M_AP_MONSTER) mon.msleeping = 1;
+            seemimic(mon, state);
+        } else {
+            finish_meating(mon, {
+                redraw: (x, y) => newsym(x, y),
+            });
+        }
+    }
+}
+
+// C ref: mon.c rescham() (4621-4626). Protection from shape changers applies
+// to every living monster currently on the level, including mimics.
+export function rescham(state = game, rawEnv = {}) {
+    iter_mons(
+        (monster) => normal_shape(monster, state, rawEnv),
+        state,
+    );
+}
+
+// C ref: mon.c m_restartcham() (4629-4638). A cancelled shapechanger stays
+// natural, while a sleeping mimic gets its disguise rebuilt before redraw.
+export function m_restartcham(mon, state = game, rawEnv = {}) {
+    if (!mon.mcan) mon.cham = pm_to_cham(monsndx(mon.data), state);
+    if (mon.data?.mlet === S_MIMIC && mon.msleeping) {
+        set_mimic_sym(mon, {
+            ...rawEnv,
+            state,
+            random: rawEnv.random ?? { rn2 },
+        });
+        newsym(mon.mx, mon.my);
+    }
+}
+
+// C ref: mon.c restartcham() (4640-4644). Re-enable shape changing and
+// hiding for every living, on-map monster.
+export function restartcham(state = game, rawEnv = {}) {
+    iter_mons(
+        (monster) => m_restartcham(monster, state, rawEnv),
+        state,
+    );
 }
 
 async function wakeNearForWereHowl(x, y, distance, normalized) {

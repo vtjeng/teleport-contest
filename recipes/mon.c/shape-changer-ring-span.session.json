@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises mon.c rescham() and restartcham() through wearing and removing a ring of protection from shape changers.",
+  "segments": [
+    {
+      "seed": 7770042,
+      "datetime": "20261029100000",
+      "nethackrc": "OPTIONS=name:ShapeRing,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": "  #wizwish\nring of protection from shape shifters\nPeTeq"
+    }
+  ]
+}

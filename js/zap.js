@@ -240,6 +240,7 @@ import { healup } from './potion.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import {
     monkilled,
+    normal_shape,
     pm_to_cham,
     replmon,
     seemimic,
@@ -2350,7 +2351,7 @@ export async function cancel_monst(
     } else {
         mdef.mcan = 1;
         /* force shapeshifter into its base form or mimic to unhide */
-        note_unported('were.c normal_shape');
+        normal_shape(mdef, state);
 
         if (mdef.data === state.mons[PM_CLAY_GOLEM]) {
             // Display message for clay golem (allow_cancel_kill controls

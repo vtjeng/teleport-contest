@@ -131,6 +131,7 @@ import { cmdq_pop, paranoid_query, yn_function } from './cmd.js';
 import { artifact_light, set_artifact_intrinsic } from './artifacts.js';
 import { game } from './gstate.js';
 import { nomul, unmul } from './hack.js';
+import { rescham, restartcham } from './mon.js';
 import {
     carrying_stoning_corpse,
     getobj,
@@ -588,11 +589,10 @@ export class UnsupportedRingOnError extends Error {
 // fire/cold/shock resistance, conflict, teleport control, polymorph,
 // polymorph control, free action, slow digestion, sustain ability, and meat.
 //
-// Five types call helpers this port has not reached: stealth
+// Four types call helpers this port has not reached: stealth
 // (toggle_stealth), see invisible (set_mimic_blocking + see_monsters),
 // invisibility (self_invis_message), levitation (float_up + spoteffects),
-// and protection from shape changers (rescham). Each raises a fail-closed
-// throw.
+// and protection from shape changers (rescham), which is ported below.
 //
 // The remaining arms -- warning (see_monsters), gain strength/constitution/
 // adornment (adjust_attrib), increase accuracy/damage (uhitinc/udaminc), and
@@ -677,9 +677,8 @@ export async function Ring_on(obj, state = game) {
         state.u.udaminc += obj.spe;
         break;
     case RIN_PROTECTION_FROM_SHAPE_CHAN:
-        throw new UnsupportedRingOnError(
-            `rescham() for otyp ${obj.otyp}`,
-        );
+        rescham(state);
+        break;
     case RIN_PROTECTION:
         /* usually learn enchantment and discover type;
            won't happen if ring is unseen or if it's +0
@@ -696,7 +695,8 @@ export async function Ring_on(obj, state = game) {
 // (gone=false, setworn) and Ring_gone() (gone=true, setnotworn). The switch
 // mirrors Ring_on() with the inverse operation for each ring type.
 //
-// Arms ported: the sixteen no-op types, gain strength/constitution/adornment
+// Arms ported: the sixteen no-op types, protection from shape changers,
+// gain strength/constitution/adornment
 // (adjust_attrib with negative spe), increase accuracy/damage (uhitinc/
 // udaminc), and protection (learnring + find_ac). Unported arms throw
 // UnsupportedTakeOffError so the segment ends cleanly.
@@ -774,9 +774,8 @@ function Ring_off_or_gone(obj, gone, state = game) {
         break;
     }
     case RIN_PROTECTION_FROM_SHAPE_CHAN:
-        throw new UnsupportedTakeOffError(
-            `restartcham() for Ring_off otyp ${obj.otyp}`,
-        );
+        restartcham(state);
+        break;
     }
 }
 

@@ -764,8 +764,9 @@ test('restore_cham gives a shapeshifter back its shape', () => {
     restore_cham(chameleon, state);
     assert.equal(chameleon.cham, PM_CHAMELEON);
 
-    // The forced-revert arm needs normal_shape(), which is unported. Each of
-    // its three terms reaches it on its own.
+    // The forced-revert arm now reaches normal_shape(). A natural-form
+    // chameleon has no further state to change, so each of its three terms
+    // completes without changing its natural-shape marker.
     for (const set of [
         (mon) => { mon.mcan = 1; },
         () => {
@@ -782,10 +783,8 @@ test('restore_cham gives a shapeshifter back its shape', () => {
         mon.cham = NON_PM;
         state.u.uprops = [];
         set(mon);
-        assert.throws(
-            () => restore_cham(mon, state),
-            /natural shape is future work/u,
-        );
+        assert.doesNotThrow(() => restore_cham(mon, state));
+        assert.equal(mon.cham, NON_PM);
     }
 });
 

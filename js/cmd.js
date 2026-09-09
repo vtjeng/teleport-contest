@@ -2801,7 +2801,8 @@ export function failClosedCommandRefusals() {
         // do_wear.c Ring_on() raises this for the five ring types whose
         // on-wear effect calls helpers this port has not reached:
         // toggle_stealth, set_mimic_blocking, self_invis_message, float_up,
-        // rescham. The no-op, arithmetic and protection arms work without them.
+        // The no-op, arithmetic, and shape-changer protection arms work
+        // without the remaining unsupported ring helpers.
         UnsupportedRingOnError,
         // do_wear.c Amulet_on() and Blindf_on() are fail-closed entry points
         // that belong to later puton-command slices.
