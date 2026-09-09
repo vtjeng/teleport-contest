@@ -17063,8 +17063,8 @@
       "spans": [
         {
           "name": "meatbox..mpickgold",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "e295226bff4e77fe2ed0eebad4395e90d0cd886f",
           "functions": [
             "meatbox",
             "meatmetal",
@@ -17089,7 +17089,7 @@
           "name": "meatbox",
           "line": 1354,
           "endLine": 1391,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_consume_obj",
@@ -17101,37 +17101,37 @@
           "name": "meatmetal",
           "line": 1463,
           "endLine": 1532,
-          "ported": false
+          "ported": true
         },
         {
           "name": "meatobj",
           "line": 1533,
           "endLine": 1655,
-          "ported": false
+          "ported": true
         },
         {
           "name": "meatcorpse",
           "line": 1656,
           "endLine": 1725,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mon_give_prop",
           "line": 1726,
           "endLine": 1777,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mon_givit",
           "line": 1778,
           "endLine": 1826,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mpickgold",
           "line": 1827,
           "endLine": 1846,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mpickstuff",
