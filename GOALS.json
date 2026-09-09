@@ -18346,6 +18346,120 @@
         "from": 694,
         "to": 1962
       }
+    },
+    {
+      "id": "port-options-menu-selection-handlers",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port options.c menu selection and heading handlers",
+      "cFile": "options.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [],
+      "openedAt": "9915dd820376515693eed907fe0094a8798d28d4",
+      "openStanding": {
+        "sha": "a7bbab17",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "shared_menu_optfn",
+          "line": 2052,
+          "endLine": 2076,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_deselect_all",
+          "line": 2077,
+          "endLine": 2084,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_deselect_page",
+          "line": 2085,
+          "endLine": 2092,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_first_page",
+          "line": 2093,
+          "endLine": 2100,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_invert_all",
+          "line": 2101,
+          "endLine": 2108,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_invert_page",
+          "line": 2109,
+          "endLine": 2116,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_last_page",
+          "line": 2117,
+          "endLine": 2124,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_next_page",
+          "line": 2125,
+          "endLine": 2132,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_previous_page",
+          "line": 2133,
+          "endLine": 2140,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_search",
+          "line": 2141,
+          "endLine": 2148,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_select_all",
+          "line": 2149,
+          "endLine": 2156,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_select_page",
+          "line": 2157,
+          "endLine": 2164,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_shift_left",
+          "line": 2165,
+          "endLine": 2172,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_shift_right",
+          "line": 2173,
+          "endLine": 2182,
+          "ported": false
+        },
+        {
+          "name": "optfn_menu_headings",
+          "line": 2183,
+          "endLine": 2224,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 2052,
+        "to": 2224
+      }
     }
   ]
 }
