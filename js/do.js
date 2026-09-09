@@ -129,7 +129,7 @@ import { maybe_reset_pick } from './lock.js';
 import { mklev } from './mklev.js';
 import { makemon } from './makemon_create.js';
 import { fumaroles, movebubbles } from './mkmaze.js';
-import { set_ustuck } from './mon.js';
+import { m_into_limbo, set_ustuck } from './mon.js';
 import { m_at } from './monst.js';
 import { gulp_blnd_check } from './mhitu.js';
 import { olfaction } from './mondata.js';
@@ -1781,11 +1781,8 @@ function u_collide_m(mtmp, state = game) {
 
     if (m_at(state.u.ux, state.u.uy, state)) {
         // C tries rloc() and then m_into_limbo(), which sends the monster off
-        // the level to return later. Neither the wizard-mode message nor
-        // m_into_limbo() is ported.
-        throw new UnsupportedLevelChangeError(
-            'u_collide_m() with a monster still in the hero\'s way',
-        );
+        // the level to return later. The wizard-mode message is not ported.
+        m_into_limbo(m_at(state.u.ux, state.u.uy, state), state);
     }
 }
 

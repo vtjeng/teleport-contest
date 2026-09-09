@@ -32,6 +32,7 @@ import {
     CONFLICT,
     CORPSTAT_BURIED,
     CORPSTAT_FEMALE,
+    CORPSTAT_HISTORIC,
     CORPSTAT_INIT,
     CORPSTAT_MALE,
     CORPSTAT_NONE,
@@ -79,6 +80,7 @@ import {
     M_POISONGAS_MINOR,
     M_POISONGAS_OK,
     MFAST,
+    MIGR_APPROX_XY,
     MON_DETACH,
     MON_ENDGAME_MIGR,
     MON_FLOOR,
@@ -106,6 +108,7 @@ import {
     SUPPRESS_SADDLE,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
+    SUPPRESS_HALLUCINATION,
     SUPPRESS_NAME,
     AUGMENT_IT,
     TAINT_AGE,
@@ -136,11 +139,13 @@ import {
     unmap_object,
 } from './display.js';
 import {
+    a_monnam,
     capitalizedMonsterName,
     hliquid,
     Monnam,
     mon_pmname,
     monsterCommonName,
+    oname,
     pmname,
     x_monnam,
 } from './do_name.js';
@@ -149,6 +154,7 @@ import { finish_meating } from './dogmove.js';
 import {
     has_ceiling,
     In_W_tower,
+    ledger_no,
     on_level,
     On_W_tower_level,
     surface,
@@ -157,9 +163,10 @@ import { sengr_at } from './engrave.js';
 import { adjalign } from './attrib.js';
 import { experience, more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
-import { disturb_buried_zombies, NODIAG } from './hack.js';
+import { disturb_buried_zombies, NODIAG, u_locomotion } from './hack.js';
 import { dist2, online2, s_suffix, upstart } from './hacklib.js';
 import {
+    add_to_container,
     add_to_minv,
     delobj,
     nxtobj,
@@ -200,6 +207,7 @@ import {
     completelyrots,
     completelyrusts,
     dmgtype,
+    dmgtype_fromattack,
     emits_light,
     flesh_petrifies,
     haseyes,
@@ -232,6 +240,7 @@ import {
     likes_lava,
     monster_resists_element,
     monsndx,
+    gender,
     needspick,
     nohands,
     noncorporeal,
@@ -399,6 +408,8 @@ import {
     S_ZOMBIE,
     HIGH_PM,
     LOW_PM,
+    MR_STONE,
+    MZ_TINY,
 } from './monsters.js';
 import {
     accessible,
@@ -428,6 +439,7 @@ import {
     place_object,
     sobj_at,
     splitobj,
+    weight,
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
@@ -446,6 +458,7 @@ import {
     ICE_BOX,
     RIN_SLOW_DIGESTION,
     ROCK,
+    STATUE,
     ROCK_CLASS,
     SCROLL_CLASS,
     SCR_SCARE_MONSTER,
@@ -457,7 +470,9 @@ import { distant_name, donameFresh, The, xnameFresh } from './objnam.js';
 import { obj_resists } from './bury.js';
 import { objdescr_is } from './o_init.js';
 import { corpse_intrinsic, should_givit } from './eat.js';
-import { mon_set_minvis } from './worn.js';
+import { extract_from_minvent, mon_set_minvis } from './worn.js';
+import { end_burn } from './timeout.js';
+import { migrate_to_level } from './dog.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import {
     canSeeMonster,
@@ -3304,6 +3319,13 @@ function logdeadmon(mtmp, mndx, state, env) {
     }
 }
 
+// C ref: mon.c anger_quest_guardians() (3072-3077). The quest guardian
+// species is the role's guardnum, not the guardian's current shape.
+export function anger_quest_guardians(mtmp, state = game, env = {}) {
+    if (mtmp.data === state.mons?.[state.urole?.guardnum])
+        setmangry(mtmp, true, { ...env, state });
+}
+
 // C ref: mon.c mondead() (3080-3177). "monster 'mtmp' has died; maybe
 // life-save, otherwise unshapeshift and update vanquished stats and update
 // map". The ordinary path draws nothing: both of its random-number calls are
@@ -3701,6 +3723,105 @@ export async function mondied(mdef, state = game, env = {}) {
         make_corpse(mdef, CORPSTAT_NONE, state, env);
 }
 
+// C ref: mon.c monstone() (3287-3374). Drop a statue or rock and remove the
+// petrified monster. Object extraction and corpse construction retain C's
+// source order: inventory is detached before the statue is made, and the
+// dead monster is detached only after the square has been redrawn.
+export async function monstone(mdef, state = game, env = {}) {
+    const random = env.random ?? { rn2 };
+    const x = mdef.mx;
+    const y = mdef.my;
+    let wasinside = false;
+
+    /* A shifted vampire or sandestin reverts instead of becoming a statue. */
+    if (!await vamp_stone(mdef, state, env)) return;
+
+    mdef.mhp = 0;
+    lifesaved_monster(mdef, state, env);
+    if (mdef.mhp >= 1) return;
+    mdef.mtrapped = 0;
+
+    let statue;
+    if (mdef.data.msize > MZ_TINY
+        || !random.rn2(2 + ((mdef.data.geno & G_FREQ) > 2 ? 1 : 0))) {
+        let oldminvent = null;
+        while (mdef.minvent) {
+            const obj = mdef.minvent;
+            extract_from_minvent(mdef, obj, true, true, { ...env, state });
+            if (obj.otyp === BOULDER
+                || obj_resists(obj, 0, 0, { ...env, state, random })) {
+                if (flooreffects(obj, x, y, 'fall', { ...env, state }))
+                    continue;
+                place_object(obj, x, y,
+                             objectGenerationEnv({ ...env, state, random }));
+            } else {
+                if (obj.lamplit) end_burn(obj, true, { ...env, state });
+                obj.nobj = oldminvent;
+                oldminvent = obj;
+            }
+        }
+
+        let corpstatflags = CORPSTAT_NONE;
+        if (mdef.female) corpstatflags |= CORPSTAT_FEMALE;
+        else if (!is_neuter(mdef.data)) corpstatflags |= CORPSTAT_MALE;
+        if (mdef.data.geno & G_UNIQ) corpstatflags |= CORPSTAT_HISTORIC;
+        statue = mkcorpstat(
+            STATUE,
+            mdef,
+            mdef.data,
+            x,
+            y,
+            corpstatflags,
+            objectGenerationEnv({ ...env, state, random }),
+        );
+        if (has_mgivenname(mdef))
+            statue = oname(statue, mdef.mextra?.mgivenname ?? mdef.mgivenname,
+                           ONAME_NO_FLAGS, { ...env, state });
+        while (oldminvent) {
+            const obj = oldminvent;
+            oldminvent = obj.nobj;
+            obj.nobj = null;
+            add_to_container(
+                statue,
+                obj,
+                objectGenerationEnv({ ...env, state, random }),
+            );
+        }
+        statue.owt = weight(statue, { ...env, state });
+    } else {
+        statue = mksobj_at(
+            ROCK,
+            x,
+            y,
+            true,
+            false,
+            objectGenerationEnv({ ...env, state, random }),
+        );
+    }
+
+    stackobj(statue, objectGenerationEnv({ ...env, state, random }));
+    if (glyph_is_invisible(state.level.at(x, y).glyph))
+        unmap_object(x, y, state);
+    if (cansee(x, y, state)) newsym(x, y, state);
+    if (engulfing_u(mdef, state)) wasinside = true;
+    await mondead(mdef, state, env);
+    if (wasinside && monsterDigests(mdef.data)) {
+        const message = env.message ?? ttyPline;
+        await message(
+            `You ${u_locomotion('jump', state)} through an opening in the new `
+                + `${xnameFresh(statue, state)}.`,
+            state,
+            env,
+        );
+    }
+}
+
+// C ref: mondata.h digests(). It is a macro in C, so keeping this local avoids
+// creating a second owner for the mondata.js attack-table primitive.
+function monsterDigests(species) {
+    return Boolean(dmgtype_fromattack(species, AD_DGST, AT_ENGL));
+}
+
 // C ref: mon.c monkilled() (3376-3418). "another monster has killed the
 // monster mdef". This is the kill path for a death the hero did not deal;
 // xkilled() is the one that did, and the two share mondead() below.
@@ -3898,14 +4019,23 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
     }
 
     /* "dispose of monster and make cadaver" */
-    if (state.gs?.stoned) unsupported('a monster killed by petrification');
+    const stoned = Boolean(state.gs?.stoned);
     state.gd ??= {};
     state.gd.disintegested = nocorpse;
-    await mondead(mtmp, state, env);
+    if (stoned) await monstone(mtmp, state, env);
+    else await mondead(mtmp, state, env);
     state.gd.disintegested = false;
 
-    if (mtmp.mhp >= 1) /* !DEADMONSTER(): "monster lifesaved" */
-        unsupported('a monster that survived being killed');
+    if (mtmp.mhp >= 1) { /* !DEADMONSTER(): "monster lifesaved" */
+        if (stoned) {
+            state.gs.stoned = false;
+            if (!cansee(x, y, state) && !state.gv?.vamp_rise_msg)
+                await message('Maybe not...', state);
+        } else {
+            unsupported('a monster that survived being killed');
+        }
+        return;
+    }
 
     if (be_sad) {
         await message(
@@ -3917,8 +4047,9 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
     const mdat = mtmp.data; /* "note: mondead can change mtmp->data" */
     const mndx = monsndx(mdat);
 
-    const skipCorpseAndDrops = nocorpse
+    const skipCorpseAndDrops = stoned || nocorpse
         || LEVEL_SPECIFIC_NOCORPSE(mdat, state, random);
+    if (stoned) state.gs.stoned = false;
     if (!skipCorpseAndDrops) {
         if (mdat === state.mons[PM_MAIL_DAEMON])
             unsupported("the mail daemon's scroll of mail");
@@ -4033,6 +4164,142 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
 
     /* "malign was already adjusted for u.ualign.type and randomization" */
     adjalign(mtmp.malign, state);
+}
+
+// C ref: mon.c mon_to_stone() (3748-3764). Only a golem can be changed by
+// this helper; all other callers are an impossible polymorph request.
+export async function mon_to_stone(mtmp, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    if (is_golem(mtmp.data)) {
+        if (canseemon(mtmp, state)) {
+            await message(
+                messageAt(`${Monnam(mtmp, state)} solidifies...`,
+                          mtmp.mx, mtmp.my, state),
+                state,
+                env,
+            );
+        }
+        if (newcham(mtmp, state.mons[PM_STONE_GOLEM], { ...env, state })) {
+            if (canseemon(mtmp, state)) {
+                await message(
+                    `Now it's ${an(pmname(mtmp.data, gender(mtmp)))}`,
+                    state,
+                    env,
+                );
+            }
+        } else if (canseemon(mtmp, state)) {
+            await message('... and returns to normal.', state, env);
+        }
+    } else {
+        // C evaluates a_monnam() while constructing impossible()'s text. The
+        // diagnostic itself is a discarded pline.c result, so record the gap.
+        a_monnam(mtmp, { ...env, state });
+        note_unported('pline.c impossible');
+    }
+}
+
+// C ref: mon.c vamp_stone() (3766-3831). A shifted vampire or sandestin
+// resumes its innate form rather than leaving a statue behind.
+export async function vamp_stone(mtmp, state = game, env = {}) {
+    if (is_vampshifter(mtmp)) {
+        const mndx = mtmp.cham;
+        const x = mtmp.mx;
+        const y = mtmp.my;
+        if (mndx >= LOW_PM && mndx !== monsndx(mtmp.data)
+            && !(state.svm.mvitals[mndx].mvflags & G_GENOD)) {
+            const message = env.message ?? ttyPline;
+            const description = `The lapidifying ${x_monnam(
+                mtmp,
+                ARTICLE_NONE,
+                null,
+                SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION
+                    | SUPPRESS_INVISIBLE | SUPPRESS_IT,
+                false,
+                state,
+                env,
+            )} ${amorphous(mtmp.data) ? 'coalesces on the'
+                : is_flyer(mtmp.data) ? 'drops to the' : 'writhes on the'} `
+                + `${surface(x, y, state)}`;
+            mtmp.mcanmove = true;
+            mtmp.mfrozen = 0;
+            set_mon_min_mhpmax(mtmp, 10);
+            mtmp.mhp = mtmp.mhpmax;
+            if (engulfing_u(mtmp, state))
+                await expels(mtmp, { ...env, state, expulsionMessage: false });
+            if (amorphous(mtmp.data) && closed_door(x, y, state)) {
+                const newXY = enexto(x, y, state.mons[mndx], { state });
+                if (newXY) rloc_to(mtmp, newXY.x, newXY.y, { ...env, state });
+            }
+            if (canSpotMonster(mtmp, state)) {
+                await message(
+                    messageAt(`${description}!`, x, y, state),
+                    state,
+                    env,
+                );
+                // C flushes the message window here. It has no game-state
+                // return value and its window owner is not ported.
+                note_unported('windows.c display_nhwindow');
+            }
+            newcham(mtmp, state.mons[mndx], { ...env, state });
+            mtmp.cham = mtmp.data === state.mons[mndx] ? NON_PM : mndx;
+            if (canSpotMonster(mtmp, state)) {
+                await message(
+                    messageAt(
+                        `${Monnam(mtmp, state)} rises from the `
+                            + `${surface(mtmp.mx, mtmp.my, state)} with renewed agility!`,
+                        mtmp.mx,
+                        mtmp.my,
+                        state,
+                    ),
+                    state,
+                    env,
+                );
+            }
+            newsym(mtmp.mx, mtmp.my, state);
+            return false;
+        }
+    } else if (ismnum(mtmp.cham)
+               && (state.mons[mtmp.cham].mresists & MR_STONE)) {
+        mtmp.mcanmove = true;
+        mtmp.mfrozen = 0;
+        set_mon_min_mhpmax(mtmp, 10);
+        mtmp.mhp = mtmp.mhpmax;
+        newcham(mtmp, state.mons[mtmp.cham], { ...env, state });
+        newsym(mtmp.mx, mtmp.my, state);
+        return false;
+    }
+    return true;
+}
+
+// C ref: mon.c m_into_limbo() (3834-3837). The limbo bit is set before the
+// migration wrapper records the destination, exactly as in C.
+export function m_into_limbo(mtmp, state = game, env = {}) {
+    const targetLev = ledger_no(state.u.uz, state);
+    mtmp.mstate = (mtmp.mstate ?? 0) | MON_LIMBO;
+    migrate_mon(mtmp, targetLev, MIGR_APPROX_XY, state, env);
+}
+
+// C ref: mon.c migrate_mon() (3839-3863). Special-object dropping remains an
+// explicit gap because steal.c mdrop_special_objs() is not ported; the C call
+// returns void, so no invented object movement belongs here.
+export function migrate_mon(
+    mtmp,
+    target_lev,
+    xyloc,
+    state = game,
+    env = {},
+) {
+    if (mtmp.mx) {
+        unstuck(mtmp, state, env);
+        note_unported('steal.c mdrop_special_objs');
+    }
+    return migrate_to_level(
+        mtmp,
+        target_lev,
+        xyloc,
+        null,
+        { ...env, state },
+    );
 }
 
 // Hiding paths outside the ordinary eel action below are not translated.

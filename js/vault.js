@@ -57,7 +57,7 @@ import { mongone } from './makemon_create.js';
 import { gender, is_silent, sticks } from './mondata.js';
 import { PM_GUARD } from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
-import { mpickgold } from './mon.js';
+import { m_into_limbo, mpickgold } from './mon.js';
 import {
     capitalizedAlwaysVisibleMonsterName,
     alwaysVisibleMonsterName,
@@ -216,12 +216,9 @@ function clear_fcorr(grd, forceshow, state, env) {
             if (mtmp.isgd) {
                 return false;
             } else {
-                // Tame monster: yelp is not exercised in the witness path,
-                // and m_into_limbo is not ported; throw on the rloc fallback.
+                // Tame monster: yelp is not exercised in the witness path.
                 if (!rloc(mtmp, RLOC_MSG, { state })) {
-                    throw new UnsupportedVaultGuardError(
-                        'clear_fcorr() m_into_limbo for monster in corridor',
-                    );
+                    m_into_limbo(mtmp, state, env);
                 }
             }
         }
@@ -311,9 +308,7 @@ function wallify_vault(grd, state, env) {
                 const mon = m_at(x, y, state);
                 if (mon && mon !== grd) {
                     if (!rloc(mon, RLOC_MSG, { state })) {
-                        throw new UnsupportedVaultGuardError(
-                            'wallify_vault() m_into_limbo for monster at wall',
-                        );
+                        m_into_limbo(mon, state, env);
                     }
                 }
                 // Gold at wall position: move into vault
@@ -397,9 +392,7 @@ function gd_mv_monaway(grd, nx, ny, state, env) {
         }
         if (!rloc(mtmp, RLOC_ERR | RLOC_MSG, { state })
             || m_at(nx, ny, state)) {
-            throw new UnsupportedVaultGuardError(
-                'gd_mv_monaway() m_into_limbo for blocked monster',
-            );
+            m_into_limbo(mtmp, state, env);
         }
         recalc_block_point(nx, ny, state);
     }

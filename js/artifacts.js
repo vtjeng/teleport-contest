@@ -85,6 +85,7 @@ import {
     IS_ALTAR,
     IS_DOOR,
     KILLED_BY,
+    MIGR_RANDOM,
     ismnum,
     In_endgame,
     In_quest,
@@ -218,7 +219,7 @@ import { carried, Is_dragon_armor, Is_dragon_mail, mksobj, objectType, weight } 
 import { obj_shuffle_range, observe_object } from './o_init.js';
 import { capitalizedMonsterName, monsterCommonName } from './do_name.js';
 import { cancel_monst, resist, Fire_resistance, Cold_resistance } from './zap.js';
-import { healmon, set_ustuck, wake_nearto } from './mon.js';
+import { healmon, migrate_mon, set_ustuck, wake_nearto } from './mon.js';
 import { monflee } from './monmove.js';
 import { throwit } from './dothrow.js';
 import { P_SKILL, spell_skilltype } from './startup_skills.js';
@@ -2385,15 +2386,15 @@ async function invoke_banish(obj, state) {
             const inhell = In_hell(u.uz, state);
             if (!inhell) {
                 nvanished++;
-                // find_hell/migrate_mon are not ported; consume the rn2
-                // that selects a destination level to maintain RNG sync.
+                // find_hell remains unported; retain its selected destination
+                // shape while handing the migration itself to mon.c's helper.
                 note_unported('dungeon.c find_hell');
                 const dest = {
                     dnum: state.valley_level?.dnum ?? 0,
                     dlevel: 0,
                 };
                 dest.dlevel = rn2(dunlevs_in_dungeon(dest, state));
-                note_unported('mon.c migrate_mon');
+                migrate_mon(mtmp, ledger_no(dest, state), MIGR_RANDOM, state);
             } else {
                 note_unported('teleport.c u_teleport_mon');
             }

@@ -69,7 +69,7 @@ import { dist2, upstart } from './hacklib.js';
 import { add_to_minv, stackobj } from './invent.js';
 import { set_malign } from './makemon.js';
 import { makemon } from './makemon_create.js';
-import { mnearto } from './mon.js';
+import { m_into_limbo, mnearto } from './mon.js';
 import { mkstairs, place_branch, walkfrom, wallification } from './mklev.js';
 import { mktrap, occupied } from './mktrap.js';
 import { is_orc, is_swimmer } from './mondata.js';
@@ -829,12 +829,9 @@ function put_lregion_here(
         if (mtmp) {
             /* move the monster if no choice, or just try again */
             if (oneshot) {
-                // mkmaze.c:449-450, rloc() and then mon.c m_into_limbo(). The
-                // second migrates the monster off the map, which this port has
-                // no arrival path for.
-                throw new UnsupportedRegionPlacementError(
-                    'put_lregion_here() displacing the monster already there',
-                );
+                // mkmaze.c:449-450, rloc() and then mon.c m_into_limbo().
+                if (!rloc(mtmp, RLOC_NOMSG, { state }))
+                    m_into_limbo(mtmp, state);
             }
             return false;
         }
