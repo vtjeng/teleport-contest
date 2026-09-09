@@ -16957,7 +16957,7 @@
     {
       "id": "port-mon-pet-sanity-check-pm-to-cham",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mon.c's monster sanity, poison-gas, and undead species conversion helpers",
       "cFile": "mon.c",
       "sessions": [
@@ -16984,8 +16984,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8c3cd61ee1cae6134d5ba102a9ab717c33727ba8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "pet_sanity_check",
