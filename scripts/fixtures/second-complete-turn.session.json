@@ -116,7 +116,7 @@
         "monsterCount": 2,
         "pet": null,
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "aa1d124549df1e19665a343355e4abf460f1a01650bd54663384bd283c2a8cb1",
+        "stateDigest": "dcae9b7a35108759cbd3f92cc6a5a7a74cb7275e450591b2efa26ce638a61f38",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[8, 19, 1], [8, 19, 1], [8, 19, 1]],
