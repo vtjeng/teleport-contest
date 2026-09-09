@@ -120,6 +120,8 @@ import {
 import {
     Amonnam,
     christen_monst,
+    Monnam,
+    mon_nam,
     oname,
     rndghostname,
 } from './do_name.js';
@@ -2625,6 +2627,14 @@ function m_dowear_type(
     // C ref: worn.c m_dowear_type():814. A monster part-way through putting
     // something on chooses nothing more this turn.
     if (monster.mfrozen) return;
+    // C ref: worn.c m_dowear_type():816-817. C eagerly copies the monster's
+    // name before it examines the slot, even when no armor will change. Under
+    // hallucination this advances the display RNG used by display_monster().
+    // The JavaScript-only planning pass leaves naming to the live pass.
+    if (!env.planning) {
+        if (heroHasProperty(state, SEE_INVIS)) Monnam(monster, state, env);
+        else mon_nam(monster, state, env);
+    }
     const old = uniqueWornObject(monster, mask);
     if (old?.cursed) return;
     if (old && mask === W_AMUL && old.otyp !== AMULET_OF_GUARDING) return;

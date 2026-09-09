@@ -292,6 +292,30 @@ test('bogon_is_pname recognizes only the three personal-name codes', () => {
     for (const code of ['', '_', '|']) assert.equal(bogon_is_pname(code), false);
 });
 
+test('x_monnam formats named ghosts before the called-name branch', () => {
+    const state = { u: { uprops: [] } };
+    monst_globals_init(state);
+    const monster = { data: state.mons[PM_GHOST], mextra: {} };
+    // do_name.c x_monnam():964-967 uses s_suffix() and marks a personal name.
+    // These names exercise hacklib.c's ordinary and trailing-s possessives.
+    for (const [name, expected] of [
+        ['Alex', "Alex's ghost"],
+        ['James', "James' ghost"],
+    ]) {
+        monster.mextra.mgivenname = name;
+        // The ghost branch precedes `called`, so either value gives the same
+        // name. ARTICLE_A is suppressed for a personal name without adjectives;
+        // SUPPRESS_IT makes this a naming test independent of visibility.
+        for (const called of [false, true]) {
+            assert.equal(x_monnam(monster, ARTICLE_A, null, SUPPRESS_IT,
+                called, state), expected);
+        }
+        // An adjective retains the requested article ahead of the name.
+        assert.equal(x_monnam(monster, ARTICLE_A, 'invisible', SUPPRESS_IT,
+            false, state), `an invisible ${expected}`);
+    }
+});
+
 test('Amonnam preserves gender, invisibility, appearance, and display RNG', () => {
     const state = {
         u: { uprops: [], uroleplay: { blind: false } },

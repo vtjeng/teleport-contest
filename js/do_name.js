@@ -884,9 +884,10 @@ export function x_monnam(
         name_at_start = bogon_is_pname(randomName.code);
     } else if (do_name && givenName) {
         if (mdat === state.mons?.[PM_GHOST]) {
-            throw new UnsupportedMonsterNameError(
-                "x_monnam() for a named ghost's s_suffix() form",
-            );
+            // C ref: do_name.c x_monnam():964-967. The ghost's given name
+            // takes the possessive form even when `called` is requested.
+            buf += `${s_suffix(givenName)} ghost`;
+            name_at_start = true;
         } else if (called) {
             buf += `${pm_name} called ${givenName}`;
             name_at_start = type_is_pname(mdat);

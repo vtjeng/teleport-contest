@@ -8,6 +8,7 @@ import {
     DUST,
     G_GENOD,
     G_GONE,
+    HALLUC,
     HOLE,
     I_SPECIAL,
     IN_SIGHT,
@@ -1218,6 +1219,74 @@ test('m_dowear outside creation stays quiet when nothing would change', () => {
     });
 
     assert.equal(helm.owornmask, W_ARMH);
+});
+
+test('m_dowear preserves eager hallucinated naming for unchanged slots', () => {
+    // C ref: worn.c m_dowear_type():816-823. Every eligible slot copies the
+    // monster name before checking its current armor or inventory. A gnome
+    // reaches seven slot calls (cantweararm() skips W_ARMU while
+    // WrappingAllowed() retains W_ARMC); each hallucinated x_monnam() first
+    // chooses a species from SPECIAL_PM + BOGUSMONSIZE (430), then its gender.
+    // Return the gnome to avoid rndmonnam()'s rejection and bogus-name arms.
+    const state = initialLevelState();
+    state.u.uprops ??= [];
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    const monster = newMonster({
+        data: state.mons[PM_GNOME],
+        mnum: PM_GNOME,
+        mcanmove: true,
+        mx: MON_X,
+        my: MON_Y,
+    });
+    state.viz_array ??= Array.from(
+        { length: ROWNO },
+        () => new Uint8Array(COLNO),
+    );
+    state.viz_array[MON_Y][MON_X] = COULD_SEE | IN_SIGHT;
+    const calls = [];
+    const displayRandom = (bound) => {
+        calls.push(bound);
+        return bound === 2 ? 0 : PM_GNOME;
+    };
+
+    m_dowear(monster, false, {
+        state,
+        displayRandom,
+        wearArmor: () => assert.fail('an empty slot reached wearArmor'),
+    });
+
+    assert.deepEqual(calls, Array.from({ length: 7 }, () => [430, 2]).flat());
+
+    calls.length = 0;
+    m_dowear(monster, false, {
+        state,
+        displayRandom,
+        planning: true,
+        wearArmor: () => assert.fail('an empty slot reached wearArmor'),
+    });
+    assert.deepEqual(calls, [], 'the JavaScript-only planner stays cosmetic-free');
+
+    // Creation suppresses wearing messages, but C still copies each name.
+    m_dowear(monster, true, { state, displayRandom });
+    assert.deepEqual(calls, Array.from({ length: 7 }, () => [430, 2]).flat());
+
+    calls.length = 0;
+    // A nonzero freeze timer returns before naming in every slot.
+    monster.mfrozen = 1;
+    m_dowear(monster, false, { state, displayRandom });
+    assert.deepEqual(calls, [], 'frozen monsters return before naming');
+
+    monster.mfrozen = 0;
+    // With neither sight nor sensing, x_monnam() returns "it" before rndmonnam().
+    state.viz_array[MON_Y][MON_X] = 0;
+    m_dowear(monster, false, { state, displayRandom });
+    assert.deepEqual(calls, [], 'unseen monsters do not choose a random name');
+
+    state.viz_array[MON_Y][MON_X] = COULD_SEE | IN_SIGHT;
+    // Removing the hallucination timeout selects the monster's real name.
+    state.u.uprops[HALLUC].intrinsic = 0;
+    m_dowear(monster, false, { state, displayRandom });
+    assert.deepEqual(calls, [], 'ordinary names do not consume display RNG');
 });
 
 test('m_dowear requires a wearArmor owner outside creation', () => {
