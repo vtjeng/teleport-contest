@@ -16009,8 +16009,8 @@
         },
         {
           "name": "there_cmd_menu_self..end_of_input",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "92c4fb64065662f00ea0eead98473533f599debb",
           "functions": [
             "there_cmd_menu_self",
             "there_cmd_menu_next2u",
@@ -16767,79 +16767,79 @@
           "name": "there_cmd_menu_self",
           "line": 4435,
           "endLine": 4523,
-          "ported": false
+          "ported": true
         },
         {
           "name": "there_cmd_menu_next2u",
           "line": 4524,
           "endLine": 4623,
-          "ported": false
+          "ported": true
         },
         {
           "name": "there_cmd_menu_far",
           "line": 4624,
           "endLine": 4638,
-          "ported": false
+          "ported": true
         },
         {
           "name": "there_cmd_menu_common",
           "line": 4639,
           "endLine": 4657,
-          "ported": false
+          "ported": true
         },
         {
           "name": "act_on_act",
           "line": 4658,
           "endLine": 4842,
-          "ported": false
+          "ported": true
         },
         {
           "name": "there_cmd_menu",
           "line": 4843,
           "endLine": 4898,
-          "ported": false
+          "ported": true
         },
         {
           "name": "here_cmd_menu",
           "line": 4899,
           "endLine": 4905,
-          "ported": false
+          "ported": true
         },
         {
           "name": "click_to_cmd",
           "line": 4906,
           "endLine": 4915,
-          "ported": false
+          "ported": true
         },
         {
           "name": "domouseaction",
           "line": 4916,
           "endLine": 5009,
-          "ported": false
+          "ported": true
         },
         {
           "name": "get_count",
           "line": 5010,
           "endLine": 5095,
-          "ported": false
+          "ported": true
         },
         {
           "name": "parse",
           "line": 5096,
           "endLine": 5158,
-          "ported": false
+          "ported": true
         },
         {
           "name": "hangup",
           "line": 5159,
           "endLine": 5182,
-          "ported": false
+          "ported": true
         },
         {
           "name": "end_of_input",
           "line": 5183,
           "endLine": 5212,
-          "ported": false
+          "ported": true
         },
         {
           "name": "readchar_core",
@@ -16875,7 +16875,7 @@
           "name": "doclicklook",
           "line": 5381,
           "endLine": 5393,
-          "ported": false
+          "ported": true
         },
         {
           "name": "yn_menuable_resp",
