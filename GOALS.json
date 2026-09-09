@@ -17254,6 +17254,98 @@
         "from": 2057,
         "to": 2475
       }
+    },
+    {
+      "id": "port-mon-replmon-vamprises",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mon.c monster replacement, deallocation, and lifecycle helpers",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0383-wizard-hallucinate"
+      ],
+      "detail": "",
+      "spans": [],
+      "openedAt": "4e18fc55d05505d9d2686fd67cefd7d5a90f1bfa",
+      "openStanding": {
+        "sha": "049962b2",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "replmon",
+          "line": 2515,
+          "endLine": 2560,
+          "ported": false
+        },
+        {
+          "name": "relmon",
+          "line": 2561,
+          "endLine": 2596,
+          "ported": true
+        },
+        {
+          "name": "copy_mextra",
+          "line": 2597,
+          "endLine": 2648,
+          "ported": true
+        },
+        {
+          "name": "dealloc_mextra",
+          "line": 2649,
+          "endLine": 2675,
+          "ported": false
+        },
+        {
+          "name": "dealloc_monst",
+          "line": 2676,
+          "endLine": 2695,
+          "ported": false
+        },
+        {
+          "name": "mon_leaving_level",
+          "line": 2696,
+          "endLine": 2733,
+          "ported": true
+        },
+        {
+          "name": "m_detach",
+          "line": 2734,
+          "endLine": 2807,
+          "ported": true
+        },
+        {
+          "name": "set_mon_min_mhpmax",
+          "line": 2808,
+          "endLine": 2826,
+          "ported": false
+        },
+        {
+          "name": "mlifesaver",
+          "line": 2827,
+          "endLine": 2838,
+          "ported": true
+        },
+        {
+          "name": "lifesaved_monster",
+          "line": 2839,
+          "endLine": 2889,
+          "ported": true
+        },
+        {
+          "name": "vamprises",
+          "line": 2890,
+          "endLine": 2996,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 2515,
+        "to": 2996
+      }
     }
   ]
 }
