@@ -17049,6 +17049,110 @@
         "from": 57,
         "to": 563
       }
+    },
+    {
+      "id": "port-mon-meatbox-can-carry",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mon.c monster food consumption and inventory pickup helpers",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0383-wizard-hallucinate"
+      ],
+      "detail": "",
+      "spans": [],
+      "openedAt": "8a9d31995c13c5b58ea6479bdc74e02e33f4910c",
+      "openStanding": {
+        "sha": "8c3cd61e",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "meatbox",
+          "line": 1354,
+          "endLine": 1391,
+          "ported": false
+        },
+        {
+          "name": "m_consume_obj",
+          "line": 1392,
+          "endLine": 1462,
+          "ported": true
+        },
+        {
+          "name": "meatmetal",
+          "line": 1463,
+          "endLine": 1532,
+          "ported": false
+        },
+        {
+          "name": "meatobj",
+          "line": 1533,
+          "endLine": 1655,
+          "ported": false
+        },
+        {
+          "name": "meatcorpse",
+          "line": 1656,
+          "endLine": 1725,
+          "ported": false
+        },
+        {
+          "name": "mon_give_prop",
+          "line": 1726,
+          "endLine": 1777,
+          "ported": false
+        },
+        {
+          "name": "mon_givit",
+          "line": 1778,
+          "endLine": 1826,
+          "ported": false
+        },
+        {
+          "name": "mpickgold",
+          "line": 1827,
+          "endLine": 1846,
+          "ported": false
+        },
+        {
+          "name": "mpickstuff",
+          "line": 1847,
+          "endLine": 1912,
+          "ported": true
+        },
+        {
+          "name": "curr_mon_load",
+          "line": 1913,
+          "endLine": 1926,
+          "ported": true
+        },
+        {
+          "name": "max_mon_load",
+          "line": 1927,
+          "endLine": 1957,
+          "ported": true
+        },
+        {
+          "name": "can_touch_safely",
+          "line": 1958,
+          "endLine": 1989,
+          "ported": true
+        },
+        {
+          "name": "can_carry",
+          "line": 1990,
+          "endLine": 2056,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 1354,
+        "to": 2056
+      }
     }
   ]
 }
