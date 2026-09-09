@@ -907,7 +907,7 @@ export async function mattacku(monster, rawEnv = {}) {
 // monster-telecontrol outcomes remain outside the boundary; the caller binds
 // the overcrowding hook so either pass stops before silently losing the
 // engulfer.
-async function expels(mtmp, rawEnv = {}) {
+export async function expels(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
     if (rawEnv.message !== undefined && typeof rawEnv.message !== 'function') {

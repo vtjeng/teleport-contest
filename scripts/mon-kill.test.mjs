@@ -8,11 +8,15 @@ import { runSegment } from '../js/jsmain.js';
 import {
     adj_erinys,
     corpse_chance,
+    dealloc_mextra,
+    dealloc_monst,
     killed,
     m_detach,
     mon_leaving_level,
     mondead,
     monkilled,
+    replmon,
+    set_mon_min_mhpmax,
     unstuck,
     zombie_maker,
 } from '../js/mon.js';
@@ -799,6 +803,58 @@ test('mon_leaving_level leaves a square another monster occupies',
         assert.equal(game.context.polearm.hitmon, null, 'forgotten');
     });
 
+test('replmon transfers inventory and live monster references', async () => {
+    await hero();
+    const old = spawn(PM_NEWT);
+    const x = old.mx;
+    const y = old.my;
+    const replacement = newMonster({
+        data: game.mons[PM_GOBLIN],
+        mx: old.mx,
+        my: old.my,
+        mhp: 4,
+        mhpmax: 4,
+        mcanmove: true,
+    });
+    const carried = mksobj(ORCISH_DAGGER, true, false, { state: game });
+    carried.where = OBJ_MINVENT;
+    carried.ocarry = old;
+    replacement.minvent = carried;
+    game.context.polearm = { hitmon: old };
+
+    replmon(old, replacement, game);
+
+    assert.equal(m_at(x, y, game), replacement);
+    assert.equal(replacement.minvent, carried);
+    assert.equal(carried.ocarry, replacement);
+    assert.equal(game.context.polearm.hitmon, replacement);
+    assert.equal(old.nmon, null);
+    assert.equal(old.mextra, null);
+});
+
+test('dealloc_monst clears extension records and zeroes the monster', () => {
+    const monster = newMonster({
+        data: { pmidx: PM_NEWT },
+        mextra: { mgivenname: 'M', edog: { killed_by_u: true } },
+    });
+    dealloc_mextra(monster);
+    assert.equal(monster.mextra, null);
+    monster.data = { pmidx: PM_NEWT };
+    dealloc_monst(monster);
+    assert.equal(monster.data, null);
+    assert.equal(monster.mhp, 0);
+    assert.equal(monster.nmon, null);
+});
+
+test('set_mon_min_mhpmax honors both the monster level and caller minimum', () => {
+    const monster = { m_lev: 3, mhpmax: 1 };
+    set_mon_min_mhpmax(monster, 10);
+    assert.equal(monster.mhpmax, 10);
+    monster.mhpmax = 12;
+    set_mon_min_mhpmax(monster, 10);
+    assert.equal(monster.mhpmax, 12);
+});
+
 // mon.c mondead():3111-3121 and 3128-3130. A dying chameleon or lycanthrope
 // reverts before m_detach() sees it, which is why mondead() saves mtmp->data
 // into `mptr` at 3111 first, and the death is counted against the form the
@@ -823,6 +879,15 @@ test('mondead reverts a shifted form and counts the death', async () => {
     assert.equal(shifted.data, game.mons[PM_CHAMELEON]);
     assert.equal(shifted.cham, NON_PM);
     assert.equal(game.svm.mvitals[PM_CHAMELEON].died, 1);
+
+    // A shape-shifted vampire rises as its base form instead of reaching the
+    // death counter or detach path.
+    const vampire = spawn(PM_JACKAL, { cham: PM_VAMPIRE });
+    await mondead(vampire, game, killEnv());
+    assert.equal(vampire.data, game.mons[PM_VAMPIRE]);
+    assert.equal(vampire.cham, NON_PM);
+    assert.equal(vampire.mhp, vampire.mhpmax);
+    assert.equal(game.svm.mvitals[PM_VAMPIRE].died, 0);
     assert.equal(game.svm.mvitals[PM_JACKAL].died, 0);
 
     // An ordinary species is left alone and counted where it stands.
@@ -875,9 +940,6 @@ test('mondead stops on the arms it does not own', async () => {
         remove_monster(x, y, game);
     };
 
-    // A shape-shifted vampire would revert instead of dying.
-    await stopped(spawn(PM_JACKAL, { cham: PM_VAMPIRE }),
-                  'a shape-shifted vampire reverting', 0, 'vampshifter');
     await stopped(spawn(PM_NEWT, { isgd: 1 }),
                   "a vault guard's death", 0, 'vault guard');
     // A Keystone Kop rolls rnd(5) for its return, which needs makemon(). It

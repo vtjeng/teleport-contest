@@ -491,7 +491,7 @@ async function msg_mon_movement(mtmp, omx, omy, env = {}) {
 // C ref: monmove.c mb_trapped() (54-77). A monster triggered a trapped door
 // lock. Prints a message, stuns the monster, deals 1-15 damage, and may kill
 // it. Returns true if the monster died.
-async function mb_trapped(mtmp, canseeit, env = {}) {
+export async function mb_trapped(mtmp, canseeit, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rnd };
     const message = env.message ?? ttyPline;

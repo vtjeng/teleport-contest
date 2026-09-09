@@ -23,6 +23,7 @@ import {
     ALLOW_TRAPS,
     ALLOW_U,
     ALLOW_WALL,
+    ARTICLE_A,
     ARTICLE_NONE,
     ARTICLE_THE,
     BOLT_LIM,
@@ -38,6 +39,8 @@ import {
     DOOR,
     D_CLOSED,
     D_LOCKED,
+    D_NODOOR,
+    D_TRAPPED,
     engulfing_u,
     FIRE_RES,
     COLD_RES,
@@ -89,6 +92,7 @@ import {
     NOGARLIC,
     NORMAL_SPEED,
     NOTONL,
+    OBJ_MINVENT,
     ONAME_NO_FLAGS,
     OPENDOOR,
     POISON_RES,
@@ -100,6 +104,10 @@ import {
     STRAT_WAITFORU,
     STRAT_WAITMASK,
     SUPPRESS_SADDLE,
+    SUPPRESS_INVISIBLE,
+    SUPPRESS_IT,
+    SUPPRESS_NAME,
+    AUGMENT_IT,
     TAINT_AGE,
     UNLOCKDOOR,
     WATER,
@@ -107,6 +115,7 @@ import {
     LAVAWALL,
     ROWNO,
     FEMALE,
+    FAINTED,
     MALE,
     W_AMUL,
     W_SADDLE,
@@ -149,7 +158,7 @@ import { adjalign } from './attrib.js';
 import { experience, more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
 import { disturb_buried_zombies, NODIAG } from './hack.js';
-import { dist2, online2, s_suffix } from './hacklib.js';
+import { dist2, online2, s_suffix, upstart } from './hacklib.js';
 import {
     add_to_minv,
     delobj,
@@ -157,13 +166,18 @@ import {
     obj_extract_self,
     stackobj,
 } from './invent.js';
-import { any_light_source, del_light_source } from './light.js';
+import {
+    any_light_source,
+    del_light_source,
+    new_light_source,
+} from './light.js';
 import { mkcorpstat } from './corpstat.js';
 import { change_luck } from './moveloop_preamble.js';
 import { freemcorpsenm } from './makemon.js';
 import {
     count_wsegs,
     dmonsfree,
+    newcham,
     newcham_distress,
     pick_vampire_shape,
     preflight_newcham_distress,
@@ -171,7 +185,7 @@ import {
     set_mon_data,
     wormgone,
 } from './makemon_create.js';
-import { m_next2u } from './mhitu.js';
+import { expels, m_next2u } from './mhitu.js';
 import {
     always_hostile,
     amphibious,
@@ -220,6 +234,7 @@ import {
     monsndx,
     needspick,
     nohands,
+    noncorporeal,
     nonliving,
     on_fire,
     passes_bars,
@@ -392,8 +407,15 @@ import {
     monhaskey,
     onscary,
     youHear,
+    mb_trapped,
+    closed_door,
 } from './monmove.js';
-import { m_at, remove_monster } from './monst.js';
+import {
+    m_at,
+    newMonster,
+    place_monster,
+    remove_monster,
+} from './monst.js';
 import {
     clear_dknown,
     clear_splitobjs,
@@ -446,7 +468,15 @@ import {
 } from './startup_a11y.js';
 import { mpickobj, relobj } from './steal.js';
 import { enexto, goodpos, noteleport_level, rloc_to } from './teleport.js';
-import { fill_pit, is_lava, is_pool, t_at, Flying, Levitation } from './trap.js';
+import {
+    fill_pit,
+    is_lava,
+    is_pool,
+    t_at,
+    unconscious,
+    Flying,
+    Levitation,
+} from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import {
@@ -455,6 +485,7 @@ import {
     couldsee,
     does_block,
     is_lightblocker_mappear,
+    recalc_block_point,
     unblock_point,
 } from './vision.js';
 import { which_armor } from './worn.js';
@@ -2806,6 +2837,71 @@ export function unstuck(mtmp, state = game, env = {}) {
     return needsCooldown ? { mtmp, random } : null;
 }
 
+// C ref: mon.c relmon() (2558-2594), the replacement path used by replmon().
+// dog.c owns the migration variant of this same C helper; this copy keeps the
+// null-list arm that removes an old monster permanently from the live list.
+function relmon(mon, state = game) {
+    mon_leaving_level(mon, state);
+
+    let previous = null;
+    let current = state.level?.monlist ?? null;
+    while (current && current !== mon) {
+        previous = current;
+        current = current.nmon;
+    }
+    if (!current) throw new Error('relmon: monster is not in the list');
+    if (previous) previous.nmon = mon.nmon;
+    else state.level.monlist = mon.nmon;
+    mon.nmon = null;
+}
+
+// C ref: mon.c replmon() (2515-2556). Replace a live monster record while
+// preserving the inventory and the references held by combat, riding, and
+// swallowing state. The worm-tail and shopkeeper helpers are still outside
+// this port; both C calls discard their return value, so they are explicit
+// gaps rather than invented state changes.
+export function replmon(mtmp, mtmp2, state = game) {
+    for (let obj = mtmp2.minvent; obj; obj = obj.nobj) {
+        if (obj.where !== undefined && obj.where !== OBJ_MINVENT)
+            throw new Error('replmon: minvent inconsistency');
+        if (obj.ocarry !== undefined && obj.ocarry !== mtmp)
+            throw new Error('replmon: minvent inconsistency');
+        obj.ocarry = mtmp2;
+    }
+    mtmp.minvent = null;
+
+    state.context ??= {};
+    state.context.polearm ??= {};
+    if (state.context.polearm.hitmon === mtmp)
+        state.context.polearm.hitmon = mtmp2;
+
+    relmon(mtmp, state);
+
+    if (mtmp !== state.u?.usteed)
+        place_monster(mtmp2, mtmp2.mx, mtmp2.my, state);
+    if (mtmp2.wormno)
+        note_unported('worm.c place_wsegs');
+    if (emits_light(mtmp2.data)) {
+        new_light_source(
+            mtmp2.mx,
+            mtmp2.my,
+            emits_light(mtmp2.data),
+            LS_MONSTER,
+            mtmp2,
+            state,
+        );
+        del_light_source(LS_MONSTER, mtmp, state);
+    }
+    mtmp2.nmon = state.level.monlist;
+    state.level.monlist = mtmp2;
+    if (state.u?.ustuck === mtmp) set_ustuck(mtmp2, state);
+    if (state.u?.usteed === mtmp) state.u.usteed = mtmp2;
+    if (mtmp2.isshk)
+        note_unported('shk.c replshk');
+    dealloc_monst(mtmp);
+    return mtmp2;
+}
+
 // C ref: mon.c copy_mextra() (2596-2646). Copies whichever of the eight
 // extension records the source carries onto the target, allocating the
 // target's mextra on demand. js/corpstat.js save_mtraits() is the caller this
@@ -2832,6 +2928,33 @@ export function copy_mextra(mtmp2, mtmp1) {
     // nothing and the target keeps no mcorpsenm at all.
     if (source.mcorpsenm != null && source.mcorpsenm !== NON_PM)
         target.mcorpsenm = source.mcorpsenm;
+}
+
+// C ref: mon.c dealloc_mextra() (2649-2674). JavaScript has garbage
+// collection rather than individual frees, but clearing every owned record
+// preserves the C lifetime boundary for callers that retain the monster
+// object briefly while its list links are being repaired.
+export function dealloc_mextra(mon) {
+    const extra = mon.mextra;
+    if (!extra) return;
+    for (const field of [
+        'mgivenname', 'egd', 'epri', 'eshk', 'emin', 'edog', 'ebones',
+    ]) {
+        if (extra[field]) extra[field] = null;
+    }
+    extra.mcorpsenm = NON_PM;
+    mon.mextra = null;
+}
+
+// C ref: mon.c dealloc_monst() (2676-2692). The object is zeroed in place so
+// stale references observe the same cleared storage that C leaves behind
+// before free().
+export function dealloc_monst(mon) {
+    if (mon.nmon) {
+        throw new Error('dealloc_monst with nmon still linked');
+    }
+    if (mon.mextra) dealloc_mextra(mon);
+    Object.assign(mon, newMonster());
 }
 
 // C ref: mon.c mon_leaving_level() (2695-2730). "'mon' is being removed from
@@ -3017,6 +3140,147 @@ function lifesaved_monster(mtmp, state, env) {
     }
 }
 
+// C ref: mon.c set_mon_min_mhpmax() (2808-2823). A life-saved monster or a
+// vampire that returns to its base form cannot be left with a zero maximum.
+export function set_mon_min_mhpmax(mon, minimum_mhpmax) {
+    if (mon.mhpmax < mon.m_lev + 1) mon.mhpmax = mon.m_lev + 1;
+    if (mon.mhpmax < minimum_mhpmax) mon.mhpmax = minimum_mhpmax;
+}
+
+function monsterUnaware(state) {
+    return Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || state.u?.uhs === FAINTED);
+}
+
+// C ref: mon.c vamprises() (2890-2994). A shifted vampire revives in its
+// natural form, then breaks a door or its trapped door if necessary. The
+// existing explicit-target vampire shape helper supplies newcham()'s form,
+// HP, light, and redraw work for this supported monster state.
+export async function vamprises(mtmp, state = game, env = {}) {
+    const mndx = mtmp.cham;
+    if (!ismnum(mndx) || mndx === monsndx(mtmp.data)
+        || (state.svm.mvitals[mndx].mvflags & G_GENOD)) return false;
+
+    const message = env.message ?? ttyPline;
+    const unaware = monsterUnaware(state);
+    const specMon = nonliving(mtmp.data)
+        || noncorporeal(mtmp.data)
+        || amorphous(mtmp.data);
+    const specDeath = Boolean(state.gd?.disintegested)
+        || noncorporeal(mtmp.data)
+        || amorphous(mtmp.data);
+    const x = mtmp.mx;
+    const y = mtmp.my;
+    const action = `${unaware ? 'you dream that ' : ''}`
+        + `${x_monnam(mtmp, ARTICLE_THE, specMon ? null : 'seemingly dead',
+            SUPPRESS_INVISIBLE | AUGMENT_IT, false, state, env)} `
+        + `${unaware ? '' : 'suddenly '}`
+        + `${specDeath ? 'reconstitutes' : 'transforms'} and rises as`;
+
+    mtmp.mcanmove = true;
+    mtmp.mfrozen = 0;
+    set_mon_min_mhpmax(mtmp, 10);
+    mtmp.mhp = mtmp.mhpmax;
+    if (mtmp === state.u?.ustuck) {
+        if (state.u.uswallow)
+            await expels(mtmp, {
+                ...env,
+                state,
+                expulsionMessage: false,
+            });
+        else
+            await import('./polyself.js').then(({ uunstick }) => uunstick(state));
+    }
+
+    const revived = newcham(mtmp, state.mons[mndx], { ...env, state });
+    if (!revived) return mtmp.mhp >= 1;
+    mtmp.cham = mtmp.data === state.mons[mndx] ? NON_PM : mndx;
+
+    if (canSpotMonster(mtmp, state)) {
+        await message(
+            messageAt(
+                `${upstart(action)} ${x_monnam(
+                    mtmp,
+                    ARTICLE_A,
+                    null,
+                    SUPPRESS_NAME | SUPPRESS_IT | SUPPRESS_INVISIBLE,
+                    false,
+                    state,
+                    env,
+                )}!`,
+                x,
+                y,
+                state,
+            ),
+            state,
+            env,
+        );
+        state.gv ??= {};
+        state.gv.vamp_rise_msg = true;
+    }
+
+    if (closed_door(x, y, state)) {
+        const door = state.level.at(x, y);
+        const trapped = Boolean((door.doormask ?? door.flags ?? 0) & D_TRAPPED);
+        const seen = cansee(x, y, state);
+        state.msg_xy = { x, y };
+        if (!seen) {
+            const heard = youHear(
+                trapped ? 'an explosion.' : 'a door being smashed.',
+                state,
+            );
+            if (heard) await message(messageAt(heard, x, y, state), state, env);
+        } else if (!canSpotMonster(mtmp, state)) {
+            await message(
+                messageAt(
+                    trapped ? 'You see a door exploding.'
+                        : 'You see a door being smashed.',
+                    x,
+                    y,
+                    state,
+                ),
+                state,
+                env,
+            );
+        } else if (!unaware) {
+            await message(
+                messageAt(
+                    `The door is smashed${trapped ? ' and it explodes!' : '.'}`,
+                    x,
+                    y,
+                    state,
+                ),
+                state,
+                env,
+            );
+        }
+        state.msg_xy = null;
+        door.doormask = D_NODOOR;
+        door.flags = D_NODOOR;
+        recalc_block_point(x, y, state);
+        if (trapped) {
+            state.flags ??= {};
+            const oldVerbose = state.flags.verbose;
+            state.flags.verbose = false;
+            let trapKilled;
+            try {
+                trapKilled = await mb_trapped(mtmp, seen, { ...env, state });
+            } finally {
+                state.flags.verbose = oldVerbose;
+            }
+            if (trapKilled && canSpotMonster(mtmp, state) && !unaware) {
+                await message(
+                    messageAt(`${Monnam(mtmp, state)} is destroyed!`, x, y, state),
+                    state,
+                    env,
+                );
+            }
+        }
+    }
+    newsym(x, y, state);
+    return true;
+}
+
 // C ref: mon.c logdeadmon() (2996-3076). "when a mon has died, maybe record an
 // achievement or issue livelog message". Every branch writes only to the live
 // log or the achievement list. pline.c livelog_printf() appends to a file this
@@ -3062,8 +3326,7 @@ function logdeadmon(mtmp, mndx, state, env) {
 //              js/display.js records that function as unported.
 //
 // gd.disintegested and gv.vamp_rise_msg, which xkilled() sets around this
-// call, are read only by vamprises() and by the life-saved return at 3558.
-// Both stop above every reader, so neither flag is carried.
+// call, are read by vamprises() and by the life-saved return at 3558.
 export async function mondead(mtmp, state = game, env = {}) {
     const unsupported = requiredKillOperation(env, 'unsupported');
 
@@ -3077,7 +3340,7 @@ export async function mondead(mtmp, state = game, env = {}) {
     if (mtmp.mhp >= 1) return; /* !DEADMONSTER() */
 
     /* "vampire in bat/fog/wolf form reverts to vampire instead of dying" */
-    if (is_vampshifter(mtmp)) unsupported('a shape-shifted vampire reverting');
+    if (is_vampshifter(mtmp) && await vamprises(mtmp, state, env)) return;
 
     if (be_sad) unsupported('the sad feeling for a lost pet');
 
@@ -3448,11 +3711,8 @@ export async function mondied(mdef, state = game, env = {}) {
 // the exclamation mark. `fltxt != null` is that pointer test; `fltxt` on its
 // own would be the later `*fltxt` one and would silence the trap's message.
 //
-// C stores the disintegration test in gd.disintegested, a global, but its only
-// reader outside this function is vamprises() at mon.c:2906, and mondead()
-// refuses every shape-shifted vampire above that call. mondead()'s own note
-// records the same finding for the copy xkilled() writes, so the value stays a
-// local here rather than becoming a second place to keep it.
+// C stores the disintegration test in gd.disintegested, a global, which
+// vamprises() reads while mondead() handles a shape-shifted vampire.
 //
 // Two arms stop:
 //
@@ -3492,10 +3752,13 @@ export async function monkilled(mdef, fltxt, how, state = game, env = {}) {
     /* "no corpse if digested or disintegrated or flammable golem burnt up" */
     const disintegested = how === AD_DGST || how === -AD_RBRE
         || (how === AD_FIRE && completelyburns(mptr));
+    state.gd ??= {};
+    state.gd.disintegested = disintegested;
     if (disintegested)
         await mondead(mdef, state, env); /* "never leaves a corpse" */
     else
         await mondied(mdef, state, env); /* "and maybe leaves a corpse" */
+    state.gd.disintegested = false;
 
     if (mdef.mhp >= 1) return; /* !DEADMONSTER(): "life-saved" */
 
@@ -3636,7 +3899,10 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
 
     /* "dispose of monster and make cadaver" */
     if (state.gs?.stoned) unsupported('a monster killed by petrification');
+    state.gd ??= {};
+    state.gd.disintegested = nocorpse;
     await mondead(mtmp, state, env);
+    state.gd.disintegested = false;
 
     if (mtmp.mhp >= 1) /* !DEADMONSTER(): "monster lifesaved" */
         unsupported('a monster that survived being killed');

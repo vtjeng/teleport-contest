@@ -241,14 +241,13 @@ import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import {
     monkilled,
     pm_to_cham,
+    replmon,
     seemimic,
     wakeup,
     xkilled,
 } from './mon.js';
 import {
     m_at,
-    place_monster,
-    remove_monster,
 } from './monst.js';
 import { mon_reflects, ureflects } from './muse.js';
 import { check_unpaid, inside_shop } from './shk.js';
@@ -299,31 +298,6 @@ export class UnsupportedRevivalError extends Error {
 function revivalEnv(rawEnv = {}) {
     const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
     return { ...rawEnv, random, state: rawEnv.state ?? game };
-}
-
-// C ref: zap.c replmon(), as used by montraits(). The dummy and saved record
-// are the same species and have no inventory, tail, shop extension, leash, or
-// hero attachment on the revive_nasty() path.
-function replaceRevivedMonster(dummy, saved, state) {
-    let previous = null;
-    let current = state.level?.monlist ?? null;
-    while (current && current !== dummy) {
-        previous = current;
-        current = current.nmon;
-    }
-    if (current !== dummy)
-        throw new Error('montraits dummy is absent from the monster list');
-
-    saved.nmon = dummy.nmon;
-    if (previous) previous.nmon = saved;
-    else state.level.monlist = saved;
-
-    remove_monster(dummy.mx, dummy.my, state);
-    place_monster(saved, saved.mx, saved.my, state);
-    dummy.mx = 0;
-    dummy.my = 0;
-    dummy.nmon = null;
-    return saved;
 }
 
 // C ref: zap.c montraits() (713-829), bounded to the saved unique monsters
@@ -393,7 +367,7 @@ export function montraits(obj, cc, adjacentok = false, rawEnv = {}) {
     saved.mconf = false;
     saved.mstate = dummy.mstate;
 
-    replaceRevivedMonster(dummy, saved, state);
+    replmon(dummy, saved, state);
     newsym(saved.mx, saved.my, state);
     if (saved.cham === NON_PM)
         saved.cham = pm_to_cham(saved.mnum, state);

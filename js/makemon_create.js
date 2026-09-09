@@ -166,6 +166,7 @@ import {
     polyok,
 } from './mondata.js';
 import { dochugw } from './monmove.js';
+import { dealloc_monst } from './mon.js';
 import {
     m_at,
     newMonster,
@@ -2936,6 +2937,7 @@ export function dmonsfree(state = game) {
             if (previous) previous.nmon = next;
             else state.level.monlist = next;
             current.nmon = null;
+            dealloc_monst(current);
             ++removed;
         } else {
             previous = current;
@@ -3211,6 +3213,18 @@ function apply_newcham_form(monster, target, normalized) {
     // this empty inventory; check_gear_next_turn() still schedules a recheck.
     monster.misc_worn_check |= I_SPECIAL;
     return true;
+}
+
+// C ref: mon.c newcham(), explicit-target vampire reversion arm. The common
+// form transition is shared with the bounded creation callers; callers that
+// need inventory, equipment, disguise, or hero-attachment handling remain
+// outside this adapter.
+export function newcham(monster, target, rawEnv = {}) {
+    const normalized = creationEnv(rawEnv);
+    const { state } = normalized;
+    if (!target || state.mons?.[target.pmidx] !== target
+        || (state.mvitals[target.pmidx].mvflags & G_GENOD)) return false;
+    return apply_newcham_form(monster, target, normalized);
 }
 
 // C ref: mon.c newcham(..., NULL, NO_NC_FLAGS). Chameleon targets span the
