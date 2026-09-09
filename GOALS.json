@@ -17570,7 +17570,7 @@
     {
       "id": "port-mon-m-respond-wake-nearto-core",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mon.c monster response and wake-nearby helpers",
       "cFile": "mon.c",
       "sessions": [
@@ -17598,8 +17598,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "337152e0d2940e4e98426c73c004abf1d5b1e071",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "m_respond_shrieker",
