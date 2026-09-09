@@ -15910,8 +15910,8 @@
       "spans": [
         {
           "name": "doprev_message..do_run_east",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "167432ce3ccd091b1e4239623950ce9b3dbb4212",
           "functions": [
             "doprev_message",
             "cmdq_print",
@@ -15970,7 +15970,7 @@
           "name": "doprev_message",
           "line": 164,
           "endLine": 171,
-          "ported": false
+          "ported": true
         },
         {
           "name": "timed_occupation",
@@ -15994,7 +15994,7 @@
           "name": "cmdq_print",
           "line": 220,
           "endLine": 253,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmdq_add_ec",
@@ -16012,37 +16012,37 @@
           "name": "cmdq_add_dir",
           "line": 294,
           "endLine": 315,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmdq_add_userinput",
           "line": 316,
           "endLine": 334,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmdq_add_int",
           "line": 335,
           "endLine": 354,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmdq_shift",
           "line": 355,
           "endLine": 372,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmdq_reverse",
           "line": 373,
           "endLine": 386,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmdq_copy",
           "line": 387,
           "endLine": 409,
-          "ported": false
+          "ported": true
         },
         {
           "name": "cmdq_pop",
@@ -16066,7 +16066,7 @@
           "name": "pgetchar",
           "line": 445,
           "endLine": 456,
-          "ported": false
+          "ported": true
         },
         {
           "name": "extcmd_initiator",
@@ -16102,7 +16102,7 @@
           "name": "extcmd_via_menu",
           "line": 752,
           "endLine": 889,
-          "ported": false
+          "ported": true
         },
         {
           "name": "domonability",
@@ -16114,19 +16114,19 @@
           "name": "enter_explore_mode",
           "line": 952,
           "endLine": 985,
-          "ported": false
+          "ported": true
         },
         {
           "name": "makemap_prepost",
           "line": 986,
           "endLine": 1088,
-          "ported": false
+          "ported": true
         },
         {
           "name": "levltyp_to_name",
           "line": 1089,
           "endLine": 1097,
-          "ported": false
+          "ported": true
         },
         {
           "name": "doterrain",
@@ -16138,43 +16138,43 @@
           "name": "u_have_seen_whole_selection",
           "line": 1195,
           "endLine": 1212,
-          "ported": false
+          "ported": true
         },
         {
           "name": "u_have_seen_bounds_selection",
           "line": 1213,
           "endLine": 1245,
-          "ported": false
+          "ported": true
         },
         {
           "name": "u_can_see_whole_selection",
           "line": 1246,
           "endLine": 1262,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dolookaround_floodfill_findroom",
           "line": 1263,
           "endLine": 1275,
-          "ported": false
+          "ported": true
         },
         {
           "name": "lookaround_known_room",
           "line": 1276,
           "endLine": 1309,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dolookaround",
           "line": 1310,
           "endLine": 1375,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dotoggleoption",
           "line": 1376,
           "endLine": 1386,
-          "ported": false
+          "ported": true
         },
         {
           "name": "set_move_cmd",
@@ -16186,127 +16186,127 @@
           "name": "do_move_west",
           "line": 1404,
           "endLine": 1410,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_move_northwest",
           "line": 1411,
           "endLine": 1417,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_move_north",
           "line": 1418,
           "endLine": 1424,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_move_northeast",
           "line": 1425,
           "endLine": 1431,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_move_east",
           "line": 1432,
           "endLine": 1438,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_move_southeast",
           "line": 1439,
           "endLine": 1445,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_move_south",
           "line": 1446,
           "endLine": 1452,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_move_southwest",
           "line": 1453,
           "endLine": 1460,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_rush_west",
           "line": 1461,
           "endLine": 1467,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_rush_northwest",
           "line": 1468,
           "endLine": 1474,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_rush_north",
           "line": 1475,
           "endLine": 1481,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_rush_northeast",
           "line": 1482,
           "endLine": 1488,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_rush_east",
           "line": 1489,
           "endLine": 1495,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_rush_southeast",
           "line": 1496,
           "endLine": 1502,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_rush_south",
           "line": 1503,
           "endLine": 1509,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_rush_southwest",
           "line": 1510,
           "endLine": 1517,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_run_west",
           "line": 1518,
           "endLine": 1524,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_run_northwest",
           "line": 1525,
           "endLine": 1531,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_run_north",
           "line": 1532,
           "endLine": 1538,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_run_northeast",
           "line": 1539,
           "endLine": 1545,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_run_east",
           "line": 1546,
           "endLine": 1552,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_run_southeast",
@@ -16576,7 +16576,7 @@
           "name": "randomkey",
           "line": 3517,
           "endLine": 3580,
-          "ported": false
+          "ported": true
         },
         {
           "name": "random_response",
