@@ -16029,8 +16029,8 @@
         },
         {
           "name": "readchar_core..dummyfunction",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "20ebcfb12d27712e9bd5dffa7337e4b1c3e68391",
           "functions": [
             "readchar_core",
             "readchar_poskey",
@@ -16859,7 +16859,7 @@
           "name": "readchar_core",
           "line": 5213,
           "endLine": 5275,
-          "ported": false
+          "ported": true
         },
         {
           "name": "readchar",
@@ -16871,7 +16871,7 @@
           "name": "readchar_poskey",
           "line": 5288,
           "endLine": 5298,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dotravel",
@@ -16901,13 +16901,13 @@
           "name": "yn_func_menu_opt",
           "line": 5402,
           "endLine": 5418,
-          "ported": false
+          "ported": true
         },
         {
           "name": "yn_function_menu",
           "line": 5419,
           "endLine": 5470,
-          "ported": false
+          "ported": true
         },
         {
           "name": "yn_function",
@@ -16931,19 +16931,19 @@
           "name": "dosuspend_core",
           "line": 5662,
           "endLine": 5681,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dosh_core",
           "line": 5682,
           "endLine": 5698,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dummyfunction",
           "line": 5699,
           "endLine": 5705,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
