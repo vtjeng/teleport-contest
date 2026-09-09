@@ -17268,8 +17268,8 @@
       "spans": [
         {
           "name": "replmon..vamprises",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "7a5c7808cb14e03d5fd5baaa25106cb94d692552",
           "functions": [
             "replmon",
             "dealloc_mextra",
@@ -17292,7 +17292,7 @@
           "name": "replmon",
           "line": 2515,
           "endLine": 2560,
-          "ported": false
+          "ported": true
         },
         {
           "name": "relmon",
@@ -17310,13 +17310,13 @@
           "name": "dealloc_mextra",
           "line": 2649,
           "endLine": 2675,
-          "ported": false
+          "ported": true
         },
         {
           "name": "dealloc_monst",
           "line": 2676,
           "endLine": 2695,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mon_leaving_level",
@@ -17334,7 +17334,7 @@
           "name": "set_mon_min_mhpmax",
           "line": 2808,
           "endLine": 2826,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mlifesaver",
@@ -17352,7 +17352,7 @@
           "name": "vamprises",
           "line": 2890,
           "endLine": 2996,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
