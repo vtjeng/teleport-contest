@@ -587,6 +587,7 @@ import {
     m_canseeu,
     recalc_block_point,
     unblock_point,
+    vision_recalc,
 } from './vision.js';
 import { which_armor } from './worn.js';
 
@@ -3365,6 +3366,44 @@ function requiredDistressOperation(env, name) {
     return operation;
 }
 
+// C ref: mon.c m_calcdistress(). The per-monster callback handles the
+// once-per-turn upkeep after mcalcdistress() has selected its downstream
+// operation owners.
+export async function m_calcdistress(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const visionRecalc = rawEnv.visionRecalc ?? vision_recalc;
+    const minLiquid = rawEnv.minLiquid ?? minliquid;
+    const decideToShapeshift = rawEnv.decideToShapeshift
+        ?? decide_to_shapeshift;
+    const wereChange = rawEnv.wereChange ?? were_change;
+
+    // C checks immobile monsters for liquid effects before applying any of
+    // the ordinary once-per-turn upkeep. A liquid effect can kill the
+    // monster, so the callback returns immediately when it reports death.
+    if (!monster.data?.mmove) {
+        if (state.vision_full_recalc)
+            await visionRecalc(0, { ...rawEnv, state });
+        if (await minLiquid(monster, { ...rawEnv, state })) return;
+    }
+
+    mon_regen(monster, false, state);
+
+    // C calls were_change() after shapechanging; a new were form therefore
+    // reaches the lycanthropy check in the same callback.
+    if (ismnum(monster.cham))
+        await decideToShapeshift(monster, { ...rawEnv, state });
+    await wereChange(monster, { ...rawEnv, state });
+
+    if (monster.mblinded && !--monster.mblinded)
+        monster.mcansee = true;
+    if (monster.mfrozen && !--monster.mfrozen)
+        monster.mcanmove = true;
+    if (monster.mfleetim && !--monster.mfleetim)
+        monster.mflee = false;
+
+    // FIXME: C's mtmp->mlstmv ought to be updated here.
+}
+
 // C refs: mon.c mcalcdistress() and m_calcdistress(). Resolve every downstream
 // owner for the current list before changing any monster, so an unsupported
 // rare shape/liquid branch cannot leave earlier monsters partially advanced.
@@ -3397,25 +3436,18 @@ export async function mcalcdistress(state = game, env = {}) {
     const decideToShapeshift = needsShapechange
         ? requiredDistressOperation(env, 'decideToShapeshift') : null;
     const wereChange = needsWerechange
-        ? requiredDistressOperation(env, 'wereChange') : null;
+        ? requiredDistressOperation(env, 'wereChange')
+        : env.wereChange ?? were_change;
 
     for (const monster of monsters) {
-        if (!monster.data?.mmove) {
-            if (state.vision_full_recalc)
-                await visionRecalc(0, { ...env, state });
-            if (await minLiquid(monster, { ...env, state })) continue;
-        }
-        mon_regen(monster, false, state);
-        if (ismnum(monster.cham))
-            await decideToShapeshift(monster, { ...env, state });
-        if (is_were(monster.data))
-            await wereChange(monster, { ...env, state });
-        if (monster.mblinded && !--monster.mblinded)
-            monster.mcansee = true;
-        if (monster.mfrozen && !--monster.mfrozen)
-            monster.mcanmove = true;
-        if (monster.mfleetim && !--monster.mfleetim)
-            monster.mflee = false;
+        await m_calcdistress(monster, {
+            ...env,
+            state,
+            visionRecalc,
+            minLiquid,
+            decideToShapeshift,
+            wereChange,
+        });
     }
 }
 

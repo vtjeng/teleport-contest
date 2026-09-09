@@ -563,6 +563,39 @@ test('mcalcdistress advances ordinary maladies in list order', async () => {
     );
 });
 
+test('mcalcdistress calls wereChange for each live monster', async () => {
+    const dead = {
+        nmon: null,
+        data: { mmove: 12, mflags1: 0, mflags2: 0 },
+        cham: -1,
+        mhp: 0, // C's iter_mons() skips dead monsters before its callback.
+        mhpmax: 1,
+    };
+    const live = {
+        nmon: dead,
+        data: { mmove: 12, mflags1: 0, mflags2: 0 },
+        cham: -1,
+        mhp: 1,
+        mhpmax: 1,
+    };
+    const state = {
+        moves: 1,
+        level: { monlist: live },
+        vision_full_recalc: 0,
+    };
+    const calls = [];
+
+    await mcalcdistress(state, {
+        wereChange(monster, env) {
+            calls.push([monster, env.state]);
+        },
+    });
+
+    // were_change() returns immediately for an ordinary monster, but C still
+    // crosses that call boundary after decide_to_shapeshift().
+    assert.deepEqual(calls, [[live, state]]);
+});
+
 test('mcalcdistress skips dead and off-map list entries', async () => {
     const offMap = {
         nmon: null,
