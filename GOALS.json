@@ -17495,6 +17495,62 @@
         "from": 3072,
         "to": 3863
       }
+    },
+    {
+      "id": "port-mon-ok-to-obliterate-maybe-mnexto",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mon.c monster obliteration, relocation, and overcrowding helpers",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0383-wizard-hallucinate"
+      ],
+      "detail": "",
+      "spans": [],
+      "openedAt": "c71cbb1a97bfb79a48e2f49e53ff953976b8c265",
+      "openStanding": {
+        "sha": "13519c96",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "ok_to_obliterate",
+          "line": 3864,
+          "endLine": 3877,
+          "ported": false
+        },
+        {
+          "name": "elemental_clog",
+          "line": 3878,
+          "endLine": 3954,
+          "ported": false
+        },
+        {
+          "name": "mnexto",
+          "line": 3955,
+          "endLine": 3985,
+          "ported": true
+        },
+        {
+          "name": "deal_with_overcrowding",
+          "line": 3986,
+          "endLine": 3998,
+          "ported": false
+        },
+        {
+          "name": "maybe_mnexto",
+          "line": 3999,
+          "endLine": 4030,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 3864,
+        "to": 4030
+      }
     }
   ]
 }
