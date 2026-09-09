@@ -24,6 +24,13 @@ import {
     optfn_menu_shift_left,
     optfn_menu_shift_right,
     optfn_menu_headings,
+    optfn_monsters,
+    optfn_msg_window,
+    optfn_name,
+    optfn_number_pad,
+    optfn_objects,
+    optfn_palette,
+    count_alt_palette,
     optionAliasTarget,
     opt2roleopt,
     parseNethackrc,
@@ -53,6 +60,7 @@ import {
     MENU_PARTIAL,
     MENU_TRADITIONAL,
     MOD_ENCUMBER,
+    NH_ALTPALETTE,
     OVERLOADED,
     SLT_ENCUMBER,
     STONE,
@@ -175,6 +183,51 @@ test('options menu selection handlers preserve their source request arms', () =>
     assert.equal(optfn_menu_headings(
         parsed, optidx, 5, false, '', '',
     ), 'red&bold');
+});
+
+// C refs: options.c optfn_monsters() (2378-2395), optfn_msg_window()
+// (2456-2522), optfn_name() (2549-2570), optfn_number_pad() (2573-2645),
+// optfn_objects() (2660-2679), optfn_palette() (2699-2734), and
+// coloratt.c count_alt_palette() (1036-1047). These source-pinned pure getter
+// calls keep the request arms and their exact value spellings independent of
+// the menu runner.
+test('monster, object, name, pad, message, and palette getters follow C', () => {
+    const parsed = parseNethackrc('OPTIONS=name:Artemis,number_pad:4\n');
+    const name = allopt.findIndex((option) => option.name === 'name');
+    const pad = allopt.findIndex((option) => option.name === 'number_pad');
+    const msg = allopt.findIndex((option) => option.name === 'msg_window');
+    assert.equal(optfn_monsters(parsed, 0, 1, false, '', ''), 1);
+    assert.equal(optfn_monsters(parsed, 0, 4, false, '', ''), '');
+    assert.equal(optfn_monsters(parsed, 0, 5, false, '', ''), '');
+    assert.equal(optfn_msg_window(parsed, msg, 4, false, '', ''), 'single');
+    assert.equal(optfn_msg_window(parsed, msg, 5, false, '', ''), 'single');
+    assert.equal(optfn_name(parsed, name, 4, false, '', ''), 'Artemis');
+    assert.equal(optfn_name(parsed, name, 5, false, '', ''), 'Artemis');
+    assert.equal(optfn_number_pad(parsed, pad, 4, false, '', ''),
+        '4=on, phone layout, MSDOS compatible');
+    assert.equal(optfn_number_pad(parsed, pad, 5, false, '', ''), '4');
+    assert.equal(optfn_objects(parsed, 0, 4, false, '', ''), '(to be done)');
+    assert.equal(optfn_objects(parsed, 0, 5, false, '', ''), '');
+    assert.equal(optfn_palette(parsed, 0, 4, false, '', ''),
+        '(0 currently set)');
+    assert.equal(count_alt_palette(parsed), 0);
+
+    // CHANGE_COLOR is disabled in the recorder build, but the source
+    // handler remains callable for its conditional branch and its callee's
+    // returned success value.
+    const palette = parseNethackrc('');
+    assert.equal(
+        optfn_palette(palette, 0, 2, false, 'palette:red/1-2-3'),
+        1,
+    );
+    assert.equal(count_alt_palette(palette), 1);
+    assert.equal(palette.ga.altpalette[1], NH_ALTPALETTE | 0x010203);
+    palette.go.opt_initial = false;
+    assert.equal(
+        optfn_palette(palette, 0, 2, false, 'palette:blue/7'),
+        1,
+    );
+    assert.equal(palette.go.opt_update_basic_palette, true);
 });
 
 test('startup option defaults use source role indices and zero roleplay', () => {

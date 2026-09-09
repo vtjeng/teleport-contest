@@ -3618,6 +3618,7 @@ async function runOptionsCommand(key, state) {
             o_bind_keys: () => handler_rebind_keys(state),
             o_autocomplete: () => handler_change_autocompletions(state),
         },
+        resetCommands: () => reset_commands(false, state),
         updateRestOnSpace: () => update_rest_on_space(state),
     }));
 }

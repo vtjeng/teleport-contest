@@ -11,6 +11,7 @@ import {
     AUTOUNLOCK_FORCE,
     AUTOUNLOCK_KICK,
     AUTOUNLOCK_UNTRAP,
+    BUFSZ,
     CLR_MAX,
     COLNO,
     DISCLOSE_PROMPT_DEFAULT_NO,
@@ -64,6 +65,7 @@ import {
     MSGTYP_NOSHOW,
     MSGTYP_STOP,
     NUM_DISCLOSURE_OPTIONS,
+    NH_ALTPALETTE,
     OVERLOADED,
     PARANOID_AUTOALL,
     PARANOID_BONES,
@@ -145,7 +147,11 @@ import {
     config_error_nextline,
     get_configfile,
 } from './cfgfiles.js';
-import { count_menucolors } from './coloratt.js';
+import {
+    count_menucolors,
+    match_str2clr as colorattMatchStr2clr,
+    rgbstr_to_int32,
+} from './coloratt.js';
 import {
     DEFAULT_FRUIT,
     finish_fruit_option,
@@ -618,6 +624,9 @@ function defaultResult() {
         ga: {
             // decl.c instance_globals_a starts on the built-in interface.
             active_soundlib: soundlib_nosound,
+            // coloratt.c alternative_palette() stores NH_ALTPALETTE-tagged
+            // RGB values here when CHANGE_COLOR is enabled.
+            altpalette: Array(CLR_MAX).fill(0),
         },
         gp: {
             // decl.c instance_globals_p starts this list at NULL. Each valid
@@ -663,6 +672,7 @@ function defaultResult() {
             opt_need_redraw: false,
             opt_need_glyph_reset: false,
             opt_symset_changed: false,
+            opt_update_basic_palette: false,
         },
         // cmd.c extcmdlist[] is mutable in C. Keep its flags per game so one
         // runSegment() cannot carry configuration into the next one.
@@ -3651,47 +3661,433 @@ function atol(str) {
     return value;
 }
 
-// C ref: options.c optfn_number_pad() (2573-2645), its do_set arm.  These
-// fields affect cmd_from_ecname() during tutorial generation and the same
-// source-ordered runtime bindings.  optlist.h:535-536 gives the option
-// negateok No, so parseoptions() answers a negated spelling with
-// bad_negation(); the handler's own bad_negation() and its
-// `iflags.num_pad = !negated` both see a negation that cannot happen.
-//
-// `compat` is what decides whether a statement without a value is reported:
-// C measures the whole statement and treats ten bytes or fewer as the historic
-// spelling that means number_pad:1, so "number_pad" is silent while
-// "number_pad:" is one byte longer and reports.  Either way the arm that
-// follows sets the option, because go.opt_initial makes its guard hold.
-function setNumberPadOption(result, statement) {
-    const compat = encodeUtf8ByteString(statement).length <= 10;
-    const op = string_for_opt(statement, compat, result);
-    let enabled;
-    let mode;
-    if (op === '') {
-        /* for backwards compatibility, "number_pad" without a
-           value is a synonym for number_pad:1 */
-        enabled = true;
-        mode = 0;
-    } else {
-        const parsed = atoi(op);
-        if (parsed < -1 || parsed > 4 || (parsed === 0 && op[0] !== '0')) {
-            configErrorAdd(
-                result, `Illegal number_pad parameter '${op}'`,
-            );
-            return;
-        }
-        enabled = parsed > 0;
-        mode = parsed < 0 ? 1
-            : (parsed === 2 ? 1 : parsed === 3 ? 2 : parsed === 4 ? 3 : 0);
+// C ref: options.c nmcpy() (6861-6876). This is byte-oriented, stops at a
+// comma, and always leaves room for the terminating NUL. The player name
+// handler below stores its result in `name` during startup and `plname` in a
+// live game; both are the same C svp.plname value.
+function nmcpy(value, maxlen) {
+    const bytes = encodeUtf8ByteString(value);
+    const copied = [];
+    for (const byte of bytes) {
+        if (byte === 0 || byte === 0x2C || copied.length >= maxlen - 1)
+            break;
+        copied.push(byte);
     }
-    result.iflags.num_pad = enabled;
-    result.iflags.num_pad_mode = mode;
-    result.commandOperations.push({
-        type: 'number_pad',
-        enabled,
-        mode,
-    });
+    return decodeUtf8ByteString(copied);
+}
+
+function optionOwnerName(state) {
+    return state.plname ?? state.name ?? '';
+}
+
+// C ref: options.c optfn_monsters() (2378-2395). The tty build has no monster
+// symbol setter in this handler; all four requests are deliberately no-ops.
+export function optfn_monsters(
+    state, optidx, request, negated, opts, op,
+) {
+    void state;
+    void optidx;
+    void negated;
+    void opts;
+    void op;
+    if (request === GET_VAL || request === GET_CNF_VAL) return '';
+    return optn_ok;
+}
+
+// C ref: options.c optfn_msg_window() (2456-2522), PREV_MSGS's tty branch.
+export function optfn_msg_window(
+    state, optidx, request, negated, opts, op, helpers,
+) {
+    if (request === DO_INIT) return optn_ok;
+    if (request === DO_SET) {
+        const value = op ?? string_for_opt(opts, true, state);
+        let mode;
+        if (value === '') {
+            mode = negated ? 's' : 'f';
+        } else if (negated) {
+            bad_negation(state, allopt[optidx]?.name ?? 'msg_window', true);
+            return optn_err;
+        } else {
+            mode = lowc(value[0]);
+        }
+        if (!'scfr'.includes(mode)) {
+            configErrorAdd(
+                state,
+                `Unknown ${allopt[optidx]?.name ?? 'msg_window'} parameter '${value}'`,
+            );
+            return optn_err;
+        }
+        state.iflags.prevmsg_window = mode;
+        return optn_ok;
+    }
+    if (request === GET_VAL || request === GET_CNF_VAL) {
+        // The curses arm rewrites single/combination to reversed. This build
+        // is tty, so all four source names remain available.
+        const mode = state.iflags.prevmsg_window;
+        return mode === 's' ? 'single'
+            : mode === 'c' ? 'combination'
+                : mode === 'f' ? 'full' : 'reversed';
+    }
+    if (request === DO_HANDLER)
+        return handler_msg_window(state, optidx, helpers);
+    return optn_ok;
+}
+
+// C ref: options.c optfn_name() (2549-2570). `string_for_env_opt()` is
+// mandatory here; nmcpy()'s comma stop and byte limit are both observable.
+export function optfn_name(
+    state, optidx, request, negated, opts, op,
+) {
+    void optidx;
+    void negated;
+    if (request === DO_INIT) return optn_ok;
+    if (request === DO_SET) {
+        const value = op ?? string_for_env_opt(opts, false, state);
+        if (value === '') return optn_err;
+        // The C call passes PL_NSIZ (32), while the public limit constant is
+        // the 31 bytes available before its terminating NUL.
+        const name = nmcpy(value, PLAYER_NAME_BYTE_LIMIT + 1);
+        if (Object.hasOwn(state, 'name')) state.name = name;
+        else state.plname = name;
+        return optn_ok;
+    }
+    if (request === GET_VAL || request === GET_CNF_VAL)
+        return optionOwnerName(state);
+    return optn_ok;
+}
+
+function numberPadModeValue(state) {
+    const mode = state.iflags.num_pad_mode ?? 0;
+    if (state.iflags.num_pad) {
+        return (mode & 2) ? ((mode & 1) ? 4 : 3)
+            : ((mode & 1) ? 2 : 1);
+    }
+    return (mode & 1) ? 5 : 0;
+}
+
+function setNumberPadState(state, enabled, mode, helpers) {
+    state.iflags.num_pad = enabled;
+    state.iflags.num_pad_mode = mode;
+    state.commandOperations ??= [];
+    state.commandOperations.push({ type: 'number_pad', enabled, mode });
+    numberPadTerminalUpdate(state, helpers);
+}
+
+function numberPadTerminalUpdate(state, helpers) {
+    // cmd.c reset_commands() is wired by js/cmd.js for the interactive path.
+    // During startup the command model is rebuilt after parsing and the
+    // operation above is its source-ordered input.
+    if (typeof helpers?.resetCommands === 'function') helpers.resetCommands();
+    // wintty.c number_pad() is a void terminal-mode hook. The command model
+    // above owns its observable key behavior; this call is the discarded
+    // window-port side effect.
+    note_unported('wintty.c tty_number_pad');
+}
+
+// C ref: options.c optfn_number_pad() (2573-2645), including its historic
+// value-less spelling and the packed equivalent of gc.Cmd's three fields.
+export function optfn_number_pad(
+    state, optidx, request, negated, opts, op, helpers,
+) {
+    if (request === DO_INIT) return optn_ok;
+    if (request === DO_SET) {
+        const compat = encodeUtf8ByteString(opts).length <= 10;
+        const value = op ?? string_for_opt(
+            opts, compat || state.go?.opt_initial !== true, state,
+        );
+        if (value === '') {
+            if (compat || negated || state.go?.opt_initial === true)
+                setNumberPadState(state, !negated, 0, helpers);
+            else numberPadTerminalUpdate(state, helpers);
+        } else if (negated) {
+            bad_negation(state, allopt[optidx]?.name ?? 'number_pad', true);
+            return optn_err;
+        } else {
+            const modeValue = atoi(value);
+            if (modeValue < -1 || modeValue > 4
+                || (modeValue === 0 && value[0] !== '0')) {
+                configErrorAdd(
+                    state,
+                    `Illegal ${allopt[optidx]?.name ?? 'number_pad'} parameter '${value}'`,
+                );
+                return optn_err;
+            }
+            if (modeValue <= 0) {
+                setNumberPadState(state, false, modeValue < 0 ? 1 : 0, helpers);
+            } else {
+                let mode = 0;
+                if (modeValue === 2 || modeValue === 4) mode |= 1;
+                if (modeValue === 3 || modeValue === 4) mode |= 2;
+                setNumberPadState(state, true, mode, helpers);
+            }
+        }
+        // The C handler calls reset_commands() even when a value-less spelling
+        // is rejected by a non-initial parse; the helper above preserves that
+        // side effect without inventing a state change.
+        return optn_ok;
+    }
+    if (request === GET_VAL) {
+        return [
+            '0=off', '1=on', '2=on, MSDOS compatible',
+            '3=on, phone-style layout',
+            '4=on, phone layout, MSDOS compatible',
+            '-1=off, y & z swapped',
+        ][numberPadModeValue(state)];
+    }
+    if (request === GET_CNF_VAL) {
+        const mode = numberPadModeValue(state);
+        return mode === 5 ? '-1' : `${mode}`;
+    }
+    if (request === DO_HANDLER) return handler_number_pad(state, helpers);
+    return optn_ok;
+}
+
+// C ref: options.c optfn_objects() (2660-2679). Object symbols are not
+// configurable in this build; the getter exposes the source placeholder.
+export function optfn_objects(
+    state, optidx, request, negated, opts, op,
+) {
+    void optidx;
+    void negated;
+    void opts;
+    void op;
+    if (request === GET_VAL) return to_be_done;
+    if (request === GET_CNF_VAL) return '';
+    return optn_ok;
+}
+
+function altColorSpec(value) {
+    const text = String(value);
+    const hexDigits = '00112233445566778899aAbBcCdDeEfF';
+    const decimal = '0123456789';
+    const octal = '01234567';
+    let cp = 0;
+    let result = -1;
+    let limit = 6;
+    let hex = text[0] === '\\' && text[1]
+        && (text[1] === 'x' || text[1] === 'X') && text[2];
+    let oct = !hex && text[0] === '\\' && text[1]
+        && (text[1] === 'o' || text[1] === 'O') && text[2];
+    let count = 0;
+    if (hex || oct) {
+        result = 0;
+        cp = 2;
+        if (oct) limit = 8;
+    } else if (text[0] === '#' && text[1]) {
+        hex = true;
+        result = 0;
+        cp = 1;
+    } else if (text[1]) {
+        result = 0;
+        limit = 8;
+    } else if (!text[1]) {
+        if (decimal.includes(text[0] ?? '')) result = Number(text[0]);
+        limit = 1;
+        cp = 1;
+    }
+    while (cp < text.length) {
+        const char = text[cp];
+        if (!hex && !oct && decimal.includes(char))
+            result = result * 10 + Number(char);
+        else if (oct && octal.includes(char))
+            result = result * 8 + Number(char);
+        else if (hex) {
+            const digit = hexDigits.indexOf(char);
+            if (digit >= 0) result = result * 16 + Math.floor(digit / 2);
+        }
+        ++cp;
+        if (++count > limit) return -1;
+    }
+    return result;
+}
+
+// C ref: coloratt.c count_alt_palette() and alternative_palette() (1036-1095).
+export function count_alt_palette(state) {
+    return (state.ga?.altpalette ?? []).slice(0, CLR_MAX)
+        .filter((value) => value !== 0).length;
+}
+
+export function alternative_palette(state, op) {
+    if (op == null) return 0;
+    const buf = decodeUtf8ByteString(
+        encodeUtf8ByteString(op).slice(0, BUFSZ - 1),
+    );
+    const firstSlash = buf.indexOf('/');
+    const colorId = firstSlash < 0 ? buf : buf.slice(0, firstSlash);
+    const colorValue = firstSlash < 0 ? null : buf.slice(buf.lastIndexOf('/') + 1);
+    const id = colorId.startsWith(' ') ? colorId.slice(1) : colorId;
+    const value = colorValue?.startsWith(' ')
+        ? colorValue.slice(1) : colorValue;
+    const colorIndex = colorattMatchStr2clr(id, true);
+    if (value == null || colorIndex == null || colorIndex >= CLR_MAX)
+        return 0;
+    let rgb = rgbstr_to_int32(value);
+    if (rgb === -1) rgb = altColorSpec(value);
+    if (rgb === -1) return 0;
+    state.ga ??= {};
+    state.ga.altpalette ??= Array(CLR_MAX).fill(0);
+    state.ga.altpalette[colorIndex] = rgb | NH_ALTPALETTE;
+    return 1;
+}
+
+// C ref: options.c optfn_palette() (2699-2734), compiled only with
+// CHANGE_COLOR. It is retained here even though the recorder's tty build does
+// not expose the option row, because direct source-shaped calls and future
+// builds must keep the conditional behavior.
+export function optfn_palette(
+    state, optidx, request, negated, opts, op,
+) {
+    void negated;
+    if (request === DO_INIT) return optn_ok;
+    if (request === DO_SET) {
+        const value = op ?? string_for_opt(opts, true, state);
+        if (value === '') return optn_err;
+        if (match_optname(opts, 'palette', 3, true)) {
+            if (!alternative_palette(state, value)) {
+                configErrorAdd(
+                    state,
+                    `Error in palette parameter '${value}'`,
+                );
+                return optn_err;
+            }
+            if (state.go?.opt_initial === false)
+                state.go.opt_update_basic_palette = true;
+        }
+        return optn_ok;
+    }
+    if (request === GET_VAL || request === GET_CNF_VAL) {
+        if (opts == null) return optn_err;
+        return n_currently_set(count_alt_palette(state));
+    }
+    void optidx;
+    return optn_ok;
+}
+
+// The source's #if 0 Mac OS 9 duplicate remains a separate callable helper,
+// rather than competing with the active optfn_palette definition above.
+export function optfn_palette_legacy(
+    state, optidx, request, negated, opts, op,
+) {
+    void optidx;
+    void negated;
+    if (request === DO_INIT) return optn_ok;
+    if (request === DO_SET) {
+        if ((op ?? string_for_opt(opts, true, state)) === '') return optn_err;
+        const value = op ?? string_for_opt(opts, true, state);
+        if (!match_optname(opts, 'palette', 3, true)
+            && !match_optname(opts, 'hicolor', 3, true)) return optn_ok;
+        const hicolor = match_optname(opts, 'hicolor', 3, true);
+        let color = hicolor ? CLR_MAX + 4 : 0;
+        const increment = hicolor ? -1 : 1;
+        let at = 0;
+        while (at < value.length && color >= 0) {
+            let reverse = 0;
+            if (value[at] === '-') {
+                reverse = 1;
+                ++at;
+            }
+            let rgb = 0;
+            for (let count = 0; count < 3; ++count) {
+                if (value[at] && value[at] !== '/') {
+                    let digit = value[at++];
+                    if (/^[A-Za-z]$/u.test(digit))
+                        digit = String.fromCharCode((digit.charCodeAt(0) + 9) & 0xF);
+                    else digit = String.fromCharCode(digit.charCodeAt(0) & 0xF);
+                    const nibble = digit.charCodeAt(0);
+                    rgb = (rgb << 8) + (nibble << 4) + nibble;
+                }
+            }
+            if (value[at] === '/') ++at;
+            // C discards change_color()'s void terminal result. The palette
+            // bookkeeping itself is still the source's parsed branch.
+            note_unported('wintty.c tty_change_color');
+            color += increment;
+        }
+        if (state.go?.opt_initial === false)
+            state.go.opt_update_basic_palette = true;
+        return optn_ok;
+    }
+    if (request === GET_VAL || request === GET_CNF_VAL) {
+        if (opts == null) return optn_err;
+        return n_currently_set(count_alt_palette(state));
+    }
+    return optn_ok;
+}
+
+function messageWindowChoices(state) {
+    const separator = state.iflags.menu_tab_sep ? '\t' : ' ';
+    return [
+        ['single', '[show one old message at a time,', ' most recent first]'],
+        ['combination', '[for consecutive ^P requests, use', " 'single' for first two, then 'full']"],
+        ['full', '[show all available messages,', ' oldest first and most recent last]'],
+        ['reversed', '[show all available messages,', ' most recent first]'],
+    ].map(([name, first, second]) => ({
+        name,
+        first: `${name.padEnd(12)}${separator}${first}`,
+        second: `${' '.repeat(16)}${separator}${second}`,
+        selector: name[0],
+    }));
+}
+
+async function handler_msg_window(state, optidx, helpers) {
+    void optidx;
+    const old = state.iflags.prevmsg_window;
+    const choices = messageWindowChoices(state);
+    const items = [];
+    for (const choice of choices) {
+        items.push({
+            value: choice.selector,
+            selector: choice.selector,
+            text: choice.first,
+            selected: choice.selector === old,
+        });
+        items.push({ text: choice.second });
+    }
+    const selected = await optionMenuSelect(state, {
+        items,
+        how: PICK_ONE,
+        title: 'Select message history display type:',
+        cancelValue: null,
+    }, helpers);
+    if (selected !== null && selected !== undefined)
+        state.iflags.prevmsg_window = selected;
+    const changed = state.iflags.prevmsg_window !== old;
+    if (changed || state.flags?.verbose) {
+        const value = optfn_msg_window(state, null, GET_VAL, false, '', '');
+        await ttyPline(
+            `'msg_window' ${changed ? 'changed to' : 'is still'} "${value}".`,
+            state,
+        );
+    }
+    return optn_ok;
+}
+
+async function handler_number_pad(state, helpers) {
+    const choices = [
+        ' 0 (off)', ' 1 (on)', ' 2 (on, MSDOS compatible)',
+        ' 3 (on, phone-style digit layout)',
+        ' 4 (on, phone-style layout, MSDOS compatible)',
+        "-1 (off, 'z' to move upper-left, 'y' to zap wands)",
+    ];
+    const selected = await optionMenuSelect(state, {
+        items: choices.map((text, index) => ({
+            value: index,
+            selector: String.fromCharCode(97 + index),
+            text,
+        })),
+        how: PICK_ONE,
+        title: 'Select number_pad mode:',
+        cancelValue: null,
+    }, helpers);
+    if (selected !== null && selected !== undefined) {
+        const modes = [
+            [false, 0], [true, 0], [true, 1],
+            [true, 2], [true, 3], [false, 1],
+        ];
+        const [enabled, mode] = modes[selected] ?? [null, null];
+        if (enabled !== null) setNumberPadState(state, enabled, mode, helpers);
+    }
+    return optn_ok;
 }
 
 // C ref: options.c optfn_runmode() (3626-3670). Its four names are matched
@@ -5350,12 +5746,10 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     if (name === 'windowtype') {
         optfn_windowtype(result, statement);
     } else if (name === 'name') {
-        // C ref: options.c optfn_name() (2548-2570), its do_set arm.  The
-        // value is mandatory, so a statement without one is reported by
-        // string_for_env_opt() and leaves svp.plname alone.
-        const op = string_for_env_opt(statement, false, result);
-        if (op === '') return;
-        result.name = truncateByteString(op, PLAYER_NAME_BYTE_LIMIT);
+        optfn_name(
+            result, allopt.indexOf(matchedRow), DO_SET, negated,
+            statement, undefined,
+        );
     } else if (name === 'disclose') {
         optfn_disclose(result, statement, negated);
     } else if (name === 'role' || name === 'race' || name === 'gender'
@@ -5432,7 +5826,25 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
             rawValue: value,
         }]);
     } else if (name === 'number_pad') {
-        setNumberPadOption(result, statement);
+        optfn_number_pad(
+            result, allopt.indexOf(matchedRow), DO_SET, negated,
+            statement, undefined,
+        );
+    } else if (name === 'monsters') {
+        optfn_monsters(
+            result, allopt.indexOf(matchedRow), DO_SET, negated,
+            statement, undefined,
+        );
+    } else if (name === 'objects') {
+        optfn_objects(
+            result, allopt.indexOf(matchedRow), DO_SET, negated,
+            statement, undefined,
+        );
+    } else if (name === 'palette') {
+        optfn_palette(
+            result, allopt.indexOf(matchedRow), DO_SET, negated,
+            statement, undefined,
+        );
     } else if (name === 'whatis_coord') {
         setWhatisCoord(result, statement, negated);
     } else if (name === 'whatis_filter') {
@@ -5509,32 +5921,10 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
             parsedName === 'prayconfirm',
         );
     } else if (name === 'msg_window') {
-        // C ref: options.c optfn_msg_window()'s do_set arm. PREV_MSGS is 1
-        // for this tty build. parseoptions() reads this option's value as
-        // optional, so the spellings with no value reach the handler with
-        // empty_optstr, which means 'f' plain and 's' negated; a negation
-        // that does carry a value is bad_negation(). Otherwise C keeps the
-        // lowercased first letter and rejects anything but s, c, f or r.
-        let tmp;
-        if (!value) {
-            tmp = negated ? 's' : 'f';
-        } else if (negated) {
-            configErrorAdd(
-                result,
-                'The msg_window option may not both have a value and be'
-                + ' negated.',
-            );
-            return;
-        } else {
-            tmp = lowc(value[0]);
-        }
-        if (!'scfr'.includes(tmp)) {
-            configErrorAdd(
-                result, `Unknown msg_window parameter '${value}'`,
-            );
-            return;
-        }
-        result.iflags.prevmsg_window = tmp;
+        optfn_msg_window(
+            result, allopt.indexOf(matchedRow), DO_SET, negated,
+            statement, undefined,
+        );
     } else if (name === 'sortloot') {
         // C ref: options.c optfn_sortloot()'s do_set arm, which stores the
         // lowercased first letter and rejects anything else. optlist.h gives
@@ -6686,8 +7076,13 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     windowtype: () => ACTIVE_WINDOWPROCS_NAME,
     playmode: (state) => (state.flags.debug ? 'debug'
         : state.flags.explore ? 'explore' : 'normal'),
-    // svp.plname; jsmain.js installs the same value as state.plname.
-    name: (state) => state.plname ?? '',
+    // svp.plname; jsmain.js installs the startup parser's `name` here.
+    name: (state, option) => optfn_name(
+        state, allopt.indexOf(option), GET_VAL, false, '', '',
+    ),
+    monsters: (state, option) => optfn_monsters(
+        state, allopt.indexOf(option), GET_VAL, false, '', '',
+    ),
     role: (state) => rolestring(
         state.flags.initrole, roles, (entry) => entry.name.m,
     ),
@@ -6763,14 +7158,9 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     menu_objsyms: (state) => objsymvals[state.iflags.menuobjsyms],
     menuinvertmode: (state) => `${state.iflags.menuinvertmode}`,
     menustyle: (state) => menutype[state.flags.menu_style],
-    // WINDOWPORT(curses) rewrites two of the four settings; this build's
-    // interface is tty, which supports all four.
-    msg_window: (state) => {
-        const tmp = state.iflags.prevmsg_window;
-        return tmp === 's' ? 'single'
-            : tmp === 'c' ? 'combination'
-                : tmp === 'f' ? 'full' : 'reversed';
-    },
+    msg_window: (state, option) => optfn_msg_window(
+        state, allopt.indexOf(option), GET_VAL, false, '', '',
+    ),
     // The non-WIN32 get_val arm.  TTY does not advertise WC_MOUSE_SUPPORT,
     // so its option menus exclude this row before asking for the value.
     mouse_support: (state) => {
@@ -6804,22 +7194,15 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         return description;
     },
     windowcolors: (state) => windowColorsValue(state),
-    number_pad: (state) => {
-        const numpadmodes = [
-            '0=off', '1=on', '2=on, MSDOS compatible',
-            '3=on, phone-style layout',
-            '4=on, phone layout, MSDOS compatible',
-            '-1=off, y & z swapped',
-        ];
-        // gc.Cmd's three parsed fields, which js/options.js packs into
-        // iflags.num_pad_mode: bit 0 is pcHack_compat when the pad is on and
-        // swap_yz when it is off, and bit 1 is phone_layout.
-        const mode = state.iflags.num_pad_mode;
-        const indx = state.iflags.num_pad
-            ? ((mode & 2) ? ((mode & 1) ? 4 : 3) : ((mode & 1) ? 2 : 1))
-            : ((mode & 1) ? 5 : 0);
-        return numpadmodes[indx];
-    },
+    number_pad: (state, option) => optfn_number_pad(
+        state, allopt.indexOf(option), GET_VAL, false, '', '',
+    ),
+    objects: (state, option) => optfn_objects(
+        state, allopt.indexOf(option), GET_VAL, false, '', '',
+    ),
+    palette: (state, option) => optfn_palette(
+        state, allopt.indexOf(option), GET_VAL, false, '', '',
+    ),
     packorder: (state) => oc_to_str(state.flags.inv_order),
     paranoid_confirmation: (state) => {
         const bits = state.flags.paranoia_bits;
@@ -7628,6 +8011,24 @@ const OPTION_SET_HANDLERS = Object.freeze({
     cond_: (state, _optidx, negated, opts) => pfxfn_cond_(
         state, negated, opts,
     ),
+    monsters: (state, optidx, negated, opts) => optfn_monsters(
+        state, optidx, DO_SET, negated, opts,
+    ),
+    msg_window: (state, optidx, negated, opts) => optfn_msg_window(
+        state, optidx, DO_SET, negated, opts,
+    ),
+    name: (state, optidx, negated, opts) => optfn_name(
+        state, optidx, DO_SET, negated, opts,
+    ),
+    number_pad: (state, optidx, negated, opts, helpers) => optfn_number_pad(
+        state, optidx, DO_SET, negated, opts, undefined, helpers,
+    ),
+    objects: (state, optidx, negated, opts) => optfn_objects(
+        state, optidx, DO_SET, negated, opts,
+    ),
+    palette: (state, optidx, negated, opts) => optfn_palette(
+        state, optidx, DO_SET, negated, opts,
+    ),
     pickup_types: optfn_pickup_types,
     ...MENU_OPTION_SET_HANDLERS,
 });
@@ -7737,6 +8138,14 @@ async function handler_pickup_types(state, helpers) {
 // interactive editor doset()'s pick loop opens for a compound option.  Keyed
 // on the handler's own option, as OPTION_SET_HANDLERS is.
 const OPTION_HANDLERS = Object.freeze({
+    msg_window: (state, helpers) => optfn_msg_window(
+        state, allopt.findIndex(({ name }) => name === 'msg_window'),
+        DO_HANDLER, false, '', '', helpers,
+    ),
+    number_pad: (state, helpers) => optfn_number_pad(
+        state, allopt.findIndex(({ name }) => name === 'number_pad'),
+        DO_HANDLER, false, '', '', helpers,
+    ),
     pickup_types: handler_pickup_types,
     menu_headings: (state, helpers) => handler_menu_headings(state, helpers),
 });
