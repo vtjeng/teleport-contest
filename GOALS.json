@@ -16953,6 +16953,86 @@
         "from": 164,
         "to": 5705
       }
+    },
+    {
+      "id": "port-mon-pet-sanity-check-pm-to-cham",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mon.c's monster sanity, poison-gas, and undead species conversion helpers",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0383-wizard-hallucinate"
+      ],
+      "detail": "",
+      "spans": [],
+      "openedAt": "a9106b408f5c4b86e2237a9ec98ca57c9635184d",
+      "openStanding": {
+        "sha": "37232290",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "pet_sanity_check",
+          "line": 57,
+          "endLine": 72,
+          "ported": false
+        },
+        {
+          "name": "sanity_check_single_mon",
+          "line": 73,
+          "endLine": 257,
+          "ported": false
+        },
+        {
+          "name": "mon_sanity_check",
+          "line": 258,
+          "endLine": 329,
+          "ported": false
+        },
+        {
+          "name": "m_poisongas_ok",
+          "line": 330,
+          "endLine": 361,
+          "ported": false
+        },
+        {
+          "name": "zombie_maker",
+          "line": 362,
+          "endLine": 385,
+          "ported": true
+        },
+        {
+          "name": "zombie_form",
+          "line": 386,
+          "endLine": 416,
+          "ported": true
+        },
+        {
+          "name": "undead_to_corpse",
+          "line": 417,
+          "endLine": 469,
+          "ported": true
+        },
+        {
+          "name": "genus",
+          "line": 470,
+          "endLine": 534,
+          "ported": false
+        },
+        {
+          "name": "pm_to_cham",
+          "line": 535,
+          "endLine": 563,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 57,
+        "to": 563
+      }
     }
   ]
 }
