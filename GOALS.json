@@ -17984,7 +17984,7 @@
     {
       "id": "port-mon-see-monsters-flash",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mon.c close-up sighting, shield, and flash effects",
       "cFile": "mon.c",
       "sessions": [
@@ -18008,8 +18008,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1a2296734ab0e76feb1f822d7553f58fd951dad5",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "see_monster_closeup",
