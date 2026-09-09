@@ -17185,8 +17185,8 @@
       "spans": [
         {
           "name": "monlineu..mm_displacement",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "e877c466c220b4605761e7842d216ffbc015803b",
           "functions": [
             "monlineu",
             "mm_2way_aggression",
@@ -17208,7 +17208,7 @@
           "name": "monlineu",
           "line": 2057,
           "endLine": 2063,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mon_allowflags",
@@ -17232,19 +17232,19 @@
           "name": "mm_2way_aggression",
           "line": 2388,
           "endLine": 2427,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mm_aggression",
           "line": 2428,
           "endLine": 2450,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mm_displacement",
           "line": 2451,
           "endLine": 2475,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
