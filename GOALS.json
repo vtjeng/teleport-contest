@@ -18350,7 +18350,7 @@
     {
       "id": "port-options-menu-selection-handlers",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port options.c menu selection and heading handlers",
       "cFile": "options.c",
       "sessions": [],
@@ -18385,8 +18385,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7c04d2f3eb349669389da2a122daee1b5119b8bd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "shared_menu_optfn",
