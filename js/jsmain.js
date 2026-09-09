@@ -12,16 +12,7 @@
 import { game, resetGame } from './gstate.js';
 import {
     MAX_COMMAND_COUNT,
-    UnsupportedHeroCommandBoundaryError,
 } from './cmd.js';
-import {
-    UnsupportedStatusRefreshError,
-} from './display.js';
-import { UnsupportedEarthSenseError } from './dungeon.js';
-import { UnsupportedPositionCheckError } from './teleport.js';
-import { UnsupportedHeroMoveBoundaryError } from './hack.js';
-import { UnsupportedGetposError } from './getpos.js';
-import { UnsupportedSpecialRoomError } from './mkroom.js';
 import {
     activate_chosen_soundlib,
 } from './sounds.js';
@@ -29,13 +20,11 @@ import { initRng, enableRngLog, getRngLog } from './rng.js';
 import {
     newgame,
     moveloop_core,
-    UnsupportedTurnBoundaryError,
 } from './allmain.js';
 import {
     initoptions_finish,
     parseNethackrc,
 } from './options.js';
-import { UnsupportedPosixDuplicatedCaptureError } from './posixregex.js';
 import { config_error_done } from './cfgfiles.js';
 import {
     nomux_get_cursor,
@@ -59,7 +48,6 @@ import {
 } from './tutorial_startup.js';
 import {
     runMoveloopPreambleAtStartupBoundary,
-    UnsupportedStartupBoundaryError,
 } from './moveloop_preamble.js';
 import {
     initialize_symbols_from_options,
@@ -83,6 +71,16 @@ import {
     vision_recalc,
 } from './vision.js';
 import { initUnported } from './unported.js';
+
+// Every Unsupported*Error is a fail-closed refusal of an unported code path.
+// runSegment() catches them as boundary stops so the session scan and scorer
+// preserve the screens emitted before the refusal.
+function isUnportedBoundary(error) {
+    return error instanceof Error
+        && typeof error.name === 'string'
+        && error.name.startsWith('Unsupported')
+        && error.name.endsWith('Error');
+}
 
 const RECORDER_SYSTEM_OPTIONS = Object.freeze({
     // nethack-c/upstream/sys/unix/sysconf, which nethack-c/build-recorder.sh
@@ -725,12 +723,7 @@ export async function runSegment(
         // that the replay recipe has no next key.
         if (String(error?.message || '').includes('Input queue empty'))
             return nhGame;
-        // allmain.c moveloop() runs its preamble above the loop below, so a
-        // fail-closed boundary raised there arrives here rather than at the
-        // catch inside that loop. Ending the segment on it preserves every
-        // screen start() captured, which rethrowing would discard.
-        if (error instanceof UnsupportedStartupBoundaryError
-            || error instanceof UnsupportedPosixDuplicatedCaptureError) {
+        if (isUnportedBoundary(error)) {
             onBoundary?.(error);
             return nhGame;
         }
@@ -753,30 +746,7 @@ export async function runSegment(
                 nhGame._inputExhausted = true;
                 break;
             }
-            // A known, fail-closed gameplay boundary preserves all output
-            // produced through the supported prefix. It must not turn that
-            // prefix into a zero-session scorer error.
-            if (e instanceof UnsupportedTurnBoundaryError
-                || e instanceof UnsupportedHeroMoveBoundaryError
-                || e instanceof UnsupportedHeroCommandBoundaryError
-                // getpos() runs below a dispatched non-time command. Refusing
-                // an unported key keeps every screen and cursor captured up
-                // to that input boundary instead of zeroing the session.
-                || e instanceof UnsupportedGetposError
-                // Arrival placement supplies earth_sense() a source-ordered
-                // message collector. Other movement callers remain an
-                // explicit boundary until their async message path is ported.
-                || e instanceof UnsupportedEarthSenseError
-                // botl.c timebot() reaches js/display.js
-                // _refuseUnfittableStatusRow() from allmain.c moveloop_core()
-                // and from display.c flush_screen(), both of which run under
-                // this loop, so a status row that outgrows the terminal on a
-                // turn-counter refresh ends the segment on its last matching
-                // screen.
-                || e instanceof UnsupportedStatusRefreshError
-                || e instanceof UnsupportedSpecialRoomError
-                || e instanceof UnsupportedPositionCheckError
-                || e instanceof UnsupportedPosixDuplicatedCaptureError) {
+            if (isUnportedBoundary(e)) {
                 onBoundary?.(e);
                 break;
             }
