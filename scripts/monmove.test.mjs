@@ -51,6 +51,7 @@ import {
     LAVAPOOL,
     LAVAWALL,
     M_AP_OBJECT,
+    MAX_NUM_WORMS,
     MMOVE_DONE,
     MMOVE_MOVED,
     MMOVE_NOMOVES,
@@ -131,7 +132,12 @@ import {
 // and species records they need, and mfndpos() -- the one caller C wrote it
 // for -- is tested from the same fixtures.
 import { lined_up } from '../js/mthrowu.js';
-import { mon_allowflags } from '../js/mon.js';
+import {
+    mm_aggression,
+    mm_displacement,
+    mon_allowflags,
+    monlineu,
+} from '../js/mon.js';
 import { bad_rock, may_dig, may_passwall } from '../js/hack.js';
 import { in_your_sanctuary } from '../js/priest.js';
 import {
@@ -3190,6 +3196,44 @@ test('online2 recognizes source rows, columns, and both diagonals', () => {
     ];
     for (const { from, to, expected } of cases)
         assert.equal(online2(...from, ...to), expected);
+});
+
+test('mon.c candidate helpers preserve remembered lines, aggression, and displacement', () => {
+    const { state } = makeState();
+    const remembered = { mux: 5, muy: 5 };
+    assert.equal(monlineu(remembered, 4, 5), true);
+    assert.equal(monlineu(remembered, 4, 4), true);
+    assert.equal(monlineu(remembered, 3, 4), false);
+
+    const zombie = newMonster({
+        data: state.mons[PM_HUMAN_ZOMBIE],
+        mnum: PM_HUMAN_ZOMBIE,
+        mgenmklev: false,
+    });
+    const human = newMonster({
+        data: state.mons[PM_HUMAN],
+        mnum: PM_HUMAN,
+        mgenmklev: false,
+    });
+    assert.ok(mm_aggression(zombie, human, state) & ALLOW_M);
+
+    const displacer = newMonster({
+        data: state.mons[PM_DISPLACER_BEAST],
+        mx: 4,
+        my: 4,
+        m_lev: 10,
+    });
+    const defender = newMonster({
+        data: state.mons[PM_GIANT_RAT],
+        mx: 5,
+        my: 4,
+        m_lev: 1,
+    });
+    assert.equal(mm_displacement(displacer, defender, state), ALLOW_MDISP);
+    state.level.worms = Array(MAX_NUM_WORMS).fill(null);
+    state.level.worms[1] = { segments: [{ x: 1, y: 1 }, { x: 5, y: 4 }] };
+    defender.wormno = 1;
+    assert.equal(mm_displacement(displacer, defender, state), 0);
 });
 
 test('mfndpos enumerates neighbors in source x-major order', () => {

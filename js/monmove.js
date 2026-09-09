@@ -190,7 +190,7 @@ import { eaten_stat } from './eat.js';
 import { sengr_at, wipe_engr_at } from './engrave.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
-import { dist2, distmin, online2 } from './hacklib.js';
+import { dist2, distmin } from './hacklib.js';
 import { delobj, money_cnt } from './invent.js';
 import { picking_lock } from './lock.js';
 import { grow_up } from './makemon.js';
@@ -207,6 +207,9 @@ import {
     meatobj,
     max_mon_load,
     mon_allowflags,
+    mm_aggression,
+    mm_displacement,
+    monlineu,
     mondied,
     mon_offmap,
     monkilled,
@@ -214,7 +217,6 @@ import {
     unstuck,
     wake_nearto,
     wakeup,
-    zombie_maker,
 } from './mon.js';
 import { can_carry } from './moncarry.js';
 import {
@@ -230,7 +232,6 @@ import {
     hides_under,
     is_animal,
     is_clinger,
-    is_displacer,
     is_floater,
     is_flyer,
     is_mind_flayer,
@@ -271,7 +272,6 @@ import {
     vegan,
     verysmall,
     webmaker,
-    zombie_form,
 } from './mondata.js';
 import {
     m_at,
@@ -290,7 +290,6 @@ import {
     MS_LEADER,
     MZ_SMALL,
     PM_ANGEL,
-    PM_BABY_PURPLE_WORM,
     PM_DISPLACER_BEAST,
     PM_ETTIN,
     PM_FLOATING_EYE,
@@ -304,9 +303,7 @@ import {
     PM_JABBERWOCK,
     PM_KILLER_BEE,
     PM_MINOTAUR,
-    PM_PURPLE_WORM,
     PM_QUEEN_BEE,
-    PM_SHRIEKER,
     PM_LEPRECHAUN,
     PM_STALKER,
     PM_STEAM_VORTEX,
@@ -1203,78 +1200,6 @@ function wormCross(x1, y1, x2, y2, state) {
     return false;
 }
 
-function onWizardTowerLevel(state) {
-    const level = state.u?.uz;
-    return on_level(level, state.wiz1_level)
-        || on_level(level, state.wiz2_level)
-        || on_level(level, state.wiz3_level);
-}
-
-function inWizardTower(x, y, state) {
-    if (!onWizardTowerLevel(state)) return false;
-    const bounds = state.dndest;
-    if (!bounds?.nlx) return false;
-    return x >= bounds.nlx && x <= bounds.nhx
-        && y >= bounds.nly && y <= bounds.nhy;
-}
-
-function mmTwoWayAggression(attacker, defender, state) {
-    if (onWizardTowerLevel(state)) {
-        const heroInside = inWizardTower(state.u?.ux, state.u?.uy, state);
-        if (heroInside
-            ? (!inWizardTower(attacker.mx, attacker.my, state)
-                || !inWizardTower(defender.mx, defender.my, state))
-            : (inWizardTower(attacker.mx, attacker.my, state)
-                || inWizardTower(defender.mx, defender.my, state))) {
-            return 0;
-        }
-    }
-    if (zombie_maker(attacker)
-        && zombie_form(defender.data) >= 0) {
-        if (attacker.mgenmklev && defender.mgenmklev) return 0;
-        if (!on_level(state.u?.uz, state.stronghold_level)
-            && !unique_corpstat(attacker.data)
-            && !unique_corpstat(defender.data)) {
-            return ALLOW_M | ALLOW_TM;
-        }
-    }
-    return 0;
-}
-
-function mmAggression(attacker, defender, state) {
-    if (attacker.mtame && defender.mtame) return 0;
-    if ((isSpecies(attacker, PM_PURPLE_WORM, state)
-        || isSpecies(attacker, PM_BABY_PURPLE_WORM, state))
-        && isSpecies(defender, PM_SHRIEKER, state)) {
-        return ALLOW_M | ALLOW_TM;
-    }
-    return mmTwoWayAggression(attacker, defender, state)
-        | mmTwoWayAggression(defender, attacker, state);
-}
-
-function wormSegmentCount(monster, state) {
-    if (!monster.wormno) return 0;
-    const count = state.level?.worms?.[monster.wormno]?.segments?.length ?? 0;
-    return Math.max(0, count - 1);
-}
-
-function mmDisplacement(attacker, defender, state) {
-    const attackerSpecies = attacker.data;
-    const defenderSpecies = defender.data;
-    if (is_displacer(attackerSpecies)
-        && (!is_displacer(defenderSpecies)
-            || attacker.m_lev > defender.m_lev)
-        && !(attacker.mx !== defender.mx && attacker.my !== defender.my
-            && isSpecies(defender, PM_GRID_BUG, state))
-        && !defender.mtrapped
-        && (!defender.wormno || !wormSegmentCount(defender, state))
-        && (is_rider(attackerSpecies)
-            || attackerSpecies.msize >= defenderSpecies.msize)) {
-        return ALLOW_MDISP;
-    }
-    return 0;
-}
-
 // C ref: mon.c mfndpos()'s `memset(data, 0, sizeof(struct mfndposdata))`. Each
 // C call site declares a fresh local, and so does each caller here, so the
 // nine slots are rebuilt rather than reused.
@@ -1372,8 +1297,8 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
     const onScaryCheck = env.onScary ?? onscary;
     const sanctuaryCheck = env.inYourSanctuary ?? in_your_sanctuary;
     const harmlessTrap = env.mHarmlessTrap ?? m_harmless_trap;
-    const aggression = env.mmAggression ?? mmAggression;
-    const displacement = env.mmDisplacement ?? mmDisplacement;
+    const aggression = env.mmAggression ?? mm_aggression;
+    const displacement = env.mmDisplacement ?? mm_displacement;
     resetMfndposData(data);
 
     const x = monster.mx;
@@ -1556,8 +1481,7 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
                     if (!(flags & ALLOW_ROCK)) continue;
                     data.info[count] |= ALLOW_ROCK;
                 }
-                if (monsterSeesHero
-                    && online2(nx, ny, monster.mux, monster.muy)) {
+                if (monsterSeesHero && monlineu(monster, nx, ny)) {
                     if (flags & NOTONL) continue;
                     data.info[count] |= NOTONL;
                 }

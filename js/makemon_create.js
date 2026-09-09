@@ -836,6 +836,14 @@ function wormSlots(state) {
     return state.level.worms;
 }
 
+// C ref: worm.c count_wsegs(). The final array entry is the hidden segment
+// co-located with the head, so only the preceding visible tail entries count.
+export function count_wsegs(monster, state = game) {
+    if (!monster?.wormno) return 0;
+    const segments = wormSlots(state)[monster.wormno]?.segments;
+    return Math.max(0, (segments?.length ?? 0) - 1);
+}
+
 // C ref: worm.c get_wormno(). Slot zero remains reserved.
 function get_wormno(state) {
     const slots = wormSlots(state);

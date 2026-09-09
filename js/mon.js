@@ -3,7 +3,8 @@
 // C refs: mon.c movemon(), movemon_singlemon(), hideunder(), mcalcmove(),
 // mpickstuff(), curr_mon_load(), max_mon_load(), m_consume_obj(),
 // pet_sanity_check(), sanity_check_single_mon(), mon_sanity_check(),
-// m_poisongas_ok(), genus(), zombie_maker(), unstuck(),
+// m_poisongas_ok(), genus(), monlineu(), mm_2way_aggression(),
+// mm_aggression(), mm_displacement(), zombie_maker(), unstuck(),
 // mon_leaving_level(), m_detach(), mlifesaver(), lifesaved_monster(),
 // logdeadmon(), mondead(), corpse_chance(), make_corpse(), mondied(),
 // monkilled(), killed(), xkilled() and adj_erinys(); mthrowu.c m_carrying();
@@ -14,9 +15,11 @@ import {
     ALLOW_BARS,
     ALLOW_DIG,
     ALLOW_M,
+    ALLOW_MDISP,
     ALLOW_ROCK,
     ALLOW_SANCT,
     ALLOW_SSM,
+    ALLOW_TM,
     ALLOW_TRAPS,
     ALLOW_U,
     ALLOW_WALL,
@@ -134,13 +137,19 @@ import {
 } from './do_name.js';
 import { flooreffects, revive_corpse } from './do.js';
 import { finish_meating } from './dogmove.js';
-import { has_ceiling, on_level, surface } from './dungeon.js';
+import {
+    has_ceiling,
+    In_W_tower,
+    on_level,
+    On_W_tower_level,
+    surface,
+} from './dungeon.js';
 import { sengr_at } from './engrave.js';
 import { adjalign } from './attrib.js';
 import { experience, more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
-import { disturb_buried_zombies } from './hack.js';
-import { dist2, s_suffix } from './hacklib.js';
+import { disturb_buried_zombies, NODIAG } from './hack.js';
+import { dist2, online2, s_suffix } from './hacklib.js';
 import {
     add_to_minv,
     delobj,
@@ -153,6 +162,7 @@ import { mkcorpstat } from './corpstat.js';
 import { change_luck } from './moveloop_preamble.js';
 import { freemcorpsenm } from './makemon.js';
 import {
+    count_wsegs,
     dmonsfree,
     newcham_distress,
     pick_vampire_shape,
@@ -184,6 +194,7 @@ import {
     is_giant,
     is_golem,
     is_clinger,
+    is_displacer,
     is_floater,
     is_flyer,
     is_hider,
@@ -262,6 +273,7 @@ import {
     PM_ACOLYTE,
     PM_ARCHEOLOGIST,
     PM_ATTENDANT,
+    PM_BABY_PURPLE_WORM,
     PM_BARBARIAN,
     PM_BLACK_DRAGON,
     PM_BLACK_PUDDING,
@@ -328,6 +340,8 @@ import {
     PM_ORC_ZOMBIE,
     PM_PAGE,
     PM_PAPER_GOLEM,
+    PM_PURPLE_WORM,
+    PM_SHRIEKER,
     PM_RED_DRAGON,
     PM_ROPE_GOLEM,
     PM_RUST_MONSTER,
@@ -1630,6 +1644,74 @@ export function max_mon_load(monster) {
 
     if (!strong) maxLoad = Math.trunc(maxLoad / 2);
     return Math.max(maxLoad, 1);
+}
+
+// C ref: mon.c monlineu(). The remembered monster target is the hero's
+// apparent position, not necessarily the hero's current position.
+export function monlineu(monster, nx, ny) {
+    return online2(nx, ny, monster.mux, monster.muy);
+}
+
+// C ref: mon.c mm_2way_aggression(). The Wizard's Tower partition is treated
+// as a separate level so monsters do not attack across its boundary.
+export function mm_2way_aggression(magr, mdef, state = game) {
+    const level = state.u?.uz;
+    if (On_W_tower_level(level, state)) {
+        const heroInTower = In_W_tower(
+            state.u.ux, state.u.uy, level, state,
+        );
+        const attackerInTower = In_W_tower(
+            magr.mx, magr.my, level, state,
+        );
+        const defenderInTower = In_W_tower(
+            mdef.mx, mdef.my, level, state,
+        );
+        if (heroInTower
+            ? (!attackerInTower || !defenderInTower)
+            : (attackerInTower || defenderInTower)) {
+            return 0;
+        }
+    }
+    if (zombie_maker(magr) && zombie_form(mdef.data) !== NON_PM) {
+        if (magr.mgenmklev && mdef.mgenmklev) return 0;
+        if (!on_level(level, state.stronghold_level)
+            && !unique_corpstat(magr.data)
+            && !unique_corpstat(mdef.data)) {
+            return ALLOW_M | ALLOW_TM;
+        }
+    }
+    return 0;
+}
+
+// C ref: mon.c mm_aggression(). This is deliberately symmetric only for the
+// cases C marks as two-way; ordinary monster pairings remain non-aggressive.
+export function mm_aggression(magr, mdef, state = game) {
+    const mndx = monsndx(magr.data);
+    if (magr.mtame && mdef.mtame) return 0;
+    if ((mndx === PM_PURPLE_WORM || mndx === PM_BABY_PURPLE_WORM)
+        && monsndx(mdef.data) === PM_SHRIEKER) {
+        return ALLOW_M | ALLOW_TM;
+    }
+    return mm_2way_aggression(magr, mdef, state)
+        | mm_2way_aggression(mdef, magr, state);
+}
+
+// C ref: mon.c mm_displacement(). count_wsegs() is the worm.c helper that
+// counts visible tail segments; a worm with only its hidden head segment is
+// therefore displaceable, while a multi-location worm is not.
+export function mm_displacement(magr, mdef, state = game) {
+    const pa = magr.data;
+    const pd = mdef.data;
+    if (is_displacer(pa)
+        && (!is_displacer(pd) || magr.m_lev > mdef.m_lev)
+        && !(magr.mx !== mdef.mx && magr.my !== mdef.my
+            && NODIAG(monsndx(pd)))
+        && !mdef.mtrapped
+        && (!mdef.wormno || !count_wsegs(mdef, state))
+        && (is_rider(pa) || pa.msize >= pd.msize)) {
+        return ALLOW_MDISP;
+    }
+    return 0;
 }
 
 // C ref: mon.c mon_allowflags() (2062-2126). This returns only movement
