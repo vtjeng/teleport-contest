@@ -789,3 +789,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-09T16:29:00.829Z	92c4fb64	span	24	33	5305	7765	376957	610816	5327	7765					there_cmd_menu_self..end_of_input closes. Development 5299→5305 of 7765 screens, 376945→376957 of 610816 rng. 24 of 33 sessions.
 2026-09-09T16:57:11.165Z	20ebcfb1	span	24	33	5305	7765	376957	610816	5327	7765					readchar_core..dummyfunction closes. Development 5305 of 7765 screens, 376957 of 610816 rng. 24 of 33 sessions.
 2026-09-09T17:03:06.857Z	37232290	goal	24	33	5305	7765	376957	610816	5327	7765	315	3640	38930	182022	port-cmd-doherecmdmenu closes. Development 5305 of 7765 screens, 376957 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.
+2026-09-09T17:25:22.311Z	19543a68	span	24	33	5305	7765	376957	610816	5327	7765					pet_sanity_check..genus closes. Development 5305 of 7765 screens, 376957 of 610816 rng. 24 of 33 sessions.

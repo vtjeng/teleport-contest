@@ -16967,8 +16967,8 @@
       "spans": [
         {
           "name": "pet_sanity_check..genus",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "19543a68096c252a79684442d441e177997d095e",
           "functions": [
             "pet_sanity_check",
             "sanity_check_single_mon",
@@ -16991,25 +16991,25 @@
           "name": "pet_sanity_check",
           "line": 57,
           "endLine": 72,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sanity_check_single_mon",
           "line": 73,
           "endLine": 257,
-          "ported": false
+          "ported": true
         },
         {
           "name": "mon_sanity_check",
           "line": 258,
           "endLine": 329,
-          "ported": false
+          "ported": true
         },
         {
           "name": "m_poisongas_ok",
           "line": 330,
           "endLine": 361,
-          "ported": false
+          "ported": true
         },
         {
           "name": "zombie_maker",
@@ -17033,7 +17033,7 @@
           "name": "genus",
           "line": 470,
           "endLine": 534,
-          "ported": false
+          "ported": true
         },
         {
           "name": "pm_to_cham",
