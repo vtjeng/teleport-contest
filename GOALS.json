@@ -20454,8 +20454,8 @@
         }
       ],
       "progressBeforePark": {
-        "screens": 0,
-        "rng": 0
+        "screens": 71,
+        "rng": 1539
       },
       "parkedReason": "Fresh queue now ranks monmove.c:distfleeck() first at seed0030 step 569 (upper bound 1384). test_move source span commit 8da36b8a remains unfinished because return-valued doopen_indir() and moverock() dependencies are incomplete; preserve the queued dependency work with no span evidence or close."
     },
@@ -20473,8 +20473,8 @@
       "spans": [
         {
           "name": "mon_adjust_speed",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "56556d6f0297378d70e06c1157ca44444425b416",
           "functions": [
             "mon_adjust_speed"
           ]
@@ -20482,9 +20482,9 @@
       ],
       "openedAt": "b6264d28f2738f40cb216ca847ccb135749279d2",
       "openStanding": {
-        "sha": "2c9af5b7",
-        "screens": 5339,
-        "rng": 388477
+        "sha": "b6264d28f2738f40cb216ca847ccb135749279d2",
+        "screens": 5410,
+        "rng": 390016
       },
       "closedAt": null,
       "delivered": null,
@@ -20493,8 +20493,8 @@
           "name": "mon_adjust_speed",
           "line": 488,
           "endLine": 578,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -20502,9 +20502,9 @@
         "to": 578
       },
       "activeStanding": {
-        "sha": "2c9af5b7",
-        "screens": 5339,
-        "rng": 388477
+        "sha": "b6264d28f2738f40cb216ca847ccb135749279d2",
+        "screens": 5410,
+        "rng": 390016
       },
       "openMismatches": [
         {
@@ -20522,7 +20522,58 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 1384
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mon_adjust_speed",
+            "implementation": "js/worn.js",
+            "symbol": "mon_adjust_speed",
+            "sourceReview": "Read nethack-c/upstream/src/worn.c:488-578 and the complete js/worn.js implementation. Checked the source-order switch for adjustments 2, 1, 0, -1, -2, -3, and -4; the permanent-speed changes; the inventory scan for an equipped FAST object; active-speed selection; old-speed and petrification message guards; Monnam/message ordering; and object learning after the visible message. The helper itself makes no RNG call. The silent creation/discard option represents update_mon_extrinsics() temporarily suppressing the message/learning side effects while preserving the synchronous speed mutation.",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "use_misc",
+                "source": "muse.c use_misc() MUSE_WAN_SPEED_MONSTER and MUSE_POT_SPEED arms call mon_adjust_speed(mtmp, 1, otmp) after the wand or potion action."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mon_consume_unstone",
+                "source": "muse.c mon_consume_unstone() calls mon_adjust_speed(mon, -3, null) for the stoning cure before the consumption message."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "muse_unslime",
+                "source": "muse.c muse_unslime() calls mon_adjust_speed(mon, -4, null) for the green-slime speed loss."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "golemeffects",
+                "source": "mon.c golemeffects() calls mon_adjust_speed(mon, -1, null) for the elemental slow branch. js/mon.js wires the function and scripts/mon-span.test.mjs tests it, but rg finds no upstream JavaScript production caller; this is not executed production-path evidence."
+              },
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "updateMonsterArmorEffects",
+                "source": "worn.c update_mon_extrinsics() FAST on/off arms call mon_adjust_speed(mon, 0, obj); the existing creation, discard, and admitted runtime W_ARMF paths dispatch through this helper after their worn-mask updates."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/worn.test.mjs",
+              "scripts/mon-span.test.mjs",
+              "scripts/makemon-create.test.mjs",
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/worn.c/speed-potion-seed841014.session.json",
+              "recordings/worn.c/speed-wand-seed841010.session.json"
+            ],
+            "checkedAt": "56556d6f0297378d70e06c1157ca44444425b416"
+          }
+        ],
+        "entryPointReview": "This selected range is a helper-only source unit rather than a standalone command or monster-action entry point. Its executed production entry paths are the existing muse.c speed-wand and speed-potion actions, the existing stoning and green-slime callers, and the FAST equipment-effect path; those direct callers are listed above. golemeffects is wired and source-reviewed but has no upstream JavaScript production caller, so it is not claimed as executed production evidence. The two independent matching recordings cover the speed potion and speed wand object classes, and the latter also executes the repaired naming dependency.",
+        "entryPoints": []
+      }
     }
   ]
 }
