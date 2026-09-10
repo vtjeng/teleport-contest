@@ -19933,7 +19933,20 @@
       "cFile": "cfgfiles.c",
       "sessions": [],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "adjust_prefix..handle_config_section",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "adjust_prefix",
+            "choose_random_part",
+            "free_config_sections",
+            "is_config_section",
+            "handle_config_section"
+          ]
+        }
+      ],
       "openedAt": "40d236960347fe6ed4ea2002e3298ee6c7a2ec28",
       "openStanding": {
         "sha": "3b84f0b3",
