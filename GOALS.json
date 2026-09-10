@@ -20183,6 +20183,66 @@
         "from": 274,
         "to": 381
       }
+    },
+    {
+      "id": "port-shk-ownership-helpers",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port shop ownership and unpaid-object helpers",
+      "cFile": "shk.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [],
+      "openedAt": "a5c6ca5ee9410ea1c50b9587d97748a0aa1238d7",
+      "openStanding": {
+        "sha": "aaadb5c9",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "find_objowner",
+          "line": 1084,
+          "endLine": 1117,
+          "ported": false
+        },
+        {
+          "name": "tended_shop",
+          "line": 1118,
+          "endLine": 1125,
+          "ported": true
+        },
+        {
+          "name": "noisy_shop",
+          "line": 1126,
+          "endLine": 1135,
+          "ported": true
+        },
+        {
+          "name": "onbill",
+          "line": 1136,
+          "endLine": 1159,
+          "ported": true
+        },
+        {
+          "name": "onshopbill",
+          "line": 1160,
+          "endLine": 1166,
+          "ported": false
+        },
+        {
+          "name": "is_unpaid",
+          "line": 1167,
+          "endLine": 1174,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 1084,
+        "to": 1174
+      }
     }
   ]
 }
