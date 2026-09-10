@@ -22347,7 +22347,7 @@
     {
       "id": "port-trap-magic-trap",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port trap.c trapeffect_magic_trap() monster activation and its fire-trap fallback",
       "cFile": "trap.c",
       "sessions": [
@@ -22371,8 +22371,11 @@
         "screens": 6045,
         "rng": 425274
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b8a278cf93dff12a0c977f98d0fd59e378e16b17",
+      "delivered": {
+        "screens": 63,
+        "rng": 980
+      },
       "functions": [
         {
           "name": "trapeffect_magic_trap",
@@ -22455,7 +22458,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1261,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires fatal monster missile hit",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 692
+        }
+      ]
     }
   ]
 }
