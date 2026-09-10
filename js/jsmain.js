@@ -37,9 +37,7 @@ import { light_globals_init } from './light.js';
 import { objects_globals_init } from './objects.js';
 import { monst_globals_init } from './monsters.js';
 import { timeout_globals_init } from './timeout.js';
-import { ttyPlayerSelection } from './player_selection_tty.js';
 import {
-    renderTtyStartupBanner,
     ttyPlayerNameAndSuffix,
 } from './tty_startup.js';
 import {
@@ -53,7 +51,11 @@ import {
     initialize_symbols_from_options,
 } from './symbols.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
-import { tty_create_nhwindow } from './wintty.js';
+import {
+    tty_create_nhwindow,
+    tty_init_nhwindows,
+    tty_player_selection,
+} from './wintty.js';
 import { NHW_MESSAGE, Upolyd } from './const.js';
 import { dorestore } from './restore.js';
 import { welcomeBackMessage } from './role_init.js';
@@ -445,7 +447,7 @@ export class NethackGame {
 
         // tty_init_nhwindows() precedes plnamesuffix() and any role menus, and
         // clears the terminal over whatever the configuration read printed.
-        renderTtyStartupBanner(g);
+        tty_init_nhwindows(null, null, g);
 
         // Unix calls set_playmode() after init_nhwindows() and before
         // plnamesuffix().  Its decision changes initial inventory and dungeon
@@ -546,7 +548,7 @@ export class NethackGame {
             return true;
         }
 
-        if (!await ttyPlayerSelection(g)) {
+        if (!await tty_player_selection(g)) {
             g.program_state.gameover = true;
             return false;
         }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 912345,
+      "datetime": "20310914112233",
+      "nethackrc": "OPTIONS=role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "Probe\n  ."
+    }
+  ],
+  "comment": "Reaches wintty.c tty_init_nhwindows(), tty_askname(), tty_preference_update()'s startup state, and the automatic tty_player_selection() path with an independently chosen name, seed, clock, and TTY options."
+}

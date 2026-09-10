@@ -490,7 +490,7 @@ async function renamePlayer(state, context) {
 }
 
 /** C ref: win/tty/wintty.c tty_player_selection(). */
-export async function ttyPlayerSelection(state = game, random) {
+export async function ttyPlayerSelectionImpl(state = game, random) {
     state.program_state ??= {};
     state.program_state.in_role_selection =
         (state.program_state.in_role_selection ?? 0) + 1;
@@ -552,3 +552,8 @@ export async function ttyPlayerSelection(state = game, random) {
         state.program_state.in_role_selection--;
     }
 }
+
+// Compatibility re-export for callers that used the pre-port camel-case
+// name. wintty.js owns the source-shaped entry point and calls the
+// implementation directly.
+export { tty_player_selection as ttyPlayerSelection } from './wintty.js';

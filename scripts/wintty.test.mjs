@@ -6,11 +6,14 @@ import {
     COLNO,
     MAX_MSG_HISTORY,
     NHW_MESSAGE,
+    NHW_BASE,
     NHW_STATUS,
     ROWNO,
     WIN_ERR,
 } from '../js/const.js';
 import { resetGame } from '../js/gstate.js';
+import { GameDisplay } from '../js/game_display.js';
+import { get_saved_games } from '../js/restore.js';
 import { parseCFunctions } from './c-functions.mjs';
 import {
     bail,
@@ -20,9 +23,13 @@ import {
     print_vt_soundcode_idx,
     resize_tty,
     tty_create_nhwindow,
+    tty_askname,
+    tty_init_nhwindows,
+    tty_preference_update,
     winch_handler,
 } from '../js/wintty.js';
 import { initUnported } from '../js/unported.js';
+import { InMemoryStorage, setStorageForTesting } from '../js/storage.js';
 
 const C_SOURCE = readFileSync(
     'nethack-c/upstream/win/tty/wintty.c',
@@ -110,6 +117,110 @@ test('window-resize functions follow the wintty.c source order and build flags',
     assert.match(CONFIG_SOURCE, /^#define CLIPPING\s*\/\* allow smaller screens/mu);
     assert.doesNotMatch(CONFIG_SOURCE, /^#define WINCHAIN/mu);
     assert.match(C_SOURCE, /#if defined\(CLIPPING\) && !defined\(NO_SIGNAL\)/u);
+});
+
+test('startup entry points follow wintty.c source order', () => {
+    const names = [
+        'tty_init_nhwindows',
+        'tty_preference_update',
+        'tty_player_selection',
+        'tty_askname',
+    ];
+    const sourceNames = parseCFunctions(C_SOURCE)
+        .filter(({ name }) => names.includes(name))
+        .map(({ name }) => name);
+    assert.deepEqual(sourceNames, names);
+});
+
+test('tty_init_nhwindows creates the base descriptor and preserves banner placement', () => {
+    const state = resetGame();
+    state.nhDisplay = new GameDisplay(null);
+    state.iflags = { wc2_statuslines: 0 };
+    initUnported();
+
+    tty_init_nhwindows(null, null, state);
+
+    assert.equal(state.iflags.wc2_statuslines, 2);
+    assert.equal(state.iflags.cbreak, true);
+    assert.equal(state.iflags.echo, false);
+    assert.deepEqual(
+        [state.wintty.rows, state.wintty.cols, state.wintty.BASE_WINDOW],
+        [24, 80, 0],
+    );
+    assert.equal(state.wintty.wins[0].type, NHW_BASE);
+    assert.equal(state.wintty.wins[0].active, true);
+    assert.equal(
+        state.nhDisplay.grid[4].map((cell) => cell.ch).join('').trimEnd(),
+        'NetHack, Copyright 1985-2026',
+    );
+    assert.deepEqual(
+        [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        [0, 11],
+    );
+    assert.deepEqual([...state.unported], [
+        'sys/share/unixtty.c gettty',
+        'sys/share/unixtty.c setftty',
+        'termcap.c term_curs_set',
+        'wintty.c tty_clear_nhwindow',
+        'wintty.c tty_curs',
+        'wintty.c tty_putstr',
+        'wintty.c tty_display_nhwindow',
+        'options.c set_wc2_option_mod_status',
+    ]);
+});
+
+test('tty_askname keeps the source input filter behind the C entry point', async () => {
+    const state = resetGame();
+    state.nhDisplay = new GameDisplay(null);
+    for (const character of '1A2\u007f-ice\n')
+        state.nhDisplay.pushKey(character.charCodeAt(0));
+    // The C initialization cursor is row 11; this test reaches the prompt
+    // through the source-named entry point rather than the compatibility name.
+    tty_init_nhwindows(null, null, state);
+    await tty_askname(state);
+    assert.equal(state.plname, '_A-ice');
+    assert.equal(state.iflags.renameallowed, true);
+});
+
+test('tty_askname preserves SELECTSAVED return paths before prompting', async () => {
+    const state = resetGame();
+    state.nhDisplay = new GameDisplay(null);
+    state.iflags = { wc2_selectsaved: true };
+    const storage = new InMemoryStorage();
+    storage.setItem('vfs:nhsave', JSON.stringify({ plname: 'saved' }));
+    setStorageForTesting(storage);
+    state.nhDisplay.pushKey('a'.charCodeAt(0));
+
+    try {
+        assert.deepEqual(get_saved_games(state), ['saved']);
+        await tty_askname(state);
+        assert.equal(state.plname, 'saved');
+        assert.equal(state.iflags.renameallowed, undefined);
+    } finally {
+        setStorageForTesting(null);
+    }
+});
+
+test('tty_preference_update preserves the common no-op and statuslines branch', () => {
+    const state = resetGame();
+    state.iflags = { window_inited: false, wc2_statuslines: 2 };
+    initUnported();
+
+    tty_preference_update('symset', state);
+    assert.deepEqual([...state.unported], [
+        'windows.c genl_preference_update',
+    ]);
+
+    state.iflags.window_inited = true;
+    state.nhDisplay = new GameDisplay(null);
+    state.wintty = {
+        LI: 24,
+        CO: 80,
+        WIN_STATUS: WIN_ERR,
+    };
+    tty_preference_update('statuslines', state);
+    assert.equal(state.disp.botlx, true);
+    assert.equal(state.wintty.clipping, false);
 });
 
 test('bail records unavailable cleanup and exposes C termination state', () => {

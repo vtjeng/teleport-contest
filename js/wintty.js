@@ -5,6 +5,7 @@ import {
     COLNO,
     MAXWIN,
     MAX_MSG_HISTORY,
+    NHW_BASE,
     NHW_MESSAGE,
     ROWNO,
     WIN_ERR,
@@ -15,21 +16,88 @@ import {
     TOPLINE_EMPTY,
     TOPLINE_NON_EMPTY,
 } from './tty_message.js';
+import {
+    renderTtyStartupBanner,
+    ttyAsknameImpl,
+} from './tty_startup.js';
+import { NO_COLOR } from './terminal.js';
 
-// This ports tty_create_nhwindow()'s NHW_MESSAGE history-size normalization.
-// The WinDesc allocation and its message rows are outside this slice; the
-// running game calls this at the same lifecycle point to apply the side effect
-// on iflags.msg_history before player selection.
+const MAX_STATUS_ROWS = 3;
+
+function statusRows(state) {
+    return (state.iflags?.wc2_statuslines ?? 0) <= 2
+        ? 2 : MAX_STATUS_ROWS;
+}
+
+function startupState(argcp, argv, state) {
+    // The C entry point receives argc/argv pointers.  Direct JS callers pass
+    // the state as the first argument, so accept that shape without changing
+    // the source-shaped three-argument call used by jsmain.js.
+    if (state === game && argcp && typeof argcp === 'object'
+        && !Array.isArray(argcp) && argv == null) {
+        return argcp;
+    }
+    return state;
+}
+
+// C ref: win/tty/termcap.c term_startup(). The terminal port already owns
+// the dimensions through GameDisplay, so the pointer outputs become this
+// source-shaped pair rather than a second copy of the dimensions.
+export function term_startup(state = game) {
+    const display = state.nhDisplay;
+    return {
+        wid: display?.cols ?? 80,
+        hgt: display?.rows ?? 24,
+    };
+}
+
+// C ref: win/tty/wintty.c tty_create_nhwindow() (850-895). The browser
+// descriptor stores the fields needed by startup and by later resize code;
+// message windows retain the earlier history-size normalization.
 export function tty_create_nhwindow(type, state = game) {
-    if (type !== NHW_MESSAGE) {
+    const wt = winttyState(state);
+    const display = ttyDisplay(state, wt);
+    const rows = wt.rows ?? display?.rows ?? 24;
+    const cols = wt.cols ?? display?.cols ?? 80;
+    wt.wins ??= [];
+    let id = wt.wins.findIndex((window) => window == null);
+    if (id < 0) id = wt.wins.length;
+    if (id >= MAXWIN) {
+        throw new Error('No window slots!');
+    }
+
+    const window = {
+        type,
+        flags: 0,
+        active: false,
+        curx: 0,
+        cury: 0,
+        offx: 0,
+        offy: 0,
+        rows: 0,
+        cols,
+        maxrow: 0,
+        maxcol: 0,
+    };
+    if (type === NHW_BASE) {
+        window.rows = rows;
+        window.maxrow = 0;
+    } else if (type === NHW_MESSAGE) {
+        const history = state.iflags?.msg_history ?? 20;
+        state.iflags ??= {};
+        state.iflags.msg_history = Math.min(
+            MAX_MSG_HISTORY,
+            Math.max(20, history),
+        );
+        window.rows = state.iflags.msg_history;
+        window.maxrow = window.rows;
+    } else {
         throw new Error(
             'tty_create_nhwindow() only ports the NHW_MESSAGE startup branch',
         );
     }
-    if (state.iflags.msg_history < 20) state.iflags.msg_history = 20;
-    else if (state.iflags.msg_history > MAX_MSG_HISTORY) {
-        state.iflags.msg_history = MAX_MSG_HISTORY;
-    }
+    wt.wins[id] = window;
+    return id;
 }
 
 // wintty.c:298-322. The recorder build leaves TTY_TILES_ESCCODES undefined,
@@ -331,4 +399,109 @@ export function new_status_window(state = game, env = {}) {
     state.disp ??= {};
     state.disp.botlx = true;
     state._renderedStatusLayouts = null;
+}
+
+// C ref: win/tty/wintty.c tty_init_nhwindows() (511-593). The terminal
+// syscalls and signal registration have no browser counterpart; the existing
+// startup renderer owns the visible banner and cursor placement, while this
+// entry point owns the tty descriptor and base-window state.
+export function tty_init_nhwindows(argcp = null, argv = null, state = game) {
+    state = startupState(argcp, argv, state);
+    state.iflags ??= {};
+    const wt = winttyState(state);
+    const display = ttyDisplay(state, wt);
+    const { wid, hgt } = term_startup(state);
+
+    state.iflags.wc2_statuslines = statusRows(state);
+    state.iflags.cbreak = true;
+    // setftty() changes the terminal-only echo flag. Keep it off the
+    // enumerable game snapshot: C does not save terminal mode, and the
+    // existing replay state oracles likewise exclude this transport detail.
+    Object.defineProperty(state.iflags, 'echo', {
+        configurable: true,
+        enumerable: false,
+        value: false,
+        writable: true,
+    });
+    wt.ttyDisplay = display;
+    wt.toplin = TOPLINE_EMPTY;
+    wt.topl_utf8 = 0;
+    wt.rows = hgt;
+    wt.cols = wid;
+    wt.curx = 0;
+    wt.cury = 0;
+    wt.inmore = 0;
+    wt.inread = 0;
+    wt.intr = 0;
+    wt.dismiss_more = 0;
+    wt.color = NO_COLOR;
+    wt.attrs = 0;
+    wt.mixed = 0;
+    wt.lastwin = WIN_ERR;
+
+    const baseWindow = tty_create_nhwindow(NHW_BASE, state);
+    wt.BASE_WINDOW = baseWindow;
+    wt.wins[baseWindow].active = true;
+    // CLIPPING is enabled in the recorder build, so the source selects
+    // set_in_game (4) for the statuslines capability.
+    wt.statuslines_mod_status = 4;
+
+    // These calls are void in C and their platform work is not represented by
+    // the browser runner. The renderer below supplies the visible base-window
+    // result without pretending that those low-level calls ran.
+    for (const gap of [
+        'sys/share/unixtty.c gettty',
+        'sys/share/unixtty.c setftty',
+        'termcap.c term_curs_set',
+        'wintty.c tty_clear_nhwindow',
+        'wintty.c tty_curs',
+        'wintty.c tty_putstr',
+        'wintty.c tty_display_nhwindow',
+        'options.c set_wc2_option_mod_status',
+    ]) note_unported(gap);
+
+    renderTtyStartupBanner(state);
+}
+
+// C ref: win/tty/wintty.c tty_preference_update() (595-631). The common
+// preference update is a void no-op in this TTY build; statuslines still
+// rebuilds the status window and clipping geometry before that call.
+export function tty_preference_update(pref, state = game) {
+    const newstatuslines = pref === 'statuslines'
+        && Boolean(state.iflags?.window_inited);
+    if (newstatuslines) {
+        new_status_window(state);
+        newclipping(state.u?.ux ?? 0, state.u?.uy ?? 0, state);
+    }
+    note_unported('windows.c genl_preference_update');
+}
+
+// C ref: win/tty/wintty.c tty_player_selection() (633-641). The role.c
+// implementation is already owned by player_selection_tty.js; this wrapper
+// preserves its boolean result so the JavaScript caller can observe C's
+// non-returning bail path when selection is cancelled.
+export async function tty_player_selection(state = game, random) {
+    const { ttyPlayerSelectionImpl } = await import('./player_selection_tty.js');
+    if (await ttyPlayerSelectionImpl(state, random)) return true;
+    bail(null, state);
+    return false;
+}
+
+// C ref: win/tty/wintty.c tty_askname() (643-755). The source-shaped entry
+// point delegates to the existing tty input loop, which owns filtering,
+// echo, retry placement, and the PL_NSIZ bound.
+export async function tty_askname(state = game) {
+    if (state.iflags?.wc2_selectsaved && !state.iflags.renameinprogress) {
+        const { restore_menu } = await import('./restore.js');
+        const choice = await restore_menu(
+            state.wintty?.BASE_WINDOW ?? WIN_ERR,
+            state,
+        );
+        if (choice === -1) {
+            bail('Until next time then...', state);
+            return null;
+        }
+        if (choice === 1) return state.plname;
+    }
+    return ttyAsknameImpl(state);
 }
