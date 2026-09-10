@@ -21895,6 +21895,62 @@
           "remainingScreensUpperBound": 758
         }
       ]
+    },
+    {
+      "id": "port-dothrow-should-mulch-missile",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port should_mulch_missile() erosion, blessing, and tough-material breakage",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The top development mismatch is seed0030-ten-diverse-deaths at global step 1195, where the gnome arrow reaches mthrowu.c drop_throw() and the JavaScript path refuses should_mulch_missile(). Source tracing assigns the missing rn2/rnl erosion, blessing, and tough-material behavior to dothrow.c should_mulch_missile() lines 1974-2002.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "f4d863f171cc038d575c307735117e4cec4f02ca",
+      "openStanding": {
+        "sha": "2dc99aec7b7d815698635ed89f15e706d1e87230",
+        "screens": 6042,
+        "rng": 425210
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "should_mulch_missile",
+          "line": 1976,
+          "endLine": 2010,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1976,
+        "to": 2010
+      },
+      "activeStanding": {
+        "sha": "2dc99aec7b7d815698635ed89f15e706d1e87230",
+        "screens": 6042,
+        "rng": 425210
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1195,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires missile mulching",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 758
+        }
+      ]
     }
   ]
 }
