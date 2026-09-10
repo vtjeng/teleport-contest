@@ -169,9 +169,11 @@ import {
     encodeUtf8ByteString,
     encodeUtf8Text,
     fuzzymatch,
+    highc,
     letter,
     lowc,
     str_start_is,
+    strstri,
     truncateByteString,
     visctrl,
 } from './hacklib.js';
@@ -205,6 +207,10 @@ import {
     MOUSECMD,
     extcmdlist,
 } from './extcmdlist_data.js';
+import {
+    createCommandBindingModel,
+    keyForCommand,
+} from './command_bindings.js';
 import {
     count_autocompletions,
     initialExtcmdFlags,
@@ -4148,6 +4154,151 @@ async function handler_number_pad(state, helpers) {
     return optn_ok;
 }
 
+// C ref: options.c handler_paranoid_confirmation() (5953-6016).  The command
+// binding model is the JavaScript equivalent of cmd_from_func(): it preserves
+// the source's printable-key preference, control-key fallback, and space-last
+// rule.  The handler itself owns only the menu; the option parser above owns
+// the same flags.paranoia_bits value for configuration-file input.
+export async function handler_paranoid_confirmation(state, helpers) {
+    const model = state.commandBindings ??= createCommandBindingModel(state);
+    const menuItems = [];
+    for (const [mask, argname, , , , explanation] of paranoia) {
+        if (mask === 0) break;
+        if (mask === PARANOID_BONES && !state.wizard) continue;
+
+        let text = explanation;
+        if (strstri(text, "'m'") >= 0) {
+            const mkey = keyForCommand(model, 'reqmenu');
+            if (mkey !== 'm'.charCodeAt(0)) {
+                const replacement = mkey
+                    ? `'${visctrl(mkey)}'`
+                    : "'#reqmenu'";
+                text = text.replace("'m'", replacement);
+            }
+        }
+        menuItems.push({
+            value: mask,
+            selector: argname[0],
+            text,
+            selected: (state.flags.paranoia_bits & mask) !== 0,
+        });
+    }
+    const selected = await optionMenuSelect(state, {
+        items: menuItems,
+        how: PICK_ANY,
+        title: 'Actions requiring extra confirmation:',
+        cancelValue: null,
+    }, helpers);
+    if (selected !== null && selected !== undefined) {
+        let bits = 0;
+        for (const value of menuSelectionValues(selected)) bits |= value;
+        state.flags.paranoia_bits = bits >>> 0;
+    }
+    return optn_ok;
+}
+
+function perminvModeDescription(state, includeInactiveStatus) {
+    const mode = state.iflags.perminv_mode;
+    const entry = PERMINV_MODES[mode];
+    if (!entry) return '';
+    let description = entry.description;
+    if (includeInactiveStatus && mode !== INVOPT_NONE
+        && !state.iflags.perm_invent) {
+        description = mode === INVOPT_IN_USE
+            ? description.replace(' currently', '')
+            : description.replace(' inventory', ' invent');
+        description += (mode & INV_SPARSE) !== 0
+            ? ' (Off)' : " ('perm_invent' is Off)";
+    }
+    return description;
+}
+
+// C ref: options.c handler_perminv_mode() (6019-6087).  This recorder build
+// has no TTY_PERM_INVENT rows, but the handler remains source-shaped so a
+// window port that advertises the option can use the same state transition.
+export async function handler_perminv_mode(state, helpers) {
+    state.iflags ??= {};
+    state.flags ??= {};
+    const old_perm_invent = Boolean(state.iflags.perm_invent);
+    const old_pi = state.iflags.perminv_mode ?? INVOPT_NONE;
+    let new_pi = old_pi;
+    const widest = 11; // WINDOWPORT(tty): "full+grid__" in options.c
+    const items = [];
+
+    for (let index = 0; index < PERMINV_MODES.length; ++index) {
+        const entry = PERMINV_MODES[index];
+        if (!entry) continue;
+        const separator = state.iflags.menu_tab_sep
+            ? '\t'
+            : ' '.repeat(Math.max(widest - entry.name.length, 1));
+        const text = `${entry.name}${separator}${entry.description}`;
+        const selector = (index & INV_SPARSE) !== 0
+            ? highc(entry.alias[0]) : entry.name[0];
+        items.push({
+            value: index + 1,
+            selector,
+            groupSelector: String.fromCharCode('0'.charCodeAt(0) + index),
+            text,
+            selected: index === old_pi,
+        });
+    }
+    const selected = await optionMenuSelect(state, {
+        items,
+        how: PICK_ONE,
+        title: 'Choose permanent inventory mode:',
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(selected);
+    if (values.length > 0) {
+        new_pi = values[0] - 1;
+        if (values.length > 1 && new_pi === old_pi)
+            new_pi = values[1] - 1;
+        state.iflags.perminv_mode = new_pi;
+    }
+    if (selected !== null && selected !== undefined) {
+        await ttyPline(
+            `'perminv_mode' ${new_pi !== old_pi ? 'changed to' : 'is still'} `
+                + `'${PERMINV_MODES[new_pi].name}' `
+                + `(${perminvModeDescription(state, false)}).`,
+            state,
+        );
+        if (new_pi !== INVOPT_NONE && !old_perm_invent)
+            state.iflags.perm_invent = can_set_perm_invent(state);
+        else if (new_pi === INVOPT_NONE && old_perm_invent)
+            state.iflags.perm_invent = false;
+
+        if (new_pi !== old_pi
+            || Boolean(state.iflags.perm_invent) !== old_perm_invent) {
+            state.go ??= {};
+            state.go.opt_need_redraw = true;
+        }
+    }
+    return optn_ok;
+}
+
+// C ref: options.c handler_pickup_burden() (6089-6112).  No row is
+// preselected: selecting nothing is a committed empty PICK_ONE result in the
+// C handler and therefore leaves flags.pickup_burden unchanged.
+export async function handler_pickup_burden(state, helpers) {
+    state.flags ??= {};
+    const burdenLetters = 'ubsntl';
+    const items = burdentype.map((name, index) => ({
+        value: index + 1,
+        selector: burdenLetters[index],
+        text: name,
+    }));
+    const selected = await optionMenuSelect(state, {
+        items,
+        how: PICK_ONE,
+        title: 'Select encumbrance level:',
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(selected);
+    if (values.length > 0)
+        state.flags.pickup_burden = values[0] - 1;
+    return optn_ok;
+}
+
 // C ref: options.c can_set_perm_invent() (5488-5530).  This TTY build does
 // not advertise WC_PERM_INVENT, and TTY_PERM_INVENT is not compiled, so the
 // capability check is the only reachable arm.  Keep the mode update for a
@@ -7160,19 +7311,32 @@ const known_handling = Object.freeze([
 // the two config-only choices at the end.  The value getter stops at "none",
 // the first zero mask, so neither config-only choice is ever printed.
 const paranoia = Object.freeze([
-    [PARANOID_CONFIRM, 'Confirm', 1, 'Paranoia', 2],
-    [PARANOID_QUIT, 'quit', 1, 'explore', 2],
-    [PARANOID_DIE, 'die', 1, 'death', 2],
-    [PARANOID_BONES, 'bones', 1, null, 0],
-    [PARANOID_HIT, 'attack', 1, 'hit', 1],
-    [PARANOID_BREAKWAND, 'wand-break', 2, 'break-wand', 2],
-    [PARANOID_EATING, 'eat', 1, 'continue', 4],
-    [PARANOID_WERECHANGE, 'Were-change', 2, null, 0],
-    [PARANOID_PRAY, 'pray', 1, null, 0],
-    [PARANOID_TRAP, 'trap', 1, 'move-trap', 1],
-    [PARANOID_AUTOALL, 'Autoall', 2, 'autoselect-all', 2],
-    [PARANOID_SWIM, 'swim', 1, null, 0],
-    [PARANOID_REMOVE, 'Remove', 1, 'Takeoff', 1],
+    [PARANOID_CONFIRM, 'Confirm', 1, 'Paranoia', 2,
+        'for "yes" confirmations, require "no" to reject'],
+    [PARANOID_QUIT, 'quit', 1, 'explore', 2,
+        'yes vs y to quit or to enter explore mode'],
+    [PARANOID_DIE, 'die', 1, 'death', 2,
+        'yes vs y to die (explore mode or debug mode)'],
+    [PARANOID_BONES, 'bones', 1, null, 0,
+        'yes vs y to save bones data when dying in debug mode'],
+    [PARANOID_HIT, 'attack', 1, 'hit', 1,
+        'yes vs y to attack a peaceful monster'],
+    [PARANOID_BREAKWAND, 'wand-break', 2, 'break-wand', 2,
+        'yes vs y to break a wand via (a)pply'],
+    [PARANOID_EATING, 'eat', 1, 'continue', 4,
+        'yes vs y to continue eating after first bite when satiated'],
+    [PARANOID_WERECHANGE, 'Were-change', 2, null, 0,
+        'yes vs y to change form when lycanthropy is controllable'],
+    [PARANOID_PRAY, 'pray', 1, null, 0,
+        'y required to pray (supersedes old "prayconfirm" option)'],
+    [PARANOID_TRAP, 'trap', 1, 'move-trap', 1,
+        'y required to enter known trap unless considered harmless'],
+    [PARANOID_AUTOALL, 'Autoall', 2, 'autoselect-all', 2,
+        "y required to pick filter choice 'A' for menustyle:Full"],
+    [PARANOID_SWIM, 'swim', 1, null, 0,
+        "'m' prefix necessary to deliberately walk into lava or water"],
+    [PARANOID_REMOVE, 'Remove', 1, 'Takeoff', 1,
+        'always pick from inventory for Remove and Takeoff'],
     [0, 'none', 4, null, 0],
     [0xFFFFFFFF, 'all', 3, null, 0],
 ]);
@@ -7437,20 +7601,7 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         ];
         return names[state.iflags.wc_map_mode] ?? 'default';
     },
-    perminv_mode: (state) => {
-        const mode = state.iflags.perminv_mode;
-        const entry = PERMINV_MODES[mode];
-        if (!entry) return '';
-        let description = entry.description;
-        if (mode !== INVOPT_NONE && !state.iflags.perm_invent) {
-            description = mode === INVOPT_IN_USE
-                ? description.replace(' currently', '')
-                : description.replace(' inventory', ' invent');
-            description += (mode & INV_SPARSE) !== 0
-                ? ' (Off)' : " ('perm_invent' is Off)";
-        }
-        return description;
-    },
+    perminv_mode: (state) => perminvModeDescription(state, true),
     windowcolors: (state) => windowColorsValue(state),
     number_pad: (state, option) => optfn_number_pad(
         state, allopt.indexOf(option), GET_VAL, false, '', '',
@@ -8419,6 +8570,9 @@ const OPTION_HANDLERS = Object.freeze({
         state, allopt.findIndex(({ name }) => name === 'number_pad'),
         DO_HANDLER, false, '', '', helpers,
     ),
+    paranoid_confirmation: handler_paranoid_confirmation,
+    perminv_mode: handler_perminv_mode,
+    pickup_burden: handler_pickup_burden,
     pickup_types: handler_pickup_types,
     menu_headings: (state, helpers) => handler_menu_headings(state, helpers),
 });

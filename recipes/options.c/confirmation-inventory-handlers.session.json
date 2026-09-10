@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 983001,
+      "datetime": "20321208134500",
+      "nethackrc": "OPTIONS=name:ConfirmSpan,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": " mO     k\rq\r"
+    },
+    {
+      "seed": 983002,
+      "datetime": "20321208134500",
+      "nethackrc": "OPTIONS=name:BurdenSpan,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": " mO     m\rl\r"
+    }
+  ],
+  "comment": "Reaches options.c handler_paranoid_confirmation() and handler_pickup_burden(): the full options menu selects each source row on page 6, then the handler menu commits one choice. The permanent-inventory handler is unavailable in this tty build, so its source-shaped state transition is pinned by scripts/options-menu.test.mjs."
+}

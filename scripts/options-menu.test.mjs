@@ -19,6 +19,8 @@ import {
     doset,
     doset_simple,
     dosetMenuItems,
+    handler_paranoid_confirmation,
+    handler_perminv_mode,
     longest_option_name,
     menuObjsymItems,
     parseNethackrc,
@@ -37,7 +39,13 @@ import {
     H_DEC,
     H_IBM,
     H_UNK,
+    INVOPT_FULL,
     MENU_PARTIAL,
+    PARANOID_BONES,
+    PARANOID_PRAY,
+    PARANOID_QUIT,
+    PARANOID_SWIM,
+    PARANOID_TRAP,
     PICK_ANY,
     PICK_ONE,
     PRIMARYSET,
@@ -814,6 +822,114 @@ test('special option handlers preserve C choice order and state fields',
             alignStatus.spec.title,
             'Select status window placement relative to the map:',
         );
+    });
+
+test('confirmation and burden handlers preserve C menu rows and selections',
+    async () => {
+        async function runHandler(name, selected, sourceState = null) {
+            const state = sourceState ?? await startConfiguredGame(STOCK);
+            const optionIndex = allopt.findIndex(
+                (option) => option.name === name,
+            );
+            const handlerMenus = [];
+            let firstMenu = true;
+            await doset_simple(state, menuHelpers({
+                menu: (_items, _prompt, how) => {
+                    if (firstMenu) {
+                        firstMenu = false;
+                        assert.equal(how, PICK_ONE);
+                        return optionIndex + 1;
+                    }
+                    return null;
+                },
+                selectMenu: (spec) => {
+                    handlerMenus.push(spec);
+                    return selected;
+                },
+            }));
+            assert.equal(handlerMenus.length, 1, name);
+            return { state, spec: handlerMenus[0] };
+        }
+
+        const paranoia = await runHandler(
+            'paranoid_confirmation',
+            [{ value: PARANOID_QUIT }, { value: PARANOID_SWIM }],
+        );
+        assert.equal(
+            paranoia.spec.title,
+            'Actions requiring extra confirmation:',
+        );
+        // options.c skips the bones row outside wizard mode and uses the
+        // first letter of each argname as the explicit selector.
+        assert.equal(
+            paranoia.spec.items.some((item) => item.value === PARANOID_BONES),
+            false,
+        );
+        assert.deepEqual(
+            paranoia.spec.items.filter((item) => item.selected)
+                .map((item) => item.value),
+            [PARANOID_PRAY, PARANOID_TRAP, PARANOID_SWIM],
+        );
+        assert.equal(
+            paranoia.state.flags.paranoia_bits,
+            PARANOID_QUIT | PARANOID_SWIM,
+        );
+
+        // cmd.c cmd_from_func(do_reqmenu) feeds handler_paranoid_confirmation
+        // when the normal 'm' binding has been replaced in the rc file.
+        const rebound = await startGameWithConfig('BINDINGS=x:reqmenu');
+        const reboundMenu = [];
+        await handler_paranoid_confirmation(rebound, {
+            selectMenu: (spec) => (reboundMenu.push(spec), []),
+        });
+        assert.match(
+            reboundMenu[0].items.find((item) => item.value === PARANOID_SWIM)
+                .text,
+            /'x' prefix/u,
+        );
+
+        const burden = await runHandler('pickup_burden', 4);
+        assert.equal(burden.spec.title, 'Select encumbrance level:');
+        assert.deepEqual(
+            burden.spec.items.map(({ selector, value, text }) => (
+                [selector, value, text]
+            )),
+            [
+                ['u', 1, 'unencumbered'], ['b', 2, 'burdened'],
+                ['s', 3, 'stressed'], ['n', 4, 'strained'],
+                ['t', 5, 'overtaxed'], ['l', 6, 'overloaded'],
+            ],
+        );
+        assert.equal(burden.state.flags.pickup_burden, 3);
+    });
+
+test('perminv_mode handler follows C numeric accelerators and redraw rules',
+    async () => {
+        const state = parseNethackrc('');
+        const menus = [];
+        await handler_perminv_mode(state, {
+            selectMenu: (spec) => (menus.push(spec), [
+                { value: 1 }, { value: INVOPT_FULL + 1 },
+            ]),
+        });
+        assert.equal(menus.length, 1);
+        assert.equal(menus[0].title, 'Choose permanent inventory mode:');
+        assert.deepEqual(
+            menus[0].items.map(({ selector, groupSelector, value, selected }) => (
+                [selector, groupSelector, value, selected]
+            )),
+            [
+                ['n', '0', 1, true], ['a', '1', 2, false],
+                ['f', '2', 3, false], ['i', '8', 9, false],
+            ],
+        );
+        // PICK_ONE's first item is the preselected old value; C then chooses
+        // the second item when both are returned by a window port.
+        assert.equal(state.iflags.perminv_mode, INVOPT_FULL);
+        // The tty build has no WC_PERM_INVENT capability, so can_set_perm_invent
+        // leaves the mode selected but keeps the live window disabled.
+        assert.equal(state.iflags.perm_invent, false);
+        assert.equal(state.go.opt_need_redraw, true);
     });
 
 test('disclosure and object-symbol menu builders preserve C rows', () => {
