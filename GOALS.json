@@ -21119,8 +21119,8 @@
       "spans": [
         {
           "name": "done_in_by",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4392eae966e46b24025504426b5ab42a075eb66a",
           "functions": [
             "done_in_by"
           ]
@@ -21140,7 +21140,7 @@
           "line": 185,
           "endLine": 365,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -21168,7 +21168,42 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 1377
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "done_in_by",
+            "implementation": "js/end.js",
+            "symbol": "done_in_by",
+            "sourceReview": "Read the complete end.c done_in_by() definition at lines 185-365. The port preserves the urgent death message, killer-format defaults, unique and ghost naming, imitator and shapechanger descriptions, shopkeeper stored-name markers and honorifics, the remaining priest/minion refusal, multi_reason fixup, grave-arise species selection, and the final done(how) call. The shopkeeper branch calls shknam.c shkname() and shkname_is_pname() in C order and forces KILLED_BY. No random-number call or output is substituted for a reached source operation.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mdamageu",
+                "source": "mhitu.c:1924-1925 calls done_in_by(mtmp, DIED) when monster damage lowers hero HP below one; js/mhitu.js mdamageu() awaits done_in_by() on the live pass and raises the planning signal on the clone before any live terminal work."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/end.c/done-in-by-shopkeeper.session.json"
+            ],
+            "checkedAt": "4392eae966e46b24025504426b5ab42a075eb66a"
+          }
+        ],
+        "entryPointReview": "The selected range has one monster-lethal-damage entry point: mhitu.c mdamageu() reaches end.c done_in_by() after mdamageu() reduces hero HP below one. The independent D:2 general-store recipe drives that production route through a shopkeeper wand attack and its matching recording executes the shopkeeper naming branch, death message, paybill handoff, and disclosure prompts.",
+        "entryPoints": [
+          {
+            "name": "monster lethal damage",
+            "functions": [
+              "done_in_by"
+            ],
+            "recordings": [
+              "recordings/end.c/done-in-by-shopkeeper.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
