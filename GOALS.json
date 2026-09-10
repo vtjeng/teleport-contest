@@ -18638,6 +18638,47 @@
         "from": 1180,
         "to": 1213
       }
+    },
+    {
+      "id": "port-mon-animal-list",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mon.c's animal-form list cache helper",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0383-wizard-hallucinate"
+      ],
+      "detail": "",
+      "spans": [
+        {
+          "name": "mon_animal_list",
+          "status": "closed",
+          "closedBy": "59f44f427960ae6dc7ccde622f16b49cff3616d7",
+          "functions": [
+            "mon_animal_list"
+          ]
+        }
+      ],
+      "openedAt": "6417dd2583484fa40715ebece9ab9974b8252d3f",
+      "openStanding": {
+        "sha": "7b2de195",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mon_animal_list",
+          "line": 4829,
+          "endLine": 4854,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 4829,
+        "to": 4854
+      }
     }
   ]
 }
