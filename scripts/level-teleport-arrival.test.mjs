@@ -11,9 +11,12 @@ import {
     CORR,
     DEAF,
     FAST,
+    HALLUC,
+    HALLUC_RES,
     INVIS,
     LAST_PROP,
     LEVITATION,
+    LOW_PM,
     LR_BRANCH,
     LR_DOWNTELE,
     LR_TELE,
@@ -21,6 +24,7 @@ import {
     MAGIC_PORTAL,
     OBJ_FLOOR,
     OBJ_INVENT,
+    PLINE_VERBALIZE,
     ROOMOFFSET,
     ROOM,
     SHOPBASE,
@@ -57,6 +61,7 @@ import {
     PM_COCKATRICE,
     PM_DWARF,
     PM_LITTLE_DOG,
+    SPECIAL_PM,
     monst_globals_init,
 } from '../js/monsters.js';
 import { m_at } from '../js/monst.js';
@@ -74,6 +79,7 @@ import { create_region, visible_region_at } from '../js/region.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { roles } from '../js/roles.js';
 import { costly_spot, inside_shop, u_entered_shop } from '../js/shk.js';
+import { shkname } from '../js/shknam.js';
 import { SHTYPES } from '../js/shtypes_data.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
@@ -1294,6 +1300,8 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
             const lines = [];
             assert.equal(await u_entered_shop([roomno], game, {
                 message: async (line) => {
+                    assert.equal(Boolean(game.gp?.pline_flags & PLINE_VERBALIZE),
+                        line.startsWith('"'));
                     assert.equal(game.u.uachieved.includes(ACH_SHOP), true);
                     assert.equal(extension.bill_p, extension.bill);
                     assert.equal(extension.customer, game.plname);
@@ -1305,6 +1313,7 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
                 },
             }), true);
             assert.deepEqual(lines, [expected]);
+            assert.equal(game.gp.pline_flags & PLINE_VERBALIZE, 0);
         }
 
         await enterWith({
@@ -1409,6 +1418,74 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
             ],
         });
         assert.deepEqual(angryLines, [3]);
+
+        // shknam.c shkname():863 first calls noit_mon_nam(), even though
+        // :897 overwrites that name. Its display draws precede the two core
+        // draws selecting the first non-unique shop type and its second name.
+        const namingDraws = [];
+        const nonUniqueTypes = SHTYPES.findIndex((type) => type.prob === 0);
+        const expectedName = SHTYPES[0].shknms[1];
+        game.u.uprops[HALLUC].intrinsic = 1;
+        const name = shkname(room.resident, game, {
+            displayRandom: (bound) => {
+                namingDraws.push(['display', bound]);
+                // LOW_PM is the giant ant, an ordinary eligible species;
+                // the next zero selects its masculine name.
+                return 0;
+            },
+            random: {
+                rn2: (bound) => {
+                    namingDraws.push(['core', bound]);
+                    return namingDraws.length === 3 ? 0 : 1;
+                },
+            },
+        });
+        assert.equal(name, expectedName);
+        assert.equal(room.resident.isshk, true);
+        assert.deepEqual(namingDraws, [
+            ['display', SPECIAL_PM + 100 - LOW_PM],
+            ['display', 2],
+            ['core', nonUniqueTypes],
+            ['core', SHTYPES[0].shknms.length],
+        ]);
+
+        // clang evaluates this pline's arguments in source order: Shknam(),
+        // ROLL_FROM(angrytexts), then noit_mhis(). Different answers distinguish
+        // the second shopkeeper name, "ticked off", and "their" branches.
+        const hallucinatedDraws = [];
+        const hallucinatedAnswers = [0, 1, 1, 3];
+        await enterState({
+            setup: () => {
+                room.resident.mpeaceful = false;
+                game.u.uprops[DEAF].intrinsic = 1;
+            },
+            random: (bound) => {
+                hallucinatedDraws.push(bound);
+                return hallucinatedAnswers.shift();
+            },
+            expected: [
+                `${expectedName} seems ticked off over your return to their ${shopName}!`,
+            ],
+        });
+        assert.deepEqual(hallucinatedDraws, [
+            nonUniqueTypes, SHTYPES[0].shknms.length, 3, 4,
+        ]);
+        assert.deepEqual(hallucinatedAnswers, []);
+
+        // Halluc_resistance and gameover independently suppress shkname()'s
+        // hallucination paths, including the preliminary display name.
+        for (const suppressor of ['resistance', 'gameover']) {
+            game.u.uprops[HALLUC_RES].extrinsic = suppressor === 'resistance';
+            game.program_state.gameover = suppressor === 'gameover';
+            const unexpectedDraw = () => assert.fail('suppressed name drew RNG');
+            assert.equal(shkname(room.resident, game, {
+                displayRandom: unexpectedDraw,
+                random: { rn2: unexpectedDraw },
+            }), ownerName);
+        }
+        game.u.uprops[HALLUC].intrinsic = 0;
+        game.u.uprops[HALLUC_RES].extrinsic = 0;
+        game.program_state.gameover = false;
         await enterState({
             setup: () => { extension.surcharge = true; },
             expected: [
@@ -1501,6 +1578,16 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
             ],
         });
         assert.ok(game.unported.has('monmove.c dochug'));
+
+        // shk.c u_entered_shop():884-887 changes both the wording and the
+        // final punctuation when a surcharge makes the keeper impatient.
+        await enterState({
+            setup: () => { extension.surcharge = true; },
+            expected: [
+                `"Back again, ${game.plname}?  I've got my eye on you."`,
+                '"Leave the mattock outside."',
+            ],
+        });
         game.invent = oldInventory;
 
         const steed = {
@@ -1518,6 +1605,16 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
             ],
         });
         assert.ok(game.unported.has('monmove.c dochug'));
+
+        // The steed branch has its own conditional format at shk.c:898-900;
+        // its surcharge command also ends with a period.
+        await enterState({
+            setup: () => { extension.surcharge = true; },
+            expected: [
+                `"Back again, ${game.plname}?  I've got my eye on you."`,
+                /^"Leave your (?:little dog|dog) outside\."$/u,
+            ],
+        });
         game.u.usteed = null;
 
         const oldFloor = game.level.objects[interior.x][interior.y];
@@ -1633,6 +1730,37 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
         assert.deepEqual({ nobj: owned.nobj, nexthere: owned.nexthere },
             ownedLinks);
     });
+
+test('empty-shop suppression resets with each recorder segment', async () => {
+    // The recorder starts a new C process for each segment, including
+    // restoration. shk.c's local static remembers a shop only within that
+    // process. Reuse the independently selected ordinary shop-arrival recipe
+    // and remove its resident to reach the empty-shop branch directly.
+    const segment = loadLevelTeleportArrivalRecipe().segments.find(
+        (candidate) => candidate.seed === 7633019
+            && !candidate.nethackrc.includes('deaf'),
+    );
+    for (let process = 0; process < 2; ++process) {
+        await runSegment(segment);
+        const roomno = inside_shop(game.u.ux, game.u.uy, game);
+        assert.ok(roomno >= ROOMOFFSET);
+        game.level.rooms[roomno - ROOMOFFSET].resident = null;
+        // Column zero is the unused map border and belongs to no room.
+        game.u.ux0 = 0;
+        game.u.uy0 = 0;
+        assert.equal(game.level.at(0, 0).roomno, 0);
+        const lines = [];
+        for (let entry = 0; entry < 2; ++entry) {
+            game.u.ushops.fill(0);
+            game.u.ushops[0] = roomno;
+            await u_entered_shop([roomno], game, {
+                message: async (line) => lines.push(line),
+            });
+        }
+        assert.equal(lines.length, 1);
+        assert.match(lines[0], /^This shop (?:is|seems to be) /u);
+    }
+});
 
 test('the first later room family remains a named live generation boundary',
     async () => {

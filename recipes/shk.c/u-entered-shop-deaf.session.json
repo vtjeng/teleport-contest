@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9700006,
+      "datetime": "20390927141723",
+      "nethackrc": "OPTIONS=name:FreshShop,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\nOPTIONS=deaf\n",
+      "moves": ".\u00165\n .",
+      "comment": "The same independently selected shop arrival with OPTIONS=deaf exercises u_entered_shop() visual greeting instead of shopkeeper speech."
+    }
+  ]
+}

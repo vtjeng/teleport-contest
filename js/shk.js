@@ -95,6 +95,7 @@ import {
     PM_KOP_LIEUTENANT,
     PM_KOP_SERGEANT,
     PM_ROGUE,
+    PM_SHOPKEEPER,
     PM_TOURIST,
 } from './monsters.js';
 import {
@@ -110,12 +111,14 @@ import { move_special } from './priest.js';
 import { SHTYPES } from './shtypes_data.js';
 import { m_at } from './monst.js';
 import { mbodypart, poly_gender } from './polyself.js';
+import { verbalize } from './pline.js';
 import {
     canSeeMonster,
     heroIsBlind,
     sensesMonster,
 } from './startup_a11y.js';
 import { set_voice } from './sounds.js';
+import { shkname, Shknam } from './shknam.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { findgold, remove_worn_item } from './steal.js';
@@ -123,10 +126,16 @@ import { discover_object } from './o_init.js';
 import { y_monnam } from './do_name.js';
 import { rn2 } from './rng.js';
 
-// C ref: shk.c:u_entered_shop()'s static `empty_shops[5]`. It survives
-// calls, including calls made by later game segments, just as the C static
-// storage does. Only the NUL-terminated prefix is significant.
+// C ref: shk.c:u_entered_shop()'s static `empty_shops[5]`. It survives calls
+// in one C process but is not saved; each recorder segment starts a new
+// process. Only the NUL-terminated prefix is significant.
 const emptyShops = new Array(5).fill(0);
+
+// Reset the C process statics before startup or saved-game restoration.
+export function shk_globals_init() {
+    emptyShops.fill(0);
+    pickmovetime = 0;
+}
 
 // C ref: shk.c money2mon() (157-184). Transfer an exact gold stack from the
 // hero's inventory to a monster. The diagnostic branches are impossible in a
@@ -266,7 +275,7 @@ export function restshk(shopkeeper, ghostly, state = game) {
                     state.plname ?? '',
                     PL_NSIZ,
                 ) !== 0) {
-                note_unported('shk.c pacify_shk');
+                pacify_shk(shopkeeper, true);
             }
         }
     }
@@ -370,13 +379,20 @@ export function inside_shop(x, y, state = game) {
     return room && !location.edge && room.rtype >= SHOPBASE ? roomno : 0;
 }
 
-// C ref: shk.c shop_keeper(). Generated shops keep their resident on the room
-// record and its ESHK extension records the same room number.
+// C ref: shk.c shop_keeper() (1052-1082). Looking up an angry keeper applies
+// any missing surcharge before the caller reads the shop's state.
 export function shop_keeper(roomno, state = game) {
     if (roomno < ROOMOFFSET) return null;
     const resident = state.level?.rooms?.[roomno - ROOMOFFSET]?.resident;
-    return resident?.isshk
-        && resident.mextra?.eshk?.shoproom === roomno ? resident : null;
+    if (resident) {
+        if (!resident.mextra?.eshk) {
+            note_unported('pline.c impossible');
+            return null;
+        }
+        if (!resident.mpeaceful && !resident.mextra.eshk.surcharge)
+            rile_shk(resident);
+    }
+    return resident ?? null;
 }
 
 // C ref: shk.c find_objowner() (1084-1114). The caller supplies the object's
@@ -484,21 +500,6 @@ export async function u_left_shop(
     }
 }
 
-// C ref: shknam.c shkname() and Shknam(). The shopkeeper name is stored with
-// a leading marker for gender or proper-name metadata; the marker is not part
-// of the name shown in ordinary messages.
-function shkname(shopkeeper) {
-    const stored = shopkeeper.mextra?.eshk?.shknam;
-    if (typeof stored === 'string' && stored.length)
-        return /^[A-Za-z]/u.test(stored) ? stored : stored.slice(1);
-    return 'shopkeeper';
-}
-
-function Shknam(shopkeeper) {
-    const name = shkname(shopkeeper);
-    return name ? name[0].toUpperCase() + name.slice(1) : name;
-}
-
 // C ref: shk.c block_door() (5791-5821). The caller supplies the message
 // operation because the C helper prints before returning TRUE.
 export async function block_door(x, y, state = game, { message = ttyPline } = {}) {
@@ -516,7 +517,7 @@ export async function block_door(x, y, state = game, { message = ttyPline } = {}
         return false;
     }
     await message(
-        `${Shknam(shopkeeper)}${heroIsInvisible(state) ? ' senses your motion and' : ''} blocks your way!`,
+        `${Shknam(shopkeeper, state)}${heroIsInvisible(state) ? ' senses your motion and' : ''} blocks your way!`,
         state,
     );
     return true;
@@ -543,7 +544,7 @@ export async function block_entry(x, y, state = game, { message = ttyPline } = {
             || carrying(DWARVISH_MATTOCK, state)
             || state.u.usteed)) return false;
     await message(
-        `${Shknam(shopkeeper)}${heroIsInvisible(state) ? ' senses your motion and' : ''} blocks your way!`,
+        `${Shknam(shopkeeper, state)}${heroIsInvisible(state) ? ' senses your motion and' : ''} blocks your way!`,
         state,
     );
     return true;
@@ -604,7 +605,7 @@ export async function pick_pick(
             }
         } else {
             await message(
-                `${Shknam(shopkeeper)} ${haseyes(shopkeeper.data)
+                `${Shknam(shopkeeper, state)} ${haseyes(shopkeeper.data)
                     ? 'glares at' : 'is dismayed because of'} your pick!`,
                 state,
             );
@@ -1177,9 +1178,8 @@ const the_your = ['the', 'your'];
 
 // C ref: shk.c shk_owns() (5884-5898). C answers the shopkeeper's possessive,
 // or "the" where the shop has no resident, for an unpaid object and for one
-// lying on a charged shop square. shkname() is unported and no ported caller
-// names an object a shopkeeper owns, so the whole owning branch stops and
-// only its NULL answer is written out.
+// lying on a charged shop square. The ownership branch remains unported;
+// only its NULL answer is implemented here.
 function shk_owns(obj, state) {
     const spot = get_obj_location(obj, 0, state);
     if (spot && (obj.unpaid
@@ -1190,8 +1190,8 @@ function shk_owns(obj, state) {
     return null;
 }
 
-// C ref: shk.c mon_owns() (5899-5905). Its one branch needs y_monnam(), which
-// is unported, so an object in a monster's pack stops instead of being named.
+// C ref: shk.c mon_owns() (5899-5905). The monster-inventory ownership branch
+// remains unported.
 function mon_owns(obj) {
     if (obj.where === OBJ_MINVENT)
         throw new UnsupportedShopError('mon_owns() naming a carrier');
@@ -1251,8 +1251,8 @@ function randomRoll(random) {
     return typeof random === 'function' ? random : random?.rn2 ?? rn2;
 }
 
-// C ref: shk.c pacify_shk() (1344-1360). This direct callee is small but its
-// bill-price adjustment is part of u_entered_shop()'s customer-reset state.
+// C ref: shk.c pacify_shk() (1344-1360). Make the keeper peaceful and, when
+// requested, remove the surcharge from each active bill entry.
 function pacify_shk(shopkeeper, clearSurcharge) {
     const eshk = shopkeeper.mextra.eshk;
     shopkeeper.mpeaceful = true;
@@ -1347,14 +1347,20 @@ export async function u_entered_shop(
         return true;
 
     const roll = randomRoll(random);
+    const namingEnv = { random: { rn2: roll } };
     if (heroIsInvisible(state)) {
-        await message(`${Shknam(shopkeeper)} senses your presence.`, state);
+        await message(
+            `${Shknam(shopkeeper, state, namingEnv)} senses your presence.`, state,
+        );
         if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
             set_voice(shopkeeper, 0, 80, 0, state);
-            await message('"Invisible customers are not welcome!"', state);
+            await verbalize(
+                'Invisible customers are not welcome!', state, { message },
+            );
         } else {
             await message(
-                `${Shknam(shopkeeper)} stands firm as if ${noitPronoun(
+                `${Shknam(shopkeeper, state, namingEnv)} stands firm as if `
+                + `${noitPronoun(
                     shopkeeper, 'he', state, roll,
                 )} knows you are there.`,
                 state,
@@ -1365,17 +1371,17 @@ export async function u_entered_shop(
 
     const room = state.level.rooms[roomno - ROOMOFFSET];
     const shopName = SHTYPES[room.rtype - SHOPBASE].name;
-    const owner = s_suffix(shkname(shopkeeper));
     if (!NOTANGRY(shopkeeper)) {
         if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
             set_voice(shopkeeper, 0, 80, 0, state);
-            await message(
-                `"So, ${playerName}, you dare return to ${owner} ${shopName}?!"`,
-                state,
+            await verbalize(
+                `So, ${playerName}, you dare return to `
+                + `${s_suffix(shkname(shopkeeper, state, namingEnv))} ${shopName}?!`,
+                state, { message },
             );
         } else {
             await message(
-                `${Shknam(shopkeeper)} seems ${[
+                `${Shknam(shopkeeper, state, namingEnv)} seems ${[
                     'quite upset', 'ticked off', 'furious',
                 ][roll(3)]} over your return to ${noitPronoun(
                     shopkeeper, 'his', state, roll,
@@ -1386,15 +1392,16 @@ export async function u_entered_shop(
     } else if (extension.surcharge) {
         if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
             set_voice(shopkeeper, 0, 80, 0, state);
-            await message(
-                `"Back again, ${playerName}?  I've got my ${mbodypart(
+            await verbalize(
+                `Back again, ${playerName}?  I've got my ${mbodypart(
                     shopkeeper, EYE,
-                )} on you."`,
-                state,
+                )} on you.`,
+                state, { message },
             );
         } else {
             await message(
-                `The atmosphere at ${owner} ${shopName} seems unwelcoming.`,
+                `The atmosphere at ${s_suffix(shkname(shopkeeper, state, namingEnv))} `
+                + `${shopName} seems unwelcoming.`,
                 state,
             );
         }
@@ -1403,12 +1410,14 @@ export async function u_entered_shop(
             // Soundeffect(se_mutter_imprecations, 50) is compiled out by the
             // recorder's no-sound backend, so only the pline remains.
             await message(
-                `${Shknam(shopkeeper)} mutters imprecations against shoplifters.`,
+                `${Shknam(shopkeeper, state, namingEnv)} `
+                + 'mutters imprecations against shoplifters.',
                 state,
             );
         } else {
             await message(
-                `${Shknam(shopkeeper)} is combing through ${noitPronoun(
+                `${Shknam(shopkeeper, state, namingEnv)} is combing through `
+                + `${noitPronoun(
                     shopkeeper, 'his', state, roll,
                 )} inventory list.`,
                 state,
@@ -1416,21 +1425,25 @@ export async function u_entered_shop(
         }
     } else if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
         set_voice(shopkeeper, 0, 80, 0, state);
-        await message(
-            `"${Hello(state.urole, { shopkeeper: true })}, ${playerName}!  `
-            + `Welcome${extension.visitct++ ? ' again' : ''} to ${owner} ${shopName}!"`,
-            state,
+        await verbalize(
+            `${Hello(state.urole, {
+                shopkeeper: shopkeeper.data === state.mons[PM_SHOPKEEPER],
+            })}, ${playerName}!  `
+            + `Welcome${extension.visitct++ ? ' again' : ''} to `
+            + `${s_suffix(shkname(shopkeeper, state, namingEnv))} ${shopName}!`,
+            state, { message },
         );
     } else {
         await message(
-            `You enter ${owner} ${shopName}${extension.visitct++ ? ' again' : ''}!`,
+            `You enter ${s_suffix(shkname(shopkeeper, state, namingEnv))} `
+            + `${shopName}${extension.visitct++ ? ' again' : ''}!`,
             state,
         );
     }
 
     // Teleporting into a shop skips the block_door path. A walking arrival
     // can still be outside the strict interior, where C gives the keeper an
-    // extra turn to block entry; dochug()'s void result is discarded here and
+    // extra turn to block entry; dochug()'s result is discarded here and
     // remains an explicitly recorded gap until monmove.c is complete.
     if (!inside_shop(state.u.ux, state.u.uy, state)) {
         let shouldBlock = false;
@@ -1466,32 +1479,32 @@ export async function u_entered_shop(
             }
             if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
                 set_voice(shopkeeper, 0, 80, 0, state);
-                await message(
-                    `"${notUpset ? 'Will you please leave your' : 'Leave the'} `
-                    + `${tool}${plur(count)} outside?"`,
-                    state,
+                await verbalize(
+                    `${notUpset ? 'Will you please leave your' : 'Leave the'} `
+                    + `${tool}${plur(count)} outside${notUpset ? '?' : '.'}`,
+                    state, { message },
                 );
             } else {
                 await message(
-                    `${Shknam(shopkeeper)} ${notUpset ? 'is hesitant' : 'refuses'} `
+                    `${Shknam(shopkeeper, state, namingEnv)} ${notUpset ? 'is hesitant' : 'refuses'} `
                     + `to let you in with your ${tool}${plur(count)}.`,
                     state,
                 );
             }
             shouldBlock = true;
         } else if (state.u.usteed) {
-            const steed = y_monnam(state.u.usteed, state);
             if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
                 set_voice(shopkeeper, 0, 80, 0, state);
-                await message(
-                    `"${notUpset ? 'Will you please leave' : 'Leave'} `
-                    + `${steed} outside?"`,
-                    state,
+                await verbalize(
+                    `${notUpset ? 'Will you please leave' : 'Leave'} `
+                    + `${y_monnam(state.u.usteed, state, namingEnv)} outside`
+                    + `${notUpset ? '?' : '.'}`,
+                    state, { message },
                 );
             } else {
                 await message(
-                    `${Shknam(shopkeeper)} ${notUpset ? "doesn't want" : 'refuses'} `
-                    + `to let you in while you're riding ${steed}.`,
+                    `${Shknam(shopkeeper, state, namingEnv)} ${notUpset ? "doesn't want" : 'refuses'} `
+                    + `to let you in while you're riding ${y_monnam(state.u.usteed, state, namingEnv)}.`,
                     state,
                 );
             }
@@ -1656,20 +1669,17 @@ function IS_SHOP(x, state) {
     return (state.level?.rooms?.[x]?.rtype ?? -1) >= SHOPBASE;
 }
 
-// C ref: shk.c rile_shk() (196-211). Only the surcharge half runs here: every
-// caller reaches it through ANGRY(shkp), so mpeaceful is already clear.
-// js/shknam.js leaves eshk.bill_p null and eshk.billct zero for every
-// shopkeeper the port creates, so the price walk has nothing to raise; a
-// non-empty bill stops instead of being silently skipped.
+// C ref: shk.c rile_shk() (1362-1379). Each active bill price rises by the
+// rounded-up third once, until pacify_shk() removes the surcharge.
 function rile_shk(shopkeeper) {
     shopkeeper.mpeaceful = false; /* NOTANGRY(shkp) = FALSE */
     const eshkp = shopkeeper.mextra.eshk;
     if (!eshkp.surcharge) {
         eshkp.surcharge = true;
-        if (eshkp.billct) {
-            throw new UnsupportedShopError(
-                "rile_shk() surcharging an angry shopkeeper's bill",
-            );
+        const bill = eshkp.bill_p;
+        for (let index = 0; index < eshkp.billct; ++index) {
+            const entry = bill[index];
+            entry.price += Math.trunc((entry.price + 2) / 3);
         }
     }
 }

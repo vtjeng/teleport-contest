@@ -44,8 +44,10 @@ import {
     onshopbill,
     pick_pick,
     record_price_quote,
+    restshk,
     same_price,
     shop_debt,
+    shop_keeper,
     shk_your,
     UnsupportedShopError,
 } from '../js/shk.js';
@@ -107,6 +109,46 @@ function billShopkeeper(roomno, bill, next = null) {
         },
     };
 }
+
+test('shop_keeper applies the anger surcharge once to active bill entries', () => {
+    // shk.c shop_keeper():1060-1062 calls rile_shk(), whose :1374 formula
+    // rounds up a third. Prices 1, 3, and 4 cover both rounding boundaries;
+    // the fourth entry is inactive and must remain unchanged.
+    const bill = [{ price: 1 }, { price: 3 }, { price: 4 }, { price: 9 }];
+    const keeper = billShopkeeper(ROOMOFFSET, bill);
+    keeper.mpeaceful = false;
+    keeper.mextra.eshk.billct = 3;
+    const state = { level: { rooms: [{ resident: keeper }] } };
+
+    assert.equal(shop_keeper(ROOMOFFSET, state), keeper);
+    assert.equal(keeper.mextra.eshk.surcharge, true);
+    assert.deepEqual(bill.map((entry) => entry.price), [2, 4, 6, 9]);
+    assert.equal(shop_keeper(ROOMOFFSET, state), keeper);
+    assert.deepEqual(bill.map((entry) => entry.price), [2, 4, 6, 9]);
+});
+
+test('restshk pacifies a ghostly keeper for a different customer', () => {
+    // shk.c restshk():303-304 calls pacify_shk(TRUE); :1355-1356 subtracts
+    // a rounded-up quarter. These are the surcharged 1, 3, and 4 prices from
+    // the preceding test, so the restored bill returns to those values.
+    const bill = [{ price: 2 }, { price: 4 }, { price: 6 }];
+    const keeper = billShopkeeper(ROOMOFFSET, bill);
+    keeper.mpeaceful = false;
+    keeper.mextra.eshk.surcharge = true;
+    keeper.mextra.eshk.customer = 'Former';
+    keeper.mextra.eshk.bill = bill;
+    const state = {
+        plname: 'Current',
+        // A later dungeon depth exercises restshk's home-level assignment.
+        u: { uz: { dnum: 0, dlevel: 2 } },
+    };
+    restshk(keeper, true, state);
+    assert.equal(keeper.mpeaceful, true);
+    assert.equal(keeper.mextra.eshk.surcharge, false);
+    assert.equal(keeper.mextra.eshk.bill_p, bill);
+    assert.deepEqual(bill.map((entry) => entry.price), [1, 3, 4]);
+    assert.deepEqual(keeper.mextra.eshk.shoplevel, state.u.uz);
+});
 
 function ownershipShopkeeper(roomno, bill, next = null) {
     const shopkeeper = billShopkeeper(roomno, bill, next);

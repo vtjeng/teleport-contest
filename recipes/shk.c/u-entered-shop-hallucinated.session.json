@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9700006,
+      "datetime": "20390927141723",
+      "nethackrc": "OPTIONS=name:FreshShop,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizintrinsic\nh\n \u00165\n .",
+      "comment": "Blocked before shop entry by invent.c currency(): hallucinated currency is unported. The same independently selected D:5 shop setup first enables hallucination with wizcmds.c wiz_intrinsic(); shk.c u_entered_shop() hallucinated naming is source-pinned in level-teleport-arrival.test.mjs."
+    }
+  ]
+}

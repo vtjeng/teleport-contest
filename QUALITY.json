@@ -270,6 +270,7 @@
         "js/input.js",
         "js/lock.js",
         "js/pager.js",
+        "js/pline.js",
         "js/sit.js",
         "js/topten.js",
         "js/tty_menu.js",

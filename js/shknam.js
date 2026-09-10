@@ -1,6 +1,6 @@
 // Shop stocking and shopkeeper creation.
 // C ref: shknam.c veggy_item(), shkveg(), mkveggy_at(), nameshk(), shkinit(),
-// mkshobj_at(), and stock_room(). The shop records come from
+// mkshobj_at(), stock_room(), shkname(), and Shknam(). The shop records come from
 // js/shtypes_data.js, generated from shknam.c shtypes[].
 
 import {
@@ -12,6 +12,8 @@ import {
     D_NODOOR,
     D_TRAPPED,
     HEALTHY_TIN,
+    HALLUC,
+    HALLUC_RES,
     IS_ROOM,
     MM_ESHK,
     PL_NSIZ,
@@ -21,6 +23,7 @@ import {
     ismnum,
 } from './const.js';
 import { depth, ledger_no } from './dungeon.js';
+import { noit_mon_nam } from './do_name.js';
 import { set_tin_variety, vegetarian } from './eat.js';
 import { make_engr_at } from './engrave.js';
 import { game } from './gstate.js';
@@ -49,6 +52,7 @@ import {
 } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { newsym } from './display.js';
+import { note_unported } from './unported.js';
 import {
     SHTYPES,
     shkgeneral,
@@ -58,6 +62,49 @@ import {
 } from './shtypes_data.js';
 
 const SOURCE_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
+
+// C ref: shknam.c shkname() (856-900). The preliminary monster name is
+// overwritten for a shopkeeper, but its display-RNG draws still occur.
+export function shkname(shopkeeper, state = game, env = {}) {
+    const wasShopkeeper = shopkeeper.isshk;
+    shopkeeper.isshk = false;
+    let fallback;
+    try {
+        fallback = noit_mon_nam(shopkeeper, state, env);
+    } finally {
+        shopkeeper.isshk = wasShopkeeper;
+    }
+    if (!shopkeeper.isshk) {
+        note_unported('pline.c impossible');
+        return fallback;
+    }
+    const extension = shopkeeper.mextra?.eshk;
+    if (!extension) {
+        note_unported('end.c panic');
+        return fallback;
+    }
+
+    let name = extension.shknam;
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    if (state.u?.uprops?.[HALLUC]?.intrinsic
+        && !(resistance?.intrinsic || resistance?.extrinsic)
+        && !state.program_state?.gameover) {
+        const roll = env.random?.rn2 ?? rn2;
+        let count = 0;
+        while (count < SHTYPES.length && SHTYPES[count].prob !== 0) ++count;
+        if (count > 0) {
+            const names = SHTYPES[roll(count)].shknms;
+            if (names.length > 0) name = names[roll(names.length)];
+        }
+    }
+    return /^[A-Za-z]/u.test(name) ? name : name.slice(1);
+}
+
+// C ref: shknam.c Shknam() (843-851), the sentence-initial spelling.
+export function Shknam(shopkeeper, state = game, env = {}) {
+    const name = shkname(shopkeeper, state, env);
+    return name ? name[0].toUpperCase() + name.slice(1) : name;
+}
 
 // C ref: shknam.c:19. The pseudo-class the health food store's iprobs[] names
 // where every other row names a real object class or a negated object type.

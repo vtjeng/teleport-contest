@@ -34,6 +34,7 @@ import {
 import { GameDisplay } from './game_display.js';
 import { setStorageForTesting } from './storage.js';
 import { light_globals_init } from './light.js';
+import { shk_globals_init } from './shk.js';
 import { objects_globals_init } from './objects.js';
 import { monst_globals_init } from './monsters.js';
 import { timeout_globals_init } from './timeout.js';
@@ -298,6 +299,7 @@ export class NethackGame {
         monst_globals_init(g);
         timeout_globals_init(g);
         light_globals_init(g);
+        shk_globals_init();
         setStorageForTesting(this._storage);
         // Recorder patch 001 routes calendar.c:getnow() through this fixed
         // YYYYMMDDHHMMSS value and leaks its current tm_isdst bit.
