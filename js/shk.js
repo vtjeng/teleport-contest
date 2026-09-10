@@ -12,7 +12,6 @@ import {
     A_CHA,
     ANY_SHOP,
     ACH_SHOP,
-    BLINDED,
     BUFSZ,
     CONFLICT,
     DETECT_MONSTERS,
