@@ -4,12 +4,35 @@
 // config_error_done(); pline.c config_error_add().
 
 import { game } from './gstate.js';
-import { encodeUtf8ByteString } from './hacklib.js';
-import { WARNCOUNT } from './const.js';
+import {
+    encodeUtf8ByteString,
+    truncateByteString,
+} from './hacklib.js';
+import { BUFSZ, ECMD_OK, WARNCOUNT } from './const.js';
 import { add_menu_coloring } from './coloratt.js';
+import { get_feature_notice_ver } from './version.js';
+import { note_unported } from './unported.js';
 
 // C ref: cfgfiles.c default_configfile (126-139), the UNIX arm.
 export const DEFAULT_CONFIGFILE = '.nethackrc';
+
+// C ref: global.h set_in_sysconf (581).  The JavaScript parser receives the
+// configuration text directly, so this value is used only when a source-shaped
+// fopen_config_file() caller identifies the system configuration path.
+export const SET_IN_SYSCONF = 0;
+
+const FEATURE_NOTICE_3_7_0 = Number(get_feature_notice_ver('3.7.0'));
+const OVERWRITE_PROMPT_FORMAT = 'Overwrite config file %.*s?';
+// C's sizeof overwrite_prompt includes its terminating NUL, and the extra two
+// bytes leave room for the formatted string's own terminating NUL and margin.
+const OVERWRITE_FILENAME_LIMIT = BUFSZ
+    - (OVERWRITE_PROMPT_FORMAT.length + 1) - 2;
+
+// C ref: cfgfiles.c get_default_configfile() (149-152).  The recorder builds
+// the UNIX configuration path, whose compiled-in basename is .nethackrc.
+export function get_default_configfile() {
+    return DEFAULT_CONFIGFILE;
+}
 
 // C ref: cfgfiles.c get_configfile().  set_configfile_name() stores the path
 // fopen_config_file() opened, which on UNIX is "$HOME/.nethackrc".  A segment
@@ -21,7 +44,93 @@ export const DEFAULT_CONFIGFILE = '.nethackrc';
 // config_error_done() below prints the whole path and cannot match a
 // recording.
 export function get_configfile(state = game) {
-    return state?.configfile ?? DEFAULT_CONFIGFILE;
+    return state?.configfile ?? get_default_configfile();
+}
+
+// C ref: cfgfiles.c do_write_config_file() (169-212).  The browser and the
+// scorer provide configuration as segment text, not as a host pathname.  This
+// function preserves the messages, waits, overwrite decision, and return code;
+// after the decision, the unavailable fopen()/fwrite() side is an explicit gap.
+export async function do_write_config_file(state = game, env = {}) {
+    const message = env.message ?? (async () => {});
+    const wait = env.wait ?? (async () => {});
+    const query = env.query ?? env.paranoidQuery;
+    const configfile = state?.configfile ?? '';
+
+    if (!configfile) {
+        await message('Strange, could not figure out config file name.', state);
+        return ECMD_OK;
+    }
+
+    if (Number(state.flags?.suppress_alert ?? 0)
+        < FEATURE_NOTICE_3_7_0) {
+        await message('Warning: saveoptions is highly experimental!', state);
+        await wait(state);
+        await message('Some settings are not saved!', state);
+        await wait(state);
+        await message(
+            'All manual customization and comments are removed from the file!',
+            state,
+        );
+        await wait(state);
+    }
+
+    const filename = truncateByteString(
+        configfile, OVERWRITE_FILENAME_LIMIT,
+    );
+    const prompt = `Overwrite config file ${filename}?`;
+    // cmd.c paranoid_query(TRUE, ...) is the source's input operation.  Keep
+    // it injectable so tests can exercise both answers without making this
+    // leaf import cmd.js (which would close options.js's import cycle).
+    if (typeof query !== 'function') {
+        note_unported('cmd.c paranoid_query');
+        return ECMD_OK;
+    }
+    if (!await query(true, prompt, state)) return ECMD_OK;
+
+    // C now opens configfile for writing and serializes all_options_strbuf().
+    // JavaScript has no host filesystem in the contest runtime, so do not
+    // invent a pathname or a second configuration store for this operation.
+    note_unported('cfgfiles.c fopen');
+    return ECMD_OK;
+}
+
+// C ref: cfgfiles.c set_configfile_name() (216-220).  configfile is a fixed
+// BUFSZ-byte C buffer; truncate by UTF-8 bytes and leave one byte for NUL.
+export function set_configfile_name(fname, state = game) {
+    state.configfile = truncateByteString(String(fname ?? ''), BUFSZ - 1);
+}
+
+// C ref: cfgfiles.c fopen_config_file() (223-370).  parseNethackrc() already
+// has the configuration text, so this source-shaped helper never reads a host
+// file.  It still follows the UNIX name-selection order and leaves the selected
+// name in state.configfile for diagnostics and option messages.
+export function fopen_config_file(filename, src, state = game) {
+    const supplied = filename != null && String(filename).length > 0;
+    if (src === SET_IN_SYSCONF) {
+        if (supplied) {
+            // fqname() would add the compiled system prefix. That prefix is
+            // not part of the text-backed segment input, so retain the name
+            // the caller supplied while recording the skipped open.
+            set_configfile_name(filename, state);
+            note_unported('cfgfiles.c fopen');
+        }
+        return null;
+    }
+
+    if (supplied) {
+        // The UNIX ~/ expansion depends on HOME, which the browser contract
+        // does not expose. Keep the source spelling in the diagnostic state.
+        set_configfile_name(filename, state);
+        note_unported('cfgfiles.c fopen');
+    }
+
+    // UNIX falls through to $HOME/.nethackrc; without a host HOME value the
+    // text-backed equivalent is the compiled-in basename. There is no FILE*
+    // to return because the segment supplied the text independently.
+    set_configfile_name(get_default_configfile(), state);
+    note_unported('cfgfiles.c fopen');
+    return null;
 }
 
 // C ref: cfgfiles.c struct _config_error_frame (1455-1464) and

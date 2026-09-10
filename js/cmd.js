@@ -378,6 +378,8 @@ import {
     ttyPline,
     UnsupportedUrgentMessageError,
 } from './tty_message.js';
+import { tty_wait_synch } from './tty_rawprint.js';
+import { do_write_config_file } from './cfgfiles.js';
 import { note_unported } from './unported.js';
 import {
     selection_floodfill,
@@ -5088,6 +5090,14 @@ async function doextcmd(key, state) {
     case 'dosave':
         // C ref: save.c dosave(), which always returns ECMD_OK.
         return await dosave(state);
+    case 'do_write_config_file':
+        // C ref: cfgfiles.c do_write_config_file(), which returns ECMD_OK
+        // after the overwrite query and its file-write attempt.
+        return await do_write_config_file(state, {
+            message: ttyPline,
+            wait: tty_wait_synch,
+            query: paranoid_query,
+        });
     case 'doforce':
         // C ref: lock.c doforce(), which returns ECMD_OK or ECMD_TIME.
         return await doforce(state);
