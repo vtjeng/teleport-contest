@@ -19684,7 +19684,7 @@
     {
       "id": "port-cfgfiles-path-handlers",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port cfgfiles.c configuration path and opening helpers",
       "cFile": "cfgfiles.c",
       "sessions": [],
@@ -19692,8 +19692,8 @@
       "spans": [
         {
           "name": "get_default_configfile..fopen_config_file",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "08dd030ebefb2aa0ffb50e511fd01786f0a91684",
           "functions": [
             "get_default_configfile",
             "do_write_config_file",
@@ -19708,32 +19708,35 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "08dd030ebefb2aa0ffb50e511fd01786f0a91684",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "get_default_configfile",
           "line": 149,
           "endLine": 168,
-          "ported": false
+          "ported": true
         },
         {
           "name": "do_write_config_file",
           "line": 169,
           "endLine": 215,
-          "ported": false
+          "ported": true
         },
         {
           "name": "set_configfile_name",
           "line": 216,
           "endLine": 222,
-          "ported": false
+          "ported": true
         },
         {
           "name": "fopen_config_file",
           "line": 223,
           "endLine": 380,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
