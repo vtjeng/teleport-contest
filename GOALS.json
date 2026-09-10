@@ -22488,7 +22488,16 @@
       ],
       "selectionReason": "The highest-ranked development mismatch is seed0030-ten-diverse-deaths at global step 1261 (segment 6, local step 240, key y), where an ordinary gnome arrow reaches mthrowu.c thitu() after matching m_throw() and dmgval() behavior. C's generic hit branch calls hack.c losehp() even when damage is lethal; js/mthrowu.js thitu() instead refuses at its planning-only fatal-hit guard. Select the smallest source range, thitu() lines 75-161, and wire the existing monsterMissileEnv planning/live caller through the existing MonsterDeathPlanningError handoff.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "thitu",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "thitu"
+          ]
+        }
+      ],
       "openedAt": "49974a4e3914949d6af8932617c774461f7defa5",
       "openStanding": {
         "sha": "b8a278cf93dff12a0c977f98d0fd59e378e16b17",
