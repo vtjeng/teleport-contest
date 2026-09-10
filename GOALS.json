@@ -21108,7 +21108,7 @@
     {
       "id": "port-end-done-in-by-shopkeeper",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port end.c done_in_by() shopkeeper killer naming now that shknam.c shkname() is available, preserving honorific, KILLED_BY format, and death continuation.",
       "cFile": "end.c",
       "sessions": [
@@ -21132,8 +21132,11 @@
         "screens": 5417,
         "rng": 390102
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6b5f0498318b38a77f033d11d0a00ec6f77e6240",
+      "delivered": {
+        "screens": 6,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "done_in_by",
@@ -21203,7 +21206,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 582,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "really_done(0) for killer \"Ms. Maganasipi, the shopkeeper\" in format 1",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 1371
+        }
+      ]
     }
   ]
 }
