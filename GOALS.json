@@ -20593,7 +20593,7 @@
     {
       "id": "port-shk-u-entered-shop",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete shk.c u_entered_shop() shop-entry transition and wire its production caller so empty and untended shops, customer reset, greetings, invisibility, anger, debt and robbery states, and pick or steed blocking follow C.",
       "cFile": "shk.c",
       "sessions": [
@@ -20617,8 +20617,11 @@
         "screens": 5414,
         "rng": 390072
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5ca7bae7fa4aa8fa60372b091b7e591495364a41",
+      "delivered": {
+        "screens": 3,
+        "rng": 18
+      },
       "functions": [
         {
           "name": "u_entered_shop",
@@ -20693,7 +20696,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 576,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: angering a peaceful monster",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 1377
+        }
+      ]
     }
   ]
 }
