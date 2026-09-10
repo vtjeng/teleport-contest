@@ -348,7 +348,10 @@ export async function burnarmor(victim, env) {
         // this span, so keep the existing fail-closed boundary before the
         // armor slot draw. A dry towel leaves the scan walking as C's does.
         if (item.otyp === TOWEL && (item.spe ?? 0) > 0) {
-            throw new UnsupportedErosionError('dry_a_towel() for a wet towel');
+            if (victim === state.youmonst)
+                throw new UnsupportedErosionError('dry_a_towel() for a wet towel');
+            random.rn2((item.spe ?? 0) + 1);
+            note_unported('apply.c dry_a_towel');
         }
     }
 
