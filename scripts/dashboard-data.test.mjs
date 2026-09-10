@@ -326,14 +326,14 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     const orphanRow = table.split('</tr>').find((row) => row.includes('orphan'));
     const alphaRow = table.split('</tr>').find((row) => row.includes('alpha'));
     const betaRow = table.split('</tr>').find((row) => row.includes('beta'));
-    // The kind badges come from GOALS.json: alpha is a file port, orphan a
-    // divergence fix, legacy neither.
-    assert.match(alphaRow, /class="file-badge"[^>]*>file port</u);
-    assert.match(orphanRow, /class="div-badge"[^>]*>div fix</u);
-    // `empty` has no GOALS.json record, so it carries neither badge. (The
+    // The row's kind class draws its stripe; the kinds come from GOALS.json:
+    // alpha is a file port, orphan a divergence fix.
+    assert.match(alphaRow, /<tr class="kind-file-port/u);
+    assert.match(orphanRow, /<tr class="kind-divergence-fix/u);
+    // `empty` has no GOALS.json record, so it counts as a boundary stop. (The
     // legacy goal is hidden from this table: its inferred timing is zero.)
     const emptyRow = table.split('</tr>').find((row) => row.includes('empty'));
-    assert.doesNotMatch(emptyRow, /-badge"[^>]*>(file port|div fix)</u);
+    assert.match(emptyRow, /<tr class="kind-boundary/u);
     // The file-port table lists both records with their goal and function
     // counts: alpha's one goal is closed, beta's is open.
     const filePortTable = rendered.get('filePortTable').innerHTML;
