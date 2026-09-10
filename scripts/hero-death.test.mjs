@@ -916,6 +916,48 @@ test('done_in_by names a shopkeeper with C honorific and format rules',
     }
 });
 
+test('a monster death with KILLED_BY reaches really_done()', async () => {
+    // end.c:1119-1124 returns only after savelife(); every other death falls
+    // through to really_done(how), with no killer-format restriction. This
+    // source pin guards the control-flow contract that the live test below
+    // exercises.
+    assert.match(
+        END_C,
+        /if \(survive\) \{[\s\S]*?return;\s*\}\s*really_done\(how\);/u,
+    );
+
+    await dyingGame();
+    // end.c really_done():1042-1045 refuses first-move deaths before it asks
+    // disclosure questions. Setting moves to one makes reaching that refusal
+    // an observable proof that done_in_by() crossed the format gate.
+    game.moves = 1;
+    const shopkeeper = killerMonster(PM_SHOPKEEPER, {
+        female: true,
+        isshk: true,
+        mextra: { eshk: { shknam: 'Adjama' } },
+    });
+    // done_in_by() prints "You die..." over the pending welcome line.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await assert.rejects(
+        done_in_by(shopkeeper, DIED, game),
+        /really_done\(\) first-move death message/u,
+    );
+    assert.equal(game.killer.name, 'Ms. Adjama, the shopkeeper');
+    assert.equal(game.killer.format, KILLED_BY);
+    assert.equal(game.program_state.gameover, 1);
+
+    await dyingGame();
+    game.moves = 1;
+    game.killer = { name: 'named monster', format: KILLED_BY };
+    // done()'s production caller marker remains a gate: a named KILLED_BY
+    // record from a non-monster caller still stops before really_done().
+    await assert.rejects(
+        done(DIED, game),
+        /really_done\(0\) for killer "named monster" in format 1/u,
+    );
+    assert.equal(game.program_state.gameover, undefined);
+});
+
 test('done_in_by sets ugrave_arise for a wraith', async () => {
     // end.c:326-327. A wraith's mlet is S_WRAITH, so ugrave_arise receives
     // PM_WRAITH.

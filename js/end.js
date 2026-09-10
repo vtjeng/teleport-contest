@@ -595,7 +595,8 @@ export async function done(how, state = game, source = {}) {
         return;
     }
     if (how === DIED && source.fromMonster
-        && killer.format === KILLED_BY_AN && killer.name) {
+        && (killer.format === KILLED_BY_AN || killer.format === KILLED_BY)
+        && killer.name) {
         await really_done(how, state);
         return;
     }

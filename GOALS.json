@@ -21224,6 +21224,59 @@
           "remainingScreensUpperBound": 1371
         }
       ]
+    },
+    {
+      "id": "divergence-end-done-shopkeeper-format",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Allow monster lethal deaths with KILLED_BY killer formats to continue through really_done",
+      "cFile": "end.c",
+      "sessions": [],
+      "selectionReason": "The highest-ranked unresolved candidate is seed0030-ten-diverse-deaths at step 582. Fresh replay reaches an implemented end.c done() gate after done_in_by() assigns the shopkeeper KILLED_BY format; source tracing identifies that gate as the responsible owner.",
+      "detail": "Development session seed0030-ten-diverse-deaths, segment 3, input step 582: first mismatch is a stop after the C death screen. Upstream end.c done() continues to really_done() after done_in_by() regardless of whether killer.format is KILLED_BY_AN or KILLED_BY. The JavaScript done() gate at js/end.js only enters really_done() when source.fromMonster and killer.format === KILLED_BY_AN, so a shopkeeper named by done_in_by() with KILLED_BY stops early at really_done(0) instead of processing paybill and disclosure. The preceding mdamageu() state and RNG match; the suspected owner is js/end.js done().",
+      "spans": [
+        {
+          "name": "done",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "done"
+          ]
+        }
+      ],
+      "openedAt": "1fec65da9c1f6430d634a6c5dc70394ad57c8d3f",
+      "openStanding": {
+        "sha": "1fec65da9c1f6430d634a6c5dc70394ad57c8d3f",
+        "screens": 5423,
+        "rng": 390102
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "done",
+      "session": "seed0030-ten-diverse-deaths",
+      "step": 582,
+      "activeStanding": {
+        "sha": "1fec65da9c1f6430d634a6c5dc70394ad57c8d3f",
+        "screens": 5423,
+        "rng": 390102
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 582,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "really_done(0) for killer \"Ms. Maganasipi, the shopkeeper\" in format 1",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 1371
+        }
+      ]
     }
   ]
 }
