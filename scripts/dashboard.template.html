@@ -676,6 +676,8 @@ function fmt(n) {
   return Math.round(n) + 'm';
 }
 function fmtN(n) { return n == null ? '-' : n.toLocaleString(); }
+// A signed screen delta: "+16", "−378", or "-" when there is none.
+function fmtDelta(n) { return n == null ? '-' : n < 0 ? '−' + (-n) : '+' + n; }
 function pct(a, b) { return b ? (a / b * 100).toFixed(1) + '%' : '-'; }
 function fmtTiming(n, observed) {
   return n == null ? '-' : fmt(n) + (observed ? '' : ' †');
@@ -787,9 +789,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       + '<td>' + file.goalsClosed + ' / ' + file.goals.length + '</td>'
       + '<td>' + file.functionsPorted + ' / ' + file.functionsTotal + '</td>'
       + '<td>' + file.spansClosed + ' / ' + file.spansTotal + '</td>'
-      + '<td>' + (file.screensDelivered == null ? '-'
-        : file.screensDelivered < 0 ? '−' + (-file.screensDelivered)
-          : '+' + file.screensDelivered) + '</td>'
+      + '<td>' + fmtDelta(file.screensDelivered) + '</td>'
       + '</tr>';
   });
   html += '</tbody>';
@@ -1640,7 +1640,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       ? ' <span class="file-badge" title="' + (g.cFile || '') + ': ' + g.functionsPorted + ' / ' + g.functionsTotal + ' functions ported">file port</span>'
       : '';
 
-    const deltaCell = g.screensDelta !== null && g.screensDelta !== undefined ? '+' + g.screensDelta : '-';
+    const deltaCell = fmtDelta(g.screensDelta);
     const trClass = g.status === 'in-progress' ? ' class="in-progress"' : '';
 
     const selMin = g.goalSelectionMin || 0;
