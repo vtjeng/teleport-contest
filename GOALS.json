@@ -21284,7 +21284,7 @@
     {
       "id": "port-fountain-drinkfountain-tepid-water",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port drinkfountain() tepid-water default fate and common dryup continuation",
       "cFile": "fountain.c",
       "sessions": [
@@ -21295,8 +21295,8 @@
       "spans": [
         {
           "name": "drinkfountain",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "76b101cf23acc0eba35c7a326b38d6d428608e49",
           "functions": [
             "drinkfountain"
           ]
@@ -21308,15 +21308,18 @@
         "screens": 5474,
         "rng": 396679
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "76b101cf23acc0eba35c7a326b38d6d428608e49",
+      "delivered": {
+        "screens": 506,
+        "rng": 24843
+      },
       "functions": [
         {
           "name": "drinkfountain",
           "line": 243,
           "endLine": 393,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -21343,6 +21346,63 @@
           "unlocatedKinds": [],
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 1320
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "drinkfountain",
+            "implementation": "js/fountain.js",
+            "symbol": "drinkfountain",
+            "sourceReview": "Read the complete upstream fountain.c drinkfountain() definition at lines 243-390 and compared every source branch and evaluation order with js/fountain.js: the blessed-fountain and positive-luck guard, levitation return, refreshing draught and hunger update, fate cases 19 through 30, default tepid water, and the common dryup() tail. Existing source-traced boundaries remain explicit for downstream fountain effects whose C helpers are not yet ported; this span removes the obsolete default refusal. The default branch evaluates hliquid(\"water\") for the message, then the function awaits dryup() so its core rn2(3) draw and possible terrain update occur after the message, matching C. hliquid() receives the display-random injection through env and therefore does not add a core draw for ordinary water.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:542-549 calls drinkfountain() after confirming the hero stands on a reachable fountain and answers the y_n() prompt; js/potion.js dodrink() awaits drinkfountain(state) at lines 878-881."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c:1809 registers dodrink() for the q quaff command and cmd.c:3810-3818 handles its ECMD result; js/cmd.js runQuaffCommand() forwards the production q dispatch to dodrink() through failClosedCommand()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/fountain.c/drinkfountain-tepid-water.session.json"
+            ],
+            "checkedAt": "76b101cf23acc0eba35c7a326b38d6d428608e49"
+          }
+        ],
+        "entryPointReview": "The selected source unit has one production entry point: the q quaff command reaches cmd.js runQuaffCommand(), then potion.js dodrink(), which checks the fountain and prompt before calling drinkfountain(). The new recipe exercises this full caller path on an independently selected seed, role, datetime, option set, and movement sequence; its final y key reaches the default fate and the dryup() continuation. The recording matches the patched C output, RNG log, screens, and cursor positions.",
+        "entryPoints": [
+          {
+            "name": "drink from a fountain",
+            "functions": [
+              "drinkfountain"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinkfountain-tepid-water.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1139,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires trap activation",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 814
         }
       ]
     }
