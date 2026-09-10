@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 // Run every synchronous regex adversary in its own process. The parent can
-// interrupt a fixed-point regression, while each child reports wall time and
-// maxRSS without inheriting another case's allocations.
+// interrupt a fixed-point regression, while each child reports CPU time,
+// wall time, and maxRSS without inheriting another case's allocations.
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -50,6 +50,7 @@ function runFixedPointCases() {
 }
 
 function runChild(name) {
+    const cpuStarted = process.cpuUsage();
     const started = performance.now();
     if (name === FIXED_POINT_REGEX_RESOURCE_CASE.name) {
         runFixedPointCases();
@@ -60,23 +61,31 @@ function runChild(name) {
         if (!entry) throw new Error(`unknown resource case: ${name}`);
         runSingleCase(entry);
     }
+    const elapsedMs = performance.now() - started;
+    // Sum user and system CPU across the child, including runtime work on
+    // other threads. Time waiting to be scheduled is not matcher work.
+    const cpuUsed = process.cpuUsage(cpuStarted);
     return {
         name,
-        elapsedMs: performance.now() - started,
+        cpuMs: (cpuUsed.user + cpuUsed.system) / 1000,
+        elapsedMs,
         maxRssKiB: process.resourceUsage().maxRSS,
     };
 }
 
-function runBoundedChild(name, budget) {
-    // The child enforces the measured matcher budget. The outer timeout adds
-    // startup allowance but still turns a synchronous fixed point into a
-    // process-level failure that the parent can observe.
-    const result = spawnSync(
+export function runBoundedChild(name, budget, {
+    run = spawnSync,
+    output = (line) => process.stdout.write(line),
+} = {}) {
+    // Keep the existing wall watchdog and startup allowance: CPU accounting
+    // checks completed work, but a synchronous fixed point still needs to be
+    // interrupted from outside the child.
+    const result = run(
         process.execPath,
         [SCRIPT_PATH, '--case', name],
         {
             encoding: 'utf8',
-            timeout: budget.budgetMs + 2000,
+            timeout: budget.budgetCpuMs + 2000,
             maxBuffer: 1024 * 1024,
         },
     );
@@ -87,14 +96,16 @@ function runBoundedChild(name, budget) {
     }
     const measured = JSON.parse(result.stdout);
     assert.equal(measured.name, name);
-    assert.ok(measured.elapsedMs <= budget.budgetMs,
-        `${name} took ${measured.elapsedMs.toFixed(1)} ms`);
+    assert.ok(measured.cpuMs <= budget.budgetCpuMs,
+        `${name} used ${measured.cpuMs.toFixed(1)} ms CPU `
+            + `(${measured.elapsedMs.toFixed(1)} ms wall)`);
     assert.ok(measured.maxRssKiB <= budget.budgetMaxRssKiB,
         `${name} used ${measured.maxRssKiB} KiB maxRSS`);
-    process.stdout.write(
-        `${name}: ${measured.elapsedMs.toFixed(1)} ms, `
+    output(
+        `${name}: ${measured.cpuMs.toFixed(1)} ms CPU, `
+            + `${measured.elapsedMs.toFixed(1)} ms wall, `
             + `${measured.maxRssKiB} KiB maxRSS `
-            + `(budgets ${budget.budgetMs} ms/`
+            + `(budgets ${budget.budgetCpuMs} ms CPU/`
             + `${budget.budgetMaxRssKiB} KiB)\n`,
     );
 }

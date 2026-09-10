@@ -1,6 +1,8 @@
 // Exact BUFSZ-boundary inputs shared by the recorder-libc oracle and the
 // JavaScript resource runner. Keep this module dependency-free so neither
 // runner imports the other's timing, process, or compiler machinery.
+// Resource budgets cover CPU work; the process runner separately bounds wall
+// time so a hung case still terminates during concurrent test execution.
 
 export const REGEX_EXACT_BOUNDARY_BYTES = 255;
 
@@ -11,7 +13,7 @@ const REFERENCE_WIDE_FRONTIER_PATTERN = '(a'
 const CORRELATED_REFERENCE_PATTERN = String.raw`^((a+)|(a+)|(a+)|(a+))*\2\3\4\5`
     + '()'.repeat(108) + 'c{235}b$';
 
-function exactCase(name, pattern, input, expected, budgetMs,
+function exactCase(name, pattern, input, expected, budgetCpuMs,
     budgetMaxRssKiB) {
     return Object.freeze({
         kind: 'exact-boundary',
@@ -19,7 +21,7 @@ function exactCase(name, pattern, input, expected, budgetMs,
         pattern,
         input,
         expected,
-        budgetMs,
+        budgetCpuMs,
         budgetMaxRssKiB,
     });
 }
@@ -70,7 +72,7 @@ export const EXACT_BOUNDARY_REGEX_CASES = Object.freeze([
 export const FIXED_POINT_REGEX_RESOURCE_CASE = Object.freeze({
     kind: 'fixed-point',
     name: 'adjacent-repeat-fixed-point',
-    budgetMs: 1000,
+    budgetCpuMs: 1000,
     budgetMaxRssKiB: 96 * 1024,
     cases: Object.freeze([
         Object.freeze({
