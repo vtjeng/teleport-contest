@@ -20994,8 +20994,8 @@
       "spans": [
         {
           "name": "distfleeck",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "a41757e7cf8a4bf3e5569057d9cbb80d5f79bcfa",
           "functions": [
             "distfleeck"
           ]
@@ -21015,7 +21015,7 @@
           "line": 533,
           "endLine": 573,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -21043,7 +21043,47 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 1377
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "distfleeck",
+            "implementation": "js/monmove.js",
+            "symbol": "distfleeck",
+            "sourceReview": "Read the complete monmove.c distfleeck() definition at lines 533-573. The port preserves the unconditional brave-gremlin rn2(5) draw before distance checks, inrange then nearby evaluation, displaced or invisible hero square selection, onscary before fleeing-light and sanctuary checks, and the nearby-only scared result. When scared it preserves rn2(7) before rnd(10 or 100), passes the source TRUE, TRUE flags to monflee(), and awaits the caller-owned operation. The production path supplies the same state and cloned random stream through dochug() at the three C call sites (monmove.c:791, :834, :915); its monster-action dispatcher carries that environment through movemon_singlemon() and runSimpleMonsterAction(). The related mattacku() offensive-item path now also keeps its mbhit() range and mbhitm() damage and discovery draws on that same stream, so the subsequent call begins at the C-equivalent PRNG position. No result-valued unported callee is substituted.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:791, :834, and :915 call distfleeck() before item use, after mind_blast(), and after movement; js/monmove.js dochug() awaits distanceAndFear at each corresponding point with the shared random, state, and monFlee owners."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "movemon_singlemon",
+                "source": "mon.c movemon_singlemon() reaches dochugw() for each monster turn; js/mon.js forwards its normalized action environment, including the planning or live random stream, to the dispatcher that calls dochug()."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "The production simple-monster dispatcher creates the action random owner and invokes dochugw(); its dochug adapter passes that owner into js/monmove.js dochug(), while its mattacku adapter preserves the same owner through use_offensive(), mbhit(), and mbhitm()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monmove.test.mjs",
+              "scripts/monmove-dochug.test.mjs",
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [
+              "recordings/monmove.c/bee-eats-royal-jelly.session.json",
+              "recordings/monmove.c/gelcube-digests-organic.session.json"
+            ],
+            "checkedAt": "a41757e7cf8a4bf3e5569057d9cbb80d5f79bcfa"
+          }
+        ],
+        "entryPointReview": "This helper-only source range has no standalone command or entry point. It is reached by the existing monster-turn entry point through mon.c movemon_singlemon() -> dochugw() -> monmove.c dochug() at each of its three distance-and-fear checks. The cited monmove.c recordings execute those production turns and contain distfleeck(monmove.c:538) calls; the source-pinned tests cover the branch predicates, draw order, asynchronous flee owner, and caller random propagation.",
+        "entryPoints": []
+      }
     }
   ]
 }
