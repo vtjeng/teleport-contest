@@ -1,4 +1,11 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import {
+    existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync,
+    writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import test from 'node:test';
 
 import {
@@ -16,12 +23,143 @@ import {
     formatReplayContext,
     isCommandRefusal,
     isSerializeBugMismatch,
+    loadScanRows,
     main,
     recordedTopLine,
     silentDivergence,
     stopStepIndex,
     supportedCommands,
 } from './scan-sessions.mjs';
+
+function scanCacheFixture(t) {
+    const root = mkdtempSync(join(tmpdir(), 'teleport-scan-cache-'));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    const git = (...args) => execFileSync('git', [
+        '-c', 'core.hooksPath=/dev/null', '-c', 'commit.gpgsign=false',
+        '-c', 'user.name=Cache Test', '-c', 'user.email=cache@example.invalid',
+        ...args,
+    ], { cwd: root, encoding: 'utf8' }).trim();
+    git('init', '--quiet');
+    for (const directory of ['js', 'frozen', 'scripts', 'sessions'])
+        mkdirSync(join(root, directory));
+    const tracked = ['js/game.js', 'frozen/runner.mjs', 'scripts/scan.mjs',
+        'package.json', '.gitignore'];
+    for (const file of tracked) writeFileSync(join(root, file), '{}\n');
+    writeFileSync(join(root, '.gitignore'), '.cache/\n');
+    // Match the production split's 33 direct development files. Their bodies
+    // need no game data: the replay callback returns observable fixture rows.
+    const files = Array.from({ length: 33 }, (_, index) =>
+        `case-${String(index).padStart(2, '0')}.session.json`);
+    for (const file of files) writeFileSync(join(root, 'sessions', file), '{}\n');
+    git('add', '--', ...tracked, ...files.map(file => `sessions/${file}`));
+    git('commit', '--quiet', '-m', 'Create disposable scan inputs');
+    let replays = 0;
+    const replay = async (names) => {
+        replays += 1;
+        return names.map(file => ({ file, replay: replays }));
+    };
+    return { root, git, files, replay, replays: () => replays,
+        cache: join(root, '.cache', 'scan-cache.json') };
+}
+
+test('scan cache reuses clean inputs and ignores unrelated goal edits', async (t) => {
+    const f = scanCacheFixture(t);
+    const first = await loadScanRows(f.root, f.replay);
+    writeFileSync(join(f.root, 'GOALS.json'), '{"changed":true}\n');
+    assert.deepEqual(await loadScanRows(f.root, f.replay), first);
+    assert.equal(f.replays(), 1);
+});
+
+test('same-HEAD input edits bypass the cache without replacing it', async (t) => {
+    for (const [label, path, staged] of [
+        ['tracked gameplay', 'js/game.js', false],
+        ['staged gameplay', 'js/game.js', true],
+        ['untracked gameplay', 'js/new.js', false],
+        ['frozen runner', 'frozen/runner.mjs', false],
+        ['scanner', 'scripts/scan.mjs', false],
+        ['package', 'package.json', false],
+        ['development recording', 'sessions/case-00.session.json', false],
+        ['staged development recording', 'sessions/case-00.session.json', true],
+    ]) {
+        await t.test(label, async (subtest) => {
+            const f = scanCacheFixture(subtest);
+            await loadScanRows(f.root, f.replay);
+            const cached = readFileSync(f.cache, 'utf8');
+            const head = f.git('rev-parse', 'HEAD');
+            writeFileSync(join(f.root, path), '{"changed":true}\n');
+            if (staged) f.git('add', '--', path);
+            const rows = await loadScanRows(f.root, f.replay);
+            assert.equal(f.git('rev-parse', 'HEAD'), head);
+            assert.equal(rows[0].replay, 2);
+            assert.equal(readFileSync(f.cache, 'utf8'), cached);
+        });
+    }
+});
+
+test('scan validates the direct session list and count before using cache', async (t) => {
+    const f = scanCacheFixture(t);
+    await loadScanRows(f.root, f.replay);
+    const cached = readFileSync(f.cache, 'utf8');
+    const oldPath = join(f.root, 'sessions', f.files[0]);
+    const newPath = join(f.root, 'sessions', 'replacement.session.json');
+    renameSync(oldPath, newPath);
+    const rows = await loadScanRows(f.root, f.replay);
+    assert.ok(rows.some(row => row.file === 'replacement.session.json'));
+    assert.equal(readFileSync(f.cache, 'utf8'), cached);
+    rmSync(newPath);
+    await assert.rejects(() => loadScanRows(f.root, f.replay),
+        /development count changed/);
+    assert.equal(f.replays(), 2);
+});
+
+test('legacy scan caches cannot establish that their inputs were clean', async (t) => {
+    const f = scanCacheFixture(t);
+    mkdirSync(join(f.root, '.cache'));
+    writeFileSync(f.cache, JSON.stringify({
+        sha: f.git('rev-parse', 'HEAD'), rows: [{ file: 'stale' }],
+    }));
+    assert.equal((await loadScanRows(f.root, f.replay)).length, f.files.length);
+    assert.equal(f.replays(), 1);
+});
+
+test('dirty forced scans never create a clean-commit cache', async (t) => {
+    const f = scanCacheFixture(t);
+    writeFileSync(join(f.root, 'js/game.js'), '{"changed":true}\n');
+    await loadScanRows(f.root, f.replay, { forceReplay: true });
+    assert.equal(f.replays(), 1);
+    assert.equal(existsSync(f.cache), false);
+});
+
+test('a scan writes no cache when its inputs or commit change during replay', async (t) => {
+    for (const change of ['edit', 'commit', 'session list']) {
+        await t.test(change, async (subtest) => {
+            const f = scanCacheFixture(subtest);
+            const initialHead = f.git('rev-parse', 'HEAD');
+            await loadScanRows(f.root, async (files) => {
+                const rows = await f.replay(files);
+                if (change === 'session list') {
+                    renameSync(join(f.root, 'sessions', files[0]),
+                        join(f.root, 'sessions', 'replacement.session.json'));
+                } else {
+                    writeFileSync(join(f.root, 'js/game.js'), '{"changed":true}\n');
+                    if (change === 'commit') {
+                        f.git('add', '--', 'js/game.js');
+                        f.git('commit', '--quiet', '-m', 'Advance during replay');
+                    }
+                }
+                return rows;
+            });
+            assert.equal(existsSync(f.cache), false);
+            if (change === 'commit') {
+                assert.notEqual(f.git('rev-parse', 'HEAD'), initialHead);
+                await loadScanRows(f.root, f.replay);
+                assert.equal(f.replays(), 2);
+                assert.equal(JSON.parse(readFileSync(f.cache, 'utf8')).sha,
+                    f.git('rev-parse', 'HEAD'));
+            }
+        });
+    }
+});
 
 // A recorded screen is rows joined by newlines, which frozen/screen-decode.mjs
 // decodes directly, so a case can place one glyph without an escape sequence.

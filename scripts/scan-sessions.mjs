@@ -68,27 +68,39 @@ const PROMPT_TERMINATORS = new Set(['\r', '\n']);
 
 const EXTENDED_COMMAND_KEY = '#';
 
-const CACHE_DIR = join(PROJECT_ROOT, '.cache');
-const SCAN_CACHE_PATH = join(CACHE_DIR, 'scan-cache.json');
+// Older caches did not establish that replay inputs were clean when scanned.
+const SCAN_CACHE_VERSION = 1;
 
-function repositoryHead() {
-    return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: PROJECT_ROOT })
+function repositoryHead(root) {
+    return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root })
         .toString().trim();
 }
 
-function writeScanCache(rows) {
-    if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR, { recursive: true });
-    writeFileSync(SCAN_CACHE_PATH, JSON.stringify({
-        sha: repositoryHead(),
-        rows,
-    }));
+function sameFiles(left, right) {
+    return Array.isArray(left) && left.length === right.length
+        && left.every((file, index) => file === right[index]);
 }
 
-function readScanCache() {
-    if (!existsSync(SCAN_CACHE_PATH)) return null;
+function scanInputsUnchanged(root, sha, files) {
+    if (!sameFiles(listSessionFiles(join(root, 'sessions')), files)) return false;
+    // Use only direct development filenames. A sessions/ pathspec would also
+    // inspect the sealed evaluation directory. Include untracked source and
+    // both index and working-tree changes, including an uncommitted merge.
+    const status = execFileSync('git', [
+        '--literal-pathspecs', 'status', '--porcelain=v1', '-z',
+        '--untracked-files=all', '--', 'js/', 'frozen/', 'scripts/',
+        'package.json', ...files.map(file => `sessions/${file}`),
+    ], { cwd: root, encoding: 'utf8' });
+    return status.length === 0 && repositoryHead(root) === sha;
+}
+
+function readScanCache(path, sha, files) {
+    if (!existsSync(path)) return null;
     try {
-        const cache = JSON.parse(readFileSync(SCAN_CACHE_PATH, 'utf8'));
-        if (cache.sha !== repositoryHead()) return null;
+        const cache = JSON.parse(readFileSync(path, 'utf8'));
+        if (cache.version !== SCAN_CACHE_VERSION || cache.sha !== sha
+            || !sameFiles(cache.files, files) || !Array.isArray(cache.rows)
+            || !sameFiles(cache.rows.map(row => row.file), files)) return null;
         return cache.rows;
     } catch {
         return null;
@@ -96,22 +108,38 @@ function readScanCache() {
 }
 
 
-/**
- * Load scan rows from the cache or by replaying all development sessions.
- * Uses the scan cache when HEAD has not changed; replays and writes the cache
- * on a miss.
- */
-export async function loadAnnotatedRows() {
-    const cached = readScanCache();
-    if (cached) return cached;
-    const files = listSessionFiles(DEVELOPMENT_DIR);
+// The root and replay callback let fixture repositories exercise the same
+// cache lifecycle without replaying real games. The CLI always uses this
+// repository and its fixed development directory through loadAnnotatedRows().
+export async function loadScanRows(root, replay, { forceReplay = false } = {}) {
+    const files = listSessionFiles(join(root, 'sessions'));
     if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
         throw new Error('development count changed');
-    const scanned = [];
-    for (const file of files) scanned.push(await scanSession(file));
-    const rows = attachBehaviors(scanned);
-    writeScanCache(rows);
+    const sha = repositoryHead(root);
+    const cacheable = scanInputsUnchanged(root, sha, files);
+    const cacheDir = join(root, '.cache');
+    const cachePath = join(cacheDir, 'scan-cache.json');
+    if (cacheable && !forceReplay) {
+        const cached = readScanCache(cachePath, sha, files);
+        if (cached && scanInputsUnchanged(root, sha, files)) return cached;
+    }
+    const rows = await replay(files);
+    if (cacheable && scanInputsUnchanged(root, sha, files)) {
+        mkdirSync(cacheDir, { recursive: true });
+        writeFileSync(cachePath, JSON.stringify({
+            version: SCAN_CACHE_VERSION, sha, files, rows,
+        }));
+    }
     return rows;
+}
+
+/** Reuse a scan only for the same commit with clean replay inputs. */
+export async function loadAnnotatedRows(options) {
+    return loadScanRows(PROJECT_ROOT, async (files) => {
+        const scanned = [];
+        for (const file of files) scanned.push(await scanSession(file));
+        return attachBehaviors(scanned);
+    }, options);
 }
 // The judge builds each segment's input from exactly these fields; mirroring
 // frozen/ps_test_runner.mjs replayInputFor() keeps this scan aligned with the
@@ -725,7 +753,8 @@ export async function main(args) {
             + ' machine-readable form.'
             + '\n  --debug-full-replay      force a fresh replay even when'
             + ' .cache/scan-cache.json\n'
-            + '                           matches HEAD. For debugging only.'
+            + '                           matches clean replay inputs at HEAD.'
+            + ' For debugging only.'
             + '\n\nThe scanned directory is fixed and no path argument is'
             + ' accepted, so this scan\ncannot be aimed at sessions/holdout/.',
         );
@@ -739,18 +768,7 @@ export async function main(args) {
     const json = args.includes('--json');
     const forceReplay = args.includes('--debug-full-replay');
 
-    let rows;
-    if (forceReplay) {
-        const files = listSessionFiles(DEVELOPMENT_DIR);
-        if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
-            throw new Error('development count changed');
-        const scanned = [];
-        for (const file of files) scanned.push(await scanSession(file));
-        rows = attachBehaviors(scanned);
-        writeScanCache(rows);
-    } else {
-        rows = await loadAnnotatedRows();
-    }
+    const rows = await loadAnnotatedRows({ forceReplay });
 
     if (json) {
         console.log(JSON.stringify({ rows }, null, 2));
