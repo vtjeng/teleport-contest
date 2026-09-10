@@ -22022,6 +22022,383 @@
           "remainingScreensUpperBound": 755
         }
       ]
+    },
+    {
+      "id": "port-trap-magic-trap-monster-arm",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port trap.c monster magic-trap activation, fire-trap fallback, and armor-burning dependency",
+      "cFile": "trap.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The highest-ranked development mismatch is seed0030-ten-diverse-deaths at global step 1198: an ordinary monster enters a MAGIC_TRAP and JavaScript refuses before C's rn2(21) gate. Source tracing shows trapeffect_magic_trap() calls trapeffect_fire_trap() on zero, and that branch depends on burnarmor()'s monster arm; include those return-valued callees in one trap.c span.",
+      "detail": "",
+      "spans": [
+        {
+          "name": "burnarmor..fall_through",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "burnarmor",
+            "erode_obj",
+            "grease_protect",
+            "mk_trap_statue",
+            "dng_bottom",
+            "hole_destination",
+            "maketrap",
+            "clamp_hole_destination",
+            "fall_through"
+          ]
+        }
+      ],
+      "openedAt": "8cf6ff96923a33764cef661a752320e3387f800c",
+      "openStanding": {
+        "sha": "733d3df44d8ffb4931f26768d565a78017356ea5",
+        "screens": 6045,
+        "rng": 425274
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "burnarmor",
+          "line": 88,
+          "endLine": 170,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "erode_obj",
+          "line": 171,
+          "endLine": 359,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "grease_protect",
+          "line": 360,
+          "endLine": 389,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "mk_trap_statue",
+          "line": 390,
+          "endLine": 417,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "dng_bottom",
+          "line": 418,
+          "endLine": 441,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "hole_destination",
+          "line": 442,
+          "endLine": 455,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "maketrap",
+          "line": 456,
+          "endLine": 592,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "clamp_hole_destination",
+          "line": 593,
+          "endLine": 601,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "fall_through",
+          "line": 602,
+          "endLine": 725,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "animate_statue",
+          "line": 726,
+          "endLine": 907,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "activate_statue_trap",
+          "line": 908,
+          "endLine": 938,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "keep_saddle_with_steedcorpse",
+          "line": 939,
+          "endLine": 971,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "mu_maybe_destroy_web",
+          "line": 972,
+          "endLine": 1017,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "t_missile",
+          "line": 1018,
+          "endLine": 1029,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "set_utrap",
+          "line": 1030,
+          "endLine": 1044,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "reset_utrap",
+          "line": 1045,
+          "endLine": 1060,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "floor_trigger",
+          "line": 1061,
+          "endLine": 1085,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "check_in_air",
+          "line": 1086,
+          "endLine": 1097,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "wearing_iron_shoes",
+          "line": 1098,
+          "endLine": 1105,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "m_harmless_trap",
+          "line": 1106,
+          "endLine": 1189,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_arrow_trap",
+          "line": 1190,
+          "endLine": 1250,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_dart_trap",
+          "line": 1251,
+          "endLine": 1323,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_rocktrap",
+          "line": 1324,
+          "endLine": 1402,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_sqky_board",
+          "line": 1403,
+          "endLine": 1478,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_bear_trap",
+          "line": 1479,
+          "endLine": 1562,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_slp_gas_trap",
+          "line": 1563,
+          "endLine": 1594,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_rust_trap",
+          "line": 1595,
+          "endLine": 1729,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_fire_trap",
+          "line": 1730,
+          "endLine": 1824,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_pit",
+          "line": 1825,
+          "endLine": 2012,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_hole",
+          "line": 2013,
+          "endLine": 2069,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "trapeffect_telep_trap",
+          "line": 2070,
+          "endLine": 2087,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "trapeffect_level_telep",
+          "line": 2088,
+          "endLine": 2105,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "trapeffect_web",
+          "line": 2106,
+          "endLine": 2278,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_statue_trap",
+          "line": 2279,
+          "endLine": 2292,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_magic_trap",
+          "line": 2293,
+          "endLine": 2322,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 88,
+        "to": 2322
+      },
+      "activeStanding": {
+        "sha": "733d3df44d8ffb4931f26768d565a78017356ea5",
+        "screens": 6045,
+        "rng": 425274
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1198,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a monster on a magic trap",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 755
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "733d3df44d8ffb4931f26768d565a78017356ea5",
+        "screens": 6045,
+        "rng": 425274
+      },
+      "parkedReason": "The source-order range from burnarmor to trapeffect_magic_trap includes 638 lines of unrelated unverified trap helpers before the blocker. Park this broad selection and reopen a narrow magic-trap goal whose worker can include only the return-valued fire-trap and burnarmor dependencies."
+    },
+    {
+      "id": "port-trap-magic-trap",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port trap.c trapeffect_magic_trap() monster activation and its fire-trap fallback",
+      "cFile": "trap.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The highest-ranked development mismatch is seed0030-ten-diverse-deaths at global step 1198: an ordinary monster enters a MAGIC_TRAP and JavaScript refuses before C's rn2(21) gate. Select the exact source owner; the span must also port return-valued trapeffect_fire_trap() and burnarmor() dependencies from trap.c because C invokes them on the zero-roll branch.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "8cf6ff96923a33764cef661a752320e3387f800c",
+      "openStanding": {
+        "sha": "733d3df44d8ffb4931f26768d565a78017356ea5",
+        "screens": 6045,
+        "rng": 425274
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "trapeffect_magic_trap",
+          "line": 2293,
+          "endLine": 2322,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2293,
+        "to": 2322
+      },
+      "activeStanding": {
+        "sha": "733d3df44d8ffb4931f26768d565a78017356ea5",
+        "screens": 6045,
+        "rng": 425274
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1198,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a monster on a magic trap",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 755
+        }
+      ]
     }
   ]
 }
