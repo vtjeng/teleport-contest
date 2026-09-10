@@ -19,3 +19,17 @@ export function tty_create_nhwindow(type, state = game) {
         state.iflags.msg_history = MAX_MSG_HISTORY;
     }
 }
+
+// wintty.c:298-322. The recorder build leaves TTY_TILES_ESCCODES undefined,
+// so the source's print_vt_code macro expands to an empty statement. Keep the
+// source function name available for source-shaped callers without writing
+// escape sequences to the terminal or changing game state.
+export function print_vt_code(_i, _c, _d, _state = game) {
+    // The compiled C macro has no output and no state effect.
+}
+
+// wintty.c:324-339. USER_SOUNDS and TTY_SOUND_ESCCODES are both disabled in
+// the recorder build, so print_vt_soundcode_idx likewise expands to nothing.
+export function print_vt_soundcode_idx(_idx, _v, _state = game) {
+    // The compiled C macro has no output and no state effect.
+}
