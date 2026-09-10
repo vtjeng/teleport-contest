@@ -20110,7 +20110,7 @@
     {
       "id": "port-nhlua-table-helpers",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port nhlua timer and Lua table entry helpers",
       "cFile": "nhlua.c",
       "sessions": [],
@@ -20136,8 +20136,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "aaadb5c98057f73a09d73990643b19a47d4beea2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "nhl_get_timertype",
