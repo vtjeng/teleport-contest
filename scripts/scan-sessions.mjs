@@ -68,8 +68,8 @@ const PROMPT_TERMINATORS = new Set(['\r', '\n']);
 
 const EXTENDED_COMMAND_KEY = '#';
 
-// Older caches did not establish that replay inputs were clean when scanned.
-const SCAN_CACHE_VERSION = 1;
+// Version 2 keeps gap and input-exhaustion observations in their own segment.
+const SCAN_CACHE_VERSION = 2;
 
 function repositoryHead(root) {
     return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root })
@@ -485,7 +485,7 @@ export async function scanSession(file) {
     let answers = 0;
     let ambiguous = 0;
     const unported = new Set();
-    let inputExhausted = false;
+    const segmentEndStates = [];
 
     for (const [segmentIndex, segment] of data.segments.entries()) {
         let boundary = null;
@@ -495,8 +495,15 @@ export async function scanSession(file) {
         );
         const segmentScreenList = segmentGame.getScreens?.() ?? [];
         const segmentScreens = segmentScreenList.length;
-        for (const fn of segmentGame.getUnported?.() ?? []) unported.add(fn);
-        if (segmentGame.getInputExhausted?.()) inputExhausted = true;
+        const segmentUnported = segmentGame.getUnported?.() ?? [];
+        for (const fn of segmentUnported) unported.add(fn);
+        // A gap in one game cannot explain input exhaustion in another.
+        // Capture both before the next segment resets the game singleton.
+        segmentEndStates.push({
+            segment: segmentIndex,
+            unported: segmentUnported,
+            inputExhausted: Boolean(segmentGame.getInputExhausted?.()),
+        });
         const steps = segment.steps || [];
         const contextFor = (inputThroughStop) => ({
             segment: segmentIndex,
@@ -603,7 +610,7 @@ export async function scanSession(file) {
         answers,
         ambiguous,
         unported: [...unported],
-        inputExhausted,
+        segmentEndStates,
     };
 }
 

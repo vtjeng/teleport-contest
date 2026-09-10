@@ -122,6 +122,17 @@ test('legacy scan caches cannot establish that their inputs were clean', async (
     assert.equal(f.replays(), 1);
 });
 
+test('scan refreshes an older cache schema even at the same commit', async (t) => {
+    const f = scanCacheFixture(t);
+    await loadScanRows(f.root, f.replay);
+    const cached = JSON.parse(readFileSync(f.cache, 'utf8'));
+    // The immediately preceding schema has only session-wide end state.
+    cached.version -= 1;
+    writeFileSync(f.cache, JSON.stringify(cached));
+    await loadScanRows(f.root, f.replay);
+    assert.equal(f.replays(), 2);
+});
+
 test('dirty forced scans never create a clean-commit cache', async (t) => {
     const f = scanCacheFixture(t);
     writeFileSync(join(f.root, 'js/game.js'), '{"changed":true}\n');
