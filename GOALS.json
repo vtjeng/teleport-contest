@@ -20467,7 +20467,7 @@
     {
       "id": "port-worn-mon-adjust-speed",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port worn.c mon_adjust_speed() and wire its production speed-wand and speed-potion callers so monster intrinsic speed, active speed, worn speed boots, messages, and object learning follow C.",
       "cFile": "worn.c",
       "sessions": [
@@ -20578,7 +20578,17 @@
         ],
         "entryPointReview": "This selected range is a helper-only source unit rather than a standalone command or monster-action entry point. Its executed production entry paths are the existing muse.c speed-wand and speed-potion actions, the existing stoning and green-slime callers, and the FAST equipment-effect path; those direct callers are listed above. golemeffects is wired and source-reviewed but has no upstream JavaScript production caller, so it is not claimed as executed production evidence. The two independent matching recordings cover the speed potion and speed wand object classes, and the latter also executes the repaired naming dependency.",
         "entryPoints": []
-      }
+      },
+      "progressBeforePark": {
+        "screens": 4,
+        "rng": 56
+      },
+      "parkedStanding": {
+        "sha": "05d9c401c0eb1f61a5c75ff854e1e78952e52a4b",
+        "screens": 5414,
+        "rng": 390072
+      },
+      "parkedReason": "mon_adjust_speed span closed with source/caller/recording evidence; no additional holdout evaluation is authorized, so retain the goal for later closure."
     }
   ]
 }
