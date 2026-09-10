@@ -20050,6 +20050,48 @@
         "from": 5953,
         "to": 6113
       }
+    },
+    {
+      "id": "port-nhlua-core-lifecycle",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port nhlua core lifecycle and Lua error helpers",
+      "cFile": "nhlua.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [],
+      "openedAt": "2729cc2902e8c5bb903d0f2efd38b16de5d08ec0",
+      "openStanding": {
+        "sha": "8161b07b",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "l_nhcore_done",
+          "line": 159,
+          "endLine": 168,
+          "ported": false
+        },
+        {
+          "name": "l_nhcore_call",
+          "line": 169,
+          "endLine": 198,
+          "ported": false
+        },
+        {
+          "name": "nhl_error",
+          "line": 199,
+          "endLine": 224,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 159,
+        "to": 224
+      }
     }
   ]
 }
