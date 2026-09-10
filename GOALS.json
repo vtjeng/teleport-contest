@@ -19924,6 +19924,60 @@
         "from": 921,
         "to": 1002
       }
+    },
+    {
+      "id": "port-cfgfiles-parser-helpers",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port cfgfiles section-selection and parser helpers",
+      "cFile": "cfgfiles.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [],
+      "openedAt": "40d236960347fe6ed4ea2002e3298ee6c7a2ec28",
+      "openStanding": {
+        "sha": "3b84f0b3",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "adjust_prefix",
+          "line": 441,
+          "endLine": 463,
+          "ported": false
+        },
+        {
+          "name": "choose_random_part",
+          "line": 464,
+          "endLine": 506,
+          "ported": false
+        },
+        {
+          "name": "free_config_sections",
+          "line": 507,
+          "endLine": 522,
+          "ported": false
+        },
+        {
+          "name": "is_config_section",
+          "line": 523,
+          "endLine": 551,
+          "ported": false
+        },
+        {
+          "name": "handle_config_section",
+          "line": 552,
+          "endLine": 587,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 441,
+        "to": 587
+      }
     }
   ]
 }
