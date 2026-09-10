@@ -20195,8 +20195,8 @@
       "spans": [
         {
           "name": "find_objowner..is_unpaid",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c4334ca213f3da518a870e46716c46ee50630f3d",
           "functions": [
             "find_objowner",
             "onshopbill",
@@ -20217,7 +20217,7 @@
           "name": "find_objowner",
           "line": 1084,
           "endLine": 1117,
-          "ported": false
+          "ported": true
         },
         {
           "name": "tended_shop",
@@ -20241,13 +20241,13 @@
           "name": "onshopbill",
           "line": 1160,
           "endLine": 1166,
-          "ported": false
+          "ported": true
         },
         {
           "name": "is_unpaid",
           "line": 1167,
           "endLine": 1174,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
