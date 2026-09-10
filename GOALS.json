@@ -21553,7 +21553,18 @@
       ],
       "selectionReason": "The next implementable development mismatch is seed0030's giant-rat trapdoor activation; source tracing assigns it to trap.c trapeffect_hole through trapeffect_level_telep.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "trapeffect_hole..trapeffect_level_telep",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "trapeffect_hole",
+            "trapeffect_telep_trap",
+            "trapeffect_level_telep"
+          ]
+        }
+      ],
       "openedAt": "94b25d33731a5857b6a2de8c99ea795acd04cd3b",
       "openStanding": {
         "sha": "1e8fda560ffad7c33a748431572eb6d3cd687c8e",
