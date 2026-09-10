@@ -19747,7 +19747,7 @@
     {
       "id": "port-wintty-window-resize",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port wintty.c shutdown and resize window helpers",
       "cFile": "wintty.c",
       "sessions": [],
@@ -19772,8 +19772,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b45bf5a82f0391362d86f7c7afb03e3a8b2ef72b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "bail",
