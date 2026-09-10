@@ -21104,6 +21104,71 @@
           "remainingScreensUpperBound": 1377
         }
       ]
+    },
+    {
+      "id": "port-end-done-in-by-shopkeeper",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port end.c done_in_by() shopkeeper killer naming now that shknam.c shkname() is available, preserving honorific, KILLED_BY format, and death continuation.",
+      "cFile": "end.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The highest queue candidate is seed0030-ten-diverse-deaths at step 576, where the first screen mismatch and boundary are done_in_by() for a shopkeeper. end.c done_in_by() enters its mtmp->isshk branch and C calls shkname() and shkname_is_pname(); js/end.js still throws the stale shopkeeper refusal even though js/shknam.js now ports shkname().",
+      "detail": "",
+      "spans": [
+        {
+          "name": "done_in_by",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "done_in_by"
+          ]
+        }
+      ],
+      "openedAt": "0c7a7c91e385e10528b11f2b13086f507a358eaf",
+      "openStanding": {
+        "sha": "6b871e128d215b0bf86149803cee4739dfceadac",
+        "screens": 5417,
+        "rng": 390102
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "done_in_by",
+          "line": 185,
+          "endLine": 365,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 185,
+        "to": 365
+      },
+      "activeStanding": {
+        "sha": "6b871e128d215b0bf86149803cee4739dfceadac",
+        "screens": 5417,
+        "rng": 390102
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 576,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 1377
+        }
+      ]
     }
   ]
 }
