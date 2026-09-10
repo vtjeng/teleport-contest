@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
-// Detects sessions where unported gaps (note_unported) caused the game to
-// consume all input and attempt an extra read. The scorer's playability
-// runner blocks on that extra read instead of throwing, so catching it here
+// Flags segments that both skipped an unported callee (note_unported) and
+// consumed all input before attempting an extra read. This combination needs
+// investigation; it does not prove the skipped call caused the extra read.
+// The scorer's playability runner blocks on that extra read instead of
+// throwing, so catching it here
 // avoids a 45-second timeout per affected session during scoring.
 //
 // Reads the scan cache (.cache/scan-cache.json) rather than replaying
@@ -25,13 +27,18 @@ function repositoryHead() {
 export function checkOverReads(rows) {
     const flagged = [];
     for (const row of rows) {
-        if (row.unported?.length > 0 && row.inputExhausted) {
-            flagged.push({
-                session: row.file,
-                unported: row.unported,
-                screensEmitted: row.screensEmitted,
-                recordedSteps: row.recordedSteps,
-            });
+        if (!Array.isArray(row.segmentEndStates)) {
+            throw new Error('scan cache lacks segment end states; '
+                + 'rerun node scripts/scan-sessions.mjs --json');
+        }
+        for (const end of row.segmentEndStates) {
+            if (end.unported?.length > 0 && end.inputExhausted) {
+                flagged.push({
+                    session: row.file,
+                    segment: end.segment,
+                    unported: end.unported,
+                });
+            }
         }
     }
     return flagged;
@@ -60,9 +67,10 @@ function main() {
         console.log(`overread: ${rows.length} sessions checked, none over-read`);
     } else {
         for (const entry of flagged) {
-            console.log(`  OVERREAD: ${entry.session} (${entry.unported.join(', ')})`);
+            console.log(`  OVERREAD: ${entry.session} segment ${entry.segment} `
+                + `(${entry.unported.join(', ')})`);
         }
-        console.log(`overread: ${flagged.length} session(s) over-read after gaps`);
+        console.log(`overread: ${flagged.length} segment(s) over-read after gaps`);
         process.exitCode = 1;
     }
 }
