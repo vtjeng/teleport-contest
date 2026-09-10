@@ -205,7 +205,7 @@ test('the unified queue renders C, Lua, and unresolved source owners in priority
             { session: 'movement', step: 2, kind: 'stop', sourceFile: 'hack.c',
                 function: 'test_move', line: 42, recordedSteps: 10,
                 remainingScreensUpperBound: 8 },
-            { session: 'quest', step: 3, kind: 'stop', sourceFile: 'Arc-loca.lua',
+            { session: 'quest', step: 1, kind: 'stop', sourceFile: 'Arc-loca.lua',
                 function: null, line: null, recordedSteps: 9,
                 remainingScreensUpperBound: 6 },
             { session: 'unknown-owner', step: null, kind: 'unresolved', sourceFile: null,
@@ -226,8 +226,11 @@ test('the unified queue renders C, Lua, and unresolved source owners in priority
     assert.match(table, /title="Find &lt;source> &amp; &quot;caller&quot;">source investigation</u);
     assert.match(table, /<th>Screens after mismatch<\/th>/u);
     assert.match(table, /<td>8 of 10<\/td>/u);
+    // Rows follow the goal order, not the step order: quest breaks at step 1
+    // but its owner ranks second, so the footer no longer restates the order.
+    assert.match(table, /movement[\s\S]*quest[\s\S]*unknown-owner/u);
     // Prose follows the scrollable table so it wraps at the card.
-    assert.match(element.parentElement.afterHTML, /Goal order: hack\.c.*Arc-loca\.lua.*investigate unknown-owner/u);
+    assert.doesNotMatch(element.parentElement.afterHTML, /Goal order/u);
     assert.match(element.parentElement.afterHTML, /Roadmap fallback is blocked while mismatches remain/u);
     assert.doesNotMatch(table, /Every development session matches/u);
 });

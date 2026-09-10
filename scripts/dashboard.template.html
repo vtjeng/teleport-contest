@@ -689,7 +689,7 @@ canvas {
 
 <div class="section">
   <h2 class="section-title">Mismatch queue</h2>
-  <p class="subtitle">Each development session's first known mismatch. C, Lua, and unresolved source investigations share one priority order. Screens after mismatch counts the recorded screens past the first mismatch; fixing it regains at most that many.</p>
+  <p class="subtitle">Each development session's first known mismatch. C, Lua, and unresolved source investigations share one priority order, which the rows follow. Screens after mismatch counts the recorded screens past the first mismatch; fixing it regains at most that many.</p>
   <div class="chart-wrap">
     <div class="goal-table-wrap">
       <table class="goal-table" id="queueTable"></table>
@@ -810,7 +810,21 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   }
   let html = '<colgroup><col><col><col><col><col></colgroup>'
     + '<thead><tr><th>Session</th><th>First mismatch</th><th>Kind</th><th>Source owner</th><th>Screens after mismatch</th></tr></thead><tbody>';
-  QUEUE.sessions.forEach(entry => {
+  // A session ranks with the candidate that owns it, a source file or the
+  // session's own investigation, so one owner's sessions sit together in
+  // step order and the table reads as the goal order.
+  const candidates = QUEUE.candidates || [];
+  const rank = entry => {
+    const index = candidates.findIndex(candidate => candidate.sourceFile
+      ? candidate.sourceFile === entry.sourceFile
+      : (candidate.sessions || []).includes(entry.session));
+    return index < 0 ? candidates.length : index;
+  };
+  const stepOrder = step => step == null ? Infinity : step;
+  const rows = [...QUEUE.sessions].sort((a, b) => rank(a) - rank(b)
+    || stepOrder(a.step) - stepOrder(b.step)
+    || a.session.localeCompare(b.session));
+  rows.forEach(entry => {
     const where = entry.sourceFile
       ? '<span title="' + esc(entry.sourceFile + (entry.line ? ':' + entry.line : '')) + '">'
         + esc(entry.function ? entry.function + '() in ' : '') + esc(entry.sourceFile) + '</span>'
@@ -825,12 +839,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   });
   html += '</tbody>';
   table.innerHTML = html;
-  if (QUEUE.candidates && QUEUE.candidates.length) {
-    table.parentElement.insertAdjacentHTML('afterend', '<p class="table-note">Goal order: ' + QUEUE.candidates.map(candidate =>
-      esc(candidate.sourceFile || 'investigate ' + candidate.sessions.join(', '))
-      + ' (up to ' + candidate.remainingScreensUpperBound + ' screens after the mismatch)').join('; ')
-      + '. Roadmap fallback is blocked while mismatches remain.</p>');
-  }
+  table.parentElement.insertAdjacentHTML('afterend', '<p class="table-note">Roadmap fallback is blocked while mismatches remain.</p>');
 })();
 
 // --- Source ports ---
