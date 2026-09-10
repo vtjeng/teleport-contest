@@ -195,7 +195,9 @@ import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { cansee, canseemon, couldsee, recalc_block_point, unblock_point } from './vision.js';
 import { body_part } from './polyself.js';
-import { extract_from_minvent, bimanual, find_mac } from './worn.js';
+import {
+    extract_from_minvent, bimanual, find_mac, mon_adjust_speed,
+} from './worn.js';
 import { mwelded, welded } from './wield.js';
 import { mon_has_amulet, mon_has_special } from './wizard.js';
 import { dobuzz, exclam, hit, miss, resist, zhitm } from './zap.js';
@@ -1398,7 +1400,6 @@ export async function mloot_container(mon, container, vismon, rawEnv = {}) {
 // Unported callees whose results the C discards:
 //   mon.c m_useup       -- consumed object stays in monster inventory
 //   worn.c mon_set_minvis   -- visibility flag change skipped
-//   worn.c mon_adjust_speed -- speed flag change skipped
 //   mon.c newcham           -- polymorph skipped
 //   worm.c worm_move        -- worm segment relocation skipped
 export async function use_misc(mtmp, selection, state, env = {}) {
@@ -1503,14 +1504,14 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         // MUSE_WAN_SPEED_MONSTER
         if (!otmp) throw new Error('use_misc: no wand of speed monster');
         await mzapwand(mtmp, otmp, true, state);
-        note_unported('worn.c mon_adjust_speed');
+        await mon_adjust_speed(mtmp, 1, otmp, state, env);
         return 2;
     }
     case 'speed potion': {
         // MUSE_POT_SPEED
         if (!otmp) throw new Error('use_misc: no potion of speed');
         await mquaffmsg(mtmp, otmp, state);
-        note_unported('worn.c mon_adjust_speed');
+        await mon_adjust_speed(mtmp, 1, otmp, state, env);
         m_useup(mtmp, otmp, { state });
         return 2;
     }
@@ -2867,7 +2868,7 @@ async function mon_consume_unstone(
 
     // "is slowing down" message and removal of intrinsic speed
     if (stoning)
-        note_unported('worn.c mon_adjust_speed');
+        await mon_adjust_speed(mon, -3, null, state, env);
 
     if (vis) {
         const save_quan = obj.quan;
@@ -3016,7 +3017,7 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
             `${capitalizedMonsterName(mon, state)} starts turning ${green_mon(mon, state) ? 'into ooze' : hcolor('green', state)}.`,
             state);
     /* -4 => sliming, causes quiet loss of enhanced speed */
-    note_unported('worn.c mon_adjust_speed');
+    await mon_adjust_speed(mon, -4, null, state, env);
 
     if (trap) {
         const Mnam = vis ? capitalizedMonsterName(mon, state) : null;

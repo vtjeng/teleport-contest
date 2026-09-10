@@ -9,7 +9,10 @@ import {
     BLINDED,
     BOLT_LIM,
     CLAIRVOYANT,
+    FAST,
     INVIS,
+    MFAST,
+    MSLOW,
     OBJ_MINVENT,
     P_LANCE,
     P_POLEARMS,
@@ -41,6 +44,7 @@ import {
 } from './artifacts.js';
 import { game } from './gstate.js';
 import { newsym } from './display.js';
+import { Monnam } from './do_name.js';
 import { obj_extract_self, update_inventory } from './invent.js';
 import { check_gear_next_turn } from './mon.js';
 import { PM_WIZARD } from './monsters.js';
@@ -68,6 +72,10 @@ import {
     TOWEL,
     WEAPON_CLASS,
 } from './objects.js';
+import { learnwand } from './zap.js';
+import { ttyPline } from './tty_message.js';
+import { messageAt } from './startup_a11y.js';
+import { canseemon } from './vision.js';
 
 const WORN_SLOTS = Object.freeze([
     Object.freeze({ mask: W_ARM, field: 'uarm' }),
@@ -363,6 +371,91 @@ export function mon_set_minvis(monster, cursedPotion, state = game) {
         monster.minvis = monster.perminvis;
         newsym(monster.mx, monster.my, state);
     }
+}
+
+// C ref: worn.c mon_adjust_speed() (488-578). The adjustment changes only
+// permanent speed; active speed is then recalculated from any equipped FAST
+// object. The message and learnwand hooks keep this source-shaped helper
+// usable by tests without changing the production defaults.
+export async function mon_adjust_speed(
+    monster,
+    adjust,
+    obj,
+    state = game,
+    rawEnv = {},
+) {
+    let giveMsg = !state.in_mklev;
+    let petrify = false;
+    const oldSpeed = monster.mspeed;
+
+    switch (adjust) {
+    case 2:
+        monster.permspeed = MFAST;
+        giveMsg = false;
+        break;
+    case 1:
+        monster.permspeed = monster.permspeed === MSLOW
+            ? 0 : MFAST;
+        break;
+    case 0:
+        break;
+    case -1:
+        monster.permspeed = monster.permspeed === MFAST
+            ? 0 : MSLOW;
+        break;
+    case -2:
+        monster.permspeed = MSLOW;
+        giveMsg = false;
+        break;
+    case -3:
+        if (monster.permspeed === MFAST)
+            monster.permspeed = 0;
+        petrify = true;
+        break;
+    case -4:
+        if (monster.permspeed === MFAST)
+            monster.permspeed = 0;
+        giveMsg = false;
+        break;
+    }
+
+    let hasSpeedObject = false;
+    for (let current = monster.minvent; current; current = current.nobj) {
+        if (current.owornmask
+            && objectType(current, state).oc_oprop === FAST) {
+            hasSpeedObject = true;
+            break;
+        }
+    }
+    monster.mspeed = hasSpeedObject ? MFAST : monster.permspeed;
+
+    const seeMonster = rawEnv.canseemon ?? canseemon;
+    if (!giveMsg
+        || (monster.mspeed === oldSpeed && !petrify)
+        || !monster.data?.mmove
+        || monster.mfrozen
+        || monster.msleeping
+        || !seeMonster(monster, state)) {
+        return;
+    }
+
+    const howMuch = monster.mspeed + oldSpeed === MFAST + MSLOW
+        ? 'much ' : '';
+    let text = null;
+    if (petrify) {
+        if (state.flags?.verbose)
+            text = `${Monnam(monster, state)} is slowing down.`;
+    } else if (adjust > 0 || monster.mspeed === MFAST) {
+        text = `${Monnam(monster, state)} is suddenly moving ${howMuch}faster.`;
+    } else {
+        text = `${Monnam(monster, state)} seems to be moving ${howMuch}slower.`;
+    }
+
+    const message = rawEnv.message ?? ttyPline;
+    if (text != null)
+        await message(messageAt(text, monster.mx, monster.my, state), state);
+    if (obj != null)
+        (rawEnv.learnwand ?? learnwand)(obj, state);
 }
 
 // C ref: worn.c extract_from_minvent() (1376-1416). Take obj out of a

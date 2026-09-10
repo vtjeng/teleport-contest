@@ -2,8 +2,12 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    COULD_SEE,
+    IN_SIGHT,
     I_SPECIAL,
     LAST_PROP,
+    MFAST,
+    MSLOW,
     OBJ_FREE,
     OBJ_MINVENT,
     W_AMUL,
@@ -37,11 +41,14 @@ import {
     PARTISAN,
     SLING,
     SMALL_SHIELD,
+    POT_SPEED,
+    SPEED_BOOTS,
     objects_globals_init,
 } from '../js/objects.js';
 import {
     extract_from_minvent,
     find_mac,
+    mon_adjust_speed,
     setuwep,
     which_armor,
 } from '../js/worn.js';
@@ -80,6 +87,108 @@ function wornObject(state, otyp, mask, overrides = {}) {
         ...overrides,
     });
 }
+
+test('mon_adjust_speed applies every permanent case and worn FAST override',
+    async () => {
+        const state = catalogState();
+        const quiet = { state, canseemon: () => false };
+        const monster = kitten(state);
+
+        // worn.c:512-514, a monster-creation speed increase is permanent
+        // MFAST and never emits the ordinary speed message.
+        await mon_adjust_speed(monster, 2, null, state, quiet);
+        assert.equal(monster.permspeed, MFAST);
+        assert.equal(monster.mspeed, MFAST);
+
+        // worn.c:519-522, -1 removes MFAST, and a second -1 applies MSLOW.
+        await mon_adjust_speed(monster, -1, null, state, quiet);
+        assert.equal(monster.permspeed, 0);
+        await mon_adjust_speed(monster, -1, null, state, quiet);
+        assert.equal(monster.permspeed, MSLOW);
+
+        // worn.c:516-518, +1 toggles MSLOW off and then grants MFAST.
+        await mon_adjust_speed(monster, 1, null, state, quiet);
+        assert.equal(monster.permspeed, 0);
+        await mon_adjust_speed(monster, 1, null, state, quiet);
+        assert.equal(monster.permspeed, MFAST);
+
+        // worn.c:524-532, -2 forces MSLOW and -4 removes only MFAST.
+        await mon_adjust_speed(monster, -2, null, state, quiet);
+        assert.equal(monster.permspeed, MSLOW);
+        await mon_adjust_speed(monster, -4, null, state, quiet);
+        assert.equal(monster.permspeed, MSLOW);
+
+        // worn.c:526-529, -3 also preserves an existing MSLOW intrinsic.
+        await mon_adjust_speed(monster, -3, null, state, quiet);
+        assert.equal(monster.permspeed, MSLOW);
+
+        // objects.h:701 SPEED_BOOTS supplies FAST while worn, even when the
+        // permanent speed state is MSLOW; adjust 0 only performs this check.
+        monster.minvent = wornObject(state, SPEED_BOOTS, W_ARMF);
+        await mon_adjust_speed(monster, 0, null, state, quiet);
+        assert.equal(monster.permspeed, MSLOW);
+        assert.equal(monster.mspeed, MFAST);
+    });
+
+test('mon_adjust_speed messages witnessed changes and learns their object',
+    async () => {
+        const state = catalogState();
+        state.flags = { verbose: true };
+        state.u = {
+            ux: 0,
+            uy: 0,
+            uprops: [],
+            uinwater: false,
+            uswallow: false,
+            ustuck: null,
+        };
+        // canSpotMonster() needs one visible map cell for Monnam(); the
+        // focused caller hook below still controls mon_adjust_speed's guard.
+        state.viz_array = [[IN_SIGHT | COULD_SEE]];
+        const monster = kitten(state, { permspeed: 0, mspeed: 0 });
+        const object = wornObject(state, POT_SPEED, 0);
+        const messages = [];
+        const learned = [];
+        const env = {
+            state,
+            canseemon: () => true,
+            message: async (text) => messages.push(text),
+            learnwand: (obj) => learned.push(obj),
+        };
+
+        // worn.c:554-559, a visible +1 from normal speed says "suddenly"
+        // and passes the observed object to learnwand().
+        await mon_adjust_speed(monster, 1, object, state, env);
+        assert.deepEqual(messages, ['The kitten is suddenly moving faster.']);
+        assert.deepEqual(learned, [object]);
+
+        // worn.c:562-568, a fast-to-slow transition is the only "much"
+        // message; it also learns the object after the message.
+        monster.permspeed = 0;
+        monster.mspeed = MFAST;
+        await mon_adjust_speed(monster, -1, object, state, env);
+        assert.equal(messages.at(-1),
+            'The kitten seems to be moving much slower.');
+        assert.equal(learned.length, 2);
+
+        // worn.c:547-551, petrification says "is slowing down" only when
+        // verbose is enabled, even if speed boots keep active speed FAST.
+        monster.permspeed = MFAST;
+        monster.mspeed = MFAST;
+        await mon_adjust_speed(monster, -3, null, state, env);
+        assert.equal(messages.at(-1), 'The kitten is slowing down.');
+        assert.equal(monster.permspeed, 0);
+
+        // worn.c:539-542, non-verbose petrification suppresses only its
+        // message; the source still reaches learnwand() after that branch.
+        state.flags.verbose = false;
+        monster.permspeed = MFAST;
+        monster.mspeed = MFAST;
+        await mon_adjust_speed(monster, -3, object, state, env);
+        assert.equal(messages.at(-1), 'The kitten is slowing down.');
+        assert.equal(learned.length, 3);
+        assert.equal(monster.permspeed, 0);
+    });
 
 test('find_mac answers the species armor class for a bare monster', () => {
     const state = catalogState();

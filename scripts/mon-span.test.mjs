@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     G_GENOD,
     M_AP_OBJECT,
+    MSLOW,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import {
@@ -101,7 +102,7 @@ test('kill_eggs records the still-unported hatch timer call', async () => {
     assert.ok(game.unported.has('timeout.c kill_egg'));
 });
 
-test('golemeffects heals the matching golem and keeps the speed gap explicit',
+test('golemeffects heals and slows the matching golem',
     async () => {
         await hero();
         const lines = [];
@@ -118,8 +119,15 @@ test('golemeffects heals the matching golem and keeps the speed gap explicit',
         assert.equal(flesh.mhp, 8);
         assert.ok(!game.unported.has('worn.c mon_adjust_speed'));
 
-        await golemeffects(flesh, AD_COLD, 1, { state: game });
-        assert.ok(game.unported.has('worn.c mon_adjust_speed'));
+        const speedLines = [];
+        await golemeffects(flesh, AD_COLD, 1, {
+            state: game,
+            message: async (text) => speedLines.push(text),
+        });
+        assert.equal(flesh.permspeed, MSLOW);
+        assert.equal(flesh.mspeed, MSLOW);
+        assert.match(speedLines[0], /moving slower\.$/u);
+        assert.ok(!game.unported.has('worn.c mon_adjust_speed'));
     });
 
 test('angry_guards changes visible guards, then pacify_guards restores them',

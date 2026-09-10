@@ -553,7 +553,9 @@ import {
 import { obj_resists } from './bury.js';
 import { objdescr_is } from './o_init.js';
 import { corpse_intrinsic, should_givit } from './eat.js';
-import { extract_from_minvent, mon_set_minvis } from './worn.js';
+import {
+    extract_from_minvent, mon_adjust_speed, mon_set_minvis,
+} from './worn.js';
 import { end_burn } from './timeout.js';
 import { migrate_to_level } from './dog.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
@@ -5434,8 +5436,8 @@ export function kill_eggs(obj_list, rawEnv = {}) {
 }
 
 // C ref: mon.c golemeffects() (5680-5708). Elemental damage can heal or slow
-// a flesh or iron golem. The speed mutation is owned by the still-unported
-// worn.c mon_adjust_speed(); the source call's return value is discarded.
+// a flesh or iron golem. The speed mutation is owned by worn.c
+// mon_adjust_speed(); the source call's return value is discarded.
 export async function golemeffects(mon, damtype, dam, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     let heal = 0;
@@ -5453,7 +5455,7 @@ export async function golemeffects(mon, damtype, dam, rawEnv = {}) {
     }
 
     if (slow && mon.mspeed !== MSLOW)
-        note_unported('worn.c mon_adjust_speed');
+        await mon_adjust_speed(mon, -1, null, state, rawEnv);
     if (heal && healmon(mon, heal, 0)) {
         if (cansee(mon.mx, mon.my, state)) {
             await monsterMessage(
