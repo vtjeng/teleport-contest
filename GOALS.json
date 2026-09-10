@@ -18682,6 +18682,86 @@
         "from": 4829,
         "to": 4854
       }
+    },
+    {
+      "id": "port-shk-money-transfers",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port shk.c shopkeeper money and lifecycle helpers",
+      "cFile": "shk.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "money2mon..restshk",
+          "status": "closed",
+          "closedBy": "f5ed7d333f8105fe180bbabb16cce26cb73da652",
+          "functions": [
+            "money2mon",
+            "money2u",
+            "shkgone",
+            "set_residency",
+            "replshk",
+            "restshk"
+          ]
+        }
+      ],
+      "openedAt": "724c869bb46230713ea0b706b080f1672c9b55f9",
+      "openStanding": {
+        "sha": "234d8425",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "money2mon",
+          "line": 157,
+          "endLine": 185,
+          "ported": true
+        },
+        {
+          "name": "money2u",
+          "line": 186,
+          "endLine": 214,
+          "ported": true
+        },
+        {
+          "name": "next_shkp",
+          "line": 215,
+          "endLine": 234,
+          "ported": true
+        },
+        {
+          "name": "shkgone",
+          "line": 235,
+          "endLine": 271,
+          "ported": true
+        },
+        {
+          "name": "set_residency",
+          "line": 272,
+          "endLine": 279,
+          "ported": true
+        },
+        {
+          "name": "replshk",
+          "line": 280,
+          "endLine": 289,
+          "ported": true
+        },
+        {
+          "name": "restshk",
+          "line": 290,
+          "endLine": 308,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 157,
+        "to": 308
+      }
     }
   ]
 }
