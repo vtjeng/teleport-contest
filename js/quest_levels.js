@@ -3,7 +3,7 @@
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
-//         dat/tower1.lua.
+//         dat/tower1.lua, dat/tower2.lua.
 
 import { COLNO, FEMALE, G_GENOD, ROWNO } from './const.js';
 import { mkclass } from './makemon.js';
@@ -1021,6 +1021,81 @@ function tower1(des, state) {
     des.non_diggable();
 }
 
+// C ref: dat/tower2.lua. Middle stage of Vlad's Tower: a ten-niche map with
+// fixed hounds, a winter wolf, two chests, and one shuffled spellbook.
+function tower2(des) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'solidify');
+    des.map({
+        halign: 'half-left',
+        valign: 'center',
+        map: [
+            '  --- --- ---  ',
+            '  |.| |.| |.|  ',
+            '---S---S---S---',
+            '|.S.........S.|',
+            '---.------+----',
+            '  |......|..|  ',
+            '--------.------',
+            '|.S......+..S.|',
+            '---S---S---S---',
+            '  |.| |.| |.|  ',
+            '  --- --- ---  ',
+        ].join('\n'),
+    });
+
+    // Lua arrays are one-based; the JS indexes below are place[10] through
+    // place[1] in the source order after des.shuffle() mutates this array.
+    const place = [
+        [3, 1], [7, 1], [11, 1], [1, 3], [13, 3],
+        [1, 7], [13, 7], [3, 9], [7, 9], [11, 9],
+    ];
+    des.shuffle(place);
+
+    des.ladder({ dir: 'up', coord: [11, 5] });
+    des.ladder({ dir: 'down', coord: [3, 7] });
+    des.door({ state: 'locked', coord: [10, 4] });
+    des.door({ state: 'locked', coord: [9, 7] });
+
+    des.monster('&', place[9]);
+    des.monster('&', place[0]);
+    des.monster('hell hound pup', place[1]);
+    des.monster('hell hound pup', place[2]);
+    des.monster('winter wolf', place[3]);
+
+    des.object({
+        id: 'chest',
+        coord: place[4],
+        contents() {
+            des.object('amulet of life saving');
+        },
+    });
+    des.object({
+        id: 'chest',
+        coord: place[5],
+        contents() {
+            des.object('amulet of strangulation');
+        },
+    });
+    des.object('water walking boots', place[6]);
+    des.object('crystal plate mail', place[7]);
+
+    const spbooks = [
+        'spellbook of invisibility',
+        'spellbook of cone of cold',
+        'spellbook of create familiar',
+        'spellbook of clairvoyance',
+        'spellbook of charm monster',
+        'spellbook of stone to flesh',
+        'spellbook of polymorph',
+    ];
+    des.shuffle(spbooks);
+    des.object(spbooks[0], place[8]);
+
+    // C selection.area(00,00,14,10) is relative to the map fragment frame.
+    des.non_diggable(selection_area(0, 0, 14, 10));
+}
+
 // C ref: dat/Pri-fila.lua. Room-based filler level for quest levels above
 // Pri-loca: six rooms with zombie and wraith monsters, morgue rooms, and
 // random objects and traps.
@@ -1150,4 +1225,5 @@ export const QUEST_LEVEL_LOADERS = {
     'Pri-filb': priFilb,
     oracle,
     tower1,
+    tower2,
 };
