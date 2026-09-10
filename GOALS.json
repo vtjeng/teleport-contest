@@ -21765,6 +21765,36 @@
           "remainingScreensUpperBound": 758
         }
       ]
+    },
+    {
+      "id": "port-mthrowu-monmulti",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete mthrowu.c monmulti() stacked missile calculation and wire its existing monshoot/thrwmu callers",
+      "cFile": "mthrowu.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The next implementable development mismatch is seed0030's ordinary gnome bow attack with stacked arrows; source tracing assigns the refusal to mthrowu.c monmulti() in the existing monshoot/thrwmu path.",
+      "detail": "",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "monmulti",
+          "line": 201,
+          "endLine": 261,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 201,
+        "to": 261
+      }
     }
   ]
 }
