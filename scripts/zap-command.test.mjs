@@ -1058,7 +1058,7 @@ test('every zap refusal names a zap.c function the port has not ported',
             'delfloortrap', 'melt_ice', 'create_gas_cloud', 'dryup',
             'start_melt_ice_timeout', 'start_melt_ice_timeout',
             'create_gas_cloud', 'dissolve_bars',
-            'cvt_sdoor_to_door', 'add_damage', 'burn_floor_objects', 'wakeup',
+            'cvt_sdoor_to_door', 'add_damage', 'burn_floor_objects',
             // dobuzz(): a type that is not a hero wand zap, a hallucinating
             // hero, the swallowed hero, the Rider arm, PM_DEATH absorption,
             // disintegrate_mon(), armor disintegration, slept_monst(), the

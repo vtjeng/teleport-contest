@@ -7,7 +7,13 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    DUST, M_AP_NOTHING, M_AP_OBJECT, STRAT_WAITFORU, STRAT_WAITMASK,
+    COULD_SEE,
+    DUST,
+    IN_SIGHT,
+    M_AP_NOTHING,
+    M_AP_OBJECT,
+    STRAT_WAITFORU,
+    STRAT_WAITMASK,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -56,16 +62,26 @@ function engraveElbereth(text = 'Elbereth') {
     };
 }
 
-const REFUSING = {
-    unsupported: (reason) => { throw new Error(reason); },
-    message: async () => {},
-};
-
-function refuses(fn, reason) {
-    return assert.rejects(fn, (error) => {
-        assert.equal(error.message, reason);
-        return true;
-    });
+function reactionEnv() {
+    const messages = [];
+    const draws = [];
+    return {
+        state: game,
+        messages,
+        draws,
+        message: async (text) => { messages.push(text); },
+        canSeeMonster: () => true,
+        random: {
+            rn2(bound) {
+                draws.push(`rn2(${bound})`);
+                return 0;
+            },
+            rnd(bound) {
+                draws.push(`rnd(${bound})`);
+                return 1;
+            },
+        },
+    };
 }
 
 // mon.c:4288-4290. A hostile target gets the wait-strategy clear and nothing
@@ -73,105 +89,56 @@ function refuses(fn, reason) {
 test('setmangry clears a hostile wait strategy and returns', async () => {
     await hero();
     const hostile = target({ mstrategy: STRAT_WAITMASK | 0x40 });
-    setmangry(hostile, true, { ...REFUSING, state: game });
+    await setmangry(hostile, true, reactionEnv());
     assert.equal(hostile.mstrategy, 0x40);
     assert.equal(Boolean(hostile.mpeaceful), false);
 });
 
-// mon.c:4294-4295 returns for a pet before the alignment penalty, so only a
-// peaceful non-pet reaches the arm that stops.
-test('setmangry stops for a peaceful non-pet and passes a pet through',
+// mon.c:4294-4317 returns for a pet before the alignment penalty, while a
+// peaceful non-pet becomes hostile and adjusts alignment.
+test('setmangry preserves pets and angers peaceful non-pets',
     async () => {
         await hero();
         const pet = target({ mpeaceful: 1, mtame: 1, mstrategy: STRAT_WAITFORU });
-        setmangry(pet, true, { ...REFUSING, state: game });
+        await setmangry(pet, true, reactionEnv());
         assert.equal(pet.mstrategy, 0);
         assert.equal(pet.mpeaceful, 1);
 
-        assert.throws(
-            () => setmangry(target({ mpeaceful: 1 }), true,
-                { ...REFUSING, state: game }),
-            (error) => {
-                assert.equal(error.message, 'angering a peaceful monster');
-                return true;
-            },
-        );
+        const peaceful = target({ mpeaceful: 1 });
+        const before = game.u.ualign.record;
+        await setmangry(peaceful, true, reactionEnv());
+        assert.equal(peaceful.mpeaceful, 0);
+        assert.equal(game.u.ualign.record, before - 1);
     });
-
-// The owner seam both functions share. setmangry() is the anger path, not the
-// waking path, so a caller that forgot to supply the operation has to be told
-// which function wanted it rather than be sent looking at wakeup().
-test('a missing owner names the function that asked for it', async () => {
-    await hero();
-    engraveElbereth();
-    assert.throws(
-        // No `unsupported` in the env, so the Elbereth arm cannot report.
-        () => setmangry(target(), true, { state: game }),
-        (error) => {
-            assert.ok(error instanceof TypeError);
-            assert.equal(
-                error.message,
-                'setmangry()/wakeup() requires unsupported',
-            );
-            return true;
-        },
-    );
-});
 
 // mon.c:4267-4270. All three terms matter: the attack has to be the cause, the
 // square has to carry exactly "Elbereth", and the target has to be one that
 // respects it or a peaceful one.
-test('setmangry stops on an Elbereth square only when every term holds',
+test('setmangry applies the Elbereth hypocrisy branch in source order',
     async () => {
         await hero();
         engraveElbereth();
-        const env = { ...REFUSING, state: game };
+        const env = reactionEnv();
+        const peaceful = target({ mpeaceful: 1 });
+        const before = game.u.ualign.record;
+        await setmangry(peaceful, true, env);
+        assert.deepEqual(env.messages.slice(0, 2), [
+            'You feel like a hypocrite.',
+            'The engraving beneath you fades.',
+        ]);
+        assert.deepEqual(env.draws, ['rnd(5)']);
+        assert.equal(game.u.ualign.record, before - 2);
+        assert.equal(game.head_engr, null);
 
-        assert.throws(
-            () => setmangry(target(), true, env),
-            (error) => {
-                assert.equal(
-                    error.message, 'attacking from an Elbereth square',
-                );
-                return true;
-            },
-        );
-        // Not caused by an attack: mon.c passes FALSE from every other caller.
-        setmangry(target(), false, env);
-
-        // engrave.c sengr_at() is called with strict set, so a longer
-        // engraving that merely contains the word does not count. A peaceful
-        // target is what makes that visible: it satisfies the second
-        // disjunct on its own, so only the strict comparison stands between
-        // this call and the Elbereth arm, and what it reaches instead is the
-        // peaceful arm further down.
+        // engrave.c sengr_at() uses a strict comparison. A longer engraving
+        // does not trigger the hypocrisy arm, but the peaceful target still
+        // becomes hostile through setmangry()'s later branch.
         engraveElbereth('Elbereth burns');
-        setmangry(target(), true, env);
-        assert.throws(
-            () => setmangry(target({ mpeaceful: 1 }), true, env),
-            (error) => {
-                assert.equal(error.message, 'angering a peaceful monster');
-                return true;
-            },
-        );
-
-        // A target that ignores Elbereth and is not peaceful escapes it. A
-        // human is @, which monmove.c onscary() exempts.
-        engraveElbereth();
-        setmangry(target({ data: game.mons[PM_HUMAN] }), true, env);
-        // The same unscared target while peaceful takes the arm through the
-        // second disjunct instead, and then stops again further down.
-        assert.throws(
-            () => setmangry(
-                target({ data: game.mons[PM_HUMAN], mpeaceful: 1 }), true, env,
-            ),
-            (error) => {
-                assert.equal(
-                    error.message, 'attacking from an Elbereth square',
-                );
-                return true;
-            },
-        );
+        const ordinary = target({ mpeaceful: 1 });
+        const secondEnv = reactionEnv();
+        await setmangry(ordinary, true, secondEnv);
+        assert.equal(ordinary.mpeaceful, 0);
+        assert.equal(secondEnv.messages.includes('You feel like a hypocrite.'), false);
         game.head_engr = null;
     });
 
@@ -180,12 +147,12 @@ test('setmangry stops on an Elbereth square only when every term holds',
 test('wakeup angers only when the attack caused it', async () => {
     await hero();
     const angered = target({ mstrategy: STRAT_WAITFORU });
-    await wakeup(angered, true, { ...REFUSING, state: game });
+    await wakeup(angered, true, reactionEnv());
     assert.equal(angered.mstrategy, 0);
     assert.equal(angered.msleeping, 0);
 
     const woken = target({ mstrategy: STRAT_WAITFORU, msleeping: 1 });
-    await wakeup(woken, false, { ...REFUSING, state: game });
+    await wakeup(woken, false, reactionEnv());
     assert.equal(woken.mstrategy, STRAT_WAITFORU);
     assert.equal(woken.msleeping, 0);
 });
@@ -199,35 +166,29 @@ test('wakeup strips a mimic disguise through seemimic', async () => {
         m_ap_type: M_AP_OBJECT, // disguised as an object
         mappearance: 42,        // arbitrary object type
     });
-    await wakeup(mimic, true, { ...REFUSING, state: game });
+    await wakeup(mimic, true, reactionEnv());
     // seemimic clears m_ap_type to M_AP_NOTHING and mappearance to 0.
     assert.equal(mimic.m_ap_type, M_AP_NOTHING);
     assert.equal(mimic.mappearance, 0);
 });
 
-test('wakeup stops on the two arms it cannot report', async () => {
+test('wakeup grows sleeping monsters and preserves the prior peaceful flag', async () => {
     await hero();
-    // mon.c:4353-4354, a target that was asleep growls as it wakes.
-    await refuses(
-        () => wakeup(target({ msleeping: 1 }), true,
-            { ...REFUSING, state: game }),
-        'growl from a woken monster',
-    );
-    // mon.c:4356-4361. setmangry() returns early for a pet, so a tame priest
-    // is the only shape that reaches the temple and shop arms.
-    await refuses(
-        () => wakeup(target({ mpeaceful: 1, mtame: 1, ispriest: 1 }), true,
-            { ...REFUSING, state: game }),
-        'angering a peaceful priest or shopkeeper',
-    );
-    await refuses(
-        () => wakeup(target({ mpeaceful: 1, mtame: 1, isshk: 1 }), true,
-            { ...REFUSING, state: game }),
-        'angering a peaceful priest or shopkeeper',
-    );
-    // A tame target that is neither passes through.
-    await wakeup(target({ mpeaceful: 1, mtame: 1 }), true,
-        { ...REFUSING, state: game });
+    const asleep = target({ msleeping: 1 });
+    await wakeup(asleep, true, reactionEnv());
+    assert.equal(asleep.msleeping, 0);
+    assert.equal(asleep.mstrategy, 0);
+
+    // mon.c:4356-4361 remembers peacefulness before setmangry(); the helper
+    // calls are then considered even when the tame priest/shopkeeper remains
+    // peaceful. The discarded-result gaps are recorded by note_unported().
+    const priest = target({ mpeaceful: 1, mtame: 1, ispriest: 1 });
+    await wakeup(priest, true, reactionEnv());
+    assert.equal(priest.mpeaceful, 1);
+    const shopkeeper = target({ mpeaceful: 1, mtame: 1, isshk: 1 });
+    await wakeup(shopkeeper, true, reactionEnv());
+    assert.equal(shopkeeper.mpeaceful, 1);
+    await wakeup(target({ mpeaceful: 1, mtame: 1 }), true, reactionEnv());
 });
 
 // mon.c:4355. wakeup() passes TRUE, not its own via_attack, so a target woken
@@ -235,10 +196,9 @@ test('wakeup stops on the two arms it cannot report', async () => {
 test('wakeup angers through setmangry with the attack flag set', async () => {
     await hero();
     engraveElbereth();
-    await refuses(
-        () => wakeup(target(), true, { ...REFUSING, state: game }),
-        'attacking from an Elbereth square',
-    );
+    const env = reactionEnv();
+    await wakeup(target({ mpeaceful: 1 }), true, env);
+    assert.equal(env.messages[0], 'You feel like a hypocrite.');
     game.head_engr = null;
 });
 
@@ -247,17 +207,17 @@ test('wakeup angers through setmangry with the attack flag set', async () => {
 test('wakeup reveals a hidden target only under a force-fight', async () => {
     await hero();
     const hidden = target({ mundetected: 1 });
-    await wakeup(hidden, false, { ...REFUSING, state: game });
+    await wakeup(hidden, false, reactionEnv());
     assert.equal(hidden.mundetected, 1);
 
     game.context.forcefight = 1;
-    await wakeup(hidden, false, { ...REFUSING, state: game });
+    await wakeup(hidden, false, reactionEnv());
     assert.equal(hidden.mundetected, 0);
 
     // svc.context.mon_moving suppresses it again.
     const other = target({ mundetected: 1 });
     game.context.mon_moving = 1;
-    await wakeup(other, false, { ...REFUSING, state: game });
+    await wakeup(other, false, reactionEnv());
     assert.equal(other.mundetected, 1);
     game.context.mon_moving = 0;
     game.context.forcefight = 0;

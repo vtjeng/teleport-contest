@@ -74,7 +74,6 @@ import {
 } from '../js/display.js';
 import { GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { freehand } from '../js/engrave.js';
-import { UnsupportedMonsterNameError } from '../js/do_name.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { GameMap } from '../js/game.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -1679,12 +1678,13 @@ test('a debug game reports a pet\'s tameness, hunger and apport', async () => {
     );
 
     // insight.c:3283's !isminion guard. A tame minion has no EDOG to read, so
-    // dropping the guard would throw a TypeError here instead of reaching
-    // x_monnam(), which refuses a minion at insight.c:3392.
+    // dropping the guard would throw a TypeError here. Its status line then
+    // reaches x_monnam()'s priest/minion branch and uses the source name.
     const minionGround = await heroWithEmptyWest();
     game.wizard = true;
     monsterAt(minionGround, { mtame: 5, isminion: true });
-    await assert.rejects(listenWest(), UnsupportedMonsterNameError);
+    assert.equal(await listenWest(1), null);
+    assert.match(game._ttyToplines, /^Status of the newt of /i);
 });
 
 test('mstatusline stops on the three clauses that need unported source',

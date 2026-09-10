@@ -27,6 +27,7 @@ import {
 import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
 import {
     ARTICLE_A,
+    ARTICLE_THE,
     BLINDED,
     CORPSTAT_FEMALE,
     CORPSTAT_HISTORIC,
@@ -63,9 +64,12 @@ import {
     M2_PNAME,
     NUMMONS,
     PM_ALIGNED_CLERIC,
+    PM_ARCHEOLOGIST,
+    PM_CLERIC,
     PM_GHOST,
     PM_GNOME_RULER,
     PM_NEWT,
+    PM_SHOPKEEPER,
     SPECIAL_PM,
     monst_globals_init,
 } from '../js/monsters.js';
@@ -194,6 +198,7 @@ test('monsterCommonName uses C hallucinated names and display RNG', () => {
         u: { uprops: [], uroleplay: { blind: false } },
     };
     monst_globals_init(state);
+    state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1 };
     state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     state.u.uprops[DETECT_MONSTERS] = {
         intrinsic: 1,
@@ -321,6 +326,7 @@ test('Amonnam preserves gender, invisibility, appearance, and display RNG', () =
         u: { uprops: [], uroleplay: { blind: false } },
     };
     monst_globals_init(state);
+    state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1 };
     const monster = {
         data: state.mons[PM_GNOME_RULER],
         female: true,
@@ -403,25 +409,36 @@ test('Amonnam preserves gender, invisibility, appearance, and display RNG', () =
     assert.deepEqual(displayDraws, []);
 });
 
-test('a_monnam_unsupported answers true for every a_monnam refusal', () => {
-    // a_monnam_unsupported() exists so that hack.c moverock_core()'s port can
-    // refuse before a hallucinating hero's a_monnam() spends a display draw.
-    // Each row is one input; the predicate and a_monnam() must agree on it.
+test('a_monnam_unsupported isolates only invalid monster appearances', () => {
+    // a_monnam_unsupported() exists so hack.c moverock_core() can refuse an
+    // appearance with no species before a_monnam() spends a display draw.
+    // Priests, minions, shopkeepers and player monsters now use x_monnam(),
+    // exactly as do_name.c a_monnam() does.
     const state = {
         u: { uprops: [], uroleplay: { blind: false } },
+        urole: { lgod: 'Athena', ngod: 'Thoth', cgod: 'Set' },
     };
     monst_globals_init(state);
+    state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1 };
     const newt = () => ({
         data: state.mons[PM_NEWT], mextra: {}, m_ap_type: 0, female: 0,
     });
     const rows = [
         // An ordinary, undisguised monster is the supported case.
         { monster: newt(), unsupported: false },
-        // do_name.c x_monnam():893-906 names priests, minions, shopkeepers
-        // and player monsters through arms this port has not translated.
-        { monster: { ...newt(), ispriest: true }, unsupported: true },
-        { monster: { ...newt(), isminion: true }, unsupported: true },
-        { monster: { ...newt(), isshk: true }, unsupported: true },
+        // do_name.c x_monnam():893-906 supplies dedicated names for these
+        // kinds, but they remain valid a_monnam() inputs.
+        { monster: { ...newt(), ispriest: true }, unsupported: false },
+        { monster: { ...newt(), isminion: true }, unsupported: false },
+        {
+            monster: {
+                ...newt(),
+                isshk: true,
+                mextra: { eshk: { shknam: 'Izchak' } },
+            },
+            unsupported: false,
+        },
+        { monster: { ...newt(), data: state.mons[PM_ARCHEOLOGIST] }, unsupported: false },
         // do_name.c:908-910 reads mons[mappearance] for M_AP_MONSTER. The
         // gnome ruler is a real species, so that disguise is supported...
         {
@@ -459,6 +476,59 @@ test('a_monnam_unsupported answers true for every a_monnam refusal', () => {
             );
         }
     }
+});
+
+test('x_monnam formats priest, shopkeeper and player monster names', () => {
+    // do_name.c:893-906. The special branches are selected after the common
+    // visibility gate and retain their source-specific article rules.
+    const state = {
+        u: {
+            uprops: [],
+            uroleplay: { blind: false },
+            ualign: { type: 0 },
+        },
+        urole: { lgod: 'Athena', ngod: 'Thoth', cgod: 'Set' },
+    };
+    monst_globals_init(state);
+    state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1 };
+
+    const priest = {
+        data: state.mons[PM_CLERIC],
+        ispriest: true,
+        female: false,
+        mextra: { epri: { shralign: 0 } },
+        minvis: false,
+        m_ap_type: 0,
+    };
+    assert.equal(
+        x_monnam(priest, ARTICLE_THE, null, 0, false, state),
+        'the priest of Thoth',
+    );
+
+    const shopkeeper = {
+        data: state.mons[PM_SHOPKEEPER],
+        isshk: true,
+        mextra: { eshk: { shknam: '-Izchak' } },
+        minvis: false,
+        m_ap_type: 0,
+    };
+    assert.equal(
+        x_monnam(shopkeeper, ARTICLE_THE, null, 0, false, state),
+        'Izchak',
+    );
+
+    const playerMonster = {
+        data: state.mons[PM_ARCHEOLOGIST],
+        m_lev: 5,
+        female: false,
+        mextra: {},
+        minvis: false,
+        m_ap_type: 0,
+    };
+    assert.equal(
+        x_monnam(playerMonster, ARTICLE_THE, null, 0, false, state),
+        'the field worker',
+    );
 });
 
 test('x_monnam decides hallucination at run time, not by suppress flag', () => {

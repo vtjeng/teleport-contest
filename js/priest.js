@@ -20,6 +20,7 @@ import {
     DRY,
     EPRI,
     HALLUC,
+    HALLUC_RES,
     helpless,
     HOT,
     INVIS,
@@ -42,7 +43,7 @@ import {
     ydir,
 } from './const.js';
 import { newsym } from './display.js';
-import { mon_pmname } from './do_name.js';
+import { bogon_is_pname, mon_pmname, rndmonnamDetails } from './do_name.js';
 import { assign_level, find_mapseen, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
@@ -457,16 +458,24 @@ export function pri_move(priest, env = {}) {
 
 // C ref: priest.c priestname(). Produces the name string for a priest or
 // minion monster: "the priest of Shan Lai Ching", "an Angel of Anhur", etc.
-export function priestname(mon, article, reveal_high_priest, state = game) {
+export function priestname(mon, article, reveal_high_priest, state = game, env = {}) {
     const aligned_priest = mon.data === state.mons[PM_ALIGNED_CLERIC];
     const high_priest = mon.data === state.mons[PM_HIGH_CLERIC];
-    let what = mon_pmname(mon);
+    const hallucination = state.u.uprops[HALLUC] ?? {};
+    const resistance = state.u.uprops[HALLUC_RES] ?? {};
+    const do_hallu = Boolean(hallucination.intrinsic)
+        && !(resistance.intrinsic || resistance.extrinsic);
+    const randomName = do_hallu ? rndmonnamDetails({ state,
+        random: env.displayRandom }) : null;
+    let what = do_hallu ? randomName.name : mon_pmname(mon);
+    if (!mon.ispriest && !mon.isminion) return what;
 
     if (mon.ispriest || aligned_priest || high_priest)
-        what = mon.female ? 'priestess' : 'priest';
+        what = do_hallu ? 'poohbah' : mon.female ? 'priestess' : 'priest';
 
     let pname = '';
-    if (article !== ARTICLE_NONE) {
+    if (article !== ARTICLE_NONE
+        && (!do_hallu || !bogon_is_pname(randomName.code))) {
         let effectiveArticle = article;
         if (effectiveArticle === ARTICLE_YOUR
             || (effectiveArticle === ARTICLE_A && high_priest))
@@ -490,14 +499,14 @@ export function priestname(mon, article, reveal_high_priest, state = game) {
 
     if (mon.ispriest || aligned_priest) {
         if (high_priest)
-            pname += 'high ';
+            pname += do_hallu ? 'grand ' : 'high ';
     } else {
         if (mon.mtame && what.toLowerCase() === 'angel')
             pname += 'guardian ';
     }
 
     pname += what;
-    if (!high_priest || reveal_high_priest
+    if (do_hallu || !high_priest || reveal_high_priest
         || !Is_astralevel(state.u?.uz)
         || m_next2u(mon, state) || state.program_state?.gameover) {
         pname += ' of ';

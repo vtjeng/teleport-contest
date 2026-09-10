@@ -12,6 +12,8 @@ import {
     NEUTRAL,
 } from './const.js';
 import { game } from './gstate.js';
+import { MS_LEADER, MS_NEMESIS, MS_GUARDIAN } from './monsters.js';
+import { note_unported } from './unported.js';
 import { s_suffix } from './hacklib.js';
 import { align_str } from './insight.js';
 import { type_is_pname } from './mondata.js';
@@ -23,6 +25,19 @@ import { rn2 } from './rng.js';
 import { rankOf } from './roles.js';
 import { ttyPline } from './tty_message.js';
 import { displayTtyTextWindow } from './tty_menu.js';
+
+// C ref: questpgr.c quest_info(). Role quest identities remain fixed even
+// when a quest monster changes shape.
+export function quest_info(typ, state = game) {
+    switch (typ) {
+    case 0: return state.urole.questarti;
+    case MS_LEADER: return state.urole.ldrnum;
+    case MS_NEMESIS: return state.urole.neminum;
+    case MS_GUARDIAN: return state.urole.guardnum;
+    default: note_unported('pline.c impossible');
+    }
+    return 0;
+}
 
 // C refs: questpgr.c com_pager_core(), nhlua.c nhl_init(), dat/nhlib.lua.
 // Every pager owns a fresh Lua state; loading nhlib shuffles its private

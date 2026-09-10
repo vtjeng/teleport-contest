@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     COLNO,
     CONFLICT,
+    DETECT_MONSTERS,
     IN_SIGHT,
     I_SPECIAL,
     M_AP_FURNITURE,
@@ -262,6 +263,9 @@ test('wake_nearto wakes only living monsters inside the strict range',
         boundary.nmon = dead;
         dead.nmon = null;
         const state = schedulerState([ordinary, unique, boundary, dead]);
+        state.u = { ux: 0, uy: 0, uprops: [] };
+        state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1 };
+        state.mons = [];
         const messages = [];
         const buriedCalls = [];
 
@@ -325,11 +329,17 @@ test('wake_msg awaits visible output before its caller can clear sleep',
             },
             msleeping: true,
         });
+        const state = {
+            u: { ux: 0, uy: 0, uprops: [] },
+            mons: [],
+        };
+        state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1 };
+        state.mons[PM_FLESH_GOLEM] = subject.data;
         const output = deferred();
         let rendered;
         let settled = false;
         const pending = wake_msg(subject, true, {
-            state: {},
+            state,
             canSeeMonster: () => true,
             message: (text) => {
                 rendered = text;

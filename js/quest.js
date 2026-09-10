@@ -19,6 +19,7 @@ import { dungeon_branch, Is_special, on_level } from './dungeon.js';
 import { schedule_goto } from './do.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
+import { setmangry } from './mon.js';
 import { align_str } from './insight.js';
 import { monnear } from './monmove.js';
 import { MS_DJINNI, MS_NEMESIS } from './monsters.js';
@@ -209,6 +210,7 @@ export async function quest_chat(mtmp, state = game, env = {}) {
     if (!qs?.leader_m_id || mtmp.m_id !== qs.leader_m_id)
         return false;
     await chat_with_leader(mtmp, questConversation({ ...env, state }));
+    if (qs.pissed_off) await setmangry(mtmp, false, { ...env, state });
     return true;
 }
 

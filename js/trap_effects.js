@@ -88,6 +88,7 @@ import { set_wounded_legs } from './do.js';
 import { at_dgn_entrance, on_level } from './dungeon.js';
 import { capitalizedMonsterName, monsterCommonName } from './do_name.js';
 import { game } from './gstate.js';
+import { setmangry } from './mon.js';
 import { dist2, distmin, sgn } from './hacklib.js';
 import {
     UnsupportedHeroMoveBoundaryError,
@@ -1715,11 +1716,8 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
     });
 
     /* Monster is aggravated by being trapped by you. */
-    if (trap.madeby_u && random.rnl(5)) {
-        // mon.c setmangry(). maketrap() clears madeby_u for every generated
-        // trap, and no ported command sets one, so nothing reaches this.
-        unsupported('a monster angered by a hero-set trap');
-    }
+    if (trap.madeby_u && random.rnl(5))
+        await setmangry(monster, false, env);
 
     const result = await trapeffect_selector(monster, trap, flags, env);
 

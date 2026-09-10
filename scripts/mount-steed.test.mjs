@@ -39,11 +39,7 @@ import {
     W_SADDLE,
     I_SPECIAL,
 } from '../js/const.js';
-import {
-    UnsupportedMonsterNameError,
-    pmname,
-    x_monnam,
-} from '../js/do_name.js';
+import { pmname, x_monnam } from '../js/do_name.js';
 import {
     losehp,
     near_capacity,
@@ -707,7 +703,7 @@ test('can_ride reads the hero form and the steed tameness', () => {
     assert.equal(can_ride({ mtame: 5, data: {} }, state), false);
 });
 
-test('x_monnam builds the killer string and refuses every other flag set',
+test('x_monnam builds the killer string for every supported monster class',
     async () => {
     await runSegment({
         ...knightSlipSegment(), moves: `.${RIDE_COMMAND}`,
@@ -825,8 +821,9 @@ test('x_monnam builds the killer string and refuses every other flag set',
         game.u.ustuck = null;
     }
 
-    // do_name.c:886-935. Each of the four classes this port does not format
-    // stops on its own.
+    // do_name.c:886-935. These four classes use their source-specific name
+    // branches; x_monnam() is shared by the killer-string caller and the
+    // reaction messages ported from mon.c.
     for (const mutate of [
         (m) => { m.ispriest = 1; },
         (m) => { m.isminion = 1; },
@@ -839,9 +836,8 @@ test('x_monnam builds the killer string and refuses every other flag set',
         });
         const target = m_at(game.u.ux, game.u.uy + 1);
         mutate(target);
-        assert.throws(
+        assert.doesNotThrow(
             () => x_monnam(target, ARTICLE_A, null, KILLER_FLAGS, true, game),
-            UnsupportedMonsterNameError,
         );
     }
 });

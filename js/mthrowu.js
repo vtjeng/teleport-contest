@@ -644,7 +644,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
         }
 
         if (mtmp.mhp > 0 /* !DEADMONSTER */ && !state.context?.mon_moving)
-            setmangry(mtmp, true, { state });
+            await setmangry(mtmp, true, { state });
 
         const objgone = await drop_throw(otmp, 1,
             state.gb.bhitpos.x, state.gb.bhitpos.y, env);

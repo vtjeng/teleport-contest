@@ -126,6 +126,7 @@ import {
     SUPPRESS_NAME,
     AUGMENT_IT,
     TAINT_AGE,
+    TEMPLE,
     thats_enough_tries,
     UNLOCKDOOR,
     WATER,
@@ -180,8 +181,11 @@ import {
     On_W_tower_level,
     surface,
 } from './dungeon.js';
-import { sengr_at } from './engrave.js';
-import { adjalign } from './attrib.js';
+import { del_engr_at, sengr_at } from './engrave.js';
+import { p_coaligned } from './priest.js';
+import { quest_info } from './questpgr.js';
+import { in_rooms } from './rooms.js';
+import { adjalign, ALIGNLIM } from './attrib.js';
 import { experience, more_experienced, newexplevel } from './exper.js';
 import { growl, maybe_gasp } from './sounds.js';
 import { game } from './gstate.js';
@@ -2823,7 +2827,7 @@ export async function qst_guardians_respond(rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
-    const qGuardian = state.mons?.[state.urole?.guardnum];
+    const qGuardian = state.mons[quest_info(MS_GUARDIAN, state)];
     let gotMad = 0;
     for (let monster = state.level?.monlist ?? null;
         monster;
@@ -2918,7 +2922,7 @@ export async function peacefuls_respond(attacked, rawEnv = {}) {
                         exclaimed = true;
                     }
                 }
-                const isLeader = monster.data === state.mons?.[state.urole?.ldrnum];
+                const isLeader = monster.data === state.mons[quest_info(MS_LEADER, state)];
                 const isOwnGuardian = attacked.data
                     === state.mons?.[state.urole?.guardnum];
                 if (monster.isshk || monster.ispriest
@@ -3002,14 +3006,15 @@ export async function wake_msg(monster, interesting, rawEnv = {}) {
     }
     if (!monster.msleeping || !seeMonster(monster, rawEnv)) return;
 
-    const alive = monster.data?.pmidx === PM_FLESH_GOLEM
+    const alive = (monster.data === state.mons?.[PM_FLESH_GOLEM]
+        || monster.data?.pmidx === PM_FLESH_GOLEM)
         ? " It's alive!" : '';
     // C uses pline_mon() here (mon.c:4325), which performs set_msg_xy, so the
     // line carries a coordinate prefix under accessiblemsg. new_were()'s
     // sibling at were.c:113 uses plain pline() and must NOT be wrapped.
     await message(
         messageAt(
-            `${distressMonnam(monster)} wakes up${interesting ? '!' : '.'}${alive}`,
+            `${Monnam(monster, state, rawEnv)} wakes up${interesting ? '!' : '.'}${alive}`,
             monster.mx,
             monster.my,
             state,
@@ -3019,54 +3024,44 @@ export async function wake_msg(monster, interesting, rawEnv = {}) {
     );
 }
 
-// The owner seam setmangry() and wakeup() share. It is not
-// requiredDistressOperation() further down, which belongs to mcalcdistress();
-// the two guard different call sets and say so, because a name one letter
-// apart from another is a misedit waiting to happen.
-function requiredMonsterReactionOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function') {
-        throw new TypeError(`setmangry()/wakeup() requires ${name}`);
-    }
-    return operation;
-}
-
-// C ref: mon.c setmangry() (4264-4318). Clears the target's wait strategy and,
-// for a peaceful monster, turns it hostile. A hostile target -- the ordinary
-// melee case -- returns at 4289-4290 with only the strategy write done.
-//
-// Two arms stop instead of porting. The Elbereth hypocrisy penalty (4267-4285)
-// needs attrib.c adjalign() and engrave.c del_engr_at(), and the peaceful arm
-// (4296-4317) needs adjalign(), sounds.c growl() and peacefuls_respond(). Both
-// keep C's full guard so that no reachable hostile case stops here.
-export function setmangry(monster, via_attack, rawEnv = {}) {
+// C ref: mon.c setmangry(). Elbereth hypocrisy is checked even when the
+// target is already hostile or tame; only the peaceful non-pet arm angers
+// the target and its witnesses. Message waits preserve the C output order.
+export async function setmangry(monster, via_attack, rawEnv = {}) {
     const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2, rnd };
+    const message = rawEnv.message ?? ttyPline;
     const { ux, uy } = state.u;
 
     if (via_attack && sengr_at('Elbereth', ux, uy, true, state)
         && (onscary(ux, uy, monster, state) || monster.mpeaceful)) {
-        requiredMonsterReactionOperation(rawEnv, 'unsupported')(
-            'attacking from an Elbereth square',
-        );
+        await message('You feel like a hypocrite.', state, rawEnv);
+        adjalign(state.u.ualign.record > 5 ? -5 : -random.rnd(5), state);
+        if (!heroIsBlind(state))
+            await message('The engraving beneath you fades.', state, rawEnv);
+        del_engr_at(ux, uy, state);
     }
 
     monster.mstrategy &= ~STRAT_WAITMASK;
-    if (!monster.mpeaceful) return;
-    if (monster.mtame) return;
-    requiredMonsterReactionOperation(rawEnv, 'unsupported')(
-        'angering a peaceful monster',
-    );
+    if (!monster.mpeaceful || monster.mtame) return;
+    monster.mpeaceful = 0;
+    adjalign(monster.ispriest ? (p_coaligned(monster, state) ? -5 : 2) : -1,
+        state);
+    if (humanoid(monster.data) || monster.isshk || monster.isgd) {
+        if (couldsee(monster.mx, monster.my, state))
+            await responseMessage(`${Monnam(monster, state, rawEnv)} gets angry!`,
+                monster, state, rawEnv);
+    } else {
+        await growl(monster, state, random);
+    }
+    if (monster.data === state.mons[quest_info(MS_LEADER, state)])
+        await qst_guardians_respond(rawEnv);
+    if (!state.context.mon_moving)
+        await peacefuls_respond(monster, rawEnv);
 }
 
-// C ref: mon.c wakeup() (4332-4363). Wakes a monster and, when the hero is the
-// cause, angers it. uhitm.c missum() and attack_checks() are its melee callers.
-//
-// Three arms stop. A mimic or disguised Wizard needs display.c seemimic()
-// (4339-4343); a target that was asleep needs sounds.c growl() (4353-4354);
-// and a peaceful priest or shopkeeper needs ghod_hitsu() or hot_pursuit()
-// (4356-4361). The last is unreachable through setmangry() above, which stops
-// on every peaceful non-pet first, so only a tame priest or shopkeeper could
-// arrive -- but the guard is C's, not a wider one.
+// C ref: mon.c wakeup(). Clear sleep, reveal hiding and finish the meal
+// before attack reactions; priest and shop reactions use the old peacefulness.
 export async function wakeup(monster, via_attack, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const was_sleeping = monster.msleeping;
@@ -3088,16 +3083,15 @@ export async function wakeup(monster, via_attack, rawEnv = {}) {
     if (via_attack) {
         const was_peaceful = monster.mpeaceful;
 
-        if (was_sleeping) {
-            requiredMonsterReactionOperation(rawEnv, 'unsupported')(
-                'growl from a woken monster',
-            );
-        }
-        setmangry(monster, true, rawEnv);
-        if (was_peaceful && (monster.ispriest || monster.isshk)) {
-            requiredMonsterReactionOperation(rawEnv, 'unsupported')(
-                'angering a peaceful priest or shopkeeper',
-            );
+        if (was_sleeping)
+            await growl(monster, state, rawEnv.random ?? { rn2 });
+        await setmangry(monster, true, rawEnv);
+        if (was_peaceful) {
+            if (monster.ispriest
+                && in_rooms(monster.mx, monster.my, TEMPLE, state).length)
+                note_unported('priest.c ghod_hitsu');
+            if (monster.isshk && !state.u.ushops?.[0])
+                note_unported('shk.c hot_pursuit');
         }
     }
 }
@@ -4040,9 +4034,9 @@ function logdeadmon(mtmp, mndx, state, env) {
 
 // C ref: mon.c anger_quest_guardians() (3072-3077). The quest guardian
 // species is the role's guardnum, not the guardian's current shape.
-export function anger_quest_guardians(mtmp, state = game, env = {}) {
+export async function anger_quest_guardians(mtmp, state = game, env = {}) {
     if (mtmp.data === state.mons?.[state.urole?.guardnum])
-        setmangry(mtmp, true, { ...env, state });
+        await setmangry(mtmp, true, { ...env, state });
 }
 
 // C ref: mon.c mondead() (3080-3177). "monster 'mtmp' has died; maybe
@@ -4858,9 +4852,21 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
 
     /* "adjust alignment points" */
     if (state.svq?.quest_status?.leader_m_id
-        && mtmp.m_id === state.svq.quest_status.leader_m_id)
-        unsupported('killing the quest leader');
-    else if (mdat.msound === MS_NEMESIS)
+        && mtmp.m_id === state.svq.quest_status.leader_m_id) {
+        adjalign(-(state.u.ualign.record + Math.trunc(ALIGNLIM(state) / 2)), state);
+        state.u.ugangr += 7;
+        change_luck(-20, state);
+        await message(`That was ${state.u.uevent.qcompleted ? 'probably ' : ''}a bad idea...`, state);
+        if (!state.context.mon_moving) {
+            // C iter_mons(anger_quest_guardians), with each callback awaited.
+            for (let guardian = state.level.monlist; guardian;) {
+                const next = guardian.nmon;
+                if (guardian.mhp >= 1 && !mon_offmap(guardian))
+                    await anger_quest_guardians(guardian, state, env);
+                guardian = next;
+            }
+        }
+    } else if (mdat.msound === MS_NEMESIS)
         unsupported('killing the quest nemesis');
     else if (mdat.msound === MS_GUARDIAN)
         unsupported('killing a quest guardian');

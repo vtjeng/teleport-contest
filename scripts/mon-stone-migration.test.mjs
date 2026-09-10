@@ -81,8 +81,8 @@ test('anger_quest_guardians selects only the role guardian species', async () =>
     });
     const other = fixture(PM_CLAY_GOLEM, { mstrategy: STRAT_WAITMASK });
 
-    anger_quest_guardians(guardian, game, env());
-    anger_quest_guardians(other, game, env());
+    await anger_quest_guardians(guardian, game, env());
+    await anger_quest_guardians(other, game, env());
 
     assert.equal(guardian.mstrategy & STRAT_WAITMASK, 0);
     assert.equal(other.mstrategy & STRAT_WAITMASK, STRAT_WAITMASK);

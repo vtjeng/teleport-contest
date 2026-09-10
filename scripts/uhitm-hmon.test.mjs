@@ -1261,13 +1261,14 @@ test('the melee arm separates every guard a recording leaves undecided',
         assert.equal(chipped.mhp, 98);
 
         // uhitm.c:1918, wakeup(mon, TRUE). The flag is mon.c wakeup()'s `msg`,
-        // and a sleeping target is the only one that reads it.
+        // and a sleeping target is the only one that reads it. growl() owns
+        // its own TTY message, so dismiss that message through the test
+        // display before checking the injected wakeup lines.
         const drowsy = target(PM_JACKAL, { msleeping: 1 });
         const woken = hitEnv({ rolls: [1, 1, 1] });
-        await refusesAsync(
-            () => hmon(drowsy, game.uwep, HMON_MELEE, 10, game, woken),
-            'growl from a woken monster',
-        );
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await hmon(drowsy, game.uwep, HMON_MELEE, 10, game, woken);
+        assert.equal(game.nhDisplay.toplines, 'The jackal growls!');
         assert.deepEqual(woken.lines,
                          ['You hit the jackal.', 'The jackal wakes up!']);
     });

@@ -16,6 +16,8 @@ import {
     CORPSTAT_MALE,
     CORPSTAT_RANDOM,
     ECMD_OK,
+    EXACT_NAME,
+    In_endgame,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
@@ -47,7 +49,9 @@ import {
     has_oname,
 } from './const.js';
 import { artifact_exists, artifact_name, exist_artifact } from './artifacts.js';
-import { flush_screen } from './display.js';
+import { flush_screen, rank_of } from './display.js';
+import { priestname } from './priest.js';
+import { shkname } from './shknam.js';
 import { fruit_from_name, makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import {
@@ -75,6 +79,7 @@ import {
     PM_ALIGNED_CLERIC,
     PM_CLERIC,
     PM_GHOST,
+    PM_SHOPKEEPER,
     PM_WIZARD_OF_YENDOR,
     SPECIAL_PM,
 } from './monsters.js';
@@ -542,8 +547,11 @@ function namingPropertyActive(state, property) {
 // Both partial spellings of x_monnam() below read it, so it is written once.
 // The article is the one in force after x_monnam()'s two adjustments at
 // do_name.c:848-859, not the one the caller passed.
-function x_monnam_do_it(monster, article, suppress, state) {
-    return !canSpotMonster(monster, state)
+function x_monnam_do_it(monster, article, suppress, state, env = {}) {
+    const spotMonster = env.canSpotMonster
+        ?? env.canSeeMonster
+        ?? canSpotMonster;
+    return !spotMonster(monster, state)
         && article !== ARTICLE_YOUR
         && !state.program_state?.gameover
         && monster !== state.u?.usteed
@@ -562,7 +570,8 @@ function x_monnam_it(suppress, monster, state, env = {}) {
     const hallucinating = namingPropertyActive(state, HALLUC)
         && !namingPropertyActive(state, HALLUC_RES);
     const displayRandom = env.displayRandom ?? rn2_on_display_rng;
-    if ((!hallucinating ? s_one : !displayRandom(2)))
+    if ((!hallucinating || (suppress & SUPPRESS_HALLUCINATION))
+        ? s_one : !displayRandom(2))
         return 'someone';
     return 'something';
 }
@@ -806,6 +815,7 @@ export function x_monnam(
     state = game,
     env = {},
 ) {
+    if (monster === state.youmonst) return 'you';
     const mdat = monster.data;
 
     let effectiveSuppress = suppress;
@@ -833,7 +843,7 @@ export function x_monnam(
         && !(effectiveSuppress & SUPPRESS_INVISIBLE);
 
     // do_name.c:876-885, above the priest and minion block C reaches next.
-    if (x_monnam_do_it(monster, effectiveArticle, effectiveSuppress, state))
+    if (x_monnam_do_it(monster, effectiveArticle, effectiveSuppress, state, env))
         return x_monnam_it(effectiveSuppress, monster, state, env);
 
     const do_saddle = !(effectiveSuppress & SUPPRESS_SADDLE);
@@ -842,12 +852,22 @@ export function x_monnam(
     const do_name = !(effectiveSuppress & SUPPRESS_NAME)
         || type_is_pname(mdat);
 
-    if (((monster.ispriest || monster.isminion || monster.isshk)
-            && !do_mappear)
-        || is_mplayer(mdat)) {
-        throw new UnsupportedMonsterNameError(
-            'x_monnam() for a priest, minion, shopkeeper, or player monster',
-        );
+    if ((monster.ispriest || monster.isminion) && !do_mappear) {
+        const resistance = state.u.uprops[HALLUC_RES] ?? {};
+        const savedResistance = resistance.extrinsic;
+        const savedInvisible = monster.minvis;
+        let name;
+        try {
+            if (!do_hallu) resistance.extrinsic = 1;
+            if (!do_invis) monster.minvis = 0;
+            name = priestname(monster, effectiveArticle,
+                (effectiveSuppress & EXACT_NAME) === EXACT_NAME, state, env);
+        } finally {
+            resistance.extrinsic = savedResistance;
+            monster.minvis = savedInvisible;
+        }
+        return effectiveArticle === ARTICLE_NONE && name.startsWith('the ')
+            ? name.slice(4) : name;
     }
 
     // do_name.c:907-910. A monster-shaped appearance replaces only the base
@@ -858,6 +878,14 @@ export function x_monnam(
         ? pmname(state.mons[monster.mappearance], gender(monster))
         : mon_pmname(monster);
     let buf = '';
+    if (monster.isshk && !do_hallu && !do_mappear) {
+        if (adjective && effectiveArticle === ARTICLE_THE)
+            return `the ${adjective} ${shkname(monster, state, env)}`;
+        buf = shkname(monster, state, env);
+        if (mdat !== state.mons[PM_SHOPKEEPER] || do_invis)
+            buf += ` the ${do_invis ? 'invisible ' : ''}${pm_name}`;
+        return buf;
+    }
 
     if (adjective) buf += `${adjective} `;
     if (do_invis) buf += 'invisible ';
@@ -891,11 +919,19 @@ export function x_monnam(
         } else if (called) {
             buf += `${pm_name} called ${givenName}`;
             name_at_start = type_is_pname(mdat);
+        } else if (is_mplayer(mdat) && / the /iu.test(givenName)) {
+            const insertion = givenName.toLowerCase().indexOf(' the ') + 5;
+            buf = givenName.slice(0, insertion) + buf + givenName.slice(insertion);
+            effectiveArticle = ARTICLE_NONE;
+            name_at_start = true;
         } else {
-            // The is_mplayer() " the " arm above this one is refused already.
             buf += givenName;
             name_at_start = true;
         }
+    } else if (is_mplayer(mdat) && !In_endgame(state.u.uz)) {
+        buf += rank_of(monster.m_lev, mdat.pmidx, monster.female, state)
+            .toLowerCase();
+        name_at_start = false;
     } else {
         buf += pm_name;
         name_at_start = type_is_pname(mdat);
@@ -1081,7 +1117,7 @@ export function bogon_is_pname(code) {
 // with monster glyph randomization and may retry excluded species. An ordinary
 // monster then draws its gender; a bogus name instead uses get_rnd_text()'s
 // byte-offset selection, which may retry when it lands in a long record.
-function rndmonnamDetails(env = {}) {
+export function rndmonnamDetails(env = {}) {
     const state = env.state ?? game;
     const random = displayRandomFunction(
         env.random ?? rn2_on_display_rng,
@@ -1112,16 +1148,10 @@ export function rndmonnam(env = {}) {
     return rndmonnamDetails(env).name;
 }
 
-// True where a_monnam() below cannot format the monster, so that a caller can
-// decide before any naming side effect -- a hallucinating hero's a_monnam()
-// draws from the display RNG -- whether it is about to reach an unported arm.
-// This is the only refusal a_monnam() makes: the titled monsters whose naming
-// arms are unported, and an M_AP_MONSTER appearance that names no species in
-// the catalogue, which x_monnam() would read past the end of mons[].
+// An invalid monster disguise has no species to name. Valid priests,
+// shopkeepers, minions and player monsters use x_monnam's source branches.
 export function a_monnam_unsupported(monster, state = game) {
-    return Boolean(monster.ispriest || monster.isminion || monster.isshk
-        || is_mplayer(monster.data)
-        || !apparent_species(monster, state));
+    return !apparent_species(monster, state);
 }
 
 // The species x_monnam() (do_name.c:908-910) names for a monster: what it
@@ -1133,59 +1163,22 @@ function apparent_species(monster, state) {
         : monster.data;
 }
 
-// C ref: do_name.c x_monnam() and a_monnam() (1152-1156).  This is the
-// ordinary, already-spotted monster path used by makemon.c's runtime creation
-// message and by hack.c moverock_core()'s monster-behind-the-boulder arm.
-// Priests, shopkeepers, player monsters, and the unseen "it" arm retain their
-// separate owners and fail closed here.
+// C ref: do_name.c a_monnam() (1152-1156), which delegates to x_monnam()
+// with ARTICLE_A.  makemon.c's runtime creation message and hack.c's
+// monster-behind-the-boulder arm therefore share every special naming branch,
+// including priests, shopkeepers and player monsters.
 export function a_monnam(monster, env = {}) {
     const state = env.state ?? game;
     if (a_monnam_unsupported(monster, state)) {
         throw new UnsupportedMonsterNameError(
-            'a_monnam() for a priest, minion, shopkeeper, player monster, '
-                + 'or invalid monster appearance',
+            'a_monnam() for an invalid monster appearance',
         );
     }
-
-    const hallucinating = namingPropertyActive(state, HALLUC)
-        && !namingPropertyActive(state, HALLUC_RES);
-    const blind = namingPropertyActive(state, BLINDED)
-        || Boolean(state.u?.uroleplay?.blind);
-    let text = '';
-    if (monster.minvis) text += 'invisible ';
-    if ((monster.misc_worn_check & W_SADDLE) && !blind && !hallucinating)
-        text += 'saddled ';
-    const hasAdjectives = text !== '';
-
-    let nameAtStart = false;
-    if (hallucinating) {
-        const randomName = rndmonnamDetails({
-            state,
-            random: env.displayRandom ?? rn2_on_display_rng,
-        });
-        text += randomName.name;
-        nameAtStart = bogon_is_pname(randomName.code);
-    } else {
-        const mdat = monster.data;
-        const species = apparent_species(monster, state);
-        const givenName = monster.mextra?.mgivenname;
-        if (givenName) {
-            // do_name.c changes pm_name for M_AP_MONSTER, but every decision
-            // about the monster's own name continues to use real mdat.
-            text += mdat === state.mons?.[PM_GHOST]
-                ? `${s_suffix(givenName)} ghost` : givenName;
-            nameAtStart = true;
-        } else {
-            text += pmname(species, gender(monster));
-            nameAtStart = type_is_pname(mdat);
-        }
-    }
-
-    let article = ARTICLE_A;
-    if (nameAtStart && !hasAdjectives) article = ARTICLE_NONE;
-    else if ((monster.data.geno & G_UNIQ) !== 0) article = ARTICLE_THE;
-    return article === ARTICLE_A ? `${just_an(text)}${text}`
-        : article === ARTICLE_THE ? `the ${text}` : text;
+    const hasGivenName = !!(monster.mextra?.mgivenname
+        || monster.mgivenname);
+    const suppress = hasGivenName ? SUPPRESS_SADDLE : 0;
+    return x_monnam(monster, ARTICLE_A, null, suppress, false,
+        state, env);
 }
 
 // C ref: do_name.c l_monnam() (1035-1039). Like mon_nam() with ARTICLE_NONE:

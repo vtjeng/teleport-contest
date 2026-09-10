@@ -2081,7 +2081,7 @@ export async function dogaze(state = game) {
                     if (await y_n(qbuf, state) !== 'y'.charCodeAt(0))
                         continue;
                 }
-                setmangry(mtmp, true, { state });
+                await setmangry(mtmp, true, { state });
                 if (helpless(mtmp) || mtmp.mstun
                     || !mtmp.mcansee || !haseyes(mtmp.data)) {
                     looked--;

@@ -676,12 +676,6 @@ export function growl_sound(mtmp) {
 // outside the print guard for the same reason: the noise happens whether or
 // not the hero perceives it.
 //
-// C also sets iflags.last_msg = PLNMSG_GROWL inside the print guard. Its only
-// C reader is mon.c setmangry() at 4244, which is unported, and a faithful
-// port of the field first needs pline() to clear it (pline.c:242, 281) so the
-// flag means "the most recent message was this growl". Both belong with
-// setmangry(); nothing here reads the value.
-//
 // `random` is the injection seam for the hallucination draw; the game passes
 // nothing and draws from the core stream.
 export async function growl(mtmp, state = game, random = { rn2 }) {

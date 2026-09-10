@@ -1845,10 +1845,9 @@ async function zap_over_floor(
             },
         });
     }
-    if (!ignoremon && m_at(x, y, state)) {
-        throw new UnsupportedZapError(
-            'wakeup() for a monster the bolt passed over',
-        );
+    if (!ignoremon) {
+        const mon = m_at(x, y, state);
+        if (mon) await wakeup(mon, type >= 0, { state, random });
     }
     return rangemod;
 }
