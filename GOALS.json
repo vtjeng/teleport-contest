@@ -20979,6 +20979,71 @@
           "remainingScreensUpperBound": 1377
         }
       ]
+    },
+    {
+      "id": "port-monmove-distfleeck",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port monmove.c distfleeck() so scared monsters preserve source fear predicates, sanctuary and light checks, and random flee duration.",
+      "cFile": "monmove.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "",
+      "detail": "",
+      "spans": [
+        {
+          "name": "distfleeck",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "distfleeck"
+          ]
+        }
+      ],
+      "openedAt": "0be9abe89395d35d0b0937f9037009947cf01d42",
+      "openStanding": {
+        "sha": "3e836f501bc0f7fdff71ba4a399f26cd2d32d9f3",
+        "screens": 5417,
+        "rng": 390119
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "distfleeck",
+          "line": 533,
+          "endLine": 573,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 533,
+        "to": 573
+      },
+      "activeStanding": {
+        "sha": "3e836f501bc0f7fdff71ba4a399f26cd2d32d9f3",
+        "screens": 5417,
+        "rng": 390119
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 576,
+          "kind": "rng",
+          "function": "distfleeck",
+          "functionDeclared": true,
+          "sourceFile": "monmove.c",
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 1377
+        }
+      ]
     }
   ]
 }
