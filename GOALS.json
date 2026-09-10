@@ -20353,6 +20353,36 @@
       "function": "check_special_room",
       "session": "seed0367-priest-quest-tour",
       "step": 284
+    },
+    {
+      "id": "div-hack-test-move-seed0030",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Fix seed0030 stop at step 537 in test_move() (hack.c)",
+      "cFile": "hack.c",
+      "sessions": [],
+      "detail": "Development session seed0030-ten-diverse-deaths, segment 3, local input step 241 (global step 537, key j): first mismatch is a stop. Fresh replay reaches hero (22,5) with direction (0,1) and target (22,6), whose C rm type is SDOOR (14), flags 4, doormask 0. The upstream branch is nethack-c/upstream/src/hack.c test_move() lines 1008-1070: SDOOR satisfies IS_OBSTRUCTED, and with ordinary hero properties and mention_walls=false the C function returns FALSE without a message, move, or RNG call. The JavaScript owner is js/hack.js preflightDomoveDestination()/blocksMove() and test_move(): blocksMove excludes SDOOR, so requireSimpleHeroDestination() throws unsupported hero move: test_move() door or special terrain movement before test_move() can return FALSE. Fresh process replay reproduces the stop.",
+      "spans": [
+        {
+          "name": "test_move",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "test_move"
+          ]
+        }
+      ],
+      "openedAt": "08b63575a7e97aa92027d99f6a58119e794e9c90",
+      "openStanding": {
+        "sha": "2c9af5b7",
+        "screens": 5339,
+        "rng": 388477
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "test_move",
+      "session": "seed0030-ten-diverse-deaths",
+      "step": 537
     }
   ]
 }
