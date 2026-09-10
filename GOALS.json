@@ -20470,7 +20470,16 @@
       ],
       "selectionReason": "The top queue annotation names downstream monmove.c distfleeck(), but the pinned call-stack and source trace identify the preceding missing muse.c speed-wand state mutation in worn.c mon_adjust_speed().",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "mon_adjust_speed",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mon_adjust_speed"
+          ]
+        }
+      ],
       "openedAt": "b6264d28f2738f40cb216ca847ccb135749279d2",
       "openStanding": {
         "sha": "2c9af5b7",
