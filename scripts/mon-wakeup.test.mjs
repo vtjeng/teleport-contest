@@ -7,9 +7,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    COULD_SEE,
     DUST,
-    IN_SIGHT,
     M_AP_NOTHING,
     M_AP_OBJECT,
     STRAT_WAITFORU,
@@ -19,7 +17,7 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { setmangry, wakeup } from '../js/mon.js';
 import { newMonster } from '../js/monst.js';
-import { PM_HUMAN, PM_LICHEN } from '../js/monsters.js';
+import { PM_LICHEN } from '../js/monsters.js';
 
 const DATETIME = '20260214031500';
 const RC = [
