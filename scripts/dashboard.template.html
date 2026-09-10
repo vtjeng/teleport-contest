@@ -29,10 +29,11 @@
   --goal-in-progress: #1baf7a;
 
   /* The progress chart plots measures, so its screens line is ink and both
-     rates share one hue and differ by dash. */
+     rates share one grey and differ by dash, so no series wears a colour
+     that means a kind or a state elsewhere on the page. */
   --progress-fill: #1a1917;
   --progress-area: rgba(26,25,23,0.07);
-  --rate: #8b5cf6;
+  --rate: #898781;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -58,7 +59,7 @@
 
     --progress-fill: #e6e4df;
     --progress-area: rgba(230,228,223,0.08);
-    --rate: #a78bfa;
+    --rate: #898781;
   }
 }
 :root[data-theme="dark"] {
@@ -83,7 +84,7 @@
 
   --progress-fill: #e6e4df;
   --progress-area: rgba(230,228,223,0.08);
-  --rate: #a78bfa;
+  --rate: #898781;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
