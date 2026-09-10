@@ -20388,6 +20388,36 @@
         "rng": 0
       },
       "parkedReason": "Fresh source review shows test_move() is a partial implementation with explicit UnsupportedHeroMoveBoundaryError seams, including the SDOOR obstacle branch. Preserve this historical divergence record; replace it with a bounded source port for the whole function."
+    },
+    {
+      "id": "port-hack-test-move",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the complete hack.c test_move() movement contract and wire its production callers",
+      "cFile": "hack.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The refreshed queue ranks hack.c first. Source review shows test_move() is partial, not a complete implementation: js/hack.js defers the IS_OBSTRUCTED terrain branches and admits SDOOR to a refusal seam before the C function can return FALSE. The bounded source port must cover the whole C function and its production admission/caller path.",
+      "detail": "Upstream nethack-c/upstream/src/hack.c test_move() lines 991-1255 contains the complete movement contract: physical obstacles including SDOOR/SCORR, closed doors, diagonal doorway rules, squeeze and worm checks, travel and trap probes, doorway exit, and boulder handling. js/hack.js test_move() and preflightDomoveDestination() currently implement only a subset and retain explicit unsupported-boundary refusals. The development session seed0030-ten-diverse-deaths reaches SDOOR at global step 537, where C returns FALSE silently while JS throws before test_move(); this is source-port evidence, not a complete-function divergence fix.",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "test_move",
+          "line": 991,
+          "endLine": 1265,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 991,
+        "to": 1265
+      }
     }
   ]
 }
