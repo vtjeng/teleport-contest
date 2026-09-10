@@ -19994,6 +19994,48 @@
         "from": 441,
         "to": 587
       }
+    },
+    {
+      "id": "port-options-confirmation-inventory-handlers",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port options confirmation and permanent-inventory handlers",
+      "cFile": "options.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [],
+      "openedAt": "581b736031e8525d5bd347cd769a813519202860",
+      "openStanding": {
+        "sha": "e3b2d51e",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "handler_paranoid_confirmation",
+          "line": 5953,
+          "endLine": 6010,
+          "ported": false
+        },
+        {
+          "name": "handler_perminv_mode",
+          "line": 6011,
+          "endLine": 6085,
+          "ported": false
+        },
+        {
+          "name": "handler_pickup_burden",
+          "line": 6086,
+          "endLine": 6113,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 5953,
+        "to": 6113
+      }
     }
   ]
 }
