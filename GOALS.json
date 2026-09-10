@@ -22491,8 +22491,8 @@
       "spans": [
         {
           "name": "thitu",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "36a7b0d194c2cf15334f22964be493361a36f82c",
           "functions": [
             "thitu"
           ]
@@ -22512,7 +22512,7 @@
           "line": 75,
           "endLine": 161,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -22540,7 +22540,55 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 692
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "thitu",
+            "implementation": "js/mthrowu.js",
+            "symbol": "thitu",
+            "sourceReview": "Read nethack-c/upstream/src/mthrowu.c thitu() lines 75-155 in full (the selected range also includes its closing source context through line 161). Checked the source order for object naming, killer-prefix selection, the single rnd(20) miss gate and mesg_given increment, hit messaging, acid resistance with monstseesu(), harmless stone missiles through passes_rocks(), potionhit() consumption, silver Hate_silver exercise, acid burn and monstunseesu(), lethal losehp(), and the trailing strength exercise. The JavaScript port now follows those branches and evaluation order, computes Hate_silver from the source macro terms, and passes monster-origin context to losehp(). Planning lethal hits reproduce losehp()'s clone HP/status writes and hand MonsterDeathPlanningError to mattacku() through monsterMissileEnv(); live hits call losehp() even when the damage is lethal. The only retained source gap is potion.c potionhit: C discards its return value, so the port records note_unported('potion.c potionhit') and leaves the consumed-object pointer handoff to its caller. Obsolete quantity-name and fatal-hit refusals were removed from this path.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "monsterMissileEnv",
+                "source": "mthrowu.c m_throw() calls thitu() at lines 716 and 742 for a hero on the missile path; this adapter supplies the production hitHero operation used by both thrwmu() and muse.c's hurled-potion caller, including the planning/live MonsterDeathPlanningError handoff."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_dart_trap",
+                "source": "trap.c trapeffect_dart_trap() calls thitu(7, ..., \"little dart\") at lines 1278-1279; the JavaScript hero dart-trap arm calls the ported thitu() before poison and floor settlement."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "launch_obj",
+                "source": "zap.c launch_obj() calls thitu(9 + singleobj->spe, ...) at lines 4207-4209; the JavaScript launched-object hero collision uses the same ported thitu() operation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-dart-trap.test.mjs",
+              "scripts/mthrowu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/goblin-throws-dagger-fresh.session.json"
+            ],
+            "checkedAt": "36a7b0d194c2cf15334f22964be493361a36f82c"
+          }
+        ],
+        "entryPointReview": "thitu() is reached in production by ordinary monster missiles through mattacku(), monsterMissileEnv(), thrwmu(), monshoot(), and m_throw(), and by the hero dart-trap and launched-object collision callers. The fresh ordinary goblin dagger recipe reaches the completed generic monster-missile hit and losehp() settlement; the existing monster-ranged settlement and announcement matrices exercise the same live chain. Focused tests cover the source hit/miss, live lethal losehp(), planning death handoff, and trap caller behavior. Potionhit remains the one named source gap because its return value is discarded by C.",
+        "entryPoints": [
+          {
+            "name": "ordinary monster missile hit and lethal settlement",
+            "functions": [
+              "thitu"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/goblin-throws-dagger-fresh.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
