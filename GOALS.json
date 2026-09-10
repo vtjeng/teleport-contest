@@ -21228,7 +21228,7 @@
     {
       "id": "divergence-end-done-shopkeeper-format",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Allow monster lethal deaths with KILLED_BY killer formats to continue through really_done",
       "cFile": "end.c",
       "sessions": [],
@@ -21250,8 +21250,11 @@
         "screens": 5423,
         "rng": 390102
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "58fee5b88d4e284fdc34bf69dc7ed322eeabee69",
+      "delivered": {
+        "screens": 51,
+        "rng": 6577
+      },
       "function": "done",
       "session": "seed0030-ten-diverse-deaths",
       "step": 582,
