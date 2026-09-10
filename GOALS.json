@@ -19743,6 +19743,73 @@
         "from": 149,
         "to": 380
       }
+    },
+    {
+      "id": "port-wintty-window-resize",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port wintty.c shutdown and resize window helpers",
+      "cFile": "wintty.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "bail..new_status_window",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "bail",
+            "winch_handler",
+            "resize_tty",
+            "newclipping",
+            "new_status_window"
+          ]
+        }
+      ],
+      "openedAt": "66366e5b280783a9b2ead4021d9533edad070aa6",
+      "openStanding": {
+        "sha": "08dd030ebefb2aa0ffb50e511fd01786f0a91684",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "bail",
+          "line": 344,
+          "endLine": 360,
+          "ported": false
+        },
+        {
+          "name": "winch_handler",
+          "line": 361,
+          "endLine": 391,
+          "ported": false
+        },
+        {
+          "name": "resize_tty",
+          "line": 392,
+          "endLine": 470,
+          "ported": false
+        },
+        {
+          "name": "newclipping",
+          "line": 471,
+          "endLine": 490,
+          "ported": false
+        },
+        {
+          "name": "new_status_window",
+          "line": 491,
+          "endLine": 510,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 344,
+        "to": 510
+      }
     }
   ]
 }
