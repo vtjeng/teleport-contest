@@ -18686,7 +18686,7 @@
     {
       "id": "port-shk-money-transfers",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port shk.c shopkeeper money and lifecycle helpers",
       "cFile": "shk.c",
       "sessions": [],
@@ -18712,8 +18712,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6286b9dfa13439841001c1e37d7fa814c53b8529",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "money2mon",
