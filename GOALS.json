@@ -18765,6 +18765,45 @@
         "from": 157,
         "to": 308
       }
+    },
+    {
+      "id": "port-shk-clear-no-charge-pets",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port shk.c pet inventory no-charge cleanup",
+      "cFile": "shk.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "clear_no_charge_pets",
+          "status": "closed",
+          "closedBy": "d61380955288c119a2ba99197886978b813972fb",
+          "functions": [
+            "clear_no_charge_pets"
+          ]
+        }
+      ],
+      "openedAt": "c50fc5e782e2aa64264284d191d8a8a2f86d2246",
+      "openStanding": {
+        "sha": "6286b9df",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "clear_no_charge_pets",
+          "line": 389,
+          "endLine": 399,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 389,
+        "to": 399
+      }
     }
   ]
 }
