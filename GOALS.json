@@ -18896,6 +18896,73 @@
         "from": 496,
         "to": 750
       }
+    },
+    {
+      "id": "port-options-perm-invent-handlers",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port options.c permanent-inventory and interactive option handlers",
+      "cFile": "options.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "can_set_perm_invent..handler_autounlock",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "can_set_perm_invent",
+            "check_perm_invent_again",
+            "handler_menustyle",
+            "handler_align_misc",
+            "handler_autounlock"
+          ]
+        }
+      ],
+      "openedAt": "4b2149be714bc587643cb01398513418fdb0b9ea",
+      "openStanding": {
+        "sha": "97030848cab965c557e5b695c3e93d485eab6bec",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "can_set_perm_invent",
+          "line": 5488,
+          "endLine": 5531,
+          "ported": false
+        },
+        {
+          "name": "check_perm_invent_again",
+          "line": 5532,
+          "endLine": 5543,
+          "ported": false
+        },
+        {
+          "name": "handler_menustyle",
+          "line": 5544,
+          "endLine": 5585,
+          "ported": false
+        },
+        {
+          "name": "handler_align_misc",
+          "line": 5586,
+          "endLine": 5623,
+          "ported": false
+        },
+        {
+          "name": "handler_autounlock",
+          "line": 5624,
+          "endLine": 5674,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 5488,
+        "to": 5674
+      }
     }
   ]
 }
