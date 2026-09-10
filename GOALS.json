@@ -18811,7 +18811,7 @@
     {
       "id": "port-shk-robbery-helpers",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port shk.c shop robbery and departure helpers",
       "cFile": "shk.c",
       "sessions": [],
@@ -18837,8 +18837,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "97030848cab965c557e5b695c3e93d485eab6bec",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "addupbill",
