@@ -22355,7 +22355,16 @@
       ],
       "selectionReason": "The highest-ranked development mismatch is seed0030-ten-diverse-deaths at global step 1198: an ordinary monster enters a MAGIC_TRAP and JavaScript refuses before C's rn2(21) gate. Select the exact source owner; the span must also port return-valued trapeffect_fire_trap() and burnarmor() dependencies from trap.c because C invokes them on the zero-roll branch.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "trapeffect_magic_trap",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "trapeffect_magic_trap"
+          ]
+        }
+      ],
       "openedAt": "8cf6ff96923a33764cef661a752320e3387f800c",
       "openStanding": {
         "sha": "733d3df44d8ffb4931f26768d565a78017356ea5",
