@@ -168,6 +168,7 @@ import {
 import { dochugw } from './monmove.js';
 import {
     dealloc_monst,
+    mon_animal_list,
     pickvampshape,
     validspecmon,
     wiz_force_cham_form,
@@ -2982,14 +2983,13 @@ function isPlaceholderForm(mndx) {
 }
 
 function pick_animal(normalized) {
-    const animals = [];
-    for (let mndx = LOW_PM; mndx < SPECIAL_PM; ++mndx) {
-        if (normalized.state.mons[mndx].mflags1 & M1_ANIMAL)
-            animals.push(mndx);
-    }
-    if (!animals.length)
+    const { state } = normalized;
+    if (!state.ga?.animal_list) mon_animal_list(true, state);
+    if (!state.ga?.animal_list_count)
         throw new Error('pick_animal requires at least one animal form');
-    return animals[normalized.random.rn2(animals.length)];
+    return state.ga.animal_list[
+        normalized.random.rn2(state.ga.animal_list_count)
+    ];
 }
 
 // C ref: topten.c tt_doppel(). Picks a random role monster for a

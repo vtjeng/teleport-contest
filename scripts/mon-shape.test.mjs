@@ -7,6 +7,7 @@ import {
     alloc_itermonarr,
     get_iter_mons_xy,
     iter_mons,
+    mon_animal_list,
     normal_shape,
     pickvampshape,
     restartcham,
@@ -133,6 +134,39 @@ test('alloc_itermonarr accepts C release and growth requests', () => {
     alloc_itermonarr(64);
     alloc_itermonarr(0);
     alloc_itermonarr(1);
+});
+
+// C ref: mon.c mon_animal_list() (4829-4854). This helper does not consume
+// randomness or write output; pin its state mutation and both memory-lifecycle
+// branches against the source's LOW_PM/SPECIAL_PM bounds.
+test('mon_animal_list caches only in-range animal forms and releases them', () => {
+    const animalFlag = 0x00040000; // monflag.h:103, M1_ANIMAL.
+    const lowPm = 0; // monsters.h: LOW_PM.
+    const lastSpecialForm = 329; // SPECIAL_PM - 1; SPECIAL_PM is 330.
+    const excludedSpecialForm = 330; // SPECIAL_PM; the C loop excludes it.
+    const state = {
+        mons: Array.from({ length: excludedSpecialForm + 1 }, () => ({
+            mflags1: 0,
+        })),
+    };
+    state.mons[lowPm].mflags1 = animalFlag;
+    state.mons[lastSpecialForm].mflags1 = animalFlag;
+    state.mons[excludedSpecialForm].mflags1 = animalFlag;
+
+    mon_animal_list(true, state);
+    assert.deepEqual(state.ga.animal_list, [lowPm, lastSpecialForm]);
+    assert.equal(state.ga.animal_list_count, 2);
+
+    const cachedList = state.ga.animal_list;
+    mon_animal_list(false, state);
+    assert.equal(state.ga.animal_list, null);
+    assert.equal(state.ga.animal_list_count, 0);
+    assert.notEqual(cachedList, state.ga.animal_list);
+
+    const uninitialized = { mons: state.mons, ga: {} };
+    mon_animal_list(false, uninitialized);
+    assert.equal(uninitialized.ga.animal_list, null);
+    assert.equal(uninitialized.ga.animal_list_count, 0);
 });
 
 // mon.c:4941-4970, source-pinned vampire branches. The injected sequence

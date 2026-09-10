@@ -1,6 +1,7 @@
 // mon.js -- Runtime monster turn state, and the removal lifecycle a monster
 // runs when the hero kills it.
-// C refs: mon.c movemon(), movemon_singlemon(), hideunder(), mcalcmove(),
+// C refs: mon.c movemon(), movemon_singlemon(), hideunder(),
+// mon_animal_list(), mcalcmove(),
 // mpickstuff(), curr_mon_load(), max_mon_load(), m_consume_obj(),
 // pet_sanity_check(), sanity_check_single_mon(), mon_sanity_check(),
 // m_poisongas_ok(), genus(), monlineu(), mm_2way_aggression(),
@@ -252,6 +253,7 @@ import {
     is_floater,
     is_flyer,
     is_hider,
+    is_animal,
     is_human,
     is_dwarf,
     is_elf,
@@ -480,6 +482,7 @@ import {
     LOW_PM,
     MR_STONE,
     MZ_TINY,
+    SPECIAL_PM,
 } from './monsters.js';
 import {
     accessible,
@@ -5275,6 +5278,27 @@ export function hideunder(monster, env = {}) {
     monster.mundetected = undetected ? 1 : 0;
     if (undetected !== oldundetctd) (env.redraw ?? newsym)(x, y);
     return undetected;
+}
+
+// C ref: mon.c mon_animal_list() (4829-4854). The C helper owns a cached
+// array of polymorphable animal species in ga; JavaScript uses an array in the
+// owning game's state and lets garbage collection replace free().
+export function mon_animal_list(construct, state = game) {
+    state.ga ??= {};
+
+    if (construct) {
+        const animalList = [];
+        for (let mndx = LOW_PM; mndx < SPECIAL_PM; ++mndx) {
+            if (is_animal(state.mons[mndx])) animalList.push(mndx);
+        }
+        state.ga.animal_list = animalList;
+        state.ga.animal_list_count = animalList.length;
+    } else {
+        // decl.c initializes this UNDEFINED_PTR field to NULL before the
+        // first release, so keep an explicit null-equivalent in JS too.
+        state.ga.animal_list = null;
+        state.ga.animal_list_count = 0;
+    }
 }
 
 // C ref: mon.c maybe_unhide_at() (4696-4720), "reveal a hiding monster at x,y,
