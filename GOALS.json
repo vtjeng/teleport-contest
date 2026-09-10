@@ -20589,6 +20589,71 @@
         "rng": 390072
       },
       "parkedReason": "mon_adjust_speed span closed with source/caller/recording evidence; no additional holdout evaluation is authorized, so retain the goal for later closure."
+    },
+    {
+      "id": "port-shk-u-entered-shop",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the complete shk.c u_entered_shop() shop-entry transition and wire its production caller so empty and untended shops, customer reset, greetings, invisibility, anger, debt and robbery states, and pick or steed blocking follow C.",
+      "cFile": "shk.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "Fresh mismatch queue ranks shk.c:u_entered_shop() first at seed0030 step 573 (upper bound 1380); source review finds js/shk.js u_entered_shop() covers only the generated peaceful visible shopkeeper greeting and assert_shop_entry_supported() refuses the remaining source branches before rooms.js can complete the transition.",
+      "detail": "Upstream shk.c:u_entered_shop() spans lines 751-917. The current js/shk.js function covers only a generated, present, peaceful visible shopkeeper greeting and returns through assert_shop_entry_supported(), whose refusal wall excludes empty or absent keepers, untended shops, muted or following keepers, invisibility, anger, surcharge, robbery, unsupported room types, and the post-greeting outside-shop pick, mattock, steed, and FAST-floor branches. js/rooms.js:247 is the production caller. Port the whole C function in source order and remove the placeholder boundary; port effectful callees needed by admitted branches, while recording only genuinely discarded return values as gaps.",
+      "spans": [
+        {
+          "name": "u_entered_shop",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "u_entered_shop"
+          ]
+        }
+      ],
+      "openedAt": "bc04876756f015d354ba353f890575d81423f61b",
+      "openStanding": {
+        "sha": "05d9c401c0eb1f61a5c75ff854e1e78952e52a4b",
+        "screens": 5414,
+        "rng": 390072
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "u_entered_shop",
+          "line": 751,
+          "endLine": 920,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 751,
+        "to": 920
+      },
+      "activeStanding": {
+        "sha": "05d9c401c0eb1f61a5c75ff854e1e78952e52a4b",
+        "screens": 5414,
+        "rng": 390072
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 573,
+          "kind": "stop",
+          "function": "u_entered_shop",
+          "functionDeclared": true,
+          "sourceFile": "shk.c",
+          "cFile": "shk.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: u_entered_shop() arriving outside the shop interior",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 1380
+        }
+      ]
     }
   ]
 }
