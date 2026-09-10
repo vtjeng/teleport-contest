@@ -7,6 +7,7 @@
 
 import { game } from './gstate.js';
 import { note_unported } from './unported.js';
+import { NUM_TIME_FUNCS } from './const.js';
 
 // C ref: nhlua.c nhcore_call_names[]. The JS port has no Lua VM; a supplied
 // `state.gl.luacore` is therefore only the text-backed boundary object used
@@ -103,6 +104,77 @@ export function nhl_init(random) {
         ];
     }
     return alignments;
+}
+
+// C ref: nhlua.c nhl_get_timertype(). Lua callback arguments are represented
+// by an array in the JS port, so this keeps Lua's one-based and negative stack
+// indices at the boundary rather than changing the caller's argument shape.
+const TIMER_NAMES = Object.freeze([
+    'rot-organic', 'rot-corpse', 'revive-mon', 'zombify-mon',
+    'burn-obj', 'hatch-egg', 'fig-transform', 'shrink-glob',
+    'melt-ice',
+]);
+
+function luaStackValue(args, index) {
+    if (!Array.isArray(args) || !Number.isInteger(index) || index === 0)
+        return undefined;
+    const position = index > 0 ? index - 1 : args.length + index;
+    return args[position];
+}
+
+export function nhl_get_timertype(args, index) {
+    const ret = luaL_checkoption(
+        luaStackValue(args, index), null, TIMER_NAMES,
+    );
+    if (ret < 0 || ret >= NUM_TIME_FUNCS)
+        nhl_error(null, 'Unknown timer type');
+    return ret;
+}
+
+// The C helpers call lua_rawset() on the table at stack index -3. In the
+// text-backed JS boundary that table is passed directly; assigning null or
+// undefined models Lua's rawset(nil), which removes the field.
+function rawSetTableEntry(table, name, value) {
+    if (!isLuaTable(table))
+        throw new Error(`table expected, got ${luaL_typename(table)}`);
+    if (value == null) delete table[name];
+    else table[name] = value;
+}
+
+// C ref: nhlua.c nhl_add_table_entry_int(). The C helper is void, so this
+// mutates the represented table without returning it for chaining.
+export function nhl_add_table_entry_int(table, name, value) {
+    rawSetTableEntry(table, name, value);
+}
+
+// C ref: nhlua.c nhl_add_table_entry_char(). A JS caller may already hold a
+// one-character string for a C char; numeric values retain C's %c behavior.
+export function nhl_add_table_entry_char(table, name, value) {
+    const character = typeof value === 'string'
+        ? value.slice(0, 1)
+        : String.fromCharCode(value);
+    rawSetTableEntry(table, name, character);
+}
+
+// C ref: nhlua.c nhl_add_table_entry_str().
+export function nhl_add_table_entry_str(table, name, value) {
+    rawSetTableEntry(table, name, value);
+}
+
+// C ref: nhlua.c nhl_add_table_entry_bool().
+export function nhl_add_table_entry_bool(table, name, value) {
+    rawSetTableEntry(table, name, Boolean(value));
+}
+
+// C ref: nhlua.c nhl_add_table_entry_region(). The nested table is built by
+// the integer helper in the same source order before it is assigned.
+export function nhl_add_table_entry_region(table, name, x1, y1, x2, y2) {
+    const region = {};
+    nhl_add_table_entry_int(region, 'x1', x1);
+    nhl_add_table_entry_int(region, 'y1', y1);
+    nhl_add_table_entry_int(region, 'x2', x2);
+    nhl_add_table_entry_int(region, 'y2', y2);
+    rawSetTableEntry(table, name, region);
 }
 
 // C ref: nhlua.c's table accessors. A des.* call receives its Lua table as a
