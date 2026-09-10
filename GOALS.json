@@ -20059,7 +20059,18 @@
       "cFile": "nhlua.c",
       "sessions": [],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "l_nhcore_done..nhl_error",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "l_nhcore_done",
+            "l_nhcore_call",
+            "nhl_error"
+          ]
+        }
+      ],
       "openedAt": "2729cc2902e8c5bb903d0f2efd38b16de5d08ec0",
       "openStanding": {
         "sha": "8161b07b",
