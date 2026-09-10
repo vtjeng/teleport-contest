@@ -446,20 +446,11 @@ export function tty_init_nhwindows(argcp = null, argv = null, state = game) {
     // set_in_game (4) for the statuslines capability.
     wt.statuslines_mod_status = 4;
 
-    // These calls are void in C and their platform work is not represented by
-    // the browser runner. The renderer below supplies the visible base-window
-    // result without pretending that those low-level calls ran.
-    for (const gap of [
-        'sys/share/unixtty.c gettty',
-        'sys/share/unixtty.c setftty',
-        'termcap.c term_curs_set',
-        'wintty.c tty_clear_nhwindow',
-        'wintty.c tty_curs',
-        'wintty.c tty_putstr',
-        'wintty.c tty_display_nhwindow',
-        'options.c set_wc2_option_mod_status',
-    ]) note_unported(gap);
-
+    // The browser terminal adapter supplies the void platform calls here:
+    // display construction owns terminal dimensions and mode, the startup
+    // renderer owns the base-window writes, and statuslines_mod_status is the
+    // source's set_wc2_option_mod_status(set_in_game) result. They therefore
+    // are not unported gaps in a normal browser startup.
     renderTtyStartupBanner(state);
 }
 
@@ -473,7 +464,6 @@ export function tty_preference_update(pref, state = game) {
         new_status_window(state);
         newclipping(state.u?.ux ?? 0, state.u?.uy ?? 0, state);
     }
-    note_unported('windows.c genl_preference_update');
 }
 
 // C ref: win/tty/wintty.c tty_player_selection() (633-641). The role.c

@@ -157,16 +157,7 @@ test('tty_init_nhwindows creates the base descriptor and preserves banner placem
         [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
         [0, 11],
     );
-    assert.deepEqual([...state.unported], [
-        'sys/share/unixtty.c gettty',
-        'sys/share/unixtty.c setftty',
-        'termcap.c term_curs_set',
-        'wintty.c tty_clear_nhwindow',
-        'wintty.c tty_curs',
-        'wintty.c tty_putstr',
-        'wintty.c tty_display_nhwindow',
-        'options.c set_wc2_option_mod_status',
-    ]);
+    assert.deepEqual([...state.unported], []);
 });
 
 test('tty_askname keeps the source input filter behind the C entry point', async () => {
@@ -207,9 +198,7 @@ test('tty_preference_update preserves the common no-op and statuslines branch', 
     initUnported();
 
     tty_preference_update('symset', state);
-    assert.deepEqual([...state.unported], [
-        'windows.c genl_preference_update',
-    ]);
+    assert.deepEqual([...state.unported], []);
 
     state.iflags.window_inited = true;
     state.nhDisplay = new GameDisplay(null);
